@@ -118,3 +118,21 @@
 .v1353-books-banner{border-left:3px solid #e8b846;padding:.6rem .9rem;background:rgba(228,180,56,.09)}
 @media(max-width:680px){.v1353-book-pricing,.v1353-book-pricing fieldset{grid-template-columns:1fr;}}
 
+
+/* v0.14.0.2 — first-class Account Management navigation / accessible flat sidebar. */
+.admin-sidebar{max-height:100vh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#5d7d95 #071827;}
+#admin-tabs .v13-admin-group{display:grid;gap:4px;align-content:start;min-width:0}
+#admin-tabs .v13-admin-group>button{display:block;width:100%;min-height:40px;white-space:normal;text-align:left}
+#admin-tabs .v13-admin-group [data-v1352-menu],#admin-tabs>[data-v1352-menu]{font-weight:800;border:1px solid #c7a85e;background:#1c3a4b;color:#ffe5a0}
+#admin-tabs .v13-admin-group [data-v1352-menu]:focus-visible,#admin-tabs [data-ac55-view]:focus-visible{outline:3px solid #f1cb73;outline-offset:2px}
+#admin-tabs [data-ac55-view]{white-space:normal;overflow-wrap:anywhere;display:block}
+.v1352-dialog{width:min(1100px,calc(100vw - 24px));max-height:92vh;}
+.v1353-account-editor > section{padding:1rem;border:1px solid rgba(140,168,184,.35);border-radius:12px;min-width:0;}
+.v1353-account-editor > section h3{margin:0 0 .6rem}
+.v1353-account-editor .v1353-jump{display:flex;flex-wrap:wrap;gap:.65rem;margin:.5rem 0;}
+.v1353-account-editor input[readonly]{opacity:.82;cursor:default}
+.v1353-account-editor .v1353-danger{border-color:#b86e65}
+.v1353-account-editor .v1353-info{background:#0e344b;padding:.65rem;border-radius:7px;line-height:1.5}
+@media(max-width:900px){.admin-sidebar{max-height:46vh!important;overflow-y:auto!important;}.admin-sidebar #admin-tabs{max-height:34vh;overflow-y:auto!important;flex-wrap:wrap!important}.admin-sidebar .v13-admin-group{display:contents!important}}
+
+#admin-tabs [data-v142-create]{font-weight:750;color:#fff2c1;border:1px solid #725b35;background:#15344b}

@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.1",
-  "status": "SECURITY PREVIEW CANDIDATE - additive forum direct-RPC write restrictions, reviewed book assessment authorization, membership checkout reactivation guard; not live verified or production accepted.",
+  "version": "0.14.0.2",
+  "status": "ACCOUNT MANAGEMENT REPAIR PREVIEW CANDIDATE - direct visible navigation and complete Owner account editor; database compatibility migration required; not live verified or production accepted.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {
@@ -111,5 +111,13 @@
     "latest_local_source_parent": "v0.13.5.7.5 release ZIP; GitHub current main is v0.13.5.7.4",
     "frontend_image_assets": "30 distinctive labeled decorative SVG skill icons, 6 administration category illustrations, not historical market charts or verified data."
   },
-  "consolidation_release": "v0.13.5.7.2"
+  "consolidation_release": "v0.13.5.7.2",
+  "v0_14_0_2": {
+    "purpose": "Restore Account Management as first-class visible Admin Control Center navigation and provide full account editor",
+    "status": "source completed; live staging and role-based integration acceptance pending",
+    "reviewed_at": "2026-10-13",
+    "database_migration": "supabase/migrations/v0.14.0.2_owner_account_identity_override.sql",
+    "authorization": "Owner-only server-side writes; Showcase synthetic-only and read-only; production Auth passwords unrecoverable",
+    "approved_preservation": "Existing forum security, memberships, KDP book curricula, private Lab seeds, publishing safeguards, and GWS draft project controls remain unchanged."
+  }
 }

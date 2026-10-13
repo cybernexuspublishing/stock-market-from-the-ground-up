@@ -223,7 +223,7 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.1');
+        el.setAttribute('data-build','v0.14.0.2');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
