@@ -145,3 +145,9 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
 /* Market Commons: bounded, explicit pagination; no fabricated total forum counts. */
 .v13575-forum-pages{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;margin:15px 0 25px}
 .v13575-forum-pages span{color:#d5e5f0;font-weight:650}
+
+/* Market Commons: graphic category marker without replacing the forum's real content. */
+.v132-category-head h2{display:flex;align-items:center;gap:.5rem}
+.commons-category-illustration{flex:none;width:40px;height:40px;border:1px solid #375a74;border-radius:8px}
+.v13575-forum-pages{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;justify-content:flex-start;margin:1rem 0}
+.v13575-forum-pages span{color:#d4e2ea}

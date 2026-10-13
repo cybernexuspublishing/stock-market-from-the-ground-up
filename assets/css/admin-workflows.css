@@ -1,0 +1,22 @@
+/* Single owner/admin workflow directory; no privilege decisions performed in CSS/JS. */
+#cc-directory-panel{min-width:0}
+.cc-directory-filter{display:grid;gap:.4rem;max-width:680px;margin:1.4rem 0 1rem;font-weight:750}
+.cc-directory-filter input{width:100%;padding:.8rem .9rem;border-radius:9px;background:#0a2438;color:#fff;border:1px solid #55758e;font-size:1rem}
+.cc-directory-groups{display:grid;gap:1.2rem}
+.cc-directory-group{border:1px solid #355b77;border-radius:13px;overflow:hidden;background:#071d2e}
+.cc-directory-group>header{display:flex;align-items:center;gap:.9rem;padding:.8rem 1rem;background:#11324b;flex-wrap:wrap}
+.cc-directory-group>header img{width:54px;height:54px;border-radius:9px}
+.cc-directory-group>header h2{font-size:1.22rem;margin:0;flex:1;min-width:170px}
+.cc-directory-group>header span{font-size:.8rem;color:#bfd1df}
+.cc-directory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.65rem;padding:.85rem}
+.cc-directory-card{display:flex;text-align:left;align-items:flex-start;gap:.5rem;background:#0b2a42;border:1px solid #365c78;border-radius:10px;color:#edf5ff;padding:.85rem;cursor:pointer;font:inherit;min-width:0}
+.cc-directory-card:hover,.cc-directory-card:focus-visible{border-color:#f0c461;background:#123a53;outline:2px solid #f0c461;outline-offset:1px}
+.cc-directory-card-body{flex:1;min-width:0;display:grid;gap:.38rem}
+.cc-directory-card-body strong{font-weight:850;color:#fff}
+.cc-directory-card-body>span{font-size:.84rem;line-height:1.42;color:#b8d0e0}
+.cc-directory-card-body small{font-size:.75rem;color:#eccd76}
+.cc-directory-arrow{color:#eccd76;font-weight:900}
+.cc-directory-card[hidden],.cc-directory-group[hidden]{display:none!important}
+.cc-directory-disclosure{max-width:950px;color:#bad0de;font-size:.88rem;margin:1.4rem 0}
+#cc-directory-status{color:#f6ce78}
+@media(max-width:600px){.cc-directory-grid{grid-template-columns:1fr}}

@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.13.5.7.5",
-  "status": "Candidate: administrative navigation, Dashboard tab accessibility, Market Commons pagination, fail-closed checkout; source/mock QA only; live preview required.",
+  "version": "0.13.5.7.6",
+  "status": "Candidate: visual 30-skill library, Owner/Admin workflow directory, live page editor preview, Market Commons bounded reply pages. Verified locally, not deployed; backend promises tracked separately.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {
@@ -106,7 +106,10 @@
       "compatibility_replacement": "sw-v0131.js (safe importScripts shim to /sw.js, not original 2019-style cache script)",
       "details_path": "docs/BRANCH_RECONCILIATION_AND_COMPLETENESS.md",
       "warning": "This is a code/branch ancestry and static integrity review, not live Supabase/Cloudflare/provider certification."
-    }
+    },
+    "latest_github_reviewed_main_sha": "16e351186032ce601d6dc9d0ddd07960b4990590",
+    "latest_local_source_parent": "v0.13.5.7.5 release ZIP; GitHub current main is v0.13.5.7.4",
+    "frontend_image_assets": "30 distinctive labeled decorative SVG skill icons, 6 administration category illustrations, not historical market charts or verified data."
   },
   "consolidation_release": "v0.13.5.7.2"
 }

@@ -1,341 +1,388 @@
-path,category,bytes,sha256,source_scan,production_qa
-.gitignore,Other site asset/config,203,22067017cc91de50e52f1e1cfb193d172e03ca4efb012189ebaa116ee5ad0ab5,Source enumerated; no live integration test,Not comprehensively production-tested
-404.html,HTML page,1881,81c19f91f29f35ff07245caf5715a121dd1cd57c62bb26ba5d9ebad3044522ff,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-PROJECT_ADVANCED_ENGINEERING_RULES.md,Other site asset/config,17813,97561b5659522b242164d48ac8ca33810fb156f3ed96b0c80872bc7cf5c53c76,Source enumerated; no live integration test,Not comprehensively production-tested
-PROJECT_MANIFEST.json,JSON data/config,7203,c6bfe1b58a06c91774c8966049e9f76db26dcfe2b2c27048e40511936ab75715,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-README.md,Other site asset/config,2023,3f58cfbc31abd4f344bebbf9e5b779fba7bea894a41aca16e734ad8da2ecac13,Source enumerated; no live integration test,Not comprehensively production-tested
-_headers,Other site asset/config,470,9dfa88c9557a7db463a18c4df077c6e69d8e88ddfe1fe57512834a94a604c40c,Source enumerated; no live integration test,Not comprehensively production-tested
-_redirects,Other site asset/config,4816,cbc89818bd30ef1387e2aaa2754687c913849bfd4eb2982e7c89b5fcc2ffb38c,Source enumerated; no live integration test,Not comprehensively production-tested
-about.html,HTML page,5807,5e628361d04a10a1e93bb95794db9687f8e53465a286e0a8808aeb32179cc1aa,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-access.html,HTML page,1859,0947057ae0b8f1295a8c46d459db899e802b9fe80876c4a75aa9ff9cddecdf80,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-accessibility.html,HTML page,543,b23533294b1aff8f10bc88c97c536efae8bcb3b75b003b95b619731cfa644663,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-account-status.html,HTML page,679,2d694c81011a9e17088431b812fa4389502d50bfa9d681262ee129b398e5f215,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-account.html,HTML page,2818,2736be8d6f64875891f72733fe56ca54d373b90b4e4d3460f4c334faf0214313,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-activate-book.html,HTML page,2014,fdb37977b17494fbcb5e571ea2d1a7ea964037d6644493399ac18e24bc3eabaa,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-admin-lab-preview.html,HTML page,1470,666327c7982c93dd07eedb78d1af551d0b8774ad3b77a6f7b8f4e9f20eb8759e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-admin-operations.html,HTML page,2111,ca658ae956129e1d7bd4550177e9bdd3c0a2011413d322a7db7b8e9d941fba06,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-admin.html,HTML page,8537,df8a37a143956889e2a74a720b72449b4069747a17de20c1cb8954d429d5027c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-advanced-tool.html,HTML page,1409,b5bc35a25495830eb2151af711d6f9ecf1747e8fe07c7ef26b97902109481e0c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-advertise.html,HTML page,2745,c0dc52c4bf6f8d8e3ca7d9ae0855a5378b517845584f363b5007bfb42321fc42,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-advertising-disclosure.html,HTML page,541,fe747d1b7e256206b9470c3c062feb5b67b3a86d3c86e12d35bb70171204ed7a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assessments.html,HTML page,1563,eea2572434017bb8434de00903fecf699c6337499727937fb08a0cc535b7e67b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/accounts-and-lab-preview.css,CSS stylesheet,3390,c87e968733ea764bbc5a509e21ba517bbf0503cb617941f80cc3d56038dbddc2,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/admin-operations-center.css,CSS stylesheet,4160,16e83e11d6b27d33716003fe18d948698ef0c378fb9b9b963f38972f33fa2346,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/admin-operations.css,CSS stylesheet,10774,58b01c2be2ae1b1fc5ae9cfc8a18dff45717cb62b8585edf34c9d565ae22259f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/admin-platform.css,CSS stylesheet,6756,793c403268763b6f78c36e9004dcf52b5263a8c2fda987156c55c54d0ff2c1c8,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/commerce-tutor.css,CSS stylesheet,3539,1654c5820a3e2ef0708825765a97f95a37a9505df00f574aa7c458ce0a11d709,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/control-center.css,CSS stylesheet,11415,2d9fda9148d526598b8edbbab2dae1b4b63df780f86216c6dce64214fa1de899,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/dashboard.css,CSS stylesheet,10050,ec2886421a6b876bd5ba28f58b662ba81b2780b579d48de27a954e1f2161b164,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/frontend-complete.css,CSS stylesheet,23630,8f45d432cfe36de48a68eb4e07b2d1b3deb46cb9d0382ea19136620c2ebb9e8a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/frontend-freeze.css,CSS stylesheet,11254,7b897fd846a3749dc657d188110327ec234cad52d9d372a78fffc63b2f7054f3,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/journal.css,CSS stylesheet,4700,ed9ebdfca37cbc25b6643406f78e22bb8d685a955d4b28f39e9fe2373cc5737b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/layout-integrity.css,CSS stylesheet,10038,57563bd730873529fb92f1208c0775a8989c956407745c02dfbab01e47b02f2a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/learning.css,CSS stylesheet,5071,b27113d8fa59121ec714531676f7f84e6d758fca8970f76f1c9eaa2c6c470deb,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/mobile-auth.css,CSS stylesheet,6490,66434540b761b629725ffb0092ee4c41368c47d500145cea0e576d0419d253c4,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/platform.css,CSS stylesheet,18428,cb3a3897a7f549e51acdfd5765b1d70756f678718d30ef2e6edae1d2226b8477,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/polish.css,CSS stylesheet,7695,cec09cb06a7ba5e48e8ee4a7f171bb824f1557b94a68dbaad87ef481bb715c1a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/production-completion.css,CSS stylesheet,13567,07f4146634bdb331f09ae4875314e7194ba9ad8af9acaa01e988bc945bc99886,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/production.css,CSS stylesheet,9381,87ea85700317064c0bdb9320ac119cb62f6f9dd11791eeaa777195e9910d4fd9,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/replay-plan.css,CSS stylesheet,1032,f04bc140fa14fb97c580d4672e9e6467ab7efc83f8f3de9ce788d82bcc7327a6,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/simulator.css,CSS stylesheet,2251,ce19833152c591da7306453ca4c48cba056e0881525ac6bc373f7b873433a63e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/css/styles.css,CSS stylesheet,23550,c62252a94247b8c213292ab3a4dfff09ddb1055ba27c60534bef2b4614290e94,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/images/books/day-trading-book-1.webp,Other site asset/config,26832,d684426e02d3f2134df890eeb97758f9d3280c56d9126d1d2c30d8f9b441de4f,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/images/books/foundation-book-1.webp,Other site asset/config,193336,37ff70a4836a78fb5ef9ba80f0076640b4d926b1605bb93080885a3c9778e921,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/images/books/foundation-book-2.webp,Other site asset/config,173544,fdfa3c023d8c15adc9b6a45ce6819ddd6656e604969b199bd0d8c8b800da3847,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/images/books/foundation-book-3.webp,Other site asset/config,172528,530df5d24fc33e99ad2b39d90d8cdbb300f9da4770b4e526ae2ee4abeff1edb4,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/images/books/reading-the-tape.webp,Other site asset/config,75436,7739b257a6f65d6cc98e3481de3a19110ba485e87a404753701ad942e5cf4054,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/img/book1.jpg,Other site asset/config,1189049,0c21dccbc3c05d88af98909b6b8959e48b976d03e88689237e8a602a0119669e,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/img/book2.jpg,Other site asset/config,1104318,82135ce4ca9ecfc85ab0bc2692ecd3e273fb62e9b8fef08e970db74e5f30230b,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/img/book3.jpg,Other site asset/config,1106839,c0110f64693c0e6e90af68d31560b87a915e3f7682413ef547e8aa674819a608,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/js/access-platform.js,JavaScript/Node,3556,f1088acb282f2e5f97a8eb5d97b25fc24435f7da0468a1aa0b8644616245a609,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/access.js,JavaScript/Node,1515,016df5382a4f918373d037dc5dbfd2cd043e16e584daacd9af94ce0be7c6c957,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/accounts-access.js,JavaScript/Node,18319,56c9f826260dc6580afbd8a598e5da6dffd4ede12b8acfb3ca607ff5c7ccc254,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-community.js,JavaScript/Node,4460,52c11cf2ac5d3071e3e198d23c43537ab602fc46d14fee80d1ddef70b2780a0e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-core.js,JavaScript/Node,30133,4d9d769c84ae2d6c506c8ac94ee53e158a7541ea0dff0c5836b15b646ba9808a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-enhancements.js,JavaScript/Node,11712,1ba253b3fafe20113ccea00b5ccf6cd7d06bf167a13006bf897888ced4c89316,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-legacy-routing.js,JavaScript/Node,17606,43e11994dad46bf55d78a30c41999978f6c6de2ceb9377b75c98632b40825d2c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-operations-center.js,JavaScript/Node,16176,12cc48a8710d8303daaf74d77096a1c025117f31e47e294801f3ad6f43838207,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-operations-compat.js,JavaScript/Node,5982,a87344e19b073d1b49d13663b83c8286284b88233864eef399e63b8532572e39,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-operations.js,JavaScript/Node,53228,2a7da124ee3e3d689dc3e2ec8d78db2a3bf2ce5dca4aa82c3ab0f95e492d7366,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-platform.js,JavaScript/Node,34108,847ce8e90126ca2de1176a3d2e2ac3814220b99e5c28423c511be70b04714e8a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin-showcase.js,JavaScript/Node,2524,250b8dfd310c0bb56bda2f2fc502ca3e027a58956a8b21183d321a846328f29a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/admin.js,JavaScript/Node,37040,dac0f9f19a5164ac0d4ecd10acd1262dd63d4a06c0670e54093a50b2ab393ef5,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/advanced-tools.js,JavaScript/Node,32165,59d834c4e7f431d5e707593b02c8873d01539d0f0a044ce49a1edbfd1e6944b1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/assessments.js,JavaScript/Node,3387,84658946b59007119fda9e22d92563825e1e6e8f6403acb39bdc2e6df1c116b7,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/auth-boundary.js,JavaScript/Node,3066,276cf74acf4085c5fd784ee7c3dfe6a6af558110c97121c3db5d3212cd9f07ab,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/auth.js,JavaScript/Node,3553,40fd82c67a9ba3a8b91639e5b169525d196571afefedcbe3eb79ae8aec3795c8,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/book-activation.js,JavaScript/Node,3766,4ee93b70295fe066fb7903a1666dc2f38a26220c25386fcca0f7e045415ccb48,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/book-preview.js,JavaScript/Node,4620,f8ae225339d32bb663d13ea181929e822161755c5c90f2111967f9649453b901,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/branding.js,JavaScript/Node,598,546c327959b64ca27e39f7288005a3cd0c354ccb7a4113c6b9763e6ed02f86ad,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/challenges.js,JavaScript/Node,1506,c3976f3408a12705cf886bc283bb4c0be187f431e1b4245c3220da0870993ecd,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/checkout-platform.js,JavaScript/Node,3792,643c607f264db57755f40b39b9283e0e82f28657404f5332b038c233d833c03c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/commerce-common.js,JavaScript/Node,4705,eb1878339a8269e2fce2fac62713fcded3554a03e2a03079b7c1ecff6a3bc8c0,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/commerce-presentation.js,JavaScript/Node,17616,d868a85d052bbfd039631f5f48595c29dbe7ee9b375acbec1569107b87719301,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/compare.js,JavaScript/Node,2834,fa99487a5afeb3b68e967b17d7cfeca771681d58e57c0c29ff94efb9eaf2b40f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/dashboard-ui-legacy.js,JavaScript/Node,41154,7a130a192361dba678bece811f4b8888f185a43480a8da5c0f02078d1f71d740,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/dashboard.js,JavaScript/Node,8657,cfb97ec1768aac30704142adf22441eb1d1ddba2274875d51a3308c0a831d19d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/data-connections.js,JavaScript/Node,2421,d284fc24aef8f88076add5afd79a3e19c78605ab48bda1ccc372ad73798e57bf,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/environments.js,JavaScript/Node,1294,e900b36368478c5e5980877443f4923ba486da8705e8472e9127d81bdb1298b7,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/forum-topic.js,JavaScript/Node,4531,59c7d0fc7428457cacc43a1e2d1ac4fb2a31f36f6cf4b99bb8714379b9cdb498,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/forum.js,JavaScript/Node,5218,5690cf0e37d2c18624132940435b20642f3ae532578b5adaf7a2984fd3bf31dc,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/frontend-complete.js,JavaScript/Node,61487,0e07ca9749d71b5af941126f727a095d6e6060c848617326a31938da0eda13a3,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/frontend-freeze.js,JavaScript/Node,9468,3c7d289d667140b4abeeb3b12c995ff05d04fe5e6a2727df85988493095f6303,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/help-platform.js,JavaScript/Node,1077,cfce9c87d11e43a900749aeb83969f4b5a2d6e1eeccd11fd2ee0fe2873cbdaeb,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/home-community.js,JavaScript/Node,3854,04cde0ed4d7ef8793b1943a94bdbc01ebb651b1a4c35314870860e81158d20d0,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/journal-analytics.js,JavaScript/Node,7497,de9b8846b6d678d46d6181a27046a6b1061636c0684a3dedf93dd4df90ddb2fe,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/journal-common.js,JavaScript/Node,3930,2c7ebbfae75c313b33accf1d3bd5695ad9a440732169c0c4599884f194b68911,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/journal-entry.js,JavaScript/Node,14164,bd1e51d3ef25c6088a66b135971e3bd791b044adc679b561c682434ffbfc7269,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/journal.js,JavaScript/Node,4813,7a0df8618a036db54019ab8df01fa077c9fe71b3695039ce6341c7c921ba8eec,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/lab-narrative.js,JavaScript/Node,1982,5c5f7a6f8af5b3e0b703e021e23d1dcd1fde5dadc69f2b7ca1eb9f98395e7708,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/lab-player.js,JavaScript/Node,13401,fb21006338c463c5db8ab7f600cd0c6c340fc51b2ecb61b1300bdea8abb2ff64,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/lab-preview.js,JavaScript/Node,4063,067e7243220dcbc03586666ef1ec3b406cd72b168adb534a820af575721da1c3,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/lab-registry.js,JavaScript/Node,7044,8a10ac8b56dbb35f81bde5852c584a0b4749d21b69213183b9c699eb20bb366d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/labs.js,JavaScript/Node,7131,d490e4cef1ba355c785569b9540d5d7087e1e7e226261f8da33fe855f63bc876,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/layout-integrity.js,JavaScript/Node,3539,b2606d54e640d1dbbe0c70872fddf6f3bb1304c5d093beb0883de543ecd471a2,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/learning.js,JavaScript/Node,2053,18c49c9aa137cb91176631cff6d12d4a3265e65ebad4615e656d04751c5b0b2d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/legal-platform.js,JavaScript/Node,1682,a09a968a07f2b1ee35dc961c5538d200de7d93dd4fbe10002c30d6793c8f7367,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/links.js,JavaScript/Node,921,e1469b7416c0d9ffe36aed0bd95ae5d1c10ba5f5de7282f1f34d5a0e48159637,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/live-fixes.js,JavaScript/Node,2440,e8ce80bc7ec5b4f9451dee5d577fe5ca22d9c05652ef45878fb5268c8cd36227,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/market-commons-platform.js,JavaScript/Node,13938,8e653bde21d492210dbe7beb185f6488b2a41fd482e8177eac471e0e38e126d3,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/market-tutor.js,JavaScript/Node,6835,be2ca23fcdac217a06ec6d0aab0ab5a203b273ff0afa7a36ec458c8afdfd8b11,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/member-dashboard.js,JavaScript/Node,5157,5179643e444a3d41f51917dd6ea9accc472cb2e6262503a3c06a51fd3e3f1e0b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/membership-platform.js,JavaScript/Node,5992,7ab17364d27e399be0670951bb67a997809f32ace7ef01288520e097a45f56eb,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/mfa-security.js,JavaScript/Node,3100,f2e547ff329eac00c731ab6e7ed0784431b8a97d320ca71c27f676527dfbb461,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/my-books.js,JavaScript/Node,2757,8cf0425bb0bc3d51dac6fa79d30fb8c45fe551673718d90f6e79ea1de6544384,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/my-library.js,JavaScript/Node,2716,19103d692bb8c6113a8513b534e5f33642a6344e0acacbe76aeb03a4b966cda8,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/my-purchases.js,JavaScript/Node,3481,f9e9e5d669713bee891410bd7b0cd280858d484d29d3d82a89def9a1ac795503,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/navigation.js,JavaScript/Node,51821,617449655c19bda466dd175136983ad089dac2174ff057619b99e9512555dbda,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/presence.js,JavaScript/Node,720,c86b360fb1871fb567ec06e343c74864c0e11ec8fcba2343e7f9637cd6270f5a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/product-platform.js,JavaScript/Node,2247,8ca15233a0efa20362fea1068b25bbe8050879ab4a0f86c3c36bd1cf3065e5ca,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/production-completion.js,JavaScript/Node,46858,6469085201ba480445a19f6ad902367948c76fc90570b2eaf2b330cf8caa9e97,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/production.js,JavaScript/Node,8893,c0c3e6b4f6ce505af04e2da1400ed88ee4eb2206b4e8a407d1f9b4fdb83c74ab,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/profile.js,JavaScript/Node,1674,c0dddedefa4b5cb23ec7f0cbdcc4c1de9477655b158147ec6bd52081d794a303,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/releases.js,JavaScript/Node,862,a0e94d9a8bd87e017a5feff2736f48d94b06499c0c388549906e84b87d61a12c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/replay-journal.js,JavaScript/Node,3424,73f25338273047040cb8e3f0b09c48f2dcf1bb8d5508e41f4a46eae282685b6c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/review-queue.js,JavaScript/Node,7815,fa9830e29ae1e599e8028c5b7d99f9c162f57051477eb841b466eddfdc0c93de,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/route-policy.js,JavaScript/Node,1961,013a54b6a27ce9825bce4e87524029472d6beced8a00c685add9ad3c447d8178,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/service-worker.js,JavaScript/Node,873,125d45df3e155c64e99a6794f29d228984524c93762cc7bbd68d5aebf6df676b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/session-manager.js,JavaScript/Node,3804,6a34d7729bc6cb8161a88a9a95a9e7440e6141b39c2afd56a95c7cfe7b0606e2,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/settings.js,JavaScript/Node,4802,bd5f26d39799a52ce38a290a33ce5f78ed0597e995d4c961adbfe482166b011d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/signin.js,JavaScript/Node,3249,104c3cb9d70c1bc1d515cbb16f853728ec3335ad5d5768699412b7cbec324543,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/signup.js,JavaScript/Node,11461,1cbd8285be74f2eadf4d25b29e08f14b6a7b6a5b0ec6923848323b98225cf381,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/simulator.js,JavaScript/Node,24226,313556cdd044f03f36f2c8efd66b32f12eb5031f47323c6062a9597aa2b2908e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/site-lab-experience.js,JavaScript/Node,6835,360ca59dd7ffd3a84aeb257e3a83d476d2a205c565feac9513b43a2764d29cba,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/site.js,JavaScript/Node,1488,b2e8aced816c4ccecab035ca84c957bf0a18672129e7e75e006c304e3554824c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/skills.js,JavaScript/Node,4439,59aab9e404a1a2481d60557f99da0aa5f45b08cdf7618090b26dcae844ce38f9,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/status-platform.js,JavaScript/Node,3493,6000fc7b26c044ca6dc7467789f01c34de4e99884632dd3c5ac5ec129100fbe4,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/store.js,JavaScript/Node,4712,7573301e72929bbf55955f49da644f4b2ebaa5277cbae53dd1fb91b11c563428,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/supabase-client.js,JavaScript/Node,557,cf7570645c00181829592180fb5321e5190d3ac357db3df49a5d826ab63f20e7,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/tools-platform.js,JavaScript/Node,1604,1646a26ea4908935b2fb0ec6227755c2c3e7ca13fa647c70ccd91bbcbae5e363,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/turnstile-auth.js,JavaScript/Node,3867,48066fe673b4754a1d1f0e4d44bcf56a6ceca6160d7f1d649e2c005b7526392d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/js/update-password.js,JavaScript/Node,609,0de61dd94d000b8d98f22fd03c1511bf9ccc7caacef632aa60c4b03ea5fccea0,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L01.svg,Other site asset/config,22753,4e80db887080fe8f335cd115ff1190a6d3fd8a29c8ed38bd8f755ecea5ab399e,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L02.svg,Other site asset/config,25363,4e949337fbb1f3e314be15a3a9b5bb9f8910078a94d39138cac43a9cdea6afef,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L03.svg,Other site asset/config,24706,4b7094858c4e5c4cac876adc66afb17f746f819bd2a2a2d7a8f52ed5d3daa91f,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L04.svg,Other site asset/config,24707,7dde4e53cacf909b1b3a88022a429d74b8817bf3520ca6990a85f9ab7db04745,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L05.svg,Other site asset/config,24694,54df53319df53ced9afa826513f3f8e5edd7b927d3ae19b899123476ce1facc7,Source enumerated; no live integration test,Not comprehensively production-tested
-assets/lab-visuals/F3-C06-L06.svg,Other site asset/config,25366,c16d80814fab7608f2055dac87f8307ed5a521045bc3f841754c265fdead2981,Source enumerated; no live integration test,Not comprehensively production-tested
-book-preview.html,HTML page,1450,be2ac57737fecba3ff37dd10ed500c6ed4fa6aa9c48d5f9f9a15937051218ffd,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-books.html,HTML page,3796,814017ec3d79e4815dd6e7fc677ab133e153dc0afb573405c6cbf7ae785d58ef,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-challenges.html,HTML page,1765,746e4c05810735dca60ec222454c13c4b67fe65facbae0fc806610f0b2be4a84,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-checkout-status.html,HTML page,681,cca4c20fed7931a01fef17fc0add2db57dbd7e2bda9ccc9fe119a6e542543c4a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-checkout-success.html,HTML page,798,9d8b273aed4339719e4e86f654859796a6cde937146952d225d61f62047c927b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-checkout.html,HTML page,939,6efa84ea41ce7e77abc0ea97d125d25d4aa005f39300602471042690b95ef0ae,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-community-guidelines.html,HTML page,539,91901bb475df2dd5bc5d6947610086f50cdb8eca193cc145f19e2ea915afe7c9,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-compare.html,HTML page,2215,42d684afda2cb4f05d20a7d41469b99084b39721d5271ea094bfc8cbdc9b4afe,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-config.js,JavaScript/Node,797,1620d335df8d6b2927a24f4ebc2745d207354c48b0b07035598060c62412ae97,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-cookie-policy.html,HTML page,537,7db4a3bbf6d3f797f61b2ed1f84a3a41983fc25ad924da29a2838e966aebc8fd,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-copyright.html,HTML page,539,5f149b074bb9358f13f0742529d313a38ceff462bc65446bc93df90f7705911f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-corrections.html,HTML page,348,47b1c8a4a7db54ff7e05e25957b005e47b634359aa44bf07d7b164c6d2c773b8,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-create-account.html,HTML page,4991,513ef4468cf385883708e4123231b644fd838aa1af95cb4c005b3d8c478823c5,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-dashboard.html,HTML page,8810,5d37df609471ba1ede3f26088360cf562cbfe7077824be174f9be7a08129562c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data-connections.html,HTML page,2564,adc853f19d0027c6cc6b87c5bb729281a24526c70df98308da91ab8db859ef5a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/books.json,JSON data/config,1217,8b882801bff4b83038f81875f34462713434d06d55b6c1f11af02f0590170f7a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/challenges.json,JSON data/config,523,edace4ec9f6b1d6de8babc43958441aeb020c6b720b826b2792963e62a8ab256,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/commerce-config.json,JSON data/config,875,9f457fc04842888d8987a2bee07b3d265a6b9fa90594f02d85aeb2d46a9721ad,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/environments.json,JSON data/config,3456,49919fb84ffe610231d706911935ab0b1e7a7b34814e0b0add0f2a8f88bed755,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/interactive-labs.json,JSON data/config,178248,6f643fe6a3a3829bfd66903f473a31c6b8ff0f89f68c73b91b2ec5e26138b605,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/journal-taxonomy.json,JSON data/config,1724,49ccd8618f6a66141be9e754739e415f173fc39eda9c15103bd42a558ede379d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/labs.json,JSON data/config,59295,ef7d3520fca80af9486037da6c8ba36206e920cfca046aa8b20a236a5b09322f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/releases.json,JSON data/config,515,a18cd704bce45dffc9ecb5b0102120022a1e12e9e21261055759b0d2fb1dfd4e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/simulator_csv_template.csv,Other site asset/config,207,d7930a530ff176631c3c117fa6357aca7340eb5cd6b90f513edbaa9c3ab52f4d,Source enumerated; no live integration test,Not comprehensively production-tested
-data/skills.json,JSON data/config,3286,b95c0ef2240345e400aee2ed394d97e06d7af95d412833a85ea3be8c5950f056,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/store-products.json,JSON data/config,3832,e1ee69bfd91c0cad7847510d21347dba7edd37dd4b3ece575679ab80bf5ae3f5,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-data/tutor-index.json,JSON data/config,8830,c31a4c2d63905b6bdf264d9751e64c674cb1735f9d06883380a57113f07319c1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-docs/ASSET_RENAME_MAP.csv,Other site asset/config,4368,1adb9a0f50b619c508f3aa8be1426477b07cbb1ed9b0a57d4eeaa069ae682a39,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/BRANCH_RECONCILIATION_AND_COMPLETENESS.md,Other site asset/config,5346,9010708ae8922b1a95081a0083b4b40e28b9dc8cec6fb0009b926fce3ace6d58,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/CHANGESET.json,JSON data/config,1217,0e44530c7e964e8ea142a14b7b3b34e376091e4a7d01b7dfd8a9e7e1e8d83480,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-docs/CONSOLIDATION.md,Other site asset/config,7021,05f3e375a9b9ff7b18dd20996e59cc7f25e3dd2bee2f55412f8a4db297e26294,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/CURRENT_RELEASE.md,Other site asset/config,1871,d315fc3347143795500b488a65053f4a605ad2fb4bb8c58c19b08c4859980407,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/DEPLOY_AND_VERIFY.md,Other site asset/config,4795,fdc1aae0fd990d51c8024024fcba315c3a06ecf3ab58aa085763eaa91935b5e3,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/FEATURE_STATUS.md,Other site asset/config,3287,0407166b5f7bcdea3fd044653a0cb280b08cc80a7613c08ca8676365d6384996,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/FILE_BY_FILE_DISPOSITION.csv,Other site asset/config,69969,d55dcd06da8cfc0288a3fc40dcf6c773943d3b3271f86381c21b0d7a54af8b95,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/LAB_COLLECTION_FACTS.md,Other site asset/config,1088,57955128822641f93830145782db98355594d233d72ebe9bce459675ec9cb089,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/PROMISES_AND_READINESS_MATRIX.csv,Other site asset/config,6218,7c54eeeabbefe149ec012fa510d22677f59161a8dab7532d0440bd98a718eedf,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/QA_AND_SOURCE_AUDIT.md,Other site asset/config,4835,7aef157c913848b08ff90b0457399b00809eea9e757d1a877a4ac968b15ac03b,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/QA_PREVIOUS.md,Other site asset/config,3815,a96c143ead868d5777b812f9bfffd7e4a6ac3525aa482f91931328694a581973,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/QA_REPORT.md,Other site asset/config,3632,3ab197e67b33ebcfd270a04818112d0d76976a5296cd24ef32acbbdf1dbd9704,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/QA_STABILIZATION.md,Other site asset/config,915,a6045f134f0535799189711bb4607f6568ee8d3900888dd52c05cfcba4fd8d5c,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/RECOVERY_SOURCES.md,Other site asset/config,1608,ea9e549ca2ec61165702d8956af74f11f8623107b12e4d096ecded629cad260c,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/RELEASE_AND_FILE_POLICY.md,Other site asset/config,4261,5b1c1ddd395267cc5c454bf28b7d6217600bbe2191525957579fa8f3ffcd0e00,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/REMOVED_BASELINE_FILES.csv,Other site asset/config,19901,09ff78a809ac4920725dc63b9f61b5f79958214c0c1897fe606133127d9196fe,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/RETIRED_ASSET_MANIFEST.csv,Other site asset/config,1969,e0add05f53d0f73edb987a56d688cf0a26d669e87704b33b57b3e424d8ff34b4,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/RETIRE_PRIOR_BASELINE_FILES.csv,Other site asset/config,951,dfcfa7007e21c5365c2439fcad72950928aa4e1750a696f6df8ad70dd86930b3,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/SITEWIDE_AUDIT.md,Other site asset/config,6475,9d6fddf56c85fd95fc78b37c87eb1cdac6e0869ea1f57ff0fbe575fc21a6d350,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/STABILIZATION.md,Other site asset/config,6625,5ffbb8fe53b52989c8af1685b4748f7fc6de08a9276b4a5207be9f257cdde05a,Source enumerated; no live integration test,Not comprehensively production-tested
-docs/repository-remediation/LAB_EVIDENCE_INVENTORY.csv,Other site asset/config,114392,da06b8ac3937786089b21ac050bc22be2e380ed21dfa22375984656e22e1fc92,Source enumerated; no live integration test,Not comprehensively production-tested
-educational-disclaimer.html,HTML page,540,86c0e1cc46c7c9fc839786adc80a9abb23e40b1db6314c1f2665ad1ae61475f7,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-environments.html,HTML page,2371,41ec1a250110471bf2e7173939c1bb9d61e41341f952c36c4acce42a07c77001,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-forum-topic.html,HTML page,2287,bfa2a3e9ec7a3d9b09af3da2bd40a0f1ac7a6c395b0aeb93776a4c8fcfff01c0,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-forum.html,HTML page,3907,57cd7f0a8a028e38dd5c7f454cc5aeb68ada4e3041e858640fa5297e3235206c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/_middleware.js,JavaScript/Node,16971,01f50fd6b5948791508f663a7ba481527fe7fc9cc850a3f16cfbfbf808c29807,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/account.js,JavaScript/Node,10372,3b842536bfe81053881881125a4e029dc6743e109d0678d394321b1fca127e41,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-access-v01355.js,JavaScript/Node,11772,434bc9afac62866d4ceaec937671654406e992244f818308c4b165a6f49b3280,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-accounts-v01351.js,JavaScript/Node,19568,5b1bdeb6d98676d7dcf654667c6c022ebdfa14e16f0f0a3ea644e3f36e42bd04,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-accounts-v01352.js,JavaScript/Node,24472,8fe334f270d9e216cb01e010c4e2e1e589375f2567a84a637552027b0ec2ae37,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-accounts-v01353.js,JavaScript/Node,33692,725d7ec57a9c9a802a9d92ff3abe6dd79f102a4f9ce536806ebd9d304e3051fc,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-book-pricing-v01353.js,JavaScript/Node,6827,e3ac849540c853759744eb8f266dc78b01d3951a52ef5635448c1a1ce4dddd80,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-lab-preview-v01355.js,JavaScript/Node,3481,2365de6dd2a1c168edcec73c4c3b9fc827fcfaadd541fde461f188e61cbd5629,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-operations-center-v0135.js,JavaScript/Node,12404,f27eed441a9b6868387655af5abe189f922682d1640dc701a8a992298a02cabf,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-operations-v0135.js,JavaScript/Node,11786,e3df88198f647071ad74c035d6d8d42166a7740e4800d360bfd6ebf5a977b890,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-site-v01354.js,JavaScript/Node,18247,372f601ac9b2811fe592d3ef2f2e35ca009f0b47d72319c461fdf2b6adcb4897,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-v013.js,JavaScript/Node,38224,a80170e70f5b7af11e9621acd3e97c85054e4036df3951aeb3378f0ee723cd49,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-v0133.js,JavaScript/Node,5160,117a7ba8baf221d20d99b5a3607522a37b135a9af865fdcccb459df40d554914,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin-v0134.js,JavaScript/Node,16775,c85796dc7dd17305b8478ab44d029bb1f24b5afa0a4bf8ba8c746aa6f8042010,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/admin.js,JavaScript/Node,65300,b324376c79087ce9e8c4c3f1d3af7ac135f6a0e7c82a7414f9d31e7903b8560c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/ads.js,JavaScript/Node,8731,43f0c2714854741e7d875e83f2fc20c7997a42d4e4065f468d806813f1e33ea4,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/assessment-v0135.js,JavaScript/Node,3938,6630c6bcc1170eb7203ca9e81d9ea1f303028ef5863cd3b6174218ab76c85fed,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/auth-guard-v0135.js,JavaScript/Node,651,059403f120596568b51550a1d07b5f0271e3938321a0fc131ef748dbbcb21070,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/book-activation-v0135.js,JavaScript/Node,7276,33e46c0abebc09d57837a75b9136de230ec7211f4bc5e79c33bb999d82ad9fc6,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/book-catalog-v0135.js,JavaScript/Node,7319,7394ec853b8b037977842ee3519db527b6bea9798bf695eb133942ff1dc1b946,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/checkout-v0135.js,JavaScript/Node,6958,996223bc479ab6c327b0c8b73799acae92bfab1232c7a571bba76e6e9e7ac44c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/checkout.js,JavaScript/Node,6314,2c04aed0c4d0da1e9c7e4363514d9610b67858127b8517056a0a9954c535ef85,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/competencies.js,JavaScript/Node,9229,49e1a5553403b59c4fbd985bc9ea7c2f07ed9a9c5b19c15de357121718ce51b2,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/credentials.js,JavaScript/Node,5104,d12a2560feaf1da5afe5cdfdb88baacde3eb7435dd58dcbe5fe42448fe8a1f90,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/home-member-stats-v01353.js,JavaScript/Node,5593,c1bad72c3006a003bc740f001a601a308de558d51cbd22a716f34f1b28cbb947,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/lemon-webhook.js,JavaScript/Node,8653,49b1b9af4c17ae4697ece72041457bbcf4e7ae831730446696fbd17ac3be7cbf,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/marketdata.js,JavaScript/Node,6216,18f9851bc4e0af7d09270d21469e30bdd588d2f07ca95c446db07ab7be1045a4,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/ondemand-training.js,JavaScript/Node,6522,a8873d734974dbb89a86a0d71dd1dea8a69526d4d04602df96d7e54a9c251287,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/public-form-v01354.js,JavaScript/Node,3447,c493a0f535c1212a3b7840b13dec3d90d8b92881f9951293d87b0bbae554d31a,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/public-site-v01354.js,JavaScript/Node,1008,d5518a34a59888890ac6078757b5f9097c4b8f0d71a3af3ba7396b34809a9ed1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/replay-practice-v0135.js,JavaScript/Node,5023,23fe0fa3792cbdc659f757e719822b74bc7a42c63fbbb6d3f61a39c483ecacb4,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/showcase-v0135.js,JavaScript/Node,7315,f61e00167faedf84d52804ca0ab37215c085e7a6a3e5a4cbe67f7b02039d825c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/support.js,JavaScript/Node,4978,4022b4dc0efc2e634f4c1faf42254f522acbcdacb63145b049c5b67ae19328e8,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/ui-state.js,JavaScript/Node,5167,fe2658f2de7b8d82df01f23b9cba7e6f26d4ec485b70e17e016c5de94af9129c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/api/username-login.js,JavaScript/Node,2826,8f5728fe12368f5f74c603cfa3fe947d1adba1c6e800952691ec7d351ed0f022,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/f/[slug].js,JavaScript/Node,3551,821c2be77f0a7c0b94c8f7861c932376dc32f6083b5c3fae6e89dfe6f18a8a7d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/managed-pages-sitemap.xml.js,JavaScript/Node,1386,d4e2694c483841d7d0d3fb53bbd00a7ef1b9d3f4273848fdfaf6270c68084ed1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-functions/p/[slug].js,JavaScript/Node,3025,43cc1979c36bde1de1cea84faeb48495a2861541a3f65cc6317f1479695d3af2,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-help.html,HTML page,775,27a6b3cc3ad98ba4e852235ef365016f863dd766aef8bbb20af50328c76f3d09,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-index.html,HTML page,3935,4380c37e9e5123d25cbb0ab35f0bb783017b93d8b17d9f38fcb5cab359c7d08c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-journal-analytics.html,HTML page,4581,5f41fe3ad4eff4e82f56fdb2356ffb3d2529186ddf18543d8febe99d3150b01d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-journal-entry.html,HTML page,12224,b0aefc0c01c320f2844067a8cb008a852051d225c4bc11605caeec58786df143,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-journal.html,HTML page,5408,0b373b21ce8199907ec35a37e289d8951541735576ec5d23600fa473940b892c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-lab-catalog.json,JSON data/config,1137428,08ebfdce4f2f23f005350a1ec1ab723f1572330c27df98f947cce934930f53cd,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-lab-player.html,HTML page,2541,8e7eaa7afb42454b57ecc760042696d880402b99c6f6f1b7ac6b0bd5a7eed288,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-lab-samples.html,HTML page,3374,1c788c095cabab1efb036bc575f0991c69d845a1bf2a854bad47b1f1dce45cfc,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-labs.html,HTML page,3627,bd117145fa440c0f0422fe464360f492aca6ab5af7baffb417a36cf623dc5f8c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-learn.html,HTML page,5894,ebd02e8e0f81274833e948552dcfb309d7c7e297ab93d952224d5e8f05fca5ec,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-learn/index.html,HTML page,200,b72b3a838fcb2ddcb68a23a12ab807b3ddd0480d29f36d732bd39535d3b40a65,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-manifest.webmanifest,JSON data/config,295,39d7b1c5b7069d9d870f8243a899df025530d0a4cf700326d9eb7d81000f5bde,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-market-commons.html,HTML page,2451,75cffa1416aca72d2d5b1b29879bf7ac006e0325ad50fe82a1dc146215cee71b,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-market-tutor.html,HTML page,3445,3d4f2bf9e85829c5d41e76800905f77052d867f14f333d7ac39c76120564a6a0,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-membership.html,HTML page,3352,f04631c05e634ca8ca8d19b02ae79e612f4c298337274180187c6b7da8847c84,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-mfa-security.html,HTML page,3096,a670c597c4f576c33c3324aa6ba74c9904654d651364b6c8d81050b8588fabf1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-my-books.html,HTML page,1595,f0ae20799b63fdd9369c1232678c8aa155cf4139d4cc0666888b4924b67769aa,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-my-library.html,HTML page,1922,4ea6641b588c01452d718107f14b4d43c2443516330a0ae208c14e1744803af1,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-my-purchases.html,HTML page,2070,53f4a022f9f61bffb5b3a93614fb377c99e973dd31a650832b168b3f8c87bced,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-offline.html,HTML page,704,342f59e6fcf3979ed9ec6ecbe8aabd2c77bb41ca49d258e69f0a03757cff7b42,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-ondemand-training.html,HTML page,5193,43ced263441da530d4c5839af8ad10eae3af22915dda866e25eb92a14bd9231e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-privacy.html,HTML page,537,7133c13a6156495fb44619cc1f3b4ae4183087f58d9816d649fd448d06dc4b79,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-product.html,HTML page,925,ac96e1a444ee78cb1f10554f1d490431677168fea3e7c4edfb2076717ffe3ccf,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-refund-policy.html,HTML page,537,5fbbecf107f4d81ccdfd9c8d31f3e26272f21973a6b31bace7e4a66f1915f38f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-releases.html,HTML page,2133,9bcc3626840e60abd4884ab1b2cf757357613a98a7916648254fa0c97494629f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-review-queue.html,HTML page,2571,7c8d1af75ee58a042460749180c2b74274730ac76b2a908aef84169ebec35663,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-scripts/build-pages.sh,Other site asset/config,769,8123bda7330f1562b7cd1a0150984b77c1175021eee7dc41a019cc37f18a17ce,Source enumerated; no live integration test,Not comprehensively production-tested
-scripts/cleanup-retired-assets.ps1,Other site asset/config,1518,922916d773059f3b3366e5b797a75386854218fe7fcbab3f2a502213dd8a3b33,Source enumerated; no live integration test,Not comprehensively production-tested
-settings.html,HTML page,3888,c7f56a8a6512a0498aebfe93556d6770e2b42996f6c7df191096229156e807be,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-signin.html,HTML page,2981,772b13cf27794a7a8e26c399ae916da4b495fcdd81e753f319f50ba4f2d9d153,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-simulator.html,HTML page,9447,cfe46b268e98aafe0247a307944b856b373ec5d24b1cd2bfe433fc6fdb59628f,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-site-lab.html,HTML page,1214,db9c4e1c0cfdb7c94efedc262468ca505c834c320930956f1f0425e39dbd9f63,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-skills.html,HTML page,3058,2aae582d646a6133aece95f77581fe8d6ffbc212c809aeaf5351d9716010ce9e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-src/ts/production-completion.ts,Other site asset/config,46836,3b06b38d45ee860db2dec2e3a86a65d4eee4697c9b33286fccbbae4b4ca79715,Source enumerated; no live integration test,Not comprehensively production-tested
-store.html,HTML page,4040,e03dceaba174cf5c631837ce0ef7489ac3ff8561c0e8579792ff02ea56b4b65d,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-subscription-terms.html,HTML page,542,bec7f9477b258c0f8ce420fb6994af7dc1ac71938ab501fa620d36178fb5a717,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-supabase/admin/database-contract-read-only.sql,SQL (not executed),4597,68efb9f3ffb2fa044c38743ad5c3a2dc0bba2be9af2537bb7b3bf14b1e29405f,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.10_PRELAUNCH_delete_old_account.sql,SQL (not executed),1796,da0ac81521e45245f6ffe0db2a4ea0b6fe0d873668fb02f13cd1a1b7afc9a563,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.10_VERIFY_OWNER_AFTER_CLAIM.sql,SQL (not executed),959,0d0dfb01ca7a22e2c098f7f5d37db8fe3f8e8e07387de1e2a86b8e688ba2686c,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.11_To Make_Onwer_VERIFY_platform.sql,SQL (not executed),2567,706953b6503f27a106f0d2f8c95d38be8cb015e127fb8e311ffcea06799abaeb,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.12.1_VERIFY_profile_membership_admin_ui.sql,SQL (not executed),1385,089045821d7fdedfcb67c4ab2e6cf37a1dfc8e297bece4ce197bd8d3be3256f4,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.1_VERIFY_frontend_completion.sql,SQL (not executed),1313,5bd38908ef48b6b9d9f89ba306a34bee69861e8af401dfa95df1119a7a95d628,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.2_VERIFY_production_completion.sql,SQL (not executed),1499,e841588f414c6717980c34801d19c746f93e59ca8d252cb2caac0b49f89f7303,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.3_VERIFY_frontend_freeze_labs_commons.sql,SQL (not executed),2804,1909e8e25a63b62db09875d7cdbd748bdd31109eb8de5b7e2b0b81eb5f794583,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.4.2_OPTIONAL_SHOWCASE_SYNTHETIC_GRANT_CLEANUP.sql,SQL (not executed),1714,26a34f97427d1a1a3d8728c221e806926ac7b48d09adb200f3f419a83d108283,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.4.2_PREFLIGHT_READ_ONLY.sql,SQL (not executed),3507,2bd88a9d4c09bbdffdad76290de869f14835b24d79e039c7624e9b2430b08185,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.4.2_VERIFY_LOCKDOWN.sql,SQL (not executed),1372,9ebdccd56f7cca1343e6d3f85d5302fc3f0596bcfe04b7c6e55f458232c0a16d,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.4_VERIFY_SKILLS_ADMIN_SHOWCASE.sql,SQL (not executed),1421,3249a9ce3b3952c78a56d966976eadee3ee19a3cc11bb7febcece3fc2bc28cea,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5.1_ADMIN_ACCOUNTS_PREFLIGHT_READ_ONLY.sql,SQL (not executed),1726,aa4d17b100fda6ac6be8c43613c678c3f80b4fd73b72d8177228638255eba160,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5.2_ADMIN_ACCOUNTS_PREFLIGHT_READ_ONLY.sql,SQL (not executed),853,cba945c3fd2da00436b755e4a4b59d29dda99a566ef1062307e0ef3cea774e66,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_ADMIN_CENTER_READ_ONLY_PREFLIGHT.sql,SQL (not executed),1599,6ce837c0b3e2e37e98f234e9c4eaf2c09fa25c05a2d6a383ceeeaf287fd4d735,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_FINAL_PREFLIGHT_READ_ONLY.sql,SQL (not executed),2102,de7b376b309568dc67fae7fe908d58b11cec118233cc3ffa95e7d1d5a517f6d7,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_FINAL_VERIFY_READ_ONLY.sql,SQL (not executed),3065,f2ba83c5cf289879fb036d443dfe1d8274891d377b89d620f1f9e18cdcb318f0,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_PHASE2_VERIFY_READ_ONLY.sql,SQL (not executed),2115,231e02497d5bc9bd7420b0fb850dff334121ad318fb6cbb1ca6f8f9f8b731445,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_PREFLIGHT_READ_ONLY.sql,SQL (not executed),1208,ce02f924483a6accdb38fb7987eab26df65d15aba1719da1aca76b3bc0ddabfd,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_REPLAY_ONLY_KDP_VERIFY_READ_ONLY.sql,SQL (not executed),964,c4e007d82fb4bd56dd628d17a876abd30d18014e65ea42c06033a262653b1b39,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.13.5_VERIFY_READ_ONLY.sql,SQL (not executed),3003,7febc8f9f2e7486be1576eb5d07092cf0b2a2a0b21b0a383a9b156a7edccc473,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.5.3_generate_book_keys.sql,SQL (not executed),517,94afa2fdda9ff99dc902fef1fb1d82c344df26d96d1860e25fdf8b24740bf0f0,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.6_generate_book_keys.sql,SQL (not executed),576,7daa5ca178af7dbe08b6bbbe709a5fa589aa43554a805202f6a8eba2851808db,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/admin/v0.9_example_library_grant.sql,SQL (not executed),401,4fbcaaba1091a23963279886c1d270db0a281324b732a9492da52c00436762de,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.10_admin_control_center.sql,SQL (not executed),28429,4fac58306b9fe7caa9868f99125c0d4cd2784bdc83d51cff387c7de1d2587d41,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.11_advanced_platform_architecture.sql,SQL (not executed),88724,97bd95c00f11ade03a56fd2c28f314a75afe9b1bbf311fe9be795e09c3401841,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.12.1_profile_membership_admin_ui.sql,SQL (not executed),40662,96dbef3359838ec2b2adffed60621c1e925262807ff366f3784deb037bf943e1,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.1_CUMULATIVE_from_v0.11.3.sql,SQL (not executed),93236,d55e13308ab2eb50df59b121b831275141022958b0d9a64127224ac010852909,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.2_CUMULATIVE_from_v0.13.1.sql,SQL (not executed),42554,8b957831f6049ebdb4fb82e49a3e9c4b631e22b843f92edf6244321e1a6430db,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.3_FRONTEND_FREEZE_LABS_COMMONS.sql,SQL (not executed),964735,415c988919f38cd0daf36e43357edfbed8ca2396457b2f8c0a8bff0a27d5b603,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.4.2_SHOWCASE_PERMISSION_LOCKDOWN.sql,SQL (not executed),1128,d93b8db1498ebf26f5bab2e07abe12a489b927727d6859974c4f8de152410722,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.4_SKILLS_ADMIN_SHOWCASE.sql,SQL (not executed),19023,50957552e308352c94d0d3dab66431f319b196ee64b31f87604467a4a68c776b,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_FINAL_COMMERCE_ASSESSMENTS.sql,SQL (not executed),13054,1d008816d2ef53cb45503e7acc18be74553026ff104950cabcaddb47305f58ea,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_FINAL_ORDER_FULFILLMENT.sql,SQL (not executed),8104,29729f32bf6d20bb8ac98b53727ef61189b585582fab3135f4e47ff456594ff6,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_PHASE2_REPLAY_DECISION_LEDGER.sql,SQL (not executed),4187,52dbec51d4e74fe06c2ac1bab83af27c0690841f915d7d357e60054e0cc40b06,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_PHASE2_SHOWCASE_RESOLVER_GUARD.sql,SQL (not executed),4618,f4df8a6765dedc7b0a3812535db8992b49e5e2d26234d15c026ec97f60600ff7,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_REPLAY_ONLY_PLAN_KDP_DRAFT_LINKS.sql,SQL (not executed),3200,37bcf6462bfd4416ee055c419ccd88ee60a42de71e88d9439427d4a2da049dc4,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.13.5_TRAINING_BOOK_ACTIVATION_FOUNDATION.sql,SQL (not executed),17004,956714e9cfd18727a92e74b7fb7c578dc0887030ae23c82ea3a5180242a6947c,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.2_profile_trigger.sql,SQL (not executed),983,9a112c304ae384cfdd111210a7ff01b8ebcdff23a5edfb4def18ad415bf0f6f6,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.2_progress_delete_policy.sql,SQL (not executed),321,77cd670a188acd3957e8c4a1987faa2125afa98e038792b574110a08c48aec3f,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.3_authenticated_table_grants.sql,SQL (not executed),587,af4a72ebbb20f90fe6714e33641f3db27399924a33b63d16e87afb0c8a09ef37,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.5.1_signup_availability.sql,SQL (not executed),899,d4f0b758a448ee5f7afee915e7cfb965cba5e1dd2186c8e98bac8161afc540bb,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.5.3_identity_book_keys.sql,SQL (not executed),17646,530d053d918d1dc80fe8026e40096beddcab3f9c076b435d55fccb0b1469c8ef,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.5_identity_settings_forum.sql,SQL (not executed),14114,ae5b318c0a62c03e14b63883d5d6e1e68cce922a52a0d201f83144d81efd5824,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.6_interactive_learning_system.sql,SQL (not executed),10742,1e5706d11cafd042b6101f47ad756bc34de4a4a2cd72ae08796fe536fb4bb3ef,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.7_live_trading_journal.sql,SQL (not executed),15304,1303097e572633ca4b0a95fcf082ca84ea4aff6b13f6adbc23d0acbac408848e,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.8_market_simulator.sql,SQL (not executed),2462,0f1e3fa6dc241d05b846af88ba6ff05cc426ca59e70a6d276b832e1b26893219,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/migrations/v0.9_commerce_library_tutor.sql,SQL (not executed),8783,7dfe5babfdd2938c08b372512a69eb243dcd542be8d01a7a3e33d2a0c1e22322,Source enumerated; no live integration test,Not comprehensively production-tested
-supabase/schema.sql,SQL (not executed),3765,8489c64c4493b504d267e34134ada240041ba4a69d07a1751acf8475cf6008bc,Source enumerated; no live integration test,Not comprehensively production-tested
-sw-v0131.js,JavaScript/Node,293,6dc664a02935df951b6d12f0ee2e351a12a69ab10058e789f91906e2122cbb57,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v01321.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v01322.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v01323.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v01324.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v0133.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v0134-mobile-auth.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v0134.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v01342.js,JavaScript/Node,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw-v0135.js,JavaScript/Node,102,0f0ab1ebf08232bc20a45522d3c34973b1ecc714e693414b319d131380eafe37,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-sw.js,JavaScript/Node,2503,e7f7a527dc874852c96677dc033741bbfc7c588581bc63d6bfbcd4a9c4859baf,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-terms.html,HTML page,535,8df116ec83bc233883b90e6a5106e1b75dd7a6d77ee81c1b9023af446cd5f936,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-tests/qa_clean_baseline.py,Other site asset/config,4030,47d54be3d60b04a570238df07b450ea8d7416e43d0d74fe9005651ebf817798b,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_admin_forum.py,Other site asset/config,5872,2a90e2868ff57134615344dfbd360cf78fab1520581f10e5572f6b53d57b57bc,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_admin_registry.py,Other site asset/config,2916,9c24e5cdabf7a6fe306258dcb46a7041be9c9c027d9bc3d6f240b63069639288,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_branch_inclusion.py,Other site asset/config,3036,e48e92fae4c7765d5a436c60181ce801a40918cb796e19f59271dc8fbc8ae4ee,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_consolidation_browser.py,Other site asset/config,3651,a744dd4174af7a1c4e44e1a42e78ef5bbabb2c4363cf8b4bc7a3d8ba34310f5a,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_header_geometry.py,Other site asset/config,2212,f0b0032495b451c08594c878314a18f509ede8a10b16ef17cff8a51cd5c1375b,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_lab_api.mjs,JavaScript/Node,2980,57586ddcdb4a560a3255744904f0b75a8bfe5c3a7611dee111a3ee40fa45c841,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-tests/test_member_registry.py,Other site asset/config,3067,6e906163eddb7847c683d493485236e739296fe363eae846563946d0847b71b5,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_mfa_rollout_policy.mjs,JavaScript/Node,1896,e326a3d4ff26799d34f59889cde13f9677a0e7c27ffa9564660bb9b8c47a8cbb,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-tests/test_navigation.py,Other site asset/config,3523,12b9f036195f320f7be8e962dd7b52813b73e27726558a70f00c3d04e1fc06ed,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_navigation_bundle.py,Other site asset/config,2670,16b88c9c7aebf0f2781ea4305bcb24be0ab60ba5736d8b0530952577cf5fd1db,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_recovery_policy.mjs,JavaScript/Node,2760,5628c5fbea1b812edffa0656f806c97f81e19736dc0294b2fe35c95e6e78d402,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-tests/test_stabilization.py,Other site asset/config,8029,2e88a00bd08bd313684ddd8705700d4406b8c4c6da3455c9216e95d6641b7538,Source enumerated; no live integration test,Not comprehensively production-tested
-tests/test_stable_filenames.py,Other site asset/config,2734,ead7c395b58ff2626bf0fe834ffb23fa48cf5e5676857863f4ddefc79628451b,Source enumerated; no live integration test,Not comprehensively production-tested
-tools.html,HTML page,1526,1d0140eeace50a762747cd7a47d71d83290742f7c8df608aa5a90ceb0970553e,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
-update-password.html,HTML page,1244,2ce14d9d0b49b50b2f18176a98e026b5c2488af3ff2a02ebc6ef9b54ae5fd463,Syntax and static checks; mock browser test when applicable,Not comprehensively production-tested
+path,category,bytes,sha256,source_validation,live_integration
+.gitignore,Other,203,22067017cc91de50e52f1e1cfb193d172e03ca4efb012189ebaa116ee5ad0ab5,Enumerated; inspect context before editing,NOT comprehensively production-tested
+404.html,HTML,1881,81c19f91f29f35ff07245caf5715a121dd1cd57c62bb26ba5d9ebad3044522ff,Syntax/asset-reference check,NOT comprehensively production-tested
+PROJECT_ADVANCED_ENGINEERING_RULES.md,Other,17813,97561b5659522b242164d48ac8ca33810fb156f3ed96b0c80872bc7cf5c53c76,Enumerated; inspect context before editing,NOT comprehensively production-tested
+PROJECT_MANIFEST.json,JSON,7593,ac8c35c1df07049f9c1b5403eacc5aa09f3ad9ea907bffde6e5c89bfe59c5b25,Syntax/asset-reference check,NOT comprehensively production-tested
+README.md,Other,2202,0564984c37957d16824bb26e5c23cde6358de0596c1dbedbebcec27fc719922c,Enumerated; inspect context before editing,NOT comprehensively production-tested
+_headers,Other,470,9dfa88c9557a7db463a18c4df077c6e69d8e88ddfe1fe57512834a94a604c40c,Enumerated; inspect context before editing,NOT comprehensively production-tested
+_redirects,Other,4816,cbc89818bd30ef1387e2aaa2754687c913849bfd4eb2982e7c89b5fcc2ffb38c,Enumerated; inspect context before editing,NOT comprehensively production-tested
+about.html,HTML,5807,5e628361d04a10a1e93bb95794db9687f8e53465a286e0a8808aeb32179cc1aa,Syntax/asset-reference check,NOT comprehensively production-tested
+access.html,HTML,1859,0947057ae0b8f1295a8c46d459db899e802b9fe80876c4a75aa9ff9cddecdf80,Syntax/asset-reference check,NOT comprehensively production-tested
+accessibility.html,HTML,543,b23533294b1aff8f10bc88c97c536efae8bcb3b75b003b95b619731cfa644663,Syntax/asset-reference check,NOT comprehensively production-tested
+account-status.html,HTML,679,2d694c81011a9e17088431b812fa4389502d50bfa9d681262ee129b398e5f215,Syntax/asset-reference check,NOT comprehensively production-tested
+account.html,HTML,2818,2736be8d6f64875891f72733fe56ca54d373b90b4e4d3460f4c334faf0214313,Syntax/asset-reference check,NOT comprehensively production-tested
+activate-book.html,HTML,2014,fdb37977b17494fbcb5e571ea2d1a7ea964037d6644493399ac18e24bc3eabaa,Syntax/asset-reference check,NOT comprehensively production-tested
+admin-lab-preview.html,HTML,1470,666327c7982c93dd07eedb78d1af551d0b8774ad3b77a6f7b8f4e9f20eb8759e,Syntax/asset-reference check,NOT comprehensively production-tested
+admin-operations.html,HTML,2111,ca658ae956129e1d7bd4550177e9bdd3c0a2011413d322a7db7b8e9d941fba06,Syntax/asset-reference check,NOT comprehensively production-tested
+admin.html,HTML,8656,c27b29edb7fa46c1f26c5d9a08eefaaf09d9192069cd3502cd6ce36f556824b9,Syntax/asset-reference check,NOT comprehensively production-tested
+advanced-tool.html,HTML,1409,b5bc35a25495830eb2151af711d6f9ecf1747e8fe07c7ef26b97902109481e0c,Syntax/asset-reference check,NOT comprehensively production-tested
+advertise.html,HTML,2745,c0dc52c4bf6f8d8e3ca7d9ae0855a5378b517845584f363b5007bfb42321fc42,Syntax/asset-reference check,NOT comprehensively production-tested
+advertising-disclosure.html,HTML,541,fe747d1b7e256206b9470c3c062feb5b67b3a86d3c86e12d35bb70171204ed7a,Syntax/asset-reference check,NOT comprehensively production-tested
+assessments.html,HTML,1563,eea2572434017bb8434de00903fecf699c6337499727937fb08a0cc535b7e67b,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/accounts-and-lab-preview.css,CSS,3390,c87e968733ea764bbc5a509e21ba517bbf0503cb617941f80cc3d56038dbddc2,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/admin-operations-center.css,CSS,4160,16e83e11d6b27d33716003fe18d948698ef0c378fb9b9b963f38972f33fa2346,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/admin-operations.css,CSS,10774,58b01c2be2ae1b1fc5ae9cfc8a18dff45717cb62b8585edf34c9d565ae22259f,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/admin-platform.css,CSS,6756,793c403268763b6f78c36e9004dcf52b5263a8c2fda987156c55c54d0ff2c1c8,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/admin-workflows.css,CSS,1920,4fb5b08a02bbbada2f5f3f842eca34b5a2930ffe6cde5058706a695b21f8defd,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/commerce-tutor.css,CSS,3539,1654c5820a3e2ef0708825765a97f95a37a9505df00f574aa7c458ce0a11d709,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/control-center.css,CSS,11980,43aedf71904800bea457a88ce4f5c14ecae7f975f71f41a223f788cd247e1a1c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/dashboard.css,CSS,10050,ec2886421a6b876bd5ba28f58b662ba81b2780b579d48de27a954e1f2161b164,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/frontend-complete.css,CSS,23630,8f45d432cfe36de48a68eb4e07b2d1b3deb46cb9d0382ea19136620c2ebb9e8a,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/frontend-freeze.css,CSS,11254,7b897fd846a3749dc657d188110327ec234cad52d9d372a78fffc63b2f7054f3,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/journal.css,CSS,4700,ed9ebdfca37cbc25b6643406f78e22bb8d685a955d4b28f39e9fe2373cc5737b,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/layout-integrity.css,CSS,10462,82adf2503533c184267ed761f50bccb790a8eb35761efa69f4775966bb228962,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/learning.css,CSS,5071,b27113d8fa59121ec714531676f7f84e6d758fca8970f76f1c9eaa2c6c470deb,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/mobile-auth.css,CSS,6490,66434540b761b629725ffb0092ee4c41368c47d500145cea0e576d0419d253c4,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/platform.css,CSS,18428,cb3a3897a7f549e51acdfd5765b1d70756f678718d30ef2e6edae1d2226b8477,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/polish.css,CSS,9620,acc4c454dbca349c65ef8a37f845733fe884f28e0891694bc61ddd7150b6bbea,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/production-completion.css,CSS,13567,07f4146634bdb331f09ae4875314e7194ba9ad8af9acaa01e988bc945bc99886,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/production.css,CSS,9381,87ea85700317064c0bdb9320ac119cb62f6f9dd11791eeaa777195e9910d4fd9,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/replay-plan.css,CSS,1032,f04bc140fa14fb97c580d4672e9e6467ab7efc83f8f3de9ce788d82bcc7327a6,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/simulator.css,CSS,2251,ce19833152c591da7306453ca4c48cba056e0881525ac6bc373f7b873433a63e,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/css/styles.css,CSS,23550,c62252a94247b8c213292ab3a4dfff09ddb1055ba27c60534bef2b4614290e94,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/images/admin-illustrations/accounts-access.svg,SVG illustration,419,756561f79077f34c4d05a3820e9a1b60161ea560d041fc26cbc0b39900f5be32,File format/structure inspection,NOT comprehensively production-tested
+assets/images/admin-illustrations/commerce.svg,SVG illustration,377,0e5cdeb16827999277e9efaf80325b4603e0cb67463f3fc4df1c62ce6fd12a60,File format/structure inspection,NOT comprehensively production-tested
+assets/images/admin-illustrations/learning-system.svg,SVG illustration,393,9c62a39123f4512d868f0e8d5d4e68bdf0bb09507895620ce24c528a4a5dc4af,File format/structure inspection,NOT comprehensively production-tested
+assets/images/admin-illustrations/market-community.svg,SVG illustration,379,bef3bf6c332e248c7a826c3f95eb36de973bcf46068e97c028bfe355b5d094da,File format/structure inspection,NOT comprehensively production-tested
+assets/images/admin-illustrations/security.svg,SVG illustration,385,9f9ebde66ecc8a15bed68373549d3d66b2b3cc0cfb548eec89e9c781db9d4da7,File format/structure inspection,NOT comprehensively production-tested
+assets/images/admin-illustrations/website-operations.svg,SVG illustration,413,947efa9d806f97ae8b86241d210744cd8599fd869c76f777f690771066fdda6a,File format/structure inspection,NOT comprehensively production-tested
+assets/images/books/day-trading-book-1.webp,Other,26832,d684426e02d3f2134df890eeb97758f9d3280c56d9126d1d2c30d8f9b441de4f,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/images/books/foundation-book-1.webp,Other,193336,37ff70a4836a78fb5ef9ba80f0076640b4d926b1605bb93080885a3c9778e921,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/images/books/foundation-book-2.webp,Other,173544,fdfa3c023d8c15adc9b6a45ce6819ddd6656e604969b199bd0d8c8b800da3847,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/images/books/foundation-book-3.webp,Other,172528,530df5d24fc33e99ad2b39d90d8cdbb300f9da4770b4e526ae2ee4abeff1edb4,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/images/books/reading-the-tape.webp,Other,75436,7739b257a6f65d6cc98e3481de3a19110ba485e87a404753701ad942e5cf4054,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/images/skill-illustrations/breakout-recognition.svg,SVG illustration,620,3ced637795c4ca0bbf49c03290ec3fa68b282b8d1204166cdad8ee474a51a1c3,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/candidate-quality.svg,SVG illustration,610,af66b9d8e501e8701518e2d97dcb14d5d66ca5ba303acbec9fe6f8fadf4f36f4,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/candle-reading.svg,SVG illustration,588,e7c65d719811b0dcbbe058e4a74be0cc5ee0ef91f218d0362c30f56570b7ba96,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/catalyst-analysis.svg,SVG illustration,603,0ed6553d082d9b1bf18faf2c2c6f32403c95a0aa91a338e0230d97b6b1cdc0cb,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/chart-structure.svg,SVG illustration,590,9f0b9b46386bed6cd92c11d434dbf730ab66cf9655b6143f467bd9fced44e8f2,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/chase-fomo-discipline.svg,SVG illustration,602,6829dec6961aeca609e73c286ee24595bcc9116edf306be865b685e45c6b63eb,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/ema-context.svg,SVG illustration,611,8fbd61a1a2112b87c5dd2482bf9ece721ce50815c63731e34047ec2fb7affefd,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/enter-watch-no-trade.svg,SVG illustration,671,36b3aae23f1a2b3d37c3c11e96c3dbf06a2ebc044ec6ceb9a662049f0e88c1c2,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/failed-breakout.svg,SVG illustration,632,a30d5b8cb48d817130f915015099b14c9c74cb088c78490a92f60413dc566794,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/float-supply.svg,SVG illustration,606,5410fb5d35ff8880400ac1e43b7a644cead09f56fe9fa38d07dc03e0de183347,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/halts-luld.svg,SVG illustration,586,13508c285f7729b1004b8878a981a2997ab302312a8d69805bbe0d667d444056,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/hod-pm-levels.svg,SVG illustration,609,63ac7f7783bfe64cf68c2310e02d8b526d97bcc5e57769ce690c415609c18d2a,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/independent-plan.svg,SVG illustration,631,b79b67aaa0b6c7978764f887ced87de7002719555702a7a1eccd15cb3b2d46a3,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/invalidation-discipline.svg,SVG illustration,628,905cb8955784591a231d3f6360820e43d1de0617398e29cfe9e3efc5fa6e7dfa,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/level2-reading.svg,SVG illustration,705,f32cde48524cadd8c0e8f169b6447144f09b249ab95cc6b3c9f658e29e43de70,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/market-regime.svg,SVG illustration,620,345ec9d3ee381da8d50be2efb125efe005e1d8c73dfb46e0f6944a2656ffa8b6,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/mfe-mae-review.svg,SVG illustration,623,22ea43fb98e5f7c62e42dd5d4f0494e7652b5ce6d11612ee0b6399be8f8fab6c,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/multi-timeframe.svg,SVG illustration,663,46d0b8d09b220c5b074794ad46276b7d9e793bb5aec3213d7e949263f71e9526,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/order-selection.svg,SVG illustration,617,1491e49221425941f53726a56a9029dc3a5401e9869e9b29fb504bf1591410a5,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/position-sizing.svg,SVG illustration,671,a7f72af6fa6767d9d1a8feebd48c2444129dfa2ec8a9a847fc23ab8683c6fb04,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/pullback-recognition.svg,SVG illustration,590,dae75d85778920c0239def82bb8f028a78d0269fd8c9bf3c75a8ff5e17a13de8,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/rct-recognition.svg,SVG illustration,635,ccc35af48b243cfb528fce5e19dc31f8e7f104ba25f73f4ab8aca0d8e2083cdb,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/risk-per-share.svg,SVG illustration,611,f3f683130dfc3e72e97b0b3141deb198e87604bd0b17b604c09655e9aaf8c048,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/risk-reward.svg,SVG illustration,614,83fd7a501c165555be14798af7b7a036261d0747ac1a6c48e57710361633df58,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/sec-filings.svg,SVG illustration,586,d1e092a1dc605f49a797b589573679d54ea7c2900fa9b1f31ed4dcc4907f6837,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/slippage-spread.svg,SVG illustration,606,b8cc40b96afd78389adfb139ce3afe2021b88663ace99db4b849417a2ef0d0d9,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/squeeze-context.svg,SVG illustration,608,8e4ed7b47de8f5841083bb01533d8e5bd666fef46002ea9d74870b285dc52ecc,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/tape-reading.svg,SVG illustration,697,0302338a484e6b8efe6062abc95f4992e7be4426003e1407d5645638fa3b1ec1,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/volume-analysis.svg,SVG illustration,753,e449f43bc0abe55a37c0028a892fcdff09e69925b0ebd5301442aa23eb9ca022,File format/structure inspection,NOT comprehensively production-tested
+assets/images/skill-illustrations/vwap-context.svg,SVG illustration,593,adf6e0eadb6466804d60eea660e092692ad07b313d48a9266ce59433901c38a5,File format/structure inspection,NOT comprehensively production-tested
+assets/img/book1.jpg,Other,1189049,0c21dccbc3c05d88af98909b6b8959e48b976d03e88689237e8a602a0119669e,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/img/book2.jpg,Other,1104318,82135ce4ca9ecfc85ab0bc2692ecd3e273fb62e9b8fef08e970db74e5f30230b,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/img/book3.jpg,Other,1106839,c0110f64693c0e6e90af68d31560b87a915e3f7682413ef547e8aa674819a608,Enumerated; inspect context before editing,NOT comprehensively production-tested
+assets/js/access-platform.js,JavaScript,3556,f1088acb282f2e5f97a8eb5d97b25fc24435f7da0468a1aa0b8644616245a609,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/access.js,JavaScript,1515,016df5382a4f918373d037dc5dbfd2cd043e16e584daacd9af94ce0be7c6c957,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/accounts-access.js,JavaScript,18319,56c9f826260dc6580afbd8a598e5da6dffd4ede12b8acfb3ca607ff5c7ccc254,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-community.js,JavaScript,4460,52c11cf2ac5d3071e3e198d23c43537ab602fc46d14fee80d1ddef70b2780a0e,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-core.js,JavaScript,31097,3e8b7036035e7796a88878a98185462e0994a412769c622da14bc756defb292d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-enhancements.js,JavaScript,11712,1ba253b3fafe20113ccea00b5ccf6cd7d06bf167a13006bf897888ced4c89316,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-legacy-routing.js,JavaScript,17606,43e11994dad46bf55d78a30c41999978f6c6de2ceb9377b75c98632b40825d2c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-operations-center.js,JavaScript,16176,12cc48a8710d8303daaf74d77096a1c025117f31e47e294801f3ad6f43838207,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-operations-compat.js,JavaScript,5982,a87344e19b073d1b49d13663b83c8286284b88233864eef399e63b8532572e39,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-operations.js,JavaScript,53228,2a7da124ee3e3d689dc3e2ec8d78db2a3bf2ce5dca4aa82c3ab0f95e492d7366,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-platform.js,JavaScript,34108,847ce8e90126ca2de1176a3d2e2ac3814220b99e5c28423c511be70b04714e8a,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-showcase.js,JavaScript,2524,250b8dfd310c0bb56bda2f2fc502ca3e027a58956a8b21183d321a846328f29a,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin-workflows.js,JavaScript,10631,12ed81e93b4d2eecd4e0a7f61eca2af5de01c6199d0e21049ead20b8e0b3727c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/admin.js,JavaScript,37040,dac0f9f19a5164ac0d4ecd10acd1262dd63d4a06c0670e54093a50b2ab393ef5,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/advanced-tools.js,JavaScript,32165,59d834c4e7f431d5e707593b02c8873d01539d0f0a044ce49a1edbfd1e6944b1,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/assessments.js,JavaScript,3387,84658946b59007119fda9e22d92563825e1e6e8f6403acb39bdc2e6df1c116b7,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/auth-boundary.js,JavaScript,3066,276cf74acf4085c5fd784ee7c3dfe6a6af558110c97121c3db5d3212cd9f07ab,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/auth.js,JavaScript,3553,40fd82c67a9ba3a8b91639e5b169525d196571afefedcbe3eb79ae8aec3795c8,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/book-activation.js,JavaScript,3766,4ee93b70295fe066fb7903a1666dc2f38a26220c25386fcca0f7e045415ccb48,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/book-preview.js,JavaScript,4620,f8ae225339d32bb663d13ea181929e822161755c5c90f2111967f9649453b901,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/branding.js,JavaScript,598,546c327959b64ca27e39f7288005a3cd0c354ccb7a4113c6b9763e6ed02f86ad,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/challenges.js,JavaScript,1506,c3976f3408a12705cf886bc283bb4c0be187f431e1b4245c3220da0870993ecd,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/checkout-platform.js,JavaScript,3792,643c607f264db57755f40b39b9283e0e82f28657404f5332b038c233d833c03c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/commerce-common.js,JavaScript,4705,eb1878339a8269e2fce2fac62713fcded3554a03e2a03079b7c1ecff6a3bc8c0,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/commerce-presentation.js,JavaScript,17616,d868a85d052bbfd039631f5f48595c29dbe7ee9b375acbec1569107b87719301,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/compare.js,JavaScript,2834,fa99487a5afeb3b68e967b17d7cfeca771681d58e57c0c29ff94efb9eaf2b40f,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/dashboard-ui-legacy.js,JavaScript,42579,cf27921153a54692d63c7fb2d42b032c5e7df8e4203cf7698b35f97dfc6f9361,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/dashboard.js,JavaScript,8657,cfb97ec1768aac30704142adf22441eb1d1ddba2274875d51a3308c0a831d19d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/data-connections.js,JavaScript,2421,d284fc24aef8f88076add5afd79a3e19c78605ab48bda1ccc372ad73798e57bf,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/environments.js,JavaScript,1294,e900b36368478c5e5980877443f4923ba486da8705e8472e9127d81bdb1298b7,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/forum-topic.js,JavaScript,4531,59c7d0fc7428457cacc43a1e2d1ac4fb2a31f36f6cf4b99bb8714379b9cdb498,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/forum.js,JavaScript,5218,5690cf0e37d2c18624132940435b20642f3ae532578b5adaf7a2984fd3bf31dc,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/frontend-complete.js,JavaScript,61487,0e07ca9749d71b5af941126f727a095d6e6060c848617326a31938da0eda13a3,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/frontend-freeze.js,JavaScript,9468,3c7d289d667140b4abeeb3b12c995ff05d04fe5e6a2727df85988493095f6303,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/help-platform.js,JavaScript,1077,cfce9c87d11e43a900749aeb83969f4b5a2d6e1eeccd11fd2ee0fe2873cbdaeb,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/home-community.js,JavaScript,3854,04cde0ed4d7ef8793b1943a94bdbc01ebb651b1a4c35314870860e81158d20d0,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/journal-analytics.js,JavaScript,7497,de9b8846b6d678d46d6181a27046a6b1061636c0684a3dedf93dd4df90ddb2fe,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/journal-common.js,JavaScript,3930,2c7ebbfae75c313b33accf1d3bd5695ad9a440732169c0c4599884f194b68911,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/journal-entry.js,JavaScript,14164,bd1e51d3ef25c6088a66b135971e3bd791b044adc679b561c682434ffbfc7269,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/journal.js,JavaScript,4813,7a0df8618a036db54019ab8df01fa077c9fe71b3695039ce6341c7c921ba8eec,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/lab-narrative.js,JavaScript,1982,5c5f7a6f8af5b3e0b703e021e23d1dcd1fde5dadc69f2b7ca1eb9f98395e7708,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/lab-player.js,JavaScript,13401,fb21006338c463c5db8ab7f600cd0c6c340fc51b2ecb61b1300bdea8abb2ff64,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/lab-preview.js,JavaScript,4063,067e7243220dcbc03586666ef1ec3b406cd72b168adb534a820af575721da1c3,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/lab-registry.js,JavaScript,7044,8a10ac8b56dbb35f81bde5852c584a0b4749d21b69213183b9c699eb20bb366d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/labs.js,JavaScript,7131,d490e4cef1ba355c785569b9540d5d7087e1e7e226261f8da33fe855f63bc876,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/layout-integrity.js,JavaScript,3539,eda0a5746f02e96703d0696888d10b7e9a42694159dbce24560d5d06e396cb0a,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/learning.js,JavaScript,2053,18c49c9aa137cb91176631cff6d12d4a3265e65ebad4615e656d04751c5b0b2d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/legal-platform.js,JavaScript,1682,a09a968a07f2b1ee35dc961c5538d200de7d93dd4fbe10002c30d6793c8f7367,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/links.js,JavaScript,921,e1469b7416c0d9ffe36aed0bd95ae5d1c10ba5f5de7282f1f34d5a0e48159637,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/live-fixes.js,JavaScript,2440,e8ce80bc7ec5b4f9451dee5d577fe5ca22d9c05652ef45878fb5268c8cd36227,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/market-commons-platform.js,JavaScript,15065,ebdf6b7a972e4addb1e9a93cd604d8eef75c92df70792d4124634928b0fff2e6,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/market-tutor.js,JavaScript,6835,be2ca23fcdac217a06ec6d0aab0ab5a203b273ff0afa7a36ec458c8afdfd8b11,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/member-dashboard.js,JavaScript,5157,5179643e444a3d41f51917dd6ea9accc472cb2e6262503a3c06a51fd3e3f1e0b,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/membership-platform.js,JavaScript,5992,7ab17364d27e399be0670951bb67a997809f32ace7ef01288520e097a45f56eb,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/mfa-security.js,JavaScript,3100,f2e547ff329eac00c731ab6e7ed0784431b8a97d320ca71c27f676527dfbb461,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/my-books.js,JavaScript,2757,8cf0425bb0bc3d51dac6fa79d30fb8c45fe551673718d90f6e79ea1de6544384,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/my-library.js,JavaScript,2716,19103d692bb8c6113a8513b534e5f33642a6344e0acacbe76aeb03a4b966cda8,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/my-purchases.js,JavaScript,3481,f9e9e5d669713bee891410bd7b0cd280858d484d29d3d82a89def9a1ac795503,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/navigation.js,JavaScript,51821,617449655c19bda466dd175136983ad089dac2174ff057619b99e9512555dbda,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/presence.js,JavaScript,720,c86b360fb1871fb567ec06e343c74864c0e11ec8fcba2343e7f9637cd6270f5a,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/product-platform.js,JavaScript,2247,8ca15233a0efa20362fea1068b25bbe8050879ab4a0f86c3c36bd1cf3065e5ca,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/production-completion.js,JavaScript,46858,6469085201ba480445a19f6ad902367948c76fc90570b2eaf2b330cf8caa9e97,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/production.js,JavaScript,8893,c0c3e6b4f6ce505af04e2da1400ed88ee4eb2206b4e8a407d1f9b4fdb83c74ab,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/profile.js,JavaScript,1674,c0dddedefa4b5cb23ec7f0cbdcc4c1de9477655b158147ec6bd52081d794a303,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/releases.js,JavaScript,862,a0e94d9a8bd87e017a5feff2736f48d94b06499c0c388549906e84b87d61a12c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/replay-journal.js,JavaScript,3424,73f25338273047040cb8e3f0b09c48f2dcf1bb8d5508e41f4a46eae282685b6c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/review-queue.js,JavaScript,7815,fa9830e29ae1e599e8028c5b7d99f9c162f57051477eb841b466eddfdc0c93de,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/route-policy.js,JavaScript,1961,013a54b6a27ce9825bce4e87524029472d6beced8a00c685add9ad3c447d8178,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/service-worker.js,JavaScript,873,125d45df3e155c64e99a6794f29d228984524c93762cc7bbd68d5aebf6df676b,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/session-manager.js,JavaScript,3804,6a34d7729bc6cb8161a88a9a95a9e7440e6141b39c2afd56a95c7cfe7b0606e2,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/settings.js,JavaScript,4802,bd5f26d39799a52ce38a290a33ce5f78ed0597e995d4c961adbfe482166b011d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/signin.js,JavaScript,3249,104c3cb9d70c1bc1d515cbb16f853728ec3335ad5d5768699412b7cbec324543,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/signup.js,JavaScript,11461,1cbd8285be74f2eadf4d25b29e08f14b6a7b6a5b0ec6923848323b98225cf381,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/simulator.js,JavaScript,24226,313556cdd044f03f36f2c8efd66b32f12eb5031f47323c6062a9597aa2b2908e,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/site-lab-experience.js,JavaScript,6835,360ca59dd7ffd3a84aeb257e3a83d476d2a205c565feac9513b43a2764d29cba,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/site.js,JavaScript,1488,b2e8aced816c4ccecab035ca84c957bf0a18672129e7e75e006c304e3554824c,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/skills.js,JavaScript,4439,59aab9e404a1a2481d60557f99da0aa5f45b08cdf7618090b26dcae844ce38f9,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/status-platform.js,JavaScript,3493,6000fc7b26c044ca6dc7467789f01c34de4e99884632dd3c5ac5ec129100fbe4,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/store.js,JavaScript,4712,7573301e72929bbf55955f49da644f4b2ebaa5277cbae53dd1fb91b11c563428,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/supabase-client.js,JavaScript,557,cf7570645c00181829592180fb5321e5190d3ac357db3df49a5d826ab63f20e7,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/tools-platform.js,JavaScript,1604,1646a26ea4908935b2fb0ec6227755c2c3e7ca13fa647c70ccd91bbcbae5e363,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/turnstile-auth.js,JavaScript,3867,48066fe673b4754a1d1f0e4d44bcf56a6ceca6160d7f1d649e2c005b7526392d,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/js/update-password.js,JavaScript,609,0de61dd94d000b8d98f22fd03c1511bf9ccc7caacef632aa60c4b03ea5fccea0,Syntax/asset-reference check,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L01.svg,SVG illustration,22753,4e80db887080fe8f335cd115ff1190a6d3fd8a29c8ed38bd8f755ecea5ab399e,File format/structure inspection,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L02.svg,SVG illustration,25363,4e949337fbb1f3e314be15a3a9b5bb9f8910078a94d39138cac43a9cdea6afef,File format/structure inspection,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L03.svg,SVG illustration,24706,4b7094858c4e5c4cac876adc66afb17f746f819bd2a2a2d7a8f52ed5d3daa91f,File format/structure inspection,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L04.svg,SVG illustration,24707,7dde4e53cacf909b1b3a88022a429d74b8817bf3520ca6990a85f9ab7db04745,File format/structure inspection,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L05.svg,SVG illustration,24694,54df53319df53ced9afa826513f3f8e5edd7b927d3ae19b899123476ce1facc7,File format/structure inspection,NOT comprehensively production-tested
+assets/lab-visuals/F3-C06-L06.svg,SVG illustration,25366,c16d80814fab7608f2055dac87f8307ed5a521045bc3f841754c265fdead2981,File format/structure inspection,NOT comprehensively production-tested
+book-preview.html,HTML,1450,be2ac57737fecba3ff37dd10ed500c6ed4fa6aa9c48d5f9f9a15937051218ffd,Syntax/asset-reference check,NOT comprehensively production-tested
+books.html,HTML,3796,814017ec3d79e4815dd6e7fc677ab133e153dc0afb573405c6cbf7ae785d58ef,Syntax/asset-reference check,NOT comprehensively production-tested
+challenges.html,HTML,1765,746e4c05810735dca60ec222454c13c4b67fe65facbae0fc806610f0b2be4a84,Syntax/asset-reference check,NOT comprehensively production-tested
+checkout-status.html,HTML,681,cca4c20fed7931a01fef17fc0add2db57dbd7e2bda9ccc9fe119a6e542543c4a,Syntax/asset-reference check,NOT comprehensively production-tested
+checkout-success.html,HTML,798,9d8b273aed4339719e4e86f654859796a6cde937146952d225d61f62047c927b,Syntax/asset-reference check,NOT comprehensively production-tested
+checkout.html,HTML,939,6efa84ea41ce7e77abc0ea97d125d25d4aa005f39300602471042690b95ef0ae,Syntax/asset-reference check,NOT comprehensively production-tested
+community-guidelines.html,HTML,539,91901bb475df2dd5bc5d6947610086f50cdb8eca193cc145f19e2ea915afe7c9,Syntax/asset-reference check,NOT comprehensively production-tested
+compare.html,HTML,2215,42d684afda2cb4f05d20a7d41469b99084b39721d5271ea094bfc8cbdc9b4afe,Syntax/asset-reference check,NOT comprehensively production-tested
+config.js,JavaScript,797,1620d335df8d6b2927a24f4ebc2745d207354c48b0b07035598060c62412ae97,Syntax/asset-reference check,NOT comprehensively production-tested
+cookie-policy.html,HTML,537,7db4a3bbf6d3f797f61b2ed1f84a3a41983fc25ad924da29a2838e966aebc8fd,Syntax/asset-reference check,NOT comprehensively production-tested
+copyright.html,HTML,539,5f149b074bb9358f13f0742529d313a38ceff462bc65446bc93df90f7705911f,Syntax/asset-reference check,NOT comprehensively production-tested
+corrections.html,HTML,348,47b1c8a4a7db54ff7e05e25957b005e47b634359aa44bf07d7b164c6d2c773b8,Syntax/asset-reference check,NOT comprehensively production-tested
+create-account.html,HTML,4991,513ef4468cf385883708e4123231b644fd838aa1af95cb4c005b3d8c478823c5,Syntax/asset-reference check,NOT comprehensively production-tested
+dashboard.html,HTML,8810,5d37df609471ba1ede3f26088360cf562cbfe7077824be174f9be7a08129562c,Syntax/asset-reference check,NOT comprehensively production-tested
+data/books.json,JSON,1217,8b882801bff4b83038f81875f34462713434d06d55b6c1f11af02f0590170f7a,Syntax/asset-reference check,NOT comprehensively production-tested
+data/challenges.json,JSON,523,edace4ec9f6b1d6de8babc43958441aeb020c6b720b826b2792963e62a8ab256,Syntax/asset-reference check,NOT comprehensively production-tested
+data/commerce-config.json,JSON,875,9f457fc04842888d8987a2bee07b3d265a6b9fa90594f02d85aeb2d46a9721ad,Syntax/asset-reference check,NOT comprehensively production-tested
+data/environments.json,JSON,3456,49919fb84ffe610231d706911935ab0b1e7a7b34814e0b0add0f2a8f88bed755,Syntax/asset-reference check,NOT comprehensively production-tested
+data/interactive-labs.json,JSON,178248,6f643fe6a3a3829bfd66903f473a31c6b8ff0f89f68c73b91b2ec5e26138b605,Syntax/asset-reference check,NOT comprehensively production-tested
+data/journal-taxonomy.json,JSON,1724,49ccd8618f6a66141be9e754739e415f173fc39eda9c15103bd42a558ede379d,Syntax/asset-reference check,NOT comprehensively production-tested
+data/labs.json,JSON,59295,ef7d3520fca80af9486037da6c8ba36206e920cfca046aa8b20a236a5b09322f,Syntax/asset-reference check,NOT comprehensively production-tested
+data/releases.json,JSON,515,a18cd704bce45dffc9ecb5b0102120022a1e12e9e21261055759b0d2fb1dfd4e,Syntax/asset-reference check,NOT comprehensively production-tested
+data/simulator_csv_template.csv,Other,207,d7930a530ff176631c3c117fa6357aca7340eb5cd6b90f513edbaa9c3ab52f4d,Enumerated; inspect context before editing,NOT comprehensively production-tested
+data/skills.json,JSON,3286,b95c0ef2240345e400aee2ed394d97e06d7af95d412833a85ea3be8c5950f056,Syntax/asset-reference check,NOT comprehensively production-tested
+data/store-products.json,JSON,3832,e1ee69bfd91c0cad7847510d21347dba7edd37dd4b3ece575679ab80bf5ae3f5,Syntax/asset-reference check,NOT comprehensively production-tested
+data/tutor-index.json,JSON,8830,c31a4c2d63905b6bdf264d9751e64c674cb1735f9d06883380a57113f07319c1,Syntax/asset-reference check,NOT comprehensively production-tested
+data-connections.html,HTML,2564,adc853f19d0027c6cc6b87c5bb729281a24526c70df98308da91ab8db859ef5a,Syntax/asset-reference check,NOT comprehensively production-tested
+docs/ASSET_RENAME_MAP.csv,Other,4368,1adb9a0f50b619c508f3aa8be1426477b07cbb1ed9b0a57d4eeaa069ae682a39,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/BRANCH_RECONCILIATION_AND_COMPLETENESS.md,Other,5346,9010708ae8922b1a95081a0083b4b40e28b9dc8cec6fb0009b926fce3ace6d58,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/CHANGESET.csv,Other,3203,86ca23d576eae45c53f7c1d844b6c1297aa7b78412dc77157623583d54cb2677,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/CHANGESET.json,JSON,1217,0e44530c7e964e8ea142a14b7b3b34e376091e4a7d01b7dfd8a9e7e1e8d83480,Syntax/asset-reference check,NOT comprehensively production-tested
+docs/CONSOLIDATION.md,Other,7021,05f3e375a9b9ff7b18dd20996e59cc7f25e3dd2bee2f55412f8a4db297e26294,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/CURRENT_RELEASE.md,Other,2295,9d9b222af51a7a4e69fa9621c70a791fed12f957efc759a09501fa91e7da8e12,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/DEPLOY_AND_VERIFY.md,Other,2680,82bb2ae2646d248f30bdf15c52d303c1b5bfb02ca7ffc5b9624448265c601d76,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/DEPLOY_CURRENT.md,Other,2536,7415ddaff8bdcae943c88a6114902c1f294ba942e40adeb37e65f24042bcd15f,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/FEATURE_STATUS.md,Other,3287,0407166b5f7bcdea3fd044653a0cb280b08cc80a7613c08ca8676365d6384996,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/FILE_AUDIT.csv,Other,32982,SELF_INDEX,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/FILE_BY_FILE_DISPOSITION.csv,Other,69969,d55dcd06da8cfc0288a3fc40dcf6c773943d3b3271f86381c21b0d7a54af8b95,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/FILE_HASHES.csv,Other,39588,3cdf68511f8120533f9b413274ce0508f086529df9c86bb613dde2710b0d7660,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/LAB_COLLECTION_FACTS.md,Other,1088,57955128822641f93830145782db98355594d233d72ebe9bce459675ec9cb089,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/PROMISES_AND_READINESS_MATRIX.csv,Other,7750,3d7abf1249b51e2f5e9f031ab725675cd330900f7a1dbbcb68ddef616ccee8b3,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/QA_AND_SOURCE_AUDIT.md,Other,4835,7aef157c913848b08ff90b0457399b00809eea9e757d1a877a4ac968b15ac03b,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/QA_PREVIOUS.md,Other,3815,a96c143ead868d5777b812f9bfffd7e4a6ac3525aa482f91931328694a581973,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/QA_REPORT.md,Other,3632,3ab197e67b33ebcfd270a04818112d0d76976a5296cd24ef32acbbdf1dbd9704,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/QA_STABILIZATION.md,Other,915,a6045f134f0535799189711bb4607f6568ee8d3900888dd52c05cfcba4fd8d5c,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/RECOVERY_SOURCES.md,Other,1608,ea9e549ca2ec61165702d8956af74f11f8623107b12e4d096ecded629cad260c,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/RELEASE_AND_FILE_POLICY.md,Other,4261,5b1c1ddd395267cc5c454bf28b7d6217600bbe2191525957579fa8f3ffcd0e00,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/REMOVED_BASELINE_FILES.csv,Other,19901,09ff78a809ac4920725dc63b9f61b5f79958214c0c1897fe606133127d9196fe,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/RETIRED_ASSET_MANIFEST.csv,Other,1969,e0add05f53d0f73edb987a56d688cf0a26d669e87704b33b57b3e424d8ff34b4,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/RETIRE_PRIOR_BASELINE_FILES.csv,Other,951,dfcfa7007e21c5365c2439fcad72950928aa4e1750a696f6df8ad70dd86930b3,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/SITEWIDE_AUDIT.md,Other,6475,9d6fddf56c85fd95fc78b37c87eb1cdac6e0869ea1f57ff0fbe575fc21a6d350,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/SQL_STATUS.md,Other,1422,6d90748159e22e9dab0a5c99ee87e74315938e214aee1c2ebccc36e997552738,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/STABILIZATION.md,Other,6625,5ffbb8fe53b52989c8af1685b4748f7fc6de08a9276b4a5207be9f257cdde05a,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/VERIFICATION.md,Other,1656,f79a2e6978ea646284477b503ca817e243fb1e8235347f159c0a1cc6910684f5,Enumerated; inspect context before editing,NOT comprehensively production-tested
+docs/repository-remediation/LAB_EVIDENCE_INVENTORY.csv,Other,114392,da06b8ac3937786089b21ac050bc22be2e380ed21dfa22375984656e22e1fc92,Enumerated; inspect context before editing,NOT comprehensively production-tested
+educational-disclaimer.html,HTML,540,86c0e1cc46c7c9fc839786adc80a9abb23e40b1db6314c1f2665ad1ae61475f7,Syntax/asset-reference check,NOT comprehensively production-tested
+environments.html,HTML,2371,41ec1a250110471bf2e7173939c1bb9d61e41341f952c36c4acce42a07c77001,Syntax/asset-reference check,NOT comprehensively production-tested
+forum-topic.html,HTML,2287,bfa2a3e9ec7a3d9b09af3da2bd40a0f1ac7a6c395b0aeb93776a4c8fcfff01c0,Syntax/asset-reference check,NOT comprehensively production-tested
+forum.html,HTML,3907,57cd7f0a8a028e38dd5c7f454cc5aeb68ada4e3041e858640fa5297e3235206c,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/_middleware.js,JavaScript,16971,01f50fd6b5948791508f663a7ba481527fe7fc9cc850a3f16cfbfbf808c29807,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/account.js,JavaScript,10372,3b842536bfe81053881881125a4e029dc6743e109d0678d394321b1fca127e41,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-access-v01355.js,JavaScript,11772,434bc9afac62866d4ceaec937671654406e992244f818308c4b165a6f49b3280,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-accounts-v01351.js,JavaScript,19568,5b1bdeb6d98676d7dcf654667c6c022ebdfa14e16f0f0a3ea644e3f36e42bd04,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-accounts-v01352.js,JavaScript,24472,8fe334f270d9e216cb01e010c4e2e1e589375f2567a84a637552027b0ec2ae37,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-accounts-v01353.js,JavaScript,33692,725d7ec57a9c9a802a9d92ff3abe6dd79f102a4f9ce536806ebd9d304e3051fc,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-book-pricing-v01353.js,JavaScript,6827,e3ac849540c853759744eb8f266dc78b01d3951a52ef5635448c1a1ce4dddd80,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-lab-preview-v01355.js,JavaScript,3481,2365de6dd2a1c168edcec73c4c3b9fc827fcfaadd541fde461f188e61cbd5629,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-operations-center-v0135.js,JavaScript,12404,f27eed441a9b6868387655af5abe189f922682d1640dc701a8a992298a02cabf,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-operations-v0135.js,JavaScript,11786,e3df88198f647071ad74c035d6d8d42166a7740e4800d360bfd6ebf5a977b890,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-site-v01354.js,JavaScript,18247,372f601ac9b2811fe592d3ef2f2e35ca009f0b47d72319c461fdf2b6adcb4897,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-v013.js,JavaScript,38224,a80170e70f5b7af11e9621acd3e97c85054e4036df3951aeb3378f0ee723cd49,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-v0133.js,JavaScript,5160,117a7ba8baf221d20d99b5a3607522a37b135a9af865fdcccb459df40d554914,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin-v0134.js,JavaScript,16775,c85796dc7dd17305b8478ab44d029bb1f24b5afa0a4bf8ba8c746aa6f8042010,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/admin.js,JavaScript,65300,b324376c79087ce9e8c4c3f1d3af7ac135f6a0e7c82a7414f9d31e7903b8560c,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/ads.js,JavaScript,8731,43f0c2714854741e7d875e83f2fc20c7997a42d4e4065f468d806813f1e33ea4,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/assessment-v0135.js,JavaScript,3938,6630c6bcc1170eb7203ca9e81d9ea1f303028ef5863cd3b6174218ab76c85fed,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/auth-guard-v0135.js,JavaScript,651,059403f120596568b51550a1d07b5f0271e3938321a0fc131ef748dbbcb21070,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/book-activation-v0135.js,JavaScript,7276,33e46c0abebc09d57837a75b9136de230ec7211f4bc5e79c33bb999d82ad9fc6,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/book-catalog-v0135.js,JavaScript,7319,7394ec853b8b037977842ee3519db527b6bea9798bf695eb133942ff1dc1b946,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/checkout-v0135.js,JavaScript,6958,996223bc479ab6c327b0c8b73799acae92bfab1232c7a571bba76e6e9e7ac44c,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/checkout.js,JavaScript,6314,2c04aed0c4d0da1e9c7e4363514d9610b67858127b8517056a0a9954c535ef85,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/competencies.js,JavaScript,9229,49e1a5553403b59c4fbd985bc9ea7c2f07ed9a9c5b19c15de357121718ce51b2,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/credentials.js,JavaScript,5104,d12a2560feaf1da5afe5cdfdb88baacde3eb7435dd58dcbe5fe42448fe8a1f90,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/home-member-stats-v01353.js,JavaScript,5593,c1bad72c3006a003bc740f001a601a308de558d51cbd22a716f34f1b28cbb947,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/lemon-webhook.js,JavaScript,8653,49b1b9af4c17ae4697ece72041457bbcf4e7ae831730446696fbd17ac3be7cbf,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/marketdata.js,JavaScript,6216,18f9851bc4e0af7d09270d21469e30bdd588d2f07ca95c446db07ab7be1045a4,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/ondemand-training.js,JavaScript,6522,a8873d734974dbb89a86a0d71dd1dea8a69526d4d04602df96d7e54a9c251287,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/public-form-v01354.js,JavaScript,3447,c493a0f535c1212a3b7840b13dec3d90d8b92881f9951293d87b0bbae554d31a,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/public-site-v01354.js,JavaScript,1008,d5518a34a59888890ac6078757b5f9097c4b8f0d71a3af3ba7396b34809a9ed1,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/replay-practice-v0135.js,JavaScript,5023,23fe0fa3792cbdc659f757e719822b74bc7a42c63fbbb6d3f61a39c483ecacb4,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/showcase-v0135.js,JavaScript,7315,f61e00167faedf84d52804ca0ab37215c085e7a6a3e5a4cbe67f7b02039d825c,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/support.js,JavaScript,4978,4022b4dc0efc2e634f4c1faf42254f522acbcdacb63145b049c5b67ae19328e8,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/ui-state.js,JavaScript,5167,fe2658f2de7b8d82df01f23b9cba7e6f26d4ec485b70e17e016c5de94af9129c,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/api/username-login.js,JavaScript,2826,8f5728fe12368f5f74c603cfa3fe947d1adba1c6e800952691ec7d351ed0f022,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/f/[slug].js,JavaScript,3551,821c2be77f0a7c0b94c8f7861c932376dc32f6083b5c3fae6e89dfe6f18a8a7d,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/managed-pages-sitemap.xml.js,JavaScript,1386,d4e2694c483841d7d0d3fb53bbd00a7ef1b9d3f4273848fdfaf6270c68084ed1,Syntax/asset-reference check,NOT comprehensively production-tested
+functions/p/[slug].js,JavaScript,3025,43cc1979c36bde1de1cea84faeb48495a2861541a3f65cc6317f1479695d3af2,Syntax/asset-reference check,NOT comprehensively production-tested
+help.html,HTML,775,27a6b3cc3ad98ba4e852235ef365016f863dd766aef8bbb20af50328c76f3d09,Syntax/asset-reference check,NOT comprehensively production-tested
+index.html,HTML,3935,4380c37e9e5123d25cbb0ab35f0bb783017b93d8b17d9f38fcb5cab359c7d08c,Syntax/asset-reference check,NOT comprehensively production-tested
+journal-analytics.html,HTML,4581,5f41fe3ad4eff4e82f56fdb2356ffb3d2529186ddf18543d8febe99d3150b01d,Syntax/asset-reference check,NOT comprehensively production-tested
+journal-entry.html,HTML,12224,b0aefc0c01c320f2844067a8cb008a852051d225c4bc11605caeec58786df143,Syntax/asset-reference check,NOT comprehensively production-tested
+journal.html,HTML,5408,0b373b21ce8199907ec35a37e289d8951541735576ec5d23600fa473940b892c,Syntax/asset-reference check,NOT comprehensively production-tested
+lab-catalog.json,JSON,1137428,08ebfdce4f2f23f005350a1ec1ab723f1572330c27df98f947cce934930f53cd,Syntax/asset-reference check,NOT comprehensively production-tested
+lab-player.html,HTML,2541,8e7eaa7afb42454b57ecc760042696d880402b99c6f6f1b7ac6b0bd5a7eed288,Syntax/asset-reference check,NOT comprehensively production-tested
+lab-samples.html,HTML,3374,1c788c095cabab1efb036bc575f0991c69d845a1bf2a854bad47b1f1dce45cfc,Syntax/asset-reference check,NOT comprehensively production-tested
+labs.html,HTML,3627,bd117145fa440c0f0422fe464360f492aca6ab5af7baffb417a36cf623dc5f8c,Syntax/asset-reference check,NOT comprehensively production-tested
+learn/index.html,HTML,200,b72b3a838fcb2ddcb68a23a12ab807b3ddd0480d29f36d732bd39535d3b40a65,Syntax/asset-reference check,NOT comprehensively production-tested
+learn.html,HTML,5894,ebd02e8e0f81274833e948552dcfb309d7c7e297ab93d952224d5e8f05fca5ec,Syntax/asset-reference check,NOT comprehensively production-tested
+manifest.webmanifest,JSON,295,39d7b1c5b7069d9d870f8243a899df025530d0a4cf700326d9eb7d81000f5bde,Syntax/asset-reference check,NOT comprehensively production-tested
+market-commons.html,HTML,2451,75cffa1416aca72d2d5b1b29879bf7ac006e0325ad50fe82a1dc146215cee71b,Syntax/asset-reference check,NOT comprehensively production-tested
+market-tutor.html,HTML,3445,3d4f2bf9e85829c5d41e76800905f77052d867f14f333d7ac39c76120564a6a0,Syntax/asset-reference check,NOT comprehensively production-tested
+membership.html,HTML,3352,f04631c05e634ca8ca8d19b02ae79e612f4c298337274180187c6b7da8847c84,Syntax/asset-reference check,NOT comprehensively production-tested
+mfa-security.html,HTML,3096,a670c597c4f576c33c3324aa6ba74c9904654d651364b6c8d81050b8588fabf1,Syntax/asset-reference check,NOT comprehensively production-tested
+my-books.html,HTML,1595,f0ae20799b63fdd9369c1232678c8aa155cf4139d4cc0666888b4924b67769aa,Syntax/asset-reference check,NOT comprehensively production-tested
+my-library.html,HTML,1922,4ea6641b588c01452d718107f14b4d43c2443516330a0ae208c14e1744803af1,Syntax/asset-reference check,NOT comprehensively production-tested
+my-purchases.html,HTML,2070,53f4a022f9f61bffb5b3a93614fb377c99e973dd31a650832b168b3f8c87bced,Syntax/asset-reference check,NOT comprehensively production-tested
+offline.html,HTML,704,342f59e6fcf3979ed9ec6ecbe8aabd2c77bb41ca49d258e69f0a03757cff7b42,Syntax/asset-reference check,NOT comprehensively production-tested
+ondemand-training.html,HTML,5193,43ced263441da530d4c5839af8ad10eae3af22915dda866e25eb92a14bd9231e,Syntax/asset-reference check,NOT comprehensively production-tested
+privacy.html,HTML,537,7133c13a6156495fb44619cc1f3b4ae4183087f58d9816d649fd448d06dc4b79,Syntax/asset-reference check,NOT comprehensively production-tested
+product.html,HTML,925,ac96e1a444ee78cb1f10554f1d490431677168fea3e7c4edfb2076717ffe3ccf,Syntax/asset-reference check,NOT comprehensively production-tested
+refund-policy.html,HTML,537,5fbbecf107f4d81ccdfd9c8d31f3e26272f21973a6b31bace7e4a66f1915f38f,Syntax/asset-reference check,NOT comprehensively production-tested
+releases.html,HTML,2133,9bcc3626840e60abd4884ab1b2cf757357613a98a7916648254fa0c97494629f,Syntax/asset-reference check,NOT comprehensively production-tested
+review-queue.html,HTML,2571,7c8d1af75ee58a042460749180c2b74274730ac76b2a908aef84169ebec35663,Syntax/asset-reference check,NOT comprehensively production-tested
+scripts/build-pages.sh,Other,769,8123bda7330f1562b7cd1a0150984b77c1175021eee7dc41a019cc37f18a17ce,Enumerated; inspect context before editing,NOT comprehensively production-tested
+scripts/cleanup-retired-assets.ps1,Other,1518,922916d773059f3b3366e5b797a75386854218fe7fcbab3f2a502213dd8a3b33,Enumerated; inspect context before editing,NOT comprehensively production-tested
+settings.html,HTML,3888,c7f56a8a6512a0498aebfe93556d6770e2b42996f6c7df191096229156e807be,Syntax/asset-reference check,NOT comprehensively production-tested
+signin.html,HTML,2981,772b13cf27794a7a8e26c399ae916da4b495fcdd81e753f319f50ba4f2d9d153,Syntax/asset-reference check,NOT comprehensively production-tested
+simulator.html,HTML,9447,cfe46b268e98aafe0247a307944b856b373ec5d24b1cd2bfe433fc6fdb59628f,Syntax/asset-reference check,NOT comprehensively production-tested
+site-lab.html,HTML,1214,db9c4e1c0cfdb7c94efedc262468ca505c834c320930956f1f0425e39dbd9f63,Syntax/asset-reference check,NOT comprehensively production-tested
+skills.html,HTML,3058,2aae582d646a6133aece95f77581fe8d6ffbc212c809aeaf5351d9716010ce9e,Syntax/asset-reference check,NOT comprehensively production-tested
+src/ts/production-completion.ts,Other,46836,3b06b38d45ee860db2dec2e3a86a65d4eee4697c9b33286fccbbae4b4ca79715,Enumerated; inspect context before editing,NOT comprehensively production-tested
+store.html,HTML,4040,e03dceaba174cf5c631837ce0ef7489ac3ff8561c0e8579792ff02ea56b4b65d,Syntax/asset-reference check,NOT comprehensively production-tested
+subscription-terms.html,HTML,542,bec7f9477b258c0f8ce420fb6994af7dc1ac71938ab501fa620d36178fb5a717,Syntax/asset-reference check,NOT comprehensively production-tested
+supabase/admin/database-contract-audit-read-only.sql,Postgres SQL,2783,0bf28d4fff4bcd4b1e13c6ddaf8aaea8d0cb86a0e7416c7bb44682b67d2e55f9,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/database-contract-read-only.sql,Postgres SQL,4597,68efb9f3ffb2fa044c38743ad5c3a2dc0bba2be9af2537bb7b3bf14b1e29405f,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.10_PRELAUNCH_delete_old_account.sql,Postgres SQL,1796,da0ac81521e45245f6ffe0db2a4ea0b6fe0d873668fb02f13cd1a1b7afc9a563,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.10_VERIFY_OWNER_AFTER_CLAIM.sql,Postgres SQL,959,0d0dfb01ca7a22e2c098f7f5d37db8fe3f8e8e07387de1e2a86b8e688ba2686c,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.11_To Make_Onwer_VERIFY_platform.sql,Postgres SQL,2567,706953b6503f27a106f0d2f8c95d38be8cb015e127fb8e311ffcea06799abaeb,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.12.1_VERIFY_profile_membership_admin_ui.sql,Postgres SQL,1385,089045821d7fdedfcb67c4ab2e6cf37a1dfc8e297bece4ce197bd8d3be3256f4,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.1_VERIFY_frontend_completion.sql,Postgres SQL,1313,5bd38908ef48b6b9d9f89ba306a34bee69861e8af401dfa95df1119a7a95d628,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.2_VERIFY_production_completion.sql,Postgres SQL,1499,e841588f414c6717980c34801d19c746f93e59ca8d252cb2caac0b49f89f7303,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.3_VERIFY_frontend_freeze_labs_commons.sql,Postgres SQL,2804,1909e8e25a63b62db09875d7cdbd748bdd31109eb8de5b7e2b0b81eb5f794583,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.4.2_OPTIONAL_SHOWCASE_SYNTHETIC_GRANT_CLEANUP.sql,Postgres SQL,1714,26a34f97427d1a1a3d8728c221e806926ac7b48d09adb200f3f419a83d108283,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.4.2_PREFLIGHT_READ_ONLY.sql,Postgres SQL,3507,2bd88a9d4c09bbdffdad76290de869f14835b24d79e039c7624e9b2430b08185,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.4.2_VERIFY_LOCKDOWN.sql,Postgres SQL,1372,9ebdccd56f7cca1343e6d3f85d5302fc3f0596bcfe04b7c6e55f458232c0a16d,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.4_VERIFY_SKILLS_ADMIN_SHOWCASE.sql,Postgres SQL,1421,3249a9ce3b3952c78a56d966976eadee3ee19a3cc11bb7febcece3fc2bc28cea,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5.1_ADMIN_ACCOUNTS_PREFLIGHT_READ_ONLY.sql,Postgres SQL,1726,aa4d17b100fda6ac6be8c43613c678c3f80b4fd73b72d8177228638255eba160,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5.2_ADMIN_ACCOUNTS_PREFLIGHT_READ_ONLY.sql,Postgres SQL,853,cba945c3fd2da00436b755e4a4b59d29dda99a566ef1062307e0ef3cea774e66,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_ADMIN_CENTER_READ_ONLY_PREFLIGHT.sql,Postgres SQL,1599,6ce837c0b3e2e37e98f234e9c4eaf2c09fa25c05a2d6a383ceeeaf287fd4d735,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_FINAL_PREFLIGHT_READ_ONLY.sql,Postgres SQL,2102,de7b376b309568dc67fae7fe908d58b11cec118233cc3ffa95e7d1d5a517f6d7,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_FINAL_VERIFY_READ_ONLY.sql,Postgres SQL,3065,f2ba83c5cf289879fb036d443dfe1d8274891d377b89d620f1f9e18cdcb318f0,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_PHASE2_VERIFY_READ_ONLY.sql,Postgres SQL,2115,231e02497d5bc9bd7420b0fb850dff334121ad318fb6cbb1ca6f8f9f8b731445,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_PREFLIGHT_READ_ONLY.sql,Postgres SQL,1208,ce02f924483a6accdb38fb7987eab26df65d15aba1719da1aca76b3bc0ddabfd,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_REPLAY_ONLY_KDP_VERIFY_READ_ONLY.sql,Postgres SQL,964,c4e007d82fb4bd56dd628d17a876abd30d18014e65ea42c06033a262653b1b39,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.13.5_VERIFY_READ_ONLY.sql,Postgres SQL,3003,7febc8f9f2e7486be1576eb5d07092cf0b2a2a0b21b0a383a9b156a7edccc473,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.5.3_generate_book_keys.sql,Postgres SQL,517,94afa2fdda9ff99dc902fef1fb1d82c344df26d96d1860e25fdf8b24740bf0f0,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.6_generate_book_keys.sql,Postgres SQL,576,7daa5ca178af7dbe08b6bbbe709a5fa589aa43554a805202f6a8eba2851808db,File format/structure inspection,NOT comprehensively production-tested
+supabase/admin/v0.9_example_library_grant.sql,Postgres SQL,401,4fbcaaba1091a23963279886c1d270db0a281324b732a9492da52c00436762de,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.10_admin_control_center.sql,Postgres SQL,28429,4fac58306b9fe7caa9868f99125c0d4cd2784bdc83d51cff387c7de1d2587d41,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.11_advanced_platform_architecture.sql,Postgres SQL,88724,97bd95c00f11ade03a56fd2c28f314a75afe9b1bbf311fe9be795e09c3401841,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.12.1_profile_membership_admin_ui.sql,Postgres SQL,40662,96dbef3359838ec2b2adffed60621c1e925262807ff366f3784deb037bf943e1,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.1_CUMULATIVE_from_v0.11.3.sql,Postgres SQL,93236,d55e13308ab2eb50df59b121b831275141022958b0d9a64127224ac010852909,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.2_CUMULATIVE_from_v0.13.1.sql,Postgres SQL,42554,8b957831f6049ebdb4fb82e49a3e9c4b631e22b843f92edf6244321e1a6430db,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.3_FRONTEND_FREEZE_LABS_COMMONS.sql,Postgres SQL,964735,415c988919f38cd0daf36e43357edfbed8ca2396457b2f8c0a8bff0a27d5b603,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.4.2_SHOWCASE_PERMISSION_LOCKDOWN.sql,Postgres SQL,1128,d93b8db1498ebf26f5bab2e07abe12a489b927727d6859974c4f8de152410722,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.4_SKILLS_ADMIN_SHOWCASE.sql,Postgres SQL,19023,50957552e308352c94d0d3dab66431f319b196ee64b31f87604467a4a68c776b,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_FINAL_COMMERCE_ASSESSMENTS.sql,Postgres SQL,13054,1d008816d2ef53cb45503e7acc18be74553026ff104950cabcaddb47305f58ea,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_FINAL_ORDER_FULFILLMENT.sql,Postgres SQL,8104,29729f32bf6d20bb8ac98b53727ef61189b585582fab3135f4e47ff456594ff6,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_PHASE2_REPLAY_DECISION_LEDGER.sql,Postgres SQL,4187,52dbec51d4e74fe06c2ac1bab83af27c0690841f915d7d357e60054e0cc40b06,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_PHASE2_SHOWCASE_RESOLVER_GUARD.sql,Postgres SQL,4618,f4df8a6765dedc7b0a3812535db8992b49e5e2d26234d15c026ec97f60600ff7,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_REPLAY_ONLY_PLAN_KDP_DRAFT_LINKS.sql,Postgres SQL,3200,37bcf6462bfd4416ee055c419ccd88ee60a42de71e88d9439427d4a2da049dc4,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.13.5_TRAINING_BOOK_ACTIVATION_FOUNDATION.sql,Postgres SQL,17004,956714e9cfd18727a92e74b7fb7c578dc0887030ae23c82ea3a5180242a6947c,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.2_profile_trigger.sql,Postgres SQL,983,9a112c304ae384cfdd111210a7ff01b8ebcdff23a5edfb4def18ad415bf0f6f6,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.2_progress_delete_policy.sql,Postgres SQL,321,77cd670a188acd3957e8c4a1987faa2125afa98e038792b574110a08c48aec3f,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.3_authenticated_table_grants.sql,Postgres SQL,587,af4a72ebbb20f90fe6714e33641f3db27399924a33b63d16e87afb0c8a09ef37,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.5.1_signup_availability.sql,Postgres SQL,899,d4f0b758a448ee5f7afee915e7cfb965cba5e1dd2186c8e98bac8161afc540bb,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.5.3_identity_book_keys.sql,Postgres SQL,17646,530d053d918d1dc80fe8026e40096beddcab3f9c076b435d55fccb0b1469c8ef,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.5_identity_settings_forum.sql,Postgres SQL,14114,ae5b318c0a62c03e14b63883d5d6e1e68cce922a52a0d201f83144d81efd5824,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.6_interactive_learning_system.sql,Postgres SQL,10742,1e5706d11cafd042b6101f47ad756bc34de4a4a2cd72ae08796fe536fb4bb3ef,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.7_live_trading_journal.sql,Postgres SQL,15304,1303097e572633ca4b0a95fcf082ca84ea4aff6b13f6adbc23d0acbac408848e,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.8_market_simulator.sql,Postgres SQL,2462,0f1e3fa6dc241d05b846af88ba6ff05cc426ca59e70a6d276b832e1b26893219,File format/structure inspection,NOT comprehensively production-tested
+supabase/migrations/v0.9_commerce_library_tutor.sql,Postgres SQL,8783,7dfe5babfdd2938c08b372512a69eb243dcd542be8d01a7a3e33d2a0c1e22322,File format/structure inspection,NOT comprehensively production-tested
+supabase/schema.sql,Postgres SQL,3765,8489c64c4493b504d267e34134ada240041ba4a69d07a1751acf8475cf6008bc,File format/structure inspection,NOT comprehensively production-tested
+sw-v0131.js,JavaScript,293,6dc664a02935df951b6d12f0ee2e351a12a69ab10058e789f91906e2122cbb57,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v01321.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v01322.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v01323.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v01324.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v0133.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v0134-mobile-auth.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v0134.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v01342.js,JavaScript,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,Syntax/asset-reference check,NOT comprehensively production-tested
+sw-v0135.js,JavaScript,102,0f0ab1ebf08232bc20a45522d3c34973b1ecc714e693414b319d131380eafe37,Syntax/asset-reference check,NOT comprehensively production-tested
+sw.js,JavaScript,2503,55667ce87bdef55d091c7942a8735cd789c27a4e9b7c67f59dee086232ea9d24,Syntax/asset-reference check,NOT comprehensively production-tested
+terms.html,HTML,535,8df116ec83bc233883b90e6a5106e1b75dd7a6d77ee81c1b9023af446cd5f936,Syntax/asset-reference check,NOT comprehensively production-tested
+tests/qa_clean_baseline.py,Other,4030,eb0ea1b3ecb465eee6d2195d98ed525ee2ee5ae79c29dc93557503056b220521,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_admin_forum.py,Other,5872,2a90e2868ff57134615344dfbd360cf78fab1520581f10e5572f6b53d57b57bc,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_admin_registry.py,Other,2916,9c24e5cdabf7a6fe306258dcb46a7041be9c9c027d9bc3d6f240b63069639288,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_branch_inclusion.py,Other,3036,e48e92fae4c7765d5a436c60181ce801a40918cb796e19f59271dc8fbc8ae4ee,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_consolidation_browser.py,Other,3651,a744dd4174af7a1c4e44e1a42e78ef5bbabb2c4363cf8b4bc7a3d8ba34310f5a,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_header_geometry.py,Other,2212,f0b0032495b451c08594c878314a18f509ede8a10b16ef17cff8a51cd5c1375b,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_lab_api.mjs,JavaScript,2980,57586ddcdb4a560a3255744904f0b75a8bfe5c3a7611dee111a3ee40fa45c841,Syntax/asset-reference check,NOT comprehensively production-tested
+tests/test_member_registry.py,Other,3067,6e906163eddb7847c683d493485236e739296fe363eae846563946d0847b71b5,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_mfa_rollout_policy.mjs,JavaScript,1896,e326a3d4ff26799d34f59889cde13f9677a0e7c27ffa9564660bb9b8c47a8cbb,Syntax/asset-reference check,NOT comprehensively production-tested
+tests/test_navigation.py,Other,3523,12b9f036195f320f7be8e962dd7b52813b73e27726558a70f00c3d04e1fc06ed,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_navigation_bundle.py,Other,2670,16b88c9c7aebf0f2781ea4305bcb24be0ab60ba5736d8b0530952577cf5fd1db,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_page_preview_and_forum_replies.py,Other,3671,beae041b33008e65a7fbaa009d5f6895e952b5930057f98c5205d5d0c2923a60,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_recovery_policy.mjs,JavaScript,2760,5628c5fbea1b812edffa0656f806c97f81e19736dc0294b2fe35c95e6e78d402,Syntax/asset-reference check,NOT comprehensively production-tested
+tests/test_skill_gallery_admin_directory.py,Other,4558,41179b6de10713e332494a7811ee15b2132119f6cac6f8c0ce196a5c9bc41184,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_stabilization.py,Other,8029,2e88a00bd08bd313684ddd8705700d4406b8c4c6da3455c9216e95d6641b7538,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tests/test_stable_filenames.py,Other,2734,ead7c395b58ff2626bf0fe834ffb23fa48cf5e5676857863f4ddefc79628451b,Enumerated; inspect context before editing,NOT comprehensively production-tested
+tools.html,HTML,1526,1d0140eeace50a762747cd7a47d71d83290742f7c8df608aa5a90ceb0970553e,Syntax/asset-reference check,NOT comprehensively production-tested
+update-password.html,HTML,1244,2ce14d9d0b49b50b2f18176a98e026b5c2488af3ff2a02ebc6ef9b54ae5fd463,Syntax/asset-reference check,NOT comprehensively production-tested

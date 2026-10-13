@@ -43,3 +43,17 @@
 @media(max-width:850px){.v134-snapshot-grid{grid-template-columns:1fr}.v134-commons-member-nav{position:relative;top:auto}.v134-account-dialog .grid{grid-template-columns:1fr}.site-header .brand{min-width:0;max-width:none;flex:1}.site-header .fe-header-tools{margin-left:auto}}
 @media(max-width:600px){.v134-subscore-grid{grid-template-columns:1fr}.v134-detail-head{flex-direction:column}.v134-skill-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.v134-skill-card{transition:none!important}}
+
+/* Skill-development visual library: all 30 competencies have source-controlled SVG illustrations. */
+.v134-skill-grid{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));align-items:stretch}
+.v134-skill-card{display:grid;grid-template-columns:96px minmax(0,1fr);grid-template-rows:auto auto 1fr;grid-template-areas:"visual name" "visual score" "visual meta" "trend trend";gap:.32rem .75rem;min-width:0;min-height:144px;align-content:start;padding:.68rem;overflow:hidden}
+.v134-skill-card .v134-skill-thumb{grid-area:visual;align-self:start;display:block;line-height:0;width:96px;aspect-ratio:12 / 11;border-radius:10px;overflow:hidden;border:1px solid #35617e;background:#061827}
+.v134-skill-card .skill-illustration{display:block;width:100%;height:100%;object-fit:cover}
+.v134-skill-card .v134-skill-score{grid-area:score;min-width:0;display:inline-flex;justify-self:start;align-self:start;place-items:unset;justify-content:center;align-items:center;padding:.26rem .47rem;background:#152d3e;border:1px solid #4c6676;font-size:.73rem;line-height:1.25;white-space:normal;text-align:left;min-height:25px}
+.v134-skill-card strong{grid-area:name;font-family:inherit;font-size:1rem;line-height:1.35;overflow-wrap:anywhere}
+.v134-skill-card small{grid-area:meta;line-height:1.35;overflow-wrap:anywhere}
+.v134-skill-card .v134-skill-trend{grid-area:trend;display:block;margin-top:.1rem;border-top:1px solid #294b62;padding-top:.4rem}
+.v134-detail-graphic{width:125px;min-width:125px;aspect-ratio:12/11}
+.v134-detail-graphic img{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid #496e88}
+@media(max-width:620px){.v134-skill-grid{grid-template-columns:1fr}.v134-skill-card{grid-template-columns:86px minmax(0,1fr)}.v134-skill-card .v134-skill-thumb{width:86px}.v134-detail-graphic{width:88px;min-width:88px}}
+@media(prefers-reduced-motion:reduce){.v134-skill-card{scroll-behavior:auto}}

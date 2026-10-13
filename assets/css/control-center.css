@@ -73,3 +73,10 @@
  #v132-home .v132-home-hero h1{font-size:clamp(2.2rem,7vw,3.25rem);max-width:22ch}
 }
 @media(max-width:480px){#v132-home .v132-home-hero-grid.v1358-stats-grid>.v132-hero-panel{grid-template-columns:minmax(0,1fr)}}
+
+/* Functional live-preview companion to existing authorized plain-text CMS editor. */
+.site-page-live-preview{border:1px solid #42647a;border-radius:11px;background:#0c283c;padding:1rem;margin:1rem 0}
+.site-page-live-preview h3{color:#f3c76b;margin:0 0 .7rem}
+.site-page-live-preview h4{font-size:clamp(1.2rem,2vw,1.6rem);margin:.3rem 0 .55rem}
+.site-page-live-preview p{color:#b7d0dc}
+.site-page-live-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;max-height:40vh;overflow:auto;border-top:1px solid #365874;margin-top:.65rem;padding-top:.65rem}
