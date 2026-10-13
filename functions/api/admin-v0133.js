@@ -22,7 +22,11 @@ async function requirePermission(env,req,permission){
 async function audit(env,actor,action,targetType,targetId,details={}){try{await rest(env,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:actor,action,target_type:targetType,target_id:String(targetId||''),details}})}catch{}}
 export async function onRequest({request,env}){const u=new URL(request.url),action=clean(u.searchParams.get('action'));try{
   if(action==='commons_topic_save'&&request.method==='POST'){
-    const c=await requirePermission(env,request,'forum.moderate'),b=await request.json();
+    const c=await requirePermission(env,request,'forum.moderate');
+    // Only the OWNER may publish or edit content attributed to the platform.
+    // A moderator cannot convert another member's discussion into an official guide.
+    if(!c.roles.includes('OWNER'))return out({error:'Official Platform Guides require OWNER authority.'},403);
+    const b=await request.json();
     const id=Number(b.id)||null,forumCode=clean(b.forumCode).toUpperCase(),title=clean(b.title),body=clean(b.body);
     if(!forumCode||!title||!body)return out({error:'Sub-forum, title, and guide body are required.'},400);
     if(title.length>180)return out({error:'Guide title is too long.'},400);
@@ -33,6 +37,7 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
     if(id){
       const existing=(await rest(env,`commons_topics?select=id,is_official&id=eq.${id}`))?.[0];
       if(!existing)return out({error:'Topic not found.'},404);
+      if(existing.is_official!==true)return out({error:'Member discussions cannot be converted into official guides through this editor.'},409);
       await rest(env,`commons_topics?id=eq.${id}`,{method:'PATCH',prefer:'return=minimal',body:{forum_code:forumCode,title,body,is_official:true,is_pinned:!!b.isPinned,is_locked:!!b.isLocked,status:'published',author_label:'Official Platform Guide',updated_at:now,last_post_at:now}});
       await audit(env,c.user.id,'commons.guide.update','commons_topic',id,{forumCode,title});
       return out({ok:true,id});

@@ -5,7 +5,7 @@ import {toolAccess} from '../functions/api/member-tool-access.js';
 import {onRequest as labApi} from '../functions/api/lab-content.js';
 import {onRequest as trainingApi} from '../functions/api/interactive-training.js';
 const env={SUPABASE_URL:'https://unit.supabase.test',SUPABASE_PUBLISHABLE_KEY:'unit_public',SUPABASE_SECRET_KEY:'unit_secret',ENABLE_PAID_CHECKOUT:'false',REQUIRE_STAFF_AAL2_V135:'false'};
-let accountKind='member',owner=true,access=true,flagStatus='active',reads=[],mutations=[];
+let accountKind='member',owner=true,access=true,bookGrant=true,flagStatus='active',reads=[],mutations=[];
 function mockData(path,init){if(path.includes('/auth/v1/user'))return {id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'};
  if(path.includes('profiles?'))return[{account_kind:accountKind}];
  if(path.includes('admin_user_flags?'))return [{status:flagStatus}];
@@ -19,7 +19,8 @@ function mockData(path,init){if(path.includes('/auth/v1/user'))return {id:'aaaaa
  if(path.includes('lab_training_attempts_v014?'))return [{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lab_id:'F2-C07-L01',mode:'guided',step_index:0,completed_at:null}];
  if(path.includes('rpc/v014_training_start'))return {id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',lab_id:'F2-C07-L01',mode:'guided',step_index:0,completed_at:null};
  if(path.includes('rpc/v014_training_answer'))return{ok:true,complete:false,stepIndex:1,correct:true,explanation:'Authored explanation'};
- if(path.includes('user_library?')||path.includes('book_key_redemptions?'))return[];
+ if(path.includes('user_library?'))return bookGrant?[{product_code:'FOUNDATION_BOOK_2',expires_at:null}]:[];
+ if(path.includes('book_key_redemptions?'))return[];
  return[];
 }
 globalThis.fetch=async (input,opts={})=>{const path=String(input),init={method:opts.method||'GET',body:opts.body};reads.push(path);return new Response(JSON.stringify(mockData(path,init)),{status:200,headers:{'content-type':'application/json'}})};
@@ -37,5 +38,6 @@ r=await labApi({request:request('/api/lab-content?id=F2-C07-L01'),env});assert.e
 r=await trainingApi({request:request('/api/interactive-training?action=start','POST',{labId:'F2-C07-L01',mode:'guided'}),env});assert.equal(r.status,201);let body=await r.json();assert.equal(body.question.explanation,undefined,'Never leak feedback before graded answer');
 r=await trainingApi({request:request('/api/interactive-training?action=available&labId=F2-C07-L01'),env});body=await r.json();assert.equal(body.questionCount,1);assert.equal(JSON.stringify(body).includes('PRIVATE'),false);
 r=await trainingApi({request:request('/api/interactive-training?action=answer','POST',{attemptId:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',answer:'YES',expectedStep:0}),env});assert.equal(r.status,200);assert(reads.some(x=>x.includes('rpc/v014_training_answer')));
+bookGrant=false;owner=false;r=await trainingApi({request:request('/api/interactive-training?action=start','POST',{labId:'F2-C07-L01',mode:'guided'}),env});assert.equal(r.status,403,'Standalone training entitlement must not reveal unpaid Book II instruction');bookGrant=true;owner=true;
 accountKind='showcase';r=await trainingApi({request:request('/api/interactive-training?action=available&labId=F2-C07-L01'),env});assert.equal(r.status,403);
 console.log('PASS: Owner-only plan mutations, checkout disabled, synthetic/test denial, tool access, private Lab delivery, no pre-answer feedback/key leaks');

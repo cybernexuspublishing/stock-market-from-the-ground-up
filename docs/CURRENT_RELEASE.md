@@ -1,5 +1,5 @@
-# Current Release — v0.14.0.0 Preview Candidate
+# Current Source Candidate — v0.14.0.1 (13 October 2026)
 
-Not deployed or approved for live paid enrollment. Based on Owner-supplied v0.13.5.7.7. The safe install guide is `docs/SQL_AND_RELEASE_INSTRUCTIONS.md`; the detailed gap inventory is `docs/CAPABILITIES_AND_GAPS.md`; unresolved security issues are in `docs/SECURITY_OPEN_FINDINGS.md`. Cloudflare build: `bash scripts/build-pages.sh` → `public`.
+**NOT PRODUCTION ACCEPTED. NO LIVE DEPLOYMENT OR SUPABASE WRITES.**
 
-**New SQL IS REQUIRED** to use the new plan controls, instructor, atomic community reports and GWS draft workspace. DO NOT deploy those APIs without corresponding schema and private content seeds. Leave `ENABLE_PAID_CHECKOUT` unset/false.
+This owner-uploadable source candidate is v0.14.0.0 plus a controlled forum/Supabase-direct-write guard and forum-report legacy-schema repair, book assessment entitlement enforcement, and payment reactivation guard. Read `docs/v0.14.0.1_NEXT_PHASE_SECURITY_AUDIT.md`, `docs/v0.14.0.1_ENGINEERING_RISK_REGISTER.md`, and `docs/v0.14.0.1_RELEASE_TEST_RESULTS.md` before considering a preview. Preserve production database, secrets, and KDP protections. Need v0.14.0.0 migration **and private separate Lab seeds** before the additive v0.14.0.1 SQL. Preview only. Paid checkout remains OFF.

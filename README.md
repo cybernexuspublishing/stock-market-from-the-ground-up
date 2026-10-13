@@ -1,6 +1,10 @@
 # The Stock Market: From the Ground Up — Cloudflare Pages Website
 
-**v0.14.0.0 — PREVIEW RELEASE CANDIDATE. NOT PRODUCTION ACCEPTED.**
+**v0.14.0.1 — CONTROLLED SECURITY PREVIEW CANDIDATE. NOT PRODUCTION ACCEPTED.**
+
+**Current release guidance:** `docs/v0.14.0.1_NEXT_PHASE_SECURITY_AUDIT.md`, `docs/v0.14.0.1_ENGINEERING_RISK_REGISTER.md`, and `docs/v0.14.0.1_RELEASE_TEST_RESULTS.md`. This update fixes Supabase-direct Market Commons TEST/SHOWCASE post bypass, historical forum-report constraint incompatibility, legacy real-entitlement demo routes, official guide attribution controls, paid book-authored question access, and plan/checkout reactivation. It requires the **additional** v0.14.0.1 additive SQL after the existing v0.14.0.0 migration and the separately-held private instructional seeds. **Do not push to production without read-only preflight and live role/account tests.**
+
+### Preserved v0.14.0.0 source provenance
 
 This is the complete GitHub-root website source, based on the Owner-uploaded v0.13.5.7.7 snapshot (401 tracked files). It preserves the existing Cloudflare Pages Functions, Supabase integrations, historical Lab catalog (419 IDs; original 94 Foundations IDs), Dashboard, forum/Market Commons, Admin Control Center, and UI.
 
@@ -12,7 +16,7 @@ New features include: OWNER-only membership visibility and checkout-disable cont
 
 1. Back up the existing GitHub commit and the **existing** Supabase project.
 2. Run the read-only `supabase/admin/v0.14.0.0_PREFLIGHT_READ_ONLY.sql` and review missing prerequisites before any migration.
-3. If prerequisites match, manually run `supabase/migrations/v0.14.0.0_OWNER_PLANS_AND_INTERACTIVE_TRAINING.sql` once. The Owner must separately load the two private Lab seed SQL files outside of public GitHub (do not place them in this ZIP/repository).
+3. If prerequisites match, manually run `supabase/migrations/v0.14.0.0_OWNER_PLANS_AND_INTERACTIVE_TRAINING.sql` once **only if not already applied**. The Owner must separately load the two private Lab seed SQL files outside of public GitHub (do not place them in this ZIP/repository). **Then, after independent review, apply `supabase/migrations/v0.14.0.1_FORUM_WRITE_AND_CHECKOUT_GUARDS.sql` once**.
 4. Run `supabase/admin/v0.14.0.0_POSTFLIGHT_READ_ONLY.sql` and verify counts, roles and RLS.
 5. Push this source to a GitHub **preview branch**, then build Cloudflare Pages with `bash scripts/build-pages.sh` and output directory `public`. Cloudflare will separately compile the root `functions/` directory.
 6. Test with nonprivileged, Owner, test and Showcase accounts; verify checkout remains disabled, one correct reviewed training example, history persistence, private SQL exposure controls, and forum permissions. Only then consider promoting to main.

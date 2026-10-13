@@ -63,6 +63,10 @@ async function apiMutationBoundary(context,url){
   const blockedOwner=await protectLegacyOwnerTarget(context,url);
   if(blockedOwner)return blockedOwner;
   const action=url.searchParams.get('action')||'';
+  // Legacy demo lifecycle creates REAL paid grants and can mass-delete accounts
+  // by an email +demo- substring; keep synthetic QA in approved TEST/SHOWCASE flows.
+  if(url.pathname==='/api/admin-v013'&&['demo_create','demo_delete'].includes(action))
+    return reject('Legacy real-entitlement demo creation and broad demo deletion are disabled. Use isolated TEST account administration.',503);
   // A legacy book checkout intent has no format or edition. Require the v0.13.5
   // format-bound endpoint; leave pre-existing subscription checkout unchanged.
   if(url.pathname==='/api/checkout'&&request.method==='POST'&&url.searchParams.get('action')==='create'){
@@ -219,7 +223,7 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.0');
+        el.setAttribute('data-build','v0.14.0.1');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
