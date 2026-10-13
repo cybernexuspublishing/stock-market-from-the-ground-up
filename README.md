@@ -1,3 +1,13 @@
+# v0.14.0.5 — Owner Status Guard and Ordered Program Roadmap (Engineering Candidate)
+
+**Current owner-uploadable release candidate. Not production accepted. Do not activate paid checkout.**
+
+Start with `docs/v0.14.0.5_ORDERED_MASTER_EXECUTION_PLAN.md` for the **77 work items in mandatory order**, then read `docs/v0.14.0.5_CHANGE_REPORT.md` and `docs/v0.14.0.5_RELEASE_QA.md`.
+
+v0.14.0.5 adds *two specific server-side Owner account-status authorization guards*, updates live version/cache markers and documents remaining P0–P2 dependencies. It **does not** complete billing, all 419 reviewed lessons, historical trade evidence, or multi-tenant Grant Web Solutions public hosting. Existing v0.14.0.4 fixes and source stay intact.
+
+---
+
 # v0.14.0.4 — Controlled Security Corrections (Cumulative Candidate)
 
 **Not a paid-launch or production acceptance declaration.** Cumulative from the uploaded v0.14.0.3 ZIP. The deployment remains Owner-controlled. Start with `docs/v0.14.0.4_ENGINEERING_AUDIT.md` for implemented changes, open P0–P2 work, SQL requirements, and the tests actually run.

@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.4",
-  "status": "ENGINEERING HARDENING CANDIDATE — merged account controls, new access-boundary and payment checks, GWS draft revisioning. Staging/live verification incomplete; paid checkout and direct digital book sales remain disabled.",
+  "version": "0.14.0.5",
+  "status": "CONTROLLED P0 ACCESS-HARDENING AND EXECUTION-ROADMAP CANDIDATE — SOURCE TESTS ONLY. Live schema, checkout, historical training, GWS publishing and full P0-P2 acceptance remain outstanding.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {

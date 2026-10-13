@@ -8,7 +8,7 @@ all_files=[x for x in R.rglob('*') if x.is_file() and not {'.git','public','__py
 paths={p.relative_to(R).as_posix() for p in all_files}
 print('PASS 1 — Archive layout',len(paths),'source files at repository root')
 assert all(not s.startswith(('UPLOAD_TO_REPOSITORY_ROOT/','stock-market-from-the-ground-up-main/')) for s in paths)
-assert {'index.html','admin.html','dashboard.html','labs.html','functions/_middleware.js','assets/js/navigation.js','sw.js','lab-catalog.json','data/interactive-labs.json','PROJECT_ADVANCED_ENGINEERING_RULES.md'}<=paths
+assert {'index.html','admin.html','dashboard.html','labs.html','functions/_middleware.js','assets/js/navigation.js','sw.js','lab-catalog.json','data/interactive-lab-index.json','PROJECT_ADVANCED_ENGINEERING_RULES.md'}<=paths
 assert not any(x.endswith('README_v0.13.5.1_Admin_Account_Management.md') for x in paths)
 assert 'v0.13.5.1_RELEASE_MANIFEST.json' not in paths
 # Source / syntax / JSON
@@ -37,16 +37,17 @@ assert "if(!LAB_BOOKS.has(book))throw problem" in old
 print('PASS 3 — HTML assets resolve, lab views are scoped/book-paged')
 # Curriculum ids intact and under explicit provenance boundary
 catalog=json.loads((R/'lab-catalog.json').read_text())['labs']
-foundation=json.loads((R/'data/interactive-labs.json').read_text());assert len(catalog)==419
+foundation=json.loads((R/'data/interactive-lab-index.json').read_text());assert len(catalog)==419
+assert not (R/'data/interactive-labs.json').exists(),'Private authored Labs must not appear in public static assets'
 assert len({x['lab_id'] for x in catalog})==419
 assert len(foundation)==94 and {x['id'] for x in foundation}<={x['lab_id'] for x in catalog}
 assert sum(1 for x in catalog if x.get('ticker') and x.get('historical_date'))==122
 # No protected routes from cache, old active worker retained
-sw=(R/'sw.js').read_text();assert 'groundup-v013576-public' in sw
+sw=(R/'sw.js').read_text();assert 'groundup-v01405-public' in sw
 assert "POLICY.isProtected(p)" in sw and "fetch(req,{cache:'no-store'})" in sw
 assert "'/admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text() or "'admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text()
 assert 'Legacy Showcase provisioning is disabled' in (R/'functions/api/admin-v0134.js').read_text()
-print('PASS 4 — 419 Lab IDs, 94 frozen foundations, SW private-route restriction, Showcase guard')
+print('PASS 4 — 419 Lab IDs, 94 private-lesson index records, SW private-route restriction, Showcase guard')
 # Entire source inventory file includes original input dispositions
 with (R/'docs/FILE_BY_FILE_DISPOSITION.csv').open(newline='') as f:rows=list(csv.DictReader(f))
 assert len(rows)==441,('expected input inventory 441',len(rows))

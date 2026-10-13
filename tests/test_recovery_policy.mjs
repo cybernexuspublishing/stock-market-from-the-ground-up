@@ -11,6 +11,7 @@ const uid='11111111-1111-4111-8111-111111111111';
 globalThis.fetch=async function(url){const s=String(url);calls.push(s);
  if(s.includes('/auth/v1/user'))return response({id:uid,email:'test@example.invalid'});
  if(s.includes('/rest/v1/profiles?'))return response([{account_kind:'member'}]);
+ if(s.includes('/rest/v1/admin_user_flags?'))return response([{status:'active'}]);
  if(s.includes('/rest/v1/account_private_identity?'))return response([{age_eligible:true,date_of_birth:'1990-01-01'}]);
  if(s.includes('/rest/v1/admin_user_roles?'))return response([{role_code:'MODERATOR',expires_at:null}]);
  throw new Error('Unexpected outbound request: '+s);
