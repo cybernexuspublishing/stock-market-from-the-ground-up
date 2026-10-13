@@ -1,3 +1,5 @@
+**Current development candidate: v0.14.0.7 — Legacy + Market Commons report security repair (NOT deployed, NOT P0–P2 complete).** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.7_FORUM_SECURITY_REPAIR.md`. This version requires two new write migrations in a controlled sequence.
+
 **Current development candidate: v0.14.0.6 (not deployed; not P0–P2 complete).** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.6_IMPLEMENTATION_SCOPE.md`.
 
 # v0.14.0.6 — Security and Contract Hardening (Engineering Candidate)

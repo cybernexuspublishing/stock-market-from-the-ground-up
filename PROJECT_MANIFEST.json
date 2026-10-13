@@ -1,6 +1,6 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.6",
+  "version": "0.14.0.7",
   "status": "Security and correctness patch candidate: not a completed P0-P2 launch; live Supabase/provider verification pending",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,

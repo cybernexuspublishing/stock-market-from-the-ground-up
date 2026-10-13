@@ -1,11 +1,12 @@
-# Current Source Candidate — v0.14.0.6 (13 October 2026)
+# Current Source Candidate — v0.14.0.7 (October 13, 2026)
 
-**Project:** The Stock Market: From the Ground Up + Grant Web Solutions
-**Status:** source-tested security and verification update, NOT P0–P2 completion or production accepted.
-**Baseline:** v0.14.0.5. Supabase / Cloudflare / GitHub remain unchanged.
+**Source-tested security remediation candidate, NOT production accepted.** Base: complete v0.14.0.6 ZIP. No site deployment or production SQL changes were performed by the assistant.
 
-This controlled release closes a set of authenticated-account security issues in reviewed assessment, membership checkout, legacy account operations, and Owner community settings. It preserves the stable filenames, existing API paths and 419 Lab identifiers. Details: `v0.14.0.6_IMPLEMENTATION_SCOPE.md`.
+- Implemented a unified browser-reporting path through `/api/commons-report`, protecting both the old `/forum-topic.html` route and Market Commons while distinguishing their independent databases with typed `legacy` and `commons` namespaces.
+- Prepared **TWO NEW WRITE SQL MIGRATIONS** to be manually applied in order: **A before the frontend deployment** and **B after the new frontend is working in production**. B revokes unauthorized member direct report INSERT. DO NOT swap the order.
+- Reasserted service-only EXECUTE for `user_has_tool_access`, already manually verified by the Owner in the current database.
+- Hardened suspended/restricted and Showcase checks and preserved all 419 historical Lab identifiers, active stable asset filenames, Admin interface, GWS drafts, membership pricing and checkout-off policy.
 
-**77-task status register:** `v0.14.0.6_77_TASK_VERIFICATION_REGISTER.csv` and the controlling `v0.14.0.5_ORDERED_MASTER_EXECUTION_PLAN.md`. The file inventory is not evidence of verified historical data or production correctness.
+**Mandatory guide:** `docs/v0.14.0.7_FORUM_SECURITY_REPAIR.md`.
 
-**SQL for v0.14.0.6 patch:** no new write migration. Existing read-only preflight: `supabase/admin/v0.14.0.4_SAFE_CONTRACT_INSPECTION_READ_ONLY.sql`. Do not rerun previous migrations without reconciling production.
+**The 77-task roadmap remains unfinished.** Source presence does not equal live permission or payment verification. No 419-Lab answer verification or licensed historical market-data acceptance is claimed.

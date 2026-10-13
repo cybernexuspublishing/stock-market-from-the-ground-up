@@ -34,11 +34,41 @@ async function addReply(e){
   const sb=await window.getSupabaseClient(); const {error}=await sb.from('forum_posts').insert({topic_id:topicId,author_id:topicUser.id,body}); if(error){msg.textContent=error.message;return}
   document.getElementById('reply-body').value='';msg.textContent='Reply posted.';await loadPosts();
 }
-async function submitReport(targetType,targetId){
-  const reason=prompt('Briefly describe the concern (spam, harassment, manipulation, misinformation, personal information, other):'); if(!reason)return;
-  const sb=await window.getSupabaseClient(); const row={reporter_id:topicUser.id,reason:reason.slice(0,80)}; row[targetType==='topic'?'topic_id':'post_id']=targetId;
-  const {error}=await sb.from('forum_reports').insert(row); alert(error?error.message:'Report submitted for review.');
+let pendingLegacyReport=null;
+function submitReport(targetType,targetId){
+  if(!topicUser||!Number.isSafeInteger(Number(targetId))||Number(targetId)<1)return;
+  if(!['topic','post'].includes(targetType))return;
+  pendingLegacyReport={type:targetType,id:Number(targetId),topicId};
+  const dlg=document.getElementById('legacy-report-dialog');
+  if(!dlg)return;
+  const form=document.getElementById('legacy-report-form');form.reset();
+  document.getElementById('legacy-report-status').textContent='';
+  dlg.showModal();
 }
 function reportPost(id){submitReport('post',id)}
 function reportTopic(){submitReport('topic',topicId)}
-document.addEventListener('DOMContentLoaded',loadTopic);
+async function sendLegacyReport(e){
+  e.preventDefault();
+  const target=pendingLegacyReport, form=e.currentTarget;
+  const status=document.getElementById('legacy-report-status');
+  const button=form.querySelector('button[type=submit]');
+  if(!target||button.disabled)return;
+  button.disabled=true;status.textContent='Submitting report…';
+  try{
+    const sb=await window.getSupabaseClient();
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session)throw Error('Sign in to submit a report.');
+    const r=await fetch('/api/commons-report',{
+      method:'POST',
+      headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
+      body:JSON.stringify({...target,scope:'legacy',reason:form.elements.reason.value,details:form.elements.details.value})
+    });
+    const body=await r.json().catch(()=>({}));
+    if(!r.ok||!body.ok)throw Error(body.error||'Unable to submit report.');
+    status.textContent='Report submitted for moderator review.';
+    pendingLegacyReport=null;
+    setTimeout(()=>{const dlg=document.getElementById('legacy-report-dialog');if(dlg?.open)dlg.close()},1000);
+  }catch(err){status.textContent=err.message||'Unable to submit report.';}
+  finally{button.disabled=false;}
+}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('legacy-report-form')?.addEventListener('submit',sendLegacyReport);loadTopic()});
