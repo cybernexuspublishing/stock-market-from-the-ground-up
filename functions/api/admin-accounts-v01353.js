@@ -244,8 +244,9 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
  if(action==='delete'){
    const id=clean(b.userId);if(id===ownerId)throw problem('The current Owner cannot self-delete in Admin.',403);
    const x=await lookup(env,id),isOwner=x.roles.includes('OWNER');if(isOwner)strongAssurance(actor);
-   const wanted=isOwner?'DELETE OWNER '+x.profile.username:'DELETE '+x.profile.username;
-   if(clean(b.confirmation)!==wanted)throw problem('Type '+wanted+' exactly.',400);
+   if(clean(b.confirmation)!=='DELETE ACCOUNT')throw problem('Type DELETE ACCOUNT exactly.',400);
+   if(isOwner&&clean(b.ownerConfirmation)!=='DELETE OWNER '+x.profile.username)
+     throw problem('Owner account deletion also requires the username-specific secondary confirmation.',400);
    const reason=clean(b.reason);if(reason.length<10||reason.length>1000)throw problem('Deletion reason must be 10–1000 characters.');
    if(isOwner){const owners=await rest(env,'admin_user_roles?select=user_id,expires_at&role_code=eq.OWNER');if(owners.filter(r=>!r.expires_at||Date.parse(r.expires_at)>Date.now()).length<=1)throw problem('The last production Owner cannot be deleted.',409);}
    for(const [table,col] of [['site_orders','id'],['site_subscriptions','id'],['checkout_intents','intent_id'],['order_entitlement_ledger_v135','id']]){const rows=await rest(env,table+'?select='+col+'&user_id=eq.'+id+'&limit=1');if(rows?.length)throw problem('Financial/subscription records exist; use the privacy/retention review workflow.',409);}

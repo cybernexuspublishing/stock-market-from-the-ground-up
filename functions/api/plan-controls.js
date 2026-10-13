@@ -19,10 +19,10 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
   if(body.checkoutEnabled)throw bad('Enabling checkout requires a separate audited payment rollout, not this interface.',403);
   patch.checkout_enabled=false;
  }
- if(Object.keys(patch).length===1)throw bad('Nothing to change.');
+ if(Object.keys(patch).length===1&&body.pauseCheckout!==true)throw bad('Nothing to change.');
  if(code==='FREE'&&patch.active===false)throw bad('The FREE account fallback cannot be disabled. You may hide it from public pricing.',409);
  // Atomic SQL transaction is mandatory: update + audit must succeed together.
- const changed=await db(env,'rpc/v014_owner_plan_visibility','POST',{p_actor:actor,p_code:code,p_active:patch.active===undefined?old.active:patch.active,p_visible:patch.public_visible===undefined?old.public_visible:patch.public_visible,p_pause_checkout:body.pauseCheckout===true});
+ const changed=await db(env,'rpc/v014_owner_plan_visibility','POST',{p_actor:actor,p_code:code,p_active:patch.active===undefined?old.active:patch.active,p_visible:patch.public_visible===undefined?old.public_visible:patch.public_visible,p_pause_checkout:body.pauseCheckout===true||body.checkoutEnabled===false});
  if(!changed?.ok)throw bad('Membership update was not confirmed.',503);
  return out({...changed,notice:'Membership availability updated and audited. Existing subscriptions/entitlements are unaffected.'});
 }catch(e){return out({ok:false,error:e.message||'Plan request failed.'},e.status||500)}}

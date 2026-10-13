@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.2",
-  "status": "ACCOUNT MANAGEMENT REPAIR PREVIEW CANDIDATE - direct visible navigation and complete Owner account editor; database compatibility migration required; not live verified or production accepted.",
+  "version": "0.14.0.4",
+  "status": "ENGINEERING HARDENING CANDIDATE — merged account controls, new access-boundary and payment checks, GWS draft revisioning. Staging/live verification incomplete; paid checkout and direct digital book sales remain disabled.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {

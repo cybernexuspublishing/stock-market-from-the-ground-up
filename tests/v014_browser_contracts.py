@@ -18,13 +18,6 @@ with sync_playwright() as p:
   assert page.locator('#plan-manager').evaluate('(el)=>el.scrollWidth<=el.clientWidth+2'),f'Plan grid overflow at {width}px'
   assert page.locator('#plan-manager article').nth(1).get_by_text('NO').count()>=1
   page.close()
- page=browser.new_page(viewport={'width':390,'height':850})
- page.set_content('<base href="https://example.test/"><main><div id="gws-msg"></div><section id="gws-projects"></section><form id="gws-form"><input name="projectCode"><input name="label"><input name="contactLabel"><input name="pageTitle"><textarea name="pageSummary"></textarea><textarea name="pageText"></textarea><button type="submit">Save</button></form></main>')
- page.evaluate("window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:'fixture.jwt'}}})}})")
- page.route('**/api/gws-projects',lambda route:route.fulfill(status=200,content_type='application/json',body=json.dumps({'ok':True,'projects':[{'project_code':'EXAMPLE','label':'<img src=x onerror=alert(1)>','page_title':'Draft','page_blocks':[],'status':'draft'}],'publishingEnabled':False})))
- page.add_script_tag(path=str(R/'assets/js/gws-projects.js'))
- page.wait_for_function('document.querySelectorAll("#gws-projects button").length===1')
- assert page.locator('#gws-projects img').count()==0
- assert 'DRAFT' in page.locator('#gws-projects').inner_text()
+ # GWS versioned preview/revision UI is exercised by v0143_gws_browser.py.
  browser.close()
-print('PASS Owner membership and GWS browser fixtures at 1440/860/390; no XSS and no plan grid horizontal overflow')
+print('PASS Owner membership controls at 1440/860/390; no XSS and no plan grid horizontal overflow (GWS via v0143_gws_browser.py)')

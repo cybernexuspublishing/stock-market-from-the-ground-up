@@ -7,11 +7,11 @@
       await reg.update();
       if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
       navigator.serviceWorker.addEventListener('controllerchange',()=>{
-        const key='v0135-controller-reload';
+        const key='v01403-controller-reload';
         if(sessionStorage.getItem(key)==='1')return;
         sessionStorage.setItem(key,'1');location.reload();
       },{once:true});
-      setTimeout(()=>sessionStorage.removeItem('v0135-controller-reload'),12000);
+      setTimeout(()=>sessionStorage.removeItem('v01403-controller-reload'),12000);
     }catch(error){console.warn('[v0.13.5] Service worker registration failed',error)}
   });
 })();

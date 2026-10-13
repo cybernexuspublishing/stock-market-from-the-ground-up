@@ -11,13 +11,16 @@ export async function onRequestPost({request,env}){
  const token=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!token)return out({ok:false,error:'Sign in to report content.'},401);
  const get=async(path,admin=false)=>{const key=admin?secret:pub,r=await fetch(url+path,{headers:{apikey:key,authorization:'Bearer '+(admin?secret:token)},cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Report backend unavailable.'),{status:r.status});return r.json()};
  const me=await get('/auth/v1/user');if(!me?.id)return out({ok:false,error:'Invalid session.'},401);
- const profile=(await get('/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];if(['showcase','test'].includes(profile?.account_kind))return out({ok:false,error:'This account cannot report production content.'},403);
+ const profile=(await get('/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];const flags=(await get('/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];
+ if(profile?.account_kind!=='member'||['suspended','restricted'].includes(flags?.status))return out({ok:false,error:'Only eligible production members may report production content.'},403);
  const b=await request.json().catch(()=>null),id=Number(b?.id),type=safe(b?.type),reason=safe(b?.reason),details=safe(b?.details);
  if(!Number.isSafeInteger(id)||id<1||!['topic','post'].includes(type)||!['spam','harassment','scam','privacy','misinformation','other'].includes(reason)||details.length>500)return out({ok:false,error:'Invalid report details.'},400);
  const source=type==='topic'?'commons_topics':'commons_posts';
- const exists=await get('/rest/v1/'+source+'?select='+(type==='post'?'id,topic_id':'id')+'&status=eq.published&id=eq.'+id+'&limit=1',true);
+ // Query as the REPORTING MEMBER: RLS must confirm that this member can view the
+ // curriculum/tool-gated forum. A service-role existence lookup would bypass it.
+ const exists=await get('/rest/v1/'+source+'?select='+(type==='post'?'id,topic_id':'id')+'&status=eq.published&id=eq.'+id+'&limit=1');
  if(!exists?.length)return out({ok:false,error:'Content is not available.'},404);
- if(type==='post'){const parent=await get('/rest/v1/commons_topics?select=id&status=eq.published&id=eq.'+Number(exists[0].topic_id)+'&limit=1',true);if(!parent?.length)return out({ok:false,error:'Content is not available.'},404);}
+ if(type==='post'){const parent=await get('/rest/v1/commons_topics?select=id&status=eq.published&id=eq.'+Number(exists[0].topic_id)+'&limit=1');if(!parent?.length)return out({ok:false,error:'Content is not available.'},404);}
  const contentId='commons:'+type+':'+id;
  // Quota, de-duplication and insert MUST happen in one SQL transaction.
  const r=await fetch(url+'/rest/v1/rpc/v014_community_report',{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json'},body:JSON.stringify({p_actor:me.id,p_type:type,p_content:contentId,p_reason:reason,p_details:details}),cache:'no-store'});

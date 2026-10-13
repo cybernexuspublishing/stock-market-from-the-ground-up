@@ -1,3 +1,17 @@
+# v0.14.0.4 — Controlled Security Corrections (Cumulative Candidate)
+
+**Not a paid-launch or production acceptance declaration.** Cumulative from the uploaded v0.14.0.3 ZIP. The deployment remains Owner-controlled. Start with `docs/v0.14.0.4_ENGINEERING_AUDIT.md` for implemented changes, open P0–P2 work, SQL requirements, and the tests actually run.
+
+# v0.14.0.3 — Cumulative Security, Forum Access, Account and GWS Draft Hardening
+
+**ENGINEERING CANDIDATE — not production validated.** Complete release records: `docs/v0.14.0.3_ENGINEERING_STATUS.md` and `docs/v0.14.0.3_RELEASE_TESTS.md`. This cumulative full-source package is based on the **exact released v0.14.0.2 ZIP** and retains the first-class Admin Account Management workspace. It is not a replacement for the owner's manual deployment approval or independent review of live customer data.
+
+Changes: Commons forum-level book/tool access under Postgres RLS and posting RPCs; legacy forum read access isolation including SECURITY DEFINER RPCs; legacy real TEST-entitlement creation routes blocked; synthetic TEST OnDemand access closed; Market Commons reports respect member-level RLS; payment webhook store/variant validation and payload minimization; member credential API guards; account deletion's required `DELETE ACCOUNT` phrase; Grant Web Solutions Owner-private draft history, safe preview and audited atomic rollback; service-worker cache version update.
+
+**Database additions (apply in staging in order after the previous version):** `supabase/migrations/v0.14.0.3_COMMONS_ENTITLEMENT_PRIVACY_GUARDS.sql`, `.../v0.14.0.3_LEGACY_FORUM_READ_ISOLATION.sql`, then `.../v0.14.0.3_GWS_DRAFT_REVISIONS.sql`. All require earlier v0.14.0.0–v0.14.0.2 migration prerequisites. Never rerun older cumulative migrations indiscriminately. All paid checkout stays off; GWS client publishing remains off; historical tape/Level II and fully authored Labs require verified original content/data and rights.
+
+---
+
 # The Stock Market: From the Ground Up — Cloudflare Pages Website
 
 **v0.14.0.2 — ACCOUNT MANAGEMENT NAVIGATION AND COMPLETE EDITOR PREVIEW. NOT PRODUCTION ACCEPTED.**

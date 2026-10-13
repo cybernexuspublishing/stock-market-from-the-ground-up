@@ -4,7 +4,7 @@ import json
 
 root=Path(__file__).resolve().parents[1]
 manifest=json.loads((root/'PROJECT_MANIFEST.json').read_text())
-assert manifest['version']=='0.14.0.2'
+assert manifest['version']in ('0.14.0.2','0.14.0.3','0.14.0.4')
 html=(root/'admin.html').read_text()
 js=(root/'assets/js/admin-operations.js').read_text()
 access=(root/'assets/js/accounts-access.js').read_text()

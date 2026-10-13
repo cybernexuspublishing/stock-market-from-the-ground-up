@@ -67,6 +67,12 @@ async function apiMutationBoundary(context,url){
   // by an email +demo- substring; keep synthetic QA in approved TEST/SHOWCASE flows.
   if(url.pathname==='/api/admin-v013'&&['demo_create','demo_delete'].includes(action))
     return reject('Legacy real-entitlement demo creation and broad demo deletion are disabled. Use isolated TEST account administration.',503);
+  // Older TEST creation still writes REAL plan/tool/book entitlements.
+  // Deprecated v0.13.4 account creation can also issue paid grants to a new user.
+  // The audited v0.14.0.2 Account Management endpoint is the sole creation path.
+  if((url.pathname==='/api/admin-v013'&&action==='test_account_create')||
+     (url.pathname==='/api/admin-v0134'&&['account_create','test_account_create','account_identity_correct','account_email_update'].includes(action)))
+    return reject('This legacy account mutation route is retired. Use the visible Admin Account Management workspace.',410);
   // A legacy book checkout intent has no format or edition. Require the v0.13.5
   // format-bound endpoint; leave pre-existing subscription checkout unchanged.
   if(url.pathname==='/api/checkout'&&request.method==='POST'&&url.searchParams.get('action')==='create'){
@@ -223,7 +229,7 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.2');
+        el.setAttribute('data-build','v0.14.0.4');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
