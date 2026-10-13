@@ -1,0 +1,11 @@
+-- ADMIN EXAMPLE ONLY. Do not run until you replace the UUID and product code deliberately.
+-- This helper exists for support/testing and is not callable from the browser.
+-- select public.admin_grant_library_item(
+--   '00000000-0000-0000-0000-000000000000'::uuid,
+--   'FOUNDATION_BOOK_1',
+--   'companion',
+--   'admin',
+--   'support-grant',
+--   null,
+--   '{"note":"example only"}'::jsonb
+-- );
