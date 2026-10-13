@@ -1,13 +1,22 @@
-# The Stock Market: From the Ground Up — Website Source
+# The Stock Market: From the Ground Up — Cloudflare Pages Website
 
-**v0.13.5.7.6 — Visual learning and Admin workflow candidate (not deployed).**
+**v0.14.0.0 — PREVIEW RELEASE CANDIDATE. NOT PRODUCTION ACCEPTED.**
 
-Contains the complete GitHub-root source tree for Cloudflare Pages/Functions, continuing the three-branch reconciled v0.13.5.7.1 package. Old overlapping browser scripts and two duplicate homepage counters were consolidated. v0.13.5.7.2 was subsequently deployed and Owner screenshots verified sign-in and key administrative views. v0.13.5.7.4 is deployed and the Owner reported two additional UI defects. The v0.13.5.7.5 candidate repaired those defects; this next release adds 30 original skill illustrations, a grouped Admin workflow directory, page-editor preview, and bounded Market Commons reply pagination. **This new candidate has not been deployed; actual Supabase authorization/write paths, KDP listing data and historical market examples remain to be independently verified.**
+This is the complete GitHub-root website source, based on the Owner-uploaded v0.13.5.7.7 snapshot (401 tracked files). It preserves the existing Cloudflare Pages Functions, Supabase integrations, historical Lab catalog (419 IDs; original 94 Foundations IDs), Dashboard, forum/Market Commons, Admin Control Center, and UI.
 
-Start with **`docs/CURRENT_RELEASE.md`**, **`docs/DEPLOY_AND_VERIFY.md`**, **`docs/SQL_STATUS.md`**, and **`docs/PROMISES_AND_READINESS_MATRIX.csv`**. Older reports are historical audit records rather than current install instructions.
+New features include: OWNER-only membership visibility and checkout-disable controls; draft founding offers ($49.99 monthly, $499 annually, currently hidden/inactive); server-reviewed graded steps for a single seeded candle-mechanics exercise; private book-authored Lab content storage with a separate private Owner SQL import; server-side paid feature checks for simulator and protected market-data operations; rolling 60-minute activity stats and optional labeled demonstration ranges; atomic forum reporting; and a Grant Web Solutions Owner-only **draft** registry. All these features need the manual additive SQL migration and, for Labs, the separate private SQL seeds before they can be used. No live payment enrollment is enabled.
 
-If creating an empty GitHub repository, extract this ZIP locally and upload/push **all contents into the repository root** (`index.html`, `assets/`, `functions/`, `supabase/`, `docs/`), not as one ZIP or a nested folder. Preserve the current Supabase and Cloudflare projects. GitHub upload does NOT execute Supabase SQL.
+**Not complete:** verified historical market observations for all Labs; live brokerage/market-data infrastructure; full branching replay execution and first-class graded skill evidence across all Labs; multi-tenant Grant Web Solutions client publishing; fully functional automated operations, backup/restore, and payment-provider reconciliation. Code presence is not production validation. See `docs/CAPABILITIES_AND_GAPS.md` and `docs/SECURITY_OPEN_FINDINGS.md`.
 
-**Release safeguards:** No real Showcase entitlements; no enabled paid checkout/QR activation/CAPTCHA/mandatory staff MFA. Existing publisher-approved EPUB files and their curriculum are outside this website repository and remain unchanged. Use only independently authorized thinkorswim OnDemand for Replay Learning.
+## Manual deployment workflow (no automated writes by assistant)
 
-**Stable-filename release policy:** Active frontend JS/CSS files, catalog data and the canonical service worker use functional names without release numbers. Future changes replace those exact files. Historical SQL migrations, existing API URLs, and legacy service-worker install URLs retain their immutable names to prevent breaking production contracts. See `docs/RELEASE_AND_FILE_POLICY.md`.
+1. Back up the existing GitHub commit and the **existing** Supabase project.
+2. Run the read-only `supabase/admin/v0.14.0.0_PREFLIGHT_READ_ONLY.sql` and review missing prerequisites before any migration.
+3. If prerequisites match, manually run `supabase/migrations/v0.14.0.0_OWNER_PLANS_AND_INTERACTIVE_TRAINING.sql` once. The Owner must separately load the two private Lab seed SQL files outside of public GitHub (do not place them in this ZIP/repository).
+4. Run `supabase/admin/v0.14.0.0_POSTFLIGHT_READ_ONLY.sql` and verify counts, roles and RLS.
+5. Push this source to a GitHub **preview branch**, then build Cloudflare Pages with `bash scripts/build-pages.sh` and output directory `public`. Cloudflare will separately compile the root `functions/` directory.
+6. Test with nonprivileged, Owner, test and Showcase accounts; verify checkout remains disabled, one correct reviewed training example, history persistence, private SQL exposure controls, and forum permissions. Only then consider promoting to main.
+
+Never paste private API keys, encrypted credentials or the private authored 94-Lab/answer-key SQL into GitHub. Do not rerun historical migrations automatically. KDP Select and publication restrictions remain in place.
+
+Active frontend filenames are stable; only the outer ZIP carries the release version. Immutable historical SQL migrations, established API paths and service worker compatibility URLs are deliberate exceptions.

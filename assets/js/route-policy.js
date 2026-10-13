@@ -9,7 +9,7 @@
     'skills','review-queue','advanced-tool','forum-topic','challenges',
     'environments','compare','assessments','ondemand-training','my-books','activate-book','mfa-security'
   ];
-  const STAFF = ['admin','admin-operations','admin-lab-preview'];
+  const STAFF = ['admin','admin-operations','admin-lab-preview','plan-controls','gws-projects','training-editor'];
   const PUBLIC_PREVIEWS = ['lab-player','market-tutor','tools','learn','lab-samples','store','membership'];
   const MEMBER_SET = new Set(MEMBER);
   const STAFF_SET = new Set(STAFF);
@@ -33,7 +33,7 @@
   }
   function isProtected(raw){return ['member','staff'].includes(classify(raw));}
   root.GroundUpRoutePolicy = Object.freeze({
-    version:'0.13.5',
+    version:'0.14.0.0',
     member:Object.freeze(MEMBER),
     staff:Object.freeze(STAFF),
     publicPreviews:Object.freeze(PUBLIC_PREVIEWS),

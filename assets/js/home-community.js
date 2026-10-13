@@ -15,7 +15,7 @@
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');
   panel.innerHTML='<div class="eyebrow">Our Learning Community</div><h2>Members</h2>'+
-    '<div class="v1353-stat-row"><strong data-online>—</strong><span>Members online</span></div>'+
+    '<div class="v1353-stat-row"><strong data-online>—</strong><span>Online members — active in the last 1 hour</span></div>'+
     '<div class="v1353-stat-row"><strong data-registered>—</strong><span>Registered members</span></div>'+
     '<p data-caption class="small">Loading statistics…</p>';
   if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
@@ -27,10 +27,10 @@
   if(snapshot){
    const d=snapshot;if(d.show===false){panel.hidden=true;hero?.classList.remove('v1358-stat-visible');return}
    panel.hidden=false;hero?.classList.add('v1358-stat-visible');
-   panel.querySelector('[data-online]').textContent=Number(d.online||0).toLocaleString();
-   panel.querySelector('[data-registered]').textContent=Number(d.registered||0).toLocaleString();
-   panel.querySelector('[data-caption]').textContent=d.mode==='custom'?'Owner-configured figures — not live counts.':
-     d.label||'Approximate online members, active in the last five minutes';
+   panel.querySelector('[data-online]').textContent=d.mode==='range'?`${Number(d.onlineRange?.[0]||0).toLocaleString()}–${Number(d.onlineRange?.[1]||0).toLocaleString()}`:Number(d.online||0).toLocaleString();
+   panel.querySelector('[data-registered]').textContent=d.mode==='range'?`${Number(d.registeredRange?.[0]||0).toLocaleString()}–${Number(d.registeredRange?.[1]||0).toLocaleString()}`:Number(d.registered||0).toLocaleString();
+   panel.querySelector('[data-caption]').textContent=['custom','range'].includes(d.mode)?'Illustrative Owner-configured figures — NOT live member counts.':
+     d.label||'Approximate online members, active in the last 1 hour';
   }else if(failed){panel.querySelector('[data-caption]').textContent='Member statistics temporarily unavailable.'}
  }
  async function update(){if(inflight)return;const panel=mount();if(!panel)return;inflight=true;

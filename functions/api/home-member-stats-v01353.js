@@ -9,17 +9,18 @@ async function query(url,options={}){const r=await fetch(url,{...options,cache:'
 async function table(env,path,opt={}){const c=config(env);return query(c.base+'/rest/v1/'+path,{method:opt.method||'GET',headers:{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json',...(opt.count?{'prefer':'count=exact','range':'0-0'}:{}),...(opt.prefer?{'prefer':opt.prefer}:{}),...(opt.body===undefined?{}:{'content-type':'application/json'})},body:opt.body===undefined?undefined:JSON.stringify(opt.body)})}
 async function identity(env,req){const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw err('Sign in required.',401);const c=config(env),u=(await query(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}})).data;if(!u?.id)throw err('Invalid session.',401);return u}
 async function owner(env,user){const [p,r]=await Promise.all([table(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1'),table(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id))]);if(p.data?.[0]?.account_kind==='showcase'||p.data?.[0]?.account_kind==='test')throw err('Not authorized.',403);if(!r.data?.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))throw err('OWNER authority required.',403)}
-async function settings(env){const r=await table(env,'site_settings?select=value&setting_key=eq.community.member_stats&limit=1'),v=r.data?.[0]?.value||{};return {mode:v.mode==='custom'?'custom':'live',customRegistered:Number(v.customRegistered)||0,customOnline:Number(v.customOnline)||0,show:v.show!==false}}
+async function settings(env){const r=await table(env,'site_settings?select=value&setting_key=eq.community.member_stats&limit=1'),v=r.data?.[0]?.value||{};return {mode:['custom','range'].includes(v.mode)?v.mode:'live',customRegistered:Number(v.customRegistered)||0,customOnline:Number(v.customOnline)||0,registeredMin:Number(v.registeredMin)||0,registeredMax:Number(v.registeredMax)||0,onlineMin:Number(v.onlineMin)||0,onlineMax:Number(v.onlineMax)||0,show:v.show!==false}}
 async function count(env,path){const r=await table(env,path,{count:true}),m=(r.r.headers.get('content-range')||'').match(/\/(\d+)$/);if(!m)throw err('Statistics count not available.',503);return Number(m[1])}
 export async function onRequest({request,env}){try{const action=str(new URL(request.url).searchParams.get('action'))||'public';
  if(request.method==='GET'&&(action==='public'||action==='settings')){
   if(action==='settings')await owner(env,await identity(env,request));
   const s=await settings(env);if(action==='settings')return send({ok:true,settings:s});
   if(!s.show)return send({ok:true,show:false});
-  if(s.mode==='custom')return send({ok:true,show:true,mode:'custom',registered:s.customRegistered,online:s.customOnline,label:'Owner-configured figures — not live activity'});
-  const since=new Date(Date.now()-5*60000).toISOString();const [registered,online]=await Promise.all([
+  if(s.mode==='custom')return send({ok:true,show:true,mode:'custom',registered:s.customRegistered,online:s.customOnline,label:'Illustrative Owner-configured figures — not live activity'});
+  if(s.mode==='range')return send({ok:true,show:true,mode:'range',registeredRange:[s.registeredMin,s.registeredMax],onlineRange:[s.onlineMin,s.onlineMax],label:'Illustrative Owner-configured ranges — NOT real registered or online member counts'});
+  const since=new Date(Date.now()-60*60000).toISOString();const [registered,online]=await Promise.all([
     count(env,'profiles?select=id&account_kind=eq.member'),count(env,'member_presence_v01353?select=user_id&last_seen_at=gte.'+encodeURIComponent(since))]);
-  return send({ok:true,show:true,mode:'live',registered,online,label:'Approximate online members, active in the last 5 minutes'});
+  return send({ok:true,show:true,mode:'live',registered,online,label:'Approximate online members, active in the last 1 hour'});
  }
  if(request.method==='POST'&&action==='heartbeat'){
   const user=await identity(env,request),kind=(await table(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1')).data?.[0]?.account_kind;
@@ -30,10 +31,13 @@ export async function onRequest({request,env}){try{const action=str(new URL(requ
  if(request.method==='POST'&&action==='save'){
   const user=await identity(env,request);await owner(env,user);
   const b=await request.json().catch(()=>null);if(!b||JSON.stringify(b).length>1000)throw err('Invalid configuration.');
-  const mode=b.mode==='live'?'live':b.mode==='custom'?'custom':null;if(!mode)throw err('Choose Live or Custom.');
+  const mode=['live','custom','range'].includes(b.mode)?b.mode:null;if(!mode)throw err('Choose Live, fixed figures or illustrative ranges.');
   const numbers=['customRegistered','customOnline'].map(k=>Number(b[k]));if(numbers.some(n=>!Number.isSafeInteger(n)||n<0||n>1000000000))throw err('Custom counters must be whole numbers between zero and one billion.');
   if(numbers[1]>numbers[0])throw err('Online members cannot exceed registered members.');
-  const data={mode,customRegistered:numbers[0],customOnline:numbers[1],show:b.show!==false};
+  const values=['registeredMin','registeredMax','onlineMin','onlineMax'].map(k=>Number(b[k]??0));
+  if(values.some(n=>!Number.isSafeInteger(n)||n<0||n>1000000000))throw err('Illustrative ranges must be nonnegative whole numbers.');
+  if(mode==='range'&&(values[0]>values[1]||values[2]>values[3]||values[3]>values[0]))throw err('Invalid illustrative range: online maximum must not exceed the registered minimum.');
+  const data={mode,customRegistered:numbers[0],customOnline:numbers[1],registeredMin:values[0],registeredMax:values[1],onlineMin:values[2],onlineMax:values[3],show:b.show!==false};
   await table(env,'site_settings?setting_key=eq.community.member_stats',{method:'PATCH',prefer:'return=minimal',body:{value:data,updated_at:new Date().toISOString()}});
   await table(env,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:user.id,action:'v1353.community_stats.settings',target_type:'site_settings',target_id:'community.member_stats',details:data}});
   return send({ok:true,settings:data});

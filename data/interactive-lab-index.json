@@ -1,0 +1,1105 @@
+[
+  {
+    "id": "F1-C02-L01",
+    "book": 1,
+    "chapter": 2,
+    "concept": "Basic Historical Replay Setup",
+    "marketContexts": [],
+    "ticker": "GOOG",
+    "date": "April 26, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F1-C02-L02",
+    "book": 1,
+    "chapter": 2,
+    "concept": "Independent Historical Replay Setup",
+    "marketContexts": [],
+    "ticker": "DIS",
+    "date": "May 7, 2024",
+    "skill": "Platform & Replay"
+  },
+  {
+    "id": "F1-C04-L01",
+    "book": 1,
+    "chapter": 4,
+    "concept": "A Public Company and Its Shares in the Secondary Market",
+    "marketContexts": [],
+    "ticker": "AAPL",
+    "date": "May 3, 2024",
+    "skill": "Fundamentals & Research"
+  },
+  {
+    "id": "F1-C06-L01",
+    "book": 1,
+    "chapter": 6,
+    "concept": "Participant Identity and Motive Cannot Be Read Directly From a Chart",
+    "marketContexts": [],
+    "ticker": "MSFT",
+    "date": "May 3, 2024",
+    "skill": "Market Foundations"
+  },
+  {
+    "id": "F1-C07-L01",
+    "book": 1,
+    "chapter": 7,
+    "concept": "Identify a Common Stock",
+    "marketContexts": [],
+    "ticker": "KO",
+    "date": "May 3, 2024",
+    "skill": "Fundamentals & Research"
+  },
+  {
+    "id": "F1-C07-L02",
+    "book": 1,
+    "chapter": 7,
+    "concept": "ETF Versus Index",
+    "marketContexts": [],
+    "ticker": "SPY",
+    "date": "May 3, 2024",
+    "skill": "Fundamentals & Research"
+  },
+  {
+    "id": "F1-C08-L01",
+    "book": 1,
+    "chapter": 8,
+    "concept": "Share Price Versus Company Size — Mega-Cap Example",
+    "marketContexts": [],
+    "ticker": "WMT",
+    "date": "May 3, 2024",
+    "skill": "Fundamentals & Research"
+  },
+  {
+    "id": "F1-C08-L02",
+    "book": 1,
+    "chapter": 8,
+    "concept": "Market-Cap Classification — Small-Cap Example",
+    "marketContexts": [],
+    "ticker": "SOUN",
+    "date": "May 3, 2024",
+    "skill": "Fundamentals & Research"
+  },
+  {
+    "id": "F1-C08-L03",
+    "book": 1,
+    "chapter": 8,
+    "concept": "Very Small Capitalization and Sparse Trading Context",
+    "marketContexts": [
+      "Volume / Participation"
+    ],
+    "ticker": "KOSS",
+    "date": "May 3, 2024",
+    "skill": "Volume"
+  },
+  {
+    "id": "F1-C09-L01",
+    "book": 1,
+    "chapter": 9,
+    "concept": "Same Stock, Different Account Constraints",
+    "marketContexts": [],
+    "ticker": "JNJ",
+    "date": "May 3, 2024",
+    "skill": "Risk & Decision Process"
+  },
+  {
+    "id": "F1-C10-L01",
+    "book": 1,
+    "chapter": 10,
+    "concept": "Long vs. Short Directional Exposure",
+    "marketContexts": [],
+    "ticker": "TSLA",
+    "date": "May 3, 2024",
+    "skill": "Risk & Decision Process"
+  },
+  {
+    "id": "F1-C10-L02",
+    "book": 1,
+    "chapter": 10,
+    "concept": "Long vs. Short Directional Exposure",
+    "marketContexts": [],
+    "ticker": "PFE",
+    "date": "May 3, 2024",
+    "skill": "Risk & Decision Process"
+  },
+  {
+    "id": "F1-C12-L01",
+    "book": 1,
+    "chapter": 12,
+    "concept": "One Stock, Three Different Decision Frames",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ],
+    "ticker": "META",
+    "date": "May 3, 2024",
+    "skill": "Liquidity & Execution"
+  },
+  {
+    "id": "F1-C13-L01",
+    "book": 1,
+    "chapter": 13,
+    "concept": "Holding Horizon: Day Trade vs. Scalp vs. Swing",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "AMZN",
+    "date": "May 6, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F1-C13-L02",
+    "book": 1,
+    "chapter": 13,
+    "concept": "Style vs. Approach vs. Setup vs. Context",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "AMD",
+    "date": "May 6, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F2-C01-L01",
+    "book": 2,
+    "chapter": 1,
+    "concept": "Identify premarket, the regular-market open, the regular-market close, and after-hours on one historical trading day",
+    "marketContexts": [
+      "Premarket",
+      "After Hours",
+      "Market Close",
+      "EMA / Moving Average"
+    ],
+    "ticker": "NVDA",
+    "date": "May 6, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F2-C02-L01",
+    "book": 2,
+    "chapter": 2,
+    "concept": "Compare the opening environment with a midday window on the same stock",
+    "marketContexts": [
+      "Midday"
+    ],
+    "ticker": "NFLX",
+    "date": "May 6, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C02-L02",
+    "book": 2,
+    "chapter": 2,
+    "concept": "Compare a midday window with a later-afternoon window",
+    "marketContexts": [
+      "Midday"
+    ],
+    "ticker": "JPM",
+    "date": "May 6, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C02-L03",
+    "book": 2,
+    "chapter": 2,
+    "concept": "Observe the approach to the regular-market close",
+    "marketContexts": [
+      "Market Close"
+    ],
+    "ticker": "XOM",
+    "date": "May 6, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C03-L01",
+    "book": 2,
+    "chapter": 3,
+    "concept": "Regular Close → After-Hours Transition",
+    "marketContexts": [
+      "After Hours"
+    ],
+    "ticker": "PLTR",
+    "date": "May 6, 2024",
+    "skill": "Risk & Decision Process"
+  },
+  {
+    "id": "F2-C03-L02",
+    "book": 2,
+    "chapter": 3,
+    "concept": "Premarket Information Release and Repricing",
+    "marketContexts": [
+      "Premarket",
+      "EMA / Moving Average"
+    ],
+    "ticker": "UBER",
+    "date": "May 8, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F2-C04-L01",
+    "book": 2,
+    "chapter": 4,
+    "concept": "Bid, Ask, Last, Spread, and Midpoint in a Frequently Updating Quote",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ],
+    "ticker": "BAC",
+    "date": "May 7, 2024",
+    "skill": "Liquidity & Execution"
+  },
+  {
+    "id": "F2-C04-L02",
+    "book": 2,
+    "chapter": 4,
+    "concept": "Compare Quote Width Without Jumping Ahead to Liquidity Analysis",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ],
+    "ticker": "CVNA",
+    "date": "May 7, 2024",
+    "skill": "Liquidity & Execution"
+  },
+  {
+    "id": "F2-C05-L01",
+    "book": 2,
+    "chapter": 5,
+    "concept": "Raw 5-Minute Volume and Why the Timeframe Must Be Recorded",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ],
+    "ticker": "F",
+    "date": "May 7, 2024",
+    "skill": "Volume"
+  },
+  {
+    "id": "F2-C05-L02",
+    "book": 2,
+    "chapter": 5,
+    "concept": "Compare Lower Trading Activity With the Prior Exercise",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ],
+    "ticker": "GPRO",
+    "date": "May 7, 2024",
+    "skill": "Volume"
+  },
+  {
+    "id": "F2-C05-L03",
+    "book": 2,
+    "chapter": 5,
+    "concept": "High Volume Still Requires Liquidity and Order-Size Context",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ],
+    "ticker": "RIVN",
+    "date": "May 7, 2024",
+    "skill": "Volume"
+  },
+  {
+    "id": "F2-C06-L01",
+    "book": 2,
+    "chapter": 6,
+    "concept": "Axes and Chart Types — Same Historical Window, Different Representation",
+    "marketContexts": [],
+    "ticker": "IBM",
+    "date": "May 8, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C06-L02",
+    "book": 2,
+    "chapter": 6,
+    "concept": "Chart Type Versus Aggregation — Change One Variable at a Time",
+    "marketContexts": [],
+    "ticker": "T",
+    "date": "May 8, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C07-L01",
+    "book": 2,
+    "chapter": 7,
+    "concept": "Construct an Up / Bullish Candle",
+    "marketContexts": [
+      "Range / Consolidation"
+    ],
+    "ticker": "QCOM",
+    "date": "May 8, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C07-L02",
+    "book": 2,
+    "chapter": 7,
+    "concept": "Construct a Down / Bearish Candle",
+    "marketContexts": [],
+    "ticker": "PYPL",
+    "date": "May 8, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C07-L03",
+    "book": 2,
+    "chapter": 7,
+    "concept": "Identify an Exact or Near Doji",
+    "marketContexts": [],
+    "ticker": "NOK",
+    "date": "May 8, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C08-L01",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Large Up Body, Close Near High",
+    "marketContexts": [],
+    "ticker": "MSFT",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C08-L02",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Large Down Body, Close Near Low",
+    "marketContexts": [
+      "Range / Consolidation"
+    ],
+    "ticker": "NVDA",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C08-L03",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Long Lower Wick, Recovery Into the Close",
+    "marketContexts": [],
+    "ticker": "META",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C08-L04",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Long Upper Wick, Close Back Near the Lower Area",
+    "marketContexts": [],
+    "ticker": "SNAP",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C08-L05",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Small Body With Two-Sided Excursion",
+    "marketContexts": [
+      "Range / Consolidation"
+    ],
+    "ticker": "AMD",
+    "date": "May 9, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F2-C08-L06",
+    "book": 2,
+    "chapter": 8,
+    "concept": "Exact Doji With Unequal Wicks",
+    "marketContexts": [],
+    "ticker": "INTC",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C09-L01",
+    "book": 2,
+    "chapter": 9,
+    "concept": "Upward Follow-Through With Contracting Ranges",
+    "marketContexts": [
+      "Range / Consolidation"
+    ],
+    "ticker": "MU",
+    "date": "May 10, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C09-L02",
+    "book": 2,
+    "chapter": 9,
+    "concept": "Downward Follow-Through",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "PFE",
+    "date": "May 9, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C09-L03",
+    "book": 2,
+    "chapter": 9,
+    "concept": "Directional Follow-Through Interrupted by an Opposite Expansion",
+    "marketContexts": [],
+    "ticker": "COIN",
+    "date": "May 10, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C09-L04",
+    "book": 2,
+    "chapter": 9,
+    "concept": "Range Contraction Without One-Way Direction",
+    "marketContexts": [
+      "Range / Consolidation"
+    ],
+    "ticker": "WMT",
+    "date": "May 10, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C09-L05",
+    "book": 2,
+    "chapter": 9,
+    "concept": "Mixed and Overlapping Sequence",
+    "marketContexts": [],
+    "ticker": "TSLA",
+    "date": "May 9, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C10-L01",
+    "book": 2,
+    "chapter": 10,
+    "concept": "1-Minute vs. 3-Minute vs. 5-Minute Compression",
+    "marketContexts": [],
+    "ticker": "AMZN",
+    "date": "May 13, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C10-L02",
+    "book": 2,
+    "chapter": 10,
+    "concept": "Change History Without Changing Bar Size",
+    "marketContexts": [],
+    "ticker": "JPM",
+    "date": "May 13, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C10-L03",
+    "book": 2,
+    "chapter": 10,
+    "concept": "Many Intraday Bars Become One Daily View",
+    "marketContexts": [],
+    "ticker": "XOM",
+    "date": "May 13, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C11-L01",
+    "book": 2,
+    "chapter": 11,
+    "concept": "Agreement on Completed-Candle Direction",
+    "marketContexts": [
+      "Trend / Structure",
+      "Multi-Timeframe"
+    ],
+    "ticker": "GOOGL",
+    "date": "May 14, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C11-L02",
+    "book": 2,
+    "chapter": 11,
+    "concept": "Disagreement Across Scale",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ],
+    "ticker": "NKE",
+    "date": "May 14, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C11-L03",
+    "book": 2,
+    "chapter": 11,
+    "concept": "The Opposite Disagreement",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ],
+    "ticker": "BA",
+    "date": "May 14, 2024",
+    "skill": "Time & Multi-Timeframe Context"
+  },
+  {
+    "id": "F2-C11-L04",
+    "book": 2,
+    "chapter": 11,
+    "concept": "Compression Hides Internal Sequence",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ],
+    "ticker": "AAPL",
+    "date": "May 14, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F2-C12-L01",
+    "book": 2,
+    "chapter": 12,
+    "concept": "Classify a generally upward path",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "LLY",
+    "date": "May 15, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C12-L02",
+    "book": 2,
+    "chapter": 12,
+    "concept": "Classify a generally downward path",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "ARM",
+    "date": "May 15, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C12-L03",
+    "book": 2,
+    "chapter": 12,
+    "concept": "Classify a broadly non-directional window",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "C",
+    "date": "May 15, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C12-L04",
+    "book": 2,
+    "chapter": 12,
+    "concept": "A broader upward path can contain a short downward segment",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "DELL",
+    "date": "May 15, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C13-L01",
+    "book": 2,
+    "chapter": 13,
+    "concept": "Higher highs and higher lows",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "MU",
+    "date": "May 16, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C13-L02",
+    "book": 2,
+    "chapter": 13,
+    "concept": "Lower high and lower low",
+    "marketContexts": [
+      "Trend / Structure",
+      "Breakout / Breakdown"
+    ],
+    "ticker": "QCOM",
+    "date": "May 16, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F2-C13-L03",
+    "book": 2,
+    "chapter": 13,
+    "concept": "Conflicting inward swing comparisons",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Trend / Structure",
+      "Range / Consolidation"
+    ],
+    "ticker": "ABNB",
+    "date": "May 16, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F2-C13-L04",
+    "book": 2,
+    "chapter": 13,
+    "concept": "Conflicting outward swing comparisons",
+    "marketContexts": [
+      "Trend / Structure"
+    ],
+    "ticker": "PYPL",
+    "date": "May 16, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F2-C14-L01",
+    "book": 2,
+    "chapter": 14,
+    "concept": "Candidate Support From Repeated Lower Reactions",
+    "marketContexts": [],
+    "ticker": "TGT",
+    "date": "May 17, 2024",
+    "skill": "Support & Resistance"
+  },
+  {
+    "id": "F2-C14-L02",
+    "book": 2,
+    "chapter": 14,
+    "concept": "Candidate Resistance From Repeated Upper Reactions",
+    "marketContexts": [],
+    "ticker": "PEP",
+    "date": "May 17, 2024",
+    "skill": "Support & Resistance"
+  },
+  {
+    "id": "F2-C14-L03",
+    "book": 2,
+    "chapter": 14,
+    "concept": "Support Is Historical Evidence, Not a Guarantee",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown"
+    ],
+    "ticker": "LOW",
+    "date": "May 17, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F2-C14-L04",
+    "book": 2,
+    "chapter": 14,
+    "concept": "Why a Zone Can Be Better Than One Exact Line",
+    "marketContexts": [],
+    "ticker": "HD",
+    "date": "May 17, 2024",
+    "skill": "Support & Resistance"
+  },
+  {
+    "id": "F3-C01-L01",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Resistance Breakout and Follow-Through",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "AAPL",
+    "date": "May 20, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F3-C01-L02",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Support Breakdown and Follow-Through",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "AMD",
+    "date": "May 20, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F3-C01-L03",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Upside Probe Versus Close-Based Breakout",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "NVDA",
+    "date": "May 20, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F3-C01-L04",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Breakdown, Retest From Below, and Reclaim",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "JPM",
+    "date": "May 20, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F3-C01-L05",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Breakout, Brief Follow-Through, Then Re-Entry",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "WMT",
+    "date": "May 20, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C01-L06",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Failed downside break / rapid reclaim",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "SPY",
+    "date": "August 5, 2024",
+    "skill": "Breakouts & Failures"
+  },
+  {
+    "id": "F3-C01-L07",
+    "book": 3,
+    "chapter": 1,
+    "concept": "Ambiguous repeated interaction / no clean breakout",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ],
+    "ticker": "SPY",
+    "date": "April 10, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C02-L01",
+    "book": 3,
+    "chapter": 2,
+    "concept": "Pullback after an early advance",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ],
+    "ticker": "LLY",
+    "date": "May 21, 2024",
+    "skill": "Pullbacks & Ranges"
+  },
+  {
+    "id": "F3-C02-L02",
+    "book": 3,
+    "chapter": 2,
+    "concept": "Consolidation that can be bracketed as a range",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ],
+    "ticker": "GOOGL",
+    "date": "May 21, 2024",
+    "skill": "Pullbacks & Ranges"
+  },
+  {
+    "id": "F3-C02-L03",
+    "book": 3,
+    "chapter": 2,
+    "concept": "Gap up that completely fills",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ],
+    "ticker": "M",
+    "date": "May 21, 2024",
+    "skill": "Pullbacks & Ranges"
+  },
+  {
+    "id": "F3-C02-L04",
+    "book": 3,
+    "chapter": 2,
+    "concept": "Gap down that only partially fills in the observation window",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ],
+    "ticker": "PANW",
+    "date": "May 21, 2024",
+    "skill": "Pullbacks & Ranges"
+  },
+  {
+    "id": "F3-C02-L05",
+    "book": 3,
+    "chapter": 2,
+    "concept": "Gap strength versus actual post-open structure",
+    "marketContexts": [
+      "Trend / Structure",
+      "Range / Consolidation",
+      "Pullback / Retest",
+      "Catalyst / News"
+    ],
+    "ticker": "WMT",
+    "date": "August 15, 2024",
+    "skill": "Market Structure"
+  },
+  {
+    "id": "F3-C03-L01",
+    "book": 3,
+    "chapter": 3,
+    "concept": "Bearish Engulfing configuration and later outcome",
+    "marketContexts": [],
+    "ticker": "AMZN",
+    "date": "May 22, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F3-C03-L02",
+    "book": 3,
+    "chapter": 3,
+    "concept": "Bullish Engulfing configuration and later outcome",
+    "marketContexts": [],
+    "ticker": "AMD",
+    "date": "May 22, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F3-C03-L03",
+    "book": 3,
+    "chapter": 3,
+    "concept": "Exact Doji without a guaranteed reversal",
+    "marketContexts": [],
+    "ticker": "MSFT",
+    "date": "May 22, 2024",
+    "skill": "Candles & Wicks"
+  },
+  {
+    "id": "F3-C03-L04",
+    "book": 3,
+    "chapter": 3,
+    "concept": "RCT recognition only — first red 5-minute reference",
+    "marketContexts": [
+      "Premarket",
+      "EMA / Moving Average"
+    ],
+    "ticker": "MBIO",
+    "date": "June 17, 2024",
+    "skill": "RCT"
+  },
+  {
+    "id": "F3-C04-L01",
+    "book": 3,
+    "chapter": 4,
+    "concept": "Example 1: ORCL",
+    "marketContexts": [],
+    "ticker": "ORCL",
+    "date": "May 23, 2024",
+    "skill": "Indicator Foundations"
+  },
+  {
+    "id": "F3-C04-L02",
+    "book": 3,
+    "chapter": 4,
+    "concept": "Example 2: VZ",
+    "marketContexts": [],
+    "ticker": "VZ",
+    "date": "May 23, 2024",
+    "skill": "Indicator Foundations"
+  },
+  {
+    "id": "F3-C04-L03",
+    "book": 3,
+    "chapter": 4,
+    "concept": "Example 3: GM",
+    "marketContexts": [],
+    "ticker": "GM",
+    "date": "May 23, 2024",
+    "skill": "Indicator Foundations"
+  },
+  {
+    "id": "F3-C05-L01",
+    "book": 3,
+    "chapter": 5,
+    "concept": "Calculate the SMA",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ],
+    "ticker": "CSCO",
+    "date": "May 24, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C05-L02",
+    "book": 3,
+    "chapter": 5,
+    "concept": "Shorter Versus Longer Length",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ],
+    "ticker": "INTC",
+    "date": "May 24, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C05-L03",
+    "book": 3,
+    "chapter": 5,
+    "concept": "SMA9, EMA9, and EMA20",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ],
+    "ticker": "PLTR",
+    "date": "May 24, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C05-L04",
+    "book": 3,
+    "chapter": 5,
+    "concept": "A Crossover Is Not a Trade",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ],
+    "ticker": "UBER",
+    "date": "May 24, 2024",
+    "skill": "EMA Relationships"
+  },
+  {
+    "id": "F3-C06-L01",
+    "book": 3,
+    "chapter": 6,
+    "concept": "VWAP Reclaim",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ],
+    "ticker": "COST",
+    "date": "May 28, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C06-L02",
+    "book": 3,
+    "chapter": 6,
+    "concept": "VWAP Rejection",
+    "marketContexts": [
+      "VWAP Interaction"
+    ],
+    "ticker": "KO",
+    "date": "May 28, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C06-L03",
+    "book": 3,
+    "chapter": 6,
+    "concept": "VWAP Failure",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ],
+    "ticker": "BA",
+    "date": "May 28, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C06-L04",
+    "book": 3,
+    "chapter": 6,
+    "concept": "VWAP Chop",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Range / Consolidation"
+    ],
+    "ticker": "RIVN",
+    "date": "May 28, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C06-L05",
+    "book": 3,
+    "chapter": 6,
+    "concept": "VWAP Hold",
+    "marketContexts": [
+      "VWAP Interaction"
+    ],
+    "ticker": "QQQ",
+    "date": "April 26, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C06-L06",
+    "book": 3,
+    "chapter": 6,
+    "concept": "Failed VWAP Reclaim",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ],
+    "ticker": "TSLA",
+    "date": "February 22, 2024",
+    "skill": "VWAP"
+  },
+  {
+    "id": "F3-C07-L01",
+    "book": 3,
+    "chapter": 7,
+    "concept": "RSI overbought is not a reversal command",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "AAPL",
+    "date": "May 29, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F3-C07-L02",
+    "book": 3,
+    "chapter": 7,
+    "concept": "RSI oversold is not an automatic buy",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "AMD",
+    "date": "May 29, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F3-C07-L03",
+    "book": 3,
+    "chapter": 7,
+    "concept": "MACD lag after a fast price impulse",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "TSLA",
+    "date": "May 29, 2024",
+    "skill": "Momentum"
+  },
+  {
+    "id": "F3-C07-L04",
+    "book": 3,
+    "chapter": 7,
+    "concept": "Momentum whipsaw in a narrow price window",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Momentum / Exhaustion"
+    ],
+    "ticker": "RIVN",
+    "date": "May 29, 2024",
+    "skill": "Momentum"
+  }
+]

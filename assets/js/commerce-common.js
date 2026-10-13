@@ -8,7 +8,7 @@ window.CommerceTools=(function(){
   function mapTool(t){return {toolCode:t.tool_code,name:t.name,category:t.category,description:t.description||'',href:t.href||'',status:t.status,priceCents:Number(t.individual_price_cents||0),checkoutUrl:t.individual_checkout_url||'',freePreview:!!t.free_preview,sortOrder:Number(t.sort_order||100),checkoutEnabled:!!t.checkout_enabled,lemonVariantId:t.lemon_variant_id||''}}
   async function staticLoad(){const [cfg,products]=await Promise.all([fetch('data/commerce-config.json',{cache:'no-store'}).then(r=>r.json()),fetch('data/store-products.json',{cache:'no-store'}).then(r=>r.json())]);return {cfg,products,plans:cfg.plans||[],tools:[]}}
   async function load(){
-    const fallback=await staticLoad();
+    const fallback=await staticLoad(); fallback.plans=[];
     try{
       if(typeof window.getSupabaseClient!=='function')return fallback;const sb=await window.getSupabaseClient();
       const [pRes,plRes,tRes,sRes]=await Promise.all([
@@ -17,11 +17,11 @@ window.CommerceTools=(function(){
         sb.from('platform_tools').select('*').eq('active',true).eq('public_visible',true).order('sort_order',{ascending:true}),
         sb.from('site_settings').select('setting_key,value').eq('public_read',true)
       ]);
-      if(pRes.error||plRes.error||tRes.error)return fallback;
+      if(pRes.error||plRes.error||tRes.error)return {...fallback,plans:[],tools:[],commerceUnavailable:true};
       const settings=Object.fromEntries((sRes.data||[]).map(x=>[x.setting_key,x.value]));
       const cfg={...fallback.cfg,version:String(settings['site.version']||'0.11'),paymentProvider:String(settings['commerce.payment_provider']??fallback.cfg.paymentProvider??''),billingPortalUrl:String(settings['commerce.billing_portal_url']??fallback.cfg.billingPortalUrl??''),supportEmail:String(settings['site.support_email']??fallback.cfg.supportEmail??''),processingFeePolicy:String(settings['commerce.processing_fee_policy']??fallback.cfg.processingFeePolicy??'included_in_list_price')};
       return {cfg,products:(pRes.data||[]).map(mapProduct),plans:(plRes.data||[]).map(mapPlan),tools:(tRes.data||[]).map(mapTool)};
-    }catch{return fallback}
+    }catch{return {...fallback,plans:[],tools:[],commerceUnavailable:true}}
   }
   const productMap=products=>Object.fromEntries(products.map(p=>[p.productCode,p]));
   return {money,moneyCents,esc,safeHref,mapProduct,mapPlan,mapTool,load,productMap};

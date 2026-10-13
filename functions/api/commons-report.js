@@ -18,13 +18,10 @@ export async function onRequestPost({request,env}){
  const exists=await get('/rest/v1/'+source+'?select='+(type==='post'?'id,topic_id':'id')+'&status=eq.published&id=eq.'+id+'&limit=1',true);
  if(!exists?.length)return out({ok:false,error:'Content is not available.'},404);
  if(type==='post'){const parent=await get('/rest/v1/commons_topics?select=id&status=eq.published&id=eq.'+Number(exists[0].topic_id)+'&limit=1',true);if(!parent?.length)return out({ok:false,error:'Content is not available.'},404);}
- const since=new Date(Date.now()-86400000).toISOString();
- const history=await get('/rest/v1/forum_reports?select=id,content_id&reporter_user_id=eq.'+encodeURIComponent(me.id)+'&created_at=gte.'+encodeURIComponent(since)+'&limit=11',true);
- if(history.length>=10)return out({ok:false,error:'Report limit reached for the last 24 hours.'},429);
  const contentId='commons:'+type+':'+id;
- if(history.some(x=>x.content_id===contentId))return out({ok:false,error:'You have already reported this content recently.'},409);
- const r=await fetch(url+'/rest/v1/forum_reports',{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json',prefer:'return=minimal'},body:JSON.stringify({reporter_user_id:me.id,content_type:type,content_id:contentId,reason,details,status:'open'}),cache:'no-store'});
- if(!r.ok)return out({ok:false,error:'Unable to record the report.'},503);
+ // Quota, de-duplication and insert MUST happen in one SQL transaction.
+ const r=await fetch(url+'/rest/v1/rpc/v014_community_report',{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json'},body:JSON.stringify({p_actor:me.id,p_type:type,p_content:contentId,p_reason:reason,p_details:details}),cache:'no-store'});
+ if(!r.ok)return out({ok:false,error:'Report could not be accepted; check duplicate or daily quota.'},r.status===409?409:429);
  return out({ok:true,message:'Report submitted for moderator review.'});
  }catch(e){return out({ok:false,error:'Report service temporarily unavailable.'},e.status===401?401:503)}
 }

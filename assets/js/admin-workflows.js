@@ -31,6 +31,9 @@
  ]},
  {name:'Commerce & Business Operations',icon:'commerce',items:[
   ['Commerce & Orders','Inspect orders, catalog and existing payment controls.','legacy','commerce','Checkout locked OFF'],
+  ['Instructor Question Bank','Owner-reviewed assessment rubrics and teaching feedback.','link','/training-editor.html','OWNER only'],
+  ['GWS Client Drafts','Private client site planning; no public publishing.','link','/gws-projects.html','OWNER only'],
+  ['Membership Visibility','Show or pause memberships; checkout remains OFF.','link','/plan-controls.html','OWNER control'],
   ['Memberships & Tools','Review plans and tool registry.','text','Memberships & Tools','Existing UI; provider verification pending'],
   ['Checkout & Payments','Review disabled-by-default rollout settings.','text','Checkout & Payments','Checkout locked OFF'],
   ['Order Reconciliation','Inspect payment events and entitlement ledger.','ops','commerce','Read-only; not financial reconciliation'],

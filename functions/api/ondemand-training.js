@@ -14,6 +14,8 @@ function config(env){let base=String(env.SUPABASE_URL||'').replace(/\/$/,''),pub
 async function requestJson(url,options){const r=await fetch(url,{...options,cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Unable to verify access.'),{status:r.status===401?401:503});return r.json()}
 async function main(env,path){const {base,secret}=config(env);return requestJson(base+'/rest/v1/'+path,{headers:{apikey:secret,authorization:'Bearer '+secret,accept:'application/json'}})}
 async function authorized(env,req){const {base,pub}=config(env),token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw Object.assign(new Error('Sign in to continue.'),{status:401});const user=await requestJson(base+'/auth/v1/user',{headers:{apikey:pub,authorization:'Bearer '+token}}),id=user.id;if(!id)throw Object.assign(new Error('Invalid session.'),{status:401});const profile=(await main(env,`profiles?select=account_kind&id=eq.${encodeURIComponent(id)}&limit=1`))?.[0];if(profile?.account_kind==='showcase')return{kind:'showcase',id};if(profile?.account_kind!=='member'&&profile?.account_kind!=='test')return{kind:'blocked',id};
+const flags=(await main(env,`admin_user_flags?select=status&user_id=eq.${encodeURIComponent(id)}&limit=1`))[0];
+if(['suspended','restricted'].includes(flags?.status))return{kind:'blocked',id};
 const [roles,grants,subscriptions,passes,bookTrials]=await Promise.all([
  main(env,`admin_user_roles?select=role_code,expires_at&user_id=eq.${encodeURIComponent(id)}`),
  main(env,`user_plan_grants?select=plan_code,starts_at,ends_at,status&user_id=eq.${encodeURIComponent(id)}&status=in.(active,trialing)`),
@@ -21,7 +23,7 @@ const [roles,grants,subscriptions,passes,bookTrials]=await Promise.all([
  main(env,`user_tool_passes?select=tool_code,status,starts_at,ends_at,current_period_end&user_id=eq.${encodeURIComponent(id)}&tool_code=eq.${T}&status=in.(active,trialing)`),
  main(env,`entitlements?select=product_key,status,starts_at,ends_at&user_id=eq.${encodeURIComponent(id)}&product_key=eq.full_learning_access&status=in.(active,trialing)`)
 ]);
-const t=Date.now(),valid=d=>!d||Date.parse(d)>t,started=d=>!d||Date.parse(d)<=t,full=p=>['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'].includes(p);
+const t=Date.now(),valid=d=>!d||Date.parse(d)>t,started=d=>!d||Date.parse(d)<=t,full=p=>['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY','FOUNDING_MONTHLY','FOUNDING_ANNUAL'].includes(p);
 const owner=roles.some(r=>r.role_code==='OWNER'&&valid(r.expires_at));
 const grant=grants.some(g=>full(g.plan_code)&&started(g.starts_at)&&valid(g.ends_at));
 const subscription=subscriptions.some(s=>full(s.plan_code)&&valid(s.current_period_end));

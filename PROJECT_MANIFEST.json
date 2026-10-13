@@ -1,6 +1,6 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.13.5.7.7",
+  "version": "0.14.0.0",
   "status": "Candidate: visual page and form editors; Market Commons reporting/moderation; education accuracy safeguards. Source audited and mocked locally. NOT complete platform; see docs/FRONTEND_REQUIREMENTS_TRACE.csv.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,

@@ -12,7 +12,7 @@ assert.equal(c.parse(c.prefix+JSON.stringify({version:1,blocks:[{type:'link',tex
 assert.match(read('functions/p/[slug].js'),/renderBody\(p.body_text\)/);
 assert.match(read('assets/js/admin-core.js'),/GroundUpPageComposer\.mount/);
 assert.match(read('assets/js/admin-core.js'),/GroundUpFormComposer\?\.mount/);
-assert.match(read('functions/api/commons-report.js'),/history\.length>=10/);
+assert.match(read('functions/api/commons-report.js'),/rpc\/v014_community_report/);
 assert.match(read('functions/api/admin-v0133.js'),/requirePermission\(env,request,'forum.moderate'\)/);
 assert.match(read('assets/js/market-commons-platform.js'),/data-commons-report="topic"/);
 assert.match(read('assets/js/admin-workflows.js'),/commons_report_resolve/);
