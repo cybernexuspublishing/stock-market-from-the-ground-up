@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.13.5.7.6",
-  "status": "Candidate: visual 30-skill library, Owner/Admin workflow directory, live page editor preview, Market Commons bounded reply pages. Verified locally, not deployed; backend promises tracked separately.",
+  "version": "0.13.5.7.7",
+  "status": "Candidate: visual page and form editors; Market Commons reporting/moderation; education accuracy safeguards. Source audited and mocked locally. NOT complete platform; see docs/FRONTEND_REQUIREMENTS_TRACE.csv.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {

@@ -1,0 +1,62 @@
+requirement,status,source_evidence,acceptance_or_missing_contract
+Global navigation / desktop & mobile,Source present,assets/js/navigation.js,Live multi-device acceptance pending
+Profile single Dashboard link,Previously owner screenshot verified,assets/js/navigation.js,Recheck after deploy
+Profile hover and keyboard access,Source present,assets/js/navigation.js,Hybrid-touch and screen reader tests pending
+Dashboard nine tabs without horizontal scroll,Source locally verified,assets/css/layout-integrity.css,Live authenticated breakpoints pending
+Dashboard Owner lifetime entitlement,Owner previously verified in screenshot,assets/js/dashboard-ui-legacy.js,Cold sign-in/reload test needed
+Dashboard Overview current Lab/skill metrics,Source present,assets/js/member-dashboard.js,Verify Supabase RLS and count accuracy
+Dashboard Skill snapshot → detailed skill learning,Source present,assets/js/dashboard-ui-legacy.js,30-item click-through live acceptance pending
+30 competency illustrations,Source present,assets/images/skill-illustrations/,SVGs are conceptual; not historical charts
+30 competency graded assessment evidence,Backend-dependent,functions/api/competencies.js,Live grading and security acceptance pending
+Book per-collection Historical Lab Registry,Source present; Book II live owner verified,assets/js/lab-registry.js,All collections and no-initial-load test
+Lab pagination 50/page,Source present,assets/js/lab-registry.js,Live paging/role-test
+Admin Learning Operations per-book analytics,Source present; Book II owner verified,assets/js/admin-operations.js,Other five collections pending
+Lab read-only preview versus Owner metadata edit,Source present,functions/api/admin-lab-preview-v01355.js,Ensure no learner progress changes
+419 unique Labs and original 94 Foundations IDs,Static confirmed,lab-catalog.json,Historical price/tape provenance unverified
+Book companions preserve approved curriculum,Preserved,data/ and lab-catalog.json,Books untouched; chapter links need review
+True historical OHLC/VWAP/EMA charts,Not complete,docs/LAB_COLLECTION_FACTS.md,Licensed verified data/timezones/corporate actions required
+No-lookahead blind trading training,Source present,assets/js/lab-player.js,Must verify source snapshots and timestamp boundaries
+Reference-only Labs disclose insufficient instruction,New implementation,assets/js/lab-narrative.js,94 canonical source refs still need book context
+Wrong Lab ID refuses unrelated fallback,New implementation,assets/js/lab-player.js,Live regression required
+Admin Control Center & sidebar,Source present,admin.html; assets/js/admin-workflows.js,Some backend actions remain incomplete
+Account Management create/edit/delete all types,Source UI present,assets/js/admin-operations.js,Live disposable users and Owner-only checks pending
+Account Management sidebar,Source present,admin.html,Check Owner vs Admin visibility
+Dummy test-account credential vault,Configuration dependent,functions/api/admin-accounts-v01353.js,Original encryption secret must be restored
+Real customer password retrieval,Prohibited,Supabase Auth,Only reset supported; never display plaintext
+Read-only synthetic Showcase,"Source guarded, creation OFF",functions/api/showcase-v0135.js,Production isolation tests pending
+Member library and Book Key redemption,"Source present, activation OFF",assets/js/my-books.js,Live entitlement validation pending
+Book selling labels versus actual KDP,Partially present,assets/js/commerce-presentation.js,Amazon status needs independent verification
+Membership pricing and tools,Existing UI / not provider verified,assets/js/admin-platform.js,Flex base $0 separate tool prices reviewed
+Payments and subscription webhooks,"Backend present, rollout OFF",functions/api/lemon-webhook.js,Provider end-to-end and idempotency pending
+KDP Select direct digital sale protections,Backend guards present,functions/api/checkout-v0135.js,Keep checkout and ebook direct sales OFF
+Admin CRM advertising policy and campaigns,Existing UI,assets/js/admin-platform.js,Sponsor agreements/consent/compliance pending
+Community forum index paginated collections,Source present,assets/js/market-commons-platform.js,Live published/private RLS tests pending
+Community discussion replies paginated,Source present,assets/js/market-commons-platform.js,Large-thread acceptance pending
+Community report button topic/reply,New implementation,assets/js/market-commons-platform.js,Rate limit not atomic; confirm report schema
+Community private report submission endpoint,New implementation,functions/api/commons-report.js,Require real user and production RLS verification
+Community Admin moderation queue,New implementation,assets/js/admin-workflows.js,Live role grants / audit test pending
+Community lock/pin/hide/restore audited,New implementation,functions/api/admin-v0133.js,No hard deletion; test races and official-guide Owner restriction
+Community content guideline / safety,Existing,community-guidelines.html,Moderation procedures and transparency need review
+Community no-lookahead discussion boundaries,Partial,lab-player.html; market-commons.html,Existing two forum backends inconsistent; migration required
+Admin Website Pages & SEO,Existing API,assets/js/admin-core.js,Existing site_pages_v1354 schema unverified
+CMS visual block editor (safe),New implementation,assets/js/page-composer.js,"No media upload, layout grid or revisions"
+CMS server renders safe structured blocks,New implementation,functions/p/[slug].js,"Escaped HTML, internal links only"
+CMS revision history and rollback,Not implemented,N/A,Requires table and server audit operations
+CMS public media upload/asset gallery,Not implemented,N/A,Requires asset storage/permitted media upload
+Drag-drop responsive website builder,Partial (blocks only),assets/js/page-composer.js,Grid/sections/templates/asset management incomplete
+Admin visual forms builder,New implementation,assets/js/form-composer.js,Existing form JSON contract; no new SQL
+Admin Lead queue and statuses,Existing UI/API,assets/js/admin-core.js,Live PII access checks pending
+Branding/logo/accent Site Settings,Existing UI/API,assets/js/branding.js,Propagation and preview acceptance pending
+Internal navigation configuration,Existing UI/API,assets/js/admin-core.js,Safe links; multiple renderers need review
+Automations disabled draft interface,Existing,assets/js/admin-core.js,Execution engine not installed
+Automation scheduler / action runner,Not implemented,N/A,Needs retry/idempotency/jobs/mailer architecture
+Config-only export,Existing,assets/js/admin-core.js,Not a database backup
+Full Supabase encrypted backup and restore,Not implemented,N/A,Infrastructure and rehearsal required
+Administrative permissions/RLS auditing,Partial source,functions/_middleware.js,SQL read-only preflight provided
+Member journal/MFE/MAE analytics,Existing source,assets/js/journal-analytics.js,Live trade import/data validation pending
+Simulator and historical replay,Existing source,assets/js/simulator.js,Market provider/licensing and no-lookahead pending
+Market Tutor,Existing source,assets/js/market-tutor.js,Live tutor API/quotas and educational accuracy pending
+Help and knowledge base,Existing,help.html,Maintain accuracy of providers and platform availability
+Accessibility and responsive layouts,Local fixture tests only,tests/release-browser-smoke.py,"Keyboard, WCAG and screen reader live audit"
+Personal data consent/privacy,Existing UI,assets/js/dashboard-ui-legacy.js,Legal review and privacy rights workflow pending
+Payments/MFA/Turnstile/QR OFF,Preserved locked settings,functions/_middleware.js,No enable without Owner approval

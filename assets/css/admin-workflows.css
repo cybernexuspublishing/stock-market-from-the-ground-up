@@ -20,3 +20,4 @@
 .cc-directory-disclosure{max-width:950px;color:#bad0de;font-size:.88rem;margin:1.4rem 0}
 #cc-directory-status{color:#f6ce78}
 @media(max-width:600px){.cc-directory-grid{grid-template-columns:1fr}}
+.gu-report-button{font-size:.85rem;margin-top:.7rem}.gu-report-dialog{width:min(480px,90vw);background:#082235;color:#f5faff;padding:1.2rem;border:1px solid #668ca4;border-radius:12px}.gu-report-dialog::backdrop{background:#000b}.gu-report-dialog form{display:grid;gap:.8rem}.gu-report-dialog label{display:grid;gap:.3rem}.gu-report-dialog textarea,.gu-report-dialog select{width:100%;box-sizing:border-box;padding:.6rem;color:white;background:#092f46;border:1px solid #67839b;border-radius:7px}

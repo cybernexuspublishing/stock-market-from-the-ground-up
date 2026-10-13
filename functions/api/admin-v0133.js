@@ -12,7 +12,7 @@ async function requirePermission(env,req,permission){
   const c=await caller(env,req),roles=await activeRoles(env,c.user.id);
   if(roles.includes('SHOWCASE_VIEWER'))throw Object.assign(new Error('Showcase Mode is read-only; operational mutations are blocked.'),{status:403});
   const profiles=await rest(env,`profiles?select=account_kind&id=eq.${encodeURIComponent(c.user.id)}&limit=1`);
-  if(profiles?.some(x=>x.account_kind==='showcase'))throw Object.assign(new Error('Showcase Mode is read-only.'),{status:403});
+  if(profiles?.some(x=>['showcase','test'].includes(x.account_kind)))throw Object.assign(new Error('Production moderation is not available to demonstration accounts.'),{status:403});
   if(roles.includes('OWNER'))return{...c,roles};
   if(!roles.length)throw Object.assign(new Error('Control Center access required.'),{status:403});
   const grants=await rest(env,`admin_role_permissions?select=role_code&permission_code=eq.${encodeURIComponent(permission)}`);
@@ -41,6 +41,41 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
     const created=Array.isArray(rows)?rows[0]:rows,id2=created?.id;
     await audit(env,c.user.id,'commons.guide.create','commons_topic',id2,{forumCode,title});
     return out({ok:true,id:id2});
+  }
+  if(action==='commons_mod_queue'&&request.method==='GET'){
+    await requirePermission(env,request,'forum.moderate');
+    const page=Number(u.searchParams.get('page')||'1');if(!Number.isSafeInteger(page)||page<1||page>100) return out({error:'Invalid page.'},400);
+    const from=(page-1)*30;
+    const [reports,topics]=await Promise.all([
+      rest(env,`forum_reports?select=id,reporter_user_id,content_type,content_id,reason,details,status,created_at&content_id=like.commons:*&order=created_at.desc&limit=31&offset=${from}`),
+      rest(env,'commons_topics?select=id,title,forum_code,status,is_locked,is_pinned,is_official,updated_at&order=updated_at.desc&limit=35')
+    ]);
+    return out({ok:true,page,reports:reports.slice(0,30),hasMore:reports.length>30,recentTopics:topics});
+  }
+  if(action==='commons_report_resolve'&&request.method==='POST'){
+    const c=await requirePermission(env,request,'forum.moderate'),b=await request.json().catch(()=>({}));
+    const id=Number(b.reportId),status=clean(b.status),note=clean(b.note);
+    if(!Number.isSafeInteger(id)||id<1||!['reviewing','resolved','dismissed'].includes(status)||note.length>500)return out({error:'Invalid report resolution.'},400);
+    const old=(await rest(env,`forum_reports?select=id,status&content_id=like.commons:*&id=eq.${id}&limit=1`))?.[0];
+    if(!old)return out({error:'Community report not found.'},404);
+    if(['resolved','dismissed'].includes(old.status))return out({error:'Already closed; refresh before changing.',status:409},409);
+    const applied=await rest(env,`forum_reports?id=eq.${id}&status=in.(open,reviewing)`,{method:'PATCH',prefer:'return=representation',body:{status,resolved_by:['resolved','dismissed'].includes(status)?c.user.id:null,resolved_at:['resolved','dismissed'].includes(status)?new Date().toISOString():null,resolution_note:note}});
+    if(!Array.isArray(applied)||!applied.length)return out({error:'Report changed; refresh before updating.'},409);await audit(env,c.user.id,'commons.report.review','forum_report',id,{status});return out({ok:true});
+  }
+  if(action==='commons_topic_moderate'&&request.method==='POST'){
+    const c=await requirePermission(env,request,'forum.moderate'),b=await request.json().catch(()=>({}));
+    const id=Number(b.topicId),key=clean(b.field),value=b.value;
+    if(!Number.isSafeInteger(id)||id<1||!['is_locked','is_pinned','status'].includes(key))return out({error:'Invalid moderation request.'},400);
+    if(key==='status'&&!['published','hidden'].includes(value))return out({error:'Invalid topic status.'},400);
+    if(key!=='status'&&typeof value!=='boolean')return out({error:'Expected boolean value.'},400);
+    const old=(await rest(env,`commons_topics?select=id,updated_at,is_official&title=not.is.null&id=eq.${id}&limit=1`))?.[0];
+    if(!old)return out({error:'Topic not found.'},404);
+    if(old.is_official&&!c.roles.includes('OWNER'))return out({error:'Official guides require OWNER moderation.'},403);
+    if(clean(b.expectedUpdatedAt)!==clean(old.updated_at))return out({error:'Topic changed; refresh before updating.'},409);
+    const patch={[key]:value,updated_at:new Date().toISOString()};
+    const applied=await rest(env,`commons_topics?id=eq.${id}&updated_at=eq.${encodeURIComponent(old.updated_at)}`,{method:'PATCH',prefer:'return=representation',body:patch});
+    if(!Array.isArray(applied)||!applied.length)return out({error:'Topic changed during update; refresh.'},409);
+    await audit(env,c.user.id,'commons.topic.moderate','commons_topic',id,{key,value});return out({ok:true});
   }
   return out({error:'Unknown admin v0.13.3 action.'},404);
 }catch(e){return out({error:e.message||'Admin request failed.'},e.status||500)}}
