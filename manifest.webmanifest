@@ -1,0 +1,9 @@
+{
+  "name": "The Stock Market: From the Ground Up",
+  "short_name": "Ground Up",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061827",
+  "theme_color": "#061827",
+  "description": "Trading education, historical labs, simulation, journaling, analytics, and community."
+}

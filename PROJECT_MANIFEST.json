@@ -1,0 +1,112 @@
+{
+  "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
+  "version": "0.13.5.7.2",
+  "status": "Branch reconciled; JS/CSS consolidation candidate pending live Cloudflare, Supabase, Auth and old-service-worker acceptance.",
+  "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
+  "lab_count": 419,
+  "book_counts": {
+    "1": 15,
+    "2": 46,
+    "3": 33
+  },
+  "direct_digital_sales_enabled": {
+    "book1": false,
+    "book2": false,
+    "book3": false
+  },
+  "kdp_select_exclusive_switch": true,
+  "auth_backend": "Supabase Auth - email plus server-side username login",
+  "profile_backend": "Supabase profiles - permanent username/display identity and inactivity timeout (30-minute default)",
+  "progress_backend": "Supabase lab_progress plus immutable lab_attempts practice history with RLS",
+  "forum_backend": "Supabase member forum - categories, topics, replies, reports",
+  "entitlement_backend": "Supabase entitlements - payment activation pending",
+  "hosting_target": "Cloudflare Pages free tier",
+  "v0_5_scope": [
+    "Separate Sign In and Create Account pages",
+    "Email or username sign-in",
+    "Persistent sessions across site navigation",
+    "Profile dropdown with Profile, Dashboard, Settings, Forum, and Sign out",
+    "User-selectable 15m, 30m, 1h, 4h, 8h, or 24h inactivity timeout",
+    "Saved account settings",
+    "Password reset/update flow",
+    "Signed-in member stock-market discussion forum",
+    "Topic categories, optional ticker tags, replies, reports, and community guidelines"
+  ],
+  "v0_5_1_scope": [
+    "Password confirmation with live match feedback",
+    "Live username availability check",
+    "Live email availability check prior to signup",
+    "Final username and email availability recheck on submit",
+    "Account Created confirmation screen after successful signup",
+    "Email verification instruction and sign-in handoff"
+  ],
+  "v0_5_2_scope": [
+    "Username is also the permanent display name and forum identity",
+    "Optional Book Key at account creation",
+    "30-day Full Learning Access trial activated after email verification",
+    "Hashed Book Key storage and admin key generation"
+  ],
+  "v0_5_3_scope": [
+    "Username required at registration, first letter capitalized, and immutable after account creation",
+    "Display name forced to match username",
+    "Different Book Key for each book; each book code redeemable once per account",
+    "Book Keys redeemable during signup or later in Settings",
+    "Submit Key control and redeemed-book history in Settings",
+    "Each newly redeemed book key adds 30 days of Full Learning Access",
+    "Book Key guidance shown on hover over Book Key inputs",
+    "Expanded public About the Author section for J. S. Grant"
+  ],
+  "learning_backend": "Supabase lab_attempts + decision_journal; interactive content derived from all 94 frozen Foundations Historical Lab IDs",
+  "v0_6_scope": [
+    "Interactive Guided Mode preserves and stages the book-guided historical examples rather than removing them from the books",
+    "Practice, Blind Decision, and Assessment modes for active Full Learning Access",
+    "Permanent Guided Mode companion access for redeemed books plus selected free sample labs",
+    "Evidence-chain capture, locked first decisions, confidence, invalidation, reflection, and process-completeness scoring",
+    "Market Skills Record with mistake profile, adaptive practice recommendation, and 60-day refresher indicator",
+    "Decision Journal for process-versus-outcome review",
+    "Subscriber Historical Lab Comparison tool",
+    "Member Challenges infrastructure using verified curriculum labs",
+    "Historical Lab forum linking",
+    "Automatic sign-out changed to dropdown with 30-minute default and 15m/30m/1h/4h/8h/24h options",
+    "Corrected Book Key generator that returns all three generated keys in one result grid",
+    "Portable in-book teaching visuals are carried into interactive labs when an explicit lab-linked figure exists, with constructed visuals clearly labeled as non-historical",
+    "Decision Process Profile records evidence-chain completeness by reasoning component without falsely grading profitability or unverified correctness",
+    "Market Environment Library groups verified curriculum labs by source-derived historical context tags for targeted repetition",
+    "Training Releases log provides infrastructure for recurring verified historical practice additions without changing the books",
+    "Historical Lab discussions remain hidden until the learner saves their own interactive attempt, protecting no-look-ahead reasoning",
+    "Lab-linked forum topic creation and replies are protected by Supabase RLS/RPC checks tied to saved lab attempts",
+    "New accounts default to 30-minute inactivity sign-out; Settings uses a dropdown with 15m/30m/1h/4h/8h/24h options and Save Settings"
+  ],
+  "environment_library": "Source-derived curriculum context tags only; no predictive or unverified market-regime classifications",
+  "assessment_limit": "v0.6 measures process completeness and practice status. Correctness/mastery scoring remains disabled until per-lab answer rubrics are independently verified.",
+  "manifest_audit": {
+    "audited_github_main_sha": "4f9aad845417cec4691c827dba4c80699e003a0f",
+    "historical_values_from_v0_6": {
+      "version": "0.6",
+      "status": "v0.6 interactive learning-system candidate: book-linked Guided Labs, subscriber practice modes, immutable attempts, skills/process analytics, decision journal, challenges, context library, training releases, and lab-gated community discussion",
+      "lab_count": 94
+    },
+    "historical_lab_count_foundations": 94,
+    "current_catalog_path": "v0.13.3_LAB_CATALOG.json",
+    "migration_reconciliation_required": [
+      "v0.13.5.4_INTELLIGENT_CONTROL_CORE.sql",
+      "v0.13.5.5_OWNER_MANUAL_ENTITLEMENTS.sql"
+    ],
+    "accuracy_note": "Other v0.x scope entries below are retained as historical version records, not a declaration that related services have passed live validation.",
+    "remediation_note": "Merged desktop navigation owner; retired unused dashboard deduper; hardened legacy Showcase paths; unified legacy SW URLs via secure current worker; production contract pending.",
+    "branch_reconciliation": {
+      "verified_2026_10_12": true,
+      "main_sha": "4f9aad845417cec4691c827dba4c80699e003a0f",
+      "cleanup_branch": "audit/verified-cleanup-v01355",
+      "cleanup_sha": "8a658ca26012aeea4e360cd64fb256e303ef73bb",
+      "old_feature_branch": "v0.13.4-skill-development-showcase-admin",
+      "old_feature_branch_sha": "a301180d040d538bf4d04b900941988ddd60ca0b",
+      "old_feature_branch_ahead_of_main_commits": 0,
+      "retired_old_branch_only_path": "sw-v0131.js",
+      "compatibility_replacement": "sw-v0131.js (safe importScripts shim to /sw-v0135.js, not original 2019-style cache script)",
+      "details_path": "docs/BRANCH_RECONCILIATION_AND_COMPLETENESS.md",
+      "warning": "This is a code/branch ancestry and static integrity review, not live Supabase/Cloudflare/provider certification."
+    }
+  },
+  "consolidation_release": "v0.13.5.7.2"
+}
