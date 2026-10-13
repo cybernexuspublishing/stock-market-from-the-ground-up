@@ -17,7 +17,7 @@ training=(root/'functions/api/interactive-training.js').read_text()
 assert 'requireMatchingBook(env,request,id)' in training
 assert 'requireMatchingBook(env,request,a.lab_id)' in training
 assert 'requireMatchingBook(env,request,attempts[0].lab_id)' in training
-assert json.loads((root/'PROJECT_MANIFEST.json').read_text())['version']in ('0.14.0.2','0.14.0.3','0.14.0.4','0.14.0.5')
+assert json.loads((root/'PROJECT_MANIFEST.json').read_text())['version']in ('0.14.0.2','0.14.0.3','0.14.0.4','0.14.0.5','0.14.0.6')
 assert "['demo_create','demo_delete'].includes(action)" in (root/'functions/_middleware.js').read_text()
 assert "if(!c.roles.includes('OWNER'))return out({error:'Official Platform Guides require OWNER authority.'},403)" in (root/'functions/api/admin-v0133.js').read_text()
 print('PASS static v0.14.0.1: direct Supabase forum writes guarded; 24h limits serialized; book access required; checkout reactivation blocked')

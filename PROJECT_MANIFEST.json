@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.5",
-  "status": "CONTROLLED P0 ACCESS-HARDENING AND EXECUTION-ROADMAP CANDIDATE — SOURCE TESTS ONLY. Live schema, checkout, historical training, GWS publishing and full P0-P2 acceptance remain outstanding.",
+  "version": "0.14.0.6",
+  "status": "Security and correctness patch candidate: not a completed P0-P2 launch; live Supabase/provider verification pending",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {

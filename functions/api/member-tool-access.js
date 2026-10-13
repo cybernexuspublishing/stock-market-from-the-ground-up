@@ -10,7 +10,7 @@ export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDE
  const headers={apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json'};
  const profile=await ask(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+enc(user.id)+'&limit=1',{headers});if(profile[0]?.account_kind!=='member')return{authorized:false,userId:user.id,reason:'Only eligible production member accounts may use this tool.'};
  const flags=await ask(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+enc(user.id)+'&limit=1',{headers});
- if(['suspended','restricted'].includes(flags[0]?.status))return {authorized:false,userId:user.id,reason:'Account access is restricted. Contact support.'};
+ if(['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))return {authorized:false,userId:user.id,reason:'Account access is restricted. Contact support.'};
  const allowed=await ask(c.base+'/rest/v1/rpc/user_has_tool_access',{method:'POST',headers:{...headers,'content-type':'application/json'},body:JSON.stringify({target_user:user.id,target_tool:toolCode})});
  return{authorized:allowed===true,userId:user.id,reason:allowed===true?'':'An active plan or matching individual tool entitlement is required.'};
 }

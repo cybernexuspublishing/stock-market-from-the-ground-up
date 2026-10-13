@@ -1,13 +1,11 @@
-# Current Source Candidate — v0.14.0.5 (13 October 2026)
+# Current Source Candidate — v0.14.0.6 (13 October 2026)
 
-**Not yet deployed or production accepted. The Owner controls GitHub, Supabase, Cloudflare and billing.**
+**Project:** The Stock Market: From the Ground Up + Grant Web Solutions
+**Status:** source-tested security and verification update, NOT P0–P2 completion or production accepted.
+**Baseline:** v0.14.0.5. Supabase / Cloudflare / GitHub remain unchanged.
 
-Controlling source release: v0.14.0.5 (v0.14.0.4 baseline). Scope: restrict suspended/restricted Owners at the Membership Plans and private Grant Web Solutions draft API boundaries; update active release/cache markers; maintain the complete prioritized implementation register.
+This controlled release closes a set of authenticated-account security issues in reviewed assessment, membership checkout, legacy account operations, and Owner community settings. It preserves the stable filenames, existing API paths and 419 Lab identifiers. Details: `v0.14.0.6_IMPLEMENTATION_SCOPE.md`.
 
-Read in order: `v0.14.0.5_ORDERED_MASTER_EXECUTION_PLAN.md`, `v0.14.0.5_CHANGE_REPORT.md`, `v0.14.0.5_RELEASE_QA.md`.
+**77-task status register:** `v0.14.0.6_77_TASK_VERIFICATION_REGISTER.csv` and the controlling `v0.14.0.5_ORDERED_MASTER_EXECUTION_PLAN.md`. The file inventory is not evidence of verified historical data or production correctness.
 
-No new SQL write migration is required for these changes, but the **existing** production-schema preflight is still a release dependency. The owner must confirm the table/status contract. Do not rerun historical SQL files by default. Protect private seeds, old encryption keys and active member records.
-
-**Mandatory flags remain OFF:** paid checkout, direct KDP Select eBook distribution, production Showcase entitlements, QR production activation; staff MFA/Turnstile rollout requires separate explicit authorization.
-
-Historical release records in the `docs/` folder remain part of the audit trail; they do not supersede this file.
+**SQL for v0.14.0.6 patch:** no new write migration. Existing read-only preflight: `supabase/admin/v0.14.0.4_SAFE_CONTRACT_INSPECTION_READ_ONLY.sql`. Do not rerun previous migrations without reconciling production.

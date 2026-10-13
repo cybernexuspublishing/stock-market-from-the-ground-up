@@ -1,4 +1,11 @@
-# v0.14.0.5 — Owner Status Guard and Ordered Program Roadmap (Engineering Candidate)
+**Current development candidate: v0.14.0.6 (not deployed; not P0–P2 complete).** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.6_IMPLEMENTATION_SCOPE.md`.
+
+# v0.14.0.6 — Security and Contract Hardening (Engineering Candidate)
+
+The v0.14.0.5 roadmap remains controlling, but this release does not claim completion of the full P0–P2 program. All 77 tasks and their verification requirements are inventoried in `docs/v0.14.0.6_77_TASK_VERIFICATION_REGISTER.csv`.
+
+## Previous baseline notes: v0.14.0.5
+
 
 **Current owner-uploadable release candidate. Not production accepted. Do not activate paid checkout.**
 

@@ -43,7 +43,7 @@ assert len({x['lab_id'] for x in catalog})==419
 assert len(foundation)==94 and {x['id'] for x in foundation}<={x['lab_id'] for x in catalog}
 assert sum(1 for x in catalog if x.get('ticker') and x.get('historical_date'))==122
 # No protected routes from cache, old active worker retained
-sw=(R/'sw.js').read_text();assert 'groundup-v01405-public' in sw
+sw=(R/'sw.js').read_text();assert 'groundup-v01406-public' in sw
 assert "POLICY.isProtected(p)" in sw and "fetch(req,{cache:'no-store'})" in sw
 assert "'/admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text() or "'admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text()
 assert 'Legacy Showcase provisioning is disabled' in (R/'functions/api/admin-v0134.js').read_text()

@@ -1,0 +1,42 @@
+{
+  "release": "v0.14.0.6",
+  "baseline": "v0.14.0.5",
+  "status": "source-tested security patch, NOT full 77-task completion",
+  "modified_files": [
+    "PROJECT_MANIFEST.json",
+    "README.md",
+    "assets/js/route-policy.js",
+    "assets/js/service-worker.js",
+    "config.js",
+    "docs/CURRENT_RELEASE.md",
+    "functions/_middleware.js",
+    "functions/api/admin-v013.js",
+    "functions/api/admin-v0134.js",
+    "functions/api/admin.js",
+    "functions/api/assessment-v0135.js",
+    "functions/api/checkout.js",
+    "functions/api/home-member-stats-v01353.js",
+    "functions/api/member-tool-access.js",
+    "sw.js",
+    "tests/qa_clean_baseline.py",
+    "tests/v0141_security_contracts.py",
+    "tests/v0142_account_security_contracts.py"
+  ],
+  "added_files": [
+    "docs/v0.14.0.6_77_TASK_VERIFICATION_REGISTER.csv",
+    "docs/v0.14.0.6_IMPLEMENTATION_SCOPE.md",
+    "docs/v0.14.0.6_LAB_PUBLIC_METADATA_INVENTORY.csv",
+    "docs/v0.14.0.6_RELEASE_QA.md",
+    "docs/v0.14.0.6_SHA256_MANIFEST.csv",
+    "docs/v0.14.0.6_SOURCE_CHANGE_MANIFEST.json",
+    "scripts/build-v01406-inventory.py",
+    "tests/v01406_security_regression.mjs"
+  ],
+  "removed_files": [],
+  "source_files_before": 461,
+  "source_files_after_before_release_manifest": 469,
+  "db_write_migration_required": false,
+  "live_verified": false,
+  "owner_manual_deployment": true,
+  "note": "Price/paid-checkout, synthetic Showcase and private book content remain controlled; no production changes performed."
+}
