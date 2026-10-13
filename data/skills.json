@@ -1,0 +1,198 @@
+[
+  {
+    "skill": "Breakouts & Failures",
+    "labCount": 6,
+    "labIds": [
+      "F2-C13-L02",
+      "F3-C01-L01",
+      "F3-C01-L02",
+      "F3-C01-L03",
+      "F3-C01-L04",
+      "F3-C01-L06"
+    ]
+  },
+  {
+    "skill": "Candles & Wicks",
+    "labCount": 19,
+    "labIds": [
+      "F2-C06-L01",
+      "F2-C07-L01",
+      "F2-C07-L02",
+      "F2-C07-L03",
+      "F2-C08-L01",
+      "F2-C08-L02",
+      "F2-C08-L03",
+      "F2-C08-L04",
+      "F2-C08-L06",
+      "F2-C09-L01",
+      "F2-C09-L03",
+      "F2-C09-L04",
+      "F2-C09-L05",
+      "F2-C10-L01",
+      "F2-C11-L02",
+      "F2-C11-L04",
+      "F3-C03-L01",
+      "F3-C03-L02",
+      "F3-C03-L03"
+    ]
+  },
+  {
+    "skill": "EMA Relationships",
+    "labCount": 10,
+    "labIds": [
+      "F2-C01-L01",
+      "F2-C03-L02",
+      "F2-C13-L03",
+      "F2-C14-L03",
+      "F3-C01-L05",
+      "F3-C01-L07",
+      "F3-C05-L01",
+      "F3-C05-L02",
+      "F3-C05-L03",
+      "F3-C05-L04"
+    ]
+  },
+  {
+    "skill": "Fundamentals & Research",
+    "labCount": 5,
+    "labIds": [
+      "F1-C04-L01",
+      "F1-C07-L01",
+      "F1-C07-L02",
+      "F1-C08-L01",
+      "F1-C08-L02"
+    ]
+  },
+  {
+    "skill": "Indicator Foundations",
+    "labCount": 3,
+    "labIds": [
+      "F3-C04-L01",
+      "F3-C04-L02",
+      "F3-C04-L03"
+    ]
+  },
+  {
+    "skill": "Liquidity & Execution",
+    "labCount": 3,
+    "labIds": [
+      "F1-C12-L01",
+      "F2-C04-L01",
+      "F2-C04-L02"
+    ]
+  },
+  {
+    "skill": "Market Foundations",
+    "labCount": 1,
+    "labIds": [
+      "F1-C06-L01"
+    ]
+  },
+  {
+    "skill": "Market Structure",
+    "labCount": 9,
+    "labIds": [
+      "F2-C09-L02",
+      "F2-C11-L01",
+      "F2-C12-L01",
+      "F2-C12-L02",
+      "F2-C12-L03",
+      "F2-C12-L04",
+      "F2-C13-L01",
+      "F2-C13-L04",
+      "F3-C02-L05"
+    ]
+  },
+  {
+    "skill": "Momentum",
+    "labCount": 7,
+    "labIds": [
+      "F1-C13-L01",
+      "F1-C13-L02",
+      "F2-C08-L05",
+      "F3-C07-L01",
+      "F3-C07-L02",
+      "F3-C07-L03",
+      "F3-C07-L04"
+    ]
+  },
+  {
+    "skill": "Platform & Replay",
+    "labCount": 1,
+    "labIds": [
+      "F1-C02-L02"
+    ]
+  },
+  {
+    "skill": "Pullbacks & Ranges",
+    "labCount": 4,
+    "labIds": [
+      "F3-C02-L01",
+      "F3-C02-L02",
+      "F3-C02-L03",
+      "F3-C02-L04"
+    ]
+  },
+  {
+    "skill": "RCT",
+    "labCount": 1,
+    "labIds": [
+      "F3-C03-L04"
+    ]
+  },
+  {
+    "skill": "Risk & Decision Process",
+    "labCount": 4,
+    "labIds": [
+      "F1-C09-L01",
+      "F1-C10-L01",
+      "F1-C10-L02",
+      "F2-C03-L01"
+    ]
+  },
+  {
+    "skill": "Support & Resistance",
+    "labCount": 3,
+    "labIds": [
+      "F2-C14-L01",
+      "F2-C14-L02",
+      "F2-C14-L04"
+    ]
+  },
+  {
+    "skill": "Time & Multi-Timeframe Context",
+    "labCount": 8,
+    "labIds": [
+      "F1-C02-L01",
+      "F2-C02-L01",
+      "F2-C02-L02",
+      "F2-C02-L03",
+      "F2-C06-L02",
+      "F2-C10-L02",
+      "F2-C10-L03",
+      "F2-C11-L03"
+    ]
+  },
+  {
+    "skill": "VWAP",
+    "labCount": 6,
+    "labIds": [
+      "F3-C06-L01",
+      "F3-C06-L02",
+      "F3-C06-L03",
+      "F3-C06-L04",
+      "F3-C06-L05",
+      "F3-C06-L06"
+    ]
+  },
+  {
+    "skill": "Volume",
+    "labCount": 4,
+    "labIds": [
+      "F1-C08-L03",
+      "F2-C05-L01",
+      "F2-C05-L02",
+      "F2-C05-L03"
+    ]
+  }
+]

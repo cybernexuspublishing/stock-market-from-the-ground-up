@@ -1,0 +1,120 @@
+/* One authoritative admin-operations style bundle. */
+
+/* Source: v0.13.5-admin-unified.css */
+/* v0.13.5 Admin Control Center — controlled consolidation. Scoped only. */
+.v135-unified-group{margin-top:.7rem;padding-top:.6rem;border-top:1px solid rgba(200,220,232,.18)}
+.v135-unified-group>button{display:block;width:100%;text-align:left}
+.v135-unified-panel{min-width:0}
+.v135-unified-panel .admin-heading{align-items:flex-start;flex-wrap:wrap}
+.v135-unified-panel .admin-heading h1{line-height:1.3}
+.v135-unified-panel .v135-unified-content{min-width:0;max-width:100%}
+.v135-unified-toolbar{min-height:2.2rem;margin:.3rem 0 1rem}
+.v135-unified-toolbar p{font-size:.9rem;color:#b4cbda;line-height:1.5}
+.v135-unified-toolbar p[data-kind="error"]{color:#ffa7a7}
+.v135-unified-toolbar p[data-kind="demo"]{color:#f8dc93}
+.v135-unified-toolbar p[data-kind="ok"]{color:#a4d5be}
+.v135-unified-table-wrap{width:100%;max-width:100%;overflow-x:auto;border:1px solid #315068;border-radius:12px;scrollbar-width:thin}
+.v135-unified-table{border-collapse:collapse;width:100%;min-width:800px;text-align:left}
+.v135-unified-table th{position:sticky;top:0;background:#15344b;color:#e8f2fb;font-size:.8rem;letter-spacing:.025em}
+.v135-unified-table td,.v135-unified-table th{padding:.75rem .85rem;border-bottom:1px solid #29465b;vertical-align:middle}
+.v135-unified-table tr:last-child td{border-bottom:0}
+.v135-unified-table tbody tr:nth-child(2n){background:rgba(95,151,180,.045)}
+.v135-unified-table td code{overflow-wrap:anywhere}
+.v135-unified-table td small{display:block;color:#9cb4c5;margin-top:.2rem}
+.v135-unified-table td .v135-action{padding:.4rem .65rem;font-size:.85rem;min-height:36px;white-space:nowrap}
+.v135-unified-table td .v135-action:disabled{opacity:.62;cursor:not-allowed}
+.v135-unified-panel .v135-unified-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin:.75rem 0 1.8rem}
+.v135-unified-stat-grid article{padding:1rem 1.1rem;border:1px solid #345972;border-radius:11px;background:#0c293e}
+.v135-unified-stat-grid strong{font-size:1.65rem;display:block;color:#f5f9fb}
+.v135-unified-stat-grid span{display:block;color:#adc1d3;font-size:.9rem}
+.v135-unified-panel h2{font-size:1.4rem;margin:.5rem 0 1rem}
+.v135-unified-panel h3{margin:1rem 0 .6rem}
+.v135-unified-panel .v135-unified-warning{padding:.95rem 1rem;border:1px solid #6e5c2a;border-left:4px solid #e3b64b;border-radius:8px;background:rgba(201,159,68,.08);line-height:1.55;margin-bottom:1.2rem}
+.v135-unified-panel .v135-unified-filter{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0;font-weight:600}
+.v135-unified-filter input{flex:1 1 280px;max-width:650px;min-height:42px;padding:.55rem .75rem;border:1px solid #537087;border-radius:7px;background:#f8fbff;color:#13293c}
+.v135-unified-panel .v135-state{display:inline-block;white-space:nowrap;border-radius:999px;padding:.23rem .6rem;font-size:.82rem;font-weight:700;border:1px solid #496474}
+.v135-unified-panel .v135-state.on{color:#a5d9b8;border-color:#467a5f;background:#143627}
+.v135-unified-panel .v135-state.off{color:#e0bd90;border-color:#675234;background:#302619}
+.v135-unified-panel .v135-state-pair{display:flex;align-items:center;gap:.5rem}
+.v135-unified-panel .v135-locked{display:block;color:#d7b56e;font-size:.81rem;max-width:140px}
+.v135-unified-panel .v135-unified-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin:1rem 0}
+.v135-unified-panel tr[hidden]{display:none!important}
+.v135-unified-panel .v135-empty{padding:1.2rem;color:#bed3e0;text-align:center}
+.v135-unified-dialog{width:min(820px,calc(100vw - 1.5rem));max-height:90vh;overflow:auto;background:#081f31;color:#eff6fa;border:1px solid #42657b;border-radius:14px;padding:1.4rem;box-shadow:0 15px 55px rgba(0,0,0,.5)}
+.v135-unified-dialog::backdrop{background:rgba(0,0,0,.75)}
+.v135-unified-dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;border-bottom:1px solid #355368;padding-bottom:.8rem;margin-bottom:1rem}
+.v135-unified-dialog-heading h2{margin:0;font-size:1.4rem}
+.v135-unified-dialog label{display:grid;gap:.35rem;margin:.7rem 0;font-weight:600}
+.v135-unified-dialog input,.v135-unified-dialog select,.v135-unified-dialog textarea{width:100%;max-width:100%;min-height:41px;padding:.55rem .7rem;background:#f6fbff;color:#12283a;border:1px solid #7590a4;border-radius:7px}
+.v135-unified-dialog textarea{min-height:80px;resize:vertical}
+.v135-unified-dialog fieldset{border:1px solid #3a5a70;border-radius:10px;padding:1rem;margin:1.2rem 0}
+.v135-unified-dialog legend{font-weight:800;color:#e3c573;padding:0 .35rem}
+.v135-unified-dialog .v135-unified-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem 1rem}
+.v135-unified-dialog .v135-unified-form-grid .wide{grid-column:1/-1}
+.v135-unified-dialog #v135-unified-draft-form{display:block}
+.v135-unified-dialog [data-dialog-status]{color:#ffc1c1}
+@media(max-width:700px){.v135-unified-dialog{padding:.75rem}.v135-unified-dialog .v135-unified-form-grid{grid-template-columns:1fr}.v135-unified-panel .v135-unified-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v135-unified-table{min-width:720px}}
+@media(prefers-reduced-motion:reduce){.v135-unified-panel *{scroll-behavior:auto!important}}
+
+
+/* Source: v0.13.5.3-admin-accounts.css */
+/* v0.13.5.2 — scoped unified Account Management; preserves legacy Admin shell. */
+#v1352-accounts{min-width:0;max-width:100%;width:100%;}
+#v1352-accounts .v1352-disclosure{border:1px solid #826b40;border-radius:10px;padding:12px 15px;margin:14px 0;background:rgba(160,117,47,.12);}
+#v1352-accounts .v1352-states{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;}
+#v1352-accounts .v1352-states span{border:1px solid #406074;border-radius:8px;padding:5px 12px;font-size:.84rem;color:#e9d499;}
+#v1352-accounts .v1352-buttons,.v1352-dialog .v1352-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;}
+#v1352-accounts .v1352-search{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:20px 0;max-width:950px;}
+#v1352-accounts .v1352-search label{flex:1 1 300px;min-width:0;}
+#v1352-accounts .v1352-scroll{width:100%;max-width:100%;overflow:auto;border:1px solid #24465e;border-radius:10px;}
+#v1352-accounts .admin-table{width:100%;min-width:790px;border-collapse:collapse;}
+#v1352-accounts .admin-table th,#v1352-accounts .admin-table td{padding:.75rem .6rem;border-bottom:1px solid #23445c;text-align:left;vertical-align:top;}
+#v1352-accounts .admin-table td:last-child{min-width:220px;}
+#v1352-accounts .admin-table td:last-child button{margin:2px 3px 3px 0;padding:6px 10px;font-size:.85rem;}
+#v1352-accounts .admin-table small{display:block;overflow-wrap:anywhere;}
+#v1352-accounts #v1352-status[data-kind=error]{color:#ffa19b;}
+#v1352-accounts #v1352-status[data-kind=ok]{color:#a6efbd;}
+#v1352-accounts #v1352-status[data-kind=demo]{color:#e7c879;}
+.v1352-dialog{width:min(820px,calc(100vw - 20px));max-height:min(93vh,1050px);overflow-y:auto;border:1px solid #406782;border-radius:14px;padding:18px 22px;background:#0b2239;color:#eaf1f8;z-index:2000;}
+.v1352-dialog::backdrop{background:rgba(0,9,18,.83);}
+.v1352-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 15px;padding:0 0 12px;border-bottom:1px solid #34536a;}
+.v1352-dialog>header h2{margin:0;font-size:1.35rem;}
+.v1352-dialog .v1352-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;}
+.v1352-dialog label{display:block;line-height:1.35;margin:10px 0;min-width:0;}
+.v1352-dialog label input:not([type=checkbox]),.v1352-dialog select,.v1352-dialog textarea,#v1352-accounts input[type=search]{display:block;box-sizing:border-box;width:100%;margin-top:5px;padding:10px 12px;border-radius:7px;border:1px solid #4c6b82;background:#122d44;color:#fff;}
+.v1352-dialog label input[type=checkbox]{margin:0 8px 0 0;}
+.v1352-dialog .full{grid-column:1/-1;}
+.v1352-dialog .v1352-note{margin:0;line-height:1.5;color:#c2d5e3;}
+.v1352-dialog .v1352-danger{border:1px solid #db7777;border-radius:8px;padding:12px;color:#fff;background:rgba(143,30,30,.21);}
+.v1352-dialog [data-v1352-error]{color:#f2bd84;white-space:pre-wrap;}
+.v1352-dialog button.danger,#v1352-accounts button.danger{background:#8f343a;color:#fff;border:1px solid #b45458;}
+.v1352-dialog button:disabled,#v1352-accounts button:disabled{opacity:.6;cursor:not-allowed;}
+.v1352-dialog [hidden],#v1352-accounts [hidden],#v1351-owner-accounts[hidden],[data-v1351-accounts][hidden]{display:none!important;}
+@media(max-width:720px){.v1352-dialog .v1352-grid{grid-template-columns:1fr}.v1352-dialog{padding:13px}.v1352-dialog>header{align-items:flex-start}#v1352-accounts .v1352-search{display:block}}
+/* v0.13.5.3: complete account editor on desktop and narrow viewports. */
+.v1353-account-editor {display:grid;gap:1.2rem;}
+.v1353-account-editor > form {padding:1rem;border:1px solid rgba(140,168,184,.27);border-radius:12px;min-width:0;}
+.v1353-account-editor h3 {margin:0 0 .2rem;font-size:1.1rem;}
+.v1353-account-editor .v1352-grid label {min-width:0;}
+.v1353-account-editor select,.v1353-account-editor input {width:100%;max-width:100%;box-sizing:border-box;}
+.v1353-account-editor .full {grid-column:1/-1;}
+@media(max-width:700px){.v1353-account-editor .v1352-grid {grid-template-columns:1fr;}.v1353-account-editor > form{padding:.8rem}}
+
+/* Form-row alignment and consistent mobile control spacing */
+.v1352-dialog label.v1353-inlinecheck{display:flex;align-items:center;gap:10px;margin:.7rem 0;line-height:1.4;}
+.v1352-dialog label.v1353-inlinecheck input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;}
+.v1352-dialog input[type=password]{letter-spacing:.015em;}
+.v1352-dialog form .small{line-height:1.5;}
+
+
+/* Source: v0.13.5.3-book-sales.css */
+.v1353-book-pricing{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.1rem 0;padding:1rem;border:1px solid rgba(150,174,193,.35);border-radius:12px;}
+.v1353-book-pricing label{min-width:0;display:block;}
+.v1353-book-pricing label>input,.v1353-book-pricing label>select{width:100%;max-width:100%;box-sizing:border-box;margin-top:.35rem;}
+.v1353-book-pricing fieldset{grid-column:1/-1;padding:.85rem;border:1px solid rgba(237,183,58,.5);border-radius:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+.v1353-book-pricing fieldset[hidden]{display:none!important;}
+.v1353-book-pricing fieldset p{grid-column:1/-1;margin:.1rem 0;}
+.v1353-book-caution{grid-column:1/-1;margin:0;color:#bbd7e8;}
+.v1353-books-banner{border-left:3px solid #e8b846;padding:.6rem .9rem;background:rgba(228,180,56,.09)}
+@media(max-width:680px){.v1353-book-pricing,.v1353-book-pricing fieldset{grid-template-columns:1fr;}}
+

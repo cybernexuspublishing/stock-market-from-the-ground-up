@@ -1,0 +1,11 @@
+[
+  {
+    "id": "2026-10-FOUNDATIONS-LAUNCH",
+    "title": "Foundations Interactive Launch Collection",
+    "published": "2026-10-05",
+    "type": "curriculum-release",
+    "status": "published",
+    "summary": "Interactive Guided Mode is mapped to all 94 verified Foundations Historical Lab IDs. Practice, Blind Decision, Assessment, Skills Record, Decision Journal, comparison practice, and the launch challenge are enabled for Full Learning Access.",
+    "labIds": ["F1-C02-L01","F2-C01-L01","F3-C01-L01"]
+  }
+]

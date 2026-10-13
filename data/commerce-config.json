@@ -1,0 +1,17 @@
+{
+  "version": "0.11",
+  "currency": "USD",
+  "paymentProvider": "",
+  "plans": [
+    {"planCode":"FREE","label":"Free","priceCents":0,"billingInterval":"none","checkoutUrl":"","adFree":false},
+    {"planCode":"FULL_MONTHLY","label":"Full Platform — Monthly","priceCents":6999,"billingInterval":"month","checkoutUrl":"","adFree":true},
+    {"planCode":"FULL_ANNUAL","label":"Full Platform — Annual","priceCents":69900,"billingInterval":"year","checkoutUrl":"","adFree":true},
+    {"planCode":"LIFETIME","label":"Lifetime Platform Access","priceCents":249900,"billingInterval":"lifetime","checkoutUrl":"","adFree":true}
+  ],
+  "toolPassPriceCents": 2999,
+  "billingPortalUrl": "",
+  "supportEmail": "stockmarketfromthegroundup@gmail.com",
+  "directDigitalDefaultEnabled": false,
+  "directPhysicalDefaultEnabled": false,
+  "processingFeePolicy": "included_in_list_price"
+}

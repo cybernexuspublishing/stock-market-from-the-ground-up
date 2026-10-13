@@ -1,0 +1,64 @@
+{
+  "journalTypes": [
+    {"value":"live","label":"Live Trade"},
+    {"value":"paper","label":"Paper / Simulator Trade"},
+    {"value":"observation","label":"Live Observation / No Trade"},
+    {"value":"historical_lab","label":"Historical Lab"}
+  ],
+  "entryReasons": [
+    "Breakout / breakdown trigger",
+    "Pullback / higher-low or lower-high continuation",
+    "VWAP hold / reclaim / rejection",
+    "Support / resistance reaction",
+    "Range / consolidation break",
+    "Momentum continuation",
+    "Reversal evidence",
+    "Catalyst / news reaction",
+    "Opening / time-of-day setup",
+    "Other planned reason"
+  ],
+  "exitReasons": [
+    "Planned target",
+    "Structural invalidation",
+    "Momentum failure",
+    "Stop / risk exit",
+    "Trailing-rule exit",
+    "Time-based exit",
+    "End-of-session exit",
+    "Execution / platform issue",
+    "Unplanned / emotional exit",
+    "Other"
+  ],
+  "sessions": [
+    "Premarket",
+    "Opening 30 minutes",
+    "Morning",
+    "Midday",
+    "Afternoon",
+    "Power hour / close",
+    "After hours",
+    "Overnight / night session",
+    "Multi-session / swing"
+  ],
+  "mistakes": [
+    "Entered before confirmation",
+    "Chased extension",
+    "Ignored volume / participation",
+    "Misread market structure",
+    "Misread support / resistance",
+    "Misread VWAP / EMA relationship",
+    "Ignored spread / liquidity",
+    "Ignored catalyst / context",
+    "Failed to define invalidation",
+    "Moved stop outside plan",
+    "Averaged down outside plan",
+    "Exited early from fear",
+    "Held past invalidation",
+    "Overtraded",
+    "Revenge traded",
+    "Oversized position",
+    "Failed to select NO TRADE",
+    "Execution / platform error",
+    "Other"
+  ]
+}

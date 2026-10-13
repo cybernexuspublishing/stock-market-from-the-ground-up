@@ -1,0 +1,146 @@
+[
+  {
+    "productCode": "FOUNDATION_BOOK_1",
+    "type": "book",
+    "family": "foundations",
+    "branchSlug": "foundations",
+    "title": "Stock Market Foundations, Book I: Understanding the Stock Market",
+    "shortTitle": "Foundations Book I",
+    "author": "J. S. Grant",
+    "publisher": "Crown & Lantern Press",
+    "publicationStatus": "publication_candidate",
+    "includedLifetime": true,
+    "kdpSelect": true,
+    "amazon": {
+      "kindleUrl": "",
+      "paperbackUrl": "",
+      "hardcoverUrl": "",
+      "listingUrl": "https://www.amazon.com/dp/B0HMPSNLGS",
+      "listingState": "prepublication"
+    },
+    "directDigital": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "directPhysical": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "companionAccess": true,
+    "bookKeyTrialDays": 30
+  },
+  {
+    "productCode": "FOUNDATION_BOOK_2",
+    "type": "book",
+    "family": "foundations",
+    "branchSlug": "foundations",
+    "title": "Stock Market Foundations, Book II: Learning to Read the Market",
+    "shortTitle": "Foundations Book II",
+    "author": "J. S. Grant",
+    "publisher": "Crown & Lantern Press",
+    "publicationStatus": "publication_candidate",
+    "includedLifetime": true,
+    "kdpSelect": true,
+    "amazon": {
+      "kindleUrl": "",
+      "paperbackUrl": "",
+      "hardcoverUrl": "",
+      "listingUrl": "https://www.amazon.com/dp/B0HMPQ9CTX",
+      "listingState": "prepublication"
+    },
+    "directDigital": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "directPhysical": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "companionAccess": true,
+    "bookKeyTrialDays": 30
+  },
+  {
+    "productCode": "FOUNDATION_BOOK_3",
+    "type": "book",
+    "family": "foundations",
+    "branchSlug": "foundations",
+    "title": "Stock Market Foundations, Book III: Building the Trading Decision",
+    "shortTitle": "Foundations Book III",
+    "author": "J. S. Grant",
+    "publisher": "Crown & Lantern Press",
+    "publicationStatus": "publication_candidate",
+    "includedLifetime": true,
+    "kdpSelect": true,
+    "amazon": {
+      "kindleUrl": "",
+      "paperbackUrl": "",
+      "hardcoverUrl": ""
+    },
+    "directDigital": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "directPhysical": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "companionAccess": true,
+    "bookKeyTrialDays": 30
+  },
+  {
+    "productCode": "DAY_TRADING_BOOK_1",
+    "type": "book",
+    "family": "day-trading",
+    "branchSlug": "day-trading",
+    "title": "Day Trading",
+    "shortTitle": "Day Trading — Book 1",
+    "author": "J. S. Grant",
+    "publisher": "Crown & Lantern Press",
+    "publicationStatus": "in_development",
+    "includedLifetime": true,
+    "kdpSelect": true,
+    "amazon": {
+      "kindleUrl": "",
+      "paperbackUrl": "",
+      "hardcoverUrl": ""
+    },
+    "directDigital": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "directPhysical": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "companionAccess": true,
+    "bookKeyTrialDays": 30
+  },
+  {
+    "productCode": "READING_THE_TAPE",
+    "type": "book",
+    "family": "reading-the-tape",
+    "branchSlug": "reading-the-tape",
+    "title": "READING THE TAPE — Time & Sales, Level II, and Modern Order Flow",
+    "shortTitle": "Reading the Tape",
+    "author": "J. S. Grant",
+    "publisher": "Crown & Lantern Press",
+    "publicationStatus": "in_development",
+    "includedLifetime": true,
+    "kdpSelect": true,
+    "amazon": {
+      "kindleUrl": "",
+      "paperbackUrl": "",
+      "hardcoverUrl": ""
+    },
+    "directDigital": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "directPhysical": {
+      "enabled": false,
+      "checkoutUrl": ""
+    },
+    "companionAccess": true,
+    "bookKeyTrialDays": 30
+  }
+]

@@ -1,0 +1,3360 @@
+[
+  {
+    "id": "F1-C02-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 2,
+    "chapterTitle": "Build Your Trading Laboratory: the Platform and the Training Simulator",
+    "concept": "Basic Historical Replay Setup",
+    "ticker": "GOOG",
+    "date": "April 26, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic - ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. Ignore the default volume subgraph if it is visible.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice loading the correct ticker, date, time, and timeframe without interpreting the move.",
+    "beforeAdvance": [
+      "Pause at the assigned start time. Confirm the ticker, date, chart time zone, and 5-minute chart setting before you move forward. Your job in this drill is replay control: confirm the setup and move through it accurately rather than interpreting the price action."
+    ],
+    "practiceSteps": [
+      "- Load GOOG and confirm the chart displays the requested symbol.",
+      "- Enter the training simulator and set April 26, 2024 at 9:30 a.m. ET.",
+      "- Set the primary chart to 5-minute.",
+      "- Pause. Confirm that you have not advanced beyond the starting boundary.",
+      "- Use Step Forward in controlled increments until the replay reaches 9:45 a.m. ET.",
+      "- Do not label the move bullish, bearish, good, bad, strong, or weak. Your only task is accurate replay control.",
+      "- Use Reset Time and confirm that you can return to the beginning of the selected historical date."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C02-L02",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 2,
+    "chapterTitle": "Build Your Trading Laboratory: the Platform and the Training Simulator",
+    "concept": "Independent Historical Replay Setup",
+    "ticker": "DIS",
+    "date": "May 7, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic - ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. Ignore the default volume subgraph if it is visible.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Repeat the laboratory setup without following a click-by-click walkthrough.",
+    "beforeAdvance": [
+      "Pause at the assigned start time. Confirm the ticker, date, chart time zone, and 5-minute chart setting before you move forward. Your job in this drill is replay control: confirm the setup and move through it accurately rather than interpreting the price action."
+    ],
+    "practiceSteps": [
+      "- Start from your normal platform workspace and load DIS.",
+      "- Enter the training simulator and navigate to May 7, 2024 at 9:30 a.m. ET.",
+      "- Confirm the chart time zone is ET and select a 5-minute chart.",
+      "- Pause before allowing the replay to continue.",
+      "- Advance through 9:45 a.m. ET using the controlled playback functions.",
+      "- Change the chart to a 1-minute timeframe, observe how the display changes, and then return to 5-minute. For now, just notice that the same session can look different when the bars are grouped differently.",
+      "- Exit training simulator and confirm you have returned to the current/live-data environment rather than leaving historical replay active."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Platform & Replay",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C04-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 4,
+    "chapterTitle": "Companies, Shares, and Ownership",
+    "concept": "A Public Company and Its Shares in the Secondary Market",
+    "ticker": "AAPL",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic - ticker, date, time, and timeframe",
+    "studies": "None added for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Connect a real public company to the shares that investors trade without interpreting the price move.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm AAPL, May 3, 2024, ET, and the 5-minute chart. Keep your attention on the company, its shares, and the specific facts this exercise asks you to identify. Those concepts are taught later."
+    ],
+    "practiceSteps": [
+      "Load AAPL and confirm the symbol corresponds to Apple Inc.",
+      "Enter the training simulator and set May 3, 2024 at 9:30 a.m. ET.",
+      "Pause before the replay advances and confirm the 5-minute timeframe.",
+      "Advance in controlled steps through 9:45 a.m. ET without interpreting the move.",
+      "As the shares trade, remember that these are secondary-market transactions between market participants. Apple does not receive the purchase price every time an existing AAPL share changes hands.",
+      "Ask yourself: What do I own if I buy one AAPL share? The answer is a unit of equity ownership in Apple Inc., with the rights attached to that class of stock - not a physical piece of an Apple store, device, bank account, or building."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Fundamentals & Research",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C06-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 6,
+    "chapterTitle": "Who Is on the Other Side of the Trade?",
+    "concept": "Participant Identity and Motive Cannot Be Read Directly From a Chart",
+    "ticker": "MSFT",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a real secondary-market session and practice naming multiple plausible participant motives without claiming that the chart proves who traded.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm MSFT, May 3, 2024, ET, and the 5-minute chart. Use only the candles visible at the stated boundary for the explanation; leave remembered news and assumptions about institutions, market makers, retail traders, or algorithms outside the observation."
+    ],
+    "practiceSteps": [
+      "Advance in controlled steps through 9:45 a.m. ET.",
+      "At one point where price changes, write three different participant explanations that could all be possible—for example, a long-term investor buying, a fund rebalancing, or a market maker managing inventory.",
+      "For each explanation, label it hypothesis rather than fact.",
+      "Write one sentence stating what you can actually observe: transactions occurred and price changed over time.",
+      "Write one sentence stating what you cannot prove from this chart alone: the exact identity, account type, private motive, or full portfolio of the people and firms behind those trades."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Foundations",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C07-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 7,
+    "chapterTitle": "What Can You Buy and Sell?",
+    "concept": "Identify a Common Stock",
+    "ticker": "KO",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize that KO represents common equity in The Coca-Cola Company and distinguish the instrument from a pooled fund, index, bond, or derivative.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm KO, May 3, 2024, ET, and the 5-minute chart. This is an instrument-identification exercise, not a price-prediction exercise. Keep your attention on the instrument characteristics requested in this exercise."
+    ],
+    "practiceSteps": [
+      "Load KO and confirm the security corresponds to The Coca-Cola Company common stock.",
+      "Advance in controlled steps through 9:45 a.m. ET without interpreting the move.",
+      "Write: “Instrument type: common stock.”",
+      "Write one sentence describing the economic relationship: owning the share is owning an equity interest in the corporation, not lending money to The Coca-Cola Company and not owning an index.",
+      "Use this exercise to identify the instrument; trade quality is a separate question."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Fundamentals & Research",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C07-L02",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 7,
+    "chapterTitle": "What Can You Buy and Sell?",
+    "concept": "ETF Versus Index",
+    "ticker": "SPY",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize SPY as an exchange-traded fund designed to track the S&P 500 Index and distinguish the tradable ETF share from the non-tradable index benchmark.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm SPY, May 3, 2024, ET, and the 5-minute chart. This is an instrument-identification exercise, not a price-prediction exercise. Keep your attention on the instrument characteristics requested in this exercise."
+    ],
+    "practiceSteps": [
+      "Load SPY and confirm that the symbol refers to the SPDR S&P 500 ETF Trust (SPY).",
+      "Advance in controlled steps through 9:45 a.m. ET without interpreting price direction.",
+      "Write: “Instrument type: ETF.”",
+      "Write: “Benchmark: S&P 500 Index.”",
+      "Explain in one sentence why buying SPY is not the same legal or economic act as buying the S&P 500 Index directly: the ETF is the tradable product; the index is the benchmark it seeks to track."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Fundamentals & Research",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C08-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 8,
+    "chapterTitle": "Not All Stocks Are the Same",
+    "concept": "Share Price Versus Company Size — Mega-Cap Example",
+    "ticker": "WMT",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown and keep your attention on the classification task.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Calculate an approximate market capitalization and see why a roughly $60 share price can still belong to one of the world’s largest public companies.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm WMT, May 3, 2024, ET, and the 5-minute chart. Record the opening price shown for the session. Keep your attention on company size, classification, and the calculation or observation requested here."
+    ],
+    "practiceSteps": [
+      "Record WMT’s opening price at 9:30 a.m. ET.",
+      "Multiply that price by 8,058,048,674 shares outstanding.",
+      "Classify the resulting market capitalization using the approximate ranges in this chapter.",
+      "Write one sentence explaining why WMT’s per-share price does not make it a small company.",
+      "Do not use the classification to decide whether WMT is a good trade.",
+      "Using the independently verified 9:30 opening price of about $59.62, the calculation is roughly $480 billion—well inside a common mega-cap range."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Reference Context: Walmart reported 8,058,048,674 common shares outstanding as of March 13, 2024. Use that pre-session public share count with the opening price you observe."
+    ],
+    "portableVisual": null,
+    "skill": "Fundamentals & Research",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C08-L02",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 8,
+    "chapterTitle": "Not All Stocks Are the Same",
+    "concept": "Market-Cap Classification — Small-Cap Example",
+    "ticker": "SOUN",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown and keep your attention on the classification task.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Calculate an approximate market capitalization for a much smaller public company and compare it with the WMT example without treating lower price as the cause of smaller size.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm SOUN, May 3, 2024, ET, and the 5-minute chart. Record the opening price shown for the session. Keep your attention on company size, classification, and the calculation or observation requested here."
+    ],
+    "practiceSteps": [
+      "Record SOUN’s opening price at 9:30 a.m. ET.",
+      "Add the two outstanding share classes, then multiply the combined count by the opening price.",
+      "Classify the approximate market capitalization using this chapter’s common ranges.",
+      "Compare the result with WMT: identify which difference comes from share price and which comes from the size of the outstanding share base.",
+      "Use the category only as a classification and record the requested market-cap observation.",
+      "Using the independently verified 9:30 opening price of about $4.61, the calculation is roughly $1.4 billion—a common small-cap classification."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Reference Context: SoundHound AI reported 273,229,352 Class A shares and 35,885,408 Class B shares outstanding as of February 26, 2024. Use the combined pre-session share count with the opening price you observe."
+    ],
+    "portableVisual": null,
+    "skill": "Fundamentals & Research",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C08-L03",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 8,
+    "chapterTitle": "Not All Stocks Are the Same",
+    "concept": "Very Small Capitalization and Sparse Trading Context",
+    "ticker": "KOSS",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added for this exercise. If the default volume subgraph is visible, leave it as shown and keep your attention on the classification task.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Calculate an approximate very small market capitalization and observe, without using volume metrics, that trading activity can look much sparser than in a mega-cap stock.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm KOSS, May 3, 2024, ET, and the 5-minute chart. Record the opening price shown for the session. Keep your attention on company size, classification, and the calculation or observation requested here."
+    ],
+    "practiceSteps": [
+      "Record KOSS’s opening price at 9:30 a.m. ET.",
+      "Multiply that price by 9,254,795 shares outstanding.",
+      "Classify the resulting market capitalization. Note that SEC investor education sometimes calls companies below about $50 million nanocaps and treats them within the broader micro-cap discussion.",
+      "Observe whether your 5-minute replay prints a bar in every interval. Record only what the platform shows; the purpose here is to notice the difference in displayed activity.",
+      "Write one sentence explaining why a low price, tiny market cap, and sparse activity are three separate observations.",
+      "Using the independently verified 9:30 opening price of about $2.39, the calculation is roughly $22 million—an extremely small market capitalization. Platform bar display can vary with historical feed processing, so the classification does not depend on an exact bar count."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Reference Context: Koss Corporation reported 9,254,795 shares outstanding as of January 29, 2024. Use that pre-session public share count with the opening price you observe."
+    ],
+    "portableVisual": null,
+    "skill": "Volume",
+    "marketContexts": [
+      "Volume / Participation"
+    ]
+  },
+  {
+    "id": "F1-C09-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 9,
+    "chapterTitle": "Cash, Margin, Buying Power, and Settlement",
+    "concept": "Same Stock, Different Account Constraints",
+    "ticker": "JNJ",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added. If the default volume subgraph is visible, leave it as shown and focus on the account concept in the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See that the market price can be identical while a cash account and a margin account impose different funding, settlement, and risk constraints.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm JNJ, May 3, 2024, ET, and the 5-minute chart. Record the opening price. Keep your attention on the account and settlement concepts this exercise is designed to reinforce."
+    ],
+    "practiceSteps": [
+      "Assume a hypothetical cash account contains $1,000 of settled cash and no other positions. At an opening price near $149.89, determine the maximum whole shares that can be fully paid for with that $1,000. The answer is six shares; seven would cost more than $1,000.",
+      "Write one sentence explaining why $1,000 of settled cash is different from $1,000 of unsettled sale proceeds.",
+      "Now imagine a separate margin-enabled account. Do not apply a generic “2×” multiplier. Instead, list the questions that matter first: Is JNJ marginable at this broker? What initial and house requirements apply? Is there already a margin debit? What interest and maintenance risk would borrowing create?",
+      "Advance through 9:45 a.m. ET only after answering. Notice that the chart is the same either way; the account structure changes what the customer may finance and what risks the broker can impose."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Reference Context: Independently verified SIP data shows JNJ opened at approximately $149.89 at 9:30 a.m. ET."
+    ],
+    "portableVisual": null,
+    "skill": "Risk & Decision Process",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C10-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 10,
+    "chapterTitle": "Long and Short",
+    "concept": "Long vs. Short Directional Exposure",
+    "ticker": "TSLA",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added. Ignore the default volume subgraph if it is visible.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a rising 15-minute window and explain why the same price movement is favorable to a long stock position and unfavorable to a short stock position before fees and other costs.",
+    "beforeAdvance": [
+      "Pause at the stated start time. Confirm the ticker, historical date, ET time, and 5-minute chart. Do not predict the next candle and do not use future information to justify a position."
+    ],
+    "practiceSteps": [
+      "Load TSLA and stop at 9:30 a.m. ET.",
+      "Advance in controlled 5-minute steps and stop when the clock reaches 9:45 a.m. ET.",
+      "Do not identify a setup or claim the rise was predictable from the opening candle.",
+      "State only the position relationship: rising stock price helps a long position and hurts a short position, all else equal.",
+      "Explain why the short seller’s obligation becomes more expensive as the price needed to buy replacement shares rises."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Risk & Decision Process",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C10-L02",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 10,
+    "chapterTitle": "Long and Short",
+    "concept": "Long vs. Short Directional Exposure",
+    "ticker": "PFE",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added. Ignore the default volume subgraph if it is visible.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a declining 15-minute window and explain why the same price movement is unfavorable to a long stock position and favorable to a short stock position before borrow fees and other costs.",
+    "beforeAdvance": [
+      "Pause at the stated start time. Confirm the ticker, historical date, ET time, and 5-minute chart. Do not predict the next candle and do not use future information to justify a position."
+    ],
+    "practiceSteps": [
+      "Load PFE and stop at 9:30 a.m. ET.",
+      "Advance in controlled 5-minute steps and stop when the clock reaches 9:45 a.m. ET.",
+      "Record only how falling price affects a short position; entry, stop, target, and pattern analysis come later.",
+      "State only the position relationship: falling stock price hurts a long position and helps a short position, all else equal.",
+      "Explain why a favorable price direction does not prove a real short trade would be profitable after borrow, margin, dividend, execution, and timing costs."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Risk & Decision Process",
+    "marketContexts": []
+  },
+  {
+    "id": "F1-C12-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 12,
+    "chapterTitle": "Investing, Trading, and Speculation",
+    "concept": "One Stock, Three Different Decision Frames",
+    "ticker": "META",
+    "date": "May 3, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Basic — ticker, date, time, and timeframe",
+    "studies": "None added. Keep your attention on the decision horizon and the kind of evidence each approach would require.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See how investing, trading, and speculation can ask different questions about the same security without pretending that one 15-minute chart answers all three.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm META, May 3, 2024, ET, and the 5-minute chart. Use 9:30 a.m. ET as the observation boundary. Before advancing, write three headings on paper: Investor, Trader, Speculator."
+    ],
+    "practiceSteps": [
+      "Under Investor, write a question about the business or long-term ownership case that this 15-minute chart cannot answer by itself.",
+      "Under Trader, write a question about shorter-term price behavior or a defined market opportunity that later chart chapters could help answer.",
+      "Under Speculator, write a question about an anticipated future outcome whose payoff depends heavily on what happens next and whose uncertainty must be acknowledged.",
+      "Advance only through 9:45 a.m. ET. Observe that the same shares can move while all three decision makers still require different evidence.",
+      "Use the exercise to separate the questions each approach would ask, not to make a decision about META. The lesson is classification of the decision process, not a recommendation."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Liquidity & Execution",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F1-C13-L01",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 13,
+    "chapterTitle": "Day Trading, Swing Trading, Scalping, Momentum, and More",
+    "concept": "Holding Horizon: Day Trade vs. Scalp vs. Swing",
+    "ticker": "AMZN",
+    "date": "May 6, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Classification — ticker, date, time, and timeframe; no studies",
+    "studies": "None added. Keep your attention on the style-classification task.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Classify hypothetical plans by intended holding period without using the chart as an entry signal.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm AMZN, May 6, 2024, ET, and the 5-minute chart. Read the decision descriptions before advancing. The chart is context only; this chapter is not teaching candle interpretation or an entry setup."
+    ],
+    "practiceSteps": [
+      "Advance only through 10:00 a.m. ET. Use the chart only to support the style-classification exercise, not to grade AMZN as a trade.",
+      "Plan A says: open after 9:30 a.m. and close before the same trading day ends. Classify the holding-period style as day trading.",
+      "Plan B says: open and attempt to close within only a few minutes. Classify the holding-period style as scalping, which is also intraday.",
+      "Plan C says: open today with an explicit plan to hold across several sessions if its later-defined thesis remains valid. Classify the holding-period style as swing trading.",
+      "Notice that the same security can support different style labels because the label describes the plan—not an identity permanently attached to AMZN."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ]
+  },
+  {
+    "id": "F1-C13-L02",
+    "book": 1,
+    "bookTitle": "Understanding the Stock Market",
+    "chapter": 13,
+    "chapterTitle": "Day Trading, Swing Trading, Scalping, Momentum, and More",
+    "concept": "Style vs. Approach vs. Setup vs. Context",
+    "ticker": "AMD",
+    "date": "May 6, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "5-minute",
+    "setupLevel": "LAB-1 Classification — ticker, date, time, and timeframe; no studies",
+    "studies": "None added. Keep your attention on the style-classification task.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice attaching the correct kind of label to a hypothetical trading plan without turning the historical chart into a setup lesson.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm AMD, May 6, 2024, ET, and the 5-minute chart. Read the decision descriptions before advancing. The chart is context only; this chapter is not teaching candle interpretation or an entry setup."
+    ],
+    "practiceSteps": [
+      "Advance only through 10:00 a.m. ET. Observe that price changes over the interval, but keep the exercise focused on style classification rather than candle or volume interpretation.",
+      "Hypothetical Plan A says only: “Any position must be closed today.” That statement defines holding horizon—day trading—but says nothing about setup.",
+      "Hypothetical Plan B adds: “I am interested only if directional movement is already strong.” That adds a momentum approach, but it still does not define an executable entry.",
+      "Hypothetical Plan C adds: “I will later require a defined breakout condition.” Breakout is now a setup-family label, but your job here is only to classify the plan—not to decide whether a breakout actually exists on the chart.",
+      "Write the four questions beside the chart: How long? What behavior? What setup family? What context? If a label does not answer the same question, do not treat it as a competing style."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ]
+  },
+  {
+    "id": "F2-C01-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 1,
+    "chapterTitle": "The Modern Trading Day",
+    "concept": "Identify premarket, the regular-market open, the regular-market close, and after-hours on one historical trading day",
+    "ticker": "NVDA",
+    "date": "May 6, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Session Map — ticker, date, ET clock, timeframe, and extended-session display; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Learn where the sessions begin and end on the clock without interpreting price behavior.",
+    "beforeAdvance": [
+      "Confirm NVDA, May 6, 2024, ET, the 5-minute chart, and the extended-hours display. This is a clock-and-session exercise only."
+    ],
+    "practiceSteps": [
+      "Start at 8:00 a.m. ET and advance only through 8:10 a.m. ET. Label that window premarket. Stop there.",
+      "Use Reset Time or controlled navigation to move to 9:25 a.m. ET. Advance through 9:35 a.m. ET and identify the 9:30 a.m. boundary between premarket and regular market hours.",
+      "Move to 3:55 p.m. ET. Advance through 4:10 p.m. ET and identify the 4:00 p.m. boundary between regular market hours and the post-market/after-hours period.",
+      "Write the three boundaries in your notes: premarket is before 9:30 a.m.; regular market hours are 9:30 a.m.–4:00 p.m.; post-market activity follows 4:00 p.m. on venues that support it.",
+      "At this stage, compare only the session windows and their clock boundaries. We will add time-of-day behavior and extended-hours risk next.",
+      "Remember that this is a May 2024 historical session. It cannot display Nasdaq’s December 2026 Night Session because that exchange session did not exist on the historical date."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Chart Setting: Use the cog icon → Chart Settings → Equities → Show Extended-Hours Trading session. Highlighting the extended session is optional.",
+      "Window A — Premarket: Start 8:00 a.m. ET → End 8:10 a.m. ET",
+      "Window B — Open Transition: Start 9:25 a.m. ET → End 9:35 a.m. ET",
+      "Window C — Close Transition: Start 3:55 p.m. ET → End 4:10 p.m. ET"
+    ],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "Premarket",
+      "After Hours",
+      "Market Close",
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F2-C02-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 2,
+    "chapterTitle": "Why Time of Day Matters",
+    "concept": "Compare the opening environment with a midday window on the same stock",
+    "ticker": "NFLX",
+    "date": "May 6, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Time-of-Day Context — ticker, date, ET clock, timeframe; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe that the pace of price activity can change across the day without turning either window into a trading signal.",
+    "beforeAdvance": [
+      "Confirm the ticker, date, ET, and 5-minute chart. You are observing only how the pace and character of price activity can differ by time of day on this one historical session."
+    ],
+    "practiceSteps": [
+      "Watch Window A from 9:30 to 10:00 a.m. ET. Write one sentence describing the pace as relatively active, moderate, or quiet.",
+      "Reset to noon and watch 12:00 to 12:30 p.m. ET. Use the same plain-language description.",
+      "Compare the two observations. If they differ, write “time of day changed the environment on this session.” If they do not, write “this session did not follow the broad tendency strongly.”",
+      "Do not conclude that NFLX always behaves this way at the open or at midday. One day is an example, not a statistical rule."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Window A — Opening Minutes: Start 9:30 a.m. ET → End 10:00 a.m. ET",
+      "Window B — Midday Comparison: Start 12:00 p.m. ET → End 12:30 p.m. ET"
+    ],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": [
+      "Midday"
+    ]
+  },
+  {
+    "id": "F2-C02-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 2,
+    "chapterTitle": "Why Time of Day Matters",
+    "concept": "Compare a midday window with a later-afternoon window",
+    "ticker": "JPM",
+    "date": "May 6, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Time-of-Day Context — ticker, date, ET clock, timeframe; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice describing time-of-day context without assuming the afternoon must be more active.",
+    "beforeAdvance": [
+      "Confirm the ticker, date, ET, and 5-minute chart. You are observing only how the pace and character of price activity can differ by time of day on this one historical session."
+    ],
+    "practiceSteps": [
+      "Observe 12:00 to 12:30 p.m. ET and describe only the pace of displayed price changes.",
+      "Reset to 3:00 p.m. ET and observe through 3:30 p.m. ET.",
+      "Write whether the later window appears more active, less active, or similar on this one session.",
+      "Do not infer institutional motives from the chart. Foundation Book I, Chapter 6 already taught why exact participant identity usually cannot be known from price alone."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Window A — Midday: Start 12:00 p.m. ET → End 12:30 p.m. ET",
+      "Window B — Late Afternoon: Start 3:00 p.m. ET → End 3:30 p.m. ET"
+    ],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": [
+      "Midday"
+    ]
+  },
+  {
+    "id": "F2-C02-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 2,
+    "chapterTitle": "Why Time of Day Matters",
+    "concept": "Observe the approach to the regular-market close",
+    "ticker": "XOM",
+    "date": "May 6, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Time-of-Day Context — ticker, date, ET clock, timeframe; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize that the end of the day can change the pace of activity without treating the close as a directional signal.",
+    "beforeAdvance": [
+      "Confirm the ticker, date, ET, and 5-minute chart. You are observing only how the pace and character of price activity can differ by time of day on this one historical session."
+    ],
+    "practiceSteps": [
+      "Watch 3:30 to 3:50 p.m. ET and describe the pace in plain language.",
+      "Continue through the final ten minutes and the 4:00 p.m. regular close.",
+      "Note whether the final minutes appear more active, less active, or similar on this session.",
+      "Do not interpret the 4:00 p.m. print as a setup or predict what after-hours must do next. The closing auction is a market-structure event, not a directional promise."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Window A — Late Afternoon: Start 3:30 p.m. ET → End 3:50 p.m. ET",
+      "Window B — Closing Minutes: Start 3:50 p.m. ET → End 4:00 p.m. ET"
+    ],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": [
+      "Market Close"
+    ]
+  },
+  {
+    "id": "F2-C03-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 3,
+    "chapterTitle": "The Risks Outside Regular Market Hours",
+    "concept": "Regular Close → After-Hours Transition",
+    "ticker": "PLTR",
+    "date": "May 6, 2024",
+    "start": "3:55 p.m. ET",
+    "end": "4:30 p.m. ET",
+    "timeframe": "5-minute intraday with extended-hours display enabled",
+    "setupLevel": "LAB-1 Extended-Hours Risk Context — ticker, date, ET clock, 5-minute chart; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe how the market environment can change immediately after the regular close without treating the price path as a prediction or setup.",
+    "beforeAdvance": [
+      "Confirm the ticker, date, ET, 5-minute chart, and extended-hours display. Stop at the listed starting boundary. Record the observation at the stated boundary before revealing later bars or the news result."
+    ],
+    "practiceSteps": [
+      "At 3:55 p.m. ET, pause. Identify that you are still inside regular market hours. Record the approximate displayed price without judging it.",
+      "Palantir had publicly scheduled its first-quarter results for release after the U.S. market close. Do not read the results before advancing the replay.",
+      "Advance one 5-minute bar at a time through 4:30 p.m. ET. Record the sequence of displayed prices in plain language: stable, changing gradually, or changing abruptly.",
+      "Ask: Which Chapter 3 risks could matter in an after-hours reaction—lower liquidity, wider spreads, volatility, uncertain prices, unlinked markets, or news timing? List possibilities without claiming the chart proves every risk occurred.",
+      "Those measurements belong later."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Risk & Decision Process",
+    "marketContexts": [
+      "After Hours"
+    ]
+  },
+  {
+    "id": "F2-C03-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 3,
+    "chapterTitle": "The Risks Outside Regular Market Hours",
+    "concept": "Premarket Information Release and Repricing",
+    "ticker": "UBER",
+    "date": "May 8, 2024",
+    "start": "7:55 a.m. ET",
+    "end": "8:25 a.m. ET",
+    "timeframe": "5-minute intraday with extended-hours display enabled",
+    "setupLevel": "LAB-1 Extended-Hours Risk Context — ticker, date, ET clock, 5-minute chart; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a premarket period surrounding scheduled company results and distinguish the existence of off-hours price changes from any claim about the next regular-market open.",
+    "beforeAdvance": [
+      "Confirm the ticker, date, ET, 5-minute chart, and extended-hours display. Stop at the listed starting boundary. Record the observation at the stated boundary before revealing later bars or the news result."
+    ],
+    "practiceSteps": [
+      "Pause at 7:55 a.m. ET. Confirm that the regular 9:30 a.m. ET session has not opened.",
+      "Uber had scheduled its first-quarter 2024 earnings conference call for 8:00 a.m. ET, with earnings materials available that morning. Do not inspect the results before advancing.",
+      "Advance through 8:25 a.m. ET. Record whether the displayed premarket price stays near its earlier level or changes materially. Then explain why that observation cannot guarantee the 9:30 a.m. opening price.",
+      "Write one sentence explaining why a premarket price is not a promise of the regular-session opening price.",
+      "List the extended-hours risk categories from this chapter that could be relevant to what you observed."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "Premarket",
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F2-C04-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 4,
+    "chapterTitle": "Bid, Ask, Last, and Spread",
+    "concept": "Bid, Ask, Last, Spread, and Midpoint in a Frequently Updating Quote",
+    "ticker": "BAC",
+    "date": "May 7, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Quote Mechanics — ticker, date, ET clock, 5-minute chart, Level 1 quote fields; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify the quote fields and calculate spread/midpoint without turning the quote into an entry signal.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute chart, and a Level 1 quote display that shows Bid, Ask, Last, and Size. Stop at the listed starting boundary."
+    ],
+    "practiceSteps": [
+      "Pause at 9:45 a.m. ET. In a Level 1 quote display, record Bid, Ask, Last, Bid Size, Ask Size, and Last Size exactly as your platform displays them.",
+      "Calculate Ask − Bid. That is the spread for that snapshot.",
+      "Calculate (Bid + Ask) ÷ 2. That is the midpoint for that snapshot.",
+      "Compare Last with Bid, Ask, and Midpoint. State where Last sits without predicting the next trade.",
+      "Advance toward 9:50 a.m. ET and repeat the observation once. Notice that quote prices and sizes can update even when you have not changed anything.",
+      "Describe the quote itself without assigning a bullish or bearish prediction."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Liquidity & Execution",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F2-C04-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 4,
+    "chapterTitle": "Bid, Ask, Last, and Spread",
+    "concept": "Compare Quote Width Without Jumping Ahead to Liquidity Analysis",
+    "ticker": "CVNA",
+    "date": "May 7, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-1 Quote Mechanics — ticker, date, ET clock, 5-minute chart, Level 1 quote fields; no studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a quote in which the displayed bid and ask can be farther apart, then compare the displayed quote fields mechanically with the BAC exercise.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute chart, and a Level 1 quote display that shows Bid, Ask, Last, and Size. Stop at the listed starting boundary."
+    ],
+    "practiceSteps": [
+      "Pause at 9:45 a.m. ET and record Bid, Ask, Last, and the displayed sizes.",
+      "Calculate the spread and midpoint from the snapshot you see.",
+      "Advance slowly toward 9:50 a.m. ET and record a second snapshot.",
+      "Compare the CVNA spread with the BAC exercise. Describe only which quote is wider at the snapshots you observed.",
+      "Do not conclude that one stock is “good,” “bad,” “safe,” “liquid,” or “illiquid” from the spread alone. Chapter 5 adds volume, liquidity, depth, and slippage context.",
+      "Use the quote as market information rather than as a stand-alone entry or exit signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Liquidity & Execution",
+    "marketContexts": [
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F2-C05-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 5,
+    "chapterTitle": "Volume, Liquidity, and Slippage",
+    "concept": "Raw 5-Minute Volume and Why the Timeframe Must Be Recorded",
+    "ticker": "F",
+    "date": "May 7, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-2 Volume Context — ticker, date, ET clock, 5-minute chart, Level 1 quote fields, Volume subgraph; no added technical studies",
+    "studies": "Use the standard Volume subgraph.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Read the Volume subgraph as completed share activity and compare successive 5-minute periods without assigning bullish or bearish meaning.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute chart, and the Volume subgraph. If volume is hidden, open the chart cog, choose Chart Settings, open Equities, enable Show volume subgraph, then select Apply and OK. Stop at the listed starting boundary. Keep your attention on the volume, liquidity, depth, or execution measurement requested in this exercise."
+    ],
+    "practiceSteps": [
+      "Pause at 9:30 a.m. ET and confirm the 5-minute timeframe and Volume subgraph.",
+      "Record the volume shown for the 9:30, 9:35, 9:40, and 9:45 five-minute periods as your platform displays them.",
+      "Identify which of those four periods has the greatest raw share volume and which has the least.",
+      "Change the chart to 1-minute briefly. Notice that the same session activity is divided into smaller time buckets. Return to 5-minute.",
+      "Do not call any volume bar bullish or bearish.",
+      "State the lesson in one sentence: volume must always be interpreted with its aggregation period and comparison context."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Volume",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F2-C05-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 5,
+    "chapterTitle": "Volume, Liquidity, and Slippage",
+    "concept": "Compare Lower Trading Activity With the Prior Exercise",
+    "ticker": "GPRO",
+    "date": "May 7, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-2 Volume Context — ticker, date, ET clock, 5-minute chart, Level 1 quote fields, Volume subgraph; no added technical studies",
+    "studies": "Use the standard Volume subgraph.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Compare raw activity with F, then explain why volume alone is still insufficient to declare a stock liquid or illiquid for every order size.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute chart, and the Volume subgraph. If volume is hidden, open the chart cog, choose Chart Settings, open Equities, enable Show volume subgraph, then select Apply and OK. Stop at the listed starting boundary. Keep your attention on the volume, liquidity, depth, or execution measurement requested in this exercise."
+    ],
+    "practiceSteps": [
+      "Pause at 9:30 a.m. ET and record the 5-minute volume shown through 9:50 a.m. ET.",
+      "Compare the order of magnitude of those volume readings with the F exercise.",
+      "Use only Level 1 quote fields learned in Chapter 4 if your historical display provides them. Record the bid, ask, and displayed sizes at one snapshot without using them as a signal.",
+      "Write two separate observations: one about completed trading activity and one about the current quote. Do not merge them into a prediction.",
+      "Ask: would the word liquid be complete without specifying order size, time, spread, and available depth? The correct answer is no.",
+      "The displayed quote and volume information are enough for this exercise."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Volume",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F2-C05-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 5,
+    "chapterTitle": "Volume, Liquidity, and Slippage",
+    "concept": "High Volume Still Requires Liquidity and Order-Size Context",
+    "ticker": "RIVN",
+    "date": "May 7, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute intraday",
+    "setupLevel": "LAB-2 Volume Context — ticker, date, ET clock, 5-minute chart, Level 1 quote fields, Volume subgraph; no added technical studies",
+    "studies": "Use the standard Volume subgraph.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe heavy reported activity and explain why high volume alone cannot guarantee a stable quote, sufficient depth, or a slippage-free execution.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute chart, and the Volume subgraph. If volume is hidden, open the chart cog, choose Chart Settings, open Equities, enable Show volume subgraph, then select Apply and OK. Stop at the listed starting boundary. Keep your attention on the volume, liquidity, depth, or execution measurement requested in this exercise."
+    ],
+    "practiceSteps": [
+      "Pause at 9:30 a.m. ET and record the 5-minute volume for the periods through 9:50 a.m. ET.",
+      "Compare the scale of RIVN share volume with the F and GPRO exercises.",
+      "At one Level 1 snapshot, record Bid, Ask, Spread, Bid Size, and Ask Size if available in your historical reconstruction.",
+      "Do not infer market depth from the best quote alone. Chapter 4 showed only the top level; Chapter 5 has taught that additional interest can exist at other prices.",
+      "Answer this question: does heavy share volume guarantee that a large order will execute entirely at the first displayed price? No.",
+      "Treat heavy volume as evidence of activity, not as an automatic momentum, breakout, or entry signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Volume",
+    "marketContexts": [
+      "Volume / Participation",
+      "Liquidity / Spread"
+    ]
+  },
+  {
+    "id": "F2-C06-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 6,
+    "chapterTitle": "What a Stock Chart Shows You",
+    "concept": "Axes and Chart Types — Same Historical Window, Different Representation",
+    "ticker": "IBM",
+    "date": "May 8, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute time aggregation",
+    "setupLevel": "LAB-2 Chart Reading — ticker, date, ET clock, time-based chart, chart type controls; no added technical studies",
+    "studies": "None needed.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify the chart axes and compare Line, Bar, and Candle representations without interpreting price direction.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, and 5-minute aggregation. Stop at the listed starting boundary."
+    ],
+    "practiceSteps": [
+      "Load IBM for May 8, 2024 and stop at 9:30 a.m. ET on a 5-minute time aggregation.",
+      "Identify the horizontal time axis, the vertical price axis, the main price plot, and the separate Volume subgraph if it is visible.",
+      "With the aggregation unchanged, switch the chart type to Line. Observe that the line connects closing prices and does not show the full open/high/low range.",
+      "Switch to Bar. Identify that each OHLC bar can represent open, high, low, and close without interpreting whether the bar is bullish or bearish.",
+      "Switch to Candle. Confirm that you are still viewing the same symbol, date, time window, and 5-minute aggregation; only the visual representation changed.",
+      "Return the chart to Candle before leaving the exercise."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C06-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 6,
+    "chapterTitle": "What a Stock Chart Shows You",
+    "concept": "Chart Type Versus Aggregation — Change One Variable at a Time",
+    "ticker": "T",
+    "date": "May 8, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute time aggregation",
+    "setupLevel": "LAB-2 Chart Reading — ticker, date, ET clock, time-based chart, chart type controls; no added technical studies",
+    "studies": "None needed.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Demonstrate that chart type and aggregation are separate controls without deciding which timeframe is better.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, and 5-minute aggregation. Stop at the listed starting boundary."
+    ],
+    "practiceSteps": [
+      "Load T for May 8, 2024 and stop at 9:30 a.m. ET with a standard Candle chart using 5-minute time aggregation.",
+      "Keep the 5-minute aggregation fixed and change only the chart type from Candle to Line, then back to Candle. State which setting changed: chart type.",
+      "Now keep Candle fixed and change only the time aggregation from 5-minute to 1-minute. State which setting changed: aggregation period.",
+      "Treat the 1-minute and 5-minute views as different ways of grouping the same market activity. We will compare their tradeoffs in detail later.",
+      "Optionally switch briefly to Heikin Ashi and notice that the plotted values can differ from standard raw OHLC. Return to standard Candle before finishing.",
+      "For this exercise, identify only what information the chart displays and how it is organized."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C07-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 7,
+    "chapterTitle": "Inside a Candlestick",
+    "concept": "Construct an Up / Bullish Candle",
+    "ticker": "QCOM",
+    "date": "May 8, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Reconstruct body, range, and wicks mechanically.",
+    "beforeAdvance": [
+      "Pause at 9:45 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 9:50 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Confirm Close > Open.",
+      "Calculate Range: 179.64 − 178.20 = 1.44.",
+      "Calculate Body Size: |179.51 − 178.25| = 1.26.",
+      "Calculate Upper Wick: 179.64 − 179.51 = 0.13.",
+      "Calculate Lower Wick: 178.25 − 178.20 = 0.05.",
+      "Verify 0.13 + 1.26 + 0.05 = 1.44. Stop before interpretation."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 178.25 | H 179.64 | L 178.20 | C 179.51"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C07-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 7,
+    "chapterTitle": "Inside a Candlestick",
+    "concept": "Construct a Down / Bearish Candle",
+    "ticker": "PYPL",
+    "date": "May 8, 2024",
+    "start": "9:55 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise..",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Apply the same formulas when Close is below Open.",
+    "beforeAdvance": [
+      "Pause at 9:55 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 10:00 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Confirm Close < Open.",
+      "Calculate Range: 64.955 − 64.65 = 0.305.",
+      "Calculate Body Size: |64.67 − 64.95| = 0.28.",
+      "Calculate Upper Wick: 64.955 − 64.95 = 0.005.",
+      "Calculate Lower Wick: 64.67 − 64.65 = 0.02.",
+      "Verify the pieces equal the range."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 64.95 | H 64.955 | L 64.65 | C 64.67"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C07-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 7,
+    "chapterTitle": "Inside a Candlestick",
+    "concept": "Identify an Exact or Near Doji",
+    "ticker": "NOK",
+    "date": "May 8, 2024",
+    "start": "10:05 a.m. ET",
+    "end": "10:10 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Separate exact arithmetic classification from platform display tolerance.",
+    "beforeAdvance": [
+      "Pause at 10:05 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 10:10 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Compare Open and Close first. They are equal in the verified SIP data.",
+      "Calculate Body Size = 0.",
+      "Calculate Range = 0.005.",
+      "Calculate Upper Wick = 0.005 and Lower Wick = 0.",
+      "If your platform shows a tiny difference because of precision or feed differences, record what it displays rather than forcing a match."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 3.735 | H 3.740 | L 3.735 | C 3.735"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C08-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Large Up Body, Close Near High",
+    "ticker": "MSFT",
+    "date": "May 9, 2024",
+    "start": "9:55 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Compare a large up body with small wicks and a close near the period high.",
+    "beforeAdvance": [
+      "Pause at 9:55 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 10:00 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Calculate range: 0.795; body: 0.75. Body-to-range is about 94%.",
+      "Upper wick is about 0.01; lower wick about 0.035.",
+      "Close location is about 0.987, very near the High.",
+      "Describe only what the completed candle supports: most of the range became net upward Open-to-Close progress and the period finished near its upper extreme.",
+      "Do not predict the next candle or call this a breakout."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 409.66 | H 410.42 | L 409.625 | C 410.41"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C08-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Large Down Body, Close Near Low",
+    "ticker": "NVDA",
+    "date": "May 9, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Compare a large down body with a close near the lower part of its range.",
+    "beforeAdvance": [
+      "Pause at 9:45 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 9:50 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Calculate range: about 9.9699; body: 8.73. Body-to-range is about 88%.",
+      "Upper wick is about 0.2999; lower wick about 0.94.",
+      "Close location is about 0.094, near the Low.",
+      "State the evidence: substantial downward Open-to-Close progress was retained into the period close.",
+      "Do not infer trend continuation from this candle alone."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 893.20 | H 893.4999 | L 883.53 | C 884.47"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C08-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Long Lower Wick, Recovery Into the Close",
+    "ticker": "META",
+    "date": "May 9, 2024",
+    "start": "9:35 a.m. ET",
+    "end": "9:40 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Use the lower wick to practice the difference between direct observation and a rejection hypothesis.",
+    "beforeAdvance": [
+      "Pause at 9:35 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 9:40 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Range is about 2.2657; body about 0.135.",
+      "Lower wick is about 1.87, far larger than the body; upper wick about 0.2607.",
+      "Close location is about 0.885, near the upper portion of the range.",
+      "Direct observation: price traded materially below the body and recovered before the close.",
+      "Hypothesis: lower prices were not fully retained. Do not label this support or guarantee reversal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 471.32 | H 471.7157 | L 469.45 | C 471.455"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C08-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Long Upper Wick, Close Back Near the Lower Area",
+    "ticker": "SNAP",
+    "date": "May 9, 2024",
+    "start": "10:10 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice a long-upper-wick description without assuming seller identity or future direction.",
+    "beforeAdvance": [
+      "Pause at 10:10 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 10:15 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Range is 0.135; body is 0.01.",
+      "Upper wick is 0.12; lower wick is 0.005.",
+      "Close location is about 0.111, near the lower portion of the range.",
+      "Direct observation: price reached substantially above the body but did not retain most of that excursion into the close.",
+      "Use “upper-price rejection hypothesis” only as a hypothesis; do not call it resistance yet."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 16.45 | H 16.58 | L 16.445 | C 16.46"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C08-L05",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Small Body With Two-Sided Excursion",
+    "ticker": "AMD",
+    "date": "May 9, 2024",
+    "start": "9:50 a.m. ET",
+    "end": "9:55 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Study a candle with very little net Open-to-Close movement compared with its total range.",
+    "beforeAdvance": [
+      "Pause at 9:50 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 9:55 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Range is 0.636; body is 0.01. Body-to-range is about 1.6%.",
+      "Upper wick is about 0.276 and lower wick about 0.35.",
+      "The candle traveled on both sides of the body but finished close to its Open.",
+      "This is consistent with two-sided activity or hesitation during that period.",
+      "Do not convert small body into an automatic reversal rule."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 151.79 | H 152.066 | L 151.43 | C 151.78"
+    ],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C08-L06",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 8,
+    "chapterTitle": "Reading Candle Bodies and Wicks",
+    "concept": "Exact Doji With Unequal Wicks",
+    "ticker": "INTC",
+    "date": "May 9, 2024",
+    "start": "10:25 a.m. ET",
+    "end": "10:30 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Reading",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Extend Chapter 7’s doji anatomy into relative wick and close-location evidence.",
+    "beforeAdvance": [
+      "Pause at 10:25 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart type. Advance only through 10:30 a.m. ET. Record what this candle shows at the stated observation boundary before advancing."
+    ],
+    "practiceSteps": [
+      "Open equals Close, so body size is 0 under the strict arithmetic rule.",
+      "Range is 0.13; upper wick 0.105; lower wick 0.025.",
+      "Close location is about 0.192, in the lower part of the range despite the zero body.",
+      "This shows why “doji” alone does not tell the entire candle story; wick distribution and close location still differ.",
+      "Do not treat the doji as a guaranteed reversal signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified OHLC: O 30.215 | H 30.32 | L 30.19 | C 30.215"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C09-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 9,
+    "chapterTitle": "Candles Tell Stories in Sequence",
+    "concept": "Upward Follow-Through With Contracting Ranges",
+    "ticker": "MU",
+    "date": "May 10, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Sequence — standard Candle chart, 5-minute, no added technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify a simple three-candle sequence with successively higher closes while also noticing that total ranges contract.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Reveal the sequence one completed candle at a time. Do not inspect candles after 9:45 a.m. ET until you have written the requested observation."
+    ],
+    "practiceSteps": [
+      "Reveal the 9:30 candle only. Describe its direction, body, wicks, and close location using Chapter 8 language. Do not predict 9:35.",
+      "Reveal 9:35. Compare its Close of 120.73 with the prior Close of 120.2924. Record that net progress continued higher.",
+      "Reveal 9:40. Its Close of 121.035 is again higher. This is simple upward follow-through across the three completed closes.",
+      "Calculate the ranges: 1.375, 0.7891, and 0.62. The sequence shows upward follow-through while candle ranges contract.",
+      "Write the professional conclusion: “Directional progress continued across the three closes, while the amount of territory covered by each candle contracted.” Do not write that the next candle must rise."
+    ],
+    "dataNote": "Verified from SIP 5-minute bars. Historical platform values can differ slightly because of feed and display precision; use the same source consistently within your reconstruction.",
+    "additionalNotes": [
+      "Verified 5-Minute OHLC",
+      "9:30 — O 120.00 | H 121.335 | L 119.96 | C 120.2924",
+      "9:35 — O 120.32 | H 120.8791 | L 120.09 | C 120.73",
+      "9:40 — O 120.72 | H 121.29 | L 120.67 | C 121.035"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C09-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 9,
+    "chapterTitle": "Candles Tell Stories in Sequence",
+    "concept": "Downward Follow-Through",
+    "ticker": "PFE",
+    "date": "May 9, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Sequence — standard Candle chart, 5-minute, no added technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify repeated lower closes as short-sequence downward follow-through without calling it a trend.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Reveal the sequence one completed candle at a time. Do not inspect candles after 9:45 a.m. ET until you have written the requested observation."
+    ],
+    "practiceSteps": [
+      "Reveal the first candle and record its completed evidence only.",
+      "Reveal the second candle. Compare 27.4625 with the prior Close of 27.535. The second Close is lower.",
+      "Reveal the third candle. Its Close of 27.375 is lower again. The three closes show simple downward follow-through.",
+      "Notice that the candle ranges are not identical. Follow-through does not require every candle to have the same body or range.",
+      "Stop at 9:45. Those concepts are not owned by Chapter 9."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified 5-Minute OHLC",
+      "9:30 — O 27.76 | H 27.83 | L 27.52 | C 27.535",
+      "9:35 — O 27.535 | H 27.56 | L 27.46 | C 27.4625",
+      "9:40 — O 27.465 | H 27.52 | L 27.37 | C 27.375"
+    ],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C09-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 9,
+    "chapterTitle": "Candles Tell Stories in Sequence",
+    "concept": "Directional Follow-Through Interrupted by an Opposite Expansion",
+    "ticker": "COIN",
+    "date": "May 10, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:50 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Sequence — standard Candle chart, 5-minute, no added technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe three lower closes, then update the interpretation when a large opposite candle interrupts the sequence.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Reveal the sequence one completed candle at a time. Do not inspect candles after 9:50 a.m. ET until you have written the requested observation."
+    ],
+    "practiceSteps": [
+      "Reveal 9:30, 9:35, and 9:40 one at a time. The closes move 212.68 → 210.6764 → 209.6915, providing downward follow-through.",
+      "Before revealing 9:45, write only what the first three completed candles support. Do not assume a fourth lower close.",
+      "Reveal 9:45. It closes at 213.02, materially above the immediately prior Close and above the prior two closes.",
+      "Compare ranges: the 9:40 range is 2.06; the 9:45 range is 3.8799. The opposite response also expands the candle range.",
+      "Update the conclusion: “The prior downward follow-through was interrupted by a large opposite response.” Do not call it a confirmed trend reversal, failed breakout, or buy setup."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified 5-Minute OHLC",
+      "9:30 — O 214.18 | H 214.87 | L 212.20 | C 212.68",
+      "9:35 — O 212.81 | H 213.44 | L 210.34 | C 210.6764",
+      "9:40 — O 210.62 | H 211.66 | L 209.60 | C 209.6915",
+      "9:45 — O 209.53 | H 213.17 | L 209.2901 | C 213.02"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C09-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 9,
+    "chapterTitle": "Candles Tell Stories in Sequence",
+    "concept": "Range Contraction Without One-Way Direction",
+    "ticker": "WMT",
+    "date": "May 10, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Sequence — standard Candle chart, 5-minute, no added technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Separate range contraction from candle direction.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Reveal the sequence one completed candle at a time. Do not inspect candles after 9:45 a.m. ET until you have written the requested observation."
+    ],
+    "practiceSteps": [
+      "Calculate the three ranges: 0.25, 0.1598, and 0.07.",
+      "Observe that the first two candles close above their opens while the third closes below its open.",
+      "The ranges contract even though candle direction changes. This proves why contraction must be defined by High-Low distance rather than candle color.",
+      "Write: “The sequence’s total ranges contracted across the three periods, while direction was mixed by the third candle.”",
+      "Describe only the short sequence visible here. We will add range and consolidation structure later."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified 5-Minute OHLC",
+      "9:30 — O 60.41 | H 60.56 | L 60.31 | C 60.43",
+      "9:35 — O 60.42 | H 60.5598 | L 60.40 | C 60.535",
+      "9:40 — O 60.5361 | H 60.56 | L 60.49 | C 60.51"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C09-L05",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 9,
+    "chapterTitle": "Candles Tell Stories in Sequence",
+    "concept": "Mixed and Overlapping Sequence",
+    "ticker": "TSLA",
+    "date": "May 9, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:55 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-2 Candlestick Sequence — standard Candle chart, 5-minute, no added technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice refusing to force a clean directional story when a short sequence alternates direction and repeatedly overlaps nearby price territory.",
+    "beforeAdvance": [
+      "Pause at 9:30 a.m. ET. Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Reveal the sequence one completed candle at a time. Do not inspect candles after 9:55 a.m. ET until you have written the requested observation."
+    ],
+    "practiceSteps": [
+      "Reveal each candle one at a time and record only its Open-to-Close direction: down, down, up, down, up.",
+      "Compare the High-Low ranges. Several neighboring candles share substantial price territory rather than separating cleanly from one another.",
+      "After the first two down candles, note that later candles do not preserve a simple series of lower closes.",
+      "The professional conclusion is “mixed, overlapping short-sequence evidence with inconsistent follow-through.”",
+      "Do not invent a named pattern, support zone, resistance zone, trend reversal, or entry. The evidence does not require those later labels."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Verified 5-Minute OHLC",
+      "9:30 — O 175.04 | H 175.62 | L 173.784 | C 173.784",
+      "9:35 — O 173.79 | H 174.222 | L 173.5204 | C 173.6933",
+      "9:40 — O 173.72 | H 174.29 | L 173.31 | C 173.9554",
+      "9:45 — O 173.96 | H 174.25 | L 173.15 | C 173.2301",
+      "9:50 — O 173.245 | H 174.19 | L 173.1501 | C 173.72"
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C10-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 10,
+    "chapterTitle": "Timeframes and Aggregation",
+    "concept": "1-Minute vs. 3-Minute vs. 5-Minute Compression",
+    "ticker": "AMZN",
+    "date": "May 13, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "9:45 a.m. ET",
+    "timeframe": "Compare 1-minute, 3-minute, and 5-minute Time aggregation over the same 15-minute span.",
+    "setupLevel": "LAB-2 Chart Reading — timeframe and aggregation only",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See exactly how the same market activity is regrouped into 15, 5, and 3 time-based candles without deciding which view is “better.”",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, standard Candle chart type, and the exact time interval/aggregation setting named in the exercise. Change only the requested chart setting."
+    ],
+    "practiceSteps": [
+      "Start with a 1-minute Time aggregation. Count the completed candles from 9:30 through 9:44 a.m. ET. On this liquid session you should have 15 one-minute buckets.",
+      "Record the 9:30 one-minute OHLC. Independently verified SIP data: O 188.07, H 188.31, L 187.83, C 188.10.",
+      "Change only the aggregation period to 3 minutes. The same 15-minute span now compresses into five completed bars beginning at 9:30, 9:33, 9:36, 9:39, and 9:42.",
+      "Record the 9:30 three-minute OHLC. Independently verified SIP data: O 188.07, H 188.31, L 187.56, C 187.56.",
+      "Change only the aggregation period to 5 minutes. The same span now appears as three completed bars beginning at 9:30, 9:35, and 9:40.",
+      "Record the 9:30 five-minute OHLC. Independently verified SIP data: O 188.07, H 188.31, L 187.3001, C 187.68.",
+      "Explain why the Open can remain the same while the Low and Close change: the larger bar is allowed to include more later trades before it completes.",
+      "Stop before comparing which aggregation gives a better trading signal. That decision framework belongs later."
+    ],
+    "dataNote": "SIP data were checked independently at 1-minute, 3-minute, and 5-minute aggregations. Small vendor/platform differences can occur; record the values shown by your training simulator reconstruction rather than forcing an exact match.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C10-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 10,
+    "chapterTitle": "Timeframes and Aggregation",
+    "concept": "Change History Without Changing Bar Size",
+    "ticker": "JPM",
+    "date": "May 13, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "5-minute Time aggregation; compare a shorter and longer total time interval.",
+    "setupLevel": "LAB-2 Chart Reading — timeframe and aggregation only",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Separate the amount of history displayed from the 5-minute construction of each bar.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, standard Candle chart type, and the exact time interval/aggregation setting named in the exercise. Change only the requested chart setting."
+    ],
+    "practiceSteps": [
+      "Load a 5-minute standard Candle chart and center the view on 9:30–10:00 a.m. ET.",
+      "Record the 9:30 five-minute candle. Independently verified SIP data: O 198.80, H 199.45, L 198.80, C 199.20.",
+      "Increase the total chart time interval while keeping the aggregation period at 5 minutes.",
+      "Return to the 9:30 candle. Its underlying 5-minute OHLC should not change merely because you displayed more surrounding history.",
+      "Describe what changed: the amount of context visible on the screen. Describe what stayed constant: the 5-minute aggregation rule for the target bar.",
+      "Use the extra history only to observe how the display changes when the time interval changes."
+    ],
+    "dataNote": "The target 5-minute OHLC was independently verified from SIP data. Screen scaling and the number of visible bars can change when you alter the total time interval.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C10-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 10,
+    "chapterTitle": "Timeframes and Aggregation",
+    "concept": "Many Intraday Bars Become One Daily View",
+    "ticker": "XOM",
+    "date": "May 13, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "Begin with 5-minute Time aggregation, then switch to a standard 1-Day aggregation for representation only.",
+    "setupLevel": "LAB-2 Chart Reading — timeframe and aggregation only",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See how a daily view compresses far more activity into each bar without treating the daily bar as a superior signal.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, standard Candle chart type, and the exact time interval/aggregation setting named in the exercise. Change only the requested chart setting."
+    ],
+    "practiceSteps": [
+      "On the 5-minute view, observe the six completed 5-minute bars from 9:30 through 9:59 a.m. ET.",
+      "Record the 9:30 five-minute candle: independently verified SIP data O 118.42, H 118.81, L 118.40, C 118.755.",
+      "Switch to a standard daily aggregation and locate May 13, 2024.",
+      "Notice that the day is represented by one daily bar rather than dozens of 5-minute bars.",
+      "Do not expect that single daily candle to preserve the path of each 5-minute move. Compression intentionally removes that sequence detail.",
+      "Return to the 5-minute chart and confirm that the intraday sequence reappears. No historical activity changed; only the grouping rule changed."
+    ],
+    "dataNote": "The intraday reference candle was independently verified from SIP data. Daily-bar values can reflect the platform’s daily-bar session construction, so this exercise is about representation rather than forcing the daily OHLC to equal a hand-combination of only the first 30 minutes.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C11-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 11,
+    "chapterTitle": "Multiple-Timeframe Analysis",
+    "concept": "Agreement on Completed-Candle Direction",
+    "ticker": "GOOGL",
+    "date": "May 14, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "",
+    "setupLevel": "LAB-3 Multi-Timeframe Context — same ticker, same ET boundary, standard candles, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify agreement on the direction of the latest completed candle at the same boundary without calling it a trend or trade signal.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause exactly at 10:00 a.m. ET. Start with the 15-minute candle that began at 9:45 and completed at 10:00. Record Open 169.66 and Close 168.86: down.",
+      "Switch to 5-minute. Record the candle that began at 9:55 and completed at 10:00: Open 169.145, Close 168.86: down.",
+      "Switch to 3-minute. Record the candle that began at 9:57 and completed at 10:00: Open 169.07, Close 168.86: down.",
+      "Switch to 1-minute. Record the candle that began at 9:59 and completed at 10:00: Open 169.05, Close 168.86: down.",
+      "Write the precise conclusion: all four latest completed candles agree on Open-to-Close direction at this boundary.",
+      "Stop there. Do not call this a downtrend, breakdown, short setup, or prediction."
+    ],
+    "dataNote": "Independent SIP reconstruction confirms the stated OHLC observations. Minor vendor differences can occur; if your platform differs, record its displayed values and keep the same-boundary comparison rule.",
+    "additionalNotes": [
+      "Decision Boundary: 10:00 a.m. ET",
+      "Views: 15-minute, 5-minute, 3-minute, and 1-minute standard Candle views",
+      "Before You Compare",
+      "Confirm the ticker, date, ET, and the exact decision boundary. Use only bars that are complete by that boundary. Do not let one chart advance farther than another. If a chart is still forming at the boundary, label it forming and do not compare it as though it were completed."
+    ],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure",
+      "Multi-Timeframe"
+    ]
+  },
+  {
+    "id": "F2-C11-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 11,
+    "chapterTitle": "Multiple-Timeframe Analysis",
+    "concept": "Disagreement Across Scale",
+    "ticker": "NKE",
+    "date": "May 14, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "",
+    "setupLevel": "LAB-3 Multi-Timeframe Context — same ticker, same ET boundary, standard candles, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize that a broader up candle can coexist with shorter completed down candles at the same boundary.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "On the 15-minute view, record the 9:30–9:45 candle: Open 92.99, Close 93.71. The broader candle is up.",
+      "On the 5-minute view, record the 9:40–9:45 candle: Open 94.00, Close 93.71. It is down.",
+      "On the 3-minute view, record the 9:42–9:45 candle: Open 93.84, Close 93.71. It is down.",
+      "On the 1-minute view, record the 9:44–9:45 candle: Open 93.80, Close 93.71. It is down.",
+      "Write: broader-period result up; latest shorter-period observations down. The correct Chapter 11 classification is timeframe disagreement on candle direction.",
+      "Do not call the shorter move a pullback, reversal, support failure, or trend change. Those labels belong later."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Decision Boundary: 9:45 a.m. ET",
+      "Views: 15-minute context; 5-minute, 3-minute, and 1-minute shorter views",
+      "Before You Compare",
+      "Confirm the ticker, date, ET, and the exact decision boundary. Use only bars that are complete by that boundary. Do not let one chart advance farther than another. If a chart is still forming at the boundary, label it forming and do not compare it as though it were completed."
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ]
+  },
+  {
+    "id": "F2-C11-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 11,
+    "chapterTitle": "Multiple-Timeframe Analysis",
+    "concept": "The Opposite Disagreement",
+    "ticker": "BA",
+    "date": "May 14, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "",
+    "setupLevel": "LAB-3 Multi-Timeframe Context — same ticker, same ET boundary, standard candles, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See that disagreement works in both directions and cannot be reduced to a bullish or bearish shortcut.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the 15-minute 9:45–10:00 candle: Open 180.97, Close 180.91. It finishes slightly down.",
+      "Record the 5-minute 9:55–10:00 candle: Open 180.70, Close 180.91. It is up.",
+      "Record the 3-minute 9:57–10:00 candle: Open 180.70, Close 180.91. It is up.",
+      "Record the 1-minute 9:59–10:00 candle: Open 180.79, Close 180.91. It is up.",
+      "State both facts without choosing one to erase the other: the broader 15-minute candle is slightly down while the latest shorter completed candles are up.",
+      "Record the disagreement between timeframes without turning it into a reversal claim or long-entry decision."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Decision Boundary: 10:00 a.m. ET",
+      "Views: 15-minute context; 5-minute, 3-minute, and 1-minute shorter views",
+      "Before You Compare",
+      "Confirm the ticker, date, ET, and the exact decision boundary. Use only bars that are complete by that boundary. Do not let one chart advance farther than another. If a chart is still forming at the boundary, label it forming and do not compare it as though it were completed."
+    ],
+    "portableVisual": null,
+    "skill": "Time & Multi-Timeframe Context",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ]
+  },
+  {
+    "id": "F2-C11-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 11,
+    "chapterTitle": "Multiple-Timeframe Analysis",
+    "concept": "Compression Hides Internal Sequence",
+    "ticker": "AAPL",
+    "date": "May 14, 2024",
+    "start": "",
+    "end": "",
+    "timeframe": "",
+    "setupLevel": "LAB-3 Multi-Timeframe Context — same ticker, same ET boundary, standard candles, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Use the same 15-minute period to see how a broad candle can hide substantial lower-timeframe variation.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the 15-minute 9:30–9:45 candle: Open 187.59, High 188.30, Low 187.13, Close 187.28. The completed 15-minute candle is down.",
+      "Switch to 5-minute and examine only the three completed candles inside that interval. Their closes are 187.53, 188.02, and 187.28. The internal path is not three identical down candles.",
+      "Switch to 1-minute. Note that the first 9:30–9:31 candle closes above its open, while later one-minute candles move both directions before the 15-minute period ends lower.",
+      "Write the lesson: the 15-minute candle accurately summarizes the period but does not reveal the full lower-timeframe path.",
+      "Do not use the mixed internal path to label a pattern or structure. The point is representation across scale."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Decision Boundary: 9:45 a.m. ET",
+      "Views: 15-minute, 5-minute, and 1-minute standard Candle views",
+      "Before You Compare",
+      "Confirm the ticker, date, ET, and the exact decision boundary. Use only bars that are complete by that boundary. Do not let one chart advance farther than another. If a chart is still forming at the boundary, label it forming and do not compare it as though it were completed."
+    ],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": [
+      "Multi-Timeframe"
+    ]
+  },
+  {
+    "id": "F2-C12-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 12,
+    "chapterTitle": "Trend",
+    "concept": "Classify a generally upward path",
+    "ticker": "LLY",
+    "date": "May 15, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "11:00 a.m. ET",
+    "timeframe": "15-minute",
+    "setupLevel": "LAB-4 Trend Classification — ticker, date, ET clock, standard candles, no technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify an upward trend without requiring every candle to be up.",
+    "beforeAdvance": [
+      "Confirm LLY, May 15, 2024, ET, 15-minute, and standard candles. Pause at 9:30 a.m. ET. Advance only through 11:00 a.m. ET."
+    ],
+    "practiceSteps": [
+      "Advance one completed 15-minute candle at a time from 9:30 through 11:00 a.m. ET.",
+      "Record the first candle open near 764.15 and the completed 10:45 candle close near 777.40 as reference points, while also observing the path between them.",
+      "Notice that the 9:45–10:00 portion moves downward from the prior higher area. Treat that as a counter-move, not automatic proof that the broader upward path ended.",
+      "Classify the completed 9:30–11:00 view as generally upward because price repeatedly relocates into higher areas across the window.",
+      "Do not label formal swing highs/lows, draw a trendline, or predict continuation.",
+      "Verification Note: Independent SIP 15-minute bars confirm the broad move from the mid-$760s into the upper-$770s during this window, including intervening pullbacks."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C12-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 12,
+    "chapterTitle": "Trend",
+    "concept": "Classify a generally downward path",
+    "ticker": "ARM",
+    "date": "May 15, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:30 a.m. ET",
+    "timeframe": "15-minute",
+    "setupLevel": "LAB-4 Trend Classification — ticker, date, ET clock, standard candles, no technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify a downward trend while allowing temporary upward movement inside it.",
+    "beforeAdvance": [
+      "Confirm ARM, May 15, 2024, ET, 15-minute, and standard candles. Pause at 9:30 a.m. ET. Advance only through 10:30 a.m. ET."
+    ],
+    "practiceSteps": [
+      "Advance from 9:30 to 10:30 a.m. ET one completed 15-minute candle at a time.",
+      "Observe that the first candle opens near 118.40 while later completed price activity is centered near the low-$113 area.",
+      "Notice that individual candles can bounce upward within the decline. Do not treat one bounce as proof of a trend reversal.",
+      "Classify this defined window as generally downward because the dominant path relocates price into materially lower territory.",
+      "Stop at the broad directional description. We will add formal lower-high/lower-low structure language next.",
+      "Verification Note: Independent SIP data confirms the decline from roughly $118.40 at the opening boundary into the low-$113 area during the stated window."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C12-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 12,
+    "chapterTitle": "Trend",
+    "concept": "Classify a broadly non-directional window",
+    "ticker": "C",
+    "date": "May 15, 2024",
+    "start": "10:15 a.m. ET",
+    "end": "11:30 a.m. ET",
+    "timeframe": "15-minute",
+    "setupLevel": "LAB-4 Trend Classification — ticker, date, ET clock, standard candles, no technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize a window that oscillates in similar territory without sustained directional progress.",
+    "beforeAdvance": [
+      "Confirm C, May 15, 2024, ET, 15-minute, and standard candles. Pause at 10:15 a.m. ET. Advance only through 11:30 a.m. ET."
+    ],
+    "practiceSteps": [
+      "Start at 10:15 a.m. ET and advance through 11:30 a.m. ET using completed 15-minute candles only.",
+      "Observe prices repeatedly trading around the upper-$63 area, with the verified window spanning approximately 63.60 to 64.04.",
+      "Notice that individual candles move both up and down even though the broader window does not persistently relocate toward much higher or much lower territory.",
+      "Classify the window as broadly sideways/non-directional for this exercise.",
+      "Keep the exercise focused on trend direction rather than horizontal level analysis.",
+      "Verification Note: Independent SIP bars for the selected window remain broadly contained around the upper-$63 area, supporting a non-directional teaching example without requiring formal range boundaries."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C12-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 12,
+    "chapterTitle": "Trend",
+    "concept": "A broader upward path can contain a short downward segment",
+    "ticker": "DELL",
+    "date": "May 15, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "11:00 a.m. ET",
+    "timeframe": "15-minute context + 5-minute detail",
+    "setupLevel": "LAB-4 Trend Classification — ticker, date, ET clock, standard candles, no technical studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Use Chapter 11 knowledge to show why the trend label must include scale and observation window.",
+    "beforeAdvance": [
+      "Confirm DELL, May 15, 2024, ET, 15-minute context + 5-minute detail, and standard candles. Pause at 9:30 a.m. ET. Advance only through 11:00 a.m. ET."
+    ],
+    "practiceSteps": [
+      "First observe the 15-minute chart from 9:30 through 11:00 a.m. ET. The broader path advances from around 139.90 into the mid-$144 area despite volatility and pullbacks.",
+      "Then inspect the completed 5-minute candles from 10:45 through 11:00 a.m. ET only. Those shorter bars move from roughly 144.92 to 144.62 to 144.47 at their closes.",
+      "Write both observations: broader window generally upward; immediate short segment downward.",
+      "Do not decide that one view is “right” and the other “wrong.” They answer questions at different scales.",
+      "Do not convert the conflict into an entry rule. Use the multi-timeframe reconciliation process you already practiced; structure and strategy will be added later.",
+      "Verification Note: Independent SIP 15-minute and 5-minute data confirm the broader upward path and the late-window short counter-move described here."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C13-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 13,
+    "chapterTitle": "Higher Highs, Higher Lows, Lower Highs, and Lower Lows",
+    "concept": "Higher highs and higher lows",
+    "ticker": "MU",
+    "date": "May 16, 2024",
+    "start": "10:00 a.m. ET",
+    "end": "11:25 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-5 Swing Structure — completed 5-minute candles, strict three-bar course pivot rule, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Apply the strict three-bar rule and observe a later sequence that develops Higher Lows and a Higher High.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Apply the strict three-bar course pivot rule only to completed candles. A center candle cannot be confirmed as a pivot until the immediately following candle has completed. Do not advance beyond the stated boundary."
+    ],
+    "practiceSteps": [
+      "Confirm the 10:05 swing low near 127.84 after the 10:10 candle completes. Treat it as the first low reference.",
+      "Confirm the 10:15 swing high near 128.78 after the 10:20 candle completes. Treat it as the first high reference.",
+      "Confirm the 10:30 swing low near 128.36 after the 10:35 candle completes. Because 128.36 is above 127.84, label it HL.",
+      "Continue without inventing a swing high during the uninterrupted advance. A candle high is not automatically a pivot high merely because it is higher than the previous candle.",
+      "Confirm the 11:10 swing high near 130.13 after the 11:15 candle completes. Because 130.13 is above 128.78, label it HH.",
+      "Confirm the 11:15 swing low near 129.45 after the 11:20 candle completes. Because 129.45 is above 128.36, label it HL.",
+      "Describe the completed mapped evidence as rising swing structure. Do not convert that label into a buy signal."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the pivot prices and neighboring highs/lows used by the strict course rule. MU was also used on another historical date earlier in the book; this May 16, 2024 ticker/date assignment is distinct.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C13-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 13,
+    "chapterTitle": "Higher Highs, Higher Lows, Lower Highs, and Lower Lows",
+    "concept": "Lower high and lower low",
+    "ticker": "QCOM",
+    "date": "May 16, 2024",
+    "start": "9:40 a.m. ET",
+    "end": "10:10 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-5 Swing Structure — completed 5-minute candles, strict three-bar course pivot rule, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Map a compact falling structure without using support/resistance or breakdown terminology.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Apply the strict three-bar course pivot rule only to completed candles. A center candle cannot be confirmed as a pivot until the immediately following candle has completed. Do not advance beyond the stated boundary."
+    ],
+    "practiceSteps": [
+      "Confirm the 9:45 swing high near 195.45 after the 9:50 candle completes. Use it as the first high reference.",
+      "Confirm the 9:50 swing low near 194.77 after the 9:55 candle completes. Use it as the first low reference.",
+      "Confirm the 9:55 swing high near 195.29 after the 10:00 candle completes. It is below 195.45, so label it LH.",
+      "Confirm the 10:00 swing low near 194.23 after the 10:05 candle completes. It is below 194.77, so label it LL.",
+      "Keep pivot occurrence time separate from confirmation time: the pivot belongs to its center candle, while the label becomes available only after the required following candle completes.",
+      "Describe the completed evidence as falling swing structure. Keep the labels structural rather than turning the swing prices into support or resistance levels yet.",
+      "Independent SIP 5-minute data verifies the cited QCOM pivot prices and all neighboring-bar comparisons used by the strict course rule. QCOM appeared on a different historical date earlier in the book; this May 16, 2024 ticker/date pair is distinct."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Trend / Structure",
+      "Breakout / Breakdown"
+    ]
+  },
+  {
+    "id": "F2-C13-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 13,
+    "chapterTitle": "Higher Highs, Higher Lows, Lower Highs, and Lower Lows",
+    "concept": "Conflicting inward swing comparisons",
+    "ticker": "ABNB",
+    "date": "May 16, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "10:25 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-5 Swing Structure — completed 5-minute candles, strict three-bar course pivot rule, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize a Lower High and Higher Low combination without prematurely naming a chart pattern or consolidation.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Apply the strict three-bar course pivot rule only to completed candles. A center candle cannot be confirmed as a pivot until the immediately following candle has completed. Do not advance beyond the stated boundary."
+    ],
+    "practiceSteps": [
+      "Confirm the 9:50 swing high near 147.30 after 9:55; use it as the high reference.",
+      "Confirm the 10:00 swing low near 146.42 after 10:05; use it as the low reference.",
+      "Confirm the 10:10 swing high near 147.18 after 10:15. Since 147.18 is below 147.30, label it LH.",
+      "Confirm the 10:20 swing low near 146.83 after 10:25. Since 146.83 is above 146.42, label it HL.",
+      "Record the result as mixed/conflicting structure: the highs moved lower while the lows moved higher.",
+      "Those concepts belong later."
+    ],
+    "dataNote": "Independent SIP 5-minute data verifies the four swing values and strict neighboring-bar relationships.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Trend / Structure",
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F2-C13-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 13,
+    "chapterTitle": "Higher Highs, Higher Lows, Lower Highs, and Lower Lows",
+    "concept": "Conflicting outward swing comparisons",
+    "ticker": "PYPL",
+    "date": "May 16, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-5 Swing Structure — completed 5-minute candles, strict three-bar course pivot rule, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "See why a Higher High alone cannot establish an uptrend when the swing lows simultaneously move lower.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Apply the strict three-bar course pivot rule only to completed candles. A center candle cannot be confirmed as a pivot until the immediately following candle has completed. Do not advance beyond the stated boundary."
+    ],
+    "practiceSteps": [
+      "Confirm the 9:50 swing high near 64.07 after 9:55 and use it as the first high reference.",
+      "Confirm the 9:55 swing low near 63.87 after 10:00 and use it as the first low reference.",
+      "Confirm the 10:00 swing high near 64.15 after 10:05. Because 64.15 is above 64.07, label it HH.",
+      "Confirm the 10:10 swing low near 63.78 after 10:15. Because 63.78 is below 63.87, label it LL.",
+      "Record the combination as mixed/conflicting structure. A new HH and a new LL point in opposite structural directions.",
+      "Do not decide that one label “wins.” Wait for additional completed structure rather than forcing an uptrend or downtrend from conflicting evidence."
+    ],
+    "dataNote": "Independent SIP 5-minute data verifies the cited pivot prices. PYPL appeared on a different historical date in Chapter 7; this May 16, 2024 ticker/date pair is distinct.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure"
+    ]
+  },
+  {
+    "id": "F2-C14-L01",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 14,
+    "chapterTitle": "Support and Resistance",
+    "concept": "Candidate Support From Repeated Lower Reactions",
+    "ticker": "TGT",
+    "date": "May 17, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:20 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-6 Price Levels — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Use repeated completed lows to define a support zone without claiming that the zone guarantees another bounce.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Use completed candles only. Apply Chapter 13 swing language only when it helps identify prior turning areas. Use the stated observation boundary to decide whether the earlier area mattered, record the conclusion, and then advance."
+    ],
+    "practiceSteps": [
+      "Advance through the 9:40 candle. Note the early lows around $159.17 and $159.10. Treat them as an initial lower reference area, not proven support.",
+      "Continue through the 10:10 candle. Additional lows appear around $159.31 and $159.195 after price had moved away from the earlier lows.",
+      "Bracket a candidate support zone from approximately $159.10 to $159.31. Write those boundaries before advancing farther.",
+      "State the evidence precisely: several separate completed approaches produced lows inside a compact lower area and were followed by movement away from it.",
+      "Do not say the zone must hold later. Do not assign an entry, stop, or target."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited lows. Historical platform values can vary slightly; if your training simulator reconstruction differs, record the displayed values and keep the analytical rule unchanged.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Support & Resistance",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C14-L02",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 14,
+    "chapterTitle": "Support and Resistance",
+    "concept": "Candidate Resistance From Repeated Upper Reactions",
+    "ticker": "PEP",
+    "date": "May 17, 2024",
+    "start": "10:00 a.m. ET",
+    "end": "11:00 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-6 Price Levels — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Build an upper resistance zone from repeated highs that are similar but not identical.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Use completed candles only. Apply Chapter 13 swing language only when it helps identify prior turning areas. Use the stated observation boundary to decide whether the earlier area mattered, record the conclusion, and then advance."
+    ],
+    "practiceSteps": [
+      "Observe the highs at approximately $182.725 near 10:05, $182.74 near 10:15, and $182.76 near 10:20.",
+      "Continue through 11:00. Later highs reach approximately $182.90 and $182.96.",
+      "Notice that the reaction prices are not identical. A narrow exact line would hide that variation.",
+      "Define a candidate upper zone approximately $182.72 to $182.96 and record why those bounds were selected.",
+      "Describe it only as repeated upper reaction evidence. Do not call a later move a breakout or predict a rejection."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited upper prices. The purpose is to learn zone construction, not to optimize a trading level after seeing the outcome.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Support & Resistance",
+    "marketContexts": []
+  },
+  {
+    "id": "F2-C14-L03",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 14,
+    "chapterTitle": "Support and Resistance",
+    "concept": "Support Is Historical Evidence, Not a Guarantee",
+    "ticker": "LOW",
+    "date": "May 17, 2024",
+    "start": "9:35 a.m. ET",
+    "end": "10:50 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-6 Price Levels — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe an early lower reaction area and then watch later price trade beneath it without prematurely applying Foundation Book III, Chapter 1 breakdown rules.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Use completed candles only. Apply Chapter 13 swing language only when it helps identify prior turning areas. Use the stated observation boundary to decide whether the earlier area mattered, record the conclusion, and then advance."
+    ],
+    "practiceSteps": [
+      "By 9:45, note repeated lows near $231.58. Treat that as an early reference area.",
+      "By 10:10, additional lows around $231.63 and $231.70 add historical evidence near the same region.",
+      "Before advancing beyond 10:10, define a candidate support zone approximately $231.55 to $231.70.",
+      "Advance through 10:50. Price later prints lows below the earlier zone, including approximately $231.52 and $231.35.",
+      "Write the correct conclusion: the earlier area had acted as support historically, but later price behavior shows that support was not guaranteed.",
+      "Stop there and record only what happened at the support zone. We will classify breaks, failures, and retests next."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited values. The example uses a level that does not hold so the lesson includes failure evidence rather than survivorship bias.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown"
+    ]
+  },
+  {
+    "id": "F2-C14-L04",
+    "book": 2,
+    "bookTitle": "Learning to Read the Market",
+    "chapter": 14,
+    "chapterTitle": "Support and Resistance",
+    "concept": "Why a Zone Can Be Better Than One Exact Line",
+    "ticker": "HD",
+    "date": "May 17, 2024",
+    "start": "9:40 a.m. ET",
+    "end": "10:45 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "LAB-6 Price Levels — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Use a cluster of non-identical lower turning prices to practice defining a bounded zone rather than drawing a hindsight-perfect penny line.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, and standard Candle chart. Use completed candles only. Apply Chapter 13 swing language only when it helps identify prior turning areas. Use the stated observation boundary to decide whether the earlier area mattered, record the conclusion, and then advance."
+    ],
+    "practiceSteps": [
+      "Observe completed lows near $341.83, $341.54, $341.78, $341.57, $341.48, and $341.36 across separate candles and approaches.",
+      "Notice that no single penny captures all of the lower reactions.",
+      "Define a candidate lower reaction zone that is broad enough to include the intended cluster but narrow enough to remain specific; approximately $341.35 to $341.85 is reasonable for this exercise.",
+      "Place two Price Level drawings at the chosen boundaries if you want a visual bracket.",
+      "Do not move the boundaries later just to capture every future wick. Record any later miss or trade-through honestly."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited lows. The zone boundaries are a course exercise choice, not a universal formula or claim that every analyst must draw the same band.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Support & Resistance",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C01-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Resistance Breakout and Follow-Through",
+    "ticker": "AAPL",
+    "date": "May 20, 2024",
+    "start": "9:45 a.m. ET",
+    "end": "10:05 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "$190.07–$190.20 resistance zone from completed opening highs",
+    "goal": "Identify a close-based upside breakout, then separate the break event from later follow-through.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, standard Candle chart, and the stated zone. Pause at the listed starting boundary. Evaluate only completed candles and advance only when the exercise directs you."
+    ],
+    "practiceSteps": [
+      "Before 9:50, record the completed resistance evidence: highs near $190.07, $190.175, $190.085, and $190.20 define the stated upper zone.",
+      "Advance through the 9:50 candle. It closes near $190.56—above the $190.20 upper boundary. Under the course rule, record an upside breakout candidate.",
+      "Do not call the breakout “successful” yet. At the 9:50 close, future follow-through is still unknown.",
+      "Advance one candle at a time. The 9:55 candle closes near $190.90 and the 10:00 candle near $191.29, both above the former resistance zone.",
+      "Record that the later sequence provides upside follow-through. Record only the breakout and follow-through evidence; trade planning is outside this exercise."
+    ],
+    "dataNote": "Independent SIP 5-minute data was checked for the stated window. Historical platforms may show small feed/rounding differences; preserve the zone logic rather than forcing exact penny identity.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Support Breakdown and Follow-Through",
+    "ticker": "AMD",
+    "date": "May 20, 2024",
+    "start": "10:10 a.m. ET",
+    "end": "10:35 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "$165.47–$165.66 short-term support reference zone",
+    "goal": "Observe a close below support followed by continued closes below the broken area.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, standard Candle chart, and the stated zone. Pause at the listed starting boundary. Evaluate only completed candles and advance only when the exercise directs you."
+    ],
+    "practiceSteps": [
+      "Using only completed candles through 10:10, mark the short-term lower reference band from lows near $165.66 and $165.47.",
+      "Advance through the 10:15 candle. Its close is about $165.4347, just below the $165.47 lower boundary. Under this course rule, record a downside breakdown candidate—not certainty.",
+      "Advance to 10:20, 10:25, and 10:30. Their closes are approximately $165.10, $164.98, and $164.56, remaining below the prior support zone.",
+      "Record downside follow-through for the stated observation window.",
+      "Do not call the sequence a short setup, calculate a target, or add momentum indicators."
+    ],
+    "dataNote": "The support reference is intentionally short-term and local. It is not presented as a permanent or major support level.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Upside Probe Versus Close-Based Breakout",
+    "ticker": "NVDA",
+    "date": "May 20, 2024",
+    "start": "9:55 a.m. ET",
+    "end": "10:05 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "$949.00–$950.88 resistance zone",
+    "goal": "Distinguish trading above the zone intrabar from closing above it.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, standard Candle chart, and the stated zone. Pause at the listed starting boundary. Evaluate only completed candles and advance only when the exercise directs you."
+    ],
+    "practiceSteps": [
+      "Before 10:00, note repeated completed highs around the stated resistance band, including approximately $949.43, $949.00, $950.79, and $950.88.",
+      "Advance through the 10:00 candle. The High reaches about $952.00, which trades above the $950.88 boundary.",
+      "Now check the same candle’s Close: about $947.83, back below the resistance zone.",
+      "Under the Chapter 1 course rule, record an upside probe/break attempt—not a close-confirmed breakout candidate.",
+      "Do not use the 10:05 candle to redefine what the completed 10:00 candle already showed."
+    ],
+    "dataNote": "This example demonstrates why an intrabar High and a completed Close answer different questions.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Breakdown, Retest From Below, and Reclaim",
+    "ticker": "JPM",
+    "date": "May 20, 2024",
+    "start": "9:50 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "$203.51–$203.61 support zone",
+    "goal": "Identify a downside break, a return into the old support area from below, and a later move back above it.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, standard Candle chart, and the stated zone. Pause at the listed starting boundary. Evaluate only completed candles and advance only when the exercise directs you."
+    ],
+    "practiceSteps": [
+      "At 9:50, the support reference is already visible from completed lows near $203.61 and $203.51.",
+      "Advance through 9:55. The candle closes near $203.45, below the lower boundary, creating a course breakdown candidate.",
+      "The 10:00 candle remains below the zone. Then the 10:05 candle trades back into it from below, reaching about $203.57 before closing near $203.34. Record that return as a retest of the broken support area.",
+      "Do not conclude that the old support has permanently become resistance. Advance to 10:10: price closes around $203.71, above the zone.",
+      "Record the sequence honestly: breakdown → retest from below → later reclaim above the old zone. Retest did not guarantee rejection."
+    ],
+    "dataNote": "This example uses the role-reversal concept you already practiced while demonstrating that a possible role change must be supported by later behavior, not assumed.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L05",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Breakout, Brief Follow-Through, Then Re-Entry",
+    "ticker": "WMT",
+    "date": "May 20, 2024",
+    "start": "10:40 a.m. ET",
+    "end": "11:05 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "$64.69–$64.70 resistance reference",
+    "goal": "Show why early follow-through does not guarantee that price remains outside the prior zone.",
+    "beforeAdvance": [
+      "Confirm ticker, date, ET, 5-minute aggregation, standard Candle chart, and the stated zone. Pause at the listed starting boundary. Evaluate only completed candles and advance only when the exercise directs you."
+    ],
+    "practiceSteps": [
+      "Before 10:45, mark the upper reference near $64.69–$64.70 from completed earlier highs.",
+      "Advance through 10:45. The candle closes around $64.715, above the upper boundary. Record a course breakout candidate.",
+      "The 10:50 candle closes near $64.718, still above the zone. Record brief follow-through.",
+      "Advance through 10:55. The candle closes around $64.605, back below the prior resistance zone.",
+      "Record that the breakout showed initial follow-through but then failed to remain above the zone within the stated window. Do not rewrite the 10:45 event as if it never occurred."
+    ],
+    "dataNote": "The example intentionally shows that “follow-through occurred” and “the break later failed” can both be accurate statements when tied to their time boundaries.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L06",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Failed downside break / rapid reclaim",
+    "ticker": "SPY",
+    "date": "August 5, 2024",
+    "start": "10:20 a.m. ET",
+    "end": "10:40 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "The 10:20 candle prints a low near $515.70. At 10:25 price trades to about $514.61 and closes near $514.64, below that reference.",
+    "goal": "A completed break and a later failed break can both be true. The later reclaim does not erase what the 10:25 candle did.",
+    "beforeAdvance": [
+      "Freeze the classification at the 10:25 close. Under the course rule, a downside break occurred. Do not assume continuation."
+    ],
+    "practiceSteps": [
+      "Advance through 10:30. The candle closes near $517.22, back above the broken reference.",
+      "Advance through 10:35. Price remains back above the reference area.",
+      "Classify the event as a downside break that failed quickly by reclaiming the prior level."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Breakouts & Failures",
+    "marketContexts": [
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C01-L07",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 1,
+    "chapterTitle": "Breakouts, Breakdowns, Retests, Follow-Through, and Failures",
+    "concept": "Ambiguous repeated interaction / no clean breakout",
+    "ticker": "SPY",
+    "date": "April 10, 2024",
+    "start": "9:40 a.m. ET",
+    "end": "10:05 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-7 Price-Level Behavior — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "Approximately $514.10–$514.30.",
+    "goal": "Repeated probes around a boundary can remain ambiguous. Do not manufacture a breakout simply because several candles touched or briefly crossed the zone.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "At 9:40 the high reaches about $514.16 but the close is near $514.05.",
+      "At 9:50 the high reaches about $514.30 and the close is near $514.13.",
+      "At 9:55 price trades above the zone intrabar but closes back near $513.99.",
+      "At 10:00 price again reaches roughly $514.22 but closes near $513.56."
+    ],
+    "dataNote": "",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Breakout / Breakdown",
+      "Failure / Reclaim",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C02-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 2,
+    "chapterTitle": "Pullbacks, Consolidation, Ranges, and Gaps",
+    "concept": "Pullback after an early advance",
+    "ticker": "LLY",
+    "date": "May 21, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:35 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-8 Price Structure — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Separate the initial upward move, the counter-move, and the later response without calling the pullback an automatic reversal.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "From 9:30 through 9:40 ET, note the early advance from an opening price near $792.46 to a high near $816.61.",
+      "From 9:45 through 10:10 ET, note the counter-move that reaches a low near $798.77.",
+      "Advance through 10:35 ET and observe that price later trades back above $809.",
+      "Describe the middle segment as a pullback against the earlier advance. Do not convert the observation into a buy signal or claim that the later response was knowable at 9:45."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited prices. Minor historical-feed differences are possible.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Pullbacks & Ranges",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C02-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 2,
+    "chapterTitle": "Pullbacks, Consolidation, Ranges, and Gaps",
+    "concept": "Consolidation that can be bracketed as a range",
+    "ticker": "GOOGL",
+    "date": "May 21, 2024",
+    "start": "10:25 a.m. ET",
+    "end": "10:55 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-8 Price Structure — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Identify overlapping, limited directional progress and bracket a defensible short-term range without predicting the break.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Observe the completed 5-minute bars from 10:25 through 10:55 ET.",
+      "Note repeated trading roughly between $177.41 and $177.77 during this observation window.",
+      "Identify the heavy overlap and limited net directional progress.",
+      "Record that the area can be described both as consolidation and as a bounded short-term range. Do not label a named pattern or forecast its eventual direction."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the approximate bounds; use your platform’s displayed prices for reconstruction.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Pullbacks & Ranges",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C02-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 2,
+    "chapterTitle": "Pullbacks, Consolidation, Ranges, and Gaps",
+    "concept": "Gap up that completely fills",
+    "ticker": "M",
+    "date": "May 21, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:00 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-8 Price Structure — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Measure an opening gap from the prior regular-session close and observe a complete fill without assuming all gaps behave this way.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the May 20 regular-session close near $19.10.",
+      "On May 21, record the regular-session open near $19.60. Under this chapter’s convention, that is a gap up of about $0.50 between the two reference prices.",
+      "Advance one completed 5-minute candle at a time. By the 9:55 candle, price trades to approximately $19.10.",
+      "Classify the opening gap as completely filled under the course convention when price reaches the prior regular-session close. Do not infer that the fill was guaranteed."
+    ],
+    "dataNote": "Daily and 5-minute SIP bars independently verify the prior close, current open, and return to approximately $19.10.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Pullbacks & Ranges",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C02-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 2,
+    "chapterTitle": "Pullbacks, Consolidation, Ranges, and Gaps",
+    "concept": "Gap down that only partially fills in the observation window",
+    "ticker": "PANW",
+    "date": "May 21, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:30 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-8 Price Structure — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Contrast a large gap down with a partial recovery that does not reach the prior regular-session close.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the May 20 regular-session close near $323.77.",
+      "On May 21, record the regular-session open near $301.16. Under this chapter’s convention, this is a gap down.",
+      "Advance through 10:30 ET. Price trades upward into the gap zone and reaches roughly $312.74 by the 10:30 candle, but it remains below the prior close.",
+      "Classify the gap as partially filled within the stated observation window—not completely filled. Stop at the boundary and record what was known at 10:30 before advancing."
+    ],
+    "dataNote": "Independent SIP daily and 5-minute bars verify the cited reference prices and observation-window high.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Pullbacks & Ranges",
+    "marketContexts": [
+      "Range / Consolidation",
+      "Pullback / Retest"
+    ]
+  },
+  {
+    "id": "F3-C02-L05",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 2,
+    "chapterTitle": "Pullbacks, Consolidation, Ranges, and Gaps",
+    "concept": "Gap strength versus actual post-open structure",
+    "ticker": "WMT",
+    "date": "August 15, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-8 Price Structure — completed 5-minute candles, standard Candle chart, no added studies",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Show why a positive catalyst and gap do not automatically create a healthy pullback or an intraday uptrend.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the regular-session open near $74.12 after strong premarket pricing.",
+      "Advance one completed 5-minute candle at a time and track whether the post-open structure is making sustained progress upward.",
+      "During the observation window, price fades toward the low-$73s and reaches roughly the $72.78 area rather than simply resuming the premarket advance.",
+      "Classify the move from the evidence you observed: a gap can fade, and a decline after a gap is not automatically a constructive pullback."
+    ],
+    "dataNote": "The same session is revisited later for VWAP context after VWAP has been formally taught. Keep this exercise focused on the price structure visible at the stated boundary.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Market Structure",
+    "marketContexts": [
+      "Trend / Structure",
+      "Range / Consolidation",
+      "Pullback / Retest",
+      "Catalyst / News"
+    ]
+  },
+  {
+    "id": "F3-C03-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 3,
+    "chapterTitle": "Patterns Are Evidence, Not Predictions",
+    "concept": "Bearish Engulfing configuration and later outcome",
+    "ticker": "AMZN",
+    "date": "May 22, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:05 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-9 Pattern Evidence — standard Candle chart; no added studies unless the exercise says otherwise",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Apply an explicit two-candle rule, then keep pattern recognition separate from the later outcome.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Use a 5-minute standard Candle chart with no added studies. Pause after the 9:35 candle is complete.",
+      "Record 9:35 approximately O $184.53, C $184.8043: an up candle.",
+      "Advance one candle. The 9:40 candle is approximately O $184.82, C $184.30: it opens above the prior Close and closes below the prior Open, satisfying the body relationship for a bearish Engulfing configuration under the stated rule; the immediately preceding opening sequence also supplies upward context.",
+      "Freeze the classification at 9:45. Only then advance toward 10:05 and observe that price later traded lower. Record that as later evidence, not as proof that every bearish Engulfing pattern must work."
+    ],
+    "dataNote": "Independent SIP 5-minute bars verify the cited OHLC relationships. Platform pattern markers can differ if their trend/body inputs differ.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C03-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 3,
+    "chapterTitle": "Patterns Are Evidence, Not Predictions",
+    "concept": "Bullish Engulfing configuration and later outcome",
+    "ticker": "AMD",
+    "date": "May 22, 2024",
+    "start": "10:10 a.m. ET",
+    "end": "10:45 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-9 Pattern Evidence — standard Candle chart; no added studies unless the exercise says otherwise",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Practice the opposite Engulfing relationship after short-term downward context.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause after the 10:15 candle is complete. The 10:15 bar is approximately O $166.68, C $166.62: a down candle after preceding weakness.",
+      "Advance through the 10:20 candle. It is approximately O $166.61, C $167.31: the Open is below the prior Close and the Close is above the prior Open, satisfying the bullish Engulfing body relationship.",
+      "Classify the configuration without entering a trade or adding an indicator.",
+      "Only after freezing the classification, advance toward 10:45 and observe the later price path. Favorable follow-through in this example is an outcome, not part of the original pattern definition."
+    ],
+    "dataNote": "Independent SIP data verify the 5-minute values; small platform/data-feed differences should be documented rather than forced.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C03-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 3,
+    "chapterTitle": "Patterns Are Evidence, Not Predictions",
+    "concept": "Exact Doji without a guaranteed reversal",
+    "ticker": "MSFT",
+    "date": "May 22, 2024",
+    "start": "10:20 a.m. ET",
+    "end": "10:45 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-9 Pattern Evidence — standard Candle chart; no added studies unless the exercise says otherwise",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Show that a recognizable candle shape can exist without forcing a reversal conclusion.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Advance one completed 5-minute candle at a time and stop after the 10:30 candle.",
+      "Record the 10:30 candle approximately O $431.90 and C $431.90. Under the strict equality rule, it is an exact Doji.",
+      "Do not call it a guaranteed reversal. State only the completed configuration and the surrounding evidence visible at that time.",
+      "Advance through 10:45. Compare the later candles with your frozen statement. The purpose is to grade prediction discipline, not to make the Doji “right” or “wrong.”"
+    ],
+    "dataNote": "platform’s Doji pattern detector can also classify near-equal Open/Close values according to its inputs; this exercise intentionally uses the strict equality rule.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Candles & Wicks",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C03-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 3,
+    "chapterTitle": "Patterns Are Evidence, Not Predictions",
+    "concept": "RCT recognition only — first red 5-minute reference",
+    "ticker": "MBIO",
+    "date": "June 17, 2024",
+    "start": "8:30 a.m. ET",
+    "end": "8:55 a.m. ET",
+    "timeframe": "",
+    "setupLevel": "LAB-9 Pattern Evidence — standard Candle chart; no added studies unless the exercise says otherwise",
+    "studies": "None needed for this exercise. If the platform is displaying its default studies, that is fine; do not use them to answer the exercise.",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Recognize the defined premarket RCT reference structure while keeping recognition separate from the later execution model.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Turn on extended-hours display and use a 5-minute standard Candle chart. Pause at 8:30 a.m. ET.",
+      "Advance through the 8:40 bar. SIP data show a rapid rise: closes approximately $0.1968, $0.2550, and $0.3075 from the 8:30, 8:35, and 8:40 bars.",
+      "Advance through the 8:45–8:50 bar. It is red: approximately O $0.3070, H $0.3107, L $0.2720, C $0.2825. Under the RCT recognition rule used here, this is the first completed red 5-minute reference candle after the rapid advance.",
+      "Freeze the recognition statement there. Keep the exercise at pattern recognition rather than turning the candle high, low, or next-bar movement into an entry, stop, or target.",
+      "Advance one additional bar only after the recognition is recorded. Observe what happened, but keep the later outcome separate from the pattern definition."
+    ],
+    "dataNote": "Independent SIP 5-minute premarket bars verify the cited sequence. The historical source material also documents this June 17, 2024 MBIO session as an RCT training case; this exercise focuses on recognition rather than execution.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "RCT",
+    "marketContexts": [
+      "Premarket",
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F3-C04-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 4,
+    "chapterTitle": "Indicators: What They Are and What They Are Not",
+    "concept": "Example 1: ORCL",
+    "ticker": "ORCL",
+    "date": "May 23, 2024",
+    "start": "9:30-10:00 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg — preview only.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Observe the candles first with no added study.",
+      "Add SimpleMovingAvg and record its current settings. Do not interpret the line as bullish or bearish.",
+      "Change only the length input. Apply the change.",
+      "Confirm that the moving-average plot changes while the already completed price candles do not.",
+      "Restore/remove the study. Your conclusion should be about parameter sensitivity—not about whether ORCL should be bought or sold."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Start at 9:30 a.m. ET and advance through 10:00 a.m. without using later candles. The verified regular-session closes during the opening sequence include approximately $125.56, $125.31, $124.93, $124.29, and $124.35 for the first five completed 5-minute bars."
+    ],
+    "portableVisual": null,
+    "skill": "Indicator Foundations",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C04-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 4,
+    "chapterTitle": "Indicators: What They Are and What They Are Not",
+    "concept": "Example 2: VZ",
+    "ticker": "VZ",
+    "date": "May 23, 2024",
+    "start": "9:30-10:00 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg — preview only.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Add SimpleMovingAvg and note the price input shown in the study settings.",
+      "Change only the price input from Close to another available price series such as High, if your current study dialog offers that choice.",
+      "Apply the change and observe whether the plot changes.",
+      "Restore the original input. The exercise demonstrates that “same indicator name” does not mean “same calculation” when the inputs differ."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "The verified opening closes include approximately $39.47, $39.61, $39.705, $39.57, and $39.565 for the first five completed 5-minute bars. The price path is intentionally ordinary; the purpose is reproducibility, not finding an exciting trade."
+    ],
+    "portableVisual": null,
+    "skill": "Indicator Foundations",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C04-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 4,
+    "chapterTitle": "Indicators: What They Are and What They Are Not",
+    "concept": "Example 3: GM",
+    "ticker": "GM",
+    "date": "May 23, 2024",
+    "start": "9:30-10:00 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg — preview only.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Observe the 5-minute chart and the study without assigning a trade meaning to the line.",
+      "Change the chart aggregation to 15 minutes while keeping the study settings unchanged.",
+      "Confirm that the study is now being calculated from a different bar series.",
+      "Return to 5 minutes. Record: indicator output depends on both the formula/settings and the data series supplied by the chart.",
+      "MARKET REALITY: If your historical platform feed, session configuration, or adjustment handling differs, a displayed study value can differ slightly. Reproducibility requires documenting the full chart context, not merely the indicator name."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "The verified opening 5-minute closes include approximately $43.79, $43.715, $44.02, $43.855, and $43.84. Keep the study settings fixed for the aggregation comparison."
+    ],
+    "portableVisual": null,
+    "skill": "Indicator Foundations",
+    "marketContexts": []
+  },
+  {
+    "id": "F3-C05-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 5,
+    "chapterTitle": "Moving Averages",
+    "concept": "Calculate the SMA",
+    "ticker": "CSCO",
+    "date": "May 24, 2024",
+    "start": "9:30-10:00 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg, price Close, length 5, displacement 0.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause at 9:55 a.m. ET, when the 9:50–9:55 candle has completed, and calculate the average of the five completed closes yourself. Do not use the next candle.",
+      "Compare your result with the plotted SimpleMovingAvg value at that completed bar. Small display-rounding differences are acceptable.",
+      "Advance one completed bar. Remove the oldest close, add the new 9:55 close of approximately $46.59, and observe the window move.",
+      "Write one sentence explaining why the calculation is called a moving average."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "The independently verified first five completed closes are approximately $46.675, $46.725, $46.6188, $46.6000, and $46.5899. Their sum is $233.2087. Divide by 5 and the 5-period SMA at the completion of the 9:50-9:55 bar is approximately $46.64174."
+    ],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F3-C05-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 5,
+    "chapterTitle": "Moving Averages",
+    "concept": "Shorter Versus Longer Length",
+    "ticker": "INTC",
+    "date": "May 24, 2024",
+    "start": "9:30-10:45 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "two SimpleMovingAvg plots, Close input, lengths 5 and 10, displacement 0.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Observe which average reacts more strongly during the advance into 10:20.",
+      "Continue through 10:45 and watch how the gap between the two averages changes as the newest closes soften.",
+      "Describe the tradeoff: shorter = more responsive; longer = smoother/slower. Do not label either one “better.”",
+      "Do not turn the ordering of the averages into an entry signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "INTC’s verified closes rise from about $30.385 at 9:30 to $30.9715 at 10:20 before backing off. At the completion of the 10:20 bar, the 5-period SMA of the most recent five closes is approximately $30.7963, while the 10-period SMA is approximately $30.6442. By 10:45, after several softer closes, the 5-period SMA is approximately $30.8295 and the 10-period SMA approximately $30.8129."
+    ],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F3-C05-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 5,
+    "chapterTitle": "Moving Averages",
+    "concept": "SMA9, EMA9, and EMA20",
+    "ticker": "PLTR",
+    "date": "May 24, 2024",
+    "start": "9:30-10:45 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg length 9, MovAvgExponential length 9 (EMA9), and MovAvgExponential length 20 (EMA20), all using Close and displacement 0 where applicable.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Add the 9-period SMA, EMA9, and EMA20 with Close as the price input and displacement 0.",
+      "Compare SMA9 with EMA9. Because the methods weight history differently, observe which line responds more quickly when the recent closes change direction.",
+      "Then compare EMA9 with EMA20. Both are exponential averages, but the shorter length normally responds more quickly while the longer length is smoother and slower.",
+      "Do not expect a hand-calculated EMA initialized from only the visible bars to match the platform exactly; EMA values depend on prior recursive history and platform implementation.",
+      "Record the chart aggregation beside EMA9 and EMA20. The same length number on a different aggregation represents a different historical horizon; do not treat the resulting values as interchangeable."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "The verified opening sequence moves from roughly $20.84 down to $20.682 by 9:50, rebounds to about $20.9236 at 10:00, and later trades back toward the $20.90-$21.00 area. That change in recent closes gives you a useful side-by-side comparison of two smoothing methods applied to the same price series and nominal length."
+    ],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F3-C05-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 5,
+    "chapterTitle": "Moving Averages",
+    "concept": "A Crossover Is Not a Trade",
+    "ticker": "UBER",
+    "date": "May 24, 2024",
+    "start": "9:30-10:45 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "SimpleMovingAvg, Close input, length 5, displacement 0.",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Mark the completed-bar price/average relationship at 9:50, 9:55, and 10:40.",
+      "Identify the change from below to above and the later return below as crossover events.",
+      "Notice that a crossover describes a relationship change; it does not tell you whether the next several bars will continue in that direction.",
+      "Write “event, not strategy” beside the exercise before moving on.",
+      "Foundation Deep-Dive: Moving Averages Smooth Price at the Cost of Lag The basic question: What does average price over a defined number of periods look like as new data arrives? A moving average recalculates as new bars are added and old bars leave the lookback. A simple moving average weights observations equally. An exponential moving average gives more weight to recent data and responds more quickly. Length creates a trade-off. Shorter averages respond faster but can change direction frequently. Longer averages are smoother but react more slowly. Price crossovers and moving-average crossovers can be described objectively but can whipsaw in sideways markets. Combine the average with structure, location, and market condition rather than using it as a command. How This Shows Up in Real Trading Buying every cross above an average can create repeated whipsaw losses. Treating a moving average as guaranteed support can encourage holding after structure fails. Before You Move On Explain an SMA and the basic difference from an EMA. Explain responsiveness versus smoothness. Use slope and price relationship as context rather than entries by themselves."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "At 9:50, UBER closes about $63.985 while the five-close SMA is approximately $64.0865, leaving the completed close below the average. At 9:55, the close is about $64.085 while the newly recalculated five-close SMA is approximately $64.0135, placing the completed close back above the average. Later, around 10:40, the close is about $64.445 while the five-period SMA is approximately $64.5136, showing that the relationship can reverse again."
+    ],
+    "portableVisual": null,
+    "skill": "EMA Relationships",
+    "marketContexts": [
+      "EMA / Moving Average"
+    ]
+  },
+  {
+    "id": "F3-C06-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "VWAP Reclaim",
+    "ticker": "COST",
+    "date": "May 28, 2024",
+    "start": "9:30-10:15 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause after the 9:55 candle and record “below VWAP.” Do not advance yet.",
+      "Advance one completed bar to 10:00 and compare the close with the completed VWAP value.",
+      "Classify the relationship change as a VWAP reclaim candidate under the course rule.",
+      "Advance through 10:10 only after recording the reclaim. Note the short follow-through without turning it into an entry signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Independent SIP reconstruction places cumulative regular-session VWAP near $810.23 at 9:40, $808.82 at 9:55, and $808.66 at 10:00. COST closes about $809.83 at 9:40, then about $805.97 and $806.61 at 9:50 and 9:55—below VWAP. The 10:00 candle closes about $809.33, back above the approximately $808.66 session VWAP. The 10:05 and 10:10 closes remain above the reconstructed VWAP."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L01.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing reclaim at the labeled central VWAP line; price and ET time axes. It does not depict COST historical trades.",
+      "caption": "Constructed teaching chart — Reclaim. This visual shows how to identify the relationship; the COST historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ]
+  },
+  {
+    "id": "F3-C06-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "VWAP Rejection",
+    "ticker": "KO",
+    "date": "May 28, 2024",
+    "start": "9:30-10:20 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Record the completed VWAP and the 10:05 candle High, Low, and Close.",
+      "Notice that price probes through the line intrabar but does not complete the candle below it.",
+      "Classify the observed move as an upside-side VWAP rejection under the course definition, not as proof that VWAP is guaranteed support.",
+      "Advance through 10:20 and record only the observed separation from VWAP."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "By 10:05, reconstructed regular-session VWAP is approximately $61.84. KO’s 10:05 candle trades down to about $61.82, probing slightly below VWAP, but closes about $61.86—back above it. The next completed closes are approximately $61.985, $62.01, and $62.025, remaining above the gradually rising session VWAP."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L02.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing rejection at the labeled central VWAP line; price and ET time axes. It does not depict KO historical trades.",
+      "caption": "Constructed teaching chart — Rejection. This visual shows how to identify the relationship; the KO historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction"
+    ]
+  },
+  {
+    "id": "F3-C06-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "VWAP Failure",
+    "ticker": "BA",
+    "date": "May 28, 2024",
+    "start": "9:30-10:25 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause after 10:00 and record the established above-VWAP relationship.",
+      "Advance to the 10:05 completed candle and identify the loss of that relationship.",
+      "Advance through 10:25. Because the completed closes remain below rather than immediately restoring the prior side, classify this observation as VWAP failure under the course rule.",
+      "Do not call the event a short entry, breakdown setup, or guaranteed continuation."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "BA spends the early session above reconstructed VWAP. At 10:00 it closes about $177.02 while cumulative VWAP is approximately $176.71. The 10:05 candle then closes about $176.23, below the approximately $176.70 VWAP. Subsequent closes near $176.00, $175.66, $175.86, and $175.38 remain below the session VWAP through 10:25."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L03.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing failure at the labeled central VWAP line; price and ET time axes. It does not depict BA historical trades.",
+      "caption": "Constructed teaching chart — Failure. This visual shows how to identify the relationship; the BA historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ]
+  },
+  {
+    "id": "F3-C06-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "VWAP Chop",
+    "ticker": "RIVN",
+    "date": "May 28, 2024",
+    "start": "9:30-10:15 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Mark each completed close as above or below VWAP without assigning a trade.",
+      "Count the side changes only after candles complete.",
+      "Classify the window as VWAP chop because the relationship repeatedly flips without sustained separation.",
+      "Write one sentence explaining why selecting only the “successful-looking” crosses after the fact would violate the no-look-ahead discipline."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "The reconstructed VWAP stays near the mid-$10.40s to roughly $10.50 during this window. RIVN closes below VWAP at 9:30 and 9:35, above it at 9:40 through 9:50, below again at 9:55 through 10:05, and above again at 10:10 and 10:15. That repeated completed-close side switching is exactly the unstable relationship this chapter calls VWAP chop."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L04.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing chop at the labeled central VWAP line; price and ET time axes. It does not depict RIVN historical trades.",
+      "caption": "Constructed teaching chart — Chop. This visual shows how to identify the relationship; the RIVN historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Range / Consolidation"
+    ]
+  },
+  {
+    "id": "F3-C06-L05",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "VWAP Hold",
+    "ticker": "QQQ",
+    "date": "April 26, 2024",
+    "start": "9:30-10:05 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Pause after 9:35 and record price's side of VWAP.",
+      "Advance one completed candle at a time through 10:05.",
+      "Record whether price approaches VWAP and whether completed closes remain on the same side.",
+      "Classify the relationship as a VWAP hold only from the completed evidence. Do not convert the hold into a buy signal."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Independent cumulative SIP reconstruction places VWAP near $427.90 at 9:30 and rising toward approximately $428.88 by 10:05. After the early opening bars, completed closes remain generally above the rising session VWAP during the observation window.",
+      "Platform Note: Use the VWAP displayed by your historical platform. Minor value differences can occur from feed/session treatment; the lesson is the sustained relationship, not a forced penny-perfect match."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L05.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing hold at the labeled central VWAP line; price and ET time axes. It does not depict QQQ historical trades.",
+      "caption": "Constructed teaching chart — Hold. This visual shows how to identify the relationship; the QQQ historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction"
+    ]
+  },
+  {
+    "id": "F3-C06-L06",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 6,
+    "chapterTitle": "VWAP",
+    "concept": "Failed VWAP Reclaim",
+    "ticker": "TSLA",
+    "date": "February 22, 2024",
+    "start": "9:30-10:00 a.m. ET",
+    "end": "",
+    "timeframe": "5-minute candles",
+    "setupLevel": "",
+    "studies": "VWAP, time frame DAY",
+    "session": "regular market hours",
+    "referenceZone": "",
+    "goal": "A reclaim can occur and later fail. VWAP labels describe a sequence; they do not guarantee the next candle.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Do not label the 9:40 move until the candle completes.",
+      "Once a completed close is above VWAP after the earlier below-VWAP condition, record a reclaim event.",
+      "Advance only through 9:55. When price is back below VWAP, classify the earlier reclaim as failed within this observation window.",
+      "Then advance to 10:00 and observe why repeated side changes can evolve into chop. Do not use the 10:00 candle to erase the earlier failed reclaim."
+    ],
+    "dataNote": "",
+    "additionalNotes": [
+      "Independent reconstruction shows TSLA below cumulative VWAP at 9:30 and 9:35, above it during the 9:40-9:50 segment, and back below it by 9:55 before moving above again around 10:00.",
+      "Foundation Deep-Dive: VWAP Is a Session Benchmark, Not a Prediction Line The basic question: What is the volume-weighted average price of the session up to this point? VWAP combines price and volume so prices associated with more traded volume have more influence on the cumulative average. Standard session VWAP typically resets according to its defined anchor rather than using a fixed rolling number of bars. Price above VWAP means current price is above that cumulative benchmark; below means it is below. Reclaim, rejection, failure, and chop labels organize observed interactions but require explicit rules. VWAP can help with continuation context when price, structure, volume, and the VWAP relationship support the same direction. The line itself does not create guaranteed support, resistance, fair value, or a magnet. How This Shows Up in Real Trading Buying every VWAP cross can create repeated losses during chop. Calling VWAP support merely because price touched it exaggerates what the calculation proves. Before You Move On Explain what volume-weighted means. Distinguish cumulative VWAP from a fixed-length moving average. Classify price/VWAP relationships without turning the line into a command."
+    ],
+    "portableVisual": {
+      "src": "assets/lab-visuals/F3-C06-L06.svg",
+      "alt": "Constructed five-minute candlestick and volume chart showing failed reclaim at the labeled central VWAP line; price and ET time axes. It does not depict TSLA historical trades.",
+      "caption": "Constructed teaching chart — Failed Reclaim. This visual shows how to identify the relationship; the TSLA historical exercise below must be reconstructed from its stated date and feed.",
+      "kind": "constructed"
+    },
+    "skill": "VWAP",
+    "marketContexts": [
+      "VWAP Interaction",
+      "Failure / Reclaim"
+    ]
+  },
+  {
+    "id": "F3-C07-L01",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 7,
+    "chapterTitle": "Momentum Indicators",
+    "concept": "RSI overbought is not a reversal command",
+    "ticker": "AAPL",
+    "date": "May 29, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:05 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "",
+    "studies": "RSI; course settings specified above",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe a high RSI reading during continuing opening strength.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Use completed 5-minute candles and add RSI.",
+      "Advance from the open one bar at a time. Around the early strength, note when RSI enters the default overbought region.",
+      "Freeze the observation. Then advance and compare later price with the assumption “overbought must reverse immediately.”",
+      "Record why the historical sequence disproves that certainty claim without turning overbought into a continuation signal."
+    ],
+    "dataNote": "SIP bars verify the opening price sequence. An independent Wilder-14 reconstruction also places RSI above the default 70 reference during the early advance; exact platform values may differ slightly with history/session settings.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ]
+  },
+  {
+    "id": "F3-C07-L02",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 7,
+    "chapterTitle": "Momentum Indicators",
+    "concept": "RSI oversold is not an automatic buy",
+    "ticker": "AMD",
+    "date": "May 29, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "",
+    "studies": "RSI; course settings specified above",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe RSI below 30 during sustained opening weakness.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Advance from the 9:30 open one completed bar at a time.",
+      "Note when RSI enters the default oversold region while price remains structurally weak.",
+      "Do not predict the low. Continue only after writing the completed observation.",
+      "Explain why “oversold” describes the recent gain/loss relationship but does not guarantee that selling is finished."
+    ],
+    "dataNote": "SIP data independently verify the sharp opening decline. An independent Wilder-14 reconstruction remains below 30 during the early weakness.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ]
+  },
+  {
+    "id": "F3-C07-L03",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 7,
+    "chapterTitle": "Momentum Indicators",
+    "concept": "MACD lag after a fast price impulse",
+    "ticker": "TSLA",
+    "date": "May 29, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "10:15 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "",
+    "studies": "MACD; course settings specified above",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Compare a fast opening price move with the slower moving-average-based MACD response.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Add MACD before advancing replay.",
+      "Observe the rapid opening price expansion and subsequent pullback.",
+      "Watch how MACD Value, Avg, and Diff respond after the price move has already begun.",
+      "Record that MACD is derived from moving averages and therefore may lag a sharp change in price direction. Do not create an entry from the crossover."
+    ],
+    "dataNote": "SIP 5-minute bars independently verify the rapid opening expansion and retracement used by the exercise.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "Momentum / Exhaustion"
+    ]
+  },
+  {
+    "id": "F3-C07-L04",
+    "book": 3,
+    "bookTitle": "Building the Trading Decision",
+    "chapter": 7,
+    "chapterTitle": "Momentum Indicators",
+    "concept": "Momentum whipsaw in a narrow price window",
+    "ticker": "RIVN",
+    "date": "May 29, 2024",
+    "start": "9:30 a.m. ET",
+    "end": "11:00 a.m. ET",
+    "timeframe": "5-minute standard Candle",
+    "setupLevel": "",
+    "studies": "RSI and MACD",
+    "session": "",
+    "referenceZone": "",
+    "goal": "Observe how indicator readings can fluctuate while price remains relatively contained.",
+    "beforeAdvance": [],
+    "practiceSteps": [
+      "Load RSI and MACD and advance one completed 5-minute bar at a time.",
+      "Compare the early drop, rebound, and subsequent narrow movement around roughly $10.10–$10.17.",
+      "Observe how momentum tools respond even though later price progress becomes limited and overlapping.",
+      "Write why indicator movement inside a choppy price structure should not be treated as repeated independent trade signals."
+    ],
+    "dataNote": "Independent SIP data verify the opening/choppy price sequence. The exercise uses the platform-displayed indicator values rather than hard-coded thresholds.",
+    "additionalNotes": [],
+    "portableVisual": null,
+    "skill": "Momentum",
+    "marketContexts": [
+      "EMA / Moving Average",
+      "Momentum / Exhaustion"
+    ]
+  }
+]

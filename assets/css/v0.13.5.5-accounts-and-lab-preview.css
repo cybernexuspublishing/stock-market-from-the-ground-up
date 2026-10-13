@@ -1,0 +1,33 @@
+/* v0.13.5.5 — targeted account hub and read-only Lab preview. */
+.v1355-access{min-width:0;max-width:100%;padding-bottom:2rem}
+.v1355-access .admin-heading{border-bottom:1px solid #38536a;padding-bottom:18px;margin-bottom:22px}
+.v1355-access #v1355-access-content{min-width:0}
+.v1355-access h2{margin:24px 0 14px;font-size:1.4rem}
+.v1355-access h3{margin:28px 0 14px;font-size:1.16rem}
+.v1355-access p{line-height:1.65;color:#ccdae7}
+.v1355-scroll{max-width:100%;overflow:auto;border:1px solid #34566c;border-radius:10px;margin:12px 0 22px;background:#0b2235}
+.v1355-table{width:100%;border-collapse:collapse;min-width:720px;color:#f0f5fc}
+.v1355-table th{text-align:left;background:#16344a;font-size:.9rem;white-space:nowrap}
+.v1355-table th,.v1355-table td{padding:12px 14px;border-bottom:1px solid #25475a;vertical-align:top}
+.v1355-table tbody tr:last-child td{border-bottom:0}
+.v1355-table td .btn{padding:8px 11px;white-space:nowrap;font-size:.87rem}
+.v1355-counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0 26px}
+.v1355-counter{display:flex;flex-direction:column;align-items:flex-start;gap:8px;border:1px solid #346179;border-radius:12px;background:#102e43;color:#f5f8ff;padding:20px;text-align:left;cursor:pointer;font:inherit}
+.v1355-counter strong{font-size:1.7rem;color:#f1bf4b}.v1355-counter span{font-weight:650}.v1355-counter small{color:#b4d0e5}
+.v1355-counter:focus-visible,[data-ac55-view]:focus-visible,[data-ac55-act]:focus-visible{outline:3px solid #e9b743;outline-offset:3px}
+#admin-tabs .v13-admin-group [data-ac55-view].active{background:#173e59;border-left:3px solid #edbe4f;color:white}
+.v1355-action-row{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.v1355-advice,.v1355-note,.v1355-showcase{border:1px solid #477087;border-radius:10px;background:#0c2b40;padding:15px 18px;margin:15px 0}
+.v1355-showcase{border-color:#e5b64d}
+.v1355-grant-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));align-items:end;gap:14px;margin:18px 0;padding:20px;border:1px solid #3d607a;border-radius:12px;background:#0c2538}
+.v1355-grant-form label{display:flex;flex-direction:column;gap:7px;font-size:.9rem}
+.v1355-grant-form input,.v1355-grant-form select{box-sizing:border-box;width:100%;min-width:0;padding:12px;background:#102d43;color:#fff;border:1px solid #6a8da3;border-radius:7px}
+.v1355-grant-form label[hidden],.v1355-access [hidden]{display:none!important}
+.v1355-footnote{font-size:.84rem}.v1355-restricted{color:#cbd6df;font-size:.88rem}
+.v1355-preview-banner{display:flex;flex-wrap:wrap;align-items:center;gap:15px;border:2px solid #e9b944;border-radius:11px;padding:16px 22px;margin:20px 0;background:#112b3e;color:#f5e5bc}
+.v1355-preview-banner strong{letter-spacing:.06em}.v1355-preview-banner span{font-size:.95rem}
+.v1355-preview-note,.v1355-preview-warning{padding:14px;border:1px solid #3b7896;background:#0a2a40;border-radius:9px;margin:18px 0;color:white}
+.v1355-preview-warning{border-color:#deaa39;color:#f6dca0}
+.v133-site-lab-page textarea:disabled{opacity:.9;background:#092336;color:#e0ebf6;cursor:not-allowed}
+.v133-site-lab-page button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:760px){.v1355-table{min-width:580px}.v1355-access .admin-heading{padding:10px}.v1355-grant-form{grid-template-columns:minmax(0,1fr)}.v1355-counter strong{font-size:1.4rem}}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "book1",
+    "seriesPosition": 1,
+    "title": "Understanding the Stock Market",
+    "subtitle": "Stock Market Foundations, Book I",
+    "cover": "assets/img/book1.jpg",
+    "status": "KDP candidate",
+    "currentThrough": "09/28/2026",
+    "amazonUrl": "",
+    "amazonListingUrl": "https://www.amazon.com/dp/B0HMPSNLGS",
+    "amazonListingState": "prepublication",
+    "directSaleEnabled": false,
+    "directSaleUrl": ""
+  },
+  {
+    "id": "book2",
+    "seriesPosition": 2,
+    "title": "Learning to Read the Market",
+    "subtitle": "Stock Market Foundations, Book II",
+    "cover": "assets/img/book2.jpg",
+    "status": "KDP candidate",
+    "currentThrough": "09/30/2026",
+    "amazonUrl": "",
+    "amazonListingUrl": "https://www.amazon.com/dp/B0HMPQ9CTX",
+    "amazonListingState": "prepublication",
+    "directSaleEnabled": false,
+    "directSaleUrl": ""
+  },
+  {
+    "id": "book3",
+    "seriesPosition": 3,
+    "title": "Building the Trading Decision",
+    "subtitle": "Stock Market Foundations, Book III",
+    "cover": "assets/img/book3.jpg",
+    "status": "KDP candidate",
+    "currentThrough": "10/02/2026",
+    "amazonUrl": "",
+    "directSaleEnabled": false,
+    "directSaleUrl": ""
+  }
+]

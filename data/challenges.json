@@ -1,0 +1,20 @@
+[
+  {
+    "id": "FOUNDATIONS-LAUNCH-01",
+    "title": "Foundations Decision Discipline Challenge",
+    "description": "Complete a cross-section of verified historical labs using Blind Decision Mode. Record the evidence you used before revealing the book-guided sequence.",
+    "access": "member",
+    "labIds": [
+      "F1-C02-L01",
+      "F1-C09-L01",
+      "F2-C02-L03",
+      "F2-C06-L02",
+      "F2-C08-L06",
+      "F2-C11-L01",
+      "F2-C13-L02",
+      "F3-C01-L03",
+      "F3-C02-L05",
+      "F3-C05-L02"
+    ]
+  }
+]

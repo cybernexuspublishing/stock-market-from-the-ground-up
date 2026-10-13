@@ -1,0 +1,43 @@
+/* v0.13.5 — verified, idempotent Lemon Squeezy order/subscription webhook.
+ * Paid-order changes are transactional in apply_order_webhook_v135.
+ * No direct-digital or bundle fulfillment is enabled by this code. */
+const UID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const str=x=>String(x??'').trim();
+function config(env){const base=str(env.SUPABASE_URL).replace(/\/$/,''),key=str(env.SUPABASE_SECRET_KEY);if(!base||!key)throw new Error('Commerce database configuration missing.');return{base,key}}
+async function rest(env,path,{method='GET',body,prefer}={}){const c=config(env),headers={apikey:c.key,authorization:'Bearer '+c.key,accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';if(prefer)headers.prefer=prefer;const r=await fetch(c.base+'/rest/v1/'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});const t=await r.text();if(!r.ok)throw Error('Commerce database failed '+r.status);if(!t)return null;try{return JSON.parse(t)}catch{return null}}
+async function hmac(key,text){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);return new Uint8Array(await crypto.subtle.sign('HMAC',k,new TextEncoder().encode(text)))}
+function equalHex(buf,x){if(!/^[a-f0-9]{64}$/i.test(x||''))return false;let mismatch=0;for(let i=0;i<buf.length;i++)mismatch|=buf[i]^parseInt(x.slice(i*2,i*2+2),16);return mismatch===0}
+function evtKey(event,p){const attr=p.data?.attributes||{},meta=p.meta||{};return ['v135',event,str(p.data?.type),str(p.data?.id),str(meta.event_id||attr.updated_at||attr.created_at||'original')].join(':').slice(0,240)}
+function errorStatus(e){return String(e?.message||e).slice(0,300)}
+async function claim(env,key,event,p){const prev=(await rest(env,'payment_webhook_events?select=event_id,status&event_id=eq.'+encodeURIComponent(key)+'&limit=1'))?.[0];if(prev?.status==='processed')return false;
+if(!prev){const inserted=await rest(env,'payment_webhook_events?on_conflict=event_id',{method:'POST',prefer:'resolution=ignore-duplicates,return=representation',body:{event_id:key,provider:'LEMON_SQUEEZY',event_name:event,user_id:UID.test(str(p.meta?.custom_data?.user_id))?p.meta.custom_data.user_id:null,status:'received',payload:p}});if(!inserted?.length)return false;}
+const got=await rest(env,'payment_webhook_events?event_id=eq.'+encodeURIComponent(key)+'&status=in.(received,error)',{method:'PATCH',prefer:'return=representation',body:{status:'processing',error_message:null}});
+if(!got?.length){const now=(await rest(env,'payment_webhook_events?select=status&event_id=eq.'+encodeURIComponent(key)+'&limit=1'))?.[0];if(now?.status==='processed')return false;throw new Error('Webhook event is already processing.');}return true}
+async function eventStatus(env,key,status,reason){await rest(env,'payment_webhook_events?event_id=eq.'+encodeURIComponent(key),{method:'PATCH',prefer:'return=minimal',body:{status,processed_at:status==='processed'?new Date().toISOString():null,error_message:reason||null}})}
+function activeStatus(event,a){const now=Date.now(),end=Date.parse(a.ends_at||a.renews_at||'');const hasTime=Number.isFinite(end)&&end>now;
+ if(['subscription_expired','subscription_payment_failed','subscription_paused'].includes(event))return{status:'canceled',willCancel:true};
+ if(event==='subscription_cancelled')return{status:hasTime?'active':'canceled',willCancel:true};
+ if(event==='subscription_updated'&&(a.status==='expired'||a.status==='unpaid'))return{status:'canceled',willCancel:true};
+ return{status:'active',willCancel:!!a.cancelled}}
+async function processOrder(env,event,p){const a=p.data?.attributes||{},custom=p.meta?.custom_data||{},order=str(p.data?.id);if(!order)throw new Error('Order identifier missing.');let intent=str(custom.intent_id);
+if(!intent&&event==='order_refunded'){const prior=(await rest(env,'site_orders?select=id,metadata&provider=eq.LEMON_SQUEEZY&provider_order_id=eq.'+encodeURIComponent(order)+'&limit=1'))?.[0];intent=str(prior?.metadata?.intent)}
+if(!intent)throw new Error('Verified order has no site checkout intent.');const amount=Number(a.total);if(!Number.isSafeInteger(amount)||amount<0)throw new Error('Invalid provider order amount.');
+const r=await rest(env,'rpc/apply_order_webhook_v135',{method:'POST',body:{p_intent:intent,p_provider_order:order,p_action:event,p_total_cents:amount,p_currency:str(a.currency||'USD').toUpperCase()}});
+if(!r?.ok)throw new Error('Order fulfillment rejected: '+str(r?.reason||'unknown'));return r}
+async function processSubscription(env,event,p){const custom=p.meta?.custom_data||{},a=p.data?.attributes||{},id=str(p.data?.id);if(!id)throw Error('Subscription identifier missing');
+let uid=str(custom.user_id),code=str(custom.item_code),type=str(custom.item_type);const intent=str(custom.intent_id);
+const existingPlan=(await rest(env,'site_subscriptions?select=*&provider=eq.LEMON_SQUEEZY&provider_subscription_id=eq.'+encodeURIComponent(id)+'&limit=1'))?.[0];
+const existingTool=(await rest(env,'user_tool_passes?select=*&provider=eq.LEMON_SQUEEZY&provider_subscription_id=eq.'+encodeURIComponent(id)+'&limit=1'))?.[0];
+const existing=existingPlan||existingTool;
+if(!existing){if(!intent||!UID.test(uid)||!['plan','tool'].includes(type))throw Error('New subscription must identify a verified checkout intent.');const it=(await rest(env,'checkout_intents?select=*&intent_id=eq.'+encodeURIComponent(intent)+'&limit=1'))?.[0];if(!it||it.user_id!==uid||it.item_code!==code||it.item_type!==type||!['provider_created','paid'].includes(it.status))throw Error('Subscription does not match a checkout intent.');}
+if(existing){uid=existing.user_id;type=existing.plan_code?'plan':'tool';code=existing.plan_code||existing.tool_code;}
+if(!UID.test(uid)||!code)throw Error('Invalid subscription identity.');const kind=(await rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(uid)+'&limit=1'))?.[0];if(kind?.account_kind!=='member')throw Error('Non-member account cannot receive subscriptions.');
+const state=activeStatus(event,a),date=a.renews_at||a.ends_at||null;const path=type==='plan'?'site_subscriptions':'user_tool_passes';const row=type==='plan'?{user_id:uid,provider:'LEMON_SQUEEZY',provider_subscription_id:id,plan_code:code,status:state.status,current_period_end:date,cancel_at_period_end:state.willCancel,updated_at:new Date().toISOString(),metadata:{provider_status:a.status||event}}:
+ {user_id:uid,provider:'LEMON_SQUEEZY',provider_subscription_id:id,tool_code:code,status:state.status,current_period_end:date,cancel_at_period_end:state.willCancel,updated_at:new Date().toISOString(),metadata:{provider_status:a.status||event}};
+if(existing)await rest(env,path+'?id=eq.'+existing.id,{method:'PATCH',prefer:'return=minimal',body:row});else await rest(env,path,{method:'POST',prefer:'return=minimal',body:row});
+if(intent)await rest(env,'checkout_intents?intent_id=eq.'+encodeURIComponent(intent),{method:'PATCH',prefer:'return=minimal',body:{status:state.status==='active'?'paid':'canceled',updated_at:new Date().toISOString()}});
+return{ok:true,status:state.status}}
+export async function onRequestPost({request,env}){const key=str(env.LEMON_SQUEEZY_WEBHOOK_SECRET);if(!key)return new Response('Webhook not configured',{status:503});const size=Number(request.headers.get('content-length')||0);if(size>1000000)return new Response('Payload too large',{status:413});const raw=await request.text();if(raw.length>1000000)return new Response('Payload too large',{status:413});const sig=str(request.headers.get('x-signature'));if(!equalHex(await hmac(key,raw),sig))return new Response('Invalid signature',{status:401});let p;try{p=JSON.parse(raw)}catch{return new Response('Invalid JSON',{status:400})}
+const e=str(request.headers.get('x-event-name')||p.meta?.event_name),id=evtKey(e,p);const test=p.meta?.test_mode===true,expectedTest=str(env.LEMON_SQUEEZY_TEST_MODE).toLowerCase()!=='false';if(test!==expectedTest)return new Response('Payment environment mismatch',{status:400});
+const supported=e==='order_created'||e==='order_refunded'||e.startsWith('subscription_');if(!supported)return new Response('Event ignored',{status:200});
+let accepted=false;try{accepted=await claim(env,id,e,p);if(!accepted)return new Response('ok',{status:200});if(e.startsWith('order_'))await processOrder(env,e,p);else await processSubscription(env,e,p);await eventStatus(env,id,'processed');return new Response('ok',{status:200})}catch(err){if(accepted)try{await eventStatus(env,id,'error',errorStatus(err))}catch{}return new Response('Event processing failed',{status:503})}}

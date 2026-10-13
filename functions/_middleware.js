@@ -1,0 +1,241 @@
+/* The Stock Market: From the Ground Up — v0.13.4.2 controlled security repair.
+ * Route policy is shared with the service worker; private data remains secured at API/RLS level.
+ * Retain historical application enhancers in their approved order. */
+import '../assets/js/v0.13.4.2-route-policy.js';
+const POLICY=globalThis.GroundUpRoutePolicy;
+const JSON_HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'no-store'};
+const reject=(message,status=403)=>new Response(JSON.stringify({ok:false,error:message}),{status,headers:JSON_HEADERS});
+const clean=s=>String(s||'').trim();
+function bearer(request){const h=request.headers.get('authorization')||'';return /^Bearer\s+/i.test(h)?h.replace(/^Bearer\s+/i,'').trim():null}
+async function showcaseIdentity(env,token){
+  const base=clean(env.SUPABASE_URL).replace(/\/$/,'');
+  const pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);
+  if(!base||!pub||!secret)throw new Error('Auth configuration unavailable.');
+  const identity=await fetch(base+'/auth/v1/user',{
+    headers:{apikey:pub,authorization:'Bearer '+token},cache:'no-store'
+  });
+  if(identity.status===401||identity.status===403)return false; // downstream rejects invalid sessions
+  if(!identity.ok)throw new Error('Unable to verify authentication.');
+  const user=await identity.json();
+  if(!user?.id)throw new Error('Missing verified user identity.');
+  const h={apikey:secret,authorization:'Bearer '+secret,accept:'application/json'};
+  const [profile,roles]=await Promise.all([
+    fetch(base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1',{headers:h,cache:'no-store'}),
+    fetch(base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id),{headers:h,cache:'no-store'})
+  ]);
+  if(!profile.ok||!roles.ok)throw new Error('Unable to verify Showcase restrictions.');
+  const ps=await profile.json(),rs=await roles.json();
+  return ps.some(x=>x.account_kind==='showcase') || rs.some(x=>x.role_code==='SHOWCASE_VIEWER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now()));
+}
+// Owner-account lock for legacy administrative mutation endpoints.
+// The complete v0.13.5.3 Account Center already requires OWNER on all writes;
+// this also prevents historical ADMIN/TECH_ADMIN UI paths from modifying an OWNER.
+async function protectLegacyOwnerTarget(context,url){
+ const req=context.request;if(['GET','HEAD','OPTIONS'].includes(req.method))return null;
+ const path=url.pathname,action=url.searchParams.get('action')||'';
+ const original=path==='/api/admin'&&['set_role','username_override','user_ban','user_flag','user_delete'].includes(action);
+ const legacy=path==='/api/admin-v0134'&&['account_email_update','account_identity_correct'].includes(action);
+ if(!original&&!legacy)return null;
+ let body={};try{body=await req.clone().json()}catch{return null}
+ const id=clean(body.user_id||body.userId);
+ if(!/^[0-9a-f-]{36}$/i.test(id))return null; // backend still validates ID
+ const token=bearer(req);if(!token)return null; // backend handles no authentication
+ try{
+  const base=clean(context.env.SUPABASE_URL).replace(/\/$/,''),pub=clean(context.env.SUPABASE_PUBLISHABLE_KEY),secret=clean(context.env.SUPABASE_SECRET_KEY);
+  if(!base||!pub||!secret)throw new Error('Unavailable');
+  const h={apikey:secret,authorization:'Bearer '+secret,accept:'application/json'};
+  const own=await fetch(base+'/rest/v1/admin_user_roles?select=user_id,expires_at&role_code=eq.OWNER&user_id=eq.'+encodeURIComponent(id),{headers:h,cache:'no-store'});
+  if(!own.ok)throw new Error('Unable to verify target');
+  const t=await own.json();if(!t.some(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()))return null;
+  const caller=await fetch(base+'/auth/v1/user',{headers:{apikey:pub,authorization:'Bearer '+token},cache:'no-store'});
+  if(!caller.ok)return reject('Invalid staff session.',401);
+  const u=await caller.json();if(!u?.id)return reject('Invalid staff identity.',401);
+  const roles=await fetch(base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(u.id),{headers:h,cache:'no-store'});
+  if(!roles.ok)throw new Error('Unable to verify staff role');
+  if(!(await roles.json()).some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))
+   return reject('Only an OWNER can modify an Owner account.',403);
+  return null;
+ }catch{return reject('Owner-account authorization could not be verified. Mutation blocked.',503)}
+}
+async function apiMutationBoundary(context,url){
+  const {request,env}=context;
+  if(!url.pathname.startsWith('/api/')||['GET','HEAD','OPTIONS'].includes(request.method))return null;
+  const blockedOwner=await protectLegacyOwnerTarget(context,url);
+  if(blockedOwner)return blockedOwner;
+  const action=url.searchParams.get('action')||'';
+  // A legacy book checkout intent has no format or edition. Require the v0.13.5
+  // format-bound endpoint; leave pre-existing subscription checkout unchanged.
+  if(url.pathname==='/api/checkout'&&request.method==='POST'&&url.searchParams.get('action')==='create'){
+    let payload={};try{payload=await request.clone().json()}catch{}
+    if(payload.type==='book'||payload.type==='bundle')
+      return reject('Use the versioned format-aware book checkout.',409);
+  }
+  // The legacy helper fabricates a DOB for real members created with a temporary password.
+  // Invitations remain available while the identity-correctness fix is developed.
+  if(url.pathname==='/api/admin-v0134'&&action==='account_create'){
+    let body={};try{body=await request.clone().json()}catch{}
+    if(body.mode==='temporary_password')
+      return reject('Temporary-password account creation is temporarily disabled to prevent incorrect date-of-birth records. Use invitation mode.',503);
+  }
+  // The legacy v0.13.4 implementation issues REAL entitlements during Showcase creation.
+  // Block these issuance paths until the synthetic replacement is deployed and tested.
+  if(url.pathname==='/api/admin-v0134'&&action==='showcase_account_create')
+    return reject('Showcase creation is temporarily disabled pending synthetic-entitlement isolation.',503);
+  if(url.pathname==='/api/admin-v0134'&&action==='test_account_duplicate'){
+    // Preserve ordinary TEST duplication; block only a SHOWCASE-derived duplicate.
+    let body={};try{body=await request.clone().json()}catch{}
+    const target=clean(body.userId);
+    if(!/^[a-f0-9-]{36}$/i.test(target))return reject('Invalid duplicate account identifier.',400);
+    const base=clean(env.SUPABASE_URL).replace(/\/$/,'');
+    const secret=clean(env.SUPABASE_SECRET_KEY);
+    if(!base||!secret)return reject('Unable to verify test-account class.',503);
+    try{
+      const r=await fetch(base+'/rest/v1/test_account_profiles?select=preset_code&user_id=eq.'+encodeURIComponent(target)+'&limit=1',{
+        headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'
+      });
+      if(!r.ok)return reject('Unable to verify test-account class.',503);
+      const rows=await r.json();
+      if(rows.some(x=>x.preset_code==='SHOWCASE'))return reject('SHOWCASE duplication requires synthetic-only creation.',503);
+    }catch{return reject('Unable to verify test-account class.',503)}
+  }
+  if(url.pathname==='/api/admin-v0134'&&action==='test_account_create'){
+    let body={};try{body=await request.clone().json()}catch{}
+    if(String(body.presetCode||'').toUpperCase()==='SHOWCASE')
+      return reject('Showcase creation is temporarily disabled pending synthetic-entitlement isolation.',503);
+  }
+  const token=bearer(request);
+  if(!token)return null; // existing endpoint authentication handles missing tokens
+  try{
+    if(await showcaseIdentity(env,token))
+      return reject('SHOWCASE_VIEWER is read-only. Production API mutations are forbidden.',403);
+  }catch{return reject('Unable to verify mutation authorization. Request blocked.',503)}
+  return null;
+}
+// OWNER-controlled rollout: turn on REQUIRE_STAFF_AAL2_V135 ONLY after all staff
+// have verified TOTP factors. This prevents a production-owner lockout during setup.
+async function staffMfaBoundary(context,url){
+ if(context.env.REQUIRE_STAFF_AAL2_V135!=='true')return null;
+ const path=url.pathname.toLowerCase();
+ const staffPath=/^\/api\/admin(?:-[a-z0-9-]+)?$/.test(path)||
+    path==='/api/showcase-v0135'||path==='/api/book-catalog-v0135';
+ if(!staffPath)return null;
+ const token=bearer(context.request);
+ if(!token)return reject('Sign in before accessing staff operations.',401);
+ try{
+  const base=clean(context.env.SUPABASE_URL).replace(/\/$/,''),pub=clean(context.env.SUPABASE_PUBLISHABLE_KEY);
+  if(!base||!pub)return reject('Authentication service unavailable.',503);
+  const verified=await fetch(base+'/auth/v1/user',{headers:{apikey:pub,authorization:'Bearer '+token},cache:'no-store'});
+  if(!verified.ok)return reject('Invalid staff authentication session.',401);
+  const identity=await verified.json();if(!identity?.id)return reject('Invalid identity.',401);
+  const part=token.split('.')[1];if(!part)return reject('Invalid security token.',401);
+  let assurance='';try{assurance=JSON.parse(atob(part.replace(/-/g,'+').replace(/_/g,'/'))).aal||''}catch{}
+  if(assurance!=='aal2')return new Response(JSON.stringify({ok:false,error:'Staff access requires verified MFA (AAL2).',mfaRequired:true,mfaUrl:'/mfa-security.html'}),{status:403,headers:JSON_HEADERS});
+  return null;
+ }catch{return reject('Unable to verify staff authentication.',503)}
+}
+export async function onRequest(context){
+  const url=new URL(context.request.url),path=POLICY.canonicalPath(url.pathname),kind=POLICY.classify(path);
+  if(['/corrections.html','/corrections','/verification.html','/verification'].includes(path))
+    return Response.redirect(new URL('/',url),302);
+  if(['/forum.html','/forum'].includes(path))
+    return Response.redirect(new URL('/market-commons.html',url),302);
+  // Keep account.html as a protected legacy deep link. Navigation remains consolidated
+  // in Dashboard, but redirecting it here would lose the requested URL in next=.
+
+  // Never publish repository migrations, internal source, or release notes through Pages.
+  // Public JSON catalog files in /data/ remain deliberately accessible to the app.
+  const rawPath=url.pathname.toLowerCase();
+  if(rawPath.startsWith('/supabase/')||rawPath.startsWith('/docs/')||
+     rawPath.startsWith('/src/')||rawPath.startsWith('/workers/')||
+     rawPath.startsWith('/functions/')||rawPath==='/project_manifest.json'||
+     /\.(?:sql|md|mjs|py|ts|zip)$/i.test(rawPath))
+    return new Response('Not found.',{status:404,headers:{'cache-control':'no-store'}});
+
+  const mfaDenied=await staffMfaBoundary(context,url);
+  if(mfaDenied)return mfaDenied;
+  const denied=await apiMutationBoundary(context,url);
+  if(denied)return denied;
+  const upstream=await context.next();
+  const hardened=new Headers(upstream.headers);
+  hardened.set('x-content-type-options','nosniff');
+  hardened.set('referrer-policy','strict-origin-when-cross-origin');
+  hardened.set('x-frame-options','SAMEORIGIN');
+  if(url.protocol==='https:')hardened.set('strict-transport-security','max-age=86400');
+  const response=new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers:hardened});
+  const type=(response.headers.get('content-type')||'').toLowerCase();
+  if(!type.includes('text/html'))return response;
+  try{
+    const modified=new HTMLRewriter()
+      .on('head',{element(el){
+        if(POLICY.isProtected(path)){
+          // Style lives inside the HTML head and exists BEFORE any member DOM can render.
+          el.append('<style id="v1342-access-pending">html body{visibility:hidden!important}</style>',{html:true});
+        }
+        if(path==='/labs.html'||path==='/labs')
+          el.append('<style id="v011-lab-registry-gate">body{visibility:hidden}</style>',{html:true});
+        el.append('<meta name="theme-color" content="#061827">',{html:true});
+        el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
+        for(const file of [
+          'v0.11_platform.css','v0.13_production.css','v0.13_frontend_complete.css',
+          'v0.13.2-production-completion.css','v0.13.2.4-dashboard.css',
+          'v0.13.3-frontend-freeze.css','v0.13.4-polish.css','v0.13.4.1-mobile-auth.css','v0.13.5-learning.css','v0.13.5-integrity-fixes.css'
+        ])el.append('<link rel="stylesheet" href="/assets/css/'+file+'">',{html:true});
+        // Preserve application stack. New auth boundary owns final visibility, staff authorization, and logout.
+        for(const file of [
+          'v0.13.5.7.2-navigation.js','v0.13-production.js',
+          'v0.13_frontend_complete.js','v0.13.2-production-completion.js',
+          'v0.13.2.4-dashboard.js','v0.13.2.4-live-fixes.js',
+          'v0.13.3-frontend-freeze.js'
+        ])el.append('<script defer src="/assets/js/'+file+'"></script>',{html:true});
+        if(path==='/labs.html'||path==='/labs')el.append('<script defer src="/assets/js/v0.13.3-labs.js"></script>',{html:true});
+        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/v0.13.5.7.2-lab-narrative.js"></script>',{html:true});
+        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/v0.13.3-site-lab.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/v0.13.5.3-presence.js"></script>',{html:true});
+        if(path==='/'||path==='/index.html')el.append('<script defer src="/assets/js/v0.13.5.7.2-home-community.js"></script>',{html:true});
+        // Password validation and policy UI are part of assets/js/signup.js.
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.3-admin-community.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.4-admin.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin'){
+          el.append('<script defer src="/assets/js/v0.13.5-admin-showcase.js"></script>',{html:true});
+
+        }
+        if(['/store.html','/membership.html','/store','/membership','/admin.html','/admin'].includes(path))el.append('<script defer src="/assets/js/v0.13.5.7.2-commerce-presentation.js"></script>',{html:true});
+        if(path==='/dashboard.html'||path==='/dashboard')el.append('<script defer src="/assets/js/v0.13.5.7.2-member-dashboard.js"></script>',{html:true});
+        
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.7.2-admin-operations.js"></script>',{html:true});
+        if(path==='/ondemand-training.html'||path==='/ondemand-training')el.append('<script defer src="/assets/js/v0.13.5-replay-journal.js"></script>',{html:true});
+        if(path==='/signin.html'||path==='/signin'||path==='/create-account.html'||path==='/create-account')el.append('<script defer src="/assets/js/v0.13.5-turnstile-auth.js"></script>',{html:true});
+        if(['/admin','/admin.html','/market-commons','/market-commons.html'].includes(path))el.append('<script defer src="/assets/js/v0.13.5-layout-integrity.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/v0.13.4.2-auth-boundary.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/v0.13.5-links.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.4-admin-core.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.5-accounts-access.js"></script>',{html:true});
+        // Dashboard desktop tabs now wrap in existing CSS; the former DOM deduplicator is retired.
+        
+        el.append('<script defer src="/assets/js/v0.13.5.4-branding.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.7.2-admin-operations.css">',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.4-control-center.css">',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.5-accounts-and-lab-preview.css">',{html:true});
+        el.append('<script defer src="/assets/js/v0.13.5-service-worker.js"></script>',{html:true});
+      }})
+      .on('body',{element(el){
+        el.setAttribute('data-build','v0.13.5.7.2');
+        el.setAttribute('data-route-access',kind);
+        if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
+        if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
+      }})
+      .transform(response);
+    if(POLICY.isProtected(path)){
+      const result=new Response(modified.body,modified);
+      result.headers.set('cache-control','private, no-store, max-age=0');
+      result.headers.set('pragma','no-cache');
+      result.headers.set('x-robots-tag','noindex, nofollow');
+      result.headers.delete('content-length');
+      return result;
+    }
+    return modified;
+  }catch(error){
+    if(POLICY.isProtected(path))return new Response('Protected page unavailable.',{status:503,headers:{'cache-control':'no-store'}});
+    return response;
+  }
+}
