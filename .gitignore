@@ -1,0 +1,15 @@
+# Local Cloudflare Pages build output
+/public/
+# Local secrets (not for Git)
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+# Tool caches
+__pycache__/
+.pytest_cache/
+node_modules/
+.DS_Store

@@ -1,0 +1,26 @@
+requested_or_committed,status,evidence,remaining_acceptance
+Cloudflare Pages + Supabase Auth,LIVE VERIFIED v0.13.5.7.2,Owner screenshot: signed in and public member-statistics returns live result,Check v0.13.5.7.4 preview; restore original encrypted keys if used
+One Dashboard in profile menu,LIVE SCREENSHOT PASS v0.13.5.7.2,Owner screenshot shows exactly one Dashboard,Retest after navigation filename rename
+Owner/Admin Accounts listing,LIVE SCREENSHOT PASS v0.13.5.7.2,4 accounts displayed and OWNER badge,Test writes with exact Owner/ADMIN authorization and audit log
+"Accounts create/edit/delete, Owner-only Owner edits",SOURCE IMPLEMENTED; LIVE WRITES UNVERIFIED,"Admin account modules, Owner middleware","Test each role and type, password one-time viewing, avoid displaying existing hashes"
+"Account roles, membership dates, password policy",SOURCE IMPLEMENTED; LIVE WRITES UNVERIFIED,UI and versioned API handlers,Inspect deployed Supabase ACL/RPC; verify password server policy
+"Showcase synthetic read-only, real entitlements prohibited",RISK CONTROL SOURCE PRESENT; NOT END TO END VERIFIED,Legacy showcase creation blocked; synthetic API disabled,Test side-effect-free preview and server/RLS safeguards; remain OFF
+Member Dashboard skills snapshot and tab,LIVE SCREENSHOT PARTIAL,Skill snapshot and Skill Development tab visible,"Verify skill click-through opens correct curriculum, assessments and progress"
+"Historical Lab Registry per book/site, 50/page",SOURCE VERIFIED; BOOK II COUNT LIVE,46 Foundations Book II; no initial all-Labs fetch,"Test other collections and member RLS, pagination, View/Edit"
+Learning Operations scoped by selected book,LIVE SCREENSHOT PASS FOR BOOK II,46/46/46 in Admin,Verify selected collection persists to Lab Registry; analytics consistency
+Member Lab View vs Owner Edit,SOURCE IMPLEMENTED; LIVE UNVERIFIED,Distinct preview/edit paths,Confirm read-only display never modifies member progress
+419 catalog IDs + 94 original Foundations IDs,STATIC VERIFIED,Catalog and original data,Independent provenance of 297 not market-date verified; licensed data for 122 candidate events
+Market Commons navigation + moderation,PARTIAL LIVE,Forum loads; collision observed on v0.13.5.7.2,Verify fixes in v0.13.5.7.3 and stable filename update; moderation role test
+Homepage live/custom stats,PARTIAL LIVE,Stats API true 4 registered / 1 online at test time; placeholders in screenshot,v0.13.5.7.3 async fix needs live confirmation
+Homepage proportions/responsive layout,LOCAL TEST ONLY,v0.13.5.7.3 CSS changes pass mocks,"Preview at desktop/tablet/mobile, no nav overlap"
+"Book status Selling/On Sale, discounts",SOURCE/DB CONTRACT UNVERIFIED,Admin book sales and controls retained,Do not equate owner label with confirmed KDP publication; verify prices
+Membership monthly/annual/lifetime/flex/replay,LIVE DISPLAY ONLY,Admin prices including $19.99 Replay and $0 Flex base,"Do not enable checkout until provider, entitlements and price consistency verified"
+KDP Select prevents direct digital book sale,SOURCE SAFEGUARD PRESENT; LIVE UNVERIFIED,Backend settings and flags preserved,Independent Kindle enrollment/renewal check per title; keep checkout OFF
+Website Builder visual editor,NOT IMPLEMENTED END TO END,Existing text/CMS fields and Site Settings,Build proper auth/sanitization/publish workflow; not a working drag-drop designer
+Branding / CMS / SEO / marketing / forms/leads,PARTIAL SOURCE,Config/screens/backend drafts,Provider integration and production publishing require acceptance
+Site automation + integrations,NOT FULLY IMPLEMENTED,Draft rule configs and readiness metadata,No scheduler/automation execution yet
+Backups / restoration,NOT FULLY IMPLEMENTED,Nonsecret config export only,"Verified DB backups, restore rehearsal and access controls absent"
+Member Tutor / Simulator / OnDemand guided replay / journal,SOURCE PRESENT; LIVE/LEGAL VALIDATION PENDING,UI/APIs and learning record structures,"Historical data accuracy, licensing, replay no-lookahead, data provider"
+QR book activation,LOCKED OFF,Existing key mechanisms; no live activation,"Owner-approved book link/QR later, not included in publication master changes"
+Paid checkout / mandatory CAPTCHA / mandatory MFA,LOCKED OFF,Feature flags OFF; no checkout go-live,Never enable without Owner explicit decision and acceptance
+Cloudflare Pages deployment build,NEW BUILD COMMAND REQUIRED,Build script included; old command references retired catalog filename,Owner must update Build command and test preview; output public

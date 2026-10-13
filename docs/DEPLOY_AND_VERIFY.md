@@ -1,33 +1,44 @@
-# Deploy v0.13.5.7.2 — Whole-Repository Clean Baseline
+# Owner Deployment and Verification — Current Candidate
 
-**Status: CANDIDATE — no live deployment or live DB verification.** This document supersedes earlier baseline upload instructions, without deleting their historical audit documents.
+**Candidate ZIP version:** v0.13.5.7.4. **Not deployed or live tested.** Based on the Owner's working v0.13.5.7.2 deployment plus all v0.13.5.7.3 stabilization corrections.
 
-## If you recreated an EMPTY GitHub repository
+## Before uploading to GitHub — Cloudflare Pages build command WILL need updating
 
-1. Preserve the original GitHub and Supabase backups. Download `Stock_Market_From_The_Ground_Up_v0.13.5.7.2_JS_CSS_CONSOLIDATED_CLEAN_BASELINE.zip`.
-2. Extract locally; use GitHub Desktop to clone `cybernexuspublishing/stock-market-from-the-ground-up` and copy **all extracted contents** directly into its root. Do not upload the ZIP as a single file; do not nest everything under a version-number folder. Do not copy over `.git`.
-3. Before publishing publicly, verify no private `.env`, keys, backend secrets or credentials were accidentally included. Public frontend Supabase keys are not server service-role secrets.
-4. Commit `v0.13.5.7.2 - Consolidated repository clean baseline` and push to `main` (or a preview branch if one is available). If possible, obtain a Cloudflare preview first.
-5. Keep the existing **Cloudflare Pages project** and **existing Supabase project** unchanged. Re-creation of GitHub changes the repository identity; check and, if necessary, reconnect Cloudflare's Git integration rather than deleting the Cloudflare project.
-6. Confirm that `index.html`, `assets/`, `functions/`, `supabase/`, `data/`, and `docs/` are in the GitHub root. Cloudflare Pages should deploy static root assets and file-based Functions as before; preserve build/output directory settings from the old project.
-7. Check the Cloudflare deployment logs for Success. Refresh browser using Ctrl+Shift+R. If old SW is active, check Service Workers under Developer Tools and verify that the newest `/sw-v0135.js` takes control without exposing cached private pages.
+The old Cloudflare Pages build command referenced a release-numbered Lab JSON filename that is now retired. In your **existing** Cloudflare Pages project, change **Settings → Builds & deployments → Build configuration → Build command** to:
 
-## Do not reinstall Supabase
+```sh
+bash scripts/build-pages.sh
+```
 
-You are only replacing GitHub. Previously executed database migrations and Auth users are not touched by the repository upload. **Do not rerun the full historical SQL set.** Run the *read-only* `supabase/admin/v0.13.5.6_DATABASE_CONTRACT_READ_ONLY.sql` and resolve any missing object/ACL before relying on Owner grants or checkout. If verification reports missing migrations, obtain the exact original SQL and compare it with production before applying anything.
+Keep production branch `main`, root directory blank, output directory `public`, and your existing environment variables/secrets. The new build script excludes backend SQL, internal `docs/`, source TS, and tests from the publicly served output. If using a preview branch, first ensure its build configuration supports this command. Do not switch Pages to Workers.
 
-## Required acceptance before calling this release live
+## One-time GitHub asset-name migration — required ONLY this release
 
-- Home `/`: actual member totals/online panel appears to the left of the current Home hero (unless Owner configured it hidden), with one fetch/one scheduled refresh, and custom metrics clearly labeled.
-- Signed-in Header: **one Dashboard link** under username, with correct Owner/Admin link, keyboard focus/hover/touch, and one mobile drawer.
-- Registration: password guidance appears once; 10–120 chars, upper/lowercase and approved special symbol; confirm password; check Supabase server password policy matches.
-- Admin → Accounts & Access: existing Full Account editor launches; role and membership records remain authorized and unchanged.
-- Books & Sales / Store / Membership: same product details, promotional price controls, and Replay monthly price; checkout remains disabled and KDP Select safeguards remain enforced.
-- Site Lab Registry: book-specific 50-Lab server pagination; shared WHAT/WHY/WHEN/OBJECTIVE/HOW renderer displays correctly for learner Lab and read-only Owner Lab Preview. The latter must not save anything.
-- Learning Operations: Book-specific lists and 50-per-page pagination; existing snapshots and feature controls still visible.
-- Security: no mandatory staff MFA/CAPTCHA/QR activation/paid checkout activated, Showcase synthetic-only, no production member entitlement grants by Showcase.
-- Role, mobile, service-worker, browser console/network and DB contract tests MUST be performed on live Cloudflare/Supabase; local mocked tests do not prove their outcomes.
+1. Preserve current working `main` commit/backup for rollback. Do not delete or recreate any GitHub repository, Cloudflare Pages project, or Supabase database.
+2. Create a local branch from the existing GitHub repository in GitHub Desktop, preferably `release/stable-filenames`.
+3. Extract the complete ZIP; copy **contents** directly to local repository root. Overwrite same-named files. Do not copy `public/` (none is included) and do not overwrite `.git`.
+4. **IMPORTANT: Copying new names over old names does not delete the obsolete old names.** Run `scripts/cleanup-retired-assets.ps1` (dry-run). After confirming the new files are present, run `scripts/cleanup-retired-assets.ps1 -Apply` from your PowerShell session. If you do not use PowerShell, delete the precise old source paths listed in `docs/ASSET_RENAME_MAP.csv` and `docs/RETIRE_PRIOR_BASELINE_FILES.csv`. Keep the `sw-v0135.js` compatibility shim.
+5. Verify GitHub Desktop reports deleted old source asset paths and added new stable paths, with no accidental deletion of `functions/api/` or `supabase/migrations/`.
+6. Commit to the temporary branch, push, and verify the Cloudflare **preview** deployment. Uploading extracted files using GitHub's website does *not* automatically remove the old tracked paths.
+7. Once preview acceptance passes, merge/promote the branch to `main` using your normal manual workflow. Cloudflare should deploy it automatically with the new build script.
+
+## Critical acceptance checks
+
+- Anonymous routes, homepage hero/nav, member stats, sign-in, create account, password reset, safe redirect, and narrow/mobile views.
+- One Dashboard entry under profile, Owner Admin entry only for authorized roles, keyboard/hover/touch menu operation, no Market Commons header overlap.
+- Dashboard Skill Development tab/Activity tab one-row scroll, member entitlement counts, protected-route redirects, no private page caching.
+- Admin: Accounts list and Owner controls, account View/Edit, role restrictions, memberships and price display (checkout stays OFF).
+- Learning Operations: no initial all-Labs request; selecting Foundations Book II shows 46; each book/site group scopes results and pages 50 per request. Lab View remains read-only; Edit separate; member progress unaffected.
+- Existing API paths still respond (`/api/username-login`, `/api/home-member-stats-v01353`, `/api/admin-operations-v0135` under proper authorization).
+- Browser stale-cache test after SW upgrades from old `/sw-v0135.js` and older shims; old static asset redirects resolve. Verify actual Cloudflare headers, redirects and CSP.
+- No active payment checkout/QR activation/Showcase provisioning/mandatory MFA/mandatory Turnstile. Never publish KDP Select titles via direct digital sale while exclusivity applies.
+
+## Supabase and operational safeguards
+
+Keep the same Supabase project and values of encrypted credentials. **Do not rerun SQL migrations**. The read-only `supabase/admin/database-contract-read-only.sql` checks object/column availability without assuming that an optional checkout_enabled column exists. It is not a substitute for actual authorized production RLS tests. Missing historical v0.13.5.4 / v0.13.5.5 migration SQL sources remain unresolved. No live database was modified by this release.
 
 ## Recovery
 
-Because you recreated GitHub, preserve the old repository ZIP locally. To recover from a failed Cloudflare deployment, restore the previous working source as a Git commit and redeploy; this does not reverse database changes. Never delete your Supabase/Cloudflare projects as a shortcut.
+Restore the prior GitHub commit and previous Cloudflare build command if rollback is required. Revert source and build settings only; preserve authentication records, passwords, membership purchases, Supabase roles, and existing encrypted key values.
+
+See `docs/PROMISES_AND_READINESS_MATRIX.csv` for requested features, source/readiness evidence and missing work before public launch. Treat unimplemented features as **not complete**, not aspirational filler.

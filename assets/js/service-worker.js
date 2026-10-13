@@ -3,7 +3,7 @@
   if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   window.addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('/sw-v0135.js',{scope:'/',updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('/sw.js',{scope:'/',updateViaCache:'none'});
       await reg.update();
       if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
       navigator.serviceWorker.addEventListener('controllerchange',()=>{

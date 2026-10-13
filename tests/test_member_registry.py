@@ -2,12 +2,12 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 R=Path(__file__).resolve().parents[1]
 html='''<!doctype html><html><head><meta charset="utf-8"></head><body><main><div class="wrap"><h1>Lab Registry</h1><p>Choose collection</p></div></main></body></html>'''
-s=(R/'assets/js/v0.13.3-labs.js').read_text().replace("const path=location.pathname.toLowerCase();if(!/^\\/labs(?:\\.html)?$/.test(path))return;","const path='/labs.html';")
+s=(R/'assets/js/lab-registry.js').read_text().replace("const path=location.pathname.toLowerCase();if(!/^\\/labs(?:\\.html)?$/.test(path))return;","const path='/labs.html';")
 with sync_playwright() as w:
  browser=w.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  for width in (1440,390):
   page=browser.new_page(viewport={'width':width,'height':860});errs=[];page.on('pageerror',lambda e:errs.append(str(e)))
-  page.set_content(html);page.add_style_tag(path=str(R/'assets/css/v0.13.5.4-control-center.css'))
+  page.set_content(html);page.add_style_tag(path=str(R/'assets/css/control-center.css'))
   page.evaluate('''() => {
     window.queries=[];
     window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{user:{id:'00000000-0000-4000-8000-000000000001'}}}})},from:(table)=>{

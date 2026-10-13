@@ -1,0 +1,15 @@
+old_path,replacement_path
+docs/CHANGESET_v0.13.5.7.3.json,docs/CHANGESET.json
+docs/CONSOLIDATION_v0.13.5.7.2.md,docs/CONSOLIDATION.md
+docs/QA_v0.13.5.7.2.md,docs/QA_PREVIOUS.md
+docs/QA_v0.13.5.7.3.md,docs/QA_STABILIZATION.md
+docs/RETIRED_ASSET_MANIFEST_v0.13.5.7.2.csv,docs/RETIRED_ASSET_MANIFEST.csv
+docs/STABILIZATION_v0.13.5.7.3.md,docs/STABILIZATION.md
+docs/repository-remediation/v0.13.5.6_LAB_EVIDENCE_INVENTORY.csv,docs/repository-remediation/LAB_EVIDENCE_INVENTORY.csv
+supabase/admin/v0.13.5.6_DATABASE_CONTRACT_READ_ONLY.sql,supabase/admin/database-contract-read-only.sql
+tests/test_header_geometry_v013573.py,tests/test_header_geometry.py
+tests/test_mfa_rollout_policy_v013573.mjs,tests/test_mfa_rollout_policy.mjs
+tests/test_stabilization_v013573.py,tests/test_stabilization.py
+docs/FILE_HASHES_v0.13.5.7.1.csv,docs/FILE_HASHES.csv
+docs/FILE_HASHES_v0.13.5.7.2.csv,docs/FILE_HASHES.csv
+docs/FILE_HASHES_v0.13.5.7.3.csv,docs/FILE_HASHES.csv

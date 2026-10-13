@@ -8,7 +8,7 @@ all_files=[x for x in R.rglob('*') if x.is_file()]
 paths={p.relative_to(R).as_posix() for p in all_files}
 print('PASS 1 — Archive layout',len(paths),'source files at repository root')
 assert all(not s.startswith(('UPLOAD_TO_REPOSITORY_ROOT/','stock-market-from-the-ground-up-main/')) for s in paths)
-assert {'index.html','admin.html','dashboard.html','labs.html','functions/_middleware.js','assets/js/v0.13.5.7.2-navigation.js','sw-v0135.js','v0.13.3_LAB_CATALOG.json','data/interactive-labs.json','PROJECT_ADVANCED_ENGINEERING_RULES.md'}<=paths
+assert {'index.html','admin.html','dashboard.html','labs.html','functions/_middleware.js','assets/js/navigation.js','sw.js','lab-catalog.json','data/interactive-labs.json','PROJECT_ADVANCED_ENGINEERING_RULES.md'}<=paths
 assert not any(x.endswith('README_v0.13.5.1_Admin_Account_Management.md') for x in paths)
 assert 'v0.13.5.1_RELEASE_MANIFEST.json' not in paths
 # Source / syntax / JSON
@@ -29,22 +29,22 @@ for f in R.rglob('*.html'):
   if p.endswith(('.js','.css','.webmanifest','.svg','.webp','.jpg','.jpeg','.png','.ico')) and p not in paths:missing.append((str(f.relative_to(R)),p))
 assert not missing,missing[:25]
 # Registry and web service source must not permit global initial Lab fetch
-u=(R/'assets/js/v0.13.3-labs.js').read_text();a=(R/'functions/api/admin-site-v01354.js').read_text();old=(R/'functions/api/admin-operations-v0135.js').read_text()
+u=(R/'assets/js/lab-registry.js').read_text();a=(R/'functions/api/admin-site-v01354.js').read_text();old=(R/'functions/api/admin-operations-v0135.js').read_text()
 for name,body in [('member',u),('admin',a),('legacy',old)]:
  assert 'book_code' in body and ('PAGE_SIZE=50' in body or 'perPage=50' in body),(name,'unbounded')
 assert "if(!LAB_BOOKS.has(book))throw fail" in a
 assert "if(!LAB_BOOKS.has(book))throw problem" in old
 print('PASS 3 — HTML assets resolve, lab views are scoped/book-paged')
 # Curriculum ids intact and under explicit provenance boundary
-catalog=json.loads((R/'v0.13.3_LAB_CATALOG.json').read_text())['labs']
+catalog=json.loads((R/'lab-catalog.json').read_text())['labs']
 foundation=json.loads((R/'data/interactive-labs.json').read_text());assert len(catalog)==419
 assert len({x['lab_id'] for x in catalog})==419
 assert len(foundation)==94 and {x['id'] for x in foundation}<={x['lab_id'] for x in catalog}
 assert sum(1 for x in catalog if x.get('ticker') and x.get('historical_date'))==122
 # No protected routes from cache, old active worker retained
-sw=(R/'sw-v0135.js').read_text();assert 'groundup-v01357-public' in sw
+sw=(R/'sw.js').read_text();assert 'groundup-v013574-public' in sw
 assert "POLICY.isProtected(p)" in sw and "fetch(req,{cache:'no-store'})" in sw
-assert "'/admin-lab-preview'" in (R/'assets/js/v0.13.4.2-route-policy.js').read_text() or "'admin-lab-preview'" in (R/'assets/js/v0.13.4.2-route-policy.js').read_text()
+assert "'/admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text() or "'admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text()
 assert 'Legacy Showcase provisioning is disabled' in (R/'functions/api/admin-v0134.js').read_text()
 print('PASS 4 — 419 Lab IDs, 94 frozen foundations, SW private-route restriction, Showcase guard')
 # Entire source inventory file includes original input dispositions

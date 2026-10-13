@@ -1,7 +1,7 @@
 /* The Stock Market: From the Ground Up — v0.13.4.2 controlled security repair.
  * Route policy is shared with the service worker; private data remains secured at API/RLS level.
  * Retain historical application enhancers in their approved order. */
-import '../assets/js/v0.13.4.2-route-policy.js';
+import '../assets/js/route-policy.js';
 const POLICY=globalThis.GroundUpRoutePolicy;
 const JSON_HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'no-store'};
 const reject=(message,status=403)=>new Response(JSON.stringify({ok:false,error:message}),{status,headers:JSON_HEADERS});
@@ -176,50 +176,50 @@ export async function onRequest(context){
         el.append('<meta name="theme-color" content="#061827">',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
         for(const file of [
-          'v0.11_platform.css','v0.13_production.css','v0.13_frontend_complete.css',
-          'v0.13.2-production-completion.css','v0.13.2.4-dashboard.css',
-          'v0.13.3-frontend-freeze.css','v0.13.4-polish.css','v0.13.4.1-mobile-auth.css','v0.13.5-learning.css','v0.13.5-integrity-fixes.css'
+          'platform.css','production.css','frontend-complete.css',
+          'production-completion.css','dashboard.css',
+          'frontend-freeze.css','polish.css','mobile-auth.css','learning.css','layout-integrity.css'
         ])el.append('<link rel="stylesheet" href="/assets/css/'+file+'">',{html:true});
         // Preserve application stack. New auth boundary owns final visibility, staff authorization, and logout.
         for(const file of [
-          'v0.13.5.7.2-navigation.js','v0.13-production.js',
-          'v0.13_frontend_complete.js','v0.13.2-production-completion.js',
-          'v0.13.2.4-dashboard.js','v0.13.2.4-live-fixes.js',
-          'v0.13.3-frontend-freeze.js'
+          'navigation.js','production.js',
+          'frontend-complete.js','production-completion.js',
+          'dashboard-ui-legacy.js','live-fixes.js',
+          'frontend-freeze.js'
         ])el.append('<script defer src="/assets/js/'+file+'"></script>',{html:true});
-        if(path==='/labs.html'||path==='/labs')el.append('<script defer src="/assets/js/v0.13.3-labs.js"></script>',{html:true});
-        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/v0.13.5.7.2-lab-narrative.js"></script>',{html:true});
-        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/v0.13.3-site-lab.js"></script>',{html:true});
-        el.append('<script defer src="/assets/js/v0.13.5.3-presence.js"></script>',{html:true});
-        if(path==='/'||path==='/index.html')el.append('<script defer src="/assets/js/v0.13.5.7.2-home-community.js"></script>',{html:true});
+        if(path==='/labs.html'||path==='/labs')el.append('<script defer src="/assets/js/lab-registry.js"></script>',{html:true});
+        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/lab-narrative.js"></script>',{html:true});
+        if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/site-lab-experience.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/presence.js"></script>',{html:true});
+        if(path==='/'||path==='/index.html')el.append('<script defer src="/assets/js/home-community.js"></script>',{html:true});
         // Password validation and policy UI are part of assets/js/signup.js.
-        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.3-admin-community.js"></script>',{html:true});
-        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.4-admin.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-community.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-enhancements.js"></script>',{html:true});
         if(path==='/admin.html'||path==='/admin'){
-          el.append('<script defer src="/assets/js/v0.13.5-admin-showcase.js"></script>',{html:true});
+          el.append('<script defer src="/assets/js/admin-showcase.js"></script>',{html:true});
 
         }
-        if(['/store.html','/membership.html','/store','/membership','/admin.html','/admin'].includes(path))el.append('<script defer src="/assets/js/v0.13.5.7.2-commerce-presentation.js"></script>',{html:true});
-        if(path==='/dashboard.html'||path==='/dashboard')el.append('<script defer src="/assets/js/v0.13.5.7.2-member-dashboard.js"></script>',{html:true});
+        if(['/store.html','/membership.html','/store','/membership','/admin.html','/admin'].includes(path))el.append('<script defer src="/assets/js/commerce-presentation.js"></script>',{html:true});
+        if(path==='/dashboard.html'||path==='/dashboard')el.append('<script defer src="/assets/js/member-dashboard.js"></script>',{html:true});
         
-        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.7.2-admin-operations.js"></script>',{html:true});
-        if(path==='/ondemand-training.html'||path==='/ondemand-training')el.append('<script defer src="/assets/js/v0.13.5-replay-journal.js"></script>',{html:true});
-        if(path==='/signin.html'||path==='/signin'||path==='/create-account.html'||path==='/create-account')el.append('<script defer src="/assets/js/v0.13.5-turnstile-auth.js"></script>',{html:true});
-        if(['/admin','/admin.html','/market-commons','/market-commons.html'].includes(path))el.append('<script defer src="/assets/js/v0.13.5-layout-integrity.js"></script>',{html:true});
-        el.append('<script defer src="/assets/js/v0.13.4.2-auth-boundary.js"></script>',{html:true});
-        el.append('<script defer src="/assets/js/v0.13.5-links.js"></script>',{html:true});
-        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.4-admin-core.js"></script>',{html:true});
-        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/v0.13.5.5-accounts-access.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-operations.js"></script>',{html:true});
+        if(path==='/ondemand-training.html'||path==='/ondemand-training')el.append('<script defer src="/assets/js/replay-journal.js"></script>',{html:true});
+        if(path==='/signin.html'||path==='/signin'||path==='/create-account.html'||path==='/create-account')el.append('<script defer src="/assets/js/turnstile-auth.js"></script>',{html:true});
+        if(['/admin','/admin.html','/market-commons','/market-commons.html'].includes(path))el.append('<script defer src="/assets/js/layout-integrity.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/auth-boundary.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/links.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-core.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/accounts-access.js"></script>',{html:true});
         // Dashboard desktop tabs now wrap in existing CSS; the former DOM deduplicator is retired.
         
-        el.append('<script defer src="/assets/js/v0.13.5.4-branding.js"></script>',{html:true});
-        if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.7.2-admin-operations.css">',{html:true});
-        el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.4-control-center.css">',{html:true});
-        el.append('<link rel="stylesheet" href="/assets/css/v0.13.5.5-accounts-and-lab-preview.css">',{html:true});
-        el.append('<script defer src="/assets/js/v0.13.5-service-worker.js"></script>',{html:true});
+        el.append('<script defer src="/assets/js/branding.js"></script>',{html:true});
+        if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/admin-operations.css">',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/control-center.css">',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/accounts-and-lab-preview.css">',{html:true});
+        el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.13.5.7.2');
+        el.setAttribute('data-build','v0.13.5.7.4');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');

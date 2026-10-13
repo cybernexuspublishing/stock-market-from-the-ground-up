@@ -22,7 +22,7 @@ A GitHub commit ancestry check confirms the old skill-development/Showcase branc
 
 ## Unique old-branch file: `sw-v0131.js`
 
-Of 291 old-branch files, **only `sw-v0131.js` was missing from the GitHub `main` tree**. It had been deleted in a later commit. The historic implementation cached broad navigation responses and **must not** be restored literally. This baseline adds a minimal compatibility shim under the same URL that imports the current security-aware `sw-v0135.js` implementation. This preserves potential pre-upgrade clients while avoiding the original broad HTML caching policy. All other runtime functionality from that branch was already incorporated into `main` or upgraded after its merge. Not every older release note/test document is included: they were deliberately archived in the Owner's separate backup and source Git history.
+Of 291 old-branch files, **only `sw-v0131.js` was missing from the GitHub `main` tree**. It had been deleted in a later commit. The historic implementation cached broad navigation responses and **must not** be restored literally. This baseline adds a minimal compatibility shim under the same URL that imports the current security-aware `sw.js` implementation. This preserves potential pre-upgrade clients while avoiding the original broad HTML caching policy. All other runtime functionality from that branch was already incorporated into `main` or upgraded after its merge. Not every older release note/test document is included: they were deliberately archived in the Owner's separate backup and source Git history.
 
 ## Critical missing state not solved by comparing Git branches
 
@@ -31,7 +31,7 @@ Of 291 old-branch files, **only `sw-v0131.js` was missing from the GitHub `main`
 - `supabase/migrations/v0.13.5.4_INTELLIGENT_CONTROL_CORE.sql`
 - `supabase/migrations/v0.13.5.5_OWNER_MANUAL_ENTITLEMENTS.sql`
 
-This baseline retains `supabase/admin/v0.13.5.6_DATABASE_CONTRACT_READ_ONLY.sql` and prior historic migrations that were actually available. **Do not synthesize, execute, or replay missing migrations** without comparing against the deployed Supabase schema, permissions, functions and records. SQL in Git is not automatically executed by Cloudflare Pages.
+This baseline retains `supabase/admin/database-contract-read-only.sql` and prior historic migrations that were actually available. **Do not synthesize, execute, or replay missing migrations** without comparing against the deployed Supabase schema, permissions, functions and records. SQL in Git is not automatically executed by Cloudflare Pages.
 
 ## Scope and meaning of completeness
 

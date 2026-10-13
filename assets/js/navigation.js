@@ -112,6 +112,10 @@
       ['Purchases & Billing','/dashboard.html?tab=billing'],
       ['Activity','/dashboard.html?tab=activity'],
       ['Historical Labs','/labs.html'],
+      ['Replay Training','/ondemand-training.html'],
+      ['Skill Assessments','/assessments.html'],
+      ['Books & Previews','/book-preview.html'],
+      ['Security / MFA','/mfa-security.html'],
       ['Simulator','/simulator.html'],
       ['Trading Journal','/journal.html'],
       ['Market Tutor','/market-tutor.html'],
@@ -360,8 +364,8 @@
   async function publicSettings(force=false){if(siteSettingsCache&&!force)return siteSettingsCache;const rows=await publicRows('site_settings','setting_key,value,public_read','setting_key');siteSettingsCache=Object.fromEntries(rows.filter(x=>x.public_read!==false).map(x=>[x.setting_key,x.value]));return siteSettingsCache}
 
   function styles(){
-    if(document.querySelector('link[href*="v0.11_platform.css"]'))return;
-    const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/v0.11_platform.css';document.head.appendChild(l);
+    if(document.querySelector('link[href*="platform.css"]'))return;
+    const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/platform.css';document.head.appendChild(l);
   }
 
   function removeLegacy(){
@@ -479,12 +483,12 @@
     };
     for(const k of Object.keys(groups))if(!groups[k].length)groups[k]=fallback[k];
     const render=i=>navLink(i.label,i.href,i.tool_code,a);
-    const learn=`<div class="v11-nav-group"><button class="v11-nav-button" type="button">Learn <span aria-hidden="true">▾</span></button><div class="v11-menu">${groups.learn.map(render).join('')}</div></div>`;
-    const tools=`<div class="v11-nav-group v12-tools-group"><button class="v11-nav-button" type="button">Tools <span aria-hidden="true">▾</span></button><div class="v11-menu v12-mega-menu"><section><div class="v12-menu-title">Trade Lab</div>${groups.trade.map(render).join('')}</section><section><div class="v12-menu-title">Research</div>${groups.research.map(render).join('')}</section></div></div>`;
+    const learn=`<div class="v11-nav-group"><button class="v11-nav-button" type="button">Learn <span aria-hidden="true">▾</span></button><div class="v11-menu">${groups.learn.map(render).join('')}<a href="/assessments.html">Skill Assessments</a><a href="/book-preview.html">Books &amp; Previews</a></div></div>`;
+    const tools=`<div class="v11-nav-group v12-tools-group"><button class="v11-nav-button" type="button">Tools <span aria-hidden="true">▾</span></button><div class="v11-menu v12-mega-menu"><section><div class="v12-menu-title">Trade Lab</div>${groups.trade.map(render).join('')}<a href="/ondemand-training.html">Replay Training</a></section><section><div class="v12-menu-title">Research</div>${groups.research.map(render).join('')}</section></div></div>`;
     let profile='';
     if(signed){
       const roles=staffPublic(a.staffRoles);const username=a.username||window.__siteUsername||document.querySelector('.account-trigger')?.textContent?.replace(/[▾@]/g,'').trim()||'Account';
-      profile=`<div class="v11-nav-group v11-profile-group v13-profile-hover"><button class="v11-nav-button v12-profile-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v1356-account-menu">@${esc(username)} <span aria-hidden="true">▾</span></button><div class="v11-menu v13-profile-menu" id="v1356-account-menu"><div class="v11-profile-summary"><strong>${esc(shortPlan(a))}</strong><span>${a.renewsAt?'Renews in '+countdown(a.renewsAt):a.expiresAt?'Expires in '+countdown(a.expiresAt):a.planCode==='LIFETIME'||roles.includes('OWNER')?'Never expires':''}</span>${roles.length?`<div class="v11-staff-badges">${roles.map(r=>`<span class="v11-badge staff">${esc(staffLabel(r))}</span>`).join('')}</div>`:''}</div><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership &amp; Access</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=billing">Purchases &amp; Billing</a><a href="dashboard.html?tab=settings">Settings</a><a href="dashboard.html?tab=support">Support</a>${a.controlPanel?'<a href="admin.html">Admin Control Center</a>':''}<a href="#" id="v11-signout">Sign Out</a></div></div>`;
+      profile=`<div class="v11-nav-group v11-profile-group v13-profile-hover"><button class="v11-nav-button v12-profile-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v1356-account-menu">@${esc(username)} <span aria-hidden="true">▾</span></button><div class="v11-menu v13-profile-menu" id="v1356-account-menu"><div class="v11-profile-summary"><strong>${esc(shortPlan(a))}</strong><span>${a.renewsAt?'Renews in '+countdown(a.renewsAt):a.expiresAt?'Expires in '+countdown(a.expiresAt):a.planCode==='LIFETIME'||roles.includes('OWNER')?'Never expires':''}</span>${roles.length?`<div class="v11-staff-badges">${roles.map(r=>`<span class="v11-badge staff">${esc(staffLabel(r))}</span>`).join('')}</div>`:''}</div><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership &amp; Access</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=billing">Purchases &amp; Billing</a><a href="dashboard.html?tab=settings">Settings</a><a href="/mfa-security.html">Security / MFA</a><a href="dashboard.html?tab=support">Support</a>${a.controlPanel?'<a href="admin.html">Admin Control Center</a>':''}<a href="#" id="v11-signout">Sign Out</a></div></div>`;
     }
     const top=groups.top.map(i=>`<a class="v12-top-link ${esc(i.style_variant||'')}" href="${esc(safeNavHref(i.href||'#'))}">${esc(i.label)}</a>`).join('');
     nav.className='navlinks v11-nav v12-nav';nav.dataset.v11Owned='1';

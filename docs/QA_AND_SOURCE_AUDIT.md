@@ -5,8 +5,8 @@
 ## Confirmed improvements
 
 1. The v0.11 profile navigation remains the **authoritative desktop renderer**. Duplicative frontend mobile menu and hover augmentation are no-ops, preserving the v0.13.4.1 mobile drawer. Canonical menu generates exactly one Dashboard. Legacy scripts are not deleted when needed elsewhere.
-2. Member Lab Registry (`assets/js/v0.13.3-labs.js`) does not query Labs until a collection is selected. Server queries are constrained to a single `book_code`, return up to 51 to detect the next 50-record page, and member progress queries only the visible Lab IDs.
-3. New Owner Lab Manager (`assets/js/v0.13.5.4-admin-core.js` + `functions/api/admin-site-v01354.js`) requires `bookCode` and bounded page in GET; the `lab_one` endpoint retrieves a single Lab on explicit Edit. It does not blindly load 419 Labs.
+2. Member Lab Registry (`assets/js/lab-registry.js`) does not query Labs until a collection is selected. Server queries are constrained to a single `book_code`, return up to 51 to detect the next 50-record page, and member progress queries only the visible Lab IDs.
+3. New Owner Lab Manager (`assets/js/admin-core.js` + `functions/api/admin-site-v01354.js`) requires `bookCode` and bounded page in GET; the `lab_one` endpoint retrieves a single Lab on explicit Edit. It does not blindly load 419 Labs.
 4. Legacy Learning Operations (`assets/js/v0.13.5-admin-ops-link.js` + `functions/api/admin-operations-v0135.js`) has its own book/site selector. Snapshot Lab counts are scoped to a book using cheap exact counts, not a 1000-row read.
 5. Operations & Intelligence → Learning Analytics loads a sample from only a selected collection; non-Lab assessment counts remain site-wide.
 6. Service worker cache namespace was bumped to force new assets to replace v0.13.5.6. Old Worker registration URLs remain as compatibility wrappers for existing browsers; no private member HTML is meant to be persistently cached.

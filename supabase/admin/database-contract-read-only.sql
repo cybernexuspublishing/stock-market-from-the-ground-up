@@ -61,15 +61,24 @@ WHERE table_schema='public' AND table_name IN (
 'site_control_events_v1354','user_library','user_tool_passes')
 ORDER BY table_name,grantee,privilege_type;
 
--- F. User-impact-neutral counters and restricted flags ONLY.
-SELECT 'labs_registered' AS metric,count(*) AS observed FROM public.platform_labs
-UNION ALL SELECT 'labs_active',count(*) FROM public.platform_labs WHERE active;
-SELECT feature_code,enabled FROM public.site_feature_controls
-WHERE feature_code ~* '(QR|CHECKOUT|MFA|CAPTCHA|TURNSTILE|DIRECT_DIGITAL|PAYMENT)'
-ORDER BY feature_code;
+-- F. No direct SELECT against tables that may not exist on partially migrated projects.
+-- Guarded inspection of object presence and selected columns for rollout flags.
+-- Note: this diagnostic deliberately does not claim exact row counts or live prices.
+SELECT named.object_name,
+       to_regclass('public.'||named.object_name) AS resolved_table
+FROM (VALUES ('platform_labs'),('site_feature_controls'),('platform_plans'))
+     AS named(object_name);
 
--- G. Current plan price; no purchase, subscription or account data disclosed.
-SELECT plan_code,name,price_cents,active,public_visible,checkout_enabled
-FROM public.platform_plans WHERE plan_code='ONDEMAND_MONTHLY';
+-- G. Column introspection works even if a particular column was not deployed.
+-- checkout_enabled is NOT guaranteed in all platform_plans migrations; do NOT reference
+-- it in a direct SELECT unless its existence is confirmed in the active DB schema.
+SELECT table_name,column_name,data_type
+FROM information_schema.columns
+WHERE table_schema='public'
+  AND table_name IN ('platform_labs','site_feature_controls','platform_plans')
+  AND column_name IN ('active','feature_code','enabled','plan_code','name',
+                      'price_cents','public_visible','checkout_enabled')
+ORDER BY table_name,column_name;
+
 
 COMMIT;

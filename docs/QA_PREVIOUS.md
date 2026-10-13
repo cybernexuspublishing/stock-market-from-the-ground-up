@@ -4,7 +4,7 @@ This is the full-source clean-baseline candidate. It has not been deployed to Cl
 
 ## Gate 1: Source, dependency, integrity
 - Baseline was v0.13.5.7.1 (the complete three-branch reconciled source). The working source starts with its exact extracted file contents.
-- 23 superseded JS/CSS files removed or merged. `docs/RETIRED_ASSET_MANIFEST_v0.13.5.7.2.csv` records paths. New bundled frontend files use the **same v0.13.5.7.2 version prefix**, not a later release number.
+- 23 superseded JS/CSS files removed or merged. `docs/RETIRED_ASSET_MANIFEST.csv` records paths. New bundled frontend files use the **same v0.13.5.7.2 version prefix**, not a later release number.
 - Syntax checks pass for all 132 `.js`/`.mjs` scripts (including Cloudflare Functions and retained legacy SW shims).
 - JSON/WebManifest parsing passes. HTML local `src`/`href` resources checked, and absolute assets referenced by runtime JS found existing.
 - KDP-specific flags, checkout endpoints, Owner permissions, Supabase migration history, and all existing member accounts are not touched by generating this ZIP.

@@ -48,3 +48,28 @@
 #v132-home .v132-home-hero-grid.v1358-stats-grid #v1353-member-stats[hidden]{display:none!important}
 @media(max-width:1000px){#v132-home .v132-home-hero-grid.v1358-stats-grid.v1358-stat-visible{display:grid;grid-template-columns:1fr 1fr;gap:18px}#v132-home .v132-home-hero-grid.v1358-stats-grid #v1353-member-stats{grid-column:1/-1}}
 @media(max-width:640px){#v132-home .v132-home-hero-grid.v1358-stats-grid.v1358-stat-visible{grid-template-columns:minmax(0,1fr)}#v132-home .v132-home-hero-grid.v1358-stats-grid #v1353-member-stats{grid-column:auto}}
+
+/* v0.13.5.7.3: homepage is a 2-column learning introduction, not three
+ * compressed columns with an oversized title. Keep all original content. */
+#v132-home .v132-home-hero{padding-block:clamp(2.5rem,4.8vw,4.25rem)}
+#v132-home .v132-home-hero-grid.v1358-stats-grid.v1358-stat-visible{
+  display:grid;grid-template-columns:minmax(205px,270px) minmax(0,1fr);
+  gap:clamp(18px,2.4vw,32px);align-items:center;
+}
+#v132-home .v132-home-hero-grid.v1358-stats-grid>div:not(.v132-hero-panel){min-width:0}
+#v132-home .v132-home-hero h1{font-size:clamp(2.4rem,3.1vw,3.75rem);line-height:1.1;
+  letter-spacing:-.025em;max-width:19ch;overflow-wrap:normal;margin:.35em 0 .8rem}
+#v132-home .v132-home-hero p{font-size:clamp(1rem,1.05vw,1.12rem);line-height:1.55}
+#v132-home .v132-home-hero-grid.v1358-stats-grid>.v132-hero-panel{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;
+}
+#v132-home .v132-home-hero-grid.v1358-stats-grid>.v132-hero-panel>div{min-width:0}
+#v132-home #v1353-member-stats{width:100%;align-self:center}
+@media(max-width:1000px){
+ #v132-home .v132-home-hero-grid.v1358-stats-grid.v1358-stat-visible{grid-template-columns:minmax(0,1fr)}
+ #v132-home #v1353-member-stats{order:2}
+ #v132-home .v132-home-hero-grid.v1358-stats-grid>div:not(.v132-hero-panel){order:1}
+ #v132-home .v132-home-hero-grid.v1358-stats-grid>.v132-hero-panel{order:3;grid-column:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #v132-home .v132-home-hero h1{font-size:clamp(2.2rem,7vw,3.25rem);max-width:22ch}
+}
+@media(max-width:480px){#v132-home .v132-home-hero-grid.v1358-stats-grid>.v132-hero-panel{grid-template-columns:minmax(0,1fr)}}

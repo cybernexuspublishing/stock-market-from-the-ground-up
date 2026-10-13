@@ -78,3 +78,40 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  body.v135-commons-integrity #v134-commons-member-nav{width:calc(100% - 28px)!important;max-width:calc(100% - 28px)!important}
 }
 @media(max-width:500px){.v135-admin-catalog-grid{grid-template-columns:minmax(0,1fr)}.v135-book-details:not([hidden]){grid-template-columns:1fr}.v135-admin-book>header{flex-wrap:wrap}}
+
+/* v0.13.5.7.3: the canonical navigation is the ONLY header navigation.
+ * Give the brand a non-overlapping footprint and constrain header utilities. */
+@media(min-width:901px){
+ .site-header>.nav,.site-header .wrap.nav{display:flex;align-items:center;gap:clamp(10px,1.15vw,18px);min-width:0}
+ .site-header .brand{flex:0 0 clamp(180px,19vw,240px);min-width:0;line-height:1.17;overflow-wrap:normal}
+ .site-header .navlinks.v11-nav{display:flex;flex:1 1 auto;min-width:0;align-items:center;justify-content:flex-end;gap:clamp(7px,.8vw,12px)!important;margin-left:auto}
+ .site-header .fe-header-tools{flex:0 0 auto;min-width:0;max-width:230px}
+}
+@media(min-width:901px) and (max-width:1200px){
+ .site-header .brand{flex-basis:195px;font-size:.88rem}
+ .site-header .fe-command-button kbd{display:none}
+ .site-header .navlinks.v11-nav{gap:7px!important}
+}
+@media(min-width:901px) and (max-width:1023px){
+ /* Keep the full keyboard-reachable menu at small desktop widths. Collapse the
+  * labeled utilities to accessible icon-only buttons before brand/nav collide. */
+ .site-header .fe-header-tools{max-width:88px!important;gap:4px!important}
+ .site-header .fe-command-button,.site-header .fe-notify-button{
+   min-width:40px;width:40px;padding:.4rem;justify-content:center;font-size:0!important;
+ }
+ .site-header .fe-command-button::before{content:"⌕";font-size:1.25rem;line-height:1}
+ .site-header .fe-notify-button::before{content:"●";font-size:.9rem;line-height:1}
+ .site-header .fe-notify-button span{display:none!important}
+}
+@media(max-width:900px){.site-header .brand{line-height:1.14;max-width:calc(100% - 65px)}}
+/* One-row, keyboard-accessible Dashboard tabs. No hidden Activity tab. */
+#v1322-member-hub .v1322-member-tabs{display:flex!important;flex-wrap:nowrap!important;
+ overflow-x:auto!important;overflow-y:hidden;white-space:nowrap;max-width:100%;scrollbar-width:thin}
+#v1322-member-hub .v1322-member-tabs button{flex:0 0 auto!important;white-space:nowrap}
+#v1322-member-hub .v1322-member-tabs button:focus-visible{outline:2px solid #f0c65c;outline-offset:-2px}
+/* Consistent contrast for admin section and Lab collection filters. */
+.admin-shell .admin-main input[type="search"],.admin-shell .admin-main input[placeholder="Filter this section..."]{
+ color:#eff7ff;background:#0a263b;border:1px solid #65859d;border-radius:8px;
+ min-height:44px;padding:.65rem .85rem;max-width:100%;box-sizing:border-box}
+.admin-shell .admin-main input[type="search"]::placeholder,.admin-shell .admin-main input[placeholder="Filter this section..."]::placeholder{color:#aec4d5}
+.admin-shell .admin-main input[type="search"]:focus-visible{outline:2px solid #e6bb58;outline-offset:2px}

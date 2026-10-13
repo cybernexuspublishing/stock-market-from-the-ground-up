@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.13.5.7.2",
-  "status": "Branch reconciled; JS/CSS consolidation candidate pending live Cloudflare, Supabase, Auth and old-service-worker acceptance.",
+  "version": "0.13.5.7.4",
+  "status": "Filename-stable candidate (not deployed). Based on v0.13.5.7.3 stabilization; production checks pending.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {
@@ -87,7 +87,7 @@
       "lab_count": 94
     },
     "historical_lab_count_foundations": 94,
-    "current_catalog_path": "v0.13.3_LAB_CATALOG.json",
+    "current_catalog_path": "lab-catalog.json",
     "migration_reconciliation_required": [
       "v0.13.5.4_INTELLIGENT_CONTROL_CORE.sql",
       "v0.13.5.5_OWNER_MANUAL_ENTITLEMENTS.sql"
@@ -103,7 +103,7 @@
       "old_feature_branch_sha": "a301180d040d538bf4d04b900941988ddd60ca0b",
       "old_feature_branch_ahead_of_main_commits": 0,
       "retired_old_branch_only_path": "sw-v0131.js",
-      "compatibility_replacement": "sw-v0131.js (safe importScripts shim to /sw-v0135.js, not original 2019-style cache script)",
+      "compatibility_replacement": "sw-v0131.js (safe importScripts shim to /sw.js, not original 2019-style cache script)",
       "details_path": "docs/BRANCH_RECONCILIATION_AND_COMPLETENESS.md",
       "warning": "This is a code/branch ancestry and static integrity review, not live Supabase/Cloudflare/provider certification."
     }

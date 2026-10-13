@@ -8,7 +8,7 @@
 (()=>{'use strict';
 if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
 const ROOT_ID='v135-unified-operations';
-const CSS='/assets/css/v0.13.5.7.2-admin-operations.css';
+const CSS='/assets/css/admin-operations.css';
 const definitions=[
  {code:'overview',label:'Learning Operations',heading:'Learning Operations',desc:'Live Lab, competency, catalog and change-activity totals. Figures are obtained from the existing authorized backend.'},
  {code:'labs',label:'Lab Registry',heading:'Historical Lab Registry',desc:'Review existing Lab identifiers and manage visibility without changing approved instructional content.'},
@@ -21,7 +21,7 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const message=x=>String(x?.message||x||'Request unsuccessful.');
 const fmt=x=>x===null||x===undefined||!Number.isFinite(Number(x))?'—':new Intl.NumberFormat('en-US').format(Number(x));
-let active='',synthetic=false,verifiedMfa=false,fetchSeq=0,waiting=null;const LAB_COLLECTIONS=[['FOUNDATION_BOOK_1','Foundations Book I'],['FOUNDATION_BOOK_2','Foundations Book II'],['FOUNDATION_BOOK_3','Foundations Book III'],['DAY_TRADING_BOOK_1','Day Trading'],['READING_THE_TAPE','Reading the Tape'],['SITE_EXCLUSIVE','Site-Exclusive Labs']];let labBook='',labPage=0;
+let active='',synthetic=false,verifiedMfa=false,staffMfaRequired=true,fetchSeq=0,waiting=null;const LAB_COLLECTIONS=[['FOUNDATION_BOOK_1','Foundations Book I'],['FOUNDATION_BOOK_2','Foundations Book II'],['FOUNDATION_BOOK_3','Foundations Book III'],['DAY_TRADING_BOOK_1','Day Trading'],['READING_THE_TAPE','Reading the Tape'],['SITE_EXCLUSIVE','Site-Exclusive Labs']];let labBook='',labPage=0;
 function secureFlag(code){return /(?:MFA|CAPTCHA|TURNSTILE|CHECKOUT|QR[_-]?ACTIVAT|PAYMENT|PAYMENTS|DIRECT[_-]?DIGITAL|SHOWCASE[_-]?CREATE)/i.test(code||'')}
 function installStyle(){if($('#v135-unified-admin-style')||document.querySelector('link[href="'+CSS+'"]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href=CSS;l.id='v135-unified-admin-style';document.head.append(l)}
 function authorized(){return $('#admin-gate')?.hidden===true&&$('#admin-app')?.hidden===false}
@@ -33,7 +33,7 @@ function content(code){return $('[data-v135-content]',root(code))}
 function note(code,value,kind=''){const el=$('[data-v135-note]',root(code));if(el){el.textContent=value;el.dataset.kind=kind}}
 function common(heading,body){return `<div class="v135-unified-table-wrap"><table class="v135-unified-table"><thead><tr>${heading.map(x=>`<th scope="col">${esc(x)}</th>`).join('')}</tr></thead><tbody>${body.length?body.join(''):`<tr><td colspan="${heading.length}" class="v135-empty">No records were returned.</td></tr>`}</tbody></table></div>`}
 function searchRow(rootEl){const filter=$('[data-v135-filter]',rootEl);if(filter)filter.oninput=()=>{const needle=filter.value.trim().toLocaleLowerCase();$$('[data-v135-filterrow]',rootEl).forEach(r=>r.hidden=!!needle&&!r.textContent.toLocaleLowerCase().includes(needle))}}
-const mutatingButton=(html,action)=>`<button type="button" class="btn secondary v135-action" ${synthetic||!verifiedMfa?'disabled title="Verified administrator MFA required"':''} ${action}>${esc(html)}</button>`;
+const mutatingButton=(html,action)=>`<button type="button" class="btn secondary v135-action" ${synthetic||(staffMfaRequired&&!verifiedMfa)?'disabled title="Verified administrator MFA required if enabled"':''} ${action}>${esc(html)}</button>`;
 function booleanAction(id,key,v,scope){const next=!v;if(scope==='features'&&next&&secureFlag(id))return '<span class="v135-locked" title="Sensitive feature activation is intentionally disabled">Activation locked</span>';
 return mutatingButton(v?'Disable':'Enable',`data-v135-change="${scope}" data-code="${esc(id)}" data-field="${esc(key)}" data-next="${next}"`)}
 function renderOverview(d){const chooser=`<div class="v1357-collection-picker"><label>Select book or Site-Exclusive Labs<select data-v1357-legacy-book><option value="">Select a collection to load Lab counts…</option>${LAB_COLLECTIONS.map(([id,label])=>`<option value="${id}" ${labBook===id?'selected':''}>${esc(label)}</option>`).join('')}</select></label></div>`;const x=d.overview||{},rows=[['Total registered Labs',x.labs],['Active Labs',x.activeLabs],['Visible Labs',x.registryLabs],['Active skills',x.skills],['Active book products',x.books]];const cards=rows.map(([label,val])=>`<article><strong>${esc(fmt(val))}</strong><span>${esc(label)}</span></article>`).join('');const events=(d.events||[]).map(z=>`<tr data-v135-filterrow><td>${esc(z.created_at?new Date(z.created_at).toLocaleString():'—')}</td><td>${esc(z.action)}</td><td>${esc(z.object_code||'')}</td></tr>`);return `<h2>Learning operations snapshot</h2>${chooser}<div class="v135-unified-stat-grid">${cards}</div><h3>Recent operational events</h3>${common(['Recorded at','Action','Reference'],events)}`}
@@ -48,7 +48,7 @@ async function show(code,push=true){if(!authorized())return;if(!definitions.some
 $$('.admin-panel').forEach(x=>x.classList.remove('active'));$$('#admin-tabs button').forEach(x=>{x.classList.remove('active');if(x.dataset.v135Control)x.setAttribute('aria-selected',String(x.dataset.v135Control===code))});
 const pane=root(code);if(!pane)return;pane.classList.add('active');const b=$(`[data-v135-control="${code}"]`);b?.classList.add('active');if(push)history.replaceState(null,'','#ops-'+code);
 content(code).textContent='Loading authorized operational data…';note(code,'');const seq=++fetchSeq;
-try{const d=code==='labs'&&!labBook?{ok:true,labs:[]}:await api(code,null,(code==='labs'||code==='overview')?{bookCode:labBook,page:String(labPage)}:{});if(seq!==fetchSeq||active!==code)return;synthetic=!!d.synthetic;pane.dataset.synthetic=String(synthetic);
+try{const d=code==='labs'&&!labBook?{ok:true,labs:[]}:await api(code,null,(code==='labs'||code==='overview')?{bookCode:labBook,page:String(labPage)}:{});if(seq!==fetchSeq||active!==code)return;synthetic=!!d.synthetic;if(typeof d.staffMfaRequired==='boolean')staffMfaRequired=d.staffMfaRequired;pane.dataset.synthetic=String(synthetic);
 content(code).innerHTML=renderers[code](d);searchRow(pane);
 note(code,synthetic?'SHOWCASE DEMONSTRATION — mock records only. Production changes unavailable.':verifiedMfa?'Verified staff session. All mutations remain subject to server-side role checks.':'Viewing authorized records. Staff MFA remains optional when disabled by Owner policy.',synthetic?'demo':'ok');
 }catch(err){if(seq===fetchSeq)content(code).textContent=message(err)}}

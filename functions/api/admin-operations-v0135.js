@@ -61,7 +61,7 @@ async function change(env,a,action,b){if(a.showcase)throw problem('Showcase is a
  throw problem('Unsupported administrative change.',404);
 }
 export async function onRequest({request,env}){try{const a=await identity(env,request),action=str(new URL(request.url).searchParams.get('action'));if(env.REQUIRE_STAFF_AAL2_V135==='true'&&!a.showcase&&a.aal!=='aal2')throw problem('Verified administrator MFA is required.',403);
- if(request.method==='GET'){if(a.showcase)return response({...synthetic,requested:action});return response({ok:true,...await listing(env,action,new URL(request.url).searchParams.get('bookCode')||'',Number(new URL(request.url).searchParams.get('page')||0))})}
+ if(request.method==='GET'){if(a.showcase)return response({...synthetic,requested:action});return response({ok:true,staffMfaRequired:env.REQUIRE_STAFF_AAL2_V135==='true',...await listing(env,action,new URL(request.url).searchParams.get('bookCode')||'',Number(new URL(request.url).searchParams.get('page')||0))})}
  if(request.method==='POST'){if(a.showcase)return response({ok:false,error:'SHOWCASE is read-only.'},403);const b=await request.json().catch(()=>({}));return response({ok:true,...await change(env,a,action,b)})}
  return response({ok:false,error:'Unsupported method.'},405);
  }catch(e){return response({ok:false,error:e.message||'Admin request failed.'},e.status||500)}}

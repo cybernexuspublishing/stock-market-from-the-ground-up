@@ -7,8 +7,8 @@ with sync_playwright() as p:
   page=browser.new_page(viewport={'width':width,'height':860});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.set_content('''<!doctype html><html><head><meta charset="utf-8"></head><body><header class="site-header"><nav class="navlinks"><a class="nav-cta" href="account.html">Profile</a></nav></header><main class="wrap"></main></body></html>''')
   page.evaluate("""() => {const NativeURL=window.URL;window.URL=class extends NativeURL{constructor(url,base){super(url,base==='null'?'https://test.example':base)}}}""")
-  page.add_style_tag(path=str(R/'assets/css/v0.11_platform.css'));page.add_style_tag(path=str(R/'assets/css/v0.13_production.css'))
-  raw=(R/'assets/js/v0.13.5.7.2-navigation.js').read_text().split('/* CANONICAL_DESKTOP_NAV */\n',1)[1]
+  page.add_style_tag(path=str(R/'assets/css/platform.css'));page.add_style_tag(path=str(R/'assets/css/production.css'))
+  raw=(R/'assets/js/navigation.js').read_text().split('/* CANONICAL_DESKTOP_NAV */\n',1)[1]
   assert raw.endswith('})();\n')
   # Expose only the already implemented browser renderer to a mock test, not in production.
   source=raw[:-6]+"window.__testMakeNav=makeNav;\n})();\n"
@@ -21,7 +21,11 @@ with sync_playwright() as p:
   menu=nav.locator('.v11-profile-group .v11-menu')
   assert menu.locator('a',has_text='Dashboard').count()==1
   assert menu.locator('a',has_text='Admin Control Center').count()==1
-  assert menu.locator('a').count()==9
+  assert menu.locator('a').count()==10
+  assert menu.locator('a',has_text='Security / MFA').count()==1
+  assert nav.locator('a',has_text='Skill Assessments').count()==1
+  assert nav.locator('a',has_text='Replay Training').count()==1
+  assert nav.locator('a',has_text='Books & Previews').count()==1
   assert nav.locator('.account-dropdown').count()==0
   assert page.locator('a.v12-top-link',has_text='Secure link').get_attribute('href')=='#', 'Unsafe navigation destination allowed'
   trigger=nav.locator('.v12-profile-button')

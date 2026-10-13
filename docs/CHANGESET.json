@@ -1,0 +1,27 @@
+{
+  "version": "0.13.5.7.4",
+  "based_on": "Complete v0.13.5.7.3 stabilized source ZIP; v0.13.5.7.3 was not deployed",
+  "scope": "Stable frontend filenames, reusable Pages build script, safe legacy static redirects, release audit and deployment/cleanup tools. All prior stabilized features retained.",
+  "renamed_frontend_scripts": 48,
+  "renamed_stylesheets": 19,
+  "renamed_catalog": 1,
+  "canonical_worker_rename": 1,
+  "renamed_source_ts": 1,
+  "preserved_api_endpoints": true,
+  "preserved_sql_migration_filenames": true,
+  "old_service_worker_compatibility_routes_preserved": true,
+  "supabase_migrations_executed": false,
+  "production_deployment_performed": false,
+  "additional_source_changes": [
+    "PROJECT_MANIFEST.json",
+    "config.js",
+    "functions/_middleware.js",
+    "scripts/build-pages.sh",
+    "_redirects",
+    "docs/PROMISES_AND_READINESS_MATRIX.csv",
+    "supabase/admin/database-contract-read-only.sql",
+    "docs/RELEASE_AND_FILE_POLICY.md",
+    "tests/test_stable_filenames.py"
+  ],
+  "caveat": "Cloudflare Pages Build command must change to bash scripts/build-pages.sh. Delete old git asset paths once this zip copied. Live role/commerce/market-data verification still outstanding."
+}
