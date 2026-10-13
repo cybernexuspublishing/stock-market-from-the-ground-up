@@ -1,0 +1,80 @@
+/* v0.13.5 controlled layout integration. Appended AFTER existing CSS. */
+/* ADMIN: existing native sidebar/content architecture takes precedence over
+   ad-hoc component placement and legacy responsive table styling. */
+body.v135-admin-integrity main.admin-shell{
+ display:grid!important;
+ grid-template-columns:minmax(250px,290px) minmax(0,1fr)!important;
+ align-items:start!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ gap:0!important;
+}
+body.v135-admin-integrity main.admin-shell>.admin-sidebar{
+ grid-column:1!important;grid-row:1!important;
+ width:auto!important;min-width:0!important;
+ box-sizing:border-box!important;
+ position:sticky!important;top:var(--site-header-height,70px)!important;
+ height:calc(100vh - var(--site-header-height,70px))!important;
+ max-height:calc(100vh - var(--site-header-height,70px))!important;
+ overflow-y:auto!important;overscroll-behavior:contain;
+}
+body.v135-admin-integrity main.admin-shell>.admin-main{
+ grid-column:2!important;grid-row:1!important;
+ width:100%!important;min-width:0!important;
+ padding:clamp(1rem,2.4vw,2rem)!important;
+ box-sizing:border-box!important;
+}
+body.v135-admin-integrity #v135-admin-books{margin:1.25rem 0 0;max-width:none!important;width:100%!important}
+body.v135-admin-integrity [data-admin-panel="catalog"][data-v135-catalog-ready="true"] #admin-catalog-list{display:none!important}
+body.v135-admin-integrity #admin-catalog-list[hidden]{display:none!important}
+.v135-sidebar-ops-link{display:block;margin:.8rem .35rem;padding:.7rem .75rem;border:1px solid #40627b;border-radius:8px;color:#f7d279;text-decoration:none;line-height:1.35;font-size:.9rem}
+.v135-sidebar-ops-link:hover,.v135-sidebar-ops-link:focus-visible{background:#19354b;outline:2px solid #bda14f;outline-offset:2px}
+.v135-admin-catalog-integrated .v135-catalog-title h2{margin:.15rem 0 .3rem}
+.v135-admin-catalog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1rem;align-items:start}
+.v135-admin-catalog-grid .v135-admin-book{min-width:0;overflow-wrap:anywhere;padding:1.15rem}
+.v135-admin-book>header{display:flex;justify-content:space-between;gap:.75rem;align-items:start}
+.v135-admin-book>header h3{font-size:1.05rem;line-height:1.32;margin:.25rem 0 .4rem}
+.v135-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.73rem;opacity:.82;overflow-wrap:anywhere}
+.v135-state{font-size:.72rem;border:1px solid #436075;border-radius:6px;padding:.22rem .48rem;white-space:nowrap;color:#b8d2e7}
+.v135-state.warning{border-color:#a8852c;color:#f1cf74}
+.v135-description-teaser{font-size:.91rem;line-height:1.5;color:#c7d9e7;margin:1rem 0;min-height:3rem}
+.v135-catalog-safeguards{font-size:.79rem;color:#adcadb}
+.v135-catalog-safeguards strong{color:#eaf1f8}
+.v135-admin-catalog-grid .v135-admin-book.is-expanded{grid-column:1 / -1}
+.v135-book-details:not([hidden]){margin-top:1rem;padding-top:1rem;border-top:1px solid #35576e;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem}
+.v135-catalog-fact{min-width:0}.v135-catalog-fact strong{display:block;font-size:.8rem;color:#f1ca63}
+.v135-catalog-fact p{overflow-wrap:anywhere;margin:.3rem 0 0;white-space:pre-wrap;line-height:1.6}
+.v135-catalog-fact:nth-child(3){grid-column:1 / -1}.v135-catalog-fact:nth-child(3) p{max-width:94ch}
+.v135-catalog-edit-form{grid-column:1 / -1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr));gap:.85rem}
+.v135-catalog-edit-form>label{display:grid;gap:.3rem;min-width:0;font-weight:600}
+.v135-catalog-edit-form input,.v135-catalog-edit-form textarea{width:100%!important;min-width:0;box-sizing:border-box;color:#eaf3f9;background:#0a283d;border:1px solid #547087;border-radius:8px;padding:.65rem .8rem}
+.v135-catalog-edit-form>label:has(textarea),.v135-catalog-form-note{grid-column:1 / -1}
+.v135-catalog-edit-form textarea{min-height:11rem;resize:vertical}
+.v135-catalog-edit-form input:focus-visible,.v135-catalog-edit-form textarea:focus-visible{outline:2px solid #e5bf5d;outline-offset:2px}
+.v135-admin-book [data-details][hidden]{display:none!important}
+/* MARKET COMMONS: center navigation in same content width as forum and header.
+   Keep its own navigation; do not leave it floating against viewport left edge. */
+body.v135-commons-integrity #v134-commons-member-nav{
+ width:calc(100% - 44px)!important;max-width:calc(var(--max,1180px) - 44px)!important;
+ margin: .7rem auto 1rem!important;
+ padding:.5rem .65rem!important;
+ box-sizing:border-box!important;
+ position:relative!important;top:auto!important;
+ gap:.1rem .3rem!important;overflow-x:auto;
+}
+body.v135-commons-integrity #v134-commons-member-nav a{flex:0 0 auto;white-space:nowrap}
+body.v135-commons-integrity main>.wrap{max-width:var(--max,1180px);margin-inline:auto!important}
+body.v135-commons-integrity .fe-page-head{gap:1rem;align-items:start}
+body.v135-commons-integrity .fe-page-actions{flex:0 0 auto;align-self:center}
+body.v135-commons-integrity .v132-forum-search{width:100%}
+body.v135-commons-integrity .v132-forum-search input{width:min(100%,680px)!important;max-width:100%!important;min-height:44px}
+body.v135-commons-integrity .v132-forum-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;justify-content:flex-end;margin:1rem 0}
+body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1rem}
+@media(max-width:850px){
+ body.v135-admin-integrity main.admin-shell{grid-template-columns:minmax(0,1fr)!important;}
+ body.v135-admin-integrity main.admin-shell>.admin-sidebar{grid-column:1!important;grid-row:1!important;height:auto!important;max-height:40vh!important;position:relative!important;top:auto!important;overflow-y:auto!important;border-right:0;border-bottom:1px solid #304d65}
+ body.v135-admin-integrity main.admin-shell>.admin-main{grid-column:1!important;grid-row:2!important;padding:1rem!important}
+ body.v135-commons-integrity #v134-commons-member-nav{width:calc(100% - 28px)!important;max-width:calc(100% - 28px)!important}
+}
+@media(max-width:500px){.v135-admin-catalog-grid{grid-template-columns:minmax(0,1fr)}.v135-book-details:not([hidden]){grid-template-columns:1fr}.v135-admin-book>header{flex-wrap:wrap}}

@@ -1,0 +1,64 @@
+/* v0.13.4.1 — Mobile Navigation + Auth Boundary Hotfix */
+:root{--v1341-mobile-bg:#061827;--v1341-mobile-panel:#0a2338;--v1341-mobile-line:#2a506a;--v1341-mobile-text:#edf4f8;--v1341-mobile-muted:#9fb6c6;--v1341-mobile-gold:#efc04f}
+
+/* Mobile menu is deliberately outside .navlinks. Legacy CSS hides .navlinks below 900px. */
+.v1341-mobile-menu-button{display:none;align-items:center;justify-content:center;gap:.45rem;min-width:48px;min-height:44px;padding:.55rem .75rem;border:1px solid #49677d;border-radius:10px;background:#0b263b;color:#fff;font:inherit;font-weight:750;cursor:pointer}
+.v1341-menu-icon{font-size:1.2rem;line-height:1}
+.v1341-mobile-drawer[hidden]{display:none!important}
+.v1341-mobile-drawer{position:fixed;inset:0;z-index:10050;display:grid;grid-template-columns:1fr min(88vw,390px)}
+.v1341-mobile-backdrop{grid-column:1/-1;grid-row:1;background:rgba(0,0,0,.58);backdrop-filter:blur(2px)}
+.v1341-mobile-panel{grid-column:2;grid-row:1;position:relative;z-index:2;height:100dvh;overflow:auto;overscroll-behavior:contain;background:linear-gradient(180deg,#081f32,#061827);border-left:1px solid var(--v1341-mobile-line);box-shadow:-18px 0 48px rgba(0,0,0,.38);padding:max(1rem,env(safe-area-inset-top)) max(1rem,env(safe-area-inset-right)) max(1.25rem,env(safe-area-inset-bottom)) 1rem;color:var(--v1341-mobile-text);outline:none}
+.v1341-mobile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding-bottom:1rem;border-bottom:1px solid var(--v1341-mobile-line)}
+.v1341-mobile-head span{display:block;color:var(--v1341-mobile-gold);text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;font-weight:800}
+.v1341-mobile-head h2{font-family:Georgia,serif;font-size:1rem;line-height:1.25;margin:.2rem 0 0;color:#fff}
+.v1341-mobile-close{width:44px;height:44px;flex:0 0 44px;border:1px solid #49677d;border-radius:10px;background:#0e2b42;color:#fff;font-size:1.5rem;line-height:1;cursor:pointer}
+.v1341-mobile-search-wrap{display:grid;gap:.35rem;margin:1rem 0}
+.v1341-mobile-search-wrap label{font-weight:750;font-size:.78rem;color:#c9dbe6}
+.v1341-mobile-search-wrap input{width:100%;min-height:46px;border:1px solid #41627a;border-radius:10px;background:#061b2b;color:#fff;padding:.7rem .8rem;font-size:16px}
+.v1341-mobile-links{display:grid;gap:.42rem}
+.v1341-mobile-links a{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:48px;padding:.72rem .8rem;border:1px solid #274c66;border-radius:10px;background:#0a2840;color:#eaf3f8;text-decoration:none;font-weight:700}
+.v1341-mobile-links a:hover,.v1341-mobile-links a:focus-visible{border-color:var(--v1341-mobile-gold);outline:none}
+.v1341-mobile-auth{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--v1341-mobile-line)}
+.v1341-mobile-auth>a,.v1341-mobile-auth>button{min-height:48px;border-radius:10px;display:grid;place-items:center;text-align:center;text-decoration:none;font:inherit;font-weight:800;cursor:pointer}
+.v1341-mobile-primary{background:var(--v1341-mobile-gold);border:1px solid var(--v1341-mobile-gold);color:#101821!important}
+.v1341-mobile-secondary,.v1341-mobile-signout{background:transparent;border:1px solid #58758a;color:#fff!important}
+.v1341-mobile-user{grid-column:1/-1;display:grid;gap:.1rem;padding:.75rem;border:1px solid #274c66;border-radius:10px;background:#071e30}
+.v1341-mobile-user span{color:var(--v1341-mobile-muted);font-size:.8rem}
+.v1341-mobile-signout{grid-column:1/-1}
+body.v1341-mobile-open{overflow:hidden;touch-action:none}
+
+/* Generic mobile safety: touch targets, no accidental horizontal layout, readable forms. */
+@media(max-width:900px){
+  .site-header .nav{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:.65rem!important;min-height:64px!important;padding-top:.4rem!important;padding-bottom:.4rem!important}
+  .site-header .brand{min-width:0;max-width:100%;font-size:.84rem!important;line-height:1.18;white-space:normal;overflow-wrap:anywhere}
+  .site-header .navlinks{display:none!important}
+  .v1341-mobile-menu-button{display:inline-flex!important;grid-column:2;grid-row:1;justify-self:end}
+  .wrap{width:100%;max-width:100%;padding-left:max(15px,env(safe-area-inset-left))!important;padding-right:max(15px,env(safe-area-inset-right))!important}
+  main{max-width:100%;overflow-x:hidden}
+  main .card,main .v13-card,main .product-card{max-width:100%;min-width:0}
+  input,select,textarea,button{max-width:100%}
+  input:not([type="checkbox"]):not([type="radio"]),select,textarea{font-size:16px!important}
+  button,.btn,a.nav-cta{min-height:44px}
+  .auth-page,.v13-auth-center-fix,.v121-auth-center,#v121-auth-grid,.fe-auth-layout,.fe-auth-center{width:100%!important;max-width:100%!important;min-width:0!important;margin-inline:auto!important}
+  #v121-auth-grid,.fe-auth-layout{display:block!important}
+  .v121-auth-ad,.fe-auth-ad{display:none!important}
+  .auth-card,.auth-page .card,.v121-auth-center>.card,.fe-auth-center>.card{width:100%!important;max-width:560px!important;margin-inline:auto!important;padding:clamp(1rem,4vw,1.35rem)!important}
+  .auth-card input,.auth-card select,.auth-card textarea,.auth-card .btn,.auth-submit{width:100%!important}
+  .password-visibility-toggle,.v132-secret-toggle{width:auto!important;min-height:44px}
+  .v1322-member-tabs,.v13-member-tabs,.v1321-member-tabs{overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:thin;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .v1322-member-tabs button,.v13-member-tabs button,.v1321-member-tabs button{flex:0 0 auto;min-height:44px}
+  .admin-table-wrap,.v132-coverage,.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  dialog.fe-dialog,dialog#admin-dialog,dialog#admin-user-dialog{width:calc(100vw - 1rem)!important;max-width:calc(100vw - 1rem)!important;max-height:calc(100dvh - 1rem)!important;margin:.5rem!important}
+}
+
+@media(max-width:520px){
+  .site-header .brand{font-size:.76rem!important;letter-spacing:.015em!important}
+  .v1341-mobile-drawer{grid-template-columns:1fr min(94vw,390px)}
+  .section{padding-top:32px!important;padding-bottom:36px!important}
+  h1{overflow-wrap:anywhere}
+  .actions{gap:.55rem}
+  .actions>.btn,.actions>button{flex:1 1 100%;text-align:center}
+  .v133-footer-grid,.v121-footer-grid,.footer-grid{grid-template-columns:1fr!important}
+}
+
+@media(prefers-reduced-motion:reduce){.v1341-mobile-panel{scroll-behavior:auto}}

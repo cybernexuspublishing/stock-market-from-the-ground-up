@@ -1,0 +1,42 @@
+/* v0.13.5 — Ops intelligence add-on, scoped to admin.html.
+   Existing admin navigation, design language, and legacy panels preserved. */
+body[data-auth-required="true"] .admin-sidebar .v135-oc-nav-category{display:grid;gap:4px;margin:.75rem 0 1.3rem;padding:.8rem .25rem;border-top:1px solid rgba(139,180,205,.2)}
+.admin-sidebar .v135-oc-nav-title{padding:.5rem .7rem;color:#91bfdc;text-transform:uppercase;letter-spacing:.13em;font-weight:800;font-size:.7rem}
+#admin-tabs .v135-oc-nav-category button{width:100%;min-height:39px;border:1px solid transparent;border-radius:8px;background:transparent;color:#d7e6f2;text-align:left;padding:.55rem .8rem;cursor:pointer;white-space:normal;line-height:1.3}
+#admin-tabs .v135-oc-nav-category button:is(:hover,:focus-visible,.active){background:#163952;border-color:#386c88;color:white}
+#admin-tabs .v135-oc-nav-category button[hidden]{display:none!important}
+.v135-oc-panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.v135-oc-panel .admin-heading{display:flex;align-items:flex-start;gap:1rem;justify-content:space-between}
+.v135-oc-panel .admin-heading h1{margin:.1rem 0 .3rem;line-height:1.2}
+.v135-oc-panel .admin-heading p{max-width:72ch;line-height:1.55}
+.v135-oc-origin{padding:.45rem .75rem;border-radius:8px;background:#123048;color:#c7dff0;border:1px solid #355d77;font-size:.78rem;letter-spacing:.025em}
+.v135-oc-content{min-width:0;display:block}
+.v135-oc-intro,.v135-oc-note{color:#afc7d7;line-height:1.55;max-width:90ch}
+.v135-oc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:.75rem;margin:1rem 0 1.25rem}
+.v135-oc-metric{display:grid;align-content:center;gap:.2rem;padding:1rem;border:1px solid #2c5570;border-radius:11px;background:linear-gradient(145deg,#0d304a,#0a2338);min-width:0}
+.v135-oc-metric small{color:#bfd6e6;letter-spacing:.02em;font-weight:700}
+.v135-oc-metric strong{font-size:clamp(1.3rem,2.4vw,1.85rem);line-height:1.25;color:#faf9e8}
+.v135-oc-metric strong.small{font-size:.95rem;line-height:1.5}
+.v135-oc-metric span{color:#9bb5c8;font-size:.78rem}
+.v135-oc-content h3{color:#f0d585;margin:1.55rem 0 .7rem;font-size:1.15rem}
+.v135-oc-table-wrap{max-width:100%;overflow:auto;border:1px solid #31536d;border-radius:11px;background:#0b2438}
+.v135-oc-table{width:100%;min-width:680px;border-collapse:collapse;text-align:left;font-size:.88rem}
+.v135-oc-table th{position:sticky;top:0;z-index:1;background:#14334b;color:#e8f1f8;letter-spacing:.025em;font-size:.78rem}
+.v135-oc-table th,.v135-oc-table td{padding:.7rem .82rem;border-bottom:1px solid #294b63;vertical-align:middle;max-width:340px;overflow-wrap:anywhere}
+.v135-oc-table tr:last-child td{border-bottom:0}
+.v135-oc-table tbody tr:hover{background:#103049}
+.v135-oc-table tr[hidden]{display:none}
+.v135-oc-table code{font-size:.8rem;color:#d5eafd;overflow-wrap:anywhere}
+.v135-oc-empty{color:#a9c3d6}
+.v135-oc-pill{display:inline-block;padding:.2rem .5rem;border:1px solid #51697c;border-radius:50px;white-space:nowrap;font-size:.76rem}
+.v135-oc-pill.good{background:#0c372d;color:#b5e5c7;border-color:#2c715d}
+.v135-oc-pill.muted{background:#28313b;color:#d7dce3;border-color:#596471}
+.v135-oc-warning{border:1px solid #8b6b2d;border-left:4px solid #cda04a;border-radius:8px;padding:.8rem 1rem;background:#342a15;color:#fff2d6;margin:1rem 0}
+.v135-oc-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.1rem 0 1.35rem}
+.v135-oc-search{display:grid;gap:.3rem;max-width:440px;margin:1rem 0;font-weight:600;color:#e6f1fc}
+.v135-oc-search input{width:100%;min-height:40px;background:#092138;border:1px solid #496981;color:#eff6fa;border-radius:8px;padding:.5rem .7rem}
+.v135-oc-live{margin:0 0 .2rem;color:#b9d5e8;font-size:.8rem;min-height:1.1rem}
+.v135-oc-live[data-error="true"]{color:#ffb9b9}
+@media(max-width:900px){.v135-oc-panel .admin-heading{flex-wrap:wrap}.v135-oc-cards{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}}
+@media(max-width:680px){.v135-oc-panel .admin-heading h1{font-size:1.5rem}.v135-oc-metric{padding:.75rem}.v135-oc-table{font-size:.83rem;min-width:620px}}
+@media(prefers-reduced-motion:reduce){.v135-oc-panel *{scroll-behavior:auto}}

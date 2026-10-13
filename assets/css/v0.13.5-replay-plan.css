@@ -1,0 +1,10 @@
+/* Controlled prelaunch Replay-Only Membership display. No checkout controls. */
+.v135-replay-plan{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,310px);gap:1.35rem;align-items:center;margin:1.5rem 0 2rem;padding:1.5rem;border:1px solid #54748e;border-radius:16px;background:linear-gradient(125deg,#112e46,#091d30)}
+.v135-replay-plan h2{margin:.25rem 0 .7rem;font-size:clamp(1.35rem,2vw,1.9rem)}
+.v135-replay-plan p{margin:.45rem 0;max-width:78ch;color:#d1deea;line-height:1.55}
+.v135-replay-plan p.small{font-size:.91rem;color:#b1c2d0}
+.v135-replay-plan-cta{display:flex;flex-direction:column;align-items:flex-start;gap:.55rem;padding:1rem;border:1px solid #385e79;border-radius:12px;background:rgba(0,0,0,.15)}
+.v135-replay-plan-cta strong{font-size:1.08rem;color:#f1d083}
+.v135-replay-plan-cta span{font-size:.88rem;color:#c4d2de}
+.v135-replay-plan-cta .btn{white-space:normal;text-align:center}
+@media(max-width:760px){.v135-replay-plan{grid-template-columns:1fr;padding:1.1rem}.v135-replay-plan-cta{width:100%}}
