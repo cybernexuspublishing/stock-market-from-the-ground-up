@@ -1,6 +1,6 @@
-# Current candidate: v0.13.5.7.4
+# Current candidate: v0.13.5.7.5
 
-This release **has not been deployed**. It includes all v0.13.5.7.3 stabilization changes, plus canonical stable frontend paths. It does **not** claim unimplemented promised backend systems are complete. See `PROMISES_AND_READINESS_MATRIX.csv` for itemized promises from this and branched conversations with evidence and outstanding acceptance criteria.
+This release **has not been deployed**. It includes the deployed v0.13.5.7.4 baseline and repairs to the Admin sidebar, Dashboard tabs, Market Commons, membership fallback, and checkout safeguards. It does **not** claim unimplemented promised backend systems are complete. See `PROMISES_AND_READINESS_MATRIX.csv` for itemized promises from this and branched conversations with evidence and outstanding acceptance criteria.
 
 ### Fixed filename policy
 - Release identifier in ZIP filename and metadata, not in frontend asset names. Renamed 48 JavaScript files, 19 CSS files, one catalog, one canonical worker and TS source. More than one frontend file may still implement separate responsibilities; no new version-named JS/CSS added.

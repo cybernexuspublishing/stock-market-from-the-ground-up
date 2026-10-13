@@ -15,7 +15,16 @@
   async function savePref(key,value){return uiApi('preference_save',{method:'POST',body:JSON.stringify({key,value})})}
   function featureGroup(tool){const x=`${tool?.category||''} ${tool?.name||''}`.toLowerCase();if(/research|discovery|scanner|watchlist|catalyst|filing|float|context|supply/.test(x))return'Research';if(/journal|simulator|risk|execution|liquidity|tape|order flow|review|strategy|options|trade/.test(x))return'Trade Labs';return'Learning'}
   function timing(a){if(a?.renewsAt)return`Renews ${new Date(a.renewsAt).toLocaleDateString()}`;if(a?.expiresAt)return`Expires ${new Date(a.expiresAt).toLocaleDateString()}`;if(a?.planCode==='LIFETIME'||(a?.staffRoles||[]).includes('OWNER'))return'Never expires';return'Current'}
-  async function access(){try{return await window.PlatformAccess?.get?.()}catch{return null}}
+  async function access(){
+    // The canonical access module can initialize after this Dashboard controller.
+    // Retry briefly; never render missing entitlements as a Free or empty plan.
+    for(let attempt=0;attempt<3;attempt++){
+      try{const result=await window.PlatformAccess?.get?.();if(result)return result}
+      catch(error){console.warn('[dashboard] Membership service request failed:',error?.message||error)}
+      if(attempt<2)await sleep(350);
+    }
+    return null;
+  }
   async function competencyApi(action='summary',params={}){
     const qs=new URLSearchParams({action,...Object.fromEntries(Object.entries(params).filter(([,v])=>v!==undefined&&v!==null&&v!==''))});
     return api(`/api/competencies?${qs}`);
@@ -92,12 +101,16 @@
 
   async function renderOverview(host){
     const [a,act,skill]=await Promise.all([access(),uiApi('activity').catch(()=>({activity:[]})),competencyApi('summary').catch(()=>({skills:[],snapshot:{strongest:[],attention:[],recommended:null}}))]);
+    // Authenticated user metadata may be shown, but never infer paid access.
+    const session=await getSession();
+    const readerName=a?.username||session?.user?.user_metadata?.username||'';
+    const accessMissing=!a;
     const books=(a?.books||[]).filter(b=>b.included);
     const progress=await bookProgress(books);
     const recent=(act.activity||[]).slice(0,4);
     const includedTools=(a?.tools||[]).filter(x=>x.included&&x.status!=='retired').length;
     const progressCards=progress.length?progress.slice(0,6).map(({book,percent})=>{const label=percent===null?'Not started':`${percent}% complete`;const width=percent===null?0:percent;return`<article class="v1324-progress-card"><div class="v1324-progress-top"><strong>${esc(book.shortTitle||book.title||'Book')}</strong><span>${esc(label)}</span></div><div class="v1324-progress-track" role="progressbar" aria-label="${esc(book.shortTitle||book.title||'Book')} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${width}"><span style="width:${width}%"></span></div></article>`}).join(''):'<div class="fe-state">Book progress will appear here as you work through the learning system.</div>';
-    host.innerHTML=`<section class="v1321-overview"><div class="v132-dashboard-hero"><div><div class="eyebrow">Member Dashboard</div><h1>Welcome back${a?.username?`, ${esc(a.username)}`:''}</h1><p>Your current learning position, book progress, and fastest ways back into practice.</p></div><div class="v121-membership-badge lifetime"><span>${esc(a?.planName||'Membership')}</span><small>${esc(timing(a))}</small></div></div><div class="v1324-summary-grid"><article><strong>${books.length}</strong><span>Books available</span></article><article><strong>${includedTools}</strong><span>Features included</span></article><article><strong>${esc(a?.planName||'Membership')}</strong><span>${esc(timing(a))}</span></article></div><section class="v134-skill-snapshot"><div class="v1324-block-head"><div><div class="eyebrow">Skill Development</div><h2>Skill Snapshot</h2></div><button type="button" class="v1321-link-button" data-open-skills>View Skill Development</button></div><div class="v134-snapshot-grid">${(()=>{
+    host.innerHTML=`<section class="v1321-overview">${accessMissing?'<div class="notice" role="status">Membership and library information is temporarily unavailable. Refresh the Dashboard to retry; displayed counts are withheld until confirmed.</div>':''}<div class="v132-dashboard-hero"><div><div class="eyebrow">Member Dashboard</div><h1>Welcome back${readerName?`, ${esc(readerName)}`:''}</h1><p>Your current learning position, book progress, and fastest ways back into practice.</p></div><div class="v121-membership-badge lifetime"><span>${esc(accessMissing?'Membership unavailable':a.planName||'Membership')}</span><small>${esc(accessMissing?'Unable to confirm current plan':timing(a))}</small></div></div><div class="v1324-summary-grid"><article><strong>${accessMissing?'—':books.length}</strong><span>Books available</span></article><article><strong>${accessMissing?'—':includedTools}</strong><span>Features included</span></article><article><strong>${esc(accessMissing?'Unavailable':a.planName||'Membership')}</strong><span>${esc(accessMissing?'Please retry':timing(a))}</span></article></div><section class="v134-skill-snapshot"><div class="v1324-block-head"><div><div class="eyebrow">Skill Development</div><h2>Skill Snapshot</h2></div><button type="button" class="v1321-link-button" data-open-skills>View Skill Development</button></div><div class="v134-snapshot-grid">${(()=>{
       const strong=skill?.snapshot?.strongest||[],attention=skill?.snapshot?.attention||[],rec=skill?.snapshot?.recommended;
       const card=(label,x)=>x?`<article><span>${label}</span><strong>${esc(x.name)}</strong><small>${esc(skillScoreLabel(x))} · ${esc(x.status||'')}</small></article>`:`<article><span>${label}</span><strong>Not Yet Assessed</strong><small>Complete graded practice to establish evidence.</small></article>`;
       return card('Strongest',strong[0])+card('Needs Attention',attention[0])+(rec?`<article class="recommended"><span>Recommended Next</span><strong>${esc(rec.name||rec.label||'Practice')}</strong><small>${esc(rec.reason||'Build evidence for this skill.')}</small></article>`:`<article class="recommended"><span>Recommended Next</span><strong>Start a graded Lab</strong><small>Your first scored evidence will build this snapshot.</small></article>`);

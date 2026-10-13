@@ -27,7 +27,7 @@ export async function onRequest({request,env}){const action=new URL(request.url)
   const setting=(await rest(env,'site_settings?select=value&setting_key=eq.commerce.checkout_enabled'))[0];
   return respond({ok:true,checkoutEnabled:setting?.value===true,item:{type:it.p.product_type,code:it.code,name:it.title,format:it.format,amount:it.amount,currency:it.currency,enabled:true,billing:'none'}});
  }
- if(action==='create'&&request.method==='POST'){
+ if(action==='create'&&request.method==='POST'){if(env.ENABLE_PAID_CHECKOUT!=='true')return respond({ok:false,error:'Checkout is disabled until provider and legal verification are approved.'},503);
   const b=await request.json().catch(()=>({}));if(!['book','bundle'].includes(b.type))throw failure('Unsupported purchase category.');
   const it=await item(env,v(b.code),v(b.format));const setting=(await rest(env,'site_settings?select=value&setting_key=eq.commerce.checkout_enabled'))[0];if(setting?.value!==true)throw failure('Website checkout is not active yet.',503);
   const intent=crypto.randomUUID();await rest(env,'checkout_intents',{method:'POST',prefer:'return=minimal',body:{intent_id:intent,user_id:u.id,item_type:it.p.product_type,item_code:it.code,amount_cents:it.amount,currency:'USD',status:'created',metadata:{format:it.format,variant:it.variant}}});

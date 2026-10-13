@@ -5,7 +5,7 @@ import json,re
 ROOT=Path(__file__).resolve().parents[1]
 paths={p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
 version=json.loads((ROOT/'PROJECT_MANIFEST.json').read_text())
-assert version['version']=='0.13.5.7.4'
+assert version['version']=='0.13.5.7.5'
 branches=version['manifest_audit']['branch_reconciliation']
 assert branches['old_feature_branch_ahead_of_main_commits']==0
 assert branches['main_sha']=='4f9aad845417cec4691c827dba4c80699e003a0f'

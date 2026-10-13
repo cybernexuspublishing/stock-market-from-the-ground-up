@@ -104,14 +104,44 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  .site-header .fe-notify-button span{display:none!important}
 }
 @media(max-width:900px){.site-header .brand{line-height:1.14;max-width:calc(100% - 65px)}}
-/* One-row, keyboard-accessible Dashboard tabs. No hidden Activity tab. */
-#v1322-member-hub .v1322-member-tabs{display:flex!important;flex-wrap:nowrap!important;
- overflow-x:auto!important;overflow-y:hidden;white-space:nowrap;max-width:100%;scrollbar-width:thin}
-#v1322-member-hub .v1322-member-tabs button{flex:0 0 auto!important;white-space:nowrap}
-#v1322-member-hub .v1322-member-tabs button:focus-visible{outline:2px solid #f0c65c;outline-offset:-2px}
+/* v0.13.5.7.5: dashboard navigation is a complete, non-scrolling grid.
+ * Every tab stays visible; keyboard and pointer users reach Activity on all widths. */
+#v1322-member-hub .v1322-member-tabs,
+#v1322-member-hub .v13-member-tabs.v1322-member-tabs{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr))!important;
+ gap:7px!important;
+ flex-wrap:wrap!important;
+ width:100%!important;
+ max-width:100%!important;
+ height:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ white-space:normal!important;
+ padding:.5rem!important;
+ box-sizing:border-box!important;
+}
+#v1322-member-hub .v1322-member-tabs button{
+ flex:initial!important;
+ min-width:0!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere;
+ text-align:center;
+ line-height:1.35;
+ min-height:44px;
+}
+#v1322-member-hub .v1322-member-tabs button:focus-visible{outline:2px solid #f0c65c;outline-offset:2px}
+@media(max-width:600px){#v1322-member-hub .v1322-member-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* Account Management is a primary Admin sidebar destination, not a detached footer link. */
+#admin-tabs [data-v1352-menu]{display:block!important}
+#admin-tabs .v13-admin-group [data-v1352-menu].active{background:#173e59;border-left:3px solid #edbe4f;color:#fff}
 /* Consistent contrast for admin section and Lab collection filters. */
 .admin-shell .admin-main input[type="search"],.admin-shell .admin-main input[placeholder="Filter this section..."]{
  color:#eff7ff;background:#0a263b;border:1px solid #65859d;border-radius:8px;
  min-height:44px;padding:.65rem .85rem;max-width:100%;box-sizing:border-box}
 .admin-shell .admin-main input[type="search"]::placeholder,.admin-shell .admin-main input[placeholder="Filter this section..."]::placeholder{color:#aec4d5}
 .admin-shell .admin-main input[type="search"]:focus-visible{outline:2px solid #e6bb58;outline-offset:2px}
+
+/* Market Commons: bounded, explicit pagination; no fabricated total forum counts. */
+.v13575-forum-pages{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;margin:15px 0 25px}
+.v13575-forum-pages span{color:#d5e5f0;font-weight:650}

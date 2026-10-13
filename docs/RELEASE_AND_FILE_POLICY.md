@@ -1,6 +1,6 @@
 # Stable file paths and release procedure
 
-**Release candidate:** v0.13.5.7.4. **This entire repository ZIP is not deployed.** The version is in the ZIP filename and a small set of metadata / UI values; it **must not be added to filenames of future editable frontend resources.**
+**Release candidate:** v0.13.5.7.5. **This entire repository ZIP is not deployed.** The version is in the ZIP filename and a small set of metadata / UI values; it **must not be added to filenames of future editable frontend resources.**
 
 ## Canonical naming rules
 

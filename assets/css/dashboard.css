@@ -21,8 +21,8 @@
 #v1322-member-hub .v1322-panel-wrap{display:block;min-width:0}
 #v1322-member-hub [data-v1322-panel]{display:block;min-width:0}
 #v1322-member-hub [data-v1322-panel][hidden]{display:none!important}
-#v1322-member-hub .v1322-member-tabs{display:flex;overflow-x:auto;scrollbar-width:thin;white-space:nowrap}
-#v1322-member-hub .v1322-member-tabs button{flex:0 0 auto}
+#v1322-member-hub .v1322-member-tabs{display:grid;overflow:visible;white-space:normal}
+#v1322-member-hub .v1322-member-tabs button{flex:initial;white-space:normal}
 @media(max-width:760px){#v1322-member-hub .v1322-member-tabs{padding-bottom:.5rem}}
 
 

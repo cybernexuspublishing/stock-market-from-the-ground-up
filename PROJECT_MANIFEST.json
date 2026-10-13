@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.13.5.7.4",
-  "status": "Filename-stable candidate (not deployed). Based on v0.13.5.7.3 stabilization; production checks pending.",
+  "version": "0.13.5.7.5",
+  "status": "Candidate: administrative navigation, Dashboard tab accessibility, Market Commons pagination, fail-closed checkout; source/mock QA only; live preview required.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {

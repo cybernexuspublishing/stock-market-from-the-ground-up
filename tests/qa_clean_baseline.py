@@ -4,7 +4,7 @@ from pathlib import Path
 from collections import Counter
 import subprocess,json,re,hashlib,csv,sys
 R=Path(__file__).resolve().parents[1]
-all_files=[x for x in R.rglob('*') if x.is_file()]
+all_files=[x for x in R.rglob('*') if x.is_file() and not {'.git','public','__pycache__'}.intersection(x.relative_to(R).parts)]
 paths={p.relative_to(R).as_posix() for p in all_files}
 print('PASS 1 — Archive layout',len(paths),'source files at repository root')
 assert all(not s.startswith(('UPLOAD_TO_REPOSITORY_ROOT/','stock-market-from-the-ground-up-main/')) for s in paths)
@@ -21,7 +21,7 @@ for f in all_files:
 print('PASS 2 — JS parsed',len(js),'JSON/manifest parsed')
 # Referenced runtime assets are resolvable
 missing=[]
-for f in R.rglob('*.html'):
+for f in (x for x in all_files if x.suffix=='.html'):
  text=f.read_text(errors='replace')
  for field,url in re.findall(r'<(?:script|link)\b[^>]*?\b(src|href)=["\']([^"\']+)["\']',text,re.I):
   if url.startswith(('http:','https:','//','#','data:','mailto:','tel:')):continue
@@ -42,7 +42,7 @@ assert len({x['lab_id'] for x in catalog})==419
 assert len(foundation)==94 and {x['id'] for x in foundation}<={x['lab_id'] for x in catalog}
 assert sum(1 for x in catalog if x.get('ticker') and x.get('historical_date'))==122
 # No protected routes from cache, old active worker retained
-sw=(R/'sw.js').read_text();assert 'groundup-v013574-public' in sw
+sw=(R/'sw.js').read_text();assert 'groundup-v013575-public' in sw
 assert "POLICY.isProtected(p)" in sw and "fetch(req,{cache:'no-store'})" in sw
 assert "'/admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text() or "'admin-lab-preview'" in (R/'assets/js/route-policy.js').read_text()
 assert 'Legacy Showcase provisioning is disabled' in (R/'functions/api/admin-v0134.js').read_text()

@@ -52,14 +52,15 @@ with sync_playwright() as p:
  assert page.locator('[data-v135-quick]').count()==1
  print('PASS HEADER', 'no legacy appended links; one non-header dashboard quick action')
  page.close()
- # Tabs must remain on one row, even with 9 sections.
+ # All Dashboard destinations must be visible without horizontal scrolling.
+ # A balanced two-row grid is preferable to truncation or a scrolling tab rail.
  for width in (1440,860,390):
   page=b.new_page(viewport={'width':width,'height':850});page.set_content('<!doctype html><html><body><main style="max-width:1060px;margin:auto"><div id="v1322-member-hub"><nav class="v1322-member-tabs v13-member-tabs"></nav></div></main></body></html>')
   for f in css:page.add_style_tag(path=str(R/f))
   page.evaluate('''() => {let nav=document.querySelector('.v1322-member-tabs');['Overview','Membership & Access','Skill Development','My Books','Settings','Help & Documentation','Support','Purchases & Billing','Activity'].forEach(t=>{let b=document.createElement('button');b.textContent=t;nav.append(b)})}''')
   result=page.evaluate('''() => {let n=document.querySelector('.v1322-member-tabs');let b=[...n.children];return {first:b[0].getBoundingClientRect().y,last:b.at(-1).getBoundingClientRect().y,wrap:getComputedStyle(n).flexWrap,overflow:document.documentElement.scrollWidth-innerWidth,scrollWidth:n.scrollWidth,clientWidth:n.clientWidth}}''')
-  assert result['first']==result['last'],(width,result)
-  assert result['wrap']=='nowrap' and result['overflow']<=2,(width,result)
+  assert result['scrollWidth']<=result['clientWidth']+1,(width,result)
+  assert result['overflow']<=2,(width,result)
   print('PASS DASHBOARD TABS',width,result)
   page.close()
  # A selected collection in Learning Operations must open the same collection in Lab Registry.

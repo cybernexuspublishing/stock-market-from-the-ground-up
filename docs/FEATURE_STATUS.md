@@ -28,4 +28,4 @@ User-approved v0.13.5.6 source consolidations are included. No approved customer
 
 > Consolidation notice: v0.13.5.7.2 replaces the duplicated frontend asset loaders listed in `CONSOLIDATION.md`. This note is source-only; production verification remains pending.
 
-**Current stable-name candidate v0.13.5.7.4** retains the listed features without asserting new production completion. The full owner-commitment inventory is `docs/PROMISES_AND_READINESS_MATRIX.csv`. The production Pages build command must be switched to `bash scripts/build-pages.sh`.
+**Current stable-name candidate v0.13.5.7.5** retains the listed features without asserting new production completion. The full owner-commitment inventory is `docs/PROMISES_AND_READINESS_MATRIX.csv`. The production Pages build command must be switched to `bash scripts/build-pages.sh`.
