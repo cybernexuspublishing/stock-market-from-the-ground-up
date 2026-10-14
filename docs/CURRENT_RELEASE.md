@@ -1,11 +1,7 @@
-# Current Source Candidate — v0.14.0.8 (October 13, 2026)
+# v0.14.0.9 — Admin Navigation Registry & DOM Ownership (Candidate)
 
-**Locally tested UI repair; production deployment not performed by assistant.** Derived from source package v0.14.0.7.
+Previous baseline: v0.14.0.8. This release retires three conflicting Admin sidebar composers, introduces a single registry-driven sidebar, and adds an Owner-only persistent Control Manager with a new additive Supabase migration.
 
-- Corrects stale v0.13.5.7.6 production badge to reflect deployed metadata.
-- Repairs destroyed sidebar controls and retains all originally installed authorized modules and links.
-- Makes eight dashboard statistics actionable, exposes all member reports and a separate modern Market Commons moderation queue.
-- Keeps P0-P2 platform requirements and paid checkout OFF; **no new SQL for this version**.
-- SQL A from v0.14.0.7 was reported applied by Owner. SQL B remains deferred until both reporting systems pass tests.
+**Not production certified.** Apply the read-only preflight and the v0.14.0.9 migration before testing the Manager. All paid checkout remains disabled. The v0.14.0.7 SQL B security lockdown is still pending verified forum reports on both frontend interfaces.
 
-**See:** `docs/v0.14.0.8_ADMIN_NAVIGATION_AND_REPORTS.md`.
+See `docs/v0.14.0.9_ADMIN_CONTROL_REGISTRY_AND_RUNTIME_AUDIT.md` for exact files, changes, limitations, tests and deployment order.

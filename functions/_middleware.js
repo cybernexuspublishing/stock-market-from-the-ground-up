@@ -183,7 +183,7 @@ export async function onRequest(context){
         }
         if(path==='/labs.html'||path==='/labs')
           el.append('<style id="v011-lab-registry-gate">body{visibility:hidden}</style>',{html:true});
-        el.append('<meta name="application-version" content="v0.14.0.8">',{html:true});
+        el.append('<meta name="application-version" content="v0.14.0.9">',{html:true});
         el.append('<meta name="theme-color" content="#061827">',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
         for(const file of [
@@ -227,11 +227,11 @@ export async function onRequest(context){
         if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/admin-operations.css">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/control-center.css">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/accounts-and-lab-preview.css">',{html:true});
-        if(path==='/admin.html'||path==='/admin'){el.append('<link rel="stylesheet" href="/assets/css/admin-navigation.css">',{html:true});el.append('<script defer src="/assets/js/admin-navigation.js"></script>',{html:true});}
+        if(path==='/admin.html'||path==='/admin'){el.append('<link rel="stylesheet" href="/assets/css/admin-navigation.css">',{html:true});/* admin.html loads navigation script once; no second middleware injection */}
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.8');
+        el.setAttribute('data-build','v0.14.0.9');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');

@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url);
+const source=fs.readFileSync(new URL('../functions/api/admin-control-registry.js',import.meta.url),'utf8');
+const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const env={SUPABASE_URL:'https://mock.example',SUPABASE_PUBLISHABLE_KEY:'public',SUPABASE_SECRET_KEY:'private',REQUIRE_STAFF_AAL2_V135:'false'};
+const resp=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
+async function invoke(label,opts){const urls=[];globalThis.fetch=async(url,request)=>{urls.push([url,request]);if(url.endsWith('/auth/v1/user'))return resp({id:'00000000-0000-4000-8000-000000000000'});
+ if(url.includes('profiles?'))return resp([{account_kind:opts.account||'member'}]);
+ if(url.includes('admin_user_roles?'))return resp(opts.role===false?[]:[{role_code:'OWNER'}]);
+ if(url.includes('admin_user_flags?'))return resp(opts.status?[{status:opts.status}]:[]);
+ if(url.includes('admin_control_registry_v01409?'))return resp([{control_key:'builtin:panel-dashboard',label:'Dashboard',kind:'builtin',is_visible:true,group_name:'Overview',sort_order:1}]);
+ if(url.includes('/rpc/v01409_admin_control_save'))return resp({ok:true});
+ throw Error('Unexpected fetch '+url)};
+ const request=new Request('https://site.example/api/admin-control-registry',{method:opts.method||'GET',headers:opts.unauth?{}:{authorization:'Bearer SAMPLE','content-type':'application/json'},body:opts.method==='POST'?JSON.stringify(opts.payload):undefined});
+ const result=await onRequest({request,env}),body=await result.json();assert.equal(result.status,opts.expect,label+' '+JSON.stringify(body));
+ if(opts.expect!==200)assert.equal(urls.filter(x=>x[0].includes('/rpc/v01409_admin_control_save')).length,0,'no writes for denied');console.log('PASS',label);}
+const config={controlKey:'builtin:panel-users',label:'Users',group:'Accounts & Access',order:20,visible:true,kind:'builtin'};
+await invoke('no session',{unauth:true,expect:401});
+await invoke('non Owner',{role:false,expect:403});
+await invoke('Showcase',{account:'showcase',expect:403});
+await invoke('test',{account:'test',expect:403});
+await invoke('suspended',{status:'suspended',expect:403});
+await invoke('restricted',{status:'restricted',expect:403});
+await invoke('Owner read',{expect:200});
+await invoke('Owner save',{method:'POST',payload:config,expect:200});
+await invoke('no external custom URL',{method:'POST',payload:{...config,controlKey:'custom:thing123',kind:'custom_link',href:'https://evil.example'},expect:400});
+await invoke('no api URL',{method:'POST',payload:{...config,controlKey:'custom:thing123',kind:'custom_link',href:'/api/private'},expect:400});
+for(const fn of ['frontend-complete','production-completion','admin-legacy-routing']){
+ const s=fs.readFileSync(new URL(`../assets/js/${fn}.js`,import.meta.url),'utf8');
+ assert.match(s,/Retired v0\.14\.0\.9/,'competing nav removed: '+fn);
+ assert.doesNotMatch(s,/tabs\.innerHTML='';tabs\.appendChild\(frag\)/,'destructive grouping removed: '+fn);
+}
+const navigation=fs.readFileSync(new URL('../assets/js/admin-navigation.js',import.meta.url),'utf8');
+assert.match(navigation,/window\.__groundupAdminNavigationOwner/);
+assert.match(navigation,/replaceChildren\(fragment\)/);
+assert.match(navigation,/admin-control-registry/);
+const sql=fs.readFileSync(new URL('../supabase/migrations/v0.14.0.9_ADMIN_CONTROL_REGISTRY.sql',import.meta.url),'utf8');
+assert.match(sql,/ENABLE ROW LEVEL SECURITY/);
+assert.match(sql,/REVOKE ALL ON FUNCTION .* FROM PUBLIC,anon,authenticated/);
+assert.match(sql,/p_key IN \('builtin:panel-dashboard'/);
+console.log('v0.14.0.9 security and sidebar single-owner tests passed');
