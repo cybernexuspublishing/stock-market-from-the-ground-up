@@ -1,3 +1,23 @@
+# The Stock Market: From the Ground Up — v0.14.0.11
+
+**Status: local engineering candidate; not deployed or verified against production Supabase.**
+
+## Owner Interface & Content Scheduling
+
+- Repaired responsive Owner Question Bank and Grant Web Solutions draft forms. Layout improvements do not modify or publish instructional or client-site data.
+- Homepage member statistics support owner-selected rotating demonstration values (configured numerical ranges; variable interval from 1–30 minutes). Demonstration statistics remain marked **Demo**, not falsely represented as live membership.
+- Live statistics remain based on recorded members active in the preceding 60 minutes.
+- Existing `site_announcements` now has editable scheduling, enabling/disabling, and confirmation-gated permanent deletion through a permission-checked Owner editor.
+- A read-only, server-filtered public announcement endpoint displays only active, in-window notices to their authorized audience; public-facing content is rendered as text, never executable HTML.
+
+**No new SQL migrations are required for this release, provided `site_announcements` already exists.** Use the existing database migration history; do not rerun it indiscriminately.
+
+Detailed testing, production acceptance and limitations: `docs/v0.14.0.11_OWNER_STATISTICS_AND_ANNOUNCEMENTS.md`.
+
+Checkout remains disabled. The pending v0.14.0.7 SQL B lockdown remains a separate migration and must not be applied before forum reporting is verified.
+
+Cloudflare Pages build: `bash scripts/build-pages.sh` → `public/`.
+
 # The Stock Market: From the Ground Up
 
 **Development candidate: v0.14.0.10 — Idempotent Admin Sidebar and Module-Mount Preservation**

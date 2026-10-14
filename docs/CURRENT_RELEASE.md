@@ -1,11 +1,7 @@
-# Current Development Release
+# Current Development Release — v0.14.0.11
 
-**Version:** v0.14.0.10
+Status: Locally verified source package. Production integration pending.
 
-**Status:** locally tested candidate; not deployed; no new SQL migration.
+Scope: responsive Owner instruction/GWS forms; Owner-configurable 1–30 minute rotation of transparently labeled Demo statistics; scheduled/editable/disableable/deletable site announcements with server-side audience/date filtering. No migrations introduced.
 
-**Focus:** restore idempotent Admin navigation by preserving original mounted module roots while grouping controls; enforce one visible control per stable key; preserve native handlers and Owner registry.
-
-Detailed evidence and deployment verification: `docs/v0.14.0.10_ADMIN_SIDEBAR_DUPLICATE_ROOT_CAUSE.md`.
-
-All previously recorded v0.14.0.9 registry security requirements remain in force.
+See `docs/v0.14.0.11_OWNER_STATISTICS_AND_ANNOUNCEMENTS.md`. Existing v0.14.0.7 SQL B remains gated on two-forum live reporting acceptance.

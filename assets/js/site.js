@@ -18,4 +18,4 @@ function membershipState(){
     if(cfg.MEMBERSHIP_CHECKOUT_URL){el.href=cfg.MEMBERSHIP_CHECKOUT_URL}else{el.classList.add('disabled');el.textContent='Membership checkout — setup pending';el.removeAttribute('href')}
   })
 }
-document.addEventListener('DOMContentLoaded',()=>{setYear();salesState();membershipState()});
+document.addEventListener('DOMContentLoaded',()=>{setYear();salesState();membershipState();if(!document.querySelector('script[data-v01411-announcements]')){const script=document.createElement('script');script.defer=true;script.dataset.v01411Announcements='1';script.src='/assets/js/site-announcements.js';document.head.append(script)}});

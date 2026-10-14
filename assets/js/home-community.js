@@ -15,8 +15,8 @@
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');
   panel.innerHTML='<div class="eyebrow">Our Learning Community</div><h2>Members</h2>'+
-    '<div class="v1353-stat-row"><strong data-online>—</strong><span>Online members — active in the last 1 hour</span></div>'+
-    '<div class="v1353-stat-row"><strong data-registered>—</strong><span>Registered members</span></div>'+
+    '<div class="v1353-stat-row"><strong data-online>—</strong><span data-online-label>Online members — active in the last 1 hour</span></div>'+
+    '<div class="v1353-stat-row"><strong data-registered>—</strong><span data-registered-label>Registered members</span></div>'+
     '<p data-caption class="small">Loading statistics…</p>';
   if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
   else {const content=document.createElement('div');content.className='v1353-hero-body';
@@ -27,10 +27,11 @@
   if(snapshot){
    const d=snapshot;if(d.show===false){panel.hidden=true;hero?.classList.remove('v1358-stat-visible');return}
    panel.hidden=false;hero?.classList.add('v1358-stat-visible');
-   panel.querySelector('[data-online]').textContent=d.mode==='range'?`${Number(d.onlineRange?.[0]||0).toLocaleString()}–${Number(d.onlineRange?.[1]||0).toLocaleString()}`:Number(d.online||0).toLocaleString();
-   panel.querySelector('[data-registered]').textContent=d.mode==='range'?`${Number(d.registeredRange?.[0]||0).toLocaleString()}–${Number(d.registeredRange?.[1]||0).toLocaleString()}`:Number(d.registered||0).toLocaleString();
-   panel.querySelector('[data-caption]').textContent=['custom','range'].includes(d.mode)?'Illustrative Owner-configured figures — NOT live member counts.':
-     d.label||'Approximate online members, active in the last 1 hour';
+   panel.querySelector('[data-online]').textContent=Number(d.online||0).toLocaleString();
+   panel.querySelector('[data-registered]').textContent=Number(d.registered||0).toLocaleString();
+   const demo=['custom','range'].includes(d.mode);panel.querySelector('[data-online-label]').textContent=demo?'Example online members':'Online members — active in the last 1 hour';panel.querySelector('[data-registered-label]').textContent=demo?'Example registered members':'Registered members';
+   panel.querySelector('[data-caption]').textContent=demo?'Demo':(d.label||'Approximate activity, last 1 hour');
+   panel.querySelector('[data-caption]').classList.toggle('v01411-demo-tag',['custom','range'].includes(d.mode));
   }else if(failed){panel.querySelector('[data-caption]').textContent='Member statistics temporarily unavailable.'}
  }
  async function update(){if(inflight)return;const panel=mount();if(!panel)return;inflight=true;
@@ -39,7 +40,7 @@
    const d=await r.json();if(!r.ok||!d.ok)throw Error('Member statistics unavailable');
    snapshot=d;failed=false;
   }catch{failed=true}
-  finally{inflight=false;paint(mount());}
+  finally{inflight=false;paint(mount());if(refreshTimer)clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{if(!document.hidden)update();else{refreshTimer=setTimeout(update,60000)}},Math.max(30000,Math.min(1800000,Number(snapshot?.nextRefreshSeconds||60)*1000)));}
  }
  function sync(){const panel=mount();if(panel&&!snapshot&&!inflight)update()}
  function init(){
@@ -52,7 +53,7 @@
   });observer.observe(main,{childList:true,subtree:true})}
   sync();
   let attempts=0;const bootstrap=setInterval(()=>{if(mount()||++attempts>=50){clearInterval(bootstrap);if(!snapshot&&!inflight)update()}},200);
-  refreshTimer=setInterval(()=>{if(!document.hidden)update()},60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)update()});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
