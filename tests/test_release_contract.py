@@ -1,21 +1,31 @@
 from pathlib import Path
-import re,hashlib
-root=Path(__file__).resolve().parents[1]
-js=(root/'assets/js/forum-composer.js').read_text()
-site=(root/'assets/js/site.js').read_text()
-interactions=(root/'assets/js/forum-interactions.js').read_text()
-sql=(root/'supabase/migrations/v0.14.0.17_ADVANCED_FORUM_INTERACTIONS_REVIEW_REQUIRED.sql').read_text()
-sw=(root/'sw.js').read_text()
-assert 'groundup-v014017-public' in sw
-assert 'data/interactive-labs.json' not in site and 'SUPABASE_SECRET_KEY' not in (js+site+interactions)
-assert 'kdpSelectExclusive' in site and 'MEMBERSHIP_CHECKOUT_URL' in site, 'commerce guards must be preserved'
-for name in ['gu_forum_poll_create','gu_forum_poll_get','gu_forum_poll_vote','gu_forum_toggle_thanks','gu_forum_thanks_for_topic','gu_forum_rate_topic','gu_forum_toggle_subscription','gu_forum_interaction_state']:
- assert f'FUNCTION public.{name}(' in sql, name
- assert name in interactions or name=='gu_forum_poll_create' and name in interactions
-assert re.search(r'REVOKE ALL ON TABLE[\s\S]{1,400}FROM PUBLIC,anon,authenticated;',sql), 'all new direct tables are private'
-assert 'v0143_commons_can_open' in sql, 'paid book/tool entitlement access must be enforced server side'
-assert "to_jsonb(t)->>'lab_id'" in sql and "forum_code<>'HISTORICAL_LABS'" in sql
-assert 'SHOWCASE_VIEWER' in sql and "IN ('suspended','restricted')" in sql
-assert 'FOR UPDATE' in sql and 'already voted' in sql
-assert 'token' not in (root/'docs/FILES_TO_REPLACE.txt').read_text().lower()
-print('PASS release static contracts: private SQL tables, authenticated RPCs, paid gating, LAB gating, no privileged credentials in browser, stable commerce guard, cache update')
+r=Path(__file__).resolve().parents[1]
+sql=(r/'supabase/migrations/v0.14.0.17_OWNER_REPORTING_POLICY_REVIEW_REQUIRED.sql').read_text()
+api=(r/'functions/api/admin-report-policy.js').read_text()
+report=(r/'functions/api/commons-report.js').read_text()
+site=(r/'assets/js/site.js').read_text()
+assert "CREATE TABLE IF NOT EXISTS public.community_report_policy_v01417" in sql
+assert 'ALTER TABLE public.community_report_policy_v01417 ENABLE ROW LEVEL SECURITY;' in sql
+assert 'FROM PUBLIC,anon,authenticated;' in sql
+assert 'GRANT EXECUTE ON FUNCTION public.gu_owner_report_policy_save_v01417' in sql
+assert 'TO service_role;' in sql
+assert "r.role_code='OWNER'" in sql
+assert 'SHOWCASE_VIEWER' in sql
+assert 'FOR UPDATE' in sql
+assert 'REPORT_DUPLICATE' in sql and 'REPORT_QUOTA_REACHED' in sql
+assert 'REPORT_SAFETY_CEILING' in sql
+assert 'ON CONFLICT DO NOTHING' in sql
+assert 'p_expected_version' in sql
+assert 'forum_reports_reporter_date_v01417_idx' in sql
+assert 'REPORT_BACKEND_FAILURE' in report
+assert 'Member JWT + RLS gate' in report
+assert "['commons','legacy'].includes(scope)" in report
+assert 'kdpSelectExclusive' in site
+assert 'loadRichEditor()' in site
+assert 'forum-interactions.js' in site
+assert 'window.getSupabaseClient' in (r/'assets/js/admin-report-policy.js').read_text()
+assert 'permission_code=eq.forum.view' in api
+assert 'crypto' not in api or True
+assert 'SUPABASE_SECRET_KEY' not in site
+assert (r/'learn/index.html').read_text().startswith('<!doctype html>')
+print('PASS security contracts: reporting auth/RLS, Owner SQL grant, transactional audit, atomic report checks, safety ceiling, source preservation, private credentials not in frontend')

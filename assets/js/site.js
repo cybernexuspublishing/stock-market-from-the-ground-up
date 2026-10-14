@@ -30,6 +30,11 @@ function loadRichEditor(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
+  // Reporting safeguards are integrated into the established Market Commons/Admin panels.
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){
+    const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/admin-report-policy.css';document.head.append(style);
+    const script=document.createElement('script');script.src='/assets/js/admin-report-policy.js';script.defer=true;document.head.append(script);
+  }
   if(/^\/(forum-topic|market-commons)(\.html)?$/.test(location.pathname)&&new URLSearchParams(location.search).has(/forum-topic/.test(location.pathname)?'id':'topic')){const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/forum-interactions.css';document.head.append(style);const x=document.createElement('script');x.src='/assets/js/forum-interactions.js';x.defer=true;document.head.append(x)}
   if(!document.querySelector('script[data-v01411-announcements]')){
     const script=document.createElement('script');script.defer=true;script.dataset.v01411Announcements='1';script.src='/assets/js/site-announcements.js';document.head.append(script);

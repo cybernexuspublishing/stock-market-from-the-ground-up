@@ -1,0 +1,125 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "v0.14.0.17",
+  "release_type": "targeted overlay \u2014 not complete repository",
+  "source_repo": "cybernexuspublishing/stock-market-from-the-ground-up",
+  "source_main_sha": "6b5809c212887f25b7242408b9cddb0c57255fb1",
+  "live_deployed_sha": "unverified",
+  "supabase_migration_status": "NOT EXECUTED",
+  "cloudflare_deployment_status": "NOT DEPLOYED",
+  "qa_status": "partial; frontend NOT signed off",
+  "modified_or_replaced_runtime": [
+    "assets/js/site.js",
+    "functions/api/commons-report.js",
+    "learn/index.html"
+  ],
+  "new_runtime": [
+    "assets/js/admin-report-policy.js",
+    "assets/css/admin-report-policy.css",
+    "functions/api/admin-report-policy.js"
+  ],
+  "sql_migration": "supabase/migrations/v0.14.0.17_OWNER_REPORTING_POLICY_REVIEW_REQUIRED.sql",
+  "known_blockers": [
+    "cannot verify current full GitHub snapshot in local container",
+    "production Supabase RPC and auth state not tested",
+    "20 frontend historical-snapshot issues require manual review",
+    "real multi-role browser end-to-end and mobile/accessibility regression untested"
+  ],
+  "files": [
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 7224,
+      "sha256": "a4502c3ce644eb6416eb3d42eb26d6254293a121ed632058dd58a7d9ce8dd699"
+    },
+    {
+      "path": "assets/css/admin-report-policy.css",
+      "bytes": 1476,
+      "sha256": "ff9e912c09b0f70749e07ae6c3c0c94375ae4c59e5d2950e1fd9d3d4ae689436"
+    },
+    {
+      "path": "assets/js/admin-report-policy.js",
+      "bytes": 6567,
+      "sha256": "a2fe08bed131c3aca5d3bda6866f8da4646ef753cf44de0bb739a269672b57e2"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 3345,
+      "sha256": "e463afd0ba0cf9018bbd8323b61c9401fe5cdf618129b85624fa34f6afa64557"
+    },
+    {
+      "path": "docs/FRONTEND_AUDIT_REPORT.md",
+      "bytes": 6325,
+      "sha256": "3ca1a3a005d51b3ad2290846b03bf928b569018c962f66423126170102bcfb68"
+    },
+    {
+      "path": "docs/FRONTEND_REVIEW_CANDIDATES.csv",
+      "bytes": 1382,
+      "sha256": "6f49a2120cd9de1ab1004263047fbc7378deedec021b12850f26aa04817b5893"
+    },
+    {
+      "path": "docs/INSTALL_AND_DEPLOYMENT.md",
+      "bytes": 2785,
+      "sha256": "c204cb0cac6884d480d7ec5e3ff1dce88866c1252c2610ca75ce02ceb83eeb05"
+    },
+    {
+      "path": "docs/SNAPSHOT_WITH_POLICY_FRONTEND_SCAN.json",
+      "bytes": 3655,
+      "sha256": "199d69b2aa0f253e17934b0c8ec02071101b0013e8fec8c5dbec93504686e656"
+    },
+    {
+      "path": "functions/api/admin-report-policy.js",
+      "bytes": 5084,
+      "sha256": "8c09902fe95069b5321f76c7a4cb8369482808099f6843db91b839657474900c"
+    },
+    {
+      "path": "functions/api/commons-report.js",
+      "bytes": 6178,
+      "sha256": "22d601984ec897003e0bfb4f246871ab2ffcf461f44d7bce5398e54d4416bec2"
+    },
+    {
+      "path": "learn/index.html",
+      "bytes": 412,
+      "sha256": "879965d0804bcada3f2011d6d5e383552a7e9a7519c9a1061318302859fc10b7"
+    },
+    {
+      "path": "scripts/audit_frontend.py",
+      "bytes": 4301,
+      "sha256": "092c4ed70851f7f15f061573399794922394798e7a517762d6d1e010b7c44ba8"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.17_REPORT_POLICY_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1341,
+      "sha256": "67351cb2e28c69b12b0c40d0d87a009efb1142017bcc3cff0c66ae20b3330295"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.17_REPORT_POLICY_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1214,
+      "sha256": "a65c9c7a8322057ff36d52b69daf636765a7c367aa41fccc84094cd1d0f46c7f"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.17_OWNER_REPORTING_POLICY_REVIEW_REQUIRED.sql",
+      "bytes": 7807,
+      "sha256": "0cc19a55e49c8a839ca34d6db0a932756dde44b7da58508b08cf2613a496462a"
+    },
+    {
+      "path": "tests/test_release_contract.py",
+      "bytes": 1701,
+      "sha256": "2e71e1b1a414686d3a70ff4bcd20638c84da7448e0bd47d7f7fb03c052fb4dba"
+    },
+    {
+      "path": "tests/test_report_failures.mjs",
+      "bytes": 2627,
+      "sha256": "a2f6d6baf8d4656498863ecdd8723ba4444d74be068bc3148e4ec22f720d4b5e"
+    },
+    {
+      "path": "tests/test_reporting_policy_api.mjs",
+      "bytes": 3577,
+      "sha256": "16432cd07a232b0eb91be2e5b66bfc9faa2e7f93392148bc8ce51905bf94db54"
+    },
+    {
+      "path": "tests/test_reporting_policy_ui.py",
+      "bytes": 2552,
+      "sha256": "6b75bbfc3db9e0457ddeb7a225055efc98251b201abe48dd1ca1c8f970f0e1b9"
+    }
+  ]
+}

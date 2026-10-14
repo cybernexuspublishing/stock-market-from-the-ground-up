@@ -50,7 +50,20 @@ export async function onRequestPost({request,env}){
  }
  // Quota, de-duplication and insert MUST happen in one SQL transaction.
  const r=await fetch(url+'/rest/v1/rpc/v014_community_report',{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json'},body:JSON.stringify({p_actor:me.id,p_type:type,p_content:contentId,p_reason:reason,p_details:details}),cache:'no-store'});
- if(!r.ok)return out({ok:false,error:'Report could not be accepted; check duplicate or daily quota.'},r.status===409?409:429);
+ if(!r.ok){
+   const responseBody=await r.json().catch(()=>({}));
+   const message=String(responseBody?.message||'');
+   const codeMap={
+    REPORT_DUPLICATE:['DUPLICATE_REPORT','You have already reported this content within the configured duplicate window.',409],
+    REPORT_QUOTA_REACHED:['REPORT_QUOTA_REACHED','You have reached the configured report allowance. Try again after the reporting window.',429],
+    REPORT_SAFETY_CEILING:['REPORT_SAFETY_LIMIT','The reporting safety limit has been reached. Contact support if you need to report urgent content.',429],
+    REPORT_NOT_AUTHORIZED:['REPORT_NOT_AUTHORIZED','Your account is not permitted to submit this report.',403],
+    REPORT_INVALID:['INVALID_REPORT','The report could not be accepted. Review the details and try again.',400]
+   };
+   const found=Object.entries(codeMap).find(([prefix])=>message===prefix)?.[1];
+   if(found)return out({ok:false,code:found[0],error:found[1]},found[2]);
+   return out({ok:false,code:'REPORT_BACKEND_FAILURE',error:'Report could not be processed. Please try again later.'},503);
+ }
  return out({ok:true,message:'Report submitted for moderator review.'});
  }catch(e){return out({ok:false,error:e.status===401?'Sign in to report content.':'Report service temporarily unavailable.'},e.status===401?401:503)}
 }

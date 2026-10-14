@@ -1,0 +1,11 @@
+.gu-admin-report-policy{margin-top:1.5rem;scroll-margin-top:1.5rem;border:1px solid var(--border,#52768e);border-radius:12px;padding:1.2rem;background:var(--panel,#0b2b42);color:var(--text,#f1f8ff)}
+.gu-admin-report-policy h2{margin-top:0}.gu-admin-report-policy p{line-height:1.55}
+.gu-policy-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;margin-top:1rem}
+.gu-policy-toggle,.gu-policy-number{display:grid;gap:.35rem;border:1px solid #6c8ca0;border-radius:9px;padding:1rem;min-width:0}
+.gu-policy-toggle-line{display:flex;align-items:center;gap:.6rem}.gu-policy-toggle input[type=checkbox]{height:22px;width:22px;accent-color:#e7bb57}
+.gu-policy-number input{background:#fff;color:#122534;font:inherit;max-width:200px;min-height:44px;padding:.4rem .65rem;border:1px solid #aaa;border-radius:6px;box-sizing:border-box}
+.gu-policy-form small{color:inherit;opacity:.85;line-height:1.45}.gu-policy-form button{justify-self:start;min-height:44px}
+.gu-policy-form p{grid-column:1/-1}.gu-policy-message{min-height:1.4rem;font-weight:600}
+.gu-policy-settings-shortcut{margin-top:1rem;padding:1rem;border:1px solid #52768e;border-radius:9px}
+.gu-policy-form input:disabled{opacity:.55;cursor:not-allowed}.gu-policy-form input:focus-visible,.gu-admin-report-policy button:focus-visible{outline:3px solid #e7bb57;outline-offset:2px}
+@media(max-width:620px){.gu-policy-form{grid-template-columns:1fr}.gu-admin-report-policy{padding:.8rem}}

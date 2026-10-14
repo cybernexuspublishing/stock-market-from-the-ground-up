@@ -1,0 +1,21 @@
+severity,category,file,details
+REVIEW,inline event handler,account.html,button profileSignOut()
+REVIEW,unlabeled input,admin.html,input id=admin-user-search
+REVIEW,inline event handler,create-account.html,form createAccount(event)
+REVIEW,inline event handler,forum-topic.html,button reportTopic()
+REVIEW,inline event handler,forum-topic.html,form addReply(event)
+REVIEW,unlabeled input,forum.html,input id=forum-search
+REVIEW,inline event handler,forum.html,button toggleNewTopic()
+REVIEW,inline event handler,forum.html,form createTopic(event)
+REVIEW,inline event handler,forum.html,button toggleNewTopic()
+REVIEW,unlabeled input,help.html,input id=help-search
+REVIEW,unlabeled input,journal.html,input id=journal-search
+REVIEW,unlabeled input,labs.html,input id=q
+REVIEW,unlabeled input,labs.html,input id=ticker-filter
+REVIEW,unlabeled input,market-tutor.html,input id=tutor-question
+REVIEW,inline event handler,settings.html,form saveSettings(event)
+REVIEW,inline event handler,settings.html,button submitBookKey()
+REVIEW,inline event handler,signin.html,form doSignIn(event)
+REVIEW,inline event handler,signin.html,button document.getElementById('reset-panel').hidden=!document.getElementById('reset-panel').hidd
+REVIEW,inline event handler,signin.html,button sendPasswordReset()
+REVIEW,inline event handler,update-password.html,form updatePassword(event)

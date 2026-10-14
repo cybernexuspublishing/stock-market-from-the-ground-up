@@ -1,0 +1,149 @@
+{
+  "root": "/mnt/data/v0.14.0.17_POLICY_BUILD_TEST_TEMP",
+  "counts": {
+    "html": 69,
+    "js": 148,
+    "css": 25
+  },
+  "issues": [
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "account.html",
+      "details": "button profileSignOut()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "admin.html",
+      "details": "input id=admin-user-search"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "create-account.html",
+      "details": "form createAccount(event)"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "forum-topic.html",
+      "details": "button reportTopic()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "forum-topic.html",
+      "details": "form addReply(event)"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "forum.html",
+      "details": "input id=forum-search"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "forum.html",
+      "details": "button toggleNewTopic()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "forum.html",
+      "details": "form createTopic(event)"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "forum.html",
+      "details": "button toggleNewTopic()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "help.html",
+      "details": "input id=help-search"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "journal.html",
+      "details": "input id=journal-search"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "labs.html",
+      "details": "input id=q"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "labs.html",
+      "details": "input id=ticker-filter"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "unlabeled input",
+      "file": "market-tutor.html",
+      "details": "input id=tutor-question"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "settings.html",
+      "details": "form saveSettings(event)"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "settings.html",
+      "details": "button submitBookKey()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "signin.html",
+      "details": "form doSignIn(event)"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "signin.html",
+      "details": "button document.getElementById('reset-panel').hidden=!document.getElementById('reset-panel').hidd"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "signin.html",
+      "details": "button sendPasswordReset()"
+    },
+    {
+      "severity": "REVIEW",
+      "category": "inline event handler",
+      "file": "update-password.html",
+      "details": "form updatePassword(event)"
+    }
+  ],
+  "checks": {
+    "node_check": {
+      "checked": 148,
+      "failed": 0
+    },
+    "pages_scanned": 69,
+    "css_count": 25,
+    "duplicate_ids": 0,
+    "missing_lang_pages": 0,
+    "asset_refs": 429,
+    "third_party_refs": 0
+  },
+  "severity_totals": {
+    "REVIEW": 20
+  },
+  "category_totals": {
+    "inline event handler": 13,
+    "unlabeled input": 7
+  }
+}
