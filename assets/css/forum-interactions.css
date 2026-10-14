@@ -1,0 +1,18 @@
+/* v0.14.0.17: optional advanced community actions, only active after verified schema rollout. */
+.gu-community-tools{border:1px solid #37617d;border-radius:12px;background:#0c263a;color:#ecf3fa;padding:clamp(.8rem,2.3vw,1.3rem);margin:1.2rem 0;max-width:100%;min-width:0}
+.gu-community-tools h2{font-size:1.3rem;margin:.2rem 0 .7rem}
+.gu-community-actions,.gu-post-extras{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+.gu-community-actions label,.gu-thread-search,.gu-poll-form label,.gu-poll-create label{display:grid;gap:.45rem;min-width:0}
+.gu-community-actions select,.gu-community-tools input:not([type=checkbox]):not([type=radio]),.gu-community-tools textarea{border:1px solid #527993;border-radius:6px;background:#061b2c;color:#edf4fd;padding:.55rem .7rem;font:inherit;max-width:100%;box-sizing:border-box}
+.gu-community-tools fieldset{border:1px solid #3b6a84;border-radius:8px;margin:.9rem 0;padding:.7rem}
+.gu-community-tools button,.gu-post-extras button{min-height:40px}
+.gu-community-tools [data-gu-poll]{margin-top:1rem;border-top:1px solid #375e77;padding-top:.8rem}
+.gu-poll-choice{display:flex!important;flex-wrap:wrap;align-items:center;gap:.65rem;min-height:44px;border-bottom:1px solid #274a62;padding:.4rem .2rem}
+.gu-poll-choice span{flex:1;min-width:120px}.gu-poll-choice small{color:#c9d7e2}
+.gu-community-tools textarea{width:100%;min-height:120px}.gu-poll-create{max-width:850px;display:grid;gap:.8rem}
+.gu-post-extras{padding:.6rem .1rem;border-top:1px solid #345a73;margin-top:.75rem}
+.gu-post-extras a,.gu-community-tools a{color:#f3d278;text-decoration:none}
+.gu-post-extras label{display:inline-flex;align-items:center;gap:.45rem}
+.gu-community-tools [data-gu-status]{min-height:1.4rem;color:#f6ce64;font-size:.88rem}
+@media(max-width:650px){.gu-community-actions{align-items:stretch}.gu-community-actions>*{flex:1 1 135px}.gu-post-extras{gap:.4rem}.gu-post-extras>*{flex:1 1 auto}}
+@media print{.gu-community-tools,.gu-post-extras,.gu-forum-toolbar,.gu-source-panel{display:none!important}}

@@ -1,7 +1,7 @@
-/* v0.13.5: no persistent private-page cache or offline private-page fallback. */
+/* v0.14.0.17: no persistent private-page cache or offline private-page fallback. */
 importScripts('/assets/js/route-policy.js');
 const POLICY=self.GroundUpRoutePolicy;
-const CACHE='groundup-v014016-public';
+const CACHE='groundup-v014017-public';
 const PUBLIC_CORE=['/','/offline.html','/signin.html','/create-account.html',
   '/store.html','/membership.html','/help.html',
   '/assets/js/route-policy.js',

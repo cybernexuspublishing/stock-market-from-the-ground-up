@@ -1,0 +1,168 @@
+category,capability,release_status,explanation
+New thread,Create thread,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+New thread,Title,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+New thread,Prefix,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+New thread,Post icon,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+New thread,Rich message editor,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,BBCode source,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,WYSIWYG visual,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Editor mode selection,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Image URLs,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,File uploads,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+New thread,External links,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Poll creation,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+New thread,Emojis,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Disable smilies,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+New thread,Code blocks,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Quotes,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Tables,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Spoilers,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Member mentions,Editor component implemented; integration acceptance pending,Visual @username only; account resolution and notifications not implemented.
+New thread,Galleries,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+New thread,Submit thread,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Text formatting,Bold,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Italic,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Underline,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Strikethrough,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Text color,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Font size,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Font family,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Highlight,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Align left,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Align center,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Align right,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Justify,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Indent,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Horizontal divider,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Bullet list,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Numbered list,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Alphabetical list,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Roman list,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Table,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,External link,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Custom link title,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Email link,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Thread link,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Post link,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Image URL,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Float image left,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Float image right,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Attachment ID,Safe unavailable indicator only,Actual private file storage and access control not implemented.
+Text formatting,Gallery,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Anchor,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Anchorlink,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Quote,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Attributed quote,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Code,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,PHP code display,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,HTML source code display,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,No parse,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Spoiler,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Named spoiler,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Text formatting,Member mention,Editor component implemented; integration acceptance pending,Visual @username only; account resolution and notifications not implemented.
+Text formatting,Language-specific text,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Reply form,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Replies,Quick reply,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Replies,Quote reply,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Replies,Multi-quote,Client control implemented; integration acceptance pending,"Browser interaction, does not create new database records. Multi-quote limited to five selected replies."
+Replies,Quote in quick reply,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Replies,Rich reply,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,BBCode reply,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Image URL,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,External link,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,File attachment,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Replies,Member mention,Editor component implemented; integration acceptance pending,Visual @username only; account resolution and notifications not implemented.
+Replies,Code,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Spoiler,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Quote,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Emoji,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Replies,Submit reply,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Member edit post,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Member soft delete post,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Member edit topic,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Member soft delete topic,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Edited indicator,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post management,Edit timestamp,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post management,Revision diff,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post management,Moderator edit,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Admin edit,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post management,Edit time limits,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Manage uploads,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Local file upload,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Remote URL upload,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,List uploads,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Insert attachment,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,External image embedding,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Attachments,Image alignment,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Attachments,Gallery,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Attachments,Image enlargement,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Media type validation,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Attachments,Media quota,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Polls,Create poll,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Question,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Poll answer choices,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Multiple choices,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Poll duration,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Vote,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Multiple selection,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,View aggregate results,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Polls,Attribution policy,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Polls,Prevent vote changes,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,Thank,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,Remove thanks,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,View thanks,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,Report,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post actions,Quote,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Post actions,Multi-quote,Client control implemented; integration acceptance pending,"Browser interaction, does not create new database records. Multi-quote limited to five selected replies."
+Post actions,Edit/delete,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Post actions,Post permalink,Client control implemented; integration acceptance pending,Operates on currently displayed discussion DOM; live integration pending.
+Post actions,Author profile,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Author posts,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Thread subscription,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,Reply notifications,NOT IMPLEMENTED,"Subscription choices alone do not implement notification delivery, opt-in preferences, dedupe or retry logic."
+Post actions,Thread search,Client control implemented; integration acceptance pending,Search is limited to currently loaded replies; not full historical search.
+Post actions,Rate thread,OPTIONAL RPC/SQL CANDIDATE — not production tested,Complete interaction JS and additive SQL candidate included; server/database authentication and migration must be verified before feature is considered live.
+Post actions,Display modes,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Print view,Client control implemented; integration acceptance pending,Operates on currently displayed discussion DOM; live integration pending.
+Post actions,Email thread,Client control implemented; integration acceptance pending,Operates on currently displayed discussion DOM; live integration pending.
+Post actions,Poll results,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Author post count,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Author join date,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Author avatar,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Post actions,Thanks received,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Preview,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Advanced,Private draft save,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Advanced,Autosave draft,Opt-in local autosave implemented (session only),"Autosaves in browser session storage; not uploaded, device-synced or durable after tab closes."
+Advanced,Undo/redo toolbar,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,YouTube button,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Drag drop uploads,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Clipboard image paste,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Custom tags,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Schedule publication,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Member lock own thread,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Member pin own thread,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Post rate limiting,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Advanced,Post max length,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Advanced,Attachment max count,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Advanced,Edit/delete time limit,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Admin communications,Owner announcement authoring,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Admin communications,Owner notice authoring,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Admin communications,Staff response template,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Admin communications,Forum report details formatting,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Admin communications,Owner scheduling,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Admin communications,Owner expiration,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Admin communications,Admin version history,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Admin communications,Owner preview,Editor component implemented; integration acceptance pending,BBCode stored as text; safe client renderer; sitewide beyond explicitly configured content fields is not audited.
+Admin communications,Moderation justification,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Historical lab spoiler protection,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Book entitlement isolation,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Tape/Level II context charts,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Site learning and compliance,Source attribution,Safe author citation formatting available; provenance still unverified,Users can insert HTTPS source links and evidence notes; platform does not fact-check content automatically.
+Site learning and compliance,Trading disclaimer,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,No-lookahead state,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Trade journal private data,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Moderator abuse review,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Site learning and compliance,Financial misinformation reporting,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Site learning and compliance,KDP exclusive checkout safeguard,Earlier project functionality; requires production acceptance,Not modified by 0.14.0.17; existing authorization and records must be verified.
+Site learning and compliance,Accessibility audit,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.
+Site learning and compliance,Automated integration testing,NOT IMPLEMENTED in 0.14.0.17,Backend/schema/media/UX or cross-module integration prerequisite; do not display as functional.

@@ -1,0 +1,21 @@
+v0.14.0.17 UPDATED — extract into your EXISTING v0.14.0.16 repository root.
+Complete existing source files to REPLACE:
+  assets/js/forum-composer.js             [replace]
+  assets/js/site.js                       [replace]
+  sw.js                                   [replace]
+New public frontend files to ADD:
+  assets/css/rich-content-editor.css      [new]
+  assets/js/forum-interactions.js         [new]
+  assets/css/forum-interactions.css       [new]
+Optional SQL and documents (not copied into public/ by audited Cloudflare build):
+  supabase/admin/v0.14.0.17_COMMUNITY_PARITY_READ_ONLY.sql
+  supabase/migrations/v0.14.0.17_ADVANCED_FORUM_INTERACTIONS_REVIEW_REQUIRED.sql
+  docs/v0.14.0.17_IMPLEMENTATION_STATUS.md
+  docs/v0.14.0.17_ADVANCED_EDITOR_IMPLEMENTATION.md
+  docs/v0.14.0.17_CAPABILITY_GAP_MATRIX.csv
+  docs/v0.14.0.17_RICH_EDITOR_RELEASE.md
+  tests/test_rich_editor.py
+  tests/test_advanced_forum_editor.py
+  tests/test_community_interactions_browser.py
+The additive SQL migration must be separately reviewed and applied to enable the new forum interaction API.
+Do NOT indiscriminately rerun prior SQL A/B. Do NOT upload only this ZIP as your complete website.

@@ -1,0 +1,45 @@
+/* v0.14.0.17 — safe BBCode + HTML-source authoring, visual preview (not arbitrary executable HTML) */
+.gu-forum-editor{max-width:100%;min-width:0;margin:.6rem 0 1.2rem;border:1px solid #416784;border-radius:12px;overflow:hidden;background:#091c2e;color:#f2f6fc}
+.gu-forum-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:.45rem;padding:.8rem;background:#11334a;border-bottom:1px solid #416784}
+.gu-forum-toolbar label{display:flex;align-items:center;gap:.32rem;margin:0;font-size:.85rem}
+.gu-format-btn,.gu-forum-toolbar select,.gu-forum-toolbar input[type=color]{border:1px solid #597b98;background:#17364f;color:#f6f8fc;border-radius:6px;font:inherit;cursor:pointer;min-height:42px;padding:.32rem .65rem;white-space:nowrap}
+.gu-forum-toolbar select{max-width:125px}
+.gu-format-btn:hover,.gu-format-btn:focus-visible,.gu-forum-toolbar select:focus-visible{outline:2px solid #f0cf79;outline-offset:1px}
+.gu-format-btn[aria-pressed=true]{background:#315c77;border-color:#eac866}
+.gu-forum-counter{margin-left:auto;font-size:.8rem;color:#e0ebf4}
+.gu-forum-editor>textarea{box-sizing:border-box;display:block;width:100%;max-width:100%;min-height:205px;margin:0;padding:1rem;border:0;border-radius:0;background:#071b2c;color:#f5f8ff;resize:vertical;font:inherit;font-size:1rem;line-height:1.65}
+.gu-forum-editor>.gu-source-panel{display:grid;gap:.6rem;padding:.85rem;background:#081d2e}
+.gu-source-panel textarea{box-sizing:border-box;width:100%;min-height:180px;background:#06192a;color:#f5f8ff;font:inherit;border:1px solid #597b98;padding:.75rem}
+.gu-source-panel .actions{display:flex;gap:.65rem;flex-wrap:wrap}
+.gu-source-panel p,.gu-rich-help{font-size:.85rem;color:#c6d7e7;margin:.45rem .8rem}
+.gu-forum-preview{background:#0c283e;color:#eff5fa;min-height:3rem;padding:1rem;overflow-wrap:anywhere;line-height:1.55}
+.gu-forum-preview[hidden],.gu-source-panel[hidden]{display:none!important}
+.gu-forum-preview blockquote,.gu-rich-rendered blockquote{border-left:3px solid #dfbc57;padding:.55rem 1rem;margin:.55rem 0;background:#19364c}
+.gu-forum-preview pre,.gu-rich-rendered pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#051321;padding:.85rem;border-radius:7px}
+.gu-forum-preview a,.gu-rich-rendered a{color:#f1d279;text-decoration:underline}
+.gu-forum-preview ul,.gu-rich-rendered ul,.gu-forum-preview ol,.gu-rich-rendered ol{padding-left:1.6rem}
+.gu-forum-editor-status{min-height:1.2rem;margin:.5rem .85rem;color:#f3d16b;font-size:.86rem}
+.gu-rich-rendered{overflow-wrap:anywhere}
+.gu-rich-rendered img{max-width:min(100%,520px);height:auto}
+.gu-external-image{border:1px solid #597b98;color:#f8e6b4;background:#11344c;border-radius:5px;cursor:pointer;min-height:40px;padding:.3rem .8rem}
+.gu-rich-rendered code{overflow-wrap:anywhere}
+@media(max-width:700px){.gu-forum-toolbar{gap:.35rem}.gu-format-btn,.gu-forum-toolbar select{min-height:44px}.gu-forum-counter{width:100%;margin-left:0}.gu-forum-editor>textarea{min-height:200px}.gu-forum-toolbar select{max-width:110px}}
+/* v0.14.0.17 expanded publishing: accessible visual editing, spoiler, table and opt-in drafts */
+.gu-wysiwyg{box-sizing:border-box;display:block;width:100%;min-height:210px;max-height:70vh;overflow:auto;background:#071b2c;color:#f5f8ff;padding:1rem;line-height:1.6;outline-offset:-2px;white-space:pre-wrap;overflow-wrap:anywhere}
+.gu-wysiwyg[hidden]{display:none!important}.gu-wysiwyg:focus-visible{outline:2px solid #f0cf79}
+.gu-wysiwyg [contenteditable=false]{background:#16344b}
+.gu-forum-spoiler{border:1px solid #66849d;border-radius:6px;margin:.65rem 0;padding:.45rem .75rem;background:#102e43}
+.gu-forum-spoiler summary{font-weight:700;cursor:pointer;min-height:28px}
+.gu-forum-spoiler[open]>summary{border-bottom:1px solid #42617d;padding-bottom:.35rem;margin-bottom:.4rem}
+.gu-forum-table-wrap{width:100%;overflow-x:auto}.gu-forum-table-wrap table{border-collapse:collapse;max-width:100%;width:auto;margin:.6rem 0}.gu-forum-table-wrap td,.gu-forum-table-wrap th{border:1px solid #547b92;padding:.4rem .65rem;min-width:3rem}.gu-forum-table-wrap th{background:#214156}
+.gu-forum-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:.6rem;border:1px solid #376180;border-radius:8px;padding:.55rem}
+.gu-external-image-wrap{display:inline-block;max-width:100%;margin:.3rem}.gu-imgleft{float:left;margin-right:1rem}.gu-imgright{float:right;margin-left:1rem}
+.gu-forum-editor .gu-align-center,.gu-rich-rendered .gu-align-center{text-align:center}.gu-forum-editor .gu-align-right,.gu-rich-rendered .gu-align-right{text-align:right}.gu-forum-editor .gu-align-justify,.gu-rich-rendered .gu-align-justify{text-align:justify}.gu-indent{padding-left:2rem}.gu-forum-code{user-select:text}
+.gu-member-mention{color:#f0d27a;font-weight:600}.gu-attachment-unavailable{font-style:italic;color:#a4bbc9}.gu-forum-editor .gu-forum-toolbar button:focus-visible{outline:2px solid #f0cf79;outline-offset:2px}
+.gu-forum-editor .gu-forum-toolbar [hidden]{display:none!important}
+@media(max-width:700px){.gu-imgleft,.gu-imgright{float:none;display:block;margin:.6rem auto}.gu-forum-table-wrap{-webkit-overflow-scrolling:touch}}
+.gu-autosave-option{display:inline-flex!important;align-items:center;gap:.35rem;color:#e4eef8}
+.gu-autosave-option input{width:1.1rem;height:1.1rem}
+.gu-market-tag{display:inline-block;border:1px solid #527690;border-radius:4px;padding:0 .35rem;color:#f3d783;background:#153750;font-size:.9em}
+.gu-trade-risk-note,.gu-market-evidence{border-left:3px solid #e2bf60;background:#132e41;margin:.6rem 0;padding:.7rem 1rem;overflow-wrap:anywhere}
+.gu-trade-risk-note strong,.gu-market-evidence strong{display:block;font-size:.83rem;color:#f3d783;margin-bottom:.35rem}
