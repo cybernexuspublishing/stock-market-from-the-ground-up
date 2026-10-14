@@ -13,3 +13,6 @@ __pycache__/
 .pytest_cache/
 node_modules/
 .DS_Store
+
+# Private authored instruction; do not recommit or publish.
+/data/interactive-labs.json
