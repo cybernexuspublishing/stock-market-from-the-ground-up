@@ -31,3 +31,6 @@
 #cc-control-add>h2,#cc-control-add>p{grid-column:1/-1}#cc-control-add label{display:grid;gap:.3rem}
 @media(max-width:1150px){#cc-control-list .cc-control-row{grid-template-columns:repeat(2,minmax(0,1fr))}#cc-control-list .cc-control-row>div,#cc-control-list .cc-control-row [data-row-status]{grid-column:1/-1}}
 @media(max-width:600px){#cc-control-list .cc-control-row,#cc-control-add{grid-template-columns:1fr}#cc-control-add>h2,#cc-control-add>p{grid-column:1}}
+
+/* v0.14.0.10: retain module mount sentinels without showing duplicate group headings. */
+#admin-tabs #cc-preserved-module-roots{display:none!important;visibility:hidden!important;}

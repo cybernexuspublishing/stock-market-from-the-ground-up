@@ -1,6 +1,6 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.9",
+  "version": "0.14.0.10",
   "status": "Admin single-owner navigation framework and Owner-managed persisted layout candidate; requires additive Supabase migration and production verification",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,

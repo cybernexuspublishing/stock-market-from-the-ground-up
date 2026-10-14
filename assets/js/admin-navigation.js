@@ -1,4 +1,7 @@
-/* v0.14.0.9 — Single owner of Admin sidebar composition.
+/* v0.14.0.10 — Single owner of Admin sidebar composition.
+ * Preserve dynamically created module mount roots and render each stable action at most once.
+ * Without this, an independent module detects its detached root as missing, mounts
+ * again, and floods navigation with duplicate controls on each observer cycle.
  * Operational panels still belong to their original controllers; this registry edits placement only.
  */
 (()=>{'use strict';
@@ -21,6 +24,37 @@ const storage=new Map();let observer=null,pending=false,ready=false,fetching=fal
 function key(el){if(el.id)return `builtin:id-${el.id}`;for(const attr of ['panel','v11Panel','v13Panel','v132Panel','v135Control','ocTab','v1352Menu','v142Create'])if(el.dataset[attr])return `builtin:${attr}-${el.dataset[attr]}`;if(el.tagName==='A'){const href=el.getAttribute('href')||'';const encoded=href.toLowerCase().replace(/[^a-z0-9._:-]/g,'-').slice(0,80);return `builtin:link-${encoded}`;}return `builtin:label-${(el.textContent||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'-').slice(0,80)}`;}
 function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Additional Installed Controls';}
 function builtins(){return $$('button,a',nav()).filter(x=>x.id!=='cc-control-manager'&&!x.classList.contains('cc-admin-custom-link'));}
+// Modules installed before the canonical navigation manager may track their own
+// wrapper by ID. Removing their wrapper makes them re-mount and duplicate buttons.
+// Keep their actual wrapper in a visually inert holding area, with the actions
+// moved into the canonical visible groups. No handler is cloned or recreated.
+function preserveModuleMounts(n){
+ let host=$('#cc-preserved-module-roots',n);
+ if(!host){host=document.createElement('div');host.id='cc-preserved-module-roots';host.className='cc-preserved-module-roots';host.setAttribute('aria-hidden','true');}
+ const legacy=$$('.v13-admin-group',n).filter(el=>!el.classList.contains('cc-admin-group'));
+ for(const el of legacy){
+   if(el===host||host.contains(el))continue;
+   // The original module group remains connected so original modules recognize
+   // their initialized state and never inject a duplicate menu.
+   host.append(el);
+ }
+ return host;
+}
+// Stable actions are identified by their module key; repeated injections must
+// never become extra rows. Remove only redundant *action nodes* (not module
+// wrappers). Keep the first live action and its original click handler.
+function uniqueActions(elements){
+ const seen=new Set(),unique=[];
+ for(const el of elements){
+   const id=controlId(el);
+   if(seen.has(id)){
+     el.remove();
+     continue;
+   }
+   seen.add(id);unique.push(el);
+ }
+ return unique;
+}
 function controlId(el){const v=el.dataset.ccControlKey||key(el);el.dataset.ccControlKey=v;return v;}
 function isAuthorized(el){return !el.hidden&&!el.disabled&&!el.closest('[hidden]');}
 function status(m){let s=$('#cc-admin-navigation-status');if(!s){s=document.createElement('p');s.id='cc-admin-navigation-status';s.setAttribute('role','status');s.setAttribute('aria-live','polite');nav().after(s)}s.textContent=m||'';}
@@ -32,7 +66,7 @@ button('cc-direct-moderation','Market Commons — Moderation Queue',()=>{if(type
 function displayControls(){const n=nav();if(!n)return;observer?.disconnect();special();
 for(const link of $$('.cc-admin-custom-link',n))link.remove();
 for(const entry of storage.values())if(entry.kind==='custom_link'&&!entry.archived){const a=document.createElement('a');a.className='admin-back cc-admin-custom-link';a.href=entry.href;a.textContent=entry.label;a.dataset.ccControlKey=entry.control_key;a.dataset.ccOriginalAllowed='1';n.append(a)}
-const all=builtins().concat($$('.cc-admin-custom-link',n));
+const all=uniqueActions(builtins().concat($$('.cc-admin-custom-link',n)));
 const groups=new Map();for(const el of all){const id=controlId(el);const setting=storage.get(id);
  if(!el.hasAttribute('data-cc-original-allowed'))el.dataset.ccOriginalAllowed=String(isAuthorized(el));
  const shown=!(setting&&(setting.is_visible===false||setting.archived));
@@ -44,13 +78,17 @@ let seq=0;const sorted=[...groups.keys()].sort((a,b)=>{const ia=order.indexOf(a)
 const fragment=document.createDocumentFragment();for(const group of sorted){const wrap=document.createElement('div');wrap.className='v13-admin-group cc-admin-group';wrap.dataset.ccNavGroup=group;const title=document.createElement('div');title.className='v13-admin-group-title cc-admin-group-title';title.textContent=group;wrap.append(title);
 for(const item of groups.get(group).sort((a,b)=>a.n-b.n||a.id.localeCompare(b.id)))wrap.append(item.el);fragment.append(wrap);seq++}
 const manager=$('#cc-control-manager',n);if(manager){const first=fragment.firstElementChild;const wrap=first&&first.dataset.ccNavGroup==='Overview'?first:null;if(wrap)wrap.append(manager);else fragment.prepend(manager)}
+// Preserve the original module mount sentinels. Earlier versions silently
+// dropped them via replaceChildren(), causing modules to install new controls
+// indefinitely whenever their own mount watchdogs ran.
+fragment.append(preserveModuleMounts(n));
 n.replaceChildren(fragment);observer?.observe(n,{childList:true,subtree:true});}
 function plan(){if(pending)return;pending=true;setTimeout(()=>{pending=false;if(!ready||!nav()||!app()||app().hidden||!$('#admin-gate')?.hidden)return;displayControls()},90)}
 async function token(){const sb=await window.getSupabaseClient?.();return (await sb?.auth?.getSession?.())?.data?.session?.access_token||'';}
 async function registry(action='GET',data){const access=await token();if(!access)throw Error('Owner session required.');const r=await fetch('/api/admin-control-registry',{method:action,cache:'no-store',headers:{authorization:'Bearer '+access,'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw Error(j.error||`HTTP ${r.status}`);return j;}
 function panel(){let p=$('#cc-control-manager-panel');if(!p){p=document.createElement('section');p.id='cc-control-manager-panel';p.className='admin-panel';p.innerHTML='<div class="admin-heading"><div><div class="eyebrow">OWNER · Administrative Architecture</div><h1>Manage Admin Controls</h1><p>Add internal navigation links, rename, hide/show, group, and reorder installed controls. This manages navigation only; backend modules and permissions remain authoritative.</p></div></div><div id="cc-control-manager-content"></div>';app().append(p)}return p;}
 function managerButton(){if(!owner)return;let b=$('#cc-control-manager',nav());if(!b){b=document.createElement('button');b.type='button';b.id='cc-control-manager';b.textContent='Manage Admin Controls';b.className='cc-admin-shortcut';b.addEventListener('click',openManager);nav().append(b)}panel();}
-function items(){const built=builtins().filter(el=>el.id!=='cc-direct-moderation'||!el.hidden).map(el=>({control_key:controlId(el),kind:'builtin',label:storage.get(controlId(el))?.label||el.textContent.trim(),group_name:storage.get(controlId(el))?.group_name||category(el),sort_order:storage.get(controlId(el))?.sort_order??10000,is_visible:storage.get(controlId(el))?.is_visible!==false,auth_blocked:!isAuthorized(el)}));const custom=[...storage.values()].filter(x=>x.kind==='custom_link'&&!x.archived);return [...new Map([...built,...custom].map(x=>[x.control_key,x])).values()].sort((a,b)=>a.group_name.localeCompare(b.group_name)||a.sort_order-b.sort_order||a.label.localeCompare(b.label));}
+function items(){const built=uniqueActions(builtins()).filter(el=>el.id!=='cc-direct-moderation'||!el.hidden).map(el=>({control_key:controlId(el),kind:'builtin',label:storage.get(controlId(el))?.label||el.textContent.trim(),group_name:storage.get(controlId(el))?.group_name||category(el),sort_order:storage.get(controlId(el))?.sort_order??10000,is_visible:storage.get(controlId(el))?.is_visible!==false,auth_blocked:!isAuthorized(el)}));const custom=[...storage.values()].filter(x=>x.kind==='custom_link'&&!x.archived);return [...new Map([...built,...custom].map(x=>[x.control_key,x])).values()].sort((a,b)=>a.group_name.localeCompare(b.group_name)||a.sort_order-b.sort_order||a.label.localeCompare(b.label));}
 function selectGroups(current){const groups=[...new Set([...order,'Additional Installed Controls',...storage.values().map(x=>x.group_name),current])];return groups.map(s=>`<option value="${esc(s)}" ${s===current?'selected':''}>${esc(s)}</option>`).join('')}
 function renderManager(){const root=$('#cc-control-manager-content');if(!root)return;const rows=items();root.innerHTML=`<div class="cc-admin-editor-top"><label>Filter controls<input type="search" id="cc-control-filter" aria-label="Filter installed admin controls" placeholder="Search all installed controls"></label><button type="button" class="btn secondary" id="cc-control-reload">Reload saved settings</button></div><p class="cc-control-info">${rows.length} registered controls. Hiding a control does not disable its API. Adding a link does not create the destination page, API, database table, or permission. The Dashboard and this manager remain accessible.</p><div id="cc-control-list">${rows.map(x=>`<form class="cc-control-row" data-key="${esc(x.control_key)}" data-kind="${esc(x.kind)}"><div><strong>${esc(x.control_key)}</strong><small>${x.auth_blocked?'Permission restricted · ':''}${x.kind==='custom_link'?'Custom internal link':'Installed control'}</small></div><label>Label<input name="label" maxlength="100" value="${esc(x.label)}" required></label><label>Category<select name="group">${selectGroups(x.group_name)}</select></label><label>New category<input name="customGroup" maxlength="80" placeholder="Optional new group"></label><label>Order<input name="order" type="number" min="0" max="99999" value="${Number(x.sort_order)}" required></label><label class="cc-admin-visible">Show<input type="checkbox" name="visible" ${x.is_visible?'checked':''} ${x.control_key==='builtin:panel-dashboard'?'disabled':''}></label><button class="btn secondary" type="submit">Save</button>${x.kind==='custom_link'?'<button class="btn secondary" type="button" data-remove>Remove</button>':''}<p data-row-status role="status"></p></form>`).join('')}</div><form id="cc-control-add" class="admin-card cc-control-add"><h2>Add a Custom Admin Link</h2><p>Add a shortcut to an existing internal page. It does not create a new module or bypass permissions.</p><label>Label<input name="label" maxlength="100" required></label><label>Internal URL<input name="href" placeholder="/training-editor.html" pattern="/[A-Za-z0-9/_?&=.%#-]+" required></label><label>Category<select name="group">${selectGroups('Website & Grant Web Solutions')}</select></label><label>New category<input name="customGroup" maxlength="80" placeholder="Optional new group"></label><label>Order<input name="order" type="number" min="0" max="99999" value="10000" required></label><button class="btn" type="submit">Add Link</button><p data-add-status role="status"></p></form>`;
 $('#cc-control-filter').oninput=e=>{$$('.cc-control-row',root).forEach(row=>{row.hidden=!row.textContent.toLowerCase().includes(e.target.value.toLowerCase())})};$('#cc-control-reload').onclick=refresh;

@@ -19,7 +19,7 @@
    if(shell.firstElementChild!==aside)shell.prepend(aside);
    if(aside.nextElementSibling!==main)aside.after(main);
    // Never detach the original sidebar/main, never change their content.
-   const liveVersion=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.9';
+   const liveVersion=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.10';
    all('#v133-build',shell).forEach(el=>el.textContent='PRODUCTION · '+liveVersion);
    const badge=one('.fe-admin-topbar .fe-chip.info',shell);
    if(badge)badge.textContent=liveVersion;

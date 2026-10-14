@@ -1,7 +1,11 @@
-# v0.14.0.9 — Admin Navigation Registry & DOM Ownership (Candidate)
+# Current Development Release
 
-Previous baseline: v0.14.0.8. This release retires three conflicting Admin sidebar composers, introduces a single registry-driven sidebar, and adds an Owner-only persistent Control Manager with a new additive Supabase migration.
+**Version:** v0.14.0.10
 
-**Not production certified.** Apply the read-only preflight and the v0.14.0.9 migration before testing the Manager. All paid checkout remains disabled. The v0.14.0.7 SQL B security lockdown is still pending verified forum reports on both frontend interfaces.
+**Status:** locally tested candidate; not deployed; no new SQL migration.
 
-See `docs/v0.14.0.9_ADMIN_CONTROL_REGISTRY_AND_RUNTIME_AUDIT.md` for exact files, changes, limitations, tests and deployment order.
+**Focus:** restore idempotent Admin navigation by preserving original mounted module roots while grouping controls; enforce one visible control per stable key; preserve native handlers and Owner registry.
+
+Detailed evidence and deployment verification: `docs/v0.14.0.10_ADMIN_SIDEBAR_DUPLICATE_ROOT_CAUSE.md`.
+
+All previously recorded v0.14.0.9 registry security requirements remain in force.
