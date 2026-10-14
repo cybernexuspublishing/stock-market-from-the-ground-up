@@ -3,6 +3,10 @@
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
  const $=(s,root=document)=>root.querySelector(s),$$=(s,root=document)=>[...root.querySelectorAll(s)];
+ // Escape untrusted strings before interpolating content into moderation HTML.
+ const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+ })[ch]);
  const sections=[
  {name:'Accounts & Access',icon:'accounts',items:[
   ['Account Management','Create, edit, secure, suspend and review eligible accounts.','menu','account','Operational UI; server authorization required'],
