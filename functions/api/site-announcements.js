@@ -14,7 +14,7 @@ export async function onRequest({request,env}){
     if(profile.ok){const p=await profile.json();if(p?.[0]?.account_kind==='member'){const flags=await fetch(base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});if(flags.ok){const f=await flags.json();authenticated=!['suspended','restricted'].includes(String(f?.[0]?.status||'').toLowerCase());}}}
    }}
   }
-  const r=await fetch(base+'/rest/v1/site_announcements?select=id,title,body,announcement_type,audience,active,starts_at,ends_at,dismissible&active=eq.true&order=updated_at.desc&limit=100',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});
+  const r=await fetch(base+'/rest/v1/site_announcements?select=id,title,body,announcement_type,audience,active,starts_at,ends_at,updated_at,dismissible&active=eq.true&order=updated_at.desc&limit=100',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});
   if(!r.ok)throw Error('Announcements unavailable');const items=await r.json(),now=Date.now();
   const announcements=items.filter(x=>{
    if(x.active!==true)return false;
@@ -22,7 +22,7 @@ export async function onRequest({request,env}){
    if(x.starts_at&&Date.parse(x.starts_at)>now)return false;
    if(x.ends_at&&Date.parse(x.ends_at)<=now)return false;
    return true;
-  }).slice(0,15).map(x=>({id:x.id,title:x.title,body:x.body,announcement_type:x.announcement_type,dismissible:x.dismissible!==false}));
+  }).slice(0,15).map(x=>({id:x.id,title:x.title,body:x.body,announcement_type:x.announcement_type,ends_at:x.ends_at||null,updated_at:x.updated_at||null,dismissible:x.dismissible!==false}));
   return respond({ok:true,announcements});
  }catch{return respond({ok:false,error:'Announcements temporarily unavailable.'},503)}
 }

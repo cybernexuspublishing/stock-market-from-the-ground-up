@@ -11,6 +11,14 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
  if(action==='activity'&&request.method==='GET'){return out({ok:true,activity:await rest(env,`user_activity_events?select=id,activity_type,title,href,metadata,created_at&user_id=eq.${encodeURIComponent(usr.id)}&order=created_at.desc&limit=100`)})}
  if(action==='activity_add'&&request.method==='POST'){const b=await request.json(),type=clean(b.activityType||'activity').slice(0,50),title=clean(b.title).slice(0,240),href=clean(b.href).slice(0,1000);if(!title)return out({ok:true});const cutoff=new Date(Date.now()-5*60*1000).toISOString();const dup=await rest(env,`user_activity_events?select=id&user_id=eq.${encodeURIComponent(usr.id)}&activity_type=eq.${encodeURIComponent(type)}&href=eq.${encodeURIComponent(href)}&created_at=gte.${encodeURIComponent(cutoff)}&limit=1`);if(!dup?.length)await rest(env,'user_activity_events',{method:'POST',prefer:'return=minimal',body:{user_id:usr.id,activity_type:type,title,href:href||null,metadata:b.metadata&&typeof b.metadata==='object'?b.metadata:{}}});return out({ok:true})}
  if(action==='notifications'&&request.method==='GET'){return out({ok:true,notifications:await rest(env,`user_notifications?select=id,notification_type,title,body,href,is_read,created_at&user_id=eq.${encodeURIComponent(usr.id)}&order=created_at.desc&limit=50`)})}
+ if(action==='notifications_dismiss'&&request.method==='POST'){
+  const b=await request.json().catch(()=>({}));
+  const items=Array.isArray(b.ids)?b.ids:[];
+  if(items.length<1||items.length>50||items.some(x=>!Number.isSafeInteger(x)||x<1))return out({ok:false,error:'Supply between 1 and 50 valid notification IDs.'},400);
+  const ids=[...new Set(items)];
+  await rest(env,`user_notifications?user_id=eq.${encodeURIComponent(usr.id)}&id=in.(${ids.join(',')})`,{method:'DELETE',prefer:'return=minimal'});
+  return out({ok:true,removed:ids.length});
+ }
  if(action==='notifications_read'&&request.method==='POST'){const b=await request.json(),ids=(Array.isArray(b.ids)?b.ids:[]).filter(x=>Number.isInteger(Number(x))).slice(0,100);if(ids.length)await rest(env,`user_notifications?user_id=eq.${encodeURIComponent(usr.id)}&id=in.(${ids.map(Number).join(',')})`,{method:'PATCH',prefer:'return=minimal',body:{is_read:true,read_at:new Date().toISOString()}});return out({ok:true})}
  return out({error:'Unknown action.'},404)
  }catch(e){return out({error:e.message||'UI state operation failed.'},e.status||500)}}

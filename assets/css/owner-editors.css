@@ -47,3 +47,20 @@
 .v01411-demo-tag{display:inline-block!important;letter-spacing:.04em;text-transform:uppercase;font-size:.75rem;font-weight:800;color:#f0c45a!important}
 .v01411-interval-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:15px 0}
 @media(max-width:680px){#author-form.v01411-form,#gws-form.v01411-form,#author-questions > .v014-question-editor,.v01411-ann-grid,.v01411-interval-fields{grid-template-columns:minmax(0,1fr)}#author-form > label,#gws-form > label,.v01411-ann-grid .v01411-ann-full{grid-column:1/-1}}
+
+/* v0.14.0.14: explicit Owner controls; bounded, responsive, no sidebar ownership. */
+.v01414-message{display:flex;flex-direction:column;gap:6px;margin:12px 0;max-width:720px}
+.v01414-message textarea{width:100%;min-height:76px;box-sizing:border-box;background:#071929;color:#fff;border:1px solid #496b83;border-radius:8px;padding:12px;font:inherit}
+.v01414-message small{color:#b7c9d7}
+.v01414-duration{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;grid-column:1/-1}
+.v01414-duration label{display:flex;flex-direction:column;gap:6px;min-width:0}
+.v01414-ann-preview{grid-column:1/-1;margin:16px 0;border:1px solid #536e80;background:#071d30;padding:14px 16px;border-radius:9px;max-width:100%;overflow-wrap:anywhere}
+.v01414-ann-preview div{margin-top:8px;font-weight:700}.v01414-ann-preview p{white-space:pre-wrap;margin:8px 0}.v01414-ann-preview small{color:#bdd1df}
+[data-expiration-date][hidden],[data-expiration-duration][hidden],[data-caption][hidden],#author-questions label[hidden]{display:none!important}
+.v01414-author-summary{font-size:.9rem;color:#c1d4e5;margin:.75rem 0}
+@media(max-width:680px){.v01414-duration{grid-template-columns:1fr}}
+
+.v01414-question-preview{grid-column:1/-1;border:1px solid #40647e;border-radius:10px;background:#071e30;padding:14px;overflow-wrap:anywhere}
+.v01414-question-preview p{margin:10px 0 0;white-space:pre-wrap}
+
+.v01414-owner-caption{white-space:pre-wrap;text-transform:none;font-size:.85rem;color:#cbdbe8;line-height:1.45}

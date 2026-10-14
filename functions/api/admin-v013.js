@@ -47,7 +47,19 @@ if(action==='announcement_save'&&request.method==='POST'){
  if(!title||title.length>180||!body||body.length>8000)return out({error:'Announcement title (1–180 chars) and message (1–8000 chars) are required.'},400);
  if(!['info','maintenance','release','urgent'].includes(type)||!['all','members'].includes(audience))return out({error:'Invalid announcement type or audience.'},400);
  const dateValue=v=>{if(!v)return null;const d=new Date(v);if(!Number.isFinite(d.getTime()))throw Object.assign(new Error('Invalid announcement date.'),{status:400});return d.toISOString()};
- const starts_at=dateValue(b.startsAt),ends_at=dateValue(b.endsAt);
+ let starts_at=dateValue(b.startsAt),ends_at=dateValue(b.endsAt);
+ const expirationMode=clean(b.expirationMode||'date');
+ if(!['none','date','duration'].includes(expirationMode))return out({error:'Invalid expiration mode.'},400);
+ if(expirationMode==='none')ends_at=null;
+ if(expirationMode==='duration'){
+  const amount=Number(b.durationAmount),unit=clean(b.durationUnit||'minutes');
+  const factors={minutes:60000,hours:3600000,days:86400000};
+  if(!Number.isSafeInteger(amount)||amount<1||!Object.hasOwn(factors,unit)||amount*factors[unit]>365*86400000)return out({error:'Duration must be a positive whole amount not exceeding 365 days.'},400);
+  // Save a fixed UTC end instant; refreshes/reloads must NEVER restart the timer.
+  const startMillis=starts_at?Date.parse(starts_at):Date.now();
+  if(!starts_at)starts_at=new Date(startMillis).toISOString();
+  ends_at=new Date(startMillis+amount*factors[unit]).toISOString();
+ }
  if(starts_at&&ends_at&&Date.parse(ends_at)<=Date.parse(starts_at))return out({error:'End date must be after start date.'},400);
  const row={title,body,announcement_type:type,audience,starts_at,ends_at,dismissible:b.dismissible!==false,active:b.active===true,updated_by:c.user.id,updated_at:new Date().toISOString()};
  const id=b.id===null||b.id===undefined?null:Number(b.id);if(id!==null&&(!Number.isSafeInteger(id)||id<1))return out({error:'Invalid announcement ID.'},400);

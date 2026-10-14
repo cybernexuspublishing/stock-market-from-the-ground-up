@@ -30,7 +30,7 @@ try{
  const {onRequest:stats}=await moduleFrom('functions/api/home-member-stats-v01353.js');
  const statRequest=new Request('https://example.org/api/home-member-stats-v01353?action=public');
  const a=await (await stats({request:statRequest,env})).json();
- assert.equal(a.mode,'range');assert(a.registered>=100&&a.registered<=150);assert(a.online>=5&&a.online<=40);assert(a.online<=a.registered);assert(a.nextRefreshSeconds>=15);assert(a.intervalMinutes>=1&&a.intervalMinutes<=30);assert.equal(a.label,'Demo');
+ assert.equal(a.mode,'range');assert(a.registered>=100&&a.registered<=150);assert(a.online>=5&&a.online<=40);assert(a.online<=a.registered);assert(a.nextRefreshSeconds>=15);assert(a.intervalMinutes>=1&&a.intervalMinutes<=30);assert.equal(a.label,'');
  const b=await (await stats({request:statRequest,env})).json();assert.equal(a.registered,b.registered);assert.equal(a.online,b.online);
  const badReq=new Request('https://example.org/api/home-member-stats-v01353?action=save',{method:'POST',headers:{authorization:'Bearer dummy'},body:JSON.stringify({...setting,refreshMinMinutes:31})});
  const invalid=await stats({request:badReq,env});assert.equal(invalid.status,400);

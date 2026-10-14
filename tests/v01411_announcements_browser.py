@@ -20,6 +20,7 @@ with sync_playwright() as pw:
  page.locator('.v01411-ann-item').wait_for()
  page.get_by_role('button',name='Edit').click()
  page.locator('[name=title]').fill('Maintenance extended')
+ page.locator('[name=expirationMode]').select_option('date')
  page.locator('[name=endsAt]').fill('2026-11-04T23:00')
  page.get_by_role('button',name='Save Changes').click()
  page.wait_for_function('window.mutations.some(x=>x.action===\'announcement_save\')')

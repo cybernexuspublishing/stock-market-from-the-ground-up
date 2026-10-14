@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const BUILD=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.13';
+const BUILD=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.14';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const path=(location.pathname||'/').toLowerCase();
 const qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -42,7 +42,7 @@ async function fetchAlertData(){
 }
 function seenAnnouncementKey(session){return `alerts-seen-announcements:${session?.user?.id||'public'}`}
 function seenAnnouncements(session){return new Set(local.get(seenAnnouncementKey(session),[]))}
-function markAnnouncementsSeen(session,items){const ids=[...seenAnnouncements(session),...items.map(x=>String(x.id))];local.set(seenAnnouncementKey(session),[...new Set(ids)].slice(-300))}
+function markAnnouncementsSeen(session,items){const ids=[...seenAnnouncements(session),...items.map(x=>String(x.id)+'|'+(x.updated_at||''))];local.set(seenAnnouncementKey(session),[...new Set(ids)].slice(-300))}
 function headerUtilities(){
  const nav=qs('header .nav,header .wrap.nav');if(!nav)return;
  let host=qs('.fe-header-tools',nav);
@@ -56,7 +56,7 @@ function headerUtilities(){
 }
 async function loadNotificationCount(btn){
  try{const data=await fetchAlertData(),seen=seenAnnouncements(data.session);
-  const unread=(data.notifications||[]).filter(x=>!x.is_read).length+(data.announcements||[]).filter(x=>!seen.has(String(x.id))).length;
+  const unread=(data.notifications||[]).filter(x=>!x.is_read).length+(data.announcements||[]).filter(x=>!seen.has(String(x.id)+'|'+(x.updated_at||''))).length;
   const count=qs('.fe-notify-count',btn);if(count){count.textContent=String(unread);count.hidden=!unread}
  }catch{/* Keep Alerts available; count is a nonessential enhancement. */}
 }
@@ -66,9 +66,18 @@ async function openNotifications(){
  try{
   const data=await fetchAlertData();const seen=seenAnnouncements(data.session);
   const anns=data.announcements||[],notes=data.notifications||[];
-  const annSection=`<section class="gu-alerts-section"><h3>Site Announcements <small>(${anns.length})</small></h3>${data.announcementFailed?'<p class="gu-alerts-status">Announcements could not be loaded. Try again.</p>':anns.length?anns.map(a=>`<article class="gu-alert-announcement ${seen.has(String(a.id))?'seen':''}"><strong>${esc(a.title)}</strong><p>${esc(a.body||'')}</p><span class="gu-alerts-meta">${esc((a.announcement_type||'info').toUpperCase())}</span></article>`).join(''):'<p class="gu-alerts-empty">No active site announcements.</p>'}</section>`;
-  const personalSection=`<section class="gu-alerts-section"><h3>Your Notifications <small>(${notes.length})</small></h3>${data.notificationFailed?'<p class="gu-alerts-status">Notifications could not be loaded. Try again.</p>':notes.length?notes.map(n=>`<article class="fe-notification ${n.is_read?'':'unread'}"><h4>${esc(n.title)}</h4><p>${esc(n.body||'')}</p><time>${Number.isFinite(Date.parse(n.created_at))?new Date(n.created_at).toLocaleString():''}</time>${n.href&&/^\/(?!\/)|^[a-z0-9_-]+\.html(?:[?#].*)?$/i.test(n.href)?`<div><a href="${esc(n.href)}">Open</a></div>`:''}</article>`).join(''):'<p class="gu-alerts-empty">No personal notifications.</p>'}</section>`;
+  const annSection=`<section class="gu-alerts-section"><h3>Site Announcements <small>(${anns.length})</small></h3>${data.announcementFailed?'<p class="gu-alerts-status">Announcements could not be loaded. Try again.</p>':anns.length?anns.map(a=>`<article class="gu-alert-announcement ${seen.has(String(a.id)+'|'+(a.updated_at||''))?'seen':''}" data-expires="${a.ends_at?esc(a.ends_at):''}"><strong>${esc(a.title)}</strong><p>${esc(a.body||'')}</p><span class="gu-alerts-meta">${esc((a.announcement_type||'info').toUpperCase())}</span></article>`).join(''):'<p class="gu-alerts-empty">No active site announcements.</p>'}</section>`;
+  const personalSection=`<section class="gu-alerts-section"><h3>Your Notifications <small>(${notes.length})</small></h3>${data.notificationFailed?'<p class="gu-alerts-status">Notifications could not be loaded. Try again.</p>':notes.length?notes.map(n=>`<article class="fe-notification ${n.is_read?'':'unread'}"><h4>${esc(n.title)}</h4><p>${esc(n.body||'')}</p><time>${Number.isFinite(Date.parse(n.created_at))?new Date(n.created_at).toLocaleString():''}</time>${n.href&&/^\/(?!\/)|^[a-z0-9_-]+\.html(?:[?#].*)?$/i.test(n.href)?`<div><a href="${esc(n.href)}">Open</a></div>`:''}<button type="button" class="gu-alert-dismiss btn secondary" data-dismiss-notification="${Number(n.id)}" aria-label="Remove notification">Dismiss</button></article>`).join(''):'<p class="gu-alerts-empty">No personal notifications.</p>'}</section>`;
   host.innerHTML=annSection+(data.session?personalSection:'<p class="gu-alerts-meta">Sign in to view account notifications.</p>');
+  host.querySelectorAll('[data-dismiss-notification]').forEach(button=>button.addEventListener('click',async()=>{
+   const id=Number(button.dataset.dismissNotification);if(!Number.isSafeInteger(id)||id<1)return;
+   button.disabled=true;
+   try{await uiApi('notifications_dismiss',{method:'POST',body:{ids:[id]}});button.closest('.fe-notification')?.remove();toast('Notification removed.','ok');const b=qs('.fe-notify-button');if(b)loadNotificationCount(b)}
+   catch(e){button.disabled=false;toast(e.message||'Unable to remove notification.','bad')}
+  }));
+
+  // Announcements expire without requiring the member to close and reopen Alerts.
+  qsa('.gu-alert-announcement[data-expires]',host).forEach(el=>{const time=Date.parse(el.dataset.expires);if(!Number.isFinite(time))return;const ms=time-Date.now();if(ms<=0){el.remove();return}setTimeout(()=>{if(el.isConnected){el.remove();const b=qs('.fe-notify-button');if(b)loadNotificationCount(b)}},Math.min(ms+20,2147483647))});
   markAnnouncementsSeen(data.session,anns);
   const unread=notes.filter(x=>!x.is_read).map(x=>x.id);
   if(unread.length)uiApi('notifications_read',{method:'POST',body:{ids:unread}}).catch(()=>{});

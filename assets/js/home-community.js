@@ -17,7 +17,7 @@
   panel.innerHTML='<div class="eyebrow">Our Learning Community</div><h2>Members</h2>'+
     '<div class="v1353-stat-row"><strong data-online>—</strong><span data-online-label>Online members — active in the last 1 hour</span></div>'+
     '<div class="v1353-stat-row"><strong data-registered>—</strong><span data-registered-label>Registered members</span></div>'+
-    '<p data-caption class="small">Loading statistics…</p>';
+    '<p data-caption class="small" hidden></p>';
   if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
   else {const content=document.createElement('div');content.className='v1353-hero-body';
    while(hero.firstChild)content.append(hero.firstChild);hero.classList.add('v1353-hero-columns');hero.append(panel,content)}
@@ -30,9 +30,8 @@
    panel.querySelector('[data-online]').textContent=Number(d.online||0).toLocaleString();
    panel.querySelector('[data-registered]').textContent=Number(d.registered||0).toLocaleString();
    const demo=['custom','range'].includes(d.mode);panel.querySelector('[data-online-label]').textContent=demo?'Example online members':'Online members — active in the last 1 hour';panel.querySelector('[data-registered-label]').textContent=demo?'Example registered members':'Registered members';
-   panel.querySelector('[data-caption]').textContent=demo?'Demo':(d.label||'Approximate activity, last 1 hour');
-   panel.querySelector('[data-caption]').classList.toggle('v01411-demo-tag',['custom','range'].includes(d.mode));
-  }else if(failed){panel.querySelector('[data-caption]').textContent='Member statistics temporarily unavailable.'}
+   const caption=panel.querySelector('[data-caption]');caption.textContent=demo?(typeof d.label==='string'?d.label:''):(d.label||'Approximate activity, last 1 hour');caption.hidden=!caption.textContent;caption.classList.toggle('v01414-owner-caption',demo);
+  }else if(failed){panel.querySelector('[data-caption]').textContent='Member statistics temporarily unavailable.';panel.querySelector('[data-caption]').hidden=false}
  }
  async function update(){if(inflight)return;const panel=mount();if(!panel)return;inflight=true;
   try{
