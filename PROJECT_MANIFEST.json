@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.14",
-  "status": "Owner statistics caption, announcement expiration and form QA candidate; production unverified.",
+  "version": "0.14.0.15",
+  "status": "Owner-notice/announcements editor integration and moderated member discussion edits candidate; production unverified.",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {
@@ -119,5 +119,15 @@
     "database_migration": "supabase/migrations/v0.14.0.2_owner_account_identity_override.sql",
     "authorization": "Owner-only server-side writes; Showcase synthetic-only and read-only; production Auth passwords unrecoverable",
     "approved_preservation": "Existing forum security, memberships, KDP book curricula, private Lab seeds, publishing safeguards, and GWS draft project controls remain unchanged."
+  },
+  "v0_14_0_15": {
+    "components": [
+      "Owner-managed targeted member notifications",
+      "Inline Site Announcements editor in Communications",
+      "Member self-service edit and soft-delete of their own topics/replies",
+      "Permissions-audited staff hide/restore/delete/lock/unlock/pin/unpin for both forum schemas"
+    ],
+    "requires_new_sql": false,
+    "live_authorization_verified": false
   }
 }

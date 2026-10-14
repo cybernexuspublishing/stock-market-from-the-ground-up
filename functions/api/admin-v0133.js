@@ -13,6 +13,8 @@ async function requirePermission(env,req,permission){
   if(roles.includes('SHOWCASE_VIEWER'))throw Object.assign(new Error('Showcase Mode is read-only; operational mutations are blocked.'),{status:403});
   const profiles=await rest(env,`profiles?select=account_kind&id=eq.${encodeURIComponent(c.user.id)}&limit=1`);
   if(profiles?.some(x=>['showcase','test'].includes(x.account_kind)))throw Object.assign(new Error('Production moderation is not available to demonstration accounts.'),{status:403});
+  const flags=await rest(env,`admin_user_flags?select=status&user_id=eq.${encodeURIComponent(c.user.id)}&limit=1`);
+  if(['suspended','restricted'].includes(clean(flags?.[0]?.status).toLowerCase()))throw Object.assign(new Error('Restricted account cannot moderate.'),{status:403});
   if(roles.includes('OWNER'))return{...c,roles};
   if(!roles.length)throw Object.assign(new Error('Control Center access required.'),{status:403});
   const grants=await rest(env,`admin_role_permissions?select=role_code&permission_code=eq.${encodeURIComponent(permission)}`);
@@ -52,7 +54,7 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
     const page=Number(u.searchParams.get('page')||'1');if(!Number.isSafeInteger(page)||page<1||page>100) return out({error:'Invalid page.'},400);
     const from=(page-1)*30;
     const [reports,topics]=await Promise.all([
-      rest(env,`forum_reports?select=id,reporter_user_id,content_type,content_id,reason,details,status,created_at&content_id=like.commons:*&order=created_at.desc&limit=31&offset=${from}`),
+      rest(env,`forum_reports?select=id,reporter_user_id,content_type,content_id,reason,details,status,created_at&content_id=not.is.null&order=created_at.desc&limit=31&offset=${from}`),
       rest(env,'commons_topics?select=id,title,forum_code,status,is_locked,is_pinned,is_official,updated_at&order=updated_at.desc&limit=35')
     ]);
     return out({ok:true,page,reports:reports.slice(0,30),hasMore:reports.length>30,recentTopics:topics});

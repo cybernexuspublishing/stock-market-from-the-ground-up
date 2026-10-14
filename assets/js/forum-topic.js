@@ -21,7 +21,7 @@ async function loadTopic(){
   }
   document.getElementById('topic-body').innerHTML=window.GroundUpForumEditor?.render(t.body)||fesc(t.body).replace(/\n/g,'<br>');
   if(topicLocked){document.getElementById('reply-form').hidden=true;document.getElementById('topic-locked').hidden=false}
-  gate.innerHTML=''; content.hidden=false; await loadPosts();
+  gate.innerHTML=''; content.hidden=false; await loadPosts();await window.GroundUpForumMemberControls?.bind('legacy',topicId);
 }
 async function loadPosts(){
   const sb=await window.getSupabaseClient(); const list=document.getElementById('topic-replies');

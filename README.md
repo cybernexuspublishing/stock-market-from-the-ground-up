@@ -1,6 +1,6 @@
-## v0.14.0.14 — Owner Controls, Announcement Expiration and Form Validation
+## v0.14.0.15 — Owner Controls, Announcement Expiration and Form Validation
 
-See `docs/v0.14.0.14_RELEASE_AND_ACCEPTANCE.md`.
+See `docs/v0.14.0.15_RELEASE_AND_ACCEPTANCE.md`.
 
 # The Stock Market: From the Ground Up — v0.14.0.13
 

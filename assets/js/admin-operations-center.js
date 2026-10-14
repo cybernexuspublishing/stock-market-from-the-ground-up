@@ -12,7 +12,7 @@
   {code:'learning',title:'Learning Analytics',label:'Learning Analytics',description:'Lab progress, graded assessments and historical replay activity. A completed Lab is not proof of mastery.'},
   {code:'support',title:'Support Queue',label:'Support Queue',description:'Live issue priorities and member support workflow status without exposing private message content.'},
   {code:'security',title:'Security & Audit Center',label:'Security & Audit',description:'Staff audit history, flagged accounts and sensitive feature rollout observations.'},
-  {code:'notifications',title:'Notifications & Announcements',label:'Communications',description:'Delivery records and current announcements. Existing authorized editors remain authoritative.'}
+  {code:'notifications',title:'Notifications & Announcements',label:'Notifications & Announcements',description:'Delivery records and current announcements. Existing authorized editors remain authoritative.'}
  ];
  let learningBook='',active='',synthetic=false,requestCounter=0,current=null,setupComplete=false;
  const host=()=>$('#admin-app'),authorized=()=>$('#admin-gate')?.hidden===true&&host()?.hidden===false;
@@ -45,7 +45,7 @@
  return `${cards(d.counts)}<div class="v135-oc-cards">${(d.safeguards||[]).map(x=>`<article class="v135-oc-metric"><small>${esc(x.label)}</small><strong class="small">${esc(x.value)}</strong></article>`).join('')}</div><p class="v135-oc-warning">Do not enable mandatory CAPTCHA, QR activation, paid checkout, or mandatory staff MFA before all corresponding security acceptance tests pass. This panel cannot enable them.</p>${qfield()}<h3>Recent administrative audit</h3>${labelMissing(d.audits)}${grid(['Action','Target type','Time'],log)}<div class="v135-oc-actions"><button class="btn secondary" data-oc-open="audit">Existing Audit Log</button><button class="btn secondary" data-oc-open="roles">Roles & Permissions</button><button class="btn secondary" data-oc-open="system">System Diagnostics</button></div>`;}
  function notifications(d){const notices=mapped(d.notices).map(x=>`<tr data-oc-row><td>${esc(x.notification_type)}</td><td>Member notification</td><td>${pill(x.is_read?'Read':'Unread',x.is_read)}</td><td>${esc(utc(x.created_at))}</td></tr>`);
  const anns=mapped(d.announcements).map(x=>`<tr data-oc-row><td>${esc(x.title)}</td><td>${esc(x.announcement_type||'general')}</td><td>${esc(x.audience)}</td><td>${pill(x.active?'Active':'Inactive',x.active)}</td><td>${esc(utc(x.updated_at))}</td></tr>`);
- return `${cards(d.counts)}${qfield()}<h3>Recent member notification events</h3>${labelMissing(d.notices)}${grid(['Type','Title','State','Created'],notices)}<h3>Published announcement configuration</h3>${labelMissing(d.announcements)}${grid(['Title','Type','Audience','Active','Updated'],anns)}<div class="v135-oc-actions"><button class="btn secondary" data-oc-open="content">Existing Content Editor</button></div><p class="v135-oc-note">This is a status report only. Delivery counts are not evidence of email delivery, and no messages are transmitted from this view.</p>`;}
+ return `${cards(d.counts)}${qfield()}<h3>Recent member notification events</h3>${labelMissing(d.notices)}${grid(['Type','Title','State','Created'],notices)}<h3>Published announcement configuration</h3>${labelMissing(d.announcements)}${grid(['Title','Type','Audience','Active','Updated'],anns)}<div class="v135-oc-actions"><button class="btn secondary" type="button" data-oc-announcements>Jump to Announcement Editor</button><span> Owner-created member notices are managed below.</span></div><p class="v135-oc-note">This is a status report only. Delivery counts are not evidence of email delivery, and no messages are transmitted from this view.</p>`;}
  const R={overview,commerce,learning,support,security,notifications};
  function panelFor(code){return $(`[data-oc-panel="${code}"]`)}
  async function show(code){if(!authorized()||!Object.hasOwn(R,code))return;active=code;const pane=panelFor(code);if(!pane)return;
@@ -54,11 +54,19 @@
  const content=$('[data-oc-data]',pane);content.textContent='Loading authorized information…';flash('');const seq=++requestCounter;
  try{const data=await load(code);if(active!==code||seq!==requestCounter)return;synthetic=!!data.synthetic;current=data;
   content.innerHTML=`<p class="v135-oc-intro">${esc(data.notice||'')}</p>${R[code](data)}`;
+  if(code==='notifications'&&!synthetic){
+   const annArea=document.createElement('div');annArea.id='v01415-inline-announcements';content.append(annArea);
+   const ownerApi=async(path,body)=>{const sb=await window.getSupabaseClient(),session=(await sb.auth.getSession()).data?.session;if(!session)throw Error('Sign in as Owner.');const r=await fetch(path,{method:body?'POST':'GET',headers:{authorization:'Bearer '+session.access_token,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'}),j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw Error(j.error||'Announcement operation failed.');return j};
+   if(window.SiteAnnouncementEditor?.render){window.SiteAnnouncementEditor.render(annArea,{api:path=>ownerApi(path),adminApi:(action,payload)=>ownerApi('/api/admin-v013?action='+action,payload)}).catch(e=>annArea.textContent='Announcement editor access: '+e.message)}
+   else annArea.textContent='Announcement editor could not load.';
+   content.querySelector('[data-oc-announcements]')?.addEventListener('click',()=>annArea.scrollIntoView({behavior:'smooth',block:'start'}));
+   const area=document.createElement('div');area.className='v01415-owner-notification-host';content.append(area);window.GroundUpOwnerNotifications?.render(area);
+  }
   const banner=$('[data-oc-origin]',pane);banner.textContent=synthetic?'SHOWCASE: isolated synthetic data; production records were not accessed.':'AUTHORIZED LIVE REPORT — read-only; time-sensitive records may change.';
   flash(synthetic?'Showcase data is synthetic and read-only.':'Report refreshed successfully.');
  }catch(error){if(seq!==requestCounter)return;content.textContent=error.message||'Unable to load this report.';flash(error.message||'Unable to load report.',true);
   if(/does not permit/.test(error.message||''))$(`[data-oc-tab="${code}"]`)?.setAttribute('hidden','');}}
- function clickExisting(code){const attr=['data-panel','data-v11-panel','data-v13-panel'];const btn=attr.map(a=>$(`#admin-tabs button[${a}="${code}"]`)).find(Boolean);if(btn&&!btn.hidden&&!btn.closest('[hidden]')){btn.click();return}flash('That workflow is not available to the current role in this deployment.',true)}
+ function clickExisting(code){const attr=['data-panel','data-v11-panel','data-v13-panel'];const btn=(code==='announcements'?$$('#admin-tabs button').find(b=>b.textContent.trim()==='Announcements'):null)||attr.map(a=>$(`#admin-tabs button[${a}="${code}"]`)).find(Boolean);if(btn&&!btn.hidden&&!btn.closest('[hidden]')){btn.click();return}flash('That workflow is not available to the current role in this deployment.',true)}
  function linkV135(code){const btn=$(`#admin-tabs button[data-v135-control="${code}"]`);if(btn&&!btn.hidden){btn.click();return}flash('That existing Operations section is not currently accessible.',true)}
  function attach(){const app=host(),tabs=$('#admin-tabs');if(!app||!tabs||setupComplete||!authorized())return false;
   setupComplete=true;const category=document.createElement('div');category.className='v135-oc-nav-category';category.id='v135-ops-center-group';
