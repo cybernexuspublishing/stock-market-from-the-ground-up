@@ -71,3 +71,14 @@ body[data-fe-sim-preset="review"] .sim-layout{gap:1.25rem}
 @media(max-width:700px){.fe-bulk-toolbar{position:static}.admin-list-row[draggable="true"]:before{display:none}}
 .v13-book-grid.fe-book-list{display:grid!important;grid-template-columns:1fr!important}.v13-book-grid.fe-book-list .v13-book-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4rem 1rem;align-items:start}.v13-book-grid.fe-book-list .v13-book-card .status{grid-column:2;grid-row:1/4}.v13-book-grid.fe-book-list .v13-book-card h3,.v13-book-grid.fe-book-list .v13-book-card p,.v13-book-grid.fe-book-list .v13-book-card small{grid-column:1}
 .gu-report-button{font-size:.85rem;margin-top:.7rem}.gu-report-dialog{width:min(480px,90vw);background:#082235;color:#f5faff;padding:1.2rem;border:1px solid #668ca4;border-radius:12px}.gu-report-dialog::backdrop{background:#000b}.gu-report-dialog form{display:grid;gap:.8rem}.gu-report-dialog label{display:grid;gap:.3rem}.gu-report-dialog textarea,.gu-report-dialog select{width:100%;box-sizing:border-box;padding:.6rem;color:white;background:#092f46;border:1px solid #67839b;border-radius:7px}
+
+/* v0.14.0.12 global Alerts presentation */
+.gu-alerts-section{padding:.7rem 0;border-bottom:1px solid #2b536e}
+.gu-alerts-section h3{font-size:1.06rem;margin:.1rem 0 .6rem}
+.gu-alerts-meta{font-size:.77rem;color:#b6cde0}
+.gu-alert-announcement{padding:.7rem .5rem;border-left:3px solid #e6b843;margin:.4rem 0;background:#10283f}
+.gu-alert-announcement p{white-space:pre-wrap;margin:.25rem 0 .4rem}
+.gu-alert-announcement.seen{border-left-color:#426782}
+.gu-alerts-empty{color:#b9cede;font-size:.9rem}
+.gu-alerts-status{font-size:.82rem;color:#eac65e;margin:.5rem 0}
+

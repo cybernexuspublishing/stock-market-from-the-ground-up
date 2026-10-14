@@ -32,11 +32,19 @@ async function renderTopics(){
 async function createTopic(e){
   e?.preventDefault(); if(!forumUser)return;
   if(!forumProfile?.username)return forumMsg('Set your username in Settings before creating forum topics.','error');
-  const sb=await window.getSupabaseClient(); const categoryId=Number(document.getElementById('new-topic-category').value); const title=document.getElementById('new-topic-title').value.trim(); const body=document.getElementById('new-topic-body').value.trim(); let ticker=document.getElementById('new-topic-ticker').value.trim().toUpperCase(); ticker=ticker||null; const labId=document.getElementById('new-topic-lab-id')?.value.trim()||null;
+  const sb=await window.getSupabaseClient(); const button=document.getElementById('forum-submit-topic'); if(button?.disabled)return; const categoryId=Number(document.getElementById('new-topic-category').value); const title=document.getElementById('new-topic-title').value.trim(); const body=document.getElementById('new-topic-body').value.trim(); let ticker=document.getElementById('new-topic-ticker').value.trim().toUpperCase(); ticker=ticker||null; const labId=document.getElementById('new-topic-lab-id')?.value.trim()||null;
   if(title.length<5||body.length<10)return forumMsg('Enter a title of at least 5 characters and a post of at least 10 characters.','error');
-  const {data,error}=await sb.from('forum_topics').insert({category_id:categoryId,author_id:forumUser.id,title,body,ticker,lab_id:labId}).select('id').single();
-  if(error)return forumMsg(error.message,'error');
-  location.href=`forum-topic.html?id=${data.id}`;
+  const icon=document.getElementById('new-topic-icon')?.value||'';
+  const keywords=String(document.getElementById('new-topic-tags')?.value||'').split(',').map(x=>x.trim().replace(/[^A-Za-z0-9_ -]/g,'').replace(/\s+/g,'-').slice(0,24)).filter(Boolean).slice(0,5);
+  const finalTitle=(icon?icon+' ':'')+title;
+  const finalBody=body+(keywords.length?'\n\nKeywords: '+keywords.map(x=>'#'+x).join(' '):'');
+  if(finalTitle.length>140||finalBody.length>12000)return forumMsg('Post exceeds its maximum size. Shorten the title or keywords.','error');
+  if(button)button.disabled=true;forumMsg('Posting discussion…');
+  try{
+    const {data,error}=await sb.from('forum_topics').insert({category_id:categoryId,author_id:forumUser.id,title:finalTitle,body:finalBody,ticker,lab_id:labId}).select('id').single();
+    if(error)throw error;
+    location.href=`forum-topic.html?id=${data.id}`;
+  }catch(err){forumMsg(err.message||'Unable to post discussion.','error')}finally{if(button)button.disabled=false}
 }
 function toggleNewTopic(){const p=document.getElementById('new-topic-panel');p.hidden=!p.hidden;if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'start'})}
 document.addEventListener('DOMContentLoaded',()=>{loadForum();document.getElementById('forum-category')?.addEventListener('change',renderTopics);document.getElementById('forum-search')?.addEventListener('input',()=>{clearTimeout(window._forumTimer);window._forumTimer=setTimeout(renderTopics,300)})});

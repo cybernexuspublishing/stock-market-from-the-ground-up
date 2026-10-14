@@ -1,4 +1,11 @@
-# The Stock Market: From the Ground Up — v0.14.0.11
+# The Stock Market: From the Ground Up — v0.14.0.12
+
+## v0.14.0.12 — Community Forum & Unified Alerts
+
+The Market Commons new-discussion editor, shared safe BBCode preview/toolbar, quick replies and quoting, and Alerts with scheduled Site Announcements are included. A legacy capture-phase notification interceptor is retired, leaving one Alerts owner. No new SQL is needed. Production acceptance and live forum security verification remain pending.
+
+See `docs/v0.14.0.12_FORUM_CREATION_AND_ALERTS.md`.
+
 
 **Status: local engineering candidate; not deployed or verified against production Supabase.**
 

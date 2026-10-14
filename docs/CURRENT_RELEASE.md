@@ -1,7 +1,7 @@
-# Current Development Release — v0.14.0.11
+# Current Development Release — v0.14.0.12
 
-Status: Locally verified source package. Production integration pending.
+Status: Locally verified source package. Production integration and real-member acceptance pending.
 
-Scope: responsive Owner instruction/GWS forms; Owner-configurable 1–30 minute rotation of transparently labeled Demo statistics; scheduled/editable/disableable/deletable site announcements with server-side audience/date filtering. No migrations introduced.
+Scope: Advanced Market Commons / legacy Forum new-topic and reply composition; safe BBCode/preview; recent replies; Site Announcements within the Alerts drawer; retirement of the older overlapping capture-phase notification handler; version and service-worker cache correction. No SQL migration added.
 
-See `docs/v0.14.0.11_OWNER_STATISTICS_AND_ANNOUNCEMENTS.md`. Existing v0.14.0.7 SQL B remains gated on two-forum live reporting acceptance.
+See `docs/v0.14.0.12_FORUM_CREATION_AND_ALERTS.md`. The separate v0.14.0.7 SQL B final forum-report lockdown remains gated on production tests.

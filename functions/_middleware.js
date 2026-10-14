@@ -183,7 +183,7 @@ export async function onRequest(context){
         }
         if(path==='/labs.html'||path==='/labs')
           el.append('<style id="v011-lab-registry-gate">body{visibility:hidden}</style>',{html:true});
-        el.append('<meta name="application-version" content="v0.14.0.10">',{html:true});
+        el.append('<meta name="application-version" content="v0.14.0.12">',{html:true});
         el.append('<meta name="theme-color" content="#061827">',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
         for(const file of [
@@ -231,7 +231,7 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.10');
+        el.setAttribute('data-build','v0.14.0.12');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');

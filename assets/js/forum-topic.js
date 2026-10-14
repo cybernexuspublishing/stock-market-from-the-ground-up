@@ -1,11 +1,11 @@
 function fesc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-let topicUser=null, topicId=null, topicLocked=false;
+let topicUser=null, topicId=null, topicLocked=false, topicSourceBody='';
 async function loadTopic(){
   const sb=await window.getSupabaseClient(); const gate=document.getElementById('topic-gate'); const content=document.getElementById('topic-content');
   const {data:{user}}=await sb.auth.getUser(); topicUser=user; if(!user){gate.innerHTML='<div class="notice">Sign in to read the member forum. <a href="signin.html?next='+encodeURIComponent(location.pathname+location.search)+'">Sign in</a></div>';return}
   topicId=Number(new URLSearchParams(location.search).get('id')); if(!topicId){gate.textContent='Topic not found.';return}
   const {data:topics,error}=await sb.rpc('forum_get_topic',{target_topic_id:topicId}); if(error||!topics?.length){gate.textContent=error?.message||'Topic not found.';return}
-  const t=topics[0]; topicLocked=t.is_locked;
+  const t=topics[0]; topicLocked=t.is_locked; topicSourceBody=t.body||'';
   document.title=`${t.title} | Member Forum`;
   document.getElementById('topic-title').textContent=t.title;
   document.getElementById('topic-category').textContent=t.category_name;
@@ -19,14 +19,14 @@ async function loadTopic(){
     document.getElementById('topic-replies').innerHTML='<div class="small">Replies unlock after your own attempt is saved.</div>';
     gate.innerHTML=''; content.hidden=false; return;
   }
-  document.getElementById('topic-body').textContent=t.body;
+  document.getElementById('topic-body').innerHTML=window.GroundUpForumEditor?.render(t.body)||fesc(t.body).replace(/\n/g,'<br>');
   if(topicLocked){document.getElementById('reply-form').hidden=true;document.getElementById('topic-locked').hidden=false}
   gate.innerHTML=''; content.hidden=false; await loadPosts();
 }
 async function loadPosts(){
   const sb=await window.getSupabaseClient(); const list=document.getElementById('topic-replies');
   const {data,error}=await sb.rpc('forum_list_posts',{target_topic_id:topicId}); if(error){list.innerHTML=`<div class="notice">${fesc(error.message)}</div>`;return}
-  list.innerHTML=(data||[]).map(p=>`<article class="forum-post" id="post-${p.post_id}"><div class="forum-post-head"><strong>@${fesc(p.author_username)}</strong><span class="small">${new Date(p.created_at).toLocaleString()}</span></div><div class="forum-post-body">${fesc(p.body).replace(/\n/g,'<br>')}</div><button class="link-button small" type="button" onclick="reportPost(${p.post_id})">Report</button></article>`).join('')||'<div class="small">No replies yet.</div>';
+  list.innerHTML=(data||[]).map(p=>`<article class="forum-post" id="post-${p.post_id}"><div class="forum-post-head"><strong>@${fesc(p.author_username)}</strong><span class="small">${new Date(p.created_at).toLocaleString()}</span></div><div class="forum-post-body">${window.GroundUpForumEditor?.render(p.body)||fesc(p.body).replace(/\n/g,'<br>')}</div><button class="link-button small" type="button" onclick="reportPost(${p.post_id})">Report</button></article>`).join('')||'<div class="small">No replies yet.</div>';
 }
 async function addReply(e){
   e?.preventDefault(); if(topicLocked)return;
@@ -71,4 +71,12 @@ async function sendLegacyReport(e){
   }catch(err){status.textContent=err.message||'Unable to submit report.';}
   finally{button.disabled=false;}
 }
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('legacy-report-form')?.addEventListener('submit',sendLegacyReport);loadTopic()});
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('legacy-report-form')?.addEventListener('submit',sendLegacyReport);
+  document.getElementById('quote-topic')?.addEventListener('click',()=>{
+    const field=document.getElementById('reply-body');
+    const quoted=topicSourceBody.slice(0,1200);
+    const insertion=`[quote]${quoted}[/quote]\n`;
+    field.setRangeText(insertion,field.selectionStart,field.selectionEnd,'end');field.focus();field.dispatchEvent(new Event('input',{bubbles:true}));
+  });loadTopic();
+});

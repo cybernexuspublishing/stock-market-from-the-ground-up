@@ -32,21 +32,7 @@
         if (span)
             span.textContent = 'Search site';
     } }
-    async function notificationCenter() { const old = q('.fe-notify-button'); if (!old || old.dataset.v132)
-        return; old.dataset.v132 = '1'; old.addEventListener('click', async (e) => { e.preventDefault(); e.stopImmediatePropagation(); let d = q('#v132-notifications'); if (!d) {
-        d = document.createElement('dialog');
-        d.id = 'v132-notifications';
-        d.className = 'fe-dialog fe-drawer';
-        d.innerHTML = '<div class="fe-dialog-head"><h2>Notifications</h2><button class="fe-dialog-close">×</button></div><div class="fe-dialog-body"><div class="v132-notice-actions"><button class="btn secondary" data-read-all>Mark all as read</button></div><div data-list></div></div>';
-        document.body.appendChild(d);
-        q('.fe-dialog-close', d).addEventListener('click', () => d.close());
-    } const render = async () => { const j = await api('/api/ui-state?action=notifications'), rows = j.notifications || [], host = q('[data-list]', d); host.innerHTML = rows.length ? rows.map((n) => `<article class="fe-notification ${n.is_read ? '' : 'unread'}" data-id="${n.id}"><div><h4>${esc(n.title)}</h4><p>${esc(n.body || '')}</p><time>${new Date(n.created_at).toLocaleString()}</time></div>${n.href ? `<a href="${esc(n.href)}" data-open>Open</a>` : ''}</article>`).join('') : '<div class="fe-state"><h3>You’re caught up.</h3><p>No notifications right now.</p></div>'; qa('[data-id]', host).forEach(row => row.addEventListener('click', async () => { if (!row.classList.contains('unread'))
-        return; await api('/api/ui-state?action=notifications_read', { method: 'POST', body: JSON.stringify({ ids: [Number(row.dataset.id)] }) }); row.classList.remove('unread'); await updateBadge(); })); const all = q('[data-read-all]', d); if (all)
-        all.onclick = async () => { const ids = rows.filter((x) => !x.is_read).map((x) => x.id); if (ids.length)
-            await api('/api/ui-state?action=notifications_read', { method: 'POST', body: JSON.stringify({ ids }) }); await render(); await updateBadge(); }; }; const updateBadge = async () => { const j = await api('/api/ui-state?action=notifications'), n = (j.notifications || []).filter((x) => !x.is_read).length, c = q('.fe-notify-count', old); if (c) {
-        c.textContent = n ? String(n) : '';
-        c.hidden = n === 0;
-    } }; d.showModal(); await render(); await updateBadge(); }, { capture: true }); }
+    function notificationCenter() { /* Retired v0.14.0.12: frontend-complete.js solely owns Alerts, account notifications and site announcements. */ }
     function createAccountUpgrade() {
         if (!/\/(create-account)(\.html)?$/.test(path))
             return;
