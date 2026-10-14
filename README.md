@@ -1,3 +1,7 @@
+# The Stock Market: From the Ground Up — v0.14.0.13
+
+**Source integrity audit / publishing-boundary remediation candidate.** This update protects private authored Lab data from accidental deployment, aligns release-version metadata, and removes duplicate Admin navigation CSS injection. It does not establish live operational acceptance or complete previously planned platform features. See `docs/v0.14.0.13_SOURCE_CONNECTIVITY_AUDIT.md`.
+
 # The Stock Market: From the Ground Up — v0.14.0.12
 
 ## v0.14.0.12 — Community Forum & Unified Alerts
