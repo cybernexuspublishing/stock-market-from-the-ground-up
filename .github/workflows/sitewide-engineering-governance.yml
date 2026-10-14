@@ -1,0 +1,25 @@
+name: Sitewide Engineering Governance
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rule-integrity:
+    name: Governance and private-content release boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify sitewide rules and private-content release boundary
+        run: python3 scripts/sitewide_governance_audit.py --root .
+      - name: Ensure repository compiles against existing Cloudflare build path
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/data/interactive-labs.json
+          test ! -d public/supabase
+          test ! -d public/functions

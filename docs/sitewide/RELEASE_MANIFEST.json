@@ -1,0 +1,53 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "scope": "Entire Website",
+  "change_set": "Sitewide Owner Rules, Baseline Audit, Read-Only DB Verification, Developer/CI Governance",
+  "development_version": "v0.14.0.17",
+  "release_stage": "Governance Foundation \u2014 Initial Development, NOT the full website release",
+  "baseline_inspection_date": "2026-10-14",
+  "source_repository": "cybernexuspublishing/stock-market-from-the-ground-up",
+  "source_branch": "main",
+  "verified_main_commit_sha": "fd378aa221a4e352c08e797617d262127e87348a",
+  "verified_main_commit_label": "v0.14.0.17",
+  "source_manifest_version": "0.14.0.16",
+  "owner_specifications": {
+    "MASTER": {
+      "file": "docs/sitewide/SOURCE_MASTER_WEBSITE_REQUIREMENTS.md",
+      "lines": 2362
+    },
+    "ADVANCED": {
+      "file": "docs/sitewide/SOURCE_ADVANCED_FORUM_REQUIREMENTS.md",
+      "lines": 1111
+    }
+  },
+  "traceability_register_items": 1815,
+  "type_of_change": "Add-only governance/docs/tests/CI/read-only SQL. Existing approved owner rules identical; no runtime website source modified.",
+  "uploaded_to_github": false,
+  "deployed_to_cloudflare": false,
+  "supabase_sql_executed": false,
+  "member_data_modified": false,
+  "automated_tests": {
+    "tests/test_sitewide_governance.py": "PASSED: happy path, private Lab file blocking, source drift",
+    "scripts/sitewide_governance_audit.py": "PASSED: 16 checks, zero warnings in local v0.14.0.4 sandbox with current build script body",
+    "scripts/build-pages.sh": "PASSED: isolated older source snapshot with current inspected build script body; 260 static outputs",
+    "GitHub live CI": "NOT EXECUTED: workflow not committed",
+    "Production Supabase integration": "NOT EXECUTED",
+    "Cloudflare preview and production": "NOT EXECUTED"
+  },
+  "security_note": "No live security certification, no production authorization tests, no new privilege grants.",
+  "database_migrations": [],
+  "read_only_sql": [
+    "supabase/admin/SITEWIDE_GOVERNANCE_PREFLIGHT_READ_ONLY.sql"
+  ],
+  "known_defects": [
+    "Current source release labeled v0.14.0.17 while manifest says v0.14.0.16",
+    "Generic forum-report failure status covers multiple causes",
+    "Owner-configurable sitewide policy limits not verified as enforced",
+    "No existing GitHub Actions CI at verified main"
+  ],
+  "needed_next": "Reconcile live deployment and current GitHub source; complete full code/schema audit, fix P0 enforcement, implement functional admin/member/forum/education requirements and test end-to-end.",
+  "zip_file": "v0.14.0.17_SITEWIDE_GOVERNANCE_AUDIT_FOUNDATION.zip",
+  "rollback": "Revert only newly added rules, workflow and diagnostics; no SQL migration, data or deployed code changed.",
+  "push_risk": "Pushing to a production-connected GitHub branch can automatically trigger Cloudflare deployment; owner has not authorized deployment of this staged release."
+}
