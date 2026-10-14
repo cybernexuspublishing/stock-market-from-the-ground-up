@@ -1,7 +1,7 @@
 {
   "project": "The Stock Market: From the Ground Up - Companion Learning Environment",
-  "version": "0.14.0.15",
-  "status": "Owner-notice/announcements editor integration and moderated member discussion edits candidate; production unverified.",
+  "version": "0.14.0.16",
+  "status": "Admin reporting-to-moderation convergence candidate; database integrated behavior unverified",
   "production_site": "https://stock-market-from-the-ground-up.pages.dev/",
   "lab_count": 419,
   "book_counts": {
