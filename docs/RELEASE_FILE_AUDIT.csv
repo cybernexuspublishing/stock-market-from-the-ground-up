@@ -2,8 +2,8 @@ path,bytes,sha256,method,result
 .gitignore,203,22067017cc91de50e52f1e1cfb193d172e03ca4efb012189ebaa116ee5ad0ab5,inventory,PASS
 404.html,1881,81c19f91f29f35ff07245caf5715a121dd1cd57c62bb26ba5d9ebad3044522ff,HTML reference validation,PASS
 PROJECT_ADVANCED_ENGINEERING_RULES.md,17813,97561b5659522b242164d48ac8ca33810fb156f3ed96b0c80872bc7cf5c53c76,inventory,PASS
-PROJECT_MANIFEST.json,8198,df1e07766a2bd3b5a54ef134cded6a0518840dfed052acc8c71dec0366e6c3f0,JSON parse,PASS
-README.md,8577,bf9357807bb7fd83d49e2e2d3d3ff6c19ef34ff53365fdd2d3eff99df7a1f53a,inventory,PASS
+PROJECT_MANIFEST.json,8170,b58aa0ac940d40ac98cf3a4e4cd1afce52dab0f06949f246f87917749ec96af7,JSON parse,PASS
+README.md,8696,3317db9ff36e79460cb88cf719039bced2904f134047c6f398ea1da8a82a2761,inventory,PASS
 _headers,470,9dfa88c9557a7db463a18c4df077c6e69d8e88ddfe1fe57512834a94a604c40c,inventory,PASS
 _redirects,4816,cbc89818bd30ef1387e2aaa2754687c913849bfd4eb2982e7c89b5fcc2ffb38c,inventory,PASS
 about.html,5807,5e628361d04a10a1e93bb95794db9687f8e53465a286e0a8808aeb32179cc1aa,HTML reference validation,PASS
@@ -14,12 +14,13 @@ account.html,2818,2736be8d6f64875891f72733fe56ca54d373b90b4e4d3460f4c334faf02143
 activate-book.html,2014,fdb37977b17494fbcb5e571ea2d1a7ea964037d6644493399ac18e24bc3eabaa,HTML reference validation,PASS
 admin-lab-preview.html,1470,666327c7982c93dd07eedb78d1af551d0b8774ad3b77a6f7b8f4e9f20eb8759e,HTML reference validation,PASS
 admin-operations.html,2111,ca658ae956129e1d7bd4550177e9bdd3c0a2011413d322a7db7b8e9d941fba06,HTML reference validation,PASS
-admin.html,9256,98be1c558a17269559b1bb85a56bc9370bda8cd1c93a4940eb31754dbeca929f,HTML reference validation,PASS
+admin.html,9377,58593707c9812945c17bec8a23070d4cd777b8a0a6617a84d9ecd5418aa8b9da,HTML reference validation,PASS
 advanced-tool.html,1409,b5bc35a25495830eb2151af711d6f9ecf1747e8fe07c7ef26b97902109481e0c,HTML reference validation,PASS
 advertise.html,2745,c0dc52c4bf6f8d8e3ca7d9ae0855a5378b517845584f363b5007bfb42321fc42,HTML reference validation,PASS
 advertising-disclosure.html,541,fe747d1b7e256206b9470c3c062feb5b67b3a86d3c86e12d35bb70171204ed7a,HTML reference validation,PASS
 assessments.html,1563,eea2572434017bb8434de00903fecf699c6337499727937fb08a0cc535b7e67b,HTML reference validation,PASS
 assets/css/accounts-and-lab-preview.css,3390,c87e968733ea764bbc5a509e21ba517bbf0503cb617941f80cc3d56038dbddc2,inventory,PASS
+assets/css/admin-navigation.css,2298,87056974e3cc4ad2eb3b6b3711421297594ad26d395f6737b03cdc37fc86021d,inventory,PASS
 assets/css/admin-operations-center.css,4160,16e83e11d6b27d33716003fe18d948698ef0c378fb9b9b963f38972f33fa2346,inventory,PASS
 assets/css/admin-operations.css,12489,47cb1e00245d44b2fab702fc57672f0768dee850cb8c76690b2e0ca37b2a8754,inventory,PASS
 assets/css/admin-platform.css,6756,793c403268763b6f78c36e9004dcf52b5263a8c2fda987156c55c54d0ff2c1c8,inventory,PASS
@@ -94,13 +95,14 @@ assets/js/admin-community.js,5613,1eaa8cd548a1f6b8f1b35645d49c2ec0b42d3e2b110708
 assets/js/admin-core.js,31361,2cdf65460772ad7a03a81539a6bf03e00ac70d3a83c17bdfc7c31a0160d52d1e,node --check,PASS
 assets/js/admin-enhancements.js,11712,1ba253b3fafe20113ccea00b5ccf6cd7d06bf167a13006bf897888ced4c89316,node --check,PASS
 assets/js/admin-legacy-routing.js,17618,4173242240398123140f061656d356ba54ac9e4d475ef3c87b85466613c7eb5e,node --check,PASS
+assets/js/admin-navigation.js,6269,52b932e250704da1674941958c1ccf2b9ee4ebf5c1b472a164df020d04dc9966,node --check,PASS
 assets/js/admin-operations-center.js,16176,12cc48a8710d8303daaf74d77096a1c025117f31e47e294801f3ad6f43838207,node --check,PASS
 assets/js/admin-operations-compat.js,5982,a87344e19b073d1b49d13663b83c8286284b88233864eef399e63b8532572e39,node --check,PASS
 assets/js/admin-operations.js,61975,c6f15e0b1fa68175cb3bd4a4541ad18e9533a2080ef4a90c3839625b36bb4a8c,node --check,PASS
 assets/js/admin-platform.js,34108,847ce8e90126ca2de1176a3d2e2ac3814220b99e5c28423c511be70b04714e8a,node --check,PASS
 assets/js/admin-showcase.js,2524,250b8dfd310c0bb56bda2f2fc502ca3e027a58956a8b21183d321a846328f29a,node --check,PASS
-assets/js/admin-workflows.js,17034,cd3d701464aa226d550cc7811c5c920f7068b18211e9cdc47b6272cb4a8bea56,node --check,PASS
-assets/js/admin.js,37150,739f1f96285cdfebcb7f4db5e114088b6d2ec9d3cda26693a99a4a3c7338803e,node --check,PASS
+assets/js/admin-workflows.js,17098,3cdf2a4fcdef0f92b79b2060859836b7437f06c5e2aeec9b1f7d83032d33ed3e,node --check,PASS
+assets/js/admin.js,39433,28ffc5a5bd9084524f2531cb12e28ad5dfd56874ab49008f1b52e96f97ea6390,node --check,PASS
 assets/js/advanced-tools.js,32170,4a2cbfc96190891db58cfc36c064958f9b1fe99b51b9a25ffbdb9f6ab589527c,node --check,PASS
 assets/js/assessments.js,3387,84658946b59007119fda9e22d92563825e1e6e8f6403acb39bdc2e6df1c116b7,node --check,PASS
 assets/js/auth-boundary.js,3066,276cf74acf4085c5fd784ee7c3dfe6a6af558110c97121c3db5d3212cd9f07ab,node --check,PASS
@@ -120,8 +122,8 @@ assets/js/environments.js,1294,e900b36368478c5e5980877443f4923ba486da8705e8472e9
 assets/js/form-composer.js,3900,7a9e076432af3a86c294994881681f1cbbe1c524a0ef254ff58c4d2052fc827f,node --check,PASS
 assets/js/forum-topic.js,5907,9a90b83c6cb44033a34a0238c2d41c9aa03c235e9c180523ab0ebd1bdec1eee3,node --check,PASS
 assets/js/forum.js,5218,5690cf0e37d2c18624132940435b20642f3ae532578b5adaf7a2984fd3bf31dc,node --check,PASS
-assets/js/frontend-complete.js,61487,0e07ca9749d71b5af941126f727a095d6e6060c848617326a31938da0eda13a3,node --check,PASS
-assets/js/frontend-freeze.js,9468,3c7d289d667140b4abeeb3b12c995ff05d04fe5e6a2727df85988493095f6303,node --check,PASS
+assets/js/frontend-complete.js,61558,8588e02b0f17ba09edb9ad9b592ed4a2960bb35dff71dbe1d310f1817c78a260,node --check,PASS
+assets/js/frontend-freeze.js,9539,2cc274bfc705861aed36ee7a1fae8f45acfb41af50e5639b16bb096257759ea9,node --check,PASS
 assets/js/gws-projects.js,4757,c84e2b1faf9d693ce9d2f921b1dfc78a08d0c387910c23d5ea6da5c670cf5631,node --check,PASS
 assets/js/help-platform.js,1077,cfce9c87d11e43a900749aeb83969f4b5a2d6e1eeccd11fd2ee0fe2873cbdaeb,node --check,PASS
 assets/js/home-community.js,4166,e7f32e0e96a14475d2e9bc425cefe8db9186e0c5c8e04ef0fd85ed278c1e273a,node --check,PASS
@@ -135,7 +137,7 @@ assets/js/lab-player.js,14919,c5bb335d421854bd87a8877300c3e278f9b02ba5abc9e8be23
 assets/js/lab-preview.js,4063,067e7243220dcbc03586666ef1ec3b406cd72b168adb534a820af575721da1c3,node --check,PASS
 assets/js/lab-registry.js,7044,8a10ac8b56dbb35f81bde5852c584a0b4749d21b69213183b9c699eb20bb366d,node --check,PASS
 assets/js/labs.js,7131,d490e4cef1ba355c785569b9540d5d7087e1e7e226261f8da33fe855f63bc876,node --check,PASS
-assets/js/layout-integrity.js,3539,eda0a5746f02e96703d0696888d10b7e9a42694159dbce24560d5d06e396cb0a,node --check,PASS
+assets/js/layout-integrity.js,3641,be392b9a1bab6c9a6f0333e653a63932fa998454eeece85128cffc93c30ba9d5,node --check,PASS
 assets/js/learning.js,2053,18c49c9aa137cb91176631cff6d12d4a3265e65ebad4615e656d04751c5b0b2d,node --check,PASS
 assets/js/legal-platform.js,1682,a09a968a07f2b1ee35dc961c5538d200de7d93dd4fbe10002c30d6793c8f7367,node --check,PASS
 assets/js/links.js,921,e1469b7416c0d9ffe36aed0bd95ae5d1c10ba5f5de7282f1f34d5a0e48159637,node --check,PASS
@@ -153,14 +155,14 @@ assets/js/page-composer.js,7122,02090f0d680522755622a9a30a482ab0dc346be96932d831
 assets/js/plan-controls.js,2915,f3872511b5c414908b1f91b113cbdb9a0b16aebd5dbbfc87fd8e79284b7a8794,node --check,PASS
 assets/js/presence.js,720,c86b360fb1871fb567ec06e343c74864c0e11ec8fcba2343e7f9637cd6270f5a,node --check,PASS
 assets/js/product-platform.js,2247,8ca15233a0efa20362fea1068b25bbe8050879ab4a0f86c3c36bd1cf3065e5ca,node --check,PASS
-assets/js/production-completion.js,46858,6469085201ba480445a19f6ad902367948c76fc90570b2eaf2b330cf8caa9e97,node --check,PASS
+assets/js/production-completion.js,47184,df696821fc219c433bf5e92af5d4dd8b4afbde77d0075f2438e7bc3dfca427c2,node --check,PASS
 assets/js/production.js,8893,c0c3e6b4f6ce505af04e2da1400ed88ee4eb2206b4e8a407d1f9b4fdb83c74ab,node --check,PASS
 assets/js/profile.js,1674,c0dddedefa4b5cb23ec7f0cbdcc4c1de9477655b158147ec6bd52081d794a303,node --check,PASS
 assets/js/releases.js,862,a0e94d9a8bd87e017a5feff2736f48d94b06499c0c388549906e84b87d61a12c,node --check,PASS
 assets/js/replay-journal.js,3424,73f25338273047040cb8e3f0b09c48f2dcf1bb8d5508e41f4a46eae282685b6c,node --check,PASS
 assets/js/review-queue.js,7815,fa9830e29ae1e599e8028c5b7d99f9c162f57051477eb841b466eddfdc0c93de,node --check,PASS
 assets/js/route-policy.js,2012,a01e8069892f900735eb57e0aa62bedfd280e6ae072af34791af1a30c546db4e,node --check,PASS
-assets/js/service-worker.js,875,878f0866f2a60c97d058c7ce8d59f410e3a70ade4471017f419a10cdf44df953,node --check,PASS
+assets/js/service-worker.js,875,818b219ed90a95178153a8be350e25862ecc96366362a237bc46c4693744a04d,node --check,PASS
 assets/js/session-manager.js,3804,6a34d7729bc6cb8161a88a9a95a9e7440e6141b39c2afd56a95c7cfe7b0606e2,node --check,PASS
 assets/js/settings.js,4802,bd5f26d39799a52ce38a290a33ce5f78ed0597e995d4c961adbfe482166b011d,node --check,PASS
 assets/js/signin.js,3249,104c3cb9d70c1bc1d515cbb16f853728ec3335ad5d5768699412b7cbec324543,node --check,PASS
@@ -215,7 +217,7 @@ docs/CAPABILITIES_AND_GAPS.md,8669,3ba78716c6c00cab326002054625b8f6b6efdb3fcf4d7
 docs/CHANGESET.csv,3203,86ca23d576eae45c53f7c1d844b6c1297aa7b78412dc77157623583d54cb2677,inventory,PASS
 docs/CHANGESET.json,1217,0e44530c7e964e8ea142a14b7b3b34e376091e4a7d01b7dfd8a9e7e1e8d83480,JSON parse,PASS
 docs/CONSOLIDATION.md,7021,05f3e375a9b9ff7b18dd20996e59cc7f25e3dd2bee2f55412f8a4db297e26294,inventory,PASS
-docs/CURRENT_RELEASE.md,1338,d008cc35f074bdecb47533463b1b407efee23c20eacf4ac1293d2149827f09e0,inventory,PASS
+docs/CURRENT_RELEASE.md,760,f9e74abff2d48dab162af963087b0076dba6d36383c630e5655cac718eeb290c,inventory,PASS
 docs/DEPLOY_AND_VERIFY.md,2680,82bb2ae2646d248f30bdf15c52d303c1b5bfb02ca7ffc5b9624448265c601d76,inventory,PASS
 docs/DEPLOY_CURRENT.md,2536,7415ddaff8bdcae943c88a6114902c1f294ba942e40adeb37e65f24042bcd15f,inventory,PASS
 docs/FEATURE_STATUS.md,3287,0407166b5f7bcdea3fd044653a0cb280b08cc80a7613c08ca8676365d6384996,inventory,PASS
@@ -232,7 +234,7 @@ docs/QA_STABILIZATION.md,915,a6045f134f0535799189711bb4607f6568ee8d3900888dd52c0
 docs/RECOVERY_SOURCES.md,1608,ea9e549ca2ec61165702d8956af74f11f8623107b12e4d096ecded629cad260c,inventory,PASS
 docs/RELEASE_AND_FILE_POLICY.md,4261,5b1c1ddd395267cc5c454bf28b7d6217600bbe2191525957579fa8f3ffcd0e00,inventory,PASS
 docs/RELEASE_AUDIT_FAILURES.csv,19,7f2eef991f45cf6c236ed9e3502c6d929422e0128f93d93ef2be48c91694045c,inventory,PASS
-docs/RELEASE_FILE_AUDIT.csv,60076,ef43e2f9a93a3a97346c7ce1c5d6e0c0efd67d6d3442c85da3f4247bd426afe5,inventory,PASS
+docs/RELEASE_FILE_AUDIT.csv,60985,46bf4a4e97122eaadea1c7e907eacfb81c8127cd6913cb5f36d4bf160f55d875,inventory,PASS
 docs/RELEASE_OWNER_NOTES.md,7822,75776b1671dbb844122d5c09ce3be43f9f67ef867a09af75c08eccf2e44d554f,inventory,PASS
 docs/RELEASE_TEST_RESULTS.md,2404,8a7d6e9afe391a12f667c40a8eb005e26fd646e75bb53f5434d7fa378105e018,inventory,PASS
 docs/REMOVED_BASELINE_FILES.csv,19901,09ff78a809ac4920725dc63b9f61b5f79958214c0c1897fe606133127d9196fe,inventory,PASS
@@ -268,12 +270,15 @@ docs/v0.14.0.6_LAB_PUBLIC_METADATA_INVENTORY.csv,59999,bc0fff57de0752976a652082f
 docs/v0.14.0.6_RELEASE_QA.md,1881,1f69da0aa7156752a34487d8a6916b12a31e5aec6aa4ecc99409b96b6ed22870,inventory,PASS
 docs/v0.14.0.6_SHA256_MANIFEST.csv,48482,c8835cb2fe02280e3be480dda478a2185433bd266924222190cd8e700fca6ad8,inventory,PASS
 docs/v0.14.0.6_SOURCE_CHANGE_MANIFEST.json,1484,ec295b884e3a918c0b065f2936673ac4329c44aed58201ed5ab03d4092a1fe29,JSON parse,PASS
+docs/v0.14.0.7_CHANGED_FILES.csv,1797,71c900ebfcd793b30d78f732b86df64b62787e85cc3415c8080f44aebe87e526,inventory,PASS
 docs/v0.14.0.7_FORUM_SECURITY_REPAIR.md,6556,686f0d8670f638715c866490552202c319cdd7b6550a72fc38e29cdbba89c5ac,inventory,PASS
+docs/v0.14.0.7_TEST_AND_DEPLOYMENT_RESULTS.md,1828,35bfc2bc66de1a5357ca969bc714002e29400ced7824dc948e9a8f9107e4fdbc,inventory,PASS
+docs/v0.14.0.8_ADMIN_NAVIGATION_AND_REPORTS.md,6483,ff30bcd59e43fe38953a9527e6c331fa06a3f605f4fd659703d849aa1129ee73,inventory,PASS
 educational-disclaimer.html,540,86c0e1cc46c7c9fc839786adc80a9abb23e40b1db6314c1f2665ad1ae61475f7,HTML reference validation,PASS
 environments.html,2371,41ec1a250110471bf2e7173939c1bb9d61e41341f952c36c4acce42a07c77001,HTML reference validation,PASS
 forum-topic.html,3392,f7890e867281d04d0c60e02b3332c92cb7ea704d5b9bb6e0cd54598786039480,HTML reference validation,PASS
 forum.html,3907,57cd7f0a8a028e38dd5c7f454cc5aeb68ada4e3041e858640fa5297e3235206c,HTML reference validation,PASS
-functions/_middleware.js,17954,d588474a86b611f685b9b01701f1677278a3de8be6af7467f1c17a0337858869,node --check,PASS
+functions/_middleware.js,18269,d27c2d77f5489b5b39cb76e3e752146a894a97d1858bd35e4c4aba599357793d,node --check,PASS
 functions/api/account.js,10372,3b842536bfe81053881881125a4e029dc6743e109d0678d394321b1fca127e41,node --check,PASS
 functions/api/admin-access-v01355.js,11772,434bc9afac62866d4ceaec937671654406e992244f818308c4b165a6f49b3280,node --check,PASS
 functions/api/admin-accounts-v01351.js,19568,5b1bdeb6d98676d7dcf654667c6c022ebdfa14e16f0f0a3ea644e3f36e42bd04,node --check,PASS
@@ -388,6 +393,7 @@ supabase/admin/v0.14.0.1_PREFLIGHT_READ_ONLY.sql,2079,022708e846a06d7daca89b4c92
 supabase/admin/v0.14.0.3_POSTFLIGHT_READ_ONLY.sql,1713,cfafd989c6494ceee7fc7bdba7443232064f2818f29cd71d5ba8516498f38623,"migration source retained, not executed",PASS
 supabase/admin/v0.14.0.3_PREFLIGHT_READ_ONLY.sql,2624,743bc9b58df140f187b4e5421186ef011965499618f3e9466dbb1ef2e6d2cf1c,"migration source retained, not executed",PASS
 supabase/admin/v0.14.0.4_SAFE_CONTRACT_INSPECTION_READ_ONLY.sql,3438,9206ed1ee3cce95eff1bb8f308e64fffacf0e4dbed23c4d8ec6a542fa69199b7,"migration source retained, not executed",PASS
+supabase/admin/v0.14.0.7_COMPAT_FIX_LEGACY_FORUM_READ_GATES.sql,9562,55949c9c63df2e27cb502e65961c2149dbbf55d86e7a5de8f35fd78e5f912956,"migration source retained, not executed",PASS
 supabase/admin/v0.5.3_generate_book_keys.sql,517,94afa2fdda9ff99dc902fef1fb1d82c344df26d96d1860e25fdf8b24740bf0f0,"migration source retained, not executed",PASS
 supabase/admin/v0.6_generate_book_keys.sql,576,7daa5ca178af7dbe08b6bbbe709a5fa589aa43554a805202f6a8eba2851808db,"migration source retained, not executed",PASS
 supabase/admin/v0.9_example_library_grant.sql,401,4fbcaaba1091a23963279886c1d270db0a281324b732a9492da52c00436762de,"migration source retained, not executed",PASS
@@ -434,7 +440,7 @@ sw-v0134-mobile-auth.js,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d
 sw-v0134.js,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,node --check,PASS
 sw-v01342.js,232,bfa032fa6e7ee689997f07f0babb0b9130679a30f0c5e1b5510d549c4416466c,node --check,PASS
 sw-v0135.js,102,0f0ab1ebf08232bc20a45522d3c34973b1ecc714e693414b319d131380eafe37,node --check,PASS
-sw.js,2502,74cb53306b4f2655ea2bb7327c9cf9dfc1bd5b15554de4a6d62250cca6eaaad2,node --check,PASS
+sw.js,2502,d1f92af0e0b51cb9f3965d3db58fa312966da5f2dc5f6693704f0fb6a71f7bda,node --check,PASS
 terms.html,535,8df116ec83bc233883b90e6a5106e1b75dd7a6d77ee81c1b9023af446cd5f936,HTML reference validation,PASS
 tests/fixtures/v0142_admin_fixture.html,1456,66bd44b4e957aee4f94f6e43ea769fa5727c5ee000b956f28f42a0fc5163c9fa,HTML reference validation,PASS
 tests/qa_clean_baseline.py,4166,2d2377ac6c4a12e70cb66cbf403c290bf03486079a83f1fb42449d9a538b650e,inventory,PASS
@@ -457,6 +463,8 @@ tests/test_recovery_policy.mjs,2843,06a24445665216c027a37cb24d4034c33cb5f743e753
 tests/test_skill_gallery_admin_directory.py,4558,41179b6de10713e332494a7811ee15b2132119f6cac6f8c0ce196a5c9bc41184,inventory,PASS
 tests/test_stabilization.py,8029,2e88a00bd08bd313684ddd8705700d4406b8c4c6da3455c9216e95d6641b7538,inventory,PASS
 tests/test_stable_filenames.py,2734,ead7c395b58ff2626bf0fe834ffb23fa48cf5e5676857863f4ddefc79628451b,inventory,PASS
+tests/test_v01408_admin_navigation.py,3558,a73dc2b152fc3f3dc6aa7647cd04e9888483cc64ca788a5434b907aff4e934a7,inventory,PASS
+tests/test_v01408_metrics.py,3231,2d01d0944988b2edc2a6acb26d0a8c8abf725111a42c595648ab6b1bc7cf9f0a,inventory,PASS
 tests/v01406_security_regression.mjs,5289,556e49c25a6203fc4fed557e167cba004587cd4767d39c8d6e2ddf18d64c2b17,node --check,PASS
 tests/v01407_forum_security_regression.mjs,5392,bbed551b9ecc867cfcf50d5c779aed70530185ab942f939c63d3318e856dc7ec,node --check,PASS
 tests/v0141_security_contracts.py,1796,75166dd6a336fc61627af0aadde4335cbed0bffc7896872f614f6f89ea211f44,inventory,PASS

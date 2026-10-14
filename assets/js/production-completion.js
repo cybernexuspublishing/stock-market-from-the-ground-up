@@ -230,7 +230,7 @@
         tabs.appendChild(b);
     } b.onclick = () => { qa('.admin-panel').forEach(x => x.classList.remove('active')); qa('#admin-tabs button').forEach(x => x.classList.remove('active')); p.classList.add('active'); b.classList.add('active'); loadAdminPanel(code, q('[data-v132-content]', p)); }; return b; }; add('support', 'Support Queue', 'Support Ticket Queue', 'Search, assign, reply, escalate, resolve, and close member support tickets.'); add('memberactivity', 'Member Activity', 'Member Activity Search', 'Search by username to review member-generated activity.'); add('features', 'Feature Controls', 'Maintenance & Feature Controls', 'Enable or disable site capabilities without database access.'); add('announcements', 'Announcements', 'Site Announcements', 'Publish scheduled information, maintenance, release, or urgent notices.'); add('qa', 'QA & Test Center', 'QA & Test Center', 'Create/delete individual test accounts and run the production acceptance checklist.'); add('archive', 'Archive & Recovery', 'Archive & Recovery', 'Restore archived or disabled site inventory without database access.'); setTimeout(reorganizeAdminGroups, 100); }
     function reorganizeAdminGroups() { const tabs = q('#admin-tabs'); if (!tabs)
-        return; const defs = [['Overview', ['dashboard', 'academy', 'qa']], ['Accounts & Access', ['users', 'roles', 'memberactivity']], ['Support', ['support']], ['Books & Learning', ['catalog', 'booksales', 'content', 'marketdata', 'inventory']], ['Commerce & Payments', ['commerce', 'checkout', 'platform']], ['Advertising', ['advertising']], ['Market Commons', ['commonsadmin', 'community']], ['Site Configuration', ['settings', 'features', 'announcements', 'archive', 'legal']], ['Security & Audit', ['audit', 'system']]]; const buttons = qa('button', tabs), lookup = (c) => buttons.find(b => b.dataset.panel === c || b.dataset.v11Panel === c || b.dataset.v13Panel === c || b.dataset.v132Panel === c); const frag = document.createDocumentFragment(); for (const [name, codes] of defs) {
+        return; const defs = [['Overview', ['dashboard', 'academy', 'qa']], ['Accounts & Access', ['users', 'roles', 'memberactivity']], ['Support', ['support']], ['Books & Learning', ['catalog', 'booksales', 'content', 'marketdata', 'inventory']], ['Commerce & Payments', ['commerce', 'checkout', 'platform']], ['Advertising', ['advertising']], ['Market Commons', ['commonsadmin', 'community']], ['Site Configuration', ['settings', 'features', 'announcements', 'archive', 'legal']], ['Security & Audit', ['audit', 'system']]]; const buttons = qa('button,a', tabs), lookup = (c) => buttons.find(b => b.dataset.panel === c || b.dataset.v11Panel === c || b.dataset.v13Panel === c || b.dataset.v132Panel === c); const frag = document.createDocumentFragment(); for (const [name, codes] of defs) {
         const g = document.createElement('div');
         g.className = 'v13-admin-group';
         g.innerHTML = `<div class="v13-admin-group-title">${name}</div>`;
@@ -238,7 +238,10 @@
             g.appendChild(b); });
         if (g.querySelector('button'))
             frag.appendChild(g);
-    } tabs.innerHTML = ''; tabs.appendChild(frag); }
+    } const assigned=new Set([...frag.querySelectorAll('button,a')]);
+    const other=buttons.filter(b=>!assigned.has(b));
+    if(other.length){const g=document.createElement('div');g.className='v13-admin-group';g.innerHTML='<div class="v13-admin-group-title">Additional Installed Controls</div>';other.forEach(b=>g.append(b));frag.append(g)}
+    tabs.replaceChildren(frag); }
     async function loadAdminPanel(code, host) { if (code === 'support')
         await adminSupport(host); if (code === 'memberactivity')
         await adminMemberActivity(host); if (code === 'features')

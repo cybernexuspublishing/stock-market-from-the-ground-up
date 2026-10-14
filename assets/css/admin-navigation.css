@@ -1,0 +1,17 @@
+/* v0.14.0.8: accessible operational shortcuts and dashboard drill-downs. */
+#admin-summary button.cc-metric-link{appearance:none;display:flex;flex-direction:column;align-items:flex-start;text-align:left;justify-content:center;cursor:pointer;font:inherit;gap:.35rem;min-width:0;width:100%;color:inherit}
+#admin-summary button.cc-metric-link:focus-visible,#admin-summary button.cc-metric-link:hover{border-color:#f4c75a;outline:2px solid #f4c75a;outline-offset:2px;background:#113551}
+#admin-summary button.cc-metric-link:disabled{cursor:not-allowed;opacity:.65;outline:none}
+#admin-summary .cc-metric-hint{color:#eecb6d;font-size:.72rem;line-height:1.4;font-weight:650;letter-spacing:normal;text-transform:none;margin-top:.15rem}
+#admin-priority-checks .cc-alert-link{border:none;background:none;padding:.15rem .1rem;cursor:pointer;color:#f7ca69;text-align:left;text-decoration:underline;text-underline-offset:3px;font:inherit;white-space:normal}
+#admin-priority-checks .cc-alert-link:focus-visible{outline:2px solid #f7ca69;outline-offset:3px}
+#admin-tabs .cc-admin-group{display:grid;gap:.1rem;min-width:0}
+#admin-tabs .cc-admin-group-title{font-size:.7rem;font-weight:850;line-height:1.4;letter-spacing:.11em;text-transform:uppercase;color:#b0c9db;background:#0d283d;padding:.55rem .7rem;margin:.8rem 0 .1rem}
+#admin-tabs .cc-admin-shortcut{display:block;width:100%;border:1px solid transparent;border-radius:7px;background:transparent;color:#f5d07c;padding:.58rem .72rem;text-align:left;font:inherit;font-size:.92rem;cursor:pointer;white-space:normal;line-height:1.35}
+#admin-tabs .cc-admin-shortcut:hover,#admin-tabs .cc-admin-shortcut:focus-visible{background:#173e59;border-color:#f7ca69;outline:none}
+#admin-tabs .cc-admin-shortcut[hidden],#admin-tabs .cc-admin-group button[hidden]{display:none!important}
+#admin-tabs .cc-admin-group .admin-back{padding:.5rem .72rem;display:block;white-space:normal;overflow-wrap:anywhere}
+#cc-admin-navigation-status{color:#f7ca69;font-size:.82rem;line-height:1.4;padding:.3rem .7rem}
+.admin-sidebar{min-width:0;overflow-x:hidden}
+@media(max-width:900px){#admin-summary .cc-metric-link{min-height:98px}#admin-tabs .cc-admin-group-title{margin-top:.55rem}}
+@media(prefers-reduced-motion:reduce){#admin-summary button.cc-metric-link{scroll-behavior:auto}}

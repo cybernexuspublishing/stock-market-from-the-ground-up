@@ -1,4 +1,4 @@
-**Current development candidate: v0.14.0.7 — Legacy + Market Commons report security repair (NOT deployed, NOT P0–P2 complete).** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.7_FORUM_SECURITY_REPAIR.md`. This version requires two new write migrations in a controlled sequence.
+**Current development candidate: v0.14.0.8 — Admin dashboard drilldowns, complete installed sidebar navigation, Reports shortcut and accurate release badge.** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.8_ADMIN_NAVIGATION_AND_REPORTS.md`. The v0.14.0.7 SQL A has been manually applied; SQL B is still pending verification of both forum reporting interfaces. No new write migrations for v0.14.0.8.
 
 **Current development candidate: v0.14.0.6 (not deployed; not P0–P2 complete).** See `docs/CURRENT_RELEASE.md` and `docs/v0.14.0.6_IMPLEMENTATION_SCOPE.md`.
 

@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const BUILD='v0.13.2';
+const BUILD=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.8';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const path=(location.pathname||'/').toLowerCase();
 const qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>[...r.querySelectorAll(s)];

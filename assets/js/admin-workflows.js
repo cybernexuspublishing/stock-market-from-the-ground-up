@@ -97,6 +97,7 @@
   button.onclick=()=>{ $$('.admin-panel',app).forEach(el=>el.classList.remove('active'));$$('#admin-tabs button').forEach(el=>el.classList.remove('active'));panel.classList.add('active');button.classList.add('active');history.replaceState(null,'','#control-directory');};
   if(location.hash==='#control-directory')button.click();if(location.hash==='#commons-moderation')openModeration();return true;
  }
+ window.GroundUpAdminWorkflows=Object.freeze({openModeration});
  let done=false;function boot(){if(done)return;let tries=0;const timer=setInterval(()=>{tries++;if(mount()){done=true;clearInterval(timer);}else if(tries>100)clearInterval(timer)},250)}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

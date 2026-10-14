@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const BUILD='v0.13.3',path=(location.pathname||'/').toLowerCase();
+const BUILD=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.8',path=(location.pathname||'/').toLowerCase();
 const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));

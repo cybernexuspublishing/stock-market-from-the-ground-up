@@ -19,9 +19,10 @@
    if(shell.firstElementChild!==aside)shell.prepend(aside);
    if(aside.nextElementSibling!==main)aside.after(main);
    // Never detach the original sidebar/main, never change their content.
-   all('#v133-build',shell).forEach(el=>el.textContent='PRODUCTION · v0.13.5.7.6');
+   const liveVersion=document.querySelector('meta[name="application-version"]')?.content||'v0.14.0.8';
+   all('#v133-build',shell).forEach(el=>el.textContent='PRODUCTION · '+liveVersion);
    const badge=one('.fe-admin-topbar .fe-chip.info',shell);
-   if(badge)badge.textContent='v0.13.5.7.6';
+   if(badge)badge.textContent=liveVersion;
  }
  function refineCommons(){
    document.body.classList.add('v135-commons-integrity');
