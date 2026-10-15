@@ -1,0 +1,20 @@
+/* v0.14.0.19: focused keyboard, small-viewport, and announcement/mention accessibility. */
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #f6c453;outline-offset:3px}
+:where(.wrap,.admin-shell,.admin-main,.admin-grid,.admin-card,.v13-card,.v13-commons-shell,.v13-topic-detail,.gu-forum-editor){min-width:0}
+:where(.v133-commons-nav,.v134-commons-member-nav,.v132-forum-toolbar,.v132-forum-breadcrumbs){max-width:100%;min-width:0;flex-wrap:wrap}
+:where(.gu-forum-toolbar,.actions,.forum-toolbar,.admin-toolbar){max-width:100%;flex-wrap:wrap}
+:where(.gu-rich-rendered,pre,code,.gu-forum-code,.v13-post-body){overflow-wrap:anywhere;word-break:normal}
+.gu-mention-dialog{border:1px solid #64748b;border-radius:14px;color:#f5f8ff;background:#13263b;max-width:min(33rem,calc(100vw - 24px));width:100%;padding:1.25rem;box-sizing:border-box;max-height:90vh;overflow-y:auto}
+.gu-mention-dialog::backdrop{background:rgba(0,0,0,.72)}
+.gu-mention-dialog input{display:block;width:100%;min-width:0;box-sizing:border-box;margin:.4rem 0 1rem;padding:.7rem}
+.gu-mention-options{padding:0;list-style:none;display:grid;gap:.5rem;max-height:32vh;overflow:auto}
+.gu-mention-options li button{width:100%;text-align:left}
+@media(max-width:480px){.admin-shell,.admin-main,.gu-compose-wrap{max-width:100%}.v13-post,.v13-card,.gu-forum-dialog-form{min-width:0;max-width:100%;box-sizing:border-box}.gu-mention-dialog{padding:.8rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+.gu-skip-link{position:fixed;left:1rem;top:-6rem;z-index:99999;background:#fff;color:#061827;padding:.75rem 1.25rem;border:2px solid #061827;border-radius:.5rem}
+.gu-skip-link:focus{top:.5rem}
+
+.gu-inline-mentions{position:relative;width:min(100%,28rem);z-index:5;padding:.5rem;background:#13263b;border:1px solid #5b728a;border-radius:.6rem;box-sizing:border-box;max-height:15rem;overflow:auto}
+.gu-inline-mentions[hidden]{display:none}
+.gu-inline-mentions button{display:block;width:100%;background:transparent;border:0;border-radius:.25rem;color:#f5f8ff;text-align:left;padding:.5rem .7rem}
+.gu-inline-mentions button:is(:hover,:focus-visible,[aria-selected="true"]){background:#274661}

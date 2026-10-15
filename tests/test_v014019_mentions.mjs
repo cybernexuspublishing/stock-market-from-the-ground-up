@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';import {resolve} from 'node:path';
+const handler=await import(pathToFileURL(resolve('functions/api/member-mentions.js')).href);
+const call=(query,auth='Bearer valid')=>handler.onRequestGet({request:new Request('https://example.test/api/member-mentions?q='+encodeURIComponent(query),{headers:auth?{authorization:auth}:{}}),env:{SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public'}});
+assert.equal((await call('T')).status,400);
+assert.equal((await call('Trader',null)).status,401);
+const requested=[];globalThis.fetch=async(url,options)=>{
+  requested.push({url:String(url),auth:options.headers.authorization});
+  if(String(url).includes('/auth/v1/user'))return new Response(JSON.stringify({id:'e5972562-c6e7-4591-89ab-241bb502625e'}),{status:200});
+  if(String(url).includes('/commons_topics'))return new Response(JSON.stringify([{profiles:{username:'TraderPro'}},{profiles:{username:'NotForYou'}}]),{status:200});
+  if(String(url).includes('/commons_posts'))return new Response(JSON.stringify([{profiles:{username:'TraderAnalyst'}},{profiles:null}]),{status:200});
+  throw new Error('Unexpected URL: '+url);
+};
+const ok=await call('Trader');const body=await ok.json();
+assert.equal(ok.status,200);assert.deepEqual(body.matches,['TraderAnalyst','TraderPro']);
+assert.equal(body.notificationDelivery,false);
+assert(requested.every(x=>x.auth==='Bearer valid'));
+assert(!requested.some(x=>x.url.includes('/profiles?')));
+assert(requested.every(x=>!x.url.includes('service_role')));
+console.log('PASS: authenticated contributor-only lookup, no directory enumeration, privacy and rate-bounded validation.');

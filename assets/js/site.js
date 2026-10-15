@@ -1,4 +1,4 @@
-/* v0.14.0.18: retain established site initialization and inject verified correction assets. */
+/* v0.14.0.19: preserve existing application routes and load sitewide acceptance improvements. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
@@ -33,8 +33,10 @@ function loadOnce(src,key){if(document.querySelector('script[data-gu-correction=
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
   // Align runtime version readouts with the source overlay without changing access rights.
-  for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content='v0.14.0.18';
-  document.body.dataset.build='v0.14.0.18';
+  for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content='v0.14.0.19';
+  document.body.dataset.build='v0.14.0.19';
+  if(!document.querySelector('link[data-gu-sitewide-acceptance]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/sitewide-acceptance.css';css.dataset.guSitewideAcceptance='1';document.head.append(css)}
+  loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/admin-report-policy.css';document.head.append(style);
     const script=document.createElement('script');script.src='/assets/js/admin-report-policy.js';script.defer=true;document.head.append(script);
@@ -47,4 +49,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     const script=document.createElement('script');script.defer=true;script.dataset.v01411Announcements='1';script.src='/assets/js/site-announcements.js';document.head.append(script);
   }
   if(/^\/(market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname)) loadOnce('/assets/js/v014018-forum-corrections.js','forumCorrections');
+  if(/^\/(new-discussion|market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-mentions.js','verifiedMentions');
+  if(/^\/admin(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');
 });

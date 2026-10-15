@@ -1,0 +1,113 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "version": "v0.14.0.19",
+  "base_commit": "15ae62ce590325434bedcba1789e4df76c91d72e",
+  "installation": "direct nested source-file overlay, not standalone repo or executable patch",
+  "status": "isolated source/component tests pass; Cloudflare/backend/role E2E and final frontend sign-off unverified",
+  "sql_executed": false,
+  "production_deployed": false,
+  "prepared_local": "2026-10-14 America/Chicago",
+  "files": [
+    {
+      "path": ".github/workflows/frontend-release-gate.yml",
+      "bytes": 908,
+      "sha256": "2089bda6e763d553a256ff3b607770fa4aa7d30ea083cb18fcd4df71f8a00de6"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2415,
+      "sha256": "c550d3b24d182b8ed73f812b43f2d8494017bd85c510dfdd9ce7b7db3fc75d1f"
+    },
+    {
+      "path": "_headers",
+      "bytes": 920,
+      "sha256": "6792d56117c3abc9e574a2fc04a6f6da437ab2d59d51ffad37d191373a84d23b"
+    },
+    {
+      "path": "assets/css/sitewide-acceptance.css",
+      "bytes": 2224,
+      "sha256": "c65ca9d96a575c985c7b16d0b0e5b3639c4b3c835126151a56da4fe810e562c1"
+    },
+    {
+      "path": "assets/js/frontend-integration-health.js",
+      "bytes": 4454,
+      "sha256": "3b5eec4686afd47a90305c83ff06ee020ea3f7308aa39c12bae67615b36aea2f"
+    },
+    {
+      "path": "assets/js/member-mentions.js",
+      "bytes": 8976,
+      "sha256": "e42a915391d7ffbf533159ddfb00ead6bda34ed10f65a8afac90c589d6586750"
+    },
+    {
+      "path": "assets/js/new-discussion.js",
+      "bytes": 3968,
+      "sha256": "3e5e3c9cb5b9a9025669f22495eaa57f14e113063a9ec21fc58fc34cfd80291b"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "8223c60035663043bfca370433ddcba4e612175c7b5df00e0d33f23476a1fe5c"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 4419,
+      "sha256": "c84c08544b3daa4ac67ac2474aafbdd0d6595bae51e1bd322b009320e6dda692"
+    },
+    {
+      "path": "assets/js/sitewide-runtime.js",
+      "bytes": 2042,
+      "sha256": "f163ebe193f2b1c4fcbe2939444d5b904324cce8cd414965987f221809f21ba4"
+    },
+    {
+      "path": "assets/js/v014018-forum-corrections.js",
+      "bytes": 5635,
+      "sha256": "813e38484c9d77579bc0a2a184c0fef95a524ddae07f5e4082091ecc18f674af"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "7b42dd96b85874938c13f91e439b0a31460aff334781aab6657397f7fbf233f9"
+    },
+    {
+      "path": "docs/FRONTEND_GATE_v0.14.0.19.csv",
+      "bytes": 12157,
+      "sha256": "d0283c3674ead6213c108316b50e3e90c1053a23363c3174b24b559277a01019"
+    },
+    {
+      "path": "docs/FRONTEND_RELEASE_NOTES_v0.14.0.19.md",
+      "bytes": 5937,
+      "sha256": "78b24695d601abee8e8b1f52b7fe4015591877af9ae0cc6e521e6b63c64afa38"
+    },
+    {
+      "path": "functions/api/member-mentions.js",
+      "bytes": 2807,
+      "sha256": "311b79bcfa4870c1c695945472559893432b2ee3910b2190991afed51f7db7f9"
+    },
+    {
+      "path": "new-discussion.html",
+      "bytes": 3578,
+      "sha256": "a99917e676e8b06b450546eaf158e0752fb1dc04e17c4755c060b855317a820c"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "b8809b1f548e4b5d3147543b7f3d8b23ece2f0ce40071935d3d71eb2fb00a7fc"
+    },
+    {
+      "path": "tests/test_v014019_browser.py",
+      "bytes": 3361,
+      "sha256": "5883c5b85399234f36baac3ad6cea4138d97fb1950e37378f6263c46866e6a84"
+    },
+    {
+      "path": "tests/test_v014019_frontend.py",
+      "bytes": 1946,
+      "sha256": "e04946dceaef33fc27396549d236d4a4845aa1cc6e649019fab7cc1f628d4071"
+    },
+    {
+      "path": "tests/test_v014019_mentions.mjs",
+      "bytes": 1705,
+      "sha256": "513444b97b592eb752a0e7ea0e86d9e86e987536f71dcbbc390ff038ccc7894b"
+    }
+  ]
+}

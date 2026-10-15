@@ -1,0 +1,32 @@
+name: Frontend Source Contract Gate
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify v0.14.0.19 frontend source and API security contracts
+        run: |
+          python tests/test_v014019_frontend.py
+          node tests/test_v014019_mentions.mjs
+      - name: Preserve Cloudflare Pages public/private build boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/data/interactive-labs.json
+          test ! -d public/supabase
+          test ! -d public/functions

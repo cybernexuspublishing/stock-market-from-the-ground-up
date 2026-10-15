@@ -1,4 +1,4 @@
-/* v0.14.0.18 — Standalone authenticated composer; same canonical Commons RPC as existing forum. */
+/* v0.14.0.19 — Standalone authenticated composer; same canonical Commons RPC as existing forum. */
 (()=>{'use strict';
  const form=document.getElementById('gu-new-discussion-form'); if(!form)return;
  const field=id=>document.getElementById(id);
@@ -29,14 +29,16 @@
    if(symbol&&!/^[A-Z][A-Z0-9.\-]{0,11}$/.test(symbol)){state('Use a valid ticker symbol (maximum 12 characters).',true);ticker.focus();return}
    const keywords=[...new Set(tags.value.split(',').map(x=>x.trim().replace(/[^A-Za-z0-9_ -]/g,'').replace(/\s+/g,'-').slice(0,24)).filter(Boolean))].slice(0,5);
    const args={p_forum_code:forum.value,p_title:heading,p_body:message+(keywords.length?'\n\nKeywords: '+keywords.map(x=>'#'+x).join(' '):''),p_ticker:symbol||null};
+   if(args.p_body.length>10000){state('Discussion content and keywords together exceed 10,000 characters.',true);body.focus();return}
    busy=true;submit.disabled=true;state('Publishing your discussion…');
+   let accepted=false;
    try{
      // The database RPC enforces membership, forum permission and accepted content.
-     const {data,error}=await sb.rpc('commons_create_topic',args);if(error)throw error;
+     const {data,error}=await sb.rpc('commons_create_topic',args);if(error)throw error;accepted=true;
      const id=Number(data);
      if(!Number.isSafeInteger(id)||id<1)throw new Error('The discussion was created, but no valid destination was returned. Check Market Commons before posting again.');
      location.replace('/market-commons.html?topic='+id);
-   }catch(e){state(e?.message||'Unable to create discussion. Check Market Commons before retrying.',true);submit.disabled=false;busy=false;}
+   }catch(e){state(e?.message||'Unable to create discussion. Check Market Commons before retrying.',true);if(!accepted){submit.disabled=false;busy=false}else{state('The server accepted the discussion, but its destination cannot be verified. Check Market Commons before attempting another submission.',true)}}
  });
  init();
 })();
