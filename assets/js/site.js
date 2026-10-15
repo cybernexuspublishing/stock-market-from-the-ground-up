@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // v0.14.0.28: separate print checkout from Lemon Squeezy digital commerce.
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-print-channels-v01428.js','ownerPrintChannels');
+    loadOnce('/assets/js/admin-print-modes-v01429.js','ownerPrintModesV01429');
     if(!document.querySelector('link[data-gu-print-channel-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/print-channel-admin-v01428.css';css.dataset.guPrintChannelStyle='1';document.head.append(css)}
   }
   if(/^\/(store|my-purchases)(?:\.html)?$/.test(location.pathname))

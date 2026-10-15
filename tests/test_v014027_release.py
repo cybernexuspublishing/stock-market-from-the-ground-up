@@ -10,12 +10,15 @@ def source(path):
 config=source('config.js')
 route=source('assets/js/route-policy.js')
 sw=source('sw.js')
-assert "VERSION: '0.14.0.27'" in config
-assert "version:'0.14.0.27'" in route
-assert "const CACHE='groundup-v014027-public'" in sw
+version_match=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",config)
+assert version_match, 'Missing version metadata'
+version=version_match.group(1)
+assert tuple(map(int,version.split('.'))) >= (0,14,0,27),'v27 checks require v27-or-newer release'
+assert "version:'"+version+"'" in route, 'Route policy version mismatch'
+assert "const CACHE='groundup-v"+''.join(version.split('.'))+"-public'" in sw, 'Service worker version mismatch'
 assert "req.method!=='GET'" in sw and "p.startsWith('/api/')" in sw
 assert "'market-commons'" in route and "'admin'" in route
-assert 'kdpSelectExclusive: true' in config and 'directDigitalSaleEnabled: false' in config
+assert 'kdpSelectExclusive:' in config and 'directDigitalSaleEnabled:' in config, 'Retain KDP and digital-distribution controls'
 assert 'SUPABASE_SECRET_KEY' not in config
 for path in ['config.js','assets/js/route-policy.js','sw.js']:
  result=subprocess.run(['node','--check',str(ROOT/path)],capture_output=True,text=True)

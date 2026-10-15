@@ -1,0 +1,104 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "v0.14.0.29",
+  "release_type": "direct-upload source overlay; OWNER signed KDP author-copy channel settings + optional Lulu + GitHub CI regression fixes",
+  "base_commit": "c6c65dccf88bae4190dae9229ef7348c59bf9052",
+  "release_created_utc": "2026-10-15",
+  "github_action_discovered_failures": {
+    "v0.14.0.26": "v25 README assertion obsolete",
+    "v0.14.0.27": "exact VERSION 0.14.0.27 assertion obsolete"
+  },
+  "shop_checkout": "SIGNED_KDP_NOT_LIVE; LULU_EXTERNALLY_CONFIGURED_ONLY",
+  "production_sql": "NOT EXECUTED",
+  "production_checkout": "NOT ACTIVATED",
+  "source_static_tests": "PASS on reconstructed prior overlays",
+  "isolated_browser": "PASS: four Lulu/signed flag combinations",
+  "live_acceptance": "NOT PERFORMED",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01429.yml",
+      "bytes": 1563,
+      "sha256": "2306a2e90d70daf006a71e4746539bec3ce1848662c3ba12fa6eb30e19933e4c"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2635,
+      "sha256": "2783b8f7ddbd99fa339ec04729a5b005a3f284bf7358c3bb5a1a4d197ac50e41"
+    },
+    {
+      "path": "assets/js/admin-print-modes-v01429.js",
+      "bytes": 4731,
+      "sha256": "6d0890c0cffc9e7adbac3e88d36e5d8ee0e9a64706151dc4f59f5c09aae09b0e"
+    },
+    {
+      "path": "assets/js/print-store-channels-v01428.js",
+      "bytes": 4377,
+      "sha256": "72c8a7018d0868d5f1b1e41e628cc1d1ba8eec0d9f425a44fbfb586756829da6"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "ce4d7c67f3f679a23c40e41c7e5ff60875a016add64b090ad46ca1c638df2f16"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 7003,
+      "sha256": "6e0d4b8a9643645344ddc3815dd5b16cdcc4435c926bba628f9c590da84d232f"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "f58479886e7c65aecd15a6694e3e669616e6bcc49485ee44a82de756ebc54c5c"
+    },
+    {
+      "path": "docs/COMBINED_SITEWIDE_GITHUB_AND_SIGNED_BOOK_AUDIT_v0.14.0.29.md",
+      "bytes": 7862,
+      "sha256": "8a98260d2e62ea667fb8111f3f9eb9e781fbe39ad8bbb07d1449aca2e5b68333"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.29_PRINT_MODE_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1387,
+      "sha256": "f4a1e1acafc1587c2363833741061ff9297ca5ddd3be074644ca9d1a24fe7f21"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.29_PRINT_MODE_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 912,
+      "sha256": "a8317e7143034be2630036dfbdd6a55a8d5498d42e81908eea323d71c7592e27"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.29_SIGNED_PRINT_FULFILLMENT_MODES_REVIEW_REQUIRED.sql",
+      "bytes": 6503,
+      "sha256": "43f259f392a8cb0f721540343cb89826e8ac647f7241744d92e061880677c7d5"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "343bbec7182b12139d31b6bacd4c48941c7283318c695e5a5ee5eccdcfd1e198"
+    },
+    {
+      "path": "tests/test_v014026_release.py",
+      "bytes": 2115,
+      "sha256": "0ed71d18a525a361ddcb43ca9fb03864ab8113193404b0febcfd08f64b0836e0"
+    },
+    {
+      "path": "tests/test_v014027_release.py",
+      "bytes": 3253,
+      "sha256": "dfe9edb8ea5df08fe7c06b64cd89c80db37758fe97f3218c8f9491c0b45d0c5f"
+    },
+    {
+      "path": "tests/test_v014028_commerce_source.py",
+      "bytes": 2236,
+      "sha256": "c5ec0ce2d96cace48f3ac0d48e40e075707891c43140fdd2e620af9a55b3074a"
+    },
+    {
+      "path": "tests/test_v014029_print_browser.py",
+      "bytes": 2121,
+      "sha256": "ae4d6256a3e680f19e18311b24d72de5ed369a3b74a55ac3c6b3200475a96621"
+    },
+    {
+      "path": "tests/test_v014029_signed_print_and_release.py",
+      "bytes": 2742,
+      "sha256": "895c2af7f0cf6eb9ec208e722c5ada52b5af17b94abcef1fb7b737ef41f57fba"
+    }
+  ]
+}

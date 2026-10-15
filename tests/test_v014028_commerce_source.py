@@ -4,9 +4,11 @@ import re,subprocess
 R=Path(__file__).resolve().parents[1]
 def load(path):return (R/path).read_text(encoding='utf-8')
 conf=load('config.js');policy=load('assets/js/route-policy.js');worker=load('sw.js');site=load('assets/js/site.js')
-assert "VERSION: '0.14.0.28'" in conf
-assert "version:'0.14.0.28'" in policy
-assert 'groundup-v014028-public' in worker
+release=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",conf)
+assert release and tuple(map(int,release.group(1).split('.'))) >= (0,14,0,28)
+version=release.group(1)
+assert "version:'"+version+"'" in policy
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in worker
 assert 'admin-print-channels-v01428.js' in site
 assert 'print-store-channels-v01428.js' in site
 for path in ['config.js','sw.js','assets/js/site.js','assets/js/route-policy.js',

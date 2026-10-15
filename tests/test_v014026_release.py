@@ -31,5 +31,5 @@ for p in ['supabase/admin/v0.14.0.26_AUDIT_GUARD_PREFLIGHT_READ_ONLY.sql',
  v=read(p)
  assert 'BEGIN TRANSACTION READ ONLY' in v and 'ROLLBACK;' in v
  assert not re.search(r'(?m)^\s*(?:CREATE|UPDATE|DELETE|INSERT|DROP|ALTER|TRUNCATE)\b',v,re.I)
-assert 'v0.14.0.25' in read('README_START_HERE.md')
+assert 'v0.14.0.25' in read('docs/BACKEND_PHASE_7_v0.14.0.26.md'), 'Preserve original v025 audit-history provenance in immutable release documentation'
 print('PASS v014026: fail-closed status audit source, no data disclosure, read-only verification files, version parity.')
