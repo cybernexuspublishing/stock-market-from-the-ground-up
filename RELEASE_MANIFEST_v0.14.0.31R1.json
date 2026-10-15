@@ -1,0 +1,222 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "version": "v0.14.0.31-R1",
+  "base_commit": "4fd986cdb470958e3080180f90dc3bdbbb2ae8b7",
+  "supersedes_unuploaded_package": "v0.14.0.31_COMBINED_SIGNED_KDP_STRIPE_BACKEND_DIRECT_UPLOAD.zip",
+  "release_status": "staging required — no production SQL executed, all paid services remain OFF until verified",
+  "delivery_kind": "direct-upload complete files at matching repository paths; preserve unrelated files",
+  "security": "OWNER AAL2 protected settings trigger; eligible ADMIN AAL2 shipping access only when enabled; audited username-notice delivery",
+  "payment_providers": "Lemon Squeezy for membership/eBooks, optional OFF-by-default Stripe for signed physical, optional Lulu direct",
+  "limitations": [
+    "registration website flag does not disable Supabase Auth signups",
+    "no live roles/payment/provider acceptance",
+    "sitewide non-account username table acceptance still pending"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01431.yml",
+      "bytes": 1455,
+      "sha256": "470e2dbe85e93ae9fd2eb6da82655a77185a8558b2a9ec5554f504ebc5655a69"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01431r1.yml",
+      "bytes": 1363,
+      "sha256": "2ecfd7a0ae8d1cdd78d30d5739e04ecdbfdfb122bf351271383d81a7fb994dff"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 6688,
+      "sha256": "6ce018cd5c56b35ff7fb3c8cc8d5293eccec30c61cd27316c57b83a4e3d6721c"
+    },
+    {
+      "path": "assets/css/admin-communication-r1.css",
+      "bytes": 1335,
+      "sha256": "f3850dde99c0cc5303a72715f79aafa648440dacf8f467e1aea2b506691c8a0f"
+    },
+    {
+      "path": "assets/css/signed-books-v01431.css",
+      "bytes": 978,
+      "sha256": "5dd17df6df258f4c9fa33ff72e2f02738c8fe0b27f844fd6414bfcf4cc68c9e9"
+    },
+    {
+      "path": "assets/js/admin-account-usernames-v01431r1.js",
+      "bytes": 6239,
+      "sha256": "c8522eed83f708ef4cd57197a4f508dd3e36e3d47177a7b1b63b93f895ef838c"
+    },
+    {
+      "path": "assets/js/admin-communications-v01431r1.js",
+      "bytes": 7948,
+      "sha256": "05caa5f0f4403d975a95f3c8f42c219eb0d68212969395960e59f237ce6d8d63"
+    },
+    {
+      "path": "assets/js/admin-forum-usernames-v01431r1.js",
+      "bytes": 2037,
+      "sha256": "b3183baea4bcb23b6d2203e621ae300b7b212be9cc5ef7e31a70ad4890a32719"
+    },
+    {
+      "path": "assets/js/admin-print-modes-v01429.js",
+      "bytes": 4432,
+      "sha256": "1293947531d86834fdf73525c62badbb67dad5e2f332e0fbd9fad511db10a04a"
+    },
+    {
+      "path": "assets/js/admin-signed-books-v01431.js",
+      "bytes": 8294,
+      "sha256": "b663f0ed439d7564f80b2fbecba7d24e199e9fd4e5e9317bebdd6649285f90e7"
+    },
+    {
+      "path": "assets/js/admin-staff-shipping-v01431r1.js",
+      "bytes": 3186,
+      "sha256": "5dd579e2cbb29667ad17ae375d712959e7d95bcd2b1c797b77f3819474de6247"
+    },
+    {
+      "path": "assets/js/member-signed-orders-v01431.js",
+      "bytes": 1849,
+      "sha256": "c16adc36caf8a82f4d848902197d915d575f5df3e9fdda1aaf64365a6f8e7e78"
+    },
+    {
+      "path": "assets/js/print-store-channels-v01428.js",
+      "bytes": 3912,
+      "sha256": "269ae4c1f20525ce7ed6ca1f4fcb81fe7289e839f1d935a0efc8f64e2f574a50"
+    },
+    {
+      "path": "assets/js/registration-visibility-v01431r1.js",
+      "bytes": 1610,
+      "sha256": "55167d23d66fcba26e86dc355b035a6ded85cac35ac7f6f9366cdc17be6f27b5"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1692,
+      "sha256": "895d375bef92ff4c1ea270e2cd0f410ae693933f0fead0ef9f11b8c9e22c2f4d"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 8398,
+      "sha256": "2c223050b82bbc2c3acbadf3005c210e2c106a54efa6ee7d98bb16715aae50fb"
+    },
+    {
+      "path": "assets/js/store-signed-books-v01431.js",
+      "bytes": 3205,
+      "sha256": "876a44e3952e4155e23a51d384f186b6530ce6d0bf1984b34cc467da4a55e12c"
+    },
+    {
+      "path": "config.js",
+      "bytes": 807,
+      "sha256": "06dded42ac67a35478fed33a7269a0face4d44e6c7225b044ca4b99a8b9fc4d3"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_9_COMBINED_ADMIN_REVIEW_v0.14.0.31R1.md",
+      "bytes": 7651,
+      "sha256": "1c3c8b203793aafbf03a7bc9c061f28ece6bab0d991f975724ccba1f4921e17d"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_9_COMBINED_COMMERCE_v0.14.0.31.md",
+      "bytes": 12376,
+      "sha256": "a701a5b14c14d0eb836c95f85e61a54a55cb52260c4e87ea1e8827bf7ec5cbd4"
+    },
+    {
+      "path": "docs/v0.14.0.31R1_COMMERCE_AND_ADMIN_ACCEPTANCE.csv",
+      "bytes": 2027,
+      "sha256": "921c8c1ea294d5da967eaa2e1876f52508dc405f16929667a9efdc911e6a1777"
+    },
+    {
+      "path": "functions/api/signed-book-checkout.js",
+      "bytes": 6639,
+      "sha256": "56e2ae6b23132d8c2e6dcb2686b128dfe27622cfaa2d1067b3d82a867dc32bde"
+    },
+    {
+      "path": "functions/api/signed-book-owner-detail.js",
+      "bytes": 2798,
+      "sha256": "511b4b3492fa8bca977224172429a4fabd4c019bb01787011a28be74942d2646"
+    },
+    {
+      "path": "functions/api/signed-book-stripe-webhook.js",
+      "bytes": 5084,
+      "sha256": "e479fc9fd7ae9669098d653891de3c88cdf6c57e0757e813dd0e62aa575b39fe"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.31R1_ADMIN_COMMS_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 2647,
+      "sha256": "522d6d41683e82c21e32cf40996a780d85fd6320529d3f9fe9e8307dce5e454f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.31R1_ADMIN_COMMS_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 930,
+      "sha256": "e35991813bc3b050fb974827e2ee6acf6ed2936404a80c8522b24b46408f99e4"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.31_SIGNED_BOOK_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 3010,
+      "sha256": "ef706479b935333d6cda9e41a9b06fed8a5228ed6d89e41669fb7e2635ad145d"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.31_SIGNED_BOOK_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 949,
+      "sha256": "b394bb9d9acd82d1f9b807cf52960a96e704caa8051040e44c4cbe675396f6e3"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.31R1_ADMIN_ACCESS_COMMS_REVIEW_REQUIRED.sql",
+      "bytes": 15061,
+      "sha256": "10ca7df906a23100e4f572b065b643cd7d60531b3cdd523d7671b40b3db6e386"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.31_SIGNED_BOOK_STRIPE_REVIEW_REQUIRED.sql",
+      "bytes": 22661,
+      "sha256": "1e4def7d8b9001cf6d2d2e93407b8d72a9e7241c5da1de28124f70cc139645b3"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2135,
+      "sha256": "695fbe5973709e1f03626f8f9689477e8e9d5ed3366e3b17f2d04f291adcde53"
+    },
+    {
+      "path": "tests/test_v014028_commerce_api.mjs",
+      "bytes": 3011,
+      "sha256": "2a16b923e6187740c03d3f994746031253d46d56d02b48eb12cfdcd830c2aa71"
+    },
+    {
+      "path": "tests/test_v014029_signed_print_and_release.py",
+      "bytes": 2153,
+      "sha256": "9389453038c5fc35d9a2a1467ad7eaae89c64b593c5359b4e67b88df7dbd96f1"
+    },
+    {
+      "path": "tests/test_v014030_ebook_release.py",
+      "bytes": 2830,
+      "sha256": "924906ae0aa8e802200e744fc6d2b31f2e0a56041fe143d680ac5162a3356cbe"
+    },
+    {
+      "path": "tests/test_v014031_browser.py",
+      "bytes": 2109,
+      "sha256": "9c6175373b6df41a712452952e04fba6244b9fba2e2e42c23264f7a91addd874"
+    },
+    {
+      "path": "tests/test_v014031_owner_detail.mjs",
+      "bytes": 2313,
+      "sha256": "025441a133400027fc9f9952004f52d44a9a6852857226ef4246cee3b8051379"
+    },
+    {
+      "path": "tests/test_v014031_source.py",
+      "bytes": 3396,
+      "sha256": "69cc34feb3c711bfa6613e76cfd4ec862004c95b2e1f4b3d72635a59fbea3282"
+    },
+    {
+      "path": "tests/test_v014031_stripe.mjs",
+      "bytes": 5620,
+      "sha256": "ce543d0680af172dd5e534c9e678c08c33032491326de4041e1f6d6b111df2bc"
+    },
+    {
+      "path": "tests/test_v014031r1_additional_browser.py",
+      "bytes": 1540,
+      "sha256": "6d50d2aa4bde48d09f542a20201d79186c35f0cf1ebb995e15ca6e0983feac20"
+    },
+    {
+      "path": "tests/test_v014031r1_browser.py",
+      "bytes": 4515,
+      "sha256": "17b32eefd708929b7bfd2253ce4d4c2f257a34f1adc31163a11b652e39f60d2a"
+    },
+    {
+      "path": "tests/test_v014031r1_source.py",
+      "bytes": 2697,
+      "sha256": "399e64ab2f992c9c3131305a1442acfbf128788109ac1ea263db9f3b665d7ab4"
+    }
+  ]
+}

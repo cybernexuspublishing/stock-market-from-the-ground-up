@@ -1,7 +1,4 @@
-/* v0.14.0.29 — OWNER-controlled signed-author-copy offering and optional Lulu.
- * Signed author-copy payments and an ordering queue are NOT active: no false
- * payment promises, address collection, or Amazon automation.
- */
+/* v31 compatibility: OWNER signed author-copy offering and optional Lulu are separate from new Stripe fulfillment. */
 (()=>{'use strict';
 if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
 const el=(tag,content,cls)=>{const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(cls)node.className=cls;return node};
@@ -9,8 +6,8 @@ async function call(name,args){const client=await window.getSupabaseClient();con
 function attach(){if(document.querySelector('[data-gu-signed-print-v01429]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  const box=el('section',undefined,'admin-card');box.dataset.guSignedPrintV01429='1';
- box.append(el('h2','Signed author-copy orders (preferred) / Lulu Direct (optional)'),
-  el('p','Author-signed paperback and hardcover orders will be fulfilled manually: customer pays the website after verified checkout, you order an author copy from KDP, sign it and ship it. Payment and shipping-order automation are not active yet. Lulu Direct can be independently enabled or disabled without erasing its stored links.'));
+ box.append(el('h2','Signed author-copy offerings / Lulu Direct (optional)'),
+  el('p','Set author-signed edition availability and independent Lulu checkout availability. Signed book prices, payment activation, KDP ordering, signing, and shipping are managed in the separate Signed Books section below. Lulu purchases are not signed by the author.'));
  const note=el('p','Load the current print options. Saving requires current OWNER privileges and MFA (AAL2).','small');note.setAttribute('role','status');note.setAttribute('aria-live','polite');
  const loadButton=el('button','Load / Refresh Signed & Lulu Settings','btn secondary');loadButton.type='button';
  const list=el('div',undefined,'gu-print-modes-list');box.append(loadButton,note,list);panel.append(box);
@@ -19,24 +16,20 @@ function attach(){if(document.querySelector('[data-gu-signed-print-v01429]'))ret
   try{const data=await call('gu_owner_print_modes_get_v01429');
    for(const product of data.products||[]){const row=el('article',undefined,'gu-print-row');row.append(el('h3',product.title||product.productCode));
     const signedLabel=el('label');const signed=document.createElement('input');signed.type='checkbox';signed.checked=product.signedAvailable===true;
-    signedLabel.append(signed,document.createTextNode(' Show signed author-copy edition availability (no checkout yet)'));
+    signedLabel.append(signed,document.createTextNode(' Offer author-signed editions when payments are configured'));
     const luluLabel=el('label');const lulu=document.createElement('input');lulu.type='checkbox';lulu.checked=product.luluEnabled===true;
-    luluLabel.append(lulu,document.createTextNode(' Enable Lulu Direct checkout (only for configured formats)'));
+    luluLabel.append(lulu,document.createTextNode(' Enable Lulu Direct checkout (configured print formats only)'));
     const state=el('p','Lulu paperback link: '+(product.hasPaperbackLulu?'configured':'not configured')+' · hardcover: '+(product.hasHardcoverLulu?'configured':'not configured'),'small');
-    const save=el('button','Save Fulfillment Preferences','btn');save.type='button';
-    const msg=el('p','Signed orders cannot accept payments until the separate physical-goods processor and verified order queue are live.','small');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
-    save.addEventListener('click',async()=>{if(busy)return; if(!product.updatedAt){msg.textContent='Missing concurrency token; refresh first.';return}
-      busy=true;save.disabled=true;loadButton.disabled=true;msg.textContent='Saving OWNER preferences and audit record…';
-      try{await call('gu_owner_print_modes_save_v01429',{p_product_code:product.productCode,p_signed_available:signed.checked,
-        p_lulu_enabled:lulu.checked,p_expected_updated_at:product.updatedAt});
-        msg.textContent='Saved. Refreshing values…';busy=false;await refresh();
-      }catch(error){msg.textContent=error.message||'Save failed; check OWNER permissions, MFA or links.'}
-      finally{busy=false;save.disabled=false;loadButton.disabled=false}
-    });
-    row.append(signedLabel,luluLabel,state,save,msg);list.append(row);
+    const save=el('button','Save Fulfillment Preferences','btn');save.type='button';const msg=el('p','Signed checkout activation and prices are managed separately below.','small');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
+    save.addEventListener('click',async()=>{if(busy)return;if(!product.updatedAt){msg.textContent='Missing concurrency token. Refresh first.';return}
+      busy=true;save.disabled=loadButton.disabled=true;msg.textContent='Saving OWNER preferences and audit record…';
+      try{await call('gu_owner_print_modes_save_v01429',{p_product_code:product.productCode,p_signed_available:signed.checked,p_lulu_enabled:lulu.checked,p_expected_updated_at:product.updatedAt});msg.textContent='Saved. Refreshing…';busy=false;await refresh()}
+      catch(e){msg.textContent=e.message||'Save failed; check OWNER permissions, MFA or links.'}
+      finally{busy=false;save.disabled=loadButton.disabled=false}
+    });row.append(signedLabel,luluLabel,state,save,msg);list.append(row);
    }
-   note.textContent=(data.products||[]).length+' books loaded. Default signed author-copy fulfillment is manual. Lulu is optional. No signed-book website payments are enabled.';
-  }catch(error){note.textContent='Fulfillment options unavailable: '+(error.message||'reviewed migration and OWNER account required');}
+   note.textContent=(data.products||[]).length+' books loaded. Lulu enablement is independent. Use Signed Books for payment activation and manual author-copy fulfillment.';
+  }catch(e){note.textContent='Fulfillment preferences unavailable: '+(e.message||'reviewed migration and OWNER account required')}
   finally{busy=false;loadButton.disabled=false}
  }
  loadButton.addEventListener('click',refresh);return true;

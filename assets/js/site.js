@@ -1,10 +1,8 @@
-/* v0.14.0.25 — preserve established routes and bootstraps; additive backend UI. */
+/* v0.14.0.31 — preserve established routes and bootstraps; signed-book commerce additive. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
 function salesState(){
-  // Product-level KDP Select and digital rights flags are authoritative in
-  // Supabase, never in a stale public config.js snapshot.
   document.querySelectorAll('[data-book-sale]').forEach(el=>{
     el.href='/store.html';el.textContent='Check Digital Edition Availability';
     el.classList.remove('disabled');el.removeAttribute('aria-disabled');
@@ -29,11 +27,9 @@ function loadRichEditor(){
     const script=document.createElement('script');script.src='/assets/js/forum-composer.js';script.dataset.guRichEditor='1';document.head.append(script);
   }
 }
-function loadOnce(src,key){if(document.querySelector('script[data-gu-correction=\"'+key+'\"]'))return;const x=document.createElement('script');x.src=src;x.defer=true;x.setAttribute('data-gu-correction',key);document.head.append(x)}
+function loadOnce(src,key){if(document.querySelector('script[data-gu-correction="'+key+'"]'))return;const x=document.createElement('script');x.src=src;x.defer=true;x.setAttribute('data-gu-correction',key);document.head.append(x)}
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
-  // Runtime labels are derived from the same public release config used by route policy.
-  // A displayed version is not a verified deployment SHA or backend health attestation.
   const declaredRelease=/^\d+\.\d+\.\d+\.\d+$/.test(String(cfg.VERSION||''))?'v'+cfg.VERSION:'unverified';
   for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content=declaredRelease;
   document.body.dataset.build=declaredRelease;
@@ -53,7 +49,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(/^\/(market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname)) loadOnce('/assets/js/v014018-forum-corrections.js','forumCorrections');
   if(/^\/(new-discussion|market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-mentions.js','verifiedMentions');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');loadOnce('/assets/js/admin-community-health-v01423.js','communityHealth');loadOnce('/assets/js/admin-report-cases-v01424.js','reportCasesV01424');if(!document.querySelector('link[data-gu-report-cases-v01424]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-report-cases-v01424.css';x.dataset.guReportCasesV01424='1';document.head.append(x)}if(!document.querySelector('link[data-gu-community-health]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-community-health-v01423.css';l.dataset.guCommunityHealth='1';document.head.append(l)}}
-  // v0.14.0.28: separate print checkout from Lemon Squeezy digital commerce.
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-print-channels-v01428.js','ownerPrintChannels');
     loadOnce('/assets/js/admin-print-modes-v01429.js','ownerPrintModesV01429');
@@ -61,14 +56,24 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   if(/^\/(store|my-purchases)(?:\.html)?$/.test(location.pathname))
     loadOnce('/assets/js/print-store-channels-v01428.js','printStoreChannels');
-  // v0.14.0.30: independently controlled digital edition rights, sale & download.
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-digital-books-v01430.js','ownerDigitalBooksV01430');
     if(!document.querySelector('link[data-gu-digital-v01430]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/digital-books-v01430.css';css.dataset.guDigitalV01430='1';document.head.append(css)}
+    loadOnce('/assets/js/admin-signed-books-v01431.js','ownerSignedBooksV01431');
+    loadOnce('/assets/js/admin-communications-v01431r1.js','adminCommsV01431r1');
+    loadOnce('/assets/js/admin-account-usernames-v01431r1.js','accountUsernamesV01431r1');
+    loadOnce('/assets/js/admin-forum-usernames-v01431r1.js','forumUsernamesV01431r1');
+    loadOnce('/assets/js/admin-staff-shipping-v01431r1.js','staffShippingV01431r1');
+    if(!document.querySelector('link[data-gu-communications-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/admin-communication-r1.css';css.dataset.guCommunicationsStyle='1';document.head.append(css)}
+    if(!document.querySelector('link[data-gu-signed-v01431]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/signed-books-v01431.css';css.dataset.guSignedV01431='1';document.head.append(css)}
   }
-  if(/^\/store(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/digital-store-v01430.js','digitalStoreV01430');
+  if(/^\/create-account(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/registration-visibility-v01431r1.js','registrationVisibilityV01431r1');
+  if(/^\/store(?:\.html)?$/.test(location.pathname)){
+    loadOnce('/assets/js/digital-store-v01430.js','digitalStoreV01430');
+    loadOnce('/assets/js/store-signed-books-v01431.js','storeSignedBooksV01431');
+  }
   if(/^\/my-books(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/digital-library-v01430.js','digitalLibraryV01430');
-  // v0.14.0.21: bind genuine backend data to existing member Settings and Commons.
+  if(/^\/my-purchases(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-signed-orders-v01431.js','memberSignedOrdersV01431');
   if(/^\/(dashboard|market-commons)(?:\.html)?$/.test(location.pathname)){
     if(!document.querySelector('link[data-gu-backend-community]')){
       const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/backend-community-v01421.css';css.dataset.guBackendCommunity='1';document.head.append(css);

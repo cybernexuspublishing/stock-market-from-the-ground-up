@@ -1,32 +1,50 @@
-# v0.14.0.30 — PRIVATE DIGITAL EBOOK SALES & DOWNLOADS — DIRECT UPLOAD
+# v0.14.0.31 R1 — COMBINED PAYMENT + ADMIN ACCOUNT / COMMUNICATIONS REVISION
 
-**GitHub baseline:** `main` at `1947fc04f0ff77690c97adeca015d0db997d4f80` (v0.14.0.29).  
-**Status:** Development source candidate; no live ebook sales or authorized downloads until all gating conditions are met.  
-**Method:** Overlay complete source files into their existing matching GitHub paths. **Preserve everything else.** This is not a standalone site replacement.  
+**Project:** The Stock Market: From the Ground Up  
+**Owner-approved baseline:** GitHub main `4fd986cdb470958e3080180f90dc3bdbbb2ae8b7` (v0.14.0.30)  
+**Release:** `v0.14.0.31-R1` (supersedes the NOT-UPLOADED v0.14.0.31 ZIP; do not upload both)  
+**Release status:** Source candidate; NOT a certified live commerce system.  
+**Delivery:** Existing GitHub DIRECT-UPLOAD **complete files at their repository paths**. Overlay these files, preserve all unrelated source. **No patch script.**  
+**Google Drive location:** Not created/synchronized to Drive; repository is the source of truth.  
+**Document ID:** GU-WEB-BE-20261015-011-R1.
 
-## Requested controls — built now, not deferred
+## What's merged
 
-OWNER/Admin → Commerce shows per-book controls for: KDP Select active/inactive (website status only), verified exclusivity end, explicit rights confirmation, **enable/disable website digital sales**, **enable/disable paid-order downloads**, and **upload private EPUB or PDF**. All are initially OFF as appropriate for KDP Select.
+Everything in the previously prepared v0.14.0.31: optional Stripe physical-checkout source, KDP-signed author-copy offer and fulfillment queue, pre/postflight SQL, CI corrections and tests. You have NOT uploaded the earlier version, so use **THIS replacement package ONLY**.
 
-Website My Books shows *separately purchased* website eBooks and a Download button, available only after a genuine recorded paid digital order and database authorization. Signed Supabase file links expire in 60 seconds. Companion keys and Amazon/physical purchases do not unlock ebook files.
+New R1: Admin → **Communications & Messages** navigation and staff in-app message composer by username, sent notice history; username first column for supported account-related tables; member contact shortcuts; Admin Commerce staff shipping queue; OWNER and optionally ADMIN access to just-in-time shipping addresses (requires Owner toggle and staff MFA); OWNER switches for member notices, ADMIN notices, ADMIN shipping access, Lemon Squeezy master checkout, Stripe signed-book checkout, website registration visibility. Screens/controls render from additive JavaScript; existing admin/account/forum assets preserved. This does **not** replace the website with a mockup.
 
-The storefront lists direct digital edition purchases only when backend rights, edition metadata, private file, actual payment-enablement controls, and Amazon-contract guards allow. Lemon Squeezy remains for permitted digital goods, not printed books. Lulu is optional; signed author-copy operations remain a separate development track.
+### Payment isolation and switches
 
-## Installation order
+- **Lemon Squeezy remains the designated provider for digital eBooks, memberships and tools.** Existing backend flags: `commerce.checkout_enabled` (OWNER UI) PLUS Cloudflare `ENABLE_PAID_CHECKOUT`. No physical items may be sold through Lemon Squeezy.
+- **Stripe is OPTIONAL for author-signed physical books only.** `commerce.signed_books_checkout_enabled` (OWNER UI) PLUS Cloudflare `ENABLE_SIGNED_BOOK_STRIPE`; separate SKU/price/order/verified webhook. Both are initially disabled as configured. Do not turn them on before real staging test receipts, refund/chargeback support and consumer terms.
+- **Lulu Direct** stays separately enabled/disabled as an external print option, not signed by the owner.
 
-1. Upload ZIP files to GitHub; preserve unrelated repository paths. Check GitHub Actions. The previous v0.14.0.29 workflow had **missing PyYAML** and the included replacement fixes it without bypassing old regression tests.
-2. **Staging only:** run `supabase/admin/v0.14.0.30_DIGITAL_PREFLIGHT_READ_ONLY.sql` and assess policies. Review the new SQL migration, then run once in staging. GitHub deploy **does not** execute SQL. Verify `supabase/admin/v0.14.0.30_DIGITAL_POSTFLIGHT_READ_ONLY.sql` and negative-role E2E.
-3. In Admin → Commerce sign in as OWNER with MFA AAL2. Upload finalized EPUB/PDF. Assign verified Amazon KDP Select expiration and ownership attestations. **Do not turn off KDP Select's website flag until Amazon exclusivity actually ends**, and never assume flipping it alters Amazon's contract.
-4. Configure Lemon Squeezy digital book product variant, prices and signed webhooks. Complete sandbox refund/checkout/delivery/replay verification before enabling global payment switches. No original book bytes were supplied in this release.
-5. Test direct purchases into My Books: verified payment + intent -> download, refund -> denied, role/cross-user negative, KDP flag ON -> denied, toggle OFF -> denied, private bucket SELECT denied for customers.
+### Access to shipping data
 
-**No digital manuscripts or sales activation are shipped inside this ZIP.** Amazon KDP Select exclusivity requires waiting until each title's current term expires; building the system now is safe because all fulfillment paths fail closed.
+New secure RPC `gu_staff_signed_shipping_session_v01431r1` verifies: active OWNER OR active ADMIN when Owner-activated `commerce.admin_shipping_address_access_enabled=true`; member account, no restricted/suspended/showcase flag, **Supabase AAL2 MFA**, an actually paid/on-hold signed book order. Only after that does the Cloudflare Function query Stripe. Addresses are not persisted into Supabase tables; rendered on demand and cleared from screen after 60 seconds. A background tab/browser with an exposed address remains a practical endpoint risk: use a secure staff workstation and least-privilege access.
 
-## Files
+### Username identity
 
-- Private title metadata, OWNER roles/rights/switch RPCs, purchased-order checks, Storage policies and public digital catalog SQL.
-- OWNER digital upload/rights UI, Store edition buttons, My Books purchased downloads.
-- Authenticated Cloudflare short-lived signed-download endpoint and book checkout rights gate.
-- Read-only SQL audits, GitHub workflows and regression tests.
+The member-facing username is the primary display in supported Account/Access tables (membership, expiration, library, tool passes, flags, support and audit actor) with a direct **Message** control where appropriate. Internal UUIDs remain the true transaction foreign keys. Avoid selecting members by duplicated full names. The main existing Accounts table also moves Username ahead of email. Signed book queues and communication history include usernames. A global sitewide per-table identity acceptance test remains pending for unrelated modules.
 
-**Existing website content, Market Commons, print options and historical trading lessons are not intentionally changed.** Live CI, production auth and Supabase behavior still need verification.
+### Communications
+
+**P0 lock:** a database trigger also protects these Owner-only switches (including Stripe/Lemon checkout and registration visibility) from the legacy generic `setting_save` API. Changes via the older generic Site Settings text editor will be refused; use the dedicated OWNER controls. This prevents a non-Owner with `settings.manage` from silently enabling ADMIN shipping access.
+
+Existing member `user_notifications` is reused; not a new unreliable inbox. New staff composer resolves username to a unique eligible member server-side; insert + audit occurs in the same PostgreSQL transaction. OWNER messaging defaults ON; ADMIN messaging defaults OFF. Both require actual staff MFA and separate Owner settings. Existing owner-created notices remain readable/managed by legacy Owner notice editor; the database trigger also checks send toggles for legacy inserts.
+
+### Registration/Authentication
+
+Website `site.registration_enabled` controls the visible registration form (UI fail-closed on unknown state). **This is not a security control against direct Supabase `auth.signUp` API access.** To truly prevent signup, disable new-user creation in Supabase Auth configuration and validate on staging; website configuration cannot make that provider change. Password complexity, email confirmation and session timeouts also require provider-side enforcement. Do not advertise these as toggleable only from the website.
+
+## Deployment and database order — DO NOT combine destructive or unreviewed writes
+
+1. Upload this **single** combined R1 direct-upload ZIP to GitHub; use existing Pages build. It does not execute SQL.
+2. Inspect latest GitHub Actions for **this exact commit**; all workflows should pass. The previous v0.14.0.30 had two stale mock tests, fixed in the v31 included tests.
+3. In staging, run `supabase/admin/v0.14.0.31_SIGNED_BOOK_PREFLIGHT_READ_ONLY.sql`. Review and only then stage `supabase/migrations/v0.14.0.31_SIGNED_BOOK_STRIPE_REVIEW_REQUIRED.sql`.
+4. Run `supabase/admin/v0.14.0.31R1_ADMIN_COMMS_PREFLIGHT_READ_ONLY.sql`, review the R1 SQL, stage `supabase/migrations/v0.14.0.31R1_ADMIN_ACCESS_COMMS_REVIEW_REQUIRED.sql`, and run **both** v31/R1 postflights.
+5. Verify real-role negatives: normal member; ADMIN with toggle OFF; ADMIN AAL1 vs AAL2; OWNER AAL1 vs AAL2; suspended/restricted and Showcase; recipient private access; refund/canceled order address denied; legacy messaging OFF prevents insertion. Never use SQL Editor superuser results as member authorization evidence.
+6. Enable each provider and message channel only after Owner review and functional tests. No real signed KDP book order is automatically placed: owner must order author copies and physically sign/ship.
+
+**Known outstanding:** live Stripe/Lemon Squeezy end-to-end paid and refund runs, Supabase role simulation, KDP author copy real purchase, tax nexus/refund/consumer disclosure review, and comprehensive sitewide forum/labs/account E2E. Release validation does not certify production compliance or regulatory suitability.

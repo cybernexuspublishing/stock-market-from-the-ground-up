@@ -1,0 +1,42 @@
+name: Backend Contract v0.14.0.31 R1
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  admin-communications-and-commerce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Security source contract and historical checkout regression
+        run: |
+          python tests/test_v014031r1_source.py
+          python tests/test_v014031_source.py
+          node tests/test_v014031_owner_detail.mjs
+          node tests/test_v014028_commerce_api.mjs
+      - name: Browser tests dependencies
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Account usernames and Communications browser workflow
+        run: |
+          python tests/test_v014031r1_browser.py
+          python tests/test_v014031r1_additional_browser.py
+      - name: Private SQL build boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/functions
+          test ! -e public/tests

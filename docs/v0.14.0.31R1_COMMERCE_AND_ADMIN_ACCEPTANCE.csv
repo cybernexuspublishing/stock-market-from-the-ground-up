@@ -1,0 +1,18 @@
+id,priority,component,requirement,status,evidence_required
+R1-01,P0,GitHub,All workflows pass on new commit,NOT_VERIFIED,GitHub Actions results same SHA
+R1-02,P0,Database,v31 base SQL before R1 SQL,NOT_APPLIED,Staging SQL preflight/postflight
+R1-03,P0,Shipping,Member cannot request paid buyer address,SOURCE_GUARDED,JWT role-negative staging
+R1-04,P0,Shipping,ADMIN disabled cannot view address,SOURCE_GUARDED,ADMIN MFA real test with toggle off
+R1-05,P0,Shipping,ADMIN enabled with AAL2 can view verified paid address,SOURCE_GUARDED,ADMIN staging test with toggle on
+R1-06,P0,Communications,OWNER message sends and audit transaction,SOURCE_GUARDED,Staging recipient and audit row match
+R1-07,P0,Communications,ADMIN messaging disabled by default,SOURCE_GUARDED,ADMIN negative staging test
+R1-08,P0,Communications,ADMIN enabled sends to UUID resolved by username,SOURCE_GUARDED,Authorized staging delivery test
+R1-09,P1,Identity,Username first in Accounts & Access relevant tables,ISOLATED_BROWSER_PASS,Staging account tabs and accuracy
+R1-10,P1,Identity,Username first in core User Accounts,STATIC_SOURCE_DONE,Live admin table reorder proof
+R1-11,P1,Registration,Website signup toggle active,ISOLATED_SOURCE_DONE,Public site settings RLS and UI test
+R1-12,P0,Registration,Supabase Auth actual signup policy enforced,NOT_DONE,Provider settings check separate from website
+R1-13,P0,Payments,Lemon Squeezy digital and membership controls preserved,SOURCE_DONE,Signed webhook and provider sandbox
+R1-14,P0,Payments,Stripe signed physical checkout optional OFF,SOURCE_DONE,Test checkout and refund then Owner activation
+R1-15,P0,Privacy,Shipping sensitive data access logged and purged,INCOMPLETE,Access audit and retention implementation
+R1-16,P1,Forum,Usernames consistently represented across all forum admin tables,NOT_CERTIFIED,Market Commons full site audit
+R1-17,P0,Settings,Generic Site Settings API cannot bypass Owner MFA for protected toggles,SOURCE_GUARDED,Staging attempt as settings.manage-only ADMIN must be denied

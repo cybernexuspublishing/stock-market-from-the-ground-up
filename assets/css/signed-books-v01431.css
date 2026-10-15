@@ -1,0 +1,9 @@
+.gu-signed-admin-v01431{margin-top:1.5rem;padding:1.25rem;overflow-wrap:anywhere}
+.gu-signed-offers,.gu-signed-orders{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1rem;margin-block:1rem}
+.gu-signed-card,.gu-signed-offer{border:1px solid var(--border,#718096);border-radius:9px;padding:1rem;margin:.5rem 0;min-width:0;background:var(--surface,#17202c)}
+.gu-signed-card label,.gu-signed-offer label{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-block:.5rem}
+.gu-signed-card input[type=number]{width:min(100%,12rem);padding:.4rem;color:inherit;background:inherit;border:1px solid currentColor}
+.gu-signed-card button,.gu-signed-offer button{margin:.4rem .5rem .4rem 0}
+.gu-shipping-address{overflow-wrap:anywhere;white-space:normal}
+.gu-signed-admin-v01431 :focus-visible,.gu-signed-offer :focus-visible{outline:3px solid #ffcc66;outline-offset:2px}
+@media(max-width:480px){.gu-signed-card,.gu-signed-offer{padding:.75rem}}
