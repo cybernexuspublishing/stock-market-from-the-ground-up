@@ -1,7 +1,7 @@
-/* v0.14.0.22: public-only cache. Private pages and API requests bypass CacheStorage. */
+/* v0.14.0.23: public-only cache. Private pages and API requests bypass CacheStorage. */
 importScripts('/assets/js/route-policy.js');
 const POLICY=self.GroundUpRoutePolicy;
-const CACHE='groundup-v014022-public';
+const CACHE='groundup-v014023-public';
 const PUBLIC_CORE=['/','/offline.html','/signin.html','/create-account.html',
   '/store.html','/membership.html','/help.html',
   '/assets/js/route-policy.js','/assets/js/auth-boundary.js','/assets/js/service-worker.js'];

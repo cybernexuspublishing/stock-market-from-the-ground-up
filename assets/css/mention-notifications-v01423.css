@@ -1,0 +1,5 @@
+/* v0.14.0.23 — extension to existing Dashboard notification panel. */
+.gu-mention-prefs-v01423{border-top:1px solid var(--border,#415b69);margin-top:1rem;padding-top:1rem;min-width:0}
+.gu-mention-prefs-v01423 h3{margin:.35rem 0}
+.gu-mention-prefs-v01423 input:focus-visible,.gu-mention-prefs-v01423 button:focus-visible{outline:3px solid #f1d279;outline-offset:3px}
+@media(max-width:380px){.gu-mention-prefs-v01423{overflow-wrap:anywhere}}

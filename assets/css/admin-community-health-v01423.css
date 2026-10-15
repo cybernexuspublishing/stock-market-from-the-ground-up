@@ -1,0 +1,7 @@
+/* v0.14.0.23 read-only Admin telemetry. */
+.gu-community-health-v01423{margin:1.25rem 0;min-width:0}
+.gu-community-health-v01423 dl{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.gu-community-health-row{padding:.75rem;border:1px solid var(--border,#415b69);border-radius:.6rem;min-width:0}
+.gu-community-health-row dt{font-size:.9rem;overflow-wrap:anywhere}
+.gu-community-health-row dd{font-size:1.25rem;font-weight:700;margin:.25rem 0}
+.gu-community-health-v01423 button:focus-visible{outline:3px solid #f1d279;outline-offset:3px}

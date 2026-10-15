@@ -4,9 +4,12 @@ import re,subprocess
 ROOT=Path(__file__).resolve().parents[1]
 def read(p):return (ROOT/p).read_text(encoding='utf8')
 config=read('config.js');policy=read('assets/js/route-policy.js');worker=read('sw.js');site=read('assets/js/site.js')
-assert "VERSION: '0.14.0.22'" in config
-assert "version:'0.14.0.22'" in policy
-assert 'groundup-v014022-public' in worker
+release=re.search(r"VERSION: '(\d+\.\d+\.\d+\.\d+)'",config)
+assert release, 'A valid release version is required'
+version=release.group(1)
+assert tuple(map(int,version.split('.'))) >= (0,14,0,22),version
+assert "version:'"+version+"'" in policy
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in worker
 assert 'cfg.VERSION' in site
 assert 'document.body.dataset.build=declaredRelease' in site
 assert "loadOnce('/assets/js/commons-follow-v01421.js','commonsFollow')" in site

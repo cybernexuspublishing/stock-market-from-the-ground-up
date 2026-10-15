@@ -1,0 +1,130 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "release": "v0.14.0.23",
+  "baseline_sha": "8113f497f015b23c8682a520eebaf09dbb2ed2a2",
+  "release_type": "direct-upload repository-source overlay",
+  "prepared_on": "2026-10-15",
+  "sql_executed": false,
+  "production_deployed": false,
+  "qa_status": "source/unit/isolated Chromium component PASS; reviewed SQL not installed; live role and delivery E2E pending",
+  "deployment_instructions": "copy complete nested source files into existing repo, do not delete unrelated files; review SQL in staging, no automatic execution",
+  "file_count_excluding_manifest": 23,
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01423.yml",
+      "bytes": 1406,
+      "sha256": "25407ec613672a880fdc304d8c3772a657f48c040a789e7d7a922f4cc511db66"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 3716,
+      "sha256": "3d2039710d0293bd71c1a53b4e11231558f78d597d48d22df92f9dea39b6a0a6"
+    },
+    {
+      "path": "assets/css/admin-community-health-v01423.css",
+      "bytes": 578,
+      "sha256": "0b4415aeda594c90a343c9cd2e7ad2c168a3e234a4ce7522e5f7b3076e944547"
+    },
+    {
+      "path": "assets/css/mention-notifications-v01423.css",
+      "bytes": 443,
+      "sha256": "344b36afd27b1bd875dec5bf640ffaec13c8283fa3aab559060fe6c71377847e"
+    },
+    {
+      "path": "assets/js/admin-community-health-v01423.js",
+      "bytes": 3026,
+      "sha256": "e1d2866e1f00a2a574c9a3c8c431b501151e3a1a18fabb557083b9c8daae2cbb"
+    },
+    {
+      "path": "assets/js/member-mentions.js",
+      "bytes": 9096,
+      "sha256": "28bd6a3f4ab5be439b5b85a1678ac0100126114a79ff3b1afbb68608261f8792"
+    },
+    {
+      "path": "assets/js/mention-notification-preferences-v01423.js",
+      "bytes": 4628,
+      "sha256": "693fb41a2d43f6d365f96981cef77e43b6a7abd3e30f86495b956afbad8fa2cc"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "a0817734b02c93232de2d8e1e3273b9389d191097785802ba6b391ae396dca88"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 6007,
+      "sha256": "2a42db9c2575da6120a1047075fbf5b5568936f10ff26d383801abcd219c6d82"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "dabe9126e4a4615319b94a707f36446f0cd48c2589a56cde270386c8806e2887"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_4_ACCEPTANCE_MATRIX.csv",
+      "bytes": 2962,
+      "sha256": "d6b1cb88c6b373d56d3b9679f1fd0c03a473b99b53356048cd375ad5cb191d7d"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_4_v0.14.0.23.md",
+      "bytes": 8343,
+      "sha256": "f7a0d52846b1b51ec427a75845efde4ab48454c83ecc25de4abc83f3ee2aec42"
+    },
+    {
+      "path": "functions/api/community-health-v01423.js",
+      "bytes": 4848,
+      "sha256": "6d742b6b4f29da6457ff02c4eb5c13fcca4b4ae312e996e7be21398b7497cbff"
+    },
+    {
+      "path": "functions/api/community-mention-preferences-v01423.js",
+      "bytes": 2886,
+      "sha256": "050dcb4fff37651b55f591ff3fa779bfd778b5d8de43406def9b59996a6e6996"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.23_MENTION_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 2562,
+      "sha256": "85056805c8553910b25ab43f1e420bd122402398c8445f1830df29f0c9f5df52"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.23_MENTION_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1472,
+      "sha256": "5a9d6b957117c86b669b850015e35424005e689df454ae16da32057225f07fe8"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.23_COMMONS_MENTION_NOTIFICATIONS_REVIEW_REQUIRED.sql",
+      "bytes": 11330,
+      "sha256": "946ae19a971ee6052acaecae64647c77d53a11f805b7cebb42172dd0523e8f74"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "e5e84cf273b64eaf9225b50141c7eeed339f7c8d91625e0746a7d003cdc2c5eb"
+    },
+    {
+      "path": "tests/test_v014022_release_gate.py",
+      "bytes": 2463,
+      "sha256": "3b106ca287b0fedbaf2d34acf1928a3e1e11e7ecf210b0287f2f10f41eec2503"
+    },
+    {
+      "path": "tests/test_v014023_backend.py",
+      "bytes": 2838,
+      "sha256": "1a51bc9d73378e696f79251bdfd030abc32b289b9150e40bf9d61a4d98715cf3"
+    },
+    {
+      "path": "tests/test_v014023_browser.py",
+      "bytes": 3621,
+      "sha256": "4cf57d5f3d2dede9444f5086339c60f8abd87fd9fc61dee1d92591c091dcef82"
+    },
+    {
+      "path": "tests/test_v014023_health_api.mjs",
+      "bytes": 2352,
+      "sha256": "48092cefa568a130395672db707ff2d2441adfc1f97f1e64ed4a9b2006e7ea42"
+    },
+    {
+      "path": "tests/test_v014023_mention_api.mjs",
+      "bytes": 2422,
+      "sha256": "c515e079e39e9f465e0600eda8c25419c8eb7e087a9465f43d5cca034cf1c85f"
+    }
+  ]
+}

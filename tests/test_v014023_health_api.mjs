@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {onRequest} from '../functions/api/community-health-v01423.js';
+const uid='e5972562-c6e7-4591-89ab-241bb502625e';
+const ENV={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_public',SUPABASE_SECRET_KEY:'service_private'};
+let authorized=true,showcase=false,metricFail=false;
+const requested=[];
+globalThis.fetch=async(url,opts={})=>{
+ const path=String(url);requested.push({path,opts});
+ if(path.endsWith('/auth/v1/user'))return Response.json({id:uid});
+ if(path.includes('/profiles?'))return Response.json([{account_kind:'member'}]);
+ if(path.includes('/admin_user_flags?'))return Response.json([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return Response.json([{role_code:authorized?'OWNER':'MODERATOR',expires_at:null},...(showcase?[{role_code:'SHOWCASE_VIEWER',expires_at:null}]:[])]);
+ if(metricFail)return new Response('{}',{status:503});
+ const h={'content-range':'0-0/3'};
+ return new Response('[{}]',{status:206,headers:h});
+};
+const run=(authorization='Bearer user',method='GET')=>onRequest({request:new Request('https://example.test/api/community-health-v01423',{method,headers:authorization?{authorization}:{}}),env:ENV});
+assert.equal((await run(null)).status,401);
+assert.equal((await run('Bearer user','POST')).status,405);
+authorized=false;assert.equal((await run()).status,403);
+authorized=true;showcase=true;assert.equal((await run()).status,403);
+showcase=false;
+const r=await run();assert.equal(r.status,200);
+const data=await r.json();assert.equal(data.ok,true);
+assert.equal(Object.keys(data.metrics).length,4);
+for(const m of Object.values(data.metrics)){assert.equal(m.available,true);assert.equal(m.count,3)}
+assert(!JSON.stringify(data).includes(uid));assert(!JSON.stringify(data).includes('service_private'));
+assert(requested.some(x=>x.path.includes('metadata-%3E%3Eorigin')||x.path.includes('metadata-%3E%3E')));
+assert(requested.filter(x=>x.path.includes('select=')).every(x=>x.opts.headers.authorization==='Bearer service_private'));
+metricFail=true;const fail=await run();assert.equal(fail.status,200);
+const missing=(await fail.json()).metrics;assert(Object.values(missing).every(x=>x.available===false&&x.count===null));
+console.log('PASS: Owner-only aggregate diagnostics, no user identifiers, unavailable counts not fabricated.');

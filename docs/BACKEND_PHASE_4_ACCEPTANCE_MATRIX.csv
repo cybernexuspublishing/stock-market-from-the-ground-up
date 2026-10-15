@@ -1,0 +1,21 @@
+id,priority,system,acceptance_criterion,verification_method,status,notes
+BE23-001,P0,GitHub source,exact baseline + paths + ZIP integrity,Local source / SHA manifest,PASS-local,all files intact; current live SHA unverified
+BE23-002,P0,Member opt-in,Default OFF; persist across refresh; no service secret,API & isolated Chromium,PASS-local,mock API only; live database pending
+BE23-003,P0,Member opt-in authorization,"Reject invalid JWT, payload, cross-member writes",API mocks / SQL read-only postflight,PARTIAL,DB role-negative staging pending
+BE23-004,P0,Trigger confidentiality,Only ungated active forums; no body/identity in notice,SQL source inspection,SOURCE ONLY,DB runtime validation required
+BE23-005,P0,Trigger race safety,Unique recipient/ref index and atomic daily quota,SQL source inspection,SOURCE ONLY,concurrent staging tests pending
+BE23-006,P1,Mention contributor visibility,Only opted-in published visible contributors,SQL source inspection,SOURCE ONLY,RLS/member negative roles pending
+BE23-007,P1,SQL deployment,preflight -> staging -> reviewed production once,Owner approval / SQL proof,NOT EXECUTED,not safe to assume migration installed
+BE23-008,P0,Actual mention delivery,"A opts in, B mentions A, A sees exactly one alert",Two real authenticated staging browser sessions,NOT TESTED,requires real database
+BE23-009,P0,Actual reply delivery,"A follows, B replies, A sees alert; opt-out and cooldown",Two real authenticated staging browser sessions,NOT TESTED,v0.14.0.22 checks only structural
+BE23-010,P1,Owner metrics ACL,Owner only; non-owner/Showcase denied,API mocks,PASS-local,live role tests pending
+BE23-011,P1,Telemetry semantics,Do not infer delivery; uninstalled counts unavailable,API & browser mocks,PASS-local,live telemetry needs review
+BE23-012,P1,Member UI/mobile,320px no overflow; ARIA status / keyboard toggle,"Isolated Chromium, mocked route",PASS-local,not full site screenreader/zoom
+BE23-013,P0,Commerce,"webhook, invoices, refunds, plan disabling, active entitlements",Staging Lemon Squeezy / SQL,OPEN,outside this increment
+BE23-014,P0,Education,"419 Labs answer keys, no-lookahead and source data",Private authored content + tests,OPEN,outside this increment
+BE23-015,P0,Database RLS,All site tables role negative/positive,Staging multi-role tests,OPEN,outside this increment
+BE23-016,P1,Admin controls,all eligible limits Owner controlled and audited,UI+DB integration,OPEN,outside this increment
+BE23-017,P1,Forum moderation,"escalation, evidence, appeals and audit",Real test accounts,OPEN,outside this increment
+BE23-018,P1,DevOps,branch protection and deployment parity,GitHub/Cloudflare owner settings,OPEN,outside this increment
+BE23-019,P1,Simulator/Journal/Tutor,premium tool entitlements/accuracy/safety,Authenticated E2E,OPEN,outside this increment
+BE23-020,P1,Data privacy,mention blocklists/abuse reports/retention rules,Formal policy/security QA,OPEN,design follow-up required

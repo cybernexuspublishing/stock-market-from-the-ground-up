@@ -52,14 +52,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   if(/^\/(market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname)) loadOnce('/assets/js/v014018-forum-corrections.js','forumCorrections');
   if(/^\/(new-discussion|market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-mentions.js','verifiedMentions');
-  if(/^\/admin(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');loadOnce('/assets/js/admin-community-health-v01423.js','communityHealth');if(!document.querySelector('link[data-gu-community-health]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-community-health-v01423.css';l.dataset.guCommunityHealth='1';document.head.append(l)}}
   // v0.14.0.21: bind genuine backend data to existing member Settings and Commons.
   if(/^\/(dashboard|market-commons)(?:\.html)?$/.test(location.pathname)){
     if(!document.querySelector('link[data-gu-backend-community]')){
       const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/backend-community-v01421.css';css.dataset.guBackendCommunity='1';document.head.append(css);
     }
     if(/^\/dashboard(?:\.html)?$/.test(location.pathname))
-      loadOnce('/assets/js/member-notification-preferences-v01421.js','memberNotificationPreferences');
+      {loadOnce('/assets/js/member-notification-preferences-v01421.js','memberNotificationPreferences');loadOnce('/assets/js/mention-notification-preferences-v01423.js','mentionNotificationPreferences');if(!document.querySelector('link[data-gu-mention-prefs]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/mention-notifications-v01423.css';l.dataset.guMentionPrefs='1';document.head.append(l)}}
     if(/^\/market-commons(?:\.html)?$/.test(location.pathname)&&new URLSearchParams(location.search).has('topic'))
       loadOnce('/assets/js/commons-follow-v01421.js','commonsFollow');
   }

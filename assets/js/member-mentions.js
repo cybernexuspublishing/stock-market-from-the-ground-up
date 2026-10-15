@@ -1,4 +1,4 @@
-/* v0.14.0.19 — accessible mention picker. Published contributors only; no implied alerts. */
+/* v0.14.0.23 — visible-contributor picker; mention alerts require recipient opt-in and approved SQL activation. */
 (()=>{'use strict';
  if(!/^\/(?:new-discussion|market-commons|forum-topic|forum)(?:\.html)?$/.test(location.pathname))return;
  let dialog,field,list,note,activeArea,activeButton,controller,timer,selection=[];
@@ -9,7 +9,7 @@
    dialog.setAttribute('aria-labelledby','gu-mention-title');
    const section=document.createElement('section');
    const h=document.createElement('h2');h.id='gu-mention-title';h.textContent='Mention a community contributor';
-   const info=document.createElement('p');info.textContent='Search verified usernames already visible in published discussions. Mentions are display text only; delivery of mention notifications is not enabled.';
+   const info=document.createElement('p');info.textContent='Search verified usernames already visible in published discussions. Mentions are display text only; in-app mention alerts are sent only when recipients explicitly enable them and the mention service has been activated.';
    const label=document.createElement('label');label.setAttribute('for','gu-mention-query');label.textContent='Contributor username';
    field=document.createElement('input');field.id='gu-mention-query';field.type='search';field.autocomplete='off';field.maxLength=40;field.minLength=3;field.placeholder='Type at least 3 characters';
    list=document.createElement('ul');list.className='gu-mention-options';list.setAttribute('aria-label','Visible forum contributors');
@@ -40,7 +40,7 @@
      if(own!==controller)return;
      list.replaceChildren();selection=body.matches||[];
      selection.forEach(name=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.className='btn secondary';b.textContent='@'+name;b.addEventListener('click',()=>insert(name));b.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const buttons=[...list.querySelectorAll('button')];const i=buttons.indexOf(b),step=e.key==='ArrowDown'?1:-1;buttons[(i+step+buttons.length)%buttons.length]?.focus()}});li.append(b);list.append(li)});
-     message(selection.length?`${selection.length} verified visible contributor${selection.length===1?'':'s'} found. No notification is sent by inserting a mention.`:'No matching visible contributors.');
+     message(selection.length?`${selection.length} verified visible contributor${selection.length===1?'':'s'} found. In-app notifications require recipient opt-in and an active mention service.`:'No matching visible contributors.');
    }catch(e){if(e.name!=='AbortError')message(e.message||'Contributor search unavailable.')}
  }
 

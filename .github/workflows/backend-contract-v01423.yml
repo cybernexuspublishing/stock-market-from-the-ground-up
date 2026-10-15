@@ -1,0 +1,42 @@
+name: Backend Contract v0.14.0.23
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-api:
+    name: API/source, privacy and public-build boundaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-secret source validation and reviewed SQL structure
+        run: python tests/test_v014023_backend.py
+      - name: Authenticated mention preference API tests
+        run: node tests/test_v014023_mention_api.mjs
+      - name: Owner only operational metrics security tests
+        run: node tests/test_v014023_health_api.mjs
+      - name: Previous release regression gates
+        run: |
+          python tests/test_v014022_release_gate.py
+          python tests/test_v014019_frontend.py
+          node tests/test_v014021_subscription_api.mjs
+      - name: Preserve Cloudflare static/private boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/functions
+          test ! -e public/tests
+          test ! -e public/PROJECT_MANIFEST.json
+          test ! -e public/data/interactive-labs.json
