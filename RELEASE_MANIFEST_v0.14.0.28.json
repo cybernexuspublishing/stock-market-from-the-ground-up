@@ -1,0 +1,110 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "version": "v0.14.0.28",
+  "baseline_repo": "cybernexuspublishing/stock-market-from-the-ground-up",
+  "baseline_main_sha": "028e9806f9d3a4e50c3e340172c17b7f943b452c",
+  "release_type": "direct-upload source overlay (complete replacement/new files in native directory structure)",
+  "scope": "commerce safety + Lulu Direct per-book print format routing + audited owner catalog links + book publication groundwork",
+  "status": "STAGING REQUIRED; NO PROVIDER LIVE PURCHASES; NO BOOK FILE UPLOADS",
+  "sql_migration_executed": false,
+  "github_write_executed": false,
+  "production_activation": false,
+  "legal_gate": "KDP Select full digital ebook redistribution prohibited until enrollment ends",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01428.yml",
+      "bytes": 1318,
+      "sha256": "de2c5bfefffbf826ea2edf102920c31d7e0436e1f536e2422204d9ac65b3ebb2"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2983,
+      "sha256": "0c10acc89b1fafad209cf62ab302d6e5f9ead7ce6e6be7e05a2322cc82344666"
+    },
+    {
+      "path": "assets/css/print-channel-admin-v01428.css",
+      "bytes": 898,
+      "sha256": "fe1a52e6521b0460737c06c09a0dff5199cf5319cb53650cfddf465fa22905ec"
+    },
+    {
+      "path": "assets/js/admin-print-channels-v01428.js",
+      "bytes": 5040,
+      "sha256": "9ef3405290ca90c808d50d49e01ab4ebf7ebe3ea89ea3cc6f46f25cfa8a589e0"
+    },
+    {
+      "path": "assets/js/checkout-platform.js",
+      "bytes": 4145,
+      "sha256": "6f0d9b08270cfb8f1357d775b490ae0a214e7cf494f69339e461e6f16e0d5f95"
+    },
+    {
+      "path": "assets/js/print-store-channels-v01428.js",
+      "bytes": 3576,
+      "sha256": "d894524dbf61aa4feaae12046800cb1e721a57e0cc2b16c88cb0f270dd9d46c3"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "97eca72c854fb78cf466a8a4ff569d3f7ebb57be82fcfb36faa8b27393d9455f"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 6923,
+      "sha256": "57d4cee00066606fb5222322af9754881b9940d55e1642cc5fc445e8846994e0"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "b79a8f4980d59ca6dc4ef655a8862d301c841a1f0c7d31ee729166b338d7982c"
+    },
+    {
+      "path": "docs/BACKEND_COMMERCE_ACCEPTANCE_v0.14.0.28.csv",
+      "bytes": 1992,
+      "sha256": "df79a0eb4934390369ed83314076c0499d2f660c6d097012174fa6626ca03e65"
+    },
+    {
+      "path": "docs/COMMERCE_AND_BOOK_PUBLISHING_v0.14.0.28.md",
+      "bytes": 10881,
+      "sha256": "f4e99b45008e40ac5fa3aaac3646d5cf3f4d82edaccf0381c91b9df0146c835c"
+    },
+    {
+      "path": "functions/api/checkout-v0135.js",
+      "bytes": 8130,
+      "sha256": "916efa38c2345ac6086bd7977bb5feb8e4504f9fdba43b203ba1e7ef860069af"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.28_PRINT_CHANNEL_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1341,
+      "sha256": "378b0cacab3e9490bc649dcb12fc15773bc8440f8004fde00960de8cc0696f36"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.28_PRINT_CHANNEL_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1362,
+      "sha256": "1ac084fb999fc21ec93bcc841c2616abb1fed54db6dfe14a1223785582000d7a"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.28_OWNER_PRINT_CHANNELS_REVIEW_REQUIRED.sql",
+      "bytes": 7614,
+      "sha256": "fce3daef90b75dca22a8ddd68a81f725373a78fcdd7f8e0205db7f45a8a1dfbd"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "4cc58d89bcddf38fc77f635bc49167195cdb8a979b100992ae7ad35b39f8a3ba"
+    },
+    {
+      "path": "tests/test_v014028_commerce_api.mjs",
+      "bytes": 2833,
+      "sha256": "4f4a12cf4358a2ac01fca2bad32b61752b677c54d53f9948cb2f80101d70b5ac"
+    },
+    {
+      "path": "tests/test_v014028_commerce_source.py",
+      "bytes": 2086,
+      "sha256": "6a39ce225e6905daf2820f2b596260dd6c4828ab9e5bf653210bb5cf10df8ff1"
+    },
+    {
+      "path": "tests/test_v014028_print_browser.py",
+      "bytes": 2007,
+      "sha256": "0badbaaf7c680ef713c8d4d2c53ff23e2f2733a985d2cb7bc067ee1a820818c5"
+    }
+  ]
+}

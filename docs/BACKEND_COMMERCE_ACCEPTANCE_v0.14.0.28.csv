@@ -1,0 +1,13 @@
+id,severity,area,description,status,required_evidence
+CM28-001,P0,Payment security,Block all physical variants from Lemon Squeezy checkout and checkout intents,SOURCE_IMPLEMENTED,API tests and deployed request negative tests
+CM28-002,P0,Owner role,Enforce active Owner and AAL2 on checkout URL changes,SOURCE_IMPLEMENTED,Staging role-negative test for member Showcase suspended and Owner AAL1
+CM28-003,P0,Payment/webhook,End-to-end Lemon Squeezy plan/tool payment cancellation refund and replay verification,PENDING,Provider test-mode payment and signed webhook ledger reconciliation
+CM28-004,P0,Print provider,Lulu Direct Stripe identity and payouts configured and print-ready files approved,PENDING,Provider account approval and test-order receipt
+CM28-005,P0,Print orders,Real printed paperback/hardcover payment plus fulfillment and tracking,PENDING,Lulu Direct provider order and tracking screenshots
+CM28-006,P0,Digital rights,Do not distribute KDP Select ebooks elsewhere,GUARDED,Per-title KDP Select term proof and download capability disabled
+CM28-007,P0,Digital delivery,Private assets and verified per-purchase downloadable-license issuance,PENDING,Files plus storage RLS and signed webhooks tested
+CM28-008,P1,Customer library,Lulu Direct orders synchronized only by verified provider integration,PENDING,Provider identity/order crosswalk and privacy controls
+CM28-009,P1,Print formats,Amazon KDP paperback/hardcover production with correct ISBN and proofing,PENDING,KDP live listings and print proofs
+CM28-010,P1,Manual fulfillment,Optional KDP author-copy orders from website sales,PENDING,Owner provider decision separate Stripe physical checkout taxes addresses and audit
+CM28-011,P0,Admin reporting,Owner report-limit and duplicate-policy postflight after migration,PENDING,Existing read-only v014027 report policy postflight exported
+CM28-012,P0,Production parity,Cloudflare deployment SHA and staff/member E2E verification,PENDING,Live SHA and role-negative browser matrix

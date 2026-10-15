@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(/^\/(market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname)) loadOnce('/assets/js/v014018-forum-corrections.js','forumCorrections');
   if(/^\/(new-discussion|market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-mentions.js','verifiedMentions');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');loadOnce('/assets/js/admin-community-health-v01423.js','communityHealth');loadOnce('/assets/js/admin-report-cases-v01424.js','reportCasesV01424');if(!document.querySelector('link[data-gu-report-cases-v01424]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-report-cases-v01424.css';x.dataset.guReportCasesV01424='1';document.head.append(x)}if(!document.querySelector('link[data-gu-community-health]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-community-health-v01423.css';l.dataset.guCommunityHealth='1';document.head.append(l)}}
+  // v0.14.0.28: separate print checkout from Lemon Squeezy digital commerce.
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){
+    loadOnce('/assets/js/admin-print-channels-v01428.js','ownerPrintChannels');
+    if(!document.querySelector('link[data-gu-print-channel-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/print-channel-admin-v01428.css';css.dataset.guPrintChannelStyle='1';document.head.append(css)}
+  }
+  if(/^\/(store|my-purchases)(?:\.html)?$/.test(location.pathname))
+    loadOnce('/assets/js/print-store-channels-v01428.js','printStoreChannels');
   // v0.14.0.21: bind genuine backend data to existing member Settings and Commons.
   if(/^\/(dashboard|market-commons)(?:\.html)?$/.test(location.pathname)){
     if(!document.querySelector('link[data-gu-backend-community]')){
