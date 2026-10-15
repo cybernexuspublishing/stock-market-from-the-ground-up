@@ -1,0 +1,13 @@
+ID,Priority,Area,Finding,Status,Required_acceptance
+B22-001,P0,CI/release parity,v0.14.0.21 frontend CI fails because v0.14.0.19/18 feature tests pin obsolete build versions,SOURCE_FIXED,Run GitHub Frontend Source Contract Gate on v0.14.0.22; require PASS
+B22-002,P1,Commons follow UX,Ambiguous network failure was described as a definitely failed change even if SET committed,SOURCE_FIXED,Mock dropped response after committed SET; GET must reconcile display; live test pending
+B22-003,P1,Member notification preferences,"Ambiguous network failure was represented as rollback, possibly contradicting persisted preference",SOURCE_FIXED,GET after POST uncertainty; no false success; live test pending
+B22-004,P0,Permissions,Supabase postflight screenshots show SECURITY DEFINER but do not include GET/SET grant columns,DB_READONLY_REQUIRED,"Run v0.14.0.22 notification contract; authenticated true/true, anonymous false/false"
+B22-005,P0,Runtime delivery,No verified two-account follow->reply->in-app Alerts end-to-end in deployed Cloudflare + Supabase,MANUAL_E2E_REQUIRED,"Two real member staging tests, opt-out, restricted topic, cooldown, no self-alert; no production auto-write"
+B22-006,P0,Security,"Member vs TEST/SHOWCASE, restricted/suspended role boundaries remain unproved end-to-end",OPEN,Negative authorization tests using independent accounts and direct RPC plus API
+B22-007,P0,Privacy,Scope of advanced forum and mention fanout across premium content unverified,OPEN,Verify no gated book/lab notification leaks; enforce server authorization; no lookahead
+B22-008,P0,Commerce,Lemon Squeezy webhook lifecycle and paid entitlements not proven by source CI,OPEN,"Provider sandbox, signature, replay/idempotency, disable plan, KDP Select exclusivity"
+B22-009,P0,Learning,419 Lab identities/answers/historical no-hindsight provenance not acceptance-tested,OPEN,"Private rubric review, paid access, historical snapshots, multi-timeframe timestamps and honest grading"
+B22-010,P1,Operations,"Default branch not protected, live Cloudflare commit parity unverified",OPEN,Configure protected main and mandatory checks; compare Cloudflare deployment SHA
+B22-011,P1,Source versioning,Historical middleware/root manifests retain prior version stamps,OPEN,"Reconcile middleware, canonical manifest and deployed source without altering frozen curricula"
+B22-012,P1,System coverage,"Admin, moderator, payments, GWS, market simulator, journal, tutor need contract-level staging verification",OPEN,Owner/moderator permission matrix; no unauthorized writes; no spoofed trading results

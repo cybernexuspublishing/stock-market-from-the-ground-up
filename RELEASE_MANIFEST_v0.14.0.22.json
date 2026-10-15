@@ -1,0 +1,114 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "version": "v0.14.0.22",
+  "baseline_commit": "ff458899ac4ce7a8126e2dab67d237f0ff9197ed",
+  "installation": "direct nested source-file overlay; not standalone repository",
+  "status": "source QA attempted locally; production backend acceptance pending",
+  "database_mutations_executed": false,
+  "production_deployed": false,
+  "prepared_on": "2026-10-15",
+  "scope": [
+    "fix historical frontend CI version pins while preserving functional/security contracts",
+    "server-readback after uncertain subscription/preference POST",
+    "public version metadata consistency",
+    "read-only Supabase notification proof queries"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01422.yml",
+      "bytes": 1309,
+      "sha256": "89b65600624a811a581bcbe7e79fa0f12e0af28aa9e08f05ab9be06cb5a0aea6"
+    },
+    {
+      "path": ".github/workflows/frontend-release-gate.yml",
+      "bytes": 1345,
+      "sha256": "903acaf03a152ad0d0847a90bd3d56aea475333e272b39a7882a5c35b9c7e4f5"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2241,
+      "sha256": "0e4ac1f259edef3dbb465975dd4838b08001be98f7fe6adeaa7ec4c91568cc43"
+    },
+    {
+      "path": "assets/js/commons-follow-v01421.js",
+      "bytes": 5098,
+      "sha256": "5d0de6935756a0688e5aa66e2576ee7d99b734b088d31d7d6508920fc5baa36d"
+    },
+    {
+      "path": "assets/js/member-notification-preferences-v01421.js",
+      "bytes": 5391,
+      "sha256": "9c6562a339dcee3dcea2671f4ce4c89094f2e89f45ac2d3a72f071a82b77f299"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "b3ea8f8d6c1c6eef844aac84e9e8d68223210229fe31476ce54e04da305af014"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 5375,
+      "sha256": "4ab5a4737fc7a149ae3f8454976a60073f271c12f5c1a1f5f61b929c967ed30b"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "bd0fe66982e52eba084d31e8568e4b9e2411f5bf09894a0b64ead46b7096ca1e"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_3_v0.14.0.22.md",
+      "bytes": 6880,
+      "sha256": "2492f47b3d079d3cda6802ff7cc965aa42bcfd4976107401db28cfb775e94ba3"
+    },
+    {
+      "path": "docs/BACKEND_RELEASE_GATES_v0.14.0.22.csv",
+      "bytes": 2590,
+      "sha256": "5b9150d1b99179c8e9ec5bb49db7df00d8df86bd119c19584ac10813c6235e74"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.22_NOTIFICATION_CONTRACT_READ_ONLY.sql",
+      "bytes": 1980,
+      "sha256": "e8d80aa81384eac2abddef925a7279b5352bca17bdcdb8b0b1b4a2bde5190c86"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.22_NOTIFICATION_DELIVERY_EVIDENCE_READ_ONLY.sql",
+      "bytes": 1028,
+      "sha256": "934fcf88e9ab9512f8d1177652b7f123bb44bc1d5949bdcec947eaa0ec7bf912"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "1b6a530046f492112f615718968337a41960a95ade68916d5545571f3da5c562"
+    },
+    {
+      "path": "tests/test_v014018_overlay.py",
+      "bytes": 1743,
+      "sha256": "afda909b577e2492948356848f4245786f7caeac600c6b205f50659a5ac1b910"
+    },
+    {
+      "path": "tests/test_v014019_frontend.py",
+      "bytes": 2772,
+      "sha256": "7f70c5941769913abc0a3e5d41e7aee5bb6bbc447573a474b69833f3960739ce"
+    },
+    {
+      "path": "tests/test_v014021_backend_contracts.py",
+      "bytes": 3475,
+      "sha256": "c31387e47f14dc883e6525f986220b137151ee6a3c4fe35f5a0c9c3ba4cc2f23"
+    },
+    {
+      "path": "tests/test_v014021_browser.py",
+      "bytes": 6220,
+      "sha256": "9395ebac0779b764b9c6a6ba72479dcf0cb17ac1f2d2340a0b952c73da43e33c"
+    },
+    {
+      "path": "tests/test_v014022_browser.py",
+      "bytes": 3678,
+      "sha256": "dcfda4d1ff45303329189e291b7d366eb6c13950fe9d543ebe04f1f42a80ca3e"
+    },
+    {
+      "path": "tests/test_v014022_release_gate.py",
+      "bytes": 2271,
+      "sha256": "2eab2dd932e309e2b62de521ac57f9108c2fc77c84e8df4c3301c09e50141da1"
+    }
+  ]
+}

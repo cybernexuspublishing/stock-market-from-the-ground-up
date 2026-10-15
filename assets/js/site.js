@@ -1,4 +1,4 @@
-/* v0.14.0.21 — preserve established routes and bootstraps; additive backend UI. */
+/* v0.14.0.22 — preserve established routes and bootstraps; additive backend UI. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
@@ -32,9 +32,11 @@ function loadRichEditor(){
 function loadOnce(src,key){if(document.querySelector('script[data-gu-correction=\"'+key+'\"]'))return;const x=document.createElement('script');x.src=src;x.defer=true;x.setAttribute('data-gu-correction',key);document.head.append(x)}
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
-  // These labels describe the client overlay, not a verified Cloudflare deployment SHA.
-  for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content='v0.14.0.21';
-  document.body.dataset.build='v0.14.0.21';
+  // Runtime labels are derived from the same public release config used by route policy.
+  // A displayed version is not a verified deployment SHA or backend health attestation.
+  const declaredRelease=/^\d+\.\d+\.\d+\.\d+$/.test(String(cfg.VERSION||''))?'v'+cfg.VERSION:'unverified';
+  for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content=declaredRelease;
+  document.body.dataset.build=declaredRelease;
   if(!document.querySelector('link[data-gu-sitewide-acceptance]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/sitewide-acceptance.css';css.dataset.guSitewideAcceptance='1';document.head.append(css)}
   loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){

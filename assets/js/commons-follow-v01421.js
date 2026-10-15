@@ -1,4 +1,4 @@
-/* v0.14.0.21 — idempotent per-topic follow/unfollow, no speculative success.
+/* v0.14.0.22 — idempotent per-topic follow/unfollow, no speculative success.
  * Subscriptions are only available for published ungated Commons discussions.
  * The previous optional advanced interaction toolbar is unchanged except its
  * duplicate Subscribe button is hidden while this canonical control is mounted.
@@ -28,7 +28,20 @@ function install(){const root=document.querySelector('#v13-commons .v13-topic-de
  finally{busy=false;render()}}
  action.addEventListener('click',async()=>{if(busy||!available)return;busy=true;const want=!subscribed;render();status.textContent=want?'Following discussion…':'Unfollowing discussion…';
  try{const r=await api('POST',want);if(!box.isConnected)return;subscribed=r.subscribed;available=r.available;status.textContent=!r.available?'This discussion is no longer available for following.':r.subscribed?'Discussion followed. In-app alerts depend on notification settings.':'Discussion unfollowed. Existing alerts are retained.'}
- catch(e){status.textContent='Subscription was not changed: '+e.message}
+ catch(e){
+   // A network failure may occur *after* the database commits. Never claim a rollback.
+   status.textContent='The save response was interrupted. Checking the current server state…';
+   try{const current=await api('GET');if(!box.isConnected)return;
+     subscribed=current.subscribed;available=current.available;
+     status.textContent=available
+       ?(subscribed===want
+          ?`The server confirms this discussion is ${subscribed?'followed':'unfollowed'}.`
+          :`The server currently reports this discussion as ${subscribed?'followed':'not followed'}. Your requested change was not confirmed.`)
+       :'This discussion is not available for following.';
+   }catch{
+     available=false;status.textContent='Subscription status could not be confirmed. Refresh this discussion before making another change.';
+   }
+ }
  finally{busy=false;render()}});
  void load();return true}
 let done=false,timer=null;

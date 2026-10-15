@@ -1,0 +1,40 @@
+name: Backend Contract v0.14.0.22
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime-security-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Runtime release and service-boundary contracts
+        run: python tests/test_v014022_release_gate.py
+      - name: Member preferences and subscriptions API unit tests
+        run: |
+          node tests/test_v014020_backend_api.mjs
+          node tests/test_v014021_subscription_api.mjs
+      - name: Current and historical UI feature regressions
+        run: |
+          python tests/test_v014018_overlay.py
+          python tests/test_v014019_frontend.py
+          python tests/test_v014021_backend_contracts.py
+      - name: Ensure private curricula, migrations and API sources are not published
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/data/interactive-labs.json
+          test ! -d public/supabase
+          test ! -d public/functions
+          test ! -d public/tests

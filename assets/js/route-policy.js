@@ -32,7 +32,7 @@
   }
   function isProtected(raw){return ['member','staff'].includes(classify(raw));}
   root.GroundUpRoutePolicy = Object.freeze({
-    version:'0.14.0.21',
+    version:'0.14.0.22',
     member:Object.freeze(MEMBER),staff:Object.freeze(STAFF),publicPreviews:Object.freeze(PUBLIC_PREVIEWS),
     canonicalPath,routeName,classify,isProtected
   });

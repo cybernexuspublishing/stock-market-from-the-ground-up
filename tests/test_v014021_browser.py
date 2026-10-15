@@ -21,12 +21,17 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('.gu-pref-status').textContent.includes('saved')")
     assert page.locator('[data-gu-v01421-preferences] input').is_checked()
     assert page.evaluate("mockLog.filter(x=>x.opts.method==='POST').length")==1
-    # A rejected save must not be represented as saved: restore server-confirmed value.
+    # If both POST and the reconciliation GET fail, the true saved state is unknown.
+    # Disable input rather than claiming rollback of a possibly committed write.
     page.evaluate("window.fetch=async(url,opts={})=>new Response(JSON.stringify({ok:false,error:'Test outage'}),{status:503,headers:{'content-type':'application/json'}})")
     page.locator('[data-gu-v01421-preferences] input').uncheck()
-    page.wait_for_function("document.querySelector('.gu-pref-status').textContent.includes('not saved')")
-    assert page.locator('[data-gu-v01421-preferences] input').is_checked()
+    page.wait_for_function("document.querySelector('.gu-pref-status').textContent.includes('Could not confirm the saved preference')")
+    assert page.locator('[data-gu-v01421-preferences] input').is_disabled()
+    # Retry GET restores the persisted canonical server state; never blind re-POST.
     page.evaluate("window.fetch=async(url,opts={})=>new Response(JSON.stringify({ok:true,preferences:{subscribedRepliesEnabled:true}}),{status:200,headers:{'content-type':'application/json'}})")
+    page.get_by_role('button',name='Retry loading').click()
+    page.wait_for_selector('[data-gu-v01421-preferences] input:not([disabled])')
+    assert page.locator('[data-gu-v01421-preferences] input').is_checked()
     # Reopening Settings restores exactly one backed checkbox, not the placeholder controls.
     page.evaluate("document.querySelector('[data-settings-body]').innerHTML='<article class=\"v13-card\"><div class=\"v132-setting-list\"><input checked type=\"checkbox\"></div></article>'")
     page.wait_for_selector('[data-gu-v01421-preferences] input:not([disabled])')

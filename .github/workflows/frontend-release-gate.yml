@@ -20,13 +20,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify v0.14.0.19 frontend source and API security contracts
+      - name: Validate historical frontend features against the ACTIVE release
         run: |
+          python tests/test_v014018_overlay.py
           python tests/test_v014019_frontend.py
           node tests/test_v014019_mentions.mjs
+      - name: Verify current frontend/backend integration source contracts
+        run: |
+          python tests/test_v014022_release_gate.py
+          node tests/test_v014020_backend_api.mjs
+          node tests/test_v014021_subscription_api.mjs
+          python tests/test_v014021_backend_contracts.py
       - name: Preserve Cloudflare Pages public/private build boundary
         run: |
           bash scripts/build-pages.sh
           test ! -e public/data/interactive-labs.json
           test ! -d public/supabase
           test ! -d public/functions
+          test ! -d public/tests
+          test ! -e public/PROJECT_MANIFEST.json

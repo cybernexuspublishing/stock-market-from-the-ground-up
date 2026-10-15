@@ -15,10 +15,25 @@ for p in RUNTIME:
 site=(ROOT/'assets/js/site.js').read_text()
 for script in ['sitewide-runtime.js','member-mentions.js','frontend-integration-health.js','v014018-forum-corrections.js']:
     assert script in site,script
-assert "version:'0.14.0.19'" in (ROOT/'assets/js/route-policy.js').read_text()
+# The v0.14.0.19 feature regression must remain valid after later releases.
+# Require consistent active release identities instead of pinning the full site to 0.14.0.19.
+config=(ROOT/'config.js').read_text()
+policy=(ROOT/'assets/js/route-policy.js').read_text()
+sw=(ROOT/'sw.js').read_text()
+match=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",config)
+assert match,'Missing explicit browser build version'
+version=match.group(1)
+parts=tuple(map(int,version.split('.')))
+assert parts >= (0,14,0,19),f'Release rollback: {version}'
+assert f"version:'{version}'" in policy,'Route version differs from browser config'
+major,minor,patch,release=parts
+cache=f'groundup-v{major}{minor}{patch}{release:02d}-public'
+assert cache in sw,f'Cache version differs from browser config: {cache}'
+site=(ROOT/'assets/js/site.js').read_text()
+assert 'cfg.VERSION' in site and 'document.body.dataset.build=declaredRelease' in site
 assert "'new-discussion'" in (ROOT/'assets/js/route-policy.js').read_text()
-assert 'v014019-public' in (ROOT/'sw.js').read_text()
-assert "VERSION: '0.14.0.19'" in (ROOT/'config.js').read_text()
+assert cache in (ROOT/'sw.js').read_text()
+assert version in (ROOT/'config.js').read_text()
 assert 'await sb.rpc(\'commons_create_reply\'' in (ROOT/'assets/js/v014018-forum-corrections.js').read_text()
 assert 'e.stopImmediatePropagation()' in (ROOT/'assets/js/v014018-forum-corrections.js').read_text()
 api=(ROOT/'functions/api/member-mentions.js').read_text()
@@ -31,4 +46,4 @@ assert 'cache-control' in api and 'no-store' in api
 assert '<form id="gu-new-discussion-form"' in (ROOT/'new-discussion.html').read_text()
 for path in ['assets/css/sitewide-acceptance.css','new-discussion.html']:
     assert (ROOT/path).is_file(),path
-print('PASS: v0.14.0.19 source syntax, route protection, API visibility boundaries, integration contracts.')
+print(f'PASS: v0.14.0.19 feature regression on active {version}: syntax, route protection, API boundaries, integration contracts.')

@@ -39,10 +39,17 @@ assert "method==='POST'" in follow
 print('v0.14.0.21 structural/security/build preservation checks: PASS')
 
 # Release metadata and private data cache boundaries remain aligned.
-assert "VERSION: '0.14.0.21'" in (ROOT/'config.js').read_text()
-assert "version:'0.14.0.21'" in (ROOT/'assets/js/route-policy.js').read_text()
+# This regression protects v0.14.0.21 features in all subsequent releases.
+# Pinning the entire production app to an old build would break on every update.
+conf=(ROOT/'config.js').read_text()
+release_match=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",conf)
+assert release_match, 'Public release metadata missing'
+release_version=release_match.group(1)
+maj,mi,patch,rev=map(int,release_version.split('.'))
+assert (maj,mi,patch,rev)>=(0,14,0,21), f'Unexpected release rollback {release_version}'
+assert f"version:'{release_version}'" in (ROOT/'assets/js/route-policy.js').read_text()
 sw=(ROOT/'sw.js').read_text()
-assert "groundup-v014021-public" in sw
+assert f'groundup-v{maj}{mi}{patch}{rev:02d}-public' in sw
 assert "POLICY.isProtected(p)" in sw and "p.startsWith('/api/')" in sw
 assert "cache:'no-store'" in sw
 config=(ROOT/'config.js').read_text()

@@ -1,4 +1,4 @@
-/* v0.14.0.21 — replace nonfunctional dashboard notification toggles with
+/* v0.14.0.22 — replace nonfunctional dashboard notification toggles with
  * server-backed in-app preference. Reuses the existing single Alerts center.
  * No new email/push controls: they are not implemented by this backend.
  */
@@ -26,7 +26,17 @@ function mount(body){if(body.querySelector('[data-gu-v01421-preferences]'))retur
   finally{busy=false}}
  async function save(){if(busy||confirmed===null)return;const wanted=input.checked;busy=true;input.disabled=true;notice.textContent='Saving preference…';
   try{const actual=await preference('POST',{subscribedRepliesEnabled:wanted});if(!panel.isConnected)return;confirmed=actual;input.checked=actual;notice.textContent=actual===wanted?'Notification preference saved.':'Server preference differed from the request; refreshed the displayed setting.'}
-  catch(e){input.checked=confirmed;notice.textContent='Preference not saved: '+e.message}
+  catch(e){
+    // An interrupted response does not establish whether the RPC committed.
+    notice.textContent='The save response was interrupted. Reloading the server preference…';
+    try{const current=await preference('GET');if(!panel.isConnected)return;
+      confirmed=current;input.checked=current;
+      notice.textContent=current===wanted?'The server confirms your requested preference.':'The server confirms your previous preference; the requested change was not applied.';
+    }catch{
+      confirmed=null;input.disabled=true;reload.hidden=false;
+      notice.textContent='Could not confirm the saved preference. Use Retry loading before changing it again.';
+    }
+  }
   finally{busy=false;input.disabled=confirmed===null}}
  input.addEventListener('change',save);reload.addEventListener('click',load);void load();
 }
