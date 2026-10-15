@@ -1,0 +1,16 @@
+ID,Priority,System,Source_status,Database_status,Live_E2E_status,Required_next_acceptance
+BE-001,P0,Auth and identity,Existing endpoints reviewed; new Owner diagnostics added,Unknown,UNVERIFIED,Verify JWT expiration account flags test/showcase segregation MFA and permissions with real roles
+BE-002,P0,Reporting-limit and duplicate-report protection,Admin/backend candidate APIs exist,Candidate migration v0.14.0.17 not verified installed,UNVERIFIED,Read-only preflight install after approval postflight and race/role tests
+BE-003,P0,Payments and entitlements,Checkout and webhook endpoints exist,Unknown,UNVERIFIED,Staging purchase renew cancel refund reconciliation replay isolation and KDP digital restrictions
+BE-004,P0,Historical Lab access,Lab API exists,419 authorized answer keys/content provenance not established,UNVERIFIED,Audit canonical 419 Labs with no-lookahead grading entitlement and role tests
+BE-005,P1,Forum subscriber in-app notifications,New gated SQL candidate and caller-scoped preferences API,NOT APPLIED; staging-first,UNVERIFIED,Pref RPC roles triggers no private topic alerts 15-minute cooldown and realtime UI
+BE-006,P1,Member mentions,Autocomplete API implemented v0.14.0.19,Verified identity and notification delivery not implemented,UNVERIFIED,Private opt-ins scoped visibility throttled mention delivery and deny tests
+BE-007,P1,Advanced forum polls and subscriptions,Optional client UI and candidate RPCs exist,Review-required migration not verified installed,UNVERIFIED,Poll permissions edits moderation concurrent voting and subscriptions
+BE-008,P1,Forum attachments,Editor marks attachments unavailable,Storage authorization not verified,UNVERIFIED,Authorized object storage AV controls quota RLS media moderation retention
+BE-009,P1,Owner global limits/controls,Owner reporting controls and Admin control registry exist,Installed state unknown,UNVERIFIED,Typed auditable policy registry enforced across all eligible endpoints
+BE-010,P1,Notifications and announcements,Owner notices and ui-state notifications endpoints exist,DB notification schema identified in historical migration,UNVERIFIED,Recipient access opt-outs moderated content and schedule delivery acceptance
+BE-011,P1,Market simulator and journal,Frontend/API services exist,Historical feed provenance and durable execution semantics unknown,UNVERIFIED,No-lookahead fill model trade ledger replay and exports
+BE-012,P1,AI Tutor and market data,API services exist,Keys quotas provider legal agreements unknown,UNVERIFIED,Server-side token controls prompt isolation entitlement and cost limits
+BE-013,P1,Grant Web Solutions,Owner client draft APIs exist,Client tenancy publishing and domain boundaries unverified,UNVERIFIED,Owner-owned projects and client isolation no cross-publish
+BE-014,P1,Cloudflare deployment parity,GitHub main SHA verified v0.14.0.19,Cloudflare active SHA unknown,UNVERIFIED,Verify exact artifact deployment environment secrets and backend route behavior
+BE-015,P1,Release protection,New Backend CI introduced,No staging DB integration in this package,UNVERIFIED,Require protected main live role E2E staged migration and rollback checks

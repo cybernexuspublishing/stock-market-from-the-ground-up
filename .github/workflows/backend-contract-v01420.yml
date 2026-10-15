@@ -1,0 +1,42 @@
+name: Backend Contract v0.14.0.20
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/backend-contract-v01420.js'
+      - 'functions/api/community-notification-preferences.js'
+      - 'supabase/migrations/v0.14.0.20_*'
+      - 'supabase/admin/v0.14.0.20_*'
+      - 'tests/test_v014020_*'
+      - '.github/workflows/backend-contract-v01420.yml'
+  pull_request:
+    paths:
+      - 'functions/api/backend-contract-v01420.js'
+      - 'functions/api/community-notification-preferences.js'
+      - 'supabase/migrations/v0.14.0.20_*'
+      - 'supabase/admin/v0.14.0.20_*'
+      - 'tests/test_v014020_*'
+      - '.github/workflows/backend-contract-v01420.yml'
+permissions:
+  contents: read
+jobs:
+  api-security-and-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: API module syntax
+        run: |
+          node --check functions/api/backend-contract-v01420.js
+          node --check functions/api/community-notification-preferences.js
+      - name: Auth and privacy unit tests
+        run: node tests/test_v014020_backend_api.mjs
+      - name: SQL non-destructive contract checks
+        run: python tests/test_v014020_backend_structure.py
+      - name: Cloudflare Pages source build boundary
+        run: bash scripts/build-pages.sh

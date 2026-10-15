@@ -1,0 +1,70 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "publisher": "Cyber Nexus",
+  "version": "v0.14.0.20",
+  "baseline_git_sha": "a6f1627ac1c9b13b6c0339440885ab05711a679f",
+  "release_type": "BACKEND_PHASE_1_NESTED_DIRECT_UPLOAD",
+  "approved_for_live_sql_execution": false,
+  "production_sql_executed": false,
+  "github_uploaded": false,
+  "live_cloudflare_e2e_verified": false,
+  "sql_migration_name": "v0.14.0.20_COMMONS_SUBSCRIPTION_NOTIFICATIONS_REVIEW_REQUIRED.sql",
+  "status": "source unit tests passed; manual SQL staging and production acceptance pending",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01420.yml",
+      "size": 1454,
+      "sha256": "d8d36becde7eedcd16c44c9c983ec1c8b61e57772d8c65fb90e8e28f9af2317d"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "size": 2408,
+      "sha256": "7eeed33f02ce1d7fd1d917aca35919cafeb4368f6609eb1f9f9aada731de55a6"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_1_v0.14.0.20.md",
+      "size": 4577,
+      "sha256": "1358501ea077b2e710a913cea9dd41d721afe97b240d6865e57e8f784028f5f4"
+    },
+    {
+      "path": "docs/BACKEND_SCOPE_AND_RELEASE_GATES_v0.14.0.20.csv",
+      "size": 3160,
+      "sha256": "86d29848ec55a2c5ea2e2807d822367c6a42c236b44910913f896dafa1757b1c"
+    },
+    {
+      "path": "functions/api/backend-contract-v01420.js",
+      "size": 5124,
+      "sha256": "d75e7b7de63ef3d3b29e1555476078023f4f9f7464c27e89ca27bd1a25773204"
+    },
+    {
+      "path": "functions/api/community-notification-preferences.js",
+      "size": 2787,
+      "sha256": "8f2af1f7a1029253802fa2059872011851de05750f59b74ceacedc5d1928e5fb"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.20_BACKEND_POSTFLIGHT_READ_ONLY.sql",
+      "size": 1810,
+      "sha256": "8febcb83ff434abba0a50ef325939208261c847bd61dd9b8a7e266fef4b1f2d6"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.20_BACKEND_PREFLIGHT_READ_ONLY.sql",
+      "size": 3286,
+      "sha256": "f481aed5aa6d972df10ccdec00d792e4149f45b5bb063de2a9466c42b9126051"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.20_COMMONS_SUBSCRIPTION_NOTIFICATIONS_REVIEW_REQUIRED.sql",
+      "size": 8880,
+      "sha256": "81f60586e0d8db3a0236ba040b9e80eaee149747dd19c3db4e8f028346f52601"
+    },
+    {
+      "path": "tests/test_v014020_backend_api.mjs",
+      "size": 4674,
+      "sha256": "ff714087254be1eedeecc1fc61c30e76b139dcaf60892ef2893d39c0553dd8e6"
+    },
+    {
+      "path": "tests/test_v014020_backend_structure.py",
+      "size": 1927,
+      "sha256": "192e71873fb75ae7247b27c30f8d619a3f9c2921f1214bbe4a05fe365abd7779"
+    }
+  ]
+}
