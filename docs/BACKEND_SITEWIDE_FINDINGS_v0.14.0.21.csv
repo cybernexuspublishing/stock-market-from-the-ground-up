@@ -1,0 +1,25 @@
+ID,Priority,Area,Evidence_or_defect,Action_or_acceptance,Status
+B21-001,P0,Member Notifications,"assets/js/production-completion.js Notifications subtab has checked placeholders without persistence","Use v01420 real preference GET/POST and remove misleading controls",SOURCE_FIXED_NEEDS_E2E
+B21-002,P0,Forum Subscriptions,"v01420 trigger exists but advanced v01417 subscription toggle RPC may be absent","Add caller-bound idempotent subscribe SET/GET; staging/manual SQL review and live tests",SOURCE_IMPLEMENTED_REVIEW_GATED
+B21-003,P0,Production Auth/RLS,"Functions use mixed service-role and user JWT patterns across dozens of routes","Threat-model each privileged endpoint; negative role testing; RLS and SECURITY DEFINER review",NOT_ACCEPTED
+B21-004,P0,Release Parity,"Github current main v01420; legacy root manifests/middleware labels older","Use deployed SHA and exact source artifact; align manifests on controlled release",UNVERIFIED
+B21-005,P0,Payment Lifecycle,"checkout/webhook/entitlement modules exist but provider confirmation and refunds not E2E verified","Staging live-provider events incl replay idempotence refund revoke visibility",NOT_ACCEPTED
+B21-006,P0,Historical Lessons,"419 Labs registered but private authored answer provenance and no-lookahead not proved","Verify all 419 source-authored lesson identities content versions keys scores and historical tape provenance",NOT_ACCEPTED
+B21-007,P1,Follow Race,"Toggle semantics can undo user choice after retry/concurrent tab","Use idempotent subscribe boolean RPC and unique user/topic key",SOURCE_IMPLEMENTED_NEEDS_E2E
+B21-008,P1,Notification Delivery,"v01420 trigger best-effort synchronous fanout catches errors with warnings","Add observability metrics and eventually transaction outbox/queue with retry dead letter",BACKEND_WORK_OPEN
+B21-009,P1,Privacy Gating,"v01420 notifications only ungated active forums","Align follow UI and RPCAccess with same gating; separately design gated notifications",UNGATED_SOURCE_IMPLEMENTED
+B21-010,P1,Member Preferences,"Notification enable/disable must be caller-only and fail closed","Test real member and ineligible user GET/POST; read-only DB privilege postflight",DB_SOURCE_IMPLEMENTED_E2E_PENDING
+B21-011,P1,Moderation,"Reports policy depends on optional v01417 migration and role contract","Preflight reporting policy installation; test limits toggles repeat reports moderation ownership and audit",DB_STATUS_UNVERIFIED
+B21-012,P1,Advanced Forum,"Polls ratings uploads subscriptions optional migration","Review advanced forum RPC privileges file scanning storage policies delete consistency",INCOMPLETE
+B21-013,P1,Admin Control,"Admin navigation and Owner policy registry separate from real backend grants","Inventory ALL operational policies with typed Owner-controlled server enforcement and audit",INCOMPLETE
+B21-014,P1,Notifications,"Mention picker exists without mention-alert fanout","Design consent/privacy eligible mention resolution dedupe and real delivery tests",INCOMPLETE
+B21-015,P1,Simulator,"Market data and OnDemand replay APIs partially wired","Enforce entitlements replay time gate quotation licensing rates and stable snapshots",NOT_ACCEPTED
+B21-016,P1,Journal and Analytics,"Journal and replay ledger modules partially integrated","Verify record ownership MFE MAE screenshot constraints export access and retention",NOT_ACCEPTED
+B21-017,P1,AI Tutor,"Tutor interface exists with access and cost risks","Backend prompt injection controls usage quotas content provenance and financial education disclaimers",NOT_ACCEPTED
+B21-018,P1,Grant Web Solutions,"Client drafts and management exist without verified production tenant domain isolation","Cross-tenant negative tests encrypted keys strict publishing/domain authorization",NOT_ACCEPTED
+B21-019,P1,Caching,"Client middleware version drift and service worker updates span releases","Verify stale asset behavior private CacheStorage denial and Cloudflare cache config",PARTIAL_SOURCE_FIXED
+B21-020,P1,Observability,"GitHub source workflow is not role E2E or runtime monitoring","Add staging smoke logs structured metrics alerts and mandatory protected-branch checks",PARTIAL_CI
+B21-021,P1,Compliance,"KDP Select direct-eBook restrictions and purchase disclosures require enforcement","Keep exclusivity/book format limits server side and verify approved URLs and provider terms",NOT_ACCEPTED
+B21-022,P1,Data Protection,"Source tree has many manual migrations some cumulative","Migration ledger drift check staging backups down-migration strategy retention and service secret rotation",NOT_ACCEPTED
+B21-023,P2,Accessibility,"Dynamic notifications/follow settings require keyboard/screen-reader and mobile testing","Run WCAG 2.2 AA targeted matrix 320px focus live-region and errors",PARTIAL_COMPONENT_TEST
+B21-024,P1,Requirements Trace,"Sitewide requirements register contains 1815 rows ALL UNVERIFIED; includes headings not only features","Attach actual source tests production evidence owner deferrals to each mandatory requirement",NOT_ACCEPTED

@@ -1,26 +1,28 @@
-# The Stock Market: From the Ground Up — v0.14.0.20
-## BACKEND PHASE 1 — DIRECT-UPLOAD ZIP
+# The Stock Market: From the Ground Up — v0.14.0.21
 
-**Repository baseline:** `a6f1627ac1c9b13b6c0339440885ab05711a679f` (v0.14.0.19).
+**Delivery type:** Direct-upload GitHub nested source ZIP. Exactly the same installation format as v0.14.0.18 through v0.14.0.20. **NO batch scripts, patch scripts or ZIP-inside-ZIP.**
 
-This is the **same nested full-source-file overlay workflow** used for previous releases. It is not a standalone website and does not contain patch scripts. Each contained file is complete at its correct path. Extract/upload over the existing repository **without deleting or replacing unrelated files**.
+**Baseline:** v0.14.0.20, GitHub main `759aabd8cf2bc328235e822906893d5cb075fba5`.
 
-This ZIP **starts backend implementation** with Owner-only backend contract inventory, authenticated notification preferences, a reviewed SQL candidate for subscriber alerts, read-only SQL pre/postflight checks, automated backend security tests, and engineering documentation. It does not deploy a new Supabase schema by itself.
+## Installed by GitHub overlay
 
-### Installed by GitHub upload and Cloudflare deployment
-- `functions/api/backend-contract-v01420.js` — OWNER-only GET backend contract inventory.
-- `functions/api/community-notification-preferences.js` — authenticated GET/POST preferences; uses member JWT, never server service-role key.
-- `.github/workflows/backend-contract-v01420.yml` — CI gate on source changes.
-- `tests/*v014020*` — QA contracts.
-- `docs/BACKEND_PHASE_1_v0.14.0.20.md` — technical controls, risks and acceptance.
+1. Real saved notification preference UI in Dashboard → Settings → Notifications, replacing a misleading static checkbox panel. Uses the v0.14.0.20 authenticated preference endpoint.
+2. Real follow/unfollow UI in ungated Market Commons discussions, backed by a caller-authorized Cloudflare Function with GET and explicit idempotent SET actions.
+3. Reviewed candidate additive Supabase SQL implementing new scoped subscription RPCs **for later manual staging review**. GitHub upload does not run it.
+4. Version-aligned public client, service-worker cache, and shared route classification, without changing privileged routes or book commerce restrictions.
+5. Regression tests, GitHub Action, read-only preflight and postflight SQL, documented sitewide backend risk register.
 
-### Requires separate Owner-reviewed database operation
-- `supabase/admin/v0.14.0.20_BACKEND_PREFLIGHT_READ_ONLY.sql` — read-only prerequisites.
-- `supabase/migrations/v0.14.0.20_COMMONS_SUBSCRIPTION_NOTIFICATIONS_REVIEW_REQUIRED.sql` — additive, **NOT executed by uploading ZIP**; test in staging first.
-- `supabase/admin/v0.14.0.20_BACKEND_POSTFLIGHT_READ_ONLY.sql` — run read-only after approved staged/prod migration.
+## Preserve
 
-**Important:** Until the SQL candidate is installed, the notification preference API will correctly return a backend-unavailable error. The subscription notification trigger will not run. The existing reporting-policy / advanced-forum migrations are separate review-gated work, and their installed status has not been confirmed.
+All books and approved curricula, forum posts, profiles, accounts, members, entitlements, Admin/Moderator controls, Store, pricing, ads, Grant Web Solutions, learning Labs, simulator and journal. Nothing is intentionally deleted. No live data or SQL has been changed by generating this package.
 
-**No production SQL, checkout/payment activation, role changes or data migration were executed by preparation of this package.** No changes were pushed to GitHub. Retain v0.14.0.19 frontend functionality.
+## Verification and rollout
 
-**Version classification:** v0.14.0.20 — backend phase 1 source candidate; NOT full backend readiness or production acceptance.
+- Commit the nested files to the existing repo, without deleting any other repo file.
+- GitHub source/CI passes do not certify Cloudflare deployed SHA or installed Supabase functions.
+- You already verified v0.14.0.20 database installation **8/8**. That does not verify v0.14.0.21 RPC installation.
+- Before v0.14.0.21 SQL is executed anywhere, inspect `docs/BACKEND_PHASE_2_v0.14.0.21.md`, run the **read-only** preflight, review in isolated staging, and authorize any production DDL separately.
+- Do not run the SQL migration twice or apply broad old cumulative migrations to production. No automatic change to production data is part of this delivery.
+- New follow UI intentionally reports service unavailable until its reviewed functions are installed. It will not pretend that following succeeded.
+
+**Known limits:** Real customer/staff E2E tests, all role and content entitlement tests, full payment lifecycle, live notifications, advanced forum migration and release parity remain open. Frontend/backend final certification is NOT complete.

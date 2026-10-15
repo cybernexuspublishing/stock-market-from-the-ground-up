@@ -1,0 +1,43 @@
+name: Backend Contract v0.14.0.21
+on:
+  push:
+    paths:
+      - 'functions/api/commons-subscriptions-v01421.js'
+      - 'supabase/migrations/v0.14.0.21_*'
+      - 'supabase/admin/v0.14.0.21_*'
+      - 'assets/js/member-notification-preferences-v01421.js'
+      - 'assets/js/commons-follow-v01421.js'
+      - 'assets/js/site.js'
+      - 'config.js'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'tests/test_v014021_*'
+      - '.github/workflows/backend-contract-v01421.yml'
+  pull_request:
+  workflow_dispatch:
+jobs:
+  source-and-api:
+    name: Source/API contract (not production acceptance)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static contract and security checks
+        run: python tests/test_v014021_backend_contracts.py
+      - name: Isolated API unit tests
+        run: node tests/test_v014021_subscription_api.mjs
+      - name: Cloudflare Pages public build boundary
+        run: bash scripts/build-pages.sh
+      - name: Ensure SQL migrations are not public artifacts
+        run: |
+          test ! -e public/supabase
+          test ! -e public/functions
+          test ! -e public/tests
+          test ! -e public/PROJECT_MANIFEST.json

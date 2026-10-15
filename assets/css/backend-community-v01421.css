@@ -1,0 +1,13 @@
+/* v0.14.0.21 — narrow, accessible backend-integrated controls. */
+.gu-notification-preferences,.gu-commons-follow{margin:1rem 0;padding:1rem;min-width:0;border:1px solid var(--border,#415b69);border-radius:12px;background:var(--card,#10212d);color:inherit}
+.gu-pref-row{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;font-size:1.05rem;cursor:pointer;margin:.75rem 0}
+.gu-pref-row input{width:1.25rem;height:1.25rem;flex:0 0 auto}
+.gu-pref-status,.gu-follow-status{min-height:1.5em;margin:.65rem 0}
+.gu-commons-follow h2{font-size:1.15rem;margin:0 0 .5rem}
+.gu-follow-settings{display:inline-block;margin:.5rem 0}
+.gu-commons-follow button:focus-visible,.gu-pref-row input:focus-visible,.gu-notification-preferences button:focus-visible{outline:3px solid #f1d279;outline-offset:3px}
+/* The optional advanced-interactions toolbar has an older toggle-mode subscription.
+   Keep ratings/polls/thanks visible, but remove the duplicate follow button. */
+.v13-topic-detail:has([data-gu-follow-v01421]) [data-gu-subscribe]{display:none!important}
+@media(max-width:480px){.gu-notification-preferences,.gu-commons-follow{padding:.75rem;overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:reduce){.gu-notification-preferences *,.gu-commons-follow *{scroll-behavior:auto!important}}

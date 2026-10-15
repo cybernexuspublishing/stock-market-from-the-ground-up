@@ -1,0 +1,129 @@
+{
+  "company": "Cyber Nexus",
+  "project": "The Stock Market: From the Ground Up",
+  "version": "v0.14.0.21",
+  "release_type": "backend phase 2 direct-upload nested source ZIP",
+  "base_commit": "759aabd8cf2bc328235e822906893d5cb075fba5",
+  "baseline_version": "v0.14.0.20",
+  "source_status": "Source and isolated tests passed; live E2E/Cloudflare parity unverified",
+  "database_v01420_installation_check": "Owner supplied 8/8 true for existence, enabled RLS/trigger and authenticated RPC EXECUTE",
+  "database_v01421_migration_status": "CANDIDATE — MANUAL REVIEW REQUIRED — NOT EXECUTED",
+  "sql_executed": false,
+  "production_modified": false,
+  "requires_explicit_owner_production_sql_approval": true,
+  "qa_executed": [
+    "node --check on new/overlaid JS files",
+    "python tests/test_v014021_backend_contracts.py",
+    "node tests/test_v014021_subscription_api.mjs",
+    "python tests/test_v014021_browser.py (isolated Chromium mocks)",
+    "ZIP CRC and sha256 checks"
+  ],
+  "known_open_gates": [
+    "Actual Cloudflare deployment SHA parity",
+    "Staging and live role/RLS tests",
+    "v0.14.0.21 SQL review and staged installation",
+    "Two-account in-app alert receipt and opt-out",
+    "Provider payment lifecycle/entitlements",
+    "Admin moderation and owner limits",
+    "419 authored Labs provenance/answers",
+    "Full simulator/journal/tutor acceptance",
+    "Legacy middleware and root manifests version drift"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01421.yml",
+      "bytes": 1412,
+      "sha256": "89ab6dc3d03ab000a6f29681617e580124d3595ffd9ad57d70ccc92e2ba9caf7"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2520,
+      "sha256": "3ac95911bae94bbe418a084e8e054fa4a490202f892d7858aeda11ddcd7dc457"
+    },
+    {
+      "path": "assets/css/backend-community-v01421.css",
+      "bytes": 1287,
+      "sha256": "b8e38611cc99fab659fd3af3c03cedce01952bbb0fbc51497bcc9b926e7f298e"
+    },
+    {
+      "path": "assets/js/commons-follow-v01421.js",
+      "bytes": 4330,
+      "sha256": "204e66e03fb38c27dc0a3faa1abd143e676d5eeef5053bf02885aeac78678554"
+    },
+    {
+      "path": "assets/js/member-notification-preferences-v01421.js",
+      "bytes": 4799,
+      "sha256": "e1d11088e737c7e757ac711b0a5d7871c016c12aff01a47ac97786429e908f94"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "1552b40312ba45a550ddb3f81a16ed87270d94a348553ec0a157828299a3741f"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 5172,
+      "sha256": "3957e8b2b3cbd5c9fd6b40e2d840fb346bfc0606e2ea06829e68d83fa0d4491d"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "c40aa580b4dc92f6c7209947f7a9b6bdd6345bf3f7f3bf8bd4b69d8904dc2b27"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_2_v0.14.0.21.md",
+      "bytes": 8283,
+      "sha256": "1c53da79e06358368fcbb93e9bb21bc1acc3aa6133f0552051d26c3e02077d10"
+    },
+    {
+      "path": "docs/BACKEND_SITEWIDE_FINDINGS_v0.14.0.21.csv",
+      "bytes": 5032,
+      "sha256": "0bd6dfb2961a6abc6a06bacf0ef89f6e59885c6c0d2d74322069864590588189"
+    },
+    {
+      "path": "functions/api/commons-subscriptions-v01421.js",
+      "bytes": 3660,
+      "sha256": "ed33d76f3ee07b92eeb2975c9eb092a9aa4809469204c8514d6d52c6cdb5aa1f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.21_BACKEND_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1260,
+      "sha256": "a7b18db568da81cefc99ac07f7fa7cd99905965539ee24a28561e0d0b8dc0016"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.21_BACKEND_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1707,
+      "sha256": "95d0703a65332ba19cdf8fb0d2e3d25d3ac316569379f95f78a617f5677ebb7a"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.21_SITEWIDE_BACKEND_CONTRACT_READ_ONLY.sql",
+      "bytes": 3858,
+      "sha256": "fb96665382153f95920d9026c3b5542d7673ad74f9b6b3b25d675ab5c8052ea4"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.21_COMMONS_SUBSCRIPTIONS_REVIEW_REQUIRED.sql",
+      "bytes": 5835,
+      "sha256": "b467a340c294b28d46f1245e883e64e5c3a6d870c9fae4c3aeb02354c3176195"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "1b2618692b136b5ef89ba94f7ad1ce9fe7cd0f2d8c229cd25ca83d7efd849caf"
+    },
+    {
+      "path": "tests/test_v014021_backend_contracts.py",
+      "bytes": 3017,
+      "sha256": "853b416d95928898383836555e8518c52f4dad87c02dc68566083476b21dca9f"
+    },
+    {
+      "path": "tests/test_v014021_browser.py",
+      "bytes": 5812,
+      "sha256": "db2b4a0d2480cd26fb86cfdc391fe744abd8412a2e1fa69a099f225431d0fffb"
+    },
+    {
+      "path": "tests/test_v014021_subscription_api.mjs",
+      "bytes": 3347,
+      "sha256": "ce9d428bc7aa46fd3ea296075fed3de5058b3aceb834f9f2cc6043529bd4c257"
+    }
+  ]
+}
