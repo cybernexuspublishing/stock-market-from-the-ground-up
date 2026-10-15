@@ -4,9 +4,12 @@ import re,subprocess
 ROOT=Path(__file__).resolve().parents[1]
 def read(p):return (ROOT/p).read_text(encoding='utf-8')
 config=read('config.js');policy=read('assets/js/route-policy.js');worker=read('sw.js')
-assert "VERSION: '0.14.0.25'" in config
-assert "version:'0.14.0.25'" in policy
-assert 'groundup-v014025-public' in worker
+release=re.search(r"VERSION: '((?:\d+\.){3}\d+)'",config)
+assert release,'Missing public version metadata'
+version=release.group(1)
+assert tuple(map(int,version.split('.'))) >= (0,14,0,25),'Downgrade below the v025 audited history baseline'
+assert "version:'"+version+"'" in policy,'Route policy differs from public version'
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in worker,'Service-worker cache differs from release version'
 for file in ['assets/js/site.js','assets/js/admin-report-cases-v01424.js',
  'functions/api/admin-report-case-history-v01425.js','config.js','assets/js/route-policy.js','sw.js']:
  result=subprocess.run(['node','--check',str(ROOT/file)],capture_output=True,text=True)

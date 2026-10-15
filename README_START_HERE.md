@@ -1,31 +1,25 @@
-# v0.14.0.25 — BACKEND PHASE 6 · DIRECT-UPLOAD SOURCE OVERLAY
+# v0.14.0.26 — BACKEND PHASE 7 · DIRECT-UPLOAD ZIP
 
 **Project:** The Stock Market: From the Ground Up (Cyber Nexus)  
-**Source baseline:** GitHub main `7c03889561979cc67b28ec280449311e2493d40d` (v0.14.0.24)  
-**Deliverable:** Entire replacement source FILES in correct repository paths. This ZIP is an overlay, NOT a complete GitHub repository export.  
-**Deploy:** Upload this ZIP using the established GitHub file-overlay procedure. Preserve all files not in this ZIP. No patch scripts, no automated database writes.  
-**SQL:** `supabase/migrations/v0.14.0.25_MODERATION_AUDIT_HISTORY_REVIEW_REQUIRED.sql` requires staging review and separate authorization. Uploading the ZIP does not run it.  
-**Status:** Locally checked source release candidate. Live database role tests and production browser acceptance NOT performed.
+**Package type:** COMPLETE replacement source files at the correct paths, no manual patch scripts.  
+**Source basis:** GitHub `main` `7c03889561979cc67b28ec280449311e2493d40d` (v0.14.0.24).  
+**Package includes:** Previous v0.14.0.25 source overlay **plus** v0.14.0.26 changes. The owner reported v0.14.0.25 SQL installed, but GitHub `main` still showed v0.14.0.24 at packaging. Including v0.14.0.25 source dependencies avoids producing a broken partial v0.14.0.26 overlay.
 
-## Verified source issue from v0.14.0.24
+## Deployment
 
-GitHub main v0.14.0.24 `7c038895...`: 5 workflows succeeded but **Backend Contract v0.14.0.24 FAILED**. In GitHub run 38771798011, the **Isolated Chromium moderation case component test** step failed; source and API checks succeeded. The workflow did not install Playwright/Chromium after setting up Python. Install steps added to both v024 and v025 CI. The true remote traceback was not accessible, so browser dependency setup is a strongly indicated cause, not an established complete root-cause analysis. Recheck actual CI after deployment.
+Upload the ZIP source files using the same GitHub overlay procedure. **Preserve unrelated files** and exact nested directories. Do not use the ZIP as a complete repository replacement, do not upload it directly to the Cloudflare public asset root, and do not publish SQL files. Uploading a ZIP to GitHub does not execute any SQL.
 
-## New functionality
+## v0.14.0.26 implementation
 
-OWNER / authorized moderators can open a report's **View decision history** in the existing Admin > Market Commons audited case panel. The lazy-loaded history uses the real JWT, the v0.14.0.24 moderation actor policy and an additive read-only SECURITY DEFINER RPC. Only the last 50 v024+ transactional report-case transitions are returned (status from/to, decision note, timestamp). No reporter/staff identifiers, unrelated audit details or member content is exposed. All text is inserted via textContent, never interpolated as untrusted HTML. If SQL is not installed, UI reports unavailability without inventing records.
+The former Admin report endpoints update status then separately attempt audit writes; a lost audit write can leave a report changed but unlogged. A new **review-required, fail-closed PostgreSQL status-audit trigger** records EVERY report status transition in the *same transaction* across old and new endpoints, without changing their browser/API contracts. Trigger entries deliberately lack unverifiable staff-attribution assertions; new case RPCs continue to create their more detailed transactional decision entries separately. This does not fix other moderation action audits or eliminate other security tasks.
 
-## SQL review order
+## Owner-only SQL procedure
 
-1. Run `supabase/admin/v0.14.0.25_AUDIT_PREFLIGHT_READ_ONLY.sql`. All prerequisites must be present.
-2. Test migration on a **staging** Supabase project. Check `SECURITY DEFINER`, `search_path`, RPC permissions, active OWNER/staff permission, signed-out/Showcase/suspended denial, nonexistent report, sample previously audited report, idempotent repeated reads. Use synthetic reports and audit entries only.
-3. With explicit authorization, install the reviewed SQL on production **if and only if staging passes**. Run `supabase/admin/v0.14.0.25_AUDIT_POSTFLIGHT_READ_ONLY.sql`. Expected history installed=true, member_execute=true, anon_execute=false; search_path configured.
-4. In the Admin UI inspect two reports, one with v024 transitions and one without. Ensure historical legacy actions correctly show the coverage limitation.
+1. Inspect `supabase/admin/v0.14.0.26_AUDIT_GUARD_PREFLIGHT_READ_ONLY.sql` on staging.
+2. Review and test `supabase/migrations/v0.14.0.26_REPORT_STATUS_AUDIT_GUARD_REVIEW_REQUIRED.sql` on a separate staging project, including forced audit failure tests. **DO NOT blindly execute on production.**
+3. Only after explicit authorization, apply reviewed SQL and run `supabase/admin/v0.14.0.26_AUDIT_GUARD_POSTFLIGHT_READ_ONLY.sql`.
+4. Read `docs/BACKEND_PHASE_7_v0.14.0.26.md` for exact checks and limitations.
 
-## Existing high-priority risks NOT resolved by this release
+## CI / files
 
-- The legacy `/api/admin?action=report_resolve`, `/api/admin-v0133`, and some moderation actions still use separate database writes and best-effort audit. Their transitions are **not** atomic with audit, unlike the v024 audited case endpoint. Consolidate them before declaring moderation-wide audit integrity.
-- Followed-discussion and mention delivery have not passed signed-in multi-member browser tests; source-only CI and SQL object checks cannot certify delivery.
-- Installed report policy v01417 has not been independently verified in Supabase; do not assume policy is available.
-- Production member-role RLS, checkout/payment idempotency/reversals, user data retention, book key/access, all 419 historical labs and no-hindsight controls, simulator, journal, Tutor and GWS tenant isolation all require separate acceptance evidence.
-- GitHub main branch is not protected by mandatory passing checks. Cloudflare deployed SHA parity was not independently measured.
+New `.github/workflows/backend-contract-v01426.yml` checks current plus earlier source/API/browser boundaries. The old v0.14.0.25 source check is updated to accept a later build while enforcing matching config/route policy/service-worker versions. No test is disabled. ZIP includes `RELEASE_MANIFEST_v0.14.0.26.json` with file hashes. Production authentication E2E and Supabase SQL execution **have not occurred** in the packaging environment.

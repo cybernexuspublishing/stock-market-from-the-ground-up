@@ -1,0 +1,51 @@
+name: Backend Contract v0.14.0.26
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  report-status-audit-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce database audit guard source invariants
+        run: |
+          python tests/test_v014026_release.py
+          python tests/test_v014025_release.py
+          python tests/test_v014024_release.py
+          python tests/test_v014023_backend.py
+          python tests/test_v014022_release_gate.py
+      - name: Prior authenticated backend regressions
+        run: |
+          node tests/test_v014025_history_api.mjs
+          node tests/test_v014024_cases_api.mjs
+          node tests/test_v014023_mention_api.mjs
+          node tests/test_v014023_health_api.mjs
+          node tests/test_v014021_subscription_api.mjs
+      - name: Pinned browser dependencies
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Isolated report case and audit-history browser regressions
+        run: |
+          python tests/test_v014024_browser.py
+          python tests/test_v014025_browser.py
+      - name: Verify Cloudflare static security boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -d public/functions
+          test ! -d public/supabase
+          test ! -d public/tests
+          test ! -e public/data/interactive-labs.json

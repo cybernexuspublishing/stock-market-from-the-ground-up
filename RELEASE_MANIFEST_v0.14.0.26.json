@@ -1,0 +1,138 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "v0.14.0.26",
+  "release_type": "cumulative source overlay (v0.14.0.25 plus v0.14.0.26)",
+  "source_repository": "cybernexuspublishing/stock-market-from-the-ground-up",
+  "latest_independently_verified_main_sha": "7c03889561979cc67b28ec280449311e2493d40d",
+  "previous_sql_evidence": "Owner screenshots show v0.14.0.25 preflight, migration success, audit transition count 0; do not rerun previous migrations",
+  "production_sql_execution": "NOT PERFORMED",
+  "staging_sql_execution": "NOT PERFORMED",
+  "status": "candidate; pending review, staging and production role E2E",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01424.yml",
+      "size": 1655,
+      "sha256": "f826be5e6bdf4e7684ca089d9ff896f6cbaa557f95309b8473c8859effb621ca"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01425.yml",
+      "size": 1554,
+      "sha256": "8bda809c48adccfad3d6dce181c654d46eacf27da68ae3f9638de0e951f45146"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01426.yml",
+      "size": 1765,
+      "sha256": "6e8d7049a3afa86904471a5290e96e08691ebaa7c7d2cbe024bc2849feb95d08"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "size": 2583,
+      "sha256": "30d35b644f4db512dd94455654408969aaec394ff514a681803dd393197f0f69"
+    },
+    {
+      "path": "RELEASE_MANIFEST_v0.14.0.25.json",
+      "size": 3410,
+      "sha256": "dd70a841732e96864ae87699f7ed810d10dff8a563fc7e73d721be75dd298ed5"
+    },
+    {
+      "path": "assets/css/admin-report-cases-v01424.css",
+      "size": 1616,
+      "sha256": "2fbecaea9630ea50ac3dc5482599047830a81bc7c831adceb16d7ad531e5e47d"
+    },
+    {
+      "path": "assets/js/admin-report-cases-v01424.js",
+      "size": 9803,
+      "sha256": "c53cabab20fd7df148508c6c9fdc86f0099aa8e288b57528532aec2599b8a327"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "size": 1886,
+      "sha256": "5384dddf5e486fafcb5134927ca406ced341c4da367284fe0b7ceca2539733a8"
+    },
+    {
+      "path": "assets/js/site.js",
+      "size": 6311,
+      "sha256": "0908d3bf5a40b43fddf4044b85fda0250939d5648dca67eb64832bf6ba5a58eb"
+    },
+    {
+      "path": "config.js",
+      "size": 796,
+      "sha256": "251d0e8fe6b1458f44a0e3f4dff9143b39bbad08a1757a967772bccfebc7a160"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_6_v0.14.0.25.md",
+      "size": 3046,
+      "sha256": "7c817f343497c42b61d49c5494efbfebb1d6552a64b175eccc7aee9fd8cae2d8"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_7_v0.14.0.26.md",
+      "size": 5866,
+      "sha256": "c87d8fab56560fcd2107aeb4bed1b843e151457501598eed5b1e886bf2616848"
+    },
+    {
+      "path": "functions/api/admin-report-case-history-v01425.js",
+      "size": 2742,
+      "sha256": "9e2aebb6a35bc58cd61d86250afb04eedf790177dd4f27d21c3ec4034fab4f75"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.25_AUDIT_POSTFLIGHT_READ_ONLY.sql",
+      "size": 954,
+      "sha256": "56d29290604b01b9821d4ca861fe50f0ccfbcad4d72634939a8ffec6b7ff5d53"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.25_AUDIT_PREFLIGHT_READ_ONLY.sql",
+      "size": 996,
+      "sha256": "0b3b076928d1a5a0347bbb51cb4b9597cc5df309052db17f5e465f34140ae9e4"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.26_AUDIT_GUARD_POSTFLIGHT_READ_ONLY.sql",
+      "size": 1342,
+      "sha256": "bb7b1198f41fda409b3f2b0f85c48b642dc7db97759e7a8887e0a708fab76a3f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.26_AUDIT_GUARD_PREFLIGHT_READ_ONLY.sql",
+      "size": 1568,
+      "sha256": "348c9a5e36aa07a695884c9dd53b6169de2be45aabddba216ac01f7be07f6efe"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.25_MODERATION_AUDIT_HISTORY_REVIEW_REQUIRED.sql",
+      "size": 2552,
+      "sha256": "e2ad1d5648464916b1dde8bc32305dc80581fc26f51bbbbe9ecdfd965111fe41"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.26_REPORT_STATUS_AUDIT_GUARD_REVIEW_REQUIRED.sql",
+      "size": 4583,
+      "sha256": "a7f8354c773e07c3885898f540ba05ebe4ba9c704c9b1b3a3f2c7461670b7a90"
+    },
+    {
+      "path": "sw.js",
+      "size": 2298,
+      "sha256": "d23048f9aa3483547aa19aee7d648a9094674b981512682dfce04942cbb3c01c"
+    },
+    {
+      "path": "tests/test_v014024_release.py",
+      "size": 2399,
+      "sha256": "209e10ec0f57682d6bc0f04c751bc60230bc72bbb9a20ba31a27b4bf6f53adc8"
+    },
+    {
+      "path": "tests/test_v014025_browser.py",
+      "size": 2462,
+      "sha256": "779d91e4e07b83c4724c2050c2d247c14d0b957a1e9c6065b0cccc2f253cb19e"
+    },
+    {
+      "path": "tests/test_v014025_history_api.mjs",
+      "size": 2371,
+      "sha256": "5eb7e748d184446a810f5d06b51fb5bc7abf6351f724ab5a9243baf9c5240327"
+    },
+    {
+      "path": "tests/test_v014025_release.py",
+      "size": 2480,
+      "sha256": "b6ac06ff11b7f8e8459b19c86c9e9cb269900bd1404f1a372ee51b03606d83d1"
+    },
+    {
+      "path": "tests/test_v014026_release.py",
+      "size": 2015,
+      "sha256": "ebf31036c4364f35e2c2865cda789759f87650cbcf964fc81bafb8674fcca7fa"
+    }
+  ]
+}
