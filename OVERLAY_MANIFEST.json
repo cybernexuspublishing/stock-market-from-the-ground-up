@@ -1,0 +1,89 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "version": "v0.14.0.18",
+  "type": "complete-source-file overlay; no scripts needed",
+  "base_repo": "cybernexuspublishing/stock-market-from-the-ground-up",
+  "base_commit": "ded55fc7955b52779bd52a8da2cfc79bf67288e3",
+  "status": "NOT DEPLOYED; NOT FULL FRONTEND SIGN-OFF",
+  "changes": {
+    "replace": [
+      "config.js",
+      "sw.js",
+      "assets/js/site.js",
+      "assets/js/route-policy.js",
+      "assets/js/status-platform.js"
+    ],
+    "add": [
+      "new-discussion.html",
+      "assets/js/new-discussion.js",
+      "assets/css/new-discussion.css",
+      "assets/js/v014018-forum-corrections.js",
+      "docs/FRONTEND_RELEASE_NOTES_v0.14.0.18.md",
+      "tests/test_v014018_overlay.py",
+      "README_START_HERE.md"
+    ]
+  },
+  "files": [
+    {
+      "path": "README_START_HERE.md",
+      "size": 4884,
+      "sha256": "ffa76fa7be9ebcdffaaedf699ca3f4452c925652438b4ad2d451c61ff4a97f2e"
+    },
+    {
+      "path": "assets/css/new-discussion.css",
+      "size": 836,
+      "sha256": "556d9dcf353f1140bae32eb25d1004233a14639a153f93389a46546ff8c9ce1f"
+    },
+    {
+      "path": "assets/js/new-discussion.js",
+      "size": 3629,
+      "sha256": "420406a7bb905554e7adf18939dd15eb5ac19b0c856bd6d0b9bc4d9147ac4e94"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "size": 1886,
+      "sha256": "7a01d4fab2cfe4a0e651e511cd0f7580e9efb1788e96ccd1c7eed0a46c126c0f"
+    },
+    {
+      "path": "assets/js/site.js",
+      "size": 3828,
+      "sha256": "b51b8d4e28db3f9f3a5b0b8d23c8daf6b5f01fd5cfeaf31a2f77db1fa2d7d130"
+    },
+    {
+      "path": "assets/js/status-platform.js",
+      "size": 3576,
+      "sha256": "10dc77c746230b84ba3cbdfd59190a998be9117a56e8d66afab0510979c7338c"
+    },
+    {
+      "path": "assets/js/v014018-forum-corrections.js",
+      "size": 3664,
+      "sha256": "fa0ecc9cc72bd008e1376707a9e1f76f99d43e8125dd98bc8090f6b1d0c4dcfa"
+    },
+    {
+      "path": "config.js",
+      "size": 796,
+      "sha256": "e414df711ab27d5fd640a3c296bcb3ddac44ed810424b82b93b6c2a5afbf9372"
+    },
+    {
+      "path": "docs/FRONTEND_RELEASE_NOTES_v0.14.0.18.md",
+      "size": 3322,
+      "sha256": "e68d84ce6b9e8d73d98e37065b63382cbf63b56a12ba3c32534f429b83950cce"
+    },
+    {
+      "path": "new-discussion.html",
+      "size": 3578,
+      "sha256": "6f99b858768534123f98aa9d102354f7da02fce8c8f13466d4b26074d22bc599"
+    },
+    {
+      "path": "sw.js",
+      "size": 2298,
+      "sha256": "d707c42a8b4d34e9bbe2ac75fa15afd0e75ec2b0b179031803d2bd2febca294b"
+    },
+    {
+      "path": "tests/test_v014018_overlay.py",
+      "size": 1312,
+      "sha256": "2dac61d5a2a082d3b5f11a11fd223954ba2a737f9f82b31f685af7f07d70f8a6"
+    }
+  ]
+}

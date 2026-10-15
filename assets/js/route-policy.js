@@ -1,9 +1,8 @@
-/* v0.13.4.2: one authoritative page-route classification shared by Pages middleware and the service worker.
-   This file MUST remain classic-script compatible for importScripts(), and must not include secrets. */
+/* Shared protection classification for Pages middleware and Service Worker. */
 (function(root){
   'use strict';
   const MEMBER = [
-    'dashboard','account','access','settings','data-connections',
+    'dashboard','account','access','settings','data-connections','new-discussion',
     'my-library','my-purchases','checkout','market-commons',
     'labs','site-lab','simulator','journal','journal-entry','journal-analytics',
     'skills','review-queue','advanced-tool','forum-topic','challenges',
@@ -33,10 +32,8 @@
   }
   function isProtected(raw){return ['member','staff'].includes(classify(raw));}
   root.GroundUpRoutePolicy = Object.freeze({
-    version:'0.14.0.7',
-    member:Object.freeze(MEMBER),
-    staff:Object.freeze(STAFF),
-    publicPreviews:Object.freeze(PUBLIC_PREVIEWS),
+    version:'0.14.0.18',
+    member:Object.freeze(MEMBER),staff:Object.freeze(STAFF),publicPreviews:Object.freeze(PUBLIC_PREVIEWS),
     canonicalPath,routeName,classify,isProtected
   });
 })(globalThis);

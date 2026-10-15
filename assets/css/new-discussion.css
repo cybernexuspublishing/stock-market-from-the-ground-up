@@ -1,0 +1,8 @@
+.gu-compose-wrap{max-width:880px}
+.gu-compose-wrap .card{display:grid;gap:.7rem;min-width:0}
+.gu-compose-wrap input,.gu-compose-wrap select,.gu-compose-wrap textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.gu-compose-optional{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.gu-compose-optional>div{min-width:0}
+.gu-compose-wrap :is(button,a,input,textarea,select):focus-visible{outline:3px solid #ffd46b;outline-offset:3px}
+@media(max-width:520px){.gu-compose-optional{grid-template-columns:minmax(0,1fr)}.gu-compose-wrap .actions{display:flex;flex-wrap:wrap;gap:.65rem}.gu-compose-wrap .actions>*{max-width:100%;box-sizing:border-box}}
+@media(prefers-reduced-motion:reduce){.gu-compose-wrap *{scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}}

@@ -1,12 +1,10 @@
-/* v0.14.0.17: no persistent private-page cache or offline private-page fallback. */
+/* v0.14.0.18: public-only cache. Private pages and API requests bypass CacheStorage. */
 importScripts('/assets/js/route-policy.js');
 const POLICY=self.GroundUpRoutePolicy;
-const CACHE='groundup-v014017-public';
+const CACHE='groundup-v014018-public';
 const PUBLIC_CORE=['/','/offline.html','/signin.html','/create-account.html',
   '/store.html','/membership.html','/help.html',
-  '/assets/js/route-policy.js',
-  '/assets/js/auth-boundary.js',
-  '/assets/js/service-worker.js'];
+  '/assets/js/route-policy.js','/assets/js/auth-boundary.js','/assets/js/service-worker.js'];
 const cacheableAsset=/\.(?:css|js|json|webmanifest|png|jpe?g|webp|svg|woff2?)$/i;
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const c=await caches.open(CACHE);
@@ -24,15 +22,12 @@ self.addEventListener('fetch',e=>{
   if(req.method!=='GET'||url.origin!==self.location.origin||p.startsWith('/api/')||p.startsWith('/functions/'))return;
   const restricted=POLICY.isProtected(p);
   if(restricted){
-    // A protected route is never read from, or written to, CacheStorage, even on offline failure.
     e.respondWith(fetch(req,{cache:'no-store'}).catch(async()=>{
       if(req.mode==='navigate')return(await caches.match('/offline.html')) || new Response('Offline',{status:503,headers:{'content-type':'text/plain'}});
       return new Response('Offline',{status:503});
-    }));
-    return;
+    }));return;
   }
   if(req.mode==='navigate'){
-    // For public HTML, network-first. Only an approved public-page list is persistently cached.
     e.respondWith(fetch(req,{cache:'no-store'}).then(r=>{
       if(r.ok&&PUBLIC_CORE.includes(p)){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{});}
       return r;
@@ -40,7 +35,6 @@ self.addEventListener('fetch',e=>{
     return;
   }
   if(cacheableAsset.test(p))e.respondWith(fetch(req,{cache:'no-store'}).then(r=>{
-    if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{});}
-    return r;
+    if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{});}return r;
   }).catch(()=>caches.match(req).then(r=>r||new Response('Offline',{status:503}))));
 });

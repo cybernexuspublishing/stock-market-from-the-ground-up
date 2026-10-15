@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="application-version" content="v0.14.0.18">
+<meta name="robots" content="noindex,nofollow">
+<title>New Discussion | The Ground-Up Market Commons</title>
+<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="/assets/css/forum-composer.css">
+<link rel="stylesheet" href="/assets/css/new-discussion.css">
+<script src="/config.js"></script>
+<script defer src="/assets/js/site.js"></script>
+<script defer src="/assets/js/supabase-client.js"></script>
+<script defer src="/assets/js/session-manager.js"></script>
+<script defer src="/assets/js/forum-composer.js"></script>
+<script defer src="/assets/js/new-discussion.js"></script>
+</head>
+<body data-auth-required="true">
+<header class="site-header"><div class="wrap nav"><a class="brand" href="/index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Primary navigation"><a href="/market-commons.html">Market Commons</a><a href="/dashboard.html">Dashboard</a></nav></div></header>
+<main class="section"><div class="wrap gu-compose-wrap">
+<div class="eyebrow">The Ground-Up Market Commons</div>
+<h1>Start a New Discussion</h1>
+<p class="section-intro">Choose the appropriate sub-forum, state your question or educational observation, and include evidence and uncertainty where applicable. Community rules and membership permissions apply.</p>
+<form id="gu-new-discussion-form" class="card" novalidate>
+ <label for="gu-topic-forum">Sub-forum <span aria-hidden="true">*</span></label>
+ <select id="gu-topic-forum" name="forum" autocomplete="off" required disabled><option value="">Loading authorized sub-forums…</option></select>
+ <label for="gu-topic-title">Discussion title <span aria-hidden="true">*</span></label>
+ <input id="gu-topic-title" name="title" type="text" minlength="5" maxlength="180" required autocomplete="off" placeholder="A specific stock market question or learning topic">
+ <div class="gu-compose-optional"><div><label for="gu-topic-ticker">Ticker (optional)</label><input id="gu-topic-ticker" name="ticker" type="text" maxlength="12" placeholder="Example: AAPL" autocomplete="off"></div>
+ <div><label for="gu-topic-tags">Keywords (optional, up to five)</label><input id="gu-topic-tags" name="tags" type="text" maxlength="150" placeholder="VWAP, breakouts, risk" autocomplete="off"></div></div>
+ <label for="gu-topic-body">Discussion content <span aria-hidden="true">*</span></label>
+ <textarea id="gu-topic-body" name="body" data-forum-composer rows="14" minlength="10" maxlength="10000" required placeholder="Describe the question, evidence, timeframe, and any uncertainty."></textarea>
+ <p class="small">Posts must be accurate and respectful. Do not post personal identifiers, brokerage credentials, guaranteed-return claims, or market manipulation instructions. This editor does not support unverified file uploads, polls, or automated member-alert subscriptions.</p>
+ <div class="actions"><button id="gu-topic-submit" type="submit" class="btn" disabled>Publish discussion</button><a class="btn secondary" href="/market-commons.html">Cancel</a></div>
+ <p id="gu-topic-result" class="status-message" role="status" aria-live="polite"></p>
+</form>
+</div></main>
+<footer class="footer"><div class="wrap">Educational discussion, not individualized investment advice. <a href="/community-guidelines.html">Community Guidelines</a> · <a href="/privacy.html">Privacy</a></div></footer>
+</body>
+</html>
