@@ -11,9 +11,12 @@ for f in ['config.js','sw.js','assets/js/site.js','assets/js/route-policy.js',
  result=subprocess.run(['node','--check',str(R/f)],capture_output=True,text=True)
  assert result.returncode==0,(f,result.stderr)
 config=read('config.js')
-assert "VERSION: '0.14.0.24'" in config
-assert "version:'0.14.0.24'" in read('assets/js/route-policy.js')
-assert 'groundup-v014024-public' in read('sw.js')
+release=re.search(r"VERSION: '((?:\d+\.){3}\d+)'",config)
+assert release, 'Missing valid frontend release version'
+version=release.group(1)
+assert tuple(map(int,version.split('.'))) >= (0,14,0,24),version
+assert "version:'"+version+"'" in read('assets/js/route-policy.js')
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in read('sw.js')
 assert 'admin-report-cases-v01424.js' in read('assets/js/site.js')
 assert 'admin-report-cases-v01424.css' in read('assets/js/site.js')
 api=read('functions/api/admin-report-cases-v01424.js')

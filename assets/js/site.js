@@ -1,4 +1,4 @@
-/* v0.14.0.24 — preserve established routes and bootstraps; additive backend UI. */
+/* v0.14.0.25 — preserve established routes and bootstraps; additive backend UI. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}

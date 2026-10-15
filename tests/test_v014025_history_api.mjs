@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';import {resolve} from 'node:path';
+const mod=await import(pathToFileURL(resolve('functions/api/admin-report-case-history-v01425.js')).href);
+const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public'};
+const req=(id,token='staff')=>new Request(`https://sample.example/api/admin-report-case-history-v01425?reportId=${id}`,{headers:token?{authorization:`Bearer ${token}`}:{}});
+assert.equal((await mod.onRequestGet({request:req(2,''),env})).status,401);
+for(const id of ['abc','-1','0','9999999999999999999999'])assert.equal((await mod.onRequestGet({request:req(id),env})).status,400);
+let calls=[];
+globalThis.fetch=async(url,opt)=>{
+  calls.push({url:String(url),init:opt});
+  if(String(url).includes('/auth/v1/user'))return Response.json({id:'11111111-1111-4111-8111-111111111111'});
+  if(String(url).includes('/rpc/gu_mod_case_history_v01425'))return Response.json({ok:true,history:[{action:'forum.report.case.resolve',from:'open',to:'resolved',note:'<script>alert(1)</script>',loggedAt:'2026-10-15T00:00:00Z',actor:'private-no-expose'}]});
+  throw Error('Unexpected request');
+};
+let result=await mod.onRequestGet({request:req('12'),env});
+assert.equal(result.status,200);
+const j=await result.json();assert.equal(j.ok,true);assert.equal(j.history.length,1);
+assert.equal(j.history[0].actor,undefined);assert.equal(j.history[0].note,'<script>alert(1)</script>');
+assert.equal(j.coverage,'v01424_transactional_cases_only');
+assert.deepEqual(JSON.parse(calls[1].init.body),{p_report_id:12});
+assert(calls.every(x=>x.init.headers.authorization==='Bearer staff'));
+assert(!calls.some(x=>x.init.headers.apikey==='service_role'));
+assert.equal(result.headers.get('cache-control').includes('no-store'),true);
+globalThis.fetch=async(url)=>String(url).includes('/auth/v1/user')?Response.json({id:'u'}):Response.json({message:'MODERATION_FORBIDDEN'},{status:403});
+assert.equal((await mod.onRequestGet({request:req(12),env})).status,403);
+globalThis.fetch=async(url)=>String(url).includes('/auth/v1/user')?Response.json({id:'u'}):Response.json({message:'MODERATION_NOT_FOUND'},{status:404});
+assert.equal((await mod.onRequestGet({request:req(12),env})).status,404);
+console.log('PASS v014025: JWT-bound history, no service-role, negative cases, no identities, no-store');

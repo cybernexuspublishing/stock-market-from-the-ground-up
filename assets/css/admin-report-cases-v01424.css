@@ -10,3 +10,11 @@
 .gu-mod-detail{white-space:pre-wrap;overflow-wrap:anywhere}
 .gu-mod-cases-v01424 button:focus-visible,.gu-mod-cases-v01424 select:focus-visible,.gu-mod-cases-v01424 textarea:focus-visible{outline:3px solid currentColor;outline-offset:3px}
 @media(max-width:480px){.gu-mod-case{padding:.7rem}.gu-mod-actions button{max-width:100%;white-space:normal}}
+
+/* v0.14.0.25 add-on: accessible, safe plain-text audit history. */
+.gu-mod-history-v01425{border-left:3px solid currentColor;margin-top:.75rem;padding:.7rem;overflow-wrap:anywhere}
+.gu-mod-history-v01425[hidden]{display:none!important}
+.gu-mod-history-v01425 ol{margin:.3rem 0 .2rem;padding-left:1.35rem}
+.gu-mod-history-v01425 li{padding:.35rem 0;border-bottom:1px solid var(--line,#9995)}
+.gu-mod-history-v01425 li p{margin:.2rem 0;white-space:pre-wrap}
+.gu-mod-history-v01425 li small{display:inline-block;margin-left:.2rem}

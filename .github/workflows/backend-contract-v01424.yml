@@ -24,6 +24,10 @@ jobs:
         run: python tests/test_v014024_release.py
       - name: JWT caller binding and negative API cases
         run: node tests/test_v014024_cases_api.mjs
+      - name: Install pinned Playwright and Chromium for browser checks
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
       - name: Isolated Chromium moderation case component test
         run: python tests/test_v014024_browser.py
       - name: Prior community and release source regressions

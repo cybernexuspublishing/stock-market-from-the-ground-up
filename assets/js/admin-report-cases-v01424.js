@@ -65,13 +65,50 @@ function build(){
        pending=false;await refreshCases();
       });controls.append(b);
     }
+    // v0.14.0.25: independently authorized, read-only audit-history display.
+    // Do not identify the reporting member or display arbitrary audit metadata.
+    const historyButton=make('button','View decision history','btn secondary');
+    historyButton.type='button';
+    const history=make('section',undefined,'gu-mod-history-v01425');
+    history.hidden=true;history.setAttribute('aria-label',`Decision history for report ${c.id}`);
+    historyButton.setAttribute('aria-expanded','false');
+    historyButton.addEventListener('click',async()=>{
+      if(!history.hidden){history.hidden=true;historyButton.setAttribute('aria-expanded','false');return}
+      history.hidden=false;historyButton.setAttribute('aria-expanded','true');
+      history.replaceChildren(make('p','Loading authorized audit history…'));
+      historyButton.disabled=true;
+      try{
+        const sb=await window.getSupabaseClient(),ses=(await sb.auth.getSession()).data?.session;
+        if(!ses?.access_token)throw Error('Sign in again to inspect the audit history.');
+        const response=await fetch('/api/admin-report-case-history-v01425?reportId='+encodeURIComponent(c.id),{
+          headers:{authorization:'Bearer '+ses.access_token,accept:'application/json'},cache:'no-store'});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok||data.ok!==true||!Array.isArray(data.history))
+          throw Error(data.error||'Decision history unavailable.');
+        history.replaceChildren();
+        if(!data.history.length){history.append(make('p','No v0.14.0.24+ audited case transitions recorded. Earlier decisions may use legacy audit paths.'));}
+        else{
+          const list=make('ol');
+          for(const event of data.history){
+            const line=make('li');
+            const title=make('strong',`${event.from||'Unknown'} → ${event.to||'Unknown'}`);
+            const time=make('small',event.loggedAt?` · ${new Date(event.loggedAt).toLocaleString()}`:'');
+            const note=make('p',event.note||'No decision note recorded.');
+            line.append(title,time,note);list.append(line);
+          }
+          history.append(list);
+        }
+      }catch(e){history.replaceChildren(make('p',e.message||'History temporarily unavailable.'))}
+      finally{historyButton.disabled=false}
+    });
+    controls.append(historyButton);
     const m=/^(commons|legacy):(topic|post):([1-9][0-9]*)$/.exec(String(c.contentId||''));
     if(m){const inspect=make('button','Inspect content','btn secondary');inspect.type='button';inspect.addEventListener('click',()=>{
       const open=window.GroundUpAdminWorkflows?.openModeration;
       if(typeof open==='function')open({scope:m[1],type:m[2],id:m[3]});
       else status.textContent='Existing moderation editor is unavailable; refresh Admin.';
     });controls.append(inspect)}
-    card.append(title,stamp,description,detail,noteLabel,controls);
+    card.append(title,stamp,description,detail,noteLabel,controls,history);
     if(c.resolutionNote)card.append(make('p','Recorded decision: '+c.resolutionNote,'small'));
     list.append(card);
    });
