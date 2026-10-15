@@ -14,9 +14,10 @@ for p in ['config.js','sw.js','assets/js/route-policy.js','assets/js/site.js',
     test=subprocess.run(['node','--check',str(R/p)],capture_output=True,text=True)
     assert test.returncode==0,(p,test.stderr)
 config=read('config.js');site=read('assets/js/site.js');worker=read('sw.js');policy=read('assets/js/route-policy.js')
-assert "VERSION: '0.14.0.23'" in config
-assert "version:'0.14.0.23'" in policy
-assert 'groundup-v014023-public' in worker
+release=re.search(r"VERSION: '((?:\d+\.){3}\d+)'",config)
+assert release and tuple(map(int,release.group(1).split('.'))) >= (0,14,0,23)
+assert "version:'"+release.group(1)+"'" in policy
+assert 'groundup-v'+release.group(1).replace('.','')+'-public' in worker
 assert 'admin-community-health-v01423.js' in site
 assert 'mention-notification-preferences-v01423.js' in site
 assert 'mention-notifications-v01423.css' in site

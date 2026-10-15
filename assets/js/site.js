@@ -1,4 +1,4 @@
-/* v0.14.0.22 — preserve established routes and bootstraps; additive backend UI. */
+/* v0.14.0.24 — preserve established routes and bootstraps; additive backend UI. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   if(/^\/(market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname)) loadOnce('/assets/js/v014018-forum-corrections.js','forumCorrections');
   if(/^\/(new-discussion|market-commons|forum|forum-topic)(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/member-mentions.js','verifiedMentions');
-  if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');loadOnce('/assets/js/admin-community-health-v01423.js','communityHealth');if(!document.querySelector('link[data-gu-community-health]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-community-health-v01423.css';l.dataset.guCommunityHealth='1';document.head.append(l)}}
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/frontend-integration-health.js','integrationHealth');loadOnce('/assets/js/admin-community-health-v01423.js','communityHealth');loadOnce('/assets/js/admin-report-cases-v01424.js','reportCasesV01424');if(!document.querySelector('link[data-gu-report-cases-v01424]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-report-cases-v01424.css';x.dataset.guReportCasesV01424='1';document.head.append(x)}if(!document.querySelector('link[data-gu-community-health]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-community-health-v01423.css';l.dataset.guCommunityHealth='1';document.head.append(l)}}
   // v0.14.0.21: bind genuine backend data to existing member Settings and Commons.
   if(/^\/(dashboard|market-commons)(?:\.html)?$/.test(location.pathname)){
     if(!document.querySelector('link[data-gu-backend-community]')){

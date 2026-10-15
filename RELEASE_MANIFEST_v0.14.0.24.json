@@ -1,0 +1,100 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "release": "v0.14.0.24",
+  "baseline_github_main_sha": "e4e6ddb8d41f9378ecf0471715ab713497c2e370",
+  "release_type": "direct source-file overlay (preserve all unrelated repo files)",
+  "production_deployed": false,
+  "supabase_migration_executed": false,
+  "supabase_migration_status": "REVIEW_REQUIRED — staged role/security audit and explicit Owner authorization",
+  "test_scope": "source contracts, mocked JWT/API, isolated Chromium component, prior regression; NOT staging or production E2E",
+  "status": "backend development candidate; pending GitHub verification, staging migration test, signed-off rollout",
+  "source_changes": 17,
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01424.yml",
+      "bytes": 1429,
+      "sha256": "c8a3f4d41e385dcb5e188b3d3ac96314146859073eec1b80e3d31b2e12e96ad9"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2225,
+      "sha256": "2bbf962befdba7fe801c19207c60a6cface25846909a38b2c5630d9080a435c4"
+    },
+    {
+      "path": "assets/css/admin-report-cases-v01424.css",
+      "bytes": 1086,
+      "sha256": "3f2c027aa9cd587c4189a261d702ff98d5129b03328398013807229a6c7b380b"
+    },
+    {
+      "path": "assets/js/admin-report-cases-v01424.js",
+      "bytes": 7434,
+      "sha256": "2dff8c276272a51552f53f2fef5cfc37fa38ddb9baf023b4ce0f29cdcd4751f7"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "c800024c5a9473fba667c451eb4a494f79e4d1da9b9e5e2280798373afcb2a54"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 6311,
+      "sha256": "633596d95e3af93e6d0952dcb6c5d15c9a332bb006d011bf683a41d7961c50ae"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "428f0f211cd68d4405298575672cde551332b4193e001e96761f18b3f57f85bf"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_5_v0.14.0.24.md",
+      "bytes": 6997,
+      "sha256": "1a8de2b9b4cddd06b01db7eda2599256823a4dbaf821489b5a9ea23267d03b18"
+    },
+    {
+      "path": "functions/api/admin-report-cases-v01424.js",
+      "bytes": 4802,
+      "sha256": "100725baecf535701f71f02234eec1dbbc110e3cffc5058b47f075bc1ec08004"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.24_MODERATION_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1539,
+      "sha256": "accfd7141bb3cbf53ce1b82ba90c51840350656e1e59d69670458f9d882bfa6e"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.24_MODERATION_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1477,
+      "sha256": "353fdf76d520f8bd910092458f9b0c79b92bb6e5571e5beac30f933ea41c6ee3"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.24_MODERATION_CASES_REVIEW_REQUIRED.sql",
+      "bytes": 8263,
+      "sha256": "6f0b4deefc5d2a620bb1c6242ebc891083a061831644b79bfb2d79fb1c167c68"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "f91a8e45f8263135d87f4e107882fa18700dd7bb8b1ec3aa0841557ac5ec8c7f"
+    },
+    {
+      "path": "tests/test_v014023_backend.py",
+      "bytes": 2975,
+      "sha256": "82f1c6d77251b1eac89e0128c58b926dc61beedf62b88878f7a7ab6a7b870eba"
+    },
+    {
+      "path": "tests/test_v014024_browser.py",
+      "bytes": 3415,
+      "sha256": "d823111d957bb02e3ff116875d85580edc33b282c27ac00cabfdc82defd73fe8"
+    },
+    {
+      "path": "tests/test_v014024_cases_api.mjs",
+      "bytes": 3228,
+      "sha256": "4d04ec7edc65476bed1f8aebd6bf65b89ab76696bca5b96578c5a632a188a5ca"
+    },
+    {
+      "path": "tests/test_v014024_release.py",
+      "bytes": 2207,
+      "sha256": "c4553c68841eab65078b7d874656f5496c576ea9d5b55d359850b7cf42f76d6a"
+    }
+  ]
+}

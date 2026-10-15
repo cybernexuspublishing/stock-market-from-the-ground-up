@@ -1,0 +1,12 @@
+/* v0.14.0.24 — semantics and responsive controls for private moderator case triage. */
+.gu-mod-cases-v01424{margin-top:1rem;max-width:100%;min-width:0}
+.gu-mod-actions{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.65rem 0}
+.gu-mod-actions label{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.gu-mod-actions select{min-width:10rem;max-width:100%;padding:.5rem}
+.gu-mod-list{display:grid;grid-template-columns:minmax(0,1fr);gap:.8rem}
+.gu-mod-case{border:1px solid var(--line,#7775);padding:1rem;border-radius:.6rem;min-width:0;overflow-wrap:anywhere}
+.gu-mod-case h3{margin:.2rem 0 .5rem}
+.gu-mod-case textarea{display:block;width:100%;max-width:100%;min-height:4.5rem;margin:.4rem 0 .6rem;font:inherit}
+.gu-mod-detail{white-space:pre-wrap;overflow-wrap:anywhere}
+.gu-mod-cases-v01424 button:focus-visible,.gu-mod-cases-v01424 select:focus-visible,.gu-mod-cases-v01424 textarea:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+@media(max-width:480px){.gu-mod-case{padding:.7rem}.gu-mod-actions button{max-width:100%;white-space:normal}}

@@ -1,0 +1,42 @@
+name: Backend Contract v0.14.0.24
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  moderated-case-source-and-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Case state, transaction and security structure tests
+        run: python tests/test_v014024_release.py
+      - name: JWT caller binding and negative API cases
+        run: node tests/test_v014024_cases_api.mjs
+      - name: Isolated Chromium moderation case component test
+        run: python tests/test_v014024_browser.py
+      - name: Prior community and release source regressions
+        run: |
+          python tests/test_v014023_backend.py
+          python tests/test_v014022_release_gate.py
+          node tests/test_v014023_mention_api.mjs
+          node tests/test_v014023_health_api.mjs
+          node tests/test_v014021_subscription_api.mjs
+      - name: Verify Cloudflare public/private artifact isolation
+        run: |
+          bash scripts/build-pages.sh
+          test ! -d public/supabase
+          test ! -d public/functions
+          test ! -d public/tests
+          test ! -e public/data/interactive-labs.json
