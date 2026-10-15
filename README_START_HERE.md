@@ -1,25 +1,16 @@
-# v0.14.0.26 — BACKEND PHASE 7 · DIRECT-UPLOAD ZIP
+# The Stock Market: From the Ground Up — v0.14.0.27
+## Direct-upload GitHub ZIP (complete replacement source files, NOT a patch script)
 
-**Project:** The Stock Market: From the Ground Up (Cyber Nexus)  
-**Package type:** COMPLETE replacement source files at the correct paths, no manual patch scripts.  
-**Source basis:** GitHub `main` `7c03889561979cc67b28ec280449311e2493d40d` (v0.14.0.24).  
-**Package includes:** Previous v0.14.0.25 source overlay **plus** v0.14.0.26 changes. The owner reported v0.14.0.25 SQL installed, but GitHub `main` still showed v0.14.0.24 at packaging. Including v0.14.0.25 source dependencies avoids producing a broken partial v0.14.0.26 overlay.
+**Owner-controlled GitHub source baseline:** `18b0624fda0c7b18dcc29d84c66da3583b922ec5` (v0.14.0.26).
 
-## Deployment
+This increment was built after reviewing the Owner's 230-row Supabase SQL CSV export. It repairs the broken v0.14.0.25 GitHub Actions YAML, provides a new source-level CI gate, aligns application version identifiers, and supplies catalog-based READ-ONLY SQL to identify the exact anonymous SECURITY DEFINER functions and real v0.14.0.26 audit-guard configuration.
 
-Upload the ZIP source files using the same GitHub overlay procedure. **Preserve unrelated files** and exact nested directories. Do not use the ZIP as a complete repository replacement, do not upload it directly to the Cloudflare public asset root, and do not publish SQL files. Uploading a ZIP to GitHub does not execute any SQL.
+**How to deploy:** Copy/upload the ZIP's nested files to the corresponding paths in the existing GitHub repository, preserving every unrelated file. DO NOT replace the entire repository with the contents of this source overlay; DO NOT upload source SQL to Cloudflare Pages static output. No batch/patch script or manual code edits are necessary. The SQL scripts are deliberately kept under `supabase/admin` and excluded from the site's public build.
 
-## v0.14.0.26 implementation
+**Database:** No v0.14.0.27 production migration. Read-only SQL may be run individually in the Supabase SQL Editor. The `v0.14.0.17_OWNER_REPORTING_POLICY_REVIEW_REQUIRED.sql` migration is ALREADY present in the repository but is NOT INSTALLED in this Supabase export. Test it in staging, do not run it blindly. Do not rerun v0.14.0.24 / 25 / 26 migrations.
 
-The former Admin report endpoints update status then separately attempt audit writes; a lost audit write can leave a report changed but unlogged. A new **review-required, fail-closed PostgreSQL status-audit trigger** records EVERY report status transition in the *same transaction* across old and new endpoints, without changing their browser/API contracts. Trigger entries deliberately lack unverifiable staff-attribution assertions; new case RPCs continue to create their more detailed transactional decision entries separately. This does not fix other moderation action audits or eliminate other security tasks.
+**Expected existing issue:** Anonymous EXECUTE on `my_platform_access()` is an intentional v0.11 source grant and returns FREE-tier data if `auth.uid()` is null. A flag alone is NOT a demonstrated exploit; inspect the new inventory and do not revoke blindly.
 
-## Owner-only SQL procedure
+**Known NO-GO items:** production E2E; staging audit failure rollback; Cloudflare SHA; payment/refund entitlements; forum reports policy; gated learning/privacy; all 419 lab answers, simulator, journal, tutor, tenant authorization.
 
-1. Inspect `supabase/admin/v0.14.0.26_AUDIT_GUARD_PREFLIGHT_READ_ONLY.sql` on staging.
-2. Review and test `supabase/migrations/v0.14.0.26_REPORT_STATUS_AUDIT_GUARD_REVIEW_REQUIRED.sql` on a separate staging project, including forced audit failure tests. **DO NOT blindly execute on production.**
-3. Only after explicit authorization, apply reviewed SQL and run `supabase/admin/v0.14.0.26_AUDIT_GUARD_POSTFLIGHT_READ_ONLY.sql`.
-4. Read `docs/BACKEND_PHASE_7_v0.14.0.26.md` for exact checks and limitations.
-
-## CI / files
-
-New `.github/workflows/backend-contract-v01426.yml` checks current plus earlier source/API/browser boundaries. The old v0.14.0.25 source check is updated to accept a later build while enforcing matching config/route policy/service-worker versions. No test is disabled. ZIP includes `RELEASE_MANIFEST_v0.14.0.26.json` with file hashes. Production authentication E2E and Supabase SQL execution **have not occurred** in the packaging environment.
+Details: `docs/BACKEND_PHASE_8_v0.14.0.27.md`.

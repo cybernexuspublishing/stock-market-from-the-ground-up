@@ -1,0 +1,7 @@
+id,priority,area,evidence_status,finding,required_action
+SEC-027-01,P0 validation,Identity,SECURITY_RISK,public.my_platform_access() anonymous EXECUTE,"Review function and anonymous contract; implementation intentionally returns FREE for auth.uid() NULL, no proven data exposure; never blindly revoke."
+SEC-027-02,P0 validation,Security,REVIEW,14 anonymous-executable SECURITY DEFINER functions,"Export exact signatures using new SQL; assess permissions, caller identity, return values and object access per function."
+MOD-027-03,P1 functionality,Commons,PENDING,Owner reporting policy v01417 absent,"Stage existing reviewed v0.14.0.17 migration and test atomic quota/duplicate, server OWNER authorization, hidden forum and rollback; production execution separate approval."
+AUD-027-04,P0 validation,Moderation,REVIEW,v01426 guard search_path FALSE via exact string test,"Inspect pg_proc.proconfig; normalized path must equal pg_catalog,pg_temp; if mismatch, review security before any SQL alteration."
+OPS-027-05,P1 CI,GitHub,FAIL,v0.14.0.25 workflow YAML invalid scalar,Quote the colon-containing step name; do not disable tests.
+E2E-027-06,P0 acceptance,Sitewide,NOT_TESTED,Role/commerce/learning/member notification functional acceptance,"Use staging and explicit role-negative tests, webhook sandbox, 419 Lab integrity, actual member-to-member alerts."

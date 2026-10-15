@@ -1,0 +1,84 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "v0.14.0.27",
+  "baseline_sha": "18b0624fda0c7b18dcc29d84c66da3583b922ec5",
+  "type": "sitewide backend security evidence & CI repair, direct-upload source overlay",
+  "sql_changes": "NONE; supplied SQL is READ ONLY",
+  "reviewed_csv_rows": 230,
+  "csv_summary": {
+    "SECURITY_RISK": 1,
+    "REVIEW": 1,
+    "PENDING": 7,
+    "NOT_TESTED": 8,
+    "PASS": 191,
+    "INFO": 22
+  },
+  "source_regression_claim": "local source checks only; GitHub, browser, Cloudflare, staged Supabase and live E2E pending",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01425.yml",
+      "bytes": 1556,
+      "sha256": "26b7519a046d44bb0ba049a82786cb82a76ee4c0683b7a642d13110bb4b72b89"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01427.yml",
+      "bytes": 1037,
+      "sha256": "1c7839f1b06b3f090c1cc4b6438bebe9829df0c519e2e76b49c6d1ca152d8189"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 1957,
+      "sha256": "79e5eee86b18acd299281d69ef74c34179ff65f31f0cca896fdd79ad4cba69c6"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1886,
+      "sha256": "6a331cda8b1fc61c5d57d26ae62c0e476614d85dc101d61c53a57413add34de0"
+    },
+    {
+      "path": "config.js",
+      "bytes": 796,
+      "sha256": "114115a6d048fad6cfa5b3b01645152d5807ae289075b2fa1edc373d3f50c414"
+    },
+    {
+      "path": "docs/BACKEND_AUDIT_FINDINGS_v0.14.0.27.csv",
+      "bytes": 1365,
+      "sha256": "87794c9989a2155e670e12e4bde391126814a4fb50ad4b7fd6da988bc4108cbc"
+    },
+    {
+      "path": "docs/BACKEND_PHASE_8_v0.14.0.27.md",
+      "bytes": 5789,
+      "sha256": "37dcb0b96fec28778f56be6d810238c8059b474427371dd94360c9326964e63f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.27_ANON_FUNCTION_EXPOSURE_READ_ONLY.sql",
+      "bytes": 2055,
+      "sha256": "65bf2fb7304027668478210440b418fd6dd6ae9301e4b9bd976875a68e2cdb63"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.27_REPORT_AUDIT_SEARCH_PATH_READ_ONLY.sql",
+      "bytes": 966,
+      "sha256": "f3b308f43656bf44c7e5a21e370b5fa60269e070fe37250a546733c6fb3328f7"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.27_REPORT_POLICY_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1537,
+      "sha256": "392a455a2eae3cdba4a23604ef22d916e07b74ea187232b7df68159ec08c5ee3"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.27_REPORT_POLICY_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1564,
+      "sha256": "3c10ae7e333ed02dd9e3403a50a473d4be87df45488aa993010597bd0b5da8dd"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2298,
+      "sha256": "740b80c502bff8108d3005611daa1d91f01389435dc74b529dd67ae65aa052f6"
+    },
+    {
+      "path": "tests/test_v014027_release.py",
+      "bytes": 2916,
+      "sha256": "dfc70147e73d035213d9eed4a36d9a18d82922198b6f978254b111f4de90ba4b"
+    }
+  ]
+}

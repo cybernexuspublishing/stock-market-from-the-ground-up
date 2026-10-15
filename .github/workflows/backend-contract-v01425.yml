@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check playwright==1.57.0
           python -m playwright install --with-deps chromium
-      - name: Isolated browser: moderation and safe history rendering
+      - name: 'Isolated browser: moderation and safe history rendering'
         run: |
           python tests/test_v014024_browser.py
           python tests/test_v014025_browser.py
