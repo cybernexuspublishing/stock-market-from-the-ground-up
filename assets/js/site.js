@@ -3,11 +3,11 @@ const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
 function salesState(){
+  // Product-level KDP Select and digital rights flags are authoritative in
+  // Supabase, never in a stale public config.js snapshot.
   document.querySelectorAll('[data-book-sale]').forEach(el=>{
-    const n=Number(el.dataset.bookSale), b=(cfg.BOOKS||{})[n]||{};
-    if(b.kdpSelectExclusive || !b.directDigitalSaleEnabled || !b.directSaleUrl){
-      el.classList.add('disabled');el.setAttribute('aria-disabled','true');el.textContent='Direct digital sale — locked';el.removeAttribute('href');
-    } else { el.href=b.directSaleUrl; }
+    el.href='/store.html';el.textContent='Check Digital Edition Availability';
+    el.classList.remove('disabled');el.removeAttribute('aria-disabled');
   });
   document.querySelectorAll('[data-amazon-book]').forEach(el=>{
     const n=Number(el.dataset.amazonBook), b=(cfg.BOOKS||{})[n]||{};
@@ -61,6 +61,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   if(/^\/(store|my-purchases)(?:\.html)?$/.test(location.pathname))
     loadOnce('/assets/js/print-store-channels-v01428.js','printStoreChannels');
+  // v0.14.0.30: independently controlled digital edition rights, sale & download.
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){
+    loadOnce('/assets/js/admin-digital-books-v01430.js','ownerDigitalBooksV01430');
+    if(!document.querySelector('link[data-gu-digital-v01430]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/digital-books-v01430.css';css.dataset.guDigitalV01430='1';document.head.append(css)}
+  }
+  if(/^\/store(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/digital-store-v01430.js','digitalStoreV01430');
+  if(/^\/my-books(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/digital-library-v01430.js','digitalLibraryV01430');
   // v0.14.0.21: bind genuine backend data to existing member Settings and Commons.
   if(/^\/(dashboard|market-commons)(?:\.html)?$/.test(location.pathname)){
     if(!document.querySelector('link[data-gu-backend-community]')){

@@ -1,0 +1,114 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "v0.14.0.30",
+  "baseline_git_commit": "1947fc04f0ff77690c97adeca015d0db997d4f80",
+  "delivery": "cumulative-path-preserving direct-upload replacement-files overlay",
+  "runtime": "Cloudflare Pages/Functions + Supabase",
+  "database_migration_state": "review-required, NOT executed",
+  "payment_state": "existing Lemon Squeezy checkout; sandbox live acceptance NOT performed",
+  "digital_files": "no EPUB/PDF included; upload via Owner UI once database installed",
+  "rights_state": "KDP Select stays protected until verified Amazon term expiry; website controls alone do not change contract",
+  "quality_state": "source and mocked API tests passed; staging SQL/roles/live E2E not verified",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01429.yml",
+      "size": 1719,
+      "sha256": "293bd233df6dbdb07696b5254b35c9393a4e2e64272d98328964db830c993a31"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01430.yml",
+      "size": 1087,
+      "sha256": "f04cea83f5ffd8a0eee6e40eaeefb5eac1b8084034dd3f8a2739edb7286652f1"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "size": 3581,
+      "sha256": "558c26aeb995e6a33c9a5f0f1622d54788a0d482a4260567f6b904c9ecae4a99"
+    },
+    {
+      "path": "assets/css/digital-books-v01430.css",
+      "size": 655,
+      "sha256": "8153d7557d9d43d4329907eb7e6ab90f94fc00a6f26b2dbae7c5619177a54e03"
+    },
+    {
+      "path": "assets/js/admin-digital-books-v01430.js",
+      "size": 6321,
+      "sha256": "ca74c1b62ba2ec25462949af8894a1513690d7a2fdddb9c93af782b337c6cbf2"
+    },
+    {
+      "path": "assets/js/digital-library-v01430.js",
+      "size": 2832,
+      "sha256": "88815394636a05c7e72e98d410a21ae5c132d72e51296af0cc86f47986ec5503"
+    },
+    {
+      "path": "assets/js/digital-store-v01430.js",
+      "size": 1413,
+      "sha256": "5a3c7113e3f14e534785afae1569915813c40d3166a4c3ef37cdfff64113c54f"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "size": 1886,
+      "sha256": "57850ac53cbddadf94e86e4e3f6e3bd4ffd8eefc31e5011e8978e875f73996c2"
+    },
+    {
+      "path": "assets/js/site.js",
+      "size": 7658,
+      "sha256": "55029c39f3f81e5078d1f979cc8c3f7e49832bce507e96a60f0716feff226d8a"
+    },
+    {
+      "path": "config.js",
+      "size": 796,
+      "sha256": "d860ec335f6342b1fb2accd966a1186059df81f80c6c0c67480975904b058571"
+    },
+    {
+      "path": "docs/DIGITAL_BOOKS_ACCEPTANCE_v0.14.0.30.md",
+      "size": 6763,
+      "sha256": "2b4ebda1fcc361fed4282eef088cb899c957df6366205a67d55991f758680658"
+    },
+    {
+      "path": "functions/api/checkout-v0135.js",
+      "size": 8620,
+      "sha256": "5b86310356e07e9b7275d741ffc1784ee75bd59308067071c46d4b17bcfcfc9b"
+    },
+    {
+      "path": "functions/api/digital-book-download-v01430.js",
+      "size": 3887,
+      "sha256": "141253bc7820152c34f7e2e329f207fe52d3c1f73b1f79e7ca22e17e18612009"
+    },
+    {
+      "path": "my-books.html",
+      "size": 1641,
+      "sha256": "e5137c7a769146e71cd8a78e11068e05eca138796439ada947705a0245eb18a2"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.30_DIGITAL_POSTFLIGHT_READ_ONLY.sql",
+      "size": 2489,
+      "sha256": "6d95f0e88f0d87f2fa62968e12ce570f9b035b1493e3c8e09c238ce2e8eb8f24"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.30_DIGITAL_PREFLIGHT_READ_ONLY.sql",
+      "size": 1194,
+      "sha256": "2db625d95df63e70786a2d21b0214eefd1de060b076c482532f5ff28bc0c0bb3"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.30_PRIVATE_DIGITAL_BOOKS_REVIEW_REQUIRED.sql",
+      "size": 17413,
+      "sha256": "82b5a1454963d3e5c23254b3c711bb52646217338a06c0503fc2ef86bbb0899d"
+    },
+    {
+      "path": "sw.js",
+      "size": 2298,
+      "sha256": "5e4c536958c72c8f4e392b9f412e72b54b5c85deba916a5e594e681d5aaa1297"
+    },
+    {
+      "path": "tests/test_v014030_download_api.mjs",
+      "size": 3016,
+      "sha256": "09c28356fae30c4509a5cebc90754319f2aa5a6d3f76c2cb5a59d235f059e364"
+    },
+    {
+      "path": "tests/test_v014030_ebook_release.py",
+      "size": 2862,
+      "sha256": "06365e5c17f68244ed89d7a304a6dc5a48f7b85e806e5defd2cd2126bcacc502"
+    }
+  ]
+}

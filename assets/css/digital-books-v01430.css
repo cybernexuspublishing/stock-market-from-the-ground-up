@@ -1,0 +1,9 @@
+.gu-digital-books{margin-top:1.5rem;border:1px solid var(--border,#b8c0cb);border-radius:12px;padding:1.1rem}
+.gu-digital-list{display:grid;gap:1rem;margin-top:1rem}
+.gu-digital-row{padding:1rem;border:1px solid var(--border,#b8c0cb);border-radius:10px;display:grid;gap:.65rem}
+.gu-digital-row label{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.gu-digital-row input[type=datetime-local],.gu-digital-row input[type=file]{max-width:100%;min-width:0}
+.gu-digital-row input[type=checkbox]{width:1.2rem;height:1.2rem}
+.gu-digital-row button{max-width:max-content}
+.gu-digital-library{margin:1.5rem 0}
+.gu-digital-library .v135-card{padding:1rem}

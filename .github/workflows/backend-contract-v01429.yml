@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install YAML parser required by earlier release regression tests
+        run: python -m pip install --disable-pip-version-check PyYAML==6.0.2
       - name: Signed author-copy fulfillment safety and CI version compatibility
         run: |
           python tests/test_v014029_signed_print_and_release.py

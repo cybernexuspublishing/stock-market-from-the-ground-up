@@ -1,0 +1,36 @@
+name: Backend Contract v0.14.0.30
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  digital-ebook-rights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Release parity, rights contract, Storage security
+        run: |
+          python tests/test_v014030_ebook_release.py
+          python tests/test_v014028_commerce_source.py
+          python tests/test_v014026_release.py
+      - name: Download authorization negative tests
+        run: node tests/test_v014030_download_api.mjs
+      - name: Verify private-functions deployment boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/tests
+          test ! -e public/data/interactive-labs.json

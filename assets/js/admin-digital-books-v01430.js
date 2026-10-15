@@ -1,0 +1,64 @@
+/* v0.14.0.30 Owner-controlled digital editions, private EPUB/PDF upload, rights gates */
+(()=>{'use strict';
+if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
+const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!=null)n.textContent=txt;if(cls)n.className=cls;return n};
+let busy=false;
+function mount(){
+ if(document.querySelector('[data-gu-digital-v01430]'))return true;
+ const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
+ const section=el('section',null,'admin-card gu-digital-books');section.dataset.guDigitalV01430='1';
+ section.append(el('h2','Digital eBook Publishing & Downloads'),el('p','Upload an EPUB/PDF now, and independently enable or disable direct digital sales and customer downloads. Both remain blocked during Amazon KDP Select enrollment. Changes require OWNER MFA (AAL2).'));
+ const status=el('p','Waiting to verify Owner permissions…');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ const loadButton=el('button','Refresh eBooks','btn secondary');loadButton.type='button';
+ const list=el('div',null,'gu-digital-list');section.append(loadButton,status,list);panel.append(section);
+ async function rpc(sb,name,args={}){const {data,error}=await sb.rpc(name,args);if(error)throw Error(error.message||'Database unavailable.');if(!data?.ok)throw Error('Digital publishing contract unavailable.');return data}
+ async function load(){if(busy)return;busy=true;loadButton.disabled=true;list.replaceChildren();status.textContent='Reading protected publication settings…';
+  try{const sb=await window.getSupabaseClient(),data=await rpc(sb,'gu_owner_digital_books_get_v01430');
+   for(const product of data.products||[]){
+    const card=el('article',null,'gu-digital-row');card.append(el('h3',product.title||product.code));
+    const info=el('p','Code: '+product.code+(product.fileExists?' · Private file verified':' · No verified private file'),'small');card.append(info);
+    const kdp=el('input'),sales=el('input'),downloads=el('input'),rights=el('input'),until=el('input'),file=el('input');
+    [kdp,sales,downloads,rights].forEach(x=>x.type='checkbox');
+    kdp.checked=!!product.kdpSelect;sales.checked=!!product.sales;downloads.checked=!!product.downloads;rights.checked=!!product.rightsAttested;
+    until.type='datetime-local';if(product.exclusiveUntil){const d=new Date(product.exclusiveUntil);if(!isNaN(d.getTime()))until.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
+    file.type='file';file.accept='.epub,.pdf,application/epub+zip,application/pdf';
+    const lbl=(txt,ctrl)=>{const x=el('label',txt);x.append(ctrl);return x};
+    card.append(lbl('Currently enrolled in Amazon KDP Select',kdp),lbl('KDP Select current term ends (verified)',until),
+      lbl('I verified actual KDP Select exit and digital distribution rights',rights),
+      lbl('Enable direct eBook purchases',sales),lbl('Enable purchased-book downloads',downloads),
+      lbl('Upload private EPUB/PDF (max 50 MB)',file));
+    const fileStatus=el('p',product.asset?'Current private asset: '+product.asset:'No private asset attached.','small');card.append(fileStatus);
+    let asset=product.asset||'';const rowStatus=el('p','Changes are saved only after server validation.','small');rowStatus.setAttribute('role','status');
+    const upload=el('button','Upload selected file privately','btn secondary');upload.type='button';
+    const save=el('button','Save eBook Rights & Controls','btn');save.type='button';
+    upload.onclick=async()=>{if(busy)return;const f=file.files?.[0];if(!f){rowStatus.textContent='Select an EPUB or PDF.';return}
+     const ext=/\.epub$/i.test(f.name)?'epub':/\.pdf$/i.test(f.name)?'pdf':null;
+     if(!ext||f.size<1||f.size>50*1024*1024){rowStatus.textContent='EPUB/PDF required, up to 50 MB.';return}
+     busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Uploading into private Supabase Storage…';
+     try{const path=product.code+'/'+crypto.randomUUID()+'.'+ext;
+      const {error}=await sb.storage.from('gu-digital-ebooks').upload(path,f,{upsert:false,cacheControl:'0',contentType:ext==='epub'?'application/epub+zip':'application/pdf'});
+      if(error)throw error;asset=path;fileStatus.textContent='Uploaded privately: '+path+'. Save the publication controls to link it.';
+      rowStatus.textContent='Upload complete. Not published until you save rights controls.';
+     }catch(e){rowStatus.textContent='Upload failed: '+(e.message||'Storage denied request. Confirm MFA and size limits.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
+    };
+    save.onclick=async()=>{if(busy)return;if(!kdp.checked&&!rights.checked){rowStatus.textContent='Verify KDP Select has ended and confirm your rights first.';return}
+     if((sales.checked||downloads.checked)&&!asset){rowStatus.textContent='Upload a private eBook file first.';return}
+     busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Saving rights and availability…';
+     try{await rpc(sb,'gu_owner_digital_books_save_v01430',{
+      p_code:product.code,p_kdp_select:kdp.checked,p_exclusive_until:until.value?new Date(until.value).toISOString():null,
+      p_sales:sales.checked,p_downloads:downloads.checked,p_rights_attested:rights.checked,
+      p_asset_path:asset,p_expected_updated_at:product.version});
+      rowStatus.textContent='Saved and audited; reading authoritative state.';busy=false;await load();
+     }catch(e){rowStatus.textContent='Save refused: '+(e.message||'Rights check failed.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
+    };
+    card.append(upload,save,rowStatus);list.append(card);
+   }
+   status.textContent=(data.products||[]).length+' eBooks loaded. A checkbox cannot cancel an actual KDP Select contract.';
+  }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'OWNER MFA required')}
+  finally{busy=false;loadButton.disabled=false}
+ }
+ loadButton.onclick=load;return true;
+}
+let attempts=0;const t=setInterval(()=>{if(mount()||++attempts>80)clearInterval(t)},250);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();

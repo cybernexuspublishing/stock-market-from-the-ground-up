@@ -16,6 +16,11 @@ async function item(env,code,format){
  if(format!=='digital')throw failure('Choose an available book format.');
  const p=(await rest(env,'catalog_products?select=*&product_code=eq.'+encodeURIComponent(code)+'&active=eq.true&store_visible=eq.true&limit=1'))[0];
  if(!p||!['book','bundle'].includes(p.product_type))throw failure('Book or bundle unavailable.',404);
+ if(p.product_type==='bundle')throw failure('Digital bundle download rights are not active yet.',403);
+ // A user-editable catalog flag is NOT sufficient: the rights ledger + private file
+ // must be enabled by the OWNER before any quote or paid checkout intent.
+ const rights=await rest(env,'rpc/gu_digital_offer_status_v01430',{method:'POST',body:{p_product_code:code}});
+ if(rights?.available!==true)throw failure('This digital edition is not authorized for website distribution.',403);
  if(p.kdp_select===true||p.direct_digital_enabled!==true)throw failure('Direct digital sales unavailable for this title.',403);
  if(p.product_type==='bundle'){
   const rows=await rest(env,'book_bundle_components_v135?select=book_code&bundle_code=eq.'+encodeURIComponent(code));
