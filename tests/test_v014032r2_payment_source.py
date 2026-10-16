@@ -3,7 +3,10 @@ from pathlib import Path
 import subprocess,re
 R=Path(__file__).resolve().parents[1]
 read=lambda s:(R/s).read_text(encoding='utf-8')
-assert 'VERSION: \'0.14.0.32\'' in read('config.js')
+version=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",read('config.js'))
+assert version and tuple(map(int,version.group(1).split('.'))) >= (0,14,0,32)
+assert "version:'"+version.group(1)+"'" in read('assets/js/route-policy.js')
+assert 'groundup-v'+''.join(version.group(1).split('.'))+'-public' in read('sw.js')
 assert 'admin-payment-providers-v01432r2.js' in read('assets/js/site.js')
 assert 'digital-payment-route-v01432r2' in read('assets/js/checkout-platform.js')
 assert "route.provider==='STRIPE_MANAGED'" in read('assets/js/checkout-platform.js')

@@ -1,0 +1,41 @@
+name: Admin Payment Center v0.14.0.33
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  navigation-and-payment-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source, least privilege, release parity
+        run: |
+          python tests/test_v014033_payment_source.py
+          node tests/test_v014033_payment_catalog.mjs
+      - name: Prior payment/security regression contracts
+        run: |
+          python tests/test_v014032r1_release.py
+          python tests/test_v014032r2_payment_source.py
+      - name: Chromium UI smoke test — navigation, search, permission boundary
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+          python tests/test_v014033_admin_payment_browser.py
+      - name: Cloudflare private code packaging guard
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/tests

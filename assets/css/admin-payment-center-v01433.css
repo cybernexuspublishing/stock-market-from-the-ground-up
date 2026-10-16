@@ -1,0 +1,42 @@
+/* v0.14.0.33: payment operations orientation + global admin navigation search.
+ * Fully additive: old editor controls and permissions remain the authority. */
+.gu33-global-search{position:relative;z-index:12;margin:1rem 1.25rem 1.1rem;padding:.85rem 1rem;background:#0d2940;border:1px solid #416782;border-radius:12px;color:#f0f6ff}
+.gu33-global-search[hidden]{display:none!important}
+.gu33-global-search label{font-size:.94rem;font-weight:750;display:block;margin:0 0 .4rem}
+.gu33-global-search input{display:block;width:100%;max-width:900px;border:1px solid #7c9ab1;border-radius:9px;padding:.8rem 1rem;background:#f5f8fc;color:#112032;font:inherit}
+.gu33-global-search input:focus-visible{outline:3px solid #ffd46e;outline-offset:2px}
+.gu33-search-results{position:relative;max-width:900px;border:1px solid #517996;border-radius:10px;margin-top:.4rem;max-height:min(45vh,460px);overflow-y:auto;background:#0b2438;box-shadow:0 9px 20px #0005}
+.gu33-search-results[hidden]{display:none}
+.gu33-result{display:flex;flex-direction:column;gap:.2rem;width:100%;text-align:left;cursor:pointer;padding:.7rem 1rem;background:transparent;border:0;border-bottom:1px solid #36556b;color:#f3f8ff;font:inherit}
+.gu33-result small{color:#b8cbd8}.gu33-result[aria-selected="true"],.gu33-result:hover,.gu33-result:focus-visible{background:#245176;outline:2px solid #ffd46e;outline-offset:-2px}
+.gu33-search-hint,.gu33-search-live{font-size:.84rem;color:#bbd0df;margin:.4rem 0 0}
+.gu33-payment-hub{display:grid;gap:1rem;padding:1.2rem;margin:1rem 0 1.5rem;border:1px solid #50748a;border-radius:15px;background:linear-gradient(140deg,#09283e,#0f3448);color:#f6f9fd}
+.gu33-payment-hub h2{font-size:1.45rem;margin:0 0 .5rem}.gu33-payment-hub h3{font-size:1.15rem;margin:0 0 .5rem}.gu33-payment-hub p{line-height:1.6}
+.gu33-hub-top p{margin:.4rem 0 0;color:#d0e0ee;max-width:100ch}
+.gu33-summary{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:#102f47;padding:.75rem 1rem;border:1px solid #496d86;border-radius:9px}
+.gu33-summary .gu33-hub-notice{flex:1 1 400px;margin:0;font-size:.9rem;color:#e3edf5}
+.gu33-provider-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem}
+.gu33-provider-card{display:flex;flex-direction:column;gap:.5rem;border:1px solid #426a87;border-radius:11px;background:#12354f;padding:1rem;min-width:0}
+.gu33-provider-card h3,.gu33-provider-card p{margin:0}.gu33-provider-card p{font-size:.88rem;color:#c5d8e9}
+.gu33-provider-card .gu33-status-badge{margin-top:auto;color:#ffe29b;font-size:.86rem}
+.gu33-provider-card .gu33-status-badge.gu33-configured{color:#8bf4c5}
+.gu33-provider-card button{align-self:flex-start;margin-top:.35rem;white-space:normal;text-align:left}
+.gu33-feature-index label{display:block;font-weight:700;margin:.75rem 0}
+.gu33-feature-index input{display:block;width:100%;margin-top:.4rem;padding:.7rem;background:#fff;color:#0b2234;border:1px solid #97b2c7;border-radius:7px}
+.gu33-feature-index input:focus-visible{outline:2px solid #ffd36c}
+.gu33-task-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.gu33-task{display:flex;flex-direction:column;gap:.35rem;border:1px solid #4c708c;border-radius:8px;background:#0b273b;padding:.9rem;color:#fff;text-align:left;cursor:pointer;font:inherit}
+.gu33-task strong{font-size:.96rem}.gu33-task span{font-size:.8rem;color:#bad3e6}
+.gu33-task:focus-visible,.gu33-task:hover{outline:2px solid #ffcb5e;background:#164666;outline-offset:1px}
+.gu33-task[hidden]{display:none!important}
+.gu33-legacy-warning{background:#2f2a1e;border:1px solid #bd9c4d;padding:1rem;border-radius:10px;color:#fff0c4;font-size:.9rem}
+.gu33-legacy-warning p{margin:.35rem 0 0}
+@media(max-width:760px){.gu33-global-search{margin:.5rem}.gu33-payment-hub{padding:.7rem}.gu33-provider-cards,.gu33-task-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.gu33-payment-hub *{scroll-behavior:auto}}
+.gu33-catalog{background:#0c2c40;padding:1rem;border:1px solid #436882;border-radius:10px}
+.gu33-catalog p{color:#d2e4f0;font-size:.91rem}
+.gu33-table-wrap{max-height:450px;overflow:auto;margin-top:.75rem}
+.gu33-table-wrap table{width:100%;border-collapse:collapse;min-width:690px}
+.gu33-table-wrap th,.gu33-table-wrap td{border-bottom:1px solid #43637a;padding:.7rem;vertical-align:top;text-align:left;font-size:.86rem}
+.gu33-table-wrap th{position:sticky;top:0;background:#17415c;color:#ffda85;z-index:1}
+.gu33-table-wrap tr:hover td{background:#16405b}

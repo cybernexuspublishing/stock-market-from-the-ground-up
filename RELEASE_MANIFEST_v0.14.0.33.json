@@ -1,0 +1,95 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "version": "v0.14.0.33",
+  "baseline_git_sha": "09087f8c7d928a4ed84ba263b1809250f22a11a6",
+  "release_type": "DIRECT-UPLOAD complete file overlay",
+  "status": "source tested; not deployed or live verified",
+  "new_sql_migration": false,
+  "checkout_activated": false,
+  "read_only_payment_catalog_api": true,
+  "global_navigation_search": true,
+  "new_payment_center": true,
+  "validation": "JavaScript syntax, v32-R1/R2 regressions, isolated Chromium UI, mocked OWNER/ADMIN catalog and denial checks passed",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01433.yml",
+      "bytes": 1355,
+      "sha256": "8bc07d04b5b50a3ff3d1c3d2f959b328831f67a61f599521b0c7ab980d016e21"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 3099,
+      "sha256": "36e994dcaf31d3b0a5f4fec0e40421911d267fd101890ab83ad1985df8670f77"
+    },
+    {
+      "path": "assets/css/admin-payment-center-v01433.css",
+      "bytes": 4481,
+      "sha256": "97f4d8243d0f62b5ed53f8a55c92d804fd61ada3ca5224ef00b4f29ec705ac85"
+    },
+    {
+      "path": "assets/js/admin-payment-center-v01433.js",
+      "bytes": 17818,
+      "sha256": "cc2aa98b5220d297c7091d26bf02e41540c3e737646868eb1ab6dd46bdc6a8c5"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1692,
+      "sha256": "cb67f580fc8370fa57cb9177ea1e90f4bba18c93f79feea7e23d0a9ec9b14b81"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 10723,
+      "sha256": "ab472ab3acb6f34d26d4f8add1a6bf0b5fdbc8562b078e8888c709e2e54b2a59"
+    },
+    {
+      "path": "config.js",
+      "bytes": 807,
+      "sha256": "f058af4b902ae2aa460914d65d05e59b1fc5d2bc01d983a627511e67ce8b80fb"
+    },
+    {
+      "path": "docs/ADMIN_PAYMENT_CENTER_v0.14.0.33.md",
+      "bytes": 10628,
+      "sha256": "a418b91823a2abe5ee88ae66fd95e67a39a43774185dbaf33f3e441e36ff6807"
+    },
+    {
+      "path": "docs/STRIPE_MANAGED_PRICE_MAP_TEMPLATE_v014033.json",
+      "bytes": 204,
+      "sha256": "7d6935d02e3af6044a6d439ad5ed376f6912a0c8d605d4b71ea5af36d422048f"
+    },
+    {
+      "path": "functions/api/payment-catalog-v01433.js",
+      "bytes": 5038,
+      "sha256": "2d68e40f6d3e207179ba3cb14f34fba922c2b3b3591add44022d90f9394378fa"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2135,
+      "sha256": "acbabb34d87128ed644e1747be21138a57b801804babb5f3f114cdcb13fe8bb5"
+    },
+    {
+      "path": "tests/test_v014032r1_release.py",
+      "bytes": 2929,
+      "sha256": "6f1e02e80b367166a2892335c376861d7614f5a7339323c55530e4d1353e10f8"
+    },
+    {
+      "path": "tests/test_v014032r2_payment_source.py",
+      "bytes": 2769,
+      "sha256": "d6a0c0f3304dbe38531c8375b2a92c2a689f3f3594ea15375f7fbfa4d16d7f3a"
+    },
+    {
+      "path": "tests/test_v014033_admin_payment_browser.py",
+      "bytes": 4611,
+      "sha256": "8c61e1b94b8af9597fdedb92885260252e564becef43fc0028ed7630dbf07ac7"
+    },
+    {
+      "path": "tests/test_v014033_payment_catalog.mjs",
+      "bytes": 3132,
+      "sha256": "2739f8b45b59aeac291706c0a32d311514740ccbd399c98fb6caa0da1479fbc6"
+    },
+    {
+      "path": "tests/test_v014033_payment_source.py",
+      "bytes": 1775,
+      "sha256": "acbebe8fc2239c37079f9dd57b0cb754c40de17e25cefba827fcc9a40ab7507e"
+    }
+  ]
+}
