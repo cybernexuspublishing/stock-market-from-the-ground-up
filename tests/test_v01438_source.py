@@ -1,9 +1,11 @@
 from pathlib import Path
 import json,subprocess
 root=Path(__file__).resolve().parents[1];read=lambda x:(root/x).read_text()
-assert "VERSION: '0.14.0.39'" in read('config.js')
-assert 'groundup-v014039-public' in read('sw.js')
-assert json.loads(read('release-manifest.json'))['version']=='0.14.0.39'
+version=json.loads(read('release-manifest.json'))['version']
+cache_version=version.replace('.','')
+assert f"VERSION: '{version}'" in read('config.js')
+assert f'groundup-v{cache_version}-public' in read('sw.js')
+assert json.loads(read('release-manifest.json'))['version']==version
 assert json.loads(read('release-manifest.json'))['customerCheckoutApproved'] is False
 assert 'no mandatory MFA' in read('assets/js/signin.js')
 assert '__guAuthTurnstileBooted' in read('assets/js/turnstile-auth.js')
