@@ -1,0 +1,101 @@
+{
+  "schema": "gu-release-v1",
+  "version": "0.14.0.40",
+  "status": "LOCAL_TESTED_CANDIDATE_NOT_DEPLOYED",
+  "project": "The Stock Market: From the Ground Up",
+  "organization": "Cyber Nexus",
+  "baseline_commit": "b6efd36cb23a4434b2623ed08f41bdb4a4be0016",
+  "production_checkout_enabled": false,
+  "test_checkout_gate_must_remain_off": true,
+  "stripe_catalog_write_actions": false,
+  "supabase_migrations_in_this_patch": 0,
+  "real_stripe_api_verified": false,
+  "local_mock_tests": {
+    "tests/test_v01439_cloudflare_mock.mjs": {
+      "returncode": 0,
+      "stdout": "PASS v39: Owner authentication, sandbox-only checkout, signed test webhook, shadow RPC only; unauthorized fail-closed.",
+      "stderr": ""
+    },
+    "tests/test_v014040_catalog_and_auth.mjs": {
+      "returncode": 0,
+      "stdout": "PASS v40: eight-product real-time read-only verification mock, missing-product identification, Owner auth, Stripe-account pinning, and API-key header source guards",
+      "stderr": ""
+    },
+    "tests/test_v01439_source.py": {
+      "returncode": 0,
+      "stdout": "PASS v39: version integrity, front-end JavaScript syntax, shadow-only SQL, Owner/role guards, disabled defaults",
+      "stderr": ""
+    },
+    "tests/test_v01439_admin_browser.py": {
+      "returncode": 0,
+      "stdout": "PASS v39: shadow panel mounts for authorized Commerce, fails closed without enabled staff tab, defaults OFF",
+      "stderr": ""
+    }
+  },
+  "changed_files": {
+    ".github/workflows/stripe-shadow-v01439.yml": {
+      "bytes": 1399,
+      "sha256": "222e83c3dca7683ab9c4bb8c269b4f5b64507f0061aec51a163f2b8d5093a3d2"
+    },
+    "README_START_HERE.md": {
+      "bytes": 2527,
+      "sha256": "753b3269c951ce70b42aed7d22990f92ff5bfb1d585464d9b30cadd5218a6c5c"
+    },
+    "assets/js/admin-simple-navigation-v014036.js": {
+      "bytes": 5315,
+      "sha256": "56b032462c664dbbda76edc64a12b6d537894150d60b57be9ec112b2fa590e7d"
+    },
+    "assets/js/admin-stripe-shadow-v01439.js": {
+      "bytes": 8291,
+      "sha256": "234b8ba70723a5ca91efad1330f597c00c0c70efa030eea6cded7e87f43613b3"
+    },
+    "assets/js/route-policy.js": {
+      "bytes": 1692,
+      "sha256": "2f35805aa13c3e1414919b2932c6d4c9de95d74d5f1d00db51183098ce304f1a"
+    },
+    "config.js": {
+      "bytes": 807,
+      "sha256": "915fb5690ea51f5f1433b4278d41fbab3dad94a3b69f743927824e9b2e021377"
+    },
+    "data/commerce-config.json": {
+      "bytes": 880,
+      "sha256": "a700b746253bf4d0642986aab05a004fdfa659309f7c880424497fe591d0e541"
+    },
+    "docs/STRIPE_SANDBOX_CATALOG_STATUS_v0.14.0.40.md": {
+      "bytes": 1949,
+      "sha256": "8633a316b00498b59c69841199cfdd50b5051e64c882a4592ccdf4d82bb26c7b"
+    },
+    "functions/api/gu39-sandbox.js": {
+      "bytes": 11129,
+      "sha256": "fc6fa8f6f0d79329d17f3ec7633fc93226d287ca01ee3cc54a2227968716cf9b"
+    },
+    "functions/api/gu39-stripe-webhook.js": {
+      "bytes": 9346,
+      "sha256": "d59d8971c1093e912f55f12d184e1ac878ffdb3524c0ca665b6df0dee1a1fb70"
+    },
+    "release-manifest.json": {
+      "bytes": 561,
+      "sha256": "ad49c7961dac3baf745aca299c68f6bad8584deb670852e8f15b115bdd0e051e"
+    },
+    "supabase/admin/v0.14.0.40_STRIPE_SECURITY_READ_ONLY.sql": {
+      "bytes": 2353,
+      "sha256": "afee85c9c06756c59ccc3b7aa2d350c5eb393b52384ebaa90662c80420131226"
+    },
+    "sw.js": {
+      "bytes": 2135,
+      "sha256": "d497d4187e69ac8e7f68b918f7b17dd15f980617dcad260291ab73488e63ea0b"
+    },
+    "tests/test_v014040_catalog_and_auth.mjs": {
+      "bytes": 9500,
+      "sha256": "a2912b8de0402b8117decdcf431736e971edbc81e4fd1a387f5e3f78104a57de"
+    },
+    "tests/test_v01439_cloudflare_mock.mjs": {
+      "bytes": 6265,
+      "sha256": "562e1deb6b2666b5c238f678fdc8a45fe684ada0d47e2a82a9073ad7eab30a51"
+    },
+    "tests/test_v01439_source.py": {
+      "bytes": 2214,
+      "sha256": "b6a3ad76da45b0918c3a1fde0b079c6ccc9f92464d3a2548575fb796f9beca79"
+    }
+  }
+}

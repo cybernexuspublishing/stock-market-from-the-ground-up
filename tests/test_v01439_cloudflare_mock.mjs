@@ -5,7 +5,7 @@ const hookPath=new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url
 const load=async url=>import('data:text/javascript;base64,'+readFileSync(url).toString('base64'));
 const api=await load(apiPath),hook=await load(hookPath);
 const base='https://oxihglyfgzywsupnyicb.supabase.co', id='e1b5d7f0-52dc-493e-b513-71f39aaa879a';
-const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'public-key',SUPABASE_SECRET_KEY:'test-service-key',
+const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'public-key',SUPABASE_SECRET_KEY:'sb_secret_mock',
  GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_mock',
  GU39_STRIPE_TEST_PRICE_MAP_JSON:JSON.stringify({'plan:FULL_MONTHLY':'price_mock987654321'})};
 let enabled=true,hookCalls=[],network=[];const prev=globalThis.fetch;
@@ -14,6 +14,7 @@ globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';
  if(u.endsWith('/auth/v1/user'))return result({id});
  if(u.endsWith('/rpc/gu_staff_identity_v01431r1'))return result('OWNER');
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return result(true);
+ if(u.endsWith('/v1/account'))return result({id:'acct_1URGkDJY9FI7byHB'});
  if(u.endsWith('/rpc/gu39_sandbox_owner_read'))return result({ok:true,role:'OWNER',enabled,updatedAt:'2026-10-16T12:00:00Z',intentCount:0,processedEventCount:0,shadowAccessCount:0});
  if(u.endsWith('/rpc/gu39_sandbox_owner_toggle')){enabled=JSON.parse(opts.body).p_enabled;return result({ok:true,enabled,updatedAt:'2026-10-16T12:01:00Z'});}
  if(u.includes('gu39_sandbox_intents?select=id'))return result([]);

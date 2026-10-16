@@ -1,15 +1,21 @@
-# v0.14.0.39 — Stripe Shadow Testing, Existing Supabase (ONE COMBINED RELEASE)
+# v0.14.0.40 — Stripe secret-key compatibility and live sandbox catalog verification
 
-**Status: code candidate, not deployed. DO NOT ENABLE LIVE CUSTOMER PAYMENTS.**
+**REVIEW CANDIDATE — NOT APPLIED TO GITHUB OR CLOUDFLARE BY THIS PACKAGE.**
 
-This is a path-preserving **direct-upload source overlay**, not a replacement for the full repository. Overlay on the current GitHub `main` version v0.14.0.38 (commit `b9e077a2c755643893cb3d22f2b64263dc74c2d0`). Preserve all unrelated files and existing Cloudflare secrets.
+Repository baseline: `cybernexuspublishing/stock-market-from-the-ground-up` `main` at `b6efd36cb23a4434b2623ed08f41bdb4a4be0016` (v0.14.0.39).
 
-**Purpose:** Test Stripe in a separate **shadow ledger inside the existing Supabase database**, without creating a second Supabase project or touching real entitlements. A test success never grants real access.
+**One consolidated path-preserving overlay ZIP**, not a complete replacement website. Preserve unrelated files. Install on top of that baseline without renaming paths. Build/deploy in Cloudflare after reviewing GitHub CI. No new Supabase migrations in this release. No new environment variables. Reuse existing Stripe TEST secret and Price map already saved in Cloudflare. Do not paste or upload any keys.
 
-**Included:** Owner Payment Testing controls, disabled-by-default SQL shadow tables/RPCs, Owner-only Stripe sandbox checkout endpoint, signed test webhook handler, read-only SQL security inventory, unit/mock tests, updated checkout source contract, consistent version/service-worker cache identifiers, release control and security documentation.
+**What changed:**
+- New Supabase `sb_secret_` server credential support in `/api/gu39-sandbox` and `/api/gu39-stripe-webhook`; legacy service_role JWT continues to work.
+- Server-side read-only Stripe test account verification, hard-pinned to owner-reported `acct_1URGkDJY9FI7byHB`; checkout additionally rejects a mismatched account.
+- Admin > Payments & Billing > Stripe Payment Testing > **Verify All 8 Sandbox Products**: real-time Stripe test API lookup of EIGHT product IDs and matching test prices. Works without enabling checkout. Results distinguish existing/absent/mismatched products and prices.
+- Added mock automated test of sandbox product verification, no-live-write safety, and both Supabase credential formats.
+- Incremented release/site cache to v0.14.0.40.
+- Read-only Supabase security SQL provided for review; does not alter real data.
 
-**Required before any SQL:** review the SQL and take a recoverable backup. It will ADD shadow tables and functions in your production Supabase database; it does **not** silently auto-run. Do not run historic v38 migrations or repurpose v38 entitlement RPCs. The SQL preflight is read-only.
+**Do not add duplicate products yet:** earlier `sandbox_import_results.json` asserts 8 test prices and products. There is no evidence yet that Stripe API corroborates their presence in the sandbox being viewed. Verify catalog through Admin FIRST. If 8/8 passes, they're already present. If not, save status rows to plan idempotent missing-only repair; creating duplicate products before verifying would be unsafe.
 
-**Owner startup (after approved database migration):** Add actual Stripe **TEST** Price IDs to the `GU39_STRIPE_TEST_PRICE_MAP_JSON` Worker secret, plus TEST Stripe API/webhook secrets; set `GU39_SANDBOX_SHADOW_GATE=true`; open Admin → Payments & Billing → Stripe Payment Testing, reconfirm password, Enable Testing. All settings are initially off. Run actual test-mode purchases and export shadow-only results; no direct membership grants. Never paste API/webhook secrets in chat.
+**Required gates before live payment:** signed Stripe webhook test, user access isolation, subscriptions and refunds, merchant readiness and tax review, production customer payment backend independently approved. Keep `GU39_SANDBOX_SHADOW_GATE` OFF until controlled test readiness review; keep live checkout OFF.
 
-Read `docs/STRIPE_SHADOW_RELEASE_CONTROL_v0.14.0.39.md` for controls, risks, version details, dependencies, and pending acceptance tests.
+**Run tests on merged repository:** `node tests/test_v014040_catalog_and_auth.mjs`; `node tests/test_v01439_cloudflare_mock.mjs`; `python tests/test_v01439_source.py`. These are mock/source tests, not real Stripe charges.

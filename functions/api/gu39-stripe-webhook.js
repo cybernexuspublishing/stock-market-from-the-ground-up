@@ -1,8 +1,13 @@
-/* v0.14.0.39 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
+/* v0.14.0.40 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
  * Production subscriptions, purchases and actual entitlements are never touched.
  */
 const respond=(body,status=200)=>new Response(body,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const id=(x,p)=>new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(String(x||''));
+function serviceHeaders(secret){
+ if(String(secret).startsWith('sb_secret_'))return {apikey:secret};
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(String(secret)))return {apikey:secret,authorization:'Bearer '+secret};
+ throw Error('SUPABASE_SECRET_FORMAT_UNSUPPORTED');
+}
 const rawval=x=>typeof x==='string'?x:x?.id||null;
 const iso=x=>Number.isSafeInteger(x)?new Date(x*1000).toISOString():null;
 const envValid=e=>e.GU39_SANDBOX_SHADOW_GATE==='true'&&String(e.GU39_STRIPE_TEST_SECRET_KEY||'').startsWith('sk_test_')&&String(e.GU39_STRIPE_TEST_WEBHOOK_SECRET||'').startsWith('whsec_')&&
@@ -13,7 +18,7 @@ async function signature(raw,header,secret){const fields=String(header||'').spli
  let verified=false;for(const hex of digests){let diff=0;for(let i=0;i<32;i++)diff|=bytes[i]^parseInt(hex.slice(2*i,2*i+2),16);verified||=diff===0}return verified;
 }
 async function stripe(env,path){const r=await fetch('https://api.stripe.com/v1/'+path,{headers:{authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY},cache:'no-store'});if(!r.ok)throw Error('STRIPE_RETRY');const j=await r.json();if(j?.error||!j)throw Error('STRIPE_RETRY');return j;}
-async function supa(env,path,method='GET',data){const base=String(env.SUPABASE_URL).replace(/\/$/,'');const r=await fetch(base+'/rest/v1/'+path,{method,cache:'no-store',headers:{apikey:env.SUPABASE_SECRET_KEY,authorization:'Bearer '+env.SUPABASE_SECRET_KEY,'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});if(!r.ok)throw Error('DB_RETRY');return r.json()}
+async function supa(env,path,method='GET',data){const base=String(env.SUPABASE_URL).replace(/\/$/,'');const r=await fetch(base+'/rest/v1/'+path,{method,cache:'no-store',headers:{...serviceHeaders(env.SUPABASE_SECRET_KEY),'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});if(!r.ok)throw Error('DB_RETRY');return r.json()}
 async function checkout(env,filter,ident){const sessions=await stripe(env,'checkout/sessions?'+filter+'='+encodeURIComponent(ident)+'&limit=2');if(sessions.data?.length!==1)return null;return sessions.data[0]}
 async function detail(env,sessionId){if(!id(sessionId,'cs_test'))return null;
  const s=await stripe(env,'checkout/sessions/'+encodeURIComponent(sessionId));if(s.livemode!==false||s.id!==sessionId)return null;

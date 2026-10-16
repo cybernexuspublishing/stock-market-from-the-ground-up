@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.39",
+  "version": "0.14.0.40",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "b9e077a2c755643893cb3d22f2b64263dc74c2d0",
+  "baselineGitCommit": "b6efd36cb23a4434b2623ed08f41bdb4a4be0016",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -11,5 +11,6 @@
   "stripePriceIdsVerified": 0,
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
-  "liveStripeFulfillmentEnabled": false
+  "liveStripeFulfillmentEnabled": false,
+  "catalogVerification": "read-only owner/admin Stripe API; requires deployed v40"
 }
