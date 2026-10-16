@@ -1,0 +1,20 @@
+/* v0.14.0.36 — descriptive single-level Admin directory. */
+#gu36-simple-admin{display:grid;gap:.65rem;margin:0 .75rem .9rem;padding:.75rem;background:#0c2436;border:1px solid #31546b;border-radius:10px;color:#f1f6fa}
+#gu36-simple-admin h2{font-size:1rem;margin:0;color:#ffda79}
+#gu36-simple-admin label{display:grid;gap:.3rem;font-size:.82rem;line-height:1.4;color:#d9e8f3}
+#gu36-find-admin{font:inherit;font-size:.87rem;padding:.7rem .6rem;width:100%;min-width:0;max-width:100%;border-radius:6px;border:1px solid #6492ad;background:#132f45;color:white}
+#gu36-find-admin::placeholder{color:#c1cdd4}
+#gu36-find-admin:focus-visible,#gu36-simple-admin button:focus-visible{outline:2px solid #ffe08b;outline-offset:2px}
+.gu36-quick-links{display:grid;gap:.15rem;}
+.gu36-nav-link{font:inherit;width:100%;color:#edf5fc;text-align:left;line-height:1.4;padding:.65rem .55rem;border:none;background:transparent;border-radius:6px;cursor:pointer}
+.gu36-nav-link:hover{background:#204761;color:#fff}
+.gu36-nav-link[hidden]{display:none!important}
+.gu36-nav-notice{margin:0;color:#ffda79;line-height:1.35;font-size:.76rem}
+.gu36-nav-notice:empty{display:none}
+.gu36-all-controls{margin:0 .75rem 1.2rem;border:1px solid #31546b;border-radius:8px;background:#0d2c43}
+.gu36-all-controls>summary{cursor:pointer;padding:.8rem .65rem;color:#ffda79;font-size:.9rem;font-weight:700}
+.gu36-all-controls>nav{padding:.1rem .4rem .6rem;}
+.gu36-all-controls>nav .cc-admin-group-title{margin:.4rem 0 .2rem}
+#gu36-release-status{display:block;margin:.8rem .75rem 1.1rem;padding:.7rem .6rem;color:#c3d7e8;font-size:.75rem;line-height:1.45;border-top:1px solid #31546b;overflow-wrap:anywhere}
+#gu36-release-status.gu36-version-warning{color:#ffda79;border:1px solid #bc974c;border-radius:7px;background:#241e19}
+@media(max-width:900px){#gu36-simple-admin{margin:.4rem .4rem .8rem}}

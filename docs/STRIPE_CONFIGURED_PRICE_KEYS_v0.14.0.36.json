@@ -1,0 +1,24 @@
+{
+  "schema": "gu-stripe-price-template-1",
+  "project": "The Stock Market: From the Ground Up",
+  "status": "SANDBOX MAPPING TEMPLATE ONLY; checkout remains disabled",
+  "currency": "USD",
+  "price_ids": {
+    "plan:FULL_MONTHLY": null,
+    "plan:FULL_ANNUAL": null,
+    "plan:LIFETIME": null,
+    "plan:ONDEMAND_MONTHLY": null,
+    "tool:INTERACTIVE_LEARNING": null,
+    "tool:JOURNAL_ANALYTICS": null,
+    "tool:MARKET_SIMULATOR": null,
+    "tool:MARKET_TUTOR": null
+  },
+  "prepared_books_not_sellable_while_kdp_select_exclusive": {
+    "book:FOUNDATION_BOOK_1": 999,
+    "book:FOUNDATION_BOOK_2": 1099,
+    "book:FOUNDATION_BOOK_3": 1199,
+    "book:DAY_TRADING_BOOK_1": 1499,
+    "book:READING_THE_TAPE": 1499
+  },
+  "security": "Do not expose secret keys. Price IDs are created in Stripe Sandbox; live mode uses different IDs. Never paste Stripe IDs into Lemon Squeezy Variant ID fields. This is not an active Cloudflare environment variable until validated and explicitly configured."
+}

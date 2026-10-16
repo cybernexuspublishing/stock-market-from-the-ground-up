@@ -1,16 +1,13 @@
-# v0.14.0.35 — MEMBERSHIP BOOK BENEFITS / STRIPE ALIGNMENT
+# Cyber Nexus — One Consolidated Website Source Candidate v0.14.0.36
 
-**Project:** The Stock Market: From the Ground Up · Cyber Nexus  
-**Type:** GitHub direct-upload **overlay**, same process as previous versions (paths correspond to repository paths).  
-**Baseline:** deployed `v0.14.0.34`, commit `d02a9fe0bba155b71f4ca951d188aa6bc6e9aa89`.  
-**State:** Candidate; do not activate checkout, grants or ebook distribution solely by installing source.
+This ZIP is an **overlay for the existing GitHub repository** `cybernexuspublishing/stock-market-from-the-ground-up`. It is NOT a full independent clone. Preserve every unrelated repository file, existing environment secret, database record, and user entitlement.
 
-The user approved Full Monthly/Annual book **companions**, Lifetime including five full eBooks **when rights permit**, Pick What You Want à-la-carte subscriptions, and provisional website eBook prices. This package fixes visible source contracts and prepares a staging-reviewed migration. Existing verified Stripe products and price IDs are **not available**, and no provider account changes were made.
+**Base checked:** GitHub `main` v0.14.0.35, commit `9b244670b26d09a67b9f26257de06c7475b0ec50`.
 
-1. Upload overlay ZIP preserving unrelated existing files. Verify GitHub Actions.
-2. Run read-only v0.14.0.35 preflight in **staging** and review current values. Apply migration only after review; run postflight. Do not rerun unrelated older migrations.
-3. Verify full/limited/lifetime member access on the website, including false/denied scenarios, book covers, KDP Select gating and disabled checkout.
-4. Create appropriate Stripe **sandbox** products and capture `price_...` IDs. Configure server-only price map separately; do not place Stripe IDs in Lemon Squeezy fields. Stripe live order fulfillment is still unimplemented, so do not enable live sales.
+**Includes:** one 10-category Admin directory without removing the old functional buttons, search linkage, canonical source version v0.14.0.36 across public config/route/commerce/service worker, no-store release manifest, resilient CSS, updated historical tests, isolated browser smoke test, and Stripe price template.
 
-**Documentation:** `docs/RELEASE_AUDIT_AND_STRIPE_ACCEPTANCE_v0.14.0.35.md`.  
-**Staging SQL:** `supabase/migrations/v0.14.0.35_MEMBERSHIP_BOOK_RIGHTS_REVIEW_REQUIRED.sql`.
+**Does NOT do:** activate Stripe payments, create actual Stripe products, provision subscriptions on payment, remove KDP Select restrictions, create Supabase accounts, turn off CAPTCHA, modify MFA policies, or confirm Cloudflare deployment. The v0.14.0.35 database migration remains subject to separate postflight results. Do not represent this as a completed storefront.
+
+**Release gates:** Review `docs/INTEGRATED_RELEASE_REVIEW_v0.14.0.36.md`, run every repository CI workflow and security check against the new commit, perform browser tests with Owner/Admin/member accounts, verify the Cloudflare-served manifest and code, and complete Stripe webhook-to-entitlement processing before enabling paid checkout.
+
+**Related working document (downloaded separately):** `Stripe_Products_Prices_and_Full_Field_Setup_Guide_v1.2.docx`.

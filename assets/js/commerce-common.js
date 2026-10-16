@@ -53,7 +53,7 @@ window.CommerceTools=(function(){'use strict';
       ]);
       if(pRes.error||plRes.error||tRes.error)return {...fallback,plans:[],tools:[],commerceUnavailable:true};
       const settings=Object.fromEntries((sRes.data||[]).map(x=>[x.setting_key,x.value]));
-      const cfg={...fallback.cfg,version:String(settings['site.version']||'0.11'),
+      const cfg={...fallback.cfg,version:String(window.SITE_CONFIG?.VERSION||fallback.cfg.version||'unverified'),legacyDatabaseVersion:String(settings['site.version']||''),
         paymentProvider:String(settings['commerce.payment_provider']??fallback.cfg.paymentProvider??''),
         billingPortalUrl:String(settings['commerce.billing_portal_url']??fallback.cfg.billingPortalUrl??''),
         supportEmail:String(settings['site.support_email']??fallback.cfg.supportEmail??''),

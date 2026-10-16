@@ -1,0 +1,108 @@
+{
+  "name": "v0.14.0.36_CONSOLIDATED_ADMIN_VERSION_STRIPE_SOURCE",
+  "version": "v0.14.0.36",
+  "base_commit": "9b244670b26d09a67b9f26257de06c7475b0ec50",
+  "status": "source overlay, NOT deployed or production approved",
+  "files": [
+    {
+      "path": "README_START_HERE.md",
+      "sha256": "60eee6e6fbf0c1729f18518436debcf6ae8b2c7b76dc549a26a0b66e9b5c6e8c",
+      "bytes": 1583
+    },
+    {
+      "path": "_headers",
+      "sha256": "c77866759f3ca2f16fbfcc257d80ad3516197545fc1eb7de5c6d4342796d4402",
+      "bytes": 1206
+    },
+    {
+      "path": "assets/css/admin-simple-navigation-v014036.css",
+      "sha256": "d8d03ce1885ebc537e417ae2543045099953a358dc489e259a4405afe9cdc38b",
+      "bytes": 1856
+    },
+    {
+      "path": "assets/js/admin-payment-center-v01433.js",
+      "sha256": "76c813528a00e73b1a08fc43acc2e31f350faf7bc7dafafb648da0e70d739d0b",
+      "bytes": 18646
+    },
+    {
+      "path": "assets/js/admin-simple-navigation-v014036.js",
+      "sha256": "f2f83a5c3b09a0d3443db60a5d2a1163c7074f11bb7cc262aca5184cce6a822c",
+      "bytes": 5157
+    },
+    {
+      "path": "assets/js/commerce-common.js",
+      "sha256": "cb17a3483d36d91fc8f081e1140d3a4d8153f8321571628eefd1c6d79ba73556",
+      "bytes": 5553
+    },
+    {
+      "path": "assets/js/release-integrity-v014036.js",
+      "sha256": "109aba7485607f95f4880944086810b43988c8b7d184b39a06e4ef135f013787",
+      "bytes": 1968
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "sha256": "7045d628b85bd384f896d47a3472a67b4c6adf78c71f6744a9851a78f4383b9a",
+      "bytes": 1692
+    },
+    {
+      "path": "assets/js/site.js",
+      "sha256": "b28e999563ce7170d91ed2d99abc7e24fc0a29ced6e74cf2354e88179801b34a",
+      "bytes": 11460
+    },
+    {
+      "path": "config.js",
+      "sha256": "e7965cf3b8c41ab3ab01435c059a5a4c31c25bf27d1e5145fbfbe8d4caed7795",
+      "bytes": 807
+    },
+    {
+      "path": "data/commerce-config.json",
+      "sha256": "e559ae2675ca8463681354f8c15ed16c368b7420594f75ed61e9ffafb2dbf5c0",
+      "bytes": 1098
+    },
+    {
+      "path": "docs/INTEGRATED_RELEASE_REVIEW_v0.14.0.36.md",
+      "sha256": "e146b33a249f004453fae30e92585f13f780de63e938dedb5ba51cdbc48024b0",
+      "bytes": 5363
+    },
+    {
+      "path": "docs/STRIPE_CONFIGURED_PRICE_KEYS_v0.14.0.36.json",
+      "sha256": "f5c9df2397de4d5959fbb2468b6849eb9f1ad5f9340896c9ae1dc58de6b8f4fd",
+      "bytes": 994
+    },
+    {
+      "path": "release-manifest.json",
+      "sha256": "4ce6e4a6ab4020d3a93f97243ebf57110905637aad6292be99d61456c0e46a1a",
+      "bytes": 314
+    },
+    {
+      "path": "scripts/build-pages.sh",
+      "sha256": "6d20a489aa8375dd4bc19c3861cdbb1ecd2849ad2957b5902717c1ba71049e31",
+      "bytes": 1888
+    },
+    {
+      "path": "sw.js",
+      "sha256": "3247c39be963dadccb87f1ae37910b828348594859a5599006de0c6340afd96a",
+      "bytes": 2135
+    },
+    {
+      "path": "tests/test_v014034_admin_accessibility.py",
+      "sha256": "06f027fd0737c83a3bd0143b2dc2b85c56912449cfc34553316167e9595da565",
+      "bytes": 2438
+    },
+    {
+      "path": "tests/test_v014035_membership_stripe_source.py",
+      "sha256": "86567a74ee61d763a0e6ede33576c49ce4d79a2cada55c8aac820d485764d9dc",
+      "bytes": 3039
+    },
+    {
+      "path": "tests/test_v014036_admin_browser.py",
+      "sha256": "1d9c86f135e22303e433e516ca0d3b2e0bc63c94bd9eab7acea78ab7bd6bfa1b",
+      "bytes": 3078
+    },
+    {
+      "path": "tests/test_v014036_release_integrity.py",
+      "sha256": "72fadc1050bb241f6cfd8adb909fedc24b051ac0120ee58c6d605646b7738ebd",
+      "bytes": 2309
+    }
+  ]
+}
