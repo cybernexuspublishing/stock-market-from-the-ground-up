@@ -1,0 +1,29 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "version": "0.14.0.35",
+  "status": "catalog-template-only; stripe Price IDs not provided; no checkout activated",
+  "source": "2026-10-15 Supabase catalog CSV + owner-approved ebook website prices and membership benefits",
+  "merchant_of_record_target": "Stripe Managed Payments for eligible digital transactions; confirmation of account/product eligibility required",
+  "external_accounts_configured": false,
+  "price_map_cloudflare_env": "STRIPE_MANAGED_PRICE_MAP_JSON",
+  "stripe_prices": [
+    {"sku":"plan:FULL_MONTHLY","name":"Full Platform Membership","cents":6999,"interval":"month","stripe_price_id":null},
+    {"sku":"plan:FULL_ANNUAL","name":"Full Platform Membership","cents":69900,"interval":"year","stripe_price_id":null},
+    {"sku":"plan:LIFETIME","name":"Lifetime Platform Access","cents":249900,"interval":"one_time","stripe_price_id":null},
+    {"sku":"plan:ONDEMAND_MONTHLY","name":"Historical Replay Learning","cents":1999,"interval":"month","stripe_price_id":null},
+    {"sku":"tool:INTERACTIVE_LEARNING","name":"Interactive Learning & Historical Labs","cents":2999,"interval":"month","stripe_price_id":null},
+    {"sku":"tool:JOURNAL_ANALYTICS","name":"Trading Journal & Performance Analytics","cents":2999,"interval":"month","stripe_price_id":null},
+    {"sku":"tool:MARKET_SIMULATOR","name":"Advanced Market Simulator & Replay","cents":2999,"interval":"month","stripe_price_id":null},
+    {"sku":"tool:MARKET_TUTOR","name":"Market Tutor","cents":2999,"interval":"month","stripe_price_id":null}
+  ],
+  "digital_books_prices_prepared_sales_disabled": [
+    {"sku":"book:FOUNDATION_BOOK_1","cents":999,"cover":"/assets/images/books/foundation-book-1.webp","stripe_price_id":null},
+    {"sku":"book:FOUNDATION_BOOK_2","cents":1099,"cover":"/assets/images/books/foundation-book-2.webp","stripe_price_id":null},
+    {"sku":"book:FOUNDATION_BOOK_3","cents":1199,"cover":"/assets/images/books/foundation-book-3.webp","stripe_price_id":null},
+    {"sku":"book:DAY_TRADING_BOOK_1","cents":1499,"cover":"/assets/images/books/day-trading-book-1.webp","stripe_price_id":null},
+    {"sku":"book:READING_THE_TAPE","cents":1499,"cover":"/assets/images/books/reading-the-tape.webp","stripe_price_id":null}
+  ],
+  "not_stripe_products": ["FREE", "PICK_WHAT_YOU_WANT"],
+  "do_not_create_now": ["FOUNDING_MONTHLY", "FOUNDING_ANNUAL", "planned_or_beta_tools"],
+  "important": "A generated price_ id must be mapped in Cloudflare server variables; do NOT paste into Lemon Squeezy Variant ID fields. Site-wide live paid entitlements for Stripe are not implemented."
+}

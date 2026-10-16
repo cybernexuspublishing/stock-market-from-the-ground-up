@@ -1,0 +1,91 @@
+{
+  "release": "v0.14.0.35",
+  "baseline_github_sha": "d02a9fe0bba155b71f4ca951d188aa6bc6e9aa89",
+  "project": "The Stock Market: From the Ground Up",
+  "deployment": "overlay; preserve all unrelated files",
+  "migration": "review required; not executed",
+  "stripe": "no account access, Price IDs, webhook fulfillment or live checkout claimed",
+  "status": "local tests pass; real production not tested",
+  "files": [
+    {
+      "path": ".github/workflows/membership-stripe-contract-v01435.yml",
+      "bytes": 1056,
+      "sha256": "04b1ec0f90a5555509625cca3569b7530475076b89b5118253aaea039fb10beb"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 1684,
+      "sha256": "b833cb2e62cc30f05de8011d973ea1151f3a037d8d9c235df3e5078c1128258b"
+    },
+    {
+      "path": "assets/js/commerce-common.js",
+      "bytes": 5463,
+      "sha256": "13ccf958685b019ab502b9afd720ec1bb6f6e5a18242bfaf644c0930b063afdb"
+    },
+    {
+      "path": "assets/js/digital-library-v01430.js",
+      "bytes": 3728,
+      "sha256": "f6e6bb3b8b124e9fe2486aa2ca0eaecf0938bcf417fd0d1c75927227d81d9114"
+    },
+    {
+      "path": "assets/js/membership-platform.js",
+      "bytes": 7389,
+      "sha256": "05578d69d4974ed1b83ed5ce0c48c6b0c2c67402c3bd53fb94ea4eb0a0f15c87"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1692,
+      "sha256": "ba301849828c7a0960cb072d8fda06b6f2ee8a084049cf7a50d470a20765f767"
+    },
+    {
+      "path": "config.js",
+      "bytes": 807,
+      "sha256": "00d6549ee4fcc6ec041b499f52d6fa2c5b433a156121b7caa984e65f4295246e"
+    },
+    {
+      "path": "docs/RELEASE_AUDIT_AND_STRIPE_ACCEPTANCE_v0.14.0.35.md",
+      "bytes": 8898,
+      "sha256": "747da68a7b879b37c16ac095bab55a54758bf175a691016168ddd21887073edc"
+    },
+    {
+      "path": "docs/STRIPE_SANDBOX_PRODUCTS_v0.14.0.35.json",
+      "bytes": 2627,
+      "sha256": "c46f7f6053b7f909ac28ca5839f50c1c93b414dcda20659cc0570fd8de5ca18f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.35_POSTFLIGHT_READ_ONLY.sql",
+      "bytes": 1770,
+      "sha256": "0c26090a4fd9cb704057f07fc80d12c661882791ec3b5f65c8eb60d4d41af86f"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.35_PREFLIGHT_READ_ONLY.sql",
+      "bytes": 1418,
+      "sha256": "8179b810349672d9ad37e6fc79797e9979a92fc538c20faac7b0ee7426010fa0"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.35_MEMBERSHIP_BOOK_RIGHTS_REVIEW_REQUIRED.sql",
+      "bytes": 9889,
+      "sha256": "7b50574bb02bb8528f8f024b95b674d44185f130bfb9eb820ff75151f7440e08"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2135,
+      "sha256": "285af07fcd13fb195ea6f5f755c23f2ad8a22a4c9e621be5697488a888c04664"
+    },
+    {
+      "path": "tests/test_v014034_admin_accessibility.py",
+      "bytes": 2348,
+      "sha256": "9ad0405ed0967fa68cbd8203adbfa2d7f3aecde2ec259fc2569f68645cf84c82"
+    },
+    {
+      "path": "tests/test_v014035_browser.py",
+      "bytes": 2795,
+      "sha256": "1a92cf6170288a88ec7addd06ebb668b70be3907039e4a39a80de1dbadf87ac5"
+    },
+    {
+      "path": "tests/test_v014035_membership_stripe_source.py",
+      "bytes": 2949,
+      "sha256": "241fe548d2372709262790c2102fb653e64141c920f373d5467dbad770667b5d"
+    }
+  ]
+}

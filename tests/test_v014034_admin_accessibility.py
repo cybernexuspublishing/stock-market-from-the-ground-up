@@ -1,11 +1,11 @@
-"""v0.14.0.34 no-MFA CAPTCHAs must fail closed, plain labels preserve stable IDs."""
+"""v0.14.0.35 no-MFA CAPTCHAs must fail closed, plain labels preserve stable IDs."""
 from pathlib import Path
 import re,subprocess
 R=Path(__file__).resolve().parents[1]
 def read(p):return (R/p).read_text()
-assert "VERSION: '0.14.0.34'" in read('config.js')
-assert "version:'0.14.0.34'" in read('assets/js/route-policy.js')
-assert 'groundup-v014034-public' in read('sw.js')
+assert "VERSION: '0.14.0.35'" in read('config.js')
+assert "version:'0.14.0.35'" in read('assets/js/route-policy.js')
+assert 'groundup-v014035-public' in read('sw.js')
 site=read('assets/js/site.js')
 assert 'admin-human-verification-v01434.js' in site
 assert 'admin-human-verification-v01434.css' in site

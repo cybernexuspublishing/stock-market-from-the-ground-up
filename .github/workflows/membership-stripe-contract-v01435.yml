@@ -1,0 +1,35 @@
+name: Membership and Stripe Catalog Contract v0.14.0.35
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Review membership and ebook rights source
+        run: python tests/test_v014035_membership_stripe_source.py
+      - name: Existing payment contract regressions
+        run: |
+          python tests/test_v014034_admin_accessibility.py
+          python tests/test_v014033_payment_source.py
+          node tests/test_v014032r2_stripe_sandbox.mjs
+      - name: Verify Cloudflare Pages boundary
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/functions
+          test ! -e public/tests
