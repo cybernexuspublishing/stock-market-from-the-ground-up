@@ -1,10 +1,12 @@
-"""Historical payment/Admin labels and CAPTCHA safety contracts, v0.14.0.39."""
+"""Historical payment/Admin labels and CAPTCHA safety contracts, version-aware."""
 from pathlib import Path
-import subprocess
+import subprocess,json
 R=Path(__file__).resolve().parents[1];read=lambda p:(R/p).read_text()
-assert "VERSION: '0.14.0.39'" in read('config.js')
-assert "version:'0.14.0.39'" in read('assets/js/route-policy.js')
-assert 'groundup-v014039-public' in read('sw.js')
+version=json.loads(read("release-manifest.json"))["version"]
+cache_version=version.replace(".","")
+assert f"VERSION: '{version}'" in read('config.js')
+assert f"version:'{version}'" in read('assets/js/route-policy.js')
+assert f'groundup-v{cache_version}-public' in read('sw.js')
 site=read('assets/js/site.js')
 assert 'admin-human-verification-v01434.js' in site
 assert 'admin-human-verification-v01434.css' in site
