@@ -1,0 +1,13 @@
+/* Cyber Nexus v0.14.0.39 — accessible Owner Stripe test controls */
+.gu39-shadow-card{background:#102c43;border:1px solid #45718f;color:#e9f6ff;border-radius:10px;padding:1rem;margin:1.25rem 0;line-height:1.5}
+.gu39-shadow-card h2{margin:0 0 .5rem}.gu39-shadow-card p{max-width:90ch}
+.gu39-danger{display:block;padding:.7rem .9rem;background:#3a2630;border:2px solid #d7b454;color:#ffe4a2;font-weight:700}
+.gu39-message{padding:.6rem;background:#1d425b;color:#fff;min-height:2.1em}
+.gu39-summary{display:grid;grid-template-columns:minmax(160px,1fr) minmax(100px,1fr);gap:.3rem 1.2rem;max-width:690px}
+.gu39-summary dt,.gu39-summary dd{margin:0;border-bottom:1px solid #40607a;padding:.4rem}
+.gu39-summary dt{font-weight:bold}.gu39-summary dd{overflow-wrap:anywhere}
+.gu39-actions{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:1rem 0}
+.gu39-actions button,.gu39-actions select{padding:.65rem;color:#122739;background:#ffda80;border:1px solid #dec063;border-radius:7px;font:inherit;cursor:pointer}
+.gu39-actions button:disabled{opacity:.55;cursor:not-allowed}
+.gu39-actions label{font-weight:bold}.gu39-actions select{background:#fff;color:#1d2933;max-width:100%}
+.gu39-actions :focus-visible{outline:3px solid #bdefff;outline-offset:2px}.gu39-small{font-size:.88rem;color:#d8ebf5}

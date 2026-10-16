@@ -1,0 +1,37 @@
+name: Stripe Shadow Sandbox v0.14.0.39
+on:
+  push:
+    paths:
+      - 'functions/api/gu39-*.js'
+      - 'supabase/migrations/v0.14.0.39*'
+      - 'assets/js/admin-stripe-shadow-v01439.js'
+      - 'assets/js/admin-simple-navigation-v014036.js'
+      - 'tests/test_v01439_*'
+      - 'tests/test_v014032r2_payment_source.py'
+      - '.github/workflows/stripe-shadow-v01439.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shadow-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify sandbox source and entitlements isolation
+        run: python tests/test_v01439_source.py
+      - name: Mock signed Stripe TEST checkout and shadow event
+        run: node tests/test_v01439_cloudflare_mock.mjs
+      - name: Admin UI browser smoke test
+        run: |
+          python -m pip install playwright==1.56.0
+          sudo apt-get update -qq
+          sudo apt-get install -y chromium >/dev/null
+          python tests/test_v01439_admin_browser.py

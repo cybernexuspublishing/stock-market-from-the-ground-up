@@ -1,9 +1,9 @@
-// Production browser configuration. Publishable Supabase key ONLY; no Stripe secrets.
+// Production browser configuration. Supabase publishable key ONLY. No Stripe secrets.
 window.SITE_CONFIG = {
   SITE_NAME: 'The Stock Market: From the Ground Up',
   AUTHOR: 'J. S. Grant',
   PUBLISHER: 'Crown & Lantern Press',
-  VERSION: '0.14.0.38',
+  VERSION: '0.14.0.39',
   SUPABASE_URL: 'https://oxihglyfgzywsupnyicb.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_h_P44yyEGGGY7Nu2oliC3A_68anzC_K',
   MEMBERSHIP_CHECKOUT_URL: '',
