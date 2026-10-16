@@ -1,0 +1,11 @@
+/* Accessible status and setup instructions: no secret configuration rendered. */
+[data-gu34-captcha]{margin:1rem 0 1.5rem}
+[data-gu34-captcha] details{margin-top:.85rem;padding:.75rem;border:1px solid #52758a;border-radius:10px;line-height:1.65}
+[data-gu34-captcha] details summary{cursor:pointer;font-weight:700}
+[data-gu34-captcha] details a{display:inline-block;margin:.3rem 0;color:#ffdb7c}
+[data-gu34-captcha] p[role=status]{padding:.75rem .9rem;background:#123348;border-left:3px solid #ffcd52}
+.gu-pw-setup{margin-top:.9rem;border:1px solid #d29d32;padding:.9rem;border-radius:8px;background:#163249;color:#fff;line-height:1.5}
+.gu-pw-setup strong{color:#ffdf8e}
+.gu-pw-setup a{color:#ffe4a7;text-decoration:underline}
+.gu-pw-setup[hidden]{display:none!important}
+.gu-pw-dialog input:disabled{opacity:.65;cursor:not-allowed}

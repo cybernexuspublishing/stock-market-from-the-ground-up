@@ -4,9 +4,10 @@ import re,subprocess
 R=Path(__file__).resolve().parents[1]
 def get(p):return (R/p).read_text()
 release=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",get('config.js'))
-assert release and release.group(1)=='0.14.0.33'
-assert "version:'0.14.0.33'" in get('assets/js/route-policy.js')
-assert 'groundup-v014033-public' in get('sw.js')
+assert release and tuple(map(int,release.group(1).split('.'))) >= (0,14,0,33)
+version=release.group(1)
+assert "version:'"+version+"'" in get('assets/js/route-policy.js')
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in get('sw.js')
 site=get('assets/js/site.js')
 assert "admin-payment-center-v01433.js" in site
 assert "admin-payment-center-v01433.css" in site

@@ -18,11 +18,11 @@ with sync_playwright() as p:
  page.add_script_tag(content=src)
  panel=page.locator('[data-gu-managed-r2]')
  panel.wait_for(timeout=4000)
- assert page.get_by_text('Stripe Managed Payments & Lemon Squeezy').count()==1
- page.get_by_role('button',name='Check Configuration').click()
- page.get_by_text('Current route: STRIPE_MANAGED').wait_for(timeout=4000)
- assert page.get_by_role('button',name='Open Stripe Test Checkout').is_disabled()
- assert page.get_by_role('button',name='Save Digital Provider Preference').is_enabled()
+ assert page.get_by_text('Digital Payment Settings').count()==1
+ page.get_by_role('button',name='Check Payment Setup').click()
+ page.get_by_text('Digital payment service: STRIPE_MANAGED').wait_for(timeout=4000)
+ assert page.get_by_role('button',name='Start Stripe Test Payment').is_disabled()
+ assert page.get_by_role('button',name='Save Payment Service').is_enabled()
  assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth+2')
  browser.close()
 print('PASS R2 browser: provider choice visible, sandbox disabled until credentials, 360px layout.')

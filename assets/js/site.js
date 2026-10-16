@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-payment-center-v01433.js','adminPaymentCenterV01433');
+    loadOnce('/assets/js/admin-human-verification-v01434.js','adminHumanVerificationV01434');
+    if(!document.querySelector('link[data-gu34-captcha-style]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-human-verification-v01434.css';l.dataset.gu34CaptchaStyle='1';document.head.append(l)}
     if(!document.querySelector('link[data-gu33-payment-center]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-payment-center-v01433.css';l.dataset.gu33PaymentCenter='1';document.head.append(l)}
   }
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/admin-password-confirm-v01432r1.js','adminPasswordConfirmV01432r1');loadOnce('/assets/js/admin-lemon-readiness-v01432r1.js','adminLemonReadinessV01432r1');loadOnce('/assets/js/admin-payment-providers-v01432r2.js','adminPaymentProvidersV01432r2');if(!document.querySelector('link[data-gu-password-reconfirm]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-password-confirm-v01432r1.css';x.dataset.guPasswordReconfirm='1';document.head.append(x)}}

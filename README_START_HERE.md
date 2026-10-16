@@ -1,30 +1,29 @@
-# v0.14.0.33 — ADMIN PAYMENT CENTER & GLOBAL SEARCH — DIRECT UPLOAD
+# v0.14.0.34 — SIMPLER ADMIN LABELS & HUMAN VERIFICATION SETUP
 
-**Project:** The Stock Market: From the Ground Up — Cyber Nexus / Crown & Lantern Press  
-**Baseline:** GitHub main `09087f8c7d928a4ed84ba263b1809250f22a11a6` (v0.14.0.32-R2)  
-**Package status:** SOURCE READY; GitHub/Cloudflare deployment NOT DONE; no payment account settings changed.  
-**Format:** Direct-upload ZIP, full files with repository relative paths. **Overlay only. Do not remove unrelated files.**
+**Project:** The Stock Market: From the Ground Up  
+**Publisher:** Crown & Lantern Press / Cyber Nexus  
+**GitHub baseline:** `cybernexuspublishing/stock-market-from-the-ground-up`, commit `a80a9d30c670dfbf5b65351332903e7b5fbd1dfc` (v0.14.0.33)  
+**Status:** Source release candidate; NOT deployed. No payment activation.  
+**Format:** Direct-upload source ZIP with original repository paths. **Preserve every unrelated repository file.**
 
-## What you will see
+## What is corrected
 
-Admin Control Center → Commerce: **Payments & Billing Center** at the top, with Stripe Managed Payments (sandbox), Lemon Squeezy (optional digital), Standard Stripe (signed print), Lulu Direct, existing subscriptions/orders, reconciliation and eBook controls linked together. The hub displays server-authorized configuration evidence, not credentials. It adds a read-only **Stripe Digital Products & Price Mapping** table and button.
+- Simple names for the Payment Center, Stripe configuration, signed books, membership prices, and legacy Lemon Squeezy forms. Existing buttons, DOM selectors, permissions and provider IDs remain unchanged.
+- Password confirmation now explains that **Turnstile is not yet set up**, rather than silently disabling the button. For security, input and submission stay disabled until Turnstile initialization succeeds.
+- The Admin Site Settings panel receives **Human Verification (CAPTCHA)** with a non-secret readiness check and setup instructions.
+- All existing customer pages, Market Commons, digital-book database and user accounts are preserved. No mandatory MFA is introduced.
 
-All Admin sections: **Find a control, setting or section** search field (Ctrl+K). The search is a navigation index — not a search of members' private data — and hides controls that the current account cannot use.
+## Why the original password screen cannot proceed yet
 
-## Important implementation boundaries
+The website requires Cloudflare Turnstile to be connected to Cloudflare Pages and Supabase Auth. **This cannot be fixed by changing browser text alone.** Do not weaken or bypass that requirement. Read `docs/ADMIN_SIMPLE_LANGUAGE_AND_CAPTCHA_SETUP_v0.14.0.34.md` to complete the provider configuration. Do not share secret keys in chat or commit them to GitHub.
 
-- The existing `Checkout & Payments → Membership Variant Mapping` is **Lemon Squeezy** configuration, not Stripe. Do not paste Stripe `price_` IDs into its Variant ID fields.
-- Stripe Price IDs are currently configured securely using Cloudflare Pages `STRIPE_MANAGED_PRICE_MAP_JSON` (server-only). We provide a mapped/unmapped inventory in Admin, **not a secret editor**.
-- Stripe Managed Payments is test/OWNER-only until verified customer fulfillment and idempotent paid entitlement creation are implemented. A configured provider route is **not** live payment approval.
-- No Supabase migration is needed for this UI release. The new protected read-only catalog endpoint uses the existing v32-R2 staff read authorization RPC.
+## Installation and verification
 
-## Steps
+1. Overlay ZIP source files in matching GitHub locations (existing process). Do not delete other repository files. Cloudflare Pages source deploy does **not** execute SQL.
+2. Check GitHub Actions and the deployed commit SHA. The release adds `Admin Clarity and CAPTCHA Guidance v0.14.0.34` tests.
+3. Admin → Site Settings → Human Verification (CAPTCHA): review its status and follow provider setup instructions.
+4. Configure a Turnstile widget for the actual hostname; set Cloudflare Pages `TURNSTILE_SITE_KEY`, secret `TURNSTILE_SECRET_KEY`, and `ENFORCE_AUTH_TURNSTILE_V135=true`; configure Supabase Auth CAPTCHA with the same Turnstile secret; redeploy.
+5. Test actual login, registration, password reset and sensitive Admin password reconfirmation; verify intentionally missing/invalid CAPTCHA is rejected by the server.
+6. Payment Settings: check that the Stripe / Lemon Squeezy descriptions are understandable and still open the same authorized backend controls. Keep live checkout OFF.
 
-1. Apply all files in this ZIP to GitHub preserving paths and unrelated files. Do not upload this package to Supabase or copy `functions/` into `public/`.
-2. Check all GitHub Actions on the deployed commit. Old v32 tests have version-forward-only compatibility changes. No security assertions were disabled.
-3. Deploy through the existing Cloudflare Pages build; inspect the Admin Console after reloading to clear cached source assets.
-4. Sign in as an authorized OWNER/ADMIN; open **Commerce → Payments & Billing**; click **Refresh Payment Readiness** then **Check Stripe Product Mapping**.
-5. Create Stripe Sandbox products/subscriptions and map their `price_` IDs to existing database SKU codes. Cloudflare secrets are server-only; do not share private keys in chat/screenshots.
-6. Leave ALL live customer checkout/entitlement switches OFF until a complete Stripe Managed Payments webhook-to-entitlement integration has passed sandbox/refund and subscriptions tests.
-
-**Documentation:** `docs/ADMIN_PAYMENT_CENTER_v0.14.0.33.md`. A blank (not activated) Stripe Price ID mapping template is at `docs/STRIPE_MANAGED_PRICE_MAP_TEMPLATE_v014033.json`.
+**No migration required. No Stripe/Lemon Squeezy product IDs or prices are changed.**

@@ -1,0 +1,94 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "version": "v0.14.0.34",
+  "repo_baseline": "a80a9d30c670dfbf5b65351332903e7b5fbd1dfc",
+  "format": "Direct-upload source overlay; preserve unrelated repository files",
+  "scope": "Plain-language Payment Center, Stripe and Lemon settings, secure CAPTCHA-not-configured diagnostic, Admin settings readiness guide",
+  "database_migrations": "NONE",
+  "production_credentials_modified": false,
+  "payment_activation": false,
+  "live_provider_status": "NOT VERIFIED / owner setup required",
+  "status": "Locally tested source candidate",
+  "files": [
+    {
+      "path": ".github/workflows/admin-ux-and-captcha-v01434.yml",
+      "bytes": 1292,
+      "sha256": "5724c6761b114d1f350768f856ce8d27348c33b4fa172e102facfe7133c13cee"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 2745,
+      "sha256": "bdb99e8b1e94248a45c80f6e7b51b72f1b074539e4b39b7fed54d000a77751bb"
+    },
+    {
+      "path": "assets/css/admin-human-verification-v01434.css",
+      "bytes": 833,
+      "sha256": "95f0b060539169ffe631e8ba35a0e4d0aa29b99796a0ac23abcf024c1460d377"
+    },
+    {
+      "path": "assets/js/admin-human-verification-v01434.js",
+      "bytes": 3123,
+      "sha256": "40412f5e848fc1674bbbf07753cfaeee60395032d21c4666fc9ce1113a063de6"
+    },
+    {
+      "path": "assets/js/admin-password-confirm-v01432r1.js",
+      "bytes": 7293,
+      "sha256": "26171a638f508cec877a7848247384aceaa6ec1ab52e49c65eade3bad9fd5f45"
+    },
+    {
+      "path": "assets/js/admin-payment-center-v01433.js",
+      "bytes": 18603,
+      "sha256": "bfb2c14cc41739c054f1493c8a2e9b9e0e6aeb84aadc26cd36cc0ad74235ff78"
+    },
+    {
+      "path": "assets/js/admin-payment-providers-v01432r2.js",
+      "bytes": 7371,
+      "sha256": "c69f915b60460c32fea531c1a61ecdafb3aaf3887a0551197db1f8659cf47891"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "bytes": 1692,
+      "sha256": "6eeebf38278b707ae401949891da62d76435eba7bac75eb0e6e77ec4ab18e42f"
+    },
+    {
+      "path": "assets/js/site.js",
+      "bytes": 11053,
+      "sha256": "01c75364a819ae65d0228fcac9f7524a5b78243de2a1247d0dfd9aa48c8f0a04"
+    },
+    {
+      "path": "config.js",
+      "bytes": 807,
+      "sha256": "fc5a610c419cabbdb0e797394ee17f1fcd098e1eb17b9752702ac5952734caab"
+    },
+    {
+      "path": "docs/ADMIN_SIMPLE_LANGUAGE_AND_CAPTCHA_SETUP_v0.14.0.34.md",
+      "bytes": 5986,
+      "sha256": "d214806aedd48377ebcb05c8b9b198ead311bcad963473dd087cd99bab39dd75"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2135,
+      "sha256": "93b5f73dc0671865c13ec30f73c0e1bd6bff219c8893d639e9ded9cebb34e9aa"
+    },
+    {
+      "path": "tests/test_v014032r2_browser.py",
+      "bytes": 1953,
+      "sha256": "5f1700357734274b125b7564a0f7c996349ee5531e1a5f5f68dced2a853a60fe"
+    },
+    {
+      "path": "tests/test_v014033_payment_source.py",
+      "bytes": 1856,
+      "sha256": "502f113072c0c754707c6c7db6199c3bb32ed6a082e5ccbdb0150a57f63b26d6"
+    },
+    {
+      "path": "tests/test_v014034_admin_accessibility.py",
+      "bytes": 2348,
+      "sha256": "d0976947e77ad1632ef39759323ee62fd1c66e2e95a5bc99a8afd55b8c9e5d46"
+    },
+    {
+      "path": "tests/test_v014034_password_browser.py",
+      "bytes": 1871,
+      "sha256": "480d21bf221a17401bd743772fb407b3e1eb97cb5e7ed3ddfb18ea8ce40a7dc4"
+    }
+  ]
+}

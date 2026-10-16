@@ -1,4 +1,8 @@
-/* Cyber Nexus / The Stock Market: From the Ground Up | v0.14.0.33
+/* Interface descriptions simplified in v0.14.0.34.
+ * Historical labels retained as developer references only: "Payment Operations",
+ * "Reconciliation & Webhooks", "Stripe Digital Products & Price Mapping".
+ * Provider brand names in diagnostics remain: "Stripe Managed Payments", "Standard Stripe", "Lemon Squeezy", "Lulu Direct".
+ * Cyber Nexus / The Stock Market: From the Ground Up | v0.14.0.33
  * Navigation and payment-readiness presentation only. No grant, key storage, checkout
  * activation, privilege escalation, SQL migration or rewriting existing editors.
  */
@@ -12,17 +16,17 @@ function allowed(button){return !!(button&&!button.hidden&&!button.disabled&&!bu
 const commerceNav=()=>qs('#admin-tabs button[data-panel="commerce"]');
 let mounted=false,loaded=false,started=false,searchStatus=null;
 const targets=[
- {id:'managed',name:'Stripe Managed Payments',description:'Digital provider, sandbox checkout, price mapping readiness and webhook status',keywords:'stripe digital managed account secret configuration price subscription', selector:'[data-gu-managed-r2]'},
- {id:'lemon',name:'Lemon Squeezy',description:'Alternative digital provider configuration and webhook readiness',keywords:'lemon squeezy api key variant subscription',selector:'[data-gu-lemon-readiness]'},
- {id:'signed',name:'Signed Book Payments & Fulfillment',description:'Standard Stripe physical payments, author-copy pricing, paid orders, signing, and tracking',keywords:'stripe physical kdp signed paperback hardcover orders shipping',selector:'[data-gu-signed-admin-v01431]'},
- {id:'lulu',name:'Lulu Direct & Print Sales',description:'Optional print provider, checkout links and title-level fulfillment settings',keywords:'lulu paperback hardcover print links',selector:'[data-gu-print-owner-v01428]'},
- {id:'printModes',name:'Print Fulfillment Preferences',description:'OWNER preferences for signed copies and Lulu enable/disable',keywords:'manual fulfillment signed enable disable',selector:'[data-gu-signed-print-v01429]'},
- {id:'digital',name:'eBook Sales & Downloads',description:'Private EPUB/PDF, KDP Select restrictions and title-level digital controls',keywords:'ebook epub pdf download rights kindle',selector:'[data-gu-digital-v01430]'},
- {id:'orders',name:'Orders & Subscriptions',description:'Existing site order and subscription records; provider remains payment authority',keywords:'customers payments renewal orders membership billing ledger',selector:'#admin-orders'},
- {id:'reconcile',name:'Reconciliation & Webhooks',description:'Recorded checkout intents, webhooks and entitlement status',keywords:'refund disputes chargeback reconciliation ledger webhook',nav:'[data-oc-tab="commerce"]'},
- {id:'memberships',name:'Membership Pricing & Visibility',description:'Manage membership visibility and available enrollment options',keywords:'free monthly annual lifetime founding plan membership',url:'/plan-controls.html'},
- {id:'catalog',name:'Products & Book Catalog',description:'Catalog records, print and digital editions',keywords:'book products title catalog',nav:'[data-panel="catalog"]'},
- {id:'settings',name:'Site Checkout Settings',description:'Existing site settings and global feature flags',keywords:'toggle public checkout payment mode',nav:'[data-panel="settings"]'}
+ {id:'managed',name:'Set Up Stripe Payments',description:'Set up Stripe for memberships, courses, learning tools and eBooks. Start with test payments.',keywords:'stripe digital managed account secret configuration price subscription', selector:'[data-gu-managed-r2]'},
+ {id:'lemon',name:'Lemon Squeezy (Optional)',description:'Manage the backup payment service for digital products.',keywords:'lemon squeezy api key variant subscription',selector:'[data-gu-lemon-readiness]'},
+ {id:'signed',name:'Signed Book Orders',description:'Manage prices, paid orders, signing, shipping and tracking for printed books.',keywords:'stripe physical kdp signed paperback hardcover orders shipping',selector:'[data-gu-signed-admin-v01431]'},
+ {id:'lulu',name:'Lulu Print Orders',description:'Turn automatic print delivery on or off and manage book purchase links.',keywords:'lulu paperback hardcover print links',selector:'[data-gu-print-owner-v01428]'},
+ {id:'printModes',name:'Print Order Settings',description:'Choose signed copies, automatic Lulu delivery, or both.',keywords:'manual fulfillment signed enable disable',selector:'[data-gu-signed-print-v01429]'},
+ {id:'digital',name:'eBooks & Downloads',description:'Upload eBooks and choose which books customers can buy or download.',keywords:'ebook epub pdf download rights kindle',selector:'[data-gu-digital-v01430]'},
+ {id:'orders',name:'Orders & Memberships',description:'Review website orders and membership payments recorded by the site.',keywords:'customers payments renewal orders membership billing ledger',selector:'#admin-orders'},
+ {id:'reconcile',name:'Payment Records & Updates',description:'Review payment records and payment-provider updates. This section does not issue refunds.',keywords:'refund disputes chargeback reconciliation ledger webhook',nav:'[data-oc-tab="commerce"]'},
+ {id:'memberships',name:'Membership Prices',description:'Change which memberships appear for sale and review their prices.',keywords:'free monthly annual lifetime founding plan membership',url:'/plan-controls.html'},
+ {id:'catalog',name:'Books & Products',description:'Manage the books and other products listed in the store.',keywords:'book products title catalog',nav:'[data-panel="catalog"]'},
+ {id:'settings',name:'Checkout Settings',description:'Review the website settings that control checkout availability.',keywords:'toggle public checkout payment mode',nav:'[data-panel="settings"]'}
 ];
 function openTarget(item){
  if(item.url){location.assign(item.url);return true}
@@ -40,39 +44,49 @@ function openTarget(item){
 function paymentPanel(){const panel=qs('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  if(qs('[data-gu33-payment-hub]',panel))return true;
  const heading=qs('.admin-heading h1',panel);if(heading)heading.textContent='Payments & Billing Center';
- const sub=qs('.admin-heading p',panel);if(sub)sub.textContent='All payment providers, products, subscriptions, orders and fulfillment controls in one place. Provider operations remain independently authorized.';
+ const sub=qs('.admin-heading p',panel);if(sub)sub.textContent='Find your payment settings, products, orders and memberships in one place.';
  const hub=make('section',undefined,'gu33-payment-hub');hub.dataset.gu33PaymentHub='1';
- const intro=make('div',undefined,'gu33-hub-top');intro.append(make('h2','Payment Operations'),make('p','Stripe Managed Payments is the preferred DIGITAL sandbox integration. Lemon Squeezy is an optional digital alternative. Author-signed print uses Standard Stripe; Lulu Direct is separate. These channels are not interchangeable.'));
+ const intro=make('div',undefined,'gu33-hub-top');intro.append(make('h2','Manage Payments'),make('p','Choose a payment service below. Stripe handles digital sales tests, Lemon Squeezy is optional, and printed books have separate payment and shipping settings. Each option needs its own setup.'));
  const status=make('p','Reviewing provider readiness…','gu33-hub-notice');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const refresh=make('button','Refresh Payment Readiness','btn secondary');refresh.type='button';
+ const refresh=make('button','Check Payment Setup','btn secondary');refresh.type='button';
  const summary=make('div',undefined,'gu33-summary');summary.append(status,refresh);
  const board=make('div',undefined,'gu33-provider-cards');
- const cards=[['stripe','Stripe Managed Payments','Digital · subscriptions, tools, eligible eBooks','managed'],['lemon','Lemon Squeezy','Alternative digital provider','lemon'],['physical','Standard Stripe','Author-signed paperback & hardcover','signed'],['print','Lulu Direct','Optional externally fulfilled print','lulu']];
+ const cards=[['stripe','Stripe for Digital Sales','Memberships, learning tools and eligible eBooks (Stripe Managed Payments)','managed'],['lemon','Backup Payments: Lemon Squeezy','Optional alternative for digital sales','lemon'],['physical','Signed Book Payments','Customer purchases for signed paperbacks and hardcovers (Standard Stripe)','signed'],['print','Automatic Book Delivery','Optional printed-book delivery through Lulu Direct','lulu']];
  for(const [key,name,desc,target] of cards){const card=make('article',undefined,'gu33-provider-card');card.dataset.gu33Provider=key;
   card.append(make('h3',name),make('p',desc));const badge=make('strong','Checking configuration…','gu33-status-badge');badge.dataset.gu33Badge=key;card.append(badge);
   const button=make('button',`Open ${name} Settings`,'btn secondary');button.type='button';button.dataset.gu33Go=target;card.append(button);board.append(card)}
- const finder=make('div',undefined,'gu33-feature-index');finder.append(make('h3','Payment Tasks & Shortcuts'),make('p','Choose a task to jump to the existing authorized editor. This dashboard does not replace any current controls.'));
- const fLabel=make('label','Find a payment task');const input=make('input');input.type='search';input.placeholder='Search payments, Stripe, refunds, digital books, shipping…';input.setAttribute('aria-label','Search payment tasks');fLabel.append(input);finder.append(fLabel);
+ const finder=make('div',undefined,'gu33-feature-index');finder.append(make('h3','What Would You Like to Do?'),make('p','Select a task to open its settings. Your existing tools and permissions stay the same.'));
+ const fLabel=make('label','Search payment settings');const input=make('input');input.type='search';input.placeholder='Search: membership prices, eBooks, orders, Stripe, shipping…';input.setAttribute('aria-label','Search payment tasks');fLabel.append(input);finder.append(fLabel);
  const links=make('div',undefined,'gu33-task-grid');for(const item of targets){const b=make('button',undefined,'gu33-task');b.type='button';b.dataset.gu33Go=item.id;
   b.append(make('strong',item.name),make('span',item.description));links.append(b)}finder.append(links);
- const mapping=make('section',undefined,'gu33-catalog');mapping.append(make('h3','Stripe Digital Products & Price Mapping'),make('p','See current database products and prices alongside whether each SKU has a Stripe sandbox Price ID in Cloudflare. Existing “Variant ID” entries belong to Lemon Squeezy, not Stripe.'));
- const mappingButton=make('button','Check Stripe Product Mapping','btn secondary');mappingButton.type='button';
- const mappingStatus=make('p','No configuration imported into this page; select Check to inspect current non-secret settings.');mappingStatus.setAttribute('role','status');mappingStatus.setAttribute('aria-live','polite');
+ const mapping=make('section',undefined,'gu33-catalog');mapping.append(make('h3','Connect Stripe Products & Prices'),make('p','See which website products are linked to Stripe prices. A Stripe Price ID starts with price_. Older Variant ID fields are for Lemon Squeezy, not Stripe.'));
+ const mappingButton=make('button','Check Stripe Products','btn secondary');mappingButton.type='button';
+ const mappingStatus=make('p','Select Check Stripe Products to review your website items. This never shows payment secrets.');mappingStatus.setAttribute('role','status');mappingStatus.setAttribute('aria-live','polite');
  const mappingTable=make('div',undefined,'gu33-table-wrap');mapping.append(mappingButton,mappingStatus,mappingTable);
  mappingButton.onclick=async()=>{mappingButton.disabled=true;mappingStatus.textContent='Reading authorized catalog and mapped/unmapped status…';mappingTable.replaceChildren();
   try{const sb=await window.getSupabaseClient();const {data:{session}}=await sb.auth.getSession();if(!session)throw Error('Authorized sign-in required.');
    const response=await fetch('/api/payment-catalog-v01433',{method:'GET',headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
    const data=await response.json().catch(()=>null);if(!response.ok||!data?.ok)throw Error(data?.error||'Unable to read product mapping.');
-   const table=make('table');const header=make('thead'),tr=make('tr');for(const col of ['Website SKU','Product','Price','Billing','Stripe Price ID','Availability'])tr.append(make('th',col));header.append(tr);table.append(header);
+   const table=make('table');const header=make('thead'),tr=make('tr');for(const col of ['Item Code','Product','Price','Billing','Stripe Price Connected?','Sales Status'])tr.append(make('th',col));header.append(tr);table.append(header);
    const body=make('tbody');for(const p of data.products||[]){const row=make('tr');const price=Number.isInteger(p.amountCents)?(p.amountCents/100).toLocaleString(undefined,{style:'currency',currency:'USD'}):'Not priced';
-    for(const value of [p.key,p.name,price,p.billing,p.mapped?'Mapped in Cloudflare':'Unmapped',p.eligible?'Eligible candidate':p.reason||'Disabled'])row.append(make('td',value));body.append(row)}table.append(body);mappingTable.append(table);
+    for(const value of [p.key,p.name,price,p.billing,p.mapped?'Connected in Cloudflare':'Not Connected',p.eligible?'May Be Eligible':p.reason||'Disabled'])row.append(make('td',value));body.append(row)}table.append(body);mappingTable.append(table);
    mappingStatus.textContent=`${data.mappedCount} of ${data.catalogCount} website SKUs have mapped Stripe Price IDs. These mappings are not verified checkouts. Selected route: ${data.route} (${data.routeEnabled?'enabled':'disabled'}).`;
   }catch(e){mappingStatus.textContent='Stripe catalog status unavailable: '+(e.message||'Request failed.')}
   finally{mappingButton.disabled=false}
  };
- const legacy=make('div',undefined,'gu33-legacy-warning');legacy.append(make('strong','Important: existing “Membership Variant Mapping” is Lemon Squeezy-specific.'),make('p','The Variant ID entries in older checkout screens are NOT Stripe Price IDs. For Managed Payments, use the Stripe sandbox price map configured privately in Cloudflare. No checkout goes live merely because a setting is saved.'));
+ const legacy=make('div',undefined,'gu33-legacy-warning');legacy.append(make('strong','Old payment fields belong to Lemon Squeezy.'),make('p','For Stripe, use the Price IDs from your Stripe account. Do not paste them into the older Lemon Squeezy Variant ID fields. Saving an ID does not enable customer payments.'));
  hub.append(intro,summary,board,finder,mapping,legacy);
- const first=qs('.admin-grid.two',panel);if(first)panel.insertBefore(hub,first);else panel.append(hub);
+ const first=qs('.admin-grid.two',panel);
+ // Relabel legacy headings for clarity without replacing their original
+ // inputs, handlers, security checks, or underlying Lemon Squeezy Variant IDs.
+ if(first){
+   for(const h of all('h2,h3',first)){
+     if(h.textContent.trim()==='Payment Readiness')h.textContent='Older Payment Setup (Lemon Squeezy)';
+     if(h.textContent.trim()==='Membership Variant Mapping')h.textContent='Lemon Squeezy Product IDs';
+   }
+   const note=make('p','These older payment fields are for Lemon Squeezy. For Stripe, use Connect Stripe Products & Prices above. Do not paste Stripe price_ IDs into these fields.','gu33-legacy-warning');
+   panel.insertBefore(hub,first);panel.insertBefore(note,first);
+ }else panel.append(hub);
  hub.addEventListener('click',e=>{const b=e.target.closest('[data-gu33-go]');if(!b)return;const item=targets.find(x=>x.id===b.dataset.gu33Go);if(!item)return;if(!openTarget(item))status.textContent='This account cannot access that control. Check OWNER/ADMIN role permissions.'});
  input.addEventListener('input',()=>{const query=norm(input.value);all('.gu33-task',links).forEach(b=>{const t=targets.find(x=>x.id===b.dataset.gu33Go);b.hidden=!!query&&!norm([t.name,t.description,t.keywords].join(' ')).includes(query)})});
  async function check(){if(!gate()||!allowed(commerceNav()))return;refresh.disabled=true;status.textContent='Checking server-side configuration; no payment credentials are displayed.';
@@ -97,10 +111,10 @@ function paymentPanel(){const panel=qs('.admin-panel[data-admin-panel="commerce"
 function search(){if(qs('[data-gu33-global-search]'))return true;
  const main=qs('.admin-main'),app=qs('#admin-app');if(!main||!app)return false;
  const container=make('section',undefined,'gu33-global-search');container.dataset.gu33GlobalSearch='1';container.hidden=!gate();
- const label=make('label','Find a control, setting or section (Ctrl+K)');label.setAttribute('for','gu33-global-input');
- const input=make('input');input.id='gu33-global-input';input.type='search';input.autocomplete='off';input.setAttribute('aria-controls','gu33-global-results');input.setAttribute('aria-expanded','false');input.placeholder='Search Admin: Stripe, members, reports, messaging, settings…';
+ const label=make('label','Search the Admin Control Panel (Ctrl+K)');label.setAttribute('for','gu33-global-input');
+ const input=make('input');input.id='gu33-global-input';input.type='search';input.autocomplete='off';input.setAttribute('aria-controls','gu33-global-results');input.setAttribute('aria-expanded','false');input.placeholder='Search: members, payments, messages, books, reports…';
  const output=make('div',undefined,'gu33-search-results');output.id='gu33-global-results';output.hidden=true;
- const hint=make('p','Search administrative navigation and functionality — not private member records.','gu33-search-hint');
+ const hint=make('p','Search settings and sections. Member records remain private.','gu33-search-hint');
  container.append(label,input,output,hint);main.insertBefore(container,app);
  searchStatus=make('p','','gu33-search-live');searchStatus.setAttribute('role','status');searchStatus.setAttribute('aria-live','polite');container.append(searchStatus);
  const paymentExtras=targets.map(item=>({text:item.name,detail:item.description,keywords:item.keywords,click:()=>openTarget(item),permission:()=>allowed(commerceNav())}));
