@@ -11,10 +11,10 @@ assert len(set(p['sku'] for p in registry['products']))==8
 assert all(p['stripe_price_id'] is None for p in registry['products'])
 assert all(re.match(r'^prod_[A-Za-z0-9]+$',p['stripe_product_id']) for p in registry['products'])
 assert {p['sku']:p['price_cents'] for p in registry['products']}['plan:FULL_ANNUAL']==69900
-assert '0.14.0.37' in load('config.js')
-assert "version:'0.14.0.37'" in load('assets/js/route-policy.js')
-assert 'groundup-v014037-public' in load('sw.js')
-assert json.loads(load('data/commerce-config.json'))['version']=='0.14.0.37'
+assert '0.14.0.38' in load('config.js')
+assert "version:'0.14.0.38'" in load('assets/js/route-policy.js')
+assert 'groundup-v014038-public' in load('sw.js')
+assert json.loads(load('data/commerce-config.json'))['version']=='0.14.0.38'
 assert json.loads(load('release-manifest.json'))['customerCheckoutApproved'] is False
 assert 'stripe-product-registry-v01437.json' in load('scripts/build-pages.sh')
 assert 'admin-stripe-catalog-v01437.js' in load('assets/js/site.js')

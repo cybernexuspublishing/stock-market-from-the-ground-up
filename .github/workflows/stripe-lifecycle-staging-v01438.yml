@@ -1,0 +1,39 @@
+name: Stripe Lifecycle and Single CAPTCHA v0.14.0.38
+on:
+  push:
+    paths:
+      - 'assets/js/turnstile-auth.js'
+      - 'assets/js/signin.js'
+      - 'assets/js/checkout-platform.js'
+      - 'functions/api/stripe-customer-*'
+      - 'supabase/migrations/v0.14.0.38*'
+      - 'tests/test_v01438_*'
+      - '.github/workflows/stripe-lifecycle-staging-v01438.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fail-closed webhook and checkout mock tests
+        run: node tests/test_v01438_stripe_guards.mjs
+      - name: Signed Stripe lifecycle mock
+        run: node tests/test_v01438_stripe_lifecycle_mock.mjs
+      - name: Source syntax and contract
+        run: python tests/test_v01438_source.py
+      - name: Chromium single CAPTCHA smoke test
+        run: |
+          python -m pip install playwright==1.56.0
+          sudo apt-get update -qq
+          sudo apt-get install -y chromium >/dev/null
+          python tests/test_v01438_auth_single_widget.py

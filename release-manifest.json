@@ -1,12 +1,14 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.37",
+  "version": "0.14.0.38",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "9b244670b26d09a67b9f26257de06c7475b0ec50",
+  "baselineGitCommit": "fafe49120b2bfa7a7c71e77481b54538a8144201",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
   "stripeProductsEntered": 8,
-  "stripePriceIdsVerified": 0
+  "stripePriceIdsVerified": 0,
+  "customerSandboxCheckoutStagingOnly": true,
+  "liveStripeFulfillmentEnabled": false
 }

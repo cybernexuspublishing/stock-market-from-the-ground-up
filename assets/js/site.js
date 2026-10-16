@@ -5,9 +5,11 @@
 (function(){
  const authPage=/^\/(signin|create-account)(?:\.html)?$/i.test(location.pathname);
  if(!authPage)return;
- const human=document.createElement('script');
- human.src='/assets/js/turnstile-auth.js';human.dataset.guHumanVerificationV01432='1';
- document.head.append(human);
+ if(!document.querySelector('script[data-gu-human-verification-v01432]')){
+   const human=document.createElement('script');
+   human.src='/assets/js/turnstile-auth.js';human.dataset.guHumanVerificationV01432='1';
+   document.head.append(human);
+ }
  document.addEventListener('submit',function(event){
    const form=event.target;
    if(!form?.matches?.('form'))return;

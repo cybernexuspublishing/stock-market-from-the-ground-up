@@ -21,6 +21,28 @@ for file in books.json challenges.json commerce-config.json stripe-product-regis
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
+# In an explicitly marked preview staging build, browser auth must use the SAME
+# separate Supabase staging project as the Cloudflare Functions payment API.
+# Never insert service keys. A missing/inconsistent preview config fails the build.
+if [[ "${GU_STRIPE_V38_STAGING:-false}" == "true" ]]; then
+  if [[ "${CF_PAGES_BRANCH:-main}" == "main" ]]; then
+    echo 'Refusing to build staging checkout on production branch.' >&2; exit 5
+  fi
+  python3 - "$output/config.js" <<'PYSTAGE'
+import os,re,sys
+path=sys.argv[1]
+ref=os.getenv('GU_STRIPE_V38_STAGING_PROJECT_REF','')
+url=os.getenv('SUPABASE_URL','')
+pub=os.getenv('SUPABASE_PUBLISHABLE_KEY','')
+if not re.fullmatch('[a-z0-9]{20}',ref) or ref=='oxihglyfgzywsupnyicb' or url!=f'https://{ref}.supabase.co' or not pub:
+ raise SystemExit('Staging Supabase URL, ref and public key must be configured consistently.')
+s=open(path,encoding='utf8').read()
+s,n1=re.subn(r"SUPABASE_URL: '[^']*'",f"SUPABASE_URL: '{url}'",s,count=1)
+s,n2=re.subn(r"SUPABASE_ANON_KEY: '[^']*'",f"SUPABASE_ANON_KEY: '{pub}'",s,count=1)
+if (n1,n2)!=(1,1):raise SystemExit('Expected frontend config fields missing.')
+with open(path,'w',encoding='utf8') as f:f.write(s)
+PYSTAGE
+fi
 # Build metadata is authoritative only if the deployment uses this build command.
 python3 - "$output/release-manifest.json" <<'PYBUILD'
 import json,sys,os,datetime,subprocess

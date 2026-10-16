@@ -3,11 +3,11 @@ from pathlib import Path
 import json, re, subprocess
 R=Path(__file__).resolve().parents[1]
 read=lambda p:(R/p).read_text(encoding='utf-8')
-assert "VERSION: '0.14.0.37'" in read('config.js')
-assert "version:'0.14.0.37'" in read('assets/js/route-policy.js')
-assert "groundup-v014037-public" in read('sw.js')
-assert '0.14.0.37' == json.loads(read('data/commerce-config.json'))['version']
-assert '0.14.0.37' == json.loads(read('release-manifest.json'))['version']
+assert "VERSION: '0.14.0.38'" in read('config.js')
+assert "version:'0.14.0.38'" in read('assets/js/route-policy.js')
+assert "groundup-v014038-public" in read('sw.js')
+assert '0.14.0.38' == json.loads(read('data/commerce-config.json'))['version']
+assert '0.14.0.38' == json.loads(read('release-manifest.json'))['version']
 assert json.loads(read('release-manifest.json'))['customerCheckoutApproved'] is False
 assert 'settings[\'site.version\']' in read('assets/js/commerce-common.js') # tracked as legacy metadata only
 assert "version:String(window.SITE_CONFIG?.VERSION" in read('assets/js/commerce-common.js')

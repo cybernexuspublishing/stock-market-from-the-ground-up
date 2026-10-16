@@ -24,8 +24,16 @@ async function init(){
   try{
    const route=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store'}).then(async r=>{const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw Error('Payment provider setup is not yet complete.');return data});
    if(route.provider==='STRIPE_MANAGED'){
-    btn.textContent='Stripe Managed Payments — integration pending';
-    msg.textContent='Stripe Managed Payments is being configured. Customer purchases remain disabled until verified checkout, signed webhooks and digital delivery are ready.';
+    // Staging-only secure checkout, off on the public production database.
+    const readiness=await fetch('/api/stripe-customer-checkout-v01438',{cache:'no-store'}).then(r=>r.json()).catch(()=>({}));
+    if(!books&&readiness?.sandboxReady===true&&route.enabled===true){
+      current={target:'/api/stripe-customer-checkout-v01438',provider:'STRIPE_MANAGED_TEST',type,code};
+      btn.disabled=false;btn.textContent='Continue to Stripe test checkout';
+      msg.textContent='SANDBOX ONLY: no real charge. Use a test account and test payment method.';
+    }else{
+      btn.textContent='Stripe customer payments not activated';
+      msg.textContent='Payments remain disabled until the Stripe integration and verification are approved.';
+    }
     return;
    }
    if(route.provider!=='LEMON_SQUEEZY'||route.enabled!==true||route.checkoutEnabled!==true){
@@ -44,7 +52,14 @@ async function init(){
   if(!current)return;
   if(!root.querySelector('#terms-ok').checked){msg.textContent='Accept the purchase terms before continuing.';return}
   btn.disabled=true;
-  try{const route=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store'}).then(r=>r.json());
+  try{
+   if(current.provider==='STRIPE_MANAGED_TEST'){
+     const j=await req(current.target,{method:'POST',body:JSON.stringify({type,code})});
+     const link=new URL(j.url);
+     if(link.protocol!=='https:'||link.hostname!=='checkout.stripe.com')throw Error('Unexpected Stripe checkout address.');
+     location.assign(link.href);return;
+   }
+   const route=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store'}).then(r=>r.json());
    if(route.provider!=='LEMON_SQUEEZY'||route.checkoutEnabled!==true)throw Error('Digital checkout is disabled.');
    const j=await req(current.target+'?action=create',{method:'POST',body:JSON.stringify({type,code,format:current.format})});
    const link=new URL(j.url);if(link.protocol!=='https:'||link.hostname!=='lemonsqueezy.com'&&!link.hostname.endsWith('.lemonsqueezy.com'))throw Error('Unexpected payment provider address.');

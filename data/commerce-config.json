@@ -1,5 +1,5 @@
 {
-  "version": "0.14.0.37",
+  "version": "0.14.0.38",
   "currency": "USD",
   "paymentProvider": "",
   "plans": [
@@ -13,7 +13,7 @@
     },
     {
       "planCode": "FULL_MONTHLY",
-      "label": "Full Platform \u2014 Monthly",
+      "label": "Full Platform — Monthly",
       "priceCents": 6999,
       "billingInterval": "month",
       "checkoutUrl": "",
@@ -21,7 +21,7 @@
     },
     {
       "planCode": "FULL_ANNUAL",
-      "label": "Full Platform \u2014 Annual",
+      "label": "Full Platform — Annual",
       "priceCents": 69900,
       "billingInterval": "year",
       "checkoutUrl": "",
