@@ -1,4 +1,32 @@
-/* v0.14.0.31 — preserve established routes and bootstraps; signed-book commerce additive. */
+/* v0.14.0.32 — activate the EXISTING Supabase/Turnstile integration.
+ * Native Supabase Auth CAPTCHA must ALSO be configured in the Supabase dashboard.
+ * This boot guard prevents submitting before the adapter checks the runtime flag.
+ */
+(function(){
+ const authPage=/^\/(signin|create-account)(?:\.html)?$/i.test(location.pathname);
+ if(!authPage)return;
+ const human=document.createElement('script');
+ human.src='/assets/js/turnstile-auth.js';human.dataset.guHumanVerificationV01432='1';
+ document.head.append(human);
+ document.addEventListener('submit',function(event){
+   const form=event.target;
+   if(!form?.matches?.('form'))return;
+   if(!window.GroundUpTurnstile){
+     event.preventDefault();event.stopImmediatePropagation();
+     let message=form.querySelector('#v135-auth-captcha-status');
+     if(!message){message=document.createElement('p');message.id='v135-auth-captcha-status';message.setAttribute('role','status');form.append(message)}
+     message.textContent='Human verification is initializing. Please wait a moment and try again.';
+     return;
+   }
+   if(window.GroundUpTurnstile.required){
+     try{window.GroundUpTurnstile.getToken()}
+     catch(e){event.preventDefault();event.stopImmediatePropagation();
+       const box=form.querySelector('#v135-auth-captcha-status');if(box)box.textContent=e.message||'Complete human verification.'}
+   }
+ },true);
+})();
+
+/* v0.14.0.32 — preserve established routes and bootstraps; signed-book commerce additive. */
 const cfg = window.SITE_CONFIG || {};
 function setYear(){document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear())}
 async function loadJSON(url){const r=await fetch(url); if(!r.ok) throw new Error(`Failed to load ${url}`); return r.json()}
@@ -35,6 +63,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.body.dataset.build=declaredRelease;
   if(!document.querySelector('link[data-gu-sitewide-acceptance]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/sitewide-acceptance.css';css.dataset.guSitewideAcceptance='1';document.head.append(css)}
   loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
+  if(/^\/admin(?:\.html)?$/.test(location.pathname)){loadOnce('/assets/js/admin-password-confirm-v01432r1.js','adminPasswordConfirmV01432r1');loadOnce('/assets/js/admin-lemon-readiness-v01432r1.js','adminLemonReadinessV01432r1');loadOnce('/assets/js/admin-payment-providers-v01432r2.js','adminPaymentProvidersV01432r2');if(!document.querySelector('link[data-gu-password-reconfirm]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-password-confirm-v01432r1.css';x.dataset.guPasswordReconfirm='1';document.head.append(x)}}
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/admin-report-policy.css';document.head.append(style);
     const script=document.createElement('script');script.src='/assets/js/admin-report-policy.js';script.defer=true;document.head.append(script);

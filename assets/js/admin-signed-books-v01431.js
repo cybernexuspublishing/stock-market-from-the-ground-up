@@ -2,12 +2,14 @@
 (()=>{'use strict';if(!/^\/admin(?:\.html)?$/.test(location.pathname))return;
 const E=(tag,value,cls)=>{const x=document.createElement(tag);if(value!=null)x.textContent=value;if(cls)x.className=cls;return x};
 async function rpc(name,args={}){const sb=await window.getSupabaseClient(),{data,error}=await sb.rpc(name,args);if(error)throw Error(error.message||'Operation denied');if(!data?.ok)throw Error('Unexpected authorization response');return data}
-async function ownerShipping(orderId){const sb=await window.getSupabaseClient(),{data:{session}}=await sb.auth.getSession();if(!session)throw Error('OWNER MFA sign-in required.');const r=await fetch('/api/signed-book-owner-detail?id='+encodeURIComponent(orderId),{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Address access denied.');return d}
+async function ownerShipping(orderId){const sb=await window.getSupabaseClient(),{data:{session}}=await sb.auth.getSession();if(!session)throw Error('OWNER password confirmation sign-in required.');let r=await fetch('/api/signed-book-owner-detail?id='+encodeURIComponent(orderId),{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'}),d=await r.json();
+ if(r.status===403&&d.error==='PASSWORD_RECONFIRM_REQUIRED'&&window.GroundUpAdminPasswordConfirm){await window.GroundUpAdminPasswordConfirm.ensure();r=await fetch('/api/signed-book-owner-detail?id='+encodeURIComponent(orderId),{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});d=await r.json()}
+ if(!r.ok||!d.ok)throw Error(d.error||'Address access denied.');return d}
 function attach(){if(document.querySelector('[data-gu-signed-admin-v01431]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  const box=E('section',null,'admin-card gu-signed-admin-v01431');box.dataset.guSignedAdminV01431='1';
  const legacy=document.querySelector('[data-gu-signed-print-v01429]');if(legacy){const note=legacy.querySelector('p');if(note)note.textContent='Signed author-copy checkout is controlled by the separate Stripe payment switch and per-edition offer settings below. Lulu Direct can be disabled independently without deleting its URLs.';}box.append(E('h2','Author-Signed Books — Prices & Fulfillment'),E('p','Set your own paperback/hardcover signed prices and shipping. Orders are manually fulfilled: order KDP author copies to your address, sign, pack and separately ship to customers. Stripe payment stays OFF until the Owner enables its backend and server controls.'));
- const status=E('p','OWNER MFA required to change prices or reveal shipping details.');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ const status=E('p','OWNER password confirmation required to change prices or reveal shipping details.');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const refresh=E('button','Refresh Offers & Paid Orders','btn secondary');refresh.type='button';
  const offers=E('div',null,'gu-signed-offers'),orders=E('div',null,'gu-signed-orders');const switchWrap=E('div',null,'gu-signed-payment-switch');box.append(refresh,status,switchWrap,E('h3','Signed Editions'),offers,E('h3','Paid Orders & KDP Signing Queue'),orders);panel.append(box);
  let busy=false;

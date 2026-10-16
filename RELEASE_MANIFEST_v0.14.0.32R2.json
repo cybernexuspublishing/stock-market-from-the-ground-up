@@ -1,0 +1,222 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "company": "Cyber Nexus",
+  "imprint": "Crown & Lantern Press",
+  "version": "v0.14.0.32-R2",
+  "release_date": "2026-10-15",
+  "base_commit": "57ac97e6ddf498b9d28be32029aa33c13f91caed",
+  "delivery": "Direct-upload GitHub file overlay with complete replacement/new files, not whole repository",
+  "supersedes": [
+    "v0.14.0.32",
+    "v0.14.0.32-R1"
+  ],
+  "primary_digital_provider": "Stripe Managed Payments preferred, inactive",
+  "secondary_digital_provider": "Lemon Squeezy selectable alternative, inactive",
+  "physical_provider": "Standard Stripe for author-signed print (separate); optional Lulu Direct",
+  "database_status": "R1 and R2 SQL require staging review; neither migration executed",
+  "provider_status": "Owner creating Stripe account; no credentials accessed, no verified live webhook or live sales",
+  "payment_gate": "No Stripe Managed customer purchase or entitlement grant in R2; Owner sandbox only",
+  "qa": "Static regression, Node mock/Stripe webhook signature tests, isolated admin browser checks; PostgreSQL/live E2E NOT executed",
+  "files": [
+    {
+      "path": ".github/workflows/backend-contract-v01432r1.yml",
+      "size": 1418,
+      "sha256": "fd21a1c0ba260dfdc0c2bcfc952fc7f74ecf3e02be1e35e148a327e30653a97a"
+    },
+    {
+      "path": ".github/workflows/backend-contract-v01432r2.yml",
+      "size": 1480,
+      "sha256": "3b2b9e3285ca9b141a2ea010480a5b9f797a47259758dc2d7d11a6d4854f012b"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "size": 4452,
+      "sha256": "af8d3e0652b47dff3b1f4b90d8f07608cefef8d0a0d7a356c04fc570edfd7cb2"
+    },
+    {
+      "path": "assets/css/admin-password-confirm-v01432r1.css",
+      "size": 720,
+      "sha256": "a869fbe5ea2b14c18d27ac312cab04c471fd0f663f72be965d3719898de2c9d8"
+    },
+    {
+      "path": "assets/js/admin-communications-v01431r1.js",
+      "size": 8360,
+      "sha256": "d820dd5b1a77154885fc2b43e3d03f0436e26cbe773b9b27517a366f2bf1e180"
+    },
+    {
+      "path": "assets/js/admin-lemon-readiness-v01432r1.js",
+      "size": 2599,
+      "sha256": "79b62d214f1f6db0b654f1252ee5c49a30055e5e1f60526876002638a7661ae2"
+    },
+    {
+      "path": "assets/js/admin-password-confirm-v01432r1.js",
+      "size": 5848,
+      "sha256": "24c14da3749a81e8bfa8d42f96d0c7cad2dda23fd0b9a60e4a79c8104e052a1c"
+    },
+    {
+      "path": "assets/js/admin-payment-providers-v01432r2.js",
+      "size": 7427,
+      "sha256": "95fd72ba7b2b79b80f4d9be9fdb76591077a3841d21f66e972a328196a92f8f4"
+    },
+    {
+      "path": "assets/js/admin-signed-books-v01431.js",
+      "size": 8650,
+      "sha256": "e86876ceb1776cab603a3f06cd8498bc0f53453e4bde9800f2417bd519720634"
+    },
+    {
+      "path": "assets/js/admin-staff-shipping-v01431r1.js",
+      "size": 3531,
+      "sha256": "a8274f1bcfb6e308496030146d65231d1f6ae65851a28f0f326407b3556ed5f9"
+    },
+    {
+      "path": "assets/js/checkout-platform.js",
+      "size": 5442,
+      "sha256": "df27ae3d1454763d92e3e8fd7d8af03147fbc9cc2fd6fe31b876298d99d77c75"
+    },
+    {
+      "path": "assets/js/route-policy.js",
+      "size": 1692,
+      "sha256": "fb4dea1ec0f2a07da4c6e4c1c9d3e94b91132800636164c84f77896c9d3f7c05"
+    },
+    {
+      "path": "assets/js/site.js",
+      "size": 10345,
+      "sha256": "2392ff756bc78adad65293c1187ffe49be3f9505de1a4643300943c3d0b08dbf"
+    },
+    {
+      "path": "assets/js/sitewide-runtime.js",
+      "size": 2039,
+      "sha256": "4f1324123fa292941724aa01c94ef53366a407fa04c5adf78541436106e61d9f"
+    },
+    {
+      "path": "config.js",
+      "size": 807,
+      "sha256": "cabfd00a5371ac36d0b4dee41407fc5578f1f1801e4a644ad0e50592cfceb54c"
+    },
+    {
+      "path": "docs/AUTHENTICATION_SECURITY_DECISION_v0.14.0.32R1.md",
+      "size": 6980,
+      "sha256": "29ee5fff62924d16d51d0e4c019dd5cbe3ee66c76fdf6995d69c3ab70efab533"
+    },
+    {
+      "path": "docs/LEMON_SQUEEZY_PROVIDER_ONBOARDING_v0.14.0.32R1.md",
+      "size": 6083,
+      "sha256": "1bb438e24ce103c90c2a3228ef3be68299e31b353c9e1509d549ce8e780fc84d"
+    },
+    {
+      "path": "docs/STRIPE_MANAGED_PROVIDER_SETUP_v0.14.0.32R2.md",
+      "size": 10000,
+      "sha256": "da52541e2cb1291007e06a66ceee81613b9734c8236d0941c3ae8c0ee4df72ca"
+    },
+    {
+      "path": "functions/api/admin-password-confirm-v01432r1.js",
+      "size": 5204,
+      "sha256": "1888f5e0326b9c85a551a4c8333e585540dd48d41b02d78dec71e57a7252d1e0"
+    },
+    {
+      "path": "functions/api/digital-payment-route-v01432r2.js",
+      "size": 1344,
+      "sha256": "c04985f7378c2da21eebe1a7202424546f58b3693faa0b6d1703144fc14d376a"
+    },
+    {
+      "path": "functions/api/lemon-setup-status-v01432r1.js",
+      "size": 2012,
+      "sha256": "a3b81186f0b6be93b73384feca1630b4e21c2dcd79a08dfd086f28eced100025"
+    },
+    {
+      "path": "functions/api/payment-provider-status-v01432r2.js",
+      "size": 2801,
+      "sha256": "bc5e1b6d1d764b40bcc6d4652c97b3203be11a4ffebbba111692148b5ae42bc2"
+    },
+    {
+      "path": "functions/api/signed-book-owner-detail.js",
+      "size": 3040,
+      "sha256": "f725db1b41230b91f49a9d926478ca8733db114011a7d002e628556bc5540117"
+    },
+    {
+      "path": "functions/api/stripe-managed-sandbox-v01432r2.js",
+      "size": 7636,
+      "sha256": "28c3218ee2c0123bd280ffbf10ae175b9d292ae0e369f46915718d09cc9e7e11"
+    },
+    {
+      "path": "functions/api/stripe-managed-webhook-v01432r2.js",
+      "size": 4436,
+      "sha256": "1b2d42597a86d8a65212aa2fdd4738d053c3ac9b5cff09bbd18729905d74bd29"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.32R1_SECURITY_POSTFLIGHT_READ_ONLY.sql",
+      "size": 2516,
+      "sha256": "8e97c3d81233553d29fe13627a7dd83cb962da5198a4da5d38b3c5984fa6b80c"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.32R1_SECURITY_PREFLIGHT_READ_ONLY.sql",
+      "size": 1972,
+      "sha256": "594ae54193d51770896767457b003100f5089783a3aa6323fae3799393fed6be"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.32R2_PAYMENTS_POSTFLIGHT_READ_ONLY.sql",
+      "size": 1664,
+      "sha256": "705006b0aa4215b63d37d5de966e6d4e909ea5d360dba4fd549a8e64e83f6d3d"
+    },
+    {
+      "path": "supabase/admin/v0.14.0.32R2_PAYMENTS_PREFLIGHT_READ_ONLY.sql",
+      "size": 618,
+      "sha256": "9248db5d880ac7320d166807ec43bd679ac532f81ebc0573e2ee5282256598e7"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.32R1_CAPTCHA_PASSWORD_RECONFIRM_REVIEW_REQUIRED.sql",
+      "size": 12072,
+      "sha256": "87e27a9a675a4a6fa5af9b4cb3ce28d4a9b83f1930a4082e7103b142190cc83d"
+    },
+    {
+      "path": "supabase/migrations/v0.14.0.32R2_PAYMENT_PROVIDER_ROUTING_REVIEW_REQUIRED.sql",
+      "size": 8401,
+      "sha256": "6ed36b21109b1ce48d262e550bd47d15d4aa5d3549d5b46e79e196c15e694cd7"
+    },
+    {
+      "path": "sw.js",
+      "size": 2135,
+      "sha256": "998fc3c3c99d7e9cdb4eb62b8800fcea33a69c515d48b02086402a68963126b2"
+    },
+    {
+      "path": "tests/test_v014031_source.py",
+      "size": 3470,
+      "sha256": "a0da2e8a8cdfd29ffcf5ee1b47f94bcc1e045c4977a8cbc56271ab2ac9dfdf79"
+    },
+    {
+      "path": "tests/test_v014032r1_browser.py",
+      "size": 1956,
+      "sha256": "37e9a80a4b386fbbfe2bf1cc7bdbd51b65c901f77d488cf2fb47f91b3e961132"
+    },
+    {
+      "path": "tests/test_v014032r1_lemon_hook.mjs",
+      "size": 1512,
+      "sha256": "2fc2357acb6b5bb471a9ca9f84aad0a7e81ec170d5ed7bad5f253d1f133f7bd2"
+    },
+    {
+      "path": "tests/test_v014032r1_release.py",
+      "size": 2719,
+      "sha256": "c7c301ce0183ee4242394e579ff71240948d9bb83d0066560679ca7f0fd4b372"
+    },
+    {
+      "path": "tests/test_v014032r1_stepup.mjs",
+      "size": 4055,
+      "sha256": "9e685b9aaef7840ac37aa97d8274e3b113061a3ae21f6ba2c8fd35ddf4e165e2"
+    },
+    {
+      "path": "tests/test_v014032r2_browser.py",
+      "size": 1970,
+      "sha256": "12b6f3c6a51de0fd35161bf44efa5d8acae6e8c7e67544667f94e44a96962c68"
+    },
+    {
+      "path": "tests/test_v014032r2_payment_source.py",
+      "size": 2512,
+      "sha256": "c81e32cdcf7ce422f39d32fe81459ff3da825b9ac9d6be9a18124263742e77a9"
+    },
+    {
+      "path": "tests/test_v014032r2_stripe_sandbox.mjs",
+      "size": 4062,
+      "sha256": "9ea85c150e54b36cea6f80a422264054e5da9bf2a8f98fe35c14e98e15be44f7"
+    }
+  ]
+}

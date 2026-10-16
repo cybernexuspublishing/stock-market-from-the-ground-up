@@ -1,50 +1,41 @@
-# v0.14.0.31 R1 — COMBINED PAYMENT + ADMIN ACCOUNT / COMMUNICATIONS REVISION
+# v0.14.0.32-R2 — CAPTCHA + Password Security + Stripe Managed Payments Readiness
 
-**Project:** The Stock Market: From the Ground Up  
-**Owner-approved baseline:** GitHub main `4fd986cdb470958e3080180f90dc3bdbbb2ae8b7` (v0.14.0.30)  
-**Release:** `v0.14.0.31-R1` (supersedes the NOT-UPLOADED v0.14.0.31 ZIP; do not upload both)  
-**Release status:** Source candidate; NOT a certified live commerce system.  
-**Delivery:** Existing GitHub DIRECT-UPLOAD **complete files at their repository paths**. Overlay these files, preserve all unrelated source. **No patch script.**  
-**Google Drive location:** Not created/synchronized to Drive; repository is the source of truth.  
-**Document ID:** GU-WEB-BE-20261015-011-R1.
+**This single combined ZIP SUPERSEDES the unuploaded `v0.14.0.32-R1` ZIP and original `v0.14.0.32` ZIP. Upload ONLY R2.**
 
-## What's merged
+| Field | Value |
+|---|---|
+| Project | The Stock Market: From the Ground Up |
+| Company / imprint | Cyber Nexus / Crown & Lantern Press |
+| Baseline | GitHub `main` commit `57ac97e6ddf498b9d28be32029aa33c13f91caed` (v0.14.0.31-R1) |
+| Release | v0.14.0.32-R2 (web configuration remains 0.14.0.32 for compatible regression tests) |
+| Date | 2026-10-15 |
+| Deployment | GitHub direct-upload source OVERLAY; preserve all unrelated repository files. |
+| Database | R1 migration THEN R2 migration after separate staging preflight and review. ZIP upload does not execute SQL. |
+| Status | STAGING CANDIDATE. No provider account changes, live Stripe Managed checkout, or merchant approval performed. |
+| Google Drive | No approved location / Drive ID provided; GitHub docs are controlling working copies. |
 
-Everything in the previously prepared v0.14.0.31: optional Stripe physical-checkout source, KDP-signed author-copy offer and fulfillment queue, pre/postflight SQL, CI corrections and tests. You have NOT uploaded the earlier version, so use **THIS replacement package ONLY**.
+## Existing R1 content INCLUDED unchanged unless mentioned
 
-New R1: Admin → **Communications & Messages** navigation and staff in-app message composer by username, sent notice history; username first column for supported account-related tables; member contact shortcuts; Admin Commerce staff shipping queue; OWNER and optionally ADMIN access to just-in-time shipping addresses (requires Owner toggle and staff MFA); OWNER switches for member notices, ADMIN notices, ADMIN shipping access, Lemon Squeezy master checkout, Stripe signed-book checkout, website registration visibility. Screens/controls render from additive JavaScript; existing admin/account/forum assets preserved. This does **not** replace the website with a mockup.
+R1 CAPTCHA/Supabase Turnstile loading, recent password reconfirmation without mandatory MFA, sensitive OWNER/ADMIN staff authorization migrations, Communications controls, signed-book staff shipping, Lemon Squeezy readiness and all associated source tests. **No old release ZIP needs to be uploaded first.**
 
-### Payment isolation and switches
+## R2 additional changes
 
-- **Lemon Squeezy remains the designated provider for digital eBooks, memberships and tools.** Existing backend flags: `commerce.checkout_enabled` (OWNER UI) PLUS Cloudflare `ENABLE_PAID_CHECKOUT`. No physical items may be sold through Lemon Squeezy.
-- **Stripe is OPTIONAL for author-signed physical books only.** `commerce.signed_books_checkout_enabled` (OWNER UI) PLUS Cloudflare `ENABLE_SIGNED_BOOK_STRIPE`; separate SKU/price/order/verified webhook. Both are initially disabled as configured. Do not turn them on before real staging test receipts, refund/chargeback support and consumer terms.
-- **Lulu Direct** stays separately enabled/disabled as an external print option, not signed by the owner.
+- Digital default preference changes to **Stripe Managed Payments**, still OFF until qualified provider test and live fulfillment infrastructure is accepted.
+- Lemon Squeezy retained as independently selectable digital alternative; Standard Stripe for author-signed paper/hardcover and Lulu are separate.
+- Admin → Commerce adds payment-provider readiness status and an **OWNER-only audited digital provider selection**, gated by a recently server-confirmed password.
+- R2 SQL adds a **database trigger preventing legacy Lemon digital checkout intents** unless Lemon is the active enabled digital route. It does NOT modify older orders or refund history.
+- Public customer Checkout fails closed if no selected and approved paid provider; Stripe Managed live customer checkout deliberately remains unavailable, not a fake working buy button.
+- Stripe Managed Payments **OWNER-only sandbox** can create test Checkout sessions after the Stripe account and mapping are configured. Managed session API uses `managed_payments[enabled]=true` and verifies the mapped USD amount and recurring interval against Stripe Prices.
+- A separate signed **sandbox-only** Stripe webhook records test events and session status WITHOUT granting books, subscriptions or real user entitlements.
+- Source/negative-authorization tests and onboarding notes included.
 
-### Access to shipping data
+## Ordered installation
 
-New secure RPC `gu_staff_signed_shipping_session_v01431r1` verifies: active OWNER OR active ADMIN when Owner-activated `commerce.admin_shipping_address_access_enabled=true`; member account, no restricted/suspended/showcase flag, **Supabase AAL2 MFA**, an actually paid/on-hold signed book order. Only after that does the Cloudflare Function query Stripe. Addresses are not persisted into Supabase tables; rendered on demand and cleared from screen after 60 seconds. A background tab/browser with an exposed address remains a practical endpoint risk: use a secure staff workstation and least-privilege access.
+1. Upload the combined R2 source overlay through the established GitHub method. Do **not** replace/delete unrelated files. Check all workflows on the same SHA; Cloudflare deployment acceptance requires independent live SHA parity.
+2. Run `supabase/admin/v0.14.0.32R1_SECURITY_PREFLIGHT_READ_ONLY.sql`; review the R1 migration and staging-test step-up and Communications role-negative cases. Apply R1 **once** in staging, then run R1 postflight. R1's database function replacement must match exactly; no blanket AAL2 permission bypass.
+3. Run `supabase/admin/v0.14.0.32R2_PAYMENTS_PREFLIGHT_READ_ONLY.sql`; review/apply `supabase/migrations/v0.14.0.32R2_PAYMENT_PROVIDER_ROUTING_REVIEW_REQUIRED.sql` in staging **once**, then run postflight. Start `STRIPE_MANAGED` with enabled=false.
+4. Complete Owner Stripe Managed Payments onboarding and approved sandbox product/price mapping (see `docs/STRIPE_MANAGED_PROVIDER_SETUP_v0.14.0.32R2.md`). Never paste private keys into source or chat.
+5. Keep `ENABLE_PAID_CHECKOUT=false`, `STRIPE_MANAGED_TEST_CHECKOUT_ENABLED=false`, `ENABLE_SIGNED_BOOK_STRIPE=false` until explicit relevant staged testing and approval. Configure Cloudflare Turnstile and Supabase CAPTCHA together. Stripe Managed Payments customer-facing digital order fulfillment is NOT present in R2.
+6. Check Communications without mandatory MFA but with valid staff role, Owner-sensitive operations with recent password confirmation, and every existing entitlement path and Market Commons role boundary.
 
-### Username identity
-
-The member-facing username is the primary display in supported Account/Access tables (membership, expiration, library, tool passes, flags, support and audit actor) with a direct **Message** control where appropriate. Internal UUIDs remain the true transaction foreign keys. Avoid selecting members by duplicated full names. The main existing Accounts table also moves Username ahead of email. Signed book queues and communication history include usernames. A global sitewide per-table identity acceptance test remains pending for unrelated modules.
-
-### Communications
-
-**P0 lock:** a database trigger also protects these Owner-only switches (including Stripe/Lemon checkout and registration visibility) from the legacy generic `setting_save` API. Changes via the older generic Site Settings text editor will be refused; use the dedicated OWNER controls. This prevents a non-Owner with `settings.manage` from silently enabling ADMIN shipping access.
-
-Existing member `user_notifications` is reused; not a new unreliable inbox. New staff composer resolves username to a unique eligible member server-side; insert + audit occurs in the same PostgreSQL transaction. OWNER messaging defaults ON; ADMIN messaging defaults OFF. Both require actual staff MFA and separate Owner settings. Existing owner-created notices remain readable/managed by legacy Owner notice editor; the database trigger also checks send toggles for legacy inserts.
-
-### Registration/Authentication
-
-Website `site.registration_enabled` controls the visible registration form (UI fail-closed on unknown state). **This is not a security control against direct Supabase `auth.signUp` API access.** To truly prevent signup, disable new-user creation in Supabase Auth configuration and validate on staging; website configuration cannot make that provider change. Password complexity, email confirmation and session timeouts also require provider-side enforcement. Do not advertise these as toggleable only from the website.
-
-## Deployment and database order — DO NOT combine destructive or unreviewed writes
-
-1. Upload this **single** combined R1 direct-upload ZIP to GitHub; use existing Pages build. It does not execute SQL.
-2. Inspect latest GitHub Actions for **this exact commit**; all workflows should pass. The previous v0.14.0.30 had two stale mock tests, fixed in the v31 included tests.
-3. In staging, run `supabase/admin/v0.14.0.31_SIGNED_BOOK_PREFLIGHT_READ_ONLY.sql`. Review and only then stage `supabase/migrations/v0.14.0.31_SIGNED_BOOK_STRIPE_REVIEW_REQUIRED.sql`.
-4. Run `supabase/admin/v0.14.0.31R1_ADMIN_COMMS_PREFLIGHT_READ_ONLY.sql`, review the R1 SQL, stage `supabase/migrations/v0.14.0.31R1_ADMIN_ACCESS_COMMS_REVIEW_REQUIRED.sql`, and run **both** v31/R1 postflights.
-5. Verify real-role negatives: normal member; ADMIN with toggle OFF; ADMIN AAL1 vs AAL2; OWNER AAL1 vs AAL2; suspended/restricted and Showcase; recipient private access; refund/canceled order address denied; legacy messaging OFF prevents insertion. Never use SQL Editor superuser results as member authorization evidence.
-6. Enable each provider and message channel only after Owner review and functional tests. No real signed KDP book order is automatically placed: owner must order author copies and physically sign/ship.
-
-**Known outstanding:** live Stripe/Lemon Squeezy end-to-end paid and refund runs, Supabase role simulation, KDP author copy real purchase, tax nexus/refund/consumer disclosure review, and comprehensive sitewide forum/labs/account E2E. Release validation does not certify production compliance or regulatory suitability.
+**No live payments, real buyer entitlements, KDP author-copy orders, private eBook uploads or Stripe account operations have been performed by preparing this ZIP.**

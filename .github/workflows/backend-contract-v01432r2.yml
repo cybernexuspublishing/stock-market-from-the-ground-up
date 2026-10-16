@@ -1,0 +1,43 @@
+name: Backend Contract v0.14.0.32-R2
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  managed-payments-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Security and integration source contracts
+        run: |
+          python tests/test_v014032r1_release.py
+          python tests/test_v014032r2_payment_source.py
+      - name: No live Stripe grants; sandbox fail closed; reject spoofed webhooks
+        run: |
+          node tests/test_v014032r2_stripe_sandbox.mjs
+          node tests/test_v014032r1_lemon_hook.mjs
+      - name: Install isolated Chromium browser
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Verify owner provider UI without enabling sandbox checkout
+        run: python tests/test_v014032r2_browser.py
+      - name: Keep migrations and Worker private sources out of static build
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/functions
+          test ! -e public/tests
+          test ! -e public/data/interactive-labs.json

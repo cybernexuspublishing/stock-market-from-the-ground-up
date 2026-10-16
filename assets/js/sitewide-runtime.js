@@ -1,8 +1,7 @@
-/* v0.14.0.19 — conservative sitewide semantics and release metadata normalization.
- * Adds labels only for known controls; does not impersonate backend functionality.
- */
+/* v0.14.0.32 — accessible labels and actual canonical release metadata. */
 (()=>{'use strict';
- const VERSION='v0.14.0.19';
+ const raw=String(window.SITE_CONFIG?.VERSION||'');
+ const version=/^\d+\.\d+\.\d+\.\d+$/.test(raw)?'v'+raw:'unverified';
  const labels={
    'admin-user-search':'Search accounts by email, username, or display name',
    'forum-search':'Search discussion title or ticker',
@@ -28,8 +27,8 @@
    if(main&&!document.getElementById('gu-skip-link')){
      const link=document.createElement('a');link.id='gu-skip-link';link.href='#'+main.id;link.textContent='Skip to main content';link.className='gu-skip-link';document.body.prepend(link);
    }
-   document.querySelectorAll('meta[name="application-version"]').forEach(m=>m.content=VERSION);
-   if(document.body)document.body.dataset.build=VERSION;
+   document.querySelectorAll('meta[name="application-version"]').forEach(m=>m.content=version);
+   if(document.body)document.body.dataset.build=version;
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>patch(),{once:true});else patch();
  let delayed;

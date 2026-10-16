@@ -4,9 +4,9 @@ import re,subprocess
 R=Path(__file__).resolve().parents[1]
 def txt(p):return (R/p).read_text(encoding='utf-8')
 config=txt('config.js');version=re.search(r"VERSION:\s*'((?:\d+\.){3}\d+)'",config)
-assert version and version.group(1)=='0.14.0.31'
-assert "version:'0.14.0.31'" in txt('assets/js/route-policy.js')
-assert "groundup-v014031-public" in txt('sw.js')
+assert version and tuple(map(int,version.group(1).split('.'))) >= (0,14,0,31)
+assert "version:'"+version.group(1)+"'" in txt('assets/js/route-policy.js')
+assert 'groundup-v'+''.join(version.group(1).split('.'))+'-public' in txt('sw.js')
 site=txt('assets/js/site.js')
 for s in ('admin-signed-books-v01431.js','store-signed-books-v01431.js','member-signed-orders-v01431.js','admin-digital-books-v01430.js','admin-report-cases-v01424.js','v014018-forum-corrections.js'):
  assert s in site,s

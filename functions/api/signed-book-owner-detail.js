@@ -1,18 +1,21 @@
-/* OWNER and Owner-authorized ADMIN only; AAL2 and DB toggle enforced per request. */
+/* OWNER / authorized ADMIN; 5-minute password confirmation and role checks enforced in SQL. */
 const result=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{'content-type':'application/json','cache-control':'no-store, private','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
 export async function onRequestGet({request,env}){
  try{
   const order=new URL(request.url).searchParams.get('id');
   const jwt=/^Bearer\s+([^\s]+)$/i.exec(request.headers.get('authorization')||'')?.[1];
-  if(!jwt)return result({ok:false,error:'Sign in with staff MFA.'},401);
+  if(!jwt)return result({ok:false,error:'Authenticated staff session required.'},401);
   if(!/^[a-f0-9-]{36}$/i.test(order||''))return result({ok:false,error:'Invalid order.'},400);
   const db=String(env.SUPABASE_URL||'').replace(/\/$/,'');const pub=env.SUPABASE_PUBLISHABLE_KEY;const stripe=env.STRIPE_SECRET_KEY;
   if(!/^https:\/\/[a-z0-9.-]+\.supabase\.co$/i.test(db)||!pub||!stripe)return result({ok:false,error:'Service not configured.'},503);
   const u=await fetch(db+'/auth/v1/user',{headers:{apikey:pub,authorization:'Bearer '+jwt},cache:'no-store'});
   if(!u.ok)return result({ok:false,error:'Session expired.'},401);
-  // SECURITY DEFINER checks actual OWNER, active role, and Supabase AAL2; never trust UI display role.
+  // SECURITY DEFINER checks real OWNER/ADMIN role and short-lived verified password; never trust UI role.
   const r=await fetch(db+'/rest/v1/rpc/gu_staff_signed_shipping_session_v01431r1',{method:'POST',headers:{apikey:pub,authorization:'Bearer '+jwt,'content-type':'application/json'},body:JSON.stringify({p_id:order}),cache:'no-store'});
-  if(!r.ok)return result({ok:false,error:'Staff MFA, permissions, or paid order unavailable.'},403);
+  if(!r.ok){const rpcError=await r.json().catch(()=>({}));
+   if(/PASSWORD_RECONFIRM_REQUIRED/i.test(String(rpcError?.message||'')))return result({ok:false,error:'PASSWORD_RECONFIRM_REQUIRED'},403);
+   return result({ok:false,error:'Staff authorization, owner shipping toggle, or paid order unavailable.'},403);
+  }
   const sid=await r.json().catch(()=>null);if(!/^cs_(test|live)_[A-Za-z0-9_]+$/.test(sid||''))return result({ok:false,error:'No verified paid order session.'},404);
   const resp=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sid),{headers:{Authorization:'Bearer '+stripe},cache:'no-store'});
   if(!resp.ok)return result({ok:false,error:'Shipping record unavailable at payment provider.'},503);
