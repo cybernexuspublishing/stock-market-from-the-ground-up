@@ -1,4 +1,4 @@
-/* v0.14.0.36 | No-store release comparison; does not assert Cloudflare deployment parity. */
+/* v0.14.0.37 | No-store release comparison; does not assert Cloudflare deployment parity. */
 (()=>{'use strict';
 if(window.GroundUpReleaseIntegrityV014036)return;
 const cfgVersion=String(window.SITE_CONFIG?.VERSION||'');
@@ -19,6 +19,6 @@ async function verify(){try{const res=await fetch('/release-manifest.json',{cach
  render(`Website source version v${cfgVersion}${sha} · live deployment not independently verified`,false);
  }catch(e){render(`Website version v${cfgVersion||'unknown'} · deployment manifest unavailable; cannot verify server files`,true)}
 }
-window.GroundUpReleaseIntegrityV014036=Object.freeze({version:'0.14.0.36',verify});
+window.GroundUpReleaseIntegrityV014036=Object.freeze({version:'0.14.0.37',verify});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',verify,{once:true});else verify();
 })();

@@ -1,13 +1,13 @@
 """Release v014035: owner-approved membership/digital delivery source contracts. No live E2E claim."""
 from pathlib import Path
-# Historical acceptance checks follow the canonical current release version (v0.14.0.36).
+# Historical acceptance checks follow the canonical current release version (v0.14.0.37).
 import json, subprocess
 root=Path(__file__).resolve().parents[1]
 rd=lambda s:(root/s).read_text(encoding='utf-8')
 sql=rd('supabase/migrations/v0.14.0.35_MEMBERSHIP_BOOK_RIGHTS_REVIEW_REQUIRED.sql')
-assert "VERSION: '0.14.0.36'" in rd('config.js')
-assert "version:'0.14.0.36'" in rd('assets/js/route-policy.js')
-assert 'groundup-v014036-public' in rd('sw.js')
+assert "VERSION: '0.14.0.37'" in rd('config.js')
+assert "version:'0.14.0.37'" in rd('assets/js/route-policy.js')
+assert 'groundup-v014037-public' in rd('sw.js')
 assert 'includes_all_books=true' in sql
 assert 'plan_code=\'PICK_WHAT_YOU_WANT\'' in sql and 'checkout_enabled=false' in sql
 assert "'FOUNDATION_BOOK_1',999" in sql and "'READING_THE_TAPE',1499" in sql

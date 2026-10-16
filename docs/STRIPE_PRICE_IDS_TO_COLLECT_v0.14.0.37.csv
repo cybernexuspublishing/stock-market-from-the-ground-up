@@ -1,0 +1,9 @@
+Website SKU,Product name,Stripe Product ID (observed),Expected USD,Billing interval,Stripe Price ID (must copy from Stripe),Expected lookup key,Tax code from screenshot
+tool:MARKET_TUTOR,Market Tutor,prod_VRwuiqDt8qHayI,29.99,month,,smgu_market_tutor_monthly_v1,txcd_10000000
+tool:MARKET_SIMULATOR,Advanced Market Simulator & Replay,prod_VRwrsEpvfw60Xh,29.99,month,,smgu_market_simulator_monthly_v1,txcd_10000000
+tool:JOURNAL_ANALYTICS,Trading Journal & Performance Analytics,prod_VRwoX4hTg8fRCm,29.99,month,,smgu_journal_analytics_monthly_v1,txcd_10000000
+tool:INTERACTIVE_LEARNING,Interactive Learning & Historical Labs,prod_VRwmmu4zATdHAb,29.99,month,,smgu_interactive_learning_monthly_v1,txcd_10000000
+plan:ONDEMAND_MONTHLY,Historical Replay Learning,prod_VRwjus5sQLtTad,19.99,month,,smgu_ondemand_monthly_v1,txcd_10000000
+plan:LIFETIME,Lifetime Platform Access,prod_VRwgISspL5mhls,2499.00,one_time,,smgu_lifetime_v1,txcd_10000000
+plan:FULL_ANNUAL,Full Platform Membership — Annual,prod_VRvyBNhWk9jshb,699.00,year,,smgu_full_annual_v1,txcd_20060058
+plan:FULL_MONTHLY,Full Platform Membership — Monthly,prod_VRvuGwLKI16MXU,69.99,month,,smgu_full_monthly_v1,txcd_10000000

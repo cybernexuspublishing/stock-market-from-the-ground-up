@@ -1,0 +1,18 @@
+/* v0.14.0.37: Simple, accessible Stripe product inventory */
+.gu37-stripe-catalog{margin:1rem 0;padding:1rem;border:1px solid #47728d;border-radius:10px;background:#0e2b42;color:#eaf6fd}
+.gu37-stripe-catalog h2{margin:0 0 .4rem;font-size:1.3rem}
+.gu37-stripe-catalog p{line-height:1.5;max-width:90ch}
+.gu37-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.gu37-status{padding:.7rem .9rem;background:#173d55;border-left:3px solid #80b6e0;border-radius:5px}
+.gu37-tax-warning,.gu37-checkout-warning{padding:.75rem .85rem;border-left:4px solid #d5b258;margin:.75rem 0;background:#302c20;color:#fff1c7;line-height:1.5}
+.gu37-table-wrap{width:100%;overflow-x:auto;margin-top:1rem}
+.gu37-table-wrap table{border-collapse:collapse;width:100%;min-width:820px;font-size:.88rem}
+.gu37-table-wrap caption{text-align:left;font-weight:700;margin-bottom:.55rem;color:#dceefa}
+.gu37-table-wrap th,.gu37-table-wrap td{padding:.65rem;text-align:left;border-bottom:1px solid #46647a;vertical-align:top}
+.gu37-table-wrap th{background:#1c445d;color:#fff}
+.gu37-table-wrap tbody tr:nth-child(even){background:#15354c}
+.gu37-table-wrap code{overflow-wrap:anywhere;font-size:.82rem;color:#f6dea5}
+.gu37-table-wrap td small{display:block;margin-top:.2rem;color:#b4cee0}
+.gu37-table-wrap [data-gu-stripe-verified="yes"]{color:#9ee6c0}
+.gu37-table-wrap [data-gu-stripe-verified="no"]{color:#ffe2ab}
+.gu37-stripe-catalog button:focus-visible{outline:3px solid #ffd275;outline-offset:3px}

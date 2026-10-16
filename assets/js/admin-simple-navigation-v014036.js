@@ -1,4 +1,4 @@
-/* v0.14.0.36 | One simple Admin directory, preserving existing controllers.
+/* v0.14.0.37 | One simple Admin directory, preserving existing controllers.
    No permission change: shortcuts only activate existing, authorized controls.
    Saved Owner navigation labels remain intact under "All admin controls". */
 (()=>{'use strict';
@@ -58,7 +58,7 @@ function mount(){if(initialized)return;
  details.append(summary);nav.before(panel);nav.before(details);details.append(nav);
  // The original nav stays in the DOM with its handlers, IDs, mutation observer and saved Owner settings.
  // UI structure changes only; backend authorization is never modified.
- window.GroundUpSimpleAdminNavV014036=Object.freeze({version:'0.14.0.36',open:(name)=>{const e=entries.find(x=>x.title===name);if(e)activate(e,notice)}});
+ window.GroundUpSimpleAdminNavV014036=Object.freeze({version:'0.14.0.37',open:(name)=>{const e=entries.find(x=>x.title===name);if(e)activate(e,notice)}});
 }
 let attempts=0;const timer=setInterval(()=>{if(initialized||++attempts>180){clearInterval(timer);return}mount()},200);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();

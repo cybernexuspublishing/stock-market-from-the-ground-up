@@ -146,8 +146,8 @@ function search(){if(qs('[data-gu33-global-search]'))return true;
  return true;
 }
 function install(){if(mounted||!gate())return;
- mounted=true;search();if(commerceNav()&&!commerceNav().disabled)paymentPanel();
- window.GroundUpAdminPaymentCenterV01433={version:'v0.14.0.36 (payment-center interface)',search:()=>qs('#gu33-global-input')?.focus(),open:openTarget};
+ mounted=true;search();if(allowed(commerceNav()))paymentPanel();
+ window.GroundUpAdminPaymentCenterV01433={version:'v0.14.0.37 (payment-center interface)',search:()=>qs('#gu33-global-input')?.focus(),open:openTarget};
 }
 let attempts=0;const timer=setInterval(()=>{if(gate()){install();if(mounted)clearInterval(timer)}else if(++attempts>180)clearInterval(timer)},200);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();

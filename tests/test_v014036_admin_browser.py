@@ -22,9 +22,9 @@ html='''<!doctype html><html><head></head><body>
 with sync_playwright() as p:
  browser=p.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=browser.new_page()
- page.route('https://example.test/release-manifest.json',lambda route:route.fulfill(status=200,content_type='application/json',body='{"version":"0.14.0.36","gitCommit":null}'))
+ page.route('https://example.test/release-manifest.json',lambda route:route.fulfill(status=200,content_type='application/json',body='{"version":"0.14.0.37","gitCommit":null}'))
  page.set_content(html)
- page.evaluate("window.SITE_CONFIG={VERSION:'0.14.0.36'};window.GroundUpRoutePolicy={version:'0.14.0.36'};window.__clicked=[];document.querySelectorAll('#admin-tabs button').forEach(b=>b.addEventListener('click',()=>window.__clicked.push(b.textContent)))")
+ page.evaluate("window.SITE_CONFIG={VERSION:'0.14.0.37'};window.GroundUpRoutePolicy={version:'0.14.0.37'};window.__clicked=[];document.querySelectorAll('#admin-tabs button').forEach(b=>b.addEventListener('click',()=>window.__clicked.push(b.textContent)))")
  page.add_script_tag(content=nav.replace("location.pathname", "'/admin.html'"))
  page.wait_for_selector('#gu36-simple-admin')
  assert page.locator('#gu36-simple-admin .gu36-nav-link').count()==10

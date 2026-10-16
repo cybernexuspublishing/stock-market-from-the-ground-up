@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-payment-center-v01433.js','adminPaymentCenterV01433');
     loadOnce('/assets/js/admin-simple-navigation-v014036.js','adminSimpleNavigationV014036');
+    loadOnce('/assets/js/admin-stripe-catalog-v01437.js','adminStripeCatalogV01437');
+    if(!document.querySelector('link[data-gu-stripe-catalog-v01437]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/assets/css/admin-stripe-catalog-v01437.css';x.dataset.guStripeCatalogV01437='1';document.head.append(x)}
     if(!document.querySelector('link[data-gu36-admin-style]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-simple-navigation-v014036.css';l.dataset.gu36AdminStyle='1';document.head.append(l)}
     loadOnce('/assets/js/admin-human-verification-v01434.js','adminHumanVerificationV01434');
     if(!document.querySelector('link[data-gu34-captcha-style]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-human-verification-v01434.css';l.dataset.gu34CaptchaStyle='1';document.head.append(l)}

@@ -1,0 +1,113 @@
+{
+  "schema": "gu-stripe-registered-products-v1",
+  "version": "0.14.0.37",
+  "status": "OWNER_REPORTED_DASHBOARD_PRODUCTS_ONLY_NOT_STRIPE_API_VERIFIED",
+  "source": "Owner-provided Stripe Dashboard screenshot, 2026-10-16",
+  "stripe_environment": "NOT_VERIFIED_FROM_SCREENSHOT",
+  "customer_checkout_enabled": false,
+  "critical_notes": [
+    "Product IDs prod_ do not replace the required Stripe Price IDs price_.",
+    "All eight products show Active in the screenshot; does not mean website checkout is enabled.",
+    "Annual membership tax code differs from monthly membership; verify classifications with Stripe/tax adviser before activation.",
+    "Both monthly and annual Full Memberships are separate Stripe Products; this is supported if price map distinguishes them.",
+    "Existing backend is sandbox-only and deliberately does not grant member entitlements."
+  ],
+  "products": [
+    {
+      "sku": "tool:MARKET_TUTOR",
+      "display_name": "Market Tutor",
+      "stripe_product_id": "prod_VRwuiqDt8qHayI",
+      "price_cents": 2999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_market_tutor_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "tool:MARKET_SIMULATOR",
+      "display_name": "Advanced Market Simulator & Replay",
+      "stripe_product_id": "prod_VRwrsEpvfw60Xh",
+      "price_cents": 2999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_market_simulator_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "tool:JOURNAL_ANALYTICS",
+      "display_name": "Trading Journal & Performance Analytics",
+      "stripe_product_id": "prod_VRwoX4hTg8fRCm",
+      "price_cents": 2999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_journal_analytics_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "tool:INTERACTIVE_LEARNING",
+      "display_name": "Interactive Learning & Historical Labs",
+      "stripe_product_id": "prod_VRwmmu4zATdHAb",
+      "price_cents": 2999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_interactive_learning_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "plan:ONDEMAND_MONTHLY",
+      "display_name": "Historical Replay Learning",
+      "stripe_product_id": "prod_VRwjus5sQLtTad",
+      "price_cents": 1999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_ondemand_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "plan:LIFETIME",
+      "display_name": "Lifetime Platform Access",
+      "stripe_product_id": "prod_VRwgISspL5mhls",
+      "price_cents": 249900,
+      "currency": "USD",
+      "billing_interval": "one_time",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_lifetime_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "plan:FULL_ANNUAL",
+      "display_name": "Full Platform Membership \u2014 Annual",
+      "stripe_product_id": "prod_VRvyBNhWk9jshb",
+      "price_cents": 69900,
+      "currency": "USD",
+      "billing_interval": "year",
+      "tax_code_from_screenshot": "txcd_20060058",
+      "stripe_lookup_key_suggested": "smgu_full_annual_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    },
+    {
+      "sku": "plan:FULL_MONTHLY",
+      "display_name": "Full Platform Membership \u2014 Monthly",
+      "stripe_product_id": "prod_VRvuGwLKI16MXU",
+      "price_cents": 6999,
+      "currency": "USD",
+      "billing_interval": "month",
+      "tax_code_from_screenshot": "txcd_10000000",
+      "stripe_lookup_key_suggested": "smgu_full_monthly_v1",
+      "stripe_price_id": null,
+      "status": "SCREENSHOT_ACTIVE_API_UNVERIFIED"
+    }
+  ]
+}

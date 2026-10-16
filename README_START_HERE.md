@@ -1,13 +1,11 @@
-# Cyber Nexus — One Consolidated Website Source Candidate v0.14.0.36
+# v0.14.0.37 — Combined Admin + Stripe Catalog Direct Upload
 
-This ZIP is an **overlay for the existing GitHub repository** `cybernexuspublishing/stock-market-from-the-ground-up`. It is NOT a full independent clone. Preserve every unrelated repository file, existing environment secret, database record, and user entitlement.
+**Base:** GitHub main v0.14.0.36 (`484e0b061bbd7e6a7f5548871fcd222e257cfc54`) as inspected 2026-10-16.
 
-**Base checked:** GitHub `main` v0.14.0.35, commit `9b244670b26d09a67b9f26257de06c7475b0ec50`.
+This ZIP is a **path-preserving source overlay**, not a complete website archive. Do not delete unrelated existing repository files. It fixes the v0.14.0.36 hidden-commerce navigation regression, adds the eight owner-entered Stripe Products to an authorized read-only Payment Center, and updates release consistency checks.
 
-**Includes:** one 10-category Admin directory without removing the old functional buttons, search linkage, canonical source version v0.14.0.36 across public config/route/commerce/service worker, no-store release manifest, resilient CSS, updated historical tests, isolated browser smoke test, and Stripe price template.
+**DO NOT RUN SQL MIGRATIONS** from this release: none are included. The `supabase/admin/` SQL is read-only inspection only.
 
-**Does NOT do:** activate Stripe payments, create actual Stripe products, provision subscriptions on payment, remove KDP Select restrictions, create Supabase accounts, turn off CAPTCHA, modify MFA policies, or confirm Cloudflare deployment. The v0.14.0.35 database migration remains subject to separate postflight results. Do not represent this as a completed storefront.
+**No live payment activation.** Stripe Price IDs were not supplied and must NOT be guessed. This release does not grant any membership/book entitlement, process refunds, change Stripe configuration, or publish digital books.
 
-**Release gates:** Review `docs/INTEGRATED_RELEASE_REVIEW_v0.14.0.36.md`, run every repository CI workflow and security check against the new commit, perform browser tests with Owner/Admin/member accounts, verify the Cloudflare-served manifest and code, and complete Stripe webhook-to-entitlement processing before enabling paid checkout.
-
-**Related working document (downloaded separately):** `Stripe_Products_Prices_and_Full_Field_Setup_Guide_v1.2.docx`.
+See `docs/CONSOLIDATED_RELEASE_REVIEW_v0.14.0.37.md` and `docs/STRIPE_PRICE_IDS_TO_COLLECT_v0.14.0.37.csv`.
