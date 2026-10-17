@@ -1,0 +1,48 @@
+name: Owner Website Roadmap v0.14.0.43
+on:
+  pull_request:
+    paths:
+      - 'owner-roadmap.html'
+      - 'assets/css/owner-roadmap.css'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/js/navigation.js'
+      - 'assets/js/route-policy.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-roadmap-catalog.js'
+      - 'tests/test_owner_roadmap_v014043.py'
+      - 'scripts/build-pages.sh'
+      - '.github/workflows/owner-roadmap-v014043.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-roadmap.html'
+      - 'assets/css/owner-roadmap.css'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/js/navigation.js'
+      - 'assets/js/route-policy.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-roadmap-catalog.js'
+      - 'tests/test_owner_roadmap_v014043.py'
+      - 'scripts/build-pages.sh'
+jobs:
+  roadmap-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify requirements and access contract
+        run: python3 tests/test_owner_roadmap_v014043.py
+      - name: Verify Cloudflare Pages build
+        run: bash scripts/build-pages.sh
+      - name: Ensure private catalog not publicly deployed
+        run: |
+          test -f public/owner-roadmap.html
+          test -f public/assets/js/owner-roadmap.js
+          test -f public/assets/css/owner-roadmap.css
+          test ! -e public/functions/_lib/owner-roadmap-catalog.js
+          test ! -e public/functions/api/owner-roadmap.js
+          test ! -e public/docs/sitewide/REQUIREMENTS_REGISTER.csv
