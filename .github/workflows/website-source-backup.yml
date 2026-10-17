@@ -21,7 +21,8 @@ jobs:
           mkdir -p backup
           sha="${GITHUB_SHA:0:12}"
           stamp="$(date -u +%Y%m%d)"
-          archive="GU-Website-Source-${stamp}-${sha}.zip"
+          version="v$(python3 -c 'import json; print(json.load(open("release-manifest.json"))["version"])')"
+          archive="${version}_GU-Website-Source-${stamp}-${sha}.zip"
           # Git archive includes only committed tracked files, not Git history,
           # local credentials, Cloudflare environment variables or DB data.
           git archive --format=zip -o "backup/$archive" "${GITHUB_SHA}"
@@ -40,7 +41,7 @@ jobs:
       - name: Attach downloadable archive and SHA-256 checksum
         uses: actions/upload-artifact@v4
         with:
-          name: website-source-backup-${{ github.run_number }}
+          name: v0.14.0.49_website-source-backup-${{ github.run_number }}
           path: backup/*
           if-no-files-found: error
           retention-days: 30
