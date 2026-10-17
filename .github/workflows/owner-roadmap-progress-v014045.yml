@@ -55,7 +55,7 @@ jobs:
           python3 - <<'PY'
           import json
           v=json.load(open('release-manifest.json'))['version']
-          assert v=='0.14.0.45'
+          assert v.startswith('0.14.0.') and int(v.rsplit('.',1)[-1])>=45, 'release version must be at least v0.14.0.45'
           assert json.load(open('data/commerce-config.json'))['version']==v
           assert json.load(open('release-manifest.json'))['customerCheckoutApproved']==False
           print('PASS: source assessment is private and Stripe checkout remains disabled.')
