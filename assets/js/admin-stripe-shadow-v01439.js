@@ -1,4 +1,4 @@
-/* v0.14.0.41 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.42 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -59,8 +59,21 @@
   const result=await perform({action:'checkout',sku});if(!result)return;
   let destination;try{destination=new URL(result.url);if(destination.protocol!=='https:'||destination.hostname!=='checkout.stripe.com')throw Error('Unsafe destination.')}catch{message.textContent='Stripe checkout URL verification failed.';return}
   location.assign(destination.href)});
- function mount(){if(loaded||!permitted())return;const host=$('.gu33-payment-hub')||$('.admin-panel[data-panel="commerce"]')||$('[data-admin-panel="commerce"]');if(!host)return;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.41',refresh:getState,verifyCatalog});getState()}
- let counter=0;const check=setInterval(()=>{if(loaded||++counter>180){clearInterval(check);return}mount()},250);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+ function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
+  const host=$('.gu33-payment-hub',panel)||panel;
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.42',refresh:getState,verifyCatalog});getState()}
+ // Unlike the old one-time navigation loader, this watcher tolerates delayed
+ // authentication, Owner permission hydration, and Admin menu reconstruction.
+ const observer=new MutationObserver(()=>mount());
+ function start(){
+  const gate=$('#admin-gate'),app=$('#admin-app'),tabs=$('#admin-tabs');
+  if(gate)observer.observe(gate,{attributes:true,attributeFilter:['hidden']});
+  if(app)observer.observe(app,{attributes:true,attributeFilter:['hidden']});
+  if(tabs)observer.observe(tabs,{attributes:true,subtree:true,childList:true,
+    attributeFilter:['hidden','disabled','class','aria-disabled']});
+  mount();
+ }
+ const retry=setInterval(()=>{if(loaded){clearInterval(retry);observer.disconnect()}else mount()},1000);
+ window.addEventListener('pagehide',()=>{clearInterval(retry);observer.disconnect()},{once:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
