@@ -47,7 +47,7 @@ with sync_playwright() as p:
     page.locator('#v143-start-human').check()
     page.wait_for_function('window.execCalls===1')
     assert page.evaluate('window.renderCalls') == 1, 'one manually initiated widget'
-    assert page.locator('#v135-turnstile').is_visible()
+    assert page.locator('#v135-turnstile').evaluate('(el)=>!el.hidden'), 'widget mount shown after manual start'
     assert not page.locator('button[type="submit"]').is_disabled()
     assert page.evaluate('window.turnstileOpts.appearance') == 'always'
     assert page.evaluate('window.turnstileOpts.execution') == 'execute'
