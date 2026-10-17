@@ -60,9 +60,9 @@ function metrics(){
  const active=count('in_progress')+count('implemented'),block=count('blocked');
  const traced=all.filter(x=>x.scope==='trace'&&!isReference(x)).length;
  $('#or-metrics').innerHTML=[
-  [done+' / '+tasks.length,'Owner-completed commitments'],
-  [String(tasks.length-done),'Remaining or not yet reviewed'],
-  [String(active),'In progress / needs verification'],
+  [done+' / '+tasks.length,'Accepted delivered controls (delegated / Owner)'],
+  [String(tasks.length-done),'Still needs final verification or development'],
+  [String(active),'Source accepted pending QA / active work'],
   [String(block),'Blocked · '+traced+' source requirements tracked']
  ].map(([number,label])=>'<article class="or-stat"><strong>'+esc(number)+'</strong><span>'+esc(label)+'</span></article>').join('');
 }
@@ -96,7 +96,7 @@ function row(item){
  const note='<label class="or-stage-wrap">Owner notes / acceptance evidence<textarea class="or-note" data-note="'+qid+'" maxlength="2400" rows="3" placeholder="Release, tested behavior, independent acceptance evidence, or blocking dependency">'+esc(p.note||'')+'</textarea></label>';
  return '<article class="or-task" data-id="'+qid+'" data-state="'+esc(status)+'">'+label+
  '<div class="or-task-main"><span class="or-id">'+qid+'</span><h3>'+title+'</h3><div class="or-task-meta"><span class="or-tag">'+area+'</span>'+(delegatedReview?'<span class="or-tag or-delegated" title="Project review stored in GitHub, not Supabase">Delegated project review</span>':'<span class="or-tag or-stored">Owner-saved progress</span>')+'<span class="or-review-pill" data-review="'+esc(review?.stage||'needs_review')+'">'+esc(reviewLabel)+'</span>'+(section?'<span class="or-tag">'+section+'</span>':'')+'</div>'+
- '<details><summary>Requirement, engineering evidence and verification details</summary><p>'+detail+'</p><p><b>Engineering review:</b> '+esc(review?.summary||'No individual assessment supplied for this archived or newly added item.')+'</p><p><b>Documented source status:</b> '+evidence+'</p>'+next+
+ '<details><summary>Requirement, engineering evidence and verification details</summary><p>'+detail+'</p><p><b>Delegated approval decision:</b> '+esc(p.approval||'No delegated baseline; existing Owner status applies')+' · '+esc(delegatedReview?'Dated GitHub technical decision; not an Owner-signed database entry.':'Privately saved Owner state overrides the source review.')+'</p><p><b>Engineering review:</b> '+esc(review?.summary||'No individual assessment supplied for this archived or newly added item.')+'</p><p><b>Documented source status:</b> '+evidence+'</p>'+next+
  '<p><b>Origin:</b> <cite>'+source+'</cite></p>'+note+'<div class="or-task-actions"><button type="button" class="or-button or-secondary" data-save="'+qid+'">Save note &amp; status</button>'+
  (item.id.startsWith('OWN-')?'<button type="button" class="or-button or-secondary" data-archive="'+qid+'">Archive custom task</button>':'')+'</div></details></div>'+statusSelect+'</article>';
 }
