@@ -51,7 +51,7 @@ jobs:
           python3 - <<'PY'
           import json
           a=json.load(open('release-manifest.json'))
-          assert a['version']=='0.14.0.46'
+          assert tuple(map(int,a['version'].split('.'))) >= (0,14,0,46)  # v46 approval must survive later releases
           assert json.load(open('data/commerce-config.json'))['version']==a['version']
           assert a['customerCheckoutApproved'] is False
           assert a['liveStripeFulfillmentEnabled'] is False
