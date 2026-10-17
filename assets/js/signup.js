@@ -141,7 +141,11 @@ async function createAccount(e){
   }catch(err){
     signupMessage(err.message||'Unable to create account.', 'error');
   }finally{
-    if(submit){submit.disabled=false;submit.textContent='Create account'}
+    if(submit){
+      submit.textContent='Create account';
+      try{window.GroundUpTurnstile?.getToken?.();submit.disabled=window.GroundUpTurnstile?.required===true?false:false}
+      catch{submit.disabled=true}
+    }
   }
 }
 
