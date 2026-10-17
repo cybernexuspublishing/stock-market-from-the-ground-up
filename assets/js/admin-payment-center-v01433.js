@@ -17,6 +17,7 @@ const commerceNav=()=>qs('#admin-tabs button[data-panel="commerce"]');
 let mounted=false,loaded=false,started=false,searchStatus=null;
 const targets=[
  {id:'managed',name:'Set Up Stripe Payments',description:'Set up Stripe for memberships, courses, learning tools and eBooks. Start with test payments.',keywords:'stripe digital managed account secret configuration price subscription', selector:'[data-gu-managed-r2]'},
+ {id:'sandbox',name:'Stripe Sandbox Verification',description:'Verify eight test products and prices before starting any test checkout.',keywords:'verify all 8 sandbox products stripe testing price id catalog',selector:'#gu39-shadow'},
  {id:'lemon',name:'Lemon Squeezy (Optional)',description:'Manage the backup payment service for digital products.',keywords:'lemon squeezy api key variant subscription',selector:'[data-gu-lemon-readiness]'},
  {id:'signed',name:'Signed Book Orders',description:'Manage prices, paid orders, signing, shipping and tracking for printed books.',keywords:'stripe physical kdp signed paperback hardcover orders shipping',selector:'[data-gu-signed-admin-v01431]'},
  {id:'lulu',name:'Lulu Print Orders',description:'Turn automatic print delivery on or off and manage book purchase links.',keywords:'lulu paperback hardcover print links',selector:'[data-gu-print-owner-v01428]'},

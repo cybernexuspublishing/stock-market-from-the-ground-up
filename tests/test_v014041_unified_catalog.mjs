@@ -38,6 +38,6 @@ try{
  assert(read('assets/js/admin-stripe-shadow-v01439.js').includes('Verify All 8 Sandbox Products'));
  assert(read('assets/js/admin-stripe-shadow-v01439.js').includes('!catalogReady'));
  const manifest=JSON.parse(read('release-manifest.json'));
- assert.equal(manifest.version,'0.14.0.41');assert.equal(manifest.customerCheckoutApproved,false);
+ assert.match(manifest.version,/^0\.14\.0\.\d+$/);assert.equal(manifest.customerCheckoutApproved,false);
  console.log('PASS v41: one verified Stripe account, separate product/price counters, authoritative legacy delegation, mismatch fail-closed, no live checkout.');
 }finally{globalThis.fetch=original}
