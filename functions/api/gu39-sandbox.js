@@ -67,30 +67,45 @@ async function stripeInspection(env,route){
  return {data:d};
 }
 async function inspectCatalog(env){
- // Read-only, Owner/Admin-authenticated, never changes Stripe data or production grants.
+ // The ONLY authoritative Stripe Sandbox catalog verification.
+ // READ ONLY, independent of shadow payment checkout gate.
  const account=await checkStripeAccount(env),map=priceMap(env),rows=[];
+ const keys=Object.keys(prices),mappedIds=keys.map(x=>map[x]).filter(x=>known(x,'price'));
+ const duplicates=new Set(mappedIds).size!==mappedIds.length;
  for(const [sku,[productId,cents,interval]] of Object.entries(prices)){
-  const priceId=map[sku],row={sku,productId,priceId:known(priceId,'price')?priceId:null,amountCents:cents,interval,status:'NOT_VERIFIED'};
+  const priceId=map[sku],row={sku,productId,priceId:known(priceId,'price')?priceId:null,amountCents:cents,interval,
+   productVerified:false,priceVerified:false,reason:'',status:'NOT_VERIFIED'};
   const product=await stripeInspection(env,'products/'+encodeURIComponent(productId));
-  if(product.missing){row.status='PRODUCT_MISSING';rows.push(row);continue}
+  if(product.missing){row.status='PRODUCT_MISSING';row.reason='Missing in connected Stripe test account.';rows.push(row);continue}
   row.productName=String(product.data.name||'');
-  if(product.data.id!==productId||product.data.livemode!==false||product.data.active!==true){row.status='PRODUCT_INVALID';rows.push(row);continue}
-  if(!row.priceId){row.status='PRICE_MAP_MISSING';rows.push(row);continue}
-  const p=await stripeInspection(env,'prices/'+encodeURIComponent(row.priceId));
-  if(p.missing){row.status='PRICE_MISSING';rows.push(row);continue}
-  row.status=matchesPrice(p.data,productId,cents,interval)?'VERIFIED':'PRICE_MISMATCH';
+  row.stripeTaxCode=typeof product.data.tax_code==='string'?product.data.tax_code:product.data.tax_code?.id||null;
+  row.productVerified=product.data.id===productId&&product.data.livemode===false&&product.data.active===true;
+  if(!row.productVerified){row.status='PRODUCT_INVALID';row.reason='Inactive, live-mode, or unexpected product.';rows.push(row);continue}
+  if(!row.priceId){row.status='PRICE_MAP_MISSING';row.reason='Missing GU39_STRIPE_TEST_PRICE_MAP_JSON entry in Cloudflare.';rows.push(row);continue}
+  if(duplicates){row.status='PRICE_MAP_DUPLICATE';row.reason='Duplicate Stripe test Price ID; each SKU requires its own price.';rows.push(row);continue}
+  const price=await stripeInspection(env,'prices/'+encodeURIComponent(row.priceId));
+  if(price.missing){row.status='PRICE_MISSING';row.reason='Price does not exist in the connected sandbox.';rows.push(row);continue}
+  row.priceVerified=matchesPrice(price.data,productId,cents,interval);
+  row.status=row.priceVerified?'VERIFIED':'PRICE_MISMATCH';
+  if(!row.priceVerified)row.reason='Price product, active flag, test mode, currency, amount, or recurrence mismatch.';
   rows.push(row);
  }
- return {ok:true,accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
-  productsVerified:rows.filter(x=>x.status==='VERIFIED').length,allVerified:rows.every(x=>x.status==='VERIFIED'),rows,
-  liveCheckout:false,notice:'This is a read-only Stripe Sandbox catalog check. No products or prices were created.'};
+ const verifiedProducts=rows.filter(x=>x.productVerified).length;
+ const verifiedPrices=rows.filter(x=>x.priceVerified).length;
+ const tax=rows.filter(x=>['plan:FULL_MONTHLY','plan:FULL_ANNUAL'].includes(x.sku)).map(x=>x.stripeTaxCode).filter(Boolean);
+ return {ok:true,version:'0.14.0.41',accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
+  productsVerified:verifiedProducts,pricesVerified:verifiedPrices,priceIdsConfigured:mappedIds.length,
+  allVerified:verifiedProducts===8&&verifiedPrices===8&&!duplicates,
+  taxClassificationReviewRequired:tax.length===2&&tax[0]!==tax[1],
+  rows,liveCheckout:false,notice:'Read-only Stripe TEST catalog verification; no payments or real member entitlements changed.'};
 }
 
 async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  if(new URL(request.url).searchParams.get('view')==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
- catch(e){return json({ok:false,error:['SANDBOX_ACCOUNT_MISMATCH','SANDBOX_TEST_KEY_MISSING','PRICE_MAP_INVALID'].includes(e.message)?e.message:'Administrative sandbox status unavailable.'},403)}}
+ catch(e){const issues=['SANDBOX_ACCOUNT_MISMATCH','SANDBOX_TEST_KEY_MISSING','PRICE_MAP_INVALID','STRIPE_CATALOG_API_UNAVAILABLE'];
+ return json({ok:false,error:issues.includes(e.message)?e.message:'Administrative sandbox status unavailable.',liveCheckout:false},issues.includes(e.message)?503:403)}}
 export async function onRequestPost({request,env}){
  try{
   const origin=request.headers.get('origin');const location=new URL(request.url);if(origin!==location.origin)throw Error('SAME_ORIGIN_REQUIRED');
@@ -108,7 +123,8 @@ export async function onRequestPost({request,env}){
   await checkStripeAccount(env);
   const live=await status(c,a,env);if(live.enabled!==true)throw Error('OWNER_HAS_DISABLED_SANDBOX');
   const [product,amount,interval]=prices[data.sku];const mapping=priceMap(env);
-  const priceId=mapping?.[data.sku];if(!known(priceId,'price'))throw Error('MISSING_TEST_PRICE_ID');
+  const priceId=mapping?.[data.sku];if(Object.keys(prices).some(k=>!known(mapping[k],'price'))||new Set(Object.keys(prices).map(k=>mapping[k])).size!==8)throw Error('INCOMPLETE_PRICE_MAP');
+  if(!known(priceId,'price'))throw Error('MISSING_TEST_PRICE_ID');
   const price=await stripe(env,'prices/'+encodeURIComponent(priceId));
   if(!matchesPrice(price,product,amount,interval))throw Error('PRICE_VALIDATION_FAILED');
   // Limit accidental repeated test checkouts. Untrusted customer sessions NEVER reach this Owner-only endpoint.
@@ -125,6 +141,6 @@ export async function onRequestPost({request,env}){
   const u=new URL(session.url);if(u.protocol!=='https:'||u.hostname!=='checkout.stripe.com')throw Error('INVALID_TEST_CHECKOUT_HOST');
   await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal');
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
- }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','MISSING_TEST_PRICE_ID','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
+ }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
    return json({ok:false,error:common.includes(e.message)?e.message:'Testing is unavailable; review the Admin sandbox configuration.'},403)}
 }
