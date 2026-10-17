@@ -1,4 +1,4 @@
-/* v0.14.0.49 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.51 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -29,13 +29,15 @@
  const controls=element('div',undefined,'gu39-actions');
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
+ const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
+ const preflightReport=element('div',undefined,'gu39-preflight');preflightReport.setAttribute('role','status');preflightReport.setAttribute('aria-live','polite');
  const catalog=element('div',undefined,'gu39-catalog-report');catalog.setAttribute('role','status');catalog.setAttribute('aria-live','polite');
  const toggle=element('button','Enable Testing');toggle.type='button';toggle.disabled=true;
  const label=element('label','Choose a test product');label.htmlFor='gu39-sku';
  const sel=element('select');sel.id='gu39-sku';for(const [value,name] of Object.entries(SKUS)){const opt=element('option',name);opt.value=value;sel.append(opt)}
  const begin=element('button','Open Stripe Test Checkout');begin.type='button';begin.disabled=true;
  const explain=element('p','Only the Owner can change testing settings. A recent password confirmation is required. Test data is stored separately from real entitlements. No refunds or recurring memberships are modified outside this test area.','gu39-small');
- controls.append(refresh,verify,toggle,label,sel,begin);root.append(title,lead,banner,help,summary,controls,catalog,message,explain);
+ controls.append(refresh,verify,preflight,toggle,label,sel,begin);root.append(title,lead,banner,help,summary,controls,preflightReport,catalog,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -77,6 +79,29 @@
    table.append(body);catalog.append(table);
   }catch(e){catalogReady=false;if(state)show(state);catalog.replaceChildren();catalog.append(element('p','Catalog verification could not complete: '+(e.message||'Unknown error.')))}finally{verify.disabled=false}
  }
+ async function runPreflight(){
+  preflight.disabled=true;preflightReport.replaceChildren(element('p','Checking TEST account, secure bindings, Supabase controls and Stripe webhook event subscriptions…'));
+  try{
+   const jwt=await auth(),r=await fetch('/api/gu39-sandbox?view=readiness',{headers:{authorization:'Bearer '+jwt},cache:'no-store'});
+   const data=await r.json().catch(()=>null);
+   if(!r.ok||!data?.ok)throw Error(errorMessage(data?.error,r.status));
+   preflightReport.replaceChildren();
+   const h=element('h3','Payment preflight: '+data.passed+' / '+data.total+' checks passed');preflightReport.append(h);
+   const table=element('table'),caption=element('caption','Read-only payment configuration checks');
+   const thead=element('thead'),tr=element('tr');
+   for(const label of ['Check','Result','What it means'])tr.append(element('th',label));
+   thead.append(tr);table.append(caption,thead);
+   const tbody=element('tbody');
+   for(const row of data.checks){const item=element('tr');for(const value of [row.check,row.status,row.detail])item.append(element('td',value));tbody.append(item)}
+   table.append(tbody);preflightReport.append(table);
+   preflightReport.append(element('p',data.configurationReady?
+    'Configuration is ready for controlled Stripe TEST acceptance. Manual secure testing gates and one successful signed checkout are still required.':
+    'Do not enable testing until all BLOCKED checks are resolved.'));
+   if(data.cloudflareGate===true&&data.ownerMode===true)preflightReport.append(element('p','WARNING: Both test gates are currently enabled. Disable them after completing acceptance testing.'));
+  }catch(e){preflightReport.replaceChildren(element('p','Payment preflight failed: '+(e.message||'Unknown error')))}
+  finally{preflight.disabled=false}
+ }
+ preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
  async function perform(payload){toggle.disabled=begin.disabled=true;try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Action was not authorized.');return data}catch(e){message.textContent='Payment testing action not completed: '+(e.message||'Unknown error.');return null}finally{if(state){toggle.disabled=state.role!=='OWNER';begin.disabled=state.role!=='OWNER'||!state.enabled||!state.cloudflareGate||state.priceIdsConfigured!==8||!catalogReady}}}
  refresh.addEventListener('click',getState);
@@ -88,7 +113,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.49',refresh:getState,verifyCatalog});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.51',refresh:getState,verifyCatalog,runPreflight});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());

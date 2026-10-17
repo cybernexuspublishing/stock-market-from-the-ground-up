@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.49",
+  "version": "0.14.0.51",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "9771514bca04d7e9d918fe6e1e18d32ad35ddf39",
   "gitCommit": null,
