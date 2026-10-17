@@ -1,4 +1,4 @@
-name: Stripe Shadow Sandbox v0.14.0.43
+name: Stripe Shadow Sandbox v0.14.0.46
 on:
   push:
     paths:
@@ -16,6 +16,7 @@ on:
       - 'assets/js/admin-simple-navigation-v014036.js'
       - 'tests/test_v014042_*'
       - 'tests/test_v014043_*'
+      - 'tests/v0.14.0.46_*'
       - 'supabase/admin/v0.14.0.40*'
       - 'tests/test_v014032r2_payment_source.py'
       - '.github/workflows/stripe-shadow-v01439.yml'
@@ -46,6 +47,7 @@ jobs:
           node tests/test_v014037_stripe_readiness.mjs
           node tests/test_v014041_unified_catalog.mjs
           node tests/test_v014043_stripe_error_contract.mjs
+          node tests/v0.14.0.46_STRIPE_ROLE_FACADE.mjs
       - name: Admin UI browser smoke test
         run: |
           python -m pip install playwright==1.56.0
