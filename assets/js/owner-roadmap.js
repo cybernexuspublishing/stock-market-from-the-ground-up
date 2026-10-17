@@ -106,6 +106,7 @@ function render(){
  $('#or-page-text').textContent='Page '+(page+1)+' of '+pages;
  $('#or-prev').disabled=page<=0;$('#or-next').disabled=page>=pages-1;
  metrics();
+ if(engineering.labels)renderReviewBoard();
 }
 async function save(item,status,note,element){
  if(busy.has(item.id))return;
