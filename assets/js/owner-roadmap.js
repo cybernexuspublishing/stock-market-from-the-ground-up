@@ -1,4 +1,4 @@
-/* Owner Roadmap v0.14.0.45. Browser-only renderer; all data/mutations require
+/* Owner Roadmap v0.14.0.46. Browser-only renderer; all data/mutations require
  * Cloudflare server verification of OWNER, account status, and real session.
  * Never store signed-in auth tokens or project status in localStorage. */
 (()=>{'use strict';
@@ -11,7 +11,7 @@ const choices=[
  ['verified','Evidence verified']
 ];
 const complete=new Set(['owner_complete','verified']);
-let all=[],stored={},metadata={},engineering={},scope='core',page=0,size=30,loaded=false,token='',busy=new Set();
+let all=[],stored={},delegated={},delegation={},metadata={},engineering={},scope='core',page=0,size=30,loaded=false,token='',busy=new Set();
 function message(text,error=false){const box=$('#or-access');box.hidden=false;box.textContent=text;box.classList.toggle('or-error',error)}
 async function client(){if(typeof window.getSupabaseClient!=='function')throw Error('Authentication client is unavailable.');return await window.getSupabaseClient()}
 async function bearer(){
@@ -33,7 +33,9 @@ async function api(method='GET',body=null){
  if(!j.ok)throw Error(j.error||'Roadmap request failed.');
  return j;
 }
-function state(item){return stored[item.id]||{status:'not_started',note:''}}
+function hasStoredState(item){return Object.prototype.hasOwnProperty.call(stored,item.id)}
+function state(item){return hasStoredState(item)?stored[item.id]:(delegated[item.id]||{status:'not_started',note:''})}
+function isDelegated(item){return !hasStoredState(item)&&Boolean(delegated[item.id])}
 function evidenceOf(item){return item.engineeringReview||null}
 function reviewStage(item){return evidenceOf(item)?.stage||'needs_review'}
 function statusOf(item){return state(item).status||'not_started'}
@@ -69,8 +71,9 @@ function renderReviewBoard(){
  const groups=[['deployed_verified','Verified delivered controls'],['source_implemented','Implementation present; acceptance pending'],['in_progress','Currently being worked on'],['blocked','Blocked / missing external evidence'],['backlog','Recorded backlog'],['needs_review','Individual review pending']];
  const summary=groups.map(([stage,label])=>{const n=base.filter(x=>reviewStage(x)===stage).length;return '<button class="or-review-metric" type="button" data-review-stage="'+esc(stage)+'" aria-label="Filter engineering review: '+esc(label)+'"><strong>'+n+'</strong><span>'+esc(label)+'</span></button>'}).join('');
  const checked=base.filter(x=>complete.has(statusOf(x))).length;
+ const delegatedCount=base.filter(x=>isDelegated(x)&&complete.has(statusOf(x))).length;
  const archived=all.filter(x=>x.scope==='trace').length;
- const context='<p class="or-muted">Assessment snapshot: '+esc(engineering.asOf||'date unknown')+' · Repository baseline '+esc((engineering.baseline||'').slice(0,12))+' · <strong>separate from '+checked+' Owner-approved completions</strong>. '+archived+' archived source lines are not independently classified. Tap a card to filter.</p>';
+ const context='<p class="or-muted">Assessment snapshot: '+esc(engineering.asOf||'date unknown')+' · Repository baseline '+esc((engineering.baseline||'').slice(0,12))+' · <strong>'+checked+' accepted delivered controls ('+delegatedCount+' delegated source approvals, '+(checked-delegatedCount)+' saved Owner confirmations)</strong>. '+archived+' archived source lines are not independently classified. Tap a card to filter.</p>';
  $('#or-review-board').innerHTML='<h2>Engineering review — what is delivered, active, blocked, or still outstanding</h2>'+context+'<div class="or-review-grid">'+summary+'</div><p class="or-review-disclaimer">Source present is not equivalent to live payment, correct access, working editor, accepted teaching content, or an Owner-approved production release. This assessment does not change your saved checkboxes or statuses.</p>';
  $('#or-review-board').hidden=false;
 }
@@ -82,17 +85,17 @@ function areas(){
 }
 function formatDate(d){if(!d)return'No Owner change logged';try{return new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(d))}catch{return 'Date unavailable'}}
 function row(item){
- const p=state(item),status=statusOf(item),done=complete.has(status),reference=isReference(item),review=evidenceOf(item);
+ const p=state(item),status=statusOf(item),done=complete.has(status),reference=isReference(item),review=evidenceOf(item),delegatedReview=isDelegated(item);
  const reviewLabel=engineering.labels?.[review?.stage]?.label||'Not individually assessed';
  const qid=esc(item.id),title=esc(item.title),source=esc(item.source),area=esc(item.area),section=esc(item.section||'');
  const detail=esc(item.detail||'No additional acceptance notes recorded.');
  const evidence=esc(item.evidence||'Unverified source statement'),next=item.nextCheck?'<p><b>Next acceptance:</b> '+esc(item.nextCheck)+'</p>':'';
  if(reference)return '<article class="or-task or-reference" data-id="'+qid+'"><div class="or-task-main"><span class="or-id">'+qid+'</span><h3>'+title+'</h3><p class="or-muted">'+area+' · '+section+'</p><cite>'+source+'</cite></div></article>';
  const label='<label class="or-check" title="Mark this requirement complete or pending"><input aria-label="Owner-completed: '+title+'" type="checkbox" data-check="'+qid+'" '+(done?'checked ':'')+(busy.has(item.id)?'disabled':'')+'></label>';
- const statusSelect='<label class="or-stage-wrap">Progress status<select class="or-stage" data-status="'+qid+'" aria-label="Progress status for '+title+'" '+(busy.has(item.id)?'disabled':'')+'>'+choices.map(([v,n])=>'<option value="'+v+'" '+(status===v?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select><span class="or-updated">'+esc(formatDate(p.updatedAt))+'</span></label>';
+ const statusSelect='<label class="or-stage-wrap">Progress status<select class="or-stage" data-status="'+qid+'" aria-label="Progress status for '+title+'" '+(busy.has(item.id)?'disabled':'')+'>'+choices.map(([v,n])=>'<option value="'+v+'" '+(status===v?'selected':'')+'>'+esc(n)+'</option>').join('')+'</select><span class="or-updated">'+esc(delegatedReview?'Delegated source review · '+(p.reviewedOn||'')+' · not a Supabase audit entry':formatDate(p.updatedAt))+'</span></label>';
  const note='<label class="or-stage-wrap">Owner notes / acceptance evidence<textarea class="or-note" data-note="'+qid+'" maxlength="2400" rows="3" placeholder="Release, tested behavior, independent acceptance evidence, or blocking dependency">'+esc(p.note||'')+'</textarea></label>';
  return '<article class="or-task" data-id="'+qid+'" data-state="'+esc(status)+'">'+label+
- '<div class="or-task-main"><span class="or-id">'+qid+'</span><h3>'+title+'</h3><div class="or-task-meta"><span class="or-tag">'+area+'</span><span class="or-review-pill" data-review="'+esc(review?.stage||'needs_review')+'">'+esc(reviewLabel)+'</span>'+(section?'<span class="or-tag">'+section+'</span>':'')+'</div>'+
+ '<div class="or-task-main"><span class="or-id">'+qid+'</span><h3>'+title+'</h3><div class="or-task-meta"><span class="or-tag">'+area+'</span>'+(delegatedReview?'<span class="or-tag or-delegated" title="Project review stored in GitHub, not Supabase">Delegated project review</span>':'<span class="or-tag or-stored">Owner-saved progress</span>')+'<span class="or-review-pill" data-review="'+esc(review?.stage||'needs_review')+'">'+esc(reviewLabel)+'</span>'+(section?'<span class="or-tag">'+section+'</span>':'')+'</div>'+
  '<details><summary>Requirement, engineering evidence and verification details</summary><p>'+detail+'</p><p><b>Engineering review:</b> '+esc(review?.summary||'No individual assessment supplied for this archived or newly added item.')+'</p><p><b>Documented source status:</b> '+evidence+'</p>'+next+
  '<p><b>Origin:</b> <cite>'+source+'</cite></p>'+note+'<div class="or-task-actions"><button type="button" class="or-button or-secondary" data-save="'+qid+'">Save note &amp; status</button>'+
  (item.id.startsWith('OWN-')?'<button type="button" class="or-button or-secondary" data-archive="'+qid+'">Archive custom task</button>':'')+'</div></details></div>'+statusSelect+'</article>';
@@ -123,7 +126,7 @@ async function save(item,status,note,element){
 function announce(text,error=false){
  const box=$('#or-evidence');box.textContent=text;box.classList.toggle('or-error',error);
  window.clearTimeout(announce._timeout);
- announce._timeout=setTimeout(()=>{box.classList.remove('or-error');box.innerHTML='Completion defaults to <strong>not Owner-reviewed</strong> unless a stored Owner status exists. Older source claims are recorded as evidence, not automatically checked off.'},6000);
+ announce._timeout=setTimeout(()=>{box.classList.remove('or-error');box.innerHTML='Verified delivered work has delegated approval; source-only implementations still need live acceptance. Existing authenticated Owner decisions take precedence.'},6000);
 }
 function find(id){return all.find(x=>x.id===id)}
 function selectTab(next){
@@ -137,10 +140,10 @@ function download(name,data,mime){
  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function exportData(format){
- const rows=all.map(x=>({...x,progress:state(x)}));
+ const rows=all.map(x=>({...x,progress:state(x),statusOrigin:isDelegated(x)?'delegated_GitHub_review':'owner_Supabase_or_unreviewed'}));
  const filename='owner-website-roadmap-'+new Date().toISOString().slice(0,10);
  if(format==='json'){download(filename+'.json',JSON.stringify({metadata,exportedAt:new Date().toISOString(),items:rows},null,2),'application/json');return}
- const cols=['id','scope','area','section','title','detail','source','evidence','engineeringStage','engineeringSummary','status','note','updatedAt','updatedBy'];
+ const cols=['id','scope','area','section','title','detail','source','evidence','engineeringStage','engineeringSummary','statusOrigin','approval','status','note','reviewedOn','updatedAt','updatedBy'];
  const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
  const values=rows.map(x=>cols.map(k=>quote(k==='engineeringStage'?x.engineeringReview?.stage:(k==='engineeringSummary'?x.engineeringReview?.summary:(k in x.progress?x.progress[k]:x[k])))).join(','));
  download(filename+'.csv',cols.join(',')+'\r\n'+values.join('\r\n'),'text/csv;charset=utf-8');
@@ -149,8 +152,8 @@ async function reload(){
  message('Refreshing privately saved Owner progress…');
  try{
   const data=await api();
-  metadata=data.metadata||{};engineering=data.engineeringReview||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
-  $('#or-version').textContent='Catalog '+(metadata.version||'')+' · '+(metadata.generatedDate||'')+' · changes stored in private Supabase settings, not in browser storage.';
+  metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
+  $('#or-version').textContent='Catalog '+(metadata.version||'')+' · Delegated review '+(delegation.version||'unavailable')+' · authenticated Owner edits save privately in Supabase and take precedence over delegated code approvals.';
   $('#or-app').hidden=false;$('#or-access').hidden=true;areas();render();renderReviewBoard();
  }catch(e){
   if(e.message!=='AUTH_REDIRECT')message(e.message+' Check Owner sign-in and storage availability.',true);
