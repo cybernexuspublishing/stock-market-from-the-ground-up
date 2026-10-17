@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.41",
+  "version": "0.14.0.42",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "b6efd36cb23a4434b2623ed08f41bdb4a4be0016",
   "gitCommit": null,
@@ -12,5 +12,5 @@
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
   "liveStripeFulfillmentEnabled": false,
-  "catalogVerification": "GU39 authoritative read-only Stripe test account API; provider validation pending"
+  "catalogVerification": "read-only Owner/Admin Stripe catalog; direct Admin UI bootstrap corrected; 8/8 API acceptance pending"
 }
