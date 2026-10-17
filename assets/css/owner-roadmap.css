@@ -63,3 +63,22 @@
 @media(max-width:900px){.or-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.or-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.or-task{grid-template-columns:auto minmax(0,1fr)}.or-stage-wrap{grid-column:2;max-width:350px}}
 @media(max-width:600px){.or-shell{padding:15px}.or-toolbar,.or-create form{grid-template-columns:1fr}.or-create .or-wide{grid-column:1}.or-metrics{grid-template-columns:1fr 1fr}.or-tab-bar button{font-size:.83rem;padding:10px}.or-task{gap:9px;padding:12px}.or-stage-wrap{max-width:none}.or-tools-right{width:100%}.or-tools-right .or-button{flex:1}}
 @media(prefers-reduced-motion:reduce){.owner-roadmap-page *{scroll-behavior:auto!important;transition:none!important}}
+
+/* v0.14.0.45 — Owner and engineering evidence are deliberately separate. */
+.or-review-board{border:1px solid #426276;border-radius:14px;background:#0e2939;padding:19px;margin:0 0 22px;color:#dfeefa}
+.or-review-board[hidden]{display:none!important}
+.or-review-board h2{font-size:1.27rem;color:#fff;margin:0 0 12px}
+.or-review-board p{line-height:1.5}
+.or-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:17px 0}
+.or-review-metric{background:#15384b;color:#d6e9f6;border:1px solid #456a7b;min-height:112px;padding:15px;text-align:left;border-radius:10px;cursor:pointer}
+.or-review-metric:hover{border-color:#d1af69;background:#1d455c}
+.or-review-metric strong{display:block;color:white;font-size:1.8rem;font-variant-numeric:tabular-nums}
+.or-review-metric span{font-size:.82rem;line-height:1.4}
+.or-review-disclaimer{border-left:3px solid #d1af69;padding:5px 10px;font-size:.88rem;background:#102c3a}
+.or-review-pill{display:inline-block;font-size:.74rem;line-height:1.35;border-radius:6px;padding:4px 8px;background:#173b50;border:1px solid #527b8e;color:#daebf8}
+.or-review-pill[data-review=deployed_verified]{border-color:#4a9d81;color:#b5f4dc;background:#123a34}
+.or-review-pill[data-review=in_progress]{border-color:#b8a05c;color:#ffe5b0;background:#403416}
+.or-review-pill[data-review=blocked]{border-color:#b97974;color:#ffc5be;background:#402a30}
+.or-review-pill[data-review=backlog]{border-color:#697a98;color:#d2dbee;background:#243045}
+@media(max-width:900px){.or-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.or-review-board{padding:13px}.or-review-grid{grid-template-columns:1fr 1fr;gap:8px}.or-review-metric{padding:10px;min-height:98px}.or-review-metric strong{font-size:1.45rem}}
