@@ -12,7 +12,7 @@ const json=(v,s=200)=>new Response(JSON.stringify(v),{status:s});
 try{
  globalThis.fetch=async(url,o={})=>{const u=String(url);calls.push([u,o.method||'GET']);
   if(u.endsWith('/auth/v1/user'))return json({id:'8da97526-b906-4927-a002-6195f69112ee'});
-  if(u.endsWith('/rpc/gu_staff_identity_v01431r1'))return json('OWNER');
+  if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return json({ok:true,role:'OWNER'});
   if(u.endsWith('/v1/account'))return json({id:acct});
   if(u.includes('/v1/products/'))return json({id:u.split('/').at(-1),active:true,livemode:false,name:'Test Product'});
   if(u.includes('/v1/prices/'))return json({id:'price_testMonthly1234',active:true,livemode:false,
