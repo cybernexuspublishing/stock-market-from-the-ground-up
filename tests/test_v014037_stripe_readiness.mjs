@@ -18,7 +18,7 @@ try{
  };
  const request=ok=>new Request('https://example.com/api/stripe-product-readiness-v01437',{headers:ok?{authorization:'Bearer mock-jwt'}:{}});
  let res=await onRequestGet({request:request(false),env});
- assert.equal(res.status,403);assert.equal(seen.some(([u])=>u.includes('api.stripe.com')),false);
+ assert.equal(res.status,401);assert.equal(seen.some(([u])=>u.includes('api.stripe.com')),false);
  seen.length=0;res=await onRequestGet({request:request(true),env});assert.equal(res.status,200);
  const data=await res.json();assert.equal(data.ok,true);assert.equal(data.verifiedProductCount,8);
  assert.equal(data.verifiedPriceCount,1);assert.equal(data.priceMappedCount,1);
