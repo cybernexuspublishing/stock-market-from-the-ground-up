@@ -31,7 +31,7 @@ globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';
  throw Error('Unexpected mock request '+u+' '+verb);
 };
 try{
- assert.equal((await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox'),env})).status,403);
+ assert.equal((await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox'),env})).status,401);
  const headers={authorization:'Bearer example-token',origin:'https://example.com','content-type':'application/json'};
  let s=await (await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox',{headers}),env})).json();
  assert.equal(s.enabled,true);assert.equal(s.liveCheckout,false);
