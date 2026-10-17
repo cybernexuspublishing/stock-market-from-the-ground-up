@@ -16,6 +16,7 @@
     '/my-library','/my-library.html',
     '/my-purchases','/my-purchases.html',
     '/admin','/admin.html',
+    '/owner-roadmap','/owner-roadmap.html',
     '/checkout','/checkout.html'
   ]);
 
@@ -68,7 +69,7 @@
   const PRIVATE_LINK_PATHS=new Set([
     '/dashboard','/dashboard.html','/account','/account.html','/access','/access.html',
     '/settings','/settings.html','/data-connections','/data-connections.html',
-    '/my-library','/my-library.html','/my-purchases','/my-purchases.html','/admin','/admin.html'
+    '/my-library','/my-library.html','/my-purchases','/my-purchases.html','/admin','/admin.html','/owner-roadmap','/owner-roadmap.html'
   ]);
 
   function sanitizeSignedOutNavigation(){
@@ -125,6 +126,7 @@
       ['Help & Documentation','/help.html']
     ];
     if(access?.controlPanel)items.push(['Admin Control Center','/admin.html']);
+    if((access?.staffRoles||[]).includes('OWNER'))items.push(['Website Development Roadmap','/owner-roadmap.html']);
     return items;
   }
 
@@ -488,7 +490,7 @@
     let profile='';
     if(signed){
       const roles=staffPublic(a.staffRoles);const username=a.username||window.__siteUsername||document.querySelector('.account-trigger')?.textContent?.replace(/[▾@]/g,'').trim()||'Account';
-      profile=`<div class="v11-nav-group v11-profile-group v13-profile-hover"><button class="v11-nav-button v12-profile-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v1356-account-menu">@${esc(username)} <span aria-hidden="true">▾</span></button><div class="v11-menu v13-profile-menu" id="v1356-account-menu"><div class="v11-profile-summary"><strong>${esc(shortPlan(a))}</strong><span>${a.renewsAt?'Renews in '+countdown(a.renewsAt):a.expiresAt?'Expires in '+countdown(a.expiresAt):a.planCode==='LIFETIME'||roles.includes('OWNER')?'Never expires':''}</span>${roles.length?`<div class="v11-staff-badges">${roles.map(r=>`<span class="v11-badge staff">${esc(staffLabel(r))}</span>`).join('')}</div>`:''}</div><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership &amp; Access</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=billing">Purchases &amp; Billing</a><a href="dashboard.html?tab=settings">Settings</a><a href="/mfa-security.html">Security / MFA</a><a href="dashboard.html?tab=support">Support</a>${a.controlPanel?'<a href="admin.html">Admin Control Center</a>':''}<a href="#" id="v11-signout">Sign Out</a></div></div>`;
+      profile=`<div class="v11-nav-group v11-profile-group v13-profile-hover"><button class="v11-nav-button v12-profile-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v1356-account-menu">@${esc(username)} <span aria-hidden="true">▾</span></button><div class="v11-menu v13-profile-menu" id="v1356-account-menu"><div class="v11-profile-summary"><strong>${esc(shortPlan(a))}</strong><span>${a.renewsAt?'Renews in '+countdown(a.renewsAt):a.expiresAt?'Expires in '+countdown(a.expiresAt):a.planCode==='LIFETIME'||roles.includes('OWNER')?'Never expires':''}</span>${roles.length?`<div class="v11-staff-badges">${roles.map(r=>`<span class="v11-badge staff">${esc(staffLabel(r))}</span>`).join('')}</div>`:''}</div><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership &amp; Access</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=billing">Purchases &amp; Billing</a><a href="dashboard.html?tab=settings">Settings</a><a href="/mfa-security.html">Security / MFA</a><a href="dashboard.html?tab=support">Support</a>${a.controlPanel?'<a href="admin.html">Admin Control Center</a>':''}${roles.includes('OWNER')?'<a href="/owner-roadmap.html">Website Development Roadmap</a>':''}<a href="#" id="v11-signout">Sign Out</a></div></div>`;
     }
     const top=groups.top.map(i=>`<a class="v12-top-link ${esc(i.style_variant||'')}" href="${esc(safeNavHref(i.href||'#'))}">${esc(i.label)}</a>`).join('');
     nav.className='navlinks v11-nav v12-nav';nav.dataset.v11Owned='1';
