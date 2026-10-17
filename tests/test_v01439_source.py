@@ -3,12 +3,14 @@ from pathlib import Path
 import json,re,subprocess
 R=Path(__file__).resolve().parents[1]
 read=lambda p:(R/p).read_text()
-assert "VERSION: '0.14.0.41'" in read('config.js')
-assert "version:'0.14.0.41'" in read('assets/js/route-policy.js')
+version=json.loads(read('release-manifest.json'))['version']
+cache=version.replace('.','')
+assert f"VERSION: '{version}'" in read('config.js')
+assert f"version:'{version}'" in read('assets/js/route-policy.js')
 assert f'groundup-v{cache}-public' in read('sw.js')
-assert json.loads(read('release-manifest.json'))['version']=='0.14.0.41'
+assert json.loads(read('release-manifest.json'))['version']==version
 assert json.loads(read('release-manifest.json'))['customerCheckoutApproved'] is False
-assert json.loads(read('data/commerce-config.json'))['version']=='0.14.0.41'
+assert json.loads(read('data/commerce-config.json'))['version']==version
 assert 'loadShadowDashboard()' in read('assets/js/admin-simple-navigation-v014036.js')
 assert 'admin-stripe-shadow-v01439.js' in read('assets/js/admin-simple-navigation-v014036.js')
 sql=read('supabase/migrations/v0.14.0.39_ISOLATED_STRIPE_SANDBOX_OWNER_REVIEW_REQUIRED.sql')
