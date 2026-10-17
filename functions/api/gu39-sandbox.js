@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.47 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.51 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -118,9 +118,73 @@ async function inspectCatalog(env){
   rows,liveCheckout:false,notice:'Read-only Stripe TEST catalog verification; no payments or real member entitlements changed.'};
 }
 
+
+const SHADOW_TEST_EVENTS=Object.freeze([
+ 'checkout.session.completed','checkout.session.async_payment_succeeded',
+ 'invoice.paid','invoice.payment_failed',
+ 'customer.subscription.updated','customer.subscription.deleted',
+ 'charge.refunded','charge.dispute.created'
+]);
+// Strictly read-only, Owner-authorized preflight: never returns a secret or grants access.
+// The gate and Owner DB switch are intentionally NOT enabled by a preflight.
+async function inspectTestReadiness(request,env,c,a){
+ if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
+ const checks=[];
+ const add=(check,passed,detail)=>checks.push({check,status:passed?'PASS':'BLOCKED',detail});
+ const testSecretOk=testKeyConfigured(env);
+ add('Stripe test secret in Cloudflare',testSecretOk,testSecretOk?'Valid test-key format':'Missing or invalid GU39_STRIPE_TEST_SECRET_KEY');
+ const webhookSecretOk=/^whsec_[A-Za-z0-9_]+$/.test(String(env.GU39_STRIPE_TEST_WEBHOOK_SECRET||''));
+ add('Stripe test webhook signing secret',webhookSecretOk,webhookSecretOk?'Encrypted binding format recognized; actual signature delivery untested':'Configure GU39_STRIPE_TEST_WEBHOOK_SECRET as encrypted Production secret');
+ let accountOk=false;
+ if(testSecretOk){
+  try{await checkStripeAccount(env);accountOk=true}catch{}
+ }
+ add('Expected Stripe TEST account',accountOk,accountOk?'Connected account matches approved test catalog':'Cannot authenticate or account does not match');
+ let mapOk=false;
+ try{
+  const mapping=priceMap(env),ids=Object.keys(prices).map(k=>mapping[k]);
+  mapOk=ids.length===8&&ids.every(x=>known(x,'price'))&&new Set(ids).size===8;
+ }catch{}
+ add('Eight distinct Stripe test Price ID mappings',mapOk,mapOk?'All eight Price IDs are configured':'Check GU39_STRIPE_TEST_PRICE_MAP_JSON without replacing products');
+ let databaseOk=false,ownerMode=false;
+ try{
+  const rows=await service(c,'gu39_sandbox_settings?select=enabled&id=eq.true&limit=1');
+  databaseOk=Array.isArray(rows)&&rows.length===1&&typeof rows[0].enabled==='boolean';
+  ownerMode=databaseOk&&rows[0].enabled===true;
+ }catch{}
+ add('Supabase shadow testing controls',databaseOk,databaseOk?'Owner TEST switch exists and is readable':'Cannot read isolated shadow settings from server-only key');
+ let webhookOk=false,eventsOk=false,webhookStatus='not checked',matched=0;
+ if(accountOk){
+  try{
+   const list=await stripe(env,'webhook_endpoints?limit=100');
+   const expectedUrl=new URL('/api/gu39-stripe-webhook',request.url).href;
+   const matching=(Array.isArray(list.data)?list.data:[]).filter(x=>x.url===expectedUrl&&x.livemode===false&&x.status==='enabled');
+   matched=matching.length;
+   webhookOk=matching.length===1;
+   eventsOk=webhookOk&&SHADOW_TEST_EVENTS.every(event=>
+      Array.isArray(matching[0].enabled_events)&&
+      (matching[0].enabled_events.includes('*')||matching[0].enabled_events.includes(event)));
+   webhookStatus=list.has_more?'One or more pages beyond initial 100 entries':matched===0?'No enabled TEST webhook destination matched the current site':
+     matched>1?'Multiple enabled TEST destinations matched the site':'Enabled TEST webhook destination found';
+  }catch{webhookStatus='Stripe webhook endpoint list unavailable or permission denied';}
+ }
+ add('Stripe TEST webhook destination',webhookOk,webhookStatus);
+ add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
+     webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
+ const ready=checks.every(x=>x.status==='PASS');
+ return {ok:true,version:'0.14.0.51',readOnly:true,testOnly:true,liveCheckout:false,
+    checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
+    configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
+    webhookPath:'/api/gu39-stripe-webhook',
+    pendingProviderAcceptance:ready?'Run controlled signed TEST checkout and verify shadow event ledger':'Resolve BLOCKED items before enabling shadow testing',
+    note:'This verifies configuration only. It cannot prove webhook signing-secret pairing, Stripe Managed Payments eligibility, or checkout/renewal/refund behavior.'};
+}
+
 async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
- if(new URL(request.url).searchParams.get('view')==='catalog')return json(await inspectCatalog(env));
+ const view=new URL(request.url).searchParams.get('view');
+ if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));
+ if(view==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
  catch(e){
  const errors={'SANDBOX_ACCOUNT_MISMATCH':[503,'SANDBOX_ACCOUNT_MISMATCH'],
@@ -134,7 +198,8 @@ export async function onRequestGet({request,env}){try{const c=envCheck(env),a=aw
   'STAFF_ROLE_AUTHORIZATION_FAILED':[403,'STAFF_ROLE_AUTHORIZATION_FAILED'],
   'SIGN_IN_REQUIRED':[401,'SIGN_IN_REQUIRED'],
   'INVALID_SESSION':[401,'INVALID_SESSION'],
-  'STAFF_REQUIRED':[403,'STAFF_REQUIRED']};
+  'STAFF_REQUIRED':[403,'STAFF_REQUIRED'],
+  'OWNER_REQUIRED':[403,'OWNER_REQUIRED']};
  const [status,code]=errors[e.message]||[503,'SANDBOX_VERIFICATION_UNAVAILABLE'];
  return json({ok:false,error:code,liveCheckout:false},status);
  }}
