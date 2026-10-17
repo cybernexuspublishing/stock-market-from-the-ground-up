@@ -24,7 +24,7 @@ window.sb={auth:{
 }};
 window.SiteSession={startSessionClock:()=>{}};
 window.turnstile={
- render:(node,opts)=>{window.renderCalls++;node.setAttribute('data-rendered','1');window.turnstileOpts=opts;return 5},
+ render:(node,opts)=>{window.renderCalls++;node.setAttribute('data-rendered','1');node.innerHTML='<iframe title=\\\"Verification\\\" style=\\\"width:300px;height:65px\\\"></iframe>';window.turnstileOpts=opts;return 5},
  execute:()=>{window.execCalls++;window.turnstileOpts.callback('test-token')},
  remove:()=>{window.removals++}
 };
