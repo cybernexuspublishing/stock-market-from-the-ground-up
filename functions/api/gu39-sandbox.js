@@ -160,7 +160,7 @@ async function inspectTestReadiness(request,env,c,a){
    const expectedUrl=new URL('/api/gu39-stripe-webhook',request.url).href;
    const matching=(Array.isArray(list.data)?list.data:[]).filter(x=>x.url===expectedUrl&&x.livemode===false&&x.status==='enabled');
    matched=matching.length;
-   webhookOk=matching.length===1;
+   webhookOk=matching.length===1&&list.has_more!==true; // Do not certify a partial 100-endpoint list.
    eventsOk=webhookOk&&SHADOW_TEST_EVENTS.every(event=>
       Array.isArray(matching[0].enabled_events)&&
       (matching[0].enabled_events.includes('*')||matching[0].enabled_events.includes(event)));
