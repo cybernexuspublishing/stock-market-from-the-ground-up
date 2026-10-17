@@ -51,7 +51,7 @@ class OwnerRoadmapContract(unittest.TestCase):
         for evidence in ("auth/v1/user", "admin_user_roles", "roles.some",
                          "role_code==='OWNER'", "account_kind==='member'",
                          "admin_user_flags", "restricted", "suspended",
-                         "REQUIRE_STAFF_AAL2_V135", "cross-origin",
+                         "REQUIRE_STAFF_AAL2_V135", "origin=request.headers",
                          "public_read:false", "site_settings",
                          "admin_audit_log", "x-robots-tag", "no-store"):
             self.assertIn(evidence, self.api)
