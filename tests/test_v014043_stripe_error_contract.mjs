@@ -14,7 +14,7 @@ try{
  assert.equal(r.status,401);assert.equal((await r.json()).error,'SIGN_IN_REQUIRED');
  globalThis.fetch=async(url)=>{const u=String(url);calls.push(u);
   if(u.endsWith('/auth/v1/user'))return res({id:'8da97526-b906-4927-a002-6195f69112ee'});
-  if(u.endsWith('/rpc/gu_staff_identity_v01431r1'))return res('OWNER');
+  if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return res({ok:true,role:'OWNER'});
   throw Error('Should never contact Stripe when TEST key missing: '+u);
  };
  r=await onRequestGet({request:new Request(api,{headers:{authorization:'Bearer owner-mock'}}),env});

@@ -12,7 +12,7 @@ let enabled=true,hookCalls=[],network=[];const prev=globalThis.fetch;
 const result=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';network.push([u,verb]);
  if(u.endsWith('/auth/v1/user'))return result({id});
- if(u.endsWith('/rpc/gu_staff_identity_v01431r1'))return result('OWNER');
+ if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return result({ok:true,role:'OWNER'});
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return result(true);
  if(u.endsWith('/v1/account'))return result({id:'acct_1URGkDJY9FI7byHB'});
  if(u.endsWith('/rpc/gu39_sandbox_owner_read'))return result({ok:true,role:'OWNER',enabled,updatedAt:'2026-10-16T12:00:00Z',intentCount:0,processedEventCount:0,shadowAccessCount:0});
