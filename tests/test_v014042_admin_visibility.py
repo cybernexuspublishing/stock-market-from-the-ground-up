@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 
 R=Path(__file__).resolve().parents[1]
 admin=(R/'admin.html').read_text(encoding='utf8')
-assert '<script defer src="assets/js/admin-stripe-shadow-v01439.js?v=014043"></script>' in admin
+assert '<script defer src="assets/js/admin-stripe-shadow-v01439.js?v=014046"></script>' in admin
 assert '<link rel="stylesheet" href="assets/css/admin-stripe-shadow-v01439.css">' in admin
 source=(R/'assets/js/admin-stripe-shadow-v01439.js').read_text(encoding='utf8')
 nav=(R/'assets/js/admin-simple-navigation-v014036.js').read_text(encoding='utf8')
