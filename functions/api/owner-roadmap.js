@@ -77,7 +77,7 @@ function serviceHeaders(c,json=false){
   // JWTs may use apikey + Bearer. Keep tokens strictly server-side.
   const secret=c.secret;
   const h={apikey:secret,accept:'application/json'};
-  if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;
+  if(/^eyJ[A-Za-z0-9_-]+[.]eyJ[A-Za-z0-9_-]+[.][A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;
   if(json)h['content-type']='application/json';
   return h;
 }
