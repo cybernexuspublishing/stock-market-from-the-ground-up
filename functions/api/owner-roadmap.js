@@ -17,7 +17,7 @@ function config(env){
   if(!/^https:\/\//.test(base)||!pub||!secret)throw fail('Owner roadmap service not configured.',503);
   return{base,pub,secret};
 }
-async function requestJson(url,options={}){
+async function requestJson(url,options={},authEndpoint=false){
   let response;
   try{response=await fetch(url,{...options,cache:'no-store'})}
   catch{throw fail('Database service temporarily unavailable.',503)}
@@ -25,7 +25,7 @@ async function requestJson(url,options={}){
   try{data=await response.json()}catch{data=null}
   if(!response.ok){
     // Error details may contain private database context. Do not reflect those to browsers.
-    if(response.status===401||response.status===403)throw fail('Database access was denied.',503);
+    if(response.status===401||response.status===403)throw fail(authEndpoint?'Invalid or expired sign-in.':'Database access was denied.',authEndpoint?401:503);
     throw fail('Owner roadmap storage request failed.',503);
   }
   return data;
@@ -39,7 +39,7 @@ async function db(c,endpoint,method='GET',payload,prefer){
 async function owner(request,c,env){
   const matched=/^Bearer\s+([^\s]+)$/i.exec(request.headers.get('authorization')||'');
   if(!matched)throw fail('Sign in with an Owner account.',401);
-  const user=await requestJson(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+matched[1]}});
+  const user=await requestJson(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+matched[1]}},true);
   if(!user?.id)throw fail('Invalid signed-in account.',401);
   const id=encodeURIComponent(user.id);
   const [profiles,roles,flags]=await Promise.all([
