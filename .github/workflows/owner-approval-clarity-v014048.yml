@@ -1,0 +1,47 @@
+name: Owner Delegation Status Clarity v0.14.0.48
+on:
+  pull_request:
+    paths:
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - 'config.js'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'data/commerce-config.json'
+      - 'tests/test_v014048_approval_clarity.mjs'
+      - '.github/workflows/owner-approval-clarity-v014048.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - 'tests/test_v014048_approval_clarity.mjs'
+      - '.github/workflows/owner-approval-clarity-v014048.yml'
+permissions:
+  contents: read
+jobs:
+  clarity-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript contract and delegated approvals
+        run: |
+          node --check assets/js/owner-roadmap.js
+          node --check functions/api/owner-roadmap.js
+          node tests/test_v014048_approval_clarity.mjs
+          node tests/test_owner_delegation_v014046.mjs
+          node tests/v0.14.0.47_STRIPE_ROLE_FACADE.mjs
+      - name: Verify public/private Pages build
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test ! -e public/functions/_lib/owner-roadmap-delegation-v014046.js
+          test ! -e public/functions/api/owner-roadmap.js
