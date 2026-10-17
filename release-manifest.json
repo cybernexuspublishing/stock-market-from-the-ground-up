@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.45",
+  "version": "0.14.0.46",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "931ff27fcda6e4040d18a8185e075e38672460fa",
+  "baselineGitCommit": "56c2c9be320843870a9599435188e8502f339fef",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -12,7 +12,7 @@
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
   "liveStripeFulfillmentEnabled": false,
-  "catalogVerification": "read-only Stripe catalog; actionable configuration diagnostics; independent 8/8 acceptance pending",
+  "catalogVerification": "Code fix: test catalog now authorizes via Supabase granted gu_staff_role_v01432r1; authenticated provider 8/8 check outstanding",
   "ownerRoadmap": {
     "status": "source implementation pending live acceptance",
     "catalogEntries": 2096,
