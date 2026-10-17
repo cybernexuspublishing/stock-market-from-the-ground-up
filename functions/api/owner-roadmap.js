@@ -1,4 +1,4 @@
-/* Private Owner Website Roadmap API v0.14.0.42.
+/* Private Owner Website Roadmap API v0.14.0.43.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
@@ -89,7 +89,7 @@ async function audit(c,user,action,id,status){
   try{
     await db(c,'admin_audit_log','POST',{
       actor_user_id:user.id,action,target_type:'OWNER_ROADMAP',target_id:id,
-      details:{status,source:'private_owner_roadmap_v014042'}
+      details:{status,source:'private_owner_roadmap_v014043'}
     },'return=minimal');return true;
   }catch{return false}
 }
