@@ -25,7 +25,7 @@ let network=[],missing=null,wrongAccount=false;
 globalThis.fetch=async(url,options={})=>{
  const u=String(url), method=options.method||'GET';network.push({url:u,method,headers:options.headers||{}});
  if(u.endsWith('/auth/v1/user'))return response({id:owner});
- if(u.endsWith('/rpc/gu_staff_identity_v01431r1'))return response('OWNER');
+ if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return response({ok:true,role:'OWNER'});
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return response(true);
  if(u.endsWith('/rpc/gu39_sandbox_owner_read'))return response({ok:true,role:'OWNER',enabled:false,updatedAt:'2026-10-16T00:00:00Z'});
  if(u==='https://api.stripe.com/v1/account')return response({id:wrongAccount?'acct_WRONG':'acct_1URGkDJY9FI7byHB'});
