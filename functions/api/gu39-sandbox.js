@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.46 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.47 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -111,7 +111,7 @@ async function inspectCatalog(env){
  const verifiedProducts=rows.filter(x=>x.productVerified).length;
  const verifiedPrices=rows.filter(x=>x.priceVerified).length;
  const tax=rows.filter(x=>['plan:FULL_MONTHLY','plan:FULL_ANNUAL'].includes(x.sku)).map(x=>x.stripeTaxCode).filter(Boolean);
- return {ok:true,version:'0.14.0.46',accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
+ return {ok:true,version:'0.14.0.47',accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
   productsVerified:verifiedProducts,pricesVerified:verifiedPrices,priceIdsConfigured:mappedIds.length,
   allVerified:verifiedProducts===8&&verifiedPrices===8&&!duplicates,
   taxClassificationReviewRequired:tax.length===2&&tax[0]!==tax[1],
