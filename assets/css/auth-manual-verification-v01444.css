@@ -1,0 +1,12 @@
+/* v0.14.0.44 — visible manual user-initiated CAPTCHA verification. */
+.gu-manual-human{border:1px solid #4c6c80;border-radius:12px;padding:1rem;margin:1.1rem 0;background:#0a263b;color:#e8f1fa;min-width:0}
+.gu-manual-human legend{font-weight:750;padding:0 .35rem;color:#ffdf8e}
+.gu-human-check{display:flex;align-items:center;gap:.7rem;cursor:pointer;font-size:1rem;min-height:44px;color:#f1f8ff}
+.gu-human-check input[type=checkbox]{height:22px;width:22px;flex:0 0 22px;accent-color:#e3b64b;cursor:pointer}
+.gu-human-check input:disabled{cursor:wait;opacity:.55}
+.gu-human-check:focus-within{outline:2px solid #e3b64b;outline-offset:3px;border-radius:4px}
+.gu-manual-human p.small{color:#c6d9e6;line-height:1.5;margin:.45rem 0 .8rem}
+#v135-turnstile{min-height:65px;max-width:100%;overflow-x:auto}
+#v135-turnstile[hidden]{display:none!important}
+#v135-auth-captcha-status{margin:.75rem 0;color:#ffdf8e}
+@media(max-width:480px){.gu-manual-human{padding:.7rem}.gu-human-check{font-size:.93rem}}
