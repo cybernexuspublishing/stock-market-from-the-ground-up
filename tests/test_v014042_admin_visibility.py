@@ -2,11 +2,14 @@
 Isolated Chromium fixtures, mock Supabase and Stripe; never make external payment calls.
 """
 from pathlib import Path
+import json
 from playwright.sync_api import sync_playwright
 
 R=Path(__file__).resolve().parents[1]
 admin=(R/'admin.html').read_text(encoding='utf8')
-assert '<script defer src="assets/js/admin-stripe-shadow-v01439.js?v=014047"></script>' in admin
+release=json.loads((R/'release-manifest.json').read_text(encoding='utf8'))
+bundle_version='014'+release['version'].split('.')[-1].zfill(3)
+assert f'<script defer src="assets/js/admin-stripe-shadow-v01439.js?v={bundle_version}"></script>' in admin
 assert '<link rel="stylesheet" href="assets/css/admin-stripe-shadow-v01439.css">' in admin
 source=(R/'assets/js/admin-stripe-shadow-v01439.js').read_text(encoding='utf8')
 nav=(R/'assets/js/admin-simple-navigation-v014036.js').read_text(encoding='utf8')
@@ -40,6 +43,7 @@ with sync_playwright() as pw:
  document.querySelector('#admin-gate').hidden=true;document.querySelector('#admin-app').hidden=false;}""")
  page.locator('#gu39-shadow button:has-text("Verify All 8 Sandbox Products")').wait_for(timeout=6000)
  assert page.locator('#admin-app [data-admin-panel="commerce"] #gu39-shadow').count()==1
+ assert page.get_by_role('button',name='Run Payment Test Preflight').count()==1
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
  page.get_by_role('button',name='Verify All 8 Sandbox Products').click()
  page.get_by_text('Products: 8 / 8 verified').wait_for(timeout=6000)

@@ -172,7 +172,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.51',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.52',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
