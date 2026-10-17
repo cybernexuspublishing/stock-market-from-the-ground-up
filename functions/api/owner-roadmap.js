@@ -1,4 +1,4 @@
-/* Private Owner Website Roadmap API v0.14.0.43.
+/* Private Owner Website Roadmap API v0.14.0.45.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
@@ -73,7 +73,13 @@ async function requestJson(url,options={},authEndpoint=false){
   return data;
 }
 function serviceHeaders(c,json=false){
-  return{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json',...(json?{'content-type':'application/json'}:{})};
+  // Modern Supabase sb_secret_* uses apikey only, whereas legacy service-role
+  // JWTs may use apikey + Bearer. Keep tokens strictly server-side.
+  const secret=c.secret;
+  const h={apikey:secret,accept:'application/json'};
+  if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;
+  if(json)h['content-type']='application/json';
+  return h;
 }
 async function db(c,endpoint,method='GET',payload,prefer){
   return requestJson(c.base+'/rest/v1/'+endpoint,{method,headers:{...serviceHeaders(c,payload!==undefined),...(prefer?{prefer}:{})},body:payload===undefined?undefined:JSON.stringify(payload)});
@@ -131,7 +137,7 @@ async function audit(c,user,action,id,status){
   try{
     await db(c,'admin_audit_log','POST',{
       actor_user_id:user.id,action,target_type:'OWNER_ROADMAP',target_id:id,
-      details:{status,source:'private_owner_roadmap_v014043'}
+      details:{status,source:'private_owner_roadmap_v014045'}
     },'return=minimal');return true;
   }catch{return false}
 }
