@@ -27,6 +27,7 @@ globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';
  if(u.includes('/v1/checkout/sessions/cs_test_mock9876543/line_items'))return result({data:[{quantity:1,price:{id:'price_mock987654321',product:'prod_VRvuGwLKI16MXU'}}]});
  if(u.endsWith('/v1/subscriptions/sub_mock12345678'))return result({id:'sub_mock12345678',status:'active',livemode:false,customer:'cus_mock567899',latest_invoice:'in_mock123456789',items:{data:[{price:{id:'price_mock987654321'},current_period_end:Math.floor(Date.now()/1000)+86400}]}});
  if(u.endsWith('/v1/invoices/in_mock123456789'))return result({id:'in_mock123456789',status:'paid',amount_paid:6999,subscription:'sub_mock12345678'});
+ if(u.includes('gu39_sandbox_settings?select=enabled'))return result([{enabled}]);
  if(u.includes('/rpc/gu39_shadow_apply')){hookCalls.push(JSON.parse(opts.body));return result({ok:true,mode:'SHADOW_ONLY'});}
  throw Error('Unexpected mock request '+u+' '+verb);
 };
