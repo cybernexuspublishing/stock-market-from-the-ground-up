@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.47",
+  "version": "0.14.0.48",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "482766fc5d4a4d32068e70893fa75f54351f987d",
+  "baselineGitCommit": "9771514bca04d7e9d918fe6e1e18d32ad35ddf39",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -32,7 +32,8 @@
       "backlogNotApproved": 44,
       "preservedOwnerSavedDecisions": true,
       "databaseRowsAutoModified": false,
-      "launchAuthorityGranted": false
+      "launchAuthorityGranted": false,
+      "uiLabelCorrection": "v0.14.0.48: delegated technical source approvals distinguishable from Owner-signed live acceptance"
     }
   },
   "manualCaptcha": {
