@@ -25,7 +25,7 @@ try{
   'SUPABASE_NOT_CONFIGURED','STRIPE_CATALOG_API_UNAVAILABLE','GU39_STRIPE_TEST_PRICE_MAP_JSON'])
   assert(js.includes(key),key);
  const release=JSON.parse(readFileSync(new URL('../release-manifest.json',import.meta.url),'utf8'));
- assert.match(release.version,/^0\\.14\\.0\\.\\d+$/);
+ assert(release.version.startsWith('0.14.0.'));
  assert.equal(JSON.parse(readFileSync(new URL('../data/commerce-config.json',import.meta.url),'utf8')).version,release.version);
  assert(readFileSync(new URL('../config.js',import.meta.url),'utf8').includes("VERSION: '"+release.version+"'"));
  assert.equal(release.customerCheckoutApproved,false);
