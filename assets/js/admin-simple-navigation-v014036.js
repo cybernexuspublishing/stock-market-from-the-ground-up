@@ -1,4 +1,4 @@
-/* v0.14.0.42 | Simple Admin directory. Retains existing authorized controllers. */
+/* v0.14.0.43 | Simple Admin directory. Retains existing authorized controllers. */
 (()=>{'use strict';
 if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpSimpleAdminNavV014036)return;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -29,7 +29,7 @@ function activate(e,notice){const action=find(e);
 function loadShadowDashboard(){if(attached||!eligible($('[data-panel="commerce"]','#admin-tabs')))return;
  attached=true;
  if(!document.querySelector('link[href*="admin-stripe-shadow-v01439.css"]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/admin-stripe-shadow-v01439.css';css.dataset.gu39Css='1';document.head.append(css)}
- if(!document.querySelector('script[src*="admin-stripe-shadow-v01439.js"]')){const script=document.createElement('script');script.src='/assets/js/admin-stripe-shadow-v01439.js?v=014042';script.dataset.gu39Dashboard='1';script.defer=true;document.head.append(script)}
+ if(!document.querySelector('script[src*="admin-stripe-shadow-v01439.js"]')){const script=document.createElement('script');script.src='/assets/js/admin-stripe-shadow-v01439.js?v=014043';script.dataset.gu39Dashboard='1';script.defer=true;document.head.append(script)}
 }
 function mount(){if(initialized)return;
  const nav=$('#admin-tabs'),aside=$('.admin-sidebar'),gate=$('#admin-gate'),app=$('#admin-app');
@@ -54,7 +54,7 @@ function mount(){if(initialized)return;
  const details=document.createElement('details');details.className='gu36-all-controls';
  const summary=document.createElement('summary');summary.textContent='All admin controls';details.append(summary);
  nav.before(panel);nav.before(details);details.append(nav);
- window.GroundUpSimpleAdminNavV014036=Object.freeze({version:'0.14.0.42',open:(name)=>{const e=entries.find(x=>x.title===name);if(e)activate(e,notice)}});
+ window.GroundUpSimpleAdminNavV014036=Object.freeze({version:'0.14.0.43',open:(name)=>{const e=entries.find(x=>x.title===name);if(e)activate(e,notice)}});
  loadShadowDashboard();
 }
 let tries=0;const timer=setInterval(()=>{if(initialized||++tries>180){clearInterval(timer);return}mount()},200);
