@@ -22,3 +22,12 @@
 .v121-switch{display:inline-flex;align-items:center;gap:.6rem;cursor:pointer;user-select:none}.v121-switch input{position:absolute;opacity:0;pointer-events:none}.v121-switch-track{width:46px;height:24px;border-radius:999px;background:#6f2f31;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);position:relative;transition:.18s}.v121-switch-track:after{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.18s}.v121-switch input:checked+.v121-switch-track{background:#208c5a}.v121-switch input:checked+.v121-switch-track:after{transform:translateX(22px)}.v121-switch input:focus-visible+.v121-switch-track{outline:2px solid var(--v11-gold);outline-offset:2px}.v121-switch-text{font-size:.8rem;font-weight:800}.v121-admin-date-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}.v121-admin-book-list{display:grid;gap:.45rem;margin-top:.6rem}.v121-admin-book-row{display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:.55rem .65rem;border:1px solid #244b68;border-radius:.65rem}
 .v121-footer-grid{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:2rem;padding-block:2.2rem}.v121-footer-grid>div{display:flex;flex-direction:column;align-items:flex-start;gap:.34rem}.v121-footer-grid p{color:#9fb4c4;max-width:340px;margin:.3rem 0}.v121-footer-grid a{color:#c7d9e5;text-decoration:none}.v121-footer-grid a:hover{color:var(--v11-gold);text-decoration:underline}.v121-footer-bottom{padding:.8rem 0 1.4rem;border-top:1px solid #1d3d54;color:#829aaa;font-size:.82rem}
 @media(max-width:1050px){.v121-auth-grid{grid-template-columns:1fr minmax(320px,480px) 1fr}.v121-footer-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:850px){.v121-profile-hero,.v121-access-hero{align-items:flex-start;flex-direction:column}.v121-membership-badge{width:100%;min-width:0}.v121-grid.two{grid-template-columns:1fr}.v121-auth-grid{grid-template-columns:1fr}.v121-auth-ad.left,.v121-auth-ad.right{display:none}.v121-auth-ad.bottom{grid-column:1}.v121-footer-grid{grid-template-columns:1fr 1fr}.v121-dl>div{grid-template-columns:1fr}.v121-admin-date-row{grid-template-columns:1fr}}@media(max-width:540px){.v121-footer-grid{grid-template-columns:1fr}}
+
+/* v0.14.0.44: Owner roadmap adds a long profile link; keep the entire menu
+   keyboard- and pointer-scrollable within smaller browser viewports. */
+.v11-profile-group > .v11-menu,.v11-profile-group > .v13-profile-menu{
+ max-height:calc(100dvh - 88px);
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ scrollbar-width:thin;
+}

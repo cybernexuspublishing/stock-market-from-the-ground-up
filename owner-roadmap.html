@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="application-version" content="v0.14.0.43"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>Owner Website Roadmap | The Stock Market: From the Ground Up</title>
+<link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/owner-roadmap.css">
+<script src="/config.js"></script>
+<script defer src="/assets/js/site.js"></script>
+<script defer src="/assets/js/supabase-client.js"></script>
+<script defer src="/assets/js/session-manager.js"></script>
+<script defer src="/assets/js/owner-roadmap.js"></script>
+</head><body data-auth-required="true" data-route-access="staff" class="owner-roadmap-page">
+<header class="site-header"><div class="wrap nav"><a class="brand" href="/">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Site navigation"><a href="/dashboard.html">Dashboard</a><a href="/admin.html">Admin Control Center</a></nav></div></header>
+<main class="or-shell" id="owner-roadmap-main">
+<div class="or-access" id="or-access" role="status" aria-live="polite">Verifying Owner account permissions and loading the project register…</div>
+<div id="or-app" hidden>
+<div class="or-heading"><div><p class="or-eyebrow">Cyber Nexus · Owner / Super Admin private operations</p><h1>Website Development Roadmap</h1><p class="or-lead">All documented website commitments in one controlled register. Change progress with the switches below. A source file, test, or Owner checkmark does not itself certify production readiness.</p></div><div class="or-header-actions"><a class="or-button or-secondary" href="/admin.html">Admin Control Center</a><button type="button" class="or-button or-secondary" id="or-refresh">Refresh status</button></div></div>
+<div class="or-evidence" id="or-evidence" role="note">Completion defaults to <strong>not Owner-reviewed</strong> unless a stored Owner status exists. Older source claims are recorded as evidence, not automatically checked off.</div>
+<section class="or-metrics" id="or-metrics" aria-label="Project status totals"></section>
+<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button></div>
+<section class="or-workspace" aria-label="Requirements tracking">
+<div class="or-toolbar">
+<label>Search commitments<input id="or-search" type="search" placeholder="Title, feature, ID, dependency or documentation"></label>
+<label>Area<select id="or-area"><option value="">All areas</option></select></label>
+<label>Progress<select id="or-status"><option value="">Any status</option><option value="not_started">Not Owner-reviewed</option><option value="in_progress">In progress</option><option value="implemented">Implemented · needs verification</option><option value="blocked">Blocked</option><option value="deferred">Deferred / future release</option><option value="owner_complete">Owner marked complete</option><option value="verified">Evidence verified</option></select></label>
+<label>Page size<select id="or-size"><option value="30">30 items</option><option value="60">60 items</option><option value="100">100 items</option></select></label>
+</div>
+<div class="or-tools"><span id="or-results" role="status" aria-live="polite"></span><div class="or-tools-right"><button type="button" class="or-button or-secondary" id="or-export-csv">Export CSV</button><button type="button" class="or-button or-secondary" id="or-export-json">Export JSON</button></div></div>
+<div id="or-list" class="or-list"></div>
+<div class="or-pagination" id="or-pagination"><button type="button" class="or-button or-secondary" id="or-prev">Previous</button><span id="or-page-text"></span><button type="button" class="or-button or-secondary" id="or-next">Next</button></div>
+</section>
+<section class="or-create" aria-labelledby="or-add-title"><div><h2 id="or-add-title">Add an Owner-approved task</h2><p class="or-muted">New decisions can be added without overwriting the source inventory. Task history remains in the private backend.</p></div><form id="or-new-task"><label>Task title<input name="title" required minlength="4" maxlength="180" placeholder="Define the deliverable and acceptance result"></label><label>Work area<input name="area" maxlength="90" placeholder="e.g., Payments & Stripe"></label><label class="or-wide">Details and acceptance criteria<textarea name="detail" rows="3" maxlength="2400" placeholder="What must be built, verified, and approved?"></textarea></label><button type="submit" class="or-button">Add task</button></form></section>
+<section class="or-governance" aria-label="Release controls"><h2>Tracking and verification policy</h2><p><strong>Owner marked complete</strong> means a signed-in Owner has manually completed the checklist item. <strong>Evidence verified</strong> means the Owner recorded independent acceptance evidence in the task note. Neither status enables checkout, changes entitlements, applies database migrations, publishes books, or deploys releases.</p><p><strong>Source coverage:</strong> historical project commitments, the 77-step acceptance register, preserved promise matrix, current Stripe work, and 1,815 line-level master/advanced-engineering trace records. Repetitions are retained in the trace view to avoid silently omitting historical instructions.</p><p id="or-version"></p></section>
+</div></main><footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><div>Learn It. Understand It. Practice It. Trade It.</div></div><div><strong>Private Owner controls</strong><br>Not indexed. Progress restricted by verified Owner authorization.</div></div></footer></body></html>
