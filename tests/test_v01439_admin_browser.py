@@ -16,6 +16,8 @@ with sync_playwright() as p:
  page.add_script_tag(content=card.replace("location.pathname", "'/admin.html'"))
  page.locator('#gu39-shadow').wait_for(timeout=2000)
  assert page.locator('#gu39-shadow h2').inner_text()=='Stripe Payment Testing'
+ assert page.locator('#gu39-shadow button:has-text("Run Payment Test Preflight")').count()==1
+ assert 'Payment testing interface v0.14.0.52' in page.locator('#gu39-shadow').inner_text()
  assert page.locator('#gu39-shadow button:has-text("Enable Testing")').is_disabled()
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
  assert 'Real Customer Payments' in page.locator('#gu39-shadow').inner_text()
