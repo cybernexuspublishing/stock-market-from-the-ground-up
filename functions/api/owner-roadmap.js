@@ -1,10 +1,11 @@
-/* Private Owner Website Roadmap API v0.14.0.45.
+/* Private Owner Website Roadmap API v0.14.0.46.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
  */
 import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
+import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -48,6 +49,14 @@ function reviewFor(item){
  }
  return result;
 }
+const delegatedBaseline=Object.fromEntries(roadmapCatalog
+ .filter(item=>item.scope==='core' && item.kind==='task')
+ .map(item=>[item.id,delegatedProgressFor(item.id,reviewFor(item))])
+ .filter(([,value])=>value!==null));
+const baselineCounts=Object.values(delegatedBaseline).reduce((counts,item)=>{
+ counts[item.approval]=(counts[item.approval]||0)+1;
+ return counts;
+},{});
 const reviewCounts=roadmapCatalog.filter(x=>x.scope==='core').reduce((counts,item)=>{
  const stage=reviewFor(item)?.stage||'needs_review';
  counts[stage]=(counts[stage]||0)+1;return counts;
@@ -137,7 +146,7 @@ async function audit(c,user,action,id,status){
   try{
     await db(c,'admin_audit_log','POST',{
       actor_user_id:user.id,action,target_type:'OWNER_ROADMAP',target_id:id,
-      details:{status,source:'private_owner_roadmap_v014045'}
+      details:{status,source:'private_owner_roadmap_v014046'}
     },'return=minimal');return true;
   }catch{return false}
 }
@@ -197,7 +206,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]=value;custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:roadmapMetadata,engineeringReview:{...roadmapEngineeringReview.meta,labels:roadmapEngineeringReview.labels,counts:reviewCounts},items:roadmapCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Engineering source audit labels are advisory; they never alter saved Owner progress or certify complete live functionality.'});
+    return reply({ok:true,metadata:roadmapMetadata,engineeringReview:{...roadmapEngineeringReview.meta,labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,items:roadmapCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);

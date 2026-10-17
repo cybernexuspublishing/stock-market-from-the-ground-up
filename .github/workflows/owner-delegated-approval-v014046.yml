@@ -1,0 +1,61 @@
+name: Delegated Owner Technical Approval v0.14.0.46
+on:
+  pull_request:
+    paths:
+      - 'functions/_lib/owner-roadmap-delegation-v014046.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - 'tests/test_owner_delegation_v014046.mjs'
+      - '.github/workflows/owner-delegated-approval-v014046.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/_lib/owner-roadmap-delegation-v014046.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - '.github/workflows/owner-delegated-approval-v014046.yml'
+permissions:
+  contents: read
+jobs:
+  approval-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify approved work and Owner authority boundaries
+        run: |
+          node --check functions/_lib/owner-roadmap-delegation-v014046.js
+          node --check functions/api/owner-roadmap.js
+          node --check assets/js/owner-roadmap.js
+          node tests/test_owner_delegation_v014046.mjs
+          node tests/test_owner_roadmap_progress_v014045.mjs
+          python3 tests/test_owner_roadmap_v014044.py
+      - name: Check deployable metadata, private boundary and disabled checkout
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test ! -e public/functions/_lib/owner-roadmap-delegation-v014046.js
+          test ! -e public/docs/OWNER_DELEGATED_TECHNICAL_APPROVALS_v0.14.0.46.md
+          python3 - <<'PY'
+          import json
+          a=json.load(open('release-manifest.json'))
+          assert a['version']=='0.14.0.46'
+          assert json.load(open('data/commerce-config.json'))['version']==a['version']
+          assert a['customerCheckoutApproved'] is False
+          assert a['liveStripeFulfillmentEnabled'] is False
+          assert a['ownerRoadmap']['delegatedTechnicalApproval']['databaseRowsAutoModified'] is False
+          assert a['ownerRoadmap']['delegatedTechnicalApproval']['verifiedDeliveryApproved']==12
+          print('PASS: delegated project review remains separate from live commerce and authenticated Owner writes')
+          PY
