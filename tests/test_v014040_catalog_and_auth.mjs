@@ -43,7 +43,7 @@ try{
  assert(network.every(x=>x.method!=='POST'||!x.url.startsWith('https://api.stripe.com')));
  assert(network.every(x=>!(/user_plan_grants|user_tool_passes|site_orders|site_subscriptions/.test(x.url))));
  // Auth endpoint rejects unauthenticated caller before touching Stripe
- network=[];r=await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,403);
+ network=[];r=await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,401);
  assert.equal(network.some(x=>x.url.includes('api.stripe.com')),false);
  // Mismatched account blocked before any product or payment mutations
  wrongAccount=true;r=await api.onRequestGet({request:req('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,503);assert.equal((await r.json()).error,'SANDBOX_ACCOUNT_MISMATCH');wrongAccount=false;

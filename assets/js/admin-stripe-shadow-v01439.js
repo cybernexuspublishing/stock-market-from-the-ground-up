@@ -1,4 +1,4 @@
-/* v0.14.0.42 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.43 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -37,6 +37,21 @@
  const explain=element('p','Only the Owner can change testing settings. A recent password confirmation is required. Test data is stored separately from real entitlements. No refunds or recurring memberships are modified outside this test area.','gu39-small');
  controls.append(refresh,verify,toggle,label,sel,begin);root.append(title,lead,banner,help,summary,controls,catalog,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
+ // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
+ const errorMessage=(code,status)=>{
+  const help={
+   SANDBOX_TEST_KEY_MISSING:'Cloudflare is missing GU39_STRIPE_TEST_SECRET_KEY (Stripe sk_test_ value), or the configured value is invalid. Configure the TEST secret in Cloudflare server settings; never paste it here.',
+   PRICE_MAP_INVALID:'GU39_STRIPE_TEST_PRICE_MAP_JSON is not valid JSON. Configure the eight existing price_ IDs in Cloudflare as one JSON object.',
+   SANDBOX_ACCOUNT_MISMATCH:'The configured Stripe TEST key belongs to a different Stripe account. Use the test key for the known sandbox; do not create new products.',
+   STRIPE_CATALOG_API_UNAVAILABLE:'Stripe could not return an authenticated product or price verification. Check Stripe TEST key permissions and service availability.',
+   SUPABASE_NOT_CONFIGURED:'Cloudflare Supabase server settings are incomplete. Review SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY and SUPABASE_SECRET_KEY.',
+   SIGN_IN_REQUIRED:'Sign in to the website with your Owner account and try again.',
+   INVALID_SESSION:'Your session has expired. Sign out and back in before verifying.',
+   STAFF_REQUIRED:'This account is not authorized as OWNER or ADMIN by the Supabase server.',
+   SANDBOX_VERIFICATION_UNAVAILABLE:'Supabase or Stripe sandbox verification is unavailable. Check Cloudflare Functions logs and production database RPCs; no products were modified.'
+  };
+  return help[String(code||'')]||('Verification unavailable (HTTP '+status+'). Review Cloudflare Functions and Supabase connectivity; no Stripe changes were made.');
+ };
  function show(data){state=data;summary.replaceChildren();const rows=[['Owner Test Mode',data.enabled?'Enabled':'Disabled'],['Cloudflare Sandbox Gate',data.cloudflareGate?'Configured':'Not configured'],['Stripe Test Price IDs (configured, not verified)',String(data.priceIdsConfigured??0)+' / 8'],['Test Checkout Records',String(data.intentCount??0)],['Processed Sandbox Events',String(data.processedEventCount??0)],['Shadow Access Records',String(data.shadowAccessCount??0)],['Real Customer Payments','DISABLED']];
   for(const [k,v] of rows){summary.append(element('dt',k),element('dd',v))}
   toggle.textContent=data.enabled?'Disable Testing':'Enable Testing';toggle.disabled=data.role!=='OWNER'||(!data.enabled&&!data.cloudflareGate);
@@ -45,8 +60,8 @@
  }
  async function getState(){refresh.disabled=true;message.textContent='Checking authorized sandbox status…';try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Sandbox unavailable.');show(data)}catch(e){toggle.disabled=begin.disabled=true;message.textContent=e.message||'Unable to access payment testing controls.'}finally{refresh.disabled=false}}
  async function verifyCatalog(){verify.disabled=true;catalog.replaceChildren();catalog.append(element('p','Checking the eight products directly against the Stripe Sandbox API…'));
-  try{const jwt=await auth(),r=await fetch('/api/gu39-sandbox?view=catalog',{headers:{authorization:'Bearer '+jwt},cache:'no-store'}),data=await r.json();
-   if(!r.ok||!data.ok)throw Error(data.error||'Catalog verification unavailable.');
+  try{const jwt=await auth(),r=await fetch('/api/gu39-sandbox?view=catalog',{headers:{authorization:'Bearer '+jwt},cache:'no-store'}),data=await r.json().catch(()=>null);
+   if(!r.ok||!data?.ok)throw Error(errorMessage(data?.error,r.status));
    catalogReady=data.allVerified===true&&data.productsVerified===8&&data.pricesVerified===8;
    catalog.replaceChildren();catalog.append(element('h3','Products: '+data.productsVerified+' / 8 verified · Prices: '+data.pricesVerified+' / 8 verified'));
    if(data.taxClassificationReviewRequired)catalog.append(element('p','Tax review required: monthly and annual membership Stripe tax classifications differ.'));
@@ -69,7 +84,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.42',refresh:getState,verifyCatalog});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.43',refresh:getState,verifyCatalog});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());

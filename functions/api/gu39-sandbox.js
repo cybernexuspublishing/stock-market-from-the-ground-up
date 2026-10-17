@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.40 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.43 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -104,8 +104,18 @@ async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  if(new URL(request.url).searchParams.get('view')==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
- catch(e){const issues=['SANDBOX_ACCOUNT_MISMATCH','SANDBOX_TEST_KEY_MISSING','PRICE_MAP_INVALID','STRIPE_CATALOG_API_UNAVAILABLE'];
- return json({ok:false,error:issues.includes(e.message)?e.message:'Administrative sandbox status unavailable.',liveCheckout:false},issues.includes(e.message)?503:403)}}
+ catch(e){
+ const errors={'SANDBOX_ACCOUNT_MISMATCH':[503,'SANDBOX_ACCOUNT_MISMATCH'],
+  'SANDBOX_TEST_KEY_MISSING':[503,'SANDBOX_TEST_KEY_MISSING'],
+  'PRICE_MAP_INVALID':[503,'PRICE_MAP_INVALID'],
+  'STRIPE_CATALOG_API_UNAVAILABLE':[503,'STRIPE_CATALOG_API_UNAVAILABLE'],
+  'SUPABASE_NOT_CONFIGURED':[503,'SUPABASE_NOT_CONFIGURED'],
+  'SIGN_IN_REQUIRED':[401,'SIGN_IN_REQUIRED'],
+  'INVALID_SESSION':[401,'INVALID_SESSION'],
+  'STAFF_REQUIRED':[403,'STAFF_REQUIRED']};
+ const [status,code]=errors[e.message]||[503,'SANDBOX_VERIFICATION_UNAVAILABLE'];
+ return json({ok:false,error:code,liveCheckout:false},status);
+ }}
 export async function onRequestPost({request,env}){
  try{
   const origin=request.headers.get('origin');const location=new URL(request.url);if(origin!==location.origin)throw Error('SAME_ORIGIN_REQUIRED');
