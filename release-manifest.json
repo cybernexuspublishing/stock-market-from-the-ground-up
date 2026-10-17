@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.43",
+  "version": "0.14.0.44",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "12678f68fa38a264e6ea24644803cf863246aa0d",
+  "baselineGitCommit": "d9fef34fcf5d12a7c49b6cd37b8220ba393c2c46",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -12,9 +12,9 @@
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
   "liveStripeFulfillmentEnabled": false,
-  "catalogVerification": "read-only Owner/Admin Stripe catalog; direct Admin UI bootstrap corrected; 8/8 API acceptance pending",
+  "catalogVerification": "read-only Stripe catalog; actionable configuration diagnostics; independent 8/8 acceptance pending",
   "ownerRoadmap": {
-    "status": "source candidate",
+    "status": "source implementation pending live acceptance",
     "catalogEntries": 2096,
     "primaryTasks": 281,
     "sourceTraceRows": 1815,
@@ -22,8 +22,8 @@
     "liveAcceptancePassed": false
   },
   "manualCaptcha": {
-    "status": "source candidate",
-    "trigger": "required explicit checkbox before visible Turnstile challenge",
-    "providerIntegrationVerified": false
+    "status": "source implementation pending live acceptance",
+    "trigger": "explicit checkbox before visible Turnstile execute",
+    "productionSiteverifyTested": false
   }
 }
