@@ -10,7 +10,15 @@
   'tool:MARKET_SIMULATOR':'Market Simulator — $29.99/month','tool:MARKET_TUTOR':'Market Tutor — $29.99/month'
  };
  let state=null,loaded=false,catalogReady=false;
- function permitted(){const tab=$('#admin-tabs button[data-panel="commerce"]'),gate=$('#admin-gate'),app=$('#admin-app');return gate?.hidden===true&&app&&!app.hidden&&tab&&!tab.disabled&&!tab.hidden&&!tab.closest('[hidden]')&&!tab.classList.contains('cc-owner-hidden')&&tab.getAttribute('aria-disabled')!=='true'}
+ function permitted(){const gate=$('#admin-gate'),app=$('#admin-app');
+  // Navigation is customizable and may be moved or hidden even for an authorized Owner.
+  // Use the already authenticated Admin context for UI visibility instead of menu geometry.
+  const ctx=typeof ADMIN!=='undefined'?ADMIN.ctx:null;
+  const roles=Array.isArray(ctx?.roles)?ctx.roles:[];
+  return gate?.hidden===true&&app&&!app.hidden&&
+    Array.isArray(ctx?.permissions)&&ctx.permissions.includes('commerce.view')&&
+    roles.some(x=>['OWNER','ADMIN'].includes(String(x).toUpperCase()));
+ }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
