@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.44",
+  "version": "0.14.0.45",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "d9fef34fcf5d12a7c49b6cd37b8220ba393c2c46",
+  "baselineGitCommit": "931ff27fcda6e4040d18a8185e075e38672460fa",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -19,7 +19,9 @@
     "primaryTasks": 281,
     "sourceTraceRows": 1815,
     "privateApi": "/api/owner-roadmap",
-    "liveAcceptancePassed": false
+    "liveAcceptancePassed": false,
+    "engineeringAssessment": "read-only, 281 primary requirements evaluated (12 delivered-control verified, 153 source implemented, 47 active integration/QA, 25 blocked, 44 backlog); 1,815 archived source lines remain unverified",
+    "ownerCompletionChanged": false
   },
   "manualCaptcha": {
     "status": "source implementation pending live acceptance",

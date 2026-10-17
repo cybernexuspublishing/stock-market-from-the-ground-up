@@ -1,9 +1,10 @@
-/* Private Owner Website Roadmap API v0.14.0.43.
+/* Private Owner Website Roadmap API v0.14.0.45.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
  */
 import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
+import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -11,6 +12,47 @@ const clean=x=>String(x??'').trim();
 const KEY='owner_roadmap.';
 const STATUS=new Set(['not_started','in_progress','implemented','blocked','deferred','owner_complete','verified']);
 const IDS=new Set(roadmapCatalog.map(x=>x.id));
+/* Owner progress is authoritative for manual completion; this snapshot is NOT
+ * written to site_settings and never marks Owner checkboxes complete. */
+const execStage = {
+ source_implemented:new Set([1,2,3,4,5,11,12,14,19,21,23,24,26,30,31,35,43,45,48,53,54,57,58,60,64]),
+ in_progress:new Set([13,15,16,17,18,22,27,28,29,55,66,67,69,70,75,77]),
+ blocked:new Set([6,7,8,9,10,32,34,36,38,42,44,47,74,76])
+};
+const historicStage={
+ deployed_verified:new Set([1,2,3]),
+ source_implemented:new Set([4,5,7,8,9,10,11,12,13,14,15,16,17,19,25,26,27,28,29,30,31,32,33,34,35,36,37]),
+ in_progress:new Set([6,22,24]),
+ blocked:new Set([38]),
+ backlog:new Set([18,20,21,23])
+};
+function stageFor(n,map,fallback='backlog'){
+ for(const [stage,ids] of Object.entries(map))if(ids.has(n))return stage;
+ return fallback;
+}
+function reviewFor(item){
+ if(item.kind==='reference'||item.scope==='trace')return null;
+ const meta=roadmapEngineeringReview;
+ let result=meta.items[item.id];
+ if(!result){
+   const n=Number(item.id.split('-')[1]);
+   const isExec=item.id.startsWith('EXEC-');
+   const isPromise=item.id.startsWith('PROM-');
+   if(!isExec&&!isPromise)return {stage:'needs_review',summary:meta.labels.needs_review.note};
+   const stage=stageFor(n,isExec?execStage:historicStage);
+   const sourceStatus=item.evidence||'No established acceptance evidence';
+   const explanation=isExec
+     ? 'Historical 77-step task; v0.14.0.6 registered this step as not fully verified. '+meta.labels[stage].note
+     : 'Prior commitment evidence (historical; may predate the v0.14.0.44 release): '+sourceStatus+'. '+meta.labels[stage].note;
+   result={stage,summary:explanation};
+ }
+ return result;
+}
+const reviewCounts=roadmapCatalog.filter(x=>x.scope==='core').reduce((counts,item)=>{
+ const stage=reviewFor(item)?.stage||'needs_review';
+ counts[stage]=(counts[stage]||0)+1;return counts;
+},{});
+
 function config(env){
   const base=clean(env.SUPABASE_URL).replace(/\/$/,'');
   const pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);
@@ -31,7 +73,13 @@ async function requestJson(url,options={},authEndpoint=false){
   return data;
 }
 function serviceHeaders(c,json=false){
-  return{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json',...(json?{'content-type':'application/json'}:{})};
+  // Modern Supabase sb_secret_* uses apikey only, whereas legacy service-role
+  // JWTs may use apikey + Bearer. Keep tokens strictly server-side.
+  const secret=c.secret;
+  const h={apikey:secret,accept:'application/json'};
+  if(/^eyJ[A-Za-z0-9_-]+[.]eyJ[A-Za-z0-9_-]+[.][A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;
+  if(json)h['content-type']='application/json';
+  return h;
 }
 async function db(c,endpoint,method='GET',payload,prefer){
   return requestJson(c.base+'/rest/v1/'+endpoint,{method,headers:{...serviceHeaders(c,payload!==undefined),...(prefer?{prefer}:{})},body:payload===undefined?undefined:JSON.stringify(payload)});
@@ -89,7 +137,7 @@ async function audit(c,user,action,id,status){
   try{
     await db(c,'admin_audit_log','POST',{
       actor_user_id:user.id,action,target_type:'OWNER_ROADMAP',target_id:id,
-      details:{status,source:'private_owner_roadmap_v014043'}
+      details:{status,source:'private_owner_roadmap_v014045'}
     },'return=minimal');return true;
   }catch{return false}
 }
@@ -149,7 +197,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]=value;custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:roadmapMetadata,items:roadmapCatalog,custom,progress,limitations:'Owner tracking is not automatically a production acceptance certificate. Source-only and live verification states remain distinct.'});
+    return reply({ok:true,metadata:roadmapMetadata,engineeringReview:{...roadmapEngineeringReview.meta,labels:roadmapEngineeringReview.labels,counts:reviewCounts},items:roadmapCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Engineering source audit labels are advisory; they never alter saved Owner progress or certify complete live functionality.'});
   }catch(err){
     const status=[400,401,403,404,405,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
