@@ -156,9 +156,10 @@ function bind(){
  $('#or-list').addEventListener('change',async e=>{
   const target=e.target,id=target.dataset.check||target.dataset.status;if(!id)return;
   const item=find(id);if(!item)return;
-  const p=state(item);
-  if(target.dataset.check){await save(item,target.checked?'owner_complete':'not_started',p.note||'',target)}
-  else if(target.dataset.status){await save(item,target.value,p.note||'',target)}
+  const p=state(item),container=target.closest('.or-task');
+  const note=container?.querySelector('textarea[data-note]')?.value??p.note??'';
+  if(target.dataset.check){await save(item,target.checked?'owner_complete':'not_started',note,target)}
+  else if(target.dataset.status){await save(item,target.value,note,target)}
  });
  $('#or-list').addEventListener('click',async e=>{
   const target=e.target.closest('button');if(!target)return;
