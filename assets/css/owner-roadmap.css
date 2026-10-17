@@ -82,3 +82,8 @@
 .or-review-pill[data-review=backlog]{border-color:#697a98;color:#d2dbee;background:#243045}
 @media(max-width:900px){.or-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.or-review-board{padding:13px}.or-review-grid{grid-template-columns:1fr 1fr;gap:8px}.or-review-metric{padding:10px;min-height:98px}.or-review-metric strong{font-size:1.45rem}}
+
+/* v0.14.0.46: show where approvals originate. A source baseline is NOT an authenticated Owner audit log. */
+.or-tag.or-delegated{border-color:#8d8551;color:#fff0bc;background:#3a3520}
+.or-tag.or-stored{border-color:#458979;color:#bff8e6;background:#12362f}
+.or-task[data-state=owner_complete] .or-check input{accent-color:#49b99d}
