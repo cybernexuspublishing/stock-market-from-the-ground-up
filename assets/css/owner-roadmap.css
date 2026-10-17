@@ -22,7 +22,7 @@
 .or-tab-bar button{border:1px solid #325368;border-radius:9px 9px 0 0;background:#0d2637;color:#d3e8f4;padding:13px 18px;font-weight:700;cursor:pointer}
 .or-tab-bar button[aria-selected=true]{background:#1a3a4e;border-bottom:3px solid #d1af69;color:white}
 .or-workspace{background:#0d2333;border:1px solid #325368;border-radius:0 13px 13px 13px;padding:18px;margin-bottom:20px}
-.or-toolbar{display:grid;grid-template-columns:minmax(240px,2fr) minmax(160px,1fr) minmax(175px,1fr) minmax(120px,.6fr);gap:12px;align-items:end}
+.or-toolbar{display:grid;grid-template-columns:minmax(210px,2fr) repeat(3,minmax(155px,1fr)) minmax(115px,.65fr);gap:12px;align-items:end}
 .or-toolbar label,.or-create label{display:flex;flex-direction:column;gap:7px;font-size:.83rem;color:#c0d8e6;font-weight:650}
 .or-toolbar input,.or-toolbar select,.or-create input,.or-create textarea,.or-stage,.or-note{color:#eaf5fb;background:#061a29;border:1px solid #476479;border-radius:8px;width:100%;padding:10px 12px;font:inherit;min-height:42px}
 .or-toolbar select,.or-stage{appearance:auto}
