@@ -1,4 +1,4 @@
-name: Stripe Shadow Sandbox v0.14.0.41
+name: Stripe Shadow Sandbox v0.14.0.42
 on:
   push:
     paths:
@@ -11,6 +11,10 @@ on:
       - 'tests/test_v014041_*'
       - 'functions/api/stripe-product-readiness-v01437.js'
       - 'assets/js/site.js'
+      - 'admin.html'
+      - 'assets/js/admin-payment-center-v01433.js'
+      - 'assets/js/admin-simple-navigation-v014036.js'
+      - 'tests/test_v014042_*'
       - 'supabase/admin/v0.14.0.40*'
       - 'tests/test_v014032r2_payment_source.py'
       - '.github/workflows/stripe-shadow-v01439.yml'
@@ -46,3 +50,4 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y chromium >/dev/null
           python tests/test_v01439_admin_browser.py
+          python tests/test_v014042_admin_visibility.py
