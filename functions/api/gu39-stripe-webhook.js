@@ -1,4 +1,4 @@
-/* v0.14.0.40 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
+/* v0.14.0.49 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
  * Production subscriptions, purchases and actual entitlements are never touched.
  */
 const respond=(body,status=200)=>new Response(body,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
@@ -19,6 +19,13 @@ async function signature(raw,header,secret){const fields=String(header||'').spli
 }
 async function stripe(env,path){const r=await fetch('https://api.stripe.com/v1/'+path,{headers:{authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY},cache:'no-store'});if(!r.ok)throw Error('STRIPE_RETRY');const j=await r.json();if(j?.error||!j)throw Error('STRIPE_RETRY');return j;}
 async function supa(env,path,method='GET',data){const base=String(env.SUPABASE_URL).replace(/\/$/,'');const r=await fetch(base+'/rest/v1/'+path,{method,cache:'no-store',headers:{...serviceHeaders(env.SUPABASE_SECRET_KEY),'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});if(!r.ok)throw Error('DB_RETRY');return r.json()}
+// Enforce both the deployment-level test gate AND the Owner-controlled database
+// test switch. This read runs only after signature and test-account validation.
+async function ownerTestingEnabled(env){
+ const rows=await supa(env,'gu39_sandbox_settings?select=enabled&id=eq.true&limit=1');
+ return Array.isArray(rows)&&rows.length===1&&rows[0].enabled===true;
+}
+const EXPECTED_TEST_ACCOUNT='acct_1URGkDJY9FI7byHB';
 async function checkout(env,filter,ident){const sessions=await stripe(env,'checkout/sessions?'+filter+'='+encodeURIComponent(ident)+'&limit=2');if(sessions.data?.length!==1)return null;return sessions.data[0]}
 async function detail(env,sessionId){if(!id(sessionId,'cs_test'))return null;
  const s=await stripe(env,'checkout/sessions/'+encodeURIComponent(sessionId));if(s.livemode!==false||s.id!==sessionId)return null;
@@ -97,6 +104,13 @@ export async function onRequestPost({request,env}){
  if(!await signature(raw,request.headers.get('stripe-signature'),env.GU39_STRIPE_TEST_WEBHOOK_SECRET))return respond('BAD_SIGNATURE',401);
  let event;try{event=JSON.parse(raw)}catch{return respond('INVALID_JSON',400)}
  if(event.livemode!==false||!id(event.id,'evt')||!Number.isSafeInteger(event.created))return respond('NOT_A_TEST_EVENT',400);
+ // Stripe Connect events that explicitly name another account must never be processed.
+ if(event.account!==undefined&&event.account!==EXPECTED_TEST_ACCOUNT)return respond('WRONG_TEST_ACCOUNT',400);
+ // A Cloudflare TEST gate alone does not authorize webhook processing when the
+ // Owner has explicitly disabled the independent Supabase shadow-test switch.
+ let enabled=false;
+ try{enabled=await ownerTestingEnabled(env)}catch{return respond('SHADOW_SETTINGS_UNAVAILABLE',503)}
+ if(!enabled)return respond('OWNER_TEST_MODE_DISABLED',503);
  try{const payload=await translate(env,event);if(!payload)return respond('IGNORED',200);
   const outcome=await supa(env,'rpc/gu39_shadow_apply','POST',payload);if(outcome.ok!==true||outcome.mode==='LIVE')throw Error('UNEXPECTED_FULFILLMENT');
   return respond('SHADOW_RECORDED',200);
