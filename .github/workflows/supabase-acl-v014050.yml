@@ -1,0 +1,23 @@
+name: Supabase P0 Privilege Source Check v0.14.0.50
+on:
+  push:
+    paths:
+      - 'supabase/admin/v0.14.0.50_ACL_*'
+      - 'supabase/migrations/v0.14.0.50_REVOKE_EXPOSED_TRUNCATE_TRIGGER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014050_acl_privilege_source.py'
+      - '.github/workflows/supabase-acl-v014050.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-scoped-acl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate least-privilege patch without connecting to production
+        run: python tests/test_v014050_acl_privilege_source.py
