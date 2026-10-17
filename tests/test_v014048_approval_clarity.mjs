@@ -7,9 +7,9 @@ const client=readFileSync(new URL('../assets/js/owner-roadmap.js',import.meta.ur
 const page=readFileSync(new URL('../owner-roadmap.html',import.meta.url),'utf8');
 const release=JSON.parse(readFileSync(new URL('../release-manifest.json',import.meta.url)));
 const commerce=JSON.parse(readFileSync(new URL('../data/commerce-config.json',import.meta.url)));
-assert.equal(release.version,'0.14.0.48');
+assert(Number(release.version.split('.').at(-1))>=48);
 assert.equal(commerce.version,release.version);
-assert(page.includes('content="v0.14.0.48"'));
+assert(page.includes('content="v'+release.version+'"'));
 assert.equal(release.customerCheckoutApproved,false);
 assert.equal(release.liveStripeFulfillmentEnabled,false);
 assert.equal(release.stripePriceIdsVerified,0);

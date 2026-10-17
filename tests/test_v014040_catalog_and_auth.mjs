@@ -70,6 +70,7 @@ try{
    const u=String(url);captured.push([u,opts]);
    if(u.endsWith('/v1/checkout/sessions/'+localSession))return response({id:localSession,livemode:false,mode:'payment',payment_status:'paid',amount_total:6999,currency:'usd',client_reference_id:owner,metadata:{gu39_shadow_intent:owner},payment_intent:'pi_mock12345678',customer:'cus_mock12345678'});
    if(u.includes('/v1/checkout/sessions/'+localSession+'/line_items'))return response({data:[{quantity:1,price:{id:map['plan:FULL_MONTHLY'],product:expected['plan:FULL_MONTHLY'][0]}}]});
+   if(u.includes('/rest/v1/gu39_sandbox_settings?select=enabled'))return response([{enabled:true}]);
    if(u.includes('/rest/v1/gu39_sandbox_intents?select=*'))return response([{id:owner,sku:'plan:FULL_MONTHLY',session_id:localSession,stripe_price_id:map['plan:FULL_MONTHLY'],stripe_product_id:expected['plan:FULL_MONTHLY'][0],quoted_cents:6999}]);
    if(u.endsWith('/rest/v1/rpc/gu39_shadow_apply'))return response({ok:true,mode:'SHADOW_ONLY'});
    throw Error('Unexpected event mock URL '+u);
@@ -81,7 +82,7 @@ try{
   assert.equal(accepted.status,200,await accepted.clone().text());
   assert.equal(await accepted.text(),'SHADOW_RECORDED');
   const serviceCalls=captured.filter(([u])=>u.includes('/rest/v1/gu39_')||u.includes('/rest/v1/rpc/gu39_'));
-  assert.equal(serviceCalls.length,2);
+  assert.equal(serviceCalls.length,3,'Owner database switch read + intent read + shadow RPC');
   assert(serviceCalls.every(([u,opts])=>opts.headers.apikey===secret));
   if(secret.startsWith('sb_secret_'))assert(serviceCalls.every(([u,opts])=>!Object.hasOwn(opts.headers,'authorization')));
   else assert(serviceCalls.every(([u,opts])=>opts.headers.authorization==='Bearer '+secret));
