@@ -143,7 +143,7 @@ async function createAccount(e){
   }finally{
     if(submit){
       submit.textContent='Create account';
-      try{window.GroundUpTurnstile?.getToken?.();submit.disabled=window.GroundUpTurnstile?.required===true?false:false}
+      try{window.GroundUpTurnstile?.getToken?.();submit.disabled=false}
       catch{submit.disabled=true}
     }
   }
