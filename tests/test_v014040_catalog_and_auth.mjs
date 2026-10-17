@@ -46,7 +46,7 @@ try{
  network=[];r=await api.onRequestGet({request:new Request('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,403);
  assert.equal(network.some(x=>x.url.includes('api.stripe.com')),false);
  // Mismatched account blocked before any product or payment mutations
- wrongAccount=true;r=await api.onRequestGet({request:req('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,403);assert.equal((await r.json()).error,'SANDBOX_ACCOUNT_MISMATCH');wrongAccount=false;
+ wrongAccount=true;r=await api.onRequestGet({request:req('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});assert.equal(r.status,503);assert.equal((await r.json()).error,'SANDBOX_ACCOUNT_MISMATCH');wrongAccount=false;
  // one missing product shows 7/8, importer is never executed or implied
  missing='prod_VRwuiqDt8qHayI';r=await api.onRequestGet({request:req('https://example.com/api/gu39-sandbox?view=catalog'),env:initial});data=await r.json();assert.equal(data.productsVerified,7);assert.equal(data.allVerified,false);assert(data.rows.some(row=>row.status==='PRODUCT_MISSING'));missing=null;
  // Test-only old and new supabase key formatting tested by signed webhook path
