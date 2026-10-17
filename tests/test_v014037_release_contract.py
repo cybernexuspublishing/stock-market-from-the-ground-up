@@ -18,10 +18,10 @@ assert f'groundup-v{cache_version}-public' in load('sw.js')
 assert json.loads(load('data/commerce-config.json'))['version']==version
 assert json.loads(load('release-manifest.json'))['customerCheckoutApproved'] is False
 assert 'stripe-product-registry-v01437.json' in load('scripts/build-pages.sh')
-assert 'admin-stripe-catalog-v01437.js' in load('assets/js/site.js')
+assert "loadOnce('/assets/js/admin-stripe-catalog-v01437.js'" not in load('assets/js/site.js')
 assert 'Stripe Price ID' in load('assets/js/admin-stripe-catalog-v01437.js')
 assert 'GU_ADMIN_ROLE' not in load('assets/js/admin-stripe-catalog-v01437.js')
-assert '/rest/v1/rpc/gu_owner_digital_payment_route_read_v01432r2' in load('functions/api/stripe-product-readiness-v01437.js')
+assert "from './gu39-sandbox.js'" in load('functions/api/stripe-product-readiness-v01437.js')
 assert 'customerCheckoutEnabledByThisRelease:false' in load('functions/api/stripe-product-readiness-v01437.js')
 assert 'site_orders' not in load('functions/api/stripe-product-readiness-v01437.js')
 assert 'user_plan_grants' not in load('functions/api/stripe-product-readiness-v01437.js')

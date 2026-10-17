@@ -7,7 +7,7 @@ const api=await load(apiPath),hook=await load(hookPath);
 const base='https://oxihglyfgzywsupnyicb.supabase.co', id='e1b5d7f0-52dc-493e-b513-71f39aaa879a';
 const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'public-key',SUPABASE_SECRET_KEY:'sb_secret_mock',
  GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_mock',
- GU39_STRIPE_TEST_PRICE_MAP_JSON:JSON.stringify({'plan:FULL_MONTHLY':'price_mock987654321'})};
+ GU39_STRIPE_TEST_PRICE_MAP_JSON:JSON.stringify({'plan:FULL_MONTHLY':'price_mock987654321','plan:FULL_ANNUAL':'price_mock987654322','plan:LIFETIME':'price_mock987654323','plan:ONDEMAND_MONTHLY':'price_mock987654324','tool:INTERACTIVE_LEARNING':'price_mock987654325','tool:JOURNAL_ANALYTICS':'price_mock987654326','tool:MARKET_SIMULATOR':'price_mock987654327','tool:MARKET_TUTOR':'price_mock987654328'})};
 let enabled=true,hookCalls=[],network=[];const prev=globalThis.fetch;
 const result=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';network.push([u,verb]);
