@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.48",
+  "version": "0.14.0.49",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "9771514bca04d7e9d918fe6e1e18d32ad35ddf39",
   "gitCommit": null,
@@ -12,7 +12,8 @@
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
   "liveStripeFulfillmentEnabled": false,
-  "catalogVerification": "Authorized staff role facade gu_staff_role_v01432r1; real sandbox 8/8 API acceptance pending",
+  "catalogVerification": "Owner-observed live Stripe TEST API 8/8 products and prices; lifecycle acceptance pending",
+  "stripeCatalogOwnerEvidence": {"date":"2026-10-17","productsVerified":8,"pricesVerified":8,"source":"Owner screenshot","automatedReleaseCertification":false},
   "ownerRoadmap": {
     "status": "source implementation pending live acceptance",
     "catalogEntries": 2096,
