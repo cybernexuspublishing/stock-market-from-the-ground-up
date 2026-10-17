@@ -1,4 +1,4 @@
-/* v0.14.0.47 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.49 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -88,7 +88,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.47',refresh:getState,verifyCatalog});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.49',refresh:getState,verifyCatalog});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
