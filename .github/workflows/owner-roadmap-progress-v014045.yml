@@ -1,0 +1,62 @@
+name: Owner Roadmap Evidence Review v0.14.0.45
+on:
+  pull_request:
+    paths:
+      - 'functions/_lib/owner-roadmap-engineering-review.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/css/owner-roadmap.css'
+      - 'owner-roadmap.html'
+      - 'tests/test_owner_roadmap_progress_v014045.mjs'
+      - 'tests/test_owner_roadmap_v014044.py'
+      - 'data/commerce-config.json'
+      - '.github/workflows/owner-roadmap-progress-v014045.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/_lib/owner-roadmap-engineering-review.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'tests/test_owner_roadmap_progress_v014045.mjs'
+      - 'data/commerce-config.json'
+      - '.github/workflows/owner-roadmap-progress-v014045.yml'
+permissions:
+  contents: read
+jobs:
+  status-assessment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify each consolidated feature assessment and Owner authorization isolation
+        run: |
+          node --check functions/_lib/owner-roadmap-engineering-review.js
+          node --check functions/api/owner-roadmap.js
+          node --check assets/js/owner-roadmap.js
+          node tests/test_owner_roadmap_progress_v014045.mjs
+          python3 tests/test_owner_roadmap_v014044.py
+      - name: Preserve public/private Pages asset boundary and official release manifest
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test ! -e public/functions/_lib/owner-roadmap-engineering-review.js
+          test ! -e public/functions/api/owner-roadmap.js
+          test ! -e public/docs/OWNER_ROADMAP_PROGRESS_AUDIT_v0.14.0.45.csv
+          test ! -d public/supabase
+          python3 - <<'PY'
+          import json
+          v=json.load(open('release-manifest.json'))['version']
+          assert v=='0.14.0.45'
+          assert json.load(open('data/commerce-config.json'))['version']==v
+          assert json.load(open('release-manifest.json'))['customerCheckoutApproved']==False
+          print('PASS: source assessment is private and Stripe checkout remains disabled.')
+          PY
