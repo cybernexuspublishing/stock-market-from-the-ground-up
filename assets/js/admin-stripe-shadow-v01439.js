@@ -1,4 +1,4 @@
-/* v0.14.0.43 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.45 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -45,6 +45,10 @@
    SANDBOX_ACCOUNT_MISMATCH:'The configured Stripe TEST key belongs to a different Stripe account. Use the test key for the known sandbox; do not create new products.',
    STRIPE_CATALOG_API_UNAVAILABLE:'Stripe could not return an authenticated product or price verification. Check Stripe TEST key permissions and service availability.',
    SUPABASE_NOT_CONFIGURED:'Cloudflare Supabase server settings are incomplete. Review SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY and SUPABASE_SECRET_KEY.',
+   SUPABASE_AUTH_UNAVAILABLE:'Supabase authentication could not be reached. Check the Cloudflare Supabase URL and publishable key, plus Functions logs.',
+   STAFF_ROLE_RPC_MISSING:'Supabase is missing the approved gu_staff_role_v01432r1 staff verification RPC. Review migration v0.14.0.32R1 before applying any SQL.',
+   STAFF_ROLE_AUTHORIZATION_FAILED:'Supabase rejected staff verification. Confirm this is an eligible Owner/Admin member login with required MFA (AAL2), then retry.',
+   STAFF_ROLE_RPC_UNAVAILABLE:'The staff verification RPC is not responding. Check Supabase database functions, API permissions, and Cloudflare Functions logs.',
    SIGN_IN_REQUIRED:'Sign in to the website with your Owner account and try again.',
    INVALID_SESSION:'Your session has expired. Sign out and back in before verifying.',
    STAFF_REQUIRED:'This account is not authorized as OWNER or ADMIN by the Supabase server.',
@@ -84,7 +88,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.43',refresh:getState,verifyCatalog});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.45',refresh:getState,verifyCatalog});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());

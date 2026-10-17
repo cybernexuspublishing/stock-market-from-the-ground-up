@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.43 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.45 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -20,13 +20,31 @@ function envCheck(e){const base=String(e.SUPABASE_URL||'').replace(/\/$/,'');
 function sandboxEnabled(e){return e.GU39_SANDBOX_SHADOW_GATE==='true'&&String(e.GU39_STRIPE_TEST_SECRET_KEY||'').startsWith('sk_test_')&&
  String(e.GU39_STRIPE_TEST_WEBHOOK_SECRET||'').startsWith('whsec_');}
 async function getJson(url,options){const r=await fetch(url,{...options,cache:'no-store'});const d=await r.json().catch(()=>null);if(!r.ok||!d)throw Error('REMOTE_UNAVAILABLE');return d;}
-async function actor(req,c){const jwt=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!jwt)throw Error('SIGN_IN_REQUIRED');
- const user=await getJson(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+jwt}});
- if(!/^[0-9a-f-]{36}$/i.test(user.id||''))throw Error('INVALID_SESSION');
- const head={apikey:c.pub,authorization:'Bearer '+jwt,'content-type':'application/json'};
- const role=await getJson(c.base+'/rest/v1/rpc/gu_staff_identity_v01431r1',{method:'POST',headers:head,body:'{}'});
- if(role!=='OWNER'&&role!=='ADMIN')throw Error('STAFF_REQUIRED');
- return {userId:user.id,role,jwt,head};
+async function actor(req,c){
+ const jwt=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];
+ if(!jwt)throw Error('SIGN_IN_REQUIRED');
+ const tokenHeaders={apikey:c.pub,authorization:'Bearer '+jwt};
+ let userResult;
+ try{userResult=await fetch(c.base+'/auth/v1/user',{headers:tokenHeaders,cache:'no-store'})}
+ catch{throw Error('SUPABASE_AUTH_UNAVAILABLE')}
+ if(userResult.status===401||userResult.status===403)throw Error('INVALID_SESSION');
+ if(!userResult.ok)throw Error('SUPABASE_AUTH_UNAVAILABLE');
+ const user=await userResult.json().catch(()=>null);
+ if(!/^[0-9a-f-]{36}$/i.test(user?.id||''))throw Error('INVALID_SESSION');
+ const head={...tokenHeaders,'content-type':'application/json'};
+ // Internal gu_staff_identity_v01431r1 has authenticated EXECUTE revoked by
+ // v0.14.0.31R1; call public, role-checked v0.14.0.32R1 facade instead.
+ let roleResult;
+ try{roleResult=await fetch(c.base+'/rest/v1/rpc/gu_staff_role_v01432r1',
+  {method:'POST',headers:head,body:'{}',cache:'no-store'})}
+ catch{throw Error('STAFF_ROLE_RPC_UNAVAILABLE')}
+ if(roleResult.status===404)throw Error('STAFF_ROLE_RPC_MISSING');
+ if(roleResult.status===401||roleResult.status===403)throw Error('STAFF_ROLE_AUTHORIZATION_FAILED');
+ if(!roleResult.ok)throw Error('STAFF_ROLE_RPC_UNAVAILABLE');
+ const roleBody=await roleResult.json().catch(()=>null);
+ if(roleBody?.ok!==true)throw Error('STAFF_ROLE_RPC_UNAVAILABLE');
+ if(roleBody.role!=='OWNER'&&roleBody.role!=='ADMIN')throw Error('STAFF_REQUIRED');
+ return {userId:user.id,role:roleBody.role,jwt,head};
 }
 async function ownerStepup(c,a){if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');const step=await getJson(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{method:'POST',headers:a.head,body:'{}'});if(step!==true)throw Error('PASSWORD_RECONFIRM_REQUIRED');}
 async function rpc(c,a,name,params){return getJson(c.base+'/rest/v1/rpc/'+name,{method:'POST',headers:a.head,body:JSON.stringify(params||{})});}
@@ -93,7 +111,7 @@ async function inspectCatalog(env){
  const verifiedProducts=rows.filter(x=>x.productVerified).length;
  const verifiedPrices=rows.filter(x=>x.priceVerified).length;
  const tax=rows.filter(x=>['plan:FULL_MONTHLY','plan:FULL_ANNUAL'].includes(x.sku)).map(x=>x.stripeTaxCode).filter(Boolean);
- return {ok:true,version:'0.14.0.41',accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
+ return {ok:true,version:'0.14.0.45',accountVerified:true,accountId:account,readOnly:true,productsExpected:8,
   productsVerified:verifiedProducts,pricesVerified:verifiedPrices,priceIdsConfigured:mappedIds.length,
   allVerified:verifiedProducts===8&&verifiedPrices===8&&!duplicates,
   taxClassificationReviewRequired:tax.length===2&&tax[0]!==tax[1],
@@ -110,6 +128,10 @@ export async function onRequestGet({request,env}){try{const c=envCheck(env),a=aw
   'PRICE_MAP_INVALID':[503,'PRICE_MAP_INVALID'],
   'STRIPE_CATALOG_API_UNAVAILABLE':[503,'STRIPE_CATALOG_API_UNAVAILABLE'],
   'SUPABASE_NOT_CONFIGURED':[503,'SUPABASE_NOT_CONFIGURED'],
+  'SUPABASE_AUTH_UNAVAILABLE':[503,'SUPABASE_AUTH_UNAVAILABLE'],
+  'STAFF_ROLE_RPC_MISSING':[503,'STAFF_ROLE_RPC_MISSING'],
+  'STAFF_ROLE_RPC_UNAVAILABLE':[503,'STAFF_ROLE_RPC_UNAVAILABLE'],
+  'STAFF_ROLE_AUTHORIZATION_FAILED':[403,'STAFF_ROLE_AUTHORIZATION_FAILED'],
   'SIGN_IN_REQUIRED':[401,'SIGN_IN_REQUIRED'],
   'INVALID_SESSION':[401,'INVALID_SESSION'],
   'STAFF_REQUIRED':[403,'STAFF_REQUIRED']};
