@@ -380,15 +380,20 @@ async function completePaymentReview(request,env,c,a){
    testCheckoutBlocked:true,note:'Could not query Stripe and isolated TEST intent ledger'};
  try{pending=await inspectUnboundTestIntents(c,env,a)}
  catch{pending.error='PROVIDER_RECONCILIATION_UNAVAILABLE'}
+ let catalog={allVerified:false,productsVerified:0,pricesVerified:0};
+ try{
+  const verified=await inspectCatalog(env);
+  catalog={allVerified:verified.allVerified,productsVerified:verified.productsVerified,pricesVerified:verified.pricesVerified};
+ }catch{catalog.error='CATALOG_VERIFICATION_UNAVAILABLE'}
  const launchApproved=env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true';
  const mode=checkout.checks.some(x=>x.name==='Owner TEST mode'&&x.status==='PASS')?'TESTING':'LIVE_SELECTED';
- const complete=checkout.safeToAttemptTest&&!pending.testCheckoutBlocked&&!pending.error;
+ const complete=checkout.safeToAttemptTest&&catalog.allVerified&&!pending.testCheckoutBlocked&&!pending.error;
  return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
-  selectedSku:sku,mode,config,checkout,pending,
+  selectedSku:sku,mode,config,checkout,catalog,pending,
   production:{liveCheckoutApproved:launchApproved,liveCheckoutAvailable:mode!=='TESTING'&&launchApproved,
     mustCompleteSeparateProviderAcceptance:true},
-  checksPassed:config.passed+checkout.passed,
-  totalChecks:config.total+checkout.total,
+  checksPassed:config.passed+checkout.passed+(catalog.allVerified?1:0),
+  totalChecks:config.total+checkout.total+1,
   readyForSingleSandboxCheckout:complete,
   nextAction:pending.totalUnbound>0?'RECONCILE_EXISTING_TEST_INTENT_FIRST':
     complete?'OWNER_MAY_AUTHORIZE_ONE_TEST_TRANSACTION':'RESOLVE_BLOCKED_AUDIT_ITEMS',
