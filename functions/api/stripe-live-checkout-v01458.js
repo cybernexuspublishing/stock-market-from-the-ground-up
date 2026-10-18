@@ -117,9 +117,9 @@ export async function onRequestPost({request:req,env}){
  authorization:'Bearer '+c.stripe,'content-type':'application/x-www-form-urlencoded',
  'Stripe-Version':SRC_VERSION,'Idempotency-Key':'gu58-live-'+id
  },body:params.toString()});
-  if(!/^cs_live_[A-Za-z0-9_]+$/.test(session.id||'')||session.livemode!==true)throw err('Unexpected Stripe test session.',503);
+  if(!/^cs_live_[A-Za-z0-9_]+$/.test(session.id||'')||session.livemode!==true)throw err('Unexpected Stripe LIVE session.',503);
   const target=new URL(session.url);if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw err('Invalid Stripe destination.',503);
-  await db(c,`gu_stripe_checkout_intents_v01438?id=eq.${id}`,'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
+  await db(c,`gu58_live_checkout_intents?id=eq.${id}`,'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
   return respond({ok:true,live:true,url:session.url,notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
  }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
