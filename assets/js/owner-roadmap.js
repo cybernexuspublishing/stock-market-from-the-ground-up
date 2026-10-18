@@ -134,7 +134,7 @@ async function deployedVersion(){
   if(!response.ok)throw new Error('Manifest unavailable');
   const data=await response.json();
   const version=String(data.version||''),commit=String(data.gitCommit||'');
-  if(!/^0[.]14[.]0[.]\\d+$/.test(version)||!/^[a-f0-9]{40}$/i.test(commit))throw new Error('Deployment SHA is not verified');
+  if(!/^0[.]14[.]0[.][0-9]+$/.test(version)||!/^[a-f0-9]{40}$/i.test(commit))throw new Error('Deployment SHA is not verified');
   v.textContent='v'+version;
   sha.textContent=' · deployment '+commit.slice(0,12)+' (release manifest only; not payment acceptance)';
  }catch{
@@ -228,7 +228,7 @@ function exportData(format){
  const filename='owner-website-roadmap-'+new Date().toISOString().slice(0,10);
  if(format==='json'){download(filename+'.json',JSON.stringify({metadata,exportedAt:new Date().toISOString(),items:rows},null,2),'application/json');return}
  const cols=['id','scope','area','section','title','detail','source','evidence','engineeringStage','engineeringSummary','statusOrigin','approval','status','note','reviewedOn','updatedAt','updatedBy'];
- const quote=v=>{let text=String(v??'');if(/^[\\s\\u0000-\\u001f]*[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
+ const quote=v=>{let text=String(v??'');if(/^[=+@-]/.test(text.trimStart()))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
  const values=rows.map(x=>cols.map(k=>quote(k==='engineeringStage'?x.engineeringReview?.stage:(k==='engineeringSummary'?x.engineeringReview?.summary:(k in x.progress?x.progress[k]:x[k])))).join(','));
  download(filename+'.csv',cols.join(',')+'\r\n'+values.join('\r\n'),'text/csv;charset=utf-8');
 }
@@ -302,6 +302,6 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();const hash=decodeURIComponent(location.hash.slice(1));if(/^task-(CORE-\\d{4}|EXEC-\\d{2}|PROM-\\d{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();const hash=decodeURIComponent(location.hash.slice(1));if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
