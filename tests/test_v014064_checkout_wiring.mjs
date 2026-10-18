@@ -24,7 +24,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_LIVE_DB_CONTRACT_APPROVED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_mock',
  GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_mock0000000',GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
-const state={testing:false,db:true,offer:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',merchant:true,tool:true,posts:0,remote:0};
+const state={testing:false,db:true,offer:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,merchant:true,tool:true,posts:0,remote:0};
 const original=globalThis.fetch;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
@@ -40,11 +40,11 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/v1/account'))return json({id:state.merchant?'acct_mock0000000':'acct_other0000'});
  if(u.endsWith('/v1/prices/'+mapped['plan:FULL_MONTHLY'].price_id))
   return json({id:mapped['plan:FULL_MONTHLY'].price_id,product:state.price?mapped['plan:FULL_MONTHLY'].product_id:'prod_other',
-    livemode:true,active:true,currency:'usd',unit_amount:6999,billing_scheme:state.billingScheme,type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
+    livemode:true,active:true,currency:'usd',unit_amount:6999,billing_scheme:state.billingScheme,transform_quantity:state.transformQuantity,type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
  if(u.endsWith('/v1/prices/'+mapped['tool:INTERACTIVE_LEARNING'].price_id))
   return json({id:mapped['tool:INTERACTIVE_LEARNING'].price_id,
     product:mapped['tool:INTERACTIVE_LEARNING'].product_id,
-    livemode:true,active:true,currency:'usd',unit_amount:2999,billing_scheme:state.billingScheme,type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
+    livemode:true,active:true,currency:'usd',unit_amount:2999,billing_scheme:state.billingScheme,transform_quantity:state.transformQuantity,type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
  if(u.endsWith('/v1/checkout/sessions')){state.posts++;throw Error('GET MUST NEVER CREATE A CHECKOUT SESSION')}
  throw Error('Unexpected outbound '+u);
 };
@@ -72,7 +72,8 @@ try{
  for(const [field,bad,label] of [
   ['intervalCount',12,'price renews every twelve months, not one month'],
   ['usageType','metered','usage-based metered price'],
-  ['billingScheme','tiered','tiered price instead of fixed-price offer']
+  ['billingScheme','tiered','tiered price instead of fixed-price offer'],
+  ['transformQuantity',{divide_by:3,round:'up'},'transformed line-item quantity']
  ]){
   const previous=state[field];state[field]=bad;
   r=await get();assert.equal(r.liveCheckoutAvailable,false,label);
