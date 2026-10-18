@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.56 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.57 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -221,7 +221,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.57',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
@@ -367,6 +367,91 @@ async function inspectUnboundTestIntents(c,env,a){
   testCheckoutBlocked:intents.length>0,
   note:'No provider writes or Supabase mutations were performed; absence in a bounded Stripe listing requires explicit Owner confirmation.'};
 }
+// v0.14.0.57: One Owner-only READ-ONLY acceptance evidence view. It is
+// deliberately independent from the 17 pre-transaction configuration checks.
+// A stored webhook event is not fabricated by a "verification" button.
+async function inspectSandboxAcceptance(env,c,a){
+ const steps=[
+  {key:'stripe_checkout',label:'Provider TEST Checkout Session',status:'NOT_TESTED'},
+  {key:'paid_transaction',label:'Stripe TEST payment accepted',status:'NOT_TESTED'},
+  {key:'signed_webhook',label:'Stripe webhook event processed',status:'NOT_TESTED'},
+  {key:'isolated_access',label:'Supabase isolated access synchronized',status:'NOT_TESTED'}
+ ];
+ const result={status:'NOT_TESTED',readOnly:true,scope:'ISOLATED_TEST_ONLY',
+  attemptsChecked:0,steps,lifeCycle:{
+   renewal:'NOT_TESTED',failedPayment:'NOT_TESTED',cancellation:'NOT_TESTED',
+   refund:'NOT_TESTED',dispute:'NOT_TESTED'
+  },realMemberEntitlementsVerified:false,
+  note:'The configuration review does not initiate or certify a completed payment. Real member entitlements remain unchanged.'};
+ const fail=(code)=>{result.status='EVIDENCE_UNAVAILABLE';result.error=code;return result};
+ let rows;
+ try{
+  rows=await service(c,'gu39_sandbox_intents?select=id,sku,status,session_id,stripe_price_id,quoted_cents,created_at'+
+   '&tester_user_id=eq.'+encodeURIComponent(a.userId)+
+   '&session_id=not.is.null&order=created_at.desc&limit=1');
+ }catch{return fail('SHADOW_INTENT_READ_UNAVAILABLE')}
+ if(!Array.isArray(rows))return fail('SHADOW_INTENT_READ_INVALID');
+ if(rows.length===0)return result;
+ const intent=rows[0];result.attemptsChecked=1;result.attemptCreatedAt=intent.created_at;
+ result.testRecordStatus=intent.status;
+ if(!known(intent.session_id,'cs_test')||!known(intent.stripe_price_id,'price')||
+    !Object.hasOwn(prices,intent.sku))return fail('BOUND_INTENT_INVALID');
+ let session,items;
+ try{
+  await checkStripeAccount(env);
+  session=await stripe(env,'checkout/sessions/'+encodeURIComponent(intent.session_id));
+  items=await stripe(env,'checkout/sessions/'+encodeURIComponent(intent.session_id)+'/line_items?limit=2');
+ }catch{return fail('STRIPE_SESSION_READ_UNAVAILABLE')}
+ const line=Array.isArray(items?.data)&&items.data.length===1?items.data[0]:null;
+ const priceId=typeof line?.price==='string'?line.price:line?.price?.id;
+ const verified=session?.id===intent.session_id&&session.livemode===false&&
+  session.client_reference_id===intent.id&&session.metadata?.gu39_shadow_intent===intent.id&&
+  session.currency==='usd'&&session.amount_subtotal===intent.quoted_cents&&
+  priceId===intent.stripe_price_id&&line?.quantity===1;
+ if(!verified)return fail('STRIPE_SESSION_BINDING_MISMATCH');
+ steps[0].status='PASS';
+ steps[0].detail='TEST session, account, original intent, exact Price, quantity and quoted subtotal verified.';
+ const paid=session.status==='complete'&&session.payment_status==='paid';
+ steps[1].status=paid?'PASS':'PENDING';
+ steps[1].detail=paid?'Stripe confirms completed paid TEST session.':'Stripe has not confirmed a completed paid TEST session.';
+ let events,access;
+ try{
+  events=await service(c,'gu39_sandbox_events?select=event_id,action,outcome,occurred_at'+
+   '&intent_id=eq.'+encodeURIComponent(intent.id)+'&order=handled_at.desc&limit=100');
+  access=await service(c,'gu39_sandbox_access?select=shadow_access,access_until'+
+   '&intent_id=eq.'+encodeURIComponent(intent.id)+'&limit=1');
+ }catch{return fail('SHADOW_EVIDENCE_READ_UNAVAILABLE')}
+ if(!Array.isArray(events)||!Array.isArray(access))return fail('SHADOW_EVIDENCE_INVALID');
+ const accepted=events.filter(e=>e.outcome==='shadow_applied');
+ const paidEvent=accepted.find(e=>['paid','renewed'].includes(e.action)&&known(e.event_id,'evt'));
+ let providerEventVerified=false;
+ if(paidEvent){
+  try{
+   const verifiedEvent=await stripe(env,'events/'+encodeURIComponent(paidEvent.event_id));
+   providerEventVerified=verifiedEvent?.id===paidEvent.event_id&&verifiedEvent?.livemode===false&&
+    ['checkout.session.completed','checkout.session.async_payment_succeeded','invoice.paid','customer.subscription.updated'].includes(verifiedEvent.type);
+  }catch{return fail('STRIPE_EVENT_READ_UNAVAILABLE')}
+ }
+ steps[2].status=paidEvent?(providerEventVerified?'PASS':'BLOCKED'):'PENDING';
+ steps[2].detail=providerEventVerified?'Stripe TEST event ID independently corroborates the applied Supabase webhook record.':
+  paidEvent?'Supabase event ID does not match the Stripe TEST event.':'No successful payment webhook has been applied to the isolated ledger.';
+ const grant=access.length===1&&access[0].shadow_access===true&&
+  (access[0].access_until==null||Date.parse(access[0].access_until)>Date.now());
+ steps[3].status=paid&&providerEventVerified&&grant&&intent.status==='test_active'?'PASS':'PENDING';
+ steps[3].detail=steps[3].status==='PASS'?'Isolated shadow access ACTIVE; production entitlements were not modified.':
+  'Isolated access is not currently active. Check payment, webhook and ledger status.';
+ const observed=(actions)=>accepted.some(e=>actions.includes(e.action))?'OBSERVED':'NOT_TESTED';
+ result.lifeCycle={
+  renewal:observed(['renewed']),failedPayment:observed(['failed']),
+  cancellation:observed(['canceled','cancel_scheduled']),
+  refund:observed(['refunded']),dispute:observed(['disputed'])
+ };
+ result.passed=steps.filter(x=>x.status==='PASS').length;
+ result.total=steps.length;
+ result.status=result.passed===steps.length?'PASS':'PENDING';
+ return result;
+}
+
 async function completePaymentReview(request,env,c,a){
  if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
  const sku=new URL(request.url).searchParams.get('sku')||'plan:FULL_MONTHLY';
@@ -385,11 +470,14 @@ async function completePaymentReview(request,env,c,a){
   const verified=await inspectCatalog(env);
   catalog={allVerified:verified.allVerified,productsVerified:verified.productsVerified,pricesVerified:verified.pricesVerified};
  }catch{catalog.error='CATALOG_VERIFICATION_UNAVAILABLE'}
+ // Real TEST acceptance is independently reported, never counted as one of the
+ // 17 configuration checks. A diagnostic does not create a payment or entitlement.
+ const acceptance=await inspectSandboxAcceptance(env,c,a);
  const launchApproved=env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true';
  const mode=checkout.checks.some(x=>x.name==='Owner TEST mode'&&x.status==='PASS')?'TESTING':'LIVE_SELECTED';
  const complete=checkout.safeToAttemptTest&&catalog.allVerified&&!pending.testCheckoutBlocked&&!pending.error;
  return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
-  selectedSku:sku,mode,config,checkout,catalog,pending,
+  selectedSku:sku,mode,config,checkout,catalog,pending,acceptance,
   production:{liveCheckoutApproved:launchApproved,liveCheckoutAvailable:mode!=='TESTING'&&launchApproved,
     mustCompleteSeparateProviderAcceptance:true},
   checksPassed:config.passed+checkout.passed+(catalog.allVerified?1:0),
