@@ -126,6 +126,20 @@ function actionBoard(){
  $('#or-action-grid').innerHTML=groups.join('');
  $('#or-action-board').hidden=false;
 }
+function renderPrivateBrief(brief){
+ const mount=$('#or-private-brief'),policy=$('#or-private-governance');
+ if(!mount||!policy)return;
+ const b=brief||{};
+ const phases=Array.isArray(b.phases)?b.phases:[],priorities=Array.isArray(b.priorities)?b.priorities:[];
+ mount.innerHTML='<p><strong>Deployed release:</strong> <code id="or-deploy-version">Checking…</code><span id="or-deploy-sha"></span>. '+esc(b.intro||'Private Owner evidence is currently unavailable.')+'</p>'+
+ '<div class="or-phase-grid">'+phases.map(p=>'<article class="or-phase-card"><strong>'+esc(p.status||'Recorded work')+'</strong><h3>'+esc(p.title||'Task')+'</h3><p>'+esc(p.text||'')+'</p></article>').join('')+'</div>'+
+ '<details class="or-priority-details"><summary>Coordinated priorities and dependencies</summary><ol>'+priorities.map(p=>'<li><strong>'+esc(p.title||'Requirement')+':</strong> '+esc(p.description||'')+'</li>').join('')+'</ol></details>'+
+ '<p class="or-muted">'+esc(b.scopeNote||'Authenticated Owner access is required.')+'</p>';
+ policy.innerHTML='<p><strong>Owner decisions:</strong> Delegated source assessment is separate from authenticated Owner progress. Previously saved Owner decisions are preserved. A source checkbox never enables payments, grants access, or certifies live compliance.</p>'+
+ '<p><strong>Concurrent edits:</strong> Roadmap updates carry a revision; another Owner\'s newer decision blocks stale writes and requires a refresh. The Evidence verified status requires documented acceptance.</p>'+
+ '<p><strong>Audit:</strong> '+esc(b.auditStatus||'Check administrative audit logs before release.')+'</p>'+
+ '<p><strong>Scope:</strong> '+esc(metadata.originalCount??2096)+' original records + '+esc(metadata.supplementalAdded??0)+' reviewed recent entries = '+esc(metadata.totalCount??all.length)+' task and reference records, including '+esc(all.filter(x=>x.scope==='core').length)+' primary commitments. Archived source requirements remain preserved.</p>';
+}
 async function deployedVersion(){
  const v=$('#or-deploy-version'),sha=$('#or-deploy-sha');
  if(!v)return;
@@ -250,6 +264,7 @@ async function reload(){
  try{
   const data=await api();
   metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
+  renderPrivateBrief(data.operationalBrief);
   await deployedVersion();
   $('#or-version').textContent='Catalog '+(metadata.version||'')+' · Delegated review '+(delegation.version||'unavailable')+' · authenticated Owner edits save privately in Supabase and take precedence over delegated code approvals.';
   $('#or-app').hidden=false;$('#or-access').hidden=true;areas();render();renderReviewBoard();
