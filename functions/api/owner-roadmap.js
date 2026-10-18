@@ -145,7 +145,7 @@ function recordRevision(row){
    Do not silently overwrite another Owner's edits (including a simultaneous
    create). The updated row count must be precisely one. */
 async function write(c,user,key,value,prior){
-  const now=new Date().toISOString();
+  const now=new Date(Math.max(Date.now(), (prior?.updated_at?Date.parse(prior.updated_at)+1:0))).toISOString();
   const revision=crypto.randomUUID();
   const data={
     setting_key:key,category:'owner_roadmap',
