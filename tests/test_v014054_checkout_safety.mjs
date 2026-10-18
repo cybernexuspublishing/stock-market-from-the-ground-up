@@ -32,6 +32,7 @@ const authHeaders={authorization:'Bearer mock-jwt',origin:'https://example.com',
 const read=sku=>new Request(root+'?view=checkout-safety&sku='+encodeURIComponent(sku),{headers:authHeaders});
 const checkout=sku=>new Request(root,{method:'POST',headers:authHeaders,body:JSON.stringify({action:'checkout',sku})});
 const expectedSku='plan:FULL_MONTHLY';
+let selectedSkuForMock=expectedSku;
 const fakeStripePrice=(sku)=>{
  const [product,amount,interval]=products[sku];
  return {id:mapping[sku],product,unit_amount:state.blockedPrice?0:amount,
@@ -70,8 +71,8 @@ globalThis.fetch=async(url,options={})=>{
   assert.equal(options.headers['Stripe-Version'],'2026-02-25.preview','Managed Payments requires explicitly versioned Checkout');
   const params=new URLSearchParams(options.body);
   assert.equal(params.get('managed_payments[enabled]'),'true');
-  assert.equal(params.get('mode'),'subscription');
-  assert.equal(params.get('line_items[0][price]'),mapping[expectedSku]);
+  assert.equal(params.get('mode'),products[selectedSkuForMock][2]==='one_time'?'payment':'subscription');
+  assert.equal(params.get('line_items[0][price]'),mapping[selectedSkuForMock]);
   assert.equal(params.get('line_items[0][quantity]'),'1');
   if(state.stripeCheckoutError==='managed')return respond({error:{code:'parameter_unknown',param:'managed_payments[enabled]',message:'internal provider details are private'}},400);
   if(state.stripeCheckoutError==='other')return respond({error:{code:'not_allowed',message:'private provider reject'}},400);
@@ -133,6 +134,18 @@ try{
  assert(result.url.startsWith('https://checkout.stripe.com/'));
  assert.equal(state.stripeCreates,4);
  assert.equal(state.intentCreates,4);
+ // Validate Checkout mode, mapped SKU and Price ID for all eight existing products
+ // using mocked Stripe TEST sessions only, with absolutely NO real provider writes.
+ for(const sku of Object.keys(mapping)){
+   selectedSkuForMock=sku;
+   const inspected=await audit(sku);
+   assert.equal(inspected.body.safeToAttemptTest,true,'Read-only guard must pass for '+sku);
+   const requestResult=await api.onRequestPost({request:checkout(sku),env});
+   assert.equal(requestResult.status,200,sku+': '+await requestResult.clone().text());
+   assert.equal((await requestResult.json()).testOnly,true);
+ }
+ assert.equal(state.stripeCreates,12);
+ assert.equal(state.intentCreates,12);
  assert(state.remoteCalls.every(x=>!/\bsite_orders\b|\buser_plan_grants\b|\bsite_subscriptions\b|\buser_tool_passes\b/.test(x.u)));
- console.log('PASS v54: 9 independent pre-payment guards, no audit writes, Managed Payments preview header, stage-specific provider/DB errors, only isolated TEST intents.');
+ console.log('PASS v54: 9 independent pre-payment guards, no audit writes, Managed Payments preview header, stage-specific provider/DB errors, all eight checkout SKU modes/prices and only isolated TEST intents.');
 }finally{globalThis.fetch=prior}
