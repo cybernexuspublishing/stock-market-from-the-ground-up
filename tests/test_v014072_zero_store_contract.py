@@ -26,7 +26,7 @@ assert "storeZeroMonthlyQA(request,env)" in hook
 assert "checkHmac(raw" in hook
 assert "GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED" in hook
 assert "gu72_signed_zero_monthly_grant" in hook
-assert "s.payment_status!=='no_payment_required'" in hook
+assert "['no_payment_required','paid'].includes(s.payment_status)" in hook
 assert "store-zero-monthly-qa" in store
 assert "store-zero-live-qa.js" in store
 assert "access.html" in front
