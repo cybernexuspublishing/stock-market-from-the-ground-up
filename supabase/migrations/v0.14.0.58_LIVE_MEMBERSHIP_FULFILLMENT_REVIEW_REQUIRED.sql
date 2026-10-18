@@ -46,6 +46,9 @@ CREATE TABLE IF NOT EXISTS public.gu58_live_stripe_events (
 );
 ALTER TABLE public.gu58_live_stripe_events ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.gu58_live_stripe_events FROM PUBLIC,anon,authenticated;
+-- API service role is the sole writer of isolated LIVE checkout intents/events.
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.gu58_live_checkout_intents TO service_role;
+GRANT SELECT, INSERT, UPDATE ON public.gu58_live_stripe_events TO service_role;
 -- Harden against replacing the existing payment/order tables or running a client RPC.
 CREATE OR REPLACE FUNCTION public.gu58_live_stripe_apply_event(
  p_event_id text, p_action text, p_session_id text, p_subscription_id text,
