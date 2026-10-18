@@ -65,6 +65,6 @@ with sync_playwright() as pw:
  assert counts['audits']==2,counts
  assert counts['reconciles']==1,counts
  assert counts['checkoutCalls']==0,counts
- assert 'Payment testing interface v0.14.0.57' in page.locator('#gu39-shadow').inner_text()
+ assert 'Payment testing interface v0.14.0.58' in page.locator('#gu39-shadow').inner_text()
  print('PASS v56: Owner one complete review, blocked unresolved attempt, guarded TEST-only resolution and zero payment attempts.')
  browser.close()
