@@ -24,14 +24,14 @@ done
 # In an explicitly marked preview staging build, browser auth must use the SAME
 # separate Supabase staging project as the Cloudflare Functions payment API.
 # Never insert service keys. A missing/inconsistent preview config fails the build.
-if [[ "${GU_STRIPE_V38_STAGING:-false}" == "true" ]]; then
+if [[ "${GU_STRIPE_V38_STAGING:-false}" == "true" || "${GU61_STAGING_ENABLED:-false}" == "true" ]]; then
   if [[ "${CF_PAGES_BRANCH:-main}" == "main" ]]; then
     echo 'Refusing to build staging checkout on production branch.' >&2; exit 5
   fi
   python3 - "$output/config.js" <<'PYSTAGE'
 import os,re,sys
 path=sys.argv[1]
-ref=os.getenv('GU_STRIPE_V38_STAGING_PROJECT_REF','')
+ref=os.getenv('GU61_STAGING_PROJECT_REF','') if os.getenv('GU61_STAGING_ENABLED')=='true' else os.getenv('GU_STRIPE_V38_STAGING_PROJECT_REF','')
 url=os.getenv('SUPABASE_URL','')
 pub=os.getenv('SUPABASE_PUBLISHABLE_KEY','')
 if not re.fullmatch('[a-z0-9]{20}',ref) or ref=='oxihglyfgzywsupnyicb' or url!=f'https://{ref}.supabase.co' or not pub:

@@ -49,13 +49,14 @@ export function delegatedProgressFor(id,review){
   if(!/^(CORE-\d{4}|EXEC-\d{2}|PROM-\d{2})$/.test(id)||!review)return null;
   const d=delegatedStages[review.stage]||delegatedStages.needs_review;
   const evidence=String(review.summary||'');
+  const reviewedOn=review.reviewedOn||delegatedReviewPolicy.reviewDate;
   return{
     status:d.status,
-    note:'Delegated project review (2026-10-17): '+d.explanation+' Evidence/limitation: '+evidence.slice(0,1350),
+    note:'Delegated project review ('+reviewedOn+'): '+d.explanation+' Evidence/limitation: '+evidence.slice(0,1350),
     approval:d.approval,
     provenance:'assistant_delegated_source_review',
     reviewer:delegatedReviewPolicy.reviewer,
-    reviewedOn:delegatedReviewPolicy.reviewDate,
+    reviewedOn,
     persisted:false
   };
 }

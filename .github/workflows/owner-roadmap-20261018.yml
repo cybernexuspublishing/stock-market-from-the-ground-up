@@ -1,0 +1,36 @@
+name: Owner Roadmap Register Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'owner-roadmap.html'
+      - 'assets/css/owner-roadmap.css'
+      - 'functions/_lib/owner-roadmap-*.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'tests/test_owner_roadmap_additions_20261018.mjs'
+      - '.github/workflows/owner-roadmap-20261018.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-roadmap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check preserved and new checklist commitments
+        run: node tests/test_owner_roadmap_additions_20261018.mjs
+      - name: Confirm frontend deployment boundary
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/tests
+          test ! -e public/data/interactive-labs.json

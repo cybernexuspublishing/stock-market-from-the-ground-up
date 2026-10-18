@@ -1,0 +1,58 @@
+name: Dedicated STAGING Member Fulfillment v0.14.0.61
+on:
+  pull_request:
+  push:
+    paths:
+      - 'functions/api/stripe-staging-member-*'
+      - 'supabase/migrations/v0.14.0.61_*'
+      - 'tests/fixtures/v014061_*'
+      - 'tests/test_v014061_*'
+      - '.github/workflows/stripe-staging-member-v01461.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-staging-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: disposable_ci_only
+          POSTGRES_DB: staging_acceptance_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d staging_acceptance_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_ci_only
+      PGDATABASE: staging_acceptance_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ensure PostgreSQL client is installed
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client)
+      - name: Verify staging Cloudflare handlers and fail-closed security
+        run: |
+          node --check functions/api/stripe-staging-member-checkout-v01461.js
+          node --check functions/api/stripe-staging-member-webhook-v01461.js
+          node tests/test_v014061_staging_security.mjs
+      - name: Verify real staging SQL using disposable PostgreSQL and actual entitlement evaluator
+        run: |
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014060_ephemeral_membership_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.61_STAGING_MEMBER_FULFILLMENT_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014061_staging_member_acceptance.sql
+      - name: Preserve locked LIVE and prior Stripe TEST contracts
+        run: |
+          node tests/test_v014058_live_fulfillment.mjs
+          node tests/test_v014057_sandbox_acceptance.mjs
+          node tests/test_v014055_payment_mode_middleware.mjs
