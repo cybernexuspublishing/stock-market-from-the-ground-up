@@ -55,6 +55,7 @@ jobs:
           node tests/test_v014069_live_catalog_recovery.mjs
           node tests/test_v014068_stable_webhook.mjs
           node tests/test_v014071_zero_live_checkout.mjs
+          node tests/test_v014071_zero_live_webhook.mjs
       - name: Preserve confirmed sandbox payment lifecycle and gates
         run: |
           node tests/test_v014056_unified_payment_readiness.mjs
