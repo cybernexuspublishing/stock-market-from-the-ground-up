@@ -276,6 +276,15 @@ async function inspectCheckoutSafety(request,env,c,a){
  }catch{}
  add('Isolated Supabase intent query using server credentials',shadowRead,shadowRead?'Read-only isolated intent query succeeded':'Server-side shadow intent read was rejected');
  add('Owner checkout anti-repeat limit',limitOk,limitOk?'Fewer than 12 prepared checkouts in the past hour':'Too many attempted checkouts or Supabase intent query unavailable');
+ // A previous Stripe POST may have succeeded while its Supabase binding failed.
+ // Do not create a second Checkout until such an indeterminate intent is reviewed.
+ let noUnreconciled=false;
+ try{
+  const unfinished=await service(c,`gu39_sandbox_intents?select=id&tester_user_id=eq.${a.userId}&status=eq.prepared&created_at=gt.${encodeURIComponent(new Date(Date.now()-86400000).toISOString())}&limit=1`);
+  noUnreconciled=Array.isArray(unfinished)&&unfinished.length===0;
+ }catch{}
+ add('No recent unreconciled Stripe TEST intents',noUnreconciled,
+  noUnreconciled?'No PREPARED intent from the last 24 hours':'An earlier TEST attempt might be unbound. Reconcile Stripe TEST logs and Supabase shadow intent before another checkout');
  const passed=checks.filter(x=>x.status==='PASS').length;
  return {ok:true,version:'0.14.0.54',readOnly:true,testOnly:true,liveCheckout:false,
   sku,checks,passed,total:checks.length,safeToAttemptTest:passed===checks.length,
@@ -384,14 +393,27 @@ export async function onRequestPost({request,env}){
   if(interval!=='one_time')v.set('subscription_data[metadata][gu39_shadow_intent]',id);
   // Stripe Managed Payments eligibility for the selected product must be confirmed in the account.
   v.set('managed_payments[enabled]','true');
-  const session=await managedCheckout(env,v.toString(),id);
+  let session;
+  try{session=await managedCheckout(env,v.toString(),id)}
+  catch(e){
+   // Stripe explicitly rejected session CREATE; a hosted session was not
+   // produced. Record failure in the isolated shadow intent (no real grants).
+   // A timeout/rate-limit/5xx has an unknown outcome, so preserve PREPARED
+   // for reconciliation instead of treating it as a definite rejection.
+   if(['STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE',
+      'STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED'].includes(e.message)){
+    try{await safeStage('SHADOW_INTENT_CLEANUP_FAILED',()=>service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{status:'test_failed'},'return=minimal'))}
+    catch{throw Error('SHADOW_INTENT_CLEANUP_FAILED')}
+   }
+   throw e;
+  }
   if(!known(session.id,'cs_test')||session.livemode!==false||!session.url)throw Error('INVALID_TEST_SESSION');
   const u=new URL(session.url);if(u.protocol!=='https:'||u.hostname!=='checkout.stripe.com')throw Error('INVALID_TEST_CHECKOUT_HOST');
   await safeStage('SHADOW_CHECKOUT_BIND_FAILED',()=>service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal'));
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
- }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_CHECKLIST_BLOCKED','STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
+ }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_CHECKLIST_BLOCKED','STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','SHADOW_INTENT_CLEANUP_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
    const code=common.includes(e.message)?e.message:'SHADOW_TEST_ACTION_UNAVAILABLE';
    const status=code==='INVALID_SESSION'?401:code==='SETTINGS_STALE_REFRESH'?409:
-     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE', 'STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED'].includes(code)?503:403;
+     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE', 'STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','SHADOW_INTENT_CLEANUP_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED'].includes(code)?503:403;
    return json({ok:false,error:code,liveCheckout:false},status)}
 }
