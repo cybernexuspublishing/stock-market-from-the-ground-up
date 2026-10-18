@@ -79,6 +79,10 @@ globalThis.fetch=async(url,opt={})=>{
   return json([{id:intent,created_at:created}]);
  }
  if(u.includes('/rest/v1/gu39_sandbox_intents?')&&u.includes('select=id'))return json([]);
+ if(u.includes('/rest/v1/admin_audit_log')&&method==='POST'){
+  assert.equal(JSON.parse(opt.body).action,'commerce.stripe.shadow.reconcile.v014056');
+  return json([{id:3}]);
+ }
  if(u.includes('/rest/v1/gu39_sandbox_intents?')&&method==='PATCH'){
   state.dbWrites++;state.postBody=JSON.parse(opt.body);
   assert.equal(state.postBody.status,state.mode==='MATCH'?'checkout_created':'test_failed');
@@ -107,6 +111,7 @@ try{
  r=await api.onRequestPost({request:post(),env});
  assert.equal(r.status,200,await r.clone().text());
  d=await r.json();assert.equal(d.action,'MARKED_UNBOUND_TEST_FAILED');
+ assert.equal(d.auditRecorded,true);
  assert.equal(state.dbWrites,1);assert.equal(state.providerWrites,0);
  r=await api.onRequestGet({request:req(),env});d=await r.json();
  assert.equal(d.readyForSingleSandboxCheckout,true);
@@ -123,6 +128,7 @@ try{
  assert.equal(d.pending.safeToReconcile,true);
  r=await api.onRequestPost({request:post(),env});d=await r.json();
  assert.equal(d.action,'BOUND_VERIFIED_TEST_SESSION');
+ assert.equal(d.auditRecorded,true);
  assert.equal(state.dbWrites,1);
  // Ambiguous/missing provider permissions must fail CLOSED.
  state.unbound=true;state.mode='DUPLICATE';
