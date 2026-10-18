@@ -271,5 +271,8 @@ export async function onRequestPost({request,env}){
   await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal');
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
  }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
-   return json({ok:false,error:common.includes(e.message)?e.message:'Testing is unavailable; review the Admin sandbox configuration.'},403)}
+   const code=common.includes(e.message)?e.message:'SHADOW_TEST_ACTION_UNAVAILABLE';
+   const status=code==='INVALID_SESSION'?401:code==='SETTINGS_STALE_REFRESH'?409:
+     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE'].includes(code)?503:403;
+   return json({ok:false,error:code,liveCheckout:false},status)}
 }
