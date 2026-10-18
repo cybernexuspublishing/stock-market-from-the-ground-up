@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.55 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.56 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -221,7 +221,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.55',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
@@ -280,11 +280,11 @@ async function inspectCheckoutSafety(request,env,c,a){
  // Do not create a second Checkout until such an indeterminate intent is reviewed.
  let noUnreconciled=false;
  try{
-  const unfinished=await service(c,`gu39_sandbox_intents?select=id&tester_user_id=eq.${a.userId}&status=eq.prepared&created_at=gt.${encodeURIComponent(new Date(Date.now()-86400000).toISOString())}&limit=1`);
+  const unfinished=await service(c,`gu39_sandbox_intents?select=id&tester_user_id=eq.${a.userId}&status=eq.prepared&session_id=is.null&limit=1`);
   noUnreconciled=Array.isArray(unfinished)&&unfinished.length===0;
  }catch{}
  add('No recent unreconciled Stripe TEST intents',noUnreconciled,
-  noUnreconciled?'No PREPARED intent from the last 24 hours':'An earlier TEST attempt might be unbound. Reconcile Stripe TEST logs and Supabase shadow intent before another checkout');
+  noUnreconciled?'No unbound PREPARED TEST intent remains':'An earlier TEST intent is unbound. Complete the single combined Payment Readiness Review; do not retry Stripe Checkout');
  const passed=checks.filter(x=>x.status==='PASS').length;
  return {ok:true,version:'0.14.0.54',readOnly:true,testOnly:true,liveCheckout:false,
   sku,checks,passed,total:checks.length,safeToAttemptTest:passed===checks.length,
@@ -294,11 +294,149 @@ async function inspectCheckoutSafety(request,env,c,a){
   note:'A successful read-only audit does not certify Stripe Managed Payments enrollment, signing-secret pairing or a completed TEST payment.'};
 }
 
+
+// One comprehensive, no-payment Owner diagnostic: Stripe configuration, selected
+// checkout safeguards, LIVE gate, and any unbound TEST attempts in one response.
+// Stripe /v1/checkout/sessions list does not support client_reference_id filtering;
+// examine paginated sessions in a bounded creation window instead. Incomplete
+// pagination or any mismatch NEVER authorizes clearing a record.
+const MAX_STRIPE_RECONCILIATION_PAGES=10;
+const RECONCILE_BEFORE_SECONDS=5*60;
+const RECONCILE_AFTER_SECONDS=30*60;
+async function inspectUnboundTestIntents(c,env,a){
+ const intents=await service(c,
+  'gu39_sandbox_intents?select=id,sku,stripe_price_id,quoted_cents,created_at,status,session_id'+
+  '&tester_user_id=eq.'+encodeURIComponent(a.userId)+
+  '&status=eq.prepared&session_id=is.null&order=created_at.asc&limit=26');
+ if(!Array.isArray(intents))throw Error('SHADOW_INTENT_READ_FAILED');
+ const results=[];
+ for(const intent of intents.slice(0,25)){
+  let status='STRIPE_SCAN_INCOMPLETE',found=null,matching=0;
+  const created=Date.parse(intent.created_at);
+  if(!Number.isFinite(created)){results.push({status:'INTENT_TIMESTAMP_INVALID',createdAt:null});continue}
+  const start=Math.floor(created/1000)-RECONCILE_BEFORE_SECONDS;
+  const end=Math.floor(created/1000)+RECONCILE_AFTER_SECONDS;
+  let cursor='',scanComplete=false,pages=0;
+  try{
+   await checkStripeAccount(env);
+   while(pages<MAX_STRIPE_RECONCILIATION_PAGES){
+    const params=new URLSearchParams({limit:'100','created[gte]':String(start),'created[lte]':String(end)});
+    if(cursor)params.set('starting_after',cursor);
+    const listing=await stripe(env,'checkout/sessions?'+params);
+    if(!Array.isArray(listing?.data)||typeof listing.has_more!=='boolean')break;
+    for(const session of listing.data){
+     if(session.client_reference_id!==intent.id&&session.metadata?.gu39_shadow_intent!==intent.id)continue;
+     matching++;
+     if(matching===1)found=session;
+    }
+    pages++;
+    if(!listing.has_more){scanComplete=true;break}
+    if(!listing.data.length||!known(listing.data.at(-1)?.id,'cs_test'))break;
+    cursor=listing.data.at(-1).id;
+   }
+   if(scanComplete&&matching===0)status='NO_MATCH_FOUND';
+   else if(scanComplete&&matching===1)status='MATCHED_PROVIDER_SESSION';
+   else if(matching>1)status='AMBIGUOUS_MULTIPLE_SESSIONS';
+   else status='STRIPE_SCAN_INCOMPLETE';
+  }catch{status='STRIPE_SCAN_UNAVAILABLE'}
+  const result={intentId:intent.id,sku:intent.sku,createdAt:intent.created_at,
+   status,allPagesChecked:scanComplete,matchedSessions:matching,details:'Provider-only, read-only reconciliation'};
+  if(status==='MATCHED_PROVIDER_SESSION'&&found){
+    let verified=false;
+    try{
+     // Reject sessions not created for THIS exact intent, TEST Price or SKU.
+     const lines=await stripe(env,'checkout/sessions/'+encodeURIComponent(found.id)+'/line_items?limit=5');
+     const items=Array.isArray(lines.data)?lines.data:[];
+     const actualPrice=items.length===1?(typeof items[0]?.price==='string'?items[0].price:items[0]?.price?.id):null;
+     verified=found.livemode===false&&known(found.id,'cs_test')&&
+       found.client_reference_id===intent.id&&
+       found.metadata?.gu39_shadow_intent===intent.id&&
+       actualPrice===intent.stripe_price_id&&items[0]?.quantity===1&&
+       found.currency==='usd'&&found.amount_subtotal===intent.quoted_cents&&
+       ['open','complete','expired'].includes(found.status);
+    }catch{}
+    result.status=verified?'MATCHED_VERIFIED_SESSION':'MATCHED_SESSION_NEEDS_REVIEW';
+    if(verified)result.providerSessionId=found.id; // Owner-only, no customer PII.
+   }
+   results.push(result);
+ }
+ return {totalUnbound:intents.length,results,
+  truncated:intents.length>25,
+  safeToReconcile:results.length===1&&intents.length<=25&&
+   ['NO_MATCH_FOUND','MATCHED_VERIFIED_SESSION'].includes(results[0].status),
+  testCheckoutBlocked:intents.length>0,
+  note:'No provider writes or Supabase mutations were performed; absence in a bounded Stripe listing requires explicit Owner confirmation.'};
+}
+async function completePaymentReview(request,env,c,a){
+ if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
+ const sku=new URL(request.url).searchParams.get('sku')||'plan:FULL_MONTHLY';
+ if(!Object.hasOwn(prices,sku))throw Error('INVALID_SKU');
+ // Each diagnostic is read-only; absence of provider permissions is surfaced
+ // as a BLOCKED component rather than silently approved.
+ const config=await inspectTestReadiness(request,env,c,a);
+ const checkout=await inspectCheckoutSafety(
+  new Request(new URL('?view=checkout-safety&sku='+encodeURIComponent(sku),request.url)),env,c,a);
+ let pending={totalUnbound:null,results:[],truncated:false,safeToReconcile:false,
+   testCheckoutBlocked:true,note:'Could not query Stripe and isolated TEST intent ledger'};
+ try{pending=await inspectUnboundTestIntents(c,env,a)}
+ catch{pending.error='PROVIDER_RECONCILIATION_UNAVAILABLE'}
+ const launchApproved=env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true';
+ const mode=checkout.checks.some(x=>x.name==='Owner TEST mode'&&x.status==='PASS')?'TESTING':'LIVE_SELECTED';
+ const complete=checkout.safeToAttemptTest&&!pending.testCheckoutBlocked&&!pending.error;
+ return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
+  selectedSku:sku,mode,config,checkout,pending,
+  production:{liveCheckoutApproved:launchApproved,liveCheckoutAvailable:mode!=='TESTING'&&launchApproved,
+    mustCompleteSeparateProviderAcceptance:true},
+  checksPassed:config.passed+checkout.passed,
+  totalChecks:config.total+checkout.total,
+  readyForSingleSandboxCheckout:complete,
+  nextAction:pending.totalUnbound>0?'RECONCILE_EXISTING_TEST_INTENT_FIRST':
+    complete?'OWNER_MAY_AUTHORIZE_ONE_TEST_TRANSACTION':'RESOLVE_BLOCKED_AUDIT_ITEMS',
+  writesPerformed:false,providerCheckoutCreated:false,
+  note:'Combined, read-only review: does not charge a card, create subscriptions, grant entitlements, or independently activate LIVE checkout.'};
+}
+async function reconcileSingleTestIntent(c,env,a,intentId){
+ if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
+ if(!/^[0-9a-f-]{36}$/i.test(String(intentId)))throw Error('INVALID_REQUEST');
+ // Re-run provider account verification and full read-only reconciliation
+ // immediately before the one-row, Owner-authorized isolated ledger update.
+ const detail=await inspectUnboundTestIntents(c,env,a);
+ if(detail.totalUnbound!==1||detail.truncated||detail.results.length!==1||
+    detail.results[0].intentId!==intentId)throw Error('RECONCILIATION_MANUAL_REVIEW_REQUIRED');
+ const row=detail.results[0];
+ if(row.status==='NO_MATCH_FOUND'){
+  const current=await service(c,'gu39_sandbox_intents?select=id,created_at&' +
+    'id=eq.'+encodeURIComponent(intentId)+'&tester_user_id=eq.'+encodeURIComponent(a.userId)+
+    '&status=eq.prepared&session_id=is.null&limit=1');
+  if(!Array.isArray(current)||current.length!==1)throw Error('RECONCILIATION_STALE');
+  if(Date.now()-Date.parse(current[0].created_at)<RECONCILE_AFTER_SECONDS*1000+5*60*1000)
+   throw Error('RECONCILIATION_TOO_RECENT');
+  const change=await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(intentId)+
+    '&tester_user_id=eq.'+encodeURIComponent(a.userId)+
+    '&status=eq.prepared&session_id=is.null','PATCH',
+    {status:'test_failed',updated_at:new Date().toISOString()});
+  if(!Array.isArray(change)||change.length!==1)throw Error('RECONCILIATION_STALE');
+  return {ok:true,action:'MARKED_UNBOUND_TEST_FAILED',testOnly:true,
+   noStripeSessionMatched:true,liveCheckout:false};
+ }
+ if(row.status==='MATCHED_VERIFIED_SESSION'){
+  const change=await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(intentId)+
+    '&tester_user_id=eq.'+encodeURIComponent(a.userId)+
+    '&status=eq.prepared&session_id=is.null','PATCH',
+    {session_id:row.providerSessionId,status:'checkout_created',updated_at:new Date().toISOString()});
+  if(!Array.isArray(change)||change.length!==1)throw Error('RECONCILIATION_STALE');
+  return {ok:true,action:'BOUND_VERIFIED_TEST_SESSION',testOnly:true,
+   paymentAcceptanceStillPending:true,liveCheckout:false};
+ }
+ throw Error('RECONCILIATION_MANUAL_REVIEW_REQUIRED');
+}
+
 async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,paymentMode:r.enabled===true?'TESTING':'LIVE',liveRouteGateOpen:r.enabled!==true&&env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveLaunchApproved:env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  const view=new URL(request.url).searchParams.get('view');
  if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));
  if(view==='checkout-safety')return json(await inspectCheckoutSafety(request,env,c,a));
+ if(view==='complete-review')return json(await completePaymentReview(request,env,c,a));
  if(view==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
  catch(e){
@@ -363,6 +501,10 @@ export async function onRequestPost({request,env}){
   if(Number(request.headers.get('content-length')||0)>2048)throw Error('INVALID_REQUEST');
   const data=await request.json().catch(()=>null);if(!data||typeof data!=='object'||Array.isArray(data))throw Error('INVALID_REQUEST');
   const c=envCheck(env),a=await actor(request,c);await ownerStepup(c,a);
+  if(data.action==='reconcile'){
+   if(!sandboxEnabled(env))throw Error('SANDBOX_SECRETS_NOT_CONFIGURED');
+   return json(await reconcileSingleTestIntent(c,env,a,data.intentId));
+  }
   if(data.action==='toggle'){
    if(typeof data.enabled!=='boolean'||!data.updatedAt)throw Error('INVALID_REQUEST');
    if(data.enabled===true&&!sandboxEnabled(env))throw Error('SANDBOX_SECRETS_NOT_CONFIGURED');
@@ -411,7 +553,7 @@ export async function onRequestPost({request,env}){
   const u=new URL(session.url);if(u.protocol!=='https:'||u.hostname!=='checkout.stripe.com')throw Error('INVALID_TEST_CHECKOUT_HOST');
   await safeStage('SHADOW_CHECKOUT_BIND_FAILED',()=>service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal'));
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
- }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_CHECKLIST_BLOCKED','STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','SHADOW_INTENT_CLEANUP_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
+ }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','RECONCILIATION_MANUAL_REVIEW_REQUIRED','RECONCILIATION_TOO_RECENT','RECONCILIATION_STALE','SHADOW_TEST_CHECKLIST_BLOCKED','STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','SHADOW_INTENT_CLEANUP_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
    const code=common.includes(e.message)?e.message:'SHADOW_TEST_ACTION_UNAVAILABLE';
    const status=code==='INVALID_SESSION'?401:code==='SETTINGS_STALE_REFRESH'?409:
      ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE', 'STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','SHADOW_INTENT_CLEANUP_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED'].includes(code)?503:403;
