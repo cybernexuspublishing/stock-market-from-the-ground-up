@@ -9,7 +9,8 @@ DO $pre$ BEGIN
   IF to_regclass('public.user_plan_grants') IS NULL
      OR to_regclass('public.site_subscriptions') IS NULL
      OR to_regclass('public.platform_plans') IS NULL
-     OR to_regclass('public.profiles') IS NULL THEN
+     OR to_regclass('public.profiles') IS NULL
+     OR to_regclass('public.admin_user_flags') IS NULL THEN
     RAISE EXCEPTION 'GU72_REQUIRED_EXISTING_TABLES_MISSING';
   END IF;
   IF NOT EXISTS(SELECT 1 FROM public.platform_plans
@@ -52,6 +53,10 @@ BEGIN
  END IF;
  IF NOT EXISTS(SELECT 1 FROM public.profiles WHERE id=p_user_id) THEN
   RAISE EXCEPTION 'GU72_MEMBER_PROFILE_MISSING';
+ END IF;
+ IF EXISTS(SELECT 1 FROM public.admin_user_flags
+           WHERE user_id=p_user_id AND status IN ('suspended','restricted')) THEN
+  RAISE EXCEPTION 'GU72_MEMBER_ACCOUNT_RESTRICTED';
  END IF;
  IF EXISTS(
   SELECT 1 FROM public.user_plan_grants g
