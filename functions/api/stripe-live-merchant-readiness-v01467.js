@@ -131,7 +131,7 @@ async function discoverLiveMapping(key,offers){
   const matches=prices.filter(p=>p?.livemode===true&&p.active===true&&isPrice(p.id)&&
    typeof p.product==='object'&&isProduct(p.product?.id)&&p.product?.active===true&&
    p.product?.livemode===true&&nameMatches(sku,p.product.name)&&
-   priceApproved(p,p.product.id,p.id,o.amount,o.interval));
+   priceApproved({...p,product:p.product.id},p.product.id,p.id,o.amount,o.interval));
   if(matches.length===1){
    const p=matches[0];
    proposals[sku]={product_id:p.product.id,price_id:p.id};
