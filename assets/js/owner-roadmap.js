@@ -106,6 +106,60 @@ function sorted(items){
   return 0;
  });
 }
+function actionBoard(){
+ if(!loaded)return;
+ const core=all.filter(x=>x.scope==='core'&&!isReference(x));
+ const steps=[
+  {key:'in_progress',label:'CURRENT WORK',hint:'Active implementation and integration'},
+  {key:'source_implemented',label:'READY FOR ACCEPTANCE',hint:'Source exists; independently verify the behavior'},
+  {key:'blocked',label:'RELEASE BLOCKERS',hint:'Provider, database, rights, security or Owner-dependent'},
+  {key:'backlog',label:'NEXT / FUTURE',hint:'Approved scope not yet active'}
+ ];
+ const groups=steps.map(step=>{
+  const rows=sorted(core.filter(item=>reviewStage(item)===step.key));
+  const top=rows.slice(0,5).map(item=>{
+   const why=evidenceOf(item)?.summary||item.nextCheck||item.detail||'Acceptance is outstanding.';
+   return '<li><button type="button" class="or-queue-link" data-open-task="'+esc(item.id)+'"><strong>'+esc(item.id)+'</strong><span>'+esc(item.title)+'</span></button><small>'+esc(String(why).slice(0,195))+'</small></li>';
+  }).join('');
+  return '<article class="or-queue-lane"><header><span>'+step.label+'</span><strong>'+rows.length+'</strong></header><p>'+esc(step.hint)+'</p><ol>'+top+'</ol><button type="button" class="or-queue-more" data-stage="'+step.key+'">Show '+rows.length+' assessed tasks</button></article>';
+ });
+ $('#or-action-grid').innerHTML=groups.join('');
+ $('#or-action-board').hidden=false;
+}
+async function deployedVersion(){
+ const v=$('#or-deploy-version'),sha=$('#or-deploy-sha');
+ if(!v)return;
+ try{
+  const response=await fetch('/release-manifest.json?owner-roadmap='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('Manifest unavailable');
+  const data=await response.json();
+  const version=String(data.version||''),commit=String(data.gitCommit||'');
+  if(!/^0[.]14[.]0[.]\\d+$/.test(version)||!/^[a-f0-9]{40}$/i.test(commit))throw new Error('Deployment SHA is not verified');
+  v.textContent='v'+version;
+  sha.textContent=' · deployment '+commit.slice(0,12)+' (release manifest only; not payment acceptance)';
+ }catch{
+  v.textContent='Cloudflare deployment evidence unavailable';
+  if(sha)sha.textContent=' — do not assume release parity.';
+ }
+}
+function openTask(id){
+ const item=find(id);if(!item)return;
+ const targetScope=isReference(item)?'reference':item.scope==='trace'?'trace':'core';
+ selectTab(targetScope);
+ $('#or-review').value='';
+ $('#or-origin').value='';
+ $('#or-area').value='';
+ $('#or-status').value='';
+ $('#or-search').value=item.id;
+ page=0;render();
+ $('#or-results').scrollIntoView({block:'start',behavior:'auto'});
+ const details=$('#or-list details');
+ if(details)details.open=true;
+}
+function clearFilters(){
+ for(const id of ['#or-search','#or-area','#or-status','#or-review','#or-origin'])$(id).value='';
+ $('#or-sort').value='priority';page=0;render();
+}
 function areas(){
  const values=[...new Set(visible().map(x=>x.area))].sort((a,b)=>a.localeCompare(b));
  const element=$('#or-area'),current=element.value;
@@ -139,6 +193,7 @@ function render(){
  $('#or-prev').disabled=page<=0;$('#or-next').disabled=page>=pages-1;
  metrics();
  if(engineering.labels)renderReviewBoard();
+ actionBoard();
 }
 async function save(item,status,note,element){
  if(busy.has(item.id))return;
@@ -169,7 +224,7 @@ function download(name,data,mime){
  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function exportData(format){
- const rows=all.map(x=>({...x,progress:state(x),statusOrigin:isDelegated(x)?'delegated_GitHub_review':'owner_Supabase_or_unreviewed'}));
+ const rows=all.map(x=>({...x,progress:state(x),statusOrigin:isDelegated(x)?'delegated_GitHub_review':hasStoredState(x)?'owner_Supabase':'unreviewed'}));
  const filename='owner-website-roadmap-'+new Date().toISOString().slice(0,10);
  if(format==='json'){download(filename+'.json',JSON.stringify({metadata,exportedAt:new Date().toISOString(),items:rows},null,2),'application/json');return}
  const cols=['id','scope','area','section','title','detail','source','evidence','engineeringStage','engineeringSummary','statusOrigin','approval','status','note','reviewedOn','updatedAt','updatedBy'];
@@ -182,6 +237,7 @@ async function reload(){
  try{
   const data=await api();
   metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
+  await deployedVersion();
   $('#or-version').textContent='Catalog '+(metadata.version||'')+' · Delegated review '+(delegation.version||'unavailable')+' · authenticated Owner edits save privately in Supabase and take precedence over delegated code approvals.';
   $('#or-app').hidden=false;$('#or-access').hidden=true;areas();render();renderReviewBoard();
  }catch(e){
@@ -200,6 +256,10 @@ function bind(){
  $('#or-export-csv').addEventListener('click',()=>exportData('csv'));
  $('#or-export-json').addEventListener('click',()=>exportData('json'));
  $('#or-refresh').addEventListener('click',reload);
+ $('#or-clear-filters').addEventListener('click',clearFilters);
+ $('#or-open-current').addEventListener('click',()=>{selectTab('core');$('#or-review').value='in_progress';page=0;render();$('#or-results').scrollIntoView({block:'start'});});
+ $('#or-action-board').addEventListener('click',e=>{const open=e.target.closest('[data-open-task]'),group=e.target.closest('[data-stage]');if(open){openTask(open.dataset.openTask);return;}if(group){selectTab('core');$('#or-review').value=group.dataset.stage;page=0;render();$('#or-results').scrollIntoView({block:'start'});}});
+ document.querySelector('.or-tab-bar').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;const tabs=[...document.querySelectorAll('.or-tab-bar button')];const i=tabs.indexOf(document.activeElement);if(i<0)return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();selectTab(tabs[next].dataset.scope);});
  $('#or-review-board').addEventListener('click',event=>{
   const target=event.target.closest('button[data-review-stage]');if(!target)return;
   selectTab('core');$('#or-review').value=target.dataset.reviewStage;page=0;render();$('#or-results').scrollIntoView({block:'start'});
@@ -242,6 +302,6 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload()}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();const hash=decodeURIComponent(location.hash.slice(1));if(/^task-(CORE-\\d{4}|EXEC-\\d{2}|PROM-\\d{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
