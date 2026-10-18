@@ -8,7 +8,7 @@
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
   "stripeProductsEntered": 8,
-  "stripePriceIdsVerified": 8,
+  "stripePriceIdsVerified": 0,
   "shadowSandboxInProductionDb": true,
   "shadowSandboxDefaultEnabled": false,
   "liveStripeFulfillmentEnabled": false,
@@ -161,6 +161,8 @@
     "noNewDatabase": true,
     "noLiveTransactions": true,
     "readOnlyExistingDbSql": "supabase/admin/v0.14.0.70_EXISTING_GU58_RPC_AND_LEDGER_CONTRACT_READ_ONLY.sql",
-    "detailedReport": "docs/v0.14.0.70-LIVE-FULFILLMENT-ACCEPTANCE.md"
+    "detailedReport": "docs/v0.14.0.70-LIVE-FULFILLMENT-ACCEPTANCE.md",
+    "automatedReleaseCertification": false,
+    "certificationSeparation": "Owner screenshot of authenticated LIVE 8/8 is external proof; repository's stripePriceIdsVerified remains 0 until provider acceptance is certified by an independent release gate."
   }
 }
