@@ -16,7 +16,7 @@ assert "GU72_QA_ALLOWED_USER_ID" in api
 assert "GU72_ZERO_MONTHLY_QA_ENABLED" in api
 assert "GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED" in api
 assert "my_platform_access_for_user" in api
-assert "member(c,user)" in api
+assert "member(request,c)" in api
 assert "line_items[0][price]" in api
 assert "payment_method_collection" not in api or "payment_method_collection=if_required is NOT supported" in api
 assert "GU58_STRIPE_LIVE_CATALOG_JSON" in api
