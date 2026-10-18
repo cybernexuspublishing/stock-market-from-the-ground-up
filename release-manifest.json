@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.66",
+  "version": "0.14.0.67",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "9b9d7dd70587d3b33d9635c41b04b3b5f616aaea",
+  "baselineGitCommit": "8ad9bec9f855bd7ba8ea7469613cb8c3a4c61ffc",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -108,5 +108,19 @@
     "liveMerchantAndEightPricesVerified": false,
     "liveActivationApproved": false,
     "source": "Owner read-only SQL CSV, not committed to public repository"
+  },
+  "ownerLiveMerchantReadiness": {
+    "version": "0.14.0.67",
+    "path": "/api/stripe-live-merchant-readiness-v01467",
+    "ownerRoleRequired": true,
+    "recentPasswordConfirmationRequired": true,
+    "readOnlyNoCharges": true,
+    "dbProject": "existing Supabase only",
+    "checks": "LIVE merchant/account, eight LIVE prices, webhook configuration",
+    "actualLiveCredentialsVerified": false,
+    "actualLiveCatalogVerified": false,
+    "signedWebhookDeliveryVerified": false,
+    "managedPaymentsProviderAcceptanceVerified": false,
+    "ownerLiveLaunchApproved": false
   }
 }

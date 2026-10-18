@@ -1,4 +1,4 @@
-/* v0.14.0.66 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.67 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.66')+' · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.67')+' · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -30,6 +30,13 @@
  const controls=element('div',undefined,'gu39-actions');
  const unified=element('button','Run Complete Payment Review — No Charge');unified.type='button';unified.classList.add('gu39-primary-readiness');
  const unifiedReport=element('section',undefined,'gu39-complete-report');unifiedReport.setAttribute('role','status');unifiedReport.setAttribute('aria-live','polite');
+ // Additional no-charge LIVE account and catalog review; separate from TEST checkout.
+ const liveAudit=element('details',undefined,'gu39-live-merchant-review');liveAudit.hidden=true;
+ const liveTitle=element('summary','LIVE Merchant & Eight-Product Readiness — No Charge');
+ const liveButton=element('button','Run LIVE Merchant Review — No Charge');liveButton.type='button';
+ const liveInfo=element('p','Uses existing encrypted Cloudflare credentials to read LIVE Stripe account, eight prices and webhook details. Does not open checkout, charge, or change TEST/LIVE mode.','gu39-small');
+ const liveResults=element('section',undefined,'gu39-complete-report');liveResults.setAttribute('role','status');liveResults.setAttribute('aria-live','polite');
+ liveAudit.append(liveTitle,liveInfo,liveButton,liveResults);
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
@@ -59,7 +66,7 @@
  const advancedTitle=element('summary','Advanced diagnostics (individual checks)');
  const advancedRow=element('div',undefined,'gu39-advanced-actions');
  advancedRow.append(refresh,verify,preflight,audit);advanced.append(advancedTitle,advancedRow);
- root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,unifiedReport,advanced,preflightReport,catalog,auditReport,message,explain);
+ root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,unifiedReport,liveAudit,advanced,preflightReport,catalog,auditReport,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -96,6 +103,7 @@
      ?'LIVE SELECTED · The independent launch gate is open. Each provider still requires its separate approved checkout configuration.'
      :'LIVE SELECTED · Real customer checkout is NOT approved. Switching TESTING off does not authorize real charges.';
   begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
+  liveAudit.hidden=data.role!=='OWNER';liveButton.disabled=data.role!=='OWNER';
   message.textContent='All displayed purchases remain sandbox-only; actual Stripe processing and entitlement safety require acceptance testing.';
  }
  async function getState(){refresh.disabled=true;message.textContent='Checking authorized sandbox status…';try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Sandbox unavailable.');show(data)}catch(e){toggle.disabled=begin.disabled=true;message.textContent=e.message||'Unable to access payment testing controls.'}finally{refresh.disabled=false}}
@@ -276,7 +284,7 @@
    unifiedReport.append(accepted);
    const live=report.production||{};
    unifiedReport.append(element('p',
-    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.66')+'): '+
+    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.67')+'): '+
     (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
       'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
     ' LIVE database installation and exact stored SQL require independent verification against Owner-provided Supabase evidence; a TEST shadow grant is not real member access.'));
@@ -293,6 +301,37 @@
   finally{unified.disabled=false;if(state)show(state)}
  }
  unified.addEventListener('click',runCompletePaymentReview);
+ async function runLiveMerchantReview(){
+  liveButton.disabled=true;
+  liveResults.replaceChildren(element('p','Verifying LIVE merchant, 8 product prices and webhook settings using read-only requests. No charge.'));
+  try{
+   const jwt=await auth();
+   const read=async()=>{const r=await fetch('/api/stripe-live-merchant-readiness-v01467',{headers:{authorization:'Bearer '+jwt},cache:'no-store'});return {r,j:await r.json().catch(()=>null)}};
+   let {r,j}=await read();
+   if(!r.ok&&j?.error==='PASSWORD_RECONFIRM_REQUIRED'){
+    const step=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof step!=='function')throw Error('Confirm your Owner password in Admin Security first.');
+    await step();({r,j}=await read());
+   }
+   if(!r.ok||j?.ok!==true)throw Error(j?.error==='OWNER_ONLY'?'Owner access required.':
+    j?.error==='PASSWORD_RECONFIRM_REQUIRED'?'Owner password confirmation required.':
+    'Cloudflare/Supabase LIVE readiness unavailable; review Owner login and server settings.');
+   liveResults.replaceChildren();
+   liveResults.append(element('h3','LIVE merchant review — '+j.verifiedLivePrices+' / 8 LIVE prices verified (NO CHARGE)'));
+   liveResults.append(element('p','Payment mode: '+j.mode+'. LIVE billing NOT APPROVED; this does not validate signed provider delivery or real member entitlements.'));
+   const table=element('table'),thead=element('thead'),tr=element('tr');
+   for(const col of ['Category','Check','Status','Evidence'])tr.append(element('th',col));
+   thead.append(tr);const body=element('tbody');
+   for(const row of (Array.isArray(j.rows)?j.rows:[])){
+    const line=element('tr');for(const v of [row.group,row.check,row.status,row.detail])line.append(element('td',String(v??'')));
+    body.append(line);
+   }
+   table.append(thead,body);liveResults.append(table);
+   liveResults.append(element('p','The Owner must separately authorize LIVE checkout after actual provider acceptance. This report never activates charges.'));
+  }catch(e){liveResults.replaceChildren(element('p','LIVE merchant review unavailable: '+(e.message||'Unknown error')+'. No payment attempted.'))}
+  finally{liveButton.disabled=state?.role!=='OWNER'}
+ }
+ liveButton.addEventListener('click',runLiveMerchantReview);
 
  preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
@@ -384,7 +423,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.66',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.67',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
