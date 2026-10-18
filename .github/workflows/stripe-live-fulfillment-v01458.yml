@@ -12,8 +12,10 @@ on:
       - 'tests/test_v014067_*'
       - 'tests/test_v014068_*'
       - 'tests/test_v014069_*'
+      - 'tests/test_v014070_*'
       - 'assets/js/checkout-platform.js'
       - 'supabase/admin/v0.14.0.59*'
+      - 'supabase/admin/v0.14.0.70*'
       - '.github/workflows/stripe-live-fulfillment-v01458.yml'
   pull_request:
   workflow_dispatch:
@@ -41,6 +43,7 @@ jobs:
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
           python tests/test_v014059_catalog_contract.py
+          python tests/test_v014070_fulfillment_contract.py
       - name: Mock signed LIVE payment and subscription lifecycle — no real Stripe calls
         run: node tests/test_v014058_live_fulfillment.mjs
       - name: Verify production checkout wiring cannot bypass TEST/LIVE, webhook or product gates

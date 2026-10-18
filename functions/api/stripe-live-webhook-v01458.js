@@ -28,11 +28,26 @@ async function apply(c,x){const r=await fetch(c.base+'/rest/v1/rpc/gu58_live_str
  if(!r.ok)throw Error('supabase:'+r.status+':'+(await r.text()).slice(0,140));return await r.json();}
 const ident=(x,p)=>new RegExp('^'+p+'_[A-Za-z0-9_]{4,150}$').test(v(x));
 const iso=unix=>new Date(unix*1000).toISOString();
+// This Stripe account can also accept independently fulfilled signed physical
+// books. A signed event is not automatically a GU58 membership transaction.
+// The creator of GU58 checkout persists intent metadata on the Session and
+// Subscription. Ignore entirely unrelated objects; reject partial markers.
+const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(x||''));
+function tagged(meta,session=false){
+ const m=meta&&typeof meta==='object'?meta:{};
+ const i=Object.prototype.hasOwnProperty.call(m,'gu58_intent');
+ const u=Object.prototype.hasOwnProperty.call(m,'gu58_member');
+ if(!i&&!u)return false;
+ if(!i||!uuid(m.gu58_intent)||(session&&(!u||!uuid(m.gu58_member)))||
+    (u&&!uuid(m.gu58_member)))throw Error('gu58:invalid_provider_metadata');
+ return true;
+}
 const actionBase=e=>({p_cancel_at_period_end:false,p_event_id:e.id,p_session_id:null,p_subscription_id:null,p_payment_intent_id:null,p_price_id:null,p_amount_cents:null,p_currency:'usd',p_period_end:null,p_stripe_created:iso(e.created),p_invoice_id:null});
 async function invoice(c,sub){const id=typeof sub.latest_invoice==='string'?sub.latest_invoice:sub.latest_invoice?.id;if(!ident(id,'in'))return null;
  return getStripe(c,'invoices/'+encodeURIComponent(id));}
 async function subscription(c,id){const sub=await getStripe(c,'subscriptions/'+encodeURIComponent(id));
  if(sub.id!==id||sub.livemode!==true)throw Error('subscription:environment');
+ if(!tagged(sub.metadata))return null; // foreign subscription, not a GU58 fulfillment
  const item=sub.items?.data?.[0];if(sub.items?.data?.length!==1||!ident(item?.price?.id,'price'))throw Error('subscription:price');
  const end=item.current_period_end||sub.current_period_end;
  if(!Number.isSafeInteger(end))throw Error('subscription:period');
@@ -85,6 +100,7 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
   if(!ident(obj.id,'cs_live'))throw Error('invalid session');
   const s=await getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id));
   if(s.id!==obj.id||s.livemode!==true)throw Error('session:environment');
+  if(!tagged(s.metadata,true))return null; // signed physical book or unrelated checkout
   const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2');
   if(lines.data?.length!==1)throw Error('session:line_count');
   const line=lines.data[0];if(!ident(line.price?.id,'price')||line.quantity!==1)throw Error('session:line');await verifyBoundSession(c,s,line);
@@ -96,7 +112,9 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
     x.p_action='lifetime_paid';return x;
   }
   if(s.mode==='subscription'&&ident(s.subscription,'sub')){
-    const ss=await subscription(c,s.subscription);x.p_subscription_id=s.subscription;x.p_period_end=ss.end;x.p_price_id=ss.price;
+    const ss=await subscription(c,s.subscription);
+    if(!ss)throw Error('gu58:session_subscription_missing_marker');
+    x.p_subscription_id=s.subscription;x.p_period_end=ss.end;x.p_price_id=ss.price;
     x.p_amount_cents=ss.latest?.amount_paid??null;x.p_invoice_id=ss.latest?.id||null;
     x.p_cancel_at_period_end=ss.sub.cancel_at_period_end===true; x.p_action=ss.sub.status==='active'&&ss.latest?.status==='paid'?'subscription_active':'subscription_past_due';
     return x;
@@ -110,7 +128,8 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
     id=typeof iv.subscription==='string'?iv.subscription:iv.parent?.subscription_details?.subscription;
   }else id=obj.id;
   if(!ident(id,'sub'))return null;
-  const ss=await subscription(c,id);x.p_subscription_id=id;x.p_price_id=ss.price;x.p_period_end=ss.end;
+  const ss=await subscription(c,id);if(!ss)return null;
+  x.p_subscription_id=id;x.p_price_id=ss.price;x.p_period_end=ss.end;
   x.p_amount_cents=ss.latest?.amount_paid??null;x.p_invoice_id=ss.latest?.id||null;
   x.p_cancel_at_period_end=ss.sub.cancel_at_period_end===true;
   // Event-type semantics are authoritative for invoice failures. Never turn a
@@ -149,7 +168,7 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
     const sid=typeof iv.subscription==='string'?iv.subscription:iv.parent?.subscription_details?.subscription;
     if(ident(sid,'sub')){
       const ss=await subscription(c,sid);
-      if(ss.latest?.id!==invoiceId)return null;
+      if(!ss||ss.latest?.id!==invoiceId)return null;
       x.p_session_id=null;x.p_subscription_id=sid;x.p_price_id=ss.price;
       x.p_invoice_id=invoiceId;x.p_period_end=ss.end;x.p_currency=charge.currency;
       x.p_action=e.type==='charge.refunded'?'subscription_refunded':'subscription_disputed';return x;
@@ -157,6 +176,7 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
   }
   const sessions=await getStripe(c,'checkout/sessions?payment_intent='+encodeURIComponent(pi.id)+'&limit=2');
   const session=sessions.data?.[0];if(!session||sessions.data?.length!==1||!ident(session.id,'cs_live'))return null;
+  if(!tagged(session.metadata,true))return null;
   const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(session.id)+'/line_items?limit=2');
   if(lines.data?.length!==1)return null;
   x.p_session_id=session.id;x.p_price_id=lines.data[0].price?.id;x.p_currency=charge.currency;
