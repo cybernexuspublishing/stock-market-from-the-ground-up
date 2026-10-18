@@ -204,7 +204,20 @@ async function save(item,status,note,element){
   render();
   if(!changed.auditLogged)announce('Saved, but the audit logging service did not confirm this action. Review administrative logs.',true);
   else announce('Saved: '+item.id);
- }catch(e){if(e.message!=='AUTH_REDIRECT'){announce(e.message,true);render();}}
+ }catch(e){
+  if(e.message!=='AUTH_REDIRECT'){
+    announce(e.message,true);
+    // Preserve an unsaved evidence note on failure (especially HTTP 409).
+    // Revert only the controls whose optimistic display may have changed.
+    const panel=document.querySelector('.or-task[data-id="'+item.id+'"]');
+    if(panel){
+      const check=panel.querySelector('input[data-check]');
+      const stage=panel.querySelector('select[data-status]');
+      if(check)check.checked=complete.has(statusOf(item));
+      if(stage)stage.value=statusOf(item);
+    }
+  }
+ }
  finally{busy.delete(item.id);if(element?.isConnected)element.disabled=false}
 }
 function announce(text,error=false){
@@ -270,7 +283,15 @@ function bind(){
   const p=state(item),container=target.closest('.or-task');
   const note=container?.querySelector('textarea[data-note]')?.value??p.note??'';
   if(target.dataset.check){await save(item,target.checked?'owner_complete':'not_started',note,target)}
-  else if(target.dataset.status){await save(item,target.value,note,target)}
+  else if(target.dataset.status){
+   if(target.value==='verified'&&note.trim().length<20){
+    const details=container?.querySelector('details'),noteBox=container?.querySelector('textarea[data-note]');
+    if(details)details.open=true;
+    announce('Evidence verified requires an acceptance note (20+ characters). Enter evidence and select Save note & status.',true);
+    noteBox?.focus();return;
+   }
+   await save(item,target.value,note,target);
+  }
  });
  $('#or-list').addEventListener('click',async e=>{
   const target=e.target.closest('button');if(!target)return;
@@ -302,6 +323,6 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();const hash=decodeURIComponent(location.hash.slice(1));if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
