@@ -202,6 +202,7 @@ async function handlePost(request,c,user){
   const key=KEY+(id.startsWith('OWN-')?'custom.':'task.')+id;
   const prior=await record(c,key);
   if(id.startsWith('OWN-')&&!prior?.value?.custom)throw fail('Custom task does not exist.',404);
+  if(prior?.value?.archived===true)throw fail('Archived custom tasks cannot be changed.',404);
   const clientRevision=body.expectedRevision??null;
   if(clientRevision!==recordRevision(prior))throw fail('This task was changed elsewhere. Refresh to load the latest Owner status.',409);
   if(action==='archive'&&id.startsWith('OWN-')){
@@ -215,6 +216,7 @@ async function handlePost(request,c,user){
   if(!STATUS.has(status))throw fail('Choose a valid tracking status.',400);
   const note=clean(body.note||'');
   if(note.length>2400)throw fail('Progress note may not exceed 2,400 characters.',400);
+  if(status==='verified'&&note.length<20)throw fail('Evidence-verified status requires at least 20 characters of recorded acceptance evidence.',400);
   const value={...(prior?.value||{}),status,note};
   const saved=await write(c,user,key,value,prior);
   const logged=await audit(c,user,'owner_roadmap.update',id,status);
