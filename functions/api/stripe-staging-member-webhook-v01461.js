@@ -52,7 +52,7 @@ async function subscription(c,id){const sub=await getStripe(c,'subscriptions/'+e
  return {sub,price:item.price.id,end:iso(end),latest:await invoice(c,sub)};
 }
 async function verifyBoundSession(c,s,line){
- if(s.livemode!==false||!ident(s.id,'cs_live')||s.currency!=='usd'||
+ if(s.livemode!==false||!ident(s.id,'cs_test')||s.currency!=='usd'||
     !/^\d{1,6}$/.test(String(line?.quantity||''))||line.quantity!==1||
     !ident(line?.price?.id,'price'))throw Error('session:provider_mismatch');
  const reference=s.client_reference_id,meta=s.metadata||{};
@@ -95,7 +95,7 @@ async function verifyBoundSession(c,s,line){
 }
 async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=actionBase(e);
  if(e.type==='checkout.session.completed'||e.type==='checkout.session.async_payment_succeeded'){
-  if(!ident(obj.id,'cs_live'))throw Error('invalid session');
+  if(!ident(obj.id,'cs_test'))throw Error('invalid session');
   const s=await getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id));
   if(s.id!==obj.id||s.livemode!==false)throw Error('session:environment');
   const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2');
@@ -169,7 +169,7 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
     }
   }
   const sessions=await getStripe(c,'checkout/sessions?payment_intent='+encodeURIComponent(pi.id)+'&limit=2');
-  const session=sessions.data?.[0];if(!session||sessions.data?.length!==1||!ident(session.id,'cs_live'))return null;
+  const session=sessions.data?.[0];if(!session||sessions.data?.length!==1||!ident(session.id,'cs_test'))return null;
   const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(session.id)+'/line_items?limit=2');
   if(lines.data?.length!==1)return null;
   x.p_session_id=session.id;x.p_price_id=lines.data[0].price?.id;x.p_currency=charge.currency;
