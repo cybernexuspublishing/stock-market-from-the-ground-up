@@ -26,7 +26,7 @@ const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock',SUPABASE_PUBLI
  GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_expectedmock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
 const state={mode:false,validPrice:true,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
- intentId:intent,paid:true};
+ intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false};
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 const liveSession={id:'cs_live_mock123456',livemode:true,status:'complete',payment_status:'paid',
  url:'https://checkout.stripe.com/c/pay/cs_live_mock123456',mode:'subscription',currency:'usd',
@@ -80,13 +80,21 @@ globalThis.fetch=async(url,o={})=>{
   price:{id:mapped['plan:FULL_MONTHLY'].price_id},quantity:1}]});
  if(u.endsWith('/v1/subscriptions/'+providerSub.id))return respond(providerSub);
  if(u.endsWith('/v1/invoices/in_live123456789'))return respond({id:'in_live123456789',
-  status:'paid',subscription:providerSub.id,amount_paid:6999});
+  status:state.invoiceStatus,subscription:providerSub.id,amount_paid:state.invoiceStatus==='paid'?6999:0});
  if(u.includes('/rpc/gu58_live_stripe_apply_event')){
   const b=JSON.parse(o.body);
-  assert.equal(b.p_session_id,liveSession.id);assert.equal(b.p_action,'subscription_active');
+  assert.equal(b.p_action,state.expectedAction);
   assert.equal(b.p_price_id,mapped['plan:FULL_MONTHLY'].price_id);
-  assert.equal(b.p_cancel_at_period_end,false);state.dbWrites++;return respond({ok:true});
+  assert.equal(b.p_cancel_at_period_end,state.expectedCancel);
+  if(state.expectedAction==='subscription_active'&&b.p_session_id)
+   assert.equal(b.p_session_id,liveSession.id);
+  state.dbWrites++;return respond({ok:true});
  }
+ if(u.endsWith('/v1/charges/ch_live123456789'))return respond({id:'ch_live123456789',
+   livemode:true,currency:'usd',amount:6999,amount_refunded:6999,
+   invoice:'in_live123456789',payment_intent:'pi_live123456789'});
+ if(u.endsWith('/v1/payment_intents/pi_live123456789'))
+  return respond({id:'pi_live123456789',livemode:true});
  throw Error('Unexpected '+method+' '+u);
 };
 async function pay(overrides={}){
@@ -129,5 +137,32 @@ try{
  assert.equal(state.dbWrites,2);
  r=await send();assert.equal(r.status,200,await r.clone().text());
  assert.equal(state.dbWrites,3);
+ // Signed cancel-at-period-end preserves paid access until period end.
+ providerSub.cancel_at_period_end=true;state.expectedCancel=true;
+ let ev={...event,id:'evt_liveupdated123',type:'customer.subscription.updated',
+   data:{object:{id:providerSub.id}}};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ // Failed newest invoice must not be misclassified as paid.
+ state.invoiceStatus='open';state.expectedAction='subscription_past_due';
+ providerSub.status='past_due';state.expectedCancel=false;providerSub.cancel_at_period_end=false;
+ ev={...event,id:'evt_livefailure123',type:'invoice.payment_failed',
+   data:{object:{id:'in_live123456789'}}};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ // Cancellation from provider is a different lifecycle action than scheduled cancel.
+ providerSub.status='canceled';state.expectedAction='subscription_canceled';
+ ev={...event,id:'evt_livecancel123',type:'customer.subscription.deleted',
+   data:{object:{id:providerSub.id}}};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ // Full refund/dispute operate on verified charge and current invoice only.
+ providerSub.status='active';state.invoiceStatus='paid';
+ state.expectedAction='subscription_refunded';
+ ev={...event,id:'evt_liverefund123',type:'charge.refunded',
+   data:{object:{id:'ch_live123456789'}}};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ state.expectedAction='subscription_disputed';
+ ev={...event,id:'evt_livedispute123',type:'charge.dispute.created',
+   data:{object:{id:'dp_live123456789',charge:'ch_live123456789'}}};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ assert.equal(state.dbWrites,8);
  console.log('PASS v58: independent launch gates, mode exclusion, live catalog/account binding, real member checkout intent, signed LIVE webhook and service-only RPC.');
 }finally{globalThis.fetch=prior;crypto.randomUUID=priorUUID}
