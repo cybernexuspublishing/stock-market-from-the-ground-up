@@ -1,4 +1,4 @@
-/* v0.14.0.53 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.54 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v0.14.0.53 · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v0.14.0.54 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','TEST MODE ONLY · Real customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -36,9 +36,12 @@
  const toggle=element('button','Enable Testing');toggle.type='button';toggle.disabled=true;
  const label=element('label','Choose a test product');label.htmlFor='gu39-sku';
  const sel=element('select');sel.id='gu39-sku';for(const [value,name] of Object.entries(SKUS)){const opt=element('option',name);opt.value=value;sel.append(opt)}
+ const audit=element('button','Audit Checkout — No Payment');audit.type='button';
+ const auditReport=element('div',undefined,'gu39-checkout-audit');auditReport.setAttribute('role','status');auditReport.setAttribute('aria-live','polite');
+ let auditApprovedForSku=null;
  const begin=element('button','Open Stripe Test Checkout');begin.type='button';begin.disabled=true;
  const explain=element('p','Only the Owner can change testing settings. A recent password confirmation is required. Test data is stored separately from real entitlements. No refunds or recurring memberships are modified outside this test area.','gu39-small');
- controls.append(refresh,verify,preflight,toggle,label,sel,begin);root.append(title,deployedVersion,lead,banner,help,summary,controls,preflightReport,catalog,message,explain);
+ controls.append(refresh,verify,preflight,toggle,label,sel,audit,begin);root.append(title,deployedVersion,lead,banner,help,summary,controls,preflightReport,catalog,auditReport,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -62,7 +65,7 @@
  function show(data){state=data;summary.replaceChildren();const rows=[['Owner Test Mode',data.enabled?'Enabled':'Disabled'],['Cloudflare Sandbox Gate',data.cloudflareGate?'Configured':'Not configured'],['Stripe Test Price IDs (configured, not verified)',String(data.priceIdsConfigured??0)+' / 8'],['Test Checkout Records',String(data.intentCount??0)],['Processed Sandbox Events',String(data.processedEventCount??0)],['Shadow Access Records',String(data.shadowAccessCount??0)],['Real Customer Payments','DISABLED']];
   for(const [k,v] of rows){summary.append(element('dt',k),element('dd',v))}
   toggle.textContent=data.enabled?'Disable Testing':'Enable Testing';toggle.disabled=data.role!=='OWNER'||(!data.enabled&&!data.cloudflareGate);
-  begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady;
+  begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
   message.textContent='All displayed purchases remain sandbox-only; actual Stripe processing and entitlement safety require acceptance testing.';
  }
  async function getState(){refresh.disabled=true;message.textContent='Checking authorized sandbox status…';try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Sandbox unavailable.');show(data)}catch(e){toggle.disabled=begin.disabled=true;message.textContent=e.message||'Unable to access payment testing controls.'}finally{refresh.disabled=false}}
@@ -78,7 +81,7 @@
    for(const c of ['Product','Expected Price','Product','Price','Result'])htr.append(element('th',c));head.append(htr);table.append(head);
    const body=element('tbody');for(const x of data.rows){const tr=element('tr');tr.append(element('td',x.productName||x.sku),element('td','$'+(x.amountCents/100).toFixed(2)+' / '+x.interval),element('td',x.productVerified?'Verified':'Not verified'),element('td',x.priceVerified?'Verified':'Not verified'),element('td',x.reason||x.status));body.append(tr)}
    table.append(body);catalog.append(table);
-  }catch(e){catalogReady=false;if(state)show(state);catalog.replaceChildren();catalog.append(element('p','Catalog verification could not complete: '+(e.message||'Unknown error.')))}finally{verify.disabled=false}
+  }catch(e){catalogReady=false;auditApprovedForSku=null;if(state)show(state);catalog.replaceChildren();catalog.append(element('p','Catalog verification could not complete: '+(e.message||'Unknown error.')))}finally{verify.disabled=false}
  }
  async function runPreflight(){
   preflight.disabled=true;preflightReport.replaceChildren(element('p','Checking TEST account, secure bindings, Supabase controls and Stripe webhook event subscriptions…'));
@@ -102,6 +105,53 @@
   }catch(e){preflightReport.replaceChildren(element('p','Payment preflight failed: '+(e.message||'Unknown error')))}
   finally{preflight.disabled=false}
  }
+ async function auditCheckout(){
+  audit.disabled=true;auditApprovedForSku=null;
+  if(state)show(state);
+  auditReport.replaceChildren(element('p','Checking Owner step-up, existing Stripe catalog, full TEST gates, and isolated Supabase permissions. No payment is created.'));
+  try{
+   const jwt=await auth();
+   const safetyUrl='/api/gu39-sandbox?view=checkout-safety&sku='+encodeURIComponent(sel.value);
+   const inspect=async()=>{
+    const response=await fetch(safetyUrl,{headers:{authorization:'Bearer '+jwt},cache:'no-store'});
+    const report=await response.json().catch(()=>null);
+    if(!response.ok||report?.ok!==true)throw Error(errorMessage(report?.error,response.status));
+    return report;
+   };
+   let report=await inspect();
+   // Opening a non-payment audit should also offer the existing Owner
+   // password/Turnstile control when recent step-up has expired. No Stripe
+   // session is created, and only one automatic read-only recheck is allowed.
+   if(report.checks?.some(x=>x.name==='Recent Owner password confirmation'&&x.status==='BLOCKED')){
+    const confirmPassword=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof confirmPassword==='function'){
+     await confirmPassword();
+     report=await inspect();
+    }
+   }
+   auditReport.replaceChildren(element('h3','Pre-payment safety audit: '+report.passed+' / '+report.total+' checks passed'));
+   const table=element('table'),caption=element('caption','Read-only checkout safety requirements');
+   const head=element('thead'),htr=element('tr');
+   for(const name of ['Requirement','Result','Evidence'])htr.append(element('th',name));
+   head.append(htr);table.append(caption,head);
+   const tbody=element('tbody');
+   for(const item of report.checks){
+    const row=element('tr');
+    for(const value of [item.name,item.status,item.detail])row.append(element('td',value));
+    tbody.append(row);
+   }
+   table.append(tbody);auditReport.append(table);
+   if(report.safeToAttemptTest===true&&report.sku===sel.value){
+    auditApprovedForSku=report.sku;
+    auditReport.append(element('p','All source-side guards passed. Stripe Managed Payments account eligibility and signed provider delivery remain unverified until an explicitly approved TEST transaction; none has been created.'));
+   }else{
+    auditReport.append(element('p','BLOCKED. Do not attempt Stripe TEST checkout until every safety check passes.'));
+   }
+  }catch(e){auditReport.replaceChildren(element('p','Checkout safety audit unavailable: '+(e?.message||'Unknown error')))}
+  finally{audit.disabled=false;if(state)show(state)}
+ }
+ sel.addEventListener('change',()=>{auditApprovedForSku=null;if(state)show(state);auditReport.replaceChildren(element('p','The selected product changed. Rerun the read-only safety audit.'));});
+ audit.addEventListener('click',auditCheckout);
  preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
  const actionError=code=>{
@@ -116,7 +166,22 @@
    SANDBOX_SECRETS_NOT_CONFIGURED:'The Cloudflare sandbox gate or TEST secrets are not configured.',
    SAME_ORIGIN_REQUIRED:'Open the site using its Production hostname before testing.',
    INVALID_SESSION:'Your sign-in session expired. Sign in again.',
-   PASSWORD_CONFIRM_DIALOG_UNAVAILABLE:'Password confirmation is still loading or unavailable. Refresh this page and try again.'
+   PASSWORD_CONFIRM_DIALOG_UNAVAILABLE:'Password confirmation is still loading or unavailable. Refresh this page and try again.',
+   SHADOW_TEST_CHECKLIST_BLOCKED:'Full read-only checkout audit not passing. Do not attempt a payment.',
+   STRIPE_ACCOUNT_LOOKUP_FAILED:'Stripe TEST account lookup failed during checkout.',
+   SHADOW_STATUS_READ_FAILED:'Supabase could not read the current Owner testing state.',
+   STRIPE_PRICE_LOOKUP_FAILED:'Stripe TEST price lookup failed.',
+   SHADOW_INTENT_READ_FAILED:'Supabase rejected the server-only test intent read.',
+   SHADOW_INTENT_CREATE_FAILED:'Supabase rejected the test-only intent INSERT. Check service-role permissions and constraints.',
+   SHADOW_INTENT_CLEANUP_FAILED:'Stripe rejected the test checkout, but Supabase could not safely mark its prepared intent failed. Reconcile the isolated ledger before retrying.',
+   STRIPE_CHECKOUT_NETWORK_UNAVAILABLE:'Stripe Checkout network/service unreachable; no test session confirmed.',
+   STRIPE_CHECKOUT_API_AUTH_REJECTED:'Stripe TEST key is unauthorized to create Checkout sessions.',
+   STRIPE_CHECKOUT_PROVIDER_RETRY:'Stripe temporarily rejected the Checkout request or rate-limited it.',
+   STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE:'Stripe Managed Payments preview parameter or access was rejected. Check provider eligibility, terms and account/API version; preserve existing products.',
+   STRIPE_TEST_PRICE_NOT_FOUND:'Stripe Checkout rejected this TEST price ID.',
+   STRIPE_CHECKOUT_PROVIDER_REJECTED:'Stripe rejected Managed Payments checkout creation. Inspect Stripe TEST Developers → Logs for the error code; do not recreate products.',
+   SHADOW_CHECKOUT_BIND_FAILED:'A Stripe TEST session may exist but the test intent could not be bound. Avoid another payment until the isolated intent/Stripe TEST logs are reconciled.',
+   SHADOW_TEST_ACTION_UNAVAILABLE:'Unclassified checkout failure. Do not retry; inspect Functions logs and the read-only checkout audit.'
   };
   return reasons[String(code||'')]||String(code||'Testing action was not authorized.');
  };
@@ -151,20 +216,20 @@
   }finally{
    if(state){
     toggle.disabled=state.role!=='OWNER'||(!state.enabled&&!state.cloudflareGate);
-    begin.disabled=state.role!=='OWNER'||!state.enabled||!state.cloudflareGate||state.priceIdsConfigured!==8||!catalogReady;
+    begin.disabled=state.role!=='OWNER'||!state.enabled||!state.cloudflareGate||state.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
    }
   }
  }
  refresh.addEventListener('click',getState);
  toggle.addEventListener('click',async()=>{if(!state)return;const next=!state.enabled;if(next&&!confirm('Enable SHADOW sandbox tests? No real member access will change.'))return;
   const result=await perform({action:'toggle',enabled:next,updatedAt:state.updatedAt});if(result)await getState()});
- begin.addEventListener('click',async()=>{const sku=sel.value;if(!Object.hasOwn(SKUS,sku))return;if(!confirm('Start a STRIPE TEST purchase? Use Stripe test card details only. No real billing.'))return;
+ begin.addEventListener('click',async()=>{if(auditApprovedForSku!==sel.value){message.textContent='Complete Audit Checkout — No Payment before continuing.';return;}const sku=sel.value;if(!Object.hasOwn(SKUS,sku))return;if(!confirm('Start a STRIPE TEST purchase? Use Stripe test card details only. No real billing.'))return;
   const result=await perform({action:'checkout',sku});if(!result)return;
   let destination;try{destination=new URL(result.url);if(destination.protocol!=='https:'||destination.hostname!=='checkout.stripe.com')throw Error('Unsafe destination.')}catch{message.textContent='Stripe checkout URL verification failed.';return}
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.53',refresh:getState,verifyCatalog,runPreflight});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.54',refresh:getState,verifyCatalog,runPreflight,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());

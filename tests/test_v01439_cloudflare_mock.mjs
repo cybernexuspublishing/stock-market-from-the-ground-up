@@ -15,6 +15,12 @@ globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';
  if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return result({ok:true,role:'OWNER'});
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return result(true);
  if(u.endsWith('/v1/account'))return result({id:'acct_1URGkDJY9FI7byHB'});
+ if(u.endsWith('/v1/webhook_endpoints?limit=100'))return result({data:[{
+  id:'we_mock123',url:'https://example.com/api/gu39-stripe-webhook',livemode:false,status:'enabled',
+  enabled_events:['checkout.session.completed','checkout.session.async_payment_succeeded','invoice.paid','invoice.payment_failed',
+   'customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created']
+ }],has_more:false});
+ if(u.endsWith('/v1/products/prod_VRvuGwLKI16MXU'))return result({id:'prod_VRvuGwLKI16MXU',active:true,livemode:false});
  if(u.endsWith('/rpc/gu39_sandbox_owner_read'))return result({ok:true,role:'OWNER',enabled,updatedAt:'2026-10-16T12:00:00Z',intentCount:0,processedEventCount:0,shadowAccessCount:0});
  if(u.endsWith('/rpc/gu39_sandbox_owner_toggle')){enabled=JSON.parse(opts.body).p_enabled;return result({ok:true,enabled,updatedAt:'2026-10-16T12:01:00Z'});}
  if(u.includes('gu39_sandbox_intents?select=id'))return result([]);
