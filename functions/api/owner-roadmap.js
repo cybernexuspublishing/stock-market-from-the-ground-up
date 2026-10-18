@@ -1,4 +1,4 @@
-/* Private Owner Website Roadmap API v0.14.0.61.
+/* Private Owner Website Roadmap API v0.14.0.63.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
@@ -7,7 +7,7 @@ import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
 import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMeta} from '../_lib/owner-roadmap-20261018-additions.js';
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
-import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014061.js';
+import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
