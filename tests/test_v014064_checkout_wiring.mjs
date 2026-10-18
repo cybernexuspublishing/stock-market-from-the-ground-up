@@ -60,7 +60,7 @@ try{
   [{GU_PAYMENT_LIVE_LAUNCH_APPROVED:'false'},'Owner LIVE approval OFF'],
   [{GU58_LIVE_CHECKOUT_ENABLED:'false'},'checkout OFF'],
   [{GU58_STRIPE_LIVE_SECRET_KEY:'sk_test_invalid'},'reject TEST key'],
-  [{GU58_LIVE_CATALOG_JSON:'{}'},'reject incomplete eight-product map']
+  [{GU58_STRIPE_LIVE_CATALOG_JSON:'{}'},'reject incomplete eight-product map']
  ];
  for(const [e,label] of bad){r=await get(e);assert.equal(r.liveCheckoutAvailable,false,label)}
  state.testing=true;r=await get();assert.equal(r.liveCheckoutAvailable,false,'Owner TESTING blocks LIVE');state.testing=false;
