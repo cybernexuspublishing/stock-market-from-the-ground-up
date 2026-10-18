@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.70",
+  "version": "0.14.0.71",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "88b72da469973c1f89db6a4c770b0de4c39ece41",
+  "baselineGitCommit": "3b03ecf9f4054e3f41fa5bd6eadf2a4e33bafa1c",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -164,5 +164,28 @@
     "detailedReport": "docs/v0.14.0.70-LIVE-FULFILLMENT-ACCEPTANCE.md",
     "automatedReleaseCertification": false,
     "certificationSeparation": "Owner screenshot of authenticated LIVE 8/8 is external proof; repository's stripePriceIdsVerified remains 0 until provider acceptance is certified by an independent release gate."
+  },
+  "stripeZeroLiveOwnerQA": {
+    "version": "0.14.0.71",
+    "api": "/api/owner-zero-live-checkout",
+    "ownerOnly": true,
+    "stepupRequired": true,
+    "enabledByDefault": false,
+    "requiresSeparateLiveProduct": true,
+    "oneTimeZeroUsdOnly": true,
+    "cardCharged": false,
+    "subscriptionCreated": false,
+    "gu58MembershipGrant": false,
+    "managedPaymentsAcceptance": false,
+    "realLiveCheckoutPerformed": false,
+    "signedEventLiveConfirmed": false,
+    "livePaidCheckoutApproved": false,
+    "document": "docs/v0.14.0.71-OWNER-ZERO-LIVE-CHECKOUT.md",
+    "existingSupabaseContractReport": {
+      "rows": 19,
+      "aclAndRlsPass": true,
+      "functionSourceEqualityNotProven": true,
+      "liveSignedWebhookNotTested": true
+    }
   }
 }
