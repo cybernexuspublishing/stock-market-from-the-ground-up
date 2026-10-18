@@ -46,17 +46,21 @@ async function fire(obj=event, environment=env, invalid=false){
  {method:'POST',body:raw,headers:{'stripe-signature':'t='+stamp+',v1='+(invalid?'0'.repeat(64):sig)}})});
 }
 try{
+ // Stripe's actual October 18 LIVE $0.00 Checkout reported payment_status='paid',
+ // not 'no_payment_required'. Both are safe only with zero totals, no intent and no subscription.
  let r=await fire();assert.equal(r.status,200);
  assert.equal(await r.text(),'qa-monthly-signed-grant-verified');assert.equal(state.grants,1);
- r=await fire(event,env,true);assert.equal(r.status,401);assert.equal(state.grants,1);
- state.amount=1;r=await fire();assert.equal(r.status,503);assert.equal(state.grants,1);
- state.amount=0;state.payment='unpaid';r=await fire();assert.equal(r.status,503);assert.equal(state.grants,1);
- state.payment='no_payment_required';state.price='price_paid1234';r=await fire();
- assert.equal(r.status,503);assert.equal(state.grants,1);
+ state.payment='paid';r=await fire();assert.equal(r.status,200,'Valid real Stripe zero-dollar paid session must activate');
+ assert.equal(await r.text(),'qa-monthly-signed-grant-verified');assert.equal(state.grants,2);
+ r=await fire(event,env,true);assert.equal(r.status,401);assert.equal(state.grants,2);
+ state.amount=1;r=await fire();assert.equal(r.status,503,'Never grant positive-total paid session');assert.equal(state.grants,2);
+ state.amount=0;state.payment='unpaid';r=await fire();assert.equal(r.status,503);assert.equal(state.grants,2);
+ state.payment='paid';state.price='price_paid1234';r=await fire();
+ assert.equal(r.status,503);assert.equal(state.grants,2);
  state.price=price;
  r=await fire(event,{...env,GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED:'false'});
- assert.equal(r.status,503);assert.equal(state.grants,1);
+ assert.equal(r.status,503);assert.equal(state.grants,2);
  state.failGrant=true;r=await fire();assert.equal(r.status,503);
- assert.equal(state.grants,2,'Unavailable RPC must result in retryable status');
- console.log('PASS v72: authenticated LIVE signed checkout granted once, bad HMAC/amount/unpaid/foreign price rejected, no GU58 activation, RPC outage retried.');
+ assert.equal(state.grants,3,'Unavailable RPC must result in retryable status');
+ console.log('PASS v75: real LIVE zero-dollar paid and no_payment_required accepted; bad HMAC, positive totals, unpaid, foreign price rejected; RPC outages retried.');
 }finally{globalThis.fetch=orig}
