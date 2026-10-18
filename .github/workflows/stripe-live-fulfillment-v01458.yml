@@ -1,4 +1,4 @@
-name: Locked LIVE Membership Fulfillment v0.14.0.58
+name: Locked LIVE Membership Fulfillment v0.14.0.59
 on:
   push:
     paths:
@@ -7,6 +7,8 @@ on:
       - 'functions/_middleware.js'
       - 'supabase/migrations/v0.14.0.58*'
       - 'tests/test_v014058_*'
+      - 'tests/test_v014059_*'
+      - 'supabase/admin/v0.14.0.59*'
       - '.github/workflows/stripe-live-fulfillment-v01458.yml'
   pull_request:
   workflow_dispatch:
@@ -31,6 +33,7 @@ jobs:
           node --check functions/api/checkout.js
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
+          python tests/test_v014059_catalog_contract.py
       - name: Mock signed LIVE payment and subscription lifecycle — no real Stripe calls
         run: node tests/test_v014058_live_fulfillment.mjs
       - name: Preserve confirmed sandbox payment lifecycle and gates
