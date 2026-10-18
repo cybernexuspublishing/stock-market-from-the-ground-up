@@ -1,4 +1,4 @@
-name: Stripe Shadow Sandbox v0.14.0.54
+name: Stripe Shadow Sandbox v0.14.0.55
 on:
   push:
     paths:
@@ -22,6 +22,7 @@ on:
       - 'tests/test_v014052_*'
       - 'tests/test_v014053_*'
       - 'tests/test_v014054_*'
+      - 'tests/test_v014055_*'
       - 'supabase/admin/v0.14.0.49*'
       - 'supabase/admin/v0.14.0.40*'
       - 'tests/test_v014032r2_payment_source.py'
@@ -52,6 +53,7 @@ jobs:
           node tests/test_v014051_payment_readiness.mjs
           node tests/test_v014053_owner_toggle_stepup.mjs
           node tests/test_v014054_checkout_safety.mjs
+          node tests/test_v014055_payment_mode_middleware.mjs
       - name: Verify v40 catalog checks and secret-key compatibility
         run: node tests/test_v014040_catalog_and_auth.mjs
       - name: Unified Stripe catalog v41 regressions
@@ -69,4 +71,5 @@ jobs:
           python tests/test_v014052_admin_payment_bundle.py
           python tests/test_v014053_admin_owner_stepup.py
           python tests/test_v014054_checkout_audit_browser.py
+          python tests/test_v014055_payment_mode_slider.py
           python tests/test_v014042_admin_visibility.py

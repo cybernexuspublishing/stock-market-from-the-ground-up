@@ -57,6 +57,54 @@ async function protectLegacyOwnerTarget(context,url){
   return null;
  }catch{return reject('Owner-account authorization could not be verified. Mutation blocked.',503)}
 }
+// v0.14.0.55 — fail-closed global mode barrier for ALL known server-created
+// CUSTOMER checkout sessions. Switching to TESTING is not a visual-only choice:
+// customer Checkout POSTs are stopped before any provider/API or DB writes.
+// Turning TESTING off restores the live route only when the independent launch
+// approval exists; a mode selector can never authorize real charges by itself.
+const LIVE_CHECKOUT_ROUTES=new Set([
+ '/api/checkout','/api/checkout-v0135',
+ '/api/stripe-customer-checkout-v01438','/api/signed-book-checkout'
+]);
+const LEGACY_TEST_CHECKOUT_ROUTES=new Set(['/api/stripe-managed-sandbox-v01432r2']);
+function supabasePaymentServiceHeaders(value){
+ const secret=clean(value);
+ if(secret.startsWith('sb_secret_'))return {apikey:secret};
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
+  return {apikey:secret,authorization:'Bearer '+secret};
+ throw Error('PAYMENT_DB_SECRET_UNAVAILABLE');
+}
+async function paymentModeBoundary(context,url){
+ const {request,env}=context;
+ const checkoutPath=url.pathname.toLowerCase();
+ const isPublicQuote=request.method==='GET'&&url.searchParams.get('action')==='quote'&&LIVE_CHECKOUT_ROUTES.has(checkoutPath);
+ if(request.method!=='POST'&&!isPublicQuote)return null;
+ if(!LIVE_CHECKOUT_ROUTES.has(checkoutPath)&&!LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath))return null;
+ // Do not trust the frontend-selected mode or a stale cached setting.
+ const base=clean(env.SUPABASE_URL).replace(/\/$/,'');
+ if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base))
+  return reject('PAYMENT_MODE_UNAVAILABLE',503);
+ let state;
+ try{
+  const reply=await fetch(base+'/rest/v1/gu39_sandbox_settings?select=enabled&id=eq.true&limit=1',{
+   headers:{...supabasePaymentServiceHeaders(env.SUPABASE_SECRET_KEY),accept:'application/json'},
+   cache:'no-store'
+  });
+  if(!reply.ok)throw Error('PAYMENT_MODE_DB_UNAVAILABLE');
+  const rows=await reply.json();
+  if(!Array.isArray(rows)||rows.length!==1||typeof rows[0].enabled!=='boolean')throw Error('PAYMENT_MODE_INVALID');
+  state=rows[0].enabled;
+ }catch{return reject('PAYMENT_MODE_UNAVAILABLE',503)}
+ if(LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath)){
+  if(state!==true)return reject('PAYMENT_MODE_LIVE_TESTING_DISABLED',423);
+  return null; // The legacy TEST route's own environment gates remain mandatory.
+ }
+ if(state===true)return reject('PAYMENT_MODE_TESTING_LIVE_DISABLED',423);
+ if(env.GU_PAYMENT_LIVE_LAUNCH_APPROVED!=='true')return reject('LIVE_CHECKOUT_NOT_APPROVED',503);
+ // Existing provider-specific/Owner-controlled checks remain mandatory.
+ return null;
+}
+
 async function apiMutationBoundary(context,url){
   const {request,env}=context;
   if(!url.pathname.startsWith('/api/')||['GET','HEAD','OPTIONS'].includes(request.method))return null;
@@ -163,6 +211,8 @@ export async function onRequest(context){
 
   const mfaDenied=await staffMfaBoundary(context,url);
   if(mfaDenied)return mfaDenied;
+  const paymentDenied=await paymentModeBoundary(context,url);
+  if(paymentDenied)return paymentDenied;
   const denied=await apiMutationBoundary(context,url);
   if(denied)return denied;
   const upstream=await context.next();

@@ -1,4 +1,4 @@
-/* v0.14.0.54 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.55 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,9 +21,9 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v0.14.0.54 · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v0.14.0.55 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
- const banner=element('p','TEST MODE ONLY · Real customer checkout remains OFF','gu39-danger');
+ const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
  const message=element('p','Select Refresh to check the system.','gu39-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
  const summary=element('dl',undefined,'gu39-summary');
@@ -33,7 +33,18 @@
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
  const preflightReport=element('div',undefined,'gu39-preflight');preflightReport.setAttribute('role','status');preflightReport.setAttribute('aria-live','polite');
  const catalog=element('div',undefined,'gu39-catalog-report');catalog.setAttribute('role','status');catalog.setAttribute('aria-live','polite');
- const toggle=element('button','Enable Testing');toggle.type='button';toggle.disabled=true;
+ // Native checkbox with switch semantics: keyboard, screen-reader and focus
+ // accessible. The backend database is the authority, not the thumb position.
+ const modeControl=element('label',undefined,'gu39-payment-mode-control');
+ const liveName=element('span','LIVE','gu39-mode-live');
+ const toggle=element('input');toggle.type='checkbox';toggle.id='gu39-payment-mode';
+ toggle.setAttribute('role','switch');toggle.setAttribute('aria-label','Payment mode: Testing enabled');
+ toggle.disabled=true;
+ const track=element('span',undefined,'gu39-mode-track');track.setAttribute('aria-hidden','true');
+ const testName=element('span','TESTING','gu39-mode-test');
+ modeControl.append(liveName,toggle,track,testName);
+ const modeDescription=element('p','LIVE selected: customer checkout remains disabled until separate production-launch approval.','gu39-mode-description');
+ modeDescription.setAttribute('role','status');modeDescription.setAttribute('aria-live','polite');
  const label=element('label','Choose a test product');label.htmlFor='gu39-sku';
  const sel=element('select');sel.id='gu39-sku';for(const [value,name] of Object.entries(SKUS)){const opt=element('option',name);opt.value=value;sel.append(opt)}
  const audit=element('button','Audit Checkout — No Payment');audit.type='button';
@@ -41,7 +52,7 @@
  let auditApprovedForSku=null;
  const begin=element('button','Open Stripe Test Checkout');begin.type='button';begin.disabled=true;
  const explain=element('p','Only the Owner can change testing settings. A recent password confirmation is required. Test data is stored separately from real entitlements. No refunds or recurring memberships are modified outside this test area.','gu39-small');
- controls.append(refresh,verify,preflight,toggle,label,sel,audit,begin);root.append(title,deployedVersion,lead,banner,help,summary,controls,preflightReport,catalog,auditReport,message,explain);
+ controls.append(refresh,verify,preflight,modeControl,label,sel,audit,begin);root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,preflightReport,catalog,auditReport,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -62,9 +73,21 @@
   };
   return help[String(code||'')]||('Verification unavailable (HTTP '+status+'). Review Cloudflare Functions and Supabase connectivity; no Stripe changes were made.');
  };
- function show(data){state=data;summary.replaceChildren();const rows=[['Owner Test Mode',data.enabled?'Enabled':'Disabled'],['Cloudflare Sandbox Gate',data.cloudflareGate?'Configured':'Not configured'],['Stripe Test Price IDs (configured, not verified)',String(data.priceIdsConfigured??0)+' / 8'],['Test Checkout Records',String(data.intentCount??0)],['Processed Sandbox Events',String(data.processedEventCount??0)],['Shadow Access Records',String(data.shadowAccessCount??0)],['Real Customer Payments','DISABLED']];
+ function show(data){state=data;summary.replaceChildren();const rows=[['Payment Mode',data.enabled?'TESTING':'LIVE (selected)'],['Owner Test Mode',data.enabled?'Enabled':'Disabled'],['Cloudflare Sandbox Gate',data.cloudflareGate?'Configured':'Not configured'],['Stripe Test Price IDs (configured, not verified)',String(data.priceIdsConfigured??0)+' / 8'],['Test Checkout Records',String(data.intentCount??0)],['Processed Sandbox Events',String(data.processedEventCount??0)],['Shadow Access Records',String(data.shadowAccessCount??0)],['Live Customer Checkout',data.enabled?'PAUSED BY TESTING':data.liveRouteGateOpen?'LAUNCH GATE OPEN — provider conditions still apply':'NOT LAUNCH APPROVED']];
   for(const [k,v] of rows){summary.append(element('dt',k),element('dd',v))}
-  toggle.textContent=data.enabled?'Disable Testing':'Enable Testing';toggle.disabled=data.role!=='OWNER'||(!data.enabled&&!data.cloudflareGate);
+  banner.textContent=data.enabled
+   ?'TESTING ACTIVE · New customer checkout blocked · Sandbox-only payment sessions'
+   :data.liveRouteGateOpen
+    ?'LIVE SELECTED · Independent launch gate approved; provider-specific switches still required'
+    :'LIVE SELECTED · Real customer payments are NOT approved';
+  toggle.checked=data.enabled===true;toggle.disabled=data.role!=='OWNER'||(!data.enabled&&!data.cloudflareGate);
+  toggle.setAttribute('aria-checked',String(toggle.checked));
+  toggle.setAttribute('aria-label','Payment mode: '+(toggle.checked?'Testing enabled':'Live selected'));
+  modeDescription.textContent=data.enabled
+    ?'TESTING ENABLED · New customer checkout is blocked at the Cloudflare server boundary. Only isolated TEST sessions can proceed through their separate safeguards.'
+    :data.liveRouteGateOpen
+     ?'LIVE SELECTED · The independent launch gate is open. Each provider still requires its separate approved checkout configuration.'
+     :'LIVE SELECTED · Real customer checkout is NOT approved. Switching TESTING off does not authorize real charges.';
   begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
   message.textContent='All displayed purchases remain sandbox-only; actual Stripe processing and entitlement safety require acceptance testing.';
  }
@@ -221,15 +244,28 @@
   }
  }
  refresh.addEventListener('click',getState);
- toggle.addEventListener('click',async()=>{if(!state)return;const next=!state.enabled;if(next&&!confirm('Enable SHADOW sandbox tests? No real member access will change.'))return;
-  const result=await perform({action:'toggle',enabled:next,updatedAt:state.updatedAt});if(result)await getState()});
+ toggle.addEventListener('change',async()=>{
+  if(!state){toggle.checked=false;return}
+  const next=toggle.checked;
+  // Keep the thumb in the user's requested position while authorization runs.
+  // The database remains authoritative; rollback only on cancellation/failure.
+  if(next===state.enabled)return;
+  modeDescription.textContent='Changing payment mode… waiting for Owner authorization and server confirmation.';
+  const warning=next
+   ?'Switch to TESTING? New LIVE checkout will be blocked on the server; historical customer purchases and existing recurring payments are not canceled. TEST transactions remain isolated.'
+   :'Switch to LIVE-selected mode? TEST checkout will be disabled. Real customer checkout will resume ONLY if production launch was independently approved and the provider-specific switches are ready.';
+  if(!confirm(warning)){show(state);return;}
+  auditApprovedForSku=null;
+  const result=await perform({action:'toggle',enabled:next,updatedAt:state.updatedAt});
+  if(result)await getState();else if(state)show(state);
+ });
  begin.addEventListener('click',async()=>{if(auditApprovedForSku!==sel.value){message.textContent='Complete Audit Checkout — No Payment before continuing.';return;}const sku=sel.value;if(!Object.hasOwn(SKUS,sku))return;if(!confirm('Start a STRIPE TEST purchase? Use Stripe test card details only. No real billing.'))return;
   const result=await perform({action:'checkout',sku});if(!result)return;
   let destination;try{destination=new URL(result.url);if(destination.protocol!=='https:'||destination.hostname!=='checkout.stripe.com')throw Error('Unsafe destination.')}catch{message.textContent='Stripe checkout URL verification failed.';return}
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.54',refresh:getState,verifyCatalog,runPreflight,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.55',refresh:getState,verifyCatalog,runPreflight,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());

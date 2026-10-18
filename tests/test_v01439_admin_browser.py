@@ -19,9 +19,9 @@ with sync_playwright() as p:
  assert page.locator('#gu39-shadow h2').inner_text()=='Stripe Payment Testing'
  assert page.locator('#gu39-shadow button:has-text("Run Payment Test Preflight")').count()==1
  assert 'Payment testing interface v'+json.loads((R/'release-manifest.json').read_text())['version'] in page.locator('#gu39-shadow').inner_text()
- assert page.locator('#gu39-shadow button:has-text("Enable Testing")').is_disabled()
+ assert page.locator('#gu39-payment-mode').is_disabled()
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
- assert 'Real Customer Payments' in page.locator('#gu39-shadow').inner_text()
+ assert 'Live Customer Checkout' in page.locator('#gu39-shadow').inner_text()
  assert 'SHADOW' not in page.locator('#gu39-shadow').inner_text().upper() or True # no live access marker required
  page.close()
  hidden=browser.new_page();hidden.set_content(html.replace('<button data-panel="commerce">','<button hidden data-panel="commerce">'))

@@ -11,3 +11,19 @@
 .gu39-actions button:disabled{opacity:.55;cursor:not-allowed}
 .gu39-actions label{font-weight:bold}.gu39-actions select{background:#fff;color:#1d2933;max-width:100%}
 .gu39-actions :focus-visible{outline:3px solid #bdefff;outline-offset:2px}.gu39-small{font-size:.88rem;color:#d8ebf5}
+
+/* v0.14.0.55 — semantic dual-mode slider, cannot unlock LIVE checkout by CSS */
+.gu39-payment-mode-control{display:inline-flex;align-items:center;gap:.55rem;border:1px solid #719cb7;
+ padding:.35rem .65rem;border-radius:1.25rem;background:#0c2436;cursor:pointer;font-weight:700;color:#e8f7ff}
+.gu39-payment-mode-control input{position:absolute;inline-size:1px;block-size:1px;opacity:0}
+.gu39-mode-track{inline-size:58px;block-size:30px;background:#536b7e;border:2px solid #b8c8d2;
+ border-radius:16px;position:relative;flex:none;transition:background .18s}
+.gu39-mode-track:after{content:'';position:absolute;inset-block-start:3px;inset-inline-start:3px;
+ width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .18s}
+.gu39-payment-mode-control input:checked+.gu39-mode-track{background:#08775a;border-color:#7ee0b3}
+.gu39-payment-mode-control input:checked+.gu39-mode-track:after{transform:translateX(27px)}
+.gu39-payment-mode-control input:focus-visible+.gu39-mode-track{outline:3px solid #ffe189;outline-offset:3px}
+.gu39-payment-mode-control input:disabled+.gu39-mode-track{opacity:.55;cursor:not-allowed}
+.gu39-mode-description{max-width:100%;border:1px solid #507690;background:#193d55;
+ padding:.65rem .9rem;border-radius:7px;font-weight:600}
+@media(prefers-reduced-motion:reduce){.gu39-mode-track,.gu39-mode-track:after{transition:none}}

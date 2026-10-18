@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.54 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.55 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -221,7 +221,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.54',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.55',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
@@ -294,7 +294,7 @@ async function inspectCheckoutSafety(request,env,c,a){
   note:'A successful read-only audit does not certify Stripe Managed Payments enrollment, signing-secret pairing or a completed TEST payment.'};
 }
 
-async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
+async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,paymentMode:r.enabled===true?'TESTING':'LIVE',liveRouteGateOpen:r.enabled!==true&&env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveLaunchApproved:env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  const view=new URL(request.url).searchParams.get('view');
  if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));
@@ -367,7 +367,7 @@ export async function onRequestPost({request,env}){
    if(typeof data.enabled!=='boolean'||!data.updatedAt)throw Error('INVALID_REQUEST');
    if(data.enabled===true&&!sandboxEnabled(env))throw Error('SANDBOX_SECRETS_NOT_CONFIGURED');
    const out=await guardedToggleRpc(c,a,data.enabled,data.updatedAt);
-   return json({...out,liveCheckout:false});
+   return json({...out,paymentMode:out.enabled===true?'TESTING':'LIVE',liveRouteGateOpen:out.enabled!==true&&env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveLaunchApproved:env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveCheckout:false});
   }
   if(data.action!=='checkout'||!Object.hasOwn(prices,data.sku))throw Error('INVALID_SKU');
   if(!sandboxEnabled(env))throw Error('SANDBOX_DISABLED');

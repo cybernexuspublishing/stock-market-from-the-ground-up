@@ -34,11 +34,13 @@ with sync_playwright() as pw:
  };
 }""")
  page.add_script_tag(content=script.replace('location.pathname', "'/admin.html'"))
- btn=page.get_by_role('button',name='Enable Testing')
+ btn=page.locator('#gu39-payment-mode')
  btn.wait_for(timeout=5000)
  assert btn.is_enabled()
- btn.click()
- page.get_by_role('button',name='Disable Testing').wait_for(timeout=5000)
+ assert not btn.is_checked()
+ btn.check()
+ page.get_by_text('TESTING ENABLED · New customer checkout is blocked',exact=False).wait_for(timeout=5000)
+ assert btn.is_checked()
  stats=page.evaluate('window.mock')
  assert stats['attempts']==2,stats
  assert stats['dialogs']==1,stats
