@@ -26,7 +26,7 @@ const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock',SUPABASE_PUBLI
  GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_expectedmock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
 const state={mode:false,validPrice:true,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
- intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false};
+ intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0};
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 const liveSession={id:'cs_live_mock123456',livemode:true,status:'complete',payment_status:'paid',
  url:'https://checkout.stripe.com/c/pay/cs_live_mock123456',mode:'subscription',currency:'usd',
@@ -73,7 +73,7 @@ globalThis.fetch=async(url,o={})=>{
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='GET'){
   return respond([{id:intent,user_id:uid,price_id:mapped['plan:FULL_MONTHLY'].price_id,
-    quoted_amount_cents:6999,stripe_session_id:liveSession.id,status:'checkout_created'}]);
+    quoted_amount_cents:6999,stripe_session_id:state.unbound?null:liveSession.id,status:state.unbound?'prepared':'checkout_created'}]);
  }
  if(u.endsWith('/v1/checkout/sessions/'+liveSession.id))return respond(liveSession);
  if(u.includes('/v1/checkout/sessions/'+liveSession.id+'/line_items'))return respond({data:[{
@@ -81,6 +81,13 @@ globalThis.fetch=async(url,o={})=>{
  if(u.endsWith('/v1/subscriptions/'+providerSub.id))return respond(providerSub);
  if(u.endsWith('/v1/invoices/in_live123456789'))return respond({id:'in_live123456789',
   status:state.invoiceStatus,subscription:providerSub.id,amount_paid:state.invoiceStatus==='paid'?6999:0});
+ if(u.includes('/rpc/gu58_live_bind_verified_checkout')){
+  const b=JSON.parse(o.body);assert.equal(b.p_intent_id,intent);
+  assert.equal(b.p_user_id,uid);assert.equal(b.p_session_id,liveSession.id);
+  assert.equal(b.p_price_id,mapped['plan:FULL_MONTHLY'].price_id);
+  assert.equal(b.p_expected_cents,6999);
+  state.bindWrites++;state.unbound=false;return respond({ok:true,bound:true});
+ }
  if(u.includes('/rpc/gu58_live_stripe_apply_event')){
   const b=JSON.parse(o.body);
   assert.equal(b.p_action,state.expectedAction);
@@ -164,5 +171,13 @@ try{
    data:{object:{id:'dp_live123456789',charge:'ch_live123456789'}}};
  r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
  assert.equal(state.dbWrites,8);
+ // Stripe-created session lost its PostgREST PATCH: authenticated original webhook
+ // recovers this exact intent in the service-only RPC, no second checkout.
+ state.unbound=true;state.expectedAction='subscription_active';
+ ev={...event,id:'evt_liverecover123',type:'checkout.session.completed'};
+ r=await send(true,ev);assert.equal(r.status,200,(await r.clone().text()));
+ assert.equal(state.bindWrites,1);
+ assert.equal(state.postStripe,1);
+ assert.equal(state.dbWrites,9);
  console.log('PASS v58: independent launch gates, mode exclusion, live catalog/account binding, real member checkout intent, signed LIVE webhook and service-only RPC.');
 }finally{globalThis.fetch=prior;crypto.randomUUID=priorUUID}
