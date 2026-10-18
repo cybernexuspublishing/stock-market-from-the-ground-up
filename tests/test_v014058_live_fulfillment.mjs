@@ -26,7 +26,7 @@ const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock',SUPABASE_PUBLI
  GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_expectedmock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
 const state={mode:false,validPrice:true,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
- intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0};
+ intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0,expectTool:false};
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 const liveSession={id:'cs_live_mock123456',livemode:true,status:'complete',payment_status:'paid',
  url:'https://checkout.stripe.com/c/pay/cs_live_mock123456',mode:'subscription',currency:'usd',
@@ -51,6 +51,9 @@ globalThis.fetch=async(url,o={})=>{
  if(u.includes('/account_private_identity?'))return respond([{age_eligible:true,date_of_birth:'1990-01-01'}]);
  if(u.includes('/platform_plans?'))return respond([{active:true,public_visible:true,
  checkout_enabled:true,billing_interval:'month',price_cents:6999}]);
+ // platform_tools intentionally has no checkout_enabled column.
+ if(u.includes('/platform_tools?'))return respond([{active:true,public_visible:true,
+  status:'live',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return respond({enabled:true,provider:'STRIPE_MANAGED'});
  if(u.includes('/site_settings?'))return respond([{value:true}]);
  if(u.endsWith('/v1/prices/'+mapped['plan:FULL_MONTHLY'].price_id))
@@ -58,10 +61,17 @@ globalThis.fetch=async(url,o={})=>{
    product:state.validPrice?mapped['plan:FULL_MONTHLY'].product_id:'prod_wrong00000000',
    currency:'usd',active:true,livemode:true,unit_amount:6999,
    type:'recurring',recurring:{interval:'month'}});
+ if(u.endsWith('/v1/prices/'+mapped['tool:INTERACTIVE_LEARNING'].price_id))
+  return respond({id:mapped['tool:INTERACTIVE_LEARNING'].price_id,
+   product:mapped['tool:INTERACTIVE_LEARNING'].product_id,
+   currency:'usd',active:true,livemode:true,unit_amount:2999,
+   type:'recurring',recurring:{interval:'month'}});
  if(u.endsWith('/v1/checkout/sessions')&&method==='POST'){
   state.postStripe++;const body=new URLSearchParams(o.body);
   assert.equal(body.get('metadata[gu58_intent]'),intent);
   assert.equal(body.get('metadata[gu58_member]'),uid);
+  if(state.expectTool)
+    assert.equal(body.get('line_items[0][price]'),mapped['tool:INTERACTIVE_LEARNING'].price_id);
   assert.equal(o.headers['Stripe-Version'],'2026-02-25.preview');
   return respond(liveSession);
  }
@@ -104,11 +114,11 @@ globalThis.fetch=async(url,o={})=>{
   return respond({id:'pi_live123456789',livemode:true});
  throw Error('Unexpected '+method+' '+u);
 };
-async function pay(overrides={}){
+async function pay(overrides={},sku={type:'plan',code:'FULL_MONTHLY'}){
  const e={...env,...overrides};
  return checkout.onRequestPost({env:e,request:new Request(origin+'/api/stripe-live-checkout-v01458',{
  method:'POST',headers:{authorization:'Bearer jwt',origin,'content-type':'application/json'},
- body:JSON.stringify({type:'plan',code:'FULL_MONTHLY'})})});
+ body:JSON.stringify(sku)})});
 }
 async function send(hmacValid=true,eventOverride=null,overrides={}){
  const x=eventOverride||event,body=JSON.stringify(x),ts=String(Math.floor(Date.now()/1000));
@@ -179,5 +189,16 @@ try{
  assert.equal(state.bindWrites,1);
  assert.equal(state.postStripe,1);
  assert.equal(state.dbWrites,9);
+ // Verify the tool checkout path does not rely on a nonexistent checkout_enabled
+ // column in platform_tools. All other Owner and provider gates remain active.
+ state.expectTool=true;
+ crypto.randomUUID=()=>intent;
+ r=await pay({}, {type:'tool',code:'INTERACTIVE_LEARNING'});
+ crypto.randomUUID=orig;
+ assert.equal(r.status,200,await r.clone().text());
+ assert.equal(state.postStripe,2);
+ assert.equal(state.dbWrites,11);
+ assert.equal(state.postBody.sku_kind,'tool');
+ assert.equal(state.postBody.quoted_amount_cents,2999);
  console.log('PASS v58: independent launch gates, mode exclusion, live catalog/account binding, real member checkout intent, signed LIVE webhook and service-only RPC.');
 }finally{globalThis.fetch=prior;crypto.randomUUID=priorUUID}
