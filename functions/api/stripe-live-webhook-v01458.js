@@ -40,7 +40,7 @@ async function subscription(c,id){const sub=await getStripe(c,'subscriptions/'+e
 }
 async function verifyBoundSession(c,s,line){
  if(s.livemode!==true||!ident(s.id,'cs_live')||s.currency!=='usd'||
-    !/^\\d{1,6}$/.test(String(line?.quantity||''))||line.quantity!==1||
+    !/^\d{1,6}$/.test(String(line?.quantity||''))||line.quantity!==1||
     !ident(line?.price?.id,'price'))throw Error('session:provider_mismatch');
  const reference=s.client_reference_id,meta=s.metadata||{};
  if(!/^[0-9a-f-]{36}$/i.test(reference||'')||meta.gu58_intent!==reference)
