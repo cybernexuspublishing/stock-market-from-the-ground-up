@@ -1,4 +1,4 @@
-/* v0.14.0.55 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.56 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,13 +21,15 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v0.14.0.55 · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v0.14.0.56 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
  const message=element('p','Select Refresh to check the system.','gu39-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
  const summary=element('dl',undefined,'gu39-summary');
  const controls=element('div',undefined,'gu39-actions');
+ const unified=element('button','Run Complete Payment Review — No Charge');unified.type='button';unified.classList.add('gu39-primary-readiness');
+ const unifiedReport=element('section',undefined,'gu39-complete-report');unifiedReport.setAttribute('role','status');unifiedReport.setAttribute('aria-live','polite');
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
@@ -52,7 +54,12 @@
  let auditApprovedForSku=null;
  const begin=element('button','Open Stripe Test Checkout');begin.type='button';begin.disabled=true;
  const explain=element('p','Only the Owner can change testing settings. A recent password confirmation is required. Test data is stored separately from real entitlements. No refunds or recurring memberships are modified outside this test area.','gu39-small');
- controls.append(refresh,verify,preflight,modeControl,label,sel,audit,begin);root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,preflightReport,catalog,auditReport,message,explain);
+  controls.append(unified,modeControl,label,sel,begin);
+ const advanced=element('details',undefined,'gu39-advanced-controls');
+ const advancedTitle=element('summary','Advanced diagnostics (individual checks)');
+ const advancedRow=element('div',undefined,'gu39-advanced-actions');
+ advancedRow.append(refresh,verify,preflight,audit);advanced.append(advancedTitle,advancedRow);
+ root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,unifiedReport,advanced,preflightReport,catalog,auditReport,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -173,8 +180,88 @@
   }catch(e){auditReport.replaceChildren(element('p','Checkout safety audit unavailable: '+(e?.message||'Unknown error')))}
   finally{audit.disabled=false;if(state)show(state)}
  }
- sel.addEventListener('change',()=>{auditApprovedForSku=null;if(state)show(state);auditReport.replaceChildren(element('p','The selected product changed. Rerun the read-only safety audit.'));});
+ sel.addEventListener('change',()=>{auditApprovedForSku=null;unifiedReport.replaceChildren(element('p','Product changed. Run Complete Payment Review again.'));if(state)show(state);auditReport.replaceChildren(element('p','The selected product changed. Rerun the read-only safety audit.'));});
  audit.addEventListener('click',auditCheckout);
+
+ async function runCompletePaymentReview(){
+  unified.disabled=true;auditApprovedForSku=null;
+  if(state)show(state);
+  unifiedReport.replaceChildren(element('p','Checking all Stripe TEST catalog products, seven configuration checks, nine checkout guards, existing TEST attempts against Stripe, and the independent LIVE launch lock. No charges or database changes.'));
+  try{
+   const jwt=await auth();
+   const reportUrl='/api/gu39-sandbox?view=complete-review&sku='+encodeURIComponent(sel.value);
+   const read=async()=>{
+    const response=await fetch(reportUrl,{headers:{authorization:'Bearer '+jwt},cache:'no-store'});
+    const report=await response.json().catch(()=>null);
+    if(!response.ok||report?.ok!==true)throw Error(errorMessage(report?.error,response.status));
+    return report;
+   };
+   let report=await read();
+   if(report.checkout?.checks?.some(x=>x.name==='Recent Owner password confirmation'&&x.status==='BLOCKED')){
+    const confirmPassword=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof confirmPassword==='function'){await confirmPassword();report=await read();}
+   }
+   unifiedReport.replaceChildren();
+   unifiedReport.append(element('h3','Complete payment review: '+report.checksPassed+' / '+report.totalChecks+' checks passed'));
+   const modeLabel=report.mode==='TESTING'?'TESTING — customer checkout blocked':'LIVE selected — production launch separately locked';
+   unifiedReport.append(element('p',modeLabel));
+   const allChecks=[
+    ...(report.config?.checks||[]).map(x=>({label:x.check,status:x.status,detail:x.detail})),
+    ...(report.checkout?.checks||[]).map(x=>({label:x.name,status:x.status,detail:x.detail})),
+    {label:'Eight actual Stripe TEST products & prices',
+     status:report.catalog?.allVerified?'PASS':'BLOCKED',
+     detail:report.catalog?.allVerified?'8/8 products and 8/8 prices verified':'Stripe TEST catalog could not be fully verified'}
+   ];
+   const table=element('table'),caption=element('caption','All configured and payment-specific checks');
+   const head=element('thead'),tr=element('tr');
+   for(const title of ['Check','Status','Evidence'])tr.append(element('th',title));
+   head.append(tr);table.append(caption,head);
+   const body=element('tbody');
+   for(const check of allChecks){
+    const line=element('tr');
+    for(const entry of [check.label,check.status,check.detail])line.append(element('td',String(entry||'')));
+    body.append(line);
+   }
+   table.append(body);unifiedReport.append(table);
+   const p=report.pending||{};
+   if(p.totalUnbound===0)unifiedReport.append(element('p','Earlier TEST attempts: no unbound PREPARED records; no reconciliation needed.'));
+   else if(p.error||p.totalUnbound===null)unifiedReport.append(element('p','Earlier TEST attempts: provider/database reconciliation unavailable. No new checkout may be started.'));
+   else{
+    unifiedReport.append(element('p','Earlier TEST attempts: '+p.totalUnbound+' unbound record(s). A new TEST checkout remains disabled until reconciled.'));
+    for(const pending of p.results||[]){
+     unifiedReport.append(element('p','Prior attempt: '+pending.status+' · '+pending.createdAt+' · matching Stripe sessions: '+pending.matchedSessions));
+    }
+    if(p.safeToReconcile&&p.results?.length===1){
+     const candidate=p.results[0],fix=element('button','Resolve Existing TEST Attempt — No Charge');
+     fix.type='button';
+     unifiedReport.append(fix);
+     fix.addEventListener('click',async()=>{
+      const detail=candidate.status==='MATCHED_VERIFIED_SESSION'
+        ?'A matching Stripe TEST session was found and verified. Bind it to the isolated TEST record? This does not charge a card, grant customer access, or certify webhook acceptance.'
+        :'A complete Stripe listing found no corresponding Checkout session in the bounded creation window. Mark this isolated PREPARED attempt failed? This does not charge a card or change any real memberships.';
+      if(!confirm(detail))return;
+      fix.disabled=true;
+      const resolved=await perform({action:'reconcile',intentId:candidate.intentId});
+      if(resolved){message.textContent='TEST-only reconciliation recorded: '+resolved.action+'. Refreshing the complete audit.';await runCompletePaymentReview();}
+      else fix.disabled=false;
+     });
+    }
+   }
+   const live=report.production||{};
+   unifiedReport.append(element('p',live.liveCheckoutApproved
+    ?'Independent LIVE launch gate is configured; production merchant acceptance and provider-specific switches remain separately required.'
+    :'LIVE customer checkout remains locked until independent Owner launch approval. Switching TESTING off will not charge customers.'));
+   if(report.readyForSingleSandboxCheckout===true&&report.selectedSku===sel.value){
+    auditApprovedForSku=report.selectedSku;catalogReady=true;
+    unifiedReport.append(element('p','ALL automated pre-checkout safeguards passed. One controlled TEST checkout can be authorized separately; this review created no payment.'));
+   }else{
+    unifiedReport.append(element('p','Checkout remains BLOCKED. Resolve the specific findings above; no new payment has been attempted.'));
+   }
+  }catch(e){unifiedReport.replaceChildren(element('p','Complete payment review could not finish: '+(e.message||'Unknown error')+'. No payment was created.'))}
+  finally{unified.disabled=false;if(state)show(state)}
+ }
+ unified.addEventListener('click',runCompletePaymentReview);
+
  preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
  const actionError=code=>{
@@ -265,7 +352,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.55',refresh:getState,verifyCatalog,runPreflight,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.56',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
