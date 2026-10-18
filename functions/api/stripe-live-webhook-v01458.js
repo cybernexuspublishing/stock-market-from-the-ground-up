@@ -52,10 +52,32 @@ async function verifyBoundSession(c,s,line){
  if(!r.ok)throw Error('session:intent_db_unavailable');
  const matches=await r.json();
  if(!Array.isArray(matches)||matches.length!==1||
-   matches[0].stripe_session_id!==s.id||matches[0].price_id!==line.price.id||
-   meta.gu58_member!==matches[0].user_id||!Number.isSafeInteger(matches[0].quoted_amount_cents)||
+   matches[0].price_id!==line.price.id||
+   meta.gu58_member!==matches[0].user_id||
+   !Number.isSafeInteger(matches[0].quoted_amount_cents)||
    s.amount_subtotal!==matches[0].quoted_amount_cents)
     throw Error('session:intent_binding_failed');
+ const record=matches[0];
+ if(record.stripe_session_id===null&&record.status==='prepared'){
+  // An earlier successful Stripe CREATE may have suffered a network/DB PATCH
+  // failure. Recover only the exact provider-verified original intent,
+  // never create another transaction or grant access from this binding RPC.
+  const binding=await fetch(c.base+'/rest/v1/rpc/gu58_live_bind_verified_checkout',{
+   method:'POST',headers:{
+    apikey:c.key,...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key}),
+    'content-type':'application/json'
+   },body:JSON.stringify({
+    p_intent_id:reference,p_user_id:meta.gu58_member,p_session_id:s.id,
+    p_price_id:line.price.id,p_expected_cents:s.amount_subtotal
+   }),cache:'no-store'
+  });
+  if(!binding.ok)throw Error('session:intent_recovery_failed');
+  const applied=await binding.json().catch(()=>null);
+  if(applied?.ok!==true)throw Error('session:intent_recovery_unverified');
+  record.stripe_session_id=s.id;record.status='checkout_created';
+ }
+ if(record.stripe_session_id!==s.id||record.status==='prepared')
+   throw Error('session:intent_binding_failed');
  return matches[0];
 }
 async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=actionBase(e);
