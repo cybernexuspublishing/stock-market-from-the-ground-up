@@ -1,5 +1,6 @@
 """Isolated DOM smoke test: no production access, no real provider calls."""
 from pathlib import Path
+import json
 from playwright.sync_api import sync_playwright
 R=Path(__file__).resolve().parents[1]
 nav=(R/'assets/js/admin-simple-navigation-v014036.js').read_text()
@@ -17,7 +18,7 @@ with sync_playwright() as p:
  page.locator('#gu39-shadow').wait_for(timeout=2000)
  assert page.locator('#gu39-shadow h2').inner_text()=='Stripe Payment Testing'
  assert page.locator('#gu39-shadow button:has-text("Run Payment Test Preflight")').count()==1
- assert 'Payment testing interface v0.14.0.52' in page.locator('#gu39-shadow').inner_text()
+ assert 'Payment testing interface v'+json.loads((R/'release-manifest.json').read_text())['version'] in page.locator('#gu39-shadow').inner_text()
  assert page.locator('#gu39-shadow button:has-text("Enable Testing")').is_disabled()
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
  assert 'Real Customer Payments' in page.locator('#gu39-shadow').inner_text()
