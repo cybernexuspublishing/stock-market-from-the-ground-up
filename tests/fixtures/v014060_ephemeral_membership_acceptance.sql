@@ -122,6 +122,20 @@ BEGIN
  RAISE NOTICE 'PASS: canceled subscription removes access';
 END $canceled$;
 
+-- A delayed older-paid invoice event must not reinstate a canceled member.
+SELECT public.gu58_live_stripe_apply_event(
+ 'evt_live_monthly009','subscription_active',NULL,'sub_monthly0001',
+ NULL,'price_monthly0001',6999,'usd',now()+interval '90 days',
+ now()-interval '4 minutes','in_monthly0001',false);
+DO $stale$
+BEGIN
+ IF public.user_has_tool_access('11111111-1111-4111-8111-111111111111','MARKET_SIMULATOR')
+ OR (SELECT outcome FROM public.gu58_live_stripe_events
+   WHERE event_id='evt_live_monthly009') <> 'stale_ignored'
+ THEN RAISE EXCEPTION 'FAIL: stale Stripe event revived a canceled membership'; END IF;
+ RAISE NOTICE 'PASS: older paid event ignored after cancellation';
+END $stale$;
+
 -- Individual journal purchase must not accidentally grant Market Tutor.
 SELECT public.gu58_live_stripe_apply_event(
  'evt_live_journal001','subscription_active','cs_live_journal0001','sub_journal0001',
@@ -146,6 +160,37 @@ BEGIN
  THEN RAISE EXCEPTION 'FAIL: past-due tool pass not paused'; END IF;
  RAISE NOTICE 'PASS: past-due tool pass paused with no tool access';
 END $tool_past_due$;
+
+-- Latest-invoice dispute suspends tool access without touching other users.
+SELECT public.gu58_live_stripe_apply_event(
+ 'evt_live_journal003','subscription_active',NULL,'sub_journal0001',
+ NULL,'price_journal0001',2999,'usd',now()+interval '60 days',
+ now()-interval '90 seconds','in_journal0002',false);
+SELECT public.gu58_live_stripe_apply_event(
+ 'evt_live_journal004','subscription_disputed',NULL,'sub_journal0001',
+ NULL,'price_journal0001',NULL,'usd',now()+interval '60 days',
+ now()-interval '80 seconds','in_journal0002',false);
+DO $dispute$
+BEGIN
+ IF public.user_has_tool_access('22222222-2222-4222-8222-222222222222','JOURNAL_ANALYTICS')
+ OR (SELECT status FROM public.user_tool_passes WHERE provider_subscription_id='sub_journal0001')<>'paused'
+ THEN RAISE EXCEPTION 'FAIL: disputed invoice did not revoke tool access'; END IF;
+ RAISE NOTICE 'PASS: disputed subscription suspends only its own purchased tool';
+END $dispute$;
+
+-- An authenticated browser user may not directly call the service-only RPC.
+SET "request.jwt.claim.role" = 'authenticated';
+DO $no_client_write$
+BEGIN
+ PERFORM public.gu58_live_stripe_apply_event(
+ 'evt_live_clientforged','subscription_active',NULL,'sub_journal0001',
+ NULL,'price_journal0001',2999,'usd',now()+interval '60 days',
+ now()-interval '60 seconds','in_journal0003',false);
+ RAISE EXCEPTION 'FAIL: client forged Stripe entitlement operation';
+EXCEPTION WHEN insufficient_privilege THEN
+ RAISE NOTICE 'PASS: browser/authenticated role rejected by service-only fulfillment RPC';
+END $no_client_write$;
+SET "request.jwt.claim.role" = 'service_role';
 
 SELECT public.gu58_live_stripe_apply_event(
  'evt_live_lifetime001','lifetime_paid','cs_live_lifetime0001',NULL,
