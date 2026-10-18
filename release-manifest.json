@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.61",
+  "version": "0.14.0.63",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "83844724c7be06f1544fcd7689032cabf2007ab2",
+  "baselineGitCommit": "05d167d636e97fee449d515c321ea00057f33887",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -44,7 +44,7 @@
     },
     "originalCore": 281,
     "addedCore": 94,
-    "buildVersion": "0.14.0.61",
+    "buildVersion": "0.14.0.63",
     "workflow": {
       "source": "GitHub and private Cloudflare function",
       "optimisticConcurrency": true,
@@ -55,7 +55,8 @@
       "secureCSVExport": true,
       "phaseQueue": true,
       "activeMilestones": true,
-      "modeToggleAffected": false
+      "modeToggleAffected": false,
+      "baselineIndependentStripeRelease": "v0.14.0.62"
     }
   },
   "manualCaptcha": {
