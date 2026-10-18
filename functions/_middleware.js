@@ -66,6 +66,7 @@ const LIVE_CHECKOUT_ROUTES=new Set([
  '/api/checkout','/api/checkout-v0135',
  '/api/stripe-customer-checkout-v01438','/api/signed-book-checkout'
 ]);
+const LEGACY_TEST_CHECKOUT_ROUTES=new Set(['/api/stripe-managed-sandbox-v01432r2']);
 function supabasePaymentServiceHeaders(value){
  const secret=clean(value);
  if(secret.startsWith('sb_secret_'))return {apikey:secret};
@@ -75,7 +76,9 @@ function supabasePaymentServiceHeaders(value){
 }
 async function paymentModeBoundary(context,url){
  const {request,env}=context;
- if(request.method!=='POST'||!LIVE_CHECKOUT_ROUTES.has(url.pathname.toLowerCase()))return null;
+ if(request.method!=='POST')return null;
+ const checkoutPath=url.pathname.toLowerCase();
+ if(!LIVE_CHECKOUT_ROUTES.has(checkoutPath)&&!LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath))return null;
  // Do not trust the frontend-selected mode or a stale cached setting.
  const base=clean(env.SUPABASE_URL).replace(/\\/$/,'');
  if(!/^https:\\/\\/[a-z0-9]{20}\\.supabase\\.co$/.test(base))
@@ -91,6 +94,10 @@ async function paymentModeBoundary(context,url){
   if(!Array.isArray(rows)||rows.length!==1||typeof rows[0].enabled!=='boolean')throw Error('PAYMENT_MODE_INVALID');
   state=rows[0].enabled;
  }catch{return reject('PAYMENT_MODE_UNAVAILABLE',503)}
+ if(LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath)){
+  if(state!==true)return reject('PAYMENT_MODE_LIVE_TESTING_DISABLED',423);
+  return null; // The legacy TEST route's own environment gates remain mandatory.
+ }
  if(state===true)return reject('PAYMENT_MODE_TESTING_LIVE_DISABLED',423);
  if(env.GU_PAYMENT_LIVE_LAUNCH_APPROVED!=='true')return reject('LIVE_CHECKOUT_NOT_APPROVED',503);
  // Existing provider-specific/Owner-controlled checks remain mandatory.
