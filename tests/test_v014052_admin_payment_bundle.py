@@ -22,9 +22,10 @@ assert len(match)==1, f"Exactly one cached-bust Stripe bundle is required; found
 assert match[0][1]==expected, f"Stale Stripe script query: expected {expected}, found {match[0][1]}"
 assert "admin-stripe-shadow-v01439.js?v=014047" not in admin, "Never regress to the old script"
 assert "const preflight=element('button','Run Payment Test Preflight')" in js
-assert "controls.append(refresh,verify,preflight,modeControl,label,sel,audit,begin)" in js
+assert "controls.append(unified,modeControl,label,sel,begin)" in js
 assert "const audit=element('button','Audit Checkout — No Payment')" in js
 assert "audit.addEventListener('click',auditCheckout)" in js
+assert "unified.addEventListener('click',runCompletePaymentReview)" in js
 assert "preflight.addEventListener('click',runPreflight)" in js
 assert f"Payment testing interface v{version}" in js, "Visible UI deploy signature required"
 assert f"version:'{version}'" in js
