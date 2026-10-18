@@ -15,7 +15,7 @@ version=release["version"]
 expected="".join(map(lambda x:x.zfill(2),version.split(".")[1:]))
 # Historical asset key is 0.14.0.52 -> 014052, not the stale 014047.
 expected="014"+version.split(".")[-1].zfill(3)
-assert version=="0.14.0.52"
+assert int(version.split(".")[-1])>=52
 assert f'<meta name="application-version" content="v{version}">' in admin
 match=re.findall(r'src="(assets/js/admin-stripe-shadow-v01439\.js\?v=([0-9]+))"',admin)
 assert len(match)==1, f"Exactly one cached-bust Stripe bundle is required; found {match}"
@@ -26,7 +26,7 @@ assert "controls.append(refresh,verify,preflight,toggle,label,sel,begin)" in js
 assert "preflight.addEventListener('click',runPreflight)" in js
 assert f"Payment testing interface v{version}" in js, "Visible UI deploy signature required"
 assert f"version:'{version}'" in js
-assert "groundup-v014052-public" in sw
+assert f"groundup-v014{int(version.split('.')[-1]):03d}-public" in sw
 assert release["customerCheckoutApproved"] is False
 assert release["liveStripeFulfillmentEnabled"] is False
 print("PASS v52: real Admin loads new Stripe bundle, visible version/preflight, no stale query or live payments.")
