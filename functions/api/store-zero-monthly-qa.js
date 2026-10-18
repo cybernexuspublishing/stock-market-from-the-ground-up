@@ -2,7 +2,7 @@
 const out=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'private, no-store'}});
 const fail=(code,status=503)=>Object.assign(new Error(code),{code,status});
 const trim=x=>String(x??'').trim();
-const uuid=x=>/^[0-9a-f-]{36}$/i.test(trim(x));
+const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trim(x));
 async function query(url,opts={}){
  const r=await fetch(url,{...opts,cache:'no-store'}),x=await r.json().catch(()=>null);
  if(!r.ok||x===null||x?.error)throw fail('VERIFICATION_UNAVAILABLE');
@@ -29,13 +29,15 @@ async function member(req,c){
  if(!token)throw fail('SIGN_IN_REQUIRED',401);
  const u=await query(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});
  if(u.id!==c.allowed||!uuid(u.id)||!(u.confirmed_at||u.email_confirmed_at))throw fail('NOT_AUTHORIZED',403);
- const [a,g,p]=await Promise.all([
+ const [a,g,p,flags]=await Promise.all([
   query(c.base+'/rest/v1/rpc/my_platform_access_for_user',{method:'POST',
    headers:authHeaders(c),body:JSON.stringify({target_user:u.id})}),
   query(c.base+'/rest/v1/user_plan_grants?select=ends_at,source_reference&user_id=eq.'+u.id+'&source=eq.stripe_zero_monthly_qa_v72&limit=1',{headers:authHeaders(c)}),
-  query(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)})
+  query(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)}),
+  query(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)})
  ]);
- if(p?.[0]?.account_kind!=='member')throw fail('NOT_ELIGIBLE',403);
+ if(p?.[0]?.account_kind!=='member'||!Array.isArray(flags)||
+   ['suspended','restricted'].includes(flags[0]?.status))throw fail('NOT_ELIGIBLE',403);
  return {user:u,access:a,used:g?.[0]||null};
 }
 async function verify(c){
