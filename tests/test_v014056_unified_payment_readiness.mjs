@@ -95,7 +95,7 @@ globalThis.fetch=async(url,opt={})=>{
 try{
  let r=await api.onRequestGet({request:req(),env});assert.equal(r.status,200,await r.clone().text());
  let d=await r.json();
- assert.equal(d.version,'0.14.0.56');
+ assert.equal(d.version,'0.14.0.57');
  assert.equal(d.pending.totalUnbound,1);
  assert.equal(d.pending.results[0].status,'NO_MATCH_FOUND');
  assert.equal(d.pending.safeToReconcile,true);
