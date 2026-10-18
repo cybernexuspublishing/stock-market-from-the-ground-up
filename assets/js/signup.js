@@ -79,6 +79,7 @@ async function createAccount(e){
   const firstName=document.getElementById('signup-first-name')?.value.trim()||'';
   const lastName=document.getElementById('signup-last-name')?.value.trim()||'';
   const dateOfBirth=document.getElementById('signup-dob')?.value.trim()||'';
+  let sentToServer=false;
 
   if(usernameInput) usernameInput.value=username;
   signupMessage('');
@@ -129,27 +130,29 @@ async function createAccount(e){
       setFieldStatus('book-key-status','Optional. Each book has a different Book Key. Leave blank to create a Free Reader account.');
     }
 
+    // The server enforces date-of-birth eligibility before Supabase creates an account.
+    // Forward the existing one-time CAPTCHA token to Supabase for native verification.
+    const captchaToken=window.GroundUpTurnstile?.getToken?.()||null;
     if(submit) submit.textContent='Creating account…';
-    const sb=await window.getSupabaseClient();
-    const metadata={username};
-    if(claimToken) metadata.book_claim_token=claimToken;
-    const {error}=await sb.auth.signUp({
-      email,password,
-      options:{
-        emailRedirectTo:`${location.origin}/signin.html?verified=1`,
-        data:metadata
-      }
+    sentToServer=true;
+    const response=await fetch('/api/account?action=signup',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      cache:'no-store',
+      body:JSON.stringify({firstName,lastName,dateOfBirth,username,email,password,
+        confirmPassword:confirm,termsAccepted:terms,bookClaimToken:claimToken,captchaToken})
     });
-    if(error) throw error;
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||result.ok!==true)throw new Error(result.error||'Unable to create account. Please try again.');
     form?.reset();
     showAccountCreated(email,Boolean(claimToken));
   }catch(err){
     signupMessage(err.message||'Unable to create account.', 'error');
   }finally{
+    if(sentToServer)window.GroundUpTurnstile?.reset?.();
     if(submit){
       submit.textContent='Create account';
-      try{window.GroundUpTurnstile?.getToken?.();submit.disabled=false}
-      catch{submit.disabled=true}
+      submit.disabled=window.GroundUpTurnstile?.required===true;
     }
   }
 }
