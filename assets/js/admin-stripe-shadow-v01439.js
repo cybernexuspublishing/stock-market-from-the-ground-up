@@ -1,4 +1,4 @@
-/* v0.14.0.52 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.53 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v0.14.0.52 · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v0.14.0.53 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','TEST MODE ONLY · Real customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -104,7 +104,57 @@
  }
  preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
- async function perform(payload){toggle.disabled=begin.disabled=true;try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Action was not authorized.');return data}catch(e){message.textContent='Payment testing action not completed: '+(e.message||'Unknown error.');return null}finally{if(state){toggle.disabled=state.role!=='OWNER';begin.disabled=state.role!=='OWNER'||!state.enabled||!state.cloudflareGate||state.priceIdsConfigured!==8||!catalogReady}}}
+ const actionError=code=>{
+  const reasons={
+   PASSWORD_RECONFIRM_REQUIRED:'Your Owner password must be confirmed before changing testing settings.',
+   STAFF_STEPUP_CHECK_UNAVAILABLE:'Password verification service is unavailable. Check Supabase Auth and Cloudflare Functions.',
+   SETTINGS_STALE_REFRESH:'Testing settings changed since they were loaded. Click Refresh Testing Status and try again.',
+   OWNER_REQUIRED:'This action requires the OWNER account.',
+   SHADOW_TOGGLE_AUTH_REJECTED:'Supabase denied the Owner testing toggle. Check its Owner authorization and password confirmation RPC.',
+   SHADOW_TOGGLE_RPC_UNAVAILABLE:'The database testing-toggle RPC is unavailable. Review gu39_sandbox_owner_toggle in Supabase.',
+   SHADOW_TOGGLE_DATABASE_REJECTED:'Supabase rejected the testing-toggle transaction. Check Supabase Postgres logs for gu39_sandbox_owner_toggle and its audit-log insert.',
+   SANDBOX_SECRETS_NOT_CONFIGURED:'The Cloudflare sandbox gate or TEST secrets are not configured.',
+   SAME_ORIGIN_REQUIRED:'Open the site using its Production hostname before testing.',
+   INVALID_SESSION:'Your sign-in session expired. Sign in again.',
+   PASSWORD_CONFIRM_DIALOG_UNAVAILABLE:'Password confirmation is still loading or unavailable. Refresh this page and try again.'
+  };
+  return reasons[String(code||'')]||String(code||'Testing action was not authorized.');
+ };
+ async function perform(payload){
+  toggle.disabled=begin.disabled=true;
+  try{
+   const request=async()=>{
+    const token=await auth();
+    const response=await fetch('/api/gu39-sandbox',{
+     method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+     body:JSON.stringify(payload),cache:'no-store'
+    });
+    const data=await response.json().catch(()=>null);
+    return {response,data};
+   };
+   let {response,data}=await request();
+   // This action uses fetch rather than the Supabase JS SDK; its existing SDK
+   // wrapper cannot automatically open the Owner password/Turnstile dialog.
+   // Start existing Owner password confirmation and retry exactly once.
+   if(!response.ok&&data?.error==='PASSWORD_RECONFIRM_REQUIRED'){
+    const confirmPassword=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof confirmPassword!=='function')throw Error('PASSWORD_CONFIRM_DIALOG_UNAVAILABLE');
+    await confirmPassword();
+    ({response,data}=await request());
+   }
+   if(!response.ok||data?.ok!==true)throw Error(data?.error||'Payment test action failed; check Cloudflare Functions logs.');
+   return data;
+  }catch(e){
+   const detail=e?.message||'Unknown error.';
+   message.textContent='Payment testing action not completed: '+actionError(detail);
+   return null;
+  }finally{
+   if(state){
+    toggle.disabled=state.role!=='OWNER'||(!state.enabled&&!state.cloudflareGate);
+    begin.disabled=state.role!=='OWNER'||!state.enabled||!state.cloudflareGate||state.priceIdsConfigured!==8||!catalogReady;
+   }
+  }
+ }
  refresh.addEventListener('click',getState);
  toggle.addEventListener('click',async()=>{if(!state)return;const next=!state.enabled;if(next&&!confirm('Enable SHADOW sandbox tests? No real member access will change.'))return;
   const result=await perform({action:'toggle',enabled:next,updatedAt:state.updatedAt});if(result)await getState()});
@@ -114,7 +164,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.52',refresh:getState,verifyCatalog,runPreflight});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.53',refresh:getState,verifyCatalog,runPreflight});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
