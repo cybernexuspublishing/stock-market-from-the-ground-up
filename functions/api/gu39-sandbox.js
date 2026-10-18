@@ -400,6 +400,16 @@ async function completePaymentReview(request,env,c,a){
   writesPerformed:false,providerCheckoutCreated:false,
   note:'Combined, read-only review: does not charge a card, create subscriptions, grant entitlements, or independently activate LIVE checkout.'};
 }
+async function recordShadowReconciliationAudit(c,a,intentId,outcome){
+ try{
+  await service(c,'admin_audit_log','POST',{
+   actor_user_id:a.userId,action:'commerce.stripe.shadow.reconcile.v014056',
+   target_type:'gu39_sandbox_intent',target_id:intentId,
+   details:{outcome,scope:'ISOLATED_STRIPE_TEST_ONLY',liveCheckout:false}
+  });
+  return true;
+ }catch{return false}
+}
 async function reconcileSingleTestIntent(c,env,a,intentId){
  if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
  if(!/^[0-9a-f-]{36}$/i.test(String(intentId)))throw Error('INVALID_REQUEST');
@@ -421,8 +431,9 @@ async function reconcileSingleTestIntent(c,env,a,intentId){
     '&status=eq.prepared&session_id=is.null','PATCH',
     {status:'test_failed',updated_at:new Date().toISOString()});
   if(!Array.isArray(change)||change.length!==1)throw Error('RECONCILIATION_STALE');
+  const auditRecorded=await recordShadowReconciliationAudit(c,a,intentId,'MARKED_UNBOUND_TEST_FAILED');
   return {ok:true,action:'MARKED_UNBOUND_TEST_FAILED',testOnly:true,
-   noStripeSessionMatched:true,liveCheckout:false};
+   noStripeSessionMatched:true,auditRecorded,liveCheckout:false};
  }
  if(row.status==='MATCHED_VERIFIED_SESSION'){
   const change=await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(intentId)+
@@ -430,8 +441,9 @@ async function reconcileSingleTestIntent(c,env,a,intentId){
     '&status=eq.prepared&session_id=is.null','PATCH',
     {session_id:row.providerSessionId,status:'checkout_created',updated_at:new Date().toISOString()});
   if(!Array.isArray(change)||change.length!==1)throw Error('RECONCILIATION_STALE');
+  const auditRecorded=await recordShadowReconciliationAudit(c,a,intentId,'BOUND_VERIFIED_TEST_SESSION');
   return {ok:true,action:'BOUND_VERIFIED_TEST_SESSION',testOnly:true,
-   paymentAcceptanceStillPending:true,liveCheckout:false};
+   auditRecorded,paymentAcceptanceStillPending:true,liveCheckout:false};
  }
  throw Error('RECONCILIATION_MANUAL_REVIEW_REQUIRED');
 }
