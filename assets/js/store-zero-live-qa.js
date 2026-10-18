@@ -1,4 +1,4 @@
-/* v0.14.0.73 — store customer QA; explicit setup view never overrides v72 backend authorization. */
+/* v0.14.0.74 — visible restricted Store test plan; server-only authorization controls checkout. */
 (()=>{'use strict';
  const section=document.getElementById('store-zero-monthly-qa');if(!section)return;
  const begin=document.getElementById('store-zero-monthly-begin'),
@@ -22,7 +22,6 @@
   return labels[code]||'The controlled $0 LIVE test is not available for this account. Checkout remains locked until setup and eligibility checks pass.';
  }
  async function showSetupIdentity(){
-  if(!setupView)return;
   section.hidden=false;begin.disabled=true;
   set('Checking controlled $0 LIVE Store checkout readiness…');
   try{
@@ -62,17 +61,19 @@
   try{
    const d=await api();
    if(!d.available){
-    if(setupView){section.hidden=false;begin.disabled=true;
-      set('The $0 LIVE checkout is currently disabled or this account is not an eligible FREE member. Install the existing v72 SQL grant function and enable the two GU72 production test flags for the allowlisted account. No card charge can occur while disabled.');
-    }else section.hidden=true;
-    return
+    // Show the test product while preventing unauthorized checkout.
+    section.hidden=false;begin.disabled=true;
+    begin.textContent='Test checkout locked — setup required';
+    set('The $0.00 test is visible, but checkout is not enabled for this account. It requires a confirmed FREE test member, the installed Supabase signed-grant function, the separate verified $0.00 LIVE Stripe Price, and both GU72 QA switches. No payment is possible while locked.');
+    return;
    }
    section.hidden=false;begin.disabled=false;
    begin.textContent='Verify $0.00 LIVE Checkout and One-Month Access';
    set('Eligible FREE test account. No charge or recurring subscription will be created.');
   }catch(e){
-   if(setupView){section.hidden=false;begin.disabled=true;set(explain(e.message))}
-   else section.hidden=true;
+   section.hidden=false;begin.disabled=true;
+   begin.textContent='Test checkout locked';
+   set(explain(e.message));
   }
  }
  async function statusCheck(){
