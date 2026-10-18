@@ -76,8 +76,9 @@ function supabasePaymentServiceHeaders(value){
 }
 async function paymentModeBoundary(context,url){
  const {request,env}=context;
- if(request.method!=='POST')return null;
  const checkoutPath=url.pathname.toLowerCase();
+ const isPublicQuote=request.method==='GET'&&url.searchParams.get('action')==='quote'&&LIVE_CHECKOUT_ROUTES.has(checkoutPath);
+ if(request.method!=='POST'&&!isPublicQuote)return null;
  if(!LIVE_CHECKOUT_ROUTES.has(checkoutPath)&&!LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath))return null;
  // Do not trust the frontend-selected mode or a stale cached setting.
  const base=clean(env.SUPABASE_URL).replace(/\\/$/,'');
