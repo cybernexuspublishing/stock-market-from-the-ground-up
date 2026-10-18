@@ -242,7 +242,7 @@
       if(!confirm(detail))return;
       fix.disabled=true;
       const resolved=await perform({action:'reconcile',intentId:candidate.intentId});
-      if(resolved){message.textContent='TEST-only reconciliation recorded: '+resolved.action+'. Refreshing the complete audit.';await runCompletePaymentReview();}
+      if(resolved){message.textContent='TEST-only reconciliation: '+resolved.action+(resolved.auditRecorded===false?' · WARNING: Admin audit log unavailable; review Supabase logs.':' · Admin audit record stored.')+' Refreshing the complete audit.';await runCompletePaymentReview();}
       else fix.disabled=false;
      });
     }
