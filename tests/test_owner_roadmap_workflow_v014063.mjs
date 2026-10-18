@@ -105,7 +105,7 @@ try{
  r=await call(request());assert.equal(r.data.progress['CORE-0001'].revision,rev2);
  assert.equal(r.data.progress['CORE-0001'].status,'verified');
  assert.equal((await call(request('POST',{action:'save',id:'CORE-9999',status:'owner_complete',expectedRevision:null}))).status,404);
- assert.equal((await call(request('POST',{...start,expectedRevision:rev2},'https://attacker.example')).status,403);
+ assert.equal((await call(request('POST',{...start,expectedRevision:rev2},'https://attacker.example'))).status,403);
  // Custom tasks may be added and archived but cannot be silently revived.
  const created=await call(request('POST',{action:'add',title:'Owner tracking acceptance test',area:'Operations',detail:'Isolated mock test'}));
  assert.equal(created.status,200);
