@@ -27,3 +27,17 @@
 .gu39-mode-description{max-width:100%;border:1px solid #507690;background:#193d55;
  padding:.65rem .9rem;border-radius:7px;font-weight:600}
 @media(prefers-reduced-motion:reduce){.gu39-mode-track,.gu39-mode-track:after{transition:none}}
+
+/* v0.14.0.56 — Owner single-action payment readiness console */
+#gu39-shadow .gu39-primary-readiness{border:2px solid #f0bd48;background:#ffdd83;color:#09283d;
+ font-weight:800;min-height:46px;padding:.7rem 1.1rem}
+#gu39-shadow .gu39-primary-readiness:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#gu39-shadow .gu39-complete-report{margin:.8rem 0;padding:1rem;border:2px solid #7facc4;
+ border-radius:.65rem;background:#10354a;overflow-x:auto}
+#gu39-shadow .gu39-complete-report p{line-height:1.5}
+#gu39-shadow .gu39-complete-report table{width:100%;border-collapse:collapse;margin:.8rem 0}
+#gu39-shadow .gu39-complete-report th,#gu39-shadow .gu39-complete-report td{
+ text-align:left;vertical-align:top;padding:.45rem;border-bottom:1px solid #56788b}
+#gu39-shadow .gu39-advanced-controls{margin:.8rem 0;border:1px solid #527c96;border-radius:8px;padding:.7rem}
+#gu39-shadow .gu39-advanced-controls summary{cursor:pointer;font-weight:600}
+#gu39-shadow .gu39-advanced-actions{display:flex;flex-wrap:wrap;gap:.6rem;padding-top:.7rem}
