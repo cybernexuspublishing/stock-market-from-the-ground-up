@@ -1,0 +1,48 @@
+name: Real PostgreSQL Entitlement Lifecycle v0.14.0.60
+on:
+  push:
+    paths:
+      - 'tests/fixtures/v014060_*'
+      - 'supabase/migrations/v0.14.0.58_LIVE_MEMBERSHIP_FULFILLMENT_REVIEW_REQUIRED.sql'
+      - '.github/workflows/gu60-postgres-entitlement-acceptance.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ephemeral-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: disposable_ci_only
+          POSTGRES_DB: entitlement_acceptance_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d entitlement_acceptance_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_ci_only
+      PGDATABASE: entitlement_acceptance_ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify local PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          fi
+          psql --version
+      - name: Create disposable schema and canonical evaluator
+        run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014060_ephemeral_membership_schema.sql
+      - name: Install actual proposed v58 SQL in disposable PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.58_LIVE_MEMBERSHIP_FULFILLMENT_REVIEW_REQUIRED.sql
+      - name: Confirm real SQL payment-to-member-entitlement transitions
+        run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014060_ephemeral_membership_acceptance.sql
