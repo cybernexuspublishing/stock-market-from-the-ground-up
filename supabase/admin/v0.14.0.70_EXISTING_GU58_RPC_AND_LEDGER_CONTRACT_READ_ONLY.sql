@@ -77,7 +77,8 @@ WITH expected(label, signature) AS (
      WHEN position('refund_hold_invoice_id' in definition)>0 AND
           position('pg_advisory_xact_lock' in definition)>0 AND
           position('gu58_live_stripe_events' in definition)>0 AND
-          position('stripe_session_id' in definition)>0 THEN 'MARKERS_PRESENT'
+          position('stripe_session_id' in definition)>0 AND
+          position('stale_ignored' in definition)>0 THEN 'MARKERS_PRESENT'
      ELSE 'REVIEW_REQUIRED' END AS status,
    'Markers are not an exact source match, functional proof, or webhook delivery test' AS detail
  FROM inspect WHERE label='LIVE event fulfillment'
