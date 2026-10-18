@@ -8,5 +8,5 @@
  function routeName(raw){const path=canonicalPath(raw);if(path==='/')return '';if(!/^\/[a-z0-9-]+(?:\.html)?$/.test(path))return null;return path.slice(1).replace(/\.html$/,'')}
  function classify(raw){const name=routeName(raw);if(name&&STAFF_SET.has(name))return 'staff';if(name&&MEMBER_SET.has(name))return 'member';if(name&&PREVIEW_SET.has(name))return 'public-preview';return 'public'}
  function isProtected(raw){return ['member','staff'].includes(classify(raw))}
- root.GroundUpRoutePolicy=Object.freeze({version:'0.14.0.57',member:Object.freeze(MEMBER),staff:Object.freeze(STAFF),publicPreviews:Object.freeze(PUBLIC_PREVIEWS),canonicalPath,routeName,classify,isProtected});
+ root.GroundUpRoutePolicy=Object.freeze({version:'0.14.0.58',member:Object.freeze(MEMBER),staff:Object.freeze(STAFF),publicPreviews:Object.freeze(PUBLIC_PREVIEWS),canonicalPath,routeName,classify,isProtected});
 })(globalThis);
