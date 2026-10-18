@@ -69,7 +69,7 @@ globalThis.fetch=async(url,o={})=>{
   state.dbWrites++;state.postBody=JSON.parse(o.body);assert.equal(state.postBody.id,intent);return respond([state.postBody]);
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='PATCH'){
-  state.dbWrites++;return respond([]);
+  state.dbWrites++;return new Response(null,{status:204});
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='GET'){
   return respond([{id:intent,user_id:uid,price_id:mapped['plan:FULL_MONTHLY'].price_id,
