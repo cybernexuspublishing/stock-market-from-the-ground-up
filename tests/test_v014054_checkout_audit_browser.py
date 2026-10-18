@@ -46,6 +46,6 @@ with sync_playwright() as pw:
  assert stats['writes']==0,stats
  page.locator('#gu39-sku').select_option('plan:FULL_ANNUAL')
  assert payment.is_disabled(),'Changing SKU must invalidate the prior safety audit'
- assert 'Payment testing interface v0.14.0.56' in page.locator('#gu39-shadow').inner_text()
+ assert 'Payment testing interface v0.14.0.57' in page.locator('#gu39-shadow').inner_text()
  print('PASS v54: no TEST checkout allowed before nine-check read-only safety audit, selected SKU invalidates approval, no writes.')
  browser.close()
