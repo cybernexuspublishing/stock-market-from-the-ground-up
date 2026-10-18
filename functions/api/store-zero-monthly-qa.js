@@ -29,15 +29,18 @@ async function member(req,c){
  if(!token)throw fail('SIGN_IN_REQUIRED',401);
  const u=await query(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});
  if(u.id!==c.allowed||!uuid(u.id)||!(u.confirmed_at||u.email_confirmed_at))throw fail('NOT_AUTHORIZED',403);
- const [a,g,p,flags]=await Promise.all([
+ const [a,g,p,flags,age]=await Promise.all([
   query(c.base+'/rest/v1/rpc/my_platform_access_for_user',{method:'POST',
    headers:authHeaders(c),body:JSON.stringify({target_user:u.id})}),
   query(c.base+'/rest/v1/user_plan_grants?select=ends_at,source_reference&user_id=eq.'+u.id+'&source=eq.stripe_zero_monthly_qa_v72&limit=1',{headers:authHeaders(c)}),
   query(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)}),
-  query(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)})
+  query(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)}),
+  query(c.base+'/rest/v1/account_private_identity?select=age_eligible,date_of_birth&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)})
  ]);
  if(p?.[0]?.account_kind!=='member'||!Array.isArray(flags)||
-   ['suspended','restricted'].includes(flags[0]?.status))throw fail('NOT_ELIGIBLE',403);
+   ['suspended','restricted'].includes(flags[0]?.status)||
+   age?.[0]?.age_eligible!==true||!age?.[0]?.date_of_birth)
+   throw fail('NOT_ELIGIBLE',403);
  return {user:u,access:a,used:g?.[0]||null};
 }
 async function verify(c){
