@@ -1,6 +1,6 @@
 /* v0.14.0.61 | STAGING TEST member subscription/lifetime checkout candidate.
- * DEPLOYMENT-LOCKED: no checkout until independent Owner approval, verified live
- * Stripe catalog/account, DB contract, TEST slider OFF and merchant acceptance.
+ * DEPLOYMENT-LOCKED: no checkout until independent Owner approval, verified TEST
+ * Stripe catalog/account, staging DB contract, TEST slider ON and merchant acceptance.
  * Never touches book/KDP purchase rights. Do not enable before legal & provider review.
  */
 const STAGING_PRODUCTION_REF='oxihglyfgzywsupnyicb';
@@ -9,11 +9,11 @@ function stagingBoundary(e,req){
   const host=new URL(req.url).hostname.toLowerCase();
   const expected=String(e.GU61_STAGING_HOSTNAME||'').trim().toLowerCase();
   const ref=String(e.GU61_STAGING_PROJECT_REF||'').trim();
-  const base=String(e.SUPABASE_URL||'').trim().replace(/\\/$/,'');
+  const base=String(e.SUPABASE_URL||'').trim().replace(/\/$/,'');
   return e.GU61_STAGING_ENABLED==='true' && e.GU61_STAGING_APPROVED==='true' &&
     /^[a-z0-9]{20}$/.test(ref) && ref!==STAGING_PRODUCTION_REF &&
     base==='https://'+ref+'.supabase.co' && host===expected &&
-    /^[a-z0-9-]+\\.[a-z0-9-]+\\.pages\\.dev$/.test(host);
+    /^[a-z0-9-]+\.[a-z0-9-]+\.pages\.dev$/.test(host);
  }catch{return false}
 }
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
