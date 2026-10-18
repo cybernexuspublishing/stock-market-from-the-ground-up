@@ -39,7 +39,11 @@ WITH expected(label, signature) AS (
         CASE WHEN fn_oid IS NOT NULL
           AND NOT coalesce(has_function_privilege('anon',fn_oid,'EXECUTE'),false)
           AND NOT coalesce(has_function_privilege('authenticated',fn_oid,'EXECUTE'),false)
-          AND NOT coalesce(has_function_privilege('PUBLIC',fn_oid,'EXECUTE'),false)
+          AND NOT EXISTS (
+           SELECT 1 FROM pg_proc grant_p
+           JOIN LATERAL aclexplode(coalesce(grant_p.proacl,acldefault('f',grant_p.proowner))) acl ON true
+           WHERE grant_p.oid=fn_oid AND acl.grantee=0 AND acl.privilege_type='EXECUTE'
+          )
           THEN 'PASS' ELSE 'HOLD' END,
         'Any PUBLIC EXECUTE exposes this SECURITY DEFINER function to every account'
  FROM inspect
