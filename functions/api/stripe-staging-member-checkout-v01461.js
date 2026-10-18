@@ -36,19 +36,19 @@ function environment(env,req){
     !secret||!pub||!/^sk_test_[A-Za-z0-9_]+$/.test(stripe)||
     !/^acct_[A-Za-z0-9_]{6,}$/.test(acct)||
     !/^whsec_[A-Za-z0-9_]+$/.test(val(env.GU61_STRIPE_TEST_WEBHOOK_SECRET)))
-  throw err('LIVE payment checkout has not received independent Owner and provider approval.',503);
+  throw err('Staging TEST checkout requires a separately approved staging configuration.',503);
  return {base,secret,pub,stripe,account:acct};
 }
-function liveCatalog(env){
+function stagingCatalog(env){
  let obj;
- try{obj=JSON.parse(val(env.GU61_STRIPE_TEST_CATALOG_JSON)||'{}')}catch{throw err('LIVE catalog mapping invalid.',503)}
+ try{obj=JSON.parse(val(env.GU61_STRIPE_TEST_CATALOG_JSON)||'{}')}catch{throw err('Staging TEST catalog mapping invalid.',503)}
  const keys=Array.from(products);
  if(!obj||Array.isArray(obj)||Object.keys(obj).length!==keys.length||
     !keys.every(k=>/^price_[A-Za-z0-9_]{6,}$/.test(obj[k]?.price_id||'')&&
       /^prod_[A-Za-z0-9_]{6,}$/.test(obj[k]?.product_id||''))||
     new Set(keys.map(k=>obj[k].price_id)).size!==keys.length||
     new Set(keys.map(k=>obj[k].product_id)).size!==keys.length)
-   throw err('All eight distinct LIVE products and prices must be independently approved.',503);
+   throw err('All eight distinct Stripe TEST products and prices must be configured.',503);
  return obj;
 }
 async function request(url,options){const r=await fetch(url,{...options,cache:'no-store'});
@@ -83,7 +83,7 @@ async function assertTestAccount(c){
 async function testModeOn(c){
  const rows=await db(c,'gu39_sandbox_settings?select=enabled&id=eq.true&limit=1');
  if(!Array.isArray(rows)||rows.length!==1||rows[0].enabled!==true)
-  throw err('Owner TESTING mode is enabled or unavailable; LIVE checkout blocked.',503);
+  throw err('Staging Owner TESTING mode must be enabled before a TEST purchase.',503);
 }
 async function product(c,kind,code){const key=kind+':'+code;if(!products.has(key))throw err('Product not included in this test.',403);
  const isPlan=kind==='plan', path=isPlan?`platform_plans?select=*&plan_code=eq.${code}&limit=1`:`platform_tools?select=*&tool_code=eq.${code}&limit=1`;
@@ -106,7 +106,7 @@ export async function onRequestPost({request:req,env}){
  try{if(Number(req.headers.get('content-length')||0)>2048)throw err('Request too large.',413);
   const origin=req.headers.get('origin'),here=new URL(req.url);if(origin!==here.origin)throw err('Cross-site checkout denied.',403);
   const c=environment(env,req);await testModeOn(c);await assertTestAccount(c);
-  const catalog=liveCatalog(env),u=await validateUser(c,req),input=await req.json().catch(()=>({}));
+  const catalog=stagingCatalog(env),u=await validateUser(c,req),input=await req.json().catch(()=>({}));
   const type=val(input.type),code=val(input.code);
   if(!['plan','tool'].includes(type)||!/^[A-Z0-9_]{3,90}$/.test(code))throw err('Unsupported product.',400);
   const p=await product(c,type,code),mapped=catalog[p.key],price=mapped.price_id;await verifyPrice(c,price,p,mapped.product_id);
@@ -144,11 +144,11 @@ export async function onRequestPost({request:req,env}){
   if(!/^cs_test_[A-Za-z0-9_]+$/.test(session.id||'')||session.livemode!==false)throw err('Unexpected Stripe TEST STAGING session.',503);
   const target=new URL(session.url);if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw err('Invalid Stripe destination.',503);
   await db(c,`gu61_staging_checkout_intents?id=eq.${id}`,'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
-  return respond({ok:true,live:true,url:session.url,notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
- }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
+  return respond({ok:true,sandboxOnly:true,live:false,url:session.url,notice:'Stripe TEST Checkout. Staging member access activates only after verified TEST payment.'});
+ }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'Staging TEST checkout unavailable.'},e.status||503)}
 }
 // Public readiness: returns only a boolean; never leaks private credentials, prices or account details.
 export function onRequestGet({env,request}){
- try{environment(env,request);liveCatalog(env);return respond({ok:true,stagingConfigured:true,livePayments:false,requiresIndependentLaunchReview:true})}
+ try{environment(env,request);stagingCatalog(env);return respond({ok:true,stagingConfigured:true,livePayments:false,requiresIndependentLaunchReview:true})}
  catch{return respond({ok:true,stagingConfigured:false,livePayments:false})}
 }

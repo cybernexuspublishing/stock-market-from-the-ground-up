@@ -7,6 +7,7 @@ on:
       - 'supabase/migrations/v0.14.0.61_*'
       - 'tests/fixtures/v014061_*'
       - 'tests/test_v014061_*'
+      - 'tests/test_v014062_*'
       - '.github/workflows/stripe-staging-member-v01461.yml'
   workflow_dispatch:
 permissions:
@@ -46,6 +47,7 @@ jobs:
           node --check functions/api/stripe-staging-member-checkout-v01461.js
           node --check functions/api/stripe-staging-member-webhook-v01461.js
           node tests/test_v014061_staging_security.mjs
+          node tests/test_v014062_staging_provider_lifecycle.mjs
       - name: Verify real staging SQL using disposable PostgreSQL and actual entitlement evaluator
         run: |
           psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014060_ephemeral_membership_schema.sql
