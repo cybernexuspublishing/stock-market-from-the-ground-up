@@ -11,10 +11,12 @@ assert 'admin-payment-providers-v01432r2.js' in read('assets/js/site.js')
 checkout=read('assets/js/checkout-platform.js')
 assert 'digital-payment-route-v01432r2' in checkout
 assert "route.provider==='STRIPE_MANAGED'" in checkout
-# R2 had a literal 'integration pending' placeholder. V38 has gated sandbox routing;
-# V39 adds an independent SHADOW-only Owner testing API without enabling customer sales.
-assert 'stripe-customer-checkout-v01438' in checkout
-assert 'readiness?.sandboxReady===true' in checkout
+# R2 provider routing remains; current customer checkout must NOT depend on the
+# discontinued staging database. Owner-only TEST purchases use GU39 shadow state.
+assert 'stripe-live-checkout-v01458' in checkout
+assert 'stripe-customer-checkout-v01438' not in checkout
+assert 'readiness?.liveCheckoutAvailable===true' in checkout
+assert 'STRIPE_MANAGED_LIVE' in checkout
 assert 'Stripe customer payments not activated' in checkout
 assert "GU39_SANDBOX_SHADOW_GATE==='true'" in read('functions/api/gu39-sandbox.js')
 assert "GU39_STRIPE_TEST_SECRET_KEY" in read('functions/api/gu39-stripe-webhook.js')
