@@ -33,6 +33,44 @@ assert "CASE WHEN evt_status='past_due' THEN 'paused' ELSE evt_status END" in sq
 assert 'cancel_at_period_end=excluded.cancel_at_period_end' in sql
 assert 'REVIEW REQUIRED' in sql
 assert sql.count('BEGIN;')==1 and sql.rstrip().endswith('COMMIT;')
+# Regression: malformed duplicated migration once contained multiple definitions,
+# unmatched dollar quotes and additional SQL *after* COMMIT while source CI passed.
+assert sql.count('CREATE OR REPLACE FUNCTION public.gu58_live_stripe_apply_event(')==1
+assert sql.count('CREATE OR REPLACE FUNCTION public.gu58_live_bind_verified_checkout(')==1
+assert sql.count('$fn
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
+          'GU_PAYMENT_LIVE_LAUNCH_APPROVED'):
+ assert k not in read('config.js'), 'Secret/approval controls must never be stored in public config'
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED'):
+ assert k not in read('release-manifest.json'),'Do not ship live flags inside public manifest'
+print('PASS v58: independent live checkout/webhook gates; live-only SQL; RLS/service RPC; no public approval flags.')
+)==2 and sql.count('$bind
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
+          'GU_PAYMENT_LIVE_LAUNCH_APPROVED'):
+ assert k not in read('config.js'), 'Secret/approval controls must never be stored in public config'
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED'):
+ assert k not in read('release-manifest.json'),'Do not ship live flags inside public manifest'
+print('PASS v58: independent live checkout/webhook gates; live-only SQL; RLS/service RPC; no public approval flags.')
+)==2
+assert sql.count('COMMIT;')==1
+assert "p_session_id !~ '^cs_live_[A-Za-z0-9_]{6,}
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
+          'GU_PAYMENT_LIVE_LAUNCH_APPROVED'):
+ assert k not in read('config.js'), 'Secret/approval controls must never be stored in public config'
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED'):
+ assert k not in read('release-manifest.json'),'Do not ship live flags inside public manifest'
+print('PASS v58: independent live checkout/webhook gates; live-only SQL; RLS/service RPC; no public approval flags.')
+" in sql
+assert "p_price_id !~ '^price_[A-Za-z0-9_]{6,}
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
+          'GU_PAYMENT_LIVE_LAUNCH_APPROVED'):
+ assert k not in read('config.js'), 'Secret/approval controls must never be stored in public config'
+for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED'):
+ assert k not in read('release-manifest.json'),'Do not ship live flags inside public manifest'
+print('PASS v58: independent live checkout/webhook gates; live-only SQL; RLS/service RPC; no public approval flags.')
+" in sql
+assert 'GRANT EXECUTE ON FUNCTION public.gu58_live_bind_verified_checkout' in sql
+assert 'GRANT EXECUTE ON FUNCTION public.gu58_live_stripe_apply_event' in sql
 for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
           'GU_PAYMENT_LIVE_LAUNCH_APPROVED'):
  assert k not in read('config.js'), 'Secret/approval controls must never be stored in public config'
