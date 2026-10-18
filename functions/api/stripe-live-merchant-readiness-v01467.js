@@ -104,7 +104,7 @@ const aliases=Object.freeze({
  'tool:MARKET_TUTOR':['Market Tutor']
 });
 const normalized=x=>String(x??'').normalize('NFKD').toLowerCase()
- .replace(/[^a-z0-9]+/g,' ').trim().replace(/\\s+/g,' ');
+ .replace(/[^a-z0-9]+/g,' ').trim();
 const nameMatches=(sku,name)=>aliases[sku]?.some(n=>normalized(n)===normalized(name))===true;
 // This is read-only discovery of existing LIVE Stripe prices. It never writes
 // the suggested mapping to Cloudflare or changes launch permissions. A mapping
