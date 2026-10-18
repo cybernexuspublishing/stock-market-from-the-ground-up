@@ -46,11 +46,11 @@ with objects as (
   'Inspect pg_policies separately; only intended public-read settings should be queryable by anon/authenticated'
  union all
  select 'grant/anon-site_settings-update',
-  case when has_table_privilege('anon','public.site_settings','UPDATE') then 'REVIEW_PERMISSION' else 'DENIED' end,
+  case when coalesce(has_table_privilege('anon',to_regclass('public.site_settings'),'UPDATE'),false) then 'REVIEW_PERMISSION' else 'DENIED' end,
   'Client roles should not update Owner roadmap settings'
  union all
  select 'grant/authenticated-site_settings-update',
-  case when has_table_privilege('authenticated','public.site_settings','UPDATE') then 'REVIEW_PERMISSION' else 'DENIED' end,
+  case when coalesce(has_table_privilege('authenticated',to_regclass('public.site_settings'),'UPDATE'),false) then 'REVIEW_PERMISSION' else 'DENIED' end,
   'Client roles should not update Owner roadmap settings'
 )
 select check_id,result,detail from reports order by check_id;
