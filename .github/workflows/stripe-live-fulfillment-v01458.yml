@@ -13,6 +13,7 @@ on:
       - 'tests/test_v014068_*'
       - 'tests/test_v014069_*'
       - 'tests/test_v014070_*'
+      - 'tests/test_v014071_*'
       - 'assets/js/checkout-platform.js'
       - 'supabase/admin/v0.14.0.59*'
       - 'supabase/admin/v0.14.0.70*'
@@ -39,6 +40,7 @@ jobs:
           node --check functions/api/stripe-live-merchant-readiness-v01467.js
           node --check functions/api/stripe-live-webhook-v01458.js
           node --check functions/api/stripe-live-webhook.js
+          node --check functions/api/owner-zero-live-checkout.js
           node --check functions/api/checkout.js
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
@@ -52,6 +54,8 @@ jobs:
           node tests/test_v014067_live_merchant_readiness.mjs
           node tests/test_v014069_live_catalog_recovery.mjs
           node tests/test_v014068_stable_webhook.mjs
+          node tests/test_v014071_zero_live_checkout.mjs
+          node tests/test_v014071_zero_live_webhook.mjs
       - name: Preserve confirmed sandbox payment lifecycle and gates
         run: |
           node tests/test_v014056_unified_payment_readiness.mjs

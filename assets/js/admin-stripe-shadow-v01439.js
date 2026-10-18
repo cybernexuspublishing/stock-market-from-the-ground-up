@@ -1,4 +1,4 @@
-/* v0.14.0.70 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.71 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.70')+' · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.71')+' · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -37,6 +37,16 @@
  const liveInfo=element('p','Uses existing encrypted Cloudflare credentials to read LIVE Stripe account, eight prices and webhook details. Does not open checkout, charge, or change TEST/LIVE mode.','gu39-small');
  const liveResults=element('section',undefined,'gu39-complete-report');liveResults.setAttribute('role','status');liveResults.setAttribute('aria-live','polite');
  liveAudit.append(liveTitle,liveInfo,liveButton,liveResults);
+ // $0 LIVE QA is NOT GU58 member checkout. This collapsible test control stays
+ // hidden from non-Owners and uses a separate explicit server-side enable gate.
+ const zeroQA=element('details',undefined,'gu71-zero-live-checkout');zeroQA.hidden=true;
+ const zeroHeader=element('summary','Owner LIVE $0.00 Checkout — Separate QA Product (No Membership Grant)');
+ const zeroDescription=element('p','One-time Stripe-hosted $0.00 Checkout, no card required. Requires a separate flagged QA Product/Price and explicit server-side GU71 switch. Does NOT test paid processing, Managed Payments, signed GU58 fulfillment or grant an entitlement.','gu39-small');
+ const zeroCheck=element('button','Check $0 LIVE QA Product — No Checkout');zeroCheck.type='button';
+ const zeroStart=element('button','Create Owner $0 LIVE Checkout — Explicit Confirmation');zeroStart.type='button';
+ zeroStart.disabled=true;
+ const zeroReadout=element('section',undefined,'gu39-complete-report');zeroReadout.setAttribute('role','status');zeroReadout.setAttribute('aria-live','polite');
+ zeroQA.append(zeroHeader,zeroDescription,zeroCheck,zeroStart,zeroReadout);
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
@@ -66,7 +76,7 @@
  const advancedTitle=element('summary','Advanced diagnostics (individual checks)');
  const advancedRow=element('div',undefined,'gu39-advanced-actions');
  advancedRow.append(refresh,verify,preflight,audit);advanced.append(advancedTitle,advancedRow);
- root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,unifiedReport,liveAudit,advanced,preflightReport,catalog,auditReport,message,explain);
+ root.append(title,deployedVersion,lead,banner,help,summary,controls,modeDescription,unifiedReport,liveAudit,zeroQA,advanced,preflightReport,catalog,auditReport,message,explain);
  async function auth(){const sb=await window.getSupabaseClient?.();const session=(await sb?.auth?.getSession?.())?.data?.session;if(!session?.access_token)throw Error('Sign in to Admin first.');return session.access_token}
  // Consistent human-readable guidance for the Owner's read-only Stripe readiness checks.
  const errorMessage=(code,status)=>{
@@ -104,6 +114,8 @@
      :'LIVE SELECTED · Real customer checkout is NOT approved. Switching TESTING off does not authorize real charges.';
   begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
   liveAudit.hidden=data.role!=='OWNER';liveButton.disabled=data.role!=='OWNER';
+  zeroQA.hidden=data.role!=='OWNER';zeroCheck.disabled=data.role!=='OWNER';
+  if(data.role!=='OWNER')zeroStart.disabled=true;
   message.textContent='All displayed purchases remain sandbox-only; actual Stripe processing and entitlement safety require acceptance testing.';
  }
  async function getState(){refresh.disabled=true;message.textContent='Checking authorized sandbox status…';try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Sandbox unavailable.');show(data)}catch(e){toggle.disabled=begin.disabled=true;message.textContent=e.message||'Unable to access payment testing controls.'}finally{refresh.disabled=false}}
@@ -284,7 +296,7 @@
    unifiedReport.append(accepted);
    const live=report.production||{};
    unifiedReport.append(element('p',
-    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.70')+'): '+
+    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.71')+'): '+
     (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
       'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
     ' LIVE database installation and exact stored SQL require independent verification against Owner-provided Supabase evidence; a TEST shadow grant is not real member access.'));
@@ -346,6 +358,70 @@
   finally{liveButton.disabled=state?.role!=='OWNER'}
  }
  liveButton.addEventListener('click',runLiveMerchantReview);
+ const QA_URL='/api/owner-zero-live-checkout';
+ const QA_FAILED={
+  ZERO_QA_DISABLED:'Zero-dollar LIVE QA is OFF. Keep it off until you intentionally configure the separate $0 LIVE QA Product.',
+  ZERO_QA_CONFIGURATION_MISSING:'Configure GU71_ZERO_LIVE_PRODUCT_ID, GU71_ZERO_LIVE_PRICE_ID and existing GU58 LIVE Stripe credentials in Cloudflare Production.',
+  ZERO_QA_MUST_NOT_USE_PAID_CATALOG:'QA Product/Price must be distinct from every paid membership and tool.',
+  ZERO_PRODUCT_NOT_QA_MARKED:'Stripe LIVE QA Product must be active and have metadata gu71_zero_qa=true.',
+  NOT_AN_EXACT_ZERO_DOLLAR_ONE_TIME_PRICE:'Price must be LIVE, USD, exactly $0.00, one-time, flat per unit and owned by the separate QA product.',
+  PASSWORD_RECONFIRM_REQUIRED:'Use the Owner password confirmation before trying again.',
+  ZERO_CHECKOUT_NOT_SUPPORTED:'Stripe did not accept this $0 Checkout configuration. Stop; do not enter card details or replace with a paid Price.'
+ };
+ async function zeroFetch(method='GET',sessionId){
+  const jwt=await auth();
+  const url=QA_URL+(sessionId?'?session_id='+encodeURIComponent(sessionId):'');
+  const perform=async()=>{const r=await fetch(url,{method,headers:{authorization:'Bearer '+jwt,
+   ...(method==='POST'?{'content-type':'application/json'}:{})},
+   ...(method==='POST'?{body:JSON.stringify({confirm:'CREATE_ZERO_DOLLAR_LIVE_QA'})}:{cache:'no-store'})});
+   return {r,data:await r.json().catch(()=>null)}};
+  let {r,data}=await perform();
+  if(!r.ok&&data?.error==='PASSWORD_RECONFIRM_REQUIRED'){
+   const fn=window.GroundUpAdminPasswordConfirm?.ensure;
+   if(typeof fn!=='function')throw Error('Owner password confirmation required.');
+   await fn();({r,data}=await perform());
+  }
+  if(!r.ok||data?.ok!==true)throw Error(QA_FAILED[data?.error]||('LIVE $0 QA unavailable: '+String(data?.error||r.status)));
+  return data;
+ }
+ zeroCheck.addEventListener('click',async()=>{
+  zeroCheck.disabled=true;zeroStart.disabled=true;
+  zeroReadout.replaceChildren(element('p','Checking one-time LIVE $0 product and Owner access without opening Stripe Checkout.'));
+  try{
+   const r=await zeroFetch();
+   if(r.configuredZeroPrice===true&&r.amountCents===0){
+    zeroReadout.replaceChildren(element('p','PASS — The separate Stripe LIVE QA Product and Price are verified at exactly $0.00, one-time, no other paid SKU. Creating a checkout still requires explicit Owner confirmation.'));
+    zeroStart.disabled=false;
+   }
+  }catch(e){zeroReadout.replaceChildren(element('p',e.message))}
+  finally{zeroCheck.disabled=state?.role!=='OWNER'}
+ });
+ zeroStart.addEventListener('click',async()=>{
+  if(!window.confirm('Create ONE real Stripe LIVE Checkout Session for the isolated $0.00 QA product? No card, no subscription, no entitlements. This does not test paid charges.'))return;
+  zeroStart.disabled=true;
+  zeroReadout.replaceChildren(element('p','Creating an Owner-only Stripe LIVE $0.00 Checkout Session. Not a paid order.'));
+  try{
+   const r=await zeroFetch('POST');
+   if(!r.zeroDollar||!r.sessionUrl)throw Error('Zero-dollar validation missing; do not proceed.');
+   window.location.assign(r.sessionUrl);
+  }catch(e){zeroReadout.replaceChildren(element('p',e.message))}
+ });
+ const returnId=new URLSearchParams(window.location.search).get('session_id');
+ if(new URLSearchParams(window.location.search).get('gu71')==='complete'&&returnId){
+  zeroQA.open=true;
+  zeroReadout.replaceChildren(element('p','Checking returned Stripe LIVE $0 checkout against the Owner and ensuring no payment intent or subscription exists.'));
+  // Wait for the Owner session to be accessible in the Admin screen; no
+  // unauthenticated return-url acceptance or membership grant.
+  setTimeout(async()=>{
+   try{
+    const r=await zeroFetch('GET',returnId);
+    zeroReadout.replaceChildren(element('h3',r.verifiedSafe?'PASS — Stripe returned a verified $0 Checkout.':'REVIEW — Zero-dollar order NOT verified.'));
+    zeroReadout.append(element('p','Stripe status: '+r.status+'; payment status: '+r.paymentStatus+'; amount: '+r.orderTotalCents+' cents; charge absent: '+r.noCharge+'. No membership was granted.'));
+    zeroReadout.append(element('p','This does not certify signed GU58 webhook delivery, Managed Payments, recurring billing or paid checkout.'));
+   }catch(e){zeroReadout.replaceChildren(element('p','Owner verification unavailable: '+e.message))}
+  },1250);
+ }
+
 
  preflight.addEventListener('click',runPreflight);
  verify.addEventListener('click',verifyCatalog);
@@ -437,7 +513,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.70',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.71',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
