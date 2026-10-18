@@ -1,4 +1,4 @@
-/* v0.14.0.56 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.57 — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v0.14.0.56 · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v0.14.0.57 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -247,6 +247,33 @@
      });
     }
    }
+   // Separate payment *acceptance* evidence from the 17 pre-transaction
+   // readiness checks. No accepted transaction is inferred from configuration.
+   const acceptance=report.acceptance||{};
+   const accepted=element('section',undefined,'gu39-acceptance-evidence');
+   accepted.append(element('h3','Actual TEST payment acceptance — '+(acceptance.status||'NOT_TESTED')));
+   if(acceptance.attemptCreatedAt)
+    accepted.append(element('p','Latest bound TEST checkout: '+acceptance.attemptCreatedAt+
+     ' · isolated ledger status: '+(acceptance.testRecordStatus||'unknown')));
+   const stages=element('table'),stagesHead=element('thead'),headRow=element('tr');
+   for(const h of ['Acceptance evidence','Status','Provider / database evidence'])headRow.append(element('th',h));
+   stagesHead.append(headRow);stages.append(stagesHead);
+   const stagesBody=element('tbody');
+   for(const check of acceptance.steps||[]){
+    const row=element('tr');
+    for(const field of [check.label,check.status,check.detail||'Awaiting an actual authorized sandbox transaction.'])
+     row.append(element('td',String(field||'')));
+    stagesBody.append(row);
+   }
+   stages.append(stagesBody);accepted.append(stages);
+   if(acceptance.error)accepted.append(element('p',
+    'Acceptance evidence unavailable: '+acceptance.error+'. Configuration checks remain separate.'));
+   const life=acceptance.lifeCycle||{};
+   accepted.append(element('p','Additional lifecycle evidence (observed, not simulated): '+
+    ['renewal','failedPayment','cancellation','refund','dispute']
+      .map(k=>k+' '+(life[k]||'NOT_TESTED')).join(' · ')));
+   accepted.append(element('p','Only TEST shadow access is inspected. This does not establish real-customer membership fulfillment or authorize LIVE checkout.'));
+   unifiedReport.append(accepted);
    const live=report.production||{};
    unifiedReport.append(element('p',live.liveCheckoutApproved
     ?'Independent LIVE launch gate is configured; production merchant acceptance and provider-specific switches remain separately required.'
@@ -352,7 +379,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.56',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:'0.14.0.57',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
