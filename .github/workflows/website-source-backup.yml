@@ -41,7 +41,7 @@ jobs:
       - name: Attach downloadable archive and SHA-256 checksum
         uses: actions/upload-artifact@v4
         with:
-          name: v0.14.0.49_website-source-backup-${{ github.run_number }}
+          name: v0.14.0.58_website-source-backup-${{ github.run_number }}
           path: backup/*
           if-no-files-found: error
           retention-days: 30
