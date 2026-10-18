@@ -160,6 +160,7 @@
    STRIPE_PRICE_LOOKUP_FAILED:'Stripe TEST price lookup failed.',
    SHADOW_INTENT_READ_FAILED:'Supabase rejected the server-only test intent read.',
    SHADOW_INTENT_CREATE_FAILED:'Supabase rejected the test-only intent INSERT. Check service-role permissions and constraints.',
+   SHADOW_INTENT_CLEANUP_FAILED:'Stripe rejected the test checkout, but Supabase could not safely mark its prepared intent failed. Reconcile the isolated ledger before retrying.',
    STRIPE_CHECKOUT_NETWORK_UNAVAILABLE:'Stripe Checkout network/service unreachable; no test session confirmed.',
    STRIPE_CHECKOUT_API_AUTH_REJECTED:'Stripe TEST key is unauthorized to create Checkout sessions.',
    STRIPE_CHECKOUT_PROVIDER_RETRY:'Stripe temporarily rejected the Checkout request or rate-limited it.',
