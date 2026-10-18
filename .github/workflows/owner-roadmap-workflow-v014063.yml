@@ -1,0 +1,82 @@
+name: Owner Roadmap Operational Completion v0.14.0.63
+on:
+  pull_request:
+    paths:
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-roadmap-*.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/css/owner-roadmap.css'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - 'config.js'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'data/commerce-config.json'
+      - 'tests/test_owner_roadmap_workflow_v014063.mjs'
+      - 'tests/test_owner_roadmap_progress_v014045.mjs'
+      - '.github/workflows/owner-roadmap-workflow-v014063.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-roadmap-*.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/css/owner-roadmap.css'
+      - 'owner-roadmap.html'
+      - 'release-manifest.json'
+      - 'data/commerce-config.json'
+      - 'tests/test_owner_roadmap_workflow_v014063.mjs'
+      - '.github/workflows/owner-roadmap-workflow-v014063.yml'
+permissions:
+  contents: read
+jobs:
+  verify-owner-roadmap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax, source and Owner API checks
+        run: |
+          node --check functions/api/owner-roadmap.js
+          node --check functions/_lib/owner-roadmap-private-brief-v014063.js
+          node --check functions/_lib/owner-roadmap-20261018-additions.js
+          node --check assets/js/owner-roadmap.js
+          node tests/test_owner_roadmap_workflow_v014063.mjs
+          node tests/test_owner_roadmap_progress_v014045.mjs
+          node tests/test_owner_roadmap_additions_20261018.mjs
+          python3 tests/test_owner_roadmap_v014044.py
+      - name: Validate public build and release parity
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/docs
+          test ! -e public/tests
+          test ! -e public/functions/_lib/owner-roadmap-private-brief-v014063.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('release-manifest.json').read_text())
+          assert manifest['version']=='0.14.0.63'
+          assert manifest['customerCheckoutApproved'] is False
+          assert manifest['liveStripeFulfillmentEnabled'] is False
+          assert manifest['ownerRoadmap']['catalogEntries']==2190
+          assert manifest['ownerRoadmap']['primaryTasks']==375
+          assert json.loads(Path('data/commerce-config.json').read_text())['version']==manifest['version']
+          assert "VERSION: '0.14.0.63'" in Path('config.js').read_text()
+          assert "version:'0.14.0.63'" in Path('assets/js/route-policy.js').read_text()
+          html=Path('public/owner-roadmap.html').read_text()
+          assert 'id="or-private-brief"' in html
+          assert 'The GU39 shadow acceptance path' not in html
+          assert 'Owner-exported Supabase audit' not in html
+          print('PASS v0.14.0.63 private owner source, version and checkout lockdown')
+          PY
