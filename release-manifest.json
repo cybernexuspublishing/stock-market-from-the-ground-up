@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.63",
+  "version": "0.14.0.64",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "05d167d636e97fee449d515c321ea00057f33887",
+  "baselineGitCommit": "89d2cf8db7273fdb3b752dfb5cbc6e88e08ac0b0",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -63,5 +63,15 @@
     "status": "source implementation pending live acceptance",
     "trigger": "explicit checkbox before visible Turnstile execute",
     "productionSiteverifyTested": false
+  },
+  "productionCheckoutWiring": {
+    "version": "0.14.0.64",
+    "type": "guarded read-only SKU-specific LIVE eligibility",
+    "siteSupabaseProject": "existing only; no new project or staging database",
+    "legacyStagingCheckoutCustomerFacing": false,
+    "gu39OwnerTestCheckoutRemainsShadowOnly": true,
+    "webhookEnablementRequiredBeforeCustomerCheckout": true,
+    "realPaymentAndLifecycleAcceptance": "NOT_VERIFIED",
+    "liveActivationAuthorized": false
   }
 }
