@@ -219,6 +219,10 @@ async function verifyOwnerZeroQA(request,e){
   return resp('qa-zero-signed-verified-no-grant',200);
  }catch{return resp('Zero QA webhook verification unavailable; retry',503)}
 }
+// For an exact $0.00 LIVE payment-mode Checkout, Stripe may report either
+// payment_status='no_payment_required' or 'paid' (confirmed from the Owner's
+// real $0 Checkout). The signed event, fetched Stripe session, price, totals,
+// payment_intent=null and subscription=null remain mandatory; reject unpaid.
 // GU72: A real FREE member can validate LIVE Checkout + a signed membership
 // change, but only through this separate $0 QA Price and a service-only expiring
 // grant RPC. It is NOT a GU58 paid payment, Subscription or Managed Payments event.
@@ -254,7 +258,7 @@ async function storeZeroMonthlyQA(request,e){
   ]);
   const uid=s.metadata?.gu72_member_id;
   if(a.id!==account||s.id!==obj.id||s.livemode!==true||s.mode!=='payment'||
-     s.status!=='complete'||s.payment_status!=='no_payment_required'||
+     s.status!=='complete'||!['no_payment_required','paid'].includes(s.payment_status)||
      s.amount_total!==0||s.amount_subtotal!==0||s.currency!=='usd'||
      s.payment_intent!=null||s.subscription!=null||
      s.metadata?.gu72_zero_monthly_qa!=='true'||
