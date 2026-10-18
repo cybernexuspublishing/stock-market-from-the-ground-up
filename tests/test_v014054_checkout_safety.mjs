@@ -21,7 +21,7 @@ const products={
  'tool:MARKET_TUTOR':['prod_VRwuiqDt8qHayI',2999,'month']};
 const events=['checkout.session.completed','checkout.session.async_payment_succeeded','invoice.paid','invoice.payment_failed',
  'customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created'];
-let state={owner:true,stepup:true,gate:true,blockedPrice:false,shadowRead:true,intents:0,missingWebhook:false,
+let state={owner:true,stepup:true,gate:true,blockedPrice:false,shadowRead:true,intents:0,orphans:false,missingWebhook:false,
  stripeCheckoutError:null,bindFails:false,remoteCalls:[],stripeCreates:0,intentCreates:0,ownerToggleCalls:0};
 const env={SUPABASE_URL:db,SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'sb_secret_mock',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',
@@ -54,6 +54,7 @@ globalThis.fetch=async(url,options={})=>{
  }
  if(u.endsWith('/rest/v1/gu39_sandbox_settings?select=enabled&id=eq.true&limit=1'))
   return respond([{enabled:state.owner}]);
+ if(u.includes('/rest/v1/gu39_sandbox_intents?select=id')&&u.includes('status=eq.prepared'))return respond(state.orphans?[{id:actorId}]:[]);
  if(u.includes('/rest/v1/gu39_sandbox_intents?select=id')){
   if(!state.shadowRead)return respond({message:'permission denied'},403);
   return respond(Array.from({length:state.intents},()=>({id:actorId})));
@@ -85,8 +86,8 @@ try{
  };
  let {resp,body}=await audit();
  assert.equal(resp.status,200);
- assert.equal(body.passed,8);
- assert.equal(body.total,8);
+ assert.equal(body.passed,9);
+ assert.equal(body.total,9);
  assert.equal(body.safeToAttemptTest,true);
  assert.equal(body.stripeManagedPaymentsProviderAcceptance,'NOT_VERIFIED_BY_READ_ONLY_API');
  assert.equal(state.intentCreates,0);
@@ -105,7 +106,8 @@ try{
  state.shadowRead=false;body=(await audit()).body;
  assert.equal(body.safeToAttemptTest,false);state.shadowRead=true;
  state.intents=12;body=(await audit()).body;assert.equal(body.safeToAttemptTest,false);
- state.intents=0;state.missingWebhook=true;body=(await audit()).body;
+ state.intents=0;state.orphans=true;body=(await audit()).body;assert.equal(body.safeToAttemptTest,false,'Unbound prior TEST intent must block retry');state.orphans=false;
+ state.missingWebhook=true;body=(await audit()).body;
  assert.equal(body.safeToAttemptTest,false);state.missingWebhook=false;
 
  resp=(await audit('plan:INVALID_SKU')).resp;assert.equal(resp.status,400);
@@ -132,5 +134,5 @@ try{
  assert.equal(state.stripeCreates,4);
  assert.equal(state.intentCreates,4);
  assert(state.remoteCalls.every(x=>!/\bsite_orders\b|\buser_plan_grants\b|\bsite_subscriptions\b|\buser_tool_passes\b/.test(x.u)));
- console.log('PASS v54: 8 independent pre-payment guards, no audit writes, Managed Payments preview header, stage-specific provider/DB errors, only isolated TEST intents.');
+ console.log('PASS v54: 9 independent pre-payment guards, no audit writes, Managed Payments preview header, stage-specific provider/DB errors, only isolated TEST intents.');
 }finally{globalThis.fetch=prior}
