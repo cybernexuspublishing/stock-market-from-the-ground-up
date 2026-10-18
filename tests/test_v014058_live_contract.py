@@ -26,6 +26,8 @@ assert "auth.role() IS DISTINCT FROM 'service_role'" in sql
 assert "REVOKE ALL ON FUNCTION public.gu58_live_stripe_apply_event" in sql
 assert 'gu58_one_unresolved_per_member_sku' in sql
 assert 'p_cancel_at_period_end boolean' in sql
+assert "CASE WHEN evt_status='past_due' THEN 'paused' ELSE evt_status END" in sql
+assert 'cancel_at_period_end=excluded.cancel_at_period_end' in sql
 assert 'REVIEW REQUIRED' in sql
 assert sql.count('BEGIN;')==1 and sql.rstrip().endswith('COMMIT;')
 for k in ('GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
