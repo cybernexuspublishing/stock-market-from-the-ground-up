@@ -161,6 +161,6 @@ BEGIN
  RETURN jsonb_build_object('ok',true,'intentId',i.id,'action',p_action);
 END $fn$;
 REVOKE ALL ON FUNCTION public.gu58_live_stripe_apply_event(text,text,text,text,text,text,integer,text,timestamptz,timestamptz,text,boolean) FROM PUBLIC,anon,authenticated;
-GRANT EXECUTE ON FUNCTION public.gu58_live_stripe_apply_event(text,text,text,text,text,text,integer,text,timestamptz,timestamptz,text) TO service_role;
+GRANT EXECUTE ON FUNCTION public.gu58_live_stripe_apply_event(text,text,text,text,text,text,integer,text,timestamptz,timestamptz,text,boolean) TO service_role;
 NOTIFY pgrst,'reload schema';
 COMMIT;
