@@ -45,6 +45,7 @@ with sync_playwright() as pw:
  assert page.locator('#admin-app [data-admin-panel="commerce"] #gu39-shadow').count()==1
  assert page.get_by_role('button',name='Run Payment Test Preflight').count()==1
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
+ page.locator('#gu39-shadow details.gu39-advanced-controls summary').click()
  page.get_by_role('button',name='Verify All 8 Sandbox Products').click()
  page.get_by_text('Products: 8 / 8 verified').wait_for(timeout=6000)
  assert page.locator('#gu39-catalog-report').count()==0 or True # report is deliberately a class
