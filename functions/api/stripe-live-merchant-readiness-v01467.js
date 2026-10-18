@@ -174,7 +174,7 @@ export async function onRequestGet({request,env}){
   if(accountVerified&&origin){
    try{
     const e=await stripeGet(key,'webhook_endpoints?limit=100');
-    const expected=origin+'/api/stripe-live-webhook-v01458';
+    const expected=origin+'/api/stripe-live-webhook';
     const matching=Array.isArray(e.data)?e.data.filter(x=>x.url===expected&&x.livemode===true&&x.status==='enabled'):[];
     const exact=matching.length===1&&e.has_more===false;
     add('WEBHOOK','LIVE production webhook destination',exact?'PASS':'REVIEW',
@@ -201,7 +201,7 @@ export async function onRequestGet({request,env}){
    'A real signed delivery, installed SQL definition comparison, and Owner-approved lifecycle acceptance remain pending.');
   add('ACCEPTANCE','LIVE billing launch','NOT_APPROVED',
    'The Owner TEST/LIVE selector, this report, and any PASS rows do not approve customer billing.');
-  return json({ok:true,version:'0.14.0.67',readOnly:true,noCharge:true,
+  return json({ok:true,version:'0.14.0.68',readOnly:true,noCharge:true,
    ownerOnly:true,mode,verifiedLiveProducts:verifiedProducts,verifiedLivePrices:verified,
    totalSkus:codes.length,webhookConfigurationChecked:webhookReady,
    liveCheckoutApproved:false,readyForLiveCheckout:false,
