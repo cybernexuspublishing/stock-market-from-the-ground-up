@@ -1,8 +1,17 @@
-/* v73: Store opt-in QA setup view must not reveal or enable a $0 checkout without backend approval. */
+/* v74 Owner-directed change: keep restricted $0 QA visible; all checkout remains server-locked until configured. */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const src=readFileSync(new URL('../assets/js/store-zero-live-qa.js',import.meta.url),'utf8');
+const store=readFileSync(new URL('../store.html',import.meta.url),'utf8');
+const listing=/<section id="store-zero-monthly-qa"([^>]*)>/i.exec(store);
+assert.ok(listing,'Store is missing its restricted $0 test membership');
+assert.ok(!/\bhidden\b/i.test(listing[1]),'Store test membership must be visible without JavaScript');
+assert.ok(store.includes('Monthly Membership Test'),'Store QA needs its own distinct product label');
+assert.ok(store.includes('NOT A PUBLIC OFFER'),'Permanent $0 test price must not be advertised as a normal membership');
+const planRenderer=readFileSync(new URL('../assets/js/store.js',import.meta.url),'utf8');
+assert.ok(planRenderer.includes("monthly.after(qa)")&&planRenderer.includes("planRoot.append(qa)"),'Position $0 verification card among platform pricing cards');
+assert.ok(!src.includes('section.hidden=true'),'Store script must never silently hide test card');
 async function run(query,reply,signed=true){
  const element=()=>({hidden:true,disabled:true,textContent:'',child:null,events:{},
   addEventListener(type,fn){this.events[type]=fn},
@@ -39,10 +48,14 @@ assert.equal(r.begin.disabled,true,'cannot buy when not configured');
 assert.match(r.status.textContent,/not configured|locked/i);
 assert.equal(r.req.filter(x=>x.opts.method==='POST').length,0,'no checkout initiated');
 r=await run('',{ok:false,json:{ok:false,error:'QA_CONFIGURATION_MISSING'}});
-assert.equal(r.section.hidden,true,'normal Store does not advertise unavailable internal QA');
+assert.equal(r.section.hidden,false,'normal Store must show restricted $0 test membership even while backend is not ready');
+assert.equal(r.begin.disabled,true,'normal Store must keep checkout locked when QA configuration is absent');
+r=await run('',{ok:true,json:{ok:true,available:false}});
+assert.equal(r.section.hidden,false,'QA is visible even when backend reports unavailable');
+assert.equal(r.begin.disabled,true,'QA is not purchasable when backend reports unavailable');
 r=await run('?gu72=setup',{ok:false,json:{ok:false,error:'SIGN_IN_REQUIRED'}},false);
 assert.equal(r.begin.disabled,true,'unsigned user can never buy');
 r=await run('',{ok:true,json:{ok:true,available:true,amountCents:0}});
 assert.equal(r.section.hidden,false,'allowlisted eligible member automatically sees tile');
 assert.equal(r.begin.disabled,false,'only the server-allowed member gets the CTA');
-console.log('PASS v73: Store setup visibility, no public QA advertisement, backend-controlled checkout eligibility');
+console.log('PASS v74: Store QA visible by default, checkout locked unless server authorizes exact FREE test member');
