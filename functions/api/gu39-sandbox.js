@@ -542,6 +542,7 @@ export async function onRequestGet({request,env}){try{const c=envCheck(env),a=aw
  if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));
  if(view==='checkout-safety')return json(await inspectCheckoutSafety(request,env,c,a));
  if(view==='complete-review')return json(await completePaymentReview(request,env,c,a));
+ if(view==='acceptance'){if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');return json({ok:true,version:'0.14.0.57',...await inspectSandboxAcceptance(env,c,a)});}
  if(view==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
  catch(e){
