@@ -275,6 +275,11 @@
    accepted.append(element('p','Only TEST shadow access is inspected. This does not establish real-customer membership fulfillment or authorize LIVE checkout.'));
    unifiedReport.append(accepted);
    const live=report.production||{};
+   unifiedReport.append(element('p',
+    'Production customer memberships (v0.14.0.58): '+
+    (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
+      'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
+    ' Database migration requires separate reviewed installation; successful TEST shadow membership is not a real-member grant.'));
    unifiedReport.append(element('p',live.liveCheckoutApproved
     ?'Independent LIVE launch gate is configured; production merchant acceptance and provider-specific switches remain separately required.'
     :'LIVE customer checkout remains locked until independent Owner launch approval. Switching TESTING off will not charge customers.'));
