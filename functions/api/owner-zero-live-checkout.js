@@ -22,7 +22,7 @@ async function getJson(url,options={},code='REMOTE_UNAVAILABLE'){
   response=await fetch(url,{...options,cache:'no-store'});
   object=await response.json().catch(()=>null);
  }catch{throw fail(code)}
- if(!response.ok||!object||object.error)throw fail(code);
+ if(!response.ok||object===null||object?.error)throw fail(code);
  return object;
 }
 async function authorize(request,env){
