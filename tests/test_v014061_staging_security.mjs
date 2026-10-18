@@ -40,6 +40,6 @@ try{
  assert.equal(badWebhook.status,401,'unsigned webhooks must fail');
  assert.equal(fetches,0,'rejected traffic must not access Stripe or Supabase');
  const middleware=readFileSync(new URL('../functions/_middleware.js',import.meta.url),'utf8');
- assert.match(middleware,/LEGACY_TEST_CHECKOUT_ROUTES=new Set\\(\\[([^;]*stripe-staging-member-checkout-v01461)/);
+ assert.match(middleware,/LEGACY_TEST_CHECKOUT_ROUTES=new Set\(\[[^;]*stripe-staging-member-checkout-v01461/);
  console.log('PASS: 61 STAGING isolation fail closed, LIVE key refused, preview host pinned, unsigned webhook refused, Owner TEST route enforced');
 }finally{globalThis.fetch=prior}
