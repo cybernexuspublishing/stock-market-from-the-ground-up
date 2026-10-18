@@ -476,7 +476,7 @@ async function completePaymentReview(request,env,c,a){
  const launchApproved=env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true';
  const mode=checkout.checks.some(x=>x.name==='Owner TEST mode'&&x.status==='PASS')?'TESTING':'LIVE_SELECTED';
  const complete=checkout.safeToAttemptTest&&catalog.allVerified&&!pending.testCheckoutBlocked&&!pending.error;
- return {ok:true,version:'0.14.0.56',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.57',readOnly:true,testOnly:true,liveCheckout:false,
   selectedSku:sku,mode,config,checkout,catalog,pending,acceptance,
   production:{liveCheckoutApproved:launchApproved,liveCheckoutAvailable:mode!=='TESTING'&&launchApproved,
     mustCompleteSeparateProviderAcceptance:true},
