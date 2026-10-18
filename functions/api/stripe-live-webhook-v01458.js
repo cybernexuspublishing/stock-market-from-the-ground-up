@@ -219,7 +219,70 @@ async function verifyOwnerZeroQA(request,e){
   return resp('qa-zero-signed-verified-no-grant',200);
  }catch{return resp('Zero QA webhook verification unavailable; retry',503)}
 }
+// GU72: A real FREE member can validate LIVE Checkout + a signed membership
+// change, but only through this separate $0 QA Price and a service-only expiring
+// grant RPC. It is NOT a GU58 paid payment, Subscription or Managed Payments event.
+async function storeZeroMonthlyQA(request,e){
+ const raw=await request.clone().text();
+ if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
+ let event;try{event=JSON.parse(raw)}catch{return null}
+ if(event.type!=='checkout.session.completed'||
+    event.data?.object?.metadata?.gu72_zero_monthly_qa!=='true')return null;
+ if(e.GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED!=='true')
+   return resp('Zero monthly QA fulfillment not enabled; retry',503);
+ const secret=v(e.GU58_STRIPE_LIVE_WEBHOOK_SECRET),key=v(e.GU58_STRIPE_LIVE_SECRET_KEY),
+       account=v(e.GU58_STRIPE_LIVE_ACCOUNT_ID),priceId=v(e.GU71_ZERO_LIVE_PRICE_ID),
+       productId=v(e.GU71_ZERO_LIVE_PRODUCT_ID),allowed=v(e.GU72_QA_ALLOWED_USER_ID),
+       base=v(e.SUPABASE_URL).replace(/\/$/,''),
+       service=v(e.SUPABASE_SECRET_KEY);
+ if(!/^whsec_[A-Za-z0-9_]+$/.test(secret)||!/^sk_live_[A-Za-z0-9_]+$/.test(key)||
+    !ident(account,'acct')||!ident(priceId,'price')||!ident(productId,'prod')||
+    !uuid(allowed)||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!service)
+   return resp('Zero QA configuration incomplete; retry',503);
+ if(!await checkHmac(raw,request.headers.get('stripe-signature'),secret))
+   return resp('Invalid signature',401);
+ const obj=event.data.object;
+ if(event.livemode!==true||!ident(event.id,'evt')||!Number.isSafeInteger(event.created)||
+   (event.account!==undefined&&event.account!==account)||!ident(obj.id,'cs_live'))
+   return resp('Invalid LIVE QA event',503);
+ try{
+  const c={stripe:key};
+  const [a,s,p]=await Promise.all([
+   getStripe(c,'account'),
+   getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id)),
+   getStripe(c,'prices/'+encodeURIComponent(priceId))
+  ]);
+  const uid=s.metadata?.gu72_member_id;
+  if(a.id!==account||s.id!==obj.id||s.livemode!==true||s.mode!=='payment'||
+     s.status!=='complete'||s.payment_status!=='no_payment_required'||
+     s.amount_total!==0||s.amount_subtotal!==0||s.currency!=='usd'||
+     s.payment_intent!=null||s.subscription!=null||
+     s.metadata?.gu72_zero_monthly_qa!=='true'||
+     s.metadata?.gu72_price_id!==priceId||uid!==allowed||
+     s.client_reference_id!==uid||
+     'gu58_intent' in s.metadata||'gu58_member' in s.metadata||
+     p.id!==priceId||p.product!==productId||p.livemode!==true||
+     p.active!==true||p.unit_amount!==0||p.currency!=='usd'||p.type!=='one_time')
+    throw Error('ZERO_QA_PROVIDER_MISMATCH');
+  const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2');
+  if(lines.data?.length!==1||lines.data[0].price?.id!==priceId||
+    lines.data[0].quantity!==1||lines.data[0].amount_total!==0)
+    throw Error('ZERO_QA_PRICE_MISMATCH');
+  const headers={apikey:service,...(service.startsWith('sb_secret_')?{}:{authorization:'Bearer '+service}),
+    'content-type':'application/json'};
+  const r=await fetch(base+'/rest/v1/rpc/gu72_signed_zero_monthly_grant',{
+    method:'POST',headers,body:JSON.stringify({p_user_id:uid,p_session_id:s.id,
+      p_event_id:event.id,p_price_id:priceId}),cache:'no-store'});
+  if(!r.ok)throw Error('GU72_GRANT_RPC_UNAVAILABLE');
+  const result=await r.json();
+  if(result?.ok!==true)throw Error('GU72_GRANT_NOT_CONFIRMED');
+  return resp('qa-monthly-signed-grant-verified',200);
+ }catch{return resp('Zero QA grant processing unavailable; retry',503)}
+}
+
 export async function onRequestPost({request,env}){
+ const free=await storeZeroMonthlyQA(request,env);
+ if(free)return free;
  const qa=await verifyOwnerZeroQA(request,env);
  if(qa)return qa;
  const c=cfg(env);if(!c)return resp('LIVE Stripe fulfillment has not been approved',503);
