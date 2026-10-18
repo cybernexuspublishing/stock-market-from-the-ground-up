@@ -1,0 +1,38 @@
+name: Registration Identity and CAPTCHA Contract v0.14.0.61
+on:
+  pull_request:
+    paths:
+      - 'create-account.html'
+      - 'assets/js/signup.js'
+      - 'assets/js/production-completion.js'
+      - 'src/ts/production-completion.ts'
+      - 'functions/api/account.js'
+      - 'tests/test_signup_registration_contract_v01461.cjs'
+      - '.github/workflows/signup-registration-v01461.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'create-account.html'
+      - 'assets/js/signup.js'
+      - 'assets/js/production-completion.js'
+      - 'src/ts/production-completion.ts'
+      - 'functions/api/account.js'
+      - 'tests/test_signup_registration_contract_v01461.cjs'
+      - '.github/workflows/signup-registration-v01461.yml'
+jobs:
+  registration-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all touched JavaScript compiles
+        run: |
+          node --check assets/js/signup.js
+          node --check assets/js/production-completion.js
+          node --check functions/api/account.js
+      - name: Verify signup contract without creating accounts
+        run: node tests/test_signup_registration_contract_v01461.cjs
