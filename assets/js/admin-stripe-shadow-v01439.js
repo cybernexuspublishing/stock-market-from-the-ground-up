@@ -242,13 +242,14 @@
  toggle.addEventListener('change',async()=>{
   if(!state){toggle.checked=false;return}
   const next=toggle.checked;
-  // Do not optimistically update mode state: the server must confirm it.
-  toggle.checked=state.enabled===true;
+  // Keep the thumb in the user's requested position while authorization runs.
+  // The database remains authoritative; rollback only on cancellation/failure.
   if(next===state.enabled)return;
+  modeDescription.textContent='Changing payment mode… waiting for Owner authorization and server confirmation.';
   const warning=next
    ?'Switch to TESTING? New LIVE checkout will be blocked on the server; historical customer purchases and existing recurring payments are not canceled. TEST transactions remain isolated.'
    :'Switch to LIVE-selected mode? TEST checkout will be disabled. Real customer checkout will resume ONLY if production launch was independently approved and the provider-specific switches are ready.';
-  if(!confirm(warning))return;
+  if(!confirm(warning)){show(state);return;}
   auditApprovedForSku=null;
   const result=await perform({action:'toggle',enabled:next,updatedAt:state.updatedAt});
   if(result)await getState();else if(state)show(state);
