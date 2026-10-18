@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.51 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.53 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -46,8 +46,48 @@ async function actor(req,c){
  if(roleBody.role!=='OWNER'&&roleBody.role!=='ADMIN')throw Error('STAFF_REQUIRED');
  return {userId:user.id,role:roleBody.role,jwt,head};
 }
-async function ownerStepup(c,a){if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');const step=await getJson(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{method:'POST',headers:a.head,body:'{}'});if(step!==true)throw Error('PASSWORD_RECONFIRM_REQUIRED');}
+async function ownerStepup(c,a){
+ if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
+ // PostgreSQL returns JSON boolean FALSE for an Owner who has not recently
+ // confirmed their password. The legacy getJson() helper treats false as a
+ // transport error (!d), masking PASSWORD_RECONFIRM_REQUIRED as a generic 503.
+ let response,step;
+ try{
+  response=await fetch(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{
+   method:'POST',headers:a.head,body:'{}',cache:'no-store'
+  });
+  step=await response.json().catch(()=>null);
+ }catch{throw Error('STAFF_STEPUP_CHECK_UNAVAILABLE')}
+ if(!response.ok||step===null)throw Error('STAFF_STEPUP_CHECK_UNAVAILABLE');
+ if(step!==true)throw Error('PASSWORD_RECONFIRM_REQUIRED');
+}
 async function rpc(c,a,name,params){return getJson(c.base+'/rest/v1/rpc/'+name,{method:'POST',headers:a.head,body:JSON.stringify(params||{})});}
+// Translate only enumerated PostgREST/database RPC error codes. Never disclose raw
+// SQL exceptions, tokens, member data or stack traces in client-facing responses.
+const OWNER_TOGGLE_ERRORS=new Set([
+ 'PASSWORD_RECONFIRM_REQUIRED','SETTINGS_STALE_REFRESH','OWNER_REQUIRED',
+ 'STAFF_REQUIRED','INVALID_SETTINGS'
+]);
+async function guardedToggleRpc(c,a,enabled,updatedAt){
+ let response,data;
+ try{
+  response=await fetch(c.base+'/rest/v1/rpc/gu39_sandbox_owner_toggle',{
+   method:'POST',headers:a.head,
+   body:JSON.stringify({p_enabled:enabled,p_expected_updated_at:updatedAt}),
+   cache:'no-store'
+  });
+  data=await response.json().catch(()=>null);
+ }catch{throw Error('SHADOW_TOGGLE_RPC_UNAVAILABLE')}
+ if(!response.ok||data?.ok!==true){
+  const message=String(data?.message||'').trim();
+  if(OWNER_TOGGLE_ERRORS.has(message))throw Error(message);
+  if(response.status===401)throw Error('INVALID_SESSION');
+  if(response.status===403)throw Error('SHADOW_TOGGLE_AUTH_REJECTED');
+  if(data?.code==='PGRST202'||response.status===404)throw Error('SHADOW_TOGGLE_RPC_UNAVAILABLE');
+  throw Error('SHADOW_TOGGLE_DATABASE_REJECTED');
+ }
+ return data;
+}
 function serviceHeaders(secret){
  if(String(secret).startsWith('sb_secret_'))return {apikey:secret};
  if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(String(secret)))return {apikey:secret,authorization:'Bearer '+secret};
@@ -172,7 +212,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.52',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.53',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
@@ -212,7 +252,7 @@ export async function onRequestPost({request,env}){
   if(data.action==='toggle'){
    if(typeof data.enabled!=='boolean'||!data.updatedAt)throw Error('INVALID_REQUEST');
    if(data.enabled===true&&!sandboxEnabled(env))throw Error('SANDBOX_SECRETS_NOT_CONFIGURED');
-   const out=await rpc(c,a,'gu39_sandbox_owner_toggle',{p_enabled:data.enabled,p_expected_updated_at:data.updatedAt});
+   const out=await guardedToggleRpc(c,a,data.enabled,data.updatedAt);
    return json({...out,liveCheckout:false});
   }
   if(data.action!=='checkout'||!Object.hasOwn(prices,data.sku))throw Error('INVALID_SKU');
@@ -238,6 +278,9 @@ export async function onRequestPost({request,env}){
   const u=new URL(session.url);if(u.protocol!=='https:'||u.hostname!=='checkout.stripe.com')throw Error('INVALID_TEST_CHECKOUT_HOST');
   await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal');
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
- }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
-   return json({ok:false,error:common.includes(e.message)?e.message:'Testing is unavailable; review the Admin sandbox configuration.'},403)}
+ }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
+   const code=common.includes(e.message)?e.message:'SHADOW_TEST_ACTION_UNAVAILABLE';
+   const status=code==='INVALID_SESSION'?401:code==='SETTINGS_STALE_REFRESH'?409:
+     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE'].includes(code)?503:403;
+   return json({ok:false,error:code,liveCheckout:false},status)}
 }
