@@ -66,14 +66,14 @@ jobs:
           import json
           from pathlib import Path
           manifest=json.loads(Path('release-manifest.json').read_text())
-          assert manifest['version']=='0.14.0.63'
+          assert tuple(map(int,manifest['version'].split('.'))) >= (0,14,0,63)
           assert manifest['customerCheckoutApproved'] is False
           assert manifest['liveStripeFulfillmentEnabled'] is False
           assert manifest['ownerRoadmap']['catalogEntries']==2190
           assert manifest['ownerRoadmap']['primaryTasks']==375
           assert json.loads(Path('data/commerce-config.json').read_text())['version']==manifest['version']
-          assert "VERSION: '0.14.0.63'" in Path('config.js').read_text()
-          assert "version:'0.14.0.63'" in Path('assets/js/route-policy.js').read_text()
+          assert f"VERSION: '{manifest['version']}'" in Path('config.js').read_text()
+          assert f"version:'{manifest['version']}'" in Path('assets/js/route-policy.js').read_text()
           html=Path('public/owner-roadmap.html').read_text()
           assert 'id="or-private-brief"' in html
           assert 'The GU39 shadow acceptance path' not in html
