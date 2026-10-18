@@ -34,6 +34,7 @@ with sync_playwright() as pw:
  payment=page.get_by_role('button',name='Open Stripe Test Checkout')
  payment.wait_for(timeout=5000)
  assert payment.is_disabled()
+ page.locator('#gu39-shadow details.gu39-advanced-controls summary').click()
  page.get_by_role('button',name='Verify All 8 Sandbox Products').click()
  page.get_by_text('Products: 8 / 8 verified').wait_for(timeout=5000)
  assert payment.is_disabled(),'Catalog verification is not sufficient!'
@@ -45,6 +46,6 @@ with sync_playwright() as pw:
  assert stats['writes']==0,stats
  page.locator('#gu39-sku').select_option('plan:FULL_ANNUAL')
  assert payment.is_disabled(),'Changing SKU must invalidate the prior safety audit'
- assert 'Payment testing interface v0.14.0.55' in page.locator('#gu39-shadow').inner_text()
+ assert 'Payment testing interface v0.14.0.56' in page.locator('#gu39-shadow').inner_text()
  print('PASS v54: no TEST checkout allowed before nine-check read-only safety audit, selected SKU invalidates approval, no writes.')
  browser.close()
