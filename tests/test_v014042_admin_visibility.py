@@ -10,7 +10,7 @@ admin=(R/'admin.html').read_text(encoding='utf8')
 release=json.loads((R/'release-manifest.json').read_text(encoding='utf8'))
 bundle_version='014'+release['version'].split('.')[-1].zfill(3)
 assert f'<script defer src="assets/js/admin-stripe-shadow-v01439.js?v={bundle_version}"></script>' in admin
-assert '<link rel="stylesheet" href="assets/css/admin-stripe-shadow-v01439.css">' in admin
+assert f'<link rel="stylesheet" href="assets/css/admin-stripe-shadow-v01439.css?v={bundle_version}">' in admin
 source=(R/'assets/js/admin-stripe-shadow-v01439.js').read_text(encoding='utf8')
 nav=(R/'assets/js/admin-simple-navigation-v014036.js').read_text(encoding='utf8')
 assert 'script[src*="admin-stripe-shadow-v01439.js"]' in nav
