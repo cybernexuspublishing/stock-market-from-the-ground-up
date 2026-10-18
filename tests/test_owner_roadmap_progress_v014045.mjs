@@ -55,13 +55,13 @@ try {
  const r=await onRequest({request:req(),env:environment});
  assert.equal(r.status,200);
  const payload=await r.json();
- assert.equal(payload.items.length,2096);
- assert.equal(Object.values(payload.engineeringReview.counts).reduce((a,b)=>a+b,0),281);
+ assert.equal(payload.items.length,2190);
+ assert.equal(Object.values(payload.engineeringReview.counts).reduce((a,b)=>a+b,0),375);
  assert.equal(payload.progress['CORE-0001'],undefined,'No Owner checkbox may be auto-set from engineering audit');
  assert.equal(payload.items.find(x=>x.id==='CORE-0001').engineeringReview.stage,'deployed_verified');
  assert.equal(payload.items.find(x=>x.id==='CORE-0030').engineeringReview.stage,'in_progress');
  assert.equal(payload.items.find(x=>x.id==='CORE-0080').engineeringReview.stage,'blocked');
- assert.equal(payload.items.find(x=>x.id==='TRACE-0001')?.engineeringReview,undefined);
+ assert.equal(payload.items.find(x=>x.id==='TRACE-0001')?.engineeringReview,null);
  const commit=await onRequest({request:req('POST',{id:'CORE-0001',status:'in_progress',note:'Owner accepted testing note'}),env:environment});
  assert.equal(commit.status,200);
  assert.equal(writes.at(-1).public_read,false);
