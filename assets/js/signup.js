@@ -78,13 +78,20 @@ async function createAccount(e){
   const terms=document.getElementById('signup-terms')?.checked===true;
   const firstName=document.getElementById('signup-first-name')?.value.trim()||'';
   const lastName=document.getElementById('signup-last-name')?.value.trim()||'';
-  const dateOfBirth=document.getElementById('signup-dob')?.value.trim()||'';
+  const dobInput=document.getElementById('signup-dob');
+  const dobResult=window.SignupDOB?.normalize(dobInput?.value||'');
+  const dateOfBirth=dobResult?.value||'';
   let sentToServer=false;
 
   if(usernameInput) usernameInput.value=username;
   signupMessage('');
   if(!firstName||!lastName)return signupMessage('Enter your first and last name.','error');
-  if(!/^\d{2}\/\d{2}\/\d{4}$/.test(dateOfBirth))return signupMessage('Enter your date of birth as DD/MM/YYYY.','error');
+  if(!dobResult?.ok){
+    setFieldStatus('signup-dob-status',dobResult?.message||'Enter your date of birth as DD/MM/YYYY.','unavailable');
+    return signupMessage(dobResult?.message||'Enter a valid date of birth.','error');
+  }
+  if(dobInput)dobInput.value=dateOfBirth;
+  if(dobResult.message)setFieldStatus('signup-dob-status',dobResult.message);
   if(!validUsername(username)){
     setFieldStatus('username-availability','Username must be 3–24 characters, begin with a letter, and use only letters, numbers, or underscores.','unavailable');
     return signupMessage('Please correct the username.', 'error');
@@ -224,7 +231,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 const $=s=>document.querySelector(s);
 const valid=p=>p.length>=12&&p.length<=120&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[!@#$%^&*+_?]/.test(p);
 function init(){const pass=$('#signup-password'),again=$('#signup-password-confirm'),form=$('#create-account-form');if(!pass||!again||!form)return;
- pass.minLength=10;again.minLength=10;pass.maxLength=120;again.maxLength=120;
+ pass.minLength=12;again.minLength=12;pass.maxLength=120;again.maxLength=120;
  const p=document.createElement('p');p.id='v1353-password-requirements';p.className='field-status small';p.setAttribute('aria-live','polite');p.textContent='Choose at least 12 characters, including an uppercase letter, a lowercase letter and a symbol from !@#$%^&*+_?. Numbers are allowed.';pass.insertAdjacentElement('afterend',p);
  const status=$('#password-match-status');const update=()=>{const meets=valid(pass.value),matches=again.value&&again.value===pass.value;p.textContent=meets?'Password requirements satisfied.':'Password needs at least 12 characters, uppercase, lowercase and a symbol (!@#$%^&*+_?).';p.classList.toggle('available',meets);p.classList.toggle('unavailable',!!pass.value&&!meets);if(status&&again.value)status.textContent=matches?'Passwords match.':'Passwords do not match.'};pass.addEventListener('input',update);again.addEventListener('input',update);
  // Intercept submission before legacy inline handler runs, allowing all previous
