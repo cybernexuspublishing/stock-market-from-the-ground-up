@@ -76,9 +76,15 @@ async function createAccount(e){
   const confirm=document.getElementById('signup-password-confirm')?.value||'';
   const bookKey=document.getElementById('signup-book-key')?.value.trim()||'';
   const terms=document.getElementById('signup-terms')?.checked===true;
+  const firstName=document.getElementById('signup-first-name')?.value.trim()||'';
+  const lastName=document.getElementById('signup-last-name')?.value.trim()||'';
+  const dateOfBirth=document.getElementById('signup-dob')?.value.trim()||'';
+  let sentToServer=false;
 
   if(usernameInput) usernameInput.value=username;
   signupMessage('');
+  if(!firstName||!lastName)return signupMessage('Enter your first and last name.','error');
+  if(!/^\d{2}\/\d{2}\/\d{4}$/.test(dateOfBirth))return signupMessage('Enter your date of birth as DD/MM/YYYY.','error');
   if(!validUsername(username)){
     setFieldStatus('username-availability','Username must be 3–24 characters, begin with a letter, and use only letters, numbers, or underscores.','unavailable');
     return signupMessage('Please correct the username.', 'error');
@@ -87,7 +93,7 @@ async function createAccount(e){
     setFieldStatus('email-availability','Enter a valid email address.','unavailable');
     return signupMessage('Please enter a valid email address.', 'error');
   }
-  if(!(password.length>=10&&password.length<=120&&/[A-Z]/.test(password)&&/[a-z]/.test(password)&&/[!@#$%^&*+_?]/.test(password)))return signupMessage('Password must be 10–120 characters with uppercase, lowercase and a symbol (!@#$%^&*+_?).', 'error');
+  if(!(password.length>=12&&password.length<=120&&/[A-Z]/.test(password)&&/[a-z]/.test(password)&&/[!@#$%^&*+_?]/.test(password)))return signupMessage('Password must be 12–120 characters with uppercase, lowercase and a symbol (!@#$%^&*+_?).', 'error');
   if(password!==confirm){
     setFieldStatus('password-match-status','Passwords do not match.','unavailable');
     return signupMessage('Passwords do not match.', 'error');
@@ -124,27 +130,29 @@ async function createAccount(e){
       setFieldStatus('book-key-status','Optional. Each book has a different Book Key. Leave blank to create a Free Reader account.');
     }
 
+    // The server enforces date-of-birth eligibility before Supabase creates an account.
+    // Forward the existing one-time CAPTCHA token to Supabase for native verification.
+    const captchaToken=window.GroundUpTurnstile?.getToken?.()||null;
     if(submit) submit.textContent='Creating account…';
-    const sb=await window.getSupabaseClient();
-    const metadata={username};
-    if(claimToken) metadata.book_claim_token=claimToken;
-    const {error}=await sb.auth.signUp({
-      email,password,
-      options:{
-        emailRedirectTo:`${location.origin}/signin.html?verified=1`,
-        data:metadata
-      }
+    sentToServer=true;
+    const response=await fetch('/api/account?action=signup',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      cache:'no-store',
+      body:JSON.stringify({firstName,lastName,dateOfBirth,username,email,password,
+        confirmPassword:confirm,termsAccepted:terms,bookClaimToken:claimToken,captchaToken})
     });
-    if(error) throw error;
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||result.ok!==true)throw new Error(result.error||'Unable to create account. Please try again.');
     form?.reset();
     showAccountCreated(email,Boolean(claimToken));
   }catch(err){
     signupMessage(err.message||'Unable to create account.', 'error');
   }finally{
+    if(sentToServer)window.GroundUpTurnstile?.reset?.();
     if(submit){
       submit.textContent='Create account';
-      try{window.GroundUpTurnstile?.getToken?.();submit.disabled=false}
-      catch{submit.disabled=true}
+      submit.disabled=window.GroundUpTurnstile?.required===true;
     }
   }
 }
@@ -214,14 +222,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* v0.13.5.3: explicit signup password requirements, without replacing book-key logic. */
 (()=>{'use strict';if(!/^\/create-account(?:\.html)?$/i.test(location.pathname))return;
 const $=s=>document.querySelector(s);
-const valid=p=>p.length>=10&&p.length<=120&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[!@#$%^&*+_?]/.test(p);
+const valid=p=>p.length>=12&&p.length<=120&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[!@#$%^&*+_?]/.test(p);
 function init(){const pass=$('#signup-password'),again=$('#signup-password-confirm'),form=$('#create-account-form');if(!pass||!again||!form)return;
  pass.minLength=10;again.minLength=10;pass.maxLength=120;again.maxLength=120;
- const p=document.createElement('p');p.id='v1353-password-requirements';p.className='field-status small';p.setAttribute('aria-live','polite');p.textContent='Choose at least 10 characters, including an uppercase letter, a lowercase letter and a symbol from !@#$%^&*+_?. Numbers are allowed.';pass.insertAdjacentElement('afterend',p);
- const status=$('#password-match-status');const update=()=>{const meets=valid(pass.value),matches=again.value&&again.value===pass.value;p.textContent=meets?'Password requirements satisfied.':'Password needs at least 10 characters, uppercase, lowercase and a symbol (!@#$%^&*+_?).';p.classList.toggle('available',meets);p.classList.toggle('unavailable',!!pass.value&&!meets);if(status&&again.value)status.textContent=matches?'Passwords match.':'Passwords do not match.'};pass.addEventListener('input',update);again.addEventListener('input',update);
+ const p=document.createElement('p');p.id='v1353-password-requirements';p.className='field-status small';p.setAttribute('aria-live','polite');p.textContent='Choose at least 12 characters, including an uppercase letter, a lowercase letter and a symbol from !@#$%^&*+_?. Numbers are allowed.';pass.insertAdjacentElement('afterend',p);
+ const status=$('#password-match-status');const update=()=>{const meets=valid(pass.value),matches=again.value&&again.value===pass.value;p.textContent=meets?'Password requirements satisfied.':'Password needs at least 12 characters, uppercase, lowercase and a symbol (!@#$%^&*+_?).';p.classList.toggle('available',meets);p.classList.toggle('unavailable',!!pass.value&&!meets);if(status&&again.value)status.textContent=matches?'Passwords match.':'Passwords do not match.'};pass.addEventListener('input',update);again.addEventListener('input',update);
  // Intercept submission before legacy inline handler runs, allowing all previous
  // username availability, book-key and age checks to remain unchanged.
- form.addEventListener('submit',ev=>{if(!valid(pass.value)||pass.value!==again.value){ev.preventDefault();ev.stopImmediatePropagation();const msg=$('#signup-message');if(msg){msg.textContent=!valid(pass.value)?'Password must have 10 or more characters, uppercase, lowercase and a symbol.':'Passwords must match exactly.';msg.className='inline-status error'}update();pass.focus();}},true);
+ form.addEventListener('submit',ev=>{if(!valid(pass.value)||pass.value!==again.value){ev.preventDefault();ev.stopImmediatePropagation();const msg=$('#signup-message');if(msg){msg.textContent=!valid(pass.value)?'Password must have 12 or more characters, uppercase, lowercase and a symbol.':'Passwords must match exactly.';msg.className='inline-status error'}update();pass.focus();}},true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
