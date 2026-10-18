@@ -115,11 +115,14 @@ BEGIN
    ELSE
      IF NOT EXISTS(SELECT 1 FROM public.platform_tools WHERE tool_code=i.sku_code AND status='live' AND active=true)
         THEN RAISE EXCEPTION 'INACTIVE_TOOL'; END IF;
-     INSERT INTO public.user_tool_passes(user_id,tool_code,status,provider,provider_subscription_id,current_period_end,metadata)
-     VALUES(i.user_id,i.sku_code,evt_status,'STRIPE_MANAGED',p_subscription_id,p_period_end,
+     INSERT INTO public.user_tool_passes(user_id,tool_code,status,provider,provider_subscription_id,current_period_end,cancel_at_period_end,metadata)
+     -- user_tool_passes status CHECK excludes 'past_due'; use paused to deny
+     -- access while retaining past_due in the payment-intent ledger for audit.
+     VALUES(i.user_id,i.sku_code,CASE WHEN evt_status='past_due' THEN 'paused' ELSE evt_status END,
+       'STRIPE_MANAGED',p_subscription_id,p_period_end,coalesce(p_cancel_at_period_end,false),
          jsonb_build_object('checkoutIntent',i.id,'source','gu58_live_signed_stripe'))
      ON CONFLICT(provider,provider_subscription_id) WHERE provider_subscription_id IS NOT NULL DO UPDATE SET
-        status=excluded.status,current_period_end=excluded.current_period_end,updated_at=now()
+        status=excluded.status,current_period_end=excluded.current_period_end,cancel_at_period_end=excluded.cancel_at_period_end,updated_at=now()
      WHERE public.user_tool_passes.user_id=excluded.user_id AND public.user_tool_passes.tool_code=excluded.tool_code;
    END IF;
    UPDATE public.gu58_live_checkout_intents SET stripe_subscription_id=p_subscription_id,
