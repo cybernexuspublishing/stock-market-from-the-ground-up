@@ -33,7 +33,7 @@ const liveSession={id:'cs_live_mock123456',livemode:true,status:'complete',payme
  amount_subtotal:6999,amount_total:6999,client_reference_id:intent,
  metadata:{gu58_intent:intent,gu58_member:uid},subscription:'sub_live123456789',customer:'cus_live123456789'};
 const providerSub={id:'sub_live123456789',livemode:true,status:'active',
- cancel_at_period_end:false,
+ metadata:{gu58_intent:intent},cancel_at_period_end:false,
  items:{data:[{price:{id:mapped['plan:FULL_MONTHLY'].price_id},current_period_end:Math.floor(Date.now()/1000)+86400}]},
  latest_invoice:'in_live123456789'};
 const event={id:'evt_live123456789',livemode:true,type:'checkout.session.completed',
@@ -212,5 +212,37 @@ try{
  assert.equal(state.dbWrites,11);
  assert.equal(state.postBody.sku_kind,'tool');
  assert.equal(state.postBody.quoted_amount_cents,2999);
+ // Stripe also emits the same subscribed events for independent products on
+ // this merchant account. Signed-book purchases and refunds must not enter the
+ // GU58 entitlement ledger; malformed GU58 markers must NEVER be acknowledged.
+ const beforeForeign=state.dbWrites;
+ const savedMetadata=liveSession.metadata;
+ liveSession.metadata={signed_book_order:'physical-shipment-1'};
+ r=await send(true,{...event,id:'evt_liveotherbook123'});
+ assert.equal(r.status,200,'unrelated signed-book Checkout must be ignored');
+ assert.equal(await r.clone().text(),'ignored');
+ assert.equal(state.dbWrites,beforeForeign);
+ liveSession.metadata={gu58_intent:intent};
+ r=await send(true,{...event,id:'evt_livepartial123'});
+ assert.equal(r.status,503,'partial GU58 metadata must fail closed');
+ assert.equal(state.dbWrites,beforeForeign);
+ liveSession.metadata=savedMetadata;
+ const savedSubMeta=providerSub.metadata;
+ providerSub.metadata={signed_book_subscription:'other-order'};
+ r=await send(true,{...event,id:'evt_liveotherrenew123',
+   type:'customer.subscription.updated',data:{object:{id:providerSub.id}}});
+ assert.equal(r.status,200,'foreign subscription must not touch GU58 membership');
+ assert.equal(state.dbWrites,beforeForeign);
+ r=await send(true,{...event,id:'evt_liveothercharge123',
+   type:'charge.refunded',data:{object:{id:'ch_live123456789'}}});
+ assert.equal(r.status,200,'foreign invoice refund must not revoke GU58 membership');
+ assert.equal(state.dbWrites,beforeForeign);
+ providerSub.metadata={gu58_member:uid};
+ r=await send(true,{...event,id:'evt_livepartialsub123',
+   type:'customer.subscription.deleted',data:{object:{id:providerSub.id}}});
+ assert.equal(r.status,503,'subscription marker without GU58 intent must fail closed');
+ assert.equal(state.dbWrites,beforeForeign);
+ providerSub.metadata=savedSubMeta;
+ console.log('PASS v70: unrelated signed-book checkout/subscription/refund ignored and partial GU58 tags rejected; no customer writes.');
  console.log('PASS v58: independent launch gates, mode exclusion, live catalog/account binding, real member checkout intent, signed LIVE webhook and service-only RPC.');
 }finally{globalThis.fetch=prior;crypto.randomUUID=priorUUID}
