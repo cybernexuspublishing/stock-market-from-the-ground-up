@@ -25,6 +25,9 @@ assert 'cs_live_' in sql and 'cs_test_' not in sql
 assert "auth.role() IS DISTINCT FROM 'service_role'" in sql
 assert "REVOKE ALL ON FUNCTION public.gu58_live_stripe_apply_event" in sql
 assert 'gu58_one_unresolved_per_member_sku' in sql
+assert 'CREATE OR REPLACE FUNCTION public.gu58_live_bind_verified_checkout' in sql
+assert 'GRANT EXECUTE ON FUNCTION public.gu58_live_bind_verified_checkout' in sql
+assert 'gu58_live_bind_verified_checkout' in webhook
 assert 'p_cancel_at_period_end boolean' in sql
 assert "CASE WHEN evt_status='past_due' THEN 'paused' ELSE evt_status END" in sql
 assert 'cancel_at_period_end=excluded.cancel_at_period_end' in sql
