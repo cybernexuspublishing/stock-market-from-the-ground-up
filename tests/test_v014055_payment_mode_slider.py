@@ -51,7 +51,7 @@ with sync_playwright() as pw:
  assert stats['mode'] is False,stats
  assert stats['shadowCheckoutCalls']==0,stats
  from json import loads
- expected_version=loads((R/'release-manifest.json').read_text())['version']
+ expected_version=loads((ROOT/'release-manifest.json').read_text())['version']
  assert f'Payment testing interface v{expected_version}' in page.locator('#gu39-shadow').inner_text(), 'Visible console version must match current release'
  print('PASS v55: OWNER accessible LIVE/TEST slider, backend-confirmed state, fail-closed live not approved, zero checkout attempts.')
  browser.close()
