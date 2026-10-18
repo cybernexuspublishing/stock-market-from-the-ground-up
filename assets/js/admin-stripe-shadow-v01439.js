@@ -23,7 +23,7 @@
  const title=element('h2','Stripe Payment Testing');
  const deployedVersion=element('p','Payment testing interface v0.14.0.55 · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
- const banner=element('p','TEST MODE ONLY · Real customer checkout remains OFF','gu39-danger');
+ const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
  const message=element('p','Select Refresh to check the system.','gu39-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
  const summary=element('dl',undefined,'gu39-summary');
@@ -75,6 +75,11 @@
  };
  function show(data){state=data;summary.replaceChildren();const rows=[['Payment Mode',data.enabled?'TESTING':'LIVE (selected)'],['Owner Test Mode',data.enabled?'Enabled':'Disabled'],['Cloudflare Sandbox Gate',data.cloudflareGate?'Configured':'Not configured'],['Stripe Test Price IDs (configured, not verified)',String(data.priceIdsConfigured??0)+' / 8'],['Test Checkout Records',String(data.intentCount??0)],['Processed Sandbox Events',String(data.processedEventCount??0)],['Shadow Access Records',String(data.shadowAccessCount??0)],['Live Customer Checkout',data.enabled?'PAUSED BY TESTING':data.liveRouteGateOpen?'LAUNCH GATE OPEN — provider conditions still apply':'NOT LAUNCH APPROVED']];
   for(const [k,v] of rows){summary.append(element('dt',k),element('dd',v))}
+  banner.textContent=data.enabled
+   ?'TESTING ACTIVE · New customer checkout blocked · Sandbox-only payment sessions'
+   :data.liveRouteGateOpen
+    ?'LIVE SELECTED · Independent launch gate approved; provider-specific switches still required'
+    :'LIVE SELECTED · Real customer payments are NOT approved';
   toggle.checked=data.enabled===true;toggle.disabled=data.role!=='OWNER'||(!data.enabled&&!data.cloudflareGate);
   toggle.setAttribute('aria-checked',String(toggle.checked));
   toggle.setAttribute('aria-label','Payment mode: '+(toggle.checked?'Testing enabled':'Live selected'));
