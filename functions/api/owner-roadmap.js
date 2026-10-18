@@ -4,6 +4,7 @@
  * This API is the ONLY client access to the registry and OWNER progress.
  */
 import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
+import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMeta} from '../_lib/owner-roadmap-20261018-additions.js';
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
@@ -12,7 +13,10 @@ const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const clean=x=>String(x??'').trim();
 const KEY='owner_roadmap.';
 const STATUS=new Set(['not_started','in_progress','implemented','blocked','deferred','owner_complete','verified']);
-const IDS=new Set(roadmapCatalog.map(x=>x.id));
+// Preserve every historical requirement; append reviewed 2026-10-18 work without renaming IDs.
+const completeCatalog=[...roadmapCatalog,...roadmapSupplementalItems];
+const IDS=new Set(completeCatalog.map(x=>x.id));
+if(IDS.size!==completeCatalog.length)throw Error('Duplicate Owner roadmap IDs.');
 /* Owner progress is authoritative for manual completion; this snapshot is NOT
  * written to site_settings and never marks Owner checkboxes complete. */
 const execStage = {
@@ -34,7 +38,7 @@ function stageFor(n,map,fallback='backlog'){
 function reviewFor(item){
  if(item.kind==='reference'||item.scope==='trace')return null;
  const meta=roadmapEngineeringReview;
- let result=meta.items[item.id];
+ let result=roadmapSupplementalReview[item.id]||meta.items[item.id];
  if(!result){
    const n=Number(item.id.split('-')[1]);
    const isExec=item.id.startsWith('EXEC-');
@@ -49,7 +53,7 @@ function reviewFor(item){
  }
  return result;
 }
-const delegatedBaseline=Object.fromEntries(roadmapCatalog
+const delegatedBaseline=Object.fromEntries(completeCatalog
  .filter(item=>item.scope==='core' && item.kind==='task')
  .map(item=>[item.id,delegatedProgressFor(item.id,reviewFor(item))])
  .filter(([,value])=>value!==null));
@@ -57,7 +61,7 @@ const baselineCounts=Object.values(delegatedBaseline).reduce((counts,item)=>{
  counts[item.approval]=(counts[item.approval]||0)+1;
  return counts;
 },{});
-const reviewCounts=roadmapCatalog.filter(x=>x.scope==='core').reduce((counts,item)=>{
+const reviewCounts=completeCatalog.filter(x=>x.scope==='core').reduce((counts,item)=>{
  const stage=reviewFor(item)?.stage||'needs_review';
  counts[stage]=(counts[stage]||0)+1;return counts;
 },{});
@@ -206,7 +210,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]=value;custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:roadmapMetadata,engineeringReview:{...roadmapEngineeringReview.meta,labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,items:roadmapCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
