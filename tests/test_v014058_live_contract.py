@@ -8,7 +8,7 @@ webhook=read('functions/api/stripe-live-webhook-v01458.js')
 middleware=read('functions/_middleware.js')
 router=read('functions/api/checkout.js')
 for t in ['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED',
-          'GU58_LIVE_DB_CONTRACT_APPROVED','GU58_LIVE_STRIPE_ACCOUNT_ID','GU58_STRIPE_LIVE_CATALOG_JSON',
+          'GU58_LIVE_DB_CONTRACT_APPROVED','GU58_STRIPE_LIVE_ACCOUNT_ID','GU58_STRIPE_LIVE_CATALOG_JSON',
           'sk_live_','/v1/checkout/sessions','gu58_live_checkout_intents']:
  assert t in checkout, t
 for t in ['GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED','GU58_LIVE_DB_CONTRACT_APPROVED',
