@@ -22,7 +22,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('profiles?'))return J([{account_kind:'member'}]);
  if(u.includes('admin_user_flags?'))return J([]);
  if(u.endsWith('/v1/account'))return J({id:'acct_mocklive1'});
- if(u.includes('/v1/products/prod_qa123456'))return J({id:'prod_qa123456',active:true,livemode:true});
+ if(u.includes('/v1/products/prod_qa123456'))return J({id:'prod_qa123456',name:'Live Test',active:true,livemode:true});
  if(u.includes('/v1/prices/price_qa123456'))return J({id:'price_qa123456',product:'prod_qa123456',
    active:true,livemode:true,unit_amount:state.price,currency:'usd',type:state.kind,
    recurring:null,billing_scheme:'per_unit',transform_quantity:null});
