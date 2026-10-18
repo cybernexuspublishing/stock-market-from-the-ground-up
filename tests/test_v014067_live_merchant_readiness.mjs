@@ -69,7 +69,7 @@ globalThis.fetch=async(url,opts={})=>{
     recurring:interval==='lifetime'?null:{interval,interval_count:state.wrongCadence?12:1,usage_type:'licensed'}});
   }
   if(u.includes('/v1/webhook_endpoints?'))return json({has_more:state.more,
-   data:state.missingWebhook?[]:[{url:origin+'/api/stripe-live-webhook-v01458',
+   data:state.missingWebhook?[]:[{url:origin+'/api/stripe-live-webhook',
     livemode:true,status:'enabled',enabled_events:state.wildcard?['*']:eventTypes}]});
  }
  throw Error('Unexpected '+method+' '+u);
