@@ -25,7 +25,7 @@ const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock',SUPABASE_PUBLI
  GU58_LIVE_WEBHOOK_ENABLED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_mock',
  GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_expectedmock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
-const state={mode:false,validPrice:true,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
+const state={mode:false,validPrice:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
  intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0,expectTool:false};
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 const liveSession={id:'cs_live_mock123456',livemode:true,status:'complete',payment_status:'paid',
@@ -59,13 +59,13 @@ globalThis.fetch=async(url,o={})=>{
  if(u.endsWith('/v1/prices/'+mapped['plan:FULL_MONTHLY'].price_id))
   return respond({id:mapped['plan:FULL_MONTHLY'].price_id,
    product:state.validPrice?mapped['plan:FULL_MONTHLY'].product_id:'prod_wrong00000000',
-   currency:'usd',active:true,livemode:true,unit_amount:6999,
-   type:'recurring',recurring:{interval:'month'}});
+   currency:'usd',active:true,livemode:true,unit_amount:6999,billing_scheme:state.billingScheme,transform_quantity:state.transformQuantity,
+   type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
  if(u.endsWith('/v1/prices/'+mapped['tool:INTERACTIVE_LEARNING'].price_id))
   return respond({id:mapped['tool:INTERACTIVE_LEARNING'].price_id,
    product:mapped['tool:INTERACTIVE_LEARNING'].product_id,
-   currency:'usd',active:true,livemode:true,unit_amount:2999,
-   type:'recurring',recurring:{interval:'month'}});
+   currency:'usd',active:true,livemode:true,unit_amount:2999,billing_scheme:state.billingScheme,transform_quantity:state.transformQuantity,
+   type:'recurring',recurring:{interval:'month',interval_count:state.intervalCount,usage_type:state.usageType}});
  if(u.endsWith('/v1/checkout/sessions')&&method==='POST'){
   state.postStripe++;const body=new URLSearchParams(o.body);
   assert.equal(body.get('metadata[gu58_intent]'),intent);
@@ -141,6 +141,18 @@ try{
  state.account='acct_expectedmock';state.validPrice=false;r=await pay();assert.equal(r.status,503);
  assert.equal(state.postStripe,0);
  state.validPrice=true;
+ for(const [field,bad,label] of [
+  ['intervalCount',12,'annualized monthly Stripe Price'],
+  ['usageType','metered','metered subscription Price'],
+  ['billingScheme','tiered','tiered Price instead of fixed per-unit'],
+  ['transformQuantity',{divide_by:3,round:'up'},'quantity-transformed Price']
+ ]){
+  const old=state[field];state[field]=bad;
+  r=await pay();assert.equal(r.status,503,label);
+  assert.equal(state.postStripe,0,'unapproved Price must never create Stripe sessions');
+  assert.equal(state.dbWrites,0,'unapproved Price must not create an intent');
+  state[field]=old;
+ }
  const orig=crypto.randomUUID;
  crypto.randomUUID=()=>intent;
  r=await pay();crypto.randomUUID=orig;

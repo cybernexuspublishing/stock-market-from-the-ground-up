@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.64",
+  "version": "0.14.0.65",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "89d2cf8db7273fdb3b752dfb5cbc6e88e08ac0b0",
+  "baselineGitCommit": "863733bebe326a621d6930a9758edf3a9ee8da10",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -72,6 +72,19 @@
     "gu39OwnerTestCheckoutRemainsShadowOnly": true,
     "webhookEnablementRequiredBeforeCustomerCheckout": true,
     "realPaymentAndLifecycleAcceptance": "NOT_VERIFIED",
+    "liveActivationAuthorized": false
+  },
+  "stripePriceIntegrity": {
+    "version": "0.14.0.65",
+    "enforcedFor": "GU58 independently Owner-authorized LIVE subscription/tool checkout",
+    "recurringIntervalCount": 1,
+    "usageType": "licensed",
+    "billingScheme": "per_unit",
+    "transformQuantity": "none",
+    "separateSupabaseProjectRequired": false,
+    "existingProjectPreflight": "supabase/admin/v0.14.0.65_ONE_PROJECT_PAYMENT_READINESS_READ_ONLY.sql",
+    "supabaseMigrationAppliedByRelease": false,
+    "liveCustomerPaymentTested": false,
     "liveActivationAuthorized": false
   }
 }
