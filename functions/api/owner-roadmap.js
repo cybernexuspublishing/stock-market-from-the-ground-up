@@ -7,6 +7,7 @@ import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
 import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMeta} from '../_lib/owner-roadmap-20261018-additions.js';
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
+import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014061.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -240,7 +241,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]={...value,revision:recordRevision(row)};custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,409,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
