@@ -47,7 +47,7 @@ async function verify(c){
   query('https://api.stripe.com/v1/products/'+c.product,{headers:h}),
   query('https://api.stripe.com/v1/prices/'+c.price,{headers:h})
  ]);
- if(a.id!==c.account||p.id!==c.product||p.livemode!==true||p.active!==true||
+ if(a.id!==c.account||p.id!==c.product||p.name!=='Live Test'||p.livemode!==true||p.active!==true||
    pr.id!==c.price||pr.product!==c.product||pr.livemode!==true||pr.active!==true||
    pr.currency!=='usd'||pr.unit_amount!==0||pr.type!=='one_time'||pr.recurring!=null||
    pr.billing_scheme!=='per_unit'||pr.transform_quantity!==null)
