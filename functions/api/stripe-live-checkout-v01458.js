@@ -85,8 +85,19 @@ if(!r||r.active!==true||r.public_visible!==true||
  return {key,amount,bill};
 }
 async function verifyPrice(c,price,p,expectedProduct){const q=await request('https://api.stripe.com/v1/prices/'+encodeURIComponent(price),{headers:{authorization:'Bearer '+c.stripe}});
- if(q.id!==price||q.livemode!==true||q.active!==true||q.product!==expectedProduct||q.currency!=='usd'||q.unit_amount!==p.amount||
-  (p.bill==='lifetime'?q.type!=='one_time':q.type!=='recurring'||q.recurring?.interval!==p.bill))throw err('Stripe Price ID does not match the approved product and amount.',503);
+ // A matching amount and interval label is insufficient: an interval_count>1
+ // silently changes the billing cadence, and metered/tiered/quantity-transformed
+ // prices are not approved for these fixed-price memberships or tools.
+ // Stripe supplies interval_count, usage_type, billing_scheme and transform_quantity
+ // on an actual LIVE Price object. Missing fields fail closed.
+ const fixedPrice=q.billing_scheme==='per_unit'&&q.transform_quantity==null;
+ const cadence=p.bill==='lifetime'
+  ?q.type==='one_time'
+  :q.type==='recurring'&&q.recurring?.interval===p.bill&&
+    q.recurring?.interval_count===1&&q.recurring?.usage_type==='licensed';
+ if(q.id!==price||q.livemode!==true||q.active!==true||q.product!==expectedProduct||
+    q.currency!=='usd'||q.unit_amount!==p.amount||!fixedPrice||!cadence)
+  throw err('Stripe Price ID does not match the approved product, amount, and billing cadence.',503);
 }
 export async function onRequestPost({request:req,env}){
  try{if(Number(req.headers.get('content-length')||0)>2048)throw err('Request too large.',413);
