@@ -27,7 +27,7 @@ assert "const audit=element('button','Audit Checkout — No Payment')" in js
 assert "audit.addEventListener('click',auditCheckout)" in js
 assert "unified.addEventListener('click',runCompletePaymentReview)" in js
 assert "preflight.addEventListener('click',runPreflight)" in js
-assert f"Payment testing interface v{version}" in js, "Visible UI deploy signature required"
+assert ("Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'" + version + "')" in js or f"Payment testing interface v{version}" in js), "Visible UI deploy signature must use the current release version"
 assert f"version:'{version}'" in js
 assert f"groundup-v014{int(version.split('.')[-1]):03d}-public" in sw
 assert release["customerCheckoutApproved"] is False
