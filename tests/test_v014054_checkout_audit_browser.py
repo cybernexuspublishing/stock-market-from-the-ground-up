@@ -20,8 +20,8 @@ with sync_playwright() as pw:
    if(opts.method==='POST'){window.mock.writes++;throw Error('No Stripe payments allowed in this test!');}
    if(location.includes('view=checkout-safety')){
     window.mock.readAudits++;
-    return new Response(JSON.stringify({ok:true,sku:'plan:FULL_MONTHLY',passed:8,total:8,
-     safeToAttemptTest:true,checks:Array.from({length:8},(_,i)=>({name:'Check '+i,status:'PASS',detail:'Mock test pass'}))}),{status:200});
+    return new Response(JSON.stringify({ok:true,sku:'plan:FULL_MONTHLY',passed:9,total:9,
+     safeToAttemptTest:true,checks:Array.from({length:9},(_,i)=>({name:'Check '+i,status:'PASS',detail:'Mock test pass'}))}),{status:200});
    }
    if(location.includes('view=catalog'))return new Response(JSON.stringify({
     ok:true,allVerified:true,productsVerified:8,pricesVerified:8,rows:[]}),{status:200});
@@ -38,7 +38,7 @@ with sync_playwright() as pw:
  page.get_by_text('Products: 8 / 8 verified').wait_for(timeout=5000)
  assert payment.is_disabled(),'Catalog verification is not sufficient!'
  page.get_by_role('button',name='Audit Checkout — No Payment').click()
- page.get_by_text('Pre-payment safety audit: 8 / 8 checks passed').wait_for(timeout=5000)
+ page.get_by_text('Pre-payment safety audit: 9 / 9 checks passed').wait_for(timeout=5000)
  assert payment.is_enabled(),'Only after full 8 guard audit should test checkout be exposed'
  stats=page.evaluate('window.mock')
  assert stats['readAudits']==1,stats
@@ -46,5 +46,5 @@ with sync_playwright() as pw:
  page.locator('#gu39-sku').select_option('plan:FULL_ANNUAL')
  assert payment.is_disabled(),'Changing SKU must invalidate the prior safety audit'
  assert 'Payment testing interface v0.14.0.54' in page.locator('#gu39-shadow').inner_text()
- print('PASS v54: no TEST checkout allowed before eight-check read-only safety audit, selected SKU invalidates approval, no writes.')
+ print('PASS v54: no TEST checkout allowed before nine-check read-only safety audit, selected SKU invalidates approval, no writes.')
  browser.close()
