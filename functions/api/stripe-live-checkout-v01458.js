@@ -12,7 +12,7 @@ const products=Object.freeze(new Set([
 ]));
 const SRC_VERSION='2026-02-25.preview'; // Version pinned for Managed Payments; verify account eligibility before launch.
 function environment(env){
- const base=val(env.SUPABASE_URL).replace(/\\/$/,'');
+ const base=val(env.SUPABASE_URL).replace(/\/$/,'');
  const secret=val(env.SUPABASE_SECRET_KEY),pub=val(env.SUPABASE_PUBLISHABLE_KEY);
  const stripe=val(env.GU58_STRIPE_LIVE_SECRET_KEY),acct=val(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
  if(env.GU_PAYMENT_LIVE_LAUNCH_APPROVED!=='true'||
@@ -38,7 +38,7 @@ function liveCatalog(env){
  return obj;
 }
 async function request(url,options){const r=await fetch(url,{...options,cache:'no-store'});const d=await r.json().catch(()=>null);
- if(!r.ok||!d)throw err('Stripe testing service unavailable.',503);return d;}
+ if(!r.ok||!d)throw err('Stripe LIVE payment service unavailable.',503);return d;}
 const h=c=>({
  apikey:c.secret,...(String(c.secret).startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.secret}),
  'content-type':'application/json'
@@ -46,7 +46,7 @@ const h=c=>({
 async function db(c,path,method='GET',body,prefer='return=representation'){
  return request(c.base+'/rest/v1/'+path,{method,headers:{...h(c),prefer},body:body===undefined?undefined:JSON.stringify(body)});
 }
-async function validateUser(c,req){const token=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw err('Sign in before testing checkout.',401);
+async function validateUser(c,req){const token=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw err('Sign in before checkout.',401);
  const user=await request(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});
  if(!/^[0-9a-f-]{36}$/i.test(user.id||''))throw err('Account validation failed.',401);
  const ps=await db(c,`profiles?select=id,account_kind&id=eq.${user.id}&limit=1`);
@@ -121,7 +121,7 @@ export async function onRequestPost({request:req,env}){
   const target=new URL(session.url);if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw err('Invalid Stripe destination.',503);
   await db(c,`gu_stripe_checkout_intents_v01438?id=eq.${id}`,'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
   return respond({ok:true,live:true,url:session.url,notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
- }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'Stripe customer testing unavailable.'},e.status||503)}
+ }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
 // Public readiness: returns only a boolean; never leaks private credentials, prices or account details.
 export function onRequestGet({env}){
