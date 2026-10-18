@@ -279,7 +279,7 @@
     'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.66')+'): '+
     (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
       'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
-    ' LIVE database installation and exact stored SQL require independent verification against the Owner's Supabase evidence; a TEST shadow grant is not real member access.'));
+    ' LIVE database installation and exact stored SQL require independent verification against Owner-provided Supabase evidence; a TEST shadow grant is not real member access.'));
    unifiedReport.append(element('p',live.liveCheckoutApproved
     ?'Independent LIVE launch gate is configured; production merchant acceptance and provider-specific switches remain separately required.'
     :'LIVE customer checkout remains locked until independent Owner launch approval. Switching TESTING off will not charge customers.'));
