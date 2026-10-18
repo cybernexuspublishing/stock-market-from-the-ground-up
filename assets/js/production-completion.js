@@ -33,38 +33,6 @@
             span.textContent = 'Search site';
     } }
     function notificationCenter() { /* Retired v0.14.0.12: frontend-complete.js solely owns Alerts, account notifications and site announcements. */ }
-    function createAccountUpgrade() {
-        if (!/\/(create-account)(\.html)?$/.test(path))
-            return;
-        const form = q('main form,form');
-        if (!form || form.dataset.v132)
-            return;
-        form.dataset.v132 = '1';
-        const fields = q('input[name="username"],#username', form) || q('input[type="email"]', form);
-        const wrap = document.createElement('div');
-        wrap.className = 'v132-registration-identity';
-        wrap.innerHTML = '<div class="v132-grid two"><label>First Name<input name="v132_first_name" autocomplete="given-name" maxlength="80" required></label><label>Last Name<input name="v132_last_name" autocomplete="family-name" maxlength="80" required></label></div><label>Date of Birth <span class="muted">DD/MM/YYYY</span><input name="v132_dob" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="bday" required></label><p class="v132-field-note">You must be at least 18 years old to create an account or make a purchase.</p>';
-        (fields?.closest('label,.field,.form-group') || form.firstElementChild)?.insertAdjacentElement('beforebegin', wrap);
-        form.addEventListener('submit', async (e) => { e.preventDefault(); e.stopImmediatePropagation(); const fd = new FormData(form), pick = (names) => { for (const n of names) {
-            const v = fd.get(n);
-            if (v)
-                return String(v);
-        } return ''; }; const body = { firstName: pick(['v132_first_name']), lastName: pick(['v132_last_name']), dateOfBirth: pick(['v132_dob']), username: pick(['username', 'user_name']), email: pick(['email']), password: pick(['password']), confirmPassword: pick(['confirm_password', 'password_confirm', 'confirmPassword']) || pick(['password']) }; const btn = q('button[type="submit"]', form); try {
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Creating account…';
-            }
-            const r = await api('/api/account?action=signup', { method: 'POST', body: JSON.stringify(body) });
-            form.innerHTML = `<div class="v132-success"><div class="eyebrow">Account created</div><h2>Check your email to verify your account.</h2><p>After verification, sign in with your Username or Email Address.</p><a class="btn" href="signin.html">Go to Sign In</a></div>`;
-        }
-        catch (err) {
-            toast(err.message, 'bad');
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        } }, { capture: true });
-    }
     function credentialVisibility(form) { qa('input[type="password"]', form).forEach(input => { if (input.nextElementSibling?.classList.contains('v132-secret-toggle'))
         return; const b = document.createElement('button'); b.type = 'button'; b.className = 'v132-secret-toggle'; b.textContent = 'Show'; b.setAttribute('aria-pressed', 'false'); b.onclick = () => { const show = input.type === 'password'; input.type = show ? 'text' : 'password'; b.textContent = show ? 'Hide' : 'Show'; b.setAttribute('aria-pressed', String(show)); }; input.insertAdjacentElement('afterend', b); }); }
     function profileMenuCleanup() { qa('header a, .v13-profile-menu a, footer a').forEach(a => { const t = (a.textContent || '').trim(); if (/^Profile$/i.test(t))
@@ -278,7 +246,7 @@
         meta.classList.add('v132-topic-cols');
         meta.innerHTML = `<span class="v132-col-label">Replies</span><strong>${esc((meta.textContent || '').replace(/[^0-9]/g, '') || '0')}</strong>`;
     } }); }); obs.observe(host, { childList: true, subtree: true }); }
-    async function init() { normalizeHeaderSearch(); profileMenuCleanup(); createAccountUpgrade(); storeTabs(); homeRedesign(); forumPolish(); adminFormPolish(); setTimeout(notificationCenter, 500); setTimeout(adminPanels, 800); await dashboardRepair(); }
+    async function init() { normalizeHeaderSearch(); profileMenuCleanup(); /* legacy duplicate registration handler removed */ storeTabs(); homeRedesign(); forumPolish(); adminFormPolish(); setTimeout(notificationCenter, 500); setTimeout(adminPanels, 800); await dashboardRepair(); }
     if (document.readyState === 'loading')
         document.addEventListener('DOMContentLoaded', () => setTimeout(init, 200));
     else
