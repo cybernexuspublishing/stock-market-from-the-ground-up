@@ -70,7 +70,7 @@ const LEGACY_TEST_CHECKOUT_ROUTES=new Set(['/api/stripe-managed-sandbox-v01432r2
 function supabasePaymentServiceHeaders(value){
  const secret=clean(value);
  if(secret.startsWith('sb_secret_'))return {apikey:secret};
- if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(secret))
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
   return {apikey:secret,authorization:'Bearer '+secret};
  throw Error('PAYMENT_DB_SECRET_UNAVAILABLE');
 }
@@ -81,8 +81,8 @@ async function paymentModeBoundary(context,url){
  if(request.method!=='POST'&&!isPublicQuote)return null;
  if(!LIVE_CHECKOUT_ROUTES.has(checkoutPath)&&!LEGACY_TEST_CHECKOUT_ROUTES.has(checkoutPath))return null;
  // Do not trust the frontend-selected mode or a stale cached setting.
- const base=clean(env.SUPABASE_URL).replace(/\\/$/,'');
- if(!/^https:\\/\\/[a-z0-9]{20}\\.supabase\\.co$/.test(base))
+ const base=clean(env.SUPABASE_URL).replace(/\/$/,'');
+ if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base))
   return reject('PAYMENT_MODE_UNAVAILABLE',503);
  let state;
  try{
