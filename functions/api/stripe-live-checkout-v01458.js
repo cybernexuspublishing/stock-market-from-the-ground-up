@@ -16,7 +16,7 @@ function environment(env){
  const secret=val(env.SUPABASE_SECRET_KEY),pub=val(env.SUPABASE_PUBLISHABLE_KEY);
  const stripe=val(env.GU58_STRIPE_LIVE_SECRET_KEY),acct=val(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
  if(env.GU_PAYMENT_LIVE_LAUNCH_APPROVED!=='true'||
-    env.GU58_LIVE_CHECKOUT_ENABLED!=='true'||env.GU58_LIVE_FULFILLMENT_APPROVED!=='true'||
+    env.GU58_LIVE_CHECKOUT_ENABLED!=='true'||env.GU58_LIVE_WEBHOOK_ENABLED!=='true'||env.GU58_LIVE_FULFILLMENT_APPROVED!=='true'||
     env.GU58_LIVE_DB_CONTRACT_APPROVED!=='true'||
     !/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||
     !secret||!pub||!/^sk_live_[A-Za-z0-9_]+$/.test(stripe)||
@@ -134,7 +134,30 @@ export async function onRequestPost({request:req,env}){
  }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
 // Public readiness: returns only a boolean; never leaks private credentials, prices or account details.
-export function onRequestGet({env}){
- try{environment(env);liveCatalog(env);return respond({ok:true,liveConfigured:true,livePayments:false,requiresIndependentLaunchReview:true})}
- catch{return respond({ok:true,liveConfigured:false,livePayments:false})}
+// Public, read-only availability check for a specific plan/tool on the existing
+// production Supabase project. The Owner's TEST/LIVE switch, global checkout gate,
+// active catalog and merchant price are all rechecked on the POST; this GET never
+// creates a Checkout Session or customer entitlement. No staging project required.
+export async function onRequestGet({env,request}){
+ const unavailable=()=>respond({ok:true,liveCheckoutAvailable:false,livePayments:false,readOnly:true});
+ try{
+  if(!request?.url)return unavailable();
+  const c=environment(env),catalog=liveCatalog(env);
+  const query=new URL(request.url).searchParams;
+  const type=val(query.get('type')),code=val(query.get('code'));
+  if(!['plan','tool'].includes(type)||!/^[A-Z0-9_]{3,90}$/.test(code)||
+     !products.has(type+':'+code))return unavailable();
+  // This check is deliberately NOT a way to override the Owner's TEST mode.
+  await testModeOff(c);
+  const p=await product(c,type,code);
+  const route=await db(c,'rpc/gu_digital_payment_route_get_v01432r2','POST',{});
+  if(route.provider!=='STRIPE_MANAGED'||route.enabled!==true)return unavailable();
+  const setting=await db(c,'site_settings?select=value&setting_key=eq.commerce.checkout_enabled&limit=1');
+  if(setting[0]?.value!==true)return unavailable();
+  await assertLiveAccount(c);
+  const mapping=catalog[p.key];
+  await verifyPrice(c,mapping.price_id,p,mapping.product_id);
+  return respond({ok:true,liveCheckoutAvailable:true,livePayments:false,readOnly:true,
+   notice:'Provider verified for this product. Final customer checks occur during checkout.'});
+ }catch{return unavailable()}
 }

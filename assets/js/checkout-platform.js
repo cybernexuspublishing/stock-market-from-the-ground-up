@@ -24,15 +24,25 @@ async function init(){
   try{
    const route=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store'}).then(async r=>{const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw Error('Payment provider setup is not yet complete.');return data});
    if(route.provider==='STRIPE_MANAGED'){
-    // Staging-only secure checkout, off on the public production database.
-    const readiness=await fetch('/api/stripe-customer-checkout-v01438',{cache:'no-store'}).then(r=>r.json()).catch(()=>({}));
-    if(!books&&readiness?.sandboxReady===true&&route.enabled===true){
-      current={target:'/api/stripe-customer-checkout-v01438',provider:'STRIPE_MANAGED_TEST',type,code};
-      btn.disabled=false;btn.textContent='Continue to Stripe test checkout';
-      msg.textContent='SANDBOX ONLY: no real charge. Use a test account and test payment method.';
+    // One production database. Owner-only GU39 TEST purchases stay in the
+    // separate Admin shadow ledger, NEVER in customer checkout. Do not route
+    // customer browsers to deprecated staging-specific v38/v61 endpoints.
+    if(books){
+      btn.textContent='Direct digital checkout unavailable';
+      msg.textContent='Book purchases follow the separate publishing-rights and approved retailer checkout rules.';
+      return;
+    }
+    const readyUrl='/api/stripe-live-checkout-v01458?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code);
+    const readiness=route.enabled===true
+      ?await fetch(readyUrl,{cache:'no-store'}).then(async r=>r.ok?await r.json():null).catch(()=>null)
+      :null;
+    if(readiness?.liveCheckoutAvailable===true&&route.enabled===true){
+      current={target:'/api/stripe-live-checkout-v01458',provider:'STRIPE_MANAGED_LIVE',type,code};
+      btn.disabled=false;btn.textContent='Continue to secure Stripe checkout';
+      msg.textContent='Your eligibility and the final payment amount are verified again before Stripe opens.';
     }else{
       btn.textContent='Stripe customer payments not activated';
-      msg.textContent='Payments remain disabled until the Stripe integration and verification are approved.';
+      msg.textContent='Membership and tool payments remain disabled until the Owner approves LIVE checkout and all payment safeguards pass.';
     }
     return;
    }
@@ -53,7 +63,7 @@ async function init(){
   if(!root.querySelector('#terms-ok').checked){msg.textContent='Accept the purchase terms before continuing.';return}
   btn.disabled=true;
   try{
-   if(current.provider==='STRIPE_MANAGED_TEST'){
+   if(current.provider==='STRIPE_MANAGED_LIVE'){
      const j=await req(current.target,{method:'POST',body:JSON.stringify({type,code})});
      const link=new URL(j.url);
      if(link.protocol!=='https:'||link.hostname!=='checkout.stripe.com')throw Error('Unexpected Stripe checkout address.');
