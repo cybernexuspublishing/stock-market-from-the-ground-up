@@ -1,8 +1,8 @@
 /* v0.14.0.61 | Independent TEST staging Stripe webhook candidate. Disabled by default.
- * No preview or shadow access can grant real memberships. Signed, provider-verified
+ * Staging preview can grant staging-only memberships, never production access. Signed, provider-verified
  * events alone may invoke the service-only SQL entitlement ledger, after launch.
  * IMPORTANT: webhook processing continues for existing paid subscriptions even if
- * new LIVE checkouts are later disabled by the Owner.
+ * new TEST checkouts are later disabled by the Owner.
  */
 const STAGING_PRODUCTION_REF='oxihglyfgzywsupnyicb';
 function stagingBoundary(e,req){
@@ -10,11 +10,11 @@ function stagingBoundary(e,req){
   const host=new URL(req.url).hostname.toLowerCase();
   const expected=String(e.GU61_STAGING_HOSTNAME||'').trim().toLowerCase();
   const ref=String(e.GU61_STAGING_PROJECT_REF||'').trim();
-  const base=String(e.SUPABASE_URL||'').trim().replace(/\\/$/,'');
+  const base=String(e.SUPABASE_URL||'').trim().replace(/\/$/,'');
   return e.GU61_STAGING_ENABLED==='true' && e.GU61_STAGING_APPROVED==='true' &&
     /^[a-z0-9]{20}$/.test(ref) && ref!==STAGING_PRODUCTION_REF &&
     base==='https://'+ref+'.supabase.co' && host===expected &&
-    /^[a-z0-9-]+\\.[a-z0-9-]+\\.pages\\.dev$/.test(host);
+    /^[a-z0-9-]+\.[a-z0-9-]+\.pages\.dev$/.test(host);
  }catch{return false}
 }
 const resp=(text,status=200)=>new Response(text,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
