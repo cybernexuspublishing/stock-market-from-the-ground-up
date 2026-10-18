@@ -20,6 +20,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/rpc/my_platform_access_for_user'))return J({planCode:state.plan});
  if(u.includes('user_plan_grants?'))return J(state.used?[{ends_at:'2026-11-18T00:00:00Z',source_reference:'cs_live_qa123456'}]:[]);
  if(u.includes('profiles?'))return J([{account_kind:'member'}]);
+ if(u.includes('admin_user_flags?'))return J([]);
  if(u.endsWith('/v1/account'))return J({id:'acct_mocklive1'});
  if(u.includes('/v1/products/prod_qa123456'))return J({id:'prod_qa123456',active:true,livemode:true});
  if(u.includes('/v1/prices/price_qa123456'))return J({id:'price_qa123456',product:'prod_qa123456',
