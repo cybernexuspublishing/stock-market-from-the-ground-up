@@ -104,7 +104,7 @@
 @media(max-width:980px){.or-phase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.or-phase-grid{grid-template-columns:1fr}#or-owner-brief{padding:14px}}
 
-/* v0.14.0.61 — operational Owner decision queue, responsive sorting/filters. */
+/* v0.14.0.63 — operational Owner decision queue, responsive sorting/filters. */
 .or-action-board{background:linear-gradient(165deg,#102e42,#071c2b);border:1px solid #3a5e72;border-radius:14px;padding:clamp(16px,2vw,25px);margin:0 0 20px}
 .or-action-board[hidden]{display:none!important}
 .or-action-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
