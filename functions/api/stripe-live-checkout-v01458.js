@@ -37,7 +37,11 @@ function liveCatalog(env){
    throw err('All eight distinct LIVE products and prices must be independently approved.',503);
  return obj;
 }
-async function request(url,options){const r=await fetch(url,{...options,cache:'no-store'});const d=await r.json().catch(()=>null);
+async function request(url,options){const r=await fetch(url,{...options,cache:'no-store'});
+ // PostgREST "Prefer: return=minimal" PATCH legitimately returns HTTP 204.
+ // A verified 204 is success, not an unknown result or reason to retry a charge.
+ if(r.ok&&r.status===204)return {};
+ const d=await r.json().catch(()=>null);
  if(!r.ok||!d)throw err('Stripe LIVE payment service unavailable.',503);return d;}
 const h=c=>({
  apikey:c.secret,...(String(c.secret).startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.secret}),
