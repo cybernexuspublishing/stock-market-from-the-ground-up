@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.67",
+  "version": "0.14.0.68",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "8ad9bec9f855bd7ba8ea7469613cb8c3a4c61ffc",
+  "baselineGitCommit": "8dd0a915f00b5902cd219ebce3f25b6cf501c657",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -122,5 +122,18 @@
     "signedWebhookDeliveryVerified": false,
     "managedPaymentsProviderAcceptanceVerified": false,
     "ownerLiveLaunchApproved": false
+  },
+  "stripeLivePermanentWebhook": {
+    "version": "0.14.0.68",
+    "customerFacing": false,
+    "providerUrl": "https://stock-market-from-the-ground-up.pages.dev/api/stripe-live-webhook",
+    "fulfillment": "GU58 LIVE membership/tools only",
+    "separateSignedBookWebhook": "/api/signed-book-stripe-webhook",
+    "configuredInActualStripe": false,
+    "verifiedSignedDelivery": false,
+    "createdCharges": false,
+    "ownerLiveLaunchApproved": false,
+    "fullCommerceInventory": "docs/v0.14.0.68-STABLE-STRIPE-WEBHOOK-AND-COMMERCE-SCOPE.md",
+    "gu58CatalogScope": "exactly eight plan/tool SKUs; no book or free products"
   }
 }
