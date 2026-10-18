@@ -474,11 +474,21 @@ async function completePaymentReview(request,env,c,a){
  // 17 configuration checks. A diagnostic does not create a payment or entitlement.
  const acceptance=await inspectSandboxAcceptance(env,c,a);
  const launchApproved=env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true';
+ // Production v58 has its own approval gates. The historical launch flag alone
+ // never authorizes a paid customer checkout or the membership grant backend.
+ const fulfillmentApproved=env.GU58_LIVE_FULFILLMENT_APPROVED==='true'&&
+  env.GU58_LIVE_DB_CONTRACT_APPROVED==='true';
+ const liveCandidateEnabled=env.GU58_LIVE_CHECKOUT_ENABLED==='true'&&fulfillmentApproved;
  const mode=checkout.checks.some(x=>x.name==='Owner TEST mode'&&x.status==='PASS')?'TESTING':'LIVE_SELECTED';
  const complete=checkout.safeToAttemptTest&&catalog.allVerified&&!pending.testCheckoutBlocked&&!pending.error;
  return {ok:true,version:'0.14.0.57',readOnly:true,testOnly:true,liveCheckout:false,
   selectedSku:sku,mode,config,checkout,catalog,pending,acceptance,
-  production:{liveCheckoutApproved:launchApproved,liveCheckoutAvailable:mode!=='TESTING'&&launchApproved,
+  production:{liveCheckoutApproved:launchApproved,
+    liveCheckoutAvailable:mode!=='TESTING'&&launchApproved&&liveCandidateEnabled,
+    liveMembershipConnector:'v0.14.0.58',liveMembershipFulfillmentApproved:fulfillmentApproved,
+    liveCheckoutProviderSwitchEnabled:env.GU58_LIVE_CHECKOUT_ENABLED==='true',
+    liveWebhookProviderSwitchEnabled:env.GU58_LIVE_WEBHOOK_ENABLED==='true',
+    requiresReviewedDatabaseMigration:true,
     mustCompleteSeparateProviderAcceptance:true},
   checksPassed:config.passed+checkout.passed+(catalog.allVerified?1:0),
   totalChecks:config.total+checkout.total+1,
