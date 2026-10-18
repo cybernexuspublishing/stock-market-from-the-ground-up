@@ -111,11 +111,24 @@
   auditReport.replaceChildren(element('p','Checking Owner step-up, existing Stripe catalog, full TEST gates, and isolated Supabase permissions. No payment is created.'));
   try{
    const jwt=await auth();
-   const response=await fetch('/api/gu39-sandbox?view=checkout-safety&sku='+encodeURIComponent(sel.value),{
-    headers:{authorization:'Bearer '+jwt},cache:'no-store'
-   });
-   const report=await response.json().catch(()=>null);
-   if(!response.ok||report?.ok!==true)throw Error(errorMessage(report?.error,response.status));
+   const safetyUrl='/api/gu39-sandbox?view=checkout-safety&sku='+encodeURIComponent(sel.value);
+   const inspect=async()=>{
+    const response=await fetch(safetyUrl,{headers:{authorization:'Bearer '+jwt},cache:'no-store'});
+    const report=await response.json().catch(()=>null);
+    if(!response.ok||report?.ok!==true)throw Error(errorMessage(report?.error,response.status));
+    return report;
+   };
+   let report=await inspect();
+   // Opening a non-payment audit should also offer the existing Owner
+   // password/Turnstile control when recent step-up has expired. No Stripe
+   // session is created, and only one automatic read-only recheck is allowed.
+   if(report.checks?.some(x=>x.name==='Recent Owner password confirmation'&&x.status==='BLOCKED')){
+    const confirmPassword=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof confirmPassword==='function'){
+     await confirmPassword();
+     report=await inspect();
+    }
+   }
    auditReport.replaceChildren(element('h3','Pre-payment safety audit: '+report.passed+' / '+report.total+' checks passed'));
    const table=element('table'),caption=element('caption','Read-only checkout safety requirements');
    const head=element('thead'),htr=element('tr');
