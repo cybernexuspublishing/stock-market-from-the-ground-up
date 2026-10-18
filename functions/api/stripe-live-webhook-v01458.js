@@ -91,7 +91,22 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
   const ss=await subscription(c,id);x.p_subscription_id=id;x.p_price_id=ss.price;x.p_period_end=ss.end;
   x.p_amount_cents=ss.latest?.amount_paid??null;x.p_invoice_id=ss.latest?.id||null;
   x.p_cancel_at_period_end=ss.sub.cancel_at_period_end===true;
-  x.p_action=ss.sub.status==='canceled'||ss.sub.status==='unpaid'||ss.sub.status==='incomplete_expired'?'subscription_canceled':
+  // Event-type semantics are authoritative for invoice failures. Never turn a
+  // failed-payment notification into a grant because a later invoice is paid.
+  // Ignore stale/non-latest invoices rather than revoking a newer paid period.
+  if(e.type==='invoice.paid'||e.type==='invoice.payment_failed'){
+   if(!ss.latest||ss.latest.id!==obj.id)return null;
+   if(e.type==='invoice.payment_failed'){
+    if(ss.latest.status==='paid')return null;
+    x.p_action='subscription_past_due';return x;
+   }
+   if(ss.latest.status!=='paid')return null;
+  }
+  if(e.type==='customer.subscription.deleted'){
+   if(ss.sub.status!=='canceled')return null;
+   x.p_action='subscription_canceled';return x;
+  }
+  x.p_action=['canceled','unpaid','incomplete_expired'].includes(ss.sub.status)?'subscription_canceled':
     ss.sub.status==='active'&&ss.latest?.status==='paid'?'subscription_active':'subscription_past_due';
   return x;
  }
