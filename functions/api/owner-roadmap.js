@@ -1,4 +1,4 @@
-/* Private Owner Website Roadmap API v0.14.0.46.
+/* Private Owner Website Roadmap API v0.14.0.63.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
  * This API is the ONLY client access to the registry and OWNER progress.
@@ -7,6 +7,7 @@ import {roadmapCatalog,roadmapMetadata} from '../_lib/owner-roadmap-catalog.js';
 import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMeta} from '../_lib/owner-roadmap-20261018-additions.js';
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
+import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -133,18 +134,44 @@ async function allState(c){
   throw fail('Roadmap storage limit reached; contact the Owner.',503);
 }
 async function record(c,key){
-  const rows=await db(c,'site_settings?select=setting_key,value,public_read&setting_key=eq.'+encodeURIComponent(key)+'&limit=1');
+  const rows=await db(c,'site_settings?select=setting_key,value,public_read,updated_at&setting_key=eq.'+encodeURIComponent(key)+'&limit=1');
   if(rows?.[0]?.public_read===true)throw fail('Private roadmap storage configuration needs review.',503);
-  return rows?.[0]?.value||null;
+  return rows?.[0]||null;
 }
-async function write(c,user,key,value){
-  const now=new Date().toISOString();
-  await db(c,'site_settings?on_conflict=setting_key','POST',{
-    setting_key:key,category:'owner_roadmap',value,public_read:false,
+function recordRevision(row){
+  return row?(row.value?.revision||row.updated_at||null):null;
+}
+/* Compare-and-swap using existing site_settings.updated_at; no SQL migration.
+   Do not silently overwrite another Owner's edits (including a simultaneous
+   create). The updated row count must be precisely one. */
+async function write(c,user,key,value,prior){
+  const now=new Date(Math.max(Date.now(), (prior?.updated_at?Date.parse(prior.updated_at)+1:0))).toISOString();
+  const revision=crypto.randomUUID();
+  const data={
+    setting_key:key,category:'owner_roadmap',
+    value:{...value,revision,updatedAt:now,updatedBy:user.id},
+    public_read:false,
     description:'Private Owner development requirement progress; no customer access.',
     updated_at:now,updated_by:user.id
-  },'resolution=merge-duplicates,return=representation');
-  return now;
+  };
+  const exists=Boolean(prior);
+  const suffix=exists
+    ?'site_settings?setting_key=eq.'+encodeURIComponent(key)+'&updated_at=eq.'+encodeURIComponent(prior.updated_at)
+    :'site_settings?on_conflict=setting_key';
+  let response;
+  try {
+    response=await fetch(c.base+'/rest/v1/'+suffix,{
+      method:exists?'PATCH':'POST',
+      headers:{...serviceHeaders(c,true),prefer:exists?'return=representation':'resolution=ignore-duplicates,return=representation'},
+      body:JSON.stringify(exists?{
+        value:data.value,public_read:false,updated_at:now,updated_by:user.id
+      }:data),cache:'no-store'
+    });
+  } catch {throw fail('Cannot save Owner progress while the database is unavailable.',503)}
+  if(!response.ok)throw fail(response.status===409?'Another Owner changed this task. Refresh before saving.':'Owner roadmap storage write failed.',response.status===409?409:503);
+  const changed=await response.json().catch(()=>null);
+  if(!Array.isArray(changed)||changed.length!==1)throw fail('This task changed in another session. Refresh before saving.',409);
+  return data.value;
 }
 async function audit(c,user,action,id,status){
   try{
@@ -166,31 +193,35 @@ async function handlePost(request,c,user){
     const title=clean(body.title),detail=clean(body.detail),area=clean(body.area)||'Owner-added tasks';
     if(title.length<4||title.length>180||detail.length>2400||area.length>90)throw fail('Invalid custom task details.',400);
     const id='OWN-'+crypto.randomUUID();
-    const value={custom:true,id,area,title,detail,status:'not_started',note:'',updatedAt:new Date().toISOString(),updatedBy:user.id,archived:false};
-    await write(c,user,KEY+'custom.'+id,value);
+    const value={custom:true,id,area,title,detail,status:'not_started',note:'',archived:false};
+    const saved=await write(c,user,KEY+'custom.'+id,value,null);
     const logged=await audit(c,user,'owner_roadmap.add',id,'not_started');
-    return reply({ok:true,item:{id,scope:'core',area,title,detail,source:'Owner-added item',evidence:'Owner-authored',kind:'task'},progress:value,auditLogged:logged});
+    return reply({ok:true,item:{id,scope:'core',area,title,detail,source:'Owner-added item',evidence:'Owner-authored',kind:'task'},progress:saved,auditLogged:logged});
   }
   const id=clean(body.id);
   if(!IDS.has(id)&&!/^OWN-[a-f0-9-]{36}$/i.test(id))throw fail('Unknown requirement ID.',404);
   const key=KEY+(id.startsWith('OWN-')?'custom.':'task.')+id;
   const prior=await record(c,key);
-  if(id.startsWith('OWN-')&&!prior?.custom)throw fail('Custom task does not exist.',404);
+  if(id.startsWith('OWN-')&&!prior?.value?.custom)throw fail('Custom task does not exist.',404);
+  if(prior?.value?.archived===true)throw fail('Archived custom tasks cannot be changed.',404);
+  const clientRevision=body.expectedRevision??null;
+  if(clientRevision!==recordRevision(prior))throw fail('This task was changed elsewhere. Refresh to load the latest Owner status.',409);
   if(action==='archive'&&id.startsWith('OWN-')){
-    const value={...prior,archived:true,updatedAt:new Date().toISOString(),updatedBy:user.id};
-    await write(c,user,key,value);
-    const logged=await audit(c,user,'owner_roadmap.archive',id,prior.status);
-    return reply({ok:true,progress:value,auditLogged:logged});
+    const value={...prior.value,archived:true};
+    const saved=await write(c,user,key,value,prior);
+    const logged=await audit(c,user,'owner_roadmap.archive',id,prior.value.status);
+    return reply({ok:true,progress:saved,auditLogged:logged});
   }
   if(action!=='save')throw fail('Unknown Owner roadmap action.',404);
   const status=clean(body.status);
   if(!STATUS.has(status))throw fail('Choose a valid tracking status.',400);
   const note=clean(body.note||'');
   if(note.length>2400)throw fail('Progress note may not exceed 2,400 characters.',400);
-  const value={...(prior||{}),status,note,updatedAt:new Date().toISOString(),updatedBy:user.id};
-  await write(c,user,key,value);
+  if(status==='verified'&&note.length<20)throw fail('Evidence-verified status requires at least 20 characters of recorded acceptance evidence.',400);
+  const value={...(prior?.value||{}),status,note};
+  const saved=await write(c,user,key,value,prior);
   const logged=await audit(c,user,'owner_roadmap.update',id,status);
-  return reply({ok:true,progress:value,auditLogged:logged});
+  return reply({ok:true,progress:saved,auditLogged:logged});
 }
 export async function onRequest({request,env}){
   try{
@@ -204,15 +235,15 @@ export async function onRequest({request,env}){
       const value=row.value||{},key=row.setting_key;
       if(key.startsWith(KEY+'task.')){
         const id=key.slice((KEY+'task.').length);
-        if(IDS.has(id))progress[id]=value;
+        if(IDS.has(id))progress[id]={...value,revision:recordRevision(row)};
       }else if(key.startsWith(KEY+'custom.')&&value.custom===true&&!value.archived){
         const id=value.id;
-        if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]=value;custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
+        if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]={...value,revision:recordRevision(row)};custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
-    const status=[400,401,403,404,405,413,503].includes(err?.status)?err.status:503;
+    const status=[400,401,403,404,405,409,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
   }
 }

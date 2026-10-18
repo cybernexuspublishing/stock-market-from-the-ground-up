@@ -13,6 +13,9 @@ with sync_playwright() as p:
  page=browser.new_page();page.set_content(html)
  page.evaluate('''()=>{window.ADMIN={ctx:{roles:['OWNER'],permissions:['commerce.view']}};window.SITE_CONFIG={VERSION:'0.14.0.42'};window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:'mock-owner-jwt'}}})}});
  window.fetch=async()=>new Response(JSON.stringify({ok:true,role:'OWNER',enabled:false,cloudflareGate:false,priceIdsConfigured:0,intentCount:0,processedEventCount:0,shadowAccessCount:0}),{status:200,headers:{'content-type':'application/json'}})}''')
+ # The synthetic DOM must use the *current build* browser configuration,
+ # not an old version hardcoded into a historical v39 fixture.
+ page.evaluate("(version) => { window.SITE_CONFIG.VERSION=version }", json.loads((R/'release-manifest.json').read_text())['version'])
  # Relative loader path in nav script is only exercised through the existing bootstrap; use direct card for DOM assertions.
  page.add_script_tag(content=card.replace("location.pathname", "'/admin.html'"))
  page.locator('#gu39-shadow').wait_for(timeout=2000)

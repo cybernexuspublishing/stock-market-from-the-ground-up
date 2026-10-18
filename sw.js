@@ -1,7 +1,7 @@
-/* v0.14.0.60: public-only cache; private pages and API requests bypass CacheStorage. */
+/* v0.14.0.63: public-only cache; private pages and API requests bypass CacheStorage. */
 importScripts('/assets/js/route-policy.js');
 const POLICY=self.GroundUpRoutePolicy;
-const CACHE='groundup-v014060-public';
+const CACHE='groundup-v014063-public';
 const PUBLIC_CORE=['/','/offline.html','/signin.html','/create-account.html','/store.html','/membership.html','/help.html','/assets/js/route-policy.js','/assets/js/auth-boundary.js','/assets/js/service-worker.js'];
 const cacheableAsset=/\.(?:css|js|json|webmanifest|png|jpe?g|webp|svg|woff2?)$/i;
 self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await Promise.allSettled(PUBLIC_CORE.map(p=>c.add(new Request(p,{cache:'reload'}))));await self.skipWaiting()})()));

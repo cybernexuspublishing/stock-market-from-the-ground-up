@@ -65,6 +65,8 @@ with sync_playwright() as pw:
  assert counts['audits']==2,counts
  assert counts['reconciles']==1,counts
  assert counts['checkoutCalls']==0,counts
- assert 'Payment testing interface v0.14.0.60' in page.locator('#gu39-shadow').inner_text()
+ from json import loads
+ expected_version=loads((ROOT/'release-manifest.json').read_text())['version']
+ assert f'Payment testing interface v{expected_version}' in page.locator('#gu39-shadow').inner_text(), 'Visible console version must match current release'
  print('PASS v56: Owner one complete review, blocked unresolved attempt, guarded TEST-only resolution and zero payment attempts.')
  browser.close()
