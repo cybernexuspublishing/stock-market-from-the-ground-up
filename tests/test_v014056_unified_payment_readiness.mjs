@@ -65,8 +65,8 @@ globalThis.fetch=async(url,opt={})=>{
   if(!key)return json({error:{code:'resource_missing'}},404);
   const [product,amount,interval]=data[key];
   return json({id,product,unit_amount:amount,livemode:false,active:true,currency:'usd',
-   type:interval==='one_time'?'one_time':'recurring',
-   recurring:interval==='one_time'?null:{interval}});
+   billing_scheme:'per_unit',transform_quantity:null,type:interval==='one_time'?'one_time':'recurring',
+   recurring:interval==='one_time'?null:{interval,interval_count:1,usage_type:'licensed'}});
  }
  if(u.includes('/v1/products/'))return json({id:u.split('/').at(-1),name:'Test Product',
     active:true,livemode:false,tax_code:'txcd_10000000'});

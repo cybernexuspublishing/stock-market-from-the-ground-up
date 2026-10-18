@@ -1,9 +1,9 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.65",
+  "version": "0.14.0.66",
   "status": "candidate-not-deployed",
-  "baselineGitCommit": "863733bebe326a621d6930a9758edf3a9ee8da10",
+  "baselineGitCommit": "9b9d7dd70587d3b33d9635c41b04b3b5f616aaea",
   "gitCommit": null,
   "builtAtUtc": null,
   "customerCheckoutApproved": false,
@@ -86,5 +86,27 @@
     "supabaseMigrationAppliedByRelease": false,
     "liveCustomerPaymentTested": false,
     "liveActivationAuthorized": false
+  },
+  "stripeTestCatalogFixedPriceAudit": {
+    "version": "0.14.0.66",
+    "recurringIntervalCount": 1,
+    "usageType": "licensed",
+    "billingScheme": "per_unit",
+    "transformQuantity": "none",
+    "liveEnabled": false,
+    "databaseWrites": false
+  },
+  "stripeOwnerSupabaseEvidence": {
+    "asOf": "2026-10-18",
+    "eightSkuStructuralPass": true,
+    "testModeActive": true,
+    "unboundPreparedTestIntents": 0,
+    "liveGu58LedgersPresent": true,
+    "liveGu58FulfillmentRpcPresent": true,
+    "reportedGu58RlsAndAccessPass": true,
+    "installedFunctionDefinitionCompared": false,
+    "liveMerchantAndEightPricesVerified": false,
+    "liveActivationApproved": false,
+    "source": "Owner read-only SQL CSV, not committed to public repository"
   }
 }

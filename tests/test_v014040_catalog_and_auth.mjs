@@ -32,7 +32,7 @@ globalThis.fetch=async(url,options={})=>{
  const productId=u.match(/\/v1\/products\/(prod_[^/?]+)/)?.[1];
  if(productId){if(missing===productId)return response({error:{code:'resource_missing'}},404);return response({id:productId,name:'Test product',active:true,livemode:false})}
  const priceId=u.match(/\/v1\/prices\/(price_[^/?]+)/)?.[1];
- if(priceId){const sku=Object.keys(map).find(k=>map[k]===priceId);assert(sku,priceId);const [product,cents,interval]=expected[sku];return response({id:priceId,product,unit_amount:cents,active:true,livemode:false,currency:'usd',type:interval==='one_time'?'one_time':'recurring',recurring:interval==='one_time'?null:{interval}})}
+ if(priceId){const sku=Object.keys(map).find(k=>map[k]===priceId);assert(sku,priceId);const [product,cents,interval]=expected[sku];return response({id:priceId,product,unit_amount:cents,active:true,livemode:false,currency:'usd',billing_scheme:'per_unit',transform_quantity:null,type:interval==='one_time'?'one_time':'recurring',recurring:interval==='one_time'?null:{interval,interval_count:1,usage_type:'licensed'}})}
  throw Error('Unexpected URL '+u);
 };
 try{

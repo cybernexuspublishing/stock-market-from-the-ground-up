@@ -37,8 +37,8 @@ const fakeStripePrice=(sku)=>{
  const [product,amount,interval]=products[sku];
  return {id:mapping[sku],product,unit_amount:state.blockedPrice?0:amount,
   livemode:false,active:true,currency:'usd',
-  type:interval==='one_time'?'one_time':'recurring',
-  recurring:interval==='one_time'?null:{interval}};
+  billing_scheme:'per_unit',transform_quantity:null,type:interval==='one_time'?'one_time':'recurring',
+  recurring:interval==='one_time'?null:{interval,interval_count:1,usage_type:'licensed'}};
 };
 const prior=globalThis.fetch;
 globalThis.fetch=async(url,options={})=>{

@@ -25,6 +25,7 @@ on:
       - 'tests/test_v014055_*'
       - 'tests/test_v014056_*'
       - 'tests/test_v014057_*'
+      - 'tests/test_v014066_*'
       - 'supabase/admin/v0.14.0.49*'
       - 'supabase/admin/v0.14.0.40*'
       - 'tests/test_v014032r2_payment_source.py'
@@ -58,6 +59,7 @@ jobs:
           node tests/test_v014055_payment_mode_middleware.mjs
           node tests/test_v014056_unified_payment_readiness.mjs
           node tests/test_v014057_sandbox_acceptance.mjs
+          node tests/test_v014066_test_price_integrity.mjs
       - name: Verify v40 catalog checks and secret-key compatibility
         run: node tests/test_v014040_catalog_and_auth.mjs
       - name: Unified Stripe catalog v41 regressions

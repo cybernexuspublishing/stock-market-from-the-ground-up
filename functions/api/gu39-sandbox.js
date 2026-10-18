@@ -123,8 +123,14 @@ async function checkStripeAccount(env){
  return acct.id;
 }
 function matchesPrice(p,product,cents,interval){
- return !!p&&p.livemode===false&&p.active===true&&p.product===product&&p.currency==='usd'&&p.unit_amount===cents&&
-  (interval==='one_time'?p.type==='one_time':p.type==='recurring'&&p.recurring?.interval===interval);
+ // GU39 TEST catalog requires the same fixed-price checks as GU58 LIVE.
+ // Do not certify multi-period, metered, tiered or quantity-transformed Prices.
+ return !!p&&p.livemode===false&&p.active===true&&p.product===product&&
+  p.currency==='usd'&&p.unit_amount===cents&&p.billing_scheme==='per_unit'&&
+  p.transform_quantity===null&&
+  (interval==='one_time'?p.type==='one_time':
+   p.type==='recurring'&&p.recurring?.interval===interval&&
+   p.recurring?.interval_count===1&&p.recurring?.usage_type==='licensed');
 }
 async function stripeInspection(env,route){
  const r=await fetch('https://api.stripe.com/v1/'+route,{headers:{authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY},cache:'no-store'});

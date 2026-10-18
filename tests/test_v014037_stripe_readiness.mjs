@@ -13,7 +13,7 @@ try{
   if(u.endsWith('/v1/account'))return json({id:'acct_1URGkDJY9FI7byHB'});
   if(u.includes('/v1/products/'))return json({id:u.split('/').at(-1),active:true,livemode:false,tax_code:'txcd_10000000',name:'Test Product'});
   if(u.includes('/v1/prices/'))return json({id:'price_testMonthly1234',active:true,livemode:false,
-   product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:6999,type:'recurring',recurring:{interval:'month'}});
+   product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:6999,billing_scheme:'per_unit',transform_quantity:null,type:'recurring',recurring:{interval:'month',interval_count:1,usage_type:'licensed'}});
   throw Error('Unexpected URL '+u);
  };
  const request=ok=>new Request('https://example.com/api/stripe-product-readiness-v01437',{headers:ok?{authorization:'Bearer mock-jwt'}:{}});
