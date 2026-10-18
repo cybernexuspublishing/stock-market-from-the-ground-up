@@ -48,9 +48,17 @@ async function actor(req,c){
 }
 async function ownerStepup(c,a){
  if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
- let step;
- try{step=await getJson(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{method:'POST',headers:a.head,body:'{}'})}
- catch{throw Error('STAFF_STEPUP_CHECK_UNAVAILABLE')}
+ // PostgreSQL returns JSON boolean FALSE for an Owner who has not recently
+ // confirmed their password. The legacy getJson() helper treats false as a
+ // transport error (!d), masking PASSWORD_RECONFIRM_REQUIRED as a generic 503.
+ let response,step;
+ try{
+  response=await fetch(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{
+   method:'POST',headers:a.head,body:'{}',cache:'no-store'
+  });
+  step=await response.json().catch(()=>null);
+ }catch{throw Error('STAFF_STEPUP_CHECK_UNAVAILABLE')}
+ if(!response.ok||step===null)throw Error('STAFF_STEPUP_CHECK_UNAVAILABLE');
  if(step!==true)throw Error('PASSWORD_RECONFIRM_REQUIRED');
 }
 async function rpc(c,a,name,params){return getJson(c.base+'/rest/v1/rpc/'+name,{method:'POST',headers:a.head,body:JSON.stringify(params||{})});}
