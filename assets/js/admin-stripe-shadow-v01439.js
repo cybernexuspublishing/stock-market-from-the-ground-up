@@ -1,4 +1,4 @@
-/* v0.14.0.63 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.64 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.63')+' · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.64')+' · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -276,7 +276,7 @@
    unifiedReport.append(accepted);
    const live=report.production||{};
    unifiedReport.append(element('p',
-    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.63')+'): '+
+    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.64')+'): '+
     (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
       'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
     ' Database migration requires separate reviewed installation; successful TEST shadow membership is not a real-member grant.'));
