@@ -90,7 +90,7 @@ async function verifyPrice(c,price,p,expectedProduct){const q=await request('htt
  // prices are not approved for these fixed-price memberships or tools.
  // Stripe supplies interval_count, usage_type, billing_scheme and transform_quantity
  // on an actual LIVE Price object. Missing fields fail closed.
- const fixedPrice=q.billing_scheme==='per_unit'&&q.transform_quantity==null;
+ const fixedPrice=q.billing_scheme==='per_unit'&&q.transform_quantity===null;
  const cadence=p.bill==='lifetime'
   ?q.type==='one_time'
   :q.type==='recurring'&&q.recurring?.interval===p.bill&&
