@@ -26,7 +26,7 @@ globalThis.fetch=async(url,opts={})=>{let u=String(url),verb=opts.method||'GET';
  if(u.includes('gu39_sandbox_intents?select=id'))return result([]);
  if(u.endsWith('/gu39_sandbox_intents')&&verb==='POST')return result([{id}]);
  if(u.includes('gu39_sandbox_intents?id=eq.')&&verb==='PATCH')return new Response(null,{status:204});
- if(u.includes('/v1/prices/'))return result({id:'price_mock987654321',livemode:false,active:true,product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:6999,type:'recurring',recurring:{interval:'month'}});
+ if(u.includes('/v1/prices/'))return result({id:'price_mock987654321',livemode:false,active:true,product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:6999,billing_scheme:'per_unit',transform_quantity:null,type:'recurring',recurring:{interval:'month',interval_count:1,usage_type:'licensed'}});
  if(u.endsWith('/v1/checkout/sessions')&&verb==='POST')return result({id:'cs_test_mock9876543',livemode:false,url:'https://checkout.stripe.com/c/pay/cs_test_mock9876543'});
  if(u.includes('gu39_sandbox_intents?select=*'))return result([{id,sku:'plan:FULL_MONTHLY',stripe_price_id:'price_mock987654321',stripe_product_id:'prod_VRvuGwLKI16MXU',quoted_cents:6999,session_id:'cs_test_mock9876543'}]);
  if(u.endsWith('/v1/checkout/sessions/cs_test_mock9876543'))return result({id:'cs_test_mock9876543',mode:'subscription',livemode:false,client_reference_id:id,metadata:{gu39_shadow_intent:id},currency:'usd',customer:'cus_mock567899',subscription:'sub_mock12345678'});

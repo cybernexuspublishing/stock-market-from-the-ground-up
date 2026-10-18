@@ -16,7 +16,7 @@ try{
   if(u.endsWith('/v1/account'))return json({id:acct});
   if(u.includes('/v1/products/'))return json({id:u.split('/').at(-1),active:true,livemode:false,name:'Test Product'});
   if(u.includes('/v1/prices/'))return json({id:'price_testMonthly1234',active:true,livemode:false,
-   product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:mismatch?10:6999,type:'recurring',recurring:{interval:'month'}});
+   product:'prod_VRvuGwLKI16MXU',currency:'usd',unit_amount:mismatch?10:6999,billing_scheme:'per_unit',transform_quantity:null,type:'recurring',recurring:{interval:'month',interval_count:1,usage_type:'licensed'}});
   throw Error('Unexpected call '+u);
  };
  let res=await canonical({request:req(),env}),data=await res.json();
