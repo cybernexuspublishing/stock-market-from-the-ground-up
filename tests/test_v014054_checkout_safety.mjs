@@ -96,8 +96,8 @@ try{
  state.stepup=false;body=(await audit()).body;
  assert.equal(body.safeToAttemptTest,false);
  assert(body.checks.some(x=>x.name.includes('password')&&x.status==='BLOCKED'));
- state.stepup=true;state.owner=false;body=(await audit()).body;
- assert.equal(body.safeToAttemptTest,false);state.owner=true;
+ state.stepup=true;state.owner=false;({resp,body}=await audit());
+ assert.equal(resp.status,403,'Admin must be denied Owner-only checkout audit');state.owner=true;
  body=(await audit(expectedSku,{...env,GU39_SANDBOX_SHADOW_GATE:'false'})).body;
  assert.equal(body.safeToAttemptTest,false);
  state.blockedPrice=true;body=(await audit()).body;
