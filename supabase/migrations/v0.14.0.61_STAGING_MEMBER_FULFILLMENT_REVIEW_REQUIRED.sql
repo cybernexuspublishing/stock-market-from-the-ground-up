@@ -148,7 +148,7 @@ BEGIN
        status=excluded.status,current_period_end=excluded.current_period_end,cancel_at_period_end=excluded.cancel_at_period_end,updated_at=now()
      WHERE public.site_subscriptions.user_id=excluded.user_id AND public.site_subscriptions.plan_code=excluded.plan_code;
    ELSE
-     IF NOT EXISTS(SELECT 1 FROM public.platform_tools WHERE tool_code=i.sku_code AND status='staging' AND active=true)
+     IF NOT EXISTS(SELECT 1 FROM public.platform_tools WHERE tool_code=i.sku_code AND status='live' AND active=true)
         THEN RAISE EXCEPTION 'INACTIVE_TOOL'; END IF;
      INSERT INTO public.user_tool_passes(user_id,tool_code,status,provider,provider_subscription_id,current_period_end,cancel_at_period_end,metadata)
      -- user_tool_passes status CHECK excludes 'past_due'; use paused to deny
