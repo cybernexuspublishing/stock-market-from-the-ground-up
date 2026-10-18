@@ -25,7 +25,8 @@ WITH expected(label, signature) AS (
  UNION ALL
  SELECT 'RPC',label||' SECURITY DEFINER / locked search_path',
         CASE WHEN fn_oid IS NOT NULL AND prosecdef IS TRUE
-          AND 'search_path=pg_catalog,pg_temp'=ANY(coalesce(proconfig,ARRAY[]::text[]))
+          AND EXISTS(SELECT 1 FROM unnest(coalesce(proconfig,ARRAY[]::text[])) sp
+          WHERE replace(sp,' ','')='search_path=pg_catalog,pg_temp')
           THEN 'PASS' ELSE 'HOLD' END,
         'Privilege boundary must be service-only; no user-context dependency'
  FROM inspect
