@@ -71,7 +71,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.includes('/v1/products/'))return json({id:u.split('/').at(-1),name:'Test Product',
     active:true,livemode:false,tax_code:'txcd_10000000'});
  if(u.includes('/rest/v1/gu39_sandbox_settings?'))return json([{enabled:true}]);
- if(u.includes('/rest/v1/gu39_sandbox_intents?')&&u.includes('status=eq.prepared')){
+ if(u.includes('/rest/v1/gu39_sandbox_intents?')&&method==='GET'&&u.includes('status=eq.prepared')){
   if(!state.unbound)return json([]);
   if(u.includes('order=created_at.asc'))return json([{
    id:intent,sku,stripe_price_id:mapping[sku],quoted_cents:6999,created_at:created,
