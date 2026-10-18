@@ -61,7 +61,7 @@ try {
  assert.equal(payload.items.find(x=>x.id==='CORE-0001').engineeringReview.stage,'deployed_verified');
  assert.equal(payload.items.find(x=>x.id==='CORE-0030').engineeringReview.stage,'in_progress');
  assert.equal(payload.items.find(x=>x.id==='CORE-0080').engineeringReview.stage,'blocked');
- assert.equal(payload.items.find(x=>x.id==='TRACE-0001')?.engineeringReview,null);
+ assert.equal(payload.items.find(x=>x.scope==='trace')?.engineeringReview,null);
  const commit=await onRequest({request:req('POST',{id:'CORE-0001',status:'in_progress',note:'Owner accepted testing note'}),env:environment});
  assert.equal(commit.status,200);
  assert.equal(writes.at(-1).public_read,false);
