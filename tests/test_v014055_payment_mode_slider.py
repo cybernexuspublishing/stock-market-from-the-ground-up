@@ -50,6 +50,6 @@ with sync_playwright() as pw:
  assert stats['writes']==2,stats
  assert stats['mode'] is False,stats
  assert stats['shadowCheckoutCalls']==0,stats
- assert 'Payment testing interface v0.14.0.56' in page.locator('#gu39-shadow').inner_text()
+ assert 'Payment testing interface v0.14.0.57' in page.locator('#gu39-shadow').inner_text()
  print('PASS v55: OWNER accessible LIVE/TEST slider, backend-confirmed state, fail-closed live not approved, zero checkout attempts.')
  browser.close()
