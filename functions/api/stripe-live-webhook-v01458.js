@@ -184,7 +184,44 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
  }
  return null;
 }
+// Independent, deliberately non-entitling signed QA event, accepted while the
+// GU58 customer fulfillment switches remain OFF. It uses the same LIVE signing
+// secret and production destination, but never calls any Supabase grant RPC.
+async function verifyOwnerZeroQA(request,e){
+ if(e.GU71_ZERO_LIVE_QA_ENABLED!=='true')return null;
+ const secret=v(e.GU58_STRIPE_LIVE_WEBHOOK_SECRET),key=v(e.GU58_STRIPE_LIVE_SECRET_KEY),
+  accountId=v(e.GU58_STRIPE_LIVE_ACCOUNT_ID),priceId=v(e.GU71_ZERO_LIVE_PRICE_ID);
+ if(!/^whsec_[A-Za-z0-9_]+$/.test(secret)||!/^sk_live_[A-Za-z0-9_]+$/.test(key)||
+    !ident(accountId,'acct')||!ident(priceId,'price'))return null;
+ const raw=await request.clone().text();
+ if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
+ if(!await checkHmac(raw,request.headers.get('stripe-signature'),secret))return null;
+ let event;try{event=JSON.parse(raw)}catch{return null}
+ if(event.type!=='checkout.session.completed'||event.data?.object?.metadata?.gu71_zero_qa!=='true')return null;
+ const obj=event.data.object;
+ if(event.livemode!==true||!ident(event.id,'evt')||!Number.isSafeInteger(event.created)||
+    (event.account!==undefined&&event.account!==accountId)||!ident(obj.id,'cs_live'))
+  return resp('Invalid Owner zero QA event',503);
+ try{
+  const c={stripe:key},acct=await getStripe(c,'account');
+  if(acct.id!==accountId)throw Error('wrong_account');
+  const session=await getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id));
+  const meta=session.metadata||{},uid=meta.gu71_owner;
+  if(session.id!==obj.id||session.livemode!==true||session.mode!=='payment'||
+     session.status!=='complete'||session.amount_total!==0||session.amount_subtotal!==0||
+     session.payment_intent!=null||session.subscription!=null||session.currency!=='usd'||
+     meta.gu71_zero_qa!=='true'||meta.gu71_price_id!==priceId||
+     !uuid(uid)||session.client_reference_id!==uid||
+     'gu58_intent' in meta||'gu58_member' in meta)throw Error('unexpected_session');
+  const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(session.id)+'/line_items?limit=2');
+  if(lines.data?.length!==1||lines.data[0].price?.id!==priceId||
+     lines.data[0].quantity!==1||lines.data[0].amount_total!==0)throw Error('unexpected_line_items');
+  return resp('qa-zero-signed-verified-no-grant',200);
+ }catch{return resp('Zero QA webhook verification unavailable; retry',503)}
+}
 export async function onRequestPost({request,env}){
+ const qa=await verifyOwnerZeroQA(request,env);
+ if(qa)return qa;
  const c=cfg(env);if(!c)return resp('LIVE Stripe fulfillment has not been approved',503);
  if(Number(request.headers.get('content-length')||0)>262144)return resp('Too large',413);
  const raw=await request.text();if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
