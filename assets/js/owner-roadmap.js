@@ -1,4 +1,4 @@
-/* Owner Roadmap v0.14.0.48. Browser-only renderer; all data/mutations require
+/* Owner Roadmap v0.14.0.61. Browser-only renderer; all data/mutations require
  * Cloudflare server verification of OWNER, account status, and real session.
  * Never store signed-in auth tokens or project status in localStorage. */
 (()=>{'use strict';
@@ -11,7 +11,9 @@ const choices=[
  ['verified','Evidence verified']
 ];
 const complete=new Set(['owner_complete','verified']);
+const nearCritical=new Set(['CORE-0030','CORE-0042','CORE-0054','CORE-0072','CORE-0074','CORE-0077','CORE-0078','CORE-0079','CORE-0080','CORE-0081','CORE-0082','CORE-0141','CORE-0142','CORE-0147','CORE-0166','EXEC-66','EXEC-67','EXEC-70','EXEC-77']);
 let all=[],stored={},delegated={},delegation={},metadata={},engineering={},scope='core',page=0,size=30,loaded=false,token='',busy=new Set();
+const sortedModes=new Set(['priority','original','area','status','updated']);
 function message(text,error=false){const box=$('#or-access');box.hidden=false;box.textContent=text;box.classList.toggle('or-error',error)}
 async function client(){if(typeof window.getSupabaseClient!=='function')throw Error('Authentication client is unavailable.');return await window.getSupabaseClient()}
 async function bearer(){
@@ -43,11 +45,14 @@ function isReference(item){return item.kind==='reference'}
 function visible(){return all.filter(item=>scope==='reference'?isReference(item):item.scope===scope&&!isReference(item))}
 function filtered(){
  const query=$('#or-search').value.trim().toLowerCase();
- const area=$('#or-area').value,st=$('#or-status').value,assessment=$('#or-review').value;
+ const area=$('#or-area').value,st=$('#or-status').value,assessment=$('#or-review').value,origin=$('#or-origin').value;
  return visible().filter(item=>{
   if(area&&item.area!==area)return false;
   if(st&&statusOf(item)!==st)return false;
   if(assessment&&reviewStage(item)!==assessment)return false;
+  if(origin==='owner'&&!hasStoredState(item))return false;
+  if(origin==='delegated'&&!isDelegated(item))return false;
+  if(origin==='unreviewed'&&(hasStoredState(item)||isDelegated(item)))return false;
   if(!query)return true;
   const p=state(item);
   return [item.id,item.title,item.area,item.section,item.detail,item.evidence,item.nextCheck,item.source,p.note,evidenceOf(item)?.summary,reviewStage(item)].some(s=>String(s||'').toLowerCase().includes(query));
@@ -57,10 +62,12 @@ function metrics(){
  const tasks=all.filter(x=>x.scope==='core'&&!isReference(x));
  const count=stage=>tasks.filter(x=>statusOf(x)===stage).length;
  const done=tasks.filter(x=>complete.has(statusOf(x))).length;
+ const savedComplete=tasks.filter(x=>hasStoredState(x)&&complete.has(statusOf(x))).length;
+ const delegatedComplete=done-savedComplete;
  const active=count('in_progress')+count('implemented'),block=count('blocked');
  const traced=all.filter(x=>x.scope==='trace'&&!isReference(x)).length;
  $('#or-metrics').innerHTML=[
-  [done+' / '+tasks.length,'Accepted delivered controls (delegated / Owner)'],
+  [done+' / '+tasks.length,'Recorded approvals: '+delegatedComplete+' delegated; '+savedComplete+' Owner-saved'],
   [String(tasks.length-done),'Still needs final verification or development'],
   [String(active),'Source accepted pending QA / active work'],
   [String(block),'Blocked · '+traced+' source requirements tracked']
@@ -76,6 +83,28 @@ function renderReviewBoard(){
  const context='<p class="or-muted">Assessment snapshot: '+esc(engineering.asOf||'date unknown')+' · Repository baseline '+esc((engineering.baseline||'').slice(0,12))+' · <strong>'+checked+' accepted delivered controls ('+delegatedCount+' delegated source approvals, '+(checked-delegatedCount)+' saved Owner confirmations)</strong>. '+archived+' archived source lines are not independently classified. Tap a card to filter.</p>';
  $('#or-review-board').innerHTML='<h2>Engineering review — delivered controls, active work, blockers and backlog</h2>'+context+'<div class="or-review-grid">'+summary+'</div><p class="or-review-disclaimer">Source present is not equivalent to live payment, correct access, working editor, accepted teaching content, or an Owner-approved production release. This assessment does not change your saved checkboxes or statuses.</p>';
  $('#or-review-board').hidden=false;
+}
+function priority(item){
+ const area=(item.area||'').toLowerCase();
+ let level=4;
+ if(nearCritical.has(item.id))level=0;
+ else if(/stripe|payment|security|identity|membership|database|release/.test(area))level=1;
+ else if(/publishing|books|admin|learning|commons/.test(area))level=2;
+ else if(item.scope==='trace')level=5;
+ if(reviewStage(item)==='blocked')level+=.3;
+ if(reviewStage(item)==='backlog')level+=2;
+ return level;
+}
+function sorted(items){
+ const selected=$('#or-sort')?.value||'priority';
+ if(!sortedModes.has(selected)||selected==='original')return items;
+ return [...items].sort((a,b)=>{
+  if(selected==='priority')return priority(a)-priority(b)||a.id.localeCompare(b.id);
+  if(selected==='area')return (a.area||'').localeCompare(b.area||'')||a.id.localeCompare(b.id);
+  if(selected==='status')return statusOf(a).localeCompare(statusOf(b))||a.id.localeCompare(b.id);
+  if(selected==='updated')return (Date.parse(state(b).updatedAt||0)||0)-(Date.parse(state(a).updatedAt||0)||0)||a.id.localeCompare(b.id);
+  return 0;
+ });
 }
 function areas(){
  const values=[...new Set(visible().map(x=>x.area))].sort((a,b)=>a.localeCompare(b));
@@ -102,7 +131,7 @@ function row(item){
 }
 function render(){
  if(!loaded)return;
- const result=filtered(),pages=Math.max(1,Math.ceil(result.length/size));page=Math.max(0,Math.min(page,pages-1));
+ const result=sorted(filtered()),pages=Math.max(1,Math.ceil(result.length/size));page=Math.max(0,Math.min(page,pages-1));
  const first=page*size,slice=result.slice(first,first+size);
  $('#or-list').innerHTML=slice.length?slice.map(row).join(''):'<div class="or-empty">No matching records. Adjust search, filters, or tracking stage.</div>';
  $('#or-results').textContent=String(result.length)+' results · showing '+(result.length?first+1:0)+'–'+Math.min(result.length,first+size);
@@ -115,12 +144,12 @@ async function save(item,status,note,element){
  if(busy.has(item.id))return;
  busy.add(item.id);if(element)element.disabled=true;
  try{
-  const changed=await api('POST',{action:'save',id:item.id,status,note});
+  const changed=await api('POST',{action:'save',id:item.id,status,note,expectedRevision:hasStoredState(item)?(stored[item.id].revision||null):null});
   stored[item.id]=changed.progress;
   render();
   if(!changed.auditLogged)announce('Saved, but the audit logging service did not confirm this action. Review administrative logs.',true);
   else announce('Saved: '+item.id);
- }catch(e){if(e.message!=='AUTH_REDIRECT')announce(e.message,true);render()}
+ }catch(e){if(e.message!=='AUTH_REDIRECT'){announce(e.message,true);render();}}
  finally{busy.delete(item.id);if(element?.isConnected)element.disabled=false}
 }
 function announce(text,error=false){
@@ -132,7 +161,7 @@ function find(id){return all.find(x=>x.id===id)}
 function selectTab(next){
  scope=next;page=0;
  document.querySelectorAll('.or-tab-bar button').forEach(b=>{const active=b.dataset.scope===next;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});
- $('#or-area').value='';$('#or-status').value='';$('#or-review').value='';$('#or-search').value='';
+ $('#or-area').value='';$('#or-status').value='';$('#or-review').value='';$('#or-origin').value='';$('#or-search').value='';
  areas();render();
 }
 function download(name,data,mime){
@@ -144,7 +173,7 @@ function exportData(format){
  const filename='owner-website-roadmap-'+new Date().toISOString().slice(0,10);
  if(format==='json'){download(filename+'.json',JSON.stringify({metadata,exportedAt:new Date().toISOString(),items:rows},null,2),'application/json');return}
  const cols=['id','scope','area','section','title','detail','source','evidence','engineeringStage','engineeringSummary','statusOrigin','approval','status','note','reviewedOn','updatedAt','updatedBy'];
- const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const quote=v=>{let text=String(v??'');if(/^[\\s\\u0000-\\u001f]*[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
  const values=rows.map(x=>cols.map(k=>quote(k==='engineeringStage'?x.engineeringReview?.stage:(k==='engineeringSummary'?x.engineeringReview?.summary:(k in x.progress?x.progress[k]:x[k])))).join(','));
  download(filename+'.csv',cols.join(',')+'\r\n'+values.join('\r\n'),'text/csv;charset=utf-8');
 }
@@ -161,7 +190,7 @@ async function reload(){
 }
 function bind(){
  document.querySelectorAll('.or-tab-bar button').forEach(x=>x.addEventListener('click',()=>selectTab(x.dataset.scope)));
- for(const selector of ['#or-search','#or-area','#or-status','#or-review','#or-size']){
+ for(const selector of ['#or-search','#or-area','#or-status','#or-review','#or-size','#or-origin','#or-sort']){
   const el=$(selector);el.addEventListener(selector==='#or-search'?'input':'change',()=>{
    if(selector==='#or-size')size=Number(el.value)||30;page=0;render();
   });
@@ -190,7 +219,7 @@ function bind(){
   if(target.dataset.archive){
    if(!confirm('Archive this custom task? Prior audit history is preserved.'))return;
    target.disabled=true;
-   try{await api('POST',{action:'archive',id});all=all.filter(x=>x.id!==id);delete stored[id];render();announce('Custom task archived: '+id)}
+   try{await api('POST',{action:'archive',id,expectedRevision:hasStoredState(item)?(stored[id].revision||null):null});all=all.filter(x=>x.id!==id);delete stored[id];render();announce('Custom task archived: '+id)}
    catch(err){if(err.message!=='AUTH_REDIRECT')announce(err.message,true)}finally{target.disabled=false}
    return;
   }
