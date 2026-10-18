@@ -11,6 +11,7 @@ on:
       - 'tests/test_v014064_*'
       - 'tests/test_v014067_*'
       - 'tests/test_v014068_*'
+      - 'tests/test_v014069_*'
       - 'assets/js/checkout-platform.js'
       - 'supabase/admin/v0.14.0.59*'
       - '.github/workflows/stripe-live-fulfillment-v01458.yml'
@@ -46,6 +47,7 @@ jobs:
         run: |
           node tests/test_v014064_checkout_wiring.mjs
           node tests/test_v014067_live_merchant_readiness.mjs
+          node tests/test_v014069_live_catalog_recovery.mjs
           node tests/test_v014068_stable_webhook.mjs
       - name: Preserve confirmed sandbox payment lifecycle and gates
         run: |
