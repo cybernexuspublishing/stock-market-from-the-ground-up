@@ -78,6 +78,77 @@ function stripeGet(key,path){
  return remote('https://api.stripe.com/v1/'+path,{headers:{authorization:'Bearer '+key,accept:'application/json'}},'STRIPE_READ_UNAVAILABLE');
 }
 const safeStatus=(value)=>value===true?'PASS':value===false?'ACTION_REQUIRED':'UNVERIFIED';
+// Do not suppress materially different Stripe failures. The authenticated Owner
+// needs to distinguish a TEST/wrong-account ID (404) from insufficient API scope.
+async function stripePriceProbe(key,path){
+ let r;
+ try{r=await fetch('https://api.stripe.com/v1/'+path,{
+  headers:{authorization:'Bearer '+key,accept:'application/json'},cache:'no-store'})}
+ catch{return {status:'TRANSPORT_UNAVAILABLE'}}
+ if(r.status===404)return {status:'NOT_FOUND_IN_LIVE_ACCOUNT'};
+ if(r.status===403)return {status:'READ_PERMISSION_DENIED'};
+ if(r.status===401)return {status:'API_KEY_REJECTED'};
+ if(!r.ok)return {status:'STRIPE_READ_UNAVAILABLE'};
+ const value=await r.json().catch(()=>null);
+ if(!value||value.error)return {status:'STRIPE_READ_UNAVAILABLE'};
+ return {status:'OK',value};
+}
+const aliases=Object.freeze({
+ 'plan:FULL_MONTHLY':['Full Platform Membership Monthly','Full Platform Monthly'],
+ 'plan:FULL_ANNUAL':['Full Platform Membership Annual','Full Platform Annual'],
+ 'plan:LIFETIME':['Lifetime Platform Access','Lifetime Membership'],
+ 'plan:ONDEMAND_MONTHLY':['Historical Replay Learning','OnDemand Monthly'],
+ 'tool:INTERACTIVE_LEARNING':['Interactive Learning & Historical Labs','Interactive Learning'],
+ 'tool:JOURNAL_ANALYTICS':['Trading Journal & Performance Analytics','Journal Analytics'],
+ 'tool:MARKET_SIMULATOR':['Advanced Market Simulator & Replay','Market Simulator'],
+ 'tool:MARKET_TUTOR':['Market Tutor']
+});
+const normalized=x=>String(x??'').normalize('NFKD').toLowerCase()
+ .replace(/[^a-z0-9]+/g,' ').trim().replace(/\\s+/g,' ');
+const nameMatches=(sku,name)=>aliases[sku]?.some(n=>normalized(n)===normalized(name))===true;
+// This is read-only discovery of existing LIVE Stripe prices. It never writes
+// the suggested mapping to Cloudflare or changes launch permissions. A mapping
+// is displayed only if all eight independently meet fixed-price/unique-name
+// criteria and pagination completed, otherwise each ambiguous SKU stays blocked.
+async function discoverLiveMapping(key,offers){
+ const prices=[];let after='',complete=false;
+ for(let page=0;page<5;page++){
+  const path='prices?limit=100&active=true&expand%5B%5D=data.product'+(after?'&starting_after='+encodeURIComponent(after):'');
+  const response=await stripePriceProbe(key,path);
+  if(response.status!=='OK')return {status:response.status,rows:[],json:null};
+  const batch=response.value;
+  if(!Array.isArray(batch.data))return {status:'INVALID_LIST_RESPONSE',rows:[],json:null};
+  prices.push(...batch.data);
+  if(batch.has_more!==true){complete=true;break}
+  after=batch.data.at(-1)?.id;
+  if(!isPrice(after))return {status:'INCOMPLETE_LIST',rows:[],json:null};
+ }
+ if(!complete)return {status:'INCOMPLETE_LIST',rows:[],json:null};
+ const proposals={},rows=[];let correct=0;
+ for(const [kind,code] of codes){
+  const sku=kind+':'+code,o=offers.get(sku);
+  if(!o){rows.push(reportRow('RECOVERY',sku,'DATABASE_NOT_VERIFIED','No valid canonical database offer.'));continue}
+  const matches=prices.filter(p=>p?.livemode===true&&p.active===true&&isPrice(p.id)&&
+   typeof p.product==='object'&&isProduct(p.product?.id)&&p.product?.active===true&&
+   p.product?.livemode===true&&nameMatches(sku,p.product.name)&&
+   priceApproved(p,p.product.id,p.id,o.amount,o.interval));
+  if(matches.length===1){
+   const p=matches[0];
+   proposals[sku]={product_id:p.product.id,price_id:p.id};
+   rows.push(reportRow('RECOVERY',sku,'EXACT_LIVE_CANDIDATE',
+    'Existing Stripe LIVE Product '+p.product.id+' and Price '+p.id+
+    ' match the name, fixed amount and billing cadence. Not applied.'));
+   correct++;
+  }else rows.push(reportRow('RECOVERY',sku,matches.length>1?'AMBIGUOUS_MULTIPLE_PRICES':'NO_EXACT_LIVE_MATCH',
+    matches.length>1?'Multiple matching LIVE prices exist; choose the intended current retail Price in Stripe.':
+    'No exact active LIVE Product name plus fixed-price/cadence combination found; review Stripe LIVE catalog.'));
+ }
+ const ids=Object.values(proposals),uniqueProducts=new Set(ids.map(v=>v.product_id)).size===8,
+       uniquePrices=new Set(ids.map(v=>v.price_id)).size===8;
+ const ready=correct===8&&uniqueProducts&&uniquePrices;
+ return {status:ready?'COMPLETE_CANDIDATES':correct?'PARTIAL_CANDIDATES':'NO_EXACT_CANDIDATES',
+   rows,json:ready?JSON.stringify(proposals,null,2):null};
+}
 function priceApproved(p,product,priceId,amount,interval){
  return p?.id===priceId&&p.livemode===true&&p.active===true&&p.product===product&&
   p.currency==='usd'&&p.unit_amount===amount&&p.billing_scheme==='per_unit'&&
@@ -143,6 +214,7 @@ export async function onRequestGet({request,env}){
    }catch{add('MERCHANT','Stripe LIVE account identity','UNVERIFIED','Stripe LIVE account cannot be retrieved with this key or request permission.');}
   }else add('MERCHANT','Stripe LIVE account identity','NOT_CHECKED','Configure LIVE key and expected account ID first; no TEST key fallback.');
   let verified=0,verifiedProducts=0;
+  const offers=new Map();
   for(const [kind,code] of codes){
    const sku=kind+':'+code,lookup=kind==='plan'?
     'platform_plans?select=price_cents,billing_interval,active,public_visible,checkout_enabled&plan_code=eq.'+code+'&limit=1':
@@ -155,20 +227,62 @@ export async function onRequestGet({request,env}){
     Number.isSafeInteger(amount)&&amount>0&&['month','year','lifetime'].includes(interval)&&
     (kind==='plan'||data.status==='live');
    if(!eligible){add('SKU',sku,'REVIEW','Canonical existing database offer missing, inactive, or invalid; no payment or catalog write performed.');continue}
+   offers.set(sku,{amount,interval});
    if(!mapping||!accountVerified){add('SKU',sku,'NOT_CHECKED','LIVE Stripe account and complete LIVE mapping must be verified first.');continue}
+   const mapped=mapping[sku];
+   // Price first: the configured prod_ may be a TEST identifier even if the
+   // existing price_ belongs to the correct LIVE account.
+   const priceResult=await stripePriceProbe(key,'prices/'+encodeURIComponent(mapped.price_id));
+   if(priceResult.status!=='OK'){
+    add('SKU',sku,priceResult.status,
+     priceResult.status==='NOT_FOUND_IN_LIVE_ACCOUNT'?
+       'Configured Price ID does not exist in this LIVE Stripe account (often copied from TEST or another account).':
+       priceResult.status==='READ_PERMISSION_DENIED'?'LIVE Stripe key cannot read Price objects (Stripe key permissions).':
+       'Stripe Price retrieval cannot be verified: '+priceResult.status+'.');
+    continue;
+   }
+   const price=priceResult.value;
+   if(price.product!==mapped.product_id){
+    add('SKU',sku,'PRODUCT_ID_MISMATCH',
+     isProduct(price.product)?
+       'LIVE Price belongs to Product '+price.product+', not the mapped Product. Fix the product_id in Cloudflare after checking Stripe.':
+       'Price product association could not be confirmed.');
+    continue;
+   }
+   if(!priceApproved(price,mapped.product_id,mapped.price_id,amount,interval)){
+    add('SKU',sku,'PRICE_CONTRACT_MISMATCH',
+      'Configured LIVE Price is not an active fixed USD offer with the approved amount and exact billing cadence.');
+    continue;
+   }
+   const productResult=await stripePriceProbe(key,'products/'+encodeURIComponent(mapped.product_id));
+   if(productResult.status!=='OK'){
+    add('SKU',sku,'PRODUCT_'+productResult.status,
+     'Configured LIVE Product could not be read: '+productResult.status+'.');continue;
+   }
+   const p=productResult.value;
+   if(p.id!==mapped.product_id||p.active!==true||p.livemode!==true){
+    add('SKU',sku,'PRODUCT_INACTIVE_OR_WRONG_MODE',
+      'Configured product is not an active LIVE Stripe Product.');continue}
+   verifiedProducts++;verified++;
+   add('SKU',sku,'PASS_PRICE_ONLY',
+    amount+' USD cents and '+interval+' cadence verified in the configured LIVE Stripe account; this does NOT enable customer checkout.');
+  }
+  let discoveryStatus='NOT_REQUIRED',suggestedLiveCatalogJson=null;
+  if(accountVerified&&mapping&&verified!==8){
    try{
-    const mapped=mapping[sku];
-    const p=await stripeGet(key,'products/'+encodeURIComponent(mapped.product_id));
-    if(p?.id!==mapped.product_id||p.active!==true||p.livemode!==true){
-     add('SKU',sku,'BLOCKED','LIVE Stripe Product is missing/inactive or has the wrong mode.');continue}
-    verifiedProducts++;
-    const price=await stripeGet(key,'prices/'+encodeURIComponent(mapped.price_id));
-    if(!priceApproved(price,mapped.product_id,mapped.price_id,amount,interval)){
-     add('SKU',sku,'BLOCKED','LIVE Price differs from canonical database amount, currency, product, billing cadence, or fixed-price conditions.');continue}
-    verified++;
-    add('SKU',sku,'PASS_PRICE_ONLY',
-     amount+' USD cents and '+interval+' cadence verified in the configured LIVE Stripe account; this does NOT enable customer checkout.');
-   }catch{add('SKU',sku,'UNVERIFIED','LIVE Stripe Product/Price retrieval failed or was restricted; no charge attempted.');}
+    const discovered=await discoverLiveMapping(key,offers);
+    discoveryStatus=discovered.status;
+    for(const r of discovered.rows)rows.push(r);
+    suggestedLiveCatalogJson=discovered.json;
+    add('RECOVERY','LIVE catalog mapping proposal',suggestedLiveCatalogJson?'COPY_READY_REVIEW_REQUIRED':discoveryStatus,
+     suggestedLiveCatalogJson?
+      'Eight exact existing LIVE candidates found. Copy the proposed JSON into Cloudflare only after Owner review; no write/launch was performed.':
+      'Read-only discovery did not produce eight uniquely matched LIVE offers. Check individual RECOVERY rows or LIVE Stripe Product titles.');
+   }catch{
+    discoveryStatus='UNAVAILABLE';
+    add('RECOVERY','LIVE catalog mapping proposal','UNAVAILABLE',
+       'LIVE Stripe product/price listing could not be completed; manual Stripe Dashboard verification is needed.');
+   }
   }
   let webhookReady=false;
   if(accountVerified&&origin){
@@ -201,9 +315,10 @@ export async function onRequestGet({request,env}){
    'A real signed delivery, installed SQL definition comparison, and Owner-approved lifecycle acceptance remain pending.');
   add('ACCEPTANCE','LIVE billing launch','NOT_APPROVED',
    'The Owner TEST/LIVE selector, this report, and any PASS rows do not approve customer billing.');
-  return json({ok:true,version:'0.14.0.68',readOnly:true,noCharge:true,
+  return json({ok:true,version:'0.14.0.69',readOnly:true,noCharge:true,
    ownerOnly:true,mode,verifiedLiveProducts:verifiedProducts,verifiedLivePrices:verified,
    totalSkus:codes.length,webhookConfigurationChecked:webhookReady,
+   discoveryStatus,suggestedLiveCatalogJson,
    liveCheckoutApproved:false,readyForLiveCheckout:false,
    rows});
  }catch(e){return json({ok:false,error:e.code||'LIVE_MERCHANT_READINESS_UNAVAILABLE'},e.status||503)}
