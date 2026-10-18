@@ -1,4 +1,4 @@
-/* Cyber Nexus v0.14.0.53 | Owner-only Stripe TEST checkout and read-only catalog audit.
+/* Cyber Nexus v0.14.0.54 | Owner-only Stripe TEST checkout and read-only catalog audit.
  * Uses existing production Supabase only as a SHADOW event ledger. Never issues live grants.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -94,7 +94,16 @@ function serviceHeaders(secret){
  throw Error('SUPABASE_SECRET_FORMAT_UNSUPPORTED');
 }
 async function service(c,path,method='GET',data,prefer='return=representation'){const r=await fetch(c.base+'/rest/v1/'+path,{method,headers:{...serviceHeaders(c.secret),'content-type':'application/json',prefer},body:data===undefined?undefined:JSON.stringify(data),cache:'no-store'});if(!r.ok)throw Error('SHADOW_DB_UNAVAILABLE');if(r.status===204)return [];const j=await r.json().catch(()=>null);if(j===null)throw Error('SHADOW_DB_UNAVAILABLE');return j;}
-async function stripe(e,path,method='GET',data,idempotency){const h={authorization:'Bearer '+e.GU39_STRIPE_TEST_SECRET_KEY};if(method==='POST')h['content-type']='application/x-www-form-urlencoded';if(idempotency)h['Idempotency-Key']=idempotency;
+// Stripe Managed Payments is exposed in an API preview. The website's original
+// default Stripe version was too old to recognize managed_payments[enabled].
+// Explicitly pin the provider-documented preview version for Checkout CREATE;
+// do not change webhook delivery's configured API version as part of this patch.
+const MANAGED_PAYMENTS_CHECKOUT_API_VERSION='2026-02-25.preview';
+async function stripe(e,path,method='GET',data,idempotency){
+ const h={authorization:'Bearer '+e.GU39_STRIPE_TEST_SECRET_KEY};
+ if(method==='POST')h['content-type']='application/x-www-form-urlencoded';
+ if(method==='POST'&&path==='checkout/sessions')h['Stripe-Version']=MANAGED_PAYMENTS_CHECKOUT_API_VERSION;
+ if(idempotency)h['Idempotency-Key']=idempotency;
  return getJson('https://api.stripe.com/v1/'+path,{method,headers:h,body:data});}
 const known=(s,prefix)=>new RegExp('^'+prefix+'_[A-Za-z0-9_]{6,}$').test(String(s||''));
 
@@ -212,7 +221,7 @@ async function inspectTestReadiness(request,env,c,a){
  add('Eight required webhook event subscriptions',eventsOk,eventsOk?'All eight event types are configured':
      webhookOk?'Required checkout/subscription/refund/dispute events are missing':'Requires an enabled Stripe TEST webhook destination');
  const ready=checks.every(x=>x.status==='PASS');
- return {ok:true,version:'0.14.0.53',readOnly:true,testOnly:true,liveCheckout:false,
+ return {ok:true,version:'0.14.0.54',readOnly:true,testOnly:true,liveCheckout:false,
     checks,passed:checks.filter(x=>x.status==='PASS').length,total:checks.length,
     configurationReady:ready,cloudflareGate:sandboxEnabled(env),ownerMode,
     webhookPath:'/api/gu39-stripe-webhook',
@@ -220,10 +229,67 @@ async function inspectTestReadiness(request,env,c,a){
     note:'This verifies configuration only. It cannot prove webhook signing-secret pairing, Stripe Managed Payments eligibility, or checkout/renewal/refund behavior.'};
 }
 
+
+// Second-tier, comprehensive TEST checkout guard. ALL calls are GET/read-only;
+// no checkout session, shadow intent, membership, or billing entry is created.
+// Provider Managed Payments approval cannot be proven by an API catalog GET.
+async function inspectCheckoutSafety(request,env,c,a){
+ if(a.role!=='OWNER')throw Error('OWNER_REQUIRED');
+ const sku=new URL(request.url).searchParams.get('sku');
+ if(!Object.hasOwn(prices,sku))throw Error('INVALID_SKU');
+ const checks=[];
+ const add=(name,passed,detail)=>checks.push({name,status:passed?'PASS':'BLOCKED',detail});
+ const conf=await inspectTestReadiness(request,env,c,a);
+ add('Seven Stripe/Supabase configuration checks',conf.configurationReady===true,
+  conf.configurationReady?'Original seven checks passed':'Run Payment Test Preflight and resolve configuration issues');
+ const gate=sandboxEnabled(env);
+ add('Cloudflare TEST-only sandbox gate',gate,gate?'Enabled only for isolated shadow tests':'Cloudflare GU39 sandbox gate is OFF');
+ let ownerStatus=false;
+ try{const s=await status(c,a,env);ownerStatus=s.enabled===true}catch{}
+ add('Owner TEST mode',ownerStatus,ownerStatus?'Enabled in Supabase':'Owner-controlled TEST switch is OFF or unavailable');
+ let passwordOk=false;
+ try{await ownerStepup(c,a);passwordOk=true}catch{}
+ add('Recent Owner password confirmation',passwordOk,passwordOk?'Fresh Owner step-up exists':'Use the Owner password and Turnstile confirmation workflow');
+ let mappingOk=false,priceOk=false,productOk=false;
+ let selectedPrice=null;
+ try{
+  const map=priceMap(env),ids=Object.keys(prices).map(x=>map[x]);
+  mappingOk=ids.length===8&&ids.every(x=>known(x,'price'))&&new Set(ids).size===8;
+  if(mappingOk){
+   selectedPrice=await stripe(env,'prices/'+encodeURIComponent(map[sku]));
+   const [product,cents,interval]=prices[sku];
+   priceOk=matchesPrice(selectedPrice,product,cents,interval);
+   if(priceOk){
+    const p=await stripe(env,'products/'+encodeURIComponent(product));
+    productOk=p.id===product&&p.livemode===false&&p.active===true;
+   }
+  }
+ }catch{}
+ add('All eight unique TEST Price IDs',mappingOk,mappingOk?'Mapped to eight different prices':'Missing or duplicate TEST Price ID');
+ add('Selected Stripe TEST price and product',priceOk&&productOk,
+  priceOk&&productOk?'Actual Stripe TEST Price and Product verified for selected SKU':'Stripe price/product is unavailable or does not match the selected SKU');
+ let shadowRead=false,limitOk=false;
+ try{
+  const recent=await safeStage('SHADOW_INTENT_READ_FAILED',()=>service(c,`gu39_sandbox_intents?select=id&tester_user_id=eq.${a.userId}&created_at=gt.${encodeURIComponent(new Date(Date.now()-3600000).toISOString())}&limit=12`));
+  shadowRead=Array.isArray(recent);
+  limitOk=shadowRead&&recent.length<12;
+ }catch{}
+ add('Isolated Supabase intent query using server credentials',shadowRead,shadowRead?'Read-only isolated intent query succeeded':'Server-side shadow intent read was rejected');
+ add('Owner checkout anti-repeat limit',limitOk,limitOk?'Fewer than 12 prepared checkouts in the past hour':'Too many attempted checkouts or Supabase intent query unavailable');
+ const passed=checks.filter(x=>x.status==='PASS').length;
+ return {ok:true,version:'0.14.0.54',readOnly:true,testOnly:true,liveCheckout:false,
+  sku,checks,passed,total:checks.length,safeToAttemptTest:passed===checks.length,
+  managedPaymentsApiVersion:MANAGED_PAYMENTS_CHECKOUT_API_VERSION,
+  stripeManagedPaymentsProviderAcceptance:'NOT_VERIFIED_BY_READ_ONLY_API',
+  testPaymentPerformed:false,shadowWritesPerformed:false,
+  note:'A successful read-only audit does not certify Stripe Managed Payments enrollment, signing-secret pairing or a completed TEST payment.'};
+}
+
 async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  const view=new URL(request.url).searchParams.get('view');
  if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));
+ if(view==='checkout-safety')return json(await inspectCheckoutSafety(request,env,c,a));
  if(view==='catalog')return json(await inspectCatalog(env));
  return json(await status(c,a,env));}
  catch(e){
@@ -239,10 +305,49 @@ export async function onRequestGet({request,env}){try{const c=envCheck(env),a=aw
   'SIGN_IN_REQUIRED':[401,'SIGN_IN_REQUIRED'],
   'INVALID_SESSION':[401,'INVALID_SESSION'],
   'STAFF_REQUIRED':[403,'STAFF_REQUIRED'],
-  'OWNER_REQUIRED':[403,'OWNER_REQUIRED']};
+  'OWNER_REQUIRED':[403,'OWNER_REQUIRED'],
+  'INVALID_SKU':[400,'INVALID_SKU']};
  const [status,code]=errors[e.message]||[503,'SANDBOX_VERIFICATION_UNAVAILABLE'];
  return json({ok:false,error:code,liveCheckout:false},status);
  }}
+// Safe exception boundaries: preserve only curated server status codes and
+// execution phases. Never return raw Stripe or Postgres errors to browsers.
+async function safeStage(code,operation){
+ try{return await operation()}
+ catch(error){
+  if(error?.message&&[
+   'SANDBOX_ACCOUNT_MISMATCH','PRICE_VALIDATION_FAILED','INCOMPLETE_PRICE_MAP',
+   'TEST_RATE_LIMIT','SHADOW_TEST_CHECKLIST_BLOCKED'].includes(error.message))throw error;
+  throw Error(code);
+ }
+}
+async function managedCheckout(env,form,intentId){
+ const headers={
+  authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY,
+  'content-type':'application/x-www-form-urlencoded',
+  'Stripe-Version':MANAGED_PAYMENTS_CHECKOUT_API_VERSION,
+  'Idempotency-Key':'gu39-sandbox-'+intentId
+ };
+ let response,payload;
+ try{
+  response=await fetch('https://api.stripe.com/v1/checkout/sessions',{
+   method:'POST',headers,body:form,cache:'no-store'
+  });
+  payload=await response.json().catch(()=>null);
+ }catch{throw Error('STRIPE_CHECKOUT_NETWORK_UNAVAILABLE')}
+ if(!response.ok||!payload||payload.error){
+  const code=String(payload?.error?.code||''),param=String(payload?.error?.param||'');
+  if(response.status===401||response.status===403)throw Error('STRIPE_CHECKOUT_API_AUTH_REJECTED');
+  if(response.status===429||response.status>=500)throw Error('STRIPE_CHECKOUT_PROVIDER_RETRY');
+  if(param==='managed_payments'||param.startsWith('managed_payments[')||
+     (code==='parameter_unknown'&&MANAGED_PAYMENTS_CHECKOUT_API_VERSION.includes('preview')))
+   throw Error('STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE');
+  if(code==='resource_missing'&&param.includes('price'))throw Error('STRIPE_TEST_PRICE_NOT_FOUND');
+  throw Error('STRIPE_CHECKOUT_PROVIDER_REJECTED');
+ }
+ return payload;
+}
+
 export async function onRequestPost({request,env}){
  try{
   const origin=request.headers.get('origin');const location=new URL(request.url);if(origin!==location.origin)throw Error('SAME_ORIGIN_REQUIRED');
@@ -257,30 +362,36 @@ export async function onRequestPost({request,env}){
   }
   if(data.action!=='checkout'||!Object.hasOwn(prices,data.sku))throw Error('INVALID_SKU');
   if(!sandboxEnabled(env))throw Error('SANDBOX_DISABLED');
-  await checkStripeAccount(env);
-  const live=await status(c,a,env);if(live.enabled!==true)throw Error('OWNER_HAS_DISABLED_SANDBOX');
+  // Perform the same complete read-only safety audit BEFORE any Stripe or
+  // shadow DB write. Prevent a partial intent/session on a known missing guard.
+  const auditUrl=new URL(request.url);auditUrl.searchParams.set('sku',data.sku);
+  const audit=await inspectCheckoutSafety(new Request(auditUrl.href),env,c,a);
+  if(!audit.safeToAttemptTest)throw Error('SHADOW_TEST_CHECKLIST_BLOCKED');
+  await safeStage('STRIPE_ACCOUNT_LOOKUP_FAILED',()=>checkStripeAccount(env));
+  const live=await safeStage('SHADOW_STATUS_READ_FAILED',()=>status(c,a,env));
+  if(live.enabled!==true)throw Error('OWNER_HAS_DISABLED_SANDBOX');
   const [product,amount,interval]=prices[data.sku];const mapping=priceMap(env);
   const priceId=mapping?.[data.sku];if(Object.keys(prices).some(k=>!known(mapping[k],'price'))||new Set(Object.keys(prices).map(k=>mapping[k])).size!==8)throw Error('INCOMPLETE_PRICE_MAP');
   if(!known(priceId,'price'))throw Error('MISSING_TEST_PRICE_ID');
-  const price=await stripe(env,'prices/'+encodeURIComponent(priceId));
+  const price=await safeStage('STRIPE_PRICE_LOOKUP_FAILED',()=>stripe(env,'prices/'+encodeURIComponent(priceId)));
   if(!matchesPrice(price,product,amount,interval))throw Error('PRICE_VALIDATION_FAILED');
   // Limit accidental repeated test checkouts. Untrusted customer sessions NEVER reach this Owner-only endpoint.
   const recent=await service(c,`gu39_sandbox_intents?select=id&tester_user_id=eq.${a.userId}&created_at=gt.${encodeURIComponent(new Date(Date.now()-3600000).toISOString())}&limit=12`);
   if(recent.length>=12)throw Error('TEST_RATE_LIMIT');
-  const id=crypto.randomUUID();await service(c,'gu39_sandbox_intents','POST',{id,tester_user_id:a.userId,sku:data.sku,stripe_product_id:product,stripe_price_id:priceId,quoted_cents:amount,status:'prepared'});
+  const id=crypto.randomUUID();await safeStage('SHADOW_INTENT_CREATE_FAILED',()=>service(c,'gu39_sandbox_intents','POST',{id,tester_user_id:a.userId,sku:data.sku,stripe_product_id:product,stripe_price_id:priceId,quoted_cents:amount,status:'prepared'}));
   const v=new URLSearchParams();v.set('mode',interval==='one_time'?'payment':'subscription');v.set('line_items[0][price]',priceId);v.set('line_items[0][quantity]','1');v.set('client_reference_id',id);v.set('metadata[gu39_shadow_intent]',id);
   v.set('success_url',location.origin+'/admin.html#payments-billing');v.set('cancel_url',location.origin+'/admin.html#payments-billing');
   if(interval!=='one_time')v.set('subscription_data[metadata][gu39_shadow_intent]',id);
   // Stripe Managed Payments eligibility for the selected product must be confirmed in the account.
   v.set('managed_payments[enabled]','true');
-  const session=await stripe(env,'checkout/sessions','POST',v.toString(),'gu39-sandbox-'+id);
+  const session=await managedCheckout(env,v.toString(),id);
   if(!known(session.id,'cs_test')||session.livemode!==false||!session.url)throw Error('INVALID_TEST_SESSION');
   const u=new URL(session.url);if(u.protocol!=='https:'||u.hostname!=='checkout.stripe.com')throw Error('INVALID_TEST_CHECKOUT_HOST');
-  await service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal');
+  await safeStage('SHADOW_CHECKOUT_BIND_FAILED',()=>service(c,'gu39_sandbox_intents?id=eq.'+encodeURIComponent(id),'PATCH',{session_id:session.id,status:'checkout_created'},'return=minimal'));
   return json({ok:true,testOnly:true,url:u.href,liveCheckout:false});
- }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
+ }catch(e){const common=['SIGN_IN_REQUIRED','INVALID_SESSION','STAFF_REQUIRED','OWNER_REQUIRED','PASSWORD_RECONFIRM_REQUIRED','SAME_ORIGIN_REQUIRED','SANDBOX_DISABLED','SANDBOX_SECRETS_NOT_CONFIGURED','OWNER_HAS_DISABLED_SANDBOX','SETTINGS_STALE_REFRESH','INVALID_SETTINGS','STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_AUTH_REJECTED','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_CHECKLIST_BLOCKED','STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED','MISSING_TEST_PRICE_ID','INCOMPLETE_PRICE_MAP','PRICE_VALIDATION_FAILED','SANDBOX_ACCOUNT_MISMATCH','TEST_RATE_LIMIT'];
    const code=common.includes(e.message)?e.message:'SHADOW_TEST_ACTION_UNAVAILABLE';
    const status=code==='INVALID_SESSION'?401:code==='SETTINGS_STALE_REFRESH'?409:
-     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE'].includes(code)?503:403;
+     ['STAFF_STEPUP_CHECK_UNAVAILABLE','SHADOW_TOGGLE_RPC_UNAVAILABLE','SHADOW_TOGGLE_DATABASE_REJECTED','SHADOW_TEST_ACTION_UNAVAILABLE', 'STRIPE_ACCOUNT_LOOKUP_FAILED','SHADOW_STATUS_READ_FAILED','STRIPE_PRICE_LOOKUP_FAILED','SHADOW_INTENT_READ_FAILED','SHADOW_INTENT_CREATE_FAILED','STRIPE_CHECKOUT_NETWORK_UNAVAILABLE','STRIPE_CHECKOUT_API_AUTH_REJECTED','STRIPE_CHECKOUT_PROVIDER_RETRY','STRIPE_MANAGED_PAYMENTS_NOT_AVAILABLE','STRIPE_TEST_PRICE_NOT_FOUND','STRIPE_CHECKOUT_PROVIDER_REJECTED','SHADOW_CHECKOUT_BIND_FAILED'].includes(code)?503:403;
    return json({ok:false,error:code,liveCheckout:false},status)}
 }
