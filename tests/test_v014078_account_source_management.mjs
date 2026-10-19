@@ -7,6 +7,8 @@ const ui=readFileSync(new URL('assets/js/account-management-entitlements-v01478.
 const sourceSQL=readFileSync(new URL('supabase/migrations/v0.14.0.78_SOURCE_AWARE_ACCOUNT_REVOKE_REVIEW_REQUIRED.sql',root),'utf8');
 const legacyAdmin=readFileSync(new URL('functions/api/admin.js',root),'utf8');
 const legacyUI=readFileSync(new URL('assets/js/admin.js',root),'utf8');
+const legacyAccess=readFileSync(new URL('functions/api/admin-access-v01355.js',root),'utf8');
+const legacyAccessUI=readFileSync(new URL('assets/js/accounts-access.js',root),'utf8');
 const html=readFileSync(new URL('admin.html',root),'utf8');
 const operations=readFileSync(new URL('assets/js/admin-operations.js',root),'utf8');
 const app=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
@@ -97,6 +99,9 @@ try{
    'entitlement_grant','plan_grant','tool_grant','user_delete','set_role'])
    assert.ok(legacyAdmin.includes("'"+unsafe+"'"),'Missing blocked legacy mutation: '+unsafe);
  assert.ok(legacyUI.includes('window.GroundUpAccountEditor?.openById'),'Legacy UI must route to new unified editor');
+ assert.ok(legacyAccess.includes('Legacy grant/revoke action moved to Account Management'),'Legacy Access Center cannot bypass canonical mutation');
+ assert.ok(legacyAccessUI.includes('Owner-issued manual entitlements only.')===false,'Old Access Center must not offer a competing manual grant editor');
+ assert.ok(legacyAccessUI.includes('window.GroundUpAccountEditor?.openById'),'Account Access Hub must route member actions to unified account editor');
  assert.ok(ui.includes('Legacy learning entitlements'));
  console.log('PASS v78: Admin member-only scoping, unified account inventory, source-aware grant/revoke, no false FREE, provider/financial ledger invariants');
 }finally{globalThis.fetch=orig}
