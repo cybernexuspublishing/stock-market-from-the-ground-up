@@ -1,7 +1,8 @@
 /* v0.14.0.35 — Approved companion & Lifetime ebook terms; do not advertise live checkout. */
 (function(){'use strict';
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const money=c=>`$${(Number(c||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+ const money=c=>`${(Number(c||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+ const detail=(kind,code)=>'store-product-'+kind+'-'+String(code).toLowerCase().replaceAll('_','-')+'.html';
  async function load(){const sb=await window.getSupabaseClient();const [{data:plans,error:pError},{data:tools,error:tError},{data:matrix},{data:current}]=await Promise.all([
    sb.from('platform_plans').select('*').eq('active',true).eq('public_visible',true).order('sort_order'),
    sb.from('platform_tools').select('*').eq('active',true).eq('public_visible',true).order('sort_order'),
@@ -26,17 +27,17 @@
     '<span class="btn disabled-buy" aria-disabled="true">Enrollment Opening Soon</span>';
   return `<article class="v11-plan ${code==='FULL_MONTHLY'?'recommended':''}">
    ${code==='FULL_MONTHLY'?'<span class="v11-plan-ribbon">Recommended</span>':''}
-   <div class="eyebrow">${esc(p.name)}</div><div class="v11-price">${esc(heading)}</div>
+   <div class="eyebrow"><a href="${detail('plan',code)}">${esc(p.name)}</a></div><div class="v11-price">${esc(heading)}</div>
    <p>${esc(p.description||note)}</p><ul>${list.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
-   ${terms?`<p class="small">${esc(terms)}</p>`:''}${action}</article>`}
+   ${terms?`<p class="small">${esc(terms)}</p>`:''}<p><a class="btn secondary" href="${detail('plan',code)}">View Included &amp; Excluded Benefits</a></p>${action}</article>`}
  function toolCard(t){const released=t.status==='live';const buy='<span class="btn disabled-buy" aria-disabled="true">Tool Subscription Coming Soon</span>';
-  return `<article class="v11-tool-card"><div class="eyebrow">${esc(t.category)}</div><h3>${esc(t.name)}</h3><p>${esc(t.description||'')}</p>
+  return `<article class="v11-tool-card"><div class="eyebrow">${esc(t.category)}</div><h3><a href="${detail('tool',t.tool_code)}">${esc(t.name)}</a></h3><p>${esc(t.description||'')}</p>
    <div class="v11-tool-meta"><span class="v11-badge ${released?'active':''}">${esc(String(t.status||'planned').toUpperCase())}</span>
    <span class="v11-badge">${money(t.individual_price_cents)}/mo</span></div><div class="actions">
    <a class="btn secondary" href="${esc(t.href||'tools.html')}">${t.status==='planned'?'Preview Roadmap':'View Tool'}</a>${buy}</div></article>`}
  function matrix(plans,tools,links){const cols=plans.filter(p=>['FREE','FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.plan_code)),set=new Set(links.map(x=>`${x.plan_code}|${x.tool_code}`));
- return `<table><thead><tr><th>Feature</th>${cols.map(p=>`<th>${esc(p.name)}</th>`).join('')}<th>Pick Your Tools</th></tr></thead><tbody>${tools.filter(t=>t.status!=='retired').map(t=>
- `<tr><td>${esc(t.name)}</td>${cols.map(p=>`<td>${set.has(`${p.plan_code}|${t.tool_code}`)||p.includes_all_tools?'<span class="v11-check">✓</span>':'<span class="v11-x">✕</span>'}</td>`).join('')}
+ return `<table><thead><tr><th>Feature</th>${cols.map(p=>`<th><a href="${detail('plan',p.plan_code)}">${esc(p.name)}</a></th>`).join('')}<th>Pick Your Tools</th></tr></thead><tbody>${tools.filter(t=>t.status!=='retired').map(t=>
+ `<tr><td><a href="${detail('tool',t.tool_code)}">${esc(t.name)}</a></td>${cols.map(p=>`<td>${set.has(`${p.plan_code}|${t.tool_code}`)||p.includes_all_tools?'<span class="v11-check">✓</span>':'<span class="v11-x">✕</span>'}</td>`).join('')}
  <td>${t.status==='live'?`<span>${money(t.individual_price_cents)}/month</span>`:'<span>Not yet offered</span>'}</td></tr>`).join('')}
  <tr><td>Book companion learning (not ebook files)</td>${cols.map(p=>`<td>${p.includes_all_books?'✓':'Separate'}</td>`).join('')}<td>Books separately</td></tr>
  <tr><td>Five designated downloadable eBooks (after KDP Select ends)</td>${cols.map(p=>`<td>${p.plan_code==='LIFETIME'?'Included when available':'Separate purchase'}</td>`).join('')}<td>Separate purchase</td></tr>
