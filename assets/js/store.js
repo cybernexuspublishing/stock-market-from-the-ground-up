@@ -86,7 +86,7 @@ function tabs(){
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
   const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({memberships:'memberships and their comparison',books:'books only',tools:'individual tools only'})[key]+'.';
-  if(location.hash!==('#'+key))history.replaceState(history.state,'','#'+key);
+  if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
  buttons.forEach((b,i)=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
   b.addEventListener('keydown',e=>{let idx;if(e.key==='ArrowRight')idx=(i+1)%buttons.length;else if(e.key==='ArrowLeft')idx=(i+buttons.length-1)%buttons.length;else if(e.key==='Home')idx=0;else if(e.key==='End')idx=buttons.length-1;else return;e.preventDefault();select(buttons[idx].dataset.storeCategory,true)})});
