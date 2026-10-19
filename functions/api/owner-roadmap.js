@@ -8,6 +8,7 @@ import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMe
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
+import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -223,6 +224,38 @@ async function handlePost(request,c,user){
   const logged=await audit(c,user,'owner_roadmap.update',id,status);
   return reply({ok:true,progress:saved,auditLogged:logged});
 }
+
+/* Product inventory is read ONLY AFTER owner() has authorized this request.
+ * Prices, plan flags, and explicit tool mappings come from Supabase. Store
+ * editorial inclusion/exclusion text remains separately attributed, never
+ * rewritten into database entitlements. No user grants or billing data read.
+ */
+async function ownerProductInventory(c){
+ try{
+  const [plans,tools,access]=await Promise.all([
+   db(c,'platform_plans?select=plan_code,name,description,price_cents,billing_interval,active,public_visible,checkout_enabled,includes_all_tools,includes_all_books,ad_free,sort_order&order=sort_order.asc&limit=100'),
+   db(c,'platform_tools?select=tool_code,name,description,category,status,active,public_visible,individual_price_cents,free_preview,href,sort_order,data_requirement,included_full,included_lifetime&order=sort_order.asc&limit=100'),
+   db(c,'plan_tool_access?select=plan_code,tool_code&limit=500')
+  ]);
+  if(!Array.isArray(plans)||!Array.isArray(tools)||!Array.isArray(access)
+    ||plans.length===100||tools.length===100||access.length===500){
+   throw Error('Catalog response cannot be verified.');
+  }
+  const allowedPlans=new Set(plans.map(p=>p.plan_code));
+  const allowedTools=new Set(tools.map(t=>t.tool_code));
+  return {available:true,source:'Authenticated Owner-only Supabase catalog + separately reviewed editorial coverage',
+    reviewedGuideVersion:reviewedProductGuidesV01488.version,
+    capturedAt:new Date().toISOString(),
+    plans,tools,explicitAccess:access.filter(a=>allowedPlans.has(a.plan_code)&&allowedTools.has(a.tool_code)),
+    guides:reviewedProductGuidesV01488,capabilities:supportingCapabilitiesV01488,
+    note:'Catalog status and price are configuration, not proof of payment processing or working tool features. Existing user entitlements still require server validation.'};
+ }catch{
+  return {available:false,plans:[],tools:[],explicitAccess:[],guides:null,
+    capabilities:supportingCapabilitiesV01488,
+    error:'The live membership and tool catalog could not be verified. No price, plan membership or product availability can be certified from this snapshot.'};
+ }
+}
+
 export async function onRequest({request,env}){
   try{
     if(!['GET','POST'].includes(request.method))return reply({ok:false,error:'Method not allowed.'},405);
@@ -230,6 +263,7 @@ export async function onRequest({request,env}){
     const user=await owner(request,c,env);
     if(request.method==='POST')return await handlePost(request,c,user);
     const state=await allState(c);
+    const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
     for(const row of state){
       const value=row.value||{},key=row.setting_key;
@@ -241,7 +275,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]={...value,revision:recordRevision(row)};custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,productInventory,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,409,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
