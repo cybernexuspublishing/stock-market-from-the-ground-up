@@ -113,8 +113,8 @@ async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode
  const qa=active.filter(x=>x.source==='stripe_zero_monthly_qa_v72'&&x.plan_code==='FULL_MONTHLY');
  const external=active.filter(x=>!/^admin(?:_|$)/i.test(x.source||'')&&
    !(x.source==='stripe_zero_monthly_qa_v72'&&x.plan_code==='FULL_MONTHLY'));
- if(qa.length&&plan!=='FREE')
-   throw problem('This member has an active $0 LIVE Stripe QA membership. First choose FREE to reset that specific test access; otherwise a new manual grant would not replace the Stripe grant.',409);
+ if(plan!=='FREE'&&(qa.length||external.length))
+   throw problem('This account has active non-manual access. Do not stack a manual plan over a Stripe/test/provider grant. Resolve the existing entitlement from this account\'s source-aware inventory first.',409);
  if(plan==='FREE'&&external.length)
    throw problem('This account has another active non-admin entitlement. FREE cannot be applied here without resolving that entitlement through its issuing system.',409);
  let resetQaCount=0;
@@ -139,8 +139,9 @@ async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode
  // The same source-of-truth resolver used for customer Access decides whether
  // FREE really took effect. Do not show a false success if other access persists.
  const effective=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}});
- if(plan==='FREE'&&effective?.planCode!=='FREE')
-   throw problem('The selected manual and $0 QA grants were updated, but effective access is still '+clean(effective?.planCode||'unknown')+'. Investigate other active entitlements; FREE has NOT been verified.',409);
+ if(effective?.planCode!==plan)
+   throw problem('The account access resolver reports '+clean(effective?.planCode||'unknown')+
+    ' instead of '+plan+'. Do not report a successful membership change. Review additional active grants and subscriptions in this account.',409);
  await audit(env,actor,'v1353.membership.adjust',id,{plan,startsAt:range.start,endsAt:range.end,
    revokedManualGrants:owned.length,revokedZeroQaGrants:resetQaCount,actualPlan:effective?.planCode||null});
  return{synthetic:false,planCode:effective?.planCode||plan,zeroQaResetCount:resetQaCount};}
@@ -185,11 +186,40 @@ async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,sy
  }
  return respond({ok:true,permissions:{owner:actor.owner,administrator:!actor.owner},
   inventory,inventoryErrors,effectiveAccess,effectiveError,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
+async function revokeAccountResource(env,actor,b){
+ const id=clean(b.userId),x=await lookup(env,id);
+ targetAccess(actor,id,x);
+ const kind=clean(b.kind),record=Number(b.recordId),reason=clean(b.reason);
+ if(!['manual_plan','manual_book','manual_tool'].includes(kind)||
+    !Number.isSafeInteger(record)||record<1||
+    reason.length<10||reason.length>500)
+   throw problem('Select one active manual entitlement and supply a reason (10–500 characters).',400);
+ // SQL performs source verification, role authorization, row locking, update and
+ // audit in a single transaction; front-end state is never considered authority.
+ const result=await rest(env,'rpc/gu78_admin_account_resource_revoke',{method:'POST',body:{
+   p_actor:actor.user.id,p_target:id,p_kind:kind,p_record_id:record,p_reason:reason
+ }});
+ if(result?.ok!==true||result?.recordId!==record||result?.targetUser!==id||!result?.revoked)
+   throw problem('The database has not verified this entitlement revocation.',409);
+ // Do not report a successful full-account downgrade: other independently
+ // issued grants or subscriptions can legitimately keep the effective plan on.
+ let effectiveAccess=null,verified=false;
+ try{
+   effectiveAccess=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}});
+   verified=!!effectiveAccess?.planCode;
+ }catch{}
+ return respond({ok:true,revoked:true,kind,recordId:record,source:result.source,
+   effectivePlan:effectiveAccess?.planCode||null,effectiveVerified:verified,
+   notice:verified?'The selected record was revoked; the current effective plan is '+effectiveAccess.planCode+'.':
+     'The selected record was revoked by the database, but effective membership could not be independently verified. Refresh the account.'});
+}
 async function change(env,request,actor,action,b){if(actor.showcase)throw problem('Showcase is read-only.',403);const ownerId=actor.user.id;
  if(action==='create'){
    const type=clean(b.type).toLowerCase();
    if(!actor.owner&&type!=='member')
-     throw problem('Administrators may create ordinary members only. Staff and synthetic accounts require an Owner.',403);if(!['member','test','showcase','moderator','admin','owner'].includes(type))throw problem('Invalid account type.');
+     throw problem('Administrators may create ordinary members only. Staff and synthetic accounts require an Owner.',403);
+   if(!actor.owner&&clean(b.roleCode||'NONE')!=='NONE')
+     throw problem('Administrators may not issue staff roles during account creation.',403);if(!['member','test','showcase','moderator','admin','owner'].includes(type))throw problem('Invalid account type.');
    if(type==='owner'){strongAssurance(actor);if(clean(b.confirmation)!=='CREATE OWNER')throw problem('Type CREATE OWNER exactly to authorize a second production Owner.',400);}
    const first=ensureName(b.firstName,'First name'),last=ensureName(b.lastName,'Last name'),username=ensureUsername(b.username),email=ensureEmail(b.email);
    const isSandbox=['test','showcase'].includes(type),ownerPassword=!isSandbox&&b.creationMethod==='owner_password',dob=b.dateOfBirth?ensureAdult(b.dateOfBirth):null;
@@ -237,6 +267,8 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    const dob=b.dateOfBirth?ensureAdult(b.dateOfBirth):null;
    const requestedType=clean(b.type||normalizedType(x));if(!VALID_TYPES.has(requestedType))throw problem('Unsupported account type.',400);
    const currentType=normalizedType(x);
+   if(!actor.owner&&clean(b.roleCode||'NONE')!=='NONE')
+     throw problem('Administrators cannot assign or change staff privileges.',403);
    if(!actor.owner&&(requestedType!=='member'||currentType!=='member'))
      throw problem('Administrators cannot change staff roles or account types.',403);
    if(['test','showcase'].includes(requestedType)&&requestedType!==currentType)throw problem('Converting existing accounts to Dummy/Showcase requires a separate audited synthetic migration. Create a new test identity instead.',409);
@@ -301,6 +333,7 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    await audit(env,ownerId,'v0142.account.note.added',id,{noteType:type,ownerAccount:x.roles.includes('OWNER')});
    return respond({ok:true});
  }
+ if(action==='revoke_resource')return await revokeAccountResource(env,actor,b);
  if(action==='membership'){
    const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
    if(x.roles.includes('OWNER'))strongAssurance(actor);
