@@ -241,7 +241,7 @@ function announce(text,error=false){
 }
 function find(id){return all.find(x=>x.id===id)}
 function selectTab(next){
- const product=window.OwnerRoadmapProductsV88?.isCatalog(next)===true;
+ const product=next==='products';
  if(!product&&!['core','trace','reference'].includes(next))next='core';
  scope=next;page=0;
  document.querySelectorAll('.or-tab-bar button').forEach(b=>{
@@ -251,10 +251,7 @@ function selectTab(next){
  const workspace=$('#or-requirements-workspace'),creator=$('#or-owner-create');
  if(workspace)workspace.hidden=!reference;
  if(creator)creator.hidden=!reference;
- for(const name of ['tool-inventory','membership-coverage']){
-  const panel=$('#or-catalog-'+(name==='tool-inventory'?'tools':'memberships'));
-  if(panel)panel.hidden=next!==name;
- }
+ const products=$('#or-products-console');if(products)products.hidden=next!=='products';
  if(!reference)return;
  $('#or-area').value='';$('#or-status').value='';$('#or-review').value='';$('#or-origin').value='';$('#or-search').value='';
  areas();render();
@@ -352,6 +349,6 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5));else if(hash==='tool-inventory'||hash==='membership-coverage')selectTab(hash)}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5));else if(hash==='products')selectTab('products')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
