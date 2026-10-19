@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'functions/api/learning-replay-v01492.js'
+      - 'functions/_lib/replay-engine-v01492.js'
+      - 'tests/test_v014093_execution_price_bounds.mjs'
       - 'assets/js/verified-replay-v01492.js'
       - 'verified-replay.html'
       - 'tests/test_v014093_replay_catalog_resume.mjs'
@@ -45,6 +47,7 @@ jobs:
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_replay_contract.mjs
           node tests/test_v014093_replay_catalog_resume.mjs
+          node tests/test_v014093_execution_price_bounds.mjs
           node --check functions/_lib/owner-lab-readiness-v01493.js
           node --check assets/js/owner-roadmap-product-readiness-v01491.js
           node tests/test_v014093_owner_lab_readiness.mjs
