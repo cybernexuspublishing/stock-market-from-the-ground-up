@@ -19,7 +19,7 @@ const formatInfo=p=>{const out=[];
  if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)out.push(button('Hardcover on Amazon',p.amazon.hardcoverUrl,true));
  if(p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)out.push(button('Direct digital purchase',p.directDigital.checkoutUrl,true));
  if(p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)out.push(button('Direct printed edition',p.directPhysical.checkoutUrl,true));
- if(p.websiteCheckoutEnabled&&p.lemonVariantId)out.push(button('Website purchase',`checkout.html?type=book&code=${encodeURIComponent(p.productCode)}`));
+ if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)out.push(button('Website purchase',`checkout.html?type=book&code=${encodeURIComponent(p.productCode)}`));
  return out.filter(Boolean)};
 function show(html){const root=document.querySelector('#store-product-root');root.innerHTML=html}
 function layout(category,head,description,price,priceNote,actions,sections,advice){
