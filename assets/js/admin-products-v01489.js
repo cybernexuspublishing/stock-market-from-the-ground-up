@@ -43,12 +43,18 @@ function membershipCard(p){
   (p.plan_code==='FREE'?' disabled':'')+'> Available for new enrollment</label><label><input type="checkbox" data-flag="public" '+(p.public_visible?'checked':'')+'> Listed in Store</label><label><input type="checkbox" data-flag="pause"> Pause NEW checkout (cannot enable from here)</label>'+
   '<button class="btn secondary" type="button" data-plan-save="'+e(p.plan_code)+'">Save Visibility</button></div>':
  '<p class="small">Owner authorization is required to change membership availability.</p>';
+ const copy=owner()&&can('plans.manage')?
+ '<details class="product-admin-copy"><summary>Edit Customer-Facing Name &amp; Description</summary>'+
+ '<label>Membership name<input data-copy="name" maxlength="160" value="'+e(p.name)+'"></label>'+
+ '<label>Store description<textarea data-copy="description" maxlength="2400" rows="4">'+e(p.description||'')+'</textarea></label>'+
+ '<p class="small">Copy must accurately reflect the published benefits, exclusions and billing terms. This does not edit contractual inclusions, prices or Stripe mappings.</p>'+
+ '<button class="btn secondary" type="button" data-plan-copy="'+e(p.plan_code)+'">Save Description</button></details>':'';
  const status=enabled?p.checkout_enabled?'Listed · Database checkout ON':'Listed · Checkout not enabled':'Hidden / disabled';
  return '<article class="admin-card product-admin-card" data-plan="'+e(p.plan_code)+'">'+
  '<div class="eyebrow">Membership</div><h3>'+e(p.name)+'</h3>'+
  '<p class="product-admin-price">'+e(price)+'</p><p>'+e(p.description||'Membership product description not yet provided.')+'</p>'+
  '<p class="product-admin-status">'+e(status)+'</p>'+
- '<div class="product-admin-actions"><a class="btn secondary" target="_blank" rel="noopener" href="'+e(urlFor('plan',p.plan_code))+'">View Customer Page</a></div>'+buttons+
+ '<div class="product-admin-actions"><a class="btn secondary" target="_blank" rel="noopener" href="'+e(urlFor('plan',p.plan_code))+'">View Customer Page</a></div>'+copy+buttons+
  '<p class="small">Changing a Stripe-linked membership price, billing interval or included entitlements requires synchronized provider mapping, customer disclosure, and a separate audited rollout. This editor never changes those terms silently.</p></article>';
 }
 function toolCard(t){
@@ -82,6 +88,21 @@ function wire(){
    if(!item)return;
    try{window.GroundUpAdminToolEditor?.edit(item)}catch(ex){msg(ex.message,true)}
    return;
+  }
+  const copy=ev.target.closest('[data-plan-copy]');
+  if(copy){
+    const p=live?.plans?.find(x=>x.plan_code===copy.dataset.planCopy);
+    if(!p||!owner()||!can('plans.manage')){msg('Owner plan-editing permission required.',true);return}
+    const card=copy.closest('[data-plan]'),name=card.querySelector('[data-copy="name"]').value.trim();
+    const description=card.querySelector('[data-copy="description"]').value.trim();
+    if(!name){msg('Membership name is required.',true);return}
+    if(!confirm('Publish the updated membership name and description? Pricing, included benefits, Stripe settings and existing subscriptions will NOT change.'))return;
+    copy.disabled=true;
+    try{const result=await admin('plan_copy_save',{plan_code:p.plan_code,name,description,expected_updated_at:p.updated_at});
+     msg(result.notice||'Membership copy updated.');await load();
+    }catch(ex){msg('Membership description was not saved: '+ex.message,true)}
+    finally{copy.disabled=false}
+    return;
   }
   const btn=ev.target.closest('[data-plan-save]');if(!btn)return;
   const p=live?.plans?.find(x=>x.plan_code===btn.dataset.planSave);
