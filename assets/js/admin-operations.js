@@ -166,6 +166,34 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
    member.startsAt=info.effectiveAccess.startsAt||member.startsAt;
    member.endsAt=info.effectiveAccess.expiresAt||info.effectiveAccess.renewsAt||member.endsAt;
  }
+ const inv=info.inventory||{},failed=info.inventoryErrors||{};
+ const verifiedPlan=info.effectiveAccess?.planCode||null;
+ const fmtDate=x=>{if(!x)return '—';const dt=new Date(x);return Number.isFinite(dt.getTime())?dt.toLocaleString():String(x)};
+ const itemTable=(title,key,items,describe,sourceOf,expiresOf,revocable)=>{
+  if(failed[key]||items===null)return '<h4>'+e(title)+'</h4><p class="small" role="alert">'+e(failed[key]||'This account source is unavailable; do not assume no records exist.')+'</p>';
+  const rows=(items||[]).map(x=>{
+   const kind=revocable(x),grantId=Number(x.id);
+   const action=kind&&Number.isSafeInteger(grantId)&&grantId>0?
+    '<button type="button" class="btn secondary" data-account-resource-revoke="'+e(kind)+'" data-resource-id="'+grantId+'">Revoke this manual item</button>':
+    '<span class="small">View / source-specific workflow</span>';
+   return '<tr><td>'+e(describe(x))+'</td><td>'+e(x.status||'—')+'</td><td>'+e(sourceOf(x)||'—')+'</td><td>'+e(fmtDate(expiresOf(x)))+'</td><td>'+action+'</td></tr>'
+  });
+  return '<h4>'+e(title)+'</h4><div class="v1355-scroll"><table class="v1355-table"><thead><tr><th>Item</th><th>Status</th><th>Issuing source</th><th>Expiration</th><th>Change</th></tr></thead><tbody>'+
+    (rows.join('')||'<tr><td colspan="5">No records for this source.</td></tr>')+'</tbody></table></div>'
+ };
+ const isManual=x=>/^admin(?:_|$)/i.test(String(x.source||x.source_channel||'')); 
+ const isActive=x=>['active','trialing'].includes(String(x.status||'').toLowerCase())&&(!x.ends_at||Date.parse(x.ends_at)>Date.now());
+ const inventoryHtml=
+  '<p class="small"><strong>Effective membership:</strong> '+e(verifiedPlan||'UNVERIFIED')+
+    (info.effectiveError?'<br><strong>'+e(info.effectiveError)+'</strong>':'')+
+    '. Source records remain available even if the final membership cannot be calculated. A dropdown change alone does not revoke a separate entitlement.</p>'+
+  itemTable('Platform plan grants','grants',inv.grants,x=>x.plan_code,x=>x.source,x=>x.ends_at,x=>isManual(x)&&isActive(x)?'manual_plan':null)+
+  itemTable('Payment-provider subscriptions','subscriptions',inv.subscriptions,x=>x.plan_code,x=>x.provider,x=>x.current_period_end,()=>null)+
+  itemTable('Book and companion access','books',inv.books,x=>x.product_code,x=>x.source_channel,x=>x.expires_at,x=>/^admin/i.test(x.source_channel||'')?'manual_book':null)+
+  itemTable('Tool passes','tools',inv.tools,x=>x.tool_code,x=>x.provider||'Owner/manual',x=>x.ends_at,x=>!x.provider&&isActive(x)?'manual_tool':null)+
+  itemTable('Legacy full-learning access','legacyLearning',inv.legacyLearning,x=>x.product_key,x=>x.source,x=>x.ends_at,x=>isManual(x)&&isActive(x)?'manual_learning':null)+
+  itemTable('Book Key activation history','bookKeys',inv.bookKeys,x=>x.book_code,()=>'Book Key',x=>x.ends_at,()=>null)+
+  itemTable('Order/payment history','orders',inv.orders,x=>x.id,x=>x.provider,x=>x.paid_at||x.created_at,()=>null);
  const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);
  const roleOptions=[{role_code:'NONE',name:'No staff role'},...availableRoles];if(!roleOptions.some(x=>x.role_code==='OWNER'))roleOptions.push({role_code:'OWNER',name:'Owner / Super Administrator (confirmation required)'});
  const toLocal=v=>{if(!v)return '';const x=new Date(v);if(!Number.isFinite(x.getTime()))return '';const shift=x.getTimezoneOffset()*60000;return new Date(x.getTime()-shift).toISOString().slice(0,16)};
@@ -204,7 +232,10 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  <section class="v1353-danger"><h3>Authentication &amp; Recovery</h3><p class="v1353-info">Email verified: <strong>${account.emailConfirmed?'Yes':'No'}</strong> · Last sign-in: <strong>${e(account.lastSignInAt?new Date(account.lastSignInAt).toLocaleString():'Not recorded')}</strong> · Created: <strong>${e(account.createdAt?new Date(account.createdAt).toLocaleString():'Not recorded')}</strong><br>Current sign-in suspension: <strong>${isBanned?'Active until '+e(new Date(account.bannedUntil).toLocaleString()):'None recorded'}</strong></p>
  <div class="v1353-jump"><button class="btn secondary" type="button" data-editor-action="password">${account.id===viewerId&&currentType==='owner'?'Change My Password':'Reset Password'}</button><button class="btn secondary" type="button" data-editor-action="ban24" ${account.id===viewerId||currentType==='owner'?'disabled':''}>Suspend Sign-in 24 Hours</button><button class="btn secondary" type="button" data-editor-action="ban7" ${account.id===viewerId||currentType==='owner'?'disabled':''}>Suspend Sign-in 7 Days</button><button class="btn secondary" type="button" data-editor-action="unban">Restore Sign-in</button></div>
  <p class="small">Real member passwords cannot be displayed. Only properly encrypted disposable Dummy / Showcase credentials may be revealed.</p></section>
- <section><h3>Books, Tools, Roles &amp; Entitlements</h3><p>Manage authorized manual book and tool access without changing provider-managed purchases or payment subscriptions.</p><div class="v1353-jump"><button type="button" class="btn secondary" data-editor-action="access">Open Book &amp; Tool Access for This Account</button><button type="button" class="btn secondary" data-editor-action="roles">Open Roles &amp; Permissions</button><button type="button" class="btn secondary" data-editor-action="activity">Open Account Activity</button></div></section>
+ <section id="v1479-account-resource-control"><h3>All Account Entitlements &amp; Revocation</h3>
+ <p class="small">This is the account's source-aware ledger. Owner-issued manual grants can be revoked individually with an audited reason. Stripe subscriptions, paid purchases, original Book Keys and transaction history must be managed through their actual source lifecycle, not deleted. An unavailable ledger is shown as an error, never as an empty list.</p>
+ ${inventoryHtml}
+ <div class="v1353-jump"><button type="button" class="btn secondary" data-editor-action="access">Issue book or tool grant</button><button type="button" class="btn secondary" data-editor-action="roles">Account roles &amp; permissions</button><button type="button" class="btn secondary" data-editor-action="activity">Account activity &amp; audit</button></div></section>
  <form id="v1353-notes-form" class="v1352-grid"><h3 class="full">Internal Account Notes &amp; Support</h3>
  <label>Note category<select name="noteType">${['general','support','moderation','commerce','learning','security'].map(x=>`<option value="${x}">${x[0].toUpperCase()+x.slice(1)}</option>`).join('')}</select></label>
  <label class="full">Add internal note<textarea name="note" rows="3" minlength="2" maxlength="3000" required></textarea></label>
@@ -238,6 +269,24 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  pf.onsubmit=ev=>submitSecondary(ev,'profile',form=>Object.fromEntries(new FormData(form)),`Profile updated for ${account.username}.`);
  sf.onsubmit=ev=>submitSecondary(ev,'flag',form=>Object.fromEntries(new FormData(form)),`Account status updated for ${account.username}.`);
  nf.onsubmit=ev=>submitSecondary(ev,'note',form=>Object.fromEntries(new FormData(form)),`Internal note saved for ${account.username}.`);
+ box.querySelectorAll('[data-account-resource-revoke]').forEach(button=>button.onclick=async()=>{
+   const kind=button.dataset.accountResourceRevoke,recordId=Number(button.dataset.resourceId);
+   if(!['manual_plan','manual_book','manual_tool','manual_learning'].includes(kind)||
+      !Number.isSafeInteger(recordId)||recordId<1)return;
+   if(!window.confirm('Revoke exactly this Owner-issued '+kind.replace('manual_','')+' item for '+account.username+'? This does not refund Stripe charges or delete financial history.'))return;
+   const reason=window.prompt('Required audit reason for revoking this specific member entitlement (10–500 characters):','Repeatable membership testing / Owner-directed access correction');
+   if(reason===null)return;
+   if(reason.trim().length<10||reason.trim().length>500){$('[data-v1352-error]',d).textContent='Provide a 10–500 character revocation reason.';return}
+   button.disabled=true;
+   try{
+     const result=await api('revoke_resource',{userId:account.id,kind,recordId,reason:reason.trim()});
+     if(!result.revoked)throw Error('Database did not confirm a specific entitlement revocation.');
+     d.close();await load();
+     say('Confirmed revoked '+kind+' item '+recordId+' for '+account.username+
+       (result.effectiveVerified?' · Effective plan: '+result.effectivePlan:
+        ' · Effective plan unverified: refresh and reconcile other active sources.'),'ok');
+   }catch(err){$('[data-v1352-error]',d).textContent=err.message;button.disabled=false}
+ });
  box.querySelectorAll('[data-editor-action]').forEach(button=>button.onclick=async()=>{const what=button.dataset.editorAction;
   if(what==='password'){d.close();return resetForm(account)}
   if(what==='delete'){d.close();return deleteForm(account)}
