@@ -13,6 +13,7 @@
  FULL_MONTHLY:{included:['All released first-party platform tools while subscribed','All released first-party book companion learning branches','Limited sponsor placements'],excluded:['Complete downloadable eBook files','Third-party brokerage software, market data, and external services']},
  FULL_ANNUAL:{included:['All released first-party platform tools while subscribed','All released first-party book companion learning branches','Minimal sponsor placements'],excluded:['Complete downloadable eBook files','Third-party brokerage software, market data, and external services']},
  LIFETIME:{included:['Released and future first-party platform tools during the operational life of the platform','Current and future first-party book companion branches','Five designated downloadable eBooks when distribution rights permit','Ad-free first-party platform access'],excluded:['Indefinite operation of the platform','Third-party brokerage subscriptions, paid data feeds, or other ongoing external services']},
+ PICK_WHAT_YOU_WANT:{included:['No base platform fee for choosing released individual tools','Pay only for independently selected subscriptions'],excluded:['Automatic access to every tool','All book companion branches','Full downloadable eBooks']},
  ONDEMAND_MONTHLY:{included:['Guided historical replay learning and book-aligned practice','Chart-reading exercises and structured decision journals on your own independently authorized platform'],excluded:['A brokerage account or Schwab software','A proprietary market simulator or third-party market data','Downloadable eBooks and Full Platform access']}
  };
  const learning={
@@ -30,8 +31,8 @@
   block('What is included',renderList(inc.included))+
   block('What is not included',renderList(inc.excluded))+
   block('Learning access and feature comparison','<p>Open individual tool descriptions to understand each capability. Availability depends on release status and the active membership.</p><table class="detail-table"><thead><tr><th>Tool / feature</th><th>This plan</th></tr></thead><tbody>'+toolRows+'</tbody></table><p>'+link('Compare every membership','membership.html#membership-matrix')+'</p>')+
-  block('Billing and enrollment', '<p>'+e(code==='LIFETIME'?'One-time purchase; access lasts only for the operational life of the platform, subject to published Terms.':code==='FREE'?'No purchase required.': 'Recurring subscription at the displayed interval. Billing, renewal, cancellation and access follow the published Terms and the payment provider.')+'</p>'+
-  '<div class="detail-actions">'+(code==='FREE'?link('Create a free account','create-account.html'):
+  block('Billing and enrollment', '<p>'+e(code==='LIFETIME'?'One-time purchase; access lasts only for the operational life of the platform, subject to published Terms.':code==='FREE'||code==='PICK_WHAT_YOU_WANT'?'No base membership charge; individual premium tools have their own subscriptions.': 'Recurring subscription at the displayed interval. Billing, renewal, cancellation and access follow the published Terms and the payment provider.')+'</p>'+
+  '<div class="detail-actions">'+(code==='FREE'?link('Create a free account','create-account.html'):code==='PICK_WHAT_YOU_WANT'?link('Choose individual tools','store.html#a-la-carte'):
    link('Continue to secure checkout','checkout.html?type=plan&code='+encodeURIComponent(code)))+'</div><p class="small">Checkout independently verifies the current LIVE product, amount, account eligibility and fulfillment. A displayed price alone is not payment authorization.</p>')+
   '<p>'+link('Back to memberships','store.html#memberships')+'</p>';
  }
