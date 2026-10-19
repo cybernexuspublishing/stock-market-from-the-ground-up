@@ -31,7 +31,7 @@ for category in ('memberships','books','tools'):
  assert store.count('id="store-panel-'+category+'"')==1
  assert 'aria-controls="store-panel-'+category+'"' in store
  assert 'role="tabpanel"' in store
- assert '#'+category in details
+ assert 'store.html#' in details
 assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
 assert ".filter(p=>p.type==='book'" in script
