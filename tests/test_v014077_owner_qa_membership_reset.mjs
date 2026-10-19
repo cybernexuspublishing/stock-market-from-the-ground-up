@@ -14,7 +14,7 @@ const env={
  GU72_QA_ALLOWED_USER_ID:member
 };
 const init=()=>({qa:true,qaActive:true,manual:false,external:false,paid:false,
- resetRpcError:false,forcePlan:null,roles:[{role_code:'OWNER',expires_at:null}],calls:[]});
+ resetRpcError:false,toolActive:false,legacyActive:false,forcePlan:null,roles:[{role_code:'OWNER',expires_at:null}],calls:[]});
 let state=init();
 const J=(data={},status=200)=>new Response(status===204?null:JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 const orig=globalThis.fetch;
@@ -30,6 +30,8 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/rest/v1/test_account_profiles?'))return J([]);
  if(u.includes('/rest/v1/platform_plans?'))return J([{plan_code:'FREE'}]);
  if(u.includes('/rest/v1/site_subscriptions?'))return J(state.paid?[{id:8,status:'active'}]:[]);
+ if(u.includes('/rest/v1/user_tool_passes?'))return J(state.toolActive?[{id:10,status:'active',starts_at:'2026-01-01',ends_at:null}]:[]);
+ if(u.includes('/rest/v1/entitlements?'))return J(state.legacyActive?[{id:20,status:'active',starts_at:'2026-01-01',ends_at:null}]:[]);
  if(u.includes('/rest/v1/user_plan_grants?')){
   const active=[
    ...(state.qaActive?[{id:7,source:'stripe_zero_monthly_qa_v72',plan_code:'FULL_MONTHLY',starts_at:'2026-01-01T00:00:00Z',ends_at:'2099-01-01T00:00:00Z',status:'active'}]:[]),
@@ -78,6 +80,14 @@ try{
  assert.equal(calls('gu76_reset_zero_monthly_qa').length,0);
  state=init();state.external=true;
  r=await app.onRequest({request:req(),env});assert.equal(r.status,409);
+ assert.equal(calls('gu76_reset_zero_monthly_qa').length,0);
+ state=init();state.toolActive=true;
+ r=await app.onRequest({request:req(),env});d=await r.json();assert.equal(r.status,409);
+ assert.match(d.error,/tool passes/i);
+ assert.equal(calls('gu76_reset_zero_monthly_qa').length,0);
+ state=init();state.legacyActive=true;
+ r=await app.onRequest({request:req(),env});d=await r.json();assert.equal(r.status,409);
+ assert.match(d.error,/legacy learning/i);
  assert.equal(calls('gu76_reset_zero_monthly_qa').length,0);
  state=init();state.resetRpcError=true;
  r=await app.onRequest({request:req(),env});d=await r.json();
