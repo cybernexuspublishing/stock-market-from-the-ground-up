@@ -19,6 +19,9 @@ on:
       - 'tests/test_v014076_*'
       - 'tests/test_v014077_*'
       - 'tests/test_v014078_*'
+      - 'tests/test_v014081_*'
+      - 'supabase/admin/v0.14.0.81_*'
+      - 'data/store-products.json'
       - 'supabase/migrations/v0.14.0.78*'
       - 'assets/js/account-management-entitlements-v01478.js'
       - 'admin.html'
@@ -61,6 +64,7 @@ jobs:
           node --check functions/api/admin-accounts-v01353.js
           python tests/test_v014072_zero_store_contract.py
           python tests/test_v014076_zero_repeatable_contract.py
+          python tests/test_v014081_paid_launch_and_book_prep_contract.py
           node --check functions/api/checkout.js
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
