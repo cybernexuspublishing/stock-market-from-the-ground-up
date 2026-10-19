@@ -132,3 +132,52 @@
 @media(max-width:960px){.or-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.or-action-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.or-toolbar{grid-template-columns:minmax(0,1fr)}.or-queue-link{flex-wrap:wrap}.or-action-board{padding:14px}}
+
+
+/* v0.14.0.88 — Owner-only SKU development and membership coverage.
+   Existing roadmap records/controls remain intact in their own tab. */
+#or-requirements-workspace[hidden],#or-owner-create[hidden],.or-catalog-workspace[hidden]{display:none!important}
+.or-catalog-workspace{background:#0d2333;border:1px solid #35556a;border-radius:0 14px 14px 14px;padding:clamp(15px,2.1vw,28px);margin-bottom:22px}
+.or-catalog-heading{display:flex;justify-content:space-between;gap:20px;align-items:end;flex-wrap:wrap;margin-bottom:20px}
+.or-catalog-heading h2{margin:.25rem 0 .6rem;font-size:clamp(1.5rem,2.3vw,2.1rem);color:#fff;line-height:1.25}
+.or-catalog-heading p{max-width:90ch;line-height:1.6}
+.or-catalog-heading label{display:grid;gap:6px;min-width:min(300px,100%);max-width:420px;font-size:.86rem;color:#bfd9e9}
+.or-catalog-heading input{min-height:44px;background:#071b29;color:#edf7ff;border-radius:9px;border:1px solid #58778c;padding:9px 12px;font:inherit}
+.or-product-summary{margin:13px 0 24px;background:#102e42;border-left:4px solid #d1af69;border-radius:8px;padding:13px 17px;color:#dcecf5;line-height:1.5}
+.or-product-grid,.or-membership-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:15px;align-items:stretch;margin:0 0 24px}
+.or-membership-grid{grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))}
+.or-product-card{min-width:0;background:#102d42;border:1px solid #436277;border-radius:12px;padding:clamp(15px,2.1vw,22px);display:flex;flex-direction:column;overflow-wrap:anywhere}
+.or-product-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.or-product-card h3{color:#fff;font-size:1.18rem;line-height:1.35;margin:0 0 .5rem}
+.or-product-card h4{color:#e7edf7;margin:1.1rem 0 .35rem;font-size:.95rem}
+.or-product-card p{line-height:1.65;margin:.45rem 0 1rem;color:#d2e3ed}
+.or-product-stage{border:1px solid #648396;border-radius:8px;color:#f4d89b;font-size:.75rem;padding:5px 8px}
+.or-product-facts{display:grid;grid-template-columns:minmax(100px,.8fr) minmax(0,1.35fr);gap:6px 13px;font-size:.86rem;line-height:1.5}
+.or-product-facts dt{font-weight:750;color:#e4f0fa}
+.or-product-facts dd{margin:0 0 8px;color:#c0dbea;min-width:0}
+.or-product-card details{margin:.9rem 0 1.1rem;border-top:1px solid #385a72;padding-top:12px}
+.or-product-card summary{cursor:pointer;color:#ffdf94;font-weight:750;line-height:1.5}
+.or-product-card li{margin:.5rem 0;line-height:1.55}
+.or-product-card ul{padding-left:1.5rem;margin:.6rem 0 1rem}
+.or-card-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto;padding-top:14px}
+.or-card-actions .or-button{font-size:.8rem;min-height:43px;text-align:center;max-width:100%}
+.or-plan-price{font-size:1.4rem;font-weight:800;color:#f8de94!important}
+.or-plan-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.or-plan-columns>div{min-width:0}
+.or-plan-columns h4{margin-top:0}
+.or-capability{background:#102a39;border-style:dashed}
+.or-table-scroll{overflow-x:auto;border:1px solid #426779;border-radius:13px;margin-bottom:20px}
+.or-membership-table{min-width:960px;border-collapse:collapse;width:100%;background:#0d283a;color:#e2eff7;font-size:.84rem}
+.or-membership-table caption{caption-side:top;text-align:left;padding:15px;color:#c5dce9;line-height:1.45}
+.or-membership-table th,.or-membership-table td{border:1px solid #426174;padding:13px;text-align:left;min-width:160px;vertical-align:top;line-height:1.45}
+.or-membership-table th:first-child{position:sticky;left:0;z-index:1;background:#14374b;min-width:245px}
+.or-membership-table th a{color:#ffdc8a}
+.or-membership-table thead th{background:#163a4d;color:#fff}
+.or-membership-table small{display:block;color:#a9c6d8;margin-top:5px;font-weight:400}
+.or-membership-table tr:hover td{background:#184157}
+.or-table-scroll>.or-muted{margin:12px}
+.or-catalog-warning{border:1px solid #a37063;background:#452b2c;color:#ffdfd7;padding:16px;border-radius:10px;line-height:1.55}
+.or-product-grid>h3,.or-product-grid>p{grid-column:1/-1}
+#or-tool-catalog>h3{font-size:1.3rem;color:#fff;margin:20px 0 10px}
+.owner-roadmap-page .or-product-card :focus-visible,.owner-roadmap-page .or-membership-table a:focus-visible{outline:3px solid #f8d17b;outline-offset:3px}
+@media(max-width:760px){.or-plan-columns{grid-template-columns:1fr}.or-product-grid,.or-membership-grid{grid-template-columns:1fr}.or-catalog-workspace{padding:15px}.or-product-facts{grid-template-columns:minmax(90px,.9fr) minmax(0,1.2fr)}}
