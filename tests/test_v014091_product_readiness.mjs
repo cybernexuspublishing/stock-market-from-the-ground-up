@@ -59,7 +59,7 @@ assert(!/\b(INSERT\s+INTO|UPDATE\s+PUBLIC\.|DELETE\s+FROM|CREATE\s+|ALTER\s+TABL
 assert(sql.includes('08_DESTRUCTIVE_GRANTS')&&sql.includes('07_TUTOR_CONTENT'));
 assert(existsSync(new URL('../supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql',import.meta.url)));
 const manifest=JSON.parse(read('release-manifest.json'));
-assert.match(manifest.version,/^0\\.14\\.0\\.\\d+$/,'Release version must be well formed');
+assert.match(manifest.version,/^0\.14\.0\.\d+$/,'Release version must be well formed');
 assert.equal(manifest.ownerRoadmap.catalogEntries,2190);
 assert.equal(manifest.ownerRoadmap.primaryTasks,375);
 assert.equal(manifest.ownerRoadmap.sourceTraceRows,1815);
