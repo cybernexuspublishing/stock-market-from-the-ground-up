@@ -28,6 +28,7 @@ function fmt(bar){
  if(!bar.bar_at||numbers.high<Math.max(numbers.open,numbers.close)||numbers.low>Math.min(numbers.open,numbers.close)||numbers.low<=0||numbers.volume<0)throw bad('Historical bar failed price integrity validation.',503);
  return {index:bar.bar_index,timestamp:bar.bar_at,...numbers};
 }
+function publicDataset(source){return source&&source.status==='published'&&source.dataset_type==='ohlcv'&&source.metadata?.licensed_for_member_display===true&&source.metadata?.evidence_verified===true&&typeof source.source_attribution==='string'&&source.source_attribution.trim().length>0&&typeof source.license_note==='string'&&source.license_note.trim().length>0&&typeof source.metadata?.corporate_action_policy==='string'&&source.metadata.corporate_action_policy.trim().length>0}
 async function fetchBar(env,code,index){
  const rows=await db(env,'gu_replay_bars_v01492?select=bar_index,bar_at,open,high,low,close,volume&dataset_code=eq.'+encodeURIComponent(code)+'&bar_index=eq.'+index+'&limit=1');
  return fmt(one(rows));
@@ -66,13 +67,17 @@ export async function onRequest({request,env}){
   if(!auth.authorized)throw bad('Active Market Simulator or Full Platform access required.',403);
   const url=new URL(request.url),action=String(url.searchParams.get('action')||'current');
   const body=request.method==='POST'?await bodyOf(request):{};
+  if(action==='catalog'&&request.method==='GET'){
+   const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=100');
+   if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
+   return out({ok:true,datasets:rows.filter(publicDataset).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note})),notice:'Only data with recorded publishing rights and evidence verification is listed; each observation remains server-controlled.'});
+  }
   if(action==='start'&&request.method==='POST'){
    const code=String(body.datasetCode||'').toUpperCase();
    if(!match.test(code))throw bad('Invalid dataset identifier.');
    const datasets=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(code)+'&status=eq.published&limit=1');
    const source=one(datasets);
-   if(!source||source.dataset_type!=='ohlcv'||!source.metadata?.licensed_for_member_display||!source.metadata?.evidence_verified||
-      !source.source_attribution?.trim()||!source.license_note?.trim()||!source.metadata?.corporate_action_policy)
+   if(!publicDataset(source))
       throw bad('Dataset is not published with independently reviewed educational display rights.',403);
    const [first,second]=await Promise.all([fetchBar(env,code,0),fetchBar(env,code,1)]);
    if(!first||!second||Date.parse(second.timestamp)<=Date.parse(first.timestamp))throw bad('The source has no verified sequential replay bars.',503);
@@ -89,6 +94,10 @@ export async function onRequest({request,env}){
   }
   const id=String(body.sessionId||url.searchParams.get('sessionId')||'');
   const s=await session(env,id,auth.userId);
+  // Revocation is immediate: an already-started session cannot continue after
+  // the Owner withdraws display rights, historical verification or publication.
+  const rights=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(s.dataset_code)+'&limit=1'));
+  if(!publicDataset(rights))throw bad('Historical data publication or usage authorization has been withdrawn.',403);
   if(action==='current'&&request.method==='GET'){
    const bar=await fetchBar(env,s.dataset_code,s.current_index);
    return out({ok:true,sessionId:s.id,currentIndex:s.current_index,decisionLocked:s.decision_locked,decision:s.decision,bar});
