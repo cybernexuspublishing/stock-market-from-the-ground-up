@@ -47,7 +47,7 @@ await doc.callback();await new Promise(ok=>setTimeout(ok,0));
 assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must select books only');
 assert.equal(nodes['store-panel-memberships'].hidden,true);
 assert.equal(nodes['store-panel-tools'].hidden,true);
-assert.equal((nodes['store-products'].innerHTML.match(/What this book teaches/g)||[]).length,5);
+assert.equal((nodes['store-products'].innerHTML.match(/Explore Book &amp; Purchase Options/g)||[]).length,5);
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Bundled products/,'Nonbooks must not appear in Books');
 assert.equal((nodes['store-plans'].innerHTML.match(/Compare Benefits/g)||[]).length,5);
 assert.match(nodes['store-plans'].innerHTML,/Choose This Membership/);
