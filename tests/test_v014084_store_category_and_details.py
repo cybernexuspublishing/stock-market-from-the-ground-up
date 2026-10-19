@@ -3,6 +3,9 @@ from pathlib import Path
 root=Path(__file__).resolve().parent.parent
 store=(root/"store.html").read_text()
 storejs=(root/"assets/js/store.js").read_text()
+membershipjs=(root/"assets/js/membership-platform.js").read_text()
+assert "detail('plan',p.plan_code)" in membershipjs
+assert "detail('tool',t.tool_code)" in membershipjs
 detail=(root/"assets/js/store-product-detail-v01484.js").read_text()
 catalog=(root/"data/store-products.json").read_text()
 for id_ in ('memberships','books','a-la-carte'):
