@@ -9,6 +9,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_STRIPE_LIVE_CATALOG_JSON:'{"plan:FULL_MONTHLY":{"product_id":"prod_paid12345","price_id":"price_paid12345"}}',
  GU71_ZERO_LIVE_PRICE_ID:'price_qa123456',GU71_ZERO_LIVE_PRODUCT_ID:'prod_qa123456',
  GU72_QA_ALLOWED_USER_ID:uid,GU72_ZERO_MONTHLY_QA_ENABLED:'true',
+ GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED:'true',
  GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED:'true',PUBLIC_SITE_URL:origin};
 const state={id:uid,plan:'FREE',used:false,price:0,kind:'one_time',sent:0,dbWrites:0,idempotencyKeys:[],
  sessionAmount:0,good:0,restricted:false};
@@ -62,6 +63,19 @@ const req=(method='GET',path='',originHeader=origin)=>{
   ...(method==='POST'?{body:JSON.stringify(data)}:{})});
 };
 try{
+ // Public sales are default-OFF irrespective of older Cloudflare QA flags.
+ let previousRequests=state.sent;
+ let retired=await app.onRequestGet({request:req(),env:{...env,GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED:undefined}});
+ let retiredData=await retired.json();
+ assert.equal(retired.status,200);assert.equal(retiredData.available,false);
+ assert.equal(retiredData.offerClosed,true);
+ let rejected=await app.onRequestPost({request:req('POST'),env:{...env,GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED:undefined}});
+ assert.equal(rejected.status,410);
+ assert.equal((await rejected.json()).error,'QA_OFFER_CLOSED');
+ rejected=await app.onRequestPost({request:req('POST','?action=reset'),env:{...env,GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED:'false'}});
+ assert.equal(rejected.status,410);
+ assert.equal(state.sent,previousRequests,'Retired QA must never create any new Stripe session');
+ // Separately reauthorized QA still exercises the original anti-fraud contract.
  let r=await app.onRequestGet({request:req(),env}),j=await r.json();
  assert.equal(r.status,200);assert.equal(j.available,true);assert.equal(j.amountCents,0);
  state.id='22222222-2222-4222-8222-222222222222';

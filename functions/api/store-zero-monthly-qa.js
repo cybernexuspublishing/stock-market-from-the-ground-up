@@ -1,4 +1,4 @@
-/* v0.14.0.76: repeatable SAME allowlisted FREE member Store QA, replay-safe reset. No paid GU58 products. */
+/* v0.14.0.80: $0 Store QA is RETIRED by default. Explicit new QA reauthorization only. Existing signed webhook and grant history remain intact. */
 const out=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'private, no-store'}});
 const fail=(code,status=503)=>Object.assign(new Error(code),{code,status});
 const trim=x=>String(x??'').trim();
@@ -59,8 +59,18 @@ async function verify(c){
   throw fail('QA_PRICE_NOT_ZERO');
 }
 const enabled=e=>e.GU72_ZERO_MONTHLY_QA_ENABLED==='true'&&e.GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED==='true';
+// Separate, default-OFF website-offer gate. Old GU72 switches left ON cannot
+// accidentally re-open the retired $0 public Checkout REST endpoint.
+// Read-only checks for an EXISTING Stripe Session remain possible.
+const storefrontOff=e=>e.GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED!=='true';
 export async function onRequestGet({request,env}){
  try{
+  // No credentials, Stripe price verification or member eligibility necessary
+  // for a closed-offer status. Previously completed session lookups can still
+  // reconcile if a customer returns from Stripe with their original Session ID.
+  if(storefrontOff(env)&&!new URL(request.url).searchParams.has('session_id'))
+   return out({ok:true,available:false,canReset:false,offerClosed:true,
+     notice:'The temporary $0 LIVE Store test has ended.'});
   const c=config(env),m=await member(request,c);
   if(new URL(request.url).origin!==c.origin)throw fail('INVALID_ORIGIN',403);
   const sid=new URL(request.url).searchParams.get('session_id');
@@ -86,6 +96,9 @@ export async function onRequestGet({request,env}){
 }
 export async function onRequestPost({request,env}){
  try{
+  // Hard stop even when older GU72 Cloudflare flags have not been turned off.
+  // No Stripe checkout session, DB reset or membership mutation is attempted.
+  if(storefrontOff(env))return out({ok:false,available:false,error:'QA_OFFER_CLOSED'},410);
   const c=config(env);
   if(request.headers.get('origin')!==c.origin||new URL(request.url).origin!==c.origin)throw fail('INVALID_ORIGIN',403);
   if(!enabled(env))throw fail('QA_DISABLED',403);

@@ -31,8 +31,12 @@ assert "checkoutAttemptId" in api
 assert "'Idempotency-Key':'gu72-zero-'+m.user.id+'-'+input.checkoutAttemptId" in api
 assert "status=in.(active,trialing)" in api
 assert "canReset" in api
-assert "id=\"store-zero-monthly-reset\"" in store
+# Archived QA reset logic stays for future Owner-authorized regression tests,
+# but its UI is no longer linked from public production Store.
+assert "id=\"store-zero-monthly-reset\"" not in store
+assert "store-zero-live-qa.js" not in store
+assert "GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED" in api
 assert "crypto?.randomUUID" in front
 assert "reset.addEventListener" in front
 assert "reset.hidden=!d.canReset" in front
-print("PASS v76: existing account, explicit controlled reset, session-id-based webhook replay safety, unique checkout attempt, service-only SQL.")
+print("PASS v80: historical repeatable QA remains auditable/replay safe, but the production Store offer is retired.")
