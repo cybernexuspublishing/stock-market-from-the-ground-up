@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.72",
+  "version": "0.14.0.91",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
@@ -21,13 +21,13 @@
     "automatedReleaseCertification": false
   },
   "ownerRoadmap": {
-    "status": "Owner workflow UI enhanced; live authenticated database tests pending",
+    "status": "Product Development and Verification/SQL tabs implemented in source; production role, private Supabase results, and Cloudflare SHA acceptance pending",
     "catalogEntries": 2190,
     "primaryTasks": 375,
     "sourceTraceRows": 1815,
     "privateApi": "/api/owner-roadmap",
     "liveAcceptancePassed": false,
-    "engineeringAssessment": "read-only, 281 primary requirements evaluated (12 delivered-control verified, 153 source implemented, 47 active integration/QA, 25 blocked, 44 backlog); 1,815 archived source lines remain unverified",
+    "engineeringAssessment": "Dated 2026-10-19 source review added; current figures derive from per-record engineering assessments and authenticated Owner-saved progress, not commits. Legacy 0.14.0.45 counts are historical.",
     "ownerCompletionChanged": false,
     "delegatedTechnicalApproval": {
       "version": "0.14.0.46",
@@ -44,7 +44,7 @@
     },
     "originalCore": 281,
     "addedCore": 94,
-    "buildVersion": "0.14.0.63",
+    "buildVersion": "0.14.0.91",
     "workflow": {
       "source": "GitHub and private Cloudflare function",
       "optimisticConcurrency": true,
@@ -57,6 +57,23 @@
       "activeMilestones": true,
       "modeToggleAffected": false,
       "baselineIndependentStripeRelease": "v0.14.0.62"
+    },
+    "productDevelopment": {
+      "sourceBaseline": "v0.14.0.90",
+      "reviewedOn": "2026-10-19",
+      "principalPaidTools": 4,
+      "registeredToolDefinitions": 21,
+      "supportingProductSystems": 13,
+      "preliminaryEstimatesNotCertified": true,
+      "trackedCoreCommitments": 375,
+      "preservedSourceTraceLines": 1815,
+      "expectedTotalSourceRecords": 2190,
+      "supabaseReadOnlyAudit": "supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql",
+      "ownerSavedStatusesAutoChanged": false,
+      "sqlAppliedByThisRelease": false,
+      "customerPaymentsOrEntitlementsChanged": false,
+      "authenticatedAcceptance": "pending",
+      "cloudflareBuildAcceptance": "pending"
     }
   },
   "manualCaptcha": {
