@@ -1,0 +1,45 @@
+name: Verified Replay Integration v0.14.0.93
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'verified-replay.html'
+      - 'tests/test_v014093_replay_catalog_resume.mjs'
+      - 'tests/test_v014092_replay_contract.mjs'
+      - '.github/workflows/verified-replay-resume-v01493.yml'
+  pull_request:
+    paths:
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'verified-replay.html'
+      - 'tests/test_v014093_replay_catalog_resume.mjs'
+      - '.github/workflows/verified-replay-resume-v01493.yml'
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source and regression contracts
+        run: |
+          node --check functions/api/learning-replay-v01492.js
+          node --check assets/js/verified-replay-v01492.js
+          node tests/test_v014092_replay_contract.mjs
+          node tests/test_v014093_replay_catalog_resume.mjs
+      - name: Confirm server boundary, build exclusion and no release promotion
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/verified-replay.html
+          test -f public/assets/js/verified-replay-v01492.js
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/tests
