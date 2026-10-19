@@ -124,7 +124,7 @@ function previewReplay(g){
 }
 async function init(){
  const root=document.querySelector('#store-product-root');if(!root)return;
- document.body.classList.add('store-detail-page');
+ document.body?.classList?.add('store-detail-page');
  const type=root.dataset.productType||new URLSearchParams(location.search).get('type');
  const code=root.dataset.productCode||new URLSearchParams(location.search).get('code');
  if(!['plan','tool','book','preview'].includes(type)||!(/^[A-Z][A-Z0-9_]{1,79}$/.test(code||''))){
