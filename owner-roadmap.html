@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="application-version" content="v0.14.0.72"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="application-version" content="v0.14.0.91"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <title>Owner Website Roadmap | The Stock Market: From the Ground Up</title>
 <link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/owner-roadmap.css">
 <script src="/config.js"></script>
@@ -9,6 +9,7 @@
 <script defer src="/assets/js/supabase-client.js"></script>
 <script defer src="/assets/js/session-manager.js"></script>
 <script defer src="/assets/js/owner-roadmap-product-inventory-v01488.js"></script>
+<script defer src="/assets/js/owner-roadmap-product-readiness-v01491.js"></script>
 <script defer src="/assets/js/owner-roadmap.js"></script>
 </head><body data-auth-required="true" data-route-access="staff" class="owner-roadmap-page">
 <header class="site-header"><div class="wrap nav"><a class="brand" href="/">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Site navigation"><a href="/dashboard.html">Dashboard</a><a href="/admin.html">Admin Control Center</a></nav></div></header>
@@ -24,7 +25,7 @@
 <section class="or-metrics" id="or-metrics" aria-label="Delegated and Owner-authenticated progress totals"></section>
 <section class="or-review-board" id="or-review-board" aria-label="Independent engineering evidence assessment" hidden></section>
 <section class="or-action-board" id="or-action-board" aria-labelledby="or-action-title" hidden><div class="or-action-head"><div><h2 id="or-action-title">Coordinated development action queue</h2><p class="or-muted">A compact, evidence-scoped view of what is being built, what is ready for acceptance, and what is blocked. Select any task to open its checklist record.</p></div><button type="button" id="or-open-current" class="or-button or-secondary">View all current work</button></div><div id="or-action-grid" class="or-action-grid"></div></section>
-<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button><button type="button" id="or-tab-tool-inventory" role="tab" aria-selected="false" data-scope="tool-inventory" aria-controls="or-catalog-tools">Tools &amp; Development</button><button type="button" id="or-tab-membership-coverage" role="tab" aria-selected="false" data-scope="membership-coverage" aria-controls="or-catalog-memberships">Membership Inclusions</button></div>
+<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button><button type="button" id="or-tab-tool-inventory" role="tab" aria-selected="false" data-scope="tool-inventory" aria-controls="or-catalog-tools">Tools &amp; Development</button><button type="button" id="or-tab-membership-coverage" role="tab" aria-selected="false" data-scope="membership-coverage" aria-controls="or-catalog-memberships">Membership Inclusions</button><button type="button" id="or-tab-product-readiness" role="tab" aria-selected="false" data-scope="product-readiness" aria-controls="or-catalog-product-readiness">Product Development</button><button type="button" id="or-tab-verification-audit" role="tab" aria-selected="false" data-scope="verification-audit" aria-controls="or-catalog-audit">Verification &amp; SQL</button></div>
 <section id="or-catalog-tools" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-tool-inventory" hidden>
  <div class="or-catalog-heading"><div><p class="or-eyebrow">Owner development inventory</p><h2>All First-Party Tools &amp; Learning Capabilities</h2>
  <p class="or-muted">Current separately priced tools, the supporting learning features already linked from the website, and their next development checks. Database status is not a verified release test.</p></div>
@@ -38,6 +39,31 @@
  <div id="or-catalog-membership-summary" class="or-product-summary" role="status" aria-live="polite"></div>
  <div id="or-membership-details" class="or-membership-grid"></div>
  <div class="or-table-scroll" role="region" tabindex="0" aria-label="Membership and tool entitlement comparison"><div id="or-membership-matrix"></div></div>
+</section>
+<section class="or-catalog-workspace" id="or-catalog-product-readiness" role="tabpanel" aria-labelledby="or-tab-product-readiness" hidden>
+<div class="or-catalog-heading"><div><p class="or-eyebrow">Source + product delivery</p><h2>Member Product Development &amp; Completion</h2>
+<p class="or-muted">Every known first-party tool is shown once. Percentages are preliminary planning ranges, not automated progress or a commercial release certification. The authenticated catalog is compared to versioned source definitions.</p></div>
+<label>Find product or dependency<input id="or-readiness-search" type="search" placeholder="Tool name, blocker, task ID"></label>
+<label>Development gate<select id="or-readiness-stage"><option value="">Every development status</option>
+<option value="major-build">Core AI build</option><option value="content-blocked">Content/rubrics</option><option value="data-blocked">Historical data</option><option value="integration-pending">End-to-end integration</option><option value="beta">Beta modules</option><option value="planned">Planned</option></select></label></div>
+<div id="or-prod-contract" role="status" aria-live="polite"></div>
+<div id="or-readiness-summary" class="or-product-summary" role="status" aria-live="polite"></div>
+<h3 class="or-section-title">All 21 source-registered first-party tools</h3><div id="or-readiness-tools" class="or-product-grid"></div>
+<h3 class="or-section-title">Supporting learning systems (not additional Stripe SKUs)</h3><div id="or-readiness-support" class="or-product-grid"></div>
+<h3 class="or-section-title">Recommended controlled build sequence</h3><div id="or-readiness-work" class="or-readiness-work-list"></div>
+</section>
+<section class="or-catalog-workspace" id="or-catalog-audit" role="tabpanel" aria-labelledby="or-tab-verification-audit" hidden>
+<div class="or-catalog-heading"><div><p class="or-eyebrow">Release acceptance · no financial side effects</p><h2>Evidence, Counter Reconciliation &amp; Owner SQL</h2>
+<p class="or-muted">Source implementation, evidence-verified outcomes, database installation and Cloudflare deployment are separate checkpoints. Never infer a completed feature from a populated catalog or a passing mock test.</p></div></div>
+<div id="or-audit-counters" class="or-product-summary"></div>
+<div class="or-audit-callout"><h3>What does “Blocked · source requirements tracked” mean?</h3><p><strong>Blocked</strong> is the number of primary checklist commitments awaiting external evidence, legal review, missing data or another blocking dependency. <strong>Source requirements</strong> are preserved historical text references in a separate tab; they are not all blocked tasks or proof of undone work. The current repository baseline contains 375 core commitments and 1,815 source-reference entries. A different count on the live page requires a deployment/version reconciliation, not deletion or artificial approvals.</p></div>
+<h3 class="or-section-title">Membership offers against the existing database</h3>
+<div class="or-table-scroll"><table class="or-membership-table"><thead><tr><th scope="col">Defined offer</th><th scope="col">Controlling coverage</th><th scope="col">Current database evidence</th></tr></thead><tbody id="or-readiness-plans"></tbody></table></div>
+<h3 class="or-section-title">Owner Supabase read-only verification</h3>
+<p>In the <strong>existing Supabase project</strong>, open the SQL Editor and run <code>supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql</code> from the current GitHub repository. It contains SELECT-only checks and makes no grants, content changes, subscription changes or test purchases. Run its numbered queries individually and export their result tables or CSVs. Do not share access keys, emails, addresses, session tokens or personal journal entries.</p>
+<p><a class="or-button or-secondary" target="_blank" rel="noopener noreferrer" href="https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/blob/main/supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql">View read-only SQL in GitHub</a></p>
+<div class="or-audit-callout"><h3>Results to supply for product acceptance</h3><p>Upload the outputs for product records and statuses, Lab/assessment/tutor content counts, dataset counts, and exposed-role permissions. Expected registry definition: 21 tool codes; separately priced released SKUs: four tools plus four paid memberships. The historical catalog target is 419 Lab identifiers and 94 authored Foundations Labs, but do not assume the latter are loaded. Any missing table, unexpectedly high privilege, empty content set or unverified data rights stays pending.</p></div>
+<h3 class="or-section-title">Deployment and status policy</h3><p>Use the normal Cloudflare Pages build path <code>bash scripts/build-pages.sh</code> with output directory <code>public</code>. Compare the served release manifest commit to the GitHub production commit and record the date. Source review should be marked <strong>Implemented · needs verification</strong>; only demonstrated acceptance warrants an <strong>Evidence verified</strong> Owner status. Never change LIVE payment flags to make progress numbers increase.</p>
 </section>
 <section class="or-workspace" id="or-requirements-workspace" aria-label="Requirements tracking">
 <div class="or-toolbar">
