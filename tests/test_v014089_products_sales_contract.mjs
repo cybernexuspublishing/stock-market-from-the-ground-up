@@ -35,6 +35,10 @@ assert.ok(product.includes("'/api/plan-controls'"),'Membership visibility must u
 assert.ok(product.includes("'catalog.view'")&&product.includes("'tools.manage'"),'Permission gating for product tabs');
 assert.ok(!product.includes('sb_secret_'),'No Supabase server credentials in customer/admin JS');
 assert.ok(api.includes("LIVE Stripe prices cannot be edited here."),'Server prevents unapproved Stripe price changes');
+assert.ok(api.includes("if(action==='plan_copy_save')"),'Customer membership name/description must be edit-authorized');
+assert.ok(api.includes('OWNER approval required for customer-facing membership copy'),'Copy updates must not be available to non-Owner');
+assert.ok(api.includes('expected_updated_at'),'Owner copy updates require optimistic database revision');
+assert.ok(product.includes('data-plan-copy'),'Membership edit action must be available inside Products');
 assert.ok(api.includes("A new LIVE tool requires"),'Server prevents instant unauthorized LIVE tool launch');
 assert.ok(api.includes("Checkout destinations must be activated"),'Server forbids malicious checkout URL edits');
 assert.ok(api.includes("Pausing a billed LIVE tool requires"),'No accidental paid-user entitlement shutdown');
