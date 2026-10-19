@@ -5,6 +5,8 @@ on:
     paths:
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
+      - 'functions/api/forum-member-content.js'
+      - 'functions/api/commons-report.js'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -20,6 +22,8 @@ on:
     paths:
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
+      - 'functions/api/forum-member-content.js'
+      - 'functions/api/commons-report.js'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -54,6 +58,7 @@ jobs:
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014092_replay_contract.mjs
+          node tests/v01415_community_api.mjs
       - name: Build output privacy boundary
         run: |
           bash scripts/build-pages.sh
