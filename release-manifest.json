@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.92",
+  "version": "0.14.0.93",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
@@ -74,7 +74,7 @@
       "customerPaymentsOrEntitlementsChanged": false,
       "authenticatedAcceptance": "pending",
       "cloudflareBuildAcceptance": "pending",
-      "phase": "AI and secured educational replay source implementation",
+      "phase": "Integrated Tutor private practice, per-Lab production evidence, source-controlled server replay discovery/resume",
       "authoredLabsClaimedComplete": 0,
       "expectedLabCatalogTarget": 419,
       "qaGate": "419 private content, reviewed rubrics, market data rights, server-owned replay and journal E2E remain pending",
@@ -83,7 +83,11 @@
         "v0.14.0.92_PRIVATE_REPLAY_OWNER_REVIEW_REQUIRED.sql"
       ],
       "noNewProviderCredentials": true,
-      "noStripeOrEntitlementChanges": true
+      "noStripeOrEntitlementChanges": true,
+      "labEvidenceTab": "GET /api/owner-roadmap?action=lab-audit",
+      "independentLabCertification": "not yet verified",
+      "sourceReviewedOn": "2026-10-19",
+      "sourceAndPrivateSupabaseMigrationStatus": "Source committed; existing project installation separately required"
     }
   },
   "manualCaptcha": {
