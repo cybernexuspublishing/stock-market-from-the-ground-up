@@ -16,7 +16,7 @@ globalThis.fetch=async(path,opts={})=>{
  if(u.includes('rpc/user_has_tool_access'))return json(allowed);
  if(u.includes('/market_datasets?'))return json([{dataset_code:'CASE_A',title:'Owner reviewed sample',ticker:'TEST',dataset_type:'ohlcv',status:'published',source_attribution:'Documented rights source',license_note:'Learning permitted',metadata:{licensed_for_member_display:active,evidence_verified:true,corporate_action_policy:'raw valid'}}]);
  if(u.includes('/gu_replay_bars_v01492?')){const n=Number(/bar_index=eq\.(\d+)/.exec(u)?.[1]);return json([bar(n)]);}
- if(u.includes('/gu_replay_sessions_v01492?') && opts.method==='POST'){created=true;return json([{id}]);}
+ if(u.includes('/gu_replay_sessions_v01492') && opts.method==='POST'){created=true;return json([{id}]);}
  if(u.includes('/gu_replay_sessions_v01492?') && opts.method==='PATCH'){
   const body=JSON.parse(opts.body);
   if(body.decision_locked){if(locked)return json([]);locked=true;return json([{id}]);}
@@ -37,7 +37,7 @@ try {
  let response=await onRequest({request:req('start',{datasetCode:'CASE_A'},false),env});
  assert.equal(response.status,401);
  active=false;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});assert.equal(response.status,403);assert.equal(created,false);
- active=true;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});if(response.status!==201)throw Error('START_FAIL '+response.status+' '+JSON.stringify(await response.json())+' ROUTES '+JSON.stringify(called));
+ active=true;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});assert.equal(response.status,201);
  const start=await response.json();assert.equal(start.bar.index,0);assert(!JSON.stringify(start).includes('2024-05-03T13:31'));
  response=await onRequest({request:req('advance',{sessionId:id,expectedIndex:0}),env});assert.equal(response.status,403);
  response=await onRequest({request:req('lock',{sessionId:id,decision:'WATCH',reasoning:'Observed one candle and cannot infer the next outcome.'}),env});assert.equal(response.status,200);
