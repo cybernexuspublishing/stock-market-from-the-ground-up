@@ -32,7 +32,8 @@
   const legacy=item('Legacy learning entitlements (may independently keep access active)','legacyLearning',
    ['Product','Status','Source','Expires','Management'],r=>
    '<tr><td>'+esc(r.product_key)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.source)+'</td><td>'+
-   date(r.ends_at)+'</td><td>Legacy issuer-bound record — original provenance retained</td></tr>',inventory);
+   date(r.ends_at)+'</td><td>'+(active(r)&&r.source==='admin'&&!r.external_customer_id&&!r.external_subscription_id?
+     revoke('manual_learning',r,'Revoke legacy manual access'):'Provider or expired legacy record — preserved')+'</td></tr>',inventory);
   const bookKeys=item('Book Key redemption history','bookKeys',['Book','Start','End','Management'],r=>
    '<tr><td>'+esc(r.book_code||'—')+'</td><td>'+date(r.starts_at)+'</td><td>'+date(r.ends_at)+'</td><td>Issuer-linked; original redemption retained</td></tr>',inventory);
   const orders=item('Order and payment audit history','orders',['Order','Status','Provider','Amount','Management'],r=>
@@ -44,9 +45,10 @@
   const wrap=document.createElement('section');wrap.className='v1353-account-inventory';wrap.id='v1478-account-inventory';
   wrap.innerHTML='<h3>Manage All Account Entitlements &amp; Source Records</h3>'+summary+grants+subs+legacy+books+tools+bookKeys+orders+
   '<form id="v1478-resource-grant" class="v1352-grid"><h4 class="full">Grant manual Book or Tool access</h4>'+
-  '<label>Entitlement<select name="kind"><option value="manual_book">Book Companion</option><option value="manual_tool">Tool Pass</option></select></label>'+
+  '<label>Entitlement<select name="kind"><option value="manual_book">Book Companion</option><option value="manual_tool">Tool Pass</option><option value="manual_learning">Legacy Learning Access</option></select></label>'+
   '<label data-gu78-book>Book<select name="bookCode">'+booksOpts+'</select></label>'+
   '<label data-gu78-tool hidden>Tool<select name="toolCode">'+toolsOpts+'</select></label>'+
+  '<p data-gu78-legacy hidden>Grant legacy full_learning_access only; this can establish BOOK_TRIAL separately from platform memberships.</p>'+
   '<label>Expiration (optional)<input type="datetime-local" name="expiresAt"></label>'+
   '<label class="full">Audit reason (required)<input name="reason" minlength="10" maxlength="500" required></label>'+
   '<div class="full"><button class="btn secondary" type="submit" '+(canGrant?'':'disabled')+'>Grant Selected Manual Access</button></div></form>'+
@@ -71,10 +73,12 @@
   form.elements.kind.addEventListener('change',()=>{
    form.querySelector('[data-gu78-book]').hidden=form.elements.kind.value!=='manual_book';
    form.querySelector('[data-gu78-tool]').hidden=form.elements.kind.value!=='manual_tool';
+   form.querySelector('[data-gu78-legacy]').hidden=form.elements.kind.value!=='manual_learning';
   });
   form.addEventListener('submit',async event=>{
    event.preventDefault();const btn=form.querySelector('button[type=submit]');
-   const kind=form.elements.kind.value,code=kind==='manual_book'?form.elements.bookCode.value:form.elements.toolCode.value;
+   const kind=form.elements.kind.value,code=kind==='manual_learning'?'FULL_LEARNING_ACCESS':
+     kind==='manual_book'?form.elements.bookCode.value:form.elements.toolCode.value;
    const expiresAt=form.elements.expiresAt.value?new Date(form.elements.expiresAt.value).toISOString():null;
    const reason=form.elements.reason.value.trim();
    if(!window.confirm('Grant '+code+' to '+account.username+' as a manual entitlement? This will be audited.'))return;
