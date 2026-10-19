@@ -1,0 +1,55 @@
+name: Storefront v0.14.0.85 — Actual Browser Acceptance (No Charges)
+on:
+  pull_request:
+    paths:
+      - 'tests/test_v014085_production_storefront_playwright.mjs'
+      - 'tests/test_v014085_bundled_guide_contract.mjs'
+      - '.github/workflows/storefront-live-acceptance-v01485.yml'
+      - 'assets/js/store.js'
+      - 'assets/js/store-product-detail-v01484.js'
+      - 'store.html'
+      - 'store-*.html'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_v014085_production_storefront_playwright.mjs'
+      - '.github/workflows/storefront-live-acceptance-v01485.yml'
+      - 'assets/js/store-product-detail-v01484.js'
+      - 'assets/js/store.js'
+      - 'store.html'
+      - 'store-*.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-customer-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Verify no divergence between editorial product guide and packaged production script
+        run: node tests/test_v014085_bundled_guide_contract.mjs
+      - name: Start local branch site for PR quality gate
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/gu85-static-site.log 2>&1 &
+          sleep 2
+      - name: Real browser acceptance — PR against branch, main against Production
+        env:
+          STOREFRONT_BASE: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765' || 'https://stock-market-from-the-ground-up.pages.dev' }}
+        run: |
+          node tests/test_v014085_production_storefront_playwright.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storefront-v014085-browser-acceptance
+          path: storefront-v014085-acceptance.json
+          if-no-files-found: warn
+          retention-days: 30
