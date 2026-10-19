@@ -1,4 +1,4 @@
-/* v0.14.0.72: allowlisted FREE member store QA. No paid GU58 products. */
+/* v0.14.0.76: repeatable SAME allowlisted FREE member Store QA, replay-safe reset. No paid GU58 products. */
 const out=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'private, no-store'}});
 const fail=(code,status=503)=>Object.assign(new Error(code),{code,status});
 const trim=x=>String(x??'').trim();
@@ -32,7 +32,7 @@ async function member(req,c){
  const [a,g,p,flags,age]=await Promise.all([
   query(c.base+'/rest/v1/rpc/my_platform_access_for_user',{method:'POST',
    headers:authHeaders(c),body:JSON.stringify({target_user:u.id})}),
-  query(c.base+'/rest/v1/user_plan_grants?select=ends_at,source_reference&user_id=eq.'+u.id+'&source=eq.stripe_zero_monthly_qa_v72&limit=1',{headers:authHeaders(c)}),
+  query(c.base+'/rest/v1/user_plan_grants?select=ends_at,source_reference,status&user_id=eq.'+u.id+'&source=eq.stripe_zero_monthly_qa_v72&status=in.(active,trialing)&order=created_at.desc&limit=10',{headers:authHeaders(c)}),
   query(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)}),
   query(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)}),
   query(c.base+'/rest/v1/account_private_identity?select=age_eligible,date_of_birth&user_id=eq.'+u.id+'&limit=1',{headers:authHeaders(c)})
@@ -41,7 +41,9 @@ async function member(req,c){
    ['suspended','restricted'].includes(flags[0]?.status)||
    age?.[0]?.age_eligible!==true||!age?.[0]?.date_of_birth)
    throw fail('NOT_ELIGIBLE',403);
- return {user:u,access:a,used:g?.[0]||null};
+ const used=Array.isArray(g)?g.find(row=>['active','trialing'].includes(row.status)&&
+    (!row.ends_at||Date.parse(row.ends_at)>Date.now())):null;
+ return {user:u,access:a,used:used||null};
 }
 async function verify(c){
  const h={authorization:'Bearer '+c.key};
@@ -69,13 +71,15 @@ export async function onRequestGet({request,env}){
    if(session.id!==sid||session.client_reference_id!==m.user.id||
      session.metadata?.gu72_zero_monthly_qa!=='true'||session.metadata?.gu72_member_id!==m.user.id||
      session.metadata?.gu72_price_id!==c.price)throw fail('NOT_MEMBER_SESSION',403);
+   const activated=m.used?.source_reference===sid&&m.access?.planCode==='FULL_MONTHLY';
    return out({ok:true,available:false,checkoutComplete:session.status==='complete',
-    activated:m.used?.source_reference===sid&&m.access?.planCode==='FULL_MONTHLY',
-    planCode:m.access?.planCode,expiresAt:m.used?.ends_at||null,
+    activated:!!activated,canReset:!!activated&&enabled(env),
+    planCode:m.access?.planCode,expiresAt:activated?m.used.ends_at:null,
     awaitingSignedWebhook:session.status==='complete'&&!m.used});
   }
   if(!enabled(env)||m.access?.planCode!=='FREE'||m.used)return out({ok:true,available:false,
-   planCode:m.access?.planCode,used:!!m.used});
+   planCode:m.access?.planCode,used:!!m.used,
+   canReset:enabled(env)&&!!m.used&&m.access?.planCode==='FULL_MONTHLY'});
   await verify(c);
   return out({ok:true,available:true,amountCents:0,oneTime:true,neverRenews:true});
  }catch(e){return out({ok:false,available:false,error:e.code||'QA_UNAVAILABLE'},e.status||503)}
@@ -86,8 +90,22 @@ export async function onRequestPost({request,env}){
   if(request.headers.get('origin')!==c.origin||new URL(request.url).origin!==c.origin)throw fail('INVALID_ORIGIN',403);
   if(!enabled(env))throw fail('QA_DISABLED',403);
   const input=await request.json().catch(()=>null);
-  if(!input||Object.keys(input).length!==1||input.confirm!=='ONE_TIME_ZERO_MONTHLY_QA')
-    throw fail('EXPLICIT_CONFIRMATION_REQUIRED',400);
+  const action=new URL(request.url).searchParams.get('action');
+  if(action==='reset'){
+    if(!input||Object.keys(input).length!==1||input.confirm!=='RESET_MY_ZERO_MONTHLY_QA_ACCESS')
+      throw fail('EXPLICIT_RESET_CONFIRMATION_REQUIRED',400);
+    const m=await member(request,c);
+    if(m.access?.planCode!=='FULL_MONTHLY'||!m.used)throw fail('NO_ACTIVE_QA_GRANT_TO_RESET',409);
+    const reset=await query(c.base+'/rest/v1/rpc/gu76_reset_zero_monthly_qa',{
+      method:'POST',headers:authHeaders(c),body:JSON.stringify({p_user_id:m.user.id})});
+    if(reset?.ok!==true||reset.resetCount<1)throw fail('QA_RESET_NOT_CONFIRMED');
+    return out({ok:true,reset:true,canRetry:true,resetCount:reset.resetCount,
+      notice:'Only the prior $0 QA grant was canceled. Checkout history and paid rights were preserved.'});
+  }
+  if(action)throw fail('INVALID_QA_ACTION',400);
+  if(!input||Object.keys(input).length!==2||
+     input.confirm!=='ONE_TIME_ZERO_MONTHLY_QA'||
+     !uuid(input.checkoutAttemptId))throw fail('EXPLICIT_CONFIRMATION_REQUIRED',400);
   const m=await member(request,c);
   if(m.access?.planCode!=='FREE'||m.used)throw fail('QA_ALREADY_USED',409);
   await verify(c);
@@ -99,10 +117,12 @@ export async function onRequestPost({request,env}){
    'metadata[gu72_price_id]':c.price,
    success_url:c.origin+'/store.html?gu72=complete&session_id={CHECKOUT_SESSION_ID}',
    cancel_url:c.origin+'/store.html?gu72=cancelled'});
-  const day=new Date().toISOString().slice(0,10);
+  // One deliberate click gets its own stable attempt UUID. The previous calendar-day
+  // idempotency key recycled completed Checkout Sessions on a second test.
   const session=await query('https://api.stripe.com/v1/checkout/sessions',{method:'POST',
    headers:{authorization:'Bearer '+c.key,'content-type':'application/x-www-form-urlencoded',
-    'Idempotency-Key':'gu72-zero-'+m.user.id+'-'+day},body:params.toString()});
+    'Idempotency-Key':'gu72-zero-'+m.user.id+'-'+input.checkoutAttemptId},
+   body:params.toString()});
   if(!/^cs_live_[\w]+$/.test(session.id||'')||session.livemode!==true||
     session.amount_total!==0||session.amount_subtotal!==0||session.mode!=='payment'||
     session.payment_intent!=null||session.subscription!=null||

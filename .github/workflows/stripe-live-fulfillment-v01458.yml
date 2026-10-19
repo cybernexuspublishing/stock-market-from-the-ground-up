@@ -16,7 +16,9 @@ on:
       - 'tests/test_v014071_*'
       - 'tests/test_v014072_*'
       - 'tests/test_v014073_*'
+      - 'tests/test_v014076_*'
       - 'supabase/migrations/v0.14.0.72*'
+      - 'supabase/migrations/v0.14.0.76*'
       - 'assets/js/store-zero-live-qa.js'
       - 'functions/api/store-zero-monthly-qa.js'
       - 'assets/js/checkout-platform.js'
@@ -49,6 +51,7 @@ jobs:
           node --check functions/api/store-zero-monthly-qa.js
           node --check assets/js/store-zero-live-qa.js
           python tests/test_v014072_zero_store_contract.py
+          python tests/test_v014076_zero_repeatable_contract.py
           node --check functions/api/checkout.js
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
