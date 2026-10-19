@@ -164,6 +164,26 @@ try{
      return '390px viewport, tools tappable, no whole-page horizontal overflow';
    }finally{await c.close()}
  });
+ await run('Mobile product information is readable without horizontal scrolling',async()=>{
+   for(const path of ['store-book-foundation-1.html','store-membership-ondemand-monthly.html','store-tool-market-tutor.html']){
+     const {page:p,context:c}=await makePage(390,844);
+     try{
+       const response=await p.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:24000});
+       assert.ok(response?.ok(),'Cannot load '+path);
+       await p.waitForFunction(()=>!!document.querySelector('.store-product-body'),{timeout:18000});
+       const metrics=await p.evaluate(()=>{
+         const primary=document.querySelector('.store-product-sections').getBoundingClientRect();
+         const purchase=document.querySelector('.store-product-purchase').getBoundingClientRect();
+         return {width:document.documentElement.scrollWidth,viewport:innerWidth,
+          main:primary.width,mainY:primary.top,sidebarY:purchase.top,sidebarWidth:purchase.width};
+       });
+       assert.ok(metrics.width<=metrics.viewport+3,'Mobile horizontal overflow on '+path+': '+JSON.stringify(metrics));
+       assert.ok(metrics.sidebarY>=metrics.mainY,'Primary product information must lead on mobile: '+path);
+       assert.ok(metrics.sidebarWidth<=metrics.viewport,'Mobile purchase panel too wide: '+path);
+     }finally{await c.close()}
+   }
+   return '390px book/membership/tool: single-column readable layout, no horizontal overflow, product information before price';
+ });
  await run('Noncharging LIVE payment-readiness check',async()=>{
    // Local PR preview has no Cloudflare Functions: use the read-only,
    // already-deployed Production readiness endpoint for this one check.
