@@ -46,7 +46,7 @@ assert "checkout.stripe.com" not in details
 assert "api/stripe-live-checkout" not in details
 assert "checkout.html?type=plan" in details
 assert "checkout.html?type=tool" in details
-assert "p.websiteCheckoutEnabled&&p.lemonVariantId" in details
+assert "p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId" in details
 assert "p.directDigital?.enabled&&!p.kdpSelect" in details
 assert "p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl" in details
 assert "money(t.priceCents)" in details
