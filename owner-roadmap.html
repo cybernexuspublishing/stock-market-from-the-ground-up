@@ -8,6 +8,7 @@
 <script defer src="/assets/js/site.js"></script>
 <script defer src="/assets/js/supabase-client.js"></script>
 <script defer src="/assets/js/session-manager.js"></script>
+<script defer src="/assets/js/owner-roadmap-product-inventory-v01488.js"></script>
 <script defer src="/assets/js/owner-roadmap.js"></script>
 </head><body data-auth-required="true" data-route-access="staff" class="owner-roadmap-page">
 <header class="site-header"><div class="wrap nav"><a class="brand" href="/">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Site navigation"><a href="/dashboard.html">Dashboard</a><a href="/admin.html">Admin Control Center</a></nav></div></header>
@@ -23,8 +24,22 @@
 <section class="or-metrics" id="or-metrics" aria-label="Delegated and Owner-authenticated progress totals"></section>
 <section class="or-review-board" id="or-review-board" aria-label="Independent engineering evidence assessment" hidden></section>
 <section class="or-action-board" id="or-action-board" aria-labelledby="or-action-title" hidden><div class="or-action-head"><div><h2 id="or-action-title">Coordinated development action queue</h2><p class="or-muted">A compact, evidence-scoped view of what is being built, what is ready for acceptance, and what is blocked. Select any task to open its checklist record.</p></div><button type="button" id="or-open-current" class="or-button or-secondary">View all current work</button></div><div id="or-action-grid" class="or-action-grid"></div></section>
-<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button></div>
-<section class="or-workspace" aria-label="Requirements tracking">
+<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button><button type="button" id="or-tab-tool-inventory" role="tab" aria-selected="false" data-scope="tool-inventory" aria-controls="or-catalog-tools">Tools &amp; Development</button><button type="button" id="or-tab-membership-coverage" role="tab" aria-selected="false" data-scope="membership-coverage" aria-controls="or-catalog-memberships">Membership Inclusions</button></div>
+<section id="or-catalog-tools" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-tool-inventory" hidden>
+ <div class="or-catalog-heading"><div><p class="or-eyebrow">Owner development inventory</p><h2>All First-Party Tools &amp; Learning Capabilities</h2>
+ <p class="or-muted">Current separately priced tools, the supporting learning features already linked from the website, and their next development checks. Database status is not a verified release test.</p></div>
+ <label>Find a tool or capability<input type="search" id="or-catalog-tool-search" placeholder="Tool, market skill, dependency or route"></label></div>
+ <div id="or-catalog-tool-summary" class="or-product-summary" role="status" aria-live="polite"></div>
+ <div id="or-tool-catalog" class="or-product-grid"></div>
+</section>
+<section id="or-catalog-memberships" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-membership-coverage" hidden>
+ <div class="or-catalog-heading"><div><p class="or-eyebrow">Owner commercial coverage review</p><h2>Memberships · Included &amp; Excluded</h2>
+ <p class="or-muted">Actual configured memberships, reviewed inclusion and exclusion statements, and tool-by-plan entitlement rules. Displayed configuration does not override the server's account permissions.</p></div></div>
+ <div id="or-catalog-membership-summary" class="or-product-summary" role="status" aria-live="polite"></div>
+ <div id="or-membership-details" class="or-membership-grid"></div>
+ <div class="or-table-scroll" role="region" tabindex="0" aria-label="Membership and tool entitlement comparison"><div id="or-membership-matrix"></div></div>
+</section>
+<section class="or-workspace" id="or-requirements-workspace" aria-label="Requirements tracking">
 <div class="or-toolbar">
 <label>Search commitments<input id="or-search" type="search" placeholder="Title, feature, ID, dependency or documentation"></label>
 <label>Area<select id="or-area"><option value="">All areas</option></select></label>
@@ -38,6 +53,6 @@
 <div id="or-list" class="or-list"></div>
 <div class="or-pagination" id="or-pagination"><button type="button" class="or-button or-secondary" id="or-prev">Previous</button><span id="or-page-text"></span><button type="button" class="or-button or-secondary" id="or-next">Next</button></div>
 </section>
-<section class="or-create" aria-labelledby="or-add-title"><div><h2 id="or-add-title">Add an Owner-approved task</h2><p class="or-muted">New decisions can be added without overwriting the source inventory. Task history remains in the private backend.</p></div><form id="or-new-task"><label>Task title<input name="title" required minlength="4" maxlength="180" placeholder="Define the deliverable and acceptance result"></label><label>Work area<input name="area" maxlength="90" placeholder="e.g., Payments & Stripe"></label><label class="or-wide">Details and acceptance criteria<textarea name="detail" rows="3" maxlength="2400" placeholder="What must be built, verified, and approved?"></textarea></label><button type="submit" class="or-button">Add task</button></form></section>
+<section class="or-create" id="or-owner-create" aria-labelledby="or-add-title"><div><h2 id="or-add-title">Add an Owner-approved task</h2><p class="or-muted">New decisions can be added without overwriting the source inventory. Task history remains in the private backend.</p></div><form id="or-new-task"><label>Task title<input name="title" required minlength="4" maxlength="180" placeholder="Define the deliverable and acceptance result"></label><label>Work area<input name="area" maxlength="90" placeholder="e.g., Payments & Stripe"></label><label class="or-wide">Details and acceptance criteria<textarea name="detail" rows="3" maxlength="2400" placeholder="What must be built, verified, and approved?"></textarea></label><button type="submit" class="or-button">Add task</button></form></section>
 <section class="or-governance" aria-label="Release controls"><h2>Tracking and verification policy</h2><div id="or-private-governance" aria-live="off"></div><p id="or-version"></p></section>
 </div></main><footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><div>Learn It. Understand It. Practice It. Trade It.</div></div><div><strong>Private Owner controls</strong><br>Not indexed. Progress restricted by verified Owner authorization.</div></div></footer></body></html>

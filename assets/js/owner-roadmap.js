@@ -241,8 +241,21 @@ function announce(text,error=false){
 }
 function find(id){return all.find(x=>x.id===id)}
 function selectTab(next){
+ const product=window.OwnerRoadmapProductsV88?.isCatalog(next)===true;
+ if(!product&&!['core','trace','reference'].includes(next))next='core';
  scope=next;page=0;
- document.querySelectorAll('.or-tab-bar button').forEach(b=>{const active=b.dataset.scope===next;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});
+ document.querySelectorAll('.or-tab-bar button').forEach(b=>{
+  const active=b.dataset.scope===next;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1
+ });
+ const reference=!window.OwnerRoadmapProductsV88?.isCatalog(next);
+ const workspace=$('#or-requirements-workspace'),creator=$('#or-owner-create');
+ if(workspace)workspace.hidden=!reference;
+ if(creator)creator.hidden=!reference;
+ for(const name of ['tool-inventory','membership-coverage']){
+  const panel=$('#or-catalog-'+(name==='tool-inventory'?'tools':'memberships'));
+  if(panel)panel.hidden=next!==name;
+ }
+ if(!reference)return;
  $('#or-area').value='';$('#or-status').value='';$('#or-review').value='';$('#or-origin').value='';$('#or-search').value='';
  areas();render();
 }
@@ -265,6 +278,7 @@ async function reload(){
   const data=await api();
   metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
   renderPrivateBrief(data.operationalBrief);
+  window.OwnerRoadmapProductsV88?.render(data);
   await deployedVersion();
   $('#or-version').textContent='Catalog '+(metadata.version||'')+' · Delegated review '+(delegation.version||'unavailable')+' · authenticated Owner edits save privately in Supabase and take precedence over delegated code approvals.';
   $('#or-app').hidden=false;$('#or-access').hidden=true;areas();render();renderReviewBoard();
@@ -338,6 +352,6 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5))}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5));else if(hash==='tool-inventory'||hash==='membership-coverage')selectTab(hash)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
