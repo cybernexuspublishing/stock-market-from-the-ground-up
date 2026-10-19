@@ -45,7 +45,7 @@ function layout(category,head,description,price,priceNote,actions,sections,advic
   </div>
  </header>
  <div class="store-product-body">
-  <div class="store-product-sections" aria-label="Complete product information">${sections}</div>
+  <section class="store-product-sections" aria-label="Product coverage and learning outcomes">${sections}</section>
   <aside class="store-product-purchase" aria-label="Pricing and purchase availability">
    <div class="eyebrow">Before you purchase</div>
    <h2>Price &amp; availability</h2>
