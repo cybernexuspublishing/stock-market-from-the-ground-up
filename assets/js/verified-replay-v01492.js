@@ -100,8 +100,9 @@ async function finish(){
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){
+ let u=null;
  try{sb=await window.getSupabaseClient();if(!sb)throw Error('Authentication client unavailable.');
-  const u=(await sb.auth.getUser()).data?.user;
+  u=(await sb.auth.getUser()).data?.user;
   notice(u?'Enter a published dataset code to start.':'Sign in before using the replay tool.',!u);}
  catch(e){notice(e.message,true)}
  $('vr-start').addEventListener('click',()=>call(start));
