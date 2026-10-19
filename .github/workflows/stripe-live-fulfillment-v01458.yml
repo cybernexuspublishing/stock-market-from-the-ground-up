@@ -17,6 +17,9 @@ on:
       - 'tests/test_v014072_*'
       - 'tests/test_v014073_*'
       - 'tests/test_v014076_*'
+      - 'tests/test_v014077_*'
+      - 'functions/api/admin-accounts-v01353.js'
+      - 'assets/js/admin-operations.js'
       - 'supabase/migrations/v0.14.0.72*'
       - 'supabase/migrations/v0.14.0.76*'
       - 'assets/js/store-zero-live-qa.js'
@@ -70,6 +73,7 @@ jobs:
           node tests/test_v014072_zero_store_checkout.mjs
           node tests/test_v014072_zero_store_signed_webhook.mjs
           node tests/test_v014073_zero_store_setup_view.mjs
+          node tests/test_v014077_owner_qa_membership_reset.mjs
       - name: Preserve confirmed sandbox payment lifecycle and gates
         run: |
           node tests/test_v014056_unified_payment_readiness.mjs
