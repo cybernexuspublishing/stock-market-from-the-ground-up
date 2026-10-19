@@ -39,7 +39,7 @@ const doc={
  },
  querySelector(q){return q==='.v135-replay-plan-cta a'?preview:null}
 };
-const location={hash:'#books',pathname:'/store.html'},history={replaceState(_x,_y,hash){location.hash=hash}};
+const location={hash:'#books',pathname:'/store.html',search:'?ref=training'},history={replaceState(_x,_y,url){assert.match(url,/ref=training/);location.hash='#'+url.split('#').pop()}};
 const window={CommerceTools:ct(data),addEventListener(k,cb){winHandlers[k]=cb}};
 const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent};
 vm.runInNewContext(read('assets/js/store.js'),context);
