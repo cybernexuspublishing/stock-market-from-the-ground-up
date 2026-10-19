@@ -76,3 +76,7 @@ The existing v0.14.0.92 replay and Tutor contract suites remain mandatory. GitHu
 Accepted existing task IDs updated only where source work is now evidenced: `CORE-0207`, `CORE-0210`, `CORE-0211`, and `CORE-0218`. Their engineering review is **source implemented / in progress**, not Owner-verified commercial release. All Supabase-saved Owner decisions retain priority. No existing roadmap IDs, Lab IDs, book manuscript contents or approved membership decisions were deleted or rewritten.
 
 **Next development dependency:** authenticated real installed-schema evidence, licensed per-Lab source data, controlled instructional authorship and a transactionally durable replay-to-Journal link. These will build on the existing modules rather than create a duplicate subsystem.
+
+## Execution correctness correction added after initial review
+
+Existing `functions/_lib/replay-engine-v01492.js` was **repaired in place**: an adverse spread/slippage estimate could previously produce a hypothetical BUY LIMIT fill **above** its limit or SELL LIMIT fill **below** its limit. The engine now caps the modeled price to the customer's stated limit. Favorable price improvement is not incorrectly counted as adverse transaction friction. The check covers BUY/SELL LIMIT, MARKET adverse slippage, STOP gap handling and ambiguous stop-versus-target bars in `tests/test_v014093_execution_price_bounds.mjs`. This improves deterministic model correctness; it does **not** prove actual historical limit-order execution from OHLCV.
