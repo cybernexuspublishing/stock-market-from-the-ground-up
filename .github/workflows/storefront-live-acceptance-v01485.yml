@@ -1,0 +1,38 @@
+name: Storefront v0.14.0.85 — Actual Browser Acceptance (No Charges)
+on:
+  pull_request:
+    paths:
+      - 'tests/test_v014085_production_storefront_playwright.mjs'
+      - '.github/workflows/storefront-live-acceptance-v01485.yml'
+      - 'assets/js/store.js'
+      - 'assets/js/store-product-detail-v01484.js'
+      - 'store.html'
+      - 'store-*.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-customer-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Production Store — real browser, no purchase or customer login
+        env:
+          STOREFRONT_BASE: https://stock-market-from-the-ground-up.pages.dev
+        run: |
+          node tests/test_v014085_production_storefront_playwright.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storefront-v014085-browser-acceptance
+          path: storefront-v014085-acceptance.json
+          if-no-files-found: warn
+          retention-days: 30
