@@ -52,14 +52,15 @@ function bookCard(p){
  if(p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)channels.push(bookBuy('Buy Physical Edition Direct',p.directPhysical.checkoutUrl));
  if(p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)channels.push(bookBuy('Buy Digital Edition Direct',p.directDigital.checkoutUrl));
  if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
+ const purchaseCount=channels.length;
  if(p.sampleUrl)channels.push(bookBuy('Read Sample',p.sampleUrl));
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
- const available=channels.length?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`;
+ const available=purchaseCount?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`+channels.join('');
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(p.branchSlug||p.family||'other')}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
  <div class="product-meta"><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
- ${p.salesStatus==='published'&&channels.length?'<span class="status-pill">Purchase options listed</span>':''}
+ ${p.salesStatus==='published'&&purchaseCount?'<span class="status-pill">Purchase options listed</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
  <p>${esc(p.description||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
  <p class="small">By ${esc(p.author)} · ${esc(p.publisher)}</p>
