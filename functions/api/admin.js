@@ -257,6 +257,24 @@ async function handlePost(env,request,action){
   if(action==='report_resolve'){
     const c=await withContext(env,request,'forum.moderate');const id=Number(body.id);if(!id)return bad('Report id required.');const status=['reviewing','resolved','dismissed'].includes(body.status)?body.status:'resolved';await serviceRest(env,`forum_reports?id=eq.${id}`,{method:'PATCH',prefer:'return=minimal',body:{status,resolved_by:c.user.id,resolution_note:clean(body.resolution_note).slice(0,5000)||null,resolved_at:status==='reviewing'?null:nowIso()}});await audit(env,c.user.id,'forum.report','report',id,{status});return ok();
   }
+  if(action==='plan_copy_save'){
+    const c=await withContext(env,request,'plans.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('OWNER approval required for customer-facing membership copy.',403);
+    const code=safeCode(body.plan_code),name=clean(body.name),description=clean(body.description);
+    if(!code||!name||name.length>160||description.length>2400)
+      return bad('Membership name or description is missing or exceeds editorial limits.',400);
+    const existing=await one(env,'platform_plans?select=plan_code,name,description,updated_at&plan_code=eq.'+encodeURIComponent(code)+'&limit=1');
+    if(!existing)return bad('Membership plan does not exist.',404);
+    if(!existing.updated_at||existing.updated_at!==body.expected_updated_at)
+      return bad('Membership changed since you opened it. Reload Products before saving.',409);
+    const result=await serviceRest(env,'platform_plans?plan_code=eq.'+encodeURIComponent(code)+
+      '&updated_at=eq.'+encodeURIComponent(existing.updated_at),
+      {method:'PATCH',prefer:'return=representation',body:{name,description,updated_at:nowIso()}});
+    if(!Array.isArray(result.data)||result.data.length!==1)
+      return bad('Concurrent membership update detected. Reload the catalog.',409);
+    await audit(env,c.user.id,'platform.plan.copy.update','plan',code,{fields:['name','description'],billingPriceChanged:false,entitlementsChanged:false});
+    return ok({plan_code:code,notice:'Membership name and description saved. Prices, benefits and Stripe mappings were not changed.'});
+  }
   if(action==='plan_save'){
     return bad('Legacy plan editor is disabled for pricing/availability mutations. Use Owner Membership Availability; provider-verified pricing changes need a separate audited flow.',409);
     const c=await withContext(env,request,'plans.manage');const code=safeCode(body.plan_code);if(!code||!body.name)return bad('Plan code and name are required.');
