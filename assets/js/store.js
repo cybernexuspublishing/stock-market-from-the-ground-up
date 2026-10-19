@@ -54,16 +54,16 @@ function bookCard(p){
  if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
  if(p.sampleUrl)channels.push(bookBuy('Read Sample',p.sampleUrl));
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
- const available=channels.length?channels.join(''):`<span class="small">${['in_development','coming_soon'].includes(p.publicationStatus)?'Purchase links will appear when this edition is released.':'Amazon links will appear here as soon as the listing URLs are added.'}</span>`;
+ const available=channels.length?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`;
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(p.branchSlug||p.family||'other')}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
  <div class="product-meta"><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
- ${p.salesStatus==='published'?'<span class="status-pill">Sale-ready catalog · checkout subject to availability</span>':''}
+ ${p.salesStatus==='published'&&channels.length?'<span class="status-pill">Purchase options listed</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
  <p>${esc(p.description||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
  <p class="small">By ${esc(p.author)} · ${esc(p.publisher)}</p>
- <div class="library-actions"><a class="btn" href="${esc(page)}">What this book teaches</a>${available}</div>
+ <div class="library-actions"><a class="btn" href="${esc(page)}">Explore Book &amp; Purchase Options</a>${available}</div>
  ${p.companionAccess?'<div class="library-actions"><a class="btn secondary" href="dashboard.html?tab=settings">Redeem Book Key</a><a class="btn secondary" href="dashboard.html?tab=books">Companion Access</a></div>':''}</article>`;
 }
 function toolCard(t){
