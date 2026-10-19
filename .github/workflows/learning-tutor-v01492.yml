@@ -1,0 +1,49 @@
+name: Member Learning Core v0.14.0.92
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/market-tutor.js'
+      - 'market-tutor.html'
+      - 'functions/api/market-tutor-v01492.js'
+      - 'functions/api/member-tool-access.js'
+      - 'functions/_lib/tutor-topics-v01492.js'
+      - 'functions/_lib/replay-engine-v01492.js'
+      - 'tests/test_v014092_market_tutor_contract.mjs'
+      - '.github/workflows/learning-tutor-v01492.yml'
+  pull_request:
+    paths:
+      - 'assets/js/market-tutor.js'
+      - 'market-tutor.html'
+      - 'functions/api/market-tutor-v01492.js'
+      - 'functions/api/member-tool-access.js'
+      - 'functions/_lib/tutor-topics-v01492.js'
+      - 'functions/_lib/replay-engine-v01492.js'
+      - 'tests/test_v014092_market_tutor_contract.mjs'
+      - '.github/workflows/learning-tutor-v01492.yml'
+permissions:
+  contents: read
+jobs:
+  learning-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tutor safety and learning source checks
+        run: |
+          node --check functions/api/market-tutor-v01492.js
+          node --check functions/api/member-tool-access.js
+          node --check functions/_lib/tutor-topics-v01492.js
+          node --check functions/_lib/replay-engine-v01492.js
+          node --check assets/js/market-tutor.js
+          node tests/test_v014092_market_tutor_contract.mjs
+      - name: Build output privacy boundary
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/market-tutor.js
+          test ! -e public/functions
+          test ! -e public/supabase
