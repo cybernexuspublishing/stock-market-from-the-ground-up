@@ -61,6 +61,7 @@ async function catalog(){
   :'No currently published and rights-cleared datasets. Replay cannot start until appropriate source data is added and verified.';
 }
 async function resume(){
+ $('vr-journal-link').hidden=true;
  const data=await api('resume');
  const r=data.session;
  if(!r){notice(data.notice||'There is no saved replay session.');return}
@@ -73,6 +74,7 @@ async function resume(){
  renderState();
 }
 async function start(){
+ $('vr-journal-link').hidden=true;
  const code=String($('vr-dataset').value||$('vr-code').value).trim().toUpperCase();
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
@@ -96,7 +98,13 @@ async function advance(){
  notice('Bar '+cursor+' revealed. Future data remain server-side.');renderState();
 }
 async function finish(){
- const r=await api('finish');locked=false;notice(r.notice);
+ const r=await api('finish');
+ if(!Number.isSafeInteger(r.journalId)||r.journalId<=0)throw Error('Journal linkage not confirmed.');
+ locked=false;notice(r.notice);
+ const link=$('vr-journal-link');
+ link.href='journal-entry.html?id='+encodeURIComponent(String(r.journalId));
+ link.textContent='Open linked Trading Journal record #'+r.journalId;
+ link.hidden=false;
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){

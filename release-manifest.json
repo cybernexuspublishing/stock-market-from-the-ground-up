@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.93",
+  "version": "0.14.0.94",
   "status": "candidate-not-deployed",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
@@ -74,13 +74,14 @@
       "customerPaymentsOrEntitlementsChanged": false,
       "authenticatedAcceptance": "pending",
       "cloudflareBuildAcceptance": "pending",
-      "phase": "Integrated Tutor private practice, per-Lab production evidence, source-controlled server replay discovery/resume",
+      "phase": "Existing replay-to-Trading-Journal atomic finalization and immutable first-decision snapshot (source candidate; SQL not installed)",
       "authoredLabsClaimedComplete": 0,
       "expectedLabCatalogTarget": 419,
-      "qaGate": "419 private content, reviewed rubrics, market data rights, server-owned replay and journal E2E remain pending",
+      "qaGate": "419 reviewed interactive Labs, legally cleared market data, deployed v0.14.0.92 replay foundation, installed v0.14.0.94 journal transaction, end-to-end production permissions and graded assessment still pending",
       "privateSchemaPending": [
         "v0.14.0.92_TUTOR_QUOTA_OWNER_REVIEW_REQUIRED.sql",
-        "v0.14.0.92_PRIVATE_REPLAY_OWNER_REVIEW_REQUIRED.sql"
+        "v0.14.0.92_PRIVATE_REPLAY_OWNER_REVIEW_REQUIRED.sql",
+        "v0.14.0.94_REPLAY_JOURNAL_ATOMIC_OWNER_REVIEW_REQUIRED.sql"
       ],
       "noNewProviderCredentials": true,
       "noStripeOrEntitlementChanges": true,
