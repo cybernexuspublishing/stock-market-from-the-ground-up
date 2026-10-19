@@ -6,6 +6,11 @@ on:
       - 'tests/test_v014085_bundled_guide_contract.mjs'
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store.js'
+      - 'assets/js/store-upcoming-offerings-v01490.js'
+      - 'assets/js/admin-products-v01489.js'
+      - 'assets/js/admin-platform.js'
+      - 'admin.html'
+      - 'tests/test_v014090_commercial_product_inventory.mjs'
       - 'assets/js/commerce-common.js'
       - 'assets/css/store-sales-v01489.css'
       - 'assets/css/store-catalog-v01484.css'
@@ -22,6 +27,11 @@ on:
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/js/store.js'
+      - 'assets/js/store-upcoming-offerings-v01490.js'
+      - 'assets/js/admin-products-v01489.js'
+      - 'assets/js/admin-platform.js'
+      - 'admin.html'
+      - 'tests/test_v014090_commercial_product_inventory.mjs'
       - 'assets/js/commerce-common.js'
       - 'assets/css/store-sales-v01489.css'
       - 'assets/css/store-catalog-v01484.css'
@@ -46,6 +56,13 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
+      - name: Verify protected commercial Store and unified Products catalog
+        run: |
+          node --check assets/js/store.js
+          node --check assets/js/store-upcoming-offerings-v01490.js
+          node --check assets/js/admin-products-v01489.js
+          node --check assets/js/admin-platform.js
+          node tests/test_v014090_commercial_product_inventory.mjs
       - name: Verify no divergence between editorial product guide and packaged production script
         run: node tests/test_v014085_bundled_guide_contract.mjs
       - name: Reject legacy v132 Store tab injection over accessible v84 Store

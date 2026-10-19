@@ -23,3 +23,9 @@
 .product-admin-copy label{display:grid;gap:5px;color:#e1eef6;font-size:.89rem;margin:10px 0}
 .product-admin-copy input,.product-admin-copy textarea{width:100%;min-width:0;border:1px solid #647f93;background:#061b2a;border-radius:7px;color:#edf9ff;padding:10px;font:inherit}
 .product-admin-copy .btn{margin-top:5px}
+
+.product-upcoming-admin{margin:2rem 0 0;min-width:0}
+.product-upcoming-admin>h3{color:#fff;font-size:1.28rem;margin:0 0 .7rem}
+.product-upcoming-admin>.small{max-width:90ch;line-height:1.65;margin:0 0 1rem}
+.product-upcoming-admin h4{font-size:1.16rem;margin:.3rem 0 1rem;color:#fff}
+.product-upcoming-admin .product-admin-price{font-size:1.4rem}
