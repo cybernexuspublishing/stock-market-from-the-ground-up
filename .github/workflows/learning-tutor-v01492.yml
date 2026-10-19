@@ -17,6 +17,8 @@ on:
       - 'docs/LEARNING_SYSTEM_IMPLEMENTATION_AND_HANDOFF_v0.14.0.92.md'
       - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
+      - 'tests/test_v014095_training_tutor_integration.mjs'
+      - 'functions/api/interactive-training.js'
       - '.github/workflows/learning-tutor-v01492.yml'
   pull_request:
     paths:
@@ -34,6 +36,8 @@ on:
       - 'docs/LEARNING_SYSTEM_IMPLEMENTATION_AND_HANDOFF_v0.14.0.92.md'
       - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
+      - 'tests/test_v014095_training_tutor_integration.mjs'
+      - 'functions/api/interactive-training.js'
       - '.github/workflows/learning-tutor-v01492.yml'
 permissions:
   contents: read
@@ -49,6 +53,7 @@ jobs:
           node-version: '22'
       - name: Tutor safety and learning source checks
         run: |
+          node --check functions/api/interactive-training.js
           node --check functions/api/market-tutor-v01492.js
           node --check functions/api/member-tool-access.js
           node --check functions/_lib/tutor-topics-v01492.js
@@ -57,6 +62,7 @@ jobs:
           node --check functions/api/learning-replay-v01492.js
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_market_tutor_contract.mjs
+          node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014092_replay_contract.mjs
           node tests/v01415_community_api.mjs
       - name: Build output privacy boundary

@@ -23,6 +23,7 @@ async function premiumTeaching(q,status){
    const box=document.getElementById('tutor-answer');
    box.innerHTML='<article class="tutor-match"><div class="tutor-ref">Private, authenticated study review — not a graded assessment</div>'+
     '<h3>Practice priorities from your records</h3><p>'+te(data.answer||'')+'</p>'+
+    (Array.isArray(data.gradedReview)&&data.gradedReview.length?'<h4>Recorded lesson assessments to revisit</h4><ol class="tutor-personal-list">'+data.gradedReview.slice(0,5).map(x=>'<li><strong>'+te(x.labId)+'</strong> · Latest recorded assessment '+Number(x.latestRecordedScore)+'% · <a href="labs.html?q='+encodeURIComponent(x.labId||'')+'">Find this Lab</a></li>').join('')+'</ol><p class="small">Scores are from existing authored training attempts; they do not certify historical market performance or overall mastery.</p>':'')+
     (list.length?'<ol class="tutor-personal-list">'+list.map(x=>'<li><strong>'+te(x.topic)+'</strong> · '+Number(x.mentions||0)+
       ' self-tagged record(s) · <a href="labs.html?q='+encodeURIComponent(x.topic||'')+'">Find related Labs</a></li>').join('')+'</ol>':'')+
     '<p class="small">'+te(data.notice||'')+'</p><div class="tutor-actions"><a class="btn secondary" href="journal.html">Review Journal</a><a class="btn secondary" href="skills.html">Review Skills</a></div></article>';

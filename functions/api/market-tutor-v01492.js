@@ -66,6 +66,32 @@ async function memberPractice(env,userId){
   const data=await response.json();if(!Array.isArray(data))throw error('Invalid personal learning record result.',503);
   return data;
  }));
+ // Reuse the EXISTING reviewed step-wise learning records for targeted study.
+ // This is an optional READ: missing or not-yet-installed learning tables must
+ // not disable the already-working private Journal/self-tagged Tutor pathways.
+ // Never retrieve questions, answers, rubric keys or Journal bodies.
+ let gradedAttempts=[],gradedHistoryAvailable=false;
+ try{
+  const r=await fetch(base+'/rest/v1/lab_training_attempts_v014?select=lab_id,score,completed_at&user_id=eq.'+
+   id+'&completed_at=not.is.null&score=not.is.null&order=completed_at.desc&limit=60',
+   {method:'GET',headers,cache:'no-store'});
+  if(r.ok){
+   const data=await r.json();
+   if(Array.isArray(data)&&data.length<=60){gradedAttempts=data;gradedHistoryAvailable=true;}
+  }
+ }catch{/* Feature is unavailable until the EXISTING learning table is installed. */}
+ const latest=new Set(),gradedReview=[];
+ for(const a of gradedAttempts){
+  const labId=typeof a?.lab_id==='string'?a.lab_id:'';
+  const score=Number(a?.score);
+  if(!/^[A-Za-z0-9_-]{3,90}$/.test(labId)||latest.has(labId)||
+     !Number.isInteger(score)||score<0||score>100)continue;
+  latest.add(labId);
+  // Recorded score is evidence of an authored exercise, not real market skill.
+  if(score<75)gradedReview.push({labId,latestRecordedScore:score,
+   practiceUrl:'/labs.html?q='+encodeURIComponent(labId)});
+ }
+ gradedReview.sort((a,b)=>a.latestRecordedScore-b.latestRecordedScore||a.labId.localeCompare(b.labId));
  const totals=new Map(),skills=new Map();
  let examined=0;
  for(const [group,items] of records.entries())for(const item of items){
@@ -84,7 +110,7 @@ async function memberPractice(env,userId){
   .map(([topic,mentions])=>({topic,mentions,practiceUrl:'/labs.html?q='+encodeURIComponent(topic)}));
  const skillSignals=[...skills.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5)
   .map(([code,attempts])=>({code,attempts}));
- return {examined,recommendations,skillSignals};
+ return {examined,recommendations,skillSignals,gradedHistoryAvailable,gradedReview:gradedReview.slice(0,5),recordedAssessmentCount:latest.size};
 }
 function extractText(response){
  const a=response?.output;
@@ -130,12 +156,16 @@ export async function onRequest({request,env}){
   if(mode==='practice'){
    const result=await memberPractice(env,auth.userId);
    return reply({ok:true,generation:'authenticated-practice-history',mode:'practice',
-    answer:result.recommendations.length
+    answer:result.gradedReview.length
+     ?'Your recorded step-wise assessment scores identify specific lessons worth revisiting. A recorded test score does not establish historical trading proficiency.'
+     :result.recommendations.length
      ?'These repeated self-tagged review observations may guide your next practice. They are not independently graded weaknesses.'
      :'No self-tagged practice patterns are available yet. Complete reviewed lessons and record specific observations in the Journal.',
     recommendations:result.recommendations,skillSignals:result.skillSignals,recordsReviewed:result.examined,
+    gradedReview:result.gradedReview,gradedHistoryAvailable:result.gradedHistoryAvailable,
+    recordedAssessmentCount:result.recordedAssessmentCount,
     sources:[],graded:false,masteryAwarded:false,
-    notice:'Only this signed-in member\'s self-recorded mistake tags were counted. Raw journal entries, trading outcomes and answer keys were not sent to an AI model.',
+    notice:'Only this signed-in member\'s self-recorded mistake tags and recorded lesson scores were summarized. No raw Journal text, answers, private rubric keys, trade outcomes or member records were sent to an AI model. Scores are not mastery certification.',
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   const source=rank(q),sources=publicMatches(source);

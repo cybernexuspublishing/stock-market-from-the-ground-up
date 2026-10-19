@@ -8,8 +8,10 @@ const H={'content-type':'application/json; charset=utf-8','cache-control':'priva
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const esc=encodeURIComponent;
-function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY;if(!base||!secret)throw fail('Training system configuration unavailable.',503);return {base,secret}}
-async function db(env,path,method='GET',body){const c=cfg(env),r=await fetch(c.base+'/rest/v1/'+path,{method,headers:{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json',...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'}),t=await r.text();if(!r.ok)throw fail('Training database contract unavailable; verify the new migration.',503);try{return t?JSON.parse(t):[]}catch{throw fail('Invalid training database response.',503)}}
+function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=String(env.SUPABASE_SECRET_KEY||'');if(!/^https:\/\/[^/]+$/.test(base)||!secret)throw fail('Training system configuration unavailable.',503);return {base,secret}}
+// Opaque sb_secret_* Supabase keys MUST NOT be sent as Bearer JWTs.
+const serviceHeaders=secret=>{const headers={apikey:secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))headers.authorization='Bearer '+secret;return headers};
+async function db(env,path,method='GET',body){const c=cfg(env),r=await fetch(c.base+'/rest/v1/'+path,{method,headers:{...serviceHeaders(c.secret),...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'}),t=await r.text();if(!r.ok)throw fail('Training database contract unavailable; verify installed objects and server permissions.',503);try{return t?JSON.parse(t):[]}catch{throw fail('Invalid training database response.',503)}}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Reviewed book-derived exercises require BOTH a premium training entitlement
 // and the matching book entitlement. The private Lab metadata is not public.
