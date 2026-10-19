@@ -27,8 +27,13 @@ assert "checkHmac(raw" in hook
 assert "GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED" in hook
 assert "gu72_signed_zero_monthly_grant" in hook
 assert "['no_payment_required','paid'].includes(s.payment_status)" in hook
-assert "store-zero-monthly-qa" in store
-assert "store-zero-live-qa.js" in store
+# v80: the original QA source + webhook remain for audited historical fulfillment,
+# but the production Store must not display or import a new $0 checkout entry.
+assert 'id="store-zero-monthly-qa"' not in store
+assert "store-zero-live-qa.js" not in store
+assert "GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED" in api
+assert "QA_OFFER_CLOSED" in api
+assert "storefrontOff(env)" in api
 assert "access.html" in front
 assert "ONE_TIME_ZERO_MONTHLY_QA" in front
-print("PASS v72: allowlisted store purchase, zero-only Stripe path, expiring service-only signed grant, existing DB and no auto LIVE paid checkout.")
+print("PASS v80: retired $0 Store offer cannot be displayed/restarted, historical signed grants + member recovery preserved.")
