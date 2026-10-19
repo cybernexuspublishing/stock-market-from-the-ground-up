@@ -1,0 +1,13 @@
+/* v0.14.0.89 — Sales-first Store cards and consolidated Products editor. */
+.store-sell-card{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.store-sell-card h3{line-height:1.35;margin:.5rem 0}
+.store-sell-card h3 a{color:#f4faff}
+.store-sell-card .store-sell-price{font-size:clamp(1.32rem,1.8vw,1.78rem);line-height:1.18;font-weight:900;color:#fff;margin:1rem 0 .3rem}
+.store-sell-card .store-sell-status{font-weight:750;color:#ffd783;margin:.3rem 0 1rem}
+.store-sales-actions{display:grid;gap:.65rem;margin-top:auto;padding-top:1rem}
+.store-sales-actions .btn{font-weight:800;text-align:center;white-space:normal;min-height:47px;display:flex;justify-content:center;align-items:center}
+.store-soon-label{display:block;padding:.65rem .8rem;background:#293d4a;color:#f9db9d;border:1px solid #997d43;border-radius:8px;font-weight:750;font-size:.9rem;line-height:1.4}
+.v11-plan>.store-sales-actions{display:grid;gap:.6rem;align-self:stretch;margin-top:auto}
+.store-future-card{border-style:dashed}
+.store-sell-card>p{overflow-wrap:anywhere}
+@media(max-width:620px){.store-sales-actions .btn{width:100%}}
