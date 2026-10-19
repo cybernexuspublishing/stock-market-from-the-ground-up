@@ -86,6 +86,7 @@ try{
  assert.ok(ui.includes('Subscriptions and billing status')&&ui.includes('Membership grants'));
  for(const source of ['admin','owner_manual'])assert.ok(sourceSQL.includes(source));
  assert.ok(src.includes('stripe_zero_monthly_qa_v72'),'Existing QA grants must be separately identified, not treated as manual rights');
+ assert.ok(src.includes("['book_key_redemptions','id']")&&src.includes("['user_plan_grants','id']"),'Deletion must not orphan real Stripe QA or Book Key access history');
  assert.ok(sourceSQL.includes('auth.role() IS DISTINCT FROM \'service_role\''));
  assert.ok(sourceSQL.includes('p_actor')&&sourceSQL.includes('p_target'));
  assert.ok(sourceSQL.includes('GU78_NOT_OWNED_ACTIVE_MANUAL_RESOURCE'));
