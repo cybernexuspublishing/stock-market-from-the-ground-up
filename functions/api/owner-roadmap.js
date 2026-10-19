@@ -190,6 +190,34 @@ async function handlePost(request,c,user){
   const body=await request.json().catch(()=>null);
   if(!body||JSON.stringify(body).length>12000)throw fail('Invalid change request.',400);
   const action=clean(body.action||'save');
+  /* Editorial-only Owner writes, same authenticated endpoint + audit trail.
+   * Never allow prices, Stripe bindings, entitlement rules, checkout enablement,
+   * KDP fields, ISBN, publication status or distribution channels here. Those
+   * require provider/rights-specific transactional controls. */
+  if(action==='product_copy'){
+    const type=clean(body.productType),code=clean(body.code),name=clean(body.name),description=clean(body.description);
+    const table={membership:'platform_plans',tool:'platform_tools',book:'catalog_products'}[type];
+    const field=type==='membership'||type==='tool'?'name':'title';
+    if(!table||! /^[A-Z][A-Z0-9_]{1,79}$/.test(code))throw fail('Invalid product selection.',400);
+    if(name.length<3||name.length>180||description.length>4000)throw fail('Product title or description is outside the allowed length.',400);
+    const before=await db(c,table+'?select='+field+',description,updated_at&'+({membership:'plan_code',tool:'tool_code',book:'product_code'}[type])+'=eq.'+encodeURIComponent(code)+'&limit=1');
+    if(!Array.isArray(before)||before.length!==1)throw fail('Product does not exist.',404);
+    const original=before[0];
+    const updatedAt=clean(body.expectedUpdatedAt);
+    if(!updatedAt||updatedAt!==original.updated_at)throw fail('Product changed since it was opened. Refresh before saving.',409);
+    const query=table+'?'+({membership:'plan_code',tool:'tool_code',book:'product_code'}[type])+'=eq.'+encodeURIComponent(code)+'&updated_at=eq.'+encodeURIComponent(updatedAt);
+    let changed;
+    try{
+      changed=await fetch(c.base+'/rest/v1/'+query,{method:'PATCH',cache:'no-store',
+        headers:{...serviceHeaders(c,true),prefer:'return=representation'},
+        body:JSON.stringify({[field]:name,description,updated_at:new Date().toISOString()})});
+    }catch{throw fail('Product editor service unavailable.',503)}
+    if(!changed.ok)throw fail('Product update failed. No new price or entitlement changes were made.',503);
+    const saved=await changed.json().catch(()=>null);
+    if(!Array.isArray(saved)||saved.length!==1)throw fail('Product was changed concurrently; refresh before saving.',409);
+    const auditLogged=await audit(c,user,'owner_products.copy_update',type+':'+code,'editorial_only');
+    return reply({ok:true,product:saved[0],auditLogged});
+  }
   if(action==='add'){
     const title=clean(body.title),detail=clean(body.detail),area=clean(body.area)||'Owner-added tasks';
     if(title.length<4||title.length>180||detail.length>2400||area.length>90)throw fail('Invalid custom task details.',400);
@@ -232,13 +260,14 @@ async function handlePost(request,c,user){
  */
 async function ownerProductInventory(c){
  try{
-  const [plans,tools,access]=await Promise.all([
+  const [plans,tools,access,books]=await Promise.all([
    db(c,'platform_plans?select=plan_code,name,description,price_cents,billing_interval,active,public_visible,checkout_enabled,includes_all_tools,includes_all_books,ad_free,sort_order&order=sort_order.asc&limit=100'),
    db(c,'platform_tools?select=tool_code,name,description,category,status,active,public_visible,individual_price_cents,free_preview,href,sort_order,data_requirement,included_full,included_lifetime&order=sort_order.asc&limit=100'),
-   db(c,'plan_tool_access?select=plan_code,tool_code&limit=500')
+   db(c,'plan_tool_access?select=plan_code,tool_code&limit=500'),
+   db(c,'catalog_products?select=product_code,product_type,title,short_title,description,author,publisher,publication_status,sales_status,active,store_visible,sort_order,kdp_select,amazon_kindle_url,amazon_paperback_url,amazon_hardcover_url,direct_digital_enabled,direct_physical_enabled,website_checkout_enabled,companion_access,updated_at&order=sort_order.asc&limit=150')
   ]);
-  if(!Array.isArray(plans)||!Array.isArray(tools)||!Array.isArray(access)
-    ||plans.length===100||tools.length===100||access.length===500){
+  if(!Array.isArray(plans)||!Array.isArray(tools)||!Array.isArray(access)||!Array.isArray(books)
+    ||plans.length===100||tools.length===100||access.length===500||books.length===150){
    throw Error('Catalog response cannot be verified.');
   }
   const allowedPlans=new Set(plans.map(p=>p.plan_code));
@@ -246,11 +275,11 @@ async function ownerProductInventory(c){
   return {available:true,source:'Authenticated Owner-only Supabase catalog + separately reviewed editorial coverage',
     reviewedGuideVersion:reviewedProductGuidesV01488.version,
     capturedAt:new Date().toISOString(),
-    plans,tools,explicitAccess:access.filter(a=>allowedPlans.has(a.plan_code)&&allowedTools.has(a.tool_code)),
+    plans,tools,books:books.filter(b=>b.product_type==='book'),explicitAccess:access.filter(a=>allowedPlans.has(a.plan_code)&&allowedTools.has(a.tool_code)),
     guides:reviewedProductGuidesV01488,capabilities:supportingCapabilitiesV01488,
     note:'Catalog status and price are configuration, not proof of payment processing or working tool features. Existing user entitlements still require server validation.'};
  }catch{
-  return {available:false,plans:[],tools:[],explicitAccess:[],guides:null,
+  return {available:false,plans:[],tools:[],books:[],explicitAccess:[],guides:null,
     capabilities:supportingCapabilitiesV01488,
     error:'The live membership and tool catalog could not be verified. No price, plan membership or product availability can be certified from this snapshot.'};
  }
