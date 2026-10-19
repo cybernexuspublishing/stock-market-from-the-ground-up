@@ -25,7 +25,7 @@ function planCard(p){
  <div class="v11-price">${dollars(p.priceCents)} <small>${esc(suffix(p.billingInterval))}</small></div>
  <p>${esc(p.description||'Review this plan’s full coverage and billing terms before purchase.')}</p>
  <ul><li>${esc(adLabel(p.planCode))}</li><li>${p.allTools?'Released first-party platform tools':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned independent historical practice':'Free/sample or dedicated learning access'}</li>
- <li>${p.allBooks?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
+ <li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
  <a class="btn ${rec?'':'secondary'}" href="${esc(page)}" aria-label="Review ${esc(p.label)} details, exclusions and purchase options">View membership details</a></article>`;
 }
 function bookBuy(label,url){const target=safe(url);return target?`<a class="btn secondary" href="${esc(target)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:''}
@@ -65,7 +65,7 @@ function comparison(plans,tools){
  const features=[
  ['Billing',p=>p.planCode==='FREE'?'Free':p.billingInterval==='lifetime'?'One-time':p.billingInterval==='year'?'Renews annually':p.billingInterval==='month'?'Renews monthly':'See plan'],
  ['Released first-party premium tools',p=>p.allTools?'Included':p.planCode==='FREE'?'Free previews only':'Not included as a Full Platform membership'],
- ['Book companion learning',p=>p.allBooks?'Included':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned training only':'Selected samples; otherwise separate'],
+ ['Book companion learning',p=>['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'Included':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned training only':'Selected samples; otherwise separate'],
  ['Complete downloadable eBook files',p=>p.planCode==='LIFETIME'?'Five designated editions when permitted':'Not included'],
  ['Advertising',p=>adLabel(p.planCode)],
  ['Brokerage account & external market-data fees',()=> 'Not included']
