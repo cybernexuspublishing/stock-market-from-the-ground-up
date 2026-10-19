@@ -25,7 +25,7 @@ function summary(){
  const node=$('or-prod-contract');
  if(node)node.innerHTML=warnings.length
    ?'<div class="or-catalog-warning"><strong>Registry version mismatch:</strong> '+esc(warnings.join(' · '))+'. Refresh and verify the Cloudflare deployment version. Do not alter saved Owner statuses to force these counts.</div>'
-   :'<div class="or-product-summary">Registry integrity: '+(counts?esc(String(counts.core)+' core tasks + '+String(counts.trace)+' source trace lines = '+String(counts.total)+' preserved records'):'waiting for existing requirement register')+'. Historical rows are separate from status categories. No Owner records were auto-approved.</div>';
+   :'<div class="or-product-summary">Registry integrity: '+(counts?esc(String(counts.core)+' core tasks + '+String(counts.trace)+' source trace lines = '+String(counts.total)+' preserved records'):'waiting for existing requirement register')+'. Historical rows are separate from status categories. Owner-added tasks are counted separately in the main checklist. No Owner records were auto-approved.</div>';
 }
 function card(t,market){
  const db=market?.get(t.code);
@@ -85,9 +85,9 @@ function render(data){
  review=data?.productReadiness||null;
  catalog=data?.productInventory||null;
  engineering=data?.engineeringReview||null;
- counts={core:(data.items||[]).filter(x=>x.scope==='core').length+(data.custom||[]).length,
+ counts={core:(data.items||[]).filter(x=>x.scope==='core').length,
   trace:(data.items||[]).filter(x=>x.scope==='trace').length,
-  total:(data.items||[]).length+(data.custom||[]).length};
+  total:(data.items||[]).length};
  if(!review)return;
  renderProducts();renderAudit();
 }
