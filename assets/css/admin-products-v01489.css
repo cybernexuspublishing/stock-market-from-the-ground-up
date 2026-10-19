@@ -17,3 +17,9 @@
 #admin-products-message.admin-products-error{color:#ffd6c9}
 #admin-tabs [data-v11-panel="platform"],#admin-tabs [data-v11-panel="platform"] *{display:none!important}
 @media(max-width:650px){.product-admin-tabs button{flex:1;min-width:110px;padding:10px}.product-admin-actions>*{width:100%}}
+
+.product-admin-copy{border:1px solid #527086;border-radius:10px;background:#0c293d;padding:14px;margin:12px 0}
+.product-admin-copy summary{font-weight:750;cursor:pointer;color:#ffe09a;margin-bottom:10px}
+.product-admin-copy label{display:grid;gap:5px;color:#e1eef6;font-size:.89rem;margin:10px 0}
+.product-admin-copy input,.product-admin-copy textarea{width:100%;min-width:0;border:1px solid #647f93;background:#061b2a;border-radius:7px;color:#edf9ff;padding:10px;font:inherit}
+.product-admin-copy .btn{margin-top:5px}
