@@ -181,3 +181,29 @@
 #or-tool-catalog>h3{font-size:1.3rem;color:#fff;margin:20px 0 10px}
 .owner-roadmap-page .or-product-card :focus-visible,.owner-roadmap-page .or-membership-table a:focus-visible{outline:3px solid #f8d17b;outline-offset:3px}
 @media(max-width:760px){.or-plan-columns{grid-template-columns:1fr}.or-product-grid,.or-membership-grid{grid-template-columns:1fr}.or-catalog-workspace{padding:15px}.or-product-facts{grid-template-columns:minmax(90px,.9fr) minmax(0,1.2fr)}}
+
+/* v0.14.0.91 — source-scoped product delivery, status counters and QA. */
+.or-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.or-metric-explainer{grid-column:1/-1;color:#d4e6ee;background:#102a3b;border:1px solid #345769;border-radius:10px;padding:13px 17px;line-height:1.55;margin:0;font-size:.9rem}
+.or-metric-explainer strong{color:#fff}
+.or-section-title{font-size:1.18rem;color:#fff;margin:25px 0 15px;line-height:1.35}
+.or-readiness-percent{color:#f1d695!important;font-size:1.55rem!important;font-weight:750;line-height:1.3!important}
+.or-readiness-percent small{display:inline-block;color:#b8d2df;font-size:.72rem;font-weight:500}
+.or-readiness-meter{height:9px;background:#254355;border-radius:100px;overflow:hidden;max-width:100%;margin:-8px 0 15px}
+.or-readiness-meter span{display:block;background:#b6a779;height:100%;border-radius:100px}
+.or-readiness-card[data-product-stage=major-build] .or-readiness-meter span,
+.or-readiness-card[data-product-stage=content-blocked] .or-readiness-meter span,
+.or-readiness-card[data-product-stage=data-blocked] .or-readiness-meter span{background:#c18e75}
+.or-readiness-work-list{display:grid;gap:10px;margin:10px 0 22px}
+.or-readiness-work{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:15px;background:#102f44;border:1px solid #35566c;border-radius:10px;padding:15px}
+.or-readiness-work p{margin:5px 0 0;color:#c1d8e6;line-height:1.5}
+.or-readiness-work strong{color:#fff}
+.or-audit-callout{margin:18px 0;padding:15px 20px;background:#102e42;border-left:4px solid #c4a46b;border-radius:8px;color:#dcebf3;line-height:1.65}
+.or-audit-callout h3{color:#fff;margin:0 0 10px}
+.or-catalog-workspace code{color:#ffe1a0;overflow-wrap:anywhere}
+#or-catalog-audit .or-membership-table{min-width:750px}
+#or-catalog-product-readiness select{padding:10px 12px;background:#071b29;color:#f1f8fc;border:1px solid #58778c;border-radius:9px;min-height:44px}
+#or-catalog-product-readiness button:focus-visible,
+#or-catalog-audit button:focus-visible{outline:3px solid #f8d17b;outline-offset:3px}
+@media(max-width:860px){.or-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.or-readiness-work{grid-template-columns:auto minmax(0,1fr)}.or-readiness-work button{grid-column:2;justify-self:start}}
+@media(max-width:540px){.or-metrics{grid-template-columns:1fr}.or-readiness-work{grid-template-columns:1fr}.or-readiness-work button{grid-column:1}.or-metric-explainer{grid-column:1}.or-catalog-heading label{width:100%;max-width:none}}
