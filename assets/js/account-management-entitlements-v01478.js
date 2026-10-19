@@ -29,6 +29,10 @@
    (active(r)&&!r.provider&&!r.provider_subscription_id&&
      (r.metadata?.admin_manual===true||['admin','owner_manual'].includes(r.metadata?.source))?
     revoke('manual_tool',r,'Revoke manual tool'):'Provider/unknown origin — protected')+'</td></tr>',inventory);
+  const legacy=item('Legacy learning entitlements (may independently keep access active)','legacyLearning',
+   ['Product','Status','Source','Expires','Management'],r=>
+   '<tr><td>'+esc(r.product_key)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.source)+'</td><td>'+
+   date(r.ends_at)+'</td><td>Legacy issuer-bound record — original provenance retained</td></tr>',inventory);
   const bookKeys=item('Book Key redemption history','bookKeys',['Book','Start','End','Management'],r=>
    '<tr><td>'+esc(r.book_code||'—')+'</td><td>'+date(r.starts_at)+'</td><td>'+date(r.ends_at)+'</td><td>Issuer-linked; original redemption retained</td></tr>',inventory);
   const orders=item('Order and payment audit history','orders',['Order','Status','Provider','Amount','Management'],r=>
@@ -38,7 +42,7 @@
     toolsOpts=(cat.tools||[]).map(x=>'<option value="'+esc(x.tool_code)+'">'+esc(x.name||x.tool_code)+'</option>').join('');
   const canGrant=account.type==='member'&&Array.isArray(cat.books)&&Array.isArray(cat.tools);
   const wrap=document.createElement('section');wrap.className='v1353-account-inventory';wrap.id='v1478-account-inventory';
-  wrap.innerHTML='<h3>Manage All Account Entitlements &amp; Source Records</h3>'+summary+grants+subs+books+tools+bookKeys+orders+
+  wrap.innerHTML='<h3>Manage All Account Entitlements &amp; Source Records</h3>'+summary+grants+subs+legacy+books+tools+bookKeys+orders+
   '<form id="v1478-resource-grant" class="v1352-grid"><h4 class="full">Grant manual Book or Tool access</h4>'+
   '<label>Entitlement<select name="kind"><option value="manual_book">Book Companion</option><option value="manual_tool">Tool Pass</option></select></label>'+
   '<label data-gu78-book>Book<select name="bookCode">'+booksOpts+'</select></label>'+
