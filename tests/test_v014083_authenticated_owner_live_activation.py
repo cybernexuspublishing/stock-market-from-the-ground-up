@@ -21,9 +21,7 @@ for needle in ("CREATE OR REPLACE FUNCTION public.gu83_owner_activate_eight_live
  "GRANT EXECUTE ON FUNCTION public.gu83_owner_activate_eight_live_checkout(text)",
  "TO authenticated;",
  "INSERT INTO public.admin_audit_log",
- "commerce.checkout_enabled",
- "not")):
- if needle == "not":continue
+ "commerce.checkout_enabled"):
  assert needle in sql,needle
 for sku in ("FULL_MONTHLY","FULL_ANNUAL","LIFETIME","ONDEMAND_MONTHLY",
             "INTERACTIVE_LEARNING","JOURNAL_ANALYTICS","MARKET_SIMULATOR","MARKET_TUTOR"):
