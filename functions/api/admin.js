@@ -296,7 +296,22 @@ async function handlePost(env,request,action){
       sort_order:Number.isSafeInteger(Number(body.sort_order))?Number(body.sort_order):100,
       data_requirement:clean(body.data_requirement).slice(0,1200)||null,
       metadata:current?.metadata||{},updated_at:nowIso()};
-    await serviceRest(env,'platform_tools?on_conflict=tool_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});
+    // Optimistic row-revision control: a late editor must never overwrite
+    // a tool's changed Stripe price, release status or access configuration.
+    let changed;
+    if(current){
+      if(!current.updated_at)return bad('Tool revision unavailable. Refresh before editing.',409);
+      const result=await serviceRest(env,'platform_tools?tool_code=eq.'+encodeURIComponent(code)+
+        '&updated_at=eq.'+encodeURIComponent(current.updated_at),
+        {method:'PATCH',prefer:'return=representation',body:row});
+      changed=result.data;
+    }else{
+      const result=await serviceRest(env,'platform_tools?on_conflict=tool_code',
+        {method:'POST',prefer:'resolution=ignore-duplicates,return=representation',body:row});
+      changed=result.data;
+    }
+    if(!Array.isArray(changed)||changed.length!==1)
+      return bad('This tool changed in another session. Reload the Products list before saving.',409);
     await audit(env,c.user.id,'platform.tool.save','tool',code,{before:current?{status:current.status,individual_price_cents:current.individual_price_cents}:null,after:{status:row.status,individual_price_cents:row.individual_price_cents},salesChanged:false});
     return ok({tool_code:code,notice:'Product information saved; Stripe Price and entitlement rollout unchanged.'});
   }
