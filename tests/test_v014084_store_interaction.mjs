@@ -1,0 +1,94 @@
+/* v84 browserless UI integration smoke test; NO real Stripe or database calls. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+const safeHref=s=>{const str=String(s||'');return /^(https:\/\/|(?:\.\/)?[\w-]+\.html(?:[?#].*)?|\/[\w\/.\-]+(?:[?#].*)?)$/.test(str)?str:''};
+const ct=(data)=>({load:async()=>data,esc,safeHref,moneyCents:n=>Number(n).toLocaleString('en-US',{style:'currency',currency:'USD'})});
+const makeNode=(name)=>({name,innerHTML:'',hidden:false,dataset:{},tabIndex:0,
+   classes:new Set(),attributes:{},events:{},
+   classList:{toggle(){},contains(){return false}},setAttribute(k,v){this.attributes[k]=v},addEventListener(k,cb){this.events[k]=cb},focus(){this.focused=true}});
+const book=id=>({type:'book',productCode:id,shortTitle:id,title:'Educational '+id,storeVisible:true,salesStatus:'published',
+  branchSlug:'foundations',author:'J. S. Grant',publisher:'Crown & Lantern Press',
+  publicationStatus:'publication_candidate',amazon:{kindleUrl:'',paperbackUrl:'',hardcoverUrl:''},
+  directDigital:{enabled:false},directPhysical:{enabled:false},coverImageUrl:'/assets/images/books/foundation-book-1.webp'});
+const pl=(id,cents,billing,allTools)=>({planCode:id,label:id,description:'Guided plan',priceCents:cents,billingInterval:billing,checkoutEnabled:true,allTools,allBooks:false});
+const tt=(code,status='live')=>({toolCode:code,name:code,description:'Teaching tool',priceCents:2999,status,category:'Learn',freePreview:false,href:'learn.html'});
+const plans=[pl('FREE',0,'none',false),pl('FULL_MONTHLY',6999,'month',true),pl('FULL_ANNUAL',69900,'year',true),
+ pl('LIFETIME',249900,'lifetime',true),pl('ONDEMAND_MONTHLY',1999,'month',false),
+ pl('PICK_WHAT_YOU_WANT',0,'none',false),pl('QA_TEST',0,'month',true)];
+const products=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].map(book);
+const tools=['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'].map(x=>tt(x));
+tools.push(tt('DISCOVERY_LAB','beta'));
+const data={plans,products:[...products,{type:'bundle',productCode:'BUNDLE',title:'Bundled products',storeVisible:true,salesStatus:'published'}],tools};
+const tabIds=['memberships','books','tools'];
+const tabNodes=tabIds.map(k=>({...makeNode(k),dataset:{storeCategory:k}}));
+const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){},contains(){return false}}}));
+const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
+const preview=makeNode('preview'),winHandlers={};
+const doc={
+ readyState:'loading',callback:null,
+ addEventListener(k,cb){if(k==='DOMContentLoaded')this.callback=cb},
+ getElementById(id){return nodes[id]||null},
+ querySelectorAll(q){
+   if(q==='[data-store-category]')return tabNodes;
+   if(q==='#store-tabs button')return filters;
+   if(q==='#store-products [data-family]')return [];
+   return [];
+ },
+ querySelector(q){return q==='.v135-replay-plan-cta a'?preview:null}
+};
+const location={hash:'#books',pathname:'/store.html'},history={replaceState(_x,_y,hash){location.hash=hash}};
+const window={CommerceTools:ct(data),addEventListener(k,cb){winHandlers[k]=cb}};
+const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent};
+vm.runInNewContext(read('assets/js/store.js'),context);
+await doc.callback();await new Promise(ok=>setTimeout(ok,0));
+assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must select books only');
+assert.equal(nodes['store-panel-memberships'].hidden,true);
+assert.equal(nodes['store-panel-tools'].hidden,true);
+assert.equal((nodes['store-products'].innerHTML.match(/What this book teaches/g)||[]).length,5);
+assert.doesNotMatch(nodes['store-products'].innerHTML,/Bundled products/,'Nonbooks must not appear in Books');
+assert.equal((nodes['store-plans'].innerHTML.match(/View membership details/g)||[]).length,5);
+assert.doesNotMatch(nodes['store-plans'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT/);
+assert.equal((nodes['store-tools'].innerHTML.match(/See features, exclusions/g)||[]).length,4);
+assert.doesNotMatch(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/);
+assert.match(nodes['store-membership-compare'].innerHTML,/store-membership-full-monthly\.html/);
+assert.match(nodes['store-membership-compare'].innerHTML,/store-tool-journal-analytics\.html/);
+assert.equal(tabNodes[1].attributes['aria-selected'],'true');
+tabNodes[2].events.click();
+assert.equal(nodes['store-panel-tools'].hidden,false);
+assert.equal(nodes['store-panel-books'].hidden,true);
+assert.equal(location.hash,'#tools');
+tabNodes[2].events.keydown({key:'Home',preventDefault(){}});
+assert.equal(location.hash,'#memberships','Keyboard Home must select first Store category');
+assert.ok(tabNodes[0].focused);
+
+const guides=JSON.parse(read('data/store-product-guides-v01484.json'));
+async function detail(type,code,overrides={}){
+ const node={...makeNode('store-product-root'),dataset:{productType:type,productCode:code}};
+ const d={readyState:'loading',addEventListener(_k,cb){this.callback=cb},querySelector(sel){return sel==='#store-product-root'?node:null}};
+ const catalog={...data,...overrides};
+ const context={
+  window:{CommerceTools:ct(catalog)},
+  document:d,location:{search:''},console,URLSearchParams,encodeURIComponent,
+  fetch:async()=>({ok:true,json:async()=>guides})
+ };
+ vm.runInNewContext(read('assets/js/store-product-detail-v01484.js'),context);
+ await d.callback();await new Promise(ok=>setTimeout(ok,0));return node.innerHTML;
+}
+const paid=await detail('plan','FULL_MONTHLY');
+assert.match(paid,/\$69\.99/);assert.match(paid,/What is included/);assert.match(paid,/What is not included/);
+assert.match(paid,/checkout\.html\?type=plan&amp;code=FULL_MONTHLY|checkout\.html\?type=plan&code=FULL_MONTHLY/);
+const missing=await detail('plan','FULL_MONTHLY',{plans:[]});
+assert.doesNotMatch(missing,/Review plan &amp; secure checkout|Review plan & secure checkout/);
+const tool=await detail('tool','MARKET_SIMULATOR');
+assert.match(tool,/29\.99/);assert.match(tool,/checkout\.html\?type=tool/);assert.match(tool,/no-look-ahead/i);
+const unreleased=await detail('tool','MARKET_SIMULATOR',{tools:[tt('MARKET_SIMULATOR','paused')]});
+assert.doesNotMatch(unreleased,/Review tool subscription &amp; checkout/);
+const bookPage=await detail('book','FOUNDATION_BOOK_1');
+assert.match(bookPage,/learning focus/i);assert.match(bookPage,/No verified book purchase link/);
+assert.doesNotMatch(bookPage,/Buy Kindle on Amazon|Direct digital purchase/);
+const xss=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),title:'<img src=x onerror=alert(1)>'}]});
+assert.doesNotMatch(xss,/<img src=x onerror=/);assert.match(xss,/&lt;img/);
+console.log('PASS v84 UI: exclusive/accessible Store tabs, only 5 memberships + 5 books + 4 released tools, functional detail rendering, no false book checkout, XSS escaped.');
