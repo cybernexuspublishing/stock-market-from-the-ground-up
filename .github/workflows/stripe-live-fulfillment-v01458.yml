@@ -81,6 +81,7 @@ jobs:
           python tests/test_v014082_owner_live_payment_activation_contract.py
           python tests/test_v014083_authenticated_owner_live_activation.py
           python tests/test_v014084_store_pages_and_categories.py
+          node tests/test_v014084_store_interaction.mjs
           node --check assets/js/store.js
           node --check assets/js/store-product-detail-v01484.js
           node --check assets/js/admin-live-activation-v01483.js
