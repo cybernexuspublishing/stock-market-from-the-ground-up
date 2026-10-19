@@ -33,7 +33,7 @@ globalThis.fetch=async(url,options={})=>{
  if(u.includes('/rest/v1/user_library?'))return J([{id:12,product_code:'FOUNDATIONS_I',access_type:'companion',source_channel:'admin',expires_at:null}]);
  if(u.includes('/rest/v1/user_tool_passes?'))return J([{id:16,tool_code:'MARKET_TUTOR',status:'active',provider:null,provider_subscription_id:null,metadata:{admin_manual:true}}]);
  if(u.includes('/rest/v1/book_key_redemptions?'))return J([{id:21,book_code:'FOUNDATIONS_I',starts_at:'2026-01-01',ends_at:'2027-01-01'}]);
- if(u.includes('/rest/v1/entitlements?'))return J([{product_key:'full_learning_access',status:'active',source:'admin',ends_at:null}]);
+ if(u.includes('/rest/v1/entitlements?'))return J([{id:81,product_key:'full_learning_access',status:'active',source:'admin',ends_at:null,external_customer_id:null,external_subscription_id:null}]);
  if(u.includes('/rest/v1/site_orders?'))return J([{id:29,provider:'stripe',status:'paid',total_cents:6999}]);
  if(u.includes('/rest/v1/catalog_products?'))return J([{product_code:'FOUNDATIONS_I',short_title:'Foundations I'}]);
  if(u.includes('/rest/v1/platform_tools?'))return J([{tool_code:'MARKET_TUTOR',name:'Market Tutor'}]);
@@ -92,6 +92,25 @@ try{
  assert.ok(sourceSQL.includes('provider_subscription_id IS NULL'));
  assert.ok(sourceSQL.includes('source_channel=\'admin\''));
  assert.ok(sourceSQL.includes('admin_audit_log'));
+ assert.ok(sourceSQL.includes("manual_learning")&&sourceSQL.includes("status='cancelled'"),'Legacy learning grants must use the exact Postgres status value');
+ assert.ok(sourceSQL.includes("e.external_subscription_id IS NULL"),'Provider legacy learning rights never use manual revocation');
+ assert.equal((sourceSQL.match(/COMMIT;/g)||[]).length,1,'SQL transaction must contain exactly one commit');
+ assert.ok(sourceSQL.includes("'^[A-Z0-9_-]{2,90}
+ assert.ok(!/DELETE FROM public\.(site_orders|site_subscriptions|book_key_redemptions)/i.test(sourceSQL));
+ assert.ok(!/UPDATE public\.site_subscriptions/i.test(sourceSQL));
+ assert.ok(legacyAdmin.includes("if(retired.has(action))"),'Legacy API must intercept legacy account mutations before their old handlers');
+ for(const unsafe of ['library_revoke','entitlement_revoke','plan_revoke','tool_revoke','library_grant',
+   'entitlement_grant','plan_grant','tool_grant','user_delete','set_role'])
+   assert.ok(legacyAdmin.includes("'"+unsafe+"'"),'Missing blocked legacy mutation: '+unsafe);
+ assert.ok(legacyUI.includes('window.GroundUpAccountEditor?.openById'),'Legacy UI must route to new unified editor');
+ assert.ok(legacyAccess.includes('Legacy grant/revoke action moved to Account Management'),'Legacy Access Center cannot bypass canonical mutation');
+ assert.ok(legacyAccessUI.includes('Owner-issued manual entitlements only.')===false,'Old Access Center must not offer a competing manual grant editor');
+ assert.ok(legacyAccessUI.includes('window.GroundUpAccountEditor?.openById'),'Account Access Hub must route member actions to unified account editor');
+ assert.ok(ui.includes('Legacy learning entitlements'));
+ console.log('PASS v78: Admin member-only scoping, unified account inventory, source-aware grant/revoke, no false FREE, provider/financial ledger invariants');
+}finally{globalThis.fetch=orig}
+"),'Code-validation SQL regex must remain complete');
+ assert.ok(!sourceSQL.includes("}{2,90}\nCOMMIT"),'No broken interpolated SQL regex');
  assert.ok(!/DELETE FROM public\.(site_orders|site_subscriptions|book_key_redemptions)/i.test(sourceSQL));
  assert.ok(!/UPDATE public\.site_subscriptions/i.test(sourceSQL));
  assert.ok(legacyAdmin.includes("if(retired.has(action))"),'Legacy API must intercept legacy account mutations before their old handlers');
