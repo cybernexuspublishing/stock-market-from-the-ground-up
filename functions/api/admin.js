@@ -274,7 +274,7 @@ async function handlePost(env,request,action){
     if(clean(body.individual_checkout_url)!==clean(current?.individual_checkout_url))
       return bad('Checkout destinations must be activated in the signed payment integration, not the product editor.',409);
     const href=clean(body.href||'');
-    if(href&&!/^(?:\\/?[A-Za-z0-9_-]+\\.html)(?:#[A-Za-z0-9_-]+)?$/.test(href))
+    if(href&&!/^(?:\/?[A-Za-z0-9_-]+\.html)(?:#[A-Za-z0-9_-]+)?$/.test(href))
       return bad('Tool pages must use an existing safe internal site route.',400);
     const row={tool_code:code,name,category:clean(body.category||'Platform').slice(0,90),
       description:clean(body.description).slice(0,4000)||null,href:href||null,status:nextStatus,
