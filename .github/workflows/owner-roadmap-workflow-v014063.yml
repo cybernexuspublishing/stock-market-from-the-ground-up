@@ -7,6 +7,7 @@ on:
       - 'assets/js/owner-roadmap.js'
       - 'assets/js/owner-roadmap-product-inventory-v01488.js'
       - 'tests/test_v014088_owner_product_inventory.mjs'
+      - 'tests/test_v014088_owner_inventory_ui.mjs'
       - 'assets/css/owner-roadmap.css'
       - 'owner-roadmap.html'
       - 'release-manifest.json'
@@ -25,6 +26,7 @@ on:
       - 'assets/js/owner-roadmap.js'
       - 'assets/js/owner-roadmap-product-inventory-v01488.js'
       - 'tests/test_v014088_owner_product_inventory.mjs'
+      - 'tests/test_v014088_owner_inventory_ui.mjs'
       - 'assets/css/owner-roadmap.css'
       - 'owner-roadmap.html'
       - 'release-manifest.json'
@@ -56,6 +58,7 @@ jobs:
           node --check assets/js/owner-roadmap-product-inventory-v01488.js
           node --check functions/_lib/owner-roadmap-product-inventory-v01488.js
           node tests/test_v014088_owner_product_inventory.mjs
+          node tests/test_v014088_owner_inventory_ui.mjs
           node tests/test_owner_roadmap_workflow_v014063.mjs
           node tests/test_owner_roadmap_progress_v014045.mjs
           node tests/test_owner_roadmap_additions_20261018.mjs
