@@ -1,4 +1,4 @@
-/* Owner Roadmap v0.14.0.63. Browser-only renderer; all data/mutations require
+/* Owner Roadmap v0.14.0.91. Browser-only renderer; all data/mutations require
  * Cloudflare server verification of OWNER, account status, and real session.
  * Never store signed-in auth tokens or project status in localStorage. */
 (()=>{'use strict';
@@ -61,18 +61,24 @@ function filtered(){
 function metrics(){
  const tasks=all.filter(x=>x.scope==='core'&&!isReference(x));
  const count=stage=>tasks.filter(x=>statusOf(x)===stage).length;
- const done=tasks.filter(x=>complete.has(statusOf(x))).length;
- const savedComplete=tasks.filter(x=>hasStoredState(x)&&complete.has(statusOf(x))).length;
- const delegatedComplete=done-savedComplete;
- const active=count('in_progress')+count('implemented'),block=count('blocked');
+ const approved=tasks.filter(x=>complete.has(statusOf(x))).length;
+ const ownerApproved=tasks.filter(x=>hasStoredState(x)&&complete.has(statusOf(x))).length;
+ const delegatedApproved=approved-ownerApproved;
  const traced=all.filter(x=>x.scope==='trace'&&!isReference(x)).length;
- $('#or-metrics').innerHTML=[
-  [done+' / '+tasks.length,'Recorded approvals: '+delegatedComplete+' delegated; '+savedComplete+' Owner-saved'],
-  [String(tasks.length-done),'Still needs final verification or development'],
-  [String(active),'Source accepted pending QA / active work'],
-  [String(block),'Blocked · '+traced+' source requirements tracked']
- ].map(([number,label])=>'<article class="or-stat"><strong>'+esc(number)+'</strong><span>'+esc(label)+'</span></article>').join('');
+ const sourceCount=tasks.filter(x=>!hasStoredState(x)&&isDelegated(x)).length;
+ const stats=[
+  [approved+' / '+tasks.length,'Scoped approvals: '+delegatedApproved+' delegated; '+ownerApproved+' saved Owner decisions'],
+  [count('implemented'),'Implemented in source · live acceptance remains open'],
+  [count('in_progress'),'Active build / verification work'],
+  [count('blocked'),'Blocked primary tasks · review individual dependency'],
+  [String(count('deferred')+count('not_started')),'Deferred or not yet reviewed'],
+  [String(traced),'Preserved source-reference lines · separate from primary tasks']
+ ];
+ $('#or-metrics').innerHTML=stats.map(([number,label])=>
+   '<article class="or-stat"><strong>'+esc(number)+'</strong><span>'+esc(label)+'</span></article>').join('')+
+  '<p class="or-metric-explainer"><strong>How these numbers work:</strong> Counts follow authenticated Owner decisions and dated, evidence-scoped engineering reviews—not the number of GitHub commits or pages edited. '+esc(sourceCount)+' tasks currently inherit a delegated assessment. “Blocked” describes only primary tasks; '+esc(traced)+' historical source lines are retained for traceability and are not assumed undone. Last separately reviewed source milestone: October 19, 2026. Cloudflare may show older figures until the latest repository build is deployed.</p>';
 }
+
 function renderReviewBoard(){
  const base=all.filter(x=>x.scope==='core'&&!isReference(x));
  const groups=[['deployed_verified','Verified delivered controls'],['source_implemented','Implementation present; acceptance pending'],['in_progress','Currently being worked on'],['blocked','Blocked / missing external evidence'],['backlog','Recorded backlog'],['needs_review','Individual review pending']];
@@ -241,18 +247,18 @@ function announce(text,error=false){
 }
 function find(id){return all.find(x=>x.id===id)}
 function selectTab(next){
- const product=window.OwnerRoadmapProductsV88?.isCatalog(next)===true;
+ const product=window.OwnerRoadmapProductsV88?.isCatalog(next)===true||window.OwnerProductReadinessV91?.isCatalog(next)===true;
  if(!product&&!['core','trace','reference'].includes(next))next='core';
  scope=next;page=0;
  document.querySelectorAll('.or-tab-bar button').forEach(b=>{
   const active=b.dataset.scope===next;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1
  });
- const reference=!window.OwnerRoadmapProductsV88?.isCatalog(next);
+ const reference=!(window.OwnerRoadmapProductsV88?.isCatalog(next)||window.OwnerProductReadinessV91?.isCatalog(next));
  const workspace=$('#or-requirements-workspace'),creator=$('#or-owner-create');
  if(workspace)workspace.hidden=!reference;
  if(creator)creator.hidden=!reference;
- for(const name of ['tool-inventory','membership-coverage']){
-  const panel=$('#or-catalog-'+(name==='tool-inventory'?'tools':'memberships'));
+ for(const name of ['tool-inventory','membership-coverage','product-readiness','verification-audit']){
+  const panel=$('#or-catalog-'+({ 'tool-inventory':'tools','membership-coverage':'memberships','product-readiness':'product-readiness','verification-audit':'audit'}[name]));
   if(panel)panel.hidden=next!==name;
  }
  if(!reference)return;
@@ -279,6 +285,7 @@ async function reload(){
   metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
   renderPrivateBrief(data.operationalBrief);
   window.OwnerRoadmapProductsV88?.render(data);
+  window.OwnerProductReadinessV91?.render(data);
   await deployedVersion();
   $('#or-version').textContent='Catalog '+(metadata.version||'')+' · Delegated review '+(delegation.version||'unavailable')+' · authenticated Owner edits save privately in Supabase and take precedence over delegated code approvals.';
   $('#or-app').hidden=false;$('#or-access').hidden=true;areas();render();renderReviewBoard();
@@ -352,6 +359,7 @@ function bind(){
   finally{submit.disabled=false}
  });
 }
-async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5));else if(hash==='tool-inventory'||hash==='membership-coverage')selectTab(hash)}
+async function init(){bind();try{await bearer()}catch(e){location.replace('/signin.html?next=%2Fowner-roadmap.html');return}await reload();let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}if(/^task-(CORE-[0-9]{4}|EXEC-[0-9]{2}|PROM-[0-9]{2}|OWN-[a-f0-9-]{36})$/i.test(hash))openTask(hash.slice(5));else if(['tool-inventory','membership-coverage','product-readiness','verification-audit'].includes(hash))selectTab(hash)}
+window.GroundUpOwnerRoadmap={openTask};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
