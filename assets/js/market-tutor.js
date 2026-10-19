@@ -8,7 +8,8 @@ async function premiumTeaching(q,status){
  if(!TUTOR.sb||!TUTOR.user)return false;
  let session;try{session=(await TUTOR.sb.auth.getSession()).data?.session}catch{return false}
  if(!session?.access_token)return false;
- const mode=document.getElementById('tutor-mode')?.value||'explain';
+ const chosen=document.getElementById('tutor-mode')?.value||'explain';
+ const mode=chosen==='practice'||/what should i practice|what do i need to practice|what am i doing wrong|weakness|weakest/i.test(q)?'practice':chosen;
  const learnerAnswer=document.getElementById('tutor-reflection')?.value||'';
  try{
   const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',headers:{
@@ -17,6 +18,17 @@ async function premiumTeaching(q,status){
   const data=await response.json().catch(()=>null);
   if(response.status===401||response.status===403)return false;
   if(!response.ok||!data?.ok)throw Error('Tutor unavailable');
+  if(data.mode==='practice'){
+   const list=Array.isArray(data.recommendations)?data.recommendations.slice(0,5):[];
+   const box=document.getElementById('tutor-answer');
+   box.innerHTML='<article class="tutor-match"><div class="tutor-ref">Private, authenticated study review — not a graded assessment</div>'+
+    '<h3>Practice priorities from your records</h3><p>'+te(data.answer||'')+'</p>'+
+    (list.length?'<ol class="tutor-personal-list">'+list.map(x=>'<li><strong>'+te(x.topic)+'</strong> · '+Number(x.mentions||0)+
+      ' self-tagged record(s) · <a href="labs.html?q='+encodeURIComponent(x.topic||'')+'">Find related Labs</a></li>').join('')+'</ol>':'')+
+    '<p class="small">'+te(data.notice||'')+'</p><div class="tutor-actions"><a class="btn secondary" href="journal.html">Review Journal</a><a class="btn secondary" href="skills.html">Review Skills</a></div></article>';
+   status.className='status-message success';status.textContent='Private practice suggestions only; no scores or mastery awarded.';
+   return true;
+  }
   const sources=(data.sources||[]).slice(0,3);
   const safeLink=href=>String(href||'').startsWith('/labs.html?q=')?href:'/labs.html';
   document.getElementById('tutor-answer').innerHTML=
