@@ -1,6 +1,6 @@
 /* Shared protection classification for Pages middleware and Service Worker. */
 (function(root){'use strict';
- const MEMBER=['dashboard','account','access','settings','data-connections','new-discussion','my-library','my-purchases','checkout','market-commons','labs','site-lab','simulator','journal','journal-entry','journal-analytics','skills','review-queue','advanced-tool','forum-topic','challenges','environments','compare','assessments','ondemand-training','my-books','activate-book','mfa-security'];
+ const MEMBER=['dashboard','account','access','settings','data-connections','new-discussion','my-library','my-purchases','checkout','market-commons','labs','site-lab','simulator','journal','journal-entry','journal-analytics','skills','review-queue','advanced-tool','forum-topic','challenges','environments','compare','assessments','ondemand-training','my-books','activate-book','mfa-security','verified-replay'];
  const STAFF=['admin','admin-operations','admin-lab-preview','plan-controls','gws-projects','training-editor','owner-roadmap'];
  const PUBLIC_PREVIEWS=['lab-player','market-tutor','tools','learn','lab-samples','store','membership'];
  const MEMBER_SET=new Set(MEMBER),STAFF_SET=new Set(STAFF),PREVIEW_SET=new Set(PUBLIC_PREVIEWS);
