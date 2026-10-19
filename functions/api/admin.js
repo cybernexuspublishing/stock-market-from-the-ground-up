@@ -254,9 +254,41 @@ async function handlePost(env,request,action){
     await serviceRest(env,'platform_plans?on_conflict=plan_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'platform.plan.save','plan',code,{price_cents:row.price_cents});return ok({plan_code:code});
   }
   if(action==='tool_save'){
-    const c=await withContext(env,request,'tools.manage');const code=safeCode(body.tool_code);if(!code||!body.name)return bad('Tool code and name are required.');
-    const row={tool_code:code,name:clean(body.name),category:clean(body.category||'Platform'),description:clean(body.description)||null,href:clean(body.href)||null,status:['live','beta','planned','paused','retired'].includes(body.status)?body.status:'planned',active:body.active!==false,public_visible:body.public_visible!==false,included_full:body.included_full!==false,included_lifetime:body.included_lifetime!==false,individual_price_cents:Math.max(0,Number(body.individual_price_cents||2999)),individual_checkout_url:clean(body.individual_checkout_url)||null,free_preview:!!body.free_preview,sort_order:Number(body.sort_order||100),data_requirement:clean(body.data_requirement)||null,metadata:body.metadata&&typeof body.metadata==='object'?body.metadata:{},updated_at:nowIso()};
-    await serviceRest(env,'platform_tools?on_conflict=tool_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'platform.tool.save','tool',code,{status:row.status,price_cents:row.individual_price_cents});return ok({tool_code:code});
+    const c=await withContext(env,request,'tools.manage');
+    const code=safeCode(body.tool_code),name=clean(body.name);
+    if(!code||!name||name.length>160)return bad('A valid tool code and name are required.');
+    const current=await one(env,'platform_tools?select=*&tool_code=eq.'+encodeURIComponent(code)+'&limit=1');
+    const nextStatus=clean(body.status||'planned');
+    if(!['live','beta','planned','paused','retired'].includes(nextStatus))return bad('Invalid tool release status.');
+    // Product editing must NEVER activate a new checkout, publish an
+    // unverified tool as LIVE, or silently alter a Stripe-bound price.
+    if(nextStatus==='live'&&current?.status!=='live')return bad('A new LIVE tool requires a separate verified release and Stripe/entitlement activation.',409);
+    if(current?.status==='live'&&nextStatus!=='live')return bad('Pausing a billed LIVE tool requires a separate subscription-impact review.',409);
+    const price=Number(body.individual_price_cents??0);
+    if(!Number.isSafeInteger(price)||price<0||price>100000000)return bad('Individual price must be a valid nonnegative amount in cents.');
+    if(current?.status==='live'&&price!==Number(current.individual_price_cents))
+      return bad('LIVE Stripe prices cannot be edited here. Create and verify a matching Stripe Price and payment mapping first.',409);
+    if(current?.status==='live'&&(['included_full','included_lifetime','free_preview'].some(key=>
+      Object.prototype.hasOwnProperty.call(body,key)&&Boolean(body[key])!==Boolean(current[key]))))
+      return bad('Changing LIVE tool entitlements/free previews requires a separate access-impact review.',409);
+    if(clean(body.individual_checkout_url)!==clean(current?.individual_checkout_url))
+      return bad('Checkout destinations must be activated in the signed payment integration, not the product editor.',409);
+    const href=clean(body.href||'');
+    if(href&&!/^(?:\\/?[A-Za-z0-9_-]+\\.html)(?:#[A-Za-z0-9_-]+)?$/.test(href))
+      return bad('Tool pages must use an existing safe internal site route.',400);
+    const row={tool_code:code,name,category:clean(body.category||'Platform').slice(0,90),
+      description:clean(body.description).slice(0,4000)||null,href:href||null,status:nextStatus,
+      active:body.active!==false,public_visible:body.public_visible!==false,
+      included_full:current?.status==='live'?current.included_full:body.included_full===true,
+      included_lifetime:current?.status==='live'?current.included_lifetime:body.included_lifetime===true,
+      individual_price_cents:price,individual_checkout_url:current?.individual_checkout_url||null,
+      free_preview:current?.status==='live'?current.free_preview:body.free_preview===true,
+      sort_order:Number.isSafeInteger(Number(body.sort_order))?Number(body.sort_order):100,
+      data_requirement:clean(body.data_requirement).slice(0,1200)||null,
+      metadata:current?.metadata||{},updated_at:nowIso()};
+    await serviceRest(env,'platform_tools?on_conflict=tool_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});
+    await audit(env,c.user.id,'platform.tool.save','tool',code,{before:current?{status:current.status,individual_price_cents:current.individual_price_cents}:null,after:{status:row.status,individual_price_cents:row.individual_price_cents},salesChanged:false});
+    return ok({tool_code:code,notice:'Product information saved; Stripe Price and entitlement rollout unchanged.'});
   }
   if(action==='plan_grant'){
     const c=await withContext(env,request,'entitlements.manage');const target=clean(body.user_id),plan=safeCode(body.plan_code);if(!target||!plan)return bad('User and plan are required.');const ps=body.starts_at?new Date(body.starts_at):new Date(),pe=body.ends_at?new Date(body.ends_at):null;if(pe&&pe<=ps)return bad('Ending date must be after the begin date.');
