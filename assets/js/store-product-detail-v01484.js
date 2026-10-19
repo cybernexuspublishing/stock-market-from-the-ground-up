@@ -136,7 +136,7 @@ async function init(){
   const guideResponse=productGuides;
   const original=await window.CommerceTools.load();
   const catalog=(type==='tool'||type==='plan')&&typeof window.CommerceTools.verifiedCheckout==='function'
-    ?await window.CommerceTools.verifiedCheckout(original):original;
+    ?await window.CommerceTools.verifiedCheckout(original,{type,code}):original;
   const guide=type==='plan'?guideResponse.plans[code]:type==='tool'?guideResponse.tools[code]:type==='book'?guideResponse.books[code]:guideResponse.plans.ONDEMAND_MONTHLY;
   if(type==='preview'){previewReplay(guide);return}
   if(type==='plan'){const row=catalog.plans.find(x=>x.planCode===code);planDetail(row,guide,code);return}
