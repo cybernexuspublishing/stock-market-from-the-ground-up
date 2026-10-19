@@ -5,7 +5,7 @@
 BEGIN;
 DO $pre$ BEGIN
  IF EXISTS (SELECT 1 FROM (VALUES ('public.user_plan_grants'),
-   ('public.user_library'),('public.user_tool_passes'),('public.admin_user_roles'),
+   ('public.user_library'),('public.user_tool_passes'),('public.entitlements'),('public.admin_user_roles'),
    ('public.profiles'),('public.admin_audit_log')) q(name)
    WHERE to_regclass(q.name) IS NULL)
  THEN RAISE EXCEPTION 'GU78_REQUIRED_EXISTING_TABLES_MISSING'; END IF;
@@ -22,7 +22,7 @@ BEGIN
   RAISE EXCEPTION 'GU78_SERVICE_ROLE_ONLY' USING ERRCODE='42501';
  END IF;
  IF p_actor IS NULL OR p_target IS NULL OR p_record_id IS NULL OR p_record_id<1
-    OR p_kind NOT IN ('manual_plan','manual_book','manual_tool')
+    OR p_kind NOT IN ('manual_plan','manual_book','manual_tool','manual_learning')
     OR length(trim(coalesce(p_reason,'')))<10
     OR length(trim(coalesce(p_reason,'')))>500 THEN
   RAISE EXCEPTION 'GU78_INVALID_MUTATION' USING ERRCODE='22023';
@@ -73,6 +73,15 @@ BEGIN
      AND (b.expires_at IS NULL OR b.expires_at>now());
   GET DIAGNOSTICS n=ROW_COUNT;
   source_name:='admin_book';
+ ELSIF p_kind='manual_learning' THEN
+  -- Legacy paid/trial access independently affects my_platform_access().
+  UPDATE public.entitlements e
+   SET status='cancelled',ends_at=now(),updated_at=now()
+   WHERE e.id=p_record_id AND e.user_id=p_target AND e.source='admin'
+     AND e.external_customer_id IS NULL AND e.external_subscription_id IS NULL
+     AND e.status IN ('active','trialing') AND (e.ends_at IS NULL OR e.ends_at>now());
+  GET DIAGNOSTICS n=ROW_COUNT;
+  source_name:='admin_legacy_learning';
  ELSIF p_kind='manual_tool' THEN
   -- Null provider alone is insufficient: prove Owner-issued provenance.
   UPDATE public.user_tool_passes t
@@ -114,10 +123,9 @@ BEGIN
   RAISE EXCEPTION 'GU78_SERVICE_ROLE_ONLY' USING ERRCODE='42501';
  END IF;
  IF p_actor IS NULL OR p_target IS NULL OR
-    p_actor=p_target OR p_kind NOT IN ('manual_book','manual_tool') OR
-    p_code IS NULL OR p_code !~ '^[A-Z0-9_-]{2,90}
-COMMIT;
- OR
+    p_actor=p_target OR p_kind NOT IN ('manual_book','manual_tool','manual_learning') OR
+    (p_kind<>'manual_learning' AND (p_code IS NULL OR p_code !~ '^[A-Z0-9_-]{2,90}$')) OR
+    (p_kind='manual_learning' AND p_code<>'full_learning_access') OR
     length(trim(coalesce(p_reason,''))) NOT BETWEEN 10 AND 500 OR
     (p_expires_at IS NOT NULL AND p_expires_at<=now()) THEN
   RAISE EXCEPTION 'GU78_INVALID_MANUAL_GRANT' USING ERRCODE='22023';
@@ -162,6 +170,24 @@ COMMIT;
       p_expires_at,jsonb_build_object('adminManual',true,'adminGrantedBy',p_actor,'reason',p_reason))
      RETURNING id INTO new_id;
   END IF;
+ ELSIF p_kind='manual_learning' THEN
+  -- Unique user/product row retained; never overwrite external provider IDs.
+  IF EXISTS(SELECT 1 FROM public.entitlements
+    WHERE user_id=p_target AND product_key=p_code AND
+      (source<>'admin' OR external_customer_id IS NOT NULL
+       OR external_subscription_id IS NOT NULL)) THEN
+    RAISE EXCEPTION 'GU78_PROVIDER_LEARNING_ENTITLEMENT_PROTECTED' USING ERRCODE='42501';
+  END IF;
+  IF EXISTS(SELECT 1 FROM public.entitlements
+    WHERE user_id=p_target AND product_key=p_code AND status IN ('active','trialing')
+      AND (ends_at IS NULL OR ends_at>now())) THEN
+    RAISE EXCEPTION 'GU78_LEGACY_LEARNING_ALREADY_ACTIVE' USING ERRCODE='23514';
+  END IF;
+  INSERT INTO public.entitlements(user_id,product_key,status,source,starts_at,ends_at,updated_at)
+   VALUES(p_target,p_code,'active','admin',now(),p_expires_at,now())
+   ON CONFLICT (user_id,product_key) DO UPDATE
+    SET status='active',source='admin',starts_at=now(),ends_at=EXCLUDED.ends_at,updated_at=now()
+   RETURNING id INTO new_id;
  ELSE
   IF NOT EXISTS(SELECT 1 FROM public.platform_tools WHERE tool_code=p_code AND active=true) THEN
    RAISE EXCEPTION 'GU78_TOOL_NOT_ACTIVE'; END IF;
