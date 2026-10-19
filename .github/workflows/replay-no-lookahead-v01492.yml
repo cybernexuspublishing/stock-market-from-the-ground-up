@@ -1,0 +1,28 @@
+name: Verified Replay Boundary v0.14.0.92
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/_lib/replay-visibility-v01492.js'
+      - 'tests/test_v014092_replay_visibility.mjs'
+      - '.github/workflows/replay-no-lookahead-v01492.yml'
+  pull_request:
+    paths:
+      - 'functions/_lib/replay-visibility-v01492.js'
+      - 'tests/test_v014092_replay_visibility.mjs'
+      - '.github/workflows/replay-no-lookahead-v01492.yml'
+permissions:
+  contents: read
+jobs:
+  replay-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check functions/_lib/replay-visibility-v01492.js
+          node tests/test_v014092_replay_visibility.mjs
+          test ! -f data/interactive-labs.json
