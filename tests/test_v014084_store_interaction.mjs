@@ -39,7 +39,7 @@ const doc={
  },
  querySelector(q){return q==='.v135-replay-plan-cta a'?preview:null}
 };
-const location={hash:'#books',pathname:'/store.html'},history={replaceState(_x,_y,hash){location.hash=hash}};
+const location={hash:'#books',pathname:'/store.html',search:'?ref=training'},history={replaceState(_x,_y,url){assert.match(url,/ref=training/);location.hash='#'+url.split('#').pop()}};
 const window={CommerceTools:ct(data),addEventListener(k,cb){winHandlers[k]=cb}};
 const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent};
 vm.runInNewContext(read('assets/js/store.js'),context);
@@ -89,6 +89,15 @@ assert.doesNotMatch(unreleased,/Review tool subscription &amp; checkout/);
 const bookPage=await detail('book','FOUNDATION_BOOK_1');
 assert.match(bookPage,/learning focus/i);assert.match(bookPage,/No verified book purchase link/);
 assert.doesNotMatch(bookPage,/Buy Kindle on Amazon|Direct digital purchase/);
+const futurePlan=await detail('plan','NEW_MONTHLY_PRODUCT',{plans:[pl('NEW_MONTHLY_PRODUCT',3999,'month',false)]});
+assert.doesNotMatch(futurePlan,/Review plan &amp; secure checkout/,'Unknown public plans must not be sold without approved inclusions/exclusions');
+assert.match(futurePlan,/complete product explanation/i);
+const futureTool=await detail('tool','NEW_PAID_TOOL',{tools:[tt('NEW_PAID_TOOL')]});
+assert.doesNotMatch(futureTool,/Review tool subscription &amp; checkout/,'New released tools need a reviewed product disclosure before checkout');
+assert.match(futureTool,/approved explanation/i);
+const exclusive=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),kdpSelect:true,websiteCheckoutEnabled:true,lemonVariantId:'v_test',
+ directDigital:{enabled:true,checkoutUrl:'https://store.example/digital'}}]});
+assert.doesNotMatch(exclusive,/Website purchase|Direct digital purchase/,'KDP Select flag must block all direct eBook channels even if a variant was accidentally enabled');
 const xss=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),title:'<img src=x onerror=alert(1)>'}]});
 assert.doesNotMatch(xss,/<img src=x onerror=/);assert.match(xss,/&lt;img/);
 console.log('PASS v84 UI: exclusive/accessible Store tabs, only 5 memberships + 5 books + 4 released tools, functional detail rendering, no false book checkout, XSS escaped.');

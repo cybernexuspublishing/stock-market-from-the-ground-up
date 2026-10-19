@@ -19,7 +19,7 @@ const formatInfo=p=>{const out=[];
  if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)out.push(button('Hardcover on Amazon',p.amazon.hardcoverUrl,true));
  if(p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)out.push(button('Direct digital purchase',p.directDigital.checkoutUrl,true));
  if(p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)out.push(button('Direct printed edition',p.directPhysical.checkoutUrl,true));
- if(p.websiteCheckoutEnabled&&p.lemonVariantId)out.push(button('Website purchase',`checkout.html?type=book&code=${encodeURIComponent(p.productCode)}`));
+ if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)out.push(button('Website purchase',`checkout.html?type=book&code=${encodeURIComponent(p.productCode)}`));
  return out.filter(Boolean)};
 function show(html){const root=document.querySelector('#store-product-root');root.innerHTML=html}
 function layout(category,head,description,price,priceNote,actions,sections,advice){
@@ -41,8 +41,8 @@ function planDetail(p,guide,code){
  const price=p?money(p.priceCents):'Verify current price',cycle=p?suffix(p.billingInterval):'';
  let actions='',note='Plan availability is being verified from the current platform catalog.';
  if(code==='FREE'){actions=button('Create a free account','create-account.html');note='No paid subscription required.'}
- else if(p?.checkoutEnabled){actions=button('Review plan & secure checkout',`checkout.html?type=plan&code=${encodeURIComponent(code)}`);note='Stripe availability, final amount, age, account status, and eligibility are checked again before payment.'}
- else{note='Paid enrollment is not currently authorized for this plan. Product information remains available.'}
+ else if(p?.checkoutEnabled&&!!guide){actions=button('Review plan & secure checkout',`checkout.html?type=plan&code=${encodeURIComponent(code)}`);note='Stripe availability, final amount, age, account status, and eligibility are checked again before payment.'}
+ else{note=!guide?'A complete product explanation and exclusions have not been approved for this membership. Checkout is unavailable until they are published.':'Paid enrollment is not currently authorized for this plan. Product information remains available.'}
  const benefits=guide?.included||[],exclusions=guide?.excluded||[];
  const sections=[
  list('What is included',benefits),list('What is not included',exclusions),
@@ -58,7 +58,7 @@ function planDetail(p,guide,code){
 }
 function toolDetail(t,guide,code){
  const title=t?.name||({INTERACTIVE_LEARNING:'Interactive Learning & Historical Labs',JOURNAL_ANALYTICS:'Trading Journal & Performance Analytics',MARKET_SIMULATOR:'Advanced Market Simulator & Replay',MARKET_TUTOR:'Market Tutor'}[code]||code);
- const released=t?.status==='live'&&Number(t?.priceCents)>0;
+ const released=t?.status==='live'&&Number(t?.priceCents)>0&&!!guide;
  const actions=released?button('Review tool subscription & checkout',`checkout.html?type=tool&code=${encodeURIComponent(code)}`):
  '<span>Individual paid tool checkout is not currently verified.</span>';
  const sections=[
@@ -71,7 +71,7 @@ function toolDetail(t,guide,code){
  ${button('Open tool information',t?.href||'tools.html')} ${button('Compare with Full Platform membership','store.html#memberships')}</section>`
  ].join('');
  show(layout('tools',title,t?.description||'Individual first-party learning tool.',t?money(t.priceCents):'Verify current price',released?'/month':'',
- actions,sections,released?'Released tool; checkout and member entitlement are checked again before a payment.':'This tool is not currently verified as a released, purchasable item.'));
+ actions,sections,released?'Released tool; checkout and member entitlement are checked again before a payment.':!guide?'This tool requires an approved explanation of what is included, excluded and taught before a separate checkout can be offered.':'This tool is not currently verified as a released, purchasable item.'));
 }
 function bookDetail(p,guide,code){
  const title=p?.title||code;
