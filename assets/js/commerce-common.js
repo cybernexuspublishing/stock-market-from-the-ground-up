@@ -61,6 +61,41 @@ window.CommerceTools=(function(){'use strict';
       return {cfg,products:(pRes.data||[]).map(mapProduct),plans:(plRes.data||[]).map(mapPlan),tools:(tRes.data||[]).map(mapTool)};
     }catch{return {...fallback,plans:[],tools:[],commerceUnavailable:true}}
   }
+  // Read-only status calls match the actual checkout-platform.js route,
+  // not potentially stale catalog checkout_enabled fields. NEVER create a
+  // Checkout Session here; the protected checkout independently rechecks
+  // logged-in eligibility, provider product/price, and signed fulfillment.
+  async function verifiedCheckout(catalog){
+    const closed={...catalog,plans:(catalog.plans||[]).map(p=>({...p,checkoutEnabled:false})),
+      tools:(catalog.tools||[]).map(t=>({...t,checkoutEnabled:false}))};
+    if(catalog.commerceUnavailable||typeof fetch!=='function')return closed;
+    let route;
+    try{
+      const r=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+      if(!r.ok) return closed;route=await r.json();
+    }catch{return closed}
+    if(route?.enabled!==true)return closed;
+    if(route.provider==='LEMON_SQUEEZY'){
+      if(route.checkoutEnabled!==true)return closed;
+      return {...catalog,plans:(catalog.plans||[]).map(p=>({...p,checkoutEnabled:p.checkoutEnabled===true})),
+        tools:(catalog.tools||[]).map(t=>({...t,checkoutEnabled:t.checkoutEnabled===true}))};
+    }
+    if(route.provider!=='STRIPE_MANAGED')return closed;
+    const plans=(catalog.plans||[]).filter(p=>p.planCode!=='FREE'&&Number(p.priceCents)>0);
+    const tools=(catalog.tools||[]).filter(t=>t.status==='live'&&Number(t.priceCents)>0);
+    const jobs=[...plans.map(p=>({type:'plan',code:p.planCode})),...tools.map(t=>({type:'tool',code:t.toolCode}))].slice(0,60);
+    const responses=await Promise.all(jobs.map(async j=>{
+      try{
+        const url='/api/stripe-live-checkout-v01458?type='+encodeURIComponent(j.type)+'&code='+encodeURIComponent(j.code);
+        const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(12000)});
+        const answer=response.ok?await response.json():null;
+        return answer?.ok===true&&answer.liveCheckoutAvailable===true?j.type+':'+j.code:null;
+      }catch{return null}
+    }));
+    const allowed=new Set(responses.filter(Boolean));
+    return {...closed,plans:closed.plans.map(p=>({...p,checkoutEnabled:allowed.has('plan:'+p.planCode)})),
+      tools:closed.tools.map(t=>({...t,checkoutEnabled:allowed.has('tool:'+t.toolCode)}))};
+  }
   const productMap=products=>Object.fromEntries(products.map(p=>[p.productCode,p]));
-  return {money,moneyCents,esc,safeHref,mapProduct,mapPlan,mapTool,load,productMap};
+  return {money,moneyCents,esc,safeHref,mapProduct,mapPlan,mapTool,load,verifiedCheckout,productMap};
 })();
