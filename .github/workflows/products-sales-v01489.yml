@@ -1,0 +1,61 @@
+name: Products Store & Admin v0.14.0.89 — Sales and Security Gates
+on:
+  pull_request:
+    paths:
+      - 'store.html'
+      - 'assets/js/store.js'
+      - 'assets/js/store-product-detail-v01484.js'
+      - 'assets/css/store-sales-v01489.css'
+      - 'admin.html'
+      - 'assets/js/admin.js'
+      - 'assets/js/admin-platform.js'
+      - 'assets/js/admin-products-v01489.js'
+      - 'assets/css/admin-products-v01489.css'
+      - 'assets/js/admin-navigation.js'
+      - 'functions/api/admin.js'
+      - 'tests/test_v014089_products_sales_contract.mjs'
+      - 'tests/test_v014089_checkout_readiness_no_charge.mjs'
+      - '.github/workflows/products-sales-v01489.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'store.html'
+      - 'assets/js/store.js'
+      - 'admin.html'
+      - 'assets/js/admin-products-v01489.js'
+      - 'functions/api/admin.js'
+      - 'tests/test_v014089_products_sales_contract.mjs'
+      - 'tests/test_v014089_checkout_readiness_no_charge.mjs'
+      - '.github/workflows/products-sales-v01489.yml'
+permissions:
+  contents: read
+jobs:
+  verify-products:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse all affected storefront, admin and secured API JavaScript
+        run: |
+          node --check assets/js/commerce-common.js
+          node --check assets/js/store.js
+          node --check assets/js/store-product-detail-v01484.js
+          node --check assets/js/admin.js
+          node --check assets/js/admin-platform.js
+          node --check assets/js/admin-products-v01489.js
+          node --check assets/js/admin-navigation.js
+          node --check functions/api/admin.js
+      - name: Test product display, categories, legacy store contracts and safe server mutations
+        run: |
+          node tests/test_v014089_products_sales_contract.mjs
+          node tests/test_v014089_checkout_readiness_no_charge.mjs
+          node tests/test_v014084_store_interaction.mjs
+      - name: Verify static site assets are included and private API is never copied
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/css/store-sales-v01489.css
+          test -f public/assets/js/admin-products-v01489.js
+          test ! -e public/functions

@@ -6,7 +6,10 @@ paid=(root/"supabase/admin/v0.14.0.81_EIGHT_PAID_SKU_SIGNED_FULFILLMENT_READ_ONL
 books=(root/"supabase/admin/v0.14.0.81_OWNER_BOOK_CATALOG_SELLABLE_PREP_REVIEW_REQUIRED.sql").read_text()
 catalog=json.loads((root/"data/store-products.json").read_text())
 store_js=(root/"assets/js/store.js").read_text()
-assert "Sale-ready catalog · checkout subject to availability" in store_js
+# A database sale-prep flag is not a verified retailer link; the customer
+# sees Coming Soon until at least one authorized book purchase URL is set.
+assert "Coming Soon · Book purchase links pending" in store_js
+assert "Purchase options listed" in store_js
 assert "Buy Kindle on Amazon" in store_js and "Buy Paperback on Amazon" in store_js
 assert "BEGIN TRANSACTION READ ONLY" in paid
 assert paid.strip().endswith("ROLLBACK;")

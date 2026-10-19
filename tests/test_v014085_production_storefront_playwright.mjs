@@ -42,10 +42,16 @@ try{
    const books=await main.locator('#store-products article.product-card').count();
    assert.equal(plans,5,'Expected five publicly listed memberships, not test/free QA');
    assert.equal(books,5,'Expected five book product cards');
-   assert.equal(await main.locator('#store-tools article.v11-tool-card').count(),4,'Expected four LIVE à-la-carte tools');
+   const totalTools=await main.locator('#store-tools article.v11-tool-card').count();
+   const futureTools=await main.locator('#store-tools .store-future-card').count();
+   assert.ok(totalTools>=4,'Expected existing tool offers AND upcoming tool cards');
+   assert.ok(futureTools>=3,'Upcoming tool offerings must be displayed, not silently omitted');
+   assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),totalTools,'Every tool card requires clearly visible price or pending-pricing label');
+   const liveOffers=await main.locator('#store-tools article.v11-tool-card:not(.store-future-card)').count();
+   assert.ok(liveOffers>=4,'Existing four current tools must remain listed');
    assert.equal(await main.locator('#store-membership-compare table').count(),1,'Feature comparison not rendered');
    assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired $0 QA returned');
-   return 'plans='+plans+', books='+books+', tools=4, comparison=1';
+   return 'plans='+plans+', books='+books+', listed tools='+totalTools+', future='+futureTools+', comparison=1';
  });
  await run('Tab isolation and stateful deep links',async()=>{
    const options=['memberships','books','tools'];
@@ -95,6 +101,20 @@ try{
    assert.equal(await ondemand.locator('.store-plan-primary-link').isVisible(),true,'Historical Replay details link is invisible');
    assert.equal(await ondemand.locator('.store-plan-primary-link').getAttribute('href'),'store-membership-ondemand-monthly.html');
    return '5 near-price details links; OnDemand monthly links to its educational product page';
+ });
+ await run('Every future offer is explicitly coming soon, never purchasable',async()=>{
+   await main.locator('#store-tab-tools').click();
+   const cards=main.locator('#store-tools .store-future-card');
+   assert.ok(await cards.count()>=3);
+   for(let n=0;n<await cards.count();n++){
+     const c=cards.nth(n),text=await c.innerText();
+     assert.match(text,/Coming Soon/);
+     assert.match(text,/Pricing to be announced/);
+     const urls=await c.locator('a').evaluateAll(x=>x.map(a=>a.getAttribute('href')));
+     assert.ok(urls.every(u=>!String(u).includes('checkout.html')),'Future tool must not link checkout');
+   }
+   const prices=await main.locator('#store-tools .store-sell-price').count();
+   return 'future='+await cards.count()+', prices='+prices+', no future checkout links';
  });
  await run('Public purchase buttons do not create sessions',async()=>{
    const links=await main.locator('#store-plans a,#store-products a,#store-tools a').evaluateAll(a=>a.map(el=>el.getAttribute('href')));

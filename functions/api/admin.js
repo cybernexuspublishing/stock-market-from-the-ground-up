@@ -225,8 +225,18 @@ async function handlePost(env,request,action){
     const c=await withContext(env,request,'entitlements.manage');const target=clean(body.user_id),product=clean(body.product_key);if(!target||!product)return bad('User and product key required.');await serviceRest(env,`entitlements?user_id=eq.${encodeURIComponent(target)}&product_key=eq.${encodeURIComponent(product)}`,{method:'DELETE',prefer:'return=minimal'});await audit(env,c.user.id,'entitlement.revoke','user',target,{product_key:product});return ok();
   }
   if(action==='catalog_save'){
-    const c=await withContext(env,request,'catalog.manage');const code=safeCode(body.product_code);if(!code||!body.title||!body.short_title)return bad('Product code, title, and short title are required.');const kdp=!!body.kdp_select,digital=!!body.direct_digital_enabled;if(kdp&&digital)return bad('Direct digital sale cannot be enabled while KDP Select is ON for this title.',409);
-    const row={product_code:code,product_type:body.product_type||'book',family:clean(body.family||'other'),title:clean(body.title),short_title:clean(body.short_title),author:clean(body.author)||null,publisher:clean(body.publisher)||null,description:clean(body.description)||null,active:body.active!==false,sort_order:Number(body.sort_order||100),kdp_select:kdp,companion_access:!!body.companion_access,book_key_trial_days:Math.max(0,Number(body.book_key_trial_days||0)),amazon_kindle_url:assertHttpsOrBlank(body.amazon_kindle_url,'Kindle URL')||null,amazon_paperback_url:assertHttpsOrBlank(body.amazon_paperback_url,'Paperback URL')||null,amazon_hardcover_url:assertHttpsOrBlank(body.amazon_hardcover_url,'Hardcover URL')||null,direct_digital_enabled:digital,direct_digital_checkout_url:assertHttpsOrBlank(body.direct_digital_checkout_url,'Direct digital checkout URL')||null,direct_physical_enabled:!!body.direct_physical_enabled,direct_physical_checkout_url:assertHttpsOrBlank(body.direct_physical_checkout_url,'Direct physical checkout URL')||null,publication_status:['in_development','coming_soon','publication_candidate','published','archived'].includes(body.publication_status)?body.publication_status:'coming_soon',branch_slug:clean(body.branch_slug||body.family||'other'),included_lifetime:body.included_lifetime!==false,edition_label:clean(body.edition_label)||null,companion_url:assertHttpsOrBlank(body.companion_url,'Companion URL')||null,release_date:body.release_date||null,cover_image_url:assertHttpsOrBlank(body.cover_image_url,'Cover image URL')||null,sample_url:assertHttpsOrBlank(body.sample_url,'Sample URL')||null,metadata:body.metadata&&typeof body.metadata==='object'?body.metadata:{},updated_at:nowIso(),updated_by:c.user.id};
+    const c=await withContext(env,request,'catalog.manage');const code=safeCode(body.product_code);if(!code||!body.title||!body.short_title)return bad('Product code, title, and short title are required.');
+    if(body.product_type&&body.product_type!=='book')return bad('The Books editor cannot create membership or tool SKUs. Use the corresponding Products category.',409);
+    const original=await one(env,'catalog_products?select=*&product_code=eq.'+encodeURIComponent(code)+'&limit=1');
+    const pick=(key,fallback)=>Object.prototype.hasOwnProperty.call(body,key)?body[key]:fallback;
+    const imageUrl=clean(pick('cover_image_url',original?.cover_image_url));
+    if(imageUrl&&!/^https:\/\//i.test(imageUrl)&&!/^\/assets\/images\/books\/[a-zA-Z0-9_.-]+$/.test(imageUrl))
+      return bad('Book cover must use a secure HTTPS image or an approved internal book-cover asset.',400);
+    const sampleUrl=clean(pick('sample_url',original?.sample_url));
+    if(sampleUrl&&!/^https:\/\//i.test(sampleUrl)&&!/^\/?[A-Za-z0-9_-]+\.html(?:#[A-Za-z0-9_-]+)?$/.test(sampleUrl))
+      return bad('Book sample link must use HTTPS or a valid internal page.',400);
+    const kdp=!!body.kdp_select,digital=!!body.direct_digital_enabled;if(kdp&&digital)return bad('Direct digital sale cannot be enabled while KDP Select is ON for this title.',409);
+    const row={product_code:code,product_type:'book',family:clean(body.family||'other'),title:clean(body.title),short_title:clean(body.short_title),author:clean(body.author)||null,publisher:clean(body.publisher)||null,description:clean(body.description)||null,active:body.active!==false,sort_order:Number(body.sort_order||100),kdp_select:kdp,companion_access:!!body.companion_access,book_key_trial_days:Math.max(0,Number(body.book_key_trial_days||0)),amazon_kindle_url:assertHttpsOrBlank(body.amazon_kindle_url,'Kindle URL')||null,amazon_paperback_url:assertHttpsOrBlank(body.amazon_paperback_url,'Paperback URL')||null,amazon_hardcover_url:assertHttpsOrBlank(body.amazon_hardcover_url,'Hardcover URL')||null,direct_digital_enabled:digital,direct_digital_checkout_url:assertHttpsOrBlank(body.direct_digital_checkout_url,'Direct digital checkout URL')||null,direct_physical_enabled:!!body.direct_physical_enabled,direct_physical_checkout_url:assertHttpsOrBlank(body.direct_physical_checkout_url,'Direct physical checkout URL')||null,publication_status:['in_development','coming_soon','publication_candidate','published','archived'].includes(body.publication_status)?body.publication_status:'coming_soon',branch_slug:clean(body.branch_slug||body.family||'other'),included_lifetime:body.included_lifetime!==false,edition_label:clean(body.edition_label)||null,companion_url:assertHttpsOrBlank(body.companion_url,'Companion URL')||null,release_date:body.release_date||null,cover_image_url:imageUrl||null,sample_url:sampleUrl||null,store_visible:pick('store_visible',original?.store_visible)!==false,sales_status:['coming_soon','published','retired'].includes(pick('sales_status',original?.sales_status))?pick('sales_status',original?.sales_status):'coming_soon',metadata:body.metadata&&typeof body.metadata==='object'?body.metadata:original?.metadata||{},updated_at:nowIso(),updated_by:c.user.id};
     await serviceRest(env,'catalog_products?on_conflict=product_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'catalog.save','product',code,{kdp_select:kdp,direct_digital_enabled:digital,active:row.active});return ok({product_code:code});
   }
   if(action==='catalog_archive'){
@@ -247,6 +257,24 @@ async function handlePost(env,request,action){
   if(action==='report_resolve'){
     const c=await withContext(env,request,'forum.moderate');const id=Number(body.id);if(!id)return bad('Report id required.');const status=['reviewing','resolved','dismissed'].includes(body.status)?body.status:'resolved';await serviceRest(env,`forum_reports?id=eq.${id}`,{method:'PATCH',prefer:'return=minimal',body:{status,resolved_by:c.user.id,resolution_note:clean(body.resolution_note).slice(0,5000)||null,resolved_at:status==='reviewing'?null:nowIso()}});await audit(env,c.user.id,'forum.report','report',id,{status});return ok();
   }
+  if(action==='plan_copy_save'){
+    const c=await withContext(env,request,'plans.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('OWNER approval required for customer-facing membership copy.',403);
+    const code=safeCode(body.plan_code),name=clean(body.name),description=clean(body.description);
+    if(!code||!name||name.length>160||description.length>2400)
+      return bad('Membership name or description is missing or exceeds editorial limits.',400);
+    const existing=await one(env,'platform_plans?select=plan_code,name,description,updated_at&plan_code=eq.'+encodeURIComponent(code)+'&limit=1');
+    if(!existing)return bad('Membership plan does not exist.',404);
+    if(!existing.updated_at||existing.updated_at!==body.expected_updated_at)
+      return bad('Membership changed since you opened it. Reload Products before saving.',409);
+    const result=await serviceRest(env,'platform_plans?plan_code=eq.'+encodeURIComponent(code)+
+      '&updated_at=eq.'+encodeURIComponent(existing.updated_at),
+      {method:'PATCH',prefer:'return=representation',body:{name,description,updated_at:nowIso()}});
+    if(!Array.isArray(result.data)||result.data.length!==1)
+      return bad('Concurrent membership update detected. Reload the catalog.',409);
+    await audit(env,c.user.id,'platform.plan.copy.update','plan',code,{fields:['name','description'],billingPriceChanged:false,entitlementsChanged:false});
+    return ok({plan_code:code,notice:'Membership name and description saved. Prices, benefits and Stripe mappings were not changed.'});
+  }
   if(action==='plan_save'){
     return bad('Legacy plan editor is disabled for pricing/availability mutations. Use Owner Membership Availability; provider-verified pricing changes need a separate audited flow.',409);
     const c=await withContext(env,request,'plans.manage');const code=safeCode(body.plan_code);if(!code||!body.name)return bad('Plan code and name are required.');
@@ -254,9 +282,56 @@ async function handlePost(env,request,action){
     await serviceRest(env,'platform_plans?on_conflict=plan_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'platform.plan.save','plan',code,{price_cents:row.price_cents});return ok({plan_code:code});
   }
   if(action==='tool_save'){
-    const c=await withContext(env,request,'tools.manage');const code=safeCode(body.tool_code);if(!code||!body.name)return bad('Tool code and name are required.');
-    const row={tool_code:code,name:clean(body.name),category:clean(body.category||'Platform'),description:clean(body.description)||null,href:clean(body.href)||null,status:['live','beta','planned','paused','retired'].includes(body.status)?body.status:'planned',active:body.active!==false,public_visible:body.public_visible!==false,included_full:body.included_full!==false,included_lifetime:body.included_lifetime!==false,individual_price_cents:Math.max(0,Number(body.individual_price_cents||2999)),individual_checkout_url:clean(body.individual_checkout_url)||null,free_preview:!!body.free_preview,sort_order:Number(body.sort_order||100),data_requirement:clean(body.data_requirement)||null,metadata:body.metadata&&typeof body.metadata==='object'?body.metadata:{},updated_at:nowIso()};
-    await serviceRest(env,'platform_tools?on_conflict=tool_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'platform.tool.save','tool',code,{status:row.status,price_cents:row.individual_price_cents});return ok({tool_code:code});
+    const c=await withContext(env,request,'tools.manage');
+    const code=safeCode(body.tool_code),name=clean(body.name);
+    if(!code||!name||name.length>160)return bad('A valid tool code and name are required.');
+    const current=await one(env,'platform_tools?select=*&tool_code=eq.'+encodeURIComponent(code)+'&limit=1');
+    const nextStatus=clean(body.status||'planned');
+    if(!['live','beta','planned','paused','retired'].includes(nextStatus))return bad('Invalid tool release status.');
+    // Product editing must NEVER activate a new checkout, publish an
+    // unverified tool as LIVE, or silently alter a Stripe-bound price.
+    if(nextStatus==='live'&&current?.status!=='live')return bad('A new LIVE tool requires a separate verified release and Stripe/entitlement activation.',409);
+    if(current?.status==='live'&&nextStatus!=='live')return bad('Pausing a billed LIVE tool requires a separate subscription-impact review.',409);
+    const price=Number(body.individual_price_cents??0);
+    if(!Number.isSafeInteger(price)||price<0||price>100000000)return bad('Individual price must be a valid nonnegative amount in cents.');
+    if(current?.status==='live'&&price!==Number(current.individual_price_cents))
+      return bad('LIVE Stripe prices cannot be edited here. Create and verify a matching Stripe Price and payment mapping first.',409);
+    if(current?.status==='live'&&(['included_full','included_lifetime','free_preview'].some(key=>
+      Object.prototype.hasOwnProperty.call(body,key)&&Boolean(body[key])!==Boolean(current[key]))))
+      return bad('Changing LIVE tool entitlements/free previews requires a separate access-impact review.',409);
+    if(clean(body.individual_checkout_url)!==clean(current?.individual_checkout_url))
+      return bad('Checkout destinations must be activated in the signed payment integration, not the product editor.',409);
+    const href=clean(body.href||'');
+    if(href&&!/^(?:\/?[A-Za-z0-9_-]+\.html)(?:#[A-Za-z0-9_-]+)?$/.test(href))
+      return bad('Tool pages must use an existing safe internal site route.',400);
+    const row={tool_code:code,name,category:clean(body.category||'Platform').slice(0,90),
+      description:clean(body.description).slice(0,4000)||null,href:href||null,status:nextStatus,
+      active:body.active!==false,public_visible:body.public_visible!==false,
+      included_full:current?.status==='live'?current.included_full:body.included_full===true,
+      included_lifetime:current?.status==='live'?current.included_lifetime:body.included_lifetime===true,
+      individual_price_cents:price,individual_checkout_url:current?.individual_checkout_url||null,
+      free_preview:current?.status==='live'?current.free_preview:body.free_preview===true,
+      sort_order:Number.isSafeInteger(Number(body.sort_order))?Number(body.sort_order):100,
+      data_requirement:clean(body.data_requirement).slice(0,1200)||null,
+      metadata:current?.metadata||{},updated_at:nowIso()};
+    // Optimistic row-revision control: a late editor must never overwrite
+    // a tool's changed Stripe price, release status or access configuration.
+    let changed;
+    if(current){
+      if(!current.updated_at)return bad('Tool revision unavailable. Refresh before editing.',409);
+      const result=await serviceRest(env,'platform_tools?tool_code=eq.'+encodeURIComponent(code)+
+        '&updated_at=eq.'+encodeURIComponent(current.updated_at),
+        {method:'PATCH',prefer:'return=representation',body:row});
+      changed=result.data;
+    }else{
+      const result=await serviceRest(env,'platform_tools?on_conflict=tool_code',
+        {method:'POST',prefer:'resolution=ignore-duplicates,return=representation',body:row});
+      changed=result.data;
+    }
+    if(!Array.isArray(changed)||changed.length!==1)
+      return bad('This tool changed in another session. Reload the Products list before saving.',409);
+    await audit(env,c.user.id,'platform.tool.save','tool',code,{before:current?{status:current.status,individual_price_cents:current.individual_price_cents}:null,after:{status:row.status,individual_price_cents:row.individual_price_cents},salesChanged:false});
+    return ok({tool_code:code,notice:'Product information saved; Stripe Price and entitlement rollout unchanged.'});
   }
   if(action==='plan_grant'){
     const c=await withContext(env,request,'entitlements.manage');const target=clean(body.user_id),plan=safeCode(body.plan_code);if(!target||!plan)return bad('User and plan are required.');const ps=body.starts_at?new Date(body.starts_at):new Date(),pe=body.ends_at?new Date(body.ends_at):null;if(pe&&pe<=ps)return bad('Ending date must be after the begin date.');
