@@ -53,7 +53,7 @@ paid_evidence AS (
       WHERE t.user_id=i.user_id AND t.tool_code=i.sku_code
         AND t.provider_subscription_id=i.stripe_subscription_id
         AND t.provider='STRIPE_MANAGED' AND t.status='active'
-        AND t.ends_at>now()))
+        AND COALESCE(t.current_period_end,t.ends_at)>now()))
    OR (i.sku_kind='plan' AND i.sku_code='LIFETIME' AND EXISTS(
       SELECT 1 FROM public.user_plan_grants g
       WHERE g.id=i.created_grant_id AND g.user_id=i.user_id AND g.plan_code='LIFETIME'
