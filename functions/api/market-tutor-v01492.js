@@ -48,6 +48,44 @@ async function quota(env,userId){
  if(!r.ok)return false;
  return (await r.json().catch(()=>false))===true;
 }
+/* Aggregate ONLY the authenticated learner's self-tagged mistakes.
+ * No journal bodies, Lab answers, portfolio fields or PII go to the AI model.
+ * A repeated self-report is a study cue, never a competency/grade claim.
+ */
+async function memberPractice(env,userId){
+ const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=String(env.SUPABASE_SECRET_KEY||'');
+ if(!/^https:\/\//.test(base)||!secret)throw error('Personalized practice storage unavailable.',503);
+ const headers=serviceHeaders(secret),id=encodeURIComponent(userId);
+ const paths=[
+  'decision_journal?select=mistakes&user_id=eq.'+id+'&order=created_at.desc&limit=60',
+  'lab_attempts?select=mistakes,skill_code&user_id=eq.'+id+'&order=completed_at.desc&limit=60'
+ ];
+ const records=await Promise.all(paths.map(async path=>{
+  const response=await fetch(base+'/rest/v1/'+path,{method:'GET',headers,cache:'no-store'});
+  if(!response.ok)throw error('Personal learning records cannot be verified.',503);
+  const data=await response.json();if(!Array.isArray(data))throw error('Invalid personal learning record result.',503);
+  return data;
+ }));
+ const totals=new Map(),skills=new Map();
+ let examined=0;
+ for(const [group,items] of records.entries())for(const item of items){
+  examined++;
+  if(group===1&&typeof item?.skill_code==='string'&&/^[A-Za-z0-9_-]{2,60}$/.test(item.skill_code)){
+   skills.set(item.skill_code,(skills.get(item.skill_code)||0)+1);
+  }
+  const mistakes=Array.isArray(item?.mistakes)?[...new Set(item.mistakes)]:[];
+  for(const raw of mistakes.slice(0,12)){
+   const name=clean(raw);
+   if(name.length<3||name.length>90)continue;
+   totals.set(name,(totals.get(name)||0)+1);
+  }
+ }
+ const recommendations=[...totals.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5)
+  .map(([topic,mentions])=>({topic,mentions,practiceUrl:'/labs.html?q='+encodeURIComponent(topic)}));
+ const skillSignals=[...skills.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5)
+  .map(([code,attempts])=>({code,attempts}));
+ return {examined,recommendations,skillSignals};
+}
 function extractText(response){
  const a=response?.output;
  if(!Array.isArray(a))return '';
@@ -88,7 +126,18 @@ export async function onRequest({request,env}){
   let body;try{body=JSON.parse(raw)}catch{throw error('Invalid JSON.')}
   if(!body||typeof body!=='object'||Array.isArray(body))throw error('Invalid Tutor request.');
   const q=clean(body.question),mode=clean(body.mode||'explain'),answer=clean(body.learnerAnswer||'');
-  if(q.length<4||q.length>450||!['explain','question','review'].includes(mode)||answer.length>1800)throw error('Invalid question or learning mode.');
+  if(q.length<4||q.length>450||!['explain','question','review','practice'].includes(mode)||answer.length>1800)throw error('Invalid question or learning mode.');
+  if(mode==='practice'){
+   const result=await memberPractice(env,auth.userId);
+   return reply({ok:true,generation:'authenticated-practice-history',mode:'practice',
+    answer:result.recommendations.length
+     ?'These repeated self-tagged review observations may guide your next practice. They are not independently graded weaknesses.'
+     :'No self-tagged practice patterns are available yet. Complete reviewed lessons and record specific observations in the Journal.',
+    recommendations:result.recommendations,skillSignals:result.skillSignals,recordsReviewed:result.examined,
+    sources:[],graded:false,masteryAwarded:false,
+    notice:'Only this signed-in member\'s self-recorded mistake tags were counted. Raw journal entries, trading outcomes and answer keys were not sent to an AI model.',
+    links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
+  }
   const source=rank(q),sources=publicMatches(source);
   const baseline=deterministic(q,mode,sources,answer);
   let text=baseline,generation='reviewed-glossary-logic';
