@@ -5,6 +5,8 @@ const root=new URL('../',import.meta.url);
 const src=readFileSync(new URL('functions/api/admin-accounts-v01353.js',root),'utf8');
 const ui=readFileSync(new URL('assets/js/account-management-entitlements-v01478.js',root),'utf8');
 const sourceSQL=readFileSync(new URL('supabase/migrations/v0.14.0.78_SOURCE_AWARE_ACCOUNT_REVOKE_REVIEW_REQUIRED.sql',root),'utf8');
+const legacyAdmin=readFileSync(new URL('functions/api/admin.js',root),'utf8');
+const legacyUI=readFileSync(new URL('assets/js/admin.js',root),'utf8');
 const html=readFileSync(new URL('admin.html',root),'utf8');
 const operations=readFileSync(new URL('assets/js/admin-operations.js',root),'utf8');
 const app=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
@@ -29,6 +31,7 @@ globalThis.fetch=async(url,options={})=>{
  if(u.includes('/rest/v1/user_library?'))return J([{id:12,product_code:'FOUNDATIONS_I',access_type:'companion',source_channel:'admin',expires_at:null}]);
  if(u.includes('/rest/v1/user_tool_passes?'))return J([{id:16,tool_code:'MARKET_TUTOR',status:'active',provider:null,provider_subscription_id:null,metadata:{admin_manual:true}}]);
  if(u.includes('/rest/v1/book_key_redemptions?'))return J([{id:21,book_code:'FOUNDATIONS_I',starts_at:'2026-01-01',ends_at:'2027-01-01'}]);
+ if(u.includes('/rest/v1/entitlements?'))return J([{product_key:'full_learning_access',status:'active',source:'admin',ends_at:null}]);
  if(u.includes('/rest/v1/site_orders?'))return J([{id:29,provider:'stripe',status:'paid',total_cents:6999}]);
  if(u.includes('/rest/v1/catalog_products?'))return J([{product_code:'FOUNDATIONS_I',short_title:'Foundations I'}]);
  if(u.includes('/rest/v1/platform_tools?'))return J([{tool_code:'MARKET_TUTOR',name:'Market Tutor'}]);
@@ -60,7 +63,7 @@ try{
  assert.equal(d.inventory.subscriptions[0].provider,'STRIPE_MANAGED');
  assert.equal(d.inventory.books[0].source_channel,'admin');
  assert.equal(d.inventory.tools[0].metadata.admin_manual,true);
- assert.equal(d.inventory.bookKeys.length,1);assert.equal(d.inventory.orders.length,1);
+ assert.equal(d.inventory.bookKeys.length,1);assert.equal(d.inventory.legacyLearning[0].product_key,'full_learning_access');assert.equal(d.inventory.orders.length,1);
  assert.equal(d.effectiveAccess.planCode,'FULL_MONTHLY');
  r=await app.onRequest({request:request('revoke_resource',{userId:member,kind:'manual_book',recordId:12,reason:'Owner-approved access cleanup'}),env});
  d=await r.json();assert.equal(r.status,200,JSON.stringify(d));assert.equal(d.revoked,true);
@@ -89,5 +92,11 @@ try{
  assert.ok(sourceSQL.includes('admin_audit_log'));
  assert.ok(!/DELETE FROM public\.(site_orders|site_subscriptions|book_key_redemptions)/i.test(sourceSQL));
  assert.ok(!/UPDATE public\.site_subscriptions/i.test(sourceSQL));
+ assert.ok(legacyAdmin.includes("if(retired.has(action))"),'Legacy API must intercept legacy account mutations before their old handlers');
+ for(const unsafe of ['library_revoke','entitlement_revoke','plan_revoke','tool_revoke','library_grant',
+   'entitlement_grant','plan_grant','tool_grant','user_delete','set_role'])
+   assert.ok(legacyAdmin.includes("'"+unsafe+"'"),'Missing blocked legacy mutation: '+unsafe);
+ assert.ok(legacyUI.includes('window.GroundUpAccountEditor?.openById'),'Legacy UI must route to new unified editor');
+ assert.ok(ui.includes('Legacy learning entitlements'));
  console.log('PASS v78: Admin member-only scoping, unified account inventory, source-aware grant/revoke, no false FREE, provider/financial ledger invariants');
 }finally{globalThis.fetch=orig}
