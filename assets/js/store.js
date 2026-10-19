@@ -36,7 +36,7 @@ function bookCard(p){
  if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)channels.push(bookBuy('Buy Hardcover on Amazon',p.amazon.hardcoverUrl));
  if(p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)channels.push(bookBuy('Buy Physical Edition Direct',p.directPhysical.checkoutUrl));
  if(p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)channels.push(bookBuy('Buy Digital Edition Direct',p.directDigital.checkoutUrl));
- if(p.websiteCheckoutEnabled&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
+ if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
  if(p.sampleUrl)channels.push(bookBuy('Read Sample',p.sampleUrl));
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
  const available=channels.length?channels.join(''):`<span class="small">${['in_development','coming_soon'].includes(p.publicationStatus)?'Purchase links will appear when this edition is released.':'Amazon links will appear here as soon as the listing URLs are added.'}</span>`;
