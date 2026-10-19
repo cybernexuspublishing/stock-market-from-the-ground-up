@@ -4,7 +4,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let review=null,catalog=null,counts=null,engineering=null;
+let review=null,catalog=null,counts=null,engineering=null,tracked=new Map();
 const stageNames={'content-blocked':'Historical content & rubrics incomplete','integration-pending':'End-to-end QA outstanding','data-blocked':'Historical data / provenance missing','major-build':'Core AI backend not delivered',beta:'Functional beta / validation pending',planned:'Future release'};
 function openTask(id){
  if(!/^CORE-[0-9]{4}$/.test(id))return;
@@ -12,6 +12,17 @@ function openTask(id){
  else location.hash='task-'+id;
 }
 const badge=(stage)=>stageNames[stage]||'Review pending';
+const stageLabels={not_started:'Not reviewed',in_progress:'In progress',implemented:'Source implemented — QA pending',
+ blocked:'Blocked',deferred:'Deferred',owner_complete:'Scoped completed decision',verified:'Evidence verified'};
+function ownerTracking(id){
+ const row=tracked.get(id);
+ if(!row)return '<p class="or-muted">No matching original checklist record.</p>';
+ const status=stageLabels[row.status]||row.status;
+ const origin=row.origin==='owner'?'Owner saved':row.origin==='delegated'?'Delegated technical review':'No recorded approval';
+ return '<p class="or-task-tracking"><strong>Linked checklist:</strong> '+esc(status)+
+  ' · '+esc(origin)+' · engineering '+esc(row.reviewStage||'not reviewed')+'.</p>';
+}
+
 function summary(){
  if(!review)return;
  const warnings=[];
@@ -37,7 +48,7 @@ function card(t,market){
  '<h3>'+esc(t.name)+'</h3><p class="or-readiness-percent">'+esc(normal)+' <small>planning estimate</small></p>'+
  '<div class="or-readiness-meter" aria-label="Planning estimate '+esc(normal)+'"><span style="width:'+Number(t.range[1])+'%"></span></div>'+
  '<p><strong>Registry:</strong> '+esc(availability)+'</p>'+
- '<p><strong>Next acceptance:</strong> '+esc(t.gate)+'</p>'+
+ '<p><strong>Next acceptance:</strong> '+esc(t.gate)+'</p>'+ownerTracking(t.roadmapId)+
  '<div class="or-card-actions"><button type="button" class="or-button or-secondary" data-readiness-task="'+esc(t.roadmapId)+'">Open '+esc(t.roadmapId)+'</button></div></article>';
 }
 function supporting(t){
@@ -60,7 +71,7 @@ function renderProducts(){
  if($('or-readiness-support'))$('or-readiness-support').innerHTML=(review.supportingSystems||[]).map(supporting).join('');
  if($('or-readiness-work')){
   $('or-readiness-work').innerHTML=(review.nextWork||[]).map(x=>
-   '<article class="or-readiness-work"><span class="or-tag">'+esc(x.priority)+'</span><div><strong>'+esc(x.title)+'</strong><p>'+esc(x.exitCriterion)+'</p></div><button type="button" class="or-button or-secondary" data-readiness-task="'+esc(x.roadmapId)+'">'+esc(x.roadmapId)+'</button></article>').join('');
+   '<article class="or-readiness-work"><span class="or-tag">'+esc(x.priority)+'</span><div><strong>'+esc(x.title)+'</strong><p>'+esc(x.exitCriterion)+'</p>'+ownerTracking(x.roadmapId)+'</div><button type="button" class="or-button or-secondary" data-readiness-task="'+esc(x.roadmapId)+'">'+esc(x.roadmapId)+'</button></article>').join('');
  }
 }
 function renderAudit(){
@@ -85,6 +96,12 @@ function render(data){
  review=data?.productReadiness||null;
  catalog=data?.productInventory||null;
  engineering=data?.engineeringReview||null;
+ tracked=new Map((data.items||[]).filter(x=>x.scope==='core').map(item=>{
+  const p=data.progress?.[item.id],d=data.delegatedBaseline?.[item.id];
+  return [item.id,{status:p?.status||d?.status||'not_started',
+   origin:p?'owner':d?'delegated':'unreviewed',
+   reviewStage:item.engineeringReview?.stage||'needs_review'}];
+ }));
  counts={core:(data.items||[]).filter(x=>x.scope==='core').length,
   trace:(data.items||[]).filter(x=>x.scope==='trace').length,
   total:(data.items||[]).length};
