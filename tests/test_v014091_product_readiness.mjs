@@ -59,7 +59,7 @@ assert(!/\b(INSERT\s+INTO|UPDATE\s+PUBLIC\.|DELETE\s+FROM|CREATE\s+|ALTER\s+TABL
 assert(sql.includes('08_DESTRUCTIVE_GRANTS')&&sql.includes('07_TUTOR_CONTENT'));
 assert(existsSync(new URL('../supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql',import.meta.url)));
 const manifest=JSON.parse(read('release-manifest.json'));
-assert.equal(manifest.version,'0.14.0.92');
+assert.match(manifest.version,/^0\\.14\\.0\\.\\d+$/,'Release version must be well formed');
 assert.equal(manifest.ownerRoadmap.catalogEntries,2190);
 assert.equal(manifest.ownerRoadmap.primaryTasks,375);
 assert.equal(manifest.ownerRoadmap.sourceTraceRows,1815);
@@ -68,5 +68,5 @@ assert.equal(manifest.liveStripeFulfillmentEnabled,false);
 assert.equal(JSON.parse(read('data/commerce-config.json')).version,manifest.version);
 assert(read('config.js').includes("VERSION: '"+manifest.version+"'"));
 assert(read('assets/js/route-policy.js').includes("version:'"+manifest.version+"'"));
-assert(read('sw.js').includes('groundup-v014092-public'));
+assert(read('sw.js').includes('groundup-v'+manifest.version.replaceAll('.','')+'-public'));
 console.log('PASS v91: all 21 tools, 13 related systems, 8 membership scopes, two protected tabs, safe existing-task linking, immutable 2,190 records, zero-write Supabase audit and release-version alignment.');
