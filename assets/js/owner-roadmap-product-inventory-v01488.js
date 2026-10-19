@@ -7,7 +7,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const $=id=>document.getElementById(id);
 const validRoute=route=>{
  const raw=String(route||'');
- return /^\/[a-z0-9][a-z0-9_-]*\.html(?:#[a-z0-9_-]+)?$/i.test(raw)?raw:'';
+ return /^\/?[a-z0-9][a-z0-9_-]*\.html(?:#[a-z0-9_-]+)?$/i.test(raw)?(raw.startsWith('/')?raw:'/'+raw):'';
 };
 const validCode=code=>/^[A-Z][A-Z0-9_]{0,60}$/.test(String(code||''));
 const planRoutes={FREE:'/store-membership-free.html',FULL_MONTHLY:'/store-membership-full-monthly.html',
