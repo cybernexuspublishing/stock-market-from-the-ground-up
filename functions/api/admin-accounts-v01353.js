@@ -170,7 +170,7 @@ async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,sy
    books:'user_library?select=id,product_code,access_type,source_channel,source_reference,expires_at&user_id=eq.'+id+'&order=granted_at.desc&limit=100',
    tools:'user_tool_passes?select=id,tool_code,status,starts_at,ends_at,provider,provider_subscription_id,metadata&user_id=eq.'+id+'&order=created_at.desc&limit=100',
    bookKeys:'book_key_redemptions?select=id,book_code,starts_at,ends_at&user_id=eq.'+id+'&order=created_at.desc&limit=50',
-   legacyLearning:'entitlements?select=product_key,status,source,starts_at,ends_at&user_id=eq.'+id+'&limit=100',
+   legacyLearning:'entitlements?select=id,product_key,status,source,starts_at,ends_at,external_customer_id,external_subscription_id&user_id=eq.'+id+'&limit=100',
    orders:'site_orders?select=id,provider,status,total_cents,paid_at,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=50'
  };
  const inventory={},inventoryErrors={};
@@ -201,16 +201,18 @@ async function grantAccountResource(env,actor,b){
  if(x.profile.account_kind!=='member')throw problem('Real member account required for production grants.',403);
  const kind=clean(b.kind),code=clean(b.code).toUpperCase(),reason=clean(b.reason);
  const expires=clean(b.expiresAt),date=expires?new Date(expires):null;
- if(!['manual_book','manual_tool'].includes(kind)||
-    !/^[A-Z0-9_-]{2,90}$/.test(code)||
+ if(!['manual_book','manual_tool','manual_learning'].includes(kind)||
+    (kind==='manual_learning'?code!=='FULL_LEARNING_ACCESS':!/^[A-Z0-9_-]{2,90}$/.test(code))||
     reason.length<10||reason.length>500||
     (date&&(!Number.isFinite(date.getTime())||date<=new Date())))
     throw problem('Select an active product/tool, valid optional expiration, and a reason (10–500 characters).',400);
  const result=await rest(env,'rpc/gu78_admin_account_resource_grant',{method:'POST',body:{
-  p_actor:actor.user.id,p_target:id,p_kind:kind,p_code:code,
+  p_actor:actor.user.id,p_target:id,p_kind:kind,
+  p_code:kind==='manual_learning'?'full_learning_access':code,
   p_expires_at:date?.toISOString()||null,p_reason:reason
  }});
- if(result?.ok!==true||result?.granted!==true||result?.targetUser!==id||result?.code!==code)
+ if(result?.ok!==true||result?.granted!==true||result?.targetUser!==id||
+   String(result?.code).toUpperCase()!==code)
     throw problem('The database did not confirm this manual entitlement grant.',409);
  return respond({ok:true,granted:true,kind,code,recordId:result.recordId,
     notice:'Manual entitlement created; reload source-aware member inventory and verify effective access.'});
@@ -219,7 +221,7 @@ async function revokeAccountResource(env,actor,b){
  const id=clean(b.userId),x=await lookup(env,id);
  targetAccess(actor,id,x);
  const kind=clean(b.kind),record=Number(b.recordId),reason=clean(b.reason);
- if(!['manual_plan','manual_book','manual_tool'].includes(kind)||
+ if(!['manual_plan','manual_book','manual_tool','manual_learning'].includes(kind)||
     !Number.isSafeInteger(record)||record<1||
     reason.length<10||reason.length>500)
    throw problem('Select one active manual entitlement and supply a reason (10–500 characters).',400);
