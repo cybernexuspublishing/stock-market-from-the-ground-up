@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'tests/test_v014085_production_storefront_playwright.mjs'
+      - 'tests/test_v014085_bundled_guide_contract.mjs'
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store.js'
       - 'assets/js/store-product-detail-v01484.js'
@@ -33,6 +34,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
+      - name: Verify no divergence between editorial product guide and packaged production script
+        run: node tests/test_v014085_bundled_guide_contract.mjs
       - name: Start local branch site for PR quality gate
         if: github.event_name == 'pull_request'
         run: |
