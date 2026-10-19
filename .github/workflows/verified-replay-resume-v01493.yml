@@ -15,6 +15,10 @@ on:
       - 'assets/js/owner-roadmap.js'
       - 'owner-roadmap.html'
       - 'tests/test_v014093_owner_lab_readiness.mjs'
+      - 'functions/api/market-tutor-v01492.js'
+      - 'assets/js/market-tutor.js'
+      - 'market-tutor.html'
+      - 'tests/test_v014093_tutor_practice.mjs'
   pull_request:
     paths:
       - 'functions/api/learning-replay-v01492.js'
@@ -44,6 +48,10 @@ jobs:
           node --check functions/_lib/owner-lab-readiness-v01493.js
           node --check assets/js/owner-roadmap-product-readiness-v01491.js
           node tests/test_v014093_owner_lab_readiness.mjs
+          node --check functions/api/market-tutor-v01492.js
+          node --check assets/js/market-tutor.js
+          node tests/test_v014092_market_tutor_contract.mjs
+          node tests/test_v014093_tutor_practice.mjs
       - name: Confirm server boundary, build exclusion and no release promotion
         run: |
           bash scripts/build-pages.sh
