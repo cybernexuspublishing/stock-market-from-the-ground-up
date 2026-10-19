@@ -129,7 +129,8 @@ function tabs(){
 async function init(){
  tabs();
  try{
-  const d=await C().load();
+  const catalog=await C().load();
+  const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
   const plans=(d.plans||[]).filter(availablePlan),allTools=(d.tools||[]).filter(listedTool),tools=allTools.filter(activeTool);
   document.getElementById('store-plans').innerHTML=plans.length?plans.map(planCard).join(''):
    '<div class="notice">Membership details and prices are temporarily unavailable from the live catalog. No purchase is offered until the catalog is available.</div>';
