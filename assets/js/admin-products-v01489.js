@@ -69,6 +69,18 @@ function toolCard(t){
  '<div class="product-admin-actions"><a class="btn secondary" href="'+e(urlFor('tool',t.tool_code))+'" target="_blank" rel="noopener">View Customer Page</a>'+
  (can('tools.manage')?'<button type="button" class="btn" data-tool-edit="'+e(t.tool_code)+'">Edit Tool</button>':'')+'</div></article>';
 }
+function upcomingAdmin(){
+ const records=Array.isArray(window.GroundUpUpcomingOfferings)?window.GroundUpUpcomingOfferings:[];
+ const existing=new Set((live?.tools||[]).map(x=>x.tool_code));
+ const pending=records.filter(x=>!existing.has(x.code));
+ return pending.length?'<section class="product-upcoming-admin"><h3>Planned / Supporting Learning Offers ('+pending.length+')</h3>'+
+ '<p class="small">These website features are not approved as separate Stripe products. Create a planned tool record only after deciding to offer the feature independently; keep checkout disabled until release and provider price mapping are verified.</p>'+
+ '<div class="admin-grid">'+pending.map(t=>'<article class="admin-card product-admin-card"><div class="eyebrow">'+e(t.category||'Planned learning')+'</div><h4>'+e(t.name)+'</h4>'+
+ '<p>'+e(t.description)+'</p><p class="product-admin-price">Price to be announced</p><p class="product-admin-status">Coming Soon — Not an independently purchasable SKU</p>'+
+ '<div class="product-admin-actions"><a class="btn secondary" href="'+e(t.route)+'" target="_blank" rel="noopener">Preview Existing Feature</a>'+
+ (can('tools.manage')?'<button type="button" class="btn secondary" data-upcoming-create="'+e(t.code)+'">Create Planned SKU</button>':'')+
+ '</div></article>').join('')+'</div></section>':'';
+}
 function wire(){
  const root=$('admin-products-panel');if(!root||root.dataset.wired)return;root.dataset.wired='true';
  root.querySelectorAll('[data-product-tab]').forEach(button=>{
@@ -82,6 +94,15 @@ function wire(){
  });
  $('admin-products-new-tool')?.addEventListener('click',()=>{try{window.GroundUpAdminToolEditor?.add()}catch(ex){msg(ex.message,true)}});
  root.addEventListener('click',async ev=>{
+  const upcoming=ev.target.closest('[data-upcoming-create]');
+  if(upcoming){
+   if(!can('tools.manage')){msg('Tool editing permission required.',true);return}
+   const item=(window.GroundUpUpcomingOfferings||[]).find(x=>x.code===upcoming.dataset.upcomingCreate);
+   if(!item)return;
+   // Existing tool editor enforces planned-only creation and never activates checkout.
+   try{window.GroundUpAdminToolEditor?.add()}catch(ex){msg(ex.message,true)}
+   return;
+  }
   const tool=ev.target.closest('[data-tool-edit]');
   if(tool){
    const item=live?.tools?.find(x=>x.tool_code===tool.dataset.toolEdit);
@@ -131,7 +152,7 @@ async function load(){
   if(result[0].status!=='fulfilled')throw result[0].reason;
   live=result[0].value;
   $('admin-products-membership-list').innerHTML=live.plans.length?live.plans.map(membershipCard).join(''):'<p>Membership catalog is restricted or unavailable.</p>';
-  $('admin-products-tool-list').innerHTML=live.tools.length?live.tools.map(toolCard).join(''):'<p>Tool catalog is restricted or unavailable.</p>';
+  $('admin-products-tool-list').innerHTML=(live.tools.length?live.tools.map(toolCard).join(''):'<p>Tool catalog is restricted or unavailable.</p>')+upcomingAdmin();
   $('admin-products-new-tool').hidden=!can('tools.manage');
   if(result[1].status!=='fulfilled')msg('Books could not be loaded: '+result[1].reason?.message,true);
   else msg((live.plans?.length||0)+' membership configurations · '+(live.tools?.length||0)+' tool records. Book listings are managed in the Books tab.');
