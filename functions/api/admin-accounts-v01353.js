@@ -105,8 +105,8 @@ async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode
    !(x.source==='stripe_zero_monthly_qa_v72'&&x.plan_code==='FULL_MONTHLY'));
  if(qa.length&&plan!=='FREE')
    throw problem('This member has an active $0 LIVE Stripe QA membership. First choose FREE to reset that specific test access; otherwise a new manual grant would not replace the Stripe grant.',409);
- if(plan==='FREE'&&external.length)
-   throw problem('This account has another active non-admin entitlement. FREE cannot be applied here without resolving that entitlement through its issuing system.',409);
+ if(external.length)
+   throw problem('This account has active entitlements from another issuing system. Changing the manual plan cannot override them. Review the complete account access ledger and use the correct audited revoke/cancel/refund operation first.',409);
  let resetQaCount=0;
  if(plan==='FREE'&&qa.length){
    // Restrict this special case to the SAME production account allowlisted for
@@ -129,8 +129,8 @@ async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode
  // The same source-of-truth resolver used for customer Access decides whether
  // FREE really took effect. Do not show a false success if other access persists.
  const effective=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}});
- if(plan==='FREE'&&effective?.planCode!=='FREE')
-   throw problem('The selected manual and $0 QA grants were updated, but effective access is still '+clean(effective?.planCode||'unknown')+'. Investigate other active entitlements; FREE has NOT been verified.',409);
+ if(effective?.planCode!==plan)
+   throw problem('Requested '+plan+' but the effective access resolver still returns '+clean(effective?.planCode||'unknown')+'. Membership update is NOT verified. Review active entitlement sources and reconcile before reporting success.',409);
  await audit(env,actor,'v1353.membership.adjust',id,{plan,startsAt:range.start,endsAt:range.end,
    revokedManualGrants:owned.length,revokedZeroQaGrants:resetQaCount,actualPlan:effective?.planCode||null});
  return{synthetic:false,planCode:effective?.planCode||plan,zeroQaResetCount:resetQaCount};}
@@ -147,10 +147,23 @@ async function changePrimaryRole(env,actor,id,x,b,dryRun=false){const code=clean
  for(const r of prior.filter(x=>x!==code))await rest(env,'admin_user_roles?user_id=eq.'+id+'&role_code=eq.'+encodeURIComponent(r),{method:'DELETE',prefer:'return=minimal'});
  await audit(env,actor,'v1353.role.replace',id,{previous:prior,next:code});}
 async function uniqueUsername(env,name){const rows=await rest(env,'profiles?select=id&username=ilike.'+encodeURIComponent(name)+'&limit=1');if(rows?.length)throw problem('Username already in use.',409)}
+// Authoritative per-account source inventory, not a flattened plan label.
+// All reads occur behind server Owner authorization; never expose raw account
+// ledgers to unrelated member identities.
+async function accountEntitlementInventory(env,id){
+ const queries=[
+  ['planGrants','user_plan_grants?select=id,plan_code,status,starts_at,ends_at,source,source_reference,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=100'],
+  ['subscriptions','site_subscriptions?select=id,plan_code,status,current_period_start,current_period_end,provider,provider_subscription_id,cancel_at_period_end&user_id=eq.'+id+'&order=created_at.desc&limit=100'],
+  ['toolPasses','user_tool_passes?select=id,tool_code,status,starts_at,ends_at,provider,provider_subscription_id&user_id=eq.'+id+'&order=created_at.desc&limit=100'],
+  ['library','user_library?select=id,product_code,source_channel,expires_at&user_id=eq.'+id+'&limit=100']
+ ];
+ const values=await Promise.all(queries.map(async([name,q])=>[name,await rest(env,q)]));
+ return Object.fromEntries(values);
+}
 async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,synthetic:true,account:synthetic.find(x=>x.id===id)||synthetic[0],dateOfBirth:null});
  const x=await lookup(env,id),auth=await authAdmin(env,'users/'+id),u=auth?.user||auth,identity=(await rest(env,'account_private_identity?select=date_of_birth&user_id=eq.'+id+'&limit=1'))?.[0];
  const [flagRows,noteRows]=await Promise.all([rest(env,'admin_user_flags?select=status,reason,updated_at&user_id=eq.'+id+'&limit=1'),rest(env,'admin_user_notes?select=note_type,note,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=12')]);
- return respond({ok:true,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
+ return respond({ok:true,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind),accessInventory:await accountEntitlementInventory(env,id)});}
 async function change(env,request,actor,action,b){if(actor.showcase)throw problem('Showcase is read-only.',403);const ownerId=actor.user.id;
  if(action==='create'){
    const type=clean(b.type).toLowerCase();if(!['member','test','showcase','moderator','admin','owner'].includes(type))throw problem('Invalid account type.');
