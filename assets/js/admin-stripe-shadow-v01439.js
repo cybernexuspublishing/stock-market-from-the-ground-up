@@ -1,4 +1,4 @@
-/* v0.14.0.92 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.93 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -21,7 +21,7 @@
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
- const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.92')+' · includes Run Payment Test Preflight','gu39-small');
+ const deployedVersion=element('p','Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'0.14.0.93')+' · includes Run Payment Test Preflight','gu39-small');
  const lead=element('p','Safely check Stripe test payments without changing real customer memberships, orders, or eBook rights.');
  const banner=element('p','Payment mode initializing · Customer checkout remains OFF','gu39-danger');
  const help=element('p','Verification works with testing OFF. Configure GU39_STRIPE_TEST_SECRET_KEY and GU39_STRIPE_TEST_PRICE_MAP_JSON in Cloudflare server-side settings. Never enter secret keys here.','gu39-small');
@@ -296,7 +296,7 @@
    unifiedReport.append(accepted);
    const live=report.production||{};
    unifiedReport.append(element('p',
-    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.92')+'): '+
+    'Production customer memberships (v'+(window.SITE_CONFIG?.VERSION||'0.14.0.93')+'): '+
     (live.liveCheckoutAvailable?'LIVE route enabled — independent acceptance still required':
       'Source connector prepared; LIVE checkout and real entitlement issuance remain LOCKED.')+
     ' LIVE database installation and exact stored SQL require independent verification against Owner-provided Supabase evidence; a TEST shadow grant is not real member access.'));
@@ -513,7 +513,7 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.92',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.93',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
