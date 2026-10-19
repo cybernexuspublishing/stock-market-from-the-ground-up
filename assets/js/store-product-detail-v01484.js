@@ -81,10 +81,11 @@ function planDetail(p,guide,code){
 function toolDetail(t,guide,code){
  const title=t?.name||({INTERACTIVE_LEARNING:'Interactive Learning & Historical Labs',JOURNAL_ANALYTICS:'Trading Journal & Performance Analytics',MARKET_SIMULATOR:'Advanced Market Simulator & Replay',MARKET_TUTOR:'Market Tutor'}[code]||code);
  const released=t?.status==='live'&&Number(t?.priceCents)>0&&!!guide;
- const actions=released?button('Review tool subscription & checkout',`checkout.html?type=tool&code=${encodeURIComponent(code)}`):
- '<span>Individual paid tool checkout is not currently verified.</span>';
+ const buyEnabled=released&&t.checkoutEnabled===true;
+ const actions=buyEnabled?button('Subscribe Now — secure checkout',`checkout.html?type=tool&code=${encodeURIComponent(code)}`):
+ '<span class="store-soon-label">Coming Soon · Enrollment not yet available</span>';
  const sections=[
- list('Skills and learning outcomes',guide?.outcomes),
+ list('What you’ll learn and practice',guide?.outcomes),
  list('What individual tool access includes',guide?.included),
  list('What this purchase does not include',guide?.excluded),
  topic('Data and setup requirements',t?.dataRequirement||guide?.requirements),
@@ -92,8 +93,9 @@ function toolDetail(t,guide,code){
  `<section class="store-product-section wide"><h2>Preview the tool</h2><p>Learn about the original tool's workflow before buying. Any preview may be limited by access level and data availability.</p>
  ${button('Open tool information',t?.href||'tools.html')} ${button('Compare with Full Platform membership','store.html#memberships')}</section>`
  ].join('');
- show(layout('tools',title,t?.description||'Individual first-party learning tool.',t?money(t.priceCents):'Verify current price',released?'/month':'',
- actions,sections,released?'Released tool; checkout and member entitlement are checked again before a payment.':!guide?'This tool requires an approved explanation of what is included, excluded and taught before a separate checkout can be offered.':'This tool is not currently verified as a released, purchasable item.'));
+ show(layout('tools',title,t?.description||'Individual first-party learning tool.',released?money(t.priceCents):'Pricing to be announced',released?'/month':'',
+ actions,sections,buyEnabled?'Available to purchase; checkout independently verifies price and eligibility.':
+ released?'Listed learning tool; purchasing opens once all live checkout requirements pass.':'Coming Soon. This learning tool is not available for independent enrollment yet.'));
 }
 function bookDetail(p,guide,code){
  const title=p?.title||code;
@@ -104,9 +106,9 @@ function bookDetail(p,guide,code){
  ['Website delivery',p?.directDigital?.enabled&&!p.kdpSelect?'Check direct-digital availability': 'Not enabled for a direct eBook download from this listing'] ];
  const sections=[
  `<section class="store-product-section store-product-about"><h2>About this book</h2>
- <p>${e(p?.description||guide?.overview||'Catalog description is being prepared by the publisher.')}</p>
+ <p>${e(p?.description||guide?.overview||'This edition’s detailed description is being prepared by the publisher.')}</p>
  <p class="small">The publisher controls edition descriptions, publication state and purchase links.</p></section>`,
- list('Subject areas and learning focus (not a chapter list)',guide?.topics),
+ list('What you’ll learn in this book',guide?.topics),
  topic('Who this is for',guide?.scope),
  `<section class="store-product-section"><h2>Edition and purchase information</h2><dl class="store-product-facts">${detail.map(([k,v])=>`<dt>${e(k)}</dt><dd>${e(v)}</dd>`).join('')}</dl><p>Buying a printed book does not automatically provide digital edition files. Companion learning access follows its own eligibility and book-key terms.</p></section>`,
  `<section class="store-product-section wide"><h2>Book companions and learning resources</h2><p>When enabled for this title, eligible readers can redeem a valid Book Key and use the associated online learning materials. A book listing is not a promise of automatic paid platform membership.</p>
@@ -136,7 +138,7 @@ async function init(){
   const guide=type==='plan'?guideResponse.plans[code]:type==='tool'?guideResponse.tools[code]:type==='book'?guideResponse.books[code]:guideResponse.plans.ONDEMAND_MONTHLY;
   if(type==='preview'){previewReplay(guide);return}
   if(type==='plan'){const row=catalog.plans.find(x=>x.planCode===code);planDetail(row,guide,code);return}
-  if(type==='tool'){const row=catalog.tools.find(x=>x.toolCode===code&&x.status==='live');toolDetail(row,guide,code);return}
+  if(type==='tool'){const row=catalog.tools.find(x=>x.toolCode===code);toolDetail(row,guide,code);return}
   if(type==='book'){const row=catalog.products.find(x=>x.productCode===code&&x.storeVisible!==false);if(!row){root.innerHTML='<h1>Book not currently listed</h1><a href="store.html#books">Return to books</a>';return}bookDetail(row,guide,code)}
  }catch(err){root.innerHTML='<h1>Product information temporarily unavailable</h1><p>Unable to verify the product catalog. No payment has been initiated. Please try again later.</p><a href="store.html">Return to the Store</a>';console.error('Product detail render error:',err)}
 }
