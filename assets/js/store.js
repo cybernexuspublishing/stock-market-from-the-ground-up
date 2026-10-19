@@ -106,7 +106,7 @@ async function init(){
   const plans=(d.plans||[]).filter(availablePlan),tools=(d.tools||[]).filter(activeTool);
   document.getElementById('store-plans').innerHTML=plans.length?plans.map(planCard).join(''):
    '<div class="notice">Membership details and prices are temporarily unavailable from the live catalog. No purchase is offered until the catalog is available.</div>';
-  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.storeVisible!==false&&p.salesStatus!=='retired').map(bookCard).join('')||
+  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired').map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   document.getElementById('store-tools').innerHTML=tools.length?tools.map(toolCard).join(''):
    '<div class="notice">No independently purchasable tools could be verified from the live catalog. Check back when the tool catalog is available.</div>';
