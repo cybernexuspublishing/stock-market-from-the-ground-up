@@ -180,12 +180,40 @@ async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,sy
    else{inventory[k]=null;inventoryErrors[k]='Unable to load this source. Do not assume it is empty.'}
  }
  let effectiveAccess=null,effectiveError=null;
+ let grantCatalog={books:null,tools:null},grantCatalogError=null;
  if(x.profile.account_kind==='member'){
+   try{
+     const [bk,tl]=await Promise.all([
+       rest(env,'catalog_products?select=product_code,short_title&active=eq.true&product_type=eq.book&order=sort_order.asc&limit=120'),
+       rest(env,'platform_tools?select=tool_code,name&active=eq.true&order=sort_order.asc&limit=120')]);
+     grantCatalog={books:bk,tools:tl};
+   }catch{grantCatalogError='Catalog service unavailable; new manual grants disabled.'}
+
    try{effectiveAccess=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}})}
    catch{effectiveError='Effective access resolver unavailable; account status unverified.'}
  }
  return respond({ok:true,permissions:{owner:actor.owner,administrator:!actor.owner},
-  inventory,inventoryErrors,effectiveAccess,effectiveError,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
+  inventory,inventoryErrors,effectiveAccess,effectiveError,grantCatalog,grantCatalogError,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
+async function grantAccountResource(env,actor,b){
+ const id=clean(b.userId),x=await lookup(env,id);
+ targetAccess(actor,id,x);
+ if(x.profile.account_kind!=='member')throw problem('Real member account required for production grants.',403);
+ const kind=clean(b.kind),code=clean(b.code).toUpperCase(),reason=clean(b.reason);
+ const expires=clean(b.expiresAt),date=expires?new Date(expires):null;
+ if(!['manual_book','manual_tool'].includes(kind)||
+    !/^[A-Z0-9_-]{2,90}$/.test(code)||
+    reason.length<10||reason.length>500||
+    (date&&(!Number.isFinite(date.getTime())||date<=new Date())))
+    throw problem('Select an active product/tool, valid optional expiration, and a reason (10–500 characters).',400);
+ const result=await rest(env,'rpc/gu78_admin_account_resource_grant',{method:'POST',body:{
+  p_actor:actor.user.id,p_target:id,p_kind:kind,p_code:code,
+  p_expires_at:date?.toISOString()||null,p_reason:reason
+ }});
+ if(result?.ok!==true||result?.granted!==true||result?.targetUser!==id||result?.code!==code)
+    throw problem('The database did not confirm this manual entitlement grant.',409);
+ return respond({ok:true,granted:true,kind,code,recordId:result.recordId,
+    notice:'Manual entitlement created; reload source-aware member inventory and verify effective access.'});
+}
 async function revokeAccountResource(env,actor,b){
  const id=clean(b.userId),x=await lookup(env,id);
  targetAccess(actor,id,x);
@@ -334,6 +362,7 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true});
  }
  if(action==='revoke_resource')return await revokeAccountResource(env,actor,b);
+ if(action==='grant_resource')return await grantAccountResource(env,actor,b);
  if(action==='membership'){
    const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
    if(x.roles.includes('OWNER'))strongAssurance(actor);
