@@ -1,3 +1,4 @@
+import {loadOwnerLabAudit} from '../_lib/owner-lab-readiness-v01493.js';
 /* Private Owner Website Roadmap API v0.14.0.63.
  * No new migration. Records are stored in existing private site_settings rows.
  * Browser never receives privileged Supabase keys or accesses site_settings directly.
@@ -273,6 +274,7 @@ export async function onRequest({request,env}){
     const c=config(env);
     const user=await owner(request,c,env);
     if(request.method==='POST')return await handlePost(request,c,user);
+    if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
