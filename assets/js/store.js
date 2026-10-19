@@ -18,16 +18,7 @@ const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Min
 const availablePlan=p=>p.planCode!=='PICK_WHAT_YOU_WANT'&&!/(?:^QA_|TEST|ZERO_)/i.test(p.planCode||'');
 const activeTool=t=>t.status==='live'&&Number(t.priceCents)>0;
 const listedTool=t=>t.status!=='retired';
-/* Existing first-party learning feature routes, not new paid Stripe SKUs.
-   Mark all as coming soon in the À-la-Carte roadmap until a verified,
-   independent subscription is actually configured in Supabase. */
-const futureLearning=[
- {code:'GUIDED_HISTORICAL_LABS',name:'Guided Historical Labs & Replay Exercises',route:'labs.html',description:'Guided chart and market-context exercises with recorded decisions and structured review.'},
- {code:'SKILL_ASSESSMENTS',name:'Skill Assessments & Competency Review',route:'assessments.html',description:'Skill checks, feedback and documented progress across learning objectives.'},
- {code:'HISTORICAL_REPLAY_TRAINING',name:'Historical Replay Training',route:'ondemand-training.html',description:'Guided historical practice for use with an independently authorized third-party replay installation.'},
- {code:'LEARNING_PROGRESS',name:'Learning Progress & Skill Development',route:'learn.html',description:'Track curriculum progress and improve market-reading proficiency.'},
- {code:'DATA_CONNECTIONS',name:'Optional Market Data Connections',route:'data-connections.html',description:'Optional external-provider data connections for supported analytical and historical training.'}
-];
+const futureLearning=()=>Array.isArray(window.GroundUpUpcomingOfferings)?window.GroundUpUpcomingOfferings:[];
 function planCard(p){
  const rec=p.planCode==='FULL_MONTHLY',page=details('plan',p.planCode);
  return `<article class="v11-plan ${rec?'recommended':''}">
@@ -71,20 +62,21 @@ function toolCard(t){
  const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled;
  const price=released?dollars(t.priceCents)+'/month':'Pricing to be announced';
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
- '<span class="store-soon-label">Coming Soon · Enrollment not yet open</span>';
+ '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Coming Soon · Not yet released')+'</span>';
  return `<article class="v11-tool-card store-sell-card"><div class="eyebrow">${esc(t.category)}</div>
  <h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
  <p>${esc(t.description||'Further product information is being prepared.')}</p>
- <p class="store-sell-price">${esc(price)}</p>
+ <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
  <p class="store-sell-status">${released?'Released learning tool':'Coming Soon'}${released&&!enroll?' · Sales opening pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
  <div class="store-sales-actions">${action}<a class="btn secondary" href="${esc(page)}">See What You Get</a></div></article>`;
 }
 function upcomingCard(t){
  return `<article class="v11-tool-card store-sell-card store-future-card">
- <span class="store-soon-label">Coming Soon</span><h3>${esc(t.name)}</h3>
- <p>${esc(t.description)}</p><p class="store-sell-price">Pricing to be announced</p>
- <div class="store-sales-actions"><a class="btn secondary" href="${esc(t.route)}">Explore Planned Features</a></div></article>`;
+ <div class="eyebrow">${esc(t.category||'Upcoming learning feature')}</div>
+ <span class="store-soon-label">Coming Soon · Independent purchase not available</span><h3>${esc(t.name)}</h3>
+ <p>${esc(t.description)}</p><p class="store-sell-price"><span class="store-price-label">Price</span> To be announced</p>
+ <div class="store-sales-actions"><a class="btn secondary" href="${esc(t.route)}">Explore This Feature</a></div></article>`;
 }
 
 function comparison(plans,tools){
@@ -138,7 +130,7 @@ async function init(){
   document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired').map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   const futureIds=new Set(allTools.map(x=>x.toolCode));
-  const future=futureLearning.filter(x=>!futureIds.has(x.code));
+  const future=futureLearning().filter(x=>!futureIds.has(x.code));
   document.getElementById('store-tools').innerHTML=d.commerceUnavailable?
    '<div class="notice">Live product prices and checkout status cannot be verified. Please try again later.</div>':
    allTools.map(toolCard).join('')+future.map(upcomingCard).join('');
