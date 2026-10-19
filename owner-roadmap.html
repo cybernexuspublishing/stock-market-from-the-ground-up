@@ -24,20 +24,30 @@
 <section class="or-metrics" id="or-metrics" aria-label="Delegated and Owner-authenticated progress totals"></section>
 <section class="or-review-board" id="or-review-board" aria-label="Independent engineering evidence assessment" hidden></section>
 <section class="or-action-board" id="or-action-board" aria-labelledby="or-action-title" hidden><div class="or-action-head"><div><h2 id="or-action-title">Coordinated development action queue</h2><p class="or-muted">A compact, evidence-scoped view of what is being built, what is ready for acceptance, and what is blocked. Select any task to open its checklist record.</p></div><button type="button" id="or-open-current" class="or-button or-secondary">View all current work</button></div><div id="or-action-grid" class="or-action-grid"></div></section>
-<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button><button type="button" id="or-tab-tool-inventory" role="tab" aria-selected="false" data-scope="tool-inventory" aria-controls="or-catalog-tools">Tools &amp; Development</button><button type="button" id="or-tab-membership-coverage" role="tab" aria-selected="false" data-scope="membership-coverage" aria-controls="or-catalog-memberships">Membership Inclusions</button></div>
-<section id="or-catalog-tools" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-tool-inventory" hidden>
+<div class="or-tab-bar" role="tablist" aria-label="Project records"><button type="button" class="active" id="or-tab-core" role="tab" aria-selected="true" data-scope="core">Project commitments</button><button type="button" id="or-tab-trace" role="tab" aria-selected="false" data-scope="trace">Detailed requirements source</button><button type="button" id="or-tab-reference" role="tab" aria-selected="false" data-scope="reference">Reference lines</button><button type="button" id="or-tab-products" role="tab" aria-selected="false" data-scope="products" aria-controls="or-products-console">Products</button></div>
+<section id="or-products-console" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-products" hidden>
+<header class="or-catalog-heading"><div><p class="or-eyebrow">Private Owner product management</p><h2>Products — All Commercial Offerings</h2><p class="or-muted">Memberships, books and individual tools in one location. Display pricing and availability from the existing catalog. Edit product descriptions here; payment prices, entitlement rights, KDP and checkout activation require their existing protected provider-specific controls.</p></div></header>
+<nav class="or-products-subtabs" aria-label="Product types">
+<button type="button" data-product-section="all" aria-pressed="true">All Products</button>
+<button type="button" data-product-section="memberships" aria-pressed="false">Memberships</button>
+<button type="button" data-product-section="books" aria-pressed="false">Books</button>
+<button type="button" data-product-section="tools" aria-pressed="false">À-la-Carte Tools</button></nav>
+<div id="or-products-editor-feedback" role="status" aria-live="polite"></div>
+<section id="or-catalog-books"><h3>Books &amp; Editions</h3><div id="or-catalog-book-summary" class="or-product-summary"></div><div id="or-book-products" class="or-product-grid"></div></section>
+<section id="or-catalog-tools" class="or-product-section">
  <div class="or-catalog-heading"><div><p class="or-eyebrow">Owner development inventory</p><h2>All First-Party Tools &amp; Learning Capabilities</h2>
  <p class="or-muted">Current separately priced tools, the supporting learning features already linked from the website, and their next development checks. Database status is not a verified release test.</p></div>
  <label>Find a tool or capability<input type="search" id="or-catalog-tool-search" placeholder="Tool, market skill, dependency or route"></label></div>
  <div id="or-catalog-tool-summary" class="or-product-summary" role="status" aria-live="polite"></div>
  <div id="or-tool-catalog" class="or-product-grid"></div>
 </section>
-<section id="or-catalog-memberships" class="or-catalog-workspace" role="tabpanel" aria-labelledby="or-tab-membership-coverage" hidden>
+<section id="or-catalog-memberships" class="or-product-section">
  <div class="or-catalog-heading"><div><p class="or-eyebrow">Owner commercial coverage review</p><h2>Memberships · Included &amp; Excluded</h2>
  <p class="or-muted">Actual configured memberships, reviewed inclusion and exclusion statements, and tool-by-plan entitlement rules. Displayed configuration does not override the server's account permissions.</p></div></div>
  <div id="or-catalog-membership-summary" class="or-product-summary" role="status" aria-live="polite"></div>
  <div id="or-membership-details" class="or-membership-grid"></div>
  <div class="or-table-scroll" role="region" tabindex="0" aria-label="Membership and tool entitlement comparison"><div id="or-membership-matrix"></div></div>
+</section>
 </section>
 <section class="or-workspace" id="or-requirements-workspace" aria-label="Requirements tracking">
 <div class="or-toolbar">
