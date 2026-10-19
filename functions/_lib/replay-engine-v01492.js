@@ -40,7 +40,14 @@ function fillEstimate({side,type,quantity,limitPrice,stopPrice,slippageBps=0,spr
  if(type==='MARKET'){price=conservative(bar.open);assumption='Assumed NEXT BAR OPEN with configurable adverse spread/slippage; not an actual fill';}
  if(type==='LIMIT'){
   const p=limitPrice,reached=side==='BUY'?bar.low<=p:bar.high>=p;
-  if(reached){price=conservative(side==='BUY'?Math.min(bar.open,p):Math.max(bar.open,p));assumption='OHLC crossing implies POSSIBLE limit execution only; no queue/partial fill evidence';}
+  if(reached){
+   const candidate=conservative(side==='BUY'?Math.min(bar.open,p):Math.max(bar.open,p));
+   // Limit orders can receive price improvement, but never a price WORSE than
+   // the specified limit. Adverse spread/slippage may reduce fill probability,
+   // which cannot be inferred from OHLC data.
+   price=side==='BUY'?Math.min(candidate,p):Math.max(candidate,p);
+   assumption='OHLC crossing implies POSSIBLE limit execution only; modeled price cannot violate limit. Fill probability, queue and partial fills remain unknown';
+  }
  }
  if(type==='STOP'){
   const p=stopPrice,reached=side==='BUY'?bar.high>=p:bar.low<=p;
@@ -51,7 +58,9 @@ function fillEstimate({side,type,quantity,limitPrice,stopPrice,slippageBps=0,spr
   }
  }
  if(price===null)return {state:'NOT_TRIGGERED',quantity:0,price:null,fees:0,assumption:'No intrabar price sequence or queue data'};
- return {state:'ESTIMATED',quantity,price,fees,totalEstimatedFriction:Math.abs(price-(type==='MARKET'?bar.open:(type==='STOP'?stopPrice:limitPrice)))*quantity+fees,assumption};
+ const reference=type==='MARKET'?bar.open:(type==='STOP'?stopPrice:limitPrice);
+ const adversePerShare=side==='BUY'?Math.max(0,price-reference):Math.max(0,reference-price);
+ return {state:'ESTIMATED',quantity,price,fees,totalEstimatedFriction:adversePerShare*quantity+fees,assumption};
 }
 function bracketOutcome({side,stop,target},bar){
  assert(['LONG','SHORT'].includes(side)&&finite(stop)&&finite(target)&&stop>0&&target>0,'Invalid bracket');
