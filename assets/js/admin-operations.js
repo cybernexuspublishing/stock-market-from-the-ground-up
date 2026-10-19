@@ -183,6 +183,19 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  };
  const isManual=x=>/^admin(?:_|$)/i.test(String(x.source||x.source_channel||'')); 
  const isActive=x=>['active','trialing'].includes(String(x.status||'').toLowerCase())&&(!x.ends_at||Date.parse(x.ends_at)>Date.now());
+ const grantCatalog=info.grantCatalog||{},grantErrors=info.grantCatalogError;
+ const manualGrantChoices=(arr,key,title)=>((arr||[]).map(item=>'<option value="'+e(item[key])+'">'+e(item[title]||item[key])+'</option>').join(''));
+ const bookChoices=manualGrantChoices(grantCatalog.books,'product_code','short_title');
+ const toolChoices=manualGrantChoices(grantCatalog.tools,'tool_code','name');
+ const grantHtml=account.type==='member'?('<form id="v1479-grant-resource" class="v1352-grid">'+
+   '<h4 class="full">Issue an audited manual account entitlement</h4>'+
+   '<label>Grant type<select name="kind"><option value="manual_book">Book companion</option><option value="manual_tool">Platform tool</option><option value="manual_learning">Full learning access</option></select></label>'+
+   '<label data-v1479-book>Book<select name="bookCode">'+bookChoices+'</select></label>'+
+   '<label data-v1479-tool hidden>Tool<select name="toolCode">'+toolChoices+'</select></label>'+
+   '<label>Expiration (optional)<input name="expiresAt" type="datetime-local"></label>'+
+   '<label class="full">Audit reason (required, 10–500 characters)<textarea name="reason" required minlength="10" maxlength="500"></textarea></label>'+
+   (grantErrors?'<p class="full small" role="alert">'+e(grantErrors)+'</p>':'')+
+   '<div class="v1352-buttons full"><button type="submit" class="btn" '+(grantErrors?'disabled':'')+'>Grant selected access</button></div></form>'):'';
  const inventoryHtml=
   '<p class="small"><strong>Effective membership:</strong> '+e(verifiedPlan||'UNVERIFIED')+
     (info.effectiveError?'<br><strong>'+e(info.effectiveError)+'</strong>':'')+
@@ -235,6 +248,7 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  <section id="v1479-account-resource-control"><h3>All Account Entitlements &amp; Revocation</h3>
  <p class="small">This is the account's source-aware ledger. Owner-issued manual grants can be revoked individually with an audited reason. Stripe subscriptions, paid purchases, original Book Keys and transaction history must be managed through their actual source lifecycle, not deleted. An unavailable ledger is shown as an error, never as an empty list.</p>
  ${inventoryHtml}
+ ${grantHtml}
  <div class="v1353-jump"><button type="button" class="btn secondary" data-editor-action="access">Issue book or tool grant</button><button type="button" class="btn secondary" data-editor-action="roles">Account roles &amp; permissions</button><button type="button" class="btn secondary" data-editor-action="activity">Account activity &amp; audit</button></div></section>
  <form id="v1353-notes-form" class="v1352-grid"><h3 class="full">Internal Account Notes &amp; Support</h3>
  <label>Note category<select name="noteType">${['general','support','moderation','commerce','learning','security'].map(x=>`<option value="${x}">${x[0].toUpperCase()+x.slice(1)}</option>`).join('')}</select></label>
@@ -269,6 +283,30 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  pf.onsubmit=ev=>submitSecondary(ev,'profile',form=>Object.fromEntries(new FormData(form)),`Profile updated for ${account.username}.`);
  sf.onsubmit=ev=>submitSecondary(ev,'flag',form=>Object.fromEntries(new FormData(form)),`Account status updated for ${account.username}.`);
  nf.onsubmit=ev=>submitSecondary(ev,'note',form=>Object.fromEntries(new FormData(form)),`Internal note saved for ${account.username}.`);
+ const grantForm=$('#v1479-grant-resource',box);
+ if(grantForm){
+   const sync=()=>{const kind=grantForm.elements.kind.value;
+     $('[data-v1479-book]',grantForm).hidden=kind!=='manual_book';
+     $('[data-v1479-tool]',grantForm).hidden=kind!=='manual_tool';
+   };
+   grantForm.elements.kind.onchange=sync;sync();
+   grantForm.onsubmit=async ev=>{
+     ev.preventDefault();const btn=grantForm.querySelector('button[type="submit"]');
+     const kind=grantForm.elements.kind.value,code=kind==='manual_book'?grantForm.elements.bookCode.value:
+       kind==='manual_tool'?grantForm.elements.toolCode.value:'FULL_LEARNING_ACCESS';
+     const reason=grantForm.elements.reason.value.trim();
+     const expiry=grantForm.elements.expiresAt.value;
+     if(!code||reason.length<10||reason.length>500){$('[data-v1352-error]',d).textContent='Choose an item and a 10–500 character reason.';return}
+     if(!window.confirm('Issue one verified '+kind.replace('manual_','')+' entitlement for '+account.username+'? This does NOT represent a purchase or subscription.'))return;
+     btn.disabled=true;
+     try{
+       const result=await api('grant_resource',{userId:account.id,kind,code,
+         expiresAt:expiry?new Date(expiry).toISOString():null,reason});
+       if(!result.granted)throw Error('Database did not confirm grant.');
+       d.close();await load();say('Verified new manual '+kind+' for '+account.username+'.','ok');
+     }catch(err){$('[data-v1352-error]',d).textContent=err.message;btn.disabled=false}
+   };
+ }
  box.querySelectorAll('[data-account-resource-revoke]').forEach(button=>button.onclick=async()=>{
    const kind=button.dataset.accountResourceRevoke,recordId=Number(button.dataset.resourceId);
    if(!['manual_plan','manual_book','manual_tool','manual_learning'].includes(kind)||
