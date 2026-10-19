@@ -158,6 +158,8 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  const availablePlans=await planList(),availableRoles=await roleList();
  const currentRole=(account.roles||[]).includes('OWNER')?'OWNER':(account.roles||[]).includes('ADMIN')?'ADMIN':(account.roles||[]).includes('MODERATOR')?'MODERATOR':(account.roles||[]).find(x=>x!=='SHOWCASE_VIEWER')||'NONE';
  const currentType=account.type||'member',member=info.membership||{planCode:'FREE'},profile=account.profile||{},flag=info.flag||{status:'active',reason:''},isBanned=!!(account.bannedUntil&&new Date(account.bannedUntil)>new Date());
+ const canAssignStaff=info.permissions?.owner!==false;
+ if(!member.synthetic&&info.effectiveAccess?.planCode)member.planCode=info.effectiveAccess.planCode;
  const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);
  const roleOptions=[{role_code:'NONE',name:'No staff role'},...availableRoles];if(!roleOptions.some(x=>x.role_code==='OWNER'))roleOptions.push({role_code:'OWNER',name:'Owner / Super Administrator (confirmation required)'});
  const toLocal=v=>{if(!v)return '';const x=new Date(v);if(!Number.isFinite(x.getTime()))return '';const shift=x.getTimezoneOffset()*60000;return new Date(x.getTime()-shift).toISOString().slice(0,16)};
@@ -206,6 +208,7 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  </div>`;
  const f=$('#v1353-identity-form',box),mf=$('#v1353-membership-form',box),pf=$('#v1353-profile-form',box),sf=$('#v1353-state-form',box),nf=$('#v1353-notes-form',box),t=f.elements.type,r=f.elements.roleCode;maskDob(f.elements.dateOfBirth);
  const sync=()=>{
+  if(!canAssignStaff)return;
   if(t.value==='owner')r.value='OWNER';else if(t.value==='moderator')r.value='MODERATOR';
   else if(t.value==='admin'&&['NONE','OWNER','MODERATOR'].includes(r.value))r.value='ADMIN';
   else if(t.value==='member'||t.value==='test'||t.value==='showcase')r.value='NONE';
@@ -216,7 +219,9 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
   if(r.value==='OWNER')t.value='owner';else if(r.value==='MODERATOR')t.value='moderator';else if(r.value==='NONE'&&!['showcase','test'].includes(t.value))t.value='member';else if(!['test','showcase'].includes(t.value))t.value='admin';
   $('[data-v1353-owner-confirm]',f).hidden=!(((account.roles||[]).includes('OWNER')&&r.value!=='OWNER')||(!(account.roles||[]).includes('OWNER')&&r.value==='OWNER'));
  };sync();
+ if(!canAssignStaff){t.disabled=true;r.disabled=true}
  if(member.providerManaged)mf.querySelector('button[type=submit]').disabled=true;
+ window.GroundUpAccountItems?.mount({box,modal:d,account,info,api,refresh:load,notify:say});
  d.showModal();f.onsubmit=async ev=>{ev.preventDefault();const btn=$('button[type=submit]',f);btn.disabled=true;try{const vals=Object.fromEntries(new FormData(f));if(r.disabled)vals.roleCode='NONE';if(vals.dateOfBirth)vals.dateOfBirth=usToIso(vals.dateOfBirth);await api('edit',{...vals,userId:a.id,emailConfirmed:!!f.elements.emailConfirmed?.checked});d.close();await load();say(`Account identity and role updated for ${a.username}.`,'ok')}catch(err){$('[data-v1352-error]',d).textContent=err.message;btn.disabled=false}};
  mf.onsubmit=async ev=>{ev.preventDefault();const btn=$('button[type=submit]',mf);btn.disabled=true;try{const vals=Object.fromEntries(new FormData(mf));const s=vals.startsAt?new Date(vals.startsAt).toISOString():null,end=vals.endsAt?new Date(vals.endsAt).toISOString():null;
  const result=await api('membership',{userId:a.id,planCode:vals.planCode,startsAt:s,endsAt:end});
