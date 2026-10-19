@@ -37,7 +37,7 @@ try {
  let response=await onRequest({request:req('start',{datasetCode:'CASE_A'},false),env});
  assert.equal(response.status,401);
  active=false;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});assert.equal(response.status,403);assert.equal(created,false);
- active=true;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});assert.equal(response.status,201);
+ active=true;response=await onRequest({request:req('start',{datasetCode:'CASE_A'}),env});if(response.status!==201)throw Error('START_FAIL '+response.status+' '+JSON.stringify(await response.json())+' ROUTES '+JSON.stringify(called));
  const start=await response.json();assert.equal(start.bar.index,0);assert(!JSON.stringify(start).includes('2024-05-03T13:31'));
  response=await onRequest({request:req('advance',{sessionId:id,expectedIndex:0}),env});assert.equal(response.status,403);
  response=await onRequest({request:req('lock',{sessionId:id,decision:'WATCH',reasoning:'Observed one candle and cannot infer the next outcome.'}),env});assert.equal(response.status,200);
