@@ -1,3 +1,12 @@
+-- SUPERSEDED BY v0.14.0.83: DO NOT EXECUTE THIS OLD DIRECT-UPDATE SCRIPT.
+-- This older SQL attempts to update the protected commerce.checkout_enabled
+-- site_settings field without the signed-in Owner password-stepup JWT.
+-- The v31R1 database trigger correctly raises 42501 OWNER_REQUIRED, causing
+-- a complete transaction rollback (0 out of 4 prior switches persisted).
+-- Install the new v0.14.0.83_AUTHENTICATED_OWNER_LIVE_ACTIVATION_REVIEW_REQUIRED.sql
+-- (creates Owner-authorized RPC only), then sign in to WEBSITE Admin > Commerce
+-- and click 'Authorize LIVE Payments for Eight Products'. No trigger bypass.
+-- Historical file retained solely for audit; refer to v83 for execution.
 -- Cyber Nexus | v0.14.0.82 | OWNER-EXECUTED LIVE PAID CHECKOUT ACTIVATION
 -- Existing production Supabase SQL Editor ONLY. NOT executed by GitHub.
 -- USER EXPLICITLY AUTHORIZED turning on the EIGHT existing positive-price
