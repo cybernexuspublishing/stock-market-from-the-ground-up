@@ -170,6 +170,7 @@ async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,sy
    books:'user_library?select=id,product_code,access_type,source_channel,source_reference,expires_at&user_id=eq.'+id+'&order=granted_at.desc&limit=100',
    tools:'user_tool_passes?select=id,tool_code,status,starts_at,ends_at,provider,provider_subscription_id,metadata&user_id=eq.'+id+'&order=created_at.desc&limit=100',
    bookKeys:'book_key_redemptions?select=id,book_code,starts_at,ends_at&user_id=eq.'+id+'&order=created_at.desc&limit=50',
+   legacyLearning:'entitlements?select=product_key,status,source,starts_at,ends_at&user_id=eq.'+id+'&limit=100',
    orders:'site_orders?select=id,provider,status,total_cents,paid_at,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=50'
  };
  const inventory={},inventoryErrors={};
