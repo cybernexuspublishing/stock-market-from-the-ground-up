@@ -45,8 +45,9 @@ try{
    const totalTools=await main.locator('#store-tools article.v11-tool-card').count();
    const futureTools=await main.locator('#store-tools .store-future-card').count();
    assert.ok(totalTools>=4,'Expected existing tool offers AND upcoming tool cards');
-   assert.ok(futureTools>=3,'Upcoming tool offerings must be displayed, not silently omitted');
+   assert.ok(futureTools>=6,'All six established learning capabilities must appear as Coming Soon independent offerings unless promoted to verified catalog SKUs');
    assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),totalTools,'Every tool card requires clearly visible price or pending-pricing label');
+   assert.equal(await main.locator('#store-tools .store-sell-card .store-price-label').count(),totalTools,'Each tool price requires a visible Price label');
    const liveOffers=await main.locator('#store-tools article.v11-tool-card:not(.store-future-card)').count();
    assert.ok(liveOffers>=4,'Existing four current tools must remain listed');
    assert.equal(await main.locator('#store-membership-compare table').count(),1,'Feature comparison not rendered');
