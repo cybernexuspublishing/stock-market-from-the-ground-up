@@ -9,6 +9,12 @@ on:
       - 'tests/test_v014093_replay_catalog_resume.mjs'
       - 'tests/test_v014092_replay_contract.mjs'
       - '.github/workflows/verified-replay-resume-v01493.yml'
+      - 'functions/_lib/owner-lab-readiness-v01493.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'assets/js/owner-roadmap-product-readiness-v01491.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'tests/test_v014093_owner_lab_readiness.mjs'
   pull_request:
     paths:
       - 'functions/api/learning-replay-v01492.js'
@@ -35,6 +41,9 @@ jobs:
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_replay_contract.mjs
           node tests/test_v014093_replay_catalog_resume.mjs
+          node --check functions/_lib/owner-lab-readiness-v01493.js
+          node --check assets/js/owner-roadmap-product-readiness-v01491.js
+          node tests/test_v014093_owner_lab_readiness.mjs
       - name: Confirm server boundary, build exclusion and no release promotion
         run: |
           bash scripts/build-pages.sh
