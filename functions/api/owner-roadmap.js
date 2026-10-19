@@ -43,7 +43,8 @@ const v91Evidence={
  'CORE-0194':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.89–90 implements central Admin Products, prominent Store prices, and coming-soon offerings with nonpurchase controls. Source/browser coverage only; production checkout and real fulfillment not verified.'},
  'CORE-0175':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.88–91 implements protected Owner tool/membership inventory and product readiness planning. Production Owner-role persistence and negative tests are still required.'},
  'CORE-0210':{stage:'backlog',reviewedOn:'2026-10-19',summary:'Current Market Tutor is static indexed educational search and limited rules-based suggestions, not a verified model-backed AI Teaching System.'},
- 'CORE-0208':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Historical Lab IDs exist; last reviewed Owner audit found no registered historical market datasets. Per-Lab dates, licenses and accuracy remain unverified.'}
+ 'CORE-0208':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Historical Lab IDs exist; last reviewed Owner audit found no registered historical market datasets. Per-Lab dates, licenses and accuracy remain unverified.'},
+ 'CORE-0256':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Source v0.14.0.91 QA: Storefront v0.14.0.85 production Chromium check failed 14 existing product-detail page overflow assertions and one global membership-link count assertion (Actions 39305637257); root cause and any stale test assumptions require independent correction, not blanket release acceptance.'}
 };
 function reviewFor(item){
  if(item.kind==='reference'||item.scope==='trace')return null;
