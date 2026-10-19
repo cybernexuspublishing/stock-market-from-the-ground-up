@@ -8,8 +8,8 @@ async function api(action,payload={}){
  const session=(await sb.auth.getSession()).data?.session;
  if(!session?.access_token)throw Error('Sign in to continue.');
  const endpoint='/api/learning-replay-v01492?action='+encodeURIComponent(action);
- const isRead=action==='current';
- const u=isRead?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
+ const isRead=['current','catalog','resume'].includes(action);
+ const u=action==='current'?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
  const res=await fetch(u,{method:isRead?'GET':'POST',cache:'no-store',headers:{
  authorization:'Bearer '+session.access_token,...(!isRead?{'content-type':'application/json'}:{})},
  body:isRead?undefined:JSON.stringify({...payload,sessionId})});
@@ -35,7 +35,7 @@ async function call(fn){
  if(busy)return;
  busy=true;$('vr-start').disabled=true;$('vr-lock').disabled=true;$('vr-advance').disabled=true;
  try{await fn()}catch(e){notice(e.message||'Unexpected replay error.',true)}
- finally{busy=false;$('vr-start').disabled=false;$('vr-lock').disabled=locked;renderState()}
+ finally{busy=false;$('vr-start').disabled=false;$('vr-lock').disabled=locked;$('vr-refresh').disabled=false;$('vr-resume').disabled=false;renderState()}
 }
 function orderPlan(){
  const side=$('vr-side').value;if(!side)return null;
@@ -45,12 +45,39 @@ function orderPlan(){
  if(type==='STOP')plan.stopPrice=price;
  return plan;
 }
+async function catalog(){
+ const data=await api('catalog');
+ const rows=Array.isArray(data.datasets)?data.datasets:[];
+ const select=$('vr-dataset');select.replaceChildren();
+ const first=document.createElement('option');first.value='';first.textContent=rows.length?'Select a published dataset':'No reviewed datasets available';select.append(first);
+ for(const d of rows){
+  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(String(d.code||'')))continue;
+  const option=document.createElement('option');option.value=d.code;
+  option.textContent=String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
+  select.append(option);
+ }
+ $('vr-dataset-note').textContent=rows.length
+  ?rows.length+' dataset(s) available for this release. Historical evidence and member display rights are recorded by the Owner.'
+  :'No currently published and rights-cleared datasets. Replay cannot start until appropriate source data is added and verified.';
+}
+async function resume(){
+ const data=await api('resume');
+ const r=data.session;
+ if(!r){notice(data.notice||'There is no saved replay session.');return}
+ sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
+ $('vr-bars').replaceChildren();addBar(r.bar);
+ $('vr-code').value=r.dataset?.code||'';
+ $('vr-source').textContent=[r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
+ $('vr-execution').hidden=true;
+ notice('Session restored at bar '+cursor+'. Prior bars are not re-sent; no unseen observation was revealed.');
+ renderState();
+}
 async function start(){
- const code=$('vr-code').value.trim().toUpperCase();
+ const code=String($('vr-dataset').value||$('vr-code').value).trim().toUpperCase();
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
- $('vr-bars').innerHTML='';addBar(r.bar);
+ $('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
  $('vr-source').textContent=r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
 }
@@ -78,6 +105,11 @@ async function init(){
   notice(u?'Enter a published dataset code to start.':'Sign in before using the replay tool.',!u);}
  catch(e){notice(e.message,true)}
  $('vr-start').addEventListener('click',()=>call(start));
+ $('vr-refresh').addEventListener('click',()=>call(catalog));
+ $('vr-resume').addEventListener('click',()=>call(resume));
+ $('vr-dataset').addEventListener('change',()=>{if($('vr-dataset').value)$('vr-code').value=$('vr-dataset').value});
+ if(u){await call(catalog);if(!sessionId)await call(resume)}
+
  $('vr-lock').addEventListener('click',()=>call(lock));
  $('vr-advance').addEventListener('click',()=>call(advance));
  $('vr-finish').addEventListener('click',()=>call(finish));
