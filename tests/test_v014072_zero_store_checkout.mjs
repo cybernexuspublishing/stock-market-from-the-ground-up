@@ -10,7 +10,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU71_ZERO_LIVE_PRICE_ID:'price_qa123456',GU71_ZERO_LIVE_PRODUCT_ID:'prod_qa123456',
  GU72_QA_ALLOWED_USER_ID:uid,GU72_ZERO_MONTHLY_QA_ENABLED:'true',
  GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED:'true',PUBLIC_SITE_URL:origin};
-const state={id:uid,plan:'FREE',used:false,price:0,kind:'one_time',sent:0,dbWrites:0,
+const state={id:uid,plan:'FREE',used:false,price:0,kind:'one_time',sent:0,dbWrites:0,idempotencyKeys:[],
  sessionAmount:0,good:0,restricted:false};
 const J=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;
@@ -18,7 +18,14 @@ globalThis.fetch=async(url,opts={})=>{
  const u=String(url),method=opts.method||'GET';
  if(u.includes('/auth/v1/user'))return J({id:state.id,email_confirmed_at:'2026-10-18T00:00:00Z'});
  if(u.includes('/rpc/my_platform_access_for_user'))return J({planCode:state.plan});
- if(u.includes('user_plan_grants?'))return J(state.used?[{ends_at:'2026-11-18T00:00:00Z',source_reference:'cs_live_qa123456'}]:[]);
+ if(u.includes('/rpc/gu76_reset_zero_monthly_qa')){
+   assert.equal(method,'POST');
+   assert.equal(JSON.parse(opts.body).p_user_id,uid);
+   if(!state.used)return J({ok:true,resetCount:0});
+   state.used=false;state.plan='FREE';
+   return J({ok:true,resetCount:1,paidGrantsUnaffected:true});
+ }
+ if(u.includes('user_plan_grants?'))return J(state.used?[{ends_at:'2099-11-18T00:00:00Z',status:'active',source_reference:'cs_live_qa123456'}]:[]);
  if(u.includes('profiles?'))return J([{account_kind:'member'}]);
  if(u.includes('admin_user_flags?'))return J([]);
  if(u.includes('account_private_identity?'))return J([{age_eligible:true,date_of_birth:'1990-01-01'}]);
@@ -28,7 +35,8 @@ globalThis.fetch=async(url,opts={})=>{
    active:true,livemode:true,unit_amount:state.price,currency:'usd',type:state.kind,
    recurring:null,billing_scheme:'per_unit',transform_quantity:null});
  if(u.endsWith('/v1/checkout/sessions')&&method==='POST'){
-  state.sent++;const p=new URLSearchParams(opts.body);
+  state.sent++;state.idempotencyKeys.push(opts.headers['Idempotency-Key']);
+  const p=new URLSearchParams(opts.body);
   assert.equal(p.get('mode'),'payment');assert.equal(p.get('line_items[0][price]'),'price_qa123456');
   assert.equal(p.has('payment_method_collection'),false,'Unsupported payment mode option forbidden');
   assert.equal(p.get('metadata[gu72_member_id]'),uid);
@@ -48,8 +56,10 @@ globalThis.fetch=async(url,opts={})=>{
 };
 const req=(method='GET',path='',originHeader=origin)=>{
  const headers={authorization:'Bearer test_jwt',...(method==='POST'?{origin:originHeader,'content-type':'application/json'}:{})};
+ const data=path.includes('action=reset')?{confirm:'RESET_MY_ZERO_MONTHLY_QA_ACCESS'}:
+   {confirm:'ONE_TIME_ZERO_MONTHLY_QA',checkoutAttemptId:state.nextAttempt||'11111111-2222-4333-8444-555555555555'};
  return new Request(origin+'/api/store-zero-monthly-qa'+path,{method,headers,
-  ...(method==='POST'?{body:'{"confirm":"ONE_TIME_ZERO_MONTHLY_QA"}'}:{})});
+  ...(method==='POST'?{body:JSON.stringify(data)}:{})});
 };
 try{
  let r=await app.onRequestGet({request:req(),env}),j=await r.json();
@@ -76,7 +86,24 @@ try{
  assert.equal(r.status,503,'Nonzero provider response must never be offered');
  state.sessionAmount=0;state.plan='FULL_MONTHLY';state.used=true;
  r=await app.onRequestGet({request:req('GET','?session_id=cs_live_qa123456'),env});
- j=await r.json();assert.equal(j.activated,true);assert.equal(j.planCode,'FULL_MONTHLY');
- assert.equal(state.dbWrites,0);
- console.log('PASS v72: one allowlisted FREE member, store-only zero dollar Checkout, no card, GU58 or recurring, signed grant reflected in access and no unauthorised writes.');
+ j=await r.json();assert.equal(j.activated,true);assert.equal(j.canReset,true);
+ r=await app.onRequestGet({request:req(),env});j=await r.json();
+ assert.equal(j.canReset,true);assert.equal(j.available,false,'No new checkout while QA grant is active');
+ const badReset=req('POST','?action=reset','https://evil.example');
+ r=await app.onRequestPost({request:badReset,env});assert.equal(r.status,403);
+ const resetDenied=await app.onRequestPost({request:req('POST','?action=reset'),env:{...env,GU72_ZERO_MONTHLY_QA_ENABLED:'false'}});
+ assert.equal(resetDenied.status,403,'Reset forbidden when QA is switched off');
+ r=await app.onRequestPost({request:req('POST','?action=reset'),env});
+ j=await r.json();assert.equal(r.status,200);assert.equal(j.reset,true);assert.equal(state.plan,'FREE');
+ assert.equal(state.used,false,'Reset revokes only active QA grant');
+ r=await app.onRequestGet({request:req(),env});j=await r.json();
+ assert.equal(j.available,true,'Same UUID eligible again after its QA grant reset');
+ state.nextAttempt='22222222-3333-4444-8555-666666666666';
+ r=await app.onRequestPost({request:req('POST'),env});j=await r.json();
+ assert.equal(r.status,200);assert.equal(j.amountCents,0);
+ assert.ok(state.idempotencyKeys.length>=3);
+ assert.notEqual(state.idempotencyKeys[0],state.idempotencyKeys.at(-1),
+  'Each distinct deliberate same-account test must use a different Stripe idempotency key');
+ assert.equal(state.dbWrites,0,'No direct customer writes outside service-only QA RPC');
+ console.log('PASS v76: same FREE member can explicitly reset QA grant and repeat $0 checkout with distinct idempotency; paid plans unchanged, unsafe and unauthorized actions blocked.');
 }finally{globalThis.fetch=original}
