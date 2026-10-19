@@ -21,6 +21,10 @@ on:
       - 'tests/test_v014078_*'
       - 'tests/test_v014081_*'
       - 'tests/test_v014082_*'
+      - 'tests/test_v014083_*'
+      - 'supabase/migrations/v0.14.0.83_*'
+      - 'assets/js/admin-live-activation-v01483.js'
+      - 'admin.html'
       - 'supabase/admin/v0.14.0.82_*'
       - 'supabase/admin/v0.14.0.81_*'
       - 'data/store-products.json'
@@ -68,6 +72,8 @@ jobs:
           python tests/test_v014076_zero_repeatable_contract.py
           python tests/test_v014081_paid_launch_and_book_prep_contract.py
           python tests/test_v014082_owner_live_payment_activation_contract.py
+          python tests/test_v014083_authenticated_owner_live_activation.py
+          node --check assets/js/admin-live-activation-v01483.js
           node --check functions/api/checkout.js
           node --check functions/_middleware.js
           python tests/test_v014058_live_contract.py
