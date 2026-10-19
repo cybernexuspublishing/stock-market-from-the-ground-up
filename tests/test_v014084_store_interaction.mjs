@@ -95,6 +95,9 @@ assert.match(futurePlan,/complete product explanation/i);
 const futureTool=await detail('tool','NEW_PAID_TOOL',{tools:[tt('NEW_PAID_TOOL')]});
 assert.doesNotMatch(futureTool,/Review tool subscription &amp; checkout/,'New released tools need a reviewed product disclosure before checkout');
 assert.match(futureTool,/approved explanation/i);
+const exclusive=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),kdpSelect:true,websiteCheckoutEnabled:true,lemonVariantId:'v_test',
+ directDigital:{enabled:true,checkoutUrl:'https://store.example/digital'}}]});
+assert.doesNotMatch(exclusive,/Website purchase|Direct digital purchase/,'KDP Select flag must block all direct eBook channels even if a variant was accidentally enabled');
 const xss=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),title:'<img src=x onerror=alert(1)>'}]});
 assert.doesNotMatch(xss,/<img src=x onerror=/);assert.match(xss,/&lt;img/);
 console.log('PASS v84 UI: exclusive/accessible Store tabs, only 5 memberships + 5 books + 4 released tools, functional detail rendering, no false book checkout, XSS escaped.');
