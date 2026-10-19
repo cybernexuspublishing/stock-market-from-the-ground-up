@@ -75,7 +75,7 @@ function upcomingCard(t){
  return `<article class="v11-tool-card store-sell-card store-future-card">
  <div class="eyebrow">${esc(t.category||'Upcoming learning feature')}</div>
  <span class="store-soon-label">Coming Soon · Independent purchase not available</span><h3>${esc(t.name)}</h3>
- <p>${esc(t.description)}</p><p class="store-sell-price"><span class="store-price-label">Price</span> To be announced</p>
+ <p>${esc(t.description)}</p><p class="store-sell-price"><span class="store-price-label">Price</span> Pricing to be announced</p>
  <div class="store-sales-actions"><a class="btn secondary" href="${esc(t.route)}">Explore This Feature</a></div></article>`;
 }
 
