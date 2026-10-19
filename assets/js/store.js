@@ -24,7 +24,7 @@
   if(replaceHash)history.replaceState(null,'','#'+chosen);
  }
  async function init(){try{const d=await CT().load();const planRoot=document.getElementById('store-plans');
-  planRoot.innerHTML=(d.plans||[]).filter(p=>['FREE','FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'].includes(p.planCode)).map(planCard).join('');
+  planRoot.innerHTML=(d.plans||[]).filter(p=>['FREE','FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY','PICK_WHAT_YOU_WANT'].includes(p.planCode)).map(planCard).join('');
   if(d.commerceUnavailable||!(d.plans||[]).length)planRoot.innerHTML='<div class="notice" role="status">Membership catalog temporarily unavailable. Purchase eligibility cannot be verified.</div>';
   document.getElementById('store-tools').innerHTML=(d.tools||[]).filter(t=>t.status!=='retired').map(toolCard).join('')||'<div class="notice">Individual tool catalog temporarily unavailable.</div>';
   // Customer Store contains only actual configured membership and book offers.
