@@ -79,7 +79,8 @@ try{
  assert.ok(operations.includes('window.GroundUpAccountItems?.mount'),'Unified inventory mounted into Manage Account editor');
  assert.ok(ui.includes('Book Key redemption history')&&ui.includes('Order and payment audit history'));
  assert.ok(ui.includes('Subscriptions and billing status')&&ui.includes('Membership grants'));
- for(const source of ['admin','owner_manual','stripe_zero_monthly_qa_v72'])assert.ok(sourceSQL.includes(source));
+ for(const source of ['admin','owner_manual'])assert.ok(sourceSQL.includes(source));
+ assert.ok(src.includes('stripe_zero_monthly_qa_v72'),'Existing QA grants must be separately identified, not treated as manual rights');
  assert.ok(sourceSQL.includes('auth.role() IS DISTINCT FROM \'service_role\''));
  assert.ok(sourceSQL.includes('p_actor')&&sourceSQL.includes('p_target'));
  assert.ok(sourceSQL.includes('GU78_NOT_OWNED_ACTIVE_MANUAL_RESOURCE'));
