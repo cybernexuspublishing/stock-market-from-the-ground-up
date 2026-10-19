@@ -60,6 +60,7 @@ try{
    }
    await main.reload({waitUntil:'domcontentloaded'});
    await main.waitForFunction(()=>document.querySelector('#store-panel-tools')?.hidden===false,{timeout:14000});
+   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:18000});
    return 'all three tabs exclusive, hash navigation and refresh persisted';
  });
  await run('Keyboard-only tab navigation',async()=>{
@@ -134,7 +135,10 @@ try{
    }finally{await c.close()}
  });
  await run('Noncharging LIVE payment-readiness check',async()=>{
-   const response=await main.request.get(base+'/api/stripe-live-checkout-v01458?type=plan&code=FULL_MONTHLY&v85='+Date.now(),{timeout:20000});
+   // Local PR preview has no Cloudflare Functions: use the read-only,
+   // already-deployed Production readiness endpoint for this one check.
+   const liveOrigin='https://stock-market-from-the-ground-up.pages.dev';
+   const response=await main.request.get(liveOrigin+'/api/stripe-live-checkout-v01458?type=plan&code=FULL_MONTHLY&v85='+Date.now(),{timeout:20000});
    const data=await response.json().catch(()=>null);
    assert.ok(data&&typeof data.liveCheckoutAvailable==='boolean','Read-only status endpoint did not return a valid boolean');
    return 'liveCheckoutAvailable='+data.liveCheckoutAvailable+' (read-only check; no financial transaction)';
