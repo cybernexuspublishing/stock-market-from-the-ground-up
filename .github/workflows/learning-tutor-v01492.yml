@@ -9,6 +9,10 @@ on:
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
       - 'functions/_lib/replay-engine-v01492.js'
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'verified-replay.html'
+      - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
       - '.github/workflows/learning-tutor-v01492.yml'
   pull_request:
@@ -19,6 +23,10 @@ on:
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
       - 'functions/_lib/replay-engine-v01492.js'
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'verified-replay.html'
+      - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
       - '.github/workflows/learning-tutor-v01492.yml'
 permissions:
@@ -40,10 +48,15 @@ jobs:
           node --check functions/_lib/tutor-topics-v01492.js
           node --check functions/_lib/replay-engine-v01492.js
           node --check assets/js/market-tutor.js
+          node --check functions/api/learning-replay-v01492.js
+          node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_market_tutor_contract.mjs
+          node tests/test_v014092_replay_contract.mjs
       - name: Build output privacy boundary
         run: |
           bash scripts/build-pages.sh
           test -f public/assets/js/market-tutor.js
+          test -f public/verified-replay.html
+          test -f public/assets/js/verified-replay-v01492.js
           test ! -e public/functions
           test ! -e public/supabase
