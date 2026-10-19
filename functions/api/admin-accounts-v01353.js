@@ -117,6 +117,23 @@ async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode
    throw problem('This account has active non-manual access. Do not stack a manual plan over a Stripe/test/provider grant. Resolve the existing entitlement from this account\'s source-aware inventory first.',409);
  if(plan==='FREE'&&external.length)
    throw problem('This account has another active non-admin entitlement. FREE cannot be applied here without resolving that entitlement through its issuing system.',409);
+ // Before mutating anything, check OTHER sources that may keep account access
+ // above FREE: independent tool passes and historical full_learning_access.
+ // A post-mutation resolver mismatch without this preflight could cancel one
+ // grant while leaving another, then fail without a complete audit.
+ if(plan==='FREE'){
+   const [toolRows,legacyRows]=await Promise.all([
+     rest(env,'user_tool_passes?select=id,status,starts_at,ends_at,current_period_end&user_id=eq.'+id+'&status=in.(active,trialing)&limit=100'),
+     rest(env,'entitlements?select=id,status,starts_at,ends_at,source&user_id=eq.'+id+'&product_key=eq.full_learning_access&status=in.(active,trialing)&limit=50')
+   ]);
+   const toolActive=(toolRows||[]).some(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&
+      (!x.current_period_end&&!x.ends_at||Date.parse(x.current_period_end||x.ends_at)>now));
+   const learningActive=(legacyRows||[]).some(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&
+      (!x.ends_at||Date.parse(x.ends_at)>now));
+   if(toolActive||learningActive)
+     throw problem('FREE is blocked by independently active '+(toolActive?'tool passes':'legacy learning access')+
+       '. Inspect this account’s source-aware inventory and revoke only the originally issued manual record or follow the provider workflow. No plan grants were changed.',409);
+ }
  let resetQaCount=0;
  if(plan==='FREE'&&qa.length){
    // Restrict this special case to the SAME production account allowlisted for
