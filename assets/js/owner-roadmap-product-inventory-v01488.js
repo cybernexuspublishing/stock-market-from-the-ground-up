@@ -25,7 +25,7 @@ const link=(url,label)=>validRoute(url)?'<a class="or-button or-secondary" href=
 const allowedPlan=p=>validCode(p.plan_code)&&!/^(?:QA_|TEST|ZERO_)/i.test(p.plan_code);
 const safeItems=items=>Array.isArray(items)?items:[];
 const summary=(target,msg,bad=false)=>{const el=$(target);if(el){el.textContent=msg;el.classList.toggle('or-error',bad)}};
-function isCatalog(s){return s==='tool-inventory'||s==='membership-coverage'}
+function isCatalog(s){return s==='products'}
 function action(label,code,name,category,focus){
  const prefix=category==='Premium tool'?'Improve and validate':'Create improvement task';
  const detail='Product/capability: '+name+' ('+code+').\\nCurrent scope: '+(focus||'Validate the implementation against its published purpose.')+
@@ -49,6 +49,60 @@ function bindActions(){
  };
  $('or-app')?.addEventListener('click',actionHandler);
 }
+
+function editor(type,code,name,description,updatedAt){
+ if(!validCode(code)||!updatedAt)return '<p class="or-muted">Editing is unavailable until the catalog supplies a verified revision. You can still create a development task.</p>';
+ return '<details class="or-editor"><summary>Edit product name and description</summary>'+
+ '<form class="or-products-copy-form" data-type="'+esc(type)+'" data-code="'+esc(code)+'" data-revision="'+esc(updatedAt)+'">'+
+ '<label>Name / customer-facing title<input name="name" required minlength="3" maxlength="180" value="'+esc(name)+'"></label>'+
+ '<label>Product description<textarea name="description" maxlength="4000" rows="5">'+esc(description||'')+'</textarea></label>'+
+ '<p class="or-muted">This saves only the actual catalog name and description. Price, Stripe synchronization, product availability, customer entitlements, KDP restrictions and publication rights are intentionally controlled separately. No changes occur until Save is selected.</p>'+
+ '<button class="or-button" type="submit">Save product description</button></form></details>';
+}
+function booksView(){
+ const holder=$('or-book-products');if(!holder)return;
+ if(!inventory?.available){holder.innerHTML='<div class="or-catalog-warning">Book catalog verification unavailable. No changes allowed.</div>';return}
+ const books=safeItems(inventory.books);
+ summary('or-catalog-book-summary',books.length+' configured book records. Book rights, Amazon/KDP listings and fulfillment channels must be verified separately.');
+ holder.innerHTML=books.map(b=>'<article class="or-product-card"><header><span class="or-tag">Book</span><span class="or-product-stage">'+esc(b.publication_status||'Publication status unavailable')+' · '+esc(b.sales_status||'Sales status unavailable')+'</span></header>'+
+ '<h3>'+esc(b.title)+'</h3><p>'+esc(b.description||'Publisher synopsis is pending.')+'</p>'+
+ '<dl class="or-product-facts"><dt>Product code</dt><dd>'+esc(b.product_code)+'</dd><dt>Store visibility</dt><dd>'+esc(b.store_visible===false?'Hidden':'Configured visible')+'</dd>'+
+ '<dt>Amazon KDP</dt><dd>'+esc([b.amazon_kindle_url,b.amazon_paperback_url,b.amazon_hardcover_url].filter(Boolean).length+' configured retailer links')+'</dd>'+
+ '<dt>Direct digital</dt><dd>'+esc(b.direct_digital_enabled?'Configuration enabled; verify distribution rights':'Not configured for direct sale')+'</dd>'+
+ '<dt>Direct print</dt><dd>'+esc(b.direct_physical_enabled?'Configuration enabled; verify fulfillment':'Not configured for direct sale')+'</dd></dl>'+
+ '<div class="or-card-actions">'+link('/store-product.html?type=book&code='+encodeURIComponent(b.product_code),'Customer details')+
+ action('Plan improvement',b.product_code,b.title,'Book catalog','Verify product synopsis, learning outcomes, edition prices, publication rights and storefront offer.')+'</div>'+
+ editor('book',b.product_code,b.title,b.description,b.updated_at)+'</article>').join('');
+}
+async function saveCopy(event){
+ const form=event.target.closest('.or-products-copy-form');if(!form)return;event.preventDefault();
+ const button=form.querySelector('button[type="submit"]');if(button?.disabled)return;
+ const info=$('or-products-editor-feedback');const name=form.querySelector('[name=name]').value.trim(),description=form.querySelector('[name=description]').value.trim();
+ if(name.length<3||name.length>180||description.length>4000){if(info)info.textContent='Check the product name and description lengths.';return}
+ button.disabled=true; if(info)info.textContent='Saving product copy with Owner authorization…';
+ try{
+  const sb=await window.getSupabaseClient();const session=(await sb.auth.getSession()).data.session;
+  if(!session?.access_token)throw Error('Owner session required.');
+  const response=await fetch('/api/owner-roadmap',{method:'POST',cache:'no-store',credentials:'same-origin',
+    headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json','accept':'application/json'},
+    body:JSON.stringify({action:'product_copy',productType:form.dataset.type,code:form.dataset.code,
+      expectedUpdatedAt:form.dataset.revision,name,description})});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.ok)throw Error(result.error||'Product editorial update failed.');
+  if(info)info.textContent=result.auditLogged?'Description saved in the catalog and audit logged. Reloading inventory…':'Description saved, but audit logging was not confirmed; review logs.';
+  $('or-refresh')?.click();
+ }catch(e){if(info)info.textContent=String(e.message||'Save failed.');}
+ finally{button.disabled=false}
+}
+function initProductFilters(){
+ document.querySelectorAll('[data-product-section]').forEach(button=>button.addEventListener('click',()=>{
+  const key=button.dataset.productSection;
+  for(const b of document.querySelectorAll('[data-product-section]'))b.setAttribute('aria-pressed',String(b===button));
+  const panels={memberships:$('or-catalog-memberships'),books:$('or-catalog-books'),tools:$('or-catalog-tools')};
+  for(const [name,panel] of Object.entries(panels))if(panel)panel.hidden=key!=='all'&&key!==name;
+ }));
+ $('or-products-console')?.addEventListener('submit',saveCopy);
+}
 function toolDetails(t,guide){
  const code=String(t.tool_code||'');
  const name=String(t.name||code);
@@ -68,7 +122,7 @@ function toolDetails(t,guide){
  'Validate stored data integrity, accessible workflows and educational/market accuracy.',
  'Verify negative access, signed data sources and production error recovery.'
  ])+'</details><div class="or-card-actions">'+link(toolRoutes[code]||'', 'Customer product details')+' '+link(validRoute(t.href),'Open existing tool')+' '+
- action('Plan improvement',code,name,'Premium tool',focus.join(' '))+'</div></article>';
+ action('Plan improvement',code,name,'Premium tool',focus.join(' '))+'</div>'+editor('tool',code,name,t.description,t.updated_at)+'</article>';
 }
 function supportingDetails(p){
  const code=String(p.code||''),name=String(p.name||code);
@@ -116,7 +170,7 @@ function cardPlan(p,guide,linked){
  '<dt>Advertising flag</dt><dd>'+(p.ad_free?'Ad-free flag set':'Ad-free flag not set; see published sponsor-placement terms')+'</dd>'+
  '<dt>Billing and access</dt><dd>'+esc(guide?.terms||'No reviewed billing conditions supplied. Do not market until reviewed.')+'</dd></dl></details>'+
  '<div class="or-card-actions">'+link(planRoutes[code],'View customer membership page')+' '+
- action('Plan coverage work',code,name,'Membership coverage',safeItems(guide?.included).join(' '))+'</div></article>';
+ action('Plan coverage work',code,name,'Membership coverage',safeItems(guide?.included).join(' '))+'</div>'+editor('membership',code,name,p.description,p.updated_at)+'</article>';
 }
 function matrix(plans,tools,access){
  const mount=$('or-membership-matrix');if(!mount)return;
@@ -155,10 +209,11 @@ function renderMemberships(){
  matrix(plans,tools,safeItems(inventory.explicitAccess));
 }
 function render(response){
- inventory=response?.productInventory||null;bindActions();renderTools();renderMemberships();
+ inventory=response?.productInventory||null;bindActions();renderTools();renderMemberships();booksView();
 }
 function isAvailable(){return !!inventory?.available}
 document.addEventListener('DOMContentLoaded',()=>{
+ initProductFilters();
  $('or-catalog-tool-search')?.addEventListener('input',()=>renderTools());
 });
 window.OwnerRoadmapProductsV88={render,isCatalog,isAvailable};
