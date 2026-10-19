@@ -161,7 +161,11 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  const currentRole=(account.roles||[]).includes('OWNER')?'OWNER':(account.roles||[]).includes('ADMIN')?'ADMIN':(account.roles||[]).includes('MODERATOR')?'MODERATOR':(account.roles||[]).find(x=>x!=='SHOWCASE_VIEWER')||'NONE';
  const currentType=account.type||'member',member=info.membership||{planCode:'FREE'},profile=account.profile||{},flag=info.flag||{status:'active',reason:''},isBanned=!!(account.bannedUntil&&new Date(account.bannedUntil)>new Date());
  const canAssignStaff=info.permissions?.owner!==false;
- if(!member.synthetic&&info.effectiveAccess?.planCode)member.planCode=info.effectiveAccess.planCode;
+ if(!member.synthetic&&info.effectiveAccess?.planCode){
+   member.planCode=info.effectiveAccess.planCode;
+   member.startsAt=info.effectiveAccess.startsAt||member.startsAt;
+   member.endsAt=info.effectiveAccess.expiresAt||info.effectiveAccess.renewsAt||member.endsAt;
+ }
  const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);
  const roleOptions=[{role_code:'NONE',name:'No staff role'},...availableRoles];if(!roleOptions.some(x=>x.role_code==='OWNER'))roleOptions.push({role_code:'OWNER',name:'Owner / Super Administrator (confirmation required)'});
  const toLocal=v=>{if(!v)return '';const x=new Date(v);if(!Number.isFinite(x.getTime()))return '';const shift=x.getTimezoneOffset()*60000;return new Date(x.getTime()-shift).toISOString().slice(0,16)};
