@@ -1,0 +1,19 @@
+/* Owner/Admin Products — unified membership, book, and tool inventory */
+#admin-products-panel [hidden]{display:none!important}
+.product-admin-tabs{display:flex;flex-wrap:wrap;gap:10px;border-bottom:1px solid #547085;margin:1.3rem 0}
+.product-admin-tabs button{background:#0e3149;color:#f3f8ff;border:1px solid #5d7789;padding:12px 18px;min-height:46px;border-radius:8px 8px 0 0;cursor:pointer;font-weight:800}
+.product-admin-tabs button[aria-selected=true]{color:#062336;background:#e5bd5e}
+#admin-products-panel [role=tabpanel]{min-width:0}
+#admin-products-panel .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:17px}
+.product-admin-card{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
+.product-admin-card h3{font-size:1.17rem;margin:.5rem 0}
+.product-admin-price{font-size:1.65rem;font-weight:850;color:#ffdd83;margin:.5rem 0}
+.product-admin-status{font-weight:750;color:#f8dfaa}
+.product-admin-fields{display:grid;gap:.65rem;padding:1rem;background:#0a263a;border:1px solid #527086;border-radius:9px;margin:1rem 0}
+.product-admin-fields label{display:flex;gap:.65rem;align-items:center;line-height:1.4}
+.product-admin-fields input{accent-color:#d7af58;width:20px;height:20px}
+.product-admin-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin:.9rem 0}
+#admin-products-message{margin:1rem 0;color:#bfe1ea;line-height:1.45}
+#admin-products-message.admin-products-error{color:#ffd6c9}
+#admin-tabs [data-v11-panel="platform"],#admin-tabs [data-v11-panel="platform"] *{display:none!important}
+@media(max-width:650px){.product-admin-tabs button{flex:1;min-width:110px;padding:10px}.product-admin-actions>*{width:100%}}
