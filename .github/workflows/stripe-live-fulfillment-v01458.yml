@@ -25,6 +25,7 @@ on:
       - 'tests/test_v014084_*'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/js/store.js'
+      - 'assets/js/membership-platform.js'
       - 'store-product-*.html'
       - 'store.html'
       - 'supabase/migrations/v0.14.0.83_*'
@@ -80,6 +81,7 @@ jobs:
           python tests/test_v014083_authenticated_owner_live_activation.py
           python tests/test_v014084_store_category_and_details.py
           node --check assets/js/store.js
+          node --check assets/js/membership-platform.js
           node --check assets/js/store-product-detail-v01484.js
           node --check assets/js/admin-live-activation-v01483.js
           node --check functions/api/checkout.js
