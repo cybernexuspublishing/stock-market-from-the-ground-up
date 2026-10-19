@@ -76,3 +76,7 @@ If any SQL query errors on a missing table or column, preserve the error message
 **No changes:** User product prices, subscriptions, book manuscripts, retailer channels, Stripe Provider IDs, private learning datasets, Owner saved checkboxes or operational permissions.
 
 **Next accepted output:** Owner returns 01–09 preflight results and deployment/CI evidence; status updates then apply only to the specific tasks actually proved.
+
+## Current unrelated storefront QA observation — release acceptance remains pending
+
+The existing `Storefront v0.14.0.85 — Actual Browser Acceptance (No Charges)` production-facing GitHub Action run `39305637257` reported **11 PASS / 15 FAIL** on 2026-10-19. It passed catalog loading, tab isolation, book links, access to future offers, keyboard navigation, automatic accessibility checks, mobile products, and noncharging payment-readiness lookup. It failed one membership near-price link count and 14 desktop product-detail document-width assertions. This is **not** evidence that the new Owner roadmap source has broken the Store; it is a separate existing production-browser QA result. Determine whether duplicate links and desktop page overflow are real customer defects or stale assertions after the v0.14.0.87–90 design changes. Preserve previously approved sales UX and never suppress a genuine mobile/desktop overflow regression merely to turn a workflow green. `CORE-0256` remains in progress with this explicit acceptance evidence.
