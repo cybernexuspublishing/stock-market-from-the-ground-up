@@ -3,12 +3,12 @@
  * and existing book/tool editors. Never creates checkout or grants rights.
  */
 (()=>{'use strict';
-const $=id=>document.getElementById(id),e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id),e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=c=>(Number(c||0)/100).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2});
 const cycle=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]||'';
 const planPages={FREE:'store-membership-free.html',FULL_MONTHLY:'store-membership-full-monthly.html',FULL_ANNUAL:'store-membership-full-annual.html',LIFETIME:'store-membership-lifetime.html',ONDEMAND_MONTHLY:'store-membership-ondemand-monthly.html'};
 const toolPages={INTERACTIVE_LEARNING:'store-tool-interactive-learning.html',JOURNAL_ANALYTICS:'store-tool-journal-analytics.html',MARKET_SIMULATOR:'store-tool-market-simulator.html',MARKET_TUTOR:'store-tool-market-tutor.html'};
-const urlFor=(kind,code)=>({plan:planPages,tool:toolPages}[kind]?.[code]||'store-product.html?type='+encodeURIComponent(kind)+'&code='+encodeURIComponent(code);
+const urlFor=(kind,code)=>({plan:planPages,tool:toolPages}[kind]?.[code]||('store-product.html?type='+encodeURIComponent(kind)+'&code='+encodeURIComponent(code)));
 let context=null,live=null,current='memberships',pending=false;
 const msg=(s,error=false)=>{const x=$('admin-products-message');if(x){x.textContent=s;x.classList.toggle('admin-products-error',error)}};
 async function token(){
