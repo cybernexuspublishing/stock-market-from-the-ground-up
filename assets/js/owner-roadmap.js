@@ -261,6 +261,7 @@ function selectTab(next){
   const panel=$('#or-catalog-'+({ 'tool-inventory':'tools','membership-coverage':'memberships','product-readiness':'product-readiness','verification-audit':'audit'}[name]));
   if(panel)panel.hidden=next!==name;
  }
+ if(next==='product-readiness')void window.OwnerProductReadinessV91?.loadLabAudit();
  if(!reference)return;
  $('#or-area').value='';$('#or-status').value='';$('#or-review').value='';$('#or-origin').value='';$('#or-search').value='';
  areas();render();
