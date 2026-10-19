@@ -100,7 +100,8 @@ function wire(){
    const item=(window.GroundUpUpcomingOfferings||[]).find(x=>x.code===upcoming.dataset.upcomingCreate);
    if(!item)return;
    // Existing tool editor enforces planned-only creation and never activates checkout.
-   try{window.GroundUpAdminToolEditor?.add()}catch(ex){msg(ex.message,true)}
+   try{window.GroundUpAdminToolEditor?.add({tool_code:item.code,name:item.name,category:item.category,
+     description:item.description,href:item.route})}catch(ex){msg(ex.message,true)}
    return;
   }
   const tool=ev.target.closest('[data-tool-edit]');
