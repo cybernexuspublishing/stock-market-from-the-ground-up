@@ -13,6 +13,7 @@ const nav=()=>$('#admin-tabs'),app=()=>$('#admin-app');
 const defs={
  'Overview':[/^Dashboard$/i,/Control Center Directory|Site Academy/i],
  'Accounts & Access':[/Account|Roles|Member Activity/i],
+ 'Products':[/^Products$/i],
  'Books & Learning':[/Books|Lab|Learning|Competency|Instructor|Question Bank|Market Data|Tutor|Feature Inventory/i],
  'Memberships & Commerce':[/Commerce|Membership|Checkout|Payment|Advertising|Subscription|Orders/i],
  'Community & Support':[/Market Commons|Reports|Moderation|Support|Announcements|Notifications|Communications/i],
