@@ -10,7 +10,8 @@ export async function onRequestPost({request,env}){
  if(!url||!pub||!secret)return out({ok:false,error:'Report service unavailable.'},503);
  const contentLength=Number(request.headers.get('content-length')||0);if(contentLength>4096)return out({ok:false,error:'Report request too large.'},413);
  const token=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!token)return out({ok:false,error:'Sign in to report content.'},401);
- const get=async(path,admin=false)=>{const key=admin?secret:pub,r=await fetch(url+path,{headers:{apikey:key,authorization:'Bearer '+(admin?secret:token)},cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Report backend unavailable.'),{status:r.status});return r.json()};
+ const serviceHeaders={apikey:secret};if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(secret))serviceHeaders.authorization='Bearer '+secret;
+ const get=async(path,admin=false)=>{const key=admin?secret:pub,r=await fetch(url+path,{headers:admin?serviceHeaders:{apikey:key,authorization:'Bearer '+token},cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Report backend unavailable.'),{status:r.status});return r.json()};
  const rpcMember=async(name,args)=>{const r=await fetch(url+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:pub,authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify(args),cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Report target cannot be verified.'),{status:r.status});return r.json()};
  const me=await get('/auth/v1/user');if(!me?.id)return out({ok:false,error:'Invalid session.'},401);
  const profile=(await get('/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];const flags=(await get('/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];
@@ -49,7 +50,7 @@ export async function onRequestPost({request,env}){
    contentId='legacy:'+type+':'+id;
  }
  // Quota, de-duplication and insert MUST happen in one SQL transaction.
- const r=await fetch(url+'/rest/v1/rpc/v014_community_report',{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json'},body:JSON.stringify({p_actor:me.id,p_type:type,p_content:contentId,p_reason:reason,p_details:details}),cache:'no-store'});
+ const r=await fetch(url+'/rest/v1/rpc/v014_community_report',{method:'POST',headers:{...serviceHeaders,'content-type':'application/json'},body:JSON.stringify({p_actor:me.id,p_type:type,p_content:contentId,p_reason:reason,p_details:details}),cache:'no-store'});
  if(!r.ok){
    const responseBody=await r.json().catch(()=>({}));
    const message=String(responseBody?.message||'');
