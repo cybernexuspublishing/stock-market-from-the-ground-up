@@ -77,7 +77,7 @@ export async function onRequest({request,env}){
    const [first,second]=await Promise.all([fetchBar(env,code,0),fetchBar(env,code,1)]);
    if(!first||!second||Date.parse(second.timestamp)<=Date.parse(first.timestamp))throw bad('The source has no verified sequential replay bars.',503);
    const rows=await db(env,'gu_replay_sessions_v01492','POST',
-    {user_id:auth.userId,dataset_code:code},{prefer:'return=representation'});
+    {user_id:auth.userId,dataset_code:code},'return=representation');
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
    return out({ok:true,sessionId:sess.id,dataset:{code,title:source.title,ticker:source.ticker,
     sourceAttribution:source.source_attribution,licenseNotice:source.license_note},
