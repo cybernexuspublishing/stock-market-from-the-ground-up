@@ -85,6 +85,17 @@ try{
    assert.ok(links.every(l=>/\/store-book-/.test(l)));
    return 'Foundations 3, all books 5, five unique detail links';
  });
+ await run('Every membership has immediate descriptive link, including Historical Replay Monthly',async()=>{
+   await main.locator('#store-tab-memberships').click();
+   const cards=main.locator('#store-plans article.v11-plan');
+   assert.equal(await cards.count(),5);
+   assert.equal(await main.locator('#store-plans .v11-price + .store-plan-primary-link').count(),5,'All membership cards need an early link directly after price');
+   const ondemand=main.locator('#store-plans .v11-plan').filter({has:main.locator('h3 a[href="store-membership-ondemand-monthly.html"]')});
+   assert.equal(await ondemand.count(),1,'Missing historical replay monthly item');
+   assert.equal(await ondemand.locator('.store-plan-primary-link').isVisible(),true,'Historical Replay details link is invisible');
+   assert.equal(await ondemand.locator('.store-plan-primary-link').getAttribute('href'),'store-membership-ondemand-monthly.html');
+   return '5 near-price details links; OnDemand monthly links to its educational product page';
+ });
  await run('Public purchase buttons do not create sessions',async()=>{
    const links=await main.locator('#store-plans a,#store-products a,#store-tools a').evaluateAll(a=>a.map(el=>el.getAttribute('href')));
    assert.ok(links.every(h=>!/^https:\/\/checkout\.stripe\.com/i.test(h||'')),'Direct uncontrolled Stripe checkout link');
@@ -119,7 +130,26 @@ try{
        assert.ok(!links.some(x=>/^https:\/\/checkout\.stripe\.com/i.test(x||'')),'Unsafe external Stripe link');
        const headings=await root.locator('h2').count();
        assert.ok(headings>=2,'Insufficient section structure: '+headings);
-       return 'loaded '+text.length+' chars, '+headings+' subheadings, '+links.length+' controlled links';
+       assert.equal(await root.locator('header.store-product-hero h1').count(),1,'Product needs an immediately visible focused editorial title');
+       assert.equal(await root.locator('.store-product-body > .store-product-sections').count(),1,'Missing linear product education area');
+       assert.equal(await root.locator('.store-product-body > aside.store-product-purchase').count(),1,'Pricing must be a secondary sidebar');
+       const geometry=await p.evaluate(()=>{
+         const hero=document.querySelector('.store-product-hero').getBoundingClientRect();
+         const body=document.querySelector('.store-product-body').getBoundingClientRect();
+         const sections=document.querySelector('.store-product-sections').getBoundingClientRect();
+         const aside=document.querySelector('.store-product-purchase').getBoundingClientRect();
+         return {heroHeight:hero.height,gap:body.top-hero.bottom,sectionStart:sections.top,priceStart:aside.top,mainWidth:sections.width,asideWidth:aside.width,bodyWidth:body.width,scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
+       });
+       assert.ok(geometry.gap>=-3&&geometry.gap<=65,'Large blank gap below product title: '+JSON.stringify(geometry));
+       assert.ok(geometry.heroHeight<480,'Excessively tall empty hero: '+JSON.stringify(geometry));
+       assert.ok(Math.abs(geometry.sectionStart-geometry.priceStart)<25,'Main learning content should align with availability sidebar');
+       assert.ok(geometry.mainWidth>geometry.asideWidth,'Product explanation must be the primary content');
+       assert.ok(geometry.scrollWidth<=geometry.viewport+3,'Product page horizontal overflow');
+       if(path.startsWith('store-book-')&&!path.includes('membership')){
+         assert.equal(await root.locator('.store-product-hero .store-product-book-cover').count(),1,'Prominent book cover missing from hero');
+         assert.equal(await root.locator('.store-product-about .store-product-book-cover').count(),0,'Duplicate book cover blocks the book synopsis');
+       }
+       return 'loaded '+text.length+' chars; editorial hero '+Math.round(geometry.heroHeight)+'px, blank gap '+Math.round(geometry.gap)+'px; '+headings+' sections';
      }finally{await c.close()}
    });
  }
@@ -133,6 +163,26 @@ try{
      assert.ok(widths.body<=widths.viewport+2,'Horizontal overflow: '+JSON.stringify(widths));
      return '390px viewport, tools tappable, no whole-page horizontal overflow';
    }finally{await c.close()}
+ });
+ await run('Mobile product information is readable without horizontal scrolling',async()=>{
+   for(const path of ['store-book-foundation-1.html','store-membership-ondemand-monthly.html','store-tool-market-tutor.html']){
+     const {page:p,context:c}=await makePage(390,844);
+     try{
+       const response=await p.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:24000});
+       assert.ok(response?.ok(),'Cannot load '+path);
+       await p.waitForFunction(()=>!!document.querySelector('.store-product-body'),{timeout:18000});
+       const metrics=await p.evaluate(()=>{
+         const primary=document.querySelector('.store-product-sections').getBoundingClientRect();
+         const purchase=document.querySelector('.store-product-purchase').getBoundingClientRect();
+         return {width:document.documentElement.scrollWidth,viewport:innerWidth,
+          main:primary.width,mainY:primary.top,sidebarY:purchase.top,sidebarWidth:purchase.width};
+       });
+       assert.ok(metrics.width<=metrics.viewport+3,'Mobile horizontal overflow on '+path+': '+JSON.stringify(metrics));
+       assert.ok(metrics.sidebarY>=metrics.mainY,'Primary product information must lead on mobile: '+path);
+       assert.ok(metrics.sidebarWidth<=metrics.viewport,'Mobile purchase panel too wide: '+path);
+     }finally{await c.close()}
+   }
+   return '390px book/membership/tool: single-column readable layout, no horizontal overflow, product information before price';
  });
  await run('Noncharging LIVE payment-readiness check',async()=>{
    // Local PR preview has no Cloudflare Functions: use the read-only,
