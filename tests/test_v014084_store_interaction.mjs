@@ -8,7 +8,7 @@ const safeHref=s=>{const str=String(s||'');return /^(https:\/\/|(?:\.\/)?[\w-]+\
 const ct=(data)=>({load:async()=>data,esc,safeHref,moneyCents:n=>Number(n).toLocaleString('en-US',{style:'currency',currency:'USD'})});
 const makeNode=(name)=>({name,innerHTML:'',hidden:false,dataset:{},tabIndex:0,
    classes:new Set(),attributes:{},events:{},
-   classList:{toggle(){}},setAttribute(k,v){this.attributes[k]=v},addEventListener(k,cb){this.events[k]=cb},focus(){this.focused=true}});
+   classList:{toggle(){},contains(){return false}},setAttribute(k,v){this.attributes[k]=v},addEventListener(k,cb){this.events[k]=cb},focus(){this.focused=true}});
 const book=id=>({type:'book',productCode:id,shortTitle:id,title:'Educational '+id,storeVisible:true,salesStatus:'published',
   branchSlug:'foundations',author:'J. S. Grant',publisher:'Crown & Lantern Press',
   publicationStatus:'publication_candidate',amazon:{kindleUrl:'',paperbackUrl:'',hardcoverUrl:''},
@@ -24,7 +24,7 @@ tools.push(tt('DISCOVERY_LAB','beta'));
 const data={plans,products:[...products,{type:'bundle',productCode:'BUNDLE',title:'Bundled products',storeVisible:true,salesStatus:'published'}],tools};
 const tabIds=['memberships','books','tools'];
 const tabNodes=tabIds.map(k=>({...makeNode(k),dataset:{storeCategory:k}}));
-const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){}}}));
+const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){},contains(){return false}}}));
 const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
 const preview=makeNode('preview'),winHandlers={};
 const doc={
