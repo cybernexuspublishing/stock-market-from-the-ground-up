@@ -5,16 +5,19 @@ const safe=x=>String(x||'').trim();
 export async function onRequest({request,env}){
  if(request.method!=='GET')return respond({ok:false,error:'Method not allowed.'},405);
  const base=safe(env.SUPABASE_URL).replace(/\/$/,''),secret=safe(env.SUPABASE_SECRET_KEY),pub=safe(env.SUPABASE_PUBLISHABLE_KEY);
+ // Reuse the same private Supabase key contract as the site middleware.
+ const serviceHeaders={apikey:secret};
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))serviceHeaders.authorization='Bearer '+secret;
  if(!base||!secret)return respond({ok:false,error:'Service unavailable.'},503);
  try{
   let authenticated=false;
   const jwt=(request.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1];
   if(jwt&&pub){const r=await fetch(base+'/auth/v1/user',{headers:{apikey:pub,authorization:'Bearer '+jwt},cache:'no-store'});
-   if(r.ok){const u=await r.json();if(u?.id){const profile=await fetch(base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});
-    if(profile.ok){const p=await profile.json();if(p?.[0]?.account_kind==='member'){const flags=await fetch(base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});if(flags.ok){const f=await flags.json();authenticated=!['suspended','restricted'].includes(String(f?.[0]?.status||'').toLowerCase());}}}
+   if(r.ok){const u=await r.json();if(u?.id){const profile=await fetch(base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1',{headers:serviceHeaders,cache:'no-store'});
+    if(profile.ok){const p=await profile.json();if(p?.[0]?.account_kind==='member'){const flags=await fetch(base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1',{headers:serviceHeaders,cache:'no-store'});if(flags.ok){const f=await flags.json();authenticated=!['suspended','restricted'].includes(String(f?.[0]?.status||'').toLowerCase());}}}
    }}
   }
-  const r=await fetch(base+'/rest/v1/site_announcements?select=id,title,body,announcement_type,audience,active,starts_at,ends_at,updated_at,dismissible&active=eq.true&order=updated_at.desc&limit=100',{headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'});
+  const r=await fetch(base+'/rest/v1/site_announcements?select=id,title,body,announcement_type,audience,active,starts_at,ends_at,updated_at,dismissible&active=eq.true&order=updated_at.desc&limit=100',{headers:serviceHeaders,cache:'no-store'});
   if(!r.ok)throw Error('Announcements unavailable');const items=await r.json(),now=Date.now();
   const announcements=items.filter(x=>{
    if(x.active!==true)return false;

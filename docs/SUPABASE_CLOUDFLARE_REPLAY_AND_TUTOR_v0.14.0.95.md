@@ -26,6 +26,7 @@ The root `functions/` directory MUST be deployed as Pages Functions; do not manu
 **No new Stripe product, member entitlement, Supabase instance, market-data vendor, database migration history, or stock ticker is needed.**
 
 ## Reuse and corrections
+- Critical production middleware was also sending modern `sb_secret_*` keys as Bearer tokens during the Showcase mutation boundary, potentially blocking *all* authenticated POST actions, including Tutor, Lab, replay, Market Commons and commerce. v95 reuses its pre-existing payment key helper for that boundary, retains fail-closed access and adds negative Showcase tests. Site announcements now follow the same service-key policy.
 - Existing Interactive Training server was sending modern `sb_secret_*` keys as fake Bearer JWTs; v95 corrects its private data adapter, retaining existing training-set tables, per-book checks, CAS server grading and URL/API contracts.
 - Premium Market Tutor practice now optionally summarizes this member's REAL completed `lab_training_attempts_v014` scores for revisiting specific existing Labs. Missing learning tables degrade to the previous tag-based teaching; raw answers, grades of others, and model calls are not exposed. A score is not proof of trader competence, nor are 419 labs considered delivered.
 - Existing 21 tool codes, 30 competencies, 419-ID target, 8 priced Stripe products, Books I–III approved v1.14, and Market Commons were not re-created or silently modified.

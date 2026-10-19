@@ -18,7 +18,7 @@ async function showcaseIdentity(env,token){
   if(!identity.ok)throw new Error('Unable to verify authentication.');
   const user=await identity.json();
   if(!user?.id)throw new Error('Missing verified user identity.');
-  const h={apikey:secret,authorization:'Bearer '+secret,accept:'application/json'};
+  const h={...supabasePaymentServiceHeaders(secret),accept:'application/json'};
   const [profile,roles]=await Promise.all([
     fetch(base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1',{headers:h,cache:'no-store'}),
     fetch(base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id),{headers:h,cache:'no-store'})
@@ -43,7 +43,7 @@ async function protectLegacyOwnerTarget(context,url){
  try{
   const base=clean(context.env.SUPABASE_URL).replace(/\/$/,''),pub=clean(context.env.SUPABASE_PUBLISHABLE_KEY),secret=clean(context.env.SUPABASE_SECRET_KEY);
   if(!base||!pub||!secret)throw new Error('Unavailable');
-  const h={apikey:secret,authorization:'Bearer '+secret,accept:'application/json'};
+  const h={...supabasePaymentServiceHeaders(secret),accept:'application/json'};
   const own=await fetch(base+'/rest/v1/admin_user_roles?select=user_id,expires_at&role_code=eq.OWNER&user_id=eq.'+encodeURIComponent(id),{headers:h,cache:'no-store'});
   if(!own.ok)throw new Error('Unable to verify target');
   const t=await own.json();if(!t.some(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()))return null;
@@ -151,7 +151,7 @@ async function apiMutationBoundary(context,url){
     if(!base||!secret)return reject('Unable to verify test-account class.',503);
     try{
       const r=await fetch(base+'/rest/v1/test_account_profiles?select=preset_code&user_id=eq.'+encodeURIComponent(target)+'&limit=1',{
-        headers:{apikey:secret,authorization:'Bearer '+secret},cache:'no-store'
+        headers:supabasePaymentServiceHeaders(secret),cache:'no-store'
       });
       if(!r.ok)return reject('Unable to verify test-account class.',503);
       const rows=await r.json();
