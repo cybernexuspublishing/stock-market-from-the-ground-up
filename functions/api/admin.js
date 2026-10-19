@@ -354,7 +354,21 @@ export async function onRequest(context){
   try{
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...JSON_HEADERS,allow:'GET,POST,OPTIONS'}});
     if(request.method==='GET')return await handleGet(env,request,action,url);
-    if(request.method==='POST')return await handlePost(env,request,action);
+    if(request.method==='POST'){
+      // v78: No legacy account editor may modify entitlements, Book Key
+      // companion rights, plan grants, staff roles or identities outside the
+      // source-bound Manage Account workflow. Older routes had unscoped
+      // DELETE/PATCH mutations and returned success without checking rows.
+      const retired=new Set([
+       'set_role','user_ban','user_delete','user_flag','username_override',
+       'user_note','library_grant','library_revoke',
+       'entitlement_grant','entitlement_revoke',
+       'plan_grant','plan_revoke','tool_grant','tool_revoke'
+      ]);
+      if(retired.has(action))
+        return bad('Legacy account mutation retired. Open Admin Control Center → Account Management → Manage Account for verified, source-aware account changes. Provider billing operations remain at the provider.',409);
+      return await handlePost(env,request,action);
+    }
     return bad('Method not allowed.',405);
   }catch(e){return bad(e?.message||'Administrative request failed.',e?.status||500,{detail:e?.status===500?undefined:e?.data})}
 }
