@@ -1,0 +1,77 @@
+name: Owner Product Readiness v0.14.0.91
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'owner-roadmap.html'
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-product-readiness-v01491.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/js/owner-roadmap-product-readiness-v01491.js'
+      - 'assets/css/owner-roadmap.css'
+      - 'release-manifest.json'
+      - 'config.js'
+      - 'assets/js/route-policy.js'
+      - 'data/commerce-config.json'
+      - 'sw.js'
+      - 'tests/test_v014091_product_readiness.mjs'
+      - 'supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql'
+      - '.github/workflows/owner-product-readiness-v01491.yml'
+  pull_request:
+    paths:
+      - 'owner-roadmap.html'
+      - 'functions/api/owner-roadmap.js'
+      - 'functions/_lib/owner-product-readiness-v01491.js'
+      - 'assets/js/owner-roadmap.js'
+      - 'assets/js/owner-roadmap-product-readiness-v01491.js'
+      - 'assets/css/owner-roadmap.css'
+      - 'release-manifest.json'
+      - 'tests/test_v014091_product_readiness.mjs'
+      - 'supabase/admin/v0.14.0.91_OWNER_PRODUCT_READINESS_READ_ONLY.sql'
+      - '.github/workflows/owner-product-readiness-v01491.yml'
+permissions:
+  contents: read
+jobs:
+  verify-product-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check script syntax and product registry contract
+        run: |
+          node --check assets/js/owner-roadmap.js
+          node --check assets/js/owner-roadmap-product-readiness-v01491.js
+          node --check functions/_lib/owner-product-readiness-v01491.js
+          node --check functions/api/owner-roadmap.js
+          node tests/test_v014091_product_readiness.mjs
+          node tests/test_owner_roadmap_additions_20261018.mjs
+          node tests/test_owner_roadmap_workflow_v014063.mjs
+          node tests/test_v014088_owner_product_inventory.mjs
+          node tests/test_v014088_owner_inventory_ui.mjs
+      - name: Validate production build boundary and no-payment changes
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/owner-roadmap.html
+          test -f public/assets/js/owner-roadmap-product-readiness-v01491.js
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/docs
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('public/release-manifest.json').read_text())
+          assert m['version']=='0.14.0.91'
+          assert m['customerCheckoutApproved'] is False
+          assert m['liveStripeFulfillmentEnabled'] is False
+          assert m['ownerRoadmap']['primaryTasks']==375
+          assert m['ownerRoadmap']['sourceTraceRows']==1815
+          print('PASS: private module excluded; Owner controls and finance locks preserved.')
+          PY
