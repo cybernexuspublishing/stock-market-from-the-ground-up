@@ -65,7 +65,7 @@ window.CommerceTools=(function(){'use strict';
   // not potentially stale catalog checkout_enabled fields. NEVER create a
   // Checkout Session here; the protected checkout independently rechecks
   // logged-in eligibility, provider product/price, and signed fulfillment.
-  async function verifiedCheckout(catalog){
+  async function verifiedCheckout(catalog,only=null){
     const closed={...catalog,plans:(catalog.plans||[]).map(p=>({...p,checkoutEnabled:false})),
       tools:(catalog.tools||[]).map(t=>({...t,checkoutEnabled:false}))};
     if(catalog.commerceUnavailable||typeof fetch!=='function')return closed;
@@ -81,8 +81,8 @@ window.CommerceTools=(function(){'use strict';
         tools:(catalog.tools||[]).map(t=>({...t,checkoutEnabled:t.checkoutEnabled===true}))};
     }
     if(route.provider!=='STRIPE_MANAGED')return closed;
-    const plans=(catalog.plans||[]).filter(p=>p.planCode!=='FREE'&&Number(p.priceCents)>0);
-    const tools=(catalog.tools||[]).filter(t=>t.status==='live'&&Number(t.priceCents)>0);
+    const plans=(catalog.plans||[]).filter(p=>(!only||only.type==='plan'&&p.planCode===only.code)&&p.planCode!=='FREE'&&Number(p.priceCents)>0);
+    const tools=(catalog.tools||[]).filter(t=>(!only||only.type==='tool'&&t.toolCode===only.code)&&t.status==='live'&&Number(t.priceCents)>0);
     const jobs=[...plans.map(p=>({type:'plan',code:p.planCode})),...tools.map(t=>({type:'tool',code:t.toolCode}))].slice(0,60);
     const responses=await Promise.all(jobs.map(async j=>{
       try{
