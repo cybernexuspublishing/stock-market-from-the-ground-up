@@ -16,7 +16,7 @@ const env={
 const init=()=>({qa:true,qaActive:true,manual:false,external:false,paid:false,
  resetRpcError:false,forcePlan:null,roles:[{role_code:'OWNER',expires_at:null}],calls:[]});
 let state=init();
-const J=(data={},status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
+const J=(data={},status=200)=>new Response(status===204?null:JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 const orig=globalThis.fetch;
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url),method=opts.method||'GET',body=opts.body?JSON.parse(opts.body):null;
