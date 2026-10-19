@@ -29,10 +29,10 @@ globalThis.fetch=async(url,options={})=>{
  throw Error('Unexpected request '+path);
 };
 try{
- const req=new Request('https://site.example/api/market-tutor-v01492',{method:'POST',
+ const req=()=>new Request('https://site.example/api/market-tutor-v01492',{method:'POST',
   headers:{authorization:'Bearer valid-user','content-type':'application/json'},
   body:JSON.stringify({mode:'practice',question:'What should I practice next?'})});
- let resp=await tutor({request:req,env}),body=await resp.json();
+ let resp=await tutor({request:req(),env}),body=await resp.json();
  assert.equal(resp.status,200);
  assert.equal(body.gradedHistoryAvailable,true);
  assert.equal(body.recordedAssessmentCount,3);
@@ -40,7 +40,7 @@ try{
  assert.equal(body.gradedReview[1].latestRecordedScore,45);
  assert.equal(body.masteryAwarded,false);
  assert(!JSON.stringify(body).includes('Private reviewed prompt'));
- attemptsAvailable=false;resp=await tutor({request:req,env});body=await resp.json();
+ attemptsAvailable=false;resp=await tutor({request:req(),env});body=await resp.json();
  assert.equal(resp.status,200);assert.equal(body.gradedHistoryAvailable,false);
  assert(body.recommendations.some(x=>x.topic==='Poor stop placement'));
  resp=await training({request:new Request(
