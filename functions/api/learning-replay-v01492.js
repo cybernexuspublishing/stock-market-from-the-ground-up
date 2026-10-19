@@ -76,6 +76,10 @@ export async function onRequest({request,env}){
       throw bad('Dataset is not published with independently reviewed educational display rights.',403);
    const [first,second]=await Promise.all([fetchBar(env,code,0),fetchBar(env,code,1)]);
    if(!first||!second||Date.parse(second.timestamp)<=Date.parse(first.timestamp))throw bad('The source has no verified sequential replay bars.',503);
+   // Close only this member's expired sessions for the same dataset so the
+   // one-active-session constraint cannot permanently lock out older learners.
+   await db(env,'gu_replay_sessions_v01492?user_id=eq.'+encodeURIComponent(auth.userId)+'&dataset_code=eq.'+encodeURIComponent(code)+'&status=eq.active&expires_at=lte.'+encodeURIComponent(new Date().toISOString()),
+      'PATCH',{status:'finished',finished_at:new Date().toISOString()},'return=minimal');
    const rows=await db(env,'gu_replay_sessions_v01492','POST',
     {user_id:auth.userId,dataset_code:code},'return=representation');
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
