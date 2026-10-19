@@ -19,7 +19,7 @@ async function run(name,fn){
 async function makePage(width=1440,height=900){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'});
  const page=await context.newPage();
- page.on('pageerror',e=>pageErrors.push({url:page.url(),message:e.message.slice(0,260)}));
+ page.on('pageerror',e=>pageErrors.push({url:page.url(),message:e.message.slice(0,260),stack:String(e.stack||'').slice(0,1600)}));
  return {page,context};
 }
 const named=['store-membership-free.html','store-membership-full-monthly.html','store-membership-full-annual.html',
