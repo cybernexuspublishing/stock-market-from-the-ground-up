@@ -26,19 +26,37 @@ const formatInfo=p=>{const out=[];
  if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)out.push(button('Website purchase',`checkout.html?type=book&code=${encodeURIComponent(p.productCode)}`));
  return out.filter(Boolean)};
 function show(html){const root=document.querySelector('#store-product-root');root.innerHTML=html}
-function layout(category,head,description,price,priceNote,actions,sections,advice){
+function layout(category,head,description,price,priceNote,actions,sections,advice,visual=''){
+ const label={memberships:'Memberships',books:'Books',tools:'À-la-Carte Tools'}[category];
+ const kind=category==='tools'?'Individual learning tool':category==='books'?'Book information':'Membership information';
+ const availability=actions
+  ?'<div class="library-actions">'+actions+'</div><p class="store-product-status">'+e(advice)+'</p>'
+  :'<p class="store-product-status">'+e(advice||'No purchase channel is currently available.')+'</p>';
  return `<nav class="store-product-breadcrumbs" aria-label="Breadcrumb"><a href="store.html#${e(category)}">Store</a><span aria-hidden="true">/</span>
- <span>${e({memberships:'Memberships',books:'Books',tools:'À-la-Carte Tools'}[category])}</span></nav>
- <div class="store-product-hero">
- <div class="store-product-intro"><div class="eyebrow">${e(category==='tools'?'Individual learning tool':category==='books'?'Book information':'Membership information')}</div>
- <h1>${e(head)}</h1><p class="section-intro">${e(description)}</p></div>
- <aside class="store-product-purchase" aria-label="Pricing and purchasing"><h2>Price &amp; availability</h2>
- <div class="store-product-price">${e(price||'Pricing unavailable')}${priceNote?` <small>${e(priceNote)}</small>`:''}</div>
- <p class="store-product-status">${e(advice)}</p><div class="library-actions">${actions||'<span>No verified purchase channel is currently configured.</span>'}</div>
- <p class="small">Review the relevant billing, refund and access conditions before paying. <a href="refund-policy.html">Refund policy</a> · <a href="terms.html">Terms</a>.</p></aside></div>
- <div class="store-product-sections">${sections}</div>
+ <span>${e(label)}</span></nav>
+ <header class="store-product-hero">
+  <div class="store-product-hero-layout">
+   ${visual?'<div class="store-product-hero-art">'+visual+'</div>':''}
+   <div class="store-product-intro">
+    <div class="eyebrow">${e(kind)}</div>
+    <h1>${e(head)}</h1>
+    <p class="store-product-lede">${e(description)}</p>
+   </div>
+  </div>
+ </header>
+ <div class="store-product-body">
+  <div class="store-product-sections" aria-label="Complete product information">${sections}</div>
+  <aside class="store-product-purchase" aria-label="Pricing and purchase availability">
+   <div class="eyebrow">Before you purchase</div>
+   <h2>Price &amp; availability</h2>
+   <div class="store-product-price">${e(price||'Pricing unavailable')}${priceNote?` <small>${e(priceNote)}</small>`:''}</div>
+   ${availability}
+   <p class="small">Review billing, access, and refund conditions before purchase.</p>
+   <p class="store-product-policies"><a href="refund-policy.html">Refund policy</a> · <a href="terms.html">Terms</a></p>
+  </aside>
+ </div>
  <div class="store-product-disclaimer">Educational content only. No individualized investment advice, guaranteed results, or access to external brokerage or paid data services unless expressly included. Trading and investing involve risk.</div>
- <p><a href="store.html#${e(category)}">← Back to ${e(category)}</a></p>`;
+ <p class="store-product-back"><a href="store.html#${e(category)}">← Back to ${e(label)}</a></p>`;
 }
 function planDetail(p,guide,code){
  const title=p?.label||({FREE:'Free Membership',FULL_MONTHLY:'Full Platform — Monthly',FULL_ANNUAL:'Full Platform — Annual',LIFETIME:'Lifetime Platform Access',ONDEMAND_MONTHLY:'Historical Replay Learning — Monthly'}[code]||code);
@@ -85,7 +103,7 @@ function bookDetail(p,guide,code){
  ['Store offer status',p?.salesStatus==='published'?'Sale-ready catalog; formats must still be activated':p?.salesStatus||'Not verified'],
  ['Website delivery',p?.directDigital?.enabled&&!p.kdpSelect?'Check direct-digital availability': 'Not enabled for a direct eBook download from this listing'] ];
  const sections=[
- `<section class="store-product-section"><h2>About this book</h2>${cover}
+ `<section class="store-product-section store-product-about"><h2>About this book</h2>
  <p>${e(p?.description||guide?.overview||'Catalog description is being prepared by the publisher.')}</p>
  <p class="small">The publisher controls edition descriptions, publication state and purchase links.</p></section>`,
  list('Subject areas and learning focus (not a chapter list)',guide?.topics),
@@ -97,7 +115,7 @@ function bookDetail(p,guide,code){
  const advice=acts.length?'Only the listed purchase formats are currently linked. Other formats may not yet be available.':
  'No verified book purchase link is currently configured. The catalog being marked sale-ready does not authorize a charge.';
  show(layout('books',title,guide?.overview||p?.description||'Publisher-controlled book information', 'Price varies by edition', '',
- acts.join(''),sections,advice));
+ acts.join(''),sections,advice,cover));
 }
 function previewReplay(g){
  const secs=list('Learning focus',g.learn)+list('Included when released',g.included)+list('Not included',g.excluded)+topic('Enrollment status',g.terms);
@@ -106,6 +124,7 @@ function previewReplay(g){
 }
 async function init(){
  const root=document.querySelector('#store-product-root');if(!root)return;
+ document.body.classList.add('store-detail-page');
  const type=root.dataset.productType||new URLSearchParams(location.search).get('type');
  const code=root.dataset.productCode||new URLSearchParams(location.search).get('code');
  if(!['plan','tool','book','preview'].includes(type)||!(/^[A-Z][A-Z0-9_]{1,79}$/.test(code||''))){
