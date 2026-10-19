@@ -81,18 +81,59 @@ async function membershipDetails(env,id,kind){if(kind==='showcase'||kind==='test
  const rows=await rest(env,'test_account_profiles?select=metadata&user_id=eq.'+id+'&limit=1');const m=rows?.[0]?.metadata||{};return{planCode:m.display_plan||'FREE',startsAt:m.plan_start||null,endsAt:m.plan_end||null,synthetic:true,providerManaged:false};}
  const [grants,subs]=await Promise.all([rest(env,'user_plan_grants?select=id,plan_code,status,starts_at,ends_at,source,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=25'),rest(env,'site_subscriptions?select=id,plan_code,status,current_period_start,current_period_end,provider&user_id=eq.'+id+'&order=created_at.desc&limit=25')]);
  const paid=(subs||[]).find(x=>['active','trialing','past_due'].includes(x.status));const grant=(grants||[]).find(x=>['active','trialing'].includes(x.status)&&(!x.starts_at||Date.parse(x.starts_at)<=Date.now())&&(!x.ends_at||Date.parse(x.ends_at)>Date.now()));
- const selected=grant||paid;return{planCode:selected?.plan_code||'FREE',startsAt:selected?.starts_at||selected?.current_period_start||null,endsAt:selected?.ends_at||selected?.current_period_end||null,synthetic:false,providerManaged:!!paid,providerName:paid?.provider||null,grantCount:(grants||[]).length};}
+ const selected=grant||paid,qaActive=grant?.plan_code==='FULL_MONTHLY'&&grant?.source==='stripe_zero_monthly_qa_v72';
+ return{planCode:selected?.plan_code||'FREE',startsAt:selected?.starts_at||selected?.current_period_start||null,
+ endsAt:selected?.ends_at||selected?.current_period_end||null,synthetic:false,providerManaged:!!paid,
+ providerName:paid?.provider||null,grantCount:(grants||[]).length,
+ grantSource:grant?.source||null,zeroQaActive:!!qaActive,
+ zeroQaResettable:!!qaActive&&!paid&&id===clean(env.GU72_QA_ALLOWED_USER_ID)};}
 async function updateMembership(env,actor,id,kind,b){const plan=clean(b.planCode||'FREE').toUpperCase();const valid=await rest(env,'platform_plans?select=plan_code&plan_code=eq.'+encodeURIComponent(plan)+'&active=eq.true&limit=1');if(!valid.length)throw problem('Unknown membership plan.',400);
  const range=dates(b.startsAt,b.endsAt);if(kind==='test'||kind==='showcase'){
  const current=(await rest(env,'test_account_profiles?select=metadata&user_id=eq.'+id+'&limit=1'))?.[0];if(!current)throw problem('No test account profile exists.',409);
  await rest(env,'test_account_profiles?user_id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{metadata:{...(current.metadata||{}),display_plan:plan,plan_start:range.start,plan_end:range.end,synthetic_entitlements_only:true}}});
  await audit(env,actor,'v1353.membership.synthetic_update',id,{displayPlan:plan});return{synthetic:true};}
- // Provider-managed billing is never silently changed by manual Admin grants.
- const subs=await rest(env,'site_subscriptions?select=id,status&user_id=eq.'+id+'&status=in.(active,trialing,past_due)&limit=1');if(subs?.length)throw problem('An active payment-provider subscription exists. Change it through billing management; do not override its dates manually.',409);
- const current=await rest(env,'user_plan_grants?select=id,source&user_id=eq.'+id+'&status=in.(active,trialing)');const owned=(current||[]).filter(x=>/^admin(?:_|$)/i.test(x.source||''));
- for(const row of owned)await rest(env,'user_plan_grants?id=eq.'+row.id,{method:'PATCH',prefer:'return=minimal',body:{status:'canceled',updated_at:new Date().toISOString()}});
- if(plan!=='FREE')await rest(env,'user_plan_grants',{method:'POST',prefer:'return=minimal',body:{user_id:id,plan_code:plan,status:range.end&&Date.parse(range.end)<=Date.now()?'expired':'active',starts_at:range.start,ends_at:range.end,source:'admin',source_reference:'OWNER_v0.13.5.3',metadata:{admin_manual:true,adjusted_by:actor}}});
- await audit(env,actor,'v1353.membership.adjust',id,{plan,startsAt:range.start,endsAt:range.end,revokedManualGrants:owned.length});return{synthetic:false};}
+ // v0.14.0.77: do not silently report FREE while an active Stripe QA grant
+ // continues to override the Owner's manual account-editor selection.
+ // Provider-paid subscriptions and non-QA external entitlements remain protected.
+ const subs=await rest(env,'site_subscriptions?select=id,status&user_id=eq.'+id+'&status=in.(active,trialing,past_due)&limit=1');
+ if(subs?.length)throw problem('An active payment-provider subscription exists. Change it through billing management; do not override its dates manually.',409);
+ const rows=await rest(env,'user_plan_grants?select=id,source,plan_code,starts_at,ends_at&user_id=eq.'+id+'&status=in.(active,trialing)');
+ const now=Date.now(),active=(rows||[]).filter(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now));
+ const owned=active.filter(x=>/^admin(?:_|$)/i.test(x.source||''));
+ const qa=active.filter(x=>x.source==='stripe_zero_monthly_qa_v72'&&x.plan_code==='FULL_MONTHLY');
+ const external=active.filter(x=>!/^admin(?:_|$)/i.test(x.source||'')&&
+   !(x.source==='stripe_zero_monthly_qa_v72'&&x.plan_code==='FULL_MONTHLY'));
+ if(qa.length&&plan!=='FREE')
+   throw problem('This member has an active $0 LIVE Stripe QA membership. First choose FREE to reset that specific test access; otherwise a new manual grant would not replace the Stripe grant.',409);
+ if(plan==='FREE'&&external.length)
+   throw problem('This account has another active non-admin entitlement. FREE cannot be applied here without resolving that entitlement through its issuing system.',409);
+ let resetQaCount=0;
+ if(plan==='FREE'&&qa.length){
+   // Restrict this special case to the SAME production account allowlisted for
+   // LIVE $0 checkout. SQL RPC preserves all completed Stripe sessions as audit.
+   if(!UID.test(clean(env.GU72_QA_ALLOWED_USER_ID))||id!==clean(env.GU72_QA_ALLOWED_USER_ID))
+     throw problem('This Stripe QA account is not the allowlisted test member. Its $0 grant cannot be reset from Account Management.',403);
+   let reset;
+   try{reset=await rest(env,'rpc/gu76_reset_zero_monthly_qa',{method:'POST',body:{p_user_id:id}})}
+   catch(err){throw problem('The $0 QA reset function is unavailable. Apply the reviewed v0.14.0.76 Supabase SQL in the existing project before changing this account to FREE. '+err.message,503)}
+   if(reset?.ok!==true||!(reset.resetCount>=qa.length))
+     throw problem('The $0 QA access reset could not be confirmed. No FREE membership success is reported.',409);
+   resetQaCount=reset.resetCount;
+ }
+ for(const row of owned)await rest(env,'user_plan_grants?id=eq.'+row.id,{method:'PATCH',prefer:'return=minimal',
+   body:{status:'canceled',updated_at:new Date().toISOString()}});
+ if(plan!=='FREE')await rest(env,'user_plan_grants',{method:'POST',prefer:'return=minimal',
+   body:{user_id:id,plan_code:plan,status:range.end&&Date.parse(range.end)<=Date.now()?'expired':'active',
+      starts_at:range.start,ends_at:range.end,source:'admin',source_reference:'OWNER_v0.13.5.3',
+      metadata:{admin_manual:true,adjusted_by:actor}}});
+ // The same source-of-truth resolver used for customer Access decides whether
+ // FREE really took effect. Do not show a false success if other access persists.
+ const effective=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}});
+ if(plan==='FREE'&&effective?.planCode!=='FREE')
+   throw problem('The selected manual and $0 QA grants were updated, but effective access is still '+clean(effective?.planCode||'unknown')+'. Investigate other active entitlements; FREE has NOT been verified.',409);
+ await audit(env,actor,'v1353.membership.adjust',id,{plan,startsAt:range.start,endsAt:range.end,
+   revokedManualGrants:owned.length,revokedZeroQaGrants:resetQaCount,actualPlan:effective?.planCode||null});
+ return{synthetic:false,planCode:effective?.planCode||plan,zeroQaResetCount:resetQaCount};}
 async function changePrimaryRole(env,actor,id,x,b,dryRun=false){const code=clean(b.roleCode||'NONE').toUpperCase(),rows=await availableRoles(env),permitted=new Set([...rows.map(r=>r.role_code),'OWNER']);if(code!=='NONE'&&!permitted.has(code))throw problem('Selected role is not available.',400);
  if(x.profile.account_kind==='test'||x.profile.account_kind==='showcase'){if(code!=='NONE'&&code!=='SHOWCASE_VIEWER')throw problem('Dummy and Showcase accounts cannot receive real production staff roles. Use a real invited staff account.',409);return;}
  const prior=x.roles.filter(r=>r!=='SHOWCASE_VIEWER');if((code==='OWNER'||prior.includes('OWNER'))&&!(prior.length===1&&prior[0]===code)){
