@@ -92,6 +92,58 @@ function renderAudit(){
    (catalog?.available?(catalog.plans.some(x=>x.plan_code===p.code)?'Database catalog record returned; checkout requires separate verification':'Not returned in database catalog'):'Current catalog unavailable')+
    '</td></tr>').join('');
 }
+let labAudit=null,labLoading=false,labPage=0;
+const labStages={DISABLED:'Disabled',MISSING_PRIVATE_LESSON:'Missing private instruction',
+ MISSING_REVIEWED_GRADING:'Missing independently reviewed grading',
+ MISSING_LICENSED_HISTORICAL_CONTEXT:'Missing licensed, verified historical evidence',
+ CONTENT_PRECHECK_ONLY_QA_REQUIRED:'Content present · full Lab acceptance still pending'};
+function showLabRows(){
+ if(!labAudit?.available)return;
+ const term=String($('or-audit-lab-search')?.value||'').trim().toLowerCase(),stage=$('or-audit-lab-stage')?.value||'';
+ const filtered=labAudit.rows.filter(x=>(!stage||stage===x.stage)&&(!term||[x.id,x.title,x.ticker,x.historicalDate].join(' ').toLowerCase().includes(term)));
+ const size=40,totalPages=Math.max(1,Math.ceil(filtered.length/size));
+ labPage=Math.max(0,Math.min(labPage,totalPages-1));
+ const chunk=filtered.slice(labPage*size,(labPage+1)*size);
+ $('or-audit-lab-rows').innerHTML=chunk.length?chunk.map(x=>'<tr><th scope="row">'+esc(x.id)+'</th><td>'+esc(x.title)+'</td><td>'+esc(labStages[x.stage]||x.stage)+'</td><td>'+
+  (x.instructionRecordPresent?'Record':'Missing')+' / '+(x.reviewedRubricPresent?'Reviewed':'Missing')+' / '+(x.verifiedLicensedContextPresent?'Evidence recorded':'Missing')+'</td></tr>').join(''):
+  '<tr><td colspan="4">No matching Lab records. Adjust filters or refresh the private database audit.</td></tr>';
+ $('or-audit-lab-page-label').textContent=filtered.length+' matching records · Page '+(labPage+1)+' of '+totalPages;
+ $('or-audit-lab-prev').disabled=labPage===0;$('or-audit-lab-next').disabled=labPage>=totalPages-1;
+}
+function csvExport(){
+ if(!labAudit?.available)return;
+ const quote=x=>{let y=String(x??'');if(/^[=+@-]/.test(y.trimStart()))y="'"+y;return '"'+y.replace(/"/g,'""')+'"'};
+ const keys=['id','title','ticker','historicalDate','stage','instructionRecordPresent','reviewedRubricPresent','verifiedLicensedContextPresent','certifiedComplete'];
+ const rows=labAudit.rows.map(x=>keys.map(k=>quote(x[k])).join(','));
+ const blob=new Blob([keys.join(',')+'\r\n'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='owner-lab-readiness-'+new Date().toISOString().slice(0,10)+'.csv';
+ document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function loadLabAudit(force=false){
+ if(labLoading||labAudit?.available&&!force)return;
+ labLoading=true;const button=$('or-audit-lab-load');if(button)button.disabled=true;
+ $('or-audit-lab-summary').textContent='Checking the private 419-Lab evidence against the existing Supabase project…';
+ try{
+  const client=await window.getSupabaseClient(),session=(await client.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Sign in with an Owner account to request Lab evidence.');
+  const r=await fetch('/api/owner-roadmap?action=lab-audit',{method:'GET',cache:'no-store',
+    headers:{authorization:'Bearer '+session.access_token,accept:'application/json'}});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||!data?.ok)throw Error('Unable to verify private Lab evidence. Confirm Owner rights and Supabase tables.');
+  labAudit=data.labAudit;
+  if(!labAudit?.available)throw Error(labAudit?.error||'Lab audit unavailable.');
+  const text=Object.entries(labAudit.counts||{}).map(([stage,count])=>count+' '+(labStages[stage]||stage)).join(' · ');
+  $('or-audit-lab-summary').textContent=labAudit.registryCount+' database Lab IDs (source target: 419). 100% independently certified: '+labAudit.certifiedComplete+'. '+text+'. No record count is a verified Lab completion percentage.';
+  $('or-audit-lab-export').disabled=false;labPage=0;showLabRows();
+ }catch(e){
+  labAudit=null;$('or-audit-lab-export').disabled=true;
+  $('or-audit-lab-summary').textContent=e?.message||'Lab evidence unavailable; no completion count is certified.';
+  $('or-audit-lab-rows').innerHTML='<tr><td colspan="4">No database Lab readiness details could be verified. Existing Owner task progress was not changed.</td></tr>';
+  $('or-audit-lab-page-label').textContent='';
+ }finally{labLoading=false;if(button)button.disabled=false}
+}
+
 function render(data){
  review=data?.productReadiness||null;
  catalog=data?.productInventory||null;
@@ -111,10 +163,16 @@ function render(data){
 function bind(){
  $('or-readiness-search')?.addEventListener('input',renderProducts);
  $('or-readiness-stage')?.addEventListener('change',renderProducts);
+ $('or-audit-lab-load')?.addEventListener('click',()=>loadLabAudit(true));
+ $('or-audit-lab-export')?.addEventListener('click',csvExport);
+ $('or-audit-lab-search')?.addEventListener('input',()=>{labPage=0;showLabRows()});
+ $('or-audit-lab-stage')?.addEventListener('change',()=>{labPage=0;showLabRows()});
+ $('or-audit-lab-prev')?.addEventListener('click',()=>{labPage--;showLabRows()});
+ $('or-audit-lab-next')?.addEventListener('click',()=>{labPage++;showLabRows()});
  for(const id of ['or-catalog-product-readiness','or-catalog-audit']){
   $(id)?.addEventListener('click',e=>{const button=e.target.closest('button[data-readiness-task]');if(button)openTask(button.dataset.readinessTask)});
  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
-window.OwnerProductReadinessV91={render,isCatalog:s=>s==='product-readiness'||s==='verification-audit'};
+window.OwnerProductReadinessV91={render,loadLabAudit,isCatalog:s=>s==='product-readiness'||s==='verification-audit'};
 })();
