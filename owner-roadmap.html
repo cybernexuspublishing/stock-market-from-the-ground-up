@@ -48,6 +48,20 @@
 <option value="major-build">Core AI build</option><option value="content-blocked">Content/rubrics</option><option value="data-blocked">Historical data</option><option value="integration-pending">End-to-end integration</option><option value="beta">Beta modules</option><option value="planned">Planned</option></select></label></div>
 <div id="or-prod-contract" role="status" aria-live="polite"></div>
 <div id="or-readiness-summary" class="or-product-summary" role="status" aria-live="polite"></div>
+<section id="or-live-lab-audit" class="or-audit-callout" aria-labelledby="or-lab-audit-heading">
+<h3 id="or-lab-audit-heading">419 Historical Labs — Actual Supabase Evidence</h3>
+<p>Read-only, Owner-only inspection of instructional records, reviewed question banks and properly documented historical market context. <strong>No Lab is considered 100% complete without separate replay, pedagogy, security, accessibility and integration acceptance.</strong></p>
+<div class="or-card-actions"><button type="button" class="or-button or-secondary" id="or-audit-lab-load">Refresh Actual Lab Evidence</button><button type="button" class="or-button or-secondary" id="or-audit-lab-export" disabled>Export Audit CSV</button></div>
+<p id="or-audit-lab-summary" role="status" aria-live="polite">The verified evidence audit loads when this tab is opened.</p>
+<div class="or-toolbar"><label>Find Lab<input type="search" id="or-audit-lab-search" placeholder="F2-C07-L01, concept, ticker"></label>
+<label>Evidence stage<select id="or-audit-lab-stage"><option value="">All Lab statuses</option>
+<option value="DISABLED">Disabled</option><option value="MISSING_PRIVATE_LESSON">Missing private instruction</option>
+<option value="MISSING_REVIEWED_GRADING">Missing reviewed grading</option>
+<option value="MISSING_LICENSED_HISTORICAL_CONTEXT">Missing licensed historical context</option>
+<option value="CONTENT_PRECHECK_ONLY_QA_REQUIRED">Content precheck only — QA still required</option></select></label></div>
+<div class="or-table-scroll"><table class="or-membership-table"><caption>Private content and grading presence are prerequisites, not acceptance certificates.</caption><thead><tr><th scope="col">Lab ID</th><th scope="col">Topic</th><th scope="col">Evidence stage</th><th scope="col">Instruction / Rubric / Context</th></tr></thead><tbody id="or-audit-lab-rows"><tr><td colspan="4">Open this tab to request verified database evidence.</td></tr></tbody></table></div>
+<div class="or-tools"><span id="or-audit-lab-page-label"></span><div class="or-tools-right"><button type="button" class="or-button or-secondary" id="or-audit-lab-prev" disabled>Previous</button><button type="button" class="or-button or-secondary" id="or-audit-lab-next" disabled>Next</button></div></div>
+</section>
 <h3 class="or-section-title">All 21 source-registered first-party tools</h3><div id="or-readiness-tools" class="or-product-grid"></div>
 <h3 class="or-section-title">Supporting learning systems (not additional Stripe SKUs)</h3><div id="or-readiness-support" class="or-product-grid"></div>
 <h3 class="or-section-title">Recommended controlled build sequence</h3><div id="or-readiness-work" class="or-readiness-work-list"></div>
