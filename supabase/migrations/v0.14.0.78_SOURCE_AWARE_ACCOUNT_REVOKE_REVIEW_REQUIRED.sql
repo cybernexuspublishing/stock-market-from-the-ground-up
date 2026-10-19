@@ -58,7 +58,7 @@ BEGIN
        updated_at=now(),metadata=COALESCE(g.metadata,'{}'::jsonb)||
           jsonb_build_object('adminRevokedBy',p_actor,'adminRevokedAt',now()::text,'reason',p_reason)
    WHERE g.id=p_record_id AND g.user_id=p_target
-     AND (g.source='admin' OR g.source LIKE 'admin\\_%' ESCAPE '\\')
+     AND (g.source='admin' OR left(g.source,6)='admin_')
      AND g.status IN ('active','trialing')
      AND g.starts_at<=now() AND (g.ends_at IS NULL OR g.ends_at>now());
   GET DIAGNOSTICS n=ROW_COUNT;
