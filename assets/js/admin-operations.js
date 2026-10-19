@@ -158,6 +158,28 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  const availablePlans=await planList(),availableRoles=await roleList();
  const currentRole=(account.roles||[]).includes('OWNER')?'OWNER':(account.roles||[]).includes('ADMIN')?'ADMIN':(account.roles||[]).includes('MODERATOR')?'MODERATOR':(account.roles||[]).find(x=>x!=='SHOWCASE_VIEWER')||'NONE';
  const currentType=account.type||'member',member=info.membership||{planCode:'FREE'},profile=account.profile||{},flag=info.flag||{status:'active',reason:''},isBanned=!!(account.bannedUntil&&new Date(account.bannedUntil)>new Date());
+ const inventory=info.accessInventory||{};
+ const activeDate=x=>!x||!Number.isFinite(Date.parse(x))||Date.parse(x)>Date.now();
+ const liveStatus=x=>['active','trialing'].includes(String(x.status||'').toLowerCase())&&activeDate(x.ends_at||x.expires_at);
+ const rowsFor=(type,items,label,expires,source,allowRevoke)=>(
+   (items||[]).map(row=>'<tr><td>'+e(label(row))+'</td><td>'+e(row.status||'—')+
+     '</td><td>'+e(source(row)||'—')+'</td><td>'+e(expires(row)||'—')+'</td><td>'+
+     (allowRevoke(row)?'<button type="button" class="btn secondary" data-account-revoke="'+e(type)+'" data-grant-id="'+e(row.id)+'">Revoke manual grant</button>':
+     '<span class="small">Historical / provider-controlled</span>')+'</td></tr>').join('')||
+   '<tr><td colspan="5">No records</td></tr>');
+ const inventoryTable=(heading,contents)=>'<h4>'+e(heading)+'</h4><div class="v1355-scroll"><table class="v1355-table"><thead><tr><th>Item</th><th>Status</th><th>Source</th><th>Expires / Period</th><th>Action</th></tr></thead><tbody>'+
+   contents+'</tbody></table></div>';
+ const accountLedger=
+   inventoryTable('Membership grants',rowsFor('plan',(inventory.planGrants||[]),
+     x=>x.plan_code,x=>x.ends_at,x=>x.source,()=>false))+
+   inventoryTable('Payment-provider subscriptions',rowsFor('sub',(inventory.subscriptions||[]),
+     x=>x.plan_code,x=>x.current_period_end,x=>x.provider,()=>false))+
+   inventoryTable('Book & companion access',rowsFor('book',(inventory.library||[]),
+     x=>x.product_code,x=>x.expires_at,x=>x.source_channel,
+     x=>/^admin/i.test(x.source_channel||'')&&activeDate(x.expires_at)))+
+   inventoryTable('Tool passes',rowsFor('tool',(inventory.toolPasses||[]),
+     x=>x.tool_code,x=>x.ends_at,x=>x.provider||'Owner/manual',
+     x=>!x.provider&&liveStatus(x)));
  const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);
  const roleOptions=[{role_code:'NONE',name:'No staff role'},...availableRoles];if(!roleOptions.some(x=>x.role_code==='OWNER'))roleOptions.push({role_code:'OWNER',name:'Owner / Super Administrator (confirmation required)'});
  const toLocal=v=>{if(!v)return '';const x=new Date(v);if(!Number.isFinite(x.getTime()))return '';const shift=x.getTimezoneOffset()*60000;return new Date(x.getTime()-shift).toISOString().slice(0,16)};
@@ -196,7 +218,10 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  <section class="v1353-danger"><h3>Authentication &amp; Recovery</h3><p class="v1353-info">Email verified: <strong>${account.emailConfirmed?'Yes':'No'}</strong> · Last sign-in: <strong>${e(account.lastSignInAt?new Date(account.lastSignInAt).toLocaleString():'Not recorded')}</strong> · Created: <strong>${e(account.createdAt?new Date(account.createdAt).toLocaleString():'Not recorded')}</strong><br>Current sign-in suspension: <strong>${isBanned?'Active until '+e(new Date(account.bannedUntil).toLocaleString()):'None recorded'}</strong></p>
  <div class="v1353-jump"><button class="btn secondary" type="button" data-editor-action="password">${account.id===viewerId&&currentType==='owner'?'Change My Password':'Reset Password'}</button><button class="btn secondary" type="button" data-editor-action="ban24" ${account.id===viewerId||currentType==='owner'?'disabled':''}>Suspend Sign-in 24 Hours</button><button class="btn secondary" type="button" data-editor-action="ban7" ${account.id===viewerId||currentType==='owner'?'disabled':''}>Suspend Sign-in 7 Days</button><button class="btn secondary" type="button" data-editor-action="unban">Restore Sign-in</button></div>
  <p class="small">Real member passwords cannot be displayed. Only properly encrypted disposable Dummy / Showcase credentials may be revealed.</p></section>
- <section><h3>Books, Tools, Roles &amp; Entitlements</h3><p>Manage authorized manual book and tool access without changing provider-managed purchases or payment subscriptions.</p><div class="v1353-jump"><button type="button" class="btn secondary" data-editor-action="access">Open Book &amp; Tool Access for This Account</button><button type="button" class="btn secondary" data-editor-action="roles">Open Roles &amp; Permissions</button><button type="button" class="btn secondary" data-editor-action="activity">Open Account Activity</button></div></section>
+ <section id="v1478-account-entitlement-ledger"><h3>Complete Account Access &amp; Revocation Ledger</h3><p class="small">Every displayed item belongs to this account. Manual book/tool grants can be revoked directly below. Existing payment-provider subscriptions, purchased rights and Stripe checkout history require their audited billing or refund workflow; changing a display plan cannot erase a real transaction. To cancel this account's $0 LIVE QA grant, choose FREE above.</p>
+ ${accountLedger}
+ <div class="v1353-jump"><button type="button" class="btn secondary" data-editor-action="access">Issue New Book or Tool Grant</button><button type="button" class="btn secondary" data-editor-action="roles">Roles &amp; Permissions</button><button type="button" class="btn secondary" data-editor-action="activity">Account Audit Activity</button></div>
+ </section>
  <form id="v1353-notes-form" class="v1352-grid"><h3 class="full">Internal Account Notes &amp; Support</h3>
  <label>Note category<select name="noteType">${['general','support','moderation','commerce','learning','security'].map(x=>`<option value="${x}">${x[0].toUpperCase()+x.slice(1)}</option>`).join('')}</select></label>
  <label class="full">Add internal note<textarea name="note" rows="3" minlength="2" maxlength="3000" required></textarea></label>
@@ -227,6 +252,21 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
  pf.onsubmit=ev=>submitSecondary(ev,'profile',form=>Object.fromEntries(new FormData(form)),`Profile updated for ${account.username}.`);
  sf.onsubmit=ev=>submitSecondary(ev,'flag',form=>Object.fromEntries(new FormData(form)),`Account status updated for ${account.username}.`);
  nf.onsubmit=ev=>submitSecondary(ev,'note',form=>Object.fromEntries(new FormData(form)),`Internal note saved for ${account.username}.`);
+ box.querySelectorAll('[data-account-revoke]').forEach(button=>button.onclick=async()=>{
+  const kind=button.dataset.accountRevoke,id=Number(button.dataset.grantId);
+  if(!['book','tool'].includes(kind)||!Number.isSafeInteger(id)||id<1)return;
+  if(!window.confirm('Revoke this specific Owner-issued '+kind+' grant for '+account.username+'? The action is audited and must NOT change Stripe payments or other account rights.'))return;
+  button.disabled=true;
+  try{
+   const sess=await session();
+   const r=await fetch('/api/admin-access-v01355?action='+(kind==='book'?'revoke_book':'revoke_tool'),{
+    method:'POST',headers:{authorization:'Bearer '+sess.access_token,'content-type':'application/json'},
+    body:JSON.stringify({userId:account.id,id}),cache:'no-store'});
+   const reply=await r.json().catch(()=>null);
+   if(!r.ok||reply?.ok!==true)throw Error(reply?.error||'Grant revocation not confirmed.');
+   d.close();await load();say('Verified: specific '+kind+' manual grant revoked for '+account.username+'.','ok');
+  }catch(err){$('[data-v1352-error]',d).textContent=err.message;button.disabled=false}
+ });
  box.querySelectorAll('[data-editor-action]').forEach(button=>button.onclick=async()=>{const what=button.dataset.editorAction;
   if(what==='password'){d.close();return resetForm(account)}
   if(what==='delete'){d.close();return deleteForm(account)}
