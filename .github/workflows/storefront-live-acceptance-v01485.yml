@@ -6,6 +6,9 @@ on:
       - 'tests/test_v014085_bundled_guide_contract.mjs'
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store.js'
+      - 'assets/js/production-completion.js'
+      - 'src/ts/production-completion.ts'
+      - 'tests/test_v014086_legacy_store_tab_guard.mjs'
       - 'assets/js/store-product-detail-v01484.js'
       - 'store.html'
       - 'store-*.html'
@@ -16,6 +19,9 @@ on:
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/js/store.js'
+      - 'assets/js/production-completion.js'
+      - 'src/ts/production-completion.ts'
+      - 'tests/test_v014086_legacy_store_tab_guard.mjs'
       - 'store.html'
       - 'store-*.html'
   workflow_dispatch:
@@ -36,6 +42,10 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Verify no divergence between editorial product guide and packaged production script
         run: node tests/test_v014085_bundled_guide_contract.mjs
+      - name: Reject legacy v132 Store tab injection over accessible v84 Store
+        run: |
+          node --check assets/js/production-completion.js
+          node tests/test_v014086_legacy_store_tab_guard.mjs
       - name: Start local branch site for PR quality gate
         if: github.event_name == 'pull_request'
         run: |

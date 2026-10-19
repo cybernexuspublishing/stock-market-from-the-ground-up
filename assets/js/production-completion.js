@@ -159,8 +159,15 @@
         f.onsubmit = async (e) => { e.preventDefault(); await api('/api/support?action=reply', { method: 'POST', body: JSON.stringify({ id, body: q('textarea', f).value }) }); d.close(); await reload(); }; d.showModal(); }
     async function dashboardRepair(){ return; }
     function storeTabs() { if (!/\/store(\.html)?$/.test(path))
-        return; const products = q('#store-products'), plans = q('#store-plans'); if (!products || !plans || q('#v132-store-tabs'))
-        return; const host = products.parentElement; const tabs = document.createElement('div'); tabs.id = 'v132-store-tabs'; tabs.className = 'v132-store-tabs'; tabs.innerHTML = '<button data-store-tab="books" class="active">Books</button><button data-store-tab="memberships">Memberships</button><button data-store-tab="tools">À-la-Carte Tools</button>'; host.insertBefore(tabs, plans); const tools = document.createElement('div'); tools.id = 'v132-store-tools'; tools.hidden = true; plans.after(tools); const show = async (code) => { qa('[data-store-tab]', tabs).forEach(b => b.classList.toggle('active', b.dataset.storeTab === code)); products.hidden = code !== 'books'; plans.hidden = code !== 'memberships'; tools.hidden = code !== 'tools'; if (code === 'tools' && !tools.dataset.loaded) {
+        return;
+        // v86: the accessible v84 Store is authoritative. Never inject the
+        // retired v132 tabs or bypass the current released-tool catalog.
+        if (q('#store-tab-memberships') || q('#store-panel-memberships') || q('.store-category-tabs'))
+            return;
+        const products = q('#store-products'), plans = q('#store-plans'); if (!products || !plans || q('#v132-store-tabs'))
+            return; const host = products.parentElement;
+        if (host !== plans.parentElement)
+            return; const tabs = document.createElement('div'); tabs.id = 'v132-store-tabs'; tabs.className = 'v132-store-tabs'; tabs.innerHTML = '<button data-store-tab="books" class="active">Books</button><button data-store-tab="memberships">Memberships</button><button data-store-tab="tools">À-la-Carte Tools</button>'; host.insertBefore(tabs, plans); const tools = document.createElement('div'); tools.id = 'v132-store-tools'; tools.hidden = true; plans.after(tools); const show = async (code) => { qa('[data-store-tab]', tabs).forEach(b => b.classList.toggle('active', b.dataset.storeTab === code)); products.hidden = code !== 'books'; plans.hidden = code !== 'memberships'; tools.hidden = code !== 'tools'; if (code === 'tools' && !tools.dataset.loaded) {
         const s = await sb(), { data } = await s.from('platform_tools').select('tool_code,name,description,individual_price_cents,status,active,public_visible').eq('active', true).eq('public_visible', true).neq('status', 'retired').order('sort_order');
         tools.innerHTML = `<div class="fe-product-grid">${(data || []).map((t) => `<article class="product-card"><div class="eyebrow">À-la-Carte Tool</div><h2>${esc(t.name)}</h2><p>${esc(t.description || '')}</p><div class="v11-price">$${(Number(t.individual_price_cents || 2999) / 100).toFixed(2)}<small>/month</small></div><a class="btn" href="checkout.html?type=tool&code=${encodeURIComponent(t.tool_code)}">Choose Tool</a></article>`).join('')}</div>`;
         tools.dataset.loaded = '1';
