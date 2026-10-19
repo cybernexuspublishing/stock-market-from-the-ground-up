@@ -8,6 +8,7 @@ import {roadmapSupplementalItems,roadmapSupplementalReview,roadmapSupplementalMe
 import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review.js';
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
+import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
 import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -37,6 +38,13 @@ function stageFor(n,map,fallback='backlog'){
  for(const [stage,ids] of Object.entries(map))if(ids.has(n))return stage;
  return fallback;
 }
+/* Source-only milestone review. Supabase Owner-saved statuses always override. */
+const v91Evidence={
+ 'CORE-0194':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.89–90 implements central Admin Products, prominent Store prices, and coming-soon offerings with nonpurchase controls. Source/browser coverage only; production checkout and real fulfillment not verified.'},
+ 'CORE-0175':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.88–91 implements protected Owner tool/membership inventory and product readiness planning. Production Owner-role persistence and negative tests are still required.'},
+ 'CORE-0210':{stage:'backlog',reviewedOn:'2026-10-19',summary:'Current Market Tutor is static indexed educational search and limited rules-based suggestions, not a verified model-backed AI Teaching System.'},
+ 'CORE-0208':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Historical Lab IDs exist; last reviewed Owner audit found no registered historical market datasets. Per-Lab dates, licenses and accuracy remain unverified.'}
+};
 function reviewFor(item){
  if(item.kind==='reference'||item.scope==='trace')return null;
  const meta=roadmapEngineeringReview;
@@ -53,7 +61,7 @@ function reviewFor(item){
      : 'Prior commitment evidence (historical; may predate the v0.14.0.44 release): '+sourceStatus+'. '+meta.labels[stage].note;
    result={stage,summary:explanation};
  }
- return result;
+ return v91Evidence[item.id]||result;
 }
 const delegatedBaseline=Object.fromEntries(completeCatalog
  .filter(item=>item.scope==='core' && item.kind==='task')
@@ -275,7 +283,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]={...value,revision:recordRevision(row)};custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-18',baseline:'b00cc34997571885b41a3eadad00e734472eb867',scope:'Original v0.14.0.45 engineering review is preserved; dated 2026-10-18 source, Owner Supabase CSV and v0.14.0.60 isolated PostgreSQL evidence override explicitly selected items. No production payment or deployed-SHA signoff.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,productInventory,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-19',baseline:'06e12ffa02e14101b86d88c20a205bf8ab8a837a',scope:'Prior v0.14.0.45–60 evidence is preserved. v0.14.0.90 commercial source and v0.14.0.91 Owner product planning are assessed as source-only delivery; customer purchases and live acceptance are not certified.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,productInventory,productReadiness:ownerProductReadinessV01491,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,409,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);
