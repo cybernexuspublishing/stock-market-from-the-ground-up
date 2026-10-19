@@ -72,6 +72,24 @@ export async function onRequest({request,env}){
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
    return out({ok:true,datasets:rows.filter(publicDataset).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note})),notice:'Only data with recorded publishing rights and evidence verification is listed; each observation remains server-controlled.'});
   }
+  if(action==='resume'&&request.method==='GET'){
+   // Durable sessions are discovered by authenticated user identity, not a
+   // browser-stored sessionId. Return exactly the current visible observation.
+   const active=await db(env,'gu_replay_sessions_v01492?select=id,dataset_code,current_index,decision_locked,decision,status,expires_at&user_id=eq.'+
+    encodeURIComponent(auth.userId)+'&status=eq.active&expires_at=gt.'+encodeURIComponent(new Date().toISOString())+
+    '&order=created_at.desc&limit=1');
+   const selected=one(active);
+   if(!selected)return out({ok:true,session:null,notice:'No current replay session. Choose a licensed dataset.'});
+   const rights=one(await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
+    encodeURIComponent(selected.dataset_code)+'&limit=1'));
+   if(!publicDataset(rights))throw bad('Previously selected data rights or verification have been withdrawn.',403);
+   const bar=await fetchBar(env,selected.dataset_code,selected.current_index);
+   if(!bar)throw bad('The current replay observation is unavailable.',503);
+   return out({ok:true,session:{id:selected.id,currentIndex:selected.current_index,decisionLocked:selected.decision_locked,
+    decision:selected.decision,bar,dataset:{code:rights.dataset_code,title:rights.title,ticker:rights.ticker,
+    sourceAttribution:rights.source_attribution,licenseNotice:rights.license_note}},
+    notice:'Restored from the private, owner-scoped replay session. Earlier bars must be replayed in sequence if required.'});
+  }
   if(action==='start'&&request.method==='POST'){
    const code=String(body.datasetCode||'').toUpperCase();
    if(!match.test(code))throw bad('Invalid dataset identifier.');
