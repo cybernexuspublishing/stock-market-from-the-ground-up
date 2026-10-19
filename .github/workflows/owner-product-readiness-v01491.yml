@@ -68,7 +68,7 @@ jobs:
           import json
           from pathlib import Path
           m=json.loads(Path('public/release-manifest.json').read_text())
-          assert m['version']=='0.14.0.91'
+          assert m['version']=='0.14.0.92'
           assert m['customerCheckoutApproved'] is False
           assert m['liveStripeFulfillmentEnabled'] is False
           assert m['ownerRoadmap']['primaryTasks']==375
