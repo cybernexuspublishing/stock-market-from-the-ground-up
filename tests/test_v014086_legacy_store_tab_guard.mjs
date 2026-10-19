@@ -11,8 +11,8 @@ assert.ok(tabs.includes('id="store-tab-memberships"'));
 for(const [name,s] of [['production JavaScript',js],['TypeScript source',ts]]){
   const func=s.indexOf('function storeTabs()');
   const guard=s.indexOf("q('#store-tab-memberships')",func);
-  const legacy=s.indexOf("tabs.id = 'v132-store-tabs'",func);
-  const insert=s.indexOf("insertBefore(tabs, plans)",func);
+  const legacy=func+s.slice(func).search(/tabs\.id\s*=\s*'v132-store-tabs'/);
+  const insert=func+s.slice(func).search(/insertBefore\(tabs,\s*plans\)/);
   assert.ok(func>=0&&guard>func&&guard<legacy&&legacy<insert,name+' Store guard must precede legacy injection');
   assert.ok(s.includes("q('#store-panel-memberships')"),name+' must recognize active membership panel');
   assert.ok(s.includes("q('.store-category-tabs')"),name+' must recognize accessible category tabs');
