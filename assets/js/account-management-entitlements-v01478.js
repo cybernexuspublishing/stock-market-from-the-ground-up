@@ -19,7 +19,7 @@
    (active(r)&&/^admin(?:_|$)/i.test(r.source||'')?revoke('manual_plan',r,'Revoke manual grant'):
     r.source==='stripe_zero_monthly_qa_v72'&&active(r)?'LIVE $0 test: select FREE above for authorized reset':'Issued by provider/other source — separate lifecycle')+'</td></tr>',inventory);
   const subs=item('Subscriptions and billing status','subscriptions',['Plan','Status','Provider','End','Management'],r=>
-   '<tr><td>'+esc(r.plan_code)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.provider||'Unknown')+'</td><td>'+date(r.current_period_end)+'</td><td>Cancel with billing provider. Database-only changes are blocked.</td></tr>',inventory);
+   '<tr><td>'+esc(r.plan_code)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.provider||'Unknown')+'</td><td>'+date(r.current_period_end)+'</td><td>'+(String(r.provider||'').toLowerCase().includes('stripe')?'<a href="https://dashboard.stripe.com/subscriptions" target="_blank" rel="noopener noreferrer">Manage billing in Stripe</a> — ':'')+'Provider controls cancellation/refunds; database-only downgrades blocked.</td></tr>',inventory);
   const books=item('Book companion and library rights','books',['Product','Type','Issued by','Expiration','Action'],r=>
    '<tr><td>'+esc(r.product_code)+'</td><td>'+esc(r.access_type)+'</td><td>'+esc(r.source_channel)+'</td><td>'+date(r.expires_at)+'</td><td>'+
    (r.source_channel==='admin'&&expiry(r)?revoke('manual_book',r,'Revoke manual book'):
