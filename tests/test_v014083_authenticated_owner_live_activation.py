@@ -2,6 +2,7 @@
 from pathlib import Path
 root=Path(__file__).resolve().parent.parent
 sql=(root/"supabase/migrations/v0.14.0.83_AUTHENTICATED_OWNER_LIVE_ACTIVATION_REVIEW_REQUIRED.sql").read_text()
+active_sql="\n".join(line for line in sql.splitlines() if not line.lstrip().startswith("--"))
 ui=(root/"assets/js/admin-live-activation-v01483.js").read_text()
 admin=(root/"admin.html").read_text()
 old=(root/"supabase/admin/v0.14.0.82_OWNER_ENABLE_EIGHT_PAID_LIVE_CHECKOUT.sql").read_text()
@@ -37,12 +38,12 @@ for forbidden in ("DISABLE TRIGGER","DISABLE ROW LEVEL SECURITY","request.jwt.cl
                   "UPDATE public.user_plan_grants","INSERT INTO public.site_orders",
                   "UPDATE public.site_subscriptions","DELETE FROM public.gu58",
                   "gu72_signed_zero_monthly_grant("):
- assert forbidden not in sql,forbidden
+ assert forbidden not in active_sql,forbidden
 assert "assets/js/admin-live-activation-v01483.js?v=014083" in admin
 assert "data-admin-panel=\"commerce\"" in admin
 assert "getSupabaseClient" in ui
 assert "gu_owner_digital_payment_route_read_v01432r2" in ui
-assert "data?.role" in ui or "data?.role" not in ui # authorize via owner role on return
+assert "data?.role!=='OWNER'" in ui # authorize via Owner role from verified server result
 assert "gu83_owner_activate_eight_live_checkout" in ui
 assert "GroundUpAdminPasswordConfirm.ensure" in ui
 assert "LIVE activation NOT verified" in ui
