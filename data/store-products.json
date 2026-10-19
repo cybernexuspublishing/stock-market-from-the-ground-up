@@ -1,6 +1,8 @@
 [
   {
     "productCode": "FOUNDATION_BOOK_1",
+    "salesStatus": "published",
+    "storeVisible": true,
     "type": "book",
     "family": "foundations",
     "branchSlug": "foundations",
@@ -31,6 +33,8 @@
   },
   {
     "productCode": "FOUNDATION_BOOK_2",
+    "salesStatus": "published",
+    "storeVisible": true,
     "type": "book",
     "family": "foundations",
     "branchSlug": "foundations",
@@ -61,6 +65,8 @@
   },
   {
     "productCode": "FOUNDATION_BOOK_3",
+    "salesStatus": "published",
+    "storeVisible": true,
     "type": "book",
     "family": "foundations",
     "branchSlug": "foundations",
@@ -89,6 +95,8 @@
   },
   {
     "productCode": "DAY_TRADING_BOOK_1",
+    "salesStatus": "published",
+    "storeVisible": true,
     "type": "book",
     "family": "day-trading",
     "branchSlug": "day-trading",
@@ -117,6 +125,8 @@
   },
   {
     "productCode": "READING_THE_TAPE",
+    "salesStatus": "published",
+    "storeVisible": true,
     "type": "book",
     "family": "reading-the-tape",
     "branchSlug": "reading-the-tape",
