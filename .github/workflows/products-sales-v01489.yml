@@ -14,6 +14,7 @@ on:
       - 'assets/js/admin-navigation.js'
       - 'functions/api/admin.js'
       - 'tests/test_v014089_products_sales_contract.mjs'
+      - 'tests/test_v014089_checkout_readiness_no_charge.mjs'
       - '.github/workflows/products-sales-v01489.yml'
   push:
     branches: [main]
@@ -24,6 +25,7 @@ on:
       - 'assets/js/admin-products-v01489.js'
       - 'functions/api/admin.js'
       - 'tests/test_v014089_products_sales_contract.mjs'
+      - 'tests/test_v014089_checkout_readiness_no_charge.mjs'
       - '.github/workflows/products-sales-v01489.yml'
 permissions:
   contents: read
@@ -38,6 +40,7 @@ jobs:
           node-version: '22'
       - name: Parse all affected storefront, admin and secured API JavaScript
         run: |
+          node --check assets/js/commerce-common.js
           node --check assets/js/store.js
           node --check assets/js/store-product-detail-v01484.js
           node --check assets/js/admin.js
@@ -48,6 +51,7 @@ jobs:
       - name: Test product display, categories, legacy store contracts and safe server mutations
         run: |
           node tests/test_v014089_products_sales_contract.mjs
+          node tests/test_v014089_checkout_readiness_no_charge.mjs
           node tests/test_v014084_store_interaction.mjs
       - name: Verify static site assets are included and private API is never copied
         run: |
