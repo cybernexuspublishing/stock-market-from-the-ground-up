@@ -99,12 +99,13 @@ async function advance(){
 }
 async function finish(){
  const r=await api('finish');
- if(!Number.isSafeInteger(r.journalId)||r.journalId<=0)throw Error('Journal linkage not confirmed.');
  locked=false;notice(r.notice);
  const link=$('vr-journal-link');
- link.href='journal-entry.html?id='+encodeURIComponent(String(r.journalId));
- link.textContent='Open linked Trading Journal record #'+r.journalId;
- link.hidden=false;
+ if(Number.isSafeInteger(r.journalId)&&r.journalId>0){
+  link.href='journal-entry.html?id='+encodeURIComponent(String(r.journalId));
+  link.textContent='Open linked Trading Journal record #'+r.journalId;
+  link.hidden=false;
+ }else link.hidden=true;
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){

@@ -114,7 +114,7 @@ export async function onRequest({request,env}){
   // Finalization is an idempotent, service-only PostgreSQL transaction.
   // It creates ONE immutable first-decision Journal snapshot and closes the
   // existing replay session atomically, rather than relying on two HTTP writes.
-  if(action==='finish'&&request.method==='POST'){
+  if(action==='finish'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
    if(!uid.test(id))throw bad('Invalid session ID.');
    const linked=await db(env,'rpc/v01494_replay_finish_to_journal','POST',
     {p_session:id,p_user:auth.userId});
@@ -159,6 +159,19 @@ export async function onRequest({request,env}){
    }
    return out({ok:true,sessionId:id,currentIndex:value,bar,execution,decisionLocked:true,
     notice:'OHLCV data can suggest execution, not prove actual queue position, partial fills, tape or intrabar order.'});
+  }
+  // Backward-compatible default until Owner-reviewed additive RPC is installed.
+  // Existing replay sessions must remain finishable during a phased rollout.
+  if(action==='finish'&&request.method==='POST'){
+   if(!s.decision_locked)throw bad('A decision must be locked before finishing.',403);
+   const rows=await db(env,'gu_replay_sessions_v01492?id=eq.'+encodeURIComponent(id)+
+    '&user_id=eq.'+encodeURIComponent(auth.userId)+'&status=eq.active&current_index=eq.'+
+    s.current_index,'PATCH',{status:'finished',finished_at:new Date().toISOString()},
+    'return=representation');
+   if(!one(rows))throw bad('Replay changed; refresh and retry.',409);
+   return out({ok:true,sessionId:id,barsSeen:s.current_index+1,
+    journalLinked:false,
+    notice:'Replay finished. Automatic Journal capture is not enabled until the private transaction is installed and verified. No score or trade outcome was awarded.'});
   }
   throw bad('Unsupported action.',404);
  }catch(e){const code=[400,401,403,404,405,409,413].includes(e.status)?e.status:503;

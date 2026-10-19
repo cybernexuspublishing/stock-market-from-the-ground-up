@@ -27,7 +27,7 @@
 
 ## Important limitations
 
-- This migration has **NOT been applied** to Supabase; the atomic RPC and new button path will not function on production until dependencies, DBA review and controlled installation succeed. The existing replay finish previously worked without the Journal; this source change introduces a **deployment dependency**. Deploy v0.14.0.94 only WITH the new, verified RPC or hold this release.
+- This migration has **NOT been applied** to Supabase. The new atomic RPC is **disabled by default** through Cloudflare server-only `GU_REPLAY_JOURNAL_V01494_ENABLED` (must equal `true`). Until the Owner reviews and installs the RPC, the existing finish path remains available and correctly states that automatic Journal capture is not enabled. **Do not set the flag until the SQL has passed preflight, been installed and tested.**
 - The SQL must be reviewed against the **actual installed** Journal schema, existing triggers and grants. Run `supabase/admin/v0.14.0.94_REPLAY_JOURNAL_PREFLIGHT_READ_ONLY.sql` first; it is read-only. Never rerun old migrations blindly or create another Supabase project.
 - The transaction uses service-role access only. Never grant its RPC to public/anon/authenticated or call it directly from browser code.
 - The first bar's date is stored as a **UTC calendar date**, not asserted to be NYSE Eastern trade date. Owner must verify dataset ticker/date semantics and historical rights before production.
@@ -43,6 +43,6 @@
 4. Run source CI, Cloudflare build and deployment SHA confirmation, then browser smoke-test the actual Journey: dataset -> lock -> advance -> finish -> linked Journal -> immutable plan -> reflection.
 5. Confirm new Journal activity appears in the existing Journal and private Tutor practice **without** claiming earned grades or verified historical fills.
 
-**Rollback:** Do not deploy frontend/API release unless SQL dependency is installed. If production rollback is necessary, revert the source to v0.14.0.93; do not drop or delete linked records without legal/data-retention and owner approval.
+**Rollback:** Set the server-only flag to `false` or remove it to restore the legacy finish behavior without code redeployment. The flag does not reverse previously created Journal records. Do not drop or delete linked records without legal/data-retention and Owner approval.
 
 **Revision history:** v0.14.0.94 (2026-10-19) — First source implementation; private transaction pending Owner acceptance.

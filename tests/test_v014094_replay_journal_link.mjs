@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/learning-replay-v01492.js';
 
-const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake',SUPABASE_SECRET_KEY:'sb_secret_fake'};
+const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake',SUPABASE_SECRET_KEY:'sb_secret_fake',GU_REPLAY_JOURNAL_V01494_ENABLED:'true'};
 const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const session='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 let allowed=true,locked=true,revoked=false,linked=null,rpcCalls=0;
@@ -62,7 +62,8 @@ try{
  ])assert(sql.includes(required),'SQL safety/transaction contract missing: '+required);
  assert(!/INSERT INTO public.lab_attempts/i.test(sql),'No automatic graded lab attempts');
  assert(!/gross_pnl|actual_entry|actual_exit|process_score/i.test(sql),'No manufactured trade outcomes');
- assert(!/gu_replay_sessions_v01492\?id=.*status=eq.active&current_index=eq./s.test(api),'Legacy nontransactional finish removed');
+ assert(api.includes("GU_REPLAY_JOURNAL_V01494_ENABLED==='true'"),'Private transaction must be opt-in until migration is installed');
+ assert(api.includes('journalLinked:false'),'Uninstalled DB must keep existing replay finish available');
  assert(ui.includes("journal-entry.html?id=")&&html.includes('id="vr-journal-link"'));
  console.log('PASS v94: signed-in member scope, no duplicate finalization, linked Journal navigation, SQL atomicity and no fabricated outcomes.');
 }finally{globalThis.fetch=oldFetch}
