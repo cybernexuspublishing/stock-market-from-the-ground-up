@@ -23,6 +23,7 @@ function planCard(p){
  ${rec?'<span class="v11-plan-ribbon">Recommended</span>':''}
  <div class="eyebrow">Membership</div><h3><a href="${esc(page)}">${esc(p.label)}</a></h3>
  <div class="v11-price">${dollars(p.priceCents)} <small>${esc(suffix(p.billingInterval))}</small></div>
+ <a class="store-plan-primary-link" href="${esc(page)}" aria-label="Read what ${esc(p.label)} includes, excludes and teaches">What’s included, excluded &amp; taught →</a>
  <p>${esc(p.description||'Review this plan’s full coverage and billing terms before purchase.')}</p>
  <ul><li>${esc(adLabel(p.planCode))}</li><li>${p.allTools?'Released first-party platform tools':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned independent historical practice':'Free/sample or dedicated learning access'}</li>
  <li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
