@@ -261,8 +261,8 @@ async function handlePost(request,c,user){
 async function ownerProductInventory(c){
  try{
   const [plans,tools,access,books]=await Promise.all([
-   db(c,'platform_plans?select=plan_code,name,description,price_cents,billing_interval,active,public_visible,checkout_enabled,includes_all_tools,includes_all_books,ad_free,sort_order&order=sort_order.asc&limit=100'),
-   db(c,'platform_tools?select=tool_code,name,description,category,status,active,public_visible,individual_price_cents,free_preview,href,sort_order,data_requirement,included_full,included_lifetime&order=sort_order.asc&limit=100'),
+   db(c,'platform_plans?select=plan_code,name,description,price_cents,billing_interval,active,public_visible,checkout_enabled,includes_all_tools,includes_all_books,ad_free,sort_order,updated_at&order=sort_order.asc&limit=100'),
+   db(c,'platform_tools?select=tool_code,name,description,category,status,active,public_visible,individual_price_cents,free_preview,href,sort_order,data_requirement,included_full,included_lifetime,updated_at&order=sort_order.asc&limit=100'),
    db(c,'plan_tool_access?select=plan_code,tool_code&limit=500'),
    db(c,'catalog_products?select=product_code,product_type,title,short_title,description,author,publisher,publication_status,sales_status,active,store_visible,sort_order,kdp_select,amazon_kindle_url,amazon_paperback_url,amazon_hardcover_url,direct_digital_enabled,direct_physical_enabled,website_checkout_enabled,companion_access,updated_at&order=sort_order.asc&limit=150')
   ]);
