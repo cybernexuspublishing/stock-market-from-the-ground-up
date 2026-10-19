@@ -19,10 +19,19 @@ async function authorize(env,request){const token=/^Bearer\s+(.+)$/i.exec(reques
  const [profile,roles]=await Promise.all([rest(env,'profiles?select=id,account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1'),rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id))]);
  const live=(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code),showcase=profile?.[0]?.account_kind==='showcase'||live.includes('SHOWCASE_VIEWER'),aal=assurance(token);
  if(showcase)return{user,showcase:true,owner:false,aal};
- if(!live.includes('OWNER')||profile?.[0]?.account_kind==='test')throw problem('OWNER authority required.',403);
- if(env.REQUIRE_STAFF_AAL2_V135==='true'&&aal!=='aal2')throw problem('Verified staff MFA is required while global staff MFA is enabled.',403);
- return{user,showcase:false,owner:true,aal};}
-function strongAssurance(actor){if(!actor.owner)throw problem('Only a verified OWNER may manage Owner accounts.',403)}
+ if((!live.includes('OWNER')&&!live.includes('ADMIN'))||profile?.[0]?.account_kind==='test')
+   throw problem('Active Owner or Administrator authority required.',403);
+ if(env.REQUIRE_STAFF_AAL2_V135==='true'&&aal!=='aal2')
+   throw problem('Verified staff MFA is required while global staff MFA is enabled.',403);
+ return{user,showcase:false,owner:live.includes('OWNER'),admin:live.includes('ADMIN'),aal};}
+function strongAssurance(actor){if(!actor.owner)throw problem('OWNER authority required for changes to staff accounts, roles and privileged operations.',403)}
+function targetAccess(actor,id,x){
+ if(actor.owner)return;
+ if(actor.user.id===id)throw problem('Administrators cannot change their own account through delegated Member Management.',403);
+ if(x.roles.some(role=>['OWNER','ADMIN','MODERATOR'].includes(role)) ||
+    x.profile.account_kind!=='member')
+   throw problem('Administrators may manage ordinary member accounts only. Staff, Owner, and synthetic identities require an Owner.',403);
+}
 function ensureName(v,label){const x=clean(v);if(x.length<1||x.length>80||/[<>\x00-\x1f]/.test(x))throw problem(label+' must be 1–80 characters with no markup or control characters.');return x}
 function ensureUsername(v){const x=clean(v);if(!LOGIN.test(x))throw problem('Username must start with a letter and contain 3–24 letters, digits or underscores.');return x.charAt(0).toUpperCase()+x.slice(1)}
 function ensureEmail(v){const x=clean(v).toLowerCase();if(x.length>254||!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(x))throw problem('Enter a valid email address.');return x}
@@ -68,8 +77,9 @@ async function list(env,req,actor){if(actor.showcase)return respond({ok:true,own
    profiles.push(...pr);roles.push(...rr);tests.push(...tr);
  }
  const pmap=new Map(profiles.map(x=>[x.id,x])),tmap=new Map(tests.map(x=>[x.user_id,x]));const all=users.map(u=>{const p=pmap.get(u.id)||{},r=roles.filter(x=>x.user_id===u.id&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())).map(x=>x.role_code);const kind=p.account_kind||'member';return{id:u.id,email:u.email||'',username:p.username||u.user_metadata?.username||'Unknown',firstName:p.first_name||'',lastName:p.last_name||'',type:kind==='showcase'?'showcase':kind==='test'||tmap.has(u.id)?'test':r.includes('OWNER')?'owner':r.includes('ADMIN')?'admin':r.includes('MODERATOR')?'moderator':'member',roles:r,createdAt:u.created_at||null}}).filter(u=>!q||[u.username,u.email,u.firstName,u.lastName].some(v=>v.toLowerCase().includes(q)));
- const accounts=q?all.slice((page-1)*perPage,page*perPage):all;
- return respond({ok:true,owner:true,synthetic:false,aal:actor.aal,vaultReady:!!clean(env.TEST_ACCOUNT_ENCRYPTION_KEY||env.MARKET_DATA_ENCRYPTION_KEY),accounts,page,total:q?all.length:authTotal,hasMore:q?(all.length>page*perPage):(users.length===perPage),searchLimited:limitReached});}
+ const eligible=actor.owner?all:all.filter(x=>x.type==='member'&&x.id!==actor.user.id);
+ const accounts=q?eligible.slice((page-1)*perPage,page*perPage):eligible;
+ return respond({ok:true,owner:actor.owner,admin:!actor.owner,synthetic:false,aal:actor.aal,vaultReady:!!clean(env.TEST_ACCOUNT_ENCRYPTION_KEY||env.MARKET_DATA_ENCRYPTION_KEY),accounts,page,total:q?eligible.length:actor.owner?authTotal:null,hasMore:q?(eligible.length>page*perPage):(users.length===perPage),searchLimited:limitReached});}
 async function lookup(env,id){if(!UID.test(id))throw problem('Invalid account identifier.');const [pr,roles,t]=await Promise.all([rest(env,'profiles?select=id,username,display_name,first_name,last_name,account_kind,avatar_url,bio,timezone,locale,session_timeout_minutes&id=eq.'+id+'&limit=1'),rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+id),rest(env,'test_account_profiles?select=user_id,preset_code&user_id=eq.'+id)]);
  const p=pr?.[0];if(!p)throw problem('Account profile not found.',404);return{profile:p,roles:(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code),test:t.length>0||p.account_kind==='test'};}
 async function availableRoles(env){const rows=await rest(env,'admin_roles?select=role_code,name,is_assignable&is_assignable=eq.true&order=priority.asc');return(rows||[]).filter(x=>x.role_code!=='SHOWCASE_VIEWER');}
@@ -148,12 +158,38 @@ async function changePrimaryRole(env,actor,id,x,b,dryRun=false){const code=clean
  await audit(env,actor,'v1353.role.replace',id,{previous:prior,next:code});}
 async function uniqueUsername(env,name){const rows=await rest(env,'profiles?select=id&username=ilike.'+encodeURIComponent(name)+'&limit=1');if(rows?.length)throw problem('Username already in use.',409)}
 async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,synthetic:true,account:synthetic.find(x=>x.id===id)||synthetic[0],dateOfBirth:null});
- const x=await lookup(env,id),auth=await authAdmin(env,'users/'+id),u=auth?.user||auth,identity=(await rest(env,'account_private_identity?select=date_of_birth&user_id=eq.'+id+'&limit=1'))?.[0];
+ const x=await lookup(env,id);targetAccess(actor,id,x);
+ const auth=await authAdmin(env,'users/'+id),u=auth?.user||auth,identity=(await rest(env,'account_private_identity?select=date_of_birth&user_id=eq.'+id+'&limit=1'))?.[0];
  const [flagRows,noteRows]=await Promise.all([rest(env,'admin_user_flags?select=status,reason,updated_at&user_id=eq.'+id+'&limit=1'),rest(env,'admin_user_notes?select=note_type,note,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=12')]);
- return respond({ok:true,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
+ // Source-aware single-account inventory. A failed read must NOT be interpreted
+ // as zero grants or as proof that the account is FREE.
+ const inventoryPaths={
+   grants:'user_plan_grants?select=id,plan_code,status,starts_at,ends_at,source,source_reference&user_id=eq.'+id+'&order=created_at.desc&limit=100',
+   subscriptions:'site_subscriptions?select=id,plan_code,status,provider,provider_subscription_id,current_period_end,cancel_at_period_end&user_id=eq.'+id+'&order=created_at.desc&limit=100',
+   books:'user_library?select=id,product_code,access_type,source_channel,source_reference,expires_at&user_id=eq.'+id+'&order=granted_at.desc&limit=100',
+   tools:'user_tool_passes?select=id,tool_code,status,starts_at,ends_at,provider,provider_subscription_id,metadata&user_id=eq.'+id+'&order=created_at.desc&limit=100',
+   bookKeys:'book_key_redemptions?select=id,book_code,starts_at,ends_at&user_id=eq.'+id+'&order=created_at.desc&limit=50',
+   orders:'site_orders?select=id,provider,status,total_cents,paid_at,created_at&user_id=eq.'+id+'&order=created_at.desc&limit=50'
+ };
+ const inventory={},inventoryErrors={};
+ const results=await Promise.allSettled(Object.entries(inventoryPaths).map(async([name,path])=>[name,await rest(env,path)]));
+ for(let i=0;i<results.length;i++){
+   const k=Object.keys(inventoryPaths)[i],r=results[i];
+   if(r.status==='fulfilled')inventory[k]=r.value[1];
+   else{inventory[k]=null;inventoryErrors[k]='Unable to load this source. Do not assume it is empty.'}
+ }
+ let effectiveAccess=null,effectiveError=null;
+ if(x.profile.account_kind==='member'){
+   try{effectiveAccess=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}})}
+   catch{effectiveError='Effective access resolver unavailable; account status unverified.'}
+ }
+ return respond({ok:true,permissions:{owner:actor.owner,administrator:!actor.owner},
+  inventory,inventoryErrors,effectiveAccess,effectiveError,account:{id,email:u.email||'',username:x.profile.username,displayName:x.profile.display_name||x.profile.username,firstName:x.profile.first_name||'',lastName:x.profile.last_name||'',type:normalizedType(x),roles:x.roles,profile:{avatarUrl:x.profile.avatar_url||'',bio:x.profile.bio||'',timezone:x.profile.timezone||'UTC',locale:x.profile.locale||'en-US',sessionTimeoutMinutes:x.profile.session_timeout_minutes||30},createdAt:u.created_at||null,lastSignInAt:u.last_sign_in_at||null,bannedUntil:u.banned_until||null,emailConfirmed:!!u.email_confirmed_at},dateOfBirth:identity?.date_of_birth||null,flag:flagRows?.[0]||{status:'active',reason:''},notes:noteRows||[],membership:await membershipDetails(env,id,x.profile.account_kind)});}
 async function change(env,request,actor,action,b){if(actor.showcase)throw problem('Showcase is read-only.',403);const ownerId=actor.user.id;
  if(action==='create'){
-   const type=clean(b.type).toLowerCase();if(!['member','test','showcase','moderator','admin','owner'].includes(type))throw problem('Invalid account type.');
+   const type=clean(b.type).toLowerCase();
+   if(!actor.owner&&type!=='member')
+     throw problem('Administrators may create ordinary members only. Staff and synthetic accounts require an Owner.',403);if(!['member','test','showcase','moderator','admin','owner'].includes(type))throw problem('Invalid account type.');
    if(type==='owner'){strongAssurance(actor);if(clean(b.confirmation)!=='CREATE OWNER')throw problem('Type CREATE OWNER exactly to authorize a second production Owner.',400);}
    const first=ensureName(b.firstName,'First name'),last=ensureName(b.lastName,'Last name'),username=ensureUsername(b.username),email=ensureEmail(b.email);
    const isSandbox=['test','showcase'].includes(type),ownerPassword=!isSandbox&&b.creationMethod==='owner_password',dob=b.dateOfBirth?ensureAdult(b.dateOfBirth):null;
@@ -190,7 +226,8 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true,account:{id,email,username,type},...(credential?{temporaryPassword:credential,storedForLater:!!clean(env.TEST_ACCOUNT_ENCRYPTION_KEY||env.MARKET_DATA_ENCRYPTION_KEY)}:{invitationRequested:!ownerPassword}),...(membershipWarning?{warning:membershipWarning}:{})},201);
  }
  if(action==='edit'){
-   const id=clean(b.userId),x=await lookup(env,id),first=ensureName(b.firstName,'First name'),last=ensureName(b.lastName,'Last name'),newName=ensureUsername(b.username);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
+   const first=ensureName(b.firstName,'First name'),last=ensureName(b.lastName,'Last name'),newName=ensureUsername(b.username);
    const hasOwner=x.roles.includes('OWNER');if(hasOwner)strongAssurance(actor);
    const email=ensureEmail(b.email),au=await authAdmin(env,'users/'+id),u=au?.user||au;
    if(!UID.test(u?.id))throw problem('Target identity unavailable.',404);
@@ -200,6 +237,8 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    const dob=b.dateOfBirth?ensureAdult(b.dateOfBirth):null;
    const requestedType=clean(b.type||normalizedType(x));if(!VALID_TYPES.has(requestedType))throw problem('Unsupported account type.',400);
    const currentType=normalizedType(x);
+   if(!actor.owner&&(requestedType!=='member'||currentType!=='member'))
+     throw problem('Administrators cannot change staff roles or account types.',403);
    if(['test','showcase'].includes(requestedType)&&requestedType!==currentType)throw problem('Converting existing accounts to Dummy/Showcase requires a separate audited synthetic migration. Create a new test identity instead.',409);
    if(['test','showcase'].includes(currentType)&&requestedType!==currentType)throw problem('Cannot promote a synthetic/test account into a production member or staff identity. Create a new real account instead.',409);
    if(['showcase','test'].includes(requestedType)&&!['NONE',''].includes(clean(b.roleCode||'NONE')))throw problem('Synthetic accounts cannot receive real staff roles.',409);
@@ -221,18 +260,23 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    await rest(env,'profiles?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{username:newName,display_name:newName,first_name:first,last_name:last,...(changingEmail?{email,email_verified:true}:{}),updated_at:now}});
    if(dob)await rest(env,'account_private_identity?on_conflict=user_id',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:{user_id:id,first_name:first,last_name:last,date_of_birth:dob,age_eligible:true,age_eligibility_checked_at:now,updated_at:now}});
    else await rest(env,'account_private_identity?user_id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{first_name:first,last_name:last,updated_at:now}});
-   if(b.roleCode!==undefined)await changePrimaryRole(env,ownerId,id,x,b);
+   if(b.roleCode!==undefined){
+     if(!actor.owner&&clean(b.roleCode||'NONE')!=='NONE')
+       throw problem('Only the Owner can change staff roles or permissions.',403);
+     if(actor.owner)await changePrimaryRole(env,ownerId,id,x,b);
+   }
    await audit(env,ownerId,'v1353.account.edited',id,{username:newName,emailChanged:changingEmail,newType:requestedType,role:clean(b.roleCode)});return respond({ok:true,username:newName});
  }
  if(action==='profile'){
-   const id=clean(b.userId),x=await lookup(env,id);if(x.roles.includes('OWNER'))strongAssurance(actor);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
+   if(x.roles.includes('OWNER'))strongAssurance(actor);
    const values=profileSettings(b);
    await rest(env,'profiles?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{...values,updated_at:new Date().toISOString()}});
    await audit(env,ownerId,'v0142.account.profile.edited',id,{fields:Object.keys(values),ownerAccount:x.roles.includes('OWNER')});
    return respond({ok:true});
  }
  if(action==='flag'){
-   const id=clean(b.userId),x=await lookup(env,id),status=clean(b.status),reason=clean(b.reason);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);const status=clean(b.status),reason=clean(b.reason);
    if(!['active','watch','restricted','suspended'].includes(status))throw problem('Invalid account status flag.');
    if(reason.length>1000||(status!=='active'&&reason.length<10))throw problem('A non-active status requires a reason of 10–1,000 characters.');
    if(x.roles.includes('OWNER')&&id===ownerId&&status==='suspended')throw problem('You cannot suspend your own Owner account.',409);
@@ -241,7 +285,7 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true});
  }
  if(action==='ban'){
-   const id=clean(b.userId),x=await lookup(env,id),duration=clean(b.duration);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);const duration=clean(b.duration);
    if(!['24h','168h','876000h','none'].includes(duration))throw problem('Unsupported sign-in suspension duration.');
    if(id===ownerId&&duration!=='none')throw problem('Cannot suspend your own Owner sign-in.',409);
    if(x.roles.includes('OWNER')&&duration!=='none')throw problem('Owner sign-in suspension requires a separate identity-security recovery procedure.',409);
@@ -250,7 +294,7 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true});
  }
  if(action==='note'){
-   const id=clean(b.userId),x=await lookup(env,id),note=clean(b.note),type=clean(b.noteType||'general');
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);const note=clean(b.note),type=clean(b.noteType||'general');
    if(note.length<2||note.length>3000)throw problem('Internal note must be 2–3,000 characters.');
    if(!['general','support','moderation','commerce','learning','security'].includes(type))throw problem('Unsupported internal note type.');
    await rest(env,'admin_user_notes',{method:'POST',prefer:'return=minimal',body:{user_id:id,note,note_type:type,created_by:ownerId}});
@@ -258,12 +302,13 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true});
  }
  if(action==='membership'){
-   const id=clean(b.userId),x=await lookup(env,id);if(x.roles.includes('OWNER'))strongAssurance(actor);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
+   if(x.roles.includes('OWNER'))strongAssurance(actor);
    const result=await updateMembership(env,ownerId,id,x.profile.account_kind,b);
    return respond({ok:true,membership:result});
  }
  if(action==='password'){
-   const id=clean(b.userId),x=await lookup(env,id);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
    // Only verified OWNER callers reach this endpoint. Owner resets additionally require explicit confirmation.
    // OWNER authorization was verified before any action. Password replacement needs no typed RESET phrase.
    if(b.newPassword&&b.newPassword!==b.confirmPassword)throw problem('The two passwords must match.');
@@ -276,13 +321,14 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    return respond({ok:true,temporaryPassword:password,storedForLater:isSandbox&&!!clean(env.TEST_ACCOUNT_ENCRYPTION_KEY||env.MARKET_DATA_ENCRYPTION_KEY)});
  }
  if(action==='reveal'){
-   const id=clean(b.userId),x=await lookup(env,id);
+   const id=clean(b.userId),x=await lookup(env,id);targetAccess(actor,id,x);
    if(!['test','showcase'].includes(x.profile.account_kind))throw problem('Existing passwords cannot be viewed for real members, Moderators, Administrators or Owners.',403);
    // Retrieval limited to encrypted dummy credentials and authenticated OWNER sessions.
    await audit(env,ownerId,'v1353.sandbox_credential.view',id,{username:x.profile.username});
    const password=await readDummyPassword(env,id);return respond({ok:true,temporaryPassword:password,storedForLater:true});
  }
  if(action==='delete'){
+   strongAssurance(actor); // Destructive identity deletion stays with Owner.
    const id=clean(b.userId);if(id===ownerId)throw problem('The current Owner cannot self-delete in Admin.',403);
    const x=await lookup(env,id),isOwner=x.roles.includes('OWNER');if(isOwner)strongAssurance(actor);
    if(clean(b.confirmation)!=='DELETE ACCOUNT')throw problem('Type DELETE ACCOUNT exactly.',400);
@@ -302,7 +348,7 @@ export async function onRequest({request,env}){try{
  const actor=await authorize(env,request),url=new URL(request.url),action=clean(url.searchParams.get('action'));
  if(request.method==='GET'&&action==='list')return await list(env,request,actor);
  if(request.method==='GET'&&action==='plans'){if(actor.showcase)return respond({ok:true,synthetic:true,plans:[{plan_code:'FREE',name:'Free'}]});const plans=await rest(env,'platform_plans?select=plan_code,name,active&active=eq.true&order=sort_order.asc');return respond({ok:true,plans:plans||[]});}
- if(request.method==='GET'&&action==='roles'){if(actor.showcase)return respond({ok:true,synthetic:true,roles:[]});return respond({ok:true,roles:await availableRoles(env)});}
+ if(request.method==='GET'&&action==='roles'){if(actor.showcase||!actor.owner)return respond({ok:true,synthetic:!!actor.showcase,roles:[]});return respond({ok:true,roles:await availableRoles(env)});}
  if(request.method==='GET'&&action==='detail')return await detail(env,actor,clean(url.searchParams.get('id')));
  if(request.method!=='POST')return respond({ok:false,error:'Unknown operation.'},405);
  const raw=await request.text();if(raw.length>7500)throw problem('Account request too large.',413);let body={};try{body=JSON.parse(raw)}catch{throw problem('Invalid JSON.');}
