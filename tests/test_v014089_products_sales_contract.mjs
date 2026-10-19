@@ -13,10 +13,12 @@ for(const f of ['assets/js/admin-products-v01489.js','assets/js/store.js','asset
 assert.ok(store.includes('store-sales-v01489.css'));
 for(const s of ['Subscribe Now','Choose This Membership','Coming Soon','Pricing to be announced'])assert.ok(storeJs.includes(s),s);
 assert.ok(storeJs.includes('allTools.map(toolCard)'),'Public Store must display planned/beta catalog rows, not only live paid SKUs');
-for(const route of ['labs.html','assessments.html','ondemand-training.html','learn.html','data-connections.html']){
- assert.ok(storeJs.includes(route),'Missing real future learning route '+route);
+const upcomingSource=read('assets/js/store-upcoming-offerings-v01490.js');
+for(const route of ['labs.html','assessments.html','ondemand-training.html','learn.html','data-connections.html','lab-samples.html']){
+ assert.ok(upcomingSource.includes(route),'Missing reviewed upcoming learning route '+route);
  assert.ok(read(route).length>300,'Future route absent '+route);
 }
+assert.ok(storeJs.includes('GroundUpUpcomingOfferings'),'Store must consume the single shared upcoming offering registry.');
 assert.ok(storeJs.includes('t.checkoutEnabled'),'Paid CTA requires verified checkout-enabled catalog');
 assert.ok(detail.includes('buyEnabled=released&&t.checkoutEnabled===true'),'Detail checkout is server/catalog gated');
 assert.ok(detail.includes('What you’ll learn in this book'),'Customer-facing book heading');
