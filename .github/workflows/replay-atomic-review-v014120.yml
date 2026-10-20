@@ -1,0 +1,63 @@
+name: Atomic Replay Evidence and Production Contract v0.14.0.120
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/journal-replay-review-v014118.js'
+      - 'tests/test_v014119_review_observed_evidence.mjs'
+      - 'tests/test_v014120_atomic_replay_review_evidence.mjs'
+      - 'tests/fixtures/v014120_atomic_review_acceptance.sql'
+      - 'supabase/migrations/v0.14.0.120_ATOMIC_REPLAY_REVIEW_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
+      - '.github/workflows/replay-atomic-review-v014120.yml'
+  pull_request:
+    paths:
+      - 'functions/api/journal-replay-review-v014118.js'
+      - 'tests/test_v014119_review_observed_evidence.mjs'
+      - 'tests/test_v014120_atomic_replay_review_evidence.mjs'
+      - 'tests/fixtures/v014120_atomic_review_acceptance.sql'
+      - 'supabase/migrations/v0.14.0.120_ATOMIC_REPLAY_REVIEW_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
+      - '.github/workflows/replay-atomic-review-v014120.yml'
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check functions/api/journal-replay-review-v014118.js
+          node tests/test_v014119_review_observed_evidence.mjs
+          node tests/test_v014120_atomic_replay_review_evidence.mjs
+          node tests/test_v014118_replay_learning_lifecycle.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+  transactional-real-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: replay_v120}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d replay_v120"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: replay_v120
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014118_replay_lifecycle_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.118_REPLAY_LIFECYCLE_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.95_REPLAY_GUARDRAILS_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.120_ATOMIC_REPLAY_REVIEW_EVIDENCE_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014120_atomic_review_acceptance.sql
