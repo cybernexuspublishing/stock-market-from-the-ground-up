@@ -38,6 +38,31 @@ async function loadOutcome(journalId){
   if(epoch!==RSTATE.authEpoch)throw Error('Account changed during review.');
   if(error)throw error; return data;
 }
+async function replayEvidence(reviewId){
+ const epoch=RSTATE.authEpoch;
+ const {data:{session}}=await RSTATE.sb.auth.getSession();
+ if(!session?.access_token||session.user?.id!==RSTATE.user?.id)
+  throw Error('Sign in to the current member account.');
+ const res=await fetch('/api/journal-replay-review-v014118?action=evidence&reviewId='+encodeURIComponent(reviewId),{
+  method:'GET',cache:'no-store',headers:{authorization:'Bearer '+session.access_token}});
+ const payload=await res.json().catch(()=>({}));
+ if(epoch!==RSTATE.authEpoch)throw Error('Account changed during observation retrieval.');
+ if(!res.ok||payload.ok!==true)throw Error(payload.error||'Observations unavailable.');
+ return payload;
+}
+function replayEvidenceHTML(data){
+ const esc=window.JournalTools.esc;
+ const rows=(data.observations||[]).map(b=>'<tr><td>'+esc(b.index)+'</td><td>'+
+  esc(b.timestamp)+'</td><td>'+esc(b.open)+'</td><td>'+esc(b.high)+
+  '</td><td>'+esc(b.low)+'</td><td>'+esc(b.close)+'</td><td>'+esc(b.volume)+'</td></tr>').join('');
+ return '<div class="journal-card"><strong>'+
+  (data.originalSynthetic?'ORIGINAL FICTIONAL SIMULATION':'RIGHTS-REVIEWED HISTORICAL DATA')+
+  '</strong><p>'+esc(data.sourceAttribution||'')+
+  '</p><p>Only observations at or before the saved server cursor '+esc(data.observedThroughIndex)+
+  ' are shown. '+(data.hasEarlierBars?'Older observed bars omitted from this bounded 40-row view. ':'')+
+  'No broker execution or hypothetical P&L is verified.</p><div class="v11-matrix"><table><caption>Server-recorded, bounded observed OHLCV evidence after the locked review note</caption><thead><tr><th>Bar</th><th>Time (UTC)</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody>'+rows+
+  '</tbody></table></div></div>';
+}
 function outcomeHTML(j){
   const JT=window.JournalTools;
   return `<div class="metrics-grid">${metric('Actual exit',j.actual_exit==null?'—':j.actual_exit)}${metric('Net P&L',j.net_pnl==null?'—':JT.money(j.net_pnl))}${metric('R result',j.r_multiple==null?'—':`${JT.dec(j.r_multiple,2)}R`)}${metric('MFE',j.mfe_r==null?'—':`${JT.dec(j.mfe_r,2)}R`)}${metric('MAE',j.mae_r==null?'—':`${JT.dec(j.mae_r,2)}R`)}${metric('Actual exit reason',j.actual_exit_reason||j.no_trade_reason||'—')}${metric('Plan followed',j.plan_followed||'—')}${metric('Process grade',j.process_grade||'—')}</div>`
@@ -60,9 +85,14 @@ function bind(){
           await replayAPI('reveal',id);
         }
         const j=await loadOutcome(Number(card.dataset.journal));
+        let observed='';
+        if(replay){
+          const evidence=await replayEvidence(Number(card.dataset.review));
+          observed=replayEvidenceHTML(evidence);
+        }
         outcome.innerHTML=replay?
-          '<p class="journal-small">No authenticated brokerage execution or price outcome is established by this replay. These fields remain empty unless independently evidenced elsewhere.</p>'+outcomeHTML(j):
-          outcomeHTML(j);
+          '<p class="journal-small">Observed educational candles below are server-authorized post-lock evidence, not an authenticated brokerage execution.</p>'+
+          observed+outcomeHTML(j):outcomeHTML(j);
         outcome.classList.remove('outcome-hidden');complete.disabled=false;
         status.textContent=replay?'First decision notes locked. Enter a separate post-reveal comparison.':'Outcome revealed. Compare it with the reasoning you wrote before revealing.';
         status.className='status-message success'

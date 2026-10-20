@@ -1,0 +1,23 @@
+name: Replay Outcome Review Evidence v0.14.0.119
+on:
+  push:
+    branches: [main]
+    paths: ['functions/api/journal-replay-review-v014118.js','assets/js/review-queue.js','tests/test_v014119_review_observed_evidence.mjs','.github/workflows/replay-outcome-evidence-v014119.yml']
+  pull_request:
+    paths: ['functions/api/journal-replay-review-v014118.js','assets/js/review-queue.js','tests/test_v014119_review_observed_evidence.mjs','.github/workflows/replay-outcome-evidence-v014119.yml']
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check functions/api/journal-replay-review-v014118.js
+          node --check assets/js/review-queue.js
+          node tests/test_v014119_review_observed_evidence.mjs
+          node tests/test_v014118_replay_learning_lifecycle.mjs
+          node tests/test_v014115_replay_journal_integrity.mjs
