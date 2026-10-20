@@ -1,0 +1,58 @@
+name: Forum atomic production prerequisite diagnostic v0.14.0.126
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql'
+      - 'tests/test_v014126_forum_atomic_prerequisites.mjs'
+      - '.github/workflows/forum-dependency-diag-v014126.yml'
+  pull_request:
+    paths:
+      - 'supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql'
+      - 'tests/test_v014126_forum_atomic_prerequisites.mjs'
+      - '.github/workflows/forum-dependency-diag-v014126.yml'
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node tests/test_v014126_forum_atomic_prerequisites.mjs
+          node tests/test_v014125_forum_direct_dml.mjs
+  disposable-pg16-diagnostic-contract:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: forum_diag_v126}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forum_diag_v126"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: forum_diag_v126
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014125_forum_direct_dml_schema.sql
+          psql -v ON_ERROR_STOP=1 -At -F '|' -f supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql > /tmp/missing.txt
+          grep -F '|Atomic moderator RPC exact signature installed|BLOCKED|' /tmp/missing.txt
+          grep -F '|Atomic member edit RPC exact signature installed|BLOCKED|' /tmp/missing.txt
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.116_ATOMIC_MEMBER_FORUM_EDITS_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -At -F '|' -f supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql > /tmp/installed.txt
+          test "$(wc -l < /tmp/installed.txt)" -eq 35
+          if grep -F '|BLOCKED|' /tmp/installed.txt; then echo "Unexpected prerequisite BLOCKED after installation" >&2; exit 1; fi
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.125_FORUM_COMMONS_DIRECT_DML_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014125_forum_direct_dml_acceptance.sql
