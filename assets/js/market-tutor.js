@@ -104,7 +104,7 @@ async function loadHistory(){
   const known=new Set(prior.map(x=>x.id));
   TUTOR.entries=[...prior,...TUTOR.entries.filter(x=>!x.id||!known.has(x.id))];
   renderConversation();
-  historyStatus(prior.length+' previously saved exchange(s) loaded from your private member history (most recent 50).');
+  historyStatus(prior.length+' previously saved exchange(s) loaded from your private member history (up to 200).');
  }catch(e){
   TUTOR.serverHistory=false;
   historyStatus(e.message+' Your current-page conversation still works. No assessment data was changed.');
@@ -208,7 +208,8 @@ async function ask(){
   TUTOR.lastTopic=rec.sourceTitles[0]||q.slice(0,70);
   $('tutor-question').value='';$('tutor-reflection').value='';updateCount();
   status('Response displayed. '+(data.generation==='grounded-model-draft'?'AI-assisted educational draft; verify its original sources.':'No paid AI provider was used for this response.'),'success');
-  if(TUTOR.user)await saveRecord(rec);
+  if(TUTOR.user&&$('tutor-save-history')?.checked===true)await saveRecord(rec);
+  else historyStatus('This response stays on the current page only; account history was not updated.');
  }catch(e){
   status(e.message+(e.status===403?' Visit the Membership page to review access.':''),'error');
  }finally{TUTOR.busy=false;$('tutor-ask').disabled=false}
