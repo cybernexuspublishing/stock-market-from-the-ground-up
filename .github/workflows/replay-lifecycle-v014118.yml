@@ -94,5 +94,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014118_replay_lifecycle_schema.sql
       - name: Install EXACT Owner-review v118 SQL into disposable Postgres
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.118_REPLAY_LIFECYCLE_OWNER_REVIEW_REQUIRED.sql
-      - name: Exercise real atomic ownership, immutability, review chronology and scores
+      - name: Install REAL chronological no-lookahead v95 in disposable Postgres
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.95_REPLAY_GUARDRAILS_OWNER_REVIEW_REQUIRED.sql
+      - name: Exercise real atomic ownership, forward-only cursor, review chronology and scores
         run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014118_replay_lifecycle_acceptance.sql
