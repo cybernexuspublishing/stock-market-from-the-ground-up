@@ -131,8 +131,9 @@ async function modelDraft(env,{q,mode,source,answer}){
    body:JSON.stringify({model,instructions,input,max_output_tokens:350,store:false})});
   if(!resp.ok)return null;
   const json=await resp.json(),text=extractText(json);
-  if(text.length<30||text.length>2400||!text.includes('[1]')||
-   /\[(?:[4-9]|\d\d+)\]/.test(text))return null;
+  const citations=[...text.matchAll(/\[(\d+)\]/g)].map(m=>Number(m[1]));
+  if(text.length<30||text.length>2400||!citations.includes(1)||
+    citations.some(n=>!Number.isInteger(n)||n<1||n>source.length))return null;
   return text;
  }catch{return null}finally{clearTimeout(timer)}
 }
