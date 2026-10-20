@@ -1,6 +1,17 @@
 (function(){
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const n=v=>{const x=Number(v);return Number.isFinite(x)?x:null};
+ const M=globalThis.GroundUpToolMath;
+ if(!M)throw new Error('Verified educational calculator engine unavailable.');
+ const n=M.number;
+ function drawMetrics(target,rows){
+  const container=document.getElementById(target);container.replaceChildren();
+  for(const [label,value] of rows){
+   const card=document.createElement('div');card.className='v11-feature available';
+   const body=document.createElement('div'),name=document.createElement('strong'),output=document.createElement('small');
+   name.textContent=label;output.textContent=String(value);body.append(name,output);card.append(body);container.append(card);
+  }
+ }
+
  const money=v=>Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}):'—';
  let SB=null,USER=null,TOOL=null,ACCESS=null;
  function panel(title,body){return `<section class="v11-workbench-panel"><h2>${esc(title)}</h2>${body}</section>`}
@@ -31,10 +42,103 @@
   return d.records||[];
  }
  function download(name,text,type='text/csv'){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
- function renderRisk(){document.getElementById('tool-workbench').innerHTML=panel('Risk & Position Sizing',`<div class="v11-form-grid"><div><label>Account size</label><input id="r-account" type="number" value="5000" step="0.01"></div><div><label>Maximum $ risk</label><input id="r-risk" type="number" value="20" step="0.01"></div><div><label>Entry</label><input id="r-entry" type="number" step="0.0001"></div><div><label>Stop</label><input id="r-stop" type="number" step="0.0001"></div><div><label>Target</label><input id="r-target" type="number" step="0.0001"></div><div><label>Estimated spread</label><input id="r-spread" type="number" step="0.0001" value="0"></div><div><label>Estimated slippage / share</label><input id="r-slip" type="number" step="0.0001" value="0"></div></div><div class="actions"><button class="btn" id="r-calc">Calculate</button></div><div id="r-out" class="v11-feature-grid"></div>`)+panel('Scenario discipline','<p>Use the calculator to test how spread and slippage change the true risk budget. Position size is a risk control—not a prediction of outcome.</p>');document.getElementById('r-calc').onclick=()=>{const acct=n(document.getElementById('r-account').value),risk=n(document.getElementById('r-risk').value),entry=n(document.getElementById('r-entry').value),stop=n(document.getElementById('r-stop').value),target=n(document.getElementById('r-target').value),spread=n(document.getElementById('r-spread').value)||0,slip=n(document.getElementById('r-slip').value)||0;if([risk,entry,stop].some(x=>x===null)||entry===stop)return status('Enter valid risk, entry, and stop.','error');const per=Math.abs(entry-stop)+spread+slip,shares=Math.floor(risk/per),exposure=shares*entry,acctPct=acct?exposure/acct*100:null,rr=target!=null?Math.abs(target-entry)/per:null;document.getElementById('r-out').innerHTML=[['Risk/share',money(per)],['Shares',shares.toLocaleString()],['Exposure',money(exposure)],['Account exposure',acctPct==null?'—':acctPct.toFixed(1)+'%'],['Target R:R',rr==null?'—':rr.toFixed(2)+'R'],['Worst planned loss',money(shares*per)]].map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
- function renderFloat(){document.getElementById('tool-workbench').innerHTML=panel('Float & Supply',`<div class="v11-form-grid"><div><label>Float shares</label><input id="f-float" type="number"></div><div><label>Shares outstanding</label><input id="f-out" type="number"></div><div><label>Session volume</label><input id="f-vol" type="number"></div><div><label>Price</label><input id="f-price" type="number" step="0.0001"></div></div><div class="actions"><button class="btn" id="f-calc">Analyze</button></div><div id="f-outbox" class="v11-feature-grid"></div><div class="v11-lock-note">Float turnover does not prove the same shares traded repeatedly, nor does it prove a squeeze. It is one supply/participation measurement that must be combined with context.</div>`);document.getElementById('f-calc').onclick=()=>{const fl=n(document.getElementById('f-float').value),out=n(document.getElementById('f-out').value),vol=n(document.getElementById('f-vol').value),price=n(document.getElementById('f-price').value);const vals=[['Float turnover',fl&&vol?(vol/fl).toFixed(2)+'×':'—'],['Float % of shares outstanding',fl&&out?(fl/out*100).toFixed(1)+'%':'—'],['Approx. market cap',out&&price?money(out*price):'—'],['Approx. float value',fl&&price?money(fl*price):'—']];document.getElementById('f-outbox').innerHTML=vals.map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
- function renderLiquidity(){document.getElementById('tool-workbench').innerHTML=panel('Liquidity & Spread',`<div class="v11-form-grid"><div><label>Bid</label><input id="l-bid" type="number" step="0.0001"></div><div><label>Ask</label><input id="l-ask" type="number" step="0.0001"></div><div><label>Shares</label><input id="l-sh" type="number" value="100"></div><div><label>Planned stop distance / share</label><input id="l-stop" type="number" step="0.0001"></div></div><div class="actions"><button class="btn" id="l-calc">Analyze</button></div><div id="l-out" class="v11-feature-grid"></div>`);document.getElementById('l-calc').onclick=()=>{const bid=n(document.getElementById('l-bid').value),ask=n(document.getElementById('l-ask').value),sh=n(document.getElementById('l-sh').value)||0,sd=n(document.getElementById('l-stop').value);if(bid===null||ask===null||ask<bid)return status('Enter a valid bid and ask.','error');const mid=(bid+ask)/2,sp=ask-bid,spct=mid?sp/mid*100:null,rt=sp*sh,planned=sd!=null?sd*sh:null;document.getElementById('l-out').innerHTML=[['Spread',money(sp)],['Spread %',spct==null?'—':spct.toFixed(2)+'%'],['One-spread cost',money(rt)],['Spread vs planned risk',planned?((rt/planned)*100).toFixed(1)+'%':'—']].map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
- function renderExecution(){document.getElementById('tool-workbench').innerHTML=panel('Execution Cost Model',`<div class="v11-form-grid"><div><label>Decision price</label><input id="e-dec" type="number" step="0.0001"></div><div><label>Actual fill</label><input id="e-fill" type="number" step="0.0001"></div><div><label>Shares</label><input id="e-sh" type="number" value="100"></div><div><label>Direction</label><select id="e-dir"><option>LONG</option><option>SHORT</option></select></div><div><label>Bid</label><input id="e-bid" type="number" step="0.0001"></div><div><label>Ask</label><input id="e-ask" type="number" step="0.0001"></div></div><div class="actions"><button class="btn" id="e-calc">Measure Execution</button></div><div id="e-out" class="v11-feature-grid"></div>`)+panel('Order-type decision prompts',`<ul><li><strong>Market:</strong> prioritizes execution, not price certainty.</li><li><strong>Limit:</strong> prioritizes price boundary, not fill certainty.</li><li><strong>Stop:</strong> activation logic can create slippage in fast markets.</li><li><strong>Stop-limit:</strong> can avoid a worse price but may not execute.</li></ul>`);document.getElementById('e-calc').onclick=()=>{const d=n(document.getElementById('e-dec').value),f=n(document.getElementById('e-fill').value),sh=n(document.getElementById('e-sh').value)||0,dir=document.getElementById('e-dir').value,bid=n(document.getElementById('e-bid').value),ask=n(document.getElementById('e-ask').value);if(d===null||f===null)return status('Enter decision and fill prices.','error');const slip=(dir==='LONG'?f-d:d-f),cost=slip*sh,spread=bid!=null&&ask!=null?ask-bid:null;document.getElementById('e-out').innerHTML=[['Slippage/share',money(slip)],['Slippage cost',money(cost)],['Quoted spread',spread==null?'—':money(spread)],['Fill vs decision',(slip>0?'Worse by ':'Better by ')+money(Math.abs(slip))]].map(([a,b])=>`<div class="v11-feature ${slip<=0?'available':'unavailable'}"><span class="v11-feature-mark">${slip<=0?'✓':'!'}</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
+ function renderRisk(){
+  document.getElementById('tool-workbench').innerHTML=
+   panel('Risk & Position Sizing','<div class="v11-form-grid">'+
+    '<div><label for="r-account">Account size</label><input id="r-account" type="number" min="0.01" value="5000" step="0.01"></div>'+
+    '<div><label for="r-risk">Maximum dollar risk</label><input id="r-risk" type="number" min="0.01" value="20" step="0.01"></div>'+
+    '<div><label for="r-side">Direction</label><select id="r-side"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>'+
+    '<div><label for="r-entry">Entry</label><input id="r-entry" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="r-stop">Protective stop</label><input id="r-stop" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="r-target">Optional target</label><input id="r-target" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="r-spread">Estimated spread per share</label><input id="r-spread" type="number" min="0" step="0.0001" value="0"></div>'+
+    '<div><label for="r-slip">Estimated slippage per share</label><input id="r-slip" type="number" min="0" step="0.0001" value="0"></div></div>'+
+    '<div class="actions"><button class="btn" type="button" id="r-calc">Calculate hypothetical position</button></div>'+
+    '<div id="r-out" class="v11-feature-grid" aria-live="polite"></div>')+
+   panel('Risk constraints','<p>The share count respects the smaller of your maximum loss and a 1× cash-equivalent exposure cap. Short selling requires additional margin/locate/borrow permissions not modeled. Stop orders can gap, slip or fail; the calculated loss is not guaranteed.</p>');
+  document.getElementById('r-calc').onclick=()=>{
+   const value=id=>n(document.getElementById(id).value);
+   const r=M.risk({account:value('r-account'),risk:value('r-risk'),
+    entry:value('r-entry'),stop:value('r-stop'),target:value('r-target'),
+    spread:value('r-spread'),slippage:value('r-slip'),
+    direction:document.getElementById('r-side').value});
+   if(!r.ok){drawMetrics('r-out',[]);return status(r.reason,'error')}
+   drawMetrics('r-out',[['Risk/share',money(r.perShare)],['Shares',r.shares.toLocaleString()],
+    ['Exposure',money(r.exposure)],['Account exposure',r.accountPct.toFixed(1)+'%'],
+    ['Target R:R',r.targetR==null?'—':r.targetR.toFixed(2)+'R'],
+    ['Worst planned loss (before unmodeled events)',money(r.plannedLoss)],
+    ['Binding constraint',r.bindingLimit.replaceAll('_',' ')]]);
+   status('Hypothetical risk calculation; no broker execution or historical market data.','success');
+  };
+ }
+ function renderFloat(){
+  document.getElementById('tool-workbench').innerHTML=
+   panel('Float & Supply','<div class="v11-form-grid">'+
+    '<div><label for="f-float">Float shares</label><input id="f-float" type="number" min="1"></div>'+
+    '<div><label for="f-out">Shares outstanding</label><input id="f-out" type="number" min="1"></div>'+
+    '<div><label for="f-vol">Session volume</label><input id="f-vol" type="number" min="0"></div>'+
+    '<div><label for="f-price">Price</label><input id="f-price" type="number" min="0.0001" step="0.0001"></div></div>'+
+    '<div class="actions"><button type="button" class="btn" id="f-calc">Analyze</button></div>'+
+    '<div id="f-outbox" class="v11-feature-grid" aria-live="polite"></div>')+
+   panel('Data provenance','<p>Float and outstanding shares must come from dated, credible disclosures. Turnover does not establish a squeeze, actual short interest, executed order flow, or unrestricted float availability.</p>');
+  document.getElementById('f-calc').onclick=()=>{
+   const value=id=>n(document.getElementById(id).value);
+   const r=M.supply({floatShares:value('f-float'),outstanding:value('f-out'),
+    volume:value('f-vol'),price:value('f-price')});
+   if(!r.ok){drawMetrics('f-outbox',[]);return status(r.reason,'error')}
+   drawMetrics('f-outbox',[['Float turnover',r.turnover.toFixed(2)+'×'],
+    ['Float % of outstanding',r.floatPct.toFixed(1)+'%'],
+    ['Approximate market cap',money(r.marketCap)],['Approximate float value',money(r.floatValue)]]);
+   status('Illustrative float ratios from your inputs; verify source filing dates.','success');
+  };
+ }
+ function renderLiquidity(){
+  document.getElementById('tool-workbench').innerHTML=
+   panel('Liquidity & Spread','<div class="v11-form-grid">'+
+    '<div><label for="l-bid">Bid</label><input id="l-bid" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="l-ask">Ask</label><input id="l-ask" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="l-sh">Whole shares</label><input id="l-sh" type="number" min="1" step="1" value="100"></div>'+
+    '<div><label for="l-stop">Optional planned stop distance / share</label><input id="l-stop" type="number" min="0.0001" step="0.0001"></div></div>'+
+    '<div class="actions"><button type="button" class="btn" id="l-calc">Analyze hypothetical spread</button></div>'+
+    '<div id="l-out" class="v11-feature-grid" aria-live="polite"></div>')+
+   panel('Quote limitations','<p>This uses one bid/ask snapshot; actual order fills may face size constraints, changing quotes, fees, slippage and market impact. Invalid and inverted quotes are rejected.</p>');
+  document.getElementById('l-calc').onclick=()=>{
+   const value=id=>n(document.getElementById(id).value);
+   const r=M.liquidity({bid:value('l-bid'),ask:value('l-ask'),
+    shares:value('l-sh'),stopDistance:value('l-stop')});
+   if(!r.ok){drawMetrics('l-out',[]);return status(r.reason,'error')}
+   drawMetrics('l-out',[['Quoted spread',money(r.spread)],
+    ['Spread as % of midpoint',r.spreadPct.toFixed(2)+'%'],
+    ['One-spread cost',money(r.oneSpreadCost)],
+    ['Spread vs planned stop-risk',r.vsRiskPct==null?'—':r.vsRiskPct.toFixed(1)+'%']]);
+   status('One quote snapshot only; no verified depth or order fill.','success');
+  };
+ }
+ function renderExecution(){
+  document.getElementById('tool-workbench').innerHTML=
+   panel('Execution Cost Model','<div class="v11-form-grid">'+
+    '<div><label for="e-dec">Decision price</label><input id="e-dec" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="e-fill">Observed hypothetical fill</label><input id="e-fill" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="e-sh">Whole shares</label><input id="e-sh" type="number" min="1" step="1" value="100"></div>'+
+    '<div><label for="e-dir">Direction</label><select id="e-dir"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>'+
+    '<div><label for="e-bid">Optional bid</label><input id="e-bid" type="number" min="0.0001" step="0.0001"></div>'+
+    '<div><label for="e-ask">Optional ask</label><input id="e-ask" type="number" min="0.0001" step="0.0001"></div></div>'+
+    '<div class="actions"><button type="button" class="btn" id="e-calc">Measure execution difference</button></div>'+
+    '<div id="e-out" class="v11-feature-grid" aria-live="polite"></div>')+
+   panel('Order-type decision prompts','<ul><li><strong>Market:</strong> execution priority, no price certainty.</li><li><strong>Limit:</strong> price boundary, no fill guarantee.</li><li><strong>Stop:</strong> trigger plus potential slippage.</li><li><strong>Stop-limit:</strong> price protection can prevent execution.</li></ul><p>This model compares entered values; it does not generate verified broker fills, partial fills, commissions or borrow costs.</p>');
+  document.getElementById('e-calc').onclick=()=>{
+   const value=id=>n(document.getElementById(id).value);
+   const r=M.execution({decision:value('e-dec'),fill:value('e-fill'),
+    shares:value('e-sh'),direction:document.getElementById('e-dir').value,
+    bid:value('e-bid'),ask:value('e-ask')});
+   if(!r.ok){drawMetrics('e-out',[]);return status(r.reason,'error')}
+   drawMetrics('e-out',[['Slippage / share',money(r.slippagePerShare)],
+    ['Signed slippage cost',money(r.signedCost)],
+    ['Quoted spread',r.quotedSpread==null?'—':money(r.quotedSpread)],
+    ['Difference',r.slippagePerShare>0?'Unfavorable':r.slippagePerShare<0?'Favorable':'At decision price']]);
+   status('Hypothetical entered comparison; not a broker-confirmed fill.','success');
+  };
+ }
  function universeWorkbench(scannerOnly=false){document.getElementById('tool-workbench').innerHTML=panel(scannerOnly?'Historical Scanner Builder':'Market Discovery Lab',`<p>Upload a candidate-universe CSV. Suggested columns: <code>symbol,price,change_pct,gap_pct,volume,rvol,float,spread_pct,dollar_volume</code>.</p><input id="u-file" type="file" accept=".csv,text/csv"><div class="v11-form-grid"><div><label>Max price</label><input id="u-maxprice" type="number" value="20"></div><div><label>Min % change</label><input id="u-change" type="number" value="10"></div><div><label>Min volume</label><input id="u-vol" type="number" value="1000000"></div><div><label>Min RVOL</label><input id="u-rvol" type="number" value="2"></div><div><label>Max float</label><input id="u-float" type="number" value="15000000"></div><div><label>Max spread %</label><input id="u-spread" type="number" value="3"></div></div><div class="actions"><button id="u-run" class="btn">${scannerOnly?'Run Scanner':'Rank Candidates'}</button><button id="u-save" class="btn secondary">Save Filter Set</button></div><div id="u-results"></div>`)+panel('Teaching objective','<p>The score is a transparent educational ranking—not a trade alert. The learner should explain why each candidate qualifies, what evidence is missing, and what would invalidate interest.</p>');let rows=[];document.getElementById('u-file').onchange=async e=>{rows=parseCsv(await e.target.files[0].text());status(`Loaded ${rows.length} candidate rows.`,'success')};const getFilters=()=>({maxPrice:n(document.getElementById('u-maxprice').value),minChange:n(document.getElementById('u-change').value),minVol:n(document.getElementById('u-vol').value),minRvol:n(document.getElementById('u-rvol').value),maxFloat:n(document.getElementById('u-float').value),maxSpread:n(document.getElementById('u-spread').value)});document.getElementById('u-run').onclick=()=>{if(!rows.length)return status('Load a universe CSV first.','error');const f=getFilters();const out=rows.map(r=>{const price=n(r.price),chg=n(r.change_pct??r.change),vol=n(r.volume),rv=n(r.rvol),fl=n(r.float),sp=n(r.spread_pct??r.spread),gap=n(r.gap_pct??r.gap);const pass=(f.maxPrice==null||price<=f.maxPrice)&&(f.minChange==null||chg>=f.minChange)&&(f.minVol==null||vol>=f.minVol)&&(f.minRvol==null||rv>=f.minRvol)&&(f.maxFloat==null||fl<=f.maxFloat)&&(f.maxSpread==null||sp<=f.maxSpread);const score=(chg||0)*.35+(rv||0)*4+(gap||0)*.15+Math.log10(Math.max(1,vol||1))*2-(sp||0)*2-(fl?Math.log10(fl)*.8:0);return {...r,_price:price,_chg:chg,_vol:vol,_rv:rv,_fl:fl,_sp:sp,_score:score,_pass:pass}}).filter(r=>r._pass).sort((a,b)=>b._score-a._score).slice(0,100);document.getElementById('u-results').innerHTML=`<div class="v11-matrix"><table><thead><tr><th>Symbol</th><th>Price</th><th>% Chg</th><th>Volume</th><th>RVOL</th><th>Float</th><th>Spread %</th><th>Teaching Score</th></tr></thead><tbody>${out.map(r=>`<tr><td>${esc(r.symbol||r.ticker||'')}</td><td>${r._price??'—'}</td><td>${r._chg??'—'}</td><td>${r._vol?.toLocaleString?.()??'—'}</td><td>${r._rv??'—'}</td><td>${r._fl?.toLocaleString?.()??'—'}</td><td>${r._sp??'—'}</td><td>${r._score.toFixed(1)}</td></tr>`).join('')}</tbody></table></div>`};document.getElementById('u-save').onclick=async()=>{try{await saveRecord('filter_set',scannerOnly?'Scanner Filter Set':'Discovery Filter Set',getFilters());status('Filter set saved.','success')}catch(e){status(e.message,'error')}}}
  async function renderWatchlist(){const recs=await latestRecords('watchlist');document.getElementById('tool-workbench').innerHTML=panel('Watchlist & Trade-Plan Workbench',`<div class="v11-form-grid"><div><label>Ticker</label><input id="w-ticker"></div><div><label>Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div><div><label>Catalyst</label><input id="w-cat"></div><div><label>Key level / HOD / resistance</label><input id="w-level"></div><div><label>Entry condition</label><input id="w-entry"></div><div><label>Invalidation</label><input id="w-inv"></div><div><label>Stop</label><input id="w-stop"></div><div><label>Target</label><input id="w-target"></div></div><label>Why this deserves attention</label><textarea id="w-why" rows="3"></textarea><div class="actions"><button class="btn" id="w-save">Save Candidate</button></div>`)+panel('Saved candidates',`<div id="w-list">${recs.length?recs.map(r=>`<div class="v11-feature available"><span class="v11-feature-mark">${esc(r.payload?.status||'WATCH')}</span><div><strong>${esc(r.title||'')}</strong><small>${esc(r.payload?.entry||'')} · Invalidation: ${esc(r.payload?.invalidation||'')}</small></div></div>`).join(''):'<p class="small">No saved candidates yet.</p>'}</div>`);document.getElementById('w-save').onclick=async()=>{const ticker=document.getElementById('w-ticker').value.trim().toUpperCase();if(!ticker)return status('Ticker required.','error');const payload={status:document.getElementById('w-status').value,catalyst:document.getElementById('w-cat').value,level:document.getElementById('w-level').value,entry:document.getElementById('w-entry').value,invalidation:document.getElementById('w-inv').value,stop:document.getElementById('w-stop').value,target:document.getElementById('w-target').value,why:document.getElementById('w-why').value};await saveRecord('watchlist',ticker,payload);status('Candidate saved.','success');renderWatchlist()}}
  function renderCatalyst(){document.getElementById('tool-workbench').innerHTML=panel('Catalyst & Filing Research',`<div class="v11-form-grid"><div><label>Ticker</label><input id="c-ticker" placeholder="AAPL"></div><div><label>Catalyst category</label><select id="c-type"><option>Earnings</option><option>8-K / Corporate Event</option><option>Offering / Financing</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Merger / Acquisition</option><option>Split / Reverse Split</option><option>Other</option></select></div><div><label>Source URL</label><input id="c-url" type="url"></div><div><label>Source timestamp</label><input id="c-time" type="datetime-local"></div></div><label>What does the source actually say?</label><textarea id="c-fact" rows="4"></textarea><label>What is inference / uncertainty?</label><textarea id="c-unc" rows="3"></textarea><div class="actions"><button class="btn" id="c-save">Save Research Note</button><a class="btn secondary" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">Open SEC EDGAR</a></div>`)+panel('Research standard','<p>Separate verified fact from interpretation. Confirm the original source, timestamp, financing/dilution implications, and whether the catalyst was already known before the observed price move.</p>');document.getElementById('c-save').onclick=async()=>{const t=document.getElementById('c-ticker').value.trim().toUpperCase();if(!t)return status('Ticker required.','error');await saveRecord('catalyst',t,{category:document.getElementById('c-type').value,url:document.getElementById('c-url').value,timestamp:document.getElementById('c-time').value,fact:document.getElementById('c-fact').value,uncertainty:document.getElementById('c-unc').value});status('Research note saved.','success')}}
