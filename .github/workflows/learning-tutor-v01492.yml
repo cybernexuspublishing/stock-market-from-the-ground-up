@@ -27,6 +27,10 @@ on:
       - 'tests/test_v014102_member_tutor_history.mjs'
       - 'tests/test_v014102_tutor_ai_consent.mjs'
       - 'market-tutor.html'
+      - 'functions/_lib/forum-request-guards-v014105.js'
+      - 'tests/test_v014105_forum_security.mjs'
+      - 'tests/test_v014105_reviewed_knowledge_bridge.mjs'
+      - 'supabase/migrations/v0.14.0.105_REVIEWED_KNOWLEDGE_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
@@ -102,6 +106,10 @@ on:
       - 'tests/test_v014102_member_tutor_history.mjs'
       - 'tests/test_v014102_tutor_ai_consent.mjs'
       - 'market-tutor.html'
+      - 'functions/_lib/forum-request-guards-v014105.js'
+      - 'tests/test_v014105_forum_security.mjs'
+      - 'tests/test_v014105_reviewed_knowledge_bridge.mjs'
+      - 'supabase/migrations/v0.14.0.105_REVIEWED_KNOWLEDGE_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
@@ -189,6 +197,13 @@ jobs:
           node --check assets/js/market-tutor.js
           node --check functions/_lib/first-party-ai-service-v014103.js
           node --check functions/api/member-ai-service-v014103.js
+          node --check functions/_lib/forum-request-guards-v014105.js
+          node --check functions/api/forum-member-content.js
+          node --check functions/api/admin-forum-actions.js
+          node --check functions/api/commons-report.js
+          node --check functions/api/training-editor.js
+          node --check assets/js/training-editor.js
+          node --check assets/js/skills.js
           node --check functions/api/owner-roadmap.js
           node --check functions/api/member-tutor-history-v014102.js
           node --check functions/_lib/tutor-response-scaffold-v014102.js
@@ -200,6 +215,10 @@ jobs:
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs
           node tests/test_v014104_owner_ai_operations.mjs
+          node tests/test_v014105_forum_security.mjs
+          node tests/test_v014105_reviewed_knowledge_bridge.mjs
+          node tests/v01407_forum_security_regression.mjs
+          node tests/v01415_community_api.mjs
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
