@@ -256,6 +256,7 @@ export async function onRequest(context){
         el.append('<meta name="application-version" content="v0.14.0.14">',{html:true});
         el.append('<meta name="theme-color" content="#061827">',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
+        el.append('<link rel="icon" href="/assets/icons/ground-up-mark.svg" type="image/svg+xml">',{html:true});
         for(const file of [
           'platform.css','production.css','frontend-complete.css',
           'production-completion.css','dashboard.css',
