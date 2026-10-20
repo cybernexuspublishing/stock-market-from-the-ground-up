@@ -1,0 +1,63 @@
+name: Signed Stripe Billing Notice Reliability v0.14.0.123
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/internal-billing-notices-v014123.js'
+      - 'workers/billing-notices-v014123.js'
+      - 'functions/api/stripe-live-webhook-v01458.js'
+      - 'supabase/migrations/v0.14.0.123_BILLING_OUTBOX_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014123_*'
+      - 'tests/test_v014123_billing_notice_worker.mjs'
+      - '.github/workflows/billing-lifecycle-v014123.yml'
+  pull_request:
+    paths:
+      - 'functions/api/internal-billing-notices-v014123.js'
+      - 'workers/billing-notices-v014123.js'
+      - 'functions/api/stripe-live-webhook-v01458.js'
+      - 'supabase/migrations/v0.14.0.123_BILLING_OUTBOX_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014123_*'
+      - 'tests/test_v014123_billing_notice_worker.mjs'
+      - '.github/workflows/billing-lifecycle-v014123.yml'
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check functions/api/internal-billing-notices-v014123.js
+          node --check workers/billing-notices-v014123.js
+          node --check functions/api/stripe-live-webhook-v01458.js
+          node tests/test_v014123_billing_notice_worker.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/workers
+  isolated-real-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: billing_v123}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d billing_v123"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: billing_v123
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014123_billing_lifecycle_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.123_BILLING_OUTBOX_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014123_billing_lifecycle_acceptance.sql

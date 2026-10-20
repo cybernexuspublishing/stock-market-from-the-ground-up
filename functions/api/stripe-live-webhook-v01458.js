@@ -121,7 +121,7 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
   }
   return null;
  }
- if(['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted'].includes(e.type)){
+ if(['invoice.paid','invoice.payment_failed','invoice.payment_action_required','customer.subscription.updated','customer.subscription.deleted','customer.subscription.paused','customer.subscription.resumed'].includes(e.type)){
   let id;if(e.type.startsWith('invoice.')){
     if(!ident(obj.id,'in'))throw Error('invoice:id');
     const iv=await getStripe(c,'invoices/'+encodeURIComponent(obj.id));
@@ -135,9 +135,9 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
   // Event-type semantics are authoritative for invoice failures. Never turn a
   // failed-payment notification into a grant because a later invoice is paid.
   // Ignore stale/non-latest invoices rather than revoking a newer paid period.
-  if(e.type==='invoice.paid'||e.type==='invoice.payment_failed'){
+  if(['invoice.paid','invoice.payment_failed','invoice.payment_action_required'].includes(e.type)){
    if(!ss.latest||ss.latest.id!==obj.id)return null;
-   if(e.type==='invoice.payment_failed'){
+   if(e.type==='invoice.payment_failed'||e.type==='invoice.payment_action_required'){
     if(ss.latest.status==='paid')return null;
     x.p_action='subscription_past_due';return x;
    }
