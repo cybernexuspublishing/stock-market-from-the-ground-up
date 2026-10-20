@@ -25,17 +25,22 @@ export async function onRequest({request,env}){
   if(request.method==='GET'){
    const type=url.searchParams.get('type')||'';
    if(type&&!types.has(type))throw fail('Unknown workspace record type.');
+   const offset=Number(url.searchParams.get('offset')||0);
+   if(!Number.isSafeInteger(offset)||offset<0||offset>10000)throw fail('Invalid page offset.');
    const query=base+'?select=id,tool_code,record_type,title,payload,created_at,updated_at&'+identity+
-    (type?'&record_type=eq.'+encodeURIComponent(type):'')+'&order=updated_at.desc,id.desc&limit=100';
+    (type?'&record_type=eq.'+encodeURIComponent(type):'')+'&order=updated_at.desc,id.desc&limit=100&offset='+offset;
    const rows=await privateJson(auth.c,query);
    if(!Array.isArray(rows)||rows.length>100)throw fail('Private workspace results are unavailable.',503);
-   return out({ok:true,records:rows,limit:100,tool:code});
+   return out({ok:true,records:rows,limit:100,offset,hasMore:rows.length===100,tool:code});
   }
   if(request.method==='DELETE'){
-   const id=url.searchParams.get('id')||'';
-   if(!safeId(id))throw fail('Valid record ID required.');
-   await privateJson(auth.c,base+'?id=eq.'+id+'&'+identity,'DELETE',undefined,'return=minimal');
-   return out({ok:true,deleted:true,tool:code});
+   const id=url.searchParams.get('id')||'',all=url.searchParams.get('all')==='true';
+   if(all&&request.headers.get('x-confirm-delete')!=='DELETE_MY_TOOL_WORKSPACE')
+    throw fail('Explicit deletion confirmation required.');
+   if(!all&&!safeId(id))throw fail('Valid record ID required.');
+   await privateJson(auth.c,base+'?'+(all?'':'id=eq.'+id+'&')+identity,
+    'DELETE',undefined,'return=minimal');
+   return out({ok:true,deleted:true,tool:code,all});
   }
   const indicated=Number(request.headers.get('content-length')||0);
   if(!Number.isFinite(indicated)||indicated>16000)throw fail('Workspace payload too large.',413);
