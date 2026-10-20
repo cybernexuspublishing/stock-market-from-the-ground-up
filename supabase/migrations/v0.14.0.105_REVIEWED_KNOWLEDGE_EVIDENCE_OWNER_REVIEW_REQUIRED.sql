@@ -522,6 +522,16 @@ BEGIN
  AND s.review_state='reviewed' AND s.reviewed_by IS NOT NULL AND s.reviewed_at IS NOT NULL;
  IF NOT FOUND THEN RETURN jsonb_build_object('ok',false,'reason','rubric_not_individually_reviewed'); END IF;
  PERFORM pg_advisory_xact_lock(hashtextextended(p_lab,140105));
+ -- Once a member's genuine quiz score has been attributed to a competency,
+ -- do not silently reclassify historic evidence to another skill.
+ IF EXISTS(
+  SELECT 1 FROM public.gu_lab_competency_knowledge_map_v014105 m
+  JOIN public.competency_evidence e ON e.competency_code=m.competency_code
+  WHERE m.lab_id=p_lab AND m.competency_code<>p_competency
+    AND e.source_type='quiz' AND e.dimension='knowledge'
+    AND e.metadata->>'lab_id'=p_lab
+    AND e.metadata->>'evidence_kind'='reviewed_conceptual_quiz'
+ ) THEN RETURN jsonb_build_object('ok',false,'reason','existing_evidence_requires_manual_reclassification'); END IF;
  UPDATE public.gu_lab_competency_knowledge_map_v014105
  SET competency_code=p_competency,review_state='approved',
  rubric_version=p_rubric,reviewed_by=p_actor,reviewed_at=now(),updated_at=now()
