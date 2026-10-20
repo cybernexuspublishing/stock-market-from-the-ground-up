@@ -220,7 +220,7 @@ BEGIN
   canonical_decision,direction_value,CASE WHEN m.metadata->>'original_synthetic'='true' THEN 'Original fictional simulation' ELSE 'Historical replay' END,
   CASE WHEN m.metadata->>'original_synthetic'='true'
     THEN 'Original fictional replay ('||s.dataset_code||')'
-    ELSE 'Verified historical replay ('||s.dataset_code||')' END',
+    ELSE 'Verified historical replay ('||s.dataset_code||')' END,
   s.reasoning,
   CASE WHEN m.metadata->>'original_synthetic'='true'
     THEN 'ORIGINAL FICTIONAL SIMULATION. No actual stock, market event, historical price, brokerage fill or verified outcome. Invented observation at '
@@ -242,7 +242,7 @@ BEGIN
     'session_label',CASE WHEN m.metadata->>'original_synthetic'='true' THEN 'Original fictional simulation' ELSE 'Historical replay' END,
     'setup',CASE WHEN m.metadata->>'original_synthetic'='true'
     THEN 'Original fictional replay ('||s.dataset_code||')'
-    ELSE 'Verified historical replay ('||s.dataset_code||')' END',
+    ELSE 'Verified historical replay ('||s.dataset_code||')' END,
     'decision',canonical_decision,'evidence',s.reasoning,
     'market_context',CASE WHEN m.metadata->>'original_synthetic'='true'
        THEN 'ORIGINAL FICTIONAL OHLCV simulation, no real feed, historical market event or fill'
