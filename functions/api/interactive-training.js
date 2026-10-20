@@ -3,7 +3,7 @@
  * All answer keys and attempts remain in service-role-only tables.
  */
 import {toolAccess} from './member-tool-access.js';
-import {getBookAccess} from './lab-content.js';
+import {getBookAccess,getBookCodeAccess} from './lab-content.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -18,12 +18,22 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const publicSamples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 async function requireMatchingBook(env,request,labId){
  const rows=await db(env,'lab_instruction_v014?select=book_number&lab_id=eq.'+esc(labId)+'&limit=1');
- const book=Number(rows[0]?.book_number);
- if(!Number.isInteger(book)||book<1||book>3)throw fail('This reviewed lesson is not available in the authorized book catalog.',404);
- if(!publicSamples.has(labId)&&!(await getBookAccess(env,request,book)))throw fail('An active matching book entitlement is required for this book-authored assessment.',403);
- return book;
+ const book=rows[0]?Number(rows[0].book_number):null;
+ if(Number.isInteger(book)&&book>=1&&book<=3){
+  if(!publicSamples.has(labId)&&!(await getBookAccess(env,request,book)))throw fail('An active matching book entitlement is required for this book-authored assessment.',403);
+  return 'FOUNDATION_BOOK_'+book;
+ }
+ const published=await db(env,'platform_labs?select=lab_id,book_code,active,registry_visible&lab_id=eq.'+esc(labId)+'&limit=1');
+ const lab=published[0];
+ if(!lab||lab.active!==true||lab.registry_visible!==true)throw fail('This Lab is not in the released registry.',404);
+ if(['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(lab.book_code)){
+  if(!(await getBookCodeAccess(env,request,lab.book_code)))throw fail('An active matching book entitlement is required for this assessment.',403);
+  return lab.book_code;
+ }
+ if(lab.book_code==='SITE_EXCLUSIVE')return lab.book_code;
+ throw fail('Unknown or unapproved Lab collection.',403);
 }
-function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:set.questions[step].options||[]}:null,report:attempt.completed_at?attempt.report:null,sourceStatus:set.source_status,note:'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
+function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:set.questions[step].options||[]}:null,report:attempt.completed_at?attempt.report:null,sourceStatus:set.source_status,note:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical instructional assessment. Its invented numbers are NOT historical or actual market observations.':'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
 export async function onRequest({request,env}){try{
  const acl=await toolAccess(env,request,'ONDEMAND_TRAINING');if(!acl.authorized)return reply({ok:false,error:acl.reason},403);
  const u=new URL(request.url),action=u.searchParams.get('action')||'';

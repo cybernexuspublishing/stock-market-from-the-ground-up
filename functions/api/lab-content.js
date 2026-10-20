@@ -5,14 +5,17 @@ import {toolAccess} from './member-tool-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
-async function rest(env,path){const c=cfg(env),r=await fetch(c.base+'/rest/v1/'+path,{headers:{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('Private Lab content is unavailable; verify the manual Owner seed.');return r.json()}
+async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;const r=await fetch(c.base+'/rest/v1/'+path,{headers,cache:'no-store'});if(!r.ok)throw new Error('Private Lab content is unavailable; verify the manual Owner seed.');return r.json()}
 const bookCode=b=>'FOUNDATION_BOOK_'+Number(b);
-export async function getBookAccess(env,req,book){const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)return false;const c=cfg(env),identity=await fetch(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token},cache:'no-store'});if(!identity.ok)return false;const id=(await identity.json()).id;if(!id)return false;const p=await rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(id)+'&limit=1');if(p[0]?.account_kind!=='member')return false;
+export async function getBookAccess(env,req,book){return getBookCodeAccess(env,req,bookCode(book));}
+export async function getBookCodeAccess(env,req,productCode){
+ if(!['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(productCode))return false;
+const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)return false;const c=cfg(env),identity=await fetch(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token},cache:'no-store'});if(!identity.ok)return false;const id=(await identity.json()).id;if(!id)return false;const p=await rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(id)+'&limit=1');if(p[0]?.account_kind!=='member')return false;
  const flags=await rest(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(id)+'&limit=1');
  if(['suspended','restricted'].includes(flags[0]?.status))return false;
  const [library,redeemed,grants,subscriptions,roles]=await Promise.all([
- rest(env,'user_library?select=product_code,expires_at&user_id=eq.'+encodeURIComponent(id)+'&product_code=eq.'+bookCode(book)+'&limit=20'),
- rest(env,'book_key_redemptions?select=book_code,starts_at,ends_at&user_id=eq.'+encodeURIComponent(id)+'&book_code=eq.'+bookCode(book)+'&limit=20'),
+ rest(env,'user_library?select=product_code,expires_at&user_id=eq.'+encodeURIComponent(id)+'&product_code=eq.'+productCode+'&limit=20'),
+ rest(env,'book_key_redemptions?select=book_code,starts_at,ends_at&user_id=eq.'+encodeURIComponent(id)+'&book_code=eq.'+productCode+'&limit=20'),
  rest(env,'user_plan_grants?select=plan_code,status,starts_at,ends_at,platform_plans!inner(includes_all_books)&user_id=eq.'+encodeURIComponent(id)+'&limit=25'),
  rest(env,'site_subscriptions?select=plan_code,status,current_period_end,platform_plans!inner(includes_all_books)&user_id=eq.'+encodeURIComponent(id)+'&limit=25'),
  rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(id))
