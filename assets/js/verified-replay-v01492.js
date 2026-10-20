@@ -149,10 +149,14 @@ async function advance(){
  if(r.execution){
   $('vr-execution').hidden=false;
   const x=r.execution,filled=x.state==='ESTIMATED';
-  $('vr-execution').textContent=filled?
-   'Hypothetical next-bar '+String(x.state)+': '+x.quantity+
-   ' share(s) at '+Number(x.price).toFixed(4)+
-   ', modeled fees 
+  const output=$('vr-execution');
+  output.textContent=filled?
+   'Hypothetical next-bar '+String(x.state)+': '+Number(x.quantity)+' share(s) at '+
+   Number(x.price).toFixed(4)+', modeled fees USD '+Number(x.fees||0).toFixed(2)+
+   ', estimated adverse friction USD '+Number(x.totalEstimatedFriction||0).toFixed(2)+
+   '. '+String(x.assumption||'No real order was placed.'):
+   'No market fill is asserted ('+String(x.state||'unknown')+'). '+
+   String(x.assumption||'The observed bar cannot prove executable price or volume.');
  }
  notice('Bar '+cursor+' revealed. Future data remain server-side.');renderState();
 }
