@@ -69,8 +69,20 @@ async function call(fn){
 }
 function orderPlan(){
  const side=$('vr-side').value;if(!side)return null;
- const type=$('vr-type').value,quantity=Number($('vr-quantity').value),price=Number($('vr-limit').value);
- const plan={side,type,quantity,slippageBps:0,spreadBps:0,fees:0};
+ const type=$('vr-type').value;
+ const quantity=Number($('vr-quantity').value);
+ const priceText=$('vr-limit').value.trim(),price=priceText?Number(priceText):null;
+ const readCost=id=>{const value=$(id).value.trim();return value===''?NaN:Number(value)};
+ const slippageBps=readCost('vr-slippage'),spreadBps=readCost('vr-spread'),fees=readCost('vr-fees');
+ if(!['BUY','SELL'].includes(side)||!['MARKET','LIMIT','STOP'].includes(type)||
+   !Number.isSafeInteger(quantity)||quantity<1||quantity>1000000)
+  throw Error('Choose a BUY/SELL order type and 1–1,000,000 whole shares.');
+ if(![slippageBps,spreadBps,fees].every(Number.isFinite)||
+   slippageBps<0||slippageBps>2000||spreadBps<0||spreadBps>2000||fees<0||fees>100000)
+  throw Error('Spread and slippage must be 0–2,000 basis points; fees must be between $0 and $100,000.');
+ if(type!=='MARKET'&&(!Number.isFinite(price)||price<=0))
+  throw Error('Enter a positive limit or stop activation price.');
+ const plan={side,type,quantity,slippageBps,spreadBps,fees};
  if(type==='LIMIT')plan.limitPrice=price;
  if(type==='STOP')plan.stopPrice=price;
  return plan;
@@ -136,7 +148,15 @@ async function advance(){
  cursor=r.currentIndex;addBar(r.bar);
  if(r.execution){
   $('vr-execution').hidden=false;
-  $('vr-execution').textContent=JSON.stringify(r.execution);
+  const x=r.execution,filled=x.state==='ESTIMATED';
+  const output=$('vr-execution');
+  output.textContent=filled?
+   'Hypothetical next-bar '+String(x.state)+': '+Number(x.quantity)+' share(s) at '+
+   Number(x.price).toFixed(4)+', modeled fees USD '+Number(x.fees||0).toFixed(2)+
+   ', estimated adverse friction USD '+Number(x.totalEstimatedFriction||0).toFixed(2)+
+   '. '+String(x.assumption||'No real order was placed.'):
+   'No market fill is asserted ('+String(x.state||'unknown')+'). '+
+   String(x.assumption||'The observed bar cannot prove executable price or volume.');
  }
  notice('Bar '+cursor+' revealed. Future data remain server-side.');renderState();
 }
@@ -168,5 +188,14 @@ async function init(){
  $('vr-advance').addEventListener('click',()=>call(advance));
  $('vr-finish').addEventListener('click',()=>call(finish));
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+/* The embedded server panel initializes only when its mode is visible.
+ * Standalone verified-replay.html preserves eager startup.
+ */
+let initialized=false;
+function startOnce(){if(initialized)return;initialized=true;void init();}
+if(document.getElementById('sim-server-mode')){
+ window.addEventListener('groundup:activate-server-replay',startOnce);
+}else if(document.readyState==='loading'){
+ document.addEventListener('DOMContentLoaded',startOnce,{once:true});
+}else startOnce();
 })();

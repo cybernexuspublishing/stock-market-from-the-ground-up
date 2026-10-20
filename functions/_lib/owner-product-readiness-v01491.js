@@ -7,6 +7,11 @@ export const ownerProductReadinessV01491=Object.freeze({
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
   "acceptanceGates":   [
     {
+      "title": "Market Simulator — server-first unified experience",
+      "state": "source_implemented_pending_live_data_acceptance",
+      "gate": "v112 consolidated authenticated server replay in Simulator page, with default rights-cleared server source and optional ungraded CSV. Market/limit/stop next-bar estimates have configurable spread/slippage/fees; zero real licensed datasets confirmed, independent live access, historical data, Journal linkage and execution QA pending."
+    },
+    {
       "title": "Four core beta calculators — validated math + market disclaimers",
       "state": "source_implemented_pending_independent_qa",
       "gate": "v111 unit-tested long/short risk cap, Float/Supply, Liquidity/Spread and Execution Lab math; invalid data rejected, cost/market-source limitations disclosed. Real broker execution, short locate, current licensed quote provenance, finance SME review and browser acceptance pending."
@@ -14,7 +19,7 @@ export const ownerProductReadinessV01491=Object.freeze({
     {
       "title": "All 16 beta tools — authorized access and workspace privileges",
       "state": "source_implemented_pending_owner_sql",
-      "gate": "v110 server-only member token, account flags, current entitlement and free-preview rights for all 16 beta tools; scoped member save/read/export/delete. New v110 SQL revoking direct client workspace permissions is NOT yet owner-reported installed; live negative-role, data-leak and page-access QA remain open."
+      "gate": "v110 server-only authorization and member-scoped workspace save/read/export/delete implemented for all 16 beta tools. Owner reports successful v110 privilege-lockdown SQL execution on October 20; backend role matrix, legacy direct REST denial, cross-member isolation and deployed Browser QA remain UNVERIFIED."
     },
     {
       "title": "AI Tutor — source and curriculum",
@@ -107,6 +112,13 @@ export const ownerProductReadinessV01491=Object.freeze({
       "gate": "Restore drills, uptime alerts, automated operational workers and billing alert thresholds remain independently unverified."
     }
   ],
+  "marketSimulatorIntegrationMilestone": {
+    "version": "v0.14.0.112",
+    "sourceStatus": "server_first_interface_integrated_browser_practice_retained",
+    "details": "One Market Simulator page now embeds the existing authenticated forward-only verified replay workbench as default; optional legacy CSV mode is lazily initialized only on member selection. Exposes server-mode market/limit/stop assumptions with configurable spread, slippage and fees. It does NOT recode the legacy client-side fills as real broker executions.",
+    "unresolved": ["licensed/published datasets", "proof replay SQL is installed", "complete forward-only end-to-end membership and no-lookahead tests", "v94 idempotent Journal finish RPC enabled/verified", "legacy browser price-history visibility remains ungraded", "provider market data licensing and corporate actions"],
+    "automaticOwnerApproval": false
+  },
   "calculationQualityMilestone": {
     "version": "v0.14.0.111",
     "sourceStatus": "four_beta_calculators_source_implemented",
@@ -116,8 +128,8 @@ export const ownerProductReadinessV01491=Object.freeze({
   },
   "accessControlMilestone": {
     "version": "v0.14.0.110",
-    "sourceStatus": "implemented_pending_existing_supabase_sql_and_live_acceptance",
-    "details": "All 16 beta workbench product codes now request authenticated server authorization rather than trusting my_platform_access and free_preview calculated in the browser. Workspaces are handled by a scoped server API for read, write, JSON export and delete. The companion v110 SQL migration MUST be applied to revoke legacy direct authenticated access to tool_workspace_records; a GitHub merge does not alter existing database grants.",
+    "sourceStatus": "owner_reported_sql_success_live_role_matrix_pending",
+    "details": "All 16 beta workbench product codes request authenticated server authorization; workspaces use server-scoped save, read, export and delete. On October 20, 2026 the Owner reported v110 SQL Editor Success. No rows returned for the direct authenticated workspace privilege revocation. Actual direct-REST negative-role, free-preview, paid and two-user checks are NOT independently verified.",
     "unresolved": ["SQL installed", "Free vs Full vs tool-specific entitlement production tests", "legacy browser access revoked", "real market source rights", "per-tool mathematical acceptance", "real device and screen-reader checks"],
     "automaticOwnerApproval": false
   },
@@ -153,7 +165,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "data-blocked",
       "roadmapId": "CORE-0218",
-      "gate": "Verify datasets, no-future-leakage, deterministic replay, order modeling and journal bridge."
+      "gate": "v112 Market Simulator page now defaults to authenticated server-controlled replay with strict Owner-published dataset rights, forward-only member cursor, locked first decision and next-bar model estimates. Browser CSV remains explicitly unverified, optional and ungraded. Live datasets, real fills, session-to-journal completion, account-type testing and mobile QA remain unverified."
     },
     {
       "code": "MARKET_TUTOR",
@@ -175,7 +187,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0218",
-      "gate": "Validate CSV imports, screening assumptions, rank explainability, stored records and access controls. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Validate CSV imports, screening assumptions, rank explainability, stored records and access controls. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "SCANNER_BUILDER",
@@ -186,7 +198,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0218",
-      "gate": "Validate scanner criteria on historical candidates and repeatable no-lookahead testing. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Validate scanner criteria on historical candidates and repeatable no-lookahead testing. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "WATCHLIST_WORKBENCH",
@@ -197,7 +209,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0220",
-      "gate": "Validate user-owned workspaces, plan state transitions, no-trade classifications and exports. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Validate user-owned workspaces, plan state transitions, no-trade classifications and exports. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "CATALYST_RESEARCH",
@@ -208,7 +220,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Require source provenance, filing timestamps, dilution and corporate-action checks. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Require source provenance, filing timestamps, dilution and corporate-action checks. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "FLOAT_SUPPLY_LAB",
@@ -219,7 +231,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
+      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "MARKET_STRUCTURE_LAB",
@@ -230,7 +242,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0207",
-      "gate": "Verify pivot interpretations, visually accurate teaching examples and no hindsight. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Verify pivot interpretations, visually accurate teaching examples and no hindsight. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "MULTI_TIMEFRAME_LAB",
@@ -241,7 +253,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Test time aggregation, corporate actions, timezone handling and future-bar boundaries. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Test time aggregation, corporate actions, timezone handling and future-bar boundaries. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "RISK_POSITION_LAB",
@@ -252,7 +264,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0221",
-      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
+      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "EXECUTION_LAB",
@@ -263,7 +275,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
+      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "LIQUIDITY_SPREAD_LAB",
@@ -274,7 +286,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
+      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "HALT_SSR_LAB",
@@ -285,7 +297,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0207",
-      "gate": "Use accurate exchange rules and reviewed halt/SSR scenarios; label hypothetical inputs. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Use accurate exchange rules and reviewed halt/SSR scenarios; label hypothetical inputs. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "PATTERN_FAILURE_LIBRARY",
@@ -296,7 +308,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "content-blocked",
       "roadmapId": "CORE-0207",
-      "gate": "Finish source-verified success/failure/no-trade examples with documented criteria. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Finish source-verified success/failure/no-trade examples with documented criteria. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "ORDER_FLOW_TAPE_LAB",
@@ -307,7 +319,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "data-blocked",
       "roadmapId": "CORE-0208",
-      "gate": "Require licensed synchronized quote/trade inputs; quote inference is not actual aggressor certainty. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Require licensed synchronized quote/trade inputs; quote inference is not actual aggressor certainty. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "MARKET_CONTEXT_LAB",
@@ -318,7 +330,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Verify session aggregation, sector/index context and source timestamps. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Verify session aggregation, sector/index context and source timestamps. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "TRADE_REVIEW_REPLAY",
@@ -329,7 +341,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "data-blocked",
       "roadmapId": "CORE-0220",
-      "gate": "Link replay sessions to genuine journal entries, source data and privacy protections. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Link replay sessions to genuine journal entries, source data and privacy protections. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "STRATEGY_VALIDATION",
@@ -340,7 +352,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0221",
-      "gate": "Test sample-size disclosures, expectancy, R distributions, missing data and outcome bias. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Test sample-size disclosures, expectancy, R distributions, missing data and outcome bias. v110: server-side access/workspace implemented, Owner-reported SQL lockdown successful; per-tool live authorization, negative-role and calculation acceptance remain pending."
     },
     {
       "code": "OPTIONS_LAB",
