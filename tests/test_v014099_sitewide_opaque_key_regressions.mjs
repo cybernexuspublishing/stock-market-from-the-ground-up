@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {onRequest as moderation} from '../functions/api/admin-forum-actions.js';
-import {onRequest as staging} from '../functions/api/stripe-customer-checkout-v01438.js';
+import {onRequestPost as staging} from '../functions/api/stripe-customer-checkout-v01438.js';
 const source=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
 const modules=['functions/api/admin-forum-actions.js','functions/api/admin-v0133.js',
  'functions/api/checkout-v0135.js','functions/api/stripe-customer-checkout-v01438.js'];
