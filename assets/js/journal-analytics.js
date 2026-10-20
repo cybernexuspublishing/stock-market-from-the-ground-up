@@ -86,6 +86,27 @@
    ['Plan adherence — recorded only',rate(s.planFollowedRate)],
    ['Plan adherence documented',s.planFollowedKnown]
   ])metric(process,name,val);
+  const b=result.breakdowns||{};
+  const lists=[['analytics-entry-reasons',b.entryReasons],['analytics-exit-reasons',b.exitReasons],
+   ['analytics-sessions',b.sessions],['analytics-mistakes',b.mistakes],
+   ['analytics-plan-adherence',b.planAdherence]];
+  for(const [name,items] of lists){
+   const host=$(name);host.replaceChildren();
+   for(const item of items||[]){
+    const li=document.createElement('li'),label=document.createElement('span'),count=document.createElement('strong');
+    label.textContent=item.label;count.textContent=String(item.count);li.append(label,count);host.append(li);
+   }
+   if(!host.children.length){const li=document.createElement('li');li.textContent='No recorded values.';host.append(li)}
+  }
+  const ext=b.exits||{},ex=b.excursion||{},exc=$('analytics-excursion');exc.replaceChildren();
+  for(const [label,value] of [
+   ['Comparable planned vs actual exits',ext.comparable??0],
+   ['Exact exit category match',rate(ext.percentMatch)],
+   ['Avg recorded MFE',ex.avgMfeR==null?'—':fmt(ex.avgMfeR)+'R'],
+   ['Avg recorded MAE',ex.avgMaeR==null?'—':fmt(ex.avgMaeR)+'R'],
+   ['Avg recorded MFE captured',rate(ex.avgMfeCapturePct)],
+   ['MFE / MAE sample count',(ex.mfeCount??0)+' / '+(ex.maeCount??0)]
+  ])metric(exc,label,value);
   $('analytics-status').textContent='Private analytics calculated from your recorded closed trades. '+
    (s.lowSample?'Small sample — interpret cautiously.':'Larger sample — still not a forecast.');
  }
