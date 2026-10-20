@@ -1,11 +1,16 @@
 /* v0.14.0.91 Owner-private planning estimates. No payment, grant, promotion or Owner checkboxes. */
 export const ownerProductReadinessV01491=Object.freeze({
   "version": "0.14.0.91",
-  "reviewedOn": "2026-10-19",
+  "reviewedOn": "2026-10-20",
   "basis": "Source inspection of main v0.14.0.90 plus Owner-supplied database audit of October 17; not live production QA.",
   "percentagePolicy": "Estimates are non-certifying ranges for planning only. Values do not rise automatically after commits, CI, publication or an Owner checkbox. Record review evidence first.",
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
   "acceptanceGates":   [
+    {
+      "title": "All 16 beta tools — authorized access and workspace privileges",
+      "state": "source_implemented_pending_owner_sql",
+      "gate": "v110 server-only member token, account flags, current entitlement and free-preview rights for all 16 beta tools; scoped member save/read/export/delete. New v110 SQL revoking direct client workspace permissions is NOT yet owner-reported installed; live negative-role, data-leak and page-access QA remain open."
+    },
     {
       "title": "AI Tutor — source and curriculum",
       "state": "source_implemented",
@@ -97,6 +102,13 @@ export const ownerProductReadinessV01491=Object.freeze({
       "gate": "Restore drills, uptime alerts, automated operational workers and billing alert thresholds remain independently unverified."
     }
   ],
+  "accessControlMilestone": {
+    "version": "v0.14.0.110",
+    "sourceStatus": "implemented_pending_existing_supabase_sql_and_live_acceptance",
+    "details": "All 16 beta workbench product codes now request authenticated server authorization rather than trusting my_platform_access and free_preview calculated in the browser. Workspaces are handled by a scoped server API for read, write, JSON export and delete. The companion v110 SQL migration MUST be applied to revoke legacy direct authenticated access to tool_workspace_records; a GitHub merge does not alter existing database grants.",
+    "unresolved": ["SQL installed", "Free vs Full vs tool-specific entitlement production tests", "legacy browser access revoked", "real market source rights", "per-tool mathematical acceptance", "real device and screen-reader checks"],
+    "automaticOwnerApproval": false
+  },
   "toolDefinitions": [
     {
       "code": "INTERACTIVE_LEARNING",
@@ -151,7 +163,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0218",
-      "gate": "Validate CSV imports, screening assumptions, rank explainability, stored records and access controls."
+      "gate": "Validate CSV imports, screening assumptions, rank explainability, stored records and access controls. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "SCANNER_BUILDER",
@@ -162,7 +174,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0218",
-      "gate": "Validate scanner criteria on historical candidates and repeatable no-lookahead testing."
+      "gate": "Validate scanner criteria on historical candidates and repeatable no-lookahead testing. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "WATCHLIST_WORKBENCH",
@@ -173,7 +185,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0220",
-      "gate": "Validate user-owned workspaces, plan state transitions, no-trade classifications and exports."
+      "gate": "Validate user-owned workspaces, plan state transitions, no-trade classifications and exports. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "CATALYST_RESEARCH",
@@ -184,7 +196,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Require source provenance, filing timestamps, dilution and corporate-action checks."
+      "gate": "Require source provenance, filing timestamps, dilution and corporate-action checks. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "FLOAT_SUPPLY_LAB",
@@ -195,7 +207,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples."
+      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "MARKET_STRUCTURE_LAB",
@@ -206,7 +218,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0207",
-      "gate": "Verify pivot interpretations, visually accurate teaching examples and no hindsight."
+      "gate": "Verify pivot interpretations, visually accurate teaching examples and no hindsight. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "MULTI_TIMEFRAME_LAB",
@@ -217,7 +229,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Test time aggregation, corporate actions, timezone handling and future-bar boundaries."
+      "gate": "Test time aggregation, corporate actions, timezone handling and future-bar boundaries. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "RISK_POSITION_LAB",
@@ -228,7 +240,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0221",
-      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI."
+      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "EXECUTION_LAB",
@@ -239,7 +251,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases."
+      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "LIQUIDITY_SPREAD_LAB",
@@ -250,7 +262,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures."
+      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "HALT_SSR_LAB",
@@ -261,7 +273,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0207",
-      "gate": "Use accurate exchange rules and reviewed halt/SSR scenarios; label hypothetical inputs."
+      "gate": "Use accurate exchange rules and reviewed halt/SSR scenarios; label hypothetical inputs. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "PATTERN_FAILURE_LIBRARY",
@@ -272,7 +284,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "content-blocked",
       "roadmapId": "CORE-0207",
-      "gate": "Finish source-verified success/failure/no-trade examples with documented criteria."
+      "gate": "Finish source-verified success/failure/no-trade examples with documented criteria. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "ORDER_FLOW_TAPE_LAB",
@@ -283,7 +295,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "data-blocked",
       "roadmapId": "CORE-0208",
-      "gate": "Require licensed synchronized quote/trade inputs; quote inference is not actual aggressor certainty."
+      "gate": "Require licensed synchronized quote/trade inputs; quote inference is not actual aggressor certainty. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "MARKET_CONTEXT_LAB",
@@ -294,7 +306,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Verify session aggregation, sector/index context and source timestamps."
+      "gate": "Verify session aggregation, sector/index context and source timestamps. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "TRADE_REVIEW_REPLAY",
@@ -305,7 +317,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "data-blocked",
       "roadmapId": "CORE-0220",
-      "gate": "Link replay sessions to genuine journal entries, source data and privacy protections."
+      "gate": "Link replay sessions to genuine journal entries, source data and privacy protections. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "STRATEGY_VALIDATION",
@@ -316,7 +328,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0221",
-      "gate": "Test sample-size disclosures, expectancy, R distributions, missing data and outcome bias."
+      "gate": "Test sample-size disclosures, expectancy, R distributions, missing data and outcome bias. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
     },
     {
       "code": "OPTIONS_LAB",

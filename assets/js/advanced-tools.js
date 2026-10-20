@@ -8,8 +8,28 @@
  function parseCsv(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<2)return[];const headers=split(lines[0]).map(x=>x.trim().toLowerCase());return lines.slice(1).map(line=>{const p=split(line),o={};headers.forEach((h,i)=>o[h]=p[i]?.trim()??'');return o})}
  function split(line){const out=[];let q=false,cur='';for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out}
  function parseBars(rows){return rows.map(r=>{const raw=r.timestamp||r.datetime||r.date_time||(r.date&&r.time?`${r.date}T${r.time}`:r.date);const t=new Date(raw);return {time:t,open:n(r.open),high:n(r.high),low:n(r.low),close:n(r.close),volume:n(r.volume)||0}}).filter(x=>!Number.isNaN(x.time.getTime())&&[x.open,x.high,x.low,x.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time)}
- async function saveRecord(type,title,payload){if(!USER)throw new Error('Sign in required.');const {error}=await SB.from('tool_workspace_records').insert({user_id:USER.id,tool_code:TOOL.tool_code,record_type:type,title,payload});if(error)throw error}
- async function latestRecords(type){if(!USER)return[];const {data}=await SB.from('tool_workspace_records').select('*').eq('user_id',USER.id).eq('tool_code',TOOL.tool_code).eq('record_type',type).order('updated_at',{ascending:false}).limit(20);return data||[]}
+ async function workspaceApi(url='',method='GET',body,extra={}){
+  if(!SB||!TOOL)throw new Error('A verified tool session is required.');
+  const session=(await SB.auth.getSession()).data?.session;
+  if(!session?.access_token)throw new Error('Your login session expired. Sign in again.');
+  const response=await fetch('/api/advanced-tool-workspace-v014110?tool='+encodeURIComponent(TOOL.tool_code)+url,{
+   method,cache:'no-store',headers:{authorization:'Bearer '+session.access_token,
+    ...(body===undefined?{}:{'content-type':'application/json'}),...extra},
+   body:body===undefined?undefined:JSON.stringify(body)});
+  const value=await response.json().catch(()=>null);
+  if(!response.ok||value?.ok!==true)throw new Error(value?.error||
+   'Your saved workspace is unavailable. Check current plan access.');
+  return value;
+ }
+ async function saveRecord(type,title,payload){
+  await workspaceApi('','POST',{recordType:type,title,payload});
+  status('Saved to your private member workspace.','success');
+ }
+ async function latestRecords(type){
+  if(!USER)return[];
+  const d=await workspaceApi(type?'&type='+encodeURIComponent(type):'');
+  return d.records||[];
+ }
  function download(name,text,type='text/csv'){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
  function renderRisk(){document.getElementById('tool-workbench').innerHTML=panel('Risk & Position Sizing',`<div class="v11-form-grid"><div><label>Account size</label><input id="r-account" type="number" value="5000" step="0.01"></div><div><label>Maximum $ risk</label><input id="r-risk" type="number" value="20" step="0.01"></div><div><label>Entry</label><input id="r-entry" type="number" step="0.0001"></div><div><label>Stop</label><input id="r-stop" type="number" step="0.0001"></div><div><label>Target</label><input id="r-target" type="number" step="0.0001"></div><div><label>Estimated spread</label><input id="r-spread" type="number" step="0.0001" value="0"></div><div><label>Estimated slippage / share</label><input id="r-slip" type="number" step="0.0001" value="0"></div></div><div class="actions"><button class="btn" id="r-calc">Calculate</button></div><div id="r-out" class="v11-feature-grid"></div>`)+panel('Scenario discipline','<p>Use the calculator to test how spread and slippage change the true risk budget. Position size is a risk control—not a prediction of outcome.</p>');document.getElementById('r-calc').onclick=()=>{const acct=n(document.getElementById('r-account').value),risk=n(document.getElementById('r-risk').value),entry=n(document.getElementById('r-entry').value),stop=n(document.getElementById('r-stop').value),target=n(document.getElementById('r-target').value),spread=n(document.getElementById('r-spread').value)||0,slip=n(document.getElementById('r-slip').value)||0;if([risk,entry,stop].some(x=>x===null)||entry===stop)return status('Enter valid risk, entry, and stop.','error');const per=Math.abs(entry-stop)+spread+slip,shares=Math.floor(risk/per),exposure=shares*entry,acctPct=acct?exposure/acct*100:null,rr=target!=null?Math.abs(target-entry)/per:null;document.getElementById('r-out').innerHTML=[['Risk/share',money(per)],['Shares',shares.toLocaleString()],['Exposure',money(exposure)],['Account exposure',acctPct==null?'—':acctPct.toFixed(1)+'%'],['Target R:R',rr==null?'—':rr.toFixed(2)+'R'],['Worst planned loss',money(shares*per)]].map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
  function renderFloat(){document.getElementById('tool-workbench').innerHTML=panel('Float & Supply',`<div class="v11-form-grid"><div><label>Float shares</label><input id="f-float" type="number"></div><div><label>Shares outstanding</label><input id="f-out" type="number"></div><div><label>Session volume</label><input id="f-vol" type="number"></div><div><label>Price</label><input id="f-price" type="number" step="0.0001"></div></div><div class="actions"><button class="btn" id="f-calc">Analyze</button></div><div id="f-outbox" class="v11-feature-grid"></div><div class="v11-lock-note">Float turnover does not prove the same shares traded repeatedly, nor does it prove a squeeze. It is one supply/participation measurement that must be combined with context.</div>`);document.getElementById('f-calc').onclick=()=>{const fl=n(document.getElementById('f-float').value),out=n(document.getElementById('f-out').value),vol=n(document.getElementById('f-vol').value),price=n(document.getElementById('f-price').value);const vals=[['Float turnover',fl&&vol?(vol/fl).toFixed(2)+'×':'—'],['Float % of shares outstanding',fl&&out?(fl/out*100).toFixed(1)+'%':'—'],['Approx. market cap',out&&price?money(out*price):'—'],['Approx. float value',fl&&price?money(fl*price):'—']];document.getElementById('f-outbox').innerHTML=vals.map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}}
@@ -29,7 +49,93 @@
  async function renderReview(){const {data}=await SB.from('decision_journal').select('id,ticker,trade_date,status,setup,actual_entry,actual_exit').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(50);document.getElementById('tool-workbench').innerHTML=panel('Trade Review Replay',`<p>Select a paper/simulator-compatible journal record and reopen it in the replay environment. Live-trade reconstruction requires matching historical data for the ticker/date.</p><div class="v11-matrix"><table><thead><tr><th>Trade</th><th>Date</th><th>Setup</th><th>Replay</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${esc(r.ticker||'')}</td><td>${esc(r.trade_date||'')}</td><td>${esc(r.setup||'')}</td><td><a href="simulator.html?journal_id=${r.id}" class="btn secondary">Open Replay</a></td></tr>`).join('')}</tbody></table></div>`)}
  async function renderStrategy(){const {data}=await SB.from('decision_journal').select('setup,status,gross_pnl,r_multiple,mfe_r,mae_r,actual_exit_reason_category,plan_followed').eq('user_id',USER.id).eq('status','closed');const rows=data||[];const groups={};rows.forEach(r=>{const k=r.setup||'Unclassified';(groups[k]??=[]).push(r)});const stats=Object.entries(groups).map(([k,a])=>{const vals=a.map(x=>n(x.r_multiple)).filter(Number.isFinite),wins=vals.filter(x=>x>0).length,avg=vals.length?vals.reduce((x,y)=>x+y,0)/vals.length:null,mfe=a.map(x=>n(x.mfe_r)).filter(Number.isFinite),mae=a.map(x=>n(x.mae_r)).filter(Number.isFinite);return {k,n:a.length,win:vals.length?wins/vals.length*100:null,avg,mfe:mfe.length?mfe.reduce((x,y)=>x+y,0)/mfe.length:null,mae:mae.length?mae.reduce((x,y)=>x+y,0)/mae.length:null}}).sort((a,b)=>b.n-a.n);document.getElementById('tool-workbench').innerHTML=panel('Strategy Validation',`<div class="v11-lock-note">Small samples are unstable. Treat statistics as evidence to investigate, not proof that a setup will continue performing.</div><div class="v11-matrix"><table><thead><tr><th>Setup</th><th>N</th><th>Win %</th><th>Avg R</th><th>Avg MFE R</th><th>Avg MAE R</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.k)}</td><td>${s.n}</td><td>${s.win==null?'—':s.win.toFixed(1)+'%'}</td><td>${s.avg==null?'—':s.avg.toFixed(2)}</td><td>${s.mfe==null?'—':s.mfe.toFixed(2)}</td><td>${s.mae==null?'—':s.mae.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>`)}
  function renderOptions(){document.getElementById('tool-workbench').innerHTML=panel('Options Learning & Simulator — Planned Branch',`<p>The data/schema branch is reserved for option chains, calls/puts, strikes, expiration, bid/ask, Greeks, implied volatility, time decay, single-leg and multi-leg strategies, risk graphs, assignment/exercise, and contract P&amp;L.</p><div class="v11-lock-note">This branch remains disabled until the curriculum and data rights are ready. We will not fabricate option-chain or OPRA data.</div>`)}
+ function renderWorkspaceManager(){
+  const host=document.getElementById('tool-workbench');
+  const section=document.createElement('section');section.className='v11-workbench-panel';
+  const heading=document.createElement('h2');heading.textContent='Your private tool workspace';
+  const description=document.createElement('p');
+  description.textContent='Review, export or delete records saved for this specific tool. Saved work is not independently verified market history or graded assessment evidence.';
+  const buttons=document.createElement('div');buttons.className='actions';
+  const results=document.createElement('div');
+  const message=document.createElement('p');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
+  const makeAction=(name,fn)=>{
+   const button=document.createElement('button');button.type='button';button.className='btn secondary';
+   button.textContent=name;button.addEventListener('click',fn);buttons.append(button);return button;
+  };
+  const allRecords=async()=>{
+   const data=[];
+   for(let offset=0;offset<=10000;offset+=100){
+    const r=await workspaceApi('&offset='+offset);
+    data.push(...(r.records||[]));
+    if(!r.hasMore)return data;
+   }
+   throw new Error('This workspace exceeds the safe export page limit. Contact support for a full data export.');
+  };
+  const refresh=async()=>{
+   message.textContent='Loading private saved work…';results.replaceChildren();
+   try{
+    const rows=await allRecords();
+    const summary=document.createElement('p');summary.textContent=rows.length+' saved record(s) for '+TOOL.name;
+    results.append(summary);
+    for(const record of rows.slice(0,100)){
+     const row=document.createElement('p');
+     row.textContent=(record.title||'Untitled')+' · '+record.record_type+' · '+new Date(record.created_at).toLocaleDateString()+' ';
+     const remove=document.createElement('button');remove.type='button';remove.className='btn secondary';
+     remove.textContent='Delete';
+     remove.addEventListener('click',async()=>{
+      if(!window.confirm('Permanently delete this one private tool record?'))return;
+      try{await workspaceApi('&id='+encodeURIComponent(record.id),'DELETE');await refresh()}
+      catch(e){message.textContent=e.message}
+     });
+     row.append(remove);results.append(row);
+    }
+    message.textContent='Records are account-scoped and authorization is checked on every request.';
+   }catch(e){message.textContent=e.message}
+  };
+  makeAction('Refresh my saved work',refresh);
+  makeAction('Export all tool records (JSON)',async()=>{
+   try{const rows=await allRecords();download('groundup-'+TOOL.tool_code.toLowerCase()+'-workspace.json',
+    JSON.stringify({tool:TOOL.tool_code,exportedAt:new Date().toISOString(),records:rows},null,2),'application/json');
+    message.textContent=rows.length+' private record(s) exported.'}
+   catch(e){message.textContent=e.message}
+  });
+  makeAction('Delete ALL my saved work for this tool',async()=>{
+   if(!window.confirm('Permanently delete ALL saved records for '+TOOL.name+'? This cannot be undone.'))return;
+   try{await workspaceApi('&all=true','DELETE',undefined,{'x-confirm-delete':'DELETE_MY_TOOL_WORKSPACE'});
+    await refresh();message.textContent='All saved records for this tool deleted.'}
+   catch(e){message.textContent=e.message}
+  });
+  section.append(heading,description,buttons,message,results);host.append(section);
+  void refresh();
+ }
  async function render(){switch(TOOL.tool_code){case'RISK_POSITION_LAB':return renderRisk();case'FLOAT_SUPPLY_LAB':return renderFloat();case'LIQUIDITY_SPREAD_LAB':return renderLiquidity();case'EXECUTION_LAB':return renderExecution();case'DISCOVERY_LAB':return universeWorkbench(false);case'SCANNER_BUILDER':return universeWorkbench(true);case'WATCHLIST_WORKBENCH':return renderWatchlist();case'CATALYST_RESEARCH':return renderCatalyst();case'MULTI_TIMEFRAME_LAB':return renderMulti();case'MARKET_STRUCTURE_LAB':return renderStructure();case'HALT_SSR_LAB':return renderHalt();case'PATTERN_FAILURE_LIBRARY':return renderPattern();case'ORDER_FLOW_TAPE_LAB':return renderTape();case'MARKET_CONTEXT_LAB':return renderContext();case'TRADE_REVIEW_REPLAY':return renderReview();case'STRATEGY_VALIDATION':return renderStrategy();case'OPTIONS_LAB':return renderOptions();default:document.getElementById('tool-workbench').innerHTML=panel(TOOL.name,`<p>This branch is registered in the platform architecture. Its specialized interactive engine will use the same access, data, journal, Tutor, and assessment infrastructure.</p><a class="btn secondary" href="tools.html">Back to Tool Registry</a>`)}}
- async function init(){const gate=document.getElementById('tool-gate');try{SB=await window.getSupabaseClient();const {data:{user}}=await SB.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to use advanced tools.</div>';return}USER=user;const code=(new URLSearchParams(location.search).get('tool')||'').toUpperCase();const [{data:t},{data:a}]=await Promise.all([SB.from('platform_tools').select('*').eq('tool_code',code).single(),SB.rpc('my_platform_access')]);if(!t)throw new Error('Tool not found.');TOOL=t;ACCESS=a;const mine=(a.tools||[]).find(x=>x.toolCode===code),allowed=!!mine?.included||t.free_preview;if(!allowed){gate.innerHTML=`<div class="v11-access-panel"><h2>${esc(t.name)}</h2><p>This tool is not included with your current access.</p><p><strong>À-la-Carte:</strong> $${(t.individual_price_cents/100).toFixed(2)}/month</p><div class="actions"><a class="btn" href="membership.html">View Access Options</a><a class="btn secondary" href="tools.html">All Tools</a></div></div>`;return}document.getElementById('tool-category').textContent=t.category;document.getElementById('tool-title').textContent=t.name;document.getElementById('tool-description').textContent=t.description||'';gate.innerHTML='<div id="tool-status" class="status-message"></div>';document.getElementById('tool-content').hidden=false;await render()}catch(e){gate.innerHTML=`<div class="notice">${esc(e.message)}</div>`}}
+ async function init(){
+  const gate=document.getElementById('tool-gate');
+  try{
+   SB=await window.getSupabaseClient();
+   const code=(new URLSearchParams(location.search).get('tool')||'').toUpperCase();
+   const session=(await SB.auth.getSession()).data?.session;
+   if(!session?.access_token){gate.textContent='Sign in to use advanced tools.';return}
+   const response=await fetch('/api/advanced-tool-access-v014110?tool='+encodeURIComponent(code),{
+    headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+   const access=await response.json().catch(()=>null);
+   if(!response.ok||!access?.ok)throw new Error(access?.error||'Tool access could not be verified.');
+   const t=access.tool;
+   if(!access.authorized){
+    gate.innerHTML=`<div class="v11-access-panel"><h2>${esc(t.name)}</h2><p>This tool is not included with your current membership.</p><p><strong>À-la-Carte:</strong> ${(Number(t.individual_price_cents||0)/100).toFixed(2)}/month</p><div class="actions"><a class="btn" href="membership.html">Memberships</a><a class="btn secondary" href="tools.html">All Tools</a></div></div>`;
+    return;
+   }
+   const {data:{user}}=await SB.auth.getUser();
+   if(!user||user.id!==session.user.id)throw new Error('Your member session changed. Please sign in again.');
+   USER=user;TOOL=t;ACCESS={level:access.accessLevel};
+   document.getElementById('tool-category').textContent=t.category;
+   document.getElementById('tool-title').textContent=t.name;
+   document.getElementById('tool-description').textContent=t.description||'';
+   gate.innerHTML='<div id="tool-status" class="status-message" role="status" aria-live="polite"></div>';
+   document.getElementById('tool-content').hidden=false;
+   await render();
+   renderWorkspaceManager();
+  }catch(e){gate.textContent=e?.message||'Tool not available.'}
+ }
  document.addEventListener('DOMContentLoaded',init);
 })();
