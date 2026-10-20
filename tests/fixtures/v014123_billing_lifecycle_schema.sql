@@ -28,3 +28,6 @@ CREATE TABLE public.user_tool_passes(
 CREATE FUNCTION public.gu58_live_stripe_apply_event(
  text,text,text,text,text,text,integer,text,timestamptz,timestamptz,text,boolean
 ) RETURNS jsonb LANGUAGE sql AS $$ SELECT '{"ok":true}'::jsonb $$;
+
+-- Disposable fixture mirrors service-role SELECT grants already present in production commerce migrations.
+GRANT SELECT ON public.site_subscriptions,public.user_tool_passes,public.gu58_live_checkout_intents TO service_role;
