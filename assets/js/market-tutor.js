@@ -257,7 +257,7 @@ async function ask(){
   else historyStatus('This response stays on the current page only; account history was not updated.');
  }catch(e){
   status(e.message+(e.status===403?' Visit the Membership page to review access.':''),'error');
- }finally{TUTOR.busy=false;$('tutor-ask').disabled=false}
+ }finally{if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false;TUTOR.busy=false;$('tutor-ask').disabled=false}
 }
 async function refreshAiServiceStatus(){
  const host=$('tutor-ai-availability'),count=$('tutor-ai-remaining'),toggle=$('tutor-ai-consent');
