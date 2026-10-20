@@ -8,6 +8,7 @@
    sb.from('plan_tool_access').select('*'),sb.rpc('my_platform_access')
  ]);if(pError||tError)throw Error('Membership catalog temporarily unavailable.');
  return {plans:plans||[],tools:tools||[],matrix:matrix||[],current:current||{authenticated:false,planName:'Free'}}}
+ function freeBenefits(p){const m=p.metadata||{};if(Number.isInteger(m.journal_limit_week)&&Number.isInteger(m.simulator_saves_week))return [`Up to ${m.journal_limit_week} Journal records per UTC week`,`Up to ${m.simulator_saves_week} saved browser CSV exercises per UTC week (within Journal allowance)`];if(Number.isInteger(m.journal_limit)&&Number.isInteger(m.simulator_sessions_month))return [`Up to ${m.journal_limit} Journal records total`,`Up to ${m.simulator_sessions_month} simulator saves per month`];return ['Limited Journal and browser simulator saves; check current policy'];}
  function adLabel(p){if(p.plan_code==='LIFETIME')return 'Ad-free';if(p.plan_code==='FULL_ANNUAL')return 'Minimal sponsor placements';if(p.plan_code==='FULL_MONTHLY')return 'Limited sponsor placements';return 'Standard sponsor placements'}
  function planCard(p){const code=p.plan_code,free=code==='FREE',pick=code==='PICK_WHAT_YOU_WANT',lifetime=code==='LIFETIME',full=['FULL_MONTHLY','FULL_ANNUAL'].includes(code);
   const suffix=p.billing_interval==='month'&& !pick?'/month':p.billing_interval==='year'?'/year':p.billing_interval==='lifetime'?' one-time':'';
@@ -17,7 +18,7 @@
      full?'Released learning tools and all first-party book companion lessons are included. Complete eBook downloads are sold separately.':
      'Start free and try selected learning tools.';
   const terms=lifetime?'One-time payment · Lifetime refers to the operational life of the platform, subject to Terms of Service.':full?'Recurring membership; cancel according to the published billing terms.':pick?'Separate tool subscriptions. Manage each tool independently.':'';
-  const list=[adLabel(p),pick?'Pick individual released tools and services':p.includes_all_tools?'Released first-party learning tools':'Free/sample access',
+  const list=[adLabel(p),...(free?freeBenefits(p):[]),pick?'Pick individual released tools and services':p.includes_all_tools?'Released first-party learning tools':free?'Public glossary and released samples; advanced Tutor and server replay are paid':'Free/sample access',
     lifetime?'Five designated eBook downloads when legally available; companions included':
     full?'All available book companion learning (not full eBook files)':
     p.includes_all_books?'Book companions included':'Book companion access separately'];
@@ -26,7 +27,7 @@
     '<span class="btn disabled-buy" aria-disabled="true">Enrollment Opening Soon</span>';
   return `<article class="v11-plan ${code==='FULL_MONTHLY'?'recommended':''}">
    ${code==='FULL_MONTHLY'?'<span class="v11-plan-ribbon">Recommended</span>':''}
-   <div class="eyebrow">${esc(p.name)}</div><div class="v11-price">${esc(heading)}</div>
+   <div class="eyebrow">${esc(code==='FULL_MONTHLY'?'Full Platform — Monthly':code==='FREE'?'Free Membership':p.name)}</div><div class="v11-price">${esc(heading)}</div>
    <p>${esc(p.description||note)}</p><ul>${list.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
    ${terms?`<p class="small">${esc(terms)}</p>`:''}${action}</article>`}
  function toolCard(t){const released=t.status==='live';const buy='<span class="btn disabled-buy" aria-disabled="true">Tool Subscription Coming Soon</span>';

@@ -5,7 +5,7 @@
   "plans": [
     {
       "planCode": "FREE",
-      "label": "Free",
+      "label": "Free Membership",
       "priceCents": 0,
       "billingInterval": "none",
       "checkoutUrl": "",
@@ -17,7 +17,7 @@
       "priceCents": 6999,
       "billingInterval": "month",
       "checkoutUrl": "",
-      "adFree": true
+      "adFree": false
     },
     {
       "planCode": "FULL_ANNUAL",
@@ -25,7 +25,7 @@
       "priceCents": 69900,
       "billingInterval": "year",
       "checkoutUrl": "",
-      "adFree": true
+      "adFree": false
     },
     {
       "planCode": "LIFETIME",

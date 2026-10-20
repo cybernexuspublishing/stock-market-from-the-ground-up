@@ -29,7 +29,7 @@ window.CommerceTools=(function(){'use strict';
     planCode:p.plan_code,label:p.name,description:p.description||'',priceCents:Number(p.price_cents||0),
     billingInterval:p.billing_interval,checkoutUrl:p.checkout_url||'',adFree:!!p.ad_free,
     allTools:!!p.includes_all_tools,allBooks:!!p.includes_all_books,sortOrder:Number(p.sort_order||100),
-    checkoutEnabled:!!p.checkout_enabled,lemonVariantId:p.lemon_variant_id||''
+    checkoutEnabled:!!p.checkout_enabled,lemonVariantId:p.lemon_variant_id||'',metadata:p.metadata||{}
   }}
   function mapTool(t){return {
     toolCode:t.tool_code,name:t.name,category:t.category,description:t.description||'',href:t.href||'',
