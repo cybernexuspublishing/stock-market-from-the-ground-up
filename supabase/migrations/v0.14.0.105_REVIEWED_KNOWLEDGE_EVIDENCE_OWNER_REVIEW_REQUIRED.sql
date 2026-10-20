@@ -540,6 +540,42 @@ REVOKE ALL ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,int
 GRANT EXECUTE ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,integer,text,text)
  TO service_role;
 
+
+-- Recover qualifying historical attempts AFTER individual reviewed mapping approval.
+-- The caller must be the authenticated user via Cloudflare's entitlement gate;
+-- this RPC additionally rejects non-member/restricted profiles.
+CREATE OR REPLACE FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(
+ p_actor uuid
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+DECLARE r record; v jsonb; v_scanned integer:=0; v_added integer:=0; v_eligible integer:=0;
+BEGIN
+ IF p_actor IS NULL
+ OR NOT EXISTS(SELECT 1 FROM public.profiles WHERE id=p_actor AND account_kind='member')
+ OR EXISTS(SELECT 1 FROM public.admin_user_flags WHERE user_id=p_actor
+ AND lower(status) IN ('restricted','suspended'))
+ THEN RETURN jsonb_build_object('ok',false,'reason','ineligible_member'); END IF;
+ FOR r IN SELECT a.id FROM public.lab_training_attempts_v014 a
+ JOIN public.gu_lab_competency_knowledge_map_v014105 m
+ ON m.lab_id=a.lab_id AND m.review_state='approved' AND m.rubric_version=a.set_version
+ WHERE a.user_id=p_actor AND a.completed_at IS NOT NULL AND a.score BETWEEN 0 AND 100
+ ORDER BY a.completed_at DESC,a.id DESC LIMIT 500 LOOP
+  v_scanned:=v_scanned+1;
+  v:=public.gu_v014105_sync_reviewed_knowledge(p_actor,r.id);
+  IF coalesce((v->>'ok')::boolean,false) THEN
+   v_eligible:=v_eligible+1;
+   IF coalesce((v->>'knowledgeRecorded')::boolean,false) THEN
+    v_added:=v_added+1; END IF;
+  END IF;
+ END LOOP;
+ RETURN jsonb_build_object('ok',true,'attemptsInspected',v_scanned,
+ 'approvedEligible',v_eligible,'knowledgeRowsAdded',v_added,
+ 'reviewedLimit',500,'scope','knowledge_only','masteryAwarded',false);
+END $;
+REVOKE ALL ON FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(uuid)
+ FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(uuid)
+ TO service_role;
+
 NOTIFY pgrst,'reload schema';
 COMMIT;
 -- Expected: 419 mappings, 419 CANDIDATE, ZERO approved, ZERO fabricated
