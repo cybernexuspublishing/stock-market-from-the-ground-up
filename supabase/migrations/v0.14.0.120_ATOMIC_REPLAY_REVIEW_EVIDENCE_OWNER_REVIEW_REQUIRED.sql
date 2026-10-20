@@ -36,8 +36,9 @@ BEGIN
  IF p_actor IS NULL OR p_review IS NULL OR p_review<=0 THEN
   RAISE EXCEPTION 'Missing review owner or review ID';
  END IF;
- -- Lock stages, review decision and source in a consistent order. These
- -- locks remain held until the function's read transaction is completed.
+ -- Lock stage, review decision, session and source in a consistent order.
+ -- Link rows have SELECT+INSERT service grants and cannot be row-locked
+ -- with FOR SHARE without also granting unwanted UPDATE permissions.
  SELECT * INTO stage FROM public.journal_reviews
   WHERE id=p_review AND user_id=p_actor FOR SHARE;
  IF NOT FOUND THEN RAISE EXCEPTION 'Review is not owned by the requesting member'; END IF;
@@ -46,7 +47,7 @@ BEGIN
   AND revealed_at IS NOT NULL FOR SHARE;
  IF NOT FOUND THEN RAISE EXCEPTION 'Lock initial evidence and reveal before viewing later observations'; END IF;
  SELECT * INTO link FROM public.gu_replay_journal_links_v01494
-  WHERE journal_id=stage.journal_id AND user_id=p_actor FOR SHARE;
+  WHERE journal_id=stage.journal_id AND user_id=p_actor;
  IF NOT FOUND THEN RAISE EXCEPTION 'Linked replay owner or Journal evidence mismatched'; END IF;
  SELECT * INTO session FROM public.gu_replay_sessions_v01492
   WHERE id=link.session_id AND user_id=p_actor
