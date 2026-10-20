@@ -11,6 +11,30 @@ DECLARE
  unlocked uuid:='44444444-4444-4444-8444-444444444444';
  result jsonb; jid bigint;rid bigint;before_text text;
 BEGIN
+ -- Apply the REAL v95 chronological advancement RPC, not a fake bar cursor.
+ -- It must never reveal a bar after a stale index or without a locked decision.
+ INSERT INTO public.gu_replay_sessions_v01492(
+  id,user_id,dataset_code,decision_locked,decision,reasoning,locked_at,current_index
+ ) VALUES('55555555-5555-4555-8555-555555555555',actor,'GUSIM_ACCEPTANCE',
+  true,'WATCH','Observe only the first known candle before revealing subsequent data.',now(),0);
+ IF public.v01492_replay_advance(unlocked,actor,0)<>-1 OR
+    public.v01492_replay_advance(revoked,actor,0)<>-1 OR
+    public.v01492_replay_advance('55555555-5555-4555-8555-555555555555',other,0)<>-1 THEN
+   RAISE EXCEPTION 'No-lookahead authorization or unreviewed market rights were bypassed';
+ END IF;
+ IF public.v01492_replay_advance('55555555-5555-4555-8555-555555555555',actor,0)<>1 OR
+    public.v01492_replay_advance('55555555-5555-4555-8555-555555555555',actor,0)<>-1 OR
+    public.v01492_replay_advance('55555555-5555-4555-8555-555555555555',actor,1)<>2 OR
+    public.v01492_replay_advance('55555555-5555-4555-8555-555555555555',actor,2)<>-1 THEN
+  RAISE EXCEPTION 'Actual v95 server cursor allowed skipped or duplicate future candles';
+ END IF;
+ BEGIN
+  UPDATE public.gu_replay_bars_v01492 SET close=999
+   WHERE dataset_code='GUSIM_ACCEPTANCE' AND bar_index=2;
+  RAISE EXCEPTION 'FAIL: published training observations were altered';
+ EXCEPTION WHEN others THEN
+  IF SQLERRM='FAIL: published training observations were altered' THEN RAISE; END IF;
+ END;
  -- Transaction cannot be used to impersonate another replay owner.
  BEGIN
   PERFORM public.v01494_replay_finish_to_journal(sid,other);
