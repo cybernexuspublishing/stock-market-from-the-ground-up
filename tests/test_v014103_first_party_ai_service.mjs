@@ -88,6 +88,9 @@ try{
  'member_daily_limit','global_daily_limit','global_monthly_limit','service_role','request_id uuid NOT NULL UNIQUE']){
   assert(sql.includes(token),'Private AI budget invariant missing: '+token);
  }
+ const ui=readFileSync(new URL('../assets/js/market-tutor.js',import.meta.url),'utf8');
+ assert(ui.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),'Consent must reset for EVERY question');
+ assert(ui.includes('priorTurns:TUTOR.entries.filter'), 'Follow-ups must pass bounded earlier grounded conversation turns');
  assert(!sql.includes('UPDATE public.competency'),'AI quota must not award official skills');
  assert(!sql.includes('INSERT INTO public.gu_member_tutor_exchanges'),'Do not duplicate installed v102 private history');
  console.log('PASS v103: paid first-party AI request metering, member entitlement, source-only fallback, per-user/site caps, disabled/provider/missing schema, isolated member status and no leakage.');
