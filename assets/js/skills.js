@@ -24,6 +24,41 @@ function renderOfficialSkills(evidence){
  if(evidence.competencies.synthetic===true){host.textContent='Showcase displays explicitly fictional examples, not personal assessment results.';return}
  host.innerHTML=items.map(x=>'<article class="card skill-card"><div class="skill-card-top"><h3>'+se(x.name||x.code)+'</h3><span class="pill">'+se(x.status||'Not Yet Assessed')+'</span></div><p class="small">'+se(x.category||'')+' · '+Number(x.evidenceCount||0)+' distinct verified assessment(s)</p><p class="small">'+se(x.diagnosis||'')+'</p><a class="text-link" href="labs.html?q='+encodeURIComponent(x.name||x.code)+'">Find related Labs →</a></article>').join('');
 }
+async function renderOriginalCurriculum(){
+ const host=document.getElementById('original-competency-guides');if(!host)return;
+ try{
+  const [gr,mr]=await Promise.all([
+   fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}),
+   fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'})]);
+  if(!gr.ok||!mr.ok)throw Error('Curriculum unavailable.');
+  const guides=await gr.json(),mapping=await mr.json();
+  if(!Array.isArray(guides.guides)||guides.guides.length!==30||mapping.totalCanonicalLabs!==419)
+   throw Error('Curriculum contract incomplete.');
+  host.replaceChildren();
+  for(const g of guides.guides){
+   const card=document.createElement('article');card.className='card skill-card';card.id='guide-'+g.code;
+   const title=document.createElement('h3');title.textContent=g.title;
+   const label=document.createElement('p');label.className='small';label.textContent='Original companion instruction · ungraded';
+   const concept=document.createElement('p');concept.textContent=g.concept;
+   const panel=document.createElement('details'),summary=document.createElement('summary');
+   summary.textContent='Study procedure, errors, and self-check';panel.append(summary);
+   for(const [heading,part] of [['Observe',g.procedure],['Uncertainty',g.limit],['Invalidation',g.invalidation],
+    ['Common mistake',g.commonError],['Self-check',g.selfCheck],['Review explanation',g.reviewExplanation]]){
+    const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=heading+': ';
+    p.append(strong,document.createTextNode(part||''));panel.append(p);
+   }
+   const block=document.createElement('div'),selected=(mapping.bySkill?.[g.code]||[]).slice(0,5);
+   const note=document.createElement('p');note.className='small';note.textContent='Suggested related Labs — curriculum links, not graded competency evidence:';block.append(note);
+   for(const lab of selected){const link=document.createElement('a');link.href='labs.html?q='+encodeURIComponent(lab.labId);
+    link.textContent=lab.labId+' · '+lab.title;link.style.display='block';block.append(link);}
+   card.append(title,label,concept,panel,block);host.append(card);
+  }
+  const summary=document.getElementById('original-guides-summary');
+  if(summary)summary.textContent='30 original study guides connected to the existing 419-Lab inventory. They do not contain private graded answer keys or historical price claims.';
+ }catch{
+  host.textContent='The original study guides cannot be loaded right now. Existing recorded learning progress has not changed.';
+ }
+}
 function renderRecordedGrades(evidence){
  const host=document.getElementById('recorded-training-grades');
  if(!host)return;
@@ -34,6 +69,7 @@ function renderRecordedGrades(evidence){
  host.innerHTML=rows.length?'<ol>'+rows.slice(0,30).map(x=>'<li><a href="labs.html?q='+encodeURIComponent(x.labId)+'">'+se(x.labId)+'</a> — '+Number(x.score)+'% ('+se(x.mode)+', '+se(new Date(x.completedAt).toLocaleDateString())+')</li>').join('')+'</ol>':'<p>No reviewed step-wise training grades are recorded. The 419 draft assessments are not graded until their rubric is reviewed.</p>';
 }
 async function initSkills(){const sb=await window.getSupabaseClient();const gate=document.getElementById('skills-gate'),content=document.getElementById('skills-content');const {data:{user}}=await sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to view your Market Skills Record.</div>';return}const verifiedEvidencePromise=verifiedSkillRecords(sb);
+void renderOriginalCurriculum();
 const [skillDef,attempts]=await Promise.all([fetch('data/skills.json').then(r=>r.json()),sb.from('lab_attempts').select('*').eq('user_id',user.id).order('completed_at',{ascending:false})]);const rows=attempts.data||[];gate.innerHTML='';content.hidden=false;document.getElementById('attempt-count').textContent=rows.length;document.getElementById('blind-count').textContent=rows.filter(r=>['blind','assessment'].includes(r.mode)).length;document.getElementById('avg-process').textContent=`${rows.length?Math.round(rows.reduce((a,b)=>a+Number(b.process_score||0),0)/rows.length):0}%`;const mistakes=rows.flatMap(r=>Array.isArray(r.mistakes)?r.mistakes:[]);document.getElementById('mistake-count').textContent=mistakes.length;
 const dims=[['structure','Structure / price behavior'],['location','Location / levels'],['volume_context','Volume / context'],['invalidation','Invalidation'],['decision','Decision'],['confidence','Confidence'],['reasoning','Reasoning / notes']];
 const processTarget=document.getElementById('process-profile');

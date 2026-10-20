@@ -322,6 +322,18 @@
       "commonError": "Confusing a plan's existence with evidence that it succeeded.",
       "selfCheck": "Before revealing any later observation, which specific facts support independent trade plan, what remains unknown, and what could invalidate your reading?",
       "reviewExplanation": "A defensible self-check names visible evidence, preserves the uncertainty, and states falsifiable conditions. Review your response against the concept and procedure above; this self-check is ungraded."
+    },
+    {
+      "code": "REPLAY_DISCIPLINE",
+      "title": "Replay evidence chronology",
+      "concept": "Replay is valid only when a learner can inspect evidence available at the recorded pause point. Future candles, later headlines and eventual outcomes remain hidden until the original decision is locked.",
+      "procedure": "Identify the first permitted observation. Record what was visible and what remains uncertain. Commit the decision with its timestamp; only then advance a single chronological step.",
+      "limit": "Author-created fictional replay teaches process mechanics, not what occurred for a named historical security. A historical exercise additionally requires independently verified source evidence and redistribution rights.",
+      "invalidation": "A later bar is disclosed before commitment, a dataset changes during a published replay, or the original reasoning is changed after the outcome.",
+      "commonError": "Rewriting a decision after seeing the later price path and describing it as a contemporaneous plan.",
+      "selfCheck": "At what time was this decision locked, which observations were visible, and what evidence must still be withheld?",
+      "reviewExplanation": "A defensible response separates observation time, decision-lock time and future source content. This ungraded concept exercise does not certify historical skill."
     }
-  ]
+  ],
+  "expectedCompetencies": 30
 }
