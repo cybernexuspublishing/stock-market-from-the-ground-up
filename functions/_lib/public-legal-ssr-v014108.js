@@ -45,7 +45,7 @@ export async function getPublishedPolicyMarkup(env,request){
  try{
   const url=base+'/rest/v1/legal_documents?select=document_code,title,status,version,effective_at,body_markdown'+
    '&document_code=eq.'+code+'&status=eq.published&limit=1';
-  const result=await fetch(url,{method:'GET',cache:'no-store',headers:{apikey:key,accept:'application/json'}});
+  const result=await fetch(url,{method:'GET',cache:'no-store',signal:AbortSignal.timeout(1800),headers:{apikey:key,accept:'application/json'}});
   if(!result.ok)return null;
   const rows=await result.json();
   if(!Array.isArray(rows)||rows.length!==1||rows[0].document_code!==code)return null;
