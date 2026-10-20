@@ -7,7 +7,8 @@ CREATE TABLE auth.users(id uuid PRIMARY KEY);
 INSERT INTO auth.users VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
 CREATE TABLE public.gu58_live_checkout_intents(
  id uuid PRIMARY KEY,user_id uuid NOT NULL,sku_kind text NOT NULL,
- sku_code text NOT NULL,stripe_session_id text,stripe_subscription_id text,status text);
+ sku_code text NOT NULL,stripe_session_id text,stripe_subscription_id text,status text,
+ price_id text NOT NULL DEFAULT 'price_VERIFIED123');
 INSERT INTO public.gu58_live_checkout_intents VALUES
 ('11111111-1111-4111-8111-111111111111','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
  'plan','FULL_MONTHLY','cs_live_VERIFIED123','sub_VERIFIED123','active'),

@@ -1,0 +1,61 @@
+name: Signed Live Billing Reconciliation v0.14.0.124
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/internal-billing-reconcile-v014124.js'
+      - 'supabase/migrations/v0.14.0.124_SIGNED_STRIPE_RECONCILIATION_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014124_*'
+      - 'tests/test_v014124_signed_reconciliation.mjs'
+      - 'workers/billing-notices-v014123.js'
+      - '.github/workflows/billing-reconciliation-v014124.yml'
+  pull_request:
+    paths:
+      - 'functions/api/internal-billing-reconcile-v014124.js'
+      - 'supabase/migrations/v0.14.0.124_SIGNED_STRIPE_RECONCILIATION_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014124_*'
+      - 'tests/test_v014124_signed_reconciliation.mjs'
+      - 'workers/billing-notices-v014123.js'
+      - '.github/workflows/billing-reconciliation-v014124.yml'
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check functions/api/internal-billing-reconcile-v014124.js
+          node --check workers/billing-notices-v014123.js
+          node tests/test_v014124_signed_reconciliation.mjs
+          node tests/test_v014123_billing_notice_worker.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+  real-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: billing_v124}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d billing_v124"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: billing_v124
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014123_billing_lifecycle_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.123_BILLING_OUTBOX_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.124_SIGNED_STRIPE_RECONCILIATION_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014124_reconciliation_acceptance.sql
