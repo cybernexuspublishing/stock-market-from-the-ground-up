@@ -20,7 +20,11 @@ function settings(env){
 async function rest(env,path,init={}){
  const {url,headers}=settings(env);
  const response=await fetch(url+'/rest/v1/'+path,{cache:'no-store',...init,headers:{...headers,...(init.headers||{})}});
- if(!response.ok)throw Error('History storage unavailable');
+ if(!response.ok){
+   const problem=await response.json().catch(()=>null);
+   if(problem?.code==='P0001')throw Object.assign(new Error('Your 200 saved Tutor exchanges limit is reached. Delete older saved notes to make space.'),{status:409});
+   throw Error('History storage unavailable');
+  }
  const text=await response.text();
  try{return text?JSON.parse(text):null}catch{throw Error('History storage unavailable')}
 }
@@ -34,9 +38,9 @@ export async function onRequest({request,env}){
   const member=encodeURIComponent(auth.userId),url=new URL(request.url);
   const table='gu_member_tutor_exchanges_v014102';
   if(request.method==='GET'){
-   const rows=await rest(env,table+'?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at&user_id=eq.'+member+'&order=created_at.desc&limit=50');
+   const rows=await rest(env,table+'?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at&user_id=eq.'+member+'&order=created_at.desc&limit=200');
    if(!Array.isArray(rows))throw Error('Invalid history data');
-   return out({ok:true,history:rows,limit:50,graded:false,masteryAwarded:false,
+   return out({ok:true,history:rows,limit:200,graded:false,masteryAwarded:false,
     notice:'Member-saved ungraded educational transcripts. No official competency evidence.'});
   }
   if(request.method==='DELETE'){
@@ -72,6 +76,7 @@ export async function onRequest({request,env}){
  }catch(e){
   if(e.status===401)return out({ok:false,error:'Sign in required.'},401);
   if(e.status===403)return out({ok:false,error:'Tutor access required.'},403);
+  if(e.status===409)return out({ok:false,error:e.message},409);
   return out({ok:false,error:'Private Tutor history is not installed or temporarily unavailable; this does not affect current-session learning.'},503);
  }
 }
