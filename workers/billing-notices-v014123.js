@@ -15,6 +15,9 @@ export default {
     method:'POST',headers:{authorization:'Bearer '+env.GU_BILLING_TASK_SECRET,
      'content-type':'application/json'},body:'{}'})));
    if(responses.some(r=>!r.ok))throw new Error('One or more scheduled billing operations failed');
+   const reconciliation=await responses[1].json().catch(()=>({}));
+   if(Number(reconciliation.discrepancies)>0)
+    throw new Error('Verified LIVE subscription mismatch detected; review private billing reconciliation alerts');
   })());
  }
 };
