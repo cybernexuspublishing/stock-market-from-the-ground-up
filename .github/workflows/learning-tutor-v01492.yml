@@ -14,6 +14,10 @@ on:
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
+      - 'functions/_lib/first-party-ai-service-v014103.js'
+      - 'functions/api/member-ai-service-v014103.js'
+      - 'supabase/migrations/v0.14.0.103_FIRST_PARTY_AI_BUDGET_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014103_first_party_ai_service.mjs'
       - 'functions/api/member-tutor-history-v014102.js'
       - 'functions/_lib/tutor-response-scaffold-v014102.js'
       - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
@@ -82,6 +86,10 @@ on:
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
+      - 'functions/_lib/first-party-ai-service-v014103.js'
+      - 'functions/api/member-ai-service-v014103.js'
+      - 'supabase/migrations/v0.14.0.103_FIRST_PARTY_AI_BUDGET_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014103_first_party_ai_service.mjs'
       - 'functions/api/member-tutor-history-v014102.js'
       - 'functions/_lib/tutor-response-scaffold-v014102.js'
       - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
@@ -173,6 +181,8 @@ jobs:
           node --check assets/js/site-lab-experience.js
           node --check assets/js/lab-registry.js
           node --check assets/js/market-tutor.js
+          node --check functions/_lib/first-party-ai-service-v014103.js
+          node --check functions/api/member-ai-service-v014103.js
           node --check functions/api/member-tutor-history-v014102.js
           node --check functions/_lib/tutor-response-scaffold-v014102.js
           node --check assets/js/lab-registry.js
@@ -181,6 +191,7 @@ jobs:
           node tests/test_v014100_free_competency_tutor.mjs
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
+          node tests/test_v014103_first_party_ai_service.mjs
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
