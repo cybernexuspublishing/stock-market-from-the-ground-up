@@ -2,7 +2,7 @@
  * No external data, no private rubric, no guaranteed semantic understanding.
  */
 const synonyms=[
- [/\b(stopped out|stop got hit|stops? hit|stop loss triggered|cut my loss)\b/gi,'stop placement invalidation risk adverse excursion MAE'],
+ [/\b(stopped out|stop (?:got|get|was) hit|stops? hit|stop loss triggered|cut my loss)\b/gi,'stop placement invalidation risk adverse excursion MAE'],
  [/\b(spread widened|bid ask|bid-ask)\b/gi,'spread liquidity slippage'],
  [/\b(chased|chasing|late entry)\b/gi,'entry trigger risk confirmation'],
  [/\b(fakeout|bull trap|false breakout)\b/gi,'failure invalidation chart structure'],
