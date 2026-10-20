@@ -27,7 +27,14 @@ window.JournalTools=(function(){
   function outcome(j){const n=num(j.net_pnl);if(j.status==='no_trade'||j.decision==='NO TRADE'||j.decision==='OBSERVATION ONLY')return 'NO TRADE';if(n===null)return 'UNRESOLVED';if(n>0)return 'WIN';if(n<0)return 'LOSS';return 'FLAT'}
   function processOutcome(j){const p=j.process_grade||'UNGRADED',o=outcome(j);return `${p} PROCESS / ${o}`}
   async function taxonomy(){const r=await fetch('data/journal-taxonomy.json',{cache:'no-store'});if(!r.ok)throw new Error('Unable to load journal taxonomy.');return r.json()}
-  function toCSV(rows){if(!rows.length)return '';const cols=['id','journal_type','status','ticker','trade_date','direction','session_label','timeframe','setup','entry_reason_category','entry_reason','entry_trigger','invalidation','planned_entry','planned_stop','planned_target','share_quantity','actual_entry','actual_exit','actual_exit_reason_category','actual_exit_reason','gross_pnl','net_pnl','r_multiple','mfe_r','mae_r','mfe_capture_pct','plan_followed','process_grade','lesson','created_at'];const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;return [cols.join(','),...rows.map(r=>cols.map(c=>q(Array.isArray(r[c])?r[c].join('|'):r[c])).join(','))].join('\n')}
+  function toCSV(rows){if(!rows.length)return '';const cols=['id','journal_type','status','ticker','trade_date','direction','session_label','timeframe','setup','entry_reason_category','entry_reason','entry_trigger','invalidation','planned_entry','planned_stop','planned_target','share_quantity','actual_entry','actual_exit','actual_exit_reason_category','actual_exit_reason','gross_pnl','net_pnl','r_multiple','mfe_r','mae_r','mfe_capture_pct','plan_followed','process_grade','lesson','created_at'];const q=v=>{
+    let value=String(v??'');
+    // Quoting a CSV cell does not prevent spreadsheet formula execution.
+    // Prefix risky leading characters (including optional whitespace) with a
+    // literal apostrophe when opened by Excel/Sheets/LibreOffice.
+    if(/^[\\s\\uFEFF]*[=+@-]/u.test(value))value="'"+value;
+    return '"'+value.replace(/"/g,'""')+'"';
+  };return [cols.join(','),...rows.map(r=>cols.map(c=>q(Array.isArray(r[c])?r[c].join('|'):r[c])).join(','))].join('\n')}
   function downloadCSV(text,name){const blob=new Blob([text],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
   return {esc,num,money,dec,pct,compute,outcome,processOutcome,taxonomy,toCSV,downloadCSV};
 })();
