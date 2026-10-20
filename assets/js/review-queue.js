@@ -129,7 +129,10 @@ async function initReview(){
       RSTATE.reviews=[];RSTATE.journals={};RSTATE.snapshots={};
       RSTATE.replayState={};RSTATE.replayAvailable=false;
       document.getElementById('review-content').hidden=true;
-      document.getElementById('review-content').querySelectorAll('textarea').forEach(x=>x.value='');
+      // Also remove rendered Journal names, timestamps and previous notes.
+      document.getElementById('review-content').querySelectorAll(
+       '#due-reviews,#upcoming-reviews,#completed-reviews,#review-kpis'
+      ).forEach(x=>x.replaceChildren());
       gate.textContent='Account changed. Sign in and reload to access only your own review evidence.';
       RSTATE.user=null;
     });
