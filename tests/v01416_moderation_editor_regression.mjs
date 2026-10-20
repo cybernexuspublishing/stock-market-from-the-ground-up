@@ -13,6 +13,7 @@ globalThis.fetch=async (url,options={})=>{
  if(path.endsWith('/admin_user_flags'))return response([{status:flag}]);
  if(path.endsWith('/admin_user_roles'))return response([{role_code:role}]);
  if(path.endsWith('/admin_role_permissions'))return response(role==='MODERATOR'?[{role_code:'MODERATOR'}]:[]);
+ if(path.endsWith('/rpc/gu_v014113_moderate_with_audit')){patches.push({path,body:JSON.parse(options.body)});return response({ok:true,auditRecorded:true,atomic:true});}
  if(path.endsWith('/admin_audit_log'))return response([]);
  if(['/forum_topics','/forum_posts','/commons_topics','/commons_posts'].some(x=>path.endsWith(x))){
   if(method==='PATCH'){patches.push({path,body:JSON.parse(options.body)});return response([{id:11}]);}
@@ -25,7 +26,7 @@ const edit={scope:'commons',type:'topic',id:11,action:'edit',version:oldVersion,
 try {
  for(const [kind,type] of [['commons','topic'],['legacy','topic'],['commons','post'],['legacy','post']]){
   const x={...edit,scope:kind,type,...(type==='post'?{title:undefined}:{})};
-  let r=await onRequest({env,request:request(x)});assert.equal(r.status,200,`${kind}/${type} editor should be accepted`);const p=patches.at(-1);assert.equal(p.body.body,x.body);if(type==='topic')assert.equal(p.body.title,x.title);else assert(!('title' in p.body));
+  let r=await onRequest({env,request:request(x)});assert.equal(r.status,200,`${kind}/${type} editor should be accepted`);const p=patches.at(-1);assert.equal(p.body.p_body,x.body);if(type==='topic')assert.equal(p.body.p_title,x.title);else assert.equal(p.body.p_title,null);assert.equal(p.body.p_actor,authId);
  }
  let wrote=patches.length;
  for(const x of [{...edit,version:'stale'},{...edit,note:'no'},{...edit,body:'no',title:'Updated discussion title'}, {...edit,title:'bad'}]){
