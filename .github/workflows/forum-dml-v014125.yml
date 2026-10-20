@@ -1,0 +1,60 @@
+name: Forum & Commons Server-Audited DML Lockdown v0.14.0.125
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/v0.14.0.125_FORUM_COMMONS_DIRECT_DML_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql'
+      - 'supabase/admin/v0.14.0.125_*'
+      - 'tests/fixtures/v014125_*'
+      - 'tests/test_v014125_forum_direct_dml.mjs'
+      - '.github/workflows/forum-dml-v014125.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/v0.14.0.125_FORUM_COMMONS_DIRECT_DML_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql'
+      - 'supabase/admin/v0.14.0.125_*'
+      - 'tests/fixtures/v014125_*'
+      - 'tests/test_v014125_forum_direct_dml.mjs'
+      - '.github/workflows/forum-dml-v014125.yml'
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node tests/test_v014125_forum_direct_dml.mjs
+          node tests/test_v014113_atomic_forum_moderation.mjs
+          node tests/test_v014116_atomic_member_forum_edits.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+  postgres-real-authorization:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: forum_v125}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forum_v125"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: forum_v125
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014125_forum_direct_dml_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.116_ATOMIC_MEMBER_FORUM_EDITS_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.125_FORUM_COMMONS_DIRECT_DML_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014125_forum_direct_dml_acceptance.sql
