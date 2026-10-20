@@ -44,8 +44,12 @@ export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))throw fail('Method not allowed.',405);
   const simulator=await toolAccess(env,request,'MARKET_SIMULATOR');
-  const access=simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
-  if(!access.authorized)throw fail('An active training or Market Simulator entitlement is required.',403);
+  const training=simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
+  // Existing Journal & Analytics subscribers may review their OWN previously
+  // linked replay decisions even if Replay-only rights have since expired.
+  // This endpoint never serves future OHLC bars or permits a new replay.
+  const access=training.authorized?training:await toolAccess(env,request,'JOURNAL_ANALYTICS');
+  if(!access.authorized)throw fail('Active replay training or Journal review entitlement is required.',403);
   const url=new URL(request.url),action=url.searchParams.get('action')||'access';
   if(request.method==='GET'&&action==='access')
    return reply({ok:true,authorized:true,replayReviews:true,
