@@ -42,4 +42,14 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  const grant=await acl.json().catch(()=>({}));
  if(!acl.ok||!grant.authorized){gate.innerHTML='<div class="notice">Market Simulator access requires an active Full Membership or the Market Simulator tool pass. <a href="/membership.html">Review access options</a>.</div>';return}
  const params=new URLSearchParams(location.search);const linked=Number(params.get('journal_id'));if(linked)await loadLinkedJournal(linked);const lab=params.get('lab');if(lab&&$('sim-lab-id')&&!$('sim-lab-id').value)$('sim-lab-id').value=lab;if(lab)await loadContextEnvelope(lab);const topic=params.get('topic');if(topic&&!$('sim-entry-reason').value)$('sim-entry-reason').value=`Tutor practice topic: ${topic}`;gate.innerHTML='';$('sim-content').hidden=false;$('load-csv').onclick=loadCSV;if($('load-provider'))$('load-provider').onclick=loadProvider;$('load-demo-template').onclick=downloadTemplate;if($('sim-source'))$('sim-source').onchange=()=>{const tiingo=$('sim-source').value==='tiingo';if($('sim-csv-wrap'))$('sim-csv-wrap').hidden=tiingo;$('load-csv').hidden=tiingo;if($('load-provider'))$('load-provider').hidden=!tiingo};if($('load-provider'))$('load-provider').hidden=true;$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll()}catch(e){gate.innerHTML=`<div class="notice">${JT()?.esc?JT().esc(e.message):e.message}</div>`}}
-document.addEventListener('DOMContentLoaded',init);
+/* The secure replay panel owns the default simulator screen.
+ * Legacy browser CSV initialization runs only after the member explicitly
+ * selects unverified practice, never while inspecting server-only history.
+ */
+window.GroundUpLegacySimulatorPause=pause;
+let legacySimulatorActivated=false;
+window.addEventListener('groundup:activate-legacy-simulator',()=>{
+ if(legacySimulatorActivated)return;
+ legacySimulatorActivated=true;
+ void init();
+});
