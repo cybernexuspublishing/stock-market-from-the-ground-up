@@ -59,7 +59,8 @@ BEGIN
  IF s.status <> 'active' OR s.expires_at<=now() OR
     NOT s.decision_locked OR s.locked_at IS NULL OR
     s.decision NOT IN ('ENTER','WATCH','NO_TRADE','OBSERVE') OR
-    length(btrim(coalesce(s.reasoning,''))) NOT BETWEEN 20 AND 2000 THEN
+    length(btrim(coalesce(s.reasoning,''))) NOT BETWEEN 20 AND 2000 OR
+    (s.decision<>'ENTER' AND s.decision_plan IS NOT NULL) THEN
   RAISE EXCEPTION 'Replay is not eligible for finalization';
  END IF;
 
@@ -190,7 +191,7 @@ BEGIN
  ELSIF NEW.decision_locked THEN
    IF OLD.status<>'active' OR NEW.status<>'active' OR
       OLD.current_index<>0 OR NEW.current_index<>0 OR
-      NEW.decision NOT IN ('ENTER','WATCH','NO_TRADE','OBSERVE') OR
+      (NEW.decision IS NULL OR NEW.decision NOT IN ('ENTER','WATCH','NO_TRADE','OBSERVE')) OR
       char_length(btrim(coalesce(NEW.reasoning,''))) NOT BETWEEN 20 AND 2000 OR
       NEW.locked_at IS NULL OR NEW.user_id IS DISTINCT FROM OLD.user_id OR
       NEW.dataset_code IS DISTINCT FROM OLD.dataset_code OR
@@ -264,6 +265,31 @@ ALTER TABLE public.gu_replay_review_locks_v014118 ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.gu_replay_review_locks_v014118 FROM PUBLIC,anon,authenticated;
 GRANT SELECT,INSERT,UPDATE ON public.gu_replay_review_locks_v014118 TO service_role;
 
+-- Once the learner records an outcome-hidden observation it must be immutable
+-- even against accidental future trusted-service updates.
+CREATE OR REPLACE FUNCTION public.gu_v014118_replay_review_note_guard()
+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
+SET search_path=public,pg_temp AS $gu118_pre_note$
+BEGIN
+ IF NEW.review_id IS DISTINCT FROM OLD.review_id OR
+  NEW.journal_id IS DISTINCT FROM OLD.journal_id OR
+  NEW.user_id IS DISTINCT FROM OLD.user_id OR
+  NEW.pre_reveal_note IS DISTINCT FROM OLD.pre_reveal_note OR
+  NEW.locked_at IS DISTINCT FROM OLD.locked_at OR
+  (OLD.revealed_at IS NOT NULL AND NEW.revealed_at IS DISTINCT FROM OLD.revealed_at) OR
+  (OLD.completed_at IS NOT NULL AND to_jsonb(NEW) IS DISTINCT FROM to_jsonb(OLD))
+ THEN RAISE EXCEPTION 'Immutable replay review sequence cannot be rewritten';
+ END IF;
+ RETURN NEW;
+END $gu118_pre_note$;
+DROP TRIGGER IF EXISTS gu_replay_review_immutable_v014118
+ ON public.gu_replay_review_locks_v014118;
+CREATE TRIGGER gu_replay_review_immutable_v014118
+ BEFORE UPDATE ON public.gu_replay_review_locks_v014118
+ FOR EACH ROW EXECUTE FUNCTION public.gu_v014118_replay_review_note_guard();
+REVOKE ALL ON FUNCTION public.gu_v014118_replay_review_note_guard()
+ FROM PUBLIC,anon,authenticated;
+
 -- Authenticated direct Journal writes must not bypass the pre-reveal lock,
 -- reveal and completion sequence for replay-linked evidence. The service-only
 -- transaction below is the writer. Ordinary journal reviews stay unchanged.
@@ -299,7 +325,7 @@ DECLARE
  note text:=btrim(coalesce(p_note,''));
 BEGIN
  IF p_actor IS NULL OR p_review IS NULL OR p_review<=0 OR
-  p_action NOT IN ('lock','reveal','complete') THEN
+  p_action IS NULL OR p_action NOT IN ('lock','reveal','complete') THEN
    RAISE EXCEPTION 'Invalid replay review request';
  END IF;
  SELECT * INTO r FROM public.journal_reviews
