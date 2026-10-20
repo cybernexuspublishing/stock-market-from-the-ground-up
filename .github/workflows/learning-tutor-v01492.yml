@@ -10,6 +10,9 @@ on:
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
+      - 'functions/_lib/owner-lab-readiness-v01493.js'
+      - 'assets/js/owner-roadmap-product-readiness-v01491.js'
+      - 'tests/test_v014098_audit_execution_quality.mjs'
       - 'functions/_lib/replay-engine-v01492.js'
       - 'assets/js/lab-registry.js'
       - 'tests/test_v014098_replay_lower_plan_registry.mjs'
@@ -48,6 +51,9 @@ on:
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
+      - 'functions/_lib/owner-lab-readiness-v01493.js'
+      - 'assets/js/owner-roadmap-product-readiness-v01491.js'
+      - 'tests/test_v014098_audit_execution_quality.mjs'
       - 'functions/_lib/replay-engine-v01492.js'
       - 'assets/js/lab-registry.js'
       - 'tests/test_v014098_replay_lower_plan_registry.mjs'
@@ -113,6 +119,7 @@ jobs:
           node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014098_replay_lower_plan_registry.mjs
+          node tests/test_v014098_audit_execution_quality.mjs
           node tests/test_v014097_original_replay_safety.mjs
           node tests/test_v014095_middleware_opaque_key.mjs
           node tests/test_v014092_replay_contract.mjs

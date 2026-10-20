@@ -34,7 +34,19 @@ function fillEstimate({side,type,quantity,limitPrice,stopPrice,slippageBps=0,spr
  assert(Number.isSafeInteger(quantity)&&quantity>0&&quantity<=10000000,'Invalid quantity');
  assert(finite(slippageBps)&&slippageBps>=0&&slippageBps<=2000&&finite(spreadBps)&&spreadBps>=0&&spreadBps<=2000,'Invalid friction');
  assert(finite(fees)&&fees>=0&&fees<=100000,'Invalid fees');
+ assert(bar&&[bar.open,bar.high,bar.low,bar.close,bar.volume].every(finite)&&
+  bar.low>0&&bar.high>=Math.max(bar.open,bar.close)&&bar.low<=Math.min(bar.open,bar.close)&&
+  bar.volume>=0,'Invalid observed OHLCV input');
  if(type!=='MARKET')assert(finite(type==='LIMIT'?limitPrice:stopPrice)&&(type==='LIMIT'?limitPrice:stopPrice)>0,'Invalid order threshold');
+ // A candle with zero traded volume proves no prints in that interval.
+ // It cannot establish even a hypothetical market order execution.
+ if(bar.volume===0)return {state:'NO_OBSERVED_VOLUME',quantity:0,price:null,fees:0,
+  assumption:'Zero reported volume; no executable fill is inferred.'};
+ // The bar's TOTAL traded volume is not accessible depth. The planned order
+ // exceeding all reported volume cannot be represented as a full fill.
+ if(quantity>bar.volume)return {state:'LIQUIDITY_UNVERIFIABLE',quantity:0,price:null,
+  fees:0,observedBarVolume:bar.volume,
+  assumption:'Planned shares exceed total observed bar volume; no modeled full fill or P&L is valid.'};
  const conservative=price=>Number((price*(1+(side==='BUY'?1:-1)*(slippageBps+spreadBps/2)/10000)).toFixed(6));
  let price=null,assumption='';
  if(type==='MARKET'){price=conservative(bar.open);assumption='Assumed NEXT BAR OPEN with configurable adverse spread/slippage; not an actual fill';}
@@ -60,7 +72,9 @@ function fillEstimate({side,type,quantity,limitPrice,stopPrice,slippageBps=0,spr
  if(price===null)return {state:'NOT_TRIGGERED',quantity:0,price:null,fees:0,assumption:'No intrabar price sequence or queue data'};
  const reference=type==='MARKET'?bar.open:(type==='STOP'?stopPrice:limitPrice);
  const adversePerShare=side==='BUY'?Math.max(0,price-reference):Math.max(0,reference-price);
- return {state:'ESTIMATED',quantity,price,fees,totalEstimatedFriction:adversePerShare*quantity+fees,assumption};
+ return {state:'ESTIMATED',quantity,price,fees,totalEstimatedFriction:adversePerShare*quantity+fees,
+  observedBarVolume:bar.volume,participationFraction:quantity/bar.volume,
+  assumption:assumption+'; total bar volume is NOT executable queue depth, actual fill size, or a guarantee.'};
 }
 function bracketOutcome({side,stop,target},bar){
  assert(['LONG','SHORT'].includes(side)&&finite(stop)&&finite(target)&&stop>0&&target>0,'Invalid bracket');

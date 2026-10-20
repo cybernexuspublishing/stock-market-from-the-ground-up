@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'functions/api/learning-replay-v01492.js'
+      - 'functions/_lib/owner-lab-readiness-v01493.js'
       - 'functions/_lib/replay-engine-v01492.js'
       - 'tests/test_v014093_execution_price_bounds.mjs'
       - 'assets/js/verified-replay-v01492.js'

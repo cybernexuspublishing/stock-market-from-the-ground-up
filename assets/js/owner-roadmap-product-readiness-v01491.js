@@ -134,7 +134,16 @@ async function loadLabAudit(force=false){
   labAudit=data.labAudit;
   if(!labAudit?.available)throw Error(labAudit?.error||'Lab audit unavailable.');
   const text=Object.entries(labAudit.counts||{}).map(([stage,count])=>count+' '+(labStages[stage]||stage)).join(' · ');
-  $('or-audit-lab-summary').textContent=labAudit.registryCount+' database Lab IDs (source target: 419). 100% independently certified: '+labAudit.certifiedComplete+'. '+text+'. No record count is a verified Lab completion percentage.';
+  const d=labAudit.breakdown||{};
+  const breakdown='Author-created draft rubrics: '+(d.originalDraftRubrics??'unverified')+
+   ' · Existing detailed narratives: '+(d.existingDetailedNarratives??'unverified')+
+   ' · Private instructional records: '+(d.privateInstructions??'unverified')+
+   ' · Original fictional replay datasets: '+(d.originalSimulationReady??'unverified')+
+   ' · Reviewed rubrics: '+(d.reviewedRubrics??'unverified')+
+   ' · Independently verified historical contexts: '+(d.independentlyVerifiedHistoricalContext??'unverified');
+  $('or-audit-lab-summary').textContent=labAudit.registryCount+' Lab IDs (target 419). '+breakdown+
+   '. Individually certified production-ready: '+labAudit.certifiedComplete+'. '+text+
+   '. A fictional simulation is never counted as verified historical evidence.';
   $('or-audit-lab-export').disabled=false;labPage=0;showLabRows();
  }catch(e){
   labAudit=null;$('or-audit-lab-export').disabled=true;
