@@ -25,7 +25,9 @@ function fmt(bar){
  if(!bar)return null;
  const fields=['open','high','low','close','volume'],numbers={};
  for(const x of fields){numbers[x]=Number(bar[x]);if(!Number.isFinite(numbers[x]))throw bad('Historical bar data failed numeric validation.',503)}
- if(!bar.bar_at||numbers.high<Math.max(numbers.open,numbers.close)||numbers.low>Math.min(numbers.open,numbers.close)||numbers.low<=0||numbers.volume<0)throw bad('Historical bar failed price integrity validation.',503);
+ if(!Number.isSafeInteger(Number(bar.bar_index))||Number(bar.bar_index)<0||!Number.isFinite(Date.parse(bar.bar_at))||
+    ['open','high','low','close'].some(k=>numbers[k]<=0)||
+    numbers.high<Math.max(numbers.open,numbers.close)||numbers.low>Math.min(numbers.open,numbers.close)||numbers.volume<0)throw bad('Historical bar failed price integrity validation.',503);
  return {index:bar.bar_index,timestamp:bar.bar_at,...numbers};
 }
 function publicDataset(source){return source&&source.status==='published'&&source.dataset_type==='ohlcv'&&source.metadata?.licensed_for_member_display===true&&source.metadata?.evidence_verified===true&&typeof source.source_attribution==='string'&&source.source_attribution.trim().length>0&&typeof source.license_note==='string'&&source.license_note.trim().length>0&&typeof source.metadata?.corporate_action_policy==='string'&&source.metadata.corporate_action_policy.trim().length>0}
@@ -175,6 +177,9 @@ export async function onRequest({request,env}){
   if(action==='lock'&&request.method==='POST'){
    if(s.decision_locked||s.current_index!==0)throw bad('This session decision is already locked.',409);
    const decision=String(body.decision||''),reasoning=String(body.reasoning||'').trim(),plan=lockedPlan(body.plan);
+   // An observation, WATCH or NO_TRADE can never generate a hypothetical fill.
+   // Reject forged client requests even when the browser hides the order fields.
+   if(decision!=='ENTER'&&plan!==null)throw bad('Only ENTER decisions may include a simulated order plan.');
    if(!['ENTER','WATCH','NO_TRADE','OBSERVE'].includes(decision)||reasoning.length<20||reasoning.length>2000)throw bad('A first decision with 20–2,000 characters of evidence is required.');
    const rows=await db(env,'gu_replay_sessions_v01492?id=eq.'+encodeURIComponent(id)+'&user_id=eq.'+encodeURIComponent(auth.userId)+'&decision_locked=eq.false&current_index=eq.0&status=eq.active&expires_at=gt.'+encodeURIComponent(new Date().toISOString()),'PATCH',
      {decision,reasoning,decision_plan:plan,decision_locked:true,locked_at:new Date().toISOString()},'return=representation');

@@ -3,12 +3,15 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let sb=null,sessionId='',cursor=0,locked=false,busy=false;
+let activeUserId=null,authEpoch=0; // Invalidate in-flight requests on account changes.
 // Only server-revealed observations in the current session are plotted.
 const visibleCandles=[];
 function notice(msg,err=false){$('vr-notice').textContent=msg;$('vr-notice').className='status-message '+(err?'error':'success');}
 async function api(action,payload={}){
+ const epoch=authEpoch;
  const session=(await sb.auth.getSession()).data?.session;
- if(!session?.access_token)throw Error('Sign in to continue.');
+ if(!session?.access_token||!activeUserId||session.user?.id!==activeUserId)
+  throw Error('Sign in with the current account to continue.');
  const endpoint='/api/learning-replay-v01492?action='+encodeURIComponent(action);
  const isRead=['current','catalog','resume','visible'].includes(action);
  const u=['current','visible'].includes(action)?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
@@ -16,6 +19,7 @@ async function api(action,payload={}){
  authorization:'Bearer '+session.access_token,...(!isRead?{'content-type':'application/json'}:{})},
  body:isRead?undefined:JSON.stringify({...payload,sessionId})});
  const data=await res.json().catch(()=>({}));
+ if(epoch!==authEpoch)throw Error('Account changed during replay. Reload the current account session.');
  if(!res.ok||!data.ok)throw Error(data.error||'Replay service unavailable.');
  return data;
 }
@@ -46,6 +50,14 @@ function plotVisibleCandles(){
  svg.setAttribute('aria-label',bars.length+' server-revealed OHLCV candles. Later unrevealed bars are not included.');
  const note=$('vr-visible-count');if(note)note.textContent=bars.length+' observed candle(s) displayed; no future candles have been sent to this chart.';
 }
+function resetMemberReplay(){
+ sessionId='';cursor=0;locked=false;visibleCandles.length=0;
+ $('vr-bars').replaceChildren();$('vr-execution').hidden=true;
+ const link=$('vr-journal-link');link.hidden=true;link.removeAttribute('href');link.textContent='';
+ $('vr-source').textContent='';$('vr-code').value='';$('vr-dataset').replaceChildren();
+ $('vr-dataset-note').textContent='Refresh the authorized dataset catalog for this account.';
+ plotVisibleCandles();renderState();
+}
 function addBar(b){
  if(!b)return;
  visibleCandles.push(b);plotVisibleCandles();
@@ -63,8 +75,9 @@ function renderState(){
 }
 async function call(fn){
  if(busy)return;
+ const callEpoch=authEpoch;
  busy=true;$('vr-start').disabled=true;$('vr-lock').disabled=true;$('vr-advance').disabled=true;
- try{await fn()}catch(e){notice(e.message||'Unexpected replay error.',true)}
+ try{await fn()}catch(e){if(callEpoch===authEpoch)notice(e.message||'Unexpected replay error.',true)}
  finally{busy=false;$('vr-start').disabled=false;$('vr-lock').disabled=locked;$('vr-refresh').disabled=false;$('vr-resume').disabled=false;renderState()}
 }
 function orderPlan(){
@@ -140,7 +153,9 @@ async function start(){
 }
 async function lock(){
  if(!sessionId)throw Error('Start with a verified dataset.');
- const r=await api('lock',{decision:$('vr-decision').value,reasoning:$('vr-reason').value,plan:orderPlan()});
+ const decision=$('vr-decision').value,plan=orderPlan();
+ if(decision!=='ENTER'&&plan)throw Error('WATCH, NO TRADE and OBSERVE cannot contain an executable order plan. Set Side to No simulated order.');
+ const r=await api('lock',{decision,reasoning:$('vr-reason').value,plan});
  locked=true;notice(r.notice);renderState();
 }
 async function advance(){
@@ -176,6 +191,13 @@ async function init(){
  let u=null;
  try{sb=await window.getSupabaseClient();if(!sb)throw Error('Authentication client unavailable.');
   u=(await sb.auth.getUser()).data?.user;
+  activeUserId=u?.id||null;
+  sb.auth.onAuthStateChange((_event,nextSession)=>{
+   const nextId=nextSession?.user?.id||null;
+   if(nextId===activeUserId)return; // Token refresh for same member preserves replay.
+   activeUserId=nextId;authEpoch++;resetMemberReplay();
+   notice(nextId?'Account changed. Refresh datasets or resume under the new member.':'Signed out. Private replay data has been cleared.',!nextId);
+  });
   notice(u?'Enter a published dataset code to start.':'Sign in before using the replay tool.',!u);}
  catch(e){notice(e.message,true)}
  $('vr-start').addEventListener('click',()=>call(start));

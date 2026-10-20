@@ -1,0 +1,49 @@
+name: Replay Journal Source Integrity v0.14.0.115
+on:
+  pull_request:
+    paths:
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/journal-entry.js'
+      - 'assets/js/journal.js'
+      - 'supabase/migrations/v0.14.0.115_REPLAY_JOURNAL_PROVENANCE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014115_replay_journal_integrity.mjs'
+      - '.github/workflows/replay-journal-v014115.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/learning-replay-v01492.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/journal-entry.js'
+      - 'assets/js/journal.js'
+      - 'supabase/migrations/v0.14.0.115_REPLAY_JOURNAL_PROVENANCE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014115_replay_journal_integrity.mjs'
+      - '.github/workflows/replay-journal-v014115.yml'
+permissions:
+  contents: read
+jobs:
+  replay-journal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check contracts and regression cases
+        run: |
+          node --check functions/api/learning-replay-v01492.js
+          node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/journal-entry.js
+          node --check assets/js/journal.js
+          node tests/test_v014115_replay_journal_integrity.mjs
+          node tests/test_v014094_replay_journal_link.mjs
+          node tests/test_v014112_server_first_simulator.mjs
+          node tests/test_v014093_replay_catalog_resume.mjs
+      - name: Build public files without exposing private SQL
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/simulator.html
+          test -f public/journal-entry.html
+          test ! -e public/supabase
+          test ! -e public/functions
