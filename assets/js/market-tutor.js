@@ -5,7 +5,7 @@
  * Never copy user text to localStorage, never award grades, and never render HTML
  * returned by a learner, provider, or database as markup.
  */
-const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false};
+const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null};
 const $=id=>document.getElementById(id);
 function status(message,kind=''){const node=$('tutor-status');node.textContent=message;node.className='status-message'+(kind?' '+kind:'');}
 function historyStatus(message){$('tutor-history-state').textContent=message;}
@@ -29,6 +29,17 @@ function safeUrl(x){
  const href=String(x?.practiceUrl||'');
  return href.startsWith('/labs.html?q=')?href:'labs.html?q='+encodeURIComponent(x?.title||'');
 }
+function relatedGuides(record){
+ const context=(record.sourceTitles||[]).join(' ')+' '+record.question;
+ const terms=[...new Set((context.toUpperCase().match(/[A-Z0-9]{3,}/g)||[])
+  .filter(x=>!['WHAT','HOW','FOR','THE','YOUR','EXPLAIN','ABOUT','FOLLOW','WITH','FROM','STEP','REVIEW'].includes(x)))];
+ return TUTOR.guides.map(g=>{
+  const title=(g.title+' '+g.code.replaceAll('_',' ')).toUpperCase();
+  const concept=String(g.concept||'').toUpperCase();
+  const score=terms.reduce((sum,k)=>sum+(title.includes(k)?5:0)+(concept.includes(k)?1:0),0);
+  return {g,score};
+ }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score).slice(0,2).map(x=>x.g);
+}
 function detailsOf(record){
  const li=make('li',undefined,'tutor-turn');
  li.dataset.requestId=record.requestId;
@@ -47,6 +58,22 @@ function detailsOf(record){
  if(record.sourceTitles?.length){
   const label=make('p','Relevant original study topics: ','small');
   label.append(make('strong',record.sourceTitles.join(' · ')));reply.append(label);
+ }
+ // Topic-to-Lab suggestions remain ungraded and are drawn only from the
+ // original 30-skill crosswalk; they are NOT assessment evidence.
+ const matching=relatedGuides(record);
+ if(matching.length){
+  const study=make('div',undefined,'tutor-actions');
+  for(const g of matching){
+   const a=make('a','Study '+g.title,'btn secondary');
+   a.href='skills.html#guide-'+encodeURIComponent(g.code);study.append(a);
+   const related=TUTOR.competencyMap?.bySkill?.[g.code]?.[0];
+   if(related){
+    const lab=make('a','Find related Lab','btn secondary');
+    lab.href='labs.html?q='+encodeURIComponent(related);study.append(lab);
+   }
+  }
+  reply.append(study);
  }
  const actions=make('div',undefined,'tutor-actions');
  actions.append(btn('Continue this topic',()=>{
@@ -243,6 +270,13 @@ async function initTutor(){
  if(query)$('tutor-question').value=query.slice(0,450);
  updateCount();
  TUTOR.index=await fetch('data/tutor-index.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+ const guidesAndMap=await Promise.all([
+  fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).catch(()=>null)
+ ]);
+ if(guidesAndMap[0]?.guides?.length===30&&guidesAndMap[1]?.totalCanonicalLabs===419){
+  TUTOR.guides=guidesAndMap[0].guides;TUTOR.competencyMap=guidesAndMap[1];
+ }
  try{
   TUTOR.sb=await window.getSupabaseClient();
   const {data:{user}}=await TUTOR.sb.auth.getUser();TUTOR.user=user||null;
