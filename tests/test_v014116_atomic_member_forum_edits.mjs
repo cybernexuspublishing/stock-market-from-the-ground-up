@@ -5,7 +5,7 @@ import {onRequest} from '../functions/api/forum-member-content.js';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',time='2026-10-20T12:00:00.000Z';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
-let rpcreason='',missing=false,accountKind='member',role='',status='active',calls=[],locked=false;
+let rpcreason='',missing=false,accountKind='member',role='',status='active',calls=[],locked=false,showcaseExpires=null;
 const originalFetch=globalThis.fetch;
 const json=(data,code=200)=>new Response(JSON.stringify(data),{status:code,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
@@ -13,7 +13,10 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:accountKind}]);
  if(u.includes('/admin_user_flags?'))return json([{status}]);
- if(u.includes('/admin_user_roles?'))return json(role?[{role_code:role}]:[]);
+ if(u.includes('/admin_user_roles?')){
+  assert(u.includes('expires_at'),'Expired Showcase roles must be evaluated consistently with the SQL RPC');
+  return json(role?[{role_code:role,expires_at:showcaseExpires}]:[]);
+ }
  if(['/forum_topics?','/forum_posts?','/commons_topics?','/commons_posts?'].some(x=>u.includes(x))){
   assert.equal(method,'GET','No independent content PATCH permitted');
   return json([{id:11,author_id:uid,author_user_id:uid,status:'published',
@@ -45,7 +48,12 @@ try{
  }
  let r=await invoke(body,'https://attacker.test');assert.equal(r.status,403);
  locked=true;r=await invoke(body);assert.equal(r.status,409);locked=false;
- role='SHOWCASE_VIEWER';r=await invoke(body);assert.equal(r.status,403);role='';
+ role='SHOWCASE_VIEWER';r=await invoke(body);assert.equal(r.status,403,'Active indefinite Showcase role denied');
+ showcaseExpires='2020-01-01T00:00:00.000Z';
+ r=await invoke(body);assert.equal(r.status,200,'Expired Showcase role must not keep blocking a production member');
+ showcaseExpires='2099-01-01T00:00:00.000Z';
+ r=await invoke(body);assert.equal(r.status,403,'Unexpired Showcase role must still be denied');
+ role='';showcaseExpires=null;
  status='suspended';r=await invoke(body);assert.equal(r.status,403);status='active';
  rpcreason='conflict';r=await invoke(body);assert.equal(r.status,409);
  rpcreason='denied';r=await invoke(body);assert.equal(r.status,403);rpcreason='';
