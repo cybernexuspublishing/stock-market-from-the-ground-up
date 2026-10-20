@@ -1,0 +1,32 @@
+name: Member Stripe Billing Portal Contract v0.14.0.122
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/stripe-billing-portal-v014122.js'
+      - 'assets/js/my-purchases.js'
+      - 'my-purchases.html'
+      - 'tests/test_v014122_member_billing_portal.mjs'
+      - '.github/workflows/member-billing-portal-v014122.yml'
+  pull_request:
+    paths:
+      - 'functions/api/stripe-billing-portal-v014122.js'
+      - 'assets/js/my-purchases.js'
+      - 'my-purchases.html'
+      - 'tests/test_v014122_member_billing_portal.mjs'
+      - '.github/workflows/member-billing-portal-v014122.yml'
+permissions:
+  contents: read
+jobs:
+  owner-scoped-portal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check functions/api/stripe-billing-portal-v014122.js
+          node --check assets/js/my-purchases.js
+          node tests/test_v014122_member_billing_portal.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/functions
