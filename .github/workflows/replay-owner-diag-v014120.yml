@@ -1,0 +1,17 @@
+name: Owner-safe Replay Database Diagnostic v0.14.0.120
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/admin/v0.14.0.120_OWNER_ONE_RESULT_ACCEPTANCE_READ_ONLY.sql','tests/test_v014120_owner_one_result.mjs','.github/workflows/replay-owner-diag-v014120.yml']
+  pull_request:
+    paths: ['supabase/admin/v0.14.0.120_OWNER_ONE_RESULT_ACCEPTANCE_READ_ONLY.sql','tests/test_v014120_owner_one_result.mjs','.github/workflows/replay-owner-diag-v014120.yml']
+permissions:
+  contents: read
+jobs:
+  sql-editor-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: node tests/test_v014120_owner_one_result.mjs
