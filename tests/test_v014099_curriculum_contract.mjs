@@ -30,9 +30,9 @@ for(const g of guides.guides){
  }
  assert(map.bySkill[g.code].length>=1,'No canonical Labs for '+g.code);
 }
-for(const [code,items] of Object.entries(map.bySkill))for(const x of items){
- assert(idMap.has(x.labId),'Nonexistent Lab '+x.labId);
- assert(map.byLab[x.labId].relatedCompetencies.includes(code));
+for(const [code,items] of Object.entries(map.bySkill))for(const id of items){
+ assert(idMap.has(id),'Nonexistent Lab '+id);
+ assert(map.byLab[id].relatedCompetencies.includes(code));
 }
 const schema=read('supabase/migrations/v0.13.4_SKILLS_ADMIN_SHOWCASE.sql');
 const first=schema.indexOf('insert into public.competency_definitions(');

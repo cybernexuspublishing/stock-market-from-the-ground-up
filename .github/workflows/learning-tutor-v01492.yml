@@ -154,5 +154,7 @@ jobs:
           test -f public/assets/js/market-tutor.js
           test -f public/verified-replay.html
           test -f public/assets/js/verified-replay-v01492.js
+          test -f public/data/competency-study-guides-v01499.json
+          test -f public/data/competency-lab-paths-v01499.json
           test ! -e public/functions
           test ! -e public/supabase

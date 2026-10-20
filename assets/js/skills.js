@@ -49,8 +49,9 @@ async function renderOriginalCurriculum(){
    }
    const block=document.createElement('div'),selected=(mapping.bySkill?.[g.code]||[]).slice(0,5);
    const note=document.createElement('p');note.className='small';note.textContent='Suggested related Labs — curriculum links, not graded competency evidence:';block.append(note);
-   for(const lab of selected){const link=document.createElement('a');link.href='labs.html?q='+encodeURIComponent(lab.labId);
-    link.textContent=lab.labId+' · '+lab.title;link.style.display='block';block.append(link);}
+   for(const labId of selected){const lab=mapping.byLab?.[labId];if(!lab)continue;
+    const link=document.createElement('a');link.href='labs.html?q='+encodeURIComponent(labId);
+    link.textContent=labId+' · '+lab.title;link.style.display='block';block.append(link);}
    card.append(title,label,concept,panel,block);host.append(card);
   }
   if(location.hash.startsWith('#guide-')){const code=location.hash.slice(1).replace(/[^A-Za-z0-9_-]/g,'');
