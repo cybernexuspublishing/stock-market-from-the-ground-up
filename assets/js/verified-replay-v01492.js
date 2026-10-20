@@ -55,6 +55,9 @@ function resetMemberReplay(){
  $('vr-bars').replaceChildren();$('vr-execution').hidden=true;
  const link=$('vr-journal-link');link.hidden=true;link.removeAttribute('href');link.textContent='';
  $('vr-source').textContent='';$('vr-code').value='';$('vr-dataset').replaceChildren();
+ $('vr-reason').value='';$('vr-decision').value='';$('vr-side').value='';
+ $('vr-limit').value='';$('vr-execution').textContent='';
+ $('vr-visible-count').textContent='No candles loaded. Future data remain private.';
  $('vr-dataset-note').textContent='Refresh the authorized dataset catalog for this account.';
  plotVisibleCandles();renderState();
 }
