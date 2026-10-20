@@ -127,5 +127,66 @@ REVOKE ALL ON FUNCTION public.gu_v014124_record_reconcile_result(text,bigint,tex
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014124_record_reconcile_result(text,bigint,text,text)
  TO service_role;
+
+-- v58 writes site_subscriptions BEFORE binding stripe_subscription_id on the
+-- intent. v123's row trigger cannot see the first subscription at that point:
+-- its initial "activated" notification would otherwise be silently lost.
+-- This AFTER-binding trigger is transactional and uses the SAME dedup key as
+-- v123, so a future reordered v58 statement cannot double-notify.
+CREATE OR REPLACE FUNCTION public.gu_v014124_capture_first_bound_notice()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+SET search_path=public,pg_temp AS $first$
+DECLARE
+ row_status text; row_end timestamptz; row_cancel boolean;
+ kind text; notice text; present boolean;
+BEGIN
+ IF TG_OP<>'UPDATE' OR OLD.stripe_subscription_id IS NOT NULL
+ OR NEW.stripe_subscription_id IS NULL OR NEW.stripe_session_id IS NULL
+ OR NEW.sku_kind NOT IN ('plan','tool') THEN RETURN NEW; END IF;
+ kind:=NEW.sku_kind;
+ IF kind='plan' THEN
+  SELECT s.status,s.current_period_end,coalesce(s.cancel_at_period_end,false)
+    INTO row_status,row_end,row_cancel
+  FROM public.site_subscriptions s
+  WHERE s.provider='STRIPE_MANAGED' AND s.user_id=NEW.user_id
+   AND s.provider_subscription_id=NEW.stripe_subscription_id
+   AND s.plan_code=NEW.sku_code
+   AND s.metadata->>'source'='gu58_live_signed_stripe'
+   AND s.metadata->>'checkoutIntent'=NEW.id::text;
+ ELSE
+  SELECT s.status,s.current_period_end,coalesce(s.cancel_at_period_end,false)
+    INTO row_status,row_end,row_cancel
+  FROM public.user_tool_passes s
+  WHERE s.provider='STRIPE_MANAGED' AND s.user_id=NEW.user_id
+   AND s.provider_subscription_id=NEW.stripe_subscription_id
+   AND s.tool_code=NEW.sku_code
+   AND s.metadata->>'source'='gu58_live_signed_stripe'
+   AND s.metadata->>'checkoutIntent'=NEW.id::text;
+ END IF;
+ IF NOT FOUND THEN RETURN NEW; END IF;
+ notice:=CASE WHEN row_status='canceled' THEN 'canceled'
+  WHEN row_status='past_due' THEN 'payment_failed'
+  WHEN row_status='paused' THEN 'access_paused'
+  WHEN row_status IN('active','trialing') AND row_cancel THEN 'cancellation_scheduled'
+  WHEN row_status='active' THEN 'activated'
+  ELSE NULL END;
+ IF notice IS NULL THEN RETURN NEW; END IF;
+ INSERT INTO public.gu_billing_notice_outbox_v014123(
+  dedup_key,user_id,source_kind,provider_subscription_id,
+  notice_kind,current_period_end)
+ VALUES(md5(NEW.user_id::text||'|'||kind||'|'||NEW.stripe_subscription_id||
+  '|'||notice||'|'||coalesce(row_end::text,'none')||'|'||row_cancel::text),
+  NEW.user_id,kind,NEW.stripe_subscription_id,notice,row_end)
+ ON CONFLICT(dedup_key) DO NOTHING;
+ RETURN NEW;
+END $first$;
+REVOKE ALL ON FUNCTION public.gu_v014124_capture_first_bound_notice()
+ FROM PUBLIC,anon,authenticated;
+DROP TRIGGER IF EXISTS gu_v014124_initial_subscription_notice
+ ON public.gu58_live_checkout_intents;
+CREATE TRIGGER gu_v014124_initial_subscription_notice
+ AFTER UPDATE OF stripe_subscription_id ON public.gu58_live_checkout_intents
+ FOR EACH ROW EXECUTE FUNCTION public.gu_v014124_capture_first_bound_notice();
+
 NOTIFY pgrst,'reload schema';
 COMMIT;

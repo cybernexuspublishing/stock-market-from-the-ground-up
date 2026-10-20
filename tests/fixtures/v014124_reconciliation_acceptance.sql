@@ -1,5 +1,30 @@
 -- v124 disposable PostgreSQL ONLY; NEVER run against production.
 \set ON_ERROR_STOP on
+-- v58 first-event ordering regression. All modifications happen in
+-- disposable PostgreSQL, never in Supabase production.
+INSERT INTO public.gu58_live_checkout_intents(id,user_id,sku_kind,sku_code,
+ stripe_session_id,stripe_subscription_id,status,price_id) VALUES
+ ('33333333-3333-4333-8333-333333333333','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'plan','FULL_MONTHLY','cs_live_FIRST123',NULL,'checkout_created','price_VERIFIED123');
+INSERT INTO public.site_subscriptions(user_id,plan_code,provider,provider_subscription_id,
+ status,current_period_end,metadata) VALUES
+ ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','FULL_MONTHLY','STRIPE_MANAGED',
+  'sub_FIRST123','active',now()+interval '30 days',
+  '{"source":"gu58_live_signed_stripe","checkoutIntent":"33333333-3333-4333-8333-333333333333"}');
+DO $x$ BEGIN
+ IF EXISTS(SELECT 1 FROM public.gu_billing_notice_outbox_v014123
+  WHERE provider_subscription_id='sub_FIRST123') THEN
+  RAISE EXCEPTION 'v123 unexpectedly saw unbound Stripe intent'; END IF;
+END $x$;
+UPDATE public.gu58_live_checkout_intents SET stripe_subscription_id='sub_FIRST123',
+ status='active' WHERE id='33333333-3333-4333-8333-333333333333';
+DO $x$ BEGIN
+ IF (SELECT count(*) FROM public.gu_billing_notice_outbox_v014123
+   WHERE provider_subscription_id='sub_FIRST123' AND notice_kind='activated')<>1 THEN
+   RAISE EXCEPTION 'Lost initial paid activation notice when intent bound after subscription INSERT';
+ END IF;
+END $x$;
+
 INSERT INTO public.site_subscriptions(user_id,plan_code,provider,provider_subscription_id,
  status,current_period_end,metadata)
  VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','FULL_MONTHLY','STRIPE_MANAGED',
