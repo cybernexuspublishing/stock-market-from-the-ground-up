@@ -13,12 +13,13 @@ globalThis.fetch=async (url,opts={})=>{const u=new URL(url),p=u.pathname,search=
  if(p.endsWith('/admin_user_roles'))return respond(privilege==='moderator'?[{role_code:'MODERATOR'}]:privilege==='owner'?[{role_code:'OWNER'}]:[]);
  if(p.endsWith('/admin_role_permissions'))return respond(privilege==='moderator'?[{role_code:'MODERATOR'}]:[]);
  if(p.endsWith('/forum_posts')){
-  if(method==='PATCH'){writes++;return respond([{id:9}])}
+  if(method==='PATCH')throw Error('Member PATCH outside atomic RPC is prohibited');
   return respond([{id:9,author_id:ownerRow,body:'A source-backed observation',status:'published',updated_at:'2026-10-10T00:00:00.000Z',topic_id:2}])
  }
  if(p.endsWith('/forum_topics'))return respond([{id:2,status:'published',updated_at:'2026-10-10T00:00:00.000Z',is_locked:false,is_pinned:false}]);
- if(p.endsWith('/commons_topics')){if(method==='PATCH'){writes++;return respond([{id:2}])}return respond([{id:2,status:'published',updated_at:'2026-10-10T00:00:00.000Z',is_locked:false,is_pinned:false,is_official:false,title:'Testing'}])}
+ if(p.endsWith('/commons_topics')){if(method==='PATCH')throw Error('Content PATCH without atomic audit is prohibited');return respond([{id:2,status:'published',updated_at:'2026-10-10T00:00:00.000Z',is_locked:false,is_pinned:false,is_official:false,title:'Testing'}])}
  if(p.endsWith('/rpc/gu_v014113_moderate_with_audit'))return respond({ok:true,auditRecorded:true,atomic:true});
+ if(p.endsWith('/rpc/gu_v014116_member_change_with_audit')){writes++;return respond({ok:true,auditRecorded:true,atomic:true})}
  if(p.endsWith('/admin_audit_log'))return respond([]);
  return respond([]);
 };
