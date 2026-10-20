@@ -75,7 +75,16 @@ try{
  assert.equal(status,200);
  assert.equal(result.skills[0].completeAssessments,0);
  assert.equal(result.skills[0].status,'Developing','Single knowledge quiz must never certify competency proficiency');
+ assert.equal(result.snapshot.strongest.length,0,'Partial knowledge-only scores must not become strongest complete competencies');
  assert.match(result.skills[0].diagnosis,/Partial evidence/i);
+ evidence.push(...['knowledge','recognition','decision','process'].map(d=>({
+  user_id:actor,competency_code:'CANDLE_READING',source_type:'quiz',source_id:'low-complete-assessment',
+  dimension:d,score:50,passed:false,critical_error:false,difficulty:'assessment',
+  weight:1,assessed_at:'2026-10-19T23:00:00Z'})));
+ [status,result]=await query();
+ assert.equal(status,200);assert.equal(result.skills[0].completeAssessments,1);
+ assert.equal(result.skills[0].score,50);
+ assert.equal(result.skills[0].status,'Needs Work','A perfect partial quiz cannot promote a poor complete assessment');
  accountKind='showcase';[status,result]=await query();
  assert.equal(status,200);assert.equal(result.synthetic,true);
  accountKind='member';

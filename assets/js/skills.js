@@ -22,7 +22,7 @@ function renderOfficialSkills(evidence){
  const summary=document.getElementById('official-competencies-summary');
  if(summary)summary.textContent=items.length+' existing defined competencies · '+items.filter(x=>Number(x.evidenceCount)>0).length+' have verified assessment evidence. Conceptual Lab exercise grades do not automatically establish four-dimensional competency mastery.';
  if(evidence.competencies.synthetic===true){host.textContent='Showcase displays explicitly fictional examples, not personal assessment results.';return}
- host.innerHTML=items.map(x=>'<article class="card skill-card"><div class="skill-card-top"><h3>'+se(x.name||x.code)+'</h3><span class="pill">'+se(x.status||'Not Yet Assessed')+'</span></div><p class="small">'+se(x.category||'')+' · '+Number(x.evidenceCount||0)+' distinct verified assessment(s)</p><p class="small">'+se(x.diagnosis||'')+'</p><a class="text-link" href="labs.html?q='+encodeURIComponent(x.name||x.code)+'">Find related Labs →</a></article>').join('');
+ host.innerHTML=items.map(x=>'<article class="card skill-card"><div class="skill-card-top"><h3>'+se(x.name||x.code)+'</h3><span class="pill">'+se(x.status||'Not Yet Assessed')+'</span></div><p class="small">'+se(x.category||'')+' · '+Number(x.evidenceCount||0)+' distinct verified assessment(s)</p><p class="small">'+se(x.diagnosis||'')+'</p><a class="text-link" href="skills.html#guide-'+encodeURIComponent(x.code)+'">Study original guide →</a></article>').join('');
 }
 async function renderOriginalCurriculum(){
  const host=document.getElementById('original-competency-guides');if(!host)return;
@@ -53,6 +53,8 @@ async function renderOriginalCurriculum(){
     link.textContent=lab.labId+' · '+lab.title;link.style.display='block';block.append(link);}
    card.append(title,label,concept,panel,block);host.append(card);
   }
+  if(location.hash.startsWith('#guide-')){const code=location.hash.slice(1).replace(/[^A-Za-z0-9_-]/g,'');
+   const destination=document.getElementById(code);if(destination)requestAnimationFrame(()=>destination.scrollIntoView({block:'start'}));}
   const summary=document.getElementById('original-guides-summary');
   if(summary)summary.textContent='30 original study guides connected to the existing 419-Lab inventory. They do not contain private graded answer keys or historical price claims.';
  }catch{
