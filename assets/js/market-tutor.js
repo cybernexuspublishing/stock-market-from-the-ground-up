@@ -1,97 +1,309 @@
-let TUTOR={index:[],sb:null,user:null};
-function te(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function toks(s){return String(s||'').toLowerCase().replace(/[^a-z0-9&+\- ]+/g,' ').split(/\s+/).filter(Boolean)}
-function score(item,q){const qt=toks(q),blob=[item.title,...(item.aliases||[]),item.summary,...(item.related||[])].join(' ').toLowerCase();let s=0;qt.forEach(t=>{if(blob.includes(t))s+=2;if((item.aliases||[]).some(a=>a.toLowerCase()===t))s+=3});if((item.aliases||[]).some(a=>q.toLowerCase().includes(a.toLowerCase())))s+=8;if(q.toLowerCase().includes(item.title.toLowerCase()))s+=8;return s}
-async function personalPractice(){if(!TUTOR.sb||!TUTOR.user)return {signedIn:false,member:false,top:[]};try{const ent=await TUTOR.sb.from('entitlements').select('status,starts_at,ends_at').eq('user_id',TUTOR.user.id);const now=Date.now(),member=(ent.data||[]).some(e=>['active','trialing'].includes(e.status)&&(!e.starts_at||new Date(e.starts_at).getTime()<=now)&&(!e.ends_at||new Date(e.ends_at).getTime()>now));if(!member)return {signedIn:true,member:false,top:[]};const [j,a]=await Promise.all([TUTOR.sb.from('decision_journal').select('mistakes,entry_reason_category,actual_exit_reason_category,process_grade,plan_followed').eq('user_id',TUTOR.user.id).order('created_at',{ascending:false}).limit(50),TUTOR.sb.from('lab_attempts').select('mistakes,skill_code,mode').eq('user_id',TUTOR.user.id).order('completed_at',{ascending:false}).limit(50)]);const counts={};for(const row of [...(j.data||[]),...(a.data||[])])for(const m of Array.isArray(row.mistakes)?row.mistakes:[])counts[m]=(counts[m]||0)+1;const top=Object.entries(counts).sort((x,y)=>y[1]-x[1]).slice(0,5);return {signedIn:true,member:true,top,journal:j.data||[],attempts:a.data||[]}}catch{return {signedIn:true,member:false,top:[]}}}
-function renderMatches(items,q){const box=document.getElementById('tutor-answer');if(!items.length){box.innerHTML='<div class="tutor-match"><h3>No exact companion topic found</h3><p>Try an abbreviation, trading concept, or decision-process term such as MFE, MAE, HOD, VWAP, invalidation, reason for entry, or R-multiple.</p><div class="tutor-actions"><a class="btn secondary" href="labs.html?q='+encodeURIComponent(q)+'">Search Historical Labs</a></div></div>';return}box.innerHTML=items.map((x,i)=>`<article class="tutor-match"><div class="tutor-ref">${te(x.bookRef||'Companion learning environment')}</div><h3>${te(x.title)}</h3><p>${te(x.summary)}</p>${x.related?.length?`<p class="small"><strong>Related:</strong> ${x.related.map(te).join(' · ')}</p>`:''}<div class="tutor-actions"><a class="btn secondary" href="labs.html?q=${encodeURIComponent(x.labQuery||x.title)}">Find Related Labs</a><a class="btn secondary" href="simulator.html?topic=${encodeURIComponent(x.id)}">Practice in Simulator</a></div></article>`).join('')}
-async function linkTutorStudyGuides(records){
- try{
-  const response=await fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'});
-  if(!response.ok)return;
-  const map=await response.json(),host=document.getElementById('tutor-original-skills');
-  if(!host)return;host.replaceChildren();const seen=new Set();
-  for(const row of records.slice(0,5)){
-   for(const code of map.byLab?.[row.labId]?.relatedCompetencies||[]){
-    if(seen.has(code))continue;seen.add(code);
-    const link=document.createElement('a');link.className='btn secondary';
-    link.href='skills.html#guide-'+encodeURIComponent(code);
-    link.textContent='Study '+code.replaceAll('_',' ');host.append(link);
+/* v0.14.0.102 — accessible Member Tutor response workspace.
+ * One question -> one user-visible answer, independent of whether paid AI is enabled.
+ * Unauthenticated teaching is an explicitly labeled PUBLIC glossary fallback.
+ * Persistent history is optional: fail safely to current-page memory until Owner SQL.
+ * Never copy user text to localStorage, never award grades, and never render HTML
+ * returned by a learner, provider, or database as markup.
+ */
+const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null};
+const $=id=>document.getElementById(id);
+function status(message,kind=''){const node=$('tutor-status');node.textContent=message;node.className='status-message'+(kind?' '+kind:'');}
+function historyStatus(message){$('tutor-history-state').textContent=message;}
+function btn(label,handler,cls='btn secondary'){
+ const el=document.createElement('button');el.type='button';el.className=cls;el.textContent=label;el.addEventListener('click',handler);return el;
+}
+function make(tag,text,className){
+ const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);
+ if(className)n.className=className;return n;
+}
+function sourceTitles(sources){
+ return (Array.isArray(sources)?sources:[]).slice(0,3)
+ .map(x=>String(x?.title||x?.sourceLabel||'').trim().slice(0,120)).filter(Boolean);
+}
+function sessionMessage(){return TUTOR.user?'Current-page exchanges are available now; cross-device history requires approved private storage.':'Public glossary mode: sign in for member teaching and saved private exchanges.';}
+async function token(){
+ if(!TUTOR.sb)return null;
+ try{return (await TUTOR.sb.auth.getSession()).data?.session?.access_token||null}catch{return null}
+}
+function safeUrl(x){
+ const href=String(x?.practiceUrl||'');
+ return href.startsWith('/labs.html?q=')?href:'labs.html?q='+encodeURIComponent(x?.title||'');
+}
+function relatedGuides(record){
+ const context=(record.sourceTitles||[]).join(' ')+' '+record.question;
+ const terms=[...new Set((context.toUpperCase().match(/[A-Z0-9]{3,}/g)||[])
+  .filter(x=>!['WHAT','HOW','FOR','THE','YOUR','EXPLAIN','ABOUT','FOLLOW','WITH','FROM','STEP','REVIEW'].includes(x)))];
+ return TUTOR.guides.map(g=>{
+  const title=(g.title+' '+g.code.replaceAll('_',' ')).toUpperCase();
+  const concept=String(g.concept||'').toUpperCase();
+  const score=terms.reduce((sum,k)=>sum+(title.includes(k)?5:0)+(concept.includes(k)?1:0),0);
+  return {g,score};
+ }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score).slice(0,2).map(x=>x.g);
+}
+function detailsOf(record){
+ const li=make('li',undefined,'tutor-turn');
+ li.dataset.requestId=record.requestId;
+ const meta=make('p',(record.mode||'explain').toUpperCase()+' · '+(record.id?'Saved privately':'Current view only')+' · '+new Date(record.createdAt).toLocaleString(),'tutor-ref');
+ li.append(meta,make('h3','Your question'),make('p',record.question,'tutor-user-message'));
+ if(record.learnerAnswer){
+  li.append(make('h4','Your submitted reasoning (ungraded)'),make('p',record.learnerAnswer,'tutor-user-message'));
+ }
+ const reply=make('section',undefined,'tutor-reply');
+ reply.append(make('h4','Tutor response'),make('p',record.answer,'tutor-response-text'));
+ const type=record.generation==='grounded-model-draft'?'Optional AI-generated educational draft':
+  record.generation==='public-companion-glossary'?'Public glossary — not AI':
+  record.generation==='authenticated-practice-history'?'Private study suggestions — not AI':
+  'Original source-grounded companion teaching — not generative AI';
+ reply.append(make('p',type+' · No grades or mastery awarded.','small'));
+ if(record.sourceTitles?.length){
+  const label=make('p','Relevant original study topics: ','small');
+  label.append(make('strong',record.sourceTitles.join(' · ')));reply.append(label);
+ }
+ // Topic-to-Lab suggestions remain ungraded and are drawn only from the
+ // original 30-skill crosswalk; they are NOT assessment evidence.
+ const matching=relatedGuides(record);
+ if(matching.length){
+  const study=make('div',undefined,'tutor-actions');
+  for(const g of matching){
+   const a=make('a','Study '+g.title,'btn secondary');
+   a.href='skills.html#guide-'+encodeURIComponent(g.code);study.append(a);
+   const related=TUTOR.competencyMap?.bySkill?.[g.code]?.[0];
+   if(related){
+    const lab=make('a','Find related Lab','btn secondary');
+    lab.href='labs.html?q='+encodeURIComponent(related);study.append(lab);
    }
   }
- }catch{/* Existing Tutor still works without static curriculum links. */}
+  reply.append(study);
+ }
+ const actions=make('div',undefined,'tutor-actions');
+ actions.append(btn('Continue this topic',()=>{
+  TUTOR.lastTopic=record.sourceTitles?.[0]||record.question.slice(0,70);
+  $('tutor-question').value='Follow-up on '+TUTOR.lastTopic+': ';
+  updateCount();$('tutor-question').focus();window.scrollTo({top:0,behavior:'smooth'});
+ }));
+ if(record.mode==='question'){
+  actions.append(btn('Type and submit my answer',()=>{
+   $('tutor-mode').value='review';
+   $('tutor-question').value=('Review my answer to: '+record.question).slice(0,450);
+   updateCount();$('tutor-reflection').focus();window.scrollTo({top:0,behavior:'smooth'});
+  }));
+ }
+ actions.append(btn('Copy response',async()=>{
+  try{await navigator.clipboard.writeText(record.answer);status('Response copied.')}catch{status('Copy unavailable; select the response text instead.')}
+ }));
+ if(record.id)actions.append(btn('Delete saved exchange',()=>deleteOne(record)));
+ reply.append(actions);li.append(reply);return li;
 }
-async function premiumTeaching(q,status){
- if(!TUTOR.sb||!TUTOR.user)return false;
- let session;try{session=(await TUTOR.sb.auth.getSession()).data?.session}catch{return false}
- if(!session?.access_token)return false;
- const chosen=document.getElementById('tutor-mode')?.value||'explain';
- const mode=chosen==='practice'||/what should i practice|what do i need to practice|what am i doing wrong|weakness|weakest/i.test(q)?'practice':chosen;
- const learnerAnswer=document.getElementById('tutor-reflection')?.value||'';
+function renderConversation(){
+ const host=$('tutor-thread');host.replaceChildren();
+ for(const rec of TUTOR.entries)host.append(detailsOf(rec));
+ $('tutor-export').disabled=!TUTOR.entries.length;
+ $('tutor-followup').disabled=!TUTOR.entries.length;
+ $('tutor-session-note').textContent=TUTOR.entries.length+' exchange(s) displayed. '+sessionMessage();
+}
+function addRecord(record){
+ TUTOR.entries.push(record);renderConversation();
+ $('tutor-thread').lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function previewRecord(record){
+ const exists=TUTOR.entries.findIndex(x=>x.requestId===record.requestId);
+ if(exists===-1)TUTOR.entries.push(record);
+ else TUTOR.entries[exists]=record;
+ renderConversation();
+}
+function normalizeSaved(x){
+ return {requestId:String(x.id),id:String(x.id),question:String(x.question||''),
+ learnerAnswer:String(x.learner_answer||''),mode:String(x.mode||'explain'),
+ answer:String(x.answer||''),generation:String(x.generation||'reviewed-glossary-logic'),
+ sourceTitles:Array.isArray(x.source_titles)?x.source_titles:[],
+ createdAt:x.created_at||new Date().toISOString()};
+}
+async function privateApi(path,method='GET',body,headers={}){
+ const access=await token();if(!access)throw Object.assign(new Error('Sign in to manage saved Tutor exchanges.'),{status:401});
+ const init={method,cache:'no-store',headers:{authorization:'Bearer '+access,...headers}};
+ if(body!==undefined){init.headers['content-type']='application/json';init.body=JSON.stringify(body)}
+ const response=await fetch('/api/member-tutor-history-v014102'+path,init);
+ const data=await response.json().catch(()=>null);
+ if(!response.ok||data?.ok!==true)throw Object.assign(
+  new Error(response.status===503?'Private history storage is not installed or temporarily unavailable.':data?.error||'History request failed.'),
+  {status:response.status});
+ return data;
+}
+async function loadHistory(){
+ const requestedUser=TUTOR.user?.id||null;
+ if(!TUTOR.user){historyStatus('Sign in to access saved Tutor exchanges. Public glossary answers stay on this page only.');return}
  try{
-  const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',headers:{
-   authorization:'Bearer '+session.access_token,'content-type':'application/json'},
-   body:JSON.stringify({question:q,mode,learnerAnswer})});
-  const data=await response.json().catch(()=>null);
-  if(response.status===401||response.status===403)return false;
-  if(!response.ok||!data?.ok)throw Error('Tutor unavailable');
-  if(data.mode==='practice'){
-   const list=Array.isArray(data.recommendations)?data.recommendations.slice(0,5):[];
-   const box=document.getElementById('tutor-answer');
-   box.innerHTML='<article class="tutor-match"><div class="tutor-ref">Private, authenticated study review — not a graded assessment</div>'+
-    '<h3>Practice priorities from your records</h3><p>'+te(data.answer||'')+'</p>'+
-    (Array.isArray(data.gradedReview)&&data.gradedReview.length?'<h4>Recorded lesson assessments to revisit</h4><ol class="tutor-personal-list">'+data.gradedReview.slice(0,5).map(x=>'<li><strong>'+te(x.labId)+'</strong> · Latest recorded assessment '+Number(x.latestRecordedScore)+'% · <a href="labs.html?q='+encodeURIComponent(x.labId||'')+'">Find this Lab</a></li>').join('')+'</ol><p class="small">Scores are from existing authored training attempts; they do not certify historical market performance or overall mastery.</p>':'')+
-    (list.length?'<ol class="tutor-personal-list">'+list.map(x=>'<li><strong>'+te(x.topic)+'</strong> · '+Number(x.mentions||0)+
-      ' self-tagged record(s) · <a href="labs.html?q='+encodeURIComponent(x.topic||'')+'">Find related Labs</a></li>').join('')+'</ol>':'')+
-    '<p class="small">'+te(data.notice||'')+'</p><div id="tutor-original-skills" class="tutor-actions"></div><div class="tutor-actions"><a class="btn secondary" href="journal.html">Review Journal</a><a class="btn secondary" href="skills.html">Review Skills</a></div></article>';
-   void linkTutorStudyGuides(data.gradedReview||[]);
-   status.className='status-message success';status.textContent='Private practice suggestions only; no scores or mastery awarded.';
-   return true;
-  }
-  const sources=(data.sources||[]).slice(0,3);
-  const safeLink=href=>String(href||'').startsWith('/labs.html?q=')?href:'/labs.html';
-  document.getElementById('tutor-answer').innerHTML=
-   '<article class="tutor-match"><div class="tutor-ref">'+te(data.generation==='grounded-model-draft'?'AI-assisted · source-limited response':'Source-grounded companion teaching')+'</div>'+
-   '<h3>Learning response</h3><p>'+te(data.answer||'').split(String.fromCharCode(10)).join('<br>')+'</p>'+
-   (sources.length?'<h4>Source references</h4><ol>'+sources.map(x=>'<li><strong>'+te(x.sourceId+' '+x.title)+'</strong> · '+te(x.bookContext)+' · <a href="'+te(safeLink(x.practiceUrl))+'">Find related Labs</a></li>').join('')+'</ol>':'')+
-   '<p class="small">'+te(data.notice||'')+'</p><div class="tutor-actions"><a class="btn secondary" href="skills.html">Skill record</a><a class="btn secondary" href="journal.html">Journal</a></div></article>';
-  status.className='status-message success';status.textContent='Educational guidance only. No assessment score or mastery awarded.';
-  return true;
- }catch{status.textContent='Premium Tutor unavailable. Showing existing companion glossary.';status.className='status-message';return false}
+  const data=await privateApi('');
+  if(TUTOR.user?.id!==requestedUser)return;
+  TUTOR.serverHistory=true;
+  const prior=data.history.map(normalizeSaved).reverse();
+  const known=new Set(prior.map(x=>x.id));
+  TUTOR.entries=[...prior,...TUTOR.entries.filter(x=>!x.id||!known.has(x.id))];
+  renderConversation();
+  historyStatus(prior.length+' previously saved exchange(s) loaded from your private member history (up to 200).');
+ }catch(e){
+  TUTOR.serverHistory=false;
+  historyStatus(e.message+' Your current-page conversation still works. No assessment data was changed.');
+ }
 }
-async function attachOriginalTutorGuidance(question,requestId){
+async function saveRecord(rec){
+ if(!TUTOR.user)return;
  try{
-  const res=await fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'});
-  if(!res.ok)return;const source=await res.json();
-  if(!Array.isArray(source.guides)||source.guides.length!==30||requestId!==TUTOR.questionSequence)return;
-  const words=String(question||'').toLowerCase().match(/[a-z]{4,}/g)||[];
-  const stop=new Set(['what','should','would','could','that','this','with','from','your','when','which','where','have','does','about','mean','stock','market']);
-  const tokens=[...new Set(words.filter(x=>!stop.has(x)))];
-  const ranked=source.guides.map(g=>{
-   const name=(g.title+' '+g.code.replaceAll('_',' ')).toLowerCase();
-   const content=(g.concept+' '+g.procedure).toLowerCase();
-   const value=tokens.reduce((n,t)=>n+(name.includes(t)?6:0)+(content.includes(t)?1:0),0);
-   return {g,value};
-  }).filter(x=>x.value>=3).sort((a,b)=>b.value-a.value||a.g.code.localeCompare(b.g.code)).slice(0,2);
-  if(!ranked.length)return;
-  const host=document.getElementById('tutor-answer');if(!host||requestId!==TUTOR.questionSequence)return;
-  const panel=document.createElement('section');panel.className='tutor-match';
-  const heading=document.createElement('h3');heading.textContent='Related original teaching from the 30-skill curriculum';panel.append(heading);
-  const note=document.createElement('p');note.className='small';
-  note.textContent='Original source-grounded learning guidance. These worked concepts are not real historical market evidence, private answer keys or assessed trading results.';
-  panel.append(note);
-  for(const {g} of ranked){
-   const title=document.createElement('h4');title.textContent=g.title;
-   const concept=document.createElement('p');concept.textContent=g.concept;
-   const limit=document.createElement('p');limit.textContent='Uncertainty: '+g.limit;
-   const question=document.createElement('p');question.textContent='Self-check: '+g.selfCheck;
-   const link=document.createElement('a');link.href='skills.html#guide-'+encodeURIComponent(g.code);
-   link.className='btn secondary';link.textContent='Open full original study guide';
-   panel.append(title,concept,limit,question,link);
-  }
-  host.append(panel);
- }catch{/* Never block pre-existing Tutor teaching or premium access. */}
+  const x=await privateApi('', 'POST', {
+   requestId:rec.requestId,question:rec.question,learnerAnswer:rec.learnerAnswer,
+   mode:rec.mode,answer:rec.answer,generation:rec.generation,sourceTitles:rec.sourceTitles
+  });
+  rec.id=x.id;renderConversation();
+  historyStatus('Response saved to your private Tutor exchange history. It is not a graded attempt.');
+ }catch(e){historyStatus('This exchange is available only in the current page: '+e.message)}
 }
-async function ask(){const q=document.getElementById('tutor-question').value.trim(),status=document.getElementById('tutor-status');if(!q){status.textContent='Enter a question first.';status.className='status-message error';return}status.textContent='';const sequence=TUTOR.questionSequence=(TUTOR.questionSequence||0)+1;
- if(await premiumTeaching(q,status)){void attachOriginalTutorGuidance(q,sequence);return;}const lower=q.toLowerCase();if(/what should i practice|what do i need to practice|what am i doing wrong|weakness|weakest/.test(lower)){const p=await personalPractice();const box=document.getElementById('tutor-answer');if(p&&!p.signedIn){box.innerHTML='<article class="tutor-match"><h3>Sign in for personalized practice recommendations</h3><p>General Market Tutor explanations remain available without account history.</p><div class="tutor-actions"><a class="btn secondary" href="signin.html">Sign In</a></div></article>';return}if(p&&!p.member){box.innerHTML='<article class="tutor-match"><h3>Personalized coaching is part of Full Learning Access</h3><p>The Tutor can use your own lab and journal mistake history to prioritize practice while your Full Learning Access or Book Key trial is active.</p><div class="tutor-actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem Book Key</a></div></article>';return}if(p?.top?.length){box.innerHTML=`<article class="tutor-match"><div class="tutor-ref">Personal practice recommendation</div><h3>Start with your most repeated review items</h3><ol class="tutor-personal-list">${p.top.map(([m,n])=>`<li>${te(m)} — recorded ${n} time${n===1?'':'s'}</li>`).join('')}</ol><p>Your journal and lab history are being used only from your signed-in account in this browser session. Treat the list as a practice priority, not a prediction of future results.</p><div class="tutor-actions"><a class="btn" href="labs.html">Choose a Lab</a><a class="btn secondary" href="simulator.html">Open Simulator</a><a class="btn secondary" href="journal-analytics.html">Open Analytics</a></div></article>`;return}box.innerHTML='<article class="tutor-match"><h3>Build more practice history first</h3><p>I do not have enough recorded mistakes yet to personalize the next assignment. Complete Guided/Blind labs or journal live/paper decisions and tag only the mistakes that actually apply.</p><div class="tutor-actions"><a class="btn" href="labs.html">Open Labs</a><a class="btn secondary" href="simulator.html">Open Simulator</a></div></article>';return}const ranked=TUTOR.index.map(x=>[x,score(x,q)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);renderMatches(ranked,q);void attachOriginalTutorGuidance(q,sequence)}
-async function initTutor(){TUTOR.index=await fetch('data/tutor-index.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).catch(()=>[]);try{TUTOR.sb=await window.getSupabaseClient();const {data:{user}}=await TUTOR.sb.auth.getUser();TUTOR.user=user;const {data:managed}=await TUTOR.sb.from('managed_content').select('content_code,title,summary,body,metadata').eq('content_type','tutor_topic').eq('status','published').order('sort_order',{ascending:true});if(managed?.length){const extra=managed.map(x=>({id:x.content_code,title:x.title,aliases:Array.isArray(x.metadata?.aliases)?x.metadata.aliases:[],summary:x.summary||x.body||'',related:Array.isArray(x.metadata?.related)?x.metadata.related:[],bookRef:x.metadata?.bookRef||'Companion learning environment',labQuery:x.metadata?.labQuery||x.title}));const by=new Map(TUTOR.index.map(x=>[x.id,x]));extra.forEach(x=>by.set(x.id,x));TUTOR.index=[...by.values()]}}catch{}const q=new URLSearchParams(location.search).get('q');if(q)document.getElementById('tutor-question').value=q;document.getElementById('tutor-ask').addEventListener('click',ask);document.getElementById('tutor-question').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ask()}});document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('tutor-question').value=b.dataset.q;ask()}));if(q)ask()}
-document.addEventListener('DOMContentLoaded',initTutor);
+async function deleteOne(rec){
+ if(!rec.id){TUTOR.entries=TUTOR.entries.filter(x=>x!==rec);renderConversation();return}
+ if(!confirm('Permanently delete this saved Tutor exchange? This cannot be undone.'))return;
+ try{
+  await privateApi('?id='+encodeURIComponent(rec.id),'DELETE');
+  TUTOR.entries=TUTOR.entries.filter(x=>x!==rec);renderConversation();historyStatus('Saved Tutor exchange deleted.');
+ }catch(e){historyStatus('The saved exchange was not deleted: '+e.message)}
+}
+async function deleteAll(){
+ if(!TUTOR.user){historyStatus('No private history is available without sign-in.');return}
+ if(!confirm('Delete ALL of your saved Tutor exchanges on the server? This is permanent and does not affect Lab grades or Journal records.'))return;
+ try{
+  await privateApi('?all=true','DELETE',undefined,{'x-confirm-delete':'DELETE_MY_TUTOR_HISTORY'});
+  TUTOR.entries=TUTOR.entries.filter(x=>!x.id);
+  renderConversation();historyStatus('All saved Tutor exchanges permanently deleted. Local-only exchanges remain visible.');
+ }catch(e){historyStatus('Server history was not deleted: '+e.message)}
+}
+function exportConversation(){
+ if(!TUTOR.entries.length)return;
+ const exportRows=TUTOR.entries.map(({createdAt,question,learnerAnswer,mode,answer,generation,sourceTitles})=>({
+  date:createdAt,question,learnerReasoning:learnerAnswer,mode,answer,generation,sourceTitles,graded:false
+ }));
+ const blob=new Blob([JSON.stringify({kind:'ungraded_member_tutor_copy',exportedAt:new Date().toISOString(),exchanges:exportRows},null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='market-tutor-ungraded-exchanges.json';a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function updateCount(){$('tutor-question-count').textContent=String($('tutor-question').value.length)+' / 450'}
+function localExplanation(q){
+ const tokens=String(q).toLowerCase().match(/[a-z0-9]+/g)||[];
+ const ranked=TUTOR.index.map(t=>{
+  const title=String(t.title||'').toLowerCase(),aliases=(t.aliases||[]).join(' ').toLowerCase(),
+   summary=String(t.summary||'').toLowerCase();
+  const value=tokens.reduce((n,k)=>n+((k.length>2&&title.includes(k))?6:0)+((k.length>2&&aliases.includes(k))?4:0)+((k.length>3&&summary.includes(k))?1:0),0);
+  return {t,value};
+ }).filter(x=>x.value>0).sort((a,b)=>b.value-a.value).slice(0,2);
+ if(!ranked.length)return {answer:'No matching public companion topic was found. Search the Lab Registry, or sign in to ask the member Tutor.',generation:'public-companion-glossary',sources:[]};
+ return {answer:ranked.map(x=>x.t.title+': '+x.t.summary).join('\n\n')+
+ '\n\nThese are static public glossary explanations, not generated AI or reviewed assessments.',
+ generation:'public-companion-glossary',sources:ranked.map(x=>({title:x.t.title,practiceUrl:'labs.html?q='+encodeURIComponent(x.t.labQuery||x.t.title)}))};
+}
+function summarizePractice(data){
+ const parts=[String(data.answer||'')];
+ if(data.mode==='practice'){
+  const grades=Array.isArray(data.gradedReview)?data.gradedReview.slice(0,5):[];
+  const suggested=Array.isArray(data.recommendations)?data.recommendations.slice(0,5):[];
+  if(grades.length)parts.push('Recorded lessons to revisit (not a skill certification):\n'+
+   grades.map(x=>String(x.labId)+' — latest reviewed conceptual score '+Number(x.latestRecordedScore)+'%').join('\n'));
+  if(suggested.length)parts.push('Self-tagged review priorities:\n'+suggested.map(x=>String(x.topic)+' — '+Number(x.mentions)+' mention(s)').join('\n'));
+ }
+ return parts.filter(Boolean).join('\n\n');
+}
+async function memberExplanation(q,mode,learnerAnswer){
+ const access=await token();
+ if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
+ const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',
+  headers:{authorization:'Bearer '+access,'content-type':'application/json'},
+  body:JSON.stringify({question:q,mode,learnerAnswer,allowModel:$('tutor-ai-consent')?.checked===true})});
+ const data=await response.json().catch(()=>null);
+ if(!response.ok||data?.ok!==true){
+  throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
+   response.status===401?'Your session expired; sign in again.':'Tutor could not produce an answer. Your question was not submitted or saved.'),
+  {status:response.status});
+ }
+ if(typeof data.answer!=='string'||!data.answer)return null;
+ return {answer:summarizePractice(data),generation:String(data.generation||'reviewed-glossary-logic'),
+  sources:Array.isArray(data.sources)?data.sources:[]};
+}
+async function ask(){
+ if(TUTOR.busy)return;
+ const q=$('tutor-question').value.trim(),learnerAnswer=$('tutor-reflection').value.trim(),chosen=$('tutor-mode').value;
+ // Practice suggestions must use actual member history, not general glossary guesses.
+ const mode=chosen==='practice'||(/what should i practice|what do i need to practice|weakest|my mistakes/i.test(q)&&chosen==='explain')?'practice':chosen;
+ if(q.length<4||q.length>450){status('Enter a question between 4 and 450 characters.','error');$('tutor-question').focus();return}
+ if(mode==='review'&&!learnerAnswer){status('Type your reasoning before asking the Tutor to review it.','error');$('tutor-reflection').focus();return}
+ if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
+ if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
+ const submittingUser=TUTOR.user?.id||null;
+ TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
+ try{
+  const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer):localExplanation(q);
+  if(!data){throw Error('No approved teaching response was returned.')}
+  if(TUTOR.user?.id!==submittingUser)throw Error('Your signed-in account changed; the prior response was discarded to protect privacy.');
+  const rec={requestId:crypto.randomUUID(),question:q,learnerAnswer,mode,
+   answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
+   createdAt:new Date().toISOString(),id:null};
+  addRecord(rec);
+  TUTOR.lastTopic=rec.sourceTitles[0]||q.slice(0,70);
+  $('tutor-question').value='';$('tutor-reflection').value='';updateCount();
+  status('Response displayed. '+(data.generation==='grounded-model-draft'?'AI-assisted educational draft; verify its original sources.':'No paid AI provider was used for this response.'),'success');
+  if(TUTOR.user&&$('tutor-save-history')?.checked===true)await saveRecord(rec);
+  else historyStatus('This response stays on the current page only; account history was not updated.');
+ }catch(e){
+  status(e.message+(e.status===403?' Visit the Membership page to review access.':''),'error');
+ }finally{TUTOR.busy=false;$('tutor-ask').disabled=false}
+}
+async function initTutor(){
+ $('tutor-ask').addEventListener('click',ask);
+ $('tutor-question').addEventListener('input',updateCount);
+ $('tutor-question').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
+ $('tutor-reflection').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
+ $('tutor-mode').addEventListener('change',()=>{if($('tutor-mode').value==='review')$('tutor-reflection').focus()});
+ $('tutor-followup').addEventListener('click',()=>{
+  if(!TUTOR.entries.length)return;
+  const last=TUTOR.entries.at(-1),topic=last.sourceTitles?.[0]||last.question.slice(0,80);
+  $('tutor-question').value=('Follow-up on '+topic+': ').slice(0,450);
+  updateCount();$('tutor-question').focus();
+ });
+ $('tutor-export').addEventListener('click',exportConversation);
+ $('tutor-clear-view').addEventListener('click',()=>{
+  TUTOR.entries=[];renderConversation();status('Displayed conversation cleared. Previously saved notes remain on the server unless deleted.');
+ });
+ $('tutor-load-history').addEventListener('click',loadHistory);
+ $('tutor-delete-history').addEventListener('click',deleteAll);
+ document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{
+  $('tutor-question').value=b.dataset.q||'';updateCount();void ask();
+ }));
+ const query=new URLSearchParams(location.search).get('q');
+ if(query)$('tutor-question').value=query.slice(0,450);
+ updateCount();
+ TUTOR.index=await fetch('data/tutor-index.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+ const guidesAndMap=await Promise.all([
+  fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).catch(()=>null)
+ ]);
+ if(guidesAndMap[0]?.guides?.length===30&&guidesAndMap[1]?.totalCanonicalLabs===419){
+  TUTOR.guides=guidesAndMap[0].guides;TUTOR.competencyMap=guidesAndMap[1];
+ }
+ try{
+  TUTOR.sb=await window.getSupabaseClient();
+  const {data:{user}}=await TUTOR.sb.auth.getUser();TUTOR.user=user||null;
+  TUTOR.sb.auth.onAuthStateChange((event,session)=>{
+   const oldId=TUTOR.user?.id||null,newId=session?.user?.id||null;
+   if(event==='SIGNED_OUT'||(oldId&&newId&&oldId!==newId)){
+    TUTOR.entries=[];TUTOR.user=null;TUTOR.serverHistory=false;
+    renderConversation();historyStatus('Your account changed; private notes were cleared from this page.');
+    status('Sign in to open your own saved Tutor history.');
+   }
+   if(event==='SIGNED_IN'&&newId!==TUTOR.user?.id){
+    TUTOR.user=session.user;void loadHistory();
+   }
+  });
+ }catch{TUTOR.user=null}
+ renderConversation();
+ await loadHistory();
+ if(query&&TUTOR.user){$('tutor-question').focus();status('The linked question is ready for you to submit.');}
+ else if(query){status('The linked public glossary question is ready to submit.');}
+ else status(TUTOR.user?'Member Tutor ready. Submit a question to begin.':'Public glossary ready. Sign in to access member teaching.');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initTutor,{once:true});
+else void initTutor();

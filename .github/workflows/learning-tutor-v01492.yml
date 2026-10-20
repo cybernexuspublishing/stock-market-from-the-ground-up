@@ -13,6 +13,13 @@ on:
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
+      - 'assets/css/commerce-tutor.css'
+      - 'functions/api/member-tutor-history-v014102.js'
+      - 'functions/_lib/tutor-response-scaffold-v014102.js'
+      - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014102_member_tutor_history.mjs'
+      - 'tests/test_v014102_tutor_ai_consent.mjs'
+      - 'market-tutor.html'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
@@ -73,6 +80,13 @@ on:
       - 'scripts/check-419-editorial-register.mjs'
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
       - 'assets/js/market-tutor.js'
+      - 'market-tutor.html'
+      - 'assets/css/commerce-tutor.css'
+      - 'functions/api/member-tutor-history-v014102.js'
+      - 'functions/_lib/tutor-response-scaffold-v014102.js'
+      - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014102_member_tutor_history.mjs'
+      - 'tests/test_v014102_tutor_ai_consent.mjs'
       - 'market-tutor.html'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
@@ -159,10 +173,14 @@ jobs:
           node --check assets/js/site-lab-experience.js
           node --check assets/js/lab-registry.js
           node --check assets/js/market-tutor.js
+          node --check functions/api/member-tutor-history-v014102.js
+          node --check functions/_lib/tutor-response-scaffold-v014102.js
           node --check assets/js/lab-registry.js
           node --check functions/api/learning-replay-v01492.js
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014100_free_competency_tutor.mjs
+          node tests/test_v014102_member_tutor_history.mjs
+          node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs

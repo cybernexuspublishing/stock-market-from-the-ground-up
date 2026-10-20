@@ -8,6 +8,7 @@
 import {toolAccess} from './member-tool-access.js';
 import {tutorTopicsV01492} from '../_lib/tutor-topics-v01492.js';
 import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-v014100.js';
+import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -35,7 +36,7 @@ function deterministic(q,mode,sources,answer){
  const t=sources[0];
  const base=t.title+': '+t.summary+' ['+t.sourceId.slice(1,-1)+']';
  if(mode==='question')return base+'\n\nSelf-check (ungraded): What observation would support this idea, what evidence could invalidate your interpretation, and what would make NO TRADE the safer decision?';
- if(mode==='review')return base+'\n\nYour response was recorded for this view only; no score or mastery was awarded. Compare your explanation against the source and identify one missing assumption or invalidation. '+(answer?'You can revise your response before using it in an actual graded Lab.':'');
+ if(mode==='review')return base+'\n\nYour reasoning was considered without scoring or mastery credit. Your private note-saving preference is separate.\n\n'+ungradedResponseReview(answer)+'\n\n'+(answer?'You can revise your response before using it in an actual graded Lab.':'');
  return base+(sources[1]?'\n\nRelated: '+sources[1].title+': '+sources[1].summary+' [2]':'')+'\n\nPractice: pause at an observation boundary, write what is known, what is uncertain, and what would invalidate your interpretation. Do not view later candles before locking your decision.';
 }
 const serviceHeaders=(secret)=>{const h={apikey:secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;return h;};
@@ -183,7 +184,7 @@ export async function onRequest({request,env}){
   }
   const baseline=deterministic(q,mode,sources,answer);
   let text=baseline,generation='reviewed-glossary-logic';
-  if(env.AI_TUTOR_PAID_GENERATION_ENABLED==='true'&&source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
+  if(body.allowModel===true&&env.AI_TUTOR_PAID_GENERATION_ENABLED==='true'&&source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
    // Quota is atomically consumed BEFORE any paid provider request.
    // Missing quota migration or failed database connection prevents charges.
    const permitted=await quota(env,auth.userId).catch(()=>false);

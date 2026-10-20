@@ -8,3 +8,25 @@
 .tutor-learning-options select,.tutor-learning-options textarea{font:inherit;padding:10px 12px;min-height:42px;width:100%;max-width:100%;border:1px solid #7e909f;border-radius:8px;box-sizing:border-box;background:#fff;color:#17232e}
 .tutor-learning-options textarea{min-height:86px;resize:vertical}
 .tutor-learning-options :focus-visible{outline:3px solid #b58d43;outline-offset:2px}
+
+/* v0.14.0.102 — Member Tutor question/answer workspace and private notes. */
+.tutor-composer{display:grid;gap:8px;grid-template-columns:minmax(0,1fr);margin-block:12px}
+.tutor-composer label{font-weight:700}
+.tutor-composer textarea{box-sizing:border-box;width:100%;min-height:98px;font:inherit;resize:vertical;padding:12px;border:1px solid #94a4b1;border-radius:8px;background:#fff;color:#152432}
+.tutor-composer-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tutor-composer-actions .btn{min-width:150px}
+.tutor-thread-header{margin-block:18px 10px}
+.tutor-thread-header h2{margin-bottom:4px}
+.tutor-thread{list-style:none;padding:0;margin:0;display:grid;gap:16px}
+.tutor-turn{border:1px solid #385b73;border-radius:12px;padding:15px;background:#091e2d;min-width:0}
+.tutor-turn h3,.tutor-turn h4{margin:10px 0 6px}
+.tutor-user-message,.tutor-response-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;line-height:1.65}
+.tutor-user-message{border-left:3px solid #caaf62;padding-left:12px}
+.tutor-reply{border-top:1px solid #385b73;margin-top:12px;padding-top:10px}
+.tutor-history{border-top:1px solid #385b73;margin-top:18px;padding-top:16px}
+.tutor-history h3{margin:0 0 8px}
+.tutor-thread button:focus-visible,.tutor-composer textarea:focus-visible,.tutor-history button:focus-visible{outline:3px solid #f0d387;outline-offset:3px}
+.tutor-turn .tutor-actions button{white-space:normal;text-align:left}
+@media(max-width:640px){.tutor-composer-actions{align-items:stretch;flex-direction:column}.tutor-composer-actions .btn{width:100%}}
+
+.tutor-ai-opt-in{display:flex!important;gap:10px;align-items:flex-start;font-weight:500!important;font-size:.86rem;line-height:1.55}.tutor-ai-opt-in input{width:18px;height:18px;min-width:18px;margin:3px 0 0;accent-color:#ba9c53}
