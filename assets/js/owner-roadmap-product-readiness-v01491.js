@@ -153,6 +153,35 @@ async function loadLabAudit(force=false){
  }finally{labLoading=false;if(button)button.disabled=false}
 }
 
+async function loadOwnerLegalReadiness(){
+ const btn=$('or-legal-readiness-load'),status=$('or-legal-readiness-state'),host=$('or-legal-readiness-rows');
+ if(!btn||!status||!host)return;
+ btn.disabled=true;host.replaceChildren();status.textContent='Checking published policy rows using the Owner session…';
+ try{
+  const sb=await window.getSupabaseClient(),session=(await sb.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Sign in as Owner.');
+  const r=await fetch('/api/owner-roadmap?action=legal-publication-v014109',{
+   headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+  const data=await r.json().catch(()=>null);
+  if(!r.ok||data?.ok!==true||!data.legalAudit)throw Error('Legal publication inspection failed.');
+  const result=data.legalAudit;
+  if(!result.available){status.textContent=result.note||'Legal documents unavailable.';return}
+  status.textContent=result.publishedCount+' of '+result.documents.length+
+   ' legal document(s) have published, nonempty records. This does not verify legal adequacy, privacy retention rules, or crawler-rendered HTML.';
+  const table=document.createElement('table'),body=document.createElement('tbody');
+  for(const doc of result.documents){
+   const tr=document.createElement('tr'),heading=document.createElement('th'),value=document.createElement('td');
+   heading.scope='row';heading.textContent=doc.code;
+   value.textContent=(doc.published&&doc.bodyPresent?'Published record':'MISSING/UNPUBLISHED')+
+    ' · '+doc.contentLength+' characters · '+(doc.needsManualReview?'Manual content review required':'Manual legal review still required');
+   tr.append(heading,value);body.append(tr);
+  }
+  table.append(body);const wrap=document.createElement('div');wrap.className='or-table-scroll';wrap.append(table);
+  const note=document.createElement('p');note.className='or-muted';note.textContent=result.note;
+  host.append(wrap,note);
+ }catch(e){status.textContent=e?.message||'Owner legal inspection unavailable.'}
+ finally{btn.disabled=false}
+}
 async function loadOwnerSiteAcceptance(){
  const btn=$('or-live-acceptance-load'),state=$('or-live-acceptance-state'),host=$('or-live-acceptance-results');
  if(!btn||!state||!host)return;
@@ -278,6 +307,7 @@ function bind(){
  $('or-audit-lab-load')?.addEventListener('click',()=>loadLabAudit(true));
  $('or-ai-service-audit-load')?.addEventListener('click',loadAiOwnerAudit);
  $('or-live-acceptance-load')?.addEventListener('click',loadOwnerSiteAcceptance);
+ $('or-legal-readiness-load')?.addEventListener('click',loadOwnerLegalReadiness);
  $('or-audit-lab-export')?.addEventListener('click',csvExport);
  $('or-audit-lab-search')?.addEventListener('input',()=>{labPage=0;showLabRows()});
  $('or-audit-lab-stage')?.addEventListener('change',()=>{labPage=0;showLabRows()});

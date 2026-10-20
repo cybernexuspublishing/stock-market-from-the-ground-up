@@ -12,6 +12,7 @@ import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v0140
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
 import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
 import {ownerAcceptanceSnapshot} from '../_lib/owner-acceptance-v014108.js';
+import {ownerLegalPublicationAudit} from '../_lib/owner-legal-audit-v014109.js';
 import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -43,6 +44,8 @@ function stageFor(n,map,fallback='backlog'){
 }
 /* Source-only milestone review. Supabase Owner-saved statuses always override. */
 const v91Evidence={
+ 'CORE-0021':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v0.14.0.109 adds Owner-only live legal publication audit for 10 original policy codes and marks browser-only legal placeholders noindex until server-rendered, counsel-reviewed policy text is released. Existing DB publication status and legal adequacy remain unverified until authenticated acceptance.'},
+ 'CORE-0024':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v0.14.0.109 adds controlled public-only /robots.txt and /sitemap.xml endpoints that avoid private content, owner, dashboard and unpublished legal placeholders. Canonical domain configuration, OpenGraph, social metadata, crawler acceptance and accessibility QA remain outstanding.'},
  'CORE-0194':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.89–90 implements central Admin Products, prominent Store prices, and coming-soon offerings with nonpurchase controls. Source/browser coverage only; production checkout and real fulfillment not verified.'},
  'CORE-0175':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.88–91 implements protected Owner tool/membership inventory and product readiness planning. Production Owner-role persistence and negative tests are still required.'},
  'CORE-0210':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Tutor v0.14.0.107 source now includes dual-catalog retrieval, bounded first-party AI, safer advice/citation validation, model-provider boundary, safe telemetry, golden-question checks, feedback and general request throttling. Owner reports v103 SQL success; LIVE provider spend/key/provider test still unverified. v107 SQL optional and unconfirmed.'},
@@ -320,6 +323,7 @@ export async function onRequest({request,env}){
     if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
     if(new URL(request.url).searchParams.get('action')==='platform-acceptance-v014108')return reply({ok:true,acceptance:await ownerAcceptanceSnapshot(env)});
+    if(new URL(request.url).searchParams.get('action')==='legal-publication-v014109')return reply({ok:true,legalAudit:await ownerLegalPublicationAudit(env)});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
