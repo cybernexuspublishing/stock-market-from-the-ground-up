@@ -31,6 +31,7 @@ on:
       - 'tests/test_v014105_forum_security.mjs'
       - 'tests/test_v014105_reviewed_knowledge_bridge.mjs'
       - 'supabase/migrations/v0.14.0.105_REVIEWED_KNOWLEDGE_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014106_sql_function_delimiters.mjs'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
@@ -110,6 +111,7 @@ on:
       - 'tests/test_v014105_forum_security.mjs'
       - 'tests/test_v014105_reviewed_knowledge_bridge.mjs'
       - 'supabase/migrations/v0.14.0.105_REVIEWED_KNOWLEDGE_EVIDENCE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014106_sql_function_delimiters.mjs'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
@@ -217,6 +219,7 @@ jobs:
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
+          node tests/test_v014106_sql_function_delimiters.mjs
           node tests/v01407_forum_security_regression.mjs
           node tests/v01415_community_api.mjs
           node tests/test_v014092_market_tutor_contract.mjs
