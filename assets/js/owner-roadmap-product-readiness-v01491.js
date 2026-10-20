@@ -153,6 +153,34 @@ async function loadLabAudit(force=false){
  }finally{labLoading=false;if(button)button.disabled=false}
 }
 
+async function loadOwnerSiteAcceptance(){
+ const btn=$('or-live-acceptance-load'),state=$('or-live-acceptance-state'),host=$('or-live-acceptance-results');
+ if(!btn||!state||!host)return;
+ btn.disabled=true;host.replaceChildren();state.textContent='Checking existing production database objects with Owner access…';
+ try{
+  const client=await window.getSupabaseClient();
+  const session=(await client.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Owner session required.');
+  const r=await fetch('/api/owner-roadmap?action=platform-acceptance-v014108',{
+   headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+  const data=await r.json().catch(()=>null);
+  if(!r.ok||data?.ok!==true||!data.acceptance)throw Error('Owner production inspection unavailable.');
+  const a=data.acceptance,table=document.createElement('table'),tbody=document.createElement('tbody');
+  for(const item of a.checks||[]){
+   const tr=document.createElement('tr'),th=document.createElement('th'),td=document.createElement('td');
+   th.scope='row';th.textContent=item.code.replaceAll('_',' ');
+   td.textContent=item.state==='readable'?'Owner-only aggregate count: '+item.rowCount:'NOT VERIFIED (missing or inaccessible)';
+   tr.append(th,td);tbody.append(tr);
+  }
+  table.append(tbody);const wrap=document.createElement('div');wrap.className='or-table-scroll';wrap.append(table);
+  const note=document.createElement('p');note.className='or-muted';note.textContent=a.explanation;
+  host.append(wrap,note);
+  state.textContent=a.verified?
+   'Owner-read database objects respond. Production workflows, member permissions, paid inference and pedagogy remain UNVERIFIED.':
+   'At least one required Owner-read database object could not be verified. Do not treat missing rows or an inaccessible table as a passing test.';
+ }catch(e){state.textContent=e.message||'Private schema verification failed.';}
+ finally{btn.disabled=false}
+}
 async function loadAiOwnerAudit(){
  const button=$('or-ai-service-audit-load'),message=$('or-ai-service-audit-status'),host=$('or-ai-service-audit-data');
  if(!message||!host)return;
@@ -249,6 +277,7 @@ function bind(){
  $('or-readiness-stage')?.addEventListener('change',renderProducts);
  $('or-audit-lab-load')?.addEventListener('click',()=>loadLabAudit(true));
  $('or-ai-service-audit-load')?.addEventListener('click',loadAiOwnerAudit);
+ $('or-live-acceptance-load')?.addEventListener('click',loadOwnerSiteAcceptance);
  $('or-audit-lab-export')?.addEventListener('click',csvExport);
  $('or-audit-lab-search')?.addEventListener('input',()=>{labPage=0;showLabRows()});
  $('or-audit-lab-stage')?.addEventListener('change',()=>{labPage=0;showLabRows()});
