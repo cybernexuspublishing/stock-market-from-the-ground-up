@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/market-tutor-v01492.js';
+import {ungradedResponseReview} from '../functions/_lib/tutor-response-scaffold-v014102.js';
 const env={SUPABASE_URL:'https://mock.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'sb_secret_mock',
@@ -30,6 +31,12 @@ async function ask(allowModel){
  return {status:response.status,body:await response.json()};
 }
 try{
+ const written=ungradedResponseReview('The observed candle and volume are uncertain; I will use a stop if invalidation appears.');
+ assert(written.includes('specific visible evidence')&&written.includes('remaining uncertainty'));
+ assert(written.includes('invalidation or risk boundary'));
+ const incomplete=ungradedResponseReview('I think this looks promising.');
+ assert(incomplete.includes('Consider adding:'));
+ assert(!/\bscored 100\b/i.test(incomplete));
  let r=await ask(undefined);
  assert.equal(r.status,200);assert.equal(r.body.generation,'reviewed-glossary-logic');
  assert.equal(quotaCalls,0);assert.equal(modelCalls,0,'No model/fee without positive opt-in');
