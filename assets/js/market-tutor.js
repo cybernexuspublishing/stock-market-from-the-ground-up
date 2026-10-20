@@ -281,7 +281,7 @@ async function refreshAiServiceStatus(){
    host.textContent='Your Tutor entitlement is active. Paid model inference is not available yet.';
    count.textContent=x.reason||'Our original source-grounded educational assistance remains available.';
   }else{
-   host.textContent='First-party AI Tutor is ready for educational requests.';
+   host.textContent='First-party AI Tutor is configured for educational requests. Live provider acceptance is checked separately.';
    count.textContent=x.remainingToday+' of '+x.memberDailyLimit+' paid AI request(s) available today (UTC). Your normal course tutor remains accessible.';
   }
  }catch{
