@@ -37,12 +37,27 @@ for(const [code,items] of Object.entries(map.bySkill))for(const id of items){
 const schema=read('supabase/migrations/v0.13.4_SKILLS_ADMIN_SHOWCASE.sql');
 const first=schema.indexOf('insert into public.competency_definitions(');
 const last=schema.indexOf('on conflict',first);
-const sourceCodes=[...schema.slice(first,last).matchAll(/\('([A-Z][A-Z_]{3,})','[^']*','[^']*'/g)].map(x=>x[1]);
-assert.equal(sourceCodes.length,29,'The existing v0.13.4 source must not be misrepresented as 30');
-assert.deepEqual(new Set(guides.guides.map(x=>x.code)),new Set([...sourceCodes,'REPLAY_DISCIPLINE']));
+// Include digits: LEVEL2_READING is the 24th v0.13.4 seed entry.
+const sourceCodes=[...schema.slice(first,last).matchAll(/\('([A-Z][A-Z0-9_]{3,})','[^']*','[^']*'/g)].map(x=>x[1]);
+assert.equal(sourceCodes.length,30,'The approved v0.13.4 source already contains 30 competencies');
+assert.equal(new Set(sourceCodes).size,30,'Unique canonical competency codes required');
+assert(sourceCodes.includes('LEVEL2_READING'),'LEVEL2_READING is an existing approved code');
+assert(!sourceCodes.includes('REPLAY_DISCIPLINE'),'Replay chronology is not a 31st official skill');
+assert.deepEqual(new Set(guides.guides.map(x=>x.code)),new Set(sourceCodes));
+assert.equal(guides.supplementalGuides?.length,1);
+assert.equal(guides.supplementalGuides[0].code,'REPLAY_DISCIPLINE');
+assert.equal(guides.supplementalGuides[0].officialCompetency,false);
+assert.deepEqual(bySkillKeys,new Set(sourceCodes));
+assert(map.bySkill.LEVEL2_READING.length>=3,'Level II must link to existing ungraded source Labs');
+assert(!('REPLAY_DISCIPLINE' in map.bySkill),'Supplemental replay topic is not scored competency');
 const migration=read('supabase/migrations/v0.14.0.99_COMPLETE_EXISTING_30_COMPETENCIES_OWNER_REVIEW_REQUIRED.sql');
-assert(migration.includes("ON CONFLICT(competency_code) DO NOTHING"));
-assert(!/CREATE TABLE|DELETE FROM/i.test(migration));
+const audit=read('supabase/admin/v0.14.0.101_COMPETENCY_CATALOG_RECONCILIATION_READ_ONLY.sql');
+assert(migration.includes('BEGIN READ ONLY')&&migration.includes('LEVEL2_READING'));
+assert(audit.includes('BEGIN READ ONLY')&&audit.includes('LEVEL2_READING'));
+for(const sql of [migration,audit]){
+ assert(!/^\s*(INSERT|UPDATE|DELETE|TRUNCATE|ALTER|CREATE|DROP)\s/mi.test(sql),'Catalog SQL must not mutate the approved 30');
+ assert(!sql.includes("('REPLAY_DISCIPLINE'::text)"),'31st skill must not appear as canonical seed');
+}
 for(const path of ['assets/js/site-lab-experience.js','assets/js/lab-player.js','assets/js/market-tutor.js']){
  assert(read(path).includes('/data/competency-lab-paths-v01499.json'),path+' not linked to guides');
  assert(read(path).includes('skills.html#guide-'),path+' missing guide navigation');
@@ -90,5 +105,5 @@ try{
  accountKind='member';
  evidence=[];[status,result]=await query();
  assert.equal(status,200);assert.equal(result.skills[0].status,'Not Yet Assessed');
- console.log('PASS v99: 419 canonical crosslinks, 30 original study guides, typed source catalog, 29→30 additive SQL, full Lab/Tutor routes, no false proficiency from partial skills.');
+ console.log('PASS v99: 419 canonical crosslinks, 30 original study guides, typed source catalog, source 30 skills, nonmutating SQL, full Lab/Tutor routes, no false proficiency from partial skills.');
 }finally{globalThis.fetch=old}
