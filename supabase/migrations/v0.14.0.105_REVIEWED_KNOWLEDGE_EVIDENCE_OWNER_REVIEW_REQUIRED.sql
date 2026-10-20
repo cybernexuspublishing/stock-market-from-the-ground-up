@@ -497,6 +497,49 @@ REVOKE ALL ON FUNCTION public.gu_v014105_sync_reviewed_knowledge(uuid,uuid)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014105_sync_reviewed_knowledge(uuid,uuid)
  TO service_role;
+-- Exact-version Owner approval with transactionally linked audit logging.
+-- Approval is not a blanket certification of 419 Labs; every review is explicit.
+CREATE OR REPLACE FUNCTION public.gu_v014105_approve_lab_knowledge_map(
+ p_actor uuid,p_lab text,p_rubric integer,p_competency text,p_confirm text
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+DECLARE r record; v_update integer;
+BEGIN
+ IF p_actor IS NULL OR p_lab IS NULL OR p_rubric IS NULL OR
+    p_rubric<1 OR p_competency IS NULL OR
+    p_confirm<>'APPROVE KNOWLEDGE ONLY' THEN
+   RETURN jsonb_build_object('ok',false,'reason','explicit_owner_review_required'); END IF;
+ IF NOT EXISTS(
+  SELECT 1 FROM public.admin_user_roles a JOIN public.profiles p ON p.id=a.user_id
+  WHERE a.user_id=p_actor AND a.role_code='OWNER'
+  AND (a.expires_at IS NULL OR a.expires_at>now()) AND p.account_kind='member')
+ OR EXISTS(SELECT 1 FROM public.admin_user_flags f WHERE f.user_id=p_actor
+  AND lower(f.status) IN ('restricted','suspended'))
+ THEN RETURN jsonb_build_object('ok',false,'reason','owner_not_eligible'); END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.competency_definitions WHERE competency_code=p_competency AND active=true)
+ THEN RETURN jsonb_build_object('ok',false,'reason','unknown_competency'); END IF;
+ SELECT s.lab_id,s.version INTO r FROM public.lab_training_sets_v014 s
+ WHERE s.lab_id=p_lab AND s.version=p_rubric
+ AND s.review_state='reviewed' AND s.reviewed_by IS NOT NULL AND s.reviewed_at IS NOT NULL;
+ IF NOT FOUND THEN RETURN jsonb_build_object('ok',false,'reason','rubric_not_individually_reviewed'); END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_lab,140105));
+ UPDATE public.gu_lab_competency_knowledge_map_v014105
+ SET competency_code=p_competency,review_state='approved',
+ rubric_version=p_rubric,reviewed_by=p_actor,reviewed_at=now(),updated_at=now()
+ WHERE lab_id=p_lab;
+ GET DIAGNOSTICS v_update=ROW_COUNT;
+ IF v_update<>1 THEN RETURN jsonb_build_object('ok',false,'reason','canonical_mapping_missing'); END IF;
+ INSERT INTO public.admin_audit_log(actor_user_id,action,target_type,target_id,details)
+ VALUES(p_actor,'v014105.knowledge_mapping_review','lab',p_lab,
+  jsonb_build_object('rubricVersion',p_rubric,'competencyCode',p_competency,
+  'evidenceScope','knowledge_only','historicalVerified',false));
+ RETURN jsonb_build_object('ok',true,'labId',p_lab,'rubricVersion',p_rubric,
+ 'competencyCode',p_competency,'knowledgeOnly',true,'historicalVerified',false);
+END $;
+REVOKE ALL ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,integer,text,text)
+ FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,integer,text,text)
+ TO service_role;
+
 NOTIFY pgrst,'reload schema';
 COMMIT;
 -- Expected: 419 mappings, 419 CANDIDATE, ZERO approved, ZERO fabricated
