@@ -6,7 +6,7 @@ const error=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>isForumId(Number(x));
 const text=x=>String(x??'').trim();
 function cfg(e){let url=text(e.SUPABASE_URL).replace(/\/$/,''),pub=text(e.SUPABASE_PUBLISHABLE_KEY),secret=text(e.SUPABASE_SECRET_KEY);if(!url||!pub||!secret)throw error('Server configuration incomplete.',503);return {url,pub,secret}}
-async function json(url,opts={}){const r=await fetch(url,{...opts,cache:'no-store'});let b={};try{b=await r.json()}catch{}if(!r.ok)throw error(r.status===401?'Authentication expired.':r.status===403?'Access denied.':'Forum database operation failed.',r.status);return b}
+async function json(url,opts={}){const r=await fetch(url,{...opts,cache:'no-store'});let b={};try{b=await r.json()}catch{}if(!r.ok)throw error(r.status===401?'Authentication expired.':r.status===403?'Access denied.':'Forum database operation failed.',url.includes('/rpc/gu_v014116_member_change_with_audit')?503:r.status);return b}
 async function db(c,path,opts={}){const h={apikey:c.secret,accept:'application/json',...(opts.body!==undefined?{'content-type':'application/json'}:{}),...(opts.prefer?{prefer:opts.prefer}:{})};if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(c.secret))h.authorization='Bearer '+c.secret;return json(c.url+'/rest/v1/'+path,{method:opts.method||'GET',headers:h,body:opts.body===undefined?undefined:JSON.stringify(opts.body)})}
 async function member(c,req){const token=(req.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1];if(!token)throw error('Sign in first.',401);const user=await json(c.url+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});if(!user?.id)throw error('Invalid session.',401);const [profiles,flags,roles]=await Promise.all([db(c,`profiles?select=account_kind&id=eq.${encodeURIComponent(user.id)}&limit=1`),db(c,`admin_user_flags?select=status&user_id=eq.${encodeURIComponent(user.id)}&limit=1`),db(c,`admin_user_roles?select=role_code&user_id=eq.${encodeURIComponent(user.id)}&role_code=eq.SHOWCASE_VIEWER&limit=1`)]);if(profiles?.[0]?.account_kind!=='member'||roles.length||['suspended','restricted'].includes(text(flags?.[0]?.status).toLowerCase()))throw error('Your account cannot modify production forum content.',403);return user.id}
 const tableFor=(scope,type)=>({commons:{topic:['commons_topics','author_user_id'],post:['commons_posts','author_user_id']},legacy:{topic:['forum_topics','author_id'],post:['forum_posts','author_id']}})[scope]?.[type];
@@ -19,13 +19,31 @@ if(action==='change'&&request.method==='POST'){
  const original=rows[0];if(!original||original[author]!==uid||original.status!=='published')throw error('Content not available for editing.',403);if(original.is_official)throw error('Official guides require the Owner editorial workflow.',403);if(type==='topic'&&original.is_locked&&op==='edit')throw error('This discussion is locked.',409);
  if(type==='post'){const TT=tableFor(scope,'topic')[0];const parent=(await db(c,`${TT}?select=id,status,is_locked&id=eq.${original.topic_id}&limit=1`))[0];if(!parent||parent.status!=='published')throw error('Discussion is not available.',409);if(parent.is_locked&&op==='edit')throw error('This discussion is locked.',409)}
  const version=text(b.version);if(version!==text(original.updated_at))throw error('This content has changed. Reload before modifying it.',409);
- const patch={updated_at:new Date().toISOString()};if(op==='delete'){if(b.confirmation!=='DELETE')throw error('Delete confirmation required.',400);patch.status='deleted'}else{const body=text(b.body),max=scope==='legacy'?(type==='topic'?12000:8000):10000,min=type==='topic'?10:2;if(body.length<min||body.length>max)throw error(`Message must be between ${min} and ${max} characters.`);patch.body=body;if(type==='topic'){const title=text(b.title);if(title.length<5||title.length>(scope==='legacy'?140:180))throw error('Invalid discussion title.');patch.title=title}}
- const changed=await db(c,`${table}?id=eq.${id}&${author}=eq.${encodeURIComponent(uid)}&status=eq.published&updated_at=eq.${encodeURIComponent(original.updated_at)}`,{method:'PATCH',prefer:'return=representation',body:patch});if(!changed.length)throw error('Content changed; refresh and try again.',409);
- // Do not store historical body text in the audit log; member edits remain attributable.
- let auditRecorded=true;
- try{await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:uid,action:'forum.member.'+op,target_type:scope+'.'+type,target_id:String(id),details:{scope}}})}
- catch{auditRecorded=false}
- return send({ok:true,operation:op,auditRecorded,...(!auditRecorded?{warning:'Content change succeeded, but its audit record could not be verified.'}:{})});
+ // Important: no legacy direct PATCH fallback. The Owner-review RPC repeats
+ // authorization, locks the parent and the record and writes the audit in
+ // the SAME PostgreSQL transaction as the member edit/delete.
+ if(op==='delete'&&b.confirmation!=='DELETE')throw error('Delete confirmation required.',400);
+ let newBody=null,newTitle=null;
+ if(op==='edit'){
+  newBody=text(b.body);const max=scope==='legacy'?(type==='topic'?12000:8000):10000,min=type==='topic'?10:2;
+  if(newBody.length<min||newBody.length>max)throw error(`Message must be between ${min} and ${max} characters.`);
+  if(type==='topic'){newTitle=text(b.title);if(newTitle.length<5||newTitle.length>(scope==='legacy'?140:180))throw error('Invalid discussion title.');}
+ }
+ const changed=await db(c,'rpc/gu_v014116_member_change_with_audit',{method:'POST',body:{
+  p_actor:uid,p_scope:scope,p_type:type,p_id:id,p_operation:op,
+  p_version:version,p_body:newBody,p_title:newTitle,
+  p_confirmation:op==='delete'?'DELETE':null
+ }});
+ if(changed?.ok!==true||changed.atomic!==true||changed.auditRecorded!==true){
+  switch(String(changed?.reason||'')){
+   case 'not_found':throw error('Content is not available for editing.',403);
+   case 'denied':throw error('This member cannot modify this discussion.',403);
+   case 'conflict':case 'invalid_version':throw error('Content changed or the discussion was locked. Refresh and retry.',409);
+   case 'invalid_request':throw error('Invalid discussion content or confirmation.',400);
+   default:throw error('Atomic member edit and audit are not available.',503);
+  }
+ }
+ return send({ok:true,operation:op,auditRecorded:true,atomic:true});
 }
 return send({error:'Unsupported operation.'},404);
 }catch(e){return send({ok:false,error:e.message||'Request failed.'},[400,401,403,404,405,409,413].includes(e.status)?e.status:503)}}

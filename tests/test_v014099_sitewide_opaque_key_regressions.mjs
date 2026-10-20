@@ -40,7 +40,8 @@ try{
  assert(source('functions/api/forum-member-content.js').includes('auditRecorded'));
  assert(source('functions/api/admin-forum-actions.js').includes('gu_v014113_moderate_with_audit'),'Moderator must only mutate via atomic audit RPC');
  assert(!source('functions/api/admin-forum-actions.js').includes('Moderation change was applied'),'Forum mutations cannot succeed after their audit failed');;
- assert(source('functions/api/forum-member-content.js').includes('Content change succeeded'));
+ assert(source('functions/api/forum-member-content.js').includes('gu_v014116_member_change_with_audit'), 'Member edits must use one transactional audit RPC');
+ assert(!source('functions/api/forum-member-content.js').includes('Content change succeeded'), 'Member updates must not survive failed audit writes');
 
  const tables=calls.filter(x=>x.path.includes('/rest/v1/'));
  assert(tables.length>0);

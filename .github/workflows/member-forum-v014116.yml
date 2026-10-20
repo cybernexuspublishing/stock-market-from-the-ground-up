@@ -1,0 +1,23 @@
+name: Atomic Member Forum Source v0.14.0.116
+on:
+  pull_request:
+    paths: ['functions/api/forum-member-content.js','supabase/migrations/v0.14.0.116_ATOMIC_MEMBER_FORUM_EDITS_OWNER_REVIEW_REQUIRED.sql','tests/test_v014116_atomic_member_forum_edits.mjs','.github/workflows/member-forum-v014116.yml']
+  push:
+    branches: [main]
+    paths: ['functions/api/forum-member-content.js','supabase/migrations/v0.14.0.116_ATOMIC_MEMBER_FORUM_EDITS_OWNER_REVIEW_REQUIRED.sql','tests/test_v014116_atomic_member_forum_edits.mjs','.github/workflows/member-forum-v014116.yml']
+permissions:
+  contents: read
+jobs:
+  member-forum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check functions/api/forum-member-content.js
+          node tests/test_v014116_atomic_member_forum_edits.mjs
+          node tests/test_v014113_atomic_forum_moderation.mjs
+          node tests/test_v014105_forum_security.mjs
