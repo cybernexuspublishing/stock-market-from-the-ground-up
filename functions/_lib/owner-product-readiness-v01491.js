@@ -48,7 +48,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "major-build",
       "roadmapId": "CORE-0210",
-      "gate": "Current glossary and rule-based suggestions are not a verified model-backed AI teaching service."
+      "gate": "v0.14.0.103 source includes entitlement-gated first-party AI orchestration, original lesson grounding, request budgets and member UX. Actual provider activation, quota installation, API economics and live teaching quality remain unverified."
     },
     {
       "code": "DISCOVERY_LAB",
