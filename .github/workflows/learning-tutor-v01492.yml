@@ -29,6 +29,12 @@ on:
       - 'community-guidelines.html'
       - 'advertising-disclosure.html'
       - 'educational-disclaimer.html'
+      - 'assets/js/advanced-tools.js'
+      - 'functions/_lib/advanced-tool-access-v014110.js'
+      - 'functions/api/advanced-tool-access-v014110.js'
+      - 'functions/api/advanced-tool-workspace-v014110.js'
+      - 'supabase/migrations/v0.14.0.110_ADVANCED_WORKSPACE_ENTITLEMENT_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
       - 'functions/_lib/owner-acceptance-v014108.js'
       - 'tests/test_v014108_owner_live_acceptance.mjs'
       - 'functions/api/owner-roadmap.js'
@@ -135,6 +141,12 @@ on:
       - 'community-guidelines.html'
       - 'advertising-disclosure.html'
       - 'educational-disclaimer.html'
+      - 'assets/js/advanced-tools.js'
+      - 'functions/_lib/advanced-tool-access-v014110.js'
+      - 'functions/api/advanced-tool-access-v014110.js'
+      - 'functions/api/advanced-tool-workspace-v014110.js'
+      - 'supabase/migrations/v0.14.0.110_ADVANCED_WORKSPACE_ENTITLEMENT_LOCKDOWN_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
       - 'functions/_lib/owner-acceptance-v014108.js'
       - 'tests/test_v014108_owner_live_acceptance.mjs'
       - 'functions/api/owner-roadmap.js'
@@ -265,6 +277,10 @@ jobs:
           node --check functions/api/owner-roadmap.js
           node --check functions/_lib/owner-acceptance-v014108.js
           node --check functions/_lib/owner-legal-audit-v014109.js
+          node --check functions/_lib/advanced-tool-access-v014110.js
+          node --check functions/api/advanced-tool-access-v014110.js
+          node --check functions/api/advanced-tool-workspace-v014110.js
+          node --check assets/js/advanced-tools.js
           node --check functions/sitemap.xml.js
           node --check functions/robots.txt.js
           node --check functions/api/member-tutor-history-v014102.js
@@ -280,6 +296,7 @@ jobs:
           node tests/test_v014107_server_history_and_throttle.mjs
           node tests/test_v014108_owner_live_acceptance.mjs
           node tests/test_v014109_public_seo_legal_audit.mjs
+          node tests/test_v014110_advanced_tool_access_and_workspace.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
