@@ -21,7 +21,7 @@ export function aiServiceConfig(env){
  const key=String(env.AI_TUTOR_API_KEY||'').trim();
  const dbUrl=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const dbKey=String(env.SUPABASE_SECRET_KEY||'');
- const enabled=env.AI_SERVICE_ENABLED==='true'&&!!member&&!!day&&!!month&&
+ const enabled=env.AI_SERVICE_ENABLED==='true'&&String(env.AI_TUTOR_PROVIDER||'openai').toLowerCase()==='openai'&&!!member&&!!day&&!!month&&
   !!key&&!!model&&/^https:\/\/[^/]+$/.test(dbUrl)&&!!dbKey;
  return {enabled,member:member||0,day:day||0,month:month||0,
   modelConfigured:!!key&&!!model,dbUrl,dbKey,
