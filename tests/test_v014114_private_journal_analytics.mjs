@@ -38,6 +38,10 @@ assert.equal(r.setup.find(x=>x.setup==='Breakout').n,3);
 assert.equal(r.livePaper.live.n,3);
 assert.equal(r.livePaper.paper.n,2);
 assert.equal(r.summary.performanceBasis,'self_reported_member_journal');
+assert.deepEqual(r.breakdowns.processOutcome,{good_win:1,good_loss:1,bad_win:1,bad_loss:1});
+assert.equal(r.breakdowns.exits.comparable,0);
+assert.equal(r.breakdowns.excursion.avgMfeR,null);
+assert.equal(r.breakdowns.entryReasons.length,1);
 assert.deepEqual(Object.keys(r.equity[0]),['date','value'],'No journal ID, ticker or notes in chart.');
 const filter=report(rows,{today:'2026-10-20',type:'paper'});
 assert.equal(filter.summary.resolvedTrades,2);assert.equal(filter.summary.profitFactor,2);
@@ -87,6 +91,18 @@ try{
  kind='member';flag='suspended';x=await endpoint({env,request:request()});
  assert.equal(x.status,403);assert.equal(queryCount,queries);
  flag='active';x=await endpoint({env,request:request('invalid')});assert.equal(x.status,400);
+ // CSV quoting alone is not enough to prevent Excel/Sheets formula execution.
+ const legacy=readFileSync(new URL('../assets/js/journal-common.js',import.meta.url),'utf8');
+ const {runInNewContext}=await import('node:vm');
+ const root={window:{}};runInNewContext(legacy,root);
+ const csv=root.window.JournalTools.toCSV([
+  {id:1,ticker:'=HYPERLINK("https://phish.invalid")',setup:' +SUM(1,2)',lesson:'@IMPORTXML(0)',trade_date:'2026-10-20'},
+  {id:2,ticker:'ABC',lesson:'Normal research'}
+ ]);
+ assert(csv.includes("'=HYPERLINK("),'Quoted spreadsheet formula is prefixed');
+ assert(csv.includes("' +SUM(1,2)"),'Leading spaces and plus sign are treated as risky');
+ assert(csv.includes("'@IMPORTXML(0)"),'Leading @ is treated as risky');
+ assert(csv.includes('"ABC"'),'Normal cell values remain ordinary quoted CSV');
  const client=readFileSync(new URL('../assets/js/journal-analytics.js',import.meta.url),'utf8');
  const html=readFileSync(new URL('../journal-analytics.html',import.meta.url),'utf8');
  assert(!client.includes(".from('decision_journal')"));
