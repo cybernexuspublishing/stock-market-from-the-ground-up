@@ -37,7 +37,9 @@ BEGIN
 END $blocked$;
 -- Even if a later migration accidentally restores column-level UPDATE,
 -- the v125 RESTRICTIVE RLS denial must still stop browser mutation.
+RESET ROLE;
 GRANT UPDATE(body) ON public.forum_topics TO authenticated;
+SET ROLE authenticated;
 DO $blocked$
 DECLARE rows integer;
 BEGIN
@@ -45,12 +47,15 @@ BEGIN
  GET DIAGNOSTICS rows=ROW_COUNT;
  IF rows<>0 THEN RAISE EXCEPTION 'FAIL: Future column grant bypassed restrictive RLS';END IF;
 END $blocked$;
+RESET ROLE;
 REVOKE UPDATE(body) ON public.forum_topics FROM authenticated;
+SET ROLE authenticated;
 -- CREATE permissions must remain usable under authenticated RLS.
 INSERT INTO public.forum_topics(author_id,title,body) VALUES
  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','New legitimate educational topic',
  'Original introductory educational discussion');
 RESET ROLE;
+SET ROLE service_role;
 DO $audit$
 DECLARE v text;result jsonb;count_audits integer;old_body text;
 BEGIN
@@ -75,19 +80,29 @@ BEGIN
     (SELECT count(*) FROM public.admin_audit_log
      WHERE action='forum.moderate.hide' AND target_type='commons.topic')<>1 THEN
   RAISE EXCEPTION 'Atomic moderation status/audit mismatch';END IF;
- -- A deliberately failed audit INSERT must NOT leave a changed post.
- SELECT body,updated_at::text INTO old_body,v FROM public.forum_posts WHERE id=1;
- REVOKE INSERT ON public.admin_audit_log FROM service_role;
- BEGIN
-  PERFORM public.gu_v014116_member_change_with_audit(
-   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','legacy','post',1,'edit',
-   v,'This edit must fail because audit writes are denied.',NULL,NULL);
-  RAISE EXCEPTION 'FAIL: unlogged edit unexpectedly committed';
- EXCEPTION WHEN others THEN
-  IF SQLERRM='FAIL: unlogged edit unexpectedly committed' THEN RAISE;END IF;
- END;
- GRANT INSERT ON public.admin_audit_log TO service_role;
- IF (SELECT body FROM public.forum_posts WHERE id=1) IS DISTINCT FROM old_body THEN
-  RAISE EXCEPTION 'Audit failure did not roll back changed Forum reply';END IF;
- RAISE NOTICE 'PASS v125: direct member four-table DML denied; legacy new topic survives; service-only v113/v116 audit operations succeed and rollback';
+ RAISE NOTICE 'PASS v125: member direct update/delete denied, legitimate CREATE and both atomic audited member/moderator operations passed';
 END $audit$;
+RESET ROLE;
+-- Audit ledger failure must rollback a content edit. This revocation is
+-- disposable-fixture-only and intentionally never runs in production.
+REVOKE INSERT ON public.admin_audit_log FROM service_role;
+SET ROLE service_role;
+DO $rollback$
+DECLARE old_body text; v text;result jsonb;
+BEGIN
+ SELECT body,updated_at::text INTO old_body,v FROM public.forum_posts WHERE id=1;
+ BEGIN
+  SELECT public.gu_v014116_member_change_with_audit(
+   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','legacy','post',1,'edit',
+   v,'This audit-failure test must roll back the educational reply.',NULL,NULL)
+  INTO result;
+  RAISE EXCEPTION 'FAIL: edit was applied despite denied audit';
+ EXCEPTION WHEN others THEN
+  IF SQLERRM='FAIL: edit was applied despite denied audit' THEN RAISE; END IF;
+ END;
+ IF (SELECT body FROM public.forum_posts WHERE id=1) IS DISTINCT FROM old_body THEN
+  RAISE EXCEPTION 'Audit failure did not roll back the member reply edit'; END IF;
+ RAISE NOTICE 'PASS v125: v116 audit INSERT failure rolled back unchanged reply';
+END $rollback$;
+RESET ROLE;
+GRANT INSERT ON public.admin_audit_log TO service_role;
