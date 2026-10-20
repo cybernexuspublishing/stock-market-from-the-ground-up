@@ -37,6 +37,26 @@ function publicState(attempt,set){const step=attempt.step_index||0,n=set.questio
 export async function onRequest({request,env}){try{
  const acl=await toolAccess(env,request,'ONDEMAND_TRAINING');if(!acl.authorized)return reply({ok:false,error:acl.reason},403);
  const u=new URL(request.url),action=u.searchParams.get('action')||'';
+ // Existing member-owned, completed server grades. Returns no answer keys,
+ // unseen observations, Journal text, rubric rows or skill certifications.
+ if(action==='progress'&&request.method==='GET'){
+  const rows=await db(env,'lab_training_attempts_v014?select=lab_id,mode,score,completed_at&user_id=eq.'+
+   esc(acl.userId)+'&completed_at=not.is.null&score=not.is.null&order=completed_at.desc&limit=500');
+  if(!Array.isArray(rows)||rows.length>500)throw fail('Graded learning history unavailable.',503);
+  const latest=new Map(),safe=[];
+  for(const row of rows){
+   const id=String(row?.lab_id||''),score=Number(row?.score),completedAt=String(row?.completed_at||'');
+   if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!Number.isInteger(score)||score<0||score>100||
+      !['guided','practice','blind','assessment'].includes(row?.mode)||
+      !Number.isFinite(Date.parse(completedAt)))continue;
+   safe.push({labId:id,score,mode:row.mode,completedAt});
+   if(!latest.has(id))latest.set(id,{labId:id,score,mode:row.mode,completedAt});
+  }
+  return reply({ok:true,latestByLab:[...latest.values()],recentCompleted:safe.slice(0,100),
+   reviewedRows:safe.length,truncated:rows.length===500,
+   interpretation:'Recorded, server-graded conceptual/book exercises. NOT historical replay proof, four-dimensional competency certification, P&L or brokerage performance.',
+   masteryAwarded:false});
+ }
  if(action==='available'&&request.method==='GET'){const id=u.searchParams.get('labId')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))throw fail('Invalid Lab ID.');await requireMatchingBook(env,request,id);const rows=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');return reply({ok:true,available:!!rows[0],sourceStatus:rows[0]?.source_status||null,questionCount:rows[0]?.questions?.length||0})}
  if(action==='start'&&request.method==='POST'){const body=await request.json().catch(()=>null),id=String(body?.labId||''),mode=String(body?.mode||'');if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!['guided','practice','blind','assessment'].includes(mode))throw fail('Valid Lab and learning mode required.');await requireMatchingBook(env,request,id);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Reviewed question-by-question training is not published for this Lab.'},404);
  const record=await db(env,'rpc/v014_training_start','POST',{p_actor:acl.userId,p_lab:id,p_mode:mode});

@@ -25,6 +25,13 @@ on:
       - 'site-lab.html'
       - 'supabase/migrations/v0.14.0.96_419_ORIGINAL_CONCEPTUAL_ASSESSMENT_DRAFTS_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014096_419_conceptual_training.mjs'
+      - 'assets/js/skills.js'
+      - 'skills.html'
+      - 'functions/api/competencies.js'
+      - 'functions/api/training-editor.js'
+      - 'assets/js/training-editor.js'
+      - 'training-editor.html'
+      - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
       - 'functions/api/site-announcements.js'
@@ -54,6 +61,13 @@ on:
       - 'site-lab.html'
       - 'supabase/migrations/v0.14.0.96_419_ORIGINAL_CONCEPTUAL_ASSESSMENT_DRAFTS_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014096_419_conceptual_training.mjs'
+      - 'assets/js/skills.js'
+      - 'skills.html'
+      - 'functions/api/competencies.js'
+      - 'functions/api/training-editor.js'
+      - 'assets/js/training-editor.js'
+      - 'training-editor.html'
+      - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
       - 'functions/api/site-announcements.js'
@@ -77,6 +91,10 @@ jobs:
           node --check functions/api/site-announcements.js
           node --check functions/api/lab-content.js
           node --check assets/js/site-lab-experience.js
+          node --check functions/api/training-editor.js
+          node --check functions/api/competencies.js
+          node --check assets/js/skills.js
+          node --check assets/js/training-editor.js
           node --check functions/api/interactive-training.js
           node --check functions/api/market-tutor-v01492.js
           node --check functions/api/member-tool-access.js
@@ -88,6 +106,7 @@ jobs:
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
+          node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014097_original_replay_safety.mjs
           node tests/test_v014095_middleware_opaque_key.mjs
           node tests/test_v014092_replay_contract.mjs
