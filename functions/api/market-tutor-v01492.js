@@ -13,6 +13,7 @@ import {reserveAiRequest} from '../_lib/first-party-ai-service-v014103.js';
 import {expandTutorQuery,seeksPersonalTradeAdvice,validateTutorModelAnswer,safeTutorMetric} from '../_lib/tutor-quality-v014107.js';
 import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
+import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -161,7 +162,17 @@ export async function onRequest({request,env}){
   if(length>8000)return reply({ok:false,error:'Request too large.'},413);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
   if(!auth.authorized)return reply({ok:false,error:'Active Market Tutor / Full Platform access required.'},403);
-  const raw=await request.text();if(raw.length>8000)throw error('Request too large.',413);
+  const throttle=await tutorRequestLimit(env,auth.userId);
+  if(!throttle.allowed){
+   safeTutorMetric('safety',{reason:throttle.reason==='minute_limit'?'source_rate_minute':'source_rate_day'});
+   return reply({ok:false,error:throttle.reason==='minute_limit'?
+    'Tutor request limit reached; please submit fewer questions within the same minute.':
+    'Daily Tutor request limit reached. Your saved notes and Labs remain accessible.',
+    rateLimited:true},429);
+  }
+  if(!throttle.verified)safeTutorMetric('status',{reason:'general_rate_meter_unavailable'});
+  const raw=await request.text();
+  if(new TextEncoder().encode(raw).byteLength>8000)throw error('Request too large.',413);
   let body;try{body=JSON.parse(raw)}catch{throw error('Invalid JSON.')}
   if(!body||typeof body!=='object'||Array.isArray(body))throw error('Invalid Tutor request.');
   const q=clean(body.question),mode=clean(body.mode||'explain'),answer=clean(body.learnerAnswer||'');
@@ -231,5 +242,5 @@ export async function onRequest({request,env}){
    sourceLimit:'Public companion-glossary context only. Historical datasets and Lab grading are independent.',
    notice:generation==='grounded-model-draft'?'AI-generated educational draft. Check source references before relying on an explanation.':'Source-grounded companion teaching; not generative AI and not a verified assessment.',
    links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
- }catch(e){return reply({ok:false,error:e.status===413?'Request too large.':e.status===401?'Sign in to use the premium Tutor.':e.status===403?'Market Tutor entitlement required.':'Tutor is temporarily unavailable.'},[400,401,403,405,413].includes(e.status)?e.status:503)}
+ }catch(e){return reply({ok:false,error:e.status===413?'Request too large.':e.status===401?'Sign in to use the premium Tutor.':e.status===403?'Market Tutor entitlement required.':'Tutor is temporarily unavailable.'},[400,401,403,405,413,429].includes(e.status)?e.status:503)}
 }
