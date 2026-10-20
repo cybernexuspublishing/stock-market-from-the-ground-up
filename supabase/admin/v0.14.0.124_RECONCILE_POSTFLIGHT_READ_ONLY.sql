@@ -1,6 +1,7 @@
 -- v124 owner-safe read-only Supabase reconciliation status; no member IDs.
 WITH checks(label,ready) AS (
  VALUES
+ ('GU58 first paid-event notice binding guard enabled',EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass('public.gu58_live_checkout_intents') AND tgname='gu_v014124_initial_subscription_notice' AND tgenabled IN('O','A'))),
  ('Reconciliation state tables installed',to_regclass('public.gu_billing_reconcile_cursor_v014124') IS NOT NULL AND to_regclass('public.gu_billing_reconcile_issues_v014124') IS NOT NULL),
  ('Reconciliation plan and tool cursors',EXISTS(SELECT 1 FROM public.gu_billing_reconcile_cursor_v014124 WHERE source_kind='plan') AND EXISTS(SELECT 1 FROM public.gu_billing_reconcile_cursor_v014124 WHERE source_kind='tool')),
  ('Batch scan service-only allowed',COALESCE(has_function_privilege('service_role',to_regprocedure('public.gu_v014124_next_reconcile_batch(text,integer)'),'EXECUTE'),false)),
