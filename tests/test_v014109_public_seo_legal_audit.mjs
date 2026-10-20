@@ -33,7 +33,7 @@ let role='OWNER',unavailable=false,legalReads=0;
 const orig=globalThis.fetch,env={SUPABASE_URL:'https://mock.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_testing',SUPABASE_SECRET_KEY:'sb_secret_testing'};
 const legal=EXPECTED_LEGAL_CODES.map((code,i)=>({document_code:code,status:i===2?'draft':'published',
- version:'1.0',body_markdown:'Author-reviewed body placeholder — '.repeat(i===3?2:20)}));
+ version:'1.0',body_markdown:'Author-reviewed body placeholder — '.repeat(i===8?2:20)}));
 const send=(d,status=200)=>new Response(JSON.stringify(d),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async (url,opts={})=>{
  const v=String(url);
