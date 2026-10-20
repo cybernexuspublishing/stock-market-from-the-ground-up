@@ -257,7 +257,7 @@ export const ownerProductReadinessV01491=Object.freeze({
         50
       ],
       "roadmapId": "CORE-0213",
-      "gate": "Map objective graded outcomes to 30 skill records; no activity-only mastery."
+      "gate": "v105 SQL installation reported successful. All 419 primary links are CANDIDATE until each exact rubric and competency receives independent Owner review. Record only genuine knowledge-dimension quiz evidence; no activity-only mastery."
     },
     {
       "code": "SKILL_ASSESSMENTS",
