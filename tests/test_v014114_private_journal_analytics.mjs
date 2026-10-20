@@ -68,7 +68,7 @@ globalThis.fetch=async(url,opt={})=>{
   assert(uri.includes('journal_type=in.(live,paper)'));
   assert(uri.includes('status=eq.closed'));
   assert(uri.includes('limit=500'));
-  assert(!uri.includes('entry_reason')&&!uri.includes('invalidation'),'Private notes must not leave database');
+  assert(!uri.includes('entry_reason,')&&!uri.includes('invalidation')&&!uri.includes('lesson,')&&!uri.includes('entry_trigger,'),'Free-text private notes must not leave database; aggregate category labels may be selected');
   assert.equal(opt.headers.apikey,secret);
   assert.equal(opt.headers.authorization,undefined,'Opaque service key must not become bearer');
   return json(rows.filter(x=>x.status==='closed'));
