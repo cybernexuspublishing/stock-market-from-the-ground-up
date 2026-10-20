@@ -53,16 +53,16 @@ runInNewContext(mode,{window,document,Event:class{constructor(type){this.type=ty
 callbacks.DOMContentLoaded();
 assert.equal(controls['sim-server-mode'].hidden,false);
 assert.equal(controls['sim-legacy-mode'].hidden,true);
-assert.equal(events.length,0,'Default server mode must NOT initialize legacy CSV');
+assert.deepEqual(events,['groundup:activate-server-replay'],'Default must initialize only the server replay');
 controls['sim-mode-csv'].listeners.click();
 assert.equal(controls['sim-server-mode'].hidden,true);
 assert.equal(controls['sim-legacy-mode'].hidden,false);
-assert.deepEqual(events,['groundup:activate-legacy-simulator']);
+assert.deepEqual(events,['groundup:activate-server-replay','groundup:activate-legacy-simulator']);
 controls['sim-mode-server'].listeners.click();
 assert.equal(controls['sim-legacy-mode'].hidden,true);
 assert.equal(pauseCount>=1,true,'Switching to protected replay must stop client-side playback');
 controls['sim-mode-csv'].listeners.click();
-assert.equal(events.length,1,'CSV engine must initialize at most once');
+assert.equal(events.length,2,'Each independent replay mode must initialize at most once');
 
 const legacyFields=Object.fromEntries(Object.keys(controls).map(k=>[k,elem()]));
 const legacyCallbacks={},legacyEvents=[];
