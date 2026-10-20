@@ -199,6 +199,40 @@ async function loadAiOwnerAudit(){
  }catch(e){message.textContent=e?.message||'Owner AI audit unavailable; no usage figures certified.';}
  finally{if(button)button.disabled=false}
 }
+async function loadOwnerLegalAudit(){
+ const button=$('or-legal-audit-load'),state=$('or-legal-audit-status'),host=$('or-legal-audit-data');
+ if(!button||!state||!host)return;
+ button.disabled=true;state.textContent='Verifying published and effective legal document records…';
+ host.replaceChildren();
+ try{
+  const client=await window.getSupabaseClient(),session=(await client.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Owner sign-in required.');
+  const resp=await fetch('/api/owner-roadmap?action=legal-publication-audit',{
+   method:'GET',cache:'no-store',headers:{authorization:'Bearer '+session.access_token}});
+  const result=await resp.json().catch(()=>null);
+  if(!resp.ok||!result?.ok)throw Error('Owner legal publication verification unavailable.');
+  const legal=result.legalAudit;
+  if(!legal?.available){state.textContent=legal?.notice||'Policy publication not verified.';return}
+  const table=document.createElement('table');table.className='or-membership-table';
+  const head=document.createElement('thead'),headrow=document.createElement('tr');
+  for(const title of ['Policy','Production path','Live publication state','Document version']){
+   const th=document.createElement('th');th.scope='col';th.textContent=title;headrow.append(th);
+  }head.append(headrow);table.append(head);
+  const body=document.createElement('tbody');
+  for(const row of legal.documents||[]){
+   const tr=document.createElement('tr');
+   const cells=[row.code,row.href,row.status?.replaceAll('_',' ')||'Unknown',row.version||'Not verified'];
+   for(const content of cells){
+    const td=document.createElement('td');td.textContent=String(content);tr.append(td);
+   }body.append(tr);
+  }table.append(body);
+  const scroll=document.createElement('div');scroll.className='or-table-scroll';scroll.append(table);host.append(scroll);
+  state.textContent=legal.publishedCurrent+' / '+(legal.documents||[]).length+
+   ' required policies published with a substantive body and current effective date. '+
+   'All remain subject to qualified legal/privacy review. This is not launch acceptance.';
+ }catch(e){state.textContent='Policy audit unavailable: '+(e?.message||'Unexpected error');}
+ finally{button.disabled=false}
+}
 function renderCrossSiteGates(){
  const host=$('or-crosssite-acceptance-table'),note=$('or-crosssite-acceptance-note');
  if(!host)return;host.replaceChildren();
@@ -249,6 +283,7 @@ function bind(){
  $('or-readiness-stage')?.addEventListener('change',renderProducts);
  $('or-audit-lab-load')?.addEventListener('click',()=>loadLabAudit(true));
  $('or-ai-service-audit-load')?.addEventListener('click',loadAiOwnerAudit);
+ $('or-legal-audit-load')?.addEventListener('click',loadOwnerLegalAudit);
  $('or-audit-lab-export')?.addEventListener('click',csvExport);
  $('or-audit-lab-search')?.addEventListener('input',()=>{labPage=0;showLabRows()});
  $('or-audit-lab-stage')?.addEventListener('change',()=>{labPage=0;showLabRows()});
