@@ -18,6 +18,11 @@ on:
       - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
       - 'tests/test_v014095_training_tutor_integration.mjs'
+      - 'functions/api/lab-content.js'
+      - 'assets/js/site-lab-experience.js'
+      - 'site-lab.html'
+      - 'supabase/migrations/v0.14.0.96_419_ORIGINAL_CONCEPTUAL_ASSESSMENT_DRAFTS_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014096_419_conceptual_training.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
       - 'functions/api/site-announcements.js'
@@ -40,6 +45,11 @@ on:
       - 'tests/test_v014092_replay_contract.mjs'
       - 'tests/test_v014092_market_tutor_contract.mjs'
       - 'tests/test_v014095_training_tutor_integration.mjs'
+      - 'functions/api/lab-content.js'
+      - 'assets/js/site-lab-experience.js'
+      - 'site-lab.html'
+      - 'supabase/migrations/v0.14.0.96_419_ORIGINAL_CONCEPTUAL_ASSESSMENT_DRAFTS_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014096_419_conceptual_training.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
       - 'functions/api/site-announcements.js'
@@ -61,6 +71,8 @@ jobs:
         run: |
           node --check functions/_middleware.js
           node --check functions/api/site-announcements.js
+          node --check functions/api/lab-content.js
+          node --check assets/js/site-lab-experience.js
           node --check functions/api/interactive-training.js
           node --check functions/api/market-tutor-v01492.js
           node --check functions/api/member-tool-access.js
@@ -71,6 +83,7 @@ jobs:
           node --check assets/js/verified-replay-v01492.js
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
+          node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_v014095_middleware_opaque_key.mjs
           node tests/test_v014092_replay_contract.mjs
           node tests/v01415_community_api.mjs
