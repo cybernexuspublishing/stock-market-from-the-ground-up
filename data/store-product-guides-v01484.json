@@ -154,20 +154,20 @@
     },
     "MARKET_TUTOR": {
       "outcomes": [
-        "Clarify terminology and foundational market concepts.",
-        "Identify gaps in trading-journal or lab reasoning.",
-        "Find related learning material and practice prompts."
+        "Ask the first-party Market Tutor about trading concepts and receive educational responses.",
+        "Type and submit your own reasoning for ungraded, source-grounded instructional review.",
+        "Explore guided self-checks, 30 original competency guides and related Lab practice."
       ],
       "included": [
-        "Released first-party Market Tutor educational assistance",
-        "Supported curriculum references and learning-history context"
+        "First-party Market Tutor conversations, written responses, follow-ups, exports and optional private history",
+        "Original curriculum references and consent-based, metered generative AI only when the separate provider service is active"
       ],
       "excluded": [
         "Personalized financial advice or guaranteed accurate trading signals",
         "Unlimited third-party AI services, brokerage accounts or paid data feeds",
         "Other premium tool subscriptions or standalone eBooks"
       ],
-      "requirements": "Uses first-party companion knowledge and available user learning context."
+      "requirements": "Requires a current Tutor entitlement. Generative AI depends on separate provider activation and daily usage limits; included source-grounded teaching works without inference."
     }
   },
   "books": {
