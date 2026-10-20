@@ -61,6 +61,10 @@ SELECT count(*) AS missing_spaced_review_stages FROM (
   ON r.journal_id=l.journal_id AND r.review_stage=v.stage
  WHERE r.id IS NULL
 ) missing;
+SELECT count(*) AS replay_reviews_completed_before_v118_lock FROM public.journal_reviews r
+ JOIN public.gu_replay_journal_links_v01494 l ON l.journal_id=r.journal_id
+ LEFT JOIN public.gu_replay_review_locks_v014118 rl ON rl.review_id=r.id
+ WHERE r.completed_at IS NOT NULL AND rl.review_id IS NULL;
 SELECT count(*) AS locked_review_stages,
  count(*) FILTER(WHERE rl.user_id IS DISTINCT FROM j.user_id OR
    rl.journal_id IS DISTINCT FROM r.journal_id OR
