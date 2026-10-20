@@ -49,7 +49,7 @@ globalThis.fetch=async (url,init={})=>{
    open:20+i,high:21+i,low:19+i,close:20.5+i,volume:15000+i*5}]);
  }
  if(u.includes('/rest/v1/gu_replay_sessions_v01492')&&init.method==='POST'){sessionExists=true;return json([{id:sid}]);}
- if(u.includes('/rest/v1/gu_replay_sessions_v01492?')&&init.method==='PATCH'){locked=true;return json([{id:sid}]);}
+ if(u.includes('/rest/v1/gu_replay_sessions_v01492?')&&init.method==='PATCH'){if(JSON.parse(init.body||'{}').decision_locked===true)locked=true;return json([{id:sid}]);}
  if(u.includes('/rest/v1/gu_replay_sessions_v01492?'))return json(sessionExists?[{
   id:sid,dataset_code:data.dataset_code,current_index:step,decision_locked:locked,
   decision:locked?'WATCH':null,status:'active',expires_at:'2099-01-01T00:00:00Z'}]:[]);
