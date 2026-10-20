@@ -63,14 +63,23 @@ function lockedPlan(p){
 export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))throw bad('Method not allowed.',405);
-  const auth=await toolAccess(env,request,'MARKET_SIMULATOR');
-  if(!auth.authorized)throw bad('Active Market Simulator or Full Platform access required.',403);
+  const simulator=await toolAccess(env,request,'MARKET_SIMULATOR');
+  // Historical Replay members already own ONDEMAND_TRAINING: permit only
+  // first-party invented, correctly labeled GUSIM_* case material to this
+  // lower entitlement. Never extend rights to authentic history or the
+  // complete Market Simulator by reclassifying a title in the browser.
+  const auth=simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
+  const originalOnly=!simulator.authorized;
+  if(!auth.authorized)throw bad('An active Market Simulator or Historical Replay training entitlement is required.',403);
+  const permitted=dataset=>publicDataset(dataset)&&(!originalOnly||(
+    dataset.metadata?.original_synthetic===true&&dataset.dataset_code.startsWith('GUSIM_')));
+
   const url=new URL(request.url),action=String(url.searchParams.get('action')||'current');
   const body=request.method==='POST'?await bodyOf(request):{};
   if(action==='catalog'&&request.method==='GET'){
    const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=700');
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
-   return out({ok:true,datasets:rows.filter(publicDataset).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'This list includes clearly marked ORIGINAL fictional simulations and, separately, any authorized independently verified historical datasets. Only the currently visible server-owned observation is returned.'});
+   return out({ok:true,datasets:rows.filter(permitted).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'This list includes clearly marked ORIGINAL fictional simulations and, separately, any authorized independently verified historical datasets. Only the currently visible server-owned observation is returned.'});
   }
   if(action==='resume'&&request.method==='GET'){
    // Durable sessions are discovered by authenticated user identity, not a
@@ -82,7 +91,7 @@ export async function onRequest({request,env}){
    if(!selected)return out({ok:true,session:null,notice:'No current replay session. Choose a licensed dataset.'});
    const rights=one(await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
     encodeURIComponent(selected.dataset_code)+'&limit=1'));
-   if(!publicDataset(rights))throw bad('Previously selected data rights or verification have been withdrawn.',403);
+   if(!permitted(rights))throw bad('This replay dataset is not authorized under the current membership or its publication rights were withdrawn.',403);
    const bar=await fetchBar(env,selected.dataset_code,selected.current_index);
    if(!bar)throw bad('The current replay observation is unavailable.',503);
    return out({ok:true,session:{id:selected.id,currentIndex:selected.current_index,decisionLocked:selected.decision_locked,
@@ -95,8 +104,8 @@ export async function onRequest({request,env}){
    if(!match.test(code))throw bad('Invalid dataset identifier.');
    const datasets=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(code)+'&status=eq.published&limit=1');
    const source=one(datasets);
-   if(!publicDataset(source))
-      throw bad('Dataset is not published with independently reviewed educational display rights.',403);
+   if(!permitted(source))
+      throw bad('Dataset is not available to this membership or lacks approved educational display rights.',403);
    const [first,second]=await Promise.all([fetchBar(env,code,0),fetchBar(env,code,1)]);
    if(!first||!second||Date.parse(second.timestamp)<=Date.parse(first.timestamp))throw bad('The source has no verified sequential replay bars.',503);
    // Close only this member's expired sessions for the same dataset so the
@@ -116,6 +125,16 @@ export async function onRequest({request,env}){
   // existing replay session atomically, rather than relying on two HTTP writes.
   if(action==='finish'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
    if(!uid.test(id))throw bad('Invalid session ID.');
+   if(originalOnly){
+    // The finish RPC can return a previously linked record; validate scope
+    // without enforcing active status so idempotent retries still work.
+    const owned=one(await db(env,'gu_replay_sessions_v01492?select=dataset_code&user_id=eq.'+
+     encodeURIComponent(auth.userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1'));
+    if(!owned)throw bad('Replay session unavailable.',404);
+    const dataset=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
+     encodeURIComponent(owned.dataset_code)+'&limit=1'));
+    if(!permitted(dataset))throw bad('Historical dataset access is not part of this training entitlement.',403);
+   }
    const linked=await db(env,'rpc/v01494_replay_finish_to_journal','POST',
     {p_session:id,p_user:auth.userId});
    if(!linked||!Number.isSafeInteger(linked.journalId)||linked.journalId<=0||
@@ -129,7 +148,7 @@ export async function onRequest({request,env}){
   // Revocation is immediate: an already-started session cannot continue after
   // the Owner withdraws display rights, historical verification or publication.
   const rights=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(s.dataset_code)+'&limit=1'));
-  if(!publicDataset(rights))throw bad('Historical data publication or usage authorization has been withdrawn.',403);
+  if(!permitted(rights))throw bad('Replay dataset is no longer authorized for this membership.',403);
   if(action==='current'&&request.method==='GET'){
    const bar=await fetchBar(env,s.dataset_code,s.current_index);
    return out({ok:true,sessionId:s.id,currentIndex:s.current_index,decisionLocked:s.decision_locked,decision:s.decision,bar});
