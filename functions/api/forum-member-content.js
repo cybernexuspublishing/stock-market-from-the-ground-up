@@ -21,8 +21,10 @@ if(action==='change'&&request.method==='POST'){
  const patch={updated_at:new Date().toISOString()};if(op==='delete'){if(b.confirmation!=='DELETE')throw error('Delete confirmation required.',400);patch.status='deleted'}else{const body=text(b.body),max=scope==='legacy'?(type==='topic'?12000:8000):10000,min=type==='topic'?10:2;if(body.length<min||body.length>max)throw error(`Message must be between ${min} and ${max} characters.`);patch.body=body;if(type==='topic'){const title=text(b.title);if(title.length<5||title.length>(scope==='legacy'?140:180))throw error('Invalid discussion title.');patch.title=title}}
  const changed=await db(c,`${table}?id=eq.${id}&${author}=eq.${encodeURIComponent(uid)}&status=eq.published&updated_at=eq.${encodeURIComponent(original.updated_at)}`,{method:'PATCH',prefer:'return=representation',body:patch});if(!changed.length)throw error('Content changed; refresh and try again.',409);
  // Do not store historical body text in the audit log; member edits remain attributable.
- try{await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:uid,action:'forum.member.'+op,target_type:scope+'.'+type,target_id:String(id),details:{scope}}})}catch{};
- return send({ok:true,operation:op});
+ let auditRecorded=true;
+ try{await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:uid,action:'forum.member.'+op,target_type:scope+'.'+type,target_id:String(id),details:{scope}}})}
+ catch{auditRecorded=false}
+ return send({ok:true,operation:op,auditRecorded,...(!auditRecorded?{warning:'Content change succeeded, but its audit record could not be verified.'}:{})});
 }
 return send({error:'Unsupported operation.'},404);
 }catch(e){return send({ok:false,error:e.message||'Request failed.'},e.status||500)}}

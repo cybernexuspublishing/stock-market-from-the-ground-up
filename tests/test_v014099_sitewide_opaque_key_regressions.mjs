@@ -36,6 +36,11 @@ const get=async()=>{const resp=await moderation({request:new Request(
 try{
  let [status,result]=await get();assert.equal(status,200);assert.equal(result.content.id,9);
  assert.equal(result.content.body,'Member-authored topic test only');
+ assert(source('functions/api/admin-forum-actions.js').includes('auditRecorded'));
+ assert(source('functions/api/forum-member-content.js').includes('auditRecorded'));
+ assert(source('functions/api/admin-forum-actions.js').includes('Moderation change was applied'));
+ assert(source('functions/api/forum-member-content.js').includes('Content change succeeded'));
+
  const tables=calls.filter(x=>x.path.includes('/rest/v1/'));
  assert(tables.length>0);
  for(const {init} of tables){

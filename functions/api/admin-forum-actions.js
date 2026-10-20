@@ -24,6 +24,8 @@ export async function onRequest({request,env}){try{const c=config(env),user=awai
    if(type==='topic') {const title=clean(b.title);if(title.length<5||title.length>(scope==='legacy'?140:180))throw fail('Discussion title must satisfy the forum title limits.');patch.title=title;}
  }if(action==='hide')patch.status='hidden';if(action==='restore')patch.status='published';if(action==='delete')patch.status='deleted';if(action==='lock'||action==='unlock')patch.is_locked=action==='lock';if(action==='pin'||action==='unpin')patch.is_pinned=action==='pin';
  const changed=await db(c,`${table}?id=eq.${id}&updated_at=eq.${encodeURIComponent(old.updated_at)}`,{method:'PATCH',prefer:'return=representation',body:patch});if(!changed?.length)throw fail('Content changed during moderation.',409);
- await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:user.uid,action:'forum.moderate.'+action,target_type:scope+'.'+type,target_id:String(id),details:{scope,note,fields:action==='edit'?(type==='topic'?['title','body']:['body']):[]}}}).catch(()=>{});
- return send({ok:true,action});
+ let auditRecorded=true;
+ try{await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:user.uid,action:'forum.moderate.'+action,target_type:scope+'.'+type,target_id:String(id),details:{scope,note,fields:action==='edit'?(type==='topic'?['title','body']:['body']):[]}}})}
+ catch{auditRecorded=false}
+ return send({ok:true,action,auditRecorded,...(!auditRecorded?{warning:'Moderation change was applied, but its audit write could not be verified. The Owner must investigate the audit ledger.'}:{})});
 }catch(e){return send({ok:false,error:e.message||'Moderation failed.'},e.status||500)}}
