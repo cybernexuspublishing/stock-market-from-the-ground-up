@@ -18,6 +18,8 @@ WITH rubric AS (
    WHERE envelope.status IN ('verified','published')
     AND dataset.status IN ('verified','published')
     AND dataset.source_attribution IS NOT NULL AND btrim(dataset.source_attribution)<>''
+    AND coalesce(dataset.metadata->>'original_synthetic','false')<>'true'
+    AND coalesce(dataset.metadata->>'historical_evidence_verified','true')<>'false'
     AND dataset.license_note IS NOT NULL AND btrim(dataset.license_note)<>''
     AND envelope.decision_boundary_at IS NOT NULL
     AND envelope.context_start_at <= envelope.teaching_start_at

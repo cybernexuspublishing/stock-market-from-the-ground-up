@@ -13,7 +13,8 @@ function eligibleRubric(x){
 function eligibleContext(envelope,dataset){
  if(!envelope||!dataset||!['verified','published'].includes(envelope.status)||
    dataset.status!=='published'||dataset.dataset_type!=='ohlcv'||dataset.metadata?.evidence_verified!==true||
-   dataset.metadata?.licensed_for_member_display!==true||!nonempty(dataset.source_attribution)||
+   dataset.metadata?.licensed_for_member_display!==true||
+   dataset.metadata?.original_synthetic===true||dataset.metadata?.historical_evidence_verified===false||!nonempty(dataset.source_attribution)||
    !nonempty(dataset.license_note)||!nonempty(dataset.metadata?.corporate_action_policy))return false;
  const series=['context_start_at','teaching_start_at','decision_boundary_at','teaching_end_at','context_end_at'].map(k=>stamp(envelope[k]));
  return series.every(Number.isFinite)&&series.every((t,i)=>i===0||t>=series[i-1]);

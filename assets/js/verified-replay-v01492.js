@@ -48,17 +48,19 @@ function orderPlan(){
 async function catalog(){
  const data=await api('catalog');
  const rows=Array.isArray(data.datasets)?data.datasets:[];
+ const requested=new URLSearchParams(location.search).get('dataset')||'';
  const select=$('vr-dataset');select.replaceChildren();
  const first=document.createElement('option');first.value='';first.textContent=rows.length?'Select a published dataset':'No reviewed datasets available';select.append(first);
  for(const d of rows){
   if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(String(d.code||'')))continue;
   const option=document.createElement('option');option.value=d.code;
-  option.textContent=String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
+  option.textContent=(d.synthetic?'ORIGINAL SIMULATION — ':'HISTORICAL — ')+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
   select.append(option);
+  if(d.code===requested){select.value=d.code;$('vr-code').value=d.code;}
  }
  $('vr-dataset-note').textContent=rows.length
-  ?rows.length+' dataset(s) available for this release. Historical evidence and member display rights are recorded by the Owner.'
-  :'No currently published and rights-cleared datasets. Replay cannot start until appropriate source data is added and verified.';
+  ?rows.length+' available datasets. ORIGINAL SIMULATIONS are invented lessons, not verified historical prices. Historical cases require separate source verification.'
+  :'No authorized original simulations or independently verified historical datasets are published yet.';
 }
 async function resume(){
  $('vr-journal-link').hidden=true;
@@ -68,7 +70,7 @@ async function resume(){
  sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
  $('vr-bars').replaceChildren();addBar(r.bar);
  $('vr-code').value=r.dataset?.code||'';
- $('vr-source').textContent=[r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
+ $('vr-source').textContent=[r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY': 'VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
  $('vr-execution').hidden=true;
  notice('Session restored at bar '+cursor+'. Prior bars are not re-sent; no unseen observation was revealed.');
  renderState();
@@ -80,7 +82,7 @@ async function start(){
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
  $('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
- $('vr-source').textContent=r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
+ $('vr-source').textContent=(r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY · ':'VERIFIED HISTORICAL SOURCE · ')+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
 }
 async function lock(){

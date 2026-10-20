@@ -68,9 +68,9 @@ export async function onRequest({request,env}){
   const url=new URL(request.url),action=String(url.searchParams.get('action')||'current');
   const body=request.method==='POST'?await bodyOf(request):{};
   if(action==='catalog'&&request.method==='GET'){
-   const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=100');
+   const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=700');
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
-   return out({ok:true,datasets:rows.filter(publicDataset).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note})),notice:'Only data with recorded publishing rights and evidence verification is listed; each observation remains server-controlled.'});
+   return out({ok:true,datasets:rows.filter(publicDataset).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'This list includes clearly marked ORIGINAL fictional simulations and, separately, any authorized independently verified historical datasets. Only the currently visible server-owned observation is returned.'});
   }
   if(action==='resume'&&request.method==='GET'){
    // Durable sessions are discovered by authenticated user identity, not a
@@ -87,7 +87,7 @@ export async function onRequest({request,env}){
    if(!bar)throw bad('The current replay observation is unavailable.',503);
    return out({ok:true,session:{id:selected.id,currentIndex:selected.current_index,decisionLocked:selected.decision_locked,
     decision:selected.decision,bar,dataset:{code:rights.dataset_code,title:rights.title,ticker:rights.ticker,
-    sourceAttribution:rights.source_attribution,licenseNotice:rights.license_note}},
+    sourceAttribution:rights.source_attribution,licenseNotice:rights.license_note,synthetic:rights.metadata?.original_synthetic===true}},
     notice:'Restored from the private, owner-scoped replay session. Earlier bars must be replayed in sequence if required.'});
   }
   if(action==='start'&&request.method==='POST'){
@@ -107,8 +107,8 @@ export async function onRequest({request,env}){
     {user_id:auth.userId,dataset_code:code},'return=representation');
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
    return out({ok:true,sessionId:sess.id,dataset:{code,title:source.title,ticker:source.ticker,
-    sourceAttribution:source.source_attribution,licenseNotice:source.license_note},
-    currentIndex:0,bar:first,decisionLocked:false,notice:'Only the first observation is visible. Lock a decision before requesting any later bar.'},201);
+    sourceAttribution:source.source_attribution,licenseNotice:source.license_note,synthetic:source.metadata?.original_synthetic===true},
+    currentIndex:0,bar:first,decisionLocked:false,notice:source.metadata?.original_synthetic===true?'ORIGINAL FICTIONAL simulation. Not an actual ticker, date, trade, source feed, or historical chart. Only the first made-up observation is visible. Lock a decision to reveal more.':'Only the first historical observation is visible. Lock a decision before requesting any later bar.'},201);
   }
   const id=String(body.sessionId||url.searchParams.get('sessionId')||'');
   // Finalization is an idempotent, service-only PostgreSQL transaction.
