@@ -72,7 +72,7 @@ BEGIN
  SELECT updated_at::text INTO v FROM public.commons_topics WHERE id=1;
  SELECT public.gu_v014113_moderate_with_audit(
  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','commons','topic',1,'hide',
- v,'Moderated inaccurate financial statement',NULL,NULL,NULL,NULL)
+ v,'Moderated inaccurate financial statement',NULL,NULL,NULL)
  INTO result;
  IF result->>'ok'<>'true' OR result->>'auditRecorded'<>'true' THEN
   RAISE EXCEPTION 'v113 staff moderation not committed with audit: %',result;END IF;
