@@ -149,6 +149,25 @@ export async function onRequest({request,env}){
   // the Owner withdraws display rights, historical verification or publication.
   const rights=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(s.dataset_code)+'&limit=1'));
   if(!permitted(rights))throw bad('Replay dataset is no longer authorized for this membership.',403);
+  if(action==='visible'&&request.method==='GET'){
+   // Replay history is clipped at the member's LOCKED server cursor.
+   // No client-controlled end index, dataset choice or future-derived metric.
+   if(!Number.isSafeInteger(s.current_index)||s.current_index<0)throw bad('Replay cursor unavailable.',503);
+   const rows=await db(env,'gu_replay_bars_v01492?select=bar_index,bar_at,open,high,low,close,volume&dataset_code=eq.'+
+    encodeURIComponent(s.dataset_code)+'&bar_index=lte.'+s.current_index+
+    '&order=bar_index.desc&limit=40');
+   if(!Array.isArray(rows)||rows.length<1||rows.length>40||
+      Number(rows[0]?.bar_index)!==s.current_index)
+    throw bad('Replay visible history integrity check failed.',503);
+   const bars=rows.map(fmt).reverse();
+   if(bars.some((x,i)=>!Number.isSafeInteger(x.index)||x.index<0||
+     x.index>s.current_index||i>0&&(x.index<=bars[i-1].index||
+     Date.parse(x.timestamp)<=Date.parse(bars[i-1].timestamp))))
+    throw bad('Replay visible history is not strictly ordered.',503);
+   return out({ok:true,sessionId:s.id,currentIndex:s.current_index,
+     decisionLocked:s.decision_locked,bars,hasEarlierBars:bars[0].index>0,
+     notice:'Only already-revealed observations from this owner-scoped session are returned. The server never transmits future bars.'});
+  }
   if(action==='current'&&request.method==='GET'){
    const bar=await fetchBar(env,s.dataset_code,s.current_index);
    return out({ok:true,sessionId:s.id,currentIndex:s.current_index,decisionLocked:s.decision_locked,decision:s.decision,bar});

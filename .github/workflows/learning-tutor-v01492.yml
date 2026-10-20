@@ -26,6 +26,7 @@ on:
       - 'tests/test_v014098_replay_lower_plan_registry.mjs'
       - 'functions/_lib/owner-lab-readiness-v01493.js'
       - 'tests/test_v014099_owner_audit_long_history.mjs'
+      - 'tests/test_v014100_visible_replay_history.mjs'
       - 'functions/api/learning-replay-v01492.js'
       - 'supabase/migrations/v0.14.0.97_419_AUTHOR_CREATED_FICTIONAL_OHLCV_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014097_original_replay_safety.mjs'
@@ -84,6 +85,7 @@ on:
       - 'tests/test_v014098_replay_lower_plan_registry.mjs'
       - 'functions/_lib/owner-lab-readiness-v01493.js'
       - 'tests/test_v014099_owner_audit_long_history.mjs'
+      - 'tests/test_v014100_visible_replay_history.mjs'
       - 'functions/api/learning-replay-v01492.js'
       - 'supabase/migrations/v0.14.0.97_419_AUTHOR_CREATED_FICTIONAL_OHLCV_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014097_original_replay_safety.mjs'
@@ -168,6 +170,7 @@ jobs:
           node tests/test_v014098_replay_lower_plan_registry.mjs
           node tests/test_v014098_audit_execution_quality.mjs
           node tests/test_v014097_original_replay_safety.mjs
+          node tests/test_v014100_visible_replay_history.mjs
           node tests/test_v014095_middleware_opaque_key.mjs
           node tests/test_v014092_replay_contract.mjs
           node tests/v01415_community_api.mjs

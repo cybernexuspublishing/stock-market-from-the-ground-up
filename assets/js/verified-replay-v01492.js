@@ -10,8 +10,8 @@ async function api(action,payload={}){
  const session=(await sb.auth.getSession()).data?.session;
  if(!session?.access_token)throw Error('Sign in to continue.');
  const endpoint='/api/learning-replay-v01492?action='+encodeURIComponent(action);
- const isRead=['current','catalog','resume'].includes(action);
- const u=action==='current'?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
+ const isRead=['current','catalog','resume','visible'].includes(action);
+ const u=['current','visible'].includes(action)?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
  const res=await fetch(u,{method:isRead?'GET':'POST',cache:'no-store',headers:{
  authorization:'Bearer '+session.access_token,...(!isRead?{'content-type':'application/json'}:{})},
  body:isRead?undefined:JSON.stringify({...payload,sessionId})});
@@ -98,11 +98,22 @@ async function resume(){
  const r=data.session;
  if(!r){notice(data.notice||'There is no saved replay session.');return}
  sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
- visibleCandles.length=0;$('vr-bars').replaceChildren();addBar(r.bar);
+ visibleCandles.length=0;$('vr-bars').replaceChildren();
+ // The resume contract sends ONLY its current candle; fetch bounded, already
+ // observed history after session ownership and source rights are rechecked.
+ let restored=false;
+ try{
+  const visible=await api('visible');
+  if(visible.sessionId!==sessionId||visible.currentIndex!==cursor||
+    !Array.isArray(visible.bars)||!visible.bars.length||
+    visible.bars.at(-1).index!==cursor)throw Error('Replay history changed');
+  for(const b of visible.bars)addBar(b);
+  restored=true;
+ }catch{addBar(r.bar)}
  $('vr-code').value=r.dataset?.code||'';
  $('vr-source').textContent=[r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY': 'VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
  $('vr-execution').hidden=true;
- notice('Session restored at bar '+cursor+'. Prior bars are not re-sent; no unseen observation was revealed.');
+ notice('Session restored at bar '+cursor+'. '+(restored?'Previously observed candles were restored from the private server.':'Only the current candle was available; earlier observations were not restored.')+' Future data remain private.');
  renderState();
 }
 async function start(){
