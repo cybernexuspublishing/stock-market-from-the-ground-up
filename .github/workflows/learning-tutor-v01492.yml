@@ -15,6 +15,7 @@ on:
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
       - 'functions/api/member-tutor-history-v014102.js'
+      - 'functions/_lib/tutor-response-scaffold-v014102.js'
       - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014102_member_tutor_history.mjs'
       - 'tests/test_v014102_tutor_ai_consent.mjs'
@@ -82,6 +83,7 @@ on:
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
       - 'functions/api/member-tutor-history-v014102.js'
+      - 'functions/_lib/tutor-response-scaffold-v014102.js'
       - 'supabase/migrations/v0.14.0.102_PRIVATE_MEMBER_TUTOR_HISTORY_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014102_member_tutor_history.mjs'
       - 'tests/test_v014102_tutor_ai_consent.mjs'
@@ -172,6 +174,7 @@ jobs:
           node --check assets/js/lab-registry.js
           node --check assets/js/market-tutor.js
           node --check functions/api/member-tutor-history-v014102.js
+          node --check functions/_lib/tutor-response-scaffold-v014102.js
           node --check assets/js/lab-registry.js
           node --check functions/api/learning-replay-v01492.js
           node --check assets/js/verified-replay-v01492.js
