@@ -18,6 +18,7 @@ function renderSnapshot(){if(!ESTATE.snapshot)return;const s=ESTATE.snapshot.sna
 function renderMetrics(row){const JT=window.JournalTools,m=JT.compute(row);const vals=[['Gross P&L',m.gross_pnl==null?'—':JT.money(m.gross_pnl)],['Net P&L',m.net_pnl==null?'—':JT.money(m.net_pnl)],['Initial planned risk',m.initial_planned_risk==null?'—':JT.money(m.initial_planned_risk)],['Result in R',m.r_multiple==null?'—':`${JT.dec(m.r_multiple,2)}R`],['MFE / share',m.mfe_per_share==null?'—':JT.money(m.mfe_per_share)],['MAE / share',m.mae_per_share==null?'—':JT.money(m.mae_per_share)],['MFE in R',m.mfe_r==null?'—':`${JT.dec(m.mfe_r,2)}R`],['MAE in R',m.mae_r==null?'—':`${JT.dec(m.mae_r,2)}R`],['Gross MFE captured',m.mfe_capture_pct==null?'—':JT.pct(m.mfe_capture_pct)],['Time in trade',m.duration_minutes==null?'—':`${m.duration_minutes} min`],['Outcome',JT.outcome({...row,...m})],['Process / outcome',JT.processOutcome({...row,...m})]];e('metric-grid').innerHTML=vals.map(([a,b])=>`<div class="metric-box"><span>${JT.esc(a)}</span><strong>${JT.esc(b)}</strong></div>`).join('');if(planLocked()){e('actual-compare-body').innerHTML=`<dl>${pair('Actual entry',row.actual_entry)}${pair('Actual exit',row.actual_exit)}${pair('Actual exit reason',row.actual_exit_reason)}${pair('Plan followed',row.plan_followed)}${pair('Process grade',row.process_grade)}${pair('Net P&L',m.net_pnl==null?'—':JT.money(m.net_pnl))}${pair('R multiple',m.r_multiple==null?'—':`${JT.dec(m.r_multiple,2)}R`)}${pair('MFE',m.mfe_r==null?'—':`${JT.dec(m.mfe_r,2)}R`)}${pair('MAE',m.mae_r==null?'—':`${JT.dec(m.mae_r,2)}R`)}</dl>`}}
 function showReplayProvenance(){
  const old=e('journal-replay-provenance');if(old)old.remove();
+ const oldEditor=e('journal-replay-reflection');if(oldEditor)oldEditor.remove();
  const snap=ESTATE.snapshot?.snapshot;
  const code=typeof snap?.datasetCode==='string'?snap.datasetCode:'';
  if(!code)return;
@@ -29,6 +30,34 @@ function showReplayProvenance(){
   'SERVER-CONTROLLED REPLAY — The first observed decision is locked. Source verification and rights are controlled separately. Neither a real broker fill nor a Lab pass was established. Dataset: '+code;
  e('entry-status-line').insertAdjacentElement('afterend',box);
  e('entry-record-type').textContent=fictional?'Original Fictional Replay':'Server-Controlled Replay / Learning';
+ // A replay is a LOCKED observation and is not a brokerage execution.
+ // Keep trading entry/exit/P&L controls for independently documented actual
+ // trades only. The database also blocks fabricated direct-table writes.
+ const actualSection=e('j-actual-entry')?.closest('section');
+ if(actualSection)actualSection.hidden=true;
+ const metrics=e('metric-grid')?.closest('section');if(metrics)metrics.hidden=true;
+ const comparison=e('plan-vs-actual');if(comparison)comparison.hidden=true;
+ const editor=document.createElement('section');
+ editor.id='journal-replay-reflection';editor.className='journal-card journal-section';
+ editor.setAttribute('aria-label','Replay learning reflection');
+ editor.innerHTML='<h2>Replay reflection — ungraded</h2><p class="journal-small">The original first decision is immutable. You may add personal reflections, but you cannot enter broker fills, financial performance, or competency grades for this educational replay. The 1D / 7D / 30D reviews record distinct outcome-hidden and post-reveal observations.</p><label for="replay-lesson">Lesson learned</label><textarea id="replay-lesson" rows="4" maxlength="5000"></textarea><label for="replay-note">Additional observations</label><textarea id="replay-note" rows="4" maxlength="5000"></textarea><label for="replay-emotion">State after reflection (optional)</label><input id="replay-emotion" maxlength="200"><div class="journal-actions"><button class="btn secondary" id="save-replay-reflection" type="button">Save Reflection</button><a class="btn secondary" href="review-queue.html">View Spaced Reviews</a></div><p id="replay-reflection-status" role="status" aria-live="polite"></p>';
+ e('plan-lock-state').insertAdjacentElement('afterend',editor);
+ e('replay-lesson').value=ESTATE.row.lesson||'';
+ e('replay-note').value=ESTATE.row.result_note||'';
+ e('replay-emotion').value=ESTATE.row.emotion_after||'';
+ e('save-replay-reflection').onclick=async()=>{
+  const btn=e('save-replay-reflection'),notice=e('replay-reflection-status');
+  btn.disabled=true;notice.textContent='Saving private reflection…';
+  try{
+   const patch={lesson:e('replay-lesson').value,result_note:e('replay-note').value,
+    emotion_after:e('replay-emotion').value,updated_at:new Date().toISOString()};
+   const {error}=await ESTATE.sb.from('decision_journal').update(patch)
+    .eq('id',ESTATE.id).eq('user_id',ESTATE.user.id);
+   if(error)throw error;
+   notice.textContent='Reflection saved. No financial outcome or skill grade was created.';
+  }catch(err){notice.textContent='Reflection not saved: '+String(err.message||'Backend unavailable.')}
+  finally{btn.disabled=false}
+ };
 }
 async function loadSnapshot(){const {data,error}=await ESTATE.sb.from('trade_plan_snapshots').select('*').eq('journal_id',ESTATE.id).maybeSingle();if(error)throw error;ESTATE.snapshot=data||null}
 async function loadRow(){const {data,error}=await ESTATE.sb.from('decision_journal').select('*').eq('id',ESTATE.id).eq('user_id',ESTATE.user.id).single();if(error)throw error;ESTATE.row=data;fill(data);await loadSnapshot();e('entry-record-type').textContent=(ESTATE.tax.journalTypes.find(x=>x.value===data.journal_type)?.label||data.journal_type||'Journal Record');e('entry-title').textContent=`${data.ticker||'Journal'} — ${data.trade_date||''}`;e('entry-status-line').textContent=`Status: ${String(data.status||'draft').replace('_',' ')}${data.plan_locked_at?' · Pre-trade plan locked':''}`;const sim=e('open-simulator');if(sim){sim.hidden=data.journal_type!=='paper'||['closed','no_trade','reviewed'].includes(data.status);sim.href=`simulator.html?journal_id=${data.id}`;}applyLockState();renderMetrics(data);showReplayProvenance()}
