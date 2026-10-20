@@ -1,0 +1,98 @@
+name: Replay to Journal Lifecycle PostgreSQL v0.14.0.118
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/v0.14.0.118_REPLAY_LIFECYCLE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014118_*'
+      - 'tests/test_v014118_replay_learning_lifecycle.mjs'
+      - 'functions/api/journal-replay-review-v014118.js'
+      - 'functions/api/competencies.js'
+      - 'assets/js/review-queue.js'
+      - 'assets/js/journal-entry.js'
+      - 'assets/js/skills.js'
+      - 'skills.html'
+      - '.github/workflows/replay-lifecycle-v014118.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/v0.14.0.118_REPLAY_LIFECYCLE_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/fixtures/v014118_*'
+      - 'tests/test_v014118_replay_learning_lifecycle.mjs'
+      - 'functions/api/journal-replay-review-v014118.js'
+      - 'functions/api/competencies.js'
+      - 'assets/js/review-queue.js'
+      - 'assets/js/journal-entry.js'
+      - 'assets/js/skills.js'
+      - 'skills.html'
+      - '.github/workflows/replay-lifecycle-v014118.yml'
+permissions:
+  contents: read
+jobs:
+  source-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate private replay, reviews and student progress
+        run: |
+          node --check functions/api/journal-replay-review-v014118.js
+          node --check functions/api/competencies.js
+          node --check assets/js/review-queue.js
+          node --check assets/js/journal-entry.js
+          node --check assets/js/skills.js
+          node tests/test_v014118_replay_learning_lifecycle.mjs
+          node tests/test_v014115_replay_journal_integrity.mjs
+          node tests/test_v014094_replay_journal_link.mjs
+          node tests/test_v014112_server_first_simulator.mjs
+          node tests/test_v014100_visible_replay_history.mjs
+          node tests/test_v014098_integrated_skills_review.mjs
+          node tests/test_v014105_reviewed_knowledge_bridge.mjs
+      - name: Verify private migrations are excluded from public build
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/simulator.html
+          test -f public/journal-entry.html
+          test -f public/review-queue.html
+          test -f public/skills.html
+          test ! -e public/supabase
+          test ! -e public/functions
+  real-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: disposable_only
+          POSTGRES_DB: replay_lifecycle_v118
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d replay_lifecycle_v118"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: replay_lifecycle_v118
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install disposable PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          psql --version
+      - name: Build isolated fixture (NEVER against production)
+        run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014118_replay_lifecycle_schema.sql
+      - name: Install EXACT Owner-review v118 SQL into disposable Postgres
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.118_REPLAY_LIFECYCLE_OWNER_REVIEW_REQUIRED.sql
+      - name: Exercise real atomic ownership, immutability, review chronology and scores
+        run: psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014118_replay_lifecycle_acceptance.sql
