@@ -221,7 +221,7 @@ REVOKE ALL ON FUNCTION public.gu_v014118_replay_lock_integrity()
 -- Never let an authenticated direct-table UPDATE fabricate fills, gains, grades,
 -- statuses or different first decisions after server finalization.
 CREATE OR REPLACE FUNCTION public.gu_v014118_replay_journal_guard()
-RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=public,pg_temp AS $gu118_journal$
 BEGIN
  IF EXISTS (SELECT 1 FROM public.gu_replay_journal_links_v01494 l
@@ -294,12 +294,16 @@ REVOKE ALL ON FUNCTION public.gu_v014118_replay_review_note_guard()
 -- reveal and completion sequence for replay-linked evidence. The service-only
 -- transaction below is the writer. Ordinary journal reviews stay unchanged.
 CREATE OR REPLACE FUNCTION public.gu_v014118_protect_replay_review()
-RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=public,pg_temp AS $gu118_review_guard$
 BEGIN
+ -- SECURITY DEFINER is required to examine private service-only link rows.
+ -- Determine the CALLER'S PostgREST role from request JWT / SET ROLE, not
+ -- current_user (which is function owner inside a definer function).
  IF EXISTS(SELECT 1 FROM public.gu_replay_journal_links_v01494
      WHERE journal_id=OLD.journal_id) AND
-    current_user<>'service_role' AND
+    coalesce(nullif(current_setting('request.jwt.claim.role',true),''),
+             nullif(current_setting('role',true),'none'),'')<>'service_role' AND
     (NEW.review_notes IS DISTINCT FROM OLD.review_notes OR
      NEW.completed_at IS DISTINCT FROM OLD.completed_at) THEN
     RAISE EXCEPTION 'Replay review must follow the server-locked evidence sequence';
