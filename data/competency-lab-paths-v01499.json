@@ -3,57 +3,7 @@
   "status": "suggested_curriculum_links_not_grading_evidence",
   "source": "Canonical existing 419 Lab titles and public metadata. No source content, answer keys or historical data.",
   "totalCanonicalLabs": 419,
-  "unmatchedLabIds": [
-    "F1-C04-L01",
-    "F1-C06-L01",
-    "F1-C07-L01",
-    "F1-C07-L02",
-    "F1-C08-L01",
-    "F1-C08-L03",
-    "F1-C10-L01",
-    "F1-C10-L02",
-    "F1-C13-L01",
-    "F1-C13-L02",
-    "F2-C02-L03",
-    "F2-C03-L01",
-    "F2-C06-L01",
-    "F2-C06-L02",
-    "F3-C03-L01",
-    "F3-C03-L02",
-    "F3-C04-L01",
-    "F3-C04-L02",
-    "F3-C04-L03",
-    "F3-C07-L02",
-    "F3-C07-L04",
-    "DT-C01-L01",
-    "DT-C02-L01",
-    "DT-C05-L01",
-    "DT-C06-L01",
-    "DT-C13-L01",
-    "DT-C16-L01",
-    "DT-C17-L01",
-    "DT-C30-L01",
-    "DT-C44-L01",
-    "DT-C46-L01",
-    "DT-C47-L02",
-    "DT-C52-L01",
-    "DT-C52-L02",
-    "SITE-005",
-    "SITE-006",
-    "SITE-007",
-    "SITE-021",
-    "SITE-022",
-    "SITE-023",
-    "SITE-069",
-    "SITE-070",
-    "SITE-071",
-    "SITE-077",
-    "SITE-078",
-    "SITE-079",
-    "SITE-089",
-    "SITE-090",
-    "SITE-091"
-  ],
+  "unmatchedLabIds": [],
   "bySkill": {
     "CHART_STRUCTURE": [
       {
@@ -283,6 +233,12 @@
         "title": "Gap down that only partially fills in the observation window",
         "bookCode": "FOUNDATION_BOOK_3",
         "relevance": 3
+      },
+      {
+        "labId": "F2-C06-L01",
+        "title": "Axes and Chart Types — Same Historical Window, Different Representation",
+        "bookCode": "FOUNDATION_BOOK_2",
+        "relevance": 1
       }
     ],
     "CANDLE_READING": [
@@ -381,6 +337,18 @@
         "title": "Mixed and Overlapping Sequence",
         "bookCode": "FOUNDATION_BOOK_2",
         "relevance": 3
+      },
+      {
+        "labId": "F3-C03-L01",
+        "title": "Bearish Engulfing configuration and later outcome",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
+      },
+      {
+        "labId": "F3-C03-L02",
+        "title": "Bullish Engulfing configuration and later outcome",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
       }
     ],
     "VWAP_CONTEXT": [
@@ -607,6 +575,30 @@
         "title": "F3-C05-L04",
         "bookCode": "FOUNDATION_BOOK_3",
         "relevance": 5
+      },
+      {
+        "labId": "F3-C04-L01",
+        "title": "F3-C04-L01",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
+      },
+      {
+        "labId": "F3-C04-L02",
+        "title": "F3-C04-L02",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
+      },
+      {
+        "labId": "F3-C04-L03",
+        "title": "F3-C04-L03",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
+      },
+      {
+        "labId": "F3-C07-L02",
+        "title": "RSI oversold is not an automatic buy",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
       }
     ],
     "VOLUME_ANALYSIS": [
@@ -803,6 +795,12 @@
         "title": "Compression Hides Internal Sequence",
         "bookCode": "FOUNDATION_BOOK_2",
         "relevance": 3
+      },
+      {
+        "labId": "F2-C06-L02",
+        "title": "Chart Type Versus Aggregation — Change One Variable at a Time",
+        "bookCode": "FOUNDATION_BOOK_2",
+        "relevance": 1
       }
     ],
     "BREAKOUT_RECOGNITION": [
@@ -1235,6 +1233,12 @@
         "title": "Gaps, Squeezes, Conflicting Evidence, and Testing What You Think You See — Every component, purpose, and reading procedure",
         "bookCode": "READING_THE_TAPE",
         "relevance": 11
+      },
+      {
+        "labId": "F3-C07-L04",
+        "title": "Momentum whipsaw in a narrow price window",
+        "bookCode": "FOUNDATION_BOOK_3",
+        "relevance": 1
       }
     ],
     "RISK_PER_SHARE": [
@@ -1243,6 +1247,18 @@
         "title": "Position Sizing, Reward-to-Risk, and Maximum Entry — Risk Per Share",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 14
+      },
+      {
+        "labId": "DT-C05-L01",
+        "title": "Risk Comes Before Profit — Risk per trade",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C10-L01",
+        "title": "Long vs. Short Directional Exposure",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
       }
     ],
     "POSITION_SIZING": [
@@ -1465,6 +1481,30 @@
         "title": "Risk Comes Before Profit — Add Execution Risk to the Model",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 10
+      },
+      {
+        "labId": "F1-C10-L02",
+        "title": "Long vs. Short Directional Exposure",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-089",
+        "title": "Opening, Closing & Reopening Auctions — What It Is",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-090",
+        "title": "Opening, Closing & Reopening Auctions — Why It Matters & When to Use It",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-091",
+        "title": "Opening, Closing & Reopening Auctions — Step-by-Step Workflow",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
       }
     ],
     "SLIPPAGE_SPREAD": [
@@ -1647,6 +1687,12 @@
         "title": "Compare Lower Trading Activity With the Prior Exercise",
         "bookCode": "FOUNDATION_BOOK_2",
         "relevance": 6
+      },
+      {
+        "labId": "F1-C08-L03",
+        "title": "Very Small Capitalization and Sparse Trading Context",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
       }
     ],
     "CATALYST_ANALYSIS": [
@@ -1805,6 +1851,12 @@
         "title": "Unexplained Order Flow and Technical Runners — Re-Ignition Without New News",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C17-L01",
+        "title": "Why Is the Stock Moving? — Company events",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
       }
     ],
     "FLOAT_SUPPLY": [
@@ -1873,6 +1925,30 @@
         "title": "Offerings, ATM Programs, Warrants, Convertibles, and Dilution Risk — Reverse Splits and Share Authorization",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 11
+      },
+      {
+        "labId": "F1-C08-L01",
+        "title": "Share Price Versus Company Size — Mega-Cap Example",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-077",
+        "title": "Corporate Actions & Adjustments — What It Is",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-078",
+        "title": "Corporate Actions & Adjustments — Why It Matters & When to Use It",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-079",
+        "title": "Corporate Actions & Adjustments — Step-by-Step Workflow",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
       }
     ],
     "SEC_FILINGS": [
@@ -2081,6 +2157,24 @@
         "title": "Trading Halts, Resumptions, Parabolic Moves, and Extreme Volatility — Resumption Is New Price Discovery",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C16-L01",
+        "title": "What Makes a Stock Tradable Today? — Movement",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C04-L01",
+        "title": "A Public Company and Its Shares in the Secondary Market",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C07-L01",
+        "title": "Identify a Common Stock",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
       }
     ],
     "MARKET_REGIME": [
@@ -2197,6 +2291,30 @@
         "title": "Different Stocks Produce Different Tape — Set a baseline for each instrument and session",
         "bookCode": "READING_THE_TAPE",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C13-L01",
+        "title": "Gaps and the Opening Period — Gap context",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C07-L02",
+        "title": "ETF Versus Index",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F2-C02-L03",
+        "title": "Observe the approach to the regular-market close",
+        "bookCode": "FOUNDATION_BOOK_2",
+        "relevance": 1
+      },
+      {
+        "labId": "F2-C03-L01",
+        "title": "Regular Close → After-Hours Transition",
+        "bookCode": "FOUNDATION_BOOK_2",
+        "relevance": 1
       }
     ],
     "TAPE_READING": [
@@ -2655,6 +2773,12 @@
         "title": "Gaps, Squeezes, Conflicting Evidence, and Testing What You Think You See — Every component, purpose, and reading procedure",
         "bookCode": "READING_THE_TAPE",
         "relevance": 3
+      },
+      {
+        "labId": "F1-C06-L01",
+        "title": "Participant Identity and Motive Cannot Be Read Directly From a Chart",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
       }
     ],
     "HALTS_LULD": [
@@ -3123,6 +3247,12 @@
         "title": "Building the Trade Plan — Invalidation",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 24
+      },
+      {
+        "labId": "DT-C44-L01",
+        "title": "Managing an Open Day Trade — Protect the original risk",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
       }
     ],
     "CHASE_FOMO_DISCIPLINE": [
@@ -3149,6 +3279,12 @@
         "title": "Making the Entry Decision — Confirmation versus chasing",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C47-L02",
+        "title": "The Mistakes That Damage Day Traders — Revenge Trading",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
       }
     ],
     "MFE_MAE_REVIEW": [
@@ -3595,6 +3731,24 @@
         "title": "Re-Entries, Scaling, Missed Trades, and When Not to Try Again — Second-Chance Setups",
         "bookCode": "DAY_TRADING_BOOK_1",
         "relevance": 2
+      },
+      {
+        "labId": "SITE-069",
+        "title": "Strategy Validation — What It Is",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-070",
+        "title": "Strategy Validation — Why It Matters & When to Use It",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-071",
+        "title": "Strategy Validation — Step-by-Step Workflow",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
       }
     ],
     "INDEPENDENT_PLAN": [
@@ -3651,6 +3805,36 @@
         "title": "Execution, Position Risk, Slippage, and When Not to Trade — A good observation is not an executable plan",
         "bookCode": "READING_THE_TAPE",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C02-L01",
+        "title": "How a Day Trade Actually Works — From idea to qualified opportunity",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "DT-C30-L01",
+        "title": "What a Day-Trading Setup Actually Is — Six Components of a Setup",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "DT-C46-L01",
+        "title": "Re-Entries, Scaling, Missed Trades, and When Not to Try Again — A Re-Entry Is a New Trade",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C13-L01",
+        "title": "Holding Horizon: Day Trade vs. Scalp vs. Swing",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "F1-C13-L02",
+        "title": "Style vs. Approach vs. Setup vs. Context",
+        "bookCode": "FOUNDATION_BOOK_1",
+        "relevance": 1
       }
     ],
     "REPLAY_DISCIPLINE": [
@@ -3779,6 +3963,66 @@
         "title": "Build a Repeatable Tape-Reading Observation Session — Where training simulator fits",
         "bookCode": "READING_THE_TAPE",
         "relevance": 10
+      },
+      {
+        "labId": "DT-C01-L01",
+        "title": "Day Trading: What It Is and What It Is Not — The defining boundary",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "DT-C06-L01",
+        "title": "Building Your Day-Trading Laboratory — Freeze the workspace",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "DT-C52-L01",
+        "title": "Day-Trading Readiness Assessment — Knowledge gate",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "DT-C52-L02",
+        "title": "Day-Trading Readiness Assessment — Graduation standard",
+        "bookCode": "DAY_TRADING_BOOK_1",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-005",
+        "title": "Book Access & Lab Registry — What It Is",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-006",
+        "title": "Book Access & Lab Registry — Why It Matters & When to Use It",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-007",
+        "title": "Book Access & Lab Registry — Step-by-Step Workflow",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-021",
+        "title": "Market Tutor — What It Is",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-022",
+        "title": "Market Tutor — Why It Matters & When to Use It",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
+      },
+      {
+        "labId": "SITE-023",
+        "title": "Market Tutor — Step-by-Step Workflow",
+        "bookCode": "SITE_EXCLUSIVE",
+        "relevance": 1
       }
     ]
   },
@@ -3803,32 +4047,42 @@
     "F1-C04-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "A Public Company and Its Shares in the Secondary Market",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CANDIDATE_QUALITY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C06-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Participant Identity and Motive Cannot Be Read Directly From a Chart",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "TAPE_READING"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C07-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Identify a Common Stock",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CANDIDATE_QUALITY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C07-L02": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "ETF Versus Index",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MARKET_REGIME"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C08-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Share Price Versus Company Size — Mega-Cap Example",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "FLOAT_SUPPLY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C08-L02": {
       "bookCode": "FOUNDATION_BOOK_1",
@@ -3841,8 +4095,10 @@
     "F1-C08-L03": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Very Small Capitalization and Sparse Trading Context",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "SLIPPAGE_SPREAD"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C09-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
@@ -3855,14 +4111,18 @@
     "F1-C10-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Long vs. Short Directional Exposure",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "RISK_PER_SHARE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C10-L02": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Long vs. Short Directional Exposure",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "ORDER_SELECTION"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C12-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
@@ -3875,14 +4135,18 @@
     "F1-C13-L01": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Holding Horizon: Day Trade vs. Scalp vs. Swing",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INDEPENDENT_PLAN"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F1-C13-L02": {
       "bookCode": "FOUNDATION_BOOK_1",
       "title": "Style vs. Approach vs. Setup vs. Context",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INDEPENDENT_PLAN"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F2-C01-L01": {
       "bookCode": "FOUNDATION_BOOK_2",
@@ -3912,14 +4176,18 @@
     "F2-C02-L03": {
       "bookCode": "FOUNDATION_BOOK_2",
       "title": "Observe the approach to the regular-market close",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MARKET_REGIME"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F2-C03-L01": {
       "bookCode": "FOUNDATION_BOOK_2",
       "title": "Regular Close → After-Hours Transition",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MARKET_REGIME"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F2-C03-L02": {
       "bookCode": "FOUNDATION_BOOK_2",
@@ -3977,14 +4245,18 @@
     "F2-C06-L01": {
       "bookCode": "FOUNDATION_BOOK_2",
       "title": "Axes and Chart Types — Same Historical Window, Different Representation",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CHART_STRUCTURE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F2-C06-L02": {
       "bookCode": "FOUNDATION_BOOK_2",
       "title": "Chart Type Versus Aggregation — Change One Variable at a Time",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MULTI_TIMEFRAME"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F2-C07-L01": {
       "bookCode": "FOUNDATION_BOOK_2",
@@ -4367,14 +4639,18 @@
     "F3-C03-L01": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "Bearish Engulfing configuration and later outcome",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CANDLE_READING"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C03-L02": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "Bullish Engulfing configuration and later outcome",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CANDLE_READING"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C03-L03": {
       "bookCode": "FOUNDATION_BOOK_3",
@@ -4395,20 +4671,26 @@
     "F3-C04-L01": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "F3-C04-L01",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "EMA_CONTEXT"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C04-L02": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "F3-C04-L02",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "EMA_CONTEXT"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C04-L03": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "F3-C04-L03",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "EMA_CONTEXT"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C05-L01": {
       "bookCode": "FOUNDATION_BOOK_3",
@@ -4501,8 +4783,10 @@
     "F3-C07-L02": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "RSI oversold is not an automatic buy",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "EMA_CONTEXT"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "F3-C07-L03": {
       "bookCode": "FOUNDATION_BOOK_3",
@@ -4515,14 +4799,18 @@
     "F3-C07-L04": {
       "bookCode": "FOUNDATION_BOOK_3",
       "title": "Momentum whipsaw in a narrow price window",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "SQUEEZE_CONTEXT"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C01-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Day Trading: What It Is and What It Is Not — The defining boundary",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C01-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4544,8 +4832,10 @@
     "DT-C02-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "How a Day Trade Actually Works — From idea to qualified opportunity",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INDEPENDENT_PLAN"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C02-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4620,8 +4910,10 @@
     "DT-C05-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Risk Comes Before Profit — Risk per trade",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "RISK_PER_SHARE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C05-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4643,8 +4935,10 @@
     "DT-C06-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Building Your Day-Trading Laboratory — Freeze the workspace",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C06-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4831,8 +5125,10 @@
     "DT-C13-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Gaps and the Opening Period — Gap context",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MARKET_REGIME"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C13-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4908,8 +5204,10 @@
     "DT-C16-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "What Makes a Stock Tradable Today? — Movement",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CANDIDATE_QUALITY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C16-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -4932,8 +5230,10 @@
     "DT-C17-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Why Is the Stock Moving? — Company events",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CATALYST_ANALYSIS"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C17-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -5281,8 +5581,10 @@
     "DT-C30-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "What a Day-Trading Setup Actually Is — Six Components of a Setup",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INDEPENDENT_PLAN"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C30-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -5664,8 +5966,10 @@
     "DT-C44-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Managing an Open Day Trade — Protect the original risk",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INVALIDATION_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C44-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -5715,8 +6019,10 @@
     "DT-C46-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Re-Entries, Scaling, Missed Trades, and When Not to Try Again — A Re-Entry Is a New Trade",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "INDEPENDENT_PLAN"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C46-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -5745,8 +6051,10 @@
     "DT-C47-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "The Mistakes That Damage Day Traders — Revenge Trading",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "CHASE_FOMO_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C48-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
@@ -5818,14 +6126,18 @@
     "DT-C52-L01": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Day-Trading Readiness Assessment — Knowledge gate",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "DT-C52-L02": {
       "bookCode": "DAY_TRADING_BOOK_1",
       "title": "Day-Trading Readiness Assessment — Graduation standard",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "TAPE-C01-L01": {
       "bookCode": "READING_THE_TAPE",
@@ -6511,20 +6823,26 @@
     "SITE-005": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Book Access & Lab Registry — What It Is",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-006": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Book Access & Lab Registry — Why It Matters & When to Use It",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-007": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Book Access & Lab Registry — Step-by-Step Workflow",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-008": {
       "bookCode": "SITE_EXCLUSIVE",
@@ -6635,20 +6953,26 @@
     "SITE-021": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Market Tutor — What It Is",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-022": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Market Tutor — Why It Matters & When to Use It",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-023": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Market Tutor — Step-by-Step Workflow",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "REPLAY_DISCIPLINE"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-024": {
       "bookCode": "SITE_EXCLUSIVE",
@@ -7039,20 +7363,26 @@
     "SITE-069": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Strategy Validation — What It Is",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MFE_MAE_REVIEW"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-070": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Strategy Validation — Why It Matters & When to Use It",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MFE_MAE_REVIEW"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-071": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Strategy Validation — Step-by-Step Workflow",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "MFE_MAE_REVIEW"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-072": {
       "bookCode": "SITE_EXCLUSIVE",
@@ -7098,20 +7428,26 @@
     "SITE-077": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Corporate Actions & Adjustments — What It Is",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "FLOAT_SUPPLY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-078": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Corporate Actions & Adjustments — Why It Matters & When to Use It",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "FLOAT_SUPPLY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-079": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Corporate Actions & Adjustments — Step-by-Step Workflow",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "FLOAT_SUPPLY"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-080": {
       "bookCode": "SITE_EXCLUSIVE",
@@ -7190,20 +7526,26 @@
     "SITE-089": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Opening, Closing & Reopening Auctions — What It Is",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "ORDER_SELECTION"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-090": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Opening, Closing & Reopening Auctions — Why It Matters & When to Use It",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "ORDER_SELECTION"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-091": {
       "bookCode": "SITE_EXCLUSIVE",
       "title": "Opening, Closing & Reopening Auctions — Step-by-Step Workflow",
-      "relatedCompetencies": [],
-      "method": "requires_human_curriculum_match"
+      "relatedCompetencies": [
+        "ORDER_SELECTION"
+      ],
+      "method": "editorial_topic_bridge_ungraded"
     },
     "SITE-092": {
       "bookCode": "SITE_EXCLUSIVE",
@@ -7278,5 +7620,6 @@
       ],
       "method": "topic_keyword_suggestion_ungraded"
     }
-  }
+  },
+  "mappedLabs": 419
 }
