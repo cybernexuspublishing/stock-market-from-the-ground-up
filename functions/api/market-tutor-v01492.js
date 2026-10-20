@@ -12,6 +12,7 @@ import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js
 import {reserveAiRequest} from '../_lib/first-party-ai-service-v014103.js';
 import {expandTutorQuery,seeksPersonalTradeAdvice,validateTutorModelAnswer,safeTutorMetric} from '../_lib/tutor-quality-v014107.js';
 import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
+import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -168,9 +169,19 @@ export async function onRequest({request,env}){
   // Browser-provided conversational "Tutor" turns have no server provenance.
   // Deliberately discard them; single-request learner reasoning is untrusted.
   if(body.priorTurns!==undefined)safeTutorMetric('safety',{reason:'unverified_prior_turns_ignored'});
+  async function finish(data){
+   if(body.saveHistory===true){
+    const id=await saveVerifiedTutorExchange(env,auth.userId,{
+     question:q,learnerAnswer:answer,mode,generation:data.generation,
+     answer:data.answer,sources:data.sources||[]});
+    data.historyId=id||null;data.historySaved=!!id;
+    safeTutorMetric('history',{reason:id?'server_saved':'server_save_unavailable'});
+   }else{data.historySaved=false;data.historyId=null}
+   return reply(data);
+  }
   if(mode==='practice'){
    const result=await memberPractice(env,auth.userId);
-   return reply({ok:true,generation:'authenticated-practice-history',mode:'practice',
+   return finish({ok:true,generation:'authenticated-practice-history',mode:'practice',
     answer:result.gradedReview.length
      ?'Your recorded step-wise assessment scores identify specific lessons worth revisiting. A recorded test score does not establish historical trading proficiency.'
      :result.recommendations.length
@@ -191,7 +202,7 @@ export async function onRequest({request,env}){
   const guideMatches=advice?[]:await originalGuides(env,request,expanded);
   safeTutorMetric('retrieval',{reason:guideMatches.length?'guide_and_glossary':'glossary_only',
    sourceCount:guideMatches.length||sources.length});
-  if(advice)return reply({ok:true,generation:'reviewed-glossary-logic',
+  if(advice)return finish({ok:true,generation:'reviewed-glossary-logic',
    answer:ADVICE_RESPONSE,sources:sources.slice(0,2),aiReason:'personal_advice_blocked',
    graded:false,masteryAwarded:false,notice:'Individual investment recommendations are not provided.'});
   if(guideMatches.length){
@@ -201,7 +212,7 @@ export async function onRequest({request,env}){
     summary:[g.concept,g.procedure,'Limitation: '+g.limit,'Invalidation: '+g.invalidation]
      .join(' ').slice(0,900)})),...source.slice(0,3-selectedGuides.length)].slice(0,3);
    const model=await paidLearningDraft(env,body,auth.userId,q,mode,reference,answer);
-   return reply({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
+   return finish({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
     answer:model.text||answerFromGuide(guide,mode,answer),aiReason:model.reason,
     remainingAiToday:model.remainingMemberToday??null,
     sources:[...selectedGuides.map((g,i)=>({id:g.code,title:g.title,summary:g.concept,sourceLabel:'Original in-platform competency guide',
@@ -214,7 +225,7 @@ export async function onRequest({request,env}){
   const baseline=deterministic(q,mode,sources,answer);
   const model=await paidLearningDraft(env,body,auth.userId,q,mode,source,answer);
   const generation=model.text?'grounded-model-draft':'reviewed-glossary-logic';
-  return reply({ok:true,generation,answer:model.text||baseline,sources,
+  return finish({ok:true,generation,answer:model.text||baseline,sources,
    aiReason:model.reason,remainingAiToday:model.remainingMemberToday??null,
    graded:false,masteryAwarded:false,
    sourceLimit:'Public companion-glossary context only. Historical datasets and Lab grading are independent.',
