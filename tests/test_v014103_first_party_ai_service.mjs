@@ -22,7 +22,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/rpc/user_has_tool_access'))return json(allow);
  if(u.includes('/gu_ai_service_requests_v014103?')){
-  return meterStatus?json(rows):json({error:'missing table'},404);
+  return meterStatus?new Response(JSON.stringify(rows),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}}):json({error:'missing table'},404);
  }
  if(u.includes('/rpc/gu_v014103_reserve_ai_request')){
   meterCalls++;
@@ -90,7 +90,7 @@ try{
  }
  const ui=readFileSync(new URL('../assets/js/market-tutor.js',import.meta.url),'utf8');
  assert(ui.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),'Consent must reset for EVERY question');
- assert(ui.includes('priorTurns:TUTOR.entries.filter'), 'Follow-ups must pass bounded earlier grounded conversation turns');
+ assert(!ui.includes('priorTurns:TUTOR.entries.filter'), 'Forged client Tutor turns must not be forwarded');
  assert(!sql.includes('UPDATE public.competency'),'AI quota must not award official skills');
  assert(!sql.includes('INSERT INTO public.gu_member_tutor_exchanges'),'Do not duplicate installed v102 private history');
  console.log('PASS v103: paid first-party AI request metering, member entitlement, source-only fallback, per-user/site caps, disabled/provider/missing schema, isolated member status and no leakage.');
