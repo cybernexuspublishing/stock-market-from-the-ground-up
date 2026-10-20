@@ -23,6 +23,7 @@ globalThis.fetch=async(url,options={})=>{
   {lab_id:'F2-C01-L01',score:85,completed_at:'2026-10-19T18:00:00Z'},
   {lab_id:'F3-C01-L01',score:0,completed_at:'2026-10-19T18:00:00Z'}
  ]):json({message:'not installed'},404);
+ if(path.includes('/platform_labs?'))return json([{lab_id:'F1-C02-L01',book_code:'FOUNDATION_BOOK_1',active:true,registry_visible:true}]);
  if(path.includes('/lab_instruction_v014?'))return json([{book_number:1}]);
  if(path.includes('/lab_training_sets_v014?'))return json([{lab_id:'F1-C02-L01',review_state:'reviewed',source_status:'book_authored_unverified_market',
    questions:[{id:'Q',prompt:'Private reviewed prompt'}]}]);

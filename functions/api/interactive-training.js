@@ -17,17 +17,26 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // and the matching book entitlement. The private Lab metadata is not public.
 const publicSamples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 async function requireMatchingBook(env,request,labId){
- const rows=await db(env,'lab_instruction_v014?select=book_number&lab_id=eq.'+esc(labId)+'&limit=1');
- const book=rows[0]?Number(rows[0].book_number):null;
- if(Number.isInteger(book)&&book>=1&&book<=3){
-  if(!publicSamples.has(labId)&&!(await getBookAccess(env,request,book)))throw fail('An active matching book entitlement is required for this book-authored assessment.',403);
-  return 'FOUNDATION_BOOK_'+book;
+ // One authoritative canonical Lab registry for all 419 existing IDs. A book
+ // entitlement must NEVER revive an archived or hidden Lab assessment.
+ const rows=await db(env,'platform_labs?select=lab_id,book_code,active,registry_visible&lab_id=eq.'+
+  esc(labId)+'&limit=1'),lab=rows[0];
+ if(!lab||lab.active!==true||lab.registry_visible!==true)
+  throw fail('This Lab is not in the released registry.',404);
+ const privateInstruction=await db(env,'lab_instruction_v014?select=book_number&lab_id=eq.'+
+  esc(labId)+'&limit=1');
+ if(privateInstruction[0]){
+  const book=Number(privateInstruction[0].book_number);
+  if(!Number.isInteger(book)||book<1||book>3||
+     lab.book_code!=='FOUNDATION_BOOK_'+book)
+   throw fail('Private lesson source does not agree with the canonical Lab registry.',503);
  }
- const published=await db(env,'platform_labs?select=lab_id,book_code,active,registry_visible&lab_id=eq.'+esc(labId)+'&limit=1');
- const lab=published[0];
- if(!lab||lab.active!==true||lab.registry_visible!==true)throw fail('This Lab is not in the released registry.',404);
- if(['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(lab.book_code)){
-  if(!(await getBookCodeAccess(env,request,lab.book_code)))throw fail('An active matching book entitlement is required for this assessment.',403);
+ if(['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3',
+    'DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(lab.book_code)){
+  if(!publicSamples.has(labId)||!lab.book_code.startsWith('FOUNDATION_BOOK_')){
+   if(!(await getBookCodeAccess(env,request,lab.book_code)))
+    throw fail('An active matching book entitlement is required for this assessment.',403);
+  }
   return lab.book_code;
  }
  if(lab.book_code==='SITE_EXCLUSIVE')return lab.book_code;

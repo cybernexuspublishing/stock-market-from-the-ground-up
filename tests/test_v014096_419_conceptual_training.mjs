@@ -60,6 +60,8 @@ try{
  grants.clear();[s]=await probe('TAPE-C01-L01','READING_THE_TAPE');assert.equal(s,403);
  grants.add('READING_THE_TAPE');[s]=await probe('TAPE-C01-L01','READING_THE_TAPE');assert.equal(s,200);
  grants.clear();[s]=await probe('SITE-001','SITE_EXCLUSIVE');assert.equal(s,200,'Site Lab uses existing tool entitlement');
+ registryVisible=false;[s]=await probe('F1-C02-L01','FOUNDATION_BOOK_1');assert.equal(s,404,'Hidden Foundations lessons cannot bypass registry through book ownership');
+ registryVisible=true;
  registryVisible=false;[s]=await probe('SITE-001','SITE_EXCLUSIVE');assert.equal(s,404);
  registryVisible=true;access=false;[s]=await probe('SITE-001','SITE_EXCLUSIVE');assert.equal(s,403);
  access=true;showcase=true;[s]=await probe('SITE-001','SITE_EXCLUSIVE');assert.equal(s,403);
