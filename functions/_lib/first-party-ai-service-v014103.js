@@ -53,19 +53,34 @@ export async function aiServiceMemberStatus(env,userId){
   reason:'The paid AI inference service is not currently enabled. Source-grounded instruction remains available.',
   memberDailyLimit:c.member||null,remainingToday:null};
  const now=new Date(),day=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())).toISOString();
+ const month=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1)).toISOString();
+ async function counted(since,memberOnly){
+  const filter='?select=id&reserved_at=gte.'+encodeURIComponent(since)+
+   (memberOnly?'&user_id=eq.'+encodeURIComponent(userId):'')+'&limit=1';
+  const response=await fetch(c.dbUrl+'/rest/v1/gu_ai_service_requests_v014103'+filter,{
+   method:'GET',cache:'no-store',headers:{...jsonHeaders(c.dbKey),prefer:'count=exact'}});
+  if(!response.ok)throw Error('meter unavailable');
+  const range=response.headers.get('content-range')||'';
+  const found=/\/(\d+)$/.exec(range);
+  if(!found)throw Error('meter count missing');
+  return Number(found[1]);
+ }
  try{
-  const response=await fetch(c.dbUrl+'/rest/v1/gu_ai_service_requests_v014103?select=id&user_id=eq.'+
-   encodeURIComponent(userId)+'&reserved_at=gte.'+encodeURIComponent(day)+'&limit=101',{
-    method:'GET',cache:'no-store',headers:jsonHeaders(c.dbKey)});
-  if(!response.ok)throw Error('unavailable');
-  const rows=await response.json();
-  if(!Array.isArray(rows)||rows.length>100)throw Error('unavailable');
-  return {enabled:true,state:'configured_meter_responding',memberDailyLimit:c.member,
-   usedToday:rows.length,remainingToday:Math.max(0,c.member-rows.length),
-   notice:'A reserved request counts toward quota even if provider inference fails; counts are not a provider invoice.'};
+  const [memberUsed,globalUsed,monthlyUsed]=await Promise.all([
+   counted(day,true),counted(day,false),counted(month,false)
+  ]);
+  if(![memberUsed,globalUsed,monthlyUsed].every(Number.isSafeInteger))throw Error('meter corrupt');
+  const globalAvailable=globalUsed<c.day&&monthlyUsed<c.month;
+  const remaining=Math.max(0,c.member-memberUsed);
+  return {enabled:globalAvailable&&remaining>0,state:globalAvailable?'configured_meter_responding':'global_cap_exhausted',
+   memberDailyLimit:c.member,usedToday:memberUsed,remainingToday:remaining,
+   globalAvailable,globalDailyRemaining:Math.max(0,c.day-globalUsed),
+   globalMonthlyRemaining:Math.max(0,c.month-monthlyUsed),
+   reason:globalAvailable?'Member and site-wide budgets respond.':'The site-wide daily or monthly request limit is exhausted.',
+   notice:'A reserved request counts against quota even when inference fails; counts are not a provider invoice.'};
  }catch{
   return {enabled:false,state:'meter_unavailable',memberDailyLimit:c.member,
-   remainingToday:null,
-   reason:'Private request meter could not be verified. Paid AI inference is unavailable; source-grounded teaching is still available.'};
+   remainingToday:null,globalAvailable:false,globalDailyRemaining:null,globalMonthlyRemaining:null,
+   reason:'The private AI meter could not verify member AND global request limits. Paid inference is unavailable; source-grounded teaching remains available.'};
  }
 }
