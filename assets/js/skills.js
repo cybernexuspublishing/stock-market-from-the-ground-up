@@ -18,6 +18,15 @@ function renderOfficialSkills(evidence){
  const host=document.getElementById('official-competencies');
  if(!host)return;
  if(!evidence?.competencies){host.textContent='Verified competency records are temporarily unavailable; no mastery or completion was inferred.';return}
+ const activity=document.getElementById('replay-learning-activity');
+ if(activity){
+  const rec=evidence.competencies.replayLearningActivity;
+  activity.textContent=rec?.available?
+   'Server-controlled replay: '+String(rec.replaySessionsLinked??'1000+')+
+   ' linked session(s), '+String(rec.spacedReviewsCompleted??'3000+')+
+   ' completed 1D/7D/30D review stage(s). Ungraded practice only: no competency knowledge, recognition, decision, process or trading outcome is awarded by replay participation.':
+   'Server-controlled replay activity is not yet available or was not verified. No completion or skill score is inferred.';
+ }
  const items=Array.isArray(evidence.competencies.skills)?evidence.competencies.skills:[];
  const summary=document.getElementById('official-competencies-summary');
  if(summary)summary.textContent=items.length+' existing defined competencies · '+items.filter(x=>Number(x.evidenceCount)>0).length+' have verified assessment evidence. Conceptual Lab exercise grades do not automatically establish four-dimensional competency mastery.';
