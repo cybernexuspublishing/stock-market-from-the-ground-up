@@ -1,0 +1,25 @@
+# Original 419 Conceptual Assessment Workstream v0.14.0.96
+**Company:** Cyber Nexus / Crown & Lantern Press. **Project:** The Stock Market: From the Ground Up.
+**Date:** 2026-10-19. **Version:** 0.14.0.96. **Status:** Source ready; database NOT applied or graded lessons released. **Project file:** docs/ORIGINAL_419_CONCEPTUAL_ASSESSMENTS_v0.14.0.96.md. **Drive ID/location:** unassigned, not created. **Budget:** $0 additional spending.
+
+## Reuse and source inventory
+The ONE canonical `lab-catalog.json` already holds **419 entries in six collections**: Foundations I 15, II 46, III 33, Day Trading 150, Reading the Tape 75, Site Exclusive 100. **325 records already have substantial what/why/when/how/questions curricula** in `platform_labs.metadata`. Never recreate those or the approved Foundations manuscript v1.14. The 94 Foundations catalog entries require independent supplemental private instruction. Source migration adds it only if missing.
+
+## New work, without expensive or redistributed historical data
+The read-only 419 Lab registry is reused. **No one can manufacture a real 2024 AAPL chart by inventing candles.** Instead, each existing Lab gets a unique-varying, clearly flagged ORIGINAL HYPOTHETICAL concept calculation from a selected family: spreads, price risk, volume ratios, Time & Sales print arithmetic, candle body, bar time, toy equal-quantity VWAP, review rates or observed range. All numeric inputs and answers are deterministic and mathematically testable; the exercise is not marketed as historical replay or proof of skill. Four recorded/private scored questions per Lab: evidence boundary, pedagogical premise, worked domain calculation and pre-reveal discipline. The pre-existing private CAS scoring RPC retains the answer key, 25% per step; worked answers are only shown on permitted feedback or after the attempt ends.
+
+**This is source-level production of 419 ORIGINAL DRAFT assessments, NOT 419 finished/reviewed historical lessons.** Repeated study-method choices are general transferable competencies, not a substitute for educator-authored topic-specific rubrics. All 419 drafts require individual Owner/editor review before publishing via the existing Training Editor, real content quality QA, no-lookahead security and accessibility acceptance. Historical case studies still depend on a truly evidenced, redistributable record. Simulation is independently author-created and cannot be relabeled as historical evidence.
+
+## Owner action, in existing Supabase SQL Editor
+1. Run prior v95 read-only database and replay postflight; Owner supplied one export with published-bar immutability trigger=true and another with existing Journal triggers (not all table/permission acceptance outputs).
+2. Execute `supabase/migrations/v0.14.0.96_419_ORIGINAL_CONCEPTUAL_ASSESSMENT_DRAFTS_OWNER_REVIEW_REQUIRED.sql` ONCE. It refuses to write if 419 canonical Labs across six categories are not present. It adds optional Foundations supplementary narrative if absent; all rubric sets are version 96, **draft** only, with `ON CONFLICT DO NOTHING`. It does not alter paid products, member progress or prior rubrics.
+3. Execute `supabase/admin/v0.14.0.96_419_CONCEPTUAL_ASSESSMENT_AUDIT_READ_ONLY.sql`; expect six collections and 419 draft records (unless an Owner already used version 96 for a specific ID, which must be inspected). No answer keys returned.
+4. In the existing Owner Training Editor, review source correctness and approve individual rubrics as appropriate. No mass-review automation, no invented reviewer identity or false 419/419 premium certification.
+
+## Cloudflare
+Existing `stock-market-from-the-ground-up` Pages project, `main`, build `bash scripts/build-pages.sh`, output `public`, existing `functions/`. Reuse `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` and secret `SUPABASE_SECRET_KEY`. **No new environment variables or external APIs.** Leave optional paid `AI_TUTOR_*` keys unset, and use `GU_REPLAY_JOURNAL_V01494_ENABLED=false` until live role/Journal tests. Source-level code changes use ONE existing `interactive-training` API, existing book/library/plan grants and `lab_training_sets_v014`; no duplicate learner database.
+
+## Security and access
+Foundations book ownership remains required. Day Trading and Reading the Tape now require matching book rights, or an existing all-books grant, using the same entitlement resolver as Foundations. Site-exclusive training requires the existing `ONDEMAND_TRAINING` tool entitlement already checked by the API. Showcase accounts are denied. Public HTML/JS never receives draft answer keys; Owner-only administrative endpoints can examine them. The separate `site_lab_progress` self-completion flag is **not** a certified score. A real numerical skill grade is created only by an accepted `v014_training_answer` call.
+
+**Outstanding:** editorial topic-specific rubrics for all Labs, genuine historical contexts/data rights, verified live deployment, actual progress-to-competency evidence, 419 accessibility/e2e reviews, and scenario diversity. Do not claim all 419 professionally completed based solely on generated draft scaffolds.
