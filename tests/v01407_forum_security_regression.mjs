@@ -1,8 +1,7 @@
 /** v0.14.0.7: Offline endpoint boundary tests. These do NOT verify live Supabase RLS. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const moduleCode=fs.readFileSync(new URL('../functions/api/commons-report.js',import.meta.url),'utf8');
-const {onRequestPost}=await import('data:text/javascript;base64,'+Buffer.from(moduleCode).toString('base64'));
+const {onRequestPost}=await import('../functions/api/commons-report.js');
 const env={SUPABASE_URL:'https://test.example',SUPABASE_PUBLISHABLE_KEY:'public-demo',SUPABASE_SECRET_KEY:'server-demo'};
 function makeResponse(data,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}})}
 const validTopic=[{topic_id:22,title:'Available topic',discussion_unlocked:true}];
