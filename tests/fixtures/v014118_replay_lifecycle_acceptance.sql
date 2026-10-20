@@ -176,9 +176,10 @@ SET ROLE authenticated;
 DO $member_v118$
 DECLARE rid bigint;
 BEGIN
- SELECT r.id INTO rid FROM public.journal_reviews r
- JOIN public.gu_replay_journal_links_v01494 l ON l.journal_id=r.journal_id
- WHERE r.review_stage='7D' LIMIT 1;
+ -- Authenticated members must NOT gain SELECT over private replay links
+ -- merely to run an authorized review; use the known existing stage instead.
+ SELECT id INTO rid FROM public.journal_reviews
+ WHERE review_stage='7D' ORDER BY id LIMIT 1;
  BEGIN
   UPDATE public.journal_reviews
    SET review_notes='Unaudited backfilled answer',completed_at=now() WHERE id=rid;
