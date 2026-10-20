@@ -28,8 +28,13 @@
   if(!byId('sim-mode-server'))return;
   byId('sim-mode-server').addEventListener('click',()=>selectMode('server'));
   byId('sim-mode-csv').addEventListener('click',()=>selectMode('csv'));
-  const mode=new URLSearchParams(location.search).get('mode');
-  selectMode(mode==='csv'?'csv':'server');
+  const params=new URLSearchParams(location.search);
+  const mode=params.get('mode');
+  // Existing Trade Review and Lab deep links intentionally target the
+  // browser CSV workflow; keep their original member Journey intact.
+  // An explicit mode=server always overrides a legacy link.
+  const legacyLink=['journal_id','lab','topic'].some(k=>params.has(k));
+  selectMode(mode==='csv'||(mode!=='server'&&legacyLink)?'csv':'server');
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
