@@ -5,6 +5,98 @@ export const ownerProductReadinessV01491=Object.freeze({
   "basis": "Source inspection of main v0.14.0.90 plus Owner-supplied database audit of October 17; not live production QA.",
   "percentagePolicy": "Estimates are non-certifying ranges for planning only. Values do not rise automatically after commits, CI, publication or an Owner checkbox. Record review evidence first.",
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
+  "acceptanceGates":   [
+    {
+      "title": "AI Tutor — source and curriculum",
+      "state": "source_implemented",
+      "gate": "v107 combined original glossary + guides, synonym expansion, safe citation validation, model adapter, diagnostic event codes and server-authored transcript saving. New CI outcome is a separate gate."
+    },
+    {
+      "title": "AI Tutor — v102 private transcript SQL",
+      "state": "owner_reported_sql",
+      "gate": "Owner reported SQL Editor Success. No rows returned; authenticated save/read/delete tests remain pending."
+    },
+    {
+      "title": "AI Tutor — v103 global quota SQL",
+      "state": "owner_reported_sql",
+      "gate": "Owner reported SQL Editor Success. No rows returned; provider billing and quota operation remain independently unverified."
+    },
+    {
+      "title": "Lab competence — v105 knowledge mapping SQL",
+      "state": "owner_reported_sql",
+      "gate": "Owner reported SQL Editor Success. No rows returned; 419 candidate mappings are not individually approved."
+    },
+    {
+      "title": "AI Tutor — v107 feedback/rate SQL",
+      "state": "needs_installation",
+      "gate": "New, separate migration in existing Supabase project for per-member source Tutor throttling and private response feedback."
+    },
+    {
+      "title": "AI Tutor — real generative inference",
+      "state": "blocked_external",
+      "gate": "Service-side provider key/model, three caps, provider-side monetary ceiling, funded test and truthful commercial disclosures pending."
+    },
+    {
+      "title": "AI Tutor — quality and safety acceptance",
+      "state": "needs_live_qa",
+      "gate": "Golden-question fixtures and mocked safety regressions cannot certify citation faithfulness, pedagogy or real provider output quality."
+    },
+    {
+      "title": "AI Tutor — transcript authenticity and privacy",
+      "state": "needs_live_qa",
+      "gate": "v107 server-only response saving implemented. Legacy member-authored notes remain explicitly unverified; retention/deletion policy, user isolation and data requests need production acceptance."
+    },
+    {
+      "title": "419 Labs — editorial and rubric acceptance",
+      "state": "editorial_review",
+      "gate": "419 IDs, no automatic Lab editorial approval; approve each question, relevant competency, feedback quality and exact answer rubric separately."
+    },
+    {
+      "title": "30 Competencies — evidence and mastery",
+      "state": "editorial_review",
+      "gate": "One reviewed conceptual quiz may contribute knowledge only. Recognition, decision and process require independent evidence and member-specific QA."
+    },
+    {
+      "title": "Replay/Simulator — authentic history",
+      "state": "blocked_external",
+      "gate": "Fictional OHLCV training cases are not authenticated historical market data; licensed provenance and no-lookahead acceptance pending."
+    },
+    {
+      "title": "Journal, scanner, watchlist and risk tools",
+      "state": "needs_live_qa",
+      "gate": "Validate per-member input, persistence, correct calculations, exports, deletion and failure behavior across all offered tool records."
+    },
+    {
+      "title": "Forum + Market Commons",
+      "state": "needs_live_qa",
+      "gate": "v105 improved request and lock guards. Atomic moderation+audit, anti-spam, appeals, provider content handling and live RLS remain open."
+    },
+    {
+      "title": "Store — Stripe fulfillment and tax",
+      "state": "needs_live_qa",
+      "gate": "Live checkout/webhook/entitlement/reversal/refund/tax acceptance not established by isolated CI; preserve all existing SKUs and prices."
+    },
+    {
+      "title": "Books — QR, KDP, rights and claims",
+      "state": "needs_live_qa",
+      "gate": "Verify current book editions, companion URLs, real member book access, licensed media and actual KDP purchase/claim behavior."
+    },
+    {
+      "title": "Legal, privacy, cookies and retention",
+      "state": "needs_live_qa",
+      "gate": "Published legal_documents entries, crawlable policy content, consent and member data erasure/retention have not been confirmed."
+    },
+    {
+      "title": "SEO, CSP, PWA and accessibility",
+      "state": "needs_live_qa",
+      "gate": "Verify robots/sitemap, indexed canonical content, restrictive CSP after inline script remediation, installability and screen readers."
+    },
+    {
+      "title": "Operations — backups and incident readiness",
+      "state": "blocked_external",
+      "gate": "Restore drills, uptime alerts, automated operational workers and billing alert thresholds remain independently unverified."
+    }
+  ],
   "toolDefinitions": [
     {
       "code": "INTERACTIVE_LEARNING",
@@ -48,7 +140,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "major-build",
       "roadmapId": "CORE-0210",
-      "gate": "v0.14.0.103 source includes entitlement-gated first-party AI orchestration, original lesson grounding, request budgets and member UX. Actual provider activation, quota installation, API economics and live teaching quality remain unverified."
+      "gate": "v0.14.0.107 source improves combined glossary/guide retrieval, safe request/output policies, confidential diagnostic reason codes, global cap reporting, and golden regression tests. Owner reported v103 SQL successful. Actual paid provider configuration/billing, member rate limits, provenance of saved AI text, accessibility and live teaching quality remain unverified."
     },
     {
       "code": "DISCOVERY_LAB",
@@ -257,7 +349,7 @@ export const ownerProductReadinessV01491=Object.freeze({
         50
       ],
       "roadmapId": "CORE-0213",
-      "gate": "Map objective graded outcomes to 30 skill records; no activity-only mastery."
+      "gate": "v105 SQL installation reported successful. All 419 primary links are CANDIDATE until each exact rubric and competency receives independent Owner review. Record only genuine knowledge-dimension quiz evidence; no activity-only mastery."
     },
     {
       "code": "SKILL_ASSESSMENTS",
@@ -357,7 +449,7 @@ export const ownerProductReadinessV01491=Object.freeze({
         75
       ],
       "roadmapId": "CORE-0223",
-      "gate": "Complete moderation, privacy, abuse resistance and forum consistency."
+      "gate": "v105 same-origin/body-size/locked-post improvements merged for both forums. Atomic moderation+audit, verified rate limiting, appeals, RLS tests and production privacy remain open."
     },
     {
       "code": "MEMBERSHIP_FULFILLMENT",

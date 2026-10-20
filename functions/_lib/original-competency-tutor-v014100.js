@@ -18,16 +18,24 @@ function chooseGuides(index,q){
   return {g,score};
  }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score||a.g.code.localeCompare(b.g.code)).slice(0,2).map(x=>x.g);
 }
+// Module-scoped cache is per Cloudflare isolate AND per ASSETS binding. It holds
+// only publicly published curriculum, never member-specific/private records.
+const publicGuideCache=new WeakMap();
+async function loadPublicGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return null;
+ const cached=publicGuideCache.get(env.ASSETS);
+ if(cached&&cached.expires>Date.now())return cached.value;
+ const url=new URL('/data/competency-study-guides-v01499.json',request.url);
+ const result=await env.ASSETS.fetch(new Request(url,{method:'GET'}));
+ if(!result.ok)throw Error('Published guide asset unavailable');
+ const data=await result.json();
+ if(!Array.isArray(data?.guides)||data.guides.length!==30)throw Error('Invalid original guide count');
+ publicGuideCache.set(env.ASSETS,{value:data,expires:Date.now()+300000});
+ return data;
+}
 async function originalGuides(env,request,question){
- if(typeof env.ASSETS?.fetch!=='function')return [];
- try{
-  // Standard Cloudflare Pages static asset binding; no external HTTP service.
-  const url=new URL('/data/competency-study-guides-v01499.json',request.url);
-  const r=await env.ASSETS.fetch(new Request(url,{method:'GET'}));
-  if(!r.ok)return [];
-  const data=await r.json();
-  return chooseGuides(data,question);
- }catch{return []}
+ try{return chooseGuides(await loadPublicGuides(env,request),question)}
+ catch{return []}
 }
 function answerFromGuide(g,mode,answer){
  const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;

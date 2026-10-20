@@ -1,0 +1,85 @@
+{
+  "version": "v0.14.0.107",
+  "status": "engineering regression fixtures — not individual pedagogical certification",
+  "notes": "All prompts are authored examples. They do not assert actual market history, licensed bar evidence, trading outcomes or answered graded Lab items.",
+  "cases": [
+    {
+      "id": "stop_hit",
+      "question": "Why did my stop get hit?",
+      "expectedConcept": "stop",
+      "category": "retrieval_synonyms"
+    },
+    {
+      "id": "bid_ask",
+      "question": "What does it mean if the bid ask spread widened?",
+      "expectedConcept": "spread",
+      "category": "retrieval_synonyms"
+    },
+    {
+      "id": "vwap",
+      "question": "What does VWAP actually tell me?",
+      "expectedConcept": "VWAP",
+      "category": "glossary_and_guides"
+    },
+    {
+      "id": "ema",
+      "question": "Explain moving average EMA context",
+      "expectedConcept": "EMA",
+      "category": "glossary"
+    },
+    {
+      "id": "level2",
+      "question": "How should I interpret Level II displayed order book depth?",
+      "expectedConcept": "order",
+      "category": "learning"
+    },
+    {
+      "id": "fakeout",
+      "question": "Why did that breakout fakeout fail?",
+      "expectedConcept": "invalid",
+      "category": "retrieval_synonyms"
+    },
+    {
+      "id": "no_trade",
+      "question": "When do I sit out instead of taking a setup?",
+      "expectedConcept": "trade",
+      "category": "risk"
+    },
+    {
+      "id": "mae",
+      "question": "What does MAE measure?",
+      "expectedConcept": "adverse",
+      "category": "glossary"
+    },
+    {
+      "id": "mfe",
+      "question": "Explain MFE and what it does not prove",
+      "expectedConcept": "favorable",
+      "category": "glossary"
+    },
+    {
+      "id": "invalidation",
+      "question": "What would invalidate my thesis?",
+      "expectedConcept": "invalid",
+      "category": "risk"
+    },
+    {
+      "id": "candle",
+      "question": "How do candlestick wick and candle body change the interpretation?",
+      "expectedConcept": "candle",
+      "category": "curriculum"
+    },
+    {
+      "id": "replay",
+      "question": "How can replay avoid future candle leakage?",
+      "expectedConcept": "replay",
+      "category": "history_boundary"
+    }
+  ],
+  "adviceQuestions": [
+    "Should I invest in TSLA?",
+    "Is AAPL a good buy?",
+    "Give me a price target for NVDA",
+    "What stocks should I buy this afternoon?"
+  ]
+}

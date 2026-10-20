@@ -199,6 +199,35 @@ async function loadAiOwnerAudit(){
  }catch(e){message.textContent=e?.message||'Owner AI audit unavailable; no usage figures certified.';}
  finally{if(button)button.disabled=false}
 }
+function renderCrossSiteGates(){
+ const host=$('or-crosssite-acceptance-table'),note=$('or-crosssite-acceptance-note');
+ if(!host)return;host.replaceChildren();
+ const gates=Array.isArray(review?.acceptanceGates)?review.acceptanceGates:[];
+ if(!gates.length){if(note)note.textContent='Release gate inventory unavailable. No status has been inferred.';return}
+ const labels={
+  source_implemented:'Source implemented; production acceptance pending',
+  owner_reported_sql:'Owner reported SQL success; runtime verification pending',
+  needs_installation:'Owner-only additive SQL not yet reported installed',
+  blocked_external:'External data, billing, licensing or operational acceptance missing',
+  needs_live_qa:'Live and authenticated acceptance pending',
+  editorial_review:'Individual curriculum/editorial acceptance pending'
+ };
+ const table=document.createElement('table');table.className='or-membership-table';
+ const header=document.createElement('thead'),tr=document.createElement('tr');
+ for(const x of ['Offering / responsibility','Evidence status','Release-blocking verification']){
+  const th=document.createElement('th');th.scope='col';th.textContent=x;tr.append(th)
+ }header.append(tr);table.append(header);
+ const tbody=document.createElement('tbody');
+ for(const row of gates){
+  const tr=document.createElement('tr');
+  for(const value of [row.title,labels[row.state]||'Unverified',row.gate]){
+   const cell=document.createElement('td');cell.textContent=String(value);tr.append(cell);
+  }tbody.append(tr);
+ }table.append(tbody);
+ const scroll=document.createElement('div');scroll.className='or-table-scroll';scroll.append(table);
+ host.append(scroll);
+ if(note)note.textContent=gates.length+' product/platform release gates listed. Owner-reported SQL success is NOT live paid-provider, payment, accessibility, forum or Lab content acceptance.';
+}
 function render(data){
  review=data?.productReadiness||null;
  catalog=data?.productInventory||null;
@@ -213,7 +242,7 @@ function render(data){
   trace:(data.items||[]).filter(x=>x.scope==='trace').length,
   total:(data.items||[]).length};
  if(!review)return;
- renderProducts();renderAudit();
+ renderProducts();renderAudit();renderCrossSiteGates();
 }
 function bind(){
  $('or-readiness-search')?.addEventListener('input',renderProducts);

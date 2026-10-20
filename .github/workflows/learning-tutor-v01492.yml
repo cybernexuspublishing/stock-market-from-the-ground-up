@@ -36,6 +36,16 @@ on:
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
       - 'tests/test_v014100_free_competency_tutor.mjs'
+      - 'functions/_lib/tutor-quality-v014107.js'
+      - 'functions/_lib/tutor-provider-v014107.js'
+      - 'functions/_lib/tutor-history-save-v014107.js'
+      - 'functions/_lib/tutor-rate-limit-v014107.js'
+      - 'data/tutor-golden-questions-v014107.json'
+      - 'supabase/migrations/v0.14.0.107_TUTOR_FEEDBACK_AND_RATE_LIMIT_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014107_tutor_quality.mjs'
+      - 'tests/test_v014107_server_history_and_throttle.mjs'
+      - 'functions/_lib/owner-product-readiness-v01491.js'
+      - 'docs/v0.14.0.102_MEMBER_TUTOR_INTERACTION_AND_STORAGE.md'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -116,6 +126,16 @@ on:
       - 'functions/api/commons-report.js'
       - 'functions/_lib/original-competency-tutor-v014100.js'
       - 'tests/test_v014100_free_competency_tutor.mjs'
+      - 'functions/_lib/tutor-quality-v014107.js'
+      - 'functions/_lib/tutor-provider-v014107.js'
+      - 'functions/_lib/tutor-history-save-v014107.js'
+      - 'functions/_lib/tutor-rate-limit-v014107.js'
+      - 'data/tutor-golden-questions-v014107.json'
+      - 'supabase/migrations/v0.14.0.107_TUTOR_FEEDBACK_AND_RATE_LIMIT_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014107_tutor_quality.mjs'
+      - 'tests/test_v014107_server_history_and_throttle.mjs'
+      - 'functions/_lib/owner-product-readiness-v01491.js'
+      - 'docs/v0.14.0.102_MEMBER_TUTOR_INTERACTION_AND_STORAGE.md'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -190,6 +210,10 @@ jobs:
           node --check functions/api/interactive-training.js
           node --check functions/_lib/original-competency-tutor-v014100.js
           node --check functions/api/market-tutor-v01492.js
+          node --check functions/_lib/tutor-quality-v014107.js
+          node --check functions/_lib/tutor-provider-v014107.js
+          node --check functions/_lib/tutor-history-save-v014107.js
+          node --check functions/_lib/tutor-rate-limit-v014107.js
           node --check functions/api/member-tool-access.js
           node --check functions/_lib/tutor-topics-v01492.js
           node --check functions/_lib/replay-engine-v01492.js
@@ -216,6 +240,8 @@ jobs:
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs
+          node tests/test_v014107_tutor_quality.mjs
+          node tests/test_v014107_server_history_and_throttle.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
