@@ -31,17 +31,40 @@ async function rest(env,path,init={}){
 function trimmed(x,max){return typeof x==='string'?x.trim().slice(0,max+1):''}
 export async function onRequest({request,env}){
  try{
-  if(!['GET','POST','DELETE'].includes(request.method))return out({ok:false,error:'Method not allowed'},405);
+  if(!['GET','POST','PATCH','DELETE'].includes(request.method))return out({ok:false,error:'Method not allowed'},405);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
   if(!auth.authorized)return out({ok:false,error:'An active Market Tutor entitlement is required to access saved Tutor notes.'},403);
   if(!UID.test(auth.userId))return out({ok:false,error:'Invalid member identity.'},403);
   const member=encodeURIComponent(auth.userId),url=new URL(request.url);
   const table='gu_member_tutor_exchanges_v014102';
   if(request.method==='GET'){
-   const rows=await rest(env,table+'?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at&user_id=eq.'+member+'&order=created_at.desc&limit=200');
+   const base='?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at';
+   let rows;
+   try{rows=await rest(env,table+base+',feedback,feedback_note,feedback_at&user_id=eq.'+member+'&order=created_at.desc&limit=200')}
+   catch{
+    // v107 is optional; member access to previously saved v102 history must not
+    // break while the owner has not yet installed the feedback columns.
+    rows=await rest(env,table+base+'&user_id=eq.'+member+'&order=created_at.desc&limit=200');
+   }
    if(!Array.isArray(rows))throw Error('Invalid history data');
    return out({ok:true,history:rows,limit:200,graded:false,masteryAwarded:false,
     notice:'Member-saved ungraded educational transcripts. No official competency evidence.'});
+  }
+  if(request.method==='PATCH'){
+   const origin=request.headers.get('origin');
+   if(origin&&origin!==url.origin)return out({ok:false,error:'Cross-origin history feedback denied.'},403);
+   if(Number(request.headers.get('content-length')||0)>1400)return out({ok:false,error:'Feedback request too large.'},413);
+   const raw=await request.text();if(new TextEncoder().encode(raw).byteLength>1400)
+    return out({ok:false,error:'Feedback request too large.'},413);
+   let body;try{body=JSON.parse(raw)}catch{return out({ok:false,error:'Invalid feedback JSON.'},400)}
+   const id=String(body?.id||''),feedback=String(body?.feedback||''),note=String(body?.note||'');
+   if(!UID.test(id)||!['helpful','not_helpful','report'].includes(feedback)||note.length>500)
+    return out({ok:false,error:'Invalid feedback selection.'},400);
+   const rows=await rest(env,table+'?user_id=eq.'+member+'&id=eq.'+encodeURIComponent(id),{
+    method:'PATCH',headers:{'content-type':'application/json',prefer:'return=representation'},
+    body:JSON.stringify({feedback,feedback_note:note,feedback_at:new Date().toISOString()})});
+   if(!Array.isArray(rows)||rows.length!==1)return out({ok:false,error:'Saved exchange was not found.'},404);
+   return out({ok:true,feedbackSaved:true,graded:false,notice:'Feedback saved privately for editorial review; no score or mastery awarded.'});
   }
   if(request.method==='DELETE'){
    const id=String(url.searchParams.get('id')||'');
