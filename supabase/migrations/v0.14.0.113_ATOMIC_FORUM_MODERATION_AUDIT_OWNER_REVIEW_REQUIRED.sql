@@ -74,7 +74,7 @@ BEGIN
   v_body_limit:=CASE WHEN p_scope='legacy'
    THEN CASE WHEN p_type='topic' THEN 12000 ELSE 8000 END ELSE 10000 END;
   IF p_body IS NULL OR char_length(trim(p_body)) <
-   CASE WHEN p_type='topic' THEN 10 ELSE 2 END
+   (CASE WHEN p_type='topic' THEN 10 ELSE 2 END)
    OR char_length(trim(p_body))>v_body_limit
   THEN RETURN jsonb_build_object('ok',false,'reason','invalid_request');END IF;
   IF p_type='topic' THEN
