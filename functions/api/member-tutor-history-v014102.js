@@ -51,28 +51,10 @@ export async function onRequest({request,env}){
    await rest(env,table+'?user_id=eq.'+member+(all?'':'&id=eq.'+encodeURIComponent(id)),{method:'DELETE'});
    return out({ok:true,deleted:true});
   }
-  if(Number(request.headers.get('content-length')||0)>9000)return out({ok:false,error:'History entry too large.'},413);
-  const raw=await request.text();
-  if(raw.length>9000)return out({ok:false,error:'History entry too large.'},413);
-  let input;try{input=JSON.parse(raw)}catch{return out({ok:false,error:'Invalid JSON.'},400)}
-  if(!input||typeof input!=='object'||Array.isArray(input))return out({ok:false,error:'Invalid history entry.'},400);
-  const question=trimmed(input.question,450),learner=trimmed(input.learnerAnswer||'',1800),
-   answer=trimmed(input.answer,4500),mode=trimmed(input.mode,30),
-   generation=trimmed(input.generation,90);
-  const sourceTitles=input.sourceTitles;
-  if(!UID.test(String(input.requestId||''))||question.length<4||question.length>450||
-   learner.length>1800||answer.length<1||answer.length>4500||
-   !MODES.has(mode)||!TYPES.has(generation)||
-   !Array.isArray(sourceTitles)||sourceTitles.length>3||
-   sourceTitles.some(x=>typeof x!=='string'||x.trim().length<1||x.length>120))
-    return out({ok:false,error:'Invalid ungraded history entry.'},400);
-  const payload={p_user_id:auth.userId,p_request_id:input.requestId,
-   p_question:question,p_learner_answer:learner,p_mode:mode,p_answer:answer,
-   p_generation:generation,p_source_titles:sourceTitles.map(x=>x.trim())};
-  const saved=await rest(env,'rpc/gu_v014102_save_member_tutor_exchange',{
-   method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
-  if(!UID.test(String(saved||'')))throw Error('Invalid stored identifier');
-  return out({ok:true,id:saved,saved:true,graded:false,masteryAwarded:false},201);
+  // v107: refuse all client-authored Tutor answer uploads. A learner could
+  // previously forge the text and generation label. The source tutor service
+  // alone now stores verified:... answers via its authenticated server role.
+  return out({ok:false,error:'Tutor responses are saved by the trusted Tutor endpoint, not uploaded by the browser.'},405);
  }catch(e){
   if(e.status===401)return out({ok:false,error:'Sign in required.'},401);
   if(e.status===403)return out({ok:false,error:'Tutor access required.'},403);
