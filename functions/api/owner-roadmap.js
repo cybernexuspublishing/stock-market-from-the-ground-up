@@ -11,6 +11,7 @@ import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
 import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
+import {ownerAcceptanceSnapshot} from '../_lib/owner-acceptance-v014108.js';
 import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -44,12 +45,12 @@ function stageFor(n,map,fallback='backlog'){
 const v91Evidence={
  'CORE-0194':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.89–90 implements central Admin Products, prominent Store prices, and coming-soon offerings with nonpurchase controls. Source/browser coverage only; production checkout and real fulfillment not verified.'},
  'CORE-0175':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'v0.14.0.88–91 implements protected Owner tool/membership inventory and product readiness planning. Production Owner-role persistence and negative tests are still required.'},
- 'CORE-0210':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Tutor v0.14.0.103 source implements first-party paid inference orchestration, consent, original 30-guide grounding, global/per-member request budgets and private conversation UX; real provider credentials, installed v103 ledger, funded cost limits, live responses and independent pedagogical quality remain pending.'},
- 'CORE-0211':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Tutor now integrates an entitlement-scoped member practice summary with public companion references and does not send raw Journal/Lab records to optional model. Approved curriculum retrieval, historical evidence, usage QA and full model grounding remain incomplete.'},
- 'CORE-0207':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'Preserved 419-Lab catalog, 94 Foundations-authored source Labs and Owner-only per-Lab evidence audit. This proves registry and audit tooling only; no Lab is automatically approved as 100% complete.'},
+ 'CORE-0210':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Tutor v0.14.0.107 source now includes dual-catalog retrieval, bounded first-party AI, safer advice/citation validation, model-provider boundary, safe telemetry, golden-question checks, feedback and general request throttling. Owner reports v103 SQL success; LIVE provider spend/key/provider test still unverified. v107 SQL optional and unconfirmed.'},
+ 'CORE-0211':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v107 Tutor retrieval combines original public competency procedures, glossary, source-aware validation and expanded question synonyms. User-controlled server-saved private Tutor notes and ungraded practice recommendations are implemented; actual pedagogical fidelity/production model evaluation remains pending.'},
+ 'CORE-0207':{stage:'source_implemented',reviewedOn:'2026-10-19',summary:'Canonical 419 Lab records preserved. v105 adds 419 UNAPPROVED primary competency mapping candidates and secure Owner per-Lab/per-rubric approval workflows; Owner reports SQL v105 succeeded. Zero blanket lesson approvals; editorial/historical/QA review pending.'},
  'CORE-0208':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Historical Lab IDs exist; last reviewed Owner audit found no registered historical market datasets. Per-Lab dates, licenses and accuracy remain unverified.'},
  'CORE-0218':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v0.14.0.92–93 source adds rights-cleared replay discovery, session resume, revocation checks, locked decisions and atomic cursor advance with source-level contract tests. Supabase migration, actual licensed datasets and independent member-to-journal replay acceptance remain pending.'},
- 'CORE-0223':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Market Commons server source now accepts modern Supabase secret API keys without misusing Authorization, limits editing request sizes and avoids returning raw database failures. Role tests are pending.'},
+ 'CORE-0223':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v105 source hardened both legacy and Commons forums with request length/origin guards, locked-topic edit checks, private moderation field minimization and regression tests. Separate audit write remains non-atomic and must be hardened; real member access, abuse/appeals QA unverified.'},
  'CORE-0256':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Source v0.14.0.91 QA: Storefront v0.14.0.85 production Chromium check failed 14 existing product-detail page overflow assertions and one global membership-link count assertion (Actions 39305637257); root cause and any stale test assumptions require independent correction, not blanket release acceptance.'}
 };
 function reviewFor(item){
@@ -318,6 +319,7 @@ export async function onRequest({request,env}){
     if(request.method==='POST')return await handlePost(request,c,user);
     if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
+    if(new URL(request.url).searchParams.get('action')==='platform-acceptance-v014108')return reply({ok:true,acceptance:await ownerAcceptanceSnapshot(env)});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
