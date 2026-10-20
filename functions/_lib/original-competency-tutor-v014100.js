@@ -9,7 +9,8 @@ function chooseGuides(index,q){
  if(!Array.isArray(index?.guides)||index.guides.length!==30)return [];
  const query=words(q);
  if(!query.length)return [];
- return index.guides.map(g=>{
+ const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[])];
+ return candidates.map(g=>{
   const title=String(g.title||'').toLowerCase(),code=String(g.code||'').toLowerCase().replaceAll('_',' ');
   const concept=String(g.concept||'').toLowerCase();
   const score=query.reduce((v,w)=>v+(title.includes(w)?8:0)+(code.includes(w)?6:0)+(concept.includes(w)?2:0),0);
@@ -28,7 +29,7 @@ async function originalGuides(env,request,question){
  }catch{return []}
 }
 function answerFromGuide(g,mode,answer){
- const main=g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;
+ const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;
  if(mode==='question')return main+'\n\nUngraded self-check: '+g.selfCheck;
  if(mode==='review')return main+'\n\nUse this review criterion: '+g.reviewExplanation+' Your reflection was considered for this response only; no rubric was graded, scored, or stored.'+(answer?' Compare your response with the evidence boundary.':'');
  return main+'\n\nCommon error to avoid: '+g.commonError+'\n\nPractice: '+g.selfCheck;

@@ -35,10 +35,10 @@ async function renderOriginalCurriculum(){
   if(!Array.isArray(guides.guides)||guides.guides.length!==30||mapping.totalCanonicalLabs!==419)
    throw Error('Curriculum contract incomplete.');
   host.replaceChildren();
-  for(const g of guides.guides){
+  for(const g of [...guides.guides,...(Array.isArray(guides.supplementalGuides)?guides.supplementalGuides:[])]){
    const card=document.createElement('article');card.className='card skill-card';card.id='guide-'+g.code;
    const title=document.createElement('h3');title.textContent=g.title;
-   const label=document.createElement('p');label.className='small';label.textContent='Original companion instruction · ungraded';
+   const label=document.createElement('p');label.className='small';label.textContent=g.supplemental===true?'Supplementary replay-process lesson · not an official competency · ungraded':'Official competency concept guide · ungraded';
    const concept=document.createElement('p');concept.textContent=g.concept;
    const panel=document.createElement('details'),summary=document.createElement('summary');
    summary.textContent='Study procedure, errors, and self-check';panel.append(summary);
@@ -47,8 +47,8 @@ async function renderOriginalCurriculum(){
     const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=heading+': ';
     p.append(strong,document.createTextNode(part||''));panel.append(p);
    }
-   const block=document.createElement('div'),selected=(mapping.bySkill?.[g.code]||[]).slice(0,5);
-   const note=document.createElement('p');note.className='small';note.textContent='Suggested related Labs — curriculum links, not graded competency evidence:';block.append(note);
+   const block=document.createElement('div'),selected=g.supplemental===true?[]:(mapping.bySkill?.[g.code]||[]).slice(0,5);
+   const note=document.createElement('p');note.className='small';note.textContent=g.supplemental===true?'Replay chronology remains available as a supplementary concept; no extra official competency or grading evidence has been created.':'Suggested related Labs — curriculum links, not graded competency evidence:';block.append(note);
    for(const labId of selected){const lab=mapping.byLab?.[labId];if(!lab)continue;
     const link=document.createElement('a');link.href='labs.html?q='+encodeURIComponent(labId);
     link.textContent=labId+' · '+lab.title;link.style.display='block';block.append(link);}
@@ -57,7 +57,7 @@ async function renderOriginalCurriculum(){
   if(location.hash.startsWith('#guide-')){const code=location.hash.slice(1).replace(/[^A-Za-z0-9_-]/g,'');
    const destination=document.getElementById(code);if(destination)requestAnimationFrame(()=>destination.scrollIntoView({block:'start'}));}
   const summary=document.getElementById('original-guides-summary');
-  if(summary)summary.textContent='30 original study guides connected to the existing 419-Lab inventory. They do not contain private graded answer keys or historical price claims.';
+  if(summary)summary.textContent='30 original guides corresponding to the approved 30 competencies, plus a separate ungraded replay-chronology supplement. The 419 Lab links are editorial suggestions, not private graded answer keys or historical price claims.';
  }catch{
   host.textContent='The original study guides cannot be loaded right now. Existing recorded learning progress has not changed.';
  }

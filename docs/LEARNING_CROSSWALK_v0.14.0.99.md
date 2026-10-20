@@ -5,7 +5,7 @@
 **Google Drive:** Not assigned.
 
 ## Source-check
-The original v0.13.4 migration lists **29 actual competency definitions**, despite the 30-skill project requirement. The repository now has 30 original, individually written public study guides and an additive migration for one missing Replay Evidence Chronology definition. The migration will not silently create a 31st if the existing production catalog has an independently added competency. All older competency scores, 419 Lab IDs, books and tool registrations are preserved.
+**Corrected on October 19, 2026 (v0.14.0.101):** The original v0.13.4 migration already lists **30 actual competency definitions**, including `LEVEL2_READING`. A v0.14.0.99 test regex incorrectly excluded numerals from skill identifiers, counted 29, and attempted to invent `REPLAY_DISCIPLINE` as a 31st code. The live database rejected that migration before modification. The 30 original official study guides and 419 provisional Lab crosswalk entries now match the existing v0.13.4 source codes. Replay Evidence Chronology remains available as a *separate, ungraded supplementary lesson*, not a competency, grade, or additional database row. Existing scores, Lab IDs, books and tool registrations remain unchanged. See `supabase/admin/v0.14.0.101_COMPETENCY_CATALOG_RECONCILIATION_READ_ONLY.sql` for a no-write check of the live catalog.
 
 The generated crosswalk maps from existing `lab-catalog.json`, using lab title, chapter and declared category metadata. Links are **suggestions** for the learner, not verified skill evidence, graded mapping, or historical truth. Automatic matching can produce irrelevant relationships; the Owner may refine each mapping after editorial review. The crosswalk never writes back to `platform_labs`.
 

@@ -11,7 +11,8 @@ SELECT count(*) AS canonical_labs,
 FROM public.platform_labs;
 SELECT count(*) AS official_competency_definitions,
  count(*) FILTER(WHERE active) AS active_definitions,
- count(*) FILTER(WHERE competency_code='REPLAY_DISCIPLINE') AS source_gap_repaired
+ count(*) FILTER(WHERE competency_code='LEVEL2_READING') AS level2_present,
+ count(*) FILTER(WHERE competency_code='REPLAY_DISCIPLINE') AS erroneous_31st_present
 FROM public.competency_definitions;
 WITH inventory AS (
  SELECT l.lab_id,l.metadata,
@@ -59,7 +60,7 @@ WHERE n.nspname='public' AND c.relname IN
   'lab_training_attempts_v014','gu_replay_journal_links_v01494')
 ORDER BY c.relname;
 ROLLBACK;
--- Expected (if v99 migration installed): 419 Lab IDs, 30 skills, 419 draft
+-- Expected: 419 Lab IDs, 30 ORIGINAL v0.13.4 skills (including LEVEL2), 419 draft
 -- sets, 419 fictional scenarios, 10056 private bars, 0 invalid/chronological
 -- failures. 419 DRAFTS are NOT 419 editorially accepted graded lessons.
 -- No student PII, answer keys, trade details, secrets or invented historical
