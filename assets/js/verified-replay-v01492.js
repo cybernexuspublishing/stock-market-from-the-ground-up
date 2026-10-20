@@ -188,5 +188,14 @@ async function init(){
  $('vr-advance').addEventListener('click',()=>call(advance));
  $('vr-finish').addEventListener('click',()=>call(finish));
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+/* The embedded server panel initializes only when its mode is visible.
+ * Standalone verified-replay.html preserves eager startup.
+ */
+let initialized=false;
+function startOnce(){if(initialized)return;initialized=true;void init();}
+if(document.getElementById('sim-server-mode')){
+ window.addEventListener('groundup:activate-server-replay',startOnce);
+}else if(document.readyState==='loading'){
+ document.addEventListener('DOMContentLoaded',startOnce,{once:true});
+}else startOnce();
 })();
