@@ -20,6 +20,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(path.includes('/gu_member_tutor_exchanges_v014102?')){
   if(failStorage)return json({error:'not installed'},404);
   if(opts.method==='DELETE')return new Response(null,{status:204});
+  if(opts.method==='PATCH')return json([{id:recordId,feedback:'helpful'}]);
   return json([{id:recordId,question:'Explain VWAP',learner_answer:'',answer:'Original teaching.',
    generation:'reviewed-glossary-logic',mode:'explain',source_titles:['VWAP'],created_at:'2026-10-19T18:00:00Z'}]);
  }
@@ -43,20 +44,23 @@ try{
  assert.equal(listCall.opts.headers.apikey,env.SUPABASE_SECRET_KEY);
  assert.equal(listCall.opts.headers.authorization,undefined,'Never send sb_secret_* as Bearer JWT');
  r=await onRequest({request:req('POST','',entry),env});d=await r.json();
- assert.equal(r.status,201);assert.equal(d.id,recordId);assert.equal(d.masteryAwarded,false);
- const write=calls.find(x=>x.path.includes('rpc/gu_v014102_save_member_tutor_exchange'));
- const saved=JSON.parse(write.opts.body);assert.equal(saved.p_user_id,uid);
- assert.equal(saved.p_request_id,requestId);assert.equal(saved.p_answer,entry.answer);
- assert(!('score' in saved)&&!('graded' in saved),'No grade creation');
+ assert.equal(r.status,405,'Browser must never upload text claiming to be AI generated');
+ assert(!calls.some(x=>x.path.includes('rpc/gu_v014102_save_member_tutor_exchange')),
+  'Only the authenticated Tutor endpoint can store verified generated replies');
+ r=await onRequest({request:req('PATCH','',{id:recordId,feedback:'helpful',note:'Educational explanation is clear.'}),env});
+ assert.equal(r.status,200,'Private feedback may be changed on an owned saved note');
+ assert(calls.some(x=>x.path.includes('id=eq.'+recordId)&&x.path.includes('user_id=eq.'+uid)&&x.opts.method==='PATCH'));
+ r=await onRequest({request:req('PATCH','',{id:recordId,feedback:'forged_grade',note:'No'}),env});
+ assert.equal(r.status,400,'No fake assessment feedback');
  r=await onRequest({request:req('DELETE','?id='+recordId),env});
  assert.equal(r.status,200);
  assert(calls.some(x=>x.path.includes('id=eq.'+recordId)&&x.path.includes('user_id=eq.'+uid)&&x.opts.method==='DELETE'));
  r=await onRequest({request:req('DELETE','?all=true'),env});assert.equal(r.status,400,'Bulk delete needs explicit confirmation');
  r=await onRequest({request:req('DELETE','?all=true',undefined,{'x-confirm-delete':'DELETE_MY_TUTOR_HISTORY'}),env});
  assert.equal(r.status,200);
- r=await onRequest({request:req('POST','',{...entry,answer:'a'.repeat(4501)}),env});assert.equal(r.status,400);
- r=await onRequest({request:req('POST','',{...entry,sourceTitles:['a'.repeat(121)]}),env});assert.equal(r.status,400);
- r=await onRequest({request:req('POST','',{...entry,requestId:'not-a-uuid'}),env});assert.equal(r.status,400);
+
+
+
  r=await onRequest({request:req('PUT'),env});assert.equal(r.status,405);
  allow=false;r=await onRequest({request:req('GET'),env});assert.equal(r.status,403);
  allow=true;kind='showcase';r=await onRequest({request:req('GET'),env});assert.equal(r.status,403);
@@ -71,11 +75,12 @@ try{
  for(const marker of ['id="tutor-thread"','id="tutor-question"','id="tutor-delete-history"','id="tutor-export"']){
   assert(html.includes(marker),marker+' missing from member page');
  }
- for(const marker of ['member-tutor-history-v014102','textContent','learnerAnswer','renderConversation','saveRecord','deleteOne','deleteAll','exportConversation','crypto.randomUUID']){
+ for(const marker of ['member-tutor-history-v014102','textContent','learnerAnswer','renderConversation','sendTutorFeedback','deleteOne','deleteAll','exportConversation','crypto.randomUUID']){
   assert(js.includes(marker),'Missing Tutor interaction: '+marker);
  }
  assert(html.includes('id="tutor-save-history"'),'Member must control transcript saving');
  assert(js.includes("$('tutor-save-history')?.checked===true"),'Browser must respect history preference');
+ assert(!js.includes("privateApi('', 'POST'"),'Client must not upload AI responses directly');
  assert(js.includes('onAuthStateChange'),'Account changes must clear private client history');
  assert(js.includes('Type and submit my answer'),'Guided question must have a learner response submission path');
  assert(js.includes('TUTOR.user?.id!==submittingUser'),'Prevent cross-account answer persistence races');
