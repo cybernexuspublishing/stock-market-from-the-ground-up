@@ -14,6 +14,19 @@ function add(q={},key=''){const row=document.createElement('section');row.classN
   choices.textContent=kind.value==='choice'?'Choices: '+row.querySelector('[data-q="options"]').value.split('|').map(x=>x.trim()).filter(Boolean).join(' • '):'Numeric answer — learner will enter a value.';summary()};
  row.addEventListener('input',redraw);row.addEventListener('change',()=>{toggle();redraw()});redraw()}
 let mappedRubric=null;
+const V96_SEED_IDS=new Set(['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDARY']);
+function renderTopicReviewWarning(set){
+ const el=$('#author-topic-review-notice');if(!el)return;
+ const source=String(set.source_status||'');
+ const isV96=source.startsWith('original_hypothetical_unreviewed_v01496');
+ const application=Array.isArray(set.questions)&&set.questions.some(q=>
+  !V96_SEED_IDS.has(String(q?.id||''))&&
+  String(q?.prompt||'').trim().length>=80&&String(q?.explanation||'').trim().length>=120);
+ el.textContent=isV96?(application?
+  'An added topic application question is present. Independently verify its answer, teaching feedback, dataset rights, and the specific Lab concept before approving.':
+  'TOPIC-SPECIFIC QUESTION REQUIRED: Original v96 arithmetic/study-method scaffolding is not an adequate subject assessment. Add one new question (new ID, 80+ character prompt, 120+ character explanation) and save the revised draft before review.'):
+  'Review the chosen rubric against this Lab objective and available evidence. No reviewed rubric alone verifies historical market tape.';
+}
 async function loadKnowledgeMap(){
  const state=$('#author-knowledge-state'),select=$('#author-knowledge-code'),approve=$('#author-knowledge-approve');
  select.replaceChildren();select.disabled=true;approve.disabled=true;
@@ -68,6 +81,7 @@ function displayRubrics(){
 async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');displayRubrics()}
 $('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;
  mappedRubric={labId,version:s.version,reviewState:s.review_state};
+ renderTopicReviewWarning(s);
  void loadKnowledgeMap();
  msg.textContent=s.review_state==='reviewed'?'Reviewed version is locked. Saving changes creates a new draft.':'Draft loaded for editing.'}catch(err){msg.textContent=err.message}};
 form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try{for(const node of rows.children){const o=Object.fromEntries([...node.querySelectorAll('[data-q]')].map(e=>[e.dataset.q,e.value]));const id=o.id.trim(),kind=o.kind;
