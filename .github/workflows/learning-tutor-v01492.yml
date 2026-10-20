@@ -48,6 +48,11 @@ on:
       - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
+      - 'functions/api/admin-forum-actions.js'
+      - 'functions/api/admin-v0133.js'
+      - 'functions/api/checkout-v0135.js'
+      - 'functions/api/stripe-customer-checkout-v01438.js'
+      - 'tests/test_v014099_sitewide_opaque_key_regressions.mjs'
       - 'functions/api/site-announcements.js'
       - 'tests/test_v014095_middleware_opaque_key.mjs'
       - '.github/workflows/learning-tutor-v01492.yml'
@@ -98,6 +103,11 @@ on:
       - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
       - 'functions/_middleware.js'
+      - 'functions/api/admin-forum-actions.js'
+      - 'functions/api/admin-v0133.js'
+      - 'functions/api/checkout-v0135.js'
+      - 'functions/api/stripe-customer-checkout-v01438.js'
+      - 'tests/test_v014099_sitewide_opaque_key_regressions.mjs'
       - 'functions/api/site-announcements.js'
       - 'tests/test_v014095_middleware_opaque_key.mjs'
       - '.github/workflows/learning-tutor-v01492.yml'
@@ -116,6 +126,10 @@ jobs:
       - name: Tutor safety and learning source checks
         run: |
           node --check functions/_middleware.js
+          node --check functions/api/admin-forum-actions.js
+          node --check functions/api/admin-v0133.js
+          node --check functions/api/checkout-v0135.js
+          node --check functions/api/stripe-customer-checkout-v01438.js
           node --check functions/api/site-announcements.js
           node --check functions/api/lab-content.js
           node --check assets/js/site-lab-experience.js
@@ -141,6 +155,7 @@ jobs:
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014099_owner_review_pagination.mjs
+          node tests/test_v014099_sitewide_opaque_key_regressions.mjs
           node tests/test_v014099_owner_audit_long_history.mjs
           node tests/test_v014098_replay_lower_plan_registry.mjs
           node tests/test_v014098_audit_execution_quality.mjs

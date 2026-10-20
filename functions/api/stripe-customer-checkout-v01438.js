@@ -18,7 +18,7 @@ function environment(env){const ref=val(env.GU_STRIPE_V38_STAGING_PROJECT_REF);
  return {base,secret,pub,stripe};}
 async function request(url,options){const r=await fetch(url,{...options,cache:'no-store'});const d=await r.json().catch(()=>null);
  if(!r.ok||!d)throw err('Stripe testing service unavailable.',503);return d;}
-const h=c=>({apikey:c.secret,authorization:'Bearer '+c.secret,'content-type':'application/json'});
+const h=c=>({apikey:c.secret,...(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret)?{authorization:'Bearer '+c.secret}:{}),'content-type':'application/json'});
 async function db(c,path,method='GET',body,prefer='return=representation'){
  return request(c.base+'/rest/v1/'+path,{method,headers:{...h(c),prefer},body:body===undefined?undefined:JSON.stringify(body)});
 }
