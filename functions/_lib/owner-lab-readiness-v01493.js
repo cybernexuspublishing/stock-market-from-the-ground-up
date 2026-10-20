@@ -68,12 +68,27 @@ export function classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets}
   counts,breakdown,certifiedComplete:0,rows,asOf:new Date().toISOString(),
   certificationPolicy:'CONTENT_PRECHECK does not certify replay, chart accuracy, teaching quality, private access, grading security, historical license rights, accessibility or 100% completion.'};
 }
+async function auditRubrics(db){
+ const current=new Map(),batch=250,hardLimit=8000;
+ for(let offset=0;offset<=hardLimit;offset+=batch){
+  const rows=await db('lab_training_sets_v014?select=lab_id,version,review_state,reviewed_by,reviewed_at,questions,answer_key&order=lab_id.asc,version.desc&limit='+batch+'&offset='+offset);
+  if(!Array.isArray(rows)||rows.length>batch)throw new Error('Private rubric source pagination contract invalid');
+  for(const x of rows){
+   const lab=String(x.lab_id||''),kind=x.review_state==='reviewed'?'reviewed':'draft';
+   if(!/^[A-Za-z0-9_-]{3,90}$/.test(lab))continue;
+   const key=lab+'|'+kind;
+   if(!current.has(key)||eligibleRubric(x)&&!eligibleRubric(current.get(key)))current.set(key,x);
+  }
+  if(rows.length<batch)return [...current.values()];
+ }
+ throw new Error('Rubric review inventory exceeds the bounded Owner audit capacity');
+}
 export async function loadOwnerLabAudit(db){
  try{
   const [labs,instructions,rubrics,envelopes,datasets]=await Promise.all([
    db('platform_labs?select=lab_id,title,active,registry_visible,ticker,historical_date,metadata&order=lab_id.asc&limit=1000'),
    db('lab_instruction_v014?select=lab_id,source_status&limit=1000'),
-   db('lab_training_sets_v014?select=lab_id,review_state,reviewed_by,reviewed_at,questions,answer_key&limit=1000'),
+   auditRubrics(db),
    db('historical_context_envelopes?select=lab_id,dataset_code,status,context_start_at,teaching_start_at,decision_boundary_at,teaching_end_at,context_end_at&limit=1000'),
    db('market_datasets?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&limit=1000')
   ]);
