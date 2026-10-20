@@ -7,6 +7,11 @@ export const ownerProductReadinessV01491=Object.freeze({
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
   "acceptanceGates":   [
     {
+      "title": "Forum + Market Commons — atomic moderation audit",
+      "state": "source_implemented_owner_sql_pending",
+      "gate": "v113 API calls service-role-only forum/Commons transactional moderation+audit function; eliminates unsafe direct PATCH with independent audit insert. Owner must install the NEW v113 SQL in existing Supabase project, then verify rollback under forced audit failure and real staff/Showcase/Owner/Community roles, appeals and spam gates."
+    },
+    {
       "title": "Market Simulator — server-first unified experience",
       "state": "source_implemented_pending_live_data_acceptance",
       "gate": "v112 consolidated authenticated server replay in Simulator page, with default rights-cleared server source and optional ungraded CSV. Market/limit/stop next-bar estimates have configurable spread/slippage/fees; zero real licensed datasets confirmed, independent live access, historical data, Journal linkage and execution QA pending."
@@ -84,7 +89,7 @@ export const ownerProductReadinessV01491=Object.freeze({
     {
       "title": "Forum + Market Commons",
       "state": "needs_live_qa",
-      "gate": "v105 improved request and lock guards. Atomic moderation+audit, anti-spam, appeals, provider content handling and live RLS remain open."
+      "gate": "v105 protects origins, byte limits and locked content; v113 source replaces separate moderation PATCH/audit INSERT with one staff/Owner-revalidated row-locked transactional RPC. New v113 SQL installation and real audit-failure rollback, report-spam, moderation appeals, live permissions and access isolation remain pending."
     },
     {
       "title": "Store — Stripe fulfillment and tax",

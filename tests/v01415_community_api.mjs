@@ -18,6 +18,7 @@ globalThis.fetch=async (url,opts={})=>{const u=new URL(url),p=u.pathname,search=
  }
  if(p.endsWith('/forum_topics'))return respond([{id:2,status:'published',updated_at:'2026-10-10T00:00:00.000Z',is_locked:false,is_pinned:false}]);
  if(p.endsWith('/commons_topics')){if(method==='PATCH'){writes++;return respond([{id:2}])}return respond([{id:2,status:'published',updated_at:'2026-10-10T00:00:00.000Z',is_locked:false,is_pinned:false,is_official:false,title:'Testing'}])}
+ if(p.endsWith('/rpc/gu_v014113_moderate_with_audit'))return respond({ok:true,auditRecorded:true,atomic:true});
  if(p.endsWith('/admin_audit_log'))return respond([]);
  return respond([]);
 };

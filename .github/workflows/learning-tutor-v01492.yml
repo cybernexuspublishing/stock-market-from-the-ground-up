@@ -40,6 +40,9 @@ on:
       - 'assets/js/simulator-mode-v014112.js'
       - 'assets/js/simulator.js'
       - 'simulator.html'
+      - 'tests/v01416_moderation_editor_regression.mjs'
+      - 'tests/test_v014113_atomic_forum_moderation.mjs'
+      - 'supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014112_server_first_simulator.mjs'
       - 'tests/test_v014111_tool_math_boundaries.mjs'
       - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
@@ -160,6 +163,9 @@ on:
       - 'assets/js/simulator-mode-v014112.js'
       - 'assets/js/simulator.js'
       - 'simulator.html'
+      - 'tests/v01416_moderation_editor_regression.mjs'
+      - 'tests/test_v014113_atomic_forum_moderation.mjs'
+      - 'supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014112_server_first_simulator.mjs'
       - 'tests/test_v014111_tool_math_boundaries.mjs'
       - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
@@ -301,6 +307,7 @@ jobs:
           node --check assets/js/simulator-mode-v014112.js
           node --check assets/js/verified-replay-v01492.js
           node --check assets/js/simulator.js
+          node --check functions/api/admin-forum-actions.js
           node --check functions/_lib/tool-telemetry-v014111.js
           node --check functions/sitemap.xml.js
           node --check functions/robots.txt.js
@@ -320,6 +327,8 @@ jobs:
           node tests/test_v014110_advanced_tool_access_and_workspace.mjs
           node tests/test_v014111_tool_math_boundaries.mjs
           node tests/test_v014112_server_first_simulator.mjs
+          node tests/test_v014113_atomic_forum_moderation.mjs
+          node tests/v01416_moderation_editor_regression.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
