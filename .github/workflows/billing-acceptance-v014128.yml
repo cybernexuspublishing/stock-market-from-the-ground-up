@@ -1,0 +1,68 @@
+name: Billing Cron and outbox exhaustion acceptance v0.14.0.128
+on:
+  pull_request:
+    paths:
+      - 'workers/billing-notices-v014123.js'
+      - 'supabase/migrations/v0.14.0.128_*'
+      - 'supabase/admin/v0.14.0.128_*'
+      - 'tests/fixtures/v014128_*'
+      - 'tests/test_v014128_billing_cron_alerts.mjs'
+      - '.github/workflows/billing-acceptance-v014128.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/billing-notices-v014123.js'
+      - 'supabase/migrations/v0.14.0.128_*'
+      - 'supabase/admin/v0.14.0.128_*'
+      - 'tests/fixtures/v014128_*'
+      - 'tests/test_v014128_billing_cron_alerts.mjs'
+      - '.github/workflows/billing-acceptance-v014128.yml'
+permissions:
+  contents: read
+jobs:
+  scheduled-worker-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check workers/billing-notices-v014123.js
+          node tests/test_v014128_billing_cron_alerts.mjs
+          node tests/test_v014123_billing_notice_worker.mjs
+          node tests/test_v014124_signed_reconciliation.mjs
+          node tests/test_v014122_member_billing_portal.mjs
+          node --check assets/js/my-purchases.js
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+  disposable-postgres16-notice-leases:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: disposable_only,POSTGRES_DB: billing_v128}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d billing_v128"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_only
+      PGDATABASE: billing_v128
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014123_billing_lifecycle_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.123_BILLING_OUTBOX_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -At -F '|' -f supabase/admin/v0.14.0.128_BILLING_LEASE_PREFLIGHT_READ_ONLY.sql > /tmp/preflight.txt
+          if grep -q '|BLOCKED' /tmp/preflight.txt; then cat /tmp/preflight.txt; exit 1; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014128_billing_expired_leases_seed.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.128_BILLING_EXHAUSTED_NOTICE_LEASE_REPAIR_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -At -F '|' -f supabase/admin/v0.14.0.128_BILLING_LEASE_POSTFLIGHT_READ_ONLY.sql > /tmp/postflight.txt
+          if grep -q '|BLOCKED' /tmp/postflight.txt; then cat /tmp/postflight.txt; exit 1; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014128_billing_expired_leases_acceptance.sql
