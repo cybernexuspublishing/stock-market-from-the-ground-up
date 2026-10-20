@@ -32,7 +32,7 @@ window.JournalTools=(function(){
     // Quoting a CSV cell does not prevent spreadsheet formula execution.
     // Prefix risky leading characters (including optional whitespace) with a
     // literal apostrophe when opened by Excel/Sheets/LibreOffice.
-    if(/^[\s\uFEFF]*[=+@-]/u.test(value))value="'"+value;
+    if(!(typeof v==='number' && Number.isFinite(v)) && /^[\s\uFEFF]*[=+@-]/u.test(value))value="'"+value;
     return '"'+value.replace(/"/g,'""')+'"';
   };return [cols.join(','),...rows.map(r=>cols.map(c=>q(Array.isArray(r[c])?r[c].join('|'):r[c])).join(','))].join('\n')}
   function downloadCSV(text,name){const blob=new Blob([text],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
