@@ -17,7 +17,7 @@ async function test(name,payload,{errorRoute='',responseStatus=200,expectedStatu
   if(url.endsWith('/rpc/forum_list_posts'))return makeResponse(visible?validPosts:[]);
   if(url.includes('/rest/v1/commons_topics?'))return makeResponse(visible?[{id:22}]:[]);
   if(url.includes('/rest/v1/commons_posts?'))return makeResponse(visible?[{id:34,topic_id:22}]:[]);
-  if(url.endsWith('/rpc/v014_community_report'))return makeResponse({ok:true},responseStatus);
+  if(url.endsWith('/rpc/v014_community_report'))return makeResponse(responseStatus===429?{message:'REPORT_QUOTA_REACHED'}:{ok:true},responseStatus);
   throw new Error('Unexpected fetch:'+url);
  };
  const request=new Request('https://site.example/api/commons-report',{method:'POST',headers:{'content-type':'application/json',...(caller?{authorization:'Bearer member-token'}:{})},body:JSON.stringify(payload)});
