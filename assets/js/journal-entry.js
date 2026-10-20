@@ -84,6 +84,10 @@ async function initEntry(){const gate=e('entry-gate');try{ESTATE.id=Number(new U
   e('journal-replay-reflection')?.remove();
   e('locked-plan-body')?.replaceChildren();
   e('metric-grid')?.replaceChildren();
+  for(const id of ['entry-record-type','entry-title','entry-status-line',
+   'plan-lock-state','plan-compare-body','actual-compare-body']){
+    if(e(id))e(id).textContent='';
+  }
   gate.textContent='Account changed. Reload under the current member to open the appropriate private Journal record.';
  });
  ESTATE.tax=await window.JournalTools.taxonomy();e('j-type').innerHTML=ESTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');setOptions(e('j-session'),ESTATE.tax.sessions);setOptions(e('j-entry-reason-cat'),ESTATE.tax.entryReasons);setOptions(e('j-planned-exit-cat'),ESTATE.tax.exitReasons);setOptions(e('j-exit-reason-cat'),ESTATE.tax.exitReasons);e('mistake-grid').innerHTML=ESTATE.tax.mistakes.map(x=>`<label><input type="checkbox" name="journal-mistake" value="${window.JournalTools.esc(x)}"> ${window.JournalTools.esc(x)}</label>`).join('');await loadRow();gate.innerHTML='';e('entry-content').hidden=false;e('save-plan').onclick=savePlan;e('lock-plan').onclick=lockPlan;e('save-actual').onclick=()=>saveActual();e('close-calc').onclick=closeAndCalculate;e('record-no-trade').onclick=recordNoTrade;ACTUAL_KEYS.forEach(k=>{const el=e(F[k]);if(el)el.addEventListener('input',()=>renderMetrics({...ESTATE.row,...collect(PLAN_KEYS),...collect(ACTUAL_KEYS)}))})}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools.esc(err.message)}</div>`}}
