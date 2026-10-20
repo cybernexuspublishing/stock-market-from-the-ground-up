@@ -34,7 +34,7 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
  let riskVals=[],processGood=0,processBad=0,processUnknown=0,follow=0,followKnown=0,badWins=0;
  const equity=[];
  const groups=new Map();
- const score={live:{n:0,net:0,r:[]},paper:{n:0,net:0,r:[]}};
+ const score={live:{n:0,wins:0,net:0,r:[]},paper:{n:0,wins:0,net:0,r:[]}};
  for(const r of eligible){
   const net=finite(r.net_pnl),rv=finite(r.r_multiple),key=sanitizedText(r.setup);
   sum+=net;peak=Math.max(peak,sum);drawdown=Math.max(drawdown,peak-sum);
@@ -48,7 +48,7 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   if(['YES','NO'].includes(r.plan_followed)){followKnown++;if(r.plan_followed==='YES')follow++}
   let g=groups.get(key);if(!g){g={setup:key,n:0,wins:0,net:0,r:[]};groups.set(key,g)}
   g.n++;if(positive)g.wins++;g.net+=net;if(rv!==null)g.r.push(rv);
-  const a=score[r.journal_type];a.n++;a.net+=net;if(rv!==null)a.r.push(rv);
+  const a=score[r.journal_type];a.n++;if(positive)a.wins++;a.net+=net;if(rv!==null)a.r.push(rv);
   equity.push({date:validDate(r.exit_date)?r.exit_date:r.trade_date,value:rounding(sum,2)});
  }
  const categ=(field)=>{
