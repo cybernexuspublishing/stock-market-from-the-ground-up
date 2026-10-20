@@ -92,7 +92,21 @@ function detailsOf(record){
  actions.append(btn('Copy response',async()=>{
   try{await navigator.clipboard.writeText(record.answer);status('Response copied.')}catch{status('Copy unavailable; select the response text instead.')}
  }));
- if(record.id)actions.append(btn('Delete saved exchange',()=>deleteOne(record)));
+ if(record.id){
+  if(record.feedback)actions.append(make('span','Your feedback: '+record.feedback.replaceAll('_',' '),'small'));
+  actions.append(btn('Helpful',()=>sendTutorFeedback(record,'helpful')));
+  actions.append(btn('Not helpful',()=>sendTutorFeedback(record,'not_helpful')));
+  actions.append(btn('Report answer',()=>{
+   const region=make('div',undefined,'tutor-feedback-form');
+   const label=make('label','Optional issue details (500 characters)');
+   const input=make('textarea');input.maxLength=500;input.rows=3;
+   label.append(input);
+   const send=btn('Submit private report',()=>sendTutorFeedback(record,'report',input.value));
+   region.append(label,send);actions.replaceChildren(region);
+   input.focus();
+  }));
+  actions.append(btn('Delete saved exchange',()=>deleteOne(record)));
+}
  reply.append(actions);li.append(reply);return li;
 }
 function renderConversation(){
@@ -117,7 +131,7 @@ function normalizeSaved(x){
  learnerAnswer:String(x.learner_answer||''),mode:String(x.mode||'explain'),
  answer:String(x.answer||''),generation:String(x.generation||'reviewed-glossary-logic'),
  sourceTitles:Array.isArray(x.source_titles)?x.source_titles:[],
- createdAt:x.created_at||new Date().toISOString()};
+ feedback:x.feedback||null,feedbackNote:x.feedback_note||'',createdAt:x.created_at||new Date().toISOString()};
 }
 async function privateApi(path,method='GET',body,headers={}){
  const access=await token();if(!access)throw Object.assign(new Error('Sign in to manage saved Tutor exchanges.'),{status:401});
@@ -146,6 +160,14 @@ async function loadHistory(){
   TUTOR.serverHistory=false;
   historyStatus(e.message+' Your current-page conversation still works. No assessment data was changed.');
  }
+}
+async function sendTutorFeedback(rec,choice,note=''){
+ if(!rec.id){historyStatus('Save this response privately before submitting feedback.');return}
+ try{
+  await privateApi('', 'PATCH',{id:rec.id,feedback:choice,note:note.slice(0,500)});
+  rec.feedback=choice;rec.feedbackNote=note.slice(0,500);
+  renderConversation();historyStatus('Your private Tutor feedback was submitted; it does not award or change grades.');
+ }catch(e){historyStatus('Feedback could not be stored: '+e.message)}
 }
 async function deleteOne(rec){
  if(!rec.id){TUTOR.entries=TUTOR.entries.filter(x=>x!==rec);renderConversation();return}
