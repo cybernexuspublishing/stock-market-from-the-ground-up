@@ -76,6 +76,15 @@ export async function onRequest({request,env}){try{
    interpretation:'Recorded, server-graded conceptual/book exercises. NOT historical replay proof, four-dimensional competency certification, P&L or brokerage performance.',
    masteryAwarded:false});
  }
+ if(action==='sync-reviewed-knowledge'&&request.method==='POST'){
+  // This RPC reads actual completed grades and exact-version Owner-approved
+  // mappings. It creates at most the KNOWLEDGE dimension, idempotently.
+  const result=await db(env,'rpc/gu_v014105_sync_member_reviewed_knowledge','POST',{p_actor:acl.userId});
+  if(result?.ok!==true)throw fail('Reviewed knowledge reconciliation was not accepted.',503);
+  return reply({ok:true,...result,
+   interpretation:'Only the knowledge dimension from a reviewed conceptual quiz may be recorded. Other competency dimensions and real historical market skill remain unverified.',
+   masteryAwarded:false});
+ }
  if(action==='available'&&request.method==='GET'){const id=u.searchParams.get('labId')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))throw fail('Invalid Lab ID.');await requireMatchingBook(env,request,id);const rows=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');return reply({ok:true,available:!!rows[0],sourceStatus:rows[0]?.source_status||null,questionCount:rows[0]?.questions?.length||0})}
  if(action==='start'&&request.method==='POST'){const body=await request.json().catch(()=>null),id=String(body?.labId||''),mode=String(body?.mode||'');if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!['guided','practice','blind','assessment'].includes(mode))throw fail('Valid Lab and learning mode required.');await requireMatchingBook(env,request,id);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Reviewed question-by-question training is not published for this Lab.'},404);
  const record=await db(env,'rpc/v014_training_start','POST',{p_actor:acl.userId,p_lab:id,p_mode:mode});
@@ -87,6 +96,17 @@ export async function onRequest({request,env}){try{
  if(action==='resume'&&request.method==='GET'){const id=u.searchParams.get('id')||'';if(!uuid.test(id))throw fail('Invalid attempt ID.');const rows=await db(env,'lab_training_attempts_v014?select=id,user_id,lab_id,set_version,mode,step_index,completed_at,report&id=eq.'+esc(id)+'&user_id=eq.'+esc(acl.userId)+'&limit=1');const a=rows[0];if(!a)return reply({ok:false,error:'Attempt not found.'},404);await requireMatchingBook(env,request,a.lab_id);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(a.lab_id)+'&version=eq.'+a.set_version+'&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Training version unavailable.'},503);return reply(publicState(a,set))}
  if(action==='answer'&&request.method==='POST'){const b=await request.json().catch(()=>null),id=String(b?.attemptId||''),answer=String(b?.answer??'').trim();
  if(!uuid.test(id)||!answer||answer.length>600||!Number.isSafeInteger(b?.expectedStep)||b.expectedStep<0)throw fail('Attempt, current step, and response are required.');
- const attempts=await db(env,'lab_training_attempts_v014?select=lab_id&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);return reply(r)}
+ const attempts=await db(env,'lab_training_attempts_v014?select=lab_id&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
+ let knowledgeSync='not_applicable';
+ if(r.complete===true){
+  // The grade was already committed atomically. A missing optional v105 mapping
+  // NEVER undoes or forges it. Members may retry evidence sync from Skills.
+  try{
+   const rec=await db(env,'rpc/gu_v014105_sync_reviewed_knowledge','POST',
+    {p_actor:acl.userId,p_attempt:id});
+   knowledgeSync=rec?.ok===true?'reviewed_knowledge_only':'mapping_not_yet_approved';
+  }catch{knowledgeSync='optional_mapping_unavailable'}
+ }
+ return reply({...r,knowledgeSync,masteryAwarded:false})}
  return reply({ok:false,error:'Unknown training action.'},405);
 }catch(e){return reply({ok:false,error:e.message||'Training request failed.'},e.status||500)}}
