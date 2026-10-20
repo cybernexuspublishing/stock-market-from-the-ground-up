@@ -6,6 +6,12 @@
 -- review. Do not install before the separate read-only dependency preflight.
 -- One RPC call commits session finish, first-decision Journal snapshot, link.
 BEGIN;
+-- Existing v0.7 Journal objects may have different default role grants.
+-- Explicit service-only access avoids a production 42501 privilege failure
+-- concealed by disposable-test SUPERUSER access. No member/anon grant is added.
+GRANT SELECT,INSERT,UPDATE ON public.journal_reviews TO service_role;
+GRANT SELECT,INSERT,UPDATE ON public.decision_journal TO service_role;
+GRANT SELECT,INSERT ON public.trade_plan_snapshots TO service_role;
 
 CREATE TABLE IF NOT EXISTS public.gu_replay_journal_links_v01494 (
  session_id uuid PRIMARY KEY REFERENCES public.gu_replay_sessions_v01492(id) ON DELETE CASCADE,
