@@ -75,7 +75,7 @@ export async function loadOwnerLabAudit(db){
    db('lab_instruction_v014?select=lab_id,source_status&limit=1000'),
    db('lab_training_sets_v014?select=lab_id,review_state,reviewed_by,reviewed_at,questions,answer_key&limit=1000'),
    db('historical_context_envelopes?select=lab_id,dataset_code,status,context_start_at,teaching_start_at,decision_boundary_at,teaching_end_at,context_end_at&limit=1000'),
-   db('market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&limit=1000')
+   db('market_datasets?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&limit=1000')
   ]);
   return classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets});
  }catch{return {available:false,registryCount:null,rows:[],certifiedComplete:null,
