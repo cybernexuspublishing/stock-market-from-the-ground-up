@@ -1,0 +1,25 @@
+name: Forum atomic production prerequisite diagnostic v0.14.0.126
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql'
+      - 'tests/test_v014126_forum_atomic_prerequisites.mjs'
+      - '.github/workflows/forum-dependency-diag-v014126.yml'
+  pull_request:
+    paths:
+      - 'supabase/admin/v0.14.0.126_FORUM_ATOMIC_DEPENDENCIES_READ_ONLY.sql'
+      - 'tests/test_v014126_forum_atomic_prerequisites.mjs'
+      - '.github/workflows/forum-dependency-diag-v014126.yml'
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node tests/test_v014126_forum_atomic_prerequisites.mjs
+          node tests/test_v014125_forum_direct_dml.mjs
