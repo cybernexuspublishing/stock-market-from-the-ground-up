@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let review=null,catalog=null,counts=null,engineering=null,tracked=new Map();
-const stageNames={'content-blocked':'Historical content & rubrics incomplete','integration-pending':'End-to-end QA outstanding','data-blocked':'Historical data / provenance missing','major-build':'Core AI backend not delivered',beta:'Functional beta / validation pending',planned:'Future release'};
+const stageNames={'content-blocked':'Historical content & rubrics incomplete','integration-pending':'End-to-end QA outstanding','data-blocked':'Historical data / provenance missing','major-build':'First-party AI source built; provider activation and independent QA pending',beta:'Functional beta / validation pending',planned:'Future release'};
 function openTask(id){
  if(!/^CORE-[0-9]{4}$/.test(id))return;
  if(typeof window.GroundUpOwnerRoadmap?.openTask==='function')window.GroundUpOwnerRoadmap.openTask(id);

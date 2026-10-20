@@ -7,7 +7,7 @@ import {ungradedResponseReview} from '../functions/_lib/tutor-response-scaffold-
 const env={SUPABASE_URL:'https://mock.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'sb_secret_mock',
- AI_TUTOR_PAID_GENERATION_ENABLED:'true',AI_TUTOR_API_KEY:'fake-do-not-use',AI_TUTOR_MODEL:'mock-model'};
+ AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'5',AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'30',AI_TUTOR_API_KEY:'fake-do-not-use',AI_TUTOR_MODEL:'mock-model'};
 let quotaCalls=0,modelCalls=0,prompt='';
 const original=globalThis.fetch,json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
@@ -16,7 +16,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/rpc/user_has_tool_access'))return json(true);
- if(u.includes('/rpc/v01492_consume_tutor_quota')){quotaCalls++;return json(true)}
+ if(u.includes('/rpc/gu_v014103_reserve_ai_request')){quotaCalls++;return json({accepted:true,reason:'reserved',remainingMemberToday:4})}
  if(u==='https://api.openai.com/v1/responses'){
   modelCalls++;prompt=String(opts.body||'');
   return json({output:[{content:[{type:'output_text',
@@ -27,7 +27,7 @@ globalThis.fetch=async(url,opts={})=>{
 async function ask(allowModel){
  const response=await onRequest({env,request:new Request('https://example.test/api/market-tutor-v01492',{
   method:'POST',headers:{authorization:'Bearer valid','content-type':'application/json'},
-  body:JSON.stringify({question:'Explain VWAP in context',mode:'explain',allowModel})})});
+  body:JSON.stringify({question:'Explain VWAP in context',mode:'explain',allowModel,requestId:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'})})});
  return {status:response.status,body:await response.json()};
 }
 try{
@@ -48,5 +48,5 @@ try{
  const js=readFileSync(new URL('../assets/js/market-tutor.js',import.meta.url),'utf8');
  assert(html.includes('id="tutor-ai-consent"'));
  assert(js.includes("allowModel:$('tutor-ai-consent')?.checked===true"));
- console.log('PASS v102: opt-in required before model quota or provider call; deterministic source-grounded response otherwise.');
+ console.log('PASS v103: opt-in required before atomic first-party request quota and provider call; deterministic teaching otherwise.');
 }finally{globalThis.fetch=original}
