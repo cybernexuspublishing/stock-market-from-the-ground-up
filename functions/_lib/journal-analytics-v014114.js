@@ -51,6 +51,45 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   const a=score[r.journal_type];a.n++;a.net+=net;if(rv!==null)a.r.push(rv);
   equity.push({date:validDate(r.exit_date)?r.exit_date:r.trade_date,value:rounding(sum,2)});
  }
+ const categ=(field)=>{
+  const counts=new Map();
+  for(const r of eligible){
+   const key=sanitizedText(r[field]);counts.set(key,(counts.get(key)||0)+1);
+  }
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))
+   .slice(0,10).map(([label,count])=>({label,count}));
+ };
+ const mistakeCounts=new Map(),matrix={good_win:0,good_loss:0,bad_win:0,bad_loss:0};
+ let exitMatched=0,exitComparable=0;
+ const mfe=[],mae=[],capture=[];
+ for(const r of eligible){
+  const net=finite(r.net_pnl);
+  if(net!==0){
+   if(r.process_grade==='GOOD')matrix[net>0?'good_win':'good_loss']++;
+   if(r.process_grade==='BAD')matrix[net>0?'bad_win':'bad_loss']++;
+  }
+  if(r.planned_exit_reason_category&&r.actual_exit_reason_category){
+   exitComparable++;
+   if(r.planned_exit_reason_category===r.actual_exit_reason_category)exitMatched++;
+  }
+  for(const tag of Array.isArray(r.mistakes)?r.mistakes.slice(0,30):[]){
+   const key=sanitizedText(tag);mistakeCounts.set(key,(mistakeCounts.get(key)||0)+1);
+  }
+  for(const [field,to] of [['mfe_r',mfe],['mae_r',mae],['mfe_capture_pct',capture]]){
+   const v=finite(r[field]);if(v!==null)to.push(v);
+  }
+ }
+ const byMistake=[...mistakeCounts.entries()].sort((a,b)=>b[1]-a[1])
+  .slice(0,10).map(([label,count])=>({label,count}));
+ const breakdowns={
+  entryReasons:categ('entry_reason_category'),exitReasons:categ('actual_exit_reason_category'),
+  sessions:categ('session_label'),planAdherence:categ('plan_followed'),
+  mistakes:byMistake,processOutcome:matrix,
+  exits:{comparable:exitComparable,matches:exitMatched,
+   percentMatch:pct(exitMatched,exitComparable)},
+  excursion:{avgMfeR:avg(mfe),avgMaeR:avg(mae),avgMfeCapturePct:avg(capture),
+   mfeCount:mfe.length,maeCount:mae.length,captureCount:capture.length}
+ };
  const n=eligible.length;
  const summarizeGroup=g=>({n:g.n,winRate:pct(g.wins,g.n),totalNet:rounding(g.net,2),
   expectancyNet:g.n?rounding(g.net/g.n,2):null,avgR:avg(g.r),ratedRCount:g.r.length});
@@ -70,7 +109,7 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
  };
  const setup=[...groups.values()].map(g=>({setup:g.setup,...summarizeGroup(g)}))
   .sort((a,b)=>b.n-a.n||a.setup.localeCompare(b.setup)).slice(0,30);
- return {ok:true,summary,setup,equity,livePaper:{
+ return {ok:true,summary,setup,equity,breakdowns,livePaper:{
   live:summarizeGroup(score.live),paper:summarizeGroup(score.paper)},
   asOf:today,filter:{type,days:String(days)},
   notices:[
