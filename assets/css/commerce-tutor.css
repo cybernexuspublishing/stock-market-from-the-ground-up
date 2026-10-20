@@ -30,3 +30,11 @@
 @media(max-width:640px){.tutor-composer-actions{align-items:stretch;flex-direction:column}.tutor-composer-actions .btn{width:100%}}
 
 .tutor-ai-opt-in{display:flex!important;gap:10px;align-items:flex-start;font-weight:500!important;font-size:.86rem;line-height:1.55}.tutor-ai-opt-in input{width:18px;height:18px;min-width:18px;margin:3px 0 0;accent-color:#ba9c53}
+
+/* First-party AI product entitlement and usage meter — source-only fallback. */
+.tutor-ai-meter{padding:14px;margin:12px 0 22px;border-radius:12px;border:1px solid #9a824a;background:#14283a}
+.tutor-ai-meter h3{margin:0 0 8px}
+.tutor-ai-meter p{overflow-wrap:anywhere}
+.tutor-ai-meter [role=status]{color:#f0d797;font-weight:700}
+.tutor-ai-meter .btn{display:inline-flex;max-width:100%;box-sizing:border-box}
+.tutor-ai-opt-in:has(input:disabled){opacity:.7}
