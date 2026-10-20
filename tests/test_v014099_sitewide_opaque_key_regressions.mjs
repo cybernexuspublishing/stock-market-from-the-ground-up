@@ -38,7 +38,8 @@ try{
  assert.equal(result.content.body,'Member-authored topic test only');
  assert(source('functions/api/admin-forum-actions.js').includes('auditRecorded'));
  assert(source('functions/api/forum-member-content.js').includes('auditRecorded'));
- assert(source('functions/api/admin-forum-actions.js').includes('Moderation change was applied'));
+ assert(source('functions/api/admin-forum-actions.js').includes('gu_v014113_moderate_with_audit'),'Moderator must only mutate via atomic audit RPC');
+ assert(!source('functions/api/admin-forum-actions.js').includes('Moderation change was applied'),'Forum mutations cannot succeed after their audit failed');;
  assert(source('functions/api/forum-member-content.js').includes('Content change succeeded'));
 
  const tables=calls.filter(x=>x.path.includes('/rest/v1/'));
