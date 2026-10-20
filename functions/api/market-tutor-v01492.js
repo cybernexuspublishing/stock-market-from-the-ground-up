@@ -7,6 +7,7 @@
  */
 import {toolAccess} from './member-tool-access.js';
 import {tutorTopicsV01492} from '../_lib/tutor-topics-v01492.js';
+import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-v014100.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -169,9 +170,20 @@ export async function onRequest({request,env}){
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   const source=rank(q),sources=publicMatches(source);
+  const guideMatches=source.length||MAYBE_ADVICE.test(q)?[]:await originalGuides(env,request,q);
+  if(guideMatches.length){
+   const guide=guideMatches[0];
+   return reply({ok:true,generation:'original-competency-guide',answer:answerFromGuide(guide,mode,answer),
+    sources:guideMatches.map((g,i)=>({id:g.code,title:g.title,summary:g.concept,sourceLabel:'Original in-platform competency guide',
+     sourceId:'['+(i+1)+']',bookContext:'Original 30-competency study guide',
+     practiceUrl:'/labs.html?q='+encodeURIComponent(g.title)})),
+    graded:false,masteryAwarded:false,sourceLimit:'Only the 30 original public competency guides, no unverified tape or private rubric.',
+    notice:'Zero-cost original competency instruction. A self-check is not a graded Lab or independently reviewed historical observation.',
+    links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
+  }
   const baseline=deterministic(q,mode,sources,answer);
   let text=baseline,generation='reviewed-glossary-logic';
-  if(source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
+  if(env.AI_TUTOR_PAID_GENERATION_ENABLED==='true'&&source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
    // Quota is atomically consumed BEFORE any paid provider request.
    // Missing quota migration or failed database connection prevents charges.
    const permitted=await quota(env,auth.userId).catch(()=>false);

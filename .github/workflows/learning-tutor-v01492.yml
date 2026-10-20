@@ -15,6 +15,8 @@ on:
       - 'market-tutor.html'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
+      - 'functions/_lib/original-competency-tutor-v014100.js'
+      - 'tests/test_v014100_free_competency_tutor.mjs'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -74,6 +76,8 @@ on:
       - 'market-tutor.html'
       - 'functions/api/forum-member-content.js'
       - 'functions/api/commons-report.js'
+      - 'functions/_lib/original-competency-tutor-v014100.js'
+      - 'tests/test_v014100_free_competency_tutor.mjs'
       - 'functions/api/market-tutor-v01492.js'
       - 'functions/api/member-tool-access.js'
       - 'functions/_lib/tutor-topics-v01492.js'
@@ -146,6 +150,7 @@ jobs:
           node --check assets/js/skills.js
           node --check assets/js/training-editor.js
           node --check functions/api/interactive-training.js
+          node --check functions/_lib/original-competency-tutor-v014100.js
           node --check functions/api/market-tutor-v01492.js
           node --check functions/api/member-tool-access.js
           node --check functions/_lib/tutor-topics-v01492.js
@@ -157,6 +162,7 @@ jobs:
           node --check assets/js/lab-registry.js
           node --check functions/api/learning-replay-v01492.js
           node --check assets/js/verified-replay-v01492.js
+          node tests/test_v014100_free_competency_tutor.mjs
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
