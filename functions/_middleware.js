@@ -2,6 +2,7 @@
  * Route policy is shared with the service worker; private data remains secured at API/RLS level.
  * Retain historical application enhancers in their approved order. */
 import '../assets/js/route-policy.js';
+import {publicLegalPaths,getPublishedPolicyMarkup} from './_lib/public-legal-ssr-v014108.js';
 const POLICY=globalThis.GroundUpRoutePolicy;
 const JSON_HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'no-store'};
 const reject=(message,status=403)=>new Response(JSON.stringify({ok:false,error:message}),{status,headers:JSON_HEADERS});
@@ -218,12 +219,29 @@ export async function onRequest(context){
   const denied=await apiMutationBoundary(context,url);
   if(denied)return denied;
   const upstream=await context.next();
-  const hardened=new Headers(upstream.headers);
+  let delivered=upstream;
+  // Render published legal rows for crawlers and readers before any browser
+  // JavaScript runs. Public publishable credentials + RLS only; never use the
+  // Supabase service role or expose unpublished policies.
+  if(publicLegalPaths[path]&&String(upstream.headers.get('content-type')||'').includes('text/html')){
+    const policy=await getPublishedPolicyMarkup(context.env,context.request);
+    if(policy){
+      delivered=new HTMLRewriter()
+        .on('#legal-doc',{element(el){
+          el.setAttribute('data-policy-server-rendered','true');
+          el.setInnerContent(policy.markup,{html:true});
+        }})
+        .on('title',{element(el){el.setInnerContent(policy.title+' | The Stock Market: From the Ground Up')}})
+        .transform(upstream);
+    }
+  }
+  const hardened=new Headers(delivered.headers);
+  if(delivered!==upstream)hardened.delete('content-length');
   hardened.set('x-content-type-options','nosniff');
   hardened.set('referrer-policy','strict-origin-when-cross-origin');
   hardened.set('x-frame-options','SAMEORIGIN');
   if(url.protocol==='https:')hardened.set('strict-transport-security','max-age=86400');
-  const response=new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers:hardened});
+  const response=new Response(delivered.body,{status:delivered.status,statusText:delivered.statusText,headers:hardened});
   const type=(response.headers.get('content-type')||'').toLowerCase();
   if(!type.includes('text/html'))return response;
   try{
@@ -235,9 +253,10 @@ export async function onRequest(context){
         }
         if(path==='/labs.html'||path==='/labs')
           el.append('<style id="v011-lab-registry-gate">body{visibility:hidden}</style>',{html:true});
-        el.append('<meta name="application-version" content="v0.14.0.14">',{html:true});
+        el.append('<meta name="application-version" content="v0.14.0.99">',{html:true});
         el.append('<meta name="theme-color" content="#061827">',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
+        el.append('<link rel="icon" href="/assets/icons/ground-up-mark.svg" type="image/svg+xml">',{html:true});
         for(const file of [
           'platform.css','production.css','frontend-complete.css',
           'production-completion.css','dashboard.css',
@@ -283,7 +302,7 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
       }})
       .on('body',{element(el){
-        el.setAttribute('data-build','v0.14.0.14');
+        el.setAttribute('data-build','v0.14.0.99');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');

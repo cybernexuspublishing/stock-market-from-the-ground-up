@@ -84,12 +84,12 @@ export const ownerProductReadinessV01491=Object.freeze({
     {
       "title": "Legal, privacy, cookies and retention",
       "state": "needs_live_qa",
-      "gate": "Published legal_documents entries, crawlable policy content, consent and member data erasure/retention have not been confirmed."
+      "gate": "v108 source pre-renders only effective published legal_documents rows and adds a private Owner publication audit. Real published rows, qualified text/consent review, refunds, provider disclosures and member data retention/erasure remain unverified."
     },
     {
       "title": "SEO, CSP, PWA and accessibility",
       "state": "needs_live_qa",
-      "gate": "Verify robots/sitemap, indexed canonical content, restrictive CSP after inline script remediation, installability and screen readers."
+      "gate": "v108 adds robots.txt, core sitemap.xml and vector favicon/manifest icon to source; live canonical crawl verification, PNG PWA install icons, restrictive CSP after inline script remediation and screen-reader testing remain open."
     },
     {
       "title": "Operations — backups and incident readiness",

@@ -310,6 +310,37 @@ async function ownerAiServiceAudit(c,env){
    notice:'Private AI ledger or row-count permission cannot be verified. Do not assert provider usage or release readiness.'};
  }
 }
+/* v108 Owner-only publication read: no policy bodies leave this endpoint.
+ * Owner must still have legal counsel approve sufficiency and currency.
+ */
+async function ownerLegalReadiness(c){
+ const expected=[
+  ['PRIVACY','/privacy.html'],['TERMS','/terms.html'],
+  ['REFUNDS','/refund-policy.html'],['COOKIES','/cookie-policy.html'],
+  ['SUBSCRIPTION','/subscription-terms.html']
+ ];
+ try{
+  const rows=await db(c,'legal_documents?select=document_code,status,body_markdown,effective_at,version'+
+   '&document_code=in.(PRIVACY,TERMS,REFUNDS,COOKIES,SUBSCRIPTION)&limit=25');
+  if(!Array.isArray(rows))throw Error('Invalid result');
+  const result=expected.map(([code,href])=>{
+   const row=rows.find(x=>x.document_code===code);
+   const effective=Date.parse(row?.effective_at||''),status=!row?'not_published_or_missing':
+    row.status!=='published'?'not_published':
+    !Number.isFinite(effective)||effective>Date.now()?'not_yet_effective':
+    typeof row.body_markdown!=='string'||row.body_markdown.trim().length<250?'published_but_short':
+    'published_needs_legal_review';
+   return {code,href,status,version:row?.version||null};
+  });
+  return {available:true,documents:result,publishedCurrent:result.filter(x=>x.status==='published_needs_legal_review').length,
+   reviewRequired:true,legalCounselApproved:false,
+   notice:'Published rows with adequate basic length can be pre-rendered. This is not legal advice, proof of policy compliance, correct refunds, cookie consent or approved retention.'};
+ }catch{
+  return {available:false,documents:expected.map(([code,href])=>({code,href,status:'not_verified'})),
+   publishedCurrent:null,reviewRequired:true,legalCounselApproved:false,
+   notice:'Legal document publication could not be inspected. Do not interpret a missing database connection as zero published policies.'};
+ }
+}
 export async function onRequest({request,env}){
   try{
     if(!['GET','POST'].includes(request.method))return reply({ok:false,error:'Method not allowed.'},405);
@@ -318,6 +349,7 @@ export async function onRequest({request,env}){
     if(request.method==='POST')return await handlePost(request,c,user);
     if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
+    if(new URL(request.url).searchParams.get('action')==='legal-publication-audit')return reply({ok:true,legalAudit:await ownerLegalReadiness(c)});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];

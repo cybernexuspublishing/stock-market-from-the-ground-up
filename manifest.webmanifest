@@ -5,5 +5,14 @@
   "display": "standalone",
   "background_color": "#061827",
   "theme_color": "#061827",
-  "description": "Trading education, historical labs, simulation, journaling, analytics, and community."
+  "description": "Trading education, historical labs, simulation, journaling, analytics, and community.",
+  "id": "/",
+  "icons": [
+    {
+      "src": "/assets/icons/ground-up-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ]
 }
