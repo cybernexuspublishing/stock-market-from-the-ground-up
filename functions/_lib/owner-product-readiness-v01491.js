@@ -48,7 +48,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "major-build",
       "roadmapId": "CORE-0210",
-      "gate": "v0.14.0.103 source includes entitlement-gated first-party AI orchestration, original lesson grounding, request budgets and member UX. Actual provider activation, quota installation, API economics and live teaching quality remain unverified."
+      "gate": "v0.14.0.107 source improves combined glossary/guide retrieval, safe request/output policies, confidential diagnostic reason codes, global cap reporting, and golden regression tests. Owner reported v103 SQL successful. Actual paid provider configuration/billing, member rate limits, provenance of saved AI text, accessibility and live teaching quality remain unverified."
     },
     {
       "code": "DISCOVERY_LAB",
