@@ -183,7 +183,7 @@ export async function onRequest({request,env}){
   }
   const baseline=deterministic(q,mode,sources,answer);
   let text=baseline,generation='reviewed-glossary-logic';
-  if(env.AI_TUTOR_PAID_GENERATION_ENABLED==='true'&&source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
+  if(body.allowModel===true&&env.AI_TUTOR_PAID_GENERATION_ENABLED==='true'&&source.length&&!MAYBE_ADVICE.test(q)&&String(env.AI_TUTOR_API_KEY||'')&&String(env.AI_TUTOR_MODEL||'')){
    // Quota is atomically consumed BEFORE any paid provider request.
    // Missing quota migration or failed database connection prevents charges.
    const permitted=await quota(env,auth.userId).catch(()=>false);
