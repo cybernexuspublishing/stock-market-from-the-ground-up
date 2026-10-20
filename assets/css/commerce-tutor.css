@@ -28,3 +28,5 @@
 .tutor-thread button:focus-visible,.tutor-composer textarea:focus-visible,.tutor-history button:focus-visible{outline:3px solid #f0d387;outline-offset:3px}
 .tutor-turn .tutor-actions button{white-space:normal;text-align:left}
 @media(max-width:640px){.tutor-composer-actions{align-items:stretch;flex-direction:column}.tutor-composer-actions .btn{width:100%}}
+
+.tutor-ai-opt-in{display:flex!important;gap:10px;align-items:flex-start;font-weight:500!important;font-size:.86rem;line-height:1.55}.tutor-ai-opt-in input{width:18px;height:18px;min-width:18px;margin:3px 0 0;accent-color:#ba9c53}
