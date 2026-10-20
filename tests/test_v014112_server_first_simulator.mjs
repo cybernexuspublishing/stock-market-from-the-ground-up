@@ -63,6 +63,21 @@ assert.equal(controls['sim-legacy-mode'].hidden,true);
 assert.equal(pauseCount>=1,true,'Switching to protected replay must stop client-side playback');
 controls['sim-mode-csv'].listeners.click();
 assert.equal(events.length,1,'CSV engine must initialize at most once');
+
+const legacyFields=Object.fromEntries(Object.keys(controls).map(k=>[k,elem()]));
+const legacyCallbacks={},legacyEvents=[];
+runInNewContext(mode,{
+ window:{dispatchEvent:e=>legacyEvents.push(e.type)},
+ document:{readyState:'loading',getElementById:id=>legacyFields[id]||null,
+  addEventListener:(name,fn)=>{legacyCallbacks[name]=fn}},
+ Event:class{constructor(type){this.type=type}},URLSearchParams,
+ location:{search:'?journal_id=42'}
+});
+legacyCallbacks.DOMContentLoaded();
+assert.equal(legacyFields['sim-legacy-mode'].hidden,false,
+ 'Existing Trade Review journal deep links must continue to load the legacy CSV practice');
+assert.deepEqual(legacyEvents,['groundup:activate-legacy-simulator']);
+
 // Execute the original replay-client orderPlan function against a synthetic
 // DOM with controlled form fields, not a fabricated provider response.
 const block=replay.match(/\nfunction orderPlan\(\)\{[\s\S]*?\n\}/);
