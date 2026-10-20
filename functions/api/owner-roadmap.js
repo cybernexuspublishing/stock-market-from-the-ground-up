@@ -12,6 +12,7 @@ import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v0140
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
 import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
 import {ownerAcceptanceSnapshot} from '../_lib/owner-acceptance-v014108.js';
+import {ownerLegalPublicationAudit} from '../_lib/owner-legal-audit-v014109.js';
 import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -320,6 +321,7 @@ export async function onRequest({request,env}){
     if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
     if(new URL(request.url).searchParams.get('action')==='platform-acceptance-v014108')return reply({ok:true,acceptance:await ownerAcceptanceSnapshot(env)});
+    if(new URL(request.url).searchParams.get('action')==='legal-publication-v014109')return reply({ok:true,legalAudit:await ownerLegalPublicationAudit(env)});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
