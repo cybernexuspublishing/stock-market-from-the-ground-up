@@ -10,10 +10,14 @@ export default {
    if(!/^https:\/\/[a-z0-9.-]+(?::443)?$/.test(base)||
       !env.GU_BILLING_TASK_SECRET||String(env.GU_BILLING_TASK_SECRET).length<32)
     throw new Error('Billing Cron configuration missing');
-   const r=await fetch(base+'/api/internal-billing-notices-v014123',{
+   const endpoints=['/api/internal-billing-notices-v014123','/api/internal-billing-reconcile-v014124'];
+   const responses=await Promise.all(endpoints.map(endpoint=>fetch(base+endpoint,{
     method:'POST',headers:{authorization:'Bearer '+env.GU_BILLING_TASK_SECRET,
-     'content-type':'application/json'},body:'{}'});
-   if(!r.ok)throw new Error('Billing delivery scheduler run failed: '+r.status);
+     'content-type':'application/json'},body:'{}'})));
+   if(responses.some(r=>!r.ok))throw new Error('One or more scheduled billing operations failed');
+   const reconciliation=await responses[1].json().catch(()=>({}));
+   if(Number(reconciliation.discrepancies)>0)
+    throw new Error('Verified LIVE subscription mismatch detected; review private billing reconciliation alerts');
   })());
  }
 };
