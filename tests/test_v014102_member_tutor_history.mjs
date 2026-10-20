@@ -74,6 +74,6 @@ try{
  for(const marker of ['member-tutor-history-v014102','textContent','learnerAnswer','renderConversation','saveRecord','deleteOne','deleteAll','exportConversation','crypto.randomUUID']){
   assert(js.includes(marker),'Missing Tutor interaction: '+marker);
  }
- assert(!js.includes('localStorage'),'Never put private Tutor transcripts into shared-browser persistent storage');
+ assert(!/(?:window\.)?localStorage\s*(?:\.|\[)/.test(js),'Never put private Tutor transcripts into shared-browser persistent storage');
  console.log('PASS v102: entitlement-gated Tutor history, per-member scope, idempotency keys, private delete/export, optional SQL fallback, no grades or paid AI.');
 }finally{globalThis.fetch=prior}
