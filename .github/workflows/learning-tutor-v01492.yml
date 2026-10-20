@@ -41,6 +41,12 @@ on:
       - 'assets/js/simulator.js'
       - 'simulator.html'
       - 'tests/v01416_moderation_editor_regression.mjs'
+      - 'functions/_lib/journal-analytics-v014114.js'
+      - 'functions/api/journal-analytics-v014114.js'
+      - 'assets/js/journal-analytics.js'
+      - 'assets/js/journal-common.js'
+      - 'journal-analytics.html'
+      - 'tests/test_v014114_private_journal_analytics.mjs'
       - 'tests/test_v014113_atomic_forum_moderation.mjs'
       - 'supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014112_server_first_simulator.mjs'
@@ -164,6 +170,12 @@ on:
       - 'assets/js/simulator.js'
       - 'simulator.html'
       - 'tests/v01416_moderation_editor_regression.mjs'
+      - 'functions/_lib/journal-analytics-v014114.js'
+      - 'functions/api/journal-analytics-v014114.js'
+      - 'assets/js/journal-analytics.js'
+      - 'assets/js/journal-common.js'
+      - 'journal-analytics.html'
+      - 'tests/test_v014114_private_journal_analytics.mjs'
       - 'tests/test_v014113_atomic_forum_moderation.mjs'
       - 'supabase/migrations/v0.14.0.113_ATOMIC_FORUM_MODERATION_AUDIT_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014112_server_first_simulator.mjs'
@@ -309,6 +321,10 @@ jobs:
           node --check assets/js/simulator.js
           node --check functions/api/admin-forum-actions.js
           node --check functions/_lib/tool-telemetry-v014111.js
+          node --check functions/_lib/journal-analytics-v014114.js
+          node --check functions/api/journal-analytics-v014114.js
+          node --check assets/js/journal-analytics.js
+          node --check assets/js/journal-common.js
           node --check functions/sitemap.xml.js
           node --check functions/robots.txt.js
           node --check functions/api/member-tutor-history-v014102.js
@@ -328,6 +344,7 @@ jobs:
           node tests/test_v014111_tool_math_boundaries.mjs
           node tests/test_v014112_server_first_simulator.mjs
           node tests/test_v014113_atomic_forum_moderation.mjs
+          node tests/test_v014114_private_journal_analytics.mjs
           node tests/v01416_moderation_editor_regression.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
