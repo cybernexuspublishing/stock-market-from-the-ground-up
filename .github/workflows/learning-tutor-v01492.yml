@@ -15,6 +15,9 @@ on:
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
       - 'functions/_lib/first-party-ai-service-v014103.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'tests/test_v014104_owner_ai_operations.mjs'
       - 'functions/api/member-ai-service-v014103.js'
       - 'supabase/migrations/v0.14.0.103_FIRST_PARTY_AI_BUDGET_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014103_first_party_ai_service.mjs'
@@ -87,6 +90,9 @@ on:
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
       - 'functions/_lib/first-party-ai-service-v014103.js'
+      - 'functions/api/owner-roadmap.js'
+      - 'owner-roadmap.html'
+      - 'tests/test_v014104_owner_ai_operations.mjs'
       - 'functions/api/member-ai-service-v014103.js'
       - 'supabase/migrations/v0.14.0.103_FIRST_PARTY_AI_BUDGET_OWNER_REVIEW_REQUIRED.sql'
       - 'tests/test_v014103_first_party_ai_service.mjs'
@@ -183,6 +189,7 @@ jobs:
           node --check assets/js/market-tutor.js
           node --check functions/_lib/first-party-ai-service-v014103.js
           node --check functions/api/member-ai-service-v014103.js
+          node --check functions/api/owner-roadmap.js
           node --check functions/api/member-tutor-history-v014102.js
           node --check functions/_lib/tutor-response-scaffold-v014102.js
           node --check assets/js/lab-registry.js
@@ -192,6 +199,7 @@ jobs:
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs
+          node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs

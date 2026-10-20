@@ -10,6 +10,7 @@ import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
+import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
 import {reviewedProductGuidesV01488,supportingCapabilitiesV01488} from '../_lib/owner-roadmap-product-inventory-v01488.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0','pragma':'no-cache','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -270,6 +271,45 @@ async function ownerProductInventory(c){
  }
 }
 
+/* Owner-only AI financial exposure operations.
+ * The existing owner() gate MUST run before entering this function.
+ * Aggregated request reservations only; no user IDs, prompts or provider keys
+ * reach the browser. A reservation is not a billed token count or real USD cost.
+ */
+async function ownerAiServiceAudit(c,env){
+ const cfg=aiServiceConfig(env),now=new Date();
+ const startDay=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())).toISOString();
+ const startMonth=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1)).toISOString();
+ async function countSince(since){
+  const url=c.base+'/rest/v1/gu_ai_service_requests_v014103?select=id&reserved_at=gte.'+
+    encodeURIComponent(since)+'&limit=1';
+  const response=await fetch(url,{method:'GET',cache:'no-store',
+   headers:{...serviceHeaders(c),prefer:'count=exact'}});
+  if(!response.ok)throw Error('AI quota ledger unavailable');
+  const range=response.headers.get('content-range')||'';
+  const matched=/\/(\d+)$/.exec(range);
+  if(!matched)return {count:null,verified:false};
+  return {count:Number(matched[1]),verified:true};
+ }
+ try{
+  const [today,month]=await Promise.all([countSince(startDay),countSince(startMonth)]);
+  if(!today.verified||!month.verified)throw Error('Request counts unavailable');
+  return {available:true,status:cfg.state,inferenceConfigured:cfg.enabled,
+   modelProviderConfigured:cfg.modelConfigured,memberDailyLimit:cfg.member||null,
+   globalDailyLimit:cfg.day||null,globalMonthlyLimit:cfg.month||null,
+   reservedToday:today.count,reservedMonth:month.count,
+   dailyHeadroom:cfg.day?Math.max(0,cfg.day-today.count):null,
+   monthlyHeadroom:cfg.month?Math.max(0,cfg.month-month.count):null,
+   sinceUtcDay:startDay,sinceUtcMonth:startMonth,
+   monetarySpendVerified:false,providerBillingVerified:false,
+   notice:'Only private provider-request reservations are counted. These are not model response successes, real provider billing totals or guaranteed dollar cost ceilings.'};
+ }catch{
+  return {available:false,status:cfg.state,inferenceConfigured:cfg.enabled,
+   modelProviderConfigured:cfg.modelConfigured,reservedToday:null,reservedMonth:null,
+   monetarySpendVerified:false,providerBillingVerified:false,
+   notice:'Private AI ledger or row-count permission cannot be verified. Do not assert provider usage or release readiness.'};
+ }
+}
 export async function onRequest({request,env}){
   try{
     if(!['GET','POST'].includes(request.method))return reply({ok:false,error:'Method not allowed.'},405);
@@ -277,6 +317,7 @@ export async function onRequest({request,env}){
     const user=await owner(request,c,env);
     if(request.method==='POST')return await handlePost(request,c,user);
     if(new URL(request.url).searchParams.get('action')==='lab-audit')return reply({ok:true,labAudit:await loadOwnerLabAudit(endpoint=>db(c,endpoint))});
+    if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];

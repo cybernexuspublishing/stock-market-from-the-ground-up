@@ -153,6 +153,52 @@ async function loadLabAudit(force=false){
  }finally{labLoading=false;if(button)button.disabled=false}
 }
 
+async function loadAiOwnerAudit(){
+ const button=$('or-ai-service-audit-load'),message=$('or-ai-service-audit-status'),host=$('or-ai-service-audit-data');
+ if(!message||!host)return;
+ if(button)button.disabled=true;
+ message.textContent='Checking private first-party AI reservations against the authenticated Owner session…';
+ host.replaceChildren();
+ try{
+  const client=await window.getSupabaseClient(),session=(await client.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Owner sign-in required.');
+  const response=await fetch('/api/owner-roadmap?action=ai-service-audit',{
+   method:'GET',cache:'no-store',headers:{authorization:'Bearer '+session.access_token,accept:'application/json'}});
+  const data=await response.json().catch(()=>null);
+  if(!response.ok||!data?.ok)throw Error('Owner AI service inspection is unavailable.');
+  const x=data.aiServiceAudit;
+  if(!x?.available){
+   message.textContent=x?.notice||'Private paid AI request ledger not verified.';
+   return;
+  }
+  message.textContent=x.inferenceConfigured?
+   'Private request meter responds. Provider invoice, funded inference and learning quality remain separately unverified.':
+   'Private request meter exists; provider inference is NOT active.';
+  const rows=[
+   ['Server AI configuration',x.inferenceConfigured?'Enabled for metered requests':'Disabled or incomplete'],
+   ['Provider configuration present',x.modelProviderConfigured?'Yes; not separately validated':'No'],
+   ['Provider requests reserved today (UTC)',x.reservedToday],
+   ['Provider requests reserved this UTC month',x.reservedMonth],
+   ['Per-member daily request limit',x.memberDailyLimit??'Not configured'],
+   ['Global daily request limit',x.globalDailyLimit??'Not configured'],
+   ['Global monthly request limit',x.globalMonthlyLimit??'Not configured'],
+   ['Site-wide daily request headroom',x.dailyHeadroom??'Not configured'],
+   ['Site-wide monthly request headroom',x.monthlyHeadroom??'Not configured'],
+   ['Provider dollar spend and invoice reconciled','No — verify independently']
+  ];
+  const table=document.createElement('table');table.className='or-membership-table';
+  const tbody=document.createElement('tbody');
+  for(const [name,value] of rows){
+   const tr=document.createElement('tr'),th=document.createElement('th'),td=document.createElement('td');
+   th.scope='row';th.textContent=name;td.textContent=String(value);tr.append(th,td);tbody.append(tr);
+  }
+  table.append(tbody);
+  const scroll=document.createElement('div');scroll.className='or-table-scroll';scroll.append(table);
+  const note=document.createElement('p');note.className='or-muted';note.textContent=x.notice||'Reservation count is not a bill.';
+  host.append(scroll,note);
+ }catch(e){message.textContent=e?.message||'Owner AI audit unavailable; no usage figures certified.';}
+ finally{if(button)button.disabled=false}
+}
 function render(data){
  review=data?.productReadiness||null;
  catalog=data?.productInventory||null;
@@ -173,6 +219,7 @@ function bind(){
  $('or-readiness-search')?.addEventListener('input',renderProducts);
  $('or-readiness-stage')?.addEventListener('change',renderProducts);
  $('or-audit-lab-load')?.addEventListener('click',()=>loadLabAudit(true));
+ $('or-ai-service-audit-load')?.addEventListener('click',loadAiOwnerAudit);
  $('or-audit-lab-export')?.addEventListener('click',csvExport);
  $('or-audit-lab-search')?.addEventListener('input',()=>{labPage=0;showLabRows()});
  $('or-audit-lab-stage')?.addEventListener('change',()=>{labPage=0;showLabRows()});
