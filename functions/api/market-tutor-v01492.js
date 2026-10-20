@@ -35,7 +35,7 @@ function deterministic(q,mode,sources,answer){
  const t=sources[0];
  const base=t.title+': '+t.summary+' ['+t.sourceId.slice(1,-1)+']';
  if(mode==='question')return base+'\n\nSelf-check (ungraded): What observation would support this idea, what evidence could invalidate your interpretation, and what would make NO TRADE the safer decision?';
- if(mode==='review')return base+'\n\nYour response was recorded for this view only; no score or mastery was awarded. Compare your explanation against the source and identify one missing assumption or invalidation. '+(answer?'You can revise your response before using it in an actual graded Lab.':'');
+ if(mode==='review')return base+'\n\nYour reasoning was considered for this response; no score or mastery was awarded. Your private note-saving preference is separate. Compare your explanation against the source and identify one missing assumption or invalidation. '+(answer?'You can revise your response before using it in an actual graded Lab.':'');
  return base+(sources[1]?'\n\nRelated: '+sources[1].title+': '+sources[1].summary+' [2]':'')+'\n\nPractice: pause at an observation boundary, write what is known, what is uncertain, and what would invalidate your interpretation. Do not view later candles before locking your decision.';
 }
 const serviceHeaders=(secret)=>{const h={apikey:secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))h.authorization='Bearer '+secret;return h;};
