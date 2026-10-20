@@ -81,6 +81,13 @@ function detailsOf(record){
   $('tutor-question').value='Follow-up on '+TUTOR.lastTopic+': ';
   updateCount();$('tutor-question').focus();window.scrollTo({top:0,behavior:'smooth'});
  }));
+ if(record.mode==='question'){
+  actions.append(btn('Type and submit my answer',()=>{
+   $('tutor-mode').value='review';
+   $('tutor-question').value=('Review my answer to: '+record.question).slice(0,450);
+   updateCount();$('tutor-reflection').focus();window.scrollTo({top:0,behavior:'smooth'});
+  }));
+ }
  actions.append(btn('Copy response',async()=>{
   try{await navigator.clipboard.writeText(record.answer);status('Response copied.')}catch{status('Copy unavailable; select the response text instead.')}
  }));
