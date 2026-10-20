@@ -15,3 +15,6 @@ The member Skills page reuses existing `/api/competencies`, private graded train
 
 ### Financial impact
 $0 additional spend. No paid APIs or infrastructure, no KDP-exclusive manuscript copies, no market-data redistribution.
+
+## Owner acceptance cross-check
+Use the existing Owner Control Center to review every rubric version. This release fixes a hard-coded 700-row list ceiling: the editor now paginates existing private summaries and explicitly refuses to describe a truncated review queue as complete. No answer keys are included in list responses. The read-only source verification is at `supabase/admin/v0.14.0.99_419_LAB_AND_30_SKILLS_ACCEPTANCE_READ_ONLY.sql`.

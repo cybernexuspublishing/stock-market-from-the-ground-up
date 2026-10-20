@@ -23,7 +23,7 @@ function displayRubrics(){
  if([...sel.options].some(x=>x.value===picked))sel.value=picked;
  const label=$('#author-queue-count');if(label)label.textContent=rubricIndex.length+' existing rubric version(s) · '+rubricIndex.filter(x=>x.review_state==='draft').length+' draft(s) awaiting individual review · '+filtered.length+' matching the current filter.';
 }
-async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];displayRubrics()}
+async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');displayRubrics()}
 $('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;msg.textContent=s.review_state==='reviewed'?'Reviewed version is locked. Saving changes creates a new draft.':'Draft loaded for editing.'}catch(err){msg.textContent=err.message}};
 form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try{for(const node of rows.children){const o=Object.fromEntries([...node.querySelectorAll('[data-q]')].map(e=>[e.dataset.q,e.value]));const id=o.id.trim(),kind=o.kind;
  if(!id||questions.some(q=>q.id===id))throw Error('Question IDs must be filled and unique.');

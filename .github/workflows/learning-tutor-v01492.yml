@@ -38,6 +38,8 @@ on:
       - 'assets/js/skills.js'
       - 'skills.html'
       - 'functions/api/competencies.js'
+      - 'supabase/admin/v0.14.0.99_419_LAB_AND_30_SKILLS_ACCEPTANCE_READ_ONLY.sql'
+      - 'tests/test_v014099_owner_review_pagination.mjs'
       - 'functions/api/training-editor.js'
       - 'assets/js/training-editor.js'
       - 'training-editor.html'
@@ -84,6 +86,8 @@ on:
       - 'assets/js/skills.js'
       - 'skills.html'
       - 'functions/api/competencies.js'
+      - 'supabase/admin/v0.14.0.99_419_LAB_AND_30_SKILLS_ACCEPTANCE_READ_ONLY.sql'
+      - 'tests/test_v014099_owner_review_pagination.mjs'
       - 'functions/api/training-editor.js'
       - 'assets/js/training-editor.js'
       - 'training-editor.html'
@@ -132,6 +136,7 @@ jobs:
           node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
+          node tests/test_v014099_owner_review_pagination.mjs
           node tests/test_v014098_replay_lower_plan_registry.mjs
           node tests/test_v014098_audit_execution_quality.mjs
           node tests/test_v014097_original_replay_safety.mjs
