@@ -14,7 +14,7 @@ globalThis.fetch=async(url,init={})=>{
  if(u.endsWith('/auth/v1/user'))return out({id:actor});
  if(u.includes('/profiles?'))return out([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return out([{status:'active'}]);
- if(u.includes('/admin_user_roles?'))return out(role==='OWNER'?[{role_code:'OWNER',expires_at:null}]:[]);
+ if(u.includes('/admin_user_roles?'))return out(u.includes('role_code=eq.SHOWCASE_VIEWER')?[]:role==='OWNER'?[{role_code:'OWNER',expires_at:null}]:[]);
  if(u.includes('/admin_role_permissions?'))return out([]);
  if(u.includes('/commons_topics?')){
   if(method==='PATCH'){moderationWrites++;return out([{id:7}])}
