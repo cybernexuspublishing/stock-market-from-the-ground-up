@@ -213,7 +213,7 @@ async function memberExplanation(q,mode,learnerAnswer){
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
  const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
-  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,priorTurns:TUTOR.entries.filter(x=>x.generation==='grounded-model-draft'||x.generation==='reviewed-glossary-logic'||x.generation==='original-competency-guide').slice(-2).map(x=>({question:x.question.slice(0,450),answer:x.answer.slice(0,400)}))})});
+  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true})});
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true){
   throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
@@ -272,7 +272,7 @@ async function refreshAiServiceStatus(){
   const response=await fetch('/api/member-ai-service-v014103',{method:'GET',cache:'no-store',headers:{authorization:'Bearer '+access}});
   const x=await response.json().catch(()=>null);
   if(!response.ok||!x?.ok)throw Error('AI status cannot be verified');
-  toggle.disabled=x.authorized!==true||x.enabled!==true||x.remainingToday===0;
+  toggle.disabled=x.authorized!==true||x.enabled!==true||x.remainingToday===0||x.globalAvailable===false;
   if(toggle.disabled)toggle.checked=false;
   if(x.authorized!==true){
    host.textContent='Paid Market Tutor access is not active on this account.';
@@ -281,8 +281,8 @@ async function refreshAiServiceStatus(){
    host.textContent='Your Tutor entitlement is active. Paid model inference is not available yet.';
    count.textContent=x.reason||'Our original source-grounded educational assistance remains available.';
   }else{
-   host.textContent='First-party AI Tutor is configured for educational requests. Live provider acceptance is checked separately.';
-   count.textContent=x.remainingToday+' of '+x.memberDailyLimit+' paid AI request(s) available today (UTC). Your normal course tutor remains accessible.';
+   host.textContent='First-party AI Tutor is configured for source-grounded educational requests; provider acceptance remains a separate launch gate.';
+   count.textContent=x.remainingToday+' of '+x.memberDailyLimit+' member requests available today (UTC). '+(x.globalAvailable===false?'The site-wide provider quota is exhausted. ':'')+'Course tutoring remains accessible.';
   }
  }catch{
   toggle.checked=false;toggle.disabled=true;
