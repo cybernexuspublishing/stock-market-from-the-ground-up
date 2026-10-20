@@ -82,6 +82,14 @@ on:
       - 'training-editor.html'
       - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
+      - 'functions/_lib/public-legal-ssr-v014108.js'
+      - 'functions/robots.txt.js'
+      - 'functions/sitemap.xml.js'
+      - 'functions/managed-pages-sitemap.xml.js'
+      - 'assets/js/legal-platform.js'
+      - 'manifest.webmanifest'
+      - 'assets/icons/ground-up-mark.svg'
+      - 'tests/test_v014108_public_seo_legal.mjs'
       - 'functions/_middleware.js'
       - 'functions/api/admin-forum-actions.js'
       - 'functions/api/admin-v0133.js'
@@ -172,6 +180,14 @@ on:
       - 'training-editor.html'
       - 'tests/test_v014098_integrated_skills_review.mjs'
       - 'functions/api/interactive-training.js'
+      - 'functions/_lib/public-legal-ssr-v014108.js'
+      - 'functions/robots.txt.js'
+      - 'functions/sitemap.xml.js'
+      - 'functions/managed-pages-sitemap.xml.js'
+      - 'assets/js/legal-platform.js'
+      - 'manifest.webmanifest'
+      - 'assets/icons/ground-up-mark.svg'
+      - 'tests/test_v014108_public_seo_legal.mjs'
       - 'functions/_middleware.js'
       - 'functions/api/admin-forum-actions.js'
       - 'functions/api/admin-v0133.js'
@@ -196,6 +212,10 @@ jobs:
       - name: Tutor safety and learning source checks
         run: |
           node --check functions/_middleware.js
+          node --check functions/_lib/public-legal-ssr-v014108.js
+          node --check functions/robots.txt.js
+          node --check functions/sitemap.xml.js
+          node --check functions/managed-pages-sitemap.xml.js
           node --check functions/api/admin-forum-actions.js
           node --check functions/api/admin-v0133.js
           node --check functions/api/checkout-v0135.js
@@ -242,6 +262,7 @@ jobs:
           node tests/test_v014103_first_party_ai_service.mjs
           node tests/test_v014107_tutor_quality.mjs
           node tests/test_v014107_server_history_and_throttle.mjs
+          node tests/test_v014108_public_seo_legal.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
@@ -273,5 +294,6 @@ jobs:
           test -f public/assets/js/verified-replay-v01492.js
           test -f public/data/competency-study-guides-v01499.json
           test -f public/data/competency-lab-paths-v01499.json
+          test -f public/assets/icons/ground-up-mark.svg
           test ! -e public/functions
           test ! -e public/supabase
