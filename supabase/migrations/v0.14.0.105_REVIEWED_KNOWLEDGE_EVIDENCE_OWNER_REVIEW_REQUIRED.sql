@@ -485,7 +485,7 @@ BEGIN
         jsonb_build_object('evidence_kind','reviewed_conceptual_quiz',
            'knowledge_only',true,'critical_error_not_assessed',true,
            'market_history_verified',false,'lab_id',a.lab_id,
-           'rubric_version',a.set_version,'mapping_reviewed_by',m.reviewed_by),
+           'rubric_version',a.set_version,'mapping_individually_reviewed',true),
         a.completed_at)
  ON CONFLICT(user_id,competency_code,source_type,source_id,dimension) DO NOTHING;
  GET DIAGNOSTICS v_rows = ROW_COUNT;
