@@ -12,6 +12,8 @@ on:
       - 'functions/_lib/tutor-topics-v01492.js'
       - 'functions/_lib/replay-engine-v01492.js'
       - 'functions/api/learning-replay-v01492.js'
+      - 'supabase/migrations/v0.14.0.97_419_AUTHOR_CREATED_FICTIONAL_OHLCV_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014097_original_replay_safety.mjs'
       - 'assets/js/verified-replay-v01492.js'
       - 'verified-replay.html'
       - 'docs/LEARNING_SYSTEM_IMPLEMENTATION_AND_HANDOFF_v0.14.0.92.md'
@@ -39,6 +41,8 @@ on:
       - 'functions/_lib/tutor-topics-v01492.js'
       - 'functions/_lib/replay-engine-v01492.js'
       - 'functions/api/learning-replay-v01492.js'
+      - 'supabase/migrations/v0.14.0.97_419_AUTHOR_CREATED_FICTIONAL_OHLCV_OWNER_REVIEW_REQUIRED.sql'
+      - 'tests/test_v014097_original_replay_safety.mjs'
       - 'assets/js/verified-replay-v01492.js'
       - 'verified-replay.html'
       - 'docs/LEARNING_SYSTEM_IMPLEMENTATION_AND_HANDOFF_v0.14.0.92.md'
@@ -84,6 +88,7 @@ jobs:
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
+          node tests/test_v014097_original_replay_safety.mjs
           node tests/test_v014095_middleware_opaque_key.mjs
           node tests/test_v014092_replay_contract.mjs
           node tests/v01415_community_api.mjs
