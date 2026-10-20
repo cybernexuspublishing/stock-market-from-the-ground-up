@@ -74,7 +74,29 @@ function renderRecordedGrades(evidence){
  if(counts)counts.textContent=rows.length+' distinct Lab(s) with a recorded private assessment · '+grades.reviewedRows+' recent graded attempt(s)'+(grades.truncated?' · more than 500 rows; showing the most recent only':'')+'. Grades are conceptual assessment evidence, not trading results or automatically awarded mastery.';
  host.innerHTML=rows.length?'<ol>'+rows.slice(0,30).map(x=>'<li><a href="labs.html?q='+encodeURIComponent(x.labId)+'">'+se(x.labId)+'</a> — '+Number(x.score)+'% ('+se(x.mode)+', '+se(new Date(x.completedAt).toLocaleDateString())+')</li>').join('')+'</ol>':'<p>No reviewed step-wise training grades are recorded. The 419 draft assessments are not graded until their rubric is reviewed.</p>';
 }
-async function initSkills(){const sb=await window.getSupabaseClient();const gate=document.getElementById('skills-gate'),content=document.getElementById('skills-content');const {data:{user}}=await sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to view your Market Skills Record.</div>';return}const verifiedEvidencePromise=verifiedSkillRecords(sb);
+async function reconcileReviewedKnowledge(sb){
+ const button=document.getElementById('skills-sync-knowledge');
+ const note=document.getElementById('skills-sync-knowledge-status');
+ if(!button||!note)return;
+ button.disabled=true;note.textContent='Checking existing approved Lab/rubric mappings and actual graded attempts…';
+ try{
+  const session=(await sb.auth.getSession()).data?.session;
+  if(!session?.access_token)throw Error('Sign in before reconciling member learning evidence.');
+  const response=await fetch('/api/interactive-training?action=sync-reviewed-knowledge',{
+   method:'POST',cache:'no-store',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
+   body:'{}'
+  });
+  const r=await response.json().catch(()=>null);
+  if(!response.ok||r?.ok!==true)throw Error(r?.error||'Knowledge reconciliation cannot be verified.');
+  note.textContent=r.knowledgeRowsAdded+' new knowledge-only evidence row(s) recorded from '+
+   r.approvedEligible+' qualifying Owner-approved conceptual assessment(s). '+
+   r.attemptsInspected+' approved candidate attempt(s) examined. This does not certify trading skill or complete any missing evidence dimensions.';
+  const verified=await verifiedSkillRecords(sb);
+  renderOfficialSkills(verified);renderRecordedGrades(verified);
+ }catch(e){note.textContent='Reconciliation unavailable: '+e.message+' Previously recorded grades and skills have not been changed.'}
+ finally{button.disabled=false}
+}
+async function initSkills(){const sb=await window.getSupabaseClient();const gate=document.getElementById('skills-gate'),content=document.getElementById('skills-content');const {data:{user}}=await sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to view your Market Skills Record.</div>';return}const verifiedEvidencePromise=verifiedSkillRecords(sb);document.getElementById('skills-sync-knowledge')?.addEventListener('click',()=>reconcileReviewedKnowledge(sb));
 void renderOriginalCurriculum();
 const [skillDef,attempts]=await Promise.all([fetch('data/skills.json').then(r=>r.json()),sb.from('lab_attempts').select('*').eq('user_id',user.id).order('completed_at',{ascending:false})]);const rows=attempts.data||[];gate.innerHTML='';content.hidden=false;document.getElementById('attempt-count').textContent=rows.length;document.getElementById('blind-count').textContent=rows.filter(r=>['blind','assessment'].includes(r.mode)).length;document.getElementById('avg-process').textContent=`${rows.length?Math.round(rows.reduce((a,b)=>a+Number(b.process_score||0),0)/rows.length):0}%`;const mistakes=rows.flatMap(r=>Array.isArray(r.mistakes)?r.mistakes:[]);document.getElementById('mistake-count').textContent=mistakes.length;
 const dims=[['structure','Structure / price behavior'],['location','Location / levels'],['volume_context','Volume / context'],['invalidation','Invalidation'],['decision','Decision'],['confidence','Confidence'],['reasoning','Reasoning / notes']];
