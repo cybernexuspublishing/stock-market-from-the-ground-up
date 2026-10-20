@@ -7,6 +7,11 @@ export const ownerProductReadinessV01491=Object.freeze({
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
   "acceptanceGates":   [
     {
+      "title": "Trading Journal Analytics — paid server-owned calculations and data separation",
+      "state": "source_implemented_pending_live_acceptance",
+      "gate": "v114 uses current server-side JOURNAL_ANALYTICS entitlement and authenticated user-scoped data queries; win rate, expectancy, profit factor, P&L drawdown and setup groups exclude unresolved records and flag small samples. Real broker statements, journal row RLS, Free vs paid, workbook CSV, mobile/screen-reader and live subscription fulfillment are NOT independently accepted."
+    },
+    {
       "title": "Forum + Market Commons — atomic moderation audit",
       "state": "source_implemented_owner_sql_pending",
       "gate": "v113 API calls service-role-only forum/Commons transactional moderation+audit function; eliminates unsafe direct PATCH with independent audit insert. Owner must install the NEW v113 SQL in existing Supabase project, then verify rollback under forced audit failure and real staff/Showcase/Owner/Community roles, appeals and spam gates."
@@ -84,7 +89,7 @@ export const ownerProductReadinessV01491=Object.freeze({
     {
       "title": "Journal, scanner, watchlist and risk tools",
       "state": "needs_live_qa",
-      "gate": "Validate per-member input, persistence, correct calculations, exports, deletion and failure behavior across all offered tool records."
+      "gate": "v114 implements paid server-side Journal summary with robust financial result handling; v110/111 beta workspaces/math source exist. Validate per-member input, persistence, correct calculations, exports, deletion and failure behavior across all offered tool records."
     },
     {
       "title": "Forum + Market Commons",
@@ -159,7 +164,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "integration-pending",
       "roadmapId": "CORE-0221",
-      "gate": "Prove journal create/edit/export, process analytics, per-user isolation and review queue."
+      "gate": "v114 server-owned paid Journal analytics, resolved-only win rate/expectancy/profit factor/absolute drawdown, chronological self-reported equity, live-vs-paper and setup segments; safe CSV formula export. Journal create/edit/delete, client RLS and auth isolation, replay Journal completion, review queue, browser accessibility, broker source accuracy and live member access still require acceptance."
     },
     {
       "code": "MARKET_SIMULATOR",
