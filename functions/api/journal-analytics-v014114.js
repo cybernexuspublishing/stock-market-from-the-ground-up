@@ -23,7 +23,7 @@ export async function onRequest({request,env}){
   const headers={apikey:key,accept:'application/json'};
   if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(key))
    headers.authorization='Bearer '+key;
-  const fields='id,created_at,trade_date,exit_date,journal_type,status,decision,net_pnl,r_multiple,setup,process_grade,plan_followed';
+  const fields='id,created_at,trade_date,exit_date,journal_type,status,decision,net_pnl,r_multiple,setup,process_grade,plan_followed,entry_reason_category,actual_exit_reason_category,planned_exit_reason_category,session_label,mistakes,mfe_r,mae_r,mfe_capture_pct';
   const all=[];
   for(let offset=0;offset<=3000;offset+=500){
    const count=offset===3000?1:500;
