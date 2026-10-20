@@ -15,6 +15,7 @@ const dollars=c=>C().moneyCents(Number(c||0)/100);
 const suffix=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]||'';
 const statusLabel=s=>({published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
 const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Minimal sponsor placements',LIFETIME:'Ad-free'})[code]||'Standard sponsor placements';
+const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limit_week)&&Number.isInteger(m.simulator_saves_week))return [`Up to ${m.journal_limit_week} new Trading Journal records per UTC week`,`Up to ${m.simulator_saves_week} saved CSV/browser simulator exercises per UTC week (within Journal allowance)`];if(Number.isInteger(m.journal_limit)&&Number.isInteger(m.simulator_sessions_month))return [`Up to ${m.journal_limit} Journal records total`,`Up to ${m.simulator_sessions_month} saved simulator results per month`];return ['Limited Journal and browser simulator saves; check your current allowance'];};
 const availablePlan=p=>p.planCode!=='PICK_WHAT_YOU_WANT'&&!/(?:^QA_|TEST|ZERO_)/i.test(p.planCode||'');
 const activeTool=t=>t.status==='live'&&Number(t.priceCents)>0;
 const listedTool=t=>t.status!=='retired';
@@ -27,8 +28,7 @@ function planCard(p){
  <div class="v11-price">${dollars(p.priceCents)} <small>${esc(suffix(p.billingInterval))}</small></div>
  <a class="store-plan-primary-link" href="${esc(page)}" aria-label="Read what ${esc(p.label)} includes, excludes and teaches">What’s included, excluded &amp; taught →</a>
  <p>${esc(p.description||'Review this plan’s full coverage and billing terms before purchase.')}</p>
- <ul><li>${esc(adLabel(p.planCode))}</li><li>${p.allTools?'Released first-party platform tools':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned independent historical practice':'Free/sample or dedicated learning access'}</li>
- <li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
+ <ul><li>${esc(adLabel(p.planCode))}</li>${p.planCode==='FREE'?freeBenefits(p).map(x=>`<li>${esc(x)}</li>`).join('')+'<li>Public glossary and released samples; advanced Tutor/server replay require paid access</li>':`<li>${esc(p.allTools?'Released first-party premium tools':'Book-aligned independent practice')}</li>`}<li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
  <div class="store-sales-actions">${p.planCode==='FREE'?'<a class="btn" href="create-account.html">Get Free Access</a>':
  (p.checkoutEnabled&&Number(p.priceCents)>0?'<a class="btn" href="checkout.html?type=plan&amp;code='+encodeURIComponent(p.planCode)+'">Choose This Membership</a>':
  '<span class="store-soon-label">Coming Soon · Enrollment not yet available</span>')}
@@ -88,6 +88,8 @@ function comparison(plans,tools){
  ['Book companion learning',p=>['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'Included':p.planCode==='ONDEMAND_MONTHLY'?'Book-aligned training only':'Selected samples; otherwise separate'],
  ['Complete downloadable eBook files',p=>p.planCode==='LIFETIME'?'Five designated editions when permitted':'Not included'],
  ['Advertising',p=>adLabel(p.planCode)],
+ ['Trading Journal allowance',p=>p.planCode==='FREE'?freeBenefits(p)[0]:'Eligible paid Journal tools bypass the FREE weekly cap'],
+ ['Browser simulator saves',p=>p.planCode==='FREE'?(freeBenefits(p)[1]||'Limited; see plan'):'Eligible paid Simulator tools bypass the FREE weekly save cap'],
  ['Brokerage account & external market-data fees',()=> 'Not included']
  ];
  for(const t of tools.filter(activeTool))features.push([
