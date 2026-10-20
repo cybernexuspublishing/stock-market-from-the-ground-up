@@ -37,6 +37,10 @@ on:
       - 'assets/js/advanced-tool-math-v014111.js'
       - 'advanced-tool.html'
       - 'functions/_lib/tool-telemetry-v014111.js'
+      - 'assets/js/simulator-mode-v014112.js'
+      - 'assets/js/simulator.js'
+      - 'simulator.html'
+      - 'tests/test_v014112_server_first_simulator.mjs'
       - 'tests/test_v014111_tool_math_boundaries.mjs'
       - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
       - 'functions/_lib/owner-acceptance-v014108.js'
@@ -153,6 +157,10 @@ on:
       - 'assets/js/advanced-tool-math-v014111.js'
       - 'advanced-tool.html'
       - 'functions/_lib/tool-telemetry-v014111.js'
+      - 'assets/js/simulator-mode-v014112.js'
+      - 'assets/js/simulator.js'
+      - 'simulator.html'
+      - 'tests/test_v014112_server_first_simulator.mjs'
       - 'tests/test_v014111_tool_math_boundaries.mjs'
       - 'tests/test_v014110_advanced_tool_access_and_workspace.mjs'
       - 'functions/_lib/owner-acceptance-v014108.js'
@@ -290,6 +298,9 @@ jobs:
           node --check functions/api/advanced-tool-workspace-v014110.js
           node --check assets/js/advanced-tools.js
           node --check assets/js/advanced-tool-math-v014111.js
+          node --check assets/js/simulator-mode-v014112.js
+          node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/simulator.js
           node --check functions/_lib/tool-telemetry-v014111.js
           node --check functions/sitemap.xml.js
           node --check functions/robots.txt.js
@@ -308,6 +319,7 @@ jobs:
           node tests/test_v014109_public_seo_legal_audit.mjs
           node tests/test_v014110_advanced_tool_access_and_workspace.mjs
           node tests/test_v014111_tool_math_boundaries.mjs
+          node tests/test_v014112_server_first_simulator.mjs
           node tests/test_v014104_owner_ai_operations.mjs
           node tests/test_v014105_forum_security.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
