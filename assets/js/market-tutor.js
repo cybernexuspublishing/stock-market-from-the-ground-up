@@ -96,9 +96,11 @@ async function privateApi(path,method='GET',body,headers={}){
  return data;
 }
 async function loadHistory(){
+ const requestedUser=TUTOR.user?.id||null;
  if(!TUTOR.user){historyStatus('Sign in to access saved Tutor exchanges. Public glossary answers stay on this page only.');return}
  try{
   const data=await privateApi('');
+  if(TUTOR.user?.id!==requestedUser)return;
   TUTOR.serverHistory=true;
   const prior=data.history.map(normalizeSaved).reverse();
   const known=new Set(prior.map(x=>x.id));
@@ -197,10 +199,12 @@ async function ask(){
  if(mode==='review'&&!learnerAnswer){status('Type your reasoning before asking the Tutor to review it.','error');$('tutor-reflection').focus();return}
  if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
  if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
+ const submittingUser=TUTOR.user?.id||null;
  TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
  try{
   const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer):localExplanation(q);
   if(!data){throw Error('No approved teaching response was returned.')}
+  if(TUTOR.user?.id!==submittingUser)throw Error('Your signed-in account changed; the prior response was discarded to protect privacy.');
   const rec={requestId:crypto.randomUUID(),question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
    createdAt:new Date().toISOString(),id:null};
@@ -242,6 +246,17 @@ async function initTutor(){
  try{
   TUTOR.sb=await window.getSupabaseClient();
   const {data:{user}}=await TUTOR.sb.auth.getUser();TUTOR.user=user||null;
+  TUTOR.sb.auth.onAuthStateChange((event,session)=>{
+   const oldId=TUTOR.user?.id||null,newId=session?.user?.id||null;
+   if(event==='SIGNED_OUT'||(oldId&&newId&&oldId!==newId)){
+    TUTOR.entries=[];TUTOR.user=null;TUTOR.serverHistory=false;
+    renderConversation();historyStatus('Your account changed; private notes were cleared from this page.');
+    status('Sign in to open your own saved Tutor history.');
+   }
+   if(event==='SIGNED_IN'&&newId!==TUTOR.user?.id){
+    TUTOR.user=session.user;void loadHistory();
+   }
+  });
  }catch{TUTOR.user=null}
  renderConversation();
  await loadHistory();
