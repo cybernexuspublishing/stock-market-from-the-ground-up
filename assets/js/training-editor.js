@@ -13,6 +13,48 @@ function add(q={},key=''){const row=document.createElement('section');row.classN
  const redraw=()=>{question.textContent=row.querySelector('[data-q="prompt"]').value||'Enter the question text.';
   choices.textContent=kind.value==='choice'?'Choices: '+row.querySelector('[data-q="options"]').value.split('|').map(x=>x.trim()).filter(Boolean).join(' • '):'Numeric answer — learner will enter a value.';summary()};
  row.addEventListener('input',redraw);row.addEventListener('change',()=>{toggle();redraw()});redraw()}
+let mappedRubric=null;
+async function loadKnowledgeMap(){
+ const state=$('#author-knowledge-state'),select=$('#author-knowledge-code'),approve=$('#author-knowledge-approve');
+ select.replaceChildren();select.disabled=true;approve.disabled=true;
+ if(!mappedRubric){state.textContent='Load an existing Lab rubric before inspecting its suggested competency.';return}
+ try{
+  const d=await api('knowledge-map','GET',null,'labId='+encodeURIComponent(mappedRubric.labId));
+  const map=d.mapping;
+  for(const definition of d.definitions||[]){
+   const option=document.createElement('option');option.value=definition.competency_code;
+   option.textContent=definition.name+' · '+definition.competency_code;select.append(option);
+  }
+  select.value=map.competency_code;
+  select.disabled=mappedRubric.reviewState!=='reviewed';
+  approve.disabled=mappedRubric.reviewState!=='reviewed'||!select.value;
+  state.textContent='Lab '+map.lab_id+' · mapping: '+map.review_state+
+   ' · suggested competency: '+map.competency_code+
+   ' · mapping source: '+map.mapping_method+
+   ' · approved rubric version: '+(map.rubric_version||'none')+
+   '. Selected rubric version '+mappedRubric.version+' is '+mappedRubric.reviewState+
+   '. A new version requires a separate explicit mapping approval.';
+ }catch(e){state.textContent='Mapping cannot be verified: '+e.message+
+  '. The Lab rubric may still be edited, but no competency evidence can be awarded.'}
+}
+$('#author-knowledge-refresh').onclick=loadKnowledgeMap;
+$('#author-knowledge-approve').onclick=async()=>{
+ const state=$('#author-knowledge-state'),button=$('#author-knowledge-approve');
+ if(!mappedRubric||mappedRubric.reviewState!=='reviewed'){
+  state.textContent='Approve this exact Lab rubric independently first.';return;
+ }
+ const code=$('#author-knowledge-code').value;
+ if(!code){state.textContent='Select one existing approved competency.';return}
+ if(!confirm('Confirm you have personally verified that this exact rubric tests the selected competency knowledge. No other dimension, historical chart validity, future-bar discipline or mastery is certified.')){
+  return;
+ }
+ button.disabled=true;
+ try{
+  const r=await api('approve-map','POST',{labId:mappedRubric.labId,
+   version:mappedRubric.version,competencyCode:code,confirmPhrase:'APPROVE KNOWLEDGE ONLY'});
+  state.textContent=r.notice;await loadKnowledgeMap();
+ }catch(e){state.textContent=e.message;button.disabled=false}
+};
 let rubricIndex=[];
 function displayRubrics(){
  const sel=$('#author-existing'),needle=String($('#author-filter')?.value||'').toLowerCase().trim(),picked=sel.value;
@@ -24,14 +66,17 @@ function displayRubrics(){
  const label=$('#author-queue-count');if(label)label.textContent=rubricIndex.length+' existing rubric version(s) · '+rubricIndex.filter(x=>x.review_state==='draft').length+' draft(s) awaiting individual review · '+filtered.length+' matching the current filter.';
 }
 async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');displayRubrics()}
-$('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;msg.textContent=s.review_state==='reviewed'?'Reviewed version is locked. Saving changes creates a new draft.':'Draft loaded for editing.'}catch(err){msg.textContent=err.message}};
+$('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;
+ mappedRubric={labId,version:s.version,reviewState:s.review_state};
+ void loadKnowledgeMap();
+ msg.textContent=s.review_state==='reviewed'?'Reviewed version is locked. Saving changes creates a new draft.':'Draft loaded for editing.'}catch(err){msg.textContent=err.message}};
 form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try{for(const node of rows.children){const o=Object.fromEntries([...node.querySelectorAll('[data-q]')].map(e=>[e.dataset.q,e.value]));const id=o.id.trim(),kind=o.kind;
  if(!id||questions.some(q=>q.id===id))throw Error('Question IDs must be filled and unique.');
  if(!o.prompt.trim()||!o.explanation.trim())throw Error('Every question requires a prompt and teaching explanation.');
  const opts=kind==='choice'?o.options.split('|').map(x=>x.trim()).filter(Boolean):[];
  if(kind==='choice'&&(opts.length<2||!opts.includes(o.answer.trim())))throw Error('Correct answer must exactly match one of at least two choices in question '+id+'.');
  if(kind==='number'&&(!o.answer.trim()||!Number.isFinite(Number(o.answer))||!Number.isFinite(Number(o.tolerance))||Number(o.tolerance)<0))throw Error('Numeric questions require a valid answer and a nonnegative tolerance.');
- questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey});lastDraft={labId:r.labId,version:r.version};msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
-$('#author-review').onclick=async()=>{if(!lastDraft){msg.textContent='First save a draft.';return}if(!confirm('You have individually verified all question prompts, one correct key for each, mathematical tolerances, explanation quality, and the fictional-versus-historical source label. This ONLY releases authored assessment grading and does not verify historical tape or certify trading skill.'))return;try{const r=await api('review','POST',{labId:lastDraft.labId,title:form.elements.title.value,version:lastDraft.version,confirmPhrase:'REVIEW BOOK RUBRIC'});msg.textContent=r.notice;lastDraft=null;await refresh()}catch(e){msg.textContent=e.message}};
+ questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey});lastDraft={labId:r.labId,version:r.version};mappedRubric={labId:r.labId,version:r.version,reviewState:'draft'};void loadKnowledgeMap();msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
+$('#author-review').onclick=async()=>{if(!lastDraft){msg.textContent='First save a draft.';return}if(!confirm('You have individually verified all question prompts, one correct key for each, mathematical tolerances, explanation quality, and the fictional-versus-historical source label. This ONLY releases authored assessment grading and does not verify historical tape or certify trading skill.'))return;try{const r=await api('review','POST',{labId:lastDraft.labId,title:form.elements.title.value,version:lastDraft.version,confirmPhrase:'REVIEW BOOK RUBRIC'});msg.textContent=r.notice;mappedRubric={labId:r.labId,version:r.version,reviewState:'reviewed'};void loadKnowledgeMap();lastDraft=null;await refresh()}catch(e){msg.textContent=e.message}};
 add();refresh().catch(e=>{msg.textContent=e.message});
 })();

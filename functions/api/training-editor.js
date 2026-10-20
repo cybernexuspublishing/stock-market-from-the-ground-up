@@ -6,7 +6,13 @@ const problem=(m,s=400)=>Object.assign(new Error(m),{status:s}),str=x=>String(x?
 function cfg(env){const base=str(env.SUPABASE_URL).replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw problem('Backend unavailable.',503);return{base,secret,pub}}
 async function json(u,init){const r=await fetch(u,{...init,cache:'no-store'}),text=await r.text();if(!r.ok)throw problem('Instruction database request failed.',503);return text?JSON.parse(text):[]}
 async function db(env,path,method='GET',body){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;return json(c.base+'/rest/v1/'+path,{method,headers:{...headers,...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body)})}
-async function owner(env,request){const t=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!t)throw problem('Sign in required.',401);const c=cfg(env),user=await json(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+t}});if(!user?.id)throw problem('Invalid session.',401);const [p,r]=await Promise.all([db(env,'profiles?select=account_kind&id=eq.'+enc(user.id)+'&limit=1'),db(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+enc(user.id))]);if(p[0]?.account_kind!=='member'||!r.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))throw problem('OWNER required; Showcase accounts cannot edit private answer keys.',403);if(env.REQUIRE_STAFF_AAL2_V135==='true'){let a='';try{a=JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).aal}catch{}if(a!=='aal2')throw problem('Staff MFA required.',403)}return user.id}
+async function owner(env,request){const t=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!t)throw problem('Sign in required.',401);const c=cfg(env),user=await json(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+t}});if(!user?.id)throw problem('Invalid session.',401);const [p,r,flags]=await Promise.all([
+ db(env,'profiles?select=account_kind&id=eq.'+enc(user.id)+'&limit=1'),
+ db(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+enc(user.id)),
+ db(env,'admin_user_flags?select=status&user_id=eq.'+enc(user.id)+'&limit=1')]);
+ if(p[0]?.account_kind!=='member'||['restricted','suspended'].includes(str(flags?.[0]?.status).toLowerCase())||
+ !r.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))
+ throw problem('Eligible active OWNER required; Showcase and restricted accounts cannot edit private answer keys.',403);if(env.REQUIRE_STAFF_AAL2_V135==='true'){let a='';try{a=JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).aal}catch{}if(a!=='aal2')throw problem('Staff MFA required.',403)}return user.id}
 // Enumerate existing rubric versions, without truncating the 419-ID review queue.
 // No private keys are selected; the existing Owner ACL remains the gate.
 async function listAllReviewSummaries(env){
@@ -23,8 +29,36 @@ const validLab=x=>/^[A-Za-z0-9_-]{3,90}$/.test(str(x));
 function validate(qs,answers){if(!Array.isArray(qs)||qs.length<1||qs.length>40||!answers||typeof answers!=='object'||Array.isArray(answers))throw problem('Provide 1–40 questions and an answer for each.');const ids=new Set();for(const q of qs){if(!/^[A-Za-z][A-Za-z0-9_]{1,40}$/.test(str(q.id))||ids.has(q.id)||!['choice','number'].includes(q.kind)||str(q.prompt).length<12||str(q.prompt).length>1000||str(q.explanation).length<15||str(q.explanation).length>1600)throw problem('Invalid question, answer explanation, or duplicate ID.');ids.add(q.id);if(q.kind==='choice'&&(!Array.isArray(q.options)||q.options.length<2||q.options.length>7||!q.options.every(x=>typeof x==='string'&&x.length<100)))throw problem('Choice questions require 2–7 clear options.');const a=answers[q.id];if(a===undefined||a===null||String(a).length>200)throw problem('Missing answer key for '+q.id);if(q.kind==='choice'&&!q.options.some(x=>String(x).toUpperCase()===String(a).toUpperCase()))throw problem('Choice answer must be among its options.');if(q.kind==='number'&&(!Number.isFinite(Number(a))||!Number.isFinite(Number(q.tolerance))||Number(q.tolerance)<0||Number(q.tolerance)>1000))throw problem('Invalid numeric answer or tolerance.')}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
 export async function onRequest({request,env}){try{const actor=await owner(env,request),u=new URL(request.url),action=u.searchParams.get('action')||'list';
  if(request.method==='GET'&&action==='list'){const sets=await listAllReviewSummaries(env);return out({ok:true,sets,allVersionsIncluded:true})}
+ if(request.method==='GET'&&action==='knowledge-map'){
+  const id=u.searchParams.get('labId')||'';
+  if(!validLab(id))throw problem('Valid canonical Lab ID required.');
+  const [maps,definitions]=await Promise.all([
+   db(env,'gu_lab_competency_knowledge_map_v014105?select=lab_id,competency_code,mapping_method,review_state,rubric_version,reviewed_at&lab_id=eq.'+enc(id)+'&limit=1'),
+   db(env,'competency_definitions?select=competency_code,name&active=eq.true&order=sort_order.asc&limit=35')
+  ]);
+  if(!maps?.[0])return out({ok:false,error:'No canonical knowledge-mapping candidate exists for this Lab.'},404);
+  return out({ok:true,mapping:maps[0],definitions,scope:'knowledge_only_ungraded_source_mapping_until_owner_approval'});
+ }
  if(request.method==='GET'&&action==='get'){const id=u.searchParams.get('labId')||'',ver=Number(u.searchParams.get('version'));if(!validLab(id)||!Number.isSafeInteger(ver))throw problem('Valid Lab/version required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+ver+'&limit=1');if(!rows[0])return out({ok:false,error:'Rubric not found.'},404);return out({ok:true,set:rows[0]})}
- if(request.method!=='POST')return out({ok:false,error:'Unsupported method.'},405);const b=await request.json().catch(()=>null);if(!b||JSON.stringify(b).length>60000)throw problem('Invalid instructional payload.');const id=str(b.labId),title=str(b.title);if(!validLab(id)||title.length<10||title.length>200)throw problem('Valid Lab ID and descriptive title are required.');
+ if(request.method!=='POST')return out({ok:false,error:'Unsupported method.'},405);
+ const origin=request.headers.get('origin');
+ if(origin&&origin!==u.origin)throw problem('Cross-origin Owner curriculum changes are denied.',403);
+ if(Number(request.headers.get('content-length')||0)>60000)throw problem('Instructional payload too large.',413);
+ const raw=await request.text();if(new TextEncoder().encode(raw).byteLength>60000)throw problem('Instructional payload too large.',413);
+ let b;try{b=JSON.parse(raw)}catch{throw problem('Invalid instructional JSON.')}
+ if(!b||typeof b!=='object'||Array.isArray(b))throw problem('Invalid instructional payload.');
+ const id=str(b.labId),title=str(b.title);if(!validLab(id))throw problem('Valid Lab ID required.');
+ if(action==='approve-map'){
+  const version=Number(b.version),code=str(b.competencyCode);
+  if(!Number.isSafeInteger(version)||version<1||
+   !/^[A-Z][A-Z0-9_]{3,80}$/.test(code)||b.confirmPhrase!=='APPROVE KNOWLEDGE ONLY')
+   throw problem('Select an official competency, an exact reviewed rubric version and explicit Owner approval.');
+  const saved=await db(env,'rpc/gu_v014105_approve_lab_knowledge_map','POST',
+   {p_actor:actor,p_lab:id,p_rubric:version,p_competency:code,p_confirm:'APPROVE KNOWLEDGE ONLY'});
+  if(saved?.ok!==true)throw problem('Knowledge-mapping approval rejected: '+str(saved?.reason||'unavailable'),409);
+  return out({ok:true,...saved,notice:'One approved Lab/rubric/competency mapping. Graded conceptual attempts can provide KNOWLEDGE-only evidence after server reconciliation; other three dimensions and historical validity remain unverified.'});
+ }
+ if(title.length<10||title.length>200)throw problem('Descriptive instructional title is required.');
  if(action==='draft'){validate(b.questions,b.answerKey);const existing=await db(env,'lab_training_sets_v014?select=version,review_state,source_status&lab_id=eq.'+enc(id)+'&order=version.desc&limit=1');const last=existing[0],version=last?.review_state==='draft'?last.version:(last?.version||0)+1;const row={lab_id:id,version,title,questions:b.questions,answer_key:b.answerKey,review_state:'draft',source_status:last?.source_status||'book_authored_unverified_market',updated_at:new Date().toISOString()};let saved;if(last?.review_state==='draft'){saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version,'PATCH',row)}else saved=await db(env,'lab_training_sets_v014','POST',row);if(saved.length!==1)throw problem('Draft not stored.',503);return out({ok:true,labId:id,version,reviewState:'draft',notice:'Draft stored privately. It cannot grade members until reviewed.'})}
  if(action==='review'){const version=Number(b.version);if(!Number.isSafeInteger(version)||b.confirmPhrase!=='REVIEW BOOK RUBRIC')throw problem('Explicit Owner rubric review required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+version+'&limit=1'),set=rows[0];if(!set)return out({ok:false,error:'Rubric not found.'},404);if(set.review_state!=='draft')throw problem('Only draft versions can be approved.');validate(set.questions,set.answer_key);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft','PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric review not confirmed.',503);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
  return out({ok:false,error:'Unknown action.'},404);

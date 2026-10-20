@@ -12,6 +12,7 @@ globalThis.fetch=async (u,o={})=>{
  const url=String(u);
  if(url.endsWith('/auth/v1/user'))return send({id:uid});
  if(url.includes('/profiles?'))return send([{account_kind:kind}]);
+ if(url.includes('/admin_user_flags?'))return send([{status:'active'}]);
  if(url.includes('/admin_user_roles?'))return send([{role_code:role,expires_at:null}]);
  if(url.includes('/lab_training_sets_v014?')){
   assert.equal(o.headers.apikey,env.SUPABASE_SECRET_KEY);

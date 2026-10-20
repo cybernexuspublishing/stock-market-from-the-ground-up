@@ -89,7 +89,7 @@ try{
  let [status,result]=await query();
  assert.equal(status,200);
  assert.equal(result.skills[0].completeAssessments,0);
- assert.equal(result.skills[0].status,'Developing','Single knowledge quiz must never certify competency proficiency');
+ assert.equal(result.skills[0].status,'Conceptual Evidence Only','Single knowledge quiz must never certify competency proficiency');
  assert.equal(result.snapshot.strongest.length,0,'Partial knowledge-only scores must not become strongest complete competencies');
  assert.match(result.skills[0].diagnosis,/Partial evidence/i);
  evidence.push(...['knowledge','recognition','decision','process'].map(d=>({

@@ -1,8 +1,7 @@
 /** v0.14.0.7: Offline endpoint boundary tests. These do NOT verify live Supabase RLS. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const moduleCode=fs.readFileSync(new URL('../functions/api/commons-report.js',import.meta.url),'utf8');
-const {onRequestPost}=await import('data:text/javascript;base64,'+Buffer.from(moduleCode).toString('base64'));
+const {onRequestPost}=await import('../functions/api/commons-report.js');
 const env={SUPABASE_URL:'https://test.example',SUPABASE_PUBLISHABLE_KEY:'public-demo',SUPABASE_SECRET_KEY:'server-demo'};
 function makeResponse(data,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}})}
 const validTopic=[{topic_id:22,title:'Available topic',discussion_unlocked:true}];
@@ -18,7 +17,7 @@ async function test(name,payload,{errorRoute='',responseStatus=200,expectedStatu
   if(url.endsWith('/rpc/forum_list_posts'))return makeResponse(visible?validPosts:[]);
   if(url.includes('/rest/v1/commons_topics?'))return makeResponse(visible?[{id:22}]:[]);
   if(url.includes('/rest/v1/commons_posts?'))return makeResponse(visible?[{id:34,topic_id:22}]:[]);
-  if(url.endsWith('/rpc/v014_community_report'))return makeResponse({ok:true},responseStatus);
+  if(url.endsWith('/rpc/v014_community_report'))return makeResponse(responseStatus===429?{message:'REPORT_QUOTA_REACHED'}:{ok:true},responseStatus);
   throw new Error('Unexpected fetch:'+url);
  };
  const request=new Request('https://site.example/api/commons-report',{method:'POST',headers:{'content-type':'application/json',...(caller?{authorization:'Bearer member-token'}:{})},body:JSON.stringify(payload)});

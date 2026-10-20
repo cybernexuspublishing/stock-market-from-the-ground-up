@@ -1,3 +1,4 @@
+import {checkMutationOrigin,boundedForumJson,isForumId} from '../_lib/forum-request-guards-v014105.js';
 /* Report an actual Market Commons topic/reply via the established forum_reports table.
  * This endpoint verifies user identity, account class, destination and a daily quota.
  * No public storage access to private moderation reports is provided.
@@ -16,7 +17,8 @@ export async function onRequestPost({request,env}){
  const me=await get('/auth/v1/user');if(!me?.id)return out({ok:false,error:'Invalid session.'},401);
  const profile=(await get('/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];const flags=(await get('/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(me.id)+'&limit=1',true))?.[0];
  if(profile?.account_kind!=='member'||['suspended','restricted'].includes(safe(flags?.status).toLowerCase()))return out({ok:false,error:'Only eligible production members may report production content.'},403);
- const b=await request.json().catch(()=>null),id=Number(b?.id),type=safe(b?.type),reason=safe(b?.reason),details=safe(b?.details),scope=safe(b?.scope)||'commons';
+ checkMutationOrigin(request);
+ const b=await boundedForumJson(request,4096),id=Number(b?.id),type=safe(b?.type),reason=safe(b?.reason),details=safe(b?.details),scope=safe(b?.scope)||'commons';
  if(!Number.isSafeInteger(id)||id<1||!['commons','legacy'].includes(scope)||!['topic','post'].includes(type)||!['spam','harassment','scam','privacy','misinformation','other'].includes(reason)||details.length>500)return out({ok:false,error:'Invalid report details.'},400);
  let contentId;
  if(scope==='commons'){
@@ -66,5 +68,5 @@ export async function onRequestPost({request,env}){
    return out({ok:false,code:'REPORT_BACKEND_FAILURE',error:'Report could not be processed. Please try again later.'},503);
  }
  return out({ok:true,message:'Report submitted for moderator review.'});
- }catch(e){return out({ok:false,error:e.status===401?'Sign in to report content.':'Report service temporarily unavailable.'},e.status===401?401:503)}
+ }catch(e){return out({ok:false,error:e.status===401?'Sign in to report content.':e.status===413?'Report request too large.':e.status===403?'Cross-origin report submission is not permitted.':e.status===400?'Invalid report request.':'Report service temporarily unavailable.'},[400,401,403,413].includes(e.status)?e.status:503)}
 }
