@@ -24,6 +24,9 @@ DO $x$ BEGIN
    RAISE EXCEPTION 'Lost initial paid activation notice when intent bound after subscription INSERT';
  END IF;
 END $x$;
+-- Restore the disposable fixture to one signed plan row for cursor tests.
+DELETE FROM public.site_subscriptions WHERE provider_subscription_id='sub_FIRST123';
+DELETE FROM public.gu58_live_checkout_intents WHERE id='33333333-3333-4333-8333-333333333333';
 
 INSERT INTO public.site_subscriptions(user_id,plan_code,provider,provider_subscription_id,
  status,current_period_end,metadata)
