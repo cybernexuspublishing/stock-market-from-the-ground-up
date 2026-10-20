@@ -501,7 +501,7 @@ GRANT EXECUTE ON FUNCTION public.gu_v014105_sync_reviewed_knowledge(uuid,uuid)
 -- Approval is not a blanket certification of 419 Labs; every review is explicit.
 CREATE OR REPLACE FUNCTION public.gu_v014105_approve_lab_knowledge_map(
  p_actor uuid,p_lab text,p_rubric integer,p_competency text,p_confirm text
-) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $$
 DECLARE r record; v_update integer;
 BEGIN
  IF p_actor IS NULL OR p_lab IS NULL OR p_rubric IS NULL OR
@@ -544,7 +544,7 @@ BEGIN
   'evidenceScope','knowledge_only','historicalVerified',false));
  RETURN jsonb_build_object('ok',true,'labId',p_lab,'rubricVersion',p_rubric,
  'competencyCode',p_competency,'knowledgeOnly',true,'historicalVerified',false);
-END $;
+END $$;
 REVOKE ALL ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,integer,text,text)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,integer,text,text)
@@ -556,7 +556,7 @@ GRANT EXECUTE ON FUNCTION public.gu_v014105_approve_lab_knowledge_map(uuid,text,
 -- this RPC additionally rejects non-member/restricted profiles.
 CREATE OR REPLACE FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(
  p_actor uuid
-) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $$
 DECLARE r record; v jsonb; v_scanned integer:=0; v_added integer:=0; v_eligible integer:=0;
 BEGIN
  IF p_actor IS NULL
@@ -580,7 +580,7 @@ BEGIN
  RETURN jsonb_build_object('ok',true,'attemptsInspected',v_scanned,
  'approvedEligible',v_eligible,'knowledgeRowsAdded',v_added,
  'reviewedLimit',500,'scope','knowledge_only','masteryAwarded',false);
-END $;
+END $$;
 REVOKE ALL ON FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(uuid)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014105_sync_member_reviewed_knowledge(uuid)
