@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="The Stock Market: From the Ground Up">
+ <rect width="64" height="64" rx="12" fill="#061827"/>
+ <path d="M10 44 L22 35 L31 39 L43 25 L54 18" fill="none" stroke="#d4b770" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M45 18 H54 V27" fill="none" stroke="#d4b770" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M10 51 H54" stroke="#b4c9d6" stroke-width="2" stroke-linecap="round" opacity=".65"/>
+</svg>
