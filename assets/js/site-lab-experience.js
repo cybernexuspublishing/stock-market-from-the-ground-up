@@ -28,16 +28,33 @@ function render(){const host=document.getElementById('v133-site-lab'),m=LAB.meta
   <label class="v133-reflection"><span>Decision / reflection notes</span><textarea data-q="reflection" rows="7" placeholder="Evidence, inference, invalidation, next action, and review notes…">${esc(resp.reflection||'')}</textarea></label>
  </form>
  ${links(m)}
+ <section class="v133-lab-panel"><h2>Related original competency instruction</h2><p>Suggested learning topics, not graded competency evidence.</p><div id="v133-learning-routes" aria-live="polite">Loading curriculum links…</div></section>
  <section class="v133-lab-panel"><h2>Author-created replay scenario</h2><p>Practice the decision boundary with an ORIGINAL FICTIONAL OHLCV sequence created for this Lab. Its ticker, timestamps, prices and volume are invented and are not historical evidence. The existing private replay engine reveals one bar at a time.</p><a class="btn secondary" href="verified-replay.html?dataset=${encodeURIComponent('GUSIM_'+LAB.lab_id.replaceAll('-','_'))}">Open Original Simulated Replay</a></section>
  <section class="v133-lab-panel" aria-label="Reviewed assessment" id="v133-graded-assessment"><h2>Step-by-step knowledge assessment</h2><p>This is separate from your reflection worksheet. A graded assessment appears only after a private answer key is independently reviewed. Hypothetical teaching examples are not historical market data.</p><div id="v133-training-workspace"></div></section>
  <div class="v133-lab-sticky"><div><strong id="v133-save-state">${PROGRESS?.updated_at?`Last saved ${esc(fmt(PROGRESS.updated_at))}`:'Not saved yet'}</strong><span>Progress is saved to your account.</span></div><div class="actions"><a class="btn secondary" href="labs.html">Back to Registry</a>${tool}${sim}<button class="btn secondary" id="v133-save" type="button">Save Draft</button><button class="btn" id="v133-complete" type="button">Complete Reflection (Ungraded)</button></div></div>`;
  document.getElementById('v133-save').onclick=()=>save(false);document.getElementById('v133-complete').onclick=()=>save(true);
+ void connectCurriculum();
  const training=document.getElementById('v133-training-workspace');if(training&&window.GroundUpInteractiveTraining)window.GroundUpInteractiveTraining.begin(LAB.lab_id,'guided',training);
+}
+async function connectCurriculum(){
+ const host=document.getElementById('v133-learning-routes');if(!host||!LAB)return;
+ try{
+  const response=await fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'});
+  if(!response.ok)throw Error('Unavailable');
+  const map=await response.json(),codes=map.byLab?.[LAB.lab_id]?.relatedCompetencies;
+  if(!Array.isArray(codes))throw Error('No source match');
+  host.replaceChildren();
+  for(const code of codes.slice(0,3)){
+   const link=document.createElement('a');link.className='btn secondary';
+   link.href='skills.html#guide-'+encodeURIComponent(code);
+   link.textContent='Study '+code.replaceAll('_',' ');host.append(link);
+  }
+ }catch{host.textContent='Original curriculum links are currently unavailable.'}
 }
 function responses(){const o={};document.querySelectorAll('#v133-lab-form [data-q]').forEach(el=>o[el.dataset.q]=el.value.trim());return o}
 async function save(complete){const m=LAB.metadata||{},qs=Array.isArray(m.questions)?m.questions:[],r=responses(),status=document.getElementById('v133-save-state');if(complete){if(!qs.length&&String(r.reflection||'').trim().length<60){status.textContent='Record at least 60 characters of your own lesson-based observation before marking this reference exercise complete.';document.querySelector('[data-q=reflection]')?.focus();return}const missing=qs.map((_,i)=>`q${i+1}`).filter(k=>!r[k]);if(missing.length){status.textContent='Answer every required Lab question before marking complete.';document.querySelector(`[data-q="${missing[0]}"]`)?.focus();return}}
  status.textContent='Saving…';const now=new Date().toISOString(),body={user_id:USER.id,lab_id:LAB.lab_id,status:complete?'completed':'in_progress',responses:r,started_at:PROGRESS?.started_at||now,completed_at:complete?now:null,updated_at:now};
- const {data,error}=await SB.from('site_lab_progress').upsert(body,{onConflict:'user_id,lab_id'}).select().single();if(error){status.textContent=`Save failed: ${error.message}`;return}PROGRESS=data;document.getElementById('v133-progress-pill').textContent=complete?'completed':'in progress';status.textContent=complete?'Ungraded reflection saved. A reviewed assessment score requires the separate step-wise assessment.':`Saved ${new Date().toLocaleTimeString()}`;
+ const {data,error}=await SB.from('site_lab_progress').upsert(body,{onConflict:'user_id,lab_id'}).select().single();if(error){status.textContent=`Save failed: ${error.message}`;return}PROGRESS=data;document.getElementById('v133-progress-pill').textContent=complete?'reflection saved (ungraded)':'reflection in progress';status.textContent=complete?'Ungraded reflection saved. A reviewed assessment score requires the separate step-wise assessment.':`Saved ${new Date().toLocaleTimeString()}`;
 }
 async function init(){const host=document.getElementById('v133-site-lab');if(!host||!(await auth()))return;const id=(new URLSearchParams(location.search).get('lab')||'').trim();if(!id){host.innerHTML=state('Lab ID missing','Return to the Lab Registry and choose an exercise.','<a class="btn" href="labs.html">Lab Registry</a>');return}
  const [{data:lab,error},{data:progress}]=await Promise.all([SB.from('platform_labs').select('*').eq('lab_id',id).eq('active',true).eq('registry_visible',true).maybeSingle(),SB.from('site_lab_progress').select('*').eq('user_id',USER.id).eq('lab_id',id).maybeSingle()]);

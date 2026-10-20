@@ -4,6 +4,22 @@ function toks(s){return String(s||'').toLowerCase().replace(/[^a-z0-9&+\- ]+/g,'
 function score(item,q){const qt=toks(q),blob=[item.title,...(item.aliases||[]),item.summary,...(item.related||[])].join(' ').toLowerCase();let s=0;qt.forEach(t=>{if(blob.includes(t))s+=2;if((item.aliases||[]).some(a=>a.toLowerCase()===t))s+=3});if((item.aliases||[]).some(a=>q.toLowerCase().includes(a.toLowerCase())))s+=8;if(q.toLowerCase().includes(item.title.toLowerCase()))s+=8;return s}
 async function personalPractice(){if(!TUTOR.sb||!TUTOR.user)return {signedIn:false,member:false,top:[]};try{const ent=await TUTOR.sb.from('entitlements').select('status,starts_at,ends_at').eq('user_id',TUTOR.user.id);const now=Date.now(),member=(ent.data||[]).some(e=>['active','trialing'].includes(e.status)&&(!e.starts_at||new Date(e.starts_at).getTime()<=now)&&(!e.ends_at||new Date(e.ends_at).getTime()>now));if(!member)return {signedIn:true,member:false,top:[]};const [j,a]=await Promise.all([TUTOR.sb.from('decision_journal').select('mistakes,entry_reason_category,actual_exit_reason_category,process_grade,plan_followed').eq('user_id',TUTOR.user.id).order('created_at',{ascending:false}).limit(50),TUTOR.sb.from('lab_attempts').select('mistakes,skill_code,mode').eq('user_id',TUTOR.user.id).order('completed_at',{ascending:false}).limit(50)]);const counts={};for(const row of [...(j.data||[]),...(a.data||[])])for(const m of Array.isArray(row.mistakes)?row.mistakes:[])counts[m]=(counts[m]||0)+1;const top=Object.entries(counts).sort((x,y)=>y[1]-x[1]).slice(0,5);return {signedIn:true,member:true,top,journal:j.data||[],attempts:a.data||[]}}catch{return {signedIn:true,member:false,top:[]}}}
 function renderMatches(items,q){const box=document.getElementById('tutor-answer');if(!items.length){box.innerHTML='<div class="tutor-match"><h3>No exact companion topic found</h3><p>Try an abbreviation, trading concept, or decision-process term such as MFE, MAE, HOD, VWAP, invalidation, reason for entry, or R-multiple.</p><div class="tutor-actions"><a class="btn secondary" href="labs.html?q='+encodeURIComponent(q)+'">Search Historical Labs</a></div></div>';return}box.innerHTML=items.map((x,i)=>`<article class="tutor-match"><div class="tutor-ref">${te(x.bookRef||'Companion learning environment')}</div><h3>${te(x.title)}</h3><p>${te(x.summary)}</p>${x.related?.length?`<p class="small"><strong>Related:</strong> ${x.related.map(te).join(' · ')}</p>`:''}<div class="tutor-actions"><a class="btn secondary" href="labs.html?q=${encodeURIComponent(x.labQuery||x.title)}">Find Related Labs</a><a class="btn secondary" href="simulator.html?topic=${encodeURIComponent(x.id)}">Practice in Simulator</a></div></article>`).join('')}
+async function linkTutorStudyGuides(records){
+ try{
+  const response=await fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'});
+  if(!response.ok)return;
+  const map=await response.json(),host=document.getElementById('tutor-original-skills');
+  if(!host)return;host.replaceChildren();const seen=new Set();
+  for(const row of records.slice(0,5)){
+   for(const code of map.byLab?.[row.labId]?.relatedCompetencies||[]){
+    if(seen.has(code))continue;seen.add(code);
+    const link=document.createElement('a');link.className='btn secondary';
+    link.href='skills.html#guide-'+encodeURIComponent(code);
+    link.textContent='Study '+code.replaceAll('_',' ');host.append(link);
+   }
+  }
+ }catch{/* Existing Tutor still works without static curriculum links. */}
+}
 async function premiumTeaching(q,status){
  if(!TUTOR.sb||!TUTOR.user)return false;
  let session;try{session=(await TUTOR.sb.auth.getSession()).data?.session}catch{return false}
@@ -26,7 +42,8 @@ async function premiumTeaching(q,status){
     (Array.isArray(data.gradedReview)&&data.gradedReview.length?'<h4>Recorded lesson assessments to revisit</h4><ol class="tutor-personal-list">'+data.gradedReview.slice(0,5).map(x=>'<li><strong>'+te(x.labId)+'</strong> · Latest recorded assessment '+Number(x.latestRecordedScore)+'% · <a href="labs.html?q='+encodeURIComponent(x.labId||'')+'">Find this Lab</a></li>').join('')+'</ol><p class="small">Scores are from existing authored training attempts; they do not certify historical market performance or overall mastery.</p>':'')+
     (list.length?'<ol class="tutor-personal-list">'+list.map(x=>'<li><strong>'+te(x.topic)+'</strong> · '+Number(x.mentions||0)+
       ' self-tagged record(s) · <a href="labs.html?q='+encodeURIComponent(x.topic||'')+'">Find related Labs</a></li>').join('')+'</ol>':'')+
-    '<p class="small">'+te(data.notice||'')+'</p><div class="tutor-actions"><a class="btn secondary" href="journal.html">Review Journal</a><a class="btn secondary" href="skills.html">Review Skills</a></div></article>';
+    '<p class="small">'+te(data.notice||'')+'</p><div id="tutor-original-skills" class="tutor-actions"></div><div class="tutor-actions"><a class="btn secondary" href="journal.html">Review Journal</a><a class="btn secondary" href="skills.html">Review Skills</a></div></article>';
+   void linkTutorStudyGuides(data.gradedReview||[]);
    status.className='status-message success';status.textContent='Private practice suggestions only; no scores or mastery awarded.';
    return true;
   }
