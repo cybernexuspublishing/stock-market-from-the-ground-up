@@ -7,26 +7,27 @@ export const reviewedProductGuidesV01488={
   "version": "0.14.0.84",
   "plans": {
     "FREE": {
-      "summary": "Explore public samples, selected learning previews, limited tools and basic progress without a paid subscription.",
+      "summary": "Free public glossary, released samples and basic progress, plus limited Trading Journal records and saved browser CSV exercises. Live allowances are shown from the plan.",
       "learn": [
-        "Understand the platform's learning workflow and available public lesson samples.",
-        "Try the tools that are specifically marked as free previews before purchasing access."
+        "Learn market vocabulary and practice with released public lessons.",
+        "Practice documenting decisions and educational browser CSV simulations within the current account save allowances."
       ],
       "included": [
-        "Public and sample lessons where released",
-        "Limited Tutor and learning-tool previews where available",
-        "Basic progress and selected trial experiences"
+        "Public market glossary and released learning samples",
+        "Limited Trading Journal records; current allowance displayed from the live plan",
+        "Limited saved browser CSV simulator exercises within Journal record allowance",
+        "Basic progress for available free learning"
       ],
       "excluded": [
-        "Unlimited premium tool access",
-        "Full first-party companion branches",
-        "Downloadable eBooks",
-        "Third-party market data or brokerage accounts"
+        "Full Market Tutor API and metered AI conversations",
+        "Private server-controlled replay and independently licensed market datasets",
+        "Full premium Journal analytics and the complete historical Lab catalog",
+        "Unlimited premium tools, downloadable eBooks and third-party brokerage services"
       ],
       "terms": "No recurring membership charge. Individual tool subscriptions and books, if available, are separate."
     },
     "FULL_MONTHLY": {
-      "summary": "Full first-party learning platform access billed monthly, with released tools and book-companion learning.",
+      "summary": "Full Platform — Monthly ($69.99/month). Released first-party learning, Journal analytics, eligible replay and book companions, with limited sponsor placements.",
       "learn": [
         "Move from market concepts into guided exercises, historical labs, trading journals and decision reviews.",
         "Use released first-party simulation, journal, Tutor, and analytical tools to practice a defined trading process."
