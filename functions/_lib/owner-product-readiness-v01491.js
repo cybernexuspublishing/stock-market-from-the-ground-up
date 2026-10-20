@@ -357,7 +357,7 @@ export const ownerProductReadinessV01491=Object.freeze({
         75
       ],
       "roadmapId": "CORE-0223",
-      "gate": "Complete moderation, privacy, abuse resistance and forum consistency."
+      "gate": "v105 same-origin/body-size/locked-post improvements merged for both forums. Atomic moderation+audit, verified rate limiting, appeals, RLS tests and production privacy remain open."
     },
     {
       "code": "MEMBERSHIP_FULFILLMENT",
