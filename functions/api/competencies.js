@@ -26,6 +26,30 @@ async function related(env,skill){const kw=skill.metadata?.keywords||[],tk=skill
  rest(env,'platform_tools?select=tool_code,name,category,href,status,active&active=eq.true&status=neq.retired&limit=120').catch(()=>[])]);
 return{labs:labs.filter(x=>textMatch(`${x.title} ${JSON.stringify(x.metadata||{})}`,kw)).slice(0,8).map(x=>({labId:x.lab_id,title:x.title||x.lab_id,bookCode:x.book_code,href:x.custom_href||`site-lab.html?lab=${encodeURIComponent(x.lab_id)}`})),topics:topics.filter(x=>textMatch(`${x.title} ${x.body}`,kw)).slice(0,6).map(x=>({id:x.id,title:x.title,forumCode:x.forum_code})),tools:tools.filter(x=>textMatch(`${x.name} ${x.category} ${x.tool_code}`,tk)).slice(0,6).map(x=>({code:x.tool_code,name:x.name,category:x.category,href:x.href||'tools.html'}))}}
 function snapshot(skills){const assessed=skills.filter(x=>x.score!=null),fullyAssessed=assessed.filter(x=>x.completeAssessments>0),strongest=[...fullyAssessed].sort((a,b)=>b.score-a.score||b.evidenceCount-a.evidenceCount).slice(0,3),attention=[...assessed].filter(x=>x.status!=='Mastered').sort((a,b)=>a.score-b.score||b.criticalErrors-a.criticalErrors).slice(0,3),target=attention.find(x=>x.completeAssessments>0)||skills.find(x=>x.completeAssessments===0)||strongest[0];return{strongest,attention,recommended:target?{code:target.code,name:target.name,reason:target.completeAssessments===0?'Build a full four-dimensional assessment; private conceptual quizzes alone are insufficient.':target.status==='Mastered'?'Schedule maintenance practice.':'Review weakest dimension and retest with an unseen case.'}:null}}
+// Practice is NOT assessed proficiency. Journal-linked replay completion and
+// 1D/7D/30D review records are displayed as separate participation evidence.
+// Neither these counters nor an ungraded reflection contribute to `level()`.
+async function replayLearningActivity(env,userId){
+ const user=encodeURIComponent(userId),limit=1000;
+ try{
+  const [links,locks]=await Promise.all([
+   rest(env,'gu_replay_journal_links_v01494?select=session_id,journal_id&user_id=eq.'+user+
+    '&order=recorded_at.desc&limit='+(limit+1)),
+   rest(env,'gu_replay_review_locks_v014118?select=review_id,completed_at&user_id=eq.'+user+
+    '&order=review_id.desc&limit='+(limit*3+1))
+  ]);
+  if(!Array.isArray(links)||!Array.isArray(locks))throw Error('Invalid replay activity response');
+  return{available:true,replaySessionsLinked:links.length>limit?null:links.length,
+   spacedReviewsCompleted:locks.length>limit*3?null:locks.filter(x=>x.completed_at!=null).length,
+   countsComplete:links.length<=limit&&locks.length<=limit*3,
+   competencyGradesAwarded:0,grading:'ungraded_replay_activity_only',
+   notice:'Completed replay sessions and reflection reviews are learning activity, not independently graded knowledge, recognition, decision, process or trading performance.'};
+ }catch{
+  return{available:false,replaySessionsLinked:null,spacedReviewsCompleted:null,
+   countsComplete:false,competencyGradesAwarded:0,
+   notice:'Private replay participation is not installed or temporarily unavailable; no assessment results were inferred.'};
+ }
+}
 function synthetic(defs){return defs.map((d,i)=>{const value=[94,83,69,54][i%4],scores={knowledge:value+2,recognition:value,decision:value-3,process:value+1},status=value>=90?'Mastered':value>=80?'Proficient':value>=60?'Developing':'Needs Work';return{code:d.competency_code,category:d.category,name:d.name,description:d.description,masteryDefinition:d.mastery_definition,score:value,status,evidenceCount:3,evidenceRowCount:12,completeAssessments:3,criticalErrors:0,consecutivePasses:2,unseenPassStreak:1,trend:'flat',subScores:scores,diagnosis:'Synthetic Showcase demonstration only; this is not assessed performance.',nextStep:'Synthetic practice example.',metadata:d.metadata||{},synthetic:true}})}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return out({ok:false,error:'Evidence is written only by trusted assessment services.'},405);const url=new URL(request.url),action=clean(url.searchParams.get('action')||'summary'),user=await caller(env,request);if(!user?.id)throw Object.assign(new Error('Invalid session.'),{status:401});
 const [defs,p]=await Promise.all([rest(env,'competency_definitions?select=*&active=eq.true&order=sort_order.asc'),rest(env,`profiles?select=account_kind&id=eq.${encodeURIComponent(user.id)}&limit=1`)]);
@@ -35,7 +59,14 @@ if(p[0].account_kind==='member'){
  if(['restricted','suspended'].includes(String(flags?.[0]?.status||'').toLowerCase()))return out({ok:false,error:'Member access is restricted.'},403);
 }
 const isShowcase=p?.[0]?.account_kind==='showcase';const skills=isShowcase?synthetic(defs):await(async()=>{const ev=await rest(env,`competency_evidence?select=*&user_id=eq.${encodeURIComponent(user.id)}&order=assessed_at.asc`),by={};for(const x of ev)(by[x.competency_code]??=[]).push(x);return defs.map(d=>normalize(d,by[d.competency_code]||[]))})();
-if(action==='summary')return out({ok:true,synthetic:isShowcase,skills,snapshot:snapshot(skills)});
-if(action==='detail'){const code=clean(url.searchParams.get('code')).toUpperCase(),skill=skills.find(x=>x.code===code);if(!skill)return out({ok:false,error:'Skill not found.'},404);return out({ok:true,synthetic:isShowcase,skill,subScores:skill.subScores,related:isShowcase?{labs:[],topics:[],tools:[]}:await related(env,skill)})}
+const replayActivity=isShowcase?
+ {available:false,replaySessionsLinked:0,spacedReviewsCompleted:0,countsComplete:false,
+  competencyGradesAwarded:0,notice:'Showcase practice is synthetic and is not member learning evidence.'}:
+ await replayLearningActivity(env,user.id);
+if(action==='summary')return out({ok:true,synthetic:isShowcase,skills,snapshot:snapshot(skills),
+ replayLearningActivity:replayActivity});
+if(action==='detail'){const code=clean(url.searchParams.get('code')).toUpperCase(),skill=skills.find(x=>x.code===code);if(!skill)return out({ok:false,error:'Skill not found.'},404);return out({ok:true,synthetic:isShowcase,skill,subScores:skill.subScores,
+ replayLearningActivity:replayActivity,
+ related:isShowcase?{labs:[],topics:[],tools:[]}:await related(env,skill)})}
 return out({ok:false,error:'Unknown competency action.'},404)
 }catch(e){return out({ok:false,error:e.message||'Competency request failed.'},e.status||500)}}
