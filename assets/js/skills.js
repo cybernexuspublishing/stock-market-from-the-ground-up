@@ -52,7 +52,10 @@ async function renderOriginalCurriculum(){
    for(const labId of selected){const lab=mapping.byLab?.[labId];if(!lab)continue;
     const link=document.createElement('a');link.href='labs.html?q='+encodeURIComponent(labId);
     link.textContent=labId+' · '+lab.title;link.style.display='block';block.append(link);}
-   card.append(title,label,concept,panel,block);host.append(card);
+   const tutor=document.createElement('a');
+   tutor.className='btn secondary';tutor.href='market-tutor.html?q='+encodeURIComponent('Explain '+g.title+' and help me check my understanding without grading my answer.');
+   tutor.textContent='Ask Market Tutor about '+g.title;
+   card.append(title,label,concept,panel,block,tutor);host.append(card);
   }
   if(location.hash.startsWith('#guide-')){const code=location.hash.slice(1).replace(/[^A-Za-z0-9_-]/g,'');
    const destination=document.getElementById(code);if(destination)requestAnimationFrame(()=>destination.scrollIntoView({block:'start'}));}
