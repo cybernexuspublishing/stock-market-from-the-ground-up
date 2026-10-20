@@ -76,6 +76,8 @@ try{
  }
  assert(html.includes('id="tutor-save-history"'),'Member must control transcript saving');
  assert(js.includes("$('tutor-save-history')?.checked===true"),'Browser must respect history preference');
+ assert(js.includes('onAuthStateChange'),'Account changes must clear private client history');
+ assert(js.includes('TUTOR.user?.id!==submittingUser'),'Prevent cross-account answer persistence races');
  assert(!/(?:window\.)?localStorage\s*(?:\.|\[)/.test(js),'Never put private Tutor transcripts into shared-browser persistent storage');
  console.log('PASS v102: entitlement-gated Tutor history, per-member scope, idempotency keys, private delete/export, optional SQL fallback, no grades or paid AI.');
 }finally{globalThis.fetch=prior}
