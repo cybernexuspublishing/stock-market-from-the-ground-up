@@ -11,6 +11,7 @@ import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-
 import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js';
 import {reserveAiRequest} from '../_lib/first-party-ai-service-v014103.js';
 import {expandTutorQuery,seeksPersonalTradeAdvice,validateTutorModelAnswer,safeTutorMetric} from '../_lib/tutor-quality-v014107.js';
+import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -106,11 +107,6 @@ async function memberPractice(env,userId){
   .map(([code,attempts])=>({code,attempts}));
  return {examined,recommendations,skillSignals,gradedHistoryAvailable,gradedReview:gradedReview.slice(0,5),recordedAssessmentCount:latest.size};
 }
-function extractText(response){
- const a=response?.output;
- if(!Array.isArray(a))return '';
- return a.flatMap(x=>Array.isArray(x.content)?x.content:[]).filter(x=>x.type==='output_text'&&typeof x.text==='string').map(x=>x.text).join('\n').trim();
-}
 async function modelDraft(env,{q,mode,source,answer}){
  const key=String(env.AI_TUTOR_API_KEY||''),model=String(env.AI_TUTOR_MODEL||'');
  if(!key||!model)return null;
@@ -130,11 +126,9 @@ async function modelDraft(env,{q,mode,source,answer}){
   // cannot impersonate earlier Tutor messages via unverified priorTurns.
   const input='Source excerpts:\n'+reference+'\n\nLearner question: '+q+
     (answer?'\nLearner ungraded reflection: '+answer:'');
-  const resp=await fetch('https://api.openai.com/v1/responses',{
-   method:'POST',signal:controller.signal,headers:{authorization:'Bearer '+key,'content-type':'application/json'},
-   body:JSON.stringify({model,instructions,input,max_output_tokens:350,store:false})});
-  if(!resp.ok){safeTutorMetric('provider',{reason:'provider_http_rejected'});return null;}
-  const json=await resp.json(),text=extractText(json);
+  const result=await callTutorModel(env,{instructions,input,signal:controller.signal});
+  if(!result.ok){safeTutorMetric('provider',{reason:result.reason});return null}
+  const text=result.text;
   const evaluation=validateTutorModelAnswer(text,source.length);
   if(!evaluation.valid){safeTutorMetric('safety',{reason:evaluation.reason});return null}
   safeTutorMetric('provider',{reason:'validated_response',sourceCount:source.length});
