@@ -1,3 +1,4 @@
+import {safeToolMetric,statusReason} from '../_lib/tool-telemetry-v014111.js';
 /* First-party beta workspace API v0.14.0.110.
  * Server performs current entitlement for READ/WRITE/DELETE and scopes every
  * row to the authenticated Supabase user, never to a browser-provided user_id.
@@ -31,6 +32,7 @@ export async function onRequest({request,env}){
     (type?'&record_type=eq.'+encodeURIComponent(type):'')+'&order=updated_at.desc,id.desc&limit=100&offset='+offset;
    const rows=await privateJson(auth.c,query);
    if(!Array.isArray(rows)||rows.length>100)throw fail('Private workspace results are unavailable.',503);
+   safeToolMetric('beta_workspace','listed');
    return out({ok:true,records:rows,limit:100,offset,hasMore:rows.length===100,tool:code});
   }
   if(request.method==='DELETE'){
@@ -40,6 +42,7 @@ export async function onRequest({request,env}){
    if(!all&&!safeId(id))throw fail('Valid record ID required.');
    await privateJson(auth.c,base+'?'+(all?'':'id=eq.'+id+'&')+identity,
     'DELETE',undefined,'return=minimal');
+   safeToolMetric('beta_workspace','deleted');
    return out({ok:true,deleted:true,tool:code,all});
   }
   const indicated=Number(request.headers.get('content-length')||0);
@@ -56,8 +59,10 @@ export async function onRequest({request,env}){
    user_id:auth.userId,tool_code:code,record_type:type,title,payload:body.payload
   },'return=representation');
   if(!Array.isArray(rows)||rows.length!==1||!safeId(rows[0].id))throw fail('Workspace save could not be verified.',503);
+  safeToolMetric('beta_workspace','created');
   return out({ok:true,id:rows[0].id,tool:code},201);
  }catch(e){
+  safeToolMetric('beta_workspace',statusReason(e?.status));
   return out({ok:false,error:[400,401,403,404,413].includes(e?.status)?e.message:
    'Private workspace temporarily unavailable.'},[400,401,403,404,405,413].includes(e?.status)?e.status:503);
  }

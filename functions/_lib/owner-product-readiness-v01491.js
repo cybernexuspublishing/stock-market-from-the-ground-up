@@ -7,6 +7,11 @@ export const ownerProductReadinessV01491=Object.freeze({
   "salesPolicy": "Four separately priced $29.99/month tools and four paid memberships form the eight existing Stripe SKUs. Other tool records are beta/planned, not automatically sellable.",
   "acceptanceGates":   [
     {
+      "title": "Four core beta calculators — validated math + market disclaimers",
+      "state": "source_implemented_pending_independent_qa",
+      "gate": "v111 unit-tested long/short risk cap, Float/Supply, Liquidity/Spread and Execution Lab math; invalid data rejected, cost/market-source limitations disclosed. Real broker execution, short locate, current licensed quote provenance, finance SME review and browser acceptance pending."
+    },
+    {
       "title": "All 16 beta tools — authorized access and workspace privileges",
       "state": "source_implemented_pending_owner_sql",
       "gate": "v110 server-only member token, account flags, current entitlement and free-preview rights for all 16 beta tools; scoped member save/read/export/delete. New v110 SQL revoking direct client workspace permissions is NOT yet owner-reported installed; live negative-role, data-leak and page-access QA remain open."
@@ -102,6 +107,13 @@ export const ownerProductReadinessV01491=Object.freeze({
       "gate": "Restore drills, uptime alerts, automated operational workers and billing alert thresholds remain independently unverified."
     }
   ],
+  "calculationQualityMilestone": {
+    "version": "v0.14.0.111",
+    "sourceStatus": "four_beta_calculators_source_implemented",
+    "details": "Risk/Position Sizing, Float/Supply, Liquidity/Spread and Execution Cost use one unit-tested deterministic math module. Empty inputs, wrong-direction stops, unsupported cash exposure, invalid float/outstanding counts, inverted quotes, fractional shares and invalid trade directions are rejected. Educational source, market-data provenance, fees and actual broker fills are not independently verified.",
+    "unresolved": ["live UI and keyboard checks", "cash/short margin policy", "licensed market data examples", "real quote/spread costs", "historical fill execution modeling", "independent financial education review"],
+    "automaticOwnerApproval": false
+  },
   "accessControlMilestone": {
     "version": "v0.14.0.110",
     "sourceStatus": "implemented_pending_existing_supabase_sql_and_live_acceptance",
@@ -207,7 +219,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0208",
-      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Check float-versus-outstanding calculations, ranges, input validation and sourced examples. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "MARKET_STRUCTURE_LAB",
@@ -240,7 +252,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0221",
-      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Test numerical boundaries, exposure budgets, stop direction, spread/slippage assumptions and mobile UI. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "EXECUTION_LAB",
@@ -251,7 +263,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Validate market/limit/stop distinctions, partial fills, cost assumptions and edge cases. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "LIQUIDITY_SPREAD_LAB",
@@ -262,7 +274,7 @@ export const ownerProductReadinessV01491=Object.freeze({
       ],
       "stage": "beta",
       "roadmapId": "CORE-0219",
-      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending."
+      "gate": "Check bid/ask math, invalid quotes, spreads, fees and worst-case risk disclosures. v110: backend access and workspace API source built; production SQL privilege lockdown and per-tool acceptance remain pending. v111: validated deterministic core calculation source, including financial input boundaries. Actual live quote, order-fill and independent screen-reader QA are not certified."
     },
     {
       "code": "HALT_SSR_LAB",

@@ -44,6 +44,8 @@ function stageFor(n,map,fallback='backlog'){
 }
 /* Source-only milestone review. Supabase Owner-saved statuses always override. */
 const v91Evidence={
+ 'CORE-0256':{stage:'in_progress',reviewedOn:'2026-10-20',summary:'v111 improves four interactive beta calculators with unit-tested input validation, correct long/short stop direction and cash-equivalent exposure. Responsive/browser and full accessibility acceptance still pending; the earlier Store overflow QA findings remain unresolved.'},
+ 'CORE-0258':{stage:'in_progress',reviewedOn:'2026-10-20',summary:'v111 beta-tool APIs now log fixed allowlisted operational reason codes without personal data, while v105 forum moderation action and separate audit logging remain non-atomic. Financial and privilege mutation audit consistency still requires a database transaction.'},
  'CORE-0251':{stage:'in_progress',reviewedOn:'2026-10-20',summary:'v110 SOURCE fixes browser-only premium beta-workspace trust: all 16 workbenches now call authenticated server role/entitlement/product gate and server-scoped save/read/delete/export. New v110 SQL revoking historical direct auth workspace access NOT yet reported installed; real suspended/Free/paid/Showcase, direct RLS and inter-member tests remain required.'},
  'CORE-0250':{stage:'in_progress',reviewedOn:'2026-10-20',summary:'v107 Tutor implements optional per-member abuse throttling, provider quotas and privacy-safe diagnostic reason codes. v110 beta-workspace per-request account verification and byte limits are source implemented; platform-wide per-IP/rate limits, cost spikes and abuse escalation remain open.'},
  'CORE-0253':{stage:'in_progress',reviewedOn:'2026-10-20',summary:'v102/v107 Tutor private notes and v110 beta workspace provide scoped member records, JSON export and deletion. Retention periods, erasure across providers and verification of RLS/privilege lockdown on installed DB remain open.'},
@@ -58,7 +60,7 @@ const v91Evidence={
  'CORE-0208':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Historical Lab IDs exist; last reviewed Owner audit found no registered historical market datasets. Per-Lab dates, licenses and accuracy remain unverified.'},
  'CORE-0218':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v0.14.0.92–93 source adds rights-cleared replay discovery, session resume, revocation checks, locked decisions and atomic cursor advance with source-level contract tests. Supabase migration, actual licensed datasets and independent member-to-journal replay acceptance remain pending.'},
  'CORE-0223':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'v105 source hardened both legacy and Commons forums with request length/origin guards, locked-topic edit checks, private moderation field minimization and regression tests. Separate audit write remains non-atomic and must be hardened; real member access, abuse/appeals QA unverified.'},
- 'CORE-0256':{stage:'in_progress',reviewedOn:'2026-10-19',summary:'Source v0.14.0.91 QA: Storefront v0.14.0.85 production Chromium check failed 14 existing product-detail page overflow assertions and one global membership-link count assertion (Actions 39305637257); root cause and any stale test assumptions require independent correction, not blanket release acceptance.'}
+
 };
 function reviewFor(item){
  if(item.kind==='reference'||item.scope==='trace')return null;
