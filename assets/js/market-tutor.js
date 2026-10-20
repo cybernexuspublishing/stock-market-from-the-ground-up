@@ -213,7 +213,7 @@ async function memberExplanation(q,mode,learnerAnswer){
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
  const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
-  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true})});
+  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,priorTurns:TUTOR.entries.filter(x=>x.generation==='grounded-model-draft'||x.generation==='reviewed-glossary-logic'||x.generation==='original-competency-guide').slice(-2).map(x=>({question:x.question.slice(0,450),answer:x.answer.slice(0,400)}))})});
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true){
   throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
