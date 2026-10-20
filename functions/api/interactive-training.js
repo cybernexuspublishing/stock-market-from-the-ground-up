@@ -33,7 +33,17 @@ async function requireMatchingBook(env,request,labId){
  if(lab.book_code==='SITE_EXCLUSIVE')return lab.book_code;
  throw fail('Unknown or unapproved Lab collection.',403);
 }
-function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:set.questions[step].options||[]}:null,report:attempt.completed_at?attempt.report:null,sourceStatus:set.source_status,note:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical instructional assessment. Its invented numbers are NOT historical or actual market observations.':'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
+// The same private key must never always appear as option one.
+// Shuffle answer options per pinned attempt and question, reproducibly on refresh.
+function shuffledChoiceOptions(options,attemptId,questionId){
+ if(!Array.isArray(options)||options.length<2)return Array.isArray(options)?options:[];
+ const arr=[...options];let seed=2166136261;
+ for(const ch of String(attemptId)+'|'+String(questionId))seed=Math.imul(seed^ch.charCodeAt(0),16777619)>>>0;
+ for(let i=arr.length-1;i>0;i--){seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+ const j=seed%(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}
+ return arr;
+}
+function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:shuffledChoiceOptions(set.questions[step].options,attempt.id,set.questions[step].id)}:null,report:attempt.completed_at?attempt.report:null,sourceStatus:set.source_status,note:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical instructional assessment. Its invented numbers are NOT historical or actual market observations.':'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
 export async function onRequest({request,env}){try{
  const acl=await toolAccess(env,request,'ONDEMAND_TRAINING');if(!acl.authorized)return reply({ok:false,error:acl.reason},403);
  const u=new URL(request.url),action=u.searchParams.get('action')||'';

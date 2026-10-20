@@ -8,6 +8,7 @@ on:
       - 'data/competency-study-guides-v01499.json'
       - 'data/competency-lab-paths-v01499.json'
       - 'tests/test_v014099_curriculum_contract.mjs'
+      - 'tests/test_v014100_choice_option_order.mjs'
       - 'scripts/check-419-editorial-register.mjs'
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
       - 'assets/js/market-tutor.js'
@@ -65,6 +66,7 @@ on:
       - 'data/competency-study-guides-v01499.json'
       - 'data/competency-lab-paths-v01499.json'
       - 'tests/test_v014099_curriculum_contract.mjs'
+      - 'tests/test_v014100_choice_option_order.mjs'
       - 'scripts/check-419-editorial-register.mjs'
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
       - 'assets/js/market-tutor.js'
@@ -158,6 +160,7 @@ jobs:
           node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
+          node tests/test_v014100_choice_option_order.mjs
           node scripts/check-419-editorial-register.mjs
           node tests/test_v014099_owner_review_pagination.mjs
           node tests/test_v014099_sitewide_opaque_key_regressions.mjs
