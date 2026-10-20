@@ -18,15 +18,30 @@ export async function onRequest({request,env}){try{const c=config(env),user=awai
  const fields='id,status,updated_at'+(type==='topic'?',is_locked,is_pinned'+(scope==='commons'?',is_official':''):'');const old=(await db(c,`${table}?select=${fields}&id=eq.${id}&limit=1`))[0];if(!old)throw fail('Content not found.',404);if(old.is_official&&!user.owner)throw fail('Only Owner can moderate official guides.',403);
  if(action==='edit'&&!['published','hidden'].includes(old.status))throw fail('Only published or hidden content may be edited.',409);if(action==='restore'&&!['hidden','deleted'].includes(old.status))throw fail('This content is not hidden.',409);if(action==='restore'&&old.status==='deleted'&&!user.owner)throw fail('Only Owner may restore content deleted by its author.',403);if(action==='hide'&&old.status!=='published')throw fail('Only published content can be hidden.',409);if(action==='delete'&&b.confirmation!=='DELETE')throw fail('Type DELETE to confirm.',400);
  if(!clean(b.version)||clean(b.version)!==clean(old.updated_at))throw fail('Content changed; refresh its moderation details.',409);
- const note=clean(b.note);if(note.length<5||note.length>500)throw fail('Moderation requires a 5–500 character reason.');const patch={updated_at:new Date().toISOString()};if(action==='edit'){
-   const body=clean(b.body),limit=scope==='legacy'?(type==='topic'?12000:8000):10000;
-   if(body.length<(type==='topic'?10:2)||body.length>limit)throw fail('Content must satisfy the forum text-length limits.');
-   patch.body=body;
-   if(type==='topic') {const title=clean(b.title);if(title.length<5||title.length>(scope==='legacy'?140:180))throw fail('Discussion title must satisfy the forum title limits.');patch.title=title;}
- }if(action==='hide')patch.status='hidden';if(action==='restore')patch.status='published';if(action==='delete')patch.status='deleted';if(action==='lock'||action==='unlock')patch.is_locked=action==='lock';if(action==='pin'||action==='unpin')patch.is_pinned=action==='pin';
- const changed=await db(c,`${table}?id=eq.${id}&updated_at=eq.${encodeURIComponent(old.updated_at)}`,{method:'PATCH',prefer:'return=representation',body:patch});if(!changed?.length)throw fail('Content changed during moderation.',409);
- let auditRecorded=true;
- try{await db(c,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:user.uid,action:'forum.moderate.'+action,target_type:scope+'.'+type,target_id:String(id),details:{scope,note,fields:action==='edit'?(type==='topic'?['title','body']:['body']):[]}}})}
- catch{auditRecorded=false}
- return send({ok:true,action,auditRecorded,...(!auditRecorded?{warning:'Moderation change was applied, but its audit write could not be verified. The Owner must investigate the audit ledger.'}:{})});
+ const note=clean(b.note);if(note.length<5||note.length>500)throw fail('Moderation requires a 5–500 character reason.');
+ let newBody=null,newTitle=null;
+ if(action==='edit'){
+  newBody=clean(b.body);const limit=scope==='legacy'?(type==='topic'?12000:8000):10000;
+  if(newBody.length<(type==='topic'?10:2)||newBody.length>limit)throw fail('Content must satisfy the forum text-length limits.');
+  if(type==='topic'){newTitle=clean(b.title);if(newTitle.length<5||newTitle.length>(scope==='legacy'?140:180))throw fail('Discussion title must satisfy the forum title limits.');}
+ }
+ // Do not restore the old PATCH + separate audit INSERT code. Even if a
+ // front-end version race passes, a failed audit must roll back the update.
+ // The RPC re-verifies staff role, record version, status, official/Owner
+ // protection and performs row-locked mutation + audit in ONE transaction.
+ const result=await db(c,'rpc/gu_v014113_moderate_with_audit',{method:'POST',body:{
+  p_actor:user.uid,p_scope:scope,p_type:type,p_id:id,p_action:action,
+  p_version:clean(b.version),p_note:note,p_body:newBody,p_title:newTitle,
+  p_confirmation:action==='delete'?'DELETE':null
+ }});
+ if(result?.ok!==true){
+  const reason=String(result?.reason||'').toLowerCase();
+  if(['conflict','invalid_version'].includes(reason))throw fail('Forum content changed; refresh moderation details.',409);
+  if(reason==='not_found')throw fail('Content no longer exists.',404);
+  if(reason==='denied')throw fail('Current moderation permissions do not allow this action.',403);
+  if(reason==='invalid_request')throw fail('Forum content or moderation reason is invalid.',400);
+  throw fail('Atomic moderation and audit could not be verified.',503);
+ }
+ if(result.atomic!==true||result.auditRecorded!==true)throw fail('Moderation audit transaction did not confirm success.',503);
+ return send({ok:true,action,auditRecorded:true,atomic:true});
 }catch(e){return send({ok:false,error:e.message||'Moderation failed.'},[400,401,403,404,405,409,413].includes(e.status)?e.status:503)}}
