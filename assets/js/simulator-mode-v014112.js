@@ -5,7 +5,7 @@
 (()=>{
  'use strict';
  const byId=id=>document.getElementById(id);
- let startedLegacy=false;
+ let startedLegacy=false,startedServer=false;
  function selectMode(mode,{focus=false}={}){
   const server=mode!=='csv';
   const s=byId('sim-server-mode'),l=byId('sim-legacy-mode');
@@ -17,6 +17,10 @@
   note.textContent=server?
    'Server replay reveals only previously authorized candles. A published, license-cleared source or clearly marked original fictional series is required.':
    'Browser CSV practice loads the whole user-supplied price sequence locally; do not treat this as independently verified history, broker fills or server-graded no-lookahead work.';
+  if(server&&!startedServer){
+   startedServer=true;
+   window.dispatchEvent(new Event('groundup:activate-server-replay'));
+  }
   if(!server&&!startedLegacy){
    startedLegacy=true;
    window.dispatchEvent(new Event('groundup:activate-legacy-simulator'));
