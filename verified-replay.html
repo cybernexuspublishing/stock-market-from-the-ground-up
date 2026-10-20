@@ -25,6 +25,10 @@
 <label for="vr-type">Order type</label><select id="vr-type"><option value="MARKET">MARKET</option><option value="LIMIT">LIMIT</option><option value="STOP">STOP</option></select>
 <label for="vr-quantity">Shares</label><input id="vr-quantity" type="number" min="1" max="1000000" step="1" value="10">
 <label for="vr-limit">Limit or stop price (when applicable)</label><input id="vr-limit" type="number" min="0.000001" step="any">
+<label for="vr-spread">Assumed quoted spread (basis points)</label><input id="vr-spread" type="number" min="0" max="2000" step="0.1" value="0">
+<label for="vr-slippage">Adverse execution slippage (basis points)</label><input id="vr-slippage" type="number" min="0" max="2000" step="0.1" value="0">
+<label for="vr-fees">Assumed total fees (USD)</label><input id="vr-fees" type="number" min="0" max="100000" step="0.01" value="0">
+<p class="journal-small">Assumptions apply to the NEXT observed bar only; estimates require positive bar volume and cannot prove an actual fill. A limit crossing suggests a possible fill, not guaranteed queue priority.</p>
 </fieldset><button type="button" class="btn" id="vr-lock">Lock Decision</button></div>
 <div class="journal-actions"><button type="button" class="btn secondary" id="vr-advance" disabled>Reveal Next Bar</button>
 <button type="button" class="btn secondary" id="vr-finish" disabled>Finish Session</button><a class="btn secondary" href="journal.html">Open Trading Journal</a></div>
