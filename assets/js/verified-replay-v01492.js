@@ -3,6 +3,8 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let sb=null,sessionId='',cursor=0,locked=false,busy=false;
+// Only server-revealed observations in the current session are plotted.
+const visibleCandles=[];
 function notice(msg,err=false){$('vr-notice').textContent=msg;$('vr-notice').className='status-message '+(err?'error':'success');}
 async function api(action,payload={}){
  const session=(await sb.auth.getSession()).data?.session;
@@ -17,8 +19,36 @@ async function api(action,payload={}){
  if(!res.ok||!data.ok)throw Error(data.error||'Replay service unavailable.');
  return data;
 }
+function plotVisibleCandles(){
+ const svg=$('vr-visible-chart');if(!svg)return;
+ const bars=visibleCandles.slice(-40);svg.replaceChildren();if(!bars.length)return;
+ const ns='http://www.w3.org/2000/svg';
+ const add=(tag,attrs,text)=>{const el=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));if(text!==undefined)el.textContent=text;svg.appendChild(el);return el;};
+ const w=920,h=330,l=70,r=28,top=20,bottom=42;
+ const priceValues=bars.flatMap(b=>[Number(b.low),Number(b.high)]);
+ if(priceValues.some(v=>!Number.isFinite(v)))return;
+ const lo=Math.min(...priceValues),hi=Math.max(...priceValues),pad=Math.max((hi-lo)*0.09,0.025);
+ const low=lo-pad,high=hi+pad,scale=(h-top-bottom)/(high-low),y=v=>top+(high-v)*scale;
+ const gap=(w-l-r)/bars.length,candleW=Math.min(22,Math.max(4,gap*0.56));
+ for(let i=0;i<=4;i++){const price=low+(high-low)*i/4,py=y(price);
+  add('line',{x1:l,y1:py,x2:w-r,y2:py,stroke:'#718096','stroke-opacity':0.25});
+  add('text',{x:5,y:py+4,'font-size':13,fill:'currentColor'},price.toFixed(2));}
+ bars.forEach((b,i)=>{const op=Number(b.open),cl=Number(b.close),min=Number(b.low),max=Number(b.high);
+  if(![op,cl,min,max].every(Number.isFinite))return;
+  const x=l+(i+0.5)*gap,color=cl>=op?'#17865d':'#ce4256';
+  add('line',{x1:x,y1:y(max),x2:x,y2:y(min),stroke:color,'stroke-width':2});
+  add('rect',{x:x-candleW/2,y:y(Math.max(op,cl)),width:candleW,
+   height:Math.max(2,Math.abs(op-cl)*scale),fill:color,stroke:color,'stroke-width':1});
+  if(i===0||i===bars.length-1||i%Math.max(1,Math.ceil(bars.length/6))===0)
+   add('text',{x,y:h-13,'text-anchor':'middle','font-size':12,fill:'currentColor'},String(b.timestamp||'').slice(11,16));
+ });
+ svg.setAttribute('role','img');
+ svg.setAttribute('aria-label',bars.length+' server-revealed OHLCV candles. Later unrevealed bars are not included.');
+ const note=$('vr-visible-count');if(note)note.textContent=bars.length+' observed candle(s) displayed; no future candles have been sent to this chart.';
+}
 function addBar(b){
  if(!b)return;
+ visibleCandles.push(b);plotVisibleCandles();
  const row=document.createElement('tr');
  row.innerHTML=[b.timestamp,b.open,b.high,b.low,b.close,b.volume].map(v=>'<td>'+esc(v)+'</td>').join('');
  $('vr-bars').append(row);
@@ -68,7 +98,7 @@ async function resume(){
  const r=data.session;
  if(!r){notice(data.notice||'There is no saved replay session.');return}
  sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
- $('vr-bars').replaceChildren();addBar(r.bar);
+ visibleCandles.length=0;$('vr-bars').replaceChildren();addBar(r.bar);
  $('vr-code').value=r.dataset?.code||'';
  $('vr-source').textContent=[r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY': 'VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
  $('vr-execution').hidden=true;
@@ -81,7 +111,7 @@ async function start(){
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
- $('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
+ visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
  $('vr-source').textContent=(r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY · ':'VERIFIED HISTORICAL SOURCE · ')+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
 }
@@ -108,6 +138,7 @@ async function finish(){
   link.textContent='Open linked Trading Journal record #'+r.journalId;
   link.hidden=false;
  }else link.hidden=true;
+ visibleCandles.length=0;plotVisibleCandles();
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){

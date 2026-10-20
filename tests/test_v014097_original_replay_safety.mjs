@@ -22,6 +22,9 @@ assert(sql.includes("'firstBarAt',b.bar_at")&&sql.includes("'outcomeVerified',fa
 assert(api.includes("limit=700"),'All 419 datasets must be eligible for catalog listing');
 assert(api.includes("original_synthetic===true"),'API must carry strong synthetic disclaimers');
 assert(ui.includes('ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY'));
+assert(ui.includes('visibleCandles.push(b)')&&ui.includes('function plotVisibleCandles()'));
+assert(ui.includes('visibleCandles.length=0'), 'No stale session charts');
+assert(repoFile('verified-replay.html').includes('id="vr-visible-chart"'));
 assert(ui.includes("new URLSearchParams(location.search).get('dataset')"));
 assert(lab.includes('GUSIM_')&&lab.includes('ORIGINAL FICTIONAL OHLCV'));
 assert(readiness.includes('dataset.metadata?.original_synthetic===true'),'Synthetic cannot certify historical Lab evidence');
