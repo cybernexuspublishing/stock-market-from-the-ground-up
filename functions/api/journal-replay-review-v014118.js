@@ -64,59 +64,39 @@ export async function onRequest({request,env}){
    })),truncated:rows.length>1000});
   }
   if(request.method==='GET'&&action==='evidence'){
-   // No post-decision candles are delivered to the review UI until the
-   // outcome-hidden reflection has been durably locked and reveal authorized.
+   // One service-only PostgreSQL transaction closes the rights/revocation
+   // TOCTOU window between separately fetched review, source and market bars.
    const id=Number(url.searchParams.get('reviewId'));
-   if(!Number.isSafeInteger(id)||id<1)return reply({ok:false,error:'Valid review ID required.'},400);
-   const who=encodeURIComponent(access.userId),rid=encodeURIComponent(id);
-   const states=await db(env,'gu_replay_review_locks_v014118?select=review_id,journal_id,revealed_at&review_id=eq.'+rid+'&user_id=eq.'+who+'&limit=1');
-   const state=Array.isArray(states)?states[0]:null;
-   if(!state||!state.revealed_at)throw fail('Lock and reveal the first observation before requesting later evidence.',403);
-   const links=await db(env,'gu_replay_journal_links_v01494?select=session_id,dataset_code&journal_id=eq.'+
-    encodeURIComponent(state.journal_id)+'&user_id=eq.'+who+'&limit=1');
-   const link=Array.isArray(links)?links[0]:null;
-   if(!link)throw fail('Linked replay evidence is unavailable.',404);
-   const sessionRows=await db(env,'gu_replay_sessions_v01492?select=id,user_id,dataset_code,current_index,status&user_id=eq.'+
-    who+'&id=eq.'+encodeURIComponent(link.session_id)+'&limit=1');
-   const session=Array.isArray(sessionRows)?sessionRows[0]:null;
-   if(!session||session.status!=='finished'||session.dataset_code!==link.dataset_code||
-      !Number.isSafeInteger(session.current_index)||session.current_index<0)
-    throw fail('Replay session integrity cannot be verified.',503);
-   const sources=await db(env,'market_datasets?select=dataset_code,status,dataset_type,source_attribution,license_note,metadata&dataset_code=eq.'+
-    encodeURIComponent(link.dataset_code)+'&limit=1');
-   const source=Array.isArray(sources)?sources[0]:null;
-   const meta=source?.metadata||{};
-   if(!source||source.status!=='published'||source.dataset_type!=='ohlcv'||
-      meta.licensed_for_member_display!==true||meta.evidence_verified!==true||
-      !source.source_attribution||!source.license_note||!meta.corporate_action_policy)
-    throw fail('Market-data display authorization has been withdrawn.',403);
-   const bars=await db(env,'gu_replay_bars_v01492?select=bar_index,bar_at,open,high,low,close,volume&dataset_code=eq.'+
-    encodeURIComponent(link.dataset_code)+'&bar_index=lte.'+session.current_index+
-    '&order=bar_index.desc&limit=40');
-   if(!Array.isArray(bars)||!bars.length||
-      Number(bars[0].bar_index)!==session.current_index)
-    throw fail('Observed replay sequence cannot be validated.',503);
-   const observations=bars.slice().reverse().map(row=>{
-    const vals=['open','high','low','close','volume'].map(k=>Number(row[k]));
-    if(!Number.isSafeInteger(Number(row.bar_index))||Number(row.bar_index)<0||
-      !Number.isFinite(Date.parse(row.bar_at))||
-      vals.some(v=>!Number.isFinite(v))||vals.slice(0,4).some(v=>v<=0)||
-      vals[4]<0||vals[1]<Math.max(vals[0],vals[3])||
-      vals[2]>Math.min(vals[0],vals[3])||vals[2]>vals[1]||
-      Number(row.bar_index)>session.current_index)
-     throw fail('Market bar failed integrity validation.',503);
-    return {index:Number(row.bar_index),timestamp:row.bar_at,open:vals[0],high:vals[1],
-     low:vals[2],close:vals[3],volume:vals[4]};
+   if(!Number.isSafeInteger(id)||id<1)throw fail('Valid review ID required.',400);
+   const result=await db(env,'rpc/gu_v014120_replay_review_evidence','POST',{
+    p_actor:access.userId,p_review:id
    });
-   if(observations.some((b,i)=>i&&
-      (b.index<=observations[i-1].index||
-       Date.parse(b.timestamp)<=Date.parse(observations[i-1].timestamp))))
-    throw fail('Replay timestamps are not strictly ordered.',503);
-   return reply({ok:true,reviewId:id,sessionId:session.id,observedThroughIndex:session.current_index,
-    hasEarlierBars:observations[0].index>0,observations,
-    originalSynthetic:meta.original_synthetic===true,
-    sourceAttribution:String(source.source_attribution).slice(0,300),
-    notice:'These are already-revealed educational OHLCV observations only. No fill, profit, competency grade or actual trading outcome has been verified.'});
+   if(!result||result.ok!==true||result.reviewId!==id||
+      !Number.isSafeInteger(result.observedThroughIndex)||result.observedThroughIndex<0||
+      !Array.isArray(result.observations)||result.observations.length<1||
+      result.observations.length>40||typeof result.originalSynthetic!=='boolean'||
+      typeof result.sourceAttribution!=='string'||typeof result.sessionId!=='string')
+    throw fail('Replay evidence contract integrity failed.',503);
+   for(let i=0;i<result.observations.length;i++){
+    const bar=result.observations[i],prev=result.observations[i-1];
+    if(!Number.isSafeInteger(bar.index)||bar.index<0||bar.index>result.observedThroughIndex||
+       !Number.isFinite(Date.parse(bar.timestamp))||
+       !['open','high','low','close','volume'].every(k=>typeof bar[k]==='number'&&Number.isFinite(bar[k]))||
+       ['open','high','low','close'].some(k=>bar[k]<=0)||bar.volume<0||
+       bar.high<Math.max(bar.open,bar.close)||bar.low>Math.min(bar.open,bar.close)||
+       bar.high<bar.low||i>0&&(bar.index!==prev.index+1||
+          Date.parse(bar.timestamp)<=Date.parse(prev.timestamp)))
+      throw fail('Replay evidence response failed integrity validation.',503);
+   }
+   if(result.observations.at(-1).index!==result.observedThroughIndex||
+      result.hasEarlierBars!==(result.observations[0].index>0))
+    throw fail('Replay evidence cursor mismatched observed bars.',503);
+   return reply({ok:true,reviewId:id,sessionId:result.sessionId,
+    observedThroughIndex:result.observedThroughIndex,
+    observations:result.observations,hasEarlierBars:result.hasEarlierBars,
+    originalSynthetic:result.originalSynthetic,
+    sourceAttribution:result.sourceAttribution.slice(0,300),
+    notice:'Only server-recorded observations already seen in this completed replay are presented. No future candle, fill, trading profit or competency score is disclosed.'});
   }
   if(request.method==='POST'&&['lock','reveal','complete'].includes(action)){
    sameOrigin(request);
