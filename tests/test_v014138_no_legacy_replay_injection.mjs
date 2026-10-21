@@ -10,7 +10,7 @@ assert(!src.includes('async function addStore()'),'The obsolete Store replay car
 assert(!src.includes("node.append(el)"),'Legacy enhancement must not append a second membership card');
 
 function sandbox(pathname){
- let timers=0,dbCalls=0,appends=0,enhanced=0;
+ let timers=0,dbCalls=0,appends=0,enhanced=0,scheduled=null;
  const rows=pathname==='/membership.html'?[{
   dataset:{},textContent:'Historical Replay Learning — Monthly',
   querySelectorAll(selector){
@@ -36,10 +36,11 @@ function sandbox(pathname){
   addEventListener(){throw Error('Unexpected DOMContentLoaded listener for completed fixture')}
  };
  const window={getSupabaseClient:async()=>{dbCalls++;throw Error('No private DB calls allowed');}};
- const setInterval=(cb,time)=>{timers++;assert.equal(time,250);cb();return 1};
+ const setInterval=(cb,time)=>{timers++;assert.equal(time,250);scheduled=cb;return 1};
  const clearInterval=()=>{enhanced++};
  vm.runInNewContext(src,{window,document,location:{pathname},
   setInterval,clearInterval,setTimeout:()=>{},console});
+ if(scheduled)scheduled(); // simulate real next-tick timer after const timer initializes
  return {timers,dbCalls,appends,enhanced,rows};
 }
 const store=sandbox('/store.html');
