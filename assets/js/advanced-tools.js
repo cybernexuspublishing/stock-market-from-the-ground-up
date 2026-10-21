@@ -271,7 +271,7 @@
      entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
      target:value('w-target'),why:value('w-why'),asOf,sourceNote,
      evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
-    await saveRecord('watchlist',ticker,payload);await renderWatchlist();
+    await saveRecord('watchlist',ticker,payload);await renderWatchlist();renderWorkspaceManager();
     status('Saved private conditional plan. Market source and trade outcome remain unverified.','success');
    }catch(e){status(e.message,'error')}
   };
@@ -406,6 +406,13 @@
    document.getElementById('tool-content').hidden=false;
    await render();
    renderWorkspaceManager();
+   SB.auth.onAuthStateChange((_event,nextSession)=>{
+    if(nextSession?.user?.id===USER?.id)return;
+    USER=null;TOOL=null;ACCESS=null;
+    document.getElementById('tool-content').hidden=true;
+    document.getElementById('tool-workbench').replaceChildren();
+    gate.textContent='Signed out or account changed. Reload the tool to access the current member’s private workspace.';
+   });
   }catch(e){gate.textContent=e?.message||'Tool not available.'}
  }
  document.addEventListener('DOMContentLoaded',init);
