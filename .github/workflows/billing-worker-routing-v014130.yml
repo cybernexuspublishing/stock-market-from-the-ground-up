@@ -27,3 +27,4 @@ jobs:
           node tests/test_v014130_billing_worker_routing_config.mjs
           node tests/test_v014129_stripe_only_cron.mjs
           node tests/test_v014124_signed_reconciliation.mjs
+          npx --yes wrangler@4 deploy --dry-run --config workers/wrangler.billing-scheduler.jsonc
