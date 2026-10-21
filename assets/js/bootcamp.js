@@ -65,7 +65,7 @@
  }
  async function write(action){
   if(!progressAvailable||busy)return;
-  const day=selected,note=q('gu-bc-note').value.trim();
+  const day=selected,note=q('gu-bc-note').value.trim(),actor=activeUser,epoch=loadSerial;
   if(action==='save_reflection'&&(note.length<80||note.length>2000)){
    q('gu-bc-save-status').textContent='Write 80–2,000 characters of actual evidence, uncertainty and reflection before saving.';q('gu-bc-note').focus();return;
   }
@@ -73,9 +73,10 @@
   q('gu-bc-save-status').textContent='Saving this member’s private ungraded progress…';
   try{
    const result=await api('POST',{day,action,...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(day)?.revision||0}:{})});
+   if(actor!==activeUser||epoch!==loadSerial)return;
    progress.set(day,result.progress);q('gu-bc-save-status').textContent=result.disclaimer;
-  }catch(e){q('gu-bc-save-status').textContent=e.message+' No completion was recorded.'}
-  finally{busy=false;render();}
+  }catch(e){if(actor===activeUser&&epoch===loadSerial)q('gu-bc-save-status').textContent=e.message+' No completion was recorded.'}
+  finally{busy=false;if(actor===activeUser&&epoch===loadSerial)render();}
  }
  async function init(){
   const id=++loadSerial;
