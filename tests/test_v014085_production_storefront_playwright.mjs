@@ -96,7 +96,11 @@ try{
    await main.locator('#store-tab-memberships').click();
    const cards=main.locator('#store-plans article.v11-plan');
    assert.equal(await cards.count(),5);
-   assert.equal(await main.locator('#store-plans .v11-price + .store-plan-primary-link').count(),5,'All membership cards need an early link directly after price');
+   const immediateLinks=await main.locator('#store-plans .v11-price + .store-plan-primary-link').evaluateAll(a=>a.map(x=>({
+    parent:x.parentElement?.tagName,href:x.getAttribute('href'),
+    card:x.closest('article.v11-plan')?.querySelector('h3')?.textContent.trim()||'OUTSIDE_ARTICLE'
+   })));
+   assert.equal(immediateLinks.length,5,'All membership cards need one near-price link: '+JSON.stringify(immediateLinks));
    const ondemand=main.locator('#store-plans .v11-plan').filter({has:main.locator('h3 a[href="store-membership-ondemand-monthly.html"]')});
    assert.equal(await ondemand.count(),1,'Missing historical replay monthly item');
    assert.equal(await ondemand.locator('.store-plan-primary-link').isVisible(),true,'Historical Replay details link is invisible');
@@ -165,7 +169,15 @@ try{
        assert.ok(geometry.heroHeight<480,'Excessively tall empty hero: '+JSON.stringify(geometry));
        assert.ok(Math.abs(geometry.sectionStart-geometry.priceStart)<25,'Main learning content should align with availability sidebar');
        assert.ok(geometry.mainWidth>geometry.asideWidth,'Product explanation must be the primary content');
-       assert.ok(geometry.scrollWidth<=geometry.viewport+3,'Product page horizontal overflow');
+       if(geometry.scrollWidth>geometry.viewport+3){
+         const offenders=await p.evaluate(()=>[...document.querySelectorAll('body *')].map(el=>{
+          const b=el.getBoundingClientRect();return {tag:el.tagName,cls:String(el.className).slice(0,85),
+           id:el.id,left:Math.round(b.left),right:Math.round(b.right),
+           width:Math.round(b.width),text:el.textContent?.trim().slice(0,65)};
+         }).filter(x=>x.right>innerWidth+3||x.left< -3).sort((a,b)=>b.right-a.right).slice(0,18));
+         console.error('STORE_OVERFLOW_DIAGNOSTIC '+path+' '+JSON.stringify({geometry,offenders}));
+       }
+       assert.ok(geometry.scrollWidth<=geometry.viewport+3,'Product page horizontal overflow '+JSON.stringify(geometry));
        if(path.startsWith('store-book-')&&!path.includes('membership')){
          assert.equal(await root.locator('.store-product-hero .store-product-book-cover').count(),1,'Prominent book cover missing from hero');
          assert.equal(await root.locator('.store-product-about .store-product-book-cover').count(),0,'Duplicate book cover blocks the book synopsis');
