@@ -1,0 +1,44 @@
+name: Stable billing endpoint compatibility v0.14.0.131
+on:
+  pull_request:
+    paths:
+      - 'functions/api/internal-billing-reconcile.js'
+      - 'workers/billing-scheduler.js'
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'workers/wrangler.billing-scheduler.jsonc'
+      - 'tests/test_v014131_stable_billing_endpoint.mjs'
+      - 'tests/test_v014129_stripe_only_cron.mjs'
+      - 'tests/test_v014130_billing_worker_routing_config.mjs'
+      - '.github/workflows/billing-stable-endpoints-v014131.yml'
+      - 'docs/v0.14.0.131_STABLE_BILLING_ENDPOINTS_AND_WINDOWS_DEPLOYMENT.md'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/internal-billing-reconcile.js'
+      - 'workers/billing-scheduler.js'
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'workers/wrangler.billing-scheduler.jsonc'
+      - 'tests/test_v014131_stable_billing_endpoint.mjs'
+      - 'tests/test_v014129_stripe_only_cron.mjs'
+      - 'tests/test_v014130_billing_worker_routing_config.mjs'
+      - '.github/workflows/billing-stable-endpoints-v014131.yml'
+      - 'docs/v0.14.0.131_STABLE_BILLING_ENDPOINTS_AND_WINDOWS_DEPLOYMENT.md'
+permissions:
+  contents: read
+jobs:
+  stable-api-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check functions/api/internal-billing-reconcile.js
+          node --check workers/billing-scheduler.js
+          node --check workers/billing-reconcile-stripe-only-v014129.js
+          node tests/test_v014131_stable_billing_endpoint.mjs
+          node tests/test_v014129_stripe_only_cron.mjs
+          node tests/test_v014130_billing_worker_routing_config.mjs
+          node tests/test_v014124_signed_reconciliation.mjs
+          npx --yes wrangler@4 pages functions build --outdir=/tmp/gu131-pages
+          npx --yes wrangler@4 deploy --dry-run --config workers/wrangler.billing-scheduler.jsonc
