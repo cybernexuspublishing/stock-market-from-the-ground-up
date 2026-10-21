@@ -1,0 +1,93 @@
+name: Sitewide Playwright & Stripe Noncharging Regression v0.14.0.136
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+
+# Runs against the checked-out commit, never against an unpredictable live site.
+# No secrets, sign-in, payments, or external production calls from this workflow.
+concurrency:
+  group: sitewide-playwright-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  sitewide-browser:
+    name: Website Playwright (all major sections, mobile, accessibility)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build exact Pages static output (preserve private content boundary)
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/index.html
+          test ! -e public/data/interactive-labs.json
+          test ! -d public/supabase
+          test ! -d public/functions
+      - name: Install pinned Chromium browser test runner
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Start local source-only Pages fixture
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory public >/tmp/gu-sitewide-playwright.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8765/index.html >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8765/index.html >/dev/null
+      - name: Run central Playwright website regression
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/sitewide-playwright-v014136.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sitewide-playwright-report
+          path: artifacts/sitewide-playwright-v014136.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  stripe-noncharging-contract:
+    name: Stripe signed lifecycle and reconciliation contract (mocked)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify no-charge checkout and signed LIVE entitlement contract
+        run: |
+          node tests/test_v014058_live_fulfillment.mjs
+          node tests/test_v014064_checkout_wiring.mjs
+          node tests/test_v014067_live_merchant_readiness.mjs
+          node tests/test_v014068_stable_webhook.mjs
+          node tests/test_v014089_checkout_readiness_no_charge.mjs
+          node tests/test_v014084_store_interaction.mjs
+          node tests/test_v014085_bundled_guide_contract.mjs
+          node tests/test_v014090_commercial_product_inventory.mjs
+      - name: Verify customer portal, scheduler, and Owner billing evidence
+        run: |
+          node tests/test_v014122_member_billing_portal.mjs
+          node tests/test_v014129_stripe_only_cron.mjs
+          node tests/test_v014131_stable_billing_endpoint.mjs
+          node tests/test_v014133_billing_redirect_policy.mjs
+          node tests/test_v014134_owner_billing_evidence.mjs
+      - name: Enforce static site and one stable Stripe webhook URL
+        run: |
+          node --check functions/api/stripe-live-checkout-v01458.js
+          node --check functions/api/stripe-live-webhook.js
+          node --check functions/api/billing-reconciliation-health.js
+          node --check assets/js/admin-billing-reconciliation.js
+          test -f functions/api/stripe-live-webhook.js
+          grep -q "stripe-live-webhook-v01458" functions/api/stripe-live-webhook.js
