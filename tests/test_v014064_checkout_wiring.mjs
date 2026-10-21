@@ -8,11 +8,11 @@ const api=await load('functions/api/stripe-live-checkout-v01458.js');
 const src=readFileSync(new URL('../assets/js/checkout-platform.js',import.meta.url),'utf8');
 const middleware=readFileSync(new URL('../functions/_middleware.js',import.meta.url),'utf8');
 assert(!src.includes("target:'/api/stripe-customer-checkout-v01438'"),'customer checkout must not require a new staging database');
-assert(src.includes("target:'/api/stripe-live-checkout-v01458'"),'customer checkout uses guarded LIVE membership connector');
+assert(src.includes("target:'/api/stripe-live-checkout'"),'customer checkout uses guarded LIVE membership connector');
 assert(src.includes('readiness?.liveCheckoutAvailable===true'),'button must require authoritative per-SKU availability');
 assert(src.includes("if(books){"),'book rights remain separate from membership checkout');
 assert(src.includes("STRIPE_MANAGED_LIVE"),'LIVE checkout must not be presented as TEST checkout');
-assert(middleware.includes("'/api/stripe-live-checkout-v01458'"),'Owner-mode middleware must block a LIVE POST in TESTING mode');
+assert(middleware.includes("'/api/stripe-live-checkout'"),'Owner-mode middleware must block a LIVE POST in TESTING mode');
 const mapped={};
 const sku=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
  'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'];
