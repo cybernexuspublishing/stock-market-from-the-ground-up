@@ -101,6 +101,76 @@ async function verifyPrice(c,price,p,expectedProduct){const q=await request('htt
     q.currency!=='usd'||q.unit_amount!==p.amount||!fixedPrice||!cadence)
   throw err('Stripe Price ID does not match the approved product, amount, and billing cadence.',503);
 }
+/* v0.14.0.140: GU58's reviewed v58 schema ALREADY defines
+ * gu58_one_unresolved_per_member_sku. Never bypass that unique reservation
+ * or invent a second intent when the first Stripe response is uncertain.
+ * Stripe idempotency keys survive concurrent clients, but must NOT be reused
+ * after their provider retention window; recovery is limited to 15 minutes.
+ * No cleanup of paid/ambiguous intents takes place in checkout requests.
+ */
+const RECOVERY_WINDOW_MS=15*60*1000;
+const uuid=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v||'');
+const liveSessionId=v=>/^cs_live_[A-Za-z0-9_]+$/.test(v||'');
+const pendingFields='id,user_id,sku_kind,sku_code,price_id,quoted_amount_cents,currency,stripe_session_id,status,created_at';
+async function unresolved(c,user,type,code){
+ const q='gu58_live_checkout_intents?select='+pendingFields+
+  '&user_id=eq.'+encodeURIComponent(user)+'&sku_kind=eq.'+encodeURIComponent(type)+
+  '&sku_code=eq.'+encodeURIComponent(code)+
+  '&status=in.(prepared,checkout_created)&order=created_at.desc&limit=2';
+ const rows=await db(c,q);
+ if(!Array.isArray(rows)||rows.length>1)throw err('Unresolved checkout ledger requires Owner review.',409);
+ return rows[0]||null;
+}
+function verifyPending(row,user,type,code,p,price){
+ if(!row||!uuid(row.id)||row.user_id!==user||row.sku_kind!==type||row.sku_code!==code||
+   row.price_id!==price||row.currency!=='usd'||row.quoted_amount_cents!==p.amount||
+   !['prepared','checkout_created'].includes(row.status))
+   throw err('Existing checkout requires support review before a new payment.',409);
+ const created=Date.parse(row.created_at||'');
+ if(!Number.isFinite(created)||created>Date.now()+60000||Date.now()-created>RECOVERY_WINDOW_MS)
+  throw err('Existing checkout could not be safely resumed. Contact support; no new payment initiated.',409);
+ if(row.status==='checkout_created'&&!liveSessionId(row.stripe_session_id))
+  throw err('Existing checkout is missing verified provider binding.',409);
+ if(row.status==='prepared'&&row.stripe_session_id!==null)
+  throw err('Existing checkout is in an ambiguous state.',409);
+ return row.id;
+}
+function safeCheckoutSession(session,id,user,price,p,requireOpen=true){
+ if(!liveSessionId(session?.id)||session.livemode!==true||
+   session.client_reference_id!==id||session.metadata?.gu58_intent!==id||
+   session.metadata?.gu58_member!==user||
+   session.mode!==(p.bill==='lifetime'?'payment':'subscription')||
+   session.currency!=='usd'||session.amount_subtotal!==p.amount)
+  throw err('Stripe checkout session proof did not match the reserved intent.',503);
+ if(requireOpen&&(session.status!=='open'||session.payment_status!=='unpaid'||
+   !Number.isFinite(session.expires_at)||session.expires_at*1000<=Date.now()+60000))
+  throw err('Existing checkout expired or completed. Contact support; no new payment initiated.',409);
+ let target;
+ try{target=new URL(session.url)}catch{throw err('Stripe checkout destination unavailable.',503)}
+ if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com'||
+    target.username||target.password||target.port)
+  throw err('Invalid Stripe destination.',503);
+ return target.href;
+}
+async function stripeCheckout(c,id,user,p,price,origin){
+ const params=new URLSearchParams();
+ params.set('managed_payments[enabled]','true');
+ params.set('mode',p.bill==='lifetime'?'payment':'subscription');
+ params.set('line_items[0][price]',price);
+ params.set('line_items[0][quantity]','1');
+ params.set('client_reference_id',id);
+ params.set('metadata[gu58_intent]',id);
+ params.set('metadata[gu58_member]',user);
+ params.set('success_url',origin+'/checkout-status.html?session_id={CHECKOUT_SESSION_ID}');
+ params.set('cancel_url',origin+'/checkout.html?cancelled=1');
+ if(p.bill!=='lifetime')params.set('subscription_data[metadata][gu58_intent]',id);
+ return request('https://api.stripe.com/v1/checkout/sessions',{
+  method:'POST',headers:{authorization:'Bearer '+c.stripe,
+   'content-type':'application/x-www-form-urlencoded','Stripe-Version':SRC_VERSION,
+   'Idempotency-Key':'gu58-live-'+id},body:params.toString()});
+}
+const checkoutReply=url=>respond({ok:true,live:true,url,
+ notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
 export async function onRequestPost({request:req,env}){
  try{if(Number(req.headers.get('content-length')||0)>2048)throw err('Request too large.',413);
   const origin=req.headers.get('origin'),here=new URL(req.url);if(origin!==here.origin)throw err('Cross-site checkout denied.',403);
@@ -128,22 +198,49 @@ export async function onRequestPost({request:req,env}){
   if(route.provider!=='STRIPE_MANAGED'||route.enabled!==true)throw err('Stripe Managed route is disabled.',503);
   const setting=await db(c,'site_settings?select=value&setting_key=eq.commerce.checkout_enabled&limit=1');
   if(setting[0]?.value!==true)throw err('Website checkout is disabled by the Owner.',503);
-  const id=crypto.randomUUID();await db(c,'gu58_live_checkout_intents','POST',{
- id,user_id:u.id,sku_kind:type,sku_code:code,price_id:price,
- quoted_amount_cents:p.amount,status:'prepared'
- });
-  const params=new URLSearchParams();params.set('managed_payments[enabled]','true');params.set('mode',p.bill==='lifetime'?'payment':'subscription');params.set('line_items[0][price]',price);params.set('line_items[0][quantity]','1');
-  params.set('client_reference_id',id);params.set('metadata[gu58_intent]',id);params.set('metadata[gu58_member]',u.id);
-  params.set('success_url',here.origin+'/checkout-status.html?session_id={CHECKOUT_SESSION_ID}');params.set('cancel_url',here.origin+'/checkout.html?cancelled=1');
-  if(p.bill!=='lifetime')params.set('subscription_data[metadata][gu58_intent]',id);
-  const session=await request('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{
- authorization:'Bearer '+c.stripe,'content-type':'application/x-www-form-urlencoded',
- 'Stripe-Version':SRC_VERSION,'Idempotency-Key':'gu58-live-'+id
- },body:params.toString()});
-  if(!/^cs_live_[A-Za-z0-9_]+$/.test(session.id||'')||session.livemode!==true)throw err('Unexpected Stripe LIVE session.',503);
-  const target=new URL(session.url);if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw err('Invalid Stripe destination.',503);
-  await db(c,`gu58_live_checkout_intents?id=eq.${id}`,'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
-  return respond({ok:true,live:true,url:session.url,notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
+  // Existing incomplete purchase is owned by this authenticated member.
+  // An active reservation may be resumed, but must never create a second intent.
+  let pending=await unresolved(c,u.id,type,code);
+  let id;
+  if(pending){
+   id=verifyPending(pending,u.id,type,code,p,price);
+   if(pending.status==='checkout_created'){
+    const session=await request('https://api.stripe.com/v1/checkout/sessions/'+
+     encodeURIComponent(pending.stripe_session_id),
+     {headers:{authorization:'Bearer '+c.stripe}});
+    if(session.id!==pending.stripe_session_id)
+     throw err('Stored and provider Checkout Session IDs disagree.',503);
+    return checkoutReply(safeCheckoutSession(session,id,u.id,price,p));
+   }
+  }else{
+   id=crypto.randomUUID();
+   try{
+    await db(c,'gu58_live_checkout_intents','POST',{
+     id,user_id:u.id,sku_kind:type,sku_code:code,price_id:price,
+     quoted_amount_cents:p.amount,status:'prepared'
+    });
+   }catch(ex){
+    // The unique database constraint is authoritative. A race winner may
+    // have reserved this SKU. Never create a second Stripe session here.
+    pending=await unresolved(c,u.id,type,code);
+    if(!pending)throw ex;
+    throw err('Checkout is already being prepared for this product. Retry shortly; no new payment initiated.',409);
+   }
+  }
+  // Same immutable intent ID + same provider parameters + same key.
+  // For a recently prepared row this replays safely inside Stripe's
+  // idempotency retention window. No other checkout Session can be spawned
+  // for this member/SKU while the database unique reservation is installed.
+  const session=await stripeCheckout(c,id,u.id,p,price,here.origin);
+  const url=safeCheckoutSession(session,id,u.id,price,p);
+  if(pending?.status==='prepared'&&session.id===pending.stripe_session_id)
+   throw err('Provider session state is ambiguous.',409);
+  // A failed bind is NOT permission to create a new intent. The verified
+  // signed webhook has its own service-only gu58_live_bind_verified_checkout
+  // recovery contract; subsequent customer retry retains the same intent.
+  await db(c,`gu58_live_checkout_intents?id=eq.${id}&status=eq.prepared&stripe_session_id=is.null`,
+   'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
+  return checkoutReply(url);
  }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
 // Public readiness: returns only a boolean; never leaks private credentials, prices or account details.
