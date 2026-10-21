@@ -30,6 +30,7 @@ assert(delivery.includes("token"));
 assert(delivery.includes("cache:'no-store'"));
 assert(!delivery.includes('localStorage'));
 assert(!delivery.includes('innerHTML'));
+assert(delivery.includes("titleHeading.id='cc-delivery-heading'"),'Owner dashboard region must have a valid accessible heading');
 assert(!delivery.includes('site_settings'));
 assert(html.includes('id="or-release-packages"'));
 assert.equal((html.match(/id="or-release-packages"/g)||[]).length,1);

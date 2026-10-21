@@ -35,7 +35,7 @@
   if(response.status===401||response.status===403)return;
   desk.hidden=false;desk.replaceChildren();
   desk.append(el('div','cc-delivery-eyebrow','Owner operations · authenticated project evidence'));
-  const h=el('div','cc-delivery-heading');const title=el('div');title.append(el('h2','', 'Development & Acceptance'),el('p','', 'Source delivery, database installation, provider operations and member acceptance are separate stages.'));
+  const h=el('div','cc-delivery-heading');const title=el('div');const titleHeading=el('h2','','Development & Acceptance');titleHeading.id='cc-delivery-heading';title.append(titleHeading,el('p','', 'Source delivery, database installation, provider operations and member acceptance are separate stages.'));
   const actions=el('div','cc-delivery-actions');actions.append(link('/owner-roadmap.html','Open authoritative roadmap →'),link('/owner-roadmap.html#product-readiness','All 21 tools'),link('/owner-roadmap.html#verification-audit','Verification & SQL'));h.append(title,actions);desk.append(h);
   if(!response.ok){desk.append(el('p','cc-delivery-warning','Roadmap service unavailable. Do not interpret missing evidence as zero outstanding work.'));return}
   let data;try{data=await response.json()}catch{}
