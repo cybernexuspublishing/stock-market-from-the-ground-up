@@ -18,7 +18,7 @@ export default {
     throw new Error('Stripe reconciliation Cron configuration missing');
    let response;
    try{
-    response=await fetch(base+'/api/internal-billing-reconcile-v014124',{
+    response=await fetch(base+'/api/internal-billing-reconcile',{
      method:'POST',headers:{authorization:'Bearer '+secret,
       'content-type':'application/json'},body:'{}',redirect:'error'
     });

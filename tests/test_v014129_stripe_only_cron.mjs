@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import worker from '../workers/billing-reconcile-stripe-only-v014129.js';
+import worker from '../workers/billing-scheduler.js';
 
 const origin='https://course.example',secret='x'.repeat(48);
 const env={GU_BILLING_SITE_ORIGIN:origin,GU_BILLING_TASK_SECRET:secret};
@@ -10,7 +10,7 @@ const oldFetch=globalThis.fetch;
 let requests=[],respond;
 globalThis.fetch=async(url,options)=>{
  requests.push({url:String(url),options});
- assert.equal(String(url),origin+'/api/internal-billing-reconcile-v014124',
+ assert.equal(String(url),origin+'/api/internal-billing-reconcile',
   'Scheduler must never call the Resend notification endpoint');
  assert.equal(options.method,'POST');
  assert.equal(options.headers.authorization,'Bearer '+secret);
