@@ -51,6 +51,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014144_bootcamp_browser.mjs
+      - name: Chromium-verify Scanner Builder data validation and private source notes
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014145_research_scanner_browser.mjs
       - name: Verify Owner delivery plan and roadmap governance contracts
         run: |
           node tests/test_v014141_owner_delivery_governance.mjs

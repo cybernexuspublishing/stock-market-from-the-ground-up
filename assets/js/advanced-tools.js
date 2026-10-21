@@ -18,7 +18,7 @@
  function status(msg,type=''){const e=document.getElementById('tool-status');if(e){e.textContent=msg||'';e.className=`status-message ${type}`}}
  function parseCsv(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<2)return[];const headers=split(lines[0]).map(x=>x.trim().toLowerCase());return lines.slice(1).map(line=>{const p=split(line),o={};headers.forEach((h,i)=>o[h]=p[i]?.trim()??'');return o})}
  function split(line){const out=[];let q=false,cur='';for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out}
- function parseBars(rows){return rows.map(r=>{const raw=r.timestamp||r.datetime||r.date_time||(r.date&&r.time?`${r.date}T${r.time}`:r.date);const t=new Date(raw);return {time:t,open:n(r.open),high:n(r.high),low:n(r.low),close:n(r.close),volume:n(r.volume)||0}}).filter(x=>!Number.isNaN(x.time.getTime())&&[x.open,x.high,x.low,x.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time)}
+ function parseBars(rows){const seen=new Set();return rows.map(r=>{const raw=r.timestamp||r.datetime||r.date_time||(r.date&&r.time?`${r.date}T${r.time}`:r.date);const t=new Date(raw);return {time:t,open:n(r.open),high:n(r.high),low:n(r.low),close:n(r.close),volume:n(r.volume)}}).filter(x=>{const t=x.time.getTime();if(!Number.isFinite(t)||seen.has(t)||![x.open,x.high,x.low,x.close,x.volume].every(Number.isFinite)||x.low<=0||x.high<Math.max(x.open,x.close)||x.low>Math.min(x.open,x.close)||x.volume<0)return false;seen.add(t);return true}).sort((a,b)=>a.time-b.time)}
  async function workspaceApi(url='',method='GET',body,extra={}){
   if(!SB||!TOOL)throw new Error('A verified tool session is required.');
   const session=(await SB.auth.getSession()).data?.session;
@@ -139,12 +139,183 @@
    status('Hypothetical entered comparison; not a broker-confirmed fill.','success');
   };
  }
- function universeWorkbench(scannerOnly=false){document.getElementById('tool-workbench').innerHTML=panel(scannerOnly?'Historical Scanner Builder':'Market Discovery Lab',`<p>Upload a candidate-universe CSV. Suggested columns: <code>symbol,price,change_pct,gap_pct,volume,rvol,float,spread_pct,dollar_volume</code>.</p><input id="u-file" type="file" accept=".csv,text/csv"><div class="v11-form-grid"><div><label>Max price</label><input id="u-maxprice" type="number" value="20"></div><div><label>Min % change</label><input id="u-change" type="number" value="10"></div><div><label>Min volume</label><input id="u-vol" type="number" value="1000000"></div><div><label>Min RVOL</label><input id="u-rvol" type="number" value="2"></div><div><label>Max float</label><input id="u-float" type="number" value="15000000"></div><div><label>Max spread %</label><input id="u-spread" type="number" value="3"></div></div><div class="actions"><button id="u-run" class="btn">${scannerOnly?'Run Scanner':'Rank Candidates'}</button><button id="u-save" class="btn secondary">Save Filter Set</button></div><div id="u-results"></div>`)+panel('Teaching objective','<p>The score is a transparent educational ranking—not a trade alert. The learner should explain why each candidate qualifies, what evidence is missing, and what would invalidate interest.</p>');let rows=[];document.getElementById('u-file').onchange=async e=>{rows=parseCsv(await e.target.files[0].text());status(`Loaded ${rows.length} candidate rows.`,'success')};const getFilters=()=>({maxPrice:n(document.getElementById('u-maxprice').value),minChange:n(document.getElementById('u-change').value),minVol:n(document.getElementById('u-vol').value),minRvol:n(document.getElementById('u-rvol').value),maxFloat:n(document.getElementById('u-float').value),maxSpread:n(document.getElementById('u-spread').value)});document.getElementById('u-run').onclick=()=>{if(!rows.length)return status('Load a universe CSV first.','error');const f=getFilters();const out=rows.map(r=>{const price=n(r.price),chg=n(r.change_pct??r.change),vol=n(r.volume),rv=n(r.rvol),fl=n(r.float),sp=n(r.spread_pct??r.spread),gap=n(r.gap_pct??r.gap);const pass=(f.maxPrice==null||price<=f.maxPrice)&&(f.minChange==null||chg>=f.minChange)&&(f.minVol==null||vol>=f.minVol)&&(f.minRvol==null||rv>=f.minRvol)&&(f.maxFloat==null||fl<=f.maxFloat)&&(f.maxSpread==null||sp<=f.maxSpread);const score=(chg||0)*.35+(rv||0)*4+(gap||0)*.15+Math.log10(Math.max(1,vol||1))*2-(sp||0)*2-(fl?Math.log10(fl)*.8:0);return {...r,_price:price,_chg:chg,_vol:vol,_rv:rv,_fl:fl,_sp:sp,_score:score,_pass:pass}}).filter(r=>r._pass).sort((a,b)=>b._score-a._score).slice(0,100);document.getElementById('u-results').innerHTML=`<div class="v11-matrix"><table><thead><tr><th>Symbol</th><th>Price</th><th>% Chg</th><th>Volume</th><th>RVOL</th><th>Float</th><th>Spread %</th><th>Teaching Score</th></tr></thead><tbody>${out.map(r=>`<tr><td>${esc(r.symbol||r.ticker||'')}</td><td>${r._price??'—'}</td><td>${r._chg??'—'}</td><td>${r._vol?.toLocaleString?.()??'—'}</td><td>${r._rv??'—'}</td><td>${r._fl?.toLocaleString?.()??'—'}</td><td>${r._sp??'—'}</td><td>${r._score.toFixed(1)}</td></tr>`).join('')}</tbody></table></div>`};document.getElementById('u-save').onclick=async()=>{try{await saveRecord('filter_set',scannerOnly?'Scanner Filter Set':'Discovery Filter Set',getFilters());status('Filter set saved.','success')}catch(e){status(e.message,'error')}}}
- async function renderWatchlist(){const recs=await latestRecords('watchlist');document.getElementById('tool-workbench').innerHTML=panel('Watchlist & Trade-Plan Workbench',`<div class="v11-form-grid"><div><label>Ticker</label><input id="w-ticker"></div><div><label>Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div><div><label>Catalyst</label><input id="w-cat"></div><div><label>Key level / HOD / resistance</label><input id="w-level"></div><div><label>Entry condition</label><input id="w-entry"></div><div><label>Invalidation</label><input id="w-inv"></div><div><label>Stop</label><input id="w-stop"></div><div><label>Target</label><input id="w-target"></div></div><label>Why this deserves attention</label><textarea id="w-why" rows="3"></textarea><div class="actions"><button class="btn" id="w-save">Save Candidate</button></div>`)+panel('Saved candidates',`<div id="w-list">${recs.length?recs.map(r=>`<div class="v11-feature available"><span class="v11-feature-mark">${esc(r.payload?.status||'WATCH')}</span><div><strong>${esc(r.title||'')}</strong><small>${esc(r.payload?.entry||'')} · Invalidation: ${esc(r.payload?.invalidation||'')}</small></div></div>`).join(''):'<p class="small">No saved candidates yet.</p>'}</div>`);document.getElementById('w-save').onclick=async()=>{const ticker=document.getElementById('w-ticker').value.trim().toUpperCase();if(!ticker)return status('Ticker required.','error');const payload={status:document.getElementById('w-status').value,catalyst:document.getElementById('w-cat').value,level:document.getElementById('w-level').value,entry:document.getElementById('w-entry').value,invalidation:document.getElementById('w-inv').value,stop:document.getElementById('w-stop').value,target:document.getElementById('w-target').value,why:document.getElementById('w-why').value};await saveRecord('watchlist',ticker,payload);status('Candidate saved.','success');renderWatchlist()}}
- function renderCatalyst(){document.getElementById('tool-workbench').innerHTML=panel('Catalyst & Filing Research',`<div class="v11-form-grid"><div><label>Ticker</label><input id="c-ticker" placeholder="AAPL"></div><div><label>Catalyst category</label><select id="c-type"><option>Earnings</option><option>8-K / Corporate Event</option><option>Offering / Financing</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Merger / Acquisition</option><option>Split / Reverse Split</option><option>Other</option></select></div><div><label>Source URL</label><input id="c-url" type="url"></div><div><label>Source timestamp</label><input id="c-time" type="datetime-local"></div></div><label>What does the source actually say?</label><textarea id="c-fact" rows="4"></textarea><label>What is inference / uncertainty?</label><textarea id="c-unc" rows="3"></textarea><div class="actions"><button class="btn" id="c-save">Save Research Note</button><a class="btn secondary" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">Open SEC EDGAR</a></div>`)+panel('Research standard','<p>Separate verified fact from interpretation. Confirm the original source, timestamp, financing/dilution implications, and whether the catalyst was already known before the observed price move.</p>');document.getElementById('c-save').onclick=async()=>{const t=document.getElementById('c-ticker').value.trim().toUpperCase();if(!t)return status('Ticker required.','error');await saveRecord('catalyst',t,{category:document.getElementById('c-type').value,url:document.getElementById('c-url').value,timestamp:document.getElementById('c-time').value,fact:document.getElementById('c-fact').value,uncertainty:document.getElementById('c-unc').value});status('Research note saved.','success')}}
- function aggregate(bars,min){const out=[];let bucket=null;for(const b of bars){const t=new Date(b.time),m=t.getMinutes(),key=`${t.getFullYear()}-${t.getMonth()}-${t.getDate()}-${t.getHours()}-${Math.floor(m/min)}`;if(!bucket||bucket.key!==key){bucket={key,time:new Date(t),open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume};out.push(bucket)}else{bucket.high=Math.max(bucket.high,b.high);bucket.low=Math.min(bucket.low,b.low);bucket.close=b.close;bucket.volume+=b.volume}}return out}
+
+ function universeWorkbench(scannerOnly=false){
+  const engine=globalThis.GroundUpScannerV014145;
+  if(!engine)throw Error('Research scanner validation engine unavailable.');
+  document.getElementById('tool-workbench').innerHTML=
+   panel(scannerOnly?'Research Scanner Builder':'Market Discovery Lab',
+    '<p>Use a small, lawful, <strong>personally sourced</strong> dated CSV snapshot. This workbench does NOT provide live market data, genuine trade alerts, or rights-cleared history. Required columns: <code>symbol,price,change_pct,volume,rvol,float,spread_pct</code>. Optional: <code>gap_pct</code>. Unknown and invalid metrics are excluded, never converted to zero.</p>'+
+    '<p class="v11-lock-note">Source provenance and capture timestamp are supplied by the researcher; this tool cannot authenticate either. Do not share third-party market data in course materials without permission.</p>'+
+    '<div><label for="u-file">Candidate universe CSV (2 MB / 2,000 securities maximum)</label><input id="u-file" type="file" accept=".csv,text/csv"></div>'+
+    '<div class="v11-form-grid">'+
+    '<div><label for="u-source">Source / permission note (required)</label><input id="u-source" type="text" maxlength="180" placeholder="Your authorized provider or source"></div>'+
+    '<div><label for="u-time">Source observation time incl. zone (ISO 8601, required)</label><input id="u-time" type="text" placeholder="2026-10-21T13:00:00-04:00"></div>'+
+    '<div><label for="u-maxprice">Max price (USD)</label><input id="u-maxprice" type="number" min="0" step="any" value="20"></div>'+
+    '<div><label for="u-change">Min % change</label><input id="u-change" type="number" step="any" value="10"></div>'+
+    '<div><label for="u-vol">Min shares traded</label><input id="u-vol" type="number" min="0" step="1" value="1000000"></div>'+
+    '<div><label for="u-rvol">Min RVOL (provided; not independently computed)</label><input id="u-rvol" type="number" min="0" step="any" value="2"></div>'+
+    '<div><label for="u-float">Max reported float (shares, source dated separately)</label><input id="u-float" type="number" min="0" step="1" value="15000000"></div>'+
+    '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div></div>'+
+    '<div class="actions"><button type="button" id="u-run" class="btn">'+(scannerOnly?'Screen snapshot':'Filter snapshot')+'</button>'+
+    '<button type="button" id="u-save" class="btn secondary">Save Filter Set</button></div>'+
+    '<p id="u-audit" role="status" aria-live="polite"></p><div id="u-results"></div>')+
+   panel('Research—not an execution signal',
+    '<p>Results are deterministically ordered by supplied % change, then volume, then symbol. No probability, success score, market buy signal, quote verification, or automatic live refresh is implied. Float/RVOL are often outdated or calculated using different providers.</p>');
+  let rows=[];
+  document.getElementById('u-file').onchange=async event=>{
+   try{
+    const file=event.target.files?.[0];
+    if(!file||file.size>engine.MAX_BYTES)throw Error('Choose a locally authorized CSV smaller than 2 MB.');
+    rows=engine.csv(await file.text());
+    status(rows.length+' snapshot records parsed locally. Provider rights and timestamps have NOT been authenticated.','success');
+   }catch(e){rows=[];document.getElementById('u-results').replaceChildren();status(e.message,'error')}
+  };
+  const getFilters=()=>({
+   maxPrice:document.getElementById('u-maxprice').value,
+   minChange:document.getElementById('u-change').value,
+   minVol:document.getElementById('u-vol').value,
+   minRvol:document.getElementById('u-rvol').value,
+   maxFloat:document.getElementById('u-float').value,
+   maxSpread:document.getElementById('u-spread').value
+  });
+  const provenance=()=>{
+   const label=document.getElementById('u-source').value.trim();
+   const at=document.getElementById('u-time').value.trim();
+   if(label.length<3||label.length>180)throw Error('Supply a bounded original snapshot source note.');
+   if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(at)||!Number.isFinite(Date.parse(at)))
+    throw Error('Supply a valid ISO 8601 source observation timestamp WITH UTC offset.');
+   if(Date.parse(at)>Date.now()+300000)throw Error('A snapshot cannot have a future timestamp.');
+   return {sourceNote:label,asOf:at,verified:false};
+  };
+  document.getElementById('u-run').onclick=()=>{
+   try{
+    if(!rows.length)throw Error('Upload your authorized dated snapshot first.');
+    const p=provenance(),result=engine.analyze(rows,getFilters());
+    const audit=document.getElementById('u-audit');
+    audit.textContent=result.matched+' of '+result.inspected+' records passed supplied thresholds. '+
+      'Excluded: '+result.rejections.missingMetric+' incomplete, '+
+       result.rejections.invalidInput+' malformed, '+result.rejections.failedThreshold+
+      ' below/above filters, '+result.rejections.duplicateTicker+' duplicated. '+
+      'Unverified researcher-provided source: '+p.sourceNote+' · '+p.asOf+'.';
+    const host=document.getElementById('u-results');host.replaceChildren();
+    const wrap=document.createElement('div');wrap.className='v11-matrix';
+    const table=document.createElement('table'),caption=document.createElement('caption');
+    caption.textContent='Unverified user-supplied snapshot; top 100 matching candidates, not investment recommendations.';
+    table.append(caption);
+    const head=document.createElement('thead'),tr=document.createElement('tr');
+    for(const text of ['Symbol','Price','% change','Volume','RVOL','Reported float','Spread %']){
+     const th=document.createElement('th');th.textContent=text;th.scope='col';tr.append(th);
+    }
+    head.append(tr);table.append(head);
+    const body=document.createElement('tbody');
+    for(const row of result.rows){
+     const r=document.createElement('tr');
+     for(const value of [row.symbol,row.price,row.change,row.volume.toLocaleString(),row.rvol,row.float.toLocaleString(),row.spread]){
+      const cell=document.createElement('td');cell.textContent=String(value);r.append(cell);
+     }
+     body.append(r);
+    }
+    table.append(body);wrap.append(table);host.append(wrap);
+    status('Snapshot filtered. Dates, source rights, RVOL methodology and actual market observations remain unverified.','success');
+   }catch(e){document.getElementById('u-results').replaceChildren();status(e.message,'error')}
+  };
+  document.getElementById('u-save').onclick=async()=>{
+   try{const p=provenance();await saveRecord('filter_set',scannerOnly?'Scanner Filter Set':'Discovery Filter Set',
+     {filters:engine.filters(getFilters()),...p,kind:'UNVERIFIED_RESEARCH_CRITERIA',liveFeed:false});
+    status('Private criteria and provenance note saved; market observations NOT saved or certified.','success');
+   }catch(e){status(e.message,'error')}
+  };
+ }
+
+ async function renderWatchlist(){
+  const recs=await latestRecords('watchlist'),host=document.getElementById('tool-workbench');
+  host.innerHTML=panel('Watchlist & Conditional Trade Plans',
+   '<p>Member-researched candidates only—not auto-executed orders, verified quotes or buy signals.</p>'+
+   '<div class="v11-form-grid">'+
+   '<div><label for="w-ticker">Ticker</label><input id="w-ticker" maxlength="12"></div>'+
+   '<div><label for="w-status">Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div>'+
+   '<div><label for="w-asof">Source observation time with UTC offset</label><input id="w-asof" placeholder="2026-10-21T13:00:00-04:00"></div>'+
+   '<div><label for="w-source">Original source / permission note</label><input id="w-source" maxlength="180"></div>'+
+   '<div><label for="w-cat">Catalyst</label><input id="w-cat"></div>'+
+   '<div><label for="w-level">Level / resistance</label><input id="w-level"></div>'+
+   '<div><label for="w-entry">Conditional entry</label><input id="w-entry"></div>'+
+   '<div><label for="w-inv">Invalidation or NO TRADE rule</label><input id="w-inv"></div>'+
+   '<div><label for="w-stop">Planned stop (not guaranteed)</label><input id="w-stop"></div>'+
+   '<div><label for="w-target">Research target (not prediction)</label><input id="w-target"></div></div>'+
+   '<label for="w-why">Why further research?</label><textarea id="w-why" rows="3"></textarea>'+
+   '<div class="actions"><button type="button" class="btn" id="w-save">Save Research Candidate</button></div>')+
+   panel('Private saved candidates','<div id="w-list"></div>')+
+   panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
+  const list=document.getElementById('w-list');
+  if(!recs.length)list.textContent='No saved candidates yet.';
+  for(const rec of recs){
+   const line=document.createElement('p');
+   line.textContent=(rec.title||'')+' · '+(rec.payload?.status||'WATCH')+
+    ' · Invalidation: '+(rec.payload?.invalidation||'Unspecified')+
+    ' · Source: '+(rec.payload?.sourceNote||'Legacy record: no source')+
+    ' · At: '+(rec.payload?.asOf||'Date unknown');
+   list.append(line);
+  }
+  document.getElementById('w-save').onclick=async()=>{
+   try{
+    const value=id=>document.getElementById(id).value.trim();
+    const ticker=value('w-ticker').toUpperCase(),sourceNote=value('w-source'),asOf=value('w-asof');
+    if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker))throw Error('A valid stock symbol is required.');
+    if(sourceNote.length<3||sourceNote.length>180)throw Error('Source and use-rights note is required.');
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(asOf)||
+       !Number.isFinite(Date.parse(asOf))||Date.parse(asOf)>Date.now()+300000)
+       throw Error('A nonfuture source timestamp with timezone offset is required.');
+    if(!value('w-inv'))throw Error('Document a clear invalidation or NO TRADE rule.');
+    const payload={status:value('w-status'),catalyst:value('w-cat'),level:value('w-level'),
+     entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
+     target:value('w-target'),why:value('w-why'),asOf,sourceNote,
+     evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
+    await saveRecord('watchlist',ticker,payload);await renderWatchlist();renderWorkspaceManager();
+    status('Saved private conditional plan. Market source and trade outcome remain unverified.','success');
+   }catch(e){status(e.message,'error')}
+  };
+ }
+ function renderCatalyst(){
+  document.getElementById('tool-workbench').innerHTML=panel('Catalyst & Filing Research',
+   '<p>Use a dated primary issuer or regulator source, with timestamp and uncertainty. No inferred causal relationship is automatically proven.</p>'+
+   '<div class="v11-form-grid">'+
+   '<div><label for="c-ticker">Ticker</label><input id="c-ticker" maxlength="12"></div>'+
+   '<div><label for="c-type">Category</label><select id="c-type"><option>Earnings</option><option>8-K / Corporate Event</option><option>Offering / Financing</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Merger / Acquisition</option><option>Split / Reverse Split</option><option>Other</option></select></div>'+
+   '<div><label for="c-url">Original HTTPS source URL</label><input id="c-url" type="url"></div>'+
+   '<div><label for="c-time">Original publication time with UTC offset</label><input id="c-time" placeholder="2026-10-21T08:30:00-04:00"></div></div>'+
+   '<label for="c-fact">Verifiable original-source facts</label><textarea id="c-fact" rows="4"></textarea>'+
+   '<label for="c-unc">Alternative explanations / uncertainty</label><textarea id="c-unc" rows="3"></textarea>'+
+   '<div class="actions"><button type="button" class="btn" id="c-save">Save Research Note</button>'+
+   '<a class="btn secondary" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener noreferrer">Open SEC EDGAR</a></div>')+
+   panel('Data standard','<p>Researcher-entered data is NOT authenticated. Check original filings, amendments, event time, float changes and supported venue datasets before publishing a historical case.</p>');
+  document.getElementById('c-save').onclick=async()=>{
+   try{
+    const value=id=>document.getElementById(id).value.trim(),t=value('c-ticker').toUpperCase();
+    if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(t))throw Error('Valid ticker required.');
+    let url;try{url=new URL(value('c-url'))}catch{throw Error('Valid original source HTTPS URL required.')}
+    if(url.protocol!=='https:'||url.username||url.password||url.port||!url.hostname.includes('.')||url.href.length>500)
+     throw Error('Source must be HTTPS without embedded credentials.');
+    const at=value('c-time');
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(at)||
+       !Number.isFinite(Date.parse(at))||Date.parse(at)>Date.now()+300000)
+     throw Error('Exact original release time with offset required.');
+    if(value('c-fact').length<15||value('c-unc').length<12)
+     throw Error('Record substantive source facts AND a competing explanation/uncertainty.');
+    await saveRecord('catalyst',t,{
+     category:value('c-type'),url:url.href,timestamp:at,fact:value('c-fact'),
+     uncertainty:value('c-unc'),evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED',tradingSignal:false});
+    status('Private source note recorded, without claiming independent causality or price verification.','success');
+   }catch(e){status(e.message,'error')}
+  };
+ }
+ function aggregate(bars,min){const out=[];let bucket=null;for(const b of bars){const t=new Date(b.time),key=Math.floor(t.getTime()/(min*60000));if(!bucket||bucket.key!==key){bucket={key,time:new Date(t),open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume};out.push(bucket)}else{bucket.high=Math.max(bucket.high,b.high);bucket.low=Math.min(bucket.low,b.low);bucket.close=b.close;bucket.volume+=b.volume}}return out}
  function structureSummary(b){if(b.length<5)return'Not enough bars';const x=b.slice(-5),last=x[x.length-1],prev=x[x.length-3];if(last.high>prev.high&&last.low>prev.low)return'Higher-high / higher-low tendency';if(last.high<prev.high&&last.low<prev.low)return'Lower-high / lower-low tendency';return'Range / mixed structure'}
- function renderMulti(){document.getElementById('tool-workbench').innerHTML=panel('Multi-Timeframe Synchronizer',`<p>Upload 1-minute OHLCV. The tool derives 3m, 5m, and 15m views from the same source so timestamps stay synchronized.</p><input id="m-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="m-run">Build Timeframes</button></div><div id="m-out"></div>`);let rows=[];document.getElementById('m-file').onchange=async e=>{rows=parseBars(parseCsv(await e.target.files[0].text()));status(`Loaded ${rows.length} valid bars.`,'success')};document.getElementById('m-run').onclick=()=>{if(!rows.length)return status('Load 1-minute OHLCV first.','error');const frames=[[1,rows],[3,aggregate(rows,3)],[5,aggregate(rows,5)],[15,aggregate(rows,15)]];document.getElementById('m-out').innerHTML=`<div class="v11-feature-grid">${frames.map(([m,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">${m}m</span><div><strong>${structureSummary(b)}</strong><small>${b.length} derived bars · last ${money(b.at(-1)?.close)}</small></div></div>`).join('')}</div><div class="v11-lock-note">A lower timeframe can look bullish while a higher timeframe is pressing into resistance. The exercise is to explain the conflict—not force agreement.</div>`}}
+ function renderMulti(){document.getElementById('tool-workbench').innerHTML=panel('Multi-Timeframe Synchronizer',`<p>Upload 1-minute OHLCV. The tool derives 3m, 5m, and 15m views from the same source so timestamps stay synchronized.</p><input id="m-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="m-run">Build Timeframes</button></div><div id="m-out"></div>`);let rows=[];document.getElementById('m-file').onchange=async e=>{rows=parseBars(parseCsv(await e.target.files[0].text()));status(`Loaded ${rows.length} valid bars.`,'success')};document.getElementById('m-run').onclick=()=>{if(!rows.length)return status('Load 1-minute OHLCV first.','error');const frames=[[1,rows],[3,aggregate(rows,3)],[5,aggregate(rows,5)],[15,aggregate(rows,15)]];
+ const math=globalThis.GroundUpScannerV014145;
+ const ema9=math?.ema(rows.map(x=>x.close),9),ema20=math?.ema(rows.map(x=>x.close),20);
+ const typical=math?.typicalPriceVwap(rows);
+ document.getElementById('m-out').innerHTML=`<div class="v11-feature-grid">${frames.map(([m,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">${m}m</span><div><strong>${structureSummary(b)}</strong><small>${b.length} derived bars · last ${money(b.at(-1)?.close)}</small></div></div>`).join('')}</div><div class="v11-feature-grid">${[['EMA 9 (provided close observations)',ema9?money(ema9.value):'Insufficient valid observations'],['EMA 20 (provided close observations)',ema20?money(ema20.value):'Insufficient valid observations'],['Typical-price OHLCV VWAP proxy (NOT trade VWAP)',typical?money(typical.value):'Insufficient valid volume']].map(([label,value])=>`<div class="v11-feature available"><div><strong>${esc(label)}</strong><small>${esc(value)}</small></div></div>`).join('')}</div><div class="v11-lock-note">A lower timeframe can look bullish while a higher timeframe is pressing into resistance. Uploaded observations are not independently verified. EMA uses supplied closing values; any VWAP proxy uses typical-price OHLCV approximation, NOT actual trade-derived VWAP.</div>`}}
  function renderStructure(){document.getElementById('tool-workbench').innerHTML=panel('Market Structure Lab',`<p>Upload OHLCV. A simple pivot detector identifies candidate swing highs/lows. You still decide whether the sequence is meaningful market structure.</p><input id="s-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="s-run">Detect Swings</button></div><div id="s-out"></div>`);let rows=[];document.getElementById('s-file').onchange=async e=>rows=parseBars(parseCsv(await e.target.files[0].text()));document.getElementById('s-run').onclick=()=>{if(rows.length<7)return status('Load at least 7 bars.','error');const piv=[];for(let i=2;i<rows.length-2;i++){const b=rows[i],h=rows.slice(i-2,i+3);if(b.high===Math.max(...h.map(x=>x.high)))piv.push({i,type:'H',price:b.high,time:b.time});if(b.low===Math.min(...h.map(x=>x.low)))piv.push({i,type:'L',price:b.low,time:b.time})}const last=piv.slice(-12);let prevH=null,prevL=null;const annotated=last.map(p=>{let lab=p.type;if(p.type==='H'){lab=prevH==null?'H':p.price>prevH?'HH':'LH';prevH=p.price}else{lab=prevL==null?'L':p.price>prevL?'HL':'LL';prevL=p.price}return {...p,lab}});document.getElementById('s-out').innerHTML=`<div class="v11-matrix"><table><thead><tr><th>Time</th><th>Pivot</th><th>Price</th></tr></thead><tbody>${annotated.map(p=>`<tr><td>${p.time.toLocaleString()}</td><td>${p.lab}</td><td>${p.price}</td></tr>`).join('')}</tbody></table></div><div class="v11-lock-note">Pivot algorithms are aids, not authoritative structure labels. Confirm the swing significance in context.</div>`}}
  function renderHalt(){const scenarios=[['Volatility halt occurs immediately after a vertical expansion.','Pause decision-making. Reassess news, liquidity, expected resume spread, and gap risk before considering any new order.'],['SSR is active after a large decline.','Understand the restriction context, but do not treat SSR itself as a directional signal.'],['Resume prints far from the pre-halt price.','Assume stop execution can differ materially from the planned price; recalculate risk before acting.']];document.getElementById('tool-workbench').innerHTML=panel('Halt / SSR / Abnormal Market Scenarios',scenarios.map((s,i)=>`<details><summary><strong>Scenario ${i+1}</strong> — ${esc(s[0])}</summary><p>${esc(s[1])}</p><label>Your decision</label><textarea rows="3" data-scenario="${i}"></textarea></details>`).join('')+`<div class="actions"><button class="btn" id="h-save">Save Scenario Notes</button></div>`);document.getElementById('h-save').onclick=async()=>{const notes=[...document.querySelectorAll('[data-scenario]')].map(x=>x.value);await saveRecord('scenario_review','Halt / SSR Scenario Review',{notes});status('Scenario review saved.','success')}}
  async function renderPattern(){let labs=[];try{labs=await fetch('data/interactive-lab-index.json').then(r=>r.json())}catch{}document.getElementById('tool-workbench').innerHTML=panel('Pattern & Failure Library',`<div class="v11-form-grid"><div><label>Search concept/context</label><input id="p-q" placeholder="failed breakout, VWAP, range..."></div><div><label>Book</label><select id="p-book"><option value="">All</option><option value="1">Book I</option><option value="2">Book II</option><option value="3">Book III</option></select></div></div><div class="actions"><button class="btn" id="p-run">Search Library</button></div><div id="p-out"></div>`);const run=()=>{const q=document.getElementById('p-q').value.toLowerCase(),b=document.getElementById('p-book').value;const out=labs.filter(x=>(!b||String(x.book)===b)&&(!q||JSON.stringify(x).toLowerCase().includes(q))).slice(0,60);document.getElementById('p-out').innerHTML=`<div class="v11-tool-hub">${out.map(x=>`<article class="v11-tool-card"><div class="eyebrow">${esc(x.id)}</div><h3>${esc(x.concept)}</h3><p>${esc((x.marketContexts||[]).join(' · '))}</p><a class="btn secondary" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Lab</a></article>`).join('')}</div>`};document.getElementById('p-run').onclick=run;run()}
@@ -239,6 +410,13 @@
    document.getElementById('tool-content').hidden=false;
    await render();
    renderWorkspaceManager();
+   SB.auth.onAuthStateChange((_event,nextSession)=>{
+    if(nextSession?.user?.id===USER?.id)return;
+    USER=null;TOOL=null;ACCESS=null;
+    document.getElementById('tool-content').hidden=true;
+    document.getElementById('tool-workbench').replaceChildren();
+    gate.textContent='Signed out or account changed. Reload the tool to access the current member’s private workspace.';
+   });
   }catch(e){gate.textContent=e?.message||'Tool not available.'}
  }
  document.addEventListener('DOMContentLoaded',init);
