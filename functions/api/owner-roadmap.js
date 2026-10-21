@@ -10,6 +10,7 @@ import {roadmapEngineeringReview} from '../_lib/owner-roadmap-engineering-review
 import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-delegation-v014046.js';
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
+import {ownerReleasePlanV014141} from '../_lib/owner-release-plan-v014141.js';
 import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
 import {ownerAcceptanceSnapshot} from '../_lib/owner-acceptance-v014108.js';
 import {ownerLegalPublicationAudit} from '../_lib/owner-legal-audit-v014109.js';
@@ -19,7 +20,7 @@ const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const clean=x=>String(x??'').trim();
 const KEY='owner_roadmap.';
-const STATUS=new Set(['not_started','in_progress','implemented','blocked','deferred','owner_complete','verified']);
+const STATUS=new Set(["not_started","research_required","research_complete","planned","in_progress","partially_complete","implemented","testing_required","blocked","owner_review_required","deferred","owner_complete","verified"]);
 // Preserve every historical requirement; append reviewed 2026-10-18 work without renaming IDs.
 const completeCatalog=[...roadmapCatalog,...roadmapSupplementalItems];
 const IDS=new Set(completeCatalog.map(x=>x.id));
@@ -245,7 +246,7 @@ async function handlePost(request,c,user){
   if(!STATUS.has(status))throw fail('Choose a valid tracking status.',400);
   const note=clean(body.note||'');
   if(note.length>2400)throw fail('Progress note may not exceed 2,400 characters.',400);
-  if(status==='verified'&&note.length<20)throw fail('Evidence-verified status requires at least 20 characters of recorded acceptance evidence.',400);
+  if(['verified','research_complete'].includes(status)&&note.length<20)throw fail('Verified research or acceptance requires an evidence note of at least 20 characters.',400);
   const value={...(prior?.value||{}),status,note};
   const saved=await write(c,user,key,value,prior);
   const logged=await audit(c,user,'owner_roadmap.update',id,status);
@@ -332,6 +333,44 @@ export async function onRequest({request,env}){
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
     if(new URL(request.url).searchParams.get('action')==='platform-acceptance-v014108')return reply({ok:true,acceptance:await ownerAcceptanceSnapshot(env)});
     if(new URL(request.url).searchParams.get('action')==='legal-publication-v014109')return reply({ok:true,legalAudit:await ownerLegalPublicationAudit(env)});
+
+    // Low-payload Owner dashboard summary: SAME Owner authorization and
+    // canonical site_settings/roadmap source, but avoids sending 2,190 records
+    // or loading unrelated product catalog queries for every Admin visit.
+    if(new URL(request.url).searchParams.get('action')==='delivery-summary'){
+      const rows=await allState(c),saved=new Map();
+      let custom=0;
+      for(const row of rows){
+        const key=row.setting_key||'',value=row.value||{};
+        if(key.startsWith(KEY+'task.')){
+          const id=key.slice((KEY+'task.').length);
+          if(IDS.has(id))saved.set(id,value.status);
+        }else if(key.startsWith(KEY+'custom.')&&value.custom===true&&!value.archived){
+          custom++;
+          saved.set(value.id,value.status||'not_started');
+        }
+      }
+      const base=completeCatalog.filter(x=>x.scope==='core'&&x.kind==='task');
+      const counts=Object.create(null);
+      for(const item of base){
+        const s=saved.get(item.id)||delegatedBaseline[item.id]?.status||'not_started';
+        const stage=STATUS.has(s)?s:'not_started';
+        counts[stage]=(counts[stage]||0)+1;
+      }
+      for(const row of rows){
+        const key=row.setting_key||'',value=row.value||{};
+        if(key.startsWith(KEY+'custom.')&&value.custom===true&&!value.archived){
+          const s=STATUS.has(value.status)?value.status:'not_started';
+          counts[s]=(counts[s]||0)+1;
+        }
+      }
+      return reply({ok:true,deliverySummary:{
+        primaryTasks:base.length,customTasks:custom,totalTasks:base.length+custom,
+        preservedReferenceLines:completeCatalog.filter(x=>x.scope!=='core').length,
+        counts,verificationScope:'Authenticated Owner roadmap status; delegated source approvals are not live-production acceptance',
+        computedAt:new Date().toISOString()
+      },releasePlan:ownerReleasePlanV014141});
+    }
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];
@@ -345,7 +384,7 @@ export async function onRequest({request,env}){
         if(typeof id==='string'&&id.startsWith('OWN-')){progress[id]={...value,revision:recordRevision(row)};custom.push({id,scope:'core',area:value.area||'Owner-added tasks',title:value.title||'Untitled',detail:value.detail||'',source:'Owner-added item',evidence:'Owner-authored',kind:'task'});}
       }
     }
-    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-19',baseline:String(env.CF_PAGES_COMMIT_SHA||'deployment-unverified'),scope:'Prior v0.14.0.45–60 evidence is preserved. v0.14.0.90 commercial source and v0.14.0.91 Owner product planning are assessed as source-only delivery; customer purchases and live acceptance are not certified.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,productInventory,productReadiness:ownerProductReadinessV01491,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
+    return reply({ok:true,metadata:{...roadmapMetadata,...roadmapSupplementalMeta,originalCount:roadmapCatalog.length,totalCount:completeCatalog.length},engineeringReview:{...roadmapEngineeringReview.meta,asOf:'2026-10-19',baseline:String(env.CF_PAGES_COMMIT_SHA||'deployment-unverified'),scope:'Prior v0.14.0.45–60 evidence is preserved. v0.14.0.90 commercial source and v0.14.0.91 Owner product planning are assessed as source-only delivery; customer purchases and live acceptance are not certified.',labels:roadmapEngineeringReview.labels,counts:reviewCounts},delegatedReview:{...delegatedReviewPolicy,counts:baselineCounts},delegatedBaseline,operationalBrief:roadmapOperationalBrief,productInventory,productReadiness:ownerProductReadinessV01491,releasePlan:ownerReleasePlanV014141,items:completeCatalog.map(item=>({...item,engineeringReview:reviewFor(item)})),custom,progress,limitations:'Delegated technical acceptance covers evidenced delivery, not commercial launch or fully tested systems. Supabase-saved Owner progress overrides this read-only baseline.'});
   }catch(err){
     const status=[400,401,403,404,405,409,413,503].includes(err?.status)?err.status:503;
     return reply({ok:false,error:err?.message||'Roadmap service unavailable.'},status);

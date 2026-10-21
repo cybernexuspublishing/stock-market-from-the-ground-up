@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="application-version" content="v0.14.0.99"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <title>Owner Website Roadmap | The Stock Market: From the Ground Up</title>
-<link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/owner-roadmap.css">
+<link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/owner-roadmap.css"><link rel="stylesheet" href="/assets/css/admin-delivery-brief.css">
 <script src="/config.js"></script>
 <script defer src="/assets/js/site.js"></script>
 <script defer src="/assets/js/supabase-client.js"></script>
@@ -22,6 +22,7 @@
 <h2 id="or-owner-brief-title">Private Owner development command brief</h2>
 <div id="or-private-brief">The detailed project milestones load only after server-side Owner authorization.</div>
 </section>
+<section class="or-release-plan" aria-labelledby="or-release-plan-title"><div class="or-release-heading"><div><p class="or-eyebrow">Coordinated releases · 8 planned packages</p><h2 id="or-release-plan-title">Release delivery plan</h2><p class="or-muted">Original website roadmap records remain authoritative. A release is not complete merely because source has been committed.</p></div></div><div id="or-release-packages" role="region" aria-label="Eight planned release packages">Awaiting authorized roadmap data…</div></section>
 <section class="or-metrics" id="or-metrics" aria-label="Delegated and Owner-authenticated progress totals"></section>
 <section class="or-review-board" id="or-review-board" aria-label="Independent engineering evidence assessment" hidden></section>
 <section class="or-action-board" id="or-action-board" aria-labelledby="or-action-title" hidden><div class="or-action-head"><div><h2 id="or-action-title">Coordinated development action queue</h2><p class="or-muted">A compact, evidence-scoped view of what is being built, what is ready for acceptance, and what is blocked. Select any task to open its checklist record.</p></div><button type="button" id="or-open-current" class="or-button or-secondary">View all current work</button></div><div id="or-action-grid" class="or-action-grid"></div></section>
@@ -117,7 +118,7 @@
 <div class="or-toolbar">
 <label>Search commitments<input id="or-search" type="search" placeholder="Title, feature, ID, dependency or documentation"></label>
 <label>Area<select id="or-area"><option value="">All areas</option></select></label>
-<label>Progress<select id="or-status"><option value="">Any status</option><option value="not_started">Not Owner-reviewed</option><option value="in_progress">In progress</option><option value="implemented">Implemented · needs verification</option><option value="blocked">Blocked</option><option value="deferred">Deferred / future release</option><option value="owner_complete">Owner marked complete</option><option value="verified">Evidence verified</option></select></label>
+<label>Progress<select id="or-status"><option value="">Any status</option><option value="not_started">Not started / not reviewed</option><option value="research_required">Research required</option><option value="research_complete">Research verified · implementation not implied</option><option value="planned">Planned / approved scope</option><option value="in_progress">In development</option><option value="partially_complete">Partially complete</option><option value="implemented">Implemented · verification pending</option><option value="testing_required">Testing required</option><option value="blocked">Blocked — dependency</option><option value="owner_review_required">Owner review required</option><option value="deferred">Deferred / future release</option><option value="owner_complete">Owner marked complete · not independently verified</option><option value="verified">Evidence verified</option></select></label>
 <label>Engineering review<select id="or-review"><option value="">All engineering assessments</option><option value="deployed_verified">Verified delivered controls</option><option value="source_implemented">Implemented — live tests pending</option><option value="in_progress">Currently being worked on</option><option value="blocked">Blocked or missing evidence</option><option value="backlog">Backlog</option><option value="needs_review">Not individually verified</option></select></label>
 <label>Decision origin<select id="or-origin"><option value="">All decision origins</option><option value="owner">Owner-saved progress</option><option value="delegated">Delegated source review</option><option value="unreviewed">No stored or delegated review</option></select></label>
 <label>Sort by<select id="or-sort"><option value="priority">Priority and release blockers</option><option value="original">Original requirement order</option><option value="area">Work area</option><option value="status">Progress status</option><option value="updated">Recently updated by Owner</option></select></label>

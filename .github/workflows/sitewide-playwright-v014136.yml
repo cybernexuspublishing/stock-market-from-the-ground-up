@@ -47,6 +47,14 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/sitewide-playwright-v014136.mjs
+      - name: Verify Owner delivery plan and roadmap governance contracts
+        run: |
+          node tests/test_v014141_owner_delivery_governance.mjs
+          node tests/test_owner_roadmap_progress_v014045.mjs
+          node tests/test_owner_roadmap_workflow_v014063.mjs
+          node --check assets/js/admin-delivery-brief.js
+          node --check assets/js/owner-roadmap.js
+          node --check functions/api/owner-roadmap.js
       - name: Verify header search, unread alerts and desktop viewport containment
         run: node tests/test_v014138_header_badge_playwright.mjs
       - name: Verify secure eight-SKU LIVE quote presentation and terms (no charges)

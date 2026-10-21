@@ -1,0 +1,29 @@
+/* Deployment 01 of 08 — uses existing dark/navy/gold site language, no duplicate Admin nav. */
+.cc-delivery-desk,.or-release-plan{background:linear-gradient(140deg,#102e43,#091c2d);border:1px solid #42627a;border-radius:14px;padding:clamp(16px,2.5vw,26px);margin:1.5rem 0;color:#dfeef7;min-width:0}
+.cc-delivery-desk[hidden],.or-release-plan[hidden]{display:none!important}
+.cc-delivery-eyebrow{font-size:.74rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#e4c47b;margin-bottom:.5rem}
+.cc-delivery-heading,.or-release-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:1.2rem;flex-wrap:wrap}
+.cc-delivery-heading h2,.or-release-heading h2{color:#fff;margin:.1rem 0 .4rem;font-size:clamp(1.35rem,2vw,1.8rem)}
+.cc-delivery-heading p{color:#bfd6e5;line-height:1.55;max-width:68ch;margin:0}
+.cc-delivery-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.cc-delivery-link,.or-release-card a{color:#f5d48f;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.cc-delivery-link{display:inline-flex;align-items:center;min-height:42px;padding:.5rem .75rem;border:1px solid #51718b;border-radius:9px;background:#153950}
+.cc-delivery-link:hover,.cc-delivery-link:focus-visible,.or-release-card a:focus-visible{outline:2px solid #f5d48f;outline-offset:2px}
+.cc-delivery-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:.7rem;margin:1.25rem 0}
+.cc-delivery-stat{border:1px solid #3a607a;border-radius:11px;background:#0b2639;padding:1rem;display:grid;gap:.35rem;min-width:0}
+.cc-delivery-stat span{color:#d4e8f5;font-size:.85rem;font-weight:750}
+.cc-delivery-stat strong{color:#fff;font-size:clamp(1.4rem,2.5vw,2rem);line-height:1.2}
+.cc-delivery-stat small{color:#a8c6d8;line-height:1.35}
+.cc-delivery-subheading{color:#f4dd9a;margin:1.3rem 0 .7rem;font-size:1.05rem}
+.cc-delivery-phases,.or-release-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(235px,100%),1fr));gap:.7rem}
+.cc-delivery-phase,.or-release-card{border:1px solid #3c637a;border-radius:10px;background:#123246;padding:.85rem;display:grid;gap:.45rem;min-width:0}
+.cc-delivery-phase strong,.or-release-card h3{color:#fff;font-size:1rem;margin:0;line-height:1.35}
+.cc-delivery-phase small,.or-release-card p,.or-release-pending{color:#bdd4e3;line-height:1.45;font-size:.84rem}
+.cc-phase-number,.or-release-number{font-size:.71rem;letter-spacing:.07em;text-transform:uppercase;font-weight:850;color:#f2cf78}
+.cc-delivery-note,.cc-delivery-warning{padding:.8rem 1rem;border-left:4px solid #c9a768;background:#26323b;border-radius:8px;line-height:1.55;color:#e6ebec}
+.or-release-plan{margin-bottom:1.25rem}
+.or-release-plan .or-muted{color:#b6d0df;line-height:1.5}
+.or-release-grid{margin:1rem 0}
+.or-release-card a{margin-top:.4rem}
+@media(max-width:640px){.cc-delivery-desk,.or-release-plan{padding:14px}.cc-delivery-actions{width:100%}.cc-delivery-link{flex:1 1 180px;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.cc-delivery-desk *,.or-release-plan *{scroll-behavior:auto;animation:none;transition:none}}
