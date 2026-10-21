@@ -30,9 +30,9 @@ try{
    // by tests/test_header_geometry.py rather than inventing an oversized menu
    // at the 901px responsive breakpoint.
    const navSource=readFileSync(resolve('assets/js/navigation.js'),'utf8')
-    .split('/* CANONICAL_DESKTOP_NAV */\\n',2)[1];
+     .split('/* CANONICAL_DESKTOP_NAV */',2)[1];
    assert(navSource?.trimEnd().endsWith('})();'),'Desktop navigation module contract changed');
-   await page.addScriptTag({content:navSource.slice(0,-6)+'window.__testMakeNav=makeNav;\\n})();\\n'});
+   await page.addScriptTag({content:navSource.slice(0,-6)+`\nwindow.__testMakeNav=makeNav;\n})();\n`});
    await page.evaluate(()=>window.__testMakeNav({
     authenticated:true,username:'ExampleReader',planCode:'LIFETIME',
     staffRoles:['OWNER'],controlPanel:true,books:[],tools:[]
