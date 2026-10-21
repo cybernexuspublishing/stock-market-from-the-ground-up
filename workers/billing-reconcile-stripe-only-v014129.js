@@ -26,6 +26,25 @@ export function classifyBillingFetchFailure(error){
  else if(has('connect')||has('network'))reason='NETWORK_FAILURE';
  return {name,reason};
 }
+
+/* v0.14.0.133: Manual redirect inspection, never forwarding billing bearer
+ * credentials to any redirect target, including an apparently safe origin.
+ * Only emit enum classifications, never Location, URL, headers, or tokens. */
+export function classifyBillingRedirect(response,base){
+ const status=response.status;
+ const raw=response.headers.get('location');
+ if(!raw)return {status,destination:'LOCATION_MISSING'};
+ try{
+  const requested=new URL(base+'/api/internal-billing-reconcile');
+  const destination=new URL(raw,requested);
+  if(destination.protocol!=='https:')return {status,destination:'INSECURE_DESTINATION'};
+  if(destination.origin!==requested.origin)return {status,destination:'CROSS_ORIGIN'};
+  if(destination.pathname!==requested.pathname||destination.search)
+   return {status,destination:'SAME_ORIGIN_OTHER_PATH'};
+  return {status,destination:'SAME_ORIGIN_SAME_PATH'};
+ }catch{return {status,destination:'INVALID_LOCATION'}}
+}
+
 const healthyCount=n=>Number.isSafeInteger(n)&&n>=0;
 const safeJson=async response=>{
  try{return await response.json()}catch{return null}
@@ -41,12 +60,19 @@ export default {
    try{
     response=await fetch(base+'/api/internal-billing-reconcile',{
      method:'POST',headers:{authorization:'Bearer '+secret,
-      'content-type':'application/json'},body:'{}',redirect:'error'
+      'content-type':'application/json'},body:'{}',redirect:'manual'
     });
    }catch(error){
     const failure=classifyBillingFetchFailure(error);
     console.error('BILLING_RECONCILIATION_FETCH_FAILURE',failure);
     throw new Error('Stripe reconciliation endpoint could not be reached ['+failure.name+':'+failure.reason+']');
+   }
+   // Reject redirects explicitly. The bearer token must never follow a 3xx.
+   if(response.status>=300&&response.status<400){
+    const detail=classifyBillingRedirect(response,base);
+    console.error('BILLING_RECONCILIATION_REDIRECT_BLOCKED',detail);
+    throw new Error('Stripe reconciliation redirect blocked ['+
+     detail.status+':'+detail.destination+']');
    }
    if(response.status!==200)
     throw new Error('Stripe reconciliation endpoint returned an unsuccessful status');

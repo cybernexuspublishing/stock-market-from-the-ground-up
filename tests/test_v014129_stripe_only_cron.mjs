@@ -16,7 +16,7 @@ globalThis.fetch=async(url,options)=>{
  assert.equal(options.headers.authorization,'Bearer '+secret);
  assert.equal(options.headers['content-type'],'application/json');
  assert.equal(options.body,'{}');
- assert.equal(options.redirect,'error');
+ assert.equal(options.redirect,'manual','Never forward billing bearer token on redirect');
  return respond();
 };
 async function run(e=env){
