@@ -95,7 +95,15 @@ try{
  await run('Every membership has immediate descriptive link, including Historical Replay Monthly',async()=>{
    await main.locator('#store-tab-memberships').click();
    const cards=main.locator('#store-plans article.v11-plan');
-   assert.equal(await cards.count(),5);
+   if((await cards.count())!==5){
+    const publicListings=await cards.evaluateAll(rows=>rows.map(el=>({
+     name:el.querySelector('h3')?.textContent.trim(),
+     url:el.querySelector('h3 a')?.getAttribute('href'),
+     price:el.querySelector('.v11-price')?.textContent.trim()
+    })));
+    console.error('STORE_UNAPPROVED_MEMBERSHIP_LIST '+JSON.stringify(publicListings));
+   }
+   assert.equal(await cards.count(),5,'Only five reviewed public memberships may be offered');
    const immediateLinks=await main.locator('#store-plans .v11-price + .store-plan-primary-link').evaluateAll(a=>a.map(x=>({
     parent:x.parentElement?.tagName,href:x.getAttribute('href'),
     card:x.closest('article.v11-plan')?.querySelector('h3')?.textContent.trim()||'OUTSIDE_ARTICLE'
