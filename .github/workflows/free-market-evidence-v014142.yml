@@ -1,0 +1,39 @@
+name: Free Authentic Market Evidence Ingest v0.14.0.142
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quarantine-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Run offline-only protocol and SEC ingest QA (no remote requests)
+        run: python -m unittest discover -s tests -p 'test_v014142_market_data_ingest.py' -v
+      - name: Verify Owner-only provider status and source contracts
+        run: |
+          node tests/test_v014142_market_source_contract.mjs
+          node --check functions/api/owner-roadmap.js
+          node --check assets/js/admin-delivery-brief.js
+          node --check functions/_lib/market-source-registry-v014142.js
+      - name: Enforce private ingestor and untouched 419-Lab boundaries
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/scripts/market-data/iex_tops.py
+          test ! -e public/scripts/market-data/sec_edgar.py
+          test ! -e public/functions/_lib/market-source-registry-v014142.js
+          test ! -e public/data/interactive-labs.json
+          node tests/test_v014141_owner_delivery_governance.mjs
+          node tests/test_owner_roadmap_workflow_v014063.mjs
