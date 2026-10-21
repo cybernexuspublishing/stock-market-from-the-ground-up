@@ -1,7 +1,7 @@
 {
   // v0.14.0.130 | Existing Cloudflare Worker ONLY. Not the Pages project.
   "name": "ground-up-billing-scheduler",
-  "main": "./billing-reconcile-stripe-only-v014129.js",
+  "main": "./billing-scheduler.js",
   "compatibility_date": "2026-10-20",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "keep_vars": true,
