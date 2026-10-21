@@ -47,6 +47,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/sitewide-playwright-v014136.mjs
+      - name: Browser-verify all 30 Bootcamp days, keyboard navigation, responsive layouts and member privacy
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014144_bootcamp_browser.mjs
       - name: Verify Owner delivery plan and roadmap governance contracts
         run: |
           node tests/test_v014141_owner_delivery_governance.mjs
