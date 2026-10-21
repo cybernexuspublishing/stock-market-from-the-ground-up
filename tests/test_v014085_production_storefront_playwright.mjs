@@ -209,7 +209,7 @@ try{
    // Local PR preview has no Cloudflare Functions: use the read-only,
    // already-deployed Production readiness endpoint for this one check.
    const liveOrigin='https://stock-market-from-the-ground-up.pages.dev';
-   const response=await main.request.get(liveOrigin+'/api/stripe-live-checkout?type=plan&code=FULL_MONTHLY&v85='+Date.now(),{timeout:20000});
+   const response=await main.request.get(liveOrigin+'/api/stripe-live-checkout-v01458?type=plan&code=FULL_MONTHLY&v85='+Date.now(),{timeout:20000});
    const data=await response.json().catch(()=>null);
    assert.ok(data&&typeof data.liveCheckoutAvailable==='boolean','Read-only status endpoint did not return a valid boolean');
    return 'liveCheckoutAvailable='+data.liveCheckoutAvailable+' (read-only check; no financial transaction)';
