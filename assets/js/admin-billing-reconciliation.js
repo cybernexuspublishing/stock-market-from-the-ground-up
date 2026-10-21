@@ -1,4 +1,4 @@
-/* Owner Billing Reconciliation Evidence v0.14.0.134.
+/* Owner Billing Reconciliation Evidence v0.14.0.135.
  * Read-only on demand; never prompts for provider credentials or runs Cron.
  * The server, not browser roles, authorizes this financial evidence.
  */
@@ -22,7 +22,9 @@
  const friendly=Object.freeze({
   SIGN_IN_REQUIRED:'Sign in to the Owner account.',
   OWNER_ONLY:'Only the Owner may view this report.',
-  PASSWORD_RECONFIRM_REQUIRED:'Reconfirm the Owner password before accessing private billing evidence.',
+  PASSWORD_RECONFIRM_REQUIRED:'The Owner password confirmation has not been accepted. Complete the existing password and human-verification dialog before retrying.',
+  PASSWORD_DIALOG_UNAVAILABLE:'The Owner password confirmation component has not loaded. Refresh Admin and retry; do not enter your password anywhere else.',
+  PASSWORD_CONFIRMATION_CANCELED:'Password confirmation was canceled. No private billing evidence was accessed.',
   AUTH_CONFIGURATION_MISSING:'Supabase Owner authentication is not configured.',
   DATABASE_CONFIGURATION_MISSING:'The Cloudflare server-side database secret is missing or invalid.',
   BILLING_CURSOR_INCOMPLETE:'Reconciliation cursors are missing. Review the installed v124 SQL; do not rerun it without preflight.',
@@ -74,21 +76,38 @@
    'Counts were changing during this review. The separate database queries are not one atomic snapshot.'));
   output.append(el('p','Acceptance remains NOT VERIFIED: full Stripe sweep, customer-paid checkout, signed LIVE webhook/member access, and launch approval. A recent successful Cloudflare execution must be verified separately.'));
  }
+ // v0.14.0.135: Raw Pages fetch is not intercepted by the existing
+ // Supabase .rpc() password wrapper. Explicitly invoke the SAME shared Owner
+ // password + Turnstile dialog, then retry the protected GET at most once.
+ // The backend remains authoritative and must never be bypassed.
+ async function readEvidence(){
+  const client=await window.getSupabaseClient?.();
+  const session=(await client?.auth?.getSession?.())?.data?.session;
+  if(!session?.access_token)throw new Error('SIGN_IN_REQUIRED');
+  const res=await fetch('/api/billing-reconciliation-health',{
+   method:'GET',headers:{authorization:'Bearer '+session.access_token,
+    accept:'application/json'},cache:'no-store',redirect:'error'
+  });
+  const data=await res.json().catch(()=>null);
+  return {res,data};
+ }
  async function load(){
   btn.disabled=true;output.replaceChildren(el('p','Reading private reconciliation evidence…'));
   try{
-   const client=await window.getSupabaseClient?.();
-   const session=(await client?.auth?.getSession?.())?.data?.session;
-   if(!session?.access_token)throw new Error('SIGN_IN_REQUIRED');
-   const res=await fetch('/api/billing-reconciliation-health',{
-    method:'GET',headers:{authorization:'Bearer '+session.access_token,
-     accept:'application/json'},cache:'no-store',redirect:'error'
-   });
-   const data=await res.json().catch(()=>null);
+   let {res,data}=await readEvidence();
+   if(res.status===403&&data?.error==='PASSWORD_RECONFIRM_REQUIRED'){
+    const confirmPassword=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof confirmPassword!=='function')throw new Error('PASSWORD_DIALOG_UNAVAILABLE');
+    // Existing UI owns focus management, Turnstile, cancellation, and cleanup.
+    await confirmPassword();
+    ({res,data}=await readEvidence()); // One retry only; no recursion.
+   }
    if(!res.ok||data?.ok!==true)throw new Error(data?.error||'BILLING_EVIDENCE_UNAVAILABLE');
    render(data);
   }catch(e){
-   output.replaceChildren(el('p',friendly[e?.message]||
+   const reason=e?.message==='Password confirmation canceled.'
+    ?'PASSWORD_CONFIRMATION_CANCELED':e?.message;
+   output.replaceChildren(el('p',friendly[reason]||
     'Owner billing evidence is not available. No billing settings were changed.'));
   }finally{btn.disabled=false}
  }
