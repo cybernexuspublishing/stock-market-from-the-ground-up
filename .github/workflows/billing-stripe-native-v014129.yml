@@ -1,0 +1,32 @@
+name: Stripe-native reconciliation-only Cron acceptance v0.14.0.129
+on:
+  pull_request:
+    paths:
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'tests/test_v014129_stripe_only_cron.mjs'
+      - '.github/workflows/billing-stripe-native-v014129.yml'
+      - 'docs/v0.14.0.129_STRIPE_NATIVE_BILLING_EMAILS_AND_RECONCILIATION.md'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'tests/test_v014129_stripe_only_cron.mjs'
+      - '.github/workflows/billing-stripe-native-v014129.yml'
+      - 'docs/v0.14.0.129_STRIPE_NATIVE_BILLING_EMAILS_AND_RECONCILIATION.md'
+permissions:
+  contents: read
+jobs:
+  stripe-native-scheduler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check workers/billing-reconcile-stripe-only-v014129.js
+          node tests/test_v014129_stripe_only_cron.mjs
+          node tests/test_v014124_signed_reconciliation.mjs
+          node tests/test_v014123_billing_notice_worker.mjs
+          node tests/test_v014128_billing_cron_alerts.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
