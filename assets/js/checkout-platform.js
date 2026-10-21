@@ -17,9 +17,34 @@ async function init(){
  const books=['book','bundle'].includes(type),root=document.querySelector('#v13-checkout');if(!root)return;
  const formats=books?`<label for="v135-format">Available format</label><select id="v135-format" aria-label="Book checkout format"><option value="">Select...</option><option value="digital">Digital download (after KDP Select exclusivity ends)</option></select><p class="small">For a personally signed paperback or hardcover, use <a href="/store.html">Store</a>. Signed print and Lulu are separate payment channels.</p>`:'';
  root.innerHTML=`<section class="v13-card"><h2>Review purchase</h2><div id="v135-order-label">${escape(code)}</div>${formats}<p id="v135-amount"></p><label><input type="checkbox" id="terms-ok"> I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms</a>, <a href="/subscription-terms.html" target="_blank" rel="noopener">Billing Terms</a>, <a href="/refund-policy.html" target="_blank" rel="noopener">Refund Policy</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</label><div role="status" aria-live="polite" id="checkout-msg"></div><button type="button" class="btn" id="complete-checkout" disabled>Checking secure payment options</button></section>`;
- const btn=root.querySelector('#complete-checkout'),msg=root.querySelector('#checkout-msg');let current=null;
+ const btn=root.querySelector('#complete-checkout'),msg=root.querySelector('#checkout-msg');
+ const amount=root.querySelector('#v135-amount'),orderLabel=root.querySelector('#v135-order-label');
+ let current=null;
+ // v137: the button is never enabled on a mere boolean readiness response.
+ // Display exact, server-verified base price and renewal cadence before a
+ // member can consent to terms or request a Stripe Checkout Session.
+ const expectedCadence=Object.freeze({
+  'plan:FULL_MONTHLY':'month','plan:FULL_ANNUAL':'year',
+  'plan:LIFETIME':'lifetime','plan:ONDEMAND_MONTHLY':'month',
+  'tool:INTERACTIVE_LEARNING':'month','tool:JOURNAL_ANALYTICS':'month',
+  'tool:MARKET_SIMULATOR':'month','tool:MARKET_TUTOR':'month'
+ });
+ const priceText=offer=>{
+  if(!offer||offer.type!==type||offer.code!==code||
+     offer.currency!=='USD'||!Number.isSafeInteger(offer.unitAmountCents)||
+     offer.unitAmountCents<=0||offer.billingInterval!==expectedCadence[type+':'+code]||
+     (offer.billingInterval==='lifetime'?offer.intervalCount!==null:offer.intervalCount!==1)||
+     typeof offer.name!=='string'||!offer.name.trim()||offer.name.length>120)return null;
+  const base=(offer.unitAmountCents/100).toLocaleString('en-US',
+   {style:'currency',currency:'USD'});
+  return {name:offer.name.trim(),display:base+
+   (offer.billingInterval==='lifetime'?' one-time':
+   offer.billingInterval==='month'?' per month':' per year')};
+ };
  async function quote(){
-  const format=root.querySelector('#v135-format')?.value||'';btn.disabled=true;btn.textContent='Checking availability…';current=null;
+  const format=root.querySelector('#v135-format')?.value||'';
+  btn.disabled=true;btn.textContent='Checking availability…';current=null;
+  amount.textContent='';
   if(books&&!format){msg.textContent='Select an eBook format to check availability.';btn.textContent='Choose format';return}
   try{
    const route=await fetch('/api/digital-payment-route-v01432r2',{cache:'no-store'}).then(async r=>{const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw Error('Payment provider setup is not yet complete.');return data});
@@ -32,17 +57,23 @@ async function init(){
       msg.textContent='Book purchases follow the separate publishing-rights and approved retailer checkout rules.';
       return;
     }
-    const readyUrl='/api/stripe-live-checkout-v01458?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code);
+    const readyUrl='/api/stripe-live-checkout?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code);
     const readiness=route.enabled===true
       ?await fetch(readyUrl,{cache:'no-store'}).then(async r=>r.ok?await r.json():null).catch(()=>null)
       :null;
-    if(readiness?.liveCheckoutAvailable===true&&route.enabled===true){
-      current={target:'/api/stripe-live-checkout-v01458',provider:'STRIPE_MANAGED_LIVE',type,code};
+    const verified=readiness?.ok===true&&readiness.readOnly===true&&
+     readiness.livePayments===false&&readiness.liveCheckoutAvailable===true&&
+     route.enabled===true?priceText(readiness.offer):null;
+    if(verified){
+      orderLabel.textContent=verified.name;
+      amount.textContent='Verified base price: '+verified.display+
+       '. Applicable taxes, if any, and the final total are shown by Stripe before payment.';
+      current={target:'/api/stripe-live-checkout',provider:'STRIPE_MANAGED_LIVE',type,code};
       btn.disabled=false;btn.textContent='Continue to secure Stripe checkout';
-      msg.textContent='Your eligibility and the final payment amount are verified again before Stripe opens.';
+      msg.textContent='Review the stated price and billing period. You will confirm any final taxes and total within Stripe before payment.';
     }else{
-      btn.textContent='Stripe customer payments not activated';
-      msg.textContent='Membership and tool payments remain disabled until the Owner approves LIVE checkout and all payment safeguards pass.';
+      btn.textContent='Price or secure checkout unavailable';
+      msg.textContent='A current Stripe-verified USD price and billing period could not be confirmed. No payment will be initiated.';
     }
     return;
    }
@@ -64,6 +95,8 @@ async function init(){
   btn.disabled=true;
   try{
    if(current.provider==='STRIPE_MANAGED_LIVE'){
+     // The server revalidates amount/cadence/ownership on every POST; a
+     // stale browser quote never authorizes a specific charge.
      const j=await req(current.target,{method:'POST',body:JSON.stringify({type,code})});
      const link=new URL(j.url);
      if(link.protocol!=='https:'||link.hostname!=='checkout.stripe.com')throw Error('Unexpected Stripe checkout address.');

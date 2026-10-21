@@ -13,11 +13,14 @@ assert 'digital-payment-route-v01432r2' in checkout
 assert "route.provider==='STRIPE_MANAGED'" in checkout
 # R2 provider routing remains; current customer checkout must NOT depend on the
 # discontinued staging database. Owner-only TEST purchases use GU39 shadow state.
-assert 'stripe-live-checkout-v01458' in checkout
+assert "'/api/stripe-live-checkout'" in checkout
 assert 'stripe-customer-checkout-v01438' not in checkout
-assert 'readiness?.liveCheckoutAvailable===true' in checkout
+assert 'readiness.liveCheckoutAvailable===true' in checkout
+assert 'readiness.readOnly===true' in checkout
+assert 'readiness.livePayments===false' in checkout
+assert 'priceText(readiness.offer)' in checkout
 assert 'STRIPE_MANAGED_LIVE' in checkout
-assert 'Stripe customer payments not activated' in checkout
+assert 'Price or secure checkout unavailable' in checkout
 assert "GU39_SANDBOX_SHADOW_GATE==='true'" in read('functions/api/gu39-sandbox.js')
 assert "GU39_STRIPE_TEST_SECRET_KEY" in read('functions/api/gu39-stripe-webhook.js')
 for path in ['assets/js/admin-payment-providers-v01432r2.js','assets/js/checkout-platform.js',

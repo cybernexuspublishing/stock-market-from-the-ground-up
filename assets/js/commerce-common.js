@@ -86,7 +86,7 @@ window.CommerceTools=(function(){'use strict';
     const jobs=[...plans.map(p=>({type:'plan',code:p.planCode})),...tools.map(t=>({type:'tool',code:t.toolCode}))].slice(0,60);
     const responses=await Promise.all(jobs.map(async j=>{
       try{
-        const url='/api/stripe-live-checkout-v01458?type='+encodeURIComponent(j.type)+'&code='+encodeURIComponent(j.code);
+        const url='/api/stripe-live-checkout?type='+encodeURIComponent(j.type)+'&code='+encodeURIComponent(j.code);
         const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(12000)});
         const answer=response.ok?await response.json():null;
         return answer?.ok===true&&answer.liveCheckoutAvailable===true?j.type+':'+j.code:null;

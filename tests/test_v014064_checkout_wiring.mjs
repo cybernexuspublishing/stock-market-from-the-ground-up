@@ -8,11 +8,14 @@ const api=await load('functions/api/stripe-live-checkout-v01458.js');
 const src=readFileSync(new URL('../assets/js/checkout-platform.js',import.meta.url),'utf8');
 const middleware=readFileSync(new URL('../functions/_middleware.js',import.meta.url),'utf8');
 assert(!src.includes("target:'/api/stripe-customer-checkout-v01438'"),'customer checkout must not require a new staging database');
-assert(src.includes("target:'/api/stripe-live-checkout-v01458'"),'customer checkout uses guarded LIVE membership connector');
-assert(src.includes('readiness?.liveCheckoutAvailable===true'),'button must require authoritative per-SKU availability');
+assert(src.includes("target:'/api/stripe-live-checkout'"),'customer checkout uses guarded LIVE membership connector');
+assert(src.includes('readiness.liveCheckoutAvailable===true')&&
+ src.includes('readiness.readOnly===true')&&src.includes('readiness.livePayments===false')&&
+ src.includes('priceText(readiness.offer)'),
+ 'button must require authoritative verified price/cadence, not just boolean availability');
 assert(src.includes("if(books){"),'book rights remain separate from membership checkout');
 assert(src.includes("STRIPE_MANAGED_LIVE"),'LIVE checkout must not be presented as TEST checkout');
-assert(middleware.includes("'/api/stripe-live-checkout-v01458'"),'Owner-mode middleware must block a LIVE POST in TESTING mode');
+assert(middleware.includes("'/api/stripe-live-checkout'"),'Owner-mode middleware must block a LIVE POST in TESTING mode');
 const mapped={};
 const sku=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
  'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'];
@@ -32,9 +35,9 @@ globalThis.fetch=async(url,options={})=>{
  if(!state.db)throw Error('Database offline');
  if(u.includes('/gu39_sandbox_settings?'))return json([{enabled:state.testing}]);
  if(u.includes('/platform_plans?'))return json([{active:true,public_visible:true,
-  checkout_enabled:state.offer,billing_interval:'month',price_cents:6999}]);
+  checkout_enabled:state.offer,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
  if(u.includes('/platform_tools?'))return json([{active:true,public_visible:true,
-  status:state.tool?'live':'preview',individual_price_cents:2999}]);
+  status:state.tool?'live':'preview',name:'Interactive Learning',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return json({provider:'STRIPE_MANAGED',enabled:state.route});
  if(u.includes('/site_settings?'))return json([{value:state.site}]);
  if(u.endsWith('/v1/account'))return json({id:state.merchant?'acct_mock0000000':'acct_other0000'});
@@ -48,13 +51,19 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/v1/checkout/sessions')){state.posts++;throw Error('GET MUST NEVER CREATE A CHECKOUT SESSION')}
  throw Error('Unexpected outbound '+u);
 };
-const url='https://example.com/api/stripe-live-checkout-v01458';
+const url='https://example.com/api/stripe-live-checkout';
 async function get(options={},query='?type=plan&code=FULL_MONTHLY'){
  const r=await api.onRequestGet({env:{...env,...options},request:new Request(url+query)});
  assert.equal(r.status,200);return r.json();
 }
 try{
  let r=await get();assert.equal(r.liveCheckoutAvailable,true,'fully approved SKU should appear');
+ assert.deepEqual(r.offer,{type:'plan',code:'FULL_MONTHLY',name:'Full Platform Monthly',
+  unitAmountCents:6999,currency:'USD',billingInterval:'month',intervalCount:1},
+  'The no-charge public quote must match the independent verified LIVE Price.');
+ assert.equal(r.readOnly,true);
+ assert.equal(r.livePayments,false);
+ assert.equal(r.url,undefined,'Readiness never reveals a Checkout Session or payment URL.');
  const bad=[
   [{GU58_LIVE_WEBHOOK_ENABLED:'false'},'webhook switch OFF'],
   [{GU_PAYMENT_LIVE_LAUNCH_APPROVED:'false'},'Owner LIVE approval OFF'],
@@ -83,6 +92,8 @@ try{
  r=await get({},'?type=book&code=FOUNDATION_BOOK_1');assert.equal(r.liveCheckoutAvailable,false,'KDP books not member checkout');
  r=await get({},'?type=plan&code=BOGUS');assert.equal(r.liveCheckoutAvailable,false,'unknown SKU');
  r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'tool with canonical live status');
+ assert.equal(r.offer.name,'Interactive Learning');assert.equal(r.offer.unitAmountCents,2999);
+ assert.equal(r.offer.billingInterval,'month');
  state.tool=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'tool in preview');
  assert.equal(state.posts,0,'Availability probe must not create sessions, subscriptions or charges');
  console.log('PASS v64: current database only, all LIVE frontend/handler gates fail closed, product/merchant tested, zero checkout writes.');

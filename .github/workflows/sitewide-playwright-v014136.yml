@@ -47,6 +47,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/sitewide-playwright-v014136.mjs
+      - name: Verify secure eight-SKU LIVE quote presentation and terms (no charges)
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014137_checkout_quote_browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -86,6 +90,8 @@ jobs:
       - name: Enforce static site and one stable Stripe webhook URL
         run: |
           node --check functions/api/stripe-live-checkout-v01458.js
+          node --check functions/api/stripe-live-checkout.js
+          node --check assets/js/checkout-platform.js
           node --check functions/api/stripe-live-webhook.js
           node --check functions/api/billing-reconciliation-health.js
           node --check assets/js/admin-billing-reconciliation.js

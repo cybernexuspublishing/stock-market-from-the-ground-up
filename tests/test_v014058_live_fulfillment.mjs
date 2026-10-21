@@ -50,10 +50,10 @@ globalThis.fetch=async(url,o={})=>{
    u.includes('/user_plan_grants?'))return respond([]);
  if(u.includes('/account_private_identity?'))return respond([{age_eligible:true,date_of_birth:'1990-01-01'}]);
  if(u.includes('/platform_plans?'))return respond([{active:true,public_visible:true,
- checkout_enabled:true,billing_interval:'month',price_cents:6999}]);
+ checkout_enabled:true,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
  // platform_tools intentionally has no checkout_enabled column.
  if(u.includes('/platform_tools?'))return respond([{active:true,public_visible:true,
-  status:'live',individual_price_cents:2999}]);
+  status:'live',name:'Interactive Learning',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return respond({enabled:true,provider:'STRIPE_MANAGED'});
  if(u.includes('/site_settings?'))return respond([{value:true}]);
  if(u.endsWith('/v1/prices/'+mapped['plan:FULL_MONTHLY'].price_id))
