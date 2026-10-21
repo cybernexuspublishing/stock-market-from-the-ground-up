@@ -14,7 +14,7 @@ globalThis.fetch=async(path,opts={})=>{
  if(u.includes('/profiles?'))return json([{account_kind:accountKind}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('rpc/user_has_tool_access'))return json(allowed);
- if(u.includes('/market_datasets?'))return json([{dataset_code:'CASE_A',title:'Owner reviewed sample',ticker:'TEST',dataset_type:'ohlcv',status:'published',source_attribution:'Documented rights source',license_note:'Learning permitted',metadata:{licensed_for_member_display:active,evidence_verified:true,corporate_action_policy:'raw valid'}}]);
+ if(u.includes('/market_datasets?'))return json([{dataset_code:'CASE_A',title:'Owner reviewed sample',ticker:'TEST',dataset_type:'ohlcv',status:'published',source_attribution:'Documented rights source',license_note:'Learning permitted',metadata:{licensed_for_member_display:active,evidence_verified:true,corporate_action_policy:'raw valid',real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}}]);
  if(u.includes('/gu_replay_bars_v01492?')){const n=Number(/bar_index=eq\.(\d+)/.exec(u)?.[1]);return json([bar(n)]);}
  if(u.includes('/gu_replay_sessions_v01492') && opts.method==='POST'){created=true;return json([{id}]);}
  if(u.includes('/gu_replay_sessions_v01492?') && opts.method==='PATCH'){

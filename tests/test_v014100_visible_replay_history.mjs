@@ -11,11 +11,11 @@ let actor=id,rights=true,account='member',replayAccess=true,replayCursor=2,corru
 const calls=[],old=globalThis.fetch;
 const mockJSON=(value,status=200)=>new Response(JSON.stringify(value),{status,
  headers:{'content-type':'application/json'}});
-const dataset={dataset_code:'GUSIM_SITE_001',dataset_type:'ohlcv',status:'published',
- ticker:'SIMULATION',source_attribution:'Crown & Lantern Press — fictional',
- license_note:'Original authored data',metadata:{original_synthetic:true,
- licensed_for_member_display:true,evidence_verified:true,corporate_action_policy:'N/A',
- historical_evidence_verified:false}};
+const dataset={dataset_code:'IEX_SITE_001',dataset_type:'ohlcv',status:'published',
+ ticker:'AAPL',source_attribution:'Data provided for free by IEX',
+ license_note:'Review complete for educational display',metadata:{original_synthetic:false,
+ licensed_for_member_display:true,evidence_verified:true,corporate_action_policy:'Raw IEX unadjusted',
+ ondemand_training_approved:true,real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}};
 const bar=i=>({bar_index:i,bar_at:new Date(Date.UTC(2040,0,3,14,30+5*i)).toISOString(),
  open:10+i,high:11+i,low:9+i,close:10.5+i,volume:200});
 globalThis.fetch=async(url,opts={})=>{
@@ -68,5 +68,5 @@ try{
  assert(client.includes("['current','visible'].includes(action)"));
  assert(client.includes("const visible=await api('visible')"));
  assert(client.includes("for(const b of visible.bars)addBar(b)"));
- console.log('PASS v100: original replay restores only server-cursor visible OHLCV, enforces ownership/rights, rejects chronological corruption and ignores client future-index injection.');
+ console.log('PASS v143: authentic replay restores only server-cursor visible OHLCV, enforces ownership/rights, rejects chronological corruption and ignores client future-index injection.');
 }finally{globalThis.fetch=old}

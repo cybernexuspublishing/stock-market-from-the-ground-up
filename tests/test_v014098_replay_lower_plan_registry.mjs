@@ -1,4 +1,4 @@
-// v0.14.0.98 | Existing Historical Replay membership: only ORIGINAL simulations.
+// v0.14.0.143 | Historical Replay membership: exclusively Owner-approved authentic venue evidence.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/learning-replay-v01492.js';
@@ -8,9 +8,9 @@ const simulated={dataset_code:'GUSIM_SITE_001',title:'Original fictional chart',
  license_note:'Author-created and labeled fictional',metadata:{original_synthetic:true,
  evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Not applicable',
  historical_evidence_verified:false}};
-const historical={...simulated,dataset_code:'LICENSED_HIST_1',title:'Licensed actual history',
+const historical={...simulated,dataset_code:'LICENSED_HIST_1',title:'Authentic rights-approved history',ticker:'AAPL',
  metadata:{...simulated.metadata,original_synthetic:false,evidence_verified:true,
- historical_evidence_verified:true}};
+ historical_evidence_verified:true,ondemand_training_approved:true,real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}};
 const env={SUPABASE_URL:'https://fixture.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
 let full=false,replay=true,account='member',sessions=[],requests=[];
@@ -50,16 +50,16 @@ async function check(action,body,allowToken=true){
 }
 try{
  let [status,body]=await check('catalog');assert.equal(status,200);
- assert.deepEqual(body.datasets.map(x=>x.code),['GUSIM_SITE_001']);
- assert(body.datasets[0].synthetic===true);
- [status]=await check('start',{datasetCode:'LICENSED_HIST_1'});assert.equal(status,403);
+ assert.deepEqual(body.datasets.map(x=>x.code),['LICENSED_HIST_1']);
+ assert(body.datasets[0].synthetic!==true);
+ [status]=await check('start',{datasetCode:'GUSIM_SITE_001'});assert.equal(status,403);
  const earlier=requests.length;
- [status,body]=await check('start',{datasetCode:'GUSIM_SITE_001'});assert.equal(status,201);
+ [status,body]=await check('start',{datasetCode:'LICENSED_HIST_1'});assert.equal(status,201);
  assert.equal(body.bar.index,0);
  assert.equal(JSON.stringify(body).includes('2040-01-03T14:35'),false);
  assert(requests.length>earlier);
  full=true;[status,body]=await check('catalog');assert.equal(status,200);
- assert.deepEqual(body.datasets.map(x=>x.code),['GUSIM_SITE_001','LICENSED_HIST_1']);
+ assert.deepEqual(body.datasets.map(x=>x.code),['LICENSED_HIST_1']);
  full=false;replay=false;[status]=await check('catalog');assert.equal(status,403);
  replay=true;account='showcase';[status]=await check('catalog');assert.equal(status,403);
  const source=readFileSync(new URL('../assets/js/lab-registry.js',import.meta.url),'utf8');
@@ -68,5 +68,5 @@ try{
  assert(source.includes("Math.floor(ranked.count/PAGE_SIZE)"),'Deep link must find page beyond first 50');
  assert(source.includes('Reflection Saved (Ungraded)'),'Self-report must not appear to be a graded pass');
  assert(source.includes("const PAGE_SIZE=50"),'Do not fetch all 419 for every member search');
- console.log('PASS v98: Replay-only access to 419 original scenarios, no real historical escalation, Showcase denial, no future leak, owner-scoped 50-row registry with cross-page deep links.');
+ console.log('PASS v143: Replay-only access to approved historical cases; fictional data blocked; Showcase denied; hidden future bars remain private.');
 }finally{globalThis.fetch=original}

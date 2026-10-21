@@ -5,7 +5,7 @@ import {onRequest} from '../functions/api/learning-replay-v01492.js';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake',SUPABASE_SECRET_KEY:'sb_secret_fake'};
 const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 let authorized=true,restricted=false,rights=true,started=false,locked=false,index=0,fetches=[];
-const dataset={dataset_code:'LICENSED_1',title:'Verified educational source',ticker:'MOCK',dataset_type:'ohlcv',status:'published',source_attribution:'Reviewed educational evidence',license_note:'Rights checked separately',metadata:{evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Raw corporate action review'}};
+const dataset={dataset_code:'LICENSED_1',title:'Verified educational source',ticker:'MOCK',dataset_type:'ohlcv',status:'published',source_attribution:'Reviewed educational evidence',license_note:'Rights checked separately',metadata:{evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Raw corporate action review',real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}};
 const unverified={...dataset,dataset_code:'UNREVIEWED_1',metadata:{...dataset.metadata,evidence_verified:false}};
 const original=globalThis.fetch;
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});

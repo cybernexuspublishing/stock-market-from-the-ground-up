@@ -12,7 +12,7 @@ const envelopes=[{lab_id:'LAB_D',dataset_code:'LICENSE_A',status:'published',con
  teaching_end_at:'2024-05-03T14:00:00Z',context_end_at:'2024-05-03T15:00:00Z'}];
 const datasets=[{dataset_code:'LICENSE_A',dataset_type:'ohlcv',status:'published',
  source_attribution:'Authoritative verified provider',license_note:'Display allowed',
- metadata:{evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Corporate actions verified'}}];
+ metadata:{evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Corporate actions verified',real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}}];
 const classification=classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets});
 assert.equal(classification.registryCount,4);
 assert.equal(classification.certifiedComplete,0);

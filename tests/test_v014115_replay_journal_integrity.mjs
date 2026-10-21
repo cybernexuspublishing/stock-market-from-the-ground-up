@@ -33,14 +33,14 @@ globalThis.fetch=async(url,init={})=>{
  if(p.includes('/rest/v1/rpc/user_has_tool_access'))return respond(true);
  if(p.includes('/rest/v1/gu_replay_sessions_v01492?')){
   if(init.method==='PATCH'){mutationCalls++;return respond([{id:sid}]);}
-  return respond([{id:sid,user_id:user,dataset_code:'GUSIM_LESSON',current_index:0,
+  return respond([{id:sid,user_id:user,dataset_code:'IEX_REVIEWED_LESSON',current_index:0,
    decision_locked:false,decision:null,decision_plan:null,status:'active',expires_at:'2099-01-01T00:00:00Z'}]);
  }
  if(p.includes('/rest/v1/market_datasets?'))return respond([{
-  dataset_code:'GUSIM_LESSON',dataset_type:'ohlcv',status:'published',
-  source_attribution:'First-party invented lesson',license_note:'Original work',
+  dataset_code:'IEX_REVIEWED_LESSON',dataset_type:'ohlcv',status:'published',ticker:'AAPL',
+  source_attribution:'Data provided for free by IEX',license_note:'Rights reviewed for educational display',
   metadata:{licensed_for_member_display:true,evidence_verified:true,
-  corporate_action_policy:'not applicable',original_synthetic:true}}]);
+  corporate_action_policy:'Raw IEX unadjusted',original_synthetic:false,real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}}]);
  if(p.includes('/rest/v1/gu_replay_bars_v01492?'))return respond([{
   bar_index:0,bar_at:'2026-01-02T14:30:00Z',open:invalidPrice?-1:100,
   high:101,low:99,close:100.5,volume:5000}]);
