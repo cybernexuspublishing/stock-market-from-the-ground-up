@@ -1,10 +1,11 @@
 -- Disposable acceptance fixture for GitHub CI only; NEVER execute in Supabase SQL Editor.
+-- Mirror Supabase's actual service_role BYPASSRLS attribute in isolated PostgreSQL.
 \set ON_ERROR_STOP on
 CREATE SCHEMA IF NOT EXISTS auth;
 DO $$BEGIN
  IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon NOLOGIN; END IF;
  IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated NOLOGIN; END IF;
- IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role NOLOGIN; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role NOLOGIN BYPASSRLS; END IF;
 END $$;
 CREATE TABLE auth.users(id uuid PRIMARY KEY);
 INSERT INTO auth.users(id) VALUES
