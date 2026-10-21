@@ -32,7 +32,7 @@ const env={
 };
 const fresh=()=>new Date(Date.now()-1000).toISOString();
 const state={pending:null,created:0,postStripe:0,providerReads:0,patched:0,
- insertRace:false,failPatch:false,invalidProvider:false,alreadyPaid:false,
+ insertRace:false,failPatch:false,zeroPatch:false,invalidLinePrice:false,invalidProvider:false,alreadyPaid:false,
  expired:false,unknownStatus:false,sessionId:'cs_live_mocksecure12345',key:null,
  postIntent:null,firstKey:null,sessionBody:null,lastAuth:null};
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
@@ -91,6 +91,7 @@ globalThis.fetch=async(url,options={})=>{
   assert(s.includes('status=eq.prepared'),'Bind must use status compare-and-set');
   assert(s.includes('stripe_session_id=is.null'),'Bind must reject already-bound session');
   if(state.failPatch)return json({code:'PGRST503'},503);
+  if(state.zeroPatch)return json([]);
   assert.equal(options.headers.prefer,'return=representation');
   state.pending={...state.pending,stripe_session_id:JSON.parse(options.body).stripe_session_id,
    status:'checkout_created'};
@@ -113,7 +114,7 @@ globalThis.fetch=async(url,options={})=>{
  if(s.includes('/v1/checkout/sessions/'+state.sessionId+'/line_items?')){
   state.providerReads++;
   assert.equal(method,'GET');
-  return json({data:[{price:{id:price},quantity:1}],has_more:false});
+  return json({data:[{price:{id:state.invalidLinePrice?'price_wrong':price},quantity:1}],has_more:false});
  }
  if(s.endsWith('/v1/checkout/sessions/'+state.sessionId)){
   state.providerReads++;
@@ -126,7 +127,7 @@ const pay=async(e=env,hasAuth=true)=>onRequestPost({env:e,request:new Request(or
  method:'POST',headers:{origin,...(hasAuth?{authorization:'Bearer fake-member-token'}:{})},
  body:JSON.stringify({type:'plan',code:'FULL_MONTHLY'})})});
 const reset=()=>Object.assign(state,{pending:null,created:0,postStripe:0,providerReads:0,
- patched:0,insertRace:false,failPatch:false,invalidProvider:false,
+ patched:0,insertRace:false,failPatch:false,zeroPatch:false,invalidLinePrice:false,invalidProvider:false,
  alreadyPaid:false,expired:false,unknownStatus:false,key:null,postIntent:null,
  firstKey:null,sessionBody:null});
 const row=(status='prepared',extra={})=>({id:intent,user_id:uid,sku_kind:'plan',
@@ -163,6 +164,23 @@ try{
  assert.equal(state.patched,2);
  assert.equal(state.pending.status,'checkout_created');
 
+ // A conditional PATCH that returns 200 but updates ZERO rows is not proof
+ // that a Stripe Session is safely bound to the unique reservation.
+ reset();state.zeroPatch=true;res=await pay();
+ assert.equal(res.status,503);
+ assert.equal(state.pending.status,'prepared');
+ assert.equal(state.created,1);assert.equal(state.postStripe,1);
+ state.zeroPatch=false;res=await pay();
+ assert.equal(res.status,200);
+ assert.equal(state.created,1);assert.equal(state.postStripe,2);
+ assert.equal(state.pending.status,'checkout_created');
+
+ // Existing signed binding cannot be reused if Stripe's line items no longer
+ // contain exactly one unit of the approved LIVE Price.
+ reset();state.pending=row('checkout_created');state.invalidLinePrice=true;
+ res=await pay();assert.equal(res.status,503);
+ assert.equal(state.postStripe,0);assert.equal(state.created,0);
+ assert.equal(state.providerReads,2);
  // Database-level race rejects the losing request without a provider POST.
  reset();state.insertRace=true;res=await pay();assert.equal(res.status,409);
  assert.equal(state.postStripe,0);assert.equal(state.created,1);
