@@ -1,12 +1,11 @@
-/* v0.14.0.145: restore native file URL imports so relative security
- * dependencies resolve; original data: URL imports were incompatible with
- * contemporary Checkout dependencies. All requests remain offline fixtures. */
+/* v0.14.0.4: negative auth/security coverage without live credentials. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-const market=await import('../functions/api/marketdata.js');
-const plans=await import('../functions/api/plan-controls.js');
-const checkout=await import('../functions/api/checkout.js');
-const report=await import('../functions/api/commons-report.js');
+const importFile=async path=>import('data:text/javascript;base64,'+Buffer.from(await fs.readFile(path,'utf8')).toString('base64'));
+const market=await import('data:text/javascript;base64,'+Buffer.from((await fs.readFile('functions/api/marketdata.js','utf8')).replace("import {toolAccess} from './member-tool-access.js';", 'const toolAccess=async()=>({authorized:false});')).toString('base64'));
+const plans=await importFile('functions/api/plan-controls.js');
+const checkout=await importFile('functions/api/checkout.js');
+const report=await importFile('functions/api/commons-report.js');
 const checkoutSource=await fs.readFile('functions/api/checkout.js','utf8');
 const checkoutNewSource=await fs.readFile('functions/api/checkout-v0135.js','utf8');
 assert.match(checkoutSource,/env\.ENABLE_PAID_CHECKOUT==='true'&&master===true&&it\.enabled===true/,'Legacy quote must include env/item flags');
