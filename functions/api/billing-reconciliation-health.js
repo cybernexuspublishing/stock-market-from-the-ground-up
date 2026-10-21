@@ -51,7 +51,8 @@ function restUrl(base,path,fields){
  return base+'/rest/v1/'+path+'?'+query.toString();
 }
 async function exactCount(base,headerValues,path,filter){
- const url=restUrl(base,path,{select:'id',...filter,limit:'1'});
+ const selected=path==='gu_billing_reconcile_issues_v014124'?'local_record_id':'id';
+ const url=restUrl(base,path,{select:selected,...filter,limit:'1'});
  let res;
  try{res=await fetch(url,{method:'HEAD',headers:{...headerValues,
    prefer:'count=exact',accept:'application/json'},cache:'no-store'})}
@@ -114,8 +115,9 @@ export async function onRequestGet({request,env}){
   const planOpen=value(open,'plan'),toolOpen=value(open,'tool');
   const planPaid=value(ledger,'plan'),toolPaid=value(ledger,'tool');
   const totalOpen=planOpen+toolOpen;
-  if(issueTypes.reduce((sum,k)=>sum+causes[k],0)!==totalOpen)
-   throw failure('BILLING_EVIDENCE_INCONSISTENT',503);
+  // Separate read-only HEAD queries are not one atomic snapshot. An issue
+  // resolved while requests are in flight may temporarily change these sums.
+  const countsAgree=issueTypes.reduce((sum,k)=>sum+causes[k],0)===totalOpen;
   const categories={};
   for(const kind of kinds)categories[kind]={
    eligibleRecurringRecords:value(ledger,kind),
@@ -123,18 +125,20 @@ export async function onRequestGet({request,env}){
    previouslyResolvedIssues:value(resolved,kind),
    ...cursor[kind]
   };
-  const overall=totalOpen>0?'OPEN_DISCREPANCIES':
+  const overall=!countsAgree?'COUNTS_CHANGED_DURING_READ':
+   totalOpen>0?'OPEN_DISCREPANCIES':
    !cursor.plan.activityWithin48h||!cursor.tool.activityWithin48h?'SCAN_ACTIVITY_STALE':
    planPaid+toolPaid===0?'NO_SIGNED_RECURRING_RECORDS':'NO_OPEN_DISCREPANCIES_OBSERVED';
   return response({
    ok:true,asOf:new Date().toISOString(),status:overall,
+   countsAgree,
    categories,openIssuesByType:causes,
    totals:{eligibleRecurringRecords:planPaid+toolPaid,openIssues:totalOpen,
     previouslyResolvedIssues:value(resolved,'plan')+value(resolved,'tool')},
    acceptance:{recentSuccessfulCron:'NOT_CHECKED_BY_THIS_REPORT',
     fullProviderSweep:'NOT_VERIFIED',realPaidCheckout:'NOT_VERIFIED',
     signedWebhookMemberAccess:'NOT_VERIFIED',liveLaunchApprovedByReport:false},
-   explanation:'Private database counters and cursor activity only. Cursor movement does not prove a completed full sweep; zero issues does not prove a paid webhook or successful customer checkout. No changes made.'
+   explanation:'Private database counters and cursor activity only (not an atomic snapshot). Cursor movement does not prove a completed full sweep; zero issues does not prove a paid webhook or successful customer checkout. No changes made.'
   });
  }catch(error){
   const status=Number.isInteger(error?.status)?error.status:503;
