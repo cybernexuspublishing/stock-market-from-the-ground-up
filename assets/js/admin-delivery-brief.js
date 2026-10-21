@@ -52,6 +52,11 @@
    card('Blocked / decisions', (counts.blocked||0)+(counts.research_required||0)+(counts.owner_review_required||0),'Review underlying dependencies'),
    card('Source implemented',counts.implemented||0,'Production behavior requires separate proof'));
   desk.append(stats);
+  if(data?.bootcampReadiness?.curriculumDays===30){
+    const scope=el('p','cc-delivery-note');
+    scope.textContent='30-Day Learning Path: 30 original daily objectives mapped to the 30 existing official competencies and provisional Labs. Curriculum source implemented; private member progress schema, authentic historical case evidence, and individual assessment approvals remain unverified.';
+    desk.append(scope);
+  }
   const packages=Array.isArray(data.releasePlan?.packages)?data.releasePlan.packages:[];
   if(packages.length===8){
    const heading=el('h3','cc-delivery-subheading','Coordinated release packages');
@@ -59,7 +64,7 @@
    for(const p of packages){
     const box=el('article','cc-delivery-phase');
     box.append(el('span','cc-phase-number',p.number+' of 08'),el('strong','',p.title),el('small',''));
-    box.lastChild.textContent='Planned — no deployment certification';
+    box.lastChild.textContent=(p.sourceDelivery==='merged'?'Source merged in main':p.sourceDelivery==='source_candidate'?'Source candidate / in development':'Not started')+' · production acceptance '+(p.productionAcceptance||'unverified');
     const a=link('/owner-roadmap.html#task-'+p.roadmapId,'Related roadmap →');box.append(a);phases.append(box);
    }
    desk.append(heading,phases);
