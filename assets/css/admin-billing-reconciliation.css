@@ -1,0 +1,12 @@
+/* v0.14.0.134 | Admin Owner billing reconciliation evidence */
+.owner-billing-evidence{margin-block:1.25rem;max-width:100%;min-width:0}
+.owner-billing-evidence p{line-height:1.55}
+.owner-billing-evidence button{margin-block:.4rem 1rem}
+.owner-billing-evidence-output{max-width:100%;overflow-x:auto}
+.owner-billing-evidence-table{width:100%;border-collapse:collapse;text-align:left;margin-block:1rem}
+.owner-billing-evidence-table caption{text-align:left;font-weight:600;padding:.5rem 0}
+.owner-billing-evidence-table th,.owner-billing-evidence-table td{
+ border:1px solid var(--line,#d0d5dd);padding:.6rem;vertical-align:top}
+.owner-billing-evidence-table th{font-weight:650}
+.owner-billing-evidence button:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+@media(max-width:720px){.owner-billing-evidence-table{min-width:720px}}
