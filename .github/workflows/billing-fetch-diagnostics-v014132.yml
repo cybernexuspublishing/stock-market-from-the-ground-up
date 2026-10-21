@@ -1,0 +1,30 @@
+name: Billing scheduled fetch diagnostics v0.14.0.132
+on:
+  pull_request:
+    paths:
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'tests/test_v014132_billing_fetch_diagnostics.mjs'
+      - '.github/workflows/billing-fetch-diagnostics-v014132.yml'
+      - 'docs/v0.14.0.132_PRODUCTION_FETCH_FAILURE_DIAGNOSIS.md'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/billing-reconcile-stripe-only-v014129.js'
+      - 'tests/test_v014132_billing_fetch_diagnostics.mjs'
+      - '.github/workflows/billing-fetch-diagnostics-v014132.yml'
+      - 'docs/v0.14.0.132_PRODUCTION_FETCH_FAILURE_DIAGNOSIS.md'
+permissions:
+  contents: read
+jobs:
+  billing-connection-classification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node tests/test_v014132_billing_fetch_diagnostics.mjs
+          node tests/test_v014131_stable_billing_endpoint.mjs
+          node tests/test_v014130_billing_worker_routing_config.mjs
+          node tests/test_v014129_stripe_only_cron.mjs
+          npx --yes wrangler@4 deploy --dry-run --config workers/wrangler.billing-scheduler.jsonc
