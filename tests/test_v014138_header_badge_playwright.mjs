@@ -32,6 +32,14 @@ try{
    const navSource=readFileSync(resolve('assets/js/navigation.js'),'utf8')
      .split('/* CANONICAL_DESKTOP_NAV */',2)[1];
    assert(navSource?.trimEnd().endsWith('})();'),'Desktop navigation module contract changed');
+   // Match the existing geometry test: about:blank gives a 'null' relative
+   // URL base, unlike a real HTTPS navigation page.
+   await page.evaluate(()=>{
+    const URLOriginal=window.URL;
+    window.URL=class extends URLOriginal {
+     constructor(u,b){super(u,b==='null'?'https://test.example':b)}
+    };
+   });
    await page.addScriptTag({content:navSource.slice(0,-6)+`\nwindow.__testMakeNav=makeNav;\n})();\n`});
    await page.evaluate(()=>window.__testMakeNav({
     authenticated:true,username:'ExampleReader',planCode:'LIFETIME',
