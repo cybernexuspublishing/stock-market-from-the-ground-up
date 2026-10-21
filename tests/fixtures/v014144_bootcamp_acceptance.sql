@@ -40,7 +40,7 @@ BEGIN
    RAISE EXCEPTION 'Stale overwrite was permitted';
  END IF;
 END $;
-DO $$
+DO $
 DECLARE count_one integer;count_two integer;record_one text;
 BEGIN
  SELECT count(*) INTO count_one FROM public.gu_bootcamp_progress_v014144 WHERE user_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
