@@ -152,6 +152,16 @@ function safeCheckoutSession(session,id,user,price,p,requireOpen=true){
   throw err('Invalid Stripe destination.',503);
  return target.href;
 }
+async function verifyBoundLineItem(c,sessionId,price){
+ // A previously recorded Session must belong to the *same approved Price*,
+ // not merely have a matching amount and friendly product name.
+ const lines=await request('https://api.stripe.com/v1/checkout/sessions/'+
+  encodeURIComponent(sessionId)+'/line_items?limit=2',
+  {headers:{authorization:'Bearer '+c.stripe}});
+ if(!Array.isArray(lines.data)||lines.data.length!==1||lines.has_more===true||
+    lines.data[0]?.price?.id!==price||lines.data[0]?.quantity!==1)
+  throw err('Previously created Stripe Checkout line item no longer matches its approved SKU.',503);
+}
 async function stripeCheckout(c,id,user,p,price,origin){
  const params=new URLSearchParams();
  params.set('managed_payments[enabled]','true');
@@ -210,7 +220,9 @@ export async function onRequestPost({request:req,env}){
      {headers:{authorization:'Bearer '+c.stripe}});
     if(session.id!==pending.stripe_session_id)
      throw err('Stored and provider Checkout Session IDs disagree.',503);
-    return checkoutReply(safeCheckoutSession(session,id,u.id,price,p));
+    const existingUrl=safeCheckoutSession(session,id,u.id,price,p);
+    await verifyBoundLineItem(c,session.id,price);
+    return checkoutReply(existingUrl);
    }
   }else{
    id=crypto.randomUUID();
@@ -233,13 +245,14 @@ export async function onRequestPost({request:req,env}){
   // for this member/SKU while the database unique reservation is installed.
   const session=await stripeCheckout(c,id,u.id,p,price,here.origin);
   const url=safeCheckoutSession(session,id,u.id,price,p);
-  if(pending?.status==='prepared'&&session.id===pending.stripe_session_id)
-   throw err('Provider session state is ambiguous.',409);
-  // A failed bind is NOT permission to create a new intent. The verified
-  // signed webhook has its own service-only gu58_live_bind_verified_checkout
-  // recovery contract; subsequent customer retry retains the same intent.
-  await db(c,`gu58_live_checkout_intents?id=eq.${id}&status=eq.prepared&stripe_session_id=is.null`,
-   'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=minimal');
+  // A failed bind is NOT permission to create a new intent. An atomic
+  // conditional PATCH must affect exactly one prepared row before responding.
+  // An empty PostgREST result is NOT successful binding.
+  const bound=await db(c,`gu58_live_checkout_intents?id=eq.${id}&status=eq.prepared&stripe_session_id=is.null`,
+   'PATCH',{stripe_session_id:session.id,status:'checkout_created'},'return=representation');
+  if(!Array.isArray(bound)||bound.length!==1||bound[0].id!==id||
+      bound[0].stripe_session_id!==session.id||bound[0].status!=='checkout_created')
+   throw err('Checkout session was not durably bound; retry safely or contact support.',503);
   return checkoutReply(url);
  }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
