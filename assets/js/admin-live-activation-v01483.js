@@ -61,7 +61,7 @@
     if(d.plansEnabled!==4||d.toolsEligible!==4||!d.testingDisabled||
        !d.stripeRouteEnabled||!d.masterCheckoutEnabled)throw Error('Database activation response did not verify all eight products and launch switches.');
     status.textContent='Database LIVE activation confirmed: 4 plans, 4 tools, Stripe route ON, TESTING OFF, master checkout ON. Checking public production checkout…';
-    const url='/api/stripe-live-checkout-v01458?type=plan&code=FULL_MONTHLY&gu83='+Date.now();
+    const url='/api/stripe-live-checkout?type=plan&code=FULL_MONTHLY&gu83='+Date.now();
     const r=await fetch(url,{cache:'no-store'});const check=await r.json().catch(()=>null);
     if(check?.liveCheckoutAvailable===true){
       status.textContent='Database ACTIVATED and Full Monthly LIVE Stripe checkout is AVAILABLE. Other seven products retain independent server-side SKU verification.';
