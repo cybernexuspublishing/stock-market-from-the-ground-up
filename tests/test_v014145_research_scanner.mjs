@@ -10,9 +10,9 @@ const csv='symbol,price,change_pct,volume,rvol,float,spread_pct,gap_pct\n'+
  'ABC,9.99,12,1500000,3,9000000,1.1,8\n'+
  'XYZ,14,12,1000000,2.1,10000000,2,2\n'+
  'MISSING,10,,5000000,10,9000000,0,1\n'+
- 'ZERO_PRICE,0,200,5000000,10,9000000,0,1\n'+
- 'BAD_SPREAD,10,50,9000000,3,9000000,,4\n'+
- 'BIG_FLOAT,10,20,9000000,4,16000000,1,5\n'+
+ 'ZERO,0,200,5000000,10,9000000,0,1\n'+
+ 'BADSPREAD,10,50,9000000,3,9000000,,4\n'+
+ 'BIGFLOAT,10,20,9000000,4,16000000,1,5\n'+
  'ABC,8,99,9900000,4,5000000,0.2,99\n';
 const parsed=S.csv(csv);
 assert.equal(parsed.length,7);
