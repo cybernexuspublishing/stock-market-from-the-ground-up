@@ -5,6 +5,27 @@
  * A failed provider, malformed response or discrepancy must fail the Cron visibly.
  * Never log credentials, member data, provider payloads, or recipient addresses.
  */
+/* v0.14.0.132: classify only safe runtime fetch failure characteristics.
+ * Never log raw exception messages, URLs, secrets, headers or customer data. */
+export function classifyBillingFetchFailure(error){
+ const name=error?.name==='TypeError'?'TypeError':
+  error?.name==='AbortError'?'AbortError':'Other';
+ const combined=String(error?.message||'')+' '+String(error?.cause?.message||'');
+ const code=String(error?.code||error?.cause?.code||'');
+ const has=s=>combined.toLowerCase().includes(s);
+ let reason='UNCLASSIFIED';
+ if(/\b1042\b/.test(combined)||has('another worker')||has('same zone'))
+  reason='WORKER_ROUTE_1042';
+ else if(/\b1019\b/.test(combined)||has('loop limit'))
+  reason='WORKER_LOOP_1019';
+ else if(has('redirect'))reason='REDIRECT_REJECTED';
+ else if(has('dns')||/ENOTFOUND|EAI_AGAIN/i.test(code))
+  reason='DNS_FAILURE';
+ else if(has('tls')||has('certificate'))reason='TLS_FAILURE';
+ else if(has('subrequest'))reason='SUBREQUEST_LIMIT';
+ else if(has('connect')||has('network'))reason='NETWORK_FAILURE';
+ return {name,reason};
+}
 const healthyCount=n=>Number.isSafeInteger(n)&&n>=0;
 const safeJson=async response=>{
  try{return await response.json()}catch{return null}
@@ -22,8 +43,10 @@ export default {
      method:'POST',headers:{authorization:'Bearer '+secret,
       'content-type':'application/json'},body:'{}',redirect:'error'
     });
-   }catch{
-    throw new Error('Stripe reconciliation endpoint could not be reached');
+   }catch(error){
+    const failure=classifyBillingFetchFailure(error);
+    console.error('BILLING_RECONCILIATION_FETCH_FAILURE',failure);
+    throw new Error('Stripe reconciliation endpoint could not be reached ['+failure.name+':'+failure.reason+']');
    }
    if(response.status!==200)
     throw new Error('Stripe reconciliation endpoint returned an unsuccessful status');
