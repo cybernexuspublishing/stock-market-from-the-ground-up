@@ -79,53 +79,58 @@ try{
   const page=await newPage(width);
   for(const {path,area} of sections){
    await check(area+' '+width+'px',async()=>{
-    const response=await page.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:16000});
-    assert.equal(response?.status(),200,path+' source response missing');
-    // Protected pages can redirect immediately; never simulate a logged-in
-    // user or invent access in the static fixture.
+    const tab=await page.context().newPage();
+    try{
+    // Validate protected source with a nonexecuting HTTP GET. Do not follow
+    // unauthenticated redirects or invent privileged member sessions.
     const source=readFileSync(join(root,path),'utf8');
     if(source.includes('data-auth-required="true"')){
+     const protectedSource=await tab.request.get(base+'/'+path,{timeout:16000});
+     assert.equal(protectedSource.status(),200,'Protected route source unavailable');
      assert(/<main[\s>]/i.test(source),'Protected route lost its main landmark');
      return {page:path,viewport:width,auth:'SOURCE_GUARDED',
       productionSession:'NOT_TESTED'};
     }
-    assert(await page.title(),path+' lost its title');
-    assert.equal(await page.locator('main').count(),1,path+' missing main landmark');
+    const response=await tab.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:16000});
+    assert.equal(response?.status(),200,path+' source response missing');
+    assert(await tab.title(),path+' lost its title');
+    assert.equal(await tab.locator('main').count(),1,path+' missing main landmark');
     const legal=source.includes('data-legal-doc="');
-    const content=(await page.locator('main').innerText()).trim();
+    const content=(await tab.locator('main').innerText()).trim();
     if(legal){
      assert(source.includes('noindex'),'Legal placeholder must not be indexed');
      assert(content.length>0,'Legal loader disappeared');
     }else assert(content.length>35,path+' main content empty');
-    const viewport=await page.evaluate(()=>document.querySelector('meta[name="viewport"]')?.content);
+    const viewport=await tab.evaluate(()=>document.querySelector('meta[name="viewport"]')?.content);
     assert(viewport&&viewport.includes('width=device-width'),path+' viewport not responsive');
     const details={page:path,viewport:width,content:legal?'SERVER_LEGAL_NOT_TESTED':'STATIC_RENDERED'};
     if(path==='store.html'){
      // Real plans/tools come from private Supabase live catalog, deliberately
      // unavailable in this source-only fixture. Assert fail-closed fallback,
      // NOT five fabricated live plans. Product-UI data tests run separately.
-     await page.waitForFunction(()=>Boolean(
+     await tab.waitForFunction(()=>Boolean(
       document.querySelector('#store-plans .notice')||
       document.querySelectorAll('#store-plans article.v11-plan').length===5
      ),undefined,{timeout:14000});
-     const count=await page.locator('#store-plans article.v11-plan').count();
+     const count=await tab.locator('#store-plans article.v11-plan').count();
      assert(count===0||count===5,'Unexpected partial plan catalog: '+count);
      if(count===0){
-      assert.match(await page.locator('#store-plans').innerText(),/unavailable/i);
-      assert.equal(await page.locator('#store-plans a[href*="checkout"]').count(),0,
+      assert.match(await tab.locator('#store-plans').innerText(),/unavailable/i);
+      assert.equal(await tab.locator('#store-plans a[href*="checkout"]').count(),0,
        'Live checkout must not be offered without catalog');
       details.billing='CATALOG_UNAVAILABLE_FAIL_CLOSED';
      }else details.billing='PLAN_RENDERED_WITHOUT_PAYMENT';
-     assert.equal(await page.locator('#store-products article.product-card').count(),5,
+     assert.equal(await tab.locator('#store-products article.product-card').count(),5,
       'Five books must remain in approved static source fallback');
     }
     if(width===390&&['index.html','store.html','books.html','learn.html'].includes(path)){
-     const scroll=await page.evaluate(()=>({
+     const scroll=await tab.evaluate(()=>({
       content:document.documentElement.scrollWidth,visible:document.documentElement.clientWidth
      }));
      assert(scroll.content<=scroll.visible+3,'Unexpected global mobile overflow: '+JSON.stringify(scroll));
     }
     return details;
+    }finally{await tab.close()}
    });
   }
   if(width===1280)await check('Store keyboard navigation and fail-closed billing (static)',async()=>{
