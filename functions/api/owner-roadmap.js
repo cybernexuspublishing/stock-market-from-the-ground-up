@@ -11,6 +11,7 @@ import {delegatedReviewPolicy,delegatedProgressFor} from '../_lib/owner-roadmap-
 import {roadmapOperationalBrief} from '../_lib/owner-roadmap-private-brief-v014063.js';
 import {ownerProductReadinessV01491} from '../_lib/owner-product-readiness-v01491.js';
 import {ownerReleasePlanV014141} from '../_lib/owner-release-plan-v014141.js';
+import {marketSourceRegistryV014142} from '../_lib/market-source-registry-v014142.js';
 import {aiServiceConfig} from '../_lib/first-party-ai-service-v014103.js';
 import {ownerAcceptanceSnapshot} from '../_lib/owner-acceptance-v014108.js';
 import {ownerLegalPublicationAudit} from '../_lib/owner-legal-audit-v014109.js';
@@ -369,7 +370,7 @@ export async function onRequest({request,env}){
         preservedReferenceLines:completeCatalog.filter(x=>x.scope!=='core').length,
         counts,verificationScope:'Authenticated Owner roadmap status; delegated source approvals are not live-production acceptance',
         computedAt:new Date().toISOString()
-      },releasePlan:ownerReleasePlanV014141});
+      },releasePlan:ownerReleasePlanV014141,dataSources:marketSourceRegistryV014142});
     }
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);

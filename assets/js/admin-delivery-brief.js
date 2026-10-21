@@ -64,6 +64,22 @@
    }
    desk.append(heading,phases);
   }
+  // Reuse the same authenticated Owner response; no independent market-data
+  // admin backend, browser API keys, or assertions about untested live feeds.
+  const sources=Array.isArray(data?.dataSources?.sources)?data.dataSources.sources:[];
+  if(sources.length){
+   desk.append(el('h3','cc-delivery-subheading','Free data sources · research & testing'));
+   const sourceDeck=el('div','cc-delivery-phases');
+   for(const src of sources){
+    const box=el('article','cc-delivery-phase');
+    box.append(el('span','cc-phase-number',src.code||'Source'),el('strong','',src.name||'Provider'));
+    box.append(el('small','',src.cost+' · '+src.credential));
+    box.append(el('small','',src.localPipeline+' · real connection '+src.observedLiveCapture));
+    box.append(link(src.terms||'/owner-roadmap.html','Provider terms ↗'));
+    sourceDeck.append(box);
+   }
+   desk.append(sourceDeck,el('p','cc-delivery-warning','Commercial publication is not yet approved; real IEX file decoding, historical trade condition and feed completeness, SEC endpoint access, member display and redistribution still require evidence.'));
+  }
   const risks=el('p','cc-delivery-note');
   risks.textContent='Planning categories are separate from deployment evidence. Data provenance, market-data rights, grading, member access and paid billing are not certified by a GitHub commit or an Owner checkbox.';
   desk.append(risks);

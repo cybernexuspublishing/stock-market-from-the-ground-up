@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {marketSourceRegistryV014142 as sources} from '../functions/_lib/market-source-registry-v014142.js';
+const api=readFileSync('functions/api/owner-roadmap.js','utf8');
+const ui=readFileSync('assets/js/admin-delivery-brief.js','utf8');
+const build=readFileSync('scripts/build-pages.sh','utf8');
+assert.equal(sources.sources.length,2);
+assert.equal(sources.publicReleaseApproved,false);
+assert(sources.sources.every(x=>x.observedLiveCapture==='NOT_TESTED'));
+assert(sources.sources.every(x=>x.credential==='NO_API_KEY_REQUIRED'||x.credential==='NO_API_KEY_PUBLISHED_FOR_HIST'));
+assert.equal(sources.sources[0].availableFeedScope,'IEX_SINGLE_VENUE_ONLY');
+assert(api.includes('marketSourceRegistryV014142'));
+assert(api.includes('dataSources:marketSourceRegistryV014142'));
+assert(ui.includes('data?.dataSources?.sources'));
+assert(ui.includes('Commercial publication is not yet approved'));
+assert(!build.includes('market-source-registry-v014142.js'));
+console.log('PASS v142: free-source registry, private Owner source status and build boundary');
