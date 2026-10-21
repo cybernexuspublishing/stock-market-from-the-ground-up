@@ -36,7 +36,9 @@ assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
 assert ".filter(p=>p.type==='book'" in script
 assert "t.status==='live'&&Number(t.priceCents)>0" in script
-assert "p.planCode!=='PICK_WHAT_YOU_WANT'" in script
+assert 'membershipIds.includes(p?.planCode)' in script
+assert 'approvedPlanCatalog' in script
+assert "new Set(items.map(p=>p.planCode)).size!==items.length" in script
 assert "toolPaths" in script and "bookPaths" in script and "planPaths" in script
 assert "store-membership-compare" in store
 assert "scope=\"col\"" in script and "scope=\"row\"" in script
