@@ -333,6 +333,44 @@ export async function onRequest({request,env}){
     if(new URL(request.url).searchParams.get('action')==='ai-service-audit')return reply({ok:true,aiServiceAudit:await ownerAiServiceAudit(c,env)});
     if(new URL(request.url).searchParams.get('action')==='platform-acceptance-v014108')return reply({ok:true,acceptance:await ownerAcceptanceSnapshot(env)});
     if(new URL(request.url).searchParams.get('action')==='legal-publication-v014109')return reply({ok:true,legalAudit:await ownerLegalPublicationAudit(env)});
+
+    // Low-payload Owner dashboard summary: SAME Owner authorization and
+    // canonical site_settings/roadmap source, but avoids sending 2,190 records
+    // or loading unrelated product catalog queries for every Admin visit.
+    if(new URL(request.url).searchParams.get('action')==='delivery-summary'){
+      const rows=await allState(c),saved=new Map();
+      let custom=0;
+      for(const row of rows){
+        const key=row.setting_key||'',value=row.value||{};
+        if(key.startsWith(KEY+'task.')){
+          const id=key.slice((KEY+'task.').length);
+          if(IDS.has(id))saved.set(id,value.status);
+        }else if(key.startsWith(KEY+'custom.')&&value.custom===true&&!value.archived){
+          custom++;
+          saved.set(value.id,value.status||'not_started');
+        }
+      }
+      const base=completeCatalog.filter(x=>x.scope==='core'&&x.kind==='task');
+      const counts=Object.create(null);
+      for(const item of base){
+        const s=saved.get(item.id)||delegatedBaseline[item.id]?.status||'not_started';
+        const stage=STATUS.has(s)?s:'not_started';
+        counts[stage]=(counts[stage]||0)+1;
+      }
+      for(const row of rows){
+        const key=row.setting_key||'',value=row.value||{};
+        if(key.startsWith(KEY+'custom.')&&value.custom===true&&!value.archived){
+          const s=STATUS.has(value.status)?value.status:'not_started';
+          counts[s]=(counts[s]||0)+1;
+        }
+      }
+      return reply({ok:true,deliverySummary:{
+        primaryTasks:base.length,customTasks:custom,totalTasks:base.length+custom,
+        preservedReferenceLines:completeCatalog.filter(x=>x.scope==='trace').length,
+        counts,verificationScope:'Authenticated Owner roadmap status; delegated source approvals are not live-production acceptance',
+        computedAt:new Date().toISOString()
+      },releasePlan:ownerReleasePlanV014141});
+    }
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
     const progress={},custom=[];

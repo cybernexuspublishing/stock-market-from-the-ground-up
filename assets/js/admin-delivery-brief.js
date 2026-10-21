@@ -29,7 +29,7 @@
   let token;try{const sb=await api();token=(await sb.auth.getSession()).data?.session?.access_token}catch{return}
   if(!token)return;
   let response;try{
-   response=await fetch('/api/owner-roadmap',{method:'GET',cache:'no-store',credentials:'same-origin',headers:{authorization:'Bearer '+token,accept:'application/json'}});
+   response=await fetch('/api/owner-roadmap?action=delivery-summary',{method:'GET',cache:'no-store',credentials:'same-origin',headers:{authorization:'Bearer '+token,accept:'application/json'}});
   }catch{return}
   // Owner API is authoritative. Never show a private summary on staff/Showcase denial.
   if(response.status===401||response.status===403)return;
@@ -39,17 +39,13 @@
   const actions=el('div','cc-delivery-actions');actions.append(link('/owner-roadmap.html','Open authoritative roadmap →'),link('/owner-roadmap.html#product-readiness','All 21 tools'),link('/owner-roadmap.html#verification-audit','Verification & SQL'));h.append(title,actions);desk.append(h);
   if(!response.ok){desk.append(el('p','cc-delivery-warning','Roadmap service unavailable. Do not interpret missing evidence as zero outstanding work.'));return}
   let data;try{data=await response.json()}catch{}
-  if(!data?.ok||!Array.isArray(data.items)||!data.progress||!data.delegatedBaseline){
+  const summary=data?.deliverySummary;
+  if(!data?.ok||!Number.isSafeInteger(summary?.totalTasks)||summary.totalTasks<1||!summary.counts){
    desk.append(el('p','cc-delivery-warning','Current authenticated roadmap evidence could not be validated. No completion counts are displayed.'));return
   }
-  const items=data.items.filter(x=>x.scope==='core'&&x.kind==='task');
-  const counts={};let ownerComplete=0,verified=0;
-  for(const item of items){
-   const user=data.progress[item.id],fallback=data.delegatedBaseline[item.id],s=String((user||fallback)?.status||'not_started');
-   counts[s]=(counts[s]||0)+1;if(s==='verified')verified++;if(s==='owner_complete')ownerComplete++;
-  }
+  const counts=summary.counts,ownerComplete=counts.owner_complete||0,verified=counts.verified||0;
   const stats=el('div','cc-delivery-stats');
-  stats.append(card('Tracked commitments',items.length,'Authenticated primary roadmap tasks'),
+  stats.append(card('Tracked commitments',summary.totalTasks,'Authenticated primary roadmap tasks'),
    card('Evidence verified',verified,'Scope-specific; not a sitewide release certificate'),
    card('Owner marked complete',ownerComplete,'Owner decision; independent acceptance separate'),
    card('In progress', (counts.in_progress||0)+(counts.partially_complete||0)+(counts.testing_required||0),'Builds, partial tasks and testing'),
