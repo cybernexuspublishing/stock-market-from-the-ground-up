@@ -91,7 +91,9 @@ jobs:
           python tests/test_v014059_catalog_contract.py
           python tests/test_v014070_fulfillment_contract.py
       - name: Mock signed LIVE payment and subscription lifecycle — no real Stripe calls
-        run: node tests/test_v014058_live_fulfillment.mjs
+        run: |
+          node tests/test_v014058_live_fulfillment.mjs
+          node tests/test_v014140_live_checkout_recovery.mjs
       - name: Verify production checkout wiring cannot bypass TEST/LIVE, webhook or product gates
         run: |
           node tests/test_v014064_checkout_wiring.mjs

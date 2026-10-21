@@ -73,15 +73,23 @@ globalThis.fetch=async(url,o={})=>{
   if(state.expectTool)
     assert.equal(body.get('line_items[0][price]'),mapped['tool:INTERACTIVE_LEARNING'].price_id);
   assert.equal(o.headers['Stripe-Version'],'2026-02-25.preview');
-  return respond(liveSession);
+  return respond({...liveSession,status:'open',payment_status:'unpaid',
+   amount_subtotal:state.expectTool?2999:6999,
+   expires_at:Math.floor(Date.now()/1000)+1800});
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='POST'){
   state.dbWrites++;state.postBody=JSON.parse(o.body);assert.equal(state.postBody.id,intent);return respond([state.postBody]);
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='PATCH'){
-  state.dbWrites++;return new Response(null,{status:204});
+  state.dbWrites++;
+  assert.equal(o.headers.prefer,'return=representation');
+  const payload=JSON.parse(o.body);
+  return respond([{id:intent,status:payload.status,stripe_session_id:payload.stripe_session_id}]);
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='GET'){
+  // Pre-creation unresolved-reservation probe must not fabricate an active
+  // Checkout Session in this historical sequential fulfillment fixture.
+  if(u.includes('status=in.(prepared,checkout_created)'))return respond([]);
   return respond([{id:intent,user_id:uid,price_id:mapped['plan:FULL_MONTHLY'].price_id,
     quoted_amount_cents:6999,stripe_session_id:state.unbound?null:liveSession.id,status:state.unbound?'prepared':'checkout_created'}]);
  }
