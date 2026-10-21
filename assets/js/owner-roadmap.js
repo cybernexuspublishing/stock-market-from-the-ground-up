@@ -141,7 +141,7 @@ function renderReleasePlan(){
   const card=document.createElement('article');card.className='or-release-card';
   const no=document.createElement('span');no.className='or-release-number';no.textContent='Deployment '+item.number+' of 08';
   const heading=document.createElement('h3');heading.textContent=item.title;
-  const state=document.createElement('span');state.className='or-release-pending';state.textContent='Planned release · acceptance not recorded';
+  const state=document.createElement('span');state.className='or-release-pending';state.textContent=(item.sourceDelivery==='merged'?'Source merged in GitHub':item.sourceDelivery==='source_implemented'?'Source implemented · QA ongoing':'Not started')+' · production '+(item.productionAcceptance||'unverified');
   const body=document.createElement('p');body.textContent=item.scope;
   const link=document.createElement('a');link.href='#task-'+encodeURIComponent(item.roadmapId);link.textContent='Open related roadmap requirement →';
   link.addEventListener('click',e=>{e.preventDefault();openTask(item.roadmapId)});

@@ -1,0 +1,56 @@
+name: 30-Day Bootcamp & Member Reflection Acceptance v0.14.0.144
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bootcamp-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test actual bootcamp API, all 30 days, 419 Lab mapping and unsafe account transitions
+        run: |
+          node tests/test_v014144_bootcamp.mjs
+          node --check functions/api/bootcamp.js
+          node --check assets/js/bootcamp.js
+          node --check functions/api/ondemand-training.js
+          node tests/test_v014143_verified_historical_gate.mjs
+          bash scripts/build-pages.sh
+          test -f public/bootcamp.html
+          test -f public/assets/js/bootcamp.js
+          test -f public/assets/css/bootcamp.css
+          test ! -e public/functions/_lib/bootcamp-curriculum-v014144.js
+          test ! -e public/supabase/migrations/v0.14.0.144_BOOTCAMP_PROGRESS_OWNER_REVIEW_REQUIRED.sql
+  bootcamp-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: groundup
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d groundup"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Apply actual migration and verify member-specific atomic SQL contracts
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d groundup -f tests/fixtures/v014144_bootcamp_acceptance.sql
