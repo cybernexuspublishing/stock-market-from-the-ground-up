@@ -126,15 +126,16 @@ export async function onRequest({request,env}){
   // existing replay session atomically, rather than relying on two HTTP writes.
   if(action==='finish'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
    if(!uid.test(id))throw bad('Invalid session ID.');
-   if(entitlement==='ONDEMAND_TRAINING'){
-    // The finish RPC can return a previously linked record; validate scope
+   {
+    // The finish RPC can return a previously linked record; validate
+    // authentic rights for ALL plans, including MARKET_SIMULATOR,
     // without enforcing active status so idempotent retries still work.
     const owned=one(await db(env,'gu_replay_sessions_v01492?select=dataset_code&user_id=eq.'+
      encodeURIComponent(auth.userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1'));
     if(!owned)throw bad('Replay session unavailable.',404);
     const dataset=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
      encodeURIComponent(owned.dataset_code)+'&limit=1'));
-    if(!permitted(dataset))throw bad('Historical dataset access is not part of this training entitlement.',403);
+    if(!permitted(dataset))throw bad('Historical dataset access is not approved for this training entitlement, or source rights were revoked.',403);
    }
    const linked=await db(env,'rpc/v01494_replay_finish_to_journal','POST',
     {p_session:id,p_user:auth.userId});

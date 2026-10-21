@@ -15,6 +15,16 @@ globalThis.fetch=async(url,init={})=>{
  if(u.includes('/rest/v1/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/rest/v1/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/rest/v1/rpc/user_has_tool_access'))return json(allowed);
+ if(u.includes('/rest/v1/gu_replay_sessions_v01492?'))return json([{dataset_code:'IEX_APPROVED_1'}]);
+ if(u.includes('/rest/v1/market_datasets?'))return json([{
+  dataset_code:'IEX_APPROVED_1',ticker:'AAPL',dataset_type:'ohlcv',
+  status:'published',source_attribution:'Data provided for free by IEX',license_note:'License reviewed',
+  metadata:{original_synthetic:false,real_market_security:true,
+  historical_evidence_verified:true,evidence_verified:true,licensed_for_member_display:true,
+  trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,
+  corporate_actions_reviewed:true,corporate_action_policy:'raw split checked',
+  data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2026-10-07',
+  source_sha256:'a'.repeat(64),reviewed_by:'Owner',reviewed_at:'2026-10-21T10:00:00Z'}}]);
  if(u.includes('/rest/v1/rpc/v01494_replay_finish_to_journal')){
   rpcCalls++;
   assert.equal(init.method,'POST');
