@@ -15,13 +15,15 @@ if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Sitewide CI only accep
 const paths=readdirSync(root).filter(p=>/^[a-z0-9-]+\.html$/.test(p)).sort();
 assert(paths.length>=80,'Expected entire 80+ page customer/Admin inventory, no accidental pages omitted');
 const protectedPages=['admin.html','owner-roadmap.html','journal.html','dashboard.html'];
+const inventoryDefects=[];
 for(const path of paths){
  const html=readFileSync(join(root,path),'utf8');
- assert(/<!doctype\s+html/i.test(html),path+' missing HTML5 doctype');
- assert(/<title[^>]*>[^<]+<\/title>/i.test(html),path+' missing page title');
- assert(/<html\s/i.test(html),path+' missing html root');
- assert(/<meta[^>]+name=["']viewport["']/i.test(html),path+' missing mobile viewport');
+ if(!/<!doctype\s+html/i.test(html))inventoryDefects.push(path+' missing HTML5 doctype');
+ if(!/<title[^>]*>[^<]+<\/title>/i.test(html))inventoryDefects.push(path+' missing page title');
+ if(!/<html\s/i.test(html))inventoryDefects.push(path+' missing html root');
+ if(!/<meta[^>]+name=["']viewport["']/i.test(html))inventoryDefects.push(path+' missing mobile viewport');
 }
+assert.equal(inventoryDefects.length,0,'Sitewide HTML inventory defects:\n'+inventoryDefects.join('\n'));
 for(const p of protectedPages){
  const content=readFileSync(join(root,p),'utf8');
  assert(/data-auth-required=["']true["']/.test(content),p+' must remain auth-protected');
