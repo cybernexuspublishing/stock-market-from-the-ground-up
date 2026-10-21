@@ -179,12 +179,25 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
-/* v0.13.5.4-replay-price.js preserved module */
-/* Accurate $19.99 Historical Replay option; never presents a live checkout. */
-(()=>{'use strict';if(!['/store.html','/membership.html','/store','/membership'].includes(location.pathname.toLowerCase()))return;
-const e=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* v0.14.0.138r1 — Retire obsolete Store replay-plan injection.
+ * Root cause of the real production 6th membership card: v0.13.5.4's
+ * addStore() appended a second, unlabeled ONDEMAND_MONTHLY card after the
+ * canonical Store renderer had already published all five reviewed plans.
+ * It also misleadingly claimed paid $19.99 enrollment was "Opening Soon".
+ * Retain ONLY legacy membership page copy enhancement. No extra Store DOM
+ * writes, Stripe Checkout, price, or database changes.
+ */
+(()=>{'use strict';
+ if(!['/membership.html','/membership'].includes(location.pathname.toLowerCase()))return;
 function amendMembership(){for(const c of document.querySelectorAll('#membership-plans .v11-plan')){if(!/Historical Replay Learning/i.test(c.textContent))continue;c.dataset.v1354Replay='1';const bullets=c.querySelectorAll('li');if(bullets[1])bullets[1].textContent='Historical Replay Learning using your own authorized thinkorswim OnDemand';if(bullets[2])bullets[2].textContent='No book files, proprietary simulator, or full-platform premium tools';const a=c.querySelector('a.btn');if(a&&!a.getAttribute('href')){a.textContent='Enrollment Opening Soon';a.setAttribute('aria-disabled','true')}}}
-async function addStore(){const node=document.querySelector('#store-plans');if(!node||node.querySelector('[data-v1354-replay]'))return;const sb=await window.getSupabaseClient();const {data,error}=await sb.from('platform_plans').select('plan_code,name,description,price_cents,checkout_enabled').eq('plan_code','ONDEMAND_MONTHLY').eq('public_visible',true).eq('active',true).maybeSingle();if(error||!data)return;const el=document.createElement('article');el.className='v11-plan';el.dataset.v1354Replay='1';el.innerHTML=`<div class="eyebrow">${e(data.name)}</div><div class="v11-price">$${(Number(data.price_cents)/100).toFixed(2)} <small>/month</small></div><p>${e(data.description)}</p><ul><li>Guided Historical Replay Training</li><li>Use your own authorized thinkorswim OnDemand</li><li>Excludes book files and proprietary simulator</li></ul><span class="btn disabled-buy" aria-disabled="true">Enrollment Opening Soon</span>`;node.append(el)}
-function init(){let n=0;const timer=setInterval(()=>{if(location.pathname.toLowerCase().includes('membership')){amendMembership();if(document.querySelector('#membership-plans .v11-plan'))clearInterval(timer)}else if(document.querySelector('#store-products .product-card')||++n>25){addStore().catch(()=>{});clearInterval(timer)}if(++n>45)clearInterval(timer)},250)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
-
+ function init(){
+  let attempts=0;
+  const timer=setInterval(()=>{
+   amendMembership();
+   if(document.querySelector('#membership-plans .v11-plan')||++attempts>=45)clearInterval(timer);
+  },250);
+ }
+ if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();

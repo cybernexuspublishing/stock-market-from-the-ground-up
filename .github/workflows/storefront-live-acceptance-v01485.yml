@@ -6,6 +6,8 @@ on:
       - 'tests/test_v014085_bundled_guide_contract.mjs'
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store.js'
+      - 'assets/js/commerce-presentation.js'
+      - 'tests/test_v014138_no_legacy_replay_injection.mjs'
       - 'assets/js/store-upcoming-offerings-v01490.js'
       - 'assets/js/admin-products-v01489.js'
       - 'assets/js/admin-platform.js'
@@ -27,6 +29,8 @@ on:
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/js/store.js'
+      - 'assets/js/commerce-presentation.js'
+      - 'tests/test_v014138_no_legacy_replay_injection.mjs'
       - 'assets/js/store-upcoming-offerings-v01490.js'
       - 'assets/js/admin-products-v01489.js'
       - 'assets/js/admin-platform.js'
@@ -63,6 +67,7 @@ jobs:
           node --check assets/js/admin-products-v01489.js
           node --check assets/js/admin-platform.js
           node tests/test_v014090_commercial_product_inventory.mjs
+          node tests/test_v014138_no_legacy_replay_injection.mjs
       - name: Verify no divergence between editorial product guide and packaged production script
         run: node tests/test_v014085_bundled_guide_contract.mjs
       - name: Reject legacy v132 Store tab injection over accessible v84 Store
