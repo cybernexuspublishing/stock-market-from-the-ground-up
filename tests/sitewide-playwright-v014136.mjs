@@ -53,7 +53,7 @@ const sections=[
  {path:'subscription-terms.html',area:'Subscription Terms'}
 ];
 const report={version:'0.14.0.136',testType:'local built-static-source (not deployed, no login)',
- checkedAt:new Date().toISOString(),htmlInventory:paths.length,routes:[],failures:[],notes:[]};
+ checkedAt:new Date().toISOString(),htmlInventory:paths.length,routes:[],failures:[],notes:['Supabase, paid provider permissions, authenticated page content and server-rendered legal text are NOT tested by offline fixture. Valid source fallback is intentionally checkout-closed.']};
 mkdirSync('artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const contexts=[];
@@ -80,18 +80,44 @@ try{
   for(const {path,area} of sections){
    await check(area+' '+width+'px',async()=>{
     const response=await page.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:16000});
-    assert.equal(response?.status(),200,path+' was not available');
+    assert.equal(response?.status(),200,path+' source response missing');
+    // Protected pages can redirect immediately; never simulate a logged-in
+    // user or invent access in the static fixture.
+    const source=readFileSync(join(root,path),'utf8');
+    if(source.includes('data-auth-required="true"')){
+     assert(/<main[\s>]/i.test(source),'Protected route lost its main landmark');
+     return {page:path,viewport:width,auth:'SOURCE_GUARDED',
+      productionSession:'NOT_TESTED'};
+    }
     assert(await page.title(),path+' lost its title');
     assert.equal(await page.locator('main').count(),1,path+' missing main landmark');
-    assert((await page.locator('main').innerText()).trim().length>35,path+' main content empty');
+    const legal=source.includes('data-legal-doc="');
+    const content=(await page.locator('main').innerText()).trim();
+    if(legal){
+     assert(source.includes('noindex'),'Legal placeholder must not be indexed');
+     assert(content.length>0,'Legal loader disappeared');
+    }else assert(content.length>35,path+' main content empty');
     const viewport=await page.evaluate(()=>document.querySelector('meta[name="viewport"]')?.content);
     assert(viewport&&viewport.includes('width=device-width'),path+' viewport not responsive');
-    const details={page:path,viewport:width};
+    const details={page:path,viewport:width,content:legal?'SERVER_LEGAL_NOT_TESTED':'STATIC_RENDERED'};
     if(path==='store.html'){
-     await page.waitForFunction(()=>document.querySelectorAll('#store-plans article.v11-plan').length>=5,
-      {timeout:12000});
-     assert.equal(await page.locator('#store-plans article.v11-plan').count(),5);
-     assert.equal(await page.locator('#store-products article.product-card').count(),5);
+     // Real plans/tools come from private Supabase live catalog, deliberately
+     // unavailable in this source-only fixture. Assert fail-closed fallback,
+     // NOT five fabricated live plans. Product-UI data tests run separately.
+     await page.waitForFunction(()=>Boolean(
+      document.querySelector('#store-plans .notice')||
+      document.querySelectorAll('#store-plans article.v11-plan').length===5
+     ),undefined,{timeout:14000});
+     const count=await page.locator('#store-plans article.v11-plan').count();
+     assert(count===0||count===5,'Unexpected partial plan catalog: '+count);
+     if(count===0){
+      assert.match(await page.locator('#store-plans').innerText(),/unavailable/i);
+      assert.equal(await page.locator('#store-plans a[href*="checkout"]').count(),0,
+       'Live checkout must not be offered without catalog');
+      details.billing='CATALOG_UNAVAILABLE_FAIL_CLOSED';
+     }else details.billing='PLAN_RENDERED_WITHOUT_PAYMENT';
+     assert.equal(await page.locator('#store-products article.product-card').count(),5,
+      'Five books must remain in approved static source fallback');
     }
     if(width===390&&['index.html','store.html','books.html','learn.html'].includes(path)){
      const scroll=await page.evaluate(()=>({
@@ -102,36 +128,34 @@ try{
     return details;
    });
   }
-  if(width===1280)await check('Store keyboard/category navigation and five membership detail links',async()=>{
+  if(width===1280)await check('Store keyboard navigation and fail-closed billing (static)',async()=>{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>document.querySelectorAll('#store-plans article.v11-plan').length===5,
-      {timeout:12000});
-    const cards=page.locator('#store-plans article.v11-plan');
-    for(let i=0;i<5;i++){
-     const c=cards.nth(i);
-     assert.equal(await c.locator('.v11-price + .store-plan-primary-link').count(),1,
-      'Missing or duplicate near-price detail link on membership '+i);
-    }
+    await page.waitForFunction(()=>Boolean(
+      document.querySelector('#store-plans .notice')||
+      document.querySelectorAll('#store-plans article.v11-plan').length===5
+    ),undefined,{timeout:14000});
     await page.locator('#store-tab-memberships').focus();
     await page.keyboard.press('ArrowRight');
     assert.equal(await page.locator('#store-tab-books').getAttribute('aria-selected'),'true');
     await page.locator('#store-tab-tools').click();
     assert.equal(await page.locator('#store-panel-tools').evaluate(e=>e.hidden),false);
-    const future=page.locator('#store-tools .store-future-card');
-    assert((await future.count())>=6,'Future tools must be explicit, not checkout-enabled');
-    const prohibited=await future.locator('a[href*="checkout"]').count();
-    assert.equal(prohibited,0,'Future tools incorrectly offer checkout');
-    return 'all five membership cards link to an educational detail page; keyboard category tabs and future tools';
+    const buttons=await page.locator('#store-plans a[href*="checkout"],#store-tools a[href*="checkout"]').count();
+    assert.equal(buttons,0,'Offline Store must not offer a direct paid checkout URL');
+    // Canonical plans + future tool cards are covered by mocked source contract
+    // tests, and real provider permission requires independent Owner acceptance.
+    return 'keyboard Store tabs PASS; no uncontrolled checkout; live catalog unverified';
   });
   if(width===1280)await check('Store automated accessibility baseline',async()=>{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>document.querySelectorAll('#store-plans article.v11-plan').length===5,
-      {timeout:12000});
+    await page.waitForFunction(()=>Boolean(
+      document.querySelector('#store-plans .notice')||
+      document.querySelectorAll('#store-plans article.v11-plan').length===5
+    ),undefined,{timeout:14000});
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(x=>x.impact==='critical'||x.impact==='serious');
     assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.length})),[],
       'Serious/critical automated Store accessibility findings');
-    return 'No serious/critical WCAG A/AA automated axe issues in Store; manual acceptance still required';
+    return 'No serious/critical axe issues on static Store; manual and live review still required';
   });
   await page.close();
  }
