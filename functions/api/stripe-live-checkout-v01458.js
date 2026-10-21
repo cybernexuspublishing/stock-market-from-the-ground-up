@@ -83,7 +83,7 @@ if(!r||r.active!==true||r.public_visible!==true||
  const amount=Number(isPlan?r.price_cents:r.individual_price_cents),bill=isPlan?r.billing_interval:'month';
  if(!Number.isSafeInteger(amount)||amount<1||!['month','year','lifetime'].includes(bill))throw err('Invalid catalog price.',503);
  const name=String(r.name||'').trim();
- if(!name||name.length>120||/[\\u0000-\\u001f]/.test(name))throw err('Invalid catalog product name.',503);
+ if(!name||name.length>120||/[\x00-\x1f]/.test(name))throw err('Invalid catalog product name.',503);
  return {key,amount,bill,name};
 }
 async function verifyPrice(c,price,p,expectedProduct){const q=await request('https://api.stripe.com/v1/prices/'+encodeURIComponent(price),{headers:{authorization:'Bearer '+c.stripe}});
