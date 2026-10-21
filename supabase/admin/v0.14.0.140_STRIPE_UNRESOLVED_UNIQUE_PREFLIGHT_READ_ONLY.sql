@@ -38,7 +38,11 @@ WITH state AS (
    to_regclass('public.gu58_live_checkout_intents'),'INSERT,UPDATE,DELETE'),false)
  UNION ALL SELECT 'Service role can read/insert/update LIVE intents',
   coalesce(has_table_privilege('service_role',
-   to_regclass('public.gu58_live_checkout_intents'),'SELECT,INSERT,UPDATE'),false)
+   to_regclass('public.gu58_live_checkout_intents'),'SELECT'),false)
+  AND coalesce(has_table_privilege('service_role',
+   to_regclass('public.gu58_live_checkout_intents'),'INSERT'),false)
+  AND coalesce(has_table_privilege('service_role',
+   to_regclass('public.gu58_live_checkout_intents'),'UPDATE'),false)
 )
 SELECT requirement,
  CASE WHEN passing IS TRUE THEN 'PASS' ELSE 'HOLD' END AS status,
