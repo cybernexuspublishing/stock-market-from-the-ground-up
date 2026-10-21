@@ -7,7 +7,9 @@ on:
       - 'assets/css/admin-billing-reconciliation.css'
       - 'admin.html'
       - 'tests/test_v014134_owner_billing_evidence.mjs'
+      - 'tests/test_v014135_owner_billing_stepup_browser.py'
       - 'docs/v0.14.0.134_OWNER_BILLING_RECONCILIATION_EVIDENCE.md'
+      - 'docs/v0.14.0.135_OWNER_BILLING_PASSWORD_DIALOG_FIX.md'
       - '.github/workflows/owner-billing-reconciliation-v014134.yml'
   push:
     branches: [main]
@@ -17,7 +19,9 @@ on:
       - 'assets/css/admin-billing-reconciliation.css'
       - 'admin.html'
       - 'tests/test_v014134_owner_billing_evidence.mjs'
+      - 'tests/test_v014135_owner_billing_stepup_browser.py'
       - 'docs/v0.14.0.134_OWNER_BILLING_RECONCILIATION_EVIDENCE.md'
+      - 'docs/v0.14.0.135_OWNER_BILLING_PASSWORD_DIALOG_FIX.md'
       - '.github/workflows/owner-billing-reconciliation-v014134.yml'
 permissions:
   contents: read
@@ -36,6 +40,16 @@ jobs:
           node tests/test_v014132_billing_fetch_diagnostics.mjs
           node tests/test_v014133_billing_redirect_policy.mjs
           node tests/test_v014129_stripe_only_cron.mjs
+      - name: Validate owner billing dialog client contract
+        run: |
+          node --check assets/js/admin-billing-reconciliation.js
+          python -m py_compile tests/test_v014135_owner_billing_stepup_browser.py
+      - name: Install isolated Chromium test runner
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Browser regression — Owner password confirmation + one retry
+        run: python tests/test_v014135_owner_billing_stepup_browser.py
       - name: Verify Pages includes new browser assets
         run: |
           bash scripts/build-pages.sh
