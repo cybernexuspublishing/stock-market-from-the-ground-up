@@ -366,7 +366,7 @@ export async function onRequest({request,env}){
       }
       return reply({ok:true,deliverySummary:{
         primaryTasks:base.length,customTasks:custom,totalTasks:base.length+custom,
-        preservedReferenceLines:completeCatalog.filter(x=>x.scope==='trace').length,
+        preservedReferenceLines:completeCatalog.filter(x=>x.scope!=='core').length,
         counts,verificationScope:'Authenticated Owner roadmap status; delegated source approvals are not live-production acceptance',
         computedAt:new Date().toISOString()
       },releasePlan:ownerReleasePlanV014141});
