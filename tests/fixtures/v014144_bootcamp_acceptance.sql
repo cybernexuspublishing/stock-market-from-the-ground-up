@@ -27,7 +27,7 @@ SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaa
  'I can distinguish a timestamped public filing from a later market observation, and neither predicts a trading result.',1);
 SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'start',null,null);
 SELECT public.gu_bootcamp_save_progress_v014144('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',1,'start',null,null);
-DO $
+DO $$
 DECLARE result jsonb;
 BEGIN
  result:=public.gu_bootcamp_save_progress_v014144(
@@ -39,8 +39,8 @@ BEGIN
  IF result->>'conflict' IS DISTINCT FROM 'true' THEN
    RAISE EXCEPTION 'Stale overwrite was permitted';
  END IF;
-END $;
-DO $
+END $$;
+DO $$
 DECLARE count_one integer;count_two integer;record_one text;
 BEGIN
  SELECT count(*) INTO count_one FROM public.gu_bootcamp_progress_v014144 WHERE user_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
