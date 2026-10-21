@@ -227,8 +227,88 @@
    }catch(e){status(e.message,'error')}
   };
  }
- async function renderWatchlist(){const recs=await latestRecords('watchlist');document.getElementById('tool-workbench').innerHTML=panel('Watchlist & Trade-Plan Workbench',`<div class="v11-form-grid"><div><label>Ticker</label><input id="w-ticker"></div><div><label>Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div><div><label>Catalyst</label><input id="w-cat"></div><div><label>Key level / HOD / resistance</label><input id="w-level"></div><div><label>Entry condition</label><input id="w-entry"></div><div><label>Invalidation</label><input id="w-inv"></div><div><label>Stop</label><input id="w-stop"></div><div><label>Target</label><input id="w-target"></div></div><label>Why this deserves attention</label><textarea id="w-why" rows="3"></textarea><div class="actions"><button class="btn" id="w-save">Save Candidate</button></div>`)+panel('Saved candidates',`<div id="w-list">${recs.length?recs.map(r=>`<div class="v11-feature available"><span class="v11-feature-mark">${esc(r.payload?.status||'WATCH')}</span><div><strong>${esc(r.title||'')}</strong><small>${esc(r.payload?.entry||'')} · Invalidation: ${esc(r.payload?.invalidation||'')}</small></div></div>`).join(''):'<p class="small">No saved candidates yet.</p>'}</div>`);document.getElementById('w-save').onclick=async()=>{const ticker=document.getElementById('w-ticker').value.trim().toUpperCase();if(!ticker)return status('Ticker required.','error');const payload={status:document.getElementById('w-status').value,catalyst:document.getElementById('w-cat').value,level:document.getElementById('w-level').value,entry:document.getElementById('w-entry').value,invalidation:document.getElementById('w-inv').value,stop:document.getElementById('w-stop').value,target:document.getElementById('w-target').value,why:document.getElementById('w-why').value};await saveRecord('watchlist',ticker,payload);status('Candidate saved.','success');renderWatchlist()}}
- function renderCatalyst(){document.getElementById('tool-workbench').innerHTML=panel('Catalyst & Filing Research',`<div class="v11-form-grid"><div><label>Ticker</label><input id="c-ticker" placeholder="AAPL"></div><div><label>Catalyst category</label><select id="c-type"><option>Earnings</option><option>8-K / Corporate Event</option><option>Offering / Financing</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Merger / Acquisition</option><option>Split / Reverse Split</option><option>Other</option></select></div><div><label>Source URL</label><input id="c-url" type="url"></div><div><label>Source timestamp</label><input id="c-time" type="datetime-local"></div></div><label>What does the source actually say?</label><textarea id="c-fact" rows="4"></textarea><label>What is inference / uncertainty?</label><textarea id="c-unc" rows="3"></textarea><div class="actions"><button class="btn" id="c-save">Save Research Note</button><a class="btn secondary" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">Open SEC EDGAR</a></div>`)+panel('Research standard','<p>Separate verified fact from interpretation. Confirm the original source, timestamp, financing/dilution implications, and whether the catalyst was already known before the observed price move.</p>');document.getElementById('c-save').onclick=async()=>{const t=document.getElementById('c-ticker').value.trim().toUpperCase();if(!t)return status('Ticker required.','error');await saveRecord('catalyst',t,{category:document.getElementById('c-type').value,url:document.getElementById('c-url').value,timestamp:document.getElementById('c-time').value,fact:document.getElementById('c-fact').value,uncertainty:document.getElementById('c-unc').value});status('Research note saved.','success')}}
+
+ async function renderWatchlist(){
+  const recs=await latestRecords('watchlist'),host=document.getElementById('tool-workbench');
+  host.innerHTML=panel('Watchlist & Conditional Trade Plans',
+   '<p>Member-researched candidates only—not auto-executed orders, verified quotes or buy signals.</p>'+
+   '<div class="v11-form-grid">'+
+   '<div><label for="w-ticker">Ticker</label><input id="w-ticker" maxlength="12"></div>'+
+   '<div><label for="w-status">Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div>'+
+   '<div><label for="w-asof">Source observation time with UTC offset</label><input id="w-asof" placeholder="2026-10-21T13:00:00-04:00"></div>'+
+   '<div><label for="w-source">Original source / permission note</label><input id="w-source" maxlength="180"></div>'+
+   '<div><label for="w-cat">Catalyst</label><input id="w-cat"></div>'+
+   '<div><label for="w-level">Level / resistance</label><input id="w-level"></div>'+
+   '<div><label for="w-entry">Conditional entry</label><input id="w-entry"></div>'+
+   '<div><label for="w-inv">Invalidation or NO TRADE rule</label><input id="w-inv"></div>'+
+   '<div><label for="w-stop">Planned stop (not guaranteed)</label><input id="w-stop"></div>'+
+   '<div><label for="w-target">Research target (not prediction)</label><input id="w-target"></div></div>'+
+   '<label for="w-why">Why further research?</label><textarea id="w-why" rows="3"></textarea>'+
+   '<div class="actions"><button type="button" class="btn" id="w-save">Save Research Candidate</button></div>')+
+   panel('Private saved candidates','<div id="w-list"></div>')+
+   panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
+  const list=document.getElementById('w-list');
+  if(!recs.length)list.textContent='No saved candidates yet.';
+  for(const rec of recs){
+   const line=document.createElement('p');
+   line.textContent=(rec.title||'')+' · '+(rec.payload?.status||'WATCH')+
+    ' · Invalidation: '+(rec.payload?.invalidation||'Unspecified')+
+    ' · Source: '+(rec.payload?.sourceNote||'Legacy record: no source')+
+    ' · At: '+(rec.payload?.asOf||'Date unknown');
+   list.append(line);
+  }
+  document.getElementById('w-save').onclick=async()=>{
+   try{
+    const value=id=>document.getElementById(id).value.trim();
+    const ticker=value('w-ticker').toUpperCase(),sourceNote=value('w-source'),asOf=value('w-asof');
+    if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker))throw Error('A valid stock symbol is required.');
+    if(sourceNote.length<3||sourceNote.length>180)throw Error('Source and use-rights note is required.');
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(asOf)||
+       !Number.isFinite(Date.parse(asOf))||Date.parse(asOf)>Date.now()+300000)
+       throw Error('A nonfuture source timestamp with timezone offset is required.');
+    if(!value('w-inv'))throw Error('Document a clear invalidation or NO TRADE rule.');
+    const payload={status:value('w-status'),catalyst:value('w-cat'),level:value('w-level'),
+     entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
+     target:value('w-target'),why:value('w-why'),asOf,sourceNote,
+     evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
+    await saveRecord('watchlist',ticker,payload);await renderWatchlist();
+    status('Saved private conditional plan. Market source and trade outcome remain unverified.','success');
+   }catch(e){status(e.message,'error')}
+  };
+ }
+ function renderCatalyst(){
+  document.getElementById('tool-workbench').innerHTML=panel('Catalyst & Filing Research',
+   '<p>Use a dated primary issuer or regulator source, with timestamp and uncertainty. No inferred causal relationship is automatically proven.</p>'+
+   '<div class="v11-form-grid">'+
+   '<div><label for="c-ticker">Ticker</label><input id="c-ticker" maxlength="12"></div>'+
+   '<div><label for="c-type">Category</label><select id="c-type"><option>Earnings</option><option>8-K / Corporate Event</option><option>Offering / Financing</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Merger / Acquisition</option><option>Split / Reverse Split</option><option>Other</option></select></div>'+
+   '<div><label for="c-url">Original HTTPS source URL</label><input id="c-url" type="url"></div>'+
+   '<div><label for="c-time">Original publication time with UTC offset</label><input id="c-time" placeholder="2026-10-21T08:30:00-04:00"></div></div>'+
+   '<label for="c-fact">Verifiable original-source facts</label><textarea id="c-fact" rows="4"></textarea>'+
+   '<label for="c-unc">Alternative explanations / uncertainty</label><textarea id="c-unc" rows="3"></textarea>'+
+   '<div class="actions"><button type="button" class="btn" id="c-save">Save Research Note</button>'+
+   '<a class="btn secondary" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener noreferrer">Open SEC EDGAR</a></div>')+
+   panel('Data standard','<p>Researcher-entered data is NOT authenticated. Check original filings, amendments, event time, float changes and supported venue datasets before publishing a historical case.</p>');
+  document.getElementById('c-save').onclick=async()=>{
+   try{
+    const value=id=>document.getElementById(id).value.trim(),t=value('c-ticker').toUpperCase();
+    if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(t))throw Error('Valid ticker required.');
+    let url;try{url=new URL(value('c-url'))}catch{throw Error('Valid original source HTTPS URL required.')}
+    if(url.protocol!=='https:'||url.username||url.password||url.port||!url.hostname.includes('.')||url.href.length>500)
+     throw Error('Source must be HTTPS without embedded credentials.');
+    const at=value('c-time');
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(at)||
+       !Number.isFinite(Date.parse(at))||Date.parse(at)>Date.now()+300000)
+     throw Error('Exact original release time with offset required.');
+    if(value('c-fact').length<15||value('c-unc').length<12)
+     throw Error('Record substantive source facts AND a competing explanation/uncertainty.');
+    await saveRecord('catalyst',t,{
+     category:value('c-type'),url:url.href,timestamp:at,fact:value('c-fact'),
+     uncertainty:value('c-unc'),evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED',tradingSignal:false});
+    status('Private source note recorded, without claiming independent causality or price verification.','success');
+   }catch(e){status(e.message,'error')}
+  };
+ }
  function aggregate(bars,min){const out=[];let bucket=null;for(const b of bars){const t=new Date(b.time),m=t.getMinutes(),key=`${t.getFullYear()}-${t.getMonth()}-${t.getDate()}-${t.getHours()}-${Math.floor(m/min)}`;if(!bucket||bucket.key!==key){bucket={key,time:new Date(t),open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume};out.push(bucket)}else{bucket.high=Math.max(bucket.high,b.high);bucket.low=Math.min(bucket.low,b.low);bucket.close=b.close;bucket.volume+=b.volume}}return out}
  function structureSummary(b){if(b.length<5)return'Not enough bars';const x=b.slice(-5),last=x[x.length-1],prev=x[x.length-3];if(last.high>prev.high&&last.low>prev.low)return'Higher-high / higher-low tendency';if(last.high<prev.high&&last.low<prev.low)return'Lower-high / lower-low tendency';return'Range / mixed structure'}
  function renderMulti(){document.getElementById('tool-workbench').innerHTML=panel('Multi-Timeframe Synchronizer',`<p>Upload 1-minute OHLCV. The tool derives 3m, 5m, and 15m views from the same source so timestamps stay synchronized.</p><input id="m-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="m-run">Build Timeframes</button></div><div id="m-out"></div>`);let rows=[];document.getElementById('m-file').onchange=async e=>{rows=parseBars(parseCsv(await e.target.files[0].text()));status(`Loaded ${rows.length} valid bars.`,'success')};document.getElementById('m-run').onclick=()=>{if(!rows.length)return status('Load 1-minute OHLCV first.','error');const frames=[[1,rows],[3,aggregate(rows,3)],[5,aggregate(rows,5)],[15,aggregate(rows,15)]];document.getElementById('m-out').innerHTML=`<div class="v11-feature-grid">${frames.map(([m,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">${m}m</span><div><strong>${structureSummary(b)}</strong><small>${b.length} derived bars · last ${money(b.at(-1)?.close)}</small></div></div>`).join('')}</div><div class="v11-lock-note">A lower timeframe can look bullish while a higher timeframe is pressing into resistance. The exercise is to explain the conflict—not force agreement.</div>`}}
