@@ -81,7 +81,10 @@ globalThis.fetch=async(url,o={})=>{
   state.dbWrites++;state.postBody=JSON.parse(o.body);assert.equal(state.postBody.id,intent);return respond([state.postBody]);
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='PATCH'){
-  state.dbWrites++;return new Response(null,{status:204});
+  state.dbWrites++;
+  assert.equal(o.headers.prefer,'return=representation');
+  const payload=JSON.parse(o.body);
+  return respond([{id:intent,status:payload.status,stripe_session_id:payload.stripe_session_id}]);
  }
  if(u.includes('/gu58_live_checkout_intents')&&method==='GET'){
   // Pre-creation unresolved-reservation probe must not fabricate an active
