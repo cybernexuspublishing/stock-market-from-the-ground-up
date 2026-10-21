@@ -95,3 +95,49 @@
  .store-detail-page .store-product-purchase{padding:20px}
  .store-detail-page .store-product-facts{grid-template-columns:minmax(100px,.7fr) minmax(0,1.3fr)}
 }
+
+/* v0.14.0.139 | Contain intrinsic width in long-form product education.
+ * Real text/URLs must wrap rather than making the customer page scroll sideways.
+ * Do not use overflow-x:hidden: that masks content, keyboard focus and defects.
+ */
+.store-detail-page main.section,
+.store-detail-page main.section > .wrap,
+.store-detail-page .store-product-detail,
+.store-detail-page .store-product-hero,
+.store-detail-page .store-product-hero-layout,
+.store-detail-page .store-product-body,
+.store-detail-page .store-product-sections,
+.store-detail-page .store-product-section,
+.store-detail-page .store-product-purchase {
+  min-width: 0;
+  max-width: 100%;
+}
+.store-detail-page .store-product-section,
+.store-detail-page .store-product-intro,
+.store-detail-page .store-product-purchase {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.store-detail-page .store-product-section :is(pre,code) {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.store-detail-page .store-product-section :is(table,iframe,video,svg) {
+  max-width: 100%;
+}
+.store-detail-page .store-product-section :is(img,picture) {
+  max-width: 100%;
+  height: auto;
+}
+.store-detail-page .store-product-facts {
+  min-width: 0;
+}
+.store-detail-page .store-product-facts > * {
+  min-width: 0;
+}
+@media(max-width:580px) {
+ .store-detail-page .store-product-body,
+ .store-detail-page .store-product-hero {
+   width: 100%;
+ }
+}
