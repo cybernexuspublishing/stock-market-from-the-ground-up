@@ -32,9 +32,9 @@ globalThis.fetch=async(url,options={})=>{
  if(!state.db)throw Error('Database offline');
  if(u.includes('/gu39_sandbox_settings?'))return json([{enabled:state.testing}]);
  if(u.includes('/platform_plans?'))return json([{active:true,public_visible:true,
-  checkout_enabled:state.offer,billing_interval:'month',price_cents:6999}]);
+  checkout_enabled:state.offer,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
  if(u.includes('/platform_tools?'))return json([{active:true,public_visible:true,
-  status:state.tool?'live':'preview',individual_price_cents:2999}]);
+  status:state.tool?'live':'preview',name:'Interactive Learning',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return json({provider:'STRIPE_MANAGED',enabled:state.route});
  if(u.includes('/site_settings?'))return json([{value:state.site}]);
  if(u.endsWith('/v1/account'))return json({id:state.merchant?'acct_mock0000000':'acct_other0000'});
