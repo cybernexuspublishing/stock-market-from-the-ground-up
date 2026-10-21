@@ -75,6 +75,7 @@ jobs:
       - name: Verify no-charge checkout and signed LIVE entitlement contract
         run: |
           node tests/test_v014058_live_fulfillment.mjs
+          node tests/test_v014140_live_checkout_recovery.mjs
           node tests/test_v014064_checkout_wiring.mjs
           node tests/test_v014067_live_merchant_readiness.mjs
           node tests/test_v014068_stable_webhook.mjs
