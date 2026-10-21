@@ -24,6 +24,21 @@ export const marketSourceRegistryV014142=Object.freeze({
     'No authenticated IEX login or downloaded real file verified']
   }),
   Object.freeze({
+   code:'TIINGO_BYO',name:'Tiingo — Member-Owned API Token',
+   category:'private_per_member_provider_data',cost:'INDIVIDUAL_FREE_TIER_ADVERTISED',
+   credential:'EACH_MEMBER_REGISTER_PERSONAL_TOKEN_NO_SHARED_PLATFORM_ACCOUNT',
+   terms:'https://app.tiingo.com/tos/',
+   guide:'https://www.tiingo.com/documentation/appendix/developers',
+   retrieval:'MEMBER_BYO_ENCRYPTED_TOKEN_PRIVATE_ON_DEMAND',
+   localPipeline:'NO_PUBLIC_CACHE_NO_AUTOMATIC_COMMERCIAL_REPUBLICATION',
+   observedLiveCapture:'NOT_TESTED',
+   commercialReuse:'NO_REDISTRIBUTION_BASIC_POWER_OR_STANDARD_COMMERCIAL_TIERS',
+   warnings:['Tiingo developer program requires each individual to register their own API account',
+    'Free plan is internal/personal use only: no shared platform account or commercial reposting',
+    'Do not create duplicate accounts to circumvent provider quotas',
+    'Production real-token, quota and encrypted database verification remain unverified']
+  }),
+  Object.freeze({
    code:'SEC_EDGAR',name:'SEC EDGAR Public Submissions API',
    category:'public_corporate_filings',cost:'FREE_PUBLIC',
    credential:'NO_API_KEY_REQUIRED',

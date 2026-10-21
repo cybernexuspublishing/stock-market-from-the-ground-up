@@ -371,7 +371,7 @@ export async function onRequest({request,env}){
         preservedReferenceLines:completeCatalog.filter(x=>x.scope!=='core').length,
         counts,verificationScope:'Authenticated Owner roadmap status; delegated source approvals are not live-production acceptance',
         computedAt:new Date().toISOString()
-      },releasePlan:ownerReleasePlanV014141,bootcampReadiness:{curriculumDays:bootcampCurriculumV014144.days.length,officialCompetencyLinks:30,individualLabLinksProvisional:true,privateProgressSchema:'NOT_VERIFIED',individualLabEditorialApproval:'NOT_COMPLETE',sourceImplementation:'IMPLEMENTED_PENDING_PRIVATE_DB_AND_MEMBER_ACCEPTANCE'},dataSources:marketSourceRegistryV014142});
+      },releasePlan:ownerReleasePlanV014141,bootcampReadiness:{curriculumDays:bootcampCurriculumV014144.days.length,officialCompetencyLinks:30,individualLabLinksProvisional:true,privateProgressSchema:'OWNER_POSTFLIGHT_SCHEMA_AND_GRANTS_PASS_MEMBER_FLOW_UNTESTED',individualLabEditorialApproval:'NOT_COMPLETE',sourceImplementation:'IMPLEMENTED_PENDING_PRIVATE_DB_AND_MEMBER_ACCEPTANCE'},dataSources:marketSourceRegistryV014142});
     }
     const state=await allState(c);
     const productInventory=await ownerProductInventory(c);
