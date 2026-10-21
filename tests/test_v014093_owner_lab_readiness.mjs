@@ -10,7 +10,7 @@ const rubrics=['LAB_C','LAB_D'].map(lab_id=>({lab_id,review_state:'reviewed',rev
 const envelopes=[{lab_id:'LAB_D',dataset_code:'LICENSE_A',status:'published',context_start_at:'2024-05-03T12:00:00Z',
  teaching_start_at:'2024-05-03T13:00:00Z',decision_boundary_at:'2024-05-03T13:30:00Z',
  teaching_end_at:'2024-05-03T14:00:00Z',context_end_at:'2024-05-03T15:00:00Z'}];
-const datasets=[{dataset_code:'LICENSE_A',dataset_type:'ohlcv',status:'published',
+const datasets=[{dataset_code:'LICENSE_A',ticker:'AAPL',dataset_type:'ohlcv',status:'published',
  source_attribution:'Authoritative verified provider',license_note:'Display allowed',
  metadata:{evidence_verified:true,licensed_for_member_display:true,corporate_action_policy:'Corporate actions verified',real_market_security:true,historical_evidence_verified:true,trading_conditions_reviewed:true,packet_integrity_reviewed:true,license_publication_reviewed:true,corporate_actions_reviewed:true,data_source:'IEX_HIST',venue_scope:'IEX_SINGLE_VENUE',source_date:'2024-05-03',source_sha256:'a'.repeat(64),reviewed_by:'Independent Owner review',reviewed_at:'2026-10-21T14:00:00Z'}}];
 const classification=classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets});
