@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {resolve} from 'node:path';
+import {readFileSync} from 'node:fs';
 const files=['assets/css/styles.css','assets/css/platform.css',
  'assets/css/production.css','assets/css/frontend-complete.css',
  'assets/css/production-completion.css','assets/css/polish.css',
@@ -17,11 +18,7 @@ try{
    await page.setContent(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head>
    <body><header class="site-header"><div class="wrap nav">
    <a class="brand" href="/">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a>
-   <nav class="navlinks v11-nav" aria-label="Main navigation">
-    <a href="/learn.html">Learning</a><a href="/labs.html">Labs</a>
-    <a href="/market-commons.html">Market Commons</a><a href="/store.html">Store</a>
-    <a href="/membership.html">Membership</a>
-   </nav>
+   <nav class="navlinks" aria-label="Main navigation"></nav>
    <div class="fe-header-tools" style="display:flex;gap:.4rem;align-items:center">
     <button type="button" class="fe-command-button v132-search-wide" aria-label="Search">
      <span>Search site</span><kbd>Ctrl K</kbd></button>
@@ -29,6 +26,17 @@ try{
      <span aria-hidden="true">●</span><span>Alerts</span><span class="fe-notify-count">1</span></button>
    </div></div></header><main><h1>Example product detail</h1></main></body></html>`);
    for(const css of files)await page.addStyleTag({path:resolve(css)});
+   // Reuse the exact canonical signed-in desktop nav renderer already covered
+   // by tests/test_header_geometry.py rather than inventing an oversized menu
+   // at the 901px responsive breakpoint.
+   const navSource=readFileSync(resolve('assets/js/navigation.js'),'utf8')
+    .split('/* CANONICAL_DESKTOP_NAV */\\n',2)[1];
+   assert(navSource?.trimEnd().endsWith('})();'),'Desktop navigation module contract changed');
+   await page.addScriptTag({content:navSource.slice(0,-6)+'window.__testMakeNav=makeNav;\\n})();\\n'});
+   await page.evaluate(()=>window.__testMakeNav({
+    authenticated:true,username:'ExampleReader',planCode:'LIFETIME',
+    staffRoles:['OWNER'],controlPanel:true,books:[],tools:[]
+   },[]));
    const measurement=await page.evaluate(()=>{
     const search=document.querySelector('.fe-command-button');
     const alerts=document.querySelector('.fe-notify-button');
