@@ -145,7 +145,8 @@ export const bootcampCurriculumV014144=Object.freeze({
   "caution": "Candle shape does not reveal which participant caused the move or whether high preceded low.",
   "competencies": [
    "CANDLE_READING",
-   "MULTI_TIMEFRAME"
+   "MULTI_TIMEFRAME",
+   "EMA_CONTEXT"
   ],
   "relatedLabs": [
    {
@@ -175,7 +176,8 @@ export const bootcampCurriculumV014144=Object.freeze({
   "caution": "Displayed order-book size may cancel; visual walls alone cannot prove intent, an executable fill, or spoofing.",
   "competencies": [
    "LEVEL2_READING",
-   "SLIPPAGE_SPREAD"
+   "SLIPPAGE_SPREAD",
+   "TAPE_READING"
   ],
   "relatedLabs": [
    {
@@ -265,7 +267,8 @@ export const bootcampCurriculumV014144=Object.freeze({
   "caution": "Repeated tests do not always strengthen a level, and historical support is not a guarantee.",
   "competencies": [
    "CHART_STRUCTURE",
-   "HOD_PM_LEVELS"
+   "HOD_PM_LEVELS",
+   "VWAP_CONTEXT"
   ],
   "relatedLabs": [
    {
@@ -475,7 +478,8 @@ export const bootcampCurriculumV014144=Object.freeze({
   "caution": "A rapid fall can remain disorderly; a large bounce is not an assured dip-buying opportunity.",
   "competencies": [
    "PULLBACK_RECOGNITION",
-   "ENTER_WATCH_NO_TRADE"
+   "ENTER_WATCH_NO_TRADE",
+   "HALTS_LULD"
   ],
   "relatedLabs": [
    {
@@ -535,7 +539,8 @@ export const bootcampCurriculumV014144=Object.freeze({
   "caution": "A red candle does not by itself prove reversal or a borrowable short opportunity.",
   "competencies": [
    "FAILED_BREAKOUT",
-   "CHART_STRUCTURE"
+   "CHART_STRUCTURE",
+   "RCT_RECOGNITION"
   ],
   "relatedLabs": [
    {
