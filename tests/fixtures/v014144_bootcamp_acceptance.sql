@@ -17,8 +17,8 @@ DO $$
 BEGIN
  IF has_table_privilege('authenticated','public.gu_bootcamp_progress_v014144','SELECT') OR
     has_table_privilege('anon','public.gu_bootcamp_progress_v014144','SELECT') OR
-    has_function_privilege('authenticated','public.gu_bootcamp_save_progress_v014144(uuid,integer,text,text)','EXECUTE') OR
-    NOT has_function_privilege('service_role','public.gu_bootcamp_save_progress_v014144(uuid,integer,text,text)','EXECUTE')
+    has_function_privilege('authenticated','public.gu_bootcamp_save_progress_v014144(uuid,integer,text,text,bigint)','EXECUTE') OR
+    NOT has_function_privilege('service_role','public.gu_bootcamp_save_progress_v014144(uuid,integer,text,text,bigint)','EXECUTE')
  THEN RAISE EXCEPTION 'Unauthorized SQL rights / missing service-only grant'; END IF;
 END $$;
 SET ROLE service_role;
