@@ -4,14 +4,10 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const choices=[
- ['not_started','Not Owner-reviewed'],['in_progress','In progress'],
- ['implemented','Implemented · needs verification'],['blocked','Blocked'],
- ['deferred','Deferred / future release'],['owner_complete','Owner marked complete'],
- ['verified','Evidence verified']
-];
+const choices=[["not_started","Not started / not reviewed"],["research_required","Research required"],["research_complete","Research verified · implementation not implied"],["planned","Planned / approved scope"],["in_progress","In development"],["partially_complete","Partially complete"],["implemented","Implemented · verification pending"],["testing_required","Testing required"],["blocked","Blocked — dependency"],["owner_review_required","Owner review required"],["deferred","Deferred / future release"],["owner_complete","Owner marked complete · not independently verified"],["verified","Evidence verified"]];
 const complete=new Set(['owner_complete','verified']);
 const nearCritical=new Set(['CORE-0030','CORE-0042','CORE-0054','CORE-0072','CORE-0074','CORE-0077','CORE-0078','CORE-0079','CORE-0080','CORE-0081','CORE-0082','CORE-0141','CORE-0142','CORE-0147','CORE-0166','EXEC-66','EXEC-67','EXEC-70','EXEC-77']);
+let releasePlan=null;
 let all=[],stored={},delegated={},delegation={},metadata={},engineering={},scope='core',page=0,size=30,loaded=false,token='',busy=new Set();
 const sortedModes=new Set(['priority','original','area','status','updated']);
 function message(text,error=false){const box=$('#or-access');box.hidden=false;box.textContent=text;box.classList.toggle('or-error',error)}
@@ -67,12 +63,13 @@ function metrics(){
  const traced=all.filter(x=>x.scope==='trace'&&!isReference(x)).length;
  const sourceCount=tasks.filter(x=>!hasStoredState(x)&&isDelegated(x)).length;
  const stats=[
-  [approved+' / '+tasks.length,'Scoped approvals: '+delegatedApproved+' delegated; '+ownerApproved+' saved Owner decisions'],
-  [count('implemented'),'Implemented in source · live acceptance remains open'],
-  [count('in_progress'),'Active build / verification work'],
-  [count('blocked'),'Blocked primary tasks · review individual dependency'],
-  [String(count('deferred')+count('not_started')),'Deferred or not yet reviewed'],
-  [String(traced),'Preserved source-reference lines · separate from primary tasks']
+  [count('verified')+' / '+tasks.length,'Evidence-verified primary requirements; not a launch-wide certification'],
+  [count('owner_complete'),'Owner-marked complete; separate from independent verification'],
+  [count('implemented'),'Implemented in source; production acceptance pending'],
+  [String(count('in_progress')+count('partially_complete')+count('testing_required')),'Development, partial work or tests outstanding'],
+  [String(count('research_required')+count('owner_review_required')+count('blocked')),'Research, Owner decision or blocking dependency'],
+  [String(count('planned')+count('research_complete')+count('deferred')+count('not_started')),'Planned, verified research, deferred or not yet reviewed'],
+  [String(traced),'Preserved source-reference lines; not standalone task completions']
  ];
  $('#or-metrics').innerHTML=stats.map(([number,label])=>
    '<article class="or-stat"><strong>'+esc(number)+'</strong><span>'+esc(label)+'</span></article>').join('')+
@@ -132,6 +129,29 @@ function actionBoard(){
  $('#or-action-grid').innerHTML=groups.join('');
  $('#or-action-board').hidden=false;
 }
+
+function renderReleasePlan(){
+ const mount=$('#or-release-packages');
+ if(!mount)return;
+ const list=Array.isArray(releasePlan?.packages)?releasePlan.packages:[];
+ mount.replaceChildren();
+ if(list.length!==8){mount.textContent='The deployment plan is unavailable. No release status has been inferred.';return;}
+ const grid=document.createElement('div');grid.className='or-release-grid';
+ for(const item of list){
+  const card=document.createElement('article');card.className='or-release-card';
+  const no=document.createElement('span');no.className='or-release-number';no.textContent='Deployment '+item.number+' of 08';
+  const heading=document.createElement('h3');heading.textContent=item.title;
+  const state=document.createElement('span');state.className='or-release-pending';state.textContent='Planned release · acceptance not recorded';
+  const body=document.createElement('p');body.textContent=item.scope;
+  const link=document.createElement('a');link.href='#task-'+encodeURIComponent(item.roadmapId);link.textContent='Open related roadmap requirement →';
+  link.addEventListener('click',e=>{e.preventDefault();openTask(item.roadmapId)});
+  card.append(no,heading,state,body,link);grid.append(card);
+ }
+ const note=document.createElement('p');note.className='or-muted';
+ note.textContent='Release packages are planning scope, not new products or automatic completion approvals. Individual source tasks, authenticated Owner decisions and verified acceptance remain authoritative. The displayed package status does not imply a production deployment.';
+ mount.append(grid,note);
+}
+
 function renderPrivateBrief(brief){
  const mount=$('#or-private-brief'),policy=$('#or-private-governance');
  if(!mount||!policy)return;
@@ -283,8 +303,9 @@ async function reload(){
  message('Refreshing privately saved Owner progress…');
  try{
   const data=await api();
-  metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
+  releasePlan=data.releasePlan||null;metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
   renderPrivateBrief(data.operationalBrief);
+  renderReleasePlan();
   window.OwnerRoadmapProductsV88?.render(data);
   window.OwnerProductReadinessV91?.render(data);
   await deployedVersion();
@@ -321,10 +342,10 @@ function bind(){
   const note=container?.querySelector('textarea[data-note]')?.value??p.note??'';
   if(target.dataset.check){await save(item,target.checked?'owner_complete':'not_started',note,target)}
   else if(target.dataset.status){
-   if(target.value==='verified'&&note.trim().length<20){
+   if(['verified','research_complete'].includes(target.value)&&note.trim().length<20){
     const details=container?.querySelector('details'),noteBox=container?.querySelector('textarea[data-note]');
     if(details)details.open=true;
-    announce('Evidence verified requires an acceptance note (20+ characters). Enter evidence and select Save note & status.',true);
+    announce('Verified research and accepted delivery require an evidence note (20+ characters). Enter the source or test result and save.',true);
     noteBox?.focus();return;
    }
    await save(item,target.value,note,target);
