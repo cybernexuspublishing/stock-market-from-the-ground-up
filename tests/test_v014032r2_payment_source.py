@@ -13,7 +13,7 @@ assert 'digital-payment-route-v01432r2' in checkout
 assert "route.provider==='STRIPE_MANAGED'" in checkout
 # R2 provider routing remains; current customer checkout must NOT depend on the
 # discontinued staging database. Owner-only TEST purchases use GU39 shadow state.
-assert 'stripe-live-checkout-v01458' in checkout
+assert "'/api/stripe-live-checkout'" in checkout
 assert 'stripe-customer-checkout-v01438' not in checkout
 assert 'readiness?.liveCheckoutAvailable===true' in checkout
 assert 'STRIPE_MANAGED_LIVE' in checkout
