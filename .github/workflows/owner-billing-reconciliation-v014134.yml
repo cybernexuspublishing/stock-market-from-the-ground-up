@@ -1,0 +1,46 @@
+name: Owner billing reconciliation evidence v0.14.0.134
+on:
+  pull_request:
+    paths:
+      - 'functions/api/billing-reconciliation-health.js'
+      - 'assets/js/admin-billing-reconciliation.js'
+      - 'assets/css/admin-billing-reconciliation.css'
+      - 'admin.html'
+      - 'tests/test_v014134_owner_billing_evidence.mjs'
+      - 'docs/v0.14.0.134_OWNER_BILLING_RECONCILIATION_EVIDENCE.md'
+      - '.github/workflows/owner-billing-reconciliation-v014134.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/billing-reconciliation-health.js'
+      - 'assets/js/admin-billing-reconciliation.js'
+      - 'assets/css/admin-billing-reconciliation.css'
+      - 'admin.html'
+      - 'tests/test_v014134_owner_billing_evidence.mjs'
+      - 'docs/v0.14.0.134_OWNER_BILLING_RECONCILIATION_EVIDENCE.md'
+      - '.github/workflows/owner-billing-reconciliation-v014134.yml'
+permissions:
+  contents: read
+jobs:
+  owner-readonly-scan-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Verify no-charge Owner billing source and authorization
+        run: |
+          node --check functions/api/billing-reconciliation-health.js
+          node --check assets/js/admin-billing-reconciliation.js
+          node tests/test_v014134_owner_billing_evidence.mjs
+          node tests/test_v014132_billing_fetch_diagnostics.mjs
+          node tests/test_v014133_billing_redirect_policy.mjs
+          node tests/test_v014129_stripe_only_cron.mjs
+      - name: Verify Pages includes new browser assets
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/admin.html
+          test -f public/assets/js/admin-billing-reconciliation.js
+          test -f public/assets/css/admin-billing-reconciliation.css
+          grep -q 'admin-billing-reconciliation.js' public/admin.html
+          test ! -e public/data/interactive-labs.json
