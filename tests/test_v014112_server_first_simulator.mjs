@@ -29,8 +29,8 @@ assert(!browser.includes("document.addEventListener('DOMContentLoaded',init)"),
 assert(browser.includes("groundup:activate-legacy-simulator"));
 assert(mode.includes("window.GroundUpLegacySimulatorPause"));
 assert(api.includes('rpc/v01492_replay_advance'),'Only server RPC may increment private replay cursor');
-assert(api.includes('source.metadata?.licensed_for_member_display===true'),
- 'Rights-cleared dataset gate must be unchanged');
+assert(api.includes('verifiedHistoricalDataset')&&read('functions/_lib/verified-historical-dataset-v014143.js').includes('licensed_for_member_display'),
+ 'Replay must preserve stricter rights-cleared authentic source gate');
 assert(api.includes('gu_replay_bars_v01492?select=bar_index,bar_at,open,high,low,close,volume&dataset_code=eq.'),
  'Only current and revealed observations are queried');
 assert(!mode.includes('localStorage')&&!replay.includes('localStorage'),

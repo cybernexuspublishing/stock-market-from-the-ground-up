@@ -1,0 +1,49 @@
+name: Authentic Historical Replay & Lab Source Gate v0.14.0.143
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  educational-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Validate source-only evidence policy, deterministic authentic rights guards and lower membership scope
+        run: |
+          node tests/test_v014143_verified_historical_gate.mjs
+          node tests/test_v014097_original_replay_safety.mjs
+          node tests/test_v014092_replay_contract.mjs
+          node tests/test_v014093_replay_catalog_resume.mjs
+          node tests/test_v014098_replay_lower_plan_registry.mjs
+          node tests/test_v014100_visible_replay_history.mjs
+          node tests/test_v014093_owner_lab_readiness.mjs
+          node tests/test_v014098_audit_execution_quality.mjs
+          node tests/test_v014115_replay_journal_integrity.mjs
+      - name: Test offline IEX and SEC evidence extraction
+        run: |
+          python -m unittest discover -s tests -p 'test_v014142_market_data_ingest.py' -v
+          python -m unittest discover -s tests -p 'test_v014143_prepare_replay_import.py' -v
+      - name: Confirm private ingestion, stable replay names and no new fictional datasets
+        run: |
+          node --check functions/api/learning-replay-v01492.js
+          node --check functions/_lib/verified-historical-dataset-v014143.js
+          node --check functions/_lib/owner-lab-readiness-v01493.js
+          node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/site-lab-experience.js
+          bash scripts/build-pages.sh
+          test -f public/verified-replay.html
+          test ! -e public/scripts/market-data/prepare_replay_import.py
+          test ! -e public/supabase
+          test ! -d public/functions

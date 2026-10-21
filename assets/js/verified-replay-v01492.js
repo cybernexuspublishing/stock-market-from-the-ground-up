@@ -112,13 +112,13 @@ async function catalog(){
  for(const d of rows){
   if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(String(d.code||'')))continue;
   const option=document.createElement('option');option.value=d.code;
-  option.textContent=(d.synthetic?'ORIGINAL SIMULATION — ':'HISTORICAL — ')+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
+  option.textContent='VERIFIED HISTORICAL — '+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
   select.append(option);
   if(d.code===requested){select.value=d.code;$('vr-code').value=d.code;}
  }
  $('vr-dataset-note').textContent=rows.length
-  ?rows.length+' available datasets. ORIGINAL SIMULATIONS are invented lessons, not verified historical prices. Historical cases require separate source verification.'
-  :'No authorized original simulations or independently verified historical datasets are published yet.';
+  ?rows.length+' independently verified historical datasets available. Each observation is venue-scoped; no actual broker execution is implied.'
+  :'No independently verified, rights-approved historical datasets are currently available.';
 }
 async function resume(){
  $('vr-journal-link').hidden=true;
@@ -139,7 +139,7 @@ async function resume(){
   restored=true;
  }catch{addBar(r.bar)}
  $('vr-code').value=r.dataset?.code||'';
- $('vr-source').textContent=[r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY': 'VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
+ $('vr-source').textContent=['VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
  $('vr-execution').hidden=true;
  notice('Session restored at bar '+cursor+'. '+(restored?'Previously observed candles were restored from the private server.':'Only the current candle was available; earlier observations were not restored.')+' Future data remain private.');
  renderState();
@@ -151,7 +151,7 @@ async function start(){
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
- $('vr-source').textContent=(r.dataset?.synthetic?'ORIGINAL FICTIONAL SIMULATION — NOT MARKET HISTORY · ':'VERIFIED HISTORICAL SOURCE · ')+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
+ $('vr-source').textContent='VERIFIED HISTORICAL SOURCE · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
 }
 async function lock(){

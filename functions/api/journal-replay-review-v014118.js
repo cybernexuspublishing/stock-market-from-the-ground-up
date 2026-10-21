@@ -3,6 +3,7 @@
  * performance results or competency evidence can be created from this route.
  */
 import {toolAccess} from './member-tool-access.js';
+import {verifiedHistoricalDataset} from '../_lib/verified-historical-dataset-v014143.js';
 const H={'content-type':'application/json; charset=utf-8',
  'cache-control':'private, no-store, max-age=0','vary':'Authorization','x-content-type-options':'nosniff'};
 const reply=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:H});
@@ -77,6 +78,17 @@ export async function onRequest({request,env}){
       result.observations.length>40||typeof result.originalSynthetic!=='boolean'||
       typeof result.sourceAttribution!=='string'||typeof result.sessionId!=='string')
     throw fail('Replay evidence contract integrity failed.',503);
+   if(result.originalSynthetic===true)throw fail('Fictional market observations are not approved for member review.',403);
+   // Secondary current rights gate after the atomic reviewed evidence RPC:
+   // no prior fictional/revoked source observations leave the server.
+   const owned=await db(env,'gu_replay_sessions_v01492?select=dataset_code&user_id=eq.'+
+     encodeURIComponent(access.userId)+'&id=eq.'+encodeURIComponent(result.sessionId)+'&limit=1');
+   const sourceCode=Array.isArray(owned)&&owned[0]?.dataset_code;
+   if(!sourceCode)throw fail('Verified historical source cannot be resolved.',503);
+   const rights=await db(env,'market_datasets?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
+     encodeURIComponent(sourceCode)+'&limit=1');
+   if(!verifiedHistoricalDataset(Array.isArray(rights)?rights[0]:null))
+     throw fail('Historical evidence rights or verification were withdrawn.',403);
    for(let i=0;i<result.observations.length;i++){
     const bar=result.observations[i],prev=result.observations[i-1];
     if(!Number.isSafeInteger(bar.index)||bar.index<0||bar.index>result.observedThroughIndex||

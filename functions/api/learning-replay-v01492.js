@@ -4,6 +4,7 @@
  */
 import {toolAccess} from './member-tool-access.js';
 import {fillEstimate,bracketOutcome} from '../_lib/replay-engine-v01492.js';
+import {replayAvailableToEntitlement,verifiedHistoricalDataset} from '../_lib/verified-historical-dataset-v014143.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const out=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:H});
 const bad=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -30,7 +31,7 @@ function fmt(bar){
     numbers.high<Math.max(numbers.open,numbers.close)||numbers.low>Math.min(numbers.open,numbers.close)||numbers.volume<0)throw bad('Historical bar failed price integrity validation.',503);
  return {index:bar.bar_index,timestamp:bar.bar_at,...numbers};
 }
-function publicDataset(source){return source&&source.status==='published'&&source.dataset_type==='ohlcv'&&source.metadata?.licensed_for_member_display===true&&source.metadata?.evidence_verified===true&&typeof source.source_attribution==='string'&&source.source_attribution.trim().length>0&&typeof source.license_note==='string'&&source.license_note.trim().length>0&&typeof source.metadata?.corporate_action_policy==='string'&&source.metadata.corporate_action_policy.trim().length>0}
+function publicDataset(source){return verifiedHistoricalDataset(source)}
 async function fetchBar(env,code,index){
  const rows=await db(env,'gu_replay_bars_v01492?select=bar_index,bar_at,open,high,low,close,volume&dataset_code=eq.'+encodeURIComponent(code)+'&bar_index=eq.'+index+'&limit=1');
  return fmt(one(rows));
@@ -66,22 +67,20 @@ export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))throw bad('Method not allowed.',405);
   const simulator=await toolAccess(env,request,'MARKET_SIMULATOR');
-  // Historical Replay members already own ONDEMAND_TRAINING: permit only
-  // first-party invented, correctly labeled GUSIM_* case material to this
-  // lower entitlement. Never extend rights to authentic history or the
-  // complete Market Simulator by reclassifying a title in the browser.
+  // No fictional market observations may be served as instructional evidence.
+  // Replay-only members may use explicitly approved historical datasets
+  // without acquiring the full Market Simulator entitlement.
   const auth=simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
-  const originalOnly=!simulator.authorized;
+  const entitlement=simulator.authorized?'MARKET_SIMULATOR':'ONDEMAND_TRAINING';
   if(!auth.authorized)throw bad('An active Market Simulator or Historical Replay training entitlement is required.',403);
-  const permitted=dataset=>publicDataset(dataset)&&(!originalOnly||(
-    dataset.metadata?.original_synthetic===true&&dataset.dataset_code.startsWith('GUSIM_')));
+  const permitted=dataset=>replayAvailableToEntitlement(dataset,entitlement);
 
   const url=new URL(request.url),action=String(url.searchParams.get('action')||'current');
   const body=request.method==='POST'?await bodyOf(request):{};
   if(action==='catalog'&&request.method==='GET'){
    const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=700');
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
-   return out({ok:true,datasets:rows.filter(permitted).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'This list includes clearly marked ORIGINAL fictional simulations and, separately, any authorized independently verified historical datasets. Only the currently visible server-owned observation is returned.'});
+   return out({ok:true,datasets:rows.filter(permitted).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'Only independently verified authentic historical observations with explicit display rights are available. IEX venue-only volume is not consolidated volume. Future bars remain private.'});
   }
   if(action==='resume'&&request.method==='GET'){
    // Durable sessions are discovered by authenticated user identity, not a
@@ -119,7 +118,7 @@ export async function onRequest({request,env}){
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
    return out({ok:true,sessionId:sess.id,dataset:{code,title:source.title,ticker:source.ticker,
     sourceAttribution:source.source_attribution,licenseNotice:source.license_note,synthetic:source.metadata?.original_synthetic===true},
-    currentIndex:0,bar:first,decisionLocked:false,notice:source.metadata?.original_synthetic===true?'ORIGINAL FICTIONAL simulation. Not an actual ticker, date, trade, source feed, or historical chart. Only the first made-up observation is visible. Lock a decision to reveal more.':'Only the first historical observation is visible. Lock a decision before requesting any later bar.'},201);
+    currentIndex:0,bar:first,decisionLocked:false,notice:'Only the first authentic historical venue observation is visible. Lock a decision before requesting any later bar. Market executions and fills remain modeled, not recorded fills.'},201);
   }
   const id=String(body.sessionId||url.searchParams.get('sessionId')||'');
   // Finalization is an idempotent, service-only PostgreSQL transaction.
@@ -127,15 +126,16 @@ export async function onRequest({request,env}){
   // existing replay session atomically, rather than relying on two HTTP writes.
   if(action==='finish'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
    if(!uid.test(id))throw bad('Invalid session ID.');
-   if(originalOnly){
-    // The finish RPC can return a previously linked record; validate scope
+   {
+    // The finish RPC can return a previously linked record; validate
+    // authentic rights for ALL plans, including MARKET_SIMULATOR,
     // without enforcing active status so idempotent retries still work.
     const owned=one(await db(env,'gu_replay_sessions_v01492?select=dataset_code&user_id=eq.'+
      encodeURIComponent(auth.userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1'));
     if(!owned)throw bad('Replay session unavailable.',404);
     const dataset=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
      encodeURIComponent(owned.dataset_code)+'&limit=1'));
-    if(!permitted(dataset))throw bad('Historical dataset access is not part of this training entitlement.',403);
+    if(!permitted(dataset))throw bad('Historical dataset access is not approved for this training entitlement, or source rights were revoked.',403);
    }
    const linked=await db(env,'rpc/v01494_replay_finish_to_journal','POST',
     {p_session:id,p_user:auth.userId});

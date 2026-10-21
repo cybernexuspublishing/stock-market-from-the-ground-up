@@ -2,6 +2,7 @@
  * text, questions, personally identifiable records or datasets leave server.
  * Source prechecks are NOT reviewed interactive lesson acceptance.
  */
+import {verifiedHistoricalDataset} from './verified-historical-dataset-v014143.js';
 const stamp=x=>{const n=Date.parse(x||'');return Number.isFinite(n)?n:NaN};
 const nonempty=x=>typeof x==='string'&&x.trim().length>0;
 function eligibleRubric(x){
@@ -24,11 +25,8 @@ function originalSimulation(l,d){
   d.metadata?.licensed_for_member_display===true;
 }
 function eligibleContext(envelope,dataset){
- if(!envelope||!dataset||!['verified','published'].includes(envelope.status)||
-   dataset.status!=='published'||dataset.dataset_type!=='ohlcv'||dataset.metadata?.evidence_verified!==true||
-   dataset.metadata?.licensed_for_member_display!==true||
-   dataset.metadata?.original_synthetic===true||dataset.metadata?.historical_evidence_verified===false||!nonempty(dataset.source_attribution)||
-   !nonempty(dataset.license_note)||!nonempty(dataset.metadata?.corporate_action_policy))return false;
+ if(!envelope||!['verified','published'].includes(envelope.status)||
+    !verifiedHistoricalDataset(dataset))return false;
  const series=['context_start_at','teaching_start_at','decision_boundary_at','teaching_end_at','context_end_at'].map(k=>stamp(envelope[k]));
  return series.every(Number.isFinite)&&series.every((t,i)=>i===0||t>=series[i-1]);
 }
