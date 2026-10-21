@@ -82,7 +82,9 @@ if(!r||r.active!==true||r.public_visible!==true||
    (!isPlan&&r.status!=='live'))throw err('This product is not enabled for checkout.',403);
  const amount=Number(isPlan?r.price_cents:r.individual_price_cents),bill=isPlan?r.billing_interval:'month';
  if(!Number.isSafeInteger(amount)||amount<1||!['month','year','lifetime'].includes(bill))throw err('Invalid catalog price.',503);
- return {key,amount,bill};
+ const name=String(r.name||'').trim();
+ if(!name||name.length>120||/[\\u0000-\\u001f]/.test(name))throw err('Invalid catalog product name.',503);
+ return {key,amount,bill,name};
 }
 async function verifyPrice(c,price,p,expectedProduct){const q=await request('https://api.stripe.com/v1/prices/'+encodeURIComponent(price),{headers:{authorization:'Bearer '+c.stripe}});
  // A matching amount and interval label is insufficient: an interval_count>1
@@ -168,7 +170,13 @@ export async function onRequestGet({env,request}){
   await assertLiveAccount(c);
   const mapping=catalog[p.key];
   await verifyPrice(c,mapping.price_id,p,mapping.product_id);
+  // v137: a public *read-only* checkout quote. Price, cadence and label
+  // originate from the canonical active Supabase offer, independently matched
+  // to the LIVE Stripe Price. Never trust a client-supplied amount/currency.
+  // Final POST verifies the complete account/Price/eligibility contract again.
   return respond({ok:true,liveCheckoutAvailable:true,livePayments:false,readOnly:true,
-   notice:'Provider verified for this product. Final customer checks occur during checkout.'});
+   offer:{type,code,name:p.name,unitAmountCents:p.amount,currency:'USD',
+    billingInterval:p.bill,intervalCount:p.bill==='lifetime'?null:1},
+   notice:'Base price verified against the LIVE Stripe Price. Final checkout may add applicable taxes; no charge created.'});
  }catch{return unavailable()}
 }
