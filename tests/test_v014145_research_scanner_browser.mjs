@@ -12,7 +12,7 @@ try{
    if(u.origin!==base)return route.abort();
    if(u.pathname==='/assets/js/supabase-client.js')
     return route.fulfill({status:200,contentType:'application/javascript',
-      body:"window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{user:{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},access_token:'safe-local-token'}}}),getUser:async()=>({data:{user:{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}}})}});"});
+      body:"window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{user:{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},access_token:'safe-local-token'}}}),getUser:async()=>({data:{user:{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}}}),onAuthStateChange:(fn)=>{window.__TOOL_AUTH_CB=fn;return {data:{subscription:{unsubscribe(){}}}}}}});"});
    if(u.pathname==='/assets/js/session-manager.js'||u.pathname==='/assets/js/site.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:'/* local test fixture */'});
    if(u.pathname.startsWith('/api/advanced-tool-access-v014110'))
@@ -30,7 +30,7 @@ try{
   await page.keyboard.press('Tab');
   const text='symbol,price,change_pct,volume,rvol,float,spread_pct\n'+
    'AAPL,12,15,2500000,4,2000000,1\n'+
-   'NO_METRIC,12,,9900000,4,1000000,1\n'+
+   'NOMETRIC,12,,9900000,4,1000000,1\n'+
    'OUTSIDE,40,50,9900000,4,1000000,1\n';
   await page.locator('#u-file').setInputFiles({name:'authorized.csv',mimeType:'text/csv',buffer:Buffer.from(text)});
   await page.locator('#u-run').click();
@@ -44,6 +44,9 @@ try{
   assert.match(await page.locator('#u-audit').innerText(),/1 incomplete/);
   await page.locator('#u-save').click();
   await page.waitForFunction(()=>document.querySelector('#tool-status')?.textContent?.includes('criteria'));
+  await page.evaluate(()=>window.__TOOL_AUTH_CB('SIGNED_OUT',null));
+  await page.waitForFunction(()=>document.querySelector('#tool-content')?.hidden===true);
+  assert.equal(await page.locator('#tool-workbench').innerText(),'','Private tool workspace must be scrubbed on account change');
   await context.close();
   console.log('PASS v145 browser '+width+'px scanner with keyboard, provenance, rigorous exclusions and private filter save');
  }
