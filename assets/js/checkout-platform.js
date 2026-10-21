@@ -23,10 +23,16 @@ async function init(){
  // v137: the button is never enabled on a mere boolean readiness response.
  // Display exact, server-verified base price and renewal cadence before a
  // member can consent to terms or request a Stripe Checkout Session.
+ const expectedCadence=Object.freeze({
+  'plan:FULL_MONTHLY':'month','plan:FULL_ANNUAL':'year',
+  'plan:LIFETIME':'lifetime','plan:ONDEMAND_MONTHLY':'month',
+  'tool:INTERACTIVE_LEARNING':'month','tool:JOURNAL_ANALYTICS':'month',
+  'tool:MARKET_SIMULATOR':'month','tool:MARKET_TUTOR':'month'
+ });
  const priceText=offer=>{
   if(!offer||offer.type!==type||offer.code!==code||
      offer.currency!=='USD'||!Number.isSafeInteger(offer.unitAmountCents)||
-     offer.unitAmountCents<=0||!['month','year','lifetime'].includes(offer.billingInterval)||
+     offer.unitAmountCents<=0||offer.billingInterval!==expectedCadence[type+':'+code]||
      (offer.billingInterval==='lifetime'?offer.intervalCount!==null:offer.intervalCount!==1)||
      typeof offer.name!=='string'||!offer.name.trim()||offer.name.length>120)return null;
   const base=(offer.unitAmountCents/100).toLocaleString('en-US',
