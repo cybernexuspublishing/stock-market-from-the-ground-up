@@ -47,6 +47,8 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/sitewide-playwright-v014136.mjs
+      - name: Verify header search, unread alerts and desktop viewport containment
+        run: node tests/test_v014138_header_badge_playwright.mjs
       - name: Verify secure eight-SKU LIVE quote presentation and terms (no charges)
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765

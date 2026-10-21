@@ -151,3 +151,56 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
 .commons-category-illustration{flex:none;width:40px;height:40px;border:1px solid #375a74;border-radius:8px}
 .v13575-forum-pages{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;justify-content:flex-start;margin:1rem 0}
 .v13575-forum-pages span{color:#d4e2ea}
+
+
+/* v0.14.0.138 — Header alert/search utilities must NEVER expand the viewport.
+ * Browser diagnosis showed .fe-notify-count at x=1295 in a 1250px viewport,
+ * on 14/15 Store detail pages. Product cards themselves were within bounds.
+ * Preserve both real clickable controls and their existing accessible labels.
+ */
+@media (min-width:1024px) and (max-width:1350px) {
+ .site-header .fe-header-tools{
+  flex:0 0 auto!important;min-width:0!important;max-width:115px!important;
+  gap:5px!important;margin-left:0!important;
+ }
+ .site-header .fe-command-button,
+ .site-header .fe-command-button.v132-search-wide{
+  flex:0 0 46px!important;width:46px!important;min-width:46px!important;
+  max-width:46px!important;min-height:44px!important;padding:.45rem!important;
+  justify-content:center!important;font-size:0!important;
+ }
+ .site-header .fe-command-button>span,
+ .site-header .fe-command-button>kbd{display:none!important}
+ .site-header .fe-command-button::before{
+  content:"⌕";font-size:1.35rem;line-height:1;color:inherit;
+ }
+ .site-header .fe-notify-button{
+  flex:0 0 46px!important;width:46px!important;min-width:46px!important;
+  max-width:46px!important;min-height:44px!important;padding:.45rem!important;
+  justify-content:center!important;font-size:0!important;
+ }
+ .site-header .fe-notify-button>span:not(.fe-notify-count){display:none!important}
+ .site-header .fe-notify-button::before{
+  content:"●";font-size:.95rem;line-height:1;color:inherit;
+ }
+}
+/* Existing 901–1023px icon rule hid even the unread badge. Preserve a readable
+ * numeric count when nonzero, and avoid exposing hidden zero-count elements. */
+@media (min-width:901px) and (max-width:1350px) {
+ .site-header .fe-notify-button .fe-notify-count:not([hidden]){
+  display:grid!important;font-size:.65rem!important;line-height:1!important;
+ }
+}
+
+/* v138 narrow desktop search: older .v132-search-wide min-width:230px!important
+ * overrides the base 901–1023px compact search rule unless explicitly reset.
+ * Preserve the labelled accessible control with its existing CSS icon. */
+@media (min-width:901px) and (max-width:1023px){
+ .site-header .fe-command-button.v132-search-wide{
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;
+  max-width:40px!important;min-height:44px!important;
+  padding:.4rem!important;justify-content:center!important;font-size:0!important;
+ }
+ .site-header .fe-command-button.v132-search-wide>span,
+ .site-header .fe-command-button.v132-search-wide>kbd{display:none!important}
+}

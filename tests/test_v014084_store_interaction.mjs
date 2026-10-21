@@ -17,7 +17,8 @@ const pl=(id,cents,billing,allTools)=>({planCode:id,label:id,description:'Guided
 const tt=(code,status='live')=>({toolCode:code,name:code,description:'Teaching tool',priceCents:2999,status,category:'Learn',freePreview:false,href:'learn.html',checkoutEnabled:status==='live'});
 const plans=[pl('FREE',0,'none',false),pl('FULL_MONTHLY',6999,'month',true),pl('FULL_ANNUAL',69900,'year',true),
  pl('LIFETIME',249900,'lifetime',true),pl('ONDEMAND_MONTHLY',1999,'month',false),
- pl('PICK_WHAT_YOU_WANT',0,'none',false),pl('QA_TEST',0,'month',true)];
+ pl('PICK_WHAT_YOU_WANT',0,'none',false),pl('QA_TEST',0,'month',true),
+ pl('UNREVIEWED_REPLAY_ANNUAL',3900,'year',false)];
 const products=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].map(book);
 const tools=['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'].map(x=>tt(x));
 tools.push(tt('DISCOVERY_LAB','beta'));
@@ -51,7 +52,8 @@ assert.equal((nodes['store-products'].innerHTML.match(/Explore Book &amp; Purcha
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Bundled products/,'Nonbooks must not appear in Books');
 assert.equal((nodes['store-plans'].innerHTML.match(/Compare Benefits/g)||[]).length,5);
 assert.match(nodes['store-plans'].innerHTML,/Choose This Membership/);
-assert.doesNotMatch(nodes['store-plans'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT/);
+assert.doesNotMatch(nodes['store-plans'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT|UNREVIEWED_REPLAY_ANNUAL/,'Unapproved, QA, and legacy extra plans must not be sold');
+assert.doesNotMatch(nodes['store-membership-compare'].innerHTML,/UNREVIEWED_REPLAY_ANNUAL/,'Comparison must follow the same approved five-plan registry');
 assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/Pricing to be announced/);

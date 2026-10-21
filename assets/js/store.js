@@ -16,7 +16,15 @@ const suffix=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]|
 const statusLabel=s=>({published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
 const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Minimal sponsor placements',LIFETIME:'Ad-free'})[code]||'Standard sponsor placements';
 const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limit_week)&&Number.isInteger(m.simulator_saves_week))return [`Up to ${m.journal_limit_week} new Trading Journal records per UTC week`,`Up to ${m.simulator_saves_week} saved CSV/browser simulator exercises per UTC week (within Journal allowance)`];if(Number.isInteger(m.journal_limit)&&Number.isInteger(m.simulator_sessions_month))return [`Up to ${m.journal_limit} Journal records total`,`Up to ${m.simulator_sessions_month} saved simulator results per month`];return ['Limited Journal and browser simulator saves; check your current allowance'];};
-const availablePlan=p=>p.planCode!=='PICK_WHAT_YOU_WANT'&&!/(?:^QA_|TEST|ZERO_)/i.test(p.planCode||'');
+// Only the five owner-approved public membership codes belong in this view.
+ // Future plans require explicit registry review and a dedicated product page.
+ // Never allow a duplicate canonical SKU to generate two purchase cards.
+ const availablePlan=p=>membershipIds.includes(p?.planCode);
+ const approvedPlanCatalog=rows=>{
+  const items=(Array.isArray(rows)?rows:[]).filter(availablePlan);
+  if(new Set(items.map(p=>p.planCode)).size!==items.length)return [];
+  return membershipIds.map(code=>items.find(p=>p.planCode===code)).filter(Boolean);
+ };
 const activeTool=t=>t.status==='live'&&Number(t.priceCents)>0;
 const listedTool=t=>t.status!=='retired';
 const futureLearning=()=>Array.isArray(window.GroundUpUpcomingOfferings)?window.GroundUpUpcomingOfferings:[];
@@ -80,7 +88,7 @@ function upcomingCard(t){
 }
 
 function comparison(plans,tools){
- const cols=plans.filter(availablePlan),cell=(text)=>`<td>${esc(text)}</td>`;
+ const cols=approvedPlanCatalog(plans),cell=(text)=>`<td>${esc(text)}</td>`;
  if(!cols.length)return '<div class="notice">Membership comparison is temporarily unavailable. Please check back before purchasing.</div>';
  const features=[
  ['Billing',p=>p.planCode==='FREE'?'Free':p.billingInterval==='lifetime'?'One-time':p.billingInterval==='year'?'Renews annually':p.billingInterval==='month'?'Renews monthly':'See plan'],
@@ -126,7 +134,7 @@ async function init(){
  try{
   const catalog=await C().load();
   const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
-  const plans=(d.plans||[]).filter(availablePlan),allTools=(d.tools||[]).filter(listedTool),tools=allTools.filter(activeTool);
+  const plans=approvedPlanCatalog(d.plans),allTools=(d.tools||[]).filter(listedTool),tools=allTools.filter(activeTool);
   document.getElementById('store-plans').innerHTML=plans.length?plans.map(planCard).join(''):
    '<div class="notice">Membership details and prices are temporarily unavailable from the live catalog. No purchase is offered until the catalog is available.</div>';
   document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired').map(bookCard).join('')||
