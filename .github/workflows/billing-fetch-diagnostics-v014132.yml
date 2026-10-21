@@ -4,6 +4,8 @@ on:
     paths:
       - 'workers/billing-reconcile-stripe-only-v014129.js'
       - 'tests/test_v014132_billing_fetch_diagnostics.mjs'
+      - 'tests/test_v014133_billing_redirect_policy.mjs'
+      - 'docs/v0.14.0.133_BILLING_REDIRECT_POLICY.md'
       - '.github/workflows/billing-fetch-diagnostics-v014132.yml'
       - 'docs/v0.14.0.132_PRODUCTION_FETCH_FAILURE_DIAGNOSIS.md'
   push:
@@ -24,6 +26,7 @@ jobs:
         with: {node-version: '22'}
       - run: |
           node tests/test_v014132_billing_fetch_diagnostics.mjs
+          node tests/test_v014133_billing_redirect_policy.mjs
           node tests/test_v014131_stable_billing_endpoint.mjs
           node tests/test_v014130_billing_worker_routing_config.mjs
           node tests/test_v014129_stripe_only_cron.mjs
