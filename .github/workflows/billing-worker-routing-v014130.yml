@@ -1,0 +1,30 @@
+name: Billing Worker public fetch deployment contract v0.14.0.130
+on:
+  pull_request:
+    paths:
+      - 'workers/wrangler.billing-scheduler.jsonc'
+      - 'tests/test_v014130_billing_worker_routing_config.mjs'
+      - '.github/workflows/billing-worker-routing-v014130.yml'
+      - 'docs/v0.14.0.130_CLOUDFLARE_WORKER_TO_PAGES_ROUTING.md'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/wrangler.billing-scheduler.jsonc'
+      - 'tests/test_v014130_billing_worker_routing_config.mjs'
+      - '.github/workflows/billing-worker-routing-v014130.yml'
+      - 'docs/v0.14.0.130_CLOUDFLARE_WORKER_TO_PAGES_ROUTING.md'
+permissions:
+  contents: read
+jobs:
+  worker-routing-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check workers/billing-reconcile-stripe-only-v014129.js
+          node tests/test_v014130_billing_worker_routing_config.mjs
+          node tests/test_v014129_stripe_only_cron.mjs
+          node tests/test_v014124_signed_reconciliation.mjs
+          npx --yes wrangler@4 deploy --dry-run --config workers/wrangler.billing-scheduler.jsonc
