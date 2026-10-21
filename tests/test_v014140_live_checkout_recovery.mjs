@@ -91,9 +91,10 @@ globalThis.fetch=async(url,options={})=>{
   assert(s.includes('status=eq.prepared'),'Bind must use status compare-and-set');
   assert(s.includes('stripe_session_id=is.null'),'Bind must reject already-bound session');
   if(state.failPatch)return json({code:'PGRST503'},503);
+  assert.equal(options.headers.prefer,'return=representation');
   state.pending={...state.pending,stripe_session_id:JSON.parse(options.body).stripe_session_id,
    status:'checkout_created'};
-  return new Response(null,{status:204});
+  return json([state.pending]);
  }
  if(s.endsWith('/v1/checkout/sessions')&&method==='POST'){
   state.postStripe++;
@@ -108,6 +109,11 @@ globalThis.fetch=async(url,options={})=>{
   if(state.firstKey){assert.equal(state.key,state.firstKey)}
   else state.firstKey=state.key;
   return json(session());
+ }
+ if(s.includes('/v1/checkout/sessions/'+state.sessionId+'/line_items?')){
+  state.providerReads++;
+  assert.equal(method,'GET');
+  return json({data:[{price:{id:price},quantity:1}],has_more:false});
  }
  if(s.endsWith('/v1/checkout/sessions/'+state.sessionId)){
   state.providerReads++;
@@ -140,7 +146,7 @@ try{
  // Stripe Session when still open, not create a second paid Checkout Session.
  res=await pay();assert.equal(res.status,200);
  assert.equal(state.created,1);assert.equal(state.postStripe,1);
- assert.equal(state.providerReads,1);assert.equal(state.patched,1);
+ assert.equal(state.providerReads,2);assert.equal(state.patched,1);
 
  // An orphaned prepared reservation can be retried ONLY with the same
  // immutable intent, idempotency key and Stripe request parameter bytes.
