@@ -9,7 +9,10 @@ const src=readFileSync(new URL('../assets/js/checkout-platform.js',import.meta.u
 const middleware=readFileSync(new URL('../functions/_middleware.js',import.meta.url),'utf8');
 assert(!src.includes("target:'/api/stripe-customer-checkout-v01438'"),'customer checkout must not require a new staging database');
 assert(src.includes("target:'/api/stripe-live-checkout'"),'customer checkout uses guarded LIVE membership connector');
-assert(src.includes('readiness?.liveCheckoutAvailable===true'),'button must require authoritative per-SKU availability');
+assert(src.includes('readiness.liveCheckoutAvailable===true')&&
+ src.includes('readiness.readOnly===true')&&src.includes('readiness.livePayments===false')&&
+ src.includes('priceText(readiness.offer)'),
+ 'button must require authoritative verified price/cadence, not just boolean availability');
 assert(src.includes("if(books){"),'book rights remain separate from membership checkout');
 assert(src.includes("STRIPE_MANAGED_LIVE"),'LIVE checkout must not be presented as TEST checkout');
 assert(middleware.includes("'/api/stripe-live-checkout'"),'Owner-mode middleware must block a LIVE POST in TESTING mode');
