@@ -185,7 +185,7 @@ try{
          }).filter(x=>x.right>innerWidth+3||x.left< -3).sort((a,b)=>b.right-a.right).slice(0,18));
          console.error('STORE_OVERFLOW_DIAGNOSTIC '+path+' '+JSON.stringify({geometry,offenders}));
        }
-       assert.ok(geometry.scrollWidth<=geometry.viewport+3,'Product page horizontal overflow '+JSON.stringify(geometry));
+       assert.ok(geometry.scrollWidth<=geometry.viewport+3,'Product page horizontal overflow '+JSON.stringify(geometry)+'; inspect STORE_OVERFLOW_DIAGNOSTIC from this job');
        if(path.startsWith('store-book-')&&!path.includes('membership')){
          assert.equal(await root.locator('.store-product-hero .store-product-book-cover').count(),1,'Prominent book cover missing from hero');
          assert.equal(await root.locator('.store-product-about .store-product-book-cover').count(),0,'Duplicate book cover blocks the book synopsis');
