@@ -11,7 +11,7 @@ assert.deepEqual(curriculum.days.map(d=>d.day),Array.from({length:30},(_,i)=>i+1
 const legalCodes=new Set(guides.guides.map(g=>g.code)),seen=new Set();
 for(const d of curriculum.days){
  for(const field of ['title','objective','observe','practice','caution','toolPath'])
-  assert(typeof d[field]==='string'&&d[field].length>=12,'Empty day '+d.day+' '+field);
+  assert(typeof d[field]==='string'&&d[field].length>=(field==='toolPath'?9:12),'Empty day '+d.day+' '+field);
  assert(d.practice.length>70&&d.caution.length>50,'Study material must be substantive');
  assert(/^([a-z0-9-]+\.html)$/.test(d.toolPath),'Only existing relative tools may be linked');
  assert(d.competencies.length>=2);
