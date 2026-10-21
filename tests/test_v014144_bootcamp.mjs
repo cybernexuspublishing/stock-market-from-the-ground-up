@@ -55,9 +55,9 @@ globalThis.fetch=async(url,opt={})=>{
   const b=JSON.parse(opt.body);
   assert.equal(b.p_user,who,'Never trust user_id from the browser');
   if(!schema)return json({message:'schema not installed'},404);
-  rows.push({user_id:who,day_number:b.p_day,status:b.p_action==='start'?'in_progress':'reflection_saved',
+  rows.push({user_id:who,day_number:b.p_day,revision:1,status:b.p_action==='start'?'in_progress':'reflection_saved',
              reflection:b.p_reflection,first_reflected_at:b.p_action==='start'?null:'2026-10-21T13:00:00Z'});
-  return json({day:b.p_day,status:b.p_action==='start'?'in_progress':'reflection_saved',
+  return json({day:b.p_day,revision:1,status:b.p_action==='start'?'in_progress':'reflection_saved',
                reflection:b.p_reflection,graded:false,competencyMasteryAwarded:false});
  }
  throw Error('Unexpected Bootcamp source '+x);
@@ -77,13 +77,14 @@ try{
  schema=false;[,d]=await run();assert.equal(d.progressAvailable,false);assert.equal(d.progress,null);
  assert.match(d.error,/not been verified/);
  const note='I checked a primary source against a dated market observation, and I cannot infer either a guaranteed return or a real execution from a single chart.';
- [s]=await run('POST',{day:1,action:'save_reflection',reflection:note});assert.equal(s,503,'No phantom saved progress if table absent');
+ [s]=await run('POST',{day:1,action:'save_reflection',reflection:note,expectedRevision:0});assert.equal(s,503,'No phantom saved progress if table absent');
  schema=true;
  [s]=await run('POST',{day:1,action:'save_reflection',reflection:'short'});assert.equal(s,400);
  [s]=await run('POST',{day:31,action:'save_reflection',reflection:note});assert.equal(s,400);
- [s]=await run('POST',{day:1,action:'save_reflection',reflection:note},true,'https://outside.example');assert.equal(s,403);
- let prev=mutations;[s]=await run('POST',{day:1,action:'save_reflection',reflection:note});
+ [s]=await run('POST',{day:1,action:'save_reflection',reflection:note,expectedRevision:0},true,'https://outside.example');assert.equal(s,403);
+ let prev=mutations;[s]=await run('POST',{day:1,action:'save_reflection',reflection:note,expectedRevision:0});
  assert.equal(s,200);assert.equal(mutations,prev+1);
+ assert(!JSON.stringify(d).includes('answer_key'),'No private rubric content should ever be in the response');
  who=other;[,d]=await run();assert.equal(d.progress.length,0,'Another account must have no progress rows');
  who=user;[,d]=await run();assert.equal(d.progress.length,1);assert.equal(d.progress[0].reflection,note);
  console.log('PASS v144: all 30 lessons/competencies, 419 Lab crosswalk, member-only persistent reflections, no fake grading, isolation and schema-blocked writes');

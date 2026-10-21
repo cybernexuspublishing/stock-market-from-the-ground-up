@@ -72,7 +72,7 @@
   busy=true;q('gu-bc-start').disabled=true;q('gu-bc-save').disabled=true;
   q('gu-bc-save-status').textContent='Saving this member’s private ungraded progress…';
   try{
-   const result=await api('POST',{day,action,...(action==='save_reflection'?{reflection:note}:{})});
+   const result=await api('POST',{day,action,...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(day)?.revision||0}:{})});
    progress.set(day,result.progress);q('gu-bc-save-status').textContent=result.disclaimer;
   }catch(e){q('gu-bc-save-status').textContent=e.message+' No completion was recorded.'}
   finally{busy=false;render();}

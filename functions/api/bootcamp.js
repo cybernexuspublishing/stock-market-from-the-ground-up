@@ -40,7 +40,10 @@ async function requestBody(request){
     b.reflection.trim().length<80||b.reflection.trim().length>2000))
    throw fail('Reflection must contain 80–2000 characters.');
  if(b.action==='start'&&b.reflection!==undefined)throw fail('A start action cannot invent a reflection.');
- return {day:b.day,action:b.action,reflection:b.action==='save_reflection'?b.reflection.trim():null};
+ if(b.action==='save_reflection'&&(!Number.isSafeInteger(b.expectedRevision)||b.expectedRevision<0))
+   throw fail('Known saved revision required. Refresh the day before editing.');
+ return {day:b.day,action:b.action,reflection:b.action==='save_reflection'?b.reflection.trim():null,
+  expectedRevision:b.action==='save_reflection'?b.expectedRevision:null};
 }
 export async function onRequest({request,env}){
  try{
@@ -54,12 +57,12 @@ export async function onRequest({request,env}){
    // Missing schema cannot become a reported 0% member record.
    let progress=null,progressAvailable=true,error=null;
    try{
-    const rows=await store(env,'gu_bootcamp_progress_v014144?select=day_number,status,reflection,started_at,first_reflected_at,updated_at&user_id=eq.'+
+    const rows=await store(env,'gu_bootcamp_progress_v014144?select=day_number,status,reflection,started_at,first_reflected_at,updated_at,revision&user_id=eq.'+
       encodeURIComponent(auth.userId)+'&order=day_number.asc&limit=30');
     if(!Array.isArray(rows)||rows.some(x=>!Number.isInteger(x.day_number)||x.day_number<1||x.day_number>30))
       throw Error('Unreliable member progress response');
     progress=rows.map(x=>({day:x.day_number,status:x.status,reflection:x.reflection,
-     startedAt:x.started_at,firstReflectedAt:x.first_reflected_at,updatedAt:x.updated_at}));
+     startedAt:x.started_at,firstReflectedAt:x.first_reflected_at,updatedAt:x.updated_at,revision:x.revision}));
    }catch{
     progressAvailable=false;error='Private Bootcamp progress has not been verified; saved status cannot be displayed or written until the Owner installs and validates the migration.';
    }
@@ -69,9 +72,12 @@ export async function onRequest({request,env}){
   originCheck(request);
   const b=await requestBody(request);
   const result=await store(env,'rpc/gu_bootcamp_save_progress_v014144','POST',{
-   p_user:auth.userId,p_day:b.day,p_action:b.action,p_reflection:b.reflection
+   p_user:auth.userId,p_day:b.day,p_action:b.action,p_reflection:b.reflection,
+   p_expected_revision:b.expectedRevision
   });
-  if(!result||result.day!==b.day||!['in_progress','reflection_saved'].includes(result.status)||
+  if(result?.conflict===true)
+   return respond({ok:false,error:'This daily reflection was changed in another tab. Reload the day before saving again; no changes were overwritten.'},409);
+  if(!result||result.day!==b.day||!Number.isSafeInteger(result.revision)||result.revision<1||!['in_progress','reflection_saved'].includes(result.status)||
      result.graded!==false||result.competencyMasteryAwarded!==false)
     throw fail('Private Bootcamp write did not return verified evidence.',503);
   return respond({ok:true,progress:result,disclaimer:'Reflection saved as member self-report. No Lab grade, competency mastery, stock execution or verified market outcome was awarded.'});

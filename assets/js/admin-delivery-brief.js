@@ -64,7 +64,7 @@
    for(const p of packages){
     const box=el('article','cc-delivery-phase');
     box.append(el('span','cc-phase-number',p.number+' of 08'),el('strong','',p.title),el('small',''));
-    box.lastChild.textContent=(p.sourceDelivery==='merged'?'Source merged in main':p.sourceDelivery==='source_candidate'?'Source candidate / in development':'Not started')+' · production acceptance '+(p.productionAcceptance||'unverified');
+    box.lastChild.textContent=(p.sourceDelivery==='merged'?'Source merged in main':p.sourceDelivery==='source_implemented'?'Source implemented · QA ongoing':'Not started')+' · production acceptance '+(p.productionAcceptance||'unverified');
     const a=link('/owner-roadmap.html#task-'+p.roadmapId,'Related roadmap →');box.append(a);phases.append(box);
    }
    desk.append(heading,phases);

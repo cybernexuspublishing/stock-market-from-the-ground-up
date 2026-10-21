@@ -22,11 +22,24 @@ BEGIN
  THEN RAISE EXCEPTION 'Unauthorized SQL rights / missing service-only grant'; END IF;
 END $$;
 SET ROLE service_role;
-SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'start',null);
+SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'start',null,null);
 SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'save_reflection',
- 'I can distinguish a timestamped public filing from a later market observation, and neither predicts a trading result.');
-SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'start',null);
-SELECT public.gu_bootcamp_save_progress_v014144('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',1,'start',null);
+ 'I can distinguish a timestamped public filing from a later market observation, and neither predicts a trading result.',1);
+SELECT public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'start',null,null);
+SELECT public.gu_bootcamp_save_progress_v014144('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',1,'start',null,null);
+DO $
+DECLARE result jsonb;
+BEGIN
+ result:=public.gu_bootcamp_save_progress_v014144(
+ 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',1,'save_reflection',
+ 'My earlier record was updated in another browser tab. I must reload its current revision and reconsider the source rather than overwrite it.',1);
+ IF result->>'conflict' IS DISTINCT FROM 'false' AND result->>'conflict' IS DISTINCT FROM 'true' THEN
+   RAISE EXCEPTION 'Unexpected revision validation shape';
+ END IF;
+ IF result->>'conflict' IS DISTINCT FROM 'true' THEN
+   RAISE EXCEPTION 'Stale overwrite was permitted';
+ END IF;
+END $;
 DO $$
 DECLARE count_one integer;count_two integer;record_one text;
 BEGIN
@@ -36,7 +49,7 @@ BEGIN
  IF count_one<>1 OR count_two<>1 OR record_one<>'reflection_saved' THEN
    RAISE EXCEPTION 'Idempotent save or independent member state broken'; END IF;
  BEGIN
-  PERFORM public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',31,'start',null);
+  PERFORM public.gu_bootcamp_save_progress_v014144('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',31,'start',null,null);
   RAISE EXCEPTION 'Expected day validation exception';
  EXCEPTION WHEN others THEN IF SQLERRM='Expected day validation exception' THEN RAISE; END IF; END;
 END $$;
