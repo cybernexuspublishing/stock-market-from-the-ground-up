@@ -28,13 +28,16 @@ export async function onRequest({request,env}){
   const headers={apikey:secret,accept:'application/json'};
   if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
    headers.authorization='Bearer '+secret;
-  const reply=await fetch(base+'/rest/v1/gu_member_tutor_exchanges_v014102?user_id=eq.'+
-    encodeURIComponent(identity.id),{method:'DELETE',cache:'no-store',
-    headers:{...headers,prefer:'return=representation'}});
-  if(!reply.ok)throw Error('delete failed');
-  const items=await reply.json().catch(()=>null);
-  if(!Array.isArray(items))throw Error('deletion cannot be confirmed');
-  return out({ok:true,deletedCount:items.length,
-   notice:'Your saved Tutor exchanges were deleted. Associated report records were removed by database cascade. This does not delete your official Lab evidence or Journal.'});
+  const reply=await fetch(base+'/rest/v1/rpc/gu_v014149_delete_tutor_member_data',{
+   method:'POST',cache:'no-store',headers:{...headers,'content-type':'application/json'},
+   body:JSON.stringify({p_user:identity.id})});
+  if(!reply.ok)throw Error('delete transaction failed');
+  const result=await reply.json().catch(()=>null);
+  if(!Number.isSafeInteger(result?.exchanges_deleted)||result.exchanges_deleted<0||
+     !Number.isSafeInteger(result?.conversations_deleted)||result.conversations_deleted<0)
+   throw Error('delete transaction cannot be confirmed');
+  return out({ok:true,deletedCount:result.exchanges_deleted,
+   deletedConversationCount:result.conversations_deleted,
+   notice:'Your saved Tutor exchanges and conversation names were removed by a single verified transaction. Official Lab evidence and Journal records were not changed.'});
  }catch{return out({ok:false,error:'Private Tutor history could not be deleted. No deletion is claimed.'},503)}
 }
