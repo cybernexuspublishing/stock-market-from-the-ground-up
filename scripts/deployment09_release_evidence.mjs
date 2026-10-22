@@ -55,7 +55,7 @@ assert(provider.includes("AI_PAID_PROVIDER_OWNER_APPROVED")&&provider.includes("
 assert(quota.includes('gu_v014103_reserve_ai_request'),'transactional spend gate missing');
 assert(tutor.includes('ownedConversation')&&tutor.includes('attachTutorExchange'),
  'authenticated conversation boundary missing');
-assert((client.match(/else void initTutor\\(\\);/g)||[]).length===1,
+assert((client.split('else void initTutor();').slice(1)||[]).length===1,
  'No duplicated Tutor page boot function allowed');
 assert(client.includes('identityEpoch++')&&client.includes('abortController?.abort()'),
  'stale member identity controls missing');
