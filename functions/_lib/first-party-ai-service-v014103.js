@@ -19,10 +19,10 @@ export function aiServiceConfig(env){
  const day=positive(env.AI_SERVICE_GLOBAL_DAILY_LIMIT,1,10000);
  const month=positive(env.AI_SERVICE_GLOBAL_MONTHLY_LIMIT,1,250000);
  const provider=tutorProvider(env);
- const dbUrl=String(env.SUPABASE_URL||'').replace(/\\/$/,'');
+ const dbUrl=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const dbKey=String(env.SUPABASE_SECRET_KEY||'');
  const enabled=env.AI_SERVICE_ENABLED==='true'&&provider.configured===true&&
-  !!member&&!!day&&!!month&&/^https:\\/\\/[^/]+$/.test(dbUrl)&&!!dbKey;
+  !!member&&!!day&&!!month&&/^https:\/\/[^/]+$/.test(dbUrl)&&!!dbKey;
  return {enabled,member:member||0,day:day||0,month:month||0,
   modelConfigured:provider.configured===true,provider:provider.provider,dbUrl,dbKey,
   state:enabled?'enabled_for_reserved_requests':'not_configured'};
