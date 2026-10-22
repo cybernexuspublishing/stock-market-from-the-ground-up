@@ -18,12 +18,16 @@ jobs:
         with:
           node-version: '22'
       - name: Verify canonical curriculum decisions without awarding completion
-        run: node tests/test_v014150_curriculum_acceptance.mjs
+        run: |
+          node tests/test_v014150_curriculum_acceptance.mjs
+          node tests/test_v014151_foundations_content_gate.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: groundup-curriculum-419-labs-30-bootcamp-acceptance
           path: |
             artifacts/curriculum-acceptance-v014150.json
             artifacts/curriculum-acceptance-v014150.csv
+            artifacts/d11-foundations-94-content-gaps.json
+            artifacts/d11-foundations-94-content-gaps.csv
           if-no-files-found: error
           retention-days: 30
