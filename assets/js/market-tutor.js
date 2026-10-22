@@ -503,7 +503,7 @@ async function refreshAiServiceStatus(){
  }
  try{
   const access=await token();if(!access)throw Error('Session unavailable');
-  const response=await fetch('/api/member-ai-service-v014103',{method:'GET',cache:'no-store',headers:{authorization:'Bearer '+access}});
+  const response=await fetch('/api/member-ai-service',{method:'GET',cache:'no-store',headers:{authorization:'Bearer '+access}});
   const x=await response.json().catch(()=>null);
   if(!response.ok||!x?.ok)throw Error('AI status cannot be verified');
   if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==requestedUser)return;
