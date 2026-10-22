@@ -178,7 +178,7 @@ export async function onRequest({request,env}){
   async function finish(data){
    if(body.saveHistory===true){
     const id=await saveVerifiedTutorExchange(env,auth.userId,{
-     requestId:body.requestId,question:q,learnerAnswer:answer,mode,generation:data.generation,
+     requestId:body.requestId,conversationId:body.conversationId,question:q,learnerAnswer:answer,mode,generation:data.generation,
      answer:data.answer,sources:data.sources||[]});
     data.historyId=id||null;data.historySaved=!!id;
     safeTutorMetric('history',{reason:id?'server_saved':'server_save_unavailable'});
