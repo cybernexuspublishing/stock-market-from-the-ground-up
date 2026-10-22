@@ -3,7 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {hypotheticalPositionSize} from '../functions/_lib/tutor-position-math-v014149.js';
+import {hypotheticalPositionSize,deterministicTutorCalculation} from '../functions/_lib/tutor-position-math-v014149.js';
 import {callTutorModel,tutorProvider,CLOUDFLARE_TUTOR_MODEL} from '../functions/_lib/tutor-provider-v014107.js';
 import {aiServiceConfig} from '../functions/_lib/first-party-ai-service-v014103.js';
 import {onRequest as stableTutor} from '../functions/api/market-tutor.js';
@@ -29,6 +29,15 @@ assert.equal(hypotheticalPositionSize('calculate position size: risk $50, entry 
 assert.equal(hypotheticalPositionSize('calculate position size: risk $0, entry $5, stop $4').ok,false);
 assert.equal(hypotheticalPositionSize('calculate position size: risk $50, entry $5, stop $5.50').ok,false);
 assert.equal(hypotheticalPositionSize('Should I buy TSLA tomorrow?'),null);
+const pct=deterministicTutorCalculation('Calculate percentage change: from $5.00 to $5.60');
+assert.equal(pct.ok,true);assert(pct.answer.includes('12.00%'));assert.equal(pct.graded,false);
+const pctDown=deterministicTutorCalculation('Calculate percentage change: from $8.00 to $6.00');
+assert(pctDown.answer.includes('-25.00%'));
+const pnl=deterministicTutorCalculation('Calculate hypothetical P&L: 125 shares, entry $5.00, exit $5.60');
+assert(pnl.answer.includes('Modeled profit: $75.00'));
+const pnlLoss=deterministicTutorCalculation('Calculate hypothetical P&L: 100 shares, entry $5.00, exit $4.70');
+assert(pnlLoss.answer.includes('Modeled loss: $30.00'));
+assert.equal(deterministicTutorCalculation('Can I buy shares?'),null);
 const quotas={AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'3',
  AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'100',
  SUPABASE_URL:'https://mock.supabase.test',SUPABASE_SECRET_KEY:'sb_secret_local'};
