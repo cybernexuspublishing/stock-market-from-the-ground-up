@@ -189,6 +189,7 @@ async function refreshConversations(){
 async function selectTutorConversation(id){
  const target=id||null,epoch=++TUTOR.conversationEpoch,user=TUTOR.user?.id||null;
  TUTOR.activeConversationId=target;
+ if(target){TUTOR.entries=[];renderConversation();}
  renderConversationList();
  if(!target){await loadHistory();return}
  try{
@@ -311,12 +312,12 @@ function summarizePractice(data){
  }
  return parts.filter(Boolean).join('\n\n');
 }
-async function memberExplanation(q,mode,learnerAnswer){
+async function memberExplanation(q,mode,learnerAnswer,conversationId,requestId){
  const access=await token();
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
  const response=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
-  body:JSON.stringify({question:q,mode,learnerAnswer,conversationId:TUTOR.activeConversationId||undefined,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
+  body:JSON.stringify({question:q,mode,learnerAnswer,conversationId:conversationId||undefined,requestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true){
   throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
@@ -337,10 +338,11 @@ async function ask(){
  if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
  if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
  const submittingUser=TUTOR.user?.id||null,submittingEpoch=TUTOR.identityEpoch,submittingConversationEpoch=TUTOR.conversationEpoch;
+ const submittingConversationId=TUTOR.activeConversationId;
  TUTOR.activeRequestId=crypto.randomUUID();
  TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
  try{
-  const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer):localExplanation(q);
+  const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer,submittingConversationId,TUTOR.activeRequestId):localExplanation(q);
   if(!data){throw Error('No approved teaching response was returned.')}
   if(TUTOR.user?.id!==submittingUser||TUTOR.identityEpoch!==submittingEpoch)
    throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
