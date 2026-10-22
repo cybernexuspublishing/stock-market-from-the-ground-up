@@ -109,6 +109,38 @@
     ['Pre-market','Regular','After-hours'].indexOf(a.session)-['Pre-market','Regular','After-hours'].indexOf(b.session)),
     excluded,timezone:'America/New_York',dataStatus:'UNVERIFIED_MEMBER_UPLOADED_OHLCV'};
  }
+ function sessionReferenceSeries(input){
+  if(!Array.isArray(input)||input.length>MAX_ROWS)fail('Invalid OHLCV collection.');
+  const result=[];let previous=-Infinity,etDay='',dayHigh=null,dayLow=null;
+  let pmHigh=null,pmLow=null,regularHigh=null,regularLow=null,previousRegular=null,excluded=0;
+  for(const b of input){
+   if(!b||!Number.isFinite(b.timestamp)||b.timestamp<=previous||
+    !Number.isFinite(b.high)||!Number.isFinite(b.low)||!Number.isFinite(b.close)||
+    b.low<=0||b.high<b.low||b.close<b.low||b.close>b.high)
+    fail('Session references require strictly chronological valid OHLCV bars.');
+   previous=b.timestamp;
+   const p=Object.fromEntries(ny.formatToParts(new Date(b.timestamp)).map(x=>[x.type,x.value]));
+   const d=p.year+'-'+p.month+'-'+p.day,m=Number(p.hour)*60+Number(p.minute);
+   if(d!==etDay){
+    if(regularHigh!==null&&etDay)previousRegular={date:etDay,high:regularHigh,low:regularLow,
+     warning:'PREVIOUS OBSERVED REGULAR SESSION: COMPLETENESS AND CORPORATE ACTIONS NOT VERIFIED'};
+    etDay=d;dayHigh=dayLow=pmHigh=pmLow=regularHigh=regularLow=null;
+   }
+   if(m<240||m>=1200){excluded++;continue}
+   dayHigh=dayHigh===null?b.high:Math.max(dayHigh,b.high);
+   dayLow=dayLow===null?b.low:Math.min(dayLow,b.low);
+   if(m<570){pmHigh=pmHigh===null?b.high:Math.max(pmHigh,b.high);pmLow=pmLow===null?b.low:Math.min(pmLow,b.low)}
+   if(m>=570&&m<960){regularHigh=regularHigh===null?b.high:Math.max(regularHigh,b.high);
+    regularLow=regularLow===null?b.low:Math.min(regularLow,b.low)}
+   result.push({timestamp:b.timestamp,etDay:d,observedHod:dayHigh,observedLod:dayLow,
+    observedPmh:pmHigh,observedPml:pmLow,
+    priorObservedRegularHigh:previousRegular?.high??null,priorObservedRegularLow:previousRegular?.low??null,
+    priorObservedRegularDate:previousRegular?.date??null,
+    verifiedComplete:false,notLookahead:true});
+  }
+  return {snapshots:result,excluded,timezone:'America/New_York',
+   dataStatus:'PARTIAL_OBSERVED_BARS_ONLY_NOT_CERTIFIED_PMH_OR_PDH'};
+ }
  function confirmedPivots(input){
   if(!Array.isArray(input)||input.length>MAX_ROWS)fail('Invalid OHLCV collection.');
   const pivots=[];
@@ -127,6 +159,6 @@
    return {...p,label,lookaheadGuard:'CONFIRMED_ONLY_AFTER_TWO_SUBSEQUENT_BARS'};
   });
  }
- root.GroundUpMarketAnalysisV014146=Object.freeze({csv,tape,tapeSummary,bars,sessions,confirmedPivots,
+ root.GroundUpMarketAnalysisV014146=Object.freeze({csv,tape,tapeSummary,bars,sessions,sessionReferenceSeries,confirmedPivots,
   LIMIT_BYTES,MAX_ROWS});
 })(globalThis);

@@ -113,6 +113,19 @@
      g.bars+'</td><td>'+money(g.open)+'</td><td>'+money(g.close)+'</td><td>'+
      g.volume.toLocaleString()+'</td></tr>').join('')+'</tbody></table></div><p>'+
      result.excluded+' observations excluded outside 04:00–20:00 ET. This is not a verified consolidated session.</p>';
+   const refs=A.sessionReferenceSeries(rows);
+   const last=refs.snapshots.at(-1);
+   const describe=(label,n)=>label+': '+(n===null||n===undefined?'Not observed':money(n));
+   const evidence=document.createElement('p');
+   evidence.textContent=last?[
+    describe('Observed HOD',last.observedHod),describe('Observed LOD',last.observedLod),
+    describe('Observed PMH',last.observedPmh),describe('Observed PML',last.observedPml),
+    describe('Prior observed regular-session high',last.priorObservedRegularHigh),
+    describe('Prior observed regular-session low',last.priorObservedRegularLow),
+    'Prior observed session date: '+(last.priorObservedRegularDate||'Unavailable')
+   ].join(' · ')+' · These references use provided bars only; session completeness and actual PDH/PDL require independent verification.'
+    :'No observed in-session bars available.';
+   out.append(evidence);
   });
  }
  async function privateJournal(c,action){
