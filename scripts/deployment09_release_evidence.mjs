@@ -29,6 +29,8 @@ const paths=[
  'functions/api/owner-tutor-topic-gaps.js',
  'functions/api/member-tutor-data-delete.js',
  'tests/test_v014149_tutor_data_delete.mjs',
+ 'tests/test_v014149_tutor_browser_integrity.mjs',
+ 'functions/api/member-ai-service.js',
  'supabase/admin/v0.14.0.149b_EDITORIAL_GAPS_INSTALLED_READ_ONLY.sql',
  'supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql',
  'tests/test_v014149_tutor_editorial_and_gaps.mjs',
@@ -53,6 +55,8 @@ assert(provider.includes("AI_PAID_PROVIDER_OWNER_APPROVED")&&provider.includes("
 assert(quota.includes('gu_v014103_reserve_ai_request'),'transactional spend gate missing');
 assert(tutor.includes('ownedConversation')&&tutor.includes('attachTutorExchange'),
  'authenticated conversation boundary missing');
+assert((client.match(/else void initTutor\\(\\);/g)||[]).length===1,
+ 'No duplicated Tutor page boot function allowed');
 assert(client.includes('identityEpoch++')&&client.includes('abortController?.abort()'),
  'stale member identity controls missing');
 assert(client.includes('/api/market-tutor')&&client.includes('/api/member-tutor-history'),
