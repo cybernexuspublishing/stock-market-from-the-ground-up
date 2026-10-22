@@ -1,3 +1,4 @@
+import {tutorProvider} from './tutor-provider-v014107.js';
 /* First-party Market Tutor AI orchestration v0.14.0.103.
  * The paid PRODUCT is our first-party software/service. Generative inference
  * presently uses an external model provider privately; do not claim the weights
@@ -17,14 +18,13 @@ export function aiServiceConfig(env){
  const member=positive(env.AI_SERVICE_MEMBER_DAILY_LIMIT,1,100);
  const day=positive(env.AI_SERVICE_GLOBAL_DAILY_LIMIT,1,10000);
  const month=positive(env.AI_SERVICE_GLOBAL_MONTHLY_LIMIT,1,250000);
- const model=String(env.AI_TUTOR_MODEL||'').trim();
- const key=String(env.AI_TUTOR_API_KEY||'').trim();
- const dbUrl=String(env.SUPABASE_URL||'').replace(/\/$/,'');
+ const provider=tutorProvider(env);
+ const dbUrl=String(env.SUPABASE_URL||'').replace(/\\/$/,'');
  const dbKey=String(env.SUPABASE_SECRET_KEY||'');
- const enabled=env.AI_SERVICE_ENABLED==='true'&&String(env.AI_TUTOR_PROVIDER||'openai').toLowerCase()==='openai'&&!!member&&!!day&&!!month&&
-  !!key&&!!model&&/^https:\/\/[^/]+$/.test(dbUrl)&&!!dbKey;
+ const enabled=env.AI_SERVICE_ENABLED==='true'&&provider.configured===true&&
+  !!member&&!!day&&!!month&&/^https:\\/\\/[^/]+$/.test(dbUrl)&&!!dbKey;
  return {enabled,member:member||0,day:day||0,month:month||0,
-  modelConfigured:!!key&&!!model,dbUrl,dbKey,
+  modelConfigured:provider.configured===true,provider:provider.provider,dbUrl,dbKey,
   state:enabled?'enabled_for_reserved_requests':'not_configured'};
 }
 export async function reserveAiRequest(env,userId,requestId){
