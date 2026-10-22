@@ -48,12 +48,17 @@ export async function onRequest({request,env}){
   if(request.method==='GET'){
    const base='?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at';
    let rows;
-   try{rows=await rest(env,table+base+',feedback,feedback_note,feedback_at&user_id=eq.'+member+'&order=created_at.desc&limit=200')}
+   const suffix='&user_id=eq.'+member+'&order=created_at.desc&limit=200';
+   try{rows=await rest(env,table+base+',conversation_id,feedback,feedback_note,feedback_at'+suffix)}
    catch(e){
-    // Only a confirmed missing v107 column allows v102 fallback.
-    // Never mask storage outage, RLS denial, or another SQL failure.
+    // A missing optional v149 or v107 column alone permits compatibility fallback.
+    // Never hide a network failure, bad grants or RLS denial.
     if(e?.code!=='FEEDBACK_SCHEMA_MISSING')throw e;
-    rows=await rest(env,table+base+'&user_id=eq.'+member+'&order=created_at.desc&limit=200');
+    try{rows=await rest(env,table+base+',feedback,feedback_note,feedback_at'+suffix)}
+    catch(e2){
+     if(e2?.code!=='FEEDBACK_SCHEMA_MISSING')throw e2;
+     rows=await rest(env,table+base+suffix);
+    }
    }
    if(!Array.isArray(rows))throw Error('Invalid history data');
    return out({ok:true,history:rows,limit:200,graded:false,masteryAwarded:false,

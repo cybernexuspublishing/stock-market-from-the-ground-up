@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const sql=readFileSync(new URL('../supabase/admin/v0.14.0.148_DEPLOYMENT_FINAL_PREFLIGHT_READ_ONLY.sql',import.meta.url),'utf8');
-assert(sql.includes('SELECT c.relrowsecurity FROM pg_class c WHERE c.oid=table_state.oid'),
+assert(/SELECT\s+c\.relrowsecurity\s+FROM\s+pg_class\s+c\s+WHERE\s+c\.oid\s*=\s*table_state\.oid/i.test(sql),
  'Scalar RLS lookup MUST correlate to the outer table_state relation');
 assert(!/WHERE\s+c\.oid\s*=\s*oid\b/i.test(sql),
  'Unqualified oid inside pg_class scalar subquery resolves to inner c.oid, returning multiple rows (SQLSTATE 21000)');

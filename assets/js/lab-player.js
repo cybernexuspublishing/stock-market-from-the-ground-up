@@ -44,9 +44,43 @@ function lockDecision(){const a=collectDecision();if(!a.decision||!a.confidence)
  q('reveal-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 function revealNext(){PLAYER.revealIndex=Math.min(PLAYER.lab.practiceSteps.length,PLAYER.revealIndex+1);renderGuidance()}
 async function saveAttempt(){const msg=q('attempt-msg');const access=PLAYER.access;if(!access.user){msg.textContent='Sign in to save attempts to your Market Skills Record.';msg.className='inline-status error';return}const a=collectDecision();const mistakes=[...document.querySelectorAll('input[name="mistake"]:checked')].map(x=>x.value);const reflection=q('reflection')?.value.trim()||'';const row={user_id:access.user.id,lab_id:PLAYER.lab.id,skill_code:PLAYER.lab.skill,mode:PLAYER.mode,decision:a.decision||null,confidence:a.confidence||null,evidence:{structure:a.structure,location:a.location,volume:a.volume},invalidation:a.invalidation||null,notes:a.notes||null,process_score:processScore(a),process_breakdown:processBreakdown(a),mistakes,reflection,book_number:Number(PLAYER.lab.book)};const {error}=await access.sb.from('lab_attempts').insert(row);if(error){msg.textContent=error.message;msg.className='inline-status error';return}await access.sb.from('lab_progress').upsert({user_id:access.user.id,lab_id:PLAYER.lab.id,status:'completed',score:null,updated_at:new Date().toISOString(),completed_at:new Date().toISOString()},{onConflict:'user_id,lab_id'});msg.innerHTML=`Attempt saved. <a href="skills.html">View your Market Skills Record</a>. Lab discussion is now unlocked for this attempt.`;msg.className='inline-status success';q('complete-attempt').disabled=true;if(q('discuss-lab'))q('discuss-lab').hidden=false}
+/* D09: Link only a whitelisted instructional TOPIC to Market Tutor.
+ * Never transmit Lab rubric, answer key, learner reasoning, ticker, historical
+ * data or future hidden candles. Guided/practice only; no blind answer leaks.
+ */
+function tutorSafeSubject(lab){
+ const concept=String(lab?.concept||'');
+ const topics=[
+  [/vwap/i,'VWAP context and its limitations'],
+  [/candl|wick|OHLC/i,'candlestick anatomy and candle interpretation'],
+  [/\bema|moving average/i,'EMA9 and EMA20 as contextual indicators'],
+  [/level ii|level 2|time\s*(?:and|&)\s*sales|tape/i,'bid ask spread and Level II limitations'],
+  [/risk|stop|sizing/i,'risk per share and risk management'],
+  [/breakout|resistance/i,'breakout confirmation and invalidation'],
+  [/support|pullback/i,'support and resistance evidence'],
+  [/volume|liquid|float/i,'volume liquidity and execution uncertainty'],
+  [/trend|momentum|high|low/i,'higher highs lower lows and trend structure']
+ ];
+ return topics.find(([pattern])=>pattern.test(concept))?.[1]||'decision uncertainty and observable evidence';
+}
+function mountLabTutorLink(lab,mode){
+ if(!['guided','practice'].includes(mode))return;
+ const target=document.getElementById('v01499-original-skills');if(!target)return;
+ const link=document.createElement('a');
+ link.className='btn secondary';link.textContent='Ask Market Tutor About This Step';
+ link.href='/market-tutor.html?q='+encodeURIComponent('Explain '+tutorSafeSubject(lab)+'. Include what can invalidate an interpretation.');
+ link.target='_blank';link.rel='noopener noreferrer';
+ link.setAttribute('aria-label','Ask Market Tutor about the current general instructional concept in a new tab');
+ target.append(link);
+ const notice=document.createElement('p');
+ notice.className='small';
+ notice.textContent='Only general approved subject context is passed. No private questions, rubric, grades, future candles, or your written answers. Active Tutor access is required.';
+ target.append(notice);
+}
 function renderPlayer(){const lab=PLAYER.lab,mode=PLAYER.mode,advanced=['practice','blind','assessment'].includes(mode);const allowed=mode==='guided'?window.SiteAccess.canGuided(PLAYER.access,lab):window.SiteAccess.canAdvanced(PLAYER.access);document.querySelectorAll('.mode-tabs button').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.disabled=(b.dataset.mode!=='guided'&&!PLAYER.access.isMember)});q('player-mode-description').textContent=modeCopy(mode);if(!allowed){q('player-workspace').innerHTML=`<div class="card paywall-card"><h2>${mode==='guided'?'Guided lab access':'Learning Member feature'}</h2><p>${mode==='guided'?'This guided book lab is available to active Learning Members, readers who redeemed this book, and selected free samples.':'Practice, Blind Decision, and Assessment modes require active Full Learning Access.'}</p><div class="actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem a Book Key</a></div></div>`;return}
  const blind=mode==='blind'||mode==='assessment';const task=blind?'':(lab.goal?`<div class="notice"><strong>Book task:</strong> ${pe(lab.goal)}</div>`:'');const before=(mode==='guided'&&lab.beforeAdvance.length)?`<div class="card"><div class="eyebrow">Before You Advance</div>${lab.beforeAdvance.map(x=>`<p>${pe(x)}</p>`).join('')}</div>`:'';q('player-workspace').innerHTML=`${portableVisual(lab)}${originalScenarioLink(lab)}<section class="card"><h2>Original companion competency guides</h2><p>Suggested study topics are separate from the approved book manuscript and graded answers.</p><div id="v01499-original-skills"></div></section><div class="card"><div class="eyebrow">Historical setup</div>${metadata(lab,blind)}${task}</div>${before}${evidenceForm()}<div id="reveal-panel" class="card" hidden><div class="eyebrow">Book-guided sequence</div><h2>Reveal only after you committed your read.</h2><div id="guided-sequence"></div><div class="actions"><button class="btn secondary" id="reveal-next" type="button">Reveal next guided step</button></div>${lab.dataNote?`<p class="small"><strong>Data note:</strong> ${pe(lab.dataNote)}</p>`:''}</div><section id="v014-training-slot" class="dashboard-space"></section>${mistakePanel()}`;
  void attachFoundationsCurriculum(lab.id);
+ mountLabTutorLink(lab,mode);
  q('lock-decision').addEventListener('click',lockDecision);q('reveal-next').addEventListener('click',revealNext);q('complete-attempt').addEventListener('click',saveAttempt);q('discuss-lab').href=`forum.html?lab=${encodeURIComponent(lab.id)}`;
  if(PLAYER.access.user){PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false})}
 }

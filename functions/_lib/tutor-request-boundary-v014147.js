@@ -23,6 +23,8 @@ export async function parseTutorRequest(request){
     (body.learnerAnswer!==undefined&&typeof body.learnerAnswer!=='string')||
     (body.allowModel!==undefined&&typeof body.allowModel!=='boolean')||
     (body.saveHistory!==undefined&&typeof body.saveHistory!=='boolean')||
+    (body.conversationId!==undefined&&body.conversationId!==null&&
+      (typeof body.conversationId!=='string'||!validId.test(body.conversationId)))||
     (body.requestId!==undefined&&(!validId.test(body.requestId)||typeof body.requestId!=='string')))
   throw fail('Invalid Tutor request fields.');
  const clean=x=>x.replace(/[\u0000-\u001f\u007f]/g,' ').trim();
@@ -35,6 +37,7 @@ export async function parseTutorRequest(request){
  return {question,mode,learnerAnswer,
   allowModel:body.allowModel===true,saveHistory:body.saveHistory===true,
   requestId:body.requestId||crypto.randomUUID(),
+  conversationId:body.conversationId||null,
   // Legacy untrusted priorTurns are ignored by the route, NEVER reintroduced
   // into provider input, current source evidence or saved Tutor replies.
   priorTurnsSupplied:body.priorTurns!==undefined};

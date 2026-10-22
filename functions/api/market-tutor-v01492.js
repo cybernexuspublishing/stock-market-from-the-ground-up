@@ -6,6 +6,7 @@
  * self-hosted or company-trained language model.
  */
 import {toolAccess} from './member-tool-access.js';
+import {rankApprovedTutorTopics} from '../_lib/tutor-retrieval-v014149.js';
 import {tutorTopicsV01492} from '../_lib/tutor-topics-v01492.js';
 import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-v014100.js';
 import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js';
@@ -15,6 +16,9 @@ import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
+import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
+import {recordTutorGap} from '../_lib/tutor-gaps-v014149.js';
+import {getApprovedLabContext,labGuidance} from '../_lib/tutor-lab-context-v014149.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -22,15 +26,7 @@ const clean=s=>String(s??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim();
 const tokenize=s=>clean(s).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(x=>x.length>2);
 const safeLink=topic=>'/labs.html?q='+encodeURIComponent(topic.labQuery||topic.title);
 const ADVICE_RESPONSE='I can help evaluate risk, evidence, position sizing and decision processes, but cannot select a security or entry for you. Start with a written plan and the Risk & Position Sizing Laboratory.';
-function rank(q){
- const words=[...new Set(tokenize(q))].filter(x=>!['what','when','that','this','about','explain','please','would','could','should','mean','tell','teach','learning','practice'].includes(x));
- return tutorTopicsV01492.map(t=>{
-   const title=t.title.toLowerCase(),alias=(t.aliases||[]).join(' ').toLowerCase(),related=(t.related||[]).join(' ').toLowerCase(),summary=t.summary.toLowerCase();
-   const score=words.reduce((n,w)=>n+(title.includes(w)?6:0)+(alias.includes(w)?4:0)+(related.includes(w)?2:0)+(summary.includes(w)?1:0),0)
-    +((t.aliases||[]).some(a=>a.length>2&&q.toLowerCase().includes(a.toLowerCase()))?9:0);
-   return {t,score};
- }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.t.id.localeCompare(b.t.id)).slice(0,3).map(x=>x.t);
-}
+function rank(q){return rankApprovedTutorTopics(q,tutorTopicsV01492,3);}
 function publicMatches(items){
  return items.map((t,i)=>({id:t.id,title:t.title,summary:t.summary,sourceLabel:'Companion glossary: '+t.title,
   sourceId:'['+(i+1)+']',related:Array.isArray(t.related)?t.related.slice(0,6):[],
@@ -111,8 +107,9 @@ async function memberPractice(env,userId){
  return {examined,recommendations,skillSignals,gradedHistoryAvailable,gradedReview:gradedReview.slice(0,5),recordedAssessmentCount:latest.size};
 }
 async function modelDraft(env,{q,mode,source,answer}){
- const key=String(env.AI_TUTOR_API_KEY||''),model=String(env.AI_TUTOR_MODEL||'');
- if(!key||!model)return null;
+ // Provider routing and approval are enforced at the existing atomic quota gate.
+ // Never assume an OpenAI API key is required for the Workers AI binding.
+ if(env.AI_SERVICE_ENABLED!=='true')return null;
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
  try{
   const reference=source.map((t,i)=>'['+(i+1)+'] '+t.title+': '+t.summary).join('\n');
@@ -164,6 +161,8 @@ export async function onRequest({request,env}){
   const body=await parseTutorRequest(request);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
   if(!auth.authorized)return reply({ok:false,error:'Active Market Tutor / Full Platform access required.'},403);
+  if(body.conversationId&&!await ownedConversation(env,auth.userId,body.conversationId))
+   return reply({ok:false,error:'This Tutor conversation is unavailable to the signed-in member.'},404);
   const throttle=await tutorRequestLimit(env,auth.userId);
   if(!throttle.allowed){
    safeTutorMetric('safety',{reason:throttle.reason==='minute_limit'?'source_rate_minute':'source_rate_day'});
@@ -181,6 +180,8 @@ export async function onRequest({request,env}){
      requestId:body.requestId,question:q,learnerAnswer:answer,mode,generation:data.generation,
      answer:data.answer,sources:data.sources||[]});
     data.historyId=id||null;data.historySaved=!!id;
+    data.conversationLinked=!!(id&&body.conversationId&&
+      await attachTutorExchange(env,auth.userId,id,body.conversationId));
     safeTutorMetric('history',{reason:id?'server_saved':'server_save_unavailable'});
    }else{data.historySaved=false;data.historyId=null}
    return reply(data);
@@ -211,6 +212,20 @@ export async function onRequest({request,env}){
   if(advice)return finish({ok:true,generation:'reviewed-glossary-logic',
    answer:ADVICE_RESPONSE,sources:sources.slice(0,2),aiReason:'personal_advice_blocked',
    graded:false,masteryAwarded:false,notice:'Individual investment recommendations are not provided.'});
+  // Explicit Lab identifiers may access public canonical ID/skill metadata
+  // only. Never query unreviewed/private questions, future bars, or answer keys.
+  const labContext=await getApprovedLabContext(env,request,q).catch(()=>null);
+  if(labContext)return finish({
+   ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
+   answer:labGuidance(labContext,mode,answer),graded:false,masteryAwarded:false,
+   sources:[{id:labContext.labId,title:'Canonical Lab '+labContext.labId,
+    sourceLabel:'Public canonical Lab ID and competency crosswalk',
+    sourceId:'[1]',practiceUrl:labContext.practiceUrl}],
+   labContext,notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
+   links:{labs:labContext.practiceUrl,skills:'/skills.html',journal:'/journal.html'}
+  });
+  // A valid canonical Lab ID is coverage, not an unanswered topic.
+  if(!guideMatches.length&&!source.length)await recordTutorGap(env,q);
   if(guideMatches.length){
    const guide=guideMatches[0];
    const selectedGuides=guideMatches.slice(0,2);

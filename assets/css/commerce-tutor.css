@@ -38,3 +38,17 @@
 .tutor-ai-meter [role=status]{color:#f0d797;font-weight:700}
 .tutor-ai-meter .btn{display:inline-flex;max-width:100%;box-sizing:border-box}
 .tutor-ai-opt-in:has(input:disabled){opacity:.7}
+
+/* D09 accessible, scrollable private Tutor conversation navigation. */
+.tutor-conversation-list{display:grid;gap:6px;max-height:290px;overflow-y:auto;padding:8px 2px}
+.tutor-conversation-list .btn{text-align:left;white-space:normal;overflow-wrap:anywhere;max-width:100%}
+.tutor-conversation-list .btn[aria-pressed="true"]{outline:2px solid #f0d387;outline-offset:1px}
+.tutor-history input[type="search"]{display:block;width:100%;max-width:100%;margin:6px 0 10px}
+.tutor-history button:focus-visible,.tutor-conversation-list button:focus-visible{outline:3px solid #f0d387;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.tutor-thread *{scroll-behavior:auto!important;transition-duration:0s!important}}
+
+/* D09 hypothetical risk calculator. All inputs are descriptive; no order placement. */
+.tutor-calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-block:10px 14px}
+.tutor-calc-grid label{font-size:.86rem;display:grid;gap:5px}
+.tutor-calc-grid input{min-width:0;width:100%;padding:8px;border-radius:6px;border:1px solid #3b5d76;background:#0a2237;color:#dce9f4}
+.tutor-calc-grid input:focus-visible{outline:3px solid #f0d387;outline-offset:2px}

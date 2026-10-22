@@ -30,6 +30,17 @@ jobs:
           node tests/test_v014147_tutor_boundary.mjs
           node tests/test_v014147_tutor_history_idempotency.mjs
           node tests/test_v014147_owner_tutor_feedback.mjs
+          node tests/test_v014149_tutor_retrieval.mjs
+          node tests/test_v014149_tutor_arithmetic.mjs
+          node tests/test_v014149_tutor_provider.mjs
+          node tests/test_v014149_tutor_conversations.mjs
+          node tests/test_v014149_tutor_calculator.mjs
+          node tests/test_v014149_tutor_data_export.mjs
+          node tests/test_v014149_tutor_editorial_and_gaps.mjs
+          node tests/test_v014149_tutor_lab_context.mjs
+          node tests/test_v014149_tutor_data_delete.mjs
+          node tests/test_v014149_tutor_browser_integrity.mjs
+          node scripts/deployment09_release_evidence.mjs
           node --check assets/js/market-tutor.js
           node --check assets/js/admin-tutor-feedback-v014147.js
           node --check functions/api/market-tutor-v01492.js
@@ -38,6 +49,21 @@ jobs:
           node --check functions/_lib/tutor-request-boundary-v014147.js
           node --check functions/_lib/tutor-history-save-v014107.js
           node --check functions/_lib/tutor-provider-v014107.js
+          node --check functions/_lib/tutor-retrieval-v014149.js
+          node --check functions/_lib/tutor-arithmetic-v014149.js
+          node --check functions/api/member-tutor-conversations.js
+          node --check functions/api/tutor-calculator.js
+          node --check functions/api/member-tutor-data-export.js
+          node --check functions/api/market-tutor.js
+          node --check functions/api/member-tutor-history.js
+          node --check functions/api/member-ai-service.js
+          node --check functions/_lib/first-party-ai-service-v014103.js
+          node --check functions/_lib/tutor-gaps-v014149.js
+          node --check functions/_lib/tutor-lab-context-v014149.js
+          node --check functions/_lib/owner-tutor-access-v014149.js
+          node --check functions/api/owner-tutor-case.js
+          node --check functions/api/owner-tutor-topic-gaps.js
+          node --check functions/api/member-tutor-data-delete.js
           bash scripts/build-pages.sh
           test -f public/assets/js/admin-tutor-feedback-v014147.js
           test ! -d public/functions
