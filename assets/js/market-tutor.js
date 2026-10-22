@@ -5,7 +5,7 @@
  * Never copy user text to localStorage, never award grades, and never render HTML
  * returned by a learner, provider, or database as markup.
  */
-const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null,identityEpoch:0};
+const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null,identityEpoch:0,conversations:[],activeConversationId:null,conversationEpoch:0};
 const $=id=>document.getElementById(id);
 function status(message,kind=''){const node=$('tutor-status');node.textContent=message;node.className='status-message'+(kind?' '+kind:'');}
 function historyStatus(message){$('tutor-history-state').textContent=message;}
@@ -144,12 +144,103 @@ async function privateApi(path,method='GET',body,headers={}){
   {status:response.status});
  return data;
 }
+/* v149 private conversation workspaces. All list/history reads use the
+ * authoritative signed-in service; no localStorage or browser-authored replies.
+ * Legacy ungrouped v102 exchanges remain accessible via All saved exchanges.
+ */
+async function conversationApi(path='',method='GET',body){
+ const access=await token();if(!access)throw Error('Sign in to manage conversations.');
+ const init={method,cache:'no-store',headers:{authorization:'Bearer '+access}};
+ if(body!==undefined){init.headers['content-type']='application/json';init.body=JSON.stringify(body)}
+ const response=await fetch('/api/member-tutor-conversations'+path,init);
+ const result=await response.json().catch(()=>null);
+ if(!response.ok||result?.ok!==true)throw Object.assign(
+  new Error(response.status===503?'Private conversation storage is not installed or unavailable.':result?.error||'Conversation request failed.'),
+  {status:response.status});
+ return result;
+}
+function renderConversationList(){
+ const select=$('tutor-conversation-select');if(!select)return;
+ const previous=TUTOR.activeConversationId||'';
+ select.replaceChildren(new Option('All saved exchanges (legacy and grouped)',''));
+ for(const conversation of TUTOR.conversations)
+  select.add(new Option(conversation.title,conversation.id));
+ select.value=TUTOR.conversations.some(x=>x.id===previous)?previous:'';
+ select.disabled=!TUTOR.user;
+ for(const key of ['tutor-conversation-rename','tutor-conversation-delete'])
+  $(key).disabled=!TUTOR.user||!TUTOR.activeConversationId;
+ $('tutor-conversation-new').disabled=!TUTOR.user;
+}
+async function refreshConversations(){
+ const user=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch;
+ if(!user){TUTOR.conversations=[];TUTOR.activeConversationId=null;renderConversationList();return}
+ try{
+  const response=await conversationApi();
+  if(TUTOR.user?.id!==user||TUTOR.identityEpoch!==epoch)return;
+  TUTOR.conversations=response.conversations||[];
+  renderConversationList();
+  $('tutor-conversation-state').textContent=TUTOR.conversations.length+' private conversation(s) available across devices.';
+ }catch(e){
+  if(TUTOR.user?.id!==user||TUTOR.identityEpoch!==epoch)return;
+  $('tutor-conversation-state').textContent=e.message+' Existing ungrouped history remains available.';
+  renderConversationList();
+ }
+}
+async function selectTutorConversation(id){
+ const target=id||null,epoch=++TUTOR.conversationEpoch,user=TUTOR.user?.id||null;
+ TUTOR.activeConversationId=target;
+ renderConversationList();
+ if(!target){await loadHistory();return}
+ try{
+  const response=await conversationApi('?conversationId='+encodeURIComponent(target));
+  if(epoch!==TUTOR.conversationEpoch||user!==TUTOR.user?.id)return;
+  TUTOR.entries=(response.history||[]).map(normalizeSaved);
+  renderConversation();
+  historyStatus('Conversation selected; '+TUTOR.entries.length+' verified server records loaded (ungraded).');
+ }catch(e){
+  if(epoch!==TUTOR.conversationEpoch||user!==TUTOR.user?.id)return;
+  TUTOR.entries=[];renderConversation();
+  historyStatus(e.message+' No records from another conversation are displayed.');
+ }
+}
+async function createTutorConversation(){
+ if(!TUTOR.user)return;
+ const title='New conversation';
+ try{
+  const reply=await conversationApi('','POST',{requestId:crypto.randomUUID(),title});
+  await refreshConversations();
+  await selectTutorConversation(reply.id);
+  $('tutor-question').focus();
+ }catch(e){$('tutor-conversation-state').textContent=e.message}
+}
+async function renameTutorConversation(){
+ const id=TUTOR.activeConversationId,entry=TUTOR.conversations.find(x=>x.id===id);if(!entry)return;
+ const proposed=window.prompt('Conversation title (3–90 characters):',entry.title);
+ if(proposed===null)return;
+ const title=proposed.trim();
+ if(title.length<3||title.length>90){$('tutor-conversation-state').textContent='Use a title between 3 and 90 characters.';return}
+ try{await conversationApi('','PATCH',{id,title});await refreshConversations()}
+ catch(e){$('tutor-conversation-state').textContent=e.message}
+}
+async function deleteTutorConversation(){
+ const id=TUTOR.activeConversationId;if(!id)return;
+ if(!window.confirm('Permanently delete this conversation and all its saved exchanges? This cannot be undone.'))return;
+ try{
+  await conversationApi('','DELETE',{id,confirm:'DELETE_CONVERSATION'});
+  TUTOR.activeConversationId=null;TUTOR.conversationEpoch++;
+  TUTOR.entries=[];renderConversation();
+  await refreshConversations();await loadHistory();
+  $('tutor-conversation-state').textContent='Conversation and contained exchanges permanently deleted.';
+ }catch(e){$('tutor-conversation-state').textContent=e.message}
+}
+
 async function loadHistory(){
- const requestedUser=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch;
+ const requestedUser=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch,conversationEpoch=TUTOR.conversationEpoch;
+ if(TUTOR.activeConversationId){await selectTutorConversation(TUTOR.activeConversationId);return}
  if(!TUTOR.user){historyStatus('Sign in to access saved Tutor exchanges. Public glossary answers stay on this page only.');return}
  try{
   const data=await privateApi('');
-  if(TUTOR.user?.id!==requestedUser)return;
+  if(TUTOR.user?.id!==requestedUser||TUTOR.identityEpoch!==epoch||TUTOR.conversationEpoch!==conversationEpoch)return;
   TUTOR.serverHistory=true;
   const prior=data.history.map(normalizeSaved).reverse();
   const known=new Set(prior.map(x=>x.id));
@@ -225,7 +316,7 @@ async function memberExplanation(q,mode,learnerAnswer){
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
  const response=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
-  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
+  body:JSON.stringify({question:q,mode,learnerAnswer,conversationId:TUTOR.activeConversationId||undefined,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true){
   throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
@@ -245,7 +336,7 @@ async function ask(){
  if(mode==='review'&&!learnerAnswer){status('Type your reasoning before asking the Tutor to review it.','error');$('tutor-reflection').focus();return}
  if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
  if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
- const submittingUser=TUTOR.user?.id||null,submittingEpoch=TUTOR.identityEpoch;
+ const submittingUser=TUTOR.user?.id||null,submittingEpoch=TUTOR.identityEpoch,submittingConversationEpoch=TUTOR.conversationEpoch;
  TUTOR.activeRequestId=crypto.randomUUID();
  TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
  try{
@@ -253,6 +344,10 @@ async function ask(){
   if(!data){throw Error('No approved teaching response was returned.')}
   if(TUTOR.user?.id!==submittingUser||TUTOR.identityEpoch!==submittingEpoch)
    throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
+  if(TUTOR.conversationEpoch!==submittingConversationEpoch){
+   status('The reply was prepared for the previously selected conversation; refresh it to see saved exchanges.');
+   return;
+  }
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
    createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null};
@@ -306,6 +401,12 @@ async function refreshAiServiceStatus(){
  }
 }
 async function initTutor(){
+ $('tutor-conversation-select').addEventListener('change',e=>{void selectTutorConversation(e.target.value)});
+ $('tutor-conversation-new').addEventListener('click',()=>void createTutorConversation());
+ $('tutor-conversation-rename').addEventListener('click',()=>void renameTutorConversation());
+ $('tutor-conversation-delete').addEventListener('click',()=>void deleteTutorConversation());
+ $('tutor-conversation-refresh').addEventListener('click',()=>void refreshConversations());
+ renderConversationList();
  $('tutor-ask').addEventListener('click',ask);
  $('tutor-question').addEventListener('input',updateCount);
  $('tutor-question').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
@@ -344,16 +445,17 @@ async function initTutor(){
    const oldId=TUTOR.user?.id||null,newId=session?.user?.id||null;
    if(event==='SIGNED_OUT'||(oldId&&newId&&oldId!==newId)){
     TUTOR.entries=[];TUTOR.user=null;TUTOR.serverHistory=false;
+    TUTOR.conversations=[];TUTOR.activeConversationId=null;TUTOR.conversationEpoch++;renderConversationList();
     renderConversation();void refreshAiServiceStatus();historyStatus('Your account changed; private notes were cleared from this page.');
     status('Sign in to open your own saved Tutor history.');
    }
    if(event==='SIGNED_IN'&&newId!==TUTOR.user?.id){
-    TUTOR.user=session.user;void loadHistory();void refreshAiServiceStatus();
+    TUTOR.user=session.user;void loadHistory();void refreshConversations();void refreshAiServiceStatus();
    }
   });
  }catch{TUTOR.user=null}
  renderConversation();
- await Promise.all([loadHistory(),refreshAiServiceStatus()]);
+ await Promise.all([loadHistory(),refreshConversations(),refreshAiServiceStatus()]);
  if(query&&TUTOR.user){$('tutor-question').focus();status('The linked question is ready for you to submit.');}
  else if(query){status('The linked public glossary question is ready to submit.');}
  else status(TUTOR.user?'Member Tutor ready. Submit a question to begin.':'Public glossary ready. Sign in to access member teaching.');
