@@ -1,0 +1,36 @@
+name: Deployment 09 Market Tutor Source Gate v0.14.0.149
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  market-tutor-d09:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Existing source tests + provider, math, authorization regressions
+        run: node scripts/deployment09_verify.mjs
+      - name: Static build privacy/route boundary
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/market-tutor.js
+          test ! -d public/functions
+          test ! -d public/supabase
+          test ! -e public/data/interactive-labs.json
+      - name: Upload source-only evidence (not production certification)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GU-D09-Tutor-Source-Evidence-${{ github.run_number }}
+          path: artifacts/d09-tutor-source-evidence.json
+          if-no-files-found: warn
+          retention-days: 30
