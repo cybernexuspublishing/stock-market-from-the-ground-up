@@ -36,7 +36,7 @@
 - **Previously installed tests retained:** v92/v93/v95/v100/v102/v103/v105/v107/v147 Tutor tests, plus repository-wide regression workflows. Legacy provider mocks explicitly declare an approved test-only model; no test model is enabled in production.
 - **Exact-head GitHub Actions:** QUEUED at last check; no PASS claim. Merge and production acceptance blocked pending real results. No test removed to make CI appear green.
 - **Production browser:** no verified Owner/Member A/Member B/TEST/Showcase, expired membership, mobile keyboard and screen-reader acceptance has occurred.
-- **SQL:** D09 additive migration staged but NOT executed. Existing v102/v103/v107 contract installation still needs read-only confirmation.
+- **SQL:** Owner reports having executed the Tutor SQL files successfully in Supabase. Execution logs and live schema have NOT been independently verified; do NOT repeat installation. Use `supabase/admin/v0.14.0.149_MARKET_TUTOR_INSTALLED_CONTRACT_READ_ONLY.sql` to check installed contracts without writes.
 - **Cloudflare:** no deployment/AI binding activation or free-tier account verification performed in this development branch.
 - **Stripe:** unchanged. No prices, subscriptions, payments, real entitlements or charges modified.
 
@@ -70,7 +70,7 @@
 
 ## Next work / Owner actions
 1. Obtain successful exact-head GitHub CI and correct any regressions before PR review/merge.
-2. Owner reviews the additive v149 migration and runs existing v147 read-only contract check, then applies only approved missing migrations in established Supabase project.
+2. Owner reported SQL installation. Verify with new v149 **read-only** installed-contract query and the actual user-scoped storage tests; apply no duplicate migrations without a detected gap.
 3. Complete source/editorial workflows, unanswered-topic aggregation, owned Admin resolution/approval UI and review of all four Tutor modes.
 4. Verify production Account A/B isolation, expiry/export, authorized Lab context, keyboard/mobile, provider timeouts, rollback, cost caps and historical-data separation.
 5. Confirm Cloudflare Free plan and licensing; keep AI disabled unless all authorization/limit switches explicitly pass. Do not activate new paid services.
