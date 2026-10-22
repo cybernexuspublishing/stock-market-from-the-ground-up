@@ -23,6 +23,7 @@ async function rest(env,path,init={}){
  if(!response.ok){
    const problem=await response.json().catch(()=>null);
    if(problem?.code==='P0001')throw Object.assign(new Error('Your 200 saved Tutor exchanges limit is reached. Delete older saved notes to make space.'),{status:409});
+   if(problem?.code==='42703')throw Object.assign(new Error('Optional Tutor feedback columns are not installed.'),{status:503,code:'FEEDBACK_SCHEMA_MISSING'});
    throw Error('History storage unavailable');
   }
  const text=await response.text();
@@ -36,14 +37,22 @@ export async function onRequest({request,env}){
   if(!auth.authorized)return out({ok:false,error:'An active Market Tutor entitlement is required to access saved Tutor notes.'},403);
   if(!UID.test(auth.userId))return out({ok:false,error:'Invalid member identity.'},403);
   const member=encodeURIComponent(auth.userId),url=new URL(request.url);
+  if(request.method==='PATCH'||request.method==='DELETE'){
+   const origin=request.headers.get('origin');
+   if(origin&&origin!==url.origin)return out({ok:false,error:'Cross-origin Tutor history mutation denied.'},403);
+   const site=request.headers.get('sec-fetch-site');
+   if(site&&!['same-origin','none'].includes(site))
+    return out({ok:false,error:'Cross-site Tutor history mutation denied.'},403);
+  }
   const table='gu_member_tutor_exchanges_v014102';
   if(request.method==='GET'){
    const base='?select=id,question,learner_answer,mode,answer,generation,source_titles,created_at';
    let rows;
    try{rows=await rest(env,table+base+',feedback,feedback_note,feedback_at&user_id=eq.'+member+'&order=created_at.desc&limit=200')}
-   catch{
-    // v107 is optional; member access to previously saved v102 history must not
-    // break while the owner has not yet installed the feedback columns.
+   catch(e){
+    // Only a confirmed missing v107 column allows v102 fallback.
+    // Never mask storage outage, RLS denial, or another SQL failure.
+    if(e?.code!=='FEEDBACK_SCHEMA_MISSING')throw e;
     rows=await rest(env,table+base+'&user_id=eq.'+member+'&order=created_at.desc&limit=200');
    }
    if(!Array.isArray(rows))throw Error('Invalid history data');
@@ -51,8 +60,6 @@ export async function onRequest({request,env}){
     notice:'Member-saved ungraded educational transcripts. No official competency evidence.'});
   }
   if(request.method==='PATCH'){
-   const origin=request.headers.get('origin');
-   if(origin&&origin!==url.origin)return out({ok:false,error:'Cross-origin history feedback denied.'},403);
    if(Number(request.headers.get('content-length')||0)>1400)return out({ok:false,error:'Feedback request too large.'},413);
    const raw=await request.text();if(new TextEncoder().encode(raw).byteLength>1400)
     return out({ok:false,error:'Feedback request too large.'},413);

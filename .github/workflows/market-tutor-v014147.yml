@@ -1,0 +1,44 @@
+name: Market Tutor Trust, Member History and Owner Feedback v0.14.0.147
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-party-tutor-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Legacy Tutor source/consent/quality and D07 authenticated boundaries
+        run: |
+          node tests/test_v014092_market_tutor_contract.mjs
+          node tests/test_v014093_tutor_practice.mjs
+          node tests/test_v014095_training_tutor_integration.mjs
+          node tests/test_v014100_free_competency_tutor.mjs
+          node tests/test_v014102_member_tutor_history.mjs
+          node tests/test_v014102_tutor_ai_consent.mjs
+          node tests/test_v014105_reviewed_knowledge_bridge.mjs
+          node tests/test_v014107_tutor_quality.mjs
+          node tests/test_v014147_tutor_boundary.mjs
+          node tests/test_v014147_tutor_history_idempotency.mjs
+          node tests/test_v014147_owner_tutor_feedback.mjs
+          node --check assets/js/market-tutor.js
+          node --check assets/js/admin-tutor-feedback-v014147.js
+          node --check functions/api/market-tutor-v01492.js
+          node --check functions/api/owner-tutor-feedback.js
+          node --check functions/api/member-tutor-history-v014102.js
+          node --check functions/_lib/tutor-request-boundary-v014147.js
+          node --check functions/_lib/tutor-history-save-v014107.js
+          node --check functions/_lib/tutor-provider-v014107.js
+          bash scripts/build-pages.sh
+          test -f public/assets/js/admin-tutor-feedback-v014147.js
+          test ! -d public/functions
+          test ! -d public/supabase
