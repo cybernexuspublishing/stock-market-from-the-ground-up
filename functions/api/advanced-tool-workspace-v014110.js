@@ -62,7 +62,7 @@ export async function onRequest({request,env}){
    const expected=body.expectedUpdatedAt;
    if(type!=='watchlist'||!safeId(id)||
       typeof expected!=='string'||expected.length>60||
-      !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(expected)||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(expected)||
       !Number.isFinite(Date.parse(expected)))
     throw fail('Valid existing watchlist ID and revision required.');
    const query=base+'?id=eq.'+id+'&'+identity+
