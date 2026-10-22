@@ -7,7 +7,7 @@ const H={'content-type':'application/json; charset=utf-8',
  'cache-control':'private, no-store, max-age=0','vary':'Authorization',
  'x-content-type-options':'nosniff','x-robots-tag':'noindex'};
 const out=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function onRequest({request,env}){
  try{
   if(request.method!=='GET')return out({ok:false,error:'Read-only GET required.'},405);

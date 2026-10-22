@@ -46,7 +46,7 @@ try{
  assert.equal(recordedTopic,'other');assert.equal(gapWrites,1);
  let r=await oldFeedback({env,request:get('owner-tutor-feedback')});
  assert.equal(r.status,200);let d=await r.json();
- assert.equal(d.reports.length,1);assert(!JSON.stringify(d).includes(uid));
+ assert.equal(d.reports.length,1);assert.equal(d.reports[0].id,report);assert(!JSON.stringify(d).includes(uid));
  assert(!JSON.stringify(d).includes('private question'));
  r=await caseEndpoint({env,request:get('owner-tutor-case?ids='+report)});
  assert.equal(r.status,200);d=await r.json();

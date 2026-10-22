@@ -5,7 +5,7 @@ import {ownerTutorAccess,ownerTutorDb} from '../_lib/owner-tutor-access-v014149.
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',
  'vary':'Authorization','x-content-type-options':'nosniff','x-robots-tag':'noindex'};
 const out=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:H});
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const STATUSES=new Set(['open','investigating','resolved','dismissed']);
 const RESOLUTIONS=new Set(['source_corrected','instruction_clarified','not_reproducible','out_of_scope']);
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
