@@ -17,6 +17,7 @@ import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
+import {recordTutorGap} from '../_lib/tutor-gaps-v014149.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -205,6 +206,8 @@ export async function onRequest({request,env}){
   // deeper procedures, limits and invalidation in the original 30 guides.
   const source=rank(expanded),sources=publicMatches(source);
   const guideMatches=advice?[]:await originalGuides(env,request,expanded);
+  // Only aggregate enumerated curriculum topic tags; never save the question.
+  if(!advice&&!guideMatches.length&&!source.length)await recordTutorGap(env,q);
   safeTutorMetric('retrieval',{reason:guideMatches.length?'guide_and_glossary':'glossary_only',
    sourceCount:guideMatches.length||sources.length});
   if(advice)return finish({ok:true,generation:'reviewed-glossary-logic',
