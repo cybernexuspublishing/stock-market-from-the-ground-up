@@ -8,7 +8,7 @@ const H={'content-type':'application/json; charset=utf-8','cache-control':'priva
 const out=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:H});
 const UID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MODES=new Set(['explain','question','review','practice']);
-const TYPES=new Set(['reviewed-glossary-logic','original-competency-guide','authenticated-practice-history','grounded-model-draft','public-companion-glossary']);
+const TYPES=new Set(['reviewed-glossary-logic','original-competency-guide','authenticated-practice-history','grounded-model-draft','public-companion-glossary','deterministic-position-math']);
 function settings(env){
  const url=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const key=String(env.SUPABASE_SECRET_KEY||'');
