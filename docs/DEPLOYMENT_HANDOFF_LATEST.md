@@ -1,3 +1,44 @@
+# Deployment 10 of 18 — Market Data and Trading Tools | Permanent Handoff
+
+**Project:** The Stock Market: From the Ground Up (single book + website project)  
+**Date:** 2026-10-22  
+**Status:** DEVELOPMENT IN PROGRESS / PRODUCTION NOT ACCEPTED  
+**Source target:** v0.14.0.150 (not yet deployed or merged)  
+**Base:** main v0.14.0.149 postflight at `3ab646eb5651101ae3bc994e32fbd496a36b8aba`  
+**Branch:** `deployment-10-of-18-market-data-v014150`
+
+## D09 source-release inheritance
+- D09 source PR #123 merged as `e6df00b158d3dff7c2cac0bb026a2fac42fa613b` after 39/39 check runs and 36/36 workflows passed; corrected manifest/handoff at `3ab646eb5651101ae3bc994e32fbd496a36b8aba`.
+- Owner-reported Supabase v149 and v149b already installed and structurally verified; **do not reapply**.
+- Live Cloudflare SHA, member A/B and Showcase isolation, Owner editorial review and Workers AI free/cost permissions remain unverified. AI inference stays OFF. Stripe LIVE settings owner-locked and unchanged.
+
+## D10 source implementation and relevant existing platform
+- Reuse existing `/api/marketdata`, BYO Tiingo token encryption, member-only market research CSV scanner and workbenches, watchlists, Journal, server-owned verified replay, simulator and existing entitlement architecture.
+- New `functions/_lib/market-data-integrity-v014150.js`: validates timezone-explicit timestamp inputs, real calendar dates, strictly increasing unique timestamps, New York trading-date coverage across UTC midnight/DST, full OHLCV presence, candle bounds and whole-share volume. No fabricated missing bars or synthetic observations.
+- Member-scoped BYO `/api/marketdata?action=bars` now uses that validator. Returns explicit unverified source-data properties: venue consolidation, completeness, corporate actions, redistribution/publication rights and official replay eligibility are **not** certified.
+- New deterministic regression `tests/test_v014150_market_data_integrity.mjs` is added to the existing v145 market-rights workflow. No live upstream calls are required by this test.
+- Uploaded StocksToTrade Browser Research archive consulted for educational pattern, indicator and watchlist design; research statements are not licensed member-data feeds, and no archived browser sessions, credentials or private profiles are published.
+- Planned 10.2–10.10 work remains: expanded supported scanner criteria, private watchlist lifecycle, indicator and session math, educational pattern evidence, licensed Level II/Time & Sales restrictions, approved replay chronology and simulator/journal acceptance. Existing source features must be verified before reimplementation.
+
+## D10 acceptance and owner actions
+| Gate | State |
+| --- | --- |
+| First new historical OHLCV validation source | Submitted on D10 branch; CI pending |
+| Exact-head GitHub source CI | PENDING |
+| Database changes required by this initial change | NONE |
+| Cloudflare environment changes required by this initial change | NONE |
+| New paid market feed or inference | NONE |
+| Live provider data license and provider plan | NOT VERIFIED; no redistribution |
+| Real published historical dataset | NOT VERIFIED |
+| Protected member A/B, TEST/Showcase acceptance | NOT VERIFIED |
+| 419 individually accepted Labs | NOT VERIFIED |
+| 30 individually accepted Bootcamp days | NOT VERIFIED |
+| D10 production accepted | NO |
+
+**Owner action now:** None for this initial source-only increment. Existing optional private BYO provider tokens and Supabase objects are left untouched. Future proposals must document exact rights and any non-destructive SQL separately.
+
+## D09 historical source handoff retained verbatim below
+
 # Deployment 09 of 18 — Market Tutor AI | Permanent Handoff
 
 **Project:** The Stock Market: From the Ground Up (one unified project: books and website)  

@@ -1,4 +1,5 @@
 import {toolAccess} from './member-tool-access.js';
+import {validateHistoricalOhlcv} from '../_lib/market-data-integrity-v014150.js';
 const J={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};const out=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:J});const clean=v=>String(v??'').trim();
 function cfg(env){const url=clean(env.SUPABASE_URL).replace(/\/$/,'');const pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);if(!url||!pub||!secret)throw new Error('Supabase server environment is incomplete.');return{url,pub,secret}}
 async function jsonFetch(url,opts={}){const r=await fetch(url,opts),t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch{d={raw:t}}if(!r.ok)throw Object.assign(new Error(d.message||d.detail||d.error||t||`HTTP ${r.status}`),{status:r.status});return d}
@@ -44,16 +45,7 @@ async function tiingoBars(token,q){const ticker=clean(q.ticker).toUpperCase();if
  }catch(e){
   if(e.status===503)throw e;
   throw Object.assign(new Error('BYO provider response could not be verified.'),{status:503});
- }finally{clearTimeout(timer)}if(!Array.isArray(rows)||rows.length>20000)throw Object.assign(new Error('Provider returned too much or invalid market data.'),{status:413});return rows.map(x=>{
- const values=[x.open,x.high,x.low,x.close,x.volume??0].map(Number);
- const ts=Date.parse(x.date);
- if(!Number.isFinite(ts)||values.some(z=>!Number.isFinite(z))||
-  values.slice(0,4).some(z=>z<=0)||values[4]<0||
-  values[1]<Math.max(values[0],values[3])||
-  values[2]>Math.min(values[0],values[3])||values[2]>values[1])
-   throw Object.assign(new Error('Provider OHLCV is invalid. No historical values have been accepted.'),{status:503});
- return {timestamp:new Date(ts).toISOString(),open:values[0],high:values[1],low:values[2],close:values[3],volume:values[4]};
- })}
+ }finally{clearTimeout(timer)}return validateHistoricalOhlcv(rows,{startDate:start,endDate:end});}
 export async function onRequest(context){const {request,env}=context,u=new URL(request.url),action=clean(u.searchParams.get('action'));try{
  if(!['GET','POST'].includes(request.method))return out({error:'Method not allowed.'},405);
  if(request.method==='POST'){
@@ -70,7 +62,7 @@ export async function onRequest(context){const {request,env}=context,u=new URL(r
  const provider=clean(b?.provider);
  if(provider!=='TIINGO_BYO')return out({error:'This connection adapter is not active yet.'},400);const tok=clean(b.token);if(!/^[A-Za-z0-9_-]{8,512}$/.test(tok))return out({error:'A valid provider token is required.'},400);await tiingoTest(tok);const enc=await encrypt(env,tok);await rest(env,'user_market_data_connections?on_conflict=user_id,provider_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:{user_id:c.user.id,provider_code:provider,display_label:'Tiingo',credential_ciphertext:enc.cipher,credential_iv:enc.iv,status:'connected',last_tested_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()}});return out({ok:true,message:'Tiingo connection verified and encrypted.'})}if(action==='disconnect'&&request.method==='POST'){let b;try{const raw=await request.text();if(raw.length>8192)throw Error('size');b=JSON.parse(raw)}catch{throw Object.assign(new Error('Invalid provider disconnect request.'),{status:400})}
  const provider=clean(b?.provider);if(provider!=='TIINGO_BYO')return out({error:'Unsupported provider.'},400);
- await rest(env,`user_market_data_connections?user_id=eq.${encodeURIComponent(c.user.id)}&provider_code=eq.${encodeURIComponent(provider)}`,{method:'DELETE',prefer:'return=minimal'});return out({ok:true})}if(action==='bars'&&request.method==='GET'){const grant=await toolAccess(env,request,'MARKET_SIMULATOR');if(!grant.authorized)return out({error:grant.reason},403);const provider=clean(u.searchParams.get('provider')||'TIINGO_BYO'),conn=await getConn(env,c.user.id,provider);if(!conn||conn.status!=='connected')return out({error:'Connect the market-data provider first.'},403);const tok=await decrypt(env,conn.credential_ciphertext,conn.credential_iv);const bars=await tiingoBars(tok,Object.fromEntries(u.searchParams));return out({ok:true,provider,ticker:clean(u.searchParams.get('ticker')).toUpperCase(),bars,sourceNote:'PRIVATE BYO Tiingo response for requesting member ONLY; not a member-wide dataset, licensed publication feed, or validated consolidated market history. User verifies coverage, time zone, provider usage terms and corporate actions.'})}return out({error:'Unknown action.'},404)}catch(e){
+ await rest(env,`user_market_data_connections?user_id=eq.${encodeURIComponent(c.user.id)}&provider_code=eq.${encodeURIComponent(provider)}`,{method:'DELETE',prefer:'return=minimal'});return out({ok:true})}if(action==='bars'&&request.method==='GET'){const grant=await toolAccess(env,request,'MARKET_SIMULATOR');if(!grant.authorized)return out({error:grant.reason},403);const provider=clean(u.searchParams.get('provider')||'TIINGO_BYO'),conn=await getConn(env,c.user.id,provider);if(!conn||conn.status!=='connected')return out({error:'Connect the market-data provider first.'},403);const tok=await decrypt(env,conn.credential_ciphertext,conn.credential_iv);const bars=await tiingoBars(tok,Object.fromEntries(u.searchParams));return out({ok:true,provider,ticker:clean(u.searchParams.get('ticker')).toUpperCase(),bars,integrity:{strictlyChronological:true,timeZoneBasis:'America/New_York',firstTimestamp:bars[0]?.timestamp||null,lastTimestamp:bars.at(-1)?.timestamp||null,observations:bars.length,feedCompletenessVerified:false,corporateActionsVerified:false,consolidatedFeedVerified:false,licensedForMemberWidePublication:false,approvedForOfficialReplay:false},sourceNote:'PRIVATE BYO Tiingo response for requesting member ONLY. Timestamp and OHLCV shape were validated, NOT provider coverage, session completeness, venue consolidation, commercial usage rights or corporate actions. These all-at-once bars must NEVER be used to certify no-lookahead assessment replay.'})}return out({error:'Unknown action.'},404)}catch(e){
  const status=[400,401,403,405,413].includes(e.status)?e.status:503;
  const error=status===503?'Provider or market-data connection could not be verified. No market history is certified.':
  status===400||status===405||status===413?e.message:'Market-data access or provider authorization denied.';
