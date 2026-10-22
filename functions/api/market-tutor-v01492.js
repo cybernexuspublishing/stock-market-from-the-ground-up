@@ -18,6 +18,7 @@ import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
 import {recordTutorGap} from '../_lib/tutor-gaps-v014149.js';
+import {getApprovedLabContext,labGuidance} from '../_lib/tutor-lab-context-v014149.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -213,6 +214,18 @@ export async function onRequest({request,env}){
   if(advice)return finish({ok:true,generation:'reviewed-glossary-logic',
    answer:ADVICE_RESPONSE,sources:sources.slice(0,2),aiReason:'personal_advice_blocked',
    graded:false,masteryAwarded:false,notice:'Individual investment recommendations are not provided.'});
+  // Explicit Lab identifiers may access public canonical ID/skill metadata
+  // only. Never query unreviewed/private questions, future bars, or answer keys.
+  const labContext=await getApprovedLabContext(env,request,q).catch(()=>null);
+  if(labContext)return finish({
+   ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
+   answer:labGuidance(labContext,mode,answer),graded:false,masteryAwarded:false,
+   sources:[{id:labContext.labId,title:'Canonical Lab '+labContext.labId,
+    sourceLabel:'Public canonical Lab ID and competency crosswalk',
+    sourceId:'[1]',practiceUrl:labContext.practiceUrl}],
+   labContext,notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
+   links:{labs:labContext.practiceUrl,skills:'/skills.html',journal:'/journal.html'}
+  });
   if(guideMatches.length){
    const guide=guideMatches[0];
    const selectedGuides=guideMatches.slice(0,2);
