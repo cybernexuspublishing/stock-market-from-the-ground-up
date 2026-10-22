@@ -62,6 +62,11 @@ assert(client.includes('identityEpoch++')&&client.includes('abortController?.abo
 assert(client.includes('/api/market-tutor')&&client.includes('/api/member-tutor-history'),
  'stable public Tutor routes not in use');
 const supplemental=read('supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql');
+assert((supplemental.split('AS '+String.fromCharCode(36,36)).length-1)===3,
+ 'Each of the three v149b SQL function bodies must start with double-dollar quoting');
+assert((supplemental.split('END '+String.fromCharCode(36,36)+';').length-1)===3,
+ 'Each v149b SQL function must terminate with double-dollar quoting');
+
 assert(supplemental.includes('ENABLE ROW LEVEL SECURITY')&&
  supplemental.includes('gu_tutor_editorial_audit_v014149')&&
  supplemental.includes('gu_v014149_record_tutor_gap')&&
