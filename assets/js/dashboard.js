@@ -29,7 +29,7 @@ function activeEntitlements(rows) {
 }
 
 function statusLabel(status) {
-  if (status === 'completed') return 'Completed';
+  if (status === 'completed') return 'Self-tracked complete · not graded';
   if (status === 'in_progress') return 'In progress';
   return 'Not started';
 }
@@ -126,7 +126,7 @@ async function initDashboard() {
       bar.style.width = `${p}%`;
       bar.setAttribute('aria-valuenow', String(p));
     }
-    setText(`book-${book}-label`, `${done} of ${bookLabs.length} completed (${p}%)`);
+    setText(`book-${book}-label`, `${done} of ${bookLabs.length} self-tracked complete (${p}%)`);
     setText(`book-${book}-counts`, `${working} in progress · ${waiting} not started`);
   });
 
@@ -145,9 +145,9 @@ async function initDashboard() {
     setText('next-lab-market', `${nextLab.ticker || '—'} · ${nextLab.date || '—'} · ${nextLab.timeframe || 'See book'}`);
   } else {
     next.removeAttribute('href');
-    next.textContent = 'All current labs complete';
+    next.textContent = 'All current labs self-tracked complete';
     setText('next-lab-id', 'Complete');
-    setText('next-lab-concept', 'All current Foundations labs are marked complete.');
+    setText('next-lab-concept', 'All current Foundations labs are marked complete by you; assessed mastery is separate.');
     setText('next-lab-location', 'Use the registry to review completed work.');
     setText('next-lab-market', '');
   }
