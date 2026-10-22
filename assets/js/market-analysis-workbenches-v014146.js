@@ -116,7 +116,7 @@
   if(!c.alive())throw Error('Member session changed.');
   const before=c.user?.id,token=(await c.getSession()).data?.session;
   if(!token?.access_token||token.user?.id!==before)throw Error('Member session changed.');
-  const r=await fetch('/api/advanced-journal-insights-v014146?action='+action,{
+  const r=await fetch('/api/advanced-journal-insights?action='+action,{
    cache:'no-store',headers:{authorization:'Bearer '+token.access_token}});
   const body=await r.json().catch(()=>null);
   const current=(await c.SB.auth.getUser()).data?.user;
