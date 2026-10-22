@@ -38,7 +38,7 @@ export async function saveVerifiedTutorExchange(env,userId,record){
   // D07: the existing SQL RPC is request-ID idempotent. Do not report that a
   // DIFFERENT answer was saved if the same request ID was accidentally reused
   // by a retry with changed text. Verify the actual persisted row.
-  const check=await fetch(url+'/rest/v1/gu_member_tutor_exchanges_v014102?select=question,learner_answer,mode,answer,generation,conversation_id'+
+  const check=await fetch(url+'/rest/v1/gu_member_tutor_exchanges_v014102?select=question,learner_answer,mode,answer,generation'+(conversation?',conversation_id':'')+
     '&user_id=eq.'+encodeURIComponent(userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1',
    {method:'GET',cache:'no-store',headers:headersFor(key)});
   if(!check.ok)return null;
