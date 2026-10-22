@@ -170,6 +170,7 @@ function renderConversationList(){
  for(const key of ['tutor-conversation-rename','tutor-conversation-delete'])
   $(key).disabled=!TUTOR.user||!TUTOR.activeConversationId;
  $('tutor-conversation-new').disabled=!TUTOR.user;
+ $('tutor-export-all').disabled=!TUTOR.user;
 }
 async function refreshConversations(){
  const user=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch;
@@ -203,6 +204,26 @@ async function selectTutorConversation(id){
   TUTOR.entries=[];renderConversation();
   historyStatus(e.message+' No records from another conversation are displayed.');
  }
+}
+async function exportAllPrivateTutorNotes(){
+ if(!TUTOR.user){historyStatus('Sign in to export your saved Tutor notes.');return}
+ const user=TUTOR.user.id,epoch=TUTOR.identityEpoch;
+ try{
+  const access=await token();if(!access)throw Error('Your session expired. Sign in again.');
+  const response=await fetch('/api/member-tutor-export',{cache:'no-store',
+   headers:{authorization:'Bearer '+access}});
+  const data=await response.json().catch(()=>null);
+  if(!response.ok||!data?.ok)throw Error(data?.error||'Private export is unavailable.');
+  if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==user)
+   throw Error('Account changed before the private export could complete.');
+  const file=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const blobUrl=URL.createObjectURL(file);
+  const link=document.createElement('a');link.href=blobUrl;
+  link.download='market-tutor-private-notes-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(blobUrl),1000);
+  historyStatus('Your private Tutor notes were exported locally. Keep the file in a secure location; it includes your own questions and reflections.');
+ }catch(e){historyStatus(e.message)}
 }
 async function createTutorConversation(){
  if(!TUTOR.user)return;
@@ -421,6 +442,7 @@ async function initTutor(){
   updateCount();$('tutor-question').focus();
  });
  $('tutor-export').addEventListener('click',exportConversation);
+ $('tutor-export-all').addEventListener('click',()=>void exportAllPrivateTutorNotes());
  $('tutor-clear-view').addEventListener('click',()=>{
   TUTOR.entries=[];renderConversation();status('Displayed conversation cleared. Previously saved notes remain on the server unless deleted.');
  });
