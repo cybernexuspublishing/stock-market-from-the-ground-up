@@ -52,7 +52,7 @@ SELECT 'D08_FINAL_READ_ONLY_PREFLIGHT' AS report_code,
  (SELECT jsonb_agg(jsonb_build_object(
   'category',category,'relation',qualified,'mandatory',mandatory,
   'present',oid IS NOT NULL,
-  'rls',CASE WHEN oid IS NULL THEN NULL ELSE (SELECT c.relrowsecurity FROM pg_class c WHERE c.oid=oid) END,
+  'rls',CASE WHEN oid IS NULL THEN NULL ELSE (SELECT c.relrowsecurity FROM pg_class c WHERE c.oid=table_state.oid) END,
   'anon_select',CASE WHEN oid IS NULL THEN NULL ELSE has_table_privilege('anon',oid,'SELECT') END,
   'authenticated_select',CASE WHEN oid IS NULL THEN NULL ELSE has_table_privilege('authenticated',oid,'SELECT') END,
   'service_select',CASE WHEN oid IS NULL THEN NULL ELSE has_table_privilege('service_role',oid,'SELECT') END

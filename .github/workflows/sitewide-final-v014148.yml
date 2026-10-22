@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: '22'
       - name: Original route regression reconciled to existing production architecture
-        run: node tests/v0144_route_contracts.mjs
+        run: |
+          node tests/v0144_route_contracts.mjs
+          node tests/test_v014148_d08_sql_correlated_oid.mjs
       - name: No-charge source and member-level safety regressions
         run: |
           node tests/test_v014110_advanced_tool_access_and_workspace.mjs
