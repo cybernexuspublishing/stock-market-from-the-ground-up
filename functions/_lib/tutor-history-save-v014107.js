@@ -21,13 +21,16 @@ export async function saveVerifiedTutorExchange(env,userId,record){
  answer.length<1||answer.length>4500||reasoning.length>1800||
  !['grounded-model-draft','original-competency-guide','reviewed-glossary-logic','authenticated-practice-history','deterministic-position-math'].includes(generation))
   return null;
+ const conversation=typeof record.conversationId==='string'&&uuid.test(record.conversationId)?record.conversationId:null;
  const sourceTitles=(Array.isArray(record.sources)?record.sources:[]).slice(0,3)
   .map(x=>String(x?.title||'').trim().slice(0,120)).filter(Boolean);
  const data={p_user_id:userId,p_request_id:requestId,p_question:question,
   p_learner_answer:reasoning,p_mode:mode,p_answer:answer,
   p_generation:'verified:'+generation,p_source_titles:sourceTitles};
  try{
-  const response=await fetch(url+'/rest/v1/rpc/gu_v014102_save_member_tutor_exchange',{
+  const rpc=conversation?'gu_v014149_save_tutor_conversation_exchange':'gu_v014102_save_member_tutor_exchange';
+  if(conversation)data.p_conversation_id=conversation;
+  const response=await fetch(url+'/rest/v1/rpc/'+rpc,{
    method:'POST',cache:'no-store',headers:headersFor(key),body:JSON.stringify(data)});
   if(!response.ok)return null;
   const id=await response.json();
@@ -35,13 +38,14 @@ export async function saveVerifiedTutorExchange(env,userId,record){
   // D07: the existing SQL RPC is request-ID idempotent. Do not report that a
   // DIFFERENT answer was saved if the same request ID was accidentally reused
   // by a retry with changed text. Verify the actual persisted row.
-  const check=await fetch(url+'/rest/v1/gu_member_tutor_exchanges_v014102?select=question,learner_answer,mode,answer,generation'+
-   '&user_id=eq.'+encodeURIComponent(userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1',
+  const check=await fetch(url+'/rest/v1/gu_member_tutor_exchanges_v014102?select=question,learner_answer,mode,answer,generation,conversation_id'+
+    '&user_id=eq.'+encodeURIComponent(userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1',
    {method:'GET',cache:'no-store',headers:headersFor(key)});
   if(!check.ok)return null;
   const rows=await check.json().catch(()=>null);
   const saved=Array.isArray(rows)&&rows.length===1?rows[0]:null;
   return saved&&saved.question===question&&saved.learner_answer===reasoning&&
-    saved.mode===mode&&saved.answer===answer&&saved.generation==='verified:'+generation?id:null;
+    saved.mode===mode&&saved.answer===answer&&saved.generation==='verified:'+generation&&
+    (!conversation||saved.conversation_id===conversation)?id:null;
  }catch{return null}
 }
