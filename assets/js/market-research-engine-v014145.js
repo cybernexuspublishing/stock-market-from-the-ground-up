@@ -45,7 +45,7 @@
    return Object.fromEntries(headers.map((h,j)=>[h,values[j].trim()]));
   });
  }
- const defaults=Object.freeze({maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3});
+ const defaults=Object.freeze({minPrice:null,maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3,minGap:null,maxMarketCap:null,minDollarVolume:null});
  function filters(input={}){
   if(!input||typeof input!=='object')throw fail('Invalid filters.');
   const out={};
@@ -70,12 +70,21 @@
    const x={
     symbol:ticker,price:number(row.price),change:number(row.change_pct),
     volume:number(row.volume),rvol:number(row.rvol),float:number(row.float),
-    spread:number(row.spread_pct),gap:number(row.gap_pct)
+    spread:number(row.spread_pct),gap:number(row.gap_pct),
+    marketCap:number(row.market_cap)
    };
    if(x.price===null||x.price<=0||x.volume===null||x.volume<0||
       x.rvol===null||x.rvol<0||x.float===null||x.float<=0||
       x.spread===null||x.spread<0||x.change===null){reasons.missingMetric++;continue}
-   if((f.maxPrice!==null&&x.price>f.maxPrice)||
+   x.dollarVolume=x.price*x.volume; // Research-only price × reported volume proxy, not verified tape turnover.
+   if((f.minGap!==null&&x.gap===null)||
+      (f.maxMarketCap!==null&&(x.marketCap===null||x.marketCap<=0))||
+      (f.minDollarVolume!==null&&!Number.isFinite(x.dollarVolume))){reasons.missingMetric++;continue}
+   if((f.minPrice!==null&&x.price<f.minPrice)||
+      (f.minGap!==null&&x.gap<f.minGap)||
+      (f.maxMarketCap!==null&&x.marketCap>f.maxMarketCap)||
+      (f.minDollarVolume!==null&&x.dollarVolume<f.minDollarVolume)||
+      (f.maxPrice!==null&&x.price>f.maxPrice)||
       (f.minChange!==null&&x.change<f.minChange)||
       (f.minVol!==null&&x.volume<f.minVol)||
       (f.minRvol!==null&&x.rvol<f.minRvol)||

@@ -151,12 +151,16 @@
     '<div class="v11-form-grid">'+
     '<div><label for="u-source">Source / permission note (required)</label><input id="u-source" type="text" maxlength="180" placeholder="Your authorized provider or source"></div>'+
     '<div><label for="u-time">Source observation time incl. zone (ISO 8601, required)</label><input id="u-time" type="text" placeholder="2026-10-21T13:00:00-04:00"></div>'+
+    '<div><label for="u-minprice">Min price (USD, optional)</label><input id="u-minprice" type="number" min="0" step="any" placeholder="No minimum"></div>'+ 
     '<div><label for="u-maxprice">Max price (USD)</label><input id="u-maxprice" type="number" min="0" step="any" value="20"></div>'+
     '<div><label for="u-change">Min % change</label><input id="u-change" type="number" step="any" value="10"></div>'+
     '<div><label for="u-vol">Min shares traded</label><input id="u-vol" type="number" min="0" step="1" value="1000000"></div>'+
     '<div><label for="u-rvol">Min RVOL (provided; not independently computed)</label><input id="u-rvol" type="number" min="0" step="any" value="2"></div>'+
     '<div><label for="u-float">Max reported float (shares, source dated separately)</label><input id="u-float" type="number" min="0" step="1" value="15000000"></div>'+
-    '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div></div>'+
+    '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div>'+ 
+    '<div><label for="u-mingap">Min reported gap % (optional; CSV gap_pct)</label><input id="u-mingap" type="number" min="0" step="any" placeholder="No gap threshold"></div>'+ 
+    '<div><label for="u-maxmcap">Max reported market cap USD (optional; CSV market_cap)</label><input id="u-maxmcap" type="number" min="0" step="any" placeholder="Not required"></div>'+ 
+    '<div><label for="u-mindollarvol">Min price × shares proxy USD (optional)</label><input id="u-mindollarvol" type="number" min="0" step="any" placeholder="Not required"></div></div>'+
     '<div class="actions"><button type="button" id="u-run" class="btn">'+(scannerOnly?'Screen snapshot':'Filter snapshot')+'</button>'+
     '<button type="button" id="u-save" class="btn secondary">Save Filter Set</button></div>'+
     '<p id="u-audit" role="status" aria-live="polite"></p><div id="u-results"></div>')+
@@ -172,12 +176,16 @@
    }catch(e){rows=[];document.getElementById('u-results').replaceChildren();status(e.message,'error')}
   };
   const getFilters=()=>({
+   minPrice:document.getElementById('u-minprice').value,
    maxPrice:document.getElementById('u-maxprice').value,
    minChange:document.getElementById('u-change').value,
    minVol:document.getElementById('u-vol').value,
    minRvol:document.getElementById('u-rvol').value,
    maxFloat:document.getElementById('u-float').value,
-   maxSpread:document.getElementById('u-spread').value
+   maxSpread:document.getElementById('u-spread').value,
+   minGap:document.getElementById('u-mingap').value,
+   maxMarketCap:document.getElementById('u-maxmcap').value,
+   minDollarVolume:document.getElementById('u-mindollarvol').value
   });
   const provenance=()=>{
    const label=document.getElementById('u-source').value.trim();
@@ -204,14 +212,14 @@
     caption.textContent='Unverified user-supplied snapshot; top 100 matching candidates, not investment recommendations.';
     table.append(caption);
     const head=document.createElement('thead'),tr=document.createElement('tr');
-    for(const text of ['Symbol','Price','% change','Volume','RVOL','Reported float','Spread %']){
+    for(const text of ['Symbol','Price','% change','Volume','RVOL','Reported float','Spread %','Gap % (supplied)','Market cap USD (supplied)','Price × volume proxy']){
      const th=document.createElement('th');th.textContent=text;th.scope='col';tr.append(th);
     }
     head.append(tr);table.append(head);
     const body=document.createElement('tbody');
     for(const row of result.rows){
      const r=document.createElement('tr');
-     for(const value of [row.symbol,row.price,row.change,row.volume.toLocaleString(),row.rvol,row.float.toLocaleString(),row.spread]){
+     for(const value of [row.symbol,row.price,row.change,row.volume.toLocaleString(),row.rvol,row.float.toLocaleString(),row.spread,row.gap??'Not supplied',row.marketCap??'Not supplied',Math.round(row.dollarVolume).toLocaleString()]){
       const cell=document.createElement('td');cell.textContent=String(value);r.append(cell);
      }
      body.append(r);
