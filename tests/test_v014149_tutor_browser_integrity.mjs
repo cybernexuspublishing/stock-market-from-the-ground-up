@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const js=readFileSync('assets/js/market-tutor.js','utf8');
 const html=readFileSync('market-tutor.html','utf8');
-assert.equal((js.match(/else void initTutor\(\);/g)||[]).length,1,
+assert.equal(js.split('else void initTutor();').length-1,1,
  'One browser entry point only, no duplicated appended script');
 assert.equal((js.match(/async function calculateHypotheticalPosition\(\)/g)||[]).length,1,
  'Risk calculator handler must be complete and unique');
