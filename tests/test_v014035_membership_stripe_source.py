@@ -3,7 +3,7 @@ from pathlib import Path
 import json,subprocess
 root=Path(__file__).resolve().parents[1];rd=lambda s:(root/s).read_text(encoding='utf-8')
 version=json.loads(rd('release-manifest.json'))['version']
-cache_version='014'+version.split('.')[-1].zfill(3)
+cache_version=version.replace('.','')
 sql=rd('supabase/migrations/v0.14.0.35_MEMBERSHIP_BOOK_RIGHTS_REVIEW_REQUIRED.sql')
 assert f"VERSION: '{version}'" in rd('config.js')
 assert f"version:'{version}'" in rd('assets/js/route-policy.js')
