@@ -6,6 +6,7 @@
  * self-hosted or company-trained language model.
  */
 import {toolAccess} from './member-tool-access.js';
+import {rankApprovedTutorTopics} from '../_lib/tutor-retrieval-v014149.js';
 import {tutorTopicsV01492} from '../_lib/tutor-topics-v01492.js';
 import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-v014100.js';
 import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js';
@@ -22,15 +23,7 @@ const clean=s=>String(s??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim();
 const tokenize=s=>clean(s).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(x=>x.length>2);
 const safeLink=topic=>'/labs.html?q='+encodeURIComponent(topic.labQuery||topic.title);
 const ADVICE_RESPONSE='I can help evaluate risk, evidence, position sizing and decision processes, but cannot select a security or entry for you. Start with a written plan and the Risk & Position Sizing Laboratory.';
-function rank(q){
- const words=[...new Set(tokenize(q))].filter(x=>!['what','when','that','this','about','explain','please','would','could','should','mean','tell','teach','learning','practice'].includes(x));
- return tutorTopicsV01492.map(t=>{
-   const title=t.title.toLowerCase(),alias=(t.aliases||[]).join(' ').toLowerCase(),related=(t.related||[]).join(' ').toLowerCase(),summary=t.summary.toLowerCase();
-   const score=words.reduce((n,w)=>n+(title.includes(w)?6:0)+(alias.includes(w)?4:0)+(related.includes(w)?2:0)+(summary.includes(w)?1:0),0)
-    +((t.aliases||[]).some(a=>a.length>2&&q.toLowerCase().includes(a.toLowerCase()))?9:0);
-   return {t,score};
- }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.t.id.localeCompare(b.t.id)).slice(0,3).map(x=>x.t);
-}
+function rank(q){return rankApprovedTutorTopics(q,tutorTopicsV01492,3);}
 function publicMatches(items){
  return items.map((t,i)=>({id:t.id,title:t.title,summary:t.summary,sourceLabel:'Companion glossary: '+t.title,
   sourceId:'['+(i+1)+']',related:Array.isArray(t.related)?t.related.slice(0,6):[],
