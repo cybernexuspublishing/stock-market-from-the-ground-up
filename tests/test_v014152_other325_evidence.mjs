@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+execFileSync(process.execPath,['scripts/curriculum-acceptance-evidence.mjs'],{stdio:'pipe'});
+execFileSync(process.execPath,['scripts/d12-other325-evidence.mjs'],{stdio:'pipe'});
+const data=JSON.parse(readFileSync('artifacts/d12-other325-acceptance.json','utf8'));
+assert.equal(data.total,325);
+assert.equal(data.rows.length,325);
+assert.deepEqual(data.groups,{DAY_TRADING_BOOK_1:150,READING_THE_TAPE:75,SITE_EXCLUSIVE:100});
+assert.equal(new Set(data.rows.map(x=>x.id)).size,325);
+assert(data.rows.every(x=>x.title&&x.competencies.length>0));
+assert(data.rows.every(x=>x.missingCriteria.includes('production')));
+assert(data.rows.every(x=>x.productionVerified===false&&x.privateInstructionVerified===false));
+assert.equal(data.productionAccepted,false);
+assert.equal(data.privateDatabaseRowsRead,false);
+assert.equal(readFileSync('artifacts/d12-other325-acceptance.csv','utf8').trim().split('\n').length,326);
+console.log('PASS D12 individual 325-Lab inventory and no premature editorial, license or production acceptance');
