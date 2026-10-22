@@ -46,6 +46,21 @@ export async function onRequest({request,env}){
       (!x.expires_at||Date.parse(x.expires_at)>Date.now()))||
      !roles.rows.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))
    throw fail('Owner-only Tutor feedback review.',403);
+  if(new URL(request.url).searchParams.get('view')==='unanswered'){
+   // Fixed, monthly aggregate topic taxonomy; no question text, user IDs,
+   // session metadata or transcript content are stored or returned.
+   const categories=new Set(['charting','risk','market_structure','order_flow','learning_platform','other']);
+   const modes=new Set(['explain','question','review','practice']);
+   const aggregate=await query(c,'gu_tutor_gap_aggregate_v014149?select=month_utc,topic_code,question_mode,total'+
+    '&order=month_utc.desc,topic_code.asc&limit=72');
+   if(aggregate.rows.length>72)throw fail('Gap aggregate result too large.',503);
+   const counts=aggregate.rows.filter(x=>categories.has(x.topic_code)&&modes.has(x.question_mode)&&
+    /^\\d{4}-\\d{2}-01$/.test(x.month_utc)&&Number.isSafeInteger(x.total)&&x.total>=0&&x.total<=1000000)
+    .map(x=>({month:x.month_utc,category:x.topic_code,mode:x.question_mode,unansweredCount:x.total}));
+   if(counts.length!==aggregate.rows.length)throw fail('Unverified aggregate data.',503);
+   return out({ok:true,status:'PRIVACY_MINIMIZED_UNANSWERED_AGGREGATES',counts,
+    notice:'Fixed category counters only. No member or prompt details; aggregate counts do not establish source defects or individual pedagogical quality.'});
+  }
   // A report by a member is NOT independently proof of a Tutor defect.
   // Pagination is bounded. Never expose the member UUID or full transcript.
   const page=Number(new URL(request.url).searchParams.get('page')||1);
