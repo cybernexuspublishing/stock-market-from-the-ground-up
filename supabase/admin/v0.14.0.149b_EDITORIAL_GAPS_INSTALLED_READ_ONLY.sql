@@ -20,5 +20,7 @@ SELECT
   AS owner_review_rpc_installed,
  to_regprocedure('public.gu_v014149_record_tutor_gap(text)') IS NOT NULL
   AS anonymous_topic_gap_rpc_installed,
+ to_regprocedure('public.gu_v014149_delete_tutor_member_data(uuid)') IS NOT NULL
+  AS member_data_deletion_rpc_installed,
  'SCHEMA_ONLY_NOT_RUNTIME_ACCEPTANCE' AS evidence_scope
 FROM details;
