@@ -17,7 +17,8 @@ const targets=[
  'tests/test_v014147_owner_tutor_feedback.mjs',
  'tests/test_v014149_tutor_provider_and_math.mjs',
  'tests/test_v014149_tutor_conversations.mjs',
- 'tests/test_v014149_tutor_unanswered.mjs'
+ 'tests/test_v014149_tutor_unanswered.mjs',
+ 'tests/test_v014149_tutor_portability.mjs'
 ];
 const checks=[
  ...targets.map(p=>({id:p,args:[p]})),
@@ -28,6 +29,8 @@ const checks=[
       'functions/api/member-tutor-conversations.js',
       'functions/_lib/tutor-gap-tracking-v014149.js',
       'functions/api/owner-tutor-feedback.js',
+      'functions/api/member-tutor-export.js',
+      'assets/js/lab-player.js',
       'assets/js/admin-tutor-feedback-v014147.js',
       'functions/_lib/tutor-request-boundary-v014147.js',
       'functions/_lib/tutor-history-save-v014107.js',
