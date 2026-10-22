@@ -9,7 +9,19 @@
 <p id="tutor-ai-availability" role="status" aria-live="polite">Checking your paid AI access and available quota…</p>
 <p class="small" id="tutor-ai-remaining">Source-grounded instruction is available independently of paid AI inference.</p>
 <a class="btn secondary" href="store-tool-market-tutor.html">View Market Tutor product and membership coverage</a>
-</section><div class="tutor-actions"><a class="btn secondary" href="labs.html">Historical Labs</a><a class="btn secondary" href="simulator.html">Market Simulator</a><a class="btn secondary" href="journal.html">Trading Journal</a><a class="btn secondary" href="skills.html">Market Skills Record</a></div><section class="tutor-history" aria-labelledby="tutor-history-title">
+</section><div class="tutor-actions"><a class="btn secondary" href="labs.html">Historical Labs</a><a class="btn secondary" href="simulator.html">Market Simulator</a><a class="btn secondary" href="journal.html">Trading Journal</a><a class="btn secondary" href="skills.html">Market Skills Record</a></div><section class="tutor-history" aria-labelledby="tutor-conversations-title">
+<h3 id="tutor-conversations-title">Your private conversations</h3>
+<label for="tutor-conversation-select">Selected conversation</label>
+<select id="tutor-conversation-select" aria-describedby="tutor-conversation-state"><option value="">All saved exchanges</option></select>
+<p id="tutor-conversation-state" class="small" role="status" aria-live="polite">Sign in to see saved conversations. Existing ungrouped exchanges remain accessible.</p>
+<div class="tutor-actions">
+<button id="tutor-conversation-new" class="btn secondary" type="button">New conversation</button>
+<button id="tutor-conversation-rename" class="btn secondary" type="button">Rename</button>
+<button id="tutor-conversation-delete" class="btn secondary" type="button">Delete conversation</button>
+<button id="tutor-conversation-refresh" class="btn secondary" type="button">Refresh conversations</button>
+</div>
+<p class="small">Private multi-conversation storage requires the Owner-reviewed v0.14.0.149 Supabase migration. Conversation names and replies are protected by your member account. Deleting a conversation permanently deletes its saved exchanges, not Lab grades or Journal data.</p>
+</section><section class="tutor-history" aria-labelledby="tutor-history-title">
 <h3 id="tutor-history-title">Your saved Tutor exchanges</h3>
 <p id="tutor-history-state" class="small" role="status" aria-live="polite">Checking sign-in and saved history…</p>
 <div class="tutor-actions"><button id="tutor-load-history" type="button" class="btn secondary">Refresh saved history</button><button id="tutor-delete-history" type="button" class="btn secondary">Delete all saved Tutor notes</button></div>
