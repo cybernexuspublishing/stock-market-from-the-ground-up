@@ -207,8 +207,6 @@ export async function onRequest({request,env}){
   // deeper procedures, limits and invalidation in the original 30 guides.
   const source=rank(expanded),sources=publicMatches(source);
   const guideMatches=advice?[]:await originalGuides(env,request,expanded);
-  // Only aggregate enumerated curriculum topic tags; never save the question.
-  if(!advice&&!guideMatches.length&&!source.length)await recordTutorGap(env,q);
   safeTutorMetric('retrieval',{reason:guideMatches.length?'guide_and_glossary':'glossary_only',
    sourceCount:guideMatches.length||sources.length});
   if(advice)return finish({ok:true,generation:'reviewed-glossary-logic',
@@ -226,6 +224,8 @@ export async function onRequest({request,env}){
    labContext,notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
    links:{labs:labContext.practiceUrl,skills:'/skills.html',journal:'/journal.html'}
   });
+  // A valid canonical Lab ID is coverage, not an unanswered topic.
+  if(!guideMatches.length&&!source.length)await recordTutorGap(env,q);
   if(guideMatches.length){
    const guide=guideMatches[0];
    const selectedGuides=guideMatches.slice(0,2);
