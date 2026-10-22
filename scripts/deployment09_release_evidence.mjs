@@ -27,6 +27,9 @@ const paths=[
  'functions/_lib/tutor-lab-context-v014149.js',
  'functions/api/owner-tutor-case.js',
  'functions/api/owner-tutor-topic-gaps.js',
+ 'functions/api/member-tutor-data-delete.js',
+ 'tests/test_v014149_tutor_data_delete.mjs',
+ 'supabase/admin/v0.14.0.149b_EDITORIAL_GAPS_INSTALLED_READ_ONLY.sql',
  'supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql',
  'tests/test_v014149_tutor_editorial_and_gaps.mjs',
  'tests/test_v014149_tutor_lab_context.mjs',
@@ -57,7 +60,8 @@ assert(client.includes('/api/market-tutor')&&client.includes('/api/member-tutor-
 const supplemental=read('supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql');
 assert(supplemental.includes('ENABLE ROW LEVEL SECURITY')&&
  supplemental.includes('gu_tutor_editorial_audit_v014149')&&
- supplemental.includes('gu_v014149_record_tutor_gap'),
+ supplemental.includes('gu_v014149_record_tutor_gap')&&
+ supplemental.includes('gu_v014149_delete_tutor_member_data'),
  'Owner audit and no-PII topic gap SQL missing');
 assert(sql.includes('ENABLE ROW LEVEL SECURITY')&&sql.includes('REVOKE ALL')&&
  sql.includes('pg_advisory_xact_lock'),'private conversation schema safeguards missing');
