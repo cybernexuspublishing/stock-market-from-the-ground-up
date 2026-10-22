@@ -10,7 +10,7 @@
 **Source candidate:** v0.14.0.149, branch `deployment-09-of-18-market-tutor-v014149`  
 **Controlling main baseline when D09 began:** v0.14.0.148, commit `345c2c1280d83a62e989bdc11aaed542e783ff85`  
 **Current main and deployed Cloudflare commit:** Recheck directly at next chat; branch changes are NOT an accepted live deployment.  
-**Handoff status:** D09 implementation candidate. Pull request/CI/merge must be verified separately and recorded when available.  
+**Handoff status:** D09 implementation candidate. Draft PR #122; D09 source-only test suite completed SUCCESS at first branch review. D08 source gate found a brittle whitespace-sensitive static test against existing corrected and safe SQL; the test was repaired to match both correlated RLS OID checks independent of formatting. Re-run D08 PASS on corrected branch HEAD `a6e75a629671b2e8b4f839d06923b4fd846112cc`. Merge and live deployment remain unverified.  
 **Purpose:** Make the actual source and acceptance state retrievable by the next development conversation without relying on prior chat summaries.
 
 ## Prior delivery 01–08
@@ -30,6 +30,7 @@ Historical file: `docs/v0.14.0.148_DEPLOYMENT_08_OF_08_SITEWIDE_RELEASE_AND_ACCE
 - Extended validated generation label in original server-save / history allowlists.
 - Added `tests/test_v014149_tutor_provider_and_math.mjs` and `scripts/deployment09_verify.mjs`.
 - Added existing-framework CI workflow `.github/workflows/market-tutor-v014149.yml`.
+- Fixed an *existing false-positive test* `tests/test_v014148_d08_sql_correlated_oid.mjs`: check whitespace-tolerant PostgreSQL correlation across both RLS lookups without changing safe read-only SQL.
 - Documented protected user research ZIP intake without uploading private archives, vendor lesson transcripts or customer data.
 - Existing v102/v103/v107 installation required: no duplicate tables or migrations created.
 
@@ -38,7 +39,7 @@ Historical file: `docs/v0.14.0.148_DEPLOYMENT_08_OF_08_SITEWIDE_RELEASE_AND_ACCE
 | Acceptance category | Status at source proposal | Evidence / next action |
 |---|---|---|
 | Source implemented | PARTIAL | Defined D09 scope above; many 09.1–09.15 features outstanding |
-| Automated tests | PENDING | GitHub PR run + artifact `artifacts/d09-tutor-source-evidence.json` |
+| Automated tests | D09 CI PASSED on review; full GitHub check suite requires final head verification | D09 workflow run 39724421693 SUCCESS; D08 regression run 39724421619 SUCCESS after correcting static-test whitespace sensitivity |
 | Database installed | NOT CLAIMED | Existing v102, v103, v107 production RPCs require Owner-approved read-only checks |
 | Cloudflare deployed | NOT CLAIMED | Verify exact main commit after merge |
 | Functional tests | NOT VERIFIED | Signed-in member and Owner multi-role UX, history, error paths |
