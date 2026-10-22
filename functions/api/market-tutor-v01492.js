@@ -16,6 +16,7 @@ import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 import {deterministicTutorCalculation} from '../_lib/tutor-position-math-v014149.js';
+import {recordTutorGap} from '../_lib/tutor-gap-tracking-v014149.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -234,6 +235,9 @@ export async function onRequest({request,env}){
     notice:'Zero-cost original competency instruction. A self-check is not a graded Lab or independently reviewed historical observation.',
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
+  // No approved evidence exists: aggregate only a fixed curricular category.
+  // A missing/declined optional SQL installation never disables source teaching.
+  if(!source.length&&!guideMatches.length)await recordTutorGap(env,q,mode);
   const baseline=deterministic(q,mode,sources,answer);
   const model=await paidLearningDraft(env,body,auth.userId,q,mode,source,answer);
   const generation=model.text?'grounded-model-draft':'reviewed-glossary-logic';
