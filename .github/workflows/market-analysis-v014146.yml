@@ -27,7 +27,7 @@ jobs:
           node --check assets/js/market-analysis-engine-v014146.js
           node --check assets/js/market-analysis-workbenches-v014146.js
           node --check assets/js/advanced-tools.js
-          node --check functions/api/advanced-journal-insights-v014146.js
+          node --check functions/api/advanced-journal-insights.js
           bash scripts/build-pages.sh
           test -f public/assets/js/market-analysis-engine-v014146.js
           test -f public/assets/js/market-analysis-workbenches-v014146.js
