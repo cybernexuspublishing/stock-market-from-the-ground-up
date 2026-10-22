@@ -161,3 +161,6 @@
 
 ### D09 release metadata compatibility inherited on D10 (2026-10-22)
 The D09 main-source postflight at `d2a4641a043c0a79e6154ec53f030cc3523a8648` corrected production browser `config.js`, route-policy version and Service Worker public cache to v0.14.0.149. The D10 branch intentionally includes these identical fixes and records that main as a merge parent, preventing legacy source CI version mismatch without removing any tests. Cloudflare deployed exact SHA still unverified.
+
+### D09 commerce/browser display version fix inherited (2026-10-22)
+Merged corrected main postflight `2090c423d3f2501d56ce9316028e8235bce6306e`: commerce JSON version and Admin/Owner Roadmap HTML version labels now align to v149. D10 retains all earlier trading changes; previous source checks are not removed or weakened. No prices, live settings, Supabase or Cloudflare variables changed.
