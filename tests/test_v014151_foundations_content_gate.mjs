@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+execFileSync(process.execPath,['scripts/curriculum-acceptance-evidence.mjs'],{stdio:'pipe'});
+execFileSync(process.execPath,['scripts/d11-foundations-94-content-gaps.mjs'],{stdio:'pipe'});
+const report=JSON.parse(readFileSync('artifacts/d11-foundations-94-content-gaps.json','utf8'));
+assert.equal(report.total,94);
+assert.equal(report.labs.length,94);
+assert.equal(new Set(report.labs.map(l=>l.id)).size,94);
+assert.deepEqual(report.foundationsByBook,{FOUNDATION_BOOK_1:15,FOUNDATION_BOOK_2:46,FOUNDATION_BOOK_3:33});
+assert.equal(report.productionAcceptanceVerified,false);
+assert(report.labs.every(l=>l.productionAccepted===false));
+assert(report.labs.every(l=>l.independentPrivateInstruction==='NOT_VERIFIED_IN_GITHUB_SOURCE'));
+assert(report.labs.every(l=>l.title.length>7&&l.competencyCrosswalk.length>=1));
+assert(report.labs.every(l=>l.remainingCriteria.includes('production')),
+ 'No book Lab can be auto-production-certified by an unreviewed source label');
+assert(existsSync('artifacts/d11-foundations-94-content-gaps.csv'));
+const csv=readFileSync('artifacts/d11-foundations-94-content-gaps.csv','utf8');
+assert.equal(csv.trim().split('\n').length,95,'One header and one exact row per Lab');
+console.log('PASS D11 Foundations: all 94 canonical Labs accounted for, each review gap explicit, no falsely accepted private instruction or history');
