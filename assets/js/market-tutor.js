@@ -202,6 +202,101 @@ function exportConversation(){
  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='market-tutor-ungraded-exchanges.json';a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+async function conversationApi(query='',method='GET',body,extra={}){
+ const access=await token();
+ if(!access)throw new Error('Sign in to manage private Tutor conversations.');
+ const opts={method,cache:'no-store',headers:{authorization:'Bearer '+access,...extra}};
+ if(body!==undefined){opts.headers['content-type']='application/json';opts.body=JSON.stringify(body)}
+ const res=await fetch('/api/member-tutor-conversations'+query,opts);
+ const data=await res.json().catch(()=>null);
+ if(!res.ok||data?.ok!==true)throw new Error(data?.error||'Conversation management unavailable.');
+ return data;
+}
+function conversationStatus(message){
+ const el=$('tutor-conversation-status');if(el)el.textContent=message;
+}
+function renderConversationList(){
+ const host=$('tutor-conversations-list');if(!host)return;
+ host.replaceChildren();
+ const selected=TUTOR.currentConversationId;
+ const filter=String($('tutor-conversation-search')?.value||'').toLowerCase().trim();
+ for(const conv of TUTOR.conversations.filter(x=>String(x.title).toLowerCase().includes(filter))){
+  const control=btn(conv.title,()=>selectConversation(conv.id),'btn secondary');
+  control.setAttribute('aria-pressed',String(selected===conv.id));
+  if(selected===conv.id)control.classList.add('selected');
+  host.append(control);
+ }
+ $('tutor-conversation-rename').disabled=!selected||!TUTOR.conversationsAvailable;
+ $('tutor-conversation-delete').disabled=!selected||!TUTOR.conversationsAvailable;
+ $('tutor-conversation-new').disabled=!TUTOR.conversationsAvailable;
+ $('tutor-conversation-all').setAttribute('aria-pressed',String(!selected));
+}
+function selectConversation(id){
+ TUTOR.currentConversationId=id;
+ renderConversationList();renderConversation();
+ conversationStatus(id?'Conversation selected. New saved responses will be grouped here.':
+  'Showing all your saved and current-page exchanges.');
+}
+async function refreshConversations(){
+ const userId=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch;
+ if(!userId){TUTOR.conversationsAvailable=false;TUTOR.conversations=[];TUTOR.currentConversationId=null;
+  renderConversationList();conversationStatus('Sign in to organize conversations.');return}
+ try{
+  const result=await conversationApi();
+  if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==userId)return;
+  TUTOR.conversations=Array.isArray(result.conversations)?result.conversations.slice(0,30):[];
+  TUTOR.conversationsAvailable=true;
+  if(TUTOR.currentConversationId&&!TUTOR.conversations.some(x=>x.id===TUTOR.currentConversationId))
+   TUTOR.currentConversationId=null;
+  renderConversationList();renderConversation();
+  conversationStatus(TUTOR.conversations.length+' private conversation(s) available (maximum 30).');
+ }catch(e){
+  if(TUTOR.identityEpoch!==epoch)return;
+  TUTOR.conversationsAvailable=false;TUTOR.conversations=[];TUTOR.currentConversationId=null;
+  renderConversationList();renderConversation();
+  conversationStatus(e.message+' Existing single-page teaching remains available.');
+ }
+}
+async function newConversation(){
+ if(!TUTOR.conversationsAvailable)return;
+ const title=prompt('Name this private conversation (up to 80 characters):','New learning topic');
+ if(title===null)return;
+ const clean=title.trim();if(!clean||clean.length>80){conversationStatus('Use a title of 1 to 80 characters.');return}
+ const epoch=TUTOR.identityEpoch,user=TUTOR.user?.id;
+ try{
+  const res=await conversationApi('','POST',{title:clean});
+  if(epoch!==TUTOR.identityEpoch||user!==TUTOR.user?.id)return;
+  await refreshConversations();
+  if(epoch!==TUTOR.identityEpoch)return;
+  selectConversation(res.id);
+  conversationStatus('Conversation created. Your saved exchanges are private.');
+ }catch(e){conversationStatus(e.message)}
+}
+async function renameConversation(){
+ const id=TUTOR.currentConversationId,old=TUTOR.conversations.find(x=>x.id===id);
+ if(!id||!old)return;
+ const title=prompt('Rename selected conversation:',old.title);
+ if(title===null)return;
+ const clean=title.trim();if(!clean||clean.length>80){conversationStatus('Use a title of 1 to 80 characters.');return}
+ const epoch=TUTOR.identityEpoch,user=TUTOR.user?.id;
+ try{
+  await conversationApi('?id='+encodeURIComponent(id),'PATCH',{title:clean});
+  if(epoch!==TUTOR.identityEpoch||user!==TUTOR.user?.id)return;
+  await refreshConversations();conversationStatus('Conversation renamed.');
+ }catch(e){conversationStatus(e.message)}
+}
+async function deleteConversation(){
+ const id=TUTOR.currentConversationId;if(!id)return;
+ if(!confirm('Delete this conversation? Its saved exchanges will be kept in All exchanges, not deleted.'))return;
+ const epoch=TUTOR.identityEpoch,user=TUTOR.user?.id;
+ try{
+  await conversationApi('?id='+encodeURIComponent(id),'DELETE',undefined,{'x-confirm-delete':'DELETE_TUTOR_CONVERSATION'});
+  if(epoch!==TUTOR.identityEpoch||user!==TUTOR.user?.id)return;
+  for(const entry of TUTOR.entries)if(entry.conversationId===id)entry.conversationId=null;
+  TUTOR.currentConversationId=null;await refreshConversations();renderConversation();
+  conversationStatus('Conversation deleted; saved exchanges retained.');
+ }catch(e){conversationStatus(e.message)}
+}
 function updateCount(){$('tutor-question-count').textContent=String($('tutor-question').value.length)+' / 450'}
 function localExplanation(q){
  const tokens=String(q).toLowerCase().match(/[a-z0-9]+/g)||[];
@@ -317,6 +412,11 @@ async function refreshAiServiceStatus(){
 }
 async function initTutor(){
  $('tutor-ask').addEventListener('click',ask);
+ $('tutor-conversation-new').addEventListener('click',()=>void newConversation());
+ $('tutor-conversation-all').addEventListener('click',()=>selectConversation(null));
+ $('tutor-conversation-rename').addEventListener('click',()=>void renameConversation());
+ $('tutor-conversation-delete').addEventListener('click',()=>void deleteConversation());
+ $('tutor-conversation-search').addEventListener('input',renderConversationList);
  $('tutor-question').addEventListener('input',updateCount);
  $('tutor-question').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
  $('tutor-reflection').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
