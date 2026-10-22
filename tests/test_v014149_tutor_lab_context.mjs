@@ -21,4 +21,12 @@ assert((labGuidance(result,'explain')).includes('Do not inspect future candles')
 assert(!JSON.stringify(result).includes('answerKey'));
 assert.equal(await getApprovedLabContext({ASSETS:asset},req,'Help with DT-C99-L99'),null);
 assert.equal(await getApprovedLabContext({ASSETS:null},req,'Help with DT-C11-L01'),null);
-console.log('PASS D09 canonical Lab ID and 419 metadata context only, no future bars/rubrics');
+
+/* D09 recovery: narrow guided/practice link to generic Tutor topic; source gate only. */
+import {readFileSync} from 'node:fs';
+const labPlayer=readFileSync(new URL('../assets/js/lab-player.js',import.meta.url),'utf8');
+assert(labPlayer.includes('function tutorSafeSubject(lab)'));
+assert(labPlayer.includes("if(!['guided','practice'].includes(mode))return"));
+assert(labPlayer.includes("link.href='/market-tutor.html?q='+encodeURIComponent("));
+assert(labPlayer.includes('mountLabTutorLink(lab,mode);'));
+console.log('PASS D09 canonical Lab metadata and topic-only Tutor link source contract');

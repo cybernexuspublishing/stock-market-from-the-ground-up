@@ -6,7 +6,7 @@
 **Document type:** Markdown  
 **Document ID:** Repository path above; no separate Google Drive document ID assigned  
 **Google Drive location:** Not assigned (no new file is necessary)  
-**Document version:** 0.3 | **Status:** SOURCE CANDIDATE / PRODUCTION NOT ACCEPTED  
+**Document version:** 0.6 | **Status:** RECONCILED SOURCE CANDIDATE / PRODUCTION NOT ACCEPTED  
 **Last updated:** 2026-10-22 | **Next review:** On receipt of exact-head CI and installed-schema evidence  
 **Purpose:** Preserve cross-chat source control, testing, dependencies, owner actions and risk-based acceptance.
 
@@ -16,7 +16,7 @@
 - **Verified main baseline:** v0.14.0.148 at `345c2c1280d83a62e989bdc11aaed542e783ff85`.
 - **Development branch:** `deployment-09-market-tutor-retrieval-20261022`
 - **GitHub pull request:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/pull/123 (draft, unmerged).
-- **Last verified working-branch commit before document update:** `f53a597af04db0a29760b53f75899d69852c045c`.
+- **Commit authority:** consult PR #123 current head and associated GitHub workflow results; this handoff's old commit identifier is not a release proof.
 - **Prior deployment:** D08 had source release and unresolved live database/production acceptance; no inference from merging D08 to completing D09.
 - **Source acceptance evidence:** `scripts/deployment09_release_evidence.mjs` (machine report at `artifacts/d09-tutor-source-evidence.json` when executed). File presence/checks are not actual production verification.
 
@@ -34,7 +34,7 @@
 ## Functional and security tests
 - **Source tests committed:** `tests/test_v014149_tutor_retrieval.mjs`, `test_v014149_tutor_arithmetic.mjs`, `test_v014149_tutor_provider.mjs`, `test_v014149_tutor_conversations.mjs`, `test_v014149_tutor_calculator.mjs`, and `test_v014149_tutor_data_export.mjs`.
 - **Previously installed tests retained:** v92/v93/v95/v100/v102/v103/v105/v107/v147 Tutor tests, plus repository-wide regression workflows. Legacy provider mocks explicitly declare an approved test-only model; no test model is enabled in production.
-- **Exact-head GitHub Actions:** QUEUED at last check; no PASS claim. Merge and production acceptance blocked pending real results. No test removed to make CI appear green.
+- **Exact-head GitHub Actions:** must be checked at PR #123's latest head. Commit `d99566511d5e344dbb424be97470426f4bb989b4` repaired Owner-case UUID validation and D08 SQL-whitespace assertion. Follow-up source commits require fresh CI.
 - **Production browser:** no verified Owner/Member A/Member B/TEST/Showcase, expired membership, mobile keyboard and screen-reader acceptance has occurred.
 - **SQL:** Owner executed v102/v103/v107/v149; earlier read-only checks passed. The corrected **v149b** migration also now passes Owner-supplied read-only Supabase verification: all three new private tables exist, RLS is enabled, anon/authenticated direct SELECT is denied, service SELECT is available, and Owner review, topic-gap and atomic privacy-deletion RPCs are installed. No migrations need rerunning. Evidence: `Supabase Snippet Check Existence of Replay Tables and Functions(16).csv` (Owner-uploaded, 2026-10-22). **Scope is database structure only**, not live application or functional acceptance.
 - **Cloudflare:** Owner screenshots show the intended 10 Market Tutor environment variables and a Workers AI binding named `AI`. Inference remains OFF (`AI_SERVICE_ENABLED=false`); free-tier/model-license verification flags also remain false. Settings and binding are Owner-reported and screenshot-supported, while live deployment/inference remain unverified. Existing Stripe LIVE webhook configuration is Owner-locked; do not request or make changes to it as part of D09.
@@ -45,7 +45,7 @@
 |---|---|
 | New source files committed | YES — proposed source, pending CI |
 | Regression CI passing | NOT VERIFIED |
-| Required Supabase migrations installed | NOT VERIFIED; D09 new migration NOT APPLIED |
+| Required Supabase migrations installed | Owner-supplied v149/v149b read-only structural checks PASSED; runtime/production acceptance NOT VERIFIED |
 | Cloudflare production commit deployed | NOT VERIFIED |
 | Four-mode functional acceptance | NOT VERIFIED in production |
 | Browser privacy/session isolation | NOT VERIFIED in production |
@@ -79,14 +79,22 @@
 ## D09 source QA and latest follow-up
 - **Browser integrity repair:** removed a duplicated invalid JavaScript tail and restored complete calculator/privacy-export methods in `assets/js/market-tutor.js`. The repaired source passed an independent JavaScript syntax compilation smoke check; all 31 statically referenced Tutor element IDs exist in `market-tutor.html`.
 - **Independent pure-logic checks:** deterministic arithmetic, retrieval, canonical Lab lookup, and anonymous gap taxonomy modules compiled and passed direct smoke cases; these are not a substitute for Node/GitHub Actions.
-- **CI:** existing GitHub Actions still QUEUED, not PASS. Browser-integrity and D09 new owner/privacy regressions are now in the workflow.
+- **CI:** the exact current PR #123 head must pass GitHub Actions; past test success is not acceptance of later source commits. Browser integrity and Owner/privacy regressions remain in the workflow.
 - **Cloudflare:** no user configuration changes verified; `AI_SERVICE_ENABLED=false` until account and licensing checks are passed.
 - **Owner action:** D09 SQL installation and structural verification are complete; no further SQL is currently requested. Cloudflare AI variables and `AI` binding are configured with inference disabled. Remaining actions depend on exact-head CI, merge, deployment, and functional acceptance.
 
 
-- **October 22 v149b SQL correction:** Owner-reported SQLSTATE 42601 at line 110 traced to malformed single-dollar PL/pgSQL delimiters in atomic Tutor privacy deletion. Corrected the opening and closing to matching double-dollar markers. Verified updated SQL blob and added a D09 source-gate invariant to detect recurrence. Original owner execution failed; v149b remains UNVERIFIED/NOT CONFIRMED INSTALLED. Do not reinstall prior v102/v103/v107/v149 migrations.
+- **October 22 v149b SQL correction:** Owner-reported SQLSTATE 42601 at line 110 traced to malformed single-dollar PL/pgSQL delimiters in atomic Tutor privacy deletion. Corrected the opening and closing to matching double-dollar markers. Verified updated SQL blob and added a D09 source-gate invariant to detect recurrence. The initial execution failed, then corrected v149b was installed and Owner-supplied read-only structural verification passed. Do not reinstall v102/v103/v107/v149/v149b or roll back without a specific diagnosed defect.
 
 - **October 22, Owner follow-up:** Supabase v149b read-only verification passed for 3/3 tables and 3/3 RPCs with the expected role permissions; Cloudflare Market Tutor variables and `AI` binding are screenshot-confirmed. Stripe LIVE webhook Text/Secret configuration is not to be modified under the Owner's explicit direction. GitHub PR #123 remains draft/unmerged; exact-head CI is queued, not passed.
+
+
+## Branch reconciliation and controlling source (2026-10-22)
+- **Canonical candidate:** PR #123 on `deployment-09-market-tutor-retrieval-20261022`. It alone may progress toward a reviewed Deployment 09 merge; the current `main` baseline remains unchanged.
+- **Competing alternative:** PR #122 on `deployment-09-of-18-market-tutor-v014149` is superseded. Preserve its commit history for audit, but do not merge its conflicting v149 conversation table `gu_tutor_conversations_v014149`. The Owner-installed canonical v149 table is `gu_member_tutor_conversations_v014149`.
+- **Selected compatible transfer:** PR #122's whitelisted general-topic navigation from guided/practice Labs to Market Tutor has been incorporated on PR #123; no private answers, grading rubrics or future bars are transferred.
+- **Historical source merges:** audited merged pull requests targeted `main`. Do not undo Deployments 01–08 because their changes were originally authored on topic branches. No branch force-reset is necessary.
+- **Release gates:** no additional SQL execution, Cloudflare AI activation, Stripe changes or `main` merge from this reconciliation. Passing source tests do not establish that the 419 canonical Labs or all 30 Bootcamp days are fully developed and accepted.
 
 ## Revision history
 | Date | Version | Change |
@@ -96,3 +104,4 @@
 | 2026-10-22 | 0.3 | Workers AI guarded adapter, safe private conversations, data portability, member calculator, stable routes and explicit acceptance gates. |
 | 2026-10-22 | 0.4 | Audited Owner cases, privacy-safe gap counts, canonical Lab ID guidance, atomic post-entitlement deletion and Browser syntax repair; source CI and production acceptance pending. |
 | 2026-10-22 | 0.5 | Recorded verified Supabase v149b schema/RPC report, Cloudflare screenshot-based setup, and locked decision not to change the previously tested Stripe LIVE webhook settings. |
+| 2026-10-22 | 0.6 | Reconciled D09 source ownership and existing SQL, corrected status contradictions, carried over safe guided/practice Lab Tutor link. |
