@@ -19,7 +19,7 @@ export async function saveVerifiedTutorExchange(env,userId,record){
   generation=String(record.generation||'').trim();
  if(!['explain','question','review','practice'].includes(mode)||question.length<4||question.length>450||
  answer.length<1||answer.length>4500||reasoning.length>1800||
- !['grounded-model-draft','original-competency-guide','reviewed-glossary-logic','authenticated-practice-history'].includes(generation))
+ !['grounded-model-draft','original-competency-guide','reviewed-glossary-logic','authenticated-practice-history','deterministic-position-math'].includes(generation))
   return null;
  const sourceTitles=(Array.isArray(record.sources)?record.sources:[]).slice(0,3)
   .map(x=>String(x?.title||'').trim().slice(0,120)).filter(Boolean);
