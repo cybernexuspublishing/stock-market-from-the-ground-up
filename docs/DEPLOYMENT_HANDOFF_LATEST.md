@@ -114,3 +114,7 @@
 - Installed Owner-reported v149/v149b Supabase structures were NOT reinstalled. No database or Cloudflare/Stripe configuration was changed by the source metadata correction.
 - Acceptance gates remain separate: Cloudflare-deployed exact SHA, member A/B and restricted account tests, privacy endpoints, Owner editorial workflows, source accuracy, Workers AI Free plan/license and hard cost caps. All 419 canonical Labs and all 30 Bootcamp days are separately not production-certified by D09.
 - D10 work starts from this corrected source baseline, preserving a single repository and a single next-development branch; this source handoff will be extended there with exact D10 commit and evidence.
+
+
+### D09 browser-version consistency correction (2026-10-22)
+Source release v0.14.0.149 requires the same version in `release-manifest.json`, `config.js`, shared route policy and public-only Service Worker cache namespace. Corrected the three stale v148 browser fields after the initial v149 manifest update. This does not alter protected-route lists, user sessions, commercial status or membership entitlements. Site deployment SHA and live acceptance remain separately unverified.
