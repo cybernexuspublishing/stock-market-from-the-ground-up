@@ -6,6 +6,41 @@
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const err=(message,status=403)=>Object.assign(new Error(message),{status});
 const val=x=>String(x??'').trim();
+/* D15 v0.14.0.155 — hard byte bound independent of untrusted Content-Length.
+ * Validates requests before any Stripe/DB connection or charge is possible.
+ * Browser checkout sends a JSON object {type,code}; other fields are ignored
+ * by the legacy request contract and never forwarded to the provider.
+ */
+async function boundedCheckoutInput(req){
+ const claimed=req.headers.get('content-length');
+ if(claimed!==null&&(!/^[0-9]+$/.test(claimed)||Number(claimed)>2048))
+  throw err('Checkout request exceeds 2 KB.',413);
+ if(!req.body||typeof req.body.getReader!=='function')
+  throw err('Valid JSON checkout request required.',400);
+ const reader=req.body.getReader(),parts=[];let total=0;
+ while(true){
+  const {done,value}=await reader.read();
+  if(done)break;
+  if(!(value instanceof Uint8Array))throw err('Invalid checkout request body.',400);
+  total+=value.byteLength;
+  if(total>2048){
+   void reader.cancel().catch(()=>{});
+   throw err('Checkout request exceeds 2 KB.',413);
+  }
+  parts.push(value);
+ }
+ const bytes=new Uint8Array(total);let offset=0;
+ for(const part of parts){bytes.set(part,offset);offset+=part.byteLength;}
+ let decoded,body;
+ try{
+  decoded=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+  body=JSON.parse(decoded);
+ }catch{throw err('Valid JSON checkout request required.',400)}
+ if(!body||typeof body!=='object'||Array.isArray(body))
+  throw err('Checkout request must be a JSON object.',400);
+ return body;
+}
+
 const products=Object.freeze(new Set([
  'plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
  'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'
@@ -182,10 +217,10 @@ async function stripeCheckout(c,id,user,p,price,origin){
 const checkoutReply=url=>respond({ok:true,live:true,url,
  notice:'Secure LIVE Checkout. Access activates only after signed payment verification.'});
 export async function onRequestPost({request:req,env}){
- try{if(Number(req.headers.get('content-length')||0)>2048)throw err('Request too large.',413);
-  const origin=req.headers.get('origin'),here=new URL(req.url);if(origin!==here.origin)throw err('Cross-site checkout denied.',403);
+ try{const origin=req.headers.get('origin'),here=new URL(req.url);if(origin!==here.origin)throw err('Cross-site checkout denied.',403);
+  const input=await boundedCheckoutInput(req);
   const c=environment(env);await testModeOff(c);await assertLiveAccount(c);
-  const catalog=liveCatalog(env),u=await validateUser(c,req),input=await req.json().catch(()=>({}));
+  const catalog=liveCatalog(env),u=await validateUser(c,req);
   const type=val(input.type),code=val(input.code);
   if(!['plan','tool'].includes(type)||!/^[A-Z0-9_]{3,90}$/.test(code))throw err('Unsupported product.',400);
   const p=await product(c,type,code),mapped=catalog[p.key],price=mapped.price_id;await verifyPrice(c,price,p,mapped.product_id);
@@ -254,7 +289,7 @@ export async function onRequestPost({request:req,env}){
       bound[0].stripe_session_id!==session.id||bound[0].status!=='checkout_created')
    throw err('Checkout session was not durably bound; retry safely or contact support.',503);
   return checkoutReply(url);
- }catch(e){return respond({ok:false,error:[400,403,409].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
+ }catch(e){return respond({ok:false,error:[400,403,409,413].includes(e.status)?e.message:'LIVE customer checkout unavailable.'},e.status||503)}
 }
 // Public readiness: returns only a boolean; never leaks private credentials, prices or account details.
 // Public, read-only availability check for a specific plan/tool on the existing

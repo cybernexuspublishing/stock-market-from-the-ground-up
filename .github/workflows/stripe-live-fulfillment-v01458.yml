@@ -94,6 +94,7 @@ jobs:
         run: |
           node tests/test_v014058_live_fulfillment.mjs
           node tests/test_v014140_live_checkout_recovery.mjs
+          node tests/test_v014155_live_checkout_body_limits.mjs
       - name: Verify production checkout wiring cannot bypass TEST/LIVE, webhook or product gates
         run: |
           node tests/test_v014064_checkout_wiring.mjs
