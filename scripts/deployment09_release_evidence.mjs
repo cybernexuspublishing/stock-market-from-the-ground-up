@@ -22,6 +22,14 @@ const paths=[
  'tests/test_v014149_tutor_conversations.mjs',
  'tests/test_v014149_tutor_calculator.mjs',
  'tests/test_v014149_tutor_data_export.mjs',
+ 'functions/_lib/owner-tutor-access-v014149.js',
+ 'functions/_lib/tutor-gaps-v014149.js',
+ 'functions/_lib/tutor-lab-context-v014149.js',
+ 'functions/api/owner-tutor-case.js',
+ 'functions/api/owner-tutor-topic-gaps.js',
+ 'supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql',
+ 'tests/test_v014149_tutor_editorial_and_gaps.mjs',
+ 'tests/test_v014149_tutor_lab_context.mjs',
  'docs/DEPLOYMENT_HANDOFF_LATEST.md'
 ];
 function assert(condition,description){if(!condition)throw Error('D09 SOURCE CHECK: '+description)}
@@ -46,6 +54,11 @@ assert(client.includes('identityEpoch++')&&client.includes('abortController?.abo
  'stale member identity controls missing');
 assert(client.includes('/api/market-tutor')&&client.includes('/api/member-tutor-history'),
  'stable public Tutor routes not in use');
+const supplemental=read('supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql');
+assert(supplemental.includes('ENABLE ROW LEVEL SECURITY')&&
+ supplemental.includes('gu_tutor_editorial_audit_v014149')&&
+ supplemental.includes('gu_v014149_record_tutor_gap'),
+ 'Owner audit and no-PII topic gap SQL missing');
 assert(sql.includes('ENABLE ROW LEVEL SECURITY')&&sql.includes('REVOKE ALL')&&
  sql.includes('pg_advisory_xact_lock'),'private conversation schema safeguards missing');
 const report={
