@@ -38,6 +38,7 @@ jobs:
           node tests/test_v014149_tutor_data_export.mjs
           node tests/test_v014149_tutor_editorial_and_gaps.mjs
           node tests/test_v014149_tutor_lab_context.mjs
+          node tests/test_v014149_tutor_data_delete.mjs
           node scripts/deployment09_release_evidence.mjs
           node --check assets/js/market-tutor.js
           node --check assets/js/admin-tutor-feedback-v014147.js
@@ -60,6 +61,7 @@ jobs:
           node --check functions/_lib/owner-tutor-access-v014149.js
           node --check functions/api/owner-tutor-case.js
           node --check functions/api/owner-tutor-topic-gaps.js
+          node --check functions/api/member-tutor-data-delete.js
           bash scripts/build-pages.sh
           test -f public/assets/js/admin-tutor-feedback-v014147.js
           test ! -d public/functions
