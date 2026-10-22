@@ -55,6 +55,7 @@ jobs:
           node --check functions/api/member-tutor-data-export.js
           node --check functions/api/market-tutor.js
           node --check functions/api/member-tutor-history.js
+          node --check functions/api/member-ai-service.js
           node --check functions/_lib/first-party-ai-service-v014103.js
           node --check functions/_lib/tutor-gaps-v014149.js
           node --check functions/_lib/tutor-lab-context-v014149.js
