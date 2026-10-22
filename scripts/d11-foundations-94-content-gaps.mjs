@@ -29,8 +29,10 @@ for(const source of catalog){
  const placeholder=source.concept.toLowerCase()==='historical simulator exercise';
  const titleMismatch=evidence.title!==source.concept;
  const legacyCorrected=/^F3-C0[456]-L\d{2}$/.test(id);
- if(legacyCorrected)assert(sourceIndex.get(id)?.concept===source.concept,'Index-derived topic title mismatch '+id);
- assert(!titleMismatch,'Crosswalk title must match public source '+id);
+ if(legacyCorrected){
+  assert(sourceIndex.get(id)?.concept===source.concept,'Index-derived public study title mismatch '+id);
+  assert(evidence.title===id,'Private 419-Lab catalog title must remain canonical ID until review '+id);
+ }else assert(!titleMismatch,'Unexpected legacy catalog title drift '+id);
  assert(!placeholder,'Unresolved generic Foundations title '+id);
  const genericExample=/^Example [123]: (?:ORCL|VZ|GM)$/.test(source.concept);
  const gap=Object.entries(evidence.criterionStatus).filter(([k,v])=>v!=='REVIEW_RECORDED').map(([k])=>k);
@@ -44,8 +46,9 @@ for(const source of catalog){
   historicalFeed:'NOT_INDEPENDENTLY_LICENSE_VERIFIED',
   contentEditorialStatus:evidence.criterionStatus.editorial,
   competencyCrosswalk:mapped.relatedCompetencies,
-  remainingCriteria:[...gap,...(genericExample?['TOPIC_SPECIFIC_INSTRUCTION_PENDING']:[])],
-  accepted:evidence.accepted&&!placeholder&&!genericExample,
+  remainingCriteria:[...gap,...(genericExample?['TOPIC_SPECIFIC_INSTRUCTION_PENDING']:[]),
+   ...(legacyCorrected?['CANONICAL_CATALOG_TITLE_REVIEW_REQUIRED']:[])],
+  accepted:evidence.accepted&&!placeholder&&!genericExample&&!legacyCorrected,
   productionAccepted:false
  };
  reviewed.push(row);totals[collection]=(totals[collection]||0)+1;
