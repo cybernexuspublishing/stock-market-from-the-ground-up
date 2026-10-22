@@ -10,7 +10,8 @@ export function tutorProvider(env){
  if(choice==='cloudflare'){
   const model=trim(env.AI_TUTOR_MODEL);
   const ready=env.AI_COST_MODE==='free_only'&&env.AI_CLOUDFLARE_FREE_TIER_VERIFIED==='true'&&
-    env.AI?.run instanceof Function&&CLOUDFLARE_TUTOR_MODELS.includes(model);
+    env.AI_CLOUDFLARE_MODEL_LICENSE_APPROVED==='true'&&
+    typeof env.AI?.run==='function'&&CLOUDFLARE_TUTOR_MODELS.includes(model);
   return {supported:ready,provider:'cloudflare',model,reason:ready?'ready':'free_tier_not_verified'};
  }
  if(choice==='openai'){
