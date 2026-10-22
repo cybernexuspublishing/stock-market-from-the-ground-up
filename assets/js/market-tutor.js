@@ -251,7 +251,8 @@ async function ask(){
  try{
   const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer):localExplanation(q);
   if(!data){throw Error('No approved teaching response was returned.')}
-  if(TUTOR.user?.id!==submittingUser)throw Error('Your signed-in account changed; the prior response was discarded to protect privacy.');
+  if(TUTOR.user?.id!==submittingUser||TUTOR.identityEpoch!==submittingEpoch)
+   throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
    createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null};
