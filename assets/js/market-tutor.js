@@ -5,7 +5,7 @@
  * Never copy user text to localStorage, never award grades, and never render HTML
  * returned by a learner, provider, or database as markup.
  */
-const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null,identityEpoch:0};
+const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null,identityEpoch:0,conversations:[],currentConversationId:null,conversationsAvailable:false};
 const $=id=>document.getElementById(id);
 function status(message,kind=''){const node=$('tutor-status');node.textContent=message;node.className='status-message'+(kind?' '+kind:'');}
 function historyStatus(message){$('tutor-history-state').textContent=message;}
@@ -109,12 +109,17 @@ function detailsOf(record){
 }
  reply.append(actions);li.append(reply);return li;
 }
+function displayedExchanges(){
+ return TUTOR.currentConversationId?
+  TUTOR.entries.filter(x=>x.conversationId===TUTOR.currentConversationId):TUTOR.entries;
+}
 function renderConversation(){
  const host=$('tutor-thread');host.replaceChildren();
- for(const rec of TUTOR.entries)host.append(detailsOf(rec));
- $('tutor-export').disabled=!TUTOR.entries.length;
- $('tutor-followup').disabled=!TUTOR.entries.length;
- $('tutor-session-note').textContent=TUTOR.entries.length+' exchange(s) displayed. '+sessionMessage();
+ const shown=displayedExchanges();
+ for(const rec of shown)host.append(detailsOf(rec));
+ $('tutor-export').disabled=!shown.length;
+ $('tutor-followup').disabled=!shown.length;
+ $('tutor-session-note').textContent=shown.length+' exchange(s) displayed. '+sessionMessage();
 }
 function addRecord(record){
  TUTOR.entries.push(record);renderConversation();
@@ -131,7 +136,9 @@ function normalizeSaved(x){
  learnerAnswer:String(x.learner_answer||''),mode:String(x.mode||'explain'),
  answer:String(x.answer||''),generation:String(x.generation||'reviewed-glossary-logic'),
  sourceTitles:Array.isArray(x.source_titles)?x.source_titles:[],
- feedback:x.feedback||null,feedbackNote:x.feedback_note||'',createdAt:x.created_at||new Date().toISOString()};
+ feedback:x.feedback||null,feedbackNote:x.feedback_note||'',
+ conversationId:typeof x.conversation_id==='string'?x.conversation_id:null,
+ createdAt:x.created_at||new Date().toISOString()};
 }
 async function privateApi(path,method='GET',body,headers={}){
  const access=await token();if(!access)throw Object.assign(new Error('Sign in to manage saved Tutor exchanges.'),{status:401});
@@ -149,7 +156,7 @@ async function loadHistory(){
  if(!TUTOR.user){historyStatus('Sign in to access saved Tutor exchanges. Public glossary answers stay on this page only.');return}
  try{
   const data=await privateApi('');
-  if(TUTOR.user?.id!==requestedUser)return;
+  if(TUTOR.user?.id!==requestedUser||TUTOR.identityEpoch!==epoch)return;
   TUTOR.serverHistory=true;
   const prior=data.history.map(normalizeSaved).reverse();
   const known=new Set(prior.map(x=>x.id));
@@ -188,7 +195,7 @@ async function deleteAll(){
 }
 function exportConversation(){
  if(!TUTOR.entries.length)return;
- const exportRows=TUTOR.entries.map(({createdAt,question,learnerAnswer,mode,answer,generation,sourceTitles})=>({
+ const exportRows=displayedExchanges().map(({createdAt,question,learnerAnswer,mode,answer,generation,sourceTitles})=>({
   date:createdAt,question,learnerReasoning:learnerAnswer,mode,answer,generation,sourceTitles,graded:false
  }));
  const blob=new Blob([JSON.stringify({kind:'ungraded_member_tutor_copy',exportedAt:new Date().toISOString(),exchanges:exportRows},null,2)],{type:'application/json'});
@@ -220,12 +227,12 @@ function summarizePractice(data){
  }
  return parts.filter(Boolean).join('\n\n');
 }
-async function memberExplanation(q,mode,learnerAnswer){
+async function memberExplanation(q,mode,learnerAnswer,conversationId){
  const access=await token();
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
  const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
-  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
+  body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true,conversationId})});
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true){
   throw Object.assign(new Error(response.status===403?'Market Tutor access is not included with the current account. Review memberships or individual Tutor access.':
@@ -234,7 +241,8 @@ async function memberExplanation(q,mode,learnerAnswer){
  }
  if(typeof data.answer!=='string'||!data.answer)return null;
  return {answer:summarizePractice(data),generation:String(data.generation||'reviewed-glossary-logic'),
-  sources:Array.isArray(data.sources)?data.sources:[],aiReason:data.aiReason||null,remainingAiToday:data.remainingAiToday,historySaved:data.historySaved===true,historyId:data.historyId||null};
+  sources:Array.isArray(data.sources)?data.sources:[],aiReason:data.aiReason||null,remainingAiToday:data.remainingAiToday,historySaved:data.historySaved===true,historyId:data.historyId||null,
+  conversationLinked:data.conversationLinked===true};
 }
 async function ask(){
  if(TUTOR.busy)return;
@@ -246,16 +254,18 @@ async function ask(){
  if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
  if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
  const submittingUser=TUTOR.user?.id||null,submittingEpoch=TUTOR.identityEpoch;
+ const submittedConversationId=TUTOR.currentConversationId;
  TUTOR.activeRequestId=crypto.randomUUID();
  TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
  try{
-  const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer):localExplanation(q);
+  const data=TUTOR.user?await memberExplanation(q,mode,learnerAnswer,submittedConversationId):localExplanation(q);
   if(!data){throw Error('No approved teaching response was returned.')}
   if(TUTOR.user?.id!==submittingUser||TUTOR.identityEpoch!==submittingEpoch)
    throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
-   createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null};
+   createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null,
+   conversationId:submittedConversationId&&(data.conversationLinked||!data.historySaved)?submittedConversationId:null};
   addRecord(rec);
   TUTOR.lastTopic=rec.sourceTitles[0]||q.slice(0,70);
   $('tutor-question').value='';$('tutor-reflection').value='';updateCount();
@@ -312,8 +322,8 @@ async function initTutor(){
  $('tutor-reflection').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();void ask()}});
  $('tutor-mode').addEventListener('change',()=>{if($('tutor-mode').value==='review')$('tutor-reflection').focus()});
  $('tutor-followup').addEventListener('click',()=>{
-  if(!TUTOR.entries.length)return;
-  const last=TUTOR.entries.at(-1),topic=last.sourceTitles?.[0]||last.question.slice(0,80);
+  if(!displayedExchanges().length)return;
+  const last=displayedExchanges().at(-1),topic=last.sourceTitles?.[0]||last.question.slice(0,80);
   $('tutor-question').value=('Follow-up on '+topic+': ').slice(0,450);
   updateCount();$('tutor-question').focus();
  });
@@ -343,17 +353,20 @@ async function initTutor(){
   TUTOR.sb.auth.onAuthStateChange((event,session)=>{
    const oldId=TUTOR.user?.id||null,newId=session?.user?.id||null;
    if(event==='SIGNED_OUT'||(oldId&&newId&&oldId!==newId)){
-    TUTOR.entries=[];TUTOR.user=null;TUTOR.serverHistory=false;
+    TUTOR.identityEpoch++;TUTOR.entries=[];TUTOR.user=null;TUTOR.serverHistory=false;
+    TUTOR.conversations=[];TUTOR.currentConversationId=null;renderConversationList();
     renderConversation();void refreshAiServiceStatus();historyStatus('Your account changed; private notes were cleared from this page.');
     status('Sign in to open your own saved Tutor history.');
    }
    if(event==='SIGNED_IN'&&newId!==TUTOR.user?.id){
-    TUTOR.user=session.user;void loadHistory();void refreshAiServiceStatus();
+    TUTOR.identityEpoch++;TUTOR.user=session.user;
+    TUTOR.conversations=[];TUTOR.currentConversationId=null;renderConversationList();
+    void loadHistory();void refreshConversations();void refreshAiServiceStatus();
    }
   });
  }catch{TUTOR.user=null}
  renderConversation();
- await Promise.all([loadHistory(),refreshAiServiceStatus()]);
+ await Promise.all([loadHistory(),refreshConversations(),refreshAiServiceStatus()]);
  if(query&&TUTOR.user){$('tutor-question').focus();status('The linked question is ready for you to submit.');}
  else if(query){status('The linked public glossary question is ready to submit.');}
  else status(TUTOR.user?'Member Tutor ready. Submit a question to begin.':'Public glossary ready. Sign in to access member teaching.');
