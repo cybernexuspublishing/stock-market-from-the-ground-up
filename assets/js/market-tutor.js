@@ -137,7 +137,7 @@ async function privateApi(path,method='GET',body,headers={}){
  const access=await token();if(!access)throw Object.assign(new Error('Sign in to manage saved Tutor exchanges.'),{status:401});
  const init={method,cache:'no-store',headers:{authorization:'Bearer '+access,...headers}};
  if(body!==undefined){init.headers['content-type']='application/json';init.body=JSON.stringify(body)}
- const response=await fetch('/api/member-tutor-history-v014102'+path,init);
+ const response=await fetch('/api/member-tutor-history'+path,init);
  const data=await response.json().catch(()=>null);
  if(!response.ok||data?.ok!==true)throw Object.assign(
   new Error(response.status===503?'Private history storage is not installed or temporarily unavailable.':data?.error||'History request failed.'),
@@ -223,7 +223,7 @@ function summarizePractice(data){
 async function memberExplanation(q,mode,learnerAnswer){
  const access=await token();
  if(!access)throw Object.assign(new Error('Your member session expired. Please sign in again.'),{status:401});
- const response=await fetch('/api/market-tutor-v01492',{method:'POST',cache:'no-store',
+ const response=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',
   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
   body:JSON.stringify({question:q,mode,learnerAnswer,requestId:TUTOR.activeRequestId,allowModel:$('tutor-ai-consent')?.checked===true,saveHistory:$('tutor-save-history')?.checked===true})});
  const data=await response.json().catch(()=>null);
@@ -284,7 +284,7 @@ async function refreshAiServiceStatus(){
  }
  try{
   const access=await token();if(!access)throw Error('Session unavailable');
-  const response=await fetch('/api/member-ai-service-v014103',{method:'GET',cache:'no-store',headers:{authorization:'Bearer '+access}});
+  const response=await fetch('/api/member-ai-service',{method:'GET',cache:'no-store',headers:{authorization:'Bearer '+access}});
   const x=await response.json().catch(()=>null);
   if(!response.ok||!x?.ok)throw Error('AI status cannot be verified');
   toggle.disabled=x.authorized!==true||x.enabled!==true||x.remainingToday===0||x.globalAvailable===false;
