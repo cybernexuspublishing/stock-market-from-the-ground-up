@@ -171,3 +171,6 @@ Merged corrected main postflight `2090c423d3f2501d56ce9316028e8235bce6306e`: com
 
 ### Inherited D08 CI compatibility from corrected main (2026-10-22)
 The D10 branch merges main postflight commit `1ec004cc423527bc85b05c951ad8aed33f07c753`, keeping original D08 checkout-disabled and `not_certified` checks and enforcing version >= v149 (workflow minimum v148) without pinning future versions to v148. SQL/Stripe/Cloudflare state unchanged.
+
+### Existing Admin Stripe noncharging test after v149 source parity (2026-10-22)
+The retained v0.14.0.52 Admin Stripe source test checks that query-busted Admin CSS/JS and JS fallback identify the actual current release. D10 revealed stale v148 asset labels after D09 merged. Corrected only `admin.html` asset queries and `assets/js/admin-stripe-shadow-v01439.js` source fallback; did not alter Stripe secrets, checkout mode, product prices, customer records or authorization. The noncharging workflow must pass again on the new exact D10 head.
