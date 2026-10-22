@@ -1,0 +1,29 @@
+name: Canonical Curriculum Individual Acceptance Ledger D11-D14/D18
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  curriculum-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical curriculum decisions without awarding completion
+        run: node tests/test_v014150_curriculum_acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: groundup-curriculum-419-labs-30-bootcamp-acceptance
+          path: |
+            artifacts/curriculum-acceptance-v014150.json
+            artifacts/curriculum-acceptance-v014150.csv
+          if-no-files-found: error
+          retention-days: 30

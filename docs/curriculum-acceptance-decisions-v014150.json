@@ -1,0 +1,6 @@
+{
+  "schema": "groundup-curriculum-editorial-decisions-v1",
+  "policy": "Only independently evidenced, reviewer-identified criterion decisions are eligible for recorded-review status. Missing entries mean UNVERIFIED, never approved. GitHub assertions are not production acceptance.",
+  "labDecisions": {},
+  "bootcampDecisions": {}
+}
