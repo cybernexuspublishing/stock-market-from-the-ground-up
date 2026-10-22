@@ -5,7 +5,7 @@
  * Never copy user text to localStorage, never award grades, and never render HTML
  * returned by a learner, provider, or database as markup.
  */
-const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null};
+const TUTOR={index:[],sb:null,user:null,entries:[],busy:false,saving:false,lastTopic:'',serverHistory:false,guides:[],competencyMap:null,identityEpoch:0};
 const $=id=>document.getElementById(id);
 function status(message,kind=''){const node=$('tutor-status');node.textContent=message;node.className='status-message'+(kind?' '+kind:'');}
 function historyStatus(message){$('tutor-history-state').textContent=message;}
@@ -145,7 +145,7 @@ async function privateApi(path,method='GET',body,headers={}){
  return data;
 }
 async function loadHistory(){
- const requestedUser=TUTOR.user?.id||null;
+ const requestedUser=TUTOR.user?.id||null,epoch=TUTOR.identityEpoch;
  if(!TUTOR.user){historyStatus('Sign in to access saved Tutor exchanges. Public glossary answers stay on this page only.');return}
  try{
   const data=await privateApi('');
@@ -245,7 +245,7 @@ async function ask(){
  if(mode==='review'&&!learnerAnswer){status('Type your reasoning before asking the Tutor to review it.','error');$('tutor-reflection').focus();return}
  if(learnerAnswer.length>1800){status('Your reasoning must be 1,800 characters or fewer.','error');return}
  if(!TUTOR.user&&mode!=='explain'&&mode!=='question'){status('Sign in to use private review and practice recommendations.','error');return}
- const submittingUser=TUTOR.user?.id||null;
+ const submittingUser=TUTOR.user?.id||null,submittingEpoch=TUTOR.identityEpoch;
  TUTOR.activeRequestId=crypto.randomUUID();
  TUTOR.busy=true;$('tutor-ask').disabled=true;status('Preparing a source-grounded educational response…');
  try{
