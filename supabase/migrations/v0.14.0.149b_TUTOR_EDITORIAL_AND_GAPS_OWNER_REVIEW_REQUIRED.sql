@@ -104,6 +104,25 @@ REVOKE ALL ON FUNCTION public.gu_v014149_record_tutor_gap(text)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014149_record_tutor_gap(text)
  TO service_role;
+-- Complete verified member privacy deletion in a single Supabase transaction.
+-- Cloudflare authenticates the user before invoking this service-role-only RPC.
+CREATE OR REPLACE FUNCTION public.gu_v014149_delete_tutor_member_data(p_user uuid)
+RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+DECLARE n_exchanges integer; n_conversations integer;
+BEGIN
+ IF p_user IS NULL THEN RAISE EXCEPTION 'Invalid account' USING ERRCODE='22023'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_user::text,1496));
+ DELETE FROM public.gu_member_tutor_exchanges_v014102 WHERE user_id=p_user;
+ GET DIAGNOSTICS n_exchanges = ROW_COUNT;
+ DELETE FROM public.gu_member_tutor_conversations_v014149 WHERE user_id=p_user;
+ GET DIAGNOSTICS n_conversations = ROW_COUNT;
+ RETURN jsonb_build_object('exchanges_deleted',n_exchanges,
+  'conversations_deleted',n_conversations);
+END $;
+REVOKE ALL ON FUNCTION public.gu_v014149_delete_tutor_member_data(uuid)
+ FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gu_v014149_delete_tutor_member_data(uuid)
+ TO service_role;
 NOTIFY pgrst,'reload schema';
 COMMIT;
 -- No raw member prompt, username, IP, portfolio, textbook text, private answer,
