@@ -1,4 +1,4 @@
-/* v0.14.0.102 — accessible Member Tutor response workspace.
+/* v0.14.0.149 — Member Tutor response workspace; legacy member-tutor-history-v014102 remains served through the stable alias.
  * One question -> one user-visible answer, independent of whether paid AI is enabled.
  * Unauthenticated teaching is an explicitly labeled PUBLIC glossary fallback.
  * Persistent history is optional: fail safely to current-page memory until Owner SQL.
