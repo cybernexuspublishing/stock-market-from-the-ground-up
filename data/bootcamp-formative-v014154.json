@@ -1,0 +1,222 @@
+{
+  "schema": "groundup-formative-v1",
+  "status": "original_ungraded",
+  "graded": false,
+  "officialCompetencyEvidence": false,
+  "warnings": [
+    "Original self-checks are formative and ungraded.",
+    "Review guides are not private keys; do not treat self-reported reflection as a certified assessment."
+  ],
+  "days": [
+    {
+      "day": 1,
+      "question": "How would you write a repeatable study plan if a candidate lacks a verified source and you have no valid trading setup?",
+      "reviewGuide": "An adequate study response should address: Open your Market Skills Record. Write a study objective, a no-trade rule and two questions you cannot yet answer. Evidence to check: Identify what an account, trading session and order can and cannot guarantee.",
+      "commonMistake": "Most U.S. equity trades use T+1 settlement; intraday margin rules changed June 4, 2026, with broker transitions through October 20, 2027. Check your actual broker.",
+      "graded": false
+    },
+    {
+      "day": 2,
+      "question": "A price increases from $4.00 to $4.40, but quoted spread and depth are unfavorable. What does the ten-percent gain fail to prove?",
+      "reviewGuide": "An adequate study response should address: For a dated public security, calculate the observed percentage change; explain how poor liquidity could make the result untradeable. Evidence to check: Compare prior and current observed prices, quote width, turnover and verified venue coverage.",
+      "commonMistake": "A low-priced share is not automatically inexpensive or suitable; no single gainers list provides investment merit.",
+      "graded": false
+    },
+    {
+      "day": 3,
+      "question": "Why does an analysis of only three successful simulated decisions fail to establish a trustworthy learning baseline?",
+      "reviewGuide": "An adequate study response should address: Record a baseline self-review and one testable improvement using your existing Journal or Skills Record. Evidence to check: Find which observations were available at decision time and distinguish missing information from a mistake.",
+      "commonMistake": "Anecdotes and isolated return screenshots do not establish a strategy's true expectancy.",
+      "graded": false
+    },
+    {
+      "day": 4,
+      "question": "If reported float is eight million shares and reported volume is sixteen million shares, what can you conclude about the trading activity?",
+      "reviewGuide": "An adequate study response should address: Compare volume and dated float from legitimate sources; annotate the limitation of the reported float. Evidence to check: For one actual dated filing, identify source, effective share-data date and reported shares; separate turnover from unique shareholders.",
+      "commonMistake": "Volume divided by float is turnover, not a count of distinct buyers, and float may change after offerings.",
+      "graded": false
+    },
+    {
+      "day": 5,
+      "question": "What is knowable from a completed one-minute candle when a five-minute candle is still developing at the same instant?",
+      "reviewGuide": "An adequate study response should address: Use an approved historical Lab to mark an observable higher-timeframe context and a narrower decision boundary. Evidence to check: Label open, high, low, close and the selected time interval for an independently sourced session.",
+      "commonMistake": "Candle shape does not reveal which participant caused the move or whether high preceded low.",
+      "graded": false
+    },
+    {
+      "day": 6,
+      "question": "If the top ask displays 600 shares but you are considering a 1,000-share hypothetical order, what fill evidence is missing?",
+      "reviewGuide": "An adequate study response should address: Document spread and hypothetical order conditions in the Execution/Simulator workspace; state any missing depth evidence. Evidence to check: Compare bid, ask and quoted size with a genuine timestamped venue feed if one is available.",
+      "commonMistake": "Displayed order-book size may cancel; visual walls alone cannot prove intent, an executable fill, or spoofing.",
+      "graded": false
+    },
+    {
+      "day": 7,
+      "question": "Which source and timestamp fields must appear in a catalyst ledger when an issuer release and social repost have different publication times?",
+      "reviewGuide": "An adequate study response should address: Write a source ledger with release time, original URL and what was known before a decision. Evidence to check: Locate issuer disclosure, SEC filing or official release and compare publication time to observed market movement.",
+      "commonMistake": "A price reaction after a news release does not prove the news caused that movement.",
+      "graded": false
+    },
+    {
+      "day": 8,
+      "question": "Why should a scanner candidate with high relative volume but no timestamp or reliable spread remain conditional research rather than a buy decision?",
+      "reviewGuide": "An adequate study response should address: Evaluate one dated scan using existing candidate-research and Lab workflows; record rejected candidates and why. Evidence to check: Specify observable price, dollar-volume, liquidity, session and catalyst filters before seeing results.",
+      "commonMistake": "Sorting a scanner result is not an eligibility filter; snapshots and provider coverage need timestamps.",
+      "graded": false
+    },
+    {
+      "day": 9,
+      "question": "How would you define a support zone using only earlier observed reactions, and which later completed price event would invalidate it?",
+      "reviewGuide": "An adequate study response should address: Document the level, date/time, exact confirming observations and one clear invalidation. Evidence to check: Compare at least two observable prior tests on a selected higher- and lower-timeframe chart.",
+      "commonMistake": "Repeated tests do not always strengthen a level, and historical support is not a guarantee.",
+      "graded": false
+    },
+    {
+      "day": 10,
+      "question": "Under a $50 risk budget and $0.20 hypothetical stop distance, what is the arithmetic share limit and why is it not a guaranteed final loss?",
+      "reviewGuide": "An adequate study response should address: Using an actual historical observation only if rights-cleared, create a prospective position-size plan and stress a worse execution. Evidence to check: Identify entry reference, invalidation, shares, fees and gap/slippage uncertainty.",
+      "commonMistake": "A planned stop price is not a guaranteed loss cap; sizing also requires concentration and liquidity limits.",
+      "graded": false
+    },
+    {
+      "day": 11,
+      "question": "After a hypothetical 500-share position is reduced by 200 then increased by 100, what chronological risk and execution records should be updated?",
+      "reviewGuide": "An adequate study response should address: Use the Journal to record an entry plan, add/reduce criteria, and what information would justify a separate re-entry. Evidence to check: Write the sequence of any observed actions or explicitly marked prospective intentions.",
+      "commonMistake": "A retrospective price target is not evidence that it was achievable or that an exit was executed.",
+      "graded": false
+    },
+    {
+      "day": 12,
+      "question": "A candle's high and low include your limit price, but you lack queue depth. What can and cannot be asserted about the order execution?",
+      "reviewGuide": "An adequate study response should address: Use the existing Simulator and Journal to identify every assumption; do not report any hypothetical fill as actual. Evidence to check: Separate traded venue volume, best quote, a modeled order and the member's own documented executions.",
+      "commonMistake": "A fixed share quantity may carry very different dollar, borrow and slippage risks across symbols.",
+      "graded": false
+    },
+    {
+      "day": 13,
+      "question": "Which descriptions of trend, acceleration, pause, or reversal depend on future candles and therefore cannot justify an earlier decision?",
+      "reviewGuide": "An adequate study response should address: Identify a phase that is genuinely uncertain and show the two alternative subsequent pathways. Evidence to check: Annotate a verified historical sequence with only visible state transitions, not hindsight labels.",
+      "commonMistake": "No seven-stage lifecycle applies universally; incomplete data can make transitions unknowable.",
+      "graded": false
+    },
+    {
+      "day": 14,
+      "question": "Is a green daily candle at noon enough to classify the first completed green day after a red sequence? Explain exactly why or why not.",
+      "reviewGuide": "An adequate study response should address: Record the objective criteria, prior context and counterexample that would invalidate a first-green-day classification. Evidence to check: Identify a dated first positive session after a documented decline, subject to corporate actions and session definitions.",
+      "commonMistake": "A green close and volume surge do not prove continuation or an overnight advantage.",
+      "graded": false
+    },
+    {
+      "day": 15,
+      "question": "What primary evidence, dated prior range and invalidation would distinguish an observed former-runner breakout from a failed breakout?",
+      "reviewGuide": "An adequate study response should address: Create two conditional plans: confirmation and failed breakout, using dated authenticated historical evidence where available. Evidence to check: Mark historical session highs, prior resistance and corresponding venue-scoped participation.",
+      "commonMistake": "Repeated test counts and recent percentage gains do not produce a universal success probability.",
+      "graded": false
+    },
+    {
+      "day": 16,
+      "question": "If an offering rumor and possible trading halt coincide with a sharp selloff, what evidence and WAIT conditions should prevent a premature panic-dip assumption?",
+      "reviewGuide": "An adequate study response should address: Write WAIT and NO TRADE conditions for an attempted recovery without relying on a future candle. Evidence to check: Compare dated catalyst type, actual volatility and whether stabilization is observable.",
+      "commonMistake": "A rapid fall can remain disorderly; a large bounce is not an assured dip-buying opportunity.",
+      "graded": false
+    },
+    {
+      "day": 17,
+      "question": "Why can a short-sale obligation expose an account to losses beyond initial proceeds, and which constraints would need broker verification?",
+      "reviewGuide": "An adequate study response should address: Document which information must be verified with a broker before a historical short thesis is actionable. Evidence to check: Identify potential borrow cost, locate availability, recall risk, gap risk and asymmetric losses.",
+      "commonMistake": "A short trade is not a symmetric long trade; no market dataset can certify borrow availability.",
+      "graded": false
+    },
+    {
+      "day": 18,
+      "question": "Can an intraday red candle establish the first completed red day when the market session remains open? What evidence is still missing?",
+      "reviewGuide": "An adequate study response should address: Map a decision-time setup and show which labels are unknowable until that session closes. Evidence to check: Define prior run, reference close, actual session boundary and the difference between today's candle and yesterday's close.",
+      "commonMistake": "A red candle does not by itself prove reversal or a borrowable short opportunity.",
+      "graded": false
+    },
+    {
+      "day": 19,
+      "question": "How would you distinguish a compensated stock promotion from an issuer's original disclosure, and which claims must remain unverified?",
+      "reviewGuide": "An adequate study response should address: Write a source-quality checklist and flag what remains an allegation rather than a proven fact. Evidence to check: Record issuer communications, SEC documents, sponsored promotion disclosures and unsupported claims.",
+      "commonMistake": "A disclosure does not automatically make promotion lawful; do not assert specific issuer fraud without evidence.",
+      "graded": false
+    },
+    {
+      "day": 20,
+      "question": "Does a sharp price increase with high volume prove forced short covering? Provide competing explanations and the missing evidence.",
+      "reviewGuide": "An adequate study response should address: Review a dated historical example only where direct source evidence exists; articulate alternate non-squeeze explanations. Evidence to check: Compare published float/short-interest dates, corporate actions, intraday volume and broker-specific constraints.",
+      "commonMistake": "Price spikes alone cannot prove a short squeeze; halts and borrow changes may impair execution.",
+      "graded": false
+    },
+    {
+      "day": 21,
+      "question": "Why might two companies in the same formal industry classification react differently to the same headline or trading theme?",
+      "reviewGuide": "An adequate study response should address: Build a watch hypothesis explaining why two companies may react differently to the same theme. Evidence to check: Use original disclosure and time-stamped macro/industry information for a dated security.",
+      "commonMistake": "A thematic association does not guarantee price correlation, sympathy moves or success.",
+      "graded": false
+    },
+    {
+      "day": 22,
+      "question": "What independently documented connection should exist before a purported sympathy candidate is treated as genuinely related to a leader?",
+      "reviewGuide": "An adequate study response should address: Reject a sympathy candidate if its fundamental link or timestamped evidence cannot be established. Evidence to check: Compare liquidity, issuer relationship, news timing and original strength of a proposed leader/sympathy pair.",
+      "commonMistake": "Being in the same theme is not independent proof of likely follow-through.",
+      "graded": false
+    },
+    {
+      "day": 23,
+      "question": "How would you test a five-example chart setup on unseen cases without rewriting the rule using hindsight or changing its invalidation?",
+      "reviewGuide": "An adequate study response should address: Write a falsifiable rule and define sample, independent test period and failure thresholds. Evidence to check: State exact selection criteria, costs and a prospective plan; avoid selection on only prior winners.",
+      "commonMistake": "A preferred setup has no established expectancy without appropriately controlled evidence.",
+      "graded": false
+    },
+    {
+      "day": 24,
+      "question": "Which SEC filing identifiers, time records and amendments should be checked before relying on a third-party summary of an issuer announcement?",
+      "reviewGuide": "An adequate study response should address: Cross-check an original EDGAR submission against any press release and record what was knowable at the time. Evidence to check: Identify a real issuer's filing accession, form type, acceptance date and relevant amendment.",
+      "commonMistake": "A filed document is not automatically true; third-party attachments and market-data rights differ.",
+      "graded": false
+    },
+    {
+      "day": 25,
+      "question": "If FOMO urges an entry but your documented spread or invalidation conditions fail, what would a correct NO TRADE journal entry contain?",
+      "reviewGuide": "An adequate study response should address: Create a no-trade checklist, then journal a skipped opportunity as a valid decision without inventing results. Evidence to check: Record fatigue, unsourced catalysts, poor spreads or chasing as prospective exclusion signals.",
+      "commonMistake": "Missing a move is not a realized financial loss; urgent trading to satisfy a course exercise is not required.",
+      "graded": false
+    },
+    {
+      "day": 26,
+      "question": "Why must a dated watchlist entry be rechecked for news, price, volume, float, and session context rather than copied forward automatically?",
+      "reviewGuide": "An adequate study response should address: Use existing watchlist or Journal notes to build a small dated list that permits every entry to be NO TRADE. Evidence to check: Record ticker, observation timestamp, catalyst, conditional trigger and rejection rule.",
+      "commonMistake": "No current quote, float estimate or watchlist status should be inferred from a historical example.",
+      "graded": false
+    },
+    {
+      "day": 27,
+      "question": "After a later failed breakout, which original timestamps and recorded invalidation rules should a fair missed-opportunity review retain?",
+      "reviewGuide": "An adequate study response should address: Use the Journal to document one invalidated setup, one correctly avoided situation and missing evidence. Evidence to check: Compare first-decision timestamp with later authenticated observations; separate strategy error from random variation.",
+      "commonMistake": "Source-reported trade outcomes are not verified fills without corresponding records.",
+      "graded": false
+    },
+    {
+      "day": 28,
+      "question": "How can objectively positive company news coexist with a falling share price, without falsely claiming to know every participant's motive?",
+      "reviewGuide": "An adequate study response should address: Write two competing event-driven hypotheses and identify the evidence for each without claiming causation. Evidence to check: Use primary-source timestamp, comparable session windows and actual post-release venue observations.",
+      "commonMistake": "'Buy the rumor, sell the news' is not a trading law; one continuation case cannot establish a probability.",
+      "graded": false
+    },
+    {
+      "day": 29,
+      "question": "What information can a learner know before a scheduled earnings release, and what belongs only in the separate post-release chronology?",
+      "reviewGuide": "An adequate study response should address: Build a chronology and contrast a pre-event no-trade plan with the observed later reaction. Evidence to check: Time-order original company communications and contemporaneous prices without looking ahead.",
+      "commonMistake": "Conference calls do not predictably disappoint or rally; observer bias can reverse interpretation.",
+      "graded": false
+    },
+    {
+      "day": 30,
+      "question": "Which three verified strengths, three unresolved skill gaps and next study date make a credible thirty-day review without claiming trading mastery?",
+      "reviewGuide": "An adequate study response should address: Write an evidence-backed plan naming three strongest practices, three unverified topics, and your next review date. Evidence to check: Revisit journal process, approved assessment evidence, current source gaps and competency records.",
+      "commonMistake": "Thirty self-reported reflections are not 30 graded Lab passes, competency mastery or evidence of trading profitability.",
+      "graded": false
+    }
+  ]
+}

@@ -4,14 +4,14 @@
 (()=>{'use strict';
  const q=id=>document.getElementById(id),root=q('gu-bc-shell');
  if(!root)return;
- let sb=null,activeUser='',days=[],selected=1,progress=new Map(),progressAvailable=false,busy=false,loadSerial=0;
+ let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),progressAvailable=false,busy=false,loadSerial=0;
  const status=text=>{q('gu-bc-status').textContent=text};
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n};
  const link=(href,title)=>{
    const a=el('a',title);a.href=href;return a;
  };
  function clear(){
-  progress.clear();progressAvailable=false;days=[];root.hidden=true;
+  progress.clear();checkpoints.clear();progressAvailable=false;days=[];root.hidden=true;
   q('gu-bc-note').value='';q('gu-bc-days').replaceChildren();q('gu-bc-labs').replaceChildren();
  }
  async function api(method='GET',payload){
@@ -45,6 +45,12 @@
  function render(){
   const d=days.find(x=>x.day===selected);
   if(!d)return;
+  const checkpoint=checkpoints.get(selected);
+  q('gu-bc-check-question').textContent=checkpoint?.question||'This topic-specific self-check is unavailable; no grade or credit is inferred.';
+  q('gu-bc-check-review').hidden=true;
+  q('gu-bc-check-review').textContent='';
+  q('gu-bc-check-copy').disabled=!checkpoint;
+  q('gu-bc-check-reveal').disabled=!checkpoint;
   q('gu-bc-day-label').textContent='DAY '+String(selected).padStart(2,'0')+' OF 30';
   for(const field of ['title','objective','observe','practice','caution'])q('gu-bc-'+field).textContent=d[field];
   const entries=q('gu-bc-links');entries.replaceChildren();
@@ -90,6 +96,22 @@
    if(!Array.isArray(data.curriculum?.days)||data.curriculum.days.length!==30)
     throw Error('The full thirty-day curriculum could not be verified.');
    days=data.curriculum.days;
+   checkpoints.clear();
+   try{
+    const response=await fetch('/data/bootcamp-formative-v014154.json',{cache:'no-store'});
+    if(!response.ok)throw Error('Missing original formative source');
+    const source=await response.json();
+    if(!Array.isArray(source.days)||source.days.length!==30||source.graded!==false)
+     throw Error('Incomplete 30-day formative source');
+    const observed=new Set();
+    for(const row of source.days){
+     if(!Number.isInteger(row.day)||row.day<1||row.day>30||observed.has(row.day)||
+        typeof row.question!=='string'||row.question.length<65||
+        typeof row.reviewGuide!=='string'||row.reviewGuide.length<90||
+        row.graded!==false)throw Error('Invalid original self-check');
+     observed.add(row.day);checkpoints.set(row.day,row);
+    }
+   }catch{checkpoints.clear()}
    progressAvailable=data.progressAvailable===true;
    progress=new Map((data.progress||[]).map(row=>[row.day,row]));
    root.hidden=false;status(progressAvailable?'Active member training access confirmed. Your private reflection progress was loaded.':
@@ -97,6 +119,23 @@
    render();
   }catch(e){if(id===loadSerial){clear();status(e.message||'Learning service unavailable. No progress was changed.')}}
  }
+ q('gu-bc-check-reveal').addEventListener('click',()=>{
+  const item=checkpoints.get(selected);if(!item)return;
+  q('gu-bc-check-review').textContent='Review guide: '+item.reviewGuide+
+    ' Common misconception: '+item.commonMistake+' This is ungraded coaching, not a verified assessment.';
+  q('gu-bc-check-review').hidden=false;
+ });
+ q('gu-bc-check-copy').addEventListener('click',()=>{
+  const item=checkpoints.get(selected);if(!item)return;
+  const field=q('gu-bc-note'),marker='Day '+selected+' self-check response:';
+  if(field.value.includes(marker)){field.focus();return}
+  const addition='\n\n'+marker+'\n'+item.question+'\nMy answer: ';
+  if(field.value.length+addition.length>2000){
+   q('gu-bc-save-status').textContent='Reflection character limit reached; make room before adding a question.';return
+  }
+  field.value+=addition;field.focus();
+  q('gu-bc-save-status').textContent='Question copied into the local reflection; answer it and choose Save private ungraded reflection to retain it.';
+ });
  q('gu-bc-start').addEventListener('click',()=>void write('start'));
  q('gu-bc-save').addEventListener('click',()=>void write('save_reflection'));
  q('gu-bc-prev').addEventListener('click',()=>{selected=Math.max(1,selected-1);render()});

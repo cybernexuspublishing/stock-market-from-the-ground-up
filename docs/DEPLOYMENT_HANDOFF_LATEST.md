@@ -190,3 +190,6 @@ New single-ledger 325-Lab inventory audit for Day Trading (150), Reading the Tap
 
 ## D13 graded-history integrity started
 Existing `/api/interactive-training?action=progress` now loads chronological server-owned, member-scoped completed grades beyond an older 500-row silent cutoff; a bounded 10,000-record exhaustion condition fails closed. Reuses original private rubric/answer/grading system and 30 competencies. CI verifies two pages, no grade omitted, restricted user denial and no secret leakage. D13 production completion remains unverified; no SQL run.
+
+## D14 30 original study checkpoints integrated
+One different formative question, existing topic-specific practice-based review guide and day-specific common misconception is attached to each original 30-Day Bootcamp day. Learners can copy a question into their already-private ungraded reflection; the session-authenticated Bootcamp progress API and 30-day mapping are unchanged. A missing incomplete checkpoint source fails visibly without awarding a fake grade. This does not count as 30 graded/approved Bootcamp days.
