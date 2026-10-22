@@ -25,6 +25,8 @@ jobs:
           node tests/test_v014151_self_reported_lab_progress.mjs
           node tests/test_v014152_other325_evidence.mjs
           node tests/test_v014152_other325_editor_queue.mjs
+          node tests/test_v014153_paged_member_grade_history.mjs
+          node --check functions/api/interactive-training.js
           node --check assets/js/training-editor.js
           node --check assets/js/labs.js
           node --check assets/js/training-editor.js

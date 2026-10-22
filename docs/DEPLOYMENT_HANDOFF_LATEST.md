@@ -187,3 +187,6 @@ The v0.14.0.99 curriculum contract binds all 419 competency-crosswalk titles to 
 
 ## D12 coordinated source evidence (v0.14.0.152 target; D11 acceptance still pending)
 New single-ledger 325-Lab inventory audit for Day Trading (150), Reading the Tape (75), and Site Exclusive (100) validates original 419 source associations and emits per-Lab JSON/CSV gaps in existing CI. This is source-only, not private lesson or production acceptance; no separate backend or user action. Exact 30 competency definitions retained.
+
+## D13 graded-history integrity started
+Existing `/api/interactive-training?action=progress` now loads chronological server-owned, member-scoped completed grades beyond an older 500-row silent cutoff; a bounded 10,000-record exhaustion condition fails closed. Reuses original private rubric/answer/grading system and 30 competencies. CI verifies two pages, no grade omitted, restricted user denial and no secret leakage. D13 production completion remains unverified; no SQL run.

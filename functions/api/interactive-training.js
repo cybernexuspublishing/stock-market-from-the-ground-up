@@ -59,9 +59,19 @@ export async function onRequest({request,env}){try{
  // Existing member-owned, completed server grades. Returns no answer keys,
  // unseen observations, Journal text, rubric rows or skill certifications.
  if(action==='progress'&&request.method==='GET'){
-  const rows=await db(env,'lab_training_attempts_v014?select=lab_id,mode,score,completed_at&user_id=eq.'+
-   esc(acl.userId)+'&completed_at=not.is.null&score=not.is.null&order=completed_at.desc&limit=500');
-  if(!Array.isArray(rows)||rows.length>500)throw fail('Graded learning history unavailable.',503);
+  // Do not silently discard older completed Labs after 500 member retakes.
+  // Every page is privately scoped to the independently authenticated actor.
+  const rows=[],pageSize=250,hardCap=10000;
+  let exhaustive=false;
+  for(let offset=0;offset<hardCap;offset+=pageSize){
+   const page=await db(env,'lab_training_attempts_v014?select=id,lab_id,mode,score,completed_at&user_id=eq.'+
+    esc(acl.userId)+'&completed_at=not.is.null&score=not.is.null&order=completed_at.desc,id.desc&limit='+
+    pageSize+'&offset='+offset);
+   if(!Array.isArray(page)||page.length>pageSize)throw fail('Invalid graded learning history page.',503);
+   rows.push(...page);
+   if(page.length<pageSize){exhaustive=true;break}
+  }
+  if(!exhaustive)throw fail('Graded history exceeds the safe audit window; full history must be verified before summary.',503);
   const latest=new Map(),safe=[];
   for(const row of rows){
    const id=String(row?.lab_id||''),score=Number(row?.score),completedAt=String(row?.completed_at||'');
@@ -72,7 +82,7 @@ export async function onRequest({request,env}){try{
    if(!latest.has(id))latest.set(id,{labId:id,score,mode:row.mode,completedAt});
   }
   return reply({ok:true,latestByLab:[...latest.values()],recentCompleted:safe.slice(0,100),
-   reviewedRows:safe.length,truncated:rows.length===500,
+   reviewedRows:safe.length,truncated:false,
    interpretation:'Recorded, server-graded conceptual/book exercises. NOT historical replay proof, four-dimensional competency certification, P&L or brokerage performance.',
    masteryAwarded:false});
  }
