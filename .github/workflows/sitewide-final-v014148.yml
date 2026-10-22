@@ -1,0 +1,56 @@
+name: Deployment 08 Source Release Gate v0.14.0.148
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sitewide-final-source:
+    name: D08 real source contracts and explicit production boundaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original route regression reconciled to existing production architecture
+        run: node tests/v0144_route_contracts.mjs
+      - name: No-charge source and member-level safety regressions
+        run: |
+          node tests/test_v014110_advanced_tool_access_and_workspace.mjs
+          node tests/test_v014145_marketdata_byo_security.mjs
+          node tests/test_v014146_market_analysis.mjs
+          node tests/test_v014146_private_journal.mjs
+          node tests/test_v014147_tutor_boundary.mjs
+          node tests/test_v014147_tutor_history_idempotency.mjs
+          node tests/test_v014147_owner_tutor_feedback.mjs
+          node tests/test_v014140_live_checkout_recovery.mjs
+          node tests/test_v014131_stable_billing_endpoint.mjs
+          node tests/test_v014125_forum_direct_dml.mjs
+          node tests/test_v014141_owner_delivery_governance.mjs
+      - name: Source governance / private authored curriculum boundary
+        run: |
+          python3 scripts/sitewide_governance_audit.py --root .
+          node --check functions/api/checkout.js
+          node --check functions/api/plan-controls.js
+          node --check scripts/deployment08_release_evidence.mjs
+          bash scripts/build-pages.sh
+          test ! -e public/data/interactive-labs.json
+          test ! -d public/functions
+          test ! -d public/supabase
+          test -f public/release-manifest.json
+          node -e "const m=require('./public/release-manifest.json');if(m.version!=='0.14.0.148'||m.customerCheckoutApproved!==false||m.deployment08?.productionAcceptance!=='not_certified')process.exit(1)"
+      - name: Create deterministic source-only release dossier (NOT operational certification)
+        run: node scripts/deployment08_release_evidence.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: GU-D08-Source-Evidence-${{ github.run_number }}
+          path: artifacts/d08-sitewide-source-evidence.json
+          if-no-files-found: warn
+          retention-days: 30

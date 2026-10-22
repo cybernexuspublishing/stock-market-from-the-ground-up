@@ -9,7 +9,7 @@ async function caller(env,req){const h=req.headers.get('authorization')||'',tok=
  if(p?.[0]?.account_kind!=='member'||['suspended','restricted'].includes(f?.[0]?.status))
   throw Object.assign(new Error('This account is not eligible for new purchases.'),{status:403});
  return{token:tok,user}}
-async function rest(env,path,{method='GET',body,prefer}={}){const{url,secret}=cfg(env),headers={apikey:secret,authorization:`Bearer ${secret}`,accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';if(prefer)headers.prefer=prefer;return jf(`${url}/rest/v1/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
+async function rest(env,path,{method='GET',body,prefer}={}){const{url,secret}=cfg(env),headers={apikey:secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))headers.authorization=`Bearer ${secret}`;if(body!==undefined)headers['content-type']='application/json';if(prefer)headers.prefer=prefer;return jf(`${url}/rest/v1/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
 
 async function ensureAgeEligible(env,userId){const r=await rest(env,`account_private_identity?select=age_eligible,date_of_birth&user_id=eq.${encodeURIComponent(userId)}&limit=1`).catch(()=>[]);const x=r?.[0];if(!x?.date_of_birth||x.age_eligible!==true)throw Object.assign(new Error('Complete age eligibility in Dashboard → Settings → Account before purchasing.'),{status:403});return true}
 async function setting(env,key){const r=await rest(env,`site_settings?select=value&setting_key=eq.${encodeURIComponent(key)}`);return r?.[0]?.value}

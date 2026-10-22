@@ -29,7 +29,7 @@ assert "unified.addEventListener('click',runCompletePaymentReview)" in js
 assert "preflight.addEventListener('click',runPreflight)" in js
 assert ("Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'" + version + "')" in js or f"Payment testing interface v{version}" in js), "Visible UI deploy signature must use the current release version"
 assert (f"version:'{version}'" in js or ("version:window.SITE_CONFIG?.VERSION||'" + version + "'") in js), "Stripe UI must report the current deployment version"
-assert f"groundup-v014{int(version.split('.')[-1]):03d}-public" in sw
+assert 'groundup-v'+''.join(version.split('.'))+'-public' in sw
 assert release["customerCheckoutApproved"] is False
 assert release["liveStripeFulfillmentEnabled"] is False
 print("PASS v52: real Admin loads new Stripe bundle, visible version/preflight, no stale query or live payments.")
