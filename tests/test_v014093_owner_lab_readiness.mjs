@@ -4,7 +4,15 @@ import {classifyOwnerLabs} from '../functions/_lib/owner-lab-readiness-v01493.js
 import {onRequest} from '../functions/api/owner-roadmap.js';
 const uid='11111111-2222-4333-8444-555555555555';
 const labs=['LAB_A','LAB_B','LAB_C','LAB_D'].map(lab_id=>({lab_id,title:lab_id,active:true,registry_visible:true,ticker:'MOCK',historical_date:'2024-05-03'}));
-const instructions=['LAB_B','LAB_C','LAB_D'].map(lab_id=>({lab_id,source_status:'book_authored_unverified_market'}));
+const originalLesson={concept:'Identifying the premarket high',
+ objective:'Explain how to distinguish the actual prior observed high from a speculative level.',
+ why:'The decision boundary must be established using already observed bars and the specified source sessions; missing bars are not evidence.',
+ steps:[
+  'Write down the explicit session opening and closing timestamps.',
+  'Find the highest reported high in the observed premarket bars.',
+  'Record one failed breakout and the missing historical coverage.'
+ ]};
+const instructions=['LAB_B','LAB_C','LAB_D'].map(lab_id=>({lab_id,source_status:'book_authored_unverified_market',content:originalLesson}));
 const rubrics=['LAB_C','LAB_D'].map(lab_id=>({lab_id,review_state:'reviewed',reviewed_by:uid,reviewed_at:'2026-10-18T10:00:00Z',
  questions:[{id:'Q1',prompt:'Reviewed self-check'}],answer_key:{Q1:'PRIVATE_KEY_MUST_NOT_LEAK'}}));
 const envelopes=[{lab_id:'LAB_D',dataset_code:'LICENSE_A',status:'published',context_start_at:'2024-05-03T12:00:00Z',
@@ -19,6 +27,24 @@ assert.equal(classification.certifiedComplete,0);
 assert.deepEqual(classification.rows.map(x=>x.stage),[
  'MISSING_PRIVATE_LESSON','MISSING_REVIEWED_GRADING','MISSING_LICENSED_HISTORICAL_CONTEXT','CONTENT_PRECHECK_ONLY_QA_REQUIRED']);
 assert(!JSON.stringify(classification).includes('PRIVATE_KEY_MUST_NOT_LEAK'));
+assert(!JSON.stringify(classification).includes('Identifying the premarket high'),'Private lesson content must remain on server');
+assert.equal(classification.breakdown.privateInstructions,3);
+assert.equal(classification.breakdown.substantivePrivateLessonPrechecks,3);
+assert.equal(classification.rows[1].substantivePrivateLessonPrecheck,true);
+const draftOnly=classifyOwnerLabs({labs,instructions:[
+ {lab_id:'LAB_B',source_status:'original_hypothetical_unreviewed_v01496',content:originalLesson},
+ ...instructions.slice(1)
+],rubrics,envelopes,datasets});
+assert.equal(draftOnly.rows[1].instructionRecordPresent,true);
+assert.equal(draftOnly.rows[1].substantivePrivateLessonPrecheck,false);
+assert.equal(draftOnly.rows[1].stage,'MISSING_PRIVATE_LESSON',
+ 'Generic preloaded instructional scaffolds must not count as complete teaching');
+const emptyOnly=classifyOwnerLabs({labs,instructions:[
+ {lab_id:'LAB_B',source_status:'book_authored_unverified_market',content:{}},
+ ...instructions.slice(1)
+],rubrics,envelopes,datasets});
+assert.equal(emptyOnly.rows[1].stage,'MISSING_PRIVATE_LESSON','Empty private row cannot satisfy instructional gate');
+
 const noRights=classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets:[{...datasets[0],metadata:{...datasets[0].metadata,licensed_for_member_display:false}}]});
 assert.equal(noRights.rows.at(-1).stage,'MISSING_LICENSED_HISTORICAL_CONTEXT');
 assert.throws(()=>classifyOwnerLabs({labs:[labs[0],labs[0]],instructions:[],rubrics:[],envelopes:[],datasets:[]}),/Duplicate/);
@@ -34,7 +60,7 @@ globalThis.fetch=async(url)=>{
  if(s.includes('/admin_user_roles?'))return json([{role_code:role,expires_at:null}]);
  if(s.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(s.includes('/platform_labs?')){sensitiveReads++;return json(labs)}
- if(s.includes('/lab_instruction_v014?')){sensitiveReads++;return json(instructions)}
+ if(s.includes('/lab_instruction_v014?')){assert(s.includes('select=lab_id,source_status,content'));sensitiveReads++;return json(instructions)}
  if(s.includes('/lab_training_sets_v014?')){sensitiveReads++;return broken?json({message:'missing table'},404):json(rubrics)}
  if(s.includes('/historical_context_envelopes?')){sensitiveReads++;return json(envelopes)}
  if(s.includes('/market_datasets?')){sensitiveReads++;return json(datasets)}
