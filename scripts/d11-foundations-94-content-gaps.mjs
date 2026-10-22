@@ -11,6 +11,7 @@ const assert=(truth,message)=>{if(!truth)throw Error('D11 FOUNDATIONS CONTRACT: 
 const catalog=readJSON('data/labs.json');
 const cross=readJSON('data/competency-lab-paths-v01499.json');
 const ledger=readJSON('artifacts/curriculum-acceptance-v014150.json');
+const sourceIndex=new Map(readJSON('data/interactive-lab-index.json').map(item=>[item.id,item]));
 const groups={FOUNDATION_BOOK_1:15,FOUNDATION_BOOK_2:46,FOUNDATION_BOOK_3:33};
 assert(ledger.labCount===419&&ledger.competencies===30,'D10 evidence schema or skill count changed');
 assert(Array.isArray(catalog)&&catalog.length===94,'Foundations public companion metadata must contain exactly 94 entries');
@@ -27,21 +28,24 @@ for(const source of catalog){
  assert(evidence?.collection===collection,'acceptance-ledger mismatch '+id);
  const placeholder=source.concept.toLowerCase()==='historical simulator exercise';
  const titleMismatch=evidence.title!==source.concept;
- // Keep immutable IDs. Source mismatches from generic legacy labels are
- // actual editorial gaps, not grounds to silently alter paid curricula.
- assert(!titleMismatch||placeholder,'Unexpected title drift '+id);
+ const legacyCorrected=/^F3-C0[456]-L\d{2}$/.test(id);
+ if(legacyCorrected)assert(sourceIndex.get(id)?.concept===source.concept,'Index-derived topic title mismatch '+id);
+ assert(!titleMismatch,'Crosswalk title must match public source '+id);
+ assert(!placeholder,'Unresolved generic Foundations title '+id);
+ const genericExample=/^Example [123]: (?:ORCL|VZ|GM)$/.test(source.concept);
  const gap=Object.entries(evidence.criterionStatus).filter(([k,v])=>v!=='REVIEW_RECORDED').map(([k])=>k);
  const row={
   id,collection,book,chapter:source.chapter,title:source.concept,
   crosswalkTitle:evidence.title,titleMismatch,placeholderTitle:placeholder,
+  genericIndicatorExample:genericExample,canonicalIndexTitle:sourceIndex.get(id)?.concept||null,
   existingRegistry:'PRESENT',draftAssessment:'PRIVATE_V96_DRAFT_UNVERIFIED',
   independentPrivateInstruction:'NOT_VERIFIED_IN_GITHUB_SOURCE',
   bookManuscriptStatus:'V1_14_OWNER_FROZEN_NOT_REPRODUCED',
   historicalFeed:'NOT_INDEPENDENTLY_LICENSE_VERIFIED',
   contentEditorialStatus:evidence.criterionStatus.editorial,
   competencyCrosswalk:mapped.relatedCompetencies,
-  remainingCriteria:[...gap,...(placeholder?['SUBSTANTIVE_UNIQUE_TITLE_MISSING']:[])],
-  accepted:evidence.accepted&&!placeholder,
+  remainingCriteria:[...gap,...(genericExample?['TOPIC_SPECIFIC_INSTRUCTION_PENDING']:[])],
+  accepted:evidence.accepted&&!placeholder&&!genericExample,
   productionAccepted:false
  };
  reviewed.push(row);totals[collection]=(totals[collection]||0)+1;
@@ -59,6 +63,7 @@ const report={
  reviewedAcceptance:reviewed.filter(r=>r.accepted).length,
  placeholderTitles:reviewed.filter(r=>r.placeholderTitle).length,
  canonicalTitleMismatches:reviewed.filter(r=>r.titleMismatch).length,
+ genericIndicatorExamples:reviewed.filter(r=>r.genericIndicatorExample).length,
  productionAcceptanceVerified:false,
  blockingRequirements:[
   'Per-Lab private instruction from approved Book I/II/III manuscript or reviewed original companion content',

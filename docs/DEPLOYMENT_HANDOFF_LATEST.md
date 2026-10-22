@@ -177,3 +177,7 @@ The retained v0.14.0.52 Admin Stripe source test checks that query-busted Admin 
 
 ### Consolidated D10 source manifest candidate v0.14.0.150 (2026-10-22)
 Version-consistency fields in release-manifest, browser config, commerce JSON, route policy, public Service Worker cache, Admin and Owner Roadmap HTML metadata, and Stripe Admin JS/CSS cache selectors are advanced **together** to v150. No entitlement, checkout configuration, price or Stripe provider behavior changed; future schema, historical rights, editorial, browser and production release gates remain pending. The current draft PR #124 must pass full exact-head CI before merging this source candidate.
+
+
+## Main-only D11 continuity update (October 22, 2026)
+PR #125 merged at `704962888aec8e3c0ac7b830ec1bd0c1b1a8c0ff`; owner directed all subsequent changes directly to main without redundant merge PRs. D11 public Book III title reconciliation uses exact existing source index metadata for 13 previous generic titles, leaves 3 non-descriptive indicator examples flagged, and does not change frozen books, Supabase, Stripe or customer state. All 94 lesson and historical-data production acceptance gates remain open.
