@@ -15,7 +15,8 @@ const targets=[
  'tests/test_v014147_tutor_boundary.mjs',
  'tests/test_v014147_tutor_history_idempotency.mjs',
  'tests/test_v014147_owner_tutor_feedback.mjs',
- 'tests/test_v014149_tutor_provider_and_math.mjs'
+ 'tests/test_v014149_tutor_provider_and_math.mjs',
+ 'tests/test_v014149_tutor_conversations.mjs'
 ];
 const checks=[
  ...targets.map(p=>({id:p,args:[p]})),
@@ -23,6 +24,9 @@ const checks=[
       'functions/_lib/first-party-ai-service-v014103.js',
       'functions/_lib/tutor-position-math-v014149.js',
       'functions/api/market-tutor-v01492.js',
+      'functions/api/member-tutor-conversations.js',
+      'functions/_lib/tutor-request-boundary-v014147.js',
+      'functions/_lib/tutor-history-save-v014107.js',
       'assets/js/market-tutor.js'].map(p=>({id:'syntax:'+p,args:['--check',p]}))
 ];
 let failure=0;
