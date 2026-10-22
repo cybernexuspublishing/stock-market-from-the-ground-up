@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.149",
+  "version": "0.14.0.150",
   "status": "source-release-candidate-production-acceptance-pending",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
@@ -283,5 +283,37 @@
     "modelInferenceEnabledByThisRelease": false,
     "productionAccepted": false,
     "outstanding": "Authenticated member A/B, TEST/Showcase, privacy, AI free-account/provider review, Owner editorial controls and human content review"
+  },
+  "deployment10": {
+    "number": 10,
+    "totalPlanned": 18,
+    "sourceVersion": "v0.14.0.150",
+    "sourceState": "release_candidate_pending_ci",
+    "sourcePullRequest": 124,
+    "productionAccepted": false,
+    "databaseChangesApplied": false,
+    "cloudflareDeployedShaVerified": false,
+    "licensedHistoricalDataAvailableForPublicLabs": false,
+    "educationalMarketDataPolicy": "unverified member-provided OHLCV and venue/redistribution limits never equal verified publisher-grade historical data",
+    "completedSourceFeatures": [
+      "strict-by-provider NY OHLCV integrity",
+      "member snapshot scanner optional filters",
+      "watchlist optimistic editing and deletion",
+      "SMA20 and Wilder ATR14 education",
+      "18 original pattern evidence studies",
+      "observed HOD/LOD/PMH/PML and prior-day reference studies",
+      "419 Lab/30 Bootcamp individual criterion evidence register"
+    ],
+    "blockers": [
+      "live data rights and provenance",
+      "member A/B + TEST/Showcase acceptance",
+      "real licensed Replay dataset and independent no-lookahead verification",
+      "simulator/journal cross-account production test",
+      "provider sandbox failure/retries",
+      "individual curriculum editorial and all-source production verification"
+    ],
+    "paidProviderActivation": false,
+    "stripeConfigurationChanged": false,
+    "ownerActionsNow": "none for code; manual Supabase/Cloudflare only if a real verified gap is diagnosed"
   }
 }

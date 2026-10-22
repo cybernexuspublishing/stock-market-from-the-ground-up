@@ -3,7 +3,7 @@
 **Project:** The Stock Market: From the Ground Up (single book + website project)  
 **Date:** 2026-10-22  
 **Status:** DEVELOPMENT IN PROGRESS / PRODUCTION NOT ACCEPTED  
-**Source target:** v0.14.0.150 (not yet deployed or merged)  
+**Source target:** v0.14.0.150 release candidate on PR #124 (not deployed or merged)  
 **Base:** main v0.14.0.149 postflight at `3ab646eb5651101ae3bc994e32fbd496a36b8aba`  
 **Branch:** `deployment-10-of-18-market-data-v014150`
 
@@ -174,3 +174,6 @@ The D10 branch merges main postflight commit `1ec004cc423527bc85b05c951ad8aed33f
 
 ### Existing Admin Stripe noncharging test after v149 source parity (2026-10-22)
 The retained v0.14.0.52 Admin Stripe source test checks that query-busted Admin CSS/JS and JS fallback identify the actual current release. D10 revealed stale v148 asset labels after D09 merged. Corrected only `admin.html` asset queries and `assets/js/admin-stripe-shadow-v01439.js` source fallback; did not alter Stripe secrets, checkout mode, product prices, customer records or authorization. The noncharging workflow must pass again on the new exact D10 head.
+
+### Consolidated D10 source manifest candidate v0.14.0.150 (2026-10-22)
+Version-consistency fields in release-manifest, browser config, commerce JSON, route policy, public Service Worker cache, Admin and Owner Roadmap HTML metadata, and Stripe Admin JS/CSS cache selectors are advanced **together** to v150. No entitlement, checkout configuration, price or Stripe provider behavior changed; future schema, historical rights, editorial, browser and production release gates remain pending. The current draft PR #124 must pass full exact-head CI before merging this source candidate.
