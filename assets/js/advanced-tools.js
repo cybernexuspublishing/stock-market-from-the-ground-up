@@ -256,6 +256,8 @@
    panel('Private saved candidates','<div id="w-list"></div>')+
    panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
   const list=document.getElementById('w-list');
+  const saveButton=document.getElementById('w-save');
+  let editing=null;
   if(!recs.length)list.textContent='No saved candidates yet.';
   for(const rec of recs){
    const line=document.createElement('p');
@@ -263,7 +265,30 @@
     ' · Invalidation: '+(rec.payload?.invalidation||'Unspecified')+
     ' · Source: '+(rec.payload?.sourceNote||'Legacy record: no source')+
     ' · At: '+(rec.payload?.asOf||'Date unknown');
-   list.append(line);
+   const edit=document.createElement('button');edit.type='button';edit.className='btn secondary';
+   edit.textContent='Edit';edit.setAttribute('aria-label','Edit saved candidate '+String(rec.title||''));
+   edit.addEventListener('click',()=>{
+    if(!rec.updated_at){status('This older record has no update revision. Refresh your workspace before editing.','error');return}
+    editing={id:rec.id,revision:rec.updated_at};
+    const value=(id,text)=>{const el=document.getElementById(id);if(el)el.value=String(text??'')};
+    const p=rec.payload||{};
+    value('w-ticker',rec.title);value('w-status',p.status||'WATCH');value('w-asof',p.asOf);
+    value('w-source',p.sourceNote);value('w-cat',p.catalyst);value('w-level',p.level);
+    value('w-entry',p.entry);value('w-inv',p.invalidation);value('w-stop',p.stop);
+    value('w-target',p.target);value('w-why',p.why);
+    saveButton.textContent='Update Saved Candidate';
+    document.getElementById('w-ticker').focus();
+    status('Editing your saved research candidate. Save to update only this version.','success');
+   });
+   const del=document.createElement('button');del.type='button';del.className='btn secondary';
+   del.textContent='Delete';del.setAttribute('aria-label','Delete saved candidate '+String(rec.title||''));
+   del.addEventListener('click',async()=>{
+    if(!window.confirm('Permanently delete this saved research candidate?'))return;
+    try{await workspaceApi('&id='+encodeURIComponent(rec.id),'DELETE');await renderWatchlist();renderWorkspaceManager();
+     status('Selected private candidate deleted.','success')}
+    catch(e){status(e.message,'error')}
+   });
+   line.append(' ',edit,' ',del);list.append(line);
   }
   document.getElementById('w-save').onclick=async()=>{
    try{
@@ -279,8 +304,13 @@
      entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
      target:value('w-target'),why:value('w-why'),asOf,sourceNote,
      evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
-    await saveRecord('watchlist',ticker,payload);await renderWatchlist();renderWorkspaceManager();
-    status('Saved private conditional plan. Market source and trade outcome remain unverified.','success');
+    if(editing){
+     await workspaceApi('&id='+encodeURIComponent(editing.id),'PATCH',
+      {recordType:'watchlist',title:ticker,payload,expectedUpdatedAt:editing.revision});
+    }else await saveRecord('watchlist',ticker,payload);
+    const action=editing?'updated':'saved';
+    await renderWatchlist();renderWorkspaceManager();
+    status('Private conditional plan '+action+'. Market source and outcome remain unverified.','success');
    }catch(e){status(e.message,'error')}
   };
  }

@@ -20,6 +20,7 @@
 - Uploaded StocksToTrade Browser Research archive consulted for educational pattern, indicator and watchlist design; research statements are not licensed member-data feeds, and no archived browser sessions, credentials or private profiles are published.
 - D10 scanner expansion now supports optional minimum price, reported gap %, supplied market cap and price-times-shares proxy thresholds, with fail-closed missing optional metrics and member-visible controls. The proxy is not exchange turnover or a trade indicator.
 - Existing multi-timeframe educational workbench now includes independently calculated SMA 20 and Wilder ATR 14 from supplied OHLC observations, with a documented bar-2 seed, no fill/performance claim and regression tests. EMA and typical-price proxy remain explicitly non-verified.
+- Watchlist lifecycle now supports authenticated edit (timestamp-based optimistic concurrency, account and tool scoping, protected data type), record deletion, private saved candidates and dated provenance. Dedicated mocked backend auth/CSRF/stale-edit tests. Existing POST/read/export and member restrictions retained.
 - Planned 10.2–10.10 work remains: expanded supported scanner criteria, private watchlist lifecycle, indicator and session math, educational pattern evidence, licensed Level II/Time & Sales restrictions, approved replay chronology and simulator/journal acceptance. Existing source features must be verified before reimplementation.
 
 ## D10 acceptance and owner actions
