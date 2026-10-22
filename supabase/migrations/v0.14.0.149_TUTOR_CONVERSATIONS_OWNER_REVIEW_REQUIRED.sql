@@ -126,6 +126,42 @@ REVOKE ALL ON FUNCTION public.gu_v014149_delete_tutor_conversation(uuid,uuid)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014149_delete_tutor_conversation(uuid,uuid)
  TO service_role;
+-- Anonymous-to-operators fixed-category gap analytics. This counts ONLY broad
+-- unanswered topic groups. Neither user_id, prompt text, session, IP, ticker,
+-- URL nor specific reported mistake appears in this table.
+CREATE TABLE IF NOT EXISTS public.gu_tutor_gap_aggregate_v014149 (
+ month_utc date NOT NULL,
+ topic_code text NOT NULL CHECK(topic_code IN
+  ('charting','risk','market_structure','order_flow','learning_platform','other')),
+ question_mode text NOT NULL CHECK(question_mode IN ('explain','question','review','practice')),
+ total integer NOT NULL DEFAULT 0 CHECK(total BETWEEN 0 AND 1000000),
+ last_seen timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY(month_utc,topic_code,question_mode)
+);
+ALTER TABLE public.gu_tutor_gap_aggregate_v014149 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.gu_tutor_gap_aggregate_v014149 FROM PUBLIC,anon,authenticated;
+GRANT SELECT,INSERT,UPDATE ON public.gu_tutor_gap_aggregate_v014149 TO service_role;
+
+CREATE OR REPLACE FUNCTION public.gu_v014149_record_tutor_gap(
+ p_topic text,p_mode text
+) RETURNS boolean
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+DECLARE v_month date := date_trunc('month',now() AT TIME ZONE 'UTC')::date;
+BEGIN
+ IF p_topic NOT IN ('charting','risk','market_structure','order_flow','learning_platform','other')
+ OR p_mode NOT IN ('explain','question','review','practice') THEN RETURN false; END IF;
+ INSERT INTO public.gu_tutor_gap_aggregate_v014149(month_utc,topic_code,question_mode,total)
+ VALUES(v_month,p_topic,p_mode,1)
+ ON CONFLICT(month_utc,topic_code,question_mode)
+ DO UPDATE SET total=LEAST(public.gu_tutor_gap_aggregate_v014149.total+1,1000000),
+  last_seen=now();
+ RETURN true;
+END $;
+REVOKE ALL ON FUNCTION public.gu_v014149_record_tutor_gap(text,text)
+ FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gu_v014149_record_tutor_gap(text,text)
+ TO service_role;
+
 NOTIFY pgrst,'reload schema';
 COMMIT;
 -- Existing v102 ungrouped exchanges remain unmodified. Real cross-account
