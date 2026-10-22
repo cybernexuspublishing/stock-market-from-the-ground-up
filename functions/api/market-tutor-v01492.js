@@ -104,8 +104,9 @@ async function memberPractice(env,userId){
  return {examined,recommendations,skillSignals,gradedHistoryAvailable,gradedReview:gradedReview.slice(0,5),recordedAssessmentCount:latest.size};
 }
 async function modelDraft(env,{q,mode,source,answer}){
- const key=String(env.AI_TUTOR_API_KEY||''),model=String(env.AI_TUTOR_MODEL||'');
- if(!key||!model)return null;
+ // Provider routing and approval are enforced at the existing atomic quota gate.
+ // Never assume an OpenAI API key is required for the Workers AI binding.
+ if(env.AI_SERVICE_ENABLED!=='true')return null;
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
  try{
   const reference=source.map((t,i)=>'['+(i+1)+'] '+t.title+': '+t.summary).join('\n');
