@@ -6,6 +6,7 @@
  * Disabled unless owner enables, keys exist, exact positive limits configured,
  * an atomic reservation succeeds, and the MEMBER opts in on each request.
  */
+import {tutorProvider} from './tutor-provider-v014107.js';
 const isJwt=s=>/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(s);
 const positive=(x,min,max)=>/^[1-9][0-9]*$/.test(String(x||''))&&Number(x)>=min&&Number(x)<=max?Number(x):null;
 const jsonHeaders=key=>{
@@ -21,10 +22,12 @@ export function aiServiceConfig(env){
  const key=String(env.AI_TUTOR_API_KEY||'').trim();
  const dbUrl=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const dbKey=String(env.SUPABASE_SECRET_KEY||'');
- const enabled=env.AI_SERVICE_ENABLED==='true'&&String(env.AI_TUTOR_PROVIDER||'openai').toLowerCase()==='openai'&&!!member&&!!day&&!!month&&
-  !!key&&!!model&&/^https:\/\/[^/]+$/.test(dbUrl)&&!!dbKey;
+ const provider=tutorProvider(env);
+ const modelConfigured=provider.supported&&(provider.provider==='cloudflare'||!!key)&&!!model;
+ const enabled=env.AI_SERVICE_ENABLED==='true'&&!!member&&!!day&&!!month&&
+  modelConfigured&&/^https:\/\/[^/]+$/.test(dbUrl)&&!!dbKey;
  return {enabled,member:member||0,day:day||0,month:month||0,
-  modelConfigured:!!key&&!!model,dbUrl,dbKey,
+  modelConfigured,dbUrl,dbKey,
   state:enabled?'enabled_for_reserved_requests':'not_configured'};
 }
 export async function reserveAiRequest(env,userId,requestId){
