@@ -26,7 +26,7 @@
    versioned.add(id);
    if(r.review_state==='reviewed')reviewed.add(id);
   }
-  const subset=labs.filter(l=>group==='ALL'||group==='OTHER'||String(l.book)===group);
+  const subset=labs.filter(l=>group==='ALL'||(group!=='OTHER'&&String(l.book)===group));
   return {registered:subset.length,
    versioned:subset.filter(l=>versioned.has(l.id)).length,
    reviewed:subset.filter(l=>reviewed.has(l.id)).length,

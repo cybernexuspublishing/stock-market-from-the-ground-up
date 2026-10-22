@@ -68,7 +68,7 @@ $('#author-knowledge-approve').onclick=async()=>{
   state.textContent=r.notice;await loadKnowledgeMap();
  }catch(e){state.textContent=e.message;button.disabled=false}
 };
-let rubricIndex=[],foundationsIndex=null;
+let rubricIndex=[],foundationsIndex=null,rubricIndexLoaded=false;
 function bookChoice(){return $('#author-foundations-book')?.value||'ALL'}
 function matchBook(id,book){
  const f=/^F[123]-/.test(String(id||''));
@@ -81,7 +81,7 @@ function showFoundationsQueue(){
  const first=document.createElement('option');first.value='';
  first.textContent=foundationsIndex?'Choose missing private rubric':'Source catalog unavailable';
  picker.append(first);picker.disabled=!foundationsIndex;
- if(!foundationsIndex){state.textContent='Foundations catalog unavailable; no missing-rubric count can be verified.';return}
+ if(!foundationsIndex||!rubricIndexLoaded){state.textContent='Source catalog or complete private Owner rubric index not verified; no missing-rubric count is assumed.';picker.disabled=true;return}
  const q=window.GroundUpFoundationsRubricQueueV014151;
  const chosen=bookChoice(),s=q.summarize(foundationsIndex,rubricIndex,chosen),
        overall=q.summarize(foundationsIndex,rubricIndex,'ALL');
@@ -106,7 +106,7 @@ function displayRubrics(){
  const label=$('#author-queue-count');if(label)label.textContent=rubricIndex.length+' existing rubric version(s) · '+rubricIndex.filter(x=>x.review_state==='draft').length+' draft(s) awaiting individual review · '+filtered.length+' matching the current filter.';
  showFoundationsQueue();
 }
-async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');displayRubrics()}
+async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];rubricIndexLoaded=false;if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');rubricIndexLoaded=true;displayRubrics()}
 async function loadFoundationsIndex(){
  const response=await fetch('/data/labs.json',{cache:'no-store'});
  if(!response.ok)throw Error('Public Foundations index unavailable');
@@ -136,6 +136,6 @@ form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try
  if(kind==='number'&&(!o.answer.trim()||!Number.isFinite(Number(o.answer))||!Number.isFinite(Number(o.tolerance))||Number(o.tolerance)<0))throw Error('Numeric questions require a valid answer and a nonnegative tolerance.');
  questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey});lastDraft={labId:r.labId,version:r.version};mappedRubric={labId:r.labId,version:r.version,reviewState:'draft'};void loadKnowledgeMap();msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
 $('#author-review').onclick=async()=>{if(!lastDraft){msg.textContent='First save a draft.';return}if(!confirm('You have individually verified all question prompts, one correct key for each, mathematical tolerances, explanation quality, and the fictional-versus-historical source label. This ONLY releases authored assessment grading and does not verify historical tape or certify trading skill.'))return;try{const r=await api('review','POST',{labId:lastDraft.labId,title:form.elements.title.value,version:lastDraft.version,confirmPhrase:'REVIEW BOOK RUBRIC'});msg.textContent=r.notice;mappedRubric={labId:r.labId,version:r.version,reviewState:'reviewed'};void loadKnowledgeMap();lastDraft=null;await refresh()}catch(e){msg.textContent=e.message}};
-add();refresh().catch(e=>{msg.textContent=e.message});
+add();refresh().catch(e=>{rubricIndexLoaded=false;showFoundationsQueue();msg.textContent=e.message});
 loadFoundationsIndex().catch(e=>{foundationsIndex=null;showFoundationsQueue();msg.textContent='Foundations index unavailable: '+e.message});
 })();

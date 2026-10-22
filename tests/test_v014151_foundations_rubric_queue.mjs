@@ -19,6 +19,7 @@ assert.equal(summary.versioned,2);
 assert.equal(summary.reviewed,1);
 assert.equal(summary.missing.length,92);
 assert.equal(Q.summarize(labs,versions,'3').versioned,1);
+assert.equal(Q.summarize(labs,versions,'OTHER').registered,0);
 assert.equal(Q.summarize(labs,versions,'OTHER').missing.length,0);
 const invalid=JSON.parse(readFileSync('data/labs.json','utf8'));invalid[0].concept='Historical simulator exercise';
 assert.throws(()=>Q.catalog(invalid),/Invalid Foundations/);
@@ -28,4 +29,8 @@ assert(html.indexOf('foundations-rubric-queue-v014151.js')<html.indexOf('trainin
 for(const id of ['author-foundations-book','author-foundations-missing','author-foundations-coverage'])
  assert(html.includes('id="'+id+'"')&&ui.includes("$('#"+id+"')"));
 assert(ui.includes('Prepared UNSAVED draft'));
+assert(ui.includes('rubricIndexLoaded=false'));
+assert(ui.includes('rubricIndexLoaded=true'));
+assert(ui.includes('!foundationsIndex||!rubricIndexLoaded'));
+
 console.log('PASS D11 94 Foundations rubric coverage and safe existing Owner review queue — no auto approvals');
