@@ -16,6 +16,7 @@ import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
+import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -158,6 +159,8 @@ export async function onRequest({request,env}){
   const body=await parseTutorRequest(request);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
   if(!auth.authorized)return reply({ok:false,error:'Active Market Tutor / Full Platform access required.'},403);
+  if(body.conversationId&&!await ownedConversation(env,auth.userId,body.conversationId))
+   return reply({ok:false,error:'This Tutor conversation is unavailable to the signed-in member.'},404);
   const throttle=await tutorRequestLimit(env,auth.userId);
   if(!throttle.allowed){
    safeTutorMetric('safety',{reason:throttle.reason==='minute_limit'?'source_rate_minute':'source_rate_day'});
@@ -175,6 +178,8 @@ export async function onRequest({request,env}){
      requestId:body.requestId,question:q,learnerAnswer:answer,mode,generation:data.generation,
      answer:data.answer,sources:data.sources||[]});
     data.historyId=id||null;data.historySaved=!!id;
+    data.conversationLinked=!!(id&&body.conversationId&&
+      await attachTutorExchange(env,auth.userId,id,body.conversationId));
     safeTutorMetric('history',{reason:id?'server_saved':'server_save_unavailable'});
    }else{data.historySaved=false;data.historyId=null}
    return reply(data);
