@@ -452,7 +452,7 @@ async function ask(){
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
    createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null,
-   conversationId:submittedConversationId&&(data.conversationLinked||!data.historySaved)?submittedConversationId:null};
+   conversationId:submittedConversationId||null};
   addRecord(rec);
   TUTOR.lastTopic=rec.sourceTitles[0]||q.slice(0,70);
   $('tutor-question').value='';$('tutor-reflection').value='';updateCount();
@@ -464,7 +464,9 @@ async function ask(){
   status('Response displayed. '+(data.generation==='grounded-model-draft'?'First-party AI educational draft; verify its original sources.':'No paid provider result was used. ')+why,'success');
   if(TUTOR.user&&$('tutor-ai-consent')?.checked)void refreshAiServiceStatus();
   if(TUTOR.user&&$('tutor-save-history')?.checked===true){
-   historyStatus(data.historySaved?'Tutor response was generated and saved by the authenticated service (ungraded).':
+   historyStatus(data.historySaved&&submittedConversationId&&!data.conversationLinked?
+    'Response saved, but its selected conversation was not confirmed; it will remain Unfiled after refreshing history.':
+    data.historySaved?'Tutor response was generated and saved by the authenticated service (ungraded).':
     'The reply is visible here, but private history could not be confirmed; no server save was claimed.');
   }else historyStatus('This response stays on the current page only; account history was not updated.');
  }catch(e){
