@@ -8,8 +8,12 @@ export const CLOUDFLARE_TUTOR_MODEL='@cf/meta/llama-3.1-8b-instruct-fp8';
 const providerName=env=>String(env.AI_TUTOR_PROVIDER||'openai').trim().toLowerCase();
 const modelName=env=>String(env.AI_TUTOR_MODEL||'').trim();
 const approvedOpenAiModel=(env,model)=>{
- const allowed=String(env.AI_TUTOR_MODEL_ALLOWLIST||'').split(',').map(x=>x.trim()).filter(Boolean);
- return allowed.length>0&&allowed.includes(model);
+ const policy=String(env.AI_TUTOR_MODEL_ALLOWLIST||'').trim();
+ // Preserve the pre-D09 explicit server-only MODEL setting for existing Owner
+ // installations; a supplied allowlist narrows rather than expands it.
+ if(!policy)return !!model;
+ const allowed=policy.split(',').map(x=>x.trim()).filter(Boolean);
+ return !!model&&allowed.includes(model);
 };
 export function tutorProvider(env){
  const choice=providerName(env),model=modelName(env);
