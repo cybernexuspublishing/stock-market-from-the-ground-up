@@ -7,7 +7,8 @@ import {ungradedResponseReview} from '../functions/_lib/tutor-response-scaffold-
 const env={SUPABASE_URL:'https://mock.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'sb_secret_mock',
- AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'5',AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'30',AI_TUTOR_API_KEY:'fake-do-not-use',AI_TUTOR_MODEL:'mock-model'};
+ AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'5',AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'30',AI_TUTOR_API_KEY:'fake-do-not-use',AI_TUTOR_MODEL:'mock-model',
+ AI_PAID_PROVIDER_OWNER_APPROVED:'true',AI_TUTOR_APPROVED_MODELS:'mock-model'};
 let quotaCalls=0,modelCalls=0,prompt='';
 const original=globalThis.fetch,json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
