@@ -6,16 +6,16 @@
 **Document type:** Markdown  
 **Document ID:** Repository path above; no separate Google Drive document ID assigned  
 **Google Drive location:** Not assigned (no new file is necessary)  
-**Document version:** 0.6 | **Status:** RECONCILED SOURCE CANDIDATE / PRODUCTION NOT ACCEPTED  
+**Document version:** 0.7 | **Status:** D09 SOURCE MERGED / PRODUCTION NOT ACCEPTED  
 **Last updated:** 2026-10-22 | **Next review:** On receipt of exact-head CI and installed-schema evidence  
 **Purpose:** Preserve cross-chat source control, testing, dependencies, owner actions and risk-based acceptance.
 
 ## Controlling release
 - **Selected delivery:** 09 of 18: Complete Market Tutor AI
-- **Planned source release:** v0.14.0.149, NOT yet production-installed.
-- **Verified main baseline:** v0.14.0.148 at `345c2c1280d83a62e989bdc11aaed542e783ff85`.
+- **Source release:** v0.14.0.149 merged into `main`; live deployment is not independently verified.
+- **Verified D09 source merge commit:** `e6df00b158d3dff7c2cac0bb026a2fac42fa613b` (PR #123); any subsequent metadata-only commit must be read from GitHub.
 - **Development branch:** `deployment-09-market-tutor-retrieval-20261022`
-- **GitHub pull request:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/pull/123 (draft, unmerged).
+- **GitHub pull request:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/pull/123 (merged).
 - **Commit authority:** consult PR #123 current head and associated GitHub workflow results; this handoff's old commit identifier is not a release proof.
 - **Prior deployment:** D08 had source release and unresolved live database/production acceptance; no inference from merging D08 to completing D09.
 - **Source acceptance evidence:** `scripts/deployment09_release_evidence.mjs` (machine report at `artifacts/d09-tutor-source-evidence.json` when executed). File presence/checks are not actual production verification.
@@ -43,8 +43,8 @@
 ## Evidence and acceptance gates
 | Gate | Evidence-based status |
 |---|---|
-| New source files committed | YES — proposed source, pending CI |
-| Regression CI passing | NOT VERIFIED |
+| New source files committed | YES — D09 source merged into `main` (PR #123) |
+| Regression CI passing | YES — 39/39 exact PR-head checks, 36/36 exact PR-head workflows passed before merge; Cloudflare production runtime remains separate |
 | Required Supabase migrations installed | Owner-supplied v149/v149b read-only structural checks PASSED; runtime/production acceptance NOT VERIFIED |
 | Cloudflare production commit deployed | NOT VERIFIED |
 | Four-mode functional acceptance | NOT VERIFIED in production |
@@ -105,3 +105,12 @@
 | 2026-10-22 | 0.4 | Audited Owner cases, privacy-safe gap counts, canonical Lab ID guidance, atomic post-entitlement deletion and Browser syntax repair; source CI and production acceptance pending. |
 | 2026-10-22 | 0.5 | Recorded verified Supabase v149b schema/RPC report, Cloudflare screenshot-based setup, and locked decision not to change the previously tested Stripe LIVE webhook settings. |
 | 2026-10-22 | 0.6 | Reconciled D09 source ownership and existing SQL, corrected status contradictions, carried over safe guided/practice Lab Tutor link. |
+
+
+## D09 merged source postflight — October 22, 2026 (authoritative update)
+
+- Deployment 09 PR #123 was merged to main at `e6df00b158d3dff7c2cac0bb026a2fac42fa613b` after 39/39 exact-head check-runs and 36/36 exact-head workflows passed.
+- Source release manifest was previously stale at v0.14.0.148 despite merging D09; its `version` was corrected to v0.14.0.149 while keeping `status` pending production acceptance and retaining existing financial status flags.
+- Installed Owner-reported v149/v149b Supabase structures were NOT reinstalled. No database or Cloudflare/Stripe configuration was changed by the source metadata correction.
+- Acceptance gates remain separate: Cloudflare-deployed exact SHA, member A/B and restricted account tests, privacy endpoints, Owner editorial workflows, source accuracy, Workers AI Free plan/license and hard cost caps. All 419 canonical Labs and all 30 Bootcamp days are separately not production-certified by D09.
+- D10 work starts from this corrected source baseline, preserving a single repository and a single next-development branch; this source handoff will be extended there with exact D10 commit and evidence.

@@ -1,7 +1,7 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.148",
+  "version": "0.14.0.149",
   "status": "source-release-candidate-production-acceptance-pending",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
@@ -269,5 +269,19 @@
       "manual_WCAG_accessibility"
     ],
     "sourceBackupWorkflow": "GitHub Actions Website Source Backup run 39705180809 / artifact GU-website-source-backup-268"
+  },
+  "deployment09": {
+    "deployment": "09 of 18",
+    "sourceVersion": "v0.14.0.149",
+    "mainMergeCommit": "e6df00b158d3dff7c2cac0bb026a2fac42fa613b",
+    "sourceMerged": true,
+    "pullRequest": 123,
+    "exactHeadCheckRunsPassed": 39,
+    "exactHeadWorkflowsPassed": 36,
+    "supabaseStatus": "Owner-reported v149/v149b installed; read-only structure verified; runtime validation pending",
+    "cloudflareProductionShaVerified": false,
+    "modelInferenceEnabledByThisRelease": false,
+    "productionAccepted": false,
+    "outstanding": "Authenticated member A/B, TEST/Showcase, privacy, AI free-account/provider review, Owner editorial controls and human content review"
   }
 }
