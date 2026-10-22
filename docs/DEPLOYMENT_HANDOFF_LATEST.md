@@ -36,8 +36,8 @@
 - **Previously installed tests retained:** v92/v93/v95/v100/v102/v103/v105/v107/v147 Tutor tests, plus repository-wide regression workflows. Legacy provider mocks explicitly declare an approved test-only model; no test model is enabled in production.
 - **Exact-head GitHub Actions:** QUEUED at last check; no PASS claim. Merge and production acceptance blocked pending real results. No test removed to make CI appear green.
 - **Production browser:** no verified Owner/Member A/Member B/TEST/Showcase, expired membership, mobile keyboard and screen-reader acceptance has occurred.
-- **SQL:** Owner reports executing v102/v103/v107/v149 and a successful read-only installed-contract CSV was supplied (12/12 checks). DO NOT RERUN earlier migrations. A NEW additive **v149b** editorial/gap/atomic privacy deletion supplement is prepared but NOT installed; see `docs/v0.14.0.149_DEPLOYMENT_09_SUPABASE_CLOUDFLARE_OWNER_ACTIONS.md`.
-- **Cloudflare:** no deployment/AI binding activation or free-tier account verification performed in this development branch.
+- **SQL:** Owner executed v102/v103/v107/v149; earlier read-only checks passed. The corrected **v149b** migration also now passes Owner-supplied read-only Supabase verification: all three new private tables exist, RLS is enabled, anon/authenticated direct SELECT is denied, service SELECT is available, and Owner review, topic-gap and atomic privacy-deletion RPCs are installed. No migrations need rerunning. Evidence: `Supabase Snippet Check Existence of Replay Tables and Functions(16).csv` (Owner-uploaded, 2026-10-22). **Scope is database structure only**, not live application or functional acceptance.
+- **Cloudflare:** Owner screenshots show the intended 10 Market Tutor environment variables and a Workers AI binding named `AI`. Inference remains OFF (`AI_SERVICE_ENABLED=false`); free-tier/model-license verification flags also remain false. Settings and binding are Owner-reported and screenshot-supported, while live deployment/inference remain unverified. Existing Stripe LIVE webhook configuration is Owner-locked; do not request or make changes to it as part of D09.
 - **Stripe:** unchanged. No prices, subscriptions, payments, real entitlements or charges modified.
 
 ## Evidence and acceptance gates
@@ -62,7 +62,7 @@
 - Privacy-safe topic-gap aggregation and Owner dashboard code are now implemented on this branch; v149b installation and real endpoint acceptance are still required. A comprehensive editorial source approval/versioning workflow remains outstanding.
 - Existing Tutor feedback inbox now has proposed Owner-only case status controls and a new append-only audit/RPC in v149b; production remains unverified until SQL and authenticated tests. Curriculum source approval/versioning and in-app emergency AI switch are still distinct outstanding acceptance gates.
 - Free Cloudflare AI capacity has variable per-model neuron consumption. A count of API calls is not evidence of zero cost. An approved Cloudflare Free account with correct AI binding/model license and hard caps is a required activation gate. Never activate paid fallback.
-- Existing saved Tutor exchanges are ungraded. Explicit canonical 419-Lab ID guidance uses only public Lab/competency metadata and never private rubrics, future bars or unlicensed historical data. A new one-transaction member privacy deletion covers both saved exchanges and named conversations, including after Tutor entitlement expiry, once v149b is installed.
+- Existing saved Tutor exchanges are ungraded. Explicit canonical 419-Lab ID guidance uses only public Lab/competency metadata and never private rubrics, future bars or unlicensed historical data. A new one-transaction member privacy deletion covers both saved exchanges and named conversations, including after Tutor entitlement expiry. v149b is structurally confirmed installed, but functional tests remain outstanding.
 - Browser-only stop requests do not guarantee cancellation of already-reserved server inference.
 - GDPR/consumer privacy, copyright/source licenses, AI vendor data processing and policy retention require jurisdiction-sensitive review.
 - Historical market-data rights, Labs and Bootcamp are separately governed by D10–D14.
@@ -81,10 +81,12 @@
 - **Independent pure-logic checks:** deterministic arithmetic, retrieval, canonical Lab lookup, and anonymous gap taxonomy modules compiled and passed direct smoke cases; these are not a substitute for Node/GitHub Actions.
 - **CI:** existing GitHub Actions still QUEUED, not PASS. Browser-integrity and D09 new owner/privacy regressions are now in the workflow.
 - **Cloudflare:** no user configuration changes verified; `AI_SERVICE_ENABLED=false` until account and licensing checks are passed.
-- **Owner action:** **Only NEW SQL:** `supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql` after source release review; verify with matching v149b read-only script. Previous v102/v103/v107/v149 migrations are not to be rerun.
+- **Owner action:** D09 SQL installation and structural verification are complete; no further SQL is currently requested. Cloudflare AI variables and `AI` binding are configured with inference disabled. Remaining actions depend on exact-head CI, merge, deployment, and functional acceptance.
 
 
 - **October 22 v149b SQL correction:** Owner-reported SQLSTATE 42601 at line 110 traced to malformed single-dollar PL/pgSQL delimiters in atomic Tutor privacy deletion. Corrected the opening and closing to matching double-dollar markers. Verified updated SQL blob and added a D09 source-gate invariant to detect recurrence. Original owner execution failed; v149b remains UNVERIFIED/NOT CONFIRMED INSTALLED. Do not reinstall prior v102/v103/v107/v149 migrations.
+
+- **October 22, Owner follow-up:** Supabase v149b read-only verification passed for 3/3 tables and 3/3 RPCs with the expected role permissions; Cloudflare Market Tutor variables and `AI` binding are screenshot-confirmed. Stripe LIVE webhook Text/Secret configuration is not to be modified under the Owner's explicit direction. GitHub PR #123 remains draft/unmerged; exact-head CI is queued, not passed.
 
 ## Revision history
 | Date | Version | Change |
@@ -93,3 +95,4 @@
 | 2026-10-22 | 0.2 | Source-only mathematical calculation and tests. |
 | 2026-10-22 | 0.3 | Workers AI guarded adapter, safe private conversations, data portability, member calculator, stable routes and explicit acceptance gates. |
 | 2026-10-22 | 0.4 | Audited Owner cases, privacy-safe gap counts, canonical Lab ID guidance, atomic post-entitlement deletion and Browser syntax repair; source CI and production acceptance pending. |
+| 2026-10-22 | 0.5 | Recorded verified Supabase v149b schema/RPC report, Cloudflare screenshot-based setup, and locked decision not to change the previously tested Stripe LIVE webhook settings. |
