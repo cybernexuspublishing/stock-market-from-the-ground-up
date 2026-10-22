@@ -7,7 +7,7 @@ import {tutorRequestLimit} from '../functions/_lib/tutor-rate-limit-v014107.js';
 import {saveVerifiedTutorExchange} from '../functions/_lib/tutor-history-save-v014107.js';
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',requests=[],previous=globalThis.fetch;
-let rate='allowed',entitled=true,saves=0;
+let rate='allowed',entitled=true,saves=0,persisted=null;
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock'};
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
@@ -19,7 +19,15 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/rpc/gu_v014107_take_tutor_request'))
   return json({accepted:rate==='allowed',reason:rate});
  if(u.includes('/rpc/gu_v014102_save_member_tutor_exchange')){
-  saves++;return json(id);
+  saves++;const p=JSON.parse(opts.body);
+  persisted={question:p.p_question,learner_answer:p.p_learner_answer,
+   mode:p.p_mode,answer:p.p_answer,generation:p.p_generation};
+  return json(id);
+ }
+ if(u.includes('/gu_member_tutor_exchanges_v014102?')){
+  assert(u.includes('user_id=eq.'+uid));
+  assert(u.includes('id=eq.'+id));
+  return json(persisted?[persisted]:[]);
  }
  throw Error('Unexpected backend '+u);
 };
@@ -36,6 +44,8 @@ try{
  assert.equal(r.body.historySaved,true);
  assert.equal(r.body.historyId,id);
  assert.equal(saves,1);
+ assert(requests.some(x=>x.u.includes('gu_member_tutor_exchanges_v014102?')&&
+   x.u.includes('user_id=eq.'+uid)),'D07 must read back exact member-saved reply');
  let call=requests.find(x=>x.u.includes('/rpc/gu_v014102_save_member_tutor_exchange'));
  let saved=JSON.parse(call.opts.body);
  assert.equal(saved.p_user_id,uid);
