@@ -25,18 +25,23 @@ for(const source of catalog){
  const mapped=cross.byLab[id],evidence=map.get(id);
  assert(mapped?.bookCode===collection,'canonical crosswalk mismatch '+id);
  assert(evidence?.collection===collection,'acceptance-ledger mismatch '+id);
- assert(evidence.title===source.concept,'Lab source title changed '+id);
+ const placeholder=source.concept.toLowerCase()==='historical simulator exercise';
+ const titleMismatch=evidence.title!==source.concept;
+ // Keep immutable IDs. Source mismatches from generic legacy labels are
+ // actual editorial gaps, not grounds to silently alter paid curricula.
+ assert(!titleMismatch||placeholder,'Unexpected title drift '+id);
  const gap=Object.entries(evidence.criterionStatus).filter(([k,v])=>v!=='REVIEW_RECORDED').map(([k])=>k);
  const row={
   id,collection,book,chapter:source.chapter,title:source.concept,
+  crosswalkTitle:evidence.title,titleMismatch,placeholderTitle:placeholder,
   existingRegistry:'PRESENT',draftAssessment:'PRIVATE_V96_DRAFT_UNVERIFIED',
   independentPrivateInstruction:'NOT_VERIFIED_IN_GITHUB_SOURCE',
   bookManuscriptStatus:'V1_14_OWNER_FROZEN_NOT_REPRODUCED',
   historicalFeed:'NOT_INDEPENDENTLY_LICENSE_VERIFIED',
   contentEditorialStatus:evidence.criterionStatus.editorial,
   competencyCrosswalk:mapped.relatedCompetencies,
-  remainingCriteria:gap,
-  accepted:evidence.accepted,
+  remainingCriteria:[...gap,...(placeholder?['SUBSTANTIVE_UNIQUE_TITLE_MISSING']:[])],
+  accepted:evidence.accepted&&!placeholder,
   productionAccepted:false
  };
  reviewed.push(row);totals[collection]=(totals[collection]||0)+1;
@@ -52,6 +57,8 @@ const report={
  generatedAt:new Date().toISOString(),
  foundationsByBook:groups,total:reviewed.length,
  reviewedAcceptance:reviewed.filter(r=>r.accepted).length,
+ placeholderTitles:reviewed.filter(r=>r.placeholderTitle).length,
+ canonicalTitleMismatches:reviewed.filter(r=>r.titleMismatch).length,
  productionAcceptanceVerified:false,
  blockingRequirements:[
   'Per-Lab private instruction from approved Book I/II/III manuscript or reviewed original companion content',
@@ -66,10 +73,10 @@ const report={
 mkdirSync(join(root,'artifacts'),{recursive:true});
 writeFileSync(join(root,'artifacts/d11-foundations-94-content-gaps.json'),JSON.stringify(report,null,2)+'\n');
 const quote=v=>'"'+String(v??'').replaceAll('"','""')+'"';
-const columns=['lab_id','collection','chapter','concept','catalog_present','editorial_status','missing_criteria','accepted','production_verified'];
+const columns=['lab_id','collection','chapter','concept','crosswalk_title','placeholder_title','catalog_present','editorial_status','missing_criteria','accepted','production_verified'];
 const csv=[
  columns,
- ...reviewed.map(r=>[r.id,r.collection,r.chapter,r.title,r.existingRegistry,r.contentEditorialStatus,r.remainingCriteria.join(';'),r.accepted,r.productionAccepted])
+ ...reviewed.map(r=>[r.id,r.collection,r.chapter,r.title,r.crosswalkTitle,r.placeholderTitle,r.existingRegistry,r.contentEditorialStatus,r.remainingCriteria.join(';'),r.accepted,r.productionAccepted])
 ].map(row=>row.map(quote).join(',')).join('\n')+'\n';
 writeFileSync(join(root,'artifacts/d11-foundations-94-content-gaps.csv'),csv);
 console.log('D11 Foundations: '+report.reviewedAcceptance+'/'+report.total+' individually reviewed with all criteria recorded; actual production acceptance NOT VERIFIED.');
