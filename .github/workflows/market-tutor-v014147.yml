@@ -30,6 +30,7 @@ jobs:
           node tests/test_v014147_tutor_boundary.mjs
           node tests/test_v014147_tutor_history_idempotency.mjs
           node tests/test_v014147_owner_tutor_feedback.mjs
+          node tests/test_v014149_tutor_retrieval.mjs
           node --check assets/js/market-tutor.js
           node --check assets/js/admin-tutor-feedback-v014147.js
           node --check functions/api/market-tutor-v01492.js
@@ -38,6 +39,7 @@ jobs:
           node --check functions/_lib/tutor-request-boundary-v014147.js
           node --check functions/_lib/tutor-history-save-v014107.js
           node --check functions/_lib/tutor-provider-v014107.js
+          node --check functions/_lib/tutor-retrieval-v014149.js
           bash scripts/build-pages.sh
           test -f public/assets/js/admin-tutor-feedback-v014147.js
           test ! -d public/functions
