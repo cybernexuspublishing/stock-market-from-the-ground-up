@@ -75,7 +75,7 @@ try{
  for(const marker of ['id="tutor-thread"','id="tutor-question"','id="tutor-delete-history"','id="tutor-export"']){
   assert(html.includes(marker),marker+' missing from member page');
  }
- for(const marker of ['member-tutor-history-v014102','textContent','learnerAnswer','renderConversation','sendTutorFeedback','deleteOne','deleteAll','exportConversation','crypto.randomUUID']){
+ for(const marker of ['/api/member-tutor-history','textContent','learnerAnswer','renderConversation','sendTutorFeedback','deleteOne','deleteAll','exportConversation','crypto.randomUUID']){
   assert(js.includes(marker),'Missing Tutor interaction: '+marker);
  }
  assert(html.includes('id="tutor-save-history"'),'Member must control transcript saving');
