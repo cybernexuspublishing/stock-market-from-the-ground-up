@@ -10,7 +10,7 @@ const env={SUPABASE_URL:'https://example.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_testing',SUPABASE_SECRET_KEY:'sb_secret_testing',
  AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'3',
  AI_SERVICE_GLOBAL_DAILY_LIMIT:'9',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'50',
- AI_TUTOR_API_KEY:'mock-provider-key-not-real',AI_TUTOR_MODEL:'test-model'};
+ AI_TUTOR_API_KEY:'mock-provider-key-not-real',AI_TUTOR_MODEL:'test-model',AI_PAID_PROVIDER_OWNER_APPROVED:'true',AI_TUTOR_APPROVED_MODELS:'test-model'};
 let allow=true,kind='member',meterStatus=true,reserved=true,permission='reserved';
 let providerCalls=0,meterCalls=0,rows=[],requests=[];
 const savedFetch=globalThis.fetch;
