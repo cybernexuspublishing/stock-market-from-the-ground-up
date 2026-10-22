@@ -73,7 +73,10 @@ assert(supplemental.includes('ENABLE ROW LEVEL SECURITY')&&
  supplemental.includes('gu_v014149_delete_tutor_member_data'),
  'Owner audit and no-PII topic gap SQL missing');
 assert(sql.includes('ENABLE ROW LEVEL SECURITY')&&sql.includes('REVOKE ALL')&&
- sql.includes('pg_advisory_xact_lock'),'private conversation schema safeguards missing');
+ sql.includes('pg_advisory_xact_lock')&&
+ sql.includes('gu_member_tutor_conversations_v014149')&&
+ !sql.includes('CREATE TABLE IF NOT EXISTS public.gu_tutor_conversations_v014149'),
+ 'Installed private conversation contract or schema safeguards mismatch');
 const report={
  project:'The Stock Market: From the Ground Up',
  deployment:'09 of 18',targetVersion:'v0.14.0.149',sourceCommit:process.env.GITHUB_SHA||null,
@@ -82,16 +85,17 @@ const report={
  bootcampAccepted:null,labAccepted:null,competenciesProductionAccepted:null,
  externalAcceptance:[
   {gate:'github_exact_commit_ci',status:'SEPARATE_CHECK_REQUIRED'},
-  {gate:'supabase_v102_v103_v107_installed_contracts',status:'NOT_VERIFIED'},
-  {gate:'supabase_v149_migration_installation',status:'NOT_APPLIED'},
-  {gate:'cloudflare_free_ai_binding_and_account_plan',status:'NOT_VERIFIED'},
+  {gate:'supabase_v102_v103_v107_installed_contracts',status:'OWNER_REPORTED_STRUCTURAL_PASS_RUNTIME_UNVERIFIED'},
+  {gate:'supabase_v149_v149b_migration_installation',status:'OWNER_REPORTED_STRUCTURAL_PASS_RUNTIME_UNVERIFIED'},
+  {gate:'cloudflare_ai_binding',status:'OWNER_SCREENSHOT_CONFIRMED_INFERENCE_DISABLED'},
+  {gate:'cloudflare_free_plan_and_provider_approval',status:'NOT_VERIFIED'},
   {gate:'cloudflare_pages_deployment',status:'NOT_PERFORMED'},
   {gate:'cross_account_and_mobile_browser_qa',status:'NOT_VERIFIED'},
   {gate:'educational_human_review',status:'NOT_VERIFIED'},
   {gate:'owner_source_approval_and_privacy_policy',status:'NOT_VERIFIED'}
  ],
  productionAccepted:false,ownerActionPerformed:false,paidInferenceActivated:false,
- note:'Structural checks do not establish functionality, editorial signoff, or live acceptance.'
+ note:'Owner-supplied Supabase read-only results report installed v149/v149b and privacy RPC structure. This CI report does not execute SQL, verify live member behavior, certify AI cost, or establish production acceptance.'
 };
 mkdirSync('artifacts',{recursive:true});
 writeFileSync('artifacts/d09-tutor-source-evidence.json',JSON.stringify(report,null,2)+'\n');

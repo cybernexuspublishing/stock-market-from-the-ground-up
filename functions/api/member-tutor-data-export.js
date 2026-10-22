@@ -32,8 +32,16 @@ export async function onRequest({request,env}){
    if(e?.code!=='42703')throw Error('export storage');
   }
   if(!Array.isArray(rows)||rows.length>200)throw Error('bad history');
+  // A complete private export includes saved conversation names. Both queries
+  // are scoped to the same Auth-verified member, never an input account ID.
+  const conv=await fetch(base+'/rest/v1/gu_member_tutor_conversations_v014149'+
+   '?select=id,title,created_at,updated_at&user_id=eq.'+encodeURIComponent(identity.id)+
+   '&order=created_at.asc&limit=31',{headers:dbHeaders,cache:'no-store'});
+  if(!conv.ok)throw Error('conversation export unavailable');
+  const conversations=await conv.json().catch(()=>null);
+  if(!Array.isArray(conversations)||conversations.length>30)throw Error('bad conversations');
   const body={kind:'ungraded_member_tutor_data_export',schema:'v0.14.0.149',
-    exportedAt:new Date().toISOString(),exchanges:rows,graded:false,masteryAwarded:false,
+    exportedAt:new Date().toISOString(),exchanges:rows,conversations,graded:false,masteryAwarded:false,
     notice:'These records are private educational notes, not an assessed competency record.'};
   return new Response(JSON.stringify(body,null,2),{status:200,headers:{
    ...headers,'content-disposition':'attachment; filename="my-market-tutor-notes.json"'}});

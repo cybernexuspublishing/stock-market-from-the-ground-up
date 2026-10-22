@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {onRequest} from '../functions/api/member-tutor-data-export.js';
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'pub',SUPABASE_SECRET_KEY:'sb_secret_test'};
-const old=globalThis.fetch;let queries=0,authOk=true;
+const old=globalThis.fetch;let queries=0,conversationQueries=0,authOk=true;
 const json=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url);
@@ -11,6 +11,12 @@ globalThis.fetch=async(url,opts={})=>{
   assert(u.includes('user_id=eq.'+uid));queries++;
   assert.equal(opts.headers.apikey,'sb_secret_test');
   return json([{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',question:'My question',answer:'My answer',generation:'verified:reviewed-glossary-logic'}]);
+ }
+ if(u.includes('/rest/v1/gu_member_tutor_conversations_v014149?')){
+  assert(u.includes('user_id=eq.'+uid));
+  assert.equal(opts.headers.apikey,'sb_secret_test');
+  conversationQueries++;
+  return json([{id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',title:'Private study topic'}]);
  }
  throw Error('Unexpected authorization dependency '+u);
 };
@@ -22,7 +28,10 @@ try{
  const data=await r.json();
  assert.equal(r.status,200);assert.equal(data.exchanges.length,1);
  assert.equal(data.graded,false);assert.equal(data.masteryAwarded,false);
+ assert.equal(data.conversations.length,1);
+ assert.equal(data.conversations[0].title,'Private study topic');
  assert.equal(queries,1,'Export should not require active paid entitlements');
+ assert.equal(conversationQueries,1,'Private conversation titles must be scoped to the signed-in member');
  authOk=false;r=await onRequest({env,request:request()});
  assert.equal(r.status,401);
  console.log('PASS D09 own-note export remains available after Tutor entitlement expiry, never bypasses identity validation');
