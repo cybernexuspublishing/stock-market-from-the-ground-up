@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {summarize,onRequest} from '../functions/api/advanced-journal-insights-v014146.js';
+import {summarize,onRequest} from '../functions/api/advanced-journal-insights.js';
 const paper=Array.from({length:19},(_,i)=>({journal_type:'paper',setup:'A',status:'closed',r_multiple:i%2?1:-1,mfe_r:2,mae_r:-1}));
 const samples=summarize([...paper,{journal_type:'live',setup:'A',status:'closed',r_multiple:null},
  {journal_type:'paper',setup:'A',status:'closed',r_multiple:null},
