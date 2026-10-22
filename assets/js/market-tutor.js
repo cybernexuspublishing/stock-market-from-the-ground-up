@@ -242,6 +242,7 @@ async function deleteAll(){
   const data=await response.json().catch(()=>null);
   if(epoch!==TUTOR.identityEpoch||user!==TUTOR.user?.id)return;
   if(!response.ok||data?.ok!==true)throw Error(data?.error||'Deletion could not be confirmed.');
+  TUTOR.abortController?.abort();TUTOR.identityEpoch++;
   TUTOR.entries=TUTOR.entries.filter(x=>!x.id);
   TUTOR.conversations=[];TUTOR.currentConversationId=null;
   renderConversationList();renderConversation();
