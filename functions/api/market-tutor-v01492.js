@@ -11,7 +11,7 @@ import {originalGuides,answerFromGuide} from '../_lib/original-competency-tutor-
 import {ungradedResponseReview} from '../_lib/tutor-response-scaffold-v014102.js';
 import {reserveAiRequest} from '../_lib/first-party-ai-service-v014103.js';
 import {expandTutorQuery,seeksPersonalTradeAdvice,validateTutorModelAnswer,safeTutorMetric} from '../_lib/tutor-quality-v014107.js';
-import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
+import {callTutorModel,tutorProvider} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
@@ -111,8 +111,7 @@ async function memberPractice(env,userId){
  return {examined,recommendations,skillSignals,gradedHistoryAvailable,gradedReview:gradedReview.slice(0,5),recordedAssessmentCount:latest.size};
 }
 async function modelDraft(env,{q,mode,source,answer}){
- const key=String(env.AI_TUTOR_API_KEY||''),model=String(env.AI_TUTOR_MODEL||'');
- if(!key||!model)return null;
+ if(!tutorProvider(env).configured)return null;
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
  try{
   const reference=source.map((t,i)=>'['+(i+1)+'] '+t.title+': '+t.summary).join('\n');
