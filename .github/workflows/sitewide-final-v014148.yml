@@ -46,7 +46,7 @@ jobs:
           test ! -d public/functions
           test ! -d public/supabase
           test -f public/release-manifest.json
-          node -e "const m=require('./public/release-manifest.json');if(m.version!=='0.14.0.148'||m.customerCheckoutApproved!==false||m.deployment08?.productionAcceptance!=='not_certified')process.exit(1)"
+          node -e "const m=require('./public/release-manifest.json');if((!/^0\\.14\\.0\\.\\d+$/.test(m.version)||Number(m.version.split('.').at(-1))<148)||m.customerCheckoutApproved!==false||m.deployment08?.productionAcceptance!=='not_certified')process.exit(1)"
       - name: Create deterministic source-only release dossier (NOT operational certification)
         run: node scripts/deployment08_release_evidence.mjs
       - uses: actions/upload-artifact@v4

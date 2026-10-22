@@ -121,3 +121,6 @@ Source release v0.14.0.149 requires the same version in `release-manifest.json`,
 
 ### D09 commerce and admin display-only version parity (2026-10-22)
 `data/commerce-config.json` now matches the 0.14.0.149 release manifest; Admin and Owner Roadmap page metadata also display v149. All plan prices, Stripe LIVE controls, product definitions, Book Keys and existing member access were left untouched. These fixes preserve the existing version-aware commerce and security regression contracts, not production checkout acceptance.
+
+### Legacy D08 baseline release gate forward compatibility (2026-10-22)
+The D08 security workflow formerly asserted `release-manifest.json` version **equals** v0.14.0.148, which would block all subsequent releases. It now requires a well-formed v0.14.0.148-or-later version while independently preserving `customerCheckoutApproved=false` and `deployment08.productionAcceptance=not_certified`. No checks were deleted or bypassed. D09 production acceptance remains pending.
