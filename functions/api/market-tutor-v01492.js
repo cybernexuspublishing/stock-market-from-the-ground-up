@@ -15,7 +15,7 @@ import {callTutorModel,tutorProvider} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
 import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
-import {hypotheticalPositionSize} from '../_lib/tutor-position-math-v014149.js';
+import {deterministicTutorCalculation} from '../_lib/tutor-position-math-v014149.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -201,7 +201,7 @@ export async function onRequest({request,env}){
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   // Hypothetical arithmetic is deterministic; it never reserves model quota.
-  const sizing=mode==='explain'?hypotheticalPositionSize(q):null;
+  const sizing=mode==='explain'?deterministicTutorCalculation(q):null;
   if(sizing)return finish({ok:true,generation:'deterministic-position-math',
    answer:sizing.answer,aiReason:'source_only',sources:[],
    graded:false,masteryAwarded:false,calculation:sizing.assumptions||null,
