@@ -46,3 +46,9 @@
 .tutor-history input[type="search"]{display:block;width:100%;max-width:100%;margin:6px 0 10px}
 .tutor-history button:focus-visible,.tutor-conversation-list button:focus-visible{outline:3px solid #f0d387;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.tutor-thread *{scroll-behavior:auto!important;transition-duration:0s!important}}
+
+/* D09 hypothetical risk calculator. All inputs are descriptive; no order placement. */
+.tutor-calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-block:10px 14px}
+.tutor-calc-grid label{font-size:.86rem;display:grid;gap:5px}
+.tutor-calc-grid input{min-width:0;width:100%;padding:8px;border-radius:6px;border:1px solid #3b5d76;background:#0a2237;color:#dce9f4}
+.tutor-calc-grid input:focus-visible{outline:3px solid #f0d387;outline-offset:2px}
