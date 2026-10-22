@@ -68,18 +68,62 @@ $('#author-knowledge-approve').onclick=async()=>{
   state.textContent=r.notice;await loadKnowledgeMap();
  }catch(e){state.textContent=e.message;button.disabled=false}
 };
-let rubricIndex=[];
+let rubricIndex=[],foundationsIndex=null;
+function bookChoice(){return $('#author-foundations-book')?.value||'ALL'}
+function matchBook(id,book){
+ const f=/^F[123]-/.test(String(id||''));
+ return book==='ALL'||(book==='OTHER'?!f:String(id||'').startsWith('F'+book+'-'));
+}
+function showFoundationsQueue(){
+ const state=$('#author-foundations-coverage'),picker=$('#author-foundations-missing');
+ if(!state||!picker)return;
+ const old=picker.value;picker.replaceChildren();
+ const first=document.createElement('option');first.value='';
+ first.textContent=foundationsIndex?'Choose missing private rubric':'Source catalog unavailable';
+ picker.append(first);picker.disabled=!foundationsIndex;
+ if(!foundationsIndex){state.textContent='Foundations catalog unavailable; no missing-rubric count can be verified.';return}
+ const q=window.GroundUpFoundationsRubricQueueV014151;
+ const chosen=bookChoice(),s=q.summarize(foundationsIndex,rubricIndex,chosen),
+       overall=q.summarize(foundationsIndex,rubricIndex,'ALL');
+ for(const lab of chosen==='OTHER'?[]:s.missing){
+  const o=document.createElement('option');o.value=lab.id;o.textContent=lab.id+' · '+lab.title;picker.append(o);
+ }
+ if([...picker.options].some(o=>o.value===old))picker.value=old;
+ state.textContent=s.versioned+'/'+s.registered+' Labs have a saved rubric version in this view; '+
+  s.reviewed+' have a reviewed rubric version; '+s.missing.length+
+  ' lack a rubric. All Foundations: '+overall.versioned+'/94 with any rubric. '+
+  'Neither a reviewed rubric nor a catalog ID certifies a completed lesson.';
+}
+
 function displayRubrics(){
  const sel=$('#author-existing'),needle=String($('#author-filter')?.value||'').toLowerCase().trim(),picked=sel.value;
- const filtered=rubricIndex.filter(x=>[x.lab_id,x.title,x.review_state,x.source_status].some(v=>String(v||'').toLowerCase().includes(needle)));
+ const book=bookChoice();
+ const filtered=rubricIndex.filter(x=>matchBook(x.lab_id,book)&&[x.lab_id,x.title,x.review_state,x.source_status].some(v=>String(v||'').toLowerCase().includes(needle)));
  sel.replaceChildren();
  const first=document.createElement('option');first.value='';first.textContent=filtered.length?'Choose existing rubric':'No matching rubrics';sel.append(first);
  for(const item of filtered.slice(0,700)){const option=document.createElement('option');option.value=item.lab_id+'|'+item.version;option.textContent=item.lab_id+' · v'+item.version+' · '+item.review_state+' · '+item.title;sel.append(option)}
  if([...sel.options].some(x=>x.value===picked))sel.value=picked;
  const label=$('#author-queue-count');if(label)label.textContent=rubricIndex.length+' existing rubric version(s) · '+rubricIndex.filter(x=>x.review_state==='draft').length+' draft(s) awaiting individual review · '+filtered.length+' matching the current filter.';
+ showFoundationsQueue();
 }
 async function refresh(){const d=await api('list');rubricIndex=Array.isArray(d.sets)?d.sets:[];if(d.allVersionsIncluded!==true)throw Error('Owner review inventory is not complete; refuse partial catalog.');displayRubrics()}
-$('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;
+async function loadFoundationsIndex(){
+ const response=await fetch('/data/labs.json',{cache:'no-store'});
+ if(!response.ok)throw Error('Public Foundations index unavailable');
+ foundationsIndex=window.GroundUpFoundationsRubricQueueV014151.catalog(await response.json());
+ displayRubrics();
+}
+$('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);
+$('#author-foundations-book').addEventListener('change',displayRubrics);
+$('#author-foundations-missing').addEventListener('change',function(){
+ const lab=foundationsIndex?.find(x=>x.id===this.value);if(!lab)return;
+ if(!confirm('Start an UNSAVED private rubric draft for '+lab.id+'? Current unsaved editor changes will be replaced.')){this.value='';return}
+ form.elements.labId.value=lab.id;form.elements.title.value=lab.title;
+ rows.replaceChildren();add();lastDraft=null;mappedRubric=null;
+ $('#author-topic-review-notice').textContent='A topic-specific question and independent answer review are required before approval.';
+ msg.textContent='Prepared UNSAVED draft for '+lab.id+'. Nothing was submitted or approved.';
+ this.value='';void loadKnowledgeMap();
+});$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;
  mappedRubric={labId,version:s.version,reviewState:s.review_state};
  renderTopicReviewWarning(s);
  void loadKnowledgeMap();
@@ -93,4 +137,5 @@ form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try
  questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey});lastDraft={labId:r.labId,version:r.version};mappedRubric={labId:r.labId,version:r.version,reviewState:'draft'};void loadKnowledgeMap();msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
 $('#author-review').onclick=async()=>{if(!lastDraft){msg.textContent='First save a draft.';return}if(!confirm('You have individually verified all question prompts, one correct key for each, mathematical tolerances, explanation quality, and the fictional-versus-historical source label. This ONLY releases authored assessment grading and does not verify historical tape or certify trading skill.'))return;try{const r=await api('review','POST',{labId:lastDraft.labId,title:form.elements.title.value,version:lastDraft.version,confirmPhrase:'REVIEW BOOK RUBRIC'});msg.textContent=r.notice;mappedRubric={labId:r.labId,version:r.version,reviewState:'reviewed'};void loadKnowledgeMap();lastDraft=null;await refresh()}catch(e){msg.textContent=e.message}};
 add();refresh().catch(e=>{msg.textContent=e.message});
+loadFoundationsIndex().catch(e=>{foundationsIndex=null;showFoundationsQueue();msg.textContent='Foundations index unavailable: '+e.message});
 })();
