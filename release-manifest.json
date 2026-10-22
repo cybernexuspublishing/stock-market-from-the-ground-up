@@ -244,7 +244,7 @@
   },
   "deployment08": {
     "scope": "8-of-8 source deployment and final gated acceptance",
-    "sourceResult": "pending_PRCI_and_Cloudflare_verification",
+    "sourceResult": "PR119_50_of_50_checks_AND_main_5abcbef3_46_of_46_checks_Cloudflare_Pages_SUCCESS",
     "productionAcceptance": "not_certified",
     "verifiedSourceArtifacts": [
       "docs/v0.14.0.148_DEPLOYMENT_08_OF_08_SITEWIDE_RELEASE_AND_ACCEPTANCE.md",
@@ -267,6 +267,7 @@
       "419_individual_lab_acceptance",
       "disaster_recovery_drill",
       "manual_WCAG_accessibility"
-    ]
+    ],
+    "sourceBackupWorkflow": "GitHub Actions Website Source Backup run 39705180809 / artifact GU-website-source-backup-268"
   }
 }
