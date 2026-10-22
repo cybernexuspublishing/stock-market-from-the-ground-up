@@ -107,7 +107,7 @@ GRANT EXECUTE ON FUNCTION public.gu_v014149_record_tutor_gap(text)
 -- Complete verified member privacy deletion in a single Supabase transaction.
 -- Cloudflare authenticates the user before invoking this service-role-only RPC.
 CREATE OR REPLACE FUNCTION public.gu_v014149_delete_tutor_member_data(p_user uuid)
-RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $
+RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=public,pg_temp AS $$
 DECLARE n_exchanges integer; n_conversations integer;
 BEGIN
  IF p_user IS NULL THEN RAISE EXCEPTION 'Invalid account' USING ERRCODE='22023'; END IF;
@@ -118,7 +118,7 @@ BEGIN
  GET DIAGNOSTICS n_conversations = ROW_COUNT;
  RETURN jsonb_build_object('exchanges_deleted',n_exchanges,
   'conversations_deleted',n_conversations);
-END $;
+END $$;
 REVOKE ALL ON FUNCTION public.gu_v014149_delete_tutor_member_data(uuid)
  FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_v014149_delete_tutor_member_data(uuid)
