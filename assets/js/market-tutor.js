@@ -40,6 +40,52 @@ function relatedGuides(record){
   return {g,score};
  }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score).slice(0,2).map(x=>x.g);
 }
+// No innerHTML or untrusted anchors. Original/model text is always inserted as text.
+function tutorInline(node,text){
+ const fragments=String(text||'').split(/(\*\*[^*\n]+\*\*|`[^`\n]+`|\\\([^\n]*?\\\))/g);
+ for(const fragment of fragments){
+  if(!fragment)continue;
+  if(fragment.startsWith('**')&&fragment.endsWith('**'))node.append(make('strong',fragment.slice(2,-2)));
+  else if(fragment.startsWith('`')&&fragment.endsWith('`'))node.append(make('code',fragment.slice(1,-1)));
+  else if(fragment.startsWith('\\(')&&fragment.endsWith('\\)'))node.append(make('code',fragment.slice(2,-2)));
+  else node.append(document.createTextNode(fragment));
+ }
+}
+function safeTutorMarkdown(input){
+ const wrapper=make('div',undefined,'tutor-response-text');
+ const lines=String(input||'').replace(/\r/g,'').split('\n').slice(0,200);
+ let i=0;
+ while(i<lines.length){
+  const line=lines[i];
+  if(!line.trim()){i++;continue}
+  const title=/^#{1,3}\s+(.+)$/.exec(line);
+  if(title){const h=make('h5');tutorInline(h,title[1]);wrapper.append(h);i++;continue}
+  if(line.includes('|')&&i+1<lines.length&&/^\s*\|?\s*[-:| ]{3,}\|?\s*$/.test(lines[i+1])){
+   const split=v=>v.replace(/^\s*\||\|\s*$/g,'').split('|').map(x=>x.trim()).slice(0,6);
+   const cols=split(line);
+   if(cols.length>1){
+    const table=make('table'),header=make('thead'),tr=make('tr');
+    for(const item of cols){const th=make('th');tutorInline(th,item);tr.append(th)}
+    header.append(tr);table.append(header);const body=make('tbody');i+=2;
+    for(let j=0;j<15&&i<lines.length&&lines[i].includes('|');j++,i++){
+     const row=make('tr');for(const item of split(lines[i]).slice(0,cols.length)){
+      const td=make('td');tutorInline(td,item);row.append(td)}
+     body.append(row);
+    }
+    table.append(body);wrapper.append(table);continue;
+   }
+  }
+  if(/^\s*(?:[-*]\s+|\d+\.\s+)/.test(line)){
+   const ordered=/^\s*\d+\.\s+/.test(line),list=make(ordered?'ol':'ul');
+   while(i<lines.length&&/^\s*(?:[-*]\s+|\d+\.\s+)/.test(lines[i])){
+    const item=make('li');tutorInline(item,lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/,''));list.append(item);i++;
+   }
+   wrapper.append(list);continue;
+  }
+  const p=make('p');tutorInline(p,line);wrapper.append(p);i++;
+ }
+ return wrapper;
+}
 function detailsOf(record){
  const li=make('li',undefined,'tutor-turn');
  li.dataset.requestId=record.requestId;
@@ -49,7 +95,7 @@ function detailsOf(record){
   li.append(make('h4','Your submitted reasoning (ungraded)'),make('p',record.learnerAnswer,'tutor-user-message'));
  }
  const reply=make('section',undefined,'tutor-reply');
- reply.append(make('h4','Tutor response'),make('p',record.answer,'tutor-response-text'));
+ reply.append(make('h4','Tutor response'),safeTutorMarkdown(record.answer));
  const observedType=record.generation.startsWith('verified:')?record.generation.slice(9):record.generation;
  const type=observedType==='grounded-model-draft'?'Optional AI-generated educational draft':
   observedType==='public-companion-glossary'?'Public glossary — not AI':
