@@ -24,6 +24,8 @@ jobs:
           node tests/test_v014151_foundations_rubric_queue.mjs
           node tests/test_v014151_self_reported_lab_progress.mjs
           node tests/test_v014152_other325_evidence.mjs
+          node tests/test_v014152_other325_editor_queue.mjs
+          node --check assets/js/training-editor.js
           node --check assets/js/labs.js
           node --check assets/js/training-editor.js
       - uses: actions/upload-artifact@v4

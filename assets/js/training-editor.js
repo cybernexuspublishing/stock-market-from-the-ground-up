@@ -68,7 +68,7 @@ $('#author-knowledge-approve').onclick=async()=>{
   state.textContent=r.notice;await loadKnowledgeMap();
  }catch(e){state.textContent=e.message;button.disabled=false}
 };
-let rubricIndex=[],foundationsIndex=null,rubricIndexLoaded=false;
+let rubricIndex=[],foundationsIndex=null,otherIndex=null,rubricIndexLoaded=false;
 function bookChoice(){return $('#author-foundations-book')?.value||'ALL'}
 function matchBook(id,book){
  const f=/^F[123]-/.test(String(id||''));
@@ -79,13 +79,13 @@ function showFoundationsQueue(){
  if(!state||!picker)return;
  const old=picker.value;picker.replaceChildren();
  const first=document.createElement('option');first.value='';
- first.textContent=foundationsIndex?'Choose missing private rubric':'Source catalog unavailable';
- picker.append(first);picker.disabled=!foundationsIndex;
- if(!foundationsIndex||!rubricIndexLoaded){state.textContent='Source catalog or complete private Owner rubric index not verified; no missing-rubric count is assumed.';picker.disabled=true;return}
+ first.textContent=foundationsIndex&&(bookChoice()!=='OTHER'||otherIndex)?'Choose missing private rubric':'Source catalog unavailable';
+ picker.append(first);picker.disabled=!foundationsIndex||(bookChoice()==='OTHER'&&!otherIndex);
+ if(!foundationsIndex||!rubricIndexLoaded||(bookChoice()==='OTHER'&&!otherIndex)){state.textContent='Source catalog or complete private Owner rubric index not verified; no missing-rubric count is assumed.';picker.disabled=true;return}
  const q=window.GroundUpFoundationsRubricQueueV014151;
- const chosen=bookChoice(),s=q.summarize(foundationsIndex,rubricIndex,chosen),
+ const chosen=bookChoice(),s=chosen==='OTHER'?q.summarizeOther(otherIndex,rubricIndex):q.summarize(foundationsIndex,rubricIndex,chosen),
        overall=q.summarize(foundationsIndex,rubricIndex,'ALL');
- for(const lab of chosen==='OTHER'?[]:s.missing){
+ for(const lab of s.missing){
   const o=document.createElement('option');o.value=lab.id;o.textContent=lab.id+' · '+lab.title;picker.append(o);
  }
  if([...picker.options].some(o=>o.value===old))picker.value=old;
@@ -112,11 +112,17 @@ async function loadFoundationsIndex(){
  if(!response.ok)throw Error('Public Foundations index unavailable');
  foundationsIndex=window.GroundUpFoundationsRubricQueueV014151.catalog(await response.json());
  displayRubrics();
+ try{
+  const res=await fetch('/lab-catalog.json',{cache:'no-store'});
+  if(!res.ok)throw Error('Canonical 419-Lab source unavailable');
+  otherIndex=window.GroundUpFoundationsRubricQueueV014151.otherCatalog(await res.json());
+ }catch(error){otherIndex=null;}
+ displayRubrics();
 }
 $('#author-add').onclick=()=>add();$('#author-filter').addEventListener('input',displayRubrics);
 $('#author-foundations-book').addEventListener('change',displayRubrics);
 $('#author-foundations-missing').addEventListener('change',function(){
- const lab=foundationsIndex?.find(x=>x.id===this.value);if(!lab)return;
+ const lab=(bookChoice()==='OTHER'?otherIndex:foundationsIndex)?.find(x=>x.id===this.value);if(!lab)return;
  if(!confirm('Start an UNSAVED private rubric draft for '+lab.id+'? Current unsaved editor changes will be replaced.')){this.value='';return}
  form.elements.labId.value=lab.id;form.elements.title.value=lab.title;
  rows.replaceChildren();add();lastDraft=null;mappedRubric=null;
