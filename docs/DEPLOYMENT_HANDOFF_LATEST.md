@@ -13,6 +13,7 @@
 - Introduced isolated deterministic approved-topic retrieval with abbreviation/synonym normalization and whole-token ranking. Prevents accidental substring matches, ignores common question boilerplate, and deterministically breaks rank ties. Existing source catalogs retained.
 - Wired the **existing** premium Tutor API to that shared retrieval routine; no parallel Tutor app, database, Stripe product, or AI provider was introduced.
 - Added a Node regression test for known aliases, topic matches, unrelated queries and empty results.
+- Added independently testable **hypothetical long-only** risk sizing, buying-power bound, target reward/risk and P&L arithmetic in `functions/_lib/tutor-arithmetic-v014149.js`. This is a verified source implementation only, not yet wired into a member calculator or independently accepted.
 - Retained existing mandatory Tutor entitlement, four modes, request validation, history, rate-meter path, source-only fallback, and provider safeguards unchanged.
 
 ## Uploaded research review
@@ -23,7 +24,7 @@ Deployment 08 source is at v0.14.0.148, with main most recently committed `345c2
 
 ## Acceptance / blockers
 - **Source work:** partial. PR review and exact-head CI required.
-- **Tests:** added, not claimed passing until GitHub Actions or a local runner verifies.
+- **Tests:** retrieval and hypothetical arithmetic regression suites added to existing GitHub Actions workflow. Results not claimed passing until GitHub Actions or a local runner verifies.
 - **Supabase:** no new migration in this slice; existing v102/v103/v107 contracts require read-only verification before production acceptance.
 - **Cloudflare:** no production release triggered by branch.
 - **AI providers:** paid inference never enabled; approved Workers AI model and zero-cost quota eligibility have NOT been established. Do not infer free per-question allowance.
@@ -39,3 +40,4 @@ Continue Deployment 09 until its functional, security, editorial, accessibility 
 | Date | Version | Description |
 |---|---|---|
 | 2026-10-22 | 0.1 | First Deployment 09 retrieval hardening handoff; all external acceptance explicitly pending. |
+| 2026-10-22 | 0.2 | Source-only risk arithmetic and numerical tests added; acceptance still pending. |
