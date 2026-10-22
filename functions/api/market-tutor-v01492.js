@@ -14,6 +14,7 @@ import {expandTutorQuery,seeksPersonalTradeAdvice,validateTutorModelAnswer,safeT
 import {callTutorModel} from '../_lib/tutor-provider-v014107.js';
 import {saveVerifiedTutorExchange} from '../_lib/tutor-history-save-v014107.js';
 import {tutorRequestLimit} from '../_lib/tutor-rate-limit-v014107.js';
+import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -158,8 +159,9 @@ async function paidLearningDraft(env,body,userId,q,mode,source,answer){
 export async function onRequest({request,env}){
  try{
   if(request.method!=='POST')return reply({ok:false,error:'POST required.'},405);
-  const length=Number(request.headers.get('content-length')||0);
-  if(length>8000)return reply({ok:false,error:'Request too large.'},413);
+  // Validate transport, consent and payload before authentication-backed
+  // request reservation. Invalid/cross-site attempts cannot burn member quota.
+  const body=await parseTutorRequest(request);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
   if(!auth.authorized)return reply({ok:false,error:'Active Market Tutor / Full Platform access required.'},403);
   const throttle=await tutorRequestLimit(env,auth.userId);
@@ -171,19 +173,12 @@ export async function onRequest({request,env}){
     rateLimited:true},429);
   }
   if(!throttle.verified)safeTutorMetric('status',{reason:'general_rate_meter_unavailable'});
-  const raw=await request.text();
-  if(new TextEncoder().encode(raw).byteLength>8000)throw error('Request too large.',413);
-  let body;try{body=JSON.parse(raw)}catch{throw error('Invalid JSON.')}
-  if(!body||typeof body!=='object'||Array.isArray(body))throw error('Invalid Tutor request.');
-  const q=clean(body.question),mode=clean(body.mode||'explain'),answer=clean(body.learnerAnswer||'');
-  if(q.length<4||q.length>450||!['explain','question','review','practice'].includes(mode)||answer.length>1800)throw error('Invalid question or learning mode.');
-  // Browser-provided conversational "Tutor" turns have no server provenance.
-  // Deliberately discard them; single-request learner reasoning is untrusted.
-  if(body.priorTurns!==undefined)safeTutorMetric('safety',{reason:'unverified_prior_turns_ignored'});
+  const q=body.question,mode=body.mode,answer=body.learnerAnswer;
+  if(body.priorTurnsSupplied)safeTutorMetric('safety',{reason:'unverified_prior_turns_ignored'});
   async function finish(data){
    if(body.saveHistory===true){
     const id=await saveVerifiedTutorExchange(env,auth.userId,{
-     question:q,learnerAnswer:answer,mode,generation:data.generation,
+     requestId:body.requestId,question:q,learnerAnswer:answer,mode,generation:data.generation,
      answer:data.answer,sources:data.sources||[]});
     data.historyId=id||null;data.historySaved=!!id;
     safeTutorMetric('history',{reason:id?'server_saved':'server_save_unavailable'});
@@ -242,5 +237,5 @@ export async function onRequest({request,env}){
    sourceLimit:'Public companion-glossary context only. Historical datasets and Lab grading are independent.',
    notice:generation==='grounded-model-draft'?'AI-generated educational draft. Check source references before relying on an explanation.':'Source-grounded companion teaching; not generative AI and not a verified assessment.',
    links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
- }catch(e){return reply({ok:false,error:e.status===413?'Request too large.':e.status===401?'Sign in to use the premium Tutor.':e.status===403?'Market Tutor entitlement required.':'Tutor is temporarily unavailable.'},[400,401,403,405,413,429].includes(e.status)?e.status:503)}
+ }catch(e){return reply({ok:false,error:e.status===413?'Request too large.':e.status===401?'Sign in to use the premium Tutor.':e.status===403?'Market Tutor entitlement required.':e.status===415?'Tutor requests require JSON content.':e.status===400?'Invalid Tutor request.':'Tutor is temporarily unavailable.'},[400,401,403,405,413,415,429].includes(e.status)?e.status:503)}
 }
