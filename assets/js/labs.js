@@ -6,7 +6,7 @@ let labSupabase = null;
 function norm(s) { return String(s || '').toLowerCase(); }
 
 function statusLabel(status) {
-  if (status === 'completed') return 'Completed';
+  if (status === 'completed') return 'Self-tracked complete · not graded';
   if (status === 'in_progress') return 'In progress';
   return 'Not started';
 }
@@ -18,7 +18,7 @@ function progressControl(labId) {
   <select id="progress-${labId}" class="progress-select" data-lab-id="${labId}" aria-label="Progress for ${labId}">
     <option value="not_started"${status === 'not_started' ? ' selected' : ''}>Not started</option>
     <option value="in_progress"${status === 'in_progress' ? ' selected' : ''}>In progress</option>
-    <option value="completed"${status === 'completed' ? ' selected' : ''}>Completed</option>
+    <option value="completed"${status === 'completed' ? ' selected' : ''}>Self-tracked complete (not graded)</option>
   </select>`;
 }
 
@@ -47,7 +47,7 @@ function renderLabs(rows) {
       </div>
       <div class="lab-card-progress">
         <a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>
-        <span class="lab-progress-label">My progress</span>
+        <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" data-msg-for="${x.id}">${statusLabel(savedStatus)}</div>
       </div>

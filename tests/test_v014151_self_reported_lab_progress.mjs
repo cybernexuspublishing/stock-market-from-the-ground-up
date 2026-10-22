@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync('labs.html','utf8'),js=readFileSync('assets/js/labs.js','utf8');
+const owner=readFileSync('assets/js/owner-roadmap-product-readiness-v01491.js','utf8');
+const priv=readFileSync('functions/_lib/owner-lab-readiness-v01493.js','utf8');
+const assessed=readFileSync('functions/api/interactive-training.js','utf8');
+assert(html.includes('Self-tracked complete (not graded)'));
+assert(html.includes('Selecting complete does not pass a reviewed assessment'));
+assert(js.includes("if (status === 'completed') return 'Self-tracked complete · not graded'"));
+assert(js.includes('Self-tracked complete (not graded)'));
+assert(js.includes('labSupabase.from(\'lab_progress\').upsert'));
+assert(js.includes('completed_at: status === \'completed\' ? now : null'));
+assert(owner.includes('Substantive private lesson shape prechecks'));
+assert(priv.includes('substantivePrivateLessonPrechecks'));
+assert(priv.includes("db('lab_instruction_v014?select=lab_id,source_status,content&limit=1000')"));
+assert(assessed.includes("action==='progress'"),'Reviewed training history remains server-managed, distinct from self-tracked status');
+console.log('PASS D11 self-tracked completion is explicitly ungraded; private authored-lesson precheck separate from mere row existence and server grading');
