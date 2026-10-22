@@ -14,7 +14,7 @@ assert.equal(report.canonicalTitleMismatches,0,'Public companion and crosswalk t
 assert.equal(report.genericIndicatorExamples,3,'Indicator case names still require topic-specific instruction');
 assert(report.labs.filter(l=>l.genericIndicatorExample).every(l=>l.book===3&&!l.accepted));
 assert(report.labs.filter(l=>l.genericIndicatorExample).every(l=>l.remainingCriteria.includes('TOPIC_SPECIFIC_INSTRUCTION_PENDING')));
-const topicRows=report.labs.filter(l=>/^F3-C0[456]-L\\d{2}$/.test(l.id));
+const topicRows=report.labs.filter(l=>/^F3-C0[456]-L\d{2}$/.test(l.id));
 assert.equal(topicRows.length,13);
 assert(topicRows.every(l=>l.title===l.canonicalIndexTitle),'Source-index titles must be retained exactly');
 assert(report.labs.every(l=>l.productionAccepted===false));
