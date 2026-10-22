@@ -1,8 +1,8 @@
 {
   "schema": "gu-release-v1",
   "project": "The Stock Market: From the Ground Up",
-  "version": "0.14.0.99",
-  "status": "candidate-not-deployed",
+  "version": "0.14.0.148",
+  "status": "source-release-candidate-production-acceptance-pending",
   "baselineGitCommit": "b3e786b1bfd8968bc0b046f88db120a14cc22138",
   "gitCommit": null,
   "builtAtUtc": null,
@@ -241,5 +241,32 @@
     "livePaidCheckoutApproved": false,
     "documentation": "docs/v0.14.0.72-STORE-ZERO-MONTHLY-ACCEPTANCE.md",
     "databaseFile": "supabase/migrations/v0.14.0.72_SIGNED_ZERO_MONTHLY_QA_REVIEW_REQUIRED.sql"
+  },
+  "deployment08": {
+    "scope": "8-of-8 source deployment and final gated acceptance",
+    "sourceResult": "pending_PRCI_and_Cloudflare_verification",
+    "productionAcceptance": "not_certified",
+    "verifiedSourceArtifacts": [
+      "docs/v0.14.0.148_DEPLOYMENT_08_OF_08_SITEWIDE_RELEASE_AND_ACCEPTANCE.md",
+      "supabase/admin/v0.14.0.148_DEPLOYMENT_FINAL_PREFLIGHT_READ_ONLY.sql",
+      "scripts/deployment08_release_evidence.mjs",
+      "tests/v0144_route_contracts.mjs"
+    ],
+    "auditOutput": "GitHub Actions artifact d08-sitewide-source-evidence.json",
+    "newSupabaseMigration": false,
+    "financialChargeAuthorized": false,
+    "providerActivationPerformed": false,
+    "liveDatabaseVerified": false,
+    "ownerSavedRoadmapAutomaticallyModified": false,
+    "pendingExternalControls": [
+      "real_multi_account_RLS",
+      "live_stripe_lifecycle",
+      "license_authentic_historical_data",
+      "real_market_tutor_provider",
+      "counsel_policy_and_KDP_review",
+      "419_individual_lab_acceptance",
+      "disaster_recovery_drill",
+      "manual_WCAG_accessibility"
+    ]
   }
 }
