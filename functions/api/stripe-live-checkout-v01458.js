@@ -219,10 +219,13 @@ const checkoutReply=url=>respond({ok:true,live:true,url,
 export async function onRequestPost({request:req,env}){
  try{const origin=req.headers.get('origin'),here=new URL(req.url);if(origin!==here.origin)throw err('Cross-site checkout denied.',403);
   const input=await boundedCheckoutInput(req);
+  const type=val(input.type),code=val(input.code);
+  if(!['plan','tool'].includes(type)||!/^[A-Z0-9_]{3,90}$/.test(code)||
+     !products.has(type+':'+code))throw err('Unsupported product.',400);
+  // Reject malformed/unsupported purchase requests BEFORE any Stripe, DB,
+  // service-key or member lookup; entitlement checks remain server-owned.
   const c=environment(env);await testModeOff(c);await assertLiveAccount(c);
   const catalog=liveCatalog(env),u=await validateUser(c,req);
-  const type=val(input.type),code=val(input.code);
-  if(!['plan','tool'].includes(type)||!/^[A-Z0-9_]{3,90}$/.test(code))throw err('Unsupported product.',400);
   const p=await product(c,type,code),mapped=catalog[p.key],price=mapped.price_id;await verifyPrice(c,price,p,mapped.product_id);
   // Protect customers against duplicate ongoing subscriptions and double Lifetime purchases.
   if(type==='plan'){

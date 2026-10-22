@@ -23,6 +23,10 @@ try{
  assert.equal(r.status,400,'Malformed checkout request must fail before provider');
  r=await send('[{"type":"plan","code":"FULL_MONTHLY"}]');
  assert.equal(r.status,400,'Array body cannot become a product request');
+ r=await send(JSON.stringify({type:'unknown',code:'FULL_MONTHLY'}));
+ assert.equal(r.status,400,'Unknown product type must be refused before database calls');
+ r=await send(JSON.stringify({type:'plan',code:'UNREGISTERED_FAKE'}));
+ assert.equal(r.status,400,'Only eight Owner-approved paid products can enter payment processing');
  r=await send(JSON.stringify({type:'plan',code:'FULL_MONTHLY'}));
  assert.equal(r.status,503,'Valid small body must retain independently disabled payment gates');
  assert.equal(remote,0,'No network/provisioning for invalid or environment-disabled checkout');
