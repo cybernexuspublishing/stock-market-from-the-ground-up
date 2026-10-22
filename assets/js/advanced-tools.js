@@ -151,12 +151,16 @@
     '<div class="v11-form-grid">'+
     '<div><label for="u-source">Source / permission note (required)</label><input id="u-source" type="text" maxlength="180" placeholder="Your authorized provider or source"></div>'+
     '<div><label for="u-time">Source observation time incl. zone (ISO 8601, required)</label><input id="u-time" type="text" placeholder="2026-10-21T13:00:00-04:00"></div>'+
+    '<div><label for="u-minprice">Min price (USD, optional)</label><input id="u-minprice" type="number" min="0" step="any" placeholder="No minimum"></div>'+ 
     '<div><label for="u-maxprice">Max price (USD)</label><input id="u-maxprice" type="number" min="0" step="any" value="20"></div>'+
     '<div><label for="u-change">Min % change</label><input id="u-change" type="number" step="any" value="10"></div>'+
     '<div><label for="u-vol">Min shares traded</label><input id="u-vol" type="number" min="0" step="1" value="1000000"></div>'+
     '<div><label for="u-rvol">Min RVOL (provided; not independently computed)</label><input id="u-rvol" type="number" min="0" step="any" value="2"></div>'+
     '<div><label for="u-float">Max reported float (shares, source dated separately)</label><input id="u-float" type="number" min="0" step="1" value="15000000"></div>'+
-    '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div></div>'+
+    '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div>'+ 
+    '<div><label for="u-mingap">Min reported gap % (optional; CSV gap_pct)</label><input id="u-mingap" type="number" min="0" step="any" placeholder="No gap threshold"></div>'+ 
+    '<div><label for="u-maxmcap">Max reported market cap USD (optional; CSV market_cap)</label><input id="u-maxmcap" type="number" min="0" step="any" placeholder="Not required"></div>'+ 
+    '<div><label for="u-mindollarvol">Min price × shares proxy USD (optional)</label><input id="u-mindollarvol" type="number" min="0" step="any" placeholder="Not required"></div></div>'+
     '<div class="actions"><button type="button" id="u-run" class="btn">'+(scannerOnly?'Screen snapshot':'Filter snapshot')+'</button>'+
     '<button type="button" id="u-save" class="btn secondary">Save Filter Set</button></div>'+
     '<p id="u-audit" role="status" aria-live="polite"></p><div id="u-results"></div>')+
@@ -172,12 +176,16 @@
    }catch(e){rows=[];document.getElementById('u-results').replaceChildren();status(e.message,'error')}
   };
   const getFilters=()=>({
+   minPrice:document.getElementById('u-minprice').value,
    maxPrice:document.getElementById('u-maxprice').value,
    minChange:document.getElementById('u-change').value,
    minVol:document.getElementById('u-vol').value,
    minRvol:document.getElementById('u-rvol').value,
    maxFloat:document.getElementById('u-float').value,
-   maxSpread:document.getElementById('u-spread').value
+   maxSpread:document.getElementById('u-spread').value,
+   minGap:document.getElementById('u-mingap').value,
+   maxMarketCap:document.getElementById('u-maxmcap').value,
+   minDollarVolume:document.getElementById('u-mindollarvol').value
   });
   const provenance=()=>{
    const label=document.getElementById('u-source').value.trim();
@@ -204,14 +212,14 @@
     caption.textContent='Unverified user-supplied snapshot; top 100 matching candidates, not investment recommendations.';
     table.append(caption);
     const head=document.createElement('thead'),tr=document.createElement('tr');
-    for(const text of ['Symbol','Price','% change','Volume','RVOL','Reported float','Spread %']){
+    for(const text of ['Symbol','Price','% change','Volume','RVOL','Reported float','Spread %','Gap % (supplied)','Market cap USD (supplied)','Price × volume proxy']){
      const th=document.createElement('th');th.textContent=text;th.scope='col';tr.append(th);
     }
     head.append(tr);table.append(head);
     const body=document.createElement('tbody');
     for(const row of result.rows){
      const r=document.createElement('tr');
-     for(const value of [row.symbol,row.price,row.change,row.volume.toLocaleString(),row.rvol,row.float.toLocaleString(),row.spread]){
+     for(const value of [row.symbol,row.price,row.change,row.volume.toLocaleString(),row.rvol,row.float.toLocaleString(),row.spread,row.gap??'Not supplied',row.marketCap??'Not supplied',Math.round(row.dollarVolume).toLocaleString()]){
       const cell=document.createElement('td');cell.textContent=String(value);r.append(cell);
      }
      body.append(r);
@@ -248,6 +256,8 @@
    panel('Private saved candidates','<div id="w-list"></div>')+
    panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
   const list=document.getElementById('w-list');
+  const saveButton=document.getElementById('w-save');
+  let editing=null;
   if(!recs.length)list.textContent='No saved candidates yet.';
   for(const rec of recs){
    const line=document.createElement('p');
@@ -255,7 +265,30 @@
     ' · Invalidation: '+(rec.payload?.invalidation||'Unspecified')+
     ' · Source: '+(rec.payload?.sourceNote||'Legacy record: no source')+
     ' · At: '+(rec.payload?.asOf||'Date unknown');
-   list.append(line);
+   const edit=document.createElement('button');edit.type='button';edit.className='btn secondary';
+   edit.textContent='Edit';edit.setAttribute('aria-label','Edit saved candidate '+String(rec.title||''));
+   edit.addEventListener('click',()=>{
+    if(!rec.updated_at){status('This older record has no update revision. Refresh your workspace before editing.','error');return}
+    editing={id:rec.id,revision:rec.updated_at};
+    const value=(id,text)=>{const el=document.getElementById(id);if(el)el.value=String(text??'')};
+    const p=rec.payload||{};
+    value('w-ticker',rec.title);value('w-status',p.status||'WATCH');value('w-asof',p.asOf);
+    value('w-source',p.sourceNote);value('w-cat',p.catalyst);value('w-level',p.level);
+    value('w-entry',p.entry);value('w-inv',p.invalidation);value('w-stop',p.stop);
+    value('w-target',p.target);value('w-why',p.why);
+    saveButton.textContent='Update Saved Candidate';
+    document.getElementById('w-ticker').focus();
+    status('Editing your saved research candidate. Save to update only this version.','success');
+   });
+   const del=document.createElement('button');del.type='button';del.className='btn secondary';
+   del.textContent='Delete';del.setAttribute('aria-label','Delete saved candidate '+String(rec.title||''));
+   del.addEventListener('click',async()=>{
+    if(!window.confirm('Permanently delete this saved research candidate?'))return;
+    try{await workspaceApi('&id='+encodeURIComponent(rec.id),'DELETE');await renderWatchlist();renderWorkspaceManager();
+     status('Selected private candidate deleted.','success')}
+    catch(e){status(e.message,'error')}
+   });
+   line.append(' ',edit,' ',del);list.append(line);
   }
   document.getElementById('w-save').onclick=async()=>{
    try{
@@ -271,8 +304,13 @@
      entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
      target:value('w-target'),why:value('w-why'),asOf,sourceNote,
      evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
-    await saveRecord('watchlist',ticker,payload);await renderWatchlist();renderWorkspaceManager();
-    status('Saved private conditional plan. Market source and trade outcome remain unverified.','success');
+    if(editing){
+     await workspaceApi('&id='+encodeURIComponent(editing.id),'PATCH',
+      {recordType:'watchlist',title:ticker,payload,expectedUpdatedAt:editing.revision});
+    }else await saveRecord('watchlist',ticker,payload);
+    const action=editing?'updated':'saved';
+    await renderWatchlist();renderWorkspaceManager();
+    status('Private conditional plan '+action+'. Market source and outcome remain unverified.','success');
    }catch(e){status(e.message,'error')}
   };
  }
@@ -318,7 +356,32 @@
  document.getElementById('m-out').innerHTML=`<div class="v11-feature-grid">${frames.map(([m,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">${m}m</span><div><strong>${structureSummary(b)}</strong><small>${b.length} derived bars · last ${money(b.at(-1)?.close)}</small></div></div>`).join('')}</div><div class="v11-feature-grid">${[['EMA 9 (provided close observations)',ema9?money(ema9.value):'Insufficient valid observations'],['EMA 20 (provided close observations)',ema20?money(ema20.value):'Insufficient valid observations'],['Typical-price OHLCV VWAP proxy (NOT trade VWAP)',typical?money(typical.value):'Insufficient valid volume']].map(([label,value])=>`<div class="v11-feature available"><div><strong>${esc(label)}</strong><small>${esc(value)}</small></div></div>`).join('')}</div><div class="v11-lock-note">A lower timeframe can look bullish while a higher timeframe is pressing into resistance. Uploaded observations are not independently verified. EMA uses supplied closing values; any VWAP proxy uses typical-price OHLCV approximation, NOT actual trade-derived VWAP.</div>`}}
  function renderStructure(){document.getElementById('tool-workbench').innerHTML=panel('Market Structure Lab',`<p>Upload OHLCV. A simple pivot detector identifies candidate swing highs/lows. You still decide whether the sequence is meaningful market structure.</p><input id="s-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="s-run">Detect Swings</button></div><div id="s-out"></div>`);let rows=[];document.getElementById('s-file').onchange=async e=>rows=parseBars(parseCsv(await e.target.files[0].text()));document.getElementById('s-run').onclick=()=>{if(rows.length<7)return status('Load at least 7 bars.','error');const piv=[];for(let i=2;i<rows.length-2;i++){const b=rows[i],h=rows.slice(i-2,i+3);if(b.high===Math.max(...h.map(x=>x.high)))piv.push({i,type:'H',price:b.high,time:b.time});if(b.low===Math.min(...h.map(x=>x.low)))piv.push({i,type:'L',price:b.low,time:b.time})}const last=piv.slice(-12);let prevH=null,prevL=null;const annotated=last.map(p=>{let lab=p.type;if(p.type==='H'){lab=prevH==null?'H':p.price>prevH?'HH':'LH';prevH=p.price}else{lab=prevL==null?'L':p.price>prevL?'HL':'LL';prevL=p.price}return {...p,lab}});document.getElementById('s-out').innerHTML=`<div class="v11-matrix"><table><thead><tr><th>Time</th><th>Pivot</th><th>Price</th></tr></thead><tbody>${annotated.map(p=>`<tr><td>${p.time.toLocaleString()}</td><td>${p.lab}</td><td>${p.price}</td></tr>`).join('')}</tbody></table></div><div class="v11-lock-note">Pivot algorithms are aids, not authoritative structure labels. Confirm the swing significance in context.</div>`}}
  function renderHalt(){const scenarios=[['Volatility halt occurs immediately after a vertical expansion.','Pause decision-making. Reassess news, liquidity, expected resume spread, and gap risk before considering any new order.'],['SSR is active after a large decline.','Understand the restriction context, but do not treat SSR itself as a directional signal.'],['Resume prints far from the pre-halt price.','Assume stop execution can differ materially from the planned price; recalculate risk before acting.']];document.getElementById('tool-workbench').innerHTML=panel('Halt / SSR / Abnormal Market Scenarios',scenarios.map((s,i)=>`<details><summary><strong>Scenario ${i+1}</strong> — ${esc(s[0])}</summary><p>${esc(s[1])}</p><label>Your decision</label><textarea rows="3" data-scenario="${i}"></textarea></details>`).join('')+`<div class="actions"><button class="btn" id="h-save">Save Scenario Notes</button></div>`);document.getElementById('h-save').onclick=async()=>{const notes=[...document.querySelectorAll('[data-scenario]')].map(x=>x.value);await saveRecord('scenario_review','Halt / SSR Scenario Review',{notes});status('Scenario review saved.','success')}}
- async function renderPattern(){let labs=[];try{labs=await fetch('data/interactive-lab-index.json').then(r=>r.json())}catch{}document.getElementById('tool-workbench').innerHTML=panel('Pattern & Failure Library',`<div class="v11-form-grid"><div><label>Search concept/context</label><input id="p-q" placeholder="failed breakout, VWAP, range..."></div><div><label>Book</label><select id="p-book"><option value="">All</option><option value="1">Book I</option><option value="2">Book II</option><option value="3">Book III</option></select></div></div><div class="actions"><button class="btn" id="p-run">Search Library</button></div><div id="p-out"></div>`);const run=()=>{const q=document.getElementById('p-q').value.toLowerCase(),b=document.getElementById('p-book').value;const out=labs.filter(x=>(!b||String(x.book)===b)&&(!q||JSON.stringify(x).toLowerCase().includes(q))).slice(0,60);document.getElementById('p-out').innerHTML=`<div class="v11-tool-hub">${out.map(x=>`<article class="v11-tool-card"><div class="eyebrow">${esc(x.id)}</div><h3>${esc(x.concept)}</h3><p>${esc((x.marketContexts||[]).join(' · '))}</p><a class="btn secondary" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Lab</a></article>`).join('')}</div>`};document.getElementById('p-run').onclick=run;run()}
+ async function renderPattern(){let labs=[];try{labs=await fetch('data/interactive-lab-index.json').then(r=>r.json())}catch{}document.getElementById('tool-workbench').innerHTML=panel('Pattern & Failure Library',`<div class="v11-form-grid"><div><label>Search concept/context</label><input id="p-q" placeholder="failed breakout, VWAP, range..."></div><div><label>Book</label><select id="p-book"><option value="">All</option><option value="1">Book I</option><option value="2">Book II</option><option value="3">Book III</option></select></div></div><div class="actions"><button class="btn" id="p-run">Search Library</button></div><div id="p-out"></div>`);const engine=globalThis.GroundUpPatternEvidenceV014150;
+  if(engine){
+   const host=document.getElementById('tool-workbench');
+   const section=document.createElement('section');section.className='v11-workbench-panel';
+   const title=document.createElement('h2');title.textContent='Observable setup evidence and failure modes';
+   const intro=document.createElement('p');intro.textContent='Choose an original educational pattern summary. This is not a verified live signal, execution instruction, or prediction.';
+   const label=document.createElement('label');label.htmlFor='p-pattern';label.textContent='Setup or pattern';
+   const select=document.createElement('select');select.id='p-pattern';
+   for(const pattern of engine.all){const option=document.createElement('option');option.value=pattern.id;option.textContent=pattern.title;select.append(option)}
+   const description=document.createElement('div');description.setAttribute('aria-live','polite');
+   const renderEvidence=()=>{
+    const item=engine.get(select.value);if(!item)return;
+    description.replaceChildren();
+    for(const [heading,value] of [['What and why',item.description],['Evidence to observe',item.evidence],
+      ['What invalidates this reading',item.invalidation],['Independent practice',item.exercise]]){
+     const strong=document.createElement('strong');strong.textContent=heading;
+     const p=document.createElement('p');p.textContent=value;
+     description.append(strong,p);
+    }
+    const note=document.createElement('p');note.textContent='All examples require source and timestamp review. No automatically identified trade, success probability, or validated historical fill.';
+    description.append(note);
+   };
+   select.addEventListener('change',renderEvidence);
+   section.append(title,intro,label,select,description);host.append(section);renderEvidence();
+  }
+  const run=()=>{const q=document.getElementById('p-q').value.toLowerCase(),b=document.getElementById('p-book').value;const out=labs.filter(x=>(!b||String(x.book)===b)&&(!q||JSON.stringify(x).toLowerCase().includes(q))).slice(0,60);document.getElementById('p-out').innerHTML=`<div class="v11-tool-hub">${out.map(x=>`<article class="v11-tool-card"><div class="eyebrow">${esc(x.id)}</div><h3>${esc(x.concept)}</h3><p>${esc((x.marketContexts||[]).join(' · '))}</p><a class="btn secondary" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Lab</a></article>`).join('')}</div>`};document.getElementById('p-run').onclick=run;run()}
  function renderTape(){document.getElementById('tool-workbench').innerHTML=panel('Order Flow & Tape Laboratory',`<p>Upload a Time & Sales CSV. Suggested columns: <code>timestamp,price,size,bid,ask</code>. The first version classifies prints relative to contemporaneous bid/ask and measures pace/size.</p><input id="t-file" type="file" accept=".csv,text/csv"><div class="v11-form-grid"><div><label>Replay rows</label><input id="t-count" type="number" value="100" min="10"></div><div><label>Large-print threshold</label><input id="t-large" type="number" value="5000"></div></div><div class="actions"><button class="btn" id="t-run">Analyze Tape</button></div><div id="t-out"></div>`);let rows=[];document.getElementById('t-file').onchange=async e=>rows=parseCsv(await e.target.files[0].text());document.getElementById('t-run').onclick=()=>{const lim=n(document.getElementById('t-count').value)||100,thr=n(document.getElementById('t-large').value)||5000,x=rows.slice(0,lim).map(r=>{const p=n(r.price),bid=n(r.bid),ask=n(r.ask),size=n(r.size)||0;let side='MID';if(p!=null&&ask!=null&&p>=ask)side='ASK';else if(p!=null&&bid!=null&&p<=bid)side='BID';return {...r,_p:p,_size:size,_side:side}});const ask=x.filter(r=>r._side==='ASK').reduce((a,b)=>a+b._size,0),bid=x.filter(r=>r._side==='BID').reduce((a,b)=>a+b._size,0),avg=x.length?x.reduce((a,b)=>a+b._size,0)/x.length:0,large=x.filter(r=>r._size>=thr).length;document.getElementById('t-out').innerHTML=`<div class="v11-feature-grid">${[['Rows',x.length],['Ask-classified shares',ask.toLocaleString()],['Bid-classified shares',bid.toLocaleString()],['Avg shares/print',avg.toFixed(0)],['Large prints',large]].map(([a,b])=>`<div class="v11-feature available"><span class="v11-feature-mark">✓</span><div><strong>${a}</strong><small>${b}</small></div></div>`).join('')}</div><div class="v11-lock-note">Bid/ask classification is an inference from quote context; it is not proof of buyer/seller intent or hidden liquidity.</div>`}}
  function renderContext(){document.getElementById('tool-workbench').innerHTML=panel('Market Context & Session Lab',`<p>Upload intraday OHLCV with timestamps. The tool separates Morning (04:00–09:30 ET), Day (09:30–16:00 ET), and Night (16:00–20:00 ET), matching the Historical Context Envelope design.</p><input id="mc-file" type="file" accept=".csv,text/csv"><div class="actions"><button class="btn" id="mc-run">Analyze Sessions</button></div><div id="mc-out"></div>`);let rows=[];document.getElementById('mc-file').onchange=async e=>rows=parseBars(parseCsv(await e.target.files[0].text()));document.getElementById('mc-run').onclick=()=>{const f=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit'});const groups={Morning:[],Day:[],Night:[]};rows.forEach(b=>{const parts=Object.fromEntries(f.formatToParts(b.time).map(p=>[p.type,p.value]));const m=Number(parts.hour)*60+Number(parts.minute);const k=m<570?'Morning':m<960?'Day':'Night';groups[k].push(b)});const summary=Object.entries(groups).map(([k,b])=>{if(!b.length)return[k,'—','—','—'];return[k,money(b[0].open),money(b.at(-1).close),b.reduce((a,x)=>a+x.volume,0).toLocaleString()]});document.getElementById('mc-out').innerHTML=`<div class="v11-session-strip"><span class="v11-session-pre">Morning 04:00–09:30</span><span class="v11-session-rth">Day 09:30–16:00</span><span class="v11-session-ah">Night 16:00–20:00</span></div><div class="v11-matrix"><table><thead><tr><th>Session</th><th>Open</th><th>Close</th><th>Volume</th></tr></thead><tbody>${summary.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}}
  async function renderReview(){const {data}=await SB.from('decision_journal').select('id,ticker,trade_date,status,setup,actual_entry,actual_exit').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(50);document.getElementById('tool-workbench').innerHTML=panel('Trade Review Replay',`<p>Select a paper/simulator-compatible journal record and reopen it in the replay environment. Live-trade reconstruction requires matching historical data for the ticker/date.</p><div class="v11-matrix"><table><thead><tr><th>Trade</th><th>Date</th><th>Setup</th><th>Replay</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${esc(r.ticker||'')}</td><td>${esc(r.trade_date||'')}</td><td>${esc(r.setup||'')}</td><td><a href="simulator.html?journal_id=${r.id}" class="btn secondary">Open Replay</a></td></tr>`).join('')}</tbody></table></div>`)}

@@ -1,3 +1,50 @@
+# Deployment 10 of 18 — Market Data and Trading Tools | Permanent Handoff
+
+**Project:** The Stock Market: From the Ground Up (single book + website project)  
+**Date:** 2026-10-22  
+**Status:** DEVELOPMENT IN PROGRESS / PRODUCTION NOT ACCEPTED  
+**Source target:** v0.14.0.150 release candidate on PR #124 (not deployed or merged)  
+**Base:** main v0.14.0.149 postflight at `3ab646eb5651101ae3bc994e32fbd496a36b8aba`  
+**Branch:** `deployment-10-of-18-market-data-v014150`
+
+## D09 source-release inheritance
+- D09 source PR #123 merged as `e6df00b158d3dff7c2cac0bb026a2fac42fa613b` after 39/39 check runs and 36/36 workflows passed; corrected manifest/handoff at `3ab646eb5651101ae3bc994e32fbd496a36b8aba`.
+- Owner-reported Supabase v149 and v149b already installed and structurally verified; **do not reapply**.
+- Live Cloudflare SHA, member A/B and Showcase isolation, Owner editorial review and Workers AI free/cost permissions remain unverified. AI inference stays OFF. Stripe LIVE settings owner-locked and unchanged.
+
+## D10 source implementation and relevant existing platform
+- Reuse existing `/api/marketdata`, BYO Tiingo token encryption, member-only market research CSV scanner and workbenches, watchlists, Journal, server-owned verified replay, simulator and existing entitlement architecture.
+- New `functions/_lib/market-data-integrity-v014150.js`: validates timezone-explicit timestamp inputs, real calendar dates, strictly increasing unique timestamps, New York trading-date coverage across UTC midnight/DST, full OHLCV presence, candle bounds and whole-share volume. No fabricated missing bars or synthetic observations.
+- Member-scoped BYO `/api/marketdata?action=bars` now uses that validator. Returns explicit unverified source-data properties: venue consolidation, completeness, corporate actions, redistribution/publication rights and official replay eligibility are **not** certified.
+- New deterministic regression `tests/test_v014150_market_data_integrity.mjs` is added to the existing v145 market-rights workflow. No live upstream calls are required by this test.
+- Uploaded StocksToTrade Browser Research archive consulted for educational pattern, indicator and watchlist design; research statements are not licensed member-data feeds, and no archived browser sessions, credentials or private profiles are published.
+- D10 scanner expansion now supports optional minimum price, reported gap %, supplied market cap and price-times-shares proxy thresholds, with fail-closed missing optional metrics and member-visible controls. The proxy is not exchange turnover or a trade indicator.
+- Existing multi-timeframe educational workbench now includes independently calculated SMA 20 and Wilder ATR 14 from supplied OHLC observations, with a documented bar-2 seed, no fill/performance claim and regression tests. EMA and typical-price proxy remain explicitly non-verified.
+- Watchlist lifecycle now supports authenticated edit (timestamp-based optimistic concurrency, account and tool scoping, protected data type), record deletion, private saved candidates and dated provenance. Dedicated mocked backend auth/CSRF/stale-edit tests. Existing POST/read/export and member restrictions retained.
+- Cross-phase D11–D14 and D18: a machine-generated 419-Lab / 30-day individual-acceptance ledger, with 30 fixed competencies and all six collection counts, now provides a separate CI evidence artifact. All record-specific criteria default UNVERIFIED and only reviewer/evidence/time-stamped decisions can become RECORDED, not independently verified production success.
+- D10 trading patterns: 18 original evidence/failure-mode study cards, independently selectable in the existing advanced-tool Pattern & Failure Library with accessible plain-text rendering and no fabricated live signal. The original library's Lab search is retained; RCT attribution is explicitly third-party and not credited to this series.
+- Observed-only session references added to existing ET context workbench: HOD, LOD, PMH, PML and preceding observed regular-session high/low with no-lookahead snapshots. Incomplete bars are never elevated to verified PDH/PDL; DST/session/chronology test added.
+- Planned 10.2–10.10 work remains: expanded supported scanner criteria, private watchlist lifecycle, indicator and session math, educational pattern evidence, licensed Level II/Time & Sales restrictions, approved replay chronology and simulator/journal acceptance. Existing source features must be verified before reimplementation.
+
+## D10 acceptance and owner actions
+| Gate | State |
+| --- | --- |
+| First new historical OHLCV validation source | Submitted on D10 branch; CI pending |
+| Exact-head GitHub source CI | PENDING |
+| Database changes required by this initial change | NONE |
+| Cloudflare environment changes required by this initial change | NONE |
+| New paid market feed or inference | NONE |
+| Live provider data license and provider plan | NOT VERIFIED; no redistribution |
+| Real published historical dataset | NOT VERIFIED |
+| Protected member A/B, TEST/Showcase acceptance | NOT VERIFIED |
+| 419 individually accepted Labs | NOT VERIFIED |
+| 30 individually accepted Bootcamp days | NOT VERIFIED |
+| D10 production accepted | NO |
+
+**Owner action now:** None for this initial source-only increment. Existing optional private BYO provider tokens and Supabase objects are left untouched. Future proposals must document exact rights and any non-destructive SQL separately.
+
+## D09 historical source handoff retained verbatim below
+
 # Deployment 09 of 18 — Market Tutor AI | Permanent Handoff
 
 **Project:** The Stock Market: From the Ground Up (one unified project: books and website)  
@@ -116,11 +163,17 @@
 - D10 work starts from this corrected source baseline, preserving a single repository and a single next-development branch; this source handoff will be extended there with exact D10 commit and evidence.
 
 
-### D09 browser-version consistency correction (2026-10-22)
-Source release v0.14.0.149 requires the same version in `release-manifest.json`, `config.js`, shared route policy and public-only Service Worker cache namespace. Corrected the three stale v148 browser fields after the initial v149 manifest update. This does not alter protected-route lists, user sessions, commercial status or membership entitlements. Site deployment SHA and live acceptance remain separately unverified.
+### D09 release metadata compatibility inherited on D10 (2026-10-22)
+The D09 main-source postflight at `d2a4641a043c0a79e6154ec53f030cc3523a8648` corrected production browser `config.js`, route-policy version and Service Worker public cache to v0.14.0.149. The D10 branch intentionally includes these identical fixes and records that main as a merge parent, preventing legacy source CI version mismatch without removing any tests. Cloudflare deployed exact SHA still unverified.
 
-### D09 commerce and admin display-only version parity (2026-10-22)
-`data/commerce-config.json` now matches the 0.14.0.149 release manifest; Admin and Owner Roadmap page metadata also display v149. All plan prices, Stripe LIVE controls, product definitions, Book Keys and existing member access were left untouched. These fixes preserve the existing version-aware commerce and security regression contracts, not production checkout acceptance.
+### D09 commerce/browser display version fix inherited (2026-10-22)
+Merged corrected main postflight `2090c423d3f2501d56ce9316028e8235bce6306e`: commerce JSON version and Admin/Owner Roadmap HTML version labels now align to v149. D10 retains all earlier trading changes; previous source checks are not removed or weakened. No prices, live settings, Supabase or Cloudflare variables changed.
 
-### Legacy D08 baseline release gate forward compatibility (2026-10-22)
-The D08 security workflow formerly asserted `release-manifest.json` version **equals** v0.14.0.148, which would block all subsequent releases. It now requires a well-formed v0.14.0.148-or-later version while independently preserving `customerCheckoutApproved=false` and `deployment08.productionAcceptance=not_certified`. No checks were deleted or bypassed. D09 production acceptance remains pending.
+### Inherited D08 CI compatibility from corrected main (2026-10-22)
+The D10 branch merges main postflight commit `1ec004cc423527bc85b05c951ad8aed33f07c753`, keeping original D08 checkout-disabled and `not_certified` checks and enforcing version >= v149 (workflow minimum v148) without pinning future versions to v148. SQL/Stripe/Cloudflare state unchanged.
+
+### Existing Admin Stripe noncharging test after v149 source parity (2026-10-22)
+The retained v0.14.0.52 Admin Stripe source test checks that query-busted Admin CSS/JS and JS fallback identify the actual current release. D10 revealed stale v148 asset labels after D09 merged. Corrected only `admin.html` asset queries and `assets/js/admin-stripe-shadow-v01439.js` source fallback; did not alter Stripe secrets, checkout mode, product prices, customer records or authorization. The noncharging workflow must pass again on the new exact D10 head.
+
+### Consolidated D10 source manifest candidate v0.14.0.150 (2026-10-22)
+Version-consistency fields in release-manifest, browser config, commerce JSON, route policy, public Service Worker cache, Admin and Owner Roadmap HTML metadata, and Stripe Admin JS/CSS cache selectors are advanced **together** to v150. No entitlement, checkout configuration, price or Stripe provider behavior changed; future schema, historical rights, editorial, browser and production release gates remain pending. The current draft PR #124 must pass full exact-head CI before merging this source candidate.

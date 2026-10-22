@@ -23,6 +23,13 @@ jobs:
           node tests/test_v014111_tool_math_boundaries.mjs
           node tests/test_v014145_research_scanner.mjs
           node tests/test_v014145_marketdata_byo_security.mjs
+          node tests/test_v014150_market_data_integrity.mjs
+          node tests/test_v014150_scanner_filters.mjs
+          node tests/test_v014150_indicator_math.mjs
+          node tests/test_v014150_watchlist_lifecycle.mjs
+          node tests/test_v014150_pattern_evidence.mjs
+          node tests/test_v014150_session_levels.mjs
+          node --check functions/_lib/market-data-integrity-v014150.js
           node --check functions/api/marketdata.js
           node --check assets/js/advanced-tools.js
           node --check assets/js/market-research-engine-v014145.js

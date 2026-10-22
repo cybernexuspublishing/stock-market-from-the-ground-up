@@ -13,7 +13,7 @@ const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const safeId=x=>/^[1-9][0-9]{0,15}$/.test(String(x||''))&&Number.isSafeInteger(Number(x));
 export async function onRequest({request,env}){
  try{
-  if(!['GET','POST','DELETE'].includes(request.method))return out({ok:false,error:'Method not allowed.'},405);
+  if(!['GET','POST','PATCH','DELETE'].includes(request.method))return out({ok:false,error:'Method not allowed.'},405);
   const url=new URL(request.url),code=url.searchParams.get('tool')||'';
   if(request.method!=='GET'){
    const origin=request.headers.get('origin');
@@ -55,6 +55,27 @@ export async function onRequest({request,env}){
   if(!types.has(type)||title.length<1||title.length>180||!body.payload||
    typeof body.payload!=='object'||Array.isArray(body.payload)||
    JSON.stringify(body.payload).length>12000)throw fail('Invalid workspace record.');
+  if(request.method==='PATCH'){
+   // Update ONLY an existing, authenticated member-owned watchlist record.
+   // An exact timestamp lease prevents concurrent-tab overwrite.
+   const id=url.searchParams.get('id')||'';
+   const expected=body.expectedUpdatedAt;
+   if(type!=='watchlist'||!safeId(id)||
+      typeof expected!=='string'||expected.length>60||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(expected)||
+      !Number.isFinite(Date.parse(expected)))
+    throw fail('Valid existing watchlist ID and revision required.');
+   const query=base+'?id=eq.'+id+'&'+identity+
+     '&record_type=eq.watchlist&updated_at=eq.'+encodeURIComponent(expected);
+   const modified=await privateJson(auth.c,query,'PATCH',{
+     title,payload:body.payload,updated_at:new Date().toISOString()
+   },'return=representation');
+   if(!Array.isArray(modified)||modified.length>1)
+    throw fail('Watchlist update integrity unavailable.',503);
+   if(modified.length===0)throw fail('Watchlist entry changed or no longer belongs to this member. Refresh before editing.',409);
+   safeToolMetric('beta_workspace','updated');
+   return out({ok:true,id:modified[0].id,updated:true,tool:code});
+  }
   const rows=await privateJson(auth.c,base,'POST',{
    user_id:auth.userId,tool_code:code,record_type:type,title,payload:body.payload
   },'return=representation');
@@ -63,7 +84,7 @@ export async function onRequest({request,env}){
   return out({ok:true,id:rows[0].id,tool:code},201);
  }catch(e){
   safeToolMetric('beta_workspace',statusReason(e?.status));
-  return out({ok:false,error:[400,401,403,404,413].includes(e?.status)?e.message:
-   'Private workspace temporarily unavailable.'},[400,401,403,404,405,413].includes(e?.status)?e.status:503);
+  return out({ok:false,error:[400,401,403,404,409,413].includes(e?.status)?e.message:
+   'Private workspace temporarily unavailable.'},[400,401,403,404,405,409,413].includes(e?.status)?e.status:503);
  }
 }

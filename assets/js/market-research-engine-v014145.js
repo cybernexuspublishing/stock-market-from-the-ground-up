@@ -45,7 +45,7 @@
    return Object.fromEntries(headers.map((h,j)=>[h,values[j].trim()]));
   });
  }
- const defaults=Object.freeze({maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3});
+ const defaults=Object.freeze({minPrice:null,maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3,minGap:null,maxMarketCap:null,minDollarVolume:null});
  function filters(input={}){
   if(!input||typeof input!=='object')throw fail('Invalid filters.');
   const out={};
@@ -70,12 +70,21 @@
    const x={
     symbol:ticker,price:number(row.price),change:number(row.change_pct),
     volume:number(row.volume),rvol:number(row.rvol),float:number(row.float),
-    spread:number(row.spread_pct),gap:number(row.gap_pct)
+    spread:number(row.spread_pct),gap:number(row.gap_pct),
+    marketCap:number(row.market_cap)
    };
    if(x.price===null||x.price<=0||x.volume===null||x.volume<0||
       x.rvol===null||x.rvol<0||x.float===null||x.float<=0||
       x.spread===null||x.spread<0||x.change===null){reasons.missingMetric++;continue}
-   if((f.maxPrice!==null&&x.price>f.maxPrice)||
+   x.dollarVolume=x.price*x.volume; // Research-only price × reported volume proxy, not verified tape turnover.
+   if((f.minGap!==null&&x.gap===null)||
+      (f.maxMarketCap!==null&&(x.marketCap===null||x.marketCap<=0))||
+      (f.minDollarVolume!==null&&!Number.isFinite(x.dollarVolume))){reasons.missingMetric++;continue}
+   if((f.minPrice!==null&&x.price<f.minPrice)||
+      (f.minGap!==null&&x.gap<f.minGap)||
+      (f.maxMarketCap!==null&&x.marketCap>f.maxMarketCap)||
+      (f.minDollarVolume!==null&&x.dollarVolume<f.minDollarVolume)||
+      (f.maxPrice!==null&&x.price>f.maxPrice)||
       (f.minChange!==null&&x.change<f.minChange)||
       (f.minVol!==null&&x.volume<f.minVol)||
       (f.minRvol!==null&&x.rvol<f.minRvol)||
@@ -101,6 +110,33 @@
   return {value:result,period,samples:nums.length,
     label:'EMA OF PROVIDED OBSERVATIONS — NOT VERIFIED MARKET HISTORY'};
  }
+ function sma(values,period){
+  if(!Array.isArray(values)||!Number.isInteger(period)||period<2||period>200||
+     values.length<period||values.length>20000)return null;
+  const nums=values.slice(-period).map(number);
+  if(nums.some(v=>v===null||v<=0))return null;
+  return {value:nums.reduce((sum,v)=>sum+v,0)/period,period,samples:period,
+   label:'SMA OF SUPPLIED CLOSES — SOURCE NOT INDEPENDENTLY VERIFIED'};
+ }
+ // Seed Wilder ATR with the first period complete true-range observations,
+ // beginning at bar 2 because the preceding close is mandatory.
+ function wilderAtr(bars,period=14){
+  if(!Array.isArray(bars)||!Number.isInteger(period)||period<2||period>200||
+     bars.length<period+1||bars.length>20000)return null;
+  const values=[];let prior=null;
+  for(const bar of bars){
+   if(!bar||typeof bar!=='object')return null;
+   const high=number(bar.high),low=number(bar.low),close=number(bar.close);
+   if([high,low,close].some(v=>v===null)||low<=0||high<low||close<low||close>high)return null;
+   if(prior!==null)values.push(Math.max(high-low,Math.abs(high-prior),Math.abs(low-prior)));
+   prior=close;
+  }
+  let atr=values.slice(0,period).reduce((sum,v)=>sum+v,0)/period;
+  for(let i=period;i<values.length;i++)atr=((period-1)*atr+values[i])/period;
+  return {value:atr,period,trueRangeSamples:values.length,
+   seed:'SMA of first period TR observations beginning at bar 2',
+   label:'WILDER ATR FROM SUPPLIED OHLC — NOT VERIFIED EXCHANGE HISTORY'};
+ }
  function typicalPriceVwap(bars){
   if(!Array.isArray(bars)||!bars.length||bars.length>20000)return null;
   let total=0,quantity=0;
@@ -113,5 +149,5 @@
   return {value:total/quantity,totalVolume:quantity,source:'TYPICAL_PRICE_OHLCV_APPROXIMATION',
    label:'Approximate (H+L+C)/3×volume weighted proxy, NOT trade-derived VWAP, no national tape claim'};
  }
- root.GroundUpScannerV014145=Object.freeze({csv,filters,analyze,ema,typicalPriceVwap,MAX_ROWS,MAX_BYTES});
+ root.GroundUpScannerV014145=Object.freeze({csv,filters,analyze,ema,sma,wilderAtr,typicalPriceVwap,MAX_ROWS,MAX_BYTES});
 })(globalThis);

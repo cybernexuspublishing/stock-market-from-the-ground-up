@@ -73,10 +73,13 @@
     return[min,buckets.size,rows.length?rows.at(-1).close:null];
    });
    const M=root.GroundUpScannerV014145,closes=rows.map(x=>x.close);
-   const ema9=M?.ema(closes,9),ema20=M?.ema(closes,20),proxy=M?.typicalPriceVwap(rows);
+   const ema9=M?.ema(closes,9),ema20=M?.ema(closes,20),sma20=M?.sma(closes,20),
+     atr14=M?.wilderAtr(rows,14),proxy=M?.typicalPriceVwap(rows);
    metrics(c.host,[...frames.map(([minutes,n,last])=>[minutes+'-minute UTC buckets',n+' · last '+money(last)]),
     ['EMA 9 of supplied closes',ema9?money(ema9.value):'Insufficient data'],
     ['EMA 20 of supplied closes',ema20?money(ema20.value):'Insufficient data'],
+    ['SMA 20 of supplied closes',sma20?money(sma20.value):'Insufficient data'],
+    ['Wilder ATR 14 of supplied OHLC (bar 2 seed)',atr14?money(atr14.value):'Requires 15 valid bars'],
     ['Typical-price OHLCV proxy (NOT trade VWAP)',proxy?money(proxy.value):'Insufficient volume']]);
   });
  }
@@ -110,6 +113,19 @@
      g.bars+'</td><td>'+money(g.open)+'</td><td>'+money(g.close)+'</td><td>'+
      g.volume.toLocaleString()+'</td></tr>').join('')+'</tbody></table></div><p>'+
      result.excluded+' observations excluded outside 04:00–20:00 ET. This is not a verified consolidated session.</p>';
+   const refs=A.sessionReferenceSeries(rows);
+   const last=refs.snapshots.at(-1);
+   const describe=(label,n)=>label+': '+(n===null||n===undefined?'Not observed':money(n));
+   const evidence=document.createElement('p');
+   evidence.textContent=last?[
+    describe('Observed HOD',last.observedHod),describe('Observed LOD',last.observedLod),
+    describe('Observed PMH',last.observedPmh),describe('Observed PML',last.observedPml),
+    describe('Prior observed regular-session high',last.priorObservedRegularHigh),
+    describe('Prior observed regular-session low',last.priorObservedRegularLow),
+    'Prior observed session date: '+(last.priorObservedRegularDate||'Unavailable')
+   ].join(' · ')+' · These references use provided bars only; session completeness and actual PDH/PDL require independent verification.'
+    :'No observed in-session bars available.';
+   out.append(evidence);
   });
  }
  async function privateJournal(c,action){
