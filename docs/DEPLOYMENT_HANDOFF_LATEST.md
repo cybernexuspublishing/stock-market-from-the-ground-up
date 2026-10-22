@@ -83,6 +83,9 @@
 - **Cloudflare:** no user configuration changes verified; `AI_SERVICE_ENABLED=false` until account and licensing checks are passed.
 - **Owner action:** **Only NEW SQL:** `supabase/migrations/v0.14.0.149b_TUTOR_EDITORIAL_AND_GAPS_OWNER_REVIEW_REQUIRED.sql` after source release review; verify with matching v149b read-only script. Previous v102/v103/v107/v149 migrations are not to be rerun.
 
+
+- **October 22 v149b SQL correction:** Owner-reported SQLSTATE 42601 at line 110 traced to malformed single-dollar PL/pgSQL delimiters in atomic Tutor privacy deletion. Corrected the opening and closing to matching double-dollar markers. Verified updated SQL blob and added a D09 source-gate invariant to detect recurrence. Original owner execution failed; v149b remains UNVERIFIED/NOT CONFIRMED INSTALLED. Do not reinstall prior v102/v103/v107/v149 migrations.
+
 ## Revision history
 | Date | Version | Change |
 |---|---|---|
