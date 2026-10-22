@@ -37,3 +37,38 @@ export function hypotheticalPositionSize(question){
  return {ok:true,reason:'calculated',answer,graded:false,masteryAwarded:false,
   assumptions:{hypothetical:true,side:'long',priceOnly:true,shares,riskCents:risk,distanceCents:distance}};
 }
+
+/* Additional narrow hypothetical calculators, no external data or model.
+ * All money input is positive decimal dollars with <=2 digits of cents.
+ */
+const PCT=/^calculate percentage change:\s*from\s*\$([0-9]+(?:\.[0-9]{1,2})?)\s*to\s*\$([0-9]+(?:\.[0-9]{1,2})?)\s*\.?$/i;
+const PL=/^calculate hypothetical p&l:\s*([0-9]+)\s*shares?,\s*entry\s*\$([0-9]+(?:\.[0-9]{1,2})?),\s*exit\s*\$([0-9]+(?:\.[0-9]{1,2})?)\s*\.?$/i;
+const validPrice=x=>Number.isSafeInteger(x)&&x>0&&x<=10000000;
+export function deterministicTutorCalculation(question){
+ const sizing=hypotheticalPositionSize(question);
+ if(sizing)return sizing;
+ const q=String(question||'').trim(),percent=PCT.exec(q);
+ if(percent){
+  const from=cents(percent[1]),to=cents(percent[2]);
+  if(!validPrice(from)||!validPrice(to))
+   return {ok:false,reason:'invalid_price',answer:'For this hypothetical percentage exercise, both positive prices must be at most $100,000.'};
+  const change=(to-from)/from*100;
+  return {ok:true,reason:'calculated',graded:false,masteryAwarded:false,
+   answer:'Hypothetical price percentage change: (new price − initial price) ÷ initial price × 100.\\n'+
+    'From $'+cash(from)+' to $'+cash(to)+': '+change.toFixed(2)+'%.\n'+
+    'This is price change only, NOT net return, dividends, fees or a real observed market event.'};
+ }
+ const pl=PL.exec(q);
+ if(pl){
+  const shares=Number(pl[1]),entry=cents(pl[2]),exit=cents(pl[3]);
+  if(!Number.isSafeInteger(shares)||shares<1||shares>1000000||!validPrice(entry)||!validPrice(exit))
+   return {ok:false,reason:'invalid_example',answer:'For this hypothetical exercise, use 1 to 1,000,000 whole shares and positive prices no greater than $100,000.'};
+  const priceOnly=(exit-entry)*shares;
+  return {ok:true,reason:'calculated',graded:false,masteryAwarded:false,
+   answer:'Hypothetical long-only realized price-only P&L: (exit − entry) × shares.\\n'+
+    'Shares: '+shares.toLocaleString('en-US')+'; entry $'+cash(entry)+'; exit $'+cash(exit)+'.\\n'+
+    (priceOnly<0?'Modeled loss':'Modeled profit')+': $'+cash(Math.abs(priceOnly))+'.\\n'+
+    'This is not a broker fill or a prediction. Actual results also depend on fees, spread, slippage, execution and other costs.'};
+ }
+ return null;
+}
