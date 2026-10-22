@@ -1,0 +1,35 @@
+name: Market Analysis, Tape & Private Journal v0.14.0.146
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-party-market-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Trading math, temporal safeguards, entitlement and private journal assertions
+        run: |
+          node tests/test_v014111_tool_math_boundaries.mjs
+          node tests/test_v014110_advanced_tool_access_and_workspace.mjs
+          node tests/test_v014145_research_scanner.mjs
+          node tests/test_v014146_market_analysis.mjs
+          node tests/test_v014146_private_journal.mjs
+          node --check assets/js/market-analysis-engine-v014146.js
+          node --check assets/js/market-analysis-workbenches-v014146.js
+          node --check assets/js/advanced-tools.js
+          node --check functions/api/advanced-journal-insights.js
+          bash scripts/build-pages.sh
+          test -f public/assets/js/market-analysis-engine-v014146.js
+          test -f public/assets/js/market-analysis-workbenches-v014146.js
+          test ! -e public/supabase
+          test ! -d public/functions

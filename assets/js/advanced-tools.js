@@ -383,7 +383,16 @@
   section.append(heading,description,buttons,message,results);host.append(section);
   void refresh();
  }
- async function render(){switch(TOOL.tool_code){case'RISK_POSITION_LAB':return renderRisk();case'FLOAT_SUPPLY_LAB':return renderFloat();case'LIQUIDITY_SPREAD_LAB':return renderLiquidity();case'EXECUTION_LAB':return renderExecution();case'DISCOVERY_LAB':return universeWorkbench(false);case'SCANNER_BUILDER':return universeWorkbench(true);case'WATCHLIST_WORKBENCH':return renderWatchlist();case'CATALYST_RESEARCH':return renderCatalyst();case'MULTI_TIMEFRAME_LAB':return renderMulti();case'MARKET_STRUCTURE_LAB':return renderStructure();case'HALT_SSR_LAB':return renderHalt();case'PATTERN_FAILURE_LIBRARY':return renderPattern();case'ORDER_FLOW_TAPE_LAB':return renderTape();case'MARKET_CONTEXT_LAB':return renderContext();case'TRADE_REVIEW_REPLAY':return renderReview();case'STRATEGY_VALIDATION':return renderStrategy();case'OPTIONS_LAB':return renderOptions();default:document.getElementById('tool-workbench').innerHTML=panel(TOOL.name,`<p>This branch is registered in the platform architecture. Its specialized interactive engine will use the same access, data, journal, Tutor, and assessment infrastructure.</p><a class="btn secondary" href="tools.html">Back to Tool Registry</a>`)}}
+ async function render(){
+  const v6=globalThis.GroundUpMarketWorkbenchesV014146;
+  const sessionUser=USER?.id,sessionTool=TOOL?.tool_code;
+  if(v6&&v6.supports(TOOL.tool_code))
+   return v6.render(TOOL.tool_code,{
+    host:document.getElementById('tool-workbench'),status,SB,user:USER,tool:TOOL,
+    getSession:()=>SB.auth.getSession(),
+    alive:()=>USER?.id===sessionUser&&TOOL?.tool_code===sessionTool
+   });
+  switch(TOOL.tool_code){case'RISK_POSITION_LAB':return renderRisk();case'FLOAT_SUPPLY_LAB':return renderFloat();case'LIQUIDITY_SPREAD_LAB':return renderLiquidity();case'EXECUTION_LAB':return renderExecution();case'DISCOVERY_LAB':return universeWorkbench(false);case'SCANNER_BUILDER':return universeWorkbench(true);case'WATCHLIST_WORKBENCH':return renderWatchlist();case'CATALYST_RESEARCH':return renderCatalyst();case'MULTI_TIMEFRAME_LAB':return renderMulti();case'MARKET_STRUCTURE_LAB':return renderStructure();case'HALT_SSR_LAB':return renderHalt();case'PATTERN_FAILURE_LIBRARY':return renderPattern();case'ORDER_FLOW_TAPE_LAB':return renderTape();case'MARKET_CONTEXT_LAB':return renderContext();case'TRADE_REVIEW_REPLAY':return renderReview();case'STRATEGY_VALIDATION':return renderStrategy();case'OPTIONS_LAB':return renderOptions();default:document.getElementById('tool-workbench').innerHTML=panel(TOOL.name,`<p>This branch is registered in the platform architecture. Its specialized interactive engine will use the same access, data, journal, Tutor, and assessment infrastructure.</p><a class="btn secondary" href="tools.html">Back to Tool Registry</a>`)}}
  async function init(){
   const gate=document.getElementById('tool-gate');
   try{
