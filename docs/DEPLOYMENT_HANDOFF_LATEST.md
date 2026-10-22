@@ -118,3 +118,6 @@
 
 ### D09 browser-version consistency correction (2026-10-22)
 Source release v0.14.0.149 requires the same version in `release-manifest.json`, `config.js`, shared route policy and public-only Service Worker cache namespace. Corrected the three stale v148 browser fields after the initial v149 manifest update. This does not alter protected-route lists, user sessions, commercial status or membership entitlements. Site deployment SHA and live acceptance remain separately unverified.
+
+### D09 commerce and admin display-only version parity (2026-10-22)
+`data/commerce-config.json` now matches the 0.14.0.149 release manifest; Admin and Owner Roadmap page metadata also display v149. All plan prices, Stripe LIVE controls, product definitions, Book Keys and existing member access were left untouched. These fixes preserve the existing version-aware commerce and security regression contracts, not production checkout acceptance.
