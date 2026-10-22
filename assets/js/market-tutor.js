@@ -232,14 +232,26 @@ async function deleteOne(rec){
  }catch(e){historyStatus('The saved exchange was not deleted: '+e.message)}
 }
 async function deleteAll(){
- if(!TUTOR.user){historyStatus('No private history is available without sign-in.');return}
- if(!confirm('Delete ALL of your saved Tutor exchanges on the server? This is permanent and does not affect Lab grades or Journal records.'))return;
+ if(!TUTOR.user){historyStatus('Sign in to delete your own saved Tutor notes.');return}
+ if(!confirm('Permanently delete ALL saved Tutor exchanges AND named conversations on the server? This cannot be undone. Your Labs and Journal are unaffected.'))return;
+ const epoch=TUTOR.identityEpoch,user=TUTOR.user.id;
  try{
-  await privateApi('?all=true','DELETE',undefined,{'x-confirm-delete':'DELETE_MY_TUTOR_HISTORY'});
+  const access=await token();if(!access)throw Error('Your session expired.');
+  const response=await fetch('/api/member-tutor-data-delete',{method:'DELETE',cache:'no-store',
+   headers:{authorization:'Bearer '+access,'x-confirm-delete':'DELETE_MY_TUTOR_HISTORY'}});
+  const data=await response.json().catch(()=>null);
+  if(epoch!==TUTOR.identityEpoch||user!==TUTOR.user?.id)return;
+  if(!response.ok||data?.ok!==true)throw Error(data?.error||'Deletion could not be confirmed.');
   TUTOR.entries=TUTOR.entries.filter(x=>!x.id);
-  renderConversation();historyStatus('All saved Tutor exchanges permanently deleted. Local-only exchanges remain visible.');
- }catch(e){historyStatus('Server history was not deleted: '+e.message)}
+  TUTOR.conversations=[];TUTOR.currentConversationId=null;
+  renderConversationList();renderConversation();
+  historyStatus('Deleted '+data.deletedCount+' saved exchanges and '+
+   data.deletedConversationCount+' named conversations. Current-page unsaved notes remain in this tab.');
+ }catch(e){
+  if(epoch===TUTOR.identityEpoch)historyStatus('Your saved data was not confirmed deleted: '+e.message);
+ }
 }
+
 function exportConversation(){
  if(!TUTOR.entries.length)return;
  const exportRows=displayedExchanges().map(({createdAt,question,learnerAnswer,mode,answer,generation,sourceTitles})=>({
