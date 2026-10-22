@@ -164,3 +164,6 @@ The D09 main-source postflight at `d2a4641a043c0a79e6154ec53f030cc3523a8648` cor
 
 ### D09 commerce/browser display version fix inherited (2026-10-22)
 Merged corrected main postflight `2090c423d3f2501d56ce9316028e8235bce6306e`: commerce JSON version and Admin/Owner Roadmap HTML version labels now align to v149. D10 retains all earlier trading changes; previous source checks are not removed or weakened. No prices, live settings, Supabase or Cloudflare variables changed.
+
+### Inherited D08 CI compatibility from corrected main (2026-10-22)
+The D10 branch merges main postflight commit `1ec004cc423527bc85b05c951ad8aed33f07c753`, keeping original D08 checkout-disabled and `not_certified` checks and enforcing version >= v149 (workflow minimum v148) without pinning future versions to v148. SQL/Stripe/Cloudflare state unchanged.
