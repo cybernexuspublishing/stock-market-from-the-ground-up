@@ -11,7 +11,7 @@ const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'sb_secret_mock',AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'5',
  AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'15',
- AI_TUTOR_API_KEY:'test-key-never-used',AI_TUTOR_MODEL:'test-model',ASSETS:{fetch:async()=>new Response(JSON.stringify(guides))}};
+ AI_TUTOR_API_KEY:'test-key-never-used',AI_TUTOR_MODEL:'test-model',AI_PAID_PROVIDER_OWNER_APPROVED:'true',AI_TUTOR_APPROVED_MODELS:'test-model',ASSETS:{fetch:async()=>new Response(JSON.stringify(guides))}};
 const prior=globalThis.fetch;let providerCalls=0,quotaCalls=0,returned='neutral';
 const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
