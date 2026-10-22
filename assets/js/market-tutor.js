@@ -298,6 +298,26 @@ async function deleteConversation(){
   conversationStatus('Conversation deleted; saved exchanges retained.');
  }catch(e){conversationStatus(e.message)}
 }
+async function exportAllTutorData(){
+ const epoch=TUTOR.identityEpoch,user=TUTOR.user?.id;
+ if(!user){historyStatus('Sign in to download your private Tutor notes.');return}
+ try{
+  const access=await token();if(!access)throw Error('Session is unavailable.');
+  const response=await fetch('/api/member-tutor-data-export',{cache:'no-store',headers:{authorization:'Bearer '+access}});
+  if(!response.ok)throw Error('The private export endpoint is unavailable.');
+  if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==user)return;
+  const blob=await response.blob();
+  if(blob.size>1500000)throw Error('Export exceeded the safe browser limit.');
+  if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==user)return;
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='my-market-tutor-notes.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  historyStatus('Your own saved Tutor notes were exported. No other account data was included.');
+ }catch(e){
+  if(epoch!==TUTOR.identityEpoch)return;
+  historyStatus('Export unavailable: '+e.message);
+ }
+}
 function updateCount(){$('tutor-question-count').textContent=String($('tutor-question').value.length)+' / 450'}
 function localExplanation(q){
  const tokens=String(q).toLowerCase().match(/[a-z0-9]+/g)||[];
@@ -432,6 +452,7 @@ async function initTutor(){
   updateCount();$('tutor-question').focus();
  });
  $('tutor-export').addEventListener('click',exportConversation);
+ $('tutor-export-all').addEventListener('click',()=>void exportAllTutorData());
  $('tutor-clear-view').addEventListener('click',()=>{
   TUTOR.entries=[];renderConversation();status('Displayed conversation cleared. Previously saved notes remain on the server unless deleted.');
  });
