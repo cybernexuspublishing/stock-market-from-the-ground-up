@@ -81,5 +81,10 @@ try{
   'user_id=p_user_id','conversation_id=p_conversation_id'])
   assert(sql.includes(expected),'Expected SQL safeguard: '+expected);
  assert(!/GRANT (?:SELECT|INSERT|UPDATE|DELETE) ON public\.gu_tutor_conversations_v014149 TO (?:anon|authenticated)/i.test(sql));
+ const player=readFileSync(new URL('../assets/js/lab-player.js',import.meta.url),'utf8');
+ assert(player.includes('mountLabTutorLink(lab,mode)'));
+ assert(player.includes("['guided','practice']"),'Blind/assessment must never launch step-context Tutor');
+ assert(player.includes('tutorSafeSubject(lab)'), 'Only topic-safe context reaches Tutor link');
+ assert(!player.includes('Ask Market Tutor About This Step?answer_key='));
  console.log('PASS D09: v149 conversation ACL, CRUD, idempotent atomic RPC contract, legacy v102 fallback, no cross-origin write.');
 }finally{globalThis.fetch=orig}
