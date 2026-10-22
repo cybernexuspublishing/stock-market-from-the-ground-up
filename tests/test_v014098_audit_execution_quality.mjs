@@ -27,7 +27,14 @@ assert.equal(result.breakdown.originalDraftRubrics,2);
 assert.equal(result.breakdown.reviewedRubrics,0);
 assert.equal(result.breakdown.originalSimulationReady,1);
 assert.equal(result.breakdown.independentlyVerifiedHistoricalContext,0);
-assert(result.rows.every(x=>x.stage==='MISSING_REVIEWED_GRADING'));
+assert.equal(result.breakdown.substantivePrivateLessonPrechecks,0,
+ 'Generic original v96 source records must not pass substantive instruction');
+assert.equal(result.rows[0].stage,'MISSING_PRIVATE_LESSON',
+ 'The v96 original hypothetical source is a non-substantive scaffold, even when its row exists');
+assert.equal(result.rows[0].instructionRecordPresent,true);
+assert.equal(result.rows[0].substantivePrivateLessonPrecheck,false);
+assert.equal(result.rows[1].stage,'MISSING_REVIEWED_GRADING',
+ 'An independently authored metadata narrative may pass the source precheck, not grading');
 assert(!JSON.stringify(result).includes('PRIVATE_DO_NOT_EXPOSE'));
 assert.equal(result.certifiedComplete,0);
 const revoked=classifyOwnerLabs({labs,instructions,rubrics,envelopes:[],datasets:[{
