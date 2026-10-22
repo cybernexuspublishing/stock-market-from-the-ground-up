@@ -17,7 +17,10 @@ export async function callTutorModel(env,{instructions,input,signal}){
    headers:{authorization:'Bearer '+key,'content-type':'application/json'},
    body:JSON.stringify({model,instructions,input,max_output_tokens:350,store:false})});
   if(!r.ok)return {ok:false,reason:'provider_http_rejected'};
-  const raw=await r.json();const chunks=Array.isArray(raw?.output)?raw.output:[];
+  const raw=await r.json();
+  if(raw?.status&&raw.status!=='completed')return {ok:false,reason:'provider_incomplete'};
+  if(raw?.incomplete_details||raw?.error)return {ok:false,reason:'provider_incomplete'};
+  const chunks=Array.isArray(raw?.output)?raw.output:[];
   const answer=chunks.flatMap(x=>Array.isArray(x.content)?x.content:[])
    .filter(x=>x.type==='output_text'&&typeof x.text==='string').map(x=>x.text).join('\n').trim();
   return {ok:!!answer,reason:answer?'provider_ok':'provider_empty',text:answer};
