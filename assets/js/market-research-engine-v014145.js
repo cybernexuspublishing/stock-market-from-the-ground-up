@@ -110,6 +110,33 @@
   return {value:result,period,samples:nums.length,
     label:'EMA OF PROVIDED OBSERVATIONS — NOT VERIFIED MARKET HISTORY'};
  }
+ function sma(values,period){
+  if(!Array.isArray(values)||!Number.isInteger(period)||period<2||period>200||
+     values.length<period||values.length>20000)return null;
+  const nums=values.slice(-period).map(number);
+  if(nums.some(v=>v===null||v<=0))return null;
+  return {value:nums.reduce((sum,v)=>sum+v,0)/period,period,samples:period,
+   label:'SMA OF SUPPLIED CLOSES — SOURCE NOT INDEPENDENTLY VERIFIED'};
+ }
+ // Seed Wilder ATR with the first period complete true-range observations,
+ // beginning at bar 2 because the preceding close is mandatory.
+ function wilderAtr(bars,period=14){
+  if(!Array.isArray(bars)||!Number.isInteger(period)||period<2||period>200||
+     bars.length<period+1||bars.length>20000)return null;
+  const values=[];let prior=null;
+  for(const bar of bars){
+   if(!bar||typeof bar!=='object')return null;
+   const high=number(bar.high),low=number(bar.low),close=number(bar.close);
+   if([high,low,close].some(v=>v===null)||low<=0||high<low||close<low||close>high)return null;
+   if(prior!==null)values.push(Math.max(high-low,Math.abs(high-prior),Math.abs(low-prior)));
+   prior=close;
+  }
+  let atr=values.slice(0,period).reduce((sum,v)=>sum+v,0)/period;
+  for(let i=period;i<values.length;i++)atr=((period-1)*atr+values[i])/period;
+  return {value:atr,period,trueRangeSamples:values.length,
+   seed:'SMA of first period TR observations beginning at bar 2',
+   label:'WILDER ATR FROM SUPPLIED OHLC — NOT VERIFIED EXCHANGE HISTORY'};
+ }
  function typicalPriceVwap(bars){
   if(!Array.isArray(bars)||!bars.length||bars.length>20000)return null;
   let total=0,quantity=0;
@@ -122,5 +149,5 @@
   return {value:total/quantity,totalVolume:quantity,source:'TYPICAL_PRICE_OHLCV_APPROXIMATION',
    label:'Approximate (H+L+C)/3×volume weighted proxy, NOT trade-derived VWAP, no national tape claim'};
  }
- root.GroundUpScannerV014145=Object.freeze({csv,filters,analyze,ema,typicalPriceVwap,MAX_ROWS,MAX_BYTES});
+ root.GroundUpScannerV014145=Object.freeze({csv,filters,analyze,ema,sma,wilderAtr,typicalPriceVwap,MAX_ROWS,MAX_BYTES});
 })(globalThis);

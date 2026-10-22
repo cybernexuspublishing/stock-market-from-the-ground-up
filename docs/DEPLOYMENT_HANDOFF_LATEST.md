@@ -19,6 +19,7 @@
 - New deterministic regression `tests/test_v014150_market_data_integrity.mjs` is added to the existing v145 market-rights workflow. No live upstream calls are required by this test.
 - Uploaded StocksToTrade Browser Research archive consulted for educational pattern, indicator and watchlist design; research statements are not licensed member-data feeds, and no archived browser sessions, credentials or private profiles are published.
 - D10 scanner expansion now supports optional minimum price, reported gap %, supplied market cap and price-times-shares proxy thresholds, with fail-closed missing optional metrics and member-visible controls. The proxy is not exchange turnover or a trade indicator.
+- Existing multi-timeframe educational workbench now includes independently calculated SMA 20 and Wilder ATR 14 from supplied OHLC observations, with a documented bar-2 seed, no fill/performance claim and regression tests. EMA and typical-price proxy remain explicitly non-verified.
 - Planned 10.2–10.10 work remains: expanded supported scanner criteria, private watchlist lifecycle, indicator and session math, educational pattern evidence, licensed Level II/Time & Sales restrictions, approved replay chronology and simulator/journal acceptance. Existing source features must be verified before reimplementation.
 
 ## D10 acceptance and owner actions

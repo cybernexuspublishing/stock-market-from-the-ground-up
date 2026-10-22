@@ -73,10 +73,13 @@
     return[min,buckets.size,rows.length?rows.at(-1).close:null];
    });
    const M=root.GroundUpScannerV014145,closes=rows.map(x=>x.close);
-   const ema9=M?.ema(closes,9),ema20=M?.ema(closes,20),proxy=M?.typicalPriceVwap(rows);
+   const ema9=M?.ema(closes,9),ema20=M?.ema(closes,20),sma20=M?.sma(closes,20),
+     atr14=M?.wilderAtr(rows,14),proxy=M?.typicalPriceVwap(rows);
    metrics(c.host,[...frames.map(([minutes,n,last])=>[minutes+'-minute UTC buckets',n+' · last '+money(last)]),
     ['EMA 9 of supplied closes',ema9?money(ema9.value):'Insufficient data'],
     ['EMA 20 of supplied closes',ema20?money(ema20.value):'Insufficient data'],
+    ['SMA 20 of supplied closes',sma20?money(sma20.value):'Insufficient data'],
+    ['Wilder ATR 14 of supplied OHLC (bar 2 seed)',atr14?money(atr14.value):'Requires 15 valid bars'],
     ['Typical-price OHLCV proxy (NOT trade VWAP)',proxy?money(proxy.value):'Insufficient volume']]);
   });
  }
