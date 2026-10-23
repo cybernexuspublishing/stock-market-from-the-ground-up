@@ -1,0 +1,26 @@
+/* LAB-UX-STD-001: type-on-screen lesson narration and embedded Market Tutor */
+#gu-v32-teaching-slot .gu-v33-instructor{background:#122538;border:1px solid #31566e;border-radius:12px;margin:14px 0 20px;padding:16px 18px;max-width:100%;min-width:0;box-shadow:0 6px 18px rgba(0,0,0,.11)}
+#gu-v32-teaching-slot .gu-v33-instructor-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+#gu-v32-teaching-slot .gu-v33-instructor-head h3{margin:0;color:#f1f7fc;font:700 1rem/1.35 system-ui,sans-serif}
+#gu-v32-teaching-slot .gu-v33-instructor-tag{color:#bed4df;font-size:.76rem}
+#gu-v32-teaching-slot .gu-v33-instructor-typing{font-size:1rem;line-height:1.75;color:#eef7fb;white-space:pre-wrap;overflow-wrap:anywhere;min-height:2.5em;margin:10px 0}
+#gu-v32-teaching-slot .gu-v33-instructor-accessible{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;clip-path:inset(50%)!important}
+#gu-v32-teaching-slot .gu-v33-instructor-controls{display:flex;justify-content:flex-end}
+#gu-v32-teaching-slot .gu-v33-instructor-skip{font-size:.83rem;min-height:38px}
+#gu-v32-teaching-slot .gu-v33-tutor{margin-top:13px;border:1px solid #3c5d75;border-radius:10px;background:#0d1e2e;padding:12px}
+#gu-v32-teaching-slot .gu-v33-tutor>summary{cursor:pointer;color:#d9f4ff;font-weight:700;padding:4px 0;list-style:revert}
+#gu-v32-teaching-slot .gu-v33-tutor-note{color:#c6d7e4!important;font-size:.84rem!important;line-height:1.65!important;margin:10px 0!important}
+#gu-v32-teaching-slot .gu-v33-tutor label{display:block;margin:12px 0;color:#ebf5fd;font-size:.88rem;font-weight:650}
+#gu-v32-teaching-slot .gu-v33-tutor textarea{display:block;width:100%;min-height:76px;max-width:100%;padding:11px;resize:vertical;background:#0d1d2c;border:1px solid #3a607a;border-radius:9px;color:#f4faff;font:inherit;margin-top:7px}
+#gu-v32-teaching-slot .gu-v33-tutor-consent{display:flex!important;align-items:flex-start;gap:9px;line-height:1.5;font-weight:500!important}
+#gu-v32-teaching-slot .gu-v33-tutor-consent input{width:18px;height:18px;flex:none;margin:2px 0}
+#gu-v32-teaching-slot .gu-v33-tutor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+#gu-v32-teaching-slot .gu-v33-tutor-actions button{min-height:41px}
+#gu-v32-teaching-slot .gu-v33-tutor-status{margin:12px 0 8px!important;font-size:.83rem;color:#bfe5d7;overflow-wrap:anywhere}
+#gu-v32-teaching-slot .gu-v33-tutor-status.error{color:#f9bbbd}
+#gu-v32-teaching-slot .gu-v33-tutor-answer{border:1px solid #40667d;border-radius:9px;padding:12px;background:#173247;max-width:100%;overflow-wrap:anywhere}
+#gu-v32-teaching-slot .gu-v33-tutor-answer .gu-v33-instructor-typing{font-size:.93rem;white-space:pre-wrap}
+#gu-v32-teaching-slot .gu-v33-tutor a{display:inline-block;margin-top:10px;color:#bfddf0;text-decoration:underline;text-underline-offset:3px}
+#gu-v32-teaching-slot .gu-v33-instructor :is(button,a,textarea,summary,input):focus-visible{outline:3px solid #90d9f5;outline-offset:3px}
+@media(max-width:700px){#gu-v32-teaching-slot .gu-v33-instructor{padding:12px 10px;margin:9px 0 15px}#gu-v32-teaching-slot .gu-v33-instructor-head{align-items:flex-start}#gu-v32-teaching-slot .gu-v33-instructor-typing{font-size:.96rem;line-height:1.6}}
+@media(prefers-reduced-motion:reduce){#gu-v32-teaching-slot .gu-v33-instructor *{animation:none!important;transition:none!important}}
