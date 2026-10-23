@@ -12,7 +12,7 @@ function nav(){
   for(const m of allowed){
    const button=el('button','unified-nav-button',m.label);button.type='button';button.dataset.module=m.id;
    button.setAttribute('aria-current',active?.id===m.id?'page':'false');
-   button.addEventListener('click',()=>{if(location.hash==='#'+m.id)load(m);else location.hash=m.id;});
+   button.addEventListener('click',()=>{if(location.hash==='#'+m.id)load(m,{focusHeading:true});else location.hash=m.id;});
    section.append(button);
   }
   host.append(section);
@@ -26,10 +26,10 @@ function showRows(mod,data){
   const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));host.append(entry);
  }
 }
-async function load(mod){
+async function load(mod,{focusHeading=false}={}){
  if(!mod||!authorized(mod,ctx)){gate('No authorized administrative modules are available.');return;}
  const generation=++sequence;controller?.abort();controller=new AbortController();active=mod;
- nav();$('unified-title').textContent=mod.label;
+ nav();$('unified-title').textContent=mod.label;if(focusHeading)$('unified-title').focus();
  $('unified-count').textContent='';$('unified-results').replaceChildren();
  const host=$('unified-actions');host.replaceChildren();
  if(mod.href||mod.legacy){
@@ -58,7 +58,7 @@ async function boot(){
   if(!Array.isArray(ctx.permissions)||!ctx.permissions.includes('control_panel.access'))throw Error('Administrative permission required.');
   $('unified-gate').hidden=true;$('unified-app').hidden=false;
   await load(resolveRoute(location.hash,ctx));
-  window.addEventListener('hashchange',()=>load(resolveRoute(location.hash,ctx)));
+  window.addEventListener('hashchange',()=>load(resolveRoute(location.hash,ctx),{focusHeading:true}));
   $('unified-refresh').addEventListener('click',()=>load(active));
  }catch(e){gate(e.message||'Admin access unavailable.');}
 }

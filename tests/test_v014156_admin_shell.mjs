@@ -39,6 +39,7 @@ await assert.rejects(createAdminClient({getToken:async()=>'token',transport:asyn
 assert.equal(readRows(MODULES.find(x=>x.id==='members'),{users:[{email:'<img src=x onerror=alert(1)>',flag:{status:'active'}}]})[0].title,
  '<img src=x onerror=alert(1)>','Strings remain literal for textContent DOM rendering');
 const html=readFileSync('admin-unified-preview.html','utf8'),ui=readFileSync('assets/js/admin-unified-preview-v014156.mjs','utf8');
+assert(html.includes('id="unified-title" tabindex="-1"')&&ui.includes("$('unified-title').focus()"),'Route change must move keyboard focus to heading');
 assert.equal((html.match(/id="unified-nav"/g)||[]).length,1,'Single preview navigation root');
 assert(!/innerHTML|MutationObserver|setInterval\(/.test(ui),'No unsanitized markup, observer loop or timer polling');
 assert(/admin-unified-core-v014156/.test(ui),'Only new module registry owns the preview');
@@ -47,6 +48,6 @@ const policySource=readFileSync('assets/js/route-policy.js','utf8');
 await import('data:text/javascript;base64,'+Buffer.from(policySource).toString('base64'));
 assert.equal(globalThis.GroundUpRoutePolicy.classify('/admin-unified-preview.html'),'staff',
  'Cloudflare and Service Worker must treat the new Admin route as protected');
-assert.equal(globalThis.GroundUpRoutePolicy.isProtected('/admin-unified-preview'),'true'===String(true),
+assert.equal(globalThis.GroundUpRoutePolicy.isProtected('/admin-unified-preview'),true,
  'Unversioned preview route must be protected');
 console.log('PASS D16 Admin shell registry, fail-closed permissions, read-only fresh-session API, XSS-safe preview');
