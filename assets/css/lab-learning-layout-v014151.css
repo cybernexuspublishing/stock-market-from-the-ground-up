@@ -1,0 +1,11 @@
+/* D11: an existing, properly attributed teaching visual stays alongside
+ * guided questions, learner decisions, and reviewed assessment when present.
+ */
+.lab-learning-split{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(0,1.1fr);gap:1.2rem;align-items:start;min-width:0}
+.lab-learning-content{min-width:0}
+.lab-learning-visual{position:sticky;top:1rem;min-width:0;max-height:calc(100vh - 2rem);overflow:auto;overscroll-behavior:contain}
+.lab-learning-visual img{height:auto;max-height:58vh;object-fit:contain}
+.lab-learning-visual .lab-portable-figure{margin:.5rem 0}
+.lab-learning-visual .portable-visual-card{padding:1rem}
+@media(max-width:980px){.lab-learning-split{grid-template-columns:1fr}.lab-learning-visual{position:relative;top:auto;max-height:none;overflow:visible}.lab-learning-visual img{max-height:55vh}}
+@media(prefers-reduced-motion:reduce){.lab-learning-visual{scroll-behavior:auto}}
