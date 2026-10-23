@@ -14,6 +14,10 @@ body.gu-lab-member>.site-header .fe-header-tools{flex-shrink:0}
 body.gu-lab-member>.site-header .navlinks .v11-nav-button,body.gu-lab-member>.site-header .fe-header-tools button{font:inherit;cursor:pointer}
 body.gu-lab-member>.site-header .navlinks :is(button,a):focus-visible{outline:3px solid #8dd2ff;outline-offset:3px}
 body.gu-lab-member>#app{max-width:none;margin:0;min-height:calc(100vh - 82px);padding:clamp(15px,2.5vw,30px) clamp(12px,2.7vw,44px) 45px}
+body.gu-lab-member>#app>.gu-lab-breadcrumb{max-width:1340px;margin:0 auto 13px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;color:#a9c1d3;font-size:.86rem}
+body.gu-lab-member>#app>.gu-lab-breadcrumb a{color:#bfd2e3;text-decoration:none}
+body.gu-lab-member>#app>.gu-lab-breadcrumb a:hover{text-decoration:underline;text-underline-offset:3px}
+body.gu-lab-member>#app>.gu-lab-breadcrumb span[aria-current="page"]{color:#f1c766;font-weight:650}
 body.gu-lab-member>#app>.shell{max-width:1340px;width:100%;margin:0 auto;border-radius:16px;overflow:visible;box-shadow:0 16px 40px rgba(0,0,0,.12)}
 body.gu-lab-member>#app .banner{border-radius:16px 16px 0 0}
 body.gu-lab-member>#app .toolbar{position:relative;top:auto;z-index:15}
