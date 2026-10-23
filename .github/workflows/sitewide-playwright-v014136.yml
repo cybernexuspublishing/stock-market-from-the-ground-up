@@ -80,6 +80,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014162_universal_browser.mjs
+      - name: Browser-verify real Lab Player authorization, 419 fallback, and v3.2 mode/reset boundaries
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014162_member_player_browser.mjs
       - name: Verify read-only Admin member inspection on mobile and desktop
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
