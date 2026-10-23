@@ -35,11 +35,13 @@ try{
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
-  await page.locator('#player-mode-select').selectOption('practice');
+  await page.locator('#player-mode-trigger').click();
+  await page.locator('#player-mode-menu [data-member-mode="practice"]').click();
   await page.getByRole('button',{name:'Learning mode guidance'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
   await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
-  await page.locator('#player-mode-select').selectOption('guided');
+  await page.locator('#player-mode-trigger').click();
+  await page.locator('#player-mode-menu [data-member-mode="guided"]').click();
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Guided Mode/);
   await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
@@ -52,6 +54,7 @@ try{
   await page.getByRole('combobox',{name:'New learning mode'}).selectOption('blind');
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.equal(await page.locator('#player-mode-select').inputValue(),'blind');
+  assert.match(await page.locator('#player-mode-trigger').innerText(),/Blind Decision/);
   assert.match(await page.locator('#gu-v32-teaching-slot').innerText(),/Blind Decision — Evidence First/);
   assert.match(await page.locator('#player-title').innerText(),/Blind Market Decision/);
   assert.equal(await page.locator('[aria-label="Lab-specific conceptual teaching"]').count(),0,'Blind mode must conceal study notes before the learner decides');
