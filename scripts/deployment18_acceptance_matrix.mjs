@@ -17,6 +17,10 @@ const evidence=parse('artifacts/curriculum-acceptance-v014150.json');
 const commerce=parse('data/commerce-config.json');
 const decisions=parse('docs/curriculum-acceptance-decisions-v014150.json');
 const d17=parse('artifacts/d17-source-security-readiness.json');
+const v32Source=read('assets/js/lab-engine-v32-teaching.js');
+const prototypeV32LabIds=['F2-C07-L01','F2-C07-L02','F3-C06-L01'];
+requireTruth(prototypeV32LabIds.every(id=>labs.byLab?.[id]&&v32Source.includes("'"+id+"':")),
+ 'Approved v3.2 teaching references must map to existing canonical Lab IDs only');
 const requirements=parse('artifacts/d17-owner-requirements-reconciliation.json');
 requireTruth(d17.schema==='gu-d17-no-provider-source-gates-v1'&&d17.sourceBlockerCount===0,
  'Deployment 17 high-risk source boundary checks must pass before writing acceptance evidence');
@@ -70,6 +74,12 @@ const output={
  manifestVersion:manifest.version,gitSha:process.env.GITHUB_SHA||null,
  recordedAtUtc:new Date().toISOString(),
  catalog:{canonicalLabs:419,officialCompetencies:30,bootcampDays:30,paidSkuCodes:official},
+ prototypeV32:{ownerApprovedReference:'Lab_Engine_v3.2',integrationStatus:'PARTIAL_SOURCE',
+   browserSafeConceptTeachingMappedLabIds:prototypeV32LabIds,
+   individualEditorialAcceptancesAddedByPrototype:0,
+   canonicalLabsNotYetMappedToV32Teaching:419-prototypeV32LabIds.length,
+   fullPrototypeProductionAcceptance:false,
+   protectedAssessmentAndReplayRemainServerControlled:true},
  acceptance:{
   individuallyReviewedLabs:acceptedLabs,acceptedBootcampDays:acceptedDays,
   verifiedProductionLabs:0,verifiedProductionBootcampDays:0,
@@ -95,6 +105,7 @@ const md=[
  'Labs with complete source-ledger review records: **'+acceptedLabs+'/419** (independent validation pending).',
  'Bootcamp days with complete source-ledger review records: **'+acceptedDays+'/30** (independent validation pending).',
  'Official competency definitions: **30**, production verification outstanding.',
+ 'Approved Lab Engine v3.2 teaching reference mapped to **'+prototypeV32LabIds.length+'/419** Labs; independent instructional and production acceptance pending.',
  'Owner requirements pending documented acceptance: **'+requirements.pendingReview+'/'+requirements.registered+'**.','',
  '| Acceptance gate | Evidence state |','| --- | --- |',
  ...sourceChecks.map(x=>'| '+x.id+' | '+x.status+' |'),'',
