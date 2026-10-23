@@ -1,0 +1,20 @@
+/* D17: legacy Admin must not bypass atomic v113 forum moderation and audit. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const server=readFileSync('functions/api/admin.js','utf8');
+const client=readFileSync('assets/js/admin.js','utf8');
+const atomic=readFileSync('functions/api/admin-forum-actions.js','utf8');
+const start=server.indexOf("if(action==='forum_action')"),end=server.indexOf("if(action==='report_resolve')",start);
+assert(start>0&&end>start,'Legacy forum action boundary must exist');
+const legacy=server.slice(start,end);
+assert(legacy.includes("withContext(env,request,'forum.moderate')"));
+assert(legacy.includes('Legacy one-click moderation is retired.'));
+assert(!legacy.includes("method:'PATCH'"),'No unlogged direct forum status changes');
+assert(!legacy.includes("await audit("),'No two-step mutation/audit allowed');
+assert(!client.includes("api('forum_action'"),'No browser path to the old moderation API');
+assert(client.includes("open({scope:'legacy',type:'topic'"));
+assert(client.includes("open({scope:'legacy',type:'post'"));
+assert(client.includes('GroundUpAdminWorkflows?.openModeration'));
+assert(atomic.includes('gu_v014113_moderate_with_audit'),'Both flows use the original atomic moderation endpoint');
+assert(!/method:'PATCH'/.test(atomic),'Atomic moderator must never fall back to direct PATCH');
+console.log('PASS D17 no unaudited legacy Admin topic/post mutation, all moderation through v113 editor/RPC');
