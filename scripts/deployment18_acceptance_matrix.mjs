@@ -18,9 +18,15 @@ const commerce=parse('data/commerce-config.json');
 const decisions=parse('docs/curriculum-acceptance-decisions-v014150.json');
 const d17=parse('artifacts/d17-source-security-readiness.json');
 const v32Source=read('assets/js/lab-engine-v32-teaching.js');
+const v32Universal=read('assets/js/lab-engine-v32-universal.js');
+const v32Bootcamp=read('assets/js/bootcamp.js');
+const v32CanonicalRegistry=read('assets/js/labs.js');
 const prototypeV32LabIds=['F2-C07-L01','F2-C07-L02','F3-C06-L01'];
 requireTruth(prototypeV32LabIds.every(id=>labs.byLab?.[id]&&v32Source.includes("'"+id+"':")),
  'Approved v3.2 teaching references must map to existing canonical Lab IDs only');
+requireTruth(v32Universal.includes('canonicalTarget:419')&&v32Universal.includes('const STEPS=')&&
+ v32Bootcamp.includes("focusId:'gu-bc-note'")&&v32CanonicalRegistry.includes('crosswalk.totalCanonicalLabs!==419'),
+ '419-Lab universal study journey and 30-Day Bootcamp adapter source contracts must be present');
 const requirements=parse('artifacts/d17-owner-requirements-reconciliation.json');
 requireTruth(d17.schema==='gu-d17-no-provider-source-gates-v1'&&d17.sourceBlockerCount===0,
  'Deployment 17 high-risk source boundary checks must pass before writing acceptance evidence');
@@ -77,7 +83,10 @@ const output={
  prototypeV32:{ownerApprovedReference:'Lab_Engine_v3.2',integrationStatus:'PARTIAL_SOURCE',
    browserSafeConceptTeachingMappedLabIds:prototypeV32LabIds,
    individualEditorialAcceptancesAddedByPrototype:0,
-   canonicalLabsNotYetMappedToV32Teaching:419-prototypeV32LabIds.length,
+   canonicalLabsWithSharedUngradedV32Journey:419,
+   bootcampDaysUsingSharedUngradedV32Journey:30,
+   referenceTopicsWithOriginalNumericalV32WorkedExamples:prototypeV32LabIds.length,
+   canonicalLabsAwaitingIndividualDeepLessonAndAssessmentApproval:419-acceptedLabs,
    fullPrototypeProductionAcceptance:false,
    protectedAssessmentAndReplayRemainServerControlled:true},
  acceptance:{
