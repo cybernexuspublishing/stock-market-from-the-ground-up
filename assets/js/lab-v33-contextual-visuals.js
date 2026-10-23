@@ -20,7 +20,20 @@ function select({lab,topic,competencies}={}){
  const requested=lab?.teaching?.visualType||lab?.visual?.type;
  if(typeof requested==='string'&&TYPE_SET.has(requested))return requested;
  const candidate=String(topic||lab?.concept||'');
+ // Relationship across multiple bars takes precedence over a generic
+ // "body" or "candle" noun when the activity is about sequential behavior.
+ if(/follow.through|opposite expansion|overlapping sequence|aggregation|compression|disagreement across scale|internal sequence|upward path|downward path|swing comparisons?|intraday bars|regular.market (?:open|close)|after.hours transition|pre.?market|extended.hours|halting|\bhalt\b/i.test(candidate))return 'structure';
+ if(/\bSMA\b|\bMACD\b|\bRSI\b|crossover|oversold|indicator lag/i.test(candidate))return 'ema';
+ if(/large up body|large down body|small body with/i.test(candidate))return 'candle';
  for(const [type,pattern] of RULES)if(pattern.test(candidate))return type;
+ // Some historical Foundation Book II/III Lab titles omit a chart term.
+ // Their *authorized chapter title* (not an invented historic price series)
+ // supplies the missing subject context for instructional visual selection.
+ const chapter=String(lab?.chapterTitle||'');
+ if(/reading candle bodies and wicks/i.test(chapter))return 'candle';
+ if(/candles tell stories in sequence|timeframes and aggregation|multiple.timeframe analysis|higher highs|higher lows|support and resistance|patterns are evidence|breakouts|trend$|why time of day matters|modern trading day|outside regular market hours|momentum indicators/i.test(chapter))return 'structure';
+ if(/moving averages|indicators: what they are/i.test(chapter))return 'ema';
+ if(/volume, liquidity, and slippage/i.test(chapter))return 'volume';
  // A competency name alone is not sufficient evidence that an unrelated
  // book lesson requires that visual. Only a small safe, explicit fallback
  // applies when an otherwise nontitled Lab is exclusively that exercise.
