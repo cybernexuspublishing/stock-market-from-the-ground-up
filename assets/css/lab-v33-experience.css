@@ -58,3 +58,8 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-source-note p{font-size
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-wallet-disclosure{margin:13px 0;border:1px solid #32526c;border-radius:9px;background:#122637;padding:10px}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-wallet-disclosure>.wallet{margin:10px 0 0}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .instruction ul{padding-left:23px;line-height:1.6;margin:9px 0 2px}
+
+/* Non-blocking, accessible source/provenance details in the player shell. */
+body.gu-lab-member #player-access-note .gu-v33-source-banner{border:1px solid #32576e;border-radius:8px;background:#152a3a;color:#d3e5ef;padding:9px 13px;margin:10px 0;font-size:.83rem}
+body.gu-lab-member #player-access-note .gu-v33-source-banner summary{cursor:pointer;font-weight:650;color:#d9e7f0}
+body.gu-lab-member #player-access-note .gu-v33-source-banner p{font-size:.82rem;line-height:1.55;margin:8px 0 2px}
