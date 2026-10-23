@@ -122,7 +122,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    respond((ai?'AI-generated educational draft':'Source-grounded Market Tutor response')+
     '. Not official grading or investment advice. '+(data.aiReason&&consent.checked&&!ai?'AI draft not available; source-grounded explanation shown.':''));
   }catch(error){
-   if(error?.name!=='AbortError'&&!disposed)respond(error?.message||'Tutor unavailable; the free concept lessons remain accessible.',true);
+   if(error?.name!=='AbortError'&&!disposed)respond(error?.message||'Tutor unavailable; the concept lessons remain accessible.',true);
   }finally{
    if(pending===controller)pending=null;
    if(!disposed){ask.disabled=false;dismiss.hidden=true}
