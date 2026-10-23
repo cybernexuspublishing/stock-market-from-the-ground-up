@@ -152,7 +152,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    if(special){
     const label=el('label',kind==='candle'?'Closing price (USD)':'Shares at $10');
     const range=el('input');range.type='range';range.min=kind==='candle'?'30.5':'50';range.max=kind==='candle'?'32.5':'500';range.step=kind==='candle'?'0.05':'50';range.value=String(experimentValue);
-    label.append(range);body.append(label);const output=el('output');output.className='gu-v32-output';body.append(output);
+    label.append(range);body.append(label);const visual=root.GroundUpLabV33Visual?.create(kind,experimentValue);if(visual)body.append(visual.wrap);const output=el('output');output.className='gu-v32-output';body.append(output);
     const paint=()=>{
      experimentValue=Number(range.value);
      if(kind==='candle'){
@@ -162,7 +162,8 @@ async function mount({labId,mode,target,lab,focusId}={}){
       const dollars=1600+10*experimentValue,shares=200+experimentValue;
       output.textContent='Traded dollars $'+dollars.toFixed(2)+' ÷ '+shares+' shares = VWAP $'+(dollars/shares).toFixed(2);
      }
-    };range.addEventListener('input',paint);paint();
+    if(visual)visual.update(experimentValue);
+   };range.addEventListener('input',paint);paint();
     appendParagraph(body,'This is hypothetical experimentation, not actual historical market evidence.');
    }
    const input=field(body,'Record what changed and why (optional)',observations);

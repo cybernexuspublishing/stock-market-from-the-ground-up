@@ -9,3 +9,9 @@
 .gu-v33 dl{display:grid;grid-template-columns:minmax(8rem,1fr) 2fr;gap:.5rem 1rem}.gu-v33 dd{margin:0}
 .gu-v33 :is(button,input,textarea,select,summary):focus-visible{outline:3px solid #b9822c;outline-offset:3px}
 @media(max-width:520px){.gu-v33-journey{gap:.5rem;padding:.75rem;font-size:.82rem}.gu-v33 dl{grid-template-columns:1fr}.gu-v33 dd{margin:0 0 .5rem}}
+
+.gu-v33-visual-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(12rem,1fr);gap:1rem;margin:1rem 0;align-items:start}
+.gu-v33-visual-grid svg{display:block;width:100%;height:auto}
+.gu-v33-reference-values{display:grid;grid-template-columns:1fr auto;gap:.45rem .6rem;background:var(--surface-2,#edf2f2);padding:.9rem;border-radius:10px;margin:0}
+.gu-v33-reference-values dt{font-weight:500}.gu-v33-reference-values dd{margin:0;font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+@media(max-width:690px){.gu-v33-visual-grid{grid-template-columns:minmax(0,1fr)}}
