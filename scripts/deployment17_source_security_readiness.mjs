@@ -12,6 +12,7 @@ const headers=read('_headers');
 const builder=read('scripts/build-pages.sh');
 const seo=read('scripts/build-public-seo.mjs');
 const accessibility=read('scripts/build-site-accessibility.mjs');
+const gws=read('functions/api/gws-projects.js');
 const m=JSON.parse(read('release-manifest.json'));
 const checks=[];
 function check(id,passed,explanation){checks.push({id,status:passed?'SOURCE_GUARD_PRESENT':'SOURCE_BLOCKER',explanation});}
@@ -37,6 +38,9 @@ check('whitelisted-public-seo',builder.includes('node scripts/build-public-seo.m
 check('keyboard-bypass-all-static-pages',builder.includes('node scripts/build-site-accessibility.mjs')&&
  accessibility.includes('gu-skip-link')&&accessibility.includes('gu-main-content'),
  'Static Pages with a main landmark must expose one keyboard bypass link without modifying the lesson model.');
+check('gws-owner-private-draft-limits',gws.includes('boundedDraftInput(request)')&&
+ !gws.includes("authorization:'Bearer '+c.secret,accept")&&gws.includes('publishingEnabled:false'),
+ 'GWS drafts must remain OWNER-only, fail closed on unbounded input and never publish client sites.');
 check('customer-charges-still-locked',m.customerCheckoutApproved===false&&m.liveStripeFulfillmentEnabled===false,
  'Paid launch must be separately approved only after the final test lifecycle.');
 const blockers=checks.filter(x=>x.status==='SOURCE_BLOCKER');
