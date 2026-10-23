@@ -1,3 +1,13 @@
+
+## Newest corrections after this handoff snapshot — 2026-10-22
+- Last observed source checkpoint before this update: `e16c3207101994ce936b5100a49748016e183d53`. Run latest `main` HEAD query for exact final commit.
+- Modern `sb_secret_` header handling fixed in `functions/api/admin.js` and `functions/api/admin-accounts-v01353.js`; source test plus old Owner Account Management tests wired into new D16 CI. A passing workflow/production call has not yet been observed.
+- Eight-SKU and five-book static discrepancy audit added at `scripts/deployment15_catalog_audit.mjs` and integrated into existing billing and D18 source acceptance workflows. Historical Stripe registry holds 0 verified Price IDs (null fields, screenshot-only), four tools show monthly billing intervals, and five storefront books show KDP Select true with direct digital disabled. All require current provider/rights reconciliation, no automatic changes.
+- D16 keyboard navigation now returns focus to the page heading when selecting a different module.
+- No LIVE payment, Supabase migration, Cloudflare dashboard change, pricing change, or direct book distribution activation was performed.
+
+---
+
 # Active Development Continuity — D16 Stage A / D17 Security Fix / D18 Source Acceptance Gate
 
 **Project:** The Stock Market: From the Ground Up (one unified project)
