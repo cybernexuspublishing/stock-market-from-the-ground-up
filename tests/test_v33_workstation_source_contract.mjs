@@ -27,5 +27,5 @@ assert(journey.includes('No answer keys, conceptual hints'),'Blind/Assessment ma
 assert(journey.includes('getElementById(\'gu-ws-member-workbench\')'),'Assessment must open the existing protected workbench');
 assert(css.includes('.stage-grid')&&css.includes('.chart-shell'),'Exact prototype CSS must provide stage and chart components');
 assert(bridge.includes('gu-v32-teaching-slot'),'Authenticated teaching bridge must be styled');
-assert(css.includes('@media(max-width:740px)'),'Small-screen layout must be supported');
+assert(css.includes('@media(max-width:730px)'),'Small-screen layout must be supported');
 console.log('PASS Learning v3.3 source: compact v3.2 workstation, nine stages, protected member controls and blind concealment');
