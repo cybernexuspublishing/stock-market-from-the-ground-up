@@ -1,0 +1,31 @@
+/* Guard owner-corrected Learning v3.3 production experience.
+ * No real member account, grades, replay history, credit or payment writes. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
+const read=p=>readFileSync(p,'utf8');
+const player=read('lab-player.html');
+const source=read('assets/js/lab-player.js');
+const engine=read('assets/js/lab-engine-v32-universal.js');
+const css=read('assets/css/lab-v32-prototype-exact.css');
+const route=read('functions/lab-player.js');
+const middleware=read('functions/_middleware.js');
+assert(player.includes('LEARNING ENGINE v3.3'),'Production must say Learning Engine v3.3, not reference 3.2');
+assert(player.includes('id="player-mode-trigger"')&&player.includes('id="player-mode-menu"'),'Mode selector and dropdown must be present');
+assert(player.includes('aria-haspopup="menu"'),'Learning selector must expose menu semantics');
+assert(css.includes('.toolbar>.mode-menu{position:absolute'),'Popover must overlay, not push lesson below viewport');
+assert(css.includes('max-height:min(65vh,420px)'),'Popover must have bounded scroll height');
+assert(engine.includes("el('h3','Historical Lab Setup')"),'Original book/chart setup must be visible on first learning stage');
+assert(engine.includes("lab?.ticker")&&engine.includes("lab?.date"),'Display only authorized source fields');
+assert(engine.includes('These fields describe the original Lab setup, not independently verified market history.'),'Do not fabricate chart source verification');
+assert(!source.includes('await window.SiteAccess?.get?.()'),'Do not wait on unrelated legacy entitlement RPC before first lesson');
+assert(source.includes('serverGuidedAllowed===true')&&source.includes('serverAdvancedAllowed===true'),'Preserve server-issued access and mode rights');
+assert(source.includes("event.key==='Escape'"),'Keyboard users must be able to close Learning Mode menu');
+assert(source.includes('gu-v32-teaching-slot')&&source.includes('gu-ws-member-workbench'),'Both teaching and protected decision workbench must remain accessible');
+assert(route.includes("url.searchParams.get('demo')==='1'"),'Fictional v3.2 must require deliberate preview, never auto-redirect production');
+assert(!route.includes("url.searchParams.get('official')!=='1'"),'Default production route must not return to old reference');
+assert(middleware.includes("'/lab-player','/lab-player.html'"),'Production page must not receive legacy injected styling');
+assert(middleware.includes('const mfaDenied=await staffMfaBoundary')&&middleware.includes('const paymentDenied=await paymentModeBoundary'),'Global security guards must remain');
+assert.doesNotThrow(()=>new Script(source), 'Player JS must parse');
+assert.doesNotThrow(()=>new Script(engine), 'Shared learning JS must parse');
+console.log('PASS Learning v3.3 is production default; compact dropdown, first-stage setup, no hanging optional entitlements, preserved protected boundaries');
