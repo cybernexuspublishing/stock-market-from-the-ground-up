@@ -77,6 +77,10 @@ jobs:
         run: node tests/test_v014161_lab_engine_v32_teaching.mjs
       - name: Enforce all nine Lab Engine v3.2 progression boundaries
         run: node tests/test_v014162_v32_stage_integrity.mjs
+      - name: Browser-verify exact owner v3.2 self-contained reference (mobile and desktop)
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v32_reference_exact_browser.mjs
       - name: Browser-test approved Lab Engine v3.2 teaching at mobile and desktop widths
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
