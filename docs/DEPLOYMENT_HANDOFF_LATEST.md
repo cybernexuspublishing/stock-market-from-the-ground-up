@@ -1,3 +1,23 @@
+## LATEST CHECKPOINT — Deployment 15 Memberships and Billing (2026-10-22)
+
+**Repository source head before this handoff update:** `3358285465ecebaacd3a310db0081afd324bf8c3`.  
+**Release version:** v0.14.0.155. **Paid launch:** OFF, no Stripe LIVE charge or fulfillment authorization granted.  
+**Owner instruction:** Teaching/Lessons Prototype remains **FROZEN FOR IMPLEMENTATION** until Owner supplies its **approved prototype version number**. Do not change the teaching prototype, lesson behavior, grading methodology or instructional formats while working on commerce.  
+**Current deployment:** D15 — source security and integration increment, NOT 100% production accepted.
+
+### Changes since D14 checkpoint
+- `functions/api/stripe-billing-portal-v014122.js`: bounded streaming 1-KB request parser instead of read-then-validate; detects falsified/missing Content-Length and malformed bytes, fails before external calls.
+- `functions/api/member-tool-access.js`: legacy Supabase JWT matching corrected; modern opaque `sb_secret_` stays in API key header, not JWT Authorization.
+- `functions/api/stripe-billing-portal.js`: permanent unversioned public alias. `assets/js/my-purchases.js` now calls it, with prior versioned route preserved for backward compatibility.
+- Tests and workflow: `tests/test_v014155_portal_and_entitlement_boundaries.mjs`, `.github/workflows/member-billing-portal-v014122.yml`, and `scripts/dev-program-source-verification.mjs` updated.
+- **Direct actual source checks PASSED:** streaming 1,025-byte fake request rejected HTTP 413, input reader cancelled/released, key regex matches proper JWT but not modern `sb_secret_`, and all five changed JS source files parse. **Exact-head Actions and LIVE runtime NOT verified**.
+- Full D15 document: `docs/v0.14.0.155_D15_SOURCE_CONTINUATION_BILLING_PORTAL_AND_ENTITLEMENTS.md`.
+- **Owner manual action at this checkpoint:** NONE. No Supabase SQL, Cloudflare variable, Stripe merchant config, real charge, membership SKU, price, entitlement or educational prototype modification.
+- Remaining D15 production gate: real eight-SKU Stripe LIVE provider/cadence checks, real signed paid lifecycle & idempotency, book rights/keys, taxes/legal/customer email delivery, real member/Showcase/RLS, scheduled reconciliation, and full D18 integrated acceptance.
+- **Next:** Continue remaining D15–D17 source work while respecting instructional prototype freeze; all comprehensive testing and launch acceptance coordinated at D18. Do not mark D15 complete from source evidence.
+
+---
+
 ## ADDENDUM — D13 graded client race hardening (2026-10-22)
 
 **Newest verified source checkpoint before this documentation commit:** `d8930a5bef694f8e5b3522dc9ebb04b1c2b54e34`.
