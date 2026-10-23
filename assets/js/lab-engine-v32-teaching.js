@@ -72,7 +72,7 @@ function mount({labId,mode,target}){
   }else if(stage===3){
    body.append(el('p','Explain the formula, calculate the result, and identify what it cannot establish.'));
    body.append(action('Explain the concept (free)',()=>{feedback.textContent=m.steps.join(' ')}));
-   body.append(action('Show a worked teaching example',()=>{exposed=true;feedback.textContent=kind==='candle'?'Fictional $31 open and $32 close: $1 body. $32.50 high and $30.50 low: $2 range, so 50%.':'Fictional 200 shares at $8 and 100 at $10: $2,600 in traded dollars ÷ 300 shares = $8.67.'}));
+   body.append(action('Show a worked teaching example',()=>{exposed=true;feedback.textContent='Study Only — ';feedback.textContent+=kind==='candle'?'Fictional $31 open and $32 close: $1 body. $32.50 high and $30.50 low: $2 range, so 50%.':'Fictional 200 shares at $8 and 100 at $10: $2,600 in traded dollars ÷ 300 shares = $8.67.'}));
    if(exposed)feedback.textContent='This worked example is Study Only. It does not reveal a private assessment answer.';
   }else{
    body.append(el('p',m.transfer),el('p','Apply this idea only to observations available at the historical Lab pause. Continue to the existing evidence and authenticated assessment controls.'));
