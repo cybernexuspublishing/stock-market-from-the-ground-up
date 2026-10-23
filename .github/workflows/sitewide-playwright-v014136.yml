@@ -38,8 +38,11 @@ jobs:
       - name: Validate production-safe canonical and source sitemap generation
         run: |
           node tests/test_v014157_public_seo.mjs
+          node tests/test_v014157_sitewide_skip_navigation.mjs
           test -f public/sitemap.xml
           test -f public/robots.txt
+          test -f public/assets/css/sitewide-accessibility-v014157.css
+          grep -q 'gu-skip-link' public/dashboard.html
           grep -q 'noindex,nofollow' public/dashboard.html
       - name: Start local source-only Pages fixture
         run: |
