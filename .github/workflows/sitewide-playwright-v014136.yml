@@ -72,6 +72,7 @@ jobs:
           node tests/test_v32_member_reference_integrity.mjs
           node tests/test_v32_reference_route_boundary.mjs
           node tests/test_v33_production_dropdown_and_start.mjs
+          node tests/test_lab_ux_std001.mjs
           node tests/test_v014162_lab_player_context.mjs
           node tests/test_lab_content_access_recovery.mjs
       - name: Verify Bootcamp 30-day shared v3.2 journey
@@ -96,6 +97,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014162_universal_browser.mjs
+      - name: Browser-verify LAB-UX-STD-001 chart-first curriculum and concealed assessments
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_lab_ux_std001_browser.mjs
       - name: Browser-verify in-page v3.3 Labs retain website navigation
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
