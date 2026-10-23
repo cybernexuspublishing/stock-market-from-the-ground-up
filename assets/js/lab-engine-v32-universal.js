@@ -76,6 +76,9 @@ async function mount({labId,mode,target,lab,focusId}={}){
  const special=synthetic[kind]||null;
  const subject=root.GroundUpLabEngineV32?.lessons?.[kind]||null;
  const topic=String(lab?.concept||item.title||labId);
+ const authorizedTeaching=lab?.teaching&&typeof lab.teaching==='object'?lab.teaching:{};
+ const ownHow=Array.isArray(authorizedTeaching.how)?authorizedTeaching.how.filter(s=>typeof s==='string'&&s.trim()).slice(0,20):[];
+ const ownQuestions=Array.isArray(authorizedTeaching.questions)?authorizedTeaching.questions.filter(s=>typeof s==='string'&&s.trim()).slice(0,5):[];
  const shell=el('section');shell.className='card gu-v32 gu-v33';
  shell.setAttribute('aria-label','Advanced learning journey');
  const heading=el('h2','Learning Journey — '+(subject?.name||guide.title));
@@ -106,9 +109,12 @@ async function mount({labId,mode,target,lab,focusId}={}){
  }
  function freeExplanation(){
   detail(body,'Explain This Concept — Always Free',[
-   'What it means: '+(subject?.definition||guide.concept),
-   'Why and how it works: '+(subject?.why||guide.procedure),
+   'What it means: '+(authorizedTeaching.what||subject?.definition||guide.concept),
+   'Why and how it works: '+(authorizedTeaching.why||subject?.why||guide.procedure),
    'Relevant symbols or terminology: '+(subject?.symbols||'Identify the source, units, timeframe and referenced market conditions.'),
+   'When to apply or recognize the idea: '+(authorizedTeaching.when||guide.procedure),
+   'Where the observations come from: the authorized Lab setup ('+[lab?.ticker,lab?.date,lab?.timeframe].filter(Boolean).join(' · ')+'). This metadata does not by itself authenticate a historical chart.',
+   'Instructional procedure: '+(ownHow.length?ownHow.join(' Then '):subject?.steps?.join(' Then ')||guide.procedure),
    'Common mistake: '+(subject?.error||guide.commonError),
    'Limits: '+(subject?.limit||guide.limit)
   ]);
@@ -125,9 +131,11 @@ async function mount({labId,mode,target,lab,focusId}={}){
    appendParagraph(body,'Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Not Yet Assessed is the default until reviewed evidence exists.');
    appendParagraph(body,'This stage shows conceptual instruction, not independently verified market history or a trading recommendation.');
   }else if(stage===1){
-   appendParagraph(body,subject?.definition||guide.concept);
-   appendParagraph(body,subject?.why||guide.procedure);
-   if(subject){appendParagraph(body,'Define every component: '+subject.symbols);stepList(subject.steps)}
+   appendParagraph(body,authorizedTeaching.what||subject?.definition||guide.concept);
+   appendParagraph(body,authorizedTeaching.why||subject?.why||guide.procedure);
+   if(authorizedTeaching.when)appendParagraph(body,'When it is relevant: '+authorizedTeaching.when);
+   if(ownHow.length)stepList(ownHow);
+   else if(subject){appendParagraph(body,'Define every component: '+subject.symbols);stepList(subject.steps)}
    else{
     stepList(['Define the key terms and the market evidence you can actually observe.',
      'Identify the source, date, session and timeframe for any historical claim.',
@@ -181,7 +189,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    }));
    if(mode==='guided'||mode==='practice')freeExplanation();
   }else if(stage===4){
-   appendParagraph(body,special?special.description:guide.selfCheck);
+   appendParagraph(body,special?special.description:(ownQuestions[0]||guide.selfCheck));
    if(special){
     const input=field(body,'My calculation ('+special.units+')',practice,'input');
     input.disabled=practiceResolved;
@@ -226,8 +234,8 @@ async function mount({labId,mode,target,lab,focusId}={}){
    body.append(button('Open protected decision and assessment',()=>{const work=document.getElementById('gu-ws-member-workbench');if(work)work.open=true;document.getElementById(focusId||'ev-decision')?.focus();}));
   }else if(stage===6){
    appendParagraph(body,'Your learning review should explain what the result means, its limitations and at least one common wrong interpretation.');
-   appendParagraph(body,'Concept: '+guide.concept);
-   appendParagraph(body,'Reasoning: '+(subject?.why||guide.procedure));
+   appendParagraph(body,'Concept: '+(authorizedTeaching.what||guide.concept));
+   appendParagraph(body,'Reasoning: '+(authorizedTeaching.why||subject?.why||guide.procedure));
    appendParagraph(body,'What could invalidate it: '+guide.invalidation);
    appendParagraph(body,'Common mistake: '+guide.commonError);
    appendParagraph(body,'Limitations: '+(subject?.limit||guide.limit));
