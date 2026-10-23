@@ -68,6 +68,8 @@ jobs:
       - name: Verify member-scoped Support API protection without live services
         run: |
           node tests/test_v014157_support_security.mjs
+          node tests/test_v014157_support_reopen_ui.mjs
+          node --check assets/js/production-completion.js
           node scripts/deployment17_source_security_readiness.mjs
       - name: Verify Owner delivery plan and roadmap governance contracts
         run: |
