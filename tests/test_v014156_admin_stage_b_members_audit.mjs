@@ -38,7 +38,7 @@ globalThis.fetch=async(url,options={})=>{
  const reply=x=>new Response(JSON.stringify(x),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}});
  if(u.includes('/auth/v1/user'))return reply({id:userId,email:'admin@example.test'});
  if(u.includes('admin_user_roles?select=role_code'))return reply([{role_code:'OWNER',expires_at:null}]);
- if(u.includes('admin_role_permissions?select=permission_code'))return reply([{permission_code:'users.view'},{permission_code:'audit.view'}]);
+ if(u.includes('admin_role_permissions?select=permission_code'))return reply([{permission_code:'control_panel.access'},{permission_code:'users.view'},{permission_code:'audit.view'}]);
  if(u.includes('/auth/v1/admin/users')){authEndpointCalls++;return reply({users:[]})}
  if(u.includes('/rest/v1/admin_audit_log?'))return reply([]);
  throw Error('Unexpected mock route '+u);

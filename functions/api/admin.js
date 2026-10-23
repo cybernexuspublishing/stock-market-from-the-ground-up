@@ -50,7 +50,7 @@ function adminPageInt(value,{fallback=1,min=1,max=10000}={}){
  return v;
 }
 function has(ctx,p){return ctx.permissions.includes(p)}
-async function withContext(env,request,permission){const c=await caller(env,request);const ctx=await roleContext(env,c.user.id);if(permission&&!has(ctx,permission))throw Object.assign(new Error('Administrative permission denied.'),{status:403});return {...c,ctx}}
+async function withContext(env,request,permission){const c=await caller(env,request);const ctx=await roleContext(env,c.user.id);if(!has(ctx,'control_panel.access')||(permission&&!has(ctx,permission)))throw Object.assign(new Error('Administrative permission denied.'),{status:403});return {...c,ctx}}
 async function audit(env,actor,action,targetType,targetId,details={}){try{await serviceRest(env,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:actor||null,action,target_type:targetType||null,target_id:targetId==null?null:String(targetId),details}})}catch{}}
 async function one(env,path){const {data}=await serviceRest(env,path);return Array.isArray(data)?(data[0]||null):data}
 async function tableRows(env,table,select='*',extra=''){const {data}=await serviceRest(env,`${table}?select=${encodeURIComponent(select)}${extra}`);return data||[]}

@@ -41,7 +41,7 @@ globalThis.fetch=async(input,opts={})=>{
  const response=value=>new Response(JSON.stringify(value),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}});
  if(url.includes('/auth/v1/user'))return response({id:'123e4567-e89b-12d3-a456-426614174000',email:'staff@example.test'});
  if(url.includes('/rest/v1/admin_user_roles?select=role_code'))return response([{role_code:'OWNER',expires_at:null}]);
- if(url.includes('/rest/v1/admin_role_permissions'))return response([{permission_code:'users.view'}]);
+ if(url.includes('/rest/v1/admin_role_permissions'))return response([{permission_code:'control_panel.access'},{permission_code:'users.view'}]);
  if(url.includes('/rest/v1/admin_user_roles?select=*'))return response([]);
  if(url.includes('/auth/v1/admin/users'))return response({users:[]});
  throw Error('Unexpected service request '+url);
