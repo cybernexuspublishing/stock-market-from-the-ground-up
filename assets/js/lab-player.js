@@ -151,10 +151,13 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   response=await fetch('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
   payload=await response.json().catch(()=>({}));
  }
- if(!response.ok||!payload.ok)throw new Error(
-  response.status===503?'The Lab service is temporarily unavailable. Your lesson and progress have not been changed. Please retry from the Lab Registry.':
-  payload.error||'Lab not available.'
- );const lab=payload.lab;PLAYER.lab=lab;
+ if(!response.ok||!payload.ok){
+  const failure=new Error(response.status===503?
+   'The Lab service is temporarily unavailable. Your lesson and progress have not been changed.':
+   payload.error||'Lab not available.');
+  failure.qaCode=String(payload.code||'');
+  throw failure;
+ }const lab=payload.lab;PLAYER.lab=lab;
  // Server-reported entitlement is authoritative. Optional client-side
  // dashboard access state may fail separately and must not hide a valid Lab.
  let localAccess=null;
@@ -179,7 +182,21 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  });
  q('player-restart-mode')?.addEventListener('click',()=>inlineModeConfirmation(PLAYER.mode,true));
  document.addEventListener('gu-v33-stage-change',syncPlayerMode);
- renderPlayer()}catch(e){q('lab-player-gate').innerHTML=`<div class="notice">${pe(e.message)}</div>`}}
+ renderPlayer()}catch(e){
+ const gate=q('lab-player-gate');
+ gate.replaceChildren();
+ const notice=document.createElement('div');notice.className='notice';
+ const text=document.createElement('p');text.textContent=e.message||'The Lab could not be opened.';notice.append(text);
+ if(/^LAB_(?:REQUEST|AUTH|REGISTRY|MEMBER|FLAGS|PREMIUM|BOOK|TEACHING)_UNAVAILABLE$/.test(String(e.qaCode||''))){
+  const code=document.createElement('p');code.className='small';
+  code.textContent='Support reference: '+e.qaCode;notice.append(code);
+ }
+ const back=document.createElement('a');back.href='labs.html';back.className='btn secondary';back.textContent='Open Lab Registry';
+ const retry=document.createElement('button');retry.type='button';retry.className='btn';retry.textContent='Retry Lab';
+ retry.addEventListener('click',()=>{retry.disabled=true;void initPlayer()});
+ const actions=document.createElement('div');actions.className='actions';actions.append(retry,back);
+ notice.append(actions);gate.append(notice);
+}}
 window.addEventListener('v014-training-complete',event=>{
  if(event.detail?.labId!==PLAYER.lab?.id)return;
  const reveal=q('reveal-panel');if(reveal){reveal.hidden=false;PLAYER.revealIndex=PLAYER.lab.practiceSteps.length;renderGuidance()}
