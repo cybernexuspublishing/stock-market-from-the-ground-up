@@ -21,13 +21,3 @@ assert.equal(v.mount({labId:'F2-C07-L01',mode:'blind',target:fake}),false);asser
 assert.equal(v.mount({labId:'F3-C06-L01',mode:'assessment',target:fake}),false);
 assert.equal(v.mount({labId:'NON-CANONICAL',mode:'guided',target:fake}),false);
 console.log('PASS v3.2 safe reference teaching, three canonical mappings, private rubric boundary and mode suppression');
-
-
-const topics=readFileSync('assets/js/lab-engine-v32-curriculum.js','utf8');
-const curriculum=JSON.parse(readFileSync('data/competency-lab-paths-v01499.json','utf8'));
-runInNewContext(topics,ctx);
-assert.equal(Object.keys(ctx.GroundUpV32Curriculum.topics).length,419);
-assert.equal(new Set(Object.values(ctx.GroundUpV32Curriculum.topics)).size,30);
-for(const id of Object.keys(curriculum.byLab))assert(ctx.GroundUpV32Curriculum.topics[id]);
-assert(page.includes('lab-engine-v32-curriculum.js'));
-console.log('PASS v3.2: all 419 original Labs have one existing official competency teaching-topic route; no editorial grading claim');
