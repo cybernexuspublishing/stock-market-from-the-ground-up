@@ -3,8 +3,32 @@
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'},send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:H}),err=(m,s=400)=>Object.assign(new Error(m),{status:s});
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),pub=env.SUPABASE_PUBLISHABLE_KEY,secret=env.SUPABASE_SECRET_KEY;if(!base||!pub||!secret)throw err('Configuration unavailable.',503);return{base,pub,secret}}
 async function json(url,init){const r=await fetch(url,{...init,cache:'no-store'}),t=await r.text();if(!r.ok){let msg='Database contract unavailable';try{const j=JSON.parse(t);if(j.message?.includes('revision conflict'))throw err('Draft changed. Reload before editing.',409)}catch(e){if(e.status)throw e}throw err(msg,503)}return t?JSON.parse(t):[]}
-async function db(env,path,method='GET',body){const c=cfg(env);return json(c.base+'/rest/v1/'+path,{method,headers:{apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json',...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body)})}
+async function db(env,path,method='GET',body){const c=cfg(env);return json(c.base+'/rest/v1/'+path,{method,headers:{apikey:c.secret,...(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret)?{authorization:'Bearer '+c.secret}:{}),accept:'application/json',...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body)})}
 async function owner(env,req){const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw err('Sign in required.',401);const c=cfg(env),u=await json(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});const [p,r,flags]=await Promise.all([db(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1'),db(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(u.id)),db(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1')]);if(['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))throw err('Account access is restricted.',403);if(p[0]?.account_kind!=='member'||!r.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now())))throw err('OWNER role required.',403);if(env.REQUIRE_STAFF_AAL2_V135==='true'){let aal='';try{aal=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).aal}catch{}if(aal!=='aal2')throw err('Staff MFA required.',403)}return u.id}
+async function boundedDraftInput(request){
+ const CAP=65536;
+ const declared=request.headers.get('content-length');
+ if(declared!==null&&(!/^[0-9]+$/.test(declared)||Number(declared)>CAP))
+  throw err('Draft request exceeds 64 KiB.',413);
+ if(!request.body||typeof request.body.getReader!=='function')throw err('Draft JSON body required.',400);
+ const reader=request.body.getReader(),parts=[];let bytes=0;
+ try{
+  while(true){
+   const {done,value}=await reader.read();if(done)break;
+   if(!(value instanceof Uint8Array))throw err('Invalid draft request.',400);
+   bytes+=value.byteLength;if(bytes>CAP)throw err('Draft request exceeds 64 KiB.',413);
+   parts.push(value);
+  }
+ }catch(e){try{await reader.cancel()}catch{}throw e}
+ finally{try{reader.releaseLock()}catch{}}
+ const joined=new Uint8Array(bytes);let offset=0;
+ for(const part of parts){joined.set(part,offset);offset+=part.byteLength}
+ try{
+  const parsed=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(joined));
+  if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw Error('Non-object');
+  return parsed;
+ }catch{throw err('Draft JSON object required.',400)}
+}
 const code=x=>String(x||'').toUpperCase().trim();
 export async function onRequest({request,env}){try{const actor=await owner(env,request);
  if(request.method==='GET'){
@@ -18,7 +42,7 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
   return send({ok:true,projects:rows,publishingEnabled:false});
  }
  if(request.method!=='POST')return send({ok:false,error:'Method not allowed.'},405);
- const b=await request.json().catch(()=>null);if(!b||JSON.stringify(b).length>50000)throw err('Invalid project payload.');
+ const b=await boundedDraftInput(request);if(JSON.stringify(b).length>50000)throw err('Invalid project payload.');
  const action=b.action||'save',projectCode=code(b.projectCode),expected=Number(b.expectedRevision);
  if(!/^[A-Z][A-Z0-9_]{2,63}$/.test(projectCode)||!Number.isSafeInteger(expected)||expected<0)throw err('Invalid code or expected revision.');
  if(action==='restore'){
