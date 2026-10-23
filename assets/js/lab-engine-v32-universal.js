@@ -122,6 +122,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
  const special=synthetic[kind]||null;
  const subject=root.GroundUpLabEngineV32?.lessons?.[kind]||null;
  const topic=String(lab?.concept||item.title||labId);
+ const visualType=root.GroundUpLabV33Contextual?.select?.({lab,topic,competencies:codes})||'none';
  const authorizedTeaching=lab?.teaching&&typeof lab.teaching==='object'?lab.teaching:{};
  const ownHow=Array.isArray(authorizedTeaching.how)?authorizedTeaching.how.filter(s=>typeof s==='string'&&s.trim()).slice(0,20):[];
  const ownQuestions=Array.isArray(authorizedTeaching.questions)?authorizedTeaching.questions.filter(s=>typeof s==='string'&&s.trim()).slice(0,5):[];
@@ -166,6 +167,36 @@ async function mount({labId,mode,target,lab,focusId}={}){
   ]);
  }
  function stepList(steps){const ol=el('ol');for(const s of steps)ol.append(el('li',s));body.append(ol)}
+ function showVisual(step,variant='default'){
+  // The illustrated source is always synthetic. Actual verified market
+  // history comes only from the protected, separately reviewed visual feed.
+  if(visualType==='none')return;
+  const view=root.GroundUpLabV33Contextual?.create?.({type:visualType,stage:step,variant});
+  if(view)body.append(view);
+ }
+ function guidedHelp(){
+  detail(body,'Show a Guided Example — Free',special?special.steps:[
+   'Identify the exact observation, timeframe and source before drawing a conclusion.',
+   'Name the important price level or market fact and distinguish observation from inference.',
+   'Describe what would disprove the hypothesis: '+guide.invalidation,
+   'Use a different observation boundary and repeat the process without looking ahead.'
+  ]);
+  detail(body,'Try Another Example — Free',[
+   'Choose a new observation or an independently configured fictional example.',
+   'Identify two observable facts, one plausible alternative interpretation, and the invalidation condition.',
+   'Explain whether the new evidence supports, weakens or leaves the original conclusion uncertain.',
+   'This is ungraded instructional practice; it does not consume a Question Pass.'
+  ]);
+ }
+ function mistakeHelp(){
+  detail(body,'Explain My Mistake — Free',[
+   'Common misconception: '+(subject?.error||guide.commonError),
+   'Recheck the data, label and units instead of selecting an answer based on the final outcome.',
+   'Correct procedure: '+(ownHow.length?ownHow.join(' Then '):guide.procedure),
+   'Limitation: '+(subject?.limit||guide.limit),
+   'Apply this correction to a new example rather than memorizing the answer.'
+  ]);
+ }
  function answerStatus(label,good){
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
@@ -222,7 +253,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
      'Find a competing interpretation or invalidating observation: '+guide.invalidation,
      'State the limitation: '+guide.limit]);
    }
-   freeExplanation();
+   showVisual(1);freeExplanation();guidedHelp();
    detail(body,'Teach This in More Depth — Always Free',[
     'Understand the objective: '+guide.concept,
     'Recognize the evidence: '+guide.procedure,
@@ -255,9 +286,12 @@ async function mount({labId,mode,target,lab,focusId}={}){
    };range.addEventListener('input',paint);paint();
     appendParagraph(body,'This is hypothetical experimentation, not actual historical market evidence.');
    }
+   if(!special)showVisual(2);
+   else if(kind==='vwap')showVisual(2);
    const input=field(body,'Record what changed and why (optional)',observations);
    body.append(button('Record my observation',()=>{observations=input.value.trim();mark(observations?'Observation retained within this page.':'Add an observation if helpful.')}));freeExplanation();
   }else if(stage===3){
+   showVisual(3);
    appendParagraph(body,'Predict or describe the next relevant observation before seeing any subsequent market evidence. State what would invalidate your interpretation.');
    const t=field(body,'Your prediction, evidence, and invalidation',prediction);
    t.disabled=predictionLocked;
@@ -268,6 +302,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    }));
    if(mode==='guided'||mode==='practice')freeExplanation();
   }else if(stage===4){
+   showVisual(4,'practice');
    appendParagraph(body,special?special.description:(ownQuestions[0]||guide.selfCheck));
    if(special){
     const input=field(body,'My calculation ('+special.units+')',practice,'input');
@@ -290,7 +325,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
       if(validNumber(practice,special.answer)){practiceResolved=true;render()}
       else{practiceCount++;render();mark(mathDiagnostic(kind,practice))}
      }));
-     if(practiceCount>0)answerStatus('Incorrect attempts: '+practiceCount+'. '+mathDiagnostic(kind,practice),false);
+     if(practiceCount>0){answerStatus('Incorrect attempts: '+practiceCount+'. '+mathDiagnostic(kind,practice),false);mistakeHelp()}
     }else{
      answerStatus('Calculation completed · '+(practiceAssisted||practiceCount>0?'Assisted or corrected learning':'Unassisted practice')+'. This is not a private graded assessment.',true);
      stepList(special.steps);
@@ -304,14 +339,14 @@ async function mount({labId,mode,target,lab,focusId}={}){
      practiceResolved=true;render();
     }));
     else answerStatus('Practice recorded for self-study. Reviewed grading is separate.',true);
-    freeExplanation();
-    detail(body,'Misconception diagnosis — free',[guide.commonError,guide.procedure,guide.limit]);
+    freeExplanation();guidedHelp();mistakeHelp();
    }
   }else if(stage===5){
    appendParagraph(body,'Official assessment uses only the existing authenticated, server-graded question bank after editorial acceptance. Answer keys are never embedded in this study aid.');
    appendParagraph(body,'An unreviewed Lab or missing rubric must remain Not Yet Assessed, regardless of study-step completion.');
    body.append(button('Open protected decision and assessment',()=>{const work=document.getElementById('gu-ws-member-workbench');if(work)work.open=true;document.getElementById(focusId||'ev-decision')?.focus();}));
   }else if(stage===6){
+   showVisual(6);
    appendParagraph(body,'Your learning review should explain what the result means, its limitations and at least one common wrong interpretation.');
    appendParagraph(body,'Concept: '+(authorizedTeaching.what||guide.concept));
    appendParagraph(body,'Reasoning: '+(authorizedTeaching.why||subject?.why||guide.procedure));
@@ -319,12 +354,14 @@ async function mount({labId,mode,target,lab,focusId}={}){
    appendParagraph(body,'Common mistake: '+guide.commonError);
    appendParagraph(body,'Limitations: '+(subject?.limit||guide.limit));
    if(special)stepList(special.steps);
+   mistakeHelp();
    const f=field(body,'Reflect: what did you misunderstand or learn?',reflection);
    if(!selfReview)body.append(button('Record review and continue',()=>{
     reflection=f.value.trim();if(reflection.length<15){mark('Write at least 15 characters to explain what you learned.');return}
     selfReview=true;render();
    }));else answerStatus('Review recorded locally. It is not a competency grade.',true);
   }else if(stage===7){
+   showVisual(7,'transfer');
    appendParagraph(body,'Apply the concept to an unfamiliar case. A study solution here never awards mastery or replaces the existing private assessment.');
    if(kind==='vwap'){
     appendParagraph(body,'For chronological candles, use the authenticated, rights-reviewed replay service. This page does not preload future bars or turn synthetic samples into historical evidence.');
