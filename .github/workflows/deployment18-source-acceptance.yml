@@ -48,6 +48,7 @@ jobs:
           node tests/test_v014157_support_security.mjs
           node tests/test_v014157_support_reopen_ui.mjs
           node tests/test_v014157_gws_owner_drafts.mjs
+          node tests/test_v014157_legacy_forum_atomic.mjs
           node tests/test_v014157_public_seo.mjs
           node tests/test_v014157_sitewide_skip_navigation.mjs
           node scripts/deployment17_source_security_readiness.mjs
