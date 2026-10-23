@@ -75,7 +75,9 @@ const synthetic=Object.freeze({
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
 async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
- const token={labId,mode};sessions.set(target,token);
+ const previousSession=sessions.get(target);
+ previousSession?.dispose?.();
+ const token={labId,mode,dispose:()=>{}};sessions.set(target,token);
  if(['blind','assessment'].includes(mode)){
   paintPrototypeProgress(mode==='blind'?3:5,0);
   // The browser must not preload private answers or hidden instructional cues.
@@ -140,6 +142,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null;
+ token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
  const narratedStages=new Set();
  function mark(message){status.textContent=message}
  function showJourney(){
