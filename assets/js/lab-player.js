@@ -248,6 +248,13 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
    if(modeTrigger.disabled)return;
    modeMenu.hidden=!modeMenu.hidden;
    modeTrigger.setAttribute('aria-expanded',String(!modeMenu.hidden));
+   if(!modeMenu.hidden)modeMenu.querySelector('[data-member-mode]')?.focus();
+  });
+  modeMenu?.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){
+    event.preventDefault();modeMenu.hidden=true;
+    modeTrigger?.setAttribute('aria-expanded','false');modeTrigger?.focus();
+   }
   });
   q('player-mode-close')?.addEventListener('click',()=>{
    modeMenu.hidden=true;modeTrigger?.setAttribute('aria-expanded','false');modeTrigger?.focus();
