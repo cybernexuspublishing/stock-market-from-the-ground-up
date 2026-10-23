@@ -33,4 +33,10 @@ assert.equal(manifest.liveStripeFulfillmentEnabled,false,
  'Source version changes cannot activate paid fulfillment without separate evidence');
 assert.equal(manifest.deployment10?.sourceVersion,'v0.14.0.150',
  'Historical Deployment 10 source provenance is immutable');
+const shadow=read('assets/js/admin-stripe-shadow-v01439.js');
+const query='014'+current.split('.').at(-1).padStart(3,'0');
+assert(read('admin.html').includes('admin-stripe-shadow-v01439.js?v='+query),
+ 'Stripe Admin bundle cache key must track release version');
+assert(shadow.includes("window.SITE_CONFIG?.VERSION||'unverified'"),
+ 'Stripe Admin script cannot silently claim a stale deployment version');
 console.log('PASS D15+: version '+current+' consistent across public metadata; paid launch locked');

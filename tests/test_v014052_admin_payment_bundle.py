@@ -27,8 +27,8 @@ assert "const audit=element('button','Audit Checkout — No Payment')" in js
 assert "audit.addEventListener('click',auditCheckout)" in js
 assert "unified.addEventListener('click',runCompletePaymentReview)" in js
 assert "preflight.addEventListener('click',runPreflight)" in js
-assert ("Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'" + version + "')" in js or f"Payment testing interface v{version}" in js), "Visible UI deploy signature must use the current release version"
-assert (f"version:'{version}'" in js or ("version:window.SITE_CONFIG?.VERSION||'" + version + "'") in js), "Stripe UI must report the current deployment version"
+assert "Payment testing interface v'+(window.SITE_CONFIG?.VERSION||'unverified')" in js, "Visible UI version must come from SITE_CONFIG or say unverified, never claim an old release"
+assert "version:window.SITE_CONFIG?.VERSION||'unverified'" in js, "Stripe UI cannot fall back to an obsolete release identifier"
 assert 'groundup-v'+''.join(version.split('.'))+'-public' in sw
 assert release["customerCheckoutApproved"] is False
 assert release["liveStripeFulfillmentEnabled"] is False
