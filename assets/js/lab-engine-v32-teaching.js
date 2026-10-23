@@ -35,7 +35,67 @@ function weightedAverage(groups){
 }
 function mount({labId,mode,target}){
  if(!target||typeof target.replaceChildren!=='function')return false;
- const kind=TYPES[labId];if(!kind||!['guided','practice'].includes(mode)){target.replaceChildren();return false}
+
+ const kind=TYPES[labId];
+ if(!['guided','practice'].includes(mode)){target.replaceChildren();return false}
+ if(!kind){
+  const code=root.GroundUpV32Curriculum?.topics?.[labId];
+  if(!code){target.replaceChildren();return false}
+  const token=document.createElement('section');token.className='card gu-v32';token.setAttribute('aria-label','Lab Engine v3.2 original competency instruction');
+  token.textContent='Loading approved learning-topic reference…';target.replaceChildren(token);
+  const run=async()=>{
+   const result=await fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'});
+   if(!result.ok)throw Error('Study guides unavailable');
+   const json=await result.json(),guide=(Array.isArray(json.guides)?json.guides:[]).find(x=>x.code===code);
+   if(!guide)throw Error('No approved topic mapping');
+   if(token.parentNode!==target)return;
+   const title=document.createElement('h2');title.textContent='Lab Engine v3.2 · '+guide.title;
+   const intro=document.createElement('p');intro.textContent='Original companion topic practice; ungraded, and not a substitute for historical charts or independently reviewed Lab instruction.';
+   const status=document.createElement('p');status.setAttribute('role','status');
+   const body=document.createElement('section');const nav=document.createElement('div');nav.className='actions';
+   const before=document.createElement('button'),after=document.createElement('button');before.type=after.type='button';before.className='btn secondary';after.className='btn';
+   before.textContent='Previous';after.textContent='Next teaching step';nav.append(before,after);
+   token.replaceChildren(title,intro,status,body,nav);
+   const stages=['Learn','Experiment','Predict','Practice','Transfer'];let stage=0,prediction='';
+   const line=(name,value)=>{const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=name+' ';p.append(strong,document.createTextNode(value));body.append(p)};
+   const button=(label,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn secondary';b.textContent=label;b.addEventListener('click',fn);return b};
+   const render=()=>{
+    body.replaceChildren();status.textContent='';
+    const heading=document.createElement('h3');heading.textContent=stages[stage]+' · '+(stage+1)+' of 5';body.append(heading);
+    if(stage===0){
+     line('What it is:',guide.concept);line('Why and how:',guide.procedure);
+     const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Teach this in more depth (free)';
+     details.append(summary);body.append(details);
+     for(const [n,k] of [['How to recognize it:',guide.procedure],['Common mistake:',guide.commonError],['What would change your read:',guide.invalidation],['Limitations:',guide.limit]]){const p=document.createElement('p');p.textContent=n+' '+k;details.append(p)}
+    }else if(stage===1){
+     line('Explore a different observation:',guide.procedure);
+     line('Record only what is visible:',guide.concept);
+     line('Challenge the interpretation:',guide.invalidation);
+     body.append(button('Explain the concept (free)',()=>{status.textContent=guide.reviewExplanation}));
+    }else if(stage===2){
+     line('Independent prediction:',guide.selfCheck);
+     const input=document.createElement('textarea');input.rows=4;input.maxLength=2000;input.value=prediction;
+     const label=document.createElement('label');label.textContent='My evidence and prediction';label.append(input);body.append(label);
+     body.append(button('Lock ungraded prediction',()=>{if(input.value.trim().length<10){status.textContent='Provide at least ten characters of reasoning.';return}prediction=input.value.trim();input.disabled=true;status.textContent='Locally recorded practice reasoning. No grade or points awarded.'}));
+    }else if(stage===3){
+     line('Worked reasoning sequence:',guide.procedure);
+     body.append(button('Reveal deeper worked study guidance',()=>{status.textContent='Study Only: '+guide.reviewExplanation+' '+guide.limit}));
+     line('Check for this common error:',guide.commonError);
+    }else{
+     line('Apply to another independent example:',guide.selfCheck);
+     line('Recheck invalidation:',guide.invalidation);
+     body.append(button('Return to authenticated Lab decision',()=>document.getElementById('ev-decision')?.focus()));
+    }
+    before.disabled=stage===0;after.disabled=stage===4;
+   };
+   before.addEventListener('click',()=>{if(stage){stage--;render()}});
+   after.addEventListener('click',()=>{if(stage===2&&!prediction){status.textContent='Lock your prediction before continuing.';return}if(stage<4){stage++;render()}});
+   render();
+  };
+  run().catch(()=>{if(token.parentNode===target){token.replaceChildren();const p=document.createElement('p');p.textContent='The study guide could not load. Continue with the authenticated Lab; do not use this study widget as a grade.';token.append(p)}});
+  return true;
+ }
+
  const m=lessons[kind],box=document.createElement('section');box.className='card gu-v32';box.setAttribute('aria-label','Lab Engine v3.2 reference teaching');
  const title=document.createElement('h2');title.textContent='Lab Engine v3.2 · '+m.name;box.append(title);
  const scope=document.createElement('p');scope.textContent='Fictional, ungraded teaching example. Official assessment, member access, real chart provenance and replay remain server controlled.';box.append(scope);
