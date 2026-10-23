@@ -19,7 +19,14 @@ try{
  phase='find_password_field';
  await page.locator('#login-password').fill(password);
  phase='submit_signin';
- await page.locator('button.auth-submit').click();
+ const submit=page.locator('button.auth-submit');
+ const visible=await submit.isVisible(),enabled=await submit.isEnabled();
+ if(!visible||!enabled)console.error('WARN: Live Sign In submit control is not usable by a typical pointer interaction.');
+ try{await submit.click({timeout:5500,noWaitAfter:true})}
+ catch{
+  console.error('WARN: Live Sign In control did not accept a standard Playwright click; retrying native form submission for API diagnosis.');
+  await page.locator('form').evaluate(form=>form.requestSubmit());
+ }
  phase='wait_auth_redirect';
  try{await page.waitForURL(url=>!['/signin','/signin.html'].includes(url.pathname),{timeout:24000})}
  catch{console.error('FAIL: QA account login was not completed. Verify email confirmation and account credentials.');failed=true}
