@@ -16,6 +16,35 @@
  }
 })();
 </script>
+<script>
+/* Inline Learning System view retains the parent's canonical website header;
+   all lesson authorization and assessment APIs remain the same. */
+(function(){
+ const embedded=new URLSearchParams(location.search).get('embedded')==='1'&&window.parent!==window;
+ if(!embedded)return;
+ document.documentElement.classList.add('gu-lab-embedded');
+ document.addEventListener('click',event=>{
+  const a=event.target.closest?.('a[href]');
+  if(!a||a.target==='_blank'||event.defaultPrevented)return;
+  const href=new URL(a.href,location.href);
+  if(href.origin!==location.origin)return;
+  if(/^\/labs(?:\.html)?\/?$/.test(href.pathname)){
+   event.preventDefault();
+   window.parent.postMessage({type:'groundup:close-inline-lab'},location.origin);
+  }else if(!/^\/lab-player(?:\.html)?\/?$/.test(href.pathname)){
+   // Leave the inline lesson for commerce, sign-in, help or another tool
+   // rather than silently opening an unrelated website inside the Lab pane.
+   event.preventDefault();
+   window.top.location.assign(href.href);
+  }
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&!event.defaultPrevented){
+   window.parent.postMessage({type:'groundup:close-inline-lab'},location.origin);
+  }
+ });
+})();
+</script>
 <title>Interactive Learning Center | The Stock Market: From the Ground Up</title>
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/lab-v32-prototype-exact.css">
