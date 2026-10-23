@@ -2,8 +2,8 @@
  * Completely offline. Never requires a member login or discloses production rubrics. */
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-const base=(process.env.SITEWIDE_TEST_BASE||'http://127.0.0.1:8765').replace(/\\/$/,'');
-if(!/^http:\\/\\/127\\.0\\.0\\.1:\\d+$/.test(base))throw Error('Only localhost QA fixture is supported');
+const base=(process.env.SITEWIDE_TEST_BASE||'http://127.0.0.1:8765').replace(/\/$/,'');
+if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Only localhost QA fixture is supported');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
  for(const width of [390,1280]){
@@ -17,7 +17,7 @@ try{
   assert.equal(await page.getByText('Loading Lab…').count(),0,'Never leave a stalled loading placeholder');
   assert.equal(await page.locator('.stage-item').count(),9,'Exactly nine learning stages');
   assert.equal(await page.locator('.shell').count(),1,'Owner-original shell must render');
-  assert.match(await page.locator('.banner').evaluate(el=>getComputedStyle(el).backgroundColor),/rgb\\(13, 32, 51\\)/,'Original banner styling must load');
+  assert.match(await page.locator('.banner').evaluate(el=>getComputedStyle(el).backgroundColor),/rgb\(13, 32, 51\)/,'Original banner styling must load');
   await page.locator('[data-action="next"]').click();
   await page.getByRole('heading',{name:/Learn — OHLC/}).waitFor();
   await page.locator('input[name="introAnswer"][value="range"]').check();
