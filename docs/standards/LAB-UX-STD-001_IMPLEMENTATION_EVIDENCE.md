@@ -52,7 +52,7 @@ Detailed suggested visual map: \`docs/qa/LAB-UX-STD-001_419_Lab_Visual_Audit.jso
 
 ## Source-level runtime evidence
 
-Using a simulated DOM and local curriculum fetch responses, all **419/419** canonical IDs mounted a guided Learning v3.3 journey and advanced to Learn without a JavaScript exception (the initial runtime smoke preceded the 94-record chapter-classification refinement). **223** of the canonical Labs are classified as requiring a subject-relevant fictional or conceptual visual using the original author registry where available; remaining subjects received narrative/competency instruction and require human review of visual applicability.
+Using a simulated DOM and local curriculum fetch responses, all **419/419** canonical IDs mounted a guided Learning v3.3 journey and advanced to Learn without a JavaScript exception after the 94-record chapter-context refinement. Of those, **223/419** Learn stages rendered a relevant fictional/chart/conceptual visual and **196/419** remain unclassified pending individual visual applicability review. **223** of the canonical Labs are classified as requiring a subject-relevant fictional or conceptual visual using the original author registry where available; remaining subjects received narrative/competency instruction and require human review of visual applicability.
 
 This is not equivalent to executing the website in a signed-in browser or approving the content of each Lab.
 
