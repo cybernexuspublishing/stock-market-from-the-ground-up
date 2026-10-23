@@ -16,6 +16,9 @@ const guides=parse('data/competency-study-guides-v01499.json');
 const evidence=parse('artifacts/curriculum-acceptance-v014150.json');
 const commerce=parse('data/commerce-config.json');
 const decisions=parse('docs/curriculum-acceptance-decisions-v014150.json');
+const d17=parse('artifacts/d17-source-security-readiness.json');
+requireTruth(d17.schema==='gu-d17-no-provider-source-gates-v1'&&d17.sourceBlockerCount===0,
+ 'Deployment 17 high-risk source boundary checks must pass before writing acceptance evidence');
 const official=['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY',
  'INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'];
 requireTruth(/^0\.14\.0\.\d+$/.test(manifest.version),'manifest version must be valid');
@@ -35,6 +38,7 @@ const acceptedDays=evidence.bootcamp.filter(x=>x.accepted).length;
 requireTruth(acceptedLabs===evidence.acceptedLabs&&acceptedDays===evidence.acceptedDays,'ledger summary must reconcile');
 const requiredFiles=[
  'admin.html','admin-unified-preview.html',
+ 'functions/api/support.js','scripts/deployment17_source_security_readiness.mjs',
  'assets/js/admin-unified-core-v014156.mjs','assets/js/admin-unified-preview-v014156.mjs',
  'functions/api/stripe-live-checkout.js','functions/api/stripe-live-webhook.js',
  'docs/v0.14.0.155_DEPLOYMENT_15_INDEPENDENT_ACCEPTANCE_AUDIT_20261022.md',
@@ -72,6 +76,7 @@ const output={
   statuses:sourceChecks
  },
  fileEvidence,
+ sourceSecurity:{deployment17Checks:d17.checks?.length||0,sourceBlockers:d17.sourceBlockers||[],productionTested:false},
  launchApproved:false,
  releaseReason:'Source inventory and recorded review fields do not establish real paid production or editorial acceptance.'
 };
