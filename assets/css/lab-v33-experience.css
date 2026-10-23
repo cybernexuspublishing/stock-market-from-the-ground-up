@@ -1,0 +1,32 @@
+/* LAB-UX-STD-001 — unified VWAP-inspired premium learning environment.
+ * Present only the current concept. Charts and coach share the primary area;
+ * independent work and optional detail controls remain below. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33{background:#111c28;border:1px solid #31526b;border-radius:13px;overflow:visible;padding:clamp(13px,1.8vw,22px);color:#eaf3fb}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>h2{font:700 clamp(1.1rem,2vw,1.45rem)/1.3 system-ui,sans-serif;margin:2px 0 13px;color:#f3f7fb}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-journey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 13px;margin:12px 0 20px;padding:12px 14px;background:#121e29;border:1px solid #304a5e;border-radius:10px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-journey li{min-width:0;font-size:.78rem;line-height:1.4}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(250px,1fr);align-items:start;gap:14px;margin:0 0 20px;min-width:0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-primary,body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-coach{min-width:0;max-width:100%}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero .gu-l33-graphic,body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero .gu-v33-exact-visual{margin:0;max-width:100%;height:auto;overflow:hidden}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-coach .gu-v33-instructor{margin:0!important;height:auto;max-width:100%;position:relative;top:auto}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-coach .gu-v33-tutor{margin-top:13px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v32-body>h3{font-size:1rem;color:#c7dbeb;margin:18px 0 12px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v32-body>p{line-height:1.6}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 details:not(.gu-v33-tutor){margin:10px 0;border:1px solid #34556d;border-radius:9px;background:#162c3c;padding:11px 13px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 details summary{cursor:pointer;font-weight:650}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .actions{position:relative;display:flex;justify-content:space-between;gap:11px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #2d4558}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .actions .btn{min-height:40px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-progress{margin:8px 0 10px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 :is(input,textarea,select){max-width:100%}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v32-body>.wallet[hidden]{display:none}
+@media(max-width:980px){
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero{grid-template-columns:minmax(0,1fr)}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-coach{width:100%}
+}
+@media(max-width:620px){
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-journey{gap:7px 5px;padding:10px 8px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-journey li{font-size:.7rem}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33{padding:10px 9px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero{gap:11px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .actions .btn{flex:1 1 130px}
+}
