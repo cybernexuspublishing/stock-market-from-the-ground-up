@@ -52,6 +52,9 @@ const acceptedDays=evidence.bootcamp.filter(x=>x.accepted).length;
 requireTruth(acceptedLabs===evidence.acceptedLabs&&acceptedDays===evidence.acceptedDays,'ledger summary must reconcile');
 const requiredFiles=[
  'admin.html','admin-unified-preview.html',
+ 'lab-player.html','labs.html','bootcamp.html','site-lab.html',
+ 'assets/js/lab-engine-v32-universal.js','functions/api/lab-player-context.js',
+ 'tests/test_v014162_419_universal.mjs','tests/test_v014162_lab_player_context.mjs',
  'functions/api/support.js','scripts/deployment17_source_security_readiness.mjs',
  'assets/js/admin-unified-core-v014156.mjs','assets/js/admin-unified-preview-v014156.mjs',
  'functions/api/stripe-live-checkout.js','functions/api/stripe-live-webhook.js',
