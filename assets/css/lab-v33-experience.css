@@ -42,3 +42,12 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop button{padding:10px 13
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop button:disabled{opacity:.55;cursor:default}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop-feedback{padding:11px 13px;background:#143d37;border:1px solid #307b6b;border-radius:9px;margin:12px 0}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop-status{color:#c8e2f0;font-size:.85rem}
+
+/* Skill Development is evidence-based; no fictional percentages. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-summary{margin:20px 0;background:#102637;border:1px solid #325a72;border-radius:12px;padding:17px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-summary h3{margin:0 0 14px;font-size:1.13rem;color:#e8f4fa}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:14px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric{padding:12px;border:1px solid #34546a;background:#192f42;border-radius:9px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric strong{font-size:.91rem}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric span{font-size:.75rem;color:#bfd4e2}
+@media(max-width:650px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-grid{grid-template-columns:1fr}}
