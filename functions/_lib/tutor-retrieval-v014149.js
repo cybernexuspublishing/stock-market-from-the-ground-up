@@ -29,7 +29,7 @@ function normalize(value){
   const p=phrase.replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').trim();
   // Expand *every* occurrence. A repeated student phrase must not leave
   // stray words that distort source relevance and cited-topic selection.
-  s=(' '+s+' ').split(' '+p+' ').join(' '+short+' ').trim();
+  s=s.replace(new RegExp('(^| )'+p+'(?= |$)','g'),(_match,leading)=>leading+short);
  }
  return s;
 }
