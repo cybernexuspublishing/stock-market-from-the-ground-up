@@ -16,6 +16,7 @@ const visual=read('assets/js/lab-engine-v33-visual.js');
 const replay=read('assets/js/lab-v32-synthetic-replay.js');
 const hash=createHash('sha256').update(css).digest('hex');
 assert.equal(hash,'950c1338e81dbba2917dd6e5a05342374973bfe08031ffe1b32e6d241a0620fd','Owner prototype CSS must be byte-for-byte unchanged');
+assert.equal(createHash('sha256').update(prototype).digest('hex'),'b457eaf597d7a7c2dd90d72d2218214c3cab1ae9609f4081a523e9e3a1b367cf','Owner reference JavaScript must be byte-for-byte unchanged');
 assert.match(prototype,/function candleChart\(b\)/);
 assert.match(prototype,/function replayChart\(\)/);
 assert.match(prototype,/function wallet\(\)/);
