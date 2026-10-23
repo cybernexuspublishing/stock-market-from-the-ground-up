@@ -1,0 +1,23 @@
+/* Approved v3.2 adapter: no graded answer, access bypass or future bars. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+const src=readFileSync('assets/js/lab-engine-v32-teaching.js','utf8'),page=readFileSync('lab-player.html','utf8'),player=readFileSync('assets/js/lab-player.js','utf8');
+assert(page.indexOf('lab-engine-v32-teaching.js')<page.indexOf('lab-player.js'));
+assert(player.includes('window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:'));
+assert(player.includes('if(!allowed)'),'Existing book/member authorization retained');
+assert(player.includes('window.GroundUpInteractiveTraining?.begin'),'Existing server grading retained');
+for(const token of ['assessmentRetries','sessions:{','REFERENCE-CANDLE','REFERENCE-VWAP','SUPABASE_SECRET_KEY','stripePrice','answer:2600/300'])assert(!src.includes(token),'Private answer/security field exposed: '+token);
+const ctx={globalThis:null};ctx.globalThis=ctx;runInNewContext(src,ctx);
+const v=ctx.GroundUpLabEngineV32;
+assert.equal(v.version,'3.2.0');
+assert.deepEqual(Array.from(v.referenceLabIds),['F2-C07-L01','F2-C07-L02','F3-C06-L01']);
+const candle=v.candleMetrics(31,32.5,30.5,32);assert.equal(candle.body,1);assert.equal(candle.range,2);assert.equal(candle.pct,50);
+const a=v.weightedAverage([{price:8,volume:200},{price:10,volume:100}]);assert.equal(a.dollars,2600);assert.equal(a.shares,300);assert(Math.abs(a.price-2600/300)<.000001);
+assert.throws(()=>v.candleMetrics(3,2,1,4),/Invalid OHLC/);
+assert.throws(()=>v.weightedAverage([{price:9,volume:0}]),/Invalid price/);
+const fake={cleared:false,replaceChildren(){this.cleared=true}};
+assert.equal(v.mount({labId:'F2-C07-L01',mode:'blind',target:fake}),false);assert(fake.cleared);
+assert.equal(v.mount({labId:'F3-C06-L01',mode:'assessment',target:fake}),false);
+assert.equal(v.mount({labId:'NON-CANONICAL',mode:'guided',target:fake}),false);
+console.log('PASS v3.2 safe reference teaching, three canonical mappings, private rubric boundary and mode suppression');

@@ -17,7 +17,7 @@ const tests={
   'tests/test_v014159_tutor_verified_followups.mjs',
   'tests/test_v014147_tutor_boundary.mjs'],
  d10:['tests/test_v014150_market_data_integrity.mjs','tests/test_v014146_market_analysis.mjs','tests/test_v014150_market_bar_import.mjs'],
- d11:['tests/test_v014151_foundations_content_gate.mjs','tests/test_v014151_lab_visual_layout.mjs'],
+ d11:['tests/test_v014151_foundations_content_gate.mjs','tests/test_v014151_lab_visual_layout.mjs','tests/test_v014161_lab_engine_v32_teaching.mjs'],
  d12:['tests/test_v014152_other325_evidence.mjs'],
  d13:['tests/test_v014153_paged_member_grade_history.mjs','tests/test_v014153_training_stale_mode.mjs'],
  d14:['tests/test_v014154_bootcamp_formative.mjs','tests/test_v014154_bootcamp_day05_visual.mjs'],
