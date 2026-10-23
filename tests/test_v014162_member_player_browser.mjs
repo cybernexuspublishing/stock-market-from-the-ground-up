@@ -30,6 +30,16 @@ try{
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
   await page.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
+  const siteHeader=page.locator('body.gu-lab-member > header.site-header');
+  assert.equal(await siteHeader.count(),1,'Lab must retain one canonical website header');
+  assert.equal(await siteHeader.locator('.brand').getAttribute('href'),'index.html','Site logo must navigate home');
+  assert.equal(await siteHeader.locator('.navlinks a[href="market-commons.html"]').count(),1,'Market Commons remains in site navigation');
+  assert.equal(await siteHeader.locator('.navlinks a[href="store.html"]').count(),1,'Store remains in site navigation');
+  assert.equal(await page.locator('nav.gu-lab-breadcrumb a[href="labs.html"]').count(),1,'Learner can return to the Lab Registry');
+  assert.equal(await page.locator('#app .stage-item').count(),9,'Main website header must not replace learning stages');
+  const headerBox=await siteHeader.boundingBox(),workstationBox=await page.locator('#app .shell').boundingBox();
+  assert(headerBox&&workstationBox&&workstationBox.y>=headerBox.y+headerBox.height-2,'Lab workstation must remain below the site header');
+  if(width>=901)assert.equal(await siteHeader.locator('.navlinks').isVisible(),true,'Desktop site navigation is always visible in a Lab');
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.ok(!requests.includes('private,registry,registry'),'Authorization is not retried after explicit denial');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
