@@ -21,7 +21,7 @@ try{
  for(const width of [390,1280]){
   const page=await browser.newPage({viewport:{width,height:1360},serviceWorkers:'block'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base+'/lab-player.html?lab=F2-C07-L01',{waitUntil:'load',timeout:25000});
+  await page.goto(base+'/lab-player.html?lab=F2-C07-L01&demo=1',{waitUntil:'load',timeout:25000});
   assert(new URL(page.url()).pathname.endsWith('/lab-v32-member.html'),'Candlestick must render full v3.2 UI, not generic engine');
   assert.equal(await page.locator('h1').innerText(),'Build and Understand a Candlestick');
   assert.equal(await page.locator('.stage-item').count(),9);
@@ -37,7 +37,7 @@ try{
   for(const [key,value] of [['tDirection','Bearish'],['tBody','0.3'],['tRange','0.8'],['tPercent','37.5']])await input(page,key,value);
   await action(page,'lockTransfer');await action(page,'next');await assertStage(page,'Report');
   assert.deepEqual(errors,[],'Candlestick JavaScript errors');
-  await page.goto(base+'/lab-player.html?lab=F3-C06-L01',{waitUntil:'load',timeout:25000});
+  await page.goto(base+'/lab-player.html?lab=F3-C06-L01&demo=1',{waitUntil:'load',timeout:25000});
   assert(new URL(page.url()).pathname.endsWith('/lab-v32-member.html'),'VWAP must render full v3.2 UI, not generic engine');
   assert.equal(await page.locator('h1').innerText(),'Understand VWAP and Replay the Market');
   await action(page,'next');await input(page,'introAnswer','sum');await action(page,'introCheck');
