@@ -22,7 +22,7 @@ const tests={
  d13:['tests/test_v014153_paged_member_grade_history.mjs','tests/test_v014153_training_stale_mode.mjs'],
  d14:['tests/test_v014154_bootcamp_formative.mjs','tests/test_v014154_bootcamp_day05_visual.mjs'],
  d15:['tests/test_v014155_release_metadata.mjs','tests/test_v014155_live_checkout_body_limits.mjs','tests/test_v014155_webhook_body_limits.mjs','tests/test_v014155_portal_and_entitlement_boundaries.mjs'],
- d16:['tests/test_v014156_admin_shell.mjs','tests/test_v014156_admin_service_key_compatibility.mjs'],
+ d16:['tests/test_v014156_admin_shell.mjs','tests/test_v014156_admin_service_key_compatibility.mjs','tests/test_v014156_admin_stage_b_members_audit.mjs'],
  d17:['tests/v0144_route_contracts.mjs'],
  d18:['scripts/deployment18_acceptance_matrix.mjs']
 };

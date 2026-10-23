@@ -1,4 +1,4 @@
-name: Deployment 16 Unified Admin Shell — Stage A
+name: Deployment 16 Unified Admin Shell — Stages A and B
 on:
   push:
     paths:
@@ -11,6 +11,7 @@ on:
       - 'assets/js/admin-unified-*.mjs'
       - 'assets/css/admin-unified-preview-v014156.css'
       - 'tests/test_v014156_admin_shell.mjs'
+      - 'tests/test_v014156_admin_stage_b_members_audit.mjs'
       - '.github/workflows/deployment16-admin-shell.yml'
   pull_request:
   workflow_dispatch:
@@ -29,11 +30,13 @@ jobs:
         run: |
           node --check assets/js/admin-unified-core-v014156.mjs
           node --check assets/js/admin-unified-preview-v014156.mjs
+          node --check assets/js/admin-unified-people-v014156.mjs
           node --check functions/api/admin.js
           node --check functions/api/admin-accounts-v01353.js
       - name: Verify Admin module registry, access boundaries and read-only preview
         run: |
           node tests/test_v014156_admin_shell.mjs
+          node tests/test_v014156_admin_stage_b_members_audit.mjs
           node tests/test_v014156_admin_service_key_compatibility.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs
