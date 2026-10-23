@@ -82,6 +82,32 @@ This is not equivalent to executing the website in a signed-in browser or approv
 
 **Added regression:** \`tests/test_lab_v33_instructor.mjs\`, included in GitHub Actions. The CI job result and live signed-in interaction remain unverified.
 
+## Owner-authorized unified redesign — source implementation addendum (2026-10-23)
+
+**Design inputs:** Approved VWAP reference experience; three uploaded Lab-environment concepts; LAB-UX-STD-001; user-directed learning/Tutor redesign; owner-provided research ZIP \`StocksToTrade-Browser-Research (5).zip\`.
+
+### Source implemented, subject to independent acceptance
+
+- \`assets/js/lab-v33-visual-interactions.js\`: consistent single-candle Full candle / Real body / Full range focus; accessible Price + indicators / Price + volume / Both controls; inspect **already displayed** completed fictional OHLCV rows with the associated time and volume. Never fetches replay or grading data.
+- \`assets/css/lab-v33-experience.css\` and \`assets/js/lab-engine-v32-universal.js\`: chart-first responsive visual/instructor teaching region; compact 3 × 3 Learning Journey; focused prompts beneath the chart; optional reference/credit notices collapsed; subject-specific Start objectives; four-dimension Skill Development statuses explicitly **Not Yet Assessed** absent reviewed evidence.
+- \`assets/js/lab-v33-decision-workshop.js\`: eight original *fictional, ungraded, editorial-review-pending* research decision exercises H-01–H-08, matched only when relevant. Learner analysis must be entered before local instructional feedback. Does not write official credit, assessment, competency, or trading records.
+- Instructional action buttons in **production** Lab/teaching components no longer advertise \`— Free\`, \`Always Free\`, or \`(free)\`; eligibility, price and server access rules remain unchanged. The **frozen non-production v3.2 reference** remains an archival fidelity baseline; it is not a production label source.
+- \`tests/test_v33_approved_learning_redesign.mjs\` and updated \`tests/test_lab_ux_std001_browser.mjs\`: source/no-look-ahead and contextual interaction regressions; included in \`.github/workflows/sitewide-playwright-v014136.yml\`.
+- The standard uses the established website header, in-Registry workspace, four learning modes, nine stages, existing Market Tutor API and 419-Lab/30-competency relationships. No client has gained access to official private rubrics, future bars, real transactions or AI entitlement overrides.
+
+### Remaining work — not represented as complete
+
+- Manual editorial review and substantive concept-specific depth for all 419 Lab subjects, including 196 topics still requiring visual applicability judgment. A shared renderer is **not** a replacement for individual reviewed lesson content.
+- Licensed and provenance-verified historical chart datasets and market replay acceptance per applicable Lab.
+- Browser-confirmed authenticated paid-member access, actual Tutor quota behavior, progress persistence, server-side grading and genuine historical no-look-ahead.
+- Accessibility and visual acceptance against the approved image references across mobile/desktop, including actual keyboard interactions.
+- Full sitewide text audit outside production learning controls, without modifying store “Free Membership” policy or the frozen nonproduction reference.
+- Production CI job confirmation. Source compilation and published assets alone do not establish a passing automated browser suite.
+
+### Research licensing and correctness boundary
+
+The original H-series decision cases are represented as **FICTIONAL STUDY EXERCISES** based on the user's research archive. Claims regarding external market events, historical prices, copyrighted charts, proprietary indicators, fills or win probabilities are not imported as verified facts. A separate editorial review is necessary before counting the exercises as reviewed graded curriculum.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
