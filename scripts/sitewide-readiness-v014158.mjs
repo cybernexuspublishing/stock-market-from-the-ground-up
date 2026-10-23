@@ -26,7 +26,9 @@ const accepted=(obj,required)=>required.every(k=>{
  return record?.status==='accepted'&&typeof record?.reviewer==='string'&&
   record.reviewer.trim().length>=3&&typeof record?.evidenceRef==='string'&&
   record.evidenceRef.trim().length>=8&&typeof record?.reviewedAt==='string'&&
-  !Number.isNaN(Date.parse(record.reviewedAt));
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(record.reviewedAt)&&
+  Number.isFinite(Date.parse(record.reviewedAt))&&
+  Date.parse(record.reviewedAt)<=Date.now()+300000;
 });
 const acceptedLabs=labs.filter(([id])=>accepted(decisions.labDecisions?.[id],fields)).map(([id])=>id);
 const days=formative.days.map(x=>x.day);
