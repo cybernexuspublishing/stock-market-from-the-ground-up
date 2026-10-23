@@ -27,7 +27,8 @@ const tests={
  d18:['scripts/deployment18_acceptance_matrix.mjs']
 };
 const prereqs={d18:['scripts/curriculum-acceptance-evidence.mjs']};
-const opts=process.argv.slice(2),scope=opts[opts.indexOf('--scope')+1]||'d09';
+const opts=process.argv.slice(2),at=opts.indexOf('--scope');
+const scope=at<0?'d09':opts[at+1];
 const acceptable=new Set([...Object.keys(tests),'all']);
 if(!acceptable.has(scope)){console.error('Choose --scope d09 ... d18, or --scope all');process.exit(2)}
 const scopes=scope==='all'?Object.keys(tests):[scope];
@@ -40,12 +41,9 @@ for(const name of scopes)for(const path of [...(prereqs[name]||[]),...tests[name
  }
  const result=spawnSync(process.execPath,[where],{cwd:root,encoding:'utf8',timeout:90000,
   maxBuffer:1024*1024,env:{...process.env,GU_SOURCE_ONLY_VERIFICATION:'true'}});
- const stdout=String(result.stdout||'').slice(-2000);
- const stderr=String(result.stderr||'').slice(-3000);
  entries.push({scope:name,path,status:result.status===0?'PASS':'FAIL',
   durationMs:Date.now()-start,exitCode:result.status,
-  timeoutOrExecutionError:result.error?String(result.error.message||'execution error'):null,
-  stdoutTail:stdout,stderrTail:stderr});
+  timeoutOrExecutionError:result.error?'execution_unavailable_or_timeout':null});
 }
 const failed=entries.filter(x=>x.status!=='PASS');
 const report={
@@ -71,5 +69,5 @@ mkdirSync(join(root,'artifacts'),{recursive:true});
 writeFileSync(destination,JSON.stringify(report,null,2)+'\n');
 console.log('SOURCE VERIFICATION '+scope+': '+report.passed+'/'+report.totalTests+
  ' PASS; '+report.failed+' FAIL. PRODUCTION NOT CERTIFIED.');
-for(const entry of failed)console.error(entry.scope,entry.path,entry.status,entry.stderrTail||entry.timeoutOrExecutionError||'');
+for(const entry of failed)console.error(entry.scope,entry.path,entry.status,entry.timeoutOrExecutionError||'inspect GitHub Actions step logs');
 if(failed.length)process.exitCode=1;

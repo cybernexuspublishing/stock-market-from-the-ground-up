@@ -42,6 +42,7 @@ jobs:
           node tests/test_v014149_tutor_data_delete.mjs
           node tests/test_v014149_tutor_browser_integrity.mjs
           node scripts/deployment09_release_evidence.mjs
+          node scripts/dev-program-source-verification.mjs --scope d09
           node --check assets/js/market-tutor.js
           node --check assets/js/admin-tutor-feedback-v014147.js
           node --check functions/api/market-tutor-v01492.js
@@ -70,3 +71,12 @@ jobs:
           test -f public/assets/js/admin-tutor-feedback-v014147.js
           test ! -d public/functions
           test ! -d public/supabase
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: GU-D09-Tutor-Source-Not-Production-${{ github.run_number }}
+          path: |
+            artifacts/dev-program-source-verification-d09.json
+            artifacts/d09-tutor-source-evidence.json
+          if-no-files-found: warn
+          retention-days: 30
