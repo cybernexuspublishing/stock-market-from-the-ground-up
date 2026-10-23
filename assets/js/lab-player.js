@@ -99,7 +99,22 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   const note=document.createElement('div');note.className='notice';
   note.textContent='This canonical Lab has member-authorized conceptual orientation, not independently approved historical teaching, licensed charts, or a reviewed assessment. No score or proficiency certification is implied.';
   q('player-access-note').replaceChildren(note);
- }else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess.SAMPLE_LABS.has(lab.id))q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';document.querySelectorAll('.mode-tabs button').forEach(b=>b.addEventListener('click',()=>{PLAYER.mode=b.dataset.mode;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer()}));renderPlayer()}catch(e){q('lab-player-gate').innerHTML=`<div class="notice">${pe(e.message)}</div>`}}
+ }else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess.SAMPLE_LABS.has(lab.id))q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';document.querySelectorAll('.mode-tabs button').forEach(b=>b.addEventListener('click',()=>{
+  const nextMode=b.dataset.mode;
+  if(nextMode===PLAYER.mode)return;
+  const raw=q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||'0';
+  const fraction=Number(raw);
+  if(PLAYER.locked||fraction>=1/3){
+   q('player-mode-description').textContent='Mode selection is locked once one-third of the instructional journey has begun or you have locked the Lab decision. Use Restart current mode to begin again; submitted server assessments are not deleted.';
+   return;
+  }
+  if(fraction>0&&!window.confirm('Switching modes will reset your unsaved on-page instruction. Server-submitted answers remain unchanged. Continue?'))return;
+  PLAYER.mode=nextMode;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
+ }));
+ q('player-restart-mode')?.addEventListener('click',()=>{
+  if(!window.confirm('Restart this on-page learning mode? Unsaved answers and study steps will be cleared. Any recorded server assessment remains intact.'))return;
+  PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
+ });renderPlayer()}catch(e){q('lab-player-gate').innerHTML=`<div class="notice">${pe(e.message)}</div>`}}
 window.addEventListener('v014-training-complete',event=>{
  if(event.detail?.labId!==PLAYER.lab?.id)return;
  const reveal=q('reveal-panel');if(reveal){reveal.hidden=false;PLAYER.revealIndex=PLAYER.lab.practiceSteps.length;renderGuidance()}

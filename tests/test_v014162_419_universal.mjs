@@ -42,5 +42,11 @@ assert(player.includes("response.status===404"),'Private book entitlement denial
 assert(player.includes('serverGuidedAllowed===true'),'Server must authorize guided access');
 assert(player.includes('serverAdvancedAllowed===true'),'Server must authorize advanced access');
 assert(html.includes('lab-engine-v32-universal.js'));
+assert(html.includes('player-restart-mode'));
+assert(player.includes('fraction>=1/3'),'Mode selection must lock after one-third of the journey');
+assert(player.includes('PLAYER.locked||fraction>=1/3'),'Locked decisions cannot switch modes without restart');
+assert(player.includes('Server-submitted answers remain unchanged'),'Source must explain reset scope');
+assert(readFileSync('assets/js/lab-engine-v32-teaching.js','utf8').includes('box.dataset.v32Progress=String(stage/5)'));
+assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('wrapper.dataset.v32Progress=String(step/STEPS.length)'));
 assert(!readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('lab_training_sets_v014'),'Private training keys must not be published');
 console.log('PASS shared Lab Engine v3.2 guided study across all '+success+' canonical IDs, exactly 30 competencies and secure mode gates');

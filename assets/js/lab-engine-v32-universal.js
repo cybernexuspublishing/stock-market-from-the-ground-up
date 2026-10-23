@@ -51,7 +51,7 @@
   function definition(label,value){const dl=el('dl');dl.append(el('dt',label),el('dd',value));return dl}
   function details(label,contents){const d=el('details');d.append(el('summary',label));for(const s of contents)d.append(el('p',s));return d}
   function render(){
-   body.replaceChildren();status.textContent='';
+   body.replaceChildren();status.textContent='';wrapper.dataset.v32Progress=String(step/STEPS.length);
    progress.textContent='Stage '+(step+1)+' of '+STEPS.length+': '+STEPS[step];body.append(el('h3',STEPS[step]));
    if(step===0){
     body.append(definition('Objective',lab?.goal||topic),definition('Official competency link',guide.title),

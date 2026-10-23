@@ -48,7 +48,7 @@ function mount({labId,mode,target}){
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n};
  function action(label,fn){const b=el('button',label);b.type='button';b.className='btn secondary';b.addEventListener('click',fn);return b}
  function show(){
-  body.replaceChildren();feedback.textContent='';progress.textContent='Reference teaching '+(stage+1)+' of '+stages.length+' — '+stages[stage];
+  body.replaceChildren();feedback.textContent='';box.dataset.v32Progress=String(stage/5);progress.textContent='Reference teaching '+(stage+1)+' of '+stages.length+' — '+stages[stage];
   body.append(el('h3',stages[stage]));
   if(stage===0){
    body.append(el('p',m.definition),el('p',m.why));
