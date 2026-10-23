@@ -61,6 +61,17 @@
   for(const x of d.relatedLabs){
    const li=el('li');const a=link('labs.html?q='+encodeURIComponent(x.id),x.id);li.append(a,document.createTextNode(' · '+x.bookCode.replaceAll('_',' ')+' · proposed, ungraded'));labs.append(li);
   }
+  // Mount separate original Day 05 teaching only after the existing
+  // authenticated curriculum/entitlement gate has succeeded.
+  const candleStage=q('gu-bc-day05-stage');
+  if(candleStage){
+   candleStage.replaceChildren();candleStage.hidden=selected!==5;
+   if(selected===5){
+    const lesson=globalThis.GroundUpBootcampDay05;
+    if(lesson?.mount)lesson.mount(candleStage);
+    else candleStage.textContent='Candlestick percentage practice is temporarily unavailable; no assessment completion is inferred.';
+   }
+  }
   q('gu-bc-note').value=progress.get(selected)?.reflection||'';
   q('gu-bc-save-status').textContent=!progressAvailable?'Private saving is unavailable until the existing Supabase project is verified. Your earlier records are not treated as zero.':progress.get(selected)?.status==='reflection_saved'?'A reflection is saved for this day. You may revise it; this is not a graded pass.':'No reflection is recorded for this day.';
   q('gu-bc-start').disabled=busy||!progressAvailable;
