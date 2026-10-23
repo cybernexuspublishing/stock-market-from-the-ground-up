@@ -1,0 +1,36 @@
+/* D17 deterministic SEO whitelist; fake fixtures only, no external traffic. */
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+const root=mkdtempSync(join(tmpdir(),'gu-d17-seo-'));
+const html=(body,head='')=>'<!doctype html><html><head><title>Example</title>'+head+'</head><body><main>'+body+'</main></body></html>';
+try{
+ writeFileSync(join(root,'index.html'),html('Public homepage'));
+ writeFileSync(join(root,'about.html'),html('Author biography'));
+ writeFileSync(join(root,'admin.html'),html('Private Admin'));
+ writeFileSync(join(root,'dashboard.html'),html('Private member dashboard'));
+ writeFileSync(join(root,'privacy.html'),html('Legal review pending','<meta name="robots" content="noindex,follow">'));
+ const run=(origin)=>spawnSync(process.execPath,['scripts/build-public-seo.mjs'],{
+  cwd:process.cwd(),encoding:'utf8',env:{...process.env,GU_SITE_BUILD_DIR:root,GU_PUBLIC_SITE_ORIGIN:origin}});
+ const origin='https://example.test';
+ const result=run(origin);
+ assert.equal(result.status,0,'Source SEO build failed: '+result.stderr);
+ const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
+ assert(sitemap.includes('<loc>'+origin+'/</loc>'));
+ assert(sitemap.includes('<loc>'+origin+'/about.html</loc>'));
+ assert(!sitemap.includes('/admin.html')&&!sitemap.includes('/dashboard.html')&&!sitemap.includes('/privacy.html'));
+ assert(readFileSync(join(root,'admin.html'),'utf8').includes('noindex,nofollow'));
+ assert(readFileSync(join(root,'dashboard.html'),'utf8').includes('noindex,nofollow'));
+ assert(readFileSync(join(root,'index.html'),'utf8').includes('<link rel="canonical" href="'+origin+'/">'));
+ assert(readFileSync(join(root,'robots.txt'),'utf8').includes('Sitemap: '+origin+'/sitemap.xml'));
+ assert(readFileSync(join(root,'privacy.html'),'utf8').includes('noindex,follow'));
+ assert.equal(run('http://not-secure.test').status,1,'Refuse insecure SEO origin');
+ assert.equal(run('https://example.test/other/path').status,1,'Refuse canonical path prefix');
+ const rerun=run(origin);
+ assert.equal(rerun.status,0,'Idempotent build must succeed');
+ assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/rel="canonical"/g)||[]).length,1,
+  'Rebuilding must not duplicate canonical elements');
+ console.log('PASS D17 source SEO canonical, sitemap whitelist, private route noindex, robots, invalid origin and rebuild');
+}finally{rmSync(root,{recursive:true,force:true})}
