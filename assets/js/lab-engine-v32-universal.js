@@ -302,7 +302,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    }));
    if(mode==='guided'||mode==='practice')freeExplanation();
   }else if(stage===4){
-   showVisual(4,'practice');
+   showVisual(4,special?'practice':'default');
    appendParagraph(body,special?special.description:(ownQuestions[0]||guide.selfCheck));
    if(special){
     const input=field(body,'My calculation ('+special.units+')',practice,'input');
@@ -363,7 +363,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
   }else if(stage===7){
    // A controlled replay owns its own chronological chart; avoid an
    // unrelated weighted-groups illustration above the replay question.
-   if(!(kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create))showVisual(7,'transfer');
+   if(!(kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create))showVisual(7,special?'transfer':'default');
    appendParagraph(body,'Apply the concept to an unfamiliar case. A study solution here never awards mastery or replaces the existing private assessment.');
    if(kind==='vwap'){
     appendParagraph(body,'For chronological candles, use the authenticated, rights-reviewed replay service. This page does not preload future bars or turn synthetic samples into historical evidence.');
