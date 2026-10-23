@@ -27,10 +27,10 @@ try {
   await page.locator('#v32-smoke button').filter({hasText:'Next teaching step'}).click();
   await page.getByRole('button',{name:'Show a worked teaching example'}).click();
   assert.match(await page.locator('#v32-smoke').innerText(),/Study Only/);
-  await page.evaluate(()=>window.GroundUpLabEngineV32.mount({labId:'F3-C06-L01',mode:'guided',target:document.getElementById('v32-smoke')));
+  await page.evaluate(()=>window.GroundUpLabEngineV32.mount({labId:'F3-C06-L01',mode:'guided',target:document.getElementById('v32-smoke')}));
   await page.locator('#v32-smoke button').filter({hasText:'Next teaching step'}).click();
   assert.match(await page.locator('#v32-smoke output').innerText(),/VWAP/);
-  await page.evaluate(()=>window.GroundUpLabEngineV32.mount({labId:'F3-C06-L01',mode:'blind',target:document.getElementById('v32-smoke')));
+  await page.evaluate(()=>window.GroundUpLabEngineV32.mount({labId:'F3-C06-L01',mode:'blind',target:document.getElementById('v32-smoke')}));
   assert.equal(await page.locator('#v32-smoke').innerText(),'');
   assert.deepEqual(errors,[]);
   console.log('PASS v3.2 conceptual teaching, prediction and blind suppression at '+width+'px');
