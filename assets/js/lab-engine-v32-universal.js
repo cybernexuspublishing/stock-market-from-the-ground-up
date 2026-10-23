@@ -427,6 +427,20 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     ['Independent competency mastery','Not Yet Assessed by this ungraded teaching journey']
    ];
    const dl=el('dl');for(const [k,v] of summary){dl.append(el('dt',k),el('dd',v))}body.append(dl);
+   const skillBox=el('section');skillBox.className='gu-v33-skill-summary';
+   skillBox.append(el('h3','Member Skill Development'));
+   const dimensions=el('div');dimensions.className='gu-v33-skill-grid';
+   for(const [key,label] of [['knowledge','Knowledge'],['recognition','Recognition'],
+      ['decision','Decision-making'],['process','Process']]){
+    const metric=el('div');metric.className='gu-v33-skill-metric';
+    metric.append(el('strong',label),el('span','Not Yet Assessed'));
+    metric.setAttribute('data-skill-dimension',key);
+    dimensions.append(metric);
+   }
+   skillBox.append(dimensions);
+   appendParagraph(skillBox,'These four dimensions use the existing 30-competency framework. This ungraded lesson does not invent mastery percentages. Reviewed assessments and your authorized Skill Development profile provide the official evidence.');
+   skillBox.append(button('View Skill Development',()=>{location.href='skills.html'}));
+   body.append(skillBox);
    appendParagraph(body,'Resume or save official member progress through the existing authenticated Lab controls; this self-study widget does not write server grades or credit entitlements.');
    body.append(button('Review related competency guide',()=>{location.href='skills.html#guide-'+encodeURIComponent(codes[0]||'')})); 
   }
