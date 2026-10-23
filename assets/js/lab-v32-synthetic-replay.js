@@ -69,6 +69,7 @@ return `<div class="chart-shell"><div class="chart-head"><strong>Controlled VWAP
  }
  target.addEventListener('change',e=>{
   const n=e.target.name,v=e.target.value;if(n==='classification')S.replayChoice=v;else if(n==='decision')S.replayDecision=v;else if(n==='forecast')S.replayForecast=v;
+  if(['classification','decision','forecast'].includes(n))show();
  });
  target.addEventListener('input',e=>{if(e.target.matches('[data-replay-reason]'))S.replayReason=e.target.value});
  target.addEventListener('click',e=>{
