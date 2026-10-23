@@ -34,11 +34,11 @@ function renderLabs(rows) {
       <div class="lab-card-main">
         <div class="lab-card-heading">
           <span class="lab-id-badge">${x.id}</span>
-          <span class="lab-book-badge">Book ${x.book} · Chapter ${x.chapter}</span>
+          <span class="lab-book-badge">${x.book===6?'Site-exclusive':x.book===5?'Reading the Tape':x.book===4?'Day Trading':'Book '+x.book}${x.chapter?' · Chapter '+x.chapter:''}</span>
           ${x.skill?`<span class="pill">${x.skill}</span>`:''}${(x.marketContexts||[]).slice(0,2).map(t=>`<span class="pill pill-context">${t}</span>`).join('')}
         </div>
         <h2 class="lab-concept">${x.concept || 'Historical simulator exercise'}</h2>
-        <div class="lab-location"><strong>${x.chapterTitle}</strong></div>
+        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${x.sourceStatus==='canonical_ungraded_orientation'?'<p class="small">Concept study available; private authored lesson and reviewed grading may still be pending.</p>':''}</div>
       </div>
       <div class="lab-card-meta" aria-label="Lab details">
         <div class="lab-meta-item"><span>Ticker</span><strong>${x.ticker || '—'}</strong></div>
@@ -130,7 +130,22 @@ async function saveProgress(e) {
 }
 
 async function initLabs() {
-  allLabs = await loadJSON('data/labs.json');
+  const foundation=await loadJSON('data/labs.json');
+  const crosswalk=await loadJSON('data/competency-lab-paths-v01499.json');
+  if(crosswalk.totalCanonicalLabs!==419||Object.keys(crosswalk.byLab||{}).length!==419)
+   throw Error('Canonical 419-Lab curriculum inventory is incomplete.');
+  const original=new Map(foundation.map(l=>[l.id,l]));
+  allLabs=Object.entries(crosswalk.byLab).map(([id,entry])=>{
+   if(original.has(id))return original.get(id);
+   const bookNumbers={DAY_TRADING_BOOK_1:4,READING_THE_TAPE:5,SITE_EXCLUSIVE:6};
+   const chapters=/^(?:DT|TAPE)-C(\d+)-/.exec(id);
+   return {id,book:bookNumbers[entry.bookCode]||0,chapter:chapters?Number(chapters[1]):0,
+    concept:entry.title===id?'Concept title pending individual editorial review':entry.title,
+    chapterTitle:entry.bookCode.replaceAll('_',' '),
+    ticker:'',date:'',timeframe:'',skill:(entry.relatedCompetencies||[])[0]?.replaceAll('_',' ')||'Contextual education',
+    marketContexts:[],sourceStatus:'canonical_ungraded_orientation'};
+  });
+  if(new Set(allLabs.map(l=>l.id)).size!==419)throw Error('Duplicate canonical Lab identifiers');
   labSupabase = await window.getSupabaseClient();
   if (labSupabase) {
     const { data: { user } } = await labSupabase.auth.getUser();
@@ -146,7 +161,7 @@ async function initLabs() {
   const requestedBook = params.get('book');
   const requestedStatus = params.get('status');
   if (requestedLab && document.getElementById('q')) document.getElementById('q').value = requestedLab;
-  if (requestedBook && ['1','2','3'].includes(requestedBook) && document.getElementById('book-filter')) document.getElementById('book-filter').value = requestedBook;
+  if (requestedBook && ['1','2','3','4','5','6'].includes(requestedBook) && document.getElementById('book-filter')) document.getElementById('book-filter').value = requestedBook;
   if (requestedStatus && ['not_started','in_progress','completed'].includes(requestedStatus) && document.getElementById('status-filter')) document.getElementById('status-filter').value = requestedStatus;
 
   ['q', 'book-filter', 'ticker-filter', 'chapter-filter', 'status-filter'].forEach(id =>
