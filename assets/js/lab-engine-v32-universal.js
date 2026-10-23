@@ -80,12 +80,12 @@ async function mount({labId,mode,target,lab,focusId}={}){
  shell.setAttribute('aria-label','Advanced learning journey');
  const heading=el('h2','Learning Journey — '+(subject?.name||guide.title));
  const disclosure=el('p','Curriculum-linked, ungraded instructional guidance. Reviewed assessments, actual market history, future bars, account progress and member access remain under their existing protected services.');
- const journey=el('ol'),progress=el('p'),body=el('section'),status=el('p'),nav=el('div');
+ const journey=el('ol'),progress=el('p'),meter=el('div'),meterFill=el('span'),body=el('section'),status=el('p'),nav=el('div');
  journey.className='gu-v33-journey';journey.setAttribute('aria-label','Learning stages');
- progress.className='gu-v32-progress';body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Learning journey progress');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax','100');meter.append(meterFill);body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const previous=button('Previous stage',()=>{if(stage>0){stage--;render()}}),
  next=button('Next learning stage',()=>nextStage());
- nav.append(previous,next);shell.append(heading,disclosure,progress,journey,body,status,nav);target.replaceChildren(shell);
+ nav.append(previous,next);shell.append(heading,disclosure,progress,meter,journey,body,status,nav);target.replaceChildren(shell);
  let stage=0,observations='',prediction='',predictionLocked=false,practice='',practiceCount=0,
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
@@ -99,7 +99,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    if(i===stage)li.setAttribute('aria-current','step');
    journey.append(li);
   }
-  progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];
+  progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];meterFill.style.width=String(Math.round(stage/8*100))+'%';meter.setAttribute('aria-valuenow',String(Math.round(stage/8*100)));
   shell.dataset.v32Progress=String(stage/9);
   if(typeof CustomEvent==='function'&&typeof document.dispatchEvent==='function')
    document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
@@ -223,7 +223,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
   }else if(stage===5){
    appendParagraph(body,'Official assessment uses only the existing authenticated, server-graded question bank after editorial acceptance. Answer keys are never embedded in this study aid.');
    appendParagraph(body,'An unreviewed Lab or missing rubric must remain Not Yet Assessed, regardless of study-step completion.');
-   body.append(button('Go to protected assessment decision',()=>document.getElementById(focusId||'ev-decision')?.focus()));
+   body.append(button('Open protected decision and assessment',()=>{const work=document.getElementById('gu-ws-member-workbench');if(work)work.open=true;document.getElementById(focusId||'ev-decision')?.focus();}));
   }else if(stage===6){
    appendParagraph(body,'Your learning review should explain what the result means, its limitations and at least one common wrong interpretation.');
    appendParagraph(body,'Concept: '+guide.concept);
