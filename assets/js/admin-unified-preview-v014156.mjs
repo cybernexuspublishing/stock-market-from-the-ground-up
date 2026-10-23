@@ -60,10 +60,6 @@ async function inspectMember(memberId){
   if(generation!==sequence)return;
   for(const item of authorizedMemberDetailRows(record)){
    const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));
-  if(mod.id==='members'){
-   const memberId=safeMemberId(data.users?.[host.children.length]?.id);
-   if(memberId){const detail=el('button',null,'Inspect member');detail.type='button';detail.addEventListener('click',()=>inspectMember(memberId));entry.append(detail);}
-  }
   host.append(entry);
   }
   $('unified-status').textContent='Member summary loaded from the existing permission-protected Admin API. Sensitive notes and private financial details are not shown in this view.';
@@ -76,8 +72,13 @@ function showRows(mod,data){
  const host=$('unified-results');host.replaceChildren();
  const items=mod.id==='roles'?rolePermissionSummary(data):readRows(mod,data);
  $('unified-count').textContent=items.length?items.length+' visible records (read-only; server may paginate or limit results)':'No records returned for this authorized view.';
- for(const item of items){
-  const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));host.append(entry);
+ for(const [index,item] of items.entries()){
+  const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));
+  if(mod.id==='members'){
+   const id=safeMemberId(data.users?.[index]?.id);
+   if(id){const inspect=el('button',null,'Inspect member');inspect.type='button';inspect.addEventListener('click',()=>inspectMember(id));entry.append(inspect);}
+  }
+  host.append(entry);
  }
 }
 async function load(mod,{focusHeading=false}={}){
