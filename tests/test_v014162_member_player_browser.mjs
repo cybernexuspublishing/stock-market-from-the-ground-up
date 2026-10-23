@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const base=(process.env.SITEWIDE_TEST_BASE||'http://127.0.0.1:8765').replace(/\/$/,'');
 if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Only local fixture allowed');
-const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
 const payload={ok:true,guidedAllowed:true,advancedAllowed:true,sourceStatus:'canonical_registry_safe_orientation_only',
  lab:{id:'SITE-001',book:6,bookCode:'SITE_EXCLUSIVE',concept:'Observe a risk plan',chapter:0,chapterTitle:'Site-Exclusive Labs',
  goal:'Describe visible risk evidence at the observation boundary',ticker:'',date:'',timeframe:'',
@@ -22,13 +22,13 @@ try{
    if(url.pathname==='/assets/js/access.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:
       'window.SiteAccess={SAMPLE_LABS:new Set(),get:async()=>({user:null,sb:null,isMember:false,redeemedBooks:new Set()}),canGuided:()=>false,canAdvanced:()=>false};'});
-   if(url.pathname==='/api/lab-content'){requests.push('private');return route.fulfill({status:404,contentType:'application/json',body:'{"ok":false,"error":"Not loaded"}'});}
+   if(url.pathname==='/api/lab-content'){requests.push('private');return route.fulfill({status:width===390?503:404,contentType:'application/json',body:width===390?'{"ok":false,"code":"PRIVATE_LAB_STORE_UNAVAILABLE"}':'{"ok":false,"error":"Not loaded"}'});}
    if(url.pathname==='/api/lab-player-context'){requests.push('registry');return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(payload)});}
    return route.continue();
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
   await page.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
-  assert.equal(requests.join(','),'private,registry','Only a missing private lesson permits fallback');
+  assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-select').selectOption('practice');
@@ -70,4 +70,11 @@ try{
  assert.equal(fallbackCount,0,'Book entitlement denial may never trigger a 419 registry bypass');
  await context.close();
  console.log('PASS unauthorized member cannot bypass a private Lab content 403');
+ const chooser=await browser.newPage();let called=false;
+ await chooser.route('**/api/lab-content*',route=>{called=true;return route.abort()});
+ await chooser.goto(base+'/lab-player.html',{waitUntil:'domcontentloaded'});
+ await chooser.getByRole('link',{name:'419-Lab Registry'}).waitFor({timeout:12000});
+ assert.equal(called,false,'A missing ID must not call the private API');
+ await chooser.close();
+ console.log('PASS missing Lab ID links to the canonical Registry without an API request');
 }finally{await browser.close()}

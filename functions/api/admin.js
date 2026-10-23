@@ -114,7 +114,7 @@ async function handleGet(env,request,action,url){
     // grants, private entitlements or provider credentials to the new shell.
     await withContext(env,request,'users.view');
     const id=clean(url.searchParams.get('id'));
-    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
       return bad('Valid member ID required.',400);
     const {data:user}=await adminAuth(env,'users/'+encodeURIComponent(id));
     const [profile,flag,roles,journalCount,labCount]=await Promise.all([

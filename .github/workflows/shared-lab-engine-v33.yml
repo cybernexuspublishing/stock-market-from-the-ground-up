@@ -6,6 +6,10 @@ on:
       - 'assets/js/lab-engine-v32-teaching.js'
       - 'assets/js/lab-engine-v33-visual.js'
       - 'assets/js/lab-player.js'
+      - 'functions/api/lab-content.js'
+      - 'functions/api/lab-player-context.js'
+      - 'tests/test_lab_content_access_recovery.mjs'
+      - 'tests/test_v014162_member_player_browser.mjs'
       - 'assets/css/lab-engine-v32-teaching.css'
       - 'tests/lab-engine-v33.test.mjs'
       - 'tests/lab-engine-v33-visual.test.mjs'
@@ -34,6 +38,7 @@ jobs:
           node tests/lab-engine-v33.test.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014096_419_conceptual_training.mjs
+          node tests/test_lab_content_access_recovery.mjs
           bash scripts/build-pages.sh
           test -f public/lab-player.html
           test -f public/assets/js/lab-engine-v32-universal.js

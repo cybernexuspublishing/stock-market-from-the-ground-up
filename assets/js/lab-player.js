@@ -131,12 +131,12 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  q('lock-decision').addEventListener('click',lockDecision);q('reveal-next').addEventListener('click',revealNext);q('complete-attempt').addEventListener('click',saveAttempt);q('discuss-lab').href=`forum.html?lab=${encodeURIComponent(lab.id)}`;
  if(PLAYER.access.user){PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false})}
 }
-async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');const sb=await window.getSupabaseClient();const session=(await sb?.auth.getSession())?.data?.session;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetch('/api/lab-content?id='+encodeURIComponent(id||''),fetchOptions);
+async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await window.getSupabaseClient();const session=(await sb?.auth.getSession())?.data?.session;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetch('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
  let payload=await response.json().catch(()=>({}));
  // Canonical book companion route remains authoritative when published.
  // Only missing authored content is eligible for server-authorized, ungraded
  // registry orientation. A 403 entitlement denial is NEVER bypassed.
- if(response.status===404){
+ if(response.status===404||(response.status===503&&payload.code==='PRIVATE_LAB_STORE_UNAVAILABLE')){
   response=await fetch('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
   payload=await response.json().catch(()=>({}));
  }

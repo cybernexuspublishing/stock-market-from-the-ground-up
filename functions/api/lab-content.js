@@ -5,8 +5,8 @@ import {toolAccess} from './member-tool-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
-async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;const r=await fetch(c.base+'/rest/v1/'+path,{headers,cache:'no-store'});if(!r.ok)throw new Error('Private Lab content is unavailable; verify the manual Owner seed.');return r.json()}
-const bookCode=b=>'FOUNDATION_BOOK_'+Number(b);
+async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;const r=await fetch(c.base+'/rest/v1/'+path,{headers,cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Private Lab service temporarily unavailable.'),{status:503,code:'PRIVATE_LAB_STORE_UNAVAILABLE'});return r.json()}
+const bookCode=b=>({1:'FOUNDATION_BOOK_1',2:'FOUNDATION_BOOK_2',3:'FOUNDATION_BOOK_3',4:'DAY_TRADING_BOOK_1',5:'READING_THE_TAPE'})[Number(b)];
 export async function getBookAccess(env,req,book){return getBookCodeAccess(env,req,bookCode(book));}
 export async function getBookCodeAccess(env,req,productCode){
  if(!['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(productCode))return false;
@@ -31,9 +31,9 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
  const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
  const rows=await rest(env,'lab_instruction_v014?select=book_number,content&order=lab_id.asc&limit=150');
  return send({ok:true,labs:rows.filter(r=>coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
- const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab.'},400);const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
+ const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
- const ownsBook= SAMPLES.has(id) && !request.headers.get('authorization') ? false : await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id);
+ const ownsBook= SAMPLES.has(id) && !request.headers.get('authorization') ? false : await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id)||Number(row.book_number)===6&&premium;
  if(!guided)return send({ok:false,error:'An active matching book entitlement is required for this authored exercise.'},403);
  return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium});
-}catch(e){return send({ok:false,error:e.message||'Lab service unavailable.'},e.status||503)}}
+}catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}

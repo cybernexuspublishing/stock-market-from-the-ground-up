@@ -68,6 +68,7 @@ jobs:
         run: |
           node tests/test_v014162_419_universal.mjs
           node tests/test_v014162_lab_player_context.mjs
+          node tests/test_lab_content_access_recovery.mjs
       - name: Verify Bootcamp 30-day shared v3.2 journey
         run: node tests/test_v014162_bootcamp_v32.mjs
       - name: Verify approved Lab Engine v3.2 source boundaries
