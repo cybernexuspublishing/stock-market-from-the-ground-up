@@ -1,3 +1,52 @@
+# Active Development Continuity — D16 Stage A / D17 Security Fix / D18 Source Acceptance Gate
+
+**Project:** The Stock Market: From the Ground Up (one unified project)
+**Report date:** 2026-10-22
+**Latest verified source checkpoint before this handoff:** `309238c7609ad7eabfdb73f55ef2395023f51cbc`
+**Repository:** `cybernexuspublishing/stock-market-from-the-ground-up`, branch `main`
+**Current public release identity:** `v0.14.0.155`; planned D16–D18 v156–v158 are NOT coordinated deployed releases.
+**Current status:** D15 PAID PRODUCTION NOT ACCEPTED; D16 STAGE A SOURCE PRESENT / remaining migration open; D17 SOURCE ROUTE HARDENING ONLY; D18 SOURCE EVIDENCE GATE ONLY / PRODUCTION NOT ACCEPTED.
+**Pull requests:** No new PR created for this source increment; commits were made directly to the existing `main` following earlier project source workflow.
+**Important rule:** Older handoffs retained intact below this addition.
+
+## New source deliverables
+1. `assets/js/admin-unified-core-v014156.mjs`, `assets/js/admin-unified-preview-v014156.mjs`, `admin-unified-preview.html` and isolated CSS implement a staged **read-only** six-group unified Admin shell. The legacy editor and modules remain available through `admin.html`; this is not full D16 migration.
+2. `assets/js/route-policy.js` now classifies the preview as staff protected; `tests/test_v014156_admin_shell.mjs` and `.github/workflows/deployment16-admin-shell.yml` contain Node 22 source regressions.
+3. `scripts/deployment18_acceptance_matrix.mjs` and `.github/workflows/deployment18-source-acceptance.yml` consolidate original 419/30 curriculum ledger without silently granting accepted status.
+4. D15 independent audit and D16–D18 individual gap/status reports are preserved in `docs/`.
+5. `admin.html` links to the read-only migration preview without removing old initialization scripts.
+
+## Owner evidence reviewed
+Supabase eight-SKU read-only CSV `Supabase Snippet Check Existence of Replay Tables and Functions(17).csv`: all eight `CATALOG_STRUCTURE_OK`, but all eight have **0 LIVE intents, 0 matching signed payment/access rows, 0 lifecycle events**, and `GLOBAL_LIVE_APPROVAL_NOT_CHECKED`. No LIVE subscription acceptance may be inferred.
+
+`docs/curriculum-acceptance-decisions-v014150.json` currently contains **0 Lab decisions and 0 Bootcamp decisions**, so complete recorded editorial reviews are **0/419 and 0/30**. Official competency code list is registered for 30, but individual integrated production acceptance remains unverified.
+
+## QA and production distinction
+- GitHub source code and workflow files: **COMMITTED**.
+- Exact-HEAD GitHub Actions job results: **NOT OBSERVED** (connected commit-workflow tool returned empty; source CI passing cannot be claimed).
+- Node tests executed in this assistant runtime: **NOT EXECUTED** (repository is accessible through GitHub connector; container cannot resolve GitHub).
+- Cloudflare Pages deployment SHA/HTTP runtime: **UNVERIFIED** (independent public retrieval not accessible to verification tool).
+- Supabase production SQL migration application and all-account RLS: **NO NEW MIGRATION IN THIS INCREMENT / FULL CONTRACT UNVERIFIED**.
+- Stripe LIVE account, signed positive-dollar payment, webhook/retries, refunds/cancel, portal and notices: **NOT VERIFIED**.
+- WCAG, editorial acceptance, market data licenses, legal/tax/refunds, PostgreSQL recovery drill: **NOT VERIFIED**.
+
+## Mandatory unfinished tasks
+- **D15:** Signed real commerce lifecycle after explicit informed Owner charge approval, commercial policy and support email reliability, keys, trials and entitlements, role isolation.
+- **D16 stages B–E:** Registered authenticated write workflows, Dashboard/Members/Roles/Audit and all commerce/learning/Commons/Platform modules; no legacy removal before feature parity, regression and Owner review.
+- **D17:** Full sitewide page/CMS/SEO/marketing/automation/operational/Grant Web Solutions tenancy and recovery acceptance.
+- **D18:** Auth/authorization matrices, every one of 419 individually instructional Labs, each of 30 Bootcamp days, 30 competency dimensions and actual final integrated production validation.
+
+## Owner-only consolidated gate (DO NOT REQUEST YET AS REPETITIVE PIECES)
+1. Supabase preflight and any reviewed non-destructive migrations, then member A/B/TEST/Showcase cross-account checks.
+2. Cloudflare exact production SHA/bindings, real scheduler/email and no-secrets inspection (do not alter already agreed Stripe secret type on speculation).
+3. Authenticated Stripe LIVE price/merchant review, then only a separately explicitly authorized controlled positive-dollar payment; Stripe transaction costs disclosed first.
+4. Review all 419/30 teaching, rubric, accessibility, historical rights and relevant legal/commercial policies.
+5. Backup/restore drill and final Owner release approval.
+
+**No new payment, provider activation, unauthorized owner entitlement, charge, production SQL run or price change occurred.**
+
+---
+
 # Deployment 15 of 18 — Paid Memberships & Stripe | Current Source Handoff
 
 **Project:** The Stock Market: From the Ground Up (books and website are one project)
