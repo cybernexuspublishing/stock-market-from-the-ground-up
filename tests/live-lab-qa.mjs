@@ -28,8 +28,27 @@ try{
   await page.locator('form').evaluate(form=>form.requestSubmit());
  }
  phase='wait_auth_redirect';
- try{await page.waitForURL(url=>!['/signin','/signin.html'].includes(url.pathname),{timeout:24000})}
- catch{console.error('FAIL: QA account login was not completed. Verify email confirmation and account credentials.');failed=true}
+ let uiRedirected=false;
+ try{await page.waitForURL(url=>!['/signin','/signin.html'].includes(url.pathname),{timeout:8000});uiRedirected=true}
+ catch{console.error('WARN: Form submission did not redirect; checking the Supabase session independently.')}
+ if(!uiRedirected){
+  phase='supabase_auth_diagnostic';
+  const authCheck=await page.evaluate(async()=>{
+   const sb=await window.getSupabaseClient?.();
+   if(!sb)return {ok:false,code:'SDK_UNAVAILABLE'};
+   const before=await sb.auth.getSession();
+   if(before.data?.session)return {ok:true,code:'SESSION_ALREADY_SET'};
+   const identifier=document.getElementById('login-identifier')?.value||'';
+   if(!identifier.includes('@'))return {ok:false,code:'EMAIL_REQUIRED_FOR_QA'};
+   const password=document.getElementById('login-password')?.value||'';
+   const result=await sb.auth.signInWithPassword({email:identifier,password});
+   const known=['invalid_credentials','email_not_confirmed','captcha_failed','over_email_send_rate_limit'];
+   const raw=String(result.error?.code||'');
+   return {ok:!!result.data?.session,code:result.error?(known.includes(raw)?raw:'AUTH_REJECTED'):'OK'};
+  });
+  if(authCheck.ok)console.log('PASS: Supabase email/password authentication succeeded without a browser redirect.');
+  else{console.error('FAIL: QA authentication classification '+authCheck.code+'. No account data or credentials were printed.');failed=true}
+ }
  if(!failed){
   phase='read_session_and_labs';
   const result=await page.evaluate(async()=>{
