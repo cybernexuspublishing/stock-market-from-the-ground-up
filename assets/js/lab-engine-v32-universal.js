@@ -181,27 +181,37 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
   const view=root.GroundUpLabV33Contextual?.create?.({type:visualType,stage:step,variant});
   if(view)body.append(view);
  }
+ function lessonPlan(section=1){
+  return root.GroundUpLabV33InstructionContent?.lesson?.({
+   stage:section,visualType,concept:topic,teaching:authorizedTeaching,subject,guide
+  })||null;
+ }
  function guidedHelp(){
-  detail(body,'Show a Guided Example',special?special.steps:[
-   'Identify the exact observation, timeframe and source before drawing a conclusion.',
-   'Name the important price level or market fact and distinguish observation from inference.',
-   'Describe what would disprove the hypothesis: '+guide.invalidation,
-   'Use a different observation boundary and repeat the process without looking ahead.'
+  const plan=lessonPlan(1),application=lessonPlan(7);
+  detail(body,'Show a Guided Example',plan?.worked?.length?[
+   ...plan.worked,
+   'Why the worked result is not a prediction: '+plan.limitation
+  ]:special?special.steps:[
+   'Start with the concept: '+guide.concept,
+   'Apply the procedure: '+guide.procedure,
+   'Test the interpretation against: '+guide.invalidation,
+   'Observe the limitation: '+guide.limit
   ]);
   detail(body,'Try Another Example',[
-   'Choose a new observation or an independently configured fictional example.',
-   'Identify two observable facts, one plausible alternative interpretation, and the invalidation condition.',
-   'Explain whether the new evidence supports, weakens or leaves the original conclusion uncertain.',
-   'This is ungraded instructional practice; it does not consume a Question Pass.'
+   application?.blocks?.[0]||guide.procedure,
+   application?.blocks?.[1]||guide.invalidation,
+   'Use a fresh, fully observed example. Record both the evidence and what you cannot determine.',
+   'This is ungraded instructional practice and does not consume a Question Pass.'
   ]);
  }
  function mistakeHelp(){
+  const plan=lessonPlan(6);
   detail(body,'Explain My Mistake',[
-   'Common misconception: '+(subject?.error||guide.commonError),
-   'Recheck the data, label and units instead of selecting an answer based on the final outcome.',
-   'Correct procedure: '+(ownHow.length?ownHow.join(' Then '):guide.procedure),
-   'Limitation: '+(subject?.limit||guide.limit),
-   'Apply this correction to a new example rather than memorizing the answer.'
+   'Why this approach is incorrect: '+(plan?.misconception||subject?.error||guide.commonError),
+   'What the method can establish: '+(plan?.blocks?.[0]||guide.procedure),
+   'Correct method: '+(ownHow.length?ownHow.join(' Then '):subject?.steps?.join(' Then ')||guide.procedure),
+   'What remains unknown: '+(plan?.limitation||guide.limit),
+   'Work through a different example rather than memorizing an answer.'
   ]);
  }
  function answerStatus(label,good){
@@ -281,12 +291,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      'State the limitation: '+guide.limit]);
    }
    showVisual(1);freeExplanation();guidedHelp();
+   const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
-    'Understand the objective: '+guide.concept,
-    'Recognize the evidence: '+guide.procedure,
-    'What can make this reading invalid: '+guide.invalidation,
-    'Why learners commonly struggle: '+guide.commonError,
-    'Try explaining these relationships in your own words and checking an unfamiliar example.'
+    ...(deeper?.blocks||[guide.concept,guide.procedure]),
+    ...(deeper?.worked||[]),
+    'Common error and its correction: '+(deeper?.misconception||guide.commonError),
+    'Limit of the interpretation: '+(deeper?.limitation||guide.limit)
    ]);
   }else if(stage===2){
    if(kind==='candle'){
