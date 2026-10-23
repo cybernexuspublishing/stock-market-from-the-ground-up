@@ -18,7 +18,7 @@ try{
    if(url.origin!==base)return route.abort();
    if(url.pathname==='/assets/js/supabase-client.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:
-      'window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:"member.mock.access"}}})}});'});
+      'window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:"member.mock.access"}}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}});'});
    if(url.pathname==='/assets/js/access.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:
       'window.SiteAccess={SAMPLE_LABS:new Set(),get:async()=>({user:null,sb:null,isMember:false,redeemedBooks:new Set()}),canGuided:()=>false,canAdvanced:()=>false};'});
@@ -59,7 +59,7 @@ try{
   if(u.origin!==base)return route.abort();
   if(u.pathname==='/assets/js/supabase-client.js')
    return route.fulfill({status:200,contentType:'application/javascript',body:
-     'window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:null}})}});'});
+     'window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}});'});
   if(u.pathname==='/api/lab-content')
    return route.fulfill({status:403,contentType:'application/json',body:'{"ok":false,"error":"Matching book required."}'});
   if(u.pathname==='/api/lab-player-context'){fallbackCount++;return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(payload)});}
