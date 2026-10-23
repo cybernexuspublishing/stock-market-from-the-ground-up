@@ -42,3 +42,13 @@ body.gu-lab-member>.gu-lab-footer a{color:#b6cee0;text-decoration:underline;text
  body.gu-lab-member>#app .banner{padding:17px 15px}
  body.gu-lab-member>#app .stage-grid{gap:7px}
 }
+
+/* Inline v3.3 lesson is a part of the Registry page, never a second website. */
+html.gu-lab-embedded body.gu-lab-member{padding:0!important;margin:0!important;background:#0c1219}
+html.gu-lab-embedded body.gu-lab-member>.site-header,
+html.gu-lab-embedded body.gu-lab-member>.gu-lab-footer,
+html.gu-lab-embedded body.gu-lab-member>#app>.gu-lab-breadcrumb{display:none!important}
+html.gu-lab-embedded body.gu-lab-member>#app{padding:0!important;margin:0!important;min-height:0!important}
+html.gu-lab-embedded body.gu-lab-member>#app>.shell{max-width:100%;margin:0;border:0;border-radius:0;box-shadow:none}
+html.gu-lab-embedded body.gu-lab-member>#app .banner{border-radius:0}
+html.gu-lab-embedded body.gu-lab-member>#app .content{padding-bottom:24px}
