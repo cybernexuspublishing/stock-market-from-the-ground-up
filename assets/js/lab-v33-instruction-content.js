@@ -17,9 +17,9 @@ const domains={
    'The body measures |Close − Open|. The full range measures High − Low. Body-to-range percentage equals body ÷ range × 100, provided range is greater than zero. Both calculations use prices from the SAME completed candle.'
   ],
   example:[
-   'For a DIFFERENT fictional 5-minute candle, let Open = $20.00, High = $22.00, Low = $19.00, and Close = $21.50.',
-   'Body = |$21.50 − $20.00| = $1.50. Full range = $22.00 − $19.00 = $3.00.',
-   'Body share of range = $1.50 ÷ $3.00 × 100 = 50%. It is a bullish candle because Close > Open, but this does not establish that the next candle will rise.'
+   'For a DIFFERENT fictional 5-minute candle, let Open = $20.00, High = $22.00, Low = $19.00, and Close = $21.20.',
+   'Body = |$21.20 − $20.00| = $1.20. Full range = $22.00 − $19.00 = $3.00.',
+   'Body share of range = $1.20 ÷ $3.00 × 100 = 40%. It is a bullish candle because Close > Open, but this does not establish that the next candle will rise.'
   ],
   misconception:'The high-to-low difference is the FULL RANGE, not the real body. A bullish close also does not tell you whether the high occurred before or after the low.',
   limitation:'OHLC does not reveal the intrabar order of prices, who bought or sold, or the next interval’s direction.',
