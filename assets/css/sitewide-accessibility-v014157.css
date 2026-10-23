@@ -1,0 +1,9 @@
+/* WCAG bypass: unhidden only on keyboard focus; works on light/dark pages. */
+.gu-skip-link{position:fixed;z-index:2147483646;inset-inline-start:1rem;top:1rem;
+ background:#fff;color:#091c29!important;border:3px solid #172536;
+ padding:.65rem .9rem;text-decoration:underline;text-underline-offset:.15rem;
+ font:700 1rem/1.35 system-ui,sans-serif;border-radius:.35rem;
+ transform:translateY(-180%);opacity:0;pointer-events:none}
+.gu-skip-link:focus,.gu-skip-link:focus-visible{transform:none;opacity:1;pointer-events:auto;
+ outline:3px solid #efc859;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.gu-skip-link{transition:none!important}}
