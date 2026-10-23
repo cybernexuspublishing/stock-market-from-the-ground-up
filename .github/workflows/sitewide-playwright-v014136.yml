@@ -67,6 +67,7 @@ jobs:
       - name: Verify all 419 authorized universal Lab study bridges
         run: |
           node tests/test_v014162_419_universal.mjs
+          node tests/test_v33_workstation_source_contract.mjs
           node tests/test_v014162_lab_player_context.mjs
           node tests/test_lab_content_access_recovery.mjs
       - name: Verify Bootcamp 30-day shared v3.2 journey
