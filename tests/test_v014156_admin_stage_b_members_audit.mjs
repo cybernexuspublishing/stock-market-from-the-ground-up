@@ -24,12 +24,12 @@ const roles=rolePermissionSummary({roles:[{name:'Reader',role_code:'READER',is_a
 assert.match(roles[0].detail,/1 assigned permission/);
 let network=0,tokens=0;
 const adminRead=createAdminClient({getToken:async()=>{tokens++;return 'token';},transport:async()=>{network++;return {ok:true,json:async()=>({ok:true})}}});
-await assert.rejects(adminRead('user_detail',{params:{id:'not-a-uuid'}}),/Invalid member identifier/);
+await assert.rejects(adminRead('user_summary',{params:{id:'not-a-uuid'}}),/Invalid member identifier/);
 await assert.rejects(adminRead('dashboard',{params:{id:userId}}),/Unsupported/);
 await assert.rejects(adminRead('users',{params:{page:'NaN'}}),/pagination/);
 await assert.rejects(adminRead('roles',{params:{action:'assign_role'}}),/Unsupported/);
 assert.equal(network,0);assert.equal(tokens,0,'Invalid client requests must fail before token retrieval');
-await adminRead('user_detail',{params:{id:userId}});
+await adminRead('user_summary',{params:{id:userId}});
 assert.equal(network,1);
 let authEndpointCalls=0,queries=[];
 const originalFetch=globalThis.fetch;
@@ -64,7 +64,7 @@ try{
 }finally{globalThis.fetch=originalFetch}
 const html=readFileSync('assets/js/admin-unified-preview-v014156.mjs','utf8');
 assert(!/innerHTML|MutationObserver|setInterval\(/.test(html),'No bypass to legacy unsafe DOM paths');
-assert(html.includes('inspectMember')&&html.includes("adminRead('user_detail'"));
+assert(html.includes('inspectMember')&&html.includes("adminRead('user_summary'"));
 assert(html.includes('searchCurrentPage')&&html.includes('addPager'));
 assert(html.includes("q('v014-training-slot')")===false,'No lesson prototype changes introduced');
 console.log('PASS D16 bounded member/audit reads, client allowlists, safe summaries, staff-only Admin API and paged source contracts');

@@ -56,7 +56,7 @@ async function inspectMember(memberId){
  $('unified-count').textContent='';
  $('unified-status').textContent='Loading authenticated member details…';
  try{
-  const record=await adminRead('user_detail',{params:{id:memberId},signal:controller.signal});
+  const record=await adminRead('user_summary',{params:{id:memberId},signal:controller.signal});
   if(generation!==sequence)return;
   for(const item of authorizedMemberDetailRows(record)){
    const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));

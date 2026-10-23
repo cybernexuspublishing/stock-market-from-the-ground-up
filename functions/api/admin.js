@@ -109,6 +109,25 @@ async function handleGet(env,request,action,url){
     const pm=new Map(profiles.map(x=>[x.id,x])),fm=new Map(flags.map(x=>[x.user_id,x]));const rm={};urs.forEach(x=>{(rm[x.user_id]??=[]).push(x.role_code)});
     return ok({users:users.map(u=>({id:u.id,email:u.email,created_at:u.created_at,last_sign_in_at:u.last_sign_in_at,banned_until:u.banned_until,profile:pm.get(u.id)||null,flag:fm.get(u.id)||null,roles:rm[u.id]||[]})),page,perPage,hasNext:unfiltered.length===perPage,searchScope:q?'CURRENT_AUTH_PAGE_ONLY':'UNFILTERED_AUTH_PAGE'});
   }
+  if(action==='user_summary'){
+    // Dedicated minimal read: never send notes, billing metadata, library
+    // grants, private entitlements or provider credentials to the new shell.
+    await withContext(env,request,'users.view');
+    const id=clean(url.searchParams.get('id'));
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+      return bad('Valid member ID required.',400);
+    const {data:user}=await adminAuth(env,'users/'+encodeURIComponent(id));
+    const [profile,flag,roles,journalCount,labCount]=await Promise.all([
+      one(env,'profiles?select=id,username,account_kind&'+'id=eq.'+encodeURIComponent(id)),
+      one(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(id)),
+      tableRows(env,'admin_user_roles','role_code,expires_at','&user_id=eq.'+encodeURIComponent(id)),
+      countTable(env,'decision_journal','user_id=eq.'+encodeURIComponent(id)),
+      countTable(env,'lab_attempts','user_id=eq.'+encodeURIComponent(id))
+    ]);
+    return ok({user:{id:user.id,email:user.email,created_at:user.created_at,last_sign_in_at:user.last_sign_in_at},
+      profile,flag,roles:(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()),
+      activity:{journalCount,labAttemptCount:labCount},minimized:true});
+  }
   if(action==='user_detail'){
     const c=await withContext(env,request,'users.view');const id=clean(url.searchParams.get('id'));if(!id)return bad('User id required.');
     const {data:user}=await adminAuth(env,`users/${encodeURIComponent(id)}`);
