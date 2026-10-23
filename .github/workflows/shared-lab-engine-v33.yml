@@ -1,5 +1,14 @@
 name: Shared Lab Engine v3.3 Verification
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/member-tool-access.js'
+      - 'functions/api/lab-player-context.js'
+      - 'functions/api/lab-content.js'
+      - 'tests/test_v014162_lab_player_context.mjs'
+      - 'tests/test_lab_access_rpc_resilience.mjs'
+      - '.github/workflows/shared-lab-engine-v33.yml'
   pull_request:
     paths:
       - 'assets/js/lab-engine-v32-universal.js'
@@ -39,6 +48,8 @@ jobs:
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_lab_content_access_recovery.mjs
+          node tests/test_v014162_lab_player_context.mjs
+          node tests/test_lab_access_rpc_resilience.mjs
           bash scripts/build-pages.sh
           test -f public/lab-player.html
           test -f public/assets/js/lab-engine-v32-universal.js
