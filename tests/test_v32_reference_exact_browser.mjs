@@ -18,6 +18,15 @@ try{
   assert.equal(await page.locator('.stage-item').count(),9,'Exactly nine learning stages');
   assert.equal(await page.locator('.shell').count(),1,'Owner-original shell must render');
   assert.match(await page.locator('.banner').evaluate(el=>getComputedStyle(el).backgroundColor),/rgb\(13, 32, 51\)/,'Original banner styling must load');
+  const originalJourneyY=(await page.locator('.journey').boundingBox()).y;
+  await page.locator('button[data-action="modeMenu"]').click();
+  const menu=page.locator('.toolbar > .mode-menu');
+  const rect=await menu.boundingBox();
+  assert(rect&&rect.width<=380&&rect.height<=430,'Learning Mode must be a compact anchored popover');
+  assert(rect.x>=0&&rect.x+rect.width<=width,'Dropdown must stay within viewport');
+  assert.equal((await page.locator('.journey').boundingBox()).y,originalJourneyY,
+   'Opening Learning Mode must never move or hide the learning journey');
+  await page.locator('button[data-action="closeMenu"]').click();
   await page.locator('[data-action="next"]').click();
   await page.getByRole('heading',{name:/Learn — OHLC/}).waitFor();
   await page.locator('input[name="introAnswer"][value="range"]').check();
