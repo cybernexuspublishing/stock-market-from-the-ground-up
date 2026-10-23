@@ -7,7 +7,9 @@ const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CH
 const payload={ok:true,guidedAllowed:true,advancedAllowed:true,sourceStatus:'canonical_registry_safe_orientation_only',
  lab:{id:'SITE-001',book:6,bookCode:'SITE_EXCLUSIVE',concept:'Observe a risk plan',chapter:0,chapterTitle:'Site-Exclusive Labs',
  goal:'Describe visible risk evidence at the observation boundary',ticker:'',date:'',timeframe:'',
- practiceSteps:['Observe only permitted data.','Record one clear invalidation.'],beforeAdvance:[],skill:'INDEPENDENT_PLAN'}};
+ practiceSteps:['Observe only permitted data.','Record one clear invalidation.'],beforeAdvance:[],skill:'INDEPENDENT_PLAN',
+ teaching:{what:'Define risk before an entry.',why:'The loss limit needs an invalidation.',when:'Before choosing size.',
+  questions:['What happens when the stop widens?']}}};
 try{
  for(const width of [390,1280]){
   const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});
@@ -30,6 +32,7 @@ try{
   await page.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
+  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-select').selectOption('practice');
   await page.getByRole('button',{name:'Mode help'}).click();
@@ -48,6 +51,11 @@ try{
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.equal(await page.locator('#player-mode-select').inputValue(),'blind');
   assert.equal(await page.locator('#gu-v32-teaching-slot').innerText(),'');
+  assert.equal(await page.locator('[aria-label="Lab-specific conceptual teaching"]').count(),0,'Blind mode must conceal study notes before the learner decides');
+  await page.locator('#ev-decision').selectOption('WATCH');
+  await page.locator('#ev-confidence').selectOption('3');
+  await page.locator('#lock-decision').click();
+  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Define risk before an entry/);
   assert.deepEqual(errors,[]);
   console.log('PASS member Lab Player '+width+'px: authenticated 419 fallback, v3.3 shared reset, 33% lock, and blind suppression');
   await context.close();

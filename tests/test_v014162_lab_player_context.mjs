@@ -20,7 +20,10 @@ globalThis.fetch=async(url,init={})=>{
   assert.equal(init.headers.apikey,'sb_secret_test');
   assert.equal(init.headers.authorization,undefined,'Modern service key cannot be used as JWT');
   return json([{lab_id:'SITE-001',title:'Position sizing practice',book_code:storedCode,chapter_number:null,
-   ticker:null,historical_date:null,timeframe:null,lab_type:'interactive',active,registry_visible:true}]);
+   ticker:null,historical_date:null,timeframe:null,lab_type:'interactive',active,registry_visible:true,
+   metadata:{what:'Define the risk per share before sizing.',why:'A fixed loss limit needs a known invalidation.',when:'Before a hypothetical entry.',
+    objective:'Explain the position-size constraint.',how:['Identify the limit.','Calculate risk per share.','Check size.'],
+    questions:['What changes if the stop is wider?'],answer_key:'NEVER RETURN THIS'}}]);
  }
  throw Error('Unexpected request '+target);
 };
@@ -30,6 +33,10 @@ try{
  let b=await r.json();assert.equal(b.ok,true);assert.equal(b.lab.id,'SITE-001');
  assert.equal(b.sourceStatus,'canonical_registry_safe_orientation_only');
  assert.equal(b.advancedAllowed,true);
+ assert.equal(b.lab.goal,'Explain the position-size constraint.');
+ assert.equal(b.lab.teaching.what,'Define the risk per share before sizing.');
+ assert.equal(b.lab.practiceSteps.length,3);
+ assert(!JSON.stringify(b).includes('NEVER RETURN THIS'));
  assert(!JSON.stringify(b).includes('rubric'));
  assert(!JSON.stringify(b).includes('correctAnswer'));
  active=false;r=await onRequest({env,request:req()});assert.equal(r.status,404);

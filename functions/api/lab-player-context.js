@@ -27,7 +27,7 @@ async function read(env,id){
  const headers={apikey:c.secret,accept:'application/json'};
  if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))
   headers.authorization='Bearer '+c.secret;
- const columns='lab_id,title,book_code,chapter_number,ticker,historical_date,timeframe,lab_type,active,registry_visible';
+ const columns='lab_id,title,book_code,chapter_number,ticker,historical_date,timeframe,lab_type,metadata,active,registry_visible';
  const url=c.base+'/rest/v1/platform_labs?select='+columns+
   '&lab_id=eq.'+encodeURIComponent(id)+'&limit=1';
  const r=await fetch(url,{headers,cache:'no-store'});
@@ -37,6 +37,7 @@ async function read(env,id){
  return rows[0]||null;
 }
 const safe=(v,max)=>String(v??'').slice(0,max);
+const sentences=(value,maxItems=6)=>Array.isArray(value)?value.filter(x=>typeof x==='string'&&x.trim()).slice(0,maxItems).map(x=>safe(x,550)):[];
 export async function onRequest({request,env}){
  try{
   if(request.method!=='GET')return reply({ok:false,error:'Method not allowed.'},405);
@@ -57,15 +58,20 @@ export async function onRequest({request,env}){
   if(access.authorized!==true&&!owns)
    return reply({ok:false,error:'Matching book or active Interactive Learning access required.'},403);
   const title=safe(lab.title,180);
+  // These fields already exist in the public canonical catalog. Whitelist
+  // only instructional prose; never forward arbitrary metadata or keys.
+  const source=lab.metadata&&typeof lab.metadata==='object'?lab.metadata:{};
+  const teaching={what:safe(source.what,700),why:safe(source.why,700),when:safe(source.when,700),
+   how:sentences(source.how),questions:sentences(source.questions,5)};
   const context={
    id:lab.lab_id,book:book.number,bookCode:lab.book_code,
    chapter:lab.chapter_number||0,chapterTitle:book.label,
-   concept:title||id,goal:'Apply the concept to visible evidence without using later market observations.',
+   concept:title||id,goal:safe(source.objective,700)||'Apply the concept to visible evidence without using later market observations.',
    ticker:safe(lab.ticker,20),date:safe(lab.historical_date,40),
    timeframe:safe(lab.timeframe,35),skill:safe(lab.lab_type,90),
    start:'Use the observation boundary in your approved companion lesson.',
    end:'Future observations must remain undisclosed until the server-controlled replay advances.',
-   practiceSteps:[
+   teaching,practiceSteps:teaching.how.length>=3?teaching.how:[
     'Define the concept in your own words before examining the example.',
     'Name the source, timeframe and observations actually available at this moment.',
     'Record the evidence that supports your interpretation and an alternative explanation.',
