@@ -18,7 +18,9 @@ export const MODULES=Object.freeze([
  {id:'system',label:'System Readiness',group:'Platform',order:30,permission:'system.view',action:'system',collection:'integrations',kind:'system',legacy:'#system'}
 ].map(x=>Object.freeze(x)));
 export const GROUPS=Object.freeze(['Overview','People','Learning','Commerce','Community','Platform']);
-const ACTIONS=new Set(['context','dashboard','users','roles','catalog','commerce','forum','audit','system']);
+const ACTIONS=new Set(['context','dashboard','users','user_detail','roles','catalog','commerce','forum','audit','system']);
+const PARAMS=Object.freeze({users:['page','per_page','q'],user_detail:['id'],audit:['page','limit']});
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function authorized(mod,ctx){
  return !!(ctx&&Array.isArray(ctx.permissions)&&ctx.permissions.includes('control_panel.access')&&ctx.permissions.includes(mod.permission));
 }
@@ -31,6 +33,16 @@ export function createAdminClient({getToken,transport=fetch}){
  if(typeof getToken!=='function'||typeof transport!=='function')throw Error('Authenticated client required');
  return async function adminRead(action,{signal,params={}}={}){
   if(!ACTIONS.has(action))throw Error('Unsupported read-only Admin action');
+  // Reject invalid module parameters BEFORE contacting privileged APIs.
+  const entries=Object.entries(params||{});
+  if(entries.some(([key,value])=>!(PARAMS[action]||[]).includes(key)||value==null||String(value).length>200))
+   throw Error('Unsupported Admin read parameter.');
+  if(action==='user_detail'&&(entries.length!==1||!UUID.test(String(params.id||''))))
+   throw Error('Invalid member identifier.');
+  for(const [key,value] of entries){
+   if(['page','per_page','limit'].includes(key)&&(!/^[0-9]{1,6}$/.test(String(value))||Number(value)<1||Number(value)>10000))
+    throw Error('Invalid Admin pagination value.');
+  }
   const token=await getToken();
   if(!token)throw Error('Administrator session expired. Sign in again.');
   const url=new URL('/api/admin','https://admin.internal');
