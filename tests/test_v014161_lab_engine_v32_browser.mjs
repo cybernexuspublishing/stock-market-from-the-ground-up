@@ -14,7 +14,7 @@ try {
    document.body.append(container);
    window.GroundUpLabEngineV32.mount({labId:'F2-C07-L01',mode:'guided',target:container});
   });
-  await page.getByText('Teach this in more depth (free)').click();
+  await page.getByText('Teach This in More Depth').click();
   assert.match(await page.locator('#v32-smoke').innerText(),/Body =/);
   await page.locator('#v32-smoke button').filter({hasText:'Next teaching step'}).click();
   await page.locator('#v32-smoke input[type=range]').fill('32.5');
