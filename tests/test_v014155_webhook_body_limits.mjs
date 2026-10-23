@@ -24,6 +24,21 @@ try{
  });assert.equal(x.status,413,'zero-dollar QA must not materialize oversized body');
  x=await send(new Uint8Array([0xc3,0x28]));assert.equal(x.status,400,'invalid UTF-8 denied');
  x=await send('{}');assert.equal(x.status,503,'small JSON keeps existing paid launch gate disabled');
+ x=await send('null',{}, {GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED:'true'});
+ assert.equal(x.status,503,'null JSON is not a zero-dollar QA event');
+ // Signed null JSON with LIVE fulfillment enabled must fail as a client error,
+ // before any Stripe account lookup or entitlement RPC.
+ const {webcrypto}=await import('node:crypto');
+ const time=String(Math.floor(Date.now()/1000)),secret='whsec_mocksecure';
+ const key=await webcrypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const mac=Buffer.from(await webcrypto.subtle.sign('HMAC',key,new TextEncoder().encode(time+'.null'))).toString('hex');
+ x=await send('null',{'stripe-signature':'t='+time+',v1='+mac},{
+   SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_test',
+   GU58_LIVE_WEBHOOK_ENABLED:'true',GU58_LIVE_FULFILLMENT_APPROVED:'true',
+   GU58_LIVE_DB_CONTRACT_APPROVED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_test',
+   GU58_STRIPE_LIVE_WEBHOOK_SECRET:secret,GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_mocklive1234'
+ });assert.equal(x.status,400,'validly signed JSON null must not throw or reach Stripe');
+
  assert.equal(remotes,0,'oversized and disabled-mode events must not call Stripe/Supabase');
  assert.match(code,/boundedStripeBody\(request\)/);
  assert.doesNotMatch(code,/request\.clone\(\)\.text\(\)|request\.text\(\)/);

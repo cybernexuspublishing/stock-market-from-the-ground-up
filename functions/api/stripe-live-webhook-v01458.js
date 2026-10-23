@@ -221,6 +221,7 @@ async function verifyOwnerZeroQA(request,e,raw){
     !ident(accountId,'acct')||!ident(priceId,'price'))return null;
  if(!await checkHmac(raw,request.headers.get('stripe-signature'),secret))return null;
  let event;try{event=JSON.parse(raw)}catch{return null}
+ if(!event||typeof event!=='object'||Array.isArray(event))return null;
  if(event.type!=='checkout.session.completed'||event.data?.object?.metadata?.gu71_zero_qa!=='true')return null;
  const obj=event.data.object;
  if(event.livemode!==true||!ident(event.id,'evt')||!Number.isSafeInteger(event.created)||
@@ -252,6 +253,7 @@ async function verifyOwnerZeroQA(request,e,raw){
 // grant RPC. It is NOT a GU58 paid payment, Subscription or Managed Payments event.
 async function storeZeroMonthlyQA(request,e,raw){
  let event;try{event=JSON.parse(raw)}catch{return null}
+ if(!event||typeof event!=='object'||Array.isArray(event))return null;
  if(event.type!=='checkout.session.completed'||
     event.data?.object?.metadata?.gu72_zero_monthly_qa!=='true')return null;
  if(e.GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED!=='true')
@@ -317,6 +319,7 @@ export async function onRequestPost({request,env}){
  const c=cfg(env);if(!c)return resp('LIVE Stripe fulfillment has not been approved',503);
  if(!await checkHmac(raw,request.headers.get('stripe-signature'),c.secret))return resp('Invalid signature',401);
  let event;try{event=JSON.parse(raw)}catch{return resp('Invalid JSON',400)}
+ if(!event||typeof event!=='object'||Array.isArray(event))return resp('Invalid JSON event',400);
  if(event.livemode!==true||!ident(event.id,'evt')||!Number.isSafeInteger(event.created)||
     (event.account!==undefined&&event.account!==c.account))return resp('Invalid LIVE account event',400);
  try{
