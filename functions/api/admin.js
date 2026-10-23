@@ -290,7 +290,12 @@ async function handlePost(env,request,action){
     const c=await withContext(env,request,'content.manage');const code=safeCode(body.content_code);await serviceRest(env,`managed_content?content_code=eq.${encodeURIComponent(code)}`,{method:'PATCH',prefer:'return=minimal',body:{status:'archived',updated_at:nowIso(),updated_by:c.user.id}});await audit(env,c.user.id,'content.archive','content',code,{});return ok();
   }
   if(action==='forum_action'){
-    const c=await withContext(env,request,'forum.moderate');const type=clean(body.content_type),id=clean(body.content_id),act=clean(body.moderation_action);if(!['topic','post'].includes(type)||!id)return bad('Forum content type and id required.');const table=type==='topic'?'forum_topics':'forum_posts';let patch=null;if(type==='topic'&&act==='lock')patch={is_locked:true};if(type==='topic'&&act==='unlock')patch={is_locked:false};if(type==='topic'&&act==='pin')patch={is_pinned:true};if(type==='topic'&&act==='unpin')patch={is_pinned:false};if(act==='hide')patch={status:'hidden'};if(act==='restore')patch={status:'published'};if(!patch)return bad('Unsupported moderation action.');await serviceRest(env,`${table}?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',prefer:'return=minimal',body:patch});await audit(env,c.user.id,`forum.${act}`,type,id,{reason:clean(body.reason).slice(0,500)});return ok();
+    // The original one-click PATCH followed by a separate audit INSERT is
+    // NOT transactional. It could produce moderation without an audit row.
+    // Use the pre-existing privileged v113 editor/RPC with row locking,
+    // stale version, reason and a single database audit transaction instead.
+    await withContext(env,request,'forum.moderate');
+    return bad('Legacy one-click moderation is retired. Use Inspect / Edit / Moderate.',409);
   }
   if(action==='report_resolve'){
     const c=await withContext(env,request,'forum.moderate');const id=Number(body.id);if(!id)return bad('Report id required.');const status=['reviewing','resolved','dismissed'].includes(body.status)?body.status:'resolved';await serviceRest(env,`forum_reports?id=eq.${id}`,{method:'PATCH',prefer:'return=minimal',body:{status,resolved_by:c.user.id,resolution_note:clean(body.resolution_note).slice(0,5000)||null,resolved_at:status==='reviewing'?null:nowIso()}});await audit(env,c.user.id,'forum.report','report',id,{status});return ok();
