@@ -160,7 +160,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
    document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
  }
  function freeExplanation(){
-  detail(body,'Explain This Concept — Always Free',[
+  detail(body,'Explain This Concept',[
    'What it means: '+(authorizedTeaching.what||subject?.definition||guide.concept),
    'Why and how it works: '+(authorizedTeaching.why||subject?.why||guide.procedure),
    'Relevant symbols or terminology: '+(subject?.symbols||'Identify the source, units, timeframe and referenced market conditions.'),
@@ -180,13 +180,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
   if(view)body.append(view);
  }
  function guidedHelp(){
-  detail(body,'Show a Guided Example — Free',special?special.steps:[
+  detail(body,'Show a Guided Example',special?special.steps:[
    'Identify the exact observation, timeframe and source before drawing a conclusion.',
    'Name the important price level or market fact and distinguish observation from inference.',
    'Describe what would disprove the hypothesis: '+guide.invalidation,
    'Use a different observation boundary and repeat the process without looking ahead.'
   ]);
-  detail(body,'Try Another Example — Free',[
+  detail(body,'Try Another Example',[
    'Choose a new observation or an independently configured fictional example.',
    'Identify two observable facts, one plausible alternative interpretation, and the invalidation condition.',
    'Explain whether the new evidence supports, weakens or leaves the original conclusion uncertain.',
@@ -194,7 +194,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
   ]);
  }
  function mistakeHelp(){
-  detail(body,'Explain My Mistake — Free',[
+  detail(body,'Explain My Mistake',[
    'Common misconception: '+(subject?.error||guide.commonError),
    'Recheck the data, label and units instead of selecting an answer based on the final outcome.',
    'Correct procedure: '+(ownHow.length?ownHow.join(' Then '):guide.procedure),
@@ -254,7 +254,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     const unit=el('div');unit.className='metric';unit.append(el('span',name),el('strong','—'),el('span',note));metrics.append(unit);
    }
    wallet.append(metrics);
-   appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain free. No demo credits will be charged or treated as purchased credits.');
+   appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain included in accessible Labs. No demo credits will be charged or treated as purchased credits.');
    body.append(wallet);
    const objective=el('p','Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Independent mastery remains Not Yet Assessed until reviewed evidence is recorded.');
    objective.className='small';body.append(objective);
@@ -272,7 +272,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      'State the limitation: '+guide.limit]);
    }
    showVisual(1);freeExplanation();guidedHelp();
-   detail(body,'Teach This in More Depth — Always Free',[
+   detail(body,'Teach This in More Depth',[
     'Understand the objective: '+guide.concept,
     'Recognize the evidence: '+guide.procedure,
     'What can make this reading invalid: '+guide.invalidation,
@@ -326,7 +326,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     const input=field(body,'My calculation ('+special.units+')',practice,'input');
     input.disabled=practiceResolved;
     if(practiceCount>=2&&!practiceResolved){
-     appendParagraph(body,'Numerical practice was incorrect twice. An optional multiple-choice scaffold is available; you can still retry numerically for free.');
+     appendParagraph(body,'Numerical practice was incorrect twice. An optional multiple-choice scaffold is available; you can still retry numerically.');
      const pick=el('select');pick.append(el('option','Choose a result…'));
      pick.options[0].value='';
      const options=kind==='candle'?[25,50,75,100]:[9,8.67,10,8];
@@ -337,7 +337,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      }));
     }
     if(!practiceResolved){
-     body.append(button('Check calculation — free retry',()=>{
+     body.append(button('Check calculation',()=>{
       if(!input.value.trim()){mark('Enter a numerical answer.');return}
       practice=input.value.trim();
       if(validNumber(practice,special.answer)){practiceResolved=true;render()}
@@ -348,7 +348,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      answerStatus('Calculation completed · '+(practiceAssisted||practiceCount>0?'Assisted or corrected learning':'Unassisted practice')+'. This is not a private graded assessment.',true);
      stepList(special.steps);
     }
-    const guided=detail(body,'Teach This in More Depth — Always Free',special.steps.concat(['Frequent misconception: '+(subject?.error||guide.commonError),'The answer describes the fictional example; it does not predict the next bar.']));
+    const guided=detail(body,'Teach This in More Depth',special.steps.concat(['Frequent misconception: '+(subject?.error||guide.commonError),'The answer describes the fictional example; it does not predict the next bar.']));
     guided.addEventListener('toggle',()=>{if(guided.open)practiceAssisted=true});
    }else{
     const t=field(body,'Your independent observation and reasoning',practice);
@@ -403,7 +403,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     }));
     else answerStatus('Independent transfer completed in this ungraded example after '+(transferCount+1)+' attempt(s).',true);
     if(transferCount>0&&!transferResolved)appendParagraph(body,'Previous incorrect attempts: '+transferCount);
-    detail(body,'Explain Transfer Concept — Always Free',[subject?.why||guide.procedure,'Use genuinely different prices or evidence so memorizing the previous answer is insufficient.']);
+    detail(body,'Explain Transfer Concept',[subject?.why||guide.procedure,'Use genuinely different prices or evidence so memorizing the previous answer is insufficient.']);
    }else{
     appendParagraph(body,'New case: '+guide.selfCheck);
     const f=field(body,'New evidence, contrasting interpretation and decision',transfer);
