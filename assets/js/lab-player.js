@@ -220,7 +220,16 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  let localAccess=null;
  try{localAccess=await window.SiteAccess?.get?.()}catch{}
  PLAYER.access=localAccess||{user:session?.user||null,sb:sb||null,redeemedBooks:new Set()};
- PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;q('player-title').textContent=lab.id==='F2-C07-L01'||lab.id==='F2-C07-L02'?'Build and Understand a Candlestick':lab.id==='F3-C06-L01'?'Understand VWAP and Replay the Market':lab.concept;
+ PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;
+  const picker=q('player-reference-select');
+  if(picker){
+   if(!Array.from(picker.options).some(o=>o.value===lab.id)){
+    const choice=document.createElement('option');choice.value=lab.id;choice.textContent=lab.concept+' · '+lab.id;picker.append(choice);
+   }
+   picker.value=lab.id;
+   picker.addEventListener('change',()=>{const id=picker.value;if(/^[A-Za-z0-9_-]{3,90}$/.test(id))location.assign('lab-player.html?lab='+encodeURIComponent(id))});
+  }
+  q('player-title').textContent=lab.id==='F2-C07-L01'||lab.id==='F2-C07-L02'?'Build and Understand a Candlestick':lab.id==='F3-C06-L01'?'Understand VWAP and Replay the Market':lab.concept;
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${lab.id} — ${lab.concept} | Interactive Lab`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   const note=document.createElement('div');note.className='notice';
