@@ -229,15 +229,12 @@ export async function onRequest(context){
   if(!type.includes('text/html'))return response;
   // Exact, owner-approved v3.2 standalone demonstrations must never inherit
   // the website's legacy CSS, authentication overlay or DOM injection.
-  // Both are explicitly fictional, public, ungraded and contain no real
-  // entitlements, customer balances, protected assessments or future trade data.
-  // Keep common response security headers above, but leave the Lab HTML intact.
-  // lab-player is a public-preview HTML route with server-enforced Lab/API
-  // authorization; it already loads its member session and learning scripts.
-  // This does not alter authentication or permissions at the private endpoints.
+  // The two fictional v3.2 previews remain isolated from website chrome.
+  // Production Learning v3.3, however, MUST inherit the exact same canonical
+  // navigation, account controls, header search and page enhancements as the
+  // rest of the website. Entitlements continue to be checked server-side.
   if(['/lab-v32-reference','/lab-v32-reference.html',
-      '/lab-v32-member','/lab-v32-member.html',
-      '/lab-player','/lab-player.html'].includes(path))return response;
+      '/lab-v32-member','/lab-v32-member.html'].includes(path))return response;
   try{
     const modified=new HTMLRewriter()
       .on('head',{element(el){
