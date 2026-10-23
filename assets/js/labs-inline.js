@@ -26,6 +26,7 @@
  }
  function attachHeightObserver(){
   frameObserver?.disconnect();frameObserver=null;
+  if(!activeId)return;
   const {frame}=state();try{
    const doc=frame.contentDocument;
    if(!doc?.documentElement)return;
