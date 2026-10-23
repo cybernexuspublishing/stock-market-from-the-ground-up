@@ -52,7 +52,7 @@ function mount({labId,mode,target}){
   body.append(el('h3',stages[stage]));
   if(stage===0){
    body.append(el('p',m.definition),el('p',m.why));
-   const details=el('details'),summary=el('summary','Teach this in more depth (free)');
+   const details=el('details'),summary=el('summary','Teach This in More Depth');
    details.append(summary,el('p',m.symbols));
    const list=el('ol');for(const s of m.steps)list.append(el('li',s));
    details.append(list,el('p',m.error),el('p',m.limit));body.append(details);
@@ -71,7 +71,7 @@ function mount({labId,mode,target}){
    body.append(action('Lock my ungraded prediction',()=>{if(entry.value.trim().length<10){feedback.textContent='Write at least 10 characters of reasoning.';return}prediction=entry.value.trim();entry.disabled=true;feedback.textContent='Prediction saved in this page view only; no assessed credit issued.'}));
   }else if(stage===3){
    body.append(el('p','Explain the formula, calculate the result, and identify what it cannot establish.'));
-   body.append(action('Explain the concept (free)',()=>{feedback.textContent=m.steps.join(' ')}));
+   body.append(action('Explain This Concept',()=>{feedback.textContent=m.steps.join(' ')}));
    body.append(action('Show a worked teaching example',()=>{exposed=true;feedback.textContent='Study Only — ';feedback.textContent+=kind==='candle'?'Fictional $31 open and $32 close: $1 body. $32.50 high and $30.50 low: $2 range, so 50%.':'Fictional 200 shares at $8 and 100 at $10: $2,600 in traded dollars ÷ 300 shares = $8.67.'}));
    if(exposed)feedback.textContent='This worked example is Study Only. It does not reveal a private assessment answer.';
   }else{
