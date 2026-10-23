@@ -69,7 +69,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const stopTyping=animate(visual,full,seen,skip);
  if(plan?.worked?.length){
   const worked=el('section',undefined,'gu-v33-instructor-worked');
-  worked.append(el('h4','Worked example — different fictional case'));
+  worked.append(el('h4',plan.category==='general'?'Guided method demonstration':'Worked example — different fictional case'));
   const steps=el('ol');
   for(const explanation of plan.worked)steps.append(el('li',explanation));
   worked.append(steps);
