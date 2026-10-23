@@ -1,0 +1,28 @@
+name: Deployment 16 Unified Admin Shell — Stage A
+on:
+  push:
+    paths:
+      - 'admin-unified-preview.html'
+      - 'assets/js/admin-unified-*.mjs'
+      - 'assets/css/admin-unified-preview-v014156.css'
+      - 'tests/test_v014156_admin_shell.mjs'
+      - '.github/workflows/deployment16-admin-shell.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stage-a-source-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse Admin modules
+        run: |
+          node --check assets/js/admin-unified-core-v014156.mjs
+          node --check assets/js/admin-unified-preview-v014156.mjs
+      - name: Verify Admin module registry, access boundaries and read-only preview
+        run: node tests/test_v014156_admin_shell.mjs
