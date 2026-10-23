@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/deployment17_source_asset_audit.mjs'
+      - 'scripts/deployment17_source_restore_drill.sh'
       - 'scripts/deployment17_source_security_readiness.mjs'
       - 'tests/test_v014160_d17_source_asset_audit.mjs'
       - 'functions/api/support.js'
@@ -49,3 +50,17 @@ jobs:
             artifacts/d17-source-security-readiness.json
           retention-days: 30
           if-no-files-found: warn
+
+  source-restore:
+    name: D17 tracked source restore-and-build (not database recovery)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore exact Git commit in an isolated directory and build Pages
+        run: bash scripts/deployment17_source_restore_drill.sh
