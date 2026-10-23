@@ -426,6 +426,24 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
    appendParagraph(body,'Resume or save official member progress through the existing authenticated Lab controls; this self-study widget does not write server grades or credit entitlements.');
    body.append(button('Review related competency guide',()=>{location.href='skills.html#guide-'+encodeURIComponent(codes[0]||'')})); 
   }
+  // Shared chart-first learning workspace: draw the relevant visual beside
+  // the instructor, followed by context, the learner task, and review.
+  // Never shift protected Assessment or replay revelation controls.
+  if([1,2,4,6].includes(stage)){
+   const chart=body.querySelector('.gu-l33-graphic, .gu-v33-exact-visual');
+   const coach=body.querySelector('.gu-v33-instructor');
+   if(chart&&coach){
+    const hero=el('section');hero.className='gu-v33-stage-hero';
+    hero.setAttribute('aria-label','Visual lesson and instructor');
+    const primary=el('div');primary.className='gu-v33-stage-primary';
+    const aside=el('aside');aside.className='gu-v33-stage-coach';
+    primary.append(chart);aside.append(coach);hero.append(primary,aside);
+    body.insertBefore(hero,body.firstChild);
+   }else if(chart)body.insertBefore(chart,body.firstChild);
+  }else if(stage===3){
+   const chart=body.querySelector('.gu-l33-graphic');
+   if(chart)body.insertBefore(chart,body.firstChild);
+  }
   previous.disabled=stage===0;next.disabled=stage===8;
  }
  function nextStage(){
