@@ -6,6 +6,23 @@
 (function(root){
 'use strict';
 const STEPS=Object.freeze(['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
+function paintPrototypeProgress(index,percent=null){
+ const lookup=id=>typeof document.getElementById==='function'?document.getElementById(id):null;
+ const value=percent??Math.round(index/8*100);
+ const grid=lookup('player-stage-grid');
+ if(grid){grid.replaceChildren();for(let i=0;i<STEPS.length;i++){
+  const item=el('div');item.className='stage-item '+(i<index?'complete':i===index?'current':'');
+  item.dataset.playerStage=String(i);
+  const bullet=el('span');bullet.className='bullet';bullet.setAttribute('aria-hidden','true');
+  item.append(bullet,document.createTextNode?.(STEPS[i])||el('span',STEPS[i]));grid.append(item);
+ }}
+ const current=lookup('player-current-stage');if(current)current.textContent=STEPS[index];
+ const count=lookup('player-stage-count');if(count)count.textContent='Stage '+(index+1)+' of 9';
+ const number=lookup('player-progress-value');if(number)number.textContent=value+'%';
+ const fill=lookup('player-progress-fill');if(fill)fill.style.width=value+'%';
+ const bar=lookup('player-stage-progress');if(bar)bar.setAttribute('aria-valuenow',String(value));
+}
+
 const sessions=new WeakMap();
 let cache=null;
 async function catalog(){
@@ -60,6 +77,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const token={labId,mode};sessions.set(target,token);
  if(['blind','assessment'].includes(mode)){
+  paintPrototypeProgress(mode==='blind'?3:5,0);
   // The browser must not preload private answers or hidden instructional cues.
   // This neutral nine-stage shell delegates decisions and grading to the existing
   // member-authorized workbench and authenticated assessment API.
@@ -130,7 +148,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
    if(i===stage)li.setAttribute('aria-current','step');
    journey.append(li);
   }
-  progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];meterFill.style.width=String(Math.round(stage/8*100))+'%';meter.setAttribute('aria-valuenow',String(Math.round(stage/8*100)));
+  progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];meterFill.style.width=String(Math.round(stage/8*100))+'%';meter.setAttribute('aria-valuenow',String(Math.round(stage/8*100)));paintPrototypeProgress(stage);
   shell.dataset.v32Progress=String(stage/9);
   if(typeof CustomEvent==='function'&&typeof document.dispatchEvent==='function')
    document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
@@ -152,12 +170,30 @@ async function mount({labId,mode,target,lab,focusId}={}){
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
  function render(){
-  body.replaceChildren();mark('');showJourney();body.append(el('h3',STEPS[stage]));
+  body.replaceChildren();mark('');showJourney();
+  const names={0:'Welcome to your learning workstation',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
+  2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
+  3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
+  6:'Review — Learn from each result',7:'Transfer — '+(kind==='vwap'?'Controlled VWAP market replay':'Apply learning to a new case'),8:'Your Learning Development Report'};
+  heading.textContent=names[stage];if(stage!==0)body.append(el('h3',STEPS[stage]));
+  previous.hidden=stage===0;next.textContent=stage===0?'Begin '+(kind==='candle'?'Candlestick':kind==='vwap'?'VWAP':'Learning')+' Lesson →':'Next learning stage';
+
   if(stage===0){
-   appendParagraph(body,'Canonical Lab reference: '+labId);appendParagraph(body,'Learning objective: '+(lab?.goal||topic));
-   appendParagraph(body,'Prerequisite: be able to identify the observations and units required for this subject. If an unfamiliar word appears, open the free explanation in the next stage.');
-   appendParagraph(body,'Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Not Yet Assessed is the default until reviewed evidence exists.');
-   appendParagraph(body,'This stage shows conceptual instruction, not independently verified market history or a trading recommendation.');
+   appendParagraph(body,lab?.goal||('Understand '+topic+' before assessment.'));
+   const intro=el('section');intro.className='instruction';intro.append(el('h3','What you will learn'));
+   appendParagraph(intro,'Every subject begins with an explanation before assessment. The shared platform provides charts, equations, a learning journey, feedback, retries, and evidence of independent understanding. Specialized content changes through a Lab configuration rather than separate hardcoded websites.');
+   appendParagraph(intro,'Source of data: Lab-specific teaching is drawn from your authorized curriculum. Any illustrative calculation is fictional and ungraded. No market chart is represented as independently verified without approved source evidence.');
+   body.append(intro);
+   const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
+   const metrics=el('div');metrics.className='grid2';
+   for(const [name,note] of [['Included','Subject to server entitlement'],['Purchased','Never expire after purchase']]){
+    const unit=el('div');unit.className='metric';unit.append(el('span',name),el('strong','—'),el('span',note));metrics.append(unit);
+   }
+   wallet.append(metrics);
+   appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain free. No demo credits will be charged or treated as purchased credits.');
+   body.append(wallet);
+   const objective=el('p','Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Independent mastery remains Not Yet Assessed until reviewed evidence is recorded.');
+   objective.className='small';body.append(objective);
   }else if(stage===1){
    appendParagraph(body,authorizedTeaching.what||subject?.definition||guide.concept);
    appendParagraph(body,authorizedTeaching.why||subject?.why||guide.procedure);
