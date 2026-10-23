@@ -1,3 +1,46 @@
+# Deployment 15 of 18 — Paid Memberships & Stripe | Current Source Handoff
+
+**Project:** The Stock Market: From the Ground Up (books and website are one project)
+**Date:** 2026-10-22
+**Target source version:** v0.14.0.155
+**Status:** SOURCE HARDENING IN PROGRESS / PAID LAUNCH NOT ACCEPTED
+**Controlling GitHub repository:** cybernexuspublishing/stock-market-from-the-ground-up
+**Previous source baseline:** `8ffa118ace58241c9872457ff9e4dd54c1556c6e` (D15 checkout validation)
+**Canonical work document:** `docs/v0.14.0.155_DEPLOYMENT_15_OF_18_PAID_MEMBERSHIP_LAUNCH.md`
+**Google Drive location / file ID:** Not assigned; this repository document is authoritative.
+**Document version:** 15.1.0, source-only
+**Dependencies:** D12–D14 production/editorial acceptance; installed GU58 database contract; LIVE merchant verification; owner-approved controlled real payment.
+**Purpose:** Track payment, entitlement and production evidence without asserting that source checks constitute paid-launch approval.
+
+## D15 current implementation and retained constraints
+- Eight original LIVE membership/tool SKUs, amounts, Owner TEST/LIVE controls, Cloudflare/Supabase settings, Stripe webhook signing configuration, and client-facing permanent routes are unchanged.
+- Live checkout now enforces actual 2 KiB streamed input and rejects unknown codes before all provider/database calls; regression test added.
+- LIVE webhook now bounds **actual** inbound bytes to 256 KiB **before** zero-dollar QA inspection or signed paid event handling; one-pass UTF-8 decoding and mock no-network regression test added.
+- Signed event, ledger, retry, refund, chargeback, subscription and Customer Portal implementation remains from prior phases; full production lifecycle has **not** been independently proven.
+- No additional paid service, book/market-data permission, direct digital book sale or automatic activation is authorized.
+- Source CI evidence after the latest commit must be separately inspected. A green build does not prove live Stripe or production member access.
+
+## Deployment 15 acceptance gates
+| Gate | State |
+| --- | --- |
+| Source implemented and committed | D15 checkout changes previously on main; webhook fix pending source CI |
+| Exact-head GitHub workflows | PENDING VERIFICATION |
+| Cloudflare LIVE production SHA parity | UNVERIFIED |
+| Eight Stripe LIVE products and amounts/cadence | OWNER READ-ONLY RECHECK REQUIRED |
+| Supabase GU58 installed RLS/RPC and TEST/SHOWCASE isolation | OWNER READ-ONLY RECHECK REQUIRED |
+| Signed positive-dollar Stripe LIVE payment and renewal/refund/cancellation | NOT VERIFIED; explicit informed Owner authorization required |
+| Signed webhook replay, scheduler, portal, emails, member A/B/Showcase QA | NOT VERIFIED |
+| Legal, tax, subscriptions, refund and privacy review | NOT VERIFIED |
+| Paid launch or activation approved | **NO** |
+
+**Manual Owner work now:** None from the source-only security correction. No Stripe secret/type change is requested. Consolidate authorized Supabase read-only verification and Stripe-account operations only after the source is independently checked.
+
+**Next:** Finish D15 paid lifecycle acceptance, then D16–D18 according to the original 18-deployment scope. Preserve all prior research, frozen publications, 419 Lab identifiers, 30 Bootcamp days and 30 competencies.
+
+---
+
+## Historical handoff retained without deletion
+
 # Deployment 10 of 18 — Market Data and Trading Tools | Permanent Handoff
 
 **Project:** The Stock Market: From the Ground Up (single book + website project)  

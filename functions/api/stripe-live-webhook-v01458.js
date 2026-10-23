@@ -16,6 +16,32 @@ function cfg(e){
  return {base,key:v(e.SUPABASE_SECRET_KEY),stripe:v(e.GU58_STRIPE_LIVE_SECRET_KEY),
    secret:v(e.GU58_STRIPE_LIVE_WEBHOOK_SECRET),account:v(e.GU58_STRIPE_LIVE_ACCOUNT_ID)};
 }
+/* D15: bound actual Stripe webhook bytes BEFORE any zero-dollar QA or
+ * paid event parser, HMAC check, provider request or database operation. */
+async function boundedStripeBody(req){
+ const limit=262144,claimed=req.headers.get('content-length');
+ if(claimed!==null&&(!/^[0-9]+$/.test(claimed)||Number(claimed)>limit))
+   throw Object.assign(new Error('Too large'),{status:413});
+ if(!req.body||typeof req.body.getReader!=='function')
+   throw Object.assign(new Error('Invalid event body'),{status:400});
+ const reader=req.body.getReader(),parts=[];let size=0;
+ while(true){
+   const {done,value}=await reader.read();
+   if(done)break;
+   if(!(value instanceof Uint8Array))
+     throw Object.assign(new Error('Invalid event body'),{status:400});
+   size+=value.byteLength;
+   if(size>limit){
+     await reader.cancel().catch(()=>{});
+     throw Object.assign(new Error('Too large'),{status:413});
+   }
+   parts.push(value);
+ }
+ const bytes=new Uint8Array(size);let offset=0;
+ for(const chunk of parts){bytes.set(chunk,offset);offset+=chunk.byteLength}
+ try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes)}
+ catch{throw Object.assign(new Error('Invalid UTF-8'),{status:400})}
+}
 async function checkHmac(raw,header,secret){const elements=String(header||'').split(',').map(x=>x.trim().split('='));const ts=elements.find(x=>x[0]==='t')?.[1],time=Number(ts);
  if(!Number.isSafeInteger(time)||Math.abs(Date.now()/1000-time)>300)return false;
  const sigs=elements.filter(x=>x[0]==='v1'&&/^[0-9a-f]{64}$/i.test(x[1]||'')).map(x=>x[1]);if(!sigs.length)return false;
@@ -187,14 +213,12 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
 // Independent, deliberately non-entitling signed QA event, accepted while the
 // GU58 customer fulfillment switches remain OFF. It uses the same LIVE signing
 // secret and production destination, but never calls any Supabase grant RPC.
-async function verifyOwnerZeroQA(request,e){
+async function verifyOwnerZeroQA(request,e,raw){
  if(e.GU71_ZERO_LIVE_QA_ENABLED!=='true')return null;
  const secret=v(e.GU58_STRIPE_LIVE_WEBHOOK_SECRET),key=v(e.GU58_STRIPE_LIVE_SECRET_KEY),
   accountId=v(e.GU58_STRIPE_LIVE_ACCOUNT_ID),priceId=v(e.GU71_ZERO_LIVE_PRICE_ID);
  if(!/^whsec_[A-Za-z0-9_]+$/.test(secret)||!/^sk_live_[A-Za-z0-9_]+$/.test(key)||
     !ident(accountId,'acct')||!ident(priceId,'price'))return null;
- const raw=await request.clone().text();
- if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
  if(!await checkHmac(raw,request.headers.get('stripe-signature'),secret))return null;
  let event;try{event=JSON.parse(raw)}catch{return null}
  if(event.type!=='checkout.session.completed'||event.data?.object?.metadata?.gu71_zero_qa!=='true')return null;
@@ -226,9 +250,7 @@ async function verifyOwnerZeroQA(request,e){
 // GU72: A real FREE member can validate LIVE Checkout + a signed membership
 // change, but only through this separate $0 QA Price and a service-only expiring
 // grant RPC. It is NOT a GU58 paid payment, Subscription or Managed Payments event.
-async function storeZeroMonthlyQA(request,e){
- const raw=await request.clone().text();
- if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
+async function storeZeroMonthlyQA(request,e,raw){
  let event;try{event=JSON.parse(raw)}catch{return null}
  if(event.type!=='checkout.session.completed'||
     event.data?.object?.metadata?.gu72_zero_monthly_qa!=='true')return null;
@@ -285,13 +307,14 @@ async function storeZeroMonthlyQA(request,e){
 }
 
 export async function onRequestPost({request,env}){
- const free=await storeZeroMonthlyQA(request,env);
+ let raw;
+ try{raw=await boundedStripeBody(request)}
+ catch(e){return e?.status===413?resp('Too large',413):resp('Invalid event body',400)}
+ const free=await storeZeroMonthlyQA(request,env,raw);
  if(free)return free;
- const qa=await verifyOwnerZeroQA(request,env);
+ const qa=await verifyOwnerZeroQA(request,env,raw);
  if(qa)return qa;
  const c=cfg(env);if(!c)return resp('LIVE Stripe fulfillment has not been approved',503);
- if(Number(request.headers.get('content-length')||0)>262144)return resp('Too large',413);
- const raw=await request.text();if(new TextEncoder().encode(raw).length>262144)return resp('Too large',413);
  if(!await checkHmac(raw,request.headers.get('stripe-signature'),c.secret))return resp('Invalid signature',401);
  let event;try{event=JSON.parse(raw)}catch{return resp('Invalid JSON',400)}
  if(event.livemode!==true||!ident(event.id,'evt')||!Number.isSafeInteger(event.created)||
