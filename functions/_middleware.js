@@ -235,6 +235,11 @@ export async function onRequest(context){
   // rest of the website. Entitlements continue to be checked server-side.
   if(['/lab-v32-reference','/lab-v32-reference.html',
       '/lab-v32-member','/lab-v32-member.html'].includes(path))return response;
+  // When the official v3.3 player is opened inside the authenticated Registry,
+  // the PARENT already owns navigation and account chrome. Reusing its CSS/JS
+  // a second time in the frame would create duplicate menus and page reflows.
+  // Do not skip the security boundaries above or the Lab API authorization.
+  if(['/lab-player','/lab-player.html'].includes(path)&&url.searchParams.get('embedded')==='1')return response;
   try{
     const modified=new HTMLRewriter()
       .on('head',{element(el){
