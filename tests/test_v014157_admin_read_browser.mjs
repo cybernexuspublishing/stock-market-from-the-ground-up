@@ -36,7 +36,8 @@ try{
    assert.equal(response.status(),200);
    await page.getByRole('button',{name:'Inspect member'}).waitFor({timeout:12000});
    await page.getByRole('button',{name:'Inspect member'}).click();
-   await page.waitForFunction(()=>document.querySelector('#unified-status')?.textContent?.includes('Member summary loaded'),null,{timeout:12000});
+   await page.waitForFunction(()=>document.querySelector('#unified-results')?.textContent?.includes('MemberA'),null,{timeout:12000});
+   assert.match(await page.locator('#unified-status').innerText(),/Read-only minimized member information/);
    assert.match(await page.locator('#unified-results').innerText(),/MemberA/);
    assert(!/private note|bank account|stripe customer/i.test(await page.locator('#unified-results').innerText()));
    await page.getByRole('button',{name:'Back to Members'}).click();
