@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const report=JSON.parse(readFileSync('artifacts/sitewide-readiness-v014158.json','utf8'));
+assert.equal(report.canonicalLabs,419);
+assert.equal(Object.values(report.labGroups).reduce((a,b)=>a+b,0),419);
+assert.equal(report.officialCompetenciesDefined,30);
+assert.equal(report.bootcampDaysRegistered,30);
+assert.equal(report.bootcampSelfChecksGraded,false);
+assert.equal(report.acceptedLabCount+report.unacceptedLabIds.length,419);
+assert.equal(report.acceptedBootcampDays+report.unacceptedBootcampDayNumbers.length,30);
+assert.equal(report.productionAccepted,false);
+assert.equal(report.external.realStripeLifecycle,'NOT_OBSERVED_FROM_SOURCE');
+assert.equal(report.evidenceType,'SOURCE_ONLY__NO_PRODUCTION_ATTESTATION');
+console.log('PASS D18 preflight: honest individual readiness counts and external acceptance barriers');

@@ -1,0 +1,28 @@
+name: Deployment 16 Admin Shell Registry Candidate
+on:
+  push:
+    paths:
+      - 'admin.html'
+      - 'assets/js/admin-module-registry-v014156.mjs'
+      - 'assets/js/admin-shell-core-v014156.mjs'
+      - 'tests/test_v014156_admin_registry_source.mjs'
+      - 'tests/test_v014156_admin_shell_core.mjs'
+      - '.github/workflows/deployment16-admin-shell-v014156.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  explicit-admin-registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check assets/js/admin-module-registry-v014156.mjs
+          node tests/test_v014156_admin_registry_source.mjs
+          node --check assets/js/admin-shell-core-v014156.mjs
+          node tests/test_v014156_admin_shell_core.mjs
