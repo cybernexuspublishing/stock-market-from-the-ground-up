@@ -227,6 +227,13 @@ export async function onRequest(context){
   const response=new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers:hardened});
   const type=(response.headers.get('content-type')||'').toLowerCase();
   if(!type.includes('text/html'))return response;
+  // Exact, owner-approved v3.2 standalone demonstrations must never inherit
+  // the website's legacy CSS, authentication overlay or DOM injection.
+  // Both are explicitly fictional, public, ungraded and contain no real
+  // entitlements, customer balances, protected assessments or future trade data.
+  // Keep common response security headers above, but leave reference HTML intact.
+  if(['/lab-v32-reference','/lab-v32-reference.html',
+      '/lab-v32-member','/lab-v32-member.html'].includes(path))return response;
   try{
     const modified=new HTMLRewriter()
       .on('head',{element(el){
