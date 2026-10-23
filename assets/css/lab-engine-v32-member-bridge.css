@@ -71,3 +71,24 @@ body.gu-lab-member{background:#0c1219;color:#f0f4f8;margin:0;padding:22px 12px;f
 .gu-lab-member a.btn:hover,.gu-lab-member button.btn:hover:not(:disabled){border-color:#70b9ff}
 .gu-lab-member :is(button,select,input,textarea,summary):focus-visible{outline:3px solid #7dc0ff;outline-offset:3px}
 @media(max-width:730px){body.gu-lab-member{padding:0}.gu-lab-member .gu-ws-disclosures{flex-direction:column}.gu-lab-member .gu-ws-disclosures>details{width:100%;flex:auto}.gu-lab-member #gu-v32-teaching-slot .gu-v33-visual-grid{grid-template-columns:1fr}.gu-lab-member .toolbar-top{flex-wrap:wrap}}
+
+/* Legacy protected member forms remain usable without the former global site theme. */
+.gu-lab-member #player-mode-menu[hidden]{display:none!important}
+.gu-lab-member #player-mode-menu .mode-item{margin:.35rem 0}
+.gu-lab-member #player-mode-menu [data-member-mode]{min-width:132px;text-align:left}
+.gu-lab-member .lab-fact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.gu-lab-member .lab-fact-grid>div{background:#101d2b;border:1px solid #2c455a;border-radius:10px;padding:11px}
+.gu-lab-member .lab-fact-grid>div span{display:block;font-size:.79rem;color:#b5c8d8}
+.gu-lab-member .lab-fact-grid>div strong{display:block;font-size:.92rem;color:#eef6fc}
+.gu-lab-member .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gu-lab-member .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.gu-lab-member .guided-step{padding:10px 14px;margin:.6rem 0;background:#152637;border-left:3px solid #56b994}
+.gu-lab-member .guided-step span{font-weight:700;margin-right:.55rem}
+.gu-lab-member .inline-status{font-size:.9rem;margin:.6rem 0;color:#c5d8e8}
+.gu-lab-member .inline-status.error{color:#f5adb3}
+.gu-lab-member .inline-status.success{color:#82e8bc}
+.gu-lab-member .notice{padding:12px;border:1px solid #35465a;background:#192431;border-radius:10px;margin:.8rem 0}
+.gu-lab-member .lab-portable-figure{margin:12px 0}
+.gu-lab-member .lab-portable-figure img{max-width:100%;height:auto}
+.gu-lab-member .gu-ws-disclosure-body .notice{padding:11px}
+@media(max-width:730px){.gu-lab-member .check-grid,.gu-lab-member .form-grid{grid-template-columns:1fr}}
