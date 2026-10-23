@@ -1,0 +1,40 @@
+/* The Stock Market: From the Ground Up — production Learning v3.3
+   One continuous website shell: this is the SAME canonical header and navigation
+   used by the site's other routes. No duplicate header/navigation controller.
+   Scope instructional styles to #app to protect menus, alerts and account tools. */
+body.gu-lab-member{padding:0!important;margin:0!important;background:#081827;color:#edf3fa}
+body.gu-lab-member>.site-header{position:sticky;top:0;z-index:110;display:block;width:100%;min-height:82px;background:#02111e;border-bottom:1px solid #1b3851;isolation:isolate}
+body.gu-lab-member>.site-header>.wrap.nav{max-width:1560px;min-height:82px;width:100%;margin-inline:auto;padding:0 clamp(15px,3.4vw,55px);display:flex;align-items:center;gap:clamp(10px,1.1vw,18px)}
+body.gu-lab-member>.site-header .brand{flex:0 1 260px;min-width:190px;max-width:270px;line-height:1.16;letter-spacing:.02em;font-size:1.04rem;color:#f7f7fa}
+body.gu-lab-member>.site-header .brand span{color:#ebbc48}
+body.gu-lab-member>.site-header .navlinks{margin-left:auto;align-items:center;justify-content:flex-end;gap:clamp(9px,1.1vw,19px)}
+body.gu-lab-member>.site-header .navlinks a,body.gu-lab-member>.site-header .navlinks button{color:#e2eaf4}
+body.gu-lab-member>.site-header .navlinks .nav-cta,body.gu-lab-member>.site-header .navlinks .v12-top-link[href*="store"],body.gu-lab-member>.site-header .navlinks .v12-profile-button{border:1px solid #a88b31;border-radius:12px;padding:10px 14px;background:transparent}
+body.gu-lab-member>.site-header .fe-header-tools{flex-shrink:0}
+body.gu-lab-member>.site-header .navlinks .v11-nav-button,body.gu-lab-member>.site-header .fe-header-tools button{font:inherit;cursor:pointer}
+body.gu-lab-member>.site-header .navlinks :is(button,a):focus-visible{outline:3px solid #8dd2ff;outline-offset:3px}
+body.gu-lab-member>#app{max-width:none;margin:0;min-height:calc(100vh - 82px);padding:clamp(15px,2.5vw,30px) clamp(12px,2.7vw,44px) 45px}
+body.gu-lab-member>#app>.shell{max-width:1340px;width:100%;margin:0 auto;border-radius:16px;overflow:visible;box-shadow:0 16px 40px rgba(0,0,0,.12)}
+body.gu-lab-member>#app .banner{border-radius:16px 16px 0 0}
+body.gu-lab-member>#app .toolbar{position:relative;top:auto;z-index:15}
+body.gu-lab-member>#app .mode-menu[hidden],body.gu-lab-member>#app [hidden]{display:none!important}
+body.gu-lab-member>#app :is(select,button,input,textarea){max-width:100%}
+body.gu-lab-member>#app .content{width:100%;min-width:0}
+body.gu-lab-member>#app .gu-ws{max-width:100%;min-width:0}
+body.gu-lab-member>#app .gu-v33-visual-grid,body.gu-lab-member>#app .chart-shell{min-width:0;max-width:100%}
+body.gu-lab-member>.gu-lab-footer{margin-top:0;min-height:80px;background:#061624;border-top:1px solid #173752}
+body.gu-lab-member>.gu-lab-footer .wrap{max-width:1340px;margin:auto;padding:23px}
+body.gu-lab-member>.gu-lab-footer a{color:#b6cee0;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:900px){
+ body.gu-lab-member>.site-header>.wrap.nav{min-height:72px}
+ body.gu-lab-member>.site-header{min-height:72px}
+ body.gu-lab-member>.site-header .brand{max-width:calc(100% - 65px);flex-basis:auto}
+ body.gu-lab-member>#app{padding:12px 9px 28px}
+ body.gu-lab-member>#app>.shell{border-radius:12px}
+ body.gu-lab-member>#app .banner{border-radius:12px 12px 0 0}
+}
+@media(max-width:600px){
+ body.gu-lab-member>#app .content{padding:14px}
+ body.gu-lab-member>#app .banner{padding:17px 15px}
+ body.gu-lab-member>#app .stage-grid{gap:7px}
+}
