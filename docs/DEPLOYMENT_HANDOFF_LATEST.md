@@ -1,3 +1,12 @@
+## D09 final retrieval quality correction — 2026-10-22
+
+**Last observed source head before this handoff commit:** `ea66afde4ca2f2b677a23b3d8f7c69cb3ed098a6`.
+- Real topic-matching bug found and fixed: multi-word terminology aliases (e.g. “previous day high” twice) originally normalized only one occurrence. First proposed whitespace-splitting fix was **caught failing in direct source execution** because adjacent matches shared a space; it was corrected to a non-consuming lookahead with lexical word boundaries.
+- **PASS direct current-source smoke:** five normalization/relevance vectors covering repeated PDH, tape and MFE synonyms, VWAP case normalization and source topic ranking. The regression assertions are committed in `tests/test_v014149_tutor_retrieval.mjs`.
+- This source check supplements, but does not replace, complete GitHub Actions, real member/browser QA, content editorial acceptance or Cloudflare/Supabase runtime proof.
+
+---
+
 # CURRENT HANDOFF — Deployment 09 Reopened for Remaining Acceptance (2026-10-22)
 
 **Project:** The Stock Market: From the Ground Up — unified website, books and curriculum  

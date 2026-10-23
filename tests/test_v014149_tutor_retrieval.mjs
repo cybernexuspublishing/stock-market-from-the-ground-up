@@ -16,4 +16,4 @@ assert.deepEqual(rankApprovedTutorTopics('What is it?',topics),[]);
 assert.deepEqual(rankApprovedTutorTopics('completely unrelated topic',topics),[]);
 assert.equal(rankApprovedTutorTopics('vwap',topics).length,1);
 assert.equal(rankApprovedTutorTopics('vwap',topics,0).length,0);
-console.log('PASS D09 deterministic source-only retrieval (8 assertions)');
+console.log('PASS D09 deterministic source-only retrieval (11 assertions)');
