@@ -315,7 +315,12 @@ async function mount({labId,mode,target,lab,focusId}={}){
     appendParagraph(body,'For chronological candles, use the authenticated, rights-reviewed replay service. This page does not preload future bars or turn synthetic samples into historical evidence.');
     const link=el('a','Open controlled market replay');link.href='verified-replay.html';link.className='btn secondary';body.append(link);
    }
-   if(special){
+   if(kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create){
+    const replay=el('section');body.append(replay);
+    root.GroundUpLabV32SyntheticReplay.create(replay,{onFinish:({studyOnly,observations})=>{
+     transferResolved=true;transfer='Fictional Study Only VWAP replay: '+observations+' completed observations';stage=8;render();
+    }});
+   }else if(special){
     appendParagraph(body,special.transfer.prompt);
     const f=field(body,'Answer ('+special.units+')',transfer,'input');f.disabled=transferResolved;
     if(!transferResolved)body.append(button('Check new case — free retry',()=>{
