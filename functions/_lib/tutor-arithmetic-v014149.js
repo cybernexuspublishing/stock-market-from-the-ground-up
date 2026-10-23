@@ -36,3 +36,19 @@ export function hypotheticalLongPnL({entry,exit,shares}={}){
  return {ok:true,hypothetical:true,pnl:delta/100,perShare:(b-a)/100,returnPercent:(b-a)*100/a,
   warning:'Hypothetical, before costs; not an authenticated broker fill.'};
 }
+
+// A purely hypothetical OHLC teaching calculation. These inputs are not
+// authentic historical bars, market data, or any recommendation to trade.
+export function hypotheticalCandleBodyPercent({open,high,low,close}={}){
+ const values=[open,high,low,close];
+ if(values.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<=0||v>1000000)||
+  !(high>low)||high<Math.max(open,close)||low>Math.min(open,close))
+  return {ok:false,code:'INVALID_CANDLE',message:'Enter four positive prices. High must be at least the open and close; low must be no greater than either; high must exceed low.'};
+ const body=Math.abs(close-open),range=high-low;
+ const ratio=Math.min(100,Math.max(0,100*body/range));
+ return {ok:true,hypothetical:true,open,high,low,close,
+  direction:close>open?'bullish':close<open?'bearish':'doji',
+  bodySize:body,fullRange:range,bodyPercentOfRange:ratio,
+  explanation:'The candle body is the absolute difference between close and open. The full candle range is high minus low. Divide body by full range, then multiply by 100. A zero body is possible; a zero full range cannot be used as a denominator.',
+  caution:'Hypothetical OHLC example only. This measure describes candle geometry, not volume, future direction, trade probability, or a verified historical bar.'};
+}

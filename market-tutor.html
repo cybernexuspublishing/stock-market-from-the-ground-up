@@ -16,6 +16,20 @@
 <button id="tutor-calc-submit" type="button" class="btn secondary">Calculate hypothetical shares and risk</button>
 <p id="tutor-calc-result" class="small" role="status" aria-live="polite">Enter hypothetical values and calculate.</p>
 </section>
+<section class="tutor-history" aria-labelledby="tutor-candle-title">
+<h3 id="tutor-candle-title">Learn: Candle body as a percentage of its range</h3>
+<p class="small">The <strong>open</strong> is the starting price and the <strong>close</strong> is the ending price for a candle. The <strong>high</strong> is its highest price and the <strong>low</strong> is its lowest. The body is the distance from open to close; the full range is the distance from low to high.</p>
+<p class="small"><strong>Steps:</strong> 1. Subtract open from close and use the positive distance. 2. Subtract low from high. 3. Divide body by range. 4. Multiply by 100 to get a percentage. Example: open $2.00, close $2.06, high $2.10, low $1.90 → $0.06 ÷ $0.20 × 100 = <strong>30%</strong>.</p>
+<div class="tutor-calc-grid">
+<label>Open price ($)<input id="tutor-candle-open" type="number" min="0.0001" step="any" value="2.00"></label>
+<label>High price ($)<input id="tutor-candle-high" type="number" min="0.0001" step="any" value="2.10"></label>
+<label>Low price ($)<input id="tutor-candle-low" type="number" min="0.0001" step="any" value="1.90"></label>
+<label>Close price ($)<input id="tutor-candle-close" type="number" min="0.0001" step="any" value="2.06"></label>
+</div>
+<button id="tutor-candle-submit" type="button" class="btn secondary">Calculate and explain the candle</button>
+<p id="tutor-candle-result" class="small" role="status" aria-live="polite">Try the example, then change the close to $2.00 to discover what a doji means.</p>
+<p class="small">This is a fictional example, not a historical chart or a prediction. A larger body alone does not establish a profitable trade. Compare the candle with volume, market context and nearby levels.</p>
+</section>
 <section class="tutor-ai-meter" aria-labelledby="tutor-ai-meter-title">
 <h3 id="tutor-ai-meter-title">First-party paid AI Tutor</h3>
 <p class="small">This is our own member education service, with protected model inference, our curriculum, private usage limits and member access controls. The underlying language model may be supplied by an external provider; we do not claim to own its weights or training.</p>

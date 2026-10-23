@@ -389,6 +389,33 @@ async function calculateHypotheticalPosition(){
    '. '+data.warning;
  }catch(e){if(epoch===TUTOR.identityEpoch)show.textContent=e.message||'Calculation unavailable.'}
 }
+async function calculateHypotheticalCandle(){
+ const show=$('tutor-candle-result');
+ if(!TUTOR.user){show.textContent='Sign in to use the Tutor calculator.';return}
+ const names=['open','high','low','close'],values=names.map(key=>$('tutor-candle-'+key).value.trim());
+ if(values.some(v=>!v||!Number.isFinite(Number(v)))){
+  show.textContent='Enter valid numeric open, high, low and close prices.';return;
+ }
+ const epoch=TUTOR.identityEpoch,uid=TUTOR.user.id;
+ show.textContent='Calculating the hypothetical candle…';
+ try{
+  const access=await token();if(!access)throw Error('Session expired.');
+  const valuesByName=Object.fromEntries(names.map((n,i)=>[n,Number(values[i])]));
+  const result=await fetch('/api/tutor-calculator',{method:'POST',cache:'no-store',
+   headers:{authorization:'Bearer '+access,'content-type':'application/json'},
+   body:JSON.stringify({action:'candle',...valuesByName})});
+  const data=await result.json().catch(()=>null);
+  if(epoch!==TUTOR.identityEpoch||uid!==TUTOR.user?.id)return;
+  if(!result.ok||!data?.ok){show.textContent=data?.message||data?.error||'Calculation unavailable.';return}
+  const display=v=>Number(v).toLocaleString(undefined,{maximumFractionDigits:6});
+  show.textContent='Step 1 — Body: |close − open| = '+display(data.bodySize)+
+   '. Step 2 — Full range: high − low = '+display(data.fullRange)+
+   '. Step 3 — Body ÷ range × 100 = '+data.bodyPercentOfRange.toFixed(2)+'%. '+
+   'This example is '+data.direction+'. '+data.caution;
+ }catch(e){
+  if(epoch===TUTOR.identityEpoch&&uid===TUTOR.user?.id)show.textContent=e.message||'Calculation unavailable.';
+ }
+}
 async function exportAllTutorData(){
  const epoch=TUTOR.identityEpoch,uid=TUTOR.user?.id;
  if(!uid){historyStatus('Sign in to download your private Tutor notes.');return}
@@ -552,6 +579,7 @@ async function initTutor(){
   $('tutor-ai-consent').checked=false;updateCount();void ask();
  });
  $('tutor-calc-submit').addEventListener('click',()=>void calculateHypotheticalPosition());
+ $('tutor-candle-submit').addEventListener('click',()=>void calculateHypotheticalCandle());
  $('tutor-conversation-new').addEventListener('click',()=>void newConversation());
  $('tutor-conversation-all').addEventListener('click',()=>selectConversation(null));
  $('tutor-conversation-rename').addEventListener('click',()=>void renameConversation());
