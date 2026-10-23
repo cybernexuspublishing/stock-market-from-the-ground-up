@@ -13,7 +13,7 @@ const RULES=[
  ['vwap',/\bvwap\b|volume.weighted.average/i],
  ['ema',/\bema\b|moving.average|multi(?:ple)?.timeframe/i],
  ['volume',/\bvolume\b|participation|relative.volume|trade.frequency|trade.count/i],
- ['structure',/\bchart\b|higher highs|higher lows|lower highs|lower lows|\bhh.hl\b|\blh.ll\b|\btrend\b|support|resistance|\bbreakout\b|\bpullback\b|\bcontinuation\b|\bprice action\b|\breversal\b|\bmomentum\b|\bHOD\b|\bPMH\b|\bPDH\b|\breplay\b|\bprice discovery\b|\bprice behavior\b|\brange\b/i],
+ ['structure',/\bchart\b|higher highs|higher lows|lower highs|lower lows|\bhh.hl\b|\blh.ll\b|\btrend\b|support|resistance|\bbreakout\b|\bpullback\b|\bcontinuation\b|\bprice action\b|\breversal\b|\bmomentum\b|\bHOD\b|\bPMH\b|\bPDH\b|\breplay\b|\bprice discovery\b|\bprice behavior\b|\brange\b|\bMFE\b|\bMAE\b|\bgap\b|\bsqueeze\b|\bretest\b|\bfailed\s+reclaim\b|\bDay\s*[123]\b/i],
  ['routing',/order.routing|order.selection|order.types|primary.market|secondary.market|share.issuance|\bsettlement\b|\bexchange\b|participants?\s+relationship|auction\s+mechanic/i]
 ];
 function select({lab,topic,competencies}={}){
