@@ -1,0 +1,24 @@
+/* D14 original Day 05 teaching should never act as official assessment. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+const content=readFileSync('assets/js/bootcamp-day05-v014154.js','utf8');
+const ui=readFileSync('assets/js/bootcamp.js','utf8');
+const html=readFileSync('bootcamp.html','utf8');
+const context={};context.globalThis=context;
+runInNewContext(content,context);
+assert(typeof context.GroundUpBootcampDay05?.mount==='function');
+assert(Object.isFrozen(context.GroundUpBootcampDay05));
+assert(content.includes('0.06 ÷ $0.20')||content.includes('$0.06 ÷ $0.20'),'Known numerators and denominators displayed');
+assert(content.includes('Math.abs(value-30)<=.1'),'Worked 30 percent example must match displayed calculation');
+assert(content.includes('misses>=2'),'Choice scaffold unlocked after two misses');
+assert(content.includes('options.hidden=true'),'Correct typed answer collapses extra options');
+assert(content.includes('Constructed educational example'),'No synthetic historical claim');
+assert(content.includes('not a graded assessment'),'Do not award mastery through self-check');
+assert(!/fetch\(|localStorage|sessionStorage/.test(content),'No provider calls or privileged progress writes');
+assert(html.includes('gu-bc-day05-stage'));
+assert(html.indexOf('bootcamp-day05-v014154.js')<html.indexOf('assets/js/bootcamp.js'));
+assert(ui.includes('selected===5'),'Day 05 practice cannot overwrite another day');
+assert(ui.includes('if(lesson?.mount)lesson.mount(candleStage)'));
+assert(ui.includes('progressAvailable=data.progressAvailable===true'),'Existing progress eligibility preserved');
+console.log('PASS D14 original visual-first candle arithmetic, two-miss scaffold, ungraded entitlement-gated UI');
