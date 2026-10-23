@@ -361,7 +361,9 @@ async function mount({labId,mode,target,lab,focusId}={}){
     selfReview=true;render();
    }));else answerStatus('Review recorded locally. It is not a competency grade.',true);
   }else if(stage===7){
-   showVisual(7,'transfer');
+   // A controlled replay owns its own chronological chart; avoid an
+   // unrelated weighted-groups illustration above the replay question.
+   if(!(kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create))showVisual(7,'transfer');
    appendParagraph(body,'Apply the concept to an unfamiliar case. A study solution here never awards mastery or replaces the existing private assessment.');
    if(kind==='vwap'){
     appendParagraph(body,'For chronological candles, use the authenticated, rights-reviewed replay service. This page does not preload future bars or turn synthetic samples into historical evidence.');
