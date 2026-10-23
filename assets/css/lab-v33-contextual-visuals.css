@@ -1,0 +1,46 @@
+/* LAB-UX-STD-001: VWAP reference's chart-first, dark workbench reused by v3.3. */
+#gu-v32-teaching-slot .gu-l33-graphic{background:#0d2234;color:#e9f3fd;border:1px solid #29465d;border-radius:12px;padding:13px 15px;margin:15px 0 20px;min-width:0;overflow:hidden}
+#gu-v32-teaching-slot .gu-l33-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+#gu-v32-teaching-slot .gu-l33-head strong{font-size:.95rem;font-weight:700}
+#gu-v32-teaching-slot .gu-l33-badge{background:#243d4c;color:#c6e1ee;border:1px solid #345b72;border-radius:18px;font-size:.65rem;font-weight:650;padding:5px 9px;letter-spacing:.025em}
+#gu-v32-teaching-slot .gu-l33-source{font-size:.82rem!important;line-height:1.5!important;color:#c1d6e7!important;margin:5px 0 13px}
+#gu-v32-teaching-slot .gu-l33-single,#gu-v32-teaching-slot .gu-l33-chart{width:100%;margin:auto}
+#gu-v32-teaching-slot .gu-l33-single svg,#gu-v32-teaching-slot .gu-l33-chart svg{display:block;width:100%;max-width:920px;height:auto;margin-inline:auto;border-radius:11px}
+#gu-v32-teaching-slot .gu-l33-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:11px 0}
+#gu-v32-teaching-slot .gu-l33-metrics>div{background:#172f43;border:1px solid #2d4b63;border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:2px;min-width:0}
+#gu-v32-teaching-slot .gu-l33-metrics>div span{font-size:.74rem;color:#b7cddd}
+#gu-v32-teaching-slot .gu-l33-metrics>div strong{font-size:.99rem;color:#fff;font-variant-numeric:tabular-nums}
+#gu-v32-teaching-slot .gu-l33-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 17px;margin:12px 0 2px;color:#bdd2e0}
+#gu-v32-teaching-slot .gu-l33-legend span{display:inline-flex;align-items:center;gap:6px;font-size:.8rem}
+#gu-v32-teaching-slot .gu-l33-legend i{width:10px;height:10px;border-radius:2px;flex:none}
+#gu-v32-teaching-slot .gu-l33-takeaway{font-size:.87rem!important;line-height:1.6!important;color:#d5e9f6!important;background:#162f41;border-left:3px solid #55c9a0;border-radius:4px;padding:9px 12px;margin:12px 0 2px}
+#gu-v32-teaching-slot .gu-l33-detail{border:1px solid #355a71;border-radius:9px;background:#152b3b;margin:13px 0;padding:9px 12px}
+#gu-v32-teaching-slot .gu-l33-detail summary{font-size:.86rem;cursor:pointer;color:#d4eaff}
+#gu-v32-teaching-slot .gu-l33-detail table,#gu-v32-teaching-slot .gu-l33-tape{width:100%;border-collapse:collapse;margin:10px 0 0;font-size:.84rem;font-variant-numeric:tabular-nums;color:#e9f4fa}
+#gu-v32-teaching-slot .gu-l33-detail th,#gu-v32-teaching-slot .gu-l33-detail td,#gu-v32-teaching-slot .gu-l33-tape th,#gu-v32-teaching-slot .gu-l33-tape td{padding:7px 9px;border-bottom:1px solid #33506a;text-align:right}
+#gu-v32-teaching-slot .gu-l33-detail th:first-child,#gu-v32-teaching-slot .gu-l33-detail td:first-child,#gu-v32-teaching-slot .gu-l33-tape th:first-child,#gu-v32-teaching-slot .gu-l33-tape td:first-child{text-align:left}
+#gu-v32-teaching-slot .gu-l33-detail caption,#gu-v32-teaching-slot .gu-l33-tape caption{caption-side:bottom;padding-top:9px;color:#b8cce0;font-size:.76rem}
+#gu-v32-teaching-slot .gu-l33-tape .gu-l33-buy td:last-child{color:#75ddb8}
+#gu-v32-teaching-slot .gu-l33-tape .gu-l33-sell td:last-child{color:#f5b2ae}
+#gu-v32-teaching-slot .gu-l33-depth{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#gu-v32-teaching-slot .gu-l33-depth>div{background:#172e43;border-radius:10px;padding:11px;border:1px solid #35506a}
+#gu-v32-teaching-slot .gu-l33-depth h4{margin:0 0 9px;color:#f1f7fa}
+#gu-v32-teaching-slot .gu-l33-depth>div>div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.87rem;padding:7px 5px;border-top:1px solid #38536a}
+#gu-v32-teaching-slot .gu-l33-depth>div:first-child strong{color:#8de4c2}
+#gu-v32-teaching-slot .gu-l33-depth>div:nth-child(2) strong{color:#f3adb9}
+#gu-v32-teaching-slot .gu-l33-depth span{color:#bfd0db}
+#gu-v32-teaching-slot .gu-l33-routing{display:flex;align-items:stretch;justify-content:center;gap:8px;flex-wrap:wrap}
+#gu-v32-teaching-slot .gu-l33-routing div{border:1px solid #40617e;background:#173248;border-radius:10px;padding:12px 15px;font-size:.88rem;flex:1 1 150px;text-align:center}
+#gu-v32-teaching-slot .gu-l33-routing div:not(:last-child):after{content:"→";float:right;color:#9fc6de}
+#gu-v32-teaching-slot .gu-l33-visual-question{padding:11px 13px;background:#183247;border:1px solid #36536b;border-radius:10px;margin:10px 0 13px}
+#gu-v32-teaching-slot .gu-l33-visual-question h3{font-size:1rem;margin:0 0 6px}
+#gu-v32-teaching-slot .gu-l33-visual-question p{margin:6px 0!important;font-size:.88rem!important}
+#gu-v32-teaching-slot .gu-l33-visual-warning{font-size:.8rem!important;color:#b9d0e0!important}
+@media(max-width:740px){
+ #gu-v32-teaching-slot .gu-l33-graphic{padding:11px 9px}
+ #gu-v32-teaching-slot .gu-l33-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #gu-v32-teaching-slot .gu-l33-depth{grid-template-columns:1fr}
+ #gu-v32-teaching-slot .gu-l33-detail{overflow-x:auto}
+ #gu-v32-teaching-slot .gu-l33-legend{gap:7px 12px}
+}
+@media(prefers-reduced-motion:reduce){#gu-v32-teaching-slot .gu-l33-graphic *{scroll-behavior:auto!important}}
