@@ -92,7 +92,10 @@ export async function onRequest({request,env}){
    catch(e){bookFailure=e}
   }
   if(!premium&&!owns&&!sample){
-   if(premiumFailure||bookFailure)throw Object.assign(Error('Entitlement verification unavailable.'),{status:503});
+   if(premiumFailure||bookFailure){
+    stage=bookFailure?'BOOK':'PREMIUM';
+    throw Object.assign(Error('Entitlement verification unavailable.'),{status:503});
+   }
    return reply({ok:false,error:'Matching book or active Interactive Learning access required.'},403);
   }
   stage='TEACHING';
