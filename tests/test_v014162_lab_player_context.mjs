@@ -49,5 +49,21 @@ try{
  authorized=true;kind='showcase';r=await onRequest({env,request:req()});assert.equal(r.status,403);
  r=await onRequest({env,request:req('%27%20OR%201%3D1')});assert.equal(r.status,400);
  assert(calls.some(x=>x.target.includes('lab_id=eq.SITE-001')));
+
+ // Premium RPC errors must not prevent a member's matching-book Guided access.
+ let rpcFail=false;
+ const previousFetch=globalThis.fetch;
+ globalThis.fetch=async(url,init)=>{
+  if(String(url).endsWith('/rpc/user_has_tool_access')&&rpcFail)return json({code:'PGRST202'},404);
+  return previousFetch(url,init);
+ };
+ storedCode='DAY_TRADING_BOOK_1';ownsBook=true;rpcFail=true;
+ r=await onRequest({env,request:req()});assert.equal(r.status,200,'Owned book Guided works despite missing premium RPC');
+ b=await r.json();assert.equal(b.advancedAllowed,false);
+ storedCode='SITE_EXCLUSIVE';rpcFail=true;
+ r=await onRequest({env,request:req()});assert.equal(r.status,503,'Site-exclusive cannot bypass missing premium RPC');
+ storedCode='FOUNDATION_BOOK_1';rpcFail=true;ownsBook=false;
+ r=await onRequest({env,request:req('F1-C02-L01')});assert.equal(r.status,200,'Approved free sample works for signed-in member despite RPC outage');
+ globalThis.fetch=previousFetch;
  console.log('PASS D12 canonical member fallback, modern private service header, unpublished/Showcase/unauthorized and malformed ID denials');
 }finally{globalThis.fetch=old}

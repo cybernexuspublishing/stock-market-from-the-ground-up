@@ -2,7 +2,7 @@
  * Only public metadata for currently entitled members is returned. Does not
  * publish book text, unapproved answer keys, chart history or future bars.
  */
-import {toolAccess} from './member-tool-access.js';
+import {memberIdentity} from './member-tool-access.js';
 import {getBookCodeAccess} from './lab-content.js';
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',
@@ -43,20 +43,51 @@ export async function onRequest({request,env}){
   if(request.method!=='GET')return reply({ok:false,error:'Method not allowed.'},405);
   const id=new URL(request.url).searchParams.get('id')||'';
   if(!code.test(id))return reply({ok:false,error:'Invalid Lab ID.'},400);
-  // Authenticated production identity is required before querying member
-  // context; disabled/Showcase/Test accounts are rejected in toolAccess.
-  const access=await toolAccess(env,request,'ONDEMAND_TRAINING');
-  if(!access.userId||!code.test(access.userId.replaceAll('-','')))return reply({ok:false,error:'Sign in required.'},401);
+  // Authenticate independently of the premium RPC. A member owning a book
+  // must not lose Guided orientation merely because premium RPC is unavailable.
+  const actor=await memberIdentity(env,request);
   const lab=await read(env,id);
   if(!lab||lab.active!==true||lab.registry_visible!==true||!BOOKS[lab.book_code])
    return reply({ok:false,error:'This Lab is not published.'},404);
   const book=BOOKS[lab.book_code];
-  const owns=lab.book_code==='SITE_EXCLUSIVE'?false:
-   await getBookCodeAccess(env,request,lab.book_code);
-  // Full/on-demand entitlement confers advanced interactive access.
-  // A book-alone owner gets only matching guided companion instruction.
-  if(access.authorized!==true&&!owns)
+  const sample=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']).has(id);
+  // The original member account gates must remain authoritative.
+  // Check the actor without invoking the premium entitlement RPC first.
+  const c=config(env),headers={apikey:c.secret,accept:'application/json'};
+  if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;
+  const profile=await fetch(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+
+   encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
+  if(!profile.ok)throw Object.assign(Error('Lab member status unavailable.'),{status:503});
+  const profiles=await profile.json();
+  if(profiles?.[0]?.account_kind!=='member')
+   return reply({ok:false,error:'A production member account is required.'},403);
+  const flagsResponse=await fetch(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+
+   encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
+  if(!flagsResponse.ok)throw Object.assign(Error('Account restriction status unavailable.'),{status:503});
+  const flags=await flagsResponse.json();
+  if(['suspended','restricted'].includes(String(flags?.[0]?.status||'').toLowerCase()))
+   return reply({ok:false,error:'Account access is restricted.'},403);
+  // A premium RPC outage must not block an independently confirmed book owner
+  // or an approved free sample. For other Labs, entitlement failure is fail-closed.
+  let premium=false,premiumFailure=null;
+  try{
+   const rpc=await fetch(c.base+'/rest/v1/rpc/user_has_tool_access',{
+    method:'POST',headers:{...headers,'content-type':'application/json'},
+    body:JSON.stringify({target_user:actor.userId,target_tool:'ONDEMAND_TRAINING'}),
+    cache:'no-store'
+   });
+   if(!rpc.ok)throw Error('Premium entitlement service unavailable');
+   premium=await rpc.json()===true;
+  }catch(e){premiumFailure=e}
+  let owns=false,bookFailure=null;
+  if(!premium&&!sample&&lab.book_code!=='SITE_EXCLUSIVE'){
+   try{owns=await getBookCodeAccess(env,request,lab.book_code)}
+   catch(e){bookFailure=e}
+  }
+  if(!premium&&!owns&&!sample){
+   if(premiumFailure||bookFailure)throw Object.assign(Error('Entitlement verification unavailable.'),{status:503});
    return reply({ok:false,error:'Matching book or active Interactive Learning access required.'},403);
+  }
   const title=safe(lab.title,180);
   // These fields already exist in the public canonical catalog. Whitelist
   // only instructional prose; never forward arbitrary metadata or keys.
@@ -81,7 +112,7 @@ export async function onRequest({request,env}){
    beforeAdvance:[],dataNote:'Canonical registry metadata only. A substantive authored private lesson or reviewed answer set may still be unavailable; no market history or grade is implied.'
   };
   return reply({ok:true,lab:context,guidedAllowed:true,
-   advancedAllowed:access.authorized===true,
+   advancedAllowed:premium,
    sourceStatus:'canonical_registry_safe_orientation_only',
    instructionReviewed:false,assessmentReviewed:false,
    notice:'Original member orientation, not an approved 419-Lab graded assessment.'});

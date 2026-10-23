@@ -6,7 +6,17 @@ const enc=encodeURIComponent;
 const error=(message,status=403)=>Object.assign(new Error(message),{status});
 function config(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),pub=env.SUPABASE_PUBLISHABLE_KEY,secret=env.SUPABASE_SECRET_KEY;if(!base||!pub||!secret)throw error('Training authorization is not configured.',503);return{base,pub,secret}}
 async function ask(url,init){const r=await fetch(url,{...init,cache:'no-store'});if(!r.ok)throw error('Training authorization unavailable.',r.status===401?401:503);return r.json()}
-export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDEMAND_TRAINING','JOURNAL_ANALYTICS','MARKET_TUTOR'].includes(toolCode))throw error('Unknown training tool.',400);const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw error('Sign in required.',401);const c=config(env);const user=await ask(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});if(!user?.id)throw error('Invalid session.',401);
+export async function memberIdentity(env,req){
+ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];
+ if(!token)throw error('Sign in required.',401);
+ const c=config(env);
+ const user=await ask(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});
+ if(!user?.id)throw error('Invalid session.',401);
+ return {userId:user.id,config:c};
+}
+export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDEMAND_TRAINING','JOURNAL_ANALYTICS','MARKET_TUTOR'].includes(toolCode))throw error('Unknown training tool.',400);
+ const actor=await memberIdentity(env,req);
+ const user={id:actor.userId},c=actor.config;
  // Legacy service-role JWTs support Bearer. Modern sb_secret_* values MUST only
  // be supplied as apikey; using them as JWT Authorization breaks PostgREST.
  const headers={apikey:c.secret,accept:'application/json'};
