@@ -20,15 +20,16 @@ export async function getVerifiedPriorTutorQuestion(env,userId,conversationId,{r
  const path='gu_member_tutor_exchanges_v014102?select=question,generation'+
   '&user_id=eq.'+encodeURIComponent(userId)+
   '&conversation_id=eq.'+encodeURIComponent(conversationId)+
-  '&order=created_at.desc,id.desc&limit=5';
+  '&order=created_at.desc,id.desc&limit=1';
  try{
   const result=await rest(env,path);
-  if(!result?.ok||!Array.isArray(result.data)||result.data.length>5)return null;
+  if(!result?.ok||!Array.isArray(result.data)||result.data.length>1)return null;
   // Do not use legacy client-copied history or any assistant answer. Prior
   // questions are context clues, never authoritative educational evidence.
-  const previous=result.data.find(row=>row&&VERIFIED.has(row.generation)&&
+  const row=result.data[0];
+  const previous=row&&VERIFIED.has(row.generation)&&
     typeof row.question==='string'&&row.question.trim().length>=4&&
-    row.question.trim().length<=450);
+    row.question.trim().length<=450?row:null;
   return previous?previous.question.trim().replace(/[\u0000-\u001f\u007f]/g,' ').slice(0,240):null;
  }catch{return null}
 }
