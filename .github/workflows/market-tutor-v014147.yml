@@ -38,6 +38,7 @@ jobs:
           node tests/test_v014149_tutor_data_export.mjs
           node tests/test_v014149_tutor_editorial_and_gaps.mjs
           node tests/test_v014149_tutor_lab_context.mjs
+          node tests/test_v014159_tutor_verified_followups.mjs
           node tests/test_v014149_tutor_data_delete.mjs
           node tests/test_v014149_tutor_browser_integrity.mjs
           node scripts/deployment09_release_evidence.mjs
@@ -60,6 +61,7 @@ jobs:
           node --check functions/_lib/first-party-ai-service-v014103.js
           node --check functions/_lib/tutor-gaps-v014149.js
           node --check functions/_lib/tutor-lab-context-v014149.js
+          node --check functions/_lib/tutor-conversation-context-v014159.js
           node --check functions/_lib/owner-tutor-access-v014149.js
           node --check functions/api/owner-tutor-case.js
           node --check functions/api/owner-tutor-topic-gaps.js
