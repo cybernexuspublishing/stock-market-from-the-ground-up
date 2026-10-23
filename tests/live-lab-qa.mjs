@@ -7,17 +7,24 @@ const email=process.env.LAB_QA_EMAIL||'',password=process.env.LAB_QA_PASSWORD||'
 if(!email||!password){console.error('FAIL: QA Secrets missing from GitHub Actions environment.');process.exit(2)}
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 let failed=false;
+let phase='initialize';
 try{
  const context=await browser.newContext({serviceWorkers:'block'});
  const page=await context.newPage();
  page.setDefaultTimeout(23000);
+ phase='open_signin';
  await page.goto(origin+'/signin.html?next=%2Flabs.html',{waitUntil:'domcontentloaded',timeout:30000});
+ phase='find_email_field';
  await page.locator('#login-identifier').fill(email);
+ phase='find_password_field';
  await page.locator('#login-password').fill(password);
+ phase='submit_signin';
  await page.locator('button.auth-submit').click();
+ phase='wait_auth_redirect';
  try{await page.waitForURL(url=>!['/signin','/signin.html'].includes(url.pathname),{timeout:24000})}
  catch{console.error('FAIL: QA account login was not completed. Verify email confirmation and account credentials.');failed=true}
  if(!failed){
+  phase='read_session_and_labs';
   const result=await page.evaluate(async()=>{
    const sb=await window.getSupabaseClient?.();
    const session=sb&&(await sb.auth.getSession()).data.session;
@@ -63,6 +70,6 @@ try{
   }
  }
  await context.close();
-}catch{console.error('FAIL: QA browser interaction encountered an error. Raw details are suppressed to protect member data.');failed=true}
+}catch{console.error('FAIL: QA browser stage '+phase+'. Sensitive browser data remains suppressed.');failed=true}
 finally{await browser.close()}
 process.exitCode=failed?1:0;
