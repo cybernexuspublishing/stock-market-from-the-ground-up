@@ -1,0 +1,35 @@
+name: Shared Lab Engine v3.3 Verification
+on:
+  pull_request:
+    paths:
+      - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/js/lab-engine-v32-teaching.js'
+      - 'assets/js/lab-player.js'
+      - 'assets/css/lab-engine-v32-teaching.css'
+      - 'tests/lab-engine-v33.test.mjs'
+      - '.github/workflows/shared-lab-engine-v33.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-curriculum-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check assets/js/lab-player.js
+          node --check assets/js/lab-engine-v32-universal.js
+          node --check assets/js/lab-engine-v32-teaching.js
+          node tests/lab-engine-v33.test.mjs
+          node tests/test_v014099_curriculum_contract.mjs
+          node tests/test_v014096_419_conceptual_training.mjs
+          bash scripts/build-pages.sh
+          test -f public/lab-player.html
+          test -f public/assets/js/lab-engine-v32-universal.js
+          test -f public/assets/css/lab-engine-v32-teaching.css
