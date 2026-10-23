@@ -27,6 +27,8 @@ jobs:
           node tests/test_v014152_other325_editor_queue.mjs
           node tests/test_v014153_paged_member_grade_history.mjs
           node tests/test_v014154_bootcamp_formative.mjs
+          node scripts/sitewide-readiness-v014158.mjs
+          node tests/test_v014158_source_readiness.mjs
           node --check assets/js/bootcamp.js
           node --check functions/api/interactive-training.js
           node --check assets/js/training-editor.js
@@ -38,6 +40,7 @@ jobs:
           path: |
             artifacts/curriculum-acceptance-v014150.json
             artifacts/curriculum-acceptance-v014150.csv
+            artifacts/sitewide-readiness-v014158.json
             artifacts/d11-foundations-94-content-gaps.json
             artifacts/d11-foundations-94-content-gaps.csv
             artifacts/d12-other325-acceptance.json
