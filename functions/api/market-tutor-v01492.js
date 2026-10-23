@@ -19,6 +19,7 @@ import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
 import {recordTutorGap} from '../_lib/tutor-gaps-v014149.js';
 import {getApprovedLabContext,labGuidance} from '../_lib/tutor-lab-context-v014149.js';
+import {isContextualTutorFollowup,getVerifiedPriorTutorQuestion} from '../_lib/tutor-conversation-context-v014159.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
 const error=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -173,8 +174,10 @@ export async function onRequest({request,env}){
   }
   if(!throttle.verified)safeTutorMetric('status',{reason:'general_rate_meter_unavailable'});
   const q=body.question,mode=body.mode,answer=body.learnerAnswer;
+  let verifiedFollowupContext=false;
   if(body.priorTurnsSupplied)safeTutorMetric('safety',{reason:'unverified_prior_turns_ignored'});
   async function finish(data){
+   data.verifiedFollowupContext=verifiedFollowupContext;
    if(body.saveHistory===true){
     const id=await saveVerifiedTutorExchange(env,auth.userId,{
      requestId:body.requestId,question:q,learnerAnswer:answer,mode,generation:data.generation,
@@ -202,7 +205,16 @@ export async function onRequest({request,env}){
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   const advice=seeksPersonalTradeAdvice(q,answer);
-  const expanded=expandTutorQuery(q);
+  // Only a previously authenticated, verified saved question from this same
+  // member AND same conversation can resolve an anaphoric follow-up.
+  // A browser-provided priorTurns array remains completely untrusted.
+  const prior=body.conversationId&&!advice&&isContextualTutorFollowup(q)
+   ?await getVerifiedPriorTutorQuestion(env,auth.userId,body.conversationId):null;
+  const previous=prior&&!seeksPersonalTradeAdvice(prior)?prior:null;
+  verifiedFollowupContext=!!previous;
+  const contextualQuestion=previous
+   ?'Earlier member question (topic context only): '+previous+' Current question: '+q:q;
+  const expanded=expandTutorQuery(contextualQuestion);
   // Always evaluate BOTH public-source catalogs. Glossary hits cannot mask
   // deeper procedures, limits and invalidation in the original 30 guides.
   const source=rank(expanded),sources=publicMatches(source);
@@ -232,7 +244,7 @@ export async function onRequest({request,env}){
    const reference=[...selectedGuides.map(g=>({title:g.title,
     summary:[g.concept,g.procedure,'Limitation: '+g.limit,'Invalidation: '+g.invalidation]
      .join(' ').slice(0,900)})),...source.slice(0,3-selectedGuides.length)].slice(0,3);
-   const model=await paidLearningDraft(env,body,auth.userId,q,mode,reference,answer);
+   const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,reference,answer);
    return finish({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
     answer:model.text||answerFromGuide(guide,mode,answer),aiReason:model.reason,
     remainingAiToday:model.remainingMemberToday??null,
@@ -244,7 +256,7 @@ export async function onRequest({request,env}){
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   const baseline=deterministic(q,mode,sources,answer);
-  const model=await paidLearningDraft(env,body,auth.userId,q,mode,source,answer);
+  const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,source,answer);
   const generation=model.text?'grounded-model-draft':'reviewed-glossary-logic';
   return finish({ok:true,generation,answer:model.text||baseline,sources,
    aiReason:model.reason,remainingAiToday:model.remainingMemberToday??null,
