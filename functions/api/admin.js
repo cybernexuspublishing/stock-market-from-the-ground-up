@@ -6,6 +6,14 @@ const clean=(v)=>String(v??'').trim();
 const safeCode=(v)=>clean(v).toUpperCase().replace(/[^A-Z0-9_\-]/g,'_').slice(0,80);
 const nowIso=()=>new Date().toISOString();
 
+function serviceHeaders(value){
+ const secret=clean(value);
+ if(secret.startsWith('sb_secret_'))return {apikey:secret};
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
+  return {apikey:secret,authorization:'Bearer '+secret};
+ throw new Error('Supabase service key is unavailable or malformed.');
+}
+
 function envConfig(env){
   const url=clean(env.SUPABASE_URL).replace(/\/$/,'');
   const pub=clean(env.SUPABASE_PUBLISHABLE_KEY);
@@ -16,10 +24,10 @@ function envConfig(env){
 function bearer(request){const h=request.headers.get('authorization')||'';return h.startsWith('Bearer ')?h.slice(7):''}
 async function jbody(request){try{return await request.json()}catch{return {}}}
 async function rawFetch(url,opts={}){const r=await fetch(url,opts);let data=null;const text=await r.text();if(text){try{data=JSON.parse(text)}catch{data=text}}if(!r.ok){const msg=(data&&typeof data==='object'&&(data.message||data.msg||data.error_description||data.error))||text||`HTTP ${r.status}`;throw Object.assign(new Error(String(msg)),{status:r.status,data})}return {response:r,data}}
-async function serviceRest(env,path,{method='GET',body,prefer,headers={}}={}){const {url,secret}=envConfig(env);const h={apikey:secret,authorization:`Bearer ${secret}`,accept:'application/json',...headers};if(body!==undefined)h['content-type']='application/json';if(prefer)h.prefer=prefer;return rawFetch(`${url}/rest/v1/${path}`,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)})}
+async function serviceRest(env,path,{method='GET',body,prefer,headers={}}={}){const {url,secret}=envConfig(env);const h={...serviceHeaders(secret),accept:'application/json',...headers};if(body!==undefined)h['content-type']='application/json';if(prefer)h.prefer=prefer;return rawFetch(`${url}/rest/v1/${path}`,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)})}
 async function caller(env,request){const token=bearer(request);if(!token)throw Object.assign(new Error('Authentication required.'),{status:401});const {url,pub}=envConfig(env);const {data}=await rawFetch(`${url}/auth/v1/user`,{headers:{apikey:pub,authorization:`Bearer ${token}`}});return {token,user:data}}
-async function adminAuth(env,path,{method='GET',body}={}){const {url,secret}=envConfig(env);const headers={apikey:secret,authorization:`Bearer ${secret}`,accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';return rawFetch(`${url}/auth/v1/admin/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
-async function countTable(env,table,filter=''){const {url,secret}=envConfig(env);const r=await fetch(`${url}/rest/v1/${table}?select=*${filter?`&${filter}`:''}`,{headers:{apikey:secret,authorization:`Bearer ${secret}`,prefer:'count=exact',range:'0-0'}});if(!r.ok)return null;const cr=r.headers.get('content-range')||'';const m=cr.match(/\/(\d+|\*)$/);return m&&m[1]!=='*'?Number(m[1]):null}
+async function adminAuth(env,path,{method='GET',body}={}){const {url,secret}=envConfig(env);const headers={...serviceHeaders(secret),accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';return rawFetch(`${url}/auth/v1/admin/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
+async function countTable(env,table,filter=''){const {url,secret}=envConfig(env);const r=await fetch(`${url}/rest/v1/${table}?select=*${filter?`&${filter}`:''}`,{headers:{...serviceHeaders(secret),prefer:'count=exact',range:'0-0'}});if(!r.ok)return null;const cr=r.headers.get('content-range')||'';const m=cr.match(/\/(\d+|\*)$/);return m&&m[1]!=='*'?Number(m[1]):null}
 async function roleContext(env,userId){
   const enc=encodeURIComponent(userId);
   const {data:urs}=await serviceRest(env,`admin_user_roles?select=role_code,expires_at&user_id=eq.${enc}`);

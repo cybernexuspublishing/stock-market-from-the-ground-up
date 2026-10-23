@@ -11,7 +11,15 @@ const LOGIN=/^[A-Za-z][A-Za-z0-9_]{2,23}$/;
 const synthetic=[{id:'00000000-0000-4000-8000-000000000001',email:'reader-one@example.test',username:'SampleReader',firstName:'Sample',lastName:'Reader',type:'member',roles:[],createdAt:'2026-01-12T12:00:00Z'},{id:'00000000-0000-4000-8000-000000000002',email:'moderator@example.test',username:'DemoMod',firstName:'Demo',lastName:'Moderator',type:'moderator',roles:['MODERATOR'],createdAt:'2026-02-12T12:00:00Z'},{id:'00000000-0000-4000-8000-000000000003',email:'showcase@example.test',username:'DemoShowcase',firstName:'Demo',lastName:'Showcase',type:'showcase',roles:['SHOWCASE_VIEWER'],createdAt:'2026-02-12T12:00:00Z'}];
 function cfg(env){const base=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);if(!/^https:\/\//.test(base)||!pub||!secret)throw problem('Account administration is not configured.',503);return{base,pub,secret}}
 async function json(url,opt={}){const r=await fetch(url,{...opt,cache:'no-store'});const t=await r.text();let data=null;try{data=t?JSON.parse(t):null}catch{}if(!r.ok)throw problem(clean(data?.message||data?.error_description||data?.error||'Account service unavailable.'),r.status>=500?503:r.status);return data}
-function apiHeaders(secret,body){return{apikey:secret,authorization:`Bearer ${secret}`,accept:'application/json',...(body===undefined?{}:{'content-type':'application/json'})}}
+function apiHeaders(value,body){
+ const secret=clean(value);
+ let service;
+ if(secret.startsWith('sb_secret_'))service={apikey:secret};
+ else if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
+  service={apikey:secret,authorization:'Bearer '+secret};
+ else throw problem('Supabase service key is unavailable or malformed.',503);
+ return {...service,accept:'application/json',...(body===undefined?{}:{'content-type':'application/json'})};
+}
 async function rest(env,path,opt={}){const c=cfg(env);return json(c.base+'/rest/v1/'+path,{method:opt.method||'GET',headers:{...apiHeaders(c.secret,opt.body),...(opt.prefer?{prefer:opt.prefer}:{})},body:opt.body===undefined?undefined:JSON.stringify(opt.body)})}
 async function authAdmin(env,path,method='GET',body){const c=cfg(env);return json(c.base+'/auth/v1/admin/'+path,{method,headers:apiHeaders(c.secret,body),body:body===undefined?undefined:JSON.stringify(body)})}
 function assurance(token){try{const p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(p.padEnd(Math.ceil(p.length/4)*4,'='))).aal||'aal1'}catch{return 'aal1'}}
