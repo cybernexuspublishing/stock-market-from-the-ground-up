@@ -223,6 +223,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
   if(![3,5].includes(stage)&&root.GroundUpLabV33Instructor?.create){
    const instructor=root.GroundUpLabV33Instructor.create({
     stage,subject:tutorTopic||'observable market evidence',concept:topic,
+    lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
     requestTutor:tutorRequest,seen:narratedStages.has(stage)
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
