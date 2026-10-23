@@ -57,7 +57,7 @@ try{
   if(String(url).endsWith('/rpc/user_has_tool_access')&&rpcFail)return json({code:'PGRST202'},404);
   return previousFetch(url,init);
  };
- storedCode='DAY_TRADING_BOOK_1';ownsBook=true;rpcFail=true;
+ kind='member';storedCode='DAY_TRADING_BOOK_1';ownsBook=true;rpcFail=true;
  r=await onRequest({env,request:req()});assert.equal(r.status,200,'Owned book Guided works despite missing premium RPC');
  b=await r.json();assert.equal(b.advancedAllowed,false);
  storedCode='SITE_EXCLUSIVE';rpcFail=true;
