@@ -4,13 +4,13 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
 <meta name="description" content="Interactive Learning Center — The Stock Market: From the Ground Up">
 <script>
-/* Owner-approved exact v3.2 reference UX for the two designated fictional
-   demonstration Labs. Official, protected attempts remain on ?official=1.
+/* Optional v3.2 fictional demo only for ?demo=1.
+   Production Lab Engine v3.3 is the default authorized member page.
    Never handle real member progress, graded answers or payments here. */
 (function(){
  const args=new URLSearchParams(window.location.search);
  const id=args.get('lab');
- if(args.get('official')==='1')return;
+ if(args.get('demo')!=='1')return;
  if(id==='F2-C07-L01'||id==='F3-C06-L01'){
   window.location.replace('/lab-v32-member.html?lab='+encodeURIComponent(id));
  }
