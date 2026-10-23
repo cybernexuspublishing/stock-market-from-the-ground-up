@@ -53,5 +53,6 @@ data['builtAtUtc']=datetime.datetime.now(datetime.timezone.utc).isoformat(timesp
 data['status']='built-source-not-live-verified'
 with open(p,'w',encoding='utf-8') as f:json.dump(data,f,indent=2);f.write('\n')
 PYBUILD
+node scripts/build-site-accessibility.mjs
 node scripts/build-public-seo.mjs
 printf 'Cloudflare Pages static output: %s files\n' "$(find "$output" -type f | wc -l)"
