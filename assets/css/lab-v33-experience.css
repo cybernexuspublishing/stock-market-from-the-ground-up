@@ -51,3 +51,10 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric{padding:12px;borde
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric strong{font-size:.91rem}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-metric span{font-size:.75rem;color:#bfd4e2}
 @media(max-width:650px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-skill-grid{grid-template-columns:1fr}}
+
+/* Collapsible metadata and credit information instead of distracting panels. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-source-note{margin:9px 0;border:1px solid #365168;border-radius:8px;background:#122636;padding:7px 12px;font-size:.8rem;color:#c4d5e2}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-source-note p{font-size:.79rem!important;line-height:1.5!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-wallet-disclosure{margin:13px 0;border:1px solid #32526c;border-radius:9px;background:#122637;padding:10px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-wallet-disclosure>.wallet{margin:10px 0 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .instruction ul{padding-left:23px;line-height:1.6;margin:9px 0 2px}
