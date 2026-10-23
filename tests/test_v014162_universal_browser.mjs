@@ -26,7 +26,7 @@ try{
   await page.getByRole('button',{name:'Lock my prediction'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.locator('#universal-test textarea').fill('I can only use values already observed; I must define units, comparison and invalidation.');
-  await page.getByRole('button',{name:'Record independent practice'}).click();
+  await page.getByRole('button',{name:'Record ungraded practice'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.locator('#universal-test').getByRole('heading',{name:'Assess',exact:true}).waitFor();
   assert.match(await page.locator('#universal-test').innerText(),/server-graded question bank/);
