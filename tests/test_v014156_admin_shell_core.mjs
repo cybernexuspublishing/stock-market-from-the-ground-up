@@ -1,0 +1,34 @@
+/* D16 preview shell: backend remains authoritative; no live connections. */
+import assert from 'node:assert/strict';
+import {AdminShellCore} from '../assets/js/admin-shell-core-v014156.mjs';
+let token='member-token',calls=0,opts=[],resolveFetch;
+const json=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:{'content-type':'application/json'}});
+const fetchImpl=async(url,o)=>{
+ calls++;opts.push({url,o});
+ if(url.includes('action=delayed'))return new Promise(resolve=>{resolveFetch=resolve});
+ return json({ok:true,action:new URL('https://example.test'+url).searchParams.get('action')});
+};
+const core=new AdminShellCore({sessionProvider:async()=>token,fetchImpl});
+core.switchIdentity('owner-1');
+assert.equal(core.route('dashboard',[]),null);
+assert.equal(core.route('dashboard',['dashboard.view']),'#dashboard');
+assert.equal(core.route('roles',['users.view']),null);
+assert.equal(core.route('missing',['dashboard.view']),null);
+let x=await core.request('dashboard',{params:{limit:10}});
+assert.equal(x.action,'dashboard');assert.equal(calls,1);
+assert.equal(opts[0].o.headers.authorization,'Bearer member-token');
+assert.equal(opts[0].o.credentials,'same-origin');
+const p=core.request('delayed',{method:'POST',body:{reason:'approved-test'}});
+await new Promise(resolve=>setImmediate(resolve));
+assert.equal(calls,2,'POST is issued once; no blind retry');
+const pendingOpt=opts[1].o;
+core.switchIdentity('member-2');
+assert.equal(pendingOpt.signal.aborted,true,'Account switch aborts prior request');
+resolveFetch(json({ok:true,action:'delayed'}));
+await assert.rejects(p,/STALE_ADMIN_SESSION/);
+token='';
+await assert.rejects(core.request('dashboard'),/ADMIN_SIGN_IN_REQUIRED/);
+assert.equal(calls,2,'Expired session cannot issue provider request');
+await assert.rejects(core.request('bad action'),/Invalid Admin operation/);
+await assert.rejects(core.request('dashboard',{method:'GET',body:{unsafe:1}}),/GET must not mutate/);
+console.log('PASS D16 AdminShellCore: safe session switch, stale-response rejection, permission-aware preview, no mutation retry');
