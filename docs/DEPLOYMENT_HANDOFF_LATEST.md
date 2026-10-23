@@ -1,3 +1,54 @@
+# Development 15–18 Handoff — Current Evidence and Source Transition
+
+**Company:** Cyber Nexus | **Imprint:** Crown & Lantern Press | **Author:** J. S. Grant  
+**Project:** The Stock Market: From the Ground Up (one unified book/website project)  
+**Date:** October 22, 2026  
+**Repository:** cybernexuspublishing/stock-market-from-the-ground-up  
+**Document ID / GitHub location:** `docs/DEPLOYMENT_HANDOFF_LATEST.md`  
+**File type:** Markdown | **Version:** 16.0.1 candidate | **Status:** D15 SOURCE FIXES / D16 STAGE A / D18 PREFLIGHT; NOT PRODUCTION ACCEPTED  
+**Google Drive location / ID:** Not assigned. No duplicate Drive document needed.  
+**Deployment source baseline:** main `c552d5d38ed94eabf47e4c5f29a3ad42d320c6b2` (v0.14.0.155)  
+**Work branch:** `deployment-16-of-18-admin-shell-audit-v014156`  
+**Pull request:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/pull/126  
+**Purpose:** Keep future conversations aligned with actual source, CI, Owner-supplied database evidence and separately controlled production acceptance.
+
+## Current source progress
+- D15: checkout bytes bounded to 2 KiB; unknown SKU fails before network; signed webhook bytes bounded to 256 KiB before zero-dollar QA and paid lifecycle processing; malformed signed JSON types rejected. Source metadata version parity fixed and source test now advances safely with future releases.
+- D15 regression: old v72 signed-zero-QA test still searched for the pre-hardening function signature, and failed on the first D16 PR run. Updated that test to require the new bounded-input function and deny unbounded `request.text()` reads. The subsequent D15 LIVE fulfillment PR-head workflow was reported SUCCESS; later PR commits require fresh final CI verification.
+- D15 Owner read-only Supabase CSV (17), supplied October 22: 8/8 `CATALOG_STRUCTURE_OK`, zero LIVE intents, zero signed paid payment/access proofs, zero lifecycle events; sitewide LIVE flags unassessed. This is **not** 8 completed paid checkout tests.
+- D16 Stage A: six navigation groups and 10 explicit built-in panel IDs staged in inert ESM registry. Existing production navigation is unchanged. Source inspection: 22 unique Admin HTML script imports; only one static admin-navigation import. Legacy label-based grouping and module mounting remain and require actual migration and browser permission testing. Stage A source CI was successful at prior PR head; newest head results require verification.
+- D18 preflight: source-only machine-readable audit reads 419 Lab registry records in the required six collection counts, 30 official competency definitions and 30 ungraded formative Bootcamp checks. `docs/curriculum-acceptance-decisions-v014150.json` has zero verified individual decisions. Thus current recorded criterion acceptance is 0/419 Labs and 0/30 days; source registration is not full instruction or independent production approval. D18 new CI audit uses existing curriculum workflow and does not confer launch authority.
+
+## Still mandatory before D15–D18 close
+1. D15: authentic positive-dollar signed LIVE payment/entitlement lifecycle with explicit Owner authorization; provider Managed Payments eligibility; renewals, dunning, cancellation, refund/dispute, emails, portal, A/B/Showcase negative tests, tax/privacy/subscription review.
+2. D16: full administrative module/observer inventory, actual six-group shell and stable modules, server role matrix, member/commerce/community/audit flows and desktop/mobile/keyboard acceptance; retain legacy until parity verified.
+3. D17: remaining CMS, website-builder requirements, SEO, marketing, scheduler monitoring, backups and tested restore, Grant Web Solutions tenant security, sitewide function and accessibility acceptance.
+4. D18: 419 individually approved complete Labs, 30 individually approved complete Bootcamp days, all 30 competency assessment contracts, real authorized market-data evidence and rights, full website integration, independent production SHA/RLS/auth/payment/accessibility/recovery acceptance.
+
+## Acceptance status
+| Category | Evidence-based status |
+| --- | --- |
+| Main source release | v0.14.0.155 at c552d5d; D16 candidate is a PR, not merged |
+| New D16/D18 source | Committed on PR #126; exact latest-head CI must be read before merge |
+| Supabase installed GU58 structures | Owner CSV supports eight catalog structures; authenticated payment lifecycle NOT VERIFIED |
+| Cloudflare active deployed SHA | NOT VERIFIED |
+| Signed positive-dollar LIVE Stripe payment to member-only access | ZERO OBSERVED in uploaded read-only result |
+| All 419 Labs individually editorial+production accepted | ZERO COMPLETE REVIEW RECORDS in current source decisions; production not attested |
+| All 30 Bootcamp days individually accepted | ZERO COMPLETE REVIEW RECORDS; 30 formative questions are ungraded |
+| 30 official competencies | 30 definitions present; graded production acceptance NOT VERIFIED |
+| D15 production approved | NO |
+| D16 production approved | NO |
+| D17 production approved | NO |
+| D18 complete launch approved | NO |
+
+**Current Owner actions:** No Cloudflare or Supabase action required by these source-only changes. Preserve the existing working Stripe LIVE webhook settings. Once code+CI readiness and scope have been reconciled, provide one consolidated read-only Supabase/Cloudflare/Stripe manual acceptance list; do not ask the Owner to rerun migrations blindly or authorize charges without informed consent.
+
+**Version governance:** Future D16/D17/D18 release IDs are planned `v0.14.0.156`/`.157`/`.158`, not proof their deliverables exist. Preserve main v155 until tested source and necessary external acceptance evidence justify promotion.
+
+---
+
+## Earlier permanent handoff preserved verbatim
+
 # Deployment 15 of 18 — Paid Memberships & Stripe | Current Source Handoff
 
 **Project:** The Stock Market: From the Ground Up (books and website are one project)
