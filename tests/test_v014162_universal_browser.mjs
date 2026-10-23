@@ -18,7 +18,7 @@ try{
   await page.getByRole('heading',{name:'Start'}).waitFor();
   for(const expected of ['Learn','Experiment','Predict']){
    await page.getByRole('button',{name:'Next learning stage'}).click();
-   await page.getByRole('heading',{name:expected}).waitFor();
+   await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
   }
   await page.getByRole('button',{name:'Next learning stage'}).click();
   assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock a prediction/);
@@ -28,7 +28,7 @@ try{
   await page.locator('#universal-test textarea').fill('I can only use values already observed; I must define units, comparison and invalidation.');
   await page.getByRole('button',{name:'Record independent practice'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
-  await page.getByRole('heading',{name:'Assess'}).waitFor();
+  await page.locator('#universal-test').getByRole('heading',{name:'Assess',exact:true}).waitFor();
   assert.match(await page.locator('#universal-test').innerText(),/server-graded only/);
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'guided',target:t,lab:{id:'TAPE-C01-L01'}})});
   assert.match(await page.locator('#universal-test').innerText(),/TAPE-C01-L01/);

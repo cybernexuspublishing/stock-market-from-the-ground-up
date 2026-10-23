@@ -157,7 +157,7 @@ async function initLabs() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const requestedLab = params.get('lab');
+  const requestedLab = params.get('lab')||params.get('q');
   const requestedBook = params.get('book');
   const requestedStatus = params.get('status');
   if (requestedLab && document.getElementById('q')) document.getElementById('q').value = requestedLab;
