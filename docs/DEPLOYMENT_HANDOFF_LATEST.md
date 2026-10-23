@@ -1,3 +1,14 @@
+## Latest D17 engineering checkpoint — c1e77a377615 (2026-10-22)
+
+**Owner direction:** Complete all non-Lessons-Prototype implementation at no added provider cost, do not interrupt the Owner for routine updates; wait for exact approved Lessons Prototype version before touching that teaching flow. Reserve coordinated production/browser/member/paid tests for D18. No incomplete requirement is declared accepted.
+**Implemented in source on main:** Member-owned Support backend modern Supabase key handling, streamed byte limits, ticket ownership before reopen, narrowed response projection, upstream error masking; existing member Support UI now enables closed/resolved ticket reopening and both TS/compiled JS were updated. Fixed Admin Stage B inspect-member crash and restored real Inspect controls. Generated canonical sitemap/robots and private-route noindex only during controlled Pages build, and sitewide keyboard Skip to main content links with high-contrast CSS. No user identity, role, Stripe, license, secret, SQL, or teaching-prototype changes.
+**QA contracts:** New tests for Support API, reopened-ticket frontend parity, Admin mobile/desktop read-only inspection, canonical SEO sitemap, universal keyboard skip links. Existing sitewide Playwright workflow and D18 source acceptance workflow contain those tests; exact-head CI and full browser execution are **not independently observed**. `scripts/deployment17_source_security_readiness.mjs` actual source-function invocation: **11 of 11 guard checks present, 0 known source blockers**. `scripts/deployment18_acceptance_matrix.mjs` depends on this guard report. These are source guards, not a certification of complete D17 scope.
+**D17 incomplete:** all production/integration browser and accessibility acceptance, remaining CMS and notices/editor workflows, actual email delivery, support database transactional atomicity and retries, GWS client/tenant isolation, monitoring and incident response, verified database restore, canonical custom domain, legal/privacy and all live provider permissions and billing. All must be resolved or the Owner must explicitly de-scope them before paid launch.
+**Owner actions now:** NONE. For live SEO custom-domain approval, optionally configure `GU_PUBLIC_SITE_ORIGIN` once final HTTPS domain is confirmed at D18; fallback is the known Pages hostname. Previously installed D09 SQL must not be rerun. Stripe LIVE flags remain false.
+**Detailed report:** `docs/v0.14.0.157_DEPLOYMENT_17_OF_18_SITEWIDE_GAPS.md`. Previous historical handoffs follow below.
+
+---
+
 ## LATEST — Deployment 17 source engineering and D18 gates (2026-10-22)
 
 **HEAD before this update:** `398324daeaa68d753f97c2f04e595527099ac235`. **Manifest:** v0.14.0.155. Stripe LIVE billing approval and fulfillment remain OFF.
