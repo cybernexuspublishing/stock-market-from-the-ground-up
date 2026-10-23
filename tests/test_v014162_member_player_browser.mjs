@@ -27,7 +27,7 @@ try{
    return route.continue();
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
-  await page.getByRole('heading',{name:/Lab Engine v3.2 —/}).waitFor({timeout:15000});
+  await page.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
   assert.equal(requests.join(','),'private,registry','Only a missing private lesson permits fallback');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
   assert.equal(await page.locator('.mode-tabs button[data-mode=blind]').isDisabled(),false);
@@ -49,7 +49,7 @@ try{
   assert.match(await page.locator('#player-mode-description').innerText(),/Blind Decision/);
   assert.equal(await page.locator('#gu-v32-teaching-slot').innerText(),'');
   assert.deepEqual(errors,[]);
-  console.log('PASS member Lab Player '+width+'px: authenticated 419 fallback, v3.2 reset, 33% lock, and blind suppression');
+  console.log('PASS member Lab Player '+width+'px: authenticated 419 fallback, v3.3 shared reset, 33% lock, and blind suppression');
   await context.close();
  }
  const context=await browser.newContext({serviceWorkers:'block'}),page=await context.newPage();

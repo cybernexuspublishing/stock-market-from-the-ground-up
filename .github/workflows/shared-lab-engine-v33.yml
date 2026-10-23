@@ -4,9 +4,11 @@ on:
     paths:
       - 'assets/js/lab-engine-v32-universal.js'
       - 'assets/js/lab-engine-v32-teaching.js'
+      - 'assets/js/lab-engine-v33-visual.js'
       - 'assets/js/lab-player.js'
       - 'assets/css/lab-engine-v32-teaching.css'
       - 'tests/lab-engine-v33.test.mjs'
+      - 'tests/lab-engine-v33-visual.test.mjs'
       - '.github/workflows/shared-lab-engine-v33.yml'
   workflow_dispatch:
 permissions:
@@ -26,10 +28,14 @@ jobs:
           node --check assets/js/lab-player.js
           node --check assets/js/lab-engine-v32-universal.js
           node --check assets/js/lab-engine-v32-teaching.js
+          node --check assets/js/lab-engine-v33-visual.js
+          node tests/lab-engine-v33-visual.test.mjs
+          node tests/test_v014162_419_universal.mjs
           node tests/lab-engine-v33.test.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014096_419_conceptual_training.mjs
           bash scripts/build-pages.sh
           test -f public/lab-player.html
           test -f public/assets/js/lab-engine-v32-universal.js
+          test -f public/assets/js/lab-engine-v33-visual.js
           test -f public/assets/css/lab-engine-v32-teaching.css
