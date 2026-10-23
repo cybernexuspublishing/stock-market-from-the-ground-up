@@ -7,6 +7,10 @@ import {resolve,join} from 'node:path';
 const output=resolve(process.env.GU_SITE_BUILD_DIR||'public');
 let changed=0,missingMain=[];
 for(const filename of readdirSync(output).filter(p=>/^[a-z0-9-]+\.html$/.test(p))){
+ // These standalone teaching references already have one immediately visible
+ // main landmark and no global navigation. Preserve their owner-frozen source
+ // byte-for-byte instead of injecting an unrelated sitewide skip link/CSS.
+ if(filename==='lab-v32-reference.html'||filename==='lab-v32-member.html')continue;
  const path=join(output,filename),original=readFileSync(path,'utf8');
  const match=/<main\b[^>]*>/i.exec(original);
  if(!match){missingMain.push(filename);continue;}
