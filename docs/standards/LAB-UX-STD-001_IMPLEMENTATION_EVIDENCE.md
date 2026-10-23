@@ -31,19 +31,19 @@
 
 ## Canonical applicability audit (source-level, not approval)
 
-The source visual selector ran against all 419 canonical topic records and produced **419 classifications without errors**. Exactly **30 competency records** remained unchanged.
+The source visual selector ran against all 419 canonical topic records, incorporating 94 original author Lab records and chapter metadata where available and produced **419 classifications without errors**. Exactly **30 competency records** remained unchanged.
 
 | Suggested visual | Lab count |
 |---|---:|
-| Candlestick | 11 |
-| Multi-candle / price structure | 55 |
-| VWAP | 11 |
-| EMA | 7 |
+| Candlestick | 13 |
+| Multi-candle / price structure | 100 |
+| VWAP | 17 |
+| EMA | 17 |
 | Volume | 11 |
 | Time & Sales | 28 |
-| Level II / market depth | 28 |
+| Level II / market depth | 27 |
 | Order/market relationship diagram | 10 |
-| No automatic visual recommendation — manual review required | 258 |
+| No automatic visual recommendation — manual review required | 196 |
 | **Total** | **419** |
 
 This is a **keyword- and configuration-driven recommendation**, not a published editorial ruling. All 419 subjects need applicability reconciliation. For Labs requiring original historical charts, a synthetic chart **never** closes the historical-source acceptance gate.
@@ -52,7 +52,7 @@ Detailed suggested visual map: \`docs/qa/LAB-UX-STD-001_419_Lab_Visual_Audit.jso
 
 ## Source-level runtime evidence
 
-Using a simulated DOM and local curriculum fetch responses, all **419/419** canonical IDs mounted a guided Learning v3.3 journey and advanced to Learn without a JavaScript exception. **161** of those Learn screens rendered a matching fictional visual; remaining subjects received narrative/competency instruction and require human review of visual applicability.
+Using a simulated DOM and local curriculum fetch responses, all **419/419** canonical IDs mounted a guided Learning v3.3 journey and advanced to Learn without a JavaScript exception (the initial runtime smoke preceded the 94-record chapter-classification refinement). **223** of the canonical Labs are classified as requiring a subject-relevant fictional or conceptual visual using the original author registry where available; remaining subjects received narrative/competency instruction and require human review of visual applicability.
 
 This is not equivalent to executing the website in a signed-in browser or approving the content of each Lab.
 
