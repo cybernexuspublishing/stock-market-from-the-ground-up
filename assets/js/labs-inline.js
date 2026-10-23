@@ -14,8 +14,14 @@
   try{
    const doc=frame.contentDocument;
    if(!doc)return;
-   const inner=Math.max(doc.documentElement.scrollHeight,doc.body?.scrollHeight||0);
-   if(Number.isFinite(inner)&&inner>0)frame.style.height=Math.max(650,Math.min(30000,Math.ceil(inner+14)))+'px';
+   // Never derive height from html.scrollHeight: it includes the iframe's
+   // own viewport and would grow by the padding on every ResizeObserver tick.
+   const body=doc.body,workspace=doc.querySelector('#app');
+   const inner=Math.max(body?.getBoundingClientRect().height||0,
+                        workspace?.getBoundingClientRect().height||0);
+   const target=Math.max(650,Math.min(30000,Math.ceil(inner+8)));
+   if(Number.isFinite(target)&&Math.abs(frame.getBoundingClientRect().height-target)>3)
+    frame.style.height=target+'px';
   }catch{}
  }
  function attachHeightObserver(){
@@ -24,7 +30,8 @@
    const doc=frame.contentDocument;
    if(!doc?.documentElement)return;
    const ro=new ResizeObserver(resize);
-   ro.observe(doc.documentElement);if(doc.body)ro.observe(doc.body);
+   if(doc.body)ro.observe(doc.body);
+   const workspace=doc.querySelector('#app');if(workspace)ro.observe(workspace);
    frameObserver=ro;resize();
   }catch{}
  }
