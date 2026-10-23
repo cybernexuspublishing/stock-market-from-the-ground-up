@@ -10,6 +10,7 @@ const middleware=read('functions/_middleware.js');
 const worker=read('sw.js');
 const headers=read('_headers');
 const builder=read('scripts/build-pages.sh');
+const seo=read('scripts/build-public-seo.mjs');
 const m=JSON.parse(read('release-manifest.json'));
 const checks=[];
 function check(id,passed,explanation){checks.push({id,status:passed?'SOURCE_GUARD_PRESENT':'SOURCE_BLOCKER',explanation});}
@@ -29,6 +30,9 @@ check('private-lab-bundle-exclusion',builder.includes('SECURITY BUILD BLOCK')&&b
  'Private answer source must not be copied into the static Pages output.');
 check('public-csp',headers.includes('Content-Security-Policy:')&&headers.includes('frame-ancestors'),
  'Public pages need baseline frame and object restrictions.');
+check('whitelisted-public-seo',builder.includes('node scripts/build-public-seo.mjs')&&seo.includes('GU_PUBLIC_SITE_ORIGIN')&&
+ seo.includes('noindex,nofollow')&&seo.includes('sitemap.xml'),
+ 'Public discovery pages need generated canonical sitemap while private member/staff pages are noindex.');
 check('customer-charges-still-locked',m.customerCheckoutApproved===false&&m.liveStripeFulfillmentEnabled===false,
  'Paid launch must be separately approved only after the final test lifecycle.');
 const blockers=checks.filter(x=>x.status==='SOURCE_BLOCKER');
