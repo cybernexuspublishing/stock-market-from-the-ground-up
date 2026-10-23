@@ -21,7 +21,7 @@ try{
    await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
   }
   await page.getByRole('button',{name:'Next learning stage'}).click();
-  assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock a prediction/);
+  assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock your prediction/);
   await page.locator('#universal-test textarea').fill('Future continuation is not known, and crossing below the level would invalidate my hypothesis.');
   await page.getByRole('button',{name:'Lock my prediction'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
