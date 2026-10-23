@@ -47,12 +47,18 @@ function enhance(view,options){
   }
   set('all');
  }else{
-  const overlays=Array.from(svg.querySelectorAll('path'));
+  const overlays=Array.from(svg.querySelectorAll('path, line[stroke="#e0ba76"], text[fill="#eed5a1"]'));
   const volume=Array.from(svg.querySelectorAll('rect')).filter(x=>x.getAttribute('fill')==='#527dad');
   function set(mode){
    for(const b of switches)b.setAttribute('aria-pressed',String(b.dataset.view===mode));
    overlays.forEach(p=>p.style.display=mode==='volume'?'none':'');
    volume.forEach(p=>p.style.display=mode==='price'?'none':'');
+   view.querySelectorAll('.gu-l33-legend span').forEach(span=>{
+    const label=span.textContent||'';
+    const isVolume=label.trim()==='Volume';
+    span.style.display=isVolume?(mode==='price'?'none':'')
+      :(mode==='volume'?'none':'');
+   });
    state.textContent=mode==='price'?'Price and applicable indicator overlays; volume bars hidden.'
     :mode==='volume'?'Volume bars and candles; indicator overlays hidden.'
     :'Price, available indicator overlays, and aligned volume bars.';
