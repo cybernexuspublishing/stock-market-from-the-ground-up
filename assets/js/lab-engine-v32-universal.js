@@ -275,6 +275,10 @@ async function mount({labId,mode,target,lab,focusId}={}){
    }));else answerStatus('Review recorded locally. It is not a competency grade.',true);
   }else if(stage===7){
    appendParagraph(body,'Apply the concept to an unfamiliar case. A study solution here never awards mastery or replaces the existing private assessment.');
+   if(kind==='vwap'){
+    appendParagraph(body,'For chronological candles, use the authenticated, rights-reviewed replay service. This page does not preload future bars or turn synthetic samples into historical evidence.');
+    const link=el('a','Open controlled market replay');link.href='verified-replay.html';link.className='btn secondary';body.append(link);
+   }
    if(special){
     appendParagraph(body,special.transfer.prompt);
     const f=field(body,'Answer ('+special.units+')',transfer,'input');f.disabled=transferResolved;
