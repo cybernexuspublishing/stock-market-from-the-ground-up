@@ -20,7 +20,7 @@ new Script(text,{filename:'lab-v33-instruction-content.js'}).runInContext(env);
 const author=env.GroundUpLabV33InstructionContent;
 assert(author);
 const cases=[
- ['candle','Construct an Up / Bullish Candle',/(Open \(O\)|High \(H\)|Low \(L\)|Close \(C\))/,'50%'],
+ ['candle','Construct an Up / Bullish Candle',/(Open \(O\)|High \(H\)|Low \(L\)|Close \(C\))/,'40%'],
  ['vwap','VWAP Reclaim',/Σ means SUM/,'$11.50'],
  ['ema','EMA9/EMA20',/smoothing factor/,'$10.10'],
  ['structure','Higher Highs and Higher Lows',/swing high/,'$10.65'],
