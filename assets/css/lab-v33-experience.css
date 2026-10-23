@@ -30,3 +30,15 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33{padding:10px 9px}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33-stage-hero{gap:11px}
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .actions .btn{flex:1 1 130px}
 }
+
+/* Supplementary research workshop: collapsed until the learner requests it. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop{margin:20px 0 8px!important;border:1px solid #426682!important;background:#142b3d!important;border-radius:11px;padding:14px 16px!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop summary{font-weight:750;color:#e7c46b;cursor:pointer}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop p{line-height:1.62}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop-scenario{background:#0c2233;border-left:3px solid #e0b349;padding:12px;margin:14px 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop label{display:block;font-weight:650;margin:12px 0;color:#e7f1f8}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop textarea{display:block;width:100%;min-height:110px;margin:7px 0;border:1px solid #52728c;background:#0c1c2a;color:#f6f8fb;border-radius:9px;padding:11px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop button{padding:10px 13px;margin:7px 0;border:1px solid #cfad52;border-radius:9px;background:#1f3a4d;color:#ffe49c;cursor:pointer}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop button:disabled{opacity:.55;cursor:default}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop-feedback{padding:11px 13px;background:#143d37;border:1px solid #307b6b;border-radius:9px;margin:12px 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-workshop-status{color:#c8e2f0;font-size:.85rem}
