@@ -1,3 +1,47 @@
+# CURRENT HANDOFF — Deployment 09 Reopened for Remaining Acceptance (2026-10-22)
+
+**Project:** The Stock Market: From the Ground Up — unified website, books and curriculum  
+**Selected Owner master prompt:** Version 2, first line **09 of 18**; process D09–D18 without inventing subsequent completed status  
+**Existing release manifest:** `v0.14.0.155` (`customerCheckoutApproved=false`, `liveStripeFulfillmentEnabled=false`). This is NOT a v0.14.0.159 production release.  
+**Latest repository head observed before this handoff write:** `ce2db970c44864e5d040e2ef7b81dde5a03a28b1` (`main`).  
+**Previous D09 original PR:** #123 merged; previously installed Supabase v102, v103, v107, v149, v149b **DO NOT RERUN**.  
+**Deployment 09 current acceptance:** PARTIAL SOURCE; DIRECT SOURCE SMOKE PASS; CI EXACT-HEAD NOT VERIFIED; LIVE PRODUCTION NOT ACCEPTED.  
+**Deployments 10–18:** All previously committed work preserved; unresolved work remains documented in original reports below.
+
+## This turn — source implementation
+- `functions/_lib/tutor-conversation-context-v014159.js`: secure same-member same-conversation one-row prior verified question lookup. No private Tutor answer, reflective note, private rubric or browser-supplied `priorTurns` enters source grounding; contextual follow-ups fail gracefully without stored history.
+- `functions/api/market-tutor-v01492.js`: real source-based topical follow-up routing. Response includes `verifiedFollowupContext` as a non-grading marker. Current message content remains authoritative; former personal-advice requests cannot be reused as context.
+- `functions/_lib/tutor-arithmetic-v014149.js`: deterministic, validated, hypothetical candle body/range calculation (0–100%); existing position sizing and P&L remain intact.
+- `functions/api/tutor-calculator.js`: new `candle` action via existing stable and authenticated route, with previous `position` and `pnl` actions retained.
+- `market-tutor.html` + `assets/js/market-tutor.js`: beginner explanation and interactive OHLC calculator, labeled inputs, server-side calculation result, account-switch stale-result prevention and accessible status.
+- Tests added/extended: `tests/test_v014159_tutor_verified_followups.mjs`, `tests/test_v014149_tutor_arithmetic.mjs`; connected to `.github/workflows/market-tutor-v014147.yml`.
+- Source verification controller `scripts/dev-program-source-verification.mjs` uses existing Node tests in D09–D18 and produces sanitized source reports; integrated D09 invocation and artifact upload into existing Tutor workflow. Usage: `node scripts/dev-program-source-verification.mjs --scope d09` or `--scope all`. A passing report does **not** certify Cloudflare, Supabase, Stripe, accessibility, educational approval or production release.
+- Documentation: `docs/v0.14.0.159_D09_MARKET_TUTOR_VERIFIED_FOLLOWUPS_AND_CANDLE_MATH.md`.
+
+## Tests and security evidence
+- **PASS — direct execution of two current GitHub source modules in trusted V8:** hypothetical 30% candle-body computation; rejection of malformed OHLC; existing 40-share positioning example; authenticated member/conversation URL filters, one-row bounded lookback, rejection of unverified history and contextual pronoun detection.
+- **PASS — parse and static integration:** six actual Tutor source/HTML files, all six new labeled/calculation UI controls, Tutor→calculator action wiring and verified-context marker.
+- **UNVERIFIED — exact-head GitHub Actions completion, live Playwright, Cloudflare deployed SHA, actual Supabase/member A/B, Tutor model provider free-tier rights/limits, editorial quality.** Do not mark accepted based on an unobserved job.
+- **Security:** Existing server entitlement, same-origin checks and no-provider-by-default behavior preserved; no new secrets, SQL or checkout toggles. No actual historical market data or third-party research credentials published.
+
+## Research use
+The attached Master Prompt v2 was read as controlling requirements, and existing `StocksToTrade-Browser-Research (5).zip` was reviewed only for non-sensitive research scope. Batch XXVI differentiates fictional teaching examples from authentic market evidence and stresses metric provenance. It was not deployed as private files or treated as a licensed market-data source.
+
+## Remaining D09
+End-to-end with real approved authenticated owner/member environments and four modes, history creation/rename/delete/search, consent, provider routing, model licensing and cost quotas, FAQ/misconception retrieval, original guide review, lab-safe Tutor bridges, educational QA, security, full accessibility/Playwright and documented production acceptance. The existing D09 acceptance checklist is not yet 100%; no unverified item was marked done.
+
+## Remaining D10–D18
+No production status promotion. Labs **419 registered, 0/419 individual full decisions recorded**; Bootcamp **30 registered, 0/30 full decisions recorded**; 30 official competency definitions, live grading/mastery unverified. Commerce LIVE positive-dollar paid lifecycle unverified, Admin D16 stages B–E outstanding, D17 sitewide outstanding, D18 production certification outstanding.
+
+## Supabase / Cloudflare / Stripe / Owner action
+- **Supabase:** No new SQL introduced this turn. Previously verified Tutor migrations must not be reapplied. Final read-only production postflight and real member A/B are deferred to consolidated Owner handoff.
+- **Cloudflare:** No new binding or secret required solely for the new candle lesson/follow-up logic. Deployment at exact source commit and actual runtime check remain unverified. Existing Workers AI optional binding/provider configuration requires independent free-tier/license review before enabling.
+- **Stripe:** No payment or secret setting changed; all LIVE activation gates remain locked.
+- **Owner manual action NOW:** None for these source commits. Separate final owner-only actions later once complete source, CI and editorial evidence are available.
+- **Next work:** Continue D09 educational/privacy integration and true test results, then close actual D10–D18 requirements without claiming a deployment count equals completion.
+
+---
+
 
 ## Newest corrections after this handoff snapshot — 2026-10-22
 - Last observed source checkpoint before this update: `e16c3207101994ce936b5100a49748016e183d53`. Run latest `main` HEAD query for exact final commit.
