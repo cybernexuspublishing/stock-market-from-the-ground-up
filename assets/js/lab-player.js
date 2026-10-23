@@ -132,7 +132,7 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  const sb=PLAYER.access?.sb;
  let token=null;
  try{token=(await sb?.auth?.getSession?.())?.data?.session?.access_token||null}catch{}
- if(!token)throw Error('Sign in to use Market Tutor. Free Lab explanations remain available without an AI request.');
+ if(!token)throw Error('Sign in to use Market Tutor. Your Lab explanations remain available without an AI request.');
  const id=String(PLAYER.lab?.id||'');
  const onlyGeneral=String(question||'').trim();
  const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)&&allowModel!==true
@@ -144,8 +144,8 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
    allowModel:allowModel===true,saveHistory:false})});
  const data=await reply.json().catch(()=>null);
  if(!reply.ok||data?.ok!==true){
-  const feedback=reply.status===403?'Market Tutor requires an active Tutor or Full Platform entitlement. Your free instructional panels remain available.'
-   :reply.status===401?'Your session expired; sign in again.':reply.status===429?'Market Tutor rate limit reached. Please use the free instructional panels or retry later.'
+  const feedback=reply.status===403?'Market Tutor requires an active Tutor or Full Platform entitlement. Your instructional panels remain available.'
+   :reply.status===401?'Your session expired; sign in again.':reply.status===429?'Market Tutor rate limit reached. Please use the instructional panels or retry later.'
    :String(data?.error||'Market Tutor is currently unavailable.');
   throw Error(feedback);
  }
