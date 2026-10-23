@@ -12,7 +12,7 @@ for(const [id,v] of Object.entries(mapping.byLab)){
  assert(v.relatedCompetencies.some(code=>validCodes.has(code)),'No approved guide '+id);
 }
 class El {
- constructor(name='section'){this.name=name;this.children=[];this.value='';this.textContent='';}
+ constructor(name='section'){this.name=name;this.children=[];this.value='';this.textContent='';this.dataset={};}
  append(...x){this.children.push(...x)}
  replaceChildren(...x){this.children=x}
  setAttribute(){}
