@@ -20,7 +20,7 @@ const tests={
  d11:['tests/test_v014151_foundations_content_gate.mjs','tests/test_v014151_lab_visual_layout.mjs'],
  d12:['tests/test_v014152_other325_evidence.mjs'],
  d13:['tests/test_v014153_paged_member_grade_history.mjs'],
- d14:['tests/test_v014154_bootcamp_formative.mjs'],
+ d14:['tests/test_v014154_bootcamp_formative.mjs','tests/test_v014154_bootcamp_day05_visual.mjs'],
  d15:['tests/test_v014155_release_metadata.mjs','tests/test_v014155_live_checkout_body_limits.mjs','tests/test_v014155_webhook_body_limits.mjs'],
  d16:['tests/test_v014156_admin_shell.mjs','tests/test_v014156_admin_service_key_compatibility.mjs'],
  d17:['tests/v0144_route_contracts.mjs'],
