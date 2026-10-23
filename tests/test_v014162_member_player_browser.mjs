@@ -79,6 +79,50 @@ try{
  assert.equal(fallbackCount,0,'Book entitlement denial may never trigger a 419 registry bypass');
  await context.close();
  console.log('PASS unauthorized member cannot bypass a private Lab content 403');
+
+ // Regression: the original private Supabase lab_instruction_v014 records
+ // contain "steps" and "objective", not practiceSteps/beforeAdvance. In the
+ // production screenshot this threw "Cannot read properties of undefined".
+ const draftContext=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
+ const draftPage=await draftContext.newPage(),draftErrors=[];
+ draftPage.on('pageerror',e=>draftErrors.push(e.message));
+ await draftContext.route('**/*',async route=>{
+  const u=new URL(route.request().url());
+  if(u.origin!==base)return route.abort();
+  if(u.pathname==='/assets/js/supabase-client.js')return route.fulfill({
+   status:200,contentType:'application/javascript',
+   body:'window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}});'
+  });
+  if(u.pathname==='/assets/js/access.js')return route.fulfill({
+   status:200,contentType:'application/javascript',
+   body:'window.SiteAccess={SAMPLE_LABS:new Set(["F1-C02-L01"]),get:async()=>({user:null,sb:null,isMember:false,redeemedBooks:new Set()}),canGuided:()=>true,canAdvanced:()=>false};'
+  });
+  if(u.pathname==='/api/lab-content')return route.fulfill({
+   status:200,contentType:'application/json',body:JSON.stringify({
+    ok:true,guidedAllowed:true,advancedAllowed:false,
+    sourceStatus:'private_unreviewed_conceptual_orientation',
+    lab:{id:'F1-C02-L01',book:1,concept:'Basic Historical Replay Setup',
+      objective:'Set the replay date, time and timeframe before interpreting candles.',
+      why:'Use the information at the observation point, not later bars.',
+      steps:['Choose a ticker','Set a historical date','Select a 5-minute chart','Define the observation stop']}
+   })
+  });
+  return route.continue();
+ });
+ await draftPage.goto(base+'/lab-player.html?lab=F1-C02-L01',{waitUntil:'domcontentloaded'});
+ await draftPage.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
+ assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
+ assert.match(await draftPage.locator('#player-location').innerText(),/Book 1, Chapter 2/);
+ assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
+ assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Set the replay date/);
+ await draftPage.locator('#ev-decision').selectOption('OBSERVATION_ONLY');
+ await draftPage.locator('#ev-confidence').selectOption('3');
+ await draftPage.locator('#lock-decision').click();
+ await draftPage.locator('#reveal-next').click();
+ assert.match(await draftPage.locator('#guided-sequence').innerText(),/Choose a ticker/);
+ assert.deepEqual(draftErrors,[],'Actual private-content Lab must render without JavaScript errors');
+ console.log('PASS private Foundations draft F1-C02-L01: complete player, v3.3 journey, chapter metadata, and correct step reveal');
+ await draftContext.close();
  const chooser=await browser.newPage();let called=false;
  await chooser.route('**/api/lab-content*',route=>{called=true;return route.abort()});
  await chooser.goto(base+'/lab-player.html',{waitUntil:'domcontentloaded'});

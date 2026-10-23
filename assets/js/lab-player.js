@@ -1,6 +1,57 @@
 let PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0};
 function pe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function q(id){return document.getElementById(id)}
+
+/* Normalize the two EXISTING authorized Lab contracts without creating,
+ * replacing or granting access to any lesson. Private Foundations content
+ * stores "steps/objective"; canonical metadata stores "practiceSteps/goal".
+ * Missing arrays must never crash the member player.
+ */
+function normalizeAuthorizedLab(raw,canonical,id){
+ const l=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ const m=canonical&&typeof canonical==='object'?canonical:{};
+ const strings=(items)=>Array.isArray(items)?items.filter(x=>typeof x==='string'&&x.trim()).slice(0,40):[];
+ const first=(...vals)=>vals.find(x=>typeof x==='string'&&x.trim())||'';
+ const book=Number(l.book||m.book)||0;
+ const chapter=Number(l.chapter||m.chapter)||Number(String(id).match(/-C(\d+)/)?.[1])||0;
+ const originalTeaching=l.teaching&&typeof l.teaching==='object'?l.teaching:{};
+ const practiceSteps=strings(l.practiceSteps).length?strings(l.practiceSteps):
+   strings(l.steps).length?strings(l.steps):strings(originalTeaching.how);
+ const beforeAdvance=strings(l.beforeAdvance);
+ const teaching={
+  ...originalTeaching,
+  what:first(originalTeaching.what,l.objective,l.goal),
+  why:first(originalTeaching.why,l.why),
+  when:first(originalTeaching.when,l.when),
+  how:strings(originalTeaching.how).length?strings(originalTeaching.how):practiceSteps,
+  questions:strings(originalTeaching.questions).length?strings(originalTeaching.questions):strings(l.questions)
+ };
+ return {
+  ...m,...l,id:first(l.id,id),book,
+  chapter,chapterTitle:first(l.chapterTitle,m.chapterTitle,'Chapter '+chapter),
+  concept:first(l.concept,m.concept,l.title,id),
+  goal:first(l.goal,l.objective,m.goal),
+  ticker:first(l.ticker,m.ticker),
+  date:first(l.date,m.date),
+  timeframe:first(l.timeframe,m.timeframe),
+  start:first(l.start,m.start),
+  end:first(l.end,m.end),
+  skill:first(l.skill,m.skill),
+  practiceSteps,beforeAdvance,teaching,
+  dataNote:first(l.dataNote,l.historicalEvidence),
+  // Never infer a real historical chart from registry metadata.
+  portableVisual:l.portableVisual&&typeof l.portableVisual==='object'?l.portableVisual:null
+ };
+}
+async function canonicalPublishedMetadata(id){
+ try{
+  const r=await fetch('/data/labs.json',{cache:'force-cache'});
+  if(!r.ok)return {};
+  const rows=await r.json();
+  return Array.isArray(rows)?rows.find(l=>l?.id===id)||{}:{};
+ }catch{return {}}
+}
+
 async function loadJSONLocal(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(`Unable to load ${path}`);return r.json()}
 function modeCopy(mode){return ({guided:'Guided Mode follows the book example step by step. Record your observation before revealing each part of the book-guided sequence.',practice:'Practice Mode gives you the historical setup but withholds the guided sequence until you commit your reasoning.',blind:'Blind Decision Mode visually hides the concept, task, and interpretive guidance until you commit your decision. This browser exercise is not a tamper-resistant assessment: source instructions can be available to the client. Only server-verified private assessed cases can establish graded skill evidence.',assessment:'Assessment Mode records a first attempt and grades only reviewed questions using the secure instructor. The legacy reflection-completion percentage is not a competency score.'})[mode]}
 function metadata(lab,blind){
@@ -136,7 +187,9 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  mountLabTutorLink(lab,mode);
  syncPlayerMode();
  q('lock-decision').addEventListener('click',lockDecision);q('reveal-next').addEventListener('click',revealNext);q('complete-attempt').addEventListener('click',saveAttempt);q('discuss-lab').href=`forum.html?lab=${encodeURIComponent(lab.id)}`;
- if(PLAYER.access.user){PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false})}
+ if(PLAYER.access.user&&PLAYER.access.sb?.from){
+  PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false}).catch(()=>{});
+ }
 }
 async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await window.getSupabaseClient();const session=(await sb?.auth.getSession())?.data?.session;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetch('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
  let payload=await response.json().catch(()=>({}));
@@ -157,7 +210,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
    payload.error||'Lab not available.');
   failure.qaCode=String(payload.code||'');
   throw failure;
- }const lab=payload.lab;PLAYER.lab=lab;
+ }const lab=normalizeAuthorizedLab(payload.lab,await canonicalPublishedMetadata(id),id);PLAYER.lab=lab;
  // Server-reported entitlement is authoritative. Optional client-side
  // dashboard access state may fail separately and must not hide a valid Lab.
  let localAccess=null;
