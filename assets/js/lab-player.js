@@ -228,7 +228,24 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
   PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false}).catch(()=>{});
  }
 }
-async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await window.getSupabaseClient();const session=(await sb?.auth.getSession())?.data?.session;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetch('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
+// Prevent a delayed external Supabase SDK or network request from leaving
+// public sample Labs in a permanent loading state. Missing session tokens
+// never grant private instruction, access or official grades.
+async function bounded(value,timeoutMs,fallback=null){
+ let timer;
+ try{return await Promise.race([
+  Promise.resolve().then(()=>value).catch(()=>fallback),
+  new Promise(resolve=>{timer=setTimeout(()=>resolve(fallback),timeoutMs)})
+ ])}finally{if(timer!==undefined)clearTimeout(timer)}
+}
+async function fetchLabWithDeadline(url,options={}){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+ try{return await fetch(url,{...options,signal:controller.signal})}
+ finally{clearTimeout(timer)}
+}
+async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
+ const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
+ const session=authResult?.data?.session||null;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetchLabWithDeadline('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
  let payload=await response.json().catch(()=>({}));
  // Canonical book companion route remains authoritative when published.
  // Only missing authored content is eligible for server-authorized, ungraded
@@ -238,7 +255,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   // conceptual instruction. This fallback re-checks auth, account restrictions,
   // published Lab status, and entitlements on the server. 401/403 never retry.
 
-  response=await fetch('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
+  response=await fetchLabWithDeadline('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
   payload=await response.json().catch(()=>({}));
  }
  if(!response.ok||!payload.ok){
@@ -313,7 +330,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  const gate=q('lab-player-gate');
  gate.replaceChildren();
  const notice=document.createElement('div');notice.className='notice';
- const text=document.createElement('p');text.textContent=e.message||'The Lab could not be opened.';notice.append(text);
+ const text=document.createElement('p');text.textContent=e?.name==='AbortError'?'The Lab service did not respond in time. You can retry without losing your saved work.':e.message||'The Lab could not be opened.';notice.append(text);
  if(/^LAB_(?:REQUEST|AUTH|REGISTRY|MEMBER|FLAGS|PREMIUM|BOOK|TEACHING)_UNAVAILABLE$/.test(String(e.qaCode||''))){
   const code=document.createElement('p');code.className='small';
   code.textContent='Support reference: '+e.qaCode;notice.append(code);
