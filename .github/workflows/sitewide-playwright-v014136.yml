@@ -96,6 +96,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014162_universal_browser.mjs
+      - name: Browser-verify in-page v3.3 Labs retain website navigation
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v33_inline_registry_shell.mjs
       - name: Browser-verify real Lab Player authorization, 419 fallback, and v3.2 mode/reset boundaries
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
