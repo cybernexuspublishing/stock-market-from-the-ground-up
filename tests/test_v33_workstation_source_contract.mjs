@@ -12,7 +12,7 @@ assert(html.includes('lab-engine-v33-workstation.css'));
 assert(html.indexOf('lab-engine-v32-teaching.css')<html.indexOf('lab-engine-v33-workstation.css'));
 for(const token of ['class="gu-ws"','gu-ws-disclosures','gu-ws-member-workbench','gu-v32-teaching-slot','gu-ws-study-source','v014-training-slot','complete-attempt'])
  assert(player.includes(token),'Missing integrated component: '+token);
-assert(player.indexOf('gu-v32-teaching-slot')<player.indexOf('v014-training-slot'),'Shared education must appear before protected decision and grading');
+assert(player.indexOf('id="gu-v32-teaching-slot"')<player.indexOf('id="v014-training-slot"'),'Shared education must appear before protected decision and grading');
 assert(!player.includes('class="lab-learning-split"'),'Deprecated permanently expanded split layout must not return');
 assert(player.includes('serverGuidedAllowed===true'),'Access gate must remain server-authoritative');
 assert(player.includes('serverAdvancedAllowed===true'),'Advanced access gate must remain server-authoritative');
