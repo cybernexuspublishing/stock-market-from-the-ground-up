@@ -24,6 +24,7 @@ jobs:
           node tests/test_v014145_research_scanner.mjs
           node tests/test_v014145_marketdata_byo_security.mjs
           node tests/test_v014150_market_data_integrity.mjs
+          node tests/test_v014150_market_bar_import.mjs
           node tests/test_v014150_scanner_filters.mjs
           node tests/test_v014150_indicator_math.mjs
           node tests/test_v014150_watchlist_lifecycle.mjs
@@ -32,9 +33,11 @@ jobs:
           node --check functions/_lib/market-data-integrity-v014150.js
           node --check functions/api/marketdata.js
           node --check assets/js/advanced-tools.js
+          node --check assets/js/market-bars-import-v014150.js
           node --check assets/js/market-research-engine-v014145.js
           bash scripts/build-pages.sh
           test -f public/assets/js/market-research-engine-v014145.js
           test -f public/advanced-tool.html
+          test -f public/assets/js/market-bars-import-v014150.js
           test ! -e public/supabase
           test ! -d public/functions
