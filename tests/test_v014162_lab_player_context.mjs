@@ -62,6 +62,7 @@ try{
  b=await r.json();assert.equal(b.advancedAllowed,false);
  storedCode='SITE_EXCLUSIVE';rpcFail=true;
  r=await onRequest({env,request:req()});assert.equal(r.status,503,'Site-exclusive cannot bypass missing premium RPC');
+ assert.equal((await r.json()).code,'LAB_BOOK_UNAVAILABLE','Safe stage identifies the failing authorization dependency');
  storedCode='FOUNDATION_BOOK_1';rpcFail=true;ownsBook=false;
  r=await onRequest({env,request:req('F1-C02-L01')});assert.equal(r.status,200,'Approved free sample works for signed-in member despite RPC outage');
  globalThis.fetch=previousFetch;

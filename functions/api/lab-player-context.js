@@ -39,13 +39,16 @@ async function read(env,id){
 const safe=(v,max)=>String(v??'').slice(0,max);
 const sentences=(value,maxItems=6)=>Array.isArray(value)?value.filter(x=>typeof x==='string'&&x.trim()).slice(0,maxItems).map(x=>safe(x,550)):[];
 export async function onRequest({request,env}){
+ let stage='REQUEST';
  try{
   if(request.method!=='GET')return reply({ok:false,error:'Method not allowed.'},405);
   const id=new URL(request.url).searchParams.get('id')||'';
   if(!code.test(id))return reply({ok:false,error:'Invalid Lab ID.'},400);
   // Authenticate independently of the premium RPC. A member owning a book
   // must not lose Guided orientation merely because premium RPC is unavailable.
+  stage='AUTH';
   const actor=await memberIdentity(env,request);
+  stage='REGISTRY';
   const lab=await read(env,id);
   if(!lab||lab.active!==true||lab.registry_visible!==true||!BOOKS[lab.book_code])
    return reply({ok:false,error:'This Lab is not published.'},404);
@@ -55,12 +58,14 @@ export async function onRequest({request,env}){
   // Check the actor without invoking the premium entitlement RPC first.
   const c=config(env),headers={apikey:c.secret,accept:'application/json'};
   if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;
+  stage='MEMBER';
   const profile=await fetch(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+
    encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
   if(!profile.ok)throw Object.assign(Error('Lab member status unavailable.'),{status:503});
   const profiles=await profile.json();
   if(profiles?.[0]?.account_kind!=='member')
    return reply({ok:false,error:'A production member account is required.'},403);
+  stage='FLAGS';
   const flagsResponse=await fetch(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+
    encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
   if(!flagsResponse.ok)throw Object.assign(Error('Account restriction status unavailable.'),{status:503});
@@ -69,6 +74,7 @@ export async function onRequest({request,env}){
    return reply({ok:false,error:'Account access is restricted.'},403);
   // A premium RPC outage must not block an independently confirmed book owner
   // or an approved free sample. For other Labs, entitlement failure is fail-closed.
+  stage='PREMIUM';
   let premium=false,premiumFailure=null;
   try{
    const rpc=await fetch(c.base+'/rest/v1/rpc/user_has_tool_access',{
@@ -79,6 +85,7 @@ export async function onRequest({request,env}){
    if(!rpc.ok)throw Error('Premium entitlement service unavailable');
    premium=await rpc.json()===true;
   }catch(e){premiumFailure=e}
+  stage='BOOK';
   let owns=false,bookFailure=null;
   if(!premium&&!sample&&lab.book_code!=='SITE_EXCLUSIVE'){
    try{owns=await getBookCodeAccess(env,request,lab.book_code)}
@@ -88,6 +95,7 @@ export async function onRequest({request,env}){
    if(premiumFailure||bookFailure)throw Object.assign(Error('Entitlement verification unavailable.'),{status:503});
    return reply({ok:false,error:'Matching book or active Interactive Learning access required.'},403);
   }
+  stage='TEACHING';
   const title=safe(lab.title,180);
   // These fields already exist in the public canonical catalog. Whitelist
   // only instructional prose; never forward arbitrary metadata or keys.
@@ -116,7 +124,12 @@ export async function onRequest({request,env}){
    sourceStatus:'canonical_registry_safe_orientation_only',
    instructionReviewed:false,assessmentReviewed:false,
    notice:'Original member orientation, not an approved 419-Lab graded assessment.'});
- }catch(e){return reply({ok:false,error:e.status===401?'Sign in required.':
-  e.status===403?'Active matching access required.':
-  'Lab service temporarily unavailable.'},[400,401,403,404,405].includes(e.status)?e.status:503)}
+ }catch(e){
+  const status=[400,401,403,404,405].includes(e?.status)?e.status:503;
+  if(status===503)console.error('lab-player-context unavailable at stage',stage,'status',Number(e?.status)||503);
+  return reply({ok:false,error:status===401?'Sign in required.':
+   status===403?'Active matching access required.':
+   'Lab service temporarily unavailable.',
+   ...(status===503?{code:'LAB_'+stage+'_UNAVAILABLE'}:{})},status);
+ }
 }
