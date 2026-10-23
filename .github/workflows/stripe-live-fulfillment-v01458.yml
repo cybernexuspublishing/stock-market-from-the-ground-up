@@ -36,6 +36,12 @@ on:
       - 'supabase/admin/v0.14.0.82_*'
       - 'supabase/admin/v0.14.0.81_*'
       - 'data/store-products.json'
+      - 'config.js'
+      - 'data/commerce-config.json'
+      - 'release-manifest.json'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'owner-roadmap.html'
       - 'supabase/migrations/v0.14.0.78*'
       - 'assets/js/account-management-entitlements-v01478.js'
       - 'admin.html'
@@ -97,6 +103,7 @@ jobs:
           node tests/test_v014140_live_checkout_recovery.mjs
           node tests/test_v014155_live_checkout_body_limits.mjs
           node tests/test_v014155_webhook_body_limits.mjs
+          node tests/test_v014155_release_metadata.mjs
       - name: Verify production checkout wiring cannot bypass TEST/LIVE, webhook or product gates
         run: |
           node tests/test_v014064_checkout_wiring.mjs
