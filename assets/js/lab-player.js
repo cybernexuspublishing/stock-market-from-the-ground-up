@@ -217,9 +217,10 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  }const lab=normalizeAuthorizedLab(payload.lab,await canonicalPublishedMetadata(id),id);PLAYER.lab=lab;
  // Server-reported entitlement is authoritative. Optional client-side
  // dashboard access state may fail separately and must not hide a valid Lab.
- let localAccess=null;
- try{localAccess=await window.SiteAccess?.get?.()}catch{}
- PLAYER.access=localAccess||{user:session?.user||null,sb:sb||null,redeemedBooks:new Set()};
+ // The Lab API has already authorized the entitlement. Do not block the
+ // lesson display on optional legacy dashboard queries, which can hang or
+ // fail independently of the server-approved Lab and are not authoritative.
+ PLAYER.access={user:session?.user||null,sb:sb||null,redeemedBooks:new Set()};
  PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;
   const picker=q('player-reference-select');
   if(picker){
