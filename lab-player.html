@@ -1,1 +1,68 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Interactive historical lab player for The Stock Market: From the Ground Up."><title>Interactive Lab | The Stock Market: From the Ground Up</title><link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/lab-learning-layout-v014151.css"><link rel="stylesheet" href="assets/css/lab-engine-v32-teaching.css"><link rel="stylesheet" href="assets/css/lab-engine-v33-workstation.css"><script src="config.js"></script><script defer src="assets/js/site.js"></script><script defer src="assets/js/supabase-client.js"></script><script defer src="assets/js/session-manager.js"></script><script defer src="assets/js/access.js"></script><script defer src="assets/js/interactive-training.js"></script><script defer src="assets/js/lab-engine-v32-teaching.js"></script><script defer src="assets/js/lab-engine-v33-visual.js"></script><script defer src="assets/js/lab-engine-v32-universal.js"></script><script defer src="assets/js/lab-player.js"></script></head><body><header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"><a href="books.html">Books</a><a href="learn.html">Learning System</a><a href="labs.html">Lab Registry</a><a href="forum.html">Forum</a><a href="membership.html">Membership</a><a href="about.html">About</a><a class="nav-cta" href="account.html">Account</a></nav></div></header><main class="section"><div class="wrap"><div id="lab-player-gate"><div class="small">Loading interactive lab…</div></div><section id="lab-player-content" hidden><div class="interactive-lab-head"><div><div class="eyebrow" id="player-lab-id"></div><h1 id="player-title"></h1><p id="player-location" class="section-intro"></p></div><a class="btn secondary" href="labs.html">Back to Registry</a></div><div id="player-access-note"></div><div class="gu-v33-mode-toolbar"><label for="player-mode-select"><strong>Learning Mode</strong></label><select id="player-mode-select" aria-label="Learning Mode"><option value="guided">Guided</option><option value="practice">Practice</option><option value="blind">Blind Decision</option><option value="assessment">Assessment</option></select><button type="button" class="btn secondary" id="player-mode-help" aria-expanded="false" aria-controls="player-mode-description">Mode help</button><span id="player-mode-status" role="status">Unlocked</span><button type="button" class="btn secondary" id="player-restart-mode">Change Mode / Restart</button></div><div id="player-mode-confirm" class="gu-v33-mode-confirm" hidden aria-live="polite"></div><div id="player-mode-description" class="notice" hidden></div><section id="player-workspace" class="dashboard-space"></section><section id="player-results" class="dashboard-space"></section></section></div></main><footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><div>Learn It. Understand It. Practice It. Trade It.</div></div><div><strong>Practice</strong><br><a href="labs.html">Lab Registry</a><br><a href="skills.html">Market Skills Record</a><br><a href="journal.html">Decision Journal</a></div><div><strong>Policies</strong><br><a href="privacy.html">Privacy</a><br><a href="terms.html">Terms</a></div></div></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+<meta name="description" content="Interactive Learning Center — The Stock Market: From the Ground Up">
+<title>Interactive Learning Center | The Stock Market: From the Ground Up</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/lab-v32-prototype-exact.css">
+<link rel="stylesheet" href="assets/css/lab-engine-v32-teaching.css">
+<link rel="stylesheet" href="assets/css/lab-engine-v32-member-bridge.css">
+<script src="config.js"></script>
+<script defer src="assets/js/site.js"></script>
+<script defer src="assets/js/supabase-client.js"></script>
+<script defer src="assets/js/session-manager.js"></script>
+<script defer src="assets/js/access.js"></script>
+<script defer src="assets/js/interactive-training.js"></script>
+<script defer src="assets/js/lab-engine-v32-teaching.js"></script>
+<script defer src="assets/js/lab-engine-v33-visual.js"></script>
+<script defer src="assets/js/lab-engine-v32-universal.js"></script>
+<script defer src="assets/js/lab-player.js"></script>
+</head>
+<body class="gu-lab-member" data-auth-required="true">
+<main id="app" aria-label="Interactive Learning Center">
+<div class="shell">
+<header class="banner">
+<div class="super">THE STOCK MARKET: FROM THE GROUND UP · INTERACTIVE LEARNING CENTER</div>
+<div class="title-actions">
+<div><h1 id="player-title">Loading your learning workstation</h1><div class="sub" id="player-location">Checking authorized Lab access…</div></div>
+<span class="badge" id="player-shell-badge">MEMBER LEARNING</span>
+</div>
+</header>
+<div class="prototype-bar">
+<div class="optionrow"><span>Selected Lab</span><a class="link" href="labs.html" id="player-lab-id">Choose a Lab</a><a class="link" href="labs.html">Lab Registry</a></div>
+<span class="live-note">Member access and official grades are controlled by protected services</span>
+</div>
+<div class="toolbar">
+<div class="toolbar-top">
+<strong>Learning Mode</strong>
+<label for="player-mode-select" class="visually-hidden">Select Learning Mode</label>
+<select id="player-mode-select" aria-label="Learning Mode"><option value="guided">Guided</option><option value="practice">Practice</option><option value="blind">Blind Decision</option><option value="assessment">Assessment</option></select>
+<button type="button" class="secondary" id="player-mode-help" aria-expanded="false" aria-controls="player-mode-description" aria-label="Learning mode guidance">ⓘ</button>
+<span id="player-mode-status" class="small" role="status">Unlocked</span>
+<span id="player-progress-value" class="progress-value" aria-live="polite">0%</span>
+</div>
+<div class="track" role="progressbar" aria-label="Learning journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="player-stage-progress">
+<div class="fill" id="player-progress-fill" style="width:0%"></div>
+</div>
+<div class="flex-between" id="player-mode-restart-row" hidden><span class="small">Mode locked for this attempt.</span><button type="button" class="secondary" id="player-restart-mode">Change Mode / Restart</button></div>
+<div id="player-mode-confirm" class="warn" hidden aria-live="polite"></div>
+<div id="player-mode-description" class="instruction" hidden></div>
+</div>
+<div class="journey">
+<div class="journey-top"><strong id="player-current-stage">Start</strong><span class="small" id="player-stage-count">Stage 1 of 9</span></div>
+<div class="stage-grid" id="player-stage-grid" aria-label="Nine learning stages"><div class="stage-item current" data-player-stage="0"><span class="bullet"></span>Start</div><div class="stage-item " data-player-stage="1"><span class="bullet"></span>Learn</div><div class="stage-item " data-player-stage="2"><span class="bullet"></span>Experiment</div><div class="stage-item " data-player-stage="3"><span class="bullet"></span>Predict</div><div class="stage-item " data-player-stage="4"><span class="bullet"></span>Practice</div><div class="stage-item " data-player-stage="5"><span class="bullet"></span>Assess</div><div class="stage-item " data-player-stage="6"><span class="bullet"></span>Review</div><div class="stage-item " data-player-stage="7"><span class="bullet"></span>Transfer</div><div class="stage-item " data-player-stage="8"><span class="bullet"></span>Results</div></div>
+</div>
+<div class="content">
+<div id="lab-player-gate" role="status" aria-live="polite">Loading authorized Lab…</div>
+<section id="lab-player-content" hidden>
+<div id="player-access-note"></div>
+<section id="player-workspace" aria-label="Active learning stage"></section>
+<section id="player-results" aria-live="polite"></section>
+</section>
+<div class="actions"><a class="link" href="labs.html">← Return to Lab Registry</a><span class="live-note">Educational instruction. Official assessments and progress require authorization.</span></div>
+</div>
+</div>
+</main>
+</body>
+</html>
