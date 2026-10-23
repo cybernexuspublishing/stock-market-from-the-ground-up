@@ -33,7 +33,9 @@ try{
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'guided',target:t,lab:{id:'TAPE-C01-L01'}})});
   assert.match(await page.locator('#universal-test').innerText(),/TAPE-C01-L01/);
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'assessment',target:t})});
-  assert.equal(await page.locator('#universal-test').innerText(),'');
+  assert.match(await page.locator('#universal-test').innerText(),/Assessment — Independent Decision/);
+  assert.match(await page.locator('#universal-test').innerText(),/No answer keys/);
+  assert.equal(await page.locator('#universal-test').getByText('TAPE-C01-L01').count(),0,'Assessment shell must not reveal the Lab concept or private instruction');
   assert.deepEqual(errors,[]);
   console.log('PASS all-collection v3.3 nine-stage study browser contract at '+width+'px');
   await page.close();
