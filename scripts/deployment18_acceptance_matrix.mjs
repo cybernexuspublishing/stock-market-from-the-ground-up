@@ -17,8 +17,12 @@ const evidence=parse('artifacts/curriculum-acceptance-v014150.json');
 const commerce=parse('data/commerce-config.json');
 const decisions=parse('docs/curriculum-acceptance-decisions-v014150.json');
 const d17=parse('artifacts/d17-source-security-readiness.json');
+const requirements=parse('artifacts/d17-owner-requirements-reconciliation.json');
 requireTruth(d17.schema==='gu-d17-no-provider-source-gates-v1'&&d17.sourceBlockerCount===0,
  'Deployment 17 high-risk source boundary checks must pass before writing acceptance evidence');
+requireTruth(requirements.schema==='gu-d17-owner-requirement-reconciliation-v1'&&
+ requirements.registered>=1815&&requirements.structuralErrors?.length===0,
+ 'Deployment 17 Owner requirements register must reconcile without parsing errors');
 const official=['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY',
  'INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'];
 requireTruth(/^0\.14\.0\.\d+$/.test(manifest.version),'manifest version must be valid');
@@ -48,7 +52,7 @@ const fileEvidence=requiredFiles.map(path=>({path,exists:existsSync(join(root,pa
  sha256:existsSync(join(root,path))?createHash('sha256').update(read(path)).digest('hex'):null}));
 requireTruth(fileEvidence.every(x=>x.exists),'missing critical integration file');
 const sourceChecks=[
- {id:'source',status:'PARTIAL_SOURCE_PRESENT',basis:'Critical source files found; no comprehensive sitewide source verification claimed'},
+ {id:'source',status:'PARTIAL_SOURCE_PRESENT',basis:'Critical source files found; '+requirements.pendingReview+'/'+requirements.registered+' Owner requirement decisions outstanding; no comprehensive source verification claimed'},
  {id:'ci',status:'EXACT_HEAD_ACTIONS_REQUIRED',basis:'Workflow execution requires independently observed GitHub Actions result'},
  {id:'database',status:'OWNER_READ_ONLY_POSTFLIGHT_REQUIRED',basis:'Existing eight-row SKU CSV proves structure only, not live member RLS'},
  {id:'cloudflare',status:'EXACT_DEPLOYED_SHA_REQUIRED',basis:'No independently verified Cloudflare deployed commit'},
@@ -76,6 +80,9 @@ const output={
   statuses:sourceChecks
  },
  fileEvidence,
+ ownerRequirements:{registered:requirements.registered,acceptedWithEvidence:requirements.acceptedWithEvidence,
+  pendingReview:requirements.pendingReview,byStatus:requirements.byStatus,sourceSha256:requirements.sha256,
+  fullyAccepted:requirements.requirementsFullyAccepted,productionCertified:false},
  sourceSecurity:{deployment17Checks:d17.checks?.length||0,sourceBlockers:d17.sourceBlockers||[],productionTested:false},
  launchApproved:false,
  releaseReason:'Source inventory and recorded review fields do not establish real paid production or editorial acceptance.'
@@ -87,7 +94,8 @@ const md=[
  'Release manifest: '+manifest.version+' | GitHub SHA: '+(output.gitSha||'not supplied'),'',
  'Labs with complete source-ledger review records: **'+acceptedLabs+'/419** (independent validation pending).',
  'Bootcamp days with complete source-ledger review records: **'+acceptedDays+'/30** (independent validation pending).',
- 'Official competency definitions: **30**, production verification outstanding.','',
+ 'Official competency definitions: **30**, production verification outstanding.',
+ 'Owner requirements pending documented acceptance: **'+requirements.pendingReview+'/'+requirements.registered+'**.','',
  '| Acceptance gate | Evidence state |','| --- | --- |',
  ...sourceChecks.map(x=>'| '+x.id+' | '+x.status+' |'),'',
  '**Paid memberships: not approved.** Source-stage verification never changes existing Stripe flags.',

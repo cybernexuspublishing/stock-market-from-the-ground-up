@@ -5,7 +5,7 @@ const uid='123e4567-e89b-12d3-a456-426614174000';
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture',
  SUPABASE_SECRET_KEY:'sb_secret_fixture'};
 const original=globalThis.fetch;
-let seen=[],ticketState='closed',owned=true;
+let seen=[],ticketState='closed',owned=true,canUpdate=true;
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opt={})=>{
  const path=String(url);seen.push({path,headers:opt.headers||{},method:opt.method||'GET'});
@@ -19,7 +19,7 @@ globalThis.fetch=async(url,opt={})=>{
  }
  if(path.includes('support_tickets?id=eq.')) {
   assert(path.includes('requester_user_id=eq.'+uid),'Write must remain member scoped');
-  return json([]);
+  return json(canUpdate?[{id:11}]:[]);
  }
  if(path.includes('support_ticket_messages'))return json([]);
  throw Error('Unexpected provider call '+path);
@@ -37,7 +37,11 @@ try{
  seen=[];owned=true;ticketState='open';
  response=await onRequest({env,request:request('reopen',{method:'POST',headers:{...auth,'content-type':'application/json'},body:JSON.stringify({id:11})})});
  assert.equal(response.status,409,'Only closed/resolved tickets can reopen');
- seen=[];ticketState='closed';
+ seen=[];ticketState='closed';canUpdate=false;
+ response=await onRequest({env,request:request('reopen',{method:'POST',headers:{...auth,'content-type':'application/json'},body:JSON.stringify({id:11})})});
+ assert.equal(response.status,409,'Conditional reopen must reject a concurrent change');
+ assert(seen.some(x=>x.path.includes('status=in.(closed,resolved)')),'Conditional status filter is required');
+ seen=[];canUpdate=true;
  response=await onRequest({env,request:request('create',{method:'POST',headers:{...auth,'content-type':'application/json'},body:'x'.repeat(16385)})});
  assert.equal(response.status,413,'Actual bytes, not claimed length, enforce 16-KB cap');
  assert(!seen.some(x=>x.path.includes('/rest/v1/')),'Oversize create must not touch ticket tables');

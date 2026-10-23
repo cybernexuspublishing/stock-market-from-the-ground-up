@@ -7,7 +7,7 @@ const base='https://example.supabase.co';
 const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock'};
 const originalFetch=globalThis.fetch;
 const calls=[];
-let status='closed',belongs=true;
+let status='closed',belongs=true,canUpdate=true;
 function reply(data,statusCode=200){
  return new Response(JSON.stringify(data),{status:statusCode,headers:{'content-type':'application/json'}});
 }
@@ -32,7 +32,7 @@ globalThis.fetch=async (input,options={})=>{
  }
  if(path.startsWith('support_tickets?')&&options.method==='PATCH'){
   assert(path.includes('requester_user_id=eq.'+UID),'Support mutations must scope member ID');
-  return reply([]);
+  return reply(canUpdate?[{id:41}]:[]);
  }
  if(path.startsWith('support_ticket_messages?'))return reply([]);
  throw Error('Unexpected mock call '+path);
@@ -55,7 +55,11 @@ try{
  result=await onRequest({request:req('reopen','POST',{id:41}),env});
  assert.equal(result.status,409,'Open ticket must not reset its lifecycle');
  assert(!calls.some(x=>x.options.method==='PATCH'));
- status='closed';calls.length=0;
+ status='closed';calls.length=0;canUpdate=false;
+ result=await onRequest({request:req('reopen','POST',{id:41}),env});
+ assert.equal(result.status,409,'Reopen rejects an intervening ticket state transition');
+ assert(calls.some(x=>x.address.includes('status=in.(closed,resolved)')),'Database PATCH must include eligible states');
+ canUpdate=true;calls.length=0;
  result=await onRequest({request:req('reopen','POST',{id:'41 OR 1=1'}),env});
  assert.equal(result.status,400,'SQL/PostgREST filter injection not permitted');
  assert(!calls.some(x=>x.options.method==='PATCH'));
