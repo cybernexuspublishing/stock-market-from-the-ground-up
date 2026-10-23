@@ -32,6 +32,7 @@ try{
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-select').selectOption('practice');
+  await page.getByRole('button',{name:'Mode help'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.locator('#player-mode-select').selectOption('guided');

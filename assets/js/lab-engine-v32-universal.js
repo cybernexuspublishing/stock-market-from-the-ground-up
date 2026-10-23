@@ -120,7 +120,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
  function render(){
   body.replaceChildren();mark('');showJourney();body.append(el('h3',STEPS[stage]));
   if(stage===0){
-   appendParagraph(body,'Learning objective: '+(lab?.goal||topic));
+   appendParagraph(body,'Canonical Lab reference: '+labId);appendParagraph(body,'Learning objective: '+(lab?.goal||topic));
    appendParagraph(body,'Prerequisite: be able to identify the observations and units required for this subject. If an unfamiliar word appears, open the free explanation in the next stage.');
    appendParagraph(body,'Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Not Yet Assessed is the default until reviewed evidence exists.');
    appendParagraph(body,'This stage shows conceptual instruction, not independently verified market history or a trading recommendation.');
