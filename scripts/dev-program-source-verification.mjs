@@ -26,7 +26,7 @@ const tests={
  d17:['tests/v0144_route_contracts.mjs','tests/test_v014157_support_security.mjs','tests/test_v014157_public_seo.mjs','scripts/deployment17_source_security_readiness.mjs'],
  d18:['scripts/deployment18_acceptance_matrix.mjs']
 };
-const prereqs={d18:['scripts/curriculum-acceptance-evidence.mjs']};
+const prereqs={d18:['scripts/deployment17_source_security_readiness.mjs','scripts/curriculum-acceptance-evidence.mjs']};
 const opts=process.argv.slice(2),at=opts.indexOf('--scope');
 const scope=at<0?'d09':opts[at+1];
 const acceptable=new Set([...Object.keys(tests),'all']);
