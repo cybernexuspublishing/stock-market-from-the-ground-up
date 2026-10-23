@@ -42,6 +42,8 @@ try{
    assert(!/private note|bank account|stripe customer/i.test(await page.locator('#unified-results').innerText()));
    await page.getByRole('button',{name:'Back to Members'}).click();
    await page.getByRole('button',{name:'Audit Log'}).click();
+   await page.getByText('Audit entries are paged server-side; newest first.').waitFor({timeout:12000});
+   assert.equal(await page.locator('#unified-title').innerText(),'Audit Log');
    await page.getByRole('button',{name:'Previous page'}).waitFor({timeout:12000});
    assert.equal(await page.getByRole('button',{name:'Previous page'}).isDisabled(),true);
    assert(actions.includes('user_summary')&&actions.includes('audit'));
