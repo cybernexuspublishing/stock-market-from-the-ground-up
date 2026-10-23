@@ -55,6 +55,14 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014145_research_scanner_browser.mjs
+      - name: Verify read-only Admin member inspection on mobile and desktop
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014157_admin_read_browser.mjs
+      - name: Verify member-scoped Support API protection without live services
+        run: |
+          node tests/test_v014157_support_security.mjs
+          node scripts/deployment17_source_security_readiness.mjs
       - name: Verify Owner delivery plan and roadmap governance contracts
         run: |
           node tests/test_v014141_owner_delivery_governance.mjs
