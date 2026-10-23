@@ -16,8 +16,9 @@ try{
   });
   assert.equal(await page.evaluate(()=>window.testMounted),true);
   await page.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor();
+  await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
   for(const expected of ['Learn','Experiment','Predict']){
-   await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
+   if(expected!=='Learn')await page.getByRole('button',{name:'Next learning stage'}).click();
    await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
   }
   await page.getByRole('button',{name:'Next learning stage'}).click();
