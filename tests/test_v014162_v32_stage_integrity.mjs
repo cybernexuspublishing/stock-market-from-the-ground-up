@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const s=readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
+const player=readFileSync('assets/js/lab-player.js','utf8');
+assert(s.includes('canonicalTarget:419'));
+assert(s.includes("if(step===3&&!prediction)"));
+assert(s.includes("if(step===4&&!practice)"));
+assert(s.includes("if(step===6&&!review)"));
+assert(s.includes("if(step===7&&transfer.length<15)"));
+assert(s.includes('ticket.get(target)!==epoch'),'No stale async study guides mounted after mode switch');
+assert(s.includes("['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']"));
+assert(player.includes('fraction>=1/3'),'Member mode switch lock at one-third');
+assert(player.includes('submitted server assessments are not deleted')||player.includes('submitted server assessments'),'Restart does not erase official grades');
+console.log('PASS Lab Engine v3.2 all-nine-stage progression requires self-review and transfer before ungraded results');

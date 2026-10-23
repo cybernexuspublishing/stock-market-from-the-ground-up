@@ -104,6 +104,8 @@
   next.onclick=()=>{
    if(step===3&&!prediction){status.textContent='Lock a prediction before continuing.';return}
    if(step===4&&!practice){status.textContent='Record your own practice before reviewing.';return}
+   if(step===6&&!review){status.textContent='Acknowledge the self-review before moving to transfer.';return}
+   if(step===7&&transfer.length<15){status.textContent='Record an independent transfer response before opening results.';return}
    if(step<STEPS.length-1){step++;render()}
   };
   render();return true;
