@@ -1,1 +1,11 @@
 .gu-v32{border:1px solid #798494;margin:1rem 0}.gu-v32-progress{font-weight:700;letter-spacing:.015em}.gu-v32-body{padding:.6rem 0;min-height:11rem}.gu-v32-body label{display:block;font-weight:650;margin:.8rem 0}.gu-v32-body input[type=range]{display:block;max-width:28rem;width:100%;margin:.7rem 0}.gu-v32-body textarea{display:block;width:100%;max-width:35rem;margin:.5rem 0;min-height:5rem}.gu-v32-output{display:block;font-variant-numeric:tabular-nums}.gu-v32-body summary{cursor:pointer;font-weight:700}.gu-v32-body :is(input,textarea,button,summary):focus-visible{outline:3px solid #bb872c;outline-offset:3px}@media(max-width:600px){.gu-v32{padding:1rem}}
+/* Shared 3x3 Learning Journey: semantic list, responsive without hiding stages. */
+.gu-v33-journey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem 1rem;margin:1rem 0 1.25rem;padding:1rem;list-style:none;background:var(--surface-2,#eff3f4);border-radius:12px}
+.gu-v33-journey li{display:flex;align-items:center;gap:.5rem;min-width:0;font-weight:500}
+.gu-v33-journey li span:last-child{overflow-wrap:anywhere}
+.gu-v33-journey .complete{color:#216b52}.gu-v33-journey .current{color:#176348;font-weight:800}.gu-v33-journey .future{opacity:.65}
+.gu-v33-good{padding:.8rem;border-left:4px solid #278b69;background:var(--surface-2,#f0f4f3)}
+.gu-v33-review{padding:.8rem;border-left:4px solid #b17533;background:var(--surface-2,#f8f2e9)}
+.gu-v33 dl{display:grid;grid-template-columns:minmax(8rem,1fr) 2fr;gap:.5rem 1rem}.gu-v33 dd{margin:0}
+.gu-v33 :is(button,input,textarea,select,summary):focus-visible{outline:3px solid #b9822c;outline-offset:3px}
+@media(max-width:520px){.gu-v33-journey{gap:.5rem;padding:.75rem;font-size:.82rem}.gu-v33 dl{grid-template-columns:1fr}.gu-v33 dd{margin:0 0 .5rem}}
