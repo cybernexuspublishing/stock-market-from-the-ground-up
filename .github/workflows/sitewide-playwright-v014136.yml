@@ -64,12 +64,20 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014145_research_scanner_browser.mjs
+      - name: Verify all 419 authorized universal Lab study bridges
+        run: |
+          node tests/test_v014162_419_universal.mjs
+          node tests/test_v014162_lab_player_context.mjs
       - name: Verify approved Lab Engine v3.2 source boundaries
         run: node tests/test_v014161_lab_engine_v32_teaching.mjs
       - name: Browser-test approved Lab Engine v3.2 teaching at mobile and desktop widths
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014161_lab_engine_v32_browser.mjs
+      - name: Browser-test nine-stage universal engine across canonical collections
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014162_universal_browser.mjs
       - name: Verify read-only Admin member inspection on mobile and desktop
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
