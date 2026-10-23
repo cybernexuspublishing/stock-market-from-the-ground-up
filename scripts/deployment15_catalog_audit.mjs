@@ -18,6 +18,19 @@ const codes=registry.products.map(x=>x.sku);
 if(new Set(codes).size!==8||codes.some(x=>!expected.has(x)))fail('SKU identity/uniqueness mismatch');
 for(const row of registry.products)if(row.price_cents!==expected.get(row.sku)||row.currency!=='USD')fail('Approved price drift: '+row.sku);
 if(commerce.version!==manifest.version)fail('Commerce version mismatch');
+const staticPlans=new Map((commerce.plans||[]).map(x=>[x.planCode,x]));
+if(staticPlans.size!==5||(commerce.plans||[]).length!==5)
+ fail('Exactly five Free/Full/Lifetime/OnDemand source membership listings expected');
+for(const [code,price,interval] of [
+ ['FREE',0,'none'],['FULL_MONTHLY',6999,'month'],['FULL_ANNUAL',69900,'year'],
+ ['LIFETIME',249900,'lifetime'],['ONDEMAND_MONTHLY',1999,'month']
+]){
+ const row=staticPlans.get(code);
+ if(!row||row.priceCents!==price||row.billingInterval!==interval||row.checkoutUrl!=='')
+  fail('Static membership price, cadence or disabled checkout changed: '+code);
+}
+if(commerce.toolPassPriceCents!==2999)fail('Independent tool price drift');
+
 if(manifest.customerCheckoutApproved!==false||manifest.liveStripeFulfillmentEnabled!==false)fail('Source catalog must not activate real billing');
 const status=registry.products.map(x=>({
  sku:x.sku,approvedPriceCents:expected.get(x.sku),
@@ -25,6 +38,12 @@ const status=registry.products.map(x=>({
  liveStripePriceIdInHistoricEvidencePresent:typeof x.stripe_price_id==='string'&&/^price_/.test(x.stripe_price_id),
  providerLiveReverified:false
 }));
+if(store.length!==5||new Set(store.map(x=>x.productCode)).size!==5)
+ fail('Five distinct canonical books required; unrelated products cannot enter Book Key catalog');
+for(const book of store){
+ if(book.bookKeyTrialDays!==30||book.directDigital?.enabled!==false||book.directPhysical?.enabled!==false)
+  fail('Book Key trial or unreviewed direct commerce enablement changed: '+book.productCode);
+}
 const books=store.filter(x=>x.type==='book').map(x=>({
  productCode:x.productCode,
  storefrontKdpSelectFlag:x.kdpSelect,
@@ -36,6 +55,8 @@ const report={
  schema:'gu-d15-screenshot-catalog-source-audit-v1',
  sourceVersion:manifest.version,source:'historic owner-supplied screenshots and repository static metadata only',
  historicCatalogIntegrityPassed:true,
+ sourceMembershipsVerified:commerce.plans.map(x=>({code:x.planCode,priceCents:x.priceCents,interval:x.billingInterval,checkoutConfigured:false})),
+ staticMembershipCount:commerce.plans.length,bookKeyTrialDays:30,
  paidCatalogRowCount:status.length,skuRows:status,
  unverifiedLiveStripePrices:status.filter(x=>!x.liveStripePriceIdInHistoricEvidencePresent).map(x=>x.sku),
  monthlyToolIntervalsRequireOwnerContractCheck:status.filter(x=>x.sku.startsWith('tool:')&&x.historicScreenshotInterval==='month').map(x=>x.sku),

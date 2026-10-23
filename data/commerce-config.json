@@ -34,6 +34,14 @@
       "billingInterval": "lifetime",
       "checkoutUrl": "",
       "adFree": true
+    },
+    {
+      "planCode": "ONDEMAND_MONTHLY",
+      "label": "OnDemand — Monthly",
+      "priceCents": 1999,
+      "billingInterval": "month",
+      "checkoutUrl": "",
+      "adFree": false
     }
   ],
   "toolPassPriceCents": 2999,
