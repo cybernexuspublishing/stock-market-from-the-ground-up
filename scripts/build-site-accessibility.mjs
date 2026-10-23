@@ -11,7 +11,7 @@ for(const filename of readdirSync(output).filter(p=>/^[a-z0-9-]+\.html$/.test(p)
  const match=/<main\b[^>]*>/i.exec(original);
  if(!match){missingMain.push(filename);continue;}
  let html=original;
- let main=match[0],id=/\bid=(["'])([^"']+)\1/i.exec(main)?.[2];
+ let main=match[0],id=/(?:\s)id=(["'])([^"']+)\1/i.exec(main)?.[2];
  if(!id){id='gu-main-content';main=main.replace(/<main\b/i,'<main id="gu-main-content"');html=html.replace(match[0],main)}
  if(!/class=(["'])[^"']*\bgu-skip-link\b/i.test(html)){
   html=html.replace(/<body\b[^>]*>/i,m=>m+'<a class="gu-skip-link" href="#'+id+'">Skip to main content</a>');
