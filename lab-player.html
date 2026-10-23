@@ -39,11 +39,11 @@
 <div class="super">THE STOCK MARKET: FROM THE GROUND UP · INTERACTIVE LEARNING CENTER</div>
 <div class="title-actions">
 <div><h1 id="player-title">Loading your learning workstation</h1><div class="sub" id="player-location">Checking authorized Lab access…</div></div>
-<span class="badge" id="player-shell-badge">MEMBER LEARNING</span>
+<span class="badge" id="player-shell-badge">LEARNING ENGINE v3.3</span>
 </div>
 </header>
 <div class="prototype-bar">
-<div class="optionrow"><label for="player-reference-select">Select reference Lab</label><select id="player-reference-select" aria-label="Select learning Lab"><option value="F2-C07-L01">Candlestick Construction</option><option value="F3-C06-L01">VWAP + Replay</option></select><a class="link" href="labs.html" id="player-lab-id">All 419 Labs</a></div>
+<div class="optionrow"><label for="player-reference-select">Select Lab</label><select id="player-reference-select" aria-label="Select learning Lab"><option value="F2-C07-L01">Candlestick Construction</option><option value="F3-C06-L01">VWAP + Replay</option></select><a class="link" href="labs.html" id="player-lab-id">All 419 Labs</a></div>
 <span class="live-note">Member access and official grades are controlled by protected services</span>
 </div>
 <div class="toolbar">
@@ -51,7 +51,7 @@
 <strong>Learning Mode</strong>
 <label for="player-mode-select" class="visually-hidden">Select Learning Mode</label>
 <select id="player-mode-select" class="visually-hidden" tabindex="-1" aria-label="Learning Mode"><option value="guided">Guided</option><option value="practice">Practice</option><option value="blind">Blind Decision</option><option value="assessment">Assessment</option></select>
-<button type="button" class="secondary" id="player-mode-trigger" aria-expanded="false" aria-controls="player-mode-menu" aria-haspopup="true">Guided ▾</button>
+<button type="button" class="secondary" id="player-mode-trigger" aria-expanded="false" aria-controls="player-mode-menu" aria-haspopup="menu">Guided ▾</button>
 <button type="button" class="secondary" id="player-mode-help" aria-expanded="false" aria-controls="player-mode-description" aria-label="Learning mode guidance">ⓘ</button>
 <span id="player-mode-status" class="small" role="status">Unlocked</span>
 <span id="player-progress-value" class="progress-value" aria-live="polite">0%</span>
@@ -60,7 +60,7 @@
 <div class="fill" id="player-progress-fill" style="width:0%"></div>
 </div>
 <div class="flex-between" id="player-mode-restart-row" hidden><span class="small">Mode locked for this attempt.</span><button type="button" class="secondary" id="player-restart-mode">Change Mode / Restart</button></div>
-<div id="player-mode-menu" class="mode-menu" hidden aria-label="Choose Learning Mode">
+<div id="player-mode-menu" class="mode-menu" role="menu" hidden aria-label="Choose Learning Mode">
 <div class="mode-item"><button type="button" class="secondary" data-member-mode="guided">Guided</button><span class="helptext">Step-by-step instruction, progressive hints, and free educational retries.</span></div>
 <div class="mode-item"><button type="button" class="secondary" data-member-mode="practice">Practice</button><span class="helptext">Attempt tasks independently while free instruction remains available.</span></div>
 <div class="mode-item"><button type="button" class="secondary" data-member-mode="blind">Blind Decision</button><span class="helptext">Record evidence and an interpretation before guidance is released.</span></div>
