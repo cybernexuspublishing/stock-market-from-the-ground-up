@@ -37,7 +37,7 @@ const universal=read('assets/js/lab-engine-v32-universal.js');
 for(const stage of [1,2,3,4,6,7])assert(universal.includes('showVisual('+stage),'Missing stage-aware visual '+stage);
 assert(universal.includes("if(['blind','assessment'].includes(mode))"),'Protected modes must not mount ungraded teaching');
 assert(universal.includes("kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create"),'Do not stack a conflicting visual above chronological replay');
-for(const label of ['Explain This Concept — Always Free','Teach This in More Depth — Always Free','Show a Guided Example — Free','Try Another Example — Free','Explain My Mistake — Free'])
+for(const label of ['Explain This Concept','Teach This in More Depth','Show a Guided Example','Try Another Example','Explain My Mistake'])
  assert(universal.includes(label),'Missing required free remediation: '+label);
 for(const piece of ['The price associated with','No answer keys, conceptual hints','server-graded question bank'])
  assert(read('assets/js/lab-player.js').includes(piece)||universal.includes(piece)||read('assets/js/lab-engine-v33-visual.js').includes(piece),piece+' protected flow not located');
@@ -46,6 +46,12 @@ assert(js.includes('FICTIONAL • STUDY ONLY'),'Never present invented price dat
 assert(!js.includes('/api/interactive-training'),'Fictional visual library must not call the official assessment API');
 const html=read('lab-player.html');
 assert(html.includes('assets/js/lab-v33-contextual-visuals.js'));
+assert(html.includes('assets/js/lab-v33-visual-interactions.js'));
+assert(html.indexOf('lab-v33-contextual-visuals.js')<html.indexOf('lab-v33-visual-interactions.js'));
+assert(html.indexOf('lab-v33-visual-interactions.js')<html.indexOf('lab-engine-v32-universal.js'));
+const controls=read('assets/js/lab-v33-visual-interactions.js');
+assert(controls.includes('querySelectorAll'), 'Charts must support inspecting displayed bars');
+assert(controls.includes('aria-pressed'), 'Chart toggles must expose selected state');
 assert(html.includes('assets/css/lab-v33-contextual-visuals.css'));
 assert(html.indexOf('lab-v33-contextual-visuals.js')<html.indexOf('lab-engine-v32-universal.js'),'Visual renderer must load before shared journey');
 assert(html.includes('class="site-header"'),'Retain canonical site header');
