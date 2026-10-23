@@ -1,3 +1,15 @@
+## ADDENDUM — D13 graded client race hardening (2026-10-22)
+
+**Newest verified source checkpoint before this documentation commit:** `d8930a5bef694f8e5b3522dc9ebb04b1c2b54e34`.
+- `assets/js/interactive-training.js`: per-mount generation/cancel contract; old `available`, `start`, `answer` and `resume` responses or errors no longer render into a subsequent mode/ Lab UI. Server-side `expectedStep` and private answer-key handling unchanged.
+- `assets/js/lab-player.js`: cancels old training state on mode rerenders, ignores outdated completion callback notices.
+- Added `tests/test_v014153_training_stale_mode.mjs` and registration in curriculum CI / `scripts/dev-program-source-verification.mjs`.
+- **Source syntax parse passed. Full asynchronous Playwright/runtime behavior remains deferred to D18, not claimed accepted.**
+- Source report: `docs/v0.14.0.155_D13_STALE_ASSESSMENT_UI_HARDENING.md`.
+- **Owner input now:** NONE. No new Supabase SQL, Cloudflare binding, Stripe change or license cost required.
+
+---
+
 # CURRENT DEVELOPMENT CHECKPOINT — D10 / D11 / D14 SOURCE CONTINUATION
 
 **Project:** The Stock Market: From the Ground Up  
