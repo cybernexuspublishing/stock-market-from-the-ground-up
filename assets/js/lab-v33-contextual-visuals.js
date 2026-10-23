@@ -96,7 +96,7 @@ function chart(type,stage,variant){
  if(type==='vwap')overlays='<path d="'+path(weighted)+'" fill="none" stroke="#f0bd67" stroke-width="3.5"/>';
  if(type==='ema')overlays='<path d="'+path(ema9)+'" fill="none" stroke="#f0bd67" stroke-width="3"/><path d="'+path(ema20)+'" fill="none" stroke="#80bcef" stroke-width="3"/>';
  if(type==='structure')overlays='<line x1="45" x2="756" y1="'+yy(10.49)+'" y2="'+yy(10.49)+'" stroke="#e0ba76" stroke-dasharray="8 6" stroke-width="2"/><text x="470" y="'+(yy(10.49)-8)+'" fill="#eed5a1" font-size="15">Illustrative reference level</text>';
- const labels=bars.map((b,i)=>'<text x="'+x(i)+'" y="370" text-anchor="middle" fill="#bed2e1" font-size="13">'+('0'+(30+5*i)).slice(-2)+'</text>').join('');
+ const labels=bars.map((b,i)=>'<text x="'+x(i)+'" y="370" text-anchor="middle" fill="#bed2e1" font-size="13">'+('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2)+'</text>').join('');
  const svg='<svg viewBox="0 0 820 395" role="img" aria-label="Fictional sequential '+type+' illustration with '+bars.length+' completed candles and corresponding blue volume bars">'+
  '<rect width="820" height="395" rx="10" fill="#10283c"/>'+
  [9.6,10,10.4,10.8].map(y=>'<line x1="38" x2="780" y1="'+yy(y)+'" y2="'+yy(y)+'" stroke="#29445d" stroke-dasharray="4 6"/><text x="4" y="'+(yy(y)+5)+'" fill="#bdcedd" font-size="13">'+usd(y)+'</text>').join('')+
@@ -107,8 +107,25 @@ function chart(type,stage,variant){
  for(const [col,lbl] of entries){const e=h('span');const dot=h('i');dot.style.background=col;e.append(dot,document.createTextNode(lbl));legend.append(e)}root.append(legend);
  const table=h('details','gu-l33-detail');table.append(text('summary','View completed-candle OHLCV values'));
  const tab=h('table');tab.innerHTML='<caption>Fictional completed intervals only</caption><thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Shares</th></tr></thead>';
- const tbody=h('tbody');bars.forEach((b,i)=>{const tr=h('tr');for(const val of [('09:'+('0'+(30+5*i)).slice(-2)),...b.slice(0,4).map(usd),String(b[4])])tr.append(text('td',val));tbody.append(tr)});tab.append(tbody);table.append(tab);root.append(table);
+ const tbody=h('tbody');bars.forEach((b,i)=>{const tr=h('tr');for(const val of [(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2)),...b.slice(0,4).map(usd),String(b[4])])tr.append(text('td',val));tbody.append(tr)});tab.append(tbody);table.append(tab);root.append(table);
  if(stage===3)root.append(text('p','Prediction boundary: only the displayed fictional observations are shown. Do not assume the next bar must continue the current movement.','gu-l33-takeaway'));
+ return root;
+}
+function weightedGroups(variant){
+ const transfer=variant==='transfer';
+ const groups=transfer?[[12,150],[16,50]]:[[8,200],[10,100]];
+ const root=h('section','gu-l33-graphic');
+ meta(root,'vwap','A comparison of fictional trade groups. The number of shares gives each execution price its weight. The practice answer is deliberately not shown here.');
+ const panel=h('div','gu-l33-depth');
+ for(const [i,[price,shares]] of groups.entries()){
+  const col=h('div');col.append(text('h4','Trade group '+(i+1)));
+  const display=h('div');display.append(text('strong',usd(price)+' per share'),text('span',shares+' shares'));col.append(display);
+  const bar=h('div');bar.className='gu-l33-weight-bar';
+  bar.setAttribute('role','img');bar.setAttribute('aria-label',shares+' shares at '+usd(price));
+  const fill=h('span');fill.style.width=(shares/Math.max(...groups.map(g=>g[1]))*100)+'%';fill.style.background=i?'#80bcef':'#51c7a0';bar.append(fill);col.append(bar);panel.append(col);
+ }
+ root.append(panel);
+ root.append(text('p','Multiply each price by its number of shares; add those traded dollar values; divide by the combined share count. Do not use a simple unweighted average.','gu-l33-takeaway'));
  return root;
 }
 function tape(){
@@ -131,6 +148,7 @@ function routing(){
 function create({type,stage=1,variant='default'}={}){
  if(!TYPE_SET.has(type)||type==='none')return null;
  if(type==='candle')return candle(variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined);
+ if(type==='vwap'&&(variant==='practice'||variant==='transfer'))return weightedGroups(variant);
  if(['structure','ema','vwap','volume'].includes(type))return chart(type,stage,variant);
  if(type==='tape')return tape();
  if(type==='depth')return depth();
