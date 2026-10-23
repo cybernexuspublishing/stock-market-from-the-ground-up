@@ -11,6 +11,11 @@ with sync_playwright() as pw:
  browser=pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium' if Path('/usr/bin/chromium').exists() else None,args=['--no-sandbox'])
  page=browser.new_page()
  page.set_content(html)
+ # The real Admin page loads config.js before the Stripe module. Reproduce
+ # that contract rather than relying on a hard-coded fallback release number.
+ from json import loads
+ expected_version=loads((R/'release-manifest.json').read_text())['version']
+ page.evaluate("(version)=>{window.SITE_CONFIG={VERSION:version}}",expected_version)
  page.evaluate("""()=> {
   window.ADMIN={ctx:{roles:['OWNER'],permissions:['commerce.view']}};
   window.mock={writes:0,readAudits:0};
@@ -46,8 +51,6 @@ with sync_playwright() as pw:
  assert stats['writes']==0,stats
  page.locator('#gu39-sku').select_option('plan:FULL_ANNUAL')
  assert payment.is_disabled(),'Changing SKU must invalidate the prior safety audit'
- from json import loads
- expected_version=loads((R/'release-manifest.json').read_text())['version']
  assert f'Payment testing interface v{expected_version}' in page.locator('#gu39-shadow').inner_text(), 'Visible payment console must match the current release'
  print('PASS v54: no TEST checkout allowed before nine-check read-only safety audit, selected SKU invalidates approval, no writes.')
  browser.close()
