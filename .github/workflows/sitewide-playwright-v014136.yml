@@ -71,6 +71,7 @@ jobs:
           node tests/test_v32_prototype_exact_fidelity.mjs
           node tests/test_v32_member_reference_integrity.mjs
           node tests/test_v32_reference_route_boundary.mjs
+          node tests/test_v33_production_dropdown_and_start.mjs
           node tests/test_v014162_lab_player_context.mjs
           node tests/test_lab_content_access_recovery.mjs
       - name: Verify Bootcamp 30-day shared v3.2 journey
