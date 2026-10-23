@@ -64,6 +64,24 @@ This is not equivalent to executing the website in a signed-in browser or approv
 
 **CI result:** A GitHub Actions pass has **not** been independently observed yet; test presence alone is not a passing outcome.
 
+## Typed instructor and optional AI Tutor enhancement
+
+**Owner direction (2026-10-23):** Make the existing Learning v3.3 lesson feel like a real instructor is typing the explanation, with the existing Market Tutor available without leaving the Lab.
+
+- The new \`assets/js/lab-v33-instructor.js\` creates a per-stage introductory narration. The source lesson text is predetermined and **not represented as AI-generated or live-streamed**.
+- Visual animation uses incremental character display after the complete narration is available to screen readers. Members can show all text immediately or replay the visual typing effect. Reduced-motion preferences bypass the effect.
+- The instructor is present in guided instructional stages; **Predict and Assess deliberately exclude it**. Blind and Assessment modes use the existing concealed-instruction rendering boundary.
+- The in-Lab Tutor request is voluntary. It submits only a topic-safe general question chosen by the member, not any journal entry, account information, private question/rubric, locked answers or unrevealed market candle.
+- Source-grounded responses are available through the existing \`/api/market-tutor\` service only after server-authenticated Market Tutor entitlement. Paid AI generation is requested only if the member explicitly checks the AI-consent control, and it is still subject to server rate limits, provider availability and validated source grounding.
+- Responses indicate whether they are an **AI-generated educational draft** or a **source-grounded response**. A fallback does not masquerade as AI-generated.
+- New Tutor answers are shown in the Lab with the same optional local typewriter effect. The API currently returns the complete text before the visual effect; this is **not token streaming** from a model provider.
+- The inline Tutor defaults to \`saveHistory:false\`. Existing full Market Tutor workspace remains accessible through its own link.
+- Pending requests and animations are cancelled when stages, Lab subjects or modes change. No existing assessment record, credit balance or official competency score is modified.
+
+**Source-level simulated runtime:** After integration, all **419/419** canonical Labs mounted and advanced to Learn, with the instructor visible in **419/419**, topic visuals visible in **223/419**, and zero simulated rendering exceptions. This does not establish authenticated browser or member-entitlement QA.
+
+**Added regression:** \`tests/test_lab_v33_instructor.mjs\`, included in GitHub Actions. The CI job result and live signed-in interaction remain unverified.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
