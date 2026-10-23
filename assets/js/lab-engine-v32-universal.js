@@ -175,7 +175,7 @@ async function mount({labId,mode,target,lab,focusId}={}){
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
   6:'Review — Learn from each result',7:'Transfer — '+(kind==='vwap'?'Controlled VWAP market replay':'Apply learning to a new case'),8:'Your Learning Development Report'};
-  heading.textContent=names[stage];if(stage!==0)body.append(el('h3',STEPS[stage]));
+  heading.textContent=names[stage];disclosure.hidden=stage===0;if(stage!==0)body.append(el('h3',STEPS[stage]));
   previous.hidden=stage===0;next.textContent=stage===0?'Begin '+(kind==='candle'?'Candlestick':kind==='vwap'?'VWAP':'Learning')+' Lesson →':'Next learning stage';
 
   if(stage===0){
