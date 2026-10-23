@@ -1,7 +1,9 @@
 /* D16 Stage A: read-only migration preview. No legacy script owns navigation here. */
 import {MODULES,GROUPS,authorized,resolveRoute,createAdminClient,readRows} from '/assets/js/admin-unified-core-v014156.mjs';
+import {safeMemberId,listParams,pageControlsInfo,authorizedMemberDetailRows,rolePermissionSummary} from '/assets/js/admin-unified-people-v014156.mjs';
 const $=id=>document.getElementById(id);
 let ctx=null,adminRead=null,active=null,sequence=0,controller=null;
+const viewState={members:{page:1,search:''},audit:{page:1}};
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=String(text);return n;}
 function gate(message){$('unified-gate').textContent=message;$('unified-gate').hidden=false;$('unified-app').hidden=true;}
 function nav(){
@@ -18,9 +20,61 @@ function nav(){
   host.append(section);
  }
 }
+function addPager(mod,data){
+ const pageInfo=pageControlsInfo(mod,data);
+ if(!pageInfo)return;
+ const actions=$('unified-actions');
+ const line=el('div','unified-pager');
+ const previous=el('button',null,'Previous page');previous.type='button';previous.disabled=!pageInfo.hasPrev;
+ previous.addEventListener('click',()=>{viewState[mod.id].page=pageInfo.page-1;load(mod);});
+ const next=el('button',null,'Next page');next.type='button';next.disabled=!pageInfo.hasNext;
+ next.addEventListener('click',()=>{viewState[mod.id].page=pageInfo.page+1;load(mod);});
+ line.append(previous,el('span',null,'Page '+pageInfo.page),next);
+ actions.append(line,el('p','unified-scope',pageInfo.scope));
+}
+function searchCurrentPage(mod){
+ if(mod.id!=='members')return;
+ const block=el('div','unified-filter');
+ const field=el('label',null,'Filter current Auth page only');
+ const input=el('input');input.type='search';input.placeholder='Email or username, within this page';
+ input.value=viewState.members.search;input.maxLength=120;input.autocomplete='off';
+ field.append(input);
+ const button=el('button',null,'Filter this page');button.type='button';
+ const apply=()=>{viewState.members.search=input.value.trim().slice(0,120);viewState.members.page=1;load(mod);};
+ button.addEventListener('click',apply);input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();apply();}});
+ block.append(field,button);
+ $('unified-actions').append(block);
+}
+async function inspectMember(memberId){
+ const mod=MODULES.find(m=>m.id==='members');
+ if(!mod||!authorized(mod,ctx)||!safeMemberId(memberId))return;
+ const generation=++sequence;controller?.abort();controller=new AbortController();
+ $('unified-title').textContent='Member details (read-only)';$('unified-title').focus();
+ const host=$('unified-results');host.replaceChildren();$('unified-actions').replaceChildren();
+ const back=el('button',null,'Back to Members');back.type='button';back.addEventListener('click',()=>load(mod,{focusHeading:true}));
+ $('unified-actions').append(back);
+ $('unified-count').textContent='';
+ $('unified-status').textContent='Loading authenticated member details…';
+ try{
+  const record=await adminRead('user_detail',{params:{id:memberId},signal:controller.signal});
+  if(generation!==sequence)return;
+  for(const item of authorizedMemberDetailRows(record)){
+   const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));
+  if(mod.id==='members'){
+   const memberId=safeMemberId(data.users?.[host.children.length]?.id);
+   if(memberId){const detail=el('button',null,'Inspect member');detail.type='button';detail.addEventListener('click',()=>inspectMember(memberId));entry.append(detail);}
+  }
+  host.append(entry);
+  }
+  $('unified-status').textContent='Member summary loaded from the existing permission-protected Admin API. Sensitive notes and private financial details are not shown in this view.';
+ }catch(error){
+  if(generation!==sequence||error.name==='AbortError')return;
+  $('unified-status').textContent='Member details unavailable: '+(error.message||'Access denied.');
+ }
+}
 function showRows(mod,data){
  const host=$('unified-results');host.replaceChildren();
- const items=readRows(mod,data);
+ const items=mod.id==='roles'?rolePermissionSummary(data):readRows(mod,data);
  $('unified-count').textContent=items.length?items.length+' visible records (read-only; server may paginate or limit results)':'No records returned for this authorized view.';
  for(const item of items){
   const entry=el('article','unified-record');entry.append(el('strong',null,item.title),el('p',null,item.detail));host.append(entry);
@@ -37,11 +91,12 @@ async function load(mod,{focusHeading=false}={}){
   link.href=mod.href||'/admin.html'+mod.legacy;host.append(link);
  }
  if(mod.kind==='link'){$('unified-status').textContent='This workflow still runs in the established Control Center. Source migration is not yet accepted.';return;}
+ searchCurrentPage(mod);
  $('unified-status').textContent='Loading authorized records…';
  try{
-  const data=await adminRead(mod.action,{signal:controller.signal});
+  const data=await adminRead(mod.action,{signal:controller.signal,params:listParams(mod,viewState[mod.id])});
   if(generation!==sequence)return;
-  showRows(mod,data);$('unified-status').textContent='Read-only records loaded. For changes, use the established authorized workflow.';
+  showRows(mod,data);addPager(mod,data);$('unified-status').textContent='Read-only records loaded. For changes, use the established authorized workflow.';
  }catch(error){
   if(generation!==sequence||error.name==='AbortError')return;
   $('unified-status').textContent='Could not load '+mod.label+': '+(error.message||'Unknown error');
