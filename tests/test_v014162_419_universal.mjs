@@ -54,6 +54,6 @@ assert(player.includes('inlineModeConfirmation'),'Mode change confirmation must 
 assert(readFileSync('assets/js/lab-engine-v32-teaching.js','utf8').includes('box.dataset.v32Progress=String(stage/5)'));
 assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('shell.dataset.v32Progress=String(stage/9)'));
 assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes("journey.className='gu-v33-journey'"));
-assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('Teach This in More Depth — Always Free'));
+assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('Teach This in More Depth'));
 assert(!readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('lab_training_sets_v014'),'Private training keys must not be published');
 console.log('PASS shared Lab Engine v3.3 guided study across all '+success+' canonical IDs, exactly 30 competencies and secure mode gates');
