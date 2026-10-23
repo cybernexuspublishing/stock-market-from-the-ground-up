@@ -101,6 +101,8 @@ async function mount({labId,mode,target,lab,focusId}={}){
   }
   progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];
   shell.dataset.v32Progress=String(stage/9);
+  if(typeof CustomEvent==='function'&&typeof document.dispatchEvent==='function')
+   document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
  }
  function freeExplanation(){
   detail(body,'Explain This Concept — Always Free',[
