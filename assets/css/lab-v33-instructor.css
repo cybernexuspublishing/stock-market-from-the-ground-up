@@ -24,3 +24,19 @@
 #gu-v32-teaching-slot .gu-v33-instructor :is(button,a,textarea,summary,input):focus-visible{outline:3px solid #90d9f5;outline-offset:3px}
 @media(max-width:700px){#gu-v32-teaching-slot .gu-v33-instructor{padding:12px 10px;margin:9px 0 15px}#gu-v32-teaching-slot .gu-v33-instructor-head{align-items:flex-start}#gu-v32-teaching-slot .gu-v33-instructor-typing{font-size:.96rem;line-height:1.6}}
 @media(prefers-reduced-motion:reduce){#gu-v32-teaching-slot .gu-v33-instructor *{animation:none!important;transition:none!important}}
+
+/* Curriculum-led teacher: substantive worked example + self-check rather than generic narration. */
+#gu-v32-teaching-slot .gu-v33-instructor-typing{white-space:pre-wrap;line-height:1.68}
+#gu-v32-teaching-slot .gu-v33-instructor-worked{margin:15px 0;padding:13px;background:#112c3e;border:1px solid #3c6880;border-radius:9px;max-width:100%}
+#gu-v32-teaching-slot .gu-v33-instructor-worked h4,#gu-v32-teaching-slot .gu-v33-instructor-check h4{font-size:.95rem;margin:0 0 9px;color:#e9f7ff}
+#gu-v32-teaching-slot .gu-v33-instructor-worked ol{padding-left:22px;margin:0}
+#gu-v32-teaching-slot .gu-v33-instructor-worked li{margin:8px 0;color:#e0eef7;font-size:.87rem;line-height:1.56}
+#gu-v32-teaching-slot .gu-v33-instructor-check{margin:14px 0;padding:13px;border:1px solid #426278;border-radius:9px;background:#12293b}
+#gu-v32-teaching-slot .gu-v33-instructor-check>p{font-size:.86rem;line-height:1.55}
+#gu-v32-teaching-slot .gu-v33-instructor-choices{display:grid;gap:7px;margin:11px 0}
+#gu-v32-teaching-slot .gu-v33-instructor-choice{display:flex;align-items:flex-start;gap:9px;border:1px solid #345873;padding:9px 10px;border-radius:8px;font-size:.84rem;font-weight:500;line-height:1.4;background:#172f43;color:#eaf4f9;cursor:pointer}
+#gu-v32-teaching-slot .gu-v33-instructor-choice input{flex:none;margin:3px 0 0;accent-color:#68ceb1}
+#gu-v32-teaching-slot .gu-v33-instructor-check button{margin:5px 0;min-height:38px}
+#gu-v32-teaching-slot .gu-v33-instructor-check-feedback{font-size:.83rem!important;line-height:1.6!important;color:#d4eecf!important}
+#gu-v32-teaching-slot .gu-v33-instructor-provenance{font-size:.76rem!important;line-height:1.4!important;color:#bfd0dd!important;margin:11px 0 0!important}
+@media(max-width:760px){#gu-v32-teaching-slot .gu-v33-instructor-worked,#gu-v32-teaching-slot .gu-v33-instructor-check{padding:11px}}
