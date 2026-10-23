@@ -16,6 +16,6 @@ assert(member.includes('function replayChart()')&&member.includes('function cred
 assert(member.includes('function assess()')&&member.includes('function review()')&&member.includes('function transfer()')&&member.includes('function results()'),'Full learning and feedback operations required');
 assert(member.includes('NON-PRODUCTION')&&member.includes('Simulated'),'Cannot misrepresent imaginary credits, prices, chart evidence or grading');
 assert(player.includes('lab-v32-member.html?lab='),'Known reference routes must load actual prototype');
-assert(player.includes("if(args.get('official')==='1')return;"),'Authenticated official Lab path must remain accessible separately');
+assert(player.includes("if(args.get('demo')!=='1')return;"),'Latest v3.3 official Lab must be default; v3.2 demo only with explicit opt-in');
 for(const id of ['F2-C07-L01','F3-C06-L01'])assert(player.includes(id),'Missing reference mapping '+id);
 console.log('PASS original v3.2 HTML is exact except tested Lab selector; production member grading route remains separate');
