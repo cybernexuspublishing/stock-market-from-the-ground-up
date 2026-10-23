@@ -15,22 +15,6 @@ function el(tag,content,className){
  return node;
 }
 function listen(elm,type,fn){elm.addEventListener(type,fn);return elm}
-function brief(stage,subject,concept){
- const base=String(subject||'market evidence');
- const source=String(concept||'').slice(0,180);
- const suffix=source&&source.toLowerCase()!==base.toLowerCase()?' Your current learning topic is '+source+'.':'';
- return [
-  'Welcome to this learning workstation. I will introduce the concept, show the evidence, and help you understand the procedure before you practice.',
-  'We will examine '+base+' one component at a time. Read the explanation alongside the illustrated example and identify what the chart can—and cannot—establish.'+suffix,
-  'Try changing one permitted input and notice how the displayed example responds. An illustrated result is not a historical market observation.',
-  'Record your expectation before the next result is revealed.',
-  'Use the evidence in the example and work through the question. You may make mistakes and retry. An incorrect attempt is an opportunity to understand the method, not a trading loss.',
-  'This independent assessment remains protected from instructional hints.',
-  'Review your reasoning, the applicable method, and the conditions that would change your interpretation. Helped practice is not independent mastery.',
-  'Apply what you learned to a different case. In replay activities, the next market observation must remain concealed until your analysis is locked.',
-  'Review the learning evidence and identify one concept to practice again. Official competency results come only from the protected assessment service.'
- ][stage]||'';
-}
 function animate(node,text,showAll,replay){
  let raf=0,disposed=false,complete=false,last=0,at=0;
  const supports=typeof root.matchMedia==='function'&&!root.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,14 +43,21 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={}}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Learning instructor and Market Tutor');
  const title=el('h3','Your learning instructor');
- const tag=el('span','Lesson narration · not AI-generated','gu-v33-instructor-tag');
+ const tag=el('span','Step-by-step teaching','gu-v33-instructor-tag');
  const head=el('div',undefined,'gu-v33-instructor-head');head.append(title,tag);rootEl.append(head);
- const full=brief(stage,subject,concept);
+ const plan=root.GroundUpLabV33InstructionContent?.lesson?.({
+  ...lessonContext,stage,concept
+ })||null;
+ const full=plan?.blocks?.join('\n\n')||(
+  String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
+  lessonContext?.subject?.definition||'').trim()||
+  'This concept needs an individually reviewed teaching explanation before it can be presented as complete.'
+ );
  // Full lesson narration remains immediately available to assistive technology.
  // The animated copy is visual-only to avoid dozens of screen reader updates.
  const accessible=el('p',full,'gu-v33-instructor-accessible');
@@ -76,6 +67,39 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  controls.append(skip);
  rootEl.append(accessible,visual,controls);
  const stopTyping=animate(visual,full,seen,skip);
+ if(plan?.worked?.length){
+  const worked=el('section',undefined,'gu-v33-instructor-worked');
+  worked.append(el('h4','Worked example — different fictional case'));
+  const steps=el('ol');
+  for(const explanation of plan.worked)steps.append(el('li',explanation));
+  worked.append(steps);
+  rootEl.append(worked);
+ }
+ if(plan?.check){
+  const check=el('section',undefined,'gu-v33-instructor-check');
+  check.append(el('h4','Check your understanding'));
+  const stem=el('p',plan.check.question);check.append(stem);
+  const answers=el('div',undefined,'gu-v33-instructor-choices');
+  const correct=plan.check.correct;
+  const inputName='gu-instructor-'+String(Math.round(Math.random()*1e9));
+  const radios=[];
+  for(const [i,choice] of plan.check.choices.entries()){
+   const label=el('label',undefined,'gu-v33-instructor-choice');
+   const radio=el('input');radio.type='radio';radio.name=inputName;radio.value=String(i);
+   radios.push(radio);
+   label.append(radio,document.createTextNode(choice));answers.append(label);
+  }
+  const feedback=el('p','', 'gu-v33-instructor-check-feedback');feedback.setAttribute('role','status');
+  const submit=el('button','Check my understanding');submit.className='btn secondary';submit.type='button';
+  listen(submit,'click',()=>{
+   const n=radios.findIndex(x=>x.checked);
+   if(n===-1){feedback.textContent='Choose an answer to check your understanding.';return;}
+   feedback.textContent=(n===correct?'Correct. ':'Not quite. ')+plan.check.feedback+
+    ' This is practice feedback, not an independent assessment.';
+  });
+  check.append(answers,submit,feedback);rootEl.append(check);
+ }
+ if(plan?.sourceNote)rootEl.append(el('p',plan.sourceNote,'gu-v33-instructor-provenance'));
  let pending=null,disposed=false;
  const tutor=el('details',undefined,'gu-v33-tutor');
  const summary=el('summary','Ask Market Tutor about this concept');
