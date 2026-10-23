@@ -1,3 +1,24 @@
+## LATEST — Deployment 17 source engineering and D18 gates (2026-10-22)
+
+**HEAD before this update:** `398324daeaa68d753f97c2f04e595527099ac235`. **Manifest:** v0.14.0.155. Stripe LIVE billing approval and fulfillment remain OFF.
+**Prototype restriction:** DO NOT copy, change, interpret, or deploy the independent Lessons Prototype until the Owner supplies the approved prototype version number. No source touched the lessons prototype.
+
+**Material source fixes completed:**
+1. `assets/js/admin-unified-preview-v014156.mjs` member Inspect action: removed undefined `data` reference in member-summary view and correctly attached per-row Inspect actions to real paginated Members results. Read-only Owner/Admin permissions preserved.
+2. `functions/api/support.js`: modern Supabase service-key PostgREST compatibility, 16 KiB bounded actual POST bytes, member-owned ticket reopen confirmation, valid numeric ID, member-scoped reply status PATCH and minimized ticket details. All current Support actions remain in place. No DB change.
+3. `scripts/build-public-seo.mjs`: static site builds now generate robots.txt, sitemap.xml and canonical tags for *allowlisted public pages* only; nonpublic HTML gets noindex. Existing legal noindex is preserved. `scripts/build-pages.sh` calls it. No canonical custom domain has been independently verified; optional `GU_PUBLIC_SITE_ORIGIN` can be set at D18 to a verified HTTPS host. Source default remains the known Pages hostname.
+4. `scripts/deployment17_source_security_readiness.mjs`: 10 source guard checks and evidence JSON. **Direct V8 current-source run: 10/10 guards present, zero blockers.** Not a production test. `scripts/deployment18_acceptance_matrix.mjs` now requires its zero-blocker report before generating the D18 source ledger.
+5. CI/acceptance tests: `tests/test_v014157_support_security.mjs`, `tests/test_v014157_admin_read_browser.mjs`, `tests/test_v014157_public_seo.mjs`. Registered in `.github/workflows/sitewide-playwright-v014136.yml`, `.github/workflows/deployment18-source-acceptance.yml`, and shared D17 source runner.
+6. Source modules parsed and controlled member-owned/foreign-ticket/active-ticket/input limit smoke cases executed with mock network: PASS. Playwright exact HEAD/Cloudflare production/Supabase/Stripe REAL acceptance remain UNVERIFIED per Owner's instruction to hold comprehensive testing until D18.
+
+**Actual D17 completion boundary:** only high-risk source repairs and static SEO build are implemented/checked. The complete D17 scope still includes CMS editorial workflows, communications/email delivery, all responsive routes, manual WCAG, privacy/legal, scheduler delivery, true Postgres backup *restoration*, GWS tenant isolation and real production monitoring. These are NOT certified as done. D18 remains a hard launch gate.
+
+**Owner actions now:** NONE. Existing SQL v102/v103/v107/v149/v149b must not be reapplied. No new Cloudflare secret/KV/D1/cron, Supabase SQL, Stripe product/price/charges, provider subscription or changes to the Lessons Prototype were made. Verify a final custom-domain canonical origin, production SHA, approved Stripe LIVE Price IDs and user-authorized paid lifecycle at D18.
+
+**Detailed D17 evidence:** `docs/v0.14.0.157_DEPLOYMENT_17_OF_18_SITEWIDE_GAPS.md`. Prior notes below remain the historical source of earlier partial stages.
+
+---
+
 ## CURRENT HANDOFF — D15 Commerce parity + D16 unified Admin Stage B (2026-10-22)
 
 **Verified repository source before this handoff:** `4052ced18f64b24dd93f067d079a5b76d3c1bc34`. Manifest still v0.14.0.155; commercial flags OFF.
