@@ -21,7 +21,7 @@
  }
  function el(tag,value){const n=document.createElement(tag);if(value!==undefined)n.textContent=String(value);return n}
  function field(label,value=''){const wrap=el('label',label),input=el('textarea');input.rows=3;input.maxLength=1500;input.value=value;wrap.append(input);return {wrap,input}}
- async function mount({labId,mode,target,lab}){
+ async function mount({labId,mode,target,lab,focusId}){
   if(!target||typeof target.replaceChildren!=='function')return false;
   const epoch={labId,mode};ticket.set(target,epoch);
   if(!['guided','practice'].includes(mode)){target.replaceChildren();return false}
@@ -81,7 +81,7 @@
     body.append(details('Guided correction — free',[guide.procedure,'Common mistake: '+guide.commonError,guide.limit]));
    }else if(step===5){
     body.append(el('p','Official Assessment is separate and server-graded only when a reviewed private question bank exists. This screen cannot award mastery.'));
-    body.append(button('Go to authenticated Lab decision',()=>document.getElementById('ev-decision')?.focus()));
+    body.append(button('Go to authenticated Lab decision',()=>document.getElementById(focusId||'ev-decision')?.focus()));
    }else if(step===6){
     body.append(definition('Self-review',guide.reviewExplanation),definition('Limitations',guide.limit),definition('What invalidates the reading',guide.invalidation));
     body.append(button('Acknowledge my self-review',()=>{review=true;status.textContent='Self-review acknowledged, not graded.'}));

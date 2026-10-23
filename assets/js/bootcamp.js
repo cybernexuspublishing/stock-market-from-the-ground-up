@@ -46,6 +46,15 @@
   const d=days.find(x=>x.day===selected);
   if(!d)return;
   const checkpoint=checkpoints.get(selected);
+  const guideSlot=q('gu-bc-v32-stage');
+  if(guideSlot){
+   const first=d.relatedLabs?.[0]?.id;
+   if(first)void globalThis.GroundUpLabEngineV32Universal?.mount?.({
+    labId:first,mode:'guided',target:guideSlot,
+    lab:{id:first,concept:d.title,goal:d.objective},focusId:'gu-bc-note'
+   });
+   else guideSlot.textContent='No canonical Lab learning bridge exists for this day.';
+  }
   q('gu-bc-check-question').textContent=checkpoint?.question||'This topic-specific self-check is unavailable; no grade or credit is inferred.';
   q('gu-bc-check-review').hidden=true;
   q('gu-bc-check-review').textContent='';
