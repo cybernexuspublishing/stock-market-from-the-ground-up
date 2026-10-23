@@ -24,7 +24,10 @@ assert(source.includes("event.key==='Escape'"),'Keyboard users must be able to c
 assert(source.includes('gu-v32-teaching-slot')&&source.includes('gu-ws-member-workbench'),'Both teaching and protected decision workbench must remain accessible');
 assert(route.includes("url.searchParams.get('demo')==='1'"),'Fictional v3.2 must require deliberate preview, never auto-redirect production');
 assert(!route.includes("url.searchParams.get('official')!=='1'"),'Default production route must not return to old reference');
-assert(middleware.includes("'/lab-player','/lab-player.html'"),'Production page must not receive legacy injected styling');
+assert(!middleware.includes("'/lab-player','/lab-player.html'].includes(path))return response"),'Production must receive the common site navigation and header enhancement pipeline');
+assert(player.includes('class="site-header"')&&player.includes('class="navlinks"'),'Production Lab must retain the same website header and navigational chrome');
+assert(player.includes('lab-v33-site-shell.css'),'Production Lab should isolate lesson styles from shared header');
+assert(middleware.includes("lab-v33-site-shell.css"),'Shared site middleware must add Lab shell CSS after other sitewide sheets');
 assert(middleware.includes('const mfaDenied=await staffMfaBoundary')&&middleware.includes('const paymentDenied=await paymentModeBoundary'),'Global security guards must remain');
 assert.doesNotThrow(()=>new Script(source), 'Player JS must parse');
 assert.doesNotThrow(()=>new Script(engine), 'Shared learning JS must parse');
