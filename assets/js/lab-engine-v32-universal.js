@@ -360,6 +360,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     else answerStatus('Practice recorded for self-study. Reviewed grading is separate.',true);
     freeExplanation();guidedHelp();mistakeHelp();
    }
+   // Original research cases add optional real-world reasoning without
+   // replacing the relevant Lab's own assessed question or competency.
+   const workshop=root.GroundUpLabV33DecisionWorkshop?.create?.({topic,labId});
+   if(workshop)body.append(workshop);
   }else if(stage===5){
    appendParagraph(body,'Official assessment uses only the existing authenticated, server-graded question bank after editorial acceptance. Answer keys are never embedded in this study aid.');
    appendParagraph(body,'An unreviewed Lab or missing rubric must remain Not Yet Assessed, regardless of study-step completion.');
