@@ -14,6 +14,7 @@ try{
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-teaching.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v33-visual.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-contextual-visuals.js'});
+  await page.addScriptTag({url:base+'/assets/js/lab-v33-visual-interactions.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-universal.js'});
   await page.evaluate(()=>{
    const app=document.createElement('div');app.id='gu-v32-teaching-slot';
@@ -34,6 +35,9 @@ try{
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Learn must show single candlestick');
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/FICTIONAL/);
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'Candle SVG must be built');
+  assert.equal(await target.locator('button.gu-l33-view-btn').count(),3,'Single candle must expose three visual emphasis tabs');
+  await target.getByRole('button',{name:'Real body'}).click();
+  assert.equal(await target.getByRole('button',{name:'Real body'}).getAttribute('aria-pressed'),'true');
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-v33-exact-visual').count(),1,'Experiment has interactive OHLC graphic');
   await target.getByRole('button',{name:'Next learning stage'}).click();
@@ -44,13 +48,19 @@ try{
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Practice must show its candle');
   assert.match(await target.locator('.gu-l33-metrics').innerText(),/Calculate/,'Do not pre-reveal numeric result');
   await target.locator('input[type="number"]').fill('50');
-  await target.getByRole('button',{name:'Check calculation — free retry'}).click();
+  await target.getByRole('button',{name:'Check calculation'}).click();
   assert.match(await target.innerText(),/Calculation completed/);
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.match(await target.innerText(),/server-graded question bank/);
   await load('DT-C11-L01','VWAP and Moving Averages in Intraday Trading — VWAP as a session reference');
   await target.getByRole('button',{name:/Begin .* Lesson/}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP lessons require completed candles with weighted overlay');
+  const before=await target.locator('.gu-l33-candle-readout').innerText();
+  await target.locator('.gu-l33-candle-picker select').selectOption('1');
+  const after=await target.locator('.gu-l33-candle-readout').innerText();
+  assert.notEqual(after,before,'Selecting a completed bar updates accessible OHLCV details');
+  await target.getByRole('button',{name:'Price + indicators'}).click();
+  assert.equal(await target.getByRole('button',{name:'Price + indicators'}).getAttribute('aria-pressed'),'true');
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/FICTIONAL/);
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP Experiment retains visual');
