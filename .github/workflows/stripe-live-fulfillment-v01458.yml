@@ -36,6 +36,8 @@ on:
       - 'supabase/admin/v0.14.0.82_*'
       - 'supabase/admin/v0.14.0.81_*'
       - 'data/store-products.json'
+      - 'data/stripe-product-registry-v01437.json'
+      - 'scripts/deployment15_catalog_audit.mjs'
       - 'config.js'
       - 'data/commerce-config.json'
       - 'release-manifest.json'
@@ -122,3 +124,12 @@ jobs:
           node tests/test_v014056_unified_payment_readiness.mjs
           node tests/test_v014057_sandbox_acceptance.mjs
           node tests/test_v014055_payment_mode_middleware.mjs
+
+      - name: Audit eight historic SKU prices and retained distribution rights warning
+        run: node scripts/deployment15_catalog_audit.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GU-D15-Source-Catalog-Not-Live-${{ github.run_number }}
+          path: artifacts/d15-catalog-source-integrity.json
+          if-no-files-found: error
+          retention-days: 30

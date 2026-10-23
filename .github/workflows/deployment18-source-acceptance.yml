@@ -5,6 +5,9 @@ on:
     paths:
       - 'release-manifest.json'
       - 'data/commerce-config.json'
+      - 'data/store-products.json'
+      - 'data/stripe-product-registry-v01437.json'
+      - 'scripts/deployment15_catalog_audit.mjs'
       - 'data/competency-lab-paths-v01499.json'
       - 'data/competency-study-guides-v01499.json'
       - 'docs/curriculum-acceptance-decisions-v014150.json'
@@ -32,8 +35,11 @@ jobs:
         run: |
           node tests/test_v014155_release_metadata.mjs
           node tests/test_v014156_admin_shell.mjs
+          node tests/test_v014156_admin_service_key_compatibility.mjs
           node --check scripts/deployment18_acceptance_matrix.mjs
           node --check assets/js/admin-unified-preview-v014156.mjs
+      - name: Audit screenshot-derived eight-SKU catalog without LIVE certification
+        run: node scripts/deployment15_catalog_audit.mjs
       - name: Generate actual 419-Lab and 30-Day acceptance ledger
         run: node scripts/curriculum-acceptance-evidence.mjs
       - name: Consolidate sitewide evidence without granting acceptance
@@ -43,6 +49,7 @@ jobs:
         with:
           name: GU-D18-SOURCE-NOT-PRODUCTION-${{ github.run_number }}
           path: |
+            artifacts/d15-catalog-source-integrity.json
             artifacts/curriculum-acceptance-v014150.json
             artifacts/curriculum-acceptance-v014150.csv
             artifacts/d18-integrated-acceptance-source.json
