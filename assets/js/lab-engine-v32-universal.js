@@ -180,6 +180,21 @@ async function mount({labId,mode,target,lab,focusId}={}){
 
   if(stage===0){
    appendParagraph(body,lab?.goal||('Understand '+topic+' before assessment.'));
+   // The book Lab setup must be visible on arrival, not buried behind
+   // collapsed supplementary panels. Never imply a verified chart exists.
+   const setupFields=[['Ticker',lab?.ticker],['Historical date',lab?.date],['Start / Pause',lab?.start],['End',lab?.end],['Timeframe',lab?.timeframe]]
+    .filter(([,value])=>typeof value==='string'&&value.trim());
+   if(setupFields.length){
+    const setup=el('section');setup.className='gu-v33-setup';
+    setup.append(el('h3','Historical Lab Setup'));
+    const facts=el('div');facts.className='lab-fact-grid';
+    for(const [name,value] of setupFields){
+     const fact=el('div');fact.append(el('span',name),el('strong',value));facts.append(fact);
+    }
+    setup.append(facts);
+    const note=el('p','These fields describe the original Lab setup, not independently verified market history.');
+    note.className='small';setup.append(note);body.append(setup);
+   }
    const intro=el('section');intro.className='instruction';intro.append(el('h3','What you will learn'));
    appendParagraph(intro,'Every subject begins with an explanation before assessment. The shared platform provides charts, equations, a learning journey, feedback, retries, and evidence of independent understanding. Specialized content changes through a Lab configuration rather than separate hardcoded websites.');
    appendParagraph(intro,'Source of data: Lab-specific teaching is drawn from your authorized curriculum. Any illustrative calculation is fictional and ungraded. No market chart is represented as independently verified without approved source evidence.');
