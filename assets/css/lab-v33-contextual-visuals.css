@@ -29,6 +29,8 @@
 #gu-v32-teaching-slot .gu-l33-depth>div:first-child strong{color:#8de4c2}
 #gu-v32-teaching-slot .gu-l33-depth>div:nth-child(2) strong{color:#f3adb9}
 #gu-v32-teaching-slot .gu-l33-depth span{color:#bfd0db}
+#gu-v32-teaching-slot .gu-l33-weight-bar{height:16px;background:#0a2032;border:1px solid #2f4a63;border-radius:7px;overflow:hidden;margin-top:12px}
+#gu-v32-teaching-slot .gu-l33-weight-bar span{display:block;height:100%;border-radius:6px}
 #gu-v32-teaching-slot .gu-l33-routing{display:flex;align-items:stretch;justify-content:center;gap:8px;flex-wrap:wrap}
 #gu-v32-teaching-slot .gu-l33-routing div{border:1px solid #40617e;background:#173248;border-radius:10px;padding:12px 15px;font-size:.88rem;flex:1 1 150px;text-align:center}
 #gu-v32-teaching-slot .gu-l33-routing div:not(:last-child):after{content:"→";float:right;color:#9fc6de}
