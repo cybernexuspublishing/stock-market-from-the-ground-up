@@ -23,7 +23,7 @@ const sources={'/data/competency-lab-paths-v01499.json':mapping,'/data/competenc
 const c={globalThis:null,document:{createElement:(x)=>new El(x)},fetch:async u=>({ok:!!sources[u],json:async()=>sources[u]})};c.globalThis=c;
 runInNewContext(readFileSync('assets/js/lab-engine-v32-universal.js','utf8'),c);
 const api=c.GroundUpLabEngineV32Universal;
-assert.equal(api.version,'3.2.0');
+assert.equal(api.version,'3.3.0');
 assert.equal(api.canonicalTarget,419);
 assert.equal(Array.from(api.steps).length,9);
 let success=0;
@@ -47,6 +47,8 @@ assert(player.includes('fraction>=1/3'),'Mode selection must lock after one-thir
 assert(player.includes('PLAYER.locked||fraction>=1/3'),'Locked decisions cannot switch modes without restart');
 assert(player.includes('Server-submitted answers remain unchanged'),'Source must explain reset scope');
 assert(readFileSync('assets/js/lab-engine-v32-teaching.js','utf8').includes('box.dataset.v32Progress=String(stage/5)'));
-assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('wrapper.dataset.v32Progress=String(step/STEPS.length)'));
+assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('shell.dataset.v32Progress=String(stage/9)'));
+assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes("journey.className='gu-v33-journey'"));
+assert(readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('Teach This in More Depth — Always Free'));
 assert(!readFileSync('assets/js/lab-engine-v32-universal.js','utf8').includes('lab_training_sets_v014'),'Private training keys must not be published');
-console.log('PASS shared Lab Engine v3.2 guided study across all '+success+' canonical IDs, exactly 30 competencies and secure mode gates');
+console.log('PASS shared Lab Engine v3.3 guided study across all '+success+' canonical IDs, exactly 30 competencies and secure mode gates');
