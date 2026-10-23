@@ -33,7 +33,7 @@ try{
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.ok(!requests.includes('private,registry,registry'),'Authorization is not retried after explicit denial');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
-  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Define risk before an entry/);
+  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-select').selectOption('practice');
   await page.getByRole('button',{name:'Mode help'}).click();
@@ -51,12 +51,13 @@ try{
   await page.getByRole('combobox',{name:'New learning mode'}).selectOption('blind');
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.equal(await page.locator('#player-mode-select').inputValue(),'blind');
-  assert.equal(await page.locator('#gu-v32-teaching-slot').innerText(),'');
+  assert.match(await page.locator('#gu-v32-teaching-slot').innerText(),/Blind Decision — Evidence First/);
+  assert.match(await page.locator('#player-title').innerText(),/Blind Market Decision/);
   assert.equal(await page.locator('[aria-label="Lab-specific conceptual teaching"]').count(),0,'Blind mode must conceal study notes before the learner decides');
   await page.locator('#ev-decision').selectOption('WATCH');
   await page.locator('#ev-confidence').selectOption('3');
   await page.locator('#lock-decision').click();
-  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Define risk before an entry/);
+  assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.deepEqual(errors,[]);
   console.log('PASS member Lab Player '+width+'px: authenticated 419 fallback, v3.3 shared reset, 33% lock, and blind suppression');
   await context.close();
@@ -113,8 +114,9 @@ try{
  await draftPage.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
  assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
  assert.match(await draftPage.locator('#player-location').innerText(),/Book 1, Chapter 2/);
+ await draftPage.locator('#gu-ws-member-workbench > summary').click();
  assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
- assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Set the replay date/);
+ assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Set the replay date/);
  await draftPage.locator('#ev-decision').selectOption('OBSERVATION_ONLY');
  await draftPage.locator('#ev-confidence').selectOption('3');
  await draftPage.locator('#lock-decision').click();
