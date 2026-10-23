@@ -1,0 +1,51 @@
+name: Deployment 17 Source and Site Integrity — Blockers Remain Visible
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/deployment17_source_asset_audit.mjs'
+      - 'scripts/deployment17_source_security_readiness.mjs'
+      - 'tests/test_v014160_d17_source_asset_audit.mjs'
+      - 'functions/api/support.js'
+      - 'assets/js/admin-unified-preview-v014156.mjs'
+      - 'release-manifest.json'
+      - 'assets/js/route-policy.js'
+      - 'sw.js'
+      - '_headers'
+      - '_redirects'
+      - '.github/workflows/deployment17-source-gates.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-security:
+    name: D17 source controls — must not report production acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check audit source and exercise fail-closed fixture tests
+        run: |
+          node --check scripts/deployment17_source_asset_audit.mjs
+          node --check scripts/deployment17_source_security_readiness.mjs
+          node tests/test_v014160_d17_source_asset_audit.mjs
+      - name: Inventory full website source, routes, and local assets
+        run: node scripts/deployment17_source_asset_audit.mjs
+      - name: Enforce Support, Admin, and protected content security gates
+        run: node scripts/deployment17_source_security_readiness.mjs
+      - name: Archive source-only evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: D17-source-security-not-production-${{ github.run_number }}
+          path: |
+            artifacts/d17-offline-inventory.json
+            artifacts/d17-source-security-readiness.json
+          retention-days: 30
+          if-no-files-found: warn
