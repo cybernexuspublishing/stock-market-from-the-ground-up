@@ -120,6 +120,39 @@ function tutorSafeSubject(lab){
  ];
  return topics.find(([pattern])=>pattern.test(concept))?.[1]||'decision uncertainty and observable evidence';
 }
+/* Optional in-Lab Market Tutor uses the EXISTING authenticated API.
+ * An explicit Lab ID selects only approved public competency guidance;
+ * an AI opt-in instead uses the whitelisted topic so the existing backend's
+ * canonical-ID source-only short-circuit does not silently bypass paid AI.
+ * Never attach a rubric, historical candles, assessed answer or learner notes.
+ */
+async function requestLabTutor({question,allowModel=false,signal}={}){
+ if(!['guided','practice'].includes(PLAYER.mode))
+  throw Error('Tutor explanations are not available during independent decision modes.');
+ const sb=PLAYER.access?.sb;
+ let token=null;
+ try{token=(await sb?.auth?.getSession?.())?.data?.session?.access_token||null}catch{}
+ if(!token)throw Error('Sign in to use Market Tutor. Free Lab explanations remain available without an AI request.');
+ const id=String(PLAYER.lab?.id||'');
+ const onlyGeneral=String(question||'').trim();
+ const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)&&allowModel!==true
+  ?('For canonical Lab '+id+': '+onlyGeneral).slice(0,450):onlyGeneral.slice(0,450);
+ if(clean.length<4)throw Error('Enter a general learning question first.');
+ const reply=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',signal,
+  headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+  body:JSON.stringify({question:clean,mode:'explain',requestId:crypto.randomUUID(),
+   allowModel:allowModel===true,saveHistory:false})});
+ const data=await reply.json().catch(()=>null);
+ if(!reply.ok||data?.ok!==true){
+  const feedback=reply.status===403?'Market Tutor requires an active Tutor or Full Platform entitlement. Your free instructional panels remain available.'
+   :reply.status===401?'Your session expired; sign in again.':reply.status===429?'Market Tutor rate limit reached. Please use the free instructional panels or retry later.'
+   :String(data?.error||'Market Tutor is currently unavailable.');
+  throw Error(feedback);
+ }
+ if(typeof data.answer!=='string'||!data.answer.trim())throw Error('Market Tutor did not return an explanation.');
+ return {answer:data.answer,generation:data.generation||'reviewed-glossary-logic',
+  aiReason:data.aiReason||null};
+}
 function mountLabTutorLink(lab,mode){
  if(!['guided','practice'].includes(mode))return;
  const target=document.getElementById('v01499-original-skills');if(!target)return;
@@ -185,7 +218,7 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision'});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
