@@ -12,7 +12,7 @@ for(const [id,v] of Object.entries(mapping.byLab)){
  assert(v.relatedCompetencies.some(code=>validCodes.has(code)),'No approved guide '+id);
 }
 class El {
- constructor(name='section'){this.name=name;this.children=[];this.value='';this.textContent='';this.dataset={};}
+ constructor(name='section'){this.name=name;this.children=[];this.value='';this.textContent='';this.dataset={};this.style={};}
  append(...x){this.children.push(...x)}
  replaceChildren(...x){this.children=x}
  setAttribute(){}
@@ -33,9 +33,11 @@ for(const id of Object.keys(mapping.byLab)){
  assert.equal(target.children.length,1);
  success++;
 }
-const refused=new El();assert.equal(await api.mount({labId:'SITE-001',mode:'blind',target:refused}),false);
-assert.equal(refused.children.length,0);
-assert.equal(await api.mount({labId:'SITE-001',mode:'assessment',target:refused}),false);
+const refused=new El();assert.equal(await api.mount({labId:'SITE-001',mode:'blind',target:refused}),true);
+assert.equal(refused.children.length,1,'Blind mode needs one neutral workstation, not a blank page');
+assert.equal(refused.children[0].dataset.v32Progress,'0','Concealed stages cannot award progress');
+assert.equal(await api.mount({labId:'SITE-001',mode:'assessment',target:refused}),true);
+assert.equal(refused.children.length,1,'Assessment must retain protected decision shell');
 assert.equal(await api.mount({labId:'NONCANONICAL',mode:'guided',target:refused}),false);
 const player=readFileSync('assets/js/lab-player.js','utf8'),html=readFileSync('lab-player.html','utf8');
 assert(player.includes("response.status===404"),'Private book entitlement denials cannot fall back to registry');
