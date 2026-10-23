@@ -67,12 +67,12 @@ function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
  key.map((p,i)=>'<line x1="270" x2="372" y1="'+scale(p[1])+'" y2="'+scale(p[1])+'" stroke="#8ab4d1" stroke-dasharray="3 4"/><text x="384" y="'+(scale(p[1])+5)+'" font-family="system-ui" fill="#edf5ff" font-size="15" font-weight="600">'+p[0]+' '+usd(p[1])+'</text>').join('')+
  '<text x="27" y="277" fill="#f1ca86" font-family="system-ui" font-size="14">Full range</text><text x="175" y="277" fill="'+col+'" font-family="system-ui" font-size="14">Real body</text></svg>';
 }
-function candle(options){
+function candle(options,showResult=true){
  const root=h('section','gu-l33-graphic');meta(root,'candle','A single invented candle illustrates OHLC, its real body, wicks and full price range. It is not a historical market observation.');
  const main=h('div','gu-l33-single');main.innerHTML=candleSVG(options);root.append(main);
  const {o=31,hv=32.5,l=30.5,c=32}=options||{},body=Math.abs(c-o),range=Math.max(0,hv-l);
  const data=h('div','gu-l33-metrics');
- for(const [name,value] of [['Open',usd(o)],['High',usd(hv)],['Low',usd(l)],['Close',usd(c)],['Real body',usd(body)],['Full range',usd(range)],['Body / range',range?(body/range*100).toFixed(1)+'%':'N/A']]){
+ for(const [name,value] of [['Open',usd(o)],['High',usd(hv)],['Low',usd(l)],['Close',usd(c)],['Real body',usd(body)],['Full range',usd(range)],['Body / range',!showResult?'Calculate':range?(body/range*100).toFixed(1)+'%':'N/A']]){
   const row=h('div');row.append(text('span',name),text('strong',value));data.append(row)
  }
  root.append(data,text('p','Body = |Close − Open|. Range = High − Low. Percentage = (body ÷ range) × 100. Doji and wick proportions matter; body percentage alone does not predict direction.','gu-l33-takeaway'));
@@ -147,7 +147,7 @@ function routing(){
 }
 function create({type,stage=1,variant='default'}={}){
  if(!TYPE_SET.has(type)||type==='none')return null;
- if(type==='candle')return candle(variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined);
+ if(type==='candle')return candle(variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined,!(variant==='practice'||variant==='transfer'));
  if(type==='vwap'&&(variant==='practice'||variant==='transfer'))return weightedGroups(variant);
  if(['structure','ema','vwap','volume'].includes(type))return chart(type,stage,variant);
  if(type==='tape')return tape();
