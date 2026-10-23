@@ -81,6 +81,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v32_reference_exact_browser.mjs
+      - name: Verify owner-exact v3.2 member reference journeys start to results
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v32_member_operational_browser.mjs
       - name: Browser-test approved Lab Engine v3.2 teaching at mobile and desktop widths
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
