@@ -46,3 +46,13 @@
  #gu-v32-teaching-slot .gu-l33-legend{gap:7px 12px}
 }
 @media(prefers-reduced-motion:reduce){#gu-v32-teaching-slot .gu-l33-graphic *{scroll-behavior:auto!important}}
+
+/* v1.1 — meaningful, keyboard-accessible chart controls. */
+#gu-v32-teaching-slot .gu-l33-interactive-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid #304b61;padding:10px 0 13px;margin:5px 0 12px}
+#gu-v32-teaching-slot .gu-l33-view-btn{font:600 .83rem/1.2 system-ui,sans-serif;padding:9px 12px;border:1px solid #395771;background:#172b3f;color:#deeffa;border-radius:8px;cursor:pointer;min-height:38px}
+#gu-v32-teaching-slot .gu-l33-view-btn[aria-pressed="true"]{background:#e5b94c;color:#0c1823;border-color:#f0ca71}
+#gu-v32-teaching-slot .gu-l33-view-btn:focus-visible,#gu-v32-teaching-slot .gu-l33-candle-picker select:focus-visible{outline:3px solid #84d4ff;outline-offset:2px}
+#gu-v32-teaching-slot .gu-l33-candle-picker{color:#e7f3fb;font-size:.83rem;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:3px 0}
+#gu-v32-teaching-slot .gu-l33-candle-picker select{font:inherit;padding:8px 9px;color:#eaf3fb;background:#102437;border:1px solid #426783;border-radius:7px;max-width:100%}
+#gu-v32-teaching-slot .gu-l33-interactive-state,#gu-v32-teaching-slot .gu-l33-candle-readout{width:100%;margin:3px 0!important;font-size:.82rem!important;line-height:1.45!important;color:#c2d9e8!important}
+@media(max-width:720px){#gu-v32-teaching-slot .gu-l33-view-btn{flex:1 1 130px}#gu-v32-teaching-slot .gu-l33-interactive-tools{gap:6px}}
