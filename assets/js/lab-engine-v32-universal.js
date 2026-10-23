@@ -59,6 +59,34 @@ function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(i
 async function mount({labId,mode,target,lab,focusId}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const token={labId,mode};sessions.set(target,token);
+ if(['blind','assessment'].includes(mode)){
+  // The browser must not preload private answers or hidden instructional cues.
+  // This neutral nine-stage shell delegates decisions and grading to the existing
+  // member-authorized workbench and authenticated assessment API.
+  const shell=el('section');shell.className='card gu-v32 gu-v33';shell.dataset.v32Progress='0';
+  shell.setAttribute('aria-label','Learning journey with concealed instruction');
+  shell.append(el('h2',mode==='blind'?'Blind Decision — Evidence First':'Assessment — Independent Decision'));
+  shell.append(el('p','The nine-stage framework remains available. Teaching cues are withheld here until the applicable decision is locked or reviewed grading is complete.'));
+  const progress=el('p','Independent decision · No stage awarded'),meter=el('div'),fill=el('span'),journey=el('ol');
+  progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');
+  meter.setAttribute('aria-label','Completed instructional stages');meter.setAttribute('aria-valuemin','0');
+  meter.setAttribute('aria-valuemax','100');meter.setAttribute('aria-valuenow','0');fill.style.width='0%';meter.append(fill);
+  journey.className='gu-v33-journey';
+  for(const [index,name] of STEPS.entries()){
+   const li=el('li');li.className=name===(mode==='blind'?'Predict':'Assess')?'current':'future';
+   const mark=el('span',li.className==='current'?'●':'○');mark.setAttribute('aria-hidden','true');
+   li.append(mark,el('span',name));journey.append(li);
+  }
+  const content=el('div');content.className='gu-v32-body';
+  content.append(el('h3',mode==='blind'?'Record your independent forecast and decision':'Complete the reviewed assessment independently'));
+  appendParagraph(content,'No answer keys, conceptual hints, unrevealed bars or synthetic future prices are supplied by this stage. Record your own evidence and invalidation in the protected member workbench.');
+  content.append(button('Open member decision and assessment',()=>{
+   const work=document.getElementById('gu-ws-member-workbench');if(work)work.open=true;
+   document.getElementById(focusId||'ev-decision')?.focus();
+  }));
+  shell.append(progress,meter,journey,content);target.replaceChildren(shell);
+  return true;
+ }
  if(!['guided','practice'].includes(mode)){target.replaceChildren();return false}
  target.replaceChildren(el('p','Loading subject teaching from the existing curriculum…'));
  let map;
