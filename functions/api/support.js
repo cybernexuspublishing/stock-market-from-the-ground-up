@@ -44,4 +44,6 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
  const ticket=(await rest(env,`support_tickets?select=id,status&id=eq.${id}&requester_user_id=eq.${encodeURIComponent(usr.id)}&limit=1`))?.[0];
  if(!ticket)return out({error:'Ticket not found.'},404);
  if(!['closed','resolved'].includes(ticket.status))return out({error:'Only closed or resolved tickets can be reopened.'},409);
- await rest(env,`support_tickets?id=eq.${id}&requester_user_id=eq.${encodeURIComponent(usr.id)}`,{method:'PATCH',prefer:'return=minimal',body:{status:'open',closed_at:null,resolved_at:null,updated_at:new Date().toISOString()}});return out({ok:true})}return out({error:'Unknown support action.'},404)}catch(e){return out({ok:false,error:[400,401,403,404,409,413].includes(e.status)?e.message:'Support service unavailable.'},[400,401,403,404,409,413].includes(e.status)?e.status:503)}}
+ await rest(env,`support_tickets?id=eq.${id}&requester_user_id=eq.${encodeURIComponent(usr.id)}`,{method:'PATCH',prefer:'return=minimal',body:{status:'open',closed_at:null,resolved_at:null,updated_at:new Date().toISOString()}});return out({ok:true})}return out({error:'Unknown support action.'},404)}catch(e){const status=[400,401,403,404,409,413].includes(e.status)?e.status:503;
+const publicMessage=({400:'Invalid request.',401:'Sign in required.',403:'Request not allowed.',404:'Record unavailable.',409:'Ticket state conflict.',413:'Request exceeds the maximum size.'})[status]||'Support service unavailable.';
+return out({ok:false,error:publicMessage},status)}}
