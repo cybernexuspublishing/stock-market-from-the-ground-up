@@ -5,7 +5,10 @@
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 const read=p=>readFileSync(p,'utf8');
 const support=read('functions/api/support.js');
-const preview=read('assets/js/admin-unified-preview-v014156.mjs');
+const shell=read('admin-unified-preview.html');
+const activeScript=(shell.match(/src="\/(assets\/js\/admin-unified-[a-z0-9-]+\.mjs)"/i)||[])[1];
+if(!activeScript)throw Error('Missing registered unified Admin entry module');
+const preview=read(activeScript);
 const middleware=read('functions/_middleware.js');
 const worker=read('sw.js');
 const headers=read('_headers');
