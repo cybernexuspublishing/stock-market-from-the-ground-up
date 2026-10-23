@@ -20,6 +20,7 @@ function select({lab,topic,competencies}={}){
  const requested=lab?.teaching?.visualType||lab?.visual?.type;
  if(typeof requested==='string'&&TYPE_SET.has(requested))return requested;
  const candidate=String(topic||lab?.concept||'');
+ if(/multiple.timeframe analysis|timeframes and aggregation/i.test(String(lab?.chapterTitle||'')))return 'structure';
  // Relationship across multiple bars takes precedence over a generic
  // "body" or "candle" noun when the activity is about sequential behavior.
  if(/follow.through|opposite expansion|overlapping sequence|aggregation|compression|disagreement across scale|internal sequence|upward path|downward path|swing comparisons?|intraday bars|regular.market (?:open|close)|after.hours transition|pre.?market|extended.hours|halting|\bhalt\b/i.test(candidate))return 'structure';
