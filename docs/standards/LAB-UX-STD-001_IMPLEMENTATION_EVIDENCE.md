@@ -108,6 +108,21 @@ This is not equivalent to executing the website in a signed-in browser or approv
 
 The original H-series decision cases are represented as **FICTIONAL STUDY EXERCISES** based on the user's research archive. Claims regarding external market events, historical prices, copyrighted charts, proprietary indicators, fills or win probabilities are not imported as verified facts. A separate editorial review is necessary before counting the exercises as reviewed graded curriculum.
 
+## Instructional quality defect correction — no instructions masquerading as teaching (2026-10-23)
+
+**Owner-reported defect:** The Learn-stage panel labeled *Your learning instructor* displayed generic directives such as "Read the explanation" rather than actually teaching the member. This violated the beginner-first teaching requirement even though the typewriter animation worked.
+
+**Correction implemented in source:**
+
+- \`assets/js/lab-v33-instruction-content.js\`: teaches concepts with factual definitions, how/why explanations, units and formulas where applicable, a separate worked fictional example, conceptual limitations, common mistakes, and an ungraded knowledge check. The specialized subject families are candlestick/OHLC, VWAP, EMA, sequential structure, volume, Time & Sales, Level II/quotes, and order handling.
+- \`assets/js/lab-v33-instructor.js\`: replaces all previous "read this" boilerplate with the approved Lab's subject/competency-linked instructional plan. Shows the calculation/working visibly, not merely a link or an instruction to go read something. Uses a typewriter effect for **actual educational content**, with an instant reveal option and accessible complete text. Adds instant-feedback checks that are not official graded questions.
+- \`assets/js/lab-engine-v32-universal.js\`: feeds existing authorized teaching, the selected topic, visual family and original competency guide into the instructor. The "Guided Example," "Teach This in More Depth" and mistake-remediation disclosures now reuse genuine worked examples and topic-specific explanations rather than only generic process directives.
+- The independent Predict and Assess stages still contain **no** inline instructor or Tutor. Actual graded answers, future bars, replay entitlement and user records remain protected.
+- **Source smoke checks:** all 419 canonical IDs mounted and advanced to Learn with instructor content, with zero simulated exceptions; a direct candlestick instructor test confirmed O/H/L/C definitions, the body/range formula, a separate 50% worked example, three check choices, explicit feedback and the existing Market Tutor entry point. Eight specialized concept paths were inspected for definitions, actual examples, common misconceptions and checks.
+- \`tests/test_v33_teaching_content_quality.mjs\` and the expanded \`tests/test_lab_v33_instructor.mjs\` are in the existing CI workflow.
+
+**Limits:** This closes the reported *generic instructor copy* source defect. It does **not** certify complete individually reviewed instruction, source provenance or historically correct visuals for every one of 419 Labs. Where a specific approved Lab has no specialist teaching package, the panel falls back to its original competency guide and clearly indicates the need for further per-Lab editorial development. AI-generated teaching remains member-initiated and server-entitlement-protected; a typewriter animation is not an AI response.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
