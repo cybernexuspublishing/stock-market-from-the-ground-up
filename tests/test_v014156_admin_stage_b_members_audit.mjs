@@ -28,18 +28,23 @@ await assert.rejects(adminRead('user_summary',{params:{id:'not-a-uuid'}}),/Inval
 await assert.rejects(adminRead('dashboard',{params:{id:userId}}),/Unsupported/);
 await assert.rejects(adminRead('users',{params:{page:'NaN'}}),/pagination/);
 await assert.rejects(adminRead('roles',{params:{action:'assign_role'}}),/Unsupported/);
+await assert.rejects(adminRead('user_detail',{params:{id:userId}}),/Unsupported/, 'New shell must not read legacy private member dossier');
 assert.equal(network,0);assert.equal(tokens,0,'Invalid client requests must fail before token retrieval');
 await adminRead('user_summary',{params:{id:userId}});
 assert.equal(network,1);
-let authEndpointCalls=0,queries=[];
+let authEndpointCalls=0,queries=[],globalAccess=true;
 const originalFetch=globalThis.fetch;
 globalThis.fetch=async(url,options={})=>{
  const u=String(url);queries.push(u);
  const reply=x=>new Response(JSON.stringify(x),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}});
  if(u.includes('/auth/v1/user'))return reply({id:userId,email:'admin@example.test'});
  if(u.includes('admin_user_roles?select=role_code'))return reply([{role_code:'OWNER',expires_at:null}]);
- if(u.includes('admin_role_permissions?select=permission_code'))return reply([{permission_code:'control_panel.access'},{permission_code:'users.view'},{permission_code:'audit.view'}]);
+ if(u.includes('admin_role_permissions?select=permission_code'))return reply(globalAccess?[{permission_code:'control_panel.access'},{permission_code:'users.view'},{permission_code:'audit.view'}]:[{permission_code:'users.view'},{permission_code:'audit.view'}]);
+ if(u.includes('/auth/v1/admin/users/')){authEndpointCalls++;return reply({id:userId,email:'member@example.test',created_at:'2026-01-01T00:00:00Z'});}
  if(u.includes('/auth/v1/admin/users')){authEndpointCalls++;return reply({users:[]})}
+ if(u.includes('/profiles?select=id,username,account_kind'))return reply([{id:userId,username:'MemberA',account_kind:'member'}]);
+ if(u.includes('/admin_user_flags?select=status'))return reply([{status:'active'}]);
+ if(u.includes('/decision_journal?')||u.includes('/lab_attempts?'))return reply([]);
  if(u.includes('/rest/v1/admin_audit_log?'))return reply([]);
  throw Error('Unexpected mock route '+u);
 };
@@ -61,6 +66,19 @@ try{
  response=await onRequest({request:req('action=audit&page=3&limit=50'),env});
  assert.equal(response.status,200);
  assert(queries.some(q=>q.includes('admin_audit_log?')&&q.includes('offset=100')&&q.includes('limit=50')));
+ response=await onRequest({request:req('action=user_summary&id='+userId),env});
+ assert.equal(response.status,200,'Minimal member summary must be scoped and permission protected');
+ const member=await response.json();
+ assert.equal(member.minimized,true);
+ assert.equal(member.user.email,'member@example.test');
+ for(const forbidden of ['notes','orders','subscriptions','entitlements','planGrants','toolPasses','library'])
+  assert.equal(Object.hasOwn(member,forbidden),false,'Never ship private account dossier: '+forbidden);
+ const callsBeforeDenied=authEndpointCalls;
+ globalAccess=false;
+ response=await onRequest({request:req('action=users&page=1'),env});
+ assert.equal(response.status,403,'Individual module permission without control_panel.access must deny backend access');
+ assert.equal(authEndpointCalls,callsBeforeDenied,'Denied global authorization never reaches privileged GoTrue list');
+
 }finally{globalThis.fetch=originalFetch}
 const html=readFileSync('assets/js/admin-unified-preview-v014156.mjs','utf8');
 assert(!/innerHTML|MutationObserver|setInterval\(/.test(html),'No bypass to legacy unsafe DOM paths');
