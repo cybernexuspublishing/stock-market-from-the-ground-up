@@ -4,16 +4,22 @@ on:
     branches: [main]
     paths:
       - 'functions/api/stripe-billing-portal-v014122.js'
+      - 'functions/api/stripe-billing-portal.js'
       - 'functions/api/member-tool-access.js'
       - 'tests/test_v014155_portal_and_entitlement_boundaries.mjs'
       - 'assets/js/my-purchases.js'
+      - 'functions/api/member-tool-access.js'
+      - 'tests/test_v014155_portal_and_entitlement_boundaries.mjs'
       - 'my-purchases.html'
       - 'tests/test_v014122_member_billing_portal.mjs'
       - '.github/workflows/member-billing-portal-v014122.yml'
   pull_request:
     paths:
       - 'functions/api/stripe-billing-portal-v014122.js'
+      - 'functions/api/stripe-billing-portal.js'
       - 'assets/js/my-purchases.js'
+      - 'functions/api/member-tool-access.js'
+      - 'tests/test_v014155_portal_and_entitlement_boundaries.mjs'
       - 'my-purchases.html'
       - 'tests/test_v014122_member_billing_portal.mjs'
       - '.github/workflows/member-billing-portal-v014122.yml'
@@ -28,6 +34,7 @@ jobs:
         with: {node-version: '22'}
       - run: |
           node --check functions/api/stripe-billing-portal-v014122.js
+          node --check functions/api/stripe-billing-portal.js
           node --check assets/js/my-purchases.js
           node tests/test_v014122_member_billing_portal.mjs
           node tests/test_v014155_portal_and_entitlement_boundaries.mjs
