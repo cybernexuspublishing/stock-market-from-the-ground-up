@@ -36,13 +36,13 @@ try{
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-select').selectOption('practice');
-  await page.getByRole('button',{name:'Mode help'}).click();
+  await page.getByRole('button',{name:'Learning mode guidance'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
   await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
   await page.locator('#player-mode-select').selectOption('guided');
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Guided Mode/);
-  await page.getByRole('button',{name:'Next learning stage'}).click();
+  await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await page.locator('#player-mode-select').isDisabled(),true);
@@ -114,7 +114,7 @@ try{
  await draftPage.goto(base+'/lab-player.html?lab=F1-C02-L01',{waitUntil:'domcontentloaded'});
  await draftPage.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
  assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
- assert.match(await draftPage.locator('#player-location').innerText(),/Book 1, Chapter 2/);
+ assert.match(await draftPage.locator('#player-location').innerText(),/Foundations I/);
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
  assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
  assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Set the replay date/);
