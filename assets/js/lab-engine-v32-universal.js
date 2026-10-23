@@ -73,7 +73,7 @@ const synthetic=Object.freeze({
  transfer:{prompt:'New fictional trades: 150 shares at $12 and 50 shares at $16. What is their VWAP?',answer:13}}
 });
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
-async function mount({labId,mode,target,lab,focusId}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const token={labId,mode};sessions.set(target,token);
  if(['blind','assessment'].includes(mode)){
@@ -139,6 +139,8 @@ async function mount({labId,mode,target,lab,focusId}={}){
  let stage=0,observations='',prediction='',predictionLocked=false,practice='',practiceCount=0,
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
+ let instructorInstance=null;
+ const narratedStages=new Set();
  function mark(message){status.textContent=message}
  function showJourney(){
   journey.replaceChildren();
@@ -201,12 +203,25 @@ async function mount({labId,mode,target,lab,focusId}={}){
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
  function render(){
+  instructorInstance?.dispose?.();instructorInstance=null;
   body.replaceChildren();mark('');showJourney();
   const names={0:'Welcome to your learning workstation',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
   6:'Review — Learn from each result',7:'Transfer — '+(kind==='vwap'?'Controlled VWAP market replay':'Apply learning to a new case'),8:'Your Learning Development Report'};
   heading.textContent=names[stage];disclosure.hidden=stage===0;if(stage!==0)body.append(el('h3',STEPS[stage]));
+  // The narration is independent of answer-checking or actual model
+  // inference. Never mount a teaching/Tutor panel in concealed modes; the
+  // early mode boundary above already diverts Blind and Assessment modes.
+  // In the nine-stage guided journey, Assess and Predict also remain focused
+  // on independent decisions, without an inline AI request path.
+  if(![3,5].includes(stage)&&root.GroundUpLabV33Instructor?.create){
+   const instructor=root.GroundUpLabV33Instructor.create({
+    stage,subject:tutorTopic||'observable market evidence',concept:topic,
+    requestTutor:tutorRequest,seen:narratedStages.has(stage)
+   });
+   if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
+  }
   previous.hidden=stage===0;next.textContent=stage===0?'Begin '+(kind==='candle'?'Candlestick':kind==='vwap'?'VWAP':'Learning')+' Lesson →':'Next learning stage';
 
   if(stage===0){
