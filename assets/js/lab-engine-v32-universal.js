@@ -131,7 +131,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
  const shell=el('section');shell.className='card gu-v32 gu-v33';
  shell.setAttribute('aria-label','Advanced learning journey');
  const heading=el('h2','Learning Journey — '+(subject?.name||guide.title));
- const disclosure=el('p','Curriculum-linked, ungraded instructional guidance. Reviewed assessments, actual market history, future bars, account progress and member access remain under their existing protected services.');
+ const disclosure=el('details');disclosure.className='gu-v33-source-note';
+ disclosure.append(el('summary','About lesson data and assessment integrity'),
+  el('p','Examples may use clearly labeled fictional market data. Historical evidence requires an approved source. Independent assessments and account progress are handled by the authorized member services.'));
  const journey=el('ol'),progress=el('p'),meter=el('div'),meterFill=el('span'),body=el('section'),status=el('p'),nav=el('div');
  journey.className='gu-v33-journey';journey.setAttribute('aria-label','Learning stages');
  progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Learning journey progress');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax','100');meter.append(meterFill);body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
@@ -245,8 +247,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     note.className='small';setup.append(note);body.append(setup);
    }
    const intro=el('section');intro.className='instruction';intro.append(el('h3','What you will learn'));
-   appendParagraph(intro,'Every subject begins with an explanation before assessment. The shared platform provides charts, equations, a learning journey, feedback, retries, and evidence of independent understanding. Specialized content changes through a Lab configuration rather than separate hardcoded websites.');
-   appendParagraph(intro,'Source of data: Lab-specific teaching is drawn from your authorized curriculum. Any illustrative calculation is fictional and ungraded. No market chart is represented as independently verified without approved source evidence.');
+   const goals=el('ul');
+   goals.append(el('li','Recognize and explain: '+(authorizedTeaching.what||guide.concept)),
+    el('li','Apply the correct evidence and method: '+(authorizedTeaching.why||guide.procedure)),
+    el('li','Recognize mistakes and limits: '+guide.invalidation));
+   intro.append(goals);
+   appendParagraph(intro,'Explore the visual example, explain your reasoning, and apply the concept in a new case. Any fictional illustration will be identified as such.');
    body.append(intro);
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
    const metrics=el('div');metrics.className='grid2';
@@ -255,7 +261,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
    }
    wallet.append(metrics);
    appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain included in accessible Labs. No demo credits will be charged or treated as purchased credits.');
-   body.append(wallet);
+   const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';
+   walletDisclosure.append(el('summary','Question Pass Wallet and eligibility'),wallet);
+   body.append(walletDisclosure);
    const objective=el('p','Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Independent mastery remains Not Yet Assessed until reviewed evidence is recorded.');
    objective.className='small';body.append(objective);
   }else if(stage===1){
