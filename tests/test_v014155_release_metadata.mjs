@@ -1,23 +1,36 @@
-/* D15 release ID parity; historical Deployment 10 record remains immutable.
- * Static source test: never creates payments, deployments or grants.
+/* Deployment 15 onward — release identity parity with forward-compatible
+ * validation. A newer coordinated D16–D18 release must not fail because the
+ * original D15 test pinned v0.14.0.155 exactly.
+ * Source only; never creates payment, deployment or entitlement.
  */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(p,'utf8');
-const version='0.14.0.155';
 const manifest=JSON.parse(read('release-manifest.json'));
 const commerce=JSON.parse(read('data/commerce-config.json'));
-const config=read('config.js');
-const sw=read('sw.js');
-const route=read('assets/js/route-policy.js');
-assert.equal(manifest.version,version);
-assert.equal(commerce.version,version);
-assert.match(config,/VERSION:\s*'0\.14\.0\.155'/);
-assert.match(route,/version:'0\.14\.0\.155'/);
-assert.match(sw,/groundup-v0140155-public/);
+const current=String(manifest.version||'');
+const parse=v=>{
+ assert.match(v,/^\d+\.\d+\.\d+\.\d+$/,'Four-part version required');
+ return v.split('.').map(Number);
+};
+const compare=(a,b)=>{
+ const x=parse(a),y=parse(b);
+ for(let i=0;i<4;i++)if(x[i]!==y[i])return x[i]-y[i];
+ return 0;
+};
+assert(compare(current,'0.14.0.155')>=0,'Cannot regress below Deployment 15');
+assert.equal(commerce.version,current,'Commerce and public manifest must match');
+const config=read('config.js'),route=read('assets/js/route-policy.js'),sw=read('sw.js');
+assert(config.includes("VERSION: '"+current+"'"),'Browser configuration version mismatch');
+assert(route.includes("version:'"+current+"'"),'Shared route policy version mismatch');
+assert(sw.includes('groundup-v'+current.replaceAll('.','')+'-public'),'Service Worker cache must rotate with release');
 for(const page of ['admin.html','owner-roadmap.html'])
- assert.match(read(page),/name="application-version" content="v0\.14\.0\.155"/);
-assert.equal(manifest.customerCheckoutApproved,false,'Version synchronization must not authorize charging');
-assert.equal(manifest.liveStripeFulfillmentEnabled,false,'Version synchronization must not authorize billing fulfillment');
-assert.equal(manifest.deployment10?.sourceVersion,'v0.14.0.150','Historical release provenance must not be falsified');
-console.log('PASS D15: release identifiers synchronized; no paid-launch activation');
+ assert(read(page).includes('name="application-version" content="v'+current+'"'),
+  'Application meta version mismatch: '+page);
+assert.equal(manifest.customerCheckoutApproved,false,
+ 'Customer billing remains locked until separately accepted; update release gate test only with signed production acceptance');
+assert.equal(manifest.liveStripeFulfillmentEnabled,false,
+ 'Source version changes cannot activate paid fulfillment without separate evidence');
+assert.equal(manifest.deployment10?.sourceVersion,'v0.14.0.150',
+ 'Historical Deployment 10 source provenance is immutable');
+console.log('PASS D15+: version '+current+' consistent across public metadata; paid launch locked');
