@@ -31,9 +31,12 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
  const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
  const rows=await rest(env,'lab_instruction_v014?select=book_number,content&order=lab_id.asc&limit=150');
  return send({ok:true,labs:rows.filter(r=>coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
- const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
+ const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
  const ownsBook= SAMPLES.has(id) && !request.headers.get('authorization') ? false : await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id)||Number(row.book_number)===6&&premium;
  if(!guided)return send({ok:false,error:'An active matching book entitlement is required for this authored exercise.'},403);
- return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium});
+ const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
+ return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium,
+  sourceStatus:unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
+  instructionReviewed:false,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
