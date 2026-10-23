@@ -1,3 +1,41 @@
+# CURRENT DEVELOPMENT CHECKPOINT — D10 / D11 / D14 SOURCE CONTINUATION
+
+**Project:** The Stock Market: From the Ground Up  
+**Date:** 2026-10-22 · **Main source before this handoff commit:** `a717bf93e4969ab13cc214063a592673498cdfb0`  
+**Authoritative release manifest:** `v0.14.0.155` (paid checkout and LIVE Stripe fulfillment still **disabled**).  
+**Owner directive:** Continue remaining D09–D18 engineering with **comprehensive integration/testing and production acceptance deferred until D18**. Do not interrupt the Owner unless Cloudflare/Supabase account action is indispensable to continue.  
+**Production:** NOT ACCEPTED; no accidental launch inferred from source commits.
+
+## New production-safe work committed
+1. **D10 Market Data & Trading:** `assets/js/market-bars-import-v014150.js`, `advanced-tool.html`, `assets/js/advanced-tools.js` now handle 2MB/20k-row local CSV inputs, timezone-explicit strict chronology and OHLCV integrity without silent filtering. Invalid upload clears stale bar data. Generation-based stale-import guards prevent a slow prior file read from replacing newer data. Market observations remain member-supplied UNVERIFIED, without rights certification or assumed missing bars.
+2. **D10 tests staged for D18:** `tests/test_v014150_market_bar_import.mjs`, wired into `.github/workflows/research-tools-v014145.yml` and `scripts/dev-program-source-verification.mjs`.
+3. **D11 and D13 visual continuity:** `assets/js/lab-player.js`, `lab-player.html`, `assets/css/lab-learning-layout-v014151.css` now place any **existing approved portable teaching visual** in a desktop sticky column beside guided practice, decision writing and secure graded questions; on mobile it stacks. Missing source image is explicitly labeled missing, not fabricated or assumed historical.
+4. **D11 checks staged for D18:** `tests/test_v014151_lab_visual_layout.mjs`, attached to existing curriculum workflow and reusable verifier.
+5. **D14 original instruction:** `assets/js/bootcamp-day05-v014154.js` plus `assets/css/bootcamp-day05-v014154.css`, `bootcamp.html` and `assets/js/bootcamp.js` add truly original hypothetical Day 05 candlestick body-percent instruction with visible 0.06 ÷ 0.20 × 100 teaching, typed answer, 2-miss guided-choice scaffolding and constructed figure. No made-up historical market evidence or official grade.
+6. **D14 checks staged for D18:** `tests/test_v014154_bootcamp_day05_visual.mjs`, wired into original CI and program verifier.
+7. Detail: `docs/v0.14.0.155_D10_D11_SOURCE_CONTINUATION_OCT22.md` and `docs/v0.14.0.155_D14_DAY05_CANDLE_EDUCATION_SOURCE_CONTINUATION.md`.
+
+## Evidence distinction
+- **Direct bounded source smoke:** 2 valid OHLCV bars with correct 09:30 ET / 13:30 UTC offset; 8 invalid CSV variants rejected; source syntax/element checks on touched tool/Lab/Bootcamp modules passed.
+- **Full CI, Playwright, member A/B, Cloudflare deployed commit, Supabase live state, manual accessibility, rubric/editorial/rights review, sitewide operational/commerce production QA:** *Deferred to final D18 per Owner instructions; no passing evidence claimed.*
+- **Labs:** 419 IDs registered, **0/419 complete recorded editorial decisions**; 94 Foundations and 325 non-Foundations remain individually instructionally incomplete/unaccepted.
+- **Bootcamp:** 30 days registered, **0/30 complete recorded editorial decisions**; new Day 05 source practice is only part of one lesson and not a graded day completion.
+- **Competencies:** 30 canonical definitions, 30 full assessment/production acceptances not proven.
+- **D15:** LIVE payments still locked. **D16:** staged unified Admin shell, B–E migration pending. **D17:** broad site/ops work open. **D18:** full acceptance open.
+
+## Owner-only requirements at this checkpoint
+**NONE NOW.**
+- **Supabase:** No new SQL or authentication object required by D10/D11/D14 source commits; installed D09 SQL must NOT be rerun.
+- **Cloudflare:** No new binding, secret, cron, KV, DNS, or paid resource needed for these client/static additions. Exact deployed SHA is unverified.
+- **Stripe:** No catalog, product, pricing, customer entitlements or LIVE flags changed. No real-money transaction.
+- **Content/data rights:** No new external historical data or manuscript copied into public static assets.
+- **Final manual package:** Accumulate genuinely required Cloudflare/Supabase/account and signed LIVE payment authorizations for D18, not repeated piecemeal requests.
+
+## Continuity and next development
+Keep implementing D11/D12 individual original instructional Lab content and D13 grading and D14 Bootcamp depth while preserving current 419 IDs, existing manuscript locks, rights restrictions and the single current membership database. Final source count alone is not acceptance; separate ten statuses at D18.
+
+---
+
 ## D09 final retrieval quality correction — 2026-10-22
 
 **Last observed source head before this handoff commit:** `ea66afde4ca2f2b677a23b3d8f7c69cb3ed098a6`.
