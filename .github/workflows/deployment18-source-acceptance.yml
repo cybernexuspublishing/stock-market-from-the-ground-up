@@ -46,6 +46,8 @@ jobs:
       - name: Verify Deployment 17 security boundaries before source evidence
         run: |
           node tests/test_v014157_support_security.mjs
+          node tests/test_v014157_support_reopen_ui.mjs
+          node tests/test_v014157_public_seo.mjs
           node scripts/deployment17_source_security_readiness.mjs
       - name: Generate actual 419-Lab and 30-Day acceptance ledger
         run: node scripts/curriculum-acceptance-evidence.mjs
