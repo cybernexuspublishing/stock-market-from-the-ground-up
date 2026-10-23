@@ -243,6 +243,12 @@ async function fetchLabWithDeadline(url,options={}){
  try{return await fetch(url,{...options,signal:controller.signal})}
  finally{clearTimeout(timer)}
 }
+function compactSourceDisclosure(summary,description){
+ const panel=document.createElement('details');panel.className='gu-v33-source-banner';
+ const title=document.createElement('summary');title.textContent=summary;
+ const p=document.createElement('p');p.textContent=description;
+ panel.append(title,p);return panel;
+}
 async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
  const session=authResult?.data?.session||null;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetchLabWithDeadline('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
@@ -283,10 +289,10 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   q('player-title').textContent=lab.id==='F2-C07-L01'||lab.id==='F2-C07-L02'?'Build and Understand a Candlestick':lab.id==='F3-C06-L01'?'Understand VWAP and Replay the Market':lab.concept;
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${lab.id} — ${lab.concept} | Interactive Lab`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
-  const note=document.createElement('div');note.className='notice';
-  note.textContent='This canonical Lab has member-authorized conceptual orientation, not independently approved historical teaching, licensed charts, or a reviewed assessment. No score or proficiency certification is implied.';
-  q('player-access-note').replaceChildren(note);
- }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').innerHTML='<div class="notice"><strong>Original conceptual draft:</strong> This private lesson is an unreviewed hypothetical orientation. It is not an approved book-authored Lab, verified historical exercise, or reviewed assessment. Use the book and the existing competency study guide for the subject.</div>';else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess.SAMPLE_LABS.has(lab.id))q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';q('player-mode-select')?.addEventListener('change',event=>{
+  q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s source material',
+   'This Lab provides authorized conceptual instruction. Historical charts, private question reviews and assessment certification require their own approved evidence. No mastery score is implied.'));
+ }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s instructional draft',
+   'The instructional material is a conceptual draft. It is not verified historical data or an approved graded assessment. Consult the associated book and competency study guide.'));else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';q('player-mode-select')?.addEventListener('change',event=>{
   const next=event.target.value;
   if(next===PLAYER.mode)return;
   const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
