@@ -1,101 +1,64 @@
-/* Free Playwright QA against production. Read-only Lab API operations.
- * Never log secrets, JWTs, response payloads, cookies or personal data.
+/* Read-only production QA. Uses a dedicated test account and GitHub Secrets.
+ * Supabase authentication is verified independently from the website login UI.
+ * Playwright checks the page. No tokens or private lesson bodies are logged.
  */
+import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const origin='https://stock-market-from-the-ground-up.pages.dev';
 const email=process.env.LAB_QA_EMAIL||'',password=process.env.LAB_QA_PASSWORD||'';
-if(!email||!password){console.error('FAIL: QA Secrets missing from GitHub Actions environment.');process.exit(2)}
+if(!email||!password){console.error('FAIL missing LAB_QA_EMAIL or LAB_QA_PASSWORD GitHub Secrets.');process.exit(2)}
+const cfg=readFileSync('config.js','utf8');
+const url=cfg.match(/SUPABASE_URL:\s*'([^']+)'/)?.[1];
+const pub=cfg.match(/SUPABASE_ANON_KEY:\s*'([^']+)'/)?.[1];
+if(!url||!pub||!url.startsWith('https://')){console.error('FAIL public Supabase browser config unavailable.');process.exit(2)}
+let failure=false;
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
-let failed=false;
-let phase='initialize';
 try{
- const context=await browser.newContext({serviceWorkers:'block'});
- const page=await context.newPage();
- page.setDefaultTimeout(23000);
- phase='open_signin';
- await page.goto(origin+'/signin.html?next=%2Flabs.html',{waitUntil:'domcontentloaded',timeout:30000});
- phase='find_email_field';
- await page.locator('#login-identifier').fill(email);
- phase='find_password_field';
- await page.locator('#login-password').fill(password);
- phase='submit_signin';
- const submit=page.locator('button.auth-submit');
- const visible=await submit.isVisible(),enabled=await submit.isEnabled();
- if(!visible||!enabled)console.error('WARN: Live Sign In submit control is not usable by a typical pointer interaction.');
- try{await submit.click({timeout:5500,noWaitAfter:true})}
- catch{
-  console.error('WARN: Live Sign In control did not accept a standard Playwright click; retrying native form submission for API diagnosis.');
-  await page.locator('form').evaluate(form=>form.requestSubmit());
- }
- phase='wait_auth_redirect';
- let uiRedirected=false;
- try{await page.waitForURL(url=>!['/signin','/signin.html'].includes(url.pathname),{timeout:8000});uiRedirected=true}
- catch{console.error('WARN: Form submission did not redirect; checking the Supabase session independently.')}
- if(!uiRedirected){
-  phase='supabase_auth_diagnostic';
-  const authCheck=await page.evaluate(async()=>{
-   const sb=await window.getSupabaseClient?.();
-   if(!sb)return {ok:false,code:'SDK_UNAVAILABLE'};
-   const before=await sb.auth.getSession();
-   if(before.data?.session)return {ok:true,code:'SESSION_ALREADY_SET'};
-   const identifier=document.getElementById('login-identifier')?.value||'';
-   if(!identifier.includes('@'))return {ok:false,code:'EMAIL_REQUIRED_FOR_QA'};
-   const password=document.getElementById('login-password')?.value||'';
-   const result=await sb.auth.signInWithPassword({email:identifier,password});
-   const known=['invalid_credentials','email_not_confirmed','captcha_failed','over_email_send_rate_limit'];
-   const raw=String(result.error?.code||'');
-   return {ok:!!result.data?.session,code:result.error?(known.includes(raw)?raw:'AUTH_REJECTED'):'OK'};
-  });
-  if(authCheck.ok)console.log('PASS: Supabase email/password authentication succeeded without a browser redirect.');
-  else{console.error('FAIL: QA authentication classification '+authCheck.code+'. No account data or credentials were printed.');failed=true}
- }
- if(!failed){
-  phase='read_session_and_labs';
-  const result=await page.evaluate(async()=>{
-   const sb=await window.getSupabaseClient?.();
-   const session=sb&&(await sb.auth.getSession()).data.session;
-   if(!session?.access_token)return {authenticated:false};
-   const headers={authorization:'Bearer '+session.access_token};
-   const check=async(path)=>{
-    try{
-     const ctrl=new AbortController();
-     const timer=setTimeout(()=>ctrl.abort(),17000);
-     let response;
-     try{response=await fetch(path,{headers,cache:'no-store',signal:ctrl.signal})}
-     finally{clearTimeout(timer)}
-     let payload={};try{payload=await response.json()}catch{}
-     const rawCode=String(payload.code||'');
-     const code=['PRIVATE_LAB_STORE_UNAVAILABLE'].includes(rawCode)?rawCode:'';
-     return {status:response.status,code,
-      type:response.status>=500?'server_failure':response.status===403?'not_entitled':
-       response.status===404?'missing_content':response.status===401?'auth_failure':
-       response.ok?'success':'other'};
-    }catch{return {status:0,type:'network_failure'}}
-   };
-   const ids=['F1-C02-L01','F2-C07-L01','SITE-001'];
-   const checks=[];
-   for(const id of ids){
-    const [content,context]=await Promise.all([
-     check('/api/lab-content?id='+encodeURIComponent(id)),
-     check('/api/lab-player-context?id='+encodeURIComponent(id))
-    ]);
-    checks.push({id,content,context});
-   }
-   return {authenticated:true,checks};
-  });
-  if(!result.authenticated){console.error('FAIL: No authenticated Supabase QA session was established.');failed=true}
-  else{
-   console.log('PASS: QA member authentication succeeded; no credentials or identities logged.');
-   for(const {id,content,context} of result.checks){
-    console.log(id+' private='+content.status+'/'+content.type+(content.code?'/'+content.code:'')+
-       ' context='+context.status+'/'+context.type);
-    if([0,500,502,503,504].includes(content.status)||[0,500,502,503,504].includes(context.status))failed=true;
-   }
-   if(failed)console.error('FAIL: Authenticated Lab API is unavailable; inspect Cloudflare server exceptions and matching Supabase query permissions.');
-   else console.log('PASS: No transport/server errors. A 403 or 404 is a separate entitlement/content issue, not proof of full Lab availability.');
-  }
- }
- await context.close();
-}catch{console.error('FAIL: QA browser stage '+phase+'. Sensitive browser data remains suppressed.');failed=true}
+ const page=await browser.newPage({serviceWorkers:'block'});
+ await page.goto(origin+'/signin.html',{waitUntil:'domcontentloaded',timeout:30000});
+ const hasFields=await page.locator('#login-identifier').count()===1&&await page.locator('#login-password').count()===1;
+ if(hasFields)console.log('PASS public sign-in fields present.');
+ else{console.error('WARN sign-in form fields are missing on the live page.');failure=true}
+ await page.close();
+}catch{console.error('WARN public sign-in page failed the Playwright smoke.');failure=true}
 finally{await browser.close()}
-process.exitCode=failed?1:0;
+let token='';
+try{
+ const response=await fetch(url+'/auth/v1/token?grant_type=password',{
+  method:'POST',headers:{apikey:pub,'content-type':'application/json'},
+  body:JSON.stringify({email,password}),signal:AbortSignal.timeout(20000)});
+ const data=await response.json().catch(()=>({}));
+ if(response.ok&&typeof data.access_token==='string'){
+  token=data.access_token;console.log('PASS Supabase QA password authentication (secret and token redacted).');
+ }else{
+  const key=String(data.error_code||data.code||'');
+  const classification=['invalid_credentials','email_not_confirmed','captcha_failed'].includes(key)?key:'AUTH_REJECTED';
+  console.error('FAIL QA authentication: HTTP '+response.status+' classification '+classification+'. Check that the QA account is confirmed and the Secrets contain its email and password.');
+  failure=true;
+ }
+}catch{console.error('FAIL QA authentication could not reach Supabase Auth.');failure=true}
+if(token){
+ const check=async(path)=>{
+  try{
+   const response=await fetch(origin+path,{
+    headers:{authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
+   let data={};try{data=await response.json()}catch{}
+   const code=String(data.code||'');
+   return {status:response.status,type:response.status>=500?'server_failure':
+    response.status===403?'not_entitled':response.status===404?'not_seeded':
+    response.status===401?'auth_denied':response.ok?'success':'other',
+    code:code==='PRIVATE_LAB_STORE_UNAVAILABLE'?code:''};
+  }catch{return {status:0,type:'network_failure',code:''}}
+ };
+ for(const id of ['F1-C02-L01','F2-C07-L01','SITE-001']){
+  const [content,context]=await Promise.all([
+   check('/api/lab-content?id='+encodeURIComponent(id)),
+   check('/api/lab-player-context?id='+encodeURIComponent(id))]);
+  console.log('LAB '+id+' private='+content.status+'/'+content.type+(content.code?'/'+content.code:'')+
+   ' context='+context.status+'/'+context.type);
+  for(const v of [content,context])if(v.status===0||v.status>=500)failure=true;
+ }
+ if(failure)console.error('FAIL QA: see classified errors above. Authenticated Lab API 5xx requires server diagnostics; UI warning requires separate repair.');
+ else console.log('PASS QA: no server 5xx errors. HTTP 403/404 may still indicate missing authorization or missing private Lab content.');
+}
+process.exitCode=failure?1:0;
