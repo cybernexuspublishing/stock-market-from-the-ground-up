@@ -24,13 +24,14 @@ try{
    if(url.pathname==='/assets/js/access.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:
       'window.SiteAccess={SAMPLE_LABS:new Set(),get:async()=>({user:null,sb:null,isMember:false,redeemedBooks:new Set()}),canGuided:()=>false,canAdvanced:()=>false};'});
-   if(url.pathname==='/api/lab-content'){requests.push('private');return route.fulfill({status:width===390?503:404,contentType:'application/json',body:width===390?'{"ok":false,"code":"PRIVATE_LAB_STORE_UNAVAILABLE"}':'{"ok":false,"error":"Not loaded"}'});}
+   if(url.pathname==='/api/lab-content'){requests.push('private');return route.fulfill({status:width===390?503:404,contentType:'application/json',body:width===390?'{"ok":false,"error":"Private backend unavailable"}':'{"ok":false,"error":"Not loaded"}'});}
    if(url.pathname==='/api/lab-player-context'){requests.push('registry');return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(payload)});}
    return route.continue();
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
   await page.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
+  assert.ok(!requests.includes('private,registry,registry'),'Authorization is not retried after explicit denial');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').innerText(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);

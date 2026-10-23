@@ -143,11 +143,24 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  // Canonical book companion route remains authoritative when published.
  // Only missing authored content is eligible for server-authorized, ungraded
  // registry orientation. A 403 entitlement denial is NEVER bypassed.
- if(response.status===404||(response.status===503&&payload.code==='PRIVATE_LAB_STORE_UNAVAILABLE')){
+ if(response.status===404||response.status===503){
+  // A private-store failure should not erase independently authorized, safe
+  // conceptual instruction. This fallback re-checks auth, account restrictions,
+  // published Lab status, and entitlements on the server. 401/403 never retry.
+
   response=await fetch('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
   payload=await response.json().catch(()=>({}));
  }
- if(!response.ok||!payload.ok)throw new Error(payload.error||'Lab not available.');const lab=payload.lab;PLAYER.lab=lab;PLAYER.access=await window.SiteAccess.get();PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;q('player-title').textContent=lab.concept;q('player-location').textContent=`Book ${lab.book}, Chapter ${lab.chapter} — ${lab.chapterTitle}`;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${lab.id} — ${lab.concept} | Interactive Lab`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
+ if(!response.ok||!payload.ok)throw new Error(
+  response.status===503?'The Lab service is temporarily unavailable. Your lesson and progress have not been changed. Please retry from the Lab Registry.':
+  payload.error||'Lab not available.'
+ );const lab=payload.lab;PLAYER.lab=lab;
+ // Server-reported entitlement is authoritative. Optional client-side
+ // dashboard access state may fail separately and must not hide a valid Lab.
+ let localAccess=null;
+ try{localAccess=await window.SiteAccess?.get?.()}catch{}
+ PLAYER.access=localAccess||{user:session?.user||null,sb:sb||null,redeemedBooks:new Set()};
+ PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;q('player-title').textContent=lab.concept;q('player-location').textContent=`Book ${lab.book}, Chapter ${lab.chapter} — ${lab.chapterTitle}`;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${lab.id} — ${lab.concept} | Interactive Lab`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   const note=document.createElement('div');note.className='notice';
   note.textContent='This canonical Lab has member-authorized conceptual orientation, not independently approved historical teaching, licensed charts, or a reviewed assessment. No score or proficiency certification is implied.';
   q('player-access-note').replaceChildren(note);
