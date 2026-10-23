@@ -27,6 +27,7 @@ jobs:
           node tests/test_v014152_other325_evidence.mjs
           node tests/test_v014152_other325_editor_queue.mjs
           node tests/test_v014153_paged_member_grade_history.mjs
+          node tests/test_v014153_training_stale_mode.mjs
           node tests/test_v014154_bootcamp_formative.mjs
           node tests/test_v014154_bootcamp_day05_visual.mjs
           node --check assets/js/bootcamp-day05-v014154.js
@@ -35,6 +36,7 @@ jobs:
           node --check assets/js/training-editor.js
           node --check assets/js/labs.js
           node --check assets/js/lab-player.js
+          node --check assets/js/interactive-training.js
           node --check assets/js/training-editor.js
       - uses: actions/upload-artifact@v4
         with:
