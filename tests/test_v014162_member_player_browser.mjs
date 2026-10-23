@@ -29,7 +29,7 @@ try{
    return route.continue();
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
-  await page.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
+  await page.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.ok(!requests.includes('private,registry,registry'),'Authorization is not retried after explicit denial');
   assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
@@ -38,7 +38,7 @@ try{
   await page.locator('#player-mode-select').selectOption('practice');
   await page.getByRole('button',{name:'Mode help'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
-  await page.getByRole('button',{name:'Next learning stage'}).click();
+  await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
   await page.locator('#player-mode-select').selectOption('guided');
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Guided Mode/);
@@ -47,6 +47,7 @@ try{
   await page.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await page.locator('#player-mode-select').isDisabled(),true);
   assert.match(await page.locator('#player-mode-status').innerText(),/Locked/);
+  assert.equal(await page.locator('#player-mode-restart-row').isVisible(),true);
   await page.getByRole('button',{name:'Change Mode / Restart'}).click();
   await page.getByRole('combobox',{name:'New learning mode'}).selectOption('blind');
   await page.getByRole('button',{name:'Yes, Continue'}).click();
@@ -111,7 +112,7 @@ try{
   return route.continue();
  });
  await draftPage.goto(base+'/lab-player.html?lab=F1-C02-L01',{waitUntil:'domcontentloaded'});
- await draftPage.getByRole('heading',{name:/Learning Journey —/}).waitFor({timeout:15000});
+ await draftPage.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
  assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
  assert.match(await draftPage.locator('#player-location').innerText(),/Book 1, Chapter 2/);
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
