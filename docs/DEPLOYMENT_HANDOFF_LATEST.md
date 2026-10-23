@@ -1,3 +1,16 @@
+## CURRENT HANDOFF — D15 Commerce parity + D16 unified Admin Stage B (2026-10-22)
+
+**Verified repository source before this handoff:** `4052ced18f64b24dd93f067d079a5b76d3c1bc34`. Manifest still v0.14.0.155; commercial flags OFF.
+**Lessons Prototype:** Owner is working separately; implementation frozen until the Owner supplies **approved prototype version number**. This work does not change lesson teaching modes or content.
+**D15 source:** restored `ONDEMAND_MONTHLY` $19.99/month to static listing, guarded five static membership prices/intervals, eight screenshot-only SKU amounts and five 30-day Book Keys. No Stripe LIVE price IDs or merchant lifecycle verified.
+**D16 source:** Members/Audit paging, single-page search scope disclosure, minimal member summary API, role permission summary, server-wide `control_panel.access` plus module permissions, client read allowlist, current legacy editors retained. Admin Stage B read-only integration is PARTIAL, not migrated edit-acceptance.
+**Tests:** targeted source parsing/pure-helper checks passed; exact-head GitHub CI, Cloudflare/Supabase runtime, Playwright, commerce lifecycle and editor/Owner acceptance deferred to D18.
+**Owner actions now:** NONE. No SQL, Cloudflare setting, Stripe change or paid-provider invocation. No launch flags altered.
+**Source detail:** `docs/v0.14.0.155_D15_D16_ADMIN_STAGE_B_AND_COMMERCE_PARITY.md`.
+**Remaining:** D15 real LIVE merchant/entitlement lifecycle validation; D16 Stage B editing/mutation parity and Stages C–E; D17 website/system completeness; D18 full acceptance and consolidated Owner controls.
+
+---
+
 ## LATEST CHECKPOINT — Deployment 15 Memberships and Billing (2026-10-22)
 
 **Repository source head before this handoff update:** `3358285465ecebaacd3a310db0081afd324bf8c3`.  
