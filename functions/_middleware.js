@@ -290,6 +290,10 @@ export async function onRequest(context){
         el.append('<link rel="stylesheet" href="/assets/css/accounts-and-lab-preview.css">',{html:true});
         /* admin.html already loads admin-navigation.css; do not duplicate this stylesheet. */
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
+        // The Lab shares site navigation but its teaching controls must not
+        // inherit broad legacy overrides. Reapply the isolated layout last.
+        if(path==='/lab-player'||path==='/lab-player.html')
+          el.append('<link rel="stylesheet" href="/assets/css/lab-v33-site-shell.css">',{html:true});
       }})
       .on('body',{element(el){
         el.setAttribute('data-build','v0.14.0.14');
