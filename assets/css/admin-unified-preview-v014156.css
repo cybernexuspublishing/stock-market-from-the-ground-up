@@ -13,3 +13,14 @@
 .unified-notice{border-left:4px solid #aa8035;padding:.6rem 1rem}
 @media(max-width:720px){.unified-layout{grid-template-columns:1fr}.unified-sidebar{max-height:none}.unified-nav-group{display:inline-block;vertical-align:top;width:min(46%,220px)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Deployment 16 Stage B: inspect and page safely without competing UI owners. */
+.unified-pager{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.unified-filter{display:flex;gap:.65rem;align-items:end;flex-wrap:wrap;margin:.65rem 0}
+.unified-filter label{display:grid;gap:.35rem;min-width:min(100%,260px)}
+.unified-filter input{font:inherit;border:1px solid #577c99;border-radius:6px;background:#102b42;color:#fff;min-height:42px;padding:.5rem}
+.unified-scope{flex-basis:100%;font-size:.85rem;margin:.25rem 0;color:inherit}
+.unified-actions button,.unified-record button{font:inherit;min-height:42px;border:1px solid #7c91a1;border-radius:7px;cursor:pointer;background:#16374c;color:#fff;padding:.55rem .9rem;margin:.15rem .35rem .15rem 0}
+.unified-actions button[disabled]{opacity:.48;cursor:not-allowed}
+.unified-record button:focus-visible,.unified-pager button:focus-visible,.unified-filter input:focus-visible,.unified-filter button:focus-visible{outline:3px solid #f4cf70;outline-offset:2px}
+@media(max-width:720px){.unified-filter{display:grid}.unified-filter label{min-width:0}.unified-pager{justify-content:flex-start}}
