@@ -127,6 +127,7 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
+ syncPlayerMode();
  q('lock-decision').addEventListener('click',lockDecision);q('reveal-next').addEventListener('click',revealNext);q('complete-attempt').addEventListener('click',saveAttempt);q('discuss-lab').href=`forum.html?lab=${encodeURIComponent(lab.id)}`;
  if(PLAYER.access.user){PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false})}
 }
