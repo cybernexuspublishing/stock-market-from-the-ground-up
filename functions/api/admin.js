@@ -38,6 +38,17 @@ async function roleContext(env,userId){
   const {data:rps}=await serviceRest(env,`admin_role_permissions?select=permission_code&role_code=in.(${encodeURIComponent(inRoles)})`);
   return {roles,permissions:[...new Set((rps||[]).map(x=>x.permission_code))]};
 }
+// Safe, bounded query numbers for Admin identity and audit paging.
+// Invalid query strings do not reach privileged GoTrue/PostgREST endpoints.
+function adminPageInt(value,{fallback=1,min=1,max=10000}={}){
+ if(value===null||value===undefined||value==='')return fallback;
+ const text=String(value);
+ if(!/^[0-9]{1,7}$/.test(text))throw Object.assign(new Error('Invalid administrative page or limit.'),{status:400});
+ const v=Number(text);
+ if(!Number.isSafeInteger(v)||v<min||v>max)
+  throw Object.assign(new Error('Administrative page or limit is outside the supported range.'),{status:400});
+ return v;
+}
 function has(ctx,p){return ctx.permissions.includes(p)}
 async function withContext(env,request,permission){const c=await caller(env,request);const ctx=await roleContext(env,c.user.id);if(permission&&!has(ctx,permission))throw Object.assign(new Error('Administrative permission denied.'),{status:403});return {...c,ctx}}
 async function audit(env,actor,action,targetType,targetId,details={}){try{await serviceRest(env,'admin_audit_log',{method:'POST',prefer:'return=minimal',body:{actor_user_id:actor||null,action,target_type:targetType||null,target_id:targetId==null?null:String(targetId),details}})}catch{}}
@@ -90,13 +101,13 @@ async function handleGet(env,request,action,url){
     return ok({summary:{users,library,orders,subscriptions:subs,openReports:reports,auditEntries:auditCount,catalogProducts:catalog,publishedContent:content,activeEntitlements},roles:c.ctx.roles});
   }
   if(action==='users'){
-    const c=await withContext(env,request,'users.view');const q=clean(url.searchParams.get('q')).toLowerCase();const page=Math.max(1,Number(url.searchParams.get('page')||1));const perPage=Math.min(200,Math.max(20,Number(url.searchParams.get('per_page')||100)));
-    const {data}=await adminAuth(env,`users?page=${page}&per_page=${perPage}`);let users=data?.users||[];
+    const c=await withContext(env,request,'users.view');const q=clean(url.searchParams.get('q')).toLowerCase().slice(0,120);const page=adminPageInt(url.searchParams.get('page'));const perPage=adminPageInt(url.searchParams.get('per_page'),{fallback:100,min:20,max:200});
+    const {data}=await adminAuth(env,`users?page=${page}&per_page=${perPage}`);const unfiltered=Array.isArray(data?.users)?data.users:[];let users=unfiltered;
     if(q)users=users.filter(u=>[u.email,u.phone,u.user_metadata?.username,u.user_metadata?.display_name].some(v=>String(v||'').toLowerCase().includes(q)));
     const ids=users.map(u=>u.id);let profiles=[],flags=[],urs=[];
     if(ids.length){const list=ids.join(',');[profiles,flags,urs]=await Promise.all([tableRows(env,'profiles','id,username,display_name,session_timeout_minutes',`&id=in.(${list})`),tableRows(env,'admin_user_flags','user_id,status,reason,updated_at',`&user_id=in.(${list})`),tableRows(env,'admin_user_roles','user_id,role_code,expires_at',`&user_id=in.(${list})`)]).catch(()=>[[],[],[]])}
     const pm=new Map(profiles.map(x=>[x.id,x])),fm=new Map(flags.map(x=>[x.user_id,x]));const rm={};urs.forEach(x=>{(rm[x.user_id]??=[]).push(x.role_code)});
-    return ok({users:users.map(u=>({id:u.id,email:u.email,created_at:u.created_at,last_sign_in_at:u.last_sign_in_at,banned_until:u.banned_until,profile:pm.get(u.id)||null,flag:fm.get(u.id)||null,roles:rm[u.id]||[]})),page,perPage});
+    return ok({users:users.map(u=>({id:u.id,email:u.email,created_at:u.created_at,last_sign_in_at:u.last_sign_in_at,banned_until:u.banned_until,profile:pm.get(u.id)||null,flag:fm.get(u.id)||null,roles:rm[u.id]||[]})),page,perPage,hasNext:unfiltered.length===perPage,searchScope:q?'CURRENT_AUTH_PAGE_ONLY':'UNFILTERED_AUTH_PAGE'});
   }
   if(action==='user_detail'){
     const c=await withContext(env,request,'users.view');const id=clean(url.searchParams.get('id'));if(!id)return bad('User id required.');
@@ -126,7 +137,7 @@ async function handleGet(env,request,action,url){
     await withContext(env,request,'forum.view');let topics=[],posts=[],reports=[];try{topics=await tableRows(env,'forum_topics','id,title,ticker,lab_id,status,is_pinned,is_locked,author_id,created_at,updated_at','&order=updated_at.desc&limit=100')}catch{}try{posts=await tableRows(env,'forum_posts','id,topic_id,body,status,author_id,created_at,updated_at','&order=created_at.desc&limit=100')}catch{}try{reports=await tableRows(env,'forum_reports','*','&order=created_at.desc&limit=100')}catch{}return ok({topics,posts,reports});
   }
   if(action==='audit'){
-    await withContext(env,request,'audit.view');const limit=Math.min(300,Math.max(25,Number(url.searchParams.get('limit')||150)));return ok({entries:await tableRows(env,'admin_audit_log','*',`&order=created_at.desc&limit=${limit}`)});
+    await withContext(env,request,'audit.view');const limit=adminPageInt(url.searchParams.get('limit'),{fallback:150,min:25,max:300});const page=adminPageInt(url.searchParams.get('page'));const offset=(page-1)*limit;const entries=await tableRows(env,'admin_audit_log','*',`&order=created_at.desc,id.desc&limit=${limit}&offset=${offset}`);return ok({entries,page,perPage:limit,hasNext:entries.length===limit});
   }
   if(action==='system'){
     await withContext(env,request,'system.view');const cfg=envConfig(env);return ok({integrations:{supabaseUrl:!!cfg.url,publishableKey:!!cfg.pub,secretKey:!!cfg.secret,bootstrapEmailConfigured:!!clean(env.ADMIN_BOOTSTRAP_EMAIL),workersAI:!!env.AI,paymentWebhookSecret:!!clean(env.PAYMENT_WEBHOOK_SECRET)},runtime:'Cloudflare Pages Functions',secretsExposed:false});
