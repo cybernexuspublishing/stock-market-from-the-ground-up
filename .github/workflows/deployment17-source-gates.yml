@@ -31,6 +31,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify source ownership, private-content boundaries and SEO contracts
+        run: |
+          python3 scripts/sitewide_governance_audit.py --root .
+          node tests/test_v014157_public_seo.mjs
+          node tests/test_v014109_public_seo_legal_audit.mjs
       - name: Check audit source and exercise fail-closed fixture tests
         run: |
           node --check scripts/deployment17_source_asset_audit.mjs
