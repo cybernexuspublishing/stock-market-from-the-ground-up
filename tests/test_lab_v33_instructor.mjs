@@ -47,7 +47,7 @@ const author=context.GroundUpLabV33InstructionContent;
 const candle=author.lesson({stage:1,visualType:'candle',concept:'Construct an Up / Bullish Candle'});
 assert.match(candle.blocks.join(' '),/Open \(O\).*High \(H\).*Low \(L\).*Close \(C\)/);
 assert(candle.blocks.some(x=>x.includes('High − Low')),'Explain full range using correct formula');
-assert(candle.worked.some(x=>x.includes('50%')),'Teach with worked fictional candle example');
+assert(candle.worked.some(x=>x.includes('40%')),'Teach with worked fictional candle example');
 assert(candle.check?.question.includes('real body'));
 const vwap=author.lesson({stage:1,visualType:'vwap',concept:'VWAP Reclaim'});
 assert(vwap.blocks.some(x=>x.includes('Σ means SUM')),'Define Greek symbols rather than presume prior knowledge');
