@@ -35,6 +35,12 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
+      - name: Validate production-safe canonical and source sitemap generation
+        run: |
+          node tests/test_v014157_public_seo.mjs
+          test -f public/sitemap.xml
+          test -f public/robots.txt
+          grep -q 'noindex,nofollow' public/dashboard.html
       - name: Start local source-only Pages fixture
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 --directory public >/tmp/gu-sitewide-playwright.log 2>&1 &
