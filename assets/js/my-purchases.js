@@ -21,7 +21,7 @@
   try{
    const {data:{session}}=await sb.auth.getSession();
    if(session?.user?.id!==member.id||!session.access_token)throw Error('Current account session required. Sign in again.');
-   const res=await fetch('/api/stripe-billing-portal-v014122',{method:'POST',
+   const res=await fetch('/api/stripe-billing-portal',{method:'POST',
     headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
     cache:'no-store',body:JSON.stringify({kind,recordId})});
    const body=await res.json().catch(()=>({}));

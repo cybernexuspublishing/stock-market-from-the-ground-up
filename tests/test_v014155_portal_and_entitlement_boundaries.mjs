@@ -3,8 +3,9 @@
  * Does not create a Stripe session, use real credentials, or mutate production.
  */
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {toolAccess} from '../functions/api/member-tool-access.js';
-import {onRequestPost} from '../functions/api/stripe-billing-portal-v014122.js';
+import {onRequestPost} from '../functions/api/stripe-billing-portal.js';
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const envBase={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock'};
@@ -71,4 +72,6 @@ try{
  }
  assert.equal(external,0,'Invalid request must be rejected before Stripe/Supabase calls');
 }finally{globalThis.fetch=saved}
+assert(readFileSync('assets/js/my-purchases.js','utf8').includes("fetch('/api/stripe-billing-portal'"),'Public client uses stable URL');
+assert(!readFileSync('assets/js/my-purchases.js','utf8').includes('fetch(\'/api/stripe-billing-portal-v014122\''),'Legacy versioned customer route not used');
 console.log('PASS D15 modern/legacy entitlement authentication, restricted/Showcase denial and streaming billing portal 1-KB cap');
