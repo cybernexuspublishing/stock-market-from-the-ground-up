@@ -6,6 +6,9 @@ const topics=[
  {id:'tape',title:'Time and Sales',aliases:['tape'],summary:'Trade prints and execution',related:[]}
 ];
 assert.deepEqual(terms('Explain VOLUME-WEIGHTED AVERAGE PRICE'),['vwap']);
+assert.deepEqual(terms('previous day high, previous day high'),['pdh']);
+assert.deepEqual(terms('time and sales and time and sales'),['tape']);
+assert.deepEqual(terms('maximum favorable excursion, maximum favorable excursion'),['mfe']);
 assert.equal(rankApprovedTutorTopics('How does VWAP work?',topics)[0].id,'vwap');
 assert.equal(rankApprovedTutorTopics('Explain risk per share',topics)[0].id,'risk');
 assert.equal(rankApprovedTutorTopics('time & sales execution',topics)[0].id,'tape');

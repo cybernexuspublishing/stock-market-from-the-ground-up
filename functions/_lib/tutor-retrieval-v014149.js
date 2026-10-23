@@ -27,7 +27,9 @@ function normalize(value){
  s=s.replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
  for(const [phrase,short] of Object.entries(ALIASES)){
   const p=phrase.replace(/&/g,' and ').replace(/[^a-z0-9 ]+/g,' ').trim();
-  s=(' '+s+' ').replace(' '+p+' ',' '+short+' ').trim();
+  // Expand *every* occurrence. A repeated student phrase must not leave
+  // stray words that distort source relevance and cited-topic selection.
+  s=(' '+s+' ').split(' '+p+' ').join(' '+short+' ').trim();
  }
  return s;
 }
