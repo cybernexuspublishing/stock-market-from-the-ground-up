@@ -21,21 +21,21 @@ try{
    await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
   }
   await page.getByRole('button',{name:'Next learning stage'}).click();
-  assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock a prediction/);
+  assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock your prediction/);
   await page.locator('#universal-test textarea').fill('Future continuation is not known, and crossing below the level would invalidate my hypothesis.');
-  await page.getByRole('button',{name:'Lock ungraded prediction'}).click();
+  await page.getByRole('button',{name:'Lock my prediction'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.locator('#universal-test textarea').fill('I can only use values already observed; I must define units, comparison and invalidation.');
-  await page.getByRole('button',{name:'Record independent practice'}).click();
+  await page.getByRole('button',{name:'Record ungraded practice'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.locator('#universal-test').getByRole('heading',{name:'Assess',exact:true}).waitFor();
-  assert.match(await page.locator('#universal-test').innerText(),/server-graded only/);
+  assert.match(await page.locator('#universal-test').innerText(),/server-graded question bank/);
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'guided',target:t,lab:{id:'TAPE-C01-L01'}})});
   assert.match(await page.locator('#universal-test').innerText(),/TAPE-C01-L01/);
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'assessment',target:t})});
   assert.equal(await page.locator('#universal-test').innerText(),'');
   assert.deepEqual(errors,[]);
-  console.log('PASS all-collection v3.2 nine-stage study browser contract at '+width+'px');
+  console.log('PASS all-collection v3.3 nine-stage study browser contract at '+width+'px');
   await page.close();
  }
 }finally{await browser.close()}

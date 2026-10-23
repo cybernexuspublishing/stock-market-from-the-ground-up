@@ -84,5 +84,5 @@ function mount({labId,mode,target}){
  next.addEventListener('click',()=>{if(stage===2&&!prediction){feedback.textContent='Lock your prediction before continuing.';return}if(stage<stages.length-1){stage++;show()}});
  show();return true;
 }
-root.GroundUpLabEngineV32=Object.freeze({mount,version:'3.2.0',referenceLabIds:Object.freeze(Object.keys(TYPES)),candleMetrics,weightedAverage});
+root.GroundUpLabEngineV32=Object.freeze({mount,version:'3.2.0',referenceLabIds:Object.freeze(Object.keys(TYPES)),kindFor:id=>TYPES[id]||null,lessons:Object.freeze(lessons),candleMetrics,weightedAverage});
 })(globalThis);

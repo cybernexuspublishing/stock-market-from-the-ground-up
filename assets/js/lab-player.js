@@ -40,7 +40,7 @@ function collectDecision(){return {structure:q('ev-structure')?.value.trim()||''
 function processScore(a){const items=[a.structure,a.location,a.volume,a.invalidation,a.decision,a.confidence,a.notes];return Math.round(items.filter(v=>v!==''&&v!==0).length/items.length*100)}
 function processBreakdown(a){return {structure:!!a.structure,location:!!a.location,volume_context:!!a.volume,invalidation:!!a.invalidation,decision:!!a.decision,confidence:!!a.confidence,reasoning:!!a.notes}}
 function renderGuidance(){const lab=PLAYER.lab;const target=q('guided-sequence');if(!target)return;const max=Math.min(PLAYER.revealIndex,lab.practiceSteps.length);target.innerHTML=lab.practiceSteps.slice(0,max).map((s,i)=>`<div class="guided-step"><span>${i+1}</span><p>${pe(s)}</p></div>`).join('');const b=q('reveal-next');if(b){if(max>=lab.practiceSteps.length){b.textContent='All guidance revealed';b.disabled=true}else b.textContent=`Reveal guided step ${max+1}`}}
-function lockDecision(){const a=collectDecision();if(!a.decision||!a.confidence){q('decision-msg').textContent='Choose a decision and confidence level before locking your answer.';q('decision-msg').className='inline-status error';return}PLAYER.locked=true;document.querySelectorAll('.decision-card textarea,.decision-card select').forEach(el=>el.disabled=true);q('lock-decision').disabled=true;q('decision-msg').textContent=`Decision locked. Process completeness: ${processScore(a)}%. This score measures whether you documented the process, not whether a trade outcome was profitable.`;q('decision-msg').className='inline-status success';q('reveal-panel').hidden=PLAYER.mode!=='guided';if(q('complete-attempt'))q('complete-attempt').disabled=PLAYER.mode==='assessment';PLAYER.revealIndex=PLAYER.mode==='guided'?1:0;renderGuidance();const assessmentBox=q('v014-training-slot');if(assessmentBox){const launchedLab=PLAYER.lab.id,launchedMode=PLAYER.mode,launchedBox=assessmentBox;window.GroundUpInteractiveTraining?.begin(launchedLab,launchedMode,assessmentBox).then(available=>{if(PLAYER.lab?.id!==launchedLab||PLAYER.mode!==launchedMode||q('v014-training-slot')!==launchedBox)return;if(!available&&PLAYER.mode!=='assessment')q('reveal-panel').hidden=false;if(!available&&PLAYER.mode==='assessment'){q('decision-msg').textContent='Assessment scoring is unavailable without a reviewed question bank. You may still practice in Guided Mode; completion is not graded.';}})}
+function lockDecision(){const a=collectDecision();if(!a.decision||!a.confidence){q('decision-msg').textContent='Choose a decision and confidence level before locking your answer.';q('decision-msg').className='inline-status error';return}PLAYER.locked=true;syncPlayerMode();document.querySelectorAll('.decision-card textarea,.decision-card select').forEach(el=>el.disabled=true);q('lock-decision').disabled=true;q('decision-msg').textContent=`Decision locked. Process completeness: ${processScore(a)}%. This score measures whether you documented the process, not whether a trade outcome was profitable.`;q('decision-msg').className='inline-status success';q('reveal-panel').hidden=PLAYER.mode!=='guided';if(q('complete-attempt'))q('complete-attempt').disabled=PLAYER.mode==='assessment';PLAYER.revealIndex=PLAYER.mode==='guided'?1:0;renderGuidance();const assessmentBox=q('v014-training-slot');if(assessmentBox){const launchedLab=PLAYER.lab.id,launchedMode=PLAYER.mode,launchedBox=assessmentBox;window.GroundUpInteractiveTraining?.begin(launchedLab,launchedMode,assessmentBox).then(available=>{if(PLAYER.lab?.id!==launchedLab||PLAYER.mode!==launchedMode||q('v014-training-slot')!==launchedBox)return;if(!available&&PLAYER.mode!=='assessment')q('reveal-panel').hidden=false;if(!available&&PLAYER.mode==='assessment'){q('decision-msg').textContent='Assessment scoring is unavailable without a reviewed question bank. You may still practice in Guided Mode; completion is not graded.';}})}
  q('reveal-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 function revealNext(){PLAYER.revealIndex=Math.min(PLAYER.lab.practiceSteps.length,PLAYER.revealIndex+1);renderGuidance()}
 async function saveAttempt(){const msg=q('attempt-msg');const access=PLAYER.access;if(!access.user){msg.textContent='Sign in to save attempts to your Market Skills Record.';msg.className='inline-status error';return}const a=collectDecision();const mistakes=[...document.querySelectorAll('input[name="mistake"]:checked')].map(x=>x.value);const reflection=q('reflection')?.value.trim()||'';const row={user_id:access.user.id,lab_id:PLAYER.lab.id,skill_code:PLAYER.lab.skill,mode:PLAYER.mode,decision:a.decision||null,confidence:a.confidence||null,evidence:{structure:a.structure,location:a.location,volume:a.volume},invalidation:a.invalidation||null,notes:a.notes||null,process_score:processScore(a),process_breakdown:processBreakdown(a),mistakes,reflection,book_number:Number(PLAYER.lab.book)};const {error}=await access.sb.from('lab_attempts').insert(row);if(error){msg.textContent=error.message;msg.className='inline-status error';return}await access.sb.from('lab_progress').upsert({user_id:access.user.id,lab_id:PLAYER.lab.id,status:'completed',score:null,updated_at:new Date().toISOString(),completed_at:new Date().toISOString()},{onConflict:'user_id,lab_id'});msg.innerHTML=`Attempt saved. <a href="skills.html">View your Market Skills Record</a>. Lab discussion is now unlocked for this attempt.`;msg.className='inline-status success';q('complete-attempt').disabled=true;if(q('discuss-lab'))q('discuss-lab').hidden=false}
@@ -77,12 +77,57 @@ function mountLabTutorLink(lab,mode){
  notice.textContent='Only general approved subject context is passed. No private questions, rubric, grades, future candles, or your written answers. Active Tutor access is required.';
  target.append(notice);
 }
-function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab=PLAYER.lab,mode=PLAYER.mode,advanced=['practice','blind','assessment'].includes(mode);const allowed=mode==='guided'?PLAYER.access.serverGuidedAllowed===true:PLAYER.access.serverAdvancedAllowed===true;document.querySelectorAll('.mode-tabs button').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.disabled=(b.dataset.mode!=='guided'&&!PLAYER.access.isMember)});q('player-mode-description').textContent=modeCopy(mode);if(!allowed){q('player-workspace').innerHTML=`<div class="card paywall-card"><h2>${mode==='guided'?'Guided lab access':'Learning Member feature'}</h2><p>${mode==='guided'?'This guided book lab is available to active Learning Members, readers who redeemed this book, and selected free samples.':'Practice, Blind Decision, and Assessment modes require active Full Learning Access.'}</p><div class="actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem a Book Key</a></div></div>`;return}
+function syncPlayerMode(){
+ const select=q('player-mode-select');if(!select)return;
+ const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
+ const restricted=PLAYER.locked||fraction>=1/3;
+ select.value=PLAYER.mode;select.disabled=restricted;
+ const label=q('player-mode-status');if(label)label.textContent=restricted?'Locked for this attempt':'Unlocked';
+}
+function inlineModeConfirmation(nextMode,allowChoice=false){
+ const target=q('player-mode-confirm');if(!target)return;
+ target.hidden=false;target.replaceChildren();
+ const title=document.createElement('strong');title.textContent='Changing mode restarts this attempt';
+ const summary=document.createElement('p');
+ summary.textContent='Unsaved teaching and answers will reset. Previously submitted server assessments are not deleted.';
+ const from=document.createElement('p');from.textContent='Current mode: '+PLAYER.mode;
+ const to=document.createElement('p');to.append(document.createTextNode('New mode: '));
+ const selected=document.createElement('strong');selected.className='gu-v33-selected-mode';selected.textContent=nextMode;to.append(selected);
+ target.append(title,summary,from,to);
+ let picker=null;
+ if(allowChoice){
+  const label=document.createElement('label');label.textContent='Select mode for the new attempt';
+  picker=document.createElement('select');picker.setAttribute('aria-label','New learning mode');
+  for(const [code,text] of [['guided','Guided'],['practice','Practice'],['blind','Blind Decision'],['assessment','Assessment']]){
+   const option=document.createElement('option');option.value=code;option.textContent=text;picker.append(option);
+  }
+  picker.value=nextMode;
+  picker.addEventListener('change',()=>{selected.textContent=picker.value});
+  label.append(picker);target.append(label);
+ }
+ const actions=document.createElement('div');actions.className='actions';
+ const cancel=document.createElement('button'),yes=document.createElement('button');
+ cancel.type=yes.type='button';cancel.className='btn secondary';yes.className='btn';
+ cancel.textContent='Cancel';yes.textContent='Yes, Continue';
+ cancel.addEventListener('click',()=>{target.hidden=true;target.replaceChildren();syncPlayerMode()});
+ yes.addEventListener('click',()=>{
+  const destination=picker?.value||nextMode;
+  target.hidden=true;target.replaceChildren();
+  PLAYER.mode=destination;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
+ });
+ actions.append(cancel,yes);target.append(actions);yes.focus();
+}
+
+function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab=PLAYER.lab,mode=PLAYER.mode,advanced=['practice','blind','assessment'].includes(mode);const allowed=mode==='guided'?PLAYER.access.serverGuidedAllowed===true:PLAYER.access.serverAdvancedAllowed===true;syncPlayerMode();q('player-mode-description').textContent=modeCopy(mode);if(!allowed){q('player-workspace').innerHTML=`<div class="card paywall-card"><h2>${mode==='guided'?'Guided lab access':'Learning Member feature'}</h2><p>${mode==='guided'?'This guided book lab is available to active Learning Members, readers who redeemed this book, and selected free samples.':'Practice, Blind Decision, and Assessment modes require active Full Learning Access.'}</p><div class="actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem a Book Key</a></div></div>`;return}
  const blind=mode==='blind'||mode==='assessment';const task=blind?'':(lab.goal?`<div class="notice"><strong>Book task:</strong> ${pe(lab.goal)}</div>`:'');const before=(mode==='guided'&&lab.beforeAdvance.length)?`<div class="card"><div class="eyebrow">Before You Advance</div>${lab.beforeAdvance.map(x=>`<p>${pe(x)}</p>`).join('')}</div>`:'';q('player-workspace').innerHTML=`<div class="lab-learning-split"><aside class="lab-learning-visual" aria-label="Chart and visual source"><div class="lab-learning-provenance">${portableVisual(lab)||'<div class="card"><h2>No verified chart attached</h2><p>This Lab has no approved source chart embedded. Use the book setup and observation boundary; do not treat a hypothetical or absent visual as real history. A chart must be approved before this Lab can pass full visual acceptance.</p></div>'}</div></aside><div class="lab-learning-content">${originalScenarioLink(lab)}<section class="card"><h2>Original companion competency guides</h2><p>Suggested study topics are separate from the approved book manuscript and graded answers.</p><div id="v01499-original-skills"></div></section><div class="card"><div class="eyebrow">Historical setup</div>${metadata(lab,blind)}${task}</div>${before}<section id="gu-v32-teaching-slot" aria-label="Lab Engine v3.2 learning reference"></section>${evidenceForm()}<div id="reveal-panel" class="card" hidden><div class="eyebrow">Book-guided sequence</div><h2>Reveal only after you committed your read.</h2><div id="guided-sequence"></div><div class="actions"><button class="btn secondary" id="reveal-next" type="button">Reveal next guided step</button></div>${lab.dataNote?`<p class="small"><strong>Data note:</strong> ${pe(lab.dataNote)}</p>`:''}</div><section id="v014-training-slot" class="dashboard-space"></section>${mistakePanel()}</div></div>`;
- const originalV32=window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
- if(!originalV32)void window.GroundUpLabEngineV32Universal?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab});
+ // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
+ // specialist is only a compatibility fallback if the universal script fails to load.
+ if(window.GroundUpLabEngineV32Universal){
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision'});
+ }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
+ syncPlayerMode();
  q('lock-decision').addEventListener('click',lockDecision);q('reveal-next').addEventListener('click',revealNext);q('complete-attempt').addEventListener('click',saveAttempt);q('discuss-lab').href=`forum.html?lab=${encodeURIComponent(lab.id)}`;
  if(PLAYER.access.user){PLAYER.access.sb.from('lab_attempts').select('id',{count:'exact',head:true}).eq('user_id',PLAYER.access.user.id).eq('lab_id',lab.id).then(({count})=>{if(count>0&&q('discuss-lab'))q('discuss-lab').hidden=false})}
 }
@@ -99,22 +144,22 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   const note=document.createElement('div');note.className='notice';
   note.textContent='This canonical Lab has member-authorized conceptual orientation, not independently approved historical teaching, licensed charts, or a reviewed assessment. No score or proficiency certification is implied.';
   q('player-access-note').replaceChildren(note);
- }else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess.SAMPLE_LABS.has(lab.id))q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';document.querySelectorAll('.mode-tabs button').forEach(b=>b.addEventListener('click',()=>{
-  const nextMode=b.dataset.mode;
-  if(nextMode===PLAYER.mode)return;
-  const raw=q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||'0';
-  const fraction=Number(raw);
-  if(PLAYER.locked||fraction>=1/3){
-   q('player-mode-description').textContent='Mode selection is locked once one-third of the instructional journey has begun or you have locked the Lab decision. Use Restart current mode to begin again; submitted server assessments are not deleted.';
-   return;
-  }
-  if(fraction>0&&!window.confirm('Switching modes will reset your unsaved on-page instruction. Server-submitted answers remain unchanged. Continue?'))return;
-  PLAYER.mode=nextMode;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
- }));
- q('player-restart-mode')?.addEventListener('click',()=>{
-  if(!window.confirm('Restart this on-page learning mode? Unsaved answers and study steps will be cleared. Any recorded server assessment remains intact.'))return;
-  PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
- });renderPlayer()}catch(e){q('lab-player-gate').innerHTML=`<div class="notice">${pe(e.message)}</div>`}}
+ }else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess.SAMPLE_LABS.has(lab.id))q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';q('player-mode-select')?.addEventListener('change',event=>{
+  const next=event.target.value;
+  if(next===PLAYER.mode)return;
+  const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
+  if(PLAYER.locked||fraction>=1/3){syncPlayerMode();return}
+  if(fraction>0)inlineModeConfirmation(next,false);
+  else{PLAYER.mode=next;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer()}
+ });
+ q('player-mode-help')?.addEventListener('click',()=>{
+  const panel=q('player-mode-description');panel.hidden=!panel.hidden;
+  q('player-mode-help').setAttribute('aria-expanded',String(!panel.hidden));
+  panel.textContent=modeCopy(PLAYER.mode);
+ });
+ q('player-restart-mode')?.addEventListener('click',()=>inlineModeConfirmation(PLAYER.mode,true));
+ document.addEventListener('gu-v33-stage-change',syncPlayerMode);
+ renderPlayer()}catch(e){q('lab-player-gate').innerHTML=`<div class="notice">${pe(e.message)}</div>`}}
 window.addEventListener('v014-training-complete',event=>{
  if(event.detail?.labId!==PLAYER.lab?.id)return;
  const reveal=q('reveal-panel');if(reveal){reveal.hidden=false;PLAYER.revealIndex=PLAYER.lab.practiceSteps.length;renderGuidance()}
