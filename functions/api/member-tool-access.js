@@ -10,7 +10,7 @@ export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDE
  // Legacy service-role JWTs support Bearer. Modern sb_secret_* values MUST only
  // be supplied as apikey; using them as JWT Authorization breaks PostgREST.
  const headers={apikey:c.secret,accept:'application/json'};
- if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;
+ if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;
  const profile=await ask(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+enc(user.id)+'&limit=1',{headers});if(profile[0]?.account_kind!=='member')return{authorized:false,userId:user.id,reason:'Only eligible production member accounts may use this tool.'};
  const flags=await ask(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+enc(user.id)+'&limit=1',{headers});
  if(['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))return {authorized:false,userId:user.id,reason:'Account access is restricted. Contact support.'};

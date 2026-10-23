@@ -33,13 +33,39 @@ const dbHeaders=c=>({apikey:c.secret,accept:'application/json',
 async function db(c,path){
  return jsonFetch(c.base+'/rest/v1/'+path,{headers:dbHeaders(c)});
 }
+/* Bound actual request bytes, even when content-length is missing or spoofed.
+ * A rejected body must not trigger a Stripe or Supabase request. */
+async function boundedPortalBody(request){
+ const header=request.headers.get('content-length');
+ if(header!==null&&(!/^[0-9]+$/.test(header)||Number(header)>1024))
+  throw fail('Request too large.',413);
+ if(!request.body||typeof request.body.getReader!=='function')
+  throw fail('JSON request body required.',400);
+ const reader=request.body.getReader(),pieces=[];let total=0;
+ try{
+  while(true){
+   const {done,value}=await reader.read();if(done)break;
+   if(!(value instanceof Uint8Array))throw fail('Invalid request body.',400);
+   total+=value.byteLength;
+   if(total>1024)throw fail('Request too large.',413);
+   pieces.push(value);
+  }
+ }catch(error){
+  try{await reader.cancel()}catch{}
+  throw error;
+ }finally{
+  try{reader.releaseLock()}catch{}
+ }
+ const bytes=new Uint8Array(total);let pos=0;
+ for(const part of pieces){bytes.set(part,pos);pos+=part.byteLength}
+ try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes)}
+ catch{throw fail('Invalid UTF-8 request body.',400)}
+}
 export async function onRequestPost({request,env}){
  try{
   const here=new URL(request.url),origin=request.headers.get('origin');
   if(origin!==here.origin)throw fail('Cross-origin billing request rejected.',403);
-  if(Number(request.headers.get('content-length')||0)>1024)throw fail('Request too large.',413);
-  const input=await request.text();
-  if(new TextEncoder().encode(input).length>1024)throw fail('Request too large.',413);
+  const input=await boundedPortalBody(request);
   let form;try{form=JSON.parse(input)}catch{throw fail('Invalid request.')}
   if(!form||Array.isArray(form)||typeof form!=='object'||
       Object.keys(form).some(k=>!['kind','recordId'].includes(k))||
