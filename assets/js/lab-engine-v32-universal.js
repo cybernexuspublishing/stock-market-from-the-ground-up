@@ -330,7 +330,8 @@ async function mount({labId,mode,target,lab,focusId}={}){
      answerStatus('Calculation completed · '+(practiceAssisted||practiceCount>0?'Assisted or corrected learning':'Unassisted practice')+'. This is not a private graded assessment.',true);
      stepList(special.steps);
     }
-    detail(body,'Teach This in More Depth — Always Free',special.steps.concat(['Frequent misconception: '+(subject?.error||guide.commonError),'The answer describes the fictional example; it does not predict the next bar.']));
+    const guided=detail(body,'Teach This in More Depth — Always Free',special.steps.concat(['Frequent misconception: '+(subject?.error||guide.commonError),'The answer describes the fictional example; it does not predict the next bar.']));
+    guided.addEventListener('toggle',()=>{if(guided.open)practiceAssisted=true});
    }else{
     const t=field(body,'Your independent observation and reasoning',practice);
     t.disabled=practiceResolved;
