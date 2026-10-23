@@ -43,4 +43,10 @@ assert.equal((html.match(/id="unified-nav"/g)||[]).length,1,'Single preview navi
 assert(!/innerHTML|MutationObserver|setInterval\(/.test(ui),'No unsanitized markup, observer loop or timer polling');
 assert(/admin-unified-core-v014156/.test(ui),'Only new module registry owns the preview');
 assert(!/admin-navigation\.js|admin-legacy-routing\.js|admin-platform\.js/.test(html),'Legacy navigation scripts cannot mount inside preview');
+const policySource=readFileSync('assets/js/route-policy.js','utf8');
+await import('data:text/javascript;base64,'+Buffer.from(policySource).toString('base64'));
+assert.equal(globalThis.GroundUpRoutePolicy.classify('/admin-unified-preview.html'),'staff',
+ 'Cloudflare and Service Worker must treat the new Admin route as protected');
+assert.equal(globalThis.GroundUpRoutePolicy.isProtected('/admin-unified-preview'),'true'===String(true),
+ 'Unversioned preview route must be protected');
 console.log('PASS D16 Admin shell registry, fail-closed permissions, read-only fresh-session API, XSS-safe preview');
