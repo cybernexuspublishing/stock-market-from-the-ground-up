@@ -39,6 +39,7 @@ jobs:
           node tests/test_v014155_release_metadata.mjs
           node tests/test_v014156_admin_shell.mjs
           node tests/test_v014156_admin_service_key_compatibility.mjs
+          node tests/test_v014161_d17_admin_legacy_keys.mjs
           node --check scripts/deployment18_acceptance_matrix.mjs
           node --check assets/js/admin-unified-preview-v014156.mjs
       - name: Audit screenshot-derived eight-SKU catalog without LIVE certification

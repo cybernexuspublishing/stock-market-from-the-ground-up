@@ -45,6 +45,7 @@ jobs:
           node --check scripts/deployment17_source_security_readiness.mjs
           node tests/test_v014160_d17_source_asset_audit.mjs
           node tests/test_v014160_d17_support_authorization.mjs
+          node tests/test_v014161_d17_admin_legacy_keys.mjs
       - name: Reconcile all Owner requirements against evidence without auto-accepting
         run: node scripts/deployment17_requirements_reconciliation.mjs
       - name: Inventory full website source, routes, and local assets
