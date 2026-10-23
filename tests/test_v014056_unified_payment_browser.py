@@ -10,6 +10,11 @@ with sync_playwright() as pw:
  browser=pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium' if Path('/usr/bin/chromium').exists() else None,args=['--no-sandbox'])
  page=browser.new_page()
  page.set_content(html)
+ # Match real admin.html: SITE_CONFIG is loaded before the isolated Stripe
+ # Admin script. The test must assert the release-visible label accurately.
+ from json import loads
+ expected_version=loads((ROOT/'release-manifest.json').read_text())['version']
+ page.evaluate("(version)=>{window.SITE_CONFIG={VERSION:version}}",expected_version)
  page.evaluate("""()=>{
   window.ADMIN={ctx:{roles:['OWNER'],permissions:['commerce.view']}};
   window.confirm=()=>true;
@@ -65,8 +70,6 @@ with sync_playwright() as pw:
  assert counts['audits']==2,counts
  assert counts['reconciles']==1,counts
  assert counts['checkoutCalls']==0,counts
- from json import loads
- expected_version=loads((ROOT/'release-manifest.json').read_text())['version']
  assert f'Payment testing interface v{expected_version}' in page.locator('#gu39-shadow').inner_text(), 'Visible console version must match current release'
  print('PASS v56: Owner one complete review, blocked unresolved attempt, guarded TEST-only resolution and zero payment attempts.')
  browser.close()
