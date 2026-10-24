@@ -276,7 +276,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    const askButton=el('button',label,'btn secondary gu-v33-instructor-suggestion');
    askButton.type='button';
    askButton.setAttribute('aria-label','Ask Talia: '+label.replace(/^Talia, /,''));
-   listen(askButton,'click',()=>teachDirect('Talia explains: '+label.replace(/^Talia, /,''),lines,label));
+   listen(askButton,'click',()=>teachDirect('Talia’s explanation',lines,label));
    suggestions.append(askButton);
   }
  }
@@ -301,7 +301,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const narration=label+'\n\n'+lines.join('\n\n');
   reserve.textContent=narration;accessible.textContent=narration;
   stopTyping?.();stopTyping=animate(visual,narration,false,skip);
-  memberQuestion.textContent='You asked Talia: '+(requested||label);
+  memberQuestion.textContent='You asked: '+(requested||label);
   reply.textContent='Talia has answered your question. The lesson question remains available below.';
   return true;
  }
