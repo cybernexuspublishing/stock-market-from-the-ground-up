@@ -288,11 +288,28 @@ function lesson(input={}){
  const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(material.guide?.code);
  const outcomes=objectives(material,category);
  let blocks=[];
- if(stage===0)blocks=[
-  'Here is what you will learn and demonstrate in this lesson:',
-  ...outcomes.map((outcome,index)=>(index+1)+'. '+outcome),
-  'We will begin with definitions and a visual demonstration on the Learn screen. You do not need to know these terms or answer questions yet.'
- ];
+ if(stage===0){
+  // Start previews the journey. It does not test, demonstrate calculations or
+  // demand knowledge the member has not yet learned.
+  if(category==='candle')blocks=[
+   'First, I’ll show you the four prices that make one candlestick, and how to find its body and wicks.',
+   'Next, we’ll learn to measure the body, full range and wicks using the chart itself.',
+   'Finally, we’ll learn what a completed candle can tell us, and why one candle cannot promise the next move.',
+   'I’ll teach each step on the Learn screen, and then you can practice with me. Nothing to calculate or answer just yet.'
+  ];
+  else if(category==='vwap')blocks=[
+   'We’ll start by discovering what a volume-weighted average is and why the number of traded shares matters.',
+   'Then I’ll show you the prices, share counts and reference line on a chart before we calculate them.',
+   'Finally, we’ll practice describing what a price-to-VWAP comparison shows—and what it does not prove.',
+   'We’ll explore the visual together on the next screen. No questions or calculations yet.'
+  ];
+  else blocks=[
+   'We’ll begin with what '+named+' means. I’ll introduce the words you need before asking you to use them.',
+   'Next, I’ll show you how to recognize the important details in an example and work through the method.',
+   'Finally, you’ll try the skill, spot a common mistake and learn what the available evidence cannot prove.',
+   'You can start without prior knowledge. I’ll teach before asking you to practice.'
+  ];
+ }
  else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra,
   ...(caseStudy?.steps?.length?['We will apply this method to a separate illustrative worked case.']:[])];
  else if(stage===2)blocks=[base.explanation[0],base.experiment,'Describe what the manipulated input changes and what it does not establish.'];
