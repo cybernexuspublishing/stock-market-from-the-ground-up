@@ -236,13 +236,24 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    type,feature,concept,guide:lessonContext.guide
   });
   featureLesson=plan;featurePhase=0;
-  const short=[
+  const exact=root.GroundUpLabV34InteractiveLessons?.referenceIntro?.(type);
+  const startsReference=stage===1&&exact&&(
+   (type==='candle'&&feature==='all')||
+   (type==='vwap'&&feature==='price')
+  );
+  const short=startsReference?[
+   exact.title+'. Here is what you will learn.',
+   exact.term+': '+exact.definition,
+   'Why it matters: '+exact.why,
+   'Follow this separate fictional demonstration: '+exact.example,
+   ...exact.steps.map((value,i)=>'Step '+(i+1)+': '+value),
+   'Remember this limitation: '+exact.caution
+  ].join('\n\n'):[
    plan.title+'.',
    'What it means: '+plan.definition,
    'Why it matters: '+plan.why,
    'Look at the highlighted illustration: '+plan.method,
-   // In the approved reference an example precedes every practice prompt.
-   // This is free formative teaching, not a protected Assess answer key.
+   // Each clicked feature shows its worked example BEFORE the question.
    'Worked example: '+plan.example
   ].join('\n\n');
   reserve.textContent=short;
