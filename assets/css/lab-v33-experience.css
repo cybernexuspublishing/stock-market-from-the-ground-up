@@ -170,3 +170,77 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-primary{
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-tutor{min-height:40px!important}
 @media(max-width:770px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:490px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-fields{grid-template-columns:1fr}body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Owner-approved reference v3.2 teaching flow on ALL guided Labs.
+   One integrated chart/controls/Talia/answers surface, not a side card.
+   All interactive steps remain in the same hierarchy on mobile. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson{
+ display:block!important;grid-template-columns:none!important;width:100%;min-width:0;
+ margin:0 0 16px;padding:0;border:0;background:transparent;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic{
+ display:block;max-width:100%;width:100%;min-width:0;
+ overflow:visible;padding:18px 19px;border:1px solid #456b84;
+ background:#11283c;border-radius:13px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor{
+ display:block!important;position:static!important;max-width:100%;width:100%;
+ margin:12px 0 16px!important;padding:12px 14px!important;
+ border:1px solid #52758f!important;border-radius:11px!important;
+ background:#122e42!important;box-shadow:none!important;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-head{
+ margin-bottom:9px;padding-bottom:9px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-narration{
+ min-height:260px;max-height:none;overflow:visible!important;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-reserve{
+ min-height:250px!important;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-dialogue{
+ grid-area:2/1;margin:10px 10px 12px!important;border:1px solid #3f667e;
+ background:#122a3f;padding:12px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-interactive-tools{
+ display:flex;flex-wrap:wrap;gap:7px;margin:10px 0;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-view-btn{
+ flex:0 0 auto;min-height:34px;padding:6px 10px;font-size:.81rem;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference-layout,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson svg{
+ max-width:100%;min-width:0;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-topic-tools{
+ display:flex;gap:7px;flex-wrap:wrap;padding:8px 0 12px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-topic-button{
+ min-width:0;min-height:34px!important;padding:6px 10px!important;
+ border:1px solid #537890;border-radius:7px;background:#173c52;color:#f0f7fa;
+ font-size:.78rem;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-topic-button:focus-visible,
+body.gu-lab-member #gu-v32-teaching-slot .gu-l33-view-btn:focus-visible{
+ outline:3px solid #9de9ff;outline-offset:2px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson
+ .gu-v33-instructor-dialogue textarea{
+ width:100%!important;max-width:100%;min-height:80px;
+}
+@media(max-width:760px){
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic{
+  padding:12px 10px;
+ }
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor{
+  padding:10px!important;
+ }
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-narration{
+  min-height:240px;
+ }
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-reserve{
+  min-height:230px!important;
+ }
+}
