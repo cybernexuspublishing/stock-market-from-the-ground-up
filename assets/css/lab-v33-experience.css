@@ -788,3 +788,21 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
  }
  :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-start-candle{min-height:215px}
 }
+
+
+/* Talia's one-step-at-a-time guided narration, not a long scrolling answer. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-instructor-steps {
+ display:flex;gap:9px;align-items:center;justify-content:flex-end;
+ flex:1 1 400px;flex-wrap:wrap;
+ border-top:1px solid #3f657b;padding:10px 2px 2px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-instructor-steps[hidden] {display:none!important}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-instructor-step-count {
+ color:#f3d588;font-weight:750;font-size:.85rem;font-variant-numeric:tabular-nums;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-instructor-steps button {
+ padding:8px 12px;min-height:38px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v40-instructor-steps button:focus-visible {
+ outline:3px solid #a7ebfc;outline-offset:2px;
+}
