@@ -203,6 +203,7 @@ function create({type,stage=1,variant='default'}={}){
  if(!TYPE_SET.has(type)||type==='none')return null;
  if(type==='candle')return candle(
   variant==='worked'?{o:20,hv:22,l:19,c:21.2}
+   :variant==='bearish'?{o:32,hv:32.5,l:30.5,c:31}
    :variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined,
   !(variant==='practice'||variant==='transfer')
  );
