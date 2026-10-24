@@ -19,7 +19,10 @@ class El {
  addEventListener(){}
  focus(){}
 }
-const sources={'/data/competency-lab-paths-v01499.json':mapping,'/data/competency-study-guides-v01499.json':guides};
+const bridges=JSON.parse(readFileSync('data/lab-teaching-bridges-v014168.json','utf8'));
+assert.equal(Object.keys(bridges.entries).length,419,'Canonical shared teaching content must cover 419 IDs');
+const sources={'/data/competency-lab-paths-v01499.json':mapping,'/data/competency-study-guides-v01499.json':guides,
+ '/data/lab-teaching-bridges-v014168.json':bridges};
 const c={globalThis:null,document:{createElement:(x)=>new El(x)},fetch:async u=>({ok:!!sources[u],json:async()=>sources[u]})};c.globalThis=c;
 runInNewContext(readFileSync('assets/js/lab-engine-v32-universal.js','utf8'),c);
 const api=c.GroundUpLabEngineV32Universal;
