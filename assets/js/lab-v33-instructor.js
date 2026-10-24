@@ -442,7 +442,15 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  if(stage===1&&plan?.check){
   const startCheck=el('button','Check my understanding','btn secondary gu-v35-understanding');
   startCheck.type='button';
-  listen(startCheck,'click',askUnderstanding);
+  listen(startCheck,'click',()=>{
+   // Restore the supporting VWAP overlay before asking the learner to
+   // interpret the weighted reference, even if Price-only was selected.
+   if(lessonContext.visualType==='vwap'&&typeof CustomEvent==='function')
+    rootEl.dispatchEvent?.(new CustomEvent('gu-v36-show-check-evidence',{
+     bubbles:true,detail:{type:'vwap'}
+    }));
+   askUnderstanding();
+  });
   rootEl.append(startCheck);
  }
  // The common-mistake request is a clickable instructor-chat suggestion
