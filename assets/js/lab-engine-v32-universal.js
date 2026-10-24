@@ -218,6 +218,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
  function render(){
+  shell.querySelector?.(':scope > .gu-v33-setup')?.remove?.();
   instructorInstance?.dispose?.();instructorInstance=null;
   body.replaceChildren();mark('');showJourney();
   const names={0:'Start — Your personal learning session',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
@@ -238,10 +239,18 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
-  previous.hidden=stage===0;next.textContent=stage===0?'Begin '+(kind==='candle'?'Candlestick':kind==='vwap'?'VWAP':'Learning')+' Lesson →':'Next learning stage';
+  previous.hidden=stage===0;
+  next.textContent=stage===0?'Start Guided Learning →':'Next learning stage';
+  next.classList.toggle('gu-v33-start-primary',stage===0);
+  nav.querySelector?.('.gu-v33-start-tutor')?.remove?.();
+  if(stage===0&&instructorInstance?.openTutor){
+   const tutorAction=button('Ask Market Tutor',()=>instructorInstance?.openTutor?.());
+   tutorAction.className='btn secondary gu-v33-start-tutor';
+   nav.append(tutorAction);
+  }
 
   if(stage===0){
-   // Avery's accessible type-on-screen introduction owns the outcomes,
+   // Talia's accessible type-on-screen introduction owns the outcomes,
    // first explanation and the one-to-one learning invitation. Do not
    // duplicate generic "Recognize and explain: Explain X" bullets here.
    // The book Lab setup must be visible on arrival, not buried behind
@@ -459,6 +468,25 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    appendParagraph(body,'Resume or save official member progress through the existing authenticated Lab controls; this self-study widget does not write server grades or credit entitlements.');
    body.append(button('Review related competency guide',()=>{location.href='skills.html#guide-'+encodeURIComponent(codes[0]||'')})); 
   }
+  // Setups appear BEFORE the Start title, not buried below the instructor.
+  if(stage===0){
+   const setup=body.querySelector?.('.gu-v33-setup');
+   if(setup)shell.insertBefore(setup,heading);
+  }
+  // Follow-up teaching and ungraded checks belong BELOW the primary
+  // instructor/chart workspace, not inside its narration panel.
+  if(stage===1){
+   const coach=body.querySelector?.('.gu-v33-instructor');
+   const worked=coach?.querySelector?.('.gu-v33-instructor-worked');
+   const check=coach?.querySelector?.('.gu-v33-instructor-check');
+   if(worked||check){
+    const extension=el('section');extension.className='gu-v33-teaching-followup';
+    extension.setAttribute('aria-label','Worked example and comprehension check');
+    if(worked)extension.append(worked);
+    if(check)extension.append(check);
+    body.append(extension);
+   }
+  }
   // Shared chart-first learning workspace: draw the relevant visual beside
   // the instructor, followed by context, the learner task, and review.
   // Never shift protected Assessment or replay revelation controls.
@@ -476,6 +504,18 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   }else if(stage===3){
    const chart=body.querySelector('.gu-l33-graphic');
    if(chart)body.insertBefore(chart,body.firstChild);
+  }
+  const followups=body.querySelector?.('.gu-v33-teaching-followup');
+  if(followups)body.insertBefore(followups,body.children[1]||null);
+  // Coach the member through one protected evidence field at a time. This
+  // shortcut never grades or submits anything and preserves the form's IDs.
+  if([2,3,4,6,7,8].includes(stage)){
+   const prompt=button('Record your observation',()=>{
+    document.dispatchEvent?.(new CustomEvent('gu-v33-open-evidence',
+     {detail:{stage}}));
+   });
+   prompt.className='btn secondary gu-v33-evidence-shortcut';
+   body.append(prompt);
   }
   previous.disabled=stage===0;next.disabled=stage===8;
  }
