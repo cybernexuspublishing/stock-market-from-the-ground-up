@@ -95,7 +95,10 @@ function dayFor(d,i){
  if(d.code==='foundations30'){
   const originalDay=current.get(day);
   return Object.freeze({...originalDay,programCode:d.code,programDay:day,sourceDay:day,
-   phase:'learn',mode:'guided',assessmentSource:'protected_lab_assessment_only'});
+   phase:'learn',phaseLabel:'Original 30-day guided learning',mode:'guided',
+   method:[originalDay.observe,originalDay.practice],limitation:originalDay.caution,
+   officiallyGraded:false,masteryAwarded:false,
+   assessmentSource:'protected_lab_assessment_only'});
  }
  let sourceDay,topic,objective,practice,observe;
  if(d.metadata.modules){
