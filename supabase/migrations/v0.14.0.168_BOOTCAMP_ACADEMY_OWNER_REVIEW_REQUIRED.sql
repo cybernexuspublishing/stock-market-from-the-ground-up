@@ -51,9 +51,9 @@ BEGIN
   WHEN 'truth5' THEN 5 WHEN 'watchlist7' THEN 7 WHEN 'scanners10' THEN 10
   WHEN 'charts45' THEN 45 WHEN 'risk60' THEN 60 WHEN 'practicum90' THEN 90
   ELSE NULL END;
- IF p_user IS NULL OR max_day IS NULL OR p_version<>'0.14.0.168'
- OR p_action NOT IN ('enroll','start','save_reflection')
- OR (p_action='enroll' AND p_day<>0)
+ IF p_user IS NULL OR max_day IS NULL OR p_version IS DISTINCT FROM '0.14.0.168'
+ OR p_action IS NULL OR p_action NOT IN ('enroll','start','save_reflection')
+ OR (p_action='enroll' AND p_day IS DISTINCT FROM 0)
  OR (p_action<>'enroll' AND (p_day IS NULL OR p_day NOT BETWEEN 1 AND max_day))
  THEN RAISE EXCEPTION 'Unknown Academy program, curriculum revision, day, or action';
  END IF;
