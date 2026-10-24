@@ -176,7 +176,7 @@ function fromGuide(input){
  const limit=clean(subject.limit||g.limit,650);
  const invalidation=clean(g.invalidation,650);
  const paragraphs=[
-  sentence('The focus of this lesson is '+concept),
+  sentence('Today we are learning about '+concept),
   definition?sentence(definition):'Begin with the defined observation and its timeframe.',
   reason?sentence(reason):'Before interpreting a result, identify which facts are actually observable.',
   method.length?sentence('Apply the method in order: '+method.map((v,i)=>(i+1)+'. '+v).join(' ')):procedure?sentence('Apply the procedure: '+procedure):'Record the observation and state what could disprove your conclusion.'
