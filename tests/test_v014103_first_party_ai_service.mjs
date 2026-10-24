@@ -89,7 +89,12 @@ try{
   assert(sql.includes(token),'Private AI budget invariant missing: '+token);
  }
  const ui=readFileSync(new URL('../assets/js/market-tutor.js',import.meta.url),'utf8');
- assert(ui.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),'Consent must reset for EVERY question');
+ assert(ui.includes("allowModel:$('tutor-ai-consent')?.checked===true"),
+  'Paid AI calls require an explicitly enabled member preference on each request');
+ assert(ui.includes("Keep the member's Profile preference after each Tutor request."),
+  'Preserve the Owner-approved persistent Tutor preference instead of clearing it after each answer');
+ assert(!ui.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),
+  'Do not erase the member-selected profile preference between questions');
  assert(!ui.includes('priorTurns:TUTOR.entries.filter'), 'Forged client Tutor turns must not be forwarded');
  assert(!sql.includes('UPDATE public.competency'),'AI quota must not award official skills');
  assert(!sql.includes('INSERT INTO public.gu_member_tutor_exchanges'),'Do not duplicate installed v102 private history');
