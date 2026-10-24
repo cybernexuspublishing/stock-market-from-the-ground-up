@@ -358,6 +358,35 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  function answerStatus(label,good){
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
+ function attachWallet(){
+   const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Crownlight Sparks Wallet'));
+   const metrics=el('div');metrics.className='grid2';
+   const fields={};
+   for(const [key,name,note] of [['included','Included','Eligible Sparks expire 60 days after their billing period ends'],['purchased','Purchased','Purchased Sparks do not expire'],['manual','Owner-adjusted','Account adjustments recorded by the Owner']]){
+    const unit=el('div');unit.className='metric';unit.append(el('span',name));
+    const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
+   }
+   wallet.append(metrics);
+   const balanceState=el('p','Sign in to check your Crownlight Sparks balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
+   appendParagraph(wallet,'Reveal or Skip uses one Crownlight Spark per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
+   if(typeof creditRequest==='function'){
+    balanceState.textContent='Checking your credit balance…';
+    void creditRequest({action:'balance'}).then(data=>{
+     if(!wallet.isConnected)return;
+     const info=data?.balance;
+     if(!info||!Number.isInteger(info.included)||!Number.isInteger(info.purchased))throw Error('No verified Crownlight Sparks balance.');
+     fields.included.textContent=String(info.included);
+     fields.purchased.textContent=String(info.purchased);
+     fields.manual.textContent=String(Number.isInteger(info.manual)?info.manual:0);
+     balanceState.textContent=String(info.available)+' available'+
+      (info.nextExpiry?' · Next included-credit expiry: '+new Date(info.nextExpiry).toLocaleDateString():'');
+    }).catch(error=>{
+     if(wallet.isConnected)balanceState.textContent=String(error?.message||'Balance unavailable. No credit is charged.');
+    });
+   }
+   if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
+   else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Crownlight Sparks Wallet'),wallet);body.append(walletDisclosure);}
+ }
  function render(){
   // Start places its help tabs next to the primary action outside the
   // replaceable body. Remove those old nodes when the stage changes,
@@ -428,38 +457,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    }
    // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
-   const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Crownlight Sparks Wallet'));
-   const metrics=el('div');metrics.className='grid2';
-   const fields={};
-   for(const [key,name,note] of [['included','Included','Eligible Sparks expire 60 days after their billing period ends'],['purchased','Purchased','Purchased Sparks do not expire'],['manual','Owner-adjusted','Account adjustments recorded by the Owner']]){
-    const unit=el('div');unit.className='metric';unit.append(el('span',name));
-    const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
-   }
-   wallet.append(metrics);
-   const balanceState=el('p','Sign in to check your Crownlight Sparks balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
-   appendParagraph(wallet,'Reveal or Skip uses one Crownlight Spark per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
-   if(typeof creditRequest==='function'){
-    balanceState.textContent='Checking your credit balance…';
-    void creditRequest({action:'balance'}).then(data=>{
-     if(!wallet.isConnected)return;
-     const info=data?.balance;
-     if(!info||!Number.isInteger(info.included)||!Number.isInteger(info.purchased))throw Error('No verified Crownlight Sparks balance.');
-     fields.included.textContent=String(info.included);
-     fields.purchased.textContent=String(info.purchased);
-     fields.manual.textContent=String(Number.isInteger(info.manual)?info.manual:0);
-     balanceState.textContent=String(info.available)+' available'+
-      (info.nextExpiry?' · Next included-credit expiry: '+new Date(info.nextExpiry).toLocaleDateString():'');
-    }).catch(error=>{
-     if(wallet.isConnected)balanceState.textContent=String(error?.message||'Balance unavailable. No credit is charged.');
-    });
-   }
-   if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
-   else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Crownlight Sparks Wallet'),wallet);body.append(walletDisclosure);}
+   attachWallet();
 
   }else if(stage===1){
    // The instructor and chart are the lesson; do not repeat the same
    // content underneath as an isolated wall of generic competency text.
    showVisual(1,topic==='Bearish Candle'?'bearish':'default');freeExplanation();guidedHelp();
+   attachWallet();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
