@@ -53,11 +53,13 @@ try{
   await root.getByRole('button',{name:'Lock my prediction'}).click();
   await root.getByRole('button',{name:'Next learning stage'}).click();
   await root.getByRole('heading',{name:/Practice —/}).waitFor();
-  await submit(good);
-  assert.match(await progress().textContent(),/Question 2 of 2/);
+  await submit('1');
+  assert.match(await progress().textContent(),/Question 2 of 3/);
   await submit('9999');
-  assert.match(await progress().textContent(),/Question 2 of 2/,'Wrong calculation must not advance');
-  assert.match(await dialogue.locator('.gu-v33-instructor-reply').textContent(),/Review the calculation/);
+  assert.match(await progress().textContent(),/Question 2 of 3/,'Wrong calculation must not advance');
+  assert.match(await dialogue.locator('.gu-v33-instructor-reply').textContent(),/Let’s correct range/);
+  await submit('2');
+  assert.match(await progress().textContent(),/Question 3 of 3/);
   await submit('50');
   await root.getByRole('heading',{name:/Assess —/}).waitFor();
   assert.equal(await root.locator('.gu-v33-instructor-dialogue').count(),0,'Assessment remains protected');
