@@ -269,10 +269,14 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  }
  function stepList(steps){const ol=el('ol');for(const s of steps)ol.append(el('li',s));body.append(ol)}
  function showVisual(step,variant='default'){
-  // The illustrated source is always synthetic. Actual verified market
-  // history comes only from the protected, separately reviewed visual feed.
-  if(visualType==='none')return;
-  const view=root.GroundUpLabV33Contextual?.create?.({type:visualType,stage:step,variant});
+  // The illustrated source is always fictional. The competency-based
+  // worked-case viewer covers the Labs without an appropriate OHLC chart.
+  // No future private bars, graded questions or unverified history is shown.
+  const specific=visualType==='none'?null:
+   root.GroundUpLabV33Contextual?.create?.({type:visualType,stage:step,variant});
+  const view=specific||root.GroundUpLabV34CompetencyExamples?.create?.({
+   code:guide.code,title:topic,stage:step
+  });
   if(view)body.append(view);
  }
  function lessonPlan(section=1){
