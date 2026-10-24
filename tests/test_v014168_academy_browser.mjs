@@ -89,4 +89,54 @@ try{
    await context.close();
   }
  }
+ // Concurrent enrollment must not allow an old member's server reply to
+ // relabel a newly signed-in account as enrolled or restore old private notes.
+ const context=await browser.newContext({viewport:{width:1280,height:900},
+  serviceWorkers:'block',reducedMotion:'reduce'});
+ const page=await context.newPage();
+ const code='truth5';
+ let release=null;
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',async route=>{
+  const url=new URL(route.request().url());
+  if(url.origin!==base)return route.abort();
+  if(url.pathname==='/assets/js/supabase-client.js')
+   return route.fulfill({status:200,contentType:'application/javascript',body:stub});
+  if(['/assets/js/site.js','/assets/js/session-manager.js'].includes(url.pathname))
+   return route.fulfill({status:200,contentType:'application/javascript',body:'/* isolated auth fixture */'});
+  if(url.pathname==='/api/bootcamp-academy'){
+   if(route.request().method()==='GET'){
+    const requested=url.searchParams.get('program');
+    const result=requested
+     ?{ok:true,version:ACADEMY_VERSION,program:academyByCode[code],
+       curriculum:academyByCode[code].curriculum,
+       progressAvailable:true,enrolled:false,progress:[]}
+     :{ok:true,version:ACADEMY_VERSION,programs:academyCatalog};
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
+   }
+   const input=route.request().postDataJSON();assert.equal(input.action,'enroll');
+   await new Promise(resolve=>{release=resolve});
+   return route.fulfill({status:200,contentType:'application/json',
+    body:JSON.stringify({ok:true,enrolled:true,program:code})});
+  }
+  return route.continue();
+ });
+ await page.goto(base+'/bootcamp-academy.html?program='+code,{waitUntil:'domcontentloaded'});
+ await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
+ await page.locator('#academy-enroll').click();
+ await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.disabled===true);
+ await page.waitForFunction(()=>document.querySelector('#academy-save-status')!==null);
+ await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
+ await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
+ assert.equal(await page.locator('#academy-reflection').inputValue(),'');
+ assert.equal(typeof release,'function','The delayed previous-member enrollment was never intercepted');
+ const response=page.waitForResponse(r=>r.url().includes('/api/bootcamp-academy')&&r.request().method()==='POST');
+ release();await response;
+ await page.waitForTimeout(75);
+ assert.equal(await page.locator('#academy-workspace').getAttribute('hidden'),'');
+ assert.equal(await page.locator('#academy-save-status').innerText(),'');
+ assert.equal(await page.locator('#academy-reflection').inputValue(),'');
+ assert.deepEqual(errors,[],'Enrollment reply must be harmless after account switch');
+ console.log('PASS Academy delayed previous-member enrollment cannot contaminate a new member session');
+ await context.close();
 }finally{await browser.close()}
