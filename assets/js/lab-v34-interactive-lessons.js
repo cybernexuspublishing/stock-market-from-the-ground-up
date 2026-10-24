@@ -131,10 +131,46 @@ const lessons=Object.freeze({
 });
 const aliases={body:'body',range:'range',percent:'percent',all:'all',open:'open',close:'close',high:'high',low:'low',
  price:'price',both:'both',volume:'volume',prints:'prints',quotes:'quotes',order:'order'};
-function get({type='',feature='',concept='',guide={}}={}){
+function get({type='',feature='',concept='',guide={},labId='',bridge=null,teaching={}}={}){
  const subject=clean(concept,120)||clean(guide.title,120)||'market evidence';
  const key=aliases[feature]||feature;
  const found=lessons[type]?.[key];
+ // Boot Camp daily objectives override the related Lab's instructional
+ // topic, without changing that Lab's independent official assessment.
+ const own=teaching&&typeof teaching==='object'&&typeof teaching.what==='string'&&
+  teaching.what.trim().length>20?teaching:null;
+ if(own&&['understand','recognize','apply','mistake','limits'].includes(key)){
+  const steps=Array.isArray(own.how)?own.how.filter(x=>typeof x==='string'&&x.trim()).slice(0,5):[];
+  const phrases={
+   understand:['Our lesson is '+subject+'.',clean(own.what,550),
+    'Why we are studying this: '+clean(own.why||own.when||own.what,550)],
+   recognize:['Let us look for the evidence behind '+subject+'.',clean(own.when||own.why,550),
+    'Find the exact source, timestamp and visible units before making any claim.'],
+   apply:['Now let us practice '+subject+'.',
+    ...steps.map((line,i)=>'Step '+(i+1)+' — '+clean(line,650)),
+    'Our practice objective: '+clean(own.what,550)],
+   mistake:['A common mistake to avoid while practicing '+subject+':',
+    clean(own.commonError||'Treating a missing or unverified value as observed evidence.',550),
+    'Try the method again: '+clean(steps[0]||own.when||own.what,550)],
+   limits:['What this lesson does not establish:',
+    clean(own.limitation||'A completed example cannot verify a future result or actual execution.',550),
+    'Your reflection and attendance do not grant official competency mastery.']
+  };
+  return {...(found||lessons.candle.all),title:subject+' — '+key,
+   script:phrases[key].filter(Boolean).join('\n\n'),concept:subject,
+   type,feature:key,verifiedHistory:false,editorialFallback:false};
+ }
+ // Original public instructional bridges — no individual private grade or
+ // verified source bar is claimed by an editorially provisional crosswalk.
+ if(bridge&&bridge.labId===labId&&bridge.tabs&&
+    ['understand','recognize','apply','mistake','limits'].includes(key)&&
+    Array.isArray(bridge.tabs[key])&&bridge.tabs[key].length>=3){
+  const plan=found||lessons.candle.all;
+  return {...plan,title:bridge.title+' — '+key,
+   script:bridge.tabs[key].filter(x=>typeof x==='string').join('\n\n'),
+   concept:subject,type,feature:key,verifiedHistory:false,
+   sourceStatus:bridge.sourceStatus,editorialFallback:false};
+ }
  if(type==='candle'&&Object.prototype.hasOwnProperty.call(candleTabs,key)){
   const base=lessons.candle.all;
   const bearish=/\bbearish\b|\bdown candle\b/i.test(subject);
