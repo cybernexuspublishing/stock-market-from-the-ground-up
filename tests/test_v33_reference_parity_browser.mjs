@@ -80,6 +80,17 @@ try{
   await host.getByRole('button',{name:/Start Guided Learning/}).click();
   const candleNarration=await host.locator('.gu-v33-instructor-accessible').first().textContent();
   assert(!candleNarration.includes('The focus of this lesson is F2-C07-L01'));
+  // Source-derived worked examples operate on the same chart and are narrated.
+  const steps=host.locator('.gu-v35-chart-worked');
+  assert.equal(await steps.count(),1);
+  assert.match(await steps.locator('.gu-v35-worked-counter').textContent(),/Step 1 of/);
+  await steps.getByRole('button',{name:'Next worked step'}).click();
+  assert.match(await steps.locator('.gu-v35-worked-counter').textContent(),/Step 2 of/);
+  await steps.getByRole('button',{name:'Show and explain on chart'}).click();
+  assert.match(await host.locator('.gu-v33-instructor-prompt').textContent(),/What does this worked step demonstrate/);
+  assert.equal(await host.getByRole('button',{name:'Explain This Concept'}).count(),1);
+  await host.getByRole('button',{name:'Explain This Concept'}).click();
+  assert.match(await host.locator('.gu-v33-instructor-prompt').textContent(),/most important lesson/);
   // One reference teaching-game node: chart highlight activates Talia's
   // typed concept instruction, answer, worked correction, then the next node.
   await host.getByRole('button',{name:'Open',exact:true}).click();
