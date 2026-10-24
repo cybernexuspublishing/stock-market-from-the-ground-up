@@ -45,17 +45,16 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia Mercer, your virtual learning instructor, and Market Tutor');
- const title=el('h3','Talia Mercer — Your Learning Instructor');
- const tag=el('span','Virtual course guide · One-to-one teaching','gu-v33-instructor-tag');
+ const title=el('h3','Talia');
  const head=el('div',undefined,'gu-v33-instructor-head');
- const avatar=el('span','TM','gu-v33-instructor-avatar');
+ const avatar=el('span','T','gu-v33-instructor-avatar');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
- identity.append(title,tag);
+ identity.append(title);
  head.append(avatar,identity);rootEl.append(head);
  // Accept only explicitly provided first-name fields. Never derive the form of
  // address from a username, display name, email, or the member's login handle.
@@ -66,7 +65,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   ...lessonContext,stage,concept
  })||null;
  const introduction=stage===0
-  ?('Hello'+(firstName?', '+firstName:'')+'. I’m Talia Mercer, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
+  ?('Hello'+(firstName?', '+firstName:'')+'. I’m Talia, your instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
   :stage===1
    ?((firstName?firstName+', let’s':'Let’s')+' work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.')
    :stage===2
@@ -86,11 +85,48 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // Full lesson narration remains immediately available to assistive technology.
  // The animated copy is visual-only to avoid dozens of screen reader updates.
  const accessible=el('p',full,'gu-v33-instructor-accessible');
+ const transcript=el('div',undefined,'gu-v33-instructor-narration');
+ const reserve=el('p',full,'gu-v33-instructor-reserve');reserve.setAttribute('aria-hidden','true');
  const visual=el('p',undefined,'gu-v33-instructor-typing');visual.setAttribute('aria-hidden','true');
+ transcript.append(reserve,visual);
  const controls=el('div',undefined,'gu-v33-instructor-controls');
  const skip=el('button','Show full text');skip.type='button';skip.className='btn secondary gu-v33-instructor-skip';
  controls.append(skip);
- rootEl.append(accessible,visual,controls);
+ rootEl.append(accessible,transcript,controls);
+ // Guided reflections are educational and local to this lesson instance.
+ // They never call the authenticated grading endpoint or reveal private rubrics.
+ const promptText=stage===0
+  ?'Before beginning, which completed chart observations will help you recognize '+String(concept||subject).slice(0,90)+'? Explain why those observations matter.'
+  :stage===1&&plan?.check?.question
+   ?'Explain your reasoning: '+plan.check.question
+   :stage===2
+    ?'Which observable input changed, and why does that change the interpretation?'
+    :stage===4
+     ?'What evidence supports your practice conclusion, and what could contradict it?'
+     :stage===6
+      ?'What did you misunderstand, and why is the corrected method more reliable?'
+      :stage===7
+       ?'How did you apply this concept to the unfamiliar case without assuming an unseen outcome?'
+       :'Which evidence-based skill can you now explain in your own words, and what remains uncertain?';
+ const interaction=el('section',undefined,'gu-v33-instructor-dialogue');
+ interaction.setAttribute('aria-label','Answer Talia’s learning question');
+ interaction.append(el('label',promptText,'gu-v33-instructor-prompt'));
+ const reflection=el('textarea');reflection.rows=3;reflection.maxLength=1500;
+ reflection.placeholder='Explain what you observed, why it matters, and what you cannot determine.';
+ reflection.value=typeof initialReflection==='string'?initialReflection:'';
+ interaction.append(reflection);
+ const reply=el('div',undefined,'gu-v33-instructor-reply');reply.setAttribute('role','status');
+ const submitReflection=el('button','Submit answer','btn secondary gu-v33-instructor-submit');submitReflection.type='button';
+ listen(submitReflection,'click',()=>{
+  const value=reflection.value.trim();
+  if(value.length<20){reply.textContent='Explain your reasoning in at least 20 characters so I can follow your interpretation.';return;}
+  onReflection?.(value);
+  const includesWhy=/\b(because|since|therefore|shows|indicates|suggests|however|although|whereas|as a result)\b/i.test(value);
+  reply.textContent=includesWhy
+   ?'Your explanation is recorded in this learning session. Now compare the evidence against another interpretation and identify a condition that would change your conclusion.'
+   :'Your observation is recorded. Add why that evidence supports your interpretation and what additional evidence would change your view.';
+ });
+ interaction.append(submitReflection,reply);rootEl.append(interaction);
  const stopTyping=animate(visual,full,seen,skip);
  const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
  objectivesPanel.append(el('h4','Your learning objectives'));
@@ -152,7 +188,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   if(plan.limitation)other.append(el('p','What you cannot conclude: '+plan.limitation));
   rootEl.append(other);
  }
- if(plan?.sourceNote)rootEl.append(el('p',plan.sourceNote,'gu-v33-instructor-provenance'));
+ // Example provenance remains in the Lab source-information area, not the instructor dialogue.
  let pending=null,disposed=false;
  const tutor=el('section',undefined,'gu-v33-tutor');
  tutor.append(el('h4','Ask Market Tutor about this concept'));
