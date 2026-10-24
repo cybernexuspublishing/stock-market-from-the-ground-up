@@ -275,7 +275,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     const note=el('p','Exercise setup from the Lab registry. Historical candle prices must be validated against an approved intraday data source.');
     note.className='gu-v33-setup-note';setup.append(note);body.append(setup);
    }
-   // Learning objectives are now delivered directly by Avery in the
+   // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
    const metrics=el('div');metrics.className='grid2';
@@ -552,6 +552,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   const followups=body.querySelector?.('.gu-v33-teaching-followup');
   if(followups){const anchor=body.querySelector?.('.gu-v33-stage-hero, .gu-v33-instructor');
    body.insertBefore(followups,anchor?.nextSibling||null);
+   const explanations=body.querySelector?.('.gu-v33-help-tabs');
+   if(explanations)body.insertBefore(explanations,followups.nextSibling);
   }
   // Coach the member through one protected evidence field at a time. This
   // shortcut never grades or submits anything and preserves the form's IDs.
