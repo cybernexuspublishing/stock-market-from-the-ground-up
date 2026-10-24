@@ -91,3 +91,18 @@
 #gu-v32-teaching-slot .gu-v33-instructor > .gu-v33-instructor-typing{height:clamp(320px,44vh,480px);max-height:480px;overflow-y:auto;scrollbar-gutter:stable}
 #gu-v32-teaching-slot .gu-v33-tutor-answer .gu-v33-instructor-typing{height:230px;max-height:230px;overflow-y:auto}
 @media(max-width:690px){#gu-v32-teaching-slot .gu-v33-instructor > .gu-v33-instructor-typing{height:320px;max-height:320px}}
+
+/* v3.3.3: fully expanded text without nested scrollbars or typing-induced jump. */
+#gu-v32-teaching-slot .gu-v33-instructor-narration{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto;min-height:clamp(420px,52vh,640px);background:#0c2031;border:1px solid #456980;border-radius:9px}
+#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-reserve,
+#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-typing{grid-area:1/1;margin:0!important;padding:16px 19px;min-width:0;font-size:1rem;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;border:0!important;border-radius:0!important;background:transparent!important}
+#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-reserve{visibility:hidden;min-height:420px}
+#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-typing{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;scrollbar-width:none}
+#gu-v32-teaching-slot .gu-v33-instructor-dialogue{margin-top:16px;padding:14px 15px;border-top:1px solid #456980;background:#112c40;border-radius:8px}
+#gu-v32-teaching-slot .gu-v33-instructor-prompt{display:block;font-weight:650;line-height:1.55;color:#f0f7ff;margin:0 0 10px}
+#gu-v32-teaching-slot .gu-v33-instructor-dialogue textarea{display:block;resize:vertical;max-width:100%;min-height:100px;padding:11px 13px;border:1px solid #4d728b;background:#0b2133;border-radius:8px;color:#fff;font:inherit}
+#gu-v32-teaching-slot .gu-v33-instructor-dialogue button{margin-top:11px;min-height:36px;padding:7px 13px;font-size:.85rem}
+#gu-v32-teaching-slot .gu-v33-instructor-reply:not(:empty){padding:12px 0;color:#d2e8f5;line-height:1.55}
+#gu-v32-teaching-slot .gu-v33-instructor-controls button{min-height:34px;padding:6px 11px}
+#gu-v32-teaching-slot .gu-v33-instructor-identity h3{font-size:1.06rem}
+@media(max-width:690px){#gu-v32-teaching-slot .gu-v33-instructor-narration{min-height:340px}#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-reserve{min-height:340px}#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-typing{height:auto!important;max-height:none!important}}
