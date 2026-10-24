@@ -1,0 +1,34 @@
+/* Authentication clarity and member AI learning preference — v3.3.1.
+   No security gate is bypassed by placement or styling. */
+.gu-signin-page{padding:32px 0 64px;min-height:calc(100vh - 85px)}
+.gu-signin-page .auth-page{max-width:580px;margin:0 auto;padding:0 clamp(14px,3vw,25px)}
+.gu-signin-page .auth-page>.eyebrow{margin-bottom:4px}
+.gu-signin-page .auth-page>h1{font-size:clamp(2rem,4vw,2.8rem);line-height:1.15;margin:4px 0 8px;color:#fff}
+.gu-signin-page .section-intro{font-size:.97rem;line-height:1.5;margin:0 0 18px}
+.gu-signin-page .gu-signin-card{width:100%;max-width:none;padding:clamp(20px,4vw,29px);border:1px solid #42617b;border-radius:16px;background:#0e283f;box-shadow:0 14px 35px rgba(0,0,0,.25)}
+.gu-signin-page .gu-signin-card form{display:block;min-width:0}
+.gu-signin-page .gu-signin-card form>label{display:block;font-weight:700;margin:14px 0 6px}
+.gu-signin-page .gu-signin-card input:not([type=checkbox]){display:block;width:100%;min-width:0;min-height:48px;background:#102033;border:1px solid #53758b;color:#f6fcff;border-radius:9px;padding:12px 13px;box-shadow:none}
+.gu-signin-page .gu-signin-card input:focus-visible{outline:3px solid #99d8f8;outline-offset:2px}
+.gu-signin-page .gu-signin-card .auth-submit{width:100%;display:block;min-height:50px;text-align:center;margin:24px 0 18px;padding:11px 15px;background:#e8ba49;border:2px solid #f5d788;border-radius:10px;color:#14202c;font-weight:800;font-size:1.02rem;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.23)}
+.gu-signin-page .gu-signin-card .auth-submit:hover:not(:disabled){background:#f7cc69}
+.gu-signin-page .gu-signin-card .auth-submit:focus-visible{outline:3px solid #a4e4ff;outline-offset:3px}
+.gu-signin-page .gu-signin-card .auth-submit:disabled{opacity:.67;cursor:not-allowed;box-shadow:none}
+.gu-signin-page .gu-manual-human{background:transparent;border:0;border-top:1px solid #46647b;border-radius:0;padding:17px 0 0;margin:8px 0 0;width:100%;min-width:0}
+.gu-signin-page .gu-manual-human legend{float:none;padding:0 7px 0 0;font-size:.9rem;font-weight:700;color:#f5d17b}
+.gu-signin-page .gu-human-check{font-size:.94rem;min-height:44px;gap:11px}
+.gu-signin-page .gu-manual-human .small{font-size:.81rem;line-height:1.5}
+.gu-signin-page #v135-turnstile{width:100%;max-width:100%;min-height:0;overflow-x:auto;scrollbar-width:thin}
+.gu-signin-page #v135-auth-captcha-status{margin:9px 0 3px;font-size:.85rem;min-height:0;overflow-wrap:anywhere;color:#e5cb82}
+.gu-signin-page .auth-links{border-top:1px solid #38576f;padding-top:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.gu-signin-page .auth-links>*{font-size:.91rem}
+.gu-signin-page .auth-subpanel{border-top:1px solid #38576f}
+.gu-ai-preference{margin-top:20px;max-width:100%;box-shadow:none}
+.gu-ai-setting-row{display:flex;align-items:flex-start;gap:13px;padding:12px 0;cursor:pointer}
+.gu-ai-setting-row input{width:20px;height:20px;flex:none;margin:4px 0 0;accent-color:#e9bf50}
+.gu-ai-setting-row span{display:block;min-width:0}
+.gu-ai-setting-row strong{display:block;font-size:1rem;line-height:1.45;color:#f3f9fc}
+.gu-ai-setting-row small{display:block;margin-top:6px;color:#b7cde0;font-size:.85rem;line-height:1.55}
+.gu-ai-setting-row:focus-within{outline:2px solid #8cd4ed;outline-offset:5px}
+#profile-tutor-ai-status{min-height:1.25rem}
+@media(max-width:370px){.gu-signin-page .auth-page{padding:0 11px}.gu-signin-page .gu-signin-card{padding:16px}.gu-signin-page .auth-links{flex-direction:column;gap:7px}}
