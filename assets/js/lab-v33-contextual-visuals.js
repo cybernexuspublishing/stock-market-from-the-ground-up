@@ -90,6 +90,26 @@ function candle(options,showResult=true){
   const row=h('div');row.append(text('span',name),text('strong',value));data.append(row)
  }
  root.append(data,text('p','Body = |Close − Open|. Range = High − Low. Percentage = (body ÷ range) × 100. Doji and wick proportions matter; body percentage alone does not predict direction.','gu-l33-takeaway'));
+ // A worked example can switch between DIFFERENT fictional cases while
+ // preserving the same SVG element and the original highlight controls.
+ // No real ticker, privately assessed answer or future market data is used.
+ root.setTeachingCandle=values=>{
+  const o=Number(values?.o),hv=Number(values?.hv),l=Number(values?.l),c=Number(values?.c);
+  if(![o,hv,l,c].every(Number.isFinite)||hv<Math.max(o,c)||l>Math.min(o,c)||hv<=l)return false;
+  const host=document.createElement('div');host.innerHTML=candleSVG({o,hv,l,c});
+  const existing=main.querySelector('svg'),updated=host.querySelector('svg');
+  if(!existing||!updated)return false;
+  existing.innerHTML=updated.innerHTML;
+  existing.setAttribute('aria-label',updated.getAttribute('aria-label'));
+  const shape=Math.abs(c-o),width=hv-l;
+  const valuesText=[usd(o),usd(hv),usd(l),usd(c),usd(shape),usd(width),
+   width?(100*shape/width).toFixed(1)+'%':'N/A'];
+  Array.from(data.children).forEach((row,i)=>{
+   const result=row.querySelector('strong');
+   if(result)result.textContent=valuesText[i];
+  });
+  return true;
+ };
  return root;
 }
 function path(points){return points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')}
