@@ -94,7 +94,10 @@ CREATE OR REPLACE FUNCTION public.gu_founder_cast_design_vote_v014176(p_ballot_i
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $vote$
 DECLARE uid uuid:=auth.uid(); b public.gu_founder_design_ballots_v014176%rowtype;
 BEGIN
- IF NOT public.gu_founder_commons_access_v014174('council') THEN RETURN jsonb_build_object('ok',false,'error','COUNCIL_REQUIRED');END IF;
+ IF NOT public.gu_founder_commons_access_v014174('council')
+ OR NOT EXISTS (SELECT 1 FROM public.gu_founder_members_v014173
+    WHERE user_id=uid AND earned_plan_code='FOUNDING_60' AND revoked_at IS NULL)
+ THEN RETURN jsonb_build_object('ok',false,'error','COUNCIL_REQUIRED');END IF;
  IF p_ballot_id IS NULL OR p_choice IS NULL OR length(p_choice) NOT BETWEEN 1 AND 100
  THEN RETURN jsonb_build_object('ok',false,'error','INVALID_CHOICE'); END IF;
  SELECT * INTO b FROM public.gu_founder_design_ballots_v014176 WHERE id=p_ballot_id;
