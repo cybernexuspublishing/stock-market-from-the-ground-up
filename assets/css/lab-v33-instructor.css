@@ -40,3 +40,16 @@
 #gu-v32-teaching-slot .gu-v33-instructor-check-feedback{font-size:.83rem!important;line-height:1.6!important;color:#d4eecf!important}
 #gu-v32-teaching-slot .gu-v33-instructor-provenance{font-size:.76rem!important;line-height:1.4!important;color:#bfd0dd!important;margin:11px 0 0!important}
 @media(max-width:760px){#gu-v32-teaching-slot .gu-v33-instructor-worked,#gu-v32-teaching-slot .gu-v33-instructor-check{padding:11px}}
+
+/* Avery: named virtual learning instructor with practical one-to-one guidance. */
+#gu-v32-teaching-slot .gu-v33-instructor-head{justify-content:flex-start;align-items:center;gap:11px}
+#gu-v32-teaching-slot .gu-v33-instructor-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#19577b,#16765c);color:#f4fcff;border:1px solid #5998a6;font:700 1.13rem/1 system-ui,sans-serif}
+#gu-v32-teaching-slot .gu-v33-instructor-identity{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+#gu-v32-teaching-slot .gu-v33-instructor-identity h3{margin:0;font-size:1.04rem;line-height:1.35}
+#gu-v32-teaching-slot .gu-v33-instructor-identity .gu-v33-instructor-tag{font-size:.72rem;line-height:1.4}
+#gu-v32-teaching-slot .gu-v33-instructor-objectives,#gu-v32-teaching-slot .gu-v33-instructor-alternative{border:1px solid #325a72;border-radius:8px;background:#112b3e;padding:10px 12px;margin:11px 0;color:#dcebf4}
+#gu-v32-teaching-slot .gu-v33-instructor-objectives summary,#gu-v32-teaching-slot .gu-v33-instructor-alternative summary{cursor:pointer;font-size:.86rem;font-weight:700}
+#gu-v32-teaching-slot .gu-v33-instructor-objectives ol{padding-left:22px;line-height:1.6;margin:9px 0 0}
+#gu-v32-teaching-slot .gu-v33-instructor-objectives li{margin:7px 0;font-size:.85rem}
+#gu-v32-teaching-slot .gu-v33-instructor-alternative p{font-size:.85rem;line-height:1.55;margin:9px 0}
+@media(max-width:520px){#gu-v32-teaching-slot .gu-v33-instructor-avatar{width:36px;height:36px}#gu-v32-teaching-slot .gu-v33-instructor-identity h3{font-size:.94rem}#gu-v32-teaching-slot .gu-v33-instructor-identity .gu-v33-instructor-tag{font-size:.69rem}}
