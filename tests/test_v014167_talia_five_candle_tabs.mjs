@@ -41,7 +41,20 @@ assert(instructor.includes('custom?.narration||plan.script||'),
  'Authored tab narration must precede generic fallback');
 assert(instructor.includes("candleFormula&&!plan.script"),
  'Tab scripts must not receive a duplicate catch-all formula');
+const guidance={
+ code:'CANDLE_BASICS',title:'Market Structure',concept:'Describe observable price structure.',
+ procedure:'Mark the highs, lows and closes of the visible candles.',
+ commonError:'Do not confuse a wick with a completed close.',
+ limit:'One candle cannot establish a full trend.'
+};
+const generic=['understand','recognize','apply','mistake','limits']
+ .map(feature=>api.get({type:'general',feature,concept:'Market Structure',guide:guidance}).script);
+assert.equal(new Set(generic).size,5,'Unreviewed canonical competency guides must still have five distinct, source-bound teachings');
+assert(generic.every(x=>typeof x==='string'&&x.length>80));
+assert(generic[3].includes('wick'));
+assert(generic[4].includes('One candle cannot establish a full trend'));
 const ref=api.referenceIntro('candle');
+assert.equal(ref.steps.length,9,'One-to-one reference candle now has nine fully explained mathematical steps');
 assert(ref.example.includes('order is unknown'),
  'Never fabricate which OHLC extreme happened first');
 assert(ref.steps.some(x=>x.includes('Close − Open = Body')),
