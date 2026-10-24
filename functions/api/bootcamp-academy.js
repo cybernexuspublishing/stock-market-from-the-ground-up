@@ -85,7 +85,15 @@ export async function onRequest({request,env}){
     enrolled=enrollment.length===1&&enrollment[0].status==='active'&&enrollment[0].program_version===ACADEMY_VERSION;
     const stored=await db(env,'gu_bootcamp_academy_progress_v014168?select=day_number,status,revision,reflection,started_at,updated_at&user_id=eq.'+
      encodeURIComponent(auth.userId)+'&program_code=eq.'+encodeURIComponent(code)+'&order=day_number.asc&limit='+program.days);
-    if(!Array.isArray(stored)||stored.some(x=>!Number.isInteger(x.day_number)||x.day_number<1||x.day_number>program.days))
+    // A verified number of saved notes requires valid, unique revisions.
+    // Reject corrupt or partial backend data instead of inventing a count.
+    if(!Array.isArray(stored)||new Set(stored.map(x=>x.day_number)).size!==stored.length||
+     stored.some(x=>!Number.isSafeInteger(x.day_number)||x.day_number<1||x.day_number>program.days||
+      !Number.isSafeInteger(x.revision)||x.revision<1||
+      !['in_progress','reflection_saved'].includes(x.status)||
+      (x.status==='reflection_saved'&&
+       (typeof x.reflection!=='string'||x.reflection.trim().length<80||x.reflection.trim().length>2000))||
+      (x.status==='in_progress'&&x.reflection!==null)))
      throw Error('Invalid private progress data');
     rows=stored.map(x=>({day:x.day_number,status:x.status,revision:x.revision,reflection:x.reflection,
      startedAt:x.started_at,updatedAt:x.updated_at}));
