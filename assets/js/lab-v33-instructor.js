@@ -45,7 +45,7 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -342,7 +342,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   listen(passCancel,'click',()=>{passPending='';passConfirmation.hidden=true;passFeedback.textContent='No credit used.'});
   listen(passConfirm,'click',async()=>{
    if(passBusy||passUsed||!passPending||passAvailable<1)return;
-   passBusy=true;passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
+   passBusy=true;onCreditPending?.(true);passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
    submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
    passFeedback.textContent='Confirming your Question Pass…';
@@ -363,7 +363,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     passReveal.disabled=passSkip.disabled=passAvailable<1;
     submitReflection.disabled=false;
    }finally{
-    passBusy=false;passConfirm.disabled=false;
+    passBusy=false;onCreditPending?.(false);passConfirm.disabled=false;
    }
   });
   listen(passContinue,'click',()=>{
