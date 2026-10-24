@@ -618,31 +618,31 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
 @media (min-width: 1160px){
  body.gu-lab-member>#app>.shell{max-width:1880px}
  body.gu-lab-member>#app>.gu-lab-breadcrumb{max-width:1880px}
- body.gu-lab-member>#app .gu-v34-unified-lesson{
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson{
   display:grid!important;
   grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
   align-items:start;gap:clamp(12px,1.3vw,24px);
  }
- body.gu-lab-member>#app .gu-v34-unified-lesson>.gu-l33-graphic,
- body.gu-lab-member>#app .gu-v34-unified-lesson>.gu-v33-instructor{
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic,
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-instructor{
   min-width:0;width:100%;max-width:none;margin:0!important;
  }
- body.gu-lab-member>#app .gu-v34-unified-lesson>.gu-v33-instructor{
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-instructor{
   align-self:stretch;max-height:min(79vh,1020px);
   overflow-y:auto;overscroll-behavior:contain;
  }
- body.gu-lab-member>#app .gu-v34-unified-lesson .gu-v33-instructor-narration{
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-narration{
   min-height:0!important;
  }
 }
 @media (min-width: 1160px) and (max-width: 1400px){
- body.gu-lab-member>#app .gu-v34-unified-lesson{
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson{
   grid-template-columns: minmax(0,1fr) minmax(0,1fr)!important;
  }
 }
 /* Embedded Labs must respect the iframe's actual available width. */
 @media (min-width: 1160px){
- html.gu-lab-embedded body.gu-lab-member>#app .gu-v34-unified-lesson{
+ html.gu-lab-embedded body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson{
   display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
  }
 }
