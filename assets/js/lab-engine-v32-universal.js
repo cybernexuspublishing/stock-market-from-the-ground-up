@@ -146,6 +146,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  let instructorInstance=null;
  token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
  const narratedStages=new Set();
+ const learnerReplies=new Map();
  function mark(message){status.textContent=message}
  function showJourney(){
   journey.replaceChildren();
@@ -235,7 +236,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const instructor=root.GroundUpLabV33Instructor.create({
     stage,subject:tutorTopic||'observable market evidence',concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
-    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage)
+    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
+    initialReflection:learnerReplies.get(stage)||'',onReflection:value=>learnerReplies.set(stage,value)
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -260,13 +262,15 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    if(setupFields.length){
     const setup=el('section');setup.className='gu-v33-setup';
     setup.append(el('h3','Historical Lab Setup'));
-    const facts=el('div');facts.className='lab-fact-grid';
+    const facts=el('dl');facts.className='gu-v33-setup-fields';
     for(const [name,value] of setupFields){
-     const fact=el('div');fact.append(el('span',name),el('strong',value));facts.append(fact);
+     const fact=el('div');fact.className='gu-v33-setup-field';
+     const term=el('dt',name+':');const description=el('dd',value);
+     fact.append(term,description);facts.append(fact);
     }
     setup.append(facts);
-    const note=el('p','These fields describe the original Lab setup, not independently verified market history.');
-    note.className='small';setup.append(note);body.append(setup);
+    const note=el('p','Exercise setup from the Lab registry. Historical candle prices must be validated against an approved intraday data source.');
+    note.className='gu-v33-setup-note';setup.append(note);body.append(setup);
    }
    // Learning objectives are now delivered directly by Avery in the
    // typed instructor panel. No second competing 'What you will learn' card.
@@ -484,9 +488,59 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    if(worked||check){
     const extension=el('section');extension.className='gu-v33-teaching-followup';
     extension.setAttribute('aria-label','Worked example and comprehension check');
-    if(worked)extension.append(worked);
-    if(check)extension.append(check);
-    body.append(extension);
+    const tablist=el('div');tablist.className='gu-v33-teaching-tabs';
+    tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','Demonstration and comprehension');
+    const panels=[worked,check].filter(Boolean);
+    panels.forEach((panel,i)=>{
+     const tab=button(i===0&&worked? 'Worked example':'Check your understanding',()=>show(i));
+     tab.setAttribute('role','tab');tab.setAttribute('aria-controls','gu-v33-learning-panel-'+i);
+     tab.setAttribute('aria-selected','false');
+     panel.setAttribute('role','tabpanel');panel.id='gu-v33-learning-panel-'+i;
+     panel.hidden=true;
+     tab.addEventListener('keydown',e=>{
+      if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+      e.preventDefault();
+      const j=e.key==='Home'?0:e.key==='End'?panels.length-1:(i+(e.key==='ArrowRight'?1:-1)+panels.length)%panels.length;
+      show(j);tablist.children[j].focus();
+     });
+     tablist.append(tab);
+    });
+    function show(index){
+     panels.forEach((panel,i)=>{
+      panel.hidden=i!==index;
+      tablist.children[i].setAttribute('aria-selected',String(i===index));
+     });
+    }
+    extension.append(tablist,...panels);show(0);body.append(extension);
+   }
+   const names=new Set(['Explain This Concept','Show a Guided Example','Try Another Example','Teach This in More Depth']);
+   const guides=Array.from(body.querySelectorAll('details')).filter(d=>names.has(d.querySelector('summary')?.textContent.trim()));
+   if(guides.length){
+    const area=el('section');area.className='gu-v33-help-tabs';
+    area.setAttribute('aria-label','Additional learning explanations');
+    const tabs=el('div');tabs.className='gu-v33-help-tablist';
+    tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Learning explanations');
+    guides.forEach((guide,i)=>{
+     const label=guide.querySelector('summary').textContent.trim();
+     const tab=button(label,()=>activate(i));tab.setAttribute('role','tab');
+     tab.setAttribute('aria-selected','false');tab.setAttribute('aria-controls','gu-v33-help-panel-'+i);
+     const labelNode=guide.querySelector('summary');labelNode.remove();
+     guide.open=true;guide.id='gu-v33-help-panel-'+i;guide.setAttribute('role','tabpanel');guide.hidden=true;
+     tab.addEventListener('keydown',e=>{
+      if(!['ArrowRight','ArrowLeft','Home','End'].includes(e.key))return;
+      e.preventDefault();
+      const j=e.key==='Home'?0:e.key==='End'?guides.length-1:(i+(e.key==='ArrowRight'?1:-1)+guides.length)%guides.length;
+      activate(j);tabs.children[j].focus();
+     });
+     tabs.append(tab);
+    });
+    function activate(index){
+     guides.forEach((guide,i)=>{
+      guide.hidden=i!==index;
+      tabs.children[i].setAttribute('aria-selected',String(i===index));
+     });
+    }
+    area.append(tabs,...guides);body.append(area);
    }
   }
   if(stage===0){
