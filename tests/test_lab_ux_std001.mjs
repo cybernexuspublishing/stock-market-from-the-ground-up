@@ -42,7 +42,9 @@ for(const label of ['Explain This Concept','Teach This in More Depth','Show a Gu
 for(const piece of ['The price associated with','No answer keys, conceptual hints','server-graded question bank'])
  assert(read('assets/js/lab-player.js').includes(piece)||universal.includes(piece)||read('assets/js/lab-engine-v33-visual.js').includes(piece),piece+' protected flow not located');
 assert(js.includes("!(variant==='practice'||variant==='transfer')"),'Practice/Transfer numerical result must remain masked before answer');
-assert(js.includes('FICTIONAL • STUDY ONLY'),'Never present invented price data as real historical market evidence');
+assert(js.includes("text('span','SIMULATED • STUDY ONLY','gu-l33-badge')")&&
+ js.includes('not live EMA9/EMA20 history')&&js.includes('This is NOT actual trade-level VWAP'),
+ 'Do not present simulated price diagrams or approximate VWAP/EMA as authenticated historical evidence');
 assert(!js.includes('/api/interactive-training'),'Fictional visual library must not call the official assessment API');
 const html=read('lab-player.html');
 assert(html.includes('assets/js/lab-v33-contextual-visuals.js'));
