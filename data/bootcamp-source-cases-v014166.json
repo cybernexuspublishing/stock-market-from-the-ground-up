@@ -1,0 +1,67 @@
+{
+  "version": "0.14.0.166",
+  "status": "original-primary-source-learning-cases",
+  "dataIntegrity": "Issuer publication dates, SEC rules and public filing availability are verified only for explicitly stated scope; no implied historical OHLCV or observed profit.",
+  "cases": [
+    {
+      "day": 1,
+      "heading": "How day-trading margin rules changed in 2026",
+      "sourceName": "FINRA — New Intraday Margin Requirements",
+      "sourceUrl": "https://syndication.finra.org/content/understanding-new-intraday-margin-requirements",
+      "published": "2026-04-20",
+      "observation": "The revised requirements took effect June 4, 2026, with firms permitted a transition through October 20, 2027. A broker may still be applying the earlier pattern-day-trader requirements during the transition.",
+      "practice": "Look up your own broker's current written margin policy. Separate cash-account settlement from margin-account intraday exposure and note which standard your actual account uses.",
+      "limit": "The FINRA notice does not establish your broker's migration date or any customer's buying power."
+    },
+    {
+      "day": 6,
+      "heading": "How a trading halt changes what a quote can tell you",
+      "sourceName": "SEC — Rule 605 Frequently Asked Questions, April 2026",
+      "sourceUrl": "https://www.sec.gov/rules-regulations/staff-guidance/trading-markets-frequently-asked-questions/frequently-asked-questions-rule-605-regulation-nms",
+      "published": "2026-04-01",
+      "observation": "The SEC addresses reporting treatment of orders received before and during announced trading halts. A displayed quote alone cannot establish that an order would have executed.",
+      "practice": "Compare a working limit order with a separately labeled announced-halt state. Explain which parts of the sequence are observable and which require order-status records.",
+      "limit": "Rule 605 reporting rules are not a demonstration of an individual's historical fills."
+    },
+    {
+      "day": 7,
+      "heading": "Locate the announcement before interpreting the chart",
+      "sourceName": "Creative Realities — April 28, 2020 issuer announcement",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/creative-realities-inc-unveils-non-contact-ai-enabled-temperature-detection-solution-to-assist-businesses-in-safely-reopening-301048696.html",
+      "published": "2020-04-28",
+      "observation": "Creative Realities published an issuer announcement at 3:01 p.m. Eastern on April 28, 2020. The announcement described a non-contact temperature-detection product launch.",
+      "practice": "Write a two-column timeline: verified release timestamp on one side, and a blank market-observation column for prices that must come from an independently checked intraday feed.",
+      "limit": "The issuer's announcement is evidence of an announcement and its claims—not verification of the stock's price movement or the product's performance."
+    },
+    {
+      "day": 20,
+      "heading": "Why a halt matters when evaluating a fast move",
+      "sourceName": "SEC — Limit Up-Limit Down Plan and Associated Events",
+      "sourceUrl": "https://www.sec.gov/about/divisions-offices/division-economic-risk-analysis/staff-papers-analyses/10mar17_moise_flaherty_luld",
+      "published": "2017-03-10",
+      "observation": "The SEC's research describes trading pauses and limit-state activity associated with unusually rapid price movement. It does not establish that any particular move was caused by short covering.",
+      "practice": "In a practice timeline, mark the observation point, a possible regulatory pause, uncertain reopening price, and a no-trade alternative.",
+      "limit": "This research is historical background rather than a current security-specific halt record or evidence of a short squeeze."
+    },
+    {
+      "day": 24,
+      "heading": "Find a company's actual SEC filing",
+      "sourceName": "SEC — Search Filings (EDGAR)",
+      "sourceUrl": "https://www.sec.gov/search-filings",
+      "published": null,
+      "observation": "The SEC provides free public searches for company filings by name, ticker, or CIK. Each located filing must be checked for the correct issuer, form, date and acceptance timing.",
+      "practice": "Find an original 10-K or 10-Q from a company of your choice. Record the accession number, filing form and date, then explain what the document does and does not prove.",
+      "limit": "A filing's timestamp is not itself the first moment every market participant saw its contents."
+    },
+    {
+      "day": 28,
+      "heading": "Separate a dated news event from a claimed trading result",
+      "sourceName": "Creative Realities — April 28, 2020 issuer announcement",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/creative-realities-inc-unveils-non-contact-ai-enabled-temperature-detection-solution-to-assist-businesses-in-safely-reopening-301048696.html",
+      "published": "2020-04-28",
+      "observation": "The documented 3:01 p.m. Eastern announcement gives a time anchor for a market-reaction study. It does not supply a chart or justify a retrospective assumption that an entry was executable.",
+      "practice": "Draft two plausible price-response hypotheses as of the release, each with a reason to wait or decline a trade. Identify the exact time-and-sales or bar evidence still needed.",
+      "limit": "Do not infer $1-to-$5 price movement, a filled order, a causal connection, or a strategy win from the news release alone."
+    }
+  ]
+}
