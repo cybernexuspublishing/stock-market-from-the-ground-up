@@ -77,6 +77,7 @@ jobs:
           node tests/test_lab_v33_instructor.mjs
           node tests/test_v33_focus_workspace.mjs
           node tests/test_v34_unified_curriculum.mjs
+          node tests/test_v32_reference_source_fidelity.mjs
           node tests/test_v33_grading_display.mjs
           node tests/test_lab_v33_historical_setup_metadata.mjs
           node tests/test_v33_learning_profile_signin.mjs
