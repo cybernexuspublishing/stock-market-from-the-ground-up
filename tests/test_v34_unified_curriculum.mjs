@@ -75,7 +75,7 @@ for(const kind of ['candle','vwap']){
  assert(steps.every(x=>Number.isFinite(x.answer)&&x.prompt&&x.help&&x.newExample));
 }
 const candle=teaching.practiceFor('candle');
-assert.deepEqual(candle.map(x=>x.answer),[1,2,50]);
+assert.deepEqual(Array.from(candle,x=>Number(x.answer)),[1,2,50], 'The three authored practice answers are invariant across VM contexts');
 const vwap=teaching.practiceFor('vwap');
 assert(Math.abs(vwap[2].answer-2600/300)<.001);
 const engine=read('assets/js/lab-engine-v32-universal.js');
