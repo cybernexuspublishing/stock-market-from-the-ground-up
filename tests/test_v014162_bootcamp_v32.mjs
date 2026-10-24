@@ -50,7 +50,7 @@ assert(h.includes('gu-bc-v32-stage'));
 assert(h.includes('gu-bc-source-case')&&h.includes('gu-bc-source-link'),
  'Vetted original-source references should be accessible in the appropriate day');
 assert(b.includes('sourceCases.get(selected)')&&b.includes('sourceSection.hidden=!source'),
- 'Do not display the wrong day's source or a blank additional case');
+ "Do not display a source for the wrong day or a blank additional case");
 
 assert(h.indexOf('lab-engine-v32-universal.js')<h.indexOf('bootcamp.js'));
 assert(b.includes("labId:first,mode:'guided',target:guideSlot"));
