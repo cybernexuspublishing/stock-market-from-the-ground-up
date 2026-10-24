@@ -56,3 +56,9 @@
 #gu-v32-teaching-slot .gu-l33-candle-picker select{font:inherit;padding:8px 9px;color:#eaf3fb;background:#102437;border:1px solid #426783;border-radius:7px;max-width:100%}
 #gu-v32-teaching-slot .gu-l33-interactive-state,#gu-v32-teaching-slot .gu-l33-candle-readout{width:100%;margin:3px 0!important;font-size:.82rem!important;line-height:1.45!important;color:#c2d9e8!important}
 @media(max-width:720px){#gu-v32-teaching-slot .gu-l33-view-btn{flex:1 1 130px}#gu-v32-teaching-slot .gu-l33-interactive-tools{gap:6px}}
+
+/* Explicit highlight on the exact selected, already revealed candle. */
+#gu-v32-teaching-slot [data-candle-index][data-selected="true"]{outline:none}
+#gu-v32-teaching-slot [data-candle-index]:focus-visible .gu-l33-selected-candle{stroke:#b9f0ff;stroke-width:3}
+#gu-v32-teaching-slot .gu-l33-candle-readout{color:#f7e2a3!important;font-weight:650}
+#gu-v32-teaching-slot .gu-l33-view-btn{min-height:34px;padding:7px 10px;font-size:.79rem}
