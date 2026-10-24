@@ -123,6 +123,21 @@ The original H-series decision cases are represented as **FICTIONAL STUDY EXERCI
 
 **Limits:** This closes the reported *generic instructor copy* source defect. It does **not** certify complete individually reviewed instruction, source provenance or historically correct visuals for every one of 419 Labs. Where a specific approved Lab has no specialist teaching package, the panel falls back to its original competency guide and clearly indicates the need for further per-Lab editorial development. AI-generated teaching remains member-initiated and server-entitlement-protected; a typewriter animation is not an AI response.
 
+## Personalized guided instruction and chart-linked worked candle — 2026-10-23
+
+**Owner acceptance direction:** The previously separate and generic “What you will learn” bullets must be delivered by the instructor itself, personally, and with genuine teaching—not merely appear as a checklist. The visual worked example must correspond to the chart evidence.
+
+**Production source implemented**
+
+- The named guide **Avery — Your Learning Instructor** is explicitly labeled a **virtual course guide**. Avery addresses the member directly, teaches the concept, demonstrates the method, and supports further exploration without pretending to be a human trader or an AI model response.
+- Stage 1 (“Start”) now types three actionable objectives and beginning definitions in the **same instructional panel**; its old generic “Recognize and explain: Explain X” list was removed. A compact “Review your learning objectives” control remains available. Learning goals are written to the subject (candlestick, VWAP, EMA, volume, structure, tape, Level II, routing) or based on that Lab’s existing approved competency guide.
+- Typing can be skipped or replayed and complies with reduced-motion preference. Full text is immediately available to screen readers; typing does not issue hidden API calls.
+- In the Candlestick Learn stage, the chart now uses **the exact worked fictional example**: Open $20.00, High $22.00, Low $19.00, Close $21.20. The real body is $1.20, the full range $3.00, or **40%**. This is distinct from the separate fictional Practice answer (50%); there is no numeric-answer leakage.
+- The accessible worked-candle controls highlight **Open, Close, High, Low, Real body, Full range, and Body percentage**. A “Next highlight” control progresses through the chart evidence. Buttons in Avery’s worked explanation select the matching chart feature.
+- Tutor access and server entitlements are unchanged; protected Blind, Predict, Assessment and unrevealed replay states remain separate.
+
+**Source verification:** Modified JavaScript parsed; all **419/419** canonical Lab IDs mounted and advanced from Start to Learn with Avery’s panel in simulated runtime testing. Automated source and browser regressions were updated for typed objectives and linked chart states. **Do not infer a passing GitHub Actions browser run or production member acceptance from source-only checks.** Editorial review of the remaining Labs and live member-mode testing remain open.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
