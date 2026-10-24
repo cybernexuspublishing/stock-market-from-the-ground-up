@@ -36,7 +36,7 @@ try{
   await mount('F3-C06-L01','F3-C06-L01');
   await host.getByRole('button',{name:/Start Guided Learning/}).click();
   const narration=await host.locator('.gu-v33-instructor-accessible').first().textContent();
-  assert.match(narration,/VWAP Reclaim/,'Authored subject must replace a placeholder ID');
+  assert.match(narration,/VWAP|volume.weighted/i,'Learn must introduce VWAP before discussing a Reclaim');
   assert(!narration.includes('The focus of this lesson is F3-C06-L01'),
    'A Lab locator must not be read as its educational topic');
   assert.match(await host.locator('.gu-v33-graphic, .gu-l33-graphic').first().innerText(),/FICTIONAL/i);
@@ -58,6 +58,16 @@ try{
    parseFloat(getComputedStyle(node).minHeight)||0);
   assert(tutorMin<=1,'The old 420px empty narration reservation must be removed');
   assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).count(),1,'Reference view modes must be restored');
+  assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).getAttribute('aria-pressed'),'true',
+   'The VWAP line must be visible when Learn first opens');
+  const vwapWorked=host.locator('.gu-v35-chart-worked');
+  assert.equal(await vwapWorked.locator('.gu-v35-vwap-share-illustration').count(),1,
+   'The $10/$12 worked case must show its own share-weight visualization');
+  assert.match(await vwapWorked.locator('.gu-v35-vwap-share-illustration').textContent(),/400 total shares/,
+   'The worked diagram must explicitly show its denominator');
+  await vwapWorked.getByRole('button',{name:'Next worked step'}).click();
+  assert.match(await host.locator('.gu-v33-instructor-accessible').first().textContent(),
+   /Worked example.*step/i,'VWAP next step must be narrated by Talia');
   await host.getByRole('button',{name:'Volume',exact:true}).click();
   assert.equal(await host.getByRole('button',{name:'Volume',exact:true}).getAttribute('aria-pressed'),'true');
   await host.getByRole('button',{name:'Price + VWAP',exact:true}).click();
