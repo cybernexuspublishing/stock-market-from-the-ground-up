@@ -124,7 +124,7 @@ const referenceIntros=Object.freeze({
   title:'Build and Understand a Candlestick',
   term:'OHLC',
   definition:'O is the opening price, H is the high, L is the low, and C is the closing price.',
-  why:'Each candlestick records price movement during a defined time interval. A five-minute candle does not describe the whole trading day.',
+  why:'Each candlestick records the price movement during a defined time interval.',
   example:'A fictional five-minute candle opens at $31.00, rises to $32.50, falls to $30.50, and closes at $32.00.',
   steps:Object.freeze([
    'Find OPEN at $31.00 and CLOSE at $32.00 on the chart. The completed candle is bullish because the close is above the open.',
@@ -136,9 +136,9 @@ const referenceIntros=Object.freeze({
  }),
  vwap:Object.freeze({
   title:'Understand VWAP and Replay the Market',
-  term:'Volume-Weighted Average Price (VWAP)',
+  term:'Volume-Weighted Average Price',
   definition:'VWAP is the average traded price weighted by the number of shares associated with each price.',
-  why:'Higher-share transactions contribute more heavily to the weighted average than lower-share transactions.',
+  why:'High-volume prices contribute more heavily to the result.',
   example:'In a fictional demonstration, 100 shares trade at $10 and 300 shares at $11.',
   steps:Object.freeze([
    'Calculate traded dollars: 100 × $10 = $1,000; 300 × $11 = $3,300.',
