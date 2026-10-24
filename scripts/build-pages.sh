@@ -17,7 +17,7 @@ for directory in assets learn; do
   cp -R -- "$directory" "$output"/
 done
 mkdir -p "$output/data"
-for file in books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
+for file in books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json lab-teaching-bridges-v014168.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
@@ -25,6 +25,11 @@ done
 # references. Do not publish private rubrics or authenticated research exports.
 test -s "$output/data/bootcamp-formative-v014154.json"
 test -s "$output/data/bootcamp-source-cases-v014166.json"
+# All 419 original public teaching bridges must ship, without any private rubric.
+test -s "$output/data/lab-teaching-bridges-v014168.json"
+test -f "$output/bootcamp-academy.html"
+test -f "$output/assets/js/bootcamp-academy-v014168.js"
+test ! -e "$output/supabase/migrations/v0.14.0.168_BOOTCAMP_ACADEMY_OWNER_REVIEW_REQUIRED.sql"
 # In an explicitly marked preview staging build, browser auth must use the SAME
 # separate Supabase staging project as the Cloudflare Functions payment API.
 # Never insert service keys. A missing/inconsistent preview config fails the build.
