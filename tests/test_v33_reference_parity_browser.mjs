@@ -16,7 +16,8 @@ try{
    await page.addStyleTag({url:base+'/assets/css/'+name});
   for(const name of ['lab-engine-v32-teaching.js','lab-engine-v33-visual.js',
    'lab-v33-contextual-visuals.js','lab-v33-visual-interactions.js',
-   'lab-v33-instruction-content.js','lab-v33-instructor.js',
+   'lab-v34-competency-examples.js','lab-v33-instruction-content.js',
+   'lab-v34-interactive-lessons.js','lab-v33-instructor.js',
    'lab-engine-v32-universal.js'])
    await page.addScriptTag({url:base+'/assets/js/'+name});
   await page.evaluate(()=>{
