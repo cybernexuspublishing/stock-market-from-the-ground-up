@@ -53,7 +53,7 @@
    const card=node('article');card.className='academy-program'+(p.code===activeCode?' academy-program--active':'');
    const duration=node('span',p.days+'-day Boot Camp · '+p.level);duration.className='academy-duration';
    const heading=node('h3',p.title),description=node('p',p.summary);
-   const note=node('p','Curriculum study · progress separate from official mastery');note.className='small';
+   const note=node('p','Explore lessons, worked examples, and guided practice');note.className='small';
    const action=node('a',p.code==='foundations30'?'Open original 30-day Boot Camp':'Open this Boot Camp');
    action.className='btn secondary';
    action.href=p.code==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+encodeURIComponent(p.code);
@@ -67,7 +67,7 @@
    button.setAttribute('aria-current',d.day===dayIndex?'step':'false');
    const state=progress.get(d.day)?.status==='reflection_saved'?'Reflection saved':
     progress.get(d.day)?.status==='in_progress'?'Started':'Not recorded';
-   button.append(node('span','Day '+String(d.day).padStart(2,'0')+' · '+(progressAvailable?state:'Progress unavailable')),
+   button.append(node('span','Day '+String(d.day).padStart(2,'0')+' · '+(progressAvailable?state:'Saving unavailable')),
     node('strong',d.title));
    button.addEventListener('click',()=>{dayIndex=d.day;renderDay()});
    container.append(button);
@@ -117,9 +117,9 @@
  }
  function updateProgress(){
   const finished=[...progress.values()].filter(p=>p.status==='reflection_saved').length;
-  get('academy-member-progress').textContent=!progressAvailable?'Private progress storage not yet verified':
-   enrolled?finished+' of '+days.length+' private reflections saved · Not an official grade':
-   'Enrollment required to save private reflections';
+  get('academy-member-progress').textContent=!progressAvailable?'We cannot check saved notes right now':
+   enrolled?finished+' of '+days.length+' learning notes saved':
+   'Enroll to save your learning notes';
   get('academy-enroll').hidden=enrolled||!progressAvailable;
   get('academy-start').disabled=!enrolled||!progressAvailable||busy;
   get('academy-save').disabled=!enrolled||!progressAvailable||busy;
@@ -133,17 +133,17 @@
    get('academy-reflection').focus();return;
   }
   busy=true;updateProgress();
-  get('academy-save-status').textContent='Saving with your current member authorization…';
+  get('academy-save-status').textContent='Saving your learning notes…';
   try{
    const payload={version:VERSION,program:activeCode,action,day:action==='enroll'?0:which,
     ...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(which)?.revision||0}:{})};
    const result=await request('write',activeCode,payload);
    if(actor!==userId||serial!==sessionSerial||payload.program!==activeCode)return;
    if(action==='enroll'){
-    enrolled=true;get('academy-save-status').textContent='Enrolled. Your study reflections remain private.';
+    enrolled=true;get('academy-save-status').textContent='You’re enrolled. Your learning notes are saved to your account.';
    }else{
     progress.set(which,result.progress);
-    get('academy-save-status').textContent=result.disclaimer;
+    get('academy-save-status').textContent='Your learning notes are saved.';
    }
   }catch(e){if(actor===userId&&serial===sessionSerial)
    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
@@ -186,8 +186,8 @@
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
    updateProgress();renderDay();
-   status(progressAvailable?'Study curriculum opened; choose a day to learn with Talia.':
-    'Instruction is available, but this program cannot save progress until its private database migration is verified.');
+   status(progressAvailable?'Choose a day and begin learning with Talia.':
+    'You can read the lessons, but we cannot save your notes right now. Please try again later.');
   }catch(error){if(epoch!==sessionSerial)return;clean();status(error.message||'Unable to open this Academy program.')}
  }
  async function init(){
@@ -196,7 +196,7 @@
   try{
    const programs=(await request('catalog')).programs;
    catalog(programs);
-   status('Seven Academy curricula are listed. Sign in and use an authorized training membership to save your work.');
+   status('Explore the seven Boot Camps. Sign in with eligible training access to save your progress.');
   }catch(error){status(error.message||'The Academy catalog cannot be verified.');return}
   if(activeCode)void open(activeCode);
  }
@@ -211,7 +211,7 @@
    // account switch or a different program opening during enrollment.
    if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
    if(result.enrolled!==true||result.program!==code)throw Error('Enrollment was not confirmed.');
-   enrolled=true;get('academy-save-status').textContent='Enrollment verified.';
+   enrolled=true;get('academy-save-status').textContent='You’re enrolled. Choose a day to begin.';
   }catch(error){
    if(actor===userId&&serial===sessionSerial&&code===activeCode)
     get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.');
