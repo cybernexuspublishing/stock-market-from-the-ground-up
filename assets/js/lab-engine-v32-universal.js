@@ -463,6 +463,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    appendParagraph(skillBox,'These four dimensions use the existing 30-competency framework. This ungraded lesson does not invent mastery percentages. Reviewed assessments and your authorized Skill Development profile provide the official evidence.');
    skillBox.append(button('View Skill Development',()=>{location.href='skills.html'}));
    body.append(skillBox);
+   const recorded=el('section');recorded.className='gu-v33-grade-outlet';
+   recorded.setAttribute('aria-label','Your graded assessment history');
+   body.append(recorded);
+   root.GroundUpLabV33GradeDisplay?.mount?.({labId,target:recorded});
    appendParagraph(body,'Resume or save official member progress through the existing authenticated Lab controls; this self-study widget does not write server grades or credit entitlements.');
    body.append(button('Review related competency guide',()=>{location.href='skills.html#guide-'+encodeURIComponent(codes[0]||'')})); 
   }
