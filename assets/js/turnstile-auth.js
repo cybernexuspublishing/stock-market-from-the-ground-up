@@ -69,7 +69,10 @@
       help.textContent='Select this checkbox to start the verification challenge. Verification will not run automatically.';
       mount=document.createElement('div');mount.id='v135-turnstile';mount.dataset.guSingleCaptcha='1';mount.hidden=true;
       box.append(legend,label,help,mount);
-      submit.before(box);
+      // Sign-in keeps the primary button above verification; it stays
+      // disabled until a successful server-verifiable challenge. Sign-up
+      // retains its existing verification-before-submit sequence.
+      if(signin)submit.after(box);else submit.before(box);
     }else{
       checkbox=box.querySelector('#v143-start-human');
       mount=box.querySelector('#v135-turnstile');
