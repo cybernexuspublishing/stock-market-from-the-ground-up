@@ -431,7 +431,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Lantern Sparks Wallet'));
    const metrics=el('div');metrics.className='grid2';
    const fields={};
-   for(const [key,name,note] of [['included','Included','Eligible credits expire 60 days after their billing period ends'],['purchased','Purchased','Purchased credits do not expire']]){
+   for(const [key,name,note] of [['included','Included','Eligible Sparks expire 60 days after their billing period ends'],['purchased','Purchased','Purchased Sparks do not expire'],['manual','Owner-adjusted','Account adjustments recorded by the Owner']]){
     const unit=el('div');unit.className='metric';unit.append(el('span',name));
     const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
    }
@@ -443,9 +443,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     void creditRequest({action:'balance'}).then(data=>{
      if(!wallet.isConnected)return;
      const info=data?.balance;
-     if(!info||!Number.isInteger(info.included)||!Number.isInteger(info.purchased))throw Error('No verified credit balance.');
+     if(!info||!Number.isInteger(info.included)||!Number.isInteger(info.purchased))throw Error('No verified Lantern Sparks balance.');
      fields.included.textContent=String(info.included);
      fields.purchased.textContent=String(info.purchased);
+     fields.manual.textContent=String(Number.isInteger(info.manual)?info.manual:0);
      balanceState.textContent=String(info.available)+' available'+
       (info.nextExpiry?' · Next included-credit expiry: '+new Date(info.nextExpiry).toLocaleDateString():'');
     }).catch(error=>{
@@ -691,6 +692,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     // chart with measured values, THEN Talia teaching and the typed answer.
     // They share one workstation rather than two competing side panels.
     hero.append(chart,coach);body.insertBefore(hero,body.firstChild);
+    // Member learning support belongs below BOTH illustration and instructor,
+    // not squeezed inside Talia's teaching column.
+    if(stage===1){
+     const support=coach.querySelector('.gu-v33-support-tabs');
+     if(support)hero.insertAdjacentElement('afterend',support);
+    }
     if(stage===1){
      const worked=lessonPlan(1)?.worked||[];
      if(worked.length){
