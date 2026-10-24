@@ -45,7 +45,7 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -93,40 +93,87 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const skip=el('button','Show full text');skip.type='button';skip.className='btn secondary gu-v33-instructor-skip';
  controls.append(skip);
  rootEl.append(accessible,transcript,controls);
- // Guided reflections are educational and local to this lesson instance.
- // They never call the authenticated grading endpoint or reveal private rubrics.
- const promptText=stage===0
-  ?'Before beginning, which completed chart observations will help you recognize '+String(concept||subject).slice(0,90)+'? Explain why those observations matter.'
-  :stage===1&&plan?.check?.question
-   ?'Explain your reasoning: '+plan.check.question
-   :stage===2
-    ?'Which observable input changed, and why does that change the interpretation?'
-    :stage===4
-     ?'What evidence supports your practice conclusion, and what could contradict it?'
-     :stage===6
-      ?'What did you misunderstand, and why is the corrected method more reliable?'
-      :stage===7
-       ?'How did you apply this concept to the unfamiliar case without assuming an unseen outcome?'
-       :'Which evidence-based skill can you now explain in your own words, and what remains uncertain?';
+ // Talia speaks each question IN her narration box. The member's answer
+ // is collected there, not in a disconnected form below the lesson.
+ // Every accepted response advances to the next question; a completed
+ // set asks the universal engine to advance the appropriate study stage.
+ // Reviewed grades and locked independent decisions remain server-owned.
+ const fallbackQuestion=stage===0
+  ?'What does '+String(concept||subject).slice(0,90)+' mean in your own words?'
+  :'What evidence supports your interpretation, and what remains uncertain?';
+ const prompts=(Array.isArray(questions)?questions:[]).filter(q=>typeof q==='string'&&q.trim())
+  .map(q=>q.trim()).slice(0,8);
+ if(!prompts.length)prompts.push(fallbackQuestion);
+ const saved=Array.isArray(initialAnswers)?initialAnswers.slice(0,prompts.length):[];
+ let questionIndex=Math.min(saved.length,prompts.length-1);
  const interaction=el('section',undefined,'gu-v33-instructor-dialogue');
  interaction.setAttribute('aria-label','Answer Talia’s learning question');
- interaction.append(el('label',promptText,'gu-v33-instructor-prompt'));
+ const counter=el('p',undefined,'gu-v33-instructor-question-counter');
+ const prompt=el('label',undefined,'gu-v33-instructor-prompt');
  const reflection=el('textarea');reflection.rows=3;reflection.maxLength=1500;
- reflection.placeholder='Explain what you observed, why it matters, and what you cannot determine.';
- reflection.value=typeof initialReflection==='string'?initialReflection:'';
- interaction.append(reflection);
- const reply=el('div',undefined,'gu-v33-instructor-reply');reply.setAttribute('role','status');
- const submitReflection=el('button','Submit answer','btn secondary gu-v33-instructor-submit');submitReflection.type='button';
- listen(submitReflection,'click',()=>{
-  const value=reflection.value.trim();
-  if(value.length<20){reply.textContent='Explain your reasoning in at least 20 characters so I can follow your interpretation.';return;}
-  onReflection?.(value);
-  const includesWhy=/\b(because|since|therefore|shows|indicates|suggests|however|although|whereas|as a result)\b/i.test(value);
-  reply.textContent=includesWhy
-   ?'Your explanation is recorded in this learning session. Now compare the evidence against another interpretation and identify a condition that would change your conclusion.'
-   :'Your observation is recorded. Add why that evidence supports your interpretation and what additional evidence would change your view.';
+ const inputId='gu-v33-instructor-answer-'+String(++tabSequence);
+ reflection.id=inputId;prompt.setAttribute('for',inputId);
+ reflection.placeholder='Explain your evidence and reasoning in your own words.';
+ const reply=el('div',undefined,'gu-v33-instructor-reply');
+ reply.setAttribute('role','status');reply.setAttribute('aria-live','polite');
+ const submitReflection=el('button','Submit answer','btn secondary gu-v33-instructor-submit');
+ submitReflection.type='button';
+ function paintQuestion(){
+  counter.textContent='Question '+(questionIndex+1)+' of '+prompts.length;
+  prompt.textContent=prompts[questionIndex];
+  reflection.value=String(saved[questionIndex]||(!saved.length&&questionIndex===0?initialReflection:''));
+  reply.textContent='';
+  submitReflection.disabled=false;
+ }
+ let submitting=false,finished=false;
+ const submit=async()=>{
+  if(submitting||finished)return;
+  const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
+  const numerical=/^Enter the numerical/i.test(prompts[index]);
+  if((numerical&&!Number.isFinite(Number(value)))||(!numerical&&value.length<20)){
+   reply.textContent=numerical?'Enter a valid numerical result.':'Explain your reasoning using at least 20 characters.';
+   return;
+  }
+  submitting=true;submitReflection.disabled=true;
+  try{
+   const verdict=typeof onAnswer==='function'
+    ?await onAnswer({stage,index,answer:value,isFinal})
+    :{accepted:true};
+   if(verdict?.accepted===false){
+    reply.textContent=String(verdict.message||'Review the evidence and revise your answer.');
+    return;
+   }
+   saved[index]=value;
+   onReflection?.(value);
+   if(!isFinal){
+    questionIndex=index+1;
+    paintQuestion();
+    reflection.focus?.();
+   }else{
+    finished=true;reflection.disabled=true;
+    submitReflection.hidden=true;
+    counter.textContent='All '+prompts.length+' questions answered';
+    prompt.textContent='Your answers have been recorded for this learning session.';
+    reply.textContent=String(verdict?.message||'Lesson questions completed.');
+    onComplete?.({stage,answers:[...saved]});
+   }
+  }catch{
+   reply.textContent='The answer could not be recorded. Please try again.';
+  }finally{
+   submitting=false;
+   if(!finished)submitReflection.disabled=false;
+  }
+ };
+ listen(submitReflection,'click',submit);
+ // Enter submits a single-line response; Shift+Enter still creates a new line.
+ listen(reflection,'keydown',event=>{
+  if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){
+   event.preventDefault();void submit();
+  }
  });
- interaction.append(submitReflection,reply);rootEl.append(interaction);
+ paintQuestion();
+ interaction.append(counter,prompt,reflection,submitReflection,reply);
+ transcript.append(interaction);
  const stopTyping=animate(visual,full,seen,skip);
  const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
  objectivesPanel.append(el('h4','Your learning objectives'));
