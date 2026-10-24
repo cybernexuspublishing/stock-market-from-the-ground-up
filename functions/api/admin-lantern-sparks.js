@@ -1,4 +1,4 @@
-/* Owner-only Lantern Sparks corrections inside existing Account Management.
+/* Owner-only Crownlight Sparks corrections inside existing Account Management.
  * Never mutates membership/book entitlements or Stripe financial records.
  * SQL v0.14.0.163 + v0.14.0.164 must be installed before activation.
  */
@@ -35,7 +35,7 @@ async function requireOwner(env,request){
  const now=Date.now();
  const roles=await query(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(userId));
  if(!roles.some(r=>r.role_code==='OWNER'&&(!r.expires_at||Date.parse(r.expires_at)>now)))
-  throw failure('Owner authorization is required to adjust Lantern Sparks.',403);
+  throw failure('Owner authorization is required to adjust Crownlight Sparks.',403);
  const flags=await query(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(userId)+'&limit=1');
  if(['restricted','suspended'].includes(String(flags?.[0]?.status||'').toLowerCase()))
   throw failure('The Owner account is restricted.',403);
