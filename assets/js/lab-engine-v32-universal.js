@@ -66,8 +66,8 @@ function mathDiagnostic(kind,value){
 }
 const synthetic=Object.freeze({
  candle:{o:31,h:32.5,l:30.5,c:32,answer:50,units:'%',title:'Candlestick real body as a percentage of full range',
- description:'An illustrative candle opens at $31, reaches $32.50, trades as low as $30.50, and closes at $32. Calculate what percentage of the complete price range is its real body.',
- steps:['Real body = |Close − Open| = |$32 − $31| = $1.','Full range = High − Low = $32.50 − $30.50 = $2.','Body ÷ range = $1 ÷ $2 = 0.5.','Convert ratio to percentage: 0.5 × 100 = 50%.'],
+ description:'An illustrative candle opens at $31.00, has a high of $32.50 and low of $30.50 in an unknown order, and closes at $32.00. Calculate how much of its full range is body.',
+ steps:['Body (bullish):\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body).','Full range:\nHigh − Low = Full Range\n$32.50 (High) − $30.50 (Low) = $2.00 (Range).','Body-to-range ratio:\nBody ÷ Full Range = Ratio\n$1.00 (Body) ÷ $2.00 (Range) = 0.50.','Convert to a percentage:\nRatio × 100 = Body Percentage\n0.50 × 100 = 50%.'],
  transfer:{prompt:'New illustrative candle: Open $12.40, High $12.70, Low $11.90, Close $12.10. What percentage of its full range is the real body?',answer:37.5}},
  vwap:{answer:2600/300,units:'USD/share',title:'Trade-price volume-weighted average',
  description:'Two illustrative trade groups: 200 shares at $8 and 100 shares at $10. Calculate VWAP (dollars per share) to two decimal places.',
