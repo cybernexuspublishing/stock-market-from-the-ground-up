@@ -10,7 +10,7 @@
 <script defer src="assets/js/site.js"></script>
 <script defer src="assets/js/supabase-client.js"></script>
 <script defer src="assets/js/session-manager.js"></script>
-<script defer src="assets/js/founders-commons-v014178.js"></script>
+<script defer src="assets/js/founders-commons-v014178.js"></script><script defer src="assets/js/founders-design-studio-v014184.js"></script>
 </head>
 <body data-auth-required="true" class="gu-founders-page">
 <header class="site-header"><div class="wrap nav"><a href="index.html" class="brand">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Primary navigation"></nav></div></header>
@@ -49,6 +49,20 @@
 <div id="gu-f600-ballots"></div>
 </div>
 </section>
+<section class="gu-f600-panel gu-f600-studio" aria-labelledby="gu-f600-studio-title">
+<p class="gu-f600-eyebrow">YOUR PERSONAL DESIGN STUDIO</p><h2 id="gu-f600-studio-title">Customize your Founders Commons</h2>
+<p>Save a personal visual theme and content-density preference. Aurora is an exclusive Extended Founder theme. These settings change only your own Commons display.</p>
+<form id="gu-f600-studio-form" hidden>
+<div class="gu-f600-preference-grid">
+<label for="gu-f600-theme">Visual theme<select id="gu-f600-theme" name="theme">
+<option value="midnight">Midnight blue</option><option value="graphite">Graphite</option><option value="aurora">Aurora (Extended)</option>
+</select></label>
+<label for="gu-f600-density">Content spacing<select id="gu-f600-density" name="density">
+<option value="comfortable">Comfortable</option><option value="compact">Compact</option>
+</select></label></div>
+<button type="submit" class="btn" id="gu-f600-save-preference">Save my design</button>
+<p id="gu-f600-preference-status" role="status" aria-live="polite"></p>
+</form></section>
 <section class="gu-f600-rules" aria-labelledby="gu-f600-rules-title"><h2 id="gu-f600-rules-title">Keeping this community useful</h2><p>Members may discuss educational trade reviews, suggestions, accessibility and learning experiences. Do not post private billing details, account credentials, assessment answers, coordinated ticker promotions or supposed guaranteed-return signals. For account-specific payment questions, use <a href="dashboard.html?tab=support">private Support</a>.</p></section>
 </div>
 </main>
