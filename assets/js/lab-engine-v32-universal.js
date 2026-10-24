@@ -403,7 +403,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      'Find a competing interpretation or invalidating observation: '+guide.invalidation,
      'State the limitation: '+guide.limit]);
    }
-   showVisual(1,'default');freeExplanation();guidedHelp();
+   showVisual(1,topic==='Bearish Candle'?'bearish':'default');freeExplanation();guidedHelp();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
