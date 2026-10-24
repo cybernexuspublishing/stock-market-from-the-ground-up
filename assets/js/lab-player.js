@@ -172,17 +172,17 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  return {answer:data.answer,generation:data.generation||'reviewed-glossary-logic',
   aiReason:data.aiReason||null};
 }
-/* v3.2 Question Pass restore: do not grant or deduct tokens client-side.
+/* v3.2 Lantern Sparks restore: do not grant or deduct tokens client-side.
  * Reads verified counts and sends a single idempotent action to the server.
  * Free teaching and retries never invoke this API.
  */
 async function requestLabQuestionPass({action='balance',questionId='',attemptId='',requestId=''}={}){
  if(!['guided','practice'].includes(PLAYER.mode))
-  throw Error('Question Pass is not available during independent assessments.');
+  throw Error('Lantern Sparks is not available during independent assessments.');
  const sb=PLAYER.access?.sb,labId=PLAYER.lab?.id;
  const session=await sb?.auth?.getSession?.();
  const token=session?.data?.session?.access_token;
- if(!token)throw Error('Sign in to use Question Pass Credits. Learning explanations remain free.');
+ if(!token)throw Error('Sign in to use Lantern Sparks. Learning explanations remain free.');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
  try{
   const base='/api/lab-question-pass';
@@ -195,7 +195,7 @@ async function requestLabQuestionPass({action='balance',questionId='',attemptId=
   });
   const data=await response.json().catch(()=>null);
   if(!response.ok||data?.ok!==true)
-   throw Error(String(data?.error||'Question Pass status could not be confirmed. Check your wallet before retrying.').slice(0,180));
+   throw Error(String(data?.error||'Lantern Sparks status could not be confirmed. Check your wallet before retrying.').slice(0,180));
   return data;
  }catch(error){
   if(error?.name==='AbortError')throw Error('Credit service timed out. Check your wallet before trying again.');
