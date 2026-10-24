@@ -87,7 +87,7 @@ const ask=nodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor'
 const tabs=nodes.filter(n=>n.attrs?.role==='tab');
 const question=walk(nodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea');
 const status=nodes.find(n=>n.className==='gu-v33-tutor-status');
-assert(ask&&question&&status&&tabs.length===2,'Tutor request and learning objectives tabs stay available on Learn stage');
+assert(ask&&question&&status&&tabs.length===3,'Learning objectives, Market Tutor and Sparks wallet must share Learn support below the columns');
 const lessonView=api.create({stage:1,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
 const lessonNodes=walk(lessonView.element);
 assert(typeof lessonView.teachWorkedStep==='function','Worked examples must be narrated from the interactive chart');
