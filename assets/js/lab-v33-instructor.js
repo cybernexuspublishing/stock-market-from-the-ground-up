@@ -46,14 +46,32 @@ function animate(node,text,showAll,replay){
 function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={}}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
- rootEl.setAttribute('aria-label','Learning instructor and Market Tutor');
- const title=el('h3','Your learning instructor');
- const tag=el('span','Step-by-step teaching','gu-v33-instructor-tag');
- const head=el('div',undefined,'gu-v33-instructor-head');head.append(title,tag);rootEl.append(head);
+ rootEl.setAttribute('aria-label','Avery, your virtual learning instructor, and Market Tutor');
+ const title=el('h3','Avery — Your Learning Instructor');
+ const tag=el('span','Virtual course guide · One-to-one teaching','gu-v33-instructor-tag');
+ const head=el('div',undefined,'gu-v33-instructor-head');
+ const avatar=el('span','A','gu-v33-instructor-avatar');
+ avatar.setAttribute('aria-hidden','true');
+ const identity=el('div',undefined,'gu-v33-instructor-identity');
+ identity.append(title,tag);
+ head.append(avatar,identity);rootEl.append(head);
  const plan=root.GroundUpLabV33InstructionContent?.lesson?.({
   ...lessonContext,stage,concept
  })||null;
- const full=plan?.blocks?.join('\n\n')||(
+ const introduction=stage===0
+  ?'Hello. I’m Avery, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.'
+  :stage===1
+   ?'Let’s work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.'
+   :stage===2
+    ?'Now you can change one variable and see how the example responds. I’ll help you distinguish what changes from what remains unknown.'
+    :stage===4
+     ?'Let’s practice with an unfamiliar case. I’ll remind you of the method, then you make the calculation or decision.'
+     :stage===6
+      ?'Let’s examine the reasoning, including where an interpretation can go wrong and how to correct it.'
+      :stage===7
+       ?'Now apply the same method to a different case. Use only evidence available at the current pause.'
+       :'You’ve reached the lesson review. Here are the essential ideas to carry into your next exercise.';
+ const full=introduction+'\n\n'+(plan?.blocks?.join('\n\n')||(
   String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
   lessonContext?.subject?.definition||'').trim()||
   'This concept needs an individually reviewed teaching explanation before it can be presented as complete.'
@@ -67,6 +85,14 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  controls.append(skip);
  rootEl.append(accessible,visual,controls);
  const stopTyping=animate(visual,full,seen,skip);
+ if(stage===0&&plan?.objectives?.length){
+  const optional=el('details',undefined,'gu-v33-instructor-objectives');
+  optional.append(el('summary','Review your learning objectives'));
+  const objectives=el('ol');
+  for(const objective of plan.objectives)objectives.append(el('li',objective));
+  optional.append(objectives);
+  rootEl.append(optional);
+ }
  if(plan?.worked?.length){
   const worked=el('section',undefined,'gu-v33-instructor-worked');
   worked.append(el('h4',plan.category==='general'?'Guided method demonstration':'Worked example — different fictional case'));
@@ -98,6 +124,13 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     ' This is practice feedback, not an independent assessment.';
   });
   check.append(answers,submit,feedback);rootEl.append(check);
+ }
+ if(plan?.misconception&&stage===1){
+  const other=el('details',undefined,'gu-v33-instructor-alternative');
+  other.append(el('summary','Avery, explain the common mistake'));
+  other.append(el('p',plan.misconception));
+  if(plan.limitation)other.append(el('p','What you cannot conclude: '+plan.limitation));
+  rootEl.append(other);
  }
  if(plan?.sourceNote)rootEl.append(el('p',plan.sourceNote,'gu-v33-instructor-provenance'));
  let pending=null,disposed=false;
