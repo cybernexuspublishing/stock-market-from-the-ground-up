@@ -75,7 +75,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
   lessonContext?.subject?.definition||'').trim()||
   'This concept needs an individually reviewed teaching explanation before it can be presented as complete.'
- );
+ ));
  // Full lesson narration remains immediately available to assistive technology.
  // The animated copy is visual-only to avoid dozens of screen reader updates.
  const accessible=el('p',full,'gu-v33-instructor-accessible');
