@@ -260,6 +260,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   const saved=await creditRequest({action,questionId:step.id,attemptId:passAttemptId,requestId});
   if(saved?.ok!==true)throw Error('The pass could not be confirmed.');
   practiceAssisted=true;
+  // The normal answer validator requires sequential indexes. Record the
+  // debit-confirmed Study Only marker so a later typed answer remains valid.
+  const list=learnerReplies.get(4)||[];
+  while(list.length<index)list.push('Study Only — Question Pass');
+  list[index]='Study Only — '+action;
+  learnerReplies.set(4,list);
   if(index===steps.length-1){practiceResolved=true;practice='Study Only: '+action;}
   return {...saved,
    answerText:action==='reveal'?step.help+' This is Study Only, not a graded result.':
