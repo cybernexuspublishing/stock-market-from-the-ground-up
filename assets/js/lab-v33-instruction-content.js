@@ -255,10 +255,18 @@ function objectives(input,category){
  ];
 }
 function lesson(input={}){
- const category=inferDomain(input);
- const base=category==='general'?fromGuide(input):domains[category];
- const named=clean(input.concept,170);
- const custom=input.teaching||{};
+ // Defensive topic resolution: a registry key can never become the
+ // instructional subject, including when the teaching module is used alone.
+ const given=clean(input.concept,170);
+ const isLocator=/^(?:F[1-3]|DT|TAPE|SITE)-C\d+-L\d+$/i.test(given)||
+  /^(?:concept title pending|untitled|unknown)/i.test(given);
+ const fallback=clean(input.guide?.title||input.guide?.concept||
+  input.teaching?.what||'Market evidence and decision-making',170);
+ const material=isLocator||!given?{...input,concept:fallback}:input;
+ const category=inferDomain(material);
+ const base=category==='general'?fromGuide(material):domains[category];
+ const named=clean(material.concept,170);
+ const custom=material.teaching||{};
  // Keep subject-specific authorized content prominent even when an illustration
  // category covers a broader family of lessons.
  const focus=category==='general'?'':named?'Current concept: '+named+'.':'';
@@ -267,7 +275,7 @@ function lesson(input={}){
   ...(custom.why?[sentence('Why this application matters: '+clean(custom.why,440))]:[])
  ];
  const stage=Number(input.stage||0);
- const outcomes=objectives(input,category);
+ const outcomes=objectives(material,category);
  let blocks=[];
  if(stage===0)blocks=[
   'Here is what you will learn and demonstrate in this lesson:',
