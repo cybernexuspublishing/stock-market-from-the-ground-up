@@ -87,29 +87,36 @@ try{
   await steps.getByRole('button',{name:'Next worked step'}).click();
   assert.match(await steps.locator('.gu-v35-worked-counter').textContent(),/Step 2 of/);
   await steps.getByRole('button',{name:'Show and explain on chart'}).click();
-  assert.match(await host.locator('.gu-v33-instructor-prompt').textContent(),/What does this worked step demonstrate/);
-  assert.equal(await host.getByRole('button',{name:'Explain This Concept'}).count(),1);
-  await host.getByRole('button',{name:'Explain This Concept'}).click();
-  assert.match(await host.locator('.gu-v33-instructor-prompt').textContent(),/most important lesson/);
-  // One reference teaching-game node: chart highlight activates Talia's
-  // typed concept instruction, answer, worked correction, then the next node.
-  await host.getByRole('button',{name:'Open',exact:true}).click();
   const teacher=host.locator('.gu-v34-unified-lesson .gu-v33-instructor');
-  assert.equal(await teacher.count(),1,'Talia is integrated INTO the chart module');
+  assert.equal(await teacher.count(),1,'Talia is integrated into the visual workstation');
+  assert.match(await teacher.locator('.gu-v33-instructor-accessible').first().textContent(),
+   /Worked example.*step/i,'The clicked worked example must be narrated');
+  const help=host.locator('.gu-v34-unified-lesson .gu-l33-graphic .gu-v35-teaching-actions');
+  assert.equal(await help.count(),1,'Four help controls must be inside the illustrated visual');
+  assert.equal(await help.locator('button').count(),4);
+  assert.equal(await host.locator('.gu-v33-instructor-dialogue').isVisible(),false,
+   'The member should not receive a generic reflection prompt when selecting a demonstration');
+  await help.getByRole('button',{name:'Explain This Concept'}).click();
+  assert.match(await teacher.locator('.gu-v33-instructor-accessible').first().textContent(),
+   /Real body = \|Close − Open\|/,'Explain This Concept must narrate the formula');
+  assert.equal(await host.locator('.gu-v33-instructor-dialogue').isVisible(),false,
+   'An instructional help request must not demand a second answer');
+  // Chart highlights must teach before a concept check rather than triggering
+  // a new generic quiz on every selection.
+  await host.getByRole('button',{name:'Open',exact:true}).click();
+  assert.match(await teacher.locator('.gu-v33-instructor-accessible').first().textContent(),
+   /Opening price|Open is/i);
   const candleSvgHeight=await host.locator('.gu-v34-unified-lesson .gu-l33-single svg').first()
    .evaluate(node=>node.getBoundingClientRect().height);
   assert(candleSvgHeight>40&&candleSvgHeight<=245,'Candle height must fit with Talia on '+width+'px');
+  await host.getByRole('button',{name:'Check my understanding'}).click();
   const prompt=teacher.locator('.gu-v33-instructor-prompt');
-  assert.match(await prompt.textContent(),/What does Open measure/);
+  assert.match(await prompt.textContent(),/Which prices determine/i);
   const answer=teacher.locator('.gu-v33-instructor-dialogue textarea');
   const submit=teacher.getByRole('button',{name:'Submit answer'});
-  await answer.fill('The open is the first observed price of the specified candle interval.');
+  await answer.fill('The open and close prices determine the completed candle body.');
   await submit.click();
-  assert.match(await prompt.textContent(),/What mistake/,'Teaching response must trigger a second corrective prompt');
-  await answer.fill('A common mistake is treating the open as the low, which is not always the same.');
-  await submit.click();
-  assert.match(await prompt.textContent(),/What establishes whether a completed candle is bullish or bearish/,
-   'After answering Open, the next Close feature must begin automatically');
+  await host.getByRole('heading',{name:/Experiment/}).waitFor();
   await host.getByRole('button',{name:'Next learning stage'}).click();
   const closing=host.locator('input[type="range"]').first();
   const initial=await host.locator('.gu-v32-output').textContent();
