@@ -102,3 +102,6 @@ body.gu-lab-member .gu-v33-evidence-nav:disabled{opacity:.5;cursor:default}
 body.gu-lab-member :is(.gu-v33-reference-tab,.gu-v33-evidence-nav,.gu-v33-evidence-shortcut):focus-visible{outline:3px solid #a5ecfd;outline-offset:2px}
 @media(max-width:760px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup{grid-template-columns:1fr}}
 @media(max-width:590px){body.gu-lab-member .gu-v33-reference-tablist{grid-template-columns:1fr}body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions>*{flex:1 1 170px}}
+
+body.gu-lab-member .gu-v33-evidence-intro{padding:12px 14px;background:#19364b;border-left:4px solid #eabb49;border-radius:8px;color:#e4f0fa;line-height:1.55}
+body.gu-lab-member .gu-v33-evidence-instructor{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#e6c66f;font-weight:800;margin:0 0 5px}
