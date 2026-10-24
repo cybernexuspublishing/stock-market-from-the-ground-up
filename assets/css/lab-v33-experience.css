@@ -244,3 +244,40 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   min-height:230px!important;
  }
 }
+
+/* Shared 30-competency worked scenario: one illustrated step at a time.
+   Used by all Lab and Bootcamp lessons without a relevant OHLC chart. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-competency-visual{
+ display:block;width:100%;min-width:0;overflow:visible;
+ border:1px solid #486e86;background:#112d42;border-radius:12px;padding:14px 16px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-competency-visual .gu-l33-head{
+ display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-competency-visual h3{
+ margin:0;font-size:1.05rem;color:#f5faff
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-evidence-label{
+ font-size:.7rem;color:#e6d3a4;border:1px solid #7b6c50;
+ padding:4px 8px;border-radius:20px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-evidence-note{
+ color:#c0d5e3;font-size:.8rem;line-height:1.55;margin:8px 0 10px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-example-step{
+ border:1px solid #50758d;border-radius:10px;padding:14px 15px;
+ background:#0e2336;margin-top:9px;line-height:1.7;color:#f0f6fc
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-example-counter{
+ font-size:.77rem;color:#f0d797;font-weight:800;margin:0 0 8px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-example-explanation{
+ font-size:.94rem;margin:0;white-space:pre-wrap
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-next-step{
+ min-height:35px;padding:7px 12px;border:1px solid #4a7893;border-radius:7px;
+ background:#194360;color:#eef7fc;cursor:pointer
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-next-step:focus-visible{
+ outline:3px solid #adeafa;outline-offset:2px
+}
