@@ -212,7 +212,11 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
  // topic, without changing that Lab's independent official assessment.
  const own=teaching&&typeof teaching==='object'&&typeof teaching.what==='string'&&
   teaching.what.trim().length>20?teaching:null;
- if(own&&['understand','recognize','apply','mistake','limits'].includes(key)){
+ // Preserve the specially authored bullish/bearish anatomy lessons when a
+ // generic per-Lab objective exists. Unrelated Boot Camp day topics still
+ // use their own instructional plan even if linked to a candlestick chart.
+ const candleAnatomy=type==='candle'&&/(?:\bbullish candle\b|\bbearish candle\b|\bcandlestick anatomy\b|\bohlc anatomy\b|\bconstruct.*(?:bullish|bearish|candlestick)\b)/i.test(subject);
+ if(own&&!candleAnatomy&&['understand','recognize','apply','mistake','limits'].includes(key)){
   const steps=Array.isArray(own.how)?own.how.filter(x=>typeof x==='string'&&x.trim()).slice(0,5):[];
   const phrases={
    understand:['Our lesson is '+subject+'.',clean(own.what,550),
