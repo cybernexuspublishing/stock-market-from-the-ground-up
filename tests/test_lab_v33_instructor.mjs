@@ -95,7 +95,7 @@ const lessonNodes=walk(lessonView.element);
 assert(typeof lessonView.teachWorkedStep==='function','Worked examples must be narrated from the interactive chart');
 const initial=api.create({stage:0,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
 const initialNodes=walk(initial.element);
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Here is what you will learn')),
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('First, I’ll show you the four prices')),
  'Start must state the objectives before teaching');
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('I’m Talia')),
  'Talia introduces herself verbally');
