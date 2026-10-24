@@ -343,6 +343,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   listen(passConfirm,'click',async()=>{
    if(passBusy||passUsed||!passPending||passAvailable<1)return;
    passBusy=true;passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
+   submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
    passFeedback.textContent='Confirming your Question Pass…';
    try{
@@ -360,6 +361,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    }catch(error){
     if(!passDisposed)passFeedback.textContent=String(error?.message||'Credit service unavailable. No new credit was confirmed.');
     passReveal.disabled=passSkip.disabled=passAvailable<1;
+    submitReflection.disabled=false;
    }finally{
     passBusy=false;passConfirm.disabled=false;
    }
