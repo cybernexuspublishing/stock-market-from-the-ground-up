@@ -50,8 +50,17 @@
   if(guideSlot){
    const first=d.relatedLabs?.[0]?.id;
    if(first)void globalThis.GroundUpLabEngineV32Universal?.mount?.({
-    labId:first,mode:'guided',target:guideSlot,
-    lab:{id:first,concept:d.title,goal:d.objective},focusId:'gu-bc-note'
+    labId:first,mode:'guided',target:guideSlot,focusId:'gu-bc-note',
+    lab:{
+     id:first,concept:d.title,goal:d.objective,
+     teaching:{
+      what:d.objective,
+      why:'This skill connects the Bootcamp day to evidence-led, repeatable decisions.',
+      when:d.observe,
+      how:[d.observe,d.practice].filter(Boolean),
+      questions:[checkpoint?.question].filter(Boolean)
+     }
+    }
    });
    else guideSlot.textContent='No canonical Lab learning bridge exists for this day.';
   }
