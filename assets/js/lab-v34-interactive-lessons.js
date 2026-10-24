@@ -58,7 +58,7 @@ function get({type='',feature='',concept='',guide={}}={}){
  // Subject-specific competency bridge. Never fabricate calculations, ticker
  // prices, an assessment key or an unseen chart when editorial data is absent.
  const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(guide.code);
- const caseIndex=/^case-(\\d+)$/.exec(String(feature||''));
+ const caseIndex=/^case-(\d+)$/.exec(String(feature||''));
  const exampleIndex=caseIndex?Number(caseIndex[1]):-1;
  const definition=clean(guide.concept||guide.definition||subject,480);
  const method=clean(guide.procedure||guide.method,500);
