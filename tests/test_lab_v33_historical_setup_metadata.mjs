@@ -25,5 +25,7 @@ assert.deepEqual([aapl?.ticker,aapl?.date,aapl?.start],['AAPL','May 20, 2024','9
 assert(/completed 5-minute candles/i.test(aapl.setup));
 assert(engine.includes('setupTimeframe'),'The timeframe must display even when stored in the approved setup instruction');
 assert(engine.includes("['Ticker',lab?.ticker]")&&engine.includes("['Historical date',lab?.date]"));
-assert(engine.includes('Historical candle prices must be validated against an approved intraday data source'));
+assert(engine.includes('A historical chart must match the named ticker, date, time, source and verified prices.')&&
+ engine.includes('Practice examples are not live quotes or guaranteed trade outcomes.'),
+ 'Historical setups must disclose source validation requirements without misrepresenting study examples as verified bars');
 console.log('PASS 94 original setups: unique IDs, formatted ticker/date, 2024 weekday/holiday gate, preserved AAPL May 20 2024 pause. Historical OHLCV NOT validated.');
