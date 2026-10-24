@@ -302,7 +302,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
-    onComplete:()=>{if(stage<8)nextStage()}
+    onComplete:()=>{if(stage<8)nextStage(true)}
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -632,12 +632,20 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   }
   previous.disabled=stage===0;next.disabled=stage===8;
  }
- function nextStage(){
+ function nextStage(fromInstructor=false){
   if(stage===3&&!predictionLocked){mark('Lock your prediction before continuing.');return}
   if(stage===4&&!practiceResolved){mark('Complete the guided practice or record your self-study response before continuing.');return}
   if(stage===6&&!selfReview){mark('Complete the reflection before continuing.');return}
   if(stage===7&&!transferResolved){mark('Complete the unfamiliar case before opening results.');return}
-  if(stage<8){stage++;render()}
+  if(stage<8){
+   stage++;render();
+   // Keep the incoming teaching stage visible following a submitted answer.
+   // Independent Predict/Assess use their existing protected controls.
+   if(fromInstructor){
+    const nextView=instructorInstance?.element||body.querySelector?.('h3');
+    nextView?.scrollIntoView?.({behavior:'smooth',block:'start'});
+   }
+  }
  }
  render();return true;
 }
