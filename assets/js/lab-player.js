@@ -195,7 +195,7 @@ async function requestLabQuestionPass({action='balance',questionId='',attemptId=
   });
   const data=await response.json().catch(()=>null);
   if(!response.ok||data?.ok!==true)
-   throw Error(String(data?.error||'Question Pass is not available. No credit was charged.').slice(0,180));
+   throw Error(String(data?.error||'Question Pass status could not be confirmed. Check your wallet before retrying.').slice(0,180));
   return data;
  }catch(error){
   if(error?.name==='AbortError')throw Error('Credit service timed out. Check your wallet before trying again.');
