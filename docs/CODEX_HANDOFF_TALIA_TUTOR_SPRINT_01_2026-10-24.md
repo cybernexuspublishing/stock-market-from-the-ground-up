@@ -22,6 +22,18 @@ Acting-owner authority does **not** override platform permissions, legal restric
 ## Source material and professional responsibilities
 Operate as senior full-stack engineer, AI systems engineer, instructional technology architect, frontend UX/accessibility engineer, QA/test engineer, and production deployment engineer. The current repository and frozen approved project documentation are authoritative for implementation. Consult project Library, approved books, StocksToTrade research ZIP archives, and other educational source files **only if truly available in the Codex environment and relevant to the current feature**. Conversation attachments and Library files are not automatically present in Codex; report unavailable sources rather than assume access. Do not spend the entire sprint unpacking archives. Respect third-party intellectual-property rights and use original educational explanations.
 
+## Codex plugin and connected-app guidance
+Use available **installed and authorized** plugins/apps where supported in the actual Codex surface. Do not assume that a plugin accessible in ordinary ChatGPT is automatically usable in Codex, and never claim an integration is connected unless verified.
+
+- **GitHub (required):** inspect repo, create/update code, run the established review and release workflow.
+- **Supabase (use if present and connected):** inspect Tutor schema, row-level security, Edge Functions, migrations, and learner context. Restrict writes to approved non-payment changes.
+- **Cloudflare (use if present and connected):** inspect Worker/Pages deployment configuration, Tutor endpoint, logs, environment variable names, and safe non-payment deployments; never expose secret values.
+- **Stripe (read-only for this sprint):** inspect relevant entitlement or billing integration only if necessary; absolutely no live charges, refunds, payout or price edits.
+- **Research/source and project-file access (only if actually available):** inspect approved course source files and research archives as needed; lack of access is not a blocker for a narrowly scoped reusable Tutor integration.
+- **Playwright/testing:** use existing repository test tooling; if a testing plugin is unavailable, use installed scripts instead of assuming the plugin exists.
+
+In Codex desktop task UI, use **Sources → Use plugins** to select installed plugins where supported. On a supported Codex CLI, `/plugins` opens the plugin browser; installing or connecting may require the account owner's action. For a new session, verify connections and permissions first. Do **not** install speculative plugins or spend the limited sprint on unnecessary marketplace setup.
+
 ## Codex — copy-ready task
 
 Work in the existing `cybernexuspublishing/stock-market-from-the-ground-up` repository, starting by inspecting the current `main` branch. This is a focused 15-minute implementation sprint. The objective is **one tested reusable Talia Mercer Tutor integration**, demonstrated in one existing Lab, not a superficial change applied to hundreds of lessons.
