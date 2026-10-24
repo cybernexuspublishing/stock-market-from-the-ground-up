@@ -151,7 +151,7 @@ assert(startDialogue?.hidden===true,'Start must introduce objectives without a q
 const fakeWallet=new Element('section');fakeWallet.textContent='Your available Crownlight Sparks balance';
 lesson.setWalletContent(fakeWallet);
 tabs[2].handlers.click();assert.equal(tabs[2].attrs['aria-selected'],'true');
-assert(all.some(n=>n===fakeWallet),'Wallet content must appear in the third panel');
+assert(nodes(lesson.element).some(n=>n===fakeWallet),'Wallet content must appear in the third panel');
 lesson.openTutor();
 assert.equal(tabs[1].attrs['aria-selected'],'true');
 assert(all.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Hello, Maya. I’m Talia')),
