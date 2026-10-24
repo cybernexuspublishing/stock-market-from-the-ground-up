@@ -153,6 +153,23 @@ The original H-series decision cases are represented as **FICTIONAL STUDY EXERCI
 
 **Acceptance remaining:** Validate a signed-in account with profiles.first_name set and an account without a usable first name, in both desktop and mobile views. Source and simulated tests alone are not full production acceptance.
 
+## Owner-directed instructional layout revision — 2026-10-23 (v3.3.1)
+
+**Supersedes the earlier provisional instructor identities:** The currently displayed instructor is **Talia Mercer**, not Avery or Elara Voss. The existing authenticated member first-name-only greeting remains unchanged.
+
+**Production source changes:**
+- Lab Stage 1 shows **Historical Lab Setup BEFORE the Start heading and instructor**, retaining the same ticker/date/pause/timeframe values and their source-provenance caution.
+- Talia's narration is distinctly bordered. Her worked demonstration and comprehension check become separate cards immediately beneath the chart/instructor region.
+- Learning Objectives and Market Tutor are side-by-side keyboard-accessible tab controls linked to one content pane below; the Tutor still uses the original authenticated, consent-based service and does not receive private answers.
+- Historical chart/source status and historical setup/replay/curriculum references use a second two-tab, shared-content panel while preserving existing attachment references.
+- The primary **Start Guided Learning** button is gold/high contrast; an **Ask Market Tutor** action sits next to it and opens the same Tutor tab.
+- The member decision and reflection remain in the protected end-of-lesson workbench, now presenting six prompts **one at a time** with Previous/Next navigation. Talia's prompts can be accessed from stages within the guided journey, and prior input is retained while progressing. Existing IDs, decision lock, graded assessment boundary, entitlement checks, server-saved attempt schema and no-look-ahead rules were not replaced.
+- The shared application continues to support 419 canonical Labs, four modes and the 30-competency model.
+
+**Evidence:** Source syntax checks passed for instructor, player, engine and workspace-flow modules. Simulated source mounts passed across 419/419 canonical Start and Learn stages. GitHub main was checked against Cloudflare's release manifest after the change. The new regression test is tests/test_v33_focus_workspace.mjs, wired to the existing sitewide CI workflow, with affected browser-test expectations updated.
+
+**Unclosed acceptance:** A signed-in, end-to-end browser session is still required to validate visual layout, mobile focus/order, Tutor request success, protected assessments, saving and actual database persistence. A matching deploy SHA does not prove that all Playwright jobs passed. No new Supabase SQL or billing change was introduced.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
