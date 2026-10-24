@@ -55,7 +55,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
  identity.append(title);
- head.append(avatar,identity);rootEl.append(head);
+ if(stage!==0)head.append(avatar,identity);
+ else head.hidden=true; // Historical Lab Setup will occupy this header instead.
+ rootEl.append(head);
  // Accept only explicitly provided first-name fields. Never derive the form of
  // address from a username, display name, email, or the member's login handle.
  const firstName=typeof memberFirstName==='string'&&memberFirstName.trim().length<=80&&
@@ -116,9 +118,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // Every accepted response advances to the next question; a completed
  // set asks the universal engine to advance the appropriate study stage.
  // Reviewed grades and locked independent decisions remain server-owned.
- const fallbackQuestion=stage===0
-  ?'What does '+String(concept||subject).slice(0,90)+' mean in your own words?'
-  :'What evidence supports your interpretation, and what remains uncertain?';
+ const fallbackQuestion='After the demonstration, use Check My Understanding to review the concept.';
  const prompts=(Array.isArray(questions)?questions:[]).filter(q=>typeof q==='string'&&q.trim())
   .map(q=>q.trim()).slice(0,8);
  if(!prompts.length)prompts.push(fallbackQuestion);
@@ -282,6 +282,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  paintQuestion();
  interaction.append(memberQuestion,counter,prompt,reflection,submitReflection,suggestions,reply);
+ // Start is orientation only. Learn teaches before any optional concept check.
+ // Retain the accessible answer form for the explicit Check My Understanding action.
+ interaction.hidden=stage===0||stage===1;
  transcript.append(interaction);
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
@@ -301,8 +304,10 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const narration=label+'\n\n'+lines.join('\n\n');
   reserve.textContent=narration;accessible.textContent=narration;
   stopTyping?.();stopTyping=animate(visual,narration,false,skip);
-  memberQuestion.textContent='You asked: '+(requested||label);
-  reply.textContent='Talia has answered your question. The lesson question remains available below.';
+  memberQuestion.textContent=requested?'You asked: '+requested:'';
+  reply.textContent=requested?'Talia has answered your question. Continue with the lesson when ready.':'';
+  // A lesson explanation is not a request for a new assessment answer.
+  if(stage===1&&!understandingMode)interaction.hidden=true;
   return true;
  }
  function teachFeature({type,feature,custom,values}={}){
@@ -364,6 +369,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    ?'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100. These completed values cannot predict the next candle. If High equals Low, the percentage is undefined because division by zero is not permitted.'
    :'';
   const narration=candleFormula?short+'\n\n'+candleFormula:short;
+  if(stage===1||stage===2){
+   return teachDirect(plan.title,[narration]);
+  }
   reserve.textContent=narration;
   accessible.textContent=narration;
   stopTyping?.();stopTyping=animate(visual,narration,false,skip);
@@ -394,7 +402,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  function askUnderstanding(){
   if(!plan?.check)return false;
   understandingMode=true;featureLesson=null;featurePhase=0;
-  const message='Before moving on, explain this in your own words:\n\n'+plan.check.question;
+  interaction.hidden=false;
+  const message='Now that you have studied the visual demonstration, check your understanding:\n\n'+plan.check.question;
   reserve.textContent=message;accessible.textContent=message;
   stopTyping?.();stopTyping=animate(visual,message,false,skip);
   counter.textContent='Check your understanding · ungraded';
@@ -542,6 +551,10 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   question.focus?.();
  };
  return {element:rootEl,openTutor,teachFeature,teachWorkedStep,teachSupplement,askUnderstanding,resumeTeaching,
+  setStartSetup(setup){
+   if(stage!==0||!setup)return;
+   head.replaceChildren(setup);head.hidden=false;
+  },
   setWalletContent(wallet){
    if(!walletPane||!wallet)return;
    walletPane.replaceChildren(wallet);
