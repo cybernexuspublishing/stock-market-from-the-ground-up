@@ -39,7 +39,7 @@ try{
   assert.match(narration,/VWAP|volume.weighted/i,'Learn must introduce VWAP before discussing a Reclaim');
   assert(!narration.includes('The focus of this lesson is F3-C06-L01'),
    'A Lab locator must not be read as its educational topic');
-  assert.match(await host.locator('.gu-v33-graphic, .gu-l33-graphic').first().innerText(),/FICTIONAL/i);
+  assert.match(await host.locator('.gu-v33-graphic, .gu-l33-graphic').first().innerText(),/SIMULATED|ILLUSTRATIVE/i);
   assert.equal(await host.locator('.gu-l33-chart-reference').count(),1,
    'Restore original-reference chart with aligned data panel');
   const visualWorkbench=host.locator('.gu-v34-unified-lesson');
