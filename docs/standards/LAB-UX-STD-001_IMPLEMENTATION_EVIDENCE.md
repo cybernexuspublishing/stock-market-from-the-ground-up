@@ -138,6 +138,21 @@ The original H-series decision cases are represented as **FICTIONAL STUDY EXERCI
 
 **Source verification:** Modified JavaScript parsed; all **419/419** canonical Lab IDs mounted and advanced from Start to Learn with Avery’s panel in simulated runtime testing. Automated source and browser regressions were updated for typed objectives and linked chart states. **Do not infer a passing GitHub Actions browser run or production member acceptance from source-only checks.** Editorial review of the remaining Labs and live member-mode testing remain open.
 
+## Member first-name personalization and distinct instructor identity — 2026-10-23
+
+**Owner-requested change:** Replace the provisional instructor name Avery. Address each signed-in member by their **first name**, NOT their username, public handle, full name, or email.
+
+**Implementation:**
+
+- The first-party fictional/virtual guide is **Elara Voss — Your Learning Instructor**, visibly identified as a virtual course guide rather than a real person or AI-generated character.
+- The existing /api/account?action=identity backend, already authenticated and member-scoped, returns profile.firstName sourced from profiles.first_name. Lab Player reads that field only after a session is available; the allowed fallback is exclusively the registration user_metadata.first_name value.
+- If no valid first name exists, Elara uses a neutral greeting. Never infer a name from username, display_name, full_name, email, or public navigation data. No account identity change is required and no new SQL is introduced.
+- The name is inserted as text, not interpreted as HTML, and is not appended to Tutor questions, URLs, logs, credits, assessments or local persistence.
+- The shared Learning Engine forwards memberFirstName into safe instructor stages. Member first-name personalization does not change learning mode permissions, protected assessment behavior, membership entitlements, or the 419 canonical Lab IDs.
+- Added first-name, invalid-name, missing-name and identity authorization checks to tests/test_lab_v33_instructor.mjs and tests/test_v33_member_first_name.mjs, integrated with the existing Lab CI workflow.
+
+**Acceptance remaining:** Validate a signed-in account with profiles.first_name set and an account without a usable first name, in both desktop and mobile views. Source and simulated tests alone are not full production acceptance.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
