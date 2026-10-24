@@ -154,3 +154,19 @@
 #gu-v32-teaching-slot .gu-v33-instructor-head .gu-v33-setup-field dd{
  overflow-wrap:anywhere;
 }
+
+
+/* Keep open learning chat actions visible while only the assessment form is
+ * concealed. Grid auto-flow prevents former row-two overlap with the chat. */
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-member-question,
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-suggestions,
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-reply{
+ grid-column:1;min-width:0;
+}
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-dialogue{
+ grid-area:auto!important;min-width:0;
+}
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-reply:empty,
+#gu-v32-teaching-slot .gu-v33-instructor-narration>.gu-v33-instructor-member-question:empty{
+ display:none!important;
+}
