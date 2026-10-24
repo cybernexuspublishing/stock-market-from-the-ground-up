@@ -4,13 +4,23 @@
 - **Project:** The Stock Market: From the Ground Up
 - **Date:** 2026-10-24
 - **Version:** 1.0
-- **Status:** Ready for Codex implementation; not implemented or production-accepted
+- **Status:** Ready for Codex implementation, with acting-owner authority; not implemented or production-accepted
 - **Repository:** `cybernexuspublishing/stock-market-from-the-ground-up`
 - **Baseline:** `main` (inspect current HEAD before editing)
 - **Timebox:** One focused 15-minute Codex development session
 - **Scope:** Reusable Talia Mercer Tutor foundation for the 419 learning Labs and approved Boot Camps
 - **Out of scope:** Stripe changes, live payments, pricing, unrelated redesign work
 - **Dependencies:** Existing Lab engine, Tutor endpoint, authentication, entitlements, progress/assessment state; verify rather than assume readiness
+
+## Delegated acting-owner authority (controlling for this sprint)
+The website owner explicitly appoints Codex as **acting project owner and implementation lead** for this authorized 15-minute sprint. Codex may independently inspect, decide, implement, test, approve its own non-financial technical decisions, and deploy eligible tested changes to production through the project's existing controls. Do not stop for routine owner confirmation when a decision falls within the approved website, Tutor, Labs, Boot Camps, UI, database, or operational scope. Preserve approved/frozen project decisions unless a documented conflict requires escalation. Record material decisions and evidence in the closeout.
+
+**Sole reserved category — live payments and financial transactions:** Codex must **not** initiate, simulate as live, capture, refund, void, or otherwise execute real-money payments or transfers; must not conduct live Stripe checkouts or change live billing prices, subscription charges, payouts, or production payment credentials without a separate explicit instruction from the owner. Existing Stripe integrations may be read or inspected without modifying live financial configuration. Sandbox/no-charge testing is permissible only where no actual charge or live transaction can occur.
+
+Acting-owner authority does **not** override platform permissions, legal restrictions, branch protections, security requirements, source licenses, or mandatory checks. Never falsely claim that deployment, security review, or payment authorization was verified. No new paid vendor expenditure without explicit owner consent.
+
+## Source material and professional responsibilities
+Operate as senior full-stack engineer, AI systems engineer, instructional technology architect, frontend UX/accessibility engineer, QA/test engineer, and production deployment engineer. The current repository and frozen approved project documentation are authoritative for implementation. Consult project Library, approved books, StocksToTrade research ZIP archives, and other educational source files **only if truly available in the Codex environment and relevant to the current feature**. Conversation attachments and Library files are not automatically present in Codex; report unavailable sources rather than assume access. Do not spend the entire sprint unpacking archives. Respect third-party intellectual-property rights and use original educational explanations.
 
 ## Codex — copy-ready task
 
@@ -25,11 +35,11 @@ Work in the existing `cybernexuspublishing/stock-market-from-the-ground-up` repo
 7. Preserve existing authentication, permission enforcement, progress tracking, assessment integrity, grading, the 30-competency model, and read-only showcase restrictions.
 8. Demonstrate and test the shared component in **one existing Lab**. Make the architecture reusable for the other 418 Labs and Boot Camp instructional units, but do not bulk-modify content as part of this sprint.
 9. Run targeted existing tests and, where feasible, add a regression test for contextual Tutor invocation, free assistance, and error handling. Follow repository conventions.
-10. If the change is safe and tested, report the appropriate deployment pathway. Do **not** deploy unverified changes. Do not touch Stripe, product prices, subscription settings, or initiate financial transactions.
+10. If the change is safe and tested, report the appropriate deployment pathway. With delegated acting-owner authorization, production deployment of **tested non-payment changes** is permitted through established deployment controls. Do **not** deploy unverified changes. Live-payment operations remain reserved as defined above.
 
 ### Production and source-control safeguards
 - Treat prior approved/frozen project requirements as controlling; flag conflicts.
-- Prefer a focused feature branch and reviewable pull request rather than making untested application changes directly on `main`. The owner requested the **handoff document** on `main`; that does not authorize bypassing production tests.
+- The owner has delegated acting-owner approval for tested non-financial implementation and production deployment. Prefer a feature branch and reviewable pull request when project controls require it; direct main changes are permitted only when authorized by repository rules and adequately validated. Never bypass mandatory checks.
 - Keep the scope limited to Tutor and shared instructional integration.
 - Do not remove or alter unrelated functionality.
 - Do not represent static scripted responses as an operational AI provider.
