@@ -69,7 +69,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const introduction=stage===0
   ?('Hello'+(firstName?', '+firstName:'')+'. I’m Talia, your instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
   :stage===1
-   ?((firstName?firstName+', let’s':'Let’s')+' work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.')
+   ?(lessonContext.visualType==='candle'?'Now let’s build one candle together. I’ll point to each price as we go, and I’ll show you why every calculation works before using the numbers. You can ask me for another example whenever you need one.':(firstName?firstName+', let’s':'Let’s')+' explore this idea together. I’ll explain it first, then show you what to look for.')
    :stage===2
     ?'Now you can change one variable and see how the example responds. I’ll help you distinguish what changes from what remains unknown.'
     :stage===4
@@ -106,9 +106,12 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // The animated copy is visual-only to avoid dozens of screen reader updates.
  const accessible=el('p',full,'gu-v33-instructor-accessible');
  const transcript=el('div',undefined,'gu-v33-instructor-narration');
+ const initialLessonTitle=stage===1&&lessonContext.visualType==='candle'?'The completed candlestick':'';
+ const transcriptTitle=el('h3',initialLessonTitle,'gu-v33-instructor-lesson-title');
+ transcriptTitle.hidden=!initialLessonTitle;
  const reserve=el('p',full,'gu-v33-instructor-reserve');reserve.setAttribute('aria-hidden','true');
  const visual=el('p',undefined,'gu-v33-instructor-typing');visual.setAttribute('aria-hidden','true');
- transcript.append(reserve,visual);
+ transcript.append(transcriptTitle,reserve,visual);
  const controls=el('div',undefined,'gu-v33-instructor-controls');
  const skip=el('button','Show full text');skip.type='button';skip.className='btn secondary gu-v33-instructor-skip';
  controls.append(skip);
@@ -392,6 +395,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
   featureLesson=null;featurePhase=0;understandingMode=false;
+  transcriptTitle.textContent=initialLessonTitle;
+  transcriptTitle.hidden=!initialLessonTitle;
   reserve.textContent=full;accessible.textContent=full;
   stopTyping?.();stopTyping=animate(visual,full,true,skip);
   paintQuestion();
@@ -404,8 +409,10 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const wasFocus=Boolean(featureLesson||understandingMode);
   featureLesson=null;featurePhase=0;understandingMode=false;
   if(wasFocus)paintQuestion();
-  const narration=label+'\n\n'+lines.join('\n\n');
-  reserve.textContent=narration;accessible.textContent=narration;
+  transcriptTitle.textContent=label;
+  transcriptTitle.hidden=false;
+  const narration=lines.join('\n\n');
+  reserve.textContent=narration;accessible.textContent=label+'\n\n'+narration;
   stopTyping?.();stopTyping=animate(visual,narration,false,skip);
   memberQuestion.textContent=requested?'You asked: '+requested:'';
   reply.textContent=requested?'Talia has answered your question. Continue with the lesson when ready.':'';
@@ -474,7 +481,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    :'';
   const narration=candleFormula&&!plan.script?short+'\n\n'+candleFormula:short;
   if(stage===1||stage===2){
-   return teachDirect(plan.script?'Talia’s '+plan.title.toLowerCase()+' lesson':plan.title,[narration]);
+   return teachDirect(plan.title,[narration]);
   }
   reserve.textContent=narration;
   accessible.textContent=narration;
