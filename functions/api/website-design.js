@@ -18,7 +18,8 @@ export async function onRequest({request,env}){
    db(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(userId)+'&limit=1'),
    db(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(userId)),
    db(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(userId)+'&limit=1')]);
-  if(['test','showcase'].includes(profile?.[0]?.account_kind)||
+  if(profile?.length!==1||!Array.isArray(roles)||!Array.isArray(flags)||
+   ['test','showcase'].includes(profile[0].account_kind)||
    !roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>Date.now()))||
    ['suspended','restricted'].includes(String(flags?.[0]?.status||'').toLowerCase()))
    return reply({ok:false,error:'Owner access required'},403);
@@ -30,5 +31,13 @@ export async function onRequest({request,env}){
    p_actor:userId,p_theme:body.theme,p_expected_revision:body.expectedRevision
   }});
   return reply({ok:true,design:updated});
- }catch(e){return reply({ok:false,error:e?.status===503?'Website design service is temporarily unavailable. No change confirmed.':String(e.message||'Unable to change theme').slice(0,150)},e.status||500)}
+ }catch(e){
+  // Do not expose provider errors, internal table names, or authorization details.
+  const status=[400,403,405,409,413].includes(e?.status)?e.status:503;
+  const message=status===409?'Website design changed; refresh before retrying.':
+   status===403?'Owner access required.':
+   status===413?'Request too large.':
+   'Website design service is temporarily unavailable. No change confirmed.';
+  return reply({ok:false,error:message},status);
+ }
 }
