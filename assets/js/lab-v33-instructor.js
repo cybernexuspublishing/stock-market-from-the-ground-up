@@ -125,10 +125,41 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   reply.textContent='';
   submitReflection.disabled=false;
  }
- let submitting=false,finished=false;
+ let submitting=false,finished=false,featureLesson=null,featurePhase=0;
  const submit=async()=>{
   if(submitting||finished)return;
   const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
+  if(featureLesson){
+   // Formative instructional responses NEVER substitute for graded Assess,
+   // private rubrics, independent predictions or server-controlled replay.
+   if(value.length<8&&!['yes','no','3','ema9','ema20'].includes(value.toLowerCase())){
+    reply.textContent='Please explain the observation in your own words before continuing.';
+    return;
+   }
+   if(featurePhase===0){
+    featurePhase=1;
+    const detail=featureLesson;
+    const correction='Worked example: '+detail.example+'\\n\\nCommon mistake: '+detail.mistake+
+     '\\n\\nLimitation: '+detail.limit;
+    transcript.querySelector('.gu-v33-instructor-reserve').textContent=correction;
+    accessible.textContent=correction;
+    stopTyping?.();stopTyping=animate(visual,correction,false,skip);
+    counter.textContent='Practice the correction · '+detail.title;
+    prompt.textContent='What mistake should you avoid with '+detail.title.toLowerCase()+
+     ', and how would you correct it?';
+    reflection.value='';reply.textContent='Compare your answer with the worked explanation above.';
+    return;
+   }
+   const complete=featureLesson;
+   featureLesson=null;featurePhase=0;
+   // The chart progresses its OWN feature sequence without changing any
+   // independently protected stage. The final chart focus restores questions.
+   rootEl.dispatchEvent?.(new CustomEvent('gu-v34-focus-answered',{
+    bubbles:true,detail:{type:complete.type,feature:complete.feature}
+   }));
+   if(!featureLesson)resumeTeaching();
+   return;
+  }
   const numerical=/^Enter the numerical/i.test(prompts[index]);
   if((numerical&&(!value||!Number.isFinite(Number(value))))||(!numerical&&value.length<20)){
    reply.textContent=numerical?'Enter a valid numerical result.':'Explain your reasoning using at least 20 characters.';
@@ -174,7 +205,31 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  paintQuestion();
  interaction.append(counter,prompt,reflection,submitReflection,reply);
  transcript.append(interaction);
- const stopTyping=animate(visual,full,seen,skip);
+ let stopTyping=animate(visual,full,seen,skip);
+ function resumeTeaching(){
+  featureLesson=null;featurePhase=0;
+  reserve.textContent=full;accessible.textContent=full;
+  stopTyping?.();stopTyping=animate(visual,full,true,skip);
+  paintQuestion();
+ }
+ function teachFeature({type,feature}={}){
+  if(!root.GroundUpLabV34InteractiveLessons?.get)return false;
+  const plan=root.GroundUpLabV34InteractiveLessons.get({
+   type,feature,concept,guide:lessonContext.guide
+  });
+  featureLesson=plan;featurePhase=0;
+  const short=plan.title+'.\\n\\n'+plan.definition+
+   '\\n\\nWhy: '+plan.why+'\\n\\nHow: '+plan.method;
+  reserve.textContent=short;
+  accessible.textContent=short;
+  stopTyping?.();stopTyping=animate(visual,short,false,skip);
+  counter.textContent='Interactive lesson · '+plan.title;
+  prompt.textContent=plan.question;
+  reflection.value='';
+  reflection.disabled=false;submitReflection.hidden=false;submitReflection.disabled=false;
+  reply.textContent='Observe the highlighted chart evidence, then answer in your own words.';
+  return true;
+ }
  const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
  objectivesPanel.append(el('h4','Your learning objectives'));
  const objectives=el('ol');
@@ -341,7 +396,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   tutorTab.focus?.();support.scrollIntoView?.({behavior:'smooth',block:'nearest'});
   question.focus?.();
  };
- return {element:rootEl,openTutor,
+ return {element:rootEl,openTutor,teachFeature,resumeTeaching,
   setWalletContent(wallet){
    if(!walletPane||!wallet)return;
    walletPane.replaceChildren(wallet);
