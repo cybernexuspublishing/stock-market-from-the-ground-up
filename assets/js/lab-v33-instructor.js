@@ -416,7 +416,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  function teachFeature({type,feature,custom,values}={}){
   if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
   const base=custom||root.GroundUpLabV34InteractiveLessons.get({
-   type,feature,concept,guide:lessonContext.guide
+   type,feature,concept,guide:lessonContext.guide,
+   labId:lessonContext.labId,bridge:lessonContext.bridge,teaching:lessonContext.teaching
   });
   // Keep the teaching example consistent with the actual illustrated
   // downward candle when the learner is studying Bearish Candle.
