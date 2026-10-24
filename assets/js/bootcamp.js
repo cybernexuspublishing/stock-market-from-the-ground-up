@@ -46,7 +46,7 @@
   const d=days.find(x=>x.day===selected);
   if(!d)return;
   const checkpoint=checkpoints.get(selected);
-  const guideSlot=q('gu-bc-v32-stage');
+  const guideSlot=q('gu-bc-v32-stage')?.querySelector('#gu-v32-teaching-slot')||q('gu-bc-v32-stage');
   if(guideSlot){
    const first=d.relatedLabs?.[0]?.id;
    if(first)void globalThis.GroundUpLabEngineV32Universal?.mount?.({
