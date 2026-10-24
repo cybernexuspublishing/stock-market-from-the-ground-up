@@ -419,7 +419,11 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    }else{
     appendParagraph(body,'Describe permitted price, volume, levels, and timeframe for the actual book task. Do not fill gaps with invented historical bars.');
    }
-   if(special){
+   if(kind==='candle'&&special){
+    // The v3.2 interaction now lives in the SAME shared candle component:
+    // slider, OHLC side panel and derived measures all update together.
+    showVisual(2,topic==='Bearish Candle'?'bearish':'default');
+   }else if(special){
     const label=el('label',kind==='candle'?'Closing price (USD)':'Shares at $10');
     const range=el('input');range.type='range';range.min=kind==='candle'?'30.5':'50';range.max=kind==='candle'?'32.5':'500';range.step=kind==='candle'?'0.05':'50';range.value=String(experimentValue);
     label.append(range);body.append(label);const visual=root.GroundUpLabV33Visual?.create(kind,experimentValue);if(visual)body.append(visual.wrap);const output=el('output');output.className='gu-v32-output';body.append(output);
@@ -672,7 +676,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
       }
       actions.append(prevWork,showWork,nextWork);
       work.append(counter,script,actions);
-      chart.append(work);
+      const visualButtons=chart.querySelector('.gu-l33-interactive-tools');
+      if(visualButtons)visualButtons.insertAdjacentElement('afterend',work);
+      else chart.append(work);
       counter.textContent='Different fictional case · Step 1 of '+worked.length;
       script.textContent='Select “Show and explain on chart” to switch from the introductory $31.00 candle to this separate worked example.';
       prevWork.disabled=true;
@@ -693,14 +699,17 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     }
     hero.addEventListener('gu-v34-visual-focus',event=>{
      if(!chart.contains(event.target))return;
-     if(visualType==='candle'){
-      // Clicking an original candle label returns to the matching reference
-      // example. Otherwise Talia might narrate $31 while the separate
-      // worked-case candle still displays $20.
-      chart.setTeachingCandle?.(topic==='Bearish Candle'
-       ?{o:32,hv:32.5,l:30.5,c:31}:{o:31,hv:32.5,l:30.5,c:32});
-     }
-     instructorInstance?.teachFeature?.(event.detail||{});
+     // Keep the member's current slider/worked case visible; narrate the
+     // actual prices instead of silently replacing the selected candle.
+     const values=chart.getTeachingCandle?.();
+     instructorInstance?.teachFeature?.({...event.detail,values});
+    });
+    hero.addEventListener('gu-v36-candle-adjusted',event=>{
+     if(!chart.contains(event.target))return;
+     instructorInstance?.teachSupplement?.('Explore the closing price',[
+      event.detail?.message||'Observe how the selected candle changed.',
+      'The body is the absolute difference between Close and Open. The full range remains High minus Low.'
+     ]);
     });
     hero.addEventListener('gu-v34-focus-answered',event=>{
      if(!coach.contains(event.target))return;
