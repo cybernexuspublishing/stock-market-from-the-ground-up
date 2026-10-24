@@ -77,21 +77,31 @@ function enhance(view,options){
  }else{
   const overlays=Array.from(svg.querySelectorAll('path, line[stroke="#e0ba76"], text[fill="#eed5a1"]'));
   const volume=Array.from(svg.querySelectorAll('rect')).filter(x=>x.getAttribute('fill')==='#527dad');
+  const candles=Array.from(svg.querySelectorAll('[data-candle-index]'));
+  const vwap=type==='vwap';
   function set(mode){
    for(const b of switches)b.setAttribute('aria-pressed',String(b.dataset.view===mode));
-   overlays.forEach(p=>p.style.display=mode==='volume'?'none':'');
+   overlays.forEach(p=>p.style.display=vwap?(mode==='both'?'':'none'):(mode==='volume'?'none':''));
    volume.forEach(p=>p.style.display=mode==='price'?'none':'');
+   if(vwap)candles.forEach(c=>{c.style.display=mode==='volume'?'none':''});
    view.querySelectorAll('.gu-l33-legend span').forEach(span=>{
-    const label=span.textContent||'';
-    const isVolume=label.trim()==='Volume';
+    const label=(span.textContent||'').trim();
+    const isVolume=label==='Volume',isOverlay=/VWAP|Weighted|EMA|Reference/.test(label);
     span.style.display=isVolume?(mode==='price'?'none':'')
-      :(mode==='volume'?'none':'');
+      :isOverlay&&vwap?(mode==='both'?'':'')
+       :mode==='volume'?'none':'';
    });
-   state.textContent=mode==='price'?'Price and applicable indicator overlays; volume bars hidden.'
-    :mode==='volume'?'Volume bars and candles; indicator overlays hidden.'
+   state.textContent=vwap?(
+    mode==='price'?'Completed candle prices are displayed without VWAP or volume.'
+    :mode==='volume'?'The same completed periods are displayed as volume bars.'
+    :'Completed prices, running bar-close-weighted VWAP and aligned volume are displayed.'
+   ):mode==='price'?'Price and applicable indicator overlays; volume bars hidden.'
+    :mode==='volume'?'Candles and aligned volume with indicator overlays hidden.'
     :'Price, available indicator overlays, and aligned volume bars.';
   }
-  for(const [label,key] of [['Price + indicators','price'],['Price + volume','volume'],['Both','both']]){
+  const views=vwap?[['Price','price'],['Price + VWAP','both'],['Volume','volume']]
+   :[['Price + indicators','price'],['Price + volume','volume'],['Both','both']];
+  for(const [label,key] of views){
    const b=button(label,()=>set(key));b.dataset.view=key;
   }
   set('both');
