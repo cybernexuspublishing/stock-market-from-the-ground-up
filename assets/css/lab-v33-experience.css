@@ -105,3 +105,22 @@ body.gu-lab-member :is(.gu-v33-reference-tab,.gu-v33-evidence-nav,.gu-v33-eviden
 
 body.gu-lab-member .gu-v33-evidence-intro{padding:12px 14px;background:#19364b;border-left:4px solid #eabb49;border-radius:8px;color:#e4f0fa;line-height:1.55}
 body.gu-lab-member .gu-v33-evidence-instructor{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#e6c66f;font-weight:800;margin:0 0 5px}
+
+/* Nine journey stages belong on the SINGLE top progress bar. */
+body.gu-lab-member #player-stage-progress.track{height:auto;min-height:54px;margin-top:12px;overflow-x:auto;overflow-y:hidden;border:1px solid #517389;border-radius:10px;background:#1b2b39;scrollbar-width:thin}
+body.gu-lab-member #player-stage-progress .journey-progress-track-inner{position:relative;min-width:760px;height:54px}
+body.gu-lab-member #player-stage-progress .fill{position:absolute;inset:0 auto 0 0;height:100%;background:#1e6756;opacity:.68;pointer-events:none;z-index:0}
+body.gu-lab-member #player-stage-progress .journey{position:relative;z-index:1;min-width:0;margin:0;padding:0;height:100%;border:0;background:transparent}
+body.gu-lab-member #player-stage-progress .journey-top{position:absolute!important;width:1px;height:1px;padding:0!important;margin:-1px!important;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+body.gu-lab-member #player-stage-progress .stage-grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));height:100%;gap:0;padding:0}
+body.gu-lab-member #player-stage-progress .stage-item{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;gap:3px;padding:5px 3px;color:#d1deea;font-size:.71rem;font-weight:600;white-space:nowrap;border-right:1px solid #476075}
+body.gu-lab-member #player-stage-progress .stage-item:last-child{border-right:0}
+body.gu-lab-member #player-stage-progress .stage-item .bullet{width:8px;height:8px;display:block;margin:0;border:0;flex:none}
+body.gu-lab-member #player-stage-progress .stage-item.current{color:#fff;background:#31566a;font-weight:800;box-shadow:inset 0 -3px #f3c75b}
+body.gu-lab-member #player-stage-progress .stage-item.complete{color:#ebfff5}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.gu-v33-journey,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.gu-v32-progress,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.gu-v33-progress{display:none!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>h2[hidden]{display:none!important}
+body.gu-lab-member .gu-v33-structure-checkpoints{padding-left:22px;line-height:1.6;color:#d2e6f3;margin:9px 0}
+body.gu-lab-member .gu-v33-structure-checkpoints li{margin:7px 0}
