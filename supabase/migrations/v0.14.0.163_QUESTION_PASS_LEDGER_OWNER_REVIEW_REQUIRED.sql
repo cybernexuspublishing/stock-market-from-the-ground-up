@@ -5,7 +5,7 @@
 begin;
 create table if not exists public.groundup_question_pass_buckets (
  id uuid primary key default gen_random_uuid(),
- user_id uuid not null references auth.users(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete restrict,
  source text not null check (source in ('included','purchased')),
  origin_key text not null,
  initial_credits integer not null check (initial_credits >= 1),
@@ -27,7 +27,7 @@ create index if not exists idx_groundup_qp_available
 
 create table if not exists public.groundup_question_pass_spends (
  id uuid primary key default gen_random_uuid(),
- user_id uuid not null references auth.users(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete restrict,
  bucket_id uuid not null references public.groundup_question_pass_buckets(id),
  request_id uuid not null,
  attempt_id uuid not null,
