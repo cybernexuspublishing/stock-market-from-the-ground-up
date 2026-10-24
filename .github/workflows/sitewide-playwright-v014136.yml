@@ -60,6 +60,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014144_bootcamp_browser.mjs
+      - name: Browser-verify all Academy durations, member enrollment, private progress and account-switch isolation
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014168_academy_browser.mjs
       - name: Chromium-verify Scanner Builder data validation and private source notes
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
