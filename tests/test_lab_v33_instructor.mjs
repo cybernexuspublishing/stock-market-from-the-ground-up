@@ -43,7 +43,7 @@ assert(js.includes('node.textContent=String(content)')&&
  'Member and Tutor text must be inserted as textContent, never interpreted as HTML');
 assert(css.includes('prefers-reduced-motion:reduce'));
 class Element{
- constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.attrs={};this.style={};this.className='';this._text='';this.value='';this.type='';this.hidden=false;this.checked=false;}
+ constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.attrs={};this.style={};this.className='';this.classList={add:(...names)=>{this.className=[...new Set([...this.className.split(/\s+/).filter(Boolean),...names])].join(' ')},contains:name=>this.className.split(/\s+/).includes(name)};this._text='';this.value='';this.type='';this.hidden=false;this.checked=false;}
  get textContent(){return this._text}
  set textContent(t){this._text=String(t??'')}
  append(...x){this.children.push(...x)}
