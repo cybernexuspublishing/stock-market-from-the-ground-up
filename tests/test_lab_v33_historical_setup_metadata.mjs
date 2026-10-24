@@ -17,7 +17,7 @@ for(const lab of labs){
  if(ymd.startsWith('2024-'))assert(!holidays2024.has(ymd),'2024 holiday closure '+lab.id);
  for(const name of ['start','end']){
   const value=String(lab[name]||'');
-  if(value)assert(/^\d{1,2}:\d{2} [ap]\.m\. ET$/.test(value),'Use explicit ET pause times '+lab.id+' '+name);
+  if(value)assert(/^\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})? [ap]\.m\. ET$/.test(value),'Use explicit ET pause times '+lab.id+' '+name);
  }
 }
 const aapl=labs.find(x=>x.id==='F3-C01-L01');
