@@ -54,6 +54,40 @@ const candleTabs=Object.freeze({
  ]
 });
 
+const candleBearishTabs=Object.freeze({
+ understand:[
+  'A bearish candle finishes lower than it opened. We will use a different, clearly labeled example: Open $12.40, High $12.70, Low $11.90, and Close $12.10.',
+  'OPEN is the first price; CLOSE is the last price of this interval. HIGH and LOW are the extremes. The thick body reaches from $12.40 down to $12.10.',
+  'Because $12.10 (Close) is below $12.40 (Open), this completed candle is bearish. Red is a common color, but the price labels—not the color—tell the direction.'
+ ],
+ recognize:[
+  'Find the OPEN at $12.40: on a bearish candle it is at the TOP of the body.',
+  'Find the CLOSE at $12.10: it is at the BOTTOM of the body. The upper wick ends at HIGH $12.70 and the lower wick at LOW $11.90.',
+  'Compare the printed numbers before trusting color. The candle itself does not tell you whether it reached $12.70 before or after $11.90.'
+ ],
+ apply:[
+  'Let us calculate a bearish candle step by step. We subtract Open − Close for the positive body DISTANCE.',
+  'Step 1 — Body:\nOpen − Close = Body\n$12.40 (Open) − $12.10 (Close) = $0.30 (Body)',
+  'Step 2 — Full range:\nHigh − Low = Full Range\n$12.70 (High) − $11.90 (Low) = $0.80 (Range)',
+  'Step 3 — Upper wick:\nHigh − Open = Upper Wick\n$12.70 (High) − $12.40 (Open) = $0.30 (Upper Wick)',
+  'Step 4 — Lower wick:\nClose − Low = Lower Wick\n$12.10 (Close) − $11.90 (Low) = $0.20 (Lower Wick)',
+  'Step 5 — Check:\nLower Wick + Body + Upper Wick = Full Range\n$0.20 + $0.30 + $0.30 = $0.80. The pieces match.',
+  'Step 6 — Body percentage:\n(Body ÷ Full Range) × 100 = Body Percentage\n($0.30 ÷ $0.80) × 100 = 0.375 × 100 = 37.5%',
+  'In Experiment, move the closing-price slider from above the opening price to below it. Notice how the top and bottom edges of the body switch meanings.'
+ ],
+ mistake:[
+  'A bearish body is a positive distance, even though the candle closes lower. Subtract the lower number from the higher number.',
+  'Correct:\nOpen − Close = Body\n$12.40 − $12.10 = $0.30. Do not report −$0.30 as the BODY size.',
+  'The full range is different:\nHigh − Low = Full Range\n$12.70 − $11.90 = $0.80.',
+  'Do not infer that a red candle guarantees a further decline, or that its high was reached before its low.'
+ ],
+ limits:[
+  'This bearish candle does not show the order of transactions, the reason for the decline, actual fills, or the next candle.',
+  'The same OHLC prices can arise from several different within-interval paths. Use a valid time-and-sales record if the order of prints matters.',
+  'If High and Low are both $12.40, the whole candle must have Open and Close equal to $12.40, so body and range are both zero. Body percentage is undefined because the range is zero.'
+ ]
+});
+
 const lessons=Object.freeze({
  candle:Object.freeze({
   all:entry('The completed candlestick','One candle summarizes the Open (O), High (H), Low (L), and Close (C) of a specified time interval.','The four prices show what was observed in that interval; one candle is not an entire trend.','Find the top and bottom of the wicks, then identify where the body starts and ends.','In this illustrative five-minute example O=$31.00, H=$32.50, L=$30.50, C=$32.00.','Confusing the close with the highest price, or treating one candle as a prediction.','OHLC cannot reveal the order of intrabar transactions or the next bar.','What four prices does OHLC represent?','open high low close'),
@@ -103,10 +137,12 @@ function get({type='',feature='',concept='',guide={}}={}){
  const found=lessons[type]?.[key];
  if(type==='candle'&&Object.prototype.hasOwnProperty.call(candleTabs,key)){
   const base=lessons.candle.all;
+  const bearish=/\bbearish\b|\bdown candle\b/i.test(subject);
   return {...base,title:({understand:'Understand the candle',recognize:'Recognize each price',
    apply:'Apply the calculations',mistake:'Correct a common mistake',
    limits:'What the candle cannot show'})[key],
-   script:candleTabs[key].join('\n\n'),concept:subject,type,feature:key,verifiedHistory:false};
+   script:(bearish?candleBearishTabs[key]:candleTabs[key]).join('\n\n'),
+   concept:subject,type,feature:key,verifiedHistory:false};
  }
  if(found)return {...found,concept:subject,type,feature:key,verifiedHistory:false};
  // Subject-specific competency bridge. Never fabricate calculations, ticker
