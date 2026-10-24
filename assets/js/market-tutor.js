@@ -527,7 +527,7 @@ async function ask(){
    'Stopped waiting in this browser. The server might already have reserved AI capacity; no retry will use a paid provider automatically.':
    e.message+(e.status===403?' Visit the Membership page to review access.':''),'error');
  }finally{
-  if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false;
+  // Keep the member's Profile preference after each Tutor request.
   TUTOR.abortController=null;TUTOR.busy=false;$('tutor-ask').disabled=false;
   $('tutor-stop').disabled=true;$('tutor-retry').disabled=!TUTOR.lastDraft;
  }
@@ -548,7 +548,7 @@ async function refreshAiServiceStatus(){
   if(!response.ok||!x?.ok)throw Error('AI status cannot be verified');
   if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==requestedUser)return;
   toggle.disabled=x.authorized!==true||x.enabled!==true||x.remainingToday===0||x.globalAvailable===false;
-  if(toggle.disabled)toggle.checked=false;
+  toggle.checked=!toggle.disabled&&TUTOR.user?.user_metadata?.market_tutor_ai_enabled!==false;
   if(x.authorized!==true){
    host.textContent='Paid Market Tutor access is not active on this account.';
    count.textContent='View the Market Tutor product or Full Platform membership to get eligible access.';
@@ -576,7 +576,7 @@ async function initTutor(){
   $('tutor-question').value=TUTOR.lastDraft.question;
   $('tutor-reflection').value=TUTOR.lastDraft.learnerAnswer;
   $('tutor-mode').value=TUTOR.lastDraft.mode;
-  $('tutor-ai-consent').checked=false;updateCount();void ask();
+  updateCount();void ask();
  });
  $('tutor-calc-submit').addEventListener('click',()=>void calculateHypotheticalPosition());
  $('tutor-candle-submit').addEventListener('click',()=>void calculateHypotheticalCandle());
@@ -628,6 +628,7 @@ async function initTutor(){
     renderConversation();void refreshAiServiceStatus();historyStatus('Your account changed; private notes were cleared from this page.');
     status('Sign in to open your own saved Tutor history.');
    }
+   if(event==='USER_UPDATED'&&session?.user?.id===TUTOR.user?.id){TUTOR.user=session.user;void refreshAiServiceStatus();}
    if(event==='SIGNED_IN'&&newId!==TUTOR.user?.id){
     TUTOR.identityEpoch++;TUTOR.user=session.user;
     TUTOR.conversations=[];TUTOR.currentConversationId=null;renderConversationList();
