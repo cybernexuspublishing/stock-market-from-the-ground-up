@@ -22,7 +22,9 @@ assert "payment_method_collection" not in api or "payment_method_collection=if_r
 assert "GU58_STRIPE_LIVE_CATALOG_JSON" in api
 assert "session.amount_total!==0" in api
 assert "session.payment_intent!=null" in api
-assert "storeZeroMonthlyQA(request,env)" in hook
+# Current webhook passes the bounded, signed raw request bytes to the zero-dollar QA route.
+assert "try{raw=await boundedStripeBody(request)}" in hook
+assert "storeZeroMonthlyQA(request,env,raw)" in hook
 assert "checkHmac(raw" in hook
 assert "GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED" in hook
 assert "gu72_signed_zero_monthly_grant" in hook
