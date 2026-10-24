@@ -141,7 +141,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     const detail=featureLesson;
     const correction='Worked example: '+detail.example+'\\n\\nCommon mistake: '+detail.mistake+
      '\\n\\nLimitation: '+detail.limit;
-    transcript.querySelector('.gu-v33-instructor-reserve').textContent=correction;
+    reserve.textContent=correction;
     accessible.textContent=correction;
     stopTyping?.();stopTyping=animate(visual,correction,false,skip);
     counter.textContent='Practice the correction · '+detail.title;
@@ -154,7 +154,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    featureLesson=null;featurePhase=0;
    // The chart progresses its OWN feature sequence without changing any
    // independently protected stage. The final chart focus restores questions.
-   rootEl.dispatchEvent?.(new CustomEvent('gu-v34-focus-answered',{
+   if(typeof CustomEvent==='function')rootEl.dispatchEvent?.(new CustomEvent('gu-v34-focus-answered',{
     bubbles:true,detail:{type:complete.type,feature:complete.feature}
    }));
    if(!featureLesson)resumeTeaching();
@@ -230,6 +230,21 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   reply.textContent='Observe the highlighted chart evidence, then answer in your own words.';
   return true;
  }
+ // Every authored or competency-led lesson gets the same interactive
+ // understanding/recognition/application/mistake/transfer teaching affordance.
+ // This does not assert that each of the 419 cases has accepted editorial data.
+ const topicTools=el('div',undefined,'gu-v34-topic-tools');
+ topicTools.setAttribute('role','group');topicTools.setAttribute('aria-label','Choose a teaching focus');
+ for(const [focus,label] of [
+  ['understand','Understand'],['recognize','Recognize'],
+  ['apply','Apply'],['mistake','Common mistake'],['limits','Limitations']
+ ]){
+  const control=el('button',label,'btn secondary gu-v34-topic-button');
+  control.type='button';
+  listen(control,'click',()=>teachFeature({type:lessonContext.visualType||'general',feature:focus}));
+  topicTools.append(control);
+ }
+ if(stage===1||stage===2||stage===4||stage===6)rootEl.insertBefore?.(topicTools,transcript);
  const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
  objectivesPanel.append(el('h4','Your learning objectives'));
  const objectives=el('ol');
