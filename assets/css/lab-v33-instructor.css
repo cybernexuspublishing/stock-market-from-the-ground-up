@@ -215,3 +215,14 @@
 @media(max-width:540px){
  #gu-v32-teaching-slot .gu-v33-pass-choice-row{grid-template-columns:1fr}
 }
+
+
+/* Crownlight Sparks identity across all shared Lab & Boot Camp wallet tabs. */
+#gu-v32-teaching-slot .gu-v33-support-tab.gu-v33-wallet-tab{
+ background-image:url('../img/crownlight-spark.svg');
+ background-position:12px center;background-repeat:no-repeat;
+ background-size:23px 23px;padding-left:44px;
+}
+#gu-v32-teaching-slot .gu-v33-support-tab.gu-v33-wallet-tab[aria-selected="true"]{
+ background-color:#eabb49!important;
+}
