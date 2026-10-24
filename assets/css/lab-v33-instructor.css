@@ -41,7 +41,7 @@
 #gu-v32-teaching-slot .gu-v33-instructor-provenance{font-size:.76rem!important;line-height:1.4!important;color:#bfd0dd!important;margin:11px 0 0!important}
 @media(max-width:760px){#gu-v32-teaching-slot .gu-v33-instructor-worked,#gu-v32-teaching-slot .gu-v33-instructor-check{padding:11px}}
 
-/* Elara Voss: distinctive virtual learning instructor with member-first-name greetings. */
+/* Talia Mercer: distinctive virtual learning instructor with member-first-name greetings. */
 #gu-v32-teaching-slot .gu-v33-instructor-head{justify-content:flex-start;align-items:center;gap:11px}
 #gu-v32-teaching-slot .gu-v33-instructor-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#19577b,#16765c);color:#f4fcff;border:1px solid #5998a6;font:700 .93rem/1 system-ui,sans-serif}
 #gu-v32-teaching-slot .gu-v33-instructor-identity{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
@@ -58,3 +58,21 @@
 #gu-v32-teaching-slot .gu-v33-instructor-chart-link{display:block;margin:7px 0 4px;padding:8px 10px;font:650 .79rem/1.4 system-ui,sans-serif;color:#d9effc;background:#123b52;border:1px solid #4b849e;border-radius:8px;cursor:pointer}
 #gu-v32-teaching-slot .gu-v33-instructor-chart-link:hover{background:#19526b}
 #gu-v32-teaching-slot .gu-v33-instructor-chart-link:focus-visible{outline:3px solid #a1e8f3;outline-offset:2px}
+
+/* Clear instructor perimeter and one-at-a-time objectives / Tutor tabs. */
+#gu-v32-teaching-slot .gu-v33-instructor{border:2px solid #467f9f!important;background:linear-gradient(145deg,#112b42,#102235)!important;box-shadow:0 7px 23px rgba(0,0,0,.15)}
+#gu-v32-teaching-slot .gu-v33-instructor-head{border-bottom:1px solid #34556d;padding:0 0 12px;margin-bottom:13px}
+#gu-v32-teaching-slot .gu-v33-support-tabs{margin:16px 0 0;min-width:0}
+#gu-v32-teaching-slot .gu-v33-support-tablist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#gu-v32-teaching-slot .gu-v33-support-tab{cursor:pointer;text-align:center;min-width:0;white-space:normal;border:1px solid #456b83;border-radius:9px;color:#edf7fc;background:#1a3449;min-height:46px;padding:10px;font-weight:700;line-height:1.4}
+#gu-v32-teaching-slot .gu-v33-support-tab[aria-selected="true"]{background:#eabb49!important;border-color:#f7d58a!important;color:#102437!important}
+#gu-v32-teaching-slot .gu-v33-support-content{margin-top:9px}
+#gu-v32-teaching-slot .gu-v33-support-content [role="tabpanel"]{background:#122f43;border:1px solid #3c617b;border-radius:10px;margin:0;padding:14px;min-width:0}
+#gu-v32-teaching-slot .gu-v33-support-content [role="tabpanel"][hidden]{display:none!important}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-instructor-objectives{margin:0!important}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-instructor-objectives h4,
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-tutor h4{margin:0 0 9px;color:#f1f6fc;font-size:.96rem}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-instructor-objectives li{margin:8px 0}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-tutor{margin:0;border:0;background:transparent;padding:0}
+#gu-v32-teaching-slot .gu-v33-support-tab:focus-visible{outline:3px solid #9be8ff;outline-offset:2px}
+@media(max-width:560px){#gu-v32-teaching-slot .gu-v33-support-tablist{grid-template-columns:1fr}}
