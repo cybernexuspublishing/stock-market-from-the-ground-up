@@ -17,10 +17,14 @@ for directory in assets learn; do
   cp -R -- "$directory" "$output"/
 done
 mkdir -p "$output/data"
-for file in books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json; do
+for file in books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
+# Both bootcamp lesson sources contain original, non-secret, ungraded teaching
+# references. Do not publish private rubrics or authenticated research exports.
+test -s "$output/data/bootcamp-formative-v014154.json"
+test -s "$output/data/bootcamp-source-cases-v014166.json"
 # In an explicitly marked preview staging build, browser auth must use the SAME
 # separate Supabase staging project as the Cloudflare Functions payment API.
 # Never insert service keys. A missing/inconsistent preview config fails the build.
