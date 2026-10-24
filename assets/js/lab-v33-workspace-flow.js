@@ -5,6 +5,7 @@
 (function(root){
 'use strict';
 let bound=false;
+let activeMode='guided',activeStage=0;
 const make=(tag,text,cls)=>{
  const el=document.createElement(tag);
  if(text!==undefined)el.textContent=text;
@@ -62,17 +63,17 @@ function evidence(workbench,mode){
  if(!card)return;
  workbench.dataset.v33Wizard='1';
  workbench.classList.add('gu-v33-evidence-workbench');
- workbench.querySelector(':scope > summary').textContent='Your decision and reflection · One question at a time';
+ workbench.querySelector(':scope > summary').textContent='Your decision — Open when you are ready to make a prediction';
  const fields=[
-  {id:'ev-structure',title:'1. Reconstruct and evaluate price action at the exact pause',tip:'Use only completed candles actually displayed. Classify observable higher highs/higher lows, lower highs/lower lows, a range, a single-candle signal, or insufficient evidence. Cite prices and candle times supporting your classification, distinguish wick extremes from closes, explain a competing interpretation, and identify anything you cannot verify. Never invent a missing candle or imply that a pattern predicts the next move.'},
-  {id:'ev-location',title:'2. Where is price relative to the reference?',tip:'Identify the relevant level, support/resistance zone, VWAP, or EMA if applicable.'},
-  {id:'ev-volume',title:'3. What can the volume establish?',tip:'Describe the completed volume evidence. Write N/A when it is not part of this exercise.'},
-  {id:'ev-invalidation',title:'4. What would change your interpretation?',tip:'State a specific invalidation condition using evidence that would become observable.'},
-  {id:'ev-decision',title:'5. What is your hypothetical decision?',tip:'Choose your decision and confidence. Uncertainty and no-trade are valid choices.'},
-  {id:'ev-notes',title:'6. Why does the evidence support your decision?',tip:'Record your reasoning before you lock it. Your response is not a guarantee of market outcomes.'}
+  {id:'ev-structure',title:'1. What did price do before your decision?',tip:'Look at the chart. Is price rising, falling, moving sideways, or is there not enough information? Explain which prices and times helped you decide.'},
+  {id:'ev-location',title:'2. Where is price on the chart?',tip:'Compare the current price with any level or indicator you have already learned. If the chart does not show it, say so.'},
+  {id:'ev-volume',title:'3. What does the trading volume show?',tip:'If volume is available, explain whether trading is relatively active or quiet. If you cannot see it, you can say that.'},
+  {id:'ev-invalidation',title:'4. What would make you change your mind?',tip:'Describe the price movement or new information that would make you reconsider your idea.'},
+  {id:'ev-decision',title:'5. What would you do next?',tip:'Choose whether you would enter, watch, or stay out, and tell us how confident you feel.'},
+  {id:'ev-notes',title:'6. Why did you choose that?',tip:'Explain the reasons behind your choice. You can review them after the exercise.'}
  ];
  const panels=[];
- const intro=make('p','Talia Mercer will guide you through six short questions. Answer them one at a time as you progress through the lesson. Your responses remain private drafts until you choose Lock Decision.','gu-v33-evidence-intro');
+ const intro=make('p','You have reached the decision exercise. Work through the chart at your own pace, then lock your choice when you are ready.','gu-v33-evidence-intro');
  card.append(intro);
  const wizard=make('div',undefined,'gu-v33-evidence-wizard');
  wizard.setAttribute('aria-label','Step-by-step member evidence record');
@@ -81,20 +82,11 @@ function evidence(workbench,mode){
   if(!field)continue;
   const step=make('section',undefined,'gu-v33-evidence-step');
   step.dataset.field=entry.id;step.hidden=true;
-  step.append(make('p','Talia asks:','gu-v33-evidence-instructor'));
+  step.append(make('p','Your decision exercise','gu-v33-evidence-instructor'));
   step.append(make('h3',entry.title));
   if(mode!=='blind'&&mode!=='assessment'){
    step.append(make('p',entry.tip,'gu-v33-evidence-tip'));
-   if(entry.id==='ev-structure'){
-    const criteria=make('ol',undefined,'gu-v33-structure-checkpoints');
-    for(const statement of [
-     'Describe the completed candles available at the pause, identifying candle times and price levels where visible.',
-     'Evaluate the sequence of observed highs, lows and closes: advancing, declining, ranging, or indeterminate.',
-     'Identify supporting evidence and an alternative reading; distinguish intrabar wicks from confirmed closes.',
-     'State what is unknown rather than filling in an unseen candle, breakout, or reversal.'
-    ])criteria.append(make('li',statement));
-    step.append(criteria);
-   }
+
   }
   if(entry.id==='ev-decision'){
    const grid=field.closest('.form-grid');if(grid)step.append(grid);
@@ -122,7 +114,7 @@ function evidence(workbench,mode){
  function go(index,focus=false){
   selected=Math.max(0,Math.min(index,panels.length-1));
   panels.forEach((step,i)=>step.hidden=i!==selected);
-  progress.textContent='Question '+(selected+1)+' of '+panels.length;
+  progress.textContent='Decision step '+(selected+1)+' of '+panels.length;
   back.disabled=selected===0;next.disabled=selected===panels.length-1;
   if(focus)panels[selected].querySelector('textarea,select,input')?.focus();
  }
@@ -134,9 +126,34 @@ function evidence(workbench,mode){
  // The original reflection and protected assessment stay at the end.
  // No selections are graded or sent to any service by this wizard.
 }
+function stageVisibility(stage=0){
+ activeStage=Number.isInteger(Number(stage))?Number(stage):0;
+ const independent=['blind','assessment'].includes(activeMode);
+ const work=document.getElementById('gu-ws-member-workbench');
+ if(work){
+  // Orientation and teaching must not show six questions or invite a
+  // prematurely locked decision. Blind/Assessment remain independent.
+  const allowed=independent||activeStage>=3;
+  work.hidden=!allowed;
+  if(!allowed)work.open=false;
+ }
+ const reflection=document.getElementById('gu-ws-reflection');
+ if(reflection){
+  const ready=independent?reflection.dataset.decisionLocked==='true'
+   :activeStage>=6;
+  reflection.hidden=!ready;
+  if(!ready)reflection.open=false;
+ }
+}
+function decisionLocked(){
+ const reflection=document.getElementById('gu-ws-reflection');
+ if(reflection)reflection.dataset.decisionLocked='true';
+ stageVisibility(activeStage);
+}
 function openEvidence(stage){
  const wb=document.getElementById('gu-ws-member-workbench');
- if(!wb)return;
+ if(!wb||(['guided','practice'].includes(activeMode)&&activeStage<3))return;
+ if(stage>=6){const reflect=document.getElementById('gu-ws-reflection');if(reflect&&!reflect.hidden){reflect.open=true;reflect.scrollIntoView?.({behavior:'smooth',block:'start'});return;}}
  wb.open=true;
  const map={2:0,3:3,4:4,6:5,7:0,8:5};
  wb._v33GoToEvidence?.(map[stage]??0,true);
@@ -146,12 +163,16 @@ function mount({mode='guided'}={}){
  const area=document.querySelector('.gu-ws-disclosures');
  tabs(area);
  const work=document.getElementById('gu-ws-member-workbench');
+ activeMode=mode;activeStage=0;
  evidence(work,mode);
  if(work&&['guided','practice'].includes(mode))work.open=false;
+ stageVisibility(['blind','assessment'].includes(mode)?5:0);
  if(!bound){
   document.addEventListener('gu-v33-open-evidence',event=>openEvidence(event.detail?.stage));
+  document.addEventListener('gu-v33-stage-change',event=>stageVisibility(event.detail?.step));
+  document.addEventListener('gu-v33-decision-locked',decisionLocked);
   bound=true;
  }
 }
-root.GroundUpLabV33WorkspaceFlow=Object.freeze({mount,openEvidence,version:'LAB-UX-STD-001-v3.3.1'});
+root.GroundUpLabV33WorkspaceFlow=Object.freeze({mount,openEvidence,stageVisibility,version:'LAB-UX-STD-001-v3.3.2'});
 })(globalThis);
