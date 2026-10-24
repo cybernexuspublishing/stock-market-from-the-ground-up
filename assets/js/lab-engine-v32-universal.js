@@ -286,7 +286,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
      'Find a competing interpretation or invalidating observation: '+guide.invalidation,
      'State the limitation: '+guide.limit]);
    }
-   showVisual(1);freeExplanation();guidedHelp();
+   showVisual(1,visualType==='candle'?'worked':'default');freeExplanation();guidedHelp();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
