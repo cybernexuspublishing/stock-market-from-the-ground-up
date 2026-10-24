@@ -45,7 +45,7 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -143,10 +143,31 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   reply.textContent='';
   submitReflection.disabled=false;
  }
- let submitting=false,finished=false,featureLesson=null,featurePhase=0;
+ let submitting=false,finished=false,featureLesson=null,featurePhase=0,understandingMode=false;
  const submit=async()=>{
   if(submitting||finished)return;
   const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
+  if(understandingMode){
+   if(value.length<6){reply.textContent='Explain the answer in your own words so we can check your understanding.';return;}
+   const expected=String(plan?.check?.choices?.[plan?.check?.correct]||'').toLowerCase();
+   const text=value.toLowerCase();
+   // Only ungraded formative concept recognition. This never awards an
+   // official grade and it cannot unlock independent assessment data.
+   const taught=plan?.category==='candle'?/open/i.test(value)&&/close/i.test(value)
+    :plan?.category==='vwap'?/(shares|volume)/i.test(value)&&/(weight|influence|more|greater)/i.test(value)
+    :plan?.category==='ema'?/(ema\s*9|nine.period|shorter)/i.test(value)
+    :expected.split(/[^a-z0-9]+/).filter(w=>w.length>=5)
+       .filter(w=>text.includes(w)).length>=2;
+   if(!taught){
+    reply.textContent='Not yet. '+String(plan?.check?.feedback||'Review the visible example and try again.')+
+     ' Explain the key relationship, then submit another answer.';
+    return;
+   }
+   understandingMode=false;
+   reply.textContent='That explains the central relationship. We can move to the next learning stage.';
+   onUnderstandingPassed?.();
+   return;
+  }
   if(featureLesson){
    // Formative instructional responses NEVER substitute for graded Assess,
    // private rubrics, independent predictions or server-controlled replay.
@@ -225,23 +246,24 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  transcript.append(interaction);
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
-  featureLesson=null;featurePhase=0;
+  featureLesson=null;featurePhase=0;understandingMode=false;
   reserve.textContent=full;accessible.textContent=full;
   stopTyping?.();stopTyping=animate(visual,full,true,skip);
   paintQuestion();
  }
- function teachFeature({type,feature}={}){
-  if(!root.GroundUpLabV34InteractiveLessons?.get)return false;
-  const plan=root.GroundUpLabV34InteractiveLessons.get({
+ function teachFeature({type,feature,custom}={}){
+  if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
+  const plan=custom||root.GroundUpLabV34InteractiveLessons.get({
    type,feature,concept,guide:lessonContext.guide
   });
-  featureLesson=plan;featurePhase=0;
+  featureLesson={...plan,type:type||lessonContext.visualType,feature:feature||'supplement'};
+  featurePhase=0;understandingMode=false;
   const exact=root.GroundUpLabV34InteractiveLessons?.referenceIntro?.(type);
   const startsReference=stage===1&&exact&&(
    (type==='candle'&&feature==='all')||
    (type==='vwap'&&feature==='price')
   );
-  const short=startsReference?[
+  const short=custom?.narration|| (startsReference?[
    exact.title+'. Here is what you will learn.',
    exact.term+': '+exact.definition,
    'Why it matters: '+exact.why,
@@ -255,18 +277,57 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    'Look at the highlighted illustration: '+plan.method,
    // Each clicked feature shows its worked example BEFORE the question.
    'Worked example: '+plan.example
-  ].join('\n\n');
+  ].join('\n\n'));
   reserve.textContent=short;
   accessible.textContent=short;
   stopTyping?.();stopTyping=animate(visual,short,false,skip);
   counter.textContent='Interactive lesson · '+plan.title;
-  prompt.textContent=plan.question;
+  prompt.textContent=custom?.question||plan.question;
   reflection.value='';
   reflection.disabled=false;submitReflection.hidden=false;submitReflection.disabled=false;
   reply.textContent='Observe the highlighted chart evidence, then answer in your own words.';
   return true;
  }
- // Every authored or competency-led lesson gets the same interactive
+ function teachWorkedStep({index=0,total=1,text='',feature='all'}={}){
+  const explanation=String(text||'').trim();
+  if(!explanation)return false;
+  return teachFeature({type:lessonContext.visualType,feature:'worked-'+index,
+   custom:{
+    title:'Worked example · step '+(index+1)+' of '+total,
+    example:explanation,definition:explanation,
+    mistake:String(plan?.misconception||'Check the price labels and do not assume future candles.'),
+    limit:String(plan?.limitation||'The illustrated observations do not predict the next candle.'),
+    narration:'Worked example · step '+(index+1)+' of '+total+'\n\n'+explanation,
+    question:'What does this worked step demonstrate? Explain the prices or chart feature used.'
+   }});
+ }
+ function teachSupplement(label,paragraphs=[]){
+  const content=(Array.isArray(paragraphs)?paragraphs:[]).map(x=>String(x||'').trim()).filter(Boolean);
+  if(!content.length)return false;
+  return teachFeature({type:lessonContext.visualType,feature:'supplement',
+   custom:{
+    title:label,example:content.join(' '),definition:content[0],
+    mistake:String(plan?.misconception||'Do not confuse the observed example with an assured outcome.'),
+    limit:String(plan?.limitation||'Only observed evidence can support the conclusion.'),
+    narration:label+'\n\n'+content.map((line,i)=>'Step '+(i+1)+': '+line).join('\n\n'),
+    question:'What is the most important lesson from this explanation, and which observation supports it?'
+   }});
+ }
+ function askUnderstanding(){
+  if(!plan?.check)return false;
+  understandingMode=true;featureLesson=null;featurePhase=0;
+  const message='Before moving on, explain this in your own words:\n\n'+plan.check.question;
+  reserve.textContent=message;accessible.textContent=message;
+  stopTyping?.();stopTyping=animate(visual,message,false,skip);
+  counter.textContent='Check your understanding · ungraded';
+  prompt.textContent=plan.check.question;
+  reflection.value='';reflection.disabled=false;
+  submitReflection.hidden=false;submitReflection.disabled=false;
+  reply.textContent='Use the illustrated example to support your answer. You can retry.';
+  reflection.focus?.();
+  return true;
+ }
+  // Every authored or competency-led lesson gets the same interactive
  // understanding/recognition/application/mistake/transfer teaching affordance.
  // This does not assert that each of the 419 cases has accepted editorial data.
  const topicTools=el('div',undefined,'gu-v34-topic-tools');
@@ -286,53 +347,13 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const objectives=el('ol');
  for(const objective of plan?.objectives||[])objectives.append(el('li',objective));
  objectivesPanel.append(objectives);
- if(plan?.worked?.length){
-  const worked=el('section',undefined,'gu-v33-instructor-worked');
-  worked.append(el('h4',plan.category==='general'?'Guided method demonstration':'Worked example — different fictional case'));
-  const steps=el('ol');
-  for(const [index,explanation] of plan.worked.entries()){
-   const line=el('li',explanation);
-   if(stage===1&&plan.category==='candle'){
-    const features=['all','body','percent'];
-    const labels=['Show the four prices on the candle','Highlight the real body','Show body-to-range calculation'];
-    const control=el('button',labels[index]||'Point to this on the chart','gu-v33-instructor-chart-link');
-    control.type='button';
-    control.setAttribute('data-linked-feature',features[index]||'all');
-    listen(control,'click',()=>{
-     const chart=rootEl.closest?.('.gu-v33-stage-hero')?.querySelector?.('.gu-l33-graphic');
-     const button=chart?.querySelector?.('[data-teaching-feature="'+(features[index]||'all')+'"]');
-     if(button)button.click();
-    });
-    line.append(control);
-   }
-   steps.append(line);
-  }
-  worked.append(steps);
-  rootEl.append(worked);
- }
- if(plan?.check){
-  const check=el('section',undefined,'gu-v33-instructor-check');
-  check.append(el('h4','Check your understanding'));
-  const stem=el('p',plan.check.question);check.append(stem);
-  const answers=el('div',undefined,'gu-v33-instructor-choices');
-  const correct=plan.check.correct;
-  const inputName='gu-instructor-'+String(Math.round(Math.random()*1e9));
-  const radios=[];
-  for(const [i,choice] of plan.check.choices.entries()){
-   const label=el('label',undefined,'gu-v33-instructor-choice');
-   const radio=el('input');radio.type='radio';radio.name=inputName;radio.value=String(i);
-   radios.push(radio);
-   label.append(radio,document.createTextNode(choice));answers.append(label);
-  }
-  const feedback=el('p','', 'gu-v33-instructor-check-feedback');feedback.setAttribute('role','status');
-  const submit=el('button','Check my understanding');submit.className='btn secondary';submit.type='button';
-  listen(submit,'click',()=>{
-   const n=radios.findIndex(x=>x.checked);
-   if(n===-1){feedback.textContent='Choose an answer to check your understanding.';return;}
-   feedback.textContent=(n===correct?'Correct. ':'Not quite. ')+plan.check.feedback+
-    ' This is practice feedback, not an independent assessment.';
-  });
-  check.append(answers,submit,feedback);rootEl.append(check);
+ // Worked cases are now selected directly in the chart/visual area and
+ // narrated by Talia one step at a time; never duplicate a static list here.
+ if(stage===1&&plan?.check){
+  const startCheck=el('button','Check my understanding','btn secondary gu-v35-understanding');
+  startCheck.type='button';
+  listen(startCheck,'click',askUnderstanding);
+  rootEl.append(startCheck);
  }
  if(plan?.misconception&&stage===1){
   const other=el('details',undefined,'gu-v33-instructor-alternative');
@@ -447,7 +468,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   tutorTab.focus?.();support.scrollIntoView?.({behavior:'smooth',block:'nearest'});
   question.focus?.();
  };
- return {element:rootEl,openTutor,teachFeature,resumeTeaching,
+ return {element:rootEl,openTutor,teachFeature,teachWorkedStep,teachSupplement,askUnderstanding,resumeTeaching,
   setWalletContent(wallet){
    if(!walletPane||!wallet)return;
    walletPane.replaceChildren(wallet);
