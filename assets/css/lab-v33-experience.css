@@ -63,3 +63,42 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .instruction ul{padding-left:23
 body.gu-lab-member #player-access-note .gu-v33-source-banner{border:1px solid #32576e;border-radius:8px;background:#152a3a;color:#d3e5ef;padding:9px 13px;margin:10px 0;font-size:.83rem}
 body.gu-lab-member #player-access-note .gu-v33-source-banner summary{cursor:pointer;font-weight:650;color:#d9e7f0}
 body.gu-lab-member #player-access-note .gu-v33-source-banner p{font-size:.82rem;line-height:1.55;margin:8px 0 2px}
+
+/* LUX 3.3.1: visual hierarchy and focused, tab-based learning controls */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup{margin:0 0 17px;padding:15px 16px;border:1px solid #466b86;background:#112b40;border-radius:12px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup h3{margin:0 0 12px;font-size:1.05rem}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup .lab-fact-grid{gap:9px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup .small{font-size:.78rem;color:#bbd0df;margin:10px 0 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:18px 0 22px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup>.gu-v33-instructor-worked,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup>.gu-v33-instructor-check{margin:0;padding:16px;border:1px solid #426b83;border-radius:12px;background:#122a3e;min-width:0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup h4{font-weight:750;color:#f5f9fe;margin:0 0 12px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup ol{padding-left:22px;line-height:1.58}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup li{margin:8px 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup .gu-v33-instructor-choice{display:flex;align-items:flex-start;gap:8px;margin:8px 0;background:#18374a;border:1px solid #436781;border-radius:8px;padding:9px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup .gu-v33-instructor-check-feedback{color:#c3e7d3}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions{justify-content:flex-start;gap:12px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-primary{background:#f3be43!important;border:2px solid #ffdb7a!important;color:#102135!important;font-weight:800!important;min-height:48px;padding:11px 20px!important;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-primary:hover{background:#ffd26e!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-tutor{min-height:48px;background:#153b56;color:#f0f7fc;border:1px solid #5998b9}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .gu-v33-evidence-shortcut{margin:18px 0 0;padding:10px 14px;border:1px solid #557e96;border-radius:9px;background:#17374a;color:#e7f3fa;font-weight:650}
+body.gu-lab-member .gu-ws-disclosures.gu-v33-reference-tabs{display:block;margin:20px 0 15px;min-width:0}
+body.gu-lab-member .gu-v33-reference-tablist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;border:1px solid #385972;border-radius:12px;padding:8px;background:#101f2e}
+body.gu-lab-member .gu-v33-reference-tab{cursor:pointer;min-width:0;white-space:normal;text-align:center;border-radius:9px;background:#192d40;border:1px solid #45627a;color:#eff6fb;font-size:.9rem;line-height:1.4;padding:12px 14px;min-height:48px}
+body.gu-lab-member .gu-v33-reference-tab[aria-selected="true"]{background:#eabb49;color:#142331;border-color:#f5d583;font-weight:800}
+body.gu-lab-member .gu-v33-reference-tabs > details[role="tabpanel"]{width:100%;max-width:100%;margin:9px 0 0;border:1px solid #395c74;border-radius:11px;background:#132737}
+body.gu-lab-member .gu-v33-reference-tabs > details[hidden]{display:none!important}
+body.gu-lab-member .gu-v33-reference-tabs > details[role="tabpanel"] > summary{display:none!important}
+body.gu-lab-member .gu-v33-evidence-workbench{margin:30px 0 14px;border:1px solid #416680}
+body.gu-lab-member .gu-v33-evidence-workbench>summary{font-weight:750;color:#ebf5fd;cursor:pointer}
+body.gu-lab-member .gu-v33-evidence-progress{font-weight:700;color:#f0ce79;padding-top:10px}
+body.gu-lab-member .gu-v33-evidence-wizard .gu-v33-evidence-step{border:1px solid #365974;border-radius:10px;padding:15px;background:#102a3f}
+body.gu-lab-member .gu-v33-evidence-step[hidden]{display:none!important}
+body.gu-lab-member .gu-v33-evidence-step h3{font-size:1.03rem;margin:0 0 8px}
+body.gu-lab-member .gu-v33-evidence-tip{font-size:.84rem;color:#c6d9e5}
+body.gu-lab-member .gu-v33-evidence-navigation{display:flex;justify-content:space-between;gap:10px;margin:12px 0}
+body.gu-lab-member .gu-v33-evidence-nav{background:#17394f;color:#f1faff;border:1px solid #5b86a1;border-radius:9px;padding:10px 14px;cursor:pointer}
+body.gu-lab-member .gu-v33-evidence-nav:disabled{opacity:.5;cursor:default}
+body.gu-lab-member :is(.gu-v33-reference-tab,.gu-v33-evidence-nav,.gu-v33-evidence-shortcut):focus-visible{outline:3px solid #a5ecfd;outline-offset:2px}
+@media(max-width:760px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup{grid-template-columns:1fr}}
+@media(max-width:590px){body.gu-lab-member .gu-v33-reference-tablist{grid-template-columns:1fr}body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions>*{flex:1 1 170px}}
