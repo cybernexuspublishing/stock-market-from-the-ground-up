@@ -7,6 +7,53 @@
 const clean=(v,n=220)=>String(v||'').replace(/[\u0000-\u001f\u007f]/g,' ').trim().slice(0,n);
 const entry=(title,definition,why,method,example,mistake,limit,question,expected)=>Object.freeze({
  title,definition,why,method,example,mistake,limit,question,expected});
+// Authored one-to-one teaching: five DIFFERENT tabs, not the generic
+// competency fallback. These are clearly labeled public teaching examples,
+// never historical ticker records, private graded keys or future candle data.
+const candleTabs=Object.freeze({
+ understand:[
+  'A candlestick is a picture of prices during one chosen time period. Imagine watching a stock for five minutes. Rather than recording every trade, the candle summarizes four prices.',
+  'OPEN (O) is the first recorded price: $31.00. HIGH (H) is the highest: $32.50. LOW (L) is the lowest: $30.50. CLOSE (C) is the last: $32.00.',
+  'The thick rectangle, called the BODY, stretches from Open to Close. The thin lines, called WICKS, reach toward High and Low.',
+  'This candle is bullish because its Close ($32.00) is higher than its Open ($31.00). Green is a common chart color for a rising candle, but always check the actual numbers.',
+  'One important limit: these four prices do not tell us whether the high or the low happened first, or what price will do next.'
+ ],
+ recognize:[
+  'Look at the highlighted candle. We will find each price together before doing any math.',
+  'Step 1 — Find the body. Its bottom edge is OPEN $31.00 and its top edge is CLOSE $32.00. That makes this a bullish candle.',
+  'Step 2 — Find the thin lines above and below the body. The highest tip is HIGH $32.50; the lowest tip is LOW $30.50.',
+  'Step 3 — Click Open, then Close on the chart. Next click High, then Low. The highlighted part should agree with its printed price label.',
+  'If the closing price slips below the opening price, the body becomes bearish. A candle with equal Open and Close has zero body even when its wicks are long.',
+  'Describe the four visible values. Do not assume which wick was reached first.'
+ ],
+ apply:[
+  'Now let us measure the completed $31.00 candle. I will show each formula, then the actual prices, and then the result.',
+  'Step 1 — Real body (bullish):\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body)\nThe price finished $1.00 above where this interval began.',
+  'Step 2 — Full range:\nHigh − Low = Full Range\n$32.50 (High) − $30.50 (Low) = $2.00 (Range)\nThis is the entire distance from the upper wick tip to the lower tip.',
+  'Step 3 — Upper wick:\nHigh − Close = Upper Wick\n$32.50 (High) − $32.00 (Close) = $0.50 (Upper Wick)',
+  'Step 4 — Lower wick:\nOpen − Low = Lower Wick\n$31.00 (Open) − $30.50 (Low) = $0.50 (Lower Wick)',
+  'Step 5 — Check the pieces:\nLower Wick + Body + Upper Wick = Full Range\n$0.50 + $1.00 + $0.50 = $2.00. The calculation matches the full range.',
+  'Step 6 — Body percentage:\n(Body ÷ Full Range) × 100 = Body Percentage\n($1.00 ÷ $2.00) × 100 = 0.50 × 100 = 50%\nThe dollar units cancel in the ratio, leaving a percentage.',
+  'Different worked example, not the selected $31.00 candle: Open $20.00, High $22.00, Low $19.00, Close $21.20. Body $1.20, range $3.00, upper wick $0.80, lower wick $1.00, body percentage 40%.',
+  'Now try the closing-price slider: keep Open, High, and Low fixed, move only Close, and watch which body and wick measurements change.'
+ ],
+ mistake:[
+  'The most common mistake is mixing up the real body and the full range. They answer two different questions.',
+  'Wrong: High − Low is the body. That is actually the FULL RANGE, because it includes both wicks.',
+  'Correct body (bullish):\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body)',
+  'Correct full range:\nHigh − Low = Full Range\n$32.50 (High) − $30.50 (Low) = $2.00 (Range)',
+  'For a bearish example with Open $12.40 and Close $12.10, use Open − Close = Body: $12.40 − $12.10 = $0.30. A body is a nonnegative DISTANCE; the direction is described separately.',
+  'A second error is treating a green candle as a promise that price will continue rising. It simply shows how that completed interval ended.'
+ ],
+ limits:[
+  'A candlestick is a summary, not a recording of every trade. It cannot tell us the order of its highest and lowest prices.',
+  'It cannot identify why price changed, who bought or sold, whether an actual order was filled, or what the next candle will do.',
+  'A special case: if Open, High, Low, and Close are all $25.00, the real body is $0.00 and the range is $0.00. The calculation ($0.00 ÷ $0.00) × 100 is UNDEFINED, not 0% or 100%, because dividing by zero is not allowed.',
+  'If Close equals Open but High is above Low, the body is $0.00 and the range is greater than zero. Then body percentage really is 0%. A flat body is not necessarily a zero-range candle.',
+  'When describing a candle, say: It opened at $31.00, its high was $32.50, its low was $30.50, and it closed at $32.00. Do not invent the order in which the extremes occurred.'
+ ]
+});
+
 const lessons=Object.freeze({
  candle:Object.freeze({
   all:entry('The completed candlestick','One candle summarizes the Open (O), High (H), Low (L), and Close (C) of a specified time interval.','The four prices show what was observed in that interval; one candle is not an entire trend.','Find the top and bottom of the wicks, then identify where the body starts and ends.','In this illustrative five-minute example O=$31.00, H=$32.50, L=$30.50, C=$32.00.','Confusing the close with the highest price, or treating one candle as a prediction.','OHLC cannot reveal the order of intrabar transactions or the next bar.','What four prices does OHLC represent?','open high low close'),
@@ -19,7 +66,7 @@ const lessons=Object.freeze({
   percent:entry('Body-to-range percentage','Percentage = (|Close − Open| ÷ (High − Low)) × 100, when the full range is greater than zero.','The body is the part, the entire range is the whole; a percentage expresses their ratio out of 100.','Calculate body and range separately with dollar units. Divide the dollar amounts so units cancel; multiply the decimal by 100.','In the illustrative example $1.00 ÷ $2.00 = 0.50; 0.50 × 100 = 50%.','Entering $1.00, 0.50, or 0.5 instead of 50%; dividing by zero for a flat candle.','Body percentage describes the completed candle, not a probability that price rises.','What operation converts the body-to-range decimal into a percentage?','multiply 100')
  }),
  vwap:Object.freeze({
-  price:entry('Completed candle prices','Candle prices summarize completed OHLC intervals; they are not individual trade prints.','A market benchmark must be evaluated against observations that existed at the pause.','Inspect completed closes and each candle timestamp before comparing a VWAP value.','A illustrative sequence of five-minute closes can be compared with a session-running reference.','Mistaking a wick crossing for a confirmed completed close.','A close alone does not establish entry quality or future continuation.','Which candle price is used in this clearly labeled bar-close VWAP approximation?','close'),
+  price:entry('Completed candle prices','Candle prices summarize completed OHLC intervals; they are not individual trade prints.','A market benchmark must be evaluated against observations that existed at the pause.','Inspect completed closes and each candle timestamp before comparing a VWAP value.','An illustrative sequence of five-minute closes can be compared with a session-running reference.','Mistaking a wick crossing for a confirmed completed close.','A close alone does not establish entry quality or future continuation.','Which candle price is used in this clearly labeled bar-close VWAP approximation?','close'),
   both:entry('Volume-weighted average price','VWAP = Σ(price × shares) ÷ Σ(shares). Σ (sigma) means add the individual values.','Prices accompanied by more shares exert more influence on the weighted average.','Multiply each observed price by its shares; add traded dollars, add shares, then divide dollars by shares.','Reference: 200 shares × $8 = $1,600; 100 × $10 = $1,000; $2,600 ÷ 300 shares = $8.67/share.','Taking ($8+$10)÷2 = $9 ignores unequal trade sizes.','The displayed line uses completed bar-close × volume and is an approximation, not tick-accurate VWAP.','Why does a 200-share trade group affect VWAP more than a 100-share group?','more shares'),
   volume:entry('Share volume and VWAP','Volume counts shares, not dollars. VWAP divides accumulated traded-dollar value by accumulated share volume.','The denominator gives the average dollars-per-share unit.','Inspect the volume bars aligned to the same completed candle periods.','200 + 100 = 300 shares; $2,600 ÷ 300 shares = $8.67/share.','Putting $2,600 in the denominator instead of 300 shares, or mixing two different intervals.','Share counts do not identify buyer or seller motives.','What is the denominator of the VWAP formula?','total shares')
  }),
@@ -54,6 +101,13 @@ function get({type='',feature='',concept='',guide={}}={}){
  const subject=clean(concept,120)||clean(guide.title,120)||'market evidence';
  const key=aliases[feature]||feature;
  const found=lessons[type]?.[key];
+ if(type==='candle'&&Object.prototype.hasOwnProperty.call(candleTabs,key)){
+  const base=lessons.candle.all;
+  return {...base,title:({understand:'Understand the candle',recognize:'Recognize each price',
+   apply:'Apply the calculations',mistake:'Correct a common mistake',
+   limits:'What the candle cannot show'})[key],
+   script:candleTabs[key].join('\n\n'),concept:subject,type,feature:key,verifiedHistory:false};
+ }
  if(found)return {...found,concept:subject,type,feature:key,verifiedHistory:false};
  // Subject-specific competency bridge. Never fabricate calculations, ticker
  // prices, an assessment key or an unseen chart when editorial data is absent.
@@ -125,11 +179,11 @@ const referenceIntros=Object.freeze({
   term:'OHLC',
   definition:'O is the opening price, H is the high, L is the low, and C is the closing price.',
   why:'Each candlestick records the price movement during a defined time interval.',
-  example:'A illustrative five-minute candle opens at $31.00, rises to $32.50, falls to $30.50, and closes at $32.00.',
+  example:'An illustrative five-minute candle opens at $31.00, has a high of $32.50 and low of $30.50 (their order is unknown), and closes at $32.00.',
   steps:Object.freeze([
    'Find OPEN at $31.00 and CLOSE at $32.00 on the chart. The completed candle is bullish because the close is above the open.',
    'Find HIGH at $32.50 and LOW at $30.50. The wick extremes define the full $2.00 range.',
-   'Calculate the real body: |$32.00 − $31.00| = $1.00.',
+   'Calculate the body:\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body).',
    'Calculate body percentage: $1.00 ÷ $2.00 × 100 = 50%. State dollars for prices and percent for this ratio.'
   ]),
   caution:'OHLC cannot establish the sequence of trades inside the candle or whether another candle will rise.'
@@ -139,7 +193,7 @@ const referenceIntros=Object.freeze({
   term:'Volume-Weighted Average Price',
   definition:'VWAP is the average traded price weighted by the number of shares associated with each price.',
   why:'High-volume prices contribute more heavily to the result.',
-  example:'In a illustrative demonstration, 100 shares trade at $10 and 300 shares at $11.',
+  example:'In an illustrative demonstration, 100 shares trade at $10 and 300 shares at $11.',
   steps:Object.freeze([
    'Calculate traded dollars: 100 × $10 = $1,000; 300 × $11 = $3,300.',
    'Add the dollar values: $1,000 + $3,300 = $4,300.',
