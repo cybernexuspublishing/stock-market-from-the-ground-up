@@ -46,7 +46,7 @@ assert(account.includes("profile:{username:profile.username||'',email:usr.email|
  'Existing identity endpoint must return the profile first name from the authenticated user');
 assert(player.includes("memberFirstName:PLAYER.access.memberFirstName||''"),'Player must forward the authorized first name');
 assert(engine.includes('memberFirstName,allowTutorAI,requestTutor:tutorRequest'),'Engine must propagate first name');
-assert(instructor.includes('el('h3','Talia')'));
+assert(instructor.includes("el('h3','Talia')"));
 assert(!instructor.includes('Avery — Your Learning Instructor'));
 assert(instructor.includes("firstName?', '+firstName:''"),'Instructor should address learner by first name only');
 assert(!extracted.includes('display_name')&&!extracted.includes('username'),'Never infer first name from username/display_name');
