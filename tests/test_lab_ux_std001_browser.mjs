@@ -64,7 +64,7 @@ try{
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.match(await target.innerText(),/server-graded question bank/);
   await load('DT-C11-L01','VWAP and Moving Averages in Intraday Trading — VWAP as a session reference');
-  await target.getByRole('button',{name:/Begin .* Lesson/}).click();
+  await target.getByRole('button',{name:/Start Guided Learning/}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP lessons require completed candles with weighted overlay');
   const before=await target.locator('.gu-l33-candle-readout').innerText();
   await target.locator('.gu-l33-candle-picker select').selectOption('1');
@@ -76,10 +76,10 @@ try{
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP Experiment retains visual');
   await load('TAPE-C01-L01','What Tape Reading Is - and What It Is Not — Start with evidence, not a story');
-  await target.getByRole('button',{name:/Begin .* Lesson/}).click();
+  await target.getByRole('button',{name:/Start Guided Learning/}).click();
   assert.equal(await target.locator('.gu-l33-tape').count(),1,'Time & Sales has an actual table');
   await load('F2-C04-L01','Bid, Ask, Last, Spread, and Midpoint in a Frequently Updating Quote');
-  await target.getByRole('button',{name:/Begin .* Lesson/}).click();
+  await target.getByRole('button',{name:/Start Guided Learning/}).click();
   assert.equal(await target.locator('.gu-l33-depth').count(),1,'Bid/ask lessons require depth visual');
   const graphic=target.locator('.gu-l33-graphic').first();
   const rect=await graphic.boundingBox();
