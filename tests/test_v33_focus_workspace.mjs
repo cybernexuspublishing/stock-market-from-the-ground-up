@@ -19,6 +19,17 @@ for(const [path,source] of [
  ['assets/js/lab-v33-workspace-flow.js',flow]
 ])assert.doesNotThrow(()=>new Script(source,{filename:path}),path+' must parse');
 assert(markup.indexOf('lab-v33-workspace-flow.js')<markup.indexOf('lab-player.js'));
+assert(!css.includes('max-width:1100px;'),
+ 'The earlier 1100px centered chart/Talia limitation must never return');
+assert(css.includes('max-width:none;\n  min-width:0;\n  margin-inline:0;'),
+ 'The unified lesson must stretch to the available member workspace');
+assert(css.includes('@container (min-width:940px)'),
+ 'Desktop teaching columns must respond to the available container width');
+assert(css.includes('@container (max-width:939px)'),
+ 'Narrow embedded lessons must stack instead of creating clipped columns');
+assert(css.includes('grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)'),
+ 'Chart and Talia must share the usable horizontal area');
+
 assert(markup.includes('class="journey-progress-track-inner"'),'Nine stage labels must appear inside the progress bar');
 assert(engine.includes('heading.hidden=stage===0'),'No separate Start title above instructor');
 assert(passApi.includes('memberIdentity(env,request)')&&passApi.includes('getBookCodeAccess(env,request,spec.book)'),
