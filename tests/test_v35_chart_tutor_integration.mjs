@@ -43,8 +43,9 @@ assert(engine.includes("if(![3,5].includes(stage)"),
  'Protected Predict and Assess cannot embed instructional assistance');
 class E{
  constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.attrs={};
- this.style={};this.textContent='';this.value='';this.className='';this.hidden=false;this.disabled=false;}
+ this.style={};this.textContent='';this.value='';this.className='';this.classList={add:(...names)=>{this.className=[...new Set([...this.className.split(/\s+/).filter(Boolean),...names])].join(' ')}};this.hidden=false;this.disabled=false;}
  append(...xs){this.children.push(...xs)}
+ replaceChildren(...xs){this.children=[...xs]}
  insertBefore(x,y){const i=this.children.indexOf(y);if(i<0)this.append(x);else this.children.splice(i,0,x)}
  setAttribute(k,v){this.attrs[k]=String(v)}
  addEventListener(k,fn){this.handlers[k]=fn}
