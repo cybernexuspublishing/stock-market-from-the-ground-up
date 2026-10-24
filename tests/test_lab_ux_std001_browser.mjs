@@ -17,7 +17,9 @@ try{
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v33-visual.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-contextual-visuals.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-visual-interactions.js'});
+  await page.addScriptTag({url:base+'/assets/js/lab-v34-competency-examples.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-instruction-content.js'});
+  await page.addScriptTag({url:base+'/assets/js/lab-v34-interactive-lessons.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-instructor.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-universal.js'});
   await page.evaluate(()=>{
