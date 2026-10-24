@@ -166,14 +166,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  const learnerReplies=new Map(); // stage => accepted answers in question order
  function instructorQuestions(current){
   const reference=String(topic).slice(0,100);
-  if(current===0)return [
-   'In your own words, what is '+reference+' and why is it useful to a trader?',
-   'Which information must be observable before you can apply this concept without guessing?'
-  ];
-  if(current===1)return [
-   ownQuestions[0]||'Identify the completed candle, price, volume or market relationship that demonstrates '+reference+'. What specifically supports it?',
-   'What evidence could contradict this interpretation, and why would it matter?'
-  ];
+  // Start is orientation only; Learn teaches before Check My Understanding.
+  // Neither stage asks about VWAP Reclaim, real-body mathematics or
+  // invisible chart evidence before the concept is demonstrated.
+  if(current===0||current===1)return [];
   if(current===2)return [
    'After using the example controls, what changed in the observed price, volume or calculation?',
    'Why did that input change the conclusion, and which information remains unavailable?'
@@ -259,15 +255,20 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
  }
  function freeExplanation(){
+  const plan=lessonPlan(1);
+  const defined=(plan?.blocks||[]).filter(line=>
+   !/^Current concept: |^For this specific Lab: /i.test(String(line)));
+  const symbols=kind==='vwap'
+   ?'VWAP = Σ(price × shares) ÷ Σ(shares). Σ (sigma) means sum: add all the values in the specified set. Price is dollars per share; volume is shares.'
+   :kind==='candle'
+    ?'Open is the first recorded price; High the highest; Low the lowest; Close the last. Real body = |Close − Open|; full range = High − Low.'
+    :subject?.symbols||'Identify the exact observation, units and timeframe.';
   detail(body,'Explain This Concept',[
-   'What it means: '+(authorizedTeaching.what||subject?.definition||guide.concept),
-   'Why and how it works: '+(authorizedTeaching.why||subject?.why||guide.procedure),
-   'Relevant symbols or terminology: '+(subject?.symbols||'Identify the source, units, timeframe and referenced market conditions.'),
-   'When to apply or recognize the idea: '+(authorizedTeaching.when||guide.procedure),
-   'Where the observations come from: the authorized Lab setup ('+[lab?.ticker,lab?.date,lab?.timeframe].filter(Boolean).join(' · ')+'). This metadata does not by itself authenticate a historical chart.',
-   'Instructional procedure: '+(ownHow.length?ownHow.join(' Then '):subject?.steps?.join(' Then ')||guide.procedure),
-   'Common mistake: '+(subject?.error||guide.commonError),
-   'Limits: '+(subject?.limit||guide.limit)
+   ...(defined.length?defined:[authorizedTeaching.what||subject?.definition||guide.concept,
+     authorizedTeaching.why||subject?.why||guide.procedure]),
+   'Terms and symbols: '+symbols,
+   'Common error: '+(plan?.misconception||subject?.error||guide.commonError),
+   'What this example cannot prove: '+(plan?.limitation||guide.limit)
   ]);
  }
  function stepList(steps){const ol=el('ol');for(const s of steps)ol.append(el('li',s));body.append(ol)}
@@ -288,22 +289,29 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   })||null;
  }
  function guidedHelp(){
-  const plan=lessonPlan(1),application=lessonPlan(7);
+  const plan=lessonPlan(1);
   detail(body,'Show a Guided Example',plan?.worked?.length?[
    ...plan.worked,
-   'Why the worked result is not a prediction: '+plan.limitation
+   'Why this is not a prediction: '+plan.limitation
   ]:special?special.steps:[
-   'Start with the concept: '+guide.concept,
-   'Apply the procedure: '+guide.procedure,
-   'Test the interpretation against: '+guide.invalidation,
-   'Observe the limitation: '+guide.limit
+   'Start with the definition: '+guide.concept,
+   'Follow the observation method: '+guide.procedure,
+   'State a limitation: '+guide.limit
   ]);
-  detail(body,'Try Another Example',[
-   application?.blocks?.[0]||guide.procedure,
-   application?.blocks?.[1]||guide.invalidation,
-   'Use a fresh, fully observed example. Record both the evidence and what you cannot determine.',
-   'This is ungraded instructional practice and does not consume a Question Pass.'
-  ]);
+  const newCase=kind==='vwap'?[
+   'New fictional case, separate from the assessed exercise: 200 shares trade at $4.00 and 100 shares at $7.00.',
+   'Traded dollars: (200 × $4.00) + (100 × $7.00) = $1,500. Total shares: 300.',
+   'VWAP = $1,500 ÷ 300 shares = $5.00 per share. This is a worked example, not a predicted future price.'
+  ]:kind==='candle'?[
+   'New fictional candle: Open $9.00, High $10.00, Low $8.50 and Close $9.50.',
+   'Real body = |$9.50 − $9.00| = $0.50. Full range = $10.00 − $8.50 = $1.50.',
+   'Body percentage = ($0.50 ÷ $1.50) × 100 ≈ 33.3%. The result cannot predict the next candle.'
+  ]:[
+   'Apply the demonstrated method to another fully observed example.',
+   'Define the timeframe, data source, and observable facts before interpreting them.',
+   'Explain what the evidence establishes and what remains uncertain.'
+  ];
+  detail(body,'Try Another Example',newCase);
  }
  function mistakeHelp(){
   const plan=lessonPlan(6);
@@ -375,8 +383,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      fact.append(term,description);facts.append(fact);
     }
     setup.append(facts);
-    const note=el('p','Exercise setup from the Lab registry. Historical candle prices must be validated against an approved intraday data source.');
-    note.className='gu-v33-setup-note';setup.append(note);body.append(setup);
+    // Place the actual setup in the instructor header, not above her
+    // introduction or in a second independent content panel.
+    if(instructorInstance?.setStartSetup)instructorInstance.setStartSetup(setup);
+    else body.append(setup);
    }
    // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
@@ -391,18 +401,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Question Pass Wallet'),wallet);body.append(walletDisclosure);}
 
   }else if(stage===1){
-   appendParagraph(body,authorizedTeaching.what||subject?.definition||guide.concept);
-   appendParagraph(body,authorizedTeaching.why||subject?.why||guide.procedure);
-   if(authorizedTeaching.when)appendParagraph(body,'When it is relevant: '+authorizedTeaching.when);
-   if(ownHow.length)stepList(ownHow);
-   else if(subject){appendParagraph(body,'Define every component: '+subject.symbols);stepList(subject.steps)}
-   else{
-    stepList(['Define the key terms and the market evidence you can actually observe.',
-     'Identify the source, date, session and timeframe for any historical claim.',
-     'Explain the conditions and procedure: '+guide.procedure,
-     'Find a competing interpretation or invalidating observation: '+guide.invalidation,
-     'State the limitation: '+guide.limit]);
-   }
+   // The instructor and chart are the lesson; do not repeat the same
+   // content underneath as an isolated wall of generic competency text.
    showVisual(1,topic==='Bearish Candle'?'bearish':'default');freeExplanation();guidedHelp();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
@@ -584,11 +584,6 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    appendParagraph(body,'Resume or save official member progress through the existing authenticated Lab controls; this self-study widget does not write server grades or credit entitlements.');
    body.append(button('Review related competency guide',()=>{location.href='skills.html#guide-'+encodeURIComponent(codes[0]||'')})); 
   }
-  // Setups appear BEFORE the Start title, not buried below the instructor.
-  if(stage===0){
-   const setup=body.querySelector?.('.gu-v33-setup');
-   if(setup)shell.insertBefore(setup,heading);
-  }
   // The approved reference keeps worked demonstrations INSIDE the
   // illustration. The four explanation actions now trigger Talia's voice,
   // rather than opening four disconnected text windows.
@@ -731,22 +726,17 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     // shown: selecting the first focus synchronizes the illustration and
     // instructor. Never do this for independent Predict/Assess.
     if(stage===1){
-     const first=chart.querySelector('.gu-l33-interactive-tools [data-teaching-feature], .gu-l33-interactive-tools [data-view]');
+     // VWAP requires a visible weighted line before any concept check.
+     // Selecting Price alone concealed the very evidence being taught.
+     const first=visualType==='vwap'
+      ?chart.querySelector('.gu-l33-interactive-tools [data-view="both"]')
+      :chart.querySelector('.gu-l33-interactive-tools [data-teaching-feature], .gu-l33-interactive-tools [data-view]');
      first?.click();
     }
    }else if(chart)body.insertBefore(chart,body.firstChild);
   }else if(stage===3){
    const chart=body.querySelector('.gu-l33-graphic');
    if(chart)body.insertBefore(chart,body.firstChild);
-  }
-  if(stage===1){
-   // Keep optional tutor teaching controls directly below the visual/Talia
-   // pair without restoring the old static answer panels.
-   const actions=body.querySelector('.gu-v35-teaching-actions');
-   if(actions){
-    const hero=body.querySelector('.gu-v34-unified-lesson');
-    if(hero)body.insertBefore(actions,hero.nextSibling);
-   }
   }
   // Coach the member through one protected evidence field at a time. This
   // shortcut never grades or submits anything and preserves the form's IDs.
