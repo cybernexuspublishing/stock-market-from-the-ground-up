@@ -648,7 +648,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
       let current=0;
       const prevWork=button('Previous worked step',()=>select(current-1));
       const nextWork=button('Next worked step',()=>select(current+1));
-      const showWork=button('Show and explain on chart',()=>select(current,true));
+      const showWork=button(visualType==='vwap'?'Show and explain this example':'Show and explain on chart',()=>select(current,true));
       const stepFor=index=>{
        // The first three source-derived steps use a DIFFERENT $20 candle.
        // The approved additional example uses the $31 reference candle.
@@ -666,7 +666,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
        counter.textContent='Step '+(index+1)+' of '+worked.length+' · Fictional case';
        script.textContent=worked[index];
        const currentCase=stepFor(index);
-       if(chart.setTeachingCandle?.(currentCase.values)){
+       // Only a candle lesson may replace the candle's OHLC picture.
+       // VWAP's worked trade groups use the integrated weighted-bars diagram.
+       if(visualType==='candle'&&chart.setTeachingCandle?.(currentCase.values)){
         if(typeof CustomEvent==='function')chart.dispatchEvent(new CustomEvent('gu-v35-highlight',{
          detail:{feature:currentCase.focus}
         }));
@@ -677,7 +679,30 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
        });
       }
       actions.append(prevWork,showWork,nextWork);
-      work.append(counter,script,actions);
+      work.append(counter,script);
+      if(visualType==='vwap'){
+       // This trade-group illustration belongs to the $10/$12 worked case,
+       // which is distinct from the $9–$10.85 fictional market chart below.
+       // Showing only the unrelated chart would misrepresent the example.
+       const diagram=el('div');diagram.className='gu-v35-vwap-share-illustration';
+       diagram.setAttribute('aria-label','Fictional VWAP trade-group comparison');
+       diagram.append(el('h5','How the VWAP weights work'));
+       for(const [price,shares] of [['$10.00',100],['$12.00',300]]){
+        const group=el('div');group.className='gu-v35-vwap-share-group';
+        const label=el('span',price+' · '+shares+' shares');
+        const track=el('div');track.className='gu-v35-vwap-share-track';
+        const fill=el('div');fill.className='gu-v35-vwap-share-fill';
+        fill.style.width=(shares/400*100)+'%';
+        fill.setAttribute('aria-label',String(shares/400*100)+'% of total shares');
+        track.append(fill);group.append(label,track);diagram.append(group);
+       }
+       diagram.append(el('p',
+        '400 total shares · Weighted price = ($1,000 + $3,600) ÷ 400 = $11.50 per share.'));
+       diagram.append(el('p',
+        'Separate fictional trade-group example. It does not use the individual candles in the market chart below.'));
+       work.append(diagram);
+      }
+      work.append(actions);
       const visualButtons=chart.querySelector('.gu-l33-interactive-tools');
       if(visualButtons)visualButtons.insertAdjacentElement('afterend',work);
       else chart.append(work);
