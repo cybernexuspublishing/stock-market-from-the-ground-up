@@ -47,8 +47,10 @@ try{
   const layout=await visualWorkbench.evaluate(node=>{
    const chart=node.querySelector('.gu-l33-graphic');
    const teacher=node.querySelector('.gu-v33-instructor');
-   const c=chart?.getBoundingClientRect(),t=teacher?.getBoundingClientRect();
+   const c=chart?.getBoundingClientRect(),t=teacher?.getBoundingClientRect(),
+    h=node.getBoundingClientRect();
    return {display:getComputedStyle(node).display,
+    heroWidth:h.width,chartWidth:c?.width,teacherWidth:t?.width,
     chartLeft:c?.left,chartRight:c?.right,chartTop:c?.top,
     teacherLeft:t?.left,teacherTop:t?.top};
   });
@@ -68,6 +70,8 @@ try{
    assert.equal(layout.display,'grid','Desktop must use side-by-side teaching columns');
    assert(layout.teacherLeft>=layout.chartRight-2,'Talia must stand beside the illustrated chart');
    assert(layout.teacherLeft-layout.chartRight<60,'Responsive columns must not leave a dead-space gulf between chart and Talia');
+   assert(layout.heroWidth>0&&((layout.chartWidth+layout.teacherWidth)/layout.heroWidth)>.90,
+    'Chart and Talia must actually use at least 90% of available desktop hero width — no centered 1100px legacy cap');
   }else{
    assert(layout.teacherTop>layout.chartTop,'Mobile must stack Talia beneath the chart');
   }
