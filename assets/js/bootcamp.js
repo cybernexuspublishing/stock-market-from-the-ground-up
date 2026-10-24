@@ -59,7 +59,7 @@
       what:d.objective,
       why:d.caution||d.observe,
       when:d.observe,
-      how:[d.observe,d.practice].filter(Boolean),
+      how:[d.practice].filter(Boolean),
       commonError:checkpoint?.commonMistake||d.caution,
       limitation:d.caution,
       questions:[checkpoint?.question].filter(Boolean)
