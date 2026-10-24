@@ -49,6 +49,12 @@ assert.match(candle.blocks.join(' '),/Open \(O\).*High \(H\).*Low \(L\).*Close \
 assert(candle.blocks.some(x=>x.includes('High − Low')),'Explain full range using correct formula');
 assert(candle.worked.some(x=>x.includes('40%')),'Teach with worked fictional candle example');
 assert(candle.check?.question.includes('real body'));
+const introduction=author.lesson({stage:0,visualType:'candle',concept:'Construct an Up / Bullish Candle'});
+assert.equal(introduction.objectives.length,3);
+assert(introduction.objectives.some(line=>line.includes('Open, High, Low and Close')));
+assert(introduction.blocks[0].includes('what you will learn'));
+assert(introduction.blocks.some(line=>line.includes('40%'))===false,'The Start stage must not reveal the worked calculation');
+
 const vwap=author.lesson({stage:1,visualType:'vwap',concept:'VWAP Reclaim'});
 assert(vwap.blocks.some(x=>x.includes('Σ means SUM')),'Define Greek symbols rather than presume prior knowledge');
 assert(vwap.worked.some(x=>x.includes('$11.50')),'Work VWAP from dollars and share counts');
@@ -75,6 +81,13 @@ assert(ask&&choice&&question&&status);
 const lessonView=api.create({stage:1,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
 const lessonNodes=walk(lessonView.element);
 assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-worked'),'Actual worked example must be visible');
+const initial=api.create({stage:0,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
+const initialNodes=walk(initial.element);
+assert(initialNodes.some(n=>n.tagName==='h3'&&n.textContent==='Avery — Your Learning Instructor'),'The named virtual instructor must be visible');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Here is what you will learn')),'The teaching objectives must be delivered in the instructor typing panel');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('I’m Avery')),'Start stage must have an approachable first-person instructor');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-objectives'),'Allow members to revisit the spoken objectives');
+initial.dispose();
 assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-check'),'Concept comprehension check must be visible');
 assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Open (O)')),'Instructor must teach definitions, not tell learner to read');
 lessonView.dispose();
