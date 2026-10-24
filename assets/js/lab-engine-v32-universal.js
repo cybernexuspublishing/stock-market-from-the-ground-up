@@ -359,6 +359,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   const p=el('p',label);p.className=good?'gu-v33-good':'gu-v33-review';body.append(p);
  }
  function render(){
+  // Start places its help tabs next to the primary action outside the
+  // replaceable body. Remove those old nodes when the stage changes,
+  // or they persist underneath every later lesson as duplicate controls.
+  shell.querySelectorAll?.(':scope > .gu-v33-support-tabs').forEach(node=>node.remove());
   shell.querySelector?.(':scope > .gu-v33-setup')?.remove?.();
   instructorInstance?.dispose?.();instructorInstance=null;
   body.replaceChildren();mark('');showJourney();
