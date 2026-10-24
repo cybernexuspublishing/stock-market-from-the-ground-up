@@ -123,7 +123,7 @@ const anonymousNodes=walk(noName.element);
 assert(anonymousNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Hello. I’m Talia')),'Missing or invalid first name requires a neutral greeting');
 assert(!anonymousNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('@Adissel')),'Never use the username in instructional greeting');
 noName.dispose();
-assert(lessonNodes.some(n=>n.className==='gu-v35-understanding'),'The understanding check must use Talia’s own learner answer field');
+assert(lessonNodes.some(n=>String(n.className).split(/\s+/).includes('gu-v35-understanding')),'The understanding check must use Talia’s own learner answer field');
 assert(typeof lessonView.teachSupplement==='function'&&typeof lessonView.askUnderstanding==='function');
 assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-typing'&&/opening price|O is the opening price/i.test(n.textContent)),'Instructor must teach the OHLC definitions, not simply tell learners to read');
 lessonView.dispose();
