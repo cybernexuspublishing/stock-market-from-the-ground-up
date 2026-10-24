@@ -172,6 +172,36 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  return {answer:data.answer,generation:data.generation||'reviewed-glossary-logic',
   aiReason:data.aiReason||null};
 }
+/* v3.2 Question Pass restore: do not grant or deduct tokens client-side.
+ * Reads verified counts and sends a single idempotent action to the server.
+ * Free teaching and retries never invoke this API.
+ */
+async function requestLabQuestionPass({action='balance',questionId='',attemptId='',requestId=''}={}){
+ if(!['guided','practice'].includes(PLAYER.mode))
+  throw Error('Question Pass is not available during independent assessments.');
+ const sb=PLAYER.access?.sb,labId=PLAYER.lab?.id;
+ const session=await sb?.auth?.getSession?.();
+ const token=session?.data?.session?.access_token;
+ if(!token)throw Error('Sign in to use Question Pass Credits. Learning explanations remain free.');
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+ try{
+  const base='/api/lab-question-pass';
+  const isBalance=action==='balance';
+  const url=isBalance?base+'?labId='+encodeURIComponent(labId):base;
+  const response=await fetch(url,{
+   method:isBalance?'GET':'POST',cache:'no-store',signal:controller.signal,
+   headers:{authorization:'Bearer '+token,...(isBalance?{}:{'content-type':'application/json'})},
+   body:isBalance?undefined:JSON.stringify({labId,questionId,attemptId,requestId,action})
+  });
+  const data=await response.json().catch(()=>null);
+  if(!response.ok||data?.ok!==true)
+   throw Error(String(data?.error||'Question Pass is not available. No credit was charged.').slice(0,180));
+  return data;
+ }catch(error){
+  if(error?.name==='AbortError')throw Error('Credit service timed out. Check your wallet before trying again.');
+  throw error;
+ }finally{clearTimeout(timer)}
+}
 function mountLabTutorLink(lab,mode){
  if(!['guided','practice'].includes(mode))return;
  const target=document.getElementById('v01499-original-skills');if(!target)return;
@@ -238,7 +268,7 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor,creditRequest:requestLabQuestionPass});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
