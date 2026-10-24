@@ -1,4 +1,4 @@
-/* Lantern Sparks owner-only API contract: no Supabase connection, money movement,
+/* Crownlight Sparks owner-only API contract: no Supabase connection, money movement,
  * or production billing events. Node mock captures all outbound requests.
  */
 import test from 'node:test';
@@ -13,7 +13,7 @@ const member='33333333-3333-4333-8333-333333333333';
 const requestId='44444444-4444-4444-8444-444444444444';
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_test'};
 const response=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
-test('Lantern Sparks protected account editor forbids non-Owner writes and audits valid adjustments',async()=>{
+test('Crownlight Sparks protected account editor forbids non-Owner writes and audits valid adjustments',async()=>{
  const oldFetch=globalThis.fetch,oldIdentity=globalThis.__sparkTestIdentity;
  let actorRole='OWNER',memberType='member',writes=[],ownerRestricted=false;
  globalThis.__sparkTestIdentity=async()=>({userId:owner});
@@ -72,7 +72,7 @@ test('Lantern Sparks protected account editor forbids non-Owner writes and audit
   globalThis.fetch=oldFetch;globalThis.__sparkTestIdentity=oldIdentity;
  }
 });
-test('Lantern Sparks migration uses owner audit and unique, serialized balance changes',()=>{
+test('Crownlight Sparks migration uses owner audit and unique, serialized balance changes',()=>{
  const v163=readFileSync(new URL('../supabase/migrations/v0.14.0.163_QUESTION_PASS_LEDGER_OWNER_REVIEW_REQUIRED.sql',import.meta.url),'utf8');
  const v164=readFileSync(new URL('../supabase/migrations/v0.14.0.164_LANTERN_SPARKS_ADMIN_REVIEW_REQUIRED.sql',import.meta.url),'utf8');
  for(const source of [v163,v164]){
