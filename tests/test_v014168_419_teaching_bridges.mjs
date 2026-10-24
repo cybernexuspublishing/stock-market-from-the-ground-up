@@ -11,6 +11,26 @@ assert.equal(bridge.independentGradesIncluded,false);
 assert.equal(bridge.historicalBarDataIncluded,false);
 assert.equal(Object.keys(bridge.entries).length,419);
 const guides=new Map(guideData.guides.map(g=>[g.code,g]));
+const foundationalCases={
+ 'F1-C02-L01':['historical replay','pause time','later bars'],
+ 'F1-C04-L01':['secondary','shares','company'],
+ 'F1-C07-L01':['common','security','issuer'],
+ 'F1-C07-L02':['index','ETF','fund'],
+ 'F1-C08-L01':['market capitalization','Shares Outstanding','price'],
+ 'F2-C01-L01':['9:30','4:00','Eastern']
+};
+for(const [id,terms] of Object.entries(foundationalCases)){
+ const row=bridge.entries[id];
+ assert.equal(row.instructionSource,'ORIGINAL_SPECIFIC_SUBJECT_TEXT_EDITORIAL_REVIEW_PENDING',
+  id+' must use an original subject-specific instruction, not an unrelated official competency description');
+ const all=Object.values(row.tabs).flat().join(' ').toLowerCase();
+ for(const term of terms)assert(all.includes(term.toLowerCase()),id+' is missing its essential subject explanation '+term);
+}
+assert(bridge.entries['F1-C04-L01'].tabs.understand.some(s=>s.includes('secondary-market trade')),
+ 'Secondary-market ownership lesson must explain who receives the proceeds');
+assert(!bridge.entries['F1-C04-L01'].tabs.understand.join(' ').includes('candidate ranking'),
+ 'Misassigned official skill tag must not replace market foundations teaching');
+
 const tags=['understand','recognize','apply','mistake','limits'];
 const ctx=vm.createContext({});
 new vm.Script(fs.readFileSync('assets/js/lab-v34-interactive-lessons.js','utf8'),
