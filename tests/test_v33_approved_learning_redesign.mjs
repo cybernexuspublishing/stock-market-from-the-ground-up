@@ -32,7 +32,7 @@ for(const allowed of ['Explain This Concept','Teach This in More Depth','Show a 
 for(const forbidden of ['— Always Free','— Free','(free)','free retry'])
  assert(!engine.includes(forbidden),'Member-facing promotional tag remains in v3.3 source: '+forbidden);
 assert(enhancements.includes("view.querySelector('details table tbody tr')")||enhancements.includes("view.querySelectorAll('details table tbody tr')"));
-assert(enhancements.includes("already rendered fictional OHLCV table"));
+assert(enhancements.includes("already rendered illustrative OHLCV table"),"Visual interaction may use only the chart already rendered, not a live or unverified data feed");
 assert(!enhancements.includes('/api/verified-replay'));
 assert(!enhancements.includes('/api/lab-assessment'));
 assert(enhancements.includes('aria-pressed'));
