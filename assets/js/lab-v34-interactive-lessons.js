@@ -57,6 +57,7 @@ function get({type='',feature='',concept='',guide={}}={}){
  if(found)return {...found,concept:subject,type,feature:key,verifiedHistory:false};
  // Subject-specific competency bridge. Never fabricate calculations, ticker
  // prices, an assessment key or an unseen chart when editorial data is absent.
+ const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(guide.code);
  const definition=clean(guide.concept||guide.definition||subject,480);
  const method=clean(guide.procedure||guide.method,500);
  const limits=clean(guide.limit||guide.invalidation,350);
@@ -66,7 +67,8 @@ function get({type='',feature='',concept='',guide={}}={}){
   definition:definition||subject+' is the skill examined in this lesson.',
   why:'The purpose is to recognize and explain this exact subject using evidence available at the pause.',
   method:method||'Identify the observation, timeframe, comparison rule, and one competing interpretation.',
-  example:'Apply this method to the current illustrated or book-authored case. Do not invent missing values.',
+  example:caseStudy?.steps?.length?caseStudy.steps.join(' '):
+   'Apply this method to the current illustrated or book-authored case. Do not invent missing values.',
   mistake:mistake||'Do not treat an interpretation as a known future outcome.',
   limit:limits||'Unseen bars and unverified historical candles cannot support a conclusion.',
   question:'What specific evidence supports your interpretation of '+subject+', and what would invalidate it?',
