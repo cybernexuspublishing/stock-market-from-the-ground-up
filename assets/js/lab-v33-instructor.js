@@ -97,7 +97,23 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const worked=el('section',undefined,'gu-v33-instructor-worked');
   worked.append(el('h4',plan.category==='general'?'Guided method demonstration':'Worked example — different fictional case'));
   const steps=el('ol');
-  for(const explanation of plan.worked)steps.append(el('li',explanation));
+  for(const [index,explanation] of plan.worked.entries()){
+   const line=el('li',explanation);
+   if(stage===1&&plan.category==='candle'){
+    const features=['all','body','percent'];
+    const labels=['Show the four prices on the candle','Highlight the real body','Show body-to-range calculation'];
+    const control=el('button',labels[index]||'Point to this on the chart','gu-v33-instructor-chart-link');
+    control.type='button';
+    control.setAttribute('data-linked-feature',features[index]||'all');
+    listen(control,'click',()=>{
+     const chart=rootEl.closest?.('.gu-v33-stage-hero')?.querySelector?.('.gu-l33-graphic');
+     const button=chart?.querySelector?.('[data-teaching-feature="'+(features[index]||'all')+'"]');
+     if(button)button.click();
+    });
+    line.append(control);
+   }
+   steps.append(line);
+  }
   worked.append(steps);
   rootEl.append(worked);
  }
