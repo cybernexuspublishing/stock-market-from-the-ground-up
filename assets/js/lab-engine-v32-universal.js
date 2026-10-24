@@ -20,7 +20,7 @@ function paintPrototypeProgress(index,percent=null){
  const count=lookup('player-stage-count');if(count)count.textContent='Stage '+(index+1)+' of 9';
  const number=lookup('player-progress-value');if(number)number.textContent=value+'%';
  const fill=lookup('player-progress-fill');if(fill)fill.style.width=value+'%';
- const bar=lookup('player-stage-progress');if(bar)bar.setAttribute('aria-valuenow',String(value));
+ const bar=lookup('player-stage-progress');if(bar){bar.setAttribute('aria-valuenow',String(value));bar.setAttribute('aria-valuetext',STEPS[index]+' · stage '+(index+1)+' of 9');}
 }
 
 const sessions=new WeakMap();
@@ -221,11 +221,11 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   shell.querySelector?.(':scope > .gu-v33-setup')?.remove?.();
   instructorInstance?.dispose?.();instructorInstance=null;
   body.replaceChildren();mark('');showJourney();
-  const names={0:'Start — Your personal learning session',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
+  const names={0:'',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
   6:'Review — Learn from each result',7:'Transfer — '+(kind==='vwap'?'Controlled VWAP market replay':'Apply learning to a new case'),8:'Your Learning Development Report'};
-  heading.textContent=names[stage];disclosure.hidden=stage===0;if(stage!==0)body.append(el('h3',STEPS[stage]));
+  heading.textContent=names[stage];heading.hidden=stage===0;disclosure.hidden=stage===0;if(stage!==0)body.append(el('h3',STEPS[stage]));
   // The narration is independent of answer-checking or actual model
   // inference. Never mount a teaching/Tutor panel in concealed modes; the
   // early mode boundary above already diverts Blind and Assessment modes.
