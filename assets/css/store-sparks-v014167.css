@@ -1,0 +1,18 @@
+
+/* Crownlight Sparks — optional noncharging Store shelf. */
+.store-crownlight{margin:22px 0;padding:clamp(18px,2vw,30px);border:1px solid #6d623f;background:linear-gradient(125deg,#102b41,#0a1c2e);border-radius:16px;color:#eaf3f9;}
+.store-crownlight-intro{display:flex;gap:20px;align-items:center;}
+.store-crownlight-intro img{width:110px;height:110px;object-fit:contain;flex:none;filter:drop-shadow(0 6px 18px #0005)}
+.store-crownlight h2{margin:4px 0 9px;font-size:clamp(1.3rem,2.3vw,1.8rem);color:#f8df9f;}
+.store-crownlight p{line-height:1.55;}
+.store-crownlight-note{font-size:.89rem;color:#eed7a8;margin:18px 0 14px;}
+.store-crownlight-packages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.store-crownlight-package{background:#142e42;border:1px solid #3e657b;border-radius:12px;padding:17px;min-width:0;}
+.store-crownlight-package h3{margin:0;color:#f7e5ae;font-size:1.03rem;}
+.store-crownlight-package .quantity{font-size:1.45rem;font-weight:800;color:#fff;margin:12px 0 4px;}
+.store-crownlight-package .price{font-size:1.15rem;font-weight:700;color:#e8c06b;}
+.store-crownlight-package .unit-price{font-size:.78rem;color:#b7cfdd;margin:6px 0 12px;}
+.store-crownlight-package .sales-disabled{display:inline-block;padding:9px 11px;border:1px solid #59788c;border-radius:8px;color:#c7d7df;font-size:.83rem;background:#183248;}
+.store-crownlight-terms{font-size:.81rem;color:#b6cbd7;margin:17px 0 0;}
+@media(max-width:880px){.store-crownlight-packages{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:590px){.store-crownlight-intro{align-items:flex-start;gap:9px}.store-crownlight-intro img{width:68px;height:68px}.store-crownlight-packages{grid-template-columns:1fr;}}
