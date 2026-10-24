@@ -257,7 +257,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    // duplicate generic "Recognize and explain: Explain X" bullets here.
    // The book Lab setup must be visible on arrival, not buried behind
    // collapsed supplementary panels. Never imply a verified chart exists.
-   const setupFields=[['Ticker',lab?.ticker],['Historical date',lab?.date],['Start / Pause',lab?.start],['End',lab?.end],['Timeframe',lab?.timeframe]]
+   const setupTimeframe=String(lab?.timeframe||'').trim()||(
+    String(lab?.setup||'').match(/\b(1|2|3|5|10|15|30|60)[ -]minute\b/i)?.[1]||''
+   ).replace(/^(\d+)$/,'$1-minute');
+   const setupFields=[['Ticker',lab?.ticker],['Historical date',lab?.date],['Start / Pause',lab?.start],['End',lab?.end],['Timeframe',setupTimeframe]]
     .filter(([,value])=>typeof value==='string'&&value.trim());
    if(setupFields.length){
     const setup=el('section');setup.className='gu-v33-setup';
