@@ -121,7 +121,7 @@ assert(!anonymousNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textC
 noName.dispose();
 assert(lessonNodes.some(n=>n.className==='gu-v35-understanding'),'The understanding check must use Talia’s own learner answer field');
 assert(typeof lessonView.teachSupplement==='function'&&typeof lessonView.askUnderstanding==='function');
-assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Open (O)')),'Instructor must teach definitions, not tell learner to read');
+assert(lessonNodes.some(n=>n.className==='gu-v33-instructor-typing'&&/opening price|O is the opening price/i.test(n.textContent)),'Instructor must teach the OHLC definitions, not simply tell learners to read');
 lessonView.dispose();
 assert.equal(calls.length,0,'Never automatically call server when Lab opens');
 question.value='What does VWAP measure?';
