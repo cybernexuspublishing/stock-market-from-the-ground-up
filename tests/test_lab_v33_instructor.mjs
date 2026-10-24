@@ -62,7 +62,8 @@ assert(candle.check?.question.includes('real body'));
 const introduction=author.lesson({stage:0,visualType:'candle',concept:'Construct an Up / Bullish Candle'});
 assert.equal(introduction.objectives.length,3);
 assert(introduction.objectives.some(line=>line.includes('Open, High, Low and Close')));
-assert(introduction.blocks[0].includes('what you will learn'));
+assert(introduction.blocks[0].includes('four prices')&&introduction.blocks[1].includes('measure'),
+ 'Start must preview the beginner learning journey without teaching all calculations or reverting to competency boilerplate');
 assert(introduction.blocks.some(line=>line.includes('40%'))===false,'The Start stage must not reveal the worked calculation');
 
 const vwap=author.lesson({stage:1,visualType:'vwap',concept:'VWAP Reclaim'});
