@@ -6,7 +6,7 @@
 .gu-human-check input:disabled{cursor:wait;opacity:.55}
 .gu-human-check:focus-within{outline:2px solid #e3b64b;outline-offset:3px;border-radius:4px}
 .gu-manual-human p.small{color:#c6d9e6;line-height:1.5;margin:.45rem 0 .8rem}
-#v135-turnstile{min-height:65px;max-width:100%;overflow-x:auto}
+#v135-turnstile{min-height:65px;max-width:100%;width:100%;overflow:visible}
 #v135-turnstile[hidden]{display:none!important}
 #v135-auth-captcha-status{margin:.75rem 0;color:#ffdf8e}
 @media(max-width:480px){.gu-manual-human{padding:.7rem}.gu-human-check{font-size:.93rem}}
