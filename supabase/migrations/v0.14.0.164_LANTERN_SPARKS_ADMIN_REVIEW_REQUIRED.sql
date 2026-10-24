@@ -1,4 +1,4 @@
--- The Stock Market: From the Ground Up | Lantern Sparks admin balance management
+-- The Stock Market: From the Ground Up | Crownlight Sparks admin balance management
 -- Depends on v0.14.0.163_QUESTION_PASS_LEDGER_OWNER_REVIEW_REQUIRED.sql.
 -- SOURCE ONLY: a licensed Supabase owner must review, back up, apply and verify.
 -- This migration grants no Sparks and creates no Stripe product.
