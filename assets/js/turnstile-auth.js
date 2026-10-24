@@ -86,6 +86,7 @@
       try{
         widget=window.turnstile.render(mount,{
           sitekey:window.__guTurnstileSitekey,action,theme:'auto',appearance:'always',execution:'execute',
+          size:mount.getBoundingClientRect().width<310?'compact':'flexible',
           'refresh-expired':'manual','refresh-timeout':'manual',
           callback:t=>{
             if(!checkbox?.checked){token='';lock(true);return}
