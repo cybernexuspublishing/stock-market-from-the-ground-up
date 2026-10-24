@@ -18,6 +18,7 @@ assert(css.includes('max-height:min(65vh,420px)'),'Popover must have bounded scr
 assert(engine.includes("el('h3','Historical Lab Setup')"),'Original book/chart setup must be visible on first learning stage');
 assert(engine.includes("lab?.ticker")&&engine.includes("lab?.date"),'Display only authorized source fields');
 assert(engine.includes('Historical candle prices must be validated against an approved intraday data source.'),'Do not fabricate chart source verification');
+assert(engine.includes('setupTimeframe'),'Historical source setup must display the authorized interval even when its separate timeframe field is blank');
 assert(!source.includes('await window.SiteAccess?.get?.()'),'Do not wait on unrelated legacy entitlement RPC before first lesson');
 assert(source.includes('serverGuidedAllowed===true')&&source.includes('serverAdvancedAllowed===true'),'Preserve server-issued access and mode rights');
 assert(source.includes("event.key==='Escape'"),'Keyboard users must be able to close Learning Mode menu');
