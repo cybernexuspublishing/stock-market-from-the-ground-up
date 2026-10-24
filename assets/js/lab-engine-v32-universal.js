@@ -220,7 +220,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
  function render(){
   instructorInstance?.dispose?.();instructorInstance=null;
   body.replaceChildren();mark('');showJourney();
-  const names={0:'Welcome to your learning workstation',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
+  const names={0:'Start — Your personal learning session',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
   6:'Review — Learn from each result',7:'Transfer — '+(kind==='vwap'?'Controlled VWAP market replay':'Apply learning to a new case'),8:'Your Learning Development Report'};
@@ -241,7 +241,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
   previous.hidden=stage===0;next.textContent=stage===0?'Begin '+(kind==='candle'?'Candlestick':kind==='vwap'?'VWAP':'Learning')+' Lesson →':'Next learning stage';
 
   if(stage===0){
-   appendParagraph(body,lab?.goal||('Understand '+topic+' before assessment.'));
+   // Avery's accessible type-on-screen introduction owns the outcomes,
+   // first explanation and the one-to-one learning invitation. Do not
+   // duplicate generic "Recognize and explain: Explain X" bullets here.
    // The book Lab setup must be visible on arrival, not buried behind
    // collapsed supplementary panels. Never imply a verified chart exists.
    const setupFields=[['Ticker',lab?.ticker],['Historical date',lab?.date],['Start / Pause',lab?.start],['End',lab?.end],['Timeframe',lab?.timeframe]]
@@ -257,14 +259,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
     const note=el('p','These fields describe the original Lab setup, not independently verified market history.');
     note.className='small';setup.append(note);body.append(setup);
    }
-   const intro=el('section');intro.className='instruction';intro.append(el('h3','What you will learn'));
-   const goals=el('ul');
-   goals.append(el('li','Recognize and explain: '+(authorizedTeaching.what||guide.concept)),
-    el('li','Apply the correct evidence and method: '+(authorizedTeaching.why||guide.procedure)),
-    el('li','Recognize mistakes and limits: '+guide.invalidation));
-   intro.append(goals);
-   appendParagraph(intro,'Explore the visual example, explain your reasoning, and apply the concept in a new case. Any fictional illustration will be identified as such.');
-   body.append(intro);
+   // Learning objectives are now delivered directly by Avery in the
+   // typed instructor panel. No second competing 'What you will learn' card.
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
    const metrics=el('div');metrics.className='grid2';
    for(const [name,note] of [['Included','Subject to server entitlement'],['Purchased','Never expire after purchase']]){
