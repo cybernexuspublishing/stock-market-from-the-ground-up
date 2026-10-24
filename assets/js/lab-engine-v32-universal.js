@@ -133,9 +133,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    !/^(?:concept title pending|untitled|unknown|lab id only)/i.test(candidate)?candidate:'';
  };
  const authorTopic=meaningfulTitle(map.knownTopics.get(labId));
- const topic=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)||
+ const rawTopic=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)||
   (meaningfulTitle(guide.title)?'Competency study — '+meaningfulTitle(guide.title):'')||
   meaningfulTitle(lab?.chapterTitle)||'Market evidence and decision-making';
+ const topic=/construct (?:an? )?(?:up\s*\/\s*)?bullish candle/i.test(rawTopic)?'Bullish Candle'
+  :/construct (?:an? )?(?:down\s*\/\s*)?bearish candle/i.test(rawTopic)?'Bearish Candle'
+  :rawTopic;
  const topicSource=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)?'authored':'competency';
 
  const visualType=root.GroundUpLabV33Contextual?.select?.({lab,topic,competencies:codes})||'none';
@@ -336,7 +339,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
-    onComplete:()=>{if(stage<8)nextStage(true)}
+    onComplete:()=>{if(stage<8)nextStage(true)},
+    onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -581,49 +585,31 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const setup=body.querySelector?.('.gu-v33-setup');
    if(setup)shell.insertBefore(setup,heading);
   }
-  // Follow-up teaching and ungraded checks belong BELOW the primary
-  // instructor/chart workspace, not inside its narration panel.
+  // The approved reference keeps worked demonstrations INSIDE the
+  // illustration. The four explanation actions now trigger Talia's voice,
+  // rather than opening four disconnected text windows.
+  let stageOneGuides=[];
   if(stage===1){
-   const coach=body.querySelector?.('.gu-v33-instructor');
-   const worked=coach?.querySelector?.('.gu-v33-instructor-worked');
-   const check=coach?.querySelector?.('.gu-v33-instructor-check');
-   if(worked||check){
-    const extension=el('section');extension.className='gu-v33-teaching-followup';
-    extension.setAttribute('aria-label','Worked example and comprehension check');
-    // Owner layout: worked example directly ABOVE the self-check,
-    // while the four optional explanations below form their own tabs.
-    if(worked)extension.append(worked);
-    if(check)extension.append(check);
-    body.append(extension);
-   }
    const names=new Set(['Explain This Concept','Show a Guided Example','Try Another Example','Teach This in More Depth']);
-   const guides=Array.from(body.querySelectorAll('details')).filter(d=>names.has(d.querySelector('summary')?.textContent.trim()));
-   if(guides.length){
-    const area=el('section');area.className='gu-v33-help-tabs';
-    area.setAttribute('aria-label','Additional learning explanations');
-    const tabs=el('div');tabs.className='gu-v33-help-tablist';
-    tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Learning explanations');
-    guides.forEach((guide,i)=>{
-     const label=guide.querySelector('summary').textContent.trim();
-     const tab=button(label,()=>activate(i));tab.setAttribute('role','tab');
-     tab.setAttribute('aria-selected','false');tab.setAttribute('aria-controls','gu-v33-help-panel-'+i);
-     const labelNode=guide.querySelector('summary');labelNode.remove();
-     guide.open=true;guide.id='gu-v33-help-panel-'+i;guide.setAttribute('role','tabpanel');guide.hidden=true;
-     tab.addEventListener('keydown',e=>{
-      if(!['ArrowRight','ArrowLeft','Home','End'].includes(e.key))return;
-      e.preventDefault();
-      const j=e.key==='Home'?0:e.key==='End'?guides.length-1:(i+(e.key==='ArrowRight'?1:-1)+guides.length)%guides.length;
-      activate(j);tabs.children[j].focus();
+   stageOneGuides=Array.from(body.querySelectorAll('details'))
+    .filter(node=>names.has(node.querySelector('summary')?.textContent.trim()))
+    .map(node=>({
+      name:node.querySelector('summary').textContent.trim(),
+      paragraphs:Array.from(node.querySelectorAll('p,li')).map(p=>p.textContent.trim()).filter(Boolean),
+      node
+    }));
+   for(const guideAction of stageOneGuides)guideAction.node.remove();
+   if(stageOneGuides.length){
+    const tabs=el('div');tabs.className='gu-v33-help-tablist gu-v35-teaching-actions';
+    tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Ask Talia to teach');
+    for(const action of stageOneGuides){
+     const control=button(action.name,()=>{
+      for(const other of tabs.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===control));
+      instructorInstance?.teachSupplement?.(action.name,action.paragraphs);
      });
-     tabs.append(tab);
-    });
-    function activate(index){
-     guides.forEach((guide,i)=>{
-      guide.hidden=i!==index;
-      tabs.children[i].setAttribute('aria-selected',String(i===index));
-     });
+     control.setAttribute('aria-pressed','false');tabs.append(control);
     }
-    area.append(tabs,...guides);body.append(area);
+    body.append(tabs);
    }
   }
   if(stage===0){
@@ -644,6 +630,52 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     // chart with measured values, THEN Talia teaching and the typed answer.
     // They share one workstation rather than two competing side panels.
     hero.append(chart,coach);body.insertBefore(hero,body.firstChild);
+    if(stage===1){
+     const worked=lessonPlan(1)?.worked||[];
+     if(worked.length){
+      const work=el('section');work.className='gu-v35-chart-worked';
+      work.setAttribute('aria-label','Interactive worked example on the chart');
+      const label=el('h4','Worked example — follow the candle');work.append(label);
+      const counter=el('p');counter.className='gu-v35-worked-counter';
+      const script=el('p');script.className='gu-v35-worked-script';
+      const actions=el('div');actions.className='gu-v35-worked-controls';
+      let current=0;
+      const prevWork=button('Previous worked step',()=>select(current-1));
+      const nextWork=button('Next worked step',()=>select(current+1));
+      const showWork=button('Show and explain on chart',()=>select(current,true));
+      const stepFor=index=>{
+       // The first three source-derived steps use a DIFFERENT $20 candle.
+       // The approved additional example uses the $31 reference candle.
+       // The final independent illustration is a $12.40 bearish candle.
+       const values=index<3?{o:20,hv:22,l:19,c:21.2}
+        :index===worked.length-1?{o:12.4,hv:12.7,l:11.9,c:12.1}
+        :{o:31,hv:32.5,l:30.5,c:32};
+       const focus=index===1?'body':index===2||index===4?'percent'
+        :index===5?'high':'all';
+       return{values,focus};
+      };
+      function select(index,narrate=true){
+       if(index<0||index>=worked.length)return;
+       current=index;
+       counter.textContent='Step '+(index+1)+' of '+worked.length+' · Fictional case';
+       script.textContent=worked[index];
+       const currentCase=stepFor(index);
+       if(chart.setTeachingCandle?.(currentCase.values)){
+        if(typeof CustomEvent==='function')chart.dispatchEvent(new CustomEvent('gu-v35-highlight',{
+         detail:{feature:currentCase.focus}
+        }));
+       }
+       prevWork.disabled=index===0;nextWork.disabled=index===worked.length-1;
+       if(narrate)instructorInstance?.teachWorkedStep?.({
+        index,total:worked.length,text:worked[index],feature:currentCase.focus
+       });
+      }
+      actions.append(prevWork,showWork,nextWork);
+      work.append(counter,script,actions);
+      chart.append(work);
+      select(0,false);
+     }
+    }
     const visualHeader=chart.querySelector('.gu-l33-head');
     if(visualHeader){
      const zoom=button('Expand visual',()=>{
@@ -682,11 +714,14 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const chart=body.querySelector('.gu-l33-graphic');
    if(chart)body.insertBefore(chart,body.firstChild);
   }
-  const followups=body.querySelector?.('.gu-v33-teaching-followup');
-  if(followups){const anchor=body.querySelector?.('.gu-v33-stage-hero, .gu-v33-instructor');
-   body.insertBefore(followups,anchor?.nextSibling||null);
-   const explanations=body.querySelector?.('.gu-v33-help-tabs');
-   if(explanations)body.insertBefore(explanations,followups.nextSibling);
+  if(stage===1){
+   // Keep optional tutor teaching controls directly below the visual/Talia
+   // pair without restoring the old static answer panels.
+   const actions=body.querySelector('.gu-v35-teaching-actions');
+   if(actions){
+    const hero=body.querySelector('.gu-v34-unified-lesson');
+    if(hero)body.insertBefore(actions,hero.nextSibling);
+   }
   }
   // Coach the member through one protected evidence field at a time. This
   // shortcut never grades or submits anything and preserves the form's IDs.
