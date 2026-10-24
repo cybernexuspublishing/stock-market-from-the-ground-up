@@ -271,9 +271,18 @@ function lesson(input={}){
  // Keep subject-specific authorized content prominent even when an illustration
  // category covers a broader family of lessons.
  const focus=category==='general'?'':named?'Current concept: '+named+'.':'';
- const extra=category==='general'?[]:[
-  ...(custom.what?[sentence('For this specific Lab: '+clean(custom.what,440))]:[]),
-  ...(custom.why?[sentence('Why this application matters: '+clean(custom.why,440))]:[])
+ const customHow=Array.isArray(custom.how)?custom.how
+  .filter(x=>typeof x==='string'&&x.trim()).slice(0,4).map(x=>clean(x,500)):[];
+ // The thirty approved Boot Camp days carry distinct objectives, observation
+ // rules, procedures and limitations. Present those as actual teaching rather
+ // than a generic sentence about "evidence-led, repeatable decisions".
+ const extra=[
+  ...(custom.what?['Our goal for this lesson is to '+clean(custom.what,440).replace(/[.]+$/,'')+'.']:[]),
+  ...(custom.why?['Why this matters: '+clean(custom.why,440)]:[]),
+  ...(custom.when?['What to look for: '+clean(custom.when,500)]:[]),
+  ...customHow.map((step,index)=>'Practice method, step '+(index+1)+': '+step),
+  ...(custom.commonError?['A mistake to watch for: '+clean(custom.commonError,480)]:[]),
+  ...(custom.limitation?['A boundary of this exercise: '+clean(custom.limitation,480)]:[])
  ];
  const stage=Number(input.stage||0);
  const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(material.guide?.code);
@@ -288,15 +297,17 @@ function lesson(input={}){
   ...(caseStudy?.steps?.length?['We will apply this method to a separate illustrative worked case.']:[])];
  else if(stage===2)blocks=[base.explanation[0],base.experiment,'Describe what the manipulated input changes and what it does not establish.'];
  else if(stage===4)blocks=[base.explanation[0],base.example[0],base.example[1],'Apply the same METHOD to your own practice question; do not simply copy the numbers from this separate example.'];
- else if(stage===6)blocks=[base.misconception,base.limitation,'Reconstruct your original reasoning using the observations available at the time, not any later outcome.'];
+ else if(stage===6)blocks=[clean(custom.commonError||base.misconception,480),
+  clean(custom.limitation||base.limitation,480),
+  'Revisit your original decision and explain which observations were available before the result.'];
  else if(stage===7)blocks=[base.transfer,base.limitation,'Lock your analysis before revealing any later replay observation.'];
  else if(stage===8)blocks=[base.explanation[0],base.misconception,'Transfer the method to a fresh case. Completion of guided teaching is not independent competency mastery.'];
  return {
   category,heading:base.name,objectives:outcomes,blocks:blocks.filter(Boolean),
   worked:stage===1?(caseStudy?.steps?.length&&category!=='general'
    ?[...base.example,...caseStudy.steps]:base.example):[],
-  misconception:base.misconception,
-  limitation:base.limitation,
+  misconception:custom.commonError?clean(custom.commonError,480):base.misconception,
+  limitation:custom.limitation?clean(custom.limitation,480):base.limitation,
   check:stage===1?base.check:null,
   sourceNote:category==='general'?'Based on the available Lab topic and original competency guide; individual lesson review may still be required.'
     :'Worked prices, quantities and scenario details in this instructor demonstration are illustrative, not verified history.'
