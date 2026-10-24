@@ -29,7 +29,7 @@ try{
    return route.continue();
   });
   await page.goto(base+'/lab-player.html?lab=SITE-001',{waitUntil:'domcontentloaded'});
-  await page.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
+  await page.getByRole('heading',{name:/Start — Your personal learning session/}).waitFor({timeout:15000});
   const siteHeader=page.locator('body.gu-lab-member > header.site-header');
   assert.equal(await siteHeader.count(),1,'Lab must retain one canonical website header');
   assert.equal(await siteHeader.locator('.brand').getAttribute('href'),'index.html','Site logo must navigate home');
@@ -49,12 +49,12 @@ try{
   await page.locator('#player-mode-menu [data-member-mode="practice"]').click();
   await page.getByRole('button',{name:'Learning mode guidance'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
-  await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
+  await page.getByRole('button',{name:'Start Guided Learning →'}).click();
   await page.locator('#player-mode-trigger').click();
   await page.locator('#player-mode-menu [data-member-mode="guided"]').click();
   await page.getByRole('button',{name:'Yes, Continue'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Guided Mode/);
-  await page.getByRole('button',{name:'Begin Learning Lesson →'}).click();
+  await page.getByRole('button',{name:'Start Guided Learning →'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await page.locator('#player-mode-select').isDisabled(),true);
@@ -125,7 +125,7 @@ try{
   return route.continue();
  });
  await draftPage.goto(base+'/lab-player.html?lab=F1-C02-L01',{waitUntil:'domcontentloaded'});
- await draftPage.getByRole('heading',{name:/Welcome to your learning workstation/}).waitFor({timeout:15000});
+ await draftPage.getByRole('heading',{name:/Start — Your personal learning session/}).waitFor({timeout:15000});
  assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
  assert.match(await draftPage.locator('#player-location').innerText(),/Foundations I/);
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
