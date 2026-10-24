@@ -130,7 +130,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   if(submitting||finished)return;
   const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
   const numerical=/^Enter the numerical/i.test(prompts[index]);
-  if((numerical&&!Number.isFinite(Number(value)))||(!numerical&&value.length<20)){
+  if((numerical&&(!value||!Number.isFinite(Number(value))))||(!numerical&&value.length<20)){
    reply.textContent=numerical?'Enter a valid numerical result.':'Explain your reasoning using at least 20 characters.';
    return;
   }
