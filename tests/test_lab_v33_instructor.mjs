@@ -144,6 +144,20 @@ continued.dispose();
 assert.equal(calls[0].allowModel,true,'AI enabled by default only after member submits a Tutor question');
 assert(!calls[0].question.includes('replay answer'),'Never attach hidden answer');
 assert.match(status.textContent,/Source-grounded Market Tutor response/);
+let attempts=0;
+const retryView=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',
+ requestTutor:async()=>{if(++attempts===1)throw Error('Tutor temporarily unavailable.');return {answer:'Source explanation after retry.',generation:'original-competency-guide',aiReason:'source_only'};}});
+const retryNodes=walk(retryView.element);
+walk(retryNodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea').value='How does VWAP work?';
+const retryAsk=retryNodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor');
+const retryStatus=retryNodes.find(n=>n.className==='gu-v33-tutor-status');
+await retryAsk.handlers.click();
+assert.match(retryStatus.textContent,/temporarily unavailable/);
+assert.equal(retryAsk.disabled,false,'Failed request must restore the Ask control');
+await retryAsk.handlers.click();
+assert.match(retryStatus.textContent,/Source-grounded Market Tutor response/);
+assert.equal(attempts,2,'Learner may retry the same question after an error');
+retryView.dispose();
 const optedOut=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',allowTutorAI:false,
  requestTutor:async x=>{calls.push({question:x.question,allowModel:x.allowModel});return {answer:'Source-based explanation.',generation:'reviewed-glossary-logic'};}});
 const optedNodes=walk(optedOut.element);
