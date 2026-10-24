@@ -33,3 +33,18 @@
 
 /new-discussion*
   Cache-Control: private, no-store
+
+/assets/css/lab-v33-experience.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/css/bootcamp.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/css/lab-v33-instructor.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/lab-player.html
+  Cache-Control: private, no-cache, max-age=0, must-revalidate
+
+/bootcamp.html
+  Cache-Control: private, no-cache, max-age=0, must-revalidate
