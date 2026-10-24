@@ -107,7 +107,7 @@ begin
   v_previous,v_previous+v_delta,btrim(p_reason));
  insert into public.admin_audit_log
   (actor_user_id,action,target_type,target_id,details)
- values(p_actor_id,'learning.lantern_sparks.adjust','user',p_user_id,
+ values(p_actor_id,'learning.lantern_sparks.adjust','user',p_user_id::text,
   jsonb_build_object('operation',p_operation,'requestedValue',p_value,
   'delta',v_delta,'before',v_previous,'after',v_previous+v_delta,
   'requestId',p_request_id,'reason',btrim(p_reason)));
