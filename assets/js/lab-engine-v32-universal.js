@@ -73,7 +73,7 @@ const synthetic=Object.freeze({
  transfer:{prompt:'New fictional trades: 150 shares at $12 and 50 shares at $16. What is their VWAP?',answer:13}}
 });
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memberFirstName=''}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -234,7 +234,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest}={})
    const instructor=root.GroundUpLabV33Instructor.create({
     stage,subject:tutorTopic||'observable market evidence',concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
-    requestTutor:tutorRequest,seen:narratedStages.has(stage)
+    memberFirstName,requestTutor:tutorRequest,seen:narratedStages.has(stage)
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
