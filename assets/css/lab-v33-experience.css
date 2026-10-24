@@ -416,3 +416,50 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
    width:100%;max-height:220px;
  }
 }
+
+/* v3.5: source-grounded worked cases belong to the chart itself, not to a
+ * detached seven-paragraph panel. Talia narrates the selected single step. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-chart-worked{
+ margin:8px 0 0;padding:10px 12px;background:#112c42;border:1px solid #4d738a;border-radius:9px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-chart-worked h4{
+ margin:0 0 5px;color:#edf7fc;font-size:.92rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-counter{
+ font-size:.76rem!important;color:#c5e3f3!important;margin:4px 0 6px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-script{
+ margin:5px 0 8px;font-size:.88rem;line-height:1.55;color:#f2f8fd;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-controls{
+ display:flex;flex-wrap:wrap;gap:8px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-controls button{
+ padding:6px 11px;min-height:34px;font-size:.8rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-controls button:disabled{
+ opacity:.5;cursor:not-allowed;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-teaching-actions{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:10px 0 12px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-teaching-actions button{
+ min-height:39px;padding:8px 10px;white-space:normal;font-size:.8rem;
+ background:#193d54;border:1px solid #587c94;color:#f2f8fc;border-radius:8px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-teaching-actions button[aria-pressed="true"]{
+ background:#e6bc59;color:#142536;font-weight:800;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-understanding{
+ display:inline-flex;min-height:37px;padding:8px 12px;margin:9px 0;font-size:.85rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-understanding:focus-visible,
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-teaching-actions button:focus-visible,
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-worked-controls button:focus-visible{
+ outline:3px solid #b5e6ff;outline-offset:2px;
+}
+@media(max-width:780px){
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-teaching-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
