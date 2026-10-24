@@ -45,7 +45,7 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -284,6 +284,103 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   }
  }
  paintQuestion();
+ // The original v3.2 Question Pass workflow is restored here for
+ // *fictional, ungraded* practice questions only. A real member ledger
+ // confirms the balance and spends one credit atomically, never JavaScript.
+ const creditControls=el('section',undefined,'gu-v33-pass-controls');
+ creditControls.setAttribute('aria-label','Question Pass: optional reveal or skip');
+ const passHeading=el('h4','Question Pass · Reveal or Skip');
+ const passBalance=el('p','Checking available credits…','gu-v33-pass-balance');
+ const passNote=el('p','Both options use one Question Pass Credit. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
+ const passConfirmation=el('div',undefined,'gu-v33-pass-confirm');passConfirmation.hidden=true;
+ const passQuestion=el('p','');
+ const passConfirm=el('button','Confirm 1-credit use','btn gu-v33-pass-confirm-btn');
+ const passCancel=el('button','Cancel','btn secondary');
+ passConfirm.type=passCancel.type='button';
+ passConfirmation.append(passQuestion,passConfirm,passCancel);
+ const passChoices=el('div',undefined,'gu-v33-pass-choice-row');
+ const passReveal=el('button','Reveal answer · 1 credit','btn secondary');
+ const passSkip=el('button','Skip question · 1 credit','btn secondary');
+ passReveal.type=passSkip.type='button';passReveal.disabled=passSkip.disabled=true;
+ passChoices.append(passReveal,passSkip);
+ const passFeedback=el('p','','gu-v33-pass-feedback');passFeedback.setAttribute('role','status');
+ const passContinue=el('button','Continue','btn secondary');passContinue.type='button';passContinue.hidden=true;
+ creditControls.append(passHeading,passBalance,passNote,passConfirmation,passChoices,passFeedback,passContinue);
+ let passAvailable=0,passPending='',passBusy=false,passUsed=false,passDisposed=false;
+ function showPassBalance(balance){
+  if(!balance||!Number.isInteger(balance.available)||balance.available<0)
+   throw Error('Credit balance could not be verified.');
+  passAvailable=balance.available;
+  passBalance.textContent='Available: '+balance.available+' · Included: '+balance.included+
+   ' · Purchased: '+balance.purchased;
+  passReveal.disabled=passSkip.disabled=passAvailable<1||passBusy||passUsed;
+ }
+ function resetPassQuestion(){
+  passUsed=false;passPending='';passConfirmation.hidden=true;passContinue.hidden=true;
+  passFeedback.textContent='';
+  passReveal.disabled=passSkip.disabled=passAvailable<1;
+ }
+ if(stage===4&&typeof onCreditAction==='function'){
+  interaction.append(creditControls);
+  void onCreditAction({action:'balance'}).then(response=>{
+   if(passDisposed)return;
+   showPassBalance(response.balance);
+   if(response.balance.available<1)passFeedback.textContent='No Question Pass Credits are available. You can still learn and retry for free.';
+  }).catch(error=>{
+   if(passDisposed)return;
+   passBalance.textContent='Balance unavailable';
+   passFeedback.textContent=String(error?.message||'No verified balance is available.');
+  });
+  const choose=action=>{
+   if(passBusy||passUsed||passAvailable<1)return;
+   passPending=action;
+   passQuestion.textContent=(action==='reveal'?'Reveal the study answer':'Skip this practice question')+
+    ' for one Question Pass Credit? It will not count as an independently correct answer.';
+   passConfirmation.hidden=false;passConfirm.focus?.();
+  };
+  listen(passReveal,'click',()=>choose('reveal'));
+  listen(passSkip,'click',()=>choose('skip'));
+  listen(passCancel,'click',()=>{passPending='';passConfirmation.hidden=true;passFeedback.textContent='No credit used.'});
+  listen(passConfirm,'click',async()=>{
+   if(passBusy||passUsed||!passPending||passAvailable<1)return;
+   passBusy=true;passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
+   const chosen=passPending,idx=questionIndex;
+   passFeedback.textContent='Confirming your Question Pass…';
+   try{
+    const result=await onCreditAction({action:chosen,index:idx});
+    if(passDisposed)return;
+    if(result?.ok!==true)throw Error('Credit use could not be confirmed.');
+    passUsed=true;passPending='';passConfirmation.hidden=true;
+    showPassBalance(result.balance);
+    const answerText=String(result.answerText||'This question is recorded as Study Only.');
+    passFeedback.textContent=answerText+' One credit was used'+(result.alreadyUsed?' previously':'')+'.';
+    reply.textContent='This step is marked Study Only. It is not graded.';
+    reflection.disabled=true;submitReflection.disabled=true;
+    passContinue.hidden=false;
+    passContinue.textContent=idx===prompts.length-1?'Continue to next learning stage':'Continue to next practice question';
+   }catch(error){
+    if(!passDisposed)passFeedback.textContent=String(error?.message||'Credit service unavailable. No new credit was confirmed.');
+    passReveal.disabled=passSkip.disabled=passAvailable<1;
+   }finally{
+    passBusy=false;passConfirm.disabled=false;
+   }
+  });
+  listen(passContinue,'click',()=>{
+   if(!passUsed||finished)return;
+   const final=questionIndex===prompts.length-1;
+   saved[questionIndex]='Study Only — Question Pass';
+   if(final){
+    finished=true;passContinue.hidden=true;
+    counter.textContent='Practice completed with assistance';
+    onComplete?.({stage,answers:[...saved],assisted:true});
+   }else{
+    questionIndex++;
+    reflection.disabled=false;submitReflection.disabled=false;
+    paintQuestion();resetPassQuestion();
+    reflection.focus?.();
+   }
+  });
+ }
  // Keep the suggested conversational questions available OUTSIDE the
  // concealed assessment-response form, so learners can always ask Talia
  // for an explanation without opening Check My Understanding.
@@ -572,7 +669,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    walletPane.replaceChildren(wallet);
   },
   dispose(){
-  disposed=true;stopTyping();cancelAnswer?.();pending?.abort();pending=null;
+  disposed=true;passDisposed=true;stopTyping();cancelAnswer?.();pending?.abort();pending=null;
  }};
 }
 root.GroundUpLabV33Instructor=Object.freeze({create,version:'LAB-UX-STD-001-tutor-v1'});
