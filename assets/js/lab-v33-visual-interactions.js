@@ -50,18 +50,27 @@ function enhance(view,options){
  if(type==='candle'){
   // All focus targets refer to the SAME fictional candle plotted by the
   // canonical renderer. The current Practice/Transfer answers remain hidden.
-  const worked=options.variant==='worked'&&options.stage===1;
+  const worked=[1,2].includes(options.stage)&&!['practice','transfer'].includes(options.variant);
   // Annotation nodes are refreshed when a different fictional worked candle is selected.
-  const descriptions={
-   all:'Here is the complete candle. Its body spans Open to Close, and its wicks extend toward High and Low.',
-   open:'Open: the first recorded price in the interval. On this worked candle it is $20.00.',
-   close:'Close: the last recorded price in the interval. Here it is $21.20, above the opening price.',
-   high:'High: the highest recorded price during the interval. Here the high is $22.00.',
-   low:'Low: the lowest recorded price during the interval. Here the low is $19.00.',
-   body:'Real body = |Close − Open| = |$21.20 − $20.00| = $1.20. Watch the rectangle between the two prices.',
-   range:'Full range = High − Low = $22.00 − $19.00 = $3.00. Watch the wick-to-wick bracket.',
-   percent:'The real body occupies $1.20 ÷ $3.00 × 100 = 40% of this fictional candle’s full range.'
-  };
+  // Explanations must always describe CURRENT displayed values, including
+  // after a slider movement or another fictional worked-case selection.
+  function describe(mode){
+   const q=view.getTeachingCandle?.()||{o:31,hv:32.5,l:30.5,c:32};
+   const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
+   const body=Math.abs(q.c-q.o),range=q.hv-q.l;
+   const ratio=range?(100*body/range).toFixed(1):'N/A';
+   return ({
+    all:'This completed '+(q.c>q.o?'bullish':q.c<q.o?'bearish':'doji')+
+      ' candle opens at '+money(q.o)+' and closes at '+money(q.c)+'.',
+    open:'Open is '+money(q.o)+', the first recorded price.',
+    close:'Close is '+money(q.c)+', the last recorded price.',
+    high:'High is '+money(q.hv)+', the highest recorded price.',
+    low:'Low is '+money(q.l)+', the lowest recorded price.',
+    body:'Real body = |Close - Open| = '+money(body)+'.',
+    range:'Full range = High - Low = '+money(range)+'.',
+    percent:'Body percentage = '+money(body)+' / '+money(range)+' x 100 = '+ratio+'%.'
+   })[mode]||'Compare the selected completed candle prices.';
+  }
   const keys=worked?['all','open','close','high','low','body','range','percent']:['all','body','range'];
   const mapping={all:['open','close','high','low','body','range'],body:['body','open','close'],range:['range','high','low'],percent:['body','range','open','close','high','low'],open:['open'],close:['close'],high:['high'],low:['low']};
   let selected='all';
@@ -75,7 +84,7 @@ function enhance(view,options){
     item.style.opacity=matches?'1':'0.22';
     if(item.tagName.toLowerCase()==='text')item.style.fontWeight=matches?'800':'400';
    }
-   state.textContent=worked?descriptions[mode]:mode==='body'
+   state.textContent=worked?describe(mode):mode==='body'
     ?'The real body connects the two prices Open and Close.'
     :mode==='range'?'Full range connects High and Low.'
     :'The full candle shows Open, High, Low, Close and wicks.';
