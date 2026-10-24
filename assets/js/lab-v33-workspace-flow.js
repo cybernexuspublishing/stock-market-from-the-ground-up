@@ -29,7 +29,7 @@ function tabs(host){
    const active=index===current;
    node.hidden=!active;node.open=true;
    button.setAttribute('aria-selected',String(active));
-   button.setAttribute('tabindex',active?'0':'-1');
+   button.setAttribute('tabindex',active||(current===-1&&index===0)?'0':'-1');
   });
  };
  items.forEach((entry,i)=>{
@@ -72,6 +72,8 @@ function evidence(workbench,mode){
   {id:'ev-notes',title:'6. Why does the evidence support your decision?',tip:'Record your reasoning before you lock it. Your response is not a guarantee of market outcomes.'}
  ];
  const panels=[];
+ const intro=make('p','Talia Mercer will guide you through six short questions. Answer them one at a time as you progress through the lesson. Your responses remain private drafts until you choose Lock Decision.','gu-v33-evidence-intro');
+ card.append(intro);
  const wizard=make('div',undefined,'gu-v33-evidence-wizard');
  wizard.setAttribute('aria-label','Step-by-step member evidence record');
  for(const entry of fields){
@@ -79,6 +81,7 @@ function evidence(workbench,mode){
   if(!field)continue;
   const step=make('section',undefined,'gu-v33-evidence-step');
   step.dataset.field=entry.id;step.hidden=true;
+  step.append(make('p','Talia asks:','gu-v33-evidence-instructor'));
   step.append(make('h3',entry.title));
   if(mode!=='blind'&&mode!=='assessment')step.append(make('p',entry.tip,'gu-v33-evidence-tip'));
   if(entry.id==='ev-decision'){
