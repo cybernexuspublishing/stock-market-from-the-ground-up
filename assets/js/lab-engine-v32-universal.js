@@ -693,6 +693,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     }
     hero.addEventListener('gu-v34-visual-focus',event=>{
      if(!chart.contains(event.target))return;
+     if(visualType==='candle'){
+      // Clicking an original candle label returns to the matching reference
+      // example. Otherwise Talia might narrate $31 while the separate
+      // worked-case candle still displays $20.
+      chart.setTeachingCandle?.(topic==='Bearish Candle'
+       ?{o:32,hv:32.5,l:30.5,c:31}:{o:31,hv:32.5,l:30.5,c:32});
+     }
      instructorInstance?.teachFeature?.(event.detail||{});
     });
     hero.addEventListener('gu-v34-focus-answered',event=>{
