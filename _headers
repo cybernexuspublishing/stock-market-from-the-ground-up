@@ -57,3 +57,12 @@
 
 /data/lab-teaching-bridges-v014168.json
   Cache-Control: public, max-age=3600, must-revalidate
+
+/assets/js/lab-engine-v32-universal.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/js/lab-v34-interactive-lessons.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/js/lab-v33-instructor.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
