@@ -35,7 +35,7 @@ try{
   };
   const target=page.locator('#gu-v32-teaching-slot');
   await load('F2-C07-L01','Construct an Up / Bullish Candle');
-  assert.match(await target.locator('.gu-v33-instructor-typing').innerText(),/Avery/);
+  assert.match(await target.locator('.gu-v33-instructor-accessible').first().textContent(),/Avery/);
   assert.equal(await target.locator('.instruction>h3').count(),0,'The duplicate generic What you will learn panel must be absent');
   await target.getByRole('button',{name:/Begin Candlestick Lesson/}).click();
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Learn must show single candlestick');
