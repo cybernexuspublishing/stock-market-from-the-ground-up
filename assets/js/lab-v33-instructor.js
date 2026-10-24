@@ -361,7 +361,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    'Worked example: '+plan.example
   ].join('\n\n'));
   const candleFormula=type==='candle'
-   ?'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100, when the full range is greater than zero. These completed values cannot predict the next candle.'
+   ?'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100. These completed values cannot predict the next candle. If High equals Low, the percentage is undefined because division by zero is not permitted.'
    :'';
   const narration=candleFormula?short+'\n\n'+candleFormula:short;
   reserve.textContent=narration;
@@ -387,7 +387,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const content=(Array.isArray(paragraphs)?paragraphs:[]).map(x=>String(x||'').trim()).filter(Boolean);
   if(!content.length)return false;
   const formula=lessonContext.visualType==='candle'?[
-   'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100, when full range is greater than zero. These completed values cannot predict the next candle.'
+   'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100. These completed values cannot predict the next candle. If High equals Low, the percentage is undefined because division by zero is not permitted.'
   ]:[];
   return teachDirect(label,[...content,...formula],label);
  }
