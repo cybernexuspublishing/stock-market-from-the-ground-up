@@ -44,6 +44,7 @@ class Element{
  get textContent(){return this._text}
  set textContent(t){this._text=String(t??'')}
  append(...x){this.children.push(...x)}
+ replaceChildren(...x){this.children=[...x]}
  setAttribute(k,v){this.attrs[k]=v}
  addEventListener(k,fn){this.handlers[k]=fn}
 }
@@ -92,18 +93,21 @@ const lessonNodes=walk(lessonView.element);
 assert(typeof lessonView.teachWorkedStep==='function','Worked examples must be narrated from the interactive chart');
 const initial=api.create({stage:0,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
 const initialNodes=walk(initial.element);
-assert(initialNodes.some(n=>n.tagName==='h3'&&n.textContent==='Talia'),'The named virtual instructor must be visible');
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Here is what you will learn')),'The teaching objectives must be delivered in the instructor typing panel');
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('I’m Talia')),'Start stage must have an approachable first-person instructor');
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-dialogue'),'The learner must be able to submit a text response to Talia');
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-narration'),'Narration must reserve full text height without a scrollbar');
-const localInput=initialNodes.find(n=>n.className==='gu-v33-instructor-dialogue')?.children.find(n=>n.tagName==='textarea');
-const localSubmit=initialNodes.find(n=>n.tagName==='button'&&n.textContent==='Submit answer');
-assert(localInput&&localSubmit&&localSubmit.handlers.click,'Talia question and learner submission are interactive');
-localInput.value='The completed candles show evidence because the highs and lows form a visible sequence.';
-localSubmit.handlers.click();
-assert(initialNodes.some(n=>n.className==='gu-v33-instructor-reply'&&n.textContent.includes('recorded')),
- 'A submitted learner explanation must receive visible in-page feedback');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Here is what you will learn')),
+ 'Start must state the objectives before teaching');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('I’m Talia')),
+ 'Talia introduces herself verbally');
+assert(!initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('First, understand this')),
+ 'The introductory screen must not pre-teach the first topic');
+const startDialogue=initialNodes.find(n=>n.className==='gu-v33-instructor-dialogue');
+assert(startDialogue?.hidden===true,'The member is not asked questions during Start');
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-narration'),
+ 'Narration must reserve stable content height');
+const setup=new Element('section');setup.textContent='Historical Lab Setup · fictional test';
+initial.setStartSetup(setup);
+const header=initialNodes.find(n=>n.className.includes('gu-v33-start-setup-head'));
+assert(header&&!header.hidden&&header.children.includes(setup),
+ 'Historical setup must occupy the instructor header instead of a repeated instructor name');
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-objectives'),'Allow members to revisit the spoken objectives');
 initial.dispose();
 const member=api.create({stage:0,concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'},memberFirstName:'María'});
