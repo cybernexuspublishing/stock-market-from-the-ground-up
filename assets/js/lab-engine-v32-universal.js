@@ -146,7 +146,70 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  let instructorInstance=null;
  token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
  const narratedStages=new Set();
- const learnerReplies=new Map();
+ const learnerReplies=new Map(); // stage => accepted answers in question order
+ function instructorQuestions(current){
+  const reference=String(topic).slice(0,100);
+  if(current===0)return [
+   'In your own words, what is '+reference+' and why is it useful to a trader?',
+   'Which information must be observable before you can apply this concept without guessing?'
+  ];
+  if(current===1)return [
+   ownQuestions[0]||'Identify the completed candle, price, volume or market relationship that demonstrates '+reference+'. What specifically supports it?',
+   'What evidence could contradict this interpretation, and why would it matter?'
+  ];
+  if(current===2)return [
+   'After using the example controls, what changed in the observed price, volume or calculation?',
+   'Why did that input change the conclusion, and which information remains unavailable?'
+  ];
+  if(current===4)return [
+   'Before solving the current practice case, explain the observations, method and units you will use.',
+   special?'Enter the numerical result for this practice case ('+special.units+'). '+special.description:
+    'State your practice conclusion and explain the visible evidence that supports it.'
+  ];
+  if(current===6)return [
+   'What was the most important mistake or limitation you identified in your earlier reasoning?',
+   'Explain how you corrected the reasoning and how you would recognize that mistake in another case.'
+  ];
+  if(current===7)return [
+   'Identify what is different in the new case and which evidence you can use without seeing future results.',
+   kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create
+    ?'What did you observe in the completed replay? Finish the controlled replay before moving to Results.'
+    :special?'Enter the numerical result for this new case ('+special.units+'). '+special.transfer.prompt:
+     'Provide your new-case conclusion, a contrasting explanation and what would invalidate the conclusion.'
+  ];
+  return ['What is one practical lesson you can transfer to your next independent exercise, and what remains uncertain?'];
+ }
+ function receiveInstructorAnswer({stage:answerStage,index,answer,isFinal}){
+  if(answerStage!==stage||![0,1,2,4,6,7,8].includes(stage))return{accepted:false,message:'This question belongs to an earlier lesson stage.'};
+  const list=learnerReplies.get(stage)||[];
+  if(index>list.length)return{accepted:false,message:'Please answer the questions in sequence.'};
+  if(stage===4&&isFinal){
+   if(special){
+    practice=answer;
+    if(!validNumber(practice,special.answer)){
+     practiceCount++;
+     return{accepted:false,message:'Review the calculation and try again. '+mathDiagnostic(kind,practice)};
+    }
+    practiceResolved=true;
+   }else{practice=answer;practiceResolved=true}
+  }
+  if(stage===6&&isFinal){reflection=answer;selfReview=true}
+  if(stage===7&&isFinal){
+   if(kind==='vwap'&&root.GroundUpLabV32SyntheticReplay?.create&&!transferResolved)
+    return{accepted:false,message:'Complete the chronological replay before proceeding. A written explanation alone cannot replace the protected replay sequence.'};
+   if(special){
+    transfer=answer;
+    if(!validNumber(transfer,special.transfer.answer)){
+     transferCount++;
+     return{accepted:false,message:'Recheck your new-case calculation. '+mathDiagnostic(kind,transfer)};
+    }
+    transferResolved=true;
+   }else{transfer=answer;transferResolved=true}
+  }
+  list[index]=answer;
+  learnerReplies.set(stage,list);
+  return{accepted:true};
+ }
  function mark(message){status.textContent=message}
  function showJourney(){
   journey.replaceChildren();
@@ -237,7 +300,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     stage,subject:tutorTopic||'observable market evidence',concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
-    initialReflection:learnerReplies.get(stage)||'',onReflection:value=>learnerReplies.set(stage,value)
+    questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
+    onAnswer:receiveInstructorAnswer,
+    onComplete:()=>{if(stage<8)nextStage()}
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
