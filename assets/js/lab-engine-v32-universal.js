@@ -258,9 +258,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   const plan=lessonPlan(1);
   const defined=(plan?.blocks||[]).filter(line=>
    !/^Current concept: |^For this specific Lab: /i.test(String(line)));
-  const symbols=kind==='vwap'
+  const symbols=visualType==='vwap'
    ?'VWAP = Σ(price × shares) ÷ Σ(shares). Σ (sigma) means sum: add all the values in the specified set. Price is dollars per share; volume is shares.'
-   :kind==='candle'
+   :visualType==='candle'
     ?'Open is the first recorded price; High the highest; Low the lowest; Close the last. Real body = |Close − Open|; full range = High − Low.'
     :subject?.symbols||'Identify the exact observation, units and timeframe.';
   detail(body,'Explain This Concept',[
@@ -298,11 +298,11 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    'Follow the observation method: '+guide.procedure,
    'State a limitation: '+guide.limit
   ]);
-  const newCase=kind==='vwap'?[
+  const newCase=visualType==='vwap'?[
    'New fictional case, separate from the assessed exercise: 200 shares trade at $4.00 and 100 shares at $7.00.',
    'Traded dollars: (200 × $4.00) + (100 × $7.00) = $1,500. Total shares: 300.',
    'VWAP = $1,500 ÷ 300 shares = $5.00 per share. This is a worked example, not a predicted future price.'
-  ]:kind==='candle'?[
+  ]:visualType==='candle'?[
    'New fictional candle: Open $9.00, High $10.00, Low $8.50 and Close $9.50.',
    'Real body = |$9.50 − $9.00| = $0.50. Full range = $10.00 − $8.50 = $1.50.',
    'Body percentage = ($0.50 ÷ $1.50) × 100 ≈ 33.3%. The result cannot predict the next candle.'
