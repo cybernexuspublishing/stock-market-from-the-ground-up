@@ -610,19 +610,36 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const support=body.querySelector?.('.gu-v33-support-tabs');
    if(support)shell.insertBefore(support,nav.nextSibling);
   }
-  // Shared chart-first learning workspace: draw the relevant visual beside
-  // the instructor, followed by context, the learner task, and review.
-  // Never shift protected Assessment or replay revelation controls.
+  // One owner-approved reference experience: chart title and controls,
+  // Talia's typing-game instruction, the responsive chart/measurements,
+  // and the learner's practice are a SINGLE unified teaching surface.
+  // Predict and Assess stay independently protected.
   if([1,2,4,6].includes(stage)){
    const chart=body.querySelector('.gu-l33-graphic, .gu-v33-exact-visual');
    const coach=body.querySelector('.gu-v33-instructor');
    if(chart&&coach){
-    const hero=el('section');hero.className='gu-v33-stage-hero';
-    hero.setAttribute('aria-label','Visual lesson and instructor');
-    const primary=el('div');primary.className='gu-v33-stage-primary';
-    const aside=el('aside');aside.className='gu-v33-stage-coach';
-    primary.append(chart);aside.append(coach);hero.append(primary,aside);
-    body.insertBefore(hero,body.firstChild);
+    const hero=el('section');hero.className='gu-v33-stage-hero gu-v34-unified-lesson';
+    hero.setAttribute('aria-label','Interactive lesson with Talia and chart');
+    const controls=chart.querySelector(':scope > .gu-l33-interactive-tools');
+    if(controls)controls.insertAdjacentElement('afterend',coach);
+    else chart.insertBefore(coach,chart.children[1]||null);
+    hero.append(chart);body.insertBefore(hero,body.firstChild);
+    chart.addEventListener('gu-v34-visual-focus',event=>{
+     if(event.target.closest?.('.gu-l33-graphic')!==chart)return;
+     instructorInstance?.teachFeature?.(event.detail||{});
+    });
+    chart.addEventListener('gu-v34-focus-answered',event=>{
+     const feature=String(event.detail?.feature||'');
+     const focusButtons=Array.from(chart.querySelectorAll(
+      '.gu-l33-interactive-tools [data-teaching-feature], .gu-l33-interactive-tools [data-view]'));
+     const index=focusButtons.findIndex(button=>
+      (button.dataset.teachingFeature||button.dataset.view)===feature);
+     if(index>=0&&index<focusButtons.length-1){
+      focusButtons[index+1].click();
+     }
+     // After the last highlight, the instructor restores the regular
+     // lesson questions, which retain existing stage advancement guards.
+    });
    }else if(chart)body.insertBefore(chart,body.firstChild);
   }else if(stage===3){
    const chart=body.querySelector('.gu-l33-graphic');
