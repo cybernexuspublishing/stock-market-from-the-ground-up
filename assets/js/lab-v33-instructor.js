@@ -77,7 +77,12 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
       :stage===7
        ?'Now apply the same method to a different case. Use only evidence available at the current pause.'
        :'You’ve reached the lesson review. Here are the essential ideas to carry into your next exercise.';
- const full=introduction+'\n\n'+(plan?.blocks?.join('\n\n')||(
+ // Keep first narration concise like the owner-approved interactive
+ // typing reference. Long worked content remains in free guided panels and
+ // chart-button micro lessons instead of appearing as a static wall of text.
+ const openingBlocks=stage===1||stage===2
+  ?plan?.blocks?.slice(0,2):plan?.blocks;
+ const full=introduction+'\n\n'+(openingBlocks?.join('\n\n')||(
   String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
   lessonContext?.subject?.definition||'').trim()||
   'This concept needs an individually reviewed teaching explanation before it can be presented as complete.'
@@ -140,7 +145,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     featurePhase=1;
     const detail=featureLesson;
     const correction='Worked example: '+detail.example+'\\n\\nCommon mistake: '+detail.mistake+
-     '\\n\\nLimitation: '+detail.limit;
+     '\n\nLimitation: '+detail.limit;
     reserve.textContent=correction;
     accessible.textContent=correction;
     stopTyping?.();stopTyping=animate(visual,correction,false,skip);
