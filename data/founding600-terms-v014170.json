@@ -1,0 +1,59 @@
+{
+  "version": "0.14.0.170",
+  "status": "STAGING_REVIEW_ONLY",
+  "checkoutEnabled": false,
+  "capacity": 600,
+  "memberIdentity": "permanent_nonrecyclable",
+  "plans": {
+    "FOUNDING_30": {
+      "name": "Founding Standard",
+      "billingIntervalDays": 30,
+      "recurringCents": 4999,
+      "foundingDiscountBps": 1000,
+      "incSparks": 5,
+      "incSparksExpiryDaysAfterTermEnd": 90,
+      "autoRenew": true,
+      "enhanced": false
+    },
+    "FOUNDING_60": {
+      "name": "Founding Extended",
+      "billingIntervalDays": 60,
+      "recurringCents": 5999,
+      "foundingDiscountBps": 2000,
+      "incSparks": 15,
+      "incSparksExpiryDaysAfterTermEnd": 150,
+      "autoRenew": true,
+      "enhanced": true
+    }
+  },
+  "discount": {
+    "duration": "lifetime_of_original_eligible_account",
+    "exclude": [
+      "FOUNDING_30",
+      "FOUNDING_60"
+    ],
+    "eligible": [
+      "LIFETIME",
+      "FULL_MONTHLY",
+      "FULL_ANNUAL",
+      "INTERACTIVE_LEARNING",
+      "JOURNAL_ANALYTICS",
+      "MARKET_TUTOR",
+      "SPARKS_10",
+      "SPARKS_30",
+      "SPARKS_75"
+    ],
+    "noStack": true
+  },
+  "purchasedSparksExpire": false,
+  "benefits": [
+    "verified_completion_certificate",
+    "reviewed_early_release_materials",
+    "equal_vote_improvements",
+    "priority_announcements",
+    "preserved_learning_progress",
+    "measured_outage_protection"
+  ],
+  "tradingExecutionIncluded": false,
+  "launchConvertsToPublicPlan": false
+}
