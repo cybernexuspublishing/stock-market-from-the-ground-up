@@ -175,6 +175,7 @@ function fromGuide(input){
  const mistake=clean(subject.error||g.commonError,650);
  const limit=clean(subject.limit||g.limit,650);
  const invalidation=clean(g.invalidation,650);
+ const reviewedCase=root.GroundUpLabV34CompetencyExamples?.get?.(g.code);
  const paragraphs=[
   sentence('Today we are learning about '+concept),
   definition?sentence(definition):'Begin with the defined observation and its timeframe.',
@@ -184,7 +185,7 @@ function fromGuide(input){
  return {
   name:concept,
   explanation:paragraphs,
-  example:[
+  example:reviewedCase?.steps?.length?reviewedCase.steps:[
    'Worked reasoning for '+concept+': identify the observable evidence and its timeframe first.',
    procedure?sentence(procedure):'Record the input, unit, and observation boundary.',
    invalidation?sentence('Now test the alternative: '+invalidation):'State which additional evidence would change the result.'
@@ -275,6 +276,7 @@ function lesson(input={}){
   ...(custom.why?[sentence('Why this application matters: '+clean(custom.why,440))]:[])
  ];
  const stage=Number(input.stage||0);
+ const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(material.guide?.code);
  const outcomes=objectives(material,category);
  let blocks=[];
  if(stage===0)blocks=[
@@ -283,7 +285,8 @@ function lesson(input={}){
   'First, understand this: '+base.explanation[0],
   'Here is why the distinction matters: '+base.explanation[1]
  ];
- else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra];
+ else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra,
+  ...(caseStudy?.steps?.length?['We will apply this method to a separate fictional worked case.']:[])];
  else if(stage===2)blocks=[base.explanation[0],base.experiment,'Describe what the manipulated input changes and what it does not establish.'];
  else if(stage===4)blocks=[base.explanation[0],base.example[0],base.example[1],'Apply the same METHOD to your own practice question; do not simply copy the numbers from this separate example.'];
  else if(stage===6)blocks=[base.misconception,base.limitation,'Reconstruct your original reasoning using the observations available at the time, not any later outcome.'];
@@ -291,7 +294,8 @@ function lesson(input={}){
  else if(stage===8)blocks=[base.explanation[0],base.misconception,'Transfer the method to a fresh case. Completion of guided teaching is not independent competency mastery.'];
  return {
   category,heading:base.name,objectives:outcomes,blocks:blocks.filter(Boolean),
-  worked:stage===1?base.example:[],
+  worked:stage===1?(caseStudy?.steps?.length&&category!=='general'
+   ?[...base.example,...caseStudy.steps]:base.example):[],
   misconception:base.misconception,
   limitation:base.limitation,
   check:stage===1?base.check:null,
