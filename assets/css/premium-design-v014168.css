@@ -1,0 +1,26 @@
+/* v0.14.0.168 — design tokens and responsive navigation. Progressive enhancement only. */
+:root{--gu-design-accent:#e3b64b;--gu-design-focus:#84b8ea}
+html[data-gu-design="premium-light"]{--navy:#f3f6f8;--navy2:#e9eef3;--gold:#c38b2c;--gold2:#9b691b;--ink:#182839;--muted:#536679;--panel:#fff;--panel2:#f4f7fa;--line:#d5e0e9;--gu-design-focus:#245eab;color-scheme:light}
+html[data-gu-design="premium-light"] body{background:#f5f7f9;color:#182839}
+html[data-gu-design="premium-light"] .site-header{background:rgba(255,255,255,.98);border-color:#d5e0e9}
+html[data-gu-design="premium-light"] .brand{color:#192b3a}
+html[data-gu-design="premium-light"] .navlinks a{color:#213447}
+html[data-gu-design="premium-light"] .card{background:#fff;border-color:#d5e0e9;color:#182839;box-shadow:0 2px 12px #192b3a0b}
+html[data-gu-design="premium-light"] .card h3,html[data-gu-design="premium-light"] .section h2{color:#162c40}
+html[data-gu-design="premium-light"] .hero h1{color:#172e45}
+html[data-gu-design="premium-light"] .lead,html[data-gu-design="premium-light"] .small{color:#51677a}
+html[data-gu-design="premium-light"] .admin-main,html[data-gu-design="premium-light"] .admin-panel{color:#152b40}
+html[data-gu-design="premium-dark"] body{background:#071523}
+html[data-gu-design] :focus-visible{outline:3px solid var(--gu-design-focus);outline-offset:3px}
+.gu-design-picker{margin:14px 0;padding:16px;border:1px solid var(--line,#345);border-radius:10px}
+.gu-design-picker fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:12px}
+.gu-design-picker label{display:inline-flex;gap:6px;align-items:center}
+.gu-design-picker p{max-width:75ch}
+.gu-design-picker .gu-design-state{font-weight:600}
+.gu-member-side-menu{width:220px;flex:0 0 220px;background:#102431;border-right:1px solid #315061;padding:12px;min-height:calc(100vh - 70px)}
+.gu-member-side-menu a,.gu-member-side-menu summary{display:block;padding:10px 12px;color:#e6edf5;text-decoration:none;border-radius:7px}
+.gu-member-side-menu a[aria-current="page"]{background:#274a57;font-weight:700}
+.gu-member-side-menu details a{padding-left:25px}
+.gu-member-side-menu a:hover,.gu-member-side-menu summary:hover{background:#234052}
+.gu-member-side-menu summary{cursor:pointer}
+@media(max-width:800px){.gu-member-side-menu{width:100%;min-height:auto;flex:auto}.gu-design-picker fieldset{flex-direction:column}}
