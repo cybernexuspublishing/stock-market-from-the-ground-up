@@ -74,11 +74,24 @@ export async function onRequest({request,env}){
    try{operation=JSON.parse(body)}catch{return reply({ok:false,error:'Invalid credit request.'},400)}
    labId=String(operation?.labId||'');
   }
-  const spec=await bookAuthorized(env,request,labId);
   if(request.method==='GET'){
+   // The wallet is account-wide: members can view balances from any Lab.
+   const {url,secret}=cfg(env),headers=credentials(secret);
+   const profile=await fetch(url+'/rest/v1/profiles?select=account_kind&id=eq.'+
+    encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
+   if(!profile.ok)throw deny('Member account status cannot be verified.',503);
+   if((await profile.json())?.[0]?.account_kind!=='member')
+    throw deny('Question Pass is available only to eligible member accounts.',403);
+   const flags=await fetch(url+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+
+    encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
+   if(!flags.ok)throw deny('Account restrictions cannot be verified.',503);
+   if(['restricted','suspended'].includes(
+     String((await flags.json())?.[0]?.status||'').toLowerCase()))
+    throw deny('Question Pass is unavailable for this account.',403);
    const balance=await rpc(env,'groundup_question_pass_summary',{p_user_id:actor.userId});
    return reply({ok:true,balance,creditRule:'One pass for Reveal or Skip; free instruction and retries do not spend credits.'});
   }
+  const spec=await bookAuthorized(env,request,labId);
   const {questionId,action,attemptId,requestId}=operation||{};
   if(!spec.questions.includes(questionId)||!['reveal','skip'].includes(action)||
    typeof attemptId!=='string'||!UUID.test(attemptId)||
