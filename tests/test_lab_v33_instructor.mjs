@@ -7,6 +7,7 @@ import {Script,createContext} from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
 const js=read('assets/js/lab-v33-instructor.js');
 const instruction=read('assets/js/lab-v33-instruction-content.js');
+const interactive=read('assets/js/lab-v34-interactive-lessons.js');
 const player=read('assets/js/lab-player.js');
 const engine=read('assets/js/lab-engine-v32-universal.js');
 const html=read('lab-player.html');
@@ -54,6 +55,7 @@ class Element{
 const document={createElement:n=>new Element(n),createTextNode:t=>{const n=new Element('text');n.textContent=t;return n}};
 const context=createContext({document,AbortController,console});
 new Script(instruction,{filename:'lab-v33-instruction-content.js'}).runInContext(context);
+new Script(interactive,{filename:'lab-v34-interactive-lessons.js'}).runInContext(context);
 new Script(js,{filename:'lab-v33-instructor.js'}).runInContext(context);
 const api=context.GroundUpLabV33Instructor;
 const author=context.GroundUpLabV33InstructionContent;
