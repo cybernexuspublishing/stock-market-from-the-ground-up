@@ -463,3 +463,112 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   grid-template-columns:repeat(2,minmax(0,1fr));
  }
 }
+
+/* v3.6 — the approved reference's readable candle + right-hand OHLC panel.
+   Price labels remain on the SVG. The same values update when the learner
+   moves the closing-price slider or selects a different worked example. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-layout{
+ display:grid;grid-template-columns:minmax(0,2.05fr) minmax(195px,.85fr);
+ align-items:stretch;gap:12px;margin:8px 0 4px;width:100%;min-width:0
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-layout .gu-l33-single{
+ margin:0;min-width:0;max-width:none;display:flex;align-items:center;justify-content:center;
+ background:#10283c;border-radius:9px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-layout .gu-l33-single svg{
+ width:100%;height:auto;max-width:680px;max-height:245px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-price-reference{
+ background:#17364e;border:1px solid #3e627d;border-radius:10px;
+ padding:12px 13px;color:#f3f9ff;min-width:0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-price-reference h4{
+ margin:0 0 10px;color:#f4f9ff;font-size:.91rem;font-weight:750;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-table-toggle{
+ display:flex;align-items:center;gap:5px;color:#c5e0f0;font-size:.72rem;line-height:1.4;
+ margin:0 0 10px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-table-toggle input{
+ width:14px;height:14px;flex:0 0 auto;accent-color:#338dff;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-rows{
+ margin:0;display:grid;gap:0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-rows[hidden]{display:none!important}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-row{
+ display:flex;justify-content:space-between;align-items:center;gap:8px;
+ padding:8px 1px;border-bottom:1px solid #395770;min-width:0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-row dt{
+ font-size:.8rem;color:#cce0ed;font-weight:400;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-row dd{
+ font-size:.83rem;font-weight:750;color:#f7fbff;margin:0;
+ font-variant-numeric:tabular-nums;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-price-note{
+ margin:9px 0 0;font-size:.69rem;line-height:1.5;color:#bdd6e5;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-experiment{
+ border:1px solid #38566d;border-radius:10px;background:#182839;
+ padding:10px 12px;margin:7px 0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-experiment-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ padding:0 2px 3px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-experiment-label{
+ font-size:.83rem;font-weight:700;color:#f3f8fc;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-experiment-value{
+ color:#f3f8fc;font-size:.9rem;font-weight:800;font-variant-numeric:tabular-nums;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-experiment input[type="range"]{
+ display:block;width:100%;min-width:0;margin:5px 0 9px;
+ accent-color:#55c9a0;cursor:pointer;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;margin:3px 0 8px!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures>div{
+ border:1px solid #385970;border-radius:8px;padding:9px 10px;min-width:0;
+ background:#102638;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures>div span{
+ font-size:.71rem;color:#c2d4e1;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures>div strong{
+ font-size:.97rem;color:#f9fcff;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-summary{
+ display:block;color:#afd6e6;font-size:.74rem;line-height:1.45;
+ padding-top:2px;margin:0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-chart-worked{
+ margin:7px 0 8px;padding:9px 11px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-chart-worked .gu-v35-worked-controls{
+ gap:6px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-expanded-visual .gu-v36-candle-layout svg{
+ max-height:none;max-width:900px;width:100%;
+}
+@media(max-width:720px){
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-candle-layout{
+  grid-template-columns:1fr;gap:6px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-price-reference{
+  padding:8px 10px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-reference-rows{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures{
+  gap:4px!important;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v36-derived-measures>div{
+  padding:7px 6px;
+ }
+}
