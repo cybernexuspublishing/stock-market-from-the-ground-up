@@ -117,8 +117,10 @@ assert(flow.includes("if(mode!=='blind'&&mode!=='assessment'){"),
 assert(player.includes('PLAYER.mode'), 'Existing protected decision/assessment remains owned by the player');
 class Element{
  constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.attrs={};
-  this.className='';this.textContent='';this.hidden=false;this.value='';this.checked=false;this.style={};}
+  this.className='';this.classList={add:(...names)=>{this.className=[...new Set([...this.className.split(/\s+/).filter(Boolean),...names])].join(' ')},contains:name=>this.className.split(/\s+/).includes(name)};this.textContent='';this.hidden=false;this.value='';this.checked=false;this.style={};}
  append(...items){this.children.push(...items)}
+ replaceChildren(...items){this.children=[...items]}
+ insertBefore(item,before){const i=this.children.indexOf(before);this.children.splice(i<0?this.children.length:i,0,item)}
  setAttribute(key,val){this.attrs[key]=String(val)}
  addEventListener(key,fn){this.handlers[key]=fn}
  focus(){this.focused=true}
