@@ -50,6 +50,10 @@ for(const code of ['charts45','risk60','practicum90']){
  assert(p.curriculum.some(x=>x.phase==='transfer'),code+' must require independent transfer');
 }
 const academyCss=fs.readFileSync('assets/css/bootcamp-academy-v014168.css','utf8');
+const sharedCss=fs.readFileSync('assets/css/lab-v33-experience.css','utf8');
+assert(sharedCss.includes(':is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v40-start-hero')&&
+ sharedCss.includes(':is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v40-instructor-steps'),
+ 'The illustrated Start and one-to-one teaching controls must work in all Academy routes, not just the Lab player');
 assert(academyCss.includes('#academy-lab-slot .gu-v34-unified-lesson'),
  'Academy must style the shared instructor in its own container, not only in the Lab player');
 assert(academyCss.includes('grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)'),
