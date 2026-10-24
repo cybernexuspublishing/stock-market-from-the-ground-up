@@ -62,7 +62,7 @@ try{
   assert.match(await progress().textContent(),/Question 2 of 3/);
   await submit('9999');
   assert.match(await progress().textContent(),/Question 2 of 3/,'Wrong calculation must not advance');
-  assert.match(await dialogue.locator('.gu-v33-instructor-reply').textContent(),/Let’s correct range/);
+  assert.match(await root.locator('.gu-v33-instructor-reply').textContent(),/Let’s correct range/);
   await submit('2');
   assert.match(await progress().textContent(),/Question 3 of 3/);
   await submit('50');
