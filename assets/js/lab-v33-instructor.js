@@ -618,8 +618,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const tutorTab=el('button','Ask Market Tutor about this concept','gu-v33-support-tab');
  const panel=el('div',undefined,'gu-v33-support-content');
  const unique='gu-v33-tab-'+String(++tabSequence);
- const walletTab=stage===0?el('button','Crownlight Sparks Wallet','gu-v33-support-tab'):null;
- const walletPane=stage===0?el('section',undefined,'gu-v33-wallet-panel'):null;
+ const walletTab=[0,1].includes(stage)?el('button','Crownlight Sparks Wallet','gu-v33-support-tab'):null;
+ const walletPane=[0,1].includes(stage)?el('section',undefined,'gu-v33-wallet-panel'):null;
  const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},
   {button:tutorTab,pane:tutor,key:'tutor'}];
  if(walletTab&&walletPane)items.push({button:walletTab,pane:walletPane,key:'wallet'});
