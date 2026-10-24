@@ -1,0 +1,36 @@
+
+/* The Stock Market: From the Ground Up — responsive Boot Camp Academy. */
+body.gu-bc-learning .academy-program-grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;
+ margin:20px 0 28px;
+}
+.academy-program{display:flex;flex-direction:column;gap:11px;min-width:0;
+ background:#10283c;border:1px solid #40647b;border-radius:14px;padding:19px}
+.academy-program h3{font-size:1.1rem;margin:0;color:#f2db9b}
+.academy-program p{margin:0;line-height:1.5}
+.academy-program .academy-duration{color:#e7c36f;font-weight:700}
+.academy-program a{margin-top:auto;align-self:flex-start}
+.academy-workspace{border:1px solid #456e83;border-radius:14px;padding:clamp(12px,1.7vw,28px);background:#0c1e2d}
+.academy-workspace[hidden]{display:none!important}
+.academy-course-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,auto);gap:20px;
+ justify-content:space-between;align-items:start;margin-bottom:18px}
+.academy-course-head h2{margin:0 0 7px}
+.academy-study-grid{width:100%;max-width:none;min-width:0;grid-template-columns:clamp(200px,17vw,320px) minmax(0,1fr)}
+.academy-study-grid>*{min-width:0}
+.academy-study-grid .gu-bc-index{position:sticky;top:88px;max-height:80vh;overflow:auto}
+.academy-related{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0}
+.academy-related a{padding:7px 10px;display:inline-flex;border:1px solid #466985;border-radius:7px;color:#def0f8}
+.academy-related a:hover,.academy-related a:focus-visible{outline:2px solid #f1d08a;outline-offset:2px}
+#academy-lab-slot{min-width:0;width:100%;container-type:inline-size}
+#academy-member-progress{font-weight:600;color:#d3e6f0}
+#academy-save-status{min-height:2rem}
+#academy-programs .academy-program--active{border-color:#dfb34a;box-shadow:0 0 0 1px #dba94c}
+@media(min-width:1100px){
+ body.gu-bc-learning main.section>.wrap{width:calc(100% - clamp(32px,4vw,80px))!important;max-width:2180px!important;margin-inline:auto}
+}
+@media(max-width:1050px){.academy-study-grid{grid-template-columns:1fr}
+ .academy-study-grid .gu-bc-index{position:static;max-height:none}
+ .academy-study-grid .gu-bc-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;max-height:340px;overflow:auto}
+}
+@media(max-width:670px){.academy-course-head{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.academy-workspace *{scroll-behavior:auto}}
