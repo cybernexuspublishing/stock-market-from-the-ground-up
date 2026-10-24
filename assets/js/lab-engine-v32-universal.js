@@ -639,27 +639,31 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const coach=body.querySelector('.gu-v33-instructor');
    if(chart&&coach){
     const hero=el('section');hero.className='gu-v33-stage-hero gu-v34-unified-lesson';
-    hero.setAttribute('aria-label','Interactive lesson with Talia and chart');
-    const controls=chart.querySelector(':scope > .gu-l33-interactive-tools');
-    if(controls)controls.insertAdjacentElement('afterend',coach);
-    else chart.insertBefore(coach,chart.children[1]||null);
-    hero.append(chart);body.insertBefore(hero,body.firstChild);
-    chart.addEventListener('gu-v34-visual-focus',event=>{
-     if(event.target.closest?.('.gu-l33-graphic')!==chart)return;
+    hero.setAttribute('aria-label','Interactive demonstration followed by Talia');
+    // Preserve the v3.2 visual sequence: topic/feature controls, illustrated
+    // chart with measured values, THEN Talia teaching and the typed answer.
+    // They share one workstation rather than two competing side panels.
+    hero.append(chart,coach);body.insertBefore(hero,body.firstChild);
+    hero.addEventListener('gu-v34-visual-focus',event=>{
+     if(!chart.contains(event.target))return;
      instructorInstance?.teachFeature?.(event.detail||{});
     });
-    chart.addEventListener('gu-v34-focus-answered',event=>{
+    hero.addEventListener('gu-v34-focus-answered',event=>{
+     if(!coach.contains(event.target))return;
      const feature=String(event.detail?.feature||'');
      const focusButtons=Array.from(chart.querySelectorAll(
       '.gu-l33-interactive-tools [data-teaching-feature], .gu-l33-interactive-tools [data-view]'));
-     const index=focusButtons.findIndex(button=>
-      (button.dataset.teachingFeature||button.dataset.view)===feature);
-     if(index>=0&&index<focusButtons.length-1){
-      focusButtons[index+1].click();
-     }
-     // After the last highlight, the instructor restores the regular
-     // lesson questions, which retain existing stage advancement guards.
+     const index=focusButtons.findIndex(control=>
+      (control.dataset.teachingFeature||control.dataset.view)===feature);
+     if(index>=0&&index<focusButtons.length-1)focusButtons[index+1].click();
     });
+    // Start actual teaching immediately after the Learn/Experiment chart is
+    // shown: selecting the first focus synchronizes the illustration and
+    // instructor. Never do this for independent Predict/Assess.
+    if(stage===1){
+     const first=chart.querySelector('.gu-l33-interactive-tools [data-teaching-feature], .gu-l33-interactive-tools [data-view]');
+     first?.click();
+    }
    }else if(chart)body.insertBefore(chart,body.firstChild);
   }else if(stage===3){
    const chart=body.querySelector('.gu-l33-graphic');
