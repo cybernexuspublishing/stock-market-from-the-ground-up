@@ -18,7 +18,7 @@ create table if not exists public.groundup_question_pass_buckets (
  constraint groundup_qp_expiration_policy check (
   (source='purchased' and billing_period_ends_at is null and expires_at is null)
   or (source='included' and billing_period_ends_at is not null
-    and expires_at = billing_period_ends_at + interval '60 days')
+    and expires_at is not null and expires_at = billing_period_ends_at + interval '60 days')
  )
 );
 create index if not exists idx_groundup_qp_available
@@ -90,8 +90,9 @@ begin
    (attempt_id=p_attempt_id and lab_id=p_lab_id and question_id=p_question_id))
   order by spent_at limit 1;
  if found then
-  if v_existing.action<>p_action then
-   return jsonb_build_object('ok',false,'error','This question already used a different pass action');
+  if v_existing.action<>p_action or v_existing.attempt_id<>p_attempt_id
+    or v_existing.lab_id<>p_lab_id or v_existing.question_id<>p_question_id then
+   return jsonb_build_object('ok',false,'error','This credit request belongs to a different question or action');
   end if;
   return jsonb_build_object('ok',true,'alreadyUsed',true,'action',v_existing.action,
    'balance',public.groundup_question_pass_summary(p_user_id));
