@@ -14,7 +14,8 @@ try{
   for(const sheet of ['lab-v33-contextual-visuals.css','lab-v33-instructor.css','lab-v33-experience.css'])
    await page.addStyleTag({url:base+'/assets/css/'+sheet});
   for(const source of ['lab-engine-v32-teaching.js','lab-engine-v33-visual.js','lab-v33-contextual-visuals.js',
-   'lab-v33-visual-interactions.js','lab-v33-instruction-content.js','lab-v33-instructor.js',
+   'lab-v33-visual-interactions.js','lab-v34-competency-examples.js','lab-v33-instruction-content.js',
+   'lab-v34-interactive-lessons.js','lab-v33-instructor.js',
    'lab-engine-v32-universal.js'])
    await page.addScriptTag({url:base+'/assets/js/'+source});
   await page.evaluate(async()=>{
