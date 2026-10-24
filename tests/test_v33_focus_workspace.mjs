@@ -23,7 +23,7 @@ assert(flow.includes('Reconstruct and evaluate price action at the exact pause')
 assert(flow.includes('gu-v33-structure-checkpoints'),'The richer question must offer guided evidence checkpoints');
 assert(player.includes('GroundUpLabV33WorkspaceFlow?.mount?.({mode})'),'Production Lab must activate shared reference tabs and wizard');
 assert(engine.includes('shell.insertBefore(setup,heading)'),'Historical Lab Setup must precede the Start heading');
-assert(engine.includes('gu-v33-teaching-followup'),'Worked example and comprehension check must be below the instructor');
+assert(engine.includes('gu-v35-chart-worked'),'Worked examples must be integrated into the illustrated candle or chart, one step at a time');
 assert(engine.includes('Start Guided Learning →'),'Main action must use the owner-approved professional label');
 assert(engine.includes("button('Ask Market Tutor',()=>instructorInstance?.openTutor?.())"),'Market Tutor must be alongside primary Start action');
 assert(engine.includes('gu-v33-start-primary'),'Main CTA must use visible highlighted treatment');
@@ -33,7 +33,7 @@ assert(engine.includes('instructorInstance.setWalletContent(wallet)'),'Question 
 assert(engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Primary actions must appear above the support tabs');
 assert(css.includes('.gu-v33-instructor-narration')&&css.includes('overflow:visible!important'),'Narration must reserve text height without a scrollbar');
 assert(instructor.includes('gu-v33-instructor-dialogue'),'Talia must provide an inline answer form');
-assert(engine.includes('gu-v33-help-tabs'),'Four help explanations must be accessible as tabs');
+assert(engine.includes('gu-v35-teaching-actions'),'All four help controls must ask Talia to teach, not expand disconnected panels');
 assert(css.includes('.gu-v33-reference-tablist')&&css.includes('[aria-selected="true"]'),'Historical references need selected state');
 assert(css.includes('.gu-v33-evidence-step[hidden]'),'Inactive evidence questions should remain concealed');
 for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-decision','ev-notes','lock-decision'])
