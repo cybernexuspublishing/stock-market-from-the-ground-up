@@ -196,6 +196,63 @@ function fromGuide(input){
   check:null
  };
 }
+/* Learning objectives describe an observable learner skill, not a task
+ * instruction that simply repeats the original book's "Explain X" verb.
+ * These are instructional objectives, not assessed competency credits. */
+const learningOutcomes={
+ candle:[
+  'Point to the Open, High, Low and Close on a completed candle and identify its real body and wicks.',
+  'Calculate the body, full range and body-to-range percentage using the correct prices and units.',
+  'Explain what an upward or downward body shows—and why it cannot predict the next candle.'
+ ],
+ vwap:[
+  'Explain how share volume changes the influence of each traded price on VWAP.',
+  'Calculate a volume-weighted price from fictional trades and identify what the line represents.',
+  'Interpret price relative to VWAP without treating a crossing as a guaranteed entry signal.'
+ ],
+ ema:[
+  'Distinguish EMA9 from EMA20 and explain why both react after prices change.',
+  'Follow an EMA calculation using its previous value, a new completed close and smoothing factor.',
+  'Recognize an EMA/price relationship and identify when it provides insufficient evidence.'
+ ],
+ volume:[
+  'Read a volume bar in the same interval as its corresponding price candle.',
+  'Compare share volume with a clearly defined baseline and calculate relative volume.',
+  'Explain why unusually high volume does not prove a breakout or identify traders.'
+ ],
+ structure:[
+  'Identify comparable swing highs and lows within the completed price sequence.',
+  'Distinguish a breakout attempt from confirmation under a stated rule.',
+  'Recognize contradictory evidence without using candles that were hidden at the decision point.'
+ ],
+ tape:[
+  'Read a completed Time & Sales print: time, execution price and share quantity.',
+  'Compare prints while distinguishing executions from current bid and ask quotes.',
+  'Explain why print colors cannot prove who traded or what they intended.'
+ ],
+ depth:[
+  'Find the best bid, best ask and displayed share sizes.',
+  'Calculate a quoted spread and compare it with the conditions of a hypothetical plan.',
+  'Explain why displayed liquidity or a submitted order does not guarantee an execution.'
+ ],
+ routing:[
+  'Describe the distinction between submitting, accepting and executing an order.',
+  'Identify full, partial, canceled and open order outcomes in a fictional example.',
+  'Explain why a chart touch does not prove that an order was filled.'
+ ]
+};
+function objectives(input,category){
+ if(learningOutcomes[category])return learningOutcomes[category];
+ const g=input.guide||{},t=input.teaching||{},concept=clean(input.concept||g.title||'this lesson',130);
+ const facts=clean(t.what||g.concept||concept,180);
+ const method=clean((Array.isArray(t.how)&&t.how.length?t.how.join(' '):g.procedure)||'apply the lesson’s stated method',220);
+ const limits=clean(g.commonError||g.invalidation||'mistaking a hypothesis for a completed observation',180);
+ return [
+  'Explain '+concept+' in your own words using the observable facts: '+facts+'.',
+  'Work through the method with evidence from the specified interval: '+method+'.',
+  'Recognize and correct this common mistake or limitation: '+limits+'.'
+ ];
+}
 function lesson(input={}){
  const category=inferDomain(input);
  const base=category==='general'?fromGuide(input):domains[category];
@@ -209,8 +266,14 @@ function lesson(input={}){
   ...(custom.why?[sentence('Why this application matters: '+clean(custom.why,440))]:[])
  ];
  const stage=Number(input.stage||0);
+ const outcomes=objectives(input,category);
  let blocks=[];
- if(stage===0)blocks=[...(focus?[focus]:[]),...base.explanation.slice(0,2),'Before making a decision, use the definitions and evidence in this lesson; a chart shape alone is not a trading instruction.'];
+ if(stage===0)blocks=[
+  'Here is what you will learn and demonstrate in this lesson:',
+  ...outcomes.map((outcome,index)=>(index+1)+'. '+outcome),
+  'First, understand this: '+base.explanation[0],
+  'Here is why the distinction matters: '+base.explanation[1]
+ ];
  else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra];
  else if(stage===2)blocks=[base.explanation[0],base.experiment,'Describe what the manipulated input changes and what it does not establish.'];
  else if(stage===4)blocks=[base.explanation[0],base.example[0],base.example[1],'Apply the same METHOD to your own practice question; do not simply copy the numbers from this separate example.'];
@@ -218,7 +281,7 @@ function lesson(input={}){
  else if(stage===7)blocks=[base.transfer,base.limitation,'Lock your analysis before revealing any later replay observation.'];
  else if(stage===8)blocks=[base.explanation[0],base.misconception,'Transfer the method to a fresh case. Completion of guided teaching is not independent competency mastery.'];
  return {
-  category,heading:base.name,blocks:blocks.filter(Boolean),
+  category,heading:base.name,objectives:outcomes,blocks:blocks.filter(Boolean),
   worked:stage===1?base.example:[],
   misconception:base.misconception,
   limitation:base.limitation,
