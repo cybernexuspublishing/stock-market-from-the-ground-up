@@ -19,8 +19,15 @@ for(const [path,source] of [
 assert(markup.indexOf('lab-v33-workspace-flow.js')<markup.indexOf('lab-player.js'));
 assert(markup.includes('class="journey-progress-track-inner"'),'Nine stage labels must appear inside the progress bar');
 assert(engine.includes('heading.hidden=stage===0'),'No separate Start title above instructor');
-assert(flow.includes('Reconstruct and evaluate price action at the exact pause'),'Prompt must require structured price evidence');
-assert(flow.includes('gu-v33-structure-checkpoints'),'The richer question must offer guided evidence checkpoints');
+assert(flow.includes('What did price do before your decision?'),'Decisions must use a brief chart-specific question');
+assert(!flow.includes('Use only completed candles actually displayed.'),'Learner-facing questions must sound like natural instruction');
+assert(flow.includes('work.hidden=!allowed;')&&flow.includes('activeStage>=3'),
+ 'Start, Learn and Experiment must conceal the independent decision form');
+assert(flow.includes('reflection.hidden=!ready')&&flow.includes('activeStage>=6'),
+ 'Post-lab reflection must remain unavailable until Review');
+assert(player.includes('id="gu-ws-reflection"'),'Reflection must be a separate, stage-gated section');
+assert(player.includes("new CustomEvent('gu-v33-decision-locked')"),
+ 'A saved hypothetical decision must enable the appropriate reflection boundary');
 assert(player.includes('GroundUpLabV33WorkspaceFlow?.mount?.({mode})'),'Production Lab must activate shared reference tabs and wizard');
 assert(engine.includes('instructorInstance.setStartSetup(setup)'),
  'Historical Lab Setup must appear within the instructor header on Start');
@@ -43,6 +50,12 @@ assert(!instructor.includes('What is the most important lesson from this explana
  'Do not ask generic reflection questions after explanations');
 assert(instructor.includes('Real body = |Close − Open|. Full range = High − Low.'),
  'Talia must narrate the real-body and full-range formulas');
+assert(instructor.includes('gu-v33-pass-controls')&&instructor.includes('gu-v33-pass-confirm'),
+ 'Question Pass reveal/skip and explicit confirmation must appear inside Practice');
+assert(engine.includes('onCreditAction:stage===4')&&engine.includes('practiceAssisted=true'),
+ 'Spending a pass must mark the practice as assisted rather than independently correct');
+assert(player.includes('requestLabQuestionPass')&&player.includes('/api/lab-question-pass'),
+ 'Credit service must be authenticated, not simulated in the browser');
 assert(instructor.includes('gu-v33-instructor-suggestions'),
  'The instructor must expose contextual clickable chat suggestions');
 assert(engine.includes('if(current===0||current===1)return []'),
