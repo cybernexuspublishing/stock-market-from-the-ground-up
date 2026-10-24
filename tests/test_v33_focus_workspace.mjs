@@ -49,7 +49,7 @@ assert(instructor.includes("item.pane.setAttribute('role','tabpanel')"));
 assert(instructor.includes("aria-selected"),'Tabs must be accessible');
 assert(instructor.includes("if(current!=='tutor')activate('tutor')"),'Start Tutor shortcut must activate the same Tutor pane');
 assert(engine.includes("if(![3,5].includes(stage)"),'No instructor may enter protected Predict/Assess');
-assert(flow.includes("if(mode!=='blind'&&mode!=='assessment')step.append"),
+assert(flow.includes("if(mode!=='blind'&&mode!=='assessment'){"),
  'Independent decision modes must not get teaching hints from the evidence wizard');
 assert(player.includes('PLAYER.mode'), 'Existing protected decision/assessment remains owned by the player');
 class Element{
