@@ -217,10 +217,15 @@ const referenceIntros=Object.freeze({
   why:'Each candlestick records the price movement during a defined time interval.',
   example:'An illustrative five-minute candle opens at $31.00, has a high of $32.50 and low of $30.50 (their order is unknown), and closes at $32.00.',
   steps:Object.freeze([
-   'Find OPEN at $31.00 and CLOSE at $32.00 on the chart. The completed candle is bullish because the close is above the open.',
-   'Find HIGH at $32.50 and LOW at $30.50. The wick extremes define the full $2.00 range.',
-   'Calculate the body:\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body).',
-   'Calculate body percentage: $1.00 ÷ $2.00 × 100 = 50%. State dollars for prices and percent for this ratio.'
+   'Find OPEN ($31.00), the interval’s first recorded price, and CLOSE ($32.00), its last recorded price. Those values mark the body edges.',
+   'Find HIGH ($32.50), the greatest recorded price, and LOW ($30.50), the least. These are the wick extremes; their order is unknown.',
+   'Compare direction:\nIs Close higher than Open?\n$32.00 (Close) is higher than $31.00 (Open). Yes: this candle is bullish.',
+   'Calculate the body:\nClose − Open = Body\n$32.00 (Close) − $31.00 (Open) = $1.00 (Body). This is the net change, not the path taken.',
+   'Calculate the full range:\nHigh − Low = Full Range\n$32.50 (High) − $30.50 (Low) = $2.00 (Full Range).',
+   'Calculate the upper wick:\nHigh − Close = Upper Wick\n$32.50 (High) − $32.00 (Close) = $0.50 (Upper Wick).',
+   'Calculate the lower wick:\nOpen − Low = Lower Wick\n$31.00 (Open) − $30.50 (Low) = $0.50 (Lower Wick).',
+   'Check the parts:\nLower Wick + Body + Upper Wick = Full Range\n$0.50 + $1.00 + $0.50 = $2.00. It matches.',
+   'Calculate the body percentage:\n(Body ÷ Full Range) × 100 = Body Percentage\n($1.00 ÷ $2.00) × 100 = 0.50 × 100 = 50%. Dollars cancel, leaving percent.'
   ]),
   caution:'OHLC cannot establish the sequence of trades inside the candle or whether another candle will rise.'
  }),
