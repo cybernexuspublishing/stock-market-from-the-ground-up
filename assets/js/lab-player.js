@@ -41,7 +41,7 @@ function normalizeAuthorizedLab(raw,canonical,id){
  return {
   ...m,...l,id:first(l.id,id),book,
   chapter,chapterTitle:first(l.chapterTitle,m.chapterTitle,'Chapter '+chapter),
-  concept:labTopic({id,concept:first(l.concept,m.concept),title:l.title,skill:first(l.skill,m.skill),chapterTitle:first(l.chapterTitle,m.chapterTitle)}),
+  concept:labTopic({id,concept:l.concept,title:first(m.concept,l.title),skill:first(l.skill,m.skill),chapterTitle:first(l.chapterTitle,m.chapterTitle)}),
   goal:first(l.goal,l.objective,m.goal),
   ticker:first(l.ticker,m.ticker),
   date:first(l.date,m.date),
