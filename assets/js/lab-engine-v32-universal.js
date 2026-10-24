@@ -465,6 +465,40 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
    attachWallet();
+   if(kind==='candle'&&instructorInstance?.element){
+    // An engaging, NON-historical schematic on Start. No formula, grades,
+    // quiz or numerical worked answer appears before the Learn stage.
+    const hero=el('section');hero.className='gu-v40-start-hero';
+    hero.setAttribute('aria-label','Your personal lesson introduction');
+    const preview=el('section');preview.className='gu-v40-start-preview';
+    const figure=el('figure');figure.className='gu-v40-start-candle';
+    figure.setAttribute('role','img');
+    figure.setAttribute('aria-label','Diagram preview: a green candle body and upper and lower wicks, with the four price locations marked. Not market data.');
+    const candle=el('div');candle.className='gu-v40-preview-shape';
+    const wick=el('span');wick.className='gu-v40-preview-wick';
+    const realBody=el('span');realBody.className='gu-v40-preview-body';
+    candle.append(wick,realBody);
+    const marks=el('div');marks.className='gu-v40-preview-labels';
+    for(const label of ['High','Close','Open','Low'])marks.append(el('span',label));
+    const caption=el('figcaption','A candlestick, at a glance');
+    figure.append(candle,marks,caption);
+    const outcomes=el('div');outcomes.className='gu-v40-preview-outcomes';
+    outcomes.append(el('h3','Your next three discoveries'));
+    const goals=[
+     ['01','Find the four prices','See where a candle starts, ends, reaches its highest and lowest prices.'],
+     ['02','Measure its parts','Explore its body, wicks and full height using the interactive chart.'],
+     ['03','Read with confidence','Describe what happened in this period without guessing what comes next.']
+    ];
+    for(const [number,title,description] of goals){
+     const item=el('div');item.className='gu-v40-preview-goal';
+     item.append(el('span',number,'gu-v40-preview-number'));
+     const copy=el('div');copy.append(el('h4',title),el('p',description));item.append(copy);
+     outcomes.append(item);
+    }
+    preview.append(figure,outcomes);
+    hero.append(instructorInstance.element,preview);
+    body.insertBefore(hero,body.firstChild);
+   }
 
   }else if(stage===1){
    // The instructor and chart are the lesson; do not repeat the same
