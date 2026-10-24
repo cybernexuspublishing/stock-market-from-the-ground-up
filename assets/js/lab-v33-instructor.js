@@ -48,7 +48,7 @@ function animate(node,text,showAll,replay){
 function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
- rootEl.setAttribute('aria-label','Talia Mercer, your virtual learning instructor, and Market Tutor');
+ rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
  const title=el('h3','Talia');
  const head=el('div',undefined,'gu-v33-instructor-head');
  const avatar=el('span','T','gu-v33-instructor-avatar');
