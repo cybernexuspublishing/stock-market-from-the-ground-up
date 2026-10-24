@@ -243,12 +243,13 @@ const learningOutcomes={
 };
 function objectives(input,category){
  if(learningOutcomes[category])return learningOutcomes[category];
- const g=input.guide||{},t=input.teaching||{},concept=clean(input.concept||g.title||'this lesson',130);
- const facts=clean(t.what||g.concept||concept,180);
+ const g=input.guide||{},t=input.teaching||{};
+ const concept=clean(input.concept||g.title||'this lesson',130).replace(/^(?:explain|identify|describe|recognize|define)\s+/i,'');
+ const facts=clean(t.what||g.concept||concept,180).replace(/^(?:explain|identify|describe|recognize|define)\s+/i,'');
  const method=clean((Array.isArray(t.how)&&t.how.length?t.how.join(' '):g.procedure)||'apply the lesson’s stated method',220);
  const limits=clean(g.commonError||g.invalidation||'mistaking a hypothesis for a completed observation',180);
  return [
-  'Explain '+concept+' in your own words using the observable facts: '+facts+'.',
+  'Explain '+concept+' in your own words'+(facts.toLowerCase()===concept.toLowerCase()?' and identify the observable facts.':'. Use these specific facts: '+facts+'.'),
   'Work through the method with evidence from the specified interval: '+method+'.',
   'Recognize and correct this common mistake or limitation: '+limits+'.'
  ];
