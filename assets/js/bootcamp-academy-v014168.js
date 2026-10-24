@@ -9,7 +9,7 @@
  const expected=new Map([['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
-  progress=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0;
+  progress=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
  function node(tag,value){
   const element=document.createElement(tag);
@@ -154,6 +154,18 @@
   status('Checking your authorized member training access…');
   try{
    client=await globalThis.getSupabaseClient();
+   if(!authListenerAttached&&typeof client.auth.onAuthStateChange==='function'){
+    authListenerAttached=true;
+    client.auth.onAuthStateChange((_event,session)=>{
+     const nextUser=session?.user?.id||'';
+     if(userId&&nextUser!==userId){
+      ++sessionSerial;userId='';activeCode='';clean();
+      get('academy-reflection').value='';
+      get('academy-member-progress').textContent='';
+      status('The member account changed. Private study data was cleared; open a program after signing in again.');
+     }
+    });
+   }
    const response=await client.auth.getUser();
    const member=response.data?.user;
    if(!member)throw Error('Sign in to open your Boot Camp.');
