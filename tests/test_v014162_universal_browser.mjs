@@ -32,7 +32,8 @@ try{
   await page.locator('#universal-test').getByRole('heading',{name:'Assess',exact:true}).waitFor();
   assert.match(await page.locator('#universal-test').innerText(),/server-graded question bank/);
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'guided',target:t,lab:{id:'TAPE-C01-L01'}})});
-  assert.match(await page.locator('#universal-test').innerText(),/TAPE-C01-L01/);
+  assert.doesNotMatch(await page.locator('#universal-test').innerText(),/TAPE-C01-L01/,'Internal Lab IDs must not be narrated as member-facing teaching');
+   await page.getByRole('button',{name:'Start Guided Learning →'}).waitFor();
   await page.evaluate(async()=>{const t=document.getElementById('universal-test');await window.GroundUpLabEngineV32Universal.mount({labId:'TAPE-C01-L01',mode:'assessment',target:t})});
   assert.match(await page.locator('#universal-test').innerText(),/Assessment — Independent Decision/);
   assert.match(await page.locator('#universal-test').innerText(),/No answer keys/);
