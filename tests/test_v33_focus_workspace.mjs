@@ -9,6 +9,8 @@ const instructor=read('assets/js/lab-v33-instructor.js');
 const teaching=read('assets/js/lab-v33-instruction-content.js');
 const flow=read('assets/js/lab-v33-workspace-flow.js');
 const markup=read('lab-player.html');
+const passApi=read('functions/api/lab-question-pass.js');
+const passSql=read('supabase/migrations/v0.14.0.163_QUESTION_PASS_LEDGER_OWNER_REVIEW_REQUIRED.sql');
 const css=read('assets/css/lab-v33-experience.css')+read('assets/css/lab-v33-instructor.css');
 for(const [path,source] of [
  ['assets/js/lab-engine-v32-universal.js',engine],
@@ -19,6 +21,18 @@ for(const [path,source] of [
 assert(markup.indexOf('lab-v33-workspace-flow.js')<markup.indexOf('lab-player.js'));
 assert(markup.includes('class="journey-progress-track-inner"'),'Nine stage labels must appear inside the progress bar');
 assert(engine.includes('heading.hidden=stage===0'),'No separate Start title above instructor');
+assert(passApi.includes('memberIdentity(env,request)')&&passApi.includes('getBookCodeAccess(env,request,spec.book)'),
+ 'Credit spending must verify a signed-in member and an eligible book');
+assert(passApi.includes('groundup_question_pass_spend')&&passApi.includes('groundup_question_pass_summary'),
+ 'Wallet and spends must be server-authoritative');
+assert(passSql.includes('pg_advisory_xact_lock')&&passSql.includes('groundup_qp_once_per_question'),
+ 'Concurrent requests must not deduct multiple credits for one question');
+assert(passSql.includes("interval '60 days'")&&passSql.includes("source='purchased' and billing_period_ends_at is null and expires_at is null"),
+ 'Preserve included expiration and purchased non-expiration rules');
+assert(passSql.includes('revoke all on function')&&passSql.includes('grant execute on function'),
+ 'Ledger functions must not be available to the anonymous/authenticated browser roles');
+assert(!passApi.includes('purchasedCreditAllocation(')&&!passApi.includes('includedCreditAllocation('),
+ 'Production must not fabricate or automatically grant Question Pass balances');
 assert(flow.includes('What did price do before your decision?'),'Decisions must use a brief chart-specific question');
 assert(!flow.includes('Use only completed candles actually displayed.'),'Learner-facing questions must sound like natural instruction');
 assert(flow.includes('work.hidden=!allowed;')&&flow.includes('activeStage>=3'),
@@ -199,4 +213,29 @@ assert.equal(completed,false,'Revealing one question does not complete the whole
 passed.dispose();
 assert.equal(ctx.GroundUpLabV33Instructor.create({stage:3}),null);
 assert.equal(ctx.GroundUpLabV33Instructor.create({stage:5}),null);
+// Stage boundaries must hide the entire legacy decision panel until Predict
+// and hide the separate reflection until Review, not merely collapse details.
+const parts={
+ 'gu-ws-member-workbench':{hidden:false,open:true,dataset:{}},
+ 'gu-ws-reflection':{hidden:false,open:true,dataset:{}}
+};
+const workspaceEnv=createContext({
+ document:{getElementById:id=>parts[id]||null},
+ console
+});
+new Script(flow).runInContext(workspaceEnv);
+const flowApi=workspaceEnv.GroundUpLabV33WorkspaceFlow;
+flowApi.stageVisibility(0);
+assert.equal(parts['gu-ws-member-workbench'].hidden,true);
+assert.equal(parts['gu-ws-reflection'].hidden,true);
+assert.equal(parts['gu-ws-member-workbench'].open,false);
+flowApi.stageVisibility(1);
+assert.equal(parts['gu-ws-member-workbench'].hidden,true);
+flowApi.stageVisibility(3);
+assert.equal(parts['gu-ws-member-workbench'].hidden,false);
+assert.equal(parts['gu-ws-reflection'].hidden,true);
+flowApi.stageVisibility(6);
+assert.equal(parts['gu-ws-reflection'].hidden,false);
+flowApi.stageVisibility(0);
+assert.equal(parts['gu-ws-reflection'].hidden,true,'Returning to Start conceals reflection');
 console.log('PASS focused Lab UX: setup-first, named instructor, accessible content tabs, professional CTA, protected evidence wizard');
