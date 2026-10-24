@@ -1,5 +1,5 @@
 /* LAB-UX-STD-001 v1.0 — shared subject-aware learning visuals.
- * All data in this module is deliberately fictional, fixed and UNGRADED.
+ * All data in this module is deliberately illustrative, fixed and UNGRADED.
  * Never substitute these images for verified historical chart evidence,
  * member-authorized replay, grade records, or private question material.
  */
@@ -63,7 +63,7 @@ function cardTitle(type){return ({
  none:''
  })[type]||'Visual concept study'}
 function meta(root,type,note){
- const head=h('div','gu-l33-head');head.append(text('strong',cardTitle(type)),text('span','FICTIONAL • STUDY ONLY','gu-l33-badge'));root.append(head);
+ const head=h('div','gu-l33-head');head.append(text('strong',cardTitle(type)),text('span','SIMULATED • STUDY ONLY','gu-l33-badge'));root.append(head);
  root.append(text('p',note||'This is invented educational data, not the actual chart or market tape for the historical Lab. No official assessment result is produced.','gu-l33-source'));
 }
 function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
@@ -86,10 +86,10 @@ function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
 }
 function candle(options,showResult=true,interactive=false){
  // The SAME SVG, side measurement panel and slider are used in Learn and
- // Experiment. Selecting a different fictional worked case updates every
+ // Experiment. Selecting a different illustrative worked case updates every
  // value together, without introducing real historical prices or grade data.
  const root=h('section','gu-l33-graphic');
- meta(root,'candle','A fictional five-minute candle demonstrates Open, High, Low, Close, the real body and the full range.');
+ meta(root,'candle','A illustrative five-minute candle demonstrates Open, High, Low, Close, the real body and the full range.');
  const layout=h('div','gu-v36-candle-layout');
  const main=h('div','gu-l33-single');
  main.innerHTML=candleSVG(options);
@@ -131,7 +131,7 @@ function candle(options,showResult=true,interactive=false){
   const top=h('div','gu-v36-experiment-heading');
   const controlLabel=text('label','Closing price','gu-v36-experiment-label');
   slider=h('input');slider.type='range';slider.step='0.05';
-  slider.setAttribute('aria-label','Adjust the fictional candle closing price');
+  slider.setAttribute('aria-label','Adjust the illustrative candle closing price');
   readout=text('output','', 'gu-v36-experiment-value');
   top.append(controlLabel,readout);
   controlLabel.append(slider);
@@ -220,9 +220,9 @@ function chart(type,stage,variant){
  const root=h('section','gu-l33-graphic');const context={
   structure:'Price structure is visible only in relation to earlier candles, not from a single bar.',
   vwap:'Illustrative running bar-close × volume weighting. This is NOT actual trade-level VWAP.',
-  ema:'Illustrative moving averages constructed from these fictional closing prices, not live EMA9/EMA20 history.',
+  ema:'Illustrative moving averages constructed from these illustrative closing prices, not live EMA9/EMA20 history.',
   volume:'Each blue volume column aligns to the same interval as its candle.'
- }[type]||'Contextual fictional OHLCV illustration.';
+ }[type]||'Contextual illustrative OHLCV illustration.';
  meta(root,type,context+' Later candles are not presented as verified historical evidence.');
  const n=(stage===3?5:stage===7?7:8),bars=CANDLES.slice(0,n),low=9.5,high=10.85;
  const x=i=>77+i*83,yy=v=>252-(v-low)/(high-low)*192,points=[],weighted=[],ema9=[],ema20=[];let dollars=0,shares=0,e9=bars[0][3],e20=bars[0][3];
@@ -234,14 +234,14 @@ function chart(type,stage,variant){
  if(type==='ema')overlays='<path d="'+path(ema9)+'" fill="none" stroke="#f0bd67" stroke-width="3"/><path d="'+path(ema20)+'" fill="none" stroke="#80bcef" stroke-width="3"/>';
  if(type==='structure')overlays='<line x1="45" x2="756" y1="'+yy(10.49)+'" y2="'+yy(10.49)+'" stroke="#e0ba76" stroke-dasharray="8 6" stroke-width="2"/><text x="470" y="'+(yy(10.49)-8)+'" fill="#eed5a1" font-size="15">Illustrative reference level</text>';
  const labels=bars.map((b,i)=>'<text data-time-index="'+i+'" x="'+x(i)+'" y="370" text-anchor="middle" fill="#bed2e1" font-size="13">'+('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2)+'</text>').join('');
- const svg='<svg viewBox="0 0 820 395" role="img" aria-label="Fictional sequential '+type+' illustration with '+bars.length+' completed candles and corresponding blue volume bars">'+
+ const svg='<svg viewBox="0 0 820 395" role="img" aria-label="Illustrative sequential '+type+' illustration with '+bars.length+' completed candles and corresponding blue volume bars">'+
  '<rect width="820" height="395" rx="10" fill="#10283c"/>'+
  [9.6,10,10.4,10.8].map(y=>'<line x1="38" x2="780" y1="'+yy(y)+'" y2="'+yy(y)+'" stroke="#29445d" stroke-dasharray="4 6"/><text x="4" y="'+(yy(y)+5)+'" fill="#bdcedd" font-size="13">'+usd(y)+'</text>').join('')+
  '<line x1="38" x2="780" y1="260" y2="260" stroke="#35536c"/>'+draw+overlays+vol+labels+
- '<text x="38" y="390" fill="#b5cddd" font-size="13">5-minute fictional intervals · volume shown below candles</text></svg>';
+ '<text x="38" y="390" fill="#b5cddd" font-size="13">5-minute illustrative intervals · volume shown below candles</text></svg>';
  const graphic=h('div','gu-l33-chart');graphic.innerHTML=svg;
  // Preserve the owner-approved reference's chart and aligned OHLCV side panel.
- // This is a fictional educational sequence, never historical ticker data.
+ // This is a illustrative educational sequence, never historical ticker data.
  const layout=h('div','gu-l33-chart-reference-layout');
  const side=h('aside','gu-l33-chart-reference');side.setAttribute('aria-label','Selected completed candle details');
  side.append(text('h3','Selected completed candle'));
@@ -258,21 +258,21 @@ function chart(type,stage,variant){
  side.append(grid);
  side.append(text('p',type==='vwap'?
   'Illustrative running VWAP uses completed bar close × share volume; it is not trade-level VWAP.':
-  'All values belong to a fictional completed candle, not the book’s historical ticker.', 'gu-l33-reference-note'));
+  'All values belong to a illustrative completed candle, not the book’s historical ticker.', 'gu-l33-reference-note'));
  layout.append(graphic,side);root.append(layout);
  const legend=h('div','gu-l33-legend');const entries=[['#53cba2','Rising candle'],['#f18c99','Falling candle'],['#527dad','Volume']];if(type==='vwap')entries.push(['#f0bd67','Weighted illustration']);if(type==='ema')entries.push(['#f0bd67','EMA9'],['#80bcef','EMA20']);if(type==='structure')entries.push(['#e0ba76','Reference level']);
  for(const [col,lbl] of entries){const e=h('span');const dot=h('i');dot.style.background=col;e.append(dot,document.createTextNode(lbl));legend.append(e)}root.append(legend);
  const table=h('details','gu-l33-detail');table.append(text('summary','View completed-candle OHLCV values'));
- const tab=h('table');tab.innerHTML='<caption>Fictional completed intervals only</caption><thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Shares</th></tr></thead>';
+ const tab=h('table');tab.innerHTML='<caption>Illustrative completed intervals only</caption><thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Shares</th></tr></thead>';
  const tbody=h('tbody');bars.forEach((b,i)=>{const tr=h('tr');for(const val of [(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2)),...b.slice(0,4).map(usd),String(b[4])])tr.append(text('td',val));tbody.append(tr)});tab.append(tbody);table.append(tab);root.append(table);
- if(stage===3)root.append(text('p','Prediction boundary: only the displayed fictional observations are shown. Do not assume the next bar must continue the current movement.','gu-l33-takeaway'));
+ if(stage===3)root.append(text('p','Prediction boundary: only the displayed illustrative observations are shown. Do not assume the next bar must continue the current movement.','gu-l33-takeaway'));
  return root;
 }
 function weightedGroups(variant){
  const transfer=variant==='transfer';
  const groups=transfer?[[12,150],[16,50]]:[[8,200],[10,100]];
  const root=h('section','gu-l33-graphic');
- meta(root,'vwap','A comparison of fictional trade groups. The number of shares gives each execution price its weight. The practice answer is deliberately not shown here.');
+ meta(root,'vwap','A comparison of illustrative trade groups. The number of shares gives each execution price its weight. The practice answer is deliberately not shown here.');
  const panel=h('div','gu-l33-depth');
  for(const [i,[price,shares]] of groups.entries()){
   const col=h('div');col.append(text('h4','Trade group '+(i+1)));
@@ -286,7 +286,7 @@ function weightedGroups(variant){
  return root;
 }
 function tape(){
- const root=h('section','gu-l33-graphic');meta(root,'tape','Fictional completed transaction prints. Trade color alone does not identify the true buyer or seller or prove their intention.');
+ const root=h('section','gu-l33-graphic');meta(root,'tape','Illustrative completed transaction prints. Trade color alone does not identify the true buyer or seller or prove their intention.');
  const table=h('table','gu-l33-tape');table.innerHTML='<caption>Illustrative Time & Sales</caption><thead><tr><th>Time</th><th>Price</th><th>Shares</th><th>Display</th></tr></thead>';
  const tbody=h('tbody');[['09:30:01','$10.01','150','At ask'],['09:30:02','$10.00','90','At bid'],['09:30:04','$10.02','250','At ask'],['09:30:05','$10.01','100','Between']].forEach((a,i)=>{let row=h('tr');a.forEach(val=>row.append(text('td',val)));row.className=i%2?'gu-l33-sell':'gu-l33-buy';tbody.append(row)});table.append(tbody);root.append(table);
  root.append(text('p','Read the timestamp, transaction price and size together. A displayed execution does not reveal participant motives or guarantee the next trade.','gu-l33-takeaway'));return root;
