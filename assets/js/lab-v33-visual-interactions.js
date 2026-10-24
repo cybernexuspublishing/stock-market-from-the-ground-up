@@ -1,6 +1,6 @@
 /* LAB-UX-STD-001 owner-approved shared visual interactions.
  * Enhances the existing v3.3 visual renderer in place.
- * Reads ONLY the already rendered fictional OHLCV table. No API,
+ * Reads ONLY the already rendered illustrative OHLCV table. No API,
  * hidden future bars, grades or member entitlements are accessed. */
 (function(root){
 'use strict';
@@ -48,12 +48,12 @@ function enhance(view,options){
   tools.append(b);switches.push(b);return b;
  };
  if(type==='candle'){
-  // All focus targets refer to the SAME fictional candle plotted by the
+  // All focus targets refer to the SAME illustrative candle plotted by the
   // canonical renderer. The current Practice/Transfer answers remain hidden.
   const worked=[1,2].includes(options.stage)&&!['practice','transfer'].includes(options.variant);
-  // Annotation nodes are refreshed when a different fictional worked candle is selected.
+  // Annotation nodes are refreshed when a different illustrative worked candle is selected.
   // Explanations must always describe CURRENT displayed values, including
-  // after a slider movement or another fictional worked-case selection.
+  // after a slider movement or another illustrative worked-case selection.
   function describe(mode){
    const q=view.getTeachingCandle?.()||{o:31,hv:32.5,l:30.5,c:32};
    const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
@@ -139,7 +139,7 @@ function enhance(view,options){
   const rows=Array.from(view.querySelectorAll('details table tbody tr'));
   if(rows.length){
    const label=$('label','Inspect completed candle ','gu-l33-candle-picker');
-   const chooser=$('select');chooser.setAttribute('aria-label','Inspect a completed fictional candle');
+   const chooser=$('select');chooser.setAttribute('aria-label','Inspect a completed illustrative candle');
    rows.forEach((tr,i)=>{const o=$('option','Candle '+(i+1)+' · '+(tr.cells[0]?.textContent||''));o.value=String(i);chooser.append(o)});
    const detail=$('p','','gu-l33-candle-readout');detail.setAttribute('role','status');
    // Use the same indexed completed observation in the chart and the
@@ -169,7 +169,7 @@ function enhance(view,options){
     const cells=Array.from(rows[index]?.cells||[]).map(c=>c.textContent||'');
     if(panel&&cells.length>=6){
      const stamp=panel.querySelector('[data-reference-time]');
-     if(stamp)stamp.textContent=cells[0]+' ET · Fictional exercise';
+     if(stamp)stamp.textContent=cells[0]+' ET · Illustrative exercise';
      const values={open:cells[1],high:cells[2],low:cells[3],close:cells[4],volume:cells[5]+' shares'};
      let dollars=0,shares=0;
      rows.slice(0,index+1).forEach(row=>{
@@ -189,7 +189,7 @@ function enhance(view,options){
     applySelection(index);
     detail.textContent=cells.length>=6
      ?'Selected on the chart: '+cells[0]+' ET · Open '+cells[1]+', High '+cells[2]+
-      ', Low '+cells[3]+', Close '+cells[4]+', Volume '+cells[5]+' shares (fictional completed candle).':'';
+      ', Low '+cells[3]+', Close '+cells[4]+', Volume '+cells[5]+' shares (illustrative completed candle).':'';
    });
    for(const group of plotted){
     const choose=()=>{
