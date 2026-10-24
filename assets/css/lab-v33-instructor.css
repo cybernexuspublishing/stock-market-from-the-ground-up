@@ -53,3 +53,8 @@
 #gu-v32-teaching-slot .gu-v33-instructor-objectives li{margin:7px 0;font-size:.85rem}
 #gu-v32-teaching-slot .gu-v33-instructor-alternative p{font-size:.85rem;line-height:1.55;margin:9px 0}
 @media(max-width:520px){#gu-v32-teaching-slot .gu-v33-instructor-avatar{width:36px;height:36px}#gu-v32-teaching-slot .gu-v33-instructor-identity h3{font-size:.94rem}#gu-v32-teaching-slot .gu-v33-instructor-identity .gu-v33-instructor-tag{font-size:.69rem}}
+
+/* Link each worked teaching statement to the exact candle evidence. */
+#gu-v32-teaching-slot .gu-v33-instructor-chart-link{display:block;margin:7px 0 4px;padding:8px 10px;font:650 .79rem/1.4 system-ui,sans-serif;color:#d9effc;background:#123b52;border:1px solid #4b849e;border-radius:8px;cursor:pointer}
+#gu-v32-teaching-slot .gu-v33-instructor-chart-link:hover{background:#19526b}
+#gu-v32-teaching-slot .gu-v33-instructor-chart-link:focus-visible{outline:3px solid #a1e8f3;outline-offset:2px}
