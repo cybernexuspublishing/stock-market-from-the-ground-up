@@ -145,3 +145,28 @@ body.gu-lab-member .gu-v33-grade-history li{margin:11px 0;color:#d7e8f4;font-siz
 body.gu-lab-member .gu-v33-grade-history .gu-v33-grade-meter{height:9px;margin-top:6px}
 body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-height:1.6}
 @media(max-width:680px){body.gu-lab-member .gu-v33-grade-dimensions{grid-template-columns:1fr}}
+
+/* v3.3.3: compact single historical-setup panel and horizontal teaching tabs. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup{padding:14px 17px;border:1px solid #4b7590}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup h3{margin:0 0 10px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:9px 18px;margin:0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-field{min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-field dt{font-size:.85rem;font-weight:600;color:#c1d5e5}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-field dd{margin:0;color:#f4f9fe;font-size:.9rem;font-weight:750}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-note{font-size:.74rem!important;color:#afc9d9!important;line-height:1.4!important;margin:10px 0 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup{display:block!important;margin:16px 0!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-tabs,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 9px}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-teaching-tabs,.gu-v33-help-tablist) button{min-width:0;min-height:38px;padding:7px 9px;white-space:normal;text-align:center;line-height:1.35;background:#173a51;border:1px solid #4c748f;border-radius:8px;color:#e6f3fc;font-size:.8rem;font-weight:650;cursor:pointer}
+body.gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-teaching-tabs,.gu-v33-help-tablist) button[aria-selected="true"]{background:#e8be58;color:#182838;font-weight:800;border-color:#f4d889}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup>[role="tabpanel"],
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tabs>[role="tabpanel"]{display:block;margin:0!important;padding:15px;border:1px solid #426b83;border-radius:9px;background:#112d41}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-teaching-followup>[hidden],
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tabs>[hidden]{display:none!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tabs{margin:16px 0}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33 .actions .btn{min-height:36px;padding:7px 12px;font-size:.85rem;flex:0 1 auto}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-primary{min-height:40px!important;padding:8px 14px!important}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.actions .gu-v33-start-tutor{min-height:40px!important}
+@media(max-width:770px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:490px){body.gu-lab-member #gu-v32-teaching-slot .gu-v33-setup-fields{grid-template-columns:1fr}body.gu-lab-member #gu-v32-teaching-slot .gu-v33-help-tablist{grid-template-columns:repeat(2,minmax(0,1fr))}}
