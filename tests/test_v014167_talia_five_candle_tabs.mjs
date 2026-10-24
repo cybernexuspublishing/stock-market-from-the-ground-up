@@ -59,6 +59,19 @@ assert(instructor.includes('referenceSteps=[...exact.steps]')&&
  'The full-candle example must be taught in individually navigable steps');
 assert(css.includes('.gu-v40-instructor-steps')&&css.includes('.gu-v40-instructor-steps[hidden]'),
  'Single-step teaching controls must be styled and concealed outside the worked walkthrough');
+const authoredContext={
+ what:'Recognize prices that make a completed candlestick and compare its body with its range.',
+ why:'The chart will display OHLC values before an independent practice attempt.',
+ how:['Locate the body and read each extreme.']
+};
+const canonicalCandle=api.get({type:'candle',feature:'apply',concept:'Bullish Candle',teaching:authoredContext});
+assert(canonicalCandle.script.includes('Upper Wick')&&canonicalCandle.script.includes('Lower Wick')&&
+ canonicalCandle.script.includes('Lower Wick + Body + Upper Wick = Full Range'),
+ 'An individual anatomy Lab with a general teaching plan must still show its detailed authored calculations');
+const relatedDay=api.get({type:'candle',feature:'apply',concept:'Candle pattern and risk decisions',teaching:authoredContext});
+assert(relatedDay.script.includes('Locate the body and read each extreme.')&&
+ !relatedDay.script.includes('$32.00 (Close)'),
+ 'A non-anatomy Boot Camp day may use a candle visualization without being replaced by the anatomy curriculum');
 assert(instructor.includes('custom?.narration||plan.script||'),
  'Authored tab narration must precede generic fallback');
 assert(instructor.includes("candleFormula&&!plan.script"),
