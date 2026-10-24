@@ -76,3 +76,13 @@
 #gu-v32-teaching-slot .gu-v33-support-content .gu-v33-tutor{margin:0;border:0;background:transparent;padding:0}
 #gu-v32-teaching-slot .gu-v33-support-tab:focus-visible{outline:3px solid #9be8ff;outline-offset:2px}
 @media(max-width:560px){#gu-v32-teaching-slot .gu-v33-support-tablist{grid-template-columns:1fr}}
+
+/* Instructor typewriter viewport is stable: typing never grows the page. */
+#gu-v32-teaching-slot .gu-v33-instructor .gu-v33-instructor-typing{height:clamp(180px,27vh,280px);min-height:0;max-height:280px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:12px 15px;border:1px solid #31556c;border-radius:9px;background:#0c2031;line-height:1.8}
+#gu-v32-teaching-slot .gu-v33-instructor .gu-v33-instructor-typing:focus-visible{outline:3px solid #a1dcff}
+#gu-v32-teaching-slot .gu-v33-support-tablist{grid-template-columns:repeat(3,minmax(0,1fr))}
+#gu-v32-teaching-slot .gu-v33-support-tabs{border:1px solid #3f657e;border-radius:12px;background:#10283a;padding:11px 12px;margin:14px 0 18px}
+#gu-v32-teaching-slot .gu-v33-support-content .wallet{margin:0;box-shadow:none;padding:10px}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-wallet-panel[hidden]{display:none!important}
+#gu-v32-teaching-slot .gu-v33-support-content .gu-v33-wallet-panel .metric{min-width:0}
+@media(max-width:690px){#gu-v32-teaching-slot .gu-v33-support-tablist{grid-template-columns:1fr}#gu-v32-teaching-slot .gu-v33-instructor .gu-v33-instructor-typing{height:220px}}
