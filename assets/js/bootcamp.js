@@ -4,14 +4,14 @@
 (()=>{'use strict';
  const q=id=>document.getElementById(id),root=q('gu-bc-shell');
  if(!root)return;
- let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),progressAvailable=false,busy=false,loadSerial=0;
+ let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),sourceCases=new Map(),progressAvailable=false,busy=false,loadSerial=0;
  const status=text=>{q('gu-bc-status').textContent=text};
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n};
  const link=(href,title)=>{
    const a=el('a',title);a.href=href;return a;
  };
  function clear(){
-  progress.clear();checkpoints.clear();progressAvailable=false;days=[];root.hidden=true;
+  progress.clear();checkpoints.clear();sourceCases.clear();progressAvailable=false;days=[];root.hidden=true;
   q('gu-bc-note').value='';q('gu-bc-days').replaceChildren();q('gu-bc-labs').replaceChildren();
  }
  async function api(method='GET',payload){
@@ -67,6 +67,19 @@
     }
    });
    else guideSlot.textContent='No canonical Lab learning bridge exists for this day.';
+  }
+  const source=sourceCases.get(selected),sourceSection=q('gu-bc-source-case');
+  if(sourceSection){
+   sourceSection.hidden=!source;
+   if(source){
+    q('gu-bc-source-title').textContent=source.heading;
+    q('gu-bc-source-observation').textContent=source.observation;
+    q('gu-bc-source-practice').textContent='Try it: '+source.practice;
+    q('gu-bc-source-limit').textContent='What this source cannot establish: '+source.limit;
+    const sourceLink=q('gu-bc-source-link');
+    sourceLink.textContent=source.sourceName+' — original source';
+    sourceLink.href=source.sourceUrl;
+   }
   }
   q('gu-bc-check-question').textContent=checkpoint?.question||'This topic-specific self-check is unavailable; no grade or credit is inferred.';
   q('gu-bc-check-review').hidden=true;
@@ -145,6 +158,23 @@
      observed.add(row.day);checkpoints.set(row.day,row);
     }
    }catch{checkpoints.clear()}
+   sourceCases.clear();
+   // Educational links only. This optional static file contains no private
+   // course transcript, customer data, historical-bar claim or answer keys.
+   try{
+    const response=await fetch('/data/bootcamp-source-cases-v014166.json',{cache:'no-store'});
+    if(!response.ok)throw Error('Additional primary-source cases unavailable.');
+    const source=await response.json();
+    if(!Array.isArray(source.cases)||source.version!=='0.14.0.166')throw Error('Unrecognized source-case version.');
+    for(const entry of source.cases){
+     if(!Number.isInteger(entry.day)||entry.day<1||entry.day>30||
+       sourceCases.has(entry.day)||!/^https:\/\//.test(entry.sourceUrl)||
+       !['heading','observation','practice','limit','sourceName'].every(k=>
+        typeof entry[k]==='string'&&entry[k].trim().length>15))
+      throw Error('An additional source-case record is invalid.');
+     sourceCases.set(entry.day,entry);
+    }
+   }catch{sourceCases.clear()}
    progressAvailable=data.progressAvailable===true;
    progress=new Map((data.progress||[]).map(row=>[row.day,row]));
    root.hidden=false;status(progressAvailable?'Active member training access confirmed. Your private reflection progress was loaded.':
