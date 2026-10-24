@@ -219,7 +219,7 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
@@ -305,7 +305,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  // lesson display on optional legacy dashboard queries, which can hang or
  // fail independently of the server-approved Lab and are not authoritative.
  const firstName=await bounded(firstNameRequest,1800,memberFirstNameField(session?.user?.user_metadata?.first_name));
- PLAYER.access={user:session?.user||null,sb:sb||null,memberFirstName:firstName,redeemedBooks:new Set()};
+ PLAYER.access={user:session?.user||null,sb:sb||null,memberFirstName:firstName,tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false,redeemedBooks:new Set()};
  PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;
   const picker=q('player-reference-select');
   if(picker){
