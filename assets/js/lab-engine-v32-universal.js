@@ -73,7 +73,7 @@ const synthetic=Object.freeze({
  transfer:{prompt:'New fictional trades: 150 shares at $12 and 50 shares at $16. What is their VWAP?',answer:13}}
 });
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memberFirstName=''}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memberFirstName='',allowTutorAI=true}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -235,7 +235,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    const instructor=root.GroundUpLabV33Instructor.create({
     stage,subject:tutorTopic||'observable market evidence',concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
-    memberFirstName,requestTutor:tutorRequest,seen:narratedStages.has(stage)
+    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage)
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -277,11 +277,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    }
    wallet.append(metrics);
    appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain included in accessible Labs. No demo credits will be charged or treated as purchased credits.');
-   const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';
-   walletDisclosure.append(el('summary','Question Pass Wallet and eligibility'),wallet);
-   body.append(walletDisclosure);
-   const objective=el('p','Related official competencies: '+codes.map(x=>map.guides.get(x).title).join('; ')+'. Independent mastery remains Not Yet Assessed until reviewed evidence is recorded.');
-   objective.className='small';body.append(objective);
+   if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
+   else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Question Pass Wallet'),wallet);body.append(walletDisclosure);}
+
   }else if(stage===1){
    appendParagraph(body,authorizedTeaching.what||subject?.definition||guide.concept);
    appendParagraph(body,authorizedTeaching.why||subject?.why||guide.procedure);
@@ -486,6 +484,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     if(check)extension.append(check);
     body.append(extension);
    }
+  }
+  if(stage===0){
+   const support=body.querySelector?.('.gu-v33-support-tabs');
+   if(support)shell.insertBefore(support,nav.nextSibling);
   }
   // Shared chart-first learning workspace: draw the relevant visual beside
   // the instructor, followed by context, the learner task, and review.
