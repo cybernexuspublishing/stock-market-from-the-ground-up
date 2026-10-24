@@ -115,6 +115,17 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const controls=el('div',undefined,'gu-v33-instructor-controls');
  const skip=el('button','Show full text');skip.type='button';skip.className='btn secondary gu-v33-instructor-skip';
  controls.append(skip);
+ const stepToolbar=el('div',undefined,'gu-v40-instructor-steps');
+ stepToolbar.hidden=true;
+ stepToolbar.setAttribute('role','group');
+ stepToolbar.setAttribute('aria-label','Explore each teaching step');
+ const stepBack=el('button','Previous teaching step','btn secondary');
+ const stepState=el('span','','gu-v40-instructor-step-count');
+ stepState.setAttribute('aria-live','polite');
+ const stepNext=el('button','Next teaching step','btn secondary');
+ stepBack.type=stepNext.type='button';
+ stepToolbar.append(stepBack,stepState,stepNext);
+ controls.append(stepToolbar);
  rootEl.append(accessible,transcript,controls);
  // Talia speaks each question IN her narration box. The member's answer
  // is collected there, not in a disconnected form below the lesson.
@@ -394,6 +405,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  transcript.append(memberQuestion,interaction,suggestions,reply);
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
+  stepToolbar.hidden=true;
   featureLesson=null;featurePhase=0;understandingMode=false;
   transcriptTitle.textContent=initialLessonTitle;
   transcriptTitle.hidden=!initialLessonTitle;
@@ -409,6 +421,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const wasFocus=Boolean(featureLesson||understandingMode);
   featureLesson=null;featurePhase=0;understandingMode=false;
   if(wasFocus)paintQuestion();
+  stepToolbar.hidden=true;
   transcriptTitle.textContent=label;
   transcriptTitle.hidden=false;
   const narration=lines.join('\n\n');
@@ -420,6 +433,24 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   if(stage===1&&!understandingMode)interaction.hidden=true;
   return true;
  }
+ let referenceSteps=[],referenceIndex=0,referenceTitle='';
+ function displayReferenceStep(nextIndex){
+  if(!referenceSteps.length)return false;
+  referenceIndex=Math.max(0,Math.min(referenceSteps.length-1,nextIndex));
+  const opening=referenceIndex===0
+   ?'We will take this together, one part at a time. Look at the candle as I explain.'
+   :'Let us work through the next part before moving on.';
+  const heading=referenceTitle+' · Step '+(referenceIndex+1)+' of '+referenceSteps.length;
+  const result=teachDirect(heading,[opening,referenceSteps[referenceIndex]]);
+  stepToolbar.hidden=false;
+  stepState.textContent='Step '+(referenceIndex+1)+' of '+referenceSteps.length;
+  stepBack.disabled=referenceIndex===0;
+  stepNext.disabled=referenceIndex>=referenceSteps.length-1;
+  stepNext.textContent=stepNext.disabled?'All teaching steps shown':'Next teaching step';
+  return result;
+ }
+ listen(stepBack,'click',()=>displayReferenceStep(referenceIndex-1));
+ listen(stepNext,'click',()=>displayReferenceStep(referenceIndex+1));
  function teachFeature({type,feature,custom,values}={}){
   if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
   const base=custom||root.GroundUpLabV34InteractiveLessons.get({
@@ -461,6 +492,13 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    (type==='candle'&&feature==='all')||
    (type==='vwap'&&feature==='price')
   );
+  if(startsReference&&type==='candle'){
+   referenceTitle='The completed candlestick';
+   referenceSteps=[...exact.steps];
+   return displayReferenceStep(0);
+  }
+  referenceSteps=[];
+  stepToolbar.hidden=true;
   const short=custom?.narration||plan.script|| (startsReference?[
    exact.title+'. Here is what you will learn.',
    exact.term+': '+exact.definition,
