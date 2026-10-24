@@ -1,6 +1,6 @@
 /* LAB-UX-STD-001 — grounded, curriculum-linked instructional content.
  * No assessed answer keys, future replay bars, trade advice or grade data.
- * Concrete demonstration values are explicitly fictional. Source guide fields
+ * Concrete demonstration values are explicitly illustrative. Source guide fields
  * are passed only after server-authorized Lab access in the shared engine.
  */
 (function(root){
@@ -17,7 +17,7 @@ const domains={
    'The body measures |Close − Open|. The full range measures High − Low. Body-to-range percentage equals body ÷ range × 100, provided range is greater than zero. Both calculations use prices from the SAME completed candle.'
   ],
   example:[
-   'For a DIFFERENT fictional 5-minute candle, let Open = $20.00, High = $22.00, Low = $19.00, and Close = $21.20.',
+   'For a DIFFERENT illustrative 5-minute candle, let Open = $20.00, High = $22.00, Low = $19.00, and Close = $21.20.',
    'Body = |$21.20 − $20.00| = $1.20. Full range = $22.00 − $19.00 = $3.00.',
    'Body share of range = $1.20 ÷ $3.00 × 100 = 40%. It is a bullish candle because Close > Open, but this does not establish that the next candle will rise.'
   ],
@@ -35,14 +35,14 @@ const domains={
    'The symbol Σ means SUM across observations: VWAP = Σ(price × shares) ÷ Σ(shares). A chart based only on bar closing price times bar volume is an APPROXIMATION of trade-level VWAP. Always establish the session and available data.'
   ],
   example:[
-   'Fictional trades: 100 shares at $10.00 and 300 shares at $12.00.',
+   'Illustrative trades: 100 shares at $10.00 and 300 shares at $12.00.',
    'Traded dollars = (100 × $10.00) + (300 × $12.00) = $1,000 + $3,600 = $4,600.',
    'Total shares = 100 + 300 = 400; VWAP = $4,600 ÷ 400 = $11.50 per share. The heavier $12 trading pulls VWAP toward $12.'
   ],
   misconception:'A simple average ($10 + $12) ÷ 2 = $11 ignores that three times as many shares traded at $12.',
   limitation:'Price crossing VWAP does not prove a breakout, supply/demand motive, or an entry signal. Session boundaries and underlying trade data matter.',
   check:{question:'Why does a 300-share execution influence VWAP more than a 100-share execution?',choices:['Its price is always newer','VWAP weights each execution by shares','The high price automatically wins'],correct:1,feedback:'VWAP uses the traded share count as the weight. Multiply prices by shares, then divide summed dollars by summed shares.'},
-  experiment:'Hold two fictional prices constant and increase shares at the higher price. The weighted average moves toward that price. Only the weights changed; no future price was predicted.',
+  experiment:'Hold two illustrative prices constant and increase shares at the higher price. The weighted average moves toward that price. Only the weights changed; no future price was predicted.',
   transfer:'In a new case, recalculate from the beginning of the selected session. Do not copy a VWAP number between different session definitions.'
  },
  ema:{
@@ -53,7 +53,7 @@ const domains={
    'A close above an EMA describes price LOCATION relative to a lagging calculation. It does not prove why people traded or guarantee follow-through. Never read a future candle into an EMA computed at an earlier observation boundary.'
   ],
   example:[
-   'Fictional EMA9: previous EMA = $10.00; current completed close = $10.50.',
+   'Illustrative EMA9: previous EMA = $10.00; current completed close = $10.50.',
    'EMA9 = $10.00 + 0.2 × ($10.50 − $10.00) = $10.10.',
    'The EMA rises by $0.10, not by the full $0.50 price change. Its actual historical starting value depends on the selected price history.'
   ],
@@ -71,7 +71,7 @@ const domains={
    'Volume measures participation, not the identity or motives of buyers and sellers. More traded shares alongside an upward candle does not establish that all participants expect further gains.'
   ],
   example:[
-   'Fictional example: one five-minute candle trades 60,000 shares; a comparable baseline is 20,000 shares per five-minute interval.',
+   'Illustrative example: one five-minute candle trades 60,000 shares; a comparable baseline is 20,000 shares per five-minute interval.',
    'Relative interval volume = 60,000 ÷ 20,000 = 3.0 times the chosen baseline.',
    'That establishes a higher share count for this interval. It does not by itself verify a successful breakout.'
   ],
@@ -89,7 +89,7 @@ const domains={
    'A failed breakout becomes identifiable only as additional permitted evidence appears. At a historical pause, hide later candles and separate what is already observed from possible future outcomes.'
   ],
   example:[
-   'Fictional swing highs: $10.20 then $10.65; swing lows: $9.70 then $10.05, using the same swing definition.',
+   'Illustrative swing highs: $10.20 then $10.65; swing lows: $9.70 then $10.05, using the same swing definition.',
    'The second high is higher by $0.45 and the second low by $0.35. That is evidence of a higher-high/higher-low sequence in this simplified example.',
    'One later decline or an unconfirmed wick could challenge the interpretation; the two observations do not guarantee continuation.'
   ],
@@ -107,7 +107,7 @@ const domains={
    'A limit order controls the worst allowed execution price, subject to availability, but does not guarantee that the order executes. The best quote and trade prints should be interpreted together.'
   ],
   example:[
-   'Fictional best bid = $9.90 and best ask = $10.10.',
+   'Illustrative best bid = $9.90 and best ask = $10.10.',
    'Quoted spread = $10.10 − $9.90 = $0.20 per share; at 100 shares that is a $20 quote-to-quote difference, before fees or market movement.',
    'If this exercise’s written maximum spread is $0.05, the quote does NOT meet that rule. A later favorable outcome does not change the original eligibility decision.'
   ],
@@ -125,7 +125,7 @@ const domains={
    'Read print frequency and sizes alongside contemporaneous quotes and the completed price chart. Changes across these views are observations, not proof that a particular investor is accumulating or distributing.'
   ],
   example:[
-   'Fictional prints: 09:30:01 — $10.01 — 150 shares; 09:30:02 — $10.00 — 90 shares; 09:30:04 — $10.02 — 250 shares.',
+   'Illustrative prints: 09:30:01 — $10.01 — 150 shares; 09:30:02 — $10.00 — 90 shares; 09:30:04 — $10.02 — 250 shares.',
    'Total printed shares = 150 + 90 + 250 = 490 shares across these three transactions.',
    'The sequence describes execution prices and sizes. Without matching quotes and additional data, it cannot prove the identity or motivation of traders.'
   ],
@@ -143,14 +143,14 @@ const domains={
    'After execution, clearing and settlement transfer the contractual cash and securities obligations. A conceptual diagram can show the participants without claiming every order follows the same route.'
   ],
   example:[
-   'Fictional order: buy 100 shares with a $10.00 limit. Only 40 shares are offered at or below $10.00 while the order is eligible.',
+   'Illustrative order: buy 100 shares with a $10.00 limit. Only 40 shares are offered at or below $10.00 while the order is eligible.',
    'A partial execution of 40 shares is possible, leaving up to 60 unfilled; a full 100-share fill is not automatically guaranteed.',
    'Execution status must come from the broker’s confirmed records, not from a candle crossing the limit price.'
   ],
   misconception:'Confusing a submitted order with a completed trade or treating a simulation price touch as proof of a fill.',
   limitation:'Venue rules, routing arrangements, available depth, and time in force affect actual order outcomes.',
   check:{question:'Does an accepted 100-share limit order prove all 100 shares traded?',choices:['Yes, once the chart touches the limit','No; it may remain open or fill partially','Yes, for every listed stock'],correct:1,feedback:'Submission and execution differ. Review actual order status and filled quantity.'},
-  experiment:'Vary available shares at the stated limit in a fictional order and classify the potential execution as full, partial, or not guaranteed.',
+  experiment:'Vary available shares at the stated limit in a illustrative order and classify the potential execution as full, partial, or not guaranteed.',
   transfer:'Explain how an order acknowledgment differs from an execution confirmation and a settlement record.'
  }
 };
@@ -208,7 +208,7 @@ const learningOutcomes={
  ],
  vwap:[
   'Explain how share volume changes the influence of each traded price on VWAP.',
-  'Calculate a volume-weighted price from fictional trades and identify what the line represents.',
+  'Calculate a volume-weighted price from illustrative trades and identify what the line represents.',
   'Interpret price relative to VWAP without treating a crossing as a guaranteed entry signal.'
  ],
  ema:[
@@ -238,7 +238,7 @@ const learningOutcomes={
  ],
  routing:[
   'Describe the distinction between submitting, accepting and executing an order.',
-  'Identify full, partial, canceled and open order outcomes in a fictional example.',
+  'Identify full, partial, canceled and open order outcomes in a illustrative example.',
   'Explain why a chart touch does not prove that an order was filled.'
  ]
 };
@@ -285,7 +285,7 @@ function lesson(input={}){
   'We will begin with definitions and a visual demonstration on the Learn screen. You do not need to know these terms or answer questions yet.'
  ];
  else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra,
-  ...(caseStudy?.steps?.length?['We will apply this method to a separate fictional worked case.']:[])];
+  ...(caseStudy?.steps?.length?['We will apply this method to a separate illustrative worked case.']:[])];
  else if(stage===2)blocks=[base.explanation[0],base.experiment,'Describe what the manipulated input changes and what it does not establish.'];
  else if(stage===4)blocks=[base.explanation[0],base.example[0],base.example[1],'Apply the same METHOD to your own practice question; do not simply copy the numbers from this separate example.'];
  else if(stage===6)blocks=[base.misconception,base.limitation,'Reconstruct your original reasoning using the observations available at the time, not any later outcome.'];
@@ -299,7 +299,7 @@ function lesson(input={}){
   limitation:base.limitation,
   check:stage===1?base.check:null,
   sourceNote:category==='general'?'Based on the available Lab topic and original competency guide; individual lesson review may still be required.'
-    :'Worked prices, quantities and scenario details in this instructor demonstration are fictional, not verified history.'
+    :'Worked prices, quantities and scenario details in this instructor demonstration are illustrative, not verified history.'
  };
 }
 root.GroundUpLabV33InstructionContent=Object.freeze({lesson,inferDomain,version:'1.0'});
