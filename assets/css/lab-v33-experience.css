@@ -601,3 +601,12 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   grid-template-columns:1fr;gap:5px;
  }
 }
+
+/* Decision and reflection never appear on the introductory teaching stage.
+ * A collapsed details element is not a substitute for stage gating. */
+body.gu-lab-member #gu-ws-member-workbench[hidden],
+body.gu-lab-member #gu-ws-reflection[hidden],
+body.gu-bc-learning #gu-ws-member-workbench[hidden],
+body.gu-bc-learning #gu-ws-reflection[hidden]{
+ display:none!important;
+}
