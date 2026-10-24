@@ -140,12 +140,11 @@ function tutorSafeSubject(lab){
  return topics.find(([pattern])=>pattern.test(concept))?.[1]||'decision uncertainty and observable evidence';
 }
 /* Optional in-Lab Market Tutor uses the EXISTING authenticated API.
- * An explicit Lab ID selects only approved public competency guidance;
- * an AI opt-in instead uses the whitelisted topic so the existing backend's
- * canonical-ID source-only short-circuit does not silently bypass paid AI.
+ * Canonical Lab ID and stage select public, source-only competency guidance.
+ * This Lab path does not reserve paid inference; provider readiness is separate.
  * Never attach a rubric, historical candles, assessed answer or learner notes.
  */
-async function requestLabTutor({question,allowModel=false,signal}={}){
+async function requestLabTutor({question,stage,allowModel=false,signal}={}){
  if(!['guided','practice'].includes(PLAYER.mode))
   throw Error('Tutor explanations are not available during independent decision modes.');
  const sb=PLAYER.access?.sb;
@@ -154,13 +153,15 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  if(!token)throw Error('Sign in to use Market Tutor. Your Lab explanations remain available without an AI request.');
  const id=String(PLAYER.lab?.id||'');
  const onlyGeneral=String(question||'').trim();
- const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)&&allowModel!==true
-  ?('For canonical Lab '+id+': '+onlyGeneral).slice(0,450):onlyGeneral.slice(0,450);
+ const stageName=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'][stage];
+ const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)
+  ?('For canonical Lab '+id+' at the '+(stageName||'current')+' learning stage: '+onlyGeneral).slice(0,450)
+  :onlyGeneral.slice(0,450);
  if(clean.length<4)throw Error('Enter a general learning question first.');
  const reply=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',signal,
   headers:{authorization:'Bearer '+token,'content-type':'application/json'},
   body:JSON.stringify({question:clean,mode:'explain',requestId:crypto.randomUUID(),
-   allowModel:allowModel===true,saveHistory:false})});
+   allowModel:allowModel===true&&!/^[A-Za-z0-9_-]{3,90}$/.test(id),saveHistory:false})});
  const data=await reply.json().catch(()=>null);
  if(!reply.ok||data?.ok!==true){
   const feedback=reply.status===403?'Market Tutor requires an active Tutor or Full Platform entitlement. Your instructional panels remain available.'

@@ -18,6 +18,10 @@
 #gu-v32-teaching-slot .gu-v33-tutor-actions button{min-height:41px}
 #gu-v32-teaching-slot .gu-v33-tutor-status{margin:12px 0 8px!important;font-size:.83rem;color:#bfe5d7;overflow-wrap:anywhere}
 #gu-v32-teaching-slot .gu-v33-tutor-status.error{color:#f9bbbd}
+#gu-v32-teaching-slot .gu-v33-tutor-history{max-height:260px;overflow-y:auto;list-style:none;margin:10px 0 14px;padding:0;display:grid;gap:10px}
+#gu-v32-teaching-slot .gu-v33-tutor-turn{border:1px solid #3c5d75;border-radius:9px;padding:10px;background:#12283a;overflow-wrap:anywhere}
+#gu-v32-teaching-slot .gu-v33-tutor-turn strong{display:block;color:#d9f4ff;font-size:.83rem}
+#gu-v32-teaching-slot .gu-v33-tutor-turn p{margin:4px 0 9px;white-space:pre-wrap}
 #gu-v32-teaching-slot .gu-v33-tutor-answer{border:1px solid #40667d;border-radius:9px;padding:12px;background:#173247;max-width:100%;overflow-wrap:anywhere}
 #gu-v32-teaching-slot .gu-v33-tutor-answer .gu-v33-instructor-typing{font-size:.93rem;white-space:pre-wrap}
 #gu-v32-teaching-slot .gu-v33-tutor a{display:inline-block;margin-top:10px;color:#bfddf0;text-decoration:underline;text-underline-offset:3px}
