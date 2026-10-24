@@ -242,13 +242,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   return{accepted:true};
  }
  async function handleQuestionPass({action,index}={}){
-  if(typeof creditRequest!=='function')throw Error('Question Pass has not been connected.');
+  if(typeof creditRequest!=='function')throw Error('Lantern Sparks has not been connected.');
   if(action==='balance')return creditRequest({action:'balance'});
   if(stage!==4||!['guided','practice'].includes(mode)||!passAttemptId)
-   throw Error('Question Pass is unavailable for this exercise.');
+   throw Error('Lantern Sparks is unavailable for this exercise.');
   const steps=root.GroundUpLabV34InteractiveLessons?.practiceFor?.(kind)||[];
   if(steps.length!==3||!Number.isInteger(index)||index<0||index>=steps.length)
-   throw Error('Only reviewed illustrative practice steps support Question Pass.');
+   throw Error('Only reviewed illustrative practice steps support Lantern Sparks.');
   const step=steps[index];
   const id=String(index)+'/'+step.id;
   let requestId=passRequests.get(id);
@@ -263,7 +263,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   // The normal answer validator requires sequential indexes. Record the
   // debit-confirmed Study Only marker so a later typed answer remains valid.
   const list=learnerReplies.get(4)||[];
-  while(list.length<index)list.push('Study Only — Question Pass');
+  while(list.length<index)list.push('Study Only — Lantern Sparks');
   list[index]='Study Only — '+action;
   learnerReplies.set(4,list);
   if(index===steps.length-1){practiceResolved=true;practice='Study Only: '+action;}
@@ -428,7 +428,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    }
    // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
-   const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
+   const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Lantern Sparks Wallet'));
    const metrics=el('div');metrics.className='grid2';
    const fields={};
    for(const [key,name,note] of [['included','Included','Eligible credits expire 60 days after their billing period ends'],['purchased','Purchased','Purchased credits do not expire']]){
@@ -436,8 +436,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
    }
    wallet.append(metrics);
-   const balanceState=el('p','Sign in to check your Question Pass balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
-   appendParagraph(wallet,'Reveal or Skip uses one Question Pass Credit per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
+   const balanceState=el('p','Sign in to check your Lantern Sparks balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
+   appendParagraph(wallet,'Reveal or Skip uses one Lantern Spark per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
    if(typeof creditRequest==='function'){
     balanceState.textContent='Checking your credit balance…';
     void creditRequest({action:'balance'}).then(data=>{
@@ -453,7 +453,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     });
    }
    if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
-   else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Question Pass Wallet'),wallet);body.append(walletDisclosure);}
+   else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Lantern Sparks Wallet'),wallet);body.append(walletDisclosure);}
 
   }else if(stage===1){
    // The instructor and chart are the lesson; do not repeat the same
@@ -835,7 +835,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   previous.disabled=stage===0;next.disabled=stage===8;
  }
  function nextStage(fromInstructor=false){
-  if(creditBusy){mark('Finish confirming your Question Pass first.');return}
+  if(creditBusy){mark('Finish confirming your Lantern Sparks first.');return}
   if(stage===3&&!predictionLocked){mark('Lock your prediction before continuing.');return}
   if(stage===4&&!practiceResolved){mark('Complete the guided practice or record your self-study response before continuing.');return}
   if(stage===6&&!selfReview){mark('Complete the reflection before continuing.');return}
