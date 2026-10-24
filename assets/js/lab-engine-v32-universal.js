@@ -812,7 +812,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   }
   // Coach the member through one protected evidence field at a time. This
   // shortcut never grades or submits anything and preserves the form's IDs.
-  if([2,3,4,6,7,8].includes(stage)){
+  if([3,4,6,7,8].includes(stage)){
    const prompt=button('Record your observation',()=>{
     document.dispatchEvent?.(new CustomEvent('gu-v33-open-evidence',
      {detail:{stage}}));
