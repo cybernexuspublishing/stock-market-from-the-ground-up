@@ -34,14 +34,14 @@ async function rpc(env,name,argumentsObject){
    method:'POST',headers:credentials(secret),cache:'no-store',signal:controller.signal,
    body:JSON.stringify(argumentsObject)
   });
-  if(!r.ok)throw deny('Question Pass ledger is not ready. No credit was charged.',503);
+  if(!r.ok)throw deny('Question Pass ledger could not be confirmed. Check your wallet before retrying.',503);
   const obj=await r.json();
   if(!obj||typeof obj!=='object'||Array.isArray(obj))
    throw deny('Question Pass ledger response is invalid.',503);
   return obj;
  }catch(error){
   if(error?.status)throw error;
-  throw deny('Question Pass ledger is unavailable. No credit was charged by this request.',503);
+  throw deny('Question Pass request status could not be confirmed. Check your wallet before retrying.',503);
  }finally{clearTimeout(timer)}
 }
 async function bookAuthorized(env,request,labId){
@@ -108,7 +108,7 @@ export async function onRequest({request,env}){
   return reply({ok:true,action,alreadyUsed:spent.alreadyUsed===true,balance:spent.balance,
    studyOnly:true,assessed:false});
  }catch(e){
-  return reply({ok:false,error:e?.status===503?'Question Pass service is unavailable. No new credit was charged.':
+  return reply({ok:false,error:e?.status===503?'Question Pass service is unavailable. Check your wallet for the current balance.':
    String(e.message||'Question Pass unavailable.').slice(0,180)},e?.status||500);
  }
 }
