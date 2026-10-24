@@ -64,7 +64,7 @@ function evidence(workbench,mode){
  workbench.classList.add('gu-v33-evidence-workbench');
  workbench.querySelector(':scope > summary').textContent='Your decision and reflection · One question at a time';
  const fields=[
-  {id:'ev-structure',title:'1. What has price actually done?',tip:'Record the visible structure or price behavior. Do not infer an unseen candle.'},
+  {id:'ev-structure',title:'1. Reconstruct and evaluate price action at the exact pause',tip:'Use only completed candles actually displayed. Classify observable higher highs/higher lows, lower highs/lower lows, a range, a single-candle signal, or insufficient evidence. Cite prices and candle times supporting your classification, distinguish wick extremes from closes, explain a competing interpretation, and identify anything you cannot verify. Never invent a missing candle or imply that a pattern predicts the next move.'},
   {id:'ev-location',title:'2. Where is price relative to the reference?',tip:'Identify the relevant level, support/resistance zone, VWAP, or EMA if applicable.'},
   {id:'ev-volume',title:'3. What can the volume establish?',tip:'Describe the completed volume evidence. Write N/A when it is not part of this exercise.'},
   {id:'ev-invalidation',title:'4. What would change your interpretation?',tip:'State a specific invalidation condition using evidence that would become observable.'},
@@ -83,7 +83,19 @@ function evidence(workbench,mode){
   step.dataset.field=entry.id;step.hidden=true;
   step.append(make('p','Talia asks:','gu-v33-evidence-instructor'));
   step.append(make('h3',entry.title));
-  if(mode!=='blind'&&mode!=='assessment')step.append(make('p',entry.tip,'gu-v33-evidence-tip'));
+  if(mode!=='blind'&&mode!=='assessment'){
+   step.append(make('p',entry.tip,'gu-v33-evidence-tip'));
+   if(entry.id==='ev-structure'){
+    const criteria=make('ol',undefined,'gu-v33-structure-checkpoints');
+    for(const statement of [
+     'Describe the completed candles available at the pause, identifying candle times and price levels where visible.',
+     'Evaluate the sequence of observed highs, lows and closes: advancing, declining, ranging, or indeterminate.',
+     'Identify supporting evidence and an alternative reading; distinguish intrabar wicks from confirmed closes.',
+     'State what is unknown rather than filling in an unseen candle, breakout, or reversal.'
+    ])criteria.append(make('li',statement));
+    step.append(criteria);
+   }
+  }
   if(entry.id==='ev-decision'){
    const grid=field.closest('.form-grid');if(grid)step.append(grid);
   }else{
