@@ -122,7 +122,7 @@ const lesson=ctx.GroundUpLabV33Instructor.create({stage:0,concept:'Construct an 
 const nodes=(n)=>[n,...(n.children||[]).flatMap(nodes)];
 const all=nodes(lesson.element),tabs=all.filter(n=>n.attrs.role==='tab');
 assert.equal(tabs.length,3,'Start stage must show Learning Objectives, Market Tutor and Question Pass Wallet tabs');
-assert.equal(tabs[2].textContent,'Lantern Sparks Wallet');
+assert.equal(tabs[2].textContent,'Crownlight Sparks Wallet');
 assert.equal(typeof lesson.setWalletContent,'function');
 assert.equal(tabs[0].textContent,'Review your learning objectives');
 assert.equal(tabs[1].textContent,'Ask Market Tutor about this concept');
@@ -135,7 +135,7 @@ assert.equal(tabs[1].attrs['aria-selected'],'true');
 assert.equal(all.filter(n=>n.attrs.role==='tabpanel'&&!n.hidden).length,1);
 const startDialogue=all.find(n=>n.className==='gu-v33-instructor-dialogue');
 assert(startDialogue?.hidden===true,'Start must introduce objectives without a question');
-const fakeWallet=new Element('section');fakeWallet.textContent='Your available Lantern Sparks balance';
+const fakeWallet=new Element('section');fakeWallet.textContent='Your available Crownlight Sparks balance';
 lesson.setWalletContent(fakeWallet);
 tabs[2].handlers.click();assert.equal(tabs[2].attrs['aria-selected'],'true');
 assert(all.some(n=>n===fakeWallet),'Wallet content must appear in the third panel');
