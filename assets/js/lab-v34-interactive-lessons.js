@@ -250,7 +250,9 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
   const plan=found||lessons.candle.all;
   return {...plan,title:bridge.title+' — '+key,
    script:[...bridge.tabs[key].filter(x=>typeof x==='string'),
-    ...(key==='apply'?(quantitativeWork[bridge.mappedGuideCode]||[]):[])].join('\n\n'),
+    ...(key==='apply'?(bridge.relatedCompetencies||[])
+     .filter(code=>Array.isArray(quantitativeWork[code]))
+     .slice(0,3).flatMap(code=>quantitativeWork[code]):[])].join('\n\n'),
    concept:subject,type,feature:key,verifiedHistory:false,
    sourceStatus:bridge.sourceStatus,editorialFallback:false};
  }
