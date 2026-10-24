@@ -40,6 +40,7 @@ assert(teaching.referenceIntro('vwap').steps.join(' ').includes('$10.75'));
 const instructor=read('assets/js/lab-v33-instructor.js');
 assert(instructor.includes('referenceIntro?.(lessonContext.visualType)'),'Intro must be drawn from owner reference');
 assert(instructor.includes("'Worked example: '+plan.example"),'A button must show an example before prompting');
+assert(instructor.includes('...exact.steps.map'),'The first chart focus must teach every approved numbered step before asking the member');
 const engine=read('assets/js/lab-engine-v32-universal.js');
 assert(engine.includes('hero.append(chart,coach)'),'The visual demonstration must precede Talia');
 assert(engine.includes('first?.click()'),'Start the teaching sequence when visual lesson opens');
