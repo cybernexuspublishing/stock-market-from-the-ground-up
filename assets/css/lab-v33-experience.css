@@ -281,3 +281,138 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-next-step:focus-visible{
  outline:3px solid #adeafa;outline-offset:2px
 }
+
+/* v3.4.2 — compact simultaneous-view workbench.
+ * The v3.2 order is unchanged: illustration first, Talia immediately below.
+ * Shrink the default visual rather than cutting examples or moving Talia away.
+ * "Expand visual" is an explicit, reversible accessibility affordance.
+ */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson{
+  max-width:1100px;
+  margin-inline:auto;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic{
+  padding:10px 12px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-head{
+  margin-bottom:4px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-source{
+  margin:4px 0 7px!important;font-size:.75rem!important;line-height:1.35!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-interactive-tools{
+  padding:4px 0 7px;margin:5px 0 6px;gap:5px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-single{
+  max-width:575px;margin:2px auto 5px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-single svg{
+  max-height:240px;max-width:100%;width:auto;height:auto;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference-layout{
+  max-width:890px;margin:4px auto 6px;
+  grid-template-columns:minmax(0,2fr) minmax(190px,.78fr);
+  gap:9px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart svg{
+  max-height:260px;max-width:100%;width:auto;height:auto;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics{
+  grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:5px 0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics>div{
+  padding:5px 7px;gap:0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics>div span{
+  font-size:.7rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics>div strong{
+  font-size:.87rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-takeaway{
+  margin:5px 0 0;padding:5px 8px;font-size:.77rem!important;line-height:1.35!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-legend{
+  margin:5px 0 0;gap:4px 12px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference{
+  padding:9px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-reference-row{
+  padding:4px 0;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor{
+  margin:7px 0 10px!important;padding:10px 12px!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-narration{
+  min-height:0!important;max-height:none!important;overflow:visible!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-reserve{
+  min-height:0!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-typing,
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-reserve{
+  padding:9px 12px!important;line-height:1.53;font-size:.94rem;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-head{
+  margin-bottom:5px;padding-bottom:5px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v34-topic-tools{
+  padding:4px 0 6px;gap:5px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-dialogue{
+  margin:5px 4px 7px!important;padding:9px 10px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-v33-instructor-dialogue textarea{
+  min-height:62px!important;height:66px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-view-size{
+  min-height:30px;padding:5px 9px;font-size:.76rem;border:1px solid #64869a;
+  border-radius:7px;background:#16364c;color:#e7f5fc;cursor:pointer;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-view-size:focus-visible{
+  outline:3px solid #b2e9ff;outline-offset:2px;
+}
+/* Full-size zoom is deliberately opt-in; the approved lesson content is
+ * unchanged and a second click returns directly to compact study mode. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-expanded-visual .gu-l33-single{
+  max-width:none;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-expanded-visual .gu-l33-single svg,
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-expanded-visual .gu-l33-chart svg{
+  max-height:none;width:100%;max-width:920px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-expanded-visual .gu-l33-chart-reference-layout{
+  max-width:none;
+}
+@media(max-width:840px){
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference-layout{
+   grid-template-columns:minmax(0,1fr) minmax(135px,.55fr);
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics{
+   grid-template-columns:repeat(4,minmax(0,1fr));
+ }
+}
+@media(max-width:580px){
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic{
+   padding:8px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference-layout{
+   grid-template-columns:1fr;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference{
+   padding:7px 9px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference .gu-l33-reference-values{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-single svg{
+   width:100%;max-height:195px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart svg{
+   width:100%;max-height:220px;
+ }
+}
