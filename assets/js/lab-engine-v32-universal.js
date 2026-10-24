@@ -372,7 +372,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
-    onAnswer:receiveInstructorAnswer,onCreditAction:stage===4?handleQuestionPass:undefined,
+    onAnswer:receiveInstructorAnswer,onCreditAction:stage===4&&special&&['F2-C07-L01','F2-C07-L02','F3-C06-L01'].includes(labId)?handleQuestionPass:undefined,
     onComplete:()=>{if(stage<8)nextStage(true)},
     onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
    });
