@@ -28,12 +28,14 @@ let cache=null;
 async function catalog(){
  if(!cache)cache=Promise.all([
   fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Curriculum map unavailable');return r.json()}),
-  fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Study guide unavailable');return r.json()})
- ]).then(([paths,study])=>{
+  fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Study guide unavailable');return r.json()}),
+  fetch('/data/labs.json',{cache:'force-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[])
+ ]).then(([paths,study,authored])=>{
   const guides=study.guides||[];
   if(paths.totalCanonicalLabs!==419||Object.keys(paths.byLab||{}).length!==419||guides.length!==30||
    new Set(guides.map(x=>x.code)).size!==30)throw Error('Curriculum or competency register mismatch');
-  return {byLab:paths.byLab,guides:new Map(guides.map(x=>[x.code,x]))};
+  const knownTopics=new Map((Array.isArray(authored)?authored:[]).filter(x=>x&&typeof x.id==='string'&&typeof x.concept==='string').map(x=>[x.id,x.concept]));
+  return {byLab:paths.byLab,guides:new Map(guides.map(x=>[x.code,x])),knownTopics};
  }).catch(e=>{cache=null;throw e});
  return cache;
 }
@@ -123,14 +125,25 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  const kind=root.GroundUpLabEngineV32?.kindFor?.(labId)||'general';
  const special=synthetic[kind]||null;
  const subject=root.GroundUpLabEngineV32?.lessons?.[kind]||null;
- const topic=String(lab?.concept||item.title||labId);
+ // Some unreviewed curriculum paths use the Lab ID as a placeholder title.
+ // IDs remain valid cross-references but must not become lesson narration.
+ const meaningfulTitle=value=>{
+  const candidate=typeof value==='string'?value.trim():'';
+  return candidate&&candidate!==labId&&!/^(?:F[1-3]|DT|TAPE|SITE)-C\d+-L\d+$/i.test(candidate)&&
+   !/^(?:concept title pending|untitled|unknown|lab id only)/i.test(candidate)?candidate:'';
+ };
+ const authorTopic=meaningfulTitle(map.knownTopics.get(labId));
+ const topic=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)||
+  meaningfulTitle(guide.title)||meaningfulTitle(lab?.chapterTitle)||'Market evidence and decision-making';
+ const topicSource=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)?'authored':'competency';
+
  const visualType=root.GroundUpLabV33Contextual?.select?.({lab,topic,competencies:codes})||'none';
  const authorizedTeaching=lab?.teaching&&typeof lab.teaching==='object'?lab.teaching:{};
  const ownHow=Array.isArray(authorizedTeaching.how)?authorizedTeaching.how.filter(s=>typeof s==='string'&&s.trim()).slice(0,20):[];
  const ownQuestions=Array.isArray(authorizedTeaching.questions)?authorizedTeaching.questions.filter(s=>typeof s==='string'&&s.trim()).slice(0,5):[];
  const shell=el('section');shell.className='card gu-v32 gu-v33';
  shell.setAttribute('aria-label','Advanced learning journey');
- const heading=el('h2','Learning Journey — '+(subject?.name||guide.title));
+ const heading=el('h2','Learning Journey — '+topic);
  const disclosure=el('details');disclosure.className='gu-v33-source-note';
  disclosure.append(el('summary','About lesson data and assessment integrity'),
   el('p','Examples may use clearly labeled fictional market data. Historical evidence requires an approved source. Independent assessments and account progress are handled by the authorized member services.'));
@@ -297,8 +310,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   // on independent decisions, without an inline AI request path.
   if(![3,5].includes(stage)&&root.GroundUpLabV33Instructor?.create){
    const instructor=root.GroundUpLabV33Instructor.create({
-    stage,subject:tutorTopic||'observable market evidence',concept:topic,
-    lessonContext:{visualType,guide,subject,teaching:authorizedTeaching},
+    stage,subject:topic,concept:topic,
+    lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
