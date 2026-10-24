@@ -282,8 +282,7 @@ function lesson(input={}){
  if(stage===0)blocks=[
   'Here is what you will learn and demonstrate in this lesson:',
   ...outcomes.map((outcome,index)=>(index+1)+'. '+outcome),
-  'First, understand this: '+base.explanation[0],
-  'Here is why the distinction matters: '+base.explanation[1]
+  'We will begin with definitions and a visual demonstration on the Learn screen. You do not need to know these terms or answer questions yet.'
  ];
  else if(stage===1)blocks=[...(focus?[focus]:[]),...base.explanation,...extra,
   ...(caseStudy?.steps?.length?['We will apply this method to a separate fictional worked case.']:[])];
