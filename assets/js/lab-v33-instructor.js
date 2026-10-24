@@ -284,11 +284,12 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   }
  }
  paintQuestion();
- interaction.append(memberQuestion,counter,prompt,reflection,submitReflection,suggestions,reply);
- // Start is orientation only. Learn teaches before any optional concept check.
- // Retain the accessible answer form for the explicit Check My Understanding action.
+ // Keep the suggested conversational questions available OUTSIDE the
+ // concealed assessment-response form, so learners can always ask Talia
+ // for an explanation without opening Check My Understanding.
+ interaction.append(counter,prompt,reflection,submitReflection);
  interaction.hidden=stage===0||stage===1;
- transcript.append(interaction);
+ transcript.append(memberQuestion,interaction,suggestions,reply);
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
   featureLesson=null;featurePhase=0;understandingMode=false;
