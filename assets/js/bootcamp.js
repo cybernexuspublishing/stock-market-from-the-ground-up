@@ -54,10 +54,14 @@
     lab:{
      id:first,concept:d.title,goal:d.objective,
      teaching:{
+      // Each day uses its own approved content, not a generic 30-day
+      // explanation or an invented 31st official competency.
       what:d.objective,
-      why:'This skill connects the Bootcamp day to evidence-led, repeatable decisions.',
+      why:d.caution||d.observe,
       when:d.observe,
       how:[d.observe,d.practice].filter(Boolean),
+      commonError:checkpoint?.commonMistake||d.caution,
+      limitation:d.caution,
       questions:[checkpoint?.question].filter(Boolean)
      }
     }
