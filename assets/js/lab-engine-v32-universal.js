@@ -639,7 +639,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      if(worked.length){
       const work=el('section');work.className='gu-v35-chart-worked';
       work.setAttribute('aria-label','Interactive worked example on the chart');
-      const label=el('h4','Worked example — follow the candle');work.append(label);
+      const label=el('h4','Worked example — different fictional case');work.append(label);
       const counter=el('p');counter.className='gu-v35-worked-counter';
       const script=el('p');script.className='gu-v35-worked-script';
       const actions=el('div');actions.className='gu-v35-worked-controls';
