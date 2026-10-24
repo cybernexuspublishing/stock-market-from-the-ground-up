@@ -14,6 +14,12 @@ const h=readFileSync('bootcamp.html','utf8'),b=readFileSync('assets/js/bootcamp.
 const instructor=readFileSync('assets/js/lab-v33-instruction-content.js','utf8');
 const sourceCases=JSON.parse(readFileSync('data/bootcamp-source-cases-v014166.json','utf8'));
 const bootcampCss=readFileSync('assets/css/bootcamp.css','utf8');
+const build=readFileSync('scripts/build-pages.sh','utf8');
+assert(build.includes('bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json'),
+ 'Cloudflare Pages must actually copy both member Boot Camp JSON assets into the public build');
+assert(build.includes('test -s "$output/data/bootcamp-source-cases-v014166.json"'),
+ 'An incomplete teaching-data build must fail closed rather than silently omit source cases');
+
 assert(bootcampCss.includes('body.gu-bc-learning main.section>.wrap')&&
  bootcampCss.includes('max-width:2180px!important'),
  'Boot Camp must not inherit the narrow generic article container at desktop width');
