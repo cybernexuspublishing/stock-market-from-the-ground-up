@@ -14,9 +14,27 @@ const $=(tag,text,cls)=>{
 };
 function enhance(view,options){
  const type=options.type;
- if(!view||!['candle','structure','vwap','ema','volume'].includes(type))return view;
+ if(!view||!['candle','structure','vwap','ema','volume','tape','depth','routing'].includes(type))return view;
  const svg=view.querySelector('svg');
- if(!svg)return view;
+ const announce=(feature)=>{
+  if(typeof CustomEvent==='function')view.dispatchEvent?.(new CustomEvent('gu-v34-visual-focus',{
+   bubbles:true,detail:{type,feature}
+  }));
+ };
+ if(!svg){
+  // Tape, Level II and routing diagrams participate in the same teaching
+  // controller even though they do not use an SVG candlestick renderer.
+  const actions=document.createElement('div');actions.className='gu-l33-interactive-tools';
+  actions.setAttribute('role','group');actions.setAttribute('aria-label','Teach this visual');
+  const focus=type==='tape'?'prints':type==='depth'?'quotes':'order';
+  const button=document.createElement('button');button.type='button';
+  button.className='gu-l33-view-btn';
+  button.textContent=type==='tape'?'Read a completed trade print':type==='depth'
+   ?'Read the best bid and ask':'Trace the order lifecycle';
+  button.addEventListener('click',()=>announce(focus));
+  actions.append(button);view.insertBefore(actions,view.firstChild);
+  return view;
+ }
  const tools=$('div',undefined,'gu-l33-interactive-tools');
  tools.setAttribute('role','group');
  tools.setAttribute('aria-label','Interactive visual study controls');
@@ -64,13 +82,13 @@ function enhance(view,options){
   };
   const names={all:'Full candle',open:'Open',close:'Close',high:'High',low:'Low',body:'Real body',range:'Full range',percent:'Body percentage'};
   for(const key of keys){
-   const b=button(names[key],()=>set(key));
+   const b=button(names[key],()=>{set(key);announce(key)});
    b.dataset.studyFocus=key;
    b.setAttribute('data-teaching-feature',key);
   }
   if(worked){
    const next=$('button','Next highlight →','gu-l33-view-btn gu-l33-next-teaching');
-   next.type='button';next.addEventListener('click',()=>set(keys[(keys.indexOf(selected)+1)%keys.length]));
+   next.type='button';next.addEventListener('click',()=>{const key=keys[(keys.indexOf(selected)+1)%keys.length];set(key);announce(key)});
    tools.append(next);
   }
   set('all');
@@ -102,7 +120,7 @@ function enhance(view,options){
   const views=vwap?[['Price','price'],['Price + VWAP','both'],['Volume','volume']]
    :[['Price + indicators','price'],['Price + volume','volume'],['Both','both']];
   for(const [label,key] of views){
-   const b=button(label,()=>set(key));b.dataset.view=key;
+   const b=button(label,()=>{set(key);announce(key)});b.dataset.view=key;
   }
   set('both');
   const rows=Array.from(view.querySelectorAll('details table tbody tr'));
