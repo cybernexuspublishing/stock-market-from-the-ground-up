@@ -50,3 +50,14 @@
 .gu-founders-page[data-f600-density="compact"] .gu-f600-forum-grid{gap:8px}
 .gu-founders-page[data-f600-density="compact"] .gu-f600-forum p{line-height:1.32}
 @media(max-width:720px){.gu-f600-preference-grid{grid-template-columns:1fr}}
+
+
+/* Founder Learning Blueprint: educational evidence, not trading performance. */
+.gu-f600-blueprint{margin:25px 0}
+.gu-f600-blueprint-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.gu-f600-blueprint-item{min-width:0;padding:17px;border-radius:12px;border:1px solid #355878;background:#142c46}
+.gu-f600-blueprint-item h3{color:#f7fbff;margin:8px 0;font-size:1.05rem}
+.gu-f600-blueprint-item p{font-size:.87rem;line-height:1.45;color:#d3e2f0}
+.gu-f600-blueprint-note{grid-column:1/-1;color:#bdd5ec;font-size:.82rem}
+@media(max-width:1000px){.gu-f600-blueprint-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.gu-f600-blueprint-grid{grid-template-columns:1fr}}
