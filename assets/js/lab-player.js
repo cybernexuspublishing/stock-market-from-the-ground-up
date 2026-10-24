@@ -11,6 +11,8 @@ function labTopic(lab){
    !/^(?:concept title pending|unknown|untitled)/i.test(t);
  })?.trim()||'';
  const authored=title(lab?.concept,lab?.title);
+ if(/construct (?:an? )?(?:up\s*\/\s*)?bullish candle/i.test(authored))return 'Bullish Candle';
+ if(/construct (?:an? )?(?:down\s*\/\s*)?bearish candle/i.test(authored))return 'Bearish Candle';
  if(authored)return authored;
  const skill=title(lab?.skill);
  if(skill)return 'Competency study — '+skill;
