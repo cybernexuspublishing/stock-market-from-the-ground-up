@@ -125,11 +125,12 @@ try{
  await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
  await page.locator('#academy-enroll').click();
  await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.disabled===true);
- await page.waitForFunction(()=>document.querySelector('#academy-save-status')!==null);
+ for(let i=0;i<40&&!release;i++)await new Promise(resolve=>setTimeout(resolve,25));
+ assert.equal(typeof release,'function','Enrollment POST must be in flight before the account switch');
  await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
  await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
  assert.equal(await page.locator('#academy-reflection').inputValue(),'');
- assert.equal(typeof release,'function','The delayed previous-member enrollment was never intercepted');
+
  const response=page.waitForResponse(r=>r.url().includes('/api/bootcamp-academy')&&r.request().method()==='POST');
  release();await response;
  await page.waitForTimeout(75);
