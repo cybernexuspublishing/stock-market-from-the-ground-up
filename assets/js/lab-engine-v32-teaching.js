@@ -38,7 +38,7 @@ function mount({labId,mode,target}){
  const kind=TYPES[labId];if(!kind||!['guided','practice'].includes(mode)){target.replaceChildren();return false}
  const m=lessons[kind],box=document.createElement('section');box.className='card gu-v32';box.setAttribute('aria-label','Lab Engine v3.2 reference teaching');
  const title=document.createElement('h2');title.textContent='Lab Engine v3.2 · '+m.name;box.append(title);
- const scope=document.createElement('p');scope.textContent='Fictional, ungraded teaching example. Official assessment, member access, real chart provenance and replay remain server controlled.';box.append(scope);
+ const scope=document.createElement('p');scope.textContent='Illustrative, ungraded teaching example. Official assessment, member access, real chart provenance and replay remain server controlled.';box.append(scope);
  const stages=['Learn','Experiment','Predict','Practice','Transfer'];
  const progress=document.createElement('p'),body=document.createElement('div'),nav=document.createElement('div'),feedback=document.createElement('p');
  progress.className='gu-v32-progress';body.className='gu-v32-body';nav.className='actions';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
@@ -57,7 +57,7 @@ function mount({labId,mode,target}){
    const list=el('ol');for(const s of m.steps)list.append(el('li',s));
    details.append(list,el('p',m.error),el('p',m.limit));body.append(details);
   }else if(stage===1){
-   body.append(el('p',kind==='candle'?'Move the fictional Close. Open $31.00; High $32.50; Low $30.50.':'Move the second fictional group volume. First group: 200 shares at $8; second group at $10.'));
+   body.append(el('p',kind==='candle'?'Move the illustrative Close. Open $31.00; High $32.50; Low $30.50.':'Move the second illustrative group volume. First group: 200 shares at $8; second group at $10.'));
    const label=el('label',kind==='candle'?'Close price, USD':'Second group shares');
    const slider=el('input');slider.type='range';slider.min=kind==='candle'?'30.5':'50';slider.max=kind==='candle'?'32.5':'500';slider.step=kind==='candle'?'0.05':'50';slider.value=String(kind==='candle'?close:volume);
    label.append(slider);const output=el('output');output.className='gu-v32-output';body.append(label,output);
@@ -72,7 +72,7 @@ function mount({labId,mode,target}){
   }else if(stage===3){
    body.append(el('p','Explain the formula, calculate the result, and identify what it cannot establish.'));
    body.append(action('Explain This Concept',()=>{feedback.textContent=m.steps.join(' ')}));
-   body.append(action('Show a worked teaching example',()=>{exposed=true;feedback.textContent='Study Only — ';feedback.textContent+=kind==='candle'?'Fictional $31 open and $32 close: $1 body. $32.50 high and $30.50 low: $2 range, so 50%.':'Fictional 200 shares at $8 and 100 at $10: $2,600 in traded dollars ÷ 300 shares = $8.67.'}));
+   body.append(action('Show a worked teaching example',()=>{exposed=true;feedback.textContent='Study Only — ';feedback.textContent+=kind==='candle'?'Illustrative $31 open and $32 close: $1 body. $32.50 high and $30.50 low: $2 range, so 50%.':'Illustrative 200 shares at $8 and 100 at $10: $2,600 in traded dollars ÷ 300 shares = $8.67.'}));
    if(exposed)feedback.textContent='This worked example is Study Only. It does not reveal a private assessment answer.';
   }else{
    body.append(el('p',m.transfer),el('p','Apply this idea only to observations available at the historical Lab pause. Continue to the existing evidence and authenticated assessment controls.'));
