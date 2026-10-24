@@ -24,3 +24,17 @@ html[data-gu-design] :focus-visible{outline:3px solid var(--gu-design-focus);out
 .gu-member-side-menu a:hover,.gu-member-side-menu summary:hover{background:#234052}
 .gu-member-side-menu summary{cursor:pointer}
 @media(max-width:800px){.gu-member-side-menu{width:100%;min-height:auto;flex:auto}.gu-design-picker fieldset{flex-direction:column}}
+
+/* Owner-selected sidebar treatment and compact page-level top navigation. */
+.admin-sidebar nav a,.admin-sidebar nav button{border-radius:8px;transition:background-color .14s ease,border-color .14s ease}
+.admin-sidebar nav .active,.admin-sidebar nav [aria-current="page"]{background:#234551;border-left:3px solid #e3b64b}
+.site-header .navlinks{align-items:center;gap:clamp(9px,1.3vw,20px)}
+.site-header .navlinks a{display:inline-flex;min-height:40px;align-items:center;padding:7px 10px;border-radius:7px}
+.site-header .navlinks a:hover,.site-header .navlinks a:focus-visible{background:rgba(129,163,181,.12)}
+.gu-v33-instructor{position:relative;min-width:0}
+@media(min-width:1050px){
+ #gu-v32-teaching-slot .gu-v33-instructor{position:sticky;top:85px;align-self:start}
+}
+#gu-v32-teaching-slot .gu-v33-instructor-head{min-height:48px}
+#gu-v32-teaching-slot .gu-v33-instructor-narration{overflow:auto;max-height:min(40vh,340px);scrollbar-gutter:stable}
+@media(prefers-reduced-motion:reduce){.admin-sidebar nav a,.admin-sidebar nav button{transition:none}}
