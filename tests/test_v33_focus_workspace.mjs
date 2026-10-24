@@ -22,7 +22,8 @@ assert(engine.includes('heading.hidden=stage===0'),'No separate Start title abov
 assert(flow.includes('Reconstruct and evaluate price action at the exact pause'),'Prompt must require structured price evidence');
 assert(flow.includes('gu-v33-structure-checkpoints'),'The richer question must offer guided evidence checkpoints');
 assert(player.includes('GroundUpLabV33WorkspaceFlow?.mount?.({mode})'),'Production Lab must activate shared reference tabs and wizard');
-assert(engine.includes('shell.insertBefore(setup,heading)'),'Historical Lab Setup must precede the Start heading');
+assert(engine.includes('instructorInstance.setStartSetup(setup)'),
+ 'Historical Lab Setup must appear within the instructor header on Start');
 assert(engine.includes('gu-v35-chart-worked'),'Worked examples must be integrated into the illustrated candle or chart, one step at a time');
 assert(engine.includes('Start Guided Learning →'),'Main action must use the owner-approved professional label');
 assert(engine.includes("button('Ask Market Tutor',()=>instructorInstance?.openTutor?.())"),'Market Tutor must be alongside primary Start action');
@@ -44,6 +45,18 @@ assert(instructor.includes('Real body = |Close − Open|. Full range = High − 
  'Talia must narrate the real-body and full-range formulas');
 assert(instructor.includes('gu-v33-instructor-suggestions'),
  'The instructor must expose contextual clickable chat suggestions');
+assert(engine.includes('if(current===0||current===1)return []'),
+ 'Neither Start nor untaught Learn may ask general lesson questions');
+assert(instructor.includes('interaction.hidden=stage===0||stage===1'),
+ 'The answer dialogue must remain hidden until explicitly checking understanding');
+assert(instructor.includes('interaction.hidden=false;'),
+ 'Check My Understanding must reveal the in-window question');
+assert(engine.includes("chart.querySelector('.gu-l33-interactive-tools [data-view=\"both\"]')"),
+ 'VWAP must be visible at the beginning of the Learn demonstration');
+assert(!engine.includes('body.insertBefore(actions,hero.nextSibling)'),
+ 'The four instructional buttons must never be moved below the instructor');
+assert(css.includes('gu-v33-instructor-dialogue[hidden]'),
+ 'Visually hidden Start and pre-check prompts must not occupy space');
 assert(css.includes('.gu-v33-reference-tablist')&&css.includes('[aria-selected="true"]'),'Historical references need selected state');
 assert(css.includes('.gu-v33-evidence-step[hidden]'),'Inactive evidence questions should remain concealed');
 for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-decision','ev-notes','lock-decision'])
@@ -91,6 +104,8 @@ tabs[1].handlers.click();
 assert.equal(tabs[0].attrs['aria-selected'],'false');
 assert.equal(tabs[1].attrs['aria-selected'],'true');
 assert.equal(all.filter(n=>n.attrs.role==='tabpanel'&&!n.hidden).length,1);
+const startDialogue=all.find(n=>n.className==='gu-v33-instructor-dialogue');
+assert(startDialogue?.hidden===true,'Start must introduce objectives without a question');
 const fakeWallet=new Element('section');fakeWallet.textContent='Your available Question Pass balance';
 lesson.setWalletContent(fakeWallet);
 tabs[2].handlers.click();assert.equal(tabs[2].attrs['aria-selected'],'true');
@@ -104,6 +119,12 @@ const learn=ctx.GroundUpLabV33Instructor.create({
  stage:1,concept:'Candlestick Construction',lessonContext:{visualType:'candle'}
 });
 const learnNodes=nodes(learn.element);
+const learnDialogue=learnNodes.find(n=>n.className==='gu-v33-instructor-dialogue');
+assert(learnDialogue?.hidden===true,'Learn must teach before requiring a response');
+const openCheck=learnNodes.find(n=>n.tagName==='button'&&n.textContent==='Check my understanding');
+assert(openCheck,'The member must have a deliberate knowledge-check control');
+openCheck.handlers.click();
+assert(learnDialogue.hidden===false,'The explicit knowledge check must reveal the response area');
 const suggestion=learnNodes.find(n=>n.tagName==='button'&&
  n.textContent==='Talia, explain the common mistake');
 assert(suggestion&&typeof suggestion.handlers.click==='function',
