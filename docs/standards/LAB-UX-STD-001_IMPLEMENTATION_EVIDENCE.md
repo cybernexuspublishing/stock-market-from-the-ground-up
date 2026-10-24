@@ -170,6 +170,20 @@ The original H-series decision cases are represented as **FICTIONAL STUDY EXERCI
 
 **Unclosed acceptance:** A signed-in, end-to-end browser session is still required to validate visual layout, mobile focus/order, Tutor request success, protected assessments, saving and actual database persistence. A matching deploy SHA does not prove that all Playwright jobs passed. No new Supabase SQL or billing change was introduced.
 
+## Owner-requested compact Learning v3.3 and Sign-In redesign — 2026-10-23
+
+**Owner direction:** Reduce unnecessary windows, make the instructor type more slowly without expanding the page, group Question Pass Wallet with Objectives and Market Tutor, move primary learning actions above support tabs, relocate Tutor AI-generation preference to the member Profile with default on, remove internal progress/authorization text, and expand sign-in and CAPTCHA sizing.
+
+**Implemented in production source:**
+- The instructor retains Talia Mercer and the account's first-name-only greeting. Typewriter rate is roughly 38 characters/second; the narration is presented inside a fixed-height scrolling window, with a full-text/replay control and reduced-motion behavior.
+- The Start primary buttons precede the support tabs. Objectives, Market Tutor, and Question Pass Wallet occupy three accessible adjacent tabs feeding one selected panel. The separate wallet disclosure is removed when instructor support is available.
+- The Start-only 'Related official competencies' explanatory status was removed. The redundant Lab footer text 'Educational instruction. Official assessments and progress require authorization.' was removed without relaxing any underlying authorization.
+- A Profile / Market Tutor preference is checked by default when user metadata has no explicit opt-out. It is saved through Supabase Auth user metadata (market_tutor_ai_enabled) using the existing authenticated updateUser operation, with no schema migration. Both the in-Lab Tutor and full Tutor honor the setting and do not initiate model requests until the member submits. The full Tutor continues to require confirmed server AI eligibility, daily quota and configured provider; profile opt-out prevents model generation. A notice explains that submitted questions and optional reasoning may be sent to the provider when AI is enabled.
+- Sign-in layout is wider and mobile responsive. The gold 'Sign in to My Account' button comes before the user-initiated Human Verification fieldset but stays disabled until the existing challenge is solved. The CAPTCHA fieldset is integrated into the single sign-in card and allowed adequate width; token verification and error conditions were not bypassed.
+- Existing Blind, Predict, Assessment, entitlements, historical bar boundaries and official saved progress remain unchanged.
+
+**Checks:** Source parsing of modified JavaScript passed; 20/20 targeted static implementation checks passed at source-read time. Added CI regression tests for profile preference, sign-in security, instructor typing viewport and three support tabs. An authenticated desktop/mobile acceptance test and Playwright CI run still require independent verification.
+
 ## Production acceptance gates not closed
 
 | Gate | Status | Evidence needed |
