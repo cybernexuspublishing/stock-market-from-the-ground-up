@@ -69,6 +69,9 @@ try{
   const before=await target.locator('.gu-l33-candle-readout').innerText();
   await target.locator('.gu-l33-candle-picker select').selectOption('1');
   const after=await target.locator('.gu-l33-candle-readout').innerText();
+  assert.equal(await target.locator('.gu-l33-graphic svg').getAttribute('data-selected-index'),'1','Candle picker must select the matching plotted candle');
+  assert.equal(await target.locator('[data-candle-index="1"][data-selected="true"]').count(),1,'Exactly the chosen chart candle must be marked active');
+  assert.equal(await target.locator('.gu-l33-selected-candle[visibility="visible"]').count(),1,'Exactly one candle must have a visible outline');
   assert.notEqual(after,before,'Selecting a completed bar updates accessible OHLCV details');
   await target.getByRole('button',{name:'Price + indicators'}).click();
   assert.equal(await target.getByRole('button',{name:'Price + indicators'}).getAttribute('aria-pressed'),'true');
