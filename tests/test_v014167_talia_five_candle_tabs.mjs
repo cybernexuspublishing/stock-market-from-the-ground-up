@@ -53,6 +53,12 @@ for(const concept of ['Bullish Candle','Bearish Candle']){
   assert(applied.includes('37.5%'));
  }
 }
+assert(instructor.includes('referenceSteps=[...exact.steps]')&&
+ instructor.includes('displayReferenceStep(referenceIndex+1)')&&
+ instructor.includes('stepToolbar.hidden=false'),
+ 'The full-candle example must be taught in individually navigable steps');
+assert(css.includes('.gu-v40-instructor-steps')&&css.includes('.gu-v40-instructor-steps[hidden]'),
+ 'Single-step teaching controls must be styled and concealed outside the worked walkthrough');
 assert(instructor.includes('custom?.narration||plan.script||'),
  'Authored tab narration must precede generic fallback');
 assert(instructor.includes("candleFormula&&!plan.script"),
