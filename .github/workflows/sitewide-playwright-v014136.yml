@@ -31,6 +31,32 @@ jobs:
           test ! -e public/data/interactive-labs.json
           test ! -d public/supabase
           test ! -d public/functions
+      - name: Verify all 419 authorized universal Lab study bridges
+        run: |
+          node tests/test_v014162_419_universal.mjs
+          node tests/test_v33_workstation_source_contract.mjs
+          node tests/test_v32_prototype_exact_fidelity.mjs
+          node tests/test_v32_member_reference_integrity.mjs
+          node tests/test_v32_reference_route_boundary.mjs
+          node tests/test_v33_production_dropdown_and_start.mjs
+          node tests/test_lab_ux_std001.mjs
+          node tests/test_v33_approved_learning_redesign.mjs
+          node tests/test_lab_v33_instructor.mjs
+          node tests/test_v33_focus_workspace.mjs
+          node tests/test_v34_unified_curriculum.mjs
+          node tests/test_v014167_talia_five_candle_tabs.mjs
+          node tests/test_v014168_419_teaching_bridges.mjs
+          node tests/test_v014168_academy_family.mjs
+          node tests/test_v014170_academy_member_contract.mjs
+          node tests/test_v35_chart_tutor_integration.mjs
+          node tests/test_v32_reference_source_fidelity.mjs
+          node tests/test_v33_grading_display.mjs
+          node tests/test_lab_v33_historical_setup_metadata.mjs
+          node tests/test_v33_learning_profile_signin.mjs
+          node tests/test_v33_member_first_name.mjs
+          node tests/test_v33_teaching_content_quality.mjs
+          node tests/test_v014162_lab_player_context.mjs
+          node tests/test_lab_content_access_recovery.mjs
       - name: Install pinned Chromium browser test runner
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
@@ -68,32 +94,6 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014145_research_scanner_browser.mjs
-      - name: Verify all 419 authorized universal Lab study bridges
-        run: |
-          node tests/test_v014162_419_universal.mjs
-          node tests/test_v33_workstation_source_contract.mjs
-          node tests/test_v32_prototype_exact_fidelity.mjs
-          node tests/test_v32_member_reference_integrity.mjs
-          node tests/test_v32_reference_route_boundary.mjs
-          node tests/test_v33_production_dropdown_and_start.mjs
-          node tests/test_lab_ux_std001.mjs
-          node tests/test_v33_approved_learning_redesign.mjs
-          node tests/test_lab_v33_instructor.mjs
-          node tests/test_v33_focus_workspace.mjs
-          node tests/test_v34_unified_curriculum.mjs
-          node tests/test_v014167_talia_five_candle_tabs.mjs
-          node tests/test_v014168_419_teaching_bridges.mjs
-          node tests/test_v014168_academy_family.mjs
-          node tests/test_v014170_academy_member_contract.mjs
-          node tests/test_v35_chart_tutor_integration.mjs
-          node tests/test_v32_reference_source_fidelity.mjs
-          node tests/test_v33_grading_display.mjs
-          node tests/test_lab_v33_historical_setup_metadata.mjs
-          node tests/test_v33_learning_profile_signin.mjs
-          node tests/test_v33_member_first_name.mjs
-          node tests/test_v33_teaching_content_quality.mjs
-          node tests/test_v014162_lab_player_context.mjs
-          node tests/test_lab_content_access_recovery.mjs
       - name: Verify Bootcamp 30-day shared v3.2 journey
         run: node tests/test_v014162_bootcamp_v32.mjs
       - name: Verify approved Lab Engine v3.2 source boundaries
