@@ -101,12 +101,47 @@ function enhance(view,options){
    const chooser=$('select');chooser.setAttribute('aria-label','Inspect a completed fictional candle');
    rows.forEach((tr,i)=>{const o=$('option','Candle '+(i+1)+' · '+(tr.cells[0]?.textContent||''));o.value=String(i);chooser.append(o)});
    const detail=$('p','','gu-l33-candle-readout');detail.setAttribute('role','status');
+   // Use the same indexed completed observation in the chart and the
+   // readout. A different candle must never be outlined after selection.
+   const plotted=Array.from(svg.querySelectorAll('[data-candle-index]'));
+   const applySelection=index=>{
+    if(!Number.isInteger(index)||index<0||index>=rows.length||index>=plotted.length)return;
+    for(const candle of plotted){
+     const selected=Number(candle.getAttribute('data-candle-index'))===index;
+     candle.setAttribute('data-selected',String(selected));
+     candle.setAttribute('aria-current',String(selected));
+     const outline=candle.querySelector('.gu-l33-selected-candle');
+     if(outline)outline.setAttribute('visibility',selected?'visible':'hidden');
+    }
+    for(const volumeBar of svg.querySelectorAll('[data-volume-index]')){
+     const selected=Number(volumeBar.getAttribute('data-volume-index'))===index;
+     volumeBar.style.stroke=selected?'#f5d575':'';
+     volumeBar.style.strokeWidth=selected?'3':'';
+    }
+    for(const timeLabel of svg.querySelectorAll('[data-time-index]')){
+     const selected=Number(timeLabel.getAttribute('data-time-index'))===index;
+     timeLabel.style.fill=selected?'#fff2b7':'#bed2e1';
+     timeLabel.style.fontWeight=selected?'800':'400';
+    }
+    svg.setAttribute('data-selected-index',String(index));
+   };
    chooser.addEventListener('change',()=>{
-    const row=rows[Number(chooser.value)],cells=Array.from(row?.cells||[]).map(x=>x.textContent);
+    const index=Number(chooser.value),row=rows[index],cells=Array.from(row?.cells||[]).map(x=>x.textContent);
+    applySelection(index);
     detail.textContent=cells.length>=6
-     ?'Fictional completed interval '+cells[0]+' — Open '+cells[1]+', High '+cells[2]+
-      ', Low '+cells[3]+', Close '+cells[4]+', Volume '+cells[5]+' shares.':'';
+     ?'Selected on the chart: '+cells[0]+' ET · Open '+cells[1]+', High '+cells[2]+
+      ', Low '+cells[3]+', Close '+cells[4]+', Volume '+cells[5]+' shares (fictional completed candle).':'';
    });
+   for(const group of plotted){
+    const choose=()=>{
+     const index=Number(group.getAttribute('data-candle-index'));
+     if(index>=0&&index<rows.length){chooser.value=String(index);chooser.dispatchEvent(new Event('change'));}
+    };
+    group.addEventListener('click',choose);
+    group.addEventListener('keydown',event=>{
+     if(event.key==='Enter'||event.key===' '){event.preventDefault();choose();}
+    });
+   }
    label.append(chooser);tools.append(label,detail);chooser.dispatchEvent(new Event('change'));
   }
  }
