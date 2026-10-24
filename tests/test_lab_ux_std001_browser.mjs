@@ -41,7 +41,7 @@ try{
   assert.equal(await target.locator('.instruction>h3').count(),0,'The duplicate generic What you will learn panel must be absent');
   await target.getByRole('button',{name:/Start Guided Learning/}).click();
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Learn must show single candlestick');
-  assert.match(await target.locator('.gu-l33-graphic').innerText(),/FICTIONAL/);
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/SIMULATED/);
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'Candle SVG must be built');
   assert.equal(await target.locator('button.gu-l33-view-btn').count(),9,'Worked candle must expose seven evidence features and guided next highlight');
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The lesson chart must match Talia’s fictional worked example');
@@ -77,7 +77,7 @@ try{
   assert.notEqual(after,before,'Selecting a completed bar updates accessible OHLCV details');
   await target.getByRole('button',{name:'Price'}).click();
   assert.equal(await target.getByRole('button',{name:'Price'}).getAttribute('aria-pressed'),'true');
-  assert.match(await target.locator('.gu-l33-graphic').innerText(),/FICTIONAL/);
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/SIMULATED/);
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP Experiment retains visual');
   await load('TAPE-C01-L01','What Tape Reading Is - and What It Is Not — Start with evidence, not a story');
