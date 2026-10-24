@@ -1,0 +1,35 @@
+/* Founders Commons | responsive, reduced-motion, no public data dependencies. */
+.gu-founders-page{background:radial-gradient(ellipse at 88% 0%,#172c4a 0,transparent 44%),#07121f;color:#eaf1fb;min-height:100vh}
+.gu-f600-main{padding:clamp(18px,3vw,44px) 0 72px;max-width:1320px}
+.gu-f600-main a{color:#a7d5ff}.gu-f600-breadcrumb{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px;font-size:.88rem}
+.gu-f600-hero{display:flex;align-items:end;justify-content:space-between;gap:28px;padding:clamp(22px,3vw,40px);background:linear-gradient(125deg,#16314d,#102136 70%,#20284d);border:1px solid #355475;border-radius:20px;margin-bottom:16px}
+.gu-f600-hero h1{font-size:clamp(2rem,4vw,3.6rem);letter-spacing:-.04em;margin:5px 0 10px;color:#fff}
+.gu-f600-hero p{max-width:680px;color:#cad9e9;line-height:1.55}.gu-f600-eyebrow,.gu-f600-forum-kicker{color:#8eb8e5;font-size:.75rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.gu-f600-identity{border:1px solid #527396;border-radius:14px;background:#0d2239;padding:18px 22px;display:grid;gap:8px;min-width:210px}
+.gu-f600-identity strong{color:#fff;font-size:1.25rem}.gu-f600-identity span{color:#bdd4ec;font-size:.83rem}
+.gu-f600-message{min-height:24px;color:#b7c9da}.gu-f600-access,.gu-f600-panel,.gu-f600-rules{border:1px solid #294560;background:#102239;border-radius:16px;padding:clamp(18px,2vw,26px)}
+.gu-f600-access{max-width:660px;margin:18px 0}.gu-f600-access h2{color:white}.gu-f600-access p{line-height:1.6}
+.gu-f600-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.gu-f600-metrics>div{border:1px solid #2a4967;background:#0e2137;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px}
+.gu-f600-metrics strong{font-size:1.65rem;color:#a2cbfb}.gu-f600-metrics span{font-size:.86rem;color:#cad9e9}
+.gu-f600-section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:30px 0 16px}
+.gu-f600-section-head h2,.gu-f600-panel h2,.gu-f600-rules h2{margin:5px 0;color:#fff;font-size:1.35rem}
+.gu-f600-forum-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.gu-f600-forum{padding:19px;border:1px solid #305576;border-radius:15px;background:linear-gradient(165deg,#152f4b,#102137);min-width:0;display:flex;flex-direction:column}
+.gu-f600-forum h3{font-size:1.05rem;line-height:1.3;color:#fff;margin:8px 0}.gu-f600-forum p:not(.gu-f600-forum-kicker){font-size:.86rem;color:#d0deee;line-height:1.45;flex:1}
+.gu-f600-forum-link{font-weight:650;margin-top:12px}.gu-f600-locked{opacity:.7;border-style:dashed}
+.gu-f600-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0}
+.gu-f600-panel p{color:#cdd9e8;line-height:1.55}.gu-f600-issues{margin:18px 0;display:grid;gap:8px}
+.gu-f600-issue{display:flex;justify-content:space-between;gap:14px;align-items:center;border:1px solid #30506b;padding:9px 12px;border-radius:10px}
+.gu-f600-issue div{display:grid;gap:3px}.gu-f600-issue span{font-size:.76rem;color:#bbcee0}.gu-f600-empty{color:#b7cce2}
+.gu-f600-ballot{background:#152f4b;border:1px solid #456a8f;padding:14px;border-radius:12px;margin:12px 0}
+.gu-f600-ballot h3{color:#fff;margin:0}.gu-f600-options{display:grid;gap:7px;margin:12px 0}
+.gu-f600-options label{padding:8px 12px;border:1px solid #3d5a77;border-radius:8px;cursor:pointer}
+.gu-f600-options label:focus-within{outline:2px solid #a7d5ff}
+.gu-f600-vote-status{min-height:1.6em;font-size:.88rem}
+.gu-f600-rules p{line-height:1.6;color:#d1e1f1}
+.gu-f600-main .btn{display:inline-block;margin:8px 8px 0 0;min-height:40px;text-decoration:none}
+.gu-f600-main :focus-visible{outline:3px solid #b5ddff;outline-offset:3px}
+@media(max-width:1100px){.gu-f600-forum-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.gu-f600-hero{display:block}.gu-f600-identity{margin-top:14px}.gu-f600-layout{grid-template-columns:1fr}.gu-f600-metrics{grid-template-columns:1fr}.gu-f600-forum-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.gu-f600-main *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

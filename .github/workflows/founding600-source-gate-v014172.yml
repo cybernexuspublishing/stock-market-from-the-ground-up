@@ -1,0 +1,45 @@
+name: Founding 600 Source & Security Gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  founder-source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source code and disabled checkout
+        run: |
+          node --check functions/_lib/founding600-benefit-guards-v014170.mjs
+          node --check assets/js/lab-engine-v33-visual.js
+          node --check assets/js/lab-engine-v32-universal.js
+          node --test tests/test_founding600_benefit_guards_v014170.mjs
+          node --input-type=module -e "
+            import fs from 'node:fs';
+            import assert from 'node:assert/strict';
+            const c=JSON.parse(fs.readFileSync('data/founding600-terms-v014170.json','utf8'));
+            assert.equal(c.capacity,600);
+            assert.equal(c.checkoutEnabled,false,'No paid checkout before certified production acceptance');
+            assert.equal(c.plans.FOUNDING_30.recurringCents,4999);
+            assert.equal(c.plans.FOUNDING_30.billingIntervalDays,30);
+            assert.equal(c.plans.FOUNDING_30.foundingDiscountBps,1000);
+            assert.equal(c.plans.FOUNDING_30.incSparks,5);
+            assert.equal(c.plans.FOUNDING_30.incSparksExpiryDaysAfterTermEnd,90);
+            assert.equal(c.plans.FOUNDING_60.recurringCents,5999);
+            assert.equal(c.plans.FOUNDING_60.billingIntervalDays,60);
+            assert.equal(c.plans.FOUNDING_60.foundingDiscountBps,2000);
+            assert.equal(c.plans.FOUNDING_60.incSparks,15);
+            assert.equal(c.plans.FOUNDING_60.incSparksExpiryDaysAfterTermEnd,150);
+            assert.deepEqual(c.discount.exclude,['FOUNDING_30','FOUNDING_60']);
+            assert(c.discount.eligible.includes('LIFETIME'));
+            assert.equal(c.purchasedSparksExpire,false);
+            assert.equal(c.tradingExecutionIncluded,false);
+            console.log('PASS Founding600 production-safe source contract (paid checkout remains disabled)');
+          "

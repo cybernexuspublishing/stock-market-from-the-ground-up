@@ -96,6 +96,12 @@ function enhance(view,options){
    b.setAttribute('data-teaching-feature',key);
   }
   if(worked){
+   // A free, single-click worked calculation. This highlights the SAME
+   // evidence on the plotted candle and does not consume Sparks or grade work.
+   const calculation=$('button','Show body-to-range calculation','gu-l33-calculation-btn');
+   calculation.type='button';
+   calculation.addEventListener('click',()=>{set('percent');announce('percent')});
+   tools.append(calculation);
    const next=$('button','Next highlight →','gu-l33-view-btn gu-l33-next-teaching');
    next.type='button';next.addEventListener('click',()=>{const key=keys[(keys.indexOf(selected)+1)%keys.length];set(key);announce(key)});
    tools.append(next);
