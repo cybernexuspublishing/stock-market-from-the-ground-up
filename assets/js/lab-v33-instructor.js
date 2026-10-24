@@ -619,6 +619,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const panel=el('div',undefined,'gu-v33-support-content');
  const unique='gu-v33-tab-'+String(++tabSequence);
  const walletTab=[0,1].includes(stage)?el('button','Crownlight Sparks Wallet','gu-v33-support-tab'):null;
+  if(walletTab)walletTab.classList.add('gu-v33-wallet-tab');
  const walletPane=[0,1].includes(stage)?el('section',undefined,'gu-v33-wallet-panel'):null;
  const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},
   {button:tutorTab,pane:tutor,key:'tutor'}];
