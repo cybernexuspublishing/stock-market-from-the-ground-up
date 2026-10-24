@@ -108,7 +108,9 @@ jobs:
       - name: Browser-verify LAB-UX-STD-001 chart-first curriculum and concealed assessments
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
-        run: node tests/test_lab_ux_std001_browser.mjs
+        run: |
+          node tests/test_lab_ux_std001_browser.mjs
+          node tests/test_v33_talia_question_flow_browser.mjs
       - name: Browser-verify in-page v3.3 Labs retain website navigation
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
