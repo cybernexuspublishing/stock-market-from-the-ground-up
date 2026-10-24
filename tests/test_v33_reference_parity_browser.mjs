@@ -40,6 +40,10 @@ try{
   assert.match(await host.locator('.gu-v33-graphic, .gu-l33-graphic').first().innerText(),/FICTIONAL/i);
   assert.equal(await host.locator('.gu-l33-chart-reference').count(),1,
    'Restore original-reference chart with aligned data panel');
+  assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).count(),1,'Reference view modes must be restored');
+  await host.getByRole('button',{name:'Volume',exact:true}).click();
+  assert.equal(await host.getByRole('button',{name:'Volume',exact:true}).getAttribute('aria-pressed'),'true');
+  await host.getByRole('button',{name:'Price + VWAP',exact:true}).click();
   const view=host.locator('.gu-l33-graphic').first();
   const time=view.locator('.gu-l33-candle-picker select');
   await time.selectOption('1');
