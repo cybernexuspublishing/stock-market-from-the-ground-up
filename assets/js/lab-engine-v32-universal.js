@@ -75,7 +75,7 @@ const synthetic=Object.freeze({
  transfer:{prompt:'New fictional trades: 150 shares at $12 and 50 shares at $16. What is their VWAP?',answer:13}}
 });
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memberFirstName='',allowTutorAI=true}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,memberFirstName='',allowTutorAI=true}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -161,6 +161,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null;
+ const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
+ const passRequests=new Map();
  token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
  const narratedStages=new Set();
  const learnerReplies=new Map(); // stage => accepted answers in question order
@@ -238,6 +240,30 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   list[index]=answer;
   learnerReplies.set(stage,list);
   return{accepted:true};
+ }
+ async function handleQuestionPass({action,index}={}){
+  if(typeof creditRequest!=='function')throw Error('Question Pass has not been connected.');
+  if(action==='balance')return creditRequest({action:'balance'});
+  if(stage!==4||!['guided','practice'].includes(mode)||!passAttemptId)
+   throw Error('Question Pass is unavailable for this exercise.');
+  const steps=root.GroundUpLabV34InteractiveLessons?.practiceFor?.(kind)||[];
+  if(steps.length!==3||!Number.isInteger(index)||index<0||index>=steps.length)
+   throw Error('Only reviewed fictional practice steps support Question Pass.');
+  const step=steps[index];
+  const id=String(index)+'/'+step.id;
+  let requestId=passRequests.get(id);
+  if(!requestId){
+   requestId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
+   if(!requestId)throw Error('Credit confirmation cannot be completed in this browser.');
+   passRequests.set(id,requestId);
+  }
+  const saved=await creditRequest({action,questionId:step.id,attemptId:passAttemptId,requestId});
+  if(saved?.ok!==true)throw Error('The pass could not be confirmed.');
+  practiceAssisted=true;
+  if(index===steps.length-1){practiceResolved=true;practice='Study Only: '+action;}
+  return {...saved,
+   answerText:action==='reveal'?step.help+' This is Study Only, not a graded result.':
+    'Question skipped. This step is marked Study Only and will not count as an independent correct answer.'};
  }
  function mark(message){status.textContent=message}
  function showJourney(){
@@ -346,7 +372,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
-    onAnswer:receiveInstructorAnswer,
+    onAnswer:receiveInstructorAnswer,onCreditAction:stage===4?handleQuestionPass:undefined,
     onComplete:()=>{if(stage<8)nextStage(true)},
     onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
    });
@@ -392,11 +418,28 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    // typed instructor panel. No second competing 'What you will learn' card.
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Question Pass Wallet'));
    const metrics=el('div');metrics.className='grid2';
-   for(const [name,note] of [['Included','Subject to server entitlement'],['Purchased','Never expire after purchase']]){
-    const unit=el('div');unit.className='metric';unit.append(el('span',name),el('strong','—'),el('span',note));metrics.append(unit);
+   const fields={};
+   for(const [key,name,note] of [['included','Included','Eligible credits expire 60 days after their billing period ends'],['purchased','Purchased','Purchased credits do not expire']]){
+    const unit=el('div');unit.className='metric';unit.append(el('span',name));
+    const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
    }
    wallet.append(metrics);
-   appendParagraph(wallet,'Live credit balances are withheld until a protected member ledger confirms eligibility. Essential explanations, worked examples and learning retries remain included in accessible Labs. No demo credits will be charged or treated as purchased credits.');
+   const balanceState=el('p','Sign in to check your Question Pass balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
+   appendParagraph(wallet,'Reveal or Skip uses one Question Pass Credit per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
+   if(typeof creditRequest==='function'){
+    balanceState.textContent='Checking your credit balance…';
+    void creditRequest({action:'balance'}).then(data=>{
+     if(!wallet.isConnected)return;
+     const info=data?.balance;
+     if(!info||!Number.isInteger(info.included)||!Number.isInteger(info.purchased))throw Error('No verified credit balance.');
+     fields.included.textContent=String(info.included);
+     fields.purchased.textContent=String(info.purchased);
+     balanceState.textContent=String(info.available)+' available'+
+      (info.nextExpiry?' · Next included-credit expiry: '+new Date(info.nextExpiry).toLocaleDateString():'');
+    }).catch(error=>{
+     if(wallet.isConnected)balanceState.textContent=String(error?.message||'Balance unavailable. No credit is charged.');
+    });
+   }
    if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
    else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Question Pass Wallet'),wallet);body.append(walletDisclosure);}
 
