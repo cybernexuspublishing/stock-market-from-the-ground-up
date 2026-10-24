@@ -644,6 +644,19 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
     // chart with measured values, THEN Talia teaching and the typed answer.
     // They share one workstation rather than two competing side panels.
     hero.append(chart,coach);body.insertBefore(hero,body.firstChild);
+    const visualHeader=chart.querySelector('.gu-l33-head');
+    if(visualHeader){
+     const zoom=button('Expand visual',()=>{
+      const expanded=chart.classList.toggle('gu-v34-expanded-visual');
+      zoom.textContent=expanded?'Compact visual':'Expand visual';
+      zoom.setAttribute('aria-pressed',String(expanded));
+      zoom.setAttribute('aria-label',expanded?'Return to compact chart':'Expand chart and price labels');
+     });
+     zoom.className='gu-v34-view-size';
+     zoom.setAttribute('aria-pressed','false');
+     zoom.setAttribute('aria-label','Expand chart and price labels');
+     visualHeader.append(zoom);
+    }
     hero.addEventListener('gu-v34-visual-focus',event=>{
      if(!chart.contains(event.target))return;
      instructorInstance?.teachFeature?.(event.detail||{});
