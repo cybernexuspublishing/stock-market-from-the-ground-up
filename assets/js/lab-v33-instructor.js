@@ -553,7 +553,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  return {element:rootEl,openTutor,teachFeature,teachWorkedStep,teachSupplement,askUnderstanding,resumeTeaching,
   setStartSetup(setup){
    if(stage!==0||!setup)return;
-   head.replaceChildren(setup);head.hidden=false;
+   head.replaceChildren(setup);head.className+=' gu-v33-start-setup-head';head.hidden=false;
   },
   setWalletContent(wallet){
    if(!walletPane||!wallet)return;
