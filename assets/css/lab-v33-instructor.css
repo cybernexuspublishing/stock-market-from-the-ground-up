@@ -41,9 +41,9 @@
 #gu-v32-teaching-slot .gu-v33-instructor-provenance{font-size:.76rem!important;line-height:1.4!important;color:#bfd0dd!important;margin:11px 0 0!important}
 @media(max-width:760px){#gu-v32-teaching-slot .gu-v33-instructor-worked,#gu-v32-teaching-slot .gu-v33-instructor-check{padding:11px}}
 
-/* Avery: named virtual learning instructor with practical one-to-one guidance. */
+/* Elara Voss: distinctive virtual learning instructor with member-first-name greetings. */
 #gu-v32-teaching-slot .gu-v33-instructor-head{justify-content:flex-start;align-items:center;gap:11px}
-#gu-v32-teaching-slot .gu-v33-instructor-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#19577b,#16765c);color:#f4fcff;border:1px solid #5998a6;font:700 1.13rem/1 system-ui,sans-serif}
+#gu-v32-teaching-slot .gu-v33-instructor-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:43px;height:43px;border-radius:50%;background:linear-gradient(135deg,#19577b,#16765c);color:#f4fcff;border:1px solid #5998a6;font:700 .93rem/1 system-ui,sans-serif}
 #gu-v32-teaching-slot .gu-v33-instructor-identity{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
 #gu-v32-teaching-slot .gu-v33-instructor-identity h3{margin:0;font-size:1.04rem;line-height:1.35}
 #gu-v32-teaching-slot .gu-v33-instructor-identity .gu-v33-instructor-tag{font-size:.72rem;line-height:1.4}
