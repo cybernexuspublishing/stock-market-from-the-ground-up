@@ -77,7 +77,7 @@
    const form=sparks.querySelector('form');
    const adjustButton=form.querySelector('button[type="submit"]');
    const history=sparks.querySelector('.gu-sparks-admin-history');
-   let verified=false,busy=false;
+   let verified=false,busy=false,pendingFingerprint='',pendingRequestId='';
    async function sparksApi(operation,data){
     const sb=await window.getSupabaseClient?.();
     const session=(await sb?.auth?.getSession?.())?.data?.session;
@@ -138,14 +138,20 @@
      operation+' '+value+' Sparks';
     if(!window.confirm('Confirm: '+action+' for '+account.username+
       '? This change is permanent in the audit log and does not modify Stripe transactions.'))return;
-    const requestId=crypto.randomUUID();
+    // Network retries for the same adjustment reuse the ORIGINAL UUID.
+    // This prevents an uncertain response from causing a double grant.
+    const fingerprint=JSON.stringify([account.id,operation,value,reason]);
+    if(fingerprint!==pendingFingerprint){
+     pendingFingerprint=fingerprint;pendingRequestId=crypto.randomUUID();
+    }
+    const requestId=pendingRequestId;
     busy=true;verified=false;adjustButton.disabled=true;
     balanceLabel.textContent='Confirming the audited change…';
     try{
      const result=await sparksApi('adjust',{operation,value,reason,requestId});
      const label=result.alreadyApplied?'Previously confirmed adjustment':'Balance adjustment confirmed';
      notify(label+' · '+String(result.balance?.available??'—')+' Sparks available','ok');
-     form.reset();
+     form.reset();pendingFingerprint='';pendingRequestId='';
     }catch(error){
      window.alert(String(error?.message||'Adjustment could not be verified.')+
       '\\nRefresh the balance and audit history before retrying.');
