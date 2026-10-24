@@ -47,7 +47,7 @@ try{
   // The initial candle is deliberately a different $31.00 case. Activate the
   // separate worked example before expecting its $21.20 close on the chart.
   await target.getByRole('button',{name:'Show and explain on chart'}).click();
-  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\\$21\\.20/,'The lesson chart must match Talia’s activated fictional worked example');
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The lesson chart must match Talia’s activated fictional worked example');
   await target.getByRole('button',{name:'High',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'High',exact:true}).getAttribute('aria-pressed'),'true');
   await target.getByRole('button',{name:'Real body',exact:true}).click();
