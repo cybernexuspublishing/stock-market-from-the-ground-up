@@ -73,12 +73,12 @@ function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
  return '<svg viewBox="0 0 670 295" role="img" aria-label="Illustrative '+(ascending?'bullish':'bearish')+' candlestick with labeled open high low close, body and full range">'+
  '<rect width="670" height="295" rx="12" fill="#10283c"/>'+
  [60,103,146,189,232].map(y=>'<line x1="24" x2="642" y1="'+y+'" y2="'+y+'" stroke="#284964" stroke-dasharray="4 7"/>').join('')+
- '<line x1="115" x2="115" y1="71" y2="238" stroke="#e7ba68" stroke-width="5"/>'+
+ '<line data-candle-feature="range" x1="115" x2="115" y1="71" y2="238" stroke="#e7ba68" stroke-width="5"/>'+
  '<line x1="101" x2="129" y1="71" y2="71" stroke="#e7ba68" stroke-width="4"/>'+
  '<line x1="101" x2="129" y1="238" y2="238" stroke="#e7ba68" stroke-width="4"/>'+
  '<line x1="219" x2="219" y1="'+scale(high)+'" y2="'+scale(low)+'" stroke="'+col+'" stroke-width="5"/>'+
- '<rect x="177" y="'+bodyTop+'" width="84" height="'+bodyHeight+'" fill="'+(ascending?'#1f896b':'#a3465a')+'" stroke="'+col+'" stroke-width="3"/>'+
- key.map((p,i)=>'<line x1="270" x2="372" y1="'+scale(p[1])+'" y2="'+scale(p[1])+'" stroke="#8ab4d1" stroke-dasharray="3 4"/><text x="384" y="'+(scale(p[1])+5)+'" font-family="system-ui" fill="#edf5ff" font-size="15" font-weight="600">'+p[0]+' '+usd(p[1])+'</text>').join('')+
+ '<rect data-candle-feature="body" x="177" y="'+bodyTop+'" width="84" height="'+bodyHeight+'" fill="'+(ascending?'#1f896b':'#a3465a')+'" stroke="'+col+'" stroke-width="3"/>'+
+ key.map((p,i)=>'<line data-candle-feature="'+p[0].toLowerCase()+'" x1="270" x2="372" y1="'+scale(p[1])+'" y2="'+scale(p[1])+'" stroke="#8ab4d1" stroke-dasharray="3 4"/><text data-candle-feature="'+p[0].toLowerCase()+'" x="384" y="'+(scale(p[1])+5)+'" font-family="system-ui" fill="#edf5ff" font-size="15" font-weight="600">'+p[0]+' '+usd(p[1])+'</text>').join('')+
  '<text x="27" y="277" fill="#f1ca86" font-family="system-ui" font-size="14">Full range</text><text x="175" y="277" fill="'+col+'" font-family="system-ui" font-size="14">Real body</text></svg>';
 }
 function candle(options,showResult=true){
@@ -161,7 +161,11 @@ function routing(){
 }
 function create({type,stage=1,variant='default'}={}){
  if(!TYPE_SET.has(type)||type==='none')return null;
- if(type==='candle')return candle(variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined,!(variant==='practice'||variant==='transfer'));
+ if(type==='candle')return candle(
+  variant==='worked'?{o:20,hv:22,l:19,c:21.2}
+   :variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined,
+  !(variant==='practice'||variant==='transfer')
+ );
  if(type==='vwap'&&(variant==='practice'||variant==='transfer'))return weightedGroups(variant);
  if(['structure','ema','vwap','volume'].includes(type))return chart(type,stage,variant);
  if(type==='tape')return tape();
