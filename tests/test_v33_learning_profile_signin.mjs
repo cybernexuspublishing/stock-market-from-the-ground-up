@@ -49,7 +49,7 @@ assert(sources.tutor.includes('toggle.checked=!toggle.disabled'),'Full Tutor mus
 assert(!sources.tutor.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),
  'Request completion must not reset profile preference');
 assert(sources.instructor.includes('(t-last)*0.038'),'Teaching types slowly at about 38 characters per second');
-assert(instructorCss.includes('height:clamp(180px,27vh,280px)')&&instructorCss.includes('overflow-y:auto'),
+assert(instructorCss.includes('.gu-v33-instructor-narration')&&instructorCss.includes('overflow:visible!important'),
  'Typed lessons must not increase the page height');
 assert(sources.instructor.includes("el('button','Question Pass Wallet'"),'Wallet is third adjacent teaching tab');
 assert(sources.engine.includes('instructorInstance.setWalletContent(wallet)'));
