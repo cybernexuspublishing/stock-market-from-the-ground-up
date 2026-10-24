@@ -19,6 +19,13 @@ const env=createContext({});
 new Script(text,{filename:'lab-v33-instruction-content.js'}).runInContext(env);
 const author=env.GroundUpLabV33InstructionContent;
 assert(author);
+const resolved=author.lesson({
+ stage:1,concept:'F3-C06-L01',
+ guide:{title:'VWAP Reclaim',concept:'Recognize a completed VWAP reclaim',
+ procedure:'Check prior and current close against the relevant VWAP'}
+});
+assert(resolved.blocks.join(' ').includes('VWAP Reclaim'),'Narrate the educational topic, never the locator ID');
+assert(!resolved.blocks.join(' ').includes('F3-C06-L01'),'The administrative ID must not be voiced as lesson content');
 const cases=[
  ['candle','Construct an Up / Bullish Candle',/(Open \(O\)|High \(H\)|Low \(L\)|Close \(C\))/,'40%'],
  ['vwap','VWAP Reclaim',/Σ means SUM/,'$11.50'],
