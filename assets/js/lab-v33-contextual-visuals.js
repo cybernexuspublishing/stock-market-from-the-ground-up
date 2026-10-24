@@ -89,7 +89,7 @@ function candle(options,showResult=true,interactive=false){
  // Experiment. Selecting a different illustrative worked case updates every
  // value together, without introducing real historical prices or grade data.
  const root=h('section','gu-l33-graphic');
- meta(root,'candle','A illustrative five-minute candle demonstrates Open, High, Low, Close, the real body and the full range.');
+ meta(root,'candle','An illustrative five-minute candle demonstrates Open, High, Low, Close, the real body and the full range.');
  const layout=h('div','gu-v36-candle-layout');
  const main=h('div','gu-l33-single');
  main.innerHTML=candleSVG(options);
