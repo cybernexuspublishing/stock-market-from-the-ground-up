@@ -307,7 +307,7 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   max-width:575px;margin:2px auto 5px;
 }
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-single svg{
-  max-height:240px;max-width:100%;width:auto;height:auto;
+  max-height:240px;max-width:540px;width:100%;height:auto;
 }
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart-reference-layout{
   max-width:890px;margin:4px auto 6px;
@@ -315,7 +315,7 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   gap:9px;
 }
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-chart svg{
-  max-height:260px;max-width:100%;width:auto;height:auto;
+  max-height:260px;max-width:540px;width:100%;height:auto;
 }
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson .gu-l33-metrics{
   grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:5px 0;
