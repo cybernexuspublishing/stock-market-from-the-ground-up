@@ -218,7 +218,7 @@ function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
@@ -249,9 +249,36 @@ function compactSourceDisclosure(summary,description){
  const p=document.createElement('p');p.textContent=description;
  panel.append(title,p);return panel;
 }
+// A first name is member profile identity, not a username or display name.
+// The authenticated account identity endpoint returns only the signed-in
+// member's identity. No first name is logged or placed in a URL.
+function memberFirstNameField(raw){
+ if(typeof raw!=='string')return '';
+ const value=raw.normalize('NFC').trim().replace(/\s+/g,' ');
+ return value.length>0&&value.length<=80&&
+  /^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u.test(value)?value:'';
+}
+async function loadMemberFirstName(session){
+ const fallback=memberFirstNameField(session?.user?.user_metadata?.first_name);
+ if(!session?.access_token||!session?.user?.id)return '';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),3500);
+ try{
+  const response=await fetch('/api/account?action=identity',{
+   method:'GET',cache:'no-store',
+   headers:{authorization:'Bearer '+session.access_token},
+   signal:controller.signal
+  });
+  if(!response.ok)return fallback;
+  const data=await response.json();
+  return memberFirstNameField(data?.profile?.firstName)||fallback;
+ }catch{return fallback}
+ finally{clearTimeout(timer)}
+}
 async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
- const session=authResult?.data?.session||null;const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetchLabWithDeadline('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
+ const session=authResult?.data?.session||null;
+ const firstNameRequest=session?loadMemberFirstName(session):Promise.resolve('');
+ const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetchLabWithDeadline('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
  let payload=await response.json().catch(()=>({}));
  // Canonical book companion route remains authoritative when published.
  // Only missing authored content is eligible for server-authorized, ungraded
@@ -276,7 +303,8 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  // The Lab API has already authorized the entitlement. Do not block the
  // lesson display on optional legacy dashboard queries, which can hang or
  // fail independently of the server-approved Lab and are not authoritative.
- PLAYER.access={user:session?.user||null,sb:sb||null,redeemedBooks:new Set()};
+ const firstName=await bounded(firstNameRequest,1800,memberFirstNameField(session?.user?.user_metadata?.first_name));
+ PLAYER.access={user:session?.user||null,sb:sb||null,memberFirstName:firstName,redeemedBooks:new Set()};
  PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;
   const picker=q('player-reference-select');
   if(picker){
