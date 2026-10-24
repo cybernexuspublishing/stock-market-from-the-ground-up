@@ -134,7 +134,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
  };
  const authorTopic=meaningfulTitle(map.knownTopics.get(labId));
  const topic=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)||
-  meaningfulTitle(guide.title)||meaningfulTitle(lab?.chapterTitle)||'Market evidence and decision-making';
+  (meaningfulTitle(guide.title)?'Competency study — '+meaningfulTitle(guide.title):'')||
+  meaningfulTitle(lab?.chapterTitle)||'Market evidence and decision-making';
  const topicSource=meaningfulTitle(lab?.concept)||authorTopic||meaningfulTitle(item.title)?'authored':'competency';
 
  const visualType=root.GroundUpLabV33Contextual?.select?.({lab,topic,competencies:codes})||'none';
