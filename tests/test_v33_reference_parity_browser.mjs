@@ -60,6 +60,11 @@ try{
   assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).count(),1,'Reference view modes must be restored');
   assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).getAttribute('aria-pressed'),'true',
    'The VWAP line must be visible when Learn first opens');
+  await host.getByRole('button',{name:'Price',exact:true}).click();
+  assert.equal(await host.getByRole('button',{name:'Price',exact:true}).getAttribute('aria-pressed'),'true');
+  await host.getByRole('button',{name:'Check my understanding'}).click();
+  assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).getAttribute('aria-pressed'),'true',
+   'The relevant VWAP line must be restored before checking understanding');
   const vwapWorked=host.locator('.gu-v35-chart-worked');
   assert.equal(await vwapWorked.locator('.gu-v35-vwap-share-illustration').count(),1,
    'The $10/$12 worked case must show its own share-weight visualization');
