@@ -34,3 +34,63 @@ body.gu-bc-learning .academy-program-grid{
 }
 @media(max-width:670px){.academy-course-head{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.academy-workspace *{scroll-behavior:auto}}
+
+
+/* All six extended Academy courses mount the SAME nine-stage Lab engine in
+   #academy-lab-slot, not #gu-v32-teaching-slot (the standalone Lab ID).
+   Full-width chart/Talia layout therefore needs an explicit Academy bridge. */
+#academy-lab-slot .gu-v32.gu-v33{
+ width:100%;max-width:none;min-width:0;padding:clamp(12px,1.3vw,22px);
+ background:#111e2b;border:1px solid #365873;border-radius:12px;
+}
+#academy-lab-slot .gu-v34-unified-lesson{
+ width:100%!important;max-width:none!important;min-width:0!important;
+ margin:0!important;display:grid!important;gap:clamp(12px,1.3vw,24px);
+}
+#academy-lab-slot .gu-v34-unified-lesson>.gu-l33-graphic,
+#academy-lab-slot .gu-v34-unified-lesson>.gu-v33-instructor{
+ width:100%;min-width:0;max-width:none!important;margin:0!important;
+}
+#academy-lab-slot .gu-v34-unified-lesson :is(.gu-l33-single,.gu-l33-chart-reference-layout){
+ width:100%;max-width:none!important;margin-inline:0!important;
+}
+#academy-lab-slot .gu-v34-unified-lesson svg{
+ width:100%;max-width:100%!important;height:auto;
+}
+#academy-lab-slot .gu-v33-support-tabs{
+ width:100%;max-width:none;margin:14px 0;
+ border:1px solid #3f657e;border-radius:12px;background:#10283a;
+ padding:12px;min-width:0;
+}
+#academy-lab-slot .gu-v33-support-tablist{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+}
+#academy-lab-slot .gu-v33-support-tab{
+ min-width:0;min-height:42px;white-space:normal;
+ padding:8px;border:1px solid #456b83;border-radius:8px;
+ background:#19364b;color:#f0f7fc;cursor:pointer;
+}
+#academy-lab-slot .gu-v33-support-tab[aria-selected="true"]{
+ background:#eabb49;color:#102437;border-color:#f7d58a;
+}
+#academy-lab-slot .gu-v33-support-tab:focus-visible{
+ outline:3px solid #a9e4fa;outline-offset:2px;
+}
+#academy-lab-slot .gu-v33-wallet-tab{
+ padding-left:37px;background-image:url('../img/crownlight-spark.svg');
+ background-size:23px 23px;background-position:8px center;background-repeat:no-repeat;
+}
+@container (min-width:960px){
+ #academy-lab-slot .gu-v34-unified-lesson{
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
+  align-items:start!important;
+ }
+}
+@container (max-width:959px){
+ #academy-lab-slot .gu-v34-unified-lesson{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+@media(max-width:620px){
+ #academy-lab-slot .gu-v33-support-tablist{grid-template-columns:1fr;}
+}
