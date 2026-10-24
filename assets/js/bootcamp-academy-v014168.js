@@ -18,7 +18,9 @@
  }
  function clean(){
   program=null;days=[];enrolled=false;progress.clear();progressAvailable=false;dayIndex=1;
-  ++renderSerial;get('academy-workspace').hidden=true;get('academy-lab-slot').replaceChildren();
+  ++renderSerial;busy=false;get('academy-workspace').hidden=true;
+  get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
+  get('academy-save-status').textContent='';
  }
  async function request(action,code='',payload=null){
   const options={method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin'};
@@ -136,7 +138,7 @@
    const payload={version:VERSION,program:activeCode,action,day:action==='enroll'?0:which,
     ...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(which)?.revision||0}:{})};
    const result=await request('write',activeCode,payload);
-   if(actor!==userId||serial!==sessionSerial)return;
+   if(actor!==userId||serial!==sessionSerial||payload.program!==activeCode)return;
    if(action==='enroll'){
     enrolled=true;get('academy-save-status').textContent='Enrolled. Your study reflections remain private.';
    }else{
@@ -145,7 +147,7 @@
    }
   }catch(e){if(actor===userId&&serial===sessionSerial)
    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
-  finally{busy=false;if(actor===userId&&serial===sessionSerial){updateProgress();updateDays()}}
+  finally{if(actor===userId&&serial===sessionSerial){busy=false;updateProgress();updateDays()}}
  }
  async function open(code){
   if(!expected.has(code))return;
@@ -160,7 +162,6 @@
      const nextUser=session?.user?.id||'';
      if(userId&&nextUser!==userId){
       ++sessionSerial;userId='';activeCode='';clean();
-      get('academy-reflection').value='';
       get('academy-member-progress').textContent='';
       status('The member account changed. Private study data was cleared; open a program after signing in again.');
      }
@@ -201,14 +202,24 @@
  }
  get('academy-enroll').addEventListener('click',()=>void (async()=>{
   if(!program||busy||enrolled||!progressAvailable)return;
+  const actor=userId,serial=sessionSerial,code=activeCode;
   busy=true;get('academy-enroll').disabled=true;
   try{
-   const payload={version:VERSION,program:activeCode,day:0,action:'enroll'};
-   const result=await request('write',activeCode,payload);
-   if(result.enrolled!==true)throw Error('Enrollment was not confirmed.');
+   const payload={version:VERSION,program:code,day:0,action:'enroll'};
+   const result=await request('write',code,payload);
+   // Protect private member state from delayed responses after a sign-out,
+   // account switch or a different program opening during enrollment.
+   if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
+   if(result.enrolled!==true||result.program!==code)throw Error('Enrollment was not confirmed.');
    enrolled=true;get('academy-save-status').textContent='Enrollment verified.';
-  }catch(error){get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.')}
-  finally{busy=false;get('academy-enroll').disabled=false;updateProgress()}
+  }catch(error){
+   if(actor===userId&&serial===sessionSerial&&code===activeCode)
+    get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.');
+  }finally{
+   if(actor===userId&&serial===sessionSerial&&code===activeCode){
+    busy=false;get('academy-enroll').disabled=false;updateProgress();
+   }
+  }
  })());
  get('academy-start').addEventListener('click',()=>void write('start'));
  get('academy-save').addEventListener('click',()=>void write('save_reflection'));
