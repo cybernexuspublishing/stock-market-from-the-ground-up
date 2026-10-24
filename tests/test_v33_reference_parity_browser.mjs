@@ -52,6 +52,18 @@ try{
     chartLeft:c?.left,chartRight:c?.right,chartTop:c?.top,
     teacherLeft:t?.left,teacherTop:t?.top};
   });
+  const supportPosition=await host.evaluate(root=>{
+   const hero=root.querySelector('.gu-v34-unified-lesson');
+   const support=root.querySelector('.gu-v33-support-tabs');
+   return {count:root.querySelectorAll('.gu-v33-support-tabs').length,
+    supportTop:support?.getBoundingClientRect().top,
+    heroBottom:hero?.getBoundingClientRect().bottom,
+    tabCount:support?.querySelectorAll('[role="tab"]').length};
+  });
+  assert.equal(supportPosition.count,1,'One learning support strip, not duplicated tabs');
+  assert.equal(supportPosition.tabCount,3,'Objectives, Tutor and Crownlight Sparks Wallet belong together');
+  assert(supportPosition.supportTop>=supportPosition.heroBottom-2,
+   'Learning support tabs must be below both the chart and Talia');
   if(width>=1160){
    assert.equal(layout.display,'grid','Desktop must use side-by-side teaching columns');
    assert(layout.teacherLeft>=layout.chartRight-2,'Talia must stand beside the illustrated chart');
