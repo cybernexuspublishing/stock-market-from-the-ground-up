@@ -13,6 +13,23 @@ async function loadProfilePage(){
   const active=(ents||[]).find(e=>!e.ends_at||new Date(e.ends_at).getTime()>Date.now());
   document.getElementById('profile-membership').textContent=active?(active.status==='trialing'?'Learning Member — Trial':'Learning Member'):'Free Reader';
   if(!profile?.username) document.getElementById('username-warning').hidden=false;
+  const aiPreference=document.getElementById('profile-tutor-ai-enabled');
+  if(aiPreference){
+    aiPreference.checked=user.user_metadata?.market_tutor_ai_enabled!==false;
+    aiPreference.addEventListener('change',async()=>{
+      const requested=aiPreference.checked,status=document.getElementById('profile-tutor-ai-status');
+      aiPreference.disabled=true;
+      if(status)status.textContent='Saving your Tutor preference…';
+      try{
+        const {error}=await sb.auth.updateUser({data:{market_tutor_ai_enabled:requested}});
+        if(error)throw error;
+        if(status)status.textContent='Market Tutor preference saved.';
+      }catch(err){
+        aiPreference.checked=!requested;
+        if(status)status.textContent=err?.message||'Could not save your preference. Please try again.';
+      }finally{aiPreference.disabled=false}
+    });
+  }
   gate.innerHTML=''; content.hidden=false;
 }
 async function profileSignOut(){
