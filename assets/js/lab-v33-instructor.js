@@ -28,8 +28,9 @@ function animate(node,text,showAll,replay){
   if(disposed)return;
   if(!last)last=t;
   // Short and readable animation; never withhold teaching for minutes.
-  at=Math.min(text.length,Math.floor((t-last)*0.20)+1);
+  at=Math.min(text.length,Math.floor((t-last)*0.038)+1);
   node.textContent=text.slice(0,at);
+  if(node.scrollHeight>node.clientHeight)node.scrollTop=node.scrollHeight;
   if(at>=text.length)finish();
   else raf=root.requestAnimationFrame(tick);
  }
@@ -44,7 +45,7 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName=''}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia Mercer, your virtual learning instructor, and Market Tutor');
@@ -155,12 +156,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  let pending=null,disposed=false;
  const tutor=el('section',undefined,'gu-v33-tutor');
  tutor.append(el('h4','Ask Market Tutor about this concept'));
- tutor.append(el('p','Market Tutor uses your existing membership, server quotas and protected educational service. Only the general subject and question you choose are submitted. Do not enter personal information, private assessment questions or trading-account details.','gu-v33-tutor-note'));
+ tutor.append(el('p','Ask a question about this lesson. Responses are educational and subject to your membership access and usage limits. Please omit personal financial information.','gu-v33-tutor-note'));
  const questionLabel=el('label','Your general learning question');
  const question=el('textarea');question.rows=2;question.maxLength=240;question.placeholder='What does this concept mean, and how can I recognize it?';questionLabel.append(question);
- const consentRow=el('label',undefined,'gu-v33-tutor-consent');
- const consent=el('input');consent.type='checkbox';consent.checked=false;
- consentRow.append(consent,document.createTextNode('Allow an AI-generated explanation if my Market Tutor entitlement and daily quota permit it'));
  const actionRow=el('div',undefined,'gu-v33-tutor-actions');
  const ask=el('button','Ask Market Tutor');ask.type='button';ask.className='btn secondary';
  const dismiss=el('button','Cancel request');dismiss.type='button';dismiss.className='btn secondary';dismiss.hidden=true;
@@ -184,7 +182,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const controller=new AbortController();pending=controller;ask.disabled=true;dismiss.hidden=false;
   answer.hidden=true;respond('Requesting an educational response from Market Tutor…');
   try{
-   const data=await requestTutor({question:outbound,allowModel:consent.checked===true,signal:controller.signal});
+   const data=await requestTutor({question:outbound,allowModel:allowTutorAI===true,signal:controller.signal});
    if(disposed||controller.signal.aborted)return;
    const response=String(data?.answer||'').trim();
    if(!response)throw Error('Market Tutor did not return an explanation.');
@@ -195,7 +193,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    answer.append(replay);
    cancelAnswer=animate(answerVisual,response,seen,replay);
    respond((ai?'AI-generated educational draft':'Source-grounded Market Tutor response')+
-    '. Not official grading or investment advice. '+(data.aiReason&&consent.checked&&!ai?'AI draft not available; source-grounded explanation shown.':''));
+    '. Not official grading or investment advice. '+(data.aiReason&&allowTutorAI&&!ai?'AI draft not available; source-grounded explanation shown.':''));
   }catch(error){
    if(error?.name!=='AbortError'&&!disposed)respond(error?.message||'Tutor unavailable; the concept lessons remain accessible.',true);
   }finally{
@@ -206,7 +204,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  listen(ask,'click',askTutor);
  listen(dismiss,'click',()=>{pending?.abort();pending=null;ask.disabled=false;dismiss.hidden=true;respond('Request cancelled.')});
  const link=el('a','Open full Market Tutor');link.href='/market-tutor.html';link.target='_blank';link.rel='noopener noreferrer';
- tutor.append(questionLabel,consentRow,actionRow,message,answer,link);
+ tutor.append(questionLabel,actionRow,message,answer,link);
  // One shared content area switches between objectives and Tutor; each
  // item is a real accessible tab, never a disclosure stacked on the other.
  const support=el('section',undefined,'gu-v33-support-tabs');
@@ -217,8 +215,11 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const tutorTab=el('button','Ask Market Tutor about this concept','gu-v33-support-tab');
  const panel=el('div',undefined,'gu-v33-support-content');
  const unique='gu-v33-tab-'+String(++tabSequence);
+ const walletTab=stage===0?el('button','Question Pass Wallet','gu-v33-support-tab'):null;
+ const walletPane=stage===0?el('section',undefined,'gu-v33-wallet-panel'):null;
  const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},
   {button:tutorTab,pane:tutor,key:'tutor'}];
+ if(walletTab&&walletPane)items.push({button:walletTab,pane:walletPane,key:'wallet'});
  for(const item of items){
   item.button.type='button';item.button.setAttribute('role','tab');
   item.button.id=unique+'-'+item.key;
@@ -257,7 +258,12 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   tutorTab.focus?.();support.scrollIntoView?.({behavior:'smooth',block:'nearest'});
   question.focus?.();
  };
- return {element:rootEl,openTutor,dispose(){
+ return {element:rootEl,openTutor,
+  setWalletContent(wallet){
+   if(!walletPane||!wallet)return;
+   walletPane.replaceChildren(wallet);
+  },
+  dispose(){
   disposed=true;stopTyping();cancelAnswer?.();pending?.abort();pending=null;
  }};
 }
