@@ -31,7 +31,9 @@ assert(css.includes('background:#f3be43!important'),'Start CTA must be noticeabl
 assert(css.includes('.gu-v33-support-tablist')&&css.includes('grid-template-columns:repeat(3'),'Instructional support needs three side-by-side tabs');
 assert(engine.includes('instructorInstance.setWalletContent(wallet)'),'Question Pass Wallet must occupy third support tab');
 assert(engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Primary actions must appear above the support tabs');
-assert(css.includes('scrollbar-gutter:stable'),'Typed lesson display should not expand the page');
+assert(css.includes('.gu-v33-instructor-narration')&&css.includes('overflow:visible!important'),'Narration must reserve text height without a scrollbar');
+assert(instructor.includes('gu-v33-instructor-dialogue'),'Talia must provide an inline answer form');
+assert(engine.includes('gu-v33-help-tabs'),'Four help explanations must be accessible as tabs');
 assert(css.includes('.gu-v33-reference-tablist')&&css.includes('[aria-selected="true"]'),'Historical references need selected state');
 assert(css.includes('.gu-v33-evidence-step[hidden]'),'Inactive evidence questions should remain concealed');
 for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-decision','ev-notes','lock-decision'])
@@ -39,7 +41,7 @@ for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-
 assert(flow.includes("if(work&&['guided','practice'].includes(mode))work.open=false"),
  'Guided flow should keep end-of-lesson protected workbench collapsed until requested');
 assert(!flow.includes('fetch('),'Client presentation must not create another data or entitlement API');
-assert(instructor.includes('Talia Mercer — Your Learning Instructor'));
+assert(instructor.includes('el('h3','Talia')'));
 assert(!instructor.includes('Elara Voss'));
 assert(instructor.includes("memberFirstName=''" ),'Retain existing first-name personalization');
 assert(instructor.includes("item.button.setAttribute('role','tab')"));
@@ -85,7 +87,7 @@ tabs[2].handlers.click();assert.equal(tabs[2].attrs['aria-selected'],'true');
 assert(all.some(n=>n===fakeWallet),'Wallet content must appear in the third panel');
 lesson.openTutor();
 assert.equal(tabs[1].attrs['aria-selected'],'true');
-assert(all.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Hello, Maya. I’m Talia Mercer')),
+assert(all.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Hello, Maya. I’m Talia')),
  'Typed first-name personal greeting must survive layout changes');
 lesson.dispose();
 assert.equal(ctx.GroundUpLabV33Instructor.create({stage:3}),null);
