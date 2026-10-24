@@ -49,6 +49,15 @@ for(const code of ['charts45','risk60','practicum90']){
   'Every advanced course day needs its own progression label');
  assert(p.curriculum.some(x=>x.phase==='transfer'),code+' must require independent transfer');
 }
+const academyCss=fs.readFileSync('assets/css/bootcamp-academy-v014168.css','utf8');
+assert(academyCss.includes('#academy-lab-slot .gu-v34-unified-lesson'),
+ 'Academy must style the shared instructor in its own container, not only in the Lab player');
+assert(academyCss.includes('grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)'),
+ 'Wide Academy teaching must place chart and Talia side by side');
+assert(academyCss.includes('@container (max-width:959px)'),
+ 'Academy teaching must stack in a narrow panel, including mobile');
+assert(academyCss.includes('gu-v33-wallet-tab'),
+ 'Crownlight Wallet remains visible in the Academy instructor controls');
 const sql=fs.readFileSync('supabase/migrations/v0.14.0.168_BOOTCAMP_ACADEMY_OWNER_REVIEW_REQUIRED.sql','utf8');
 assert(sql.includes('ENABLE ROW LEVEL SECURITY'));
 assert(sql.includes('REVOKE ALL ON public.gu_bootcamp_academy_progress_v014168 FROM PUBLIC,anon,authenticated'));
