@@ -40,3 +40,10 @@
  .gu-signin-page .gu-signin-card .auth-submit{font-size:.97rem}
  .gu-signin-page .gu-manual-human{padding-top:12px}
 }
+
+/* Authentication widget must fit its parent without horizontal scrolling. */
+.gu-signin-page .gu-manual-human{overflow:visible;max-width:100%;width:100%}
+.gu-signin-page #v135-turnstile{display:block;width:100%;min-width:0;max-width:100%;overflow:visible!important;scrollbar-width:none}
+.gu-signin-page #v135-turnstile[hidden]{display:none!important}
+.gu-signin-page #v135-turnstile iframe{max-width:100%;display:block}
+.gu-signin-page .auth-submit{font-size:.92rem;padding:9px 15px;min-height:42px}
