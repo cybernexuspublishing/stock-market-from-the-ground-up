@@ -24,7 +24,10 @@ assert(engine.includes('Start Guided Learning →'),'Main action must use the ow
 assert(engine.includes("button('Ask Market Tutor',()=>instructorInstance?.openTutor?.())"),'Market Tutor must be alongside primary Start action');
 assert(engine.includes('gu-v33-start-primary'),'Main CTA must use visible highlighted treatment');
 assert(css.includes('background:#f3be43!important'),'Start CTA must be noticeably gold');
-assert(css.includes('.gu-v33-support-tablist')&&css.includes('grid-template-columns:repeat(2'),'Instructional support needs side-by-side tab headers');
+assert(css.includes('.gu-v33-support-tablist')&&css.includes('grid-template-columns:repeat(3'),'Instructional support needs three side-by-side tabs');
+assert(engine.includes('instructorInstance.setWalletContent(wallet)'),'Question Pass Wallet must occupy third support tab');
+assert(engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Primary actions must appear above the support tabs');
+assert(css.includes('scrollbar-gutter:stable'),'Typed lesson display should not expand the page');
 assert(css.includes('.gu-v33-reference-tablist')&&css.includes('[aria-selected="true"]'),'Historical references need selected state');
 assert(css.includes('.gu-v33-evidence-step[hidden]'),'Inactive evidence questions should remain concealed');
 for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-decision','ev-notes','lock-decision'])
