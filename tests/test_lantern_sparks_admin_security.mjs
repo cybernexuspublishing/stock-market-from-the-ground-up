@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../functions/api/admin-lantern-sparks.js',import.meta.url),'utf8')
  .replace("import {memberIdentity} from './member-tool-access.js';",
-  'const memberIdentity=globalThis.__sparkTestIdentity;');
+  'const memberIdentity=(...args)=>globalThis.__sparkTestIdentity(...args);');
 const api=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const owner='22222222-2222-4222-8222-222222222222';
 const member='33333333-3333-4333-8333-333333333333';
