@@ -6,11 +6,20 @@ let calls=0;const asset={fetch:async(request)=>{
  calls++;assert(String(request.url).includes('competency-lab-paths-v01499.json'));
  return new Response(JSON.stringify({totalCanonicalLabs:419,bySkill:{
   VWAP_CONTEXT:['DT-C11-L01','F3-C06-L01'],OTHER_SKILL:['SITE-001']
- }}),{headers:{'content-type':'application/json'}})
+ },byLab:{'DT-C11-L01':{title:'VWAP context in a Lab'}}}),{headers:{'content-type':'application/json'}})
 }};
 const req=new Request('https://school.test/api/market-tutor');
 let result=await getApprovedLabContext({ASSETS:asset},req,'Explain DT-C11-L01 without any future price data.');
 assert.equal(result.labId,'DT-C11-L01');
+assert.equal(result.title,'VWAP context in a Lab');
+const learn=labGuidance(result,'explain','','For canonical Lab DT-C11-L01 at the Learn learning stage: explain VWAP');
+assert(learn.includes('Current learning stage: Learn.'));
+assert(learn.includes('Define the terms and units'));
+assert(learn.includes('VWAP context in a Lab'));
+const review=labGuidance(result,'explain','','For canonical Lab DT-C11-L01 at the Review learning stage: common error');
+assert(review.includes('Current learning stage: Review.'));
+assert(!review.includes('private rubric answer'));
+
 assert.deepEqual(result.relatedCompetencyCodes,['VWAP_CONTEXT']);
 assert.equal(result.practiceUrl,'/labs.html?q=DT-C11-L01');
 assert.equal(calls,1);
