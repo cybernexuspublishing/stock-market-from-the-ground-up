@@ -47,7 +47,7 @@ declare v_previous integer;v_delta integer;v_remaining integer;v_take integer;
  v_row record;v_existing record;v_balance jsonb;
 begin
  if p_actor_id is null or p_user_id is null or p_request_id is null
-  or p_actor_id=p_user_id or p_operation not in ('add','remove','set')
+  or p_actor_id=p_user_id or p_operation is null or p_operation not in ('add','remove','set')
   or p_value is null or p_value<0 or p_value>100000
   or (p_operation in ('add','remove') and p_value=0)
   or char_length(btrim(coalesce(p_reason,''))) not between 10 and 500 then
