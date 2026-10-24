@@ -453,7 +453,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    (type==='candle'&&feature==='all')||
    (type==='vwap'&&feature==='price')
   );
-  const short=custom?.narration|| (startsReference?[
+  const short=custom?.narration||plan.script|| (startsReference?[
    exact.title+'. Here is what you will learn.',
    exact.term+': '+exact.definition,
    'Why it matters: '+exact.why,
@@ -471,9 +471,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const candleFormula=type==='candle'
    ?'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100. These completed values cannot predict the next candle. If High equals Low, the percentage is undefined because division by zero is not permitted.'
    :'';
-  const narration=candleFormula?short+'\n\n'+candleFormula:short;
+  const narration=candleFormula&&!plan.script?short+'\n\n'+candleFormula:short;
   if(stage===1||stage===2){
-   return teachDirect(plan.title,[narration]);
+   return teachDirect(plan.script?'Talia’s '+plan.title.toLowerCase()+' lesson':plan.title,[narration]);
   }
   reserve.textContent=narration;
   accessible.textContent=narration;
