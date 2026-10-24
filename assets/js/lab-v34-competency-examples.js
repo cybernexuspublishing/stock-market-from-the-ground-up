@@ -191,5 +191,50 @@ const get=code=>{
  if(!items)return null;
  return Object.freeze({source:'original-fictional-competency-scenario',steps:[...items],code});
 };
-root.GroundUpLabV34CompetencyExamples=Object.freeze({get,codes:Object.freeze(Object.keys(examples)),version:'3.4.0'});
+function create({code,title='',stage=1}={}){
+ const scenario=get(code);
+ if(!scenario||!root.document?.createElement)return null;
+ const node=(tag,value,cls)=>{
+  const n=root.document.createElement(tag);
+  if(value!==undefined)n.textContent=String(value);
+  if(cls)n.className=cls;
+  return n;
+ };
+ const surface=node('section',undefined,'gu-l33-graphic gu-v34-competency-visual');
+ surface.setAttribute('aria-label','Interactive fictional competency worked example');
+ const head=node('div',undefined,'gu-l33-head');
+ head.append(node('h3',title||String(code).replaceAll('_',' ')||'Worked study case'));
+ head.append(node('span','FICTIONAL · STUDY ONLY','gu-v34-evidence-label'));
+ surface.append(head,node('p','This is a separate, original educational example. It is not the book’s verified historical chart or a graded assessment.','gu-v34-evidence-note'));
+ const actions=node('div',undefined,'gu-l33-interactive-tools');
+ actions.setAttribute('role','group');actions.setAttribute('aria-label','Choose an example step');
+ const display=node('div',undefined,'gu-v34-example-step');
+ display.setAttribute('role','status');
+ const counter=node('p',undefined,'gu-v34-example-counter');
+ const explanation=node('p',undefined,'gu-v34-example-explanation');
+ const stepButtons=[];
+ let current=0;
+ const select=(index,announce=true)=>{
+  if(!Number.isInteger(index)||index<0||index>=scenario.steps.length)return;
+  current=index;
+  counter.textContent='Worked case '+(index+1)+' of '+scenario.steps.length;
+  explanation.textContent=scenario.steps[index];
+  stepButtons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
+  if(announce&&typeof CustomEvent==='function')surface.dispatchEvent(new CustomEvent('gu-v34-visual-focus',{
+   bubbles:true,detail:{type:'general',feature:'case-'+index}
+  }));
+ };
+ scenario.steps.forEach((_,i)=>{
+  const button=node('button','Step '+(i+1),'gu-l33-view-btn');
+  button.type='button';button.setAttribute('data-teaching-feature','case-'+i);
+  button.addEventListener('click',()=>select(i));actions.append(button);stepButtons.push(button);
+ });
+ const next=node('button','Next worked step →','gu-v34-next-step');
+ next.type='button';next.addEventListener('click',()=>select((current+1)%scenario.steps.length));
+ actions.append(next);
+ display.append(counter,explanation);
+ surface.append(actions,display);
+ select(0,false);return surface;
+}
+root.GroundUpLabV34CompetencyExamples=Object.freeze({get,create,codes:Object.freeze(Object.keys(examples)),version:'3.4.0'});
 })(globalThis);
