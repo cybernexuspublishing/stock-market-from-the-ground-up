@@ -11,7 +11,8 @@ const bridge=load('assets/js/lab-engine-v32-universal.js');
 const html=load('lab-player.html');
 assert(html.indexOf('lab-v33-instruction-content.js')<html.indexOf('lab-v33-instructor.js'),
  'Reviewed teaching content must load before the instructor panel');
-assert(bridge.includes('lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource}'),
+assert(bridge.includes('lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource,')&&
+ bridge.includes('labId,bridge:map.bridges.get(labId)'),
  'Instructor must use authorized subject and competency content');
 for(const bad of ['We will examine ','Read the explanation alongside','Try changing one permitted input'])
  assert(!instructor.includes(bad),'No "go read" pseudo-teaching: '+bad);
