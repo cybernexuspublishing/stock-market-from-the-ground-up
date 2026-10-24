@@ -81,35 +81,135 @@ function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
  key.map((p,i)=>'<line data-candle-feature="'+p[0].toLowerCase()+'" x1="270" x2="372" y1="'+scale(p[1])+'" y2="'+scale(p[1])+'" stroke="#8ab4d1" stroke-dasharray="3 4"/><text data-candle-feature="'+p[0].toLowerCase()+'" x="384" y="'+(scale(p[1])+5)+'" font-family="system-ui" fill="#edf5ff" font-size="15" font-weight="600">'+p[0]+' '+usd(p[1])+'</text>').join('')+
  '<text x="27" y="277" fill="#f1ca86" font-family="system-ui" font-size="14">Full range</text><text x="175" y="277" fill="'+col+'" font-family="system-ui" font-size="14">Real body</text></svg>';
 }
-function candle(options,showResult=true){
- const root=h('section','gu-l33-graphic');meta(root,'candle','A single invented candle illustrates OHLC, its real body, wicks and full price range. It is not a historical market observation.');
- const main=h('div','gu-l33-single');main.innerHTML=candleSVG(options);root.append(main);
- const {o=31,hv=32.5,l=30.5,c=32}=options||{},body=Math.abs(c-o),range=Math.max(0,hv-l);
- const data=h('div','gu-l33-metrics');
- for(const [name,value] of [['Open',usd(o)],['High',usd(hv)],['Low',usd(l)],['Close',usd(c)],['Real body',usd(body)],['Full range',usd(range)],['Body / range',!showResult?'Calculate':range?(body/range*100).toFixed(1)+'%':'N/A']]){
-  const row=h('div');row.append(text('span',name),text('strong',value));data.append(row)
+function candle(options,showResult=true,interactive=false){
+ // The SAME SVG, side measurement panel and slider are used in Learn and
+ // Experiment. Selecting a different fictional worked case updates every
+ // value together, without introducing real historical prices or grade data.
+ const root=h('section','gu-l33-graphic');
+ meta(root,'candle','A fictional five-minute candle demonstrates Open, High, Low, Close, the real body and the full range.');
+ const layout=h('div','gu-v36-candle-layout');
+ const main=h('div','gu-l33-single');
+ main.innerHTML=candleSVG(options);
+ const side=h('aside','gu-v36-price-reference');
+ side.setAttribute('aria-label','Price measurements for the displayed candle');
+ side.append(text('h4','Price Measurements'));
+ const label=h('label','gu-v36-table-toggle');
+ const check=h('input');check.type='checkbox';check.checked=true;
+ label.append(check,document.createTextNode(' Show accessible OHLC table'));
+ side.append(label);
+ const reference=h('dl','gu-v36-reference-rows');
+ const refValues={};
+ for(const [name,key] of [['HIGH','hv'],['CLOSE','c'],['OPEN','o'],['LOW','l']]){
+  const row=h('div','gu-v36-reference-row');
+  row.append(text('dt',name));
+  const result=text('dd','—');result.setAttribute('data-price-measure',key);
+  row.append(result);reference.append(row);
+  refValues[key]=result;
  }
- root.append(data,text('p','Body = |Close − Open|. Range = High − Low. Percentage = (body ÷ range) × 100. Doji and wick proportions matter; body percentage alone does not predict direction.','gu-l33-takeaway'));
- // A worked example can switch between DIFFERENT fictional cases while
- // preserving the same SVG element and the original highlight controls.
- // No real ticker, privately assessed answer or future market data is used.
- root.setTeachingCandle=values=>{
+ side.append(reference);
+ side.append(text('p','Price labels also appear directly on the candle.','gu-v36-price-note'));
+ check.addEventListener('change',()=>{
+  reference.hidden=!check.checked;
+ });
+ layout.append(main,side);root.append(layout);
+
+ // The original reference has three calculated measurements below the chart.
+ const data=h('div','gu-l33-metrics gu-v36-derived-measures');
+ const metricValues={};
+ for(const [name,key] of [['Real body','body'],['Full range','range'],['Body percentage','percent']]){
+  const row=h('div');
+  row.append(text('span',name));
+  const result=text('strong','—');result.setAttribute('data-candle-result',key);
+  row.append(result);data.append(row);metricValues[key]=result;
+ }
+ const experiment=interactive?h('section','gu-v36-candle-experiment'):null;
+ let slider=null,readout=null,output=null;
+ if(experiment){
+  const top=h('div','gu-v36-experiment-heading');
+  const controlLabel=text('label','Closing price','gu-v36-experiment-label');
+  slider=h('input');slider.type='range';slider.step='0.05';
+  slider.setAttribute('aria-label','Adjust the fictional candle closing price');
+  readout=text('output','', 'gu-v36-experiment-value');
+  top.append(controlLabel,readout);
+  controlLabel.append(slider);
+  experiment.append(top,slider);
+  experiment.append(data);
+  output=text('output','', 'gu-v32-output gu-v36-candle-summary');
+  output.setAttribute('aria-live','off');
+  experiment.append(output);
+  root.append(experiment);
+ }else root.append(data);
+
+ root.append(text('p',
+  'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100. These completed values cannot predict the next candle.',
+  'gu-l33-takeaway'));
+ let current={o:31,hv:32.5,l:30.5,c:32};
+ let lastHighlight='all';
+ function redraw(values,{preserveSlider=false}={}){
   const o=Number(values?.o),hv=Number(values?.hv),l=Number(values?.l),c=Number(values?.c);
-  if(![o,hv,l,c].every(Number.isFinite)||hv<Math.max(o,c)||l>Math.min(o,c)||hv<=l)return false;
-  const host=document.createElement('div');host.innerHTML=candleSVG({o,hv,l,c});
-  const existing=main.querySelector('svg'),updated=host.querySelector('svg');
-  if(!existing||!updated)return false;
-  existing.innerHTML=updated.innerHTML;
-  existing.setAttribute('aria-label',updated.getAttribute('aria-label'));
-  const shape=Math.abs(c-o),width=hv-l;
-  const valuesText=[usd(o),usd(hv),usd(l),usd(c),usd(shape),usd(width),
-   width?(100*shape/width).toFixed(1)+'%':'N/A'];
-  Array.from(data.children).forEach((row,i)=>{
-   const result=row.querySelector('strong');
-   if(result)result.textContent=valuesText[i];
-  });
+  if(![o,hv,l,c].every(Number.isFinite)||
+   hv<Math.max(o,c)||l>Math.min(o,c)||hv<=l)return false;
+  const updated=document.createElement('div');
+  updated.innerHTML=candleSVG({o,hv,l,c});
+  const existingSvg=main.querySelector('svg'),updatedSvg=updated.querySelector('svg');
+  if(!existingSvg||!updatedSvg)return false;
+  existingSvg.innerHTML=updatedSvg.innerHTML;
+  existingSvg.setAttribute('aria-label',updatedSvg.getAttribute('aria-label'));
+  current={o,hv,l,c};
+  for(const [key,field] of Object.entries(refValues))field.textContent=usd(current[key]);
+  const body=Math.abs(c-o),range=hv-l;
+  metricValues.body.textContent=usd(body);
+  metricValues.range.textContent=usd(range);
+  metricValues.percent.textContent=showResult?(100*body/range).toFixed(1)+'%':'Calculate';
+  if(slider){
+   if(!preserveSlider){
+    slider.min=l.toFixed(2);slider.max=hv.toFixed(2);
+    slider.value=c.toFixed(2);
+   }
+   readout.textContent=usd(c);
+   slider.setAttribute('aria-valuetext',usd(c)+' closing price');
+   output.textContent='Open '+usd(o)+' · Close '+usd(c)+' · Body '+usd(body)+
+    ' · Range '+usd(range)+' · '+(100*body/range).toFixed(1)+'% · '+
+    (c>o?'Bullish Candle':c<o?'Bearish Candle':'Doji');
+  }
+  // Retain the prior teaching highlight as the candle geometry changes.
+  const selected={all:['open','close','high','low','body','range'],
+   body:['body','open','close'],range:['range','high','low'],
+   percent:['body','range','open','close','high','low'],
+   open:['open'],close:['close'],high:['high'],low:['low']}[lastHighlight];
+  if(selected){
+   for(const element of existingSvg.querySelectorAll('[data-candle-feature]')){
+    const part=element.getAttribute('data-candle-feature');
+    element.style.opacity=selected.includes(part)?'1':'0.22';
+   }
+  }
   return true;
- };
+ }
+ root.setTeachingCandle=values=>redraw(values);
+ root.getTeachingCandle=()=>({...current});
+ root.addEventListener('gu-v35-highlight',event=>{
+  lastHighlight=String(event.detail?.feature||'all');
+ });
+ if(slider){
+  slider.addEventListener('input',()=>{
+   const c=Number(slider.value);
+   if(!Number.isFinite(c))return;
+   redraw({...current,c},{preserveSlider:true});
+  });
+  slider.addEventListener('change',()=>{
+   const {o,hv,l,c}=current;
+   if(typeof CustomEvent==='function'){
+    root.dispatchEvent(new CustomEvent('gu-v36-candle-adjusted',{
+     bubbles:true,detail:{type:'candle',feature:'percent',
+      message:'You changed Close to '+usd(c)+'. Open '+usd(o)+
+       ', High '+usd(hv)+' and Low '+usd(l)+' remain fixed. Body '+usd(Math.abs(c-o))+
+       ', full range '+usd(hv-l)+', and body percentage '+
+       (100*Math.abs(c-o)/(hv-l)).toFixed(1)+'%.'}
+    }));
+   }
+  });
+ }
+ redraw(options||{o:31,hv:32.5,l:30.5,c:32});
  return root;
 }
 function path(points){return points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')}
@@ -205,7 +305,7 @@ function create({type,stage=1,variant='default'}={}){
   variant==='worked'?{o:20,hv:22,l:19,c:21.2}
    :variant==='bearish'?{o:32,hv:32.5,l:30.5,c:31}
    :variant==='transfer'?{o:12.4,hv:12.7,l:11.9,c:12.1}:undefined,
-  !(variant==='practice'||variant==='transfer')
+  !(variant==='practice'||variant==='transfer'),stage===1||stage===2
  );
  if(type==='vwap'&&(variant==='practice'||variant==='transfer'))return weightedGroups(variant);
  if(['structure','ema','vwap','volume'].includes(type))return chart(type,stage,variant);
