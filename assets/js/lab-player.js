@@ -1,6 +1,18 @@
 let PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0};
 function pe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function q(id){return document.getElementById(id)}
+// User-facing titles are educational topics. IDs are for the book's Lab locator.
+function labTopic(lab){
+ const id=String(lab?.id||'');
+ const title=(...values)=>values.find(v=>{
+  if(typeof v!=='string')return false;
+  const t=v.trim();
+  return t&&t!==id&&!/^(?:F[1-3]|DT|TAPE|SITE)-C\d+-L\d+$/i.test(t)&&
+   !/^(?:concept title pending|unknown|untitled)/i.test(t);
+ })?.trim()||'';
+ return title(lab?.concept,lab?.title,lab?.skill,lab?.chapterTitle)||
+  'Market evidence and decision-making';
+}
 
 /* Normalize the two EXISTING authorized Lab contracts without creating,
  * replacing or granting access to any lesson. Private Foundations content
@@ -29,7 +41,7 @@ function normalizeAuthorizedLab(raw,canonical,id){
  return {
   ...m,...l,id:first(l.id,id),book,
   chapter,chapterTitle:first(l.chapterTitle,m.chapterTitle,'Chapter '+chapter),
-  concept:first(l.concept,m.concept,l.title,id),
+  concept:labTopic({id,concept:first(l.concept,m.concept),title:l.title,skill:first(l.skill,m.skill),chapterTitle:first(l.chapterTitle,m.chapterTitle)}),
   goal:first(l.goal,l.objective,m.goal),
   ticker:first(l.ticker,m.ticker),
   date:first(l.date,m.date),
@@ -310,14 +322,14 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   const picker=q('player-reference-select');
   if(picker){
    if(!Array.from(picker.options).some(o=>o.value===lab.id)){
-    const choice=document.createElement('option');choice.value=lab.id;choice.textContent=lab.concept+' · '+lab.id;picker.append(choice);
+    const choice=document.createElement('option');choice.value=lab.id;choice.textContent=labTopic(lab)+' · '+lab.id;picker.append(choice);
    }
    picker.value=lab.id;
    picker.addEventListener('change',()=>{const id=picker.value;if(/^[A-Za-z0-9_-]{3,90}$/.test(id))location.assign('lab-player.html?lab='+encodeURIComponent(id))});
   }
-  q('player-title').textContent=lab.id==='F2-C07-L01'||lab.id==='F2-C07-L02'?'Build and Understand a Candlestick':lab.id==='F3-C06-L01'?'Understand VWAP and Replay the Market':lab.concept;
+  q('player-title').textContent=labTopic(lab);
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
-  q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${lab.id} — ${lab.concept} | Interactive Lab`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
+  q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s source material',
    'This Lab provides authorized conceptual instruction. Historical charts, private question reviews and assessment certification require their own approved evidence. No mastery score is implied.'));
  }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';q('player-mode-select')?.addEventListener('change',event=>{
