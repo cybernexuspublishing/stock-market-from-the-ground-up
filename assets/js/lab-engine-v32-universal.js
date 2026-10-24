@@ -503,7 +503,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   }else if(stage===1){
    // The instructor and chart are the lesson; do not repeat the same
    // content underneath as an isolated wall of generic competency text.
-   showVisual(1,topic==='Bearish Candle'?'bearish':'default');freeExplanation();guidedHelp();
+   showVisual(1,topic==='Bearish Candle'?'bearish':visualType==='candle'?'worked':'default');freeExplanation();guidedHelp();
    attachWallet();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
