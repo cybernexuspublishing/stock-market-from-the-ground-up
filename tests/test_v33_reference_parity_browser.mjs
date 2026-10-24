@@ -22,6 +22,7 @@ try{
    await page.addScriptTag({url:base+'/assets/js/'+name});
   await page.evaluate(()=>{
    const host=document.createElement('section');host.id='gu-v32-teaching-slot';
+   document.body.classList.add('gu-lab-member');
    document.body.prepend(host);
   });
   const host=page.locator('#gu-v32-teaching-slot');
@@ -41,6 +42,21 @@ try{
   assert.match(await host.locator('.gu-v33-graphic, .gu-l33-graphic').first().innerText(),/FICTIONAL/i);
   assert.equal(await host.locator('.gu-l33-chart-reference').count(),1,
    'Restore original-reference chart with aligned data panel');
+  const visualWorkbench=host.locator('.gu-v34-unified-lesson');
+  assert.equal(await visualWorkbench.count(),1,'The interactive chart and Talia must remain one workstation');
+  const compactVwapHeight=await visualWorkbench.locator('.gu-l33-chart svg').first()
+   .evaluate(node=>node.getBoundingClientRect().height);
+  assert(compactVwapHeight>50&&compactVwapHeight<=270,
+   'Compact chart must be readable while leaving vertical room for Talia at '+width+'px');
+  assert.equal(await visualWorkbench.getByRole('button',{name:'Expand chart and price labels'}).count(),1);
+  await visualWorkbench.getByRole('button',{name:'Expand chart and price labels'}).click();
+  assert.equal(await visualWorkbench.getByRole('button',{name:'Return to compact chart'}).getAttribute('aria-pressed'),'true');
+  await visualWorkbench.getByRole('button',{name:'Return to compact chart'}).click();
+  assert.equal(await visualWorkbench.locator('.gu-v34-expanded-visual').count(),0,
+   'Expanded view must be reversible without resetting progress');
+  const tutorMin=await visualWorkbench.locator('.gu-v33-instructor-narration').evaluate(node=>
+   parseFloat(getComputedStyle(node).minHeight)||0);
+  assert(tutorMin<=1,'The old 420px empty narration reservation must be removed');
   assert.equal(await host.getByRole('button',{name:'Price + VWAP',exact:true}).count(),1,'Reference view modes must be restored');
   await host.getByRole('button',{name:'Volume',exact:true}).click();
   assert.equal(await host.getByRole('button',{name:'Volume',exact:true}).getAttribute('aria-pressed'),'true');
@@ -69,6 +85,9 @@ try{
   await host.getByRole('button',{name:'Open',exact:true}).click();
   const teacher=host.locator('.gu-v34-unified-lesson .gu-v33-instructor');
   assert.equal(await teacher.count(),1,'Talia is integrated INTO the chart module');
+  const candleSvgHeight=await host.locator('.gu-v34-unified-lesson .gu-l33-single svg').first()
+   .evaluate(node=>node.getBoundingClientRect().height);
+  assert(candleSvgHeight>40&&candleSvgHeight<=245,'Candle height must fit with Talia on '+width+'px');
   const prompt=teacher.locator('.gu-v33-instructor-prompt');
   assert.match(await prompt.textContent(),/What does Open measure/);
   const answer=teacher.locator('.gu-v33-instructor-dialogue textarea');
