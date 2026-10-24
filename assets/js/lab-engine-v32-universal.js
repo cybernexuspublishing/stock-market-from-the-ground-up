@@ -613,7 +613,14 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      });
      control.setAttribute('aria-pressed','false');tabs.append(control);
     }
-    body.append(tabs);
+    // Keep all four instructional actions inside the same illustrated
+    // candlestick/chart teaching area, immediately after the focus controls.
+    // Other Labs without a graphic retain the original accessible fallback.
+    const chartHost=body.querySelector('.gu-l33-graphic, .gu-v33-exact-visual');
+    const highlights=chartHost?.querySelector('.gu-l33-interactive-tools');
+    if(highlights)highlights.insertAdjacentElement('afterend',tabs);
+    else if(chartHost)chartHost.append(tabs);
+    else body.append(tabs);
    }
   }
   if(stage===0){
