@@ -8,7 +8,7 @@ const base=(process.env.SITEWIDE_TEST_BASE||'http://127.0.0.1:8765').replace(/\/
 if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Local preview only');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
- for(const width of [390,1280]){
+ for(const width of [390,1280,1920]){
   const page=await browser.newPage({viewport:{width,height:920},serviceWorkers:'block'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
@@ -67,6 +67,7 @@ try{
   if(width>=1160){
    assert.equal(layout.display,'grid','Desktop must use side-by-side teaching columns');
    assert(layout.teacherLeft>=layout.chartRight-2,'Talia must stand beside the illustrated chart');
+   assert(layout.teacherLeft-layout.chartRight<60,'Responsive columns must not leave a dead-space gulf between chart and Talia');
   }else{
    assert(layout.teacherTop>layout.chartTop,'Mobile must stack Talia beneath the chart');
   }
@@ -120,6 +121,7 @@ try{
   await mount('F2-C07-L01','F2-C07-L01');
   await host.getByRole('button',{name:/Start Guided Learning/}).click();
   const candleNarration=await host.locator('.gu-v33-instructor-accessible').first().textContent();
+  assert.equal(await host.locator('.gu-l33-graphic').count(),1,'Exactly one learning visual, with no duplicate canvas');
   assert(!candleNarration.includes('The focus of this lesson is F2-C07-L01'));
   // Source-derived worked examples operate on the same chart and are narrated.
   const steps=host.locator('.gu-v35-chart-worked');
