@@ -154,6 +154,25 @@ function get({type='',feature='',concept='',guide={}}={}){
  const method=clean(guide.procedure||guide.method,500);
  const limits=clean(guide.limit||guide.invalidation,350);
  const mistake=clean(guide.commonError,350);
+ const caseSteps=Array.isArray(caseStudy?.steps)?caseStudy.steps.filter(x=>typeof x==='string').slice(0,5):[];
+ // Five topic-specific paths for Labs without an authored micro-feature.
+ // Do not invent ticker prices, future bars, assessment keys or examples.
+ const tabScripts={
+  understand:[subject+'.',definition,
+   method?'Why the method matters: '+method:'We begin by defining what is observable.'],
+  recognize:['Here is what to recognize for '+subject+'.',
+   method||'Start with the visible labeled observations.',
+   limits?'Check this boundary: '+limits:'Mark anything you cannot observe as unknown.'],
+  apply:['Now apply '+subject+' to a documented example.',
+   method||'Identify the available data before making the comparison.',
+   ...(caseSteps.length?caseSteps:['A separately reviewed numerical worked case is not available for this Lab. Do not invent missing inputs.'])],
+  mistake:['The common mistake: '+(mistake||'treating an observation as a future outcome.'),
+   method?'How to correct it: '+method:'Identify which evidence is missing.',
+   limits?'A limit to remember: '+limits:''],
+  limits:['What cannot be concluded from this example:',
+   limits||'It does not establish an unseen market outcome or verified trade fill.',
+   'State recorded facts separately from hypotheses and future possibilities.']
+ };
  return {
   title:subject+' — '+(clean(feature,60)||'guided observation'),
   definition:definition||subject+' is the skill examined in this lesson.',
@@ -166,6 +185,7 @@ function get({type='',feature='',concept='',guide={}}={}){
   limit:limits||'Unseen bars and unverified historical candles cannot support a conclusion.',
   question:'What specific evidence supports your interpretation of '+subject+', and what would invalidate it?',
   expected:'reasoned evidence',
+  script:tabScripts[key]?.filter(Boolean).join('\n\n'),
   concept:subject,type,feature:key,verifiedHistory:false,editorialFallback:true
  };
 }
