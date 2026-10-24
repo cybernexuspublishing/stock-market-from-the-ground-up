@@ -24,7 +24,7 @@ assert(player.includes("'/api/account?action=identity'"),'First-name lookup must
 assert(player.includes("data?.profile?.firstName"),'Use firstName, not account username');
 assert(player.includes("user_metadata?.first_name"),'A first-name-only metadata fallback is required');
 assert(player.includes("memberFirstName:PLAYER.access.memberFirstName||''"),'Pass the member’s own first name to the shared instructor');
-assert(engine.includes("memberFirstName,requestTutor:tutorRequest"),'Shared Lab engine must forward member first name');
+assert(engine.includes("memberFirstName,allowTutorAI,requestTutor:tutorRequest"),'Shared Lab engine must forward member first name');
 assert(!player.includes("memberFirstName:PLAYER.access.username"),'Never use the account username as a greeting');
 
 assert(player.includes("['guided','practice'].includes(PLAYER.mode)"),'Tutor access must be restricted to instructional modes');
