@@ -29,13 +29,19 @@ async function catalog(){
  if(!cache)cache=Promise.all([
   fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Curriculum map unavailable');return r.json()}),
   fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Study guide unavailable');return r.json()}),
-  fetch('/data/labs.json',{cache:'force-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[])
- ]).then(([paths,study,authored])=>{
+  fetch('/data/labs.json',{cache:'force-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[]),
+  fetch('/data/lab-teaching-bridges-v014168.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('419 individual teaching bridges unavailable');return r.json()})
+ ]).then(([paths,study,authored,bridgeData])=>{
   const guides=study.guides||[];
   if(paths.totalCanonicalLabs!==419||Object.keys(paths.byLab||{}).length!==419||guides.length!==30||
-   new Set(guides.map(x=>x.code)).size!==30)throw Error('Curriculum or competency register mismatch');
+   new Set(guides.map(x=>x.code)).size!==30||bridgeData.version!=='0.14.0.168'||
+   bridgeData.canonicalLabCount!==419||bridgeData.officialCompetencyCount!==30||
+   Object.keys(bridgeData.entries||{}).length!==419||
+   Object.keys(paths.byLab||{}).some(id=>bridgeData.entries[id]?.labId!==id))
+    throw Error('Curriculum or individual teaching bridge register mismatch');
   const knownTopics=new Map((Array.isArray(authored)?authored:[]).filter(x=>x&&typeof x.id==='string'&&typeof x.concept==='string').map(x=>[x.id,x.concept]));
-  return {byLab:paths.byLab,guides:new Map(guides.map(x=>[x.code,x])),knownTopics};
+  return {byLab:paths.byLab,guides:new Map(guides.map(x=>[x.code,x])),knownTopics,
+   bridges:new Map(Object.entries(bridgeData.entries))};
  }).catch(e=>{cache=null;throw e});
  return cache;
 }
@@ -408,7 +414,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   if(![3,5].includes(stage)&&root.GroundUpLabV33Instructor?.create){
    const instructor=root.GroundUpLabV33Instructor.create({
     stage,subject:topic,concept:topic,
-    lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource},
+    lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource,
+      labId,bridge:map.bridges.get(labId)},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
