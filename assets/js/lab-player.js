@@ -10,8 +10,12 @@ function labTopic(lab){
   return t&&t!==id&&!/^(?:F[1-3]|DT|TAPE|SITE)-C\d+-L\d+$/i.test(t)&&
    !/^(?:concept title pending|unknown|untitled)/i.test(t);
  })?.trim()||'';
- return title(lab?.concept,lab?.title,lab?.skill,lab?.chapterTitle)||
-  'Market evidence and decision-making';
+ const authored=title(lab?.concept,lab?.title);
+ if(authored)return authored;
+ const skill=title(lab?.skill);
+ if(skill)return 'Competency study — '+skill;
+ const chapter=title(lab?.chapterTitle);
+ return chapter&&!/^Chapter \d+$/i.test(chapter)?chapter:'Topic awaiting editorial review';
 }
 
 /* Normalize the two EXISTING authorized Lab contracts without creating,
