@@ -249,7 +249,7 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
     Array.isArray(bridge.tabs[key])&&bridge.tabs[key].length>=3){
   const plan=found||lessons.candle.all;
   return {...plan,title:bridge.title+' — '+key,
-   script:[...bridge.tabs[key].filter(x=>typeof x==='string'),
+   script:[bridge.title+'.',...bridge.tabs[key].filter(x=>typeof x==='string'),
     ...(key==='apply'?(bridge.relatedCompetencies||[])
      .filter(code=>Array.isArray(quantitativeWork[code]))
      .slice(0,3).flatMap(code=>quantitativeWork[code]):[])].join('\n\n'),
