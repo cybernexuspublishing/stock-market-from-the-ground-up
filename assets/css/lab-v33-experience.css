@@ -572,3 +572,32 @@ body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-heig
   padding:7px 6px;
  }
 }
+
+
+/* A separate worked VWAP case must visualize its own share weights, not imply
+ * that the earlier fictional market chart contains $10/$12 executions. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-illustration{
+ margin:11px 0;padding:12px 14px;border:1px solid #456e85;border-radius:8px;
+ background:#0d283b;color:#e9f5fc;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-illustration h5{
+ margin:0 0 10px;font-size:.87rem;color:#f4f8ff;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-group{
+ display:grid;grid-template-columns:minmax(115px,165px) 1fr;align-items:center;
+ gap:11px;margin:8px 0;font-size:.82rem;font-variant-numeric:tabular-nums;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-track{
+ border-radius:5px;background:#244459;height:17px;overflow:hidden;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-fill{
+ height:100%;background:#deb35c;border-radius:4px;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-illustration p{
+ margin:9px 0 0;font-size:.8rem;line-height:1.5;color:#d4e7f1;
+}
+@media(max-width:520px){
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v35-vwap-share-group{
+  grid-template-columns:1fr;gap:5px;
+ }
+}
