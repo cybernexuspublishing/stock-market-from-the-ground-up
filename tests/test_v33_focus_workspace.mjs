@@ -39,6 +39,8 @@ assert(css.includes('background:#f3be43!important'),'Start CTA must be noticeabl
 assert(css.includes('.gu-v33-support-tablist')&&css.includes('grid-template-columns:repeat(3'),'Instructional support needs three side-by-side tabs');
 assert(engine.includes('instructorInstance.setWalletContent(wallet)'),'Question Pass Wallet must occupy third support tab');
 assert(engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Primary actions must appear above the support tabs');
+assert(engine.includes("shell.querySelectorAll?.(':scope > .gu-v33-support-tabs').forEach(node=>node.remove())"),
+ 'Start-only Wallet/support tabs must not remain duplicated on Learn and later stages');
 assert(css.includes('.gu-v33-instructor-narration')&&css.includes('overflow:visible!important'),'Narration must reserve text height without a scrollbar');
 assert(instructor.includes('gu-v33-instructor-dialogue'),'Talia must provide an inline answer form');
 assert(engine.includes('gu-v35-teaching-actions'),'All four help controls must ask Talia to teach, not expand disconnected panels');
