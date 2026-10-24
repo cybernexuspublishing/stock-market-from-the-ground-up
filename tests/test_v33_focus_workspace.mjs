@@ -34,6 +34,16 @@ assert(engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Primary a
 assert(css.includes('.gu-v33-instructor-narration')&&css.includes('overflow:visible!important'),'Narration must reserve text height without a scrollbar');
 assert(instructor.includes('gu-v33-instructor-dialogue'),'Talia must provide an inline answer form');
 assert(engine.includes('gu-v35-teaching-actions'),'All four help controls must ask Talia to teach, not expand disconnected panels');
+assert(engine.includes("highlights.insertAdjacentElement('afterend',tabs)"),
+ 'All four teaching controls must be nested inside the visual after its focus controls');
+assert(instructor.includes('function teachDirect('),
+ 'Supplementary teaching must narrate immediately without a reflection gate');
+assert(!instructor.includes('What is the most important lesson from this explanation'),
+ 'Do not ask generic reflection questions after explanations');
+assert(instructor.includes('Real body = |Close − Open|. Full range = High − Low.'),
+ 'Talia must narrate the real-body and full-range formulas');
+assert(instructor.includes('gu-v33-instructor-suggestions'),
+ 'The instructor must expose contextual clickable chat suggestions');
 assert(css.includes('.gu-v33-reference-tablist')&&css.includes('[aria-selected="true"]'),'Historical references need selected state');
 assert(css.includes('.gu-v33-evidence-step[hidden]'),'Inactive evidence questions should remain concealed');
 for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-decision','ev-notes','lock-decision'])
@@ -90,6 +100,29 @@ assert.equal(tabs[1].attrs['aria-selected'],'true');
 assert(all.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('Hello, Maya. I’m Talia')),
  'Typed first-name personal greeting must survive layout changes');
 lesson.dispose();
+const learn=ctx.GroundUpLabV33Instructor.create({
+ stage:1,concept:'Candlestick Construction',lessonContext:{visualType:'candle'}
+});
+const learnNodes=nodes(learn.element);
+const suggestion=learnNodes.find(n=>n.tagName==='button'&&
+ n.textContent==='Talia, explain the common mistake');
+assert(suggestion&&typeof suggestion.handlers.click==='function',
+ 'A common mistake must be a clickable chat suggestion');
+suggestion.handlers.click();
+assert(learnNodes.some(n=>n.className==='gu-v33-instructor-member-question'&&
+ n.textContent==='You asked: Talia, explain the common mistake'),
+ 'Clicking suggestion must post the member question in the instructor dialogue');
+assert(learnNodes.some(n=>n.className==='gu-v33-instructor-typing'&&
+ n.textContent.includes('The common mistake:')),
+ 'Talia must respond with subject-specific misconception teaching');
+learn.teachSupplement('Explain This Concept',['Read the displayed completed candle.']);
+assert(learnNodes.some(n=>n.className==='gu-v33-instructor-typing'&&
+ n.textContent.includes('Body percentage = (real body ÷ full range) × 100')),
+ 'The supplementary explanation must speak the complete candlestick formula');
+assert(!learnNodes.some(n=>n.className==='gu-v33-instructor-prompt'&&
+ n.textContent.includes('most important lesson')),
+ 'Supplemental help must not generate a generic reflective question');
+learn.dispose();
 assert.equal(ctx.GroundUpLabV33Instructor.create({stage:3}),null);
 assert.equal(ctx.GroundUpLabV33Instructor.create({stage:5}),null);
 console.log('PASS focused Lab UX: setup-first, named instructor, accessible content tabs, professional CTA, protected evidence wizard');
