@@ -14,7 +14,8 @@ const css=read('assets/css/lab-v33-instructor.css');
 assert(html.includes('assets/css/lab-v33-instructor.css'));
 assert(html.indexOf('lab-v33-instruction-content.js')<html.indexOf('lab-v33-instructor.js'));
 assert(html.indexOf('lab-v33-instructor.js')<html.indexOf('lab-engine-v32-universal.js'));
-assert(engine.includes('lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource}'),'Instructor must use genuine Lab and competency content');
+assert(engine.includes('lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource,')&&
+ engine.includes('labId,bridge:map.bridges.get(labId)'),'Instructor must use genuine Lab and competency content');
 for(const generic of ['We will examine','Read the explanation alongside','Try changing one permitted input'])assert(!js.includes(generic),'Generic non-teaching narration must not return');
 assert(engine.includes('instructorInstance?.dispose?.()'),'Stage rerender must cancel outstanding Tutor/typing work');
 assert(engine.includes('if(![3,5].includes(stage)'),'Predict and Assess must not have embedded instructional Tutor');
