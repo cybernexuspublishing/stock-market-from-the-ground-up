@@ -253,13 +253,27 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  function teachFeature({type,feature,custom}={}){
   if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
-  const plan=custom||root.GroundUpLabV34InteractiveLessons.get({
+  const base=custom||root.GroundUpLabV34InteractiveLessons.get({
    type,feature,concept,guide:lessonContext.guide
   });
+  // Keep the teaching example consistent with the actual illustrated
+  // downward candle when the learner is studying Bearish Candle.
+  const bearish=/\bbearish candle\b/i.test(concept)&&type==='candle'&&!custom;
+  const bearishCases={
+   all:'For this fictional five-minute BEARISH candle, Open=$32.00, High=$32.50, Low=$30.50, Close=$31.00. The close is $1.00 below the open. The body is $1.00 and the $2.00 full range makes its body share 50%.',
+   open:'The candle first recorded $32.00. It later closed at $31.00, so it is a bearish candle.',
+   close:'The final observed price for this five-minute interval was $31.00, below the $32.00 open.',
+   high:'The highest observed price in this fictional candle is $32.50.',
+   low:'The lowest observed price in this fictional candle is $30.50.',
+   body:'Real body=|$31.00−$32.00|=$1.00, measured between Open and Close.',
+   range:'Full range=$32.50−$30.50=$2.00, measured from High to Low.',
+   percent:'Body share of full range=$1.00÷$2.00×100=50%. The negative price direction does not make the body percentage negative.'
+  };
+  const plan=bearish?{...base,example:bearishCases[feature]||bearishCases.all}:base;
   featureLesson={...plan,type:type||lessonContext.visualType,feature:feature||'supplement'};
   featurePhase=0;understandingMode=false;
   const exact=root.GroundUpLabV34InteractiveLessons?.referenceIntro?.(type);
-  const startsReference=stage===1&&exact&&(
+  const startsReference=stage===1&&exact&&!bearish&&(
    (type==='candle'&&feature==='all')||
    (type==='vwap'&&feature==='price')
   );
