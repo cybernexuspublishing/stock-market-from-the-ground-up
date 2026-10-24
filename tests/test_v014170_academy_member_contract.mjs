@@ -9,7 +9,7 @@ const userA='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const userB='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const origin='https://member.test';
 const note='I reviewed a named source, its time, and the observed evidence. I compared alternatives, identified the missing market information, and wrote a specific next learning action.';
-let writes=[],privateReads=[],forceConflict=false,forgeGrade=false,denyAccess=false,denyProfile=false;
+let writes=[],privateReads=[],forceConflict=false,forgeGrade=false,denyAccess=false,denyProfile=false,corruptPrivateRow=false;
 const saved=globalThis.fetch;
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
 const getUserFromAuth=authorization=>{
@@ -50,7 +50,7 @@ globalThis.fetch=async(url,options={})=>{
  if(pathname==='/rest/v1/gu_bootcamp_academy_progress_v014168'){
   privateReads.push({path:pathname,query:u.search});
   assert(u.searchParams.get('user_id')==='eq.'+userA,'Cross-account progress read');
-  return json([{day_number:1,status:'reflection_saved',revision:2,reflection:note,
+  return json([{day_number:1,status:'reflection_saved',revision:corruptPrivateRow?0:2,reflection:note,
    started_at:'2026-10-24T12:00:00Z',updated_at:'2026-10-24T12:01:00Z'}]);
  }
  if(pathname==='/rest/v1/rpc/gu_bootcamp_academy_save_v014168'){
@@ -82,6 +82,15 @@ try{
  assert.equal(result.enrolled,true);
  assert.equal(result.progress[0].reflection,note);
  assert.equal(privateReads.length,2);
+
+ corruptPrivateRow=true;
+ response=await onRequest({request:makeRequest({query:'?program=truth5'}),env});
+ result=await response.json();
+ assert.equal(response.status,200);
+ assert.equal(result.progressAvailable,false,'An invalid backend revision cannot be displayed as saved progress');
+ assert.equal(result.progress,null,'Invalid private records must not leak into the member page');
+ corruptPrivateRow=false;
+ privateReads.length=0;
 
  response=await onRequest({request:makeRequest({actor:'member-b',query:'?program=truth5'}),env});
  assert.equal(response.status,403,'Other member without training entitlement is denied');
