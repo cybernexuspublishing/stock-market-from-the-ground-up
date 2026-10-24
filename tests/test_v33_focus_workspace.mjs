@@ -187,7 +187,7 @@ await passButton('Confirm 1-credit use').handlers.click();
 assert.equal(spent,1,'Confirmation must spend exactly once');
 assert(passNodes.some(n=>n.className==='gu-v33-pass-feedback'&&n.textContent.includes('One credit was used')),
  'Confirmed paid reveal must display the study answer and credit result');
-assert(passNodes.some(n=>n.className==='gu-v33-instructor-submit'&&n.disabled),
+assert(passNodes.some(n=>n.className.includes('gu-v33-instructor-submit')&&n.disabled),
  'Revealed answer must not also be submitted as independent practice');
 passNodes.find(n=>n.tagName==='button'&&n.textContent==='Continue to next practice question').handlers.click();
 assert(passNodes.some(n=>n.className==='gu-v33-instructor-question-counter'&&n.textContent==='Question 2 of 3'),
