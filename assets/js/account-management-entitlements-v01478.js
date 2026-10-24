@@ -137,7 +137,9 @@
     const action=operation==='set'?'set this member’s total available Sparks to '+value:
      operation+' '+value+' Sparks';
     if(!window.confirm('Confirm: '+action+' for '+account.username+
-      '? This change is permanent in the audit log and does not modify Stripe transactions.'))return;
+      '? This change is audited but does not issue a refund or modify Stripe transactions.'+
+      (operation==='remove'||operation==='set'?
+        ' Confirm purchased-credit corrections are authorized and any refund obligations are addressed.':'')))return;
     // Network retries for the same adjustment reuse the ORIGINAL UUID.
     // This prevents an uncertain response from causing a double grant.
     const fingerprint=JSON.stringify([account.id,operation,value,reason]);
