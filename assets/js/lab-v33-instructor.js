@@ -43,25 +43,30 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={}}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName=''}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
- rootEl.setAttribute('aria-label','Avery, your virtual learning instructor, and Market Tutor');
- const title=el('h3','Avery — Your Learning Instructor');
+ rootEl.setAttribute('aria-label','Elara Voss, your virtual learning instructor, and Market Tutor');
+ const title=el('h3','Elara Voss — Your Learning Instructor');
  const tag=el('span','Virtual course guide · One-to-one teaching','gu-v33-instructor-tag');
  const head=el('div',undefined,'gu-v33-instructor-head');
- const avatar=el('span','A','gu-v33-instructor-avatar');
+ const avatar=el('span','EV','gu-v33-instructor-avatar');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
  identity.append(title,tag);
  head.append(avatar,identity);rootEl.append(head);
+ // Accept only explicitly provided first-name fields. Never derive the form of
+ // address from a username, display name, email, or the member's login handle.
+ const firstName=typeof memberFirstName==='string'&&memberFirstName.trim().length<=80&&
+  /^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u.test(memberFirstName.trim())
+   ?memberFirstName.trim():'';
  const plan=root.GroundUpLabV33InstructionContent?.lesson?.({
   ...lessonContext,stage,concept
  })||null;
  const introduction=stage===0
-  ?'Hello. I’m Avery, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.'
+  ?('Hello'+(firstName?', '+firstName:'')+'. I’m Elara Voss, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
   :stage===1
-   ?'Let’s work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.'
+   ?((firstName?firstName+', let’s':'Let’s')+' work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.')
    :stage===2
     ?'Now you can change one variable and see how the example responds. I’ll help you distinguish what changes from what remains unknown.'
     :stage===4
@@ -143,7 +148,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  if(plan?.misconception&&stage===1){
   const other=el('details',undefined,'gu-v33-instructor-alternative');
-  other.append(el('summary','Avery, explain the common mistake'));
+  other.append(el('summary','Elara, explain the common mistake'));
   other.append(el('p',plan.misconception));
   if(plan.limitation)other.append(el('p','What you cannot conclude: '+plan.limitation));
   rootEl.append(other);
