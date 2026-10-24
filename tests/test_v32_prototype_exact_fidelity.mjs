@@ -40,8 +40,8 @@ assert(member.includes('lab-v32-synthetic-replay.js'),'Owner reference replay ch
 assert(js.includes('serverGuidedAllowed===true')&&js.includes('serverAdvancedAllowed===true'),'Member entitlements must be server-authorized');
 assert(js.includes('GroundUpInteractiveTraining'),'Private grading connection must remain');
 assert(engine.includes('paintPrototypeProgress'),'Real stage progress must update the original toolbar');
-assert(engine.includes('Question Pass Wallet'),'Wallet presentation must remain while server ledger is unavailable');
-assert(engine.includes('Live credit balances are withheld'),'No fictional credits must appear as live entitlements');
+assert(engine.includes('Crownlight Sparks Wallet'),'Branded wallet presentation must remain while the credit service is temporarily unavailable');
+assert(engine.includes("if(!wallet.isConnected)return")&&engine.includes("Number.isInteger(info.included)")&&engine.includes("Number.isInteger(info.purchased)"),'Only valid verified server-reported balances may populate the wallet; no invented amounts');
 assert(visual.includes('function candleChart(b,showTable=true)'),'Member candle chart must use original reference visualization');
 assert(replay.includes('function replayChart()'),'Reference synthetic replay must retain owner chart');
 assert(replay.includes('Study Only')&&replay.includes('fictional'),'Synthetic reference is never graded market history');
