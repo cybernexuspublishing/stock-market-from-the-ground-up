@@ -51,7 +51,7 @@ function enhance(view,options){
   // All focus targets refer to the SAME fictional candle plotted by the
   // canonical renderer. The current Practice/Transfer answers remain hidden.
   const worked=options.variant==='worked'&&options.stage===1;
-  const annotations=Array.from(svg.querySelectorAll('[data-candle-feature]'));
+  // Annotation nodes are refreshed when a different fictional worked candle is selected.
   const descriptions={
    all:'Here is the complete candle. Its body spans Open to Close, and its wicks extend toward High and Low.',
    open:'Open: the first recorded price in the interval. On this worked candle it is $20.00.',
@@ -69,7 +69,7 @@ function enhance(view,options){
    selected=mode;
    const selectedFeatures=mapping[mode]||mapping.all;
    for(const btn of switches)btn.setAttribute('aria-pressed',String(btn.dataset.studyFocus===mode));
-   for(const item of annotations){
+   for(const item of svg.querySelectorAll('[data-candle-feature]')){
     const part=item.getAttribute('data-candle-feature');
     const matches=selectedFeatures.includes(part);
     item.style.opacity=matches?'1':'0.22';
@@ -92,6 +92,10 @@ function enhance(view,options){
    tools.append(next);
   }
   set('all');
+  view.addEventListener('gu-v35-highlight',event=>{
+   const feature=String(event.detail?.feature||'all');
+   if(mapping[feature])set(feature); // visual update only; Talia narrates the linked worked step
+  });
  }else{
   const overlays=Array.from(svg.querySelectorAll('path, line[stroke="#e0ba76"], text[fill="#eed5a1"]'));
   const volume=Array.from(svg.querySelectorAll('rect')).filter(x=>x.getAttribute('fill')==='#527dad');
