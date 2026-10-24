@@ -32,3 +32,11 @@
 .gu-ai-setting-row:focus-within{outline:2px solid #8cd4ed;outline-offset:5px}
 #profile-tutor-ai-status{min-height:1.25rem}
 @media(max-width:370px){.gu-signin-page .auth-page{padding:0 11px}.gu-signin-page .gu-signin-card{padding:16px}.gu-signin-page .auth-links{flex-direction:column;gap:7px}}
+
+/* Preserve room for Cloudflare's standard approximately 300px widget on small phones. */
+@media(max-width:380px){
+ .gu-signin-page .auth-page{padding:0 4px}
+ .gu-signin-page .gu-signin-card{padding:13px 6px}
+ .gu-signin-page .gu-signin-card .auth-submit{font-size:.97rem}
+ .gu-signin-page .gu-manual-human{padding-top:12px}
+}
