@@ -33,3 +33,20 @@
 @media(max-width:1100px){.gu-f600-forum-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.gu-f600-hero{display:block}.gu-f600-identity{margin-top:14px}.gu-f600-layout{grid-template-columns:1fr}.gu-f600-metrics{grid-template-columns:1fr}.gu-f600-forum-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.gu-f600-main *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* Founder-owned view preferences; only changes this private community's visual treatment. */
+.gu-f600-studio{margin:26px 0}
+.gu-f600-preference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0}
+.gu-f600-preference-grid label{color:#e8f1fc;font-weight:600;display:grid;gap:7px}
+.gu-f600-preference-grid select{width:100%;min-height:44px;border-radius:9px;padding:9px 12px;border:1px solid #7390aa;background:#0b1f35;color:#fff}
+.gu-founders-page[data-f600-theme="graphite"]{background:radial-gradient(ellipse at 85% 0%,#303b50,transparent 45%),#10151e}
+.gu-founders-page[data-f600-theme="graphite"] .gu-f600-hero{background:linear-gradient(125deg,#2f3845,#1b2330)}
+.gu-founders-page[data-f600-theme="graphite"] .gu-f600-forum{background:linear-gradient(165deg,#2a3442,#171f2c)}
+.gu-founders-page[data-f600-theme="aurora"]{background:radial-gradient(ellipse at 85% 0%,#154f62,transparent 45%),#071926}
+.gu-founders-page[data-f600-theme="aurora"] .gu-f600-hero{background:linear-gradient(115deg,#123b58,#0d3c4a 65%,#212b55)}
+.gu-founders-page[data-f600-theme="aurora"] .gu-f600-forum{background:linear-gradient(165deg,#0d3e52,#10253b)}
+.gu-founders-page[data-f600-density="compact"] .gu-f600-forum{padding:12px}
+.gu-founders-page[data-f600-density="compact"] .gu-f600-forum-grid{gap:8px}
+.gu-founders-page[data-f600-density="compact"] .gu-f600-forum p{line-height:1.32}
+@media(max-width:720px){.gu-f600-preference-grid{grid-template-columns:1fr}}
