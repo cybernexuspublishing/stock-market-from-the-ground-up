@@ -11,6 +11,16 @@ for(const d of bootcampCurriculumV014144.days){
  assert(d.competencies.every(c=>known.has(c)),'Unknown competency in day '+d.day);
 }
 const h=readFileSync('bootcamp.html','utf8'),b=readFileSync('assets/js/bootcamp.js','utf8'),e=readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
+const instructor=readFileSync('assets/js/lab-v33-instruction-content.js','utf8');
+assert(b.includes('what:d.objective')&&b.includes('why:d.caution||d.observe'),
+ 'Every Boot Camp day needs its authored objective and distinct reason instead of a generic overview');
+assert(b.includes('commonError:checkpoint?.commonMistake||d.caution')&&b.includes('limitation:d.caution'),
+ 'Day-specific mistakes and limitations must be narrated by Talia');
+assert(instructor.includes('customHow.map((step,index)')&&instructor.includes('custom.when?'),
+ 'The common teaching engine must actually render the daily observe/practice methodology');
+assert(instructor.includes('custom.commonError?')&&instructor.includes('custom.limitation?'),
+ 'Source-specific misconceptions and limitations must outrank generic hints');
+
 assert(h.includes('gu-bc-v32-stage'));
 assert(h.indexOf('lab-engine-v32-universal.js')<h.indexOf('bootcamp.js'));
 assert(b.includes("labId:first,mode:'guided',target:guideSlot"));
