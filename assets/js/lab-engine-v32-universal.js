@@ -175,11 +175,16 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    'After using the example controls, what changed in the observed price, volume or calculation?',
    'Why did that input change the conclusion, and which information remains unavailable?'
   ];
-  if(current===4)return [
-   'Before solving the current practice case, explain the observations, method and units you will use.',
-   special?'Enter the numerical result for this practice case ('+special.units+'). '+special.description:
-    'State your practice conclusion and explain the visible evidence that supports it.'
-  ];
+  if(current===4){
+   const reference=root.GroundUpLabV34InteractiveLessons?.practiceFor?.(kind)||[];
+   if(reference.length===3)return reference.map(step=>
+    'Enter the numerical result for '+step.id+'. '+step.prompt);
+   return [
+    'Before solving the current practice case, explain the observations, method and units you will use.',
+    special?'Enter the numerical result for this practice case ('+special.units+'). '+special.description:
+     'State your practice conclusion and explain the visible evidence that supports it.'
+   ];
+  }
   if(current===6)return [
    'What was the most important mistake or limitation you identified in your earlier reasoning?',
    'Explain how you corrected the reasoning and how you would recognize that mistake in another case.'
@@ -197,15 +202,26 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   if(answerStage!==stage||![0,1,2,4,6,7,8].includes(stage))return{accepted:false,message:'This question belongs to an earlier lesson stage.'};
   const list=learnerReplies.get(stage)||[];
   if(index>list.length)return{accepted:false,message:'Please answer the questions in sequence.'};
-  if(stage===4&&isFinal){
-   if(special){
-    practice=answer;
-    if(!validNumber(practice,special.answer)){
-     practiceCount++;
-     return{accepted:false,message:'Review the calculation and try again. '+mathDiagnostic(kind,practice)};
+  if(stage===4){
+   const reference=root.GroundUpLabV34InteractiveLessons?.practiceFor?.(kind)||[];
+   const question=reference[index];
+   if(question){
+    if(!validNumber(answer,question.answer)){
+     practiceCount++;practiceAssisted=true;
+     return{accepted:false,message:'Let’s correct '+question.id+'. '+question.help+
+      ' New guided example: '+question.newExample+' Retry the original question.'};
     }
-    practiceResolved=true;
-   }else{practice=answer;practiceResolved=true}
+    if(isFinal){practice=answer;practiceResolved=true}
+   }else if(isFinal){
+    if(special){
+     practice=answer;
+     if(!validNumber(practice,special.answer)){
+      practiceCount++;
+      return{accepted:false,message:'Review the calculation and try again. '+mathDiagnostic(kind,practice)};
+     }
+     practiceResolved=true;
+    }else{practice=answer;practiceResolved=true}
+   }
   }
   if(stage===6&&isFinal){reflection=answer;selfReview=true}
   if(stage===7&&isFinal){
