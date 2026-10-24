@@ -154,13 +154,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  const journey=el('ol'),progress=el('p'),meter=el('div'),meterFill=el('span'),body=el('section'),status=el('p'),nav=el('div');
  journey.className='gu-v33-journey';journey.setAttribute('aria-label','Learning stages');
  progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Learning journey progress');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax','100');meter.append(meterFill);body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const previous=button('Previous stage',()=>{if(stage>0){stage--;render()}}),
+ const previous=button('Previous stage',()=>{if(stage>0&&!creditBusy){stage--;render()}}),
  next=button('Next learning stage',()=>nextStage());
  nav.append(previous,next);shell.append(heading,disclosure,progress,meter,journey,body,status,nav);target.replaceChildren(shell);
  let stage=0,observations='',prediction='',predictionLocked=false,practice='',practiceCount=0,
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
- let instructorInstance=null;
+ let instructorInstance=null,creditBusy=false;
  const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
  const passRequests=new Map();
  token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
@@ -382,7 +382,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource},
     memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
-    onAnswer:receiveInstructorAnswer,onCreditAction:stage===4&&special&&['F2-C07-L01','F2-C07-L02','F3-C06-L01'].includes(labId)?handleQuestionPass:undefined,
+    onAnswer:receiveInstructorAnswer,
+    onCreditPending:busy=>{creditBusy=busy===true;previous.disabled=creditBusy||stage===0;next.disabled=creditBusy||stage===8},
+    onCreditAction:stage===4&&special&&['F2-C07-L01','F2-C07-L02','F3-C06-L01'].includes(labId)?handleQuestionPass:undefined,
     onComplete:()=>{if(stage<8)nextStage(true)},
     onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
    });
@@ -833,6 +835,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   previous.disabled=stage===0;next.disabled=stage===8;
  }
  function nextStage(fromInstructor=false){
+  if(creditBusy){mark('Finish confirming your Question Pass first.');return}
   if(stage===3&&!predictionLocked){mark('Lock your prediction before continuing.');return}
   if(stage===4&&!practiceResolved){mark('Complete the guided practice or record your self-study response before continuing.');return}
   if(stage===6&&!selfReview){mark('Complete the reflection before continuing.');return}
