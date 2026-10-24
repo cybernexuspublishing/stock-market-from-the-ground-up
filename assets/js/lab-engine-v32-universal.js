@@ -149,8 +149,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  shell.setAttribute('aria-label','Advanced learning journey');
  const heading=el('h2','Learning Journey — '+topic);
  const disclosure=el('details');disclosure.className='gu-v33-source-note';
- disclosure.append(el('summary','About lesson data and assessment integrity'),
-  el('p','Examples may use clearly labeled illustrative market data. Historical evidence requires an approved source. Independent assessments and account progress are handled by the authorized member services.'));
+ disclosure.append(el('summary','Where these chart examples come from'),
+  el('p','Some lessons use simulated chart prices so you can practice calculations without risking money. A historical chart must match the named ticker, date, time, source and verified prices. Practice examples are not live quotes or guaranteed trade outcomes.'));
  const journey=el('ol'),progress=el('p'),meter=el('div'),meterFill=el('span'),body=el('section'),status=el('p'),nav=el('div');
  journey.className='gu-v33-journey';journey.setAttribute('aria-label','Learning stages');
  progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Learning journey progress');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax','100');meter.append(meterFill);body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
