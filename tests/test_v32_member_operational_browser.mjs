@@ -8,15 +8,15 @@ if(!/^http:\/\/127\.0\.0\.1:\d+$/.test(base))throw Error('Local build-only brows
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const input=async (page,key,value)=>{
  const selector='[data-input="'+key+'"]';
- const loc=page.locator(selector).first;
+ const loc=page.locator(selector).first();
  assert(await loc.count(),'Required input absent: '+key);
  const type=await loc.getAttribute('type');
  if(type==='radio')await page.locator(selector+'[value="'+value+'"]').check();
  else if(type==='range')await loc.evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))},String(value));
  else await loc.fill(String(value));
 };
-const action=async(page,name)=>{const b=page.locator('button[data-action="'+name+'"]').first;assert(await b.count(),'Action missing: '+name);await b.click()};
-const assertStage=async(page,part)=>assert((await page.locator('.content h2').first.innerText()).includes(part),part+' stage not reached');
+const action=async(page,name)=>{const b=page.locator('button[data-action="'+name+'"]').first();assert(await b.count(),'Action missing: '+name);await b.click()};
+const assertStage=async(page,part)=>assert((await page.locator('.content h2').first().innerText()).includes(part),part+' stage not reached');
 try{
  for(const width of [390,1280]){
   const page=await browser.newPage({viewport:{width,height:1360},serviceWorkers:'block'});
