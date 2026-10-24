@@ -44,6 +44,20 @@ try{
    'Restore original-reference chart with aligned data panel');
   const visualWorkbench=host.locator('.gu-v34-unified-lesson');
   assert.equal(await visualWorkbench.count(),1,'The interactive chart and Talia must remain one workstation');
+  const layout=await visualWorkbench.evaluate(node=>{
+   const chart=node.querySelector('.gu-l33-graphic');
+   const teacher=node.querySelector('.gu-v33-instructor');
+   const c=chart?.getBoundingClientRect(),t=teacher?.getBoundingClientRect();
+   return {display:getComputedStyle(node).display,
+    chartLeft:c?.left,chartRight:c?.right,chartTop:c?.top,
+    teacherLeft:t?.left,teacherTop:t?.top};
+  });
+  if(width>=1160){
+   assert.equal(layout.display,'grid','Desktop must use side-by-side teaching columns');
+   assert(layout.teacherLeft>=layout.chartRight-2,'Talia must stand beside the illustrated chart');
+  }else{
+   assert(layout.teacherTop>layout.chartTop,'Mobile must stack Talia beneath the chart');
+  }
   const compactVwapHeight=await visualWorkbench.locator('.gu-l33-chart svg').first()
    .evaluate(node=>node.getBoundingClientRect().height);
   assert(compactVwapHeight>50&&compactVwapHeight<=270,
