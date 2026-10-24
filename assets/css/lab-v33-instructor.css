@@ -106,3 +106,27 @@
 #gu-v32-teaching-slot .gu-v33-instructor-controls button{min-height:34px;padding:6px 11px}
 #gu-v32-teaching-slot .gu-v33-instructor-identity h3{font-size:1.06rem}
 @media(max-width:690px){#gu-v32-teaching-slot .gu-v33-instructor-narration{min-height:340px}#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-reserve{min-height:340px}#gu-v32-teaching-slot .gu-v33-instructor-narration .gu-v33-instructor-typing{height:auto!important;max-height:none!important}}
+
+
+/* v3.3 continued: suggested member-to-Talia chat, with no generic quiz gate. */
+#gu-v32-teaching-slot .gu-v33-instructor-member-question:not(:empty){
+ margin:0 0 12px;padding:10px 12px;border-left:3px solid #e6bc59;
+ background:#1c3b4d;color:#f2f8fc;border-radius:6px;line-height:1.55;
+}
+#gu-v32-teaching-slot .gu-v33-instructor-suggestions{
+ display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 3px;
+}
+#gu-v32-teaching-slot .gu-v33-instructor-suggestions:empty{display:none}
+#gu-v32-teaching-slot .gu-v33-instructor-suggestions .gu-v33-instructor-suggestion{
+ flex:0 1 auto;min-height:36px;padding:8px 11px;border:1px solid #6289a3;
+ border-radius:9px;background:#1b4059;color:#f1f7fb;font-size:.83rem;line-height:1.4;
+}
+#gu-v32-teaching-slot .gu-v33-instructor-suggestions .gu-v33-instructor-suggestion:hover{
+ background:#265471;
+}
+#gu-v32-teaching-slot .gu-l33-graphic>.gu-v35-teaching-actions{
+ margin:12px 0;padding:12px 0 0;border-top:1px solid #406780;
+}
+@media(max-width:600px){
+ #gu-v32-teaching-slot .gu-v33-instructor-suggestions .gu-v33-instructor-suggestion{flex:1 1 100%}
+}
