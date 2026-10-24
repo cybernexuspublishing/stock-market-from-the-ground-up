@@ -502,23 +502,45 @@
       const href=new URL(link.getAttribute('href'),location.origin);const key=link.textContent.trim().toLowerCase()==='dashboard'?'DASHBOARD':href.pathname+href.search;
       if(seen.has(key))link.remove();else seen.add(key);
     }}
-    nav.querySelectorAll('.v11-nav-group>.v11-nav-button').forEach(b=>b.onclick=e=>{e.stopPropagation();const g=b.parentElement;nav.querySelectorAll('.v11-nav-group').forEach(x=>{if(x!==g)x.classList.remove('open')});if(g.classList.contains('v11-profile-group')&&window.matchMedia?.('(hover: hover)').matches){g.classList.add('open')}else g.classList.toggle('open')});
+    nav.querySelectorAll('.v11-nav-group>.v11-nav-button').forEach(b=>b.onclick=e=>{
+      if(b.closest('.v11-profile-group'))return; // handled by the delayed, pin-capable profile menu
+      e.stopPropagation();const g=b.parentElement;
+      nav.querySelectorAll('.v11-nav-group').forEach(x=>{if(x!==g)x.classList.remove('open')});
+      g.classList.toggle('open');
+    });
     // Profile presentation/interaction has one owner. Hover, focus, click and touch
     // all use the same node; do not rewrite this menu from another enhancer.
     nav._groundUpNavController?.abort();nav._groundUpNavController=new AbortController();
     const profileGroup=nav.querySelector('.v11-profile-group');
     if(profileGroup){
       const trigger=profileGroup.querySelector('.v12-profile-button');
-      const update=open=>{profileGroup.classList.toggle('open',open);trigger?.setAttribute('aria-expanded',String(open))};
+      let pinned=false,closeTimer=null;
+      const cancelClose=()=>{if(closeTimer!==null){clearTimeout(closeTimer);closeTimer=null}};
+      const update=open=>{cancelClose();profileGroup.classList.toggle('open',open);trigger?.setAttribute('aria-expanded',String(open))};
+      const scheduleClose=()=>{
+        if(pinned)return;
+        cancelClose();closeTimer=setTimeout(()=>{
+          closeTimer=null;
+          if(!profileGroup.matches(':hover')&&!profileGroup.contains(document.activeElement))update(false);
+        },550);
+      };
       profileGroup.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')update(true)});
-      profileGroup.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch')update(false)});
+      profileGroup.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch')scheduleClose()});
       profileGroup.addEventListener('focusin',()=>update(true));
-      profileGroup.addEventListener('focusout',e=>{if(!profileGroup.contains(e.relatedTarget))update(false)});
-      trigger?.addEventListener('keydown',e=>{if(e.key==='Escape'){update(false);trigger.focus()}});
-      // Existing v11 button.onclick handles click/tap open/close. Synchronize aria
-      // after it runs, so touch users receive the same menu and state.
-      trigger?.addEventListener('click',()=>update(profileGroup.classList.contains('open')));
-      document.addEventListener('click',e=>{if(!profileGroup.contains(e.target))update(false)},{signal:nav._groundUpNavController?.signal});
+      profileGroup.addEventListener('focusout',e=>{if(!profileGroup.contains(e.relatedTarget))scheduleClose()});
+      trigger?.addEventListener('click',e=>{
+        e.stopPropagation();pinned=!pinned;update(pinned);
+      });
+      trigger?.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){pinned=false;update(false);trigger.focus();}
+        else if(e.key==='ArrowDown'){e.preventDefault();update(true);profileGroup.querySelector('.v13-profile-menu a[href]')?.focus();}
+      });
+      document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'&&profileGroup.classList.contains('open')){pinned=false;update(false);trigger?.focus();}
+      },{signal:nav._groundUpNavController?.signal});
+      document.addEventListener('click',e=>{
+        if(!profileGroup.contains(e.target)){pinned=false;update(false);}
+      },{signal:nav._groundUpNavController?.signal});
     }
     const so=document.getElementById('v11-signout');if(so)so.onclick=async e=>{e.preventDefault();const sb=await sbReady();await sb?.auth.signOut();accessCache=null;location.href='index.html'};
     if(!document.documentElement.dataset.v11NavClose){document.documentElement.dataset.v11NavClose='1';document.addEventListener('click',()=>document.querySelectorAll('.v11-nav-group.open').forEach(x=>x.classList.remove('open')))}
