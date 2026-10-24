@@ -144,7 +144,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    if(featurePhase===0){
     featurePhase=1;
     const detail=featureLesson;
-    const correction='Worked example: '+detail.example+'\\n\\nCommon mistake: '+detail.mistake+
+    const correction='Worked example: '+detail.example+'\n\nCommon mistake: '+detail.mistake+
      '\n\nLimitation: '+detail.limit;
     reserve.textContent=correction;
     accessible.textContent=correction;
