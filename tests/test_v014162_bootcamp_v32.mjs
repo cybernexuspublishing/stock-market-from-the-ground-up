@@ -13,6 +13,13 @@ for(const d of bootcampCurriculumV014144.days){
 const h=readFileSync('bootcamp.html','utf8'),b=readFileSync('assets/js/bootcamp.js','utf8'),e=readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
 const instructor=readFileSync('assets/js/lab-v33-instruction-content.js','utf8');
 const sourceCases=JSON.parse(readFileSync('data/bootcamp-source-cases-v014166.json','utf8'));
+const bootcampCss=readFileSync('assets/css/bootcamp.css','utf8');
+assert(bootcampCss.includes('body.gu-bc-learning main.section>.wrap')&&
+ bootcampCss.includes('max-width:2180px!important'),
+ 'Boot Camp must not inherit the narrow generic article container at desktop width');
+assert(bootcampCss.includes('body.gu-bc-learning #gu-bc-source-case[hidden]'),
+ 'Research links must remain hidden on days without an authenticated context record');
+
 assert.equal(sourceCases.version,'0.14.0.166');
 assert.equal(sourceCases.cases.length,6,'Six genuinely sourced educational cases are available; no invented future-bar claims');
 assert.equal(new Set(sourceCases.cases.map(c=>c.day)).size,sourceCases.cases.length);
