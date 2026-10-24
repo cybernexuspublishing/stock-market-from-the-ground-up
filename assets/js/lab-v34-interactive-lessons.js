@@ -88,6 +88,79 @@ const candleBearishTabs=Object.freeze({
  ]
 });
 
+// Source-agnostic numerical instruction. Every value below is a clearly
+// SIMULATED practice input, not a historical market print or broker fill.
+// Formula, substituted quantities, result, interpretation and limitations
+// are presented separately for the relevant official competencies.
+const quantitativeWork=Object.freeze({
+ VWAP_CONTEXT:[
+  'Worked VWAP calculation — simulated trades, not actual market VWAP.',
+  'Step 1 — Traded dollars:\nPrice × Shares = Traded Dollars\n$8.00 × 200 shares = $1,600; $10.00 × 100 shares = $1,000.',
+  'Step 2 — Totals:\n$1,600 + $1,000 = $2,600 traded dollars.\n200 + 100 = 300 traded shares.',
+  'Step 3 — Weighted average:\nTotal Traded Dollars ÷ Total Shares = VWAP\n$2,600 ÷ 300 shares = $8.666… per share, rounded to $8.67.',
+  'This two-price example is not a verified full-session VWAP. The data feed and scope must match the intended market benchmark.'
+ ],
+ EMA_CONTEXT:[
+  'Worked EMA illustration — simulated closes and an assumed previously initialized EMA.',
+  'Step 1 — Weight:\n2 ÷ (Periods + 1) = EMA Multiplier\n2 ÷ (3 + 1) = 0.50 for a 3-period EMA.',
+  'Step 2 — Update:\nMultiplier × Current Close + (1 − Multiplier) × Previous EMA = New EMA\n0.50 × $11.00 + 0.50 × $10.00 = $10.50.',
+  'The $10.00 previous EMA is an assumed initialized value. Real chart EMA needs prior completed closes, a declared seed rule and no future prices.'
+ ],
+ VOLUME_ANALYSIS:[
+  'Worked relative-volume illustration — two comparable simulated periods.',
+  'Step 1 — Check that both intervals cover the same duration and reporting universe.',
+  'Step 2 — Ratio:\nCurrent Volume ÷ Comparable Average Volume = Relative Volume\n600 shares ÷ 200 average shares = 3.0 times the average.',
+  'Relative volume of 3.0× is not a 300% probability of continuation. It does not establish buyer identity.'
+ ],
+ RISK_PER_SHARE:[
+  'Worked planned long-position risk — simulated assumptions, not an actual trade.',
+  'Step 1 — State proposed Entry $10.00 and Stop $9.70 before looking at later prices.',
+  'Step 2 — Distance:\nEntry − Stop = Planned Risk per Share\n$10.00 − $9.70 = $0.30 per share.',
+  'This planned loss distance excludes fees, gaps and slippage. A stop price is not a guaranteed execution price.'
+ ],
+ POSITION_SIZING:[
+  'Worked hypothetical share-count limit — not an order recommendation.',
+  'Step 1 — Risk budget $30.00; assumed entry $10.00 and stop $9.70.',
+  'Step 2 — Per-share loss:\nEntry − Stop = Planned Risk per Share\n$10.00 − $9.70 = $0.30 per share.',
+  'Step 3 — Whole shares:\nFloor(Risk Budget ÷ Risk per Share) = Maximum Planned Shares\nFloor($30.00 ÷ $0.30) = 100 shares.',
+  'Recheck buying power, liquidity, execution uncertainty and order size. A planned stop does not cap every possible actual loss.'
+ ],
+ RISK_REWARD:[
+  'Worked long-only risk/reward planning — all prices are proposed, not filled.',
+  'Step 1 — Planned Entry $10.00, Stop $9.70, Target $10.60.',
+  'Step 2 — Distances:\nEntry − Stop = Risk; Target − Entry = Reward\n$10.00 − $9.70 = $0.30 risk; $10.60 − $10.00 = $0.60 reward.',
+  'Step 3 — Ratio:\nPlanned Reward ÷ Planned Risk = Reward-to-Risk\n$0.60 ÷ $0.30 = 2 to 1.',
+  'A 2-to-1 planned ratio is not an expected return or a guarantee that either price will trade or fill.'
+ ],
+ SLIPPAGE_SPREAD:[
+  'Worked quote and hypothetical execution difference — not an actual fill.',
+  'Step 1 — Same-timestamp best Bid $10.00 and Ask $10.04.',
+  'Step 2 — Quoted spread:\nAsk − Bid = Spread\n$10.04 − $10.00 = $0.04 per share.',
+  'Step 3 — Midpoint:\n(Bid + Ask) ÷ 2 = Midpoint\n($10.00 + $10.04) ÷ 2 = $10.02.',
+  'Step 4 — Relative spread:\n(Spread ÷ Midpoint) × 100 = Spread Percent\n($0.04 ÷ $10.02) × 100 ≈ 0.40%.',
+  'For a hypothetical buy planned at $10.04 but modeled to execute at $10.07, adverse slippage is $0.03/share. Neither quote guarantees a fill.'
+ ],
+ FLOAT_SUPPLY:[
+  'Worked turnover calculation — reported float estimates may be stale.',
+  'Step 1 — Assume 5,000,000 reported free-trading shares and 10,000,000 shares of session volume.',
+  'Step 2 — Turnover:\nSession Shares Traded ÷ Reported Float = Float Turnover Multiple\n10,000,000 ÷ 5,000,000 = 2.0×.',
+  'A 2.0× share-volume/float ratio does not mean each share changed owners twice. Shares can trade repeatedly; source dates and split adjustments matter.'
+ ],
+ MFE_MAE_REVIEW:[
+  'Worked retrospective long-side excursion — hypothetical entry and observation window.',
+  'Step 1 — Assume entry $10.00; the largest visible subsequent high before the selected endpoint is $10.70, and lowest visible low is $9.80.',
+  'Step 2 — Favorable excursion:\nHighest Observed Price − Entry = MFE\n$10.70 − $10.00 = $0.70 per share.',
+  'Step 3 — Adverse excursion:\nEntry − Lowest Observed Price = MAE\n$10.00 − $9.80 = $0.20 per share.',
+  'The metric measures price extrema inside a specified retrospective window, not executable profits or guaranteed order fills.'
+ ],
+ LEVEL2_READING:[
+  'Worked top-of-book arithmetic — example quotes, not guaranteed executable depth.',
+  'Step 1 — Assume best displayed Bid $10.00 and Ask $10.03 from the same quote snapshot.',
+  'Step 2 — Spread:\nAsk − Bid = Quoted Spread\n$10.03 − $10.00 = $0.03 per share.',
+  'Quote size is unexecuted displayed interest. Only a verified trade print proves shares actually traded.'
+ ]
+});
+
 const lessons=Object.freeze({
  candle:Object.freeze({
   all:entry('The completed candlestick','One candle summarizes the Open (O), High (H), Low (L), and Close (C) of a specified time interval.','The four prices show what was observed in that interval; one candle is not an entire trend.','Find the top and bottom of the wicks, then identify where the body starts and ends.','In this illustrative five-minute example O=$31.00, H=$32.50, L=$30.50, C=$32.00.','Confusing the close with the highest price, or treating one candle as a prediction.','OHLC cannot reveal the order of intrabar transactions or the next bar.','What four prices does OHLC represent?','open high low close'),
@@ -176,7 +249,8 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
     Array.isArray(bridge.tabs[key])&&bridge.tabs[key].length>=3){
   const plan=found||lessons.candle.all;
   return {...plan,title:bridge.title+' — '+key,
-   script:bridge.tabs[key].filter(x=>typeof x==='string').join('\n\n'),
+   script:[...bridge.tabs[key].filter(x=>typeof x==='string'),
+    ...(key==='apply'?(quantitativeWork[bridge.mappedGuideCode]||[]):[])].join('\n\n'),
    concept:subject,type,feature:key,verifiedHistory:false,
    sourceStatus:bridge.sourceStatus,editorialFallback:false};
  }
