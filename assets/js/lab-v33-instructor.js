@@ -251,7 +251,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   stopTyping?.();stopTyping=animate(visual,full,true,skip);
   paintQuestion();
  }
- function teachFeature({type,feature,custom}={}){
+ function teachFeature({type,feature,custom,values}={}){
   if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
   const base=custom||root.GroundUpLabV34InteractiveLessons.get({
    type,feature,concept,guide:lessonContext.guide
@@ -269,11 +269,25 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    range:'Full range=$32.50−$30.50=$2.00, measured from High to Low.',
    percent:'Body share of full range=$1.00÷$2.00×100=50%. The negative price direction does not make the body percentage negative.'
   };
-  const plan=bearish?{...base,example:bearishCases[feature]||bearishCases.all}:base;
+  const numeric=values&&['o','hv','l','c'].every(key=>Number.isFinite(Number(values[key])))
+   &&Number(values.hv)>Number(values.l);
+  let plan=bearish?{...base,example:bearishCases[feature]||bearishCases.all}:base;
+  if(type==='candle'&&numeric&&!custom){
+   const {o,hv,l,c}=values;
+   const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
+   const body=Math.abs(c-o),range=hv-l,percent=(100*body/range).toFixed(1);
+   const example='The selected fictional candle currently displays Open '+money(o)+
+    ', High '+money(hv)+', Low '+money(l)+', Close '+money(c)+
+    '. Body = '+money(body)+'; full range = '+money(range)+
+    '; body percentage = '+percent+'%. It is '+(c>o?'bullish':c<o?'bearish':'a doji')+
+    '. These observations do not predict the next candle.';
+   plan={...plan,example};
+  }
   featureLesson={...plan,type:type||lessonContext.visualType,feature:feature||'supplement'};
   featurePhase=0;understandingMode=false;
   const exact=root.GroundUpLabV34InteractiveLessons?.referenceIntro?.(type);
-  const startsReference=stage===1&&exact&&!bearish&&(
+  const startsReference=stage===1&&exact&&!bearish&&(!numeric||
+   (Number(values.o)===31&&Number(values.hv)===32.5&&Number(values.l)===30.5&&Number(values.c)===32))&&(
    (type==='candle'&&feature==='all')||
    (type==='vwap'&&feature==='price')
   );
