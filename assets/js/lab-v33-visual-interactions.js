@@ -30,20 +30,48 @@ function enhance(view,options){
   tools.append(b);switches.push(b);return b;
  };
  if(type==='candle'){
-  // The existing educational figure has one real-body rectangle,
-  // one range bracket and wicks. Emphasis never changes numeric values.
-  const body=svg.querySelector('rect[x="177"]');
-  const range=svg.querySelector('line[x1="115"]');
-  const set=mode=>{
-   for(const b of switches)b.setAttribute('aria-pressed',String(b.dataset.view===mode));
-   if(body)body.style.opacity=mode==='range'?'0.27':'1';
-   if(range)range.style.opacity=mode==='body'?'0.27':'1';
-   state.textContent=mode==='body'?'Real body: distance between the opening and closing prices.'
-    :mode==='range'?'Full range: distance between the highest and lowest prices.'
-    :'Full candle: inspect the body, wicks, high, low, open and close.';
+  // All focus targets refer to the SAME fictional candle plotted by the
+  // canonical renderer. The current Practice/Transfer answers remain hidden.
+  const worked=options.variant==='worked'&&options.stage===1;
+  const annotations=Array.from(svg.querySelectorAll('[data-candle-feature]'));
+  const descriptions={
+   all:'Here is the complete candle. Its body spans Open to Close, and its wicks extend toward High and Low.',
+   open:'Open: the first recorded price in the interval. On this worked candle it is $20.00.',
+   close:'Close: the last recorded price in the interval. Here it is $21.20, above the opening price.',
+   high:'High: the highest recorded price during the interval. Here the high is $22.00.',
+   low:'Low: the lowest recorded price during the interval. Here the low is $19.00.',
+   body:'Real body = |Close − Open| = |$21.20 − $20.00| = $1.20. Watch the rectangle between the two prices.',
+   range:'Full range = High − Low = $22.00 − $19.00 = $3.00. Watch the wick-to-wick bracket.',
+   percent:'The real body occupies $1.20 ÷ $3.00 × 100 = 40% of this fictional candle’s full range.'
   };
-  for(const [name,key] of [['Full candle','all'],['Real body','body'],['Full range','range']]){
-   const b=button(name,()=>set(key));b.dataset.view=key;
+  const keys=worked?['all','open','close','high','low','body','range','percent']:['all','body','range'];
+  const mapping={all:['open','close','high','low','body','range'],body:['body','open','close'],range:['range','high','low'],percent:['body','range','open','close','high','low'],open:['open'],close:['close'],high:['high'],low:['low']};
+  let selected='all';
+  const set=mode=>{
+   selected=mode;
+   const selectedFeatures=mapping[mode]||mapping.all;
+   for(const btn of switches)btn.setAttribute('aria-pressed',String(btn.dataset.studyFocus===mode));
+   for(const item of annotations){
+    const part=item.getAttribute('data-candle-feature');
+    const matches=selectedFeatures.includes(part);
+    item.style.opacity=matches?'1':'0.22';
+    if(item.tagName.toLowerCase()==='text')item.style.fontWeight=matches?'800':'400';
+   }
+   state.textContent=worked?descriptions[mode]:mode==='body'
+    ?'The real body connects the two prices Open and Close.'
+    :mode==='range'?'Full range connects High and Low.'
+    :'The full candle shows Open, High, Low, Close and wicks.';
+  };
+  const names={all:'Full candle',open:'Open',close:'Close',high:'High',low:'Low',body:'Real body',range:'Full range',percent:'Body percentage'};
+  for(const key of keys){
+   const b=button(names[key],()=>set(key));
+   b.dataset.studyFocus=key;
+   b.setAttribute('data-teaching-feature',key);
+  }
+  if(worked){
+   const next=$('button','Next highlight →','gu-l33-view-btn gu-l33-next-teaching');
+   next.type='button';next.addEventListener('click',()=>set(keys[(keys.indexOf(selected)+1)%keys.length]));
+   tools.append(next);
   }
   set('all');
  }else{
