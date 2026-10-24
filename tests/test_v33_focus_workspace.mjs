@@ -17,6 +17,10 @@ for(const [path,source] of [
  ['assets/js/lab-v33-workspace-flow.js',flow]
 ])assert.doesNotThrow(()=>new Script(source,{filename:path}),path+' must parse');
 assert(markup.indexOf('lab-v33-workspace-flow.js')<markup.indexOf('lab-player.js'));
+assert(markup.includes('class="journey-progress-track-inner"'),'Nine stage labels must appear inside the progress bar');
+assert(engine.includes('heading.hidden=stage===0'),'No separate Start title above instructor');
+assert(flow.includes('Reconstruct and evaluate price action at the exact pause'),'Prompt must require structured price evidence');
+assert(flow.includes('gu-v33-structure-checkpoints'),'The richer question must offer guided evidence checkpoints');
 assert(player.includes('GroundUpLabV33WorkspaceFlow?.mount?.({mode})'),'Production Lab must activate shared reference tabs and wizard');
 assert(engine.includes('shell.insertBefore(setup,heading)'),'Historical Lab Setup must precede the Start heading');
 assert(engine.includes('gu-v33-teaching-followup'),'Worked example and comprehension check must be below the instructor');
