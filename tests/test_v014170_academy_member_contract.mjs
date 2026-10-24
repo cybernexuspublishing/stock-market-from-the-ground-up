@@ -94,7 +94,7 @@ try{
 
  response=await onRequest({request:makeRequest({actor:'member-b',query:'?program=truth5'}),env});
  assert.equal(response.status,403,'Other member without training entitlement is denied');
- assert.equal(privateReads.length,2,'Denied account may not read Academy progress');
+ assert.equal(privateReads.length,0,'Denied account may not read Academy progress');
 
  denyProfile=true;
  response=await onRequest({request:makeRequest({query:'?program=truth5'}),env});
