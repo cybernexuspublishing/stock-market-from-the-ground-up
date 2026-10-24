@@ -57,6 +57,12 @@ jobs:
           node tests/test_v33_teaching_content_quality.mjs
           node tests/test_v014162_lab_player_context.mjs
           node tests/test_lab_content_access_recovery.mjs
+      - name: Verify Bootcamp 30-day shared v3.2 journey
+        run: node tests/test_v014162_bootcamp_v32.mjs
+      - name: Verify approved Lab Engine v3.2 source boundaries
+        run: node tests/test_v014161_lab_engine_v32_teaching.mjs
+      - name: Enforce all nine Lab Engine v3.2 progression boundaries
+        run: node tests/test_v014162_v32_stage_integrity.mjs
       - name: Install pinned Chromium browser test runner
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
@@ -94,12 +100,6 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014145_research_scanner_browser.mjs
-      - name: Verify Bootcamp 30-day shared v3.2 journey
-        run: node tests/test_v014162_bootcamp_v32.mjs
-      - name: Verify approved Lab Engine v3.2 source boundaries
-        run: node tests/test_v014161_lab_engine_v32_teaching.mjs
-      - name: Enforce all nine Lab Engine v3.2 progression boundaries
-        run: node tests/test_v014162_v32_stage_integrity.mjs
       - name: Browser-verify exact owner v3.2 self-contained reference (mobile and desktop)
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
