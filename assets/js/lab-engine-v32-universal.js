@@ -637,7 +637,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    }else if(special){
     appendParagraph(body,special.transfer.prompt);
     const f=field(body,'Answer ('+special.units+')',transfer,'input');f.disabled=transferResolved;
-    if(!transferResolved)body.append(button('Check new case — free retry',()=>{
+    if(!transferResolved)body.append(button('Check my answer',()=>{
      if(!f.value.trim()){mark('Enter a value.');return}transfer=f.value.trim();
      if(validNumber(transfer,special.transfer.answer)){transferResolved=true;render()}
      else{transferCount++;render();mark('Try again with the same method. '+mathDiagnostic(kind,transfer))}
