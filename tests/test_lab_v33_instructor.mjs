@@ -84,7 +84,7 @@ assert(ui?.element);
 const nodes=walk(ui.element);
 const ask=nodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor');
 const tabs=nodes.filter(n=>n.attrs?.role==='tab');
-const question=nodes.find(n=>n.tagName==='textarea');
+const question=walk(nodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea');
 const status=nodes.find(n=>n.className==='gu-v33-tutor-status');
 assert(ask&&question&&status&&tabs.length===2,'Tutor request and learning objectives tabs stay available on Learn stage');
 const lessonView=api.create({stage:1,subject:'Candlestick anatomy',concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'}});
@@ -97,6 +97,13 @@ assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textCont
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-typing'&&n.textContent.includes('I’m Talia')),'Start stage must have an approachable first-person instructor');
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-dialogue'),'The learner must be able to submit a text response to Talia');
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-narration'),'Narration must reserve full text height without a scrollbar');
+const localInput=initialNodes.find(n=>n.className==='gu-v33-instructor-dialogue')?.children.find(n=>n.tagName==='textarea');
+const localSubmit=initialNodes.find(n=>n.tagName==='button'&&n.textContent==='Submit answer');
+assert(localInput&&localSubmit&&localSubmit.handlers.click,'Talia question and learner submission are interactive');
+localInput.value='The completed candles show evidence because the highs and lows form a visible sequence.';
+localSubmit.handlers.click();
+assert(initialNodes.some(n=>n.className==='gu-v33-instructor-reply'&&n.textContent.includes('recorded')),
+ 'A submitted learner explanation must receive visible in-page feedback');
 assert(initialNodes.some(n=>n.className==='gu-v33-instructor-objectives'),'Allow members to revisit the spoken objectives');
 initial.dispose();
 const member=api.create({stage:0,concept:'Construct an Up / Bullish Candle',lessonContext:{visualType:'candle'},memberFirstName:'María'});
@@ -121,7 +128,7 @@ assert.match(status.textContent,/Source-grounded Market Tutor response/);
 const optedOut=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',allowTutorAI:false,
  requestTutor:async x=>{calls.push({question:x.question,allowModel:x.allowModel});return {answer:'Source-based explanation.',generation:'reviewed-glossary-logic'};}});
 const optedNodes=walk(optedOut.element);
-optedNodes.find(n=>n.tagName==='textarea').value='Explain VWAP.';
+walk(optedNodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea').value='Explain VWAP.';
 await optedNodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor').handlers.click();
 assert.equal(calls[1].allowModel,false,'Profile AI opt-out must be respected in Labs');
 optedOut.dispose();
