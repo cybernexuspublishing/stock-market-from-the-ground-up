@@ -124,3 +124,24 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v33>.gu-v33-progress{display:none!i
 body.gu-lab-member #gu-v32-teaching-slot .gu-v33>h2[hidden]{display:none!important}
 body.gu-lab-member .gu-v33-structure-checkpoints{padding-left:22px;line-height:1.6;color:#d2e6f3;margin:9px 0}
 body.gu-lab-member .gu-v33-structure-checkpoints li{margin:7px 0}
+
+/* Reviewable, server-supplied assessment scores. No invented letter grades. */
+body.gu-lab-member .gu-v33-grade-outlet{margin:16px 0}
+body.gu-lab-member .gu-v33-grade-report{border:1px solid #426782;border-radius:12px;background:#10283b;padding:17px}
+body.gu-lab-member .gu-v33-grade-report h3{color:#edf5fc;font-size:1.08rem;margin:0 0 14px}
+body.gu-lab-member .gu-v33-grade-report h4{font-size:.95rem;margin:18px 0 10px;color:#dbeaf6}
+body.gu-lab-member .gu-v33-grade-main{display:flex;align-items:baseline;flex-wrap:wrap;gap:9px;color:#cbdfea;font-size:.88rem}
+body.gu-lab-member .gu-v33-grade-main strong{font-size:1.8rem;color:#f4f8fc;font-variant-numeric:tabular-nums}
+body.gu-lab-member .gu-v33-grade-meter{height:15px;background:#314658;border:1px solid #608093;border-radius:20px;overflow:hidden}
+body.gu-lab-member .gu-v33-grade-fill{display:block;height:100%;background:#45a88f;min-width:0}
+body.gu-lab-member .gu-v33-grade-ticks{display:flex;align-items:center;justify-content:space-between;gap:2px;font-size:.77rem;color:#d4e3ed;margin-top:6px;font-variant-numeric:tabular-nums}
+body.gu-lab-member .gu-v33-grade-explainer{color:#bed3e0;font-size:.85rem;line-height:1.6;margin:11px 0}
+body.gu-lab-member .gu-v33-grade-dimensions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body.gu-lab-member .gu-v33-grade-dimension{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;border:1px solid #446b80;border-radius:9px;padding:10px 12px;background:#18384c}
+body.gu-lab-member .gu-v33-grade-dimension strong{color:#f1f8ff;font-size:.89rem}
+body.gu-lab-member .gu-v33-grade-dimension span{color:#c9deec;font-size:.81rem}
+body.gu-lab-member .gu-v33-grade-history{padding-left:22px;margin:12px 0}
+body.gu-lab-member .gu-v33-grade-history li{margin:11px 0;color:#d7e8f4;font-size:.86rem}
+body.gu-lab-member .gu-v33-grade-history .gu-v33-grade-meter{height:9px;margin-top:6px}
+body.gu-lab-member .gu-v33-grade-status{color:#d4e5f0;font-size:.88rem;line-height:1.6}
+@media(max-width:680px){body.gu-lab-member .gu-v33-grade-dimensions{grid-template-columns:1fr}}
