@@ -116,7 +116,27 @@ function chart(type,stage,variant){
  [9.6,10,10.4,10.8].map(y=>'<line x1="38" x2="780" y1="'+yy(y)+'" y2="'+yy(y)+'" stroke="#29445d" stroke-dasharray="4 6"/><text x="4" y="'+(yy(y)+5)+'" fill="#bdcedd" font-size="13">'+usd(y)+'</text>').join('')+
  '<line x1="38" x2="780" y1="260" y2="260" stroke="#35536c"/>'+draw+overlays+vol+labels+
  '<text x="38" y="390" fill="#b5cddd" font-size="13">5-minute fictional intervals · volume shown below candles</text></svg>';
- const graphic=h('div','gu-l33-chart');graphic.innerHTML=svg;root.append(graphic);
+ const graphic=h('div','gu-l33-chart');graphic.innerHTML=svg;
+ // Preserve the owner-approved reference's chart and aligned OHLCV side panel.
+ // This is a fictional educational sequence, never historical ticker data.
+ const layout=h('div','gu-l33-chart-reference-layout');
+ const side=h('aside','gu-l33-chart-reference');side.setAttribute('aria-label','Selected completed candle details');
+ side.append(text('h3','Selected completed candle'));
+ const sideStamp=text('p','','gu-l33-reference-time');sideStamp.dataset.referenceTime='1';side.append(sideStamp);
+ const grid=h('dl','gu-l33-reference-values');
+ for(const [name,key] of [['Open','open'],['High','high'],['Low','low'],['Close','close'],['Volume','volume']]){
+  const row=h('div','gu-l33-reference-row');row.append(text('dt',name));
+  const value=text('dd','—');value.setAttribute('data-reference-field',key);row.append(value);grid.append(row);
+ }
+ if(type==='vwap'){
+  const row=h('div','gu-l33-reference-row');row.append(text('dt','Running VWAP (approx.)'));
+  const value=text('dd','—');value.setAttribute('data-reference-field','vwap');row.append(value);grid.append(row);
+ }
+ side.append(grid);
+ side.append(text('p',type==='vwap'?
+  'Illustrative running VWAP uses completed bar close × share volume; it is not trade-level VWAP.':
+  'All values belong to a fictional completed candle, not the book’s historical ticker.', 'gu-l33-reference-note'));
+ layout.append(graphic,side);root.append(layout);
  const legend=h('div','gu-l33-legend');const entries=[['#53cba2','Rising candle'],['#f18c99','Falling candle'],['#527dad','Volume']];if(type==='vwap')entries.push(['#f0bd67','Weighted illustration']);if(type==='ema')entries.push(['#f0bd67','EMA9'],['#80bcef','EMA20']);if(type==='structure')entries.push(['#e0ba76','Reference level']);
  for(const [col,lbl] of entries){const e=h('span');const dot=h('i');dot.style.background=col;e.append(dot,document.createTextNode(lbl));legend.append(e)}root.append(legend);
  const table=h('details','gu-l33-detail');table.append(text('summary','View completed-candle OHLCV values'));
