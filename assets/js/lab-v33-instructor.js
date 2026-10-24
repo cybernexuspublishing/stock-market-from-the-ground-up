@@ -82,11 +82,24 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // chart-button micro lessons instead of appearing as a static wall of text.
  const openingBlocks=stage===1||stage===2
   ?plan?.blocks?.slice(0,2):plan?.blocks;
- const full=introduction+'\n\n'+(openingBlocks?.join('\n\n')||(
+ const prototype=root.GroundUpLabV34InteractiveLessons?.referenceIntro?.(lessonContext.visualType);
+ // The uploaded v3.2 reference teaches through a CONCRETE worked case
+ // immediately after defining the term. Preserve that order, and give
+ // learners the corresponding visual before asking a question.
+ const shownExample=stage===1&&prototype
+  ?[
+    prototype.term+': '+prototype.definition,
+    'Why it matters: '+prototype.why,
+    'Follow the fictional example on the chart: '+prototype.example,
+    ...prototype.steps.slice(0,2).map((value,i)=>'Step '+(i+1)+': '+value),
+    'What this does NOT show: '+prototype.caution
+   ].join('\n\n')
+  :null;
+ const full=introduction+'\n\n'+(shownExample||(openingBlocks?.join('\n\n')||(
   String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
   lessonContext?.subject?.definition||'').trim()||
   'This concept needs an individually reviewed teaching explanation before it can be presented as complete.'
- ));
+ )));
  // Full lesson narration remains immediately available to assistive technology.
  // The animated copy is visual-only to avoid dozens of screen reader updates.
  const accessible=el('p',full,'gu-v33-instructor-accessible');
@@ -223,8 +236,15 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    type,feature,concept,guide:lessonContext.guide
   });
   featureLesson=plan;featurePhase=0;
-  const short=plan.title+'.\\n\\n'+plan.definition+
-   '\\n\\nWhy: '+plan.why+'\\n\\nHow: '+plan.method;
+  const short=[
+   plan.title+'.',
+   'What it means: '+plan.definition,
+   'Why it matters: '+plan.why,
+   'Look at the highlighted illustration: '+plan.method,
+   // In the approved reference an example precedes every practice prompt.
+   // This is free formative teaching, not a protected Assess answer key.
+   'Worked example: '+plan.example
+  ].join('\n\n');
   reserve.textContent=short;
   accessible.textContent=short;
   stopTyping?.();stopTyping=animate(visual,short,false,skip);
