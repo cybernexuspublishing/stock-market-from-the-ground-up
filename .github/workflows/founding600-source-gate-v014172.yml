@@ -43,3 +43,17 @@ jobs:
             assert.equal(c.tradingExecutionIncluded,false);
             console.log('PASS Founding600 production-safe source contract (paid checkout remains disabled)');
           "
+
+      - name: Check member-ready Commons, Design Studio, Blueprint and billing gates
+        run: |
+          node --check assets/js/founders-commons-v014178.js
+          node --check assets/js/founders-design-studio-v014184.js
+          node --check assets/js/founders-learning-blueprint-v014185.js
+          node --check assets/js/admin-founder-commons-v014181.js
+          node --check functions/api/admin-founder-commons-v014179.js
+          test -f founders-commons.html
+          test -f admin-founders.html
+          grep -q 'founders-design-studio-v014184.js' founders-commons.html
+          grep -q 'founders-learning-blueprint-v014185.js' founders-commons.html
+          grep -q 'CREATE POLICY founder_own_design_read_v014184' supabase/migrations/v0.14.0.184_founder_personal_design_preferences.sql
+          grep -q 'FOUNDER_ACCESS_REQUIRED' supabase/migrations/v0.14.0.185_founder_learning_blueprint.sql
