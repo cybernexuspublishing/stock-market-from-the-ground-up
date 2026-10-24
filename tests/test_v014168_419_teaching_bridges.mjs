@@ -36,6 +36,27 @@ for(const [id,m] of Object.entries(labs.byLab)){
  }
  assert.equal(new Set(concepts).size,5,id+' must have five separate teaching facets');
 }
+// Every relevant quantitative competency must show formula, substituted
+// simulated values and an explicitly bounded interpretation.
+const formulas={
+ VWAP_CONTEXT:'$2,600 ÷ 300 shares = $8.666',
+ EMA_CONTEXT:'0.50 × $11.00 + 0.50 × $10.00 = $10.50',
+ VOLUME_ANALYSIS:'600 shares ÷ 200 average shares = 3.0',
+ RISK_PER_SHARE:'$10.00 − $9.70 = $0.30',
+ POSITION_SIZING:'Floor($30.00 ÷ $0.30) = 100 shares',
+ RISK_REWARD:'$0.60 ÷ $0.30 = 2 to 1',
+ SLIPPAGE_SPREAD:'($0.04 ÷ $10.02) × 100',
+ FLOAT_SUPPLY:'10,000,000 ÷ 5,000,000 = 2.0',
+ MFE_MAE_REVIEW:'$10.70 − $10.00 = $0.70',
+ LEVEL2_READING:'$10.03 − $10.00 = $0.03'
+};
+for(const [code,worked] of Object.entries(formulas)){
+ const source=Object.values(bridge.entries).find(b=>b.mappedGuideCode===code);
+ assert(source,'The quantitative learning bank should correspond to an existing official competency '+code);
+ const plan=api.get({type:'general',feature:'apply',concept:source.title,
+  labId:source.labId,bridge:source,guide:guides.get(code)});
+ assert(plan.script.includes(worked),'Missing step-formatted quantitative example for '+code);
+}
 const bull=bridge.entries['F2-C07-L01'];
 assert(bull);
 const exact=api.get({type:'candle',feature:'apply',concept:'Bullish Candle',
