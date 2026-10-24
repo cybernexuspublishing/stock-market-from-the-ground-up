@@ -241,7 +241,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
   }
   previous.hidden=stage===0;
   next.textContent=stage===0?'Start Guided Learning →':'Next learning stage';
-  next.classList.toggle('gu-v33-start-primary',stage===0);
+  next.className=stage===0?'btn gu-v33-start-primary':'btn secondary';
   nav.querySelector?.('.gu-v33-start-tutor')?.remove?.();
   if(stage===0&&instructorInstance?.openTutor){
    const tutorAction=button('Ask Market Tutor',()=>instructorInstance?.openTutor?.());
@@ -506,7 +506,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    if(chart)body.insertBefore(chart,body.firstChild);
   }
   const followups=body.querySelector?.('.gu-v33-teaching-followup');
-  if(followups)body.insertBefore(followups,body.children[1]||null);
+  if(followups){const anchor=body.querySelector?.('.gu-v33-stage-hero, .gu-v33-instructor');
+   body.insertBefore(followups,anchor?.nextSibling||null);
+  }
   // Coach the member through one protected evidence field at a time. This
   // shortcut never grades or submits anything and preserves the form's IDs.
   if([2,3,4,6,7,8].includes(stage)){
