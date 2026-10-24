@@ -284,14 +284,14 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   }
  }
  paintQuestion();
- // The original v3.2 Question Pass workflow is restored here for
+ // The original v3.2 Lantern Sparks workflow is restored here for
  // *illustrative, ungraded* practice questions only. A real member ledger
  // confirms the balance and spends one credit atomically, never JavaScript.
  const creditControls=el('section',undefined,'gu-v33-pass-controls');
- creditControls.setAttribute('aria-label','Question Pass: optional reveal or skip');
- const passHeading=el('h4','Question Pass · Reveal or Skip');
+ creditControls.setAttribute('aria-label','Lantern Sparks: optional reveal or skip');
+ const passHeading=el('h4','Lantern Sparks · Reveal or Skip');
  const passBalance=el('p','Checking available credits…','gu-v33-pass-balance');
- const passNote=el('p','Both options use one Question Pass Credit. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
+ const passNote=el('p','Both options use one Lantern Spark. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
  const passConfirmation=el('div',undefined,'gu-v33-pass-confirm');passConfirmation.hidden=true;
  const passQuestion=el('p','');
  const passConfirm=el('button','Confirm 1-credit use','btn gu-v33-pass-confirm-btn');
@@ -324,7 +324,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   void onCreditAction({action:'balance'}).then(response=>{
    if(passDisposed)return;
    showPassBalance(response.balance);
-   if(response.balance.available<1)passFeedback.textContent='No Question Pass Credits are available. You can still learn and retry for free.';
+   if(response.balance.available<1)passFeedback.textContent='No Lantern Sparks are available. You can still learn and retry for free.';
   }).catch(error=>{
    if(passDisposed)return;
    passBalance.textContent='Balance unavailable';
@@ -334,7 +334,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    if(passBusy||passUsed||passAvailable<1)return;
    passPending=action;
    passQuestion.textContent=(action==='reveal'?'Reveal the study answer':'Skip this practice question')+
-    ' for one Question Pass Credit? It will not count as an independently correct answer.';
+    ' for one Lantern Spark? It will not count as an independently correct answer.';
    passConfirmation.hidden=false;passConfirm.focus?.();
   };
   listen(passReveal,'click',()=>choose('reveal'));
@@ -345,7 +345,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    passBusy=true;onCreditPending?.(true);passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
    submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
-   passFeedback.textContent='Confirming your Question Pass…';
+   passFeedback.textContent='Confirming your Lantern Sparks…';
    try{
     const result=await onCreditAction({action:chosen,index:idx});
     if(passDisposed)return;
@@ -369,7 +369,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   listen(passContinue,'click',()=>{
    if(!passUsed||finished)return;
    const final=questionIndex===prompts.length-1;
-   saved[questionIndex]='Study Only — Question Pass';
+   saved[questionIndex]='Study Only — Lantern Sparks';
    if(final){
     finished=true;passContinue.hidden=true;
     counter.textContent='Practice completed with assistance';
@@ -618,7 +618,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const tutorTab=el('button','Ask Market Tutor about this concept','gu-v33-support-tab');
  const panel=el('div',undefined,'gu-v33-support-content');
  const unique='gu-v33-tab-'+String(++tabSequence);
- const walletTab=stage===0?el('button','Question Pass Wallet','gu-v33-support-tab'):null;
+ const walletTab=stage===0?el('button','Lantern Sparks Wallet','gu-v33-support-tab'):null;
  const walletPane=stage===0?el('section',undefined,'gu-v33-wallet-panel'):null;
  const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},
   {button:tutorTab,pane:tutor,key:'tutor'}];
