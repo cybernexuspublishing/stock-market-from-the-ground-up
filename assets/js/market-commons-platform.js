@@ -1,12 +1,13 @@
 (function(){'use strict';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=d=>d?new Date(d).toLocaleString():'';
-  let SB,USER,forums=[];
+  let SB,USER,forums=[],FOUNDER_ALLOWED=false;
   async function initAuth(){SB=await window.getSupabaseClient();const s=(await SB.auth.getSession()).data.session;if(!s){location.replace(`signin.html?next=${encodeURIComponent(location.pathname+location.search)}`);return false}USER=s.user;
     // Show the private community link only to a server-authorized Founder/Owner.
     try{
       const {data:eligible,error}=await SB.rpc('gu_founder_commons_access_v014174',{p_scope:'shared'});
-      if(!error&&eligible===true){
+      FOUNDER_ALLOWED=!error&&eligible===true;
+      if(FOUNDER_ALLOWED){
         const nav=document.getElementById('v134-commons-member-nav');
         if(nav&&!nav.querySelector('[data-founders-commons-link]')){
           const a=document.createElement('a');
@@ -17,7 +18,7 @@
     }catch{/* Main Commons remains available when the optional founder service is down. */}
     return true}
   function memberNav(){if(document.getElementById('v134-commons-member-nav'))return '';return `<nav class="v133-commons-nav" aria-label="Member navigation">
-    <a href="index.html">Home</a><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="labs.html">Labs</a><a href="simulator.html">Simulator</a><a href="journal.html">Journal</a><a href="market-tutor.html">Market Tutor</a><a href="tools.html">All Tools</a><a href="store.html">Store</a><a href="dashboard.html?tab=help">Help</a>
+    <a href="index.html">Home</a><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="labs.html">Labs</a><a href="simulator.html">Simulator</a><a href="journal.html">Journal</a><a href="market-tutor.html">Market Tutor</a><a href="tools.html">All Tools</a><a href="store.html">Store</a><a href="dashboard.html?tab=help">Help</a>${FOUNDER_ALLOWED?'<a href="founders-commons.html" data-founders-commons-link="true">Founders Commons</a>':''}
   </nav>`}
   function shellTop(){return `${memberNav()}<div class="v132-forum-toolbar"><a class="btn secondary" href="market-commons.html">Forum Index</a><a class="btn secondary" href="community-guidelines.html">Community Guidelines</a><button class="btn" id="v13-new-topic">New Discussion</button></div>`}
   function renderGuideBody(raw){
