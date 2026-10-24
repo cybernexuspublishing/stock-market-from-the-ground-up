@@ -55,14 +55,14 @@
   '<p class="small">All actions are authenticated, audited, target-specific and source-bound. Stripe billing, purchased books, Book Keys, and financial records have separate issuer-controlled lifecycles. This panel will not falsely claim those were canceled.</p>';
   const deleteSection=box.querySelector('.v1353-danger:last-of-type');
   if(deleteSection)deleteSection.before(wrap);else box.append(wrap);
-  // Owner-only Lantern Sparks balance controls are part of the existing
+  // Owner-only Crownlight Sparks balance controls are part of the existing
   // member editor, alongside book, membership and tool access management.
   // They never alter Stripe orders or the source of a paid entitlement.
   if(account.type==='member'){
    const sparks=document.createElement('section');
    sparks.className='v1353-info gu-lantern-sparks-admin';
-   sparks.setAttribute('aria-label','Lantern Sparks member balance controls');
-   sparks.innerHTML='<h4>Lantern Sparks · Member Balance</h4>'+
+   sparks.setAttribute('aria-label','Crownlight Sparks member balance controls');
+   sparks.innerHTML='<h4>Crownlight Sparks · Member Balance</h4>'+
     '<p class="small">Owner adjustments are recorded separately from paid purchases and membership credits. Every change requires a reason. Included credits retain their original expiration dates.</p>'+
     '<p class="gu-sparks-admin-balance" role="status" aria-live="polite">Checking verified member balance…</p>'+
     '<form class="v1352-grid gu-sparks-admin-form">'+
@@ -71,7 +71,7 @@
     '<label class="full">Reason for this change (required)<textarea name="reason" minlength="10" maxlength="500" rows="2" required placeholder="Explain why this account balance is being corrected."></textarea></label>'+
     '<div class="full"><button type="submit" class="btn secondary" disabled>Confirm Balance Adjustment</button> '+
     '<button type="button" class="btn secondary" data-sparks-refresh>Refresh Balance</button></div>'+
-    '</form><div class="gu-sparks-admin-history" aria-label="Recent Lantern Sparks adjustments"></div>';
+    '</form><div class="gu-sparks-admin-history" aria-label="Recent Crownlight Sparks adjustments"></div>';
    wrap.append(sparks);
    const balanceLabel=sparks.querySelector('.gu-sparks-admin-balance');
    const form=sparks.querySelector('form');
@@ -93,14 +93,14 @@
      });
      const result=await response.json().catch(()=>null);
      if(!response.ok||result?.ok!==true)
-      throw Error(String(result?.error||'Lantern Sparks service is unavailable.').slice(0,200));
+      throw Error(String(result?.error||'Crownlight Sparks service is unavailable.').slice(0,200));
      return result;
     }finally{clearTimeout(timeout)}
    }
    async function reloadSparks(){
     if(busy)return;
     verified=false;adjustButton.disabled=true;
-    balanceLabel.textContent='Checking verified Lantern Sparks…';
+    balanceLabel.textContent='Checking verified Crownlight Sparks…';
     try{
      const data=await sparksApi('balance');
      if(!Number.isInteger(data.balance?.available))throw Error('Balance not verified.');
