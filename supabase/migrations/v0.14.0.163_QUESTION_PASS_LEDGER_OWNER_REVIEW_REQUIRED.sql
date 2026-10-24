@@ -104,7 +104,7 @@ begin
    expires_at asc nulls last,issued_at,id
   for update limit 1;
  if not found then
-  return jsonb_build_object('ok',false,'error','No Question Pass Credits available',
+  return jsonb_build_object('ok',false,'error','No Crownlight Sparks available',
    'balance',public.groundup_question_pass_summary(p_user_id));
  end if;
  update public.groundup_question_pass_buckets
