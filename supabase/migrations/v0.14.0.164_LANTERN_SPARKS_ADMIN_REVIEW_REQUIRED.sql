@@ -20,8 +20,8 @@ alter table public.groundup_question_pass_buckets
 
 create table if not exists public.groundup_question_pass_adjustments (
  id uuid primary key default gen_random_uuid(),
- actor_user_id uuid not null references auth.users(id),
- user_id uuid not null references auth.users(id),
+ actor_user_id uuid not null references auth.users(id) on delete restrict,
+ user_id uuid not null references auth.users(id) on delete restrict,
  request_id uuid not null,
  operation text not null check (operation in ('add','remove','set')),
  requested_value integer not null check (requested_value>=0 and requested_value<=100000),
