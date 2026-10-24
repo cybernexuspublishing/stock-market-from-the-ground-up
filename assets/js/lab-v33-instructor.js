@@ -236,7 +236,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   for(const item of items){
    const active=item.key===current;
    item.button.setAttribute('aria-selected',String(active));
-   item.button.setAttribute('tabindex',active?'0':'-1');
+   item.button.setAttribute('tabindex',active||(current===null&&item.key==='objectives')?'0':'-1');
    item.pane.hidden=!active;
   }
  };
