@@ -403,7 +403,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      'Find a competing interpretation or invalidating observation: '+guide.invalidation,
      'State the limitation: '+guide.limit]);
    }
-   showVisual(1,visualType==='candle'?'worked':'default');freeExplanation();guidedHelp();
+   showVisual(1,'default');freeExplanation();guidedHelp();
    const deeper=lessonPlan(1);
    detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
@@ -673,7 +673,9 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
       actions.append(prevWork,showWork,nextWork);
       work.append(counter,script,actions);
       chart.append(work);
-      select(0,false);
+      counter.textContent='Different fictional case · Step 1 of '+worked.length;
+      script.textContent='Select “Show and explain on chart” to switch from the introductory $31.00 candle to this separate worked example.';
+      prevWork.disabled=true;
      }
     }
     const visualHeader=chart.querySelector('.gu-l33-head');
