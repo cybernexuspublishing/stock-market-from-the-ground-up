@@ -55,6 +55,106 @@
   '<p class="small">All actions are authenticated, audited, target-specific and source-bound. Stripe billing, purchased books, Book Keys, and financial records have separate issuer-controlled lifecycles. This panel will not falsely claim those were canceled.</p>';
   const deleteSection=box.querySelector('.v1353-danger:last-of-type');
   if(deleteSection)deleteSection.before(wrap);else box.append(wrap);
+  // Owner-only Lantern Sparks balance controls are part of the existing
+  // member editor, alongside book, membership and tool access management.
+  // They never alter Stripe orders or the source of a paid entitlement.
+  if(account.type==='member'){
+   const sparks=document.createElement('section');
+   sparks.className='v1353-info gu-lantern-sparks-admin';
+   sparks.setAttribute('aria-label','Lantern Sparks member balance controls');
+   sparks.innerHTML='<h4>Lantern Sparks · Member Balance</h4>'+
+    '<p class="small">Owner adjustments are recorded separately from paid purchases and membership credits. Every change requires a reason. Included credits retain their original expiration dates.</p>'+
+    '<p class="gu-sparks-admin-balance" role="status" aria-live="polite">Checking verified member balance…</p>'+
+    '<form class="v1352-grid gu-sparks-admin-form">'+
+    '<label>Change<select name="operation"><option value="add">Add Sparks</option><option value="remove">Remove Sparks</option><option value="set">Set available total</option></select></label>'+
+    '<label>Amount<input name="value" type="number" min="0" max="100000" step="1" required placeholder="Whole number"></label>'+
+    '<label class="full">Reason for this change (required)<textarea name="reason" minlength="10" maxlength="500" rows="2" required placeholder="Explain why this account balance is being corrected."></textarea></label>'+
+    '<div class="full"><button type="submit" class="btn secondary" disabled>Confirm Balance Adjustment</button> '+
+    '<button type="button" class="btn secondary" data-sparks-refresh>Refresh Balance</button></div>'+
+    '</form><div class="gu-sparks-admin-history" aria-label="Recent Lantern Sparks adjustments"></div>';
+   wrap.append(sparks);
+   const balanceLabel=sparks.querySelector('.gu-sparks-admin-balance');
+   const form=sparks.querySelector('form');
+   const adjustButton=form.querySelector('button[type="submit"]');
+   const history=sparks.querySelector('.gu-sparks-admin-history');
+   let verified=false,busy=false;
+   async function sparksApi(operation,data){
+    const sb=await window.getSupabaseClient?.();
+    const session=(await sb?.auth?.getSession?.())?.data?.session;
+    if(!session?.access_token)throw Error('Your Owner session is unavailable. Sign in again.');
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),9000);
+    try{
+     const response=await fetch('/api/admin-lantern-sparks'+
+      (operation==='balance'?'?userId='+encodeURIComponent(account.id):''),{
+      method:operation==='balance'?'GET':'POST',cache:'no-store',signal:controller.signal,
+      headers:{authorization:'Bearer '+session.access_token,
+       ...(operation==='balance'?{}:{'content-type':'application/json'})},
+      body:operation==='balance'?undefined:JSON.stringify({userId:account.id,...data})
+     });
+     const result=await response.json().catch(()=>null);
+     if(!response.ok||result?.ok!==true)
+      throw Error(String(result?.error||'Lantern Sparks service is unavailable.').slice(0,200));
+     return result;
+    }finally{clearTimeout(timeout)}
+   }
+   async function reloadSparks(){
+    if(busy)return;
+    verified=false;adjustButton.disabled=true;
+    balanceLabel.textContent='Checking verified Lantern Sparks…';
+    try{
+     const data=await sparksApi('balance');
+     if(!Number.isInteger(data.balance?.available))throw Error('Balance not verified.');
+     const b=data.balance;
+     balanceLabel.textContent='Available: '+b.available+
+      ' · Included: '+b.included+' · Purchased: '+b.purchased+
+      ' · Owner-adjusted: '+(b.manual||0)+
+      (b.nextExpiry?' · Next included expiry: '+new Date(b.nextExpiry).toLocaleDateString():'');
+     history.replaceChildren();
+     const h=document.createElement('h5');h.textContent='Recent balance adjustments';history.append(h);
+     for(const entry of data.activity||[]){
+      const line=document.createElement('p');line.className='small';
+      line.textContent=new Date(entry.created_at).toLocaleString()+
+       ' · '+entry.operation+' '+entry.requested_value+' · '+entry.delta+
+       ' Sparks · '+entry.previous_available+' → '+entry.resulting_available+
+       ' · '+entry.reason;
+      history.append(line);
+     }
+     verified=true;adjustButton.disabled=false;
+    }catch(error){
+     balanceLabel.textContent=String(error?.message||'Balance unavailable. No adjustment can be made.');
+    }
+   }
+   sparks.querySelector('[data-sparks-refresh]').addEventListener('click',()=>void reloadSparks());
+   form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(!verified||busy)return;
+    const operation=form.elements.operation.value,value=Number(form.elements.value.value);
+    const reason=form.elements.reason.value.trim();
+    if(!Number.isInteger(value)||value<0||value>100000||
+      (operation!=='set'&&value<1)||reason.length<10||reason.length>500){
+     balanceLabel.textContent='Enter a valid whole number and a reason of 10–500 characters.';return;
+    }
+    const action=operation==='set'?'set this member’s total available Sparks to '+value:
+     operation+' '+value+' Sparks';
+    if(!window.confirm('Confirm: '+action+' for '+account.username+
+      '? This change is permanent in the audit log and does not modify Stripe transactions.'))return;
+    const requestId=crypto.randomUUID();
+    busy=true;verified=false;adjustButton.disabled=true;
+    balanceLabel.textContent='Confirming the audited change…';
+    try{
+     const result=await sparksApi('adjust',{operation,value,reason,requestId});
+     const label=result.alreadyApplied?'Previously confirmed adjustment':'Balance adjustment confirmed';
+     notify(label+' · '+String(result.balance?.available??'—')+' Sparks available','ok');
+     form.reset();
+    }catch(error){
+     window.alert(String(error?.message||'Adjustment could not be verified.')+
+      '\\nRefresh the balance and audit history before retrying.');
+    }finally{
+     busy=false;void reloadSparks();
+    }
+   });
+   void reloadSparks();
+  }
   async function finish(message){modal.close();await refresh();notify(message,'ok')}
   for(const button of wrap.querySelectorAll('[data-gu78-revoke]')){
    button.addEventListener('click',async()=>{
