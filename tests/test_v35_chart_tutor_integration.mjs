@@ -37,7 +37,7 @@ assert(player.includes("return 'Bullish Candle'")&&player.includes("return 'Bear
  'The member Lab title must agree with Talia');
 assert(graphic.includes("variant==='bearish'?{o:32,hv:32.5,l:30.5,c:31}"),
  'Bearish lessons must visually show a descending candle');
-assert(engine.includes("showVisual(1,topic==='Bearish Candle'?'bearish':'default')"));
+assert(engine.includes("showVisual(1,topic==='Bearish Candle'?'bearish':visualType==='candle'?'worked':'default')"));
 assert(css.includes('gu-v35-teaching-actions')&&css.includes('gu-v35-chart-worked'));
 assert(engine.includes("if(![3,5].includes(stage)"),
  'Protected Predict and Assess cannot embed instructional assistance');
