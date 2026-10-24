@@ -7,6 +7,7 @@
 (function(root){
 'use strict';
 const STEPS=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'];
+let tabSequence=0;
 const SAFE_STAGES=new Set([0,1,2,4,6,7,8]);
 function el(tag,content,className){
  const node=document.createElement(tag);
@@ -46,11 +47,11 @@ function animate(node,text,showAll,replay){
 function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName=''}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
- rootEl.setAttribute('aria-label','Elara Voss, your virtual learning instructor, and Market Tutor');
- const title=el('h3','Elara Voss — Your Learning Instructor');
+ rootEl.setAttribute('aria-label','Talia Mercer, your virtual learning instructor, and Market Tutor');
+ const title=el('h3','Talia Mercer — Your Learning Instructor');
  const tag=el('span','Virtual course guide · One-to-one teaching','gu-v33-instructor-tag');
  const head=el('div',undefined,'gu-v33-instructor-head');
- const avatar=el('span','EV','gu-v33-instructor-avatar');
+ const avatar=el('span','TM','gu-v33-instructor-avatar');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
  identity.append(title,tag);
@@ -64,7 +65,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   ...lessonContext,stage,concept
  })||null;
  const introduction=stage===0
-  ?('Hello'+(firstName?', '+firstName:'')+'. I’m Elara Voss, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
+  ?('Hello'+(firstName?', '+firstName:'')+'. I’m Talia Mercer, your virtual learning instructor. We’ll work through this lesson together, one idea at a time. I’ll demonstrate each skill before you practice it.')
   :stage===1
    ?((firstName?firstName+', let’s':'Let’s')+' work through this concept together. I’ll define the terms, show you a worked example, and explain what the evidence actually establishes.')
    :stage===2
@@ -90,14 +91,11 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  controls.append(skip);
  rootEl.append(accessible,visual,controls);
  const stopTyping=animate(visual,full,seen,skip);
- if(stage===0&&plan?.objectives?.length){
-  const optional=el('details',undefined,'gu-v33-instructor-objectives');
-  optional.append(el('summary','Review your learning objectives'));
-  const objectives=el('ol');
-  for(const objective of plan.objectives)objectives.append(el('li',objective));
-  optional.append(objectives);
-  rootEl.append(optional);
- }
+ const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
+ objectivesPanel.append(el('h4','Your learning objectives'));
+ const objectives=el('ol');
+ for(const objective of plan?.objectives||[])objectives.append(el('li',objective));
+ objectivesPanel.append(objectives);
  if(plan?.worked?.length){
   const worked=el('section',undefined,'gu-v33-instructor-worked');
   worked.append(el('h4',plan.category==='general'?'Guided method demonstration':'Worked example — different fictional case'));
@@ -148,16 +146,15 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  if(plan?.misconception&&stage===1){
   const other=el('details',undefined,'gu-v33-instructor-alternative');
-  other.append(el('summary','Elara, explain the common mistake'));
+  other.append(el('summary','Talia, explain the common mistake'));
   other.append(el('p',plan.misconception));
   if(plan.limitation)other.append(el('p','What you cannot conclude: '+plan.limitation));
   rootEl.append(other);
  }
  if(plan?.sourceNote)rootEl.append(el('p',plan.sourceNote,'gu-v33-instructor-provenance'));
  let pending=null,disposed=false;
- const tutor=el('details',undefined,'gu-v33-tutor');
- const summary=el('summary','Ask Market Tutor about this concept');
- tutor.append(summary);
+ const tutor=el('section',undefined,'gu-v33-tutor');
+ tutor.append(el('h4','Ask Market Tutor about this concept'));
  tutor.append(el('p','Market Tutor uses your existing membership, server quotas and protected educational service. Only the general subject and question you choose are submitted. Do not enter personal information, private assessment questions or trading-account details.','gu-v33-tutor-note'));
  const questionLabel=el('label','Your general learning question');
  const question=el('textarea');question.rows=2;question.maxLength=240;question.placeholder='What does this concept mean, and how can I recognize it?';questionLabel.append(question);
@@ -210,8 +207,57 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  listen(dismiss,'click',()=>{pending?.abort();pending=null;ask.disabled=false;dismiss.hidden=true;respond('Request cancelled.')});
  const link=el('a','Open full Market Tutor');link.href='/market-tutor.html';link.target='_blank';link.rel='noopener noreferrer';
  tutor.append(questionLabel,consentRow,actionRow,message,answer,link);
- rootEl.append(tutor);
- return {element:rootEl,dispose(){
+ // One shared content area switches between objectives and Tutor; each
+ // item is a real accessible tab, never a disclosure stacked on the other.
+ const support=el('section',undefined,'gu-v33-support-tabs');
+ support.setAttribute('aria-label','Learning support');
+ const tablist=el('div',undefined,'gu-v33-support-tablist');
+ tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','Learning support');
+ const objectiveTab=el('button','Review your learning objectives','gu-v33-support-tab');
+ const tutorTab=el('button','Ask Market Tutor about this concept','gu-v33-support-tab');
+ const panel=el('div',undefined,'gu-v33-support-content');
+ const unique='gu-v33-tab-'+String(++tabSequence);
+ const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},
+  {button:tutorTab,pane:tutor,key:'tutor'}];
+ for(const item of items){
+  item.button.type='button';item.button.setAttribute('role','tab');
+  item.button.id=unique+'-'+item.key;
+  item.pane.id=unique+'-'+item.key+'-panel';
+  item.pane.setAttribute('role','tabpanel');
+  item.pane.setAttribute('aria-labelledby',item.button.id);
+  item.button.setAttribute('aria-controls',item.pane.id);
+  item.button.setAttribute('aria-selected','false');
+  item.pane.hidden=true;
+  tablist.append(item.button);panel.append(item.pane);
+ }
+ let current=null;
+ const activate=key=>{
+  current=current===key?null:key;
+  for(const item of items){
+   const active=item.key===current;
+   item.button.setAttribute('aria-selected',String(active));
+   item.button.setAttribute('tabindex',active?'0':'-1');
+   item.pane.hidden=!active;
+  }
+ };
+ for(const item of items){
+  listen(item.button,'click',()=>activate(item.key));
+  listen(item.button,'keydown',event=>{
+   if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
+   event.preventDefault();
+   const index=items.indexOf(item);
+   const next=event.key==='Home'?0:event.key==='End'?items.length-1:
+    (index+(event.key==='ArrowRight'?1:-1)+items.length)%items.length;
+   current=null;activate(items[next].key);items[next].button.focus();
+  });
+ }
+ support.append(tablist,panel);rootEl.append(support);
+ const openTutor=()=>{
+  if(current!=='tutor')activate('tutor');
+  tutorTab.focus?.();support.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+  question.focus?.();
+ };
+ return {element:rootEl,openTutor,dispose(){
   disposed=true;stopTyping();cancelAnswer?.();pending?.abort();pending=null;
  }};
 }
