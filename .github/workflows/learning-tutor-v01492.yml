@@ -11,6 +11,9 @@ on:
       - 'tests/test_v014100_choice_option_order.mjs'
       - 'scripts/check-419-editorial-register.mjs'
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
+      - 'scripts/check-lab-research-provenance.mjs'
+      - 'docs/research/419_LAB_RESEARCH_AND_HISTORICAL_PROVENANCE_CROSSWALK_v014165.csv'
+      - 'docs/qa/LAB-UX-STD-001_419_Lab_Visual_Audit.json'
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
@@ -140,6 +143,9 @@ on:
       - 'tests/test_v014100_choice_option_order.mjs'
       - 'scripts/check-419-editorial-register.mjs'
       - 'docs/419_LAB_EDITORIAL_ACCEPTANCE_v014100.csv'
+      - 'scripts/check-lab-research-provenance.mjs'
+      - 'docs/research/419_LAB_RESEARCH_AND_HISTORICAL_PROVENANCE_CROSSWALK_v014165.csv'
+      - 'docs/qa/LAB-UX-STD-001_419_Lab_Visual_Audit.json'
       - 'assets/js/market-tutor.js'
       - 'market-tutor.html'
       - 'assets/css/commerce-tutor.css'
@@ -359,6 +365,7 @@ jobs:
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014100_choice_option_order.mjs
           node scripts/check-419-editorial-register.mjs
+          node scripts/check-lab-research-provenance.mjs
           node tests/test_v014099_owner_review_pagination.mjs
           node tests/test_v014099_sitewide_opaque_key_regressions.mjs
           node tests/test_v014099_owner_audit_long_history.mjs
