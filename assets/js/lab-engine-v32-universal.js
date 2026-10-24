@@ -724,6 +724,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
      zoom.setAttribute('aria-label','Expand chart and price labels');
      visualHeader.append(zoom);
     }
+    hero.addEventListener('gu-v36-show-check-evidence',event=>{
+     if(!coach.contains(event.target)||visualType!=='vwap')return;
+     chart.querySelector('.gu-l33-interactive-tools [data-view="both"]')?.click();
+    });
     hero.addEventListener('gu-v34-visual-focus',event=>{
      if(!chart.contains(event.target))return;
      // Keep the member's current slider/worked case visible; narrate the
