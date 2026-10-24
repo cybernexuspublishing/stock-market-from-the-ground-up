@@ -55,7 +55,7 @@ try {
   assert.equal(await chart.getByRole('button',{name:'Next highlight'}).count(),1);
   const worked=chart.locator('.gu-v35-chart-worked');
   assert.equal(await worked.count(),1);
-  assert.equal(await worked.locator('h4').textContent(),'Worked example — different fictional case');
+  assert.equal(await worked.locator('h4').textContent(),'Worked example — different illustrative case');
   assert(await chart.locator('.gu-l33-interactive-tools + .gu-v35-chart-worked').count()===1,
    'Worked example must appear immediately BELOW highlight buttons');
   const slider=chart.locator('.gu-v36-candle-experiment input[type=range]');
