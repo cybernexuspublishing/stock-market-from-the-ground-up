@@ -491,30 +491,11 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,memb
    if(worked||check){
     const extension=el('section');extension.className='gu-v33-teaching-followup';
     extension.setAttribute('aria-label','Worked example and comprehension check');
-    const tablist=el('div');tablist.className='gu-v33-teaching-tabs';
-    tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','Demonstration and comprehension');
-    const panels=[worked,check].filter(Boolean);
-    panels.forEach((panel,i)=>{
-     const tab=button(i===0&&worked? 'Worked example':'Check your understanding',()=>show(i));
-     tab.setAttribute('role','tab');tab.setAttribute('aria-controls','gu-v33-learning-panel-'+i);
-     tab.setAttribute('aria-selected','false');
-     panel.setAttribute('role','tabpanel');panel.id='gu-v33-learning-panel-'+i;
-     panel.hidden=true;
-     tab.addEventListener('keydown',e=>{
-      if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
-      e.preventDefault();
-      const j=e.key==='Home'?0:e.key==='End'?panels.length-1:(i+(e.key==='ArrowRight'?1:-1)+panels.length)%panels.length;
-      show(j);tablist.children[j].focus();
-     });
-     tablist.append(tab);
-    });
-    function show(index){
-     panels.forEach((panel,i)=>{
-      panel.hidden=i!==index;
-      tablist.children[i].setAttribute('aria-selected',String(i===index));
-     });
-    }
-    extension.append(tablist,...panels);show(0);body.append(extension);
+    // Owner layout: worked example directly ABOVE the self-check,
+    // while the four optional explanations below form their own tabs.
+    if(worked)extension.append(worked);
+    if(check)extension.append(check);
+    body.append(extension);
    }
    const names=new Set(['Explain This Concept','Show a Guided Example','Try Another Example','Teach This in More Depth']);
    const guides=Array.from(body.querySelectorAll('details')).filter(d=>names.has(d.querySelector('summary')?.textContent.trim()));
