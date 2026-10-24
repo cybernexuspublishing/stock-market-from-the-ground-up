@@ -672,28 +672,28 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
  container-type:inline-size;
 }
 @container (min-width:940px) {
- .gu-v34-unified-lesson {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson {
   display:grid!important;
   grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
   align-items:start!important;gap:clamp(14px,1.5vw,26px)!important;
  }
- .gu-v34-unified-lesson>.gu-l33-graphic,
- .gu-v34-unified-lesson>.gu-v33-exact-visual,
- .gu-v34-unified-lesson>.gu-v33-instructor {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-l33-graphic,
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-exact-visual,
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-instructor {
   min-width:0;max-width:none!important;width:100%;margin:0!important;
  }
- .gu-v34-unified-lesson>.gu-v33-instructor {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-instructor {
   max-height:none!important;overflow:visible!important;
  }
 }
 /* Avoid viewport-dependent legacy rules overriding the actual container
    when a very narrow iframe sits inside a wide desktop window. */
 @container (max-width:939px) {
- .gu-v34-unified-lesson{
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   gap:14px!important;
  }
- .gu-v34-unified-lesson>.gu-v33-instructor {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot .gu-v34-unified-lesson>.gu-v33-instructor {
   max-height:none!important;overflow:visible!important;
  }
 }
