@@ -41,7 +41,7 @@ const walk=node=>[node,...(node.children||[]).flatMap(walk)];
 let nodes=walk(target);
 assert(nodes.some(x=>x.textContent==='84%'),'The latest verified score must be displayed');
 assert(nodes.some(x=>x.textContent.includes('Not Yet Assessed')),'Unverified competencies stay unassessed');
-assert.equal(nodes.filter(x=>x.className==='gu-v33-grade-dimension').length,0); // fake className is supplied dynamically below
+assert.equal(nodes.filter(x=>x.className==='gu-v33-grade-dimension').length,4);
 assert.equal(nodes.filter(x=>x.attrs['data-grade-dimension']).length,4);
 assert(nodes.filter(x=>x.attrs.role==='progressbar').length>=3);
 assert(!nodes.some(x=>x.textContent.includes('Grade A')),'Never invent letter-grade thresholds');
