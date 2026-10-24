@@ -1,4 +1,4 @@
-/* Member Lantern Sparks: server-authoritative balance and atomic spends.
+/* Member Crownlight Sparks: server-authoritative balance and atomic spends.
  * NO billing grants, no simulated credits, no official grading or hidden
  * answer keys. Deployed only after owner-reviewed ledger migration.
  */
@@ -17,7 +17,7 @@ const LABS=Object.freeze({
 function cfg(env){
  const url=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const secret=String(env.SUPABASE_SECRET_KEY||'');
- if(!/^https:\/\/[^/]+$/.test(url)||!secret)throw deny('Lantern Sparks service is unavailable.',503);
+ if(!/^https:\/\/[^/]+$/.test(url)||!secret)throw deny('Crownlight Sparks service is unavailable.',503);
  return {url,secret};
 }
 function credentials(secret){
@@ -34,19 +34,19 @@ async function rpc(env,name,argumentsObject){
    method:'POST',headers:credentials(secret),cache:'no-store',signal:controller.signal,
    body:JSON.stringify(argumentsObject)
   });
-  if(!r.ok)throw deny('Lantern Sparks ledger could not be confirmed. Check your wallet before retrying.',503);
+  if(!r.ok)throw deny('Crownlight Sparks ledger could not be confirmed. Check your wallet before retrying.',503);
   const obj=await r.json();
   if(!obj||typeof obj!=='object'||Array.isArray(obj))
-   throw deny('Lantern Sparks ledger response is invalid.',503);
+   throw deny('Crownlight Sparks ledger response is invalid.',503);
   return obj;
  }catch(error){
   if(error?.status)throw error;
-  throw deny('Lantern Sparks request status could not be confirmed. Check your wallet before retrying.',503);
+  throw deny('Crownlight Sparks request status could not be confirmed. Check your wallet before retrying.',503);
  }finally{clearTimeout(timer)}
 }
 async function bookAuthorized(env,request,labId){
  const spec=LABS[labId];
- if(!spec)throw deny('Lantern Sparks is not available for this Lab.',404);
+ if(!spec)throw deny('Crownlight Sparks is not available for this Lab.',404);
  const allowed=await getBookCodeAccess(env,request,spec.book);
  if(allowed!==true)throw deny('An eligible book or Full Platform membership is required.',403);
  const {url,secret}=cfg(env);
@@ -56,7 +56,7 @@ async function bookAuthorized(env,request,labId){
  if(!response.ok)throw deny('Lab registry is unavailable.',503);
  const found=(await response.json())?.[0];
  if(!found||found.active!==true||found.registry_visible!==true||found.book_code!==spec.book)
-  throw deny('This Lab is not currently released for Lantern Sparks use.',404);
+  throw deny('This Lab is not currently released for Crownlight Sparks use.',404);
  return spec;
 }
 export async function onRequest({request,env}){
@@ -81,13 +81,13 @@ export async function onRequest({request,env}){
     encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
    if(!profile.ok)throw deny('Member account status cannot be verified.',503);
    if((await profile.json())?.[0]?.account_kind!=='member')
-    throw deny('Lantern Sparks is available only to eligible member accounts.',403);
+    throw deny('Crownlight Sparks is available only to eligible member accounts.',403);
    const flags=await fetch(url+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+
     encodeURIComponent(actor.userId)+'&limit=1',{headers,cache:'no-store'});
    if(!flags.ok)throw deny('Account restrictions cannot be verified.',503);
    if(['restricted','suspended'].includes(
      String((await flags.json())?.[0]?.status||'').toLowerCase()))
-    throw deny('Lantern Sparks is unavailable for this account.',403);
+    throw deny('Crownlight Sparks is unavailable for this account.',403);
    const balance=await rpc(env,'groundup_question_pass_summary',{p_user_id:actor.userId});
    return reply({ok:true,balance,creditRule:'One pass for Reveal or Skip; free instruction and retries do not spend credits.'});
   }
@@ -102,13 +102,13 @@ export async function onRequest({request,env}){
    p_question_id:questionId,p_action:action,p_request_id:requestId
   });
   if(spent.ok!==true){
-   return reply({ok:false,error:String(spent.error||'Lantern Sparks unavailable.').slice(0,180),
+   return reply({ok:false,error:String(spent.error||'Crownlight Sparks unavailable.').slice(0,180),
     balance:spent.balance||null},409);
   }
   return reply({ok:true,action,alreadyUsed:spent.alreadyUsed===true,balance:spent.balance,
    studyOnly:true,assessed:false});
  }catch(e){
-  return reply({ok:false,error:e?.status===503?'Lantern Sparks service is unavailable. Check your wallet for the current balance.':
-   String(e.message||'Lantern Sparks unavailable.').slice(0,180)},e?.status||500);
+  return reply({ok:false,error:e?.status===503?'Crownlight Sparks service is unavailable. Check your wallet for the current balance.':
+   String(e.message||'Crownlight Sparks unavailable.').slice(0,180)},e?.status||500);
  }
 }
