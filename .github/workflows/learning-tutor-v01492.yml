@@ -3,6 +3,12 @@ on:
   push:
     branches: [main]
     paths:
+      - 'assets/js/lab-v33-instruction-content.js'
+      - 'assets/js/lab-v33-instructor.js'
+      - 'assets/js/lab-v34-interactive-lessons.js'
+      - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/css/lab-v33-experience.css'
+      - 'tests/test_v014167_talia_five_candle_tabs.mjs'
       - 'assets/js/lab-player.js'
       - 'assets/js/lab-registry.js'
       - 'data/competency-study-guides-v01499.json'
@@ -135,6 +141,12 @@ on:
       - '.github/workflows/learning-tutor-v01492.yml'
   pull_request:
     paths:
+      - 'assets/js/lab-v33-instruction-content.js'
+      - 'assets/js/lab-v33-instructor.js'
+      - 'assets/js/lab-v34-interactive-lessons.js'
+      - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/css/lab-v33-experience.css'
+      - 'tests/test_v014167_talia_five_candle_tabs.mjs'
       - 'assets/js/lab-player.js'
       - 'assets/js/lab-registry.js'
       - 'data/competency-study-guides-v01499.json'
@@ -361,6 +373,7 @@ jobs:
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
+          node tests/test_v014167_talia_five_candle_tabs.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014100_choice_option_order.mjs
