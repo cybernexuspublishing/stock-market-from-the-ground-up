@@ -38,7 +38,9 @@ assert(!js.includes('consentRow'),'Do not display a duplicate AI preference in e
 assert(player.includes('tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false'),'Signed-in profile may opt out of AI assistance');
 assert(js.includes("FICTIONAL")===false,'Narration should not fabricate charts');
 assert(js.includes("Lab answers")===false,'Never transmit local answer fields');
-assert(js.includes("document.createTextNode"),'Use safe text insertion rather than HTML response rendering');
+assert(js.includes('node.textContent=String(content)')&&
+ js.includes('answerAccessible.textContent=response')&&!js.includes('.innerHTML'),
+ 'Member and Tutor text must be inserted as textContent, never interpreted as HTML');
 assert(css.includes('prefers-reduced-motion:reduce'));
 class Element{
  constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.attrs={};this.style={};this.className='';this._text='';this.value='';this.type='';this.hidden=false;this.checked=false;}
