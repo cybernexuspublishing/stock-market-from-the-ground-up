@@ -652,7 +652,7 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
    legacy 1340px article width. All 419 Labs inherit the same responsive
    shell and preserve the ordinary site navigation, footer and Admin. */
 @media (min-width:1024px) {
- body.gu-lab-member:not(.gu-lab-embedded)>#app {
+ html:not(.gu-lab-embedded) body.gu-lab-member>#app {
   padding-inline:clamp(14px,1.7vw,34px)!important;
  }
  body.gu-lab-member>#app>.shell,
