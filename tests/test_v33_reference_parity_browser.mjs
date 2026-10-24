@@ -53,7 +53,7 @@ try{
   assert.equal(await slider.count(),1,'Reference VWAP experimentation needs a direct volume slider');
   const output=host.locator('.gu-v32-output');
   const before=await output.textContent();
-  await slider.fill('400');
+  await slider.evaluate(el=>{el.value='400';el.dispatchEvent(new Event('input',{bubbles:true}))});
   assert.notEqual(await output.textContent(),before,'Changing shares must update weighted calculation');
   await mount('F2-C07-L01','F2-C07-L01');
   await host.getByRole('button',{name:/Start Guided Learning/}).click();
@@ -62,7 +62,7 @@ try{
   await host.getByRole('button',{name:'Next learning stage'}).click();
   const closing=host.locator('input[type="range"]').first();
   const initial=await host.locator('.gu-v32-output').textContent();
-  await closing.fill('30.75');
+  await closing.evaluate(el=>{el.value='30.75';el.dispatchEvent(new Event('input',{bubbles:true}))});
   assert.notEqual(await host.locator('.gu-v32-output').textContent(),initial,
    'Changing fictional Close must update OHLC and body percentage');
   assert.deepEqual(errors,[],'No JavaScript errors at '+width+'px');
