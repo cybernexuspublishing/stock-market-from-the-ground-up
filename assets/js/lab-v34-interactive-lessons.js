@@ -85,5 +85,32 @@ function narration(plan){
   'Limitations: '+plan.limit
  ].join('\n\n');
 }
-root.GroundUpLabV34InteractiveLessons=Object.freeze({get,narration,version:'3.4.0'});
+// The v3.2 reference separates three intermediate calculations. These
+// fictional cases are for learning only and cannot award an official grade.
+const practiceCases=Object.freeze({
+ candle:[
+  {id:'body',prompt:'Calculate the real body when Open is $31.00 and Close is $32.00. Enter dollars.',answer:1,
+   help:'Body is the absolute difference |Close − Open| = |$32.00 − $31.00| = $1.00. It is not High − Low.',
+   newExample:'Open $12.20 and Close $11.70 produce a $0.50 real body.'},
+  {id:'range',prompt:'Calculate the full range when High is $32.50 and Low is $30.50. Enter dollars.',answer:2,
+   help:'Full range = High − Low = $32.50 − $30.50 = $2.00, including both wicks and the body.',
+   newExample:'High $7.80 and Low $7.10 give a $0.70 full range.'},
+  {id:'percent',prompt:'What percentage of the $2.00 range does a $1.00 body occupy? Enter a percentage.',answer:50,
+   help:'Body is the part: $1.00; range is the whole: $2.00. Divide 1 ÷ 2 = 0.5, then multiply by 100 = 50%.',
+   newExample:'$0.60 body ÷ $1.50 range × 100 = 40%.'}
+ ],
+ vwap:[
+  {id:'dollars',prompt:'What is combined traded dollar value for 200 shares at $8 and 100 shares at $10? Enter dollars.',answer:2600,
+   help:'$8×200 = $1,600; $10×100 = $1,000. Add = $2,600. The dollar value is the numerator, not the VWAP.',
+   newExample:'100 shares at $5 plus 100 shares at $7 create $1,200 traded dollars.'},
+  {id:'shares',prompt:'How many shares traded across groups of 200 shares and 100 shares? Enter shares.',answer:300,
+   help:'Add the shares, not the dollars: 200+100 = 300 shares. This is the denominator.',
+   newExample:'Four groups of 50 shares give 200 shares.'},
+  {id:'vwap',prompt:'Divide $2,600 traded dollars by 300 shares to calculate VWAP. Enter dollars per share to two decimals.',answer:2600/300,
+   help:'VWAP=$2,600÷300=$8.666…/share, or $8.67 rounded. A simple ($8+$10)/2=$9 omits volumes.',
+   newExample:'150 shares at $12 and 50 at $16 give ($1,800+$800)/200=$13/share.'}
+ ]
+});
+const practiceFor=kind=>(practiceCases[kind]||[]).map(x=>({...x}));
+root.GroundUpLabV34InteractiveLessons=Object.freeze({get,narration,practiceFor,version:'3.4.0'});
 })(globalThis);
