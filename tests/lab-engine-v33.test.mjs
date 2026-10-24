@@ -31,12 +31,14 @@ test('numeric validation rejects blank, NaN, and near misses',()=>{
  assert.equal(universal.validNumber('8.67',2600/300),true);
  assert.equal(universal.validNumber('8.2',2600/300),false);
 });
-test('no private answer bank, future bars, or paid wallet introduced to universal script',()=>{
+test('no private answer banks or fabricated Question Pass credits in universal engine',()=>{
  assert.ok(!universalSource.includes('/rpc/v014_training_answer'));
  assert.ok(!universalSource.includes('secret_key'));
- assert.ok(!universalSource.includes('Question Pass Credit ledger'));
+ assert.ok(!universalSource.includes('purchasedCreditAllocation('));
+ assert.ok(!universalSource.includes('includedCreditAllocation('));
  assert.match(universalSource,/Not Yet Assessed/);
- assert.match(universalSource,/Always Free/);
+ assert.match(universalSource,/creditRequest/);
+ assert.match(universalSource,/practiceAssisted=true/);
 });
 test('player gives all Labs one shared teaching renderer, preserves private grader',()=>{
  const player=fs.readFileSync(root+'lab-player.js','utf8');
