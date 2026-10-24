@@ -149,6 +149,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  let submitting=false,finished=false,featureLesson=null,featurePhase=0,understandingMode=false;
  const submit=async()=>{
+  // No answer is permitted during orientation or before Learn instruction.
+  // Hidden UI controls must not become a backdoor stage-completion route.
+  if(stage===0||(stage===1&&!understandingMode))return;
   if(submitting||finished)return;
   const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
   if(understandingMode){
