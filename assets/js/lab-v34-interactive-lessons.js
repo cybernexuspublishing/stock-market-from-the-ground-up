@@ -160,6 +160,15 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
    script:phrases[key].filter(Boolean).join('\n\n'),concept:subject,
    type,feature:key,verifiedHistory:false,editorialFallback:false};
  }
+ if(type==='candle'&&Object.prototype.hasOwnProperty.call(candleTabs,key)){
+  const base=lessons.candle.all;
+  const bearish=/\bbearish\b|\bdown candle\b/i.test(subject);
+  return {...base,title:({understand:'Understand the candle',recognize:'Recognize each price',
+   apply:'Apply the calculations',mistake:'Correct a common mistake',
+   limits:'What the candle cannot show'})[key],
+   script:(bearish?candleBearishTabs[key]:candleTabs[key]).join('\n\n'),
+   concept:subject,type,feature:key,verifiedHistory:false};
+ }
  // Original public instructional bridges — no individual private grade or
  // verified source bar is claimed by an editorially provisional crosswalk.
  if(bridge&&bridge.labId===labId&&bridge.tabs&&
@@ -170,15 +179,6 @@ function get({type='',feature='',concept='',guide={},labId='',bridge=null,teachi
    script:bridge.tabs[key].filter(x=>typeof x==='string').join('\n\n'),
    concept:subject,type,feature:key,verifiedHistory:false,
    sourceStatus:bridge.sourceStatus,editorialFallback:false};
- }
- if(type==='candle'&&Object.prototype.hasOwnProperty.call(candleTabs,key)){
-  const base=lessons.candle.all;
-  const bearish=/\bbearish\b|\bdown candle\b/i.test(subject);
-  return {...base,title:({understand:'Understand the candle',recognize:'Recognize each price',
-   apply:'Apply the calculations',mistake:'Correct a common mistake',
-   limits:'What the candle cannot show'})[key],
-   script:(bearish?candleBearishTabs[key]:candleTabs[key]).join('\n\n'),
-   concept:subject,type,feature:key,verifiedHistory:false};
  }
  if(found)return {...found,concept:subject,type,feature:key,verifiedHistory:false};
  // Subject-specific competency bridge. Never fabricate calculations, ticker
