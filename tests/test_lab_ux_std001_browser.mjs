@@ -11,10 +11,14 @@ try{
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/index.html',{waitUntil:'domcontentloaded',timeout:30000});
   await page.addStyleTag({url:base+'/assets/css/lab-v33-contextual-visuals.css'});
+  await page.addStyleTag({url:base+'/assets/css/lab-v33-instructor.css'});
+  await page.addStyleTag({url:base+'/assets/css/lab-v33-experience.css'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-teaching.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v33-visual.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-contextual-visuals.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-v33-visual-interactions.js'});
+  await page.addScriptTag({url:base+'/assets/js/lab-v33-instruction-content.js'});
+  await page.addScriptTag({url:base+'/assets/js/lab-v33-instructor.js'});
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-universal.js'});
   await page.evaluate(()=>{
    const app=document.createElement('div');app.id='gu-v32-teaching-slot';
@@ -31,13 +35,20 @@ try{
   };
   const target=page.locator('#gu-v32-teaching-slot');
   await load('F2-C07-L01','Construct an Up / Bullish Candle');
+  assert.match(await target.locator('.gu-v33-instructor-typing').innerText(),/Avery/);
+  assert.equal(await target.locator('.instruction>h3').count(),0,'The duplicate generic What you will learn panel must be absent');
   await target.getByRole('button',{name:/Begin Candlestick Lesson/}).click();
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Learn must show single candlestick');
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/FICTIONAL/);
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'Candle SVG must be built');
-  assert.equal(await target.locator('button.gu-l33-view-btn').count(),3,'Single candle must expose three visual emphasis tabs');
-  await target.getByRole('button',{name:'Real body'}).click();
-  assert.equal(await target.getByRole('button',{name:'Real body'}).getAttribute('aria-pressed'),'true');
+  assert.equal(await target.locator('button.gu-l33-view-btn').count(),9,'Worked candle must expose seven evidence features and guided next highlight');
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The lesson chart must match Avery’s fictional worked example');
+  await target.getByRole('button',{name:'High',exact:true}).click();
+  assert.equal(await target.getByRole('button',{name:'High',exact:true}).getAttribute('aria-pressed'),'true');
+  await target.getByRole('button',{name:'Real body',exact:true}).click();
+  assert.equal(await target.getByRole('button',{name:'Real body',exact:true}).getAttribute('aria-pressed'),'true');
+  await target.getByRole('button',{name:'Show body-to-range calculation'}).click();
+  assert.equal(await target.getByRole('button',{name:'Body percentage',exact:true}).getAttribute('aria-pressed'),'true','Avery’s explanation must highlight matching chart evidence');
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-v33-exact-visual').count(),1,'Experiment has interactive OHLC graphic');
   await target.getByRole('button',{name:'Next learning stage'}).click();
