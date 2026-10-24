@@ -134,66 +134,23 @@ function enhance(view,options){
      timeLabel.style.fontWeight=selected?'800':'400';
     }
     svg.setAttribute('data-selected-index',String(index));
-    // The chart-side values always describe the SAME selected time/candle.
-    const selectedCells=Array.from(rows[index]?.cells||[]).map(cell=>cell.textContent||'');
     const panel=view.querySelector('.gu-l33-chart-reference');
-    if(panel&&selectedCells.length>=6){
+    const cells=Array.from(rows[index]?.cells||[]).map(c=>c.textContent||'');
+    if(panel&&cells.length>=6){
      const stamp=panel.querySelector('[data-reference-time]');
-     if(stamp)stamp.textContent=selectedCells[0]+' ET · Fictional exercise';
-     const values={open:selectedCells[1],high:selectedCells[2],low:selectedCells[3],
-      close:selectedCells[4],volume:selectedCells[5]+' shares'};
-     const total=rows.slice(0,index+1).reduce((acc,row)=>{
-      const close=Number(String(row.cells[4]?.textContent||'').replace(/[^0-9.\-]/g,''));
-      const volume=Number(String(row.cells[5]?.textContent||'').replace(/[^0-9.\-]/g,''));
-      if(Number.isFinite(close)&&Number.isFinite(volume)&&volume>0){
-       acc.dollars+=close*volume;acc.shares+=volume;
-      }
-      return acc;
-     },{dollars:0,shares:0});
-     if(total.shares>0)values.vwap='
-   chooser.addEventListener('change',()=>{
-    const index=Number(chooser.value),row=rows[index],cells=Array.from(row?.cells||[]).map(x=>x.textContent);
-    applySelection(index);
-    detail.textContent=cells.length>=6
-     ?'Selected on the chart: '+cells[0]+' ET · Open '+cells[1]+', High '+cells[2]+
-      ', Low '+cells[3]+', Close '+cells[4]+', Volume '+cells[5]+' shares (fictional completed candle).':'';
-   });
-   for(const group of plotted){
-    const choose=()=>{
-     const index=Number(group.getAttribute('data-candle-index'));
-     if(index>=0&&index<rows.length){chooser.value=String(index);chooser.dispatchEvent(new Event('change'));}
-    };
-    group.addEventListener('click',choose);
-    group.addEventListener('keydown',event=>{
-     if(event.key==='Enter'||event.key===' '){event.preventDefault();choose();}
-    });
-   }
-   label.append(chooser);tools.append(label,detail);chooser.dispatchEvent(new Event('change'));
-  }
- }
- const header=view.querySelector('.gu-l33-head');
- if(header)header.insertAdjacentElement('afterend',tools);
- else view.prepend(tools);
- tools.append(state);
- return view;
-}
-const upgraded={
- select:source.select,
- create(options={}){
-  // Underlying renderer exposes only data already authorized for the
-  // current teaching stage. A frozen assessment mode does not call it.
-  const view=source.create(options);
-  return enhance(view,options);
- },
- version:'LAB-UX-STD-001-v1.1-interactive'
-};
-root.GroundUpLabV33Contextual=Object.freeze(upgraded);
-})(globalThis);
-+(total.dollars/total.shares).toFixed(2);
-     for(const [name,value] of Object.entries(values)){
+     if(stamp)stamp.textContent=cells[0]+' ET · Fictional exercise';
+     const values={open:cells[1],high:cells[2],low:cells[3],close:cells[4],volume:cells[5]+' shares'};
+     let dollars=0,shares=0;
+     rows.slice(0,index+1).forEach(row=>{
+      const close=Number(String(row.cells[4]?.textContent||'').replace(/[^0-9.-]/g,''));
+      const volume=Number(String(row.cells[5]?.textContent||'').replace(/[^0-9.-]/g,''));
+      if(Number.isFinite(close)&&Number.isFinite(volume)&&volume>0){dollars+=close*volume;shares+=volume}
+     });
+     if(shares>0)values.vwap=String.fromCharCode(36)+(dollars/shares).toFixed(2);
+     Object.entries(values).forEach(([name,value])=>{
       const field=panel.querySelector('[data-reference-field="'+name+'"]');
       if(field)field.textContent=value;
-     }
+     });
     }
    };
    chooser.addEventListener('change',()=>{
