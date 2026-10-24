@@ -68,8 +68,10 @@ try{
   assert.match(await page.locator('#gu-v32-teaching-slot').innerText(),/Blind Decision — Evidence First/);
   assert.match(await page.locator('#player-title').innerText(),/Blind Market Decision/);
   assert.equal(await page.locator('[aria-label="Lab-specific conceptual teaching"]').count(),0,'Blind mode must conceal study notes before the learner decides');
+  for(let step=0;step<4;step++)await page.getByRole('button',{name:'Next question'}).click();
   await page.locator('#ev-decision').selectOption('WATCH');
   await page.locator('#ev-confidence').selectOption('3');
+  await page.getByRole('button',{name:'Next question'}).click();
   await page.locator('#lock-decision').click();
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.deepEqual(errors,[]);
@@ -131,8 +133,10 @@ try{
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
  assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
  assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Set the replay date/);
+ for(let step=0;step<4;step++)await draftPage.getByRole('button',{name:'Next question'}).click();
  await draftPage.locator('#ev-decision').selectOption('OBSERVATION_ONLY');
  await draftPage.locator('#ev-confidence').selectOption('3');
+ await draftPage.getByRole('button',{name:'Next question'}).click();
  await draftPage.locator('#lock-decision').click();
  await draftPage.locator('#reveal-next').click();
  assert.match(await draftPage.locator('#guided-sequence').innerText(),/Choose a ticker/);
