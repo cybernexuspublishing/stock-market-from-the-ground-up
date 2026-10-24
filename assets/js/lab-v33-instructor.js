@@ -92,7 +92,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   ?[
     prototype.term+': '+prototype.definition,
     'Why it matters: '+prototype.why,
-    'Follow the fictional example on the chart: '+prototype.example,
+    'Follow the illustrative example on the chart: '+prototype.example,
     ...prototype.steps.slice(0,2).map((value,i)=>'Step '+(i+1)+': '+value),
     'What this does NOT show: '+prototype.caution
    ].join('\n\n')
@@ -271,7 +271,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     'Real body = |Close − Open|. The absolute value means the distance is never negative.',
     'Full range = High − Low. This includes the real body and both wicks.',
     'Body percentage = (real body ÷ full range) × 100, provided full range is greater than zero.',
-    'For the separate fictional example Open $20.00, Close $21.20, High $22.00, and Low $19.00: body $1.20, range $3.00, body percentage 40%.',
+    'For the separate illustrative example Open $20.00, Close $21.20, High $22.00, and Low $19.00: body $1.20, range $3.00, body percentage 40%.',
     'These completed values cannot predict the next candle.'
    ]
   ]);
@@ -285,7 +285,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  }
  paintQuestion();
  // The original v3.2 Question Pass workflow is restored here for
- // *fictional, ungraded* practice questions only. A real member ledger
+ // *illustrative, ungraded* practice questions only. A real member ledger
  // confirms the balance and spends one credit atomically, never JavaScript.
  const creditControls=el('section',undefined,'gu-v33-pass-controls');
  creditControls.setAttribute('aria-label','Question Pass: optional reveal or skip');
@@ -422,11 +422,11 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   // downward candle when the learner is studying Bearish Candle.
   const bearish=/\bbearish candle\b/i.test(concept)&&type==='candle'&&!custom;
   const bearishCases={
-   all:'For this fictional five-minute BEARISH candle, Open=$32.00, High=$32.50, Low=$30.50, Close=$31.00. The close is $1.00 below the open. The body is $1.00 and the $2.00 full range makes its body share 50%.',
+   all:'For this illustrative five-minute BEARISH candle, Open=$32.00, High=$32.50, Low=$30.50, Close=$31.00. The close is $1.00 below the open. The body is $1.00 and the $2.00 full range makes its body share 50%.',
    open:'The candle first recorded $32.00. It later closed at $31.00, so it is a bearish candle.',
    close:'The final observed price for this five-minute interval was $31.00, below the $32.00 open.',
-   high:'The highest observed price in this fictional candle is $32.50.',
-   low:'The lowest observed price in this fictional candle is $30.50.',
+   high:'The highest observed price in this illustrative candle is $32.50.',
+   low:'The lowest observed price in this illustrative candle is $30.50.',
    body:'Real body=|$31.00−$32.00|=$1.00, measured between Open and Close.',
    range:'Full range=$32.50−$30.50=$2.00, measured from High to Low.',
    percent:'Body share of full range=$1.00÷$2.00×100=50%. The negative price direction does not make the body percentage negative.'
@@ -438,7 +438,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    const {o,hv,l,c}=values;
    const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
    const body=Math.abs(c-o),range=hv-l,percent=(100*body/range).toFixed(1);
-   const example='The selected fictional candle currently displays Open '+money(o)+
+   const example='The selected illustrative candle currently displays Open '+money(o)+
     ', High '+money(hv)+', Low '+money(l)+', Close '+money(c)+
     '. Body = '+money(body)+'; full range = '+money(range)+
     '; body percentage = '+percent+'%. It is '+(c>o?'bullish':c<o?'bearish':'a doji')+
@@ -457,7 +457,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    exact.title+'. Here is what you will learn.',
    exact.term+': '+exact.definition,
    'Why it matters: '+exact.why,
-   'Follow this separate fictional demonstration: '+exact.example,
+   'Follow this separate illustrative demonstration: '+exact.example,
    ...exact.steps.map((value,i)=>'Step '+(i+1)+': '+value),
    'Remember this limitation: '+exact.caution
   ].join('\n\n'):[
@@ -491,7 +491,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   return teachDirect('Worked example · step '+(index+1)+' of '+total,[
    explanation,
    'Common mistake: '+String(plan?.misconception||'Use the prices shown; never assume an unseen candle.'),
-   'Limitation: '+String(plan?.limitation||'This fictional completed example cannot predict the next candle.')
+   'Limitation: '+String(plan?.limitation||'This illustrative completed example cannot predict the next candle.')
   ],'Show and explain worked step '+(index+1));
  }
  function teachSupplement(label,paragraphs=[]){
