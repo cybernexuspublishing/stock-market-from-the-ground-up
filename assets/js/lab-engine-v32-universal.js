@@ -30,7 +30,7 @@ async function catalog(){
   fetch('/data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Curriculum map unavailable');return r.json()}),
   fetch('/data/competency-study-guides-v01499.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Study guide unavailable');return r.json()}),
   fetch('/data/labs.json',{cache:'force-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[]),
-  fetch('/data/lab-teaching-bridges-v014168.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('419 individual teaching bridges unavailable');return r.json()})
+  fetch('/data/lab-teaching-bridges-v014168.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('419 individual teaching bridges unavailable');return r.json()})
  ]).then(([paths,study,authored,bridgeData])=>{
   const guides=study.guides||[];
   if(paths.totalCanonicalLabs!==419||Object.keys(paths.byLab||{}).length!==419||guides.length!==30||
