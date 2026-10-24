@@ -140,9 +140,8 @@ function tutorSafeSubject(lab){
  return topics.find(([pattern])=>pattern.test(concept))?.[1]||'decision uncertainty and observable evidence';
 }
 /* Optional in-Lab Market Tutor uses the EXISTING authenticated API.
- * An explicit Lab ID selects only approved public competency guidance;
- * an AI opt-in instead uses the whitelisted topic so the existing backend's
- * canonical-ID source-only short-circuit does not silently bypass paid AI.
+ * Canonical Lab ID and stage select public, source-only competency guidance.
+ * This Lab path does not reserve paid inference; provider readiness is separate.
  * Never attach a rubric, historical candles, assessed answer or learner notes.
  */
 async function requestLabTutor({question,stage,allowModel=false,signal}={}){
