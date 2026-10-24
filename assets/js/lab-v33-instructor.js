@@ -321,7 +321,6 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   passReveal.disabled=passSkip.disabled=passAvailable<1;
  }
  if(stage===4&&typeof onCreditAction==='function'){
-  interaction.append(creditControls);
   void onCreditAction({action:'balance'}).then(response=>{
    if(passDisposed)return;
    showPassBalance(response.balance);
@@ -385,6 +384,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // concealed assessment-response form, so learners can always ask Talia
  // for an explanation without opening Check My Understanding.
  interaction.append(counter,prompt,reflection,submitReflection);
+ if(stage===4&&typeof onCreditAction==='function')interaction.append(creditControls);
  interaction.hidden=stage===0||stage===1;
  transcript.append(memberQuestion,interaction,suggestions,reply);
  let stopTyping=animate(visual,full,seen,skip);
