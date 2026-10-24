@@ -12,6 +12,18 @@ for(const d of bootcampCurriculumV014144.days){
 }
 const h=readFileSync('bootcamp.html','utf8'),b=readFileSync('assets/js/bootcamp.js','utf8'),e=readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
 const instructor=readFileSync('assets/js/lab-v33-instruction-content.js','utf8');
+const sourceCases=JSON.parse(readFileSync('data/bootcamp-source-cases-v014166.json','utf8'));
+assert.equal(sourceCases.version,'0.14.0.166');
+assert.equal(sourceCases.cases.length,6,'Six genuinely sourced educational cases are available; no invented future-bar claims');
+assert.equal(new Set(sourceCases.cases.map(c=>c.day)).size,sourceCases.cases.length);
+for(const c of sourceCases.cases){
+ assert(Number.isInteger(c.day)&&c.day>0&&c.day<=30);
+ assert(/^https:\/\//.test(c.sourceUrl),'Research source links must be HTTPS');
+ assert(!/profit guarantee|verified execution|guaranteed entry|verified historical candles/i.test(
+  c.observation+' '+c.practice+' '+c.limit),
+  'Primary-source lesson must not claim broker fills or verified market outcomes');
+}
+
 assert(b.includes('what:d.objective')&&b.includes('why:d.caution||d.observe'),
  'Every Boot Camp day needs its authored objective and distinct reason instead of a generic overview');
 assert(b.includes('commonError:checkpoint?.commonMistake||d.caution')&&b.includes('limitation:d.caution'),
@@ -22,6 +34,11 @@ assert(instructor.includes('custom.commonError?')&&instructor.includes('custom.l
  'Source-specific misconceptions and limitations must outrank generic hints');
 
 assert(h.includes('gu-bc-v32-stage'));
+assert(h.includes('gu-bc-source-case')&&h.includes('gu-bc-source-link'),
+ 'Vetted original-source references should be accessible in the appropriate day');
+assert(b.includes('sourceCases.get(selected)')&&b.includes('sourceSection.hidden=!source'),
+ 'Do not display the wrong day's source or a blank additional case');
+
 assert(h.indexOf('lab-engine-v32-universal.js')<h.indexOf('bootcamp.js'));
 assert(b.includes("labId:first,mode:'guided',target:guideSlot"));
 assert(b.includes("focusId:'gu-bc-note'"));
