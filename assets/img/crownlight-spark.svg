@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+<title id="title">Crownlight Spark</title><desc id="desc">Golden eight-point learning spark protected by a crown-shaped luminous ring on a midnight blue medallion.</desc>
+<defs><radialGradient id="night"><stop stop-color="#21475e"/><stop offset="1" stop-color="#061826"/></radialGradient>
+<linearGradient id="gold" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#fff4bb"/><stop offset=".38" stop-color="#ffd477"/><stop offset=".7" stop-color="#d99b35"/><stop offset="1" stop-color="#a86715"/></linearGradient>
+<filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+<circle cx="120" cy="120" r="113" fill="url(#night)" stroke="#ffd680" stroke-width="4"/>
+<circle cx="120" cy="120" r="98" fill="none" stroke="#8e6330" stroke-width="2"/>
+<path d="M49 74 L63 94 L85 70 L120 96 L155 70 L177 94 L191 74 L181 116 L59 116 Z" fill="none" stroke="url(#gold)" stroke-width="6" stroke-linejoin="round"/>
+<path d="M120 95 L131 121 L159 120 L138 139 L145 166 L120 152 L95 166 L102 139 L81 120 L109 121 Z" fill="#eebd59" opacity=".5" filter="url(#glow)"/>
+<path d="M120 88 L130 118 L159 120 L135 137 L142 169 L120 151 L98 169 L105 137 L81 120 L110 118 Z" fill="url(#gold)" stroke="#fff1c0" stroke-width="2"/>
+<circle cx="120" cy="135" r="8" fill="#fff8d7"/>
+<path d="M78 184 Q120 203 162 184" fill="none" stroke="#e2b457" stroke-width="3"/>
+</svg>
