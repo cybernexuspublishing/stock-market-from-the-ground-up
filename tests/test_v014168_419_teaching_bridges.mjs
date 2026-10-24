@@ -51,7 +51,7 @@ const formulas={
  LEVEL2_READING:'$10.03 − $10.00 = $0.03'
 };
 for(const [code,worked] of Object.entries(formulas)){
- const source=Object.values(bridge.entries).find(b=>b.mappedGuideCode===code);
+ const source=Object.values(bridge.entries).find(b=>b.relatedCompetencies.includes(code));
  assert(source,'The quantitative learning bank should correspond to an existing official competency '+code);
  const plan=api.get({type:'general',feature:'apply',concept:source.title,
   labId:source.labId,bridge:source,guide:guides.get(code)});
