@@ -646,3 +646,60 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
   display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
  }
 }
+
+
+/* v3.7.1 — Use the viewport for the member teaching workspace, not the
+   legacy 1340px article width. All 419 Labs inherit the same responsive
+   shell and preserve the ordinary site navigation, footer and Admin. */
+@media (min-width:1024px) {
+ body.gu-lab-member:not(.gu-lab-embedded)>#app {
+  padding-inline:clamp(14px,1.7vw,34px)!important;
+ }
+ body.gu-lab-member>#app>.shell,
+ body.gu-lab-member>#app>.gu-lab-breadcrumb {
+  width:100%;max-width:2180px!important;margin-inline:auto;
+ }
+ body.gu-lab-member>#app .content,
+ body.gu-lab-member>#app #player-workspace,
+ body.gu-lab-member #gu-v32-teaching-slot,
+ body.gu-lab-member #gu-v32-teaching-slot .gu-v32-body {
+  width:100%;max-width:none!important;min-width:0;
+ }
+}
+/* Container queries follow the REAL available space inside embedded lessons.
+   A narrow embedded registry should never produce two unreadable columns. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot {
+ container-type:inline-size;
+}
+@container (min-width:940px) {
+ .gu-v34-unified-lesson {
+  display:grid!important;
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
+  align-items:start!important;gap:clamp(14px,1.5vw,26px)!important;
+ }
+ .gu-v34-unified-lesson>.gu-l33-graphic,
+ .gu-v34-unified-lesson>.gu-v33-exact-visual,
+ .gu-v34-unified-lesson>.gu-v33-instructor {
+  min-width:0;max-width:none!important;width:100%;margin:0!important;
+ }
+ .gu-v34-unified-lesson>.gu-v33-instructor {
+  max-height:none!important;overflow:visible!important;
+ }
+}
+/* Avoid viewport-dependent legacy rules overriding the actual container
+   when a very narrow iframe sits inside a wide desktop window. */
+@container (max-width:939px) {
+ .gu-v34-unified-lesson{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:14px!important;
+ }
+ .gu-v34-unified-lesson>.gu-v33-instructor {
+  max-height:none!important;overflow:visible!important;
+ }
+}
+/* Place the existing supporting objectives/Tutor/Wallet selector below both
+   sibling columns at full available width, without cloning the controls. */
+#gu-v32-teaching-slot .gu-v34-unified-lesson + .gu-v33-support-tabs {
+ width:100%!important;max-width:none!important;min-width:0;
+ margin:14px 0 22px!important;
+}
