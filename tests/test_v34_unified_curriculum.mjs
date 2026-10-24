@@ -38,6 +38,8 @@ for(const guide of guides){
  assert(plan.blocks.length>=3,'Guide lacks staged instruction: '+guide.code);
  const linked=teaching.get({type:'general',feature:'apply',concept:guide.title,guide});
  assert(linked.example.includes(scenario.steps[0]),'Interactive micro lesson omitted authored case: '+guide.code);
+ const fourth=teaching.get({type:'general',feature:'case-3',concept:guide.title,guide});
+ assert.equal(fourth.example,scenario.steps[3],'Scenario focus must teach only the selected step: '+guide.code);
  for(const key of ['definition','why','method','example','mistake','limit','question']){
   assert(typeof linked[key]==='string'&&linked[key].length>=15,
    'Missing '+key+' for '+guide.code);
@@ -81,6 +83,7 @@ const instructor=read('assets/js/lab-v33-instructor.js');
 const chart=read('assets/js/lab-v33-visual-interactions.js');
 const bootcamp=read('assets/js/bootcamp.js');
 assert(engine.includes('gu-v34-unified-lesson')&&engine.includes('gu-v34-visual-focus'));
+assert(engine.includes('GroundUpLabV34CompetencyExamples?.create?.'),'Nonchart Lab families must display interactive scenario lessons');
 assert(engine.includes('focusButtons[index+1].click()'));
 assert(instructor.includes('gu-v34-topic-tools')&&instructor.includes('gu-v34-focus-answered'));
 assert(instructor.includes('teachFeature')&&instructor.includes('featurePhase===0'));
