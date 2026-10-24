@@ -134,13 +134,17 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  reflection.placeholder='Explain your evidence and reasoning in your own words.';
  const reply=el('div',undefined,'gu-v33-instructor-reply');
  reply.setAttribute('role','status');reply.setAttribute('aria-live','polite');
+ // A selected suggested question appears as a member chat turn before
+ // Talia's source-grounded, credit-free teaching response.
+ const memberQuestion=el('p',undefined,'gu-v33-instructor-member-question');
+ memberQuestion.setAttribute('aria-live','polite');
  const submitReflection=el('button','Submit answer','btn secondary gu-v33-instructor-submit');
  submitReflection.type='button';
  function paintQuestion(){
   counter.textContent='Question '+(questionIndex+1)+' of '+prompts.length;
   prompt.textContent=prompts[questionIndex];
   reflection.value=String(saved[questionIndex]||(!saved.length&&questionIndex===0?initialReflection:''));
-  reply.textContent='';
+  reply.textContent='';memberQuestion.textContent='';
   submitReflection.disabled=false;
  }
  let submitting=false,finished=false,featureLesson=null,featurePhase=0,understandingMode=false;
@@ -241,8 +245,43 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    event.preventDefault();void submit();
   }
  });
+ // Contextual questions are real buttons, not static disclosure text or
+ // additional graded/reflection prompts. Clicking submits the suggested
+ // message to the local instructional dialogue and Talia explains it.
+ const suggestions=el('div',undefined,'gu-v33-instructor-suggestions');
+ suggestions.setAttribute('role','group');
+ suggestions.setAttribute('aria-label','Suggested questions for Talia');
+ if([1,2,4,6].includes(stage)){
+  const items=[
+   ['Talia, explain the common mistake',[
+    'The common mistake: '+String(plan?.misconception||lessonContext.guide?.commonError||'Assuming the example establishes an outcome it cannot prove.'),
+    'How to correct it: '+String(plan?.worked?.[0]||plan?.blocks?.[0]||lessonContext.guide?.procedure||'Use the definitions and the evidence actually displayed.'),
+    'What remains uncertain: '+String(plan?.limitation||lessonContext.guide?.limit||'The next observation has not occurred yet.')
+   ]],
+   ['Talia, explain the limitation',[
+    String(plan?.limitation||lessonContext.guide?.limit||'The available observations cannot establish an unseen future event.'),
+    'Describe only what the completed, visible evidence supports.'
+   ]]
+  ];
+  if(lessonContext.visualType==='candle')items.push([
+   'Talia, explain the candle calculations',[
+    'Real body = |Close − Open|. The absolute value means the distance is never negative.',
+    'Full range = High − Low. This includes the real body and both wicks.',
+    'Body percentage = (real body ÷ full range) × 100, provided full range is greater than zero.',
+    'For the separate fictional example Open $20.00, Close $21.20, High $22.00, and Low $19.00: body $1.20, range $3.00, body percentage 40%.',
+    'These completed values cannot predict the next candle.'
+   ]
+  ]);
+  for(const [label,lines] of items){
+   const askButton=el('button',label,'btn secondary gu-v33-instructor-suggestion');
+   askButton.type='button';
+   askButton.setAttribute('aria-label','Ask Talia: '+label.replace(/^Talia, /,''));
+   listen(askButton,'click',()=>teachDirect('Talia explains: '+label.replace(/^Talia, /,''),lines,label));
+   suggestions.append(askButton);
+  }
+ }
  paintQuestion();
- interaction.append(counter,prompt,reflection,submitReflection,reply);
+ interaction.append(memberQuestion,counter,prompt,reflection,submitReflection,suggestions,reply);
  transcript.append(interaction);
  let stopTyping=animate(visual,full,seen,skip);
  function resumeTeaching(){
@@ -250,6 +289,21 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   reserve.textContent=full;accessible.textContent=full;
   stopTyping?.();stopTyping=animate(visual,full,true,skip);
   paintQuestion();
+ }
+ // Supplementary teaching must never insert a generic reflective question
+ // or require two typed responses just to hear the explanation.
+ function teachDirect(label,paragraphs=[],requested=''){
+  const lines=(Array.isArray(paragraphs)?paragraphs:[]).map(line=>String(line||'').trim()).filter(Boolean);
+  if(!lines.length)return false;
+  const wasFocus=Boolean(featureLesson||understandingMode);
+  featureLesson=null;featurePhase=0;understandingMode=false;
+  if(wasFocus)paintQuestion();
+  const narration=label+'\n\n'+lines.join('\n\n');
+  reserve.textContent=narration;accessible.textContent=narration;
+  stopTyping?.();stopTyping=animate(visual,narration,false,skip);
+  memberQuestion.textContent='You asked Talia: '+(requested||label);
+  reply.textContent='Talia has answered your question. The lesson question remains available below.';
+  return true;
  }
  function teachFeature({type,feature,custom,values}={}){
   if(!custom&&!root.GroundUpLabV34InteractiveLessons?.get)return false;
@@ -306,9 +360,13 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    // Each clicked feature shows its worked example BEFORE the question.
    'Worked example: '+plan.example
   ].join('\n\n'));
-  reserve.textContent=short;
-  accessible.textContent=short;
-  stopTyping?.();stopTyping=animate(visual,short,false,skip);
+  const candleFormula=type==='candle'
+   ?'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100, when the full range is greater than zero. These completed values cannot predict the next candle.'
+   :'';
+  const narration=candleFormula?short+'\n\n'+candleFormula:short;
+  reserve.textContent=narration;
+  accessible.textContent=narration;
+  stopTyping?.();stopTyping=animate(visual,narration,false,skip);
   counter.textContent='Interactive lesson · '+plan.title;
   prompt.textContent=custom?.question||plan.question;
   reflection.value='';
@@ -319,27 +377,19 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  function teachWorkedStep({index=0,total=1,text='',feature='all'}={}){
   const explanation=String(text||'').trim();
   if(!explanation)return false;
-  return teachFeature({type:lessonContext.visualType,feature:'worked-'+index,
-   custom:{
-    title:'Worked example · step '+(index+1)+' of '+total,
-    example:explanation,definition:explanation,
-    mistake:String(plan?.misconception||'Check the price labels and do not assume future candles.'),
-    limit:String(plan?.limitation||'The illustrated observations do not predict the next candle.'),
-    narration:'Worked example · step '+(index+1)+' of '+total+'\n\n'+explanation,
-    question:'What does this worked step demonstrate? Explain the prices or chart feature used.'
-   }});
+  return teachDirect('Worked example · step '+(index+1)+' of '+total,[
+   explanation,
+   'Common mistake: '+String(plan?.misconception||'Use the prices shown; never assume an unseen candle.'),
+   'Limitation: '+String(plan?.limitation||'This fictional completed example cannot predict the next candle.')
+  ],'Show and explain worked step '+(index+1));
  }
  function teachSupplement(label,paragraphs=[]){
   const content=(Array.isArray(paragraphs)?paragraphs:[]).map(x=>String(x||'').trim()).filter(Boolean);
   if(!content.length)return false;
-  return teachFeature({type:lessonContext.visualType,feature:'supplement',
-   custom:{
-    title:label,example:content.join(' '),definition:content[0],
-    mistake:String(plan?.misconception||'Do not confuse the observed example with an assured outcome.'),
-    limit:String(plan?.limitation||'Only observed evidence can support the conclusion.'),
-    narration:label+'\n\n'+content.map((line,i)=>'Step '+(i+1)+': '+line).join('\n\n'),
-    question:'What is the most important lesson from this explanation, and which observation supports it?'
-   }});
+  const formula=lessonContext.visualType==='candle'?[
+   'Real body = |Close − Open|. Full range = High − Low. Body percentage = (real body ÷ full range) × 100, when full range is greater than zero. These completed values cannot predict the next candle.'
+  ]:[];
+  return teachDirect(label,[...content,...formula],label);
  }
  function askUnderstanding(){
   if(!plan?.check)return false;
@@ -383,13 +433,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   listen(startCheck,'click',askUnderstanding);
   rootEl.append(startCheck);
  }
- if(plan?.misconception&&stage===1){
-  const other=el('details',undefined,'gu-v33-instructor-alternative');
-  other.append(el('summary','Talia, explain the common mistake'));
-  other.append(el('p',plan.misconception));
-  if(plan.limitation)other.append(el('p','What you cannot conclude: '+plan.limitation));
-  rootEl.append(other);
- }
+ // The common-mistake request is a clickable instructor-chat suggestion
+ // in the dialogue above, not another disclosure panel.
  // Example provenance remains in the Lab source-information area, not the instructor dialogue.
  let pending=null,disposed=false;
  const tutor=el('section',undefined,'gu-v33-tutor');
