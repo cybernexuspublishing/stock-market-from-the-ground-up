@@ -31,6 +31,9 @@ assert.ok(adminApi.includes("'catalog.manage'"),'Catalog permission must be enfo
 assert.ok(html.includes('id="store-tab-all"')&&html.includes('id="store-panel-all"'));
 assert.ok(html.includes('storefront-all-v014174.js'));
 assert.ok(tab.includes("parts=['memberships','books','all','tools']"));
+assert.ok(store.includes('GroundUpPublicStorefaces=getCatalog'),'Public catalog must be shared with legacy Store');
+assert.ok(tab.includes('useFaceRegistry=true')&&tab.includes("faceFor('tool',t.toolCode)"),'Legacy tabs must respect the same Owner visibility/status decisions');
+assert.ok(tab.includes("faceFor('book',p.productCode)")&&tab.includes("faceFor('plan',p.planCode)"));
 assert.ok(details.includes('id="store-item-details"'));
 assert.ok(store.includes('store-item.html?sku=')&&store.includes('esc(x.display_name)')&&store.includes('esc(x.description'));
 assert.ok(!store.includes('checkout.html?')&&!details.includes('checkout.html?'),'Generic Store face cannot bypass verified checkout');
