@@ -8,12 +8,12 @@
   document.documentElement.dataset.guDesign=choice;
   try{sessionStorage.setItem(KEY,choice)}catch(_){}
  }
- try{const saved=sessionStorage.getItem(KEY);if(allowed.has(saved))preview(saved)}catch(_){}
+ if(isAdmin){try{const saved=sessionStorage.getItem(KEY);if(allowed.has(saved))preview(saved)}catch(_){}}
  async function live(){try{const r=await fetch('/api/website-design',{cache:'no-store'});const data=await r.json();if(r.ok&&data.ok&&allowed.has(data.design?.theme)){window.__guActiveDesign=data.design;if(!isAdmin || !sessionStorage.getItem(KEY))document.documentElement.dataset.guDesign=data.design.theme}}catch(e){console.warn('Website design setting unavailable',e)}}
  async function activate(chosen,button,status){button.disabled=true;try{if(!window.__guActiveDesign||!Number.isInteger(window.__guActiveDesign.revision))throw Error('Theme settings are still loading. Refresh to retry.');const sb=await window.getSupabaseClient?.();const token=(await sb?.auth?.getSession?.())?.data?.session?.access_token;if(!token)throw Error('Owner login required');const r=await fetch('/api/website-design',{method:'POST',cache:'no-store',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({theme:chosen,expectedRevision:window.__guActiveDesign?.revision||1})});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Activation unsuccessful');window.__guActiveDesign=data.design;try{sessionStorage.removeItem(KEY)}catch(_){}document.documentElement.dataset.guDesign=data.design.theme;status.textContent='Activated '+data.design.theme+' — revision '+data.design.revision;}catch(e){status.textContent='Not activated: '+e.message}finally{button.disabled=false}}
  function mount(){
   if(!isAdmin)return;
-  const app=document.querySelector('#admin-app');if(!app)return;
+  const app=document.querySelector('#admin-app');if(!app||app.querySelector('.gu-design-picker'))return;
   const box=document.createElement('section');box.className='gu-design-picker admin-card';
   box.setAttribute('aria-label','Website Design preview');
   const heading=document.createElement('h2');heading.textContent='Website Design — Preview';
@@ -27,7 +27,9 @@
   const activateButton=document.createElement('button');activateButton.type='button';activateButton.textContent='Activate Selected Theme';activateButton.className='btn';activateButton.addEventListener('click',()=>activate(fieldset.querySelector('input:checked')?.value||'premium-dark',activateButton,note));
   const rollbackButton=document.createElement('button');rollbackButton.type='button';rollbackButton.className='btn secondary';rollbackButton.textContent='Select Previous Theme';rollbackButton.addEventListener('click',()=>{const prev=window.__guActiveDesign?.previousTheme;if(!allowed.has(prev)){note.textContent='No previous theme to restore';return}fieldset.querySelectorAll('input').forEach(i=>i.checked=i.value===prev);preview(prev);note.textContent='Previous theme previewed. Select Activate to restore for all members.'});
   box.append(heading,explain,fieldset,activateButton,rollbackButton,note);
-  const settings=app.querySelector('[data-admin-panel="settings"]');const dashboard=app.querySelector('[data-admin-panel="dashboard"]');if(settings)settings.prepend(box);else if(dashboard)dashboard.prepend(box);
+  const settings=app.querySelector('[data-admin-panel="settings"]');const dashboard=app.querySelector('[data-admin-panel="dashboard"]');if(settings)settings.prepend(box);else if(dashboard)dashboard.prepend(box);else return;
+  box.dataset.guDesignMounted='1';
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{live();mount()},{once:true});else{live();mount();}
+ function boot(){void live();mount();if(isAdmin){const app=document.querySelector('#admin-app');if(app&&!app.querySelector('.gu-design-picker')){const observer=new MutationObserver(()=>{mount();if(app.querySelector('.gu-design-picker'))observer.disconnect()});observer.observe(app,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),15000);}}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
