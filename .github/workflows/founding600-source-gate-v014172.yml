@@ -91,6 +91,8 @@ jobs:
           node --check assets/js/founder-learning-studio-v014191.js
           node --check assets/js/admin-founder-learning-v014191.js
           node --test tests/test_founder_payment_gates_v014199.mjs
+          node --test tests/test_founder_live_product_preflight_v014265.mjs
+          node --test tests/test_founder_catalog_provider_v014264.mjs
           test -f founding600.html
           grep -q 'founding600-enrollment-v014198.js' founding600.html
           grep -q 'GU_F600_LIVE_CHECKOUT_ENABLED' functions/api/founding600-checkout.js
