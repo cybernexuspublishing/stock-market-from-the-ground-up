@@ -135,7 +135,7 @@ export async function assertFounderDiscountCheckoutSafe(c,userId,kind,code){
  if(!policy||policy.ok!==true||typeof policy.eligible!=='boolean'||
   !Number.isInteger(policy.discountBps)||![0,1000,2000].includes(policy.discountBps)||
   policy.eligible!==(policy.discountBps>0)||
-  policy.founderSubscriptionExcluded!==true)
+  (policy.discountBps>0&&policy.founderSubscriptionExcluded!==true))
   throw err('Founder purchase discount authorization could not be verified.',503);
  if(policy.discountBps>0)
   throw err('Your earned Founder discount is not yet supported by this checkout. No payment has been initiated.',409);
