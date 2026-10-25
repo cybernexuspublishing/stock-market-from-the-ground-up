@@ -154,3 +154,11 @@ jobs:
           test -f supabase/migrations/v0.14.0.215_founder_sandbox_shadow_lifecycle.sql
           grep -q 'gu_f600_sandbox_apply_v014215' functions/_lib/founder-sandbox-lifecycle-v014216.js
           grep -q 'handleFounderSandbox' functions/api/gu39-stripe-webhook.js
+
+      - name: Accept founder signed payment and reversal lifecycle without LIVE charges
+        run: |
+          node --check functions/api/founding600-webhook.js
+          node --test tests/test_f600_live_signed_lifecycle_v014219.mjs
+          node --test tests/test_f600_signed_sandbox_webhook_v014217.mjs
+          test -f supabase/migrations/v0.14.0.218_founder_verified_subscription_status.sql
+          grep -q 'GU_F600_LIVE_WEBHOOK_ENABLED' functions/api/founding600-webhook.js
