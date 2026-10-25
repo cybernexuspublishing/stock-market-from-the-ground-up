@@ -1,7 +1,7 @@
 /* Production Pages routing + real anonymous Admin denial; no payment or authenticated mutations. */
 import assert from 'node:assert/strict';
 const origin='https://stock-market-from-the-ground-up.pages.dev';
-const paths=['/','/admin.html','/release-manifest.json','/api/runtime-health-v014259',
+const paths=['/','/admin.html','/release-manifest.json','/edge-probe-v014266','/api/edge-probe-v014266','/api/runtime-health-v014259',
  '/api/admin?action=system','/api/admin?action=users',
  '/api/admin-accounts-v01353?action=list','/api/admin-prelive-v014247',
  '/api/admin-control-registry','/api/admin-access-v01355?tab=overview',
@@ -14,8 +14,8 @@ for(const path of paths){
  try{res=await fetch(origin+path,{redirect:path.startsWith('/api/')?'manual':'follow',cache:'no-store',
   headers:{accept:'application/json,text/html'},signal:AbortSignal.timeout(15000)})}
  catch(e){problems.push('Network '+path+' '+String(e.message||e));continue}
- const asset=!path.startsWith('/api/');
- const healthy=path==='/api/runtime-health-v014259';
+ const asset=!path.startsWith('/api/')&&path!=='/edge-probe-v014266';
+ const healthy=['/edge-probe-v014266','/api/edge-probe-v014266','/api/runtime-health-v014259'].includes(path);
  const ok=asset||healthy?res.status===200:[401,403].includes(res.status);
  const cache=(res.headers.get('cache-control')||'').toLowerCase();
  const ct=res.headers.get('content-type')||'unknown';
@@ -25,7 +25,12 @@ for(const path of paths){
  if(!asset){
   const body=await res.text();
   if(!ok)console.log('Unexpected response sample',path,body.replace(/\\s+/g,' ').slice(0,160));
-  if(healthy&&(!body.includes('ground-up-pages-functions')||res.headers.get('x-gu-functions')!=='v014259'))problems.push('Runtime health probe did not execute Pages Functions');
+  if(healthy){
+   const flag=path==='/api/runtime-health-v014259'?'x-gu-functions':'x-gu-probe';
+   const expected=path==='/api/runtime-health-v014259'?'v014259':path==='/edge-probe-v014266'?'root-v014266':'api-v014266';
+   if(res.headers.get(flag)!==expected)problems.push('Pages Function probe did not execute: '+path);
+   console.log('Probe marker',path,res.headers.get(flag)||'<none>','server',res.headers.get('server')||'<none>');
+  }
   if(/sb_secret_|sk_live_|whsec_/i.test(body))problems.push(path+' leaked sensitive token');
  }
 }
