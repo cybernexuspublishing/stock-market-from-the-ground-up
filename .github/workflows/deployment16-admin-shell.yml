@@ -7,6 +7,7 @@ on:
       - 'functions/api/admin-control-registry.js'
       - 'tests/test_admin_rbac_atomic_v014252.mjs'
       - 'tests/test_admin_role_editor_atomic_v014255.mjs'
+      - 'tests/test_admin_production_guest_v014255.mjs'
       - 'tests/test_admin_staff_flag_gate_v014253.mjs'
       - 'tests/test_v014077_owner_qa_membership_reset.mjs'
       - 'tests/test_admin_legacy_authorization_v014254.mjs'
@@ -74,3 +75,15 @@ jobs:
           node tests/test_admin_legacy_authorization_v014254.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs
+
+  stage-c-production-guest-tests:
+    needs: stage-a-source-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify real production anonymous API and privileged-write denials
+        run: node tests/test_admin_production_guest_v014255.mjs
