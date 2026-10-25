@@ -216,15 +216,30 @@ function mountLabTutorLink(lab,mode){
  notice.textContent='Only general approved subject context is passed. No private questions, rubric, grades, future candles, or your written answers. Active Tutor access is required.';
  target.append(notice);
 }
+// Shared v4 presentation policy is the sole authority for stage-based UI.
+// Server-side access checks remain in renderPlayer and private API boundaries.
+function currentPlayerStage(){
+ const raw=q('player-workspace')?.dataset?.learningStage;
+ const value=Number(raw);
+ return raw!==undefined&&Number.isInteger(value)?Math.max(0,Math.min(8,value)):0;
+}
+function currentPlayerPolicy(){
+ const state=window.GroundUpLabV33WorkspaceFlow?.presentationState?.(
+  PLAYER.mode,currentPlayerStage(),PLAYER.locked);
+ return state||{stage:currentPlayerStage(),mode:PLAYER.mode};
+}
 function syncPlayerMode(){
  const select=q('player-mode-select');if(!select)return;
  const trigger=q('player-mode-trigger');
- const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
- const restricted=PLAYER.locked||fraction>=1/3;
+ const policy=currentPlayerPolicy();
+ const restricted=PLAYER.locked||policy.stage>=3;
  select.value=PLAYER.mode;select.disabled=restricted;
  if(trigger){trigger.disabled=restricted;trigger.textContent=({guided:'Guided',practice:'Practice',blind:'Blind Decision',assessment:'Assessment'})[PLAYER.mode]+' ▾';}
  const label=q('player-mode-status');if(label)label.textContent=restricted?'Locked for this attempt':'Unlocked';
- if(restricted){const menu=q('player-mode-menu');if(menu)menu.hidden=true;if(trigger)trigger.setAttribute('aria-expanded','false')}
+ if(restricted){
+  const menu=q('player-mode-menu');if(menu)menu.hidden=true;
+  if(trigger)trigger.setAttribute('aria-expanded','false');
+ }
  const row=q('player-mode-restart-row');if(row)row.hidden=!restricted;
 }
 function inlineModeConfirmation(nextMode,allowChoice=false){
@@ -375,9 +390,9 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  const requestPlayerMode=next=>{
   if(!['guided','practice','blind','assessment'].includes(next))return;
   if(next===PLAYER.mode){syncPlayerMode();return}
-  const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
-  if(PLAYER.locked||fraction>=1/3){syncPlayerMode();return}
-  if(fraction>0){inlineModeConfirmation(next,false);syncPlayerMode();return}
+  const stage=currentPlayerPolicy().stage;
+  if(PLAYER.locked||stage>=3){syncPlayerMode();return}
+  if(stage>0){inlineModeConfirmation(next,false);syncPlayerMode();return}
   PLAYER.mode=next;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
  };
  q('player-mode-select')?.addEventListener('change',event=>requestPlayerMode(event.target.value));
