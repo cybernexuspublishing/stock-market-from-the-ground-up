@@ -473,3 +473,12 @@ body:has(:is(.gu-member-dashboard-shell,.gu-redesign-learn,.gu-redesign-labs,.gu
 html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) :is(.card,.academy-program){background:linear-gradient(140deg,#fff,#f4f2ff)!important;color:#1b2a45;border-color:#bbc9dc!important}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-card,.dashboard-stat){background:linear-gradient(140deg,#fff,#f4f4fc)!important;color:#263754;border-color:#c4cee3}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-card,.dashboard-stat) :is(h2,h3,strong){color:#162d47}
+
+/* One authoritative Dashboard navigation: the sidebar covers every member tab,
+   the duplicated horizontal tablist is retired only when JS confirms coverage. */
+.gu-member-dashboard-shell #v1322-member-hub.gu-single-member-nav .v1322-member-tabs[hidden]{display:none!important}
+.gu-member-dashboard-shell #v1322-member-hub.gu-single-member-nav .v1322-panel-wrap{padding-top:0;margin-top:0}
+.gu-member-dashboard-shell>.gu-member-side-menu a[aria-current="page"]{background:linear-gradient(95deg,#453482,#1d4e75)!important;color:#fff;border-left:3px solid #c3aeff}
+.gu-member-dashboard-shell>.gu-member-side-menu{overflow-y:auto;overscroll-behavior:contain}
+@media(min-width:1100px){.gu-member-dashboard-shell>.gu-member-side-menu{position:sticky;top:65px;align-self:flex-start;height:calc(100dvh - 65px)}}
+@media(max-width:1099px){.gu-member-dashboard-shell>.gu-member-side-menu{overflow:visible;height:auto;position:static}}
