@@ -29,4 +29,8 @@ for(const [name,file,marker] of [
 assert(css.includes('.gu-redesign-store .store-category-tabs'),'Marketplace tabs must retain an accessible category layout');
 assert(css.includes('.gu-redesign-academy .academy-program'),'Academy cards must use shared premium styling');
 assert(css.includes('.gu-release-actions'),'New page entry actions must be responsive');
+const legacyRenderer=read('assets/js/production-completion.js');
+const legacySource=read('src/ts/production-completion.ts');
+assert(legacyRenderer.includes("main.classList.contains('gu-premium-home')"),'The deployed legacy renderer must preserve the premium homepage');
+assert(legacySource.includes("main.classList.contains('gu-premium-home')"),'TypeScript source must preserve the premium homepage');
 console.log('PASS premium shell source contracts');
