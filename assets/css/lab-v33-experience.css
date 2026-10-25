@@ -813,7 +813,9 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
  .gu-l33-graphic:not(.gu-v34-expanded-visual) .gu-l33-chart svg{
   width:100%;
-  max-width:560px;
+  /* 820×395 chart: 540px renders at ~260px high, below the 270px
+     compact-layout budget with margin for browser rounding at 1920px. */
+  max-width:540px;
   height:auto;
   margin-inline:auto;
 }
