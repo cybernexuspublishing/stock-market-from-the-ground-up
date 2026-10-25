@@ -47,11 +47,17 @@ for(const path of ['/api/gu39-sandbox','/api/admin-prelive-v014247','/api/owner-
   assert.equal(r.status,401);
  });
 }
-for(const path of ['/api/stripe-live-webhook','/api/gu39-stripe-webhook','/api/founding600-webhook']){
+for(const path of ['/api/stripe-live-webhook','/api/gu39-stripe-webhook']){
  await verify('No GET webhook '+path,async()=>{
   const r=await fetch(site+path,{redirect:'manual'});
   assert.equal(r.status,405);
  });
 }
+// Founding 600 uses onRequestPost only; GET has no Pages handler and
+// therefore correctly falls through to 404 rather than a custom 405.
+await verify('POST-only Founding 600 webhook rejects GET',async()=>{
+ const r=await fetch(site+'/api/founding600-webhook',{redirect:'manual'});
+ assert.ok(r.status===404||r.status===405,'Unexpected GET '+r.status);
+});
 console.log(JSON.stringify({site,passed:passed.length,failed:failures.length,failures,paymentsPerformed:0},null,2));
 if(failures.length)process.exitCode=1;
