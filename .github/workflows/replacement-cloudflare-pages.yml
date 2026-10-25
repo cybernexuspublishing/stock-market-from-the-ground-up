@@ -31,7 +31,7 @@ jobs:
       - name: Deploy replacement account (manual workflow only)
         env:
           CLOUDFLARE_ACCOUNT_ID: '9a43bc08e9db72e7187bc8c0a31710c2'
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_LIVES_PAGES_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN"
           npx --yes wrangler@4.152.0 pages deploy public --project-name=stock-market-from-the-ground-up-lives --branch=main
