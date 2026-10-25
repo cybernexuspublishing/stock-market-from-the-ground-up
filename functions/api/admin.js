@@ -1,3 +1,4 @@
+const allowedPrelaunchStoreCodesV014175 = new Set(["FOUNDING_30","FOUNDING_60","BC-05-TRUTH","BC-07-WATCH","BC-10-SCAN","BC-30-CORE","BC-45-CHART","BC-60-RISK","BC-90-PRACT","SC-07-CANDLE","SC-10-TAPE","SC-10-VWAP","SC-07-NEWS","SC-07-EDGAR","SC-10-SIZING","SC-07-BREAK","SC-07-JOURNAL","SPARKS_10","SPARKS_30","SPARKS_75","ONDEMAND_TRAINING","DISCOVERY_LAB","SCANNER_BUILDER","WATCHLIST_WORKBENCH","CATALYST_RESEARCH","FLOAT_SUPPLY_LAB","MARKET_STRUCTURE_LAB","MULTI_TIMEFRAME_LAB","RISK_POSITION_LAB","EXECUTION_LAB","LIQUIDITY_SPREAD_LAB","HALT_SSR_LAB","PATTERN_FAILURE_LIBRARY","ORDER_FLOW_TAPE_LAB","MARKET_CONTEXT_LAB","TRADE_REVIEW_REPLAY","STRATEGY_VALIDATION","OPTIONS_LAB"]);
 const JSON_HEADERS={"content-type":"application/json; charset=utf-8","cache-control":"no-store"};
 const out=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:JSON_HEADERS});
 const bad=(message,status=400,extra={})=>out({ok:false,error:message,...extra},status);
@@ -310,6 +311,7 @@ async function handlePost(env,request,action){
     const c=await withContext(env,request,'catalog.view');
     if(!c.ctx.roles.includes('OWNER'))return bad('Owner authorization required.',403);
     const sku=clean(body.sku).toUpperCase(),title=clean(body.title),description=clean(body.description);
+    if(!allowedPrelaunchStoreCodesV014175.has(sku))return bad('This product belongs to an existing editor or is not registered as an upcoming SKU.',404);
     const lifecycle=clean(body.lifecycle),visible=body.store_visible,version=body.expected_version;
     if(!/^[A-Z][A-Z0-9_-]{1,79}$/.test(sku)||title.length<1||title.length>160||
        description.length>2400||typeof visible!=='boolean'||!Number.isSafeInteger(version)||version<0)
