@@ -29,7 +29,11 @@ with sync_playwright() as p:
    page.locator('#v1341-mobile-search').fill('Boot Camp')
    assert page.locator('.v1341-mobile-links a:visible',has_text='Boot Camp Academy').count()==1
    assert page.locator('.v1341-mobile-links a:visible',has_text='Dashboard').count()==0
+   page.locator('#v1341-mobile-search').fill('no-such-destination-xyz')
+   assert page.locator('.v1341-mobile-links a:visible').count()==0
+   assert page.locator('.v1341-mobile-empty:visible').count()==1
    page.locator('#v1341-mobile-search').fill('')
+   assert page.locator('.v1341-mobile-empty:visible').count()==0
    assert page.locator('.v1341-mobile-links a:visible',has_text='Dashboard').count()==1
   assert not errors,errors
   print('PASS BUNDLED NAVIGATION',width,'one profile Dashboard, one mobile drawer, authorized Admin link')
