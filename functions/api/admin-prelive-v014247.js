@@ -22,11 +22,12 @@ async function owner(request,c){
  const person=await result(c.base+'/auth/v1/user',{apikey:c.pub,authorization:'Bearer '+match[1]});
  if(!person?.id||!/^[a-f0-9-]{36}$/i.test(person.id))return null;
  const header=serviceHeaders(c.secret);
- const [roles,profiles]=await Promise.all([
+ const [roles,profiles,flags]=await Promise.all([
   result(c.base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(person.id),header),
-  result(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(person.id)+'&limit=1',header)
+  result(c.base+'/rest/v1/profiles?select=account_kind,deleted_at&id=eq.'+encodeURIComponent(person.id)+'&limit=1',header),
+  result(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(person.id)+'&limit=1',header)
  ]);
- if(profiles?.[0]?.account_kind!=='member')return null;
+ if(profiles?.[0]?.account_kind!=='member'||profiles[0].deleted_at||['restricted','suspended'].includes(str(flags?.[0]?.status).toLowerCase()))return null;
  if(!Array.isArray(roles)||roles.some(x=>x.role_code==='SHOWCASE_VIEWER'))return null;
  const isOwner=roles.some(r=>r.role_code==='OWNER'&&(!r.expires_at||Date.parse(r.expires_at)>Date.now()));
  return isOwner?{id:person.id}:null;
