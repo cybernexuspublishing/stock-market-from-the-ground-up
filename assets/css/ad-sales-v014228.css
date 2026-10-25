@@ -1,0 +1,22 @@
+/* Advertising sales v0.14.0.228 — no sponsor creative is served until independently approved. */
+.gu-ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:18px;margin:20px 0}
+.gu-ad-panel{border:1px solid var(--line,rgba(135,164,192,.35));background:var(--card,#14273b);padding:20px;border-radius:14px;margin:14px 0}
+.gu-ad-panel h2,.gu-ad-panel h3{margin-top:0}
+.gu-ad-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.gu-ad-form label{display:flex;flex-direction:column;gap:6px}
+.gu-ad-form input,.gu-ad-form textarea,.gu-ad-form select{width:100%;min-width:0;padding:11px;border-radius:8px;border:1px solid #7893aa;background:#0e2132;color:#fff;font:inherit}
+.gu-ad-form textarea{min-height:104px;grid-column:1/-1}
+.gu-ad-form button,.gu-ad-form .gu-ad-full,.gu-ad-form [role=status]{grid-column:1/-1}
+.gu-ad-form [type=checkbox]{width:auto}
+.gu-ad-note{color:var(--muted,#b3c7d7);font-size:.94rem;line-height:1.5}
+.gu-ad-control-list{display:grid;gap:10px;margin-top:14px}
+.gu-ad-item{padding:13px;border:1px solid rgba(142,170,192,.4);border-radius:10px;overflow-wrap:anywhere}
+.gu-ad-item p{margin:6px 0}
+.gu-ad-item button{margin:6px 6px 2px 0}
+.gu-ad-pill{display:inline-block;font-size:.78rem;border:1px solid currentColor;border-radius:999px;padding:3px 8px}
+.gu-ad-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.gu-ad-slot{margin:26px 0;border-top:1px solid rgba(145,165,189,.25);padding:18px 0}
+.gu-ad-slot a{display:block;padding:16px;border-radius:12px;background:#172d43;text-decoration:none;border:1px solid rgba(160,187,209,.3)}
+.gu-ad-slot .gu-ad-mark{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:#a5c8e9}
+.gu-ad-slot p{margin:.35rem 0;color:#d8e8f5}
+@media(max-width:600px){.gu-ad-panel{padding:14px}.gu-ad-form{grid-template-columns:minmax(0,1fr)}}
