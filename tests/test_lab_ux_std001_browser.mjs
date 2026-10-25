@@ -52,7 +52,8 @@ try{
   await target.getByRole('button',{name:'Show body-to-range calculation'}).click();
   assert.equal(await target.getByRole('button',{name:'Body percentage',exact:true}).getAttribute('aria-pressed'),'true','Talia’s explanation must highlight matching chart evidence');
   await target.getByRole('button',{name:'Next learning stage'}).click();
-  assert.equal(await target.locator('.gu-v33-exact-visual').count(),1,'Experiment has interactive OHLC graphic');
+  assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Experiment retains the same OHLC graphic as Learn');
+   assert.equal(await target.locator('.gu-v36-candle-experiment input[type="range"]').count(),1,'Experiment must include its interactive closing-price slider');
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Predict must show relevant candle');
   await target.locator('textarea').first().fill('I will not assume the next completed candle is higher; I need fresh evidence.');
