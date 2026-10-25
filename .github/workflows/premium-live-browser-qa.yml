@@ -13,6 +13,9 @@ on:
       - 'assets/css/sitewide-composition-v014234.css'
       - 'functions/_middleware.js'
       - 'assets/js/site.js'
+      - 'assets/js/premium-design-v014168.js'
+      - 'functions/api/website-design.js'
+      - 'tests/test_theme_service_browser.py'
       - 'assets/js/member-dashboard.js'
       - 'assets/js/production-completion.js'
       - 'assets/js/frontend-complete.js'
@@ -65,10 +68,12 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Test built static frontend without provider access
         run: python tests/test_frontend_stabilization_browser.py
+      - name: Verify theme service failure and recovery in browser
+        run: python tests/test_theme_service_browser.py
       - name: Test published route layouts at desktop tablet and mobile widths
         run: python tests/test_premium_browser_live.py
         env:
-          GU_PRODUCTION_URL: https://stock-market-from-the-ground-up.pages.dev
+          GU_PRODUCTION_URL: https://stock-market-from-the-ground-up-d1r.pages.dev
       - uses: actions/upload-artifact@v4
         if: always()
         with:

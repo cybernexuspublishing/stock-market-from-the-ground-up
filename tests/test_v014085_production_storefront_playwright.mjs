@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import assert from 'node:assert/strict';
 import {writeFileSync} from 'node:fs';
-const base=(process.env.STOREFRONT_BASE||'https://stock-market-from-the-ground-up.pages.dev').replace(/\/$/,'');
+const base=(process.env.STOREFRONT_BASE||'https://stock-market-from-the-ground-up-d1r.pages.dev').replace(/\/$/,'');
 const results=[],errors=[],pageErrors=[];
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 async function run(name,fn){
@@ -228,7 +228,7 @@ try{
  await run('Noncharging LIVE payment-readiness check',async()=>{
    // Local PR preview has no Cloudflare Functions: use the read-only,
    // already-deployed Production readiness endpoint for this one check.
-   const liveOrigin='https://stock-market-from-the-ground-up.pages.dev';
+   const liveOrigin='https://stock-market-from-the-ground-up-d1r.pages.dev';
    const response=await main.request.get(liveOrigin+'/api/stripe-live-checkout-v01458?type=plan&code=FULL_MONTHLY&v85='+Date.now(),{timeout:20000});
    const data=await response.json().catch(()=>null);
    assert.ok(data&&typeof data.liveCheckoutAvailable==='boolean','Read-only status endpoint did not return a valid boolean');

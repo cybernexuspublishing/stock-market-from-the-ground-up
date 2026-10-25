@@ -4,13 +4,31 @@ from urllib.parse import urlparse, parse_qs
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-BASE=os.getenv('GU_PRODUCTION_URL','https://stock-market-from-the-ground-up.pages.dev').rstrip('/')
+BASE=os.getenv('GU_PRODUCTION_URL','https://stock-market-from-the-ground-up-d1r.pages.dev').rstrip('/')
 OUT=Path('artifacts/premium-browser')
 OUT.mkdir(parents=True,exist_ok=True)
 ROUTES=['','learn.html','labs.html','bootcamp-academy.html','store.html','dashboard.html','market-commons.html','simulator.html','journal.html','admin.html']
 with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
     failures=[]
+    # Layout success does not establish that deployed Functions execute.
+    api=pw.request.new_context()
+    for endpoint in ['/api/runtime-health-v014259','/api/website-design']:
+        try:
+            response=api.get(BASE+endpoint,timeout=30000)
+            assert response.status==200,f'HTTP {response.status}'
+            assert 'application/json' in response.headers.get('content-type',''),'Expected JSON; static HTML fallback is not a working API'
+            data=response.json()
+            if endpoint.endswith('website-design'):
+                assert data.get('ok') is True and data.get('design',{}).get('theme') in ['premium-dark','premium-light']
+                assert type(data['design'].get('revision')) is int
+            else:
+                assert data.get('service')=='ground-up-pages-functions'
+                assert response.headers.get('x-gu-functions')=='v014259'
+            print('PASS production API contract '+endpoint)
+        except Exception as exc:
+            failures.append(f'Production API {endpoint}: {exc}')
+    api.dispose()
     for width in [1440,900,390]:
         for route in ROUTES:
             page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)

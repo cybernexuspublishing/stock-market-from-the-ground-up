@@ -81,14 +81,14 @@ jobs:
           sleep 2
       - name: Real browser acceptance — PR against branch, main against Production
         env:
-          STOREFRONT_BASE: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765' || 'https://stock-market-from-the-ground-up.pages.dev' }}
+          STOREFRONT_BASE: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765' || 'https://stock-market-from-the-ground-up-d1r.pages.dev' }}
         run: |
           node tests/test_v014085_production_storefront_playwright.mjs
       - name: Diagnose LIVE production Store before release (no-charge, read-only)
         if: github.event_name == 'pull_request'
         continue-on-error: true
         env:
-          STOREFRONT_BASE: https://stock-market-from-the-ground-up.pages.dev
+          STOREFRONT_BASE: https://stock-market-from-the-ground-up-d1r.pages.dev
         run: node tests/test_v014085_production_storefront_playwright.mjs
       - uses: actions/upload-artifact@v4
         if: always()

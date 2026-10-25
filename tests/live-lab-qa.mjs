@@ -4,7 +4,7 @@
  */
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-const origin='https://stock-market-from-the-ground-up.pages.dev';
+const origin='https://stock-market-from-the-ground-up-d1r.pages.dev';
 const email=process.env.LAB_QA_EMAIL||'',password=process.env.LAB_QA_PASSWORD||'';
 if(!email||!password){console.error('FAIL missing LAB_QA_EMAIL or LAB_QA_PASSWORD GitHub Secrets.');process.exit(2)}
 const cfg=readFileSync('config.js','utf8');
