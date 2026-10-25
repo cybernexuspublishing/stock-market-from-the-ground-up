@@ -99,7 +99,7 @@ async function invoice(c,campaign,advertiser,reference){
  return {amount:data.amount_paid,customer:data.customer};
 }
 async function readOwner(c){
- const [settings,packages,placements,inquiries,advertisers,campaigns,creatives,proof,events]=await Promise.all([
+ const [settings,packages,placements,inquiries,advertisers,campaigns,creatives,proof]=await Promise.all([
  api(c,'gu_ad_sales_settings_v014226?select=*&singleton=eq.true'),
  api(c,'gu_ad_packages_v014226?select=*&order=code.asc'),
  api(c,'ad_placements?select=placement_code,name,page_pattern,active,free_only&order=sort_order.asc'),
@@ -107,11 +107,12 @@ async function readOwner(c){
  api(c,'advertisers?select=id,name,contact_email,website_url,status,created_at&order=created_at.desc&limit=150'),
  api(c,'ad_campaigns?select=*&order=created_at.desc&limit=150'),
  api(c,'ad_creatives?select=id,campaign_id,placement_code,status,headline,body,image_url,destination_url,alt_text&order=created_at.desc&limit=150'),
- api(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode,paid_amount_cents,verified_at&order=verified_at.desc&limit=100'),
- api(c,'ad_events?select=campaign_id,event_type,created_at&order=created_at.desc&limit=1000')
+ api(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode,paid_amount_cents,verified_at&order=verified_at.desc&limit=100')
  ]);
- const metrics={};for(const e of events||[]){const t=metrics[e.campaign_id]??={impressions:0,clicks:0};
- if(e.event_type==='impression')t.impressions++;else if(e.event_type==='click')t.clicks++}
+ const stats=await api(c,'rpc/gu_ad_campaign_counts_v014233',{method:'POST',
+   body:{p_campaigns:(campaigns||[]).map(x=>Number(x.id)).filter(Number.isSafeInteger)}});
+ const metrics={};
+ for(const e of stats||[])metrics[e.campaign_id]={impressions:Number(e.impressions)||0,clicks:Number(e.clicks)||0};
  return {settings:settings?.[0]||null,packages:packages||[],placements:placements||[],
  inquiries:inquiries||[],advertisers:advertisers||[],campaigns:campaigns||[],
  creatives:creatives||[],paymentEvidence:proof||[],recentEventSamples:metrics};
