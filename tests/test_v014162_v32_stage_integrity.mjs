@@ -9,6 +9,6 @@ assert(s.includes("if(stage===6&&!selfReview)"));
 assert(s.includes("if(stage===7&&!transferResolved)"));
 assert(s.includes('sessions.get(target)!==token'),'No stale async study guides mounted after mode switch');
 assert(s.includes("['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']"));
-assert(player.includes('fraction>=1/3'),'Member mode switch lock at one-third');
+assert(player.includes('PLAYER.locked||policy.stage>=3'),'Member mode switch locks at Predict (three of nine stages)');
 assert(player.includes('submitted server assessments are not deleted')||player.includes('submitted server assessments'),'Restart does not erase official grades');
 console.log('PASS Lab Engine v3.3: nine stages, locked predictions, required review and transfer, stale mount guards');
