@@ -10,9 +10,20 @@ on:
       - 'functions/api/founding600-checkout.js'
       - 'functions/api/admin-prelive-v014247.js'
       - 'functions/api/account.js'
+      - 'tests/test_lives_free_account_secret_compat_v014271.mjs'
       - 'scripts/build-pages.sh'
       - '_routes.json'
 jobs:
+  free-account-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate legacy and modern Supabase service key headers without real member writes
+        run: node --test tests/test_lives_free_account_secret_compat_v014271.mjs
   guest-live-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 8
