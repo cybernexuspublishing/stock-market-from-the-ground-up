@@ -58,6 +58,19 @@ try{
        at:performance.now()});
     },true);
   });
+  await page.evaluate(()=>{
+   const peek=phase=>({
+    phase,mode:typeof PLAYER==='object'?PLAYER.mode:'unavailable',
+    selected:document.getElementById('player-mode-select')?.value,
+    disabled:document.getElementById('player-mode-select')?.disabled,
+    progress:document.querySelector('[data-v32-progress]')?.dataset?.v32Progress,
+    confirmed:!document.getElementById('player-mode-confirm')?.hidden
+   });
+   window.__qaModeTrace.push(peek('pre-menu'));
+   document.querySelector('#player-mode-menu [data-member-mode="practice"]')?.addEventListener('click',()=>{
+    window.__qaModeTrace.push(peek('button-capture'))
+   },true);
+  });
   await page.locator('#player-mode-trigger').click();
   await page.locator('#player-mode-menu [data-member-mode="practice"]').click();
   const initialModeConfirm=page.locator('#player-mode-confirm');
@@ -65,7 +78,13 @@ try{
    await initialModeConfirm.getByRole('button',{name:'Yes, Continue'}).click();
   const chosenMode=await page.locator('#player-mode-select').inputValue();
   const triggerText=await page.locator('#player-mode-trigger').innerText();
-  const modeTrace=await page.evaluate(()=>window.__qaModeTrace||[]);
+  const modeTrace=await page.evaluate(()=>[...(window.__qaModeTrace||[]),{
+   phase:'after',mode:typeof PLAYER==='object'?PLAYER.mode:'unavailable',
+   selected:document.getElementById('player-mode-select')?.value,
+   disabled:document.getElementById('player-mode-select')?.disabled,
+   progress:document.querySelector('[data-v32-progress]')?.dataset?.v32Progress,
+   confirmed:!document.getElementById('player-mode-confirm')?.hidden
+  }]);
   assert.equal(chosenMode,'practice','Practice selection must activate; current visible mode: '+triggerText+
     '; event trace: '+JSON.stringify(modeTrace));
   await page.getByRole('button',{name:'Learning mode guidance'}).click();
