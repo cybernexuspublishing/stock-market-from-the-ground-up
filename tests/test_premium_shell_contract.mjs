@@ -40,4 +40,7 @@ assert(!home.includes('Example online members'),'Do not display invented member 
 assert(css.includes('gu-home-message h1{font-size:clamp('),'Hero typography must have audited responsive limits');
 assert(css.includes('max-width:520px'),'Small phones must have dedicated responsive layout');
 assert(dashboard.includes('dashboard.html?tab=billing')&&dashboard.includes('dashboard.html?tab=support'),'Sidebar must retain operational member destinations');
+for(const selector of ['.gu-redesign-academy #academy-lab-slot','.gu-redesign-labs #gu-lab-registry-view','.gu-redesign-store .store-category-tabs','.gu-member-dashboard-shell .v1322-member-tabs','.gu-member-dashboard-shell>.gu-member-side-menu'])assert(css.includes(selector),'Missing integrated platform treatment '+selector);
+assert(css.includes('prefers-contrast:more'),'High contrast safety must exist');
+assert(css.includes('premium-light'),'Light theme override must exist');
 console.log('PASS premium shell source contracts');
