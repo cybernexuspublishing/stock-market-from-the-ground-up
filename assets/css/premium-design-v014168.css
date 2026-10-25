@@ -152,3 +152,15 @@ html[data-gu-design="premium-light"] .gu-l33-interactive-tools .gu-l33-view-btn[
 html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v41-talia-quick-action{background:#f3f0ff;color:#29254f;border-color:#9d8cde}
 html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v41-talia-quick-action:hover{background:#e6dcff}
 @media(max-width:420px){#gu-v32-teaching-slot .gu-v41-talia-quick-actions{grid-template-columns:1fr}}
+
+/* Academy parity: the shared Lab Engine mounts at a different slot. */
+#academy-lab-slot .gu-v41-talia-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 13px}
+#academy-lab-slot .gu-v41-talia-quick-action{min-width:0;min-height:36px;padding:7px 9px;border:1px solid #5e58a4;border-radius:7px;background:#252d57;color:#f5f2ff;font-size:.76rem;font-weight:650;line-height:1.3;text-align:left;white-space:normal;overflow-wrap:break-word;box-shadow:none}
+#academy-lab-slot .gu-v41-talia-quick-action:hover{background:#373677;border-color:#ae9ef4}
+#academy-lab-slot .gu-v41-talia-quick-action:focus-visible{outline:3px solid #b6a7ff;outline-offset:2px}
+#academy-lab-slot .gu-l33-interactive-tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+#academy-lab-slot .gu-l33-interactive-tools :is(.gu-l33-view-btn,.gu-l33-calculation-btn){min-height:34px;padding:6px 10px;border:1px solid #3a5373;border-radius:7px;background:#13283f;color:#e7eef9;font-size:.79rem;cursor:pointer}
+#academy-lab-slot .gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{background:#5744ab;border-color:#aa9dfc;color:#fff}
+#academy-lab-slot .gu-l33-interactive-tools :is(button,select):focus-visible{outline:3px solid #b6a8ff;outline-offset:2px}
+html[data-gu-design="premium-light"] #academy-lab-slot .gu-v41-talia-quick-action{background:#f3f0ff;color:#29254f;border-color:#9d8cde}
+@media(max-width:420px){#academy-lab-slot .gu-v41-talia-quick-actions{grid-template-columns:1fr}}
