@@ -13,6 +13,8 @@ on:
       - 'assets/css/ad-sales-v014228.css'
       - 'functions/api/ad-sales.js'
       - 'functions/api/ad-slot.js'
+      - 'functions/api/ads.js'
+      - 'tests/test_ad_legacy_delivery_guard_v014248.mjs'
       - 'supabase/migrations/v0.14.0.22*'
       - 'supabase/migrations/v0.14.0.230_ad_sales_stripe_quote_only_product_mapping.sql'
       - 'supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql'
@@ -38,6 +40,7 @@ jobs:
         run: |
           node --check functions/api/ad-sales.js
           node --check functions/api/ad-slot.js
+          node --check functions/api/ads.js
           node --check functions/_lib/ad-sandbox-lifecycle-v014242.js
           node --check functions/api/gu39-stripe-webhook.js
           node --check assets/js/ad-inquiry-v014228.js
@@ -45,6 +48,7 @@ jobs:
           node --check assets/js/ad-slots-v014229.js
           node --test tests/test_ad_sales_security_v014231.mjs
           node --test tests/test_ad_placement_delivery_v014235.mjs
+          node --test tests/test_ad_legacy_delivery_guard_v014248.mjs
           node --test tests/test_ad_sandbox_signed_stripe_v014244.mjs
       - name: Verify deployment stays quote-only, payment-safe, disclosed
         run: |
