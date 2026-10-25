@@ -55,7 +55,8 @@ function enhance(view,options){
   // Explanations must always describe CURRENT displayed values, including
   // after a slider movement or another illustrative worked-case selection.
   function describe(mode){
-   const q=view.getTeachingCandle?.()||{o:31,hv:32.5,l:30.5,c:32};
+   const q=view.getTeachingCandle?.();
+   if(!q||![q.o,q.hv,q.l,q.c].every(Number.isFinite))return 'The displayed candle values are not available for calculation. Review the chart labels or select a completed worked example.';
    const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
    const body=Math.abs(q.c-q.o),range=q.hv-q.l;
    const ratio=range?(100*body/range).toFixed(1):'N/A';
@@ -71,7 +72,7 @@ function enhance(view,options){
     percent:'Body percentage = '+(range?money(body)+' / '+money(range)+' × 100 = '+ratio+'%.':'undefined because the full candle range is zero; division by zero is not permitted.')
    })[mode]||'Compare the selected completed candle prices.';
   }
-  const keys=worked?['all','open','close','high','low','body','range','percent']:['all','body','range'];
+  const keys=['all','open','close','high','low','body','range','percent'];
   const mapping={all:['open','close','high','low','body','range'],body:['body','open','close'],range:['range','high','low'],percent:['body','range','open','close','high','low'],open:['open'],close:['close'],high:['high'],low:['low']};
   let selected='all';
   const set=mode=>{
@@ -84,10 +85,7 @@ function enhance(view,options){
     item.style.opacity=matches?'1':'0.22';
     if(item.tagName.toLowerCase()==='text')item.style.fontWeight=matches?'800':'400';
    }
-   state.textContent=worked?describe(mode):mode==='body'
-    ?'The real body connects the two prices Open and Close.'
-    :mode==='range'?'Full range connects High and Low.'
-    :'The full candle shows Open, High, Low, Close and wicks.';
+   state.textContent=worked?describe(mode):({all:'The full candle combines Open, High, Low, Close, the real body and both wicks.',open:'Open is the first price recorded in this candle.',close:'Close is the final price recorded in this completed candle.',high:'High is the highest price recorded in this candle.',low:'Low is the lowest price recorded in this candle.',body:'Real body is the absolute distance between Open and Close.',range:'Full range is the distance from High to Low, including wicks.',percent:'Body percentage is real body divided by full range, multiplied by 100; undefined when the range is zero.'}[mode]||'Choose a candle component to study.');
   };
   const names={all:'Full candle',open:'Open',close:'Close',high:'High',low:'Low',body:'Real body',range:'Full range',percent:'Body percentage'};
   for(const key of keys){
