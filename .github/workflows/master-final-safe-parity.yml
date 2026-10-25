@@ -1,10 +1,6 @@
 name: Yahoo Master — Final Nonsecret Parity
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/master-final-safe-parity.yml'
 permissions:
   contents: read
 jobs:
