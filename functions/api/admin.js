@@ -91,6 +91,12 @@ async function handleGet(env,request,action,url){
     const c=await caller(env,request);const ctx=await roleContext(env,c.user.id);const ownerCount=await countTable(env,'admin_user_roles','role_code=eq.OWNER');const bootstrapEmail=clean(env.ADMIN_BOOTSTRAP_EMAIL).toLowerCase();return ok({user:{id:c.user.id,email:c.user.email},roles:ctx.roles,permissions:ctx.permissions,bootstrapAvailable:ctx.roles.length===0&&ownerCount===0&&!!bootstrapEmail&&clean(c.user.email).toLowerCase()===bootstrapEmail});
   }
   const sc=await caller(env,request),scCtx=await roleContext(env,sc.user.id);if(scCtx.roles.includes('SHOWCASE_VIEWER'))return showcaseRows(action,url);
+  if(action==='store_product_overrides'){
+    const c=await withContext(env,request,'catalog.view');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Owner authorization required.',403);
+    const {data}=await serviceRest(env,'store_product_overrides_v014175?select=sku,title,description,store_visible,lifecycle,version,updated_at&order=sku.asc');
+    return ok({items:data||[]});
+  }
   if(action==='dashboard'){
     const c=await withContext(env,request,'dashboard.view');
     const [users,library,orders,subs,reports,auditCount,catalog,content]=await Promise.all([
@@ -299,6 +305,21 @@ async function handlePost(env,request,action){
   }
   if(action==='report_resolve'){
     const c=await withContext(env,request,'forum.moderate');const id=Number(body.id);if(!id)return bad('Report id required.');const status=['reviewing','resolved','dismissed'].includes(body.status)?body.status:'resolved';await serviceRest(env,`forum_reports?id=eq.${id}`,{method:'PATCH',prefer:'return=minimal',body:{status,resolved_by:c.user.id,resolution_note:clean(body.resolution_note).slice(0,5000)||null,resolved_at:status==='reviewing'?null:nowIso()}});await audit(env,c.user.id,'forum.report','report',id,{status});return ok();
+  }
+  if(action==='store_product_overlay_save'){
+    const c=await withContext(env,request,'catalog.view');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Owner authorization required.',403);
+    const sku=clean(body.sku).toUpperCase(),title=clean(body.title),description=clean(body.description);
+    const lifecycle=clean(body.lifecycle),visible=body.store_visible,version=body.expected_version;
+    if(!/^[A-Z][A-Z0-9_-]{1,79}$/.test(sku)||title.length<1||title.length>160||
+       description.length>2400||typeof visible!=='boolean'||!Number.isSafeInteger(version)||version<0)
+      return bad('Invalid product fields or version.',400);
+    if(!['draft','coming_soon','paused','release_ready'].includes(lifecycle))
+      return bad('For Sale is locked until separate payment and fulfillment acceptance.',409);
+    const {data}=await serviceRest(env,'rpc/store_product_overlay_save_v014175',{
+       method:'POST',body:{p_actor:c.user.id,p_sku:sku,p_title:title,p_description:description,
+       p_store_visible:visible,p_lifecycle:lifecycle,p_expected_version:version}});
+    return ok({item:data,notice:'Product information saved and audited. Checkout remains separately controlled.'});
   }
   if(action==='plan_copy_save'){
     const c=await withContext(env,request,'plans.manage');
