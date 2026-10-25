@@ -56,8 +56,8 @@ function mount(){
     const result=await api('store_product_overlay_save',{sku,title:form.elements.title.value.trim(),
       description:form.elements.description.value.trim(),lifecycle:form.elements.lifecycle.value,
       store_visible:form.elements.store_visible.checked,expected_version:overrides.get(sku)?.version||0});
-    overrides.set(sku,result.item);status.textContent='Saved '+sku+' · revision '+result.item.version+'; no checkout enabled.';
-    render();
+    overrides.set(sku,result.item);render();
+    status.textContent='Saved '+sku+' · revision '+result.item.version+'; no checkout enabled.';
    }catch(e){status.textContent='Could not save '+sku+': '+e.message}
    finally{submit.disabled=false}
  });
