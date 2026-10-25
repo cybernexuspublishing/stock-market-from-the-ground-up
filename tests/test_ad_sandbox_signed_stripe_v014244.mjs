@@ -86,6 +86,24 @@ test('signed Stripe TEST full refund reverses only ad QA receipt',async()=>{
   assert.equal(m.calls.filter(x=>x.p.endsWith('/rpc/gu_ad_sandbox_apply_v014240')).length,1);
  }finally{m.restore()}
 });
+test('signed failed asynchronous TEST payment records failure without ad delivery',async()=>{
+ const m=network();try{
+  const ev={...invoice(),id:'evt_adSandboxFailedCI',type:'checkout.session.async_payment_failed'};
+  const r=await onRequestPost({request:await makeRequest(ev),env});
+  assert.equal(r.status,200);assert.equal(await r.text(),'AD_TEST_FAILED');
+  assert.equal(m.calls.filter(x=>x.p.endsWith('/rpc/gu_ad_sandbox_apply_v014240')).length,1);
+ }finally{m.restore()}
+});
+test('signed expired Stripe TEST Checkout closes abandoned QA attempt only',async()=>{
+ const m=network(),was=session.status,old=session.payment_status;
+ session.status='expired';session.payment_status='unpaid';
+ try{
+  const ev={...invoice(),id:'evt_adSandboxExpiredCI',type:'checkout.session.expired'};
+  const r=await onRequestPost({request:await makeRequest(ev),env});
+  assert.equal(r.status,200);assert.equal(await r.text(),'AD_TEST_EXPIRED');
+  assert.equal(m.calls.filter(x=>x.p.endsWith('/rpc/gu_ad_sandbox_apply_v014240')).length,1);
+ }finally{session.status=was;session.payment_status=old;m.restore()}
+});
 test('bad Stripe signature makes zero provider or DB calls',async()=>{
  const m=network();try{
   const r=await onRequestPost({request:await makeRequest(invoice(),false),env});
