@@ -162,3 +162,14 @@ jobs:
           node --test tests/test_f600_signed_sandbox_webhook_v014217.mjs
           test -f supabase/migrations/v0.14.0.218_founder_verified_subscription_status.sql
           grep -q 'GU_F600_LIVE_WEBHOOK_ENABLED' functions/api/founding600-webhook.js
+
+      - name: Require refund reversal RPC, provider state and isolated signed Sandbox ledger
+        run: |
+          test -f supabase/migrations/v0.14.0.200_founder_refund_dispute_and_status_ledger.sql
+          test -f supabase/migrations/v0.14.0.215_founder_sandbox_shadow_lifecycle.sql
+          test -f supabase/migrations/v0.14.0.218_founder_verified_subscription_status.sql
+          grep -q 'CREATE OR REPLACE FUNCTION public.gu_founder_reverse_paid_invoice_v014200' supabase/migrations/v0.14.0.200_founder_refund_dispute_and_status_ledger.sql
+          grep -q 'TO service_role' supabase/migrations/v0.14.0.200_founder_refund_dispute_and_status_ledger.sql
+          grep -q 'gu_founder_reverse_paid_invoice_v014200' functions/api/founding600-webhook.js
+          node --test tests/test_f600_live_signed_lifecycle_v014219.mjs
+          node --test tests/test_f600_signed_sandbox_webhook_v014217.mjs
