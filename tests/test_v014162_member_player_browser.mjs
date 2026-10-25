@@ -50,6 +50,14 @@ try{
   assert.match(await sourceDetails.innerText(),/No mastery score is implied/);
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
+  await page.evaluate(()=>{
+    window.__qaModeTrace=[];
+    document.getElementById('player-mode-select')?.addEventListener('change',event=>{
+     window.__qaModeTrace.push({phase:'capture',selected:event.target.value,
+       disabled:event.target.disabled,progress:document.querySelector('[data-v32-progress]')?.dataset?.v32Progress,
+       at:performance.now()});
+    },true);
+  });
   await page.locator('#player-mode-trigger').click();
   await page.locator('#player-mode-menu [data-member-mode="practice"]').click();
   const initialModeConfirm=page.locator('#player-mode-confirm');
@@ -57,7 +65,9 @@ try{
    await initialModeConfirm.getByRole('button',{name:'Yes, Continue'}).click();
   const chosenMode=await page.locator('#player-mode-select').inputValue();
   const triggerText=await page.locator('#player-mode-trigger').innerText();
-  assert.equal(chosenMode,'practice','Practice selection must activate; current visible mode: '+triggerText);
+  const modeTrace=await page.evaluate(()=>window.__qaModeTrace||[]);
+  assert.equal(chosenMode,'practice','Practice selection must activate; current visible mode: '+triggerText+
+    '; event trace: '+JSON.stringify(modeTrace));
   await page.getByRole('button',{name:'Learning mode guidance'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
   await page.getByRole('button',{name:'Start Guided Learning →'}).click();
