@@ -46,9 +46,11 @@ assert(!passApi.includes('purchasedCreditAllocation(')&&!passApi.includes('inclu
  'Production must not fabricate or automatically grant Question Pass balances');
 assert(flow.includes('What did price do before your decision?'),'Decisions must use a brief chart-specific question');
 assert(!flow.includes('Use only completed candles actually displayed.'),'Learner-facing questions must sound like natural instruction');
-assert(flow.includes('work.hidden=!allowed;')&&flow.includes('activeStage>=3'),
+assert(flow.includes('work.hidden=!state.workbenchVisible;')&&
+ flow.includes('workbenchVisible:independent||position>=3'),
  'Start, Learn and Experiment must conceal the independent decision form');
-assert(flow.includes('reflection.hidden=!ready')&&flow.includes('activeStage>=6'),
+assert(flow.includes('reflection.hidden=!state.reflectionVisible;')&&
+ flow.includes('reflectionVisible:independent?decisionIsLocked:position>=6'),
  'Post-lab reflection must remain unavailable until Review');
 assert(player.includes('id="gu-ws-reflection"'),'Reflection must be a separate, stage-gated section');
 assert(player.includes("new CustomEvent('gu-v33-decision-locked')"),
