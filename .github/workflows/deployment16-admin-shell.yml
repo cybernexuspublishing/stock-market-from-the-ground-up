@@ -29,6 +29,8 @@ on:
       - 'assets/js/admin-prelive-v014247.js'
       - 'assets/css/admin-prelive-v014247.css'
       - 'functions/api/admin-prelive-v014247.js'
+      - 'functions/_lib/founder-catalog-readiness-v014264.js'
+      - 'tests/test_founder_catalog_provider_v014264.mjs'
       - 'tests/test_admin_prelive_v014247.mjs'
       - 'assets/js/admin.js'
       - 'assets/js/admin-platform.js'
@@ -65,6 +67,7 @@ jobs:
           node --check functions/api/runtime-health-v014259.js
           node --check functions/api/admin-control-registry.js
           node --check functions/api/admin-prelive-v014247.js
+          node --check functions/_lib/founder-catalog-readiness-v014264.js
           node --check assets/js/admin-prelive-v014247.js
           node --check assets/js/admin.js
           node --check assets/js/admin-platform.js
@@ -89,6 +92,7 @@ jobs:
           node tests/test_ad_sandbox_signed_stripe_v014244.mjs
           node tests/test_admin_role_editor_atomic_v014255.mjs
           node tests/test_admin_stripe_test_provider_v014256.mjs
+          node tests/test_founder_catalog_provider_v014264.mjs
           node tests/test_pages_functions_route_manifest_v014257.mjs
           node tests/test_admin_staff_flag_gate_v014253.mjs
           node tests/test_admin_legacy_authorization_v014254.mjs
