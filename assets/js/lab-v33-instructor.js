@@ -580,6 +580,40 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   topicTools.append(control);
  }
  if(stage===1||stage===2||stage===4||stage===6)rootEl.insertBefore?.(topicTools,transcript);
+ // Six owner-approved compact instructional actions. Reuse the current
+ // ungraded teaching engine; do not fabricate historical market examples,
+ // submit assessments, spend credits or bypass Market Tutor entitlements.
+ const quickActions=el('div',undefined,'gu-v41-talia-quick-actions');
+ quickActions.setAttribute('role','group');
+ quickActions.setAttribute('aria-label','Ask Talia for lesson support');
+ const addQuick=(label,handler)=>{
+  const button=el('button',label,'btn secondary gu-v41-talia-quick-action');
+  button.type='button';
+  listen(button,'click',handler);
+  quickActions.append(button);
+ };
+ addQuick('Ask Talia',()=>openTutor());
+ addQuick('Explain This Concept',()=>teachFeature({type:lessonContext.visualType||'general',feature:'understand'}));
+ addQuick('Teach This in More Depth',()=>teachSupplement('Deeper explanation',[
+  String(plan?.blocks?.join(' ')||lessonContext?.teaching?.what||lessonContext?.guide?.concept||
+   'Begin with the definition, identify the displayed evidence, and explain each observation before drawing a conclusion.'),
+  'Explain why the method applies, verify each visible input, and state what the evidence cannot establish.',
+  String(plan?.limitation||lessonContext?.guide?.limit||'A completed example does not predict future prices.')
+ ]));
+ addQuick('Real-World Example',()=>teachSupplement('Example and evidence',[
+  String(lessonContext?.teaching?.example||lessonContext?.subject?.example||
+   'Use the completed chart or illustrative example displayed in this lesson. No external ticker or historical price is being claimed.'),
+  'Identify the source and timeframe before treating any example as a historical market record.',
+  String(plan?.limitation||'A single completed example does not guarantee repetition.')
+ ]));
+ addQuick('Common Mistakes',()=>teachFeature({type:lessonContext.visualType||'general',feature:'mistake'}));
+ addQuick('Practice Another Example',()=>teachSupplement('Try another independent example',[
+  'Choose a different completed candle or exercise from the current Lab, if one is available. Record your own observation before revealing guidance.',
+  String(plan?.worked?.[0]||lessonContext?.guide?.procedure||
+   'For a candlestick, record Open, High, Low and Close, then calculate the real body and full range. If the range is positive, calculate body percentage.'),
+  'This teaching action does not submit or grade a practice attempt. Use the Lab’s dedicated Practice stage to receive recorded feedback.'
+ ]));
+ if(stage===1||stage===2||stage===4||stage===6)rootEl.insertBefore?.(quickActions,transcript);
  const objectivesPanel=el('section',undefined,'gu-v33-instructor-objectives');
  objectivesPanel.append(el('h4','Your learning objectives'));
  const objectives=el('ol');
