@@ -58,7 +58,7 @@ function enhance(view,options){
   // after a slider movement or another illustrative worked-case selection.
   function describe(mode){
    const q=view.getTeachingCandle?.();
-   if(!q||![q.o,q.hv,q.l,q.c].every(Number.isFinite))return 'The displayed candle values are not available for calculation. Review the chart labels or select a completed worked example.';
+   if(!q||![q.o,q.hv,q.l,q.c].every(Number.isFinite)||q.l<0||q.l>q.hv||q.o<q.l||q.o>q.hv||q.c<q.l||q.c>q.hv)return 'The displayed candle values are missing or inconsistent. Review the chart evidence before calculating; no prices have been assumed.';
    const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
    const body=Math.abs(q.c-q.o),range=q.hv-q.l;
    const ratio=range>0?(100*body/range).toFixed(1):'N/A';
