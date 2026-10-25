@@ -21,6 +21,11 @@ try{
   if(path.includes('gu_ad_sales_settings'))return wrap([{accepting_payments:false,ad_delivery_enabled:false}]);
   if(path.includes('gu_ad_sandbox_settings'))return wrap([{testing_enabled:false}]);
   if(path.includes('gu39_sandbox_settings'))return wrap([{enabled:false}]);
+  if(path.includes('gu_founder_release_v014173'))return wrap([{enrollment_enabled:false,billing_enabled:false,fulfillment_enabled:false}]);
+  if(path.includes('gu_founder_plans_v014173'))return wrap([
+    {plan_code:'FOUNDING_30',term_days:30,price_cents:4999,checkout_enabled:false,purchase_discount_bps:1000},
+    {plan_code:'FOUNDING_60',term_days:60,price_cents:5999,checkout_enabled:false,purchase_discount_bps:2000}
+  ]);
   if(path.includes('gu_ad_sandbox_prices'))return wrap([
    {package_code:'SITE_SPONSOR',test_price_id:'price_alpha123',test_amount_cents:100},
    {package_code:'SECTION_SPONSOR',test_price_id:'price_beta123',test_amount_cents:100},
@@ -38,6 +43,11 @@ try{
  assert(body.checks.some(x=>x.code==='advertising'&&x.state==='verified'));
  assert(body.checks.some(x=>x.code==='sandbox_catalog'&&x.state==='verified'));
  assert(body.checks.some(x=>x.code==='live_authorization'&&x.state==='pending'));
+ assert(body.checks.some(x=>x.code==='founding_live_hold'&&x.state==='verified'));
+ assert(body.checks.some(x=>x.code==='founding_terms'&&x.state==='verified'));
+ assert(body.checks.some(x=>x.code==='founding_sandbox'&&x.state==='review'));
+ assert.equal(body.counts.founderQaCycles,3);
+ assert.equal(body.counts.founderMembers,3);
  assert.equal(body.counts.members,3);
  assert(!JSON.stringify(body).includes(env.SUPABASE_SECRET_KEY),'Never send backend secret to frontend');
  mockRoles=[{role_code:'SHOWCASE_VIEWER',expires_at:null},{role_code:'OWNER',expires_at:null}];
