@@ -121,13 +121,88 @@ async function audit(c,actor,action,type,id,details={}){
  await api(c,'gu_ad_admin_audit_v014226',{method:'POST',
  body:{actor,action,resource_type:type,resource_id:String(id),details}});
 }
+async function stripeTest(c,path,init={}){
+ const key=str(c.env.GU39_STRIPE_TEST_SECRET_KEY);
+ if(!/^sk_test_[A-Za-z0-9_]+$/.test(key))throw bad('Stripe TEST is not connected.',503);
+ const r=await fetch('https://api.stripe.com/v1/'+path,{
+  method:init.method||'GET',
+  headers:{authorization:'Bearer '+key,
+   ...(init.body?{'content-type':'application/x-www-form-urlencoded'}:{})},
+  body:init.body,cache:'no-store'
+ });
+ if(!r.ok)throw bad('Stripe TEST request was not accepted.',503);
+ return r.json();
+}
+async function adSandboxCheckout(c,actor,packageCode,request){
+ const origin=new URL(request.url).origin;
+ if(origin!=='https://stock-market-from-the-ground-up.pages.dev')
+  throw bad('This test checkout is limited to the verified production website.',403);
+ const [settings,globalMode,pricing,liveSettings,acct]=await Promise.all([
+  api(c,'gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true'),
+  api(c,'gu39_sandbox_settings?select=enabled&id=eq.true'),
+  api(c,'gu_ad_sandbox_prices_v014240?select=*&package_code=eq.'+encodeURIComponent(packageCode)+'&limit=1'),
+  api(c,'gu_ad_sales_settings_v014226?select=accepting_payments,ad_delivery_enabled&singleton=eq.true'),
+  stripeTest(c,'account')
+ ]);
+ if(settings?.[0]?.testing_enabled!==true||globalMode?.[0]?.enabled!==true)
+  throw bad('Owner must enable Stripe Sandbox Test Mode first.',409);
+ if(liveSettings?.[0]?.accepting_payments!==false||liveSettings?.[0]?.ad_delivery_enabled!==false)
+  throw bad('Advertising LIVE mode must remain disabled for test checkout.',409);
+ if(acct.id!=='acct_1URGkDJY9FI7byHB')throw bad('Unexpected TEST Stripe account.',503);
+ const p=pricing?.[0];
+ if(!p||p.test_amount_cents!==100||p.test_currency!=='usd')
+  throw bad('No controlled $1 TEST price is configured.',409);
+ const price=await stripeTest(c,'prices/'+encodeURIComponent(p.test_price_id));
+ if(price.livemode!==false||price.id!==p.test_price_id||price.product!==p.test_product_id||
+  price.active!==true||price.unit_amount!==100||price.currency!=='usd'||price.type!=='one_time'
+  ||price.metadata?.ad_sandbox!=='true')
+  throw bad('Stripe test product and fixed price mismatch.',503);
+ const recorded=await api(c,'gu_ad_sandbox_intents_v014240',{method:'POST',
+  body:{owner_user_id:actor,package_code:packageCode}});
+ if(!Array.isArray(recorded)||recorded.length!==1)throw bad('Unable to create private test order.',503);
+ const intentId=recorded[0].id;
+ const success=origin+'/admin-advertising.html?ad_test=complete';
+ const cancel=origin+'/admin-advertising.html?ad_test=cancel';
+ const fields=new URLSearchParams({
+  mode:'payment','line_items[0][price]':p.test_price_id,
+  'line_items[0][quantity]':'1',success_url:success,cancel_url:cancel,
+  client_reference_id:intentId,
+  'metadata[gu_ad_sandbox_intent]':intentId,
+  'metadata[gu_ad_sandbox_tag]':'AD_SANDBOX_2026',
+  'metadata[gu_ad_sandbox_package]':packageCode,
+  'payment_intent_data[metadata][gu_ad_sandbox_intent]':intentId,
+  'payment_intent_data[metadata][gu_ad_sandbox_tag]':'AD_SANDBOX_2026',
+  'payment_intent_data[metadata][gu_ad_sandbox_package]':packageCode,
+  customer_creation:'always'
+ });
+ const ses=await stripeTest(c,'checkout/sessions',{method:'POST',body:fields});
+ let validUrl=false;try{const u=new URL(ses.url);validUrl=u.protocol==='https:'&&
+ u.hostname==='checkout.stripe.com'}catch{}
+ if(ses.livemode!==false||ses.mode!=='payment'||ses.currency!=='usd'||
+ ses.amount_total!==100||ses.client_reference_id!==intentId||
+ !/^cs_test_[A-Za-z0-9_]{6,}$/.test(ses.id||'')||!validUrl)
+ throw bad('Stripe TEST Checkout session failed validation.',503);
+ const binding=await api(c,'rpc/gu_ad_sandbox_bind_v014240',{method:'POST',
+  body:{p_intent:intentId,p_owner:actor,p_session:ses.id}});
+ if(binding?.ok!==true)throw bad('Stripe test session could not be safely bound. Do not pay it.',503);
+ return {intentId,sessionId:ses.id,checkoutUrl:ses.url,amountCents:100,livemode:false,
+  adDelivery:false,realAdvertisingContract:false,packageCode};
+}
 export async function onRequest({request,env}){
  try{
   const c=config(env),url=new URL(request.url);
   if(request.method==='GET'){
    if(url.searchParams.get('admin')==='1'){
     await owner(c,request);
-    return respond({ok:true,...await readOwner(c)});
+    const [sales,gate,globalMode,tests]=await Promise.all([
+     readOwner(c),
+     api(c,'gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true'),
+     api(c,'gu39_sandbox_settings?select=enabled&id=eq.true'),
+     api(c,'gu_ad_sandbox_intents_v014240?select=id,package_code,status,checkout_session,payment_intent,amount_cents,event_count,created_at,paid_at&order=created_at.desc&limit=35')
+    ]);
+    return respond({ok:true,...sales,sandbox:{enabled:gate?.[0]?.testing_enabled===true,
+     globalTestMode:globalMode?.[0]?.enabled===true,
+     amountCents:100,orders:tests||[]}});
    }
    const [settings,packages]=await Promise.all([
     api(c,'gu_ad_sales_settings_v014226?select=accepting_inquiries,accepting_payments&singleton=eq.true'),
@@ -271,6 +346,21 @@ export async function onRequest({request,env}){
       p_stripe_livemode:true,p_customer:proof.customer}});
    if(recorded?.ok!==true)throw bad(recorded?.error||'Invoice was not recorded.',409);
    return respond({ok:true,id,invoiceVerified:true,adsPublished:false});
+  }
+  if(action==='ad_sandbox_mode'){
+   if(typeof body.enabled!=='boolean')throw bad('Explicit test-mode selection is required.');
+   const r=await api(c,'rpc/gu_ad_sandbox_toggle_v014241',{method:'POST',
+    body:{p_actor:actor,p_enabled:body.enabled}});
+   if(r?.ok!==true)throw bad(r?.error||'Stripe Sandbox test-mode control unavailable.',409);
+   return respond({ok:true,sandboxEnabled:r.sandboxEnabled,
+    globalTesting:r.sharedTestModeEnabled,livePayments:false,advertisingDisplay:false});
+  }
+  if(action==='ad_sandbox_checkout'){
+   const code=str(body.packageCode);
+   if(!['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'].includes(code))
+    throw bad('Unknown advertising TEST category.');
+   const q=await adSandboxCheckout(c,actor,code,request);
+   return respond({ok:true,...q});
   }
   if(action==='set_inquiries'){
    const enabled=body.enabled;
