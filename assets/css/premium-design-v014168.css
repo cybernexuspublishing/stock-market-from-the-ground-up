@@ -416,3 +416,60 @@ html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.
 .gu-premium-home .gu-home-stage .btn.secondary,.gu-premium-home .gu-home-focus .btn.secondary{background:rgba(17,32,63,.83);border-color:#9d82dc;color:#f7f3ff}
 @media(prefers-contrast:more){.gu-premium-home .gu-home-message h1,.gu-premium-home .gu-home-message h1 em{background:none;color:#fff!important}}
 @media(prefers-reduced-motion:reduce){.gu-premium-home .gu-path-card{transition:none}}
+
+
+/* RELEASE v0.14.0.232 — SITEWIDE premium learning environment.
+   Scoped to approved content surfaces; do not alter auth gates or payment forms. */
+:root{--gu-r232-violet:#b7a0ff;--gu-r232-cyan:#61d8ed;--gu-r232-gold:#f1cb6c;--gu-r232-text:#f3f7ff;--gu-r232-muted:#b4cbe0;--gu-r232-border:rgba(137,153,222,.38);--gu-r232-shadow:0 22px 65px #0005}
+html[data-gu-design="premium-dark"] body:has(:is(.gu-member-dashboard-shell,.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy)),
+body:has(:is(.gu-member-dashboard-shell,.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy)){
+ background:radial-gradient(ellipse 75% 58% at 82% 0%,rgba(87,55,174,.25),transparent 72%),linear-gradient(155deg,#050d1d,#0b1a37 53%,#081324)!important;
+}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy){position:relative;isolation:isolate;min-height:75vh}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy):before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;inset:0 0 auto;height:min(620px,75vh);
+ background:radial-gradient(ellipse 56% 95% at 90% 0%,rgba(106,67,214,.25),transparent 73%),radial-gradient(ellipse 55% 80% at 10% 20%,rgba(31,121,188,.19),transparent 70%);
+}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy)>.wrap>.eyebrow{letter-spacing:.19em;color:var(--gu-r232-violet);font-weight:800}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy) h1{
+ background:linear-gradient(110deg,#fff 20%,#c5d9ff 64%,#b7a0ff 100%);
+ -webkit-background-clip:text;background-clip:text;color:transparent!important;
+ text-shadow:none;line-height:1.08!important;
+}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy) .section-intro{color:var(--gu-r232-muted)!important}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy) .btn:not(.secondary),
+.gu-member-dashboard-shell .gu-dashboard-quick .btn:not(.secondary){background:linear-gradient(120deg,#f3d37b,#e6ab4a)!important;color:#122036!important;border:1px solid #f4d889!important;box-shadow:0 8px 28px #d5963938}
+:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy) .btn.secondary,
+.gu-member-dashboard-shell .gu-dashboard-quick .btn.secondary{background:rgba(25,35,75,.85)!important;color:#eef1ff!important;border:1px solid #8977c6!important}
+:is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) :is(.card,.academy-program){
+ box-shadow:var(--gu-r232-shadow);border:1px solid var(--gu-r232-border)!important;
+ background:linear-gradient(145deg,rgba(31,48,88,.95),rgba(8,22,46,.98))!important;
+}
+.gu-redesign-academy :is(.academy-program,.academy-workspace){border-radius:17px}
+.gu-redesign-academy .academy-program--active{box-shadow:0 0 0 2px #cfb1ff,0 20px 60px #0005!important}
+.gu-redesign-academy #academy-lab-slot{background:linear-gradient(125deg,rgba(17,34,67,.85),rgba(27,30,72,.78));border-radius:15px}
+.gu-redesign-labs #gu-lab-registry-view{background:linear-gradient(140deg,rgba(10,25,49,.65),rgba(17,23,57,.55));border:1px solid #52618e;border-radius:20px;padding:clamp(18px,3vw,36px)}
+.gu-redesign-labs :is(input,select){background:#0e253e;color:#f2f6ff;border:1px solid #65799b;border-radius:10px;min-height:43px}
+.gu-redesign-store .store-category-tabs{background:linear-gradient(120deg,#172b53,#112440)!important;box-shadow:0 12px 32px #0003;border-color:#7476b6!important}
+.gu-redesign-store .store-category-tabs button[aria-selected="true"]{background:linear-gradient(120deg,#7463c8,#3e7098);color:white}
+.gu-member-dashboard-shell{background:transparent!important}
+.gu-member-dashboard-shell>main{background:radial-gradient(ellipse 65% 40% at 80% 0%,rgba(98,69,196,.23),transparent),transparent!important;min-width:0}
+.gu-member-dashboard-shell .gu-dashboard-intro h1{background:linear-gradient(90deg,#fff,#b3bcff);background-clip:text;-webkit-background-clip:text;color:transparent}
+.gu-member-dashboard-shell :is(.v13-card,.dashboard-stat,.card,.v132-dashboard-hero,.v1324-summary-grid>*,.v135-overview-strip article){
+ background:linear-gradient(142deg,rgba(24,45,83,.97),rgba(9,24,48,.98));
+ border-color:rgba(127,150,219,.42);box-shadow:0 12px 32px #0003;border-radius:14px;
+}
+.gu-member-dashboard-shell :is(.v13-card,.card,.dashboard-stat) :is(h2,h3,strong){color:#eff4ff}
+.gu-member-dashboard-shell .dashboard-hero,.gu-member-dashboard-shell .v132-dashboard-hero{background:radial-gradient(ellipse 62% 120% at 87% 50%,rgba(105,74,181,.32),transparent),linear-gradient(115deg,#122b49,#152443)!important;border:1px solid #5778a3!important}
+.gu-member-dashboard-shell>.gu-member-side-menu{background:linear-gradient(180deg,#0c1d39,#071523)!important;border-right:1px solid #3b426e!important;box-shadow:8px 0 30px #0002}
+.gu-member-dashboard-shell>.gu-member-side-menu .gu-side-label{letter-spacing:.15em}
+.gu-member-dashboard-shell>.gu-member-side-menu :is(a,summary){border-radius:9px}
+.gu-member-dashboard-shell>.gu-member-side-menu a[aria-current="page"]{background:linear-gradient(90deg,#46377d,#273d75)!important;border-left:3px solid #d6aeff}
+.gu-member-dashboard-shell .v1322-member-tabs{background:rgba(11,23,45,.73)!important;border:1px solid #4d587f!important;box-shadow:0 12px 28px #0002}
+.gu-member-dashboard-shell .v1322-member-tabs button.active,.gu-member-dashboard-shell .v1322-member-tabs button[aria-selected="true"]{background:linear-gradient(100deg,#473b85,#225574)!important;color:white!important;border-radius:9px}
+.gu-member-dashboard-shell .mini-action-card:hover{border-color:#ac9bff!important;box-shadow:0 0 30px #a291ff26}
+@media(max-width:900px){.gu-member-dashboard-shell>.gu-member-side-menu{border-right:0!important;border-bottom:1px solid #4c5683!important}.gu-redesign-labs #gu-lab-registry-view{padding:17px}}
+@media(prefers-contrast:more){:is(.gu-redesign-learn,.gu-redesign-labs,.gu-redesign-store,.gu-redesign-academy) h1,.gu-member-dashboard-shell .gu-dashboard-intro h1{background:none;color:#fff!important}}
+html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) :is(.card,.academy-program){background:linear-gradient(140deg,#fff,#f4f2ff)!important;color:#1b2a45;border-color:#bbc9dc!important}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-card,.dashboard-stat){background:linear-gradient(140deg,#fff,#f4f4fc)!important;color:#263754;border-color:#c4cee3}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-card,.dashboard-stat) :is(h2,h3,strong){color:#162d47}
