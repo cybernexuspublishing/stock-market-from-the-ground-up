@@ -31,6 +31,8 @@ jobs:
           test ! -e public/data/interactive-labs.json
           test ! -d public/supabase
           test ! -d public/functions
+      - name: Validate published Pages Functions routing and free-tier static exclusions
+        run: node tests/test_pages_functions_route_manifest_v014257.mjs
       - name: Verify all 419 authorized universal Lab study bridges
         run: |
           node tests/test_v014162_419_universal.mjs
