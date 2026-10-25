@@ -87,7 +87,7 @@ function wire(){
   button.addEventListener('click',()=>show(button.dataset.productTab));
   button.addEventListener('keydown',ev=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;
-   ev.preventDefault();const names=['memberships','books','tools'],n=names.indexOf(button.dataset.productTab);
+   ev.preventDefault();const names=['memberships','books','all','tools'],n=names.indexOf(button.dataset.productTab);
    const i=ev.key==='Home'?0:ev.key==='End'?names.length-1:ev.key==='ArrowRight'?(n+1)%names.length:(n+names.length-1)%names.length;
    show(names[i]);$('admin-products-tab-'+names[i]).focus();
   });
