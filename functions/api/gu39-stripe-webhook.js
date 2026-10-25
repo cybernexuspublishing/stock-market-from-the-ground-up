@@ -1,4 +1,5 @@
 import {handleFounderSandbox} from '../_lib/founder-sandbox-lifecycle-v014216.js';
+import {handleAdSandbox} from '../_lib/ad-sandbox-lifecycle-v014242.js';
 /* v0.14.0.49 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
  * Production subscriptions, purchases and actual entitlements are never touched.
  */
@@ -113,6 +114,8 @@ export async function onRequestPost({request,env}){
  try{enabled=await ownerTestingEnabled(env)}catch{return respond('SHADOW_SETTINGS_UNAVAILABLE',503)}
  if(!enabled)return respond('OWNER_TEST_MODE_DISABLED',503);
  try{
+  const ad=await handleAdSandbox(event,env);
+  if(ad)return respond(ad.body,ad.status);
   const founder=await handleFounderSandbox(event,env);
   if(founder)return respond(founder.body,founder.status);
   const payload=await translate(env,event);if(!payload)return respond('IGNORED',200);
