@@ -43,4 +43,9 @@ assert(dashboard.includes('dashboard.html?tab=billing')&&dashboard.includes('das
 for(const selector of ['.gu-redesign-academy #academy-lab-slot','.gu-redesign-labs #gu-lab-registry-view','.gu-redesign-store .store-category-tabs','.gu-member-dashboard-shell .v1322-member-tabs','.gu-member-dashboard-shell>.gu-member-side-menu'])assert(css.includes(selector),'Missing integrated platform treatment '+selector);
 assert(css.includes('prefers-contrast:more'),'High contrast safety must exist');
 assert(css.includes('premium-light'),'Light theme override must exist');
+const memberController=read('assets/js/dashboard-ui-legacy.js');
+assert(memberController.includes("hub.classList.add('gu-single-member-nav')"),'Dashboard must switch to single sidebar navigation only after route coverage');
+assert(memberController.includes("defs.every(([code])=>sidebarCodes.has(code))"),'Sidebar integration must verify every required member tab');
+assert(css.includes('.gu-single-member-nav .v1322-member-tabs[hidden]'),'Duplicate dashboard tab strip must be suppressed only for unified navigation');
+for(const tab of ['access','skills','books','settings','help','support','billing','activity'])assert(dashboard.includes('dashboard.html?tab='+tab),'Sidebar missing authoritative section '+tab);
 console.log('PASS premium shell source contracts');
