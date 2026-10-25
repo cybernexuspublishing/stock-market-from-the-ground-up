@@ -171,3 +171,38 @@ html[data-gu-design="premium-light"] #academy-lab-slot .gu-v41-talia-quick-actio
 #gu-v32-teaching-slot .gu-v33-instructor-identity h3{margin:0;font-size:.94rem;font-weight:750}
 #gu-v32-teaching-slot .gu-v33-instructor-subtitle{font-size:.72rem;line-height:1.4;color:#bbc8d7}
 html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-instructor-subtitle{color:#526477}
+
+/* Integrated premium shell: shared public, member, Lab and Academy surfaces.
+   Color tokens remain owner-selectable; layout only, no entitlement logic. */
+html[data-gu-design]{--gu-radius:12px;--gu-surface-elevated:#10293c;--gu-border-strong:#3b5d73;--gu-copy-subdued:#b6c7d8;--gu-control-height:42px}
+html[data-gu-design="premium-light"]{--gu-surface-elevated:#fff;--gu-border-strong:#b1c5d5;--gu-copy-subdued:#4e6376}
+html[data-gu-design] :is(.site-header,.gu-member-side-menu,.admin-sidebar){box-shadow:0 3px 18px #00000016}
+html[data-gu-design] :is(.card,.dashboard-stat,.admin-card,.gu-v33-instructor,.academy-program){min-width:0;overflow-wrap:anywhere}
+html[data-gu-design] :is(button,.btn,input,select,textarea){font-family:inherit}
+html[data-gu-design] :is(button,.btn,a,input,select,textarea):focus-visible{outline:3px solid var(--gu-design-focus);outline-offset:3px}
+html[data-gu-design] :is(.gu-member-side-menu,.gu-learning-top-nav,.navlinks) a[aria-current="page"]{font-weight:750}
+html[data-gu-design] :is(.dashboard-grid,.dashboard-stat-grid,.academy-program-grid){align-items:stretch}
+html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu{overscroll-behavior:contain}
+html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu details>summary{cursor:pointer}
+html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu details>a{display:block;white-space:normal}
+html[data-gu-design] :is(#gu-v32-teaching-slot,#academy-lab-slot) :is(.gu-v33-instructor,.gu-l33-interactive-tools){max-width:100%}
+html[data-gu-design] :is(#gu-v32-teaching-slot,#academy-lab-slot) :is(button,select,textarea){min-width:0}
+html[data-gu-design="premium-light"] :is(.gu-member-dashboard-shell,.gu-bc-learning) .card{color:#1c2e41}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-menu{background:#233c51;border-color:#314e64}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-menu :is(a,summary){color:#f3f6ff}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-menu a[aria-current="page"]{background:#385b74;color:#fff}
+@media(max-width:900px){
+ html[data-gu-design] .gu-member-dashboard-shell>.gu-member-side-menu{height:auto;overflow:visible}
+ html[data-gu-design] .gu-member-dashboard-shell>main{padding-block:16px 35px}
+ html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu details{width:100%}
+ html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu details>a{padding-left:22px}
+}
+@media(max-width:600px){
+ html[data-gu-design] :is(.dashboard-stat-grid,.academy-program-grid){grid-template-columns:1fr}
+ html[data-gu-design] .gu-member-dashboard-shell .dashboard-hero{padding:14px}
+ html[data-gu-design] .gu-member-dashboard-shell .gu-member-side-menu{padding:10px}
+ html[data-gu-design] :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-l33-interactive-tools{gap:6px}
+}
+@media(forced-colors:active){
+ html[data-gu-design] :is(.gu-member-side-menu,.gu-learning-top-nav) a[aria-current="page"]{outline:2px solid Highlight}
+}
