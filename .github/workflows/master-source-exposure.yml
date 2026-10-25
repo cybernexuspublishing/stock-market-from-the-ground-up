@@ -1,0 +1,23 @@
+name: Yahoo Master — Source Exposure and No-LIVE Security Gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/cloudflare-master-source-exposure.mjs'
+      - '.github/workflows/master-source-exposure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source is private to the deployment, guest API authorization, and no LIVE payment calls
+        run: node tests/cloudflare-master-source-exposure.mjs
