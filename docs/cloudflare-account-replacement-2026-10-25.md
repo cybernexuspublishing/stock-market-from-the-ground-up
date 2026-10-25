@@ -1,6 +1,6 @@
 # Cloudflare Production Account Replacement — Migration Control v1.0
 **Project:** The Stock Market: From the Ground Up  
-**Status:** IN PROGRESS — original account must remain active  
+**Status:** REPLACEMENT DEPLOYED / BACKEND CUTOVER PENDING — original account must remain active  
 **Date:** 2026-10-25  
 **Document owner:** Cyber Nexus / Crown & Lantern Press  
 **Repository / location:** `cybernexuspublishing/stock-market-from-the-ground-up`, `docs/cloudflare-account-replacement-2026-10-25.md`  
@@ -17,10 +17,10 @@
 ## Verified source inventory
 | Resource | Source | Replacement | Status |
 |---|---|---|---|
-| Cloudflare Pages | `stock-market-from-the-ground-up`, `stock-market-from-the-ground-up.pages.dev` | `stock-market-from-the-ground-up-lives`, `stock-market-from-the-ground-up-lives.pages.dev` | New project exists; site not deployed |
+| Cloudflare Pages | `stock-market-from-the-ground-up`, `stock-market-from-the-ground-up.pages.dev` | `stock-market-from-the-ground-up-lives`, `stock-market-from-the-ground-up-lives.pages.dev` | **Production Pages deployment succeeded 2026-10-25** |
 | Pages build | `bash scripts/build-pages.sh` → `public`; root `/`; branch `main` | Same build settings | Configured |
-| Pages Functions | Repository `functions/` | Not deployed | Pending |
-| Pages production variables | 46 environment-variable names in source | 39 in destination after public Supabase bindings and new Turnstile and billing secret | Partial |
+| Pages Functions | Repository `functions/` | Deployed via Wrangler Pages; `/api/auth-guard-v0135` confirmed HTTP 200 | Basic check passed; backend acceptance pending |
+| Pages production variables | 46 environment-variable names in source | 39 in destination after public Supabase bindings and new Turnstile and billing secret | **7 names still absent** |
 | Billing Worker | `ground-up-billing-scheduler` | Same name, code from `workers/billing-reconcile-stripe-only-v014129.js` on `main` | Code deployed; no cron enabled |
 | Billing Cron triggers | `0 12 * * *` and `*/25 * * * *` | None; deliberate until cutover | Pending activation |
 | Billing Worker compatibility | `2026-10-20` and `global_fetch_strictly_public` | Same | Verified |
@@ -50,6 +50,17 @@ Destination-specific differences are deliberate: `GU_BILLING_SITE_ORIGIN`, `PUBL
 - Manually dispatch the workflow and verify the site builds exactly the filtered `public` tree; verify Pages Functions are deployed and functional.
 - Incorrect initial Worker that publicly deployed repository-root files was deleted. Its `workers.dev` and preview routes were disabled beforehand. Do not re-create that root-assets deployment.
 
+## Initial replacement deployment evidence — 2026-10-25
+- GitHub Actions run: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40231552527 — **SUCCESS**. Allowlisted Pages build step and deployment step both passed.
+- Cloudflare Pages deployment ID: `cd361c25-c0a8-4abf-a858-c70d7cbe6256`. Production URL: https://stock-market-from-the-ground-up-lives.pages.dev/.
+- HTTP GET tests: homepage, Store, Boot Camp Academy, Historical Lab Registry, and member Dashboard **rendered**. Rendering is not proof of authenticated workflow acceptance.
+- Pages Function `/api/auth-guard-v0135` returned `ok:true`, `enabled:true`, and the new account Turnstile site key.
+- Private paths `/.git/config`, `/.mcp.json`, and a `/supabase/migrations/` SQL file returned 404.
+- `/api/ad-sales` returned HTTP **503**. The replacement still lacks the production server-side `SUPABASE_SECRET_KEY`; this remains a failed backend acceptance gate, and dependent flows may not work.
+- One-time workflow-file push trigger was removed after successful initial deployment; normal operation is manual `workflow_dispatch`, and GitHub secret name is `SMFGU_LIVES_PAGES_DEPLOY`. Secret value cannot be read or displayed through the GitHub connector.
+- Original billing Worker schedules are **unchanged**; replacement billing Worker has zero active cron schedules.
+- No live payment authorization, owner account deletion, or Stripe webhook switch was performed.
+
 ## Production cutover and deletion gates (not yet satisfied)
 1. Replacement Pages deployment, Pages Functions, navigation, Admin, Store, Labs and Academy pass browser acceptance and security checks.
 2. Production Supabase service credential is securely bound in replacement Pages; database and Row Level Security remain unchanged. Coordinate the Turnstile secret with Supabase Auth CAPTCHA (separate widgets cannot be assumed interoperable).
@@ -63,4 +74,4 @@ Destination-specific differences are deliberate: `GU_BILLING_SITE_ORIGIN`, `PUBL
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Active migration record |
