@@ -70,3 +70,15 @@ jobs:
           grep -q 'founders-announcements-v014189.js' founders-commons.html
           grep -q 'FOUNDER_ACCESS_REQUIRED' supabase/migrations/v0.14.0.188_founder_shared_improvement_polls.sql
           grep -q 'Withdrawal is ALWAYS permitted' supabase/migrations/v0.14.0.186_founder_legacy_optin.sql
+
+      - name: Verify Founders Learning Studio and editorial security gates
+        run: |
+          node --check assets/js/founder-learning-studio-v014191.js
+          node --check assets/js/admin-founder-learning-v014191.js
+          node --check functions/api/admin-founder-commons-v014179.js
+          test -f founder-learning-studio.html
+          grep -q 'founder-learning-studio-v014191.js' founder-learning-studio.html
+          grep -q 'founder-learning-studio.html' founders-commons.html
+          grep -q 'gu_founder_submit_case_v014190' supabase/migrations/v0.14.0.190_founder_educational_resources_and_case_review.sql
+          grep -q 'rights_cleared' supabase/migrations/v0.14.0.190_founder_educational_resources_and_case_review.sql
+          node --test tests/test_founder_admin_security_v014181.mjs
