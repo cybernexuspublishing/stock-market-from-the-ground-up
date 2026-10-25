@@ -7,8 +7,8 @@
  const $=s=>document.querySelector(s);let inflight=false,snapshot=null,failed=false;
  let observer=null,refreshTimer=null;
  function mount(){
-  const modern=$('#v132-home .v132-home-hero-grid'),legacy=$('main .hero > .wrap');
-  const hero=modern||legacy;if(!hero)return null;
+  const modern=$('#v132-home .v132-home-hero-grid'),premium=$('.gu-premium-home .gu-home-message'),legacy=$('main .hero > .wrap');
+  const hero=premium||modern||legacy;if(!hero)return null;
   const existing=$('#v1353-member-stats');if(existing&&existing.parentElement===hero)return existing;
   if(existing)existing.remove();
   const panel=document.createElement('aside');panel.id='v1353-member-stats';
@@ -18,7 +18,8 @@
     '<div class="v1353-stat-row"><strong data-online>—</strong><span data-online-label>Online members — active in the last 1 hour</span></div>'+
     '<div class="v1353-stat-row"><strong data-registered>—</strong><span data-registered-label>Registered members</span></div>'+
     '<p data-caption class="small" hidden></p>';
-  if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
+  if(premium){hero.append(panel);hero.classList.add('gu-home-member-stats-visible')}
+  else if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
   else {const content=document.createElement('div');content.className='v1353-hero-body';
    while(hero.firstChild)content.append(hero.firstChild);hero.classList.add('v1353-hero-columns');hero.append(panel,content)}
   paint(panel);return panel;
@@ -46,8 +47,8 @@
   // This observer only re-mounts after a real homepage change; changing counters
   // alone does not trigger it, and the API is never polled by DOM mutations.
   const main=$('main');if(main){observer=new MutationObserver(()=>{
-    const modern=$('#v132-home .v132-home-hero-grid'),legacy=$('main .hero > .wrap');
-    const target=modern||legacy;const panel=$('#v1353-member-stats');
+    const modern=$('#v132-home .v132-home-hero-grid'),premium=$('.gu-premium-home .gu-home-message'),legacy=$('main .hero > .wrap');
+    const target=premium||modern||legacy;const panel=$('#v1353-member-stats');
     if(target&&(!panel||panel.parentElement!==target))sync();
   });observer.observe(main,{childList:true,subtree:true})}
   sync();
