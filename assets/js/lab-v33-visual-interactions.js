@@ -40,6 +40,8 @@ function enhance(view,options){
  tools.setAttribute('aria-label','Interactive visual study controls');
  const state=$('p','', 'gu-l33-interactive-state');
  state.setAttribute('role','status');
+ state.setAttribute('aria-live','polite');
+ state.setAttribute('aria-atomic','true');
  const switches=[];
  const button=(name,fn)=>{
   const b=$('button',name,'gu-l33-view-btn');
@@ -78,7 +80,11 @@ function enhance(view,options){
   const set=mode=>{
    selected=mode;
    const selectedFeatures=mapping[mode]||mapping.all;
-   for(const btn of switches)btn.setAttribute('aria-pressed',String(btn.dataset.studyFocus===mode));
+   for(const btn of switches){
+    const active=btn.dataset.studyFocus===mode;
+    btn.setAttribute('aria-pressed',String(active));
+    btn.setAttribute('aria-label',(active?'Selected: ':'Show: ')+(btn.textContent||'candle component'));
+   }
    for(const item of svg.querySelectorAll('[data-candle-feature]')){
     const part=item.getAttribute('data-candle-feature');
     const matches=selectedFeatures.includes(part);
