@@ -7,6 +7,10 @@ const paths=['/','/admin.html','/release-manifest.json',
  '/api/admin-control-registry','/api/admin-access-v01355?tab=overview',
  '/api/admin-site-v01354?action=overview','/api/admin-operations-v0135?action=overview',
  '/api/admin-operations-center-v0135?action=overview','/api/admin-owner-notifications'];
+// Diagnostic switch: fail-open is temporarily disabled by Owner QA; report
+// runtime availability directly before concluding whether routes are misbound.
+const probeAtUtc='2026-10-25T15:55:00Z';
+console.log('Cloudflare fail-closed runtime probe',probeAtUtc);
 const problems=[];
 for(const path of paths){
  let res;
