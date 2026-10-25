@@ -33,7 +33,7 @@
  function draw(section,data){
   const stats=section.querySelector('[data-prelive-counts]'),list=section.querySelector('[data-prelive-checks]');
   stats.replaceChildren();list.replaceChildren();
-  const labels={members:'Member profiles',orders:'Site orders',subscriptions:'Subscriptions',auditEntries:'Admin audit records',adSandboxOrders:'Ad QA orders',adSandboxEvents:'Ad QA events'};
+  const labels={members:'Member profiles',orders:'Site orders',subscriptions:'Subscriptions',auditEntries:'Admin audit records',founderReservations:'Founder LIVE reservations',founderMembers:'Founder LIVE members',founderQaIntents:'Founder TEST intents',founderQaEvents:'Founder TEST events',founderQaCycles:'Founder TEST paid cycles',adSandboxOrders:'Ad QA orders',adSandboxEvents:'Ad QA events'};
   for(const [key,label] of Object.entries(labels)){
    const card=E('article','admin-prelive-stat'),value=data.counts?.[key];
    card.append(E('strong','',value==null?'Unavailable':Number(value).toLocaleString()),E('span','',label));
