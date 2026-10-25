@@ -1,0 +1,191 @@
+/* v0.14.0.228 Sponsor & Advertising Center; Owner API is the authorization boundary. */
+(()=>{'use strict';
+const e=id=>document.getElementById(id);
+const n=(tag,txt,cls)=>{const x=document.createElement(tag);if(txt!==undefined)x.textContent=String(txt);if(cls)x.className=cls;return x};
+const money=v=>Number.isFinite(Number(v))?'$'+(Number(v)/100).toFixed(2):'Custom quote';
+let sb,model,loading=false;
+async function request(body){
+ const ses=(await sb.auth.getSession()).data?.session;
+ if(!ses?.access_token)throw Error('Owner sign-in is required.');
+ const opts={method:body?'POST':'GET',cache:'no-store',headers:{authorization:'Bearer '+ses.access_token}};
+ if(body){opts.headers['content-type']='application/json';opts.body=JSON.stringify(body)}
+ const r=await fetch('/api/ad-sales'+(body?'':'?admin=1'),opts);
+ const x=await r.json().catch(()=>({}));
+ if(!r.ok||x.ok!==true)throw Error(x.error||'Owner operation could not be verified.');
+ return x;
+}
+function block(host,textValue){host.append(n('p',textValue,'gu-ad-note'))}
+function line(host,title,description){
+ const box=n('article',undefined,'gu-ad-item');box.append(n('strong',title));if(description)box.append(n('p',description));host.append(box);return box
+}
+function button(label,fn,disabled=false){
+ const b=n('button',label,'btn secondary');b.type='button';b.disabled=disabled;
+ b.addEventListener('click',async()=>{
+  b.disabled=true;
+  try{await fn()}catch(err){e('gu-ad-admin-status').textContent=err.message||'Owner operation failed.'}
+  finally{b.disabled=disabled}
+ });
+ return b;
+}
+async function act(body,feedback){
+ const r=await request(body);
+ if(feedback)e('gu-ad-admin-status').textContent=feedback;
+ await refresh();return r;
+}
+function options(select,data,valueOf,labelOf){
+ select.replaceChildren();const first=n('option','Select…');first.value='';select.append(first);
+ for(const x of data){const o=n('option',labelOf(x));o.value=String(valueOf(x));select.append(o)}
+}
+function render(){
+ const gates=model.settings||{},gate=e('gu-ad-gate-state');
+ gate.textContent='New quote inquiries: '+(gates.accepting_inquiries?'Open':'Paused')+
+  ' · Online ad payments: '+(gates.accepting_payments?'Enabled':'Disabled')+
+  ' · Advertising display: '+(gates.ad_delivery_enabled?'Enabled':'Disabled')+
+  ' · No automatic ad checkout is available.';
+ e('gu-ad-toggle-inquiries').textContent=gates.accepting_inquiries?'Pause quote inquiries':'Reopen quote inquiries';
+ const placements=e('gu-ad-placements');placements.replaceChildren();
+ for(const p of model.placements||[])line(placements,p.name,
+  p.placement_code+' · '+p.page_pattern+' · '+(p.active?'Inventory enabled':'Inventory disabled')+
+  ' · '+(p.free_only?'Public/Free only':'Membership policy enforced'));
+ const cards=e('gu-ad-packages');cards.replaceChildren();
+ for(const p of model.packages||[]){
+  const item=line(cards,p.name,p.description);
+  block(item,'Code: '+p.code+' · '+p.availability+' · '+(p.price_cents==null?'Price not established':money(p.price_cents))+
+   ' · '+p.pricing_basis);
+  const form=n('form');form.className='gu-ad-form';
+  const price=n('input');price.type='number';price.min='0.01';price.step='0.01';price.max='1000000';
+  price.value=p.price_cents==null?'':(p.price_cents/100).toFixed(2);
+  const priceLabel=n('label','Approved price, USD (leave empty for custom quote)');priceLabel.append(price);
+  const basis=n('select');
+  for(const [v,label] of [['quote','Custom quote'],['flat','Fixed price'],['cpm','Cost per 1,000 impressions'],['cpc','Cost per click']]){
+   const o=n('option',label);o.value=v;o.selected=v===p.pricing_basis;basis.append(o)
+  }
+  const basisLabel=n('label','Billing basis');basisLabel.append(basis);
+  const duration=n('input');duration.type='number';duration.min='1';duration.max='365';duration.value=p.duration_days??'';
+  const durationLabel=n('label','Duration in days (optional)');durationLabel.append(duration);
+  const submit=n('button','Save reviewed rate','btn');submit.type='submit';
+  const feedback=n('p');feedback.setAttribute('role','status');
+  form.append(priceLabel,basisLabel,durationLabel,submit,feedback);
+  form.addEventListener('submit',async ev=>{
+   ev.preventDefault();submit.disabled=true;
+   try{
+    const priceCents=price.value.trim()===''?null:Math.round(Number(price.value)*100);
+    await act({action:'update_rate',code:p.code,pricingBasis:basis.value,
+      priceCents,durationDays:duration.value?Number(duration.value):null});
+    e('gu-ad-admin-status').textContent='Reviewed package rate saved. No Stripe payment was created.';
+   }catch(err){feedback.textContent=err.message}
+   finally{submit.disabled=false}
+  });
+  item.append(form);
+ }
+ const leads=e('gu-ad-inquiries');leads.replaceChildren();
+ if(!(model.inquiries||[]).length)block(leads,'No sponsorship inquiries have been submitted.');
+ for(const item of model.inquiries||[]){
+  const row=line(leads,item.company_name+' · '+item.status,
+   'Contact: '+item.contact_name+' · '+item.contact_email+' · '+item.package_code+
+   ' · '+new Date(item.created_at).toLocaleDateString());
+  block(row,item.message);
+  if(item.website_url){const url=n('a','View company website');url.href=item.website_url;url.target='_blank';url.rel='noopener noreferrer';row.append(url)}
+  for(const state of ['reviewing','quoted','accepted','rejected','archived']){
+   if(item.status===state)continue;
+   row.append(button(state,()=>act({action:'review_inquiry',id:item.id,state},
+    'Inquiry marked '+state+'. No advertising contract or charge created.')));
+  }
+ }
+ const advertisers=e('gu-ad-advertisers');advertisers.replaceChildren();
+ for(const a of model.advertisers||[])line(advertisers,'#'+a.id+' · '+a.name,a.contact_email+' · '+a.status);
+ options(e('gu-ad-campaign-advertiser'),model.advertisers||[],x=>x.id,x=>'#'+x.id+' · '+x.name);
+ options(e('gu-ad-campaign-package'),model.packages||[],x=>x.code,x=>x.name);
+ options(e('gu-ad-creative-campaign'),(model.campaigns||[]).filter(x=>x.status==='draft'),x=>x.id,x=>'#'+x.id+' · '+x.name);
+ options(e('gu-ad-creative-placement'),(model.placements||[]).filter(x=>x.active),x=>x.placement_code,x=>x.name);
+ const creatives=e('gu-ad-creatives');creatives.replaceChildren();
+ if(!(model.creatives||[]).length)block(creatives,'No creatives have been submitted.');
+ for(const cr of model.creatives||[]){
+  const item=line(creatives,'Creative #'+cr.id+' · '+cr.headline,
+   'Campaign #'+cr.campaign_id+' · '+cr.placement_code+' · '+cr.status);
+  block(item,cr.body||'');
+  if(cr.destination_url){const l=n('a','Open reviewed destination');l.href=cr.destination_url;l.target='_blank';l.rel='noopener noreferrer';item.append(l)}
+  if(cr.status==='draft'||cr.status==='paused'){
+   item.append(button('Approve creative',()=>act({action:'review_creative',id:cr.id,state:'approved'},
+    'Creative approved for possible future use. Campaign is still unpublished.')));
+   item.append(button('Reject creative',()=>act({action:'review_creative',id:cr.id,state:'rejected'},
+    'Creative rejected.')));
+  }else if(cr.status==='approved'){
+   item.append(button('Pause creative',()=>act({action:'review_creative',id:cr.id,state:'paused'},'Creative paused.')));
+  }
+ }
+ const campaigns=e('gu-ad-campaigns');campaigns.replaceChildren();
+ if(!(model.campaigns||[]).length)block(campaigns,'No ad campaigns have been created.');
+ for(const cp of model.campaigns||[]){
+  const item=line(campaigns,'Campaign #'+cp.id+' · '+cp.name,
+   cp.status+' · Approval: '+cp.approval_state+' · Payment: '+cp.payment_state+
+   ' · Contract: '+money(cp.amount_cents));
+  block(item,'Run dates: '+(cp.starts_at?new Date(cp.starts_at).toLocaleDateString():'Unset')+
+   '–'+(cp.ends_at?new Date(cp.ends_at).toLocaleDateString():'Unset'));
+  if(cp.status==='draft'&&cp.approval_state==='pending'){
+   item.append(button('Approve campaign',()=>act({action:'review_campaign',id:cp.id,verb:'approve'},
+    'Owner approval recorded; ad delivery remains disabled.')));
+   item.append(button('Reject campaign',()=>act({action:'review_campaign',id:cp.id,verb:'reject'},'Campaign rejected.')));
+  }
+  if(['active','scheduled'].includes(cp.status))
+   item.append(button('Pause campaign',()=>act({action:'review_campaign',id:cp.id,verb:'pause'},'Campaign paused.')));
+  if(cp.status==='draft'&&cp.approval_state==='approved'){
+   const proof=n('form');proof.className='gu-ad-form';
+   const label=n('label','Paid LIVE Stripe invoice ID (verification only)');
+   const input=n('input');input.placeholder='in_…';input.required=true;input.pattern='in_[A-Za-z0-9_]{6,}';label.append(input);
+   const send=n('button','Verify existing paid invoice','btn secondary');send.type='submit';
+   const message=n('p');message.setAttribute('role','status');proof.append(label,send,message);
+   proof.addEventListener('submit',async ev=>{
+    ev.preventDefault();send.disabled=true;
+    try{await act({action:'verify_invoice',id:cp.id,invoice:input.value.trim()},
+     'Stripe LIVE invoice independently verified. Ad campaign remains unpublished.')}
+    catch(err){message.textContent=err.message}finally{send.disabled=false}
+   });item.append(proof);
+   if(cp.payment_state==='verified_paid')item.append(
+    button('Publish after separate release approval',
+     ()=>act({action:'review_campaign',id:cp.id,verb:'publish'},'Verified campaign released.'),
+     !(gates.ad_delivery_enabled&&gates.accepting_payments)));
+  }
+ }
+ const metrics=e('gu-ad-metrics');metrics.replaceChildren();
+ for(const cp of model.campaigns||[]){
+  const m=model.recentEventSamples?.[cp.id]||{impressions:0,clicks:0};
+  line(metrics,'#'+cp.id+' '+cp.name,'Recorded impressions: '+m.impressions+' · Recorded clicks: '+m.clicks);
+ }
+ if(!(model.campaigns||[]).length)block(metrics,'No billable or recorded activity.');
+}
+async function refresh(){
+ if(loading)return;loading=true;
+ try{model=await request();render();e('gu-ad-admin-status').textContent='Verified Owner access. Current advertising inventory loaded.';e('gu-ad-admin-main').hidden=false}
+ finally{loading=false}
+}
+async function submit(id,mapper,message){
+ const form=e(id);form.addEventListener('submit',async ev=>{
+  ev.preventDefault();const btn=form.querySelector('[type=submit]'),note=form.querySelector('[role=status]');
+  btn.disabled=true;note.textContent='Saving verified draft…';
+  try{await act(mapper(new FormData(form)),message);form.reset();note.textContent=message}
+  catch(err){note.textContent=err.message}finally{btn.disabled=false}
+ });
+}
+async function start(){
+ try{
+  sb=await window.getSupabaseClient();
+  await refresh();
+  e('gu-ad-refresh').addEventListener('click',()=>refresh().catch(err=>e('gu-ad-admin-status').textContent=err.message));
+  e('gu-ad-toggle-inquiries').addEventListener('click',()=>act({action:'set_inquiries',enabled:!model.settings?.accepting_inquiries},
+   'Advertising inquiry acceptance updated; payment and delivery switches unchanged.')
+   .catch(err=>e('gu-ad-admin-status').textContent=err.message));
+  submit('gu-ad-advertiser-form',data=>({action:'create_advertiser',name:data.get('name'),
+   email:data.get('email'),website:data.get('website')}),'Advertiser prospect created. No charge.');
+  submit('gu-ad-campaign-form',data=>({action:'create_campaign',advertiserId:Number(data.get('advertiserId')),
+   packageCode:data.get('packageCode'),name:data.get('name'),
+   amountCents:Math.round(Number(data.get('amountUsd'))*100),
+   startsAt:new Date(String(data.get('startsAt'))).toISOString(),endsAt:new Date(String(data.get('endsAt'))).toISOString()}),
+   'Campaign saved as unpaid, unpublished draft.');
+  submit('gu-ad-creative-form',data=>({action:'create_creative',campaignId:Number(data.get('campaignId')),
+   placementCode:data.get('placementCode'),headline:data.get('headline'),
+   destinationUrl:data.get('destinationUrl'),body:data.get('body')}),'Creative saved for review, not published.');
+ }catch(err){e('gu-ad-admin-status').textContent='Advertising Center unavailable: '+err.message}
+}
+start();
+})();
