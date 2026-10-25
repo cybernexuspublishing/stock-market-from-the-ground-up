@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const api=read('functions/api/store-product-overrides.js');
+const ui=read('assets/js/store-inventory-ui-v014174.js');
+const admin=read('assets/js/admin-product-catalog-v014175.js');
+const server=read('functions/api/admin.js');
+for(const state of ['coming_soon','release_ready']) assert.ok(api.includes(state),'Public publishable lifecycle missing: '+state);
+for(const state of ['draft','paused']) assert.ok(api.includes(state),'Hidden lifecycle missing: '+state);
+assert.ok(api.includes('store_visible===false'));
+assert.ok(api.includes("cache-control':'no-store'"),'No stale product visibility cache');
+assert.ok(ui.includes("base.filter(p=>p.status==='existing_catalog')"),'Upcoming products must fail closed when server unavailable');
+assert.ok(ui.includes("data.hidden"),'Hidden records must be excluded by SKU');
+assert.ok(admin.includes("expected_version:overrides.get(sku)?.version||0"),'Editor saves must carry CAS version');
+assert.ok(admin.includes("api('store_product_release_check',undefined,sku)"),'Owner readiness button must call server');
+assert.ok(server.includes("checkout_ready:false,can_enable_live_payments:false"),'Incomplete product must never be marked sellable');
+assert.ok(!ui.includes('stripe-live-checkout')&&!admin.includes('stripe-live-checkout'));
+console.log('PASS: owner status changes affect public listing only after server confirmation; no live checkout');
