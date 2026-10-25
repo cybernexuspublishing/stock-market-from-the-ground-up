@@ -324,3 +324,18 @@ html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.
 @media(min-width:851px) and (max-width:1199px){.gu-premium-home .gu-home-stage-grid{grid-template-columns:minmax(0,1fr) minmax(0,.95fr)}.gu-premium-home .gu-home-message h1{font-size:clamp(2.4rem,4.4vw,3.7rem)!important}.gu-premium-home .gu-terminal-screen svg{min-height:150px}}
 @media(max-width:850px){.gu-premium-home .gu-home-stage-grid{grid-template-columns:1fr}.gu-premium-home .gu-home-message h1{font-size:clamp(2.7rem,7.8vw,4.5rem)!important;max-width:18ch}.gu-premium-home .gu-home-terminal{max-width:720px}.gu-premium-home .gu-path-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.gu-premium-home .gu-home-message h1{font-size:clamp(2.2rem,10vw,3.15rem)!important;line-height:1.12!important}.gu-premium-home .gu-path-grid{grid-template-columns:1fr}.gu-premium-home .gu-terminal-top{font-size:.57rem}.gu-premium-home .gu-home-message .actions .btn{flex:1 1 100%}.gu-premium-home .gu-home-stage{padding-block:42px 48px}}
+
+/* Member layout audit: reduce desktop duplicate chrome while preserving all tab behaviors.
+   The original tab controls remain keyboard reachable on tablets and mobile. */
+@media(min-width:1100px){
+ .gu-member-dashboard-shell>.gu-member-side-menu{flex:0 0 230px;width:230px}
+ .gu-member-dashboard-shell #v1322-member-hub .v1322-member-tabs{display:flex!important;flex-wrap:wrap!important;gap:4px!important;max-width:100%!important;padding:6px!important;border:1px solid #2c465d;border-radius:10px}
+ .gu-member-dashboard-shell #v1322-member-hub .v1322-member-tabs button{font-size:.79rem;min-height:38px;padding:7px 11px;flex:0 0 auto!important}
+ .gu-member-dashboard-shell .v135-overview-strip{gap:8px}
+ .gu-member-dashboard-shell .v135-overview-strip article{min-width:0}
+}
+.gu-member-dashboard-shell>.gu-member-side-menu a:focus-visible{outline:3px solid #b7a8ff;outline-offset:1px}
+.gu-member-dashboard-shell>.gu-member-side-menu a:hover{background:#19334a;color:#fff}
+.gu-member-dashboard-shell .gu-dashboard-quick{max-width:100%}
+.gu-member-dashboard-shell .gu-dashboard-quick .btn{padding:10px 14px;min-height:42px}
+@media(max-width:1099px){.gu-member-dashboard-shell>.gu-member-side-menu{position:static;width:100%;height:auto;flex:auto}.gu-member-dashboard-shell{flex-wrap:wrap}.gu-member-dashboard-shell>main{flex:1 1 100%}}
