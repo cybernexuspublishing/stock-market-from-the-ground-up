@@ -350,3 +350,16 @@ html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.
  .gu-premium-home .gu-home-terminal{max-width:740px}
 }
 .gu-premium-home .gu-home-message h1 em{font-style:normal}
+
+/* Preserve the Owner-controlled member statistics in the new premium hero.
+   This panel is populated only by the existing public metrics endpoint. */
+.gu-premium-home .gu-home-message>#v1353-member-stats{position:static!important;float:none!important;width:100%;max-width:570px;margin:26px 0 0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:15px;row-gap:9px;padding:18px 20px;border:1px solid #3b5775;border-radius:13px;background:linear-gradient(130deg,#102940,#11213d);box-shadow:0 12px 34px #0003}
+.gu-premium-home .gu-home-message>#v1353-member-stats[hidden]{display:none!important}
+.gu-premium-home #v1353-member-stats .eyebrow,.gu-premium-home #v1353-member-stats h2,.gu-premium-home #v1353-member-stats [data-caption]{grid-column:1/-1;margin:0}
+.gu-premium-home #v1353-member-stats .eyebrow{font-size:.66rem;letter-spacing:.14em;color:#bbabff}
+.gu-premium-home #v1353-member-stats h2{font-size:1rem;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f5f6ff}
+.gu-premium-home #v1353-member-stats .v1353-stat-row{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;margin:0;padding:9px 0 0;border-top:1px solid #38526b}
+.gu-premium-home #v1353-member-stats .v1353-stat-row strong{font-size:clamp(1.4rem,2vw,2rem);line-height:1.2;color:#f3ca70}
+.gu-premium-home #v1353-member-stats .v1353-stat-row span{font-size:.76rem;line-height:1.4;color:#b5c9dc}
+.gu-premium-home #v1353-member-stats [data-caption]{font-size:.72rem;color:#a1b8cc}
+@media(max-width:520px){.gu-premium-home .gu-home-message>#v1353-member-stats{padding:15px 12px;gap:10px}.gu-premium-home #v1353-member-stats .v1353-stat-row strong{font-size:1.5rem}}
