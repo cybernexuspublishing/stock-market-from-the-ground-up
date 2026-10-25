@@ -29,3 +29,16 @@
 .product-upcoming-admin>.small{max-width:90ch;line-height:1.65;margin:0 0 1rem}
 .product-upcoming-admin h4{font-size:1.16rem;margin:.3rem 0 1rem;color:#fff}
 .product-upcoming-admin .product-admin-price{font-size:1.4rem}
+
+/* v0.14.0.181 — responsive prelaunch editor in existing Admin Products */
+#admin-products-prelaunch{margin-block:2rem;padding-top:1rem;border-top:1px solid #527086}
+#admin-products-prelaunch>#admin-prelaunch-search{display:block;width:100%;max-width:38rem;min-height:44px;margin:.5rem 0 1rem}
+#admin-products-prelaunch .product-admin-card{gap:.7rem;padding:1rem}
+#admin-products-prelaunch .product-admin-card label{display:flex;flex-direction:column;align-items:stretch;gap:.35rem;font-weight:650;max-width:100%}
+#admin-products-prelaunch .product-admin-card label:has(input[type=checkbox]){flex-direction:row;align-items:center}
+#admin-products-prelaunch .product-admin-card input:not([type=checkbox]),
+#admin-products-prelaunch .product-admin-card textarea,
+#admin-products-prelaunch .product-admin-card select{box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0;border-radius:8px;padding:.65rem;line-height:1.4}
+#admin-products-prelaunch .product-admin-card textarea{min-height:6.5rem;resize:vertical}
+#admin-products-prelaunch .product-admin-card .btn{max-width:100%;white-space:normal;text-align:center;overflow-wrap:anywhere}
+#admin-prelaunch-count{overflow-wrap:anywhere;line-height:1.5}
