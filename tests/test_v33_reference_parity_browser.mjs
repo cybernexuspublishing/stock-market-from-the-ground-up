@@ -163,7 +163,7 @@ try{
   const submit=teacher.getByRole('button',{name:'Submit answer'});
   await answer.fill('The open and close prices determine the completed candle body.');
   await submit.click();
-  await host.getByRole('heading',{name:/Experiment/}).waitFor();
+  await host.getByRole('heading',{name:/^Experiment —/}).waitFor();
   const closing=host.locator('input[type="range"]').first();
   const initial=await host.locator('.gu-v32-output').textContent();
   await closing.evaluate(el=>{el.value='30.75';el.dispatchEvent(new Event('input',{bubbles:true}))});
