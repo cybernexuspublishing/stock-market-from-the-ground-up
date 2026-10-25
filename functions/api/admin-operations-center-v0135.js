@@ -12,18 +12,22 @@ function cfg(env){const base=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean
 async function raw(url,options={}){const r=await fetch(url,{...options,cache:'no-store'});if(!r.ok)throw fail('The requested administrative service did not respond successfully.',r.status===401?401:r.status===403?403:503);
  const body=options.method==='HEAD'?null:await r.text();let value=null;try{value=body?JSON.parse(body):null}catch{throw fail('Unexpected administrative service response.',503)}
  return {value,headers:r.headers};}
-function authHeaders(c){return {apikey:c.secret,authorization:'Bearer '+c.secret,accept:'application/json'}}
+function authHeaders(c){return {apikey:c.secret,...(c.secret.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.secret}),accept:'application/json'}}
 async function db(c,resource){const r=await raw(c.base+'/rest/v1/'+resource,{headers:authHeaders(c)});return r.value}
 async function who(request,env){const c=cfg(env),token=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!token)throw fail('Sign in to view the Control Center.',401);
  const u=(await raw(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}})).value;
  if(!u?.id||!/^[0-9a-f-]{36}$/i.test(u.id))throw fail('Authentication could not be verified.',401);
- const [profiles,grants]=await Promise.all([
- db(c,'profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1'),
- db(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(u.id)+'&limit=50')
+ const [profiles,grants,flags]=await Promise.all([
+ db(c,'profiles?select=account_kind,deleted_at&id=eq.'+encodeURIComponent(u.id)+'&limit=1'),
+ db(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(u.id)+'&limit=50'),
+ db(c,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1')
  ]);
  const active=(Array.isArray(grants)?grants:[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code).filter(x=>/^[A-Z0-9_]{2,50}$/.test(x));
- const isShowcase=profiles?.[0]?.account_kind==='showcase'||active.includes('SHOWCASE_VIEWER');
- if(isShowcase)return {c,showcase:true,roles:[],permissions:new Set(),owner:false};
+ const profile=profiles?.[0];
+ if(!profile||profile.deleted_at||['restricted','suspended'].includes(clean(flags?.[0]?.status).toLowerCase()))throw fail('This administrative account is restricted.',403);
+ const isShowcase=profile.account_kind==='showcase'||active.includes('SHOWCASE_VIEWER');
+ if(isShowcase){if(active.length!==1||active[0]!=='SHOWCASE_VIEWER'||profile.account_kind!=='showcase')throw fail('Mixed Showcase authority rejected.',403);return {c,showcase:true,roles:[],permissions:new Set(),owner:false}}
+ if(profile.account_kind!=='member')throw fail('Staff must have a production member account.',403);
  const owner=active.includes('OWNER');
  if(!active.length)throw fail('Administrative access denied.',403);
  const roles=active.join(',');
