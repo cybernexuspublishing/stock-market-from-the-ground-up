@@ -601,7 +601,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   String(plan?.limitation||lessonContext?.guide?.limit||'A completed example does not predict future prices.')
  ]));
  addQuick('Real-World Example',()=>teachSupplement('Example and evidence',[
-  String(lessonContext?.teaching?.example||lessonContext?.subject?.example||
+  (typeof lessonContext?.teaching?.example==='string'&&lessonContext.teaching.example.trim()||
+   typeof lessonContext?.subject?.example==='string'&&lessonContext.subject.example.trim()||
    'Use the completed chart or illustrative example displayed in this lesson. No external ticker or historical price is being claimed.'),
   'Identify the source and timeframe before treating any example as a historical market record.',
   String(plan?.limitation||'A single completed example does not guarantee repetition.')
