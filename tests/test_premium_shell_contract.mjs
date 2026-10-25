@@ -48,4 +48,10 @@ assert(memberController.includes("hub.classList.add('gu-single-member-nav')"),'D
 assert(memberController.includes("defs.every(([code])=>sidebarCodes.has(code))"),'Sidebar integration must verify every required member tab');
 assert(css.includes('.gu-single-member-nav .v1322-member-tabs[hidden]'),'Duplicate dashboard tab strip must be suppressed only for unified navigation');
 for(const tab of ['access','skills','books','settings','help','support','billing','activity'])assert(dashboard.includes('dashboard.html?tab='+tab),'Sidebar missing authoritative section '+tab);
+const metricSource=read('assets/js/member-dashboard.js');
+assert(memberController.includes('gu-member-start'),'Dashboard must offer immediate learning actions');
+assert(memberController.includes('v1324-summary-grid" hidden'),'Old duplicate entitlement strip must remain hidden');
+assert(metricSource.includes("const hero=document.querySelector('.v1321-overview .v132-dashboard-hero')"),'Verified learner metrics must mount beneath welcome header');
+assert(metricSource.includes("['Your Labs'")&&metricSource.includes("['Skills Assessed'"),'Overview metrics must describe learning activity');
+assert(css.includes('.gu-member-dashboard-shell .gu-member-start'),'Learning actions must have responsive layout styling');
 console.log('PASS premium shell source contracts');
