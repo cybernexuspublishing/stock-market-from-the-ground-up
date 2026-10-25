@@ -27,7 +27,7 @@ async function init(){
   if(!/^[A-Z0-9_]{4,48}$/.test(slot))continue;
   const headers=token?{authorization:'Bearer '+token}:{};
   try{
-   const r=await fetch('/api/ad-slot?slot='+encodeURIComponent(slot)+'&page='+encodeURIComponent(page),
+   const r=await fetch('/api/ad-slot?slot='+encodeURIComponent(slot)+'&page='+encodeURIComponent(page)+'&sessionToken='+encodeURIComponent(sessionId),
     {cache:'no-store',headers,credentials:'same-origin'});
    if(!r.ok)continue;
    const data=await r.json(),ad=data?.ad;
