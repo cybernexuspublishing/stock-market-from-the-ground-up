@@ -17,7 +17,8 @@ try{
   const wrap=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json',...headers}});
   if(path.includes('/auth/v1/user'))return wrap({id:user});
   if(path.includes('admin_user_roles?'))return wrap(mockRoles);
-  if(path.includes('profiles?select=account_kind'))return wrap([{account_kind:'member'}]);
+  if(path.includes('profiles?select=account_kind'))return wrap([{account_kind:'member',deleted_at:null}]);
+  if(path.includes('admin_user_flags?select=status'))return wrap([{status:'active'}]);
   if(path.includes('gu_ad_sales_settings'))return wrap([{accepting_payments:false,ad_delivery_enabled:false}]);
   if(path.includes('gu_ad_sandbox_settings'))return wrap([{testing_enabled:false}]);
   if(path.includes('gu39_sandbox_settings'))return wrap([{enabled:false}]);

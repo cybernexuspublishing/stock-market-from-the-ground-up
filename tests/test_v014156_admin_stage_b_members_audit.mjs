@@ -39,6 +39,8 @@ globalThis.fetch=async(url,options={})=>{
  const reply=x=>new Response(JSON.stringify(x),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}});
  if(u.includes('/auth/v1/user'))return reply({id:userId,email:'admin@example.test'});
  if(u.includes('admin_user_roles?select=role_code'))return reply([{role_code:'OWNER',expires_at:null}]);
+ if(u.includes('profiles?select=account_kind,deleted_at'))return reply([{account_kind:'member',deleted_at:null}]);
+ if(u.includes('admin_user_flags?select=status'))return reply([{status:'active'}]);
  if(u.includes('admin_role_permissions?select=permission_code'))return reply(globalAccess?[{permission_code:'control_panel.access'},{permission_code:'users.view'},{permission_code:'audit.view'}]:[{permission_code:'users.view'},{permission_code:'audit.view'}]);
  if(u.includes('/auth/v1/admin/users/')){authEndpointCalls++;return reply({id:userId,email:'member@example.test',created_at:'2026-01-01T00:00:00Z'});}
  if(u.includes('/auth/v1/admin/users')){authEndpointCalls++;return reply({users:[]})}

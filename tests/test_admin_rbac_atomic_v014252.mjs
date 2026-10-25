@@ -18,7 +18,7 @@ try{
   }
   if(u.includes('/admin_user_roles?'))return answer([{role_code:role,expires_at:null},...(showcase?[{role_code:'SHOWCASE_VIEWER',expires_at:null}]:[])]);
   if(u.includes('/admin_role_permissions?select=permission_code'))return answer([{permission_code:'control_panel.access'},{permission_code:'roles.manage'},{permission_code:'roles.view'}]);
-  if(u.includes('/profiles?select=account_kind'))return answer([{account_kind:'member'}]);
+  if(u.includes('/profiles?select=account_kind'))return answer([{account_kind:'member',deleted_at:null}]);
   if(u.includes('/admin_user_flags?'))return answer([{status:flag}]);
   if(u.includes('/admin_control_registry_v01409?'))return answer([{control_key:'builtin:panel-dashboard',label:'Dashboard',is_visible:true}]);
   if(u.includes('/rpc/v014252_admin_role_permissions_replace')){

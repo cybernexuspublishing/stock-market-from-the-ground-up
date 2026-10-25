@@ -13,7 +13,7 @@ const html=readFileSync(new URL('admin.html',root),'utf8');
 const operations=readFileSync(new URL('assets/js/admin-operations.js',root),'utf8');
 const app=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
 const member='33333333-3333-4333-8333-333333333333',admin='22222222-2222-4222-8222-222222222222';
-let role='ADMIN',targetRole='',calls=[],dbGrants=[{id:7,plan_code:'FULL_MONTHLY',status:'active',source:'stripe_zero_monthly_qa_v72',ends_at:'2099-01-01T00:00:00Z'}];
+let role='ADMIN',staffFlag='active',targetRole='',calls=[],dbGrants=[{id:7,plan_code:'FULL_MONTHLY',status:'active',source:'stripe_zero_monthly_qa_v72',ends_at:'2099-01-01T00:00:00Z'}];
 const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock',GU72_QA_ALLOWED_USER_ID:member};
 const J=(x={},code=200)=>new Response(JSON.stringify(x),{status:code,headers:{'content-type':'application/json'}});
 const orig=globalThis.fetch;
@@ -26,7 +26,7 @@ globalThis.fetch=async(url,options={})=>{
  if(u.includes('/rest/v1/admin_user_roles?'))return J(u.includes('user_id=eq.'+admin)?[{role_code:role,expires_at:null}]:targetRole?[{role_code:targetRole,expires_at:null}]:[]);
  if(u.includes('/rest/v1/test_account_profiles?'))return J([]);
  if(u.includes('/rest/v1/account_private_identity?'))return J([{date_of_birth:'1990-01-01'}]);
- if(u.includes('/rest/v1/admin_user_flags?'))return J([]);
+ if(u.includes('/rest/v1/admin_user_flags?'))return J(u.includes('user_id=eq.'+admin)?[{status:staffFlag}]:[]);
  if(u.includes('/rest/v1/admin_user_notes?'))return J([]);
  if(u.includes('/rest/v1/user_plan_grants?'))return J(dbGrants);
  if(u.includes('/rest/v1/site_subscriptions?'))return J([{id:9,plan_code:'FULL_MONTHLY',provider:'STRIPE_MANAGED',status:'canceled',provider_subscription_id:'sub_123',current_period_end:null}]);
