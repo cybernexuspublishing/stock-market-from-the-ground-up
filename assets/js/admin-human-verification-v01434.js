@@ -10,7 +10,7 @@ function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
  const button=make('button','Check Human Verification');button.type='button';button.className='btn secondary';
  const instructions=make('details');const title=make('summary','How to finish setup');
  const steps=make('ol');[
-  'In Cloudflare, create a Turnstile widget and add stock-market-from-the-ground-up.pages.dev as an allowed hostname.',
+  'In Cloudflare, create a Turnstile widget and add '+window.location.hostname+' as an allowed hostname.',
   'In Cloudflare Pages, add TURNSTILE_SITE_KEY and the secret TURNSTILE_SECRET_KEY. Set ENFORCE_AUTH_TURNSTILE_V135 to true, then redeploy.',
   'In Supabase Authentication → Bot and Abuse Protection, enable Cloudflare Turnstile using the same secret.',
   'Verify sign-in, registration, password reset, and Admin password confirmation in a test account.'
