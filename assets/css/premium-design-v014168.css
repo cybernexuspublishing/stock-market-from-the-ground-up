@@ -300,3 +300,27 @@ html[data-gu-design="premium-light"] .gu-premium-home{color:#eef5ff}
 @media(prefers-reduced-motion:reduce){.gu-redesign-academy .academy-program{transition:none}.gu-redesign-academy .academy-program:hover{transform:none}}
 html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) .card{background:#fff;color:#1d3448;border-color:#d6e1ea}
 html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) .card :is(h2,h3){color:#1d3448}
+
+/* v0.14.0.230 visual QA: real public hero and cross-page sizing corrections */
+.gu-premium-home .gu-home-stage-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);max-width:1480px;gap:clamp(26px,3.6vw,68px)}
+.gu-premium-home .gu-home-message{min-width:0}
+.gu-premium-home .gu-home-message h1{font-size:clamp(2.65rem,4.1vw,4.9rem)!important;line-height:1.13!important;letter-spacing:-.052em!important;max-width:15ch;overflow-wrap:normal;word-break:normal;text-wrap:balance}
+.gu-premium-home .gu-home-message h1 em{display:inline;color:#b9a4ff}
+.gu-premium-home .gu-home-message .lead{font-size:clamp(.98rem,1.05vw,1.16rem);line-height:1.65;max-width:56ch}
+.gu-premium-home .gu-home-terminal{width:100%;align-self:center;box-shadow:0 26px 70px #0007,0 0 70px #7e68de20}
+.gu-premium-home .gu-terminal-screen{padding:clamp(17px,2.1vw,28px)}
+.gu-premium-home .gu-terminal-screen svg{margin:19px 0 12px;min-height:200px}
+.gu-premium-home .gu-home-message .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gu-premium-home .gu-home-message .actions .btn{white-space:normal;min-height:46px;text-align:center}
+.gu-premium-home .gu-path-grid{gap:clamp(10px,1.2vw,20px)}
+.gu-premium-home .gu-path-card{min-height:286px}
+.gu-premium-home .gu-path-card p{line-height:1.62}
+.gu-premium-home .gu-section-intro>p{font-size:1rem;line-height:1.65}
+.gu-premium-home .gu-focus-layout{gap:clamp(30px,6vw,100px)}
+.gu-premium-home .gu-focus-steps>div{min-height:65px;align-items:center}
+.gu-premium-home :is(h1,h2,h3){text-wrap:balance}
+.gu-redesign-learn .gu-release-actions,.gu-redesign-labs .gu-release-actions,.gu-redesign-store .gu-release-actions,.gu-redesign-academy .gu-release-actions{position:relative;z-index:1}
+@media(min-width:1200px){.gu-premium-home .gu-home-stage{min-height:640px;display:flex;align-items:center}.gu-premium-home .gu-home-stage-grid{width:100%}}
+@media(min-width:851px) and (max-width:1199px){.gu-premium-home .gu-home-stage-grid{grid-template-columns:minmax(0,1fr) minmax(0,.95fr)}.gu-premium-home .gu-home-message h1{font-size:clamp(2.4rem,4.4vw,3.7rem)!important}.gu-premium-home .gu-terminal-screen svg{min-height:150px}}
+@media(max-width:850px){.gu-premium-home .gu-home-stage-grid{grid-template-columns:1fr}.gu-premium-home .gu-home-message h1{font-size:clamp(2.7rem,7.8vw,4.5rem)!important;max-width:18ch}.gu-premium-home .gu-home-terminal{max-width:720px}.gu-premium-home .gu-path-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.gu-premium-home .gu-home-message h1{font-size:clamp(2.2rem,10vw,3.15rem)!important;line-height:1.12!important}.gu-premium-home .gu-path-grid{grid-template-columns:1fr}.gu-premium-home .gu-terminal-top{font-size:.57rem}.gu-premium-home .gu-home-message .actions .btn{flex:1 1 100%}.gu-premium-home .gu-home-stage{padding-block:42px 48px}}
