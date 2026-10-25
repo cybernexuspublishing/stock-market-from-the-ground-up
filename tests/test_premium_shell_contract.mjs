@@ -1,0 +1,21 @@
+/* Premium design integration source-contract regression. Run: node tests/test_premium_shell_contract.mjs */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(p,'utf8');
+const theme=read('assets/js/premium-design-v014168.js');
+const css=read('assets/css/premium-design-v014168.css');
+const dashboard=read('dashboard.html');
+const academy=read('bootcamp-academy.html');
+const site=read('assets/js/site.js');
+assert(theme.includes("if(isAdmin){try{const saved=sessionStorage.getItem(KEY)"),'Private Owner theme previews must not leak into public browsing');
+assert(theme.includes("app.querySelector('.gu-design-picker')"),'Owner theme picker must not mount twice');
+assert(theme.includes('new MutationObserver('),'Async Admin rendering must mount the existing design controls');
+assert(theme.includes("method:'POST'")&&theme.includes("expectedRevision:"),'Theme activation must preserve authenticated revision-checked backend');
+assert(dashboard.includes('href="bootcamp-academy.html"'),'Dashboard must link to canonical Boot Camp Academy');
+assert(dashboard.includes('href="dashboard.html?tab=books"'),'Member books sidebar must use the existing account tab');
+assert(academy.includes('assets/js/lab-engine-v32-universal.js'),'Academy must retain the shared Lab engine');
+assert(site.includes('premium-design-v014168.css')&&site.includes('premium-design-v014168.js'),'Sitewide premium enhancement must load centrally');
+assert(css.includes('html[data-gu-design="premium-light"]')&&css.includes('html[data-gu-design="premium-dark"]'),'Both Owner-approved modes must exist');
+assert(css.includes('#academy-lab-slot')&&css.includes('#gu-v32-teaching-slot'),'Shared visual styling must cover Academy and Labs');
+assert(css.includes('@media(forced-colors:active)'),'Selected navigation must remain visible with forced colors');
+console.log('PASS premium shell source contracts');
