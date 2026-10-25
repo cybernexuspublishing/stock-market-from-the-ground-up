@@ -11,6 +11,11 @@ assert.equal(map.totalCanonicalLabs,419);
 assert.equal(Object.keys(map.byLab).length,419);
 assert.equal(guides.guides.length,30);
 assert.equal(new Set(guides.guides.map(g=>g.code)).size,30);
+const interactionSource=read('assets/js/lab-v33-visual-interactions.js');
+assert(interactionSource.includes("btn.removeAttribute('aria-label')"),
+ 'OHLC feature controls must preserve their visible accessible names after focus changes');
+assert(!interactionSource.includes("(active?'Selected: ':'Show: ')"),
+ 'OHLC accessible names must not change when aria-pressed changes');
 const js=read('assets/js/lab-v33-contextual-visuals.js');
 const context=createContext({});new Script(js,{filename:'lab-v33-contextual-visuals.js'}).runInContext(context);
 const api=context.GroundUpLabV33Contextual;
