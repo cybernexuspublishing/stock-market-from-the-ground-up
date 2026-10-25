@@ -44,21 +44,49 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return j({ok:false,error:'Method not supported.'},405);
   const a=await owner(env,request);
   if(request.method==='GET'){
-   const [issues,ballots,votes,improvementPolls,improvementVotes]=await Promise.all([
+   const [issues,ballots,votes,improvementPolls,improvementVotes,caseProposals,learningReleases]=await Promise.all([
     a.read('gu_founder_issues_v014176?select=topic_id,issue_kind,issue_state,staff_response,updated_at&order=updated_at.desc&limit=100'),
     a.read('gu_founder_design_ballots_v014176?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
     a.read('gu_founder_design_votes_v014176?select=ballot_id,choice&limit=1000'),
     a.read('gu_founder_improvement_polls_v014188?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
-    a.read('gu_founder_improvement_votes_v014188?select=poll_id,choice&limit=1000')
+    a.read('gu_founder_improvement_votes_v014188?select=poll_id,choice&limit=1000'),
+    a.read('gu_founder_case_submissions_v014190?select=id,user_id,title,scenario,review_state,created_at,staff_reply,opted_in_attribution&order=created_at.desc&limit=100'),
+    a.read('gu_founder_educational_releases_v014190?select=id,slug,title,category,audience,review_state,rights_cleared,available_from&order=updated_at.desc&limit=60')
    ]);
    const sums={};
    for(const vote of votes||[]){const bucket=(sums[vote.ballot_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
    const improvementSums={};
    for(const vote of improvementVotes||[]){const bucket=(improvementSums[vote.poll_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
-   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums});
+   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums,caseProposals:caseProposals||[],learningReleases:learningReleases||[]});
   }
   checkMutationOrigin(request);
   const input=await boundedForumJson(request,4096),action=safe(input.action);
+  if(action==='review_case'){
+   const id=safe(input.id),state=safe(input.state),reply=safe(input.staffReply);
+   if(!/^[0-9a-f-]{36}$/i.test(id)||!['under_review','accepted','declined'].includes(state)||reply.length>1500)
+    return j({ok:false,error:'Invalid editorial review.'},400);
+   if(['accepted','declined'].includes(state)&&reply.length<20)
+    return j({ok:false,error:'Include an explanatory editorial decision.'},400);
+   const rows=await a.write('gu_founder_case_submissions_v014190?id=eq.'+encodeURIComponent(id)+'&review_state=in.(submitted,under_review)',{
+     review_state:state,reviewer_id:a.user.id,reviewed_at:new Date().toISOString(),staff_reply:reply
+   },'PATCH');
+   if(!Array.isArray(rows)||rows.length!==1)return j({ok:false,error:'Case proposal is no longer reviewable.'},404);
+   return j({ok:true,id,state});
+  }
+  if(action==='publish_teaching'){
+   const slug=safe(input.slug),title=safe(input.title),body=safe(input.body),
+   category=safe(input.category),audience=safe(input.audience),competency=safe(input.competencyCode);
+   if(!/^[a-z0-9-]{8,90}$/.test(slug)||title.length<10||title.length>160||body.length<60||body.length>8000
+     ||!['early_teaching','challenge','case_study'].includes(category)||!['shared','council'].includes(audience)
+     ||(competency&&!/^[A-Z0-9_]{3,70}$/.test(competency))||input.rightsConfirmed!==true)
+    return j({ok:false,error:'Provide reviewed original material with cleared distribution rights.'},400);
+   const rows=await a.write('gu_founder_educational_releases_v014190',{
+    slug,title,body,category,audience,competency_code:competency||null,
+    review_state:'approved',rights_cleared:true,reviewed_by:a.user.id,available_from:new Date().toISOString()
+   });
+   if(!Array.isArray(rows)||rows.length!==1)return j({ok:false,error:'Reviewed release could not be confirmed.'},503);
+   return j({ok:true,id:rows[0].id,slug});
+  }
   if(action==='update_issue'){
    const id=Number(input.topicId),state=safe(input.state),note=safe(input.staffResponse);
    if(!Number.isSafeInteger(id)||id<1||!states.has(state)||note.length>2000)
