@@ -1,0 +1,87 @@
+/* v0.14.0.234 — unified sitewide composition
+   Layout and presentation only. Protected routes, billing state, entitlements,
+   source evidence, and application controls remain authoritative. */
+:root{--gu-layout-max:1680px;--gu-layout-accent:#b19aff;--gu-layout-line:#496287;--gu-layout-ink:#f1f5ff;--gu-layout-muted:#bacde0}
+body[data-gu-layout-route]{background:radial-gradient(ellipse 74% 44% at 87% 8%,rgba(91,70,191,.19),transparent 75%),linear-gradient(145deg,#061426,#0b1933 55%,#071424);color:var(--gu-layout-ink)}
+body[data-gu-layout-route] :is(main,.section,.admin-main){min-width:0}
+body[data-gu-layout-route] main:not(.admin-shell)>.wrap,
+body[data-gu-layout-route] main:not(.admin-shell) .wrap,
+body[data-gu-layout-route] .site-header .wrap{width:min(100%,var(--gu-layout-max))!important;max-width:var(--gu-layout-max)!important;margin-inline:auto}
+body[data-gu-layout-route] .site-header{background:rgba(5,18,36,.97);border-bottom:1px solid #364968;box-shadow:0 4px 30px #0003;backdrop-filter:blur(14px)}
+body[data-gu-layout-route] :is(.card,.v13-card,.mini-action-card){border-radius:14px;border-color:#415a7a}
+body[data-gu-layout-route] :is(h1,h2,h3){overflow-wrap:normal;text-wrap:balance}
+body[data-gu-layout-route] :is(button,a,input,select,textarea):focus-visible{outline:3px solid #d3b8ff;outline-offset:3px}
+body[data-gu-layout-route] :is(input,select,textarea){max-width:100%}
+body[data-gu-layout-route] :is(.grid,.dashboard-grid,.training-link-grid){min-width:0}
+body[data-gu-layout-route] .footer{background:#051323;border-top:1px solid #30496a}
+body[data-gu-layout-route] .footer .wrap{max-width:var(--gu-layout-max)!important}
+body[data-gu-layout-route] :is(.fe-breadcrumbs,.gu-breadcrumbs){opacity:.82}
+/* Page-specific wide editorial and member-workspace canvases. */
+body[data-gu-layout-route="learn"] main.section>.wrap,
+body[data-gu-layout-route="skills"] main.section>.wrap,
+body[data-gu-layout-route="simulator"] main.section>.wrap,
+body[data-gu-layout-route="journal"] main.section>.wrap,
+body[data-gu-layout-route="my-books"] main.section>.wrap,
+body[data-gu-layout-route="store"] main.section>.wrap,
+body[data-gu-layout-route="market-commons"] main.section>.wrap,
+body[data-gu-layout-route="labs"] main.section>.wrap{width:min(calc(100% - 64px),1550px)!important;max-width:1550px!important}
+body[data-gu-layout-route="learn"] .gu-redesign-learn>.wrap,
+body[data-gu-layout-route="store"] .gu-redesign-store>.wrap{width:min(calc(100% - 64px),1540px)!important;max-width:1540px!important}
+body[data-gu-layout-route="bootcamp-academy"] .gu-redesign-academy>.wrap{width:min(calc(100% - 64px),1670px)!important;max-width:1670px!important}
+/* Distinct hero regions where a page previously consisted of small centered text. */
+body:is([data-gu-layout-route="learn"],[data-gu-layout-route="skills"],[data-gu-layout-route="journal"],[data-gu-layout-route="simulator"],[data-gu-layout-route="store"],[data-gu-layout-route="my-books"]) main:not(.admin-shell){padding-top:clamp(26px,3vw,54px)}
+body:is([data-gu-layout-route="learn"],[data-gu-layout-route="skills"],[data-gu-layout-route="journal"],[data-gu-layout-route="simulator"],[data-gu-layout-route="store"],[data-gu-layout-route="my-books"]) main h1{font-family:Inter,system-ui,sans-serif;font-size:clamp(2rem,3.4vw,3.9rem);line-height:1.12;letter-spacing:-.046em;color:#f8faff}
+body:is([data-gu-layout-route="learn"],[data-gu-layout-route="skills"],[data-gu-layout-route="journal"],[data-gu-layout-route="simulator"],[data-gu-layout-route="store"],[data-gu-layout-route="my-books"]) main h2{font-family:Inter,system-ui,sans-serif;letter-spacing:-.026em}
+body:is([data-gu-layout-route="skills"],[data-gu-layout-route="journal"],[data-gu-layout-route="simulator"],[data-gu-layout-route="my-books"]) main>.wrap>:is(h1,p,.eyebrow){max-width:90ch}
+/* Skill record: keep competencies legible and make full use of the screen. */
+body[data-gu-layout-route="skills"] :is(.skills-grid,.skills-cards,.skill-practice-grid,.skill-grid,.process-profile-grid){grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:15px}
+body[data-gu-layout-route="skills"] main :is(article,.skill-card){border-radius:13px}
+body[data-gu-layout-route="skills"] main .card{background:linear-gradient(140deg,#142c49,#101d3b);border-color:#4b6485}
+/* Simulator and Journal: operational forms must remain functional. */
+body[data-gu-layout-route="simulator"] :is(.simulator-workspace,.replay-workspace,.simulator-panel),
+body[data-gu-layout-route="journal"] :is(.journal-workspace,.journal-panel){max-width:none;width:100%;min-width:0}
+body[data-gu-layout-route="simulator"] main :is(.card,section[style],.simulator-panel),
+body[data-gu-layout-route="journal"] main :is(.card,.journal-panel){border-radius:13px}
+body[data-gu-layout-route="journal"] :is(.journal-toolbar,.journal-actions,.journal-filters),
+body[data-gu-layout-route="simulator"] :is(.simulator-actions,.simulator-toolbar){display:flex;flex-wrap:wrap;gap:10px}
+body[data-gu-layout-route="journal"] main table{width:100%;min-width:670px}
+body[data-gu-layout-route="journal"] main :is(.table-wrap,.journal-table-wrap){max-width:100%;overflow-x:auto}
+/* The Academy must use a studio-width, not the old narrow document column. */
+body[data-gu-layout-route="bootcamp-academy"] .academy-program-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;gap:15px}
+body[data-gu-layout-route="bootcamp-academy"] .academy-program{min-height:310px;box-shadow:0 17px 42px #0003}
+body[data-gu-layout-route="bootcamp-academy"] .academy-workspace{max-width:none}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-top-nav{flex-wrap:wrap}
+/* Store commerce remains unchanged; only geometry/spacing changes. */
+body[data-gu-layout-route="store"] :is(.store-plan-grid,.store-membership-grid,.store-products-grid,.store-catalog-grid){grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr))!important;gap:16px}
+body[data-gu-layout-route="store"] :is(.store-category-tabs,.store-category-nav){max-width:100%}
+body[data-gu-layout-route="store"] :is(.membership-card,.store-product-card,.store-plan-card){min-width:0;overflow-wrap:anywhere}
+body[data-gu-layout-route="store"] :is(.compare-table,.comparison-table){max-width:100%;overflow-x:auto}
+/* Lab selection deserves the full workspace width, without altering registry data. */
+body[data-gu-layout-route="labs"] #gu-lab-registry-view{width:min(100%,1580px)!important;max-width:1580px!important}
+body[data-gu-layout-route="labs"] :is(#gu-inline-lab,.gu-inline-lab){max-width:none}
+/* Commons: improve reading width without introducing a second navigation system. */
+body[data-gu-layout-route="market-commons"] :is(.forum-shell,.commons-shell,.v132-community-shell){max-width:none;width:100%}
+/* Book library uses a proper responsive shelf. */
+body[data-gu-layout-route="my-books"] :is(.book-grid,.library-grid,.v13-book-grid,.my-books-grid){grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr));gap:18px}
+body[data-gu-layout-route="my-books"] :is(.book-card,.library-book,.v13-book-card){min-width:0}
+/* Owner: fill available main content instead of document-width cards. */
+body[data-gu-layout-route="admin"] .admin-shell{max-width:none!important;width:100%!important}
+body[data-gu-layout-route="admin"] .admin-main{max-width:none!important;min-width:0!important}
+body[data-gu-layout-route="admin"] :is(.admin-grid,.v13-admin-grid,.admin-stats){grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:14px}
+/* Consistent quiet text and page surfaces. */
+body[data-gu-layout-route] :is(.section-intro,.small,.muted){line-height:1.6}
+@media(max-width:900px){
+ body[data-gu-layout-route] main:not(.admin-shell)>.wrap,
+ body[data-gu-layout-route] main:not(.admin-shell) .wrap,
+ body[data-gu-layout-route] .site-header .wrap{width:100%!important;padding-inline:18px}
+ body[data-gu-layout-route] .gu-release-actions{gap:8px}
+ body[data-gu-layout-route="store"] :is(.store-plan-grid,.store-membership-grid,.store-products-grid){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:570px){
+ body[data-gu-layout-route] main:not(.admin-shell)>.wrap,
+ body[data-gu-layout-route] main:not(.admin-shell) .wrap{padding-inline:13px}
+ body[data-gu-layout-route="store"] :is(.store-plan-grid,.store-membership-grid,.store-products-grid){grid-template-columns:1fr!important}
+ body[data-gu-layout-route="bootcamp-academy"] .academy-program-grid{grid-template-columns:1fr!important}
+ body[data-gu-layout-route] :is(.gu-release-actions,.actions){flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){body[data-gu-layout-route] *{scroll-behavior:auto!important}}
