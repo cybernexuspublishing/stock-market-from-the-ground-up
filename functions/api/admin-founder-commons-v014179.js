@@ -44,7 +44,7 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return j({ok:false,error:'Method not supported.'},405);
   const a=await owner(env,request);
   if(request.method==='GET'){
-   const [issues,ballots,votes,improvementPolls,improvementVotes,caseProposals,learningReleases,foundingMembers,founderCertificates,verifiedIncidents]=await Promise.all([
+   const [issues,ballots,votes,improvementPolls,improvementVotes,caseProposals,learningReleases,foundingMembers,founderCertificates,verifiedIncidents,targetedNotices]=await Promise.all([
     a.read('gu_founder_issues_v014176?select=topic_id,issue_kind,issue_state,staff_response,updated_at&order=updated_at.desc&limit=100'),
     a.read('gu_founder_design_ballots_v014176?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
     a.read('gu_founder_design_votes_v014176?select=ballot_id,choice&limit=1000'),
@@ -54,16 +54,39 @@ export async function onRequest({request,env}){
     a.read('gu_founder_educational_releases_v014190?select=id,slug,title,category,audience,review_state,rights_cleared,available_from&order=updated_at.desc&limit=60'),
     a.read('gu_founder_members_v014173?select=user_id,founder_number,earned_plan_code&order=founder_number.asc&limit=600'),
     a.read('gu_founder_certificates_v014192?select=id,user_id,track,issued_at,revoked_at&limit=600'),
-    a.read('gu_founder_verified_incidents_v014203?select=id,incident_key,title,service_area,started_at,ended_at,verified_at&order=verified_at.desc&limit=60')
+    a.read('gu_founder_verified_incidents_v014203?select=id,incident_key,title,service_area,started_at,ended_at,verified_at&order=verified_at.desc&limit=60'),
+    a.read('gu_founder_targeted_notices_v014206?select=id,notice_code,title,body,audience,priority,publication_state,created_at,published_at&order=created_at.desc&limit=100')
    ]);
    const sums={};
    for(const vote of votes||[]){const bucket=(sums[vote.ballot_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
    const improvementSums={};
    for(const vote of improvementVotes||[]){const bucket=(improvementSums[vote.poll_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
-   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums,caseProposals:caseProposals||[],learningReleases:learningReleases||[],foundingMembers:foundingMembers||[],founderCertificates:founderCertificates||[],verifiedIncidents:verifiedIncidents||[]});
+   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums,caseProposals:caseProposals||[],learningReleases:learningReleases||[],foundingMembers:foundingMembers||[],founderCertificates:founderCertificates||[],verifiedIncidents:verifiedIncidents||[],targetedNotices:targetedNotices||[]});
   }
   checkMutationOrigin(request);
   const input=await boundedForumJson(request,4096),action=safe(input.action);
+  if(action==='publish_founder_notice'){
+   const code=safe(input.noticeCode),title=safe(input.title),body=safe(input.body),
+      audience=safe(input.audience),priority=safe(input.priority);
+   if(!/^[A-Z0-9_-]{8,80}$/.test(code)||title.length<10||title.length>160
+     ||body.length<35||body.length>2400||!['shared','council'].includes(audience)
+     ||!['normal','important'].includes(priority))
+    return j({ok:false,error:'Reviewed, correctly targeted announcement details are required.'},400);
+   const x=await a.write('gu_founder_targeted_notices_v014206',{
+    notice_code:code,title,body,audience,priority,
+    publication_state:'published',published_at:new Date().toISOString(),authored_by:a.user.id
+   });
+   if(!Array.isArray(x)||x.length!==1)return j({ok:false,error:'Notice publication not confirmed.'},503);
+   return j({ok:true,id:x[0].id,scope:audience});
+  }
+  if(action==='withdraw_founder_notice'){
+   const id=safe(input.id);
+   if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id))return j({ok:false,error:'Invalid notice reference.'},400);
+   const x=await a.write('gu_founder_targeted_notices_v014206?id=eq.'+encodeURIComponent(id)+'&publication_state=eq.published',
+   {publication_state:'withdrawn',updated_at:new Date().toISOString()},'PATCH');
+   if(!Array.isArray(x)||x.length!==1)return j({ok:false,error:'Published notice no longer available.'},404);
+   return j({ok:true,withdrawn:true,id});
+  }
   if(action==='issue_certificate'){
    const id=safe(input.userId);
    if(!/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))return j({ok:false,error:'Invalid founding member.'},400);
