@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const src=readFileSync(new URL('../functions/api/website-design.js',import.meta.url),'utf8');
+assert.match(src,/profile\?\.length!==1/,'Missing owner profile must fail closed');
+assert.match(src,/!Array\.isArray\(roles\)/,'Malformed roles must fail closed');
+assert.match(src,/!Array\.isArray\(flags\)/,'Malformed flags must fail closed');
+assert.match(src,/x\.role_code==='OWNER'/,'Only OWNER role can activate');
+assert.match(src,/\['suspended','restricted'\]/,'Restricted accounts cannot activate');
+assert.match(src,/new URL\(origin\)\.origin!==new URL\(request\.url\)\.origin/,'Cross-origin writes denied');
+assert.match(src,/expectedRevision/,'Revision lock required');
+assert.match(src,/Do not expose provider errors/,'Internal failure details not echoed');
+assert.doesNotMatch(src,/String\(e\.message\|\|'Unable to change theme'\)/,'Do not reflect arbitrary backend errors');
+console.log('PASS design API static security boundaries (runtime auth and RLS verification still required)');
