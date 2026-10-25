@@ -95,7 +95,11 @@ export async function onRequestPost({request,env}){
  if(!await signature(body,request.headers.get('stripe-signature'),c.secret))return text('Invalid event signature',403);
  let event;try{event=JSON.parse(body)}catch{return text('Malformed event',400)}
  if(event.livemode!==true||!pattern(event.id,'evt')||event.account&&event.account!==c.account)return text('Foreign event',403);
- if(event.type!=='invoice.paid')return text('Not handled by founding payment verifier',503);
+ if(!['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted',
+ 'charge.refunded','charge.dispute.created'].includes(event.type))
+ return text('Unrelated Stripe event ignored',200);
+ if(event.type!=='invoice.paid')
+ return text('Founding nonpayment lifecycle handler is not yet activated',503);
  try{
   const account=await stripe(c,'account');if(account.id!==c.account)throw Error('FOREIGN_ACCOUNT');
   const status=await fulfill(c,event);
