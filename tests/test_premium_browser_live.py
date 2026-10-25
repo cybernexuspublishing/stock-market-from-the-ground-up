@@ -15,6 +15,7 @@ with sync_playwright() as pw:
         for route in ROUTES:
             url=f'{BASE}/{route}'
             errors=[]
+            page.remove_all_listeners('pageerror')
             page.on('pageerror',lambda error, bucket=errors:bucket.append(str(error)))
             try:
                 response=page.goto(url,wait_until='domcontentloaded',timeout=30000)
@@ -28,6 +29,11 @@ with sync_playwright() as pw:
                     assert page.locator('#v132-home').count()==0,'Legacy homepage replaced premium design'
                     css=page.locator('.gu-home-stage').evaluate('(e)=>getComputedStyle(e).backgroundImage')
                     assert 'gradient' in css,'Premium hero background not painted'
+                if route in ['learn.html','labs.html','bootcamp-academy.html','store.html','dashboard.html','market-commons.html','simulator.html','journal.html','admin.html']:
+                    route_name=route.removesuffix('.html')
+                    current=page.locator('body').get_attribute('data-gu-layout-route')
+                    assert current==route_name,f'Missing sitewide layout hook on {route}: {current!r}'
+                    assert page.locator('link[href*="sitewide-composition-v014234.css"]').count()>=1,'Shared CSS not injected'
                 if route=='dashboard.html' and page.locator('.gu-single-member-nav').count():
                     assert page.locator('.v1322-member-tabs').is_hidden(),'Duplicate tab strip visible alongside authoritative sidebar'
                 if width==390:
