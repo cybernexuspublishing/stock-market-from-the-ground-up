@@ -61,7 +61,7 @@ function enhance(view,options){
    if(!q||![q.o,q.hv,q.l,q.c].every(Number.isFinite))return 'The displayed candle values are not available for calculation. Review the chart labels or select a completed worked example.';
    const money=n=>String.fromCharCode(36)+Number(n).toFixed(2);
    const body=Math.abs(q.c-q.o),range=q.hv-q.l;
-   const ratio=range?(100*body/range).toFixed(1):'N/A';
+   const ratio=range>0?(100*body/range).toFixed(1):'N/A';
    return ({
     all:'This completed '+(q.c>q.o?'bullish':q.c<q.o?'bearish':'doji')+
       ' candle opens at '+money(q.o)+' and closes at '+money(q.c)+'.',
