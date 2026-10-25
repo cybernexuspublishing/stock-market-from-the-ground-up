@@ -77,3 +77,13 @@ html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-tutor{backgro
  #gu-v32-teaching-slot .gu-v33-instructor-narration{max-height:none}
  #gu-v32-teaching-slot :is(.gu-v33-tutor-actions,.gu-v33-instructor-suggestions){grid-template-columns:1fr}
 }
+
+/* Focused, top-only historical Lab navigation: existing routes, no sidebar. */
+.gu-focused-learning-header .nav{max-width:1440px;min-height:66px;flex-wrap:wrap}
+.gu-learning-top-nav{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex:1 1 700px;flex-wrap:wrap}
+.gu-learning-top-nav a{color:#dbe8f3;text-decoration:none;padding:8px 11px;font-size:.85rem;font-weight:650;border-radius:7px;min-height:38px;display:inline-flex;align-items:center}
+.gu-learning-top-nav a:hover,.gu-learning-top-nav a:focus-visible{background:#203a4e;color:#fff}
+.gu-learning-top-nav a[aria-current="page"]{background:#362878;border-bottom:2px solid #a38af8;color:#fff}
+html[data-gu-design="premium-light"] .gu-learning-top-nav a{color:#243647}
+html[data-gu-design="premium-light"] .gu-learning-top-nav a[aria-current="page"]{color:#fff}
+@media(max-width:850px){.gu-focused-learning-header .nav{padding-block:10px;gap:9px}.gu-learning-top-nav{justify-content:flex-start;flex-basis:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.gu-learning-top-nav a{white-space:nowrap;flex:none}}
