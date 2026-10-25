@@ -67,6 +67,10 @@ try{
     confirmed:!document.getElementById('player-mode-confirm')?.hidden
    });
    window.__qaModeTrace.push(peek('pre-menu'));
+   document.addEventListener('click',event=>{
+    if(event.target.closest?.('#player-mode-trigger,[data-member-mode]'))
+     window.__qaModeTrace.push({...peek('document-click'),target:event.target.outerHTML.slice(0,160)});
+   },true);
    document.querySelector('#player-mode-menu [data-member-mode="practice"]')?.addEventListener('click',()=>{
     window.__qaModeTrace.push(peek('button-capture'))
    },true);
