@@ -10,6 +10,16 @@ const groups=[
 const labels={in_development:'In development',coming_soon:'Coming Soon',ready_for_review:'Release review',listed:'Listed — review details',for_sale:'Available — review purchase terms',paused:'Paused'};
 const safeRoute=x=>/^[A-Za-z0-9_-]+\.html$/.test(x||'')?x:'';
 let source=[],selection='all';
+let sharedCatalogPromise=null;
+function getCatalog(){
+ if(!sharedCatalogPromise)sharedCatalogPromise=fetch('/api/storefront-catalog-v014174',{cache:'no-store',headers:{accept:'application/json'}}).then(async response=>{
+  const data=await response.json();
+  if(!response.ok||!data?.ok||!Array.isArray(data.items))throw Error('Unable to verify Store catalog');
+  return data.items.filter(x=>x&&x.visible===true&&typeof x.sku==='string');
+ });
+ return sharedCatalogPromise;
+}
+window.GroundUpPublicStorefaces=getCatalog;
 const details=sku=>'store-item.html?sku='+encodeURIComponent(sku);
 const itemCard=x=>'<article class="product-card gu174-product" data-sku="'+esc(x.sku)+'" data-group="'+esc(x.category)+'">'+
  '<span class="gu174-state">'+esc(labels[x.status]||'Coming Soon')+'</span>'+
@@ -71,10 +81,7 @@ function detail(){
 async function init(){
  const loading=$('store-all-count')||$('store-item-details');
  try{
-  const response=await fetch('/api/storefront-catalog-v014174',{cache:'no-store',headers:{accept:'application/json'}});
-  const data=await response.json();
-  if(!response.ok||!data?.ok||!Array.isArray(data.items))throw Error('Unable to verify Store catalog');
-  source=data.items.filter(x=>x&&x.visible===true&&typeof x.sku==='string');
+  source=await getCatalog();
   if($('store-full-catalog')){filters();render();}
   detail();
  }catch(e){
