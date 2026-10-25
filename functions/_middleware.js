@@ -293,6 +293,8 @@ export async function onRequest(context){
         el.append('<script defer src="/assets/js/branding.js"></script>',{html:true});
         if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/admin-operations.css">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/control-center.css">',{html:true});
+        // Final visual composition layer after legacy layout CSS; route-specific and passive.
+        el.append('<link rel="stylesheet" href="/assets/css/sitewide-composition-v014234.css">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/accounts-and-lab-preview.css">',{html:true});
         /* admin.html already loads admin-navigation.css; do not duplicate this stylesheet. */
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
@@ -303,6 +305,7 @@ export async function onRequest(context){
       }})
       .on('body',{element(el){
         el.setAttribute('data-build','v0.14.0.14');
+        el.setAttribute('data-gu-layout-route',path.replace(/\\.html$/,'').replace(/^\\//,'')||'home');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
