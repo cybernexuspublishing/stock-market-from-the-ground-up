@@ -153,7 +153,7 @@ async function init(){
   document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired'&&(!useFaceRegistry||!!faceFor('book',p.productCode))).map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   const futureIds=new Set(allTools.map(x=>x.toolCode));
-  const future=futureLearning().filter(x=>!futureIds.has(x.code)&&(!useFaceRegistry||!!faceFor('feature',x.code)));
+  const future=futureLearning().filter(x=>!futureIds.has(x.code)).filter(x=>!useFaceRegistry||!!faceFor('feature',x.code));
   document.getElementById('store-tools').innerHTML=d.commerceUnavailable?
    '<div class="notice">Live product prices and checkout status cannot be verified. Please try again later.</div>':
    allTools.map(toolCard).join('')+future.map(upcomingCard).join('');
