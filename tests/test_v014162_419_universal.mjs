@@ -48,8 +48,8 @@ assert(player.includes('serverGuidedAllowed===true'),'Server must authorize guid
 assert(player.includes('serverAdvancedAllowed===true'),'Server must authorize advanced access');
 assert(html.includes('lab-engine-v32-universal.js'));
 assert(html.includes('player-restart-mode'));
-assert(player.includes('fraction>=1/3'),'Mode selection must lock after one-third of the journey');
-assert(player.includes('PLAYER.locked||fraction>=1/3'),'Locked decisions cannot switch modes without restart');
+assert(player.includes('PLAYER.locked||policy.stage>=3'),'Mode selection must lock upon reaching Predict stage');
+assert(player.includes('PLAYER.locked||stage>=3'),'Locked decisions cannot switch modes without restart');
 assert(player.includes('Previously submitted server assessments are not deleted'),'Reset must preserve prior server submissions');
 assert(html.includes('player-mode-select'),'Compact accessible mode selector required');
 assert(html.includes('player-mode-confirm'),'Inline Yes/Cancel confirmation must remain in the toolbar');
