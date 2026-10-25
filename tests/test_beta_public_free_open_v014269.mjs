@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const file=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+test('free beta signup is visibly available but is not payment or founder reservation',()=>{
+ const site=file('index.html'),store=file('store.html'),founder=file('founding600.html');
+ assert.match(site,/Join Free Beta — \$0/);
+ assert.match(site,/href="create-account\.html"/);
+ assert.match(store,/Join Free Beta — \$0/);
+ assert.match(founder,/Free beta registration is open/);
+ assert.match(founder,/Creating a Free account does not reserve/);
+ assert.match(founder,/Founding Standard \(\$49\.99 every 30 days\)/);
+ assert.match(founder,/Founding Extended \(\$59\.99 every 60 days\)/);
+ assert.match(founder,/15 new Journal records and 10 saved simulator exercises/);
+ assert.match(founder,/id="f600-enrollment-closed" hidden/);
+ assert.match(founder,/id="f600-enrollment-form" hidden/);
+});
+test('real founder checkout is still strictly server- and provider-gated',()=>{
+ const backend=file('functions/api/founding600-checkout.js');
+ assert.match(backend,/GU_F600_LIVE_CHECKOUT_ENABLED/);
+ assert.match(backend,/GU_F600_LIVE_FULFILLMENT_APPROVED/);
+ assert.match(backend,/foundingProductReadyForCheckout/);
+ assert.match(backend,/gu_founder_reserve_with_consent_v014198/);
+ assert.match(backend,/gu_founder_bind_checkout_v014193/);
+ const metadata=JSON.parse(file('data/founding600-terms-v014170.json'));
+ assert.equal(metadata.checkoutEnabled,false);
+ assert.equal(metadata.enrollmentEnabled,false);
+ assert.equal(metadata.fulfillmentEnabled,false);
+ assert.equal(metadata.plans.FOUNDING_30.recurringCents,4999);
+ assert.equal(metadata.plans.FOUNDING_60.recurringCents,5999);
+});
+test('dashboard correctly names actual $0 plan as Free Membership',()=>{
+ const dash=file('dashboard.html'),js=file('assets/js/dashboard.js');
+ assert.match(dash,/id="membership-tier">Free Membership/);
+ assert.match(dash,/id="membership-plan-name">Free Membership/);
+ assert.match(js,/tier\.textContent = 'Free Membership';/);
+});

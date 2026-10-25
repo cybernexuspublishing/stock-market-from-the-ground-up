@@ -103,8 +103,8 @@ async function initDashboard() {
     setText('membership-plan-status', 'Guided Mode retained for redeemed books');
     setText('membership-plan-end', redeemedBooks.map(r => r.book_label || r.book_code).join(' · '));
   } else {
-    tier.textContent = 'Free Reader';
-    setText('membership-plan-name', 'Free Reader Account');
+    tier.textContent = 'Free Membership';
+    setText('membership-plan-name', 'Free Membership');
     setText('membership-plan-status', 'No active Full Learning Access');
     setText('membership-plan-end', 'Registry search, selected Guided samples, and synchronized basic progress are included.');
   }
