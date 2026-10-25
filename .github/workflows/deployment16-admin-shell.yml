@@ -4,6 +4,10 @@ on:
     paths:
       - 'admin-unified-preview.html'
       - 'admin.html'
+      - 'assets/js/admin.js'
+      - 'assets/js/admin-platform.js'
+      - 'assets/js/admin-legacy-routing.js'
+      - 'tests/test_admin_session_and_error_gate_v014246.mjs'
       - 'assets/js/route-policy.js'
       - 'functions/api/admin.js'
       - 'functions/api/admin-accounts-v01353.js'
@@ -32,11 +36,15 @@ jobs:
           node --check assets/js/admin-unified-preview-v014156.mjs
           node --check assets/js/admin-unified-people-v014156.mjs
           node --check functions/api/admin.js
+          node --check assets/js/admin.js
+          node --check assets/js/admin-platform.js
+          node --check assets/js/admin-legacy-routing.js
           node --check functions/api/admin-accounts-v01353.js
       - name: Verify Admin module registry, access boundaries and read-only preview
         run: |
           node tests/test_v014156_admin_shell.mjs
           node tests/test_v014156_admin_stage_b_members_audit.mjs
           node tests/test_v014156_admin_service_key_compatibility.mjs
+          node tests/test_admin_session_and_error_gate_v014246.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs

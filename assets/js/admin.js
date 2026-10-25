@@ -4,12 +4,40 @@ const fmtDate=v=>v?new Date(v).toLocaleString():'—';
 const moneyCents=v=>(Number(v||0)/100).toLocaleString(undefined,{style:'currency',currency:'USD'});
 const has=p=>ADMIN.ctx?.permissions?.includes(p);
 function status(el,msg,type=''){if(!el)return;el.textContent=msg||'';el.className=`status-message ${type}`}
-async function token(){if(ADMIN.token)return ADMIN.token;ADMIN.sb=ADMIN.sb||await window.getSupabaseClient();const {data}=await ADMIN.sb.auth.getSession();ADMIN.token=data?.session?.access_token||'';return ADMIN.token}
+async function token(){ADMIN.sb=ADMIN.sb||await window.getSupabaseClient();const {data,error}=await ADMIN.sb.auth.getSession();if(error||!data?.session?.access_token)throw new Error('Your administrative session has expired. Sign in again.');return data.session.access_token}
 async function api(action,{method='GET',body,params={}}={}){const t=await token();const q=new URLSearchParams({action,...Object.fromEntries(Object.entries(params).filter(([,v])=>v!==undefined&&v!==null&&v!==''))});const r=await fetch(`/api/admin?${q}`,{method,headers:{authorization:`Bearer ${t}`,'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});let j={};try{j=await r.json()}catch{}if(!r.ok||!j.ok)throw new Error(j.error||`Admin request failed (${r.status})`);return j}
 function panelPermission(panel){return ({dashboard:'dashboard.view',users:'users.view',roles:'roles.view',catalog:'catalog.view',products:'catalog.view',commerce:'commerce.view',content:'content.view',community:'forum.view',settings:'settings.view',audit:'audit.view',system:'system.view'})[panel]}
-function setupTabs(){document.querySelectorAll('#admin-tabs button').forEach(b=>{const perm=panelPermission(b.dataset.panel);b.hidden=!!perm&&!has(perm);b.addEventListener('click',()=>openPanel(b.dataset.panel))});document.querySelectorAll('[data-refresh]').forEach(b=>b.addEventListener('click',()=>loadPanel(b.dataset.refresh,true)))}
-async function openPanel(name){if(!has(panelPermission(name)))return;document.querySelectorAll('#admin-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));document.querySelectorAll('.admin-panel').forEach(x=>x.classList.toggle('active',x.dataset.adminPanel===name));history.replaceState(null,'',`#${name}`);await loadPanel(name)}
-async function loadPanel(name,force=false){try{if(name==='dashboard')return loadDashboard();if(name==='users')return loadUsers();if(name==='roles')return loadRoles();if(name==='catalog')return loadCatalog();if(name==='products')return window.GroundUpAdminProducts?.load();if(name==='commerce')return loadCommerce();if(name==='content')return loadContent();if(name==='community')return loadCommunity();if(name==='settings')return loadSettings();if(name==='audit')return loadAudit();if(name==='system')return loadSystem()}catch(e){const p=document.querySelector(`[data-admin-panel="${name}"]`);if(p)p.insertAdjacentHTML('afterbegin',`<div class="notice">${ae(e.message)}</div>`)} }
+function setupTabs(){document.querySelectorAll('#admin-tabs button[data-panel]').forEach(b=>{const perm=panelPermission(b.dataset.panel);b.hidden=!!perm&&!has(perm);b.addEventListener('click',()=>openPanel(b.dataset.panel))});document.querySelectorAll('[data-refresh]').forEach(b=>b.addEventListener('click',()=>loadPanel(b.dataset.refresh,true)))}
+async function openPanel(name){if(!name||!has(panelPermission(name)))return;document.querySelectorAll('#admin-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));document.querySelectorAll('.admin-panel').forEach(x=>x.classList.toggle('active',x.dataset.adminPanel===name));history.replaceState(null,'',`#${name}`);await loadPanel(name)}
+async function loadPanel(name,force=false){
+ const panel=document.querySelector(`[data-admin-panel="${name}"]`);
+ panel?.querySelector('[data-admin-load-error]')?.remove();
+ try{
+  if(name==='dashboard')return await loadDashboard();
+  if(name==='users')return await loadUsers();
+  if(name==='roles')return await loadRoles();
+  if(name==='catalog')return await loadCatalog();
+  if(name==='products')return await window.GroundUpAdminProducts?.load();
+  if(name==='commerce')return await loadCommerce();
+  if(name==='content')return await loadContent();
+  if(name==='community')return await loadCommunity();
+  if(name==='settings')return await loadSettings();
+  if(name==='audit')return await loadAudit();
+  if(name==='system')return await loadSystem();
+ }catch(error){
+  if(!panel)return;
+  const notice=document.createElement('div');
+  notice.className='notice';
+  notice.dataset.adminLoadError='true';
+  notice.setAttribute('role','alert');
+  notice.append(document.createTextNode(error?.message||'This administrative section could not be loaded.'));
+  const retry=document.createElement('button');
+  retry.type='button';retry.className='btn secondary';retry.textContent='Retry section';
+  retry.addEventListener('click',()=>loadPanel(name,true));
+  notice.append(retry);
+  panel.prepend(notice);
+ }
+}
 function metric(label,value,target,description){const disabled=target==='account-management'?!has('users.view'):target==='users'?!has('users.view'):target==='commerce'?!has('commerce.view'):target==='catalog'?!has('catalog.view'):target==='content'?!has('content.view'):target==='community'?!has('forum.view'):false;return `<button type="button" class="admin-metric cc-metric-link" data-cc-metric="${ae(target)}" aria-label="${ae(label)}: ${value==null?'not available':ae(value)}. ${ae(description||'Open the corresponding management section')}" title="${ae(description||'Open management section')}" ${disabled?'disabled':''}><span>${ae(label)}</span><strong>${value==null?'—':ae(value)}</strong><small class="cc-metric-hint">${disabled?'Restricted':'View details →'}</small></button>`}
 async function loadDashboard(){const j=await api('dashboard');const s=j.summary||{};document.getElementById('admin-summary').innerHTML=[metric('Users',s.users,'users','Search and manage member accounts'),metric('Active learning access',s.activeEntitlements,'account-management','Review learning grants in Account Management'),metric('Library records',s.library,'account-management','Inspect per-member library access in Account Management'),metric('Site orders',s.orders,'commerce','Review recorded orders'),metric('Subscriptions',s.subscriptions,'commerce','Review recorded subscriptions'),metric('Open reports',s.openReports,'community','Review all submitted community reports'),metric('Catalog products',s.catalogProducts,'catalog','Manage book and catalog products'),metric('Published content',s.publishedContent,'content','Manage published instructional and support content')].join('');document.getElementById('admin-permission-summary').innerHTML=`<p><strong>Roles:</strong> ${(ADMIN.ctx.roles||[]).map(x=>`<span class="admin-badge">${ae(x)}</span>`).join(' ')||'None'}</p><p class="admin-muted">${ADMIN.ctx.permissions.length} effective permissions. High-risk actions are permission-gated and audited.</p>`;const checks=[];if((s.openReports||0)>0)checks.push(`<li><button type="button" class="cc-alert-link" data-cc-metric="community">${ae(s.openReports)} community report${s.openReports===1?'':'s'} awaiting review → Open Reports</button></li>`);if(!has('audit.view'))checks.push('<li>Your role cannot inspect the audit log.</li>');if(!has('system.view'))checks.push('<li>Your role cannot inspect technical integration status.</li>');if(!checks.length)checks.push('<li>No immediate control-center alert was detected from the current summary.</li>');document.getElementById('admin-priority-checks').innerHTML=`<ul>${checks.join('')}</ul>`;window.dispatchEvent(new CustomEvent('groundup:admin-summary',{detail:{...s}}))}
 // Delegated navigation: the original RBAC-protected panel functions remain authoritative.
