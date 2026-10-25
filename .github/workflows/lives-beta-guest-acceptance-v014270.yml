@@ -1,0 +1,25 @@
+name: LIVES Beta Noncharging Production Acceptance v0.14.0.270
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_lives_production_guest_v014270.mjs'
+      - '.github/workflows/lives-beta-guest-acceptance-v014270.yml'
+      - 'functions/api/runtime-health-v014259.js'
+      - 'functions/api/founding600-checkout.js'
+      - 'functions/api/admin-prelive-v014247.js'
+      - 'functions/api/account.js'
+      - 'scripts/build-pages.sh'
+      - '_routes.json'
+jobs:
+  guest-live-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check LIVES canonical production route, role denial and no-charge Founding plans
+        run: node tests/test_lives_production_guest_v014270.mjs
