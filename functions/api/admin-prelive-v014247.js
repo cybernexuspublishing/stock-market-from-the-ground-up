@@ -35,8 +35,8 @@ function client(c){
  const auth=serviceHeaders(c.secret);
  return {
   rows:async(path)=>{try{return await result(c.base+'/rest/v1/'+path,auth)}catch{return null}},
-  count:async(table)=>{try{
-   const r=await fetch(c.base+'/rest/v1/'+table+'?select=*&limit=1',{method:'GET',cache:'no-store',headers:{...auth,prefer:'count=exact',range:'0-0'}});
+  count:async(table,filter='')=>{try{
+   const r=await fetch(c.base+'/rest/v1/'+table+'?select=*&limit=1'+(filter?'&'+filter:''),{method:'GET',cache:'no-store',headers:{...auth,prefer:'count=exact',range:'0-0'}});
    if(!r.ok)return null;const found=(r.headers.get('content-range')||'').match(/\/(\d+)$/);return found?Number(found[1]):null;
   }catch{return null}}
  };
@@ -51,7 +51,8 @@ export async function onRequest({request,env}){
  if(!actor)return forbidden(403);
  const db=client(c);
  const [adSettings,mode,shared,prices,members,orders,subscriptions,audits,adIntents,adEvents,
-  founderRelease,founderPlans,founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles]=await Promise.all([
+  founderRelease,founderPlans,founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles,
+  registeredLabs,reviewedLabs,draftLabs,competencies]=await Promise.all([
   db.rows('gu_ad_sales_settings_v014226?select=accepting_payments,ad_delivery_enabled&singleton=eq.true&limit=1'),
   db.rows('gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true&limit=1'),
   db.rows('gu39_sandbox_settings?select=enabled&id=eq.true&limit=1'),
@@ -62,7 +63,10 @@ export async function onRequest({request,env}){
   db.rows('gu_founder_plans_v014173?select=plan_code,term_days,price_cents,checkout_enabled,purchase_discount_bps&limit=3'),
   db.count('gu_founder_reservations_v014173'),db.count('gu_founder_members_v014173'),
   db.count('gu_f600_sandbox_intents_v014215'),db.count('gu_f600_sandbox_events_v014215'),
-  db.count('gu_f600_sandbox_cycles_v014215')
+  db.count('gu_f600_sandbox_cycles_v014215'),
+  db.count('platform_labs'),db.count('lab_training_sets_v014','review_state=eq.reviewed'),
+  db.count('lab_training_sets_v014','review_state=eq.draft'),
+  db.count('competency_definitions')
  ]);
  const ad=adSettings?.[0],adMode=mode?.[0],sharedMode=shared?.[0];
  const expected=['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'];
@@ -97,6 +101,21 @@ export async function onRequest({request,env}){
       'Missing or unreadable founding TEST event and paid-cycle records.'),
   check('founding_capacity','600-seat and entitlement concurrency','pending',
     'Counts alone cannot establish atomic seat reservation, cutoff at 600 or authorized paid-to-member entitlement activation.'),
+  check('education_registry','Educational registry configuration',
+    registeredLabs===419&&competencies===30?'verified':'action_required',
+    'Registry must preserve exactly 419 Labs and 30 competencies. Active registration is not independent teaching or assessment approval.'),
+  check('education_reviews','Individual assessment editorial acceptance',
+    reviewedLabs===419?'review':'pending',
+    reviewedLabs===419?'All 419 rubric sets are database-reviewed; independent subject-matter and browser evidence still required.':
+    'Unreviewed exercises are not authorized for graded assessment. Review state requires individually verified teaching content and answer keys.'),
+  check('stage_a','Stage A — Interest / recruitment','pending',
+    'Confirm privacy-safe no-charge signup, consent, eligible applicant flow and truthful launch messaging before collecting interest.'),
+  check('stage_b','Stage B — Closed free beta','pending',
+    'Requires real authenticated nonpayment member journeys, entitlement isolation, navigation, accessibility and support tests.'),
+  check('stage_c','Stage C — Paid Founding 600 beta','pending',
+    'Requires completed Sandbox subscription lifecycle, 600-seat concurrency and all promised member features, then separately authorized LIVE verification.'),
+  check('stage_d','Stage D — General public launch','pending',
+    'Beyond current acceptance scope. Do not approve from a source or configuration check.'),
   check('test_checkout','Hosted Checkout and provider webhooks','pending','A real provider-delivered TEST checkout, signed-webhook ledger, refund and failed-payment acceptance are not certified by this read-only report.'),
   check('nonpayment_browser','Authenticated browser acceptance','pending','Requires real Owner and unauthorized-user browser evidence plus successful CI. Source checks alone do not certify it.'),
   check('live_authorization','LIVE payments','pending','Explicitly excluded. Do not enable or charge LIVE payments through this diagnostic.')
@@ -104,7 +123,8 @@ export async function onRequest({request,env}){
  return send({
   ok:true,readOnly:true,ownerVerified:true,synthetic:false,observedAt:new Date().toISOString(),
   counts:{members,orders,subscriptions,auditEntries:audits,adSandboxOrders:adIntents,adSandboxEvents:adEvents,
-    founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles},
+    founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles,
+    registeredLabs,reviewedLabs,draftLabs,competencies},
   checks,
   livePaymentActionsAvailable:false,
   note:'Configuration observations only. Provider event delivery, real browser tests and LIVE payment acceptance are independent gates.'
