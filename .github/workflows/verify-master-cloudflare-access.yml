@@ -55,5 +55,14 @@ jobs:
           console.log('Master deployment inventory:',deployments.success?'OK':'UNAVAILABLE','HTTP '+deployments.status);
           if(deployments.success&&Array.isArray(deployments.result))
             console.log('Recent deployments:',JSON.stringify(deployments.result.slice(0,4).map(x=>({id:x.id,status:x.latest_stage?.status,created:x.created_on,url:x.url}))));
+          const interim=await get('/accounts/9a43bc08e9db72e7187bc8c0a31710c2/pages/projects/stock-market-from-the-ground-up-lives');
+          console.log('Interim account source-config access:',interim.success?'AUTHORIZED':'UNAVAILABLE','HTTP '+interim.status);
+          if(interim.success){
+            const e=interim.result?.deployment_configs?.production?.env_vars||{};
+            console.log('Interim production variable counts:',JSON.stringify({
+              plain_text:Object.values(e).filter(v=>v.type==='plain_text').length,
+              secret_text:Object.values(e).filter(v=>v.type==='secret_text').length
+            }));
+          }
           if(!p.success||!deployments.success)process.exitCode=1;
           NODE
