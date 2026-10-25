@@ -45,7 +45,7 @@ try{
  const gate=async()=>{const r=await onRequest({request,env});assert.equal(r.status,200);return r.json()};
  let value=await gate(),check=value.checks.find(c=>c.code==='stripe_test_provider');
  assert.equal(check.state,'verified','Matching TEST prices and webhook pass');
- assert.equal(stripeReads,4,'Three Stripe prices and one webhook list are checked');
+ assert.equal(stripeReads,7,'Advertising checks 3 prices and 1 webhook; Founder TEST adds 2 prices and 1 webhook');
  assert(!JSON.stringify(value).includes('sk_test_mock'),'Never expose Stripe secret to frontend');
  wrongPrice=true;
  value=await gate();check=value.checks.find(c=>c.code==='stripe_test_provider');
