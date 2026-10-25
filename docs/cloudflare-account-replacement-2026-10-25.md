@@ -1,11 +1,28 @@
-# Cloudflare Production Account Replacement — Migration Control v1.4
+# Cloudflare Production Account Replacement — Migration Control v1.5
 **Project:** The Stock Market: From the Ground Up  
-**Status:** REPLACEMENT DEPLOYED / BACKEND CUTOVER PENDING — original account must remain active  
+**Status:** NEW MASTER ACCOUNT ACCESS UNVERIFIED — original and interim Live accounts must remain intact  
 **Date:** 2026-10-25  
 **Document owner:** Cyber Nexus / Crown & Lantern Press  
 **Repository / location:** `cybernexuspublishing/stock-market-from-the-ground-up`, `docs/cloudflare-account-replacement-2026-10-25.md`  
 **Google Drive location:** Not applicable; GitHub is the controlled source for this migration record.  
 **Purpose:** Retain the source-to-destination inventory, secret-reentry requirements, deployment path, and cutover gates before deleting the original Cloudflare account.
+
+## Destination change — new business master Cloudflare account (2026-10-25)
+The Owner created a **third**, separate Cloudflare account under a new business Yahoo login and designated it as the eventual permanent production master. The previously deployed account, `9a43bc08e9db72e7187bc8c0a31710c2` (Live Pages hostname ending `-lives.pages.dev`), is now an **interim account**, not the final destination. Earlier successful smoke and deployment tests relate to that interim account only. They **do not establish acceptance** of the new Yahoo master account.
+
+**New master account ID:** UNVERIFIED. **New master Pages project:** NOT VERIFIED/NOT CREATED BY THIS MIGRATION. **New master deployment:** NONE PERFORMED. Account access must be confirmed before any migration or live traffic changes.
+
+Owner supplied a token permission summary indicating a broad, no-expiration account-scoped key with Pages/Workers, billing and account-token management access. This is a permission declaration, **not** proof the ChatGPT Cloudflare connector has access. The connected Cloudflare tool currently returns an ineligible-account-link error.
+
+The GitHub repository secret `SMFGU_LIVES_PAGES_DEPLOY` was validated through a **read-only** GitHub Actions job:
+- https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40237391848 — token verification succeeded HTTP 200, and account enumeration succeeded HTTP 200, but listed **only the original Gmail and interim Live Cloudflare accounts**, not the new Yahoo master.
+- Therefore, **master account access from the GitHub secret is NOT VERIFIED**, even if the token itself is valid. Do not use this secret for deployment to the intended master.
+- The hardcoded interim-Live fallback workflow `.github/workflows/replacement-cloudflare-pages.yml` was **paused** (`if: false`) to prevent accidental deployments to the wrong Cloudflare account.
+- Added `.github/workflows/verify-master-cloudflare-access.yml` to verify account access without exposing credentials, performing writes, or initiating payments. The master account matcher must pass before reconfiguring the deployment target.
+- For GitHub Actions deployment, use a **separate master-account-specific Pages Write/Edit token**, not a broad no-expiration API token granting billing, token administration, DNS and account takeover capabilities.
+- Restore the ChatGPT Cloudflare plugin connection to the new business Yahoo login before infrastructure changes. A connected GitHub application alone is not proof that Pages resources were created or that ChatGPT has authenticated Cloudflare access.
+
+**Migration order:** verify new account ID and connections; create or validate the new production Pages project using the allowlisted build from GitHub `main`; configure safe non-secret settings; generate master-only Turnstile and billing Worker bindings; enter provider secrets securely; run noncharging public checks plus authenticated Supabase/Stripe TEST acceptance; coordinate cutover; obtain separate account-retirement approval. Do **not** migrate LIVE webhook delivery, run LIVE payment tests or activate a second billing scheduler before corresponding safety gates.
 
 ## Control
 - **Original account:** `5cc474054a0869a2fc0c4d0bd1c5373b` (retain until explicit deletion approval).
@@ -108,4 +125,4 @@ The following original source bindings are encrypted/write-only and cannot be re
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks, Owner endpoint denial, closed zero-monthly QA, unresolved backend credential block | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks on interim Live account | Superseded |\n| 1.5 | 2026-10-25 | Third Cloudflare account designated master, connection and saved token mismatch verified, interim fallback paused | Active migration record |
