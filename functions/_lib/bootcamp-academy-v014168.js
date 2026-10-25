@@ -28,6 +28,58 @@ const phases=Object.freeze({
   boundary:'Do not look ahead to the outcome, invent a broker execution or equate a journal entry with official mastery.'
  }
 });
+
+// Truth Behind the Ticker: original five-day course, one discrete instructional
+// journey. All worked examples are fictional and cannot be called market history.
+// Sample answers are ungraded coaching, not protected assessment keys.
+const truth5Lessons=Object.freeze([
+ Object.freeze({
+  explanation:'Every market statement has a claimant, a source, a time and a testable meaning. An issuer release can establish what the company publicly said; it does not establish that the statement is complete, accurate, or a cause of subsequent trading. A repost is evidence of a repost, not independent corroboration.',
+  workedExample:'FICTIONAL: Account A posts “North Harbor Robotics doubled revenue” without a source. Its own linked screenshot lacks a reporting period. A company PDF, if independently located on the issuer’s domain, would let you check whether the figure describes quarterly revenue, annual revenue, guidance, or a percentage comparison. Without the original dated document, classify the claim as unverified.',
+  sourceProcedure:['Write the exact claim without adjectives such as “explosive.”','Identify the original issuer, regulator or exchange record and capture its URL and published date.','Quote or paraphrase only the relevant measured claim, including the period and denominator.','Record what the primary document cannot independently prove.','Choose VERIFY, HOLD FOR EVIDENCE or REJECT AS UNSUPPORTED; never infer an entry.'],
+  selfCheck:'A widely shared screenshot says a stock is “guaranteed to squeeze.” What is actually verifiable from the screenshot alone?',
+  reviewGuide:'Only that the screenshot contains the assertion. A genuine issuer filing, exchange notice and separately timestamped market observations would need their own verification; none can guarantee a squeeze.',
+  error:'Treating repost volume, a professional-looking chart or a follower count as proof of the underlying market claim.',
+  transfer:'Find one claim in a new article and trace it back to the original source. Record the unverified portions without trading.'
+ }),
+ Object.freeze({
+  explanation:'SEC EDGAR filings identify a legal filer, accession number, form, filing date, accepted timestamp and reporting period. A Form 10-Q describes an interim reporting period; a Form 10-K covers a fiscal year; a Form 8-K reports specified events. The form label does not certify that a headline accurately interprets every item in the filing.',
+  workedExample:'FICTIONAL: A blog claims “profits rose 80% today.” The linked document is a 10-Q filed today but covering an earlier three-month period. The filing date and the period being measured are different. Check whether the comparison uses revenue, net income, or earnings per share, and whether the comparator period is equivalent.',
+  sourceProcedure:['Confirm the exact legal filer and trading symbol; tickers alone can be ambiguous after corporate actions.','Open the filing from SEC EDGAR rather than assuming a copied excerpt is complete.','Record form type, accession, acceptance time, fiscal period and relevant line or item.','Read the associated footnote or disclosure context; distinguish fact, estimate and forward-looking statement.','Write a one-sentence conclusion with its source and a separate one-sentence limitation.'],
+  selfCheck:'A filing is accepted at 16:12 ET and reports last quarter’s revenue. Which timestamp and period belong in your evidence log?',
+  reviewGuide:'Record both the filing acceptance/public availability timestamp and the revenue reporting period. The filing timestamp is not the time that quarter’s transactions took place.',
+  error:'Confusing filing acceptance time, fiscal-period end, issuer announcement time, and time of a market print.',
+  transfer:'Repeat the filing identity/period check with a second filing type. If the filing is unavailable, record the gap rather than substituting an article.'
+ }),
+ Object.freeze({
+  explanation:'Market research requires chronology. Event time, publication time, retrieval time, data-feed timestamp and your decision-pause time are distinct. Normalize time zones explicitly, including daylight-saving transitions, before asserting what was publicly knowable.',
+  workedExample:'FICTIONAL: An issuer posts a release at 08:03 ET; a newsletter republishes it at 08:17 ET; a quote screenshot is captured at 08:21 ET. At an 08:10 ET decision pause the 08:17 newsletter and 08:21 screenshot are FUTURE evidence and cannot support the earlier decision. A later price jump does not prove the release caused it.',
+  sourceProcedure:['Set an explicit decision pause with date, time, time zone and market session.','List each source event and the timestamp actually supported by that source.','Remove anything that becomes visible after the pause.','State at least one alternative cause and one essential unknown.','Lock your provisional finding and only then inspect the later timeline for review.'],
+  selfCheck:'May a 09:05 ET social repost justify a decision supposedly made at 08:50 ET?',
+  reviewGuide:'No. It occurred after the declared pause. A separately verified earlier issuer release might have been available, but that must be proved independently.',
+  error:'Backdating information into an earlier decision because the later explanation makes the price move look obvious.',
+  transfer:'Construct a new four-event timeline and mark exactly what could have been known at two different pauses.'
+ }),
+ Object.freeze({
+  explanation:'A percentage depends on its numerator, denominator and measurement window. Share price, market capitalization, float turnover and dollar volume answer different questions. Price change is (new price − reference price) ÷ reference price × 100. A split can change displayed per-share prices without changing a shareholder’s proportionate ownership.',
+  workedExample:'FICTIONAL: A share rises from $2.50 to $3.00 during the specified window. Change = ($3.00 − $2.50)/$2.50 × 100 = 20%. If 200,000 shares trade at an illustrative average of $3.00, dollar volume is about $600,000; this approximation does NOT establish order-book depth, achievable fills or motive.',
+  sourceProcedure:['Identify what the reported metric actually measures and the exact window.','Write numerator, denominator and units before computing.','Check split adjustments and whether quote timestamps share the same session.','Compute the result; separately label any estimate.','List at least two limitations that could make the quoted figure misleading for trade execution.'],
+  selfCheck:'A post says “volume exceeded float twice.” Does that prove every freely tradable share changed hands twice?',
+  reviewGuide:'No. Volume is aggregate executed shares. The same shares can trade repeatedly; float estimates can be stale; volume/float does not identify unique owners.',
+  error:'Using a price percentage, volume-to-float ratio or bar volume as if it guaranteed liquidity or a profitable execution.',
+  transfer:'Audit another promotional statistic and reproduce its arithmetic using original source dates and consistent units.'
+ }),
+ Object.freeze({
+  explanation:'Independent verification combines source reliability, chronology, calculation and a defensible decision. A capstone is complete only when the learner can document the reasoning without copying a worked answer. A missing document is a legitimate finding; “no trade” is a valid risk decision.',
+  workedExample:'FICTIONAL: An 08:00 ET post says “Example Works will triple sales”; a 09:05 ET repost repeats it; a quote screenshot lacks a timestamp. For an 08:30 ET pause, a source ledger would reject the later repost and undated quote as evidence. The claim remains unverified until an original issuer or regulatory record supports a clearly defined statement.',
+  sourceProcedure:['Choose one real, publicly accessible company claim but do not copy or upload proprietary content.','Create a source ledger: issuer, URL, document form/type, measured period, timezone-aware publication time and independent corroboration status.','Create a chronology that excludes evidence published after your stated decision pause.','Reproduce one relevant calculation with units; label synthetic or estimated inputs.','Write a conclusion under VERIFIED, PARTLY VERIFIED, UNVERIFIED or CONTRADICTED; include an alternative hypothesis and no-trade condition.','Independently repeat on a second claim; compare whether your classification criteria stayed consistent.'],
+  selfCheck:'You cannot locate an original filing or reliably timestamp a quote. What conclusion and trading decision are defensible?',
+  reviewGuide:'Mark the relevant market claims unverified, document the missing evidence and select NO TRADE rather than reverse-engineering a justification from later price movement.',
+  error:'Choosing an outcome first and then selecting only corroborating screenshots, or reporting a self-reviewed capstone as certified mastery.',
+  transfer:'Complete a fresh claim investigation without hints, retain your private reflection and explain which new evidence would change the classification.'
+ })
+]);
+
 const authored={
  truth5:{
   title:'The Truth Behind the Ticker',level:'Foundation',theme:'Source credibility and market claims',
@@ -124,7 +176,13 @@ function dayFor(d,i){
   competencies:[...source.competencies],
   relatedLabs:source.relatedLabs.map(row=>Object.freeze({...row,editorial:'PROVISIONAL_UNGRADED_REUSE'})),
   toolPath:source.toolPath,officiallyGraded:false,masteryAwarded:false,
-  sourceStatus:'approved_parent_30_day_topic_with_program_specific_original_exercise'
+  sourceStatus:d.code==='truth5'?'original_authored_truth5_editorial_review_pending':'approved_parent_30_day_topic_with_program_specific_original_exercise',
+  ...(d.code==='truth5'?{
+   lesson:truth5Lessons[i],
+   method:[...truth5Lessons[i].sourceProcedure],
+   limitation:source.caution+' '+truth5Lessons[i].error+' No independent graded mastery or verified historical feed is inferred.',
+   remediation:truth5Lessons[i].reviewGuide
+  }:{})
  });
 }
 export const academyPrograms=Object.freeze(definitions.map(d=>Object.freeze({
