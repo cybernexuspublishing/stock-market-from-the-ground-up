@@ -91,7 +91,8 @@ async function fromPaymentIntent(env,ref){
 export async function handleAdSandbox(event,env){
  const type=event?.type;
  if(!['checkout.session.completed','checkout.session.async_payment_succeeded',
- 'checkout.session.async_payment_failed','charge.refunded','charge.dispute.created'].includes(type))
+ 'checkout.session.async_payment_failed','checkout.session.expired',
+ 'charge.refunded','charge.dispute.created'].includes(type))
  return null;
  if(type.startsWith('checkout.session.')){
   // Metadata is only a discovery hint; the retrieved Stripe session and
@@ -104,6 +105,11 @@ export async function handleAdSandbox(event,env){
   if(!okId(id,'cs_test'))return null;
   const ctx=await verifiedCheckout(env,id);
   if(!ctx)return null; // existing non-ad Stripe TEST transactions
+  if(type==='checkout.session.expired'){
+   if(ctx.session.status!=='expired'||ctx.session.payment_status==='paid')
+     throw Error('AD_SANDBOX_EXPIRY_NOT_CONFIRMED');
+   return apply(env,event,ctx,'expired');
+  }
   if(type==='checkout.session.async_payment_failed')
    return apply(env,event,ctx,'failed');
   if(ctx.session.payment_status!=='paid')return {status:200,body:'AD_TEST_AWAITING_PAYMENT'};
