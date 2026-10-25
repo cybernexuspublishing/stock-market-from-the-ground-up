@@ -1,4 +1,4 @@
-# Cloudflare Production Account Replacement — Migration Control v1.8
+# Cloudflare Production Account Replacement — Migration Control v1.9
 **Project:** The Stock Market: From the Ground Up  
 **Status:** PRE-SECRET MIGRATION GATES COMPLETED; SIX ENCRYPTED BACKEND CREDENTIALS AND AUTH/SANDBOX ACCEPTANCE BLOCK ACCOUNT RETIREMENT  
 **Date:** 2026-10-25  
@@ -6,6 +6,28 @@
 **Repository / location:** `cybernexuspublishing/stock-market-from-the-ground-up`, `docs/cloudflare-account-replacement-2026-10-25.md`  
 **Google Drive location:** Not applicable; GitHub is the controlled source for this migration record.  
 **Purpose:** Retain the source-to-destination inventory, secret-reentry requirements, deployment path, and cutover gates before deleting the original Cloudflare account.
+
+## v1.9 — Canonical Yahoo master routing and GitHub Actions credential verification (October 25, 2026)
+
+**Controlling deployment identity:** Yahoo master account `4fe9e562905cf607b6f004d2374299fc`, Cloudflare Pages project `stock-market-from-the-ground-up`, public origin `https://stock-market-from-the-ground-up-d1r.pages.dev`, GitHub repo `cybernexuspublishing/stock-market-from-the-ground-up`, branch `main`. This **supersedes** the earlier interim site `stock-market-from-the-ground-up-lives.pages.dev` for all new deployment decisions. Historical interim/original documents and sites are retained only for rollback/audit; do not mistake them for the current master.
+
+**The existing GitHub Actions secret name remains `SMFGU_LIVES_PAGES_DEPLOY`.** The name is a historical label, **not** authorization to target the interim Live account. GitHub Actions verified that the stored secret can read the exact Yahoo master account and the correct GitHub-linked Pages project without reading, logging, or exposing token material. The owner reported a no-expiration, all-account/all-zone permission policy; this is broader than routine deployment requires. Schedule a separately approved credential rotation to a master-account-scoped, least-privilege, time-bounded deployment token. No credential was changed during this audit.
+
+**Repository correction, commit `ec3dc49000745c429962c9ceea3b59efad191f01`:**
+- `.github/workflows/replacement-cloudflare-pages.yml` fallback target changed from interim account/project/URL to **Yahoo master**. Deliberate `if: false` is **retained**: fallback deployment cannot execute; native GitHub `main` → master Pages deployment remains authoritative.
+- `.github/workflows/lives-beta-guest-acceptance-v014270.yml` and its GET-only browser/API smoke source now validate the **Yahoo master**, not the interim site.
+- Interim Cloudflare smoke is manual-only for historical rollback; it is not a push-triggered production gate.
+- New `.github/workflows/cloudflare-master-target-guard-v014274.yml` checks source routing **and** performs GET-only Cloudflare API authorization/identity checks using `SMFGU_LIVES_PAGES_DEPLOY`. It fails if the project/account/hostname/GitHub main source differ or any checked LIVE launch flag is enabled.
+- Source guard tests `tests/test_cloudflare_master_target_v014274.mjs` protect against accidental return to interim/old deployments, and confirm the inactive master Worker still has zero cron triggers.
+
+**Current newly run verification:**
+- [Canonical master source + Cloudflare account-token guard — PASS](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40242420716): both jobs succeeded, including the account/project GET checks using the masked GitHub Actions secret.
+- [Yahoo master guest + Free-unit/noncharging API acceptance — PASS](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40242420842). This checks public routes, anonymous denials and disabled founding checkout, **not** authenticated real-member signups or payments.
+- The previously scheduled 19:05 America/Chicago beta health check was updated to the master origin and account; no change in scheduled time.
+
+**Unchanged integrations:** Existing Supabase project, Stripe LIVE and TEST accounts, prices, users and entitlements remain unchanged; no LIVE payments were run, no signed-webhook cutover or second billing cron was activated, and no Cloudflare accounts were deleted. The preexisting **six encrypted provider-secret installation + Supabase Auth CAPTCHA/redirect + member and TEST payment lifecycle** gates below remain open. **Not a paid-beta go-live acceptance.**
+
+**Connector limitation:** The ChatGPT Cloudflare plugin currently reports an ineligible linked-account error, so the current check used the GitHub Actions credential with GET-only account/project API requests; do not claim a direct ChatGPT Cloudflare account login was successful.
 
 ## Master pre-secret configuration closure — migration gate v1.8 (October 25, 2026)
 
