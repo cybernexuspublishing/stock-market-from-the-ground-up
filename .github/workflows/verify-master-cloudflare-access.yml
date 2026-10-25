@@ -34,10 +34,10 @@ jobs:
           console.log('Token verification:',verify.success?'VALID':'UNVERIFIED','HTTP',verify.http);
           const accounts=await get('/accounts?page=1&per_page=50');
           console.log('Account enumeration:',accounts.success?'SUCCEEDED':'FAILED','HTTP',accounts.http);
-          if(accounts.success && Array.isArray(accounts.data)){
-            for(const a of accounts.data){
-              console.log('Account:',JSON.stringify({id:a.id,name:a.name,type:a.type}));
-            }
-          }
-          if(!verify.success || !accounts.success)process.exitCode=1;
+          const master=accounts.success && Array.isArray(accounts.data)
+            ? accounts.data.find(a=>/stock.market.from.the.ground.up.*yahoo\\.com/i.test(String(a.name||'')))
+            : null;
+          console.log('Expected Yahoo master account:',master?'FOUND':'NOT FOUND');
+          if(master)console.log('Verified master account ID:',master.id);
+          if(!verify.success || !accounts.success || !master)process.exitCode=1;
           NODE
