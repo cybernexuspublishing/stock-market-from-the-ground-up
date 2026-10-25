@@ -27,6 +27,7 @@ globalThis.fetch=async(url,opts={})=>{
    account_kind:'member'}]);
  }
  if(u.includes('/rest/v1/admin_user_roles?'))return J(u.includes('user_id=eq.'+admin)?state.roles:[]);
+ if(u.includes('/rest/v1/admin_user_flags?'))return J(u.includes('user_id=eq.'+admin)?[{status:'active'}]:[]);
  if(u.includes('/rest/v1/test_account_profiles?'))return J([]);
  if(u.includes('/rest/v1/platform_plans?'))return J([{plan_code:'FREE'}]);
  if(u.includes('/rest/v1/site_subscriptions?'))return J(state.paid?[{id:8,status:'active'}]:[]);
