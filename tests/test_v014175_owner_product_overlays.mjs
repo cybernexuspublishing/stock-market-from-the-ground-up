@@ -4,4 +4,7 @@ const api=r('functions/api/admin.js'),ui=r('assets/js/admin-product-catalog-v014
 for(const token of ['ENABLE ROW LEVEL SECURITY','REVOKE ALL','ON CONFLICT DO NOTHING','version=p_expected_version','INSERT INTO public.admin_audit_log','service_role','OWNER'])assert.ok(sql.includes(token),'Missing SQL gate '+token);
 assert.ok(sql.includes("lifecycle <> 'for_sale'"));assert.ok(sql.includes("RAISE EXCEPTION 'For Sale is blocked"));
 for(const token of ["store_product_overrides","store_product_overlay_save","roles.includes('OWNER')","withContext(env,request,'catalog.view')","expected_version"])assert.ok(api.includes(token),'Missing API check '+token);
-assert.ok(ui.includes("expected_version:overrides.get(sku)?.version||0"));assert.ok(ui.includes("form.elements.store_visible.checked"));assert.ok(!ui.includes("/api/checkout"));console.log('PASS: owner-only revisioned, audited editorial changes; no checkout path.');
+assert.ok(ui.includes("expected_version:overrides.get(sku)?.version||0"));
+assert.ok(api.includes("action==='store_product_release_check'"));
+assert.ok(api.includes('checkout_ready:false,can_enable_live_payments:false'));
+assert.ok(ui.includes("api('store_product_release_check',undefined,sku)"));assert.ok(ui.includes("form.elements.store_visible.checked"));assert.ok(!ui.includes("/api/checkout"));console.log('PASS: owner-only revisioned, audited editorial changes; no checkout path.');
