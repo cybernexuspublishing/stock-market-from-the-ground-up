@@ -44,23 +44,46 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return j({ok:false,error:'Method not supported.'},405);
   const a=await owner(env,request);
   if(request.method==='GET'){
-   const [issues,ballots,votes,improvementPolls,improvementVotes,caseProposals,learningReleases]=await Promise.all([
+   const [issues,ballots,votes,improvementPolls,improvementVotes,caseProposals,learningReleases,foundingMembers,founderCertificates,verifiedIncidents]=await Promise.all([
     a.read('gu_founder_issues_v014176?select=topic_id,issue_kind,issue_state,staff_response,updated_at&order=updated_at.desc&limit=100'),
     a.read('gu_founder_design_ballots_v014176?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
     a.read('gu_founder_design_votes_v014176?select=ballot_id,choice&limit=1000'),
     a.read('gu_founder_improvement_polls_v014188?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
     a.read('gu_founder_improvement_votes_v014188?select=poll_id,choice&limit=1000'),
     a.read('gu_founder_case_submissions_v014190?select=id,user_id,title,scenario,review_state,created_at,staff_reply,opted_in_attribution&order=created_at.desc&limit=100'),
-    a.read('gu_founder_educational_releases_v014190?select=id,slug,title,category,audience,review_state,rights_cleared,available_from&order=updated_at.desc&limit=60')
+    a.read('gu_founder_educational_releases_v014190?select=id,slug,title,category,audience,review_state,rights_cleared,available_from&order=updated_at.desc&limit=60'),
+    a.read('gu_founder_members_v014173?select=user_id,founder_number,earned_plan_code&order=founder_number.asc&limit=600'),
+    a.read('gu_founder_certificates_v014192?select=id,user_id,track,issued_at,revoked_at&limit=600'),
+    a.read('gu_founder_verified_incidents_v014203?select=id,incident_key,title,service_area,started_at,ended_at,verified_at&order=verified_at.desc&limit=60')
    ]);
    const sums={};
    for(const vote of votes||[]){const bucket=(sums[vote.ballot_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
    const improvementSums={};
    for(const vote of improvementVotes||[]){const bucket=(improvementSums[vote.poll_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
-   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums,caseProposals:caseProposals||[],learningReleases:learningReleases||[]});
+   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums,caseProposals:caseProposals||[],learningReleases:learningReleases||[],foundingMembers:foundingMembers||[],founderCertificates:founderCertificates||[],verifiedIncidents:verifiedIncidents||[]});
   }
   checkMutationOrigin(request);
   const input=await boundedForumJson(request,4096),action=safe(input.action);
+  if(action==='issue_certificate'){
+   const id=safe(input.userId);
+   if(!/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))return j({ok:false,error:'Invalid founding member.'},400);
+   const result=await a.write('rpc/gu_founder_issue_certificate_v014192',{p_actor:a.user.id,p_user:id});
+   if(!result?.ok)return j({ok:false,error:result?.error||'Certificate evidence could not be verified.',competency:result?.competency||null},409);
+   return j({ok:true,certificateId:result.certificateId,track:result.track});
+  }
+  if(action==='record_service_incident'){
+   const code=safe(input.incidentKey),title=safe(input.title),area=safe(input.serviceArea),
+   summary=safe(input.impactSummary),start=Date.parse(safe(input.startedAt)),end=Date.parse(safe(input.endedAt));
+   if(!/^[A-Z0-9_-]{8,80}$/.test(code)||title.length<12||title.length>160||summary.length<30||summary.length>1800
+      ||!['labs','tutor','community','account_access','platform'].includes(area)
+      ||!Number.isFinite(start)||!Number.isFinite(end)||start>=end||end>Date.now()||end-start<1800000||end-start>604800000)
+     return j({ok:false,error:'A qualifying verified service interruption with exact times is required.'},400);
+   const result=await a.write('rpc/gu_founder_record_service_incident_v014203',
+    {p_actor:a.user.id,p_incident_key:code,p_title:title,p_service_area:area,
+    p_started_at:new Date(start).toISOString(),p_ended_at:new Date(end).toISOString(),p_summary:summary});
+   if(!result?.ok)return j({ok:false,error:result?.error||'Incident could not be verified.'},409);
+   return j({ok:true,incidentId:result.incidentId,creditedFounders:result.creditedFounders,appliedToBilling:false});
+  }
   if(action==='review_case'){
    const id=safe(input.id),state=safe(input.state),reply=safe(input.staffReply);
    if(!/^[0-9a-f-]{36}$/i.test(id)||!['under_review','accepted','declined'].includes(state)||reply.length>1500)
