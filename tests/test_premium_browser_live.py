@@ -1,0 +1,45 @@
+"""Public production browser release gate. Does not bypass authentication or claim member acceptance."""
+import os
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+BASE=os.getenv('GU_PRODUCTION_URL','https://stock-market-from-the-ground-up.pages.dev').rstrip('/')
+OUT=Path('artifacts/premium-browser')
+OUT.mkdir(parents=True,exist_ok=True)
+ROUTES=['','learn.html','labs.html','bootcamp-academy.html','store.html','dashboard.html','market-commons.html','simulator.html','journal.html','admin.html']
+with sync_playwright() as pw:
+    browser=pw.chromium.launch(headless=True)
+    failures=[]
+    for width in [1440,900,390]:
+        page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
+        for route in ROUTES:
+            url=f'{BASE}/{route}'
+            errors=[]
+            page.on('pageerror',lambda error, bucket=errors:bucket.append(str(error)))
+            try:
+                response=page.goto(url,wait_until='domcontentloaded',timeout=30000)
+                page.wait_for_timeout(1300)
+                status=response.status if response else 0
+                if status>=400: raise AssertionError(f'HTTP {status}')
+                if route=='':
+                    main=page.locator('main.gu-premium-home')
+                    assert main.count()==1,'Premium home overwritten by legacy renderer'
+                    assert page.locator('.gu-home-terminal').count()==1,'Missing chart workstation'
+                    assert page.locator('#v132-home').count()==0,'Legacy homepage replaced premium design'
+                    css=page.locator('.gu-home-stage').evaluate('(e)=>getComputedStyle(e).backgroundImage')
+                    assert 'gradient' in css,'Premium hero background not painted'
+                if route=='dashboard.html' and page.locator('.gu-single-member-nav').count():
+                    assert page.locator('.v1322-member-tabs').is_hidden(),'Duplicate tab strip visible alongside authoritative sidebar'
+                if width==390:
+                    overflow=page.evaluate('document.documentElement.scrollWidth > window.innerWidth + 6')
+                    if overflow: failures.append(f'Horizontal overflow: {route or "home"} at {width}px')
+                name=(route.removesuffix('.html') or 'home')
+                page.screenshot(path=str(OUT/f'{name}-{width}.png'),full_page=True,animations='disabled')
+                print(f'RETRIEVED {route or "/"} {width}px HTTP {status}, JS errors={len(errors)}')
+                if route=='' and errors: failures.append('Homepage JavaScript exception: '+errors[0])
+            except Exception as exc:
+                failures.append(f'{url} {width}px: {exc}')
+        page.close()
+    browser.close()
+assert not failures,'\n'.join(failures)
+print('PASS public production viewport and structural smoke. Authenticated workflows remain outside this test.')
