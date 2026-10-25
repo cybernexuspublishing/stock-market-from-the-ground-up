@@ -11,11 +11,10 @@ with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
     failures=[]
     for width in [1440,900,390]:
-        page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
         for route in ROUTES:
+            page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
             url=f'{BASE}/{route}'
             errors=[]
-            page.remove_all_listeners('pageerror')
             page.on('pageerror',lambda error, bucket=errors:bucket.append(str(error)))
             try:
                 response=page.goto(url,wait_until='domcontentloaded',timeout=30000)
@@ -45,7 +44,7 @@ with sync_playwright() as pw:
                 if route=='' and errors: failures.append('Homepage JavaScript exception: '+errors[0])
             except Exception as exc:
                 failures.append(f'{url} {width}px: {exc}')
-        page.close()
+            page.close()
     browser.close()
 assert not failures,'\n'.join(failures)
 print('PASS public production viewport and structural smoke. Authenticated workflows remain outside this test.')
