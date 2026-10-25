@@ -121,6 +121,25 @@ if(!r||r.active!==true||r.public_visible!==true||
  if(!name||name.length>120||/[\x00-\x1f]/.test(name))throw err('Invalid catalog product name.',503);
  return {key,amount,bill,name};
 }
+// v0.14.0.268: never take a founder's full list-price payment when the
+// contract promises an earned first-party purchase discount. Checkout has no
+// verified founder coupon/adjusted-amount fulfillment path yet; block, do not
+// guess Stripe discounts or rewrite the immutable base Price.
+const FOUNDER_DISCOUNT_ITEMS=new Set([
+ 'plan:LIFETIME','plan:FULL_MONTHLY','plan:FULL_ANNUAL',
+ 'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_TUTOR'
+]);
+export async function assertFounderDiscountCheckoutSafe(c,userId,kind,code){
+ if(!FOUNDER_DISCOUNT_ITEMS.has(kind+':'+code))return;
+ const policy=await db(c,'rpc/gu_founder_discount_eligibility_v014221','POST',{p_user:userId});
+ if(!policy||policy.ok!==true||typeof policy.eligible!=='boolean'||
+  !Number.isInteger(policy.discountBps)||![0,1000,2000].includes(policy.discountBps)||
+  policy.eligible!==(policy.discountBps>0)||
+  policy.founderSubscriptionExcluded!==true)
+  throw err('Founder purchase discount authorization could not be verified.',503);
+ if(policy.discountBps>0)
+  throw err('Your earned Founder discount is not yet supported by this checkout. No payment has been initiated.',409);
+}
 async function verifyPrice(c,price,p,expectedProduct){const q=await request('https://api.stripe.com/v1/prices/'+encodeURIComponent(price),{headers:{authorization:'Bearer '+c.stripe}});
  // A matching amount and interval label is insufficient: an interval_count>1
  // silently changes the billing cadence, and metered/tiered/quantity-transformed
@@ -226,7 +245,9 @@ export async function onRequestPost({request:req,env}){
   // service-key or member lookup; entitlement checks remain server-owned.
   const c=environment(env);await testModeOff(c);await assertLiveAccount(c);
   const catalog=liveCatalog(env),u=await validateUser(c,req);
-  const p=await product(c,type,code),mapped=catalog[p.key],price=mapped.price_id;await verifyPrice(c,price,p,mapped.product_id);
+  const p=await product(c,type,code),mapped=catalog[p.key],price=mapped.price_id;
+   await assertFounderDiscountCheckoutSafe(c,u.id,type,code);
+   await verifyPrice(c,price,p,mapped.product_id);
   // Protect customers against duplicate ongoing subscriptions and double Lifetime purchases.
   if(type==='plan'){
     const existing=await db(c,'site_subscriptions?select=id&user_id=eq.'+encodeURIComponent(u.id)+
