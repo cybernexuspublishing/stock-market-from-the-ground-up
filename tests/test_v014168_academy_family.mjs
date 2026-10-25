@@ -49,6 +49,24 @@ for(const code of ['charts45','risk60','practicum90']){
   'Every advanced course day needs its own progression label');
  assert(p.curriculum.some(x=>x.phase==='transfer'),code+' must require independent transfer');
 }
+const firstCourse=academyByCode.truth5;
+assert.equal(firstCourse.curriculum.length,5);
+for(const [index,day] of firstCourse.curriculum.entries()){
+ const lesson=day.lesson;
+ assert(lesson&&typeof lesson==='object','Day '+(index+1)+' requires its own authored teaching');
+ for(const key of ['explanation','workedExample','selfCheck','reviewGuide','error','transfer'])
+  assert(typeof lesson[key]==='string'&&lesson[key].length>=90,'Missing '+key+' day '+(index+1));
+ assert(Array.isArray(lesson.sourceProcedure)&&lesson.sourceProcedure.length>=5);
+ assert.equal(day.method.length,lesson.sourceProcedure.length);
+ assert.match(day.sourceStatus,/editorial_review_pending/);
+ assert.equal(day.officiallyGraded,false);
+ assert.equal(day.masteryAwarded,false);
+}
+const client=fs.readFileSync('assets/js/bootcamp-academy-v014168.js','utf8');
+assert(client.includes("showOriginalInstruction(d)"));
+assert(client.includes("answer.value.trim().length<40"),'The formative review requires learner reasoning first');
+assert(client.includes("No mastery was awarded."));
+
 const academyCss=fs.readFileSync('assets/css/bootcamp-academy-v014168.css','utf8');
 const sharedCss=fs.readFileSync('assets/css/lab-v33-experience.css','utf8');
 assert(sharedCss.includes(':is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v40-start-hero')&&
