@@ -1,0 +1,75 @@
+name: Master Billing Worker — Inactive Replication
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-master-inactive-billing-worker.yml'
+permissions:
+  contents: read
+jobs:
+  deploy-inactive-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preflight target and ensure scheduled billing is not running
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const id='4fe9e562905cf607b6f004d2374299fc',t=process.env.CF_TOKEN;
+          if(!t||t.length<20)throw Error('Master Cloudflare credential missing');
+          const base='https://api.cloudflare.com/client/v4';
+          async function get(path){
+            const r=await fetch(base+path,{headers:{authorization:'Bearer '+t},signal:AbortSignal.timeout(15000)});
+            const v=await r.json().catch(()=>({success:false}));
+            if(!v.success&&r.status!==404)throw Error('GET Cloudflare HTTP '+r.status);
+            return {status:r.status,result:v.result};
+          }
+          const a=await get('/accounts/'+id);
+          if(a.result?.id!==id||!String(a.result?.name).toLowerCase().includes('yahoo.com'))
+            throw Error('Unexpected Cloudflare account');
+          const existing=await get('/accounts/'+id+'/workers/scripts/ground-up-billing-scheduler/schedules');
+          if((existing.result?.schedules||[]).length)throw Error('Worker already scheduled; stop safely before updating');
+          console.log('Correct master account and zero Worker crons verified');
+          NODE
+      - name: Deploy inactive Worker code exclusively (no scheduled invocations)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+          CLOUDFLARE_ACCOUNT_ID: '4fe9e562905cf607b6f004d2374299fc'
+          CI: 'true'
+        run: |
+          npx --yes wrangler@4.152.0 deploy --config workers/wrangler-master-billing.jsonc
+      - name: Verify no public Worker routes or billing crons
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const id='4fe9e562905cf607b6f004d2374299fc',name='ground-up-billing-scheduler';
+          const base='https://api.cloudflare.com/client/v4';
+          async function get(path){
+            const r=await fetch(base+path,{headers:{authorization:'Bearer '+process.env.CF_TOKEN},
+              signal:AbortSignal.timeout(15000)});
+            const j=await r.json().catch(()=>({success:false}));
+            return {status:r.status,ok:j.success===true,result:j.result};
+          }
+          const scripts=await get('/accounts/'+id+'/workers/scripts');
+          if(!scripts.ok||!Array.isArray(scripts.result)||!scripts.result.some(x=>x.id===name))
+            throw Error('Billing Worker not present in master account');
+          const schedule=await get('/accounts/'+id+'/workers/scripts/'+name+'/schedules');
+          if(!schedule.ok||((schedule.result?.schedules||[]).length)!==0)
+            throw Error('Billing Worker cron gate failed');
+          const sub=await get('/accounts/'+id+'/workers/scripts/'+name+'/subdomain');
+          if(sub.ok&&(sub.result?.enabled!==false||sub.result?.previews_enabled!==false))
+            throw Error('Billing Worker unexpectedly public');
+          console.log(JSON.stringify({worker:name,account:id,cronCount:0,
+            workersDevEnabled:sub.ok?sub.result?.enabled:null,
+            previewsEnabled:sub.ok?sub.result?.previews_enabled:null,
+            deploymentStatus:'inactive',livePaymentTests:0}));
+          NODE
