@@ -267,6 +267,26 @@ async function handlePost(env,request,action){
   if(action==='entitlement_revoke'){
     const c=await withContext(env,request,'entitlements.manage');const target=clean(body.user_id),product=clean(body.product_key);if(!target||!product)return bad('User and product key required.');await serviceRest(env,`entitlements?user_id=eq.${encodeURIComponent(target)}&product_key=eq.${encodeURIComponent(product)}`,{method:'DELETE',prefer:'return=minimal'});await audit(env,c.user.id,'entitlement.revoke','user',target,{product_key:product});return ok();
   }
+  if(action==='storefront_item_create'){
+    // New draft-only optional offering. Plans, tools and books are created via
+    // their established domain editors and automatically mirrored to Store.
+    const c=await withContext(env,request,'catalog.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner may create additional Store items.',403);
+    const category=clean(body.category);
+    const prefixes={bootcamp:'course',addon:'addon',feature:'feature'};
+    if(!Object.hasOwn(prefixes,category))return bad('Create memberships, books and tools in their existing product editors.',400);
+    const code=clean(body.code),name=clean(body.display_name),description=clean(body.description);
+    if(!/^[A-Z0-9_-]{2,80}$/.test(code)||name.length<2||name.length>160||description.length>2400)
+      return bad('Invalid product code, title or description.',400);
+    const sku=prefixes[category]+':'+code;
+    if(await one(env,'gu_storefront_items_v014174?select=sku&sku=eq.'+encodeURIComponent(sku)+'&limit=1'))
+      return bad('That product code already exists.',409);
+    const row={sku,category,display_name:name,description,price_label:'Pricing to be announced',status:'coming_soon',visible:true,sale_ready:false,display_order:990,version:1,updated_at:nowIso(),updated_by:c.user.id};
+    const {data}=await serviceRest(env,'gu_storefront_items_v014174',{method:'POST',prefer:'return=representation',body:row});
+    if(!Array.isArray(data)||data.length!==1||data[0].sku!==sku)return bad('New Store item was not confirmed.',503);
+    await audit(env,c.user.id,'storefront.item.create','storefront_item',sku,{category,status:'coming_soon'});
+    return ok({sku,notice:'Coming Soon Store item created. No Price, checkout or entitlement was created.'});
+  }
   if(action==='storefront_item_save'){
     // Owner-only copy and display control. Never touch sale_ready, Stripe,
     // active checkout settings, fulfillment, pricing, or member entitlements.
