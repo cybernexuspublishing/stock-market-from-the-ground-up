@@ -435,7 +435,16 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   panel.textContent=modeCopy(PLAYER.mode);
  });
  q('player-restart-mode')?.addEventListener('click',()=>inlineModeConfirmation(PLAYER.mode,true));
- document.addEventListener('gu-v33-stage-change',syncPlayerMode);
+ document.addEventListener('gu-v33-stage-change',event=>{
+  // The engine is authoritative: commit its stage before updating mode locks.
+  // Never depend on a separate workspace listener running first.
+  const stage=Number(event.detail?.step);
+  if(Number.isInteger(stage)&&stage>=0&&stage<=8){
+   const workspace=q('player-workspace');
+   if(workspace)workspace.dataset.learningStage=String(stage);
+  }
+  syncPlayerMode();
+ });
  renderPlayer()}catch(e){
  const gate=q('lab-player-gate');
  gate.replaceChildren();
