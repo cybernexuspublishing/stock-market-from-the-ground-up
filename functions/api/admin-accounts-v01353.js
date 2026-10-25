@@ -24,10 +24,20 @@ async function rest(env,path,opt={}){const c=cfg(env);return json(c.base+'/rest/
 async function authAdmin(env,path,method='GET',body){const c=cfg(env);return json(c.base+'/auth/v1/admin/'+path,{method,headers:apiHeaders(c.secret,body),body:body===undefined?undefined:JSON.stringify(body)})}
 function assurance(token){try{const p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(p.padEnd(Math.ceil(p.length/4)*4,'='))).aal||'aal1'}catch{return 'aal1'}}
 async function authorize(env,request){const token=/^Bearer\s+(.+)$/i.exec(request.headers.get('authorization')||'')?.[1];if(!token)throw problem('Sign in to the Control Center.',401);const c=cfg(env),user=await json(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:`Bearer ${token}`}});if(!user?.id)throw problem('Invalid session.',401);
- const [profile,roles]=await Promise.all([rest(env,'profiles?select=id,account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1'),rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id))]);
- const live=(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code),showcase=profile?.[0]?.account_kind==='showcase'||live.includes('SHOWCASE_VIEWER'),aal=assurance(token);
- if(showcase)return{user,showcase:true,owner:false,aal};
- if((!live.includes('OWNER')&&!live.includes('ADMIN'))||profile?.[0]?.account_kind==='test')
+ const [profile,roles,flags]=await Promise.all([
+  rest(env,'profiles?select=id,account_kind,deleted_at&id=eq.'+encodeURIComponent(user.id)+'&limit=1'),
+  rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id)),
+  rest(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(user.id)+'&limit=1')
+ ]);
+ if(!profile?.[0]||profile[0].deleted_at||['restricted','suspended'].includes(clean(flags?.[0]?.status).toLowerCase()))
+   throw problem('Administrative access disabled for this account.',403);
+ const live=(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code),showcase=profile[0].account_kind==='showcase'||live.includes('SHOWCASE_VIEWER'),aal=assurance(token);
+ if(showcase){
+  if(live.length!==1||live[0]!=='SHOWCASE_VIEWER'||profile[0].account_kind!=='showcase')
+   throw problem('Mixed or invalid Showcase authority is prohibited.',403);
+  return{user,showcase:true,owner:false,aal};
+ }
+ if((!live.includes('OWNER')&&!live.includes('ADMIN'))||profile[0].account_kind!=='member')
    throw problem('Active Owner or Administrator authority required.',403);
  if(env.REQUIRE_STAFF_AAL2_V135==='true'&&aal!=='aal2')
    throw problem('Verified staff MFA is required while global staff MFA is enabled.',403);
