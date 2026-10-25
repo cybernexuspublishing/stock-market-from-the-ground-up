@@ -44,14 +44,18 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return j({ok:false,error:'Method not supported.'},405);
   const a=await owner(env,request);
   if(request.method==='GET'){
-   const [issues,ballots,votes]=await Promise.all([
+   const [issues,ballots,votes,improvementPolls,improvementVotes]=await Promise.all([
     a.read('gu_founder_issues_v014176?select=topic_id,issue_kind,issue_state,staff_response,updated_at&order=updated_at.desc&limit=100'),
     a.read('gu_founder_design_ballots_v014176?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
-    a.read('gu_founder_design_votes_v014176?select=ballot_id,choice&limit=1000')
+    a.read('gu_founder_design_votes_v014176?select=ballot_id,choice&limit=1000'),
+    a.read('gu_founder_improvement_polls_v014188?select=id,title,description,choices,state,opens_at,closes_at,created_at&order=created_at.desc&limit=60'),
+    a.read('gu_founder_improvement_votes_v014188?select=poll_id,choice&limit=1000')
    ]);
    const sums={};
    for(const vote of votes||[]){const bucket=(sums[vote.ballot_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
-   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums});
+   const improvementSums={};
+   for(const vote of improvementVotes||[]){const bucket=(improvementSums[vote.poll_id]??={});bucket[vote.choice]=(bucket[vote.choice]||0)+1}
+   return j({ok:true,issues:issues||[],ballots:ballots||[],voteCounts:sums,improvementPolls:improvementPolls||[],improvementVoteCounts:improvementSums});
   }
   checkMutationOrigin(request);
   const input=await boundedForumJson(request,4096),action=safe(input.action);
@@ -64,7 +68,7 @@ export async function onRequest({request,env}){
    if(!Array.isArray(result)||result.length!==1)return j({ok:false,error:'Issue not found.'},404);
    return j({ok:true,topicId:id,state});
   }
-  if(action==='create_ballot'){
+  if(action==='create_ballot'||action==='create_improvement_poll'){
    const title=safe(input.title),description=safe(input.description),choices=input.choices,
    opens=safe(input.opensAt),closes=safe(input.closesAt);
    const start=Date.parse(opens),end=Date.parse(closes);
@@ -73,15 +77,17 @@ export async function onRequest({request,env}){
       ||new Set(choices.map(x=>x.trim().toLowerCase())).size!==choices.length||!Number.isFinite(start)||!Number.isFinite(end)
       ||end<=start||end<=Date.now()||end-start>1000*60*60*24*90)
       return j({ok:false,error:'Invalid design ballot, choices, or voting period.'},400);
-   const created=await a.write('gu_founder_design_ballots_v014176',
+   const target=action==='create_improvement_poll'?'gu_founder_improvement_polls_v014188':'gu_founder_design_ballots_v014176';
+   const created=await a.write(target,
     {title,description,choices:choices.map(x=>x.trim()),state:'open',opens_at:new Date(start).toISOString(),closes_at:new Date(end).toISOString()});
    if(!Array.isArray(created)||created.length!==1)return j({ok:false,error:'Ballot was not confirmed.'},503);
    return j({ok:true,id:created[0].id});
   }
-  if(action==='close_ballot'){
+  if(action==='close_ballot'||action==='close_improvement_poll'){
    const id=safe(input.id);
    if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id))return j({ok:false,error:'Invalid ballot.'},400);
-   const result=await a.write('gu_founder_design_ballots_v014176?id=eq.'+encodeURIComponent(id)+'&state=eq.open',
+   const target=action==='close_improvement_poll'?'gu_founder_improvement_polls_v014188':'gu_founder_design_ballots_v014176';
+   const result=await a.write(target+'?id=eq.'+encodeURIComponent(id)+'&state=eq.open',
     {state:'closed'},'PATCH');
    if(!Array.isArray(result)||result.length!==1)return j({ok:false,error:'Open ballot not found.'},404);
    return j({ok:true,id});
