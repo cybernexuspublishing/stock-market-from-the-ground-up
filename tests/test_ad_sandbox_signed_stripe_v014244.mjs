@@ -27,7 +27,7 @@ const charge={id:ids.charge,livemode:false,amount:100,amount_refunded:100,
  paid:true,disputed:false,payment_intent:ids.pi,customer:ids.customer};
 const invoice=()=>({id:'evt_adSandboxCIABC123',type:'checkout.session.completed',
  created:Math.floor(Date.now()/1000),livemode:false,
- data:{object:{id:ids.session}}});
+ data:{object:{id:ids.session,metadata:session.metadata}}});
 async function makeRequest(event,valid=true){
  const raw=JSON.stringify(event),t=Math.floor(Date.now()/1000);
  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),
