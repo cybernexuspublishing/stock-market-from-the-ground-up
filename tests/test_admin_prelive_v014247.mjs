@@ -26,7 +26,7 @@ try{
    {package_code:'SECTION_SPONSOR',test_price_id:'price_beta123',test_amount_cents:100},
    {package_code:'RESOURCE_SPONSOR',test_price_id:'price_gamma123',test_amount_cents:100}
   ]);
-  if(path.includes('select=id&limit=1'))return wrap([{id:1}],200,{'content-range':'0-0/3'});
+  if(path.includes('select=*&limit=1'))return wrap([{id:1}],200,{'content-range':'0-0/3'});
   throw Error('Unrecognized data request '+path);
  };
  const req=new Request('https://example.test/api/admin-prelive-v014247',{headers:{authorization:'Bearer fake-valid-test'}});

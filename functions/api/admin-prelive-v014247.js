@@ -34,7 +34,7 @@ function client(c){
  return {
   rows:async(path)=>{try{return await result(c.base+'/rest/v1/'+path,auth)}catch{return null}},
   count:async(table)=>{try{
-   const r=await fetch(c.base+'/rest/v1/'+table+'?select=id&limit=1',{method:'GET',cache:'no-store',headers:{...auth,prefer:'count=exact',range:'0-0'}});
+   const r=await fetch(c.base+'/rest/v1/'+table+'?select=*&limit=1',{method:'GET',cache:'no-store',headers:{...auth,prefer:'count=exact',range:'0-0'}});
    if(!r.ok)return null;const found=(r.headers.get('content-range')||'').match(/\/(\d+)$/);return found?Number(found[1]):null;
   }catch{return null}}
  };
