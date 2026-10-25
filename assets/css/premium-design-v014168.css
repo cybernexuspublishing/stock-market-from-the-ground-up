@@ -38,3 +38,42 @@ html[data-gu-design] :focus-visible{outline:3px solid var(--gu-design-focus);out
 #gu-v32-teaching-slot .gu-v33-instructor-head{min-height:48px}
 #gu-v32-teaching-slot .gu-v33-instructor-narration{overflow:auto;max-height:min(40vh,340px);scrollbar-gutter:stable}
 @media(prefers-reduced-motion:reduce){.admin-sidebar nav a,.admin-sidebar nav button{transition:none}}
+
+/* v0.14.0.169 — approved compact, professional learning interface.
+   CSS-only progressive enhancement: no replacement of grades, market data,
+   content, membership states, navigation routes, or instructor answers. */
+:root{--gu-ux-purple:#7856dd;--gu-ux-purple-hover:#9279ed;--gu-ux-accent:#e7bd55;--gu-ux-stroke:#29485d;--gu-ux-panel:#0b1d2d}
+html[data-gu-design="premium-dark"] body{background:#061522;color:#eff5fb}
+html[data-gu-design="premium-dark"] .site-header{background:#071624;border-bottom:1px solid #254154}
+html[data-gu-design="premium-dark"] :is(.card,.admin-card,.academy-program,.gu-v33-instructor){border-radius:11px;box-shadow:0 2px 12px rgba(0,0,0,.13)}
+html[data-gu-design="premium-dark"] :is(.admin-main,.dashboard-space,.gu-bc-learning) :is(h1,h2,h3){letter-spacing:-.015em}
+html[data-gu-design="premium-dark"] .site-header .navlinks a:hover{background:#182f43;color:#fff}
+html[data-gu-design="premium-dark"] .btn:not(.secondary){background:#e7bd55;border-color:#e7bd55;color:#16202c}
+html[data-gu-design="premium-dark"] .btn:not(.secondary):hover{background:#f3cf72}
+html[data-gu-design="premium-dark"] :is(.admin-sidebar,.gu-member-side-menu){background:#081925}
+html[data-gu-design="premium-dark"] .gu-member-side-menu :is(a[aria-current="page"],details[open]>summary){background:#29326b;border-left:3px solid #9a83ff;color:#fff}
+html[data-gu-design="premium-dark"] .admin-sidebar nav :is(.active,[aria-current="page"]){background:#29326b;border-left-color:#9a83ff}
+html[data-gu-design="premium-dark"] :is(.dashboard-grid,.admin-grid,.academy-program-grid){gap:12px}
+html[data-gu-design="premium-dark"] :is(.card,.academy-program){background:#0c2133;border-color:#29485d}
+html[data-gu-design="premium-dark"] .gu-design-picker{background:#0d2032;border-color:#365369;color:#edf4fc}
+html[data-gu-design="premium-dark"] .gu-design-picker .btn{margin:4px 8px 4px 0}
+html[data-gu-design="premium-dark"] .gu-design-picker fieldset{margin:10px 0}
+html[data-gu-design="premium-dark"] .gu-design-picker input[type=radio]{accent-color:#967cf7}
+#gu-v32-teaching-slot .gu-v33-instructor{background:#0c2032;border-color:#36516a;padding:12px 14px;border-radius:11px}
+#gu-v32-teaching-slot .gu-v33-instructor-head{min-height:44px;gap:10px;margin-bottom:8px}
+#gu-v32-teaching-slot .gu-v33-instructor-avatar{display:inline-flex!important;align-items:center;justify-content:center;flex:none;width:40px;height:40px;border-radius:9px;background:#33436d;color:#fff;font-size:15px;font-weight:750}
+#gu-v32-teaching-slot .gu-v33-instructor-typing{font-size:.94rem;line-height:1.62;max-height:none;min-height:70px}
+#gu-v32-teaching-slot .gu-v33-instructor-narration{max-height:460px;overflow:auto;scrollbar-gutter:stable}
+#gu-v32-teaching-slot :is(.gu-v33-tutor-actions,.gu-v33-instructor-suggestions){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#gu-v32-teaching-slot :is(.gu-v33-tutor-actions button,.gu-v33-instructor-suggestion,.gu-v33-support-tab){min-height:34px;padding:5px 8px;border-radius:6px;font-size:.76rem;line-height:1.25}
+#gu-v32-teaching-slot :is(.gu-v33-tutor-actions button,.gu-v33-instructor-suggestion){white-space:normal;text-align:left}
+#gu-v32-teaching-slot .gu-v33-instructor-dialogue{max-width:100%}
+#gu-v32-teaching-slot .gu-v33-tutor{background:#091a2b;padding:10px;border-radius:8px}
+html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-instructor{background:#fff;border-color:#d5e0e9}
+html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-instructor-typing{color:#192c3c}
+html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-tutor{background:#f2f5f9;color:#172a3c}
+@media(max-width:760px){
+ #gu-v32-teaching-slot .gu-v33-instructor{padding:10px}
+ #gu-v32-teaching-slot .gu-v33-instructor-narration{max-height:none}
+ #gu-v32-teaching-slot :is(.gu-v33-tutor-actions,.gu-v33-instructor-suggestions){grid-template-columns:1fr}
+}
