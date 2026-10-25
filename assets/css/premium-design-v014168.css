@@ -104,3 +104,14 @@ html[data-gu-design="premium-light"] .gu-learning-top-nav a[aria-current="page"]
 @media(max-width:850px){.gu-member-dashboard-shell{flex-direction:column}.gu-member-dashboard-shell>.gu-member-side-menu{position:static;flex:auto;width:100%;height:auto;min-height:0;display:block}.gu-member-dashboard-shell .gu-member-side-menu>a{display:inline-block}.gu-member-dashboard-shell>main{width:100%;padding-top:15px}}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell .dashboard-stat{background:#fff;color:#1a2f40;border-color:#dae3eb}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-menu{background:#192f40}
+
+/* v0.14.0.171 — compact candlestick workstation polish, shared engine only. */
+#gu-v32-teaching-slot .gu-v33-instructor-head .gu-v33-instructor-avatar{width:34px;height:34px;min-width:34px;border-radius:50%;font-size:.8rem}
+#gu-v32-teaching-slot .gu-v33-instructor-head .gu-v33-instructor-identity{min-width:0;flex:1}
+#gu-v32-teaching-slot .gu-v33-instructor-head h3{font-size:.92rem;line-height:1.2}
+#gu-v32-teaching-slot .gu-v33-instructor-typing{margin:7px 0 12px;min-height:96px;line-height:1.65}
+#gu-v32-teaching-slot :is(.gu-v33-tutor-actions button,.gu-v33-instructor-suggestion,.gu-v33-support-tab){font-weight:600;padding:5px 9px;min-height:32px}
+#gu-v32-teaching-slot .gu-v33-tutor-actions button:focus-visible{outline-offset:2px}
+.gu-member-dashboard-shell .gu-member-side-menu a:focus-visible,.gu-member-dashboard-shell .gu-member-side-menu summary:focus-visible{outline:3px solid #ae9cff;outline-offset:2px}
+.gu-member-dashboard-shell .gu-member-side-menu details>summary::marker{color:#b3a7ed}
+@media(prefers-reduced-motion:reduce){.gu-focused-learning-header *,#gu-v32-teaching-slot .gu-v33-instructor *{scroll-behavior:auto!important;transition-duration:0s!important}}
