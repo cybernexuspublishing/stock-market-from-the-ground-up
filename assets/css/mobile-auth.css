@@ -16,6 +16,8 @@
 .v1341-mobile-search-wrap label{font-weight:750;font-size:.78rem;color:#c9dbe6}
 .v1341-mobile-search-wrap input{width:100%;min-height:46px;border:1px solid #41627a;border-radius:10px;background:#061b2b;color:#fff;padding:.7rem .8rem;font-size:16px}
 .v1341-mobile-links{display:grid;gap:.42rem}
+/* Explicitly honor search-filtered links despite the display:flex link rule. */
+.v1341-mobile-links a[hidden]{display:none!important}
 .v1341-mobile-links a{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:48px;padding:.72rem .8rem;border:1px solid #274c66;border-radius:10px;background:#0a2840;color:#eaf3f8;text-decoration:none;font-weight:700}
 .v1341-mobile-links a:hover,.v1341-mobile-links a:focus-visible{border-color:var(--v1341-mobile-gold);outline:none}
 .v1341-mobile-auth{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--v1341-mobile-line)}
