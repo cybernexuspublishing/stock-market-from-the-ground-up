@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "include": [
+    "/*"
+  ],
+  "exclude": [
+    "/assets/*",
+    "/data/*",
+    "/config.js",
+    "/release-manifest.json",
+    "/sw.js",
+    "/manifest.webmanifest",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/images/*",
+    "/img/*",
+    "/fonts/*"
+  ]
+}
