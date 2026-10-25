@@ -13,7 +13,6 @@ export async function onRequestGet({env}){
   const rows=await r.json();
   const items=Array.isArray(rows)?rows.filter(x=>x.store_visible===true&&['coming_soon','release_ready'].includes(x.lifecycle))
    .map(x=>({sku:x.sku,title:x.title,description:x.description,lifecycle:x.lifecycle})).slice(0,250):[];
-  const hidden=Array.isArray(rows)?rows.filter(x=>x.store_visible===false||['draft','paused'].includes(x.lifecycle)).map(x=>x.sku):[];
-  return new Response(JSON.stringify({ok:true,items,hidden}),{headers});
+  return new Response(JSON.stringify({ok:true,items}),{headers});
  }catch{return new Response(JSON.stringify({ok:false,error:'Catalog unavailable'}),{status:503,headers})}
 }
