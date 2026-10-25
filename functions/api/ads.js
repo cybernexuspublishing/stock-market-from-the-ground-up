@@ -44,6 +44,21 @@ function audienceAllows(aud,code,signed){aud=aud||{};if(!signed)return aud.signe
 export async function onRequest(context){
   const {request,env}=context,u=new URL(request.url),action=clean(u.searchParams.get('action'));
   try{
+    // v0.14.0.248: enforce the same authoritative, server-side advertising
+    // delivery kill switch as /api/ad-slot. A legacy route must not bypass it.
+    // A missing or unreadable policy is disabled, never assumed enabled.
+    if(action==='serve'||action==='click'){
+      let deliveryAllowed=false;
+      try{
+        const rows=await rest(env,'gu_ad_sales_settings_v014226?select=ad_delivery_enabled&singleton=eq.true&limit=1');
+        deliveryAllowed=Array.isArray(rows)&&rows.length===1&&rows[0].ad_delivery_enabled===true;
+      }catch{deliveryAllowed=false}
+      if(!deliveryAllowed){
+        return action==='serve'
+          ?json({ok:true,creative:null,deliveryDisabled:true})
+          :new Response('Not found',{status:404,headers:{'cache-control':'no-store'}});
+      }
+    }
     const usr=await maybeUser(env,request),code=await accessCode(env,usr?.id);
     if(action==='serve'){
       const p=await policy(env,code);if(!p?.ads_enabled)return json({ok:true,creative:null,adFree:true,accessCode:code});
