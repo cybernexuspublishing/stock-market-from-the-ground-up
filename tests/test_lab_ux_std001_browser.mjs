@@ -44,13 +44,14 @@ try{
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/SIMULATED/);
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'Candle SVG must be built');
   assert.equal(await target.locator('button.gu-l33-view-btn').count(),9,'Worked candle must expose seven evidence features and guided next highlight');
-  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The lesson chart must match Talia’s fictional worked example');
   await target.getByRole('button',{name:'High',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'High',exact:true}).getAttribute('aria-pressed'),'true');
   await target.getByRole('button',{name:'Real body',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Real body',exact:true}).getAttribute('aria-pressed'),'true');
-  await target.getByRole('button',{name:'Show body-to-range calculation'}).click();
+  await target.getByRole('button',{name:'Body percentage',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Body percentage',exact:true}).getAttribute('aria-pressed'),'true','Talia’s explanation must highlight matching chart evidence');
+  await target.getByRole('button',{name:'Show and explain on chart'}).click();
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The activated worked example must match its fictional chart');
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-v33-exact-visual').count(),1,'Experiment has interactive OHLC graphic');
   await target.getByRole('button',{name:'Next learning stage'}).click();
