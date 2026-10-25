@@ -69,7 +69,7 @@ try {
   assert.equal(await percent().textContent(),'45.0%');
   assert.match(await chart.locator('svg').getAttribute('aria-label'),/bullish/);
   await chart.getByRole('button',{name:'Open',exact:true}).click();
-  assert.match(await host.locator('.gu-v33-instructor-accessible').first().textContent(),/21\\.35/);
+  assert.match(await host.locator('.gu-v33-instructor-accessible').first().textContent(),/21\.35/);
   // Step four switches to the independent $31 reference case.
   for(let step=0;step<3;step++)await worked.getByRole('button',{name:'Next worked step'}).click();
   await worked.getByRole('button',{name:'Show and explain on chart'}).click();
