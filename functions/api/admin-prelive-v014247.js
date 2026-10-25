@@ -43,6 +43,45 @@ function client(c){
  };
 }
 function check(code,label,state,detail){return {code,label,state,detail}}
+async function stripeTestProvider(env,priceRows){
+ const key=str(env.GU39_STRIPE_TEST_SECRET_KEY);
+ if(!/^(sk|rk)_test_[A-Za-z0-9_]+$/.test(key))
+  return {state:'action_required',detail:'A valid Stripe TEST-only server key is unavailable. No LIVE key is ever used for this check.'};
+ if(!Array.isArray(priceRows)||priceRows.length!==3)
+  return {state:'action_required',detail:'TEST price mappings must be configured before provider reconciliation.'};
+ const headers={authorization:'Bearer '+key,accept:'application/json'};
+ const get=async(path)=>{
+  const r=await fetch('https://api.stripe.com/v1/'+path,{
+   headers,method:'GET',cache:'no-store',signal:AbortSignal.timeout(8000)
+  });
+  if(!r.ok)throw Error('Stripe TEST status unavailable');
+  return r.json();
+ };
+ try{
+  const [a,b,c,webhooks]=await Promise.all([
+   ...priceRows.map(row=>get('prices/'+encodeURIComponent(row.test_price_id))),
+   get('webhook_endpoints?limit=100')
+  ]);
+  const providerPrices=[a,b,c];
+  const valid=priceRows.every((row,i)=>{
+   const p=providerPrices[i];
+   return p?.id===row.test_price_id&&p.livemode===false&&p.active===true&&
+    p.currency==='usd'&&p.unit_amount===100&&p.type==='one_time'&&
+    p.metadata?.ad_sandbox==='true'&&p.metadata?.site_sku===row.package_code;
+  });
+  const required=['checkout.session.completed','checkout.session.expired',
+   'invoice.paid','invoice.payment_failed','customer.subscription.updated',
+   'customer.subscription.deleted','charge.refunded','charge.dispute.created'];
+  const webhook=Array.isArray(webhooks?.data)?
+    webhooks.data.find(w=>w.url==='https://stock-market-from-the-ground-up.pages.dev/api/gu39-stripe-webhook'&&
+      w.status==='enabled'&&w.livemode===false&&required.every(e=>w.enabled_events?.includes(e))):null;
+  if(!valid||!webhook)
+   return {state:'action_required',detail:'Stripe TEST price amounts, SKU metadata or required webhook delivery configuration do not match the database. No LIVE changes were made.'};
+  return {state:'verified',detail:'Stripe TEST API independently confirms all three active $1.00 one-time QA prices and the enabled webhook event subscriptions. Actual signed event delivery is a separate pending test.'};
+ }catch{
+  return {state:'review',detail:'Stripe TEST provider verification was unavailable. Database configuration alone does not establish provider acceptance.'};
+ }
+}
 export async function onRequest({request,env}){
  if(request.method!=='GET')return send({ok:false,error:'Read-only endpoint. GET only.'},405,{allow:'GET'});
  if(!/^Bearer\s+\S+$/i.test(request.headers.get('authorization')||''))return forbidden(401);
@@ -73,6 +112,7 @@ export async function onRequest({request,env}){
  const expected=['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'];
  const packages=Array.isArray(prices)&&prices.length===3&&expected.every(code=>prices.some(p=>p.package_code===code&&p.test_amount_cents===100&&/^price_[a-zA-Z0-9]+$/.test(p.test_price_id||'')));
  const secrets=Boolean(str(env.GU39_STRIPE_TEST_SECRET_KEY)&&str(env.GU39_STRIPE_TEST_WEBHOOK_SECRET));
+ const stripeTest=await stripeTestProvider(env,prices);
  const safeAds=ad?.accepting_payments===false&&ad?.ad_delivery_enabled===false;
  const safeSwitch=adMode?.testing_enabled===false&&sharedMode?.enabled===false;
  const release=founderRelease?.[0];
@@ -91,6 +131,7 @@ export async function onRequest({request,env}){
   check('sandbox_mode','Sandbox session mode',safeSwitch?'verified':'review',safeSwitch?'Advertising and shared TEST-mode switches are currently disabled.':'TEST-mode switches are active or could not be verified. Coordinate any controlled QA window.'),
   check('sandbox_catalog','Advertising TEST package mapping',packages?'verified':'action_required',packages?'Three distinct $1.00 TEST price mappings are present in the database.':'One or more TEST package database mappings are missing or invalid.'),
   check('test_secrets','Stripe TEST-mode server configuration',secrets?'verified':'action_required',secrets?'Both required TEST Stripe secrets are configured on the server; no values are exposed.':'One or more TEST credentials or webhook signing secrets are unavailable.'),
+  check('stripe_test_provider','Stripe TEST provider configuration',stripeTest.state,stripeTest.detail),
   check('founding_live_hold','Founding 600 LIVE safety',founderLiveHeld?'verified':'action_required',
     founderLiveHeld?'Enrollment, billing, fulfillment and both founding plan checkouts are disabled.':
       'Unable to verify all five LIVE safety switches as disabled. Escalate before release.'),
