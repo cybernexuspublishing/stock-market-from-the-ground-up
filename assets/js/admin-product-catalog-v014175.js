@@ -15,10 +15,10 @@ function mount(){
  const input=document.createElement('input');input.id='admin-prelaunch-search';input.type='search';input.autocomplete='off';section.append(input);
  const status=document.createElement('p');status.id='admin-prelaunch-count';status.setAttribute('role','status');section.append(status);
  const listing=document.createElement('div');listing.id='admin-prelaunch-list';listing.className='admin-grid';section.append(listing);
- async function api(action,body){
+ async function api(action,body,sku){
   const supabase=await window.getSupabaseClient(),session=(await supabase.auth.getSession()).data.session;
   if(!session?.access_token)throw Error('Owner sign-in required');
-  const resp=await fetch('/api/admin?action='+encodeURIComponent(action),{method:body?'POST':'GET',headers:{authorization:'Bearer '+session.access_token,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  const resp=await fetch('/api/admin?action='+encodeURIComponent(action)+(sku?'&sku='+encodeURIComponent(sku):''),{method:body?'POST':'GET',headers:{authorization:'Bearer '+session.access_token,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'});
   const data=await resp.json();if(!resp.ok||!data.ok)throw Error(data.error||'Admin API unavailable');return data;
  }
  function render(){
@@ -43,7 +43,7 @@ function mount(){
    button.disabled=true;
    try{
      const sku=button.dataset.releaseCheck;
-     const result=await api('store_product_release_check&sku='+encodeURIComponent(sku));
+     const result=await api('store_product_release_check',undefined,sku);
      status.textContent=sku+' · Sale blocked: '+(result.blockers||[]).join('; ');
    }catch(e){status.textContent='Readiness check failed: '+e.message}
    finally{button.disabled=false}
