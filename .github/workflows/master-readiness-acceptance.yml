@@ -1,0 +1,87 @@
+name: Yahoo Master — Consolidated Nonpayment Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/master-readiness-acceptance.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Harden preview deployment settings and verify master-only services
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const acct='4fe9e562905cf607b6f004d2374299fc',
+            project='stock-market-from-the-ground-up',worker='ground-up-billing-scheduler';
+          const token=process.env.CF_TOKEN;
+          if(!token||token.length<20)throw Error('Master account credential unavailable');
+          const base='https://api.cloudflare.com/client/v4';
+          async function req(method,path,body){
+            const r=await fetch(base+path,{method,headers:{authorization:'Bearer '+token,
+             ...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,
+             signal:AbortSignal.timeout(20000)});
+            const j=await r.json().catch(()=>({success:false}));
+            if(!j.success)throw Error('Cloudflare '+method+' HTTP '+r.status);
+            return j.result;
+          }
+          const account=await req('GET','/accounts/'+acct);
+          if(account.id!==acct||!String(account.name).includes('yahoo.com'))throw Error('Account mismatch');
+          const path='/accounts/'+acct+'/pages/projects/'+project;
+          let p=await req('GET',path);
+          if(p.id!=='2cf1b496-5f6a-4cb0-89ba-b1519c08154b'||p.source?.type!=='github'||p.production_branch!=='main')
+            throw Error('Pages project mismatch');
+          if(p.source?.config?.preview_deployment_setting!=='none'){
+            await req('PATCH',path,{source:{type:'github',config:{
+              preview_deployment_setting:'none',production_deployments_enabled:true
+            }}});
+          }
+          p=await req('GET',path);
+          if(p.source?.config?.preview_deployment_setting!=='none'||
+             p.source?.config?.production_deployments_enabled!==true||
+             p.build_config?.build_command!=='bash scripts/build-pages.sh'||
+             p.build_config?.destination_dir!=='public')
+            throw Error('Production build/preview gate failed');
+          const v=p.deployment_configs?.production?.env_vars||{};
+          const flags=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
+           'GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED','GU58_LIVE_DB_CONTRACT_APPROVED',
+           'GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_FULFILLMENT_APPROVED',
+           'GU72_ZERO_MONTHLY_QA_ENABLED','GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED'];
+          if(flags.some(k=>v[k]?.value!=='false'))throw Error('LIVE gates not all off');
+          if(v.ENFORCE_AUTH_TURNSTILE_V135?.value!=='true'||v.PUBLIC_SITE_URL?.value!=='https://stock-market-from-the-ground-up-d1r.pages.dev')
+            throw Error('Site identity/Turnstile mismatch');
+          for(const k of ['TURNSTILE_SECRET_KEY','GU_BILLING_TASK_SECRET'])
+            if(v[k]?.type!=='secret_text')throw Error('Missing encrypted '+k);
+          const names=['GU39_STRIPE_TEST_PRICE_MAP_JSON','GU58_STRIPE_LIVE_CATALOG_JSON',
+            'GU_F600_LIVE_CATALOG_JSON'];
+          const mappings=names.map(k=>{let x;try{x=JSON.parse(v[k]?.value)}catch{throw Error('Missing public catalog '+k)}return Object.keys(x).length});
+          if(mappings.join(',')!=='8,8,2')throw Error('Catalog map counts mismatch');
+          const wp='/accounts/'+acct+'/workers/scripts/'+worker;
+          const [c,sub,bindings]=await Promise.all([
+            req('GET',wp+'/schedules'),req('GET',wp+'/subdomain'),req('GET',wp+'/secrets')]);
+          if((c.schedules||[]).length!==0||sub.enabled!==false||sub.previews_enabled!==false||
+            !Array.isArray(bindings)||!bindings.some(x=>x.name==='GU_BILLING_TASK_SECRET'))
+            throw Error('Inactive Worker safety gate failed');
+          console.log(JSON.stringify({account:acct,masterHostname:p.subdomain,
+            pagesEnvCount:Object.keys(v).length,liveFlagsDisabled:flags.length,
+            stripeTestProducts:mappings[0],stripeRegularLiveProducts:mappings[1],
+            stripeFoundingPlans:mappings[2],workerPresent:true,cronCount:0,
+            workersDevEnabled:false,previewDeploymentsEnabled:false,
+            supabaseServerSecretPresent:!!v.SUPABASE_SECRET_KEY,
+            stripeTestApiSecretPresent:!!v.GU39_STRIPE_TEST_SECRET_KEY,
+            stripeWebhookTestSecretPresent:!!v.GU39_STRIPE_TEST_WEBHOOK_SECRET,
+            livePaymentOperations:0},null,2));
+          NODE
+      - name: Verify 20 master site public and security checks (GET only)
+        run: node tests/cloudflare-master-smoke.mjs
