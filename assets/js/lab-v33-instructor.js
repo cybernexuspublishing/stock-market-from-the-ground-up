@@ -741,7 +741,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  support.append(tablist,panel);rootEl.append(support);
  const openTutor=()=>{
   if(current!=='tutor')activate('tutor');
-  tutorTab.focus?.();support.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+  tutorTab.focus?.();
+  const reducedMotion=typeof root.matchMedia==='function'&&root.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  support.scrollIntoView?.({behavior:reducedMotion?'auto':'smooth',block:'nearest'});
   question.focus?.();
  };
  return {element:rootEl,openTutor,teachFeature,teachWorkedStep,teachSupplement,askUnderstanding,resumeTeaching,
