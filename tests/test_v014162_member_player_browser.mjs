@@ -42,7 +42,12 @@ try{
   if(width>=901)assert.equal(await siteHeader.locator('.navlinks').isVisible(),true,'Desktop site navigation is always visible in a Lab');
   assert.equal(requests.join(','),'private,registry','Missing private content or its store requires a separately authorized registry fallback');
   assert.ok(!requests.includes('private,registry,registry'),'Authorization is not retried after explicit denial');
-  assert.match(await page.locator('#player-access-note').innerText(),/member-authorized conceptual orientation/);
+  const sourceDetails=page.locator('#player-access-note details.gu-v33-source-banner');
+  assert.equal(await sourceDetails.count(),1,'Registry fallback source warning must stay available');
+  assert.match(await sourceDetails.locator('summary').innerText(),/About this Lab.s source material/);
+  await sourceDetails.locator('summary').click();
+  assert.match(await sourceDetails.innerText(),/authorized conceptual instruction/);
+  assert.match(await sourceDetails.innerText(),/No mastery score is implied/);
   assert.match(await page.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Define risk before an entry/);
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-trigger').click();
