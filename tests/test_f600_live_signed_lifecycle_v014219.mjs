@@ -25,7 +25,7 @@ const reservation={id:uuid,plan_code:'FOUNDING_30',user_id:'11111111-1111-4111-8
  reservation_state:'consumed',checkout_session_id:values.session,checkout_subscription_id:values.sub,checkout_price_id:values.price};
 const session={id:values.session,livemode:true,client_reference_id:uuid,mode:'subscription',
  subscription:values.sub,customer:values.customer,metadata:{f600_user:reservation.user_id}};
-const payment={data:[{status:'paid',amount_paid:4999,payment:{payment_intent:values.intent}}],has_more:false};
+const payment={data:[{invoice:values.invoice,status:'paid',amount_paid:4999,payment:{payment_intent:values.intent}}],has_more:false};
 async function sign(body){
  const now=Math.floor(Date.now()/1000),key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
  const hash=new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(now+'.'+body)));
@@ -47,12 +47,12 @@ function mocks({noPaidPayment=false,partialRefund=false}={}){
   if(p==='/v1/invoices/'+values.invoice)return out(invoice);
   if(p==='/v1/subscriptions/'+values.sub)return out(sub);
   if(p==='/v1/checkout/sessions/'+values.session)return out(session);
-  if(p==='/v1/invoice_payments'&&q.get('invoice')===values.invoice)
+  if(p==='/v1/invoice_payments'&&(q.get('invoice')===values.invoice||q.get('payment[payment_intent]')===values.intent))
     return out(noPaidPayment?{data:[],has_more:false}:payment);
   if(p==='/v1/payment_intents/'+values.intent)return out({id:values.intent,livemode:true,status:'succeeded',
    currency:'usd',amount:4999,customer:values.customer});
   if(p==='/v1/charges/'+values.charge)return out({id:values.charge,livemode:true,
-   invoice:values.invoice,payment_intent:values.intent,amount:4999,
+   payment_intent:values.intent,amount:4999,
    amount_refunded:partialRefund?1000:4999,customer:values.customer});
   if(p.startsWith('/rest/v1/gu_founder_reservations_v014173'))return out([reservation]);
   if(p==='/rest/v1/rpc/gu_founder_record_paid_cycle_v014196')return out({ok:true,replayed:false});
