@@ -115,3 +115,13 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-
 .gu-member-dashboard-shell .gu-member-side-menu a:focus-visible,.gu-member-dashboard-shell .gu-member-side-menu summary:focus-visible{outline:3px solid #ae9cff;outline-offset:2px}
 .gu-member-dashboard-shell .gu-member-side-menu details>summary::marker{color:#b3a7ed}
 @media(prefers-reduced-motion:reduce){.gu-focused-learning-header *,#gu-v32-teaching-slot .gu-v33-instructor *{scroll-behavior:auto!important;transition-duration:0s!important}}
+
+/* v0.14.0.172 — preserve every OHLC / full-body / full-range selector while making the controls compact. */
+.gu-l33-interactive-tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.gu-l33-interactive-tools .gu-l33-view-btn,.gu-l33-interactive-tools .gu-l33-calculation-btn{appearance:none;min-height:32px;min-width:0;padding:6px 10px;font-size:.78rem;line-height:1.25;font-weight:650;white-space:normal;border:1px solid #3a5373;border-radius:7px;background:#13283f;color:#e7eef9;cursor:pointer}
+.gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{background:#5744ab;border-color:#aa9dfc;color:#fff}
+.gu-l33-interactive-tools :is(.gu-l33-view-btn,.gu-l33-calculation-btn):focus-visible{outline:3px solid #b6a8ff;outline-offset:2px}
+.gu-l33-interactive-state{margin:7px 0;font-size:.85rem;line-height:1.5;max-width:80ch}
+html[data-gu-design="premium-light"] .gu-l33-interactive-tools :is(.gu-l33-view-btn,.gu-l33-calculation-btn){background:#f3f2fa;color:#24364a;border-color:#aab9d3}
+html[data-gu-design="premium-light"] .gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{background:#5240a5;color:#fff}
+@media(max-width:580px){.gu-l33-interactive-tools{gap:5px}.gu-l33-interactive-tools .gu-l33-view-btn{padding:6px 8px;min-height:36px}}
