@@ -126,3 +126,24 @@ document.addEventListener('DOMContentLoaded',()=>{
       loadOnce('/assets/js/commons-follow-v01421.js','commonsFollow');
   }
 });
+
+/* Pre-LIVE visual contract: client-side fallback when edge HTML rewriting or a
+   subsequent body replacement omits the layout marker. Never changes access. */
+(function(){
+  function ensureSitewideComposition(){
+    if(!document.body)return;
+    if(!document.body.hasAttribute('data-gu-layout-route')){
+      const page=location.pathname.replace(/\.html$/,'').split('/').filter(Boolean).join('-')||'home';
+      document.body.setAttribute('data-gu-layout-route',page);
+    }
+    if(!document.querySelector('link[href*="sitewide-composition-v014234.css"]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href='/assets/css/sitewide-composition-v014234.css';
+      link.setAttribute('data-gu-sitewide-composition','1');
+      document.head.append(link);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureSitewideComposition,{once:true});
+  else ensureSitewideComposition();
+})();
