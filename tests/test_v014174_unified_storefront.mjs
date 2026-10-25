@@ -21,6 +21,9 @@ assert.ok(api.includes('visible=eq.true')&&api.includes('cache-control')&&api.in
 assert.ok(!api.includes('sale_ready,')&&!api.includes('price_id,'),'Public API may not expose privileged fields or Stripe references');
 assert.ok(adminApi.includes("if(action==='storefront_items')"));
 assert.ok(adminApi.includes("if(action==='storefront_item_save')"));
+assert.ok(adminApi.includes("if(action==='storefront_item_create')"));
+assert.ok(adminApi.includes("status:'coming_soon',visible:true,sale_ready:false"),'Owner-added items must start without payment authority');
+assert.ok(adminHtml.includes('id="gu174-new-save"')&&adminUi.includes("admin('storefront_item_create'"));
 assert.ok(adminApi.includes("c.ctx.roles.includes('OWNER')"),'Only Owner may change display states');
 assert.ok(adminApi.includes("status==='for_sale'&&!current.sale_ready"),'Cannot bypass independent sale approval');
 assert.ok(adminApi.includes("&version=eq.'+version"),'Optimistic concurrency is mandatory');
