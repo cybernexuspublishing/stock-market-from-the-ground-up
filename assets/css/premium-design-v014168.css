@@ -206,3 +206,71 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-
 @media(forced-colors:active){
  html[data-gu-design] :is(.gu-member-side-menu,.gu-learning-top-nav) a[aria-current="page"]{outline:2px solid Highlight}
 }
+
+
+/* Premium redesign: real homepage composition + dashboard workspace (2026-10-25).
+   Scoped to prevent altering critical billing, admin and Lab behavior. */
+.gu-premium-home{overflow:hidden;background:#061521;color:#edf5ff}
+.gu-premium-home .wrap{max-width:1400px}
+.gu-home-stage{position:relative;padding:clamp(65px,8vw,122px) 0 70px;background:radial-gradient(ellipse at 80% 27%,#183c5d 0,transparent 46%),linear-gradient(140deg,#061521,#0b2336 64%,#0c192e)}
+.gu-home-stage:after{content:"";position:absolute;pointer-events:none;inset:0;background-image:linear-gradient(#75a3d008 1px,transparent 1px),linear-gradient(90deg,#75a3d008 1px,transparent 1px);background-size:58px 58px}
+.gu-home-stage-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,76px);align-items:center;position:relative;z-index:1}
+.gu-home-message .eyebrow{letter-spacing:.18em;color:#c3b3ff}
+.gu-home-message h1{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:clamp(3.1rem,5.1vw,5.7rem);font-weight:830;letter-spacing:-.065em;line-height:1.06;margin:25px 0;max-width:none}
+.gu-home-message h1 em{font-style:normal;color:#b7a2ff}
+.gu-home-message .lead{font-size:1.1rem;color:#b9cadd;line-height:1.75;max-width:630px}
+.gu-home-message .actions{gap:10px;margin-top:30px}
+.gu-home-message .btn{font-size:.88rem;padding:13px 16px}
+.gu-home-quiet{font-size:.78rem;color:#89a4b9;margin:24px 0 0}
+.gu-home-terminal{border:1px solid #365a77;background:#071827;border-radius:18px;overflow:hidden;box-shadow:0 40px 100px #0008,0 0 60px #7657d91e;min-width:0}
+.gu-terminal-top{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#0c273c;border-bottom:1px solid #31516c;padding:13px 17px;font-size:.68rem;letter-spacing:.09em;color:#97b3ca}
+.gu-terminal-top span:first-child{color:#e6f3ff;font-weight:800}
+.gu-terminal-top i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#62deb9;margin-right:7px;box-shadow:0 0 10px #62deb94d}
+.gu-terminal-screen{padding:24px}
+.gu-terminal-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gu-terminal-heading small{display:block;color:#a49cdd;font-size:.7rem;letter-spacing:.12em;margin-bottom:7px}
+.gu-terminal-heading strong{display:block;font-size:1.3rem;color:#fff}
+.gu-terminal-tag{font-size:.66rem;color:#d5c8ff;border:1px solid #5b5a94;background:#27284e;padding:6px 9px;border-radius:6px}
+.gu-terminal-screen svg{display:block;width:100%;height:auto;margin:25px 0}
+.gu-terminal-bottom{display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid #233e53;padding-top:15px;color:#b5c7d8;font-size:.73rem}
+.gu-terminal-bottom>div{display:flex;align-items:center;gap:7px}
+.gu-dot{width:7px;height:7px;border-radius:50%;background:#aaa}.gu-dot.green{background:#55d2ae}.gu-dot.purple{background:#b19aff}.gu-dot.gold{background:#eac273}
+.gu-home-path{background:#081a29}
+.gu-section-intro{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:30px}
+.gu-section-intro h2,.gu-home-focus h2{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:clamp(2rem,3.2vw,3.2rem);letter-spacing:-.045em;line-height:1.14;margin:8px 0;color:#fff}
+.gu-section-intro>p{color:#a9bfd0;max-width:410px;line-height:1.7}
+.gu-path-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.gu-path-card{display:flex;flex-direction:column;min-height:300px;padding:24px;background:linear-gradient(150deg,#102a40,#081c2e);border:1px solid #31516b;border-radius:13px;text-decoration:none;color:#eaf3ff;transition:transform .18s,border-color .18s}
+.gu-path-card:hover{transform:translateY(-4px);border-color:#ad9aff}
+.gu-path-number{font-size:.71rem;color:#b2a0ff;letter-spacing:.13em;font-weight:800}
+.gu-path-icon{font-size:2.35rem;color:#cfbaff;margin:19px 0}
+.gu-path-card h3{font-size:1.3rem;line-height:1.2;letter-spacing:-.02em;margin:0 0 8px}
+.gu-path-card p{color:#a8bfd0;font-size:.89rem;line-height:1.7;margin:0 0 23px}
+.gu-path-action{margin-top:auto;color:#efc65a;font-size:.85rem;font-weight:800}
+.gu-home-focus{background:linear-gradient(120deg,#0d2237,#101b35)}
+.gu-focus-layout{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:8vw}
+.gu-focus-layout>div:first-child>p:not(.eyebrow){max-width:590px;color:#acc3d5}
+.gu-focus-steps{display:grid;gap:11px}
+.gu-focus-steps>div{display:flex;gap:22px;padding:20px;border:1px solid #3a506c;border-radius:11px;background:#0a1c2e}
+.gu-focus-steps strong{color:#b7a1ff;font-size:.84rem}
+.gu-focus-steps span{font-size:.95rem;color:#e2edf9}
+.gu-member-dashboard-shell>main{padding-top:18px}
+.gu-member-dashboard-shell .gu-dashboard-intro{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:18px}
+.gu-member-dashboard-shell .gu-dashboard-intro h1{font:800 clamp(1.9rem,3vw,2.6rem)/1.13 Inter,system-ui,sans-serif;letter-spacing:-.04em;margin:5px 0}
+.gu-member-dashboard-shell .gu-dashboard-intro .small{margin:0}
+.gu-dashboard-quick{display:flex;flex-wrap:wrap;gap:9px}
+.gu-member-dashboard-shell .dashboard-hero{margin-top:4px;min-height:118px;background:linear-gradient(110deg,#122b43,#172a48)}
+.gu-member-dashboard-shell .dashboard-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.gu-member-dashboard-shell .dashboard-stat{min-height:102px}
+.gu-member-dashboard-shell .dashboard-stat strong{font-size:1.6rem}
+.gu-member-dashboard-shell .gu-dashboard-priority{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)}
+.gu-member-dashboard-shell .training-link-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gu-member-dashboard-shell .mini-action-card{display:flex;flex-direction:column;gap:6px;margin:0;text-decoration:none}
+.gu-member-dashboard-shell .mini-action-card strong{color:#f1f5ff}
+.gu-member-dashboard-shell .mini-action-card span{color:#a8bfd0}
+@media(max-width:1100px){.gu-home-stage-grid{grid-template-columns:1fr}.gu-home-terminal{max-width:770px}.gu-path-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gu-member-dashboard-shell .gu-dashboard-priority{grid-template-columns:1fr}.gu-member-dashboard-shell .training-link-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.gu-home-stage{padding:50px 0}.gu-home-message h1{font-size:clamp(2.6rem,11vw,4rem)}.gu-home-stage-grid{gap:35px}.gu-section-intro{display:block}.gu-path-grid,.gu-focus-layout{grid-template-columns:1fr}.gu-path-card{min-height:240px}.gu-terminal-top span:last-child{display:none}.gu-member-dashboard-shell .gu-dashboard-intro{align-items:flex-start;flex-direction:column}.gu-member-dashboard-shell .dashboard-stat-grid,.gu-member-dashboard-shell .training-link-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.gu-member-dashboard-shell .dashboard-stat-grid,.gu-member-dashboard-shell .training-link-grid{grid-template-columns:1fr}.gu-terminal-screen{padding:15px}.gu-terminal-heading strong{font-size:1.05rem}}
+@media(prefers-reduced-motion:reduce){.gu-path-card{transition:none}.gu-path-card:hover{transform:none}}
+/* Keep original authored content readable on the Owner's light theme. */
+html[data-gu-design="premium-light"] .gu-premium-home{color:#eef5ff}
