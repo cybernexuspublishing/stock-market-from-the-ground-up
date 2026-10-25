@@ -50,13 +50,19 @@ export async function onRequest({request,env}){
  try{actor=await owner(request,c)}catch{return forbidden(403)}
  if(!actor)return forbidden(403);
  const db=client(c);
- const [adSettings,mode,shared,prices,members,orders,subscriptions,audits,adIntents,adEvents]=await Promise.all([
+ const [adSettings,mode,shared,prices,members,orders,subscriptions,audits,adIntents,adEvents,
+  founderRelease,founderPlans,founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles]=await Promise.all([
   db.rows('gu_ad_sales_settings_v014226?select=accepting_payments,ad_delivery_enabled&singleton=eq.true&limit=1'),
   db.rows('gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true&limit=1'),
   db.rows('gu39_sandbox_settings?select=enabled&id=eq.true&limit=1'),
   db.rows('gu_ad_sandbox_prices_v014240?select=package_code,test_price_id,test_amount_cents&limit=10'),
   db.count('profiles'),db.count('site_orders'),db.count('site_subscriptions'),db.count('admin_audit_log'),
-  db.count('gu_ad_sandbox_intents_v014240'),db.count('gu_ad_sandbox_events_v014240')
+  db.count('gu_ad_sandbox_intents_v014240'),db.count('gu_ad_sandbox_events_v014240'),
+  db.rows('gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1'),
+  db.rows('gu_founder_plans_v014173?select=plan_code,term_days,price_cents,checkout_enabled,purchase_discount_bps&limit=3'),
+  db.count('gu_founder_reservations_v014173'),db.count('gu_founder_members_v014173'),
+  db.count('gu_f600_sandbox_intents_v014215'),db.count('gu_f600_sandbox_events_v014215'),
+  db.count('gu_f600_sandbox_cycles_v014215')
  ]);
  const ad=adSettings?.[0],adMode=mode?.[0],sharedMode=shared?.[0];
  const expected=['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'];
@@ -64,19 +70,41 @@ export async function onRequest({request,env}){
  const secrets=Boolean(str(env.GU39_STRIPE_TEST_SECRET_KEY)&&str(env.GU39_STRIPE_TEST_WEBHOOK_SECRET));
  const safeAds=ad?.accepting_payments===false&&ad?.ad_delivery_enabled===false;
  const safeSwitch=adMode?.testing_enabled===false&&sharedMode?.enabled===false;
+ const release=founderRelease?.[0];
+ const plan30=Array.isArray(founderPlans)?founderPlans.find(x=>x.plan_code==='FOUNDING_30'):null;
+ const plan60=Array.isArray(founderPlans)?founderPlans.find(x=>x.plan_code==='FOUNDING_60'):null;
+ const validFounderTerms=founderPlans?.length===2&&
+   plan30?.term_days===30&&plan30?.price_cents===4999&&plan30?.purchase_discount_bps===1000&&
+   plan60?.term_days===60&&plan60?.price_cents===5999&&plan60?.purchase_discount_bps===2000;
+ const founderLiveHeld=release?.enrollment_enabled===false&&release?.billing_enabled===false&&
+   release?.fulfillment_enabled===false&&plan30?.checkout_enabled===false&&plan60?.checkout_enabled===false;
+ const founderQaObserved=Number.isInteger(founderQaEvents)&&founderQaEvents>0&&
+   Number.isInteger(founderQaCycles)&&founderQaCycles>0;
  const checks=[
   check('owner','Real Owner access','verified','Current authenticated member has an active OWNER role; Showcase is excluded.'),
   check('advertising','LIVE advertising safeguards',safeAds?'verified':'action_required',safeAds?'Advertising billing and delivery are both disabled.':'Advertising flags unavailable or not both disabled; verify before accepting any release.'),
   check('sandbox_mode','Sandbox session mode',safeSwitch?'verified':'review',safeSwitch?'Advertising and shared TEST-mode switches are currently disabled.':'TEST-mode switches are active or could not be verified. Coordinate any controlled QA window.'),
   check('sandbox_catalog','Advertising TEST package mapping',packages?'verified':'action_required',packages?'Three distinct $1.00 TEST price mappings are present in the database.':'One or more TEST package database mappings are missing or invalid.'),
   check('test_secrets','Stripe TEST-mode server configuration',secrets?'verified':'action_required',secrets?'Both required TEST Stripe secrets are configured on the server; no values are exposed.':'One or more TEST credentials or webhook signing secrets are unavailable.'),
+  check('founding_live_hold','Founding 600 LIVE safety',founderLiveHeld?'verified':'action_required',
+    founderLiveHeld?'Enrollment, billing, fulfillment and both founding plan checkouts are disabled.':
+      'Unable to verify all five LIVE safety switches as disabled. Escalate before release.'),
+  check('founding_terms','Founding 600 frozen plan terms',validFounderTerms?'verified':'action_required',
+    validFounderTerms?'Standard: $49.99/30 days, 10% eligible-purchase discount; Extended: $59.99/60 days, 20% eligible-purchase discount.':
+      'Founding plan prices, durations, permanent-discount rules or catalog records could not be verified.'),
+  check('founding_sandbox','Founding 600 Sandbox ledger',founderQaObserved?'review':'pending',
+    founderQaObserved?'TEST event and billing-cycle records exist; independently reconcile event IDs against Stripe before closing provider acceptance.':
+      'Missing or unreadable founding TEST event and paid-cycle records.'),
+  check('founding_capacity','600-seat and entitlement concurrency','pending',
+    'Counts alone cannot establish atomic seat reservation, cutoff at 600 or authorized paid-to-member entitlement activation.'),
   check('test_checkout','Hosted Checkout and provider webhooks','pending','A real provider-delivered TEST checkout, signed-webhook ledger, refund and failed-payment acceptance are not certified by this read-only report.'),
   check('nonpayment_browser','Authenticated browser acceptance','pending','Requires real Owner and unauthorized-user browser evidence plus successful CI. Source checks alone do not certify it.'),
   check('live_authorization','LIVE payments','pending','Explicitly excluded. Do not enable or charge LIVE payments through this diagnostic.')
  ];
  return send({
   ok:true,readOnly:true,ownerVerified:true,synthetic:false,observedAt:new Date().toISOString(),
-  counts:{members,orders,subscriptions,auditEntries:audits,adSandboxOrders:adIntents,adSandboxEvents:adEvents},
+  counts:{members,orders,subscriptions,auditEntries:audits,adSandboxOrders:adIntents,adSandboxEvents:adEvents,
+    founderReservations,founderMembers,founderQaIntents,founderQaEvents,founderQaCycles},
   checks,
   livePaymentActionsAvailable:false,
   note:'Configuration observations only. Provider event delivery, real browser tests and LIVE payment acceptance are independent gates.'
