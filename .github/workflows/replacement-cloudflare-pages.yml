@@ -1,10 +1,16 @@
 name: Replacement Cloudflare Pages deployment
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY_REPLACEMENT to authorize the manual fallback Pages deploy'
+        required: true
+        type: string
 permissions:
   contents: read
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY_REPLACEMENT'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
