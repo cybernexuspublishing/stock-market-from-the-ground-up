@@ -59,7 +59,8 @@ for(const path of ['/.git/config','/.mcp.json','/supabase/migrations/private.sql
  await check('private path hidden '+path,path,404);
 }
 for(const [path,code] of [['/api/gu39-stripe-webhook',405],['/api/stripe-live-webhook',405],
- ['/api/admin-prelive-v014247',401],['/api/owner-zero-live-checkout',401]]){
+ ['/api/admin-prelive-v014247',401],['/api/owner-zero-live-checkout',401],
+ ['/api/gu39-sandbox',401]]){
  await check('safe HTTP rejection '+path,path,code);
 }
 await check('zero-monthly LIVE QA closed','/api/store-zero-monthly-qa',200,t=>{
@@ -69,12 +70,19 @@ await check('public config excludes secret values','/config.js',200,t=>{
  for(const re of [/sb_secret_/i,/sk_live_/i,/sk_test_/i,/whsec_/i,/SUPABASE_SECRET_KEY\s*:/i])
   assert.doesNotMatch(t,re);
 });
-try{
- const {r}=await get('/api/ad-sales');
- if(r.status===503)results.blocked.push('Advertising backend 503: master SUPABASE_SECRET_KEY not installed');
- else if(r.status===200)results.passed.push('advertising backend read-only');
- else results.failures.push({name:'advertising backend',error:'Unexpected HTTP '+r.status});
-}catch(e){results.failures.push({name:'advertising backend',error:String(e.message||e)})}
+// Server credential is now present: the public advertising backend must read
+// exactly the three approved package records without exposing payments.
+await check('advertising Supabase integration (GET only)','/api/ad-sales',200,t=>{
+ const j=JSON.parse(t);
+ assert.equal(j.ok,true);
+ assert.equal(j.onlineCheckoutEnabled,false);
+ assert.equal(j.turnstileSiteKey,expectedSitekey);
+ assert.equal(j.acceptingInquiries,true);
+ assert.ok(Array.isArray(j.packages));
+ assert.deepEqual(j.packages.map(p=>p.code).sort(),
+  ['RESOURCE_SPONSOR','SECTION_SPONSOR','SITE_SPONSOR']);
+ assert.ok(j.packages.every(p=>p.public_visible===true));
+});
 console.log(JSON.stringify({origin,passed:results.passed.length,blocked:results.blocked,
  failures:results.failures,livePaymentOperations:0},null,2));
 if(results.failures.length)process.exitCode=1;
