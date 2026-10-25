@@ -110,3 +110,16 @@ jobs:
           grep -q 'FOUNDER_STALE_BILLING_PERIOD' supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
           grep -q 'checkout_enabled=false' supabase/migrations/v0.14.0.195_founder_entitlement_catalog_noncharging.sql
           grep -q "expires_at:String" functions/api/founding600-checkout.js
+
+      - name: Verify Founder nonpayment benefits and privacy contract
+        run: |
+          node --test tests/test_founder_nonpayment_benefits_v014211.mjs
+          node --check assets/js/admin-founder-benefits-v014205.js
+          node --check assets/js/admin-founder-notices-v014206.js
+          node --check assets/js/founder-benefit-records-v014205.js
+          node --check assets/js/founders-announcements-v014189.js
+          test -f founder-benefits.html
+          grep -q 'founder-benefits.html' founders-commons.html
+          grep -q 'gu_founder_issue_certificate_v014192' functions/api/admin-founder-commons-v014179.js
+          grep -q 'gu_founder_record_service_incident_v014203' functions/api/admin-founder-commons-v014179.js
+          grep -q 'gu_founder_targeted_notices_v014206' functions/api/admin-founder-commons-v014179.js
