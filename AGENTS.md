@@ -2,6 +2,13 @@
 
 **Owner-approved project development standard.** Applies to every website component, not only Market Commons. This file is a concise agent entry point. The complete requirements are incorporated by reference in `PROJECT_SITEWIDE_RULES.md`, `docs/sitewide/SOURCE_MASTER_WEBSITE_REQUIREMENTS.md`, and `docs/sitewide/SOURCE_ADVANCED_FORUM_REQUIREMENTS.md`. Do not truncate either source or represent individual bullets as optional merely because this entry point is short.
 
+## Owner release workflow (2026-10-24)
+
+- Apply authorized website source changes directly to `main` in the existing `cybernexuspublishing/stock-market-from-the-ground-up` repository; do not create additional feature/release branches unless the Owner explicitly reverses this instruction.
+- The default destination for authorized website changes is production, but acceptance requires successful build, permission, regression, and deployed-behavior verification. Report source commits separately from deploy acceptance.
+- Stripe products, prices, subscriptions, billing configuration, live charges, and refunds are excluded from automatic changes; obtain separate authorization for payment writes and owner-controlled live checkout testing.
+- Do not report the 419 Labs, Boot Camps, navigation or Talia redesign as complete merely because theme infrastructure was deployed.
+
 ## Non-negotiable engineering conduct
 
 1. Before editing, read the complete rules and inspect actual code, architecture, migrations, permissions, and frontend/backend contracts. Identify the real currently deployed baseline; do not assume version numbers are synchronized.
