@@ -48,7 +48,8 @@ try{
   assert.equal(await target.getByRole('button',{name:'High',exact:true}).getAttribute('aria-pressed'),'true');
   await target.getByRole('button',{name:'Real body',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Real body',exact:true}).getAttribute('aria-pressed'),'true');
-  await target.getByRole('button',{name:'Show body-to-range calculation'}).click();
+  // The chart exposes Body percentage directly; the retired helper button is no longer part of this stage.
+  await target.getByRole('button',{name:'Body percentage',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Body percentage',exact:true}).getAttribute('aria-pressed'),'true','Talia’s explanation must highlight matching chart evidence');
   // The initial candle is deliberately a different $31.00 case. Activate the
   // separate worked example before expecting its $21.20 close on the chart.
