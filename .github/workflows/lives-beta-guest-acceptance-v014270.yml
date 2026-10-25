@@ -11,6 +11,9 @@ on:
       - 'functions/api/admin-prelive-v014247.js'
       - 'functions/api/account.js'
       - 'tests/test_lives_free_account_secret_compat_v014271.mjs'
+      - 'functions/api/free-beta-readiness-v014272.js'
+      - 'assets/js/registration-visibility-v01431r1.js'
+      - 'tests/test_free_beta_backend_readiness_v014272.mjs'
       - 'scripts/build-pages.sh'
       - '_routes.json'
 jobs:
@@ -23,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate legacy and modern Supabase service key headers without real member writes
-        run: node --test tests/test_lives_free_account_secret_compat_v014271.mjs
+        run: node --test tests/test_lives_free_account_secret_compat_v014271.mjs tests/test_free_beta_backend_readiness_v014272.mjs
   guest-live-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 8
