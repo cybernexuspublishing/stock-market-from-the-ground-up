@@ -126,24 +126,36 @@ function evidence(workbench,mode){
  // The original reflection and protected assessment stay at the end.
  // No selections are graded or sent to any service by this wizard.
 }
+/* Unified stage/visibility controller (v4 stabilization).
+ * The shared journey alone determines stage, while a server-authorized player
+ * determines mode. This layer only presents already-authorized controls.
+ */
+function presentationState(mode,stage,decisionIsLocked=false){
+ const normalized=['guided','practice','blind','assessment'].includes(mode)?mode:'guided';
+ const position=Number.isInteger(Number(stage))?Math.max(0,Math.min(8,Number(stage))):0;
+ const independent=normalized==='blind'||normalized==='assessment';
+ return Object.freeze({
+  mode:normalized,stage:position,
+  workbenchVisible:independent||position>=3,
+  reflectionVisible:independent?decisionIsLocked:position>=6
+ });
+}
 function stageVisibility(stage=0){
  activeStage=Number.isInteger(Number(stage))?Number(stage):0;
- const independent=['blind','assessment'].includes(activeMode);
+ const reflection=document.getElementById('gu-ws-reflection');
+ const state=presentationState(activeMode,activeStage,reflection?.dataset.decisionLocked==='true');
  const work=document.getElementById('gu-ws-member-workbench');
  if(work){
-  // Orientation and teaching must not show six questions or invite a
-  // prematurely locked decision. Blind/Assessment remain independent.
-  const allowed=independent||activeStage>=3;
-  work.hidden=!allowed;
-  if(!allowed)work.open=false;
+  work.hidden=!state.workbenchVisible;
+  if(!state.workbenchVisible)work.open=false;
+  work.dataset.learningStage=String(state.stage);
  }
- const reflection=document.getElementById('gu-ws-reflection');
  if(reflection){
-  const ready=independent?reflection.dataset.decisionLocked==='true'
-   :activeStage>=6;
-  reflection.hidden=!ready;
-  if(!ready)reflection.open=false;
+  reflection.hidden=!state.reflectionVisible;
+  if(!state.reflectionVisible)reflection.open=false;
  }
+ const player=document.getElementById('player-workspace');
+ if(player)player.dataset.learningStage=String(state.stage);
 }
 function decisionLocked(){
  const reflection=document.getElementById('gu-ws-reflection');
@@ -151,9 +163,15 @@ function decisionLocked(){
  stageVisibility(activeStage);
 }
 function openEvidence(stage){
+ const state=presentationState(activeMode,activeStage,
+  document.getElementById('gu-ws-reflection')?.dataset.decisionLocked==='true');
+ if(!state.workbenchVisible)return;
  const wb=document.getElementById('gu-ws-member-workbench');
- if(!wb||(['guided','practice'].includes(activeMode)&&activeStage<3))return;
- if(stage>=6){const reflect=document.getElementById('gu-ws-reflection');if(reflect&&!reflect.hidden){reflect.open=true;reflect.scrollIntoView?.({behavior:'smooth',block:'start'});return;}}
+ if(!wb)return;
+ if(stage>=6){
+  const reflect=document.getElementById('gu-ws-reflection');
+  if(reflect&&!reflect.hidden){reflect.open=true;reflect.scrollIntoView?.({behavior:'smooth',block:'start'});return}
+ }
  wb.open=true;
  const map={2:0,3:3,4:4,6:5,7:0,8:5};
  wb._v33GoToEvidence?.(map[stage]??0,true);
@@ -174,5 +192,5 @@ function mount({mode='guided'}={}){
   bound=true;
  }
 }
-root.GroundUpLabV33WorkspaceFlow=Object.freeze({mount,openEvidence,stageVisibility,version:'LAB-UX-STD-001-v3.3.2'});
+root.GroundUpLabV33WorkspaceFlow=Object.freeze({mount,openEvidence,stageVisibility,presentationState,version:'LAB-UX-STD-001-v4.0.0'});
 })(globalThis);
