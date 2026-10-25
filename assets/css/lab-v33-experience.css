@@ -806,3 +806,14 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
 :is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v40-instructor-steps button:focus-visible {
  outline:3px solid #a7ebfc;outline-offset:2px;
 }
+
+
+/* LAB-UX-STD-001: preserve readable, undistorted 820×395 OHLCV charts
+   beside Talia on ultrawide screens. Expanded mode remains unrestricted. */
+:is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+ .gu-l33-graphic:not(.gu-v34-expanded-visual) .gu-l33-chart svg{
+  width:100%;
+  max-width:560px;
+  height:auto;
+  margin-inline:auto;
+}
