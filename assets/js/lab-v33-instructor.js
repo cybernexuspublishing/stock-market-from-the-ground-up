@@ -49,14 +49,14 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
- const title=el('h3','Talia');
+ const title=el('h3','Talia Mercer');
  const head=el('div',undefined,'gu-v33-instructor-head');
  const avatar=el('span','T','gu-v33-instructor-avatar');
  // Static instructor monogram fallback; never imply a synthetic live video feed.
  avatar.setAttribute('title','Talia Mercer — text-based learning instructor');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
- identity.append(title);
+ identity.append(title,el('span','Your market educator · text-based instruction','gu-v33-instructor-subtitle'));
  if(stage!==0)head.append(avatar,identity);
  else head.hidden=true; // Historical Lab Setup will occupy this header instead.
  rootEl.append(head);
