@@ -10,7 +10,9 @@ permissions:
   contents: read
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY_REPLACEMENT'
+    # PAUSED: this fallback still points to the previous Live account ID; no deployments to it.
+    # Reactivate only after the Yahoo master account ID and scoped credential are verified.
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
