@@ -482,3 +482,24 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-c
 .gu-member-dashboard-shell>.gu-member-side-menu{overflow-y:auto;overscroll-behavior:contain}
 @media(min-width:1100px){.gu-member-dashboard-shell>.gu-member-side-menu{position:sticky;top:65px;align-self:flex-start;height:calc(100dvh - 65px)}}
 @media(max-width:1099px){.gu-member-dashboard-shell>.gu-member-side-menu{overflow:visible;height:auto;position:static}}
+
+/* Dashboard v0.14.0.233: information architecture, not a decorative card patch. */
+.gu-member-dashboard-shell .v1321-overview>.v1324-summary-grid[hidden]{display:none!important}
+.gu-member-dashboard-shell #v135-overview-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0 20px}
+.gu-member-dashboard-shell #v135-overview-strip>article{padding:20px 18px;min-height:120px;display:flex;flex-direction:column;gap:7px;border-radius:14px;background:linear-gradient(135deg,#17365b,#15264c);border:1px solid #50689a}
+.gu-member-dashboard-shell #v135-overview-strip>article strong{font:800 clamp(1.6rem,2.6vw,2.3rem)/1.1 Inter,system-ui,sans-serif;color:#f9fcff}
+.gu-member-dashboard-shell #v135-overview-strip>article span{font-size:.89rem;font-weight:750;color:#f2f5ff}
+.gu-member-dashboard-shell #v135-overview-strip>article small{font-size:.73rem;color:#a6bfdb;line-height:1.45}
+.gu-member-dashboard-shell .gu-member-start{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:22px 24px;margin:17px 0 22px;border:1px solid #7165b4;border-radius:16px;background:radial-gradient(ellipse 75% 150% at 100% 0%,#48377788,transparent),linear-gradient(120deg,#132c4e,#111f42);box-shadow:0 20px 45px #0003}
+.gu-member-dashboard-shell .gu-member-start h2{margin:6px 0;font-size:1.45rem;color:#fff}
+.gu-member-dashboard-shell .gu-member-start p{color:#bed0e8;font-size:.85rem;margin:5px 0 0;max-width:50ch}
+.gu-member-dashboard-shell .gu-member-start-actions{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end;max-width:660px}
+.gu-member-dashboard-shell .gu-member-start-actions .btn{min-height:42px;padding:10px 14px;font-size:.82rem;white-space:nowrap}
+.gu-member-dashboard-shell .gu-member-start-actions .btn:first-child{background:linear-gradient(100deg,#f0d174,#e7b054);color:#18243c;border-color:#f2cf70}
+.gu-member-dashboard-shell .v132-dashboard-hero{padding:24px!important;min-height:150px}
+.gu-member-dashboard-shell .v132-dashboard-hero h1{font-size:clamp(1.8rem,2.6vw,2.8rem)!important}
+.gu-member-dashboard-shell .v134-skill-snapshot{margin-top:15px}
+@media(max-width:1100px){.gu-member-dashboard-shell #v135-overview-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.gu-member-dashboard-shell .gu-member-start{flex-direction:column;align-items:stretch}.gu-member-dashboard-shell .gu-member-start-actions{justify-content:flex-start}}
+@media(max-width:520px){.gu-member-dashboard-shell #v135-overview-strip{grid-template-columns:1fr}.gu-member-dashboard-shell .gu-member-start{padding:17px}.gu-member-dashboard-shell .gu-member-start-actions .btn{flex:1 1 160px;text-align:center}}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-start{background:linear-gradient(120deg,#f2f4ff,#fff);color:#203453}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-start h2{color:#1a2e47}
