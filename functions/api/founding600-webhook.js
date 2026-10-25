@@ -72,10 +72,12 @@ async function fulfill(c,event){
  ||item.price?.recurring?.interval!=='day'
  ||item.price.recurring.interval_count!==(reserved.plan_code==='FOUNDING_30'?30:60))
  throw Error('STRIPE_CADENCE_MISMATCH');
- const start=iso(item.current_period_start),end=iso(item.current_period_end);
+ const line=verified.lines?.data?.find(l=>(l.price?.id||l.pricing?.price_details?.price)===price);
+ if(verified.lines?.has_more===true||verified.lines?.data?.length!==1)
+ throw Error('UNEXPECTED_INVOICE_LINES');
+ const start=iso(line?.period?.start),end=iso(line?.period?.end);
  if(!start||!end||!pattern(verified.customer,'cus')||!pattern(event.id,'evt'))
  throw Error('INVALID_CYCLE');
- const line=verified.lines?.data?.find(l=>(l.price?.id||l.pricing?.price_details?.price)===price);
  const expected=reserved.plan_code==='FOUNDING_30'?4999:5999;
  if(!line||line.amount!==expected||verified.subtotal!==expected||verified.amount_paid<expected)
  throw Error('INVOICE_PRICE_MISMATCH');
