@@ -44,13 +44,14 @@ try{
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/SIMULATED/);
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'Candle SVG must be built');
   assert.equal(await target.locator('button.gu-l33-view-btn').count(),9,'Worked candle must expose seven evidence features and guided next highlight');
-  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'The lesson chart must match Talia’s fictional worked example');
   await target.getByRole('button',{name:'High',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'High',exact:true}).getAttribute('aria-pressed'),'true');
   await target.getByRole('button',{name:'Real body',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Real body',exact:true}).getAttribute('aria-pressed'),'true');
-  await target.getByRole('button',{name:'Show body-to-range calculation'}).click();
+  await target.getByRole('button',{name:'Body percentage',exact:true}).click();
   assert.equal(await target.getByRole('button',{name:'Body percentage',exact:true}).getAttribute('aria-pressed'),'true','Talia’s explanation must highlight matching chart evidence');
+  await target.getByRole('button',{name:'Show and explain on chart'}).click();
+  assert.match(await target.locator('.gu-l33-graphic').innerText(),/\$21\.20/,'Activated fictional worked example matches its chart');
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic').count(),1,'Experiment retains the same OHLC graphic as Learn');
    assert.equal(await target.locator('.gu-v36-candle-experiment input[type="range"]').count(),1,'Experiment must include its interactive closing-price slider');
@@ -76,8 +77,8 @@ try{
   assert.equal(await target.locator('[data-candle-index="1"][data-selected="true"]').count(),1,'Exactly the chosen chart candle must be marked active');
   assert.equal(await target.locator('.gu-l33-selected-candle[visibility="visible"]').count(),1,'Exactly one candle must have a visible outline');
   assert.notEqual(after,before,'Selecting a completed bar updates accessible OHLCV details');
-  await target.getByRole('button',{name:'Price'}).click();
-  assert.equal(await target.getByRole('button',{name:'Price'}).getAttribute('aria-pressed'),'true');
+  await target.getByRole('button',{name:'Price',exact:true}).click();
+  assert.equal(await target.getByRole('button',{name:'Price',exact:true}).getAttribute('aria-pressed'),'true');
   assert.match(await target.locator('.gu-l33-graphic').innerText(),/SIMULATED/);
   await target.getByRole('button',{name:'Next learning stage'}).click();
   assert.equal(await target.locator('.gu-l33-graphic svg').count(),1,'VWAP Experiment retains visual');
