@@ -1,0 +1,120 @@
+name: Bootstrap Yahoo Master Cloudflare (No Payments)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-master-cloudflare.yml'
+permissions:
+  contents: read
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Create master Turnstile and safe production bindings
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const account='4fe9e562905cf607b6f004d2374299fc';
+          const project='stock-market-from-the-ground-up';
+          const projectId='2cf1b496-5f6a-4cb0-89ba-b1519c08154b';
+          const origin='https://stock-market-from-the-ground-up-d1r.pages.dev';
+          const host=new URL(origin).hostname;
+          const base='https://api.cloudflare.com/client/v4';
+          const token=process.env.CF_TOKEN;
+          if(!token||token.length<20)throw Error('Master deployment credential unavailable');
+          async function api(method,path,body){
+            const response=await fetch(base+path,{
+              method,headers:{Authorization:'Bearer '+token,...(body?{'content-type':'application/json'}:{})},
+              body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)
+            });
+            const data=await response.json().catch(()=>({success:false,errors:[]}));
+            if(!data.success){
+              console.error('Cloudflare request failed',method,path,'HTTP',response.status,
+                'error_codes',(data.errors||[]).map(x=>x.code));
+              throw Error('Cloudflare request failed: '+method+' HTTP '+response.status);
+            }
+            return data.result;
+          }
+          const accountDetail=await api('GET','/accounts/'+account);
+          if(accountDetail.id!==account||!String(accountDetail.name).toLowerCase().includes('yahoo.com'))
+            throw Error('Refusing bootstrap: Cloudflare master account mismatch');
+          const prefix='/accounts/'+account+'/pages/projects/'+project;
+          const p=await api('GET',prefix);
+          if(p.id!==projectId||p.subdomain!==host||p.source?.config?.repo_name!=='stock-market-from-the-ground-up'
+             ||p.source?.type!=='github'||p.production_branch!=='main'
+             ||p.build_config?.build_command!=='bash scripts/build-pages.sh'
+             ||p.build_config?.destination_dir!=='public')
+            throw Error('Refusing bootstrap: project identity, source or build does not match');
+          const existing=p.deployment_configs?.production?.env_vars||{};
+          for(const key of ['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
+             'GU58_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED']){
+             if(existing[key]?.value==='true')throw Error('Refusing bootstrap: LIVE gate already enabled');
+          }
+          const cfg=readFileSync('config.js','utf8');
+          const m=cfg.match(/SUPABASE_ANON_KEY:\s*'([^']+)'/);
+          if(!m||!m[1].startsWith('sb_publishable_'))throw Error('Public Supabase key not available in source');
+          const widgets=await api('GET','/accounts/'+account+'/challenges/widgets');
+          let widget=widgets.find(x=>x.name==='SMFGU Yahoo Master Production Turnstile');
+          if(widget){
+            if(widget.domains?.length!==1||widget.domains[0]!==host)throw Error('Existing Turnstile widget hostname mismatch');
+            widget=await api('GET','/accounts/'+account+'/challenges/widgets/'+widget.sitekey);
+          }else{
+            widget=await api('POST','/accounts/'+account+'/challenges/widgets',{
+              name:'SMFGU Yahoo Master Production Turnstile',mode:'managed',domains:[host]
+            });
+          }
+          if(!widget.sitekey||!widget.secret||!widget.domains?.includes(host))
+            throw Error('Turnstile creation failed validation');
+          const ptxt=value=>({type:'plain_text',value:String(value)});
+          const vars={
+            PUBLIC_SITE_URL:ptxt(origin),
+            GU_PUBLIC_SITE_ORIGIN:ptxt(origin),
+            GU_BILLING_SITE_ORIGIN:ptxt(origin),
+            SUPABASE_URL:ptxt('https://oxihglyfgzywsupnyicb.supabase.co'),
+            SUPABASE_PUBLISHABLE_KEY:ptxt(m[1]),
+            ENFORCE_AUTH_TURNSTILE_V135:ptxt('true'),
+            TURNSTILE_SITE_KEY:ptxt(widget.sitekey),
+            TURNSTILE_SECRET_KEY:{type:'secret_text',value:widget.secret},
+            GU_PAYMENT_LIVE_LAUNCH_APPROVED:ptxt('false'),
+            GU58_LIVE_CHECKOUT_ENABLED:ptxt('false'),
+            GU58_LIVE_DB_CONTRACT_APPROVED:ptxt('false'),
+            GU58_LIVE_FULFILLMENT_APPROVED:ptxt('false'),
+            GU58_LIVE_WEBHOOK_ENABLED:ptxt('false'),
+            GU_F600_LIVE_CHECKOUT_ENABLED:ptxt('false'),
+            GU_F600_LIVE_FULFILLMENT_APPROVED:ptxt('false'),
+            GU_F600_LIVE_WEBHOOK_ENABLED:ptxt('false'),
+            GU72_ZERO_MONTHLY_QA_ENABLED:ptxt('false'),
+            GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED:ptxt('false'),
+            GU39_SANDBOX_SHADOW_GATE:ptxt('true'),
+            AI_SERVICE_ENABLED:ptxt('false'),
+            AI_PAID_PROVIDER_OWNER_APPROVED:ptxt('false'),
+            AI_CLOUDFLARE_MODEL_LICENSE_APPROVED:ptxt('false'),
+            REQUIRE_STAFF_AAL2_V135:ptxt('false'),
+            GU_REPLAY_JOURNAL_V01494_ENABLED:ptxt('true')
+          };
+          await api('PATCH',prefix,{deployment_configs:{production:{env_vars:vars}}});
+          const after=await api('GET',prefix);
+          const v=after.deployment_configs?.production?.env_vars||{};
+          const required=Object.keys(vars);
+          const missing=required.filter(k=>!v[k]);
+          if(missing.length)throw Error('Configuration verification failed for '+missing.join(','));
+          const allFalse=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
+            'GU58_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED',
+            'GU72_ZERO_MONTHLY_QA_ENABLED','GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED'];
+          if(allFalse.some(k=>v[k]?.value!=='false'))throw Error('LIVE switch safety verification failed');
+          if(v.TURNSTILE_SECRET_KEY?.type!=='secret_text'||v.PUBLIC_SITE_URL?.value!==origin)
+            throw Error('Master Turnstile encrypted binding or origin not verified');
+          console.log(JSON.stringify({master_account_verified:true,pages_project:project,
+            pages_origin:origin,turnstile_widget_created:true,
+            turnstile_sitekey:widget.sitekey,turnstile_hostnames:widget.domains,
+            safe_variable_count:required.length,missing_required:missing.length,
+            supabase_service_secret_installed:!!v.SUPABASE_SECRET_KEY,
+            live_payment_flags_disabled:true,live_payment_operations:0},null,2));
+          NODE
