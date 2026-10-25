@@ -75,10 +75,27 @@ async function invoice(c,campaign,advertiser,reference){
   {headers:h,cache:'no-store'});
  if(!payments.ok)throw bad('Unable to verify an allocated payment.',503);
  const allocations=await payments.json();
- if(allocations.has_more||!Array.isArray(allocations.data)||
- !allocations.data.some(x=>x.status==='paid'&&x.amount_paid>=campaign.amount_cents&&
- /^pi_[A-Za-z0-9_]{6,}$/.test(x.payment?.payment_intent||'')))
- throw bad('Stripe invoice lacks a verifiable completed PaymentIntent.',409);
+ if(allocations.has_more||!Array.isArray(allocations.data))throw bad('Invoice allocation could not be verified.',409);
+ const allocated=allocations.data.filter(x=>x.status==='paid'&&x.amount_paid>=campaign.amount_cents&&
+ /^pi_[A-Za-z0-9_]{6,}$/.test(x.payment?.payment_intent||''));
+ if(allocated.length!==1)throw bad('Stripe invoice lacks one verified paid PaymentIntent.',409);
+ const intentId=allocated[0].payment.payment_intent;
+ const pi=await fetch('https://api.stripe.com/v1/payment_intents/'+encodeURIComponent(intentId),
+  {headers:h,cache:'no-store'});
+ if(!pi.ok)throw bad('The Stripe payment could not be independently verified.',503);
+ const payment=await pi.json();
+ if(payment.livemode!==true||payment.status!=='succeeded'||payment.currency!=='usd'||
+ payment.customer!==data.customer||payment.amount_received<campaign.amount_cents||
+ !/^ch_[A-Za-z0-9_]{6,}$/.test(String(payment.latest_charge||'')))
+  throw bad('Payment is not settled for the quoted amount.',409);
+ const chargeResult=await fetch('https://api.stripe.com/v1/charges/'+encodeURIComponent(payment.latest_charge),
+  {headers:h,cache:'no-store'});
+ if(!chargeResult.ok)throw bad('Stripe charge cannot be verified.',503);
+ const charge=await chargeResult.json();
+ if(charge.livemode!==true||charge.paid!==true||charge.disputed===true||
+ charge.amount_refunded!==0||charge.payment_intent!==intentId||
+ charge.customer!==data.customer)
+  throw bad('Payment is refunded, disputed or not valid.',409);
  return {amount:data.amount_paid,customer:data.customer};
 }
 async function readOwner(c){
@@ -224,6 +241,13 @@ export async function onRequest({request,env}){
   if(action==='review_campaign'){
    const id=Number(body.id),verb=str(body.verb);
    if(!Number.isSafeInteger(id)||id<=0||!['approve','reject','pause','publish'].includes(verb))throw bad('Invalid campaign operation.');
+   if(verb==='publish'){
+    const rows=await api(c,'ad_campaigns?select=id,advertiser_id,amount_cents,last_verified_invoice&id=eq.'+id);
+    const cpn=rows?.[0],advertisers=cpn?await api(c,'advertisers?select=id&id=eq.'+cpn.advertiser_id):[];
+    if(!cpn?.last_verified_invoice||advertisers?.length!==1)throw bad('A verified invoice and advertiser are required.',409);
+    // Reconfirm that payment is still settled and unrefunded at publication.
+    await invoice(c,cpn,advertisers[0],cpn.last_verified_invoice);
+   }
    const result=await api(c,'rpc/gu_ad_review_campaign_v014227',{method:'POST',
      body:{p_actor:actor,p_campaign:id,p_action:verb}});
    if(result?.ok!==true)throw bad(result?.error||'Campaign is not eligible.',409);
