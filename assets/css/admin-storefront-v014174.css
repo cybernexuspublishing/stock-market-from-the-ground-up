@@ -1,0 +1,13 @@
+/* v0.14.0.174 */
+#admin-products-all{min-width:0}
+#admin-storefront-search{width:100%;max-width:460px;padding:.75rem;border:1px solid #889daa;border-radius:.5rem;background:#162d3b;color:#fff;margin:.45rem 0 1rem}
+.gu174-admin-card{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.gu174-admin-card h3,.gu174-admin-card p{overflow-wrap:anywhere}
+.gu174-admin-card details{margin-top:auto}
+.gu174-admin-card details summary{cursor:pointer;padding:.6rem 0;font-weight:750}
+.gu174-admin-fields{display:grid;gap:.75rem}
+.gu174-admin-fields label{display:grid;gap:.35rem;font-weight:650}
+.gu174-admin-fields input:not([type="checkbox"]),.gu174-admin-fields select,.gu174-admin-fields textarea{width:100%;min-width:0;padding:.6rem;border:1px solid #819aa8;border-radius:.45rem;background:#102433;color:#fff;font:inherit}
+.gu174-admin-fields .gu174-check{display:flex;gap:.45rem;align-items:center}
+.gu174-admin-price{font-weight:850;color:#ffe0a0}
+.gu174-admin-fields button{min-height:43px}
