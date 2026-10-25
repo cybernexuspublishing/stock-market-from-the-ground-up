@@ -1,0 +1,40 @@
+name: Founding 600 Member Browser Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'founders-commons.html'
+      - 'founder-learning-studio.html'
+      - 'founder-extended-path.html'
+      - 'founder-benefits.html'
+      - 'assets/js/founder-learning-studio-v014191.js'
+      - 'assets/js/founder-extended-path-v014213.js'
+      - 'assets/js/founder-benefit-records-v014205.js'
+      - 'tests/test_f600_member_pages_browser_v014220.mjs'
+      - '.github/workflows/f600-member-browser-acceptance-v014220.yml'
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium browser acceptance harness
+        run: |
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+      - name: Start local-only static website
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f600-static.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8765/founder-learning-studio.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Validate Standard and Extended mobile/desktop member journeys
+        run: node tests/test_f600_member_pages_browser_v014220.mjs
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
