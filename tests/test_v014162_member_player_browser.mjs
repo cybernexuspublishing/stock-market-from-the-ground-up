@@ -52,6 +52,12 @@ try{
   assert.equal(await page.locator('#player-mode-select').isDisabled(),false);
   await page.locator('#player-mode-trigger').click();
   await page.locator('#player-mode-menu [data-member-mode="practice"]').click();
+  const initialModeConfirm=page.locator('#player-mode-confirm');
+  if(await initialModeConfirm.isVisible())
+   await initialModeConfirm.getByRole('button',{name:'Yes, Continue'}).click();
+  const chosenMode=await page.locator('#player-mode-select').inputValue();
+  const triggerText=await page.locator('#player-mode-trigger').innerText();
+  assert.equal(chosenMode,'practice','Practice selection must activate; current visible mode: '+triggerText);
   await page.getByRole('button',{name:'Learning mode guidance'}).click();
   assert.match(await page.locator('#player-mode-description').innerText(),/Practice Mode/);
   await page.getByRole('button',{name:'Start Guided Learning →'}).click();
