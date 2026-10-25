@@ -1,0 +1,35 @@
+/* v0.14.0.234 — additive marketplace finish, existing tokens and themes preserved. */
+.gu-redesign-store{position:relative;isolation:isolate;min-height:75vh;padding:clamp(35px,5vw,75px) 0}
+.gu-redesign-store:before{content:"";position:absolute;inset:0 0 auto;z-index:-1;height:470px;background:radial-gradient(ellipse at 85% 2%,#6550a64d,transparent 57%),radial-gradient(ellipse at 2% 15%,#197c9850,transparent 55%);pointer-events:none}
+.gu-redesign-store>.wrap{max-width:1480px}
+.gu-redesign-store>.wrap>h1{font-size:clamp(2.25rem,4.6vw,4.5rem);letter-spacing:-.045em;line-height:1.1;max-width:20ch}
+.gu-redesign-store .gu-store-trustline{font-weight:750;color:#dac7ff;letter-spacing:.035em}
+.gu-redesign-store .section-intro{max-width:78ch}
+.gu-redesign-store .store-category-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:25px 0;padding:8px;border:1px solid #465d82;border-radius:16px;background:#0b2038c9}
+.gu-redesign-store .store-category-tabs>button{flex:1 1 150px;min-height:45px;border-radius:9px;white-space:normal}
+.gu-redesign-store .product-card{min-width:0;overflow-wrap:anywhere;border:1px solid #52698e;border-radius:17px;background:linear-gradient(140deg,#17314b,#101e36);box-shadow:0 17px 35px #0003}
+.gu-redesign-store .product-card:hover{border-color:#aaa0e8}
+body:has(#inventory-list) main.section,body:has(#inventory-detail) main.section{padding-block:clamp(35px,5vw,72px);min-height:70vh;background:radial-gradient(ellipse at 90% 0%,#51409248,transparent 52%),radial-gradient(ellipse at 0% 45%,#17648145,transparent 58%)}
+body:has(#inventory-list) main.section>.wrap,body:has(#inventory-detail) main.section>.wrap{max-width:1460px}
+#inventory-list.commerce-grid{grid-template-columns:repeat(auto-fit,minmax(min(295px,100%),1fr));gap:18px;margin:25px 0}
+#inventory-list .product-card{display:flex;flex-direction:column;gap:10px;min-width:0;padding:23px;border:1px solid #546a90;border-radius:17px;background:linear-gradient(148deg,#183250,#102039);box-shadow:0 18px 35px #0003;transition:transform .18s ease,border-color .18s ease}
+#inventory-list .product-card:hover{transform:translateY(-3px);border-color:#ac9fec}
+#inventory-list .product-card h2{font-size:clamp(1.1rem,1.7vw,1.42rem);line-height:1.32;margin:0;color:#fff}
+#inventory-list .product-card p{margin:0;color:#bed1e5;overflow-wrap:anywhere}
+#inventory-list .product-card .small{font-size:.76rem;color:#a7bed6}
+#inventory-list .product-card .btn{align-self:flex-start;margin-top:auto}
+#inventory-search,#inventory-category{display:block;width:100%;max-width:640px;min-height:46px;margin:.4rem 0 1rem;padding:10px 12px;border:1px solid #6b87a5;border-radius:9px;background:#0c2138;color:#f5f9ff}
+#inventory-status{font-weight:700;color:#d1e1f1}
+#inventory-detail{max-width:880px;margin:20px auto;padding:clamp(22px,4vw,48px);border:1px solid #567092;border-radius:19px;background:linear-gradient(135deg,#162d49,#0c1d31);box-shadow:0 20px 60px #0003}
+#inventory-detail h1{font-size:clamp(2rem,4vw,3.35rem);letter-spacing:-.04em;line-height:1.1;overflow-wrap:anywhere;color:#fff}
+#inventory-detail p{max-width:75ch;color:#c4d5e7}
+#inventory-detail strong{color:#fff}
+.gu-member-dashboard-shell .dashboard-grid,.gu-member-dashboard-shell .dashboard-stat-grid,.gu-member-dashboard-shell .dashboard-grid>*{min-width:0}
+.gu-member-dashboard-shell .card,.gu-member-dashboard-shell .dashboard-stat{overflow-wrap:anywhere}
+#inventory-list a:focus-visible,#inventory-detail a:focus-visible{outline:3px solid #f8d984;outline-offset:3px}
+@media(max-width:740px){#inventory-list .product-card{padding:17px}.gu-redesign-store .store-category-tabs>button{flex:1 1 125px}.gu-redesign-store>.wrap>h1{max-width:none}}
+@media(prefers-reduced-motion:reduce){#inventory-list .product-card{transition:none}#inventory-list .product-card:hover{transform:none}}
+html[data-gu-design="premium-light"] #inventory-list .product-card,html[data-gu-design="premium-light"] #inventory-detail{background:#fff;color:#20354a;border-color:#d0dbe6;box-shadow:0 12px 35px #17304819}
+html[data-gu-design="premium-light"] #inventory-list h2,html[data-gu-design="premium-light"] #inventory-detail h1,html[data-gu-design="premium-light"] #inventory-detail strong{color:#1a2b43}
+html[data-gu-design="premium-light"] #inventory-list .product-card p,html[data-gu-design="premium-light"] #inventory-detail p{color:#486074}
+html[data-gu-design="premium-light"] #inventory-search,html[data-gu-design="premium-light"] #inventory-category{background:#fff;color:#21364b}
