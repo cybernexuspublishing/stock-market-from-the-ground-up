@@ -31,6 +31,10 @@ try{
    {package_code:'SECTION_SPONSOR',test_price_id:'price_beta123',test_amount_cents:100},
    {package_code:'RESOURCE_SPONSOR',test_price_id:'price_gamma123',test_amount_cents:100}
   ]);
+  if(path.includes('platform_labs?select=*&limit=1'))return wrap([{id:1}],200,{'content-range':'0-0/419'});
+  if(path.includes('competency_definitions?select=*&limit=1'))return wrap([{id:1}],200,{'content-range':'0-0/30'});
+  if(path.includes('lab_training_sets_v014?select=*&limit=1&review_state=eq.reviewed'))return wrap([] ,200,{'content-range':'*/0'});
+  if(path.includes('lab_training_sets_v014?select=*&limit=1&review_state=eq.draft'))return wrap([{id:1}],200,{'content-range':'0-0/419'});
   if(path.includes('select=*&limit=1'))return wrap([{id:1}],200,{'content-range':'0-0/3'});
   throw Error('Unrecognized data request '+path);
  };
@@ -48,6 +52,14 @@ try{
  assert(body.checks.some(x=>x.code==='founding_sandbox'&&x.state==='review'));
  assert.equal(body.counts.founderQaCycles,3);
  assert.equal(body.counts.founderMembers,3);
+ assert.equal(body.counts.registeredLabs,419);
+ assert.equal(body.counts.reviewedLabs,0);
+ assert.equal(body.counts.draftLabs,419);
+ assert.equal(body.counts.competencies,30);
+ assert(body.checks.some(x=>x.code==='education_registry'&&x.state==='verified'));
+ assert(body.checks.some(x=>x.code==='education_reviews'&&x.state==='pending'));
+ for(const stage of ['stage_a','stage_b','stage_c','stage_d'])
+  assert(body.checks.some(x=>x.code===stage&&x.state==='pending'));
  assert.equal(body.counts.members,3);
  assert(!JSON.stringify(body).includes(env.SUPABASE_SECRET_KEY),'Never send backend secret to frontend');
  mockRoles=[{role_code:'SHOWCASE_VIEWER',expires_at:null},{role_code:'OWNER',expires_at:null}];
