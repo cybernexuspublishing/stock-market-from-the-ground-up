@@ -386,7 +386,14 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
    if(modeTrigger.disabled)return;
    modeMenu.hidden=!modeMenu.hidden;
    modeTrigger.setAttribute('aria-expanded',String(!modeMenu.hidden));
-   if(!modeMenu.hidden)modeMenu.querySelector('[data-member-mode]')?.focus();
+   if(!modeMenu.hidden){
+    // Guidance and selector use the same anchored popover area.
+    // Never leave guidance above the mode choices, blocking pointer access.
+    const guidance=q('player-mode-description'),help=q('player-mode-help');
+    if(guidance)guidance.hidden=true;
+    help?.setAttribute('aria-expanded','false');
+    modeMenu.querySelector('[data-member-mode]')?.focus();
+   }
   });
   modeMenu?.addEventListener('keydown',event=>{
    if(event.key==='Escape'){
@@ -409,6 +416,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   q('player-mode-help')?.addEventListener('click',()=>{
   const panel=q('player-mode-description');panel.hidden=!panel.hidden;
   q('player-mode-help').setAttribute('aria-expanded',String(!panel.hidden));
+  if(!panel.hidden){modeMenu.hidden=true;modeTrigger?.setAttribute('aria-expanded','false')}
   panel.textContent=modeCopy(PLAYER.mode);
  });
  q('player-restart-mode')?.addEventListener('click',()=>inlineModeConfirmation(PLAYER.mode,true));
