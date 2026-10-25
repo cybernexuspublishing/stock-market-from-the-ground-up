@@ -265,8 +265,43 @@ async function handlePost(env,request,action){
     await audit(env,c.user.id,enabled?'role.assign':'role.remove','user',target,{role});return ok();
   }
   if(action==='save_role'){
-    const c=await withContext(env,request,'roles.manage');const role=safeCode(body.role_code);if(!role||!body.name)return bad('Role code and name are required.');if(!c.ctx.roles.includes('OWNER'))return bad('Only an active OWNER may edit role definitions.',403);if(['OWNER','SHOWCASE_VIEWER'].includes(role))return bad('Protected role definitions are immutable in this editor.',403);const existing=await one(env,`admin_roles?select=*&role_code=eq.${encodeURIComponent(role)}`);if(existing?.is_system&&!has(c.ctx,'owner.manage'))return bad('Only an OWNER can edit system roles.',403);if(['OWNER'].includes(role)&&!has(c.ctx,'owner.manage'))return bad('OWNER role is owner-controlled.',403);
-    const row={role_code:role,name:clean(body.name).slice(0,120),description:clean(body.description).slice(0,1000),priority:Number(body.priority||100),is_system:existing?.is_system??false,is_assignable:body.is_assignable!==false,updated_at:nowIso()};await serviceRest(env,'admin_roles?on_conflict=role_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'role.save','role',role,{name:row.name});return ok({role_code:role});
+    return bad('Legacy two-phase role save is retired. Reload Roles & Permissions and use the atomic Save Role workflow.',409);
+  }
+  if(action==='save_role_atomic'){
+    const c=await withContext(env,request,'roles.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Only an active OWNER may save staff roles.',403);
+    const role=clean(body.role_code),name=clean(body.name),description=clean(body.description||'');
+    const priority=Number(body.priority);
+    if(!/^[A-Z][A-Z0-9_]{1,79}$/.test(role)||['OWNER','SHOWCASE_VIEWER'].includes(role)||
+       !name||name.length>120||description.length>1000||
+       !Number.isInteger(priority)||priority<1||priority>9999||
+       typeof body.is_assignable!=='boolean'||
+       !Array.isArray(body.permissions)||!Array.isArray(body.expected_permissions)||
+       body.permissions.length>100||body.expected_permissions.length>100||
+       [...body.permissions,...body.expected_permissions].some(x=>typeof x!=='string'||!x.trim()))
+      return bad('Invalid role metadata, permissions, or concurrency snapshot.',400);
+    const previous=body.expected_updated_at;
+    if(previous!==null&&previous!==undefined&&
+       (typeof previous!=='string'||!Number.isFinite(Date.parse(previous))))
+      return bad('Invalid role version; reload the role editor.',400);
+    try{
+      const {data}=await serviceRest(env,'rpc/v014255_admin_role_editor_save',{
+        method:'POST',body:{
+          p_actor:c.user.id,p_role_code:role,p_name:name,p_description:description,
+          p_priority:priority,p_is_assignable:body.is_assignable,
+          p_permissions:[...new Set(body.permissions.map(clean))],
+          p_expected_permissions:[...new Set(body.expected_permissions.map(clean))],
+          p_expected_updated_at:previous||null
+        }
+      });
+      if(data?.ok!==true)return bad('Atomic role save was not confirmed.',503);
+      return ok({role_code:role,atomic:true,created:data.created,
+        updated_at:data.updated_at,permissionsUpdated:data.permission_count});
+    }catch(error){
+      if(/changed since this editor loaded/i.test(error.message||''))
+        return bad('Role changed while this editor was open. Reload Roles & Permissions and retry.',409);
+      throw error;
+    }
   }
   if(action==='set_role_permissions'){
     const c=await withContext(env,request,'roles.manage');
