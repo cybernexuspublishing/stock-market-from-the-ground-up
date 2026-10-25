@@ -35,6 +35,16 @@ async function roleContext(env,userId){
   const active=(urs||[]).filter(r=>!r.expires_at||new Date(r.expires_at).getTime()>Date.now());
   const roles=[...new Set(active.map(r=>r.role_code))];
   if(!roles.length)return {roles:[],permissions:[]};
+  // An existing JWT does not override a subsequent account restriction.
+  const [profile,flag]=await Promise.all([
+    one(env,`profiles?select=account_kind,deleted_at&id=eq.${enc}&limit=1`),
+    one(env,`admin_user_flags?select=status&user_id=eq.${enc}&limit=1`)
+  ]);
+  if(!profile||profile.deleted_at||['restricted','suspended'].includes(clean(flag?.status).toLowerCase()))
+    return {roles:[],permissions:[]};
+  if(roles.includes('SHOWCASE_VIEWER')){
+    if(roles.length!==1||profile.account_kind!=='showcase')return {roles:[],permissions:[]};
+  }else if(profile.account_kind!=='member')return {roles:[],permissions:[]};
   const inRoles=roles.map(r=>`"${r.replace(/"/g,'')}"`).join(',');
   const {data:rps}=await serviceRest(env,`admin_role_permissions?select=permission_code&role_code=in.(${encodeURIComponent(inRoles)})`);
   return {roles,permissions:[...new Set((rps||[]).map(x=>x.permission_code))]};
