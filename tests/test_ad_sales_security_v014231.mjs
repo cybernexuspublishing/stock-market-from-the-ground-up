@@ -54,6 +54,22 @@ test('unverified sponsor lead is blocked before inserts or remote checkout',asyn
  assert.equal(m.calls.some(x=>x.path==='/rest/v1/gu_ad_inquiries_v014226'),false);
  }finally{m.restore()}
 });
+test('verified human can submit a quote without any Stripe charge or public PII',async()=>{
+ const id='11111111-1111-4111-8111-111111110359';
+ const m=network({'/turnstile/v0/siteverify':{success:true},
+   '/rest/v1/gu_ad_inquiries_v014226':[{id}]});
+ try{
+  const r=await sales({request:rq('/api/ad-sales','POST',{
+   action:'request_quote',company:'Fictional Sample Business',contact:'Example Sponsor',
+   email:'sponsor@example.invalid',website:'https://example.org',packageCode:'SITE_SPONSOR',
+   message:'We would like a quote for clearly identified sponsorship near the public sample materials.',
+   honeypot:'',turnstileToken:'turnstile-verified-in-fixture'
+  }),env});
+  assert.equal(r.status,201);const x=await r.json();assert.equal(x.ok,true);assert.equal(x.reference,id);
+  assert.equal(m.calls.filter(x=>x.path==='/rest/v1/gu_ad_inquiries_v014226').length,1);
+  assert.equal(m.calls.some(x=>x.path.startsWith('/v1/checkout')||x.path.startsWith('/v1/payment_intents')),false);
+ }finally{m.restore()}
+});
 test('Owner-only advertising delivery release is fail-closed by default',async()=>{
  const m=network();try{
  for(const path of ['/api/ad-slot?slot=HOME_INLINE&page=%2Findex.html',
