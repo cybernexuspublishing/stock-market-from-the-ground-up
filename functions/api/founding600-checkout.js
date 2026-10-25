@@ -103,6 +103,7 @@ export async function onRequestPost({request,env}){
   if(!reserved?.ok||!uuid(reserved.reservationId))
    return json({ok:false,error:reserved?.error||'Founding enrollment is unavailable.'},409);
   const params=new URLSearchParams({
+   expires_at:String(Math.floor(Date.now()/1000)+30*60),
    mode:'subscription','line_items[0][price]':pm.priceId,'line_items[0][quantity]':'1',
    client_reference_id:reserved.reservationId,
    'metadata[f600_reservation]':reserved.reservationId,'metadata[f600_user]':user.id,'metadata[f600_plan]':plan,
