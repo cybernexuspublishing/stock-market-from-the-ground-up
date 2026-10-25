@@ -63,6 +63,21 @@ async function eligibility(c,slot,path,request){
  const policies=await query(c,'plan_ad_policies?select=ads_enabled,allowed_slots&access_code=eq.'+encodeURIComponent(role));
  return policies?.[0]?.ads_enabled===true&&(policies[0].allowed_slots||[]).includes(slot);
 }
+async function underFrequencyLimit(c,request,token){
+ if(!/^[a-f0-9-]{36}$/i.test(token||''))return false;
+ const code=await planCode(c,request);
+ if(!code||code==='OWNER'||code==='LIFETIME')return false;
+ const policies=await query(c,'plan_ad_policies?select=max_impressions_per_session,max_impressions_per_24h,minimum_minutes_between_ads&access_code=eq.'+encodeURIComponent(code));
+ const p=policies?.[0];if(!p||p.max_impressions_per_session<1||p.max_impressions_per_24h<1)return false;
+ const history=await query(c,'ad_events?select=created_at&event_type=eq.impression&session_token=eq.'+
+  encodeURIComponent(token)+'&order=created_at.desc&limit=100');
+ if(!Array.isArray(history)||history.length>=100||history.length>=p.max_impressions_per_session)return false;
+ const now=Date.now();
+ const recent=history.filter(x=>now-Date.parse(x.created_at)<86400000&&now>=Date.parse(x.created_at));
+ if(recent.length>=p.max_impressions_per_24h)return false;
+ if(recent.length&&now-Date.parse(recent[0].created_at)<p.minimum_minutes_between_ads*60000)return false;
+ return true;
+}
 async function eligibleAds(c,slot){
  const now=new Date().toISOString();
  const campaigns=await query(c,'ad_campaigns?select=id,last_verified_invoice,amount_cents,impression_limit,click_limit&status=eq.active&approval_state=eq.approved&payment_state=eq.verified_paid&starts_at=lte.'+
@@ -74,7 +89,15 @@ async function eligibleAds(c,slot){
  encodeURIComponent(slot)+'&campaign_id=in.('+ids.join(',')+')&limit=150');
  const proof=await query(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode&campaign_id=in.('+ids.join(',')+')&limit=150');
  const verified=new Set((proof||[]).filter(x=>x.state==='verified_paid'&&x.payment_mode==='live').map(x=>x.campaign_id+':'+x.invoice_ref));
- const permitted=new Set(campaigns.filter(x=>verified.has(x.id+':'+x.last_verified_invoice)).map(x=>x.id));
+ const counts=await query(c,'rpc/gu_ad_campaign_counts_v014233',{p_campaigns:ids});
+ const byId=new Map((counts||[]).map(x=>[Number(x.campaign_id),x]));
+ const permitted=new Set(campaigns.filter(x=>{
+  if(!verified.has(x.id+':'+x.last_verified_invoice))return false;
+  const used=byId.get(x.id);
+  if(x.impression_limit!=null&&(Number(used?.impressions)||0)>=x.impression_limit)return false;
+  if(x.click_limit!=null&&(Number(used?.clicks)||0)>=x.click_limit)return false;
+  return true;
+ }).map(x=>x.id));
  return (creatives||[]).filter(x=>permitted.has(x.campaign_id)&&validHttps(x.destination_url)&&
  String(x.headline||'').length>=8&&String(x.body||'').length>=20&&
  ['Advertisement','Sponsored'].includes(x.disclosure_label));
@@ -84,8 +107,10 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return ok({ad:null},405);
   const c=baseConfig(env),url=new URL(request.url);
   if(request.method==='GET'){
-   const slot=url.searchParams.get('slot')||'',page=url.searchParams.get('page')||'';
-   if(!(await eligibility(c,slot,page,request)))return ok({ad:null});
+   const slot=url.searchParams.get('slot')||'',page=url.searchParams.get('page')||'',
+    token=url.searchParams.get('sessionToken')||'';
+   if(!(await eligibility(c,slot,page,request))||
+      !(await underFrequencyLimit(c,request,token)))return ok({ad:null});
    const options=await eligibleAds(c,slot);if(!options.length)return ok({ad:null});
    // Rotate equally; no personal data, cross-site tracking or advertiser targeting.
    const bytes=new Uint32Array(1);crypto.getRandomValues(bytes);
@@ -108,6 +133,8 @@ export async function onRequest({request,env}){
   // Per-session dedupe, 24h. Metrics are indicative, never invoiced automatically.
   const token=String(body.sessionToken||'');
   if(!/^[a-f0-9-]{36}$/i.test(token))return ok({ok:false},400);
+  if(type==='impression'&&!(await underFrequencyLimit(c,request,token)))
+    return ok({ok:false,error:'AD_FREQUENCY_LIMIT'},429);
   const since=new Date(Date.now()-86400000).toISOString();
   const duplicate=await query(c,'ad_events?select=id&creative_id=eq.'+creativeId+
    '&event_type=eq.'+type+'&session_token=eq.'+encodeURIComponent(token)+
