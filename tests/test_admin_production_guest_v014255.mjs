@@ -10,7 +10,7 @@ const paths=['/','/admin.html','/release-manifest.json',
 const problems=[];
 for(const path of paths){
  let res;
- try{res=await fetch(origin+path,{redirect:'manual',cache:'no-store',
+ try{res=await fetch(origin+path,{redirect:path.startsWith('/api/')?'manual':'follow',cache:'no-store',
   headers:{accept:'application/json,text/html'},signal:AbortSignal.timeout(15000)})}
  catch(e){problems.push('Network '+path+' '+String(e.message||e));continue}
  const asset=!path.startsWith('/api/');
