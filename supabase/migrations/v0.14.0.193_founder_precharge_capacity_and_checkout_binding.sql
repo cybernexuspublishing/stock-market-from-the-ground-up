@@ -47,14 +47,14 @@ BEGIN
 END $f$;
 REVOKE ALL ON FUNCTION public.gu_founder_reserve_v014173(uuid,text,text,timestamptz) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_founder_reserve_v014173(uuid,text,text,timestamptz) TO service_role;
+ALTER TABLE public.gu_founder_reservations_v014173 ADD COLUMN IF NOT EXISTS checkout_price_id text;
 CREATE OR REPLACE FUNCTION public.gu_founder_bind_checkout_v014193(
- p_reservation uuid,p_user uuid,p_session_id text,p_subscription_id text,p_price_id text
+ p_reservation uuid,p_user uuid,p_session_id text,p_price_id text
 ) RETURNS jsonb LANGUAGE plpgsql VOLATILE SECURITY DEFINER
  SET search_path=pg_catalog,pg_temp AS $bind$
 DECLARE r public.gu_founder_reservations_v014173%rowtype;
 BEGIN
  IF p_reservation IS NULL OR p_user IS NULL OR p_session_id !~ '^cs_live_[A-Za-z0-9_]{6,}$'
- OR p_subscription_id !~ '^sub_[A-Za-z0-9_]{6,}$'
  OR p_price_id !~ '^price_[A-Za-z0-9_]{6,}$'
  THEN RETURN jsonb_build_object('ok',false,'error','INVALID_PROVIDER_DATA');END IF;
  PERFORM pg_advisory_xact_lock(20261024,600);
@@ -64,15 +64,15 @@ BEGIN
  IF NOT FOUND OR r.user_id<>p_user OR r.reservation_state NOT IN ('reserved','bound')
  THEN RETURN jsonb_build_object('ok',false,'error','RESERVATION_NOT_ELIGIBLE');END IF;
  IF r.reservation_state='bound' THEN
-  IF r.checkout_session_id=p_session_id AND r.checkout_subscription_id=p_subscription_id
+  IF r.checkout_session_id=p_session_id AND r.checkout_price_id=p_price_id
   THEN RETURN jsonb_build_object('ok',true,'replayed',true,'seat',r.founder_number);END IF;
   RETURN jsonb_build_object('ok',false,'error','CHECKOUT_BINDING_CONFLICT');
  END IF;
  IF r.expires_at<=now() THEN RETURN jsonb_build_object('ok',false,'error','RESERVATION_EXPIRED');END IF;
  UPDATE public.gu_founder_reservations_v014173 SET
- checkout_session_id=p_session_id,checkout_subscription_id=p_subscription_id,
+ checkout_session_id=p_session_id,checkout_price_id=p_price_id,
  reservation_state='bound' WHERE id=p_reservation;
  RETURN jsonb_build_object('ok',true,'replayed',false,'seat',r.founder_number,'expectedPriceId',p_price_id);
 END $bind$;
-REVOKE ALL ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text,text) FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text,text) TO service_role;
