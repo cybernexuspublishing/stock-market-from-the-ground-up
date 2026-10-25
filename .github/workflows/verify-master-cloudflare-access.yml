@@ -1,6 +1,10 @@
 name: Verify Master Cloudflare Credential (Read Only)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-master-cloudflare-access.yml'
 permissions:
   contents: read
 jobs:
@@ -8,32 +12,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Verify saved Cloudflare key without deployment or writes
+      - name: Verify saved credential reaches exact Yahoo master account (GET only)
         env:
           CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+          MASTER_ACCOUNT_ID: '4fe9e562905cf607b6f004d2374299fc'
         run: |
           node --input-type=module <<'NODE'
-          const token=process.env.CF_TOKEN;
-          if(!token || token.length < 20) {
-            console.error('GitHub secret SMFGU_LIVES_PAGES_DEPLOY is missing or invalid.');
-            process.exit(1);
-          }
+          const token=process.env.CF_TOKEN,accountId=process.env.MASTER_ACCOUNT_ID;
+          if(!token || token.length<20){console.error('GitHub Cloudflare deployment secret missing.');process.exit(1)}
           const get=async path=>{
-            const response=await fetch('https://api.cloudflare.com/client/v4'+path,{
-              method:'GET',headers:{Authorization:'Bearer '+token},
-              signal:AbortSignal.timeout(15000)
-            });
+            const response=await fetch('https://api.cloudflare.com/client/v4'+path,{method:'GET',
+              headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(15000)});
             const body=await response.json().catch(()=>({success:false}));
-            return {http:response.status,success:body.success===true,data:body.result};
+            return {status:response.status,success:body.success===true,result:body.result};
           };
-          const verify=await get('/user/tokens/verify');
-          console.log('Token verification:',verify.success?'VALID':'UNVERIFIED','HTTP',verify.http);
-          const accounts=await get('/accounts?page=1&per_page=50');
-          console.log('Account enumeration:',accounts.success?'SUCCEEDED':'FAILED','HTTP',accounts.http);
-          const master=accounts.success && Array.isArray(accounts.data)
-            ? accounts.data.find(a=>/stock.market.from.the.ground.up.*yahoo\.com/i.test(String(a.name||'')))
-            : null;
-          console.log('Expected Yahoo master account:',master?'FOUND':'NOT FOUND');
-          if(master)console.log('Verified master account ID:',master.id);
-          if(!verify.success || !accounts.success || !master)process.exitCode=1;
+          const a=await get('/accounts/'+accountId);
+          const authorized=a.success&&a.result?.id===accountId;
+          console.log('Expected master account ID:',accountId);
+          console.log('GET master account:',authorized?'AUTHORIZED':'UNAUTHORIZED','HTTP '+a.status);
+          if(authorized) console.log('Master account:',a.result.name);
+          if(!authorized)process.exit(1);
+          const pages=await get('/accounts/'+accountId+'/pages/projects?per_page=50');
+          console.log('Master Pages project read:',pages.success?'OK':'UNAVAILABLE','HTTP '+pages.status);
+          if(pages.success&&Array.isArray(pages.result))
+            console.log('Existing Pages projects:',JSON.stringify(pages.result.map(p=>({name:p.name,source:p.source?.type,branch:p.production_branch}))));
+          if(!pages.success)process.exitCode=1;
           NODE
