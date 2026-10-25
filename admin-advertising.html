@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive">
+<title>Sponsor & Advertising Center | Admin</title>
+<link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/platform.css"><link rel="stylesheet" href="assets/css/ad-sales-v014228.css">
+<script src="config.js"></script><script defer src="assets/js/site.js"></script><script defer src="assets/js/supabase-client.js"></script><script defer src="assets/js/session-manager.js"></script>
+<script defer src="assets/js/admin-ad-sales-v014228.js"></script>
+</head><body data-auth-required="true"><header class="site-header"><div class="wrap nav"><a href="admin.html" class="brand">ADMIN CONTROL CENTER <span>ADVERTISING</span></a><nav class="navlinks" aria-label="Primary navigation"><a href="admin.html">Admin</a><a href="advertise.html">Public Advertise page</a></nav></div></header>
+<main class="section"><div class="wrap"><nav aria-label="Breadcrumb"><a href="admin.html">Admin</a> / <strong>Sponsor & Advertising Center</strong></nav>
+<div class="eyebrow">Owner-authorized advertising operations</div>
+<h1>Ad Sales, Inventory & Campaign Review</h1>
+<p>Manage quote requests, advertiser prospects, inventory rates, campaigns, creative approvals, and verified Stripe invoice references. All advertisement delivery and online ad checkout remain OFF until separately authorized.</p>
+<p id="gu-ad-admin-status" role="status" aria-live="polite">Verifying Owner access…</p>
+<div id="gu-ad-admin-main" hidden>
+<section class="gu-ad-panel" aria-labelledby="gu-ad-overview-title"><h2 id="gu-ad-overview-title">Release controls and inventory</h2>
+<p id="gu-ad-gate-state" role="status"></p><p class="gu-ad-note">Changing inquiry availability does not enable advertising payments or campaign delivery.</p>
+<button type="button" class="btn secondary" id="gu-ad-refresh">Refresh verified data</button>
+<button type="button" class="btn secondary" id="gu-ad-toggle-inquiries">Pause inquiries</button>
+<div id="gu-ad-placements" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Rate card & packages</h2><p>Default rates are deliberately unset. Enter a contract rate only after approving real prices; published rates do not generate a Stripe charge.</p>
+<div id="gu-ad-packages" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Advertiser inquiries</h2><p>New inquiries are private. Review them before creating an advertiser; never publish a contact email on the website.</p>
+<div id="gu-ad-inquiries" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Register a qualified advertiser</h2>
+<form id="gu-ad-advertiser-form" class="gu-ad-form">
+<label>Organization <input name="name" required minlength="2" maxlength="160"></label>
+<label>Business email <input name="email" type="email" required></label>
+<label>Verified HTTPS website <input name="website" type="url" required placeholder="https://business.example"></label>
+<button class="btn" type="submit">Create advertiser prospect</button><p role="status" id="gu-ad-advertiser-result"></p></form>
+<div id="gu-ad-advertisers" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Create draft campaign</h2>
+<p class="gu-ad-note">The contract amount must be agreed with the advertiser. No creative is publicly served and no money is charged by creating a draft.</p>
+<form id="gu-ad-campaign-form" class="gu-ad-form">
+<label>Qualified advertiser <select name="advertiserId" id="gu-ad-campaign-advertiser" required></select></label>
+<label>Package <select name="packageCode" id="gu-ad-campaign-package" required></select></label>
+<label>Campaign name <input name="name" required minlength="8" maxlength="160"></label>
+<label>Agreed campaign amount (USD) <input name="amountUsd" type="number" min="0.01" max="1000000" step="0.01" required></label>
+<label>Flight begins <input name="startsAt" type="datetime-local" required></label>
+<label>Flight ends <input name="endsAt" type="datetime-local" required></label>
+<button class="btn" type="submit">Save campaign as draft</button><p role="status" id="gu-ad-campaign-result"></p></form></section>
+<section class="gu-ad-panel"><h2>Submit creative for Owner review</h2>
+<p>No remote tracking pixel or third-party embedded script is allowed. Only text and an explicitly reviewed HTTPS destination are accepted.</p>
+<form id="gu-ad-creative-form" class="gu-ad-form">
+<label>Draft campaign <select name="campaignId" id="gu-ad-creative-campaign" required></select></label>
+<label>Approved placement <select name="placementCode" id="gu-ad-creative-placement" required></select></label>
+<label>Headline <input name="headline" required minlength="8" maxlength="120"></label>
+<label>Destination HTTPS URL <input name="destinationUrl" type="url" required></label>
+<label class="gu-ad-full">Ad body <textarea name="body" required minlength="20" maxlength="500"></textarea></label>
+<button class="btn" type="submit">Save creative for review</button><p role="status" id="gu-ad-creative-result"></p></form>
+<div id="gu-ad-creatives" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Campaign approvals and verified billing</h2>
+<p class="gu-ad-note">Invoice verification reads Stripe LIVE but never initiates a payment. Stripe invoice must be paid, allocated to a succeeded PaymentIntent, and explicitly carry matching <code>ad_campaign_id</code> and <code>advertiser_id</code> metadata.</p>
+<div id="gu-ad-campaigns" class="gu-ad-control-list"></div></section>
+<section class="gu-ad-panel"><h2>Sales performance (recorded events only)</h2><p>Impression and click counts are observational. No CPC/CPM customer billing is enabled and missing records are not estimated.</p>
+<div id="gu-ad-metrics" class="gu-ad-control-list"></div></section>
+</div></div></main></body></html>
