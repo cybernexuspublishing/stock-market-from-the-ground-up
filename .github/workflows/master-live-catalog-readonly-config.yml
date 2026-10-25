@@ -1,0 +1,65 @@
+name: Yahoo Master — LIVE Catalog Metadata Only (Payments Off)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/master-live-catalog-readonly-config.yml'
+permissions:
+  contents: read
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Install verified public Stripe product/price IDs, never activate checkout
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const id='4fe9e562905cf607b6f004d2374299fc',name='stock-market-from-the-ground-up';
+          const token=process.env.CF_TOKEN;if(!token||token.length<20)throw Error('No master account token');
+          const api='https://api.cloudflare.com/client/v4';
+          const request=async(method,path,body)=>{
+            const r=await fetch(api+path,{method,headers:{authorization:'Bearer '+token,
+              ...(body?{'content-type':'application/json'}:{})},
+              body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(15000)});
+            const j=await r.json().catch(()=>({success:false}));
+            if(!j.success)throw Error('Cloudflare '+method+' HTTP '+r.status);
+            return j.result;
+          };
+          const a=await request('GET','/accounts/'+id);
+          if(a.id!==id||!String(a.name).toLowerCase().includes('yahoo.com'))throw Error('Wrong account');
+          const path='/accounts/'+id+'/pages/projects/'+name;
+          const p=await request('GET',path),v=p.deployment_configs?.production?.env_vars||{};
+          if(p.id!=='2cf1b496-5f6a-4cb0-89ba-b1519c08154b')throw Error('Wrong Pages project');
+          const flags=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
+             'GU58_LIVE_WEBHOOK_ENABLED','GU58_LIVE_FULFILLMENT_APPROVED','GU58_LIVE_DB_CONTRACT_APPROVED',
+             'GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_FULFILLMENT_APPROVED'];
+          if(flags.some(k=>v[k]?.value!=='false'))throw Error('LIVE gate is not off');
+          const eight={
+            'plan:FULL_MONTHLY':{product_id:'prod_VRvuGwLKI16MXU',price_id:'price_1UR22wJL0O4GGVBHzH5q7eE4'},
+            'plan:FULL_ANNUAL':{product_id:'prod_VRvyBNhWk9jshb',price_id:'price_1UR26aJL0O4GGVBHNKiD7GO2'},
+            'plan:LIFETIME':{product_id:'prod_VRwgISspL5mhls',price_id:'price_1UR2n0JL0O4GGVBHSO8aOTlR'},
+            'plan:ONDEMAND_MONTHLY':{product_id:'prod_VRwjus5sQLtTad',price_id:'price_1UR2pZJL0O4GGVBHGpnHYb93'},
+            'tool:INTERACTIVE_LEARNING':{product_id:'prod_VRwmmu4zATdHAb',price_id:'price_1UR2syJL0O4GGVBHXn98cQqn'},
+            'tool:JOURNAL_ANALYTICS':{product_id:'prod_VRwoX4hTg8fRCm',price_id:'price_1UR2vHJL0O4GGVBHVlYlhZiL'},
+            'tool:MARKET_SIMULATOR':{product_id:'prod_VRwrsEpvfw60Xh',price_id:'price_1UR2y2JL0O4GGVBHJ5wKbWws'},
+            'tool:MARKET_TUTOR':{product_id:'prod_VRwuiqDt8qHayI',price_id:'price_1UR30oJL0O4GGVBHkmHBrnkU'}
+          };
+          const founder={
+            FOUNDING_30:{productId:'prod_VVF9poZ15hcsIm',priceId:'price_1UUEgWJL0O4GGVBHWVsQfwvg'},
+            FOUNDING_60:{productId:'prod_VVF9SaeXxAv1QL',priceId:'price_1UUEgYJL0O4GGVBHE7pmnWKz'}
+          };
+          if(Object.keys(eight).length!==8||Object.keys(founder).length!==2)throw Error('Catalog shape mismatch');
+          const bindings={
+            GU58_STRIPE_LIVE_CATALOG_JSON:{type:'plain_text',value:JSON.stringify(eight)},
+            GU_F600_LIVE_CATALOG_JSON:{type:'plain_text',value:JSON.stringify(founder)}
+          };
+          await request('PATCH',path,{deployment_configs:{production:{env_vars:bindings}}});
+          const after=await request('GET',path),e=after.deployment_configs?.production?.env_vars||{};
+          if(Object.entries(bindings).some(([k,b])=>e[k]?.value!==b.value)||flags.some(k=>e[k]?.value!=='false'))
+            throw Error('Catalog readback or LIVE shutdown gates failed');
+          console.log(JSON.stringify({master:id,liveProductMappings:8,foundingPlanMappings:2,
+            configuredMetadataOnly:true,liveCheckoutEnabled:false,liveWebhooksEnabled:false,paymentOperations:0}));
+          NODE
