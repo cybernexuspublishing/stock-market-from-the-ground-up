@@ -9,6 +9,9 @@ on:
       - 'tests/test_admin_role_editor_atomic_v014255.mjs'
       - 'tests/test_admin_stripe_test_provider_v014256.mjs'
       - 'tests/test_admin_production_guest_v014255.mjs'
+      - 'tests/test_pages_functions_route_manifest_v014257.mjs'
+      - '_routes.json'
+      - 'scripts/build-pages.sh'
       - 'tests/test_admin_staff_flag_gate_v014253.mjs'
       - 'tests/test_v014077_owner_qa_membership_reset.mjs'
       - 'tests/test_admin_legacy_authorization_v014254.mjs'
@@ -73,6 +76,7 @@ jobs:
           node tests/test_admin_rbac_atomic_v014252.mjs
           node tests/test_admin_role_editor_atomic_v014255.mjs
           node tests/test_admin_stripe_test_provider_v014256.mjs
+          node tests/test_pages_functions_route_manifest_v014257.mjs
           node tests/test_admin_staff_flag_gate_v014253.mjs
           node tests/test_admin_legacy_authorization_v014254.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
