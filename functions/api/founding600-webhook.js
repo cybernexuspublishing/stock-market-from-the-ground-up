@@ -81,6 +81,16 @@ async function fulfill(c,event){
  const expected=reserved.plan_code==='FOUNDING_30'?4999:5999;
  if(!line||line.amount!==expected||verified.subtotal!==expected||verified.amount_paid<expected)
  throw Error('INVOICE_PRICE_MISMATCH');
+ // Stripe invoice.paid also fires for out-of-band/manual marks. Grant access
+ // only for a provider-confirmed succeeded PaymentIntent actually allocated.
+ const pay=await stripe(c,'invoice_payments?invoice='+encodeURIComponent(verified.id)+'&limit=10');
+ if(pay.has_more||!Array.isArray(pay.data)||pay.data.length!==1)throw Error('INVOICE_PAYMENT_COUNT_MISMATCH');
+ const allocated=pay.data[0],intent=allocated.payment?.payment_intent;
+ if(allocated.status!=='paid'||allocated.amount_paid!==expected||!pattern(intent,'pi'))
+ throw Error('NO_VERIFIED_PAID_PAYMENT_INTENT');
+ const payment=await stripe(c,'payment_intents/'+encodeURIComponent(intent));
+ if(payment.id!==intent||payment.status!=='succeeded'||payment.currency!=='usd'||payment.amount<expected
+ ||payment.customer!==verified.customer)throw Error('PAYMENT_INTENT_NOT_SETTLED');
  const result=await db(c,'rpc/gu_founder_record_paid_cycle_v014196',{
   p_reservation:reservationId,p_user:reserved.user_id,p_session:reserved.checkout_session_id,
   p_subscription:sid,p_invoice:verified.id,p_event:event.id,p_customer:verified.customer,
@@ -88,6 +98,93 @@ async function fulfill(c,event){
  });
  if(result?.ok!==true)throw Error('DATABASE_FULFILLMENT_RETRY');
  return result.replayed?'REPLAY':'PAID';
+}
+/* Verify payment failures, canceled subscriptions, refunds, and charge disputes
+ * against provider state + the existing bound LIVE founding reservation.
+ */
+async function subscriptionContext(c,sid){
+ if(!pattern(sid,'sub'))return null;
+ const sub=await stripe(c,'subscriptions/'+encodeURIComponent(sid));
+ if(sub.id!==sid||sub.livemode!==true)throw Error('FOREIGN_SUBSCRIPTION');
+ const rid=sub.metadata?.f600_reservation;
+ if(!rid)return null; // unrelated Stripe products on the same account
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(rid))throw Error('BAD_FOUNDER_REFERENCE');
+ const rows=await db(c,'gu_founder_reservations_v014173?select=*&id=eq.'+encodeURIComponent(rid)+'&limit=1');
+ if(!Array.isArray(rows)||rows.length!==1)throw Error('NO_BOUND_FOUNDER_RESERVATION');
+ const r=rows[0],p=c.catalog[r.plan_code],item=sub.items?.data?.[0];
+ if(!p||r.reservation_state!=='consumed'||r.checkout_subscription_id!==sid||
+ r.checkout_price_id!==p.priceId||sub.items?.data?.length!==1||item?.price?.id!==p.priceId||
+ item.price?.recurring?.interval!=='day'||
+ item.price.recurring.interval_count!==(r.plan_code==='FOUNDING_30'?30:60))
+ throw Error('FOUNDER_SUBSCRIPTION_BINDING_FAILED');
+ const sess=await stripe(c,'checkout/sessions/'+encodeURIComponent(r.checkout_session_id));
+ if(sess.id!==r.checkout_session_id||sess.client_reference_id!==rid||sess.subscription!==sid||
+ sess.metadata?.f600_user!==r.user_id||sess.customer!==sub.customer)
+ throw Error('FOUNDER_CHECKOUT_OR_CUSTOMER_MISMATCH');
+ return {sub,r,sid,periodEnd:iso(item.current_period_end||sub.current_period_end)};
+}
+async function lifecycle(c,e){
+ const kind=e.type;let sid=null,invoice=null,charge=null;
+ if(kind==='invoice.payment_failed'){
+  const invoiceId=e.data?.object?.id;
+  if(!pattern(invoiceId,'in'))return 'IGNORE';
+  invoice=await stripe(c,'invoices/'+encodeURIComponent(invoiceId));
+  sid=typeof invoice.subscription==='string'?invoice.subscription:invoice.parent?.subscription_details?.subscription;
+ }else if(kind==='customer.subscription.updated'||kind==='customer.subscription.deleted'){
+  sid=e.data?.object?.id;
+ }else if(kind==='charge.refunded'||kind==='charge.dispute.created'){
+  const chargeId=kind==='charge.refunded'?e.data?.object?.id:e.data?.object?.charge;
+  if(!pattern(chargeId,'ch'))return 'IGNORE';
+  charge=await stripe(c,'charges/'+encodeURIComponent(chargeId));
+  const invoiceId=typeof charge.invoice==='string'?charge.invoice:charge.invoice?.id;
+  if(!pattern(invoiceId,'in'))return 'IGNORE'; // manual billing review
+  invoice=await stripe(c,'invoices/'+encodeURIComponent(invoiceId));
+  sid=typeof invoice.subscription==='string'?invoice.subscription:invoice.parent?.subscription_details?.subscription;
+ }else return 'IGNORE';
+ if(!pattern(sid,'sub'))return 'IGNORE';
+ const ctx=await subscriptionContext(c,sid);
+ if(!ctx)return 'IGNORE';
+ if(invoice){
+  const invoiceSid=typeof invoice.subscription==='string'?invoice.subscription:invoice.parent?.subscription_details?.subscription;
+  if(invoiceSid!==sid||invoice.customer!==ctx.sub.customer||invoice.livemode!==true)
+   throw Error('INVOICE_SUBSCRIPTION_BINDING_MISMATCH');
+ }
+ if(kind==='invoice.payment_failed'){
+  if(invoice.status==='paid')return 'IGNORE';
+  if(!ctx.periodEnd)throw Error('SUBSCRIPTION_PERIOD_REQUIRED');
+  const result=await db(c,'rpc/gu_founder_update_provider_state_v014218',
+   {p_subscription:sid,p_event:e.id,p_status:'past_due',
+    p_cancel_at_period_end:!!ctx.sub.cancel_at_period_end,p_period_end:ctx.periodEnd});
+  if(!result?.ok)throw Error('FAILED_PAYMENT_STATE_RETRY');
+  return result.replayed?'REPLAY':'PAYMENT_FAILED';
+ }
+ if(kind==='customer.subscription.updated'||kind==='customer.subscription.deleted'){
+  if(!ctx.periodEnd)throw Error('SUBSCRIPTION_PERIOD_REQUIRED');
+  const st=ctx.sub.status==='active'?'active':
+    ['past_due','unpaid','incomplete'].includes(ctx.sub.status)?'past_due':
+    ctx.sub.status==='canceled'?'canceled':null;
+  if(!st)throw Error('UNSUPPORTED_FOUNDER_SUBSCRIPTION_STATE');
+  const result=await db(c,'rpc/gu_founder_update_provider_state_v014218',
+   {p_subscription:sid,p_event:e.id,p_status:st,
+    p_cancel_at_period_end:!!ctx.sub.cancel_at_period_end,p_period_end:ctx.periodEnd});
+  if(!result?.ok)throw Error('SUBSCRIPTION_STATUS_RETRY');
+  return result.replayed?'REPLAY':'SUBSCRIPTION_'+st.toUpperCase();
+ }
+ if(kind==='charge.refunded'&&
+ (charge.amount_refunded!==charge.amount||charge.amount<=0))return 'PARTIAL_REFUND_MANUAL_REVIEW';
+ if(kind==='charge.dispute.created'&&
+ (e.data?.object?.status==='won'||e.data?.object?.status==='lost'))return 'DISPUTE_REVIEW_REQUIRED';
+ if(invoice.status!=='paid')throw Error('REFUND_OR_DISPUTE_UNPAID_INVOICE');
+ const invoicePayments=await stripe(c,'invoice_payments?invoice='+encodeURIComponent(invoice.id)+'&limit=10');
+ const paymentId=charge.payment_intent;
+ if(invoicePayments.has_more||!invoicePayments.data?.some(p=>
+ p.status==='paid'&&p.payment?.payment_intent===paymentId&&p.amount_paid>=charge.amount))
+ throw Error('CHARGE_INVOICE_PAYMENT_MISMATCH');
+ const result=await db(c,'rpc/gu_founder_reverse_paid_invoice_v014200',
+  {p_invoice:invoice.id,p_subscription:sid,p_event:e.id,
+   p_reason:kind==='charge.refunded'?'full_refund':'payment_dispute'});
+ if(!result?.ok)throw Error('REFUND_REVERSAL_RETRY');
+ return result.replayed?'REPLAY':kind==='charge.refunded'?'FULL_REFUND_REVERSED':'DISPUTE_REVERSED';
 }
 export async function onRequestPost({request,env}){
  const c=envConfig(env);if(!c)return text('Founding webhook inactive',503);
@@ -98,11 +195,10 @@ export async function onRequestPost({request,env}){
  if(!['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted',
  'charge.refunded','charge.dispute.created'].includes(event.type))
  return text('Unrelated Stripe event ignored',200);
- if(event.type!=='invoice.paid')
- return text('Founding nonpayment lifecycle handler is not yet activated',503);
+
  try{
   const account=await stripe(c,'account');if(account.id!==c.account)throw Error('FOREIGN_ACCOUNT');
-  const status=await fulfill(c,event);
+  const status=event.type==='invoice.paid'?await fulfill(c,event):await lifecycle(c,event);
   return text(status,200);
  }catch{return text('Provider or fulfillment confirmation unavailable',503)}
 }
