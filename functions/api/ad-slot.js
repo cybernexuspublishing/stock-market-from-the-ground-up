@@ -42,8 +42,14 @@ async function planCode(c,request){
  const user=await userResponse.json();if(!/^[a-f0-9-]{36}$/i.test(user?.id||''))return null;
  const roles=await query(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(user.id));
  if(roles?.some(r=>r.role_code==='OWNER'&&(!r.expires_at||Date.parse(r.expires_at)>Date.now())))return 'OWNER';
- const membership=await query(c,'site_subscriptions?select=plan_code,status,current_period_end&user_id=eq.'+encodeURIComponent(user.id)+'&status=in.(active,trialing)&order=created_at.desc&limit=30');
- const active=new Set((membership||[]).filter(x=>!x.current_period_end||Date.parse(x.current_period_end)>Date.now()).map(x=>x.plan_code));
+ const [membership,grants]=await Promise.all([
+  query(c,'site_subscriptions?select=plan_code,status,current_period_end&user_id=eq.'+encodeURIComponent(user.id)+'&status=in.(active,trialing)&order=created_at.desc&limit=30'),
+  query(c,'user_plan_grants?select=plan_code,status,ends_at&user_id=eq.'+encodeURIComponent(user.id)+'&status=in.(active,trialing)&limit=40')
+ ]);
+ const active=new Set([
+  ...(membership||[]).filter(x=>!x.current_period_end||Date.parse(x.current_period_end)>Date.now()).map(x=>x.plan_code),
+  ...(grants||[]).filter(x=>!x.ends_at||Date.parse(x.ends_at)>Date.now()).map(x=>x.plan_code)
+ ]);
  if(active.has('LIFETIME'))return 'LIFETIME';
  if(active.has('FULL_ANNUAL'))return 'FULL_ANNUAL';
  if(active.has('FULL_MONTHLY'))return 'FULL_MONTHLY';
