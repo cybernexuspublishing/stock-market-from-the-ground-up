@@ -22,15 +22,12 @@ const assessed=(skills?.skills||[]).filter(x=>x.score!==null&&x.score!==undefine
 const totalSkills=(skills?.skills||[]).length;
 const toolCount=(a?.tools||[]).filter(t=>t.included&&t.status!=='retired').length;
 const cards=[
- ['Platform Labs',r.error?'—':labs.length,'Visible active Labs (not a membership entitlement)'],
- ['Your Labs',r.error?'—':eligible.length,'Available under your current access'],
- ['Labs Completed',prog.error?'—':done,'Unique accessible Lab IDs'],
- ['In Progress',prog.error?'—':doing,'Unique accessible Lab IDs'],
- ['Books Available',(a?.books||[]).filter(b=>b.included).length,'Companion branches'],
- ['Skills Assessed',totalSkills?`${assessed} / ${totalSkills}`:'—','Skills with scored evidence'],
- ['Tools Included',toolCount,'Current membership tools']
+ ['Your Labs',r.error?'—':eligible.length,'Available with your current access'],
+ ['Labs Completed',prog.error?'—':done,'Completed accessible Lab IDs'],
+ ['In Progress',prog.error?'—':doing,'Ready for continued practice'],
+ ['Skills Assessed',totalSkills?`${assessed} / ${totalSkills}`:'—','Official scored skill evidence']
 ];box.innerHTML=cards.map(([name,value,note])=>`<article><strong>${escape(value)}</strong><span>${escape(name)}</span><small>${escape(note)}</small></article>`).join('');}
-function check(){const summary=document.querySelector('.v1321-overview .v1324-summary-grid');if(!summary||summary===currentHost)return;currentHost=summary;const box=document.createElement('section');box.id='v135-overview-strip';box.className='v135-overview-strip';box.setAttribute('aria-label','Current platform and personal learning metrics');summary.insertAdjacentElement('afterend',box);box.innerHTML='<p>Loading learning metrics…</p>';fill(box).catch(()=>box.textContent='Learning counts are temporarily unavailable.');}
+function check(){const summary=document.querySelector('.v1321-overview .v1324-summary-grid');if(!summary||summary===currentHost)return;currentHost=summary;const box=document.createElement('section');box.id='v135-overview-strip';box.className='v135-overview-strip';box.setAttribute('aria-label','Current platform and personal learning metrics');const hero=document.querySelector('.v1321-overview .v132-dashboard-hero');(hero||summary).insertAdjacentElement('afterend',box);box.innerHTML='<p>Loading learning metrics…</p>';fill(box).catch(()=>box.textContent='Learning counts are temporarily unavailable.');}
 function init(){new MutationObserver(()=>{clearTimeout(pend);pend=setTimeout(check,140)}).observe(document.body,{childList:true,subtree:true});check()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();
 
