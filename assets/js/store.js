@@ -4,6 +4,8 @@
  */
 (()=>{'use strict';
 const C=()=>window.CommerceTools;
+let faces=new Map(),useFaceRegistry=false;
+const faceFor=(kind,code)=>faces.get(kind+':'+code);
 const membershipIds=['FREE','FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'];
 const planPaths={FREE:'store-membership-free.html',FULL_MONTHLY:'store-membership-full-monthly.html',FULL_ANNUAL:'store-membership-full-annual.html',LIFETIME:'store-membership-lifetime.html',ONDEMAND_MONTHLY:'store-membership-ondemand-monthly.html'};
 const bookPaths={FOUNDATION_BOOK_1:'store-book-foundation-1.html',FOUNDATION_BOOK_2:'store-book-foundation-2.html',FOUNDATION_BOOK_3:'store-book-foundation-3.html',DAY_TRADING_BOOK_1:'store-book-day-trading-1.html',READING_THE_TAPE:'store-book-reading-the-tape.html'};
@@ -21,7 +23,7 @@ const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limi
  // Never allow a duplicate canonical SKU to generate two purchase cards.
  const availablePlan=p=>membershipIds.includes(p?.planCode);
  const approvedPlanCatalog=rows=>{
-  const items=(Array.isArray(rows)?rows:[]).filter(availablePlan);
+  const items=(Array.isArray(rows)?rows:[]).filter(availablePlan).filter(p=>!useFaceRegistry||!!faceFor('plan',p.planCode));
   if(new Set(items.map(p=>p.planCode)).size!==items.length)return [];
   return membershipIds.map(code=>items.find(p=>p.planCode===code)).filter(Boolean);
  };
@@ -29,61 +31,66 @@ const activeTool=t=>t.status==='live'&&Number(t.priceCents)>0;
 const listedTool=t=>t.status!=='retired';
 const futureLearning=()=>Array.isArray(window.GroundUpUpcomingOfferings)?window.GroundUpUpcomingOfferings:[];
 function planCard(p){
+ const pf=faceFor('plan',p.planCode),displayName=pf?.display_name||p.label,publicDescription=pf?.description||p.description;
  const rec=p.planCode==='FULL_MONTHLY',page=details('plan',p.planCode);
  return `<article class="v11-plan ${rec?'recommended':''}">
  ${rec?'<span class="v11-plan-ribbon">Recommended</span>':''}
- <div class="eyebrow">Membership</div><h3><a href="${esc(page)}">${esc(p.label)}</a></h3>
+ <div class="eyebrow">Membership</div><h3><a href="${esc(page)}">${esc(displayName)}</a></h3>
  <div class="v11-price">${dollars(p.priceCents)} <small>${esc(suffix(p.billingInterval))}</small></div>
- <a class="store-plan-primary-link" href="${esc(page)}" aria-label="Read what ${esc(p.label)} includes, excludes and teaches">What’s included, excluded &amp; taught →</a>
- <p>${esc(p.description||'Review this plan’s full coverage and billing terms before purchase.')}</p>
+ <a class="store-plan-primary-link" href="${esc(page)}" aria-label="Read what ${esc(displayName)} includes, excludes and teaches">What’s included, excluded &amp; taught →</a>
+ <p>${esc(publicDescription||'Review this plan’s full coverage and billing terms before purchase.')}</p>
  <ul><li>${esc(adLabel(p.planCode))}</li>${p.planCode==='FREE'?freeBenefits(p).map(x=>`<li>${esc(x)}</li>`).join('')+'<li>Public glossary and released samples; advanced Tutor/server replay require paid access</li>':`<li>${esc(p.allTools?'Released first-party premium tools':'Book-aligned independent practice')}</li>`}<li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
  <div class="store-sales-actions">${p.planCode==='FREE'?'<a class="btn" href="create-account.html">Get Free Access</a>':
- (p.checkoutEnabled&&Number(p.priceCents)>0?'<a class="btn" href="checkout.html?type=plan&amp;code='+encodeURIComponent(p.planCode)+'">Choose This Membership</a>':
+ ((!pf||['listed','for_sale'].includes(pf.status))&&p.checkoutEnabled&&Number(p.priceCents)>0?'<a class="btn" href="checkout.html?type=plan&amp;code='+encodeURIComponent(p.planCode)+'">Choose This Membership</a>':
  '<span class="store-soon-label">Coming Soon · Enrollment not yet available</span>')}
- <a class="btn secondary" href="${esc(page)}" aria-label="Review ${esc(p.label)} details, exclusions and purchase options">Compare Benefits</a></div></article>`;
+ <a class="btn secondary" href="${esc(page)}" aria-label="Review ${esc(displayName)} details, exclusions and purchase options">Compare Benefits</a></div></article>`;
 }
 function bookBuy(label,url){const target=safe(url);return target?`<a class="btn secondary" href="${esc(target)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:''}
 function bookCard(p){
+ const face=faceFor('book',p.productCode),displayTitle=face?.display_name||p.title,publicDescription=face?.description||p.description;
+ const allowPurchases=!face||['listed','for_sale'].includes(face.status);
  const channels=[];
- if(p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)channels.push(bookBuy('Buy Kindle on Amazon',p.amazon.kindleUrl));
- if(p.amazonPaperbackEnabled!==false&&p.amazon?.paperbackUrl)channels.push(bookBuy('Buy Paperback on Amazon',p.amazon.paperbackUrl));
- if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)channels.push(bookBuy('Buy Hardcover on Amazon',p.amazon.hardcoverUrl));
- if(p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)channels.push(bookBuy('Buy Physical Edition Direct',p.directPhysical.checkoutUrl));
- if(p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)channels.push(bookBuy('Buy Digital Edition Direct',p.directDigital.checkoutUrl));
- if(p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
+ if(allowPurchases&&p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)channels.push(bookBuy('Buy Kindle on Amazon',p.amazon.kindleUrl));
+ if(allowPurchases&&p.amazonPaperbackEnabled!==false&&p.amazon?.paperbackUrl)channels.push(bookBuy('Buy Paperback on Amazon',p.amazon.paperbackUrl));
+ if(allowPurchases&&p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)channels.push(bookBuy('Buy Hardcover on Amazon',p.amazon.hardcoverUrl));
+ if(allowPurchases&&p.directPhysical?.enabled&&p.directPhysical?.checkoutUrl)channels.push(bookBuy('Buy Physical Edition Direct',p.directPhysical.checkoutUrl));
+ if(allowPurchases&&p.directDigital?.enabled&&!p.kdpSelect&&p.directDigital?.checkoutUrl)channels.push(bookBuy('Buy Digital Edition Direct',p.directDigital.checkoutUrl));
+ if(allowPurchases&&p.websiteCheckoutEnabled&&!p.kdpSelect&&p.lemonVariantId)channels.push(`<a class="btn secondary" href="checkout.html?type=book&amp;code=${encodeURIComponent(p.productCode)}">Buy on Website</a>`);
  const purchaseCount=channels.length;
  if(p.sampleUrl)channels.push(bookBuy('Read Sample',p.sampleUrl));
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
  const available=purchaseCount?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`+channels.join('');
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(p.branchSlug||p.family||'other')}">
- <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
- <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
+ <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(displayTitle)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
+ <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(displayTitle)}</a></h3>
  <div class="product-meta"><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
  ${p.salesStatus==='published'&&purchaseCount?'<span class="status-pill">Purchase options listed</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
- <p>${esc(p.description||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
+ <p>${esc(publicDescription||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
  <p class="small">By ${esc(p.author)} · ${esc(p.publisher)}</p>
  <div class="library-actions"><a class="btn" href="${esc(page)}">Explore Book &amp; Purchase Options</a>${available}</div>
  ${p.companionAccess?'<div class="library-actions"><a class="btn secondary" href="dashboard.html?tab=settings">Redeem Book Key</a><a class="btn secondary" href="dashboard.html?tab=books">Companion Access</a></div>':''}</article>`;
 }
 function toolCard(t){
- const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled;
+ const face=faceFor('tool',t.toolCode),displayName=face?.display_name||t.name,publicDescription=face?.description||t.description;
+ const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled&&(!face||['listed','for_sale'].includes(face.status));
  const price=released?dollars(t.priceCents)+'/month':'Pricing to be announced';
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
  '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Coming Soon · Not yet released')+'</span>';
  return `<article class="v11-tool-card store-sell-card"><div class="eyebrow">${esc(t.category)}</div>
- <h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
- <p>${esc(t.description||'Further product information is being prepared.')}</p>
+ <h3><a href="${esc(page)}">${esc(displayName)}</a></h3>
+ <p>${esc(publicDescription||'Further product information is being prepared.')}</p>
  <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
  <p class="store-sell-status">${released?'Released learning tool':'Coming Soon'}${released&&!enroll?' · Sales opening pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
  <div class="store-sales-actions">${action}<a class="btn secondary" href="${esc(page)}">See What You Get</a></div></article>`;
 }
 function upcomingCard(t){
+ const face=faceFor('feature',t.code),displayName=face?.display_name||t.name,publicDescription=face?.description||t.description;
  return `<article class="v11-tool-card store-sell-card store-future-card">
  <div class="eyebrow">${esc(t.category||'Upcoming learning feature')}</div>
- <span class="store-soon-label">Coming Soon · Independent purchase not available</span><h3>${esc(t.name)}</h3>
- <p>${esc(t.description)}</p><p class="store-sell-price"><span class="store-price-label">Price</span> Pricing to be announced</p>
+ <span class="store-soon-label">Coming Soon · Independent purchase not available</span><h3>${esc(displayName)}</h3>
+ <p>${esc(publicDescription)}</p><p class="store-sell-price"><span class="store-price-label">Price</span> Pricing to be announced</p>
  <div class="store-sales-actions"><a class="btn secondary" href="${esc(t.route)}">Explore This Feature</a></div></article>`;
 }
 
@@ -132,15 +139,19 @@ function tabs(){
 async function init(){
  tabs();
  try{
+  if(typeof window.GroundUpPublicStorefaces==='function'){
+   const verified=await window.GroundUpPublicStorefaces();
+   faces=new Map(verified.map(x=>[x.sku,x]));useFaceRegistry=true;
+  }
   const catalog=await C().load();
   const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
-  const plans=approvedPlanCatalog(d.plans),allTools=(d.tools||[]).filter(listedTool),tools=allTools.filter(activeTool);
+  const plans=approvedPlanCatalog(d.plans),allTools=(d.tools||[]).filter(listedTool).filter(t=>!useFaceRegistry||!!faceFor('tool',t.toolCode)),tools=allTools.filter(activeTool);
   document.getElementById('store-plans').innerHTML=plans.length?plans.map(planCard).join(''):
    '<div class="notice">Membership details and prices are temporarily unavailable from the live catalog. No purchase is offered until the catalog is available.</div>';
-  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired').map(bookCard).join('')||
+  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired'&&(!useFaceRegistry||!!faceFor('book',p.productCode))).map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   const futureIds=new Set(allTools.map(x=>x.toolCode));
-  const future=futureLearning().filter(x=>!futureIds.has(x.code));
+  const future=futureLearning().filter(x=>!futureIds.has(x.code)&&(!useFaceRegistry||!!faceFor('feature',x.code)));
   document.getElementById('store-tools').innerHTML=d.commerceUnavailable?
    '<div class="notice">Live product prices and checkout status cannot be verified. Please try again later.</div>':
    allTools.map(toolCard).join('')+future.map(upcomingCard).join('');
