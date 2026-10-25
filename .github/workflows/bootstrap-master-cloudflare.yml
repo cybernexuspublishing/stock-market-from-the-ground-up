@@ -1,14 +1,16 @@
 name: Bootstrap Yahoo Master Cloudflare (No Payments)
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/bootstrap-master-cloudflare.yml'
+    inputs:
+      confirm:
+        description: 'Type BOOTSTRAP_MASTER to explicitly authorize nonpayment account setup'
+        required: true
+        type: string
 permissions:
   contents: read
 jobs:
   bootstrap:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'BOOTSTRAP_MASTER'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
