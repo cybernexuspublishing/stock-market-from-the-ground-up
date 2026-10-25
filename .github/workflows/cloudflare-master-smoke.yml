@@ -1,0 +1,26 @@
+name: Cloudflare Yahoo Master — No-Charge Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/cloudflare-master-smoke.mjs'
+      - '.github/workflows/cloudflare-master-smoke.yml'
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-yahoo-master-nocharge-smoke
+  cancel-in-progress: true
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify master deployed configuration without payments
+        run: node tests/cloudflare-master-smoke.mjs
