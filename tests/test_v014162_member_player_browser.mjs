@@ -174,6 +174,14 @@ try{
  await draftPage.getByRole('button',{name:'Start Guided Learning →'}).waitFor({timeout:15000});
  assert.equal(await draftPage.getByText('Cannot read properties of undefined').count(),0);
  assert.match(await draftPage.locator('#player-location').innerText(),/Foundations I/);
+ // The shared v3.3 guided journey intentionally hides protected decision
+ // controls until Predict (stage 3). Exercise the real progression first.
+ assert.equal(await draftPage.locator('#gu-ws-member-workbench').isVisible(),false,
+  'Guided Start must conceal the independent decision workbench');
+ await draftPage.getByRole('button',{name:'Start Guided Learning →'}).click();
+ await draftPage.getByRole('button',{name:'Next learning stage'}).click();
+ await draftPage.getByRole('button',{name:'Next learning stage'}).click();
+ await draftPage.locator('#gu-ws-member-workbench > summary').waitFor({state:'visible'});
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
  assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
  assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Set the replay date/);
