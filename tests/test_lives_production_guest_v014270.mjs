@@ -11,9 +11,9 @@ const fetchJSON=async path=>{
 const failures=[];
 for(const path of ['/','/create-account.html','/signin.html','/founding600.html','/store.html']){
  try{
-  const r=await fetch(ORIGIN+path,{cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(20000)});
-  console.log('LIVES PUBLIC',path,r.status,r.headers.get('content-type'));
-  if(r.status!==200||!(r.headers.get('content-type')||'').includes('text/html'))failures.push('Public page '+path+' unavailable');
+  const r=await fetch(ORIGIN+path,{cache:'no-store',redirect:'follow',signal:AbortSignal.timeout(20000)});
+  console.log('LIVES PUBLIC',path,r.status,r.headers.get('content-type'),'resolved',new URL(r.url).pathname);
+  if(new URL(r.url).origin!==ORIGIN||r.status!==200||!(r.headers.get('content-type')||'').includes('text/html'))failures.push('Public page '+path+' unavailable');
  }catch(e){failures.push('Public page '+path+' fetch: '+String(e))}
 }
 for(const [path,status,check] of [
