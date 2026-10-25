@@ -1,0 +1,73 @@
+name: Cloudflare Yahoo Master — Canonical Deployment Target Guard v0.14.0.274
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/replacement-cloudflare-pages.yml'
+      - '.github/workflows/cloudflare-replacement-smoke.yml'
+      - '.github/workflows/lives-beta-guest-acceptance-v014270.yml'
+      - '.github/workflows/cloudflare-master-target-guard-v014274.yml'
+      - 'tests/test_lives_production_guest_v014270.mjs'
+      - 'tests/test_cloudflare_master_target_v014274.mjs'
+      - 'workers/wrangler-master-billing.jsonc'
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-canonical-master-guard
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Block legacy deployment-target drift without provider writes
+        run: node --test tests/test_cloudflare_master_target_v014274.mjs
+  token-master-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify GitHub deploy secret sees the exact Yahoo master (GET only)
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const id='4fe9e562905cf607b6f004d2374299fc';
+          const project='stock-market-from-the-ground-up',host='stock-market-from-the-ground-up-d1r.pages.dev';
+          const token=process.env.CF_TOKEN;
+          if(!token||token.length<20)throw Error('GitHub Actions deployment secret is missing');
+          async function get(path){
+            const r=await fetch('https://api.cloudflare.com/client/v4'+path,{
+              headers:{authorization:'Bearer '+token},signal:AbortSignal.timeout(16000)});
+            const j=await r.json().catch(()=>({success:false}));
+            if(!r.ok||j.success!==true)throw Error('Cloudflare metadata GET failed, HTTP '+r.status);
+            return j.result;
+          }
+          const acct=await get('/accounts/'+id);
+          if(acct?.id!==id||!String(acct.name).toLowerCase().includes('yahoo.com'))
+            throw Error('GitHub secret is not authorized for approved Yahoo master account');
+          const p=await get('/accounts/'+id+'/pages/projects/'+project);
+          if(p?.name!==project||p.id!=='2cf1b496-5f6a-4cb0-89ba-b1519c08154b'
+            ||p.subdomain!==host||p.source?.config?.repo_name!=='stock-market-from-the-ground-up'
+            ||p.source?.type!=='github'||p.production_branch!=='main'
+            ||p.build_config?.build_command!=='bash scripts/build-pages.sh'
+            ||p.build_config?.destination_dir!=='public')
+            throw Error('Cloudflare production project/source mismatch');
+          const env=p.deployment_configs?.production?.env_vars||{};
+          for(const name of ['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
+            'GU58_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_CHECKOUT_ENABLED',
+            'GU_F600_LIVE_WEBHOOK_ENABLED','GU_F600_LIVE_FULFILLMENT_APPROVED']){
+            if(env[name]?.type!=='plain_text'||env[name]?.value!=='false')
+              throw Error('Nonpayment guard missing or enabled: '+name);
+          }
+          console.log(JSON.stringify({account:'Yahoo master',accountId:id,project,hostname:host,
+            sourceRepo:p.source.config.repo_name,branch:p.production_branch,
+            nativeGithubDeploy:true,allCheckedLivePaymentFlags:false,
+            credentialPresent:true,paymentOperations:0}));
+          NODE

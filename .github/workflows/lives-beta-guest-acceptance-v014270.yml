@@ -1,4 +1,4 @@
-name: LIVES Beta Noncharging Production Acceptance v0.14.0.270
+name: Yahoo Master Beta Noncharging Production Acceptance v0.14.0.270
 on:
   workflow_dispatch:
   push:
@@ -35,5 +35,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check LIVES canonical production route, role denial and no-charge Founding plans
+      - name: Check Yahoo master production route, role denial and no-charge Founding plans
         run: node tests/test_lives_production_guest_v014270.mjs

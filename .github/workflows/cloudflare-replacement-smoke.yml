@@ -1,15 +1,11 @@
-name: Cloudflare Replacement — Read-only Smoke Gate
+name: Interim Cloudflare — Historical Read-only Rollback Smoke
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'tests/cloudflare-replacement-smoke.mjs'
-      - '.github/workflows/cloudflare-replacement-smoke.yml'
+# Deliberately no push trigger: interim Pages is no longer canonical.
 permissions:
   contents: read
 concurrency:
-  group: cloudflare-replacement-readonly-smoke
+  group: cloudflare-interim-historical-smoke
   cancel-in-progress: true
 jobs:
   smoke:
@@ -22,5 +18,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify replacement publicly without any Stripe writes
+      - name: Verify historical interim site (read only, not release acceptance)
         run: node tests/cloudflare-replacement-smoke.mjs

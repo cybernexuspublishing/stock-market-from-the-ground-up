@@ -1,6 +1,6 @@
-/* v0.14.0.270 — LIVE Pages site guest acceptance, no purchases, auth credentials or database writes. */
+/* v0.14.0.270 — Yahoo master Pages site guest acceptance, no purchases, auth credentials or database writes. */
 import assert from 'node:assert/strict';
-const ORIGIN='https://stock-market-from-the-ground-up-lives.pages.dev';
+const ORIGIN='https://stock-market-from-the-ground-up-d1r.pages.dev';
 const fetchJSON=async path=>{
  const response=await fetch(ORIGIN+path,{method:'GET',redirect:'manual',cache:'no-store',
   headers:{accept:'application/json'},signal:AbortSignal.timeout(20000)});
@@ -12,7 +12,7 @@ const failures=[];
 for(const path of ['/','/create-account.html','/signin.html','/founding600.html','/store.html']){
  try{
   const r=await fetch(ORIGIN+path,{cache:'no-store',redirect:'follow',signal:AbortSignal.timeout(20000)});
-  console.log('LIVES PUBLIC',path,r.status,r.headers.get('content-type'),'resolved',new URL(r.url).pathname);
+  console.log('MASTER PUBLIC',path,r.status,r.headers.get('content-type'),'resolved',new URL(r.url).pathname);
   if(new URL(r.url).origin!==ORIGIN||r.status!==200||!(r.headers.get('content-type')||'').includes('text/html'))failures.push('Public page '+path+' unavailable');
  }catch(e){failures.push('Public page '+path+' fetch: '+String(e))}
 }
@@ -29,10 +29,10 @@ for(const [path,status,check] of [
 ]){
  try{
   const x=await fetchJSON(path);
-  console.log('LIVES FUNCTION',path,'HTTP',x.response.status,'type',x.response.headers.get('content-type'),'JSON',!!x.data);
+  console.log('MASTER FUNCTION',path,'HTTP',x.response.status,'type',x.response.headers.get('content-type'),'JSON',!!x.data);
   if(x.response.status!==status||!x.data||!check(x.data))failures.push('Functions mismatch '+path+' status '+x.response.status+' json='+!!x.data);
   if(!(x.response.headers.get('cache-control')||'').includes('no-store'))failures.push('No private no-store '+path);
  }catch(e){failures.push('Functions '+path+' error '+String(e))}
 }
 assert.deepEqual(failures,[],failures.join('\n'));
-console.log('PASS LIVES public pages, direct root/API Functions, anonymous role denials and closed Founding 600 recurring Checkout.');
+console.log('PASS Yahoo master public pages, direct root/API Functions, anonymous role denials and closed Founding 600 recurring Checkout.');
