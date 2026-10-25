@@ -92,6 +92,25 @@ async function handleGet(env,request,action,url){
     const c=await caller(env,request);const ctx=await roleContext(env,c.user.id);const ownerCount=await countTable(env,'admin_user_roles','role_code=eq.OWNER');const bootstrapEmail=clean(env.ADMIN_BOOTSTRAP_EMAIL).toLowerCase();return ok({user:{id:c.user.id,email:c.user.email},roles:ctx.roles,permissions:ctx.permissions,bootstrapAvailable:ctx.roles.length===0&&ownerCount===0&&!!bootstrapEmail&&clean(c.user.email).toLowerCase()===bootstrapEmail});
   }
   const sc=await caller(env,request),scCtx=await roleContext(env,sc.user.id);if(scCtx.roles.includes('SHOWCASE_VIEWER'))return showcaseRows(action,url);
+  if(action==='store_product_release_check'){
+    const c=await withContext(env,request,'catalog.view');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Owner authorization required.',403);
+    const sku=clean(url.searchParams.get('sku')).toUpperCase();
+    if(!allowedPrelaunchStoreCodesV014175.has(sku))return bad('Product not registered for this release workflow.',404);
+    const item=await one(env,'store_product_overrides_v014175?select=sku,lifecycle,store_visible,version&sku=eq.'+encodeURIComponent(sku)+'&limit=1');
+    // Unknown external acceptance is a blocker, never an implicit pass.
+    const blockers=[
+      'Approved product-specific Stripe price and current environment mapping not verified',
+      'Content, historical-data rights, independent assessments and accessibility not accepted',
+      'Server-owned fulfillment and entitlement delivery not accepted',
+      'Refund, cancellation and applicable tax treatment not accepted',
+      'Signed-webhook lifecycle, idempotency and real-member test acceptance not verified',
+      'Owner LIVE payment authorization intentionally not granted by this workflow'
+    ];
+    if(!item?.store_visible)blockers.unshift('Product visibility or current draft has not been published');
+    return ok({sku,version:item?.version||0,lifecycle:item?.lifecycle||'coming_soon',
+      checkout_ready:false,can_enable_live_payments:false,blockers});
+  }
   if(action==='store_product_overrides'){
     const c=await withContext(env,request,'catalog.view');
     if(!c.ctx.roles.includes('OWNER'))return bad('Owner authorization required.',403);
