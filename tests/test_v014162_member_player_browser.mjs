@@ -190,7 +190,10 @@ try{
  await draftPage.getByRole('button',{name:'Next learning stage'}).click();
  await draftPage.locator('#gu-ws-member-workbench > summary').waitFor({state:'visible'});
  await draftPage.locator('#gu-ws-member-workbench > summary').click();
- assert.match(await draftPage.locator('#player-workspace').innerText(),/Record your read before revealing guidance/);
+ // Use current Predict-stage copy and assert the underlying concealment rule.
+ assert.match(await draftPage.locator('#gu-v32-teaching-slot').innerText(),/Record your observation/);
+ assert.equal(await draftPage.locator('#reveal-panel').isVisible(),false,
+  'Guided steps must remain concealed before locking a decision');
  assert.match(await draftPage.locator('[aria-label="Lab-specific conceptual teaching"]').textContent(),/Set the replay date/);
  for(let step=0;step<4;step++)await draftPage.getByRole('button',{name:'Next question'}).click();
  await draftPage.locator('#ev-decision').selectOption('OBSERVATION_ONLY');
