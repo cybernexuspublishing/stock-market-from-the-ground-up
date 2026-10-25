@@ -20,9 +20,13 @@ function animate(node,text,showAll,replay){
  let raf=0,disposed=false,complete=false,last=0,at=0;
  const supports=typeof root.matchMedia==='function'&&!root.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const immediate=!supports||showAll;
+ // Reduced-motion users should not be offered an animation that cannot run.
+ // Keep the narration fully visible and avoid an inert replay control.
+ if(!supports){replay.hidden=true;replay.disabled=true;}
+ else{replay.hidden=false;replay.disabled=false;}
  function finish(){
   if(raf)root.cancelAnimationFrame?.(raf);
-  raf=0;node.textContent=text;complete=true;at=text.length;replay.textContent='Replay typing';
+  raf=0;node.textContent=text;complete=true;at=text.length;replay.textContent=supports?'Replay typing':'Full text displayed';
  }
  function tick(t){
   if(disposed)return;
