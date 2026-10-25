@@ -94,7 +94,13 @@ export async function handleAdSandbox(event,env){
  'checkout.session.async_payment_failed','charge.refunded','charge.dispute.created'].includes(type))
  return null;
  if(type.startsWith('checkout.session.')){
-  const id=event.data?.object?.id;
+  // Metadata is only a discovery hint; the retrieved Stripe session and
+  // private database binding remain mandatory before any TEST ledger write.
+  // Avoid touching ordinary GU39 or Founding 600 Checkout events at all.
+  const snapshot=event.data?.object||{};
+  if(snapshot.metadata?.gu_ad_sandbox_tag!=='AD_SANDBOX_2026'&&
+     !snapshot.metadata?.gu_ad_sandbox_intent)return null;
+  const id=snapshot.id;
   if(!okId(id,'cs_test'))return null;
   const ctx=await verifiedCheckout(env,id);
   if(!ctx)return null; // existing non-ad Stripe TEST transactions
