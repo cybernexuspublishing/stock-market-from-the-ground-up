@@ -240,6 +240,28 @@ const workspaceEnv=createContext({
 });
 new Script(flow).runInContext(workspaceEnv);
 const flowApi=workspaceEnv.GroundUpLabV33WorkspaceFlow;
+const v4=flowApi.presentationState;
+assert.equal(typeof v4,'function','Shared v4 controller must expose a pure mode/stage state policy');
+for(const mode of ['guided','practice']){
+ for(let stage=0;stage<3;stage++){
+  const state=v4(mode,stage);
+  assert.equal(state.workbenchVisible,false,mode+' must conceal decisions during orientation');
+  assert.equal(state.reflectionVisible,false,mode+' must conceal reflection before Review');
+ }
+ assert.equal(v4(mode,3).workbenchVisible,true,mode+' decision begins at Predict');
+ assert.equal(v4(mode,5).reflectionVisible,false,mode+' review stays gated');
+ assert.equal(v4(mode,6).reflectionVisible,true,mode+' reflection begins at Review');
+}
+for(const mode of ['blind','assessment']){
+ assert.equal(v4(mode,0).workbenchVisible,true,mode+' must permit independent decision');
+ assert.equal(v4(mode,0).reflectionVisible,false,mode+' must conceal reflection before locking');
+ assert.equal(v4(mode,0,true).reflectionVisible,true,mode+' must unlock reflection after decision');
+}
+assert.equal(v4('guided',999).stage,8,'Stage bounds must be clamped');
+assert.equal(v4('guided',-15).stage,0,'Negative stages must not bypass gating');
+assert(player.includes('currentPlayerPolicy().stage'),'Mode switching must consume the shared stage policy');
+assert(player.includes('PLAYER.locked||policy.stage>=3'),'Mode locking must use the same stage boundary as the workbench');
+assert(!player.includes('fraction>=1/3'),'Mode locking must not infer progress from a separate fractional metric');
 flowApi.stageVisibility(0);
 assert.equal(parts['gu-ws-member-workbench'].hidden,true);
 assert.equal(parts['gu-ws-reflection'].hidden,true);
