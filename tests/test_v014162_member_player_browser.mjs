@@ -101,7 +101,14 @@ try{
   await page.getByRole('button',{name:'Start Guided Learning →'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
-  assert.equal(await page.locator('#player-mode-select').isDisabled(),true);
+  const stageLock=await page.evaluate(()=>({
+   stage:document.querySelector('#player-workspace')?.dataset.learningStage,
+   engineProgress:document.querySelector('[data-v32-progress]')?.dataset.v32Progress,
+   mode:document.querySelector('#player-mode-select')?.value,
+   disabled:document.querySelector('#player-mode-select')?.disabled
+  }));
+  assert.equal(stageLock.stage,'3','Three advancements must enter Predict; state='+JSON.stringify(stageLock));
+  assert.equal(stageLock.disabled,true,'Predict must lock mode choice; state='+JSON.stringify(stageLock));
   assert.match(await page.locator('#player-mode-status').innerText(),/Locked/);
   assert.equal(await page.locator('#player-mode-restart-row').isVisible(),true);
   await page.getByRole('button',{name:'Change Mode / Restart'}).click();
