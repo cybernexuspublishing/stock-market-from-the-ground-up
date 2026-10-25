@@ -68,7 +68,7 @@ function enhance(view,options){
     low:'Low is '+money(q.l)+', the lowest recorded price.',
     body:'Real body = |Close - Open| = '+money(body)+'.',
     range:'Full range = High - Low = '+money(range)+'.',
-    percent:'Body percentage = '+money(body)+' / '+money(range)+' x 100 = '+ratio+'%.'
+    percent:'Body percentage = '+(range?money(body)+' / '+money(range)+' × 100 = '+ratio+'%.':'undefined because the full candle range is zero; division by zero is not permitted.')
    })[mode]||'Compare the selected completed candle prices.';
   }
   const keys=worked?['all','open','close','high','low','body','range','percent']:['all','body','range'];
