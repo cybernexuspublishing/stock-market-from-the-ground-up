@@ -1,3 +1,4 @@
+import {handleFounderSandbox} from '../_lib/founder-sandbox-lifecycle-v014216.js';
 /* v0.14.0.49 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
  * Production subscriptions, purchases and actual entitlements are never touched.
  */
@@ -111,7 +112,10 @@ export async function onRequestPost({request,env}){
  let enabled=false;
  try{enabled=await ownerTestingEnabled(env)}catch{return respond('SHADOW_SETTINGS_UNAVAILABLE',503)}
  if(!enabled)return respond('OWNER_TEST_MODE_DISABLED',503);
- try{const payload=await translate(env,event);if(!payload)return respond('IGNORED',200);
+ try{
+  const founder=await handleFounderSandbox(event,env);
+  if(founder)return respond(founder.body,founder.status);
+  const payload=await translate(env,event);if(!payload)return respond('IGNORED',200);
   const outcome=await supa(env,'rpc/gu39_shadow_apply','POST',payload);if(outcome.ok!==true||outcome.mode==='LIVE')throw Error('UNEXPECTED_FULFILLMENT');
   return respond('SHADOW_RECORDED',200);
  }catch{return respond('RETRY_SHADOW_EVENT',503)}
