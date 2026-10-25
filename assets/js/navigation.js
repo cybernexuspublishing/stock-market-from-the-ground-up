@@ -170,6 +170,7 @@
       drawer.hidden=true;
       document.body.classList.remove('v1341-mobile-open');
       q('#v1341-mobile-menu')?.setAttribute('aria-expanded','false');
+      q('#v1341-mobile-menu')?.setAttribute('aria-label','Open site navigation');
       q('#v1341-mobile-menu')?.focus({preventScroll:true});
     };
     qa('[data-mobile-close]',drawer).forEach(x=>x.addEventListener('click',close));
@@ -179,7 +180,9 @@
       const focusable=qa('a[href],button:not([disabled]),input:not([disabled])',panel).filter(x=>!x.hidden&&x.offsetParent!==null);
       if(!focusable.length)return;
       const first=focusable[0],last=focusable[focusable.length-1];
-      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+      if(e.shiftKey&&document.activeElement===panel){e.preventDefault();last.focus()}
+      else if(!e.shiftKey&&document.activeElement===panel){e.preventDefault();first.focus()}
+      else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
       else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
     });
     search.addEventListener('input',()=>{
@@ -232,14 +235,22 @@
     nav.appendChild(btn);
 
     const drawer=ensureDrawer();
+    let opening=false;
     btn.addEventListener('click',async()=>{
-      await populateDrawer(drawer);
+      if(opening||!drawer.hidden)return;
+      opening=true;btn.disabled=true;
+      try{await populateDrawer(drawer)}catch(error){
+        console.error('Unable to load mobile navigation',error);
+        opening=false;btn.disabled=false;return;
+      }
+      opening=false;btn.disabled=false;
       q('#v1341-mobile-search',drawer).value='';
       qa('[data-mobile-item]',drawer).forEach(x=>x.hidden=false);
       const empty=q('.v1341-mobile-empty',drawer);if(empty)empty.hidden=true;
       drawer.hidden=false;
       document.body.classList.add('v1341-mobile-open');
       btn.setAttribute('aria-expanded','true');
+      btn.setAttribute('aria-label','Site navigation open');
       requestAnimationFrame(()=>q('.v1341-mobile-panel',drawer)?.focus());
     });
   }
