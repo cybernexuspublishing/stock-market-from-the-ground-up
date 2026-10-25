@@ -28,7 +28,7 @@ const can=p=>context?.permissions?.includes(p)||false;
 const owner=()=>context?.roles?.includes('OWNER')||false;
 function show(tab){
  current=tab;
- for(const name of ['memberships','books','tools']){
+ for(const name of ['memberships','books','all','tools']){
   const x=$('admin-products-'+name),button=$('admin-products-tab-'+name),selected=tab===name;
   if(x)x.hidden=!selected;
   if(button){button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1}
@@ -88,7 +88,7 @@ function wire(){
   button.addEventListener('keydown',ev=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;
    ev.preventDefault();const names=['memberships','books','tools'],n=names.indexOf(button.dataset.productTab);
-   const i=ev.key==='Home'?0:ev.key==='End'?2:ev.key==='ArrowRight'?(n+1)%3:(n+2)%3;
+   const i=ev.key==='Home'?0:ev.key==='End'?names.length-1:ev.key==='ArrowRight'?(n+1)%names.length:(n+names.length-1)%names.length;
    show(names[i]);$('admin-products-tab-'+names[i]).focus();
   });
  });
@@ -157,7 +157,8 @@ async function load(){
   $('admin-products-new-tool').hidden=!can('tools.manage');
   if(result[1].status!=='fulfilled')msg('Books could not be loaded: '+result[1].reason?.message,true);
   else msg((live.plans?.length||0)+' membership configurations · '+(live.tools?.length||0)+' tool records. Book listings are managed in the Books tab.');
-  const hash=location.hash.slice(1);show(hash==='#'?current:hash.endsWith('-tools')?'tools':hash.endsWith('-books')?'books':current);
+  const hash=location.hash.slice(1);show(hash.endsWith('-all')?'all':hash.endsWith('-tools')?'tools':hash.endsWith('-books')?'books':current);
+  if(can('catalog.view'))window.GroundUpAdminStorefront?.load();
  }catch(ex){msg('Products catalog unavailable: '+ex.message,true)}
  finally{pending=false}
 }
