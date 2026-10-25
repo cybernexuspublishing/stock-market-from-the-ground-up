@@ -12,7 +12,10 @@ if [[ "${CF_PAGES_BRANCH:-main}" == "main" ]]; then
     GU58_LIVE_FULFILLMENT_APPROVED \
     GU58_LIVE_WEBHOOK_ENABLED \
     GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED \
-    GU72_ZERO_MONTHLY_QA_ENABLED; do
+    GU72_ZERO_MONTHLY_QA_ENABLED \
+    GU_F600_LIVE_CHECKOUT_ENABLED \
+    GU_F600_LIVE_FULFILLMENT_APPROVED \
+    GU_F600_LIVE_WEBHOOK_ENABLED; do
     if [[ "${!approval:-false}" == "true" ]]; then
       echo "PRE-LIVE BUILD BLOCK: $approval is enabled on the production branch." >&2
       exit 9
