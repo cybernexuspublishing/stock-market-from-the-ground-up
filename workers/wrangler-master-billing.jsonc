@@ -1,0 +1,10 @@
+{
+  // Yahoo master account, inactive staging of the existing billing reconciliation Worker.
+  // Activation of cron triggers requires a separately accepted cutover.
+  "name": "ground-up-billing-scheduler",
+  "main": "./billing-reconcile-stripe-only-v014129.js",
+  "compatibility_date": "2026-10-13",
+  "workers_dev": false,
+  "preview_urls": false,
+  "triggers": { "crons": [] }
+}
