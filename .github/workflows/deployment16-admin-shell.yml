@@ -9,6 +9,8 @@ on:
       - 'tests/test_admin_role_editor_atomic_v014255.mjs'
       - 'tests/test_admin_stripe_test_provider_v014256.mjs'
       - 'tests/test_admin_production_guest_v014255.mjs'
+      - 'tests/test_pages_functions_local_v014260.mjs'
+      - 'functions/api/runtime-health-v014259.js'
       - 'tests/test_pages_functions_route_manifest_v014257.mjs'
       - '_routes.json'
       - 'scripts/build-pages.sh'
@@ -55,6 +57,7 @@ jobs:
           node --check assets/js/admin-unified-preview-v014156.mjs
           node --check assets/js/admin-unified-people-v014156.mjs
           node --check functions/api/admin.js
+          node --check functions/api/runtime-health-v014259.js
           node --check functions/api/admin-control-registry.js
           node --check functions/api/admin-prelive-v014247.js
           node --check assets/js/admin-prelive-v014247.js
@@ -81,6 +84,30 @@ jobs:
           node tests/test_admin_legacy_authorization_v014254.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs
+
+
+  stage-b-actual-local-functions:
+    needs: stage-a-source-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build actual Pages static assets and route manifest
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/_routes.json
+          test ! -d public/functions
+      - name: Start local Wrangler Pages Functions engine
+        run: |
+          npm install --no-save --no-package-lock wrangler@3.114.17
+          npx wrangler pages dev public --ip 127.0.0.1 --port 8792 >/tmp/ground-up-functions-runtime.log 2>&1 &
+          echo $! >/tmp/ground-up-functions-runtime.pid
+      - name: Require real local Pages routing for health and Admin handler
+        run: |
+          node tests/test_pages_functions_local_v014260.mjs || { tail -n 100 /tmp/ground-up-functions-runtime.log; exit 1; }
 
   stage-c-production-guest-tests:
     needs: stage-a-source-tests
