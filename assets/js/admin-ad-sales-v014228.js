@@ -37,6 +37,7 @@ function options(select,data,valueOf,labelOf){
  for(const x of data){const o=n('option',labelOf(x));o.value=String(valueOf(x));select.append(o)}
 }
 function render(){
+ renderSandbox();
  const gates=model.settings||{},gate=e('gu-ad-gate-state');
  gate.textContent='New quote inquiries: '+(gates.accepting_inquiries?'Open':'Paused')+
   ' · Online ad payments: '+(gates.accepting_payments?'Enabled':'Disabled')+
@@ -160,6 +161,41 @@ function render(){
  }
  if(!(model.campaigns||[]).length)block(metrics,'No billable or recorded activity.');
 }
+function renderSandbox(){
+ const info=model?.sandbox||{},enabled=info.enabled===true&&info.globalTestMode===true;
+ const status=e('gu-ad-sandbox-state'),toggle=e('gu-ad-sandbox-toggle'),
+ packages=e('gu-ad-sandbox-packages'),orders=e('gu-ad-sandbox-orders');
+ if(!status||!toggle||!packages||!orders)return;
+ status.textContent=(enabled?'TEST MODE ON':'TEST MODE OFF')+
+  ' · QA Stripe charge: $1.00 per package · LIVE advertising and customer checkout remain disabled.';
+ toggle.textContent=enabled?'Disable advertising Sandbox and restore site payment mode':
+  'Enable advertising Sandbox (blocks LIVE customer checkout)';
+ packages.replaceChildren();orders.replaceChildren();
+ for(const p of (model.packages||[])){
+  const item=line(packages,p.name+' — $1.00 TEST ONLY','No real advertising inventory or paid campaign is created.');
+  const btn=button('Open Stripe TEST Checkout',async()=>{
+   if(!enabled)throw Error('Enable Sandbox Test Mode first.');
+   const result=await request({action:'ad_sandbox_checkout',packageCode:p.code});
+   if(result.livemode!==false||result.amountCents!==100||
+      !/^https:\/\/checkout\.stripe\.com\//.test(result.checkoutUrl))
+    throw Error('Stripe TEST checkout verification failed.');
+   const info=e('gu-ad-sandbox-feedback');
+   info.replaceChildren(n('span','Verified Stripe TEST checkout created for '+p.name+'. No real charge or advertisement is active. '));
+   const link=n('a','Proceed to Stripe TEST Checkout');link.href=result.checkoutUrl;
+   link.rel='noopener noreferrer';link.target='_blank';info.append(link);
+   await refresh();
+  },!enabled);
+  item.append(btn);
+ }
+ if(!(info.orders||[]).length)block(orders,'No advertising QA payments have been attempted.');
+ for(const row of info.orders||[]){
+  const item=line(orders,row.package_code+' · '+row.status,
+   'Test order '+row.id+' · '+new Date(row.created_at).toLocaleString());
+  block(item,'Events: '+row.event_count+
+   ' · Recorded TEST amount: '+(row.amount_cents!=null?money(row.amount_cents):'Not paid')+
+   ' · Never produces a real ad campaign.');
+ }
+}
 async function refresh(){
  if(loading)return;loading=true;
  try{model=await request();render();e('gu-ad-admin-status').textContent='Verified Owner access. Current advertising inventory loaded.';e('gu-ad-admin-main').hidden=false}
@@ -178,6 +214,20 @@ async function start(){
   sb=await window.getSupabaseClient();
   await refresh();
   e('gu-ad-refresh').addEventListener('click',()=>refresh().catch(err=>e('gu-ad-admin-status').textContent=err.message));
+  e('gu-ad-sandbox-refresh')?.addEventListener('click',()=>refresh().catch(err=>e('gu-ad-sandbox-feedback').textContent=err.message));
+  e('gu-ad-sandbox-toggle')?.addEventListener('click',async()=>{
+   const btn=e('gu-ad-sandbox-toggle');btn.disabled=true;
+   const desired=!(model?.sandbox?.enabled===true&&model?.sandbox?.globalTestMode===true);
+   try{
+    const result=await request({action:'ad_sandbox_mode',enabled:desired});
+    if(!result.ok||result.sandboxEnabled!==desired)throw Error('Sandbox toggle not confirmed.');
+    e('gu-ad-sandbox-feedback').textContent=desired?
+     'Sandbox TEST enabled. LIVE checkout is blocked until you turn this OFF.':
+     'Sandbox TEST disabled. Advertising payments and delivery remain OFF.';
+    await refresh();
+   }catch(err){e('gu-ad-sandbox-feedback').textContent=err.message}
+   finally{btn.disabled=false}
+  });
   e('gu-ad-toggle-inquiries').addEventListener('click',()=>act({action:'set_inquiries',enabled:!model.settings?.accepting_inquiries},
    'Advertising inquiry acceptance updated; payment and delivery switches unchanged.')
    .catch(err=>e('gu-ad-admin-status').textContent=err.message));
