@@ -25,7 +25,7 @@ function init(){
  fetch('/api/store-product-overrides',{cache:'no-store'}).then(async response=>{if(!response.ok)throw Error('Unavailable');return response.json()}).then(data=>{
   if(!data.ok)return;
   const bySku=new Map((data.items||[]).map(x=>[x.sku,x])),hidden=new Set(data.hidden||[]);
-  all=base.filter(p=>p.status==='existing_catalog'||!hidden.has(p.sku)).map(p=>{
+  all=base.filter(p=>p.status==='existing_catalog'||(bySku.has(p.sku)&&!hidden.has(p.sku))).map(p=>{
    const o=p.status==='coming_soon'?bySku.get(p.sku):null;
    return o?{...p,name:o.title,description:o.description,status:'coming_soon'}:p;
   });
