@@ -305,7 +305,7 @@ export async function onRequest(context){
       }})
       .on('body',{element(el){
         el.setAttribute('data-build','v0.14.0.14');
-        el.setAttribute('data-gu-layout-route',path.replace(/\\.html$/,'').replace(/^\\//,'')||'home');
+        el.setAttribute('data-gu-layout-route',path.replace('.html','').split('/').filter(Boolean).join('-')||'home');
         el.setAttribute('data-route-access',kind);
         if(POLICY.isProtected(path))el.setAttribute('data-auth-required','true');
         if(path==='/labs.html'||path==='/labs')el.setAttribute('data-v011-protected-labs','true');
