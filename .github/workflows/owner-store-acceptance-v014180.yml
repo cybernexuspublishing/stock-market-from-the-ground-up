@@ -1,0 +1,33 @@
+name: Owner Store Acceptance v0.14.0.180
+on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/api/admin.js"
+      - "functions/api/store-product-overrides.js"
+      - "assets/js/admin-product-catalog-v014175.js"
+      - "assets/js/store-inventory-ui-v014174.js"
+      - "assets/js/store-inventory-v014174.js"
+      - "tests/test_v01417*.mjs"
+      - "tests/test_v014180_owner_store_acceptance.mjs"
+      - ".github/workflows/owner-store-acceptance-v014180.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  owner-store-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Main catalog and release boundaries
+        run: |
+          node tests/test_v014174_unified_storefront_inventory.mjs
+          node tests/test_v014175_admin_prelaunch_inventory.mjs
+          node tests/test_v014175_owner_product_overlays.mjs
+          node tests/test_v014176_product_seed_and_owner_editor.mjs
+          node tests/test_v014179_store_visibility_contract.mjs
+          node tests/test_v014180_owner_store_acceptance.mjs
