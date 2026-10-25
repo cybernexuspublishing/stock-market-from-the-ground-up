@@ -339,3 +339,14 @@ html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.
 .gu-member-dashboard-shell .gu-dashboard-quick{max-width:100%}
 .gu-member-dashboard-shell .gu-dashboard-quick .btn{padding:10px 14px;min-height:42px}
 @media(max-width:1099px){.gu-member-dashboard-shell>.gu-member-side-menu{position:static;width:100%;height:auto;flex:auto}.gu-member-dashboard-shell{flex-wrap:wrap}.gu-member-dashboard-shell>main{flex:1 1 100%}}
+
+/* Final screenshot-aligned headline sizing: keep the intentional three statements
+   together at ordinary desktop widths rather than splitting each into two. */
+@media(min-width:851px){
+ .gu-premium-home .gu-home-message h1{font-size:clamp(2.3rem,3.45vw,4.35rem)!important;max-width:none!important;letter-spacing:-.055em!important;line-height:1.12!important}
+}
+@media(min-width:851px) and (max-width:1099px){
+ .gu-premium-home .gu-home-stage-grid{grid-template-columns:1fr!important}
+ .gu-premium-home .gu-home-terminal{max-width:740px}
+}
+.gu-premium-home .gu-home-message h1 em{font-style:normal}
