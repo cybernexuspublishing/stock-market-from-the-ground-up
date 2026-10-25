@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
+# Pre-LIVE release barrier: never produce a production build whose runtime
+# environment has independently activated any LIVE Stripe fulfillment switch.
+# Removing this barrier requires a separately authorized LIVE release.
+if [[ "${CF_PAGES_BRANCH:-main}" == "main" ]]; then
+  for approval in \
+    GU_PAYMENT_LIVE_LAUNCH_APPROVED \
+    GU58_LIVE_CHECKOUT_ENABLED \
+    GU58_LIVE_DB_CONTRACT_APPROVED \
+    GU58_LIVE_FULFILLMENT_APPROVED \
+    GU58_LIVE_WEBHOOK_ENABLED \
+    GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED \
+    GU72_ZERO_MONTHLY_QA_ENABLED; do
+    if [[ "${!approval:-false}" == "true" ]]; then
+      echo "PRE-LIVE BUILD BLOCK: $approval is enabled on the production branch." >&2
+      exit 9
+    fi
+  done
+fi
 output="public"
 rm -rf "$output"
 mkdir -p "$output"
