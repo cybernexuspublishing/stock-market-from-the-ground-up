@@ -1,11 +1,29 @@
-# Cloudflare Production Account Replacement — Migration Control v1.5
+# Cloudflare Production Account Replacement — Migration Control v1.6
 **Project:** The Stock Market: From the Ground Up  
-**Status:** NEW MASTER ACCOUNT ACCESS UNVERIFIED — original and interim Live accounts must remain intact  
+**Status:** YAHOO MASTER ACCOUNT AND PAGES VERIFIED; NONPAYMENT BASELINE APPLIED — original and interim Live accounts must remain intact  
 **Date:** 2026-10-25  
 **Document owner:** Cyber Nexus / Crown & Lantern Press  
 **Repository / location:** `cybernexuspublishing/stock-market-from-the-ground-up`, `docs/cloudflare-account-replacement-2026-10-25.md`  
 **Google Drive location:** Not applicable; GitHub is the controlled source for this migration record.  
 **Purpose:** Retain the source-to-destination inventory, secret-reentry requirements, deployment path, and cutover gates before deleting the original Cloudflare account.
+
+## Verified Yahoo master account — migration gate v1.6 (October 25, 2026)
+
+**Master Cloudflare account ID:** `4fe9e562905cf607b6f004d2374299fc`. API `GET /accounts/{id}` returned HTTP 200 and account name `Stock_market_from_the_ground_up@yahoo.com's Account`. Verification used the GitHub repository Actions secret, with no token content printed.
+
+**Master Pages project:** `stock-market-from-the-ground-up`, Pages project ID `2cf1b496-5f6a-4cb0-89ba-b1519c08154b`. Production URL: https://stock-market-from-the-ground-up-d1r.pages.dev/. Native Cloudflare integration points at GitHub `cybernexuspublishing/stock-market-from-the-ground-up`, `main`, with safe build `bash scripts/build-pages.sh`, output `public`. This project belongs to the new Yahoo master account, NOT the original account with a similar Pages project name.
+
+**Read-only verification:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40239058367 — account authorized and Pages project listing successful. Further https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40239138385 — existing GitHub project build confirmed. The credential can read the Yahoo account but **cannot** read the interim Live account's Pages configuration (HTTP 403). Cross-account plaintext-configuration cloning via that token is unavailable.
+
+**Master production baseline:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40239456570 succeeded. It installed 24 production settings on the new master Pages project: master website URLs, public Supabase URL and public key from the canonical frontend config, encrypted Turnstile secret, and deliberately false LIVE payment/fulfillment/webhook/QA flags. No LIVE payments were initiated. All settings were read back for verification; no secret values were logged.
+
+**Master Turnstile:** New managed widget `SMFGU Yahoo Master Production Turnstile`, site key `0x4AAAAAAFlx7GxnPwFqJCMc`, hostname restricted to `stock-market-from-the-ground-up-d1r.pages.dev`. Its secret is stored as `secret_text` in the master Pages project. Supabase Auth's CAPTCHA provider is **not yet** switched to this widget (one Supabase Auth backend serves multiple sites; coordinate cutover to avoid blocking existing logins).
+
+**Read-only public checks:** Master homepage canonical and `/sitemap.xml` both now reference the new master hostname; `/api/auth-guard-v0135` returns `ok:true`, `enabled:true` and the master site key; `/api/runtime-health-v014259` returns success; `/.git/config` returns 404. This does not prove authenticated user or commerce acceptance. Master-specific regression test `tests/cloudflare-master-smoke.mjs` and GitHub Actions workflow `.github/workflows/cloudflare-master-smoke.yml` were created to expand these checks.
+
+**Workflow safety:** Original fallback `.github/workflows/replacement-cloudflare-pages.yml` remains paused; the master bootstrap workflow requires explicit manual `BOOTSTRAP_MASTER` confirmation after its initial one-time execution; master credential verification workflow is manual-only. Native GitHub integration remains authoritative for production build deployment on the master account.
+
+**Open migration gates:** master Supabase server-only credential `SUPABASE_SECRET_KEY` and all required Stripe TEST/LIVE signing and API secrets remain unset. Master Worker/billing scheduler has not been verified as migrated and must NOT be scheduled before the cutover. Member Auth and Admin browser acceptance, Supabase CAPTCHA coordination, Stripe TEST webhook, nonpayment entitlement checks, and provider delivery tests remain open. No LIVE payment testing or billing configuration activation is authorized. Original and interim Cloudflare accounts and Stripe webhook destinations remain unchanged.
 
 ## Destination change — new business master Cloudflare account (2026-10-25)
 The Owner created a **third**, separate Cloudflare account under a new business Yahoo login and designated it as the eventual permanent production master. The previously deployed account, `9a43bc08e9db72e7187bc8c0a31710c2` (Live Pages hostname ending `-lives.pages.dev`), is now an **interim account**, not the final destination. Earlier successful smoke and deployment tests relate to that interim account only. They **do not establish acceptance** of the new Yahoo master account.
@@ -125,4 +143,4 @@ The following original source bindings are encrypted/write-only and cannot be re
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks on interim Live account | Superseded |\n| 1.5 | 2026-10-25 | Third Cloudflare account designated master, connection and saved token mismatch verified, interim fallback paused | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks on interim Live account | Superseded |\n| 1.5 | 2026-10-25 | Third Cloudflare account designated master, initial credential mismatch, interim fallback paused | Superseded |\n| 1.6 | 2026-10-25 | Master identity, Pages GitHub build, 24-variable no-payment baseline, Turnstile and public URL verified | Active migration record |
