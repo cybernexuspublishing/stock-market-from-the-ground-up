@@ -1,0 +1,37 @@
+name: Replacement Cloudflare Pages deployment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build strictly allowlisted Pages site
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/index.html
+          test -d functions
+          test ! -d public/functions
+          test ! -d public/.git
+          test ! -e public/.mcp.json
+          test ! -d public/supabase
+          test ! -d public/workers
+          test ! -d public/tests
+      - name: Deploy replacement account (manual workflow only)
+        env:
+          CLOUDFLARE_ACCOUNT_ID: '9a43bc08e9db72e7187bc8c0a31710c2'
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_LIVES_PAGES_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npx --yes wrangler@4.152.0 pages deploy public --project-name=stock-market-from-the-ground-up-lives --branch=main
