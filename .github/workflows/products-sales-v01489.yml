@@ -3,6 +3,12 @@ on:
   pull_request:
     paths:
       - 'store.html'
+      - 'store-item.html'
+      - 'assets/js/storefront-all-v014174.js'
+      - 'assets/js/admin-storefront-v014174.js'
+      - 'functions/api/storefront-catalog-v014174.js'
+      - 'supabase/migrations/v0.14.0.174_UNIFIED_STOREFRONT_OWNER_CONTROLS.sql'
+      - 'tests/test_v014174_unified_storefront.mjs'
       - 'assets/js/store.js'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/css/store-sales-v01489.css'
@@ -48,14 +54,21 @@ jobs:
           node --check assets/js/admin-products-v01489.js
           node --check assets/js/admin-navigation.js
           node --check functions/api/admin.js
+          node --check functions/api/storefront-catalog-v014174.js
+          node --check assets/js/storefront-all-v014174.js
+          node --check assets/js/admin-storefront-v014174.js
       - name: Test product display, categories, legacy store contracts and safe server mutations
         run: |
           node tests/test_v014089_products_sales_contract.mjs
           node tests/test_v014089_checkout_readiness_no_charge.mjs
           node tests/test_v014084_store_interaction.mjs
+          node tests/test_v014174_unified_storefront.mjs
       - name: Verify static site assets are included and private API is never copied
         run: |
           bash scripts/build-pages.sh
           test -f public/assets/css/store-sales-v01489.css
           test -f public/assets/js/admin-products-v01489.js
+          test -f public/store-item.html
+          test -f public/assets/js/admin-storefront-v014174.js
+          test ! -d public/supabase
           test ! -e public/functions
