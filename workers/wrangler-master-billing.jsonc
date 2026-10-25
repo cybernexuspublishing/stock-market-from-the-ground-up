@@ -6,5 +6,8 @@
   "compatibility_date": "2026-10-13",
   "workers_dev": false,
   "preview_urls": false,
+  "vars": {
+    "GU_BILLING_SITE_ORIGIN": "https://stock-market-from-the-ground-up-d1r.pages.dev"
+  },
   "triggers": { "crons": [] }
 }
