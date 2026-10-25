@@ -123,3 +123,10 @@ jobs:
           grep -q 'gu_founder_issue_certificate_v014192' functions/api/admin-founder-commons-v014179.js
           grep -q 'gu_founder_record_service_incident_v014203' functions/api/admin-founder-commons-v014179.js
           grep -q 'gu_founder_targeted_notices_v014206' functions/api/admin-founder-commons-v014179.js
+
+      - name: Prevent regression of Founder case-study withdrawal redaction
+        run: |
+          node --check assets/js/founder-learning-studio-v014191.js
+          grep -q 'contentRedacted' supabase/migrations/v0.14.0.212_founder_case_withdrawal_content_redaction.sql
+          grep -q 'ONE_PER_60_DAYS' supabase/migrations/v0.14.0.190_founder_educational_resources_and_case_review.sql
+          grep -q 'extended' assets/js/founder-learning-studio-v014191.js
