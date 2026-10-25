@@ -232,6 +232,8 @@ export async function onRequest({request,env}){
   if(action==='review_creative'){
    const id=Number(body.id),state=str(body.state);
    if(!Number.isSafeInteger(id)||id<=0||!['approved','rejected','paused'].includes(state))throw bad('Invalid creative review.');
+   if(state==='approved'&&(body.complianceConfirmed!==true||body.destinationReviewed!==true))
+    throw bad('Confirm sponsor disclosure, safe destination, rights, and financial-promotion review before creative approval.',409);
    const rows=await api(c,'ad_creatives?id=eq.'+id+'&status=in.(draft,approved,active,paused)',{
     method:'PATCH',body:{status:state,updated_at:new Date().toISOString()}});
    if(rows?.length!==1)throw bad('Creative not reviewable.',404);
