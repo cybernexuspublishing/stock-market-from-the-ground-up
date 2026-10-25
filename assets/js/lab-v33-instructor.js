@@ -52,6 +52,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const title=el('h3','Talia');
  const head=el('div',undefined,'gu-v33-instructor-head');
  const avatar=el('span','T','gu-v33-instructor-avatar');
+ // Static instructor monogram fallback; never imply a synthetic live video feed.
+ avatar.setAttribute('title','Talia Mercer — text-based learning instructor');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
  identity.append(title);
