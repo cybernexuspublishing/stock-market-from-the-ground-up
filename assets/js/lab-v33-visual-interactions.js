@@ -83,7 +83,10 @@ function enhance(view,options){
    for(const btn of switches){
     const active=btn.dataset.studyFocus===mode;
     btn.setAttribute('aria-pressed',String(active));
-    btn.setAttribute('aria-label',(active?'Selected: ':'Show: ')+(btn.textContent||'candle component'));
+    // Keep the accessible name identical to the visible control label.
+    // aria-pressed communicates selection without breaking stable names,
+    // speech navigation, or role-based automation locators.
+    btn.removeAttribute('aria-label');
    }
    for(const item of svg.querySelectorAll('[data-candle-feature]')){
     const part=item.getAttribute('data-candle-feature');
