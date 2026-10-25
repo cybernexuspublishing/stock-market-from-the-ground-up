@@ -5,6 +5,10 @@ on:
     paths:
       - 'assets/js/lab-v33-instruction-content.js'
       - 'assets/js/lab-v33-instructor.js'
+      - 'assets/js/lab-v33-visual-interactions.js'
+      - 'assets/css/premium-design-v014168.css'
+      - 'assets/css/bootcamp-academy-v014168.css'
+      - 'bootcamp-academy.html'
       - 'assets/js/lab-v34-interactive-lessons.js'
       - 'assets/js/lab-engine-v32-universal.js'
       - 'assets/css/lab-v33-experience.css'
@@ -373,6 +377,8 @@ jobs:
           node tests/test_v014092_market_tutor_contract.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014096_419_conceptual_training.mjs
+          node --check assets/js/lab-v33-instructor.js
+          node --check assets/js/lab-v33-visual-interactions.js
           node tests/test_v014167_talia_five_candle_tabs.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
