@@ -1,0 +1,40 @@
+/* v0.14.0.168 — design tokens and responsive navigation. Progressive enhancement only. */
+:root{--gu-design-accent:#e3b64b;--gu-design-focus:#84b8ea}
+html[data-gu-design="premium-light"]{--navy:#f3f6f8;--navy2:#e9eef3;--gold:#c38b2c;--gold2:#9b691b;--ink:#182839;--muted:#536679;--panel:#fff;--panel2:#f4f7fa;--line:#d5e0e9;--gu-design-focus:#245eab;color-scheme:light}
+html[data-gu-design="premium-light"] body{background:#f5f7f9;color:#182839}
+html[data-gu-design="premium-light"] .site-header{background:rgba(255,255,255,.98);border-color:#d5e0e9}
+html[data-gu-design="premium-light"] .brand{color:#192b3a}
+html[data-gu-design="premium-light"] .navlinks a{color:#213447}
+html[data-gu-design="premium-light"] .card{background:#fff;border-color:#d5e0e9;color:#182839;box-shadow:0 2px 12px #192b3a0b}
+html[data-gu-design="premium-light"] .card h3,html[data-gu-design="premium-light"] .section h2{color:#162c40}
+html[data-gu-design="premium-light"] .hero h1{color:#172e45}
+html[data-gu-design="premium-light"] .lead,html[data-gu-design="premium-light"] .small{color:#51677a}
+html[data-gu-design="premium-light"] .admin-main,html[data-gu-design="premium-light"] .admin-panel{color:#152b40}
+html[data-gu-design="premium-dark"] body{background:#071523}
+html[data-gu-design] :focus-visible{outline:3px solid var(--gu-design-focus);outline-offset:3px}
+.gu-design-picker{margin:14px 0;padding:16px;border:1px solid var(--line,#345);border-radius:10px}
+.gu-design-picker fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:12px}
+.gu-design-picker label{display:inline-flex;gap:6px;align-items:center}
+.gu-design-picker p{max-width:75ch}
+.gu-design-picker .gu-design-state{font-weight:600}
+.gu-member-side-menu{width:220px;flex:0 0 220px;background:#102431;border-right:1px solid #315061;padding:12px;min-height:calc(100vh - 70px)}
+.gu-member-side-menu a,.gu-member-side-menu summary{display:block;padding:10px 12px;color:#e6edf5;text-decoration:none;border-radius:7px}
+.gu-member-side-menu a[aria-current="page"]{background:#274a57;font-weight:700}
+.gu-member-side-menu details a{padding-left:25px}
+.gu-member-side-menu a:hover,.gu-member-side-menu summary:hover{background:#234052}
+.gu-member-side-menu summary{cursor:pointer}
+@media(max-width:800px){.gu-member-side-menu{width:100%;min-height:auto;flex:auto}.gu-design-picker fieldset{flex-direction:column}}
+
+/* Owner-selected sidebar treatment and compact page-level top navigation. */
+.admin-sidebar nav a,.admin-sidebar nav button{border-radius:8px;transition:background-color .14s ease,border-color .14s ease}
+.admin-sidebar nav .active,.admin-sidebar nav [aria-current="page"]{background:#234551;border-left:3px solid #e3b64b}
+.site-header .navlinks{align-items:center;gap:clamp(9px,1.3vw,20px)}
+.site-header .navlinks a{display:inline-flex;min-height:40px;align-items:center;padding:7px 10px;border-radius:7px}
+.site-header .navlinks a:hover,.site-header .navlinks a:focus-visible{background:rgba(129,163,181,.12)}
+.gu-v33-instructor{position:relative;min-width:0}
+@media(min-width:1050px){
+ #gu-v32-teaching-slot .gu-v33-instructor{position:sticky;top:85px;align-self:start}
+}
+#gu-v32-teaching-slot .gu-v33-instructor-head{min-height:48px}
+#gu-v32-teaching-slot .gu-v33-instructor-narration{overflow:auto;max-height:min(40vh,340px);scrollbar-gutter:stable}
+@media(prefers-reduced-motion:reduce){.admin-sidebar nav a,.admin-sidebar nav button{transition:none}}
