@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'assets/css/store-release-finish-v014234.css'
+      - 'tests/test_v014179_store_visibility_contract.mjs'
+      - 'functions/api/store-product-overrides.js'
       - 'assets/js/store-inventory-ui-v014174.js'
       - 'assets/js/store-inventory-v014174.js'
       - 'assets/js/admin-product-catalog-v014175.js'
