@@ -1,4 +1,5 @@
-/* v0.14.0.247 — Owner-only, read-only non-LIVE acceptance diagnostics. No payment operations. */
+import {founderCatalogReadiness} from '../_lib/founder-catalog-readiness-v014264.js';
+/* v0.14.0.264 — Owner-only, read-only non-LIVE acceptance diagnostics. No payment operations. */
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const send=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...H,...extra}});
 const forbidden=(status)=>send({ok:false,error:status===401?'Sign in required.':'Owner authorization required.'},status);
@@ -112,7 +113,7 @@ export async function onRequest({request,env}){
  const expected=['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'];
  const packages=Array.isArray(prices)&&prices.length===3&&expected.every(code=>prices.some(p=>p.package_code===code&&p.test_amount_cents===100&&/^price_[a-zA-Z0-9]+$/.test(p.test_price_id||'')));
  const secrets=Boolean(str(env.GU39_STRIPE_TEST_SECRET_KEY)&&str(env.GU39_STRIPE_TEST_WEBHOOK_SECRET));
- const stripeTest=await stripeTestProvider(env,prices);
+ const [stripeTest,founderStripe]=await Promise.all([stripeTestProvider(env,prices),founderCatalogReadiness(env)]);
  const safeAds=ad?.accepting_payments===false&&ad?.ad_delivery_enabled===false;
  const safeSwitch=adMode?.testing_enabled===false&&sharedMode?.enabled===false;
  const release=founderRelease?.[0];
@@ -132,6 +133,8 @@ export async function onRequest({request,env}){
   check('sandbox_catalog','Advertising TEST package mapping',packages?'verified':'action_required',packages?'Three distinct $1.00 TEST price mappings are present in the database.':'One or more TEST package database mappings are missing or invalid.'),
   check('test_secrets','Stripe TEST-mode server configuration',secrets?'verified':'action_required',secrets?'Both required TEST Stripe secrets are configured on the server; no values are exposed.':'One or more TEST credentials or webhook signing secrets are unavailable.'),
   check('stripe_test_provider','Stripe TEST provider configuration',stripeTest.state,stripeTest.detail),
+  check('founding_provider_test','Founding 600 Stripe TEST product and webhook parity',founderStripe.sandbox.state,founderStripe.sandbox.detail),
+  check('founding_provider_live','Founding 600 Stripe LIVE production catalog readiness',founderStripe.live.state,founderStripe.live.detail),
   check('founding_live_hold','Founding 600 LIVE safety',founderLiveHeld?'verified':'action_required',
     founderLiveHeld?'Enrollment, billing, fulfillment and both founding plan checkouts are disabled.':
       'Unable to verify all five LIVE safety switches as disabled. Escalate before release.'),
