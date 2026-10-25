@@ -34,9 +34,20 @@ function mount(){
     '<label><input name="store_visible" type="checkbox" '+((o.store_visible??true)?'checked':'')+'> Visible in upcoming Store (requires publication API)</label>'+
     '<p class="small">SKU: '+enc(p.sku)+' · Revision '+v+' · Checkout remains locked</p>'+
     '<button class="btn secondary" type="submit">Save Product Draft</button> '+
+    '<button class="btn secondary" type="button" data-release-check="'+enc(p.sku)+'">Check Release Readiness</button> '+
     '<a class="btn secondary" href="store-upcoming-product.html?sku='+encodeURIComponent(p.sku)+'" target="_blank" rel="noopener">View Product Face</a></form>';
   }).join('');
  }
+ listing.addEventListener('click',async event=>{
+   const button=event.target.closest('button[data-release-check]');if(!button)return;
+   button.disabled=true;
+   try{
+     const sku=button.dataset.releaseCheck;
+     const result=await api('store_product_release_check&sku='+encodeURIComponent(sku));
+     status.textContent=sku+' · Sale blocked: '+(result.blockers||[]).join('; ');
+   }catch(e){status.textContent='Readiness check failed: '+e.message}
+   finally{button.disabled=false}
+ });
  listing.addEventListener('submit',async event=>{
    const form=event.target.closest('form[data-product-overlay]');if(!form)return;event.preventDefault();
    const sku=form.dataset.productOverlay,p=distinct.find(x=>x.sku===sku);if(!p)return;
