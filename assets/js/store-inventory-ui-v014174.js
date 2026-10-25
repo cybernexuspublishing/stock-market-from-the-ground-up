@@ -4,7 +4,7 @@ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrelaunchInventory:[];
 const $=id=>document.getElementById(id);
 const detail=p=>p.href||('store-upcoming-product.html?sku='+encodeURIComponent(p.sku));
-let all=base;
+let all=base.filter(p=>p.status==='existing_catalog'); // fail-closed: upcoming visibility requires server approval
 function init(){
  const list=$('inventory-list'),root=$('inventory-detail'),search=$('inventory-search'),category=$('inventory-category'),status=$('inventory-status');
  const render=()=>{
@@ -30,7 +30,7 @@ function init(){
    return o?{...p,name:o.title,description:o.description,status:'coming_soon'}:p;
   });
   render();
- }).catch(()=>{if(status)status.textContent='Catalog preview loaded; current availability could not be refreshed.';});
+ }).catch(()=>{if(status)status.textContent='Upcoming catalog temporarily unavailable; existing products remain accessible.';});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
