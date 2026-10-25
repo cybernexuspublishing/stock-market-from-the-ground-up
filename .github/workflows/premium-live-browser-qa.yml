@@ -12,6 +12,7 @@ on:
       - 'assets/css/premium-design-v014168.css'
       - 'assets/css/sitewide-composition-v014234.css'
       - 'functions/_middleware.js'
+      - 'assets/js/site.js'
       - 'assets/js/member-dashboard.js'
       - 'assets/js/production-completion.js'
       - 'assets/js/frontend-complete.js'
