@@ -22,7 +22,7 @@ async function getTestOrLive(key,path){
  if(!r.ok)throw Error('Provider read unavailable');
  return r.json();
 }
-async function inspectMode({key,livemode,catalog,mode}){
+async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
  const type=livemode?'LIVE':'TEST';
  if(typeof key!=='string'||!(livemode?key.startsWith('sk_live_'):key.startsWith('sk_test_')))
   return response('action_required',type+' Stripe server credential unavailable or wrong mode.');
@@ -49,7 +49,11 @@ async function inspectMode({key,livemode,catalog,mode}){
     (p.metadata?.site_sku&&p.metadata.site_sku!==codes[i])))
     return response('action_required',type+' Founder product identity or SKU mapping mismatch.');
   const required=checks[mode];
-  const hook=(webhooks.data||[]).find(w=>w.url===required.endpoint&&w.livemode===livemode&&
+  const configured=String(siteOrigin||'https://stock-market-from-the-ground-up.pages.dev');
+  let endpoint;
+  try{const u=new URL(configured);if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.search||u.hash||u.port)throw Error('Invalid origin');endpoint=u.origin+new URL(required.endpoint).pathname}
+  catch{return response('action_required','Verified website origin is missing or malformed.');}
+  const hook=(webhooks.data||[]).find(w=>w.url===endpoint&&w.livemode===livemode&&
    required.events.every(e=>w.enabled_events?.includes(e)));
   if(!hook)return response('action_required',type+' Founding webhook destination or subscribed lifecycle events do not match.');
   if(livemode){
@@ -68,9 +72,9 @@ export async function founderCatalogReadiness(env){
  let liveCatalog;
  try{liveCatalog=JSON.parse(env.GU_F600_LIVE_CATALOG_JSON||'null')}catch{liveCatalog=null}
  const liveOK=liveCatalog?.FOUNDING_30&&liveCatalog?.FOUNDING_60;
- const sandbox=await inspectMode({key:env.GU39_STRIPE_TEST_SECRET_KEY,livemode:false,mode:'sandbox',
+ const sandbox=await inspectMode({key:env.GU39_STRIPE_TEST_SECRET_KEY,livemode:false,mode:'sandbox',siteOrigin:env.PUBLIC_SITE_URL,
   catalog:{FOUNDING_30:{priceId:testPrices.FOUNDING_30},FOUNDING_60:{priceId:testPrices.FOUNDING_60}}});
- const live=liveOK?await inspectMode({key:env.GU58_STRIPE_LIVE_SECRET_KEY,livemode:true,mode:'live',catalog:liveCatalog}):
+ const live=liveOK?await inspectMode({key:env.GU58_STRIPE_LIVE_SECRET_KEY,livemode:true,mode:'live',siteOrigin:env.PUBLIC_SITE_URL,catalog:liveCatalog}):
   response('action_required','LIVE Founder catalog is missing one or both configured plan mappings.');
  return {sandbox,live};
 }
