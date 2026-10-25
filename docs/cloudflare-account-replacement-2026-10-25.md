@@ -11,7 +11,7 @@
 
 **Permanent master account:** `4fe9e562905cf607b6f004d2374299fc`.
 **Master Pages hostname:** https://stock-market-from-the-ground-up-d1r.pages.dev/.
-**Latest acceptance basis:** earlier successful master 20-check public/security acceptance and migration configuration readbacks. The additional final pre-secret acceptance workflow is https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40241909937; record its actual conclusion independently before marking it passed.
+**Latest acceptance basis:** earlier successful master 20-check public/security acceptance and migration configuration readbacks. The additional final pre-secret acceptance workflow is https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40241909937; **SUCCESS (completed 2026-10-25)**: 40-variable master pre-secret baseline, inactive and nonpublic Worker, 12 shutdown switches, 20 public/security smoke checks, zero failures and zero payment operations verified.
 
 ### Work completed this batch
 
@@ -22,7 +22,7 @@
 5. Kept `GU72_QA_ALLOWED_USER_ID` absent intentionally. Do not invent or substitute a member ID. This is a QA-only identifier and not required to render the public site; fill only after verifying the designated QA account.
 6. Created the explicit six-secret user entry guide `docs/cloudflare-yahoo-master-secret-handoff-v1.0.md`, including matching Stripe TEST and disabled master LIVE webhook IDs and all shutdown controls. This guide contains **no credential values**.
 7. Created `.github/workflows/master-postsecret-readiness.yml` for later owner-triggered GET-only backend and secret-**presence** acceptance; it does not display or read secret material and does not initiate payments. Its advertising backend check remains **blocked** while master `SUPABASE_SECRET_KEY` is missing.
-8. Added `.github/workflows/master-presecret-final-acceptance.yml` to recheck the **40-variable** baseline, six expected encrypted-secret gaps, all shutdown flags, inactive master Worker, plus the standard 20 GET-only public smoke checks. See its linked GitHub run for verified outcome.
+8. Added `.github/workflows/master-presecret-final-acceptance.yml` to recheck the **40-variable** baseline, six expected encrypted-secret gaps, all shutdown flags, inactive master Worker, plus the standard 20 GET-only public smoke checks. **Run 40241909937 passed: 20 checks, 0 failures, 0 payment operations.**
 9. Restored completed one-time migration workflows to manual-only operation to prevent accidental reinvocation. The previous interim Live fallback deployment workflow remains paused. Original and interim Cloudflare projects remain as rollback dependencies.
 
 ### Remaining blockers (not yet accepted)
