@@ -82,6 +82,45 @@
   }
   const link=node('a','Your Market Skills Record');link.href='skills.html';mount.append(link);
  }
+
+ function showOriginalInstruction(d){
+  // New day-specific teaching is purely formative. It cannot update an official
+  // grade or touch the protected answer-key service.
+  let mount=get('academy-original-instruction');
+  if(!mount){
+   mount=node('section');mount.id='academy-original-instruction';
+   mount.setAttribute('aria-label','Original Boot Camp teaching and self-check');
+   get('academy-engine').before(mount);
+  }
+  mount.replaceChildren();mount.hidden=!d.lesson;
+  if(!d.lesson)return;
+  const lesson=d.lesson;
+  mount.append(node('h4','Learn the concept'),node('p',lesson.explanation),
+   node('h4','Worked source-check example'),node('p',lesson.workedExample),
+   node('h4','Apply the method'));
+  const steps=node('ol');
+  for(const step of lesson.sourceProcedure||[])steps.append(node('li',step));
+  mount.append(steps,node('h4','Common research error'),node('p',lesson.error),
+   node('h4','Transfer to a new case'),node('p',lesson.transfer),
+   node('h4','Check your understanding — ungraded'),node('p',lesson.selfCheck));
+  const label=node('label','Write your independent reasoning before comparing it with a model explanation.');
+  label.htmlFor='academy-self-check-answer';
+  const answer=node('textarea');answer.id='academy-self-check-answer';
+  answer.rows=3;answer.minLength=40;answer.maxLength=1200;
+  answer.setAttribute('autocomplete','off');
+  const compare=node('button','Compare my reasoning');compare.type='button';
+  compare.className='btn secondary';compare.disabled=true;
+  const result=node('div');result.setAttribute('role','status');
+  result.setAttribute('aria-live','polite');
+  answer.addEventListener('input',()=>{compare.disabled=answer.value.trim().length<40;result.replaceChildren()});
+  compare.addEventListener('click',()=>{
+   if(answer.value.trim().length<40)return;
+   result.replaceChildren(node('p','Model reasoning (formative; not a score):'),node('p',lesson.reviewGuide),
+    node('p','Compare your evidence, source timestamps, limits and no-trade decision. No mastery was awarded.'));
+  });
+  mount.append(label,answer,compare,result);
+ }
+
  function renderDay(){
   const d=days[dayIndex-1];if(!d)return;
   ++renderSerial;const renderEpoch=renderSerial;
@@ -91,6 +130,7 @@
   get('academy-observe').textContent=d.observe;
   get('academy-practice').textContent=d.practice;
   get('academy-limits').textContent=d.limitation||d.caution;
+  showOriginalInstruction(d);
   get('academy-reflection').value=progress.get(dayIndex)?.reflection||'';
   get('academy-save-status').textContent='';
   get('academy-prev').disabled=dayIndex===1;
