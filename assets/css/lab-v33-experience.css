@@ -811,7 +811,7 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
 /* LAB-UX-STD-001: preserve readable, undistorted 820×395 OHLCV charts
    beside Talia on ultrawide screens. Expanded mode remains unrestricted. */
 :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
- .gu-l33-graphic:not(.gu-v34-expanded-visual) .gu-l33-chart svg{
+ .gu-v34-unified-lesson .gu-l33-graphic:not(.gu-v34-expanded-visual) .gu-l33-chart svg{
   width:100%;
   /* 820×395 chart: 540px renders at ~260px high, below the 270px
      compact-layout budget with margin for browser rounding at 1920px. */
