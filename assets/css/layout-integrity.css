@@ -158,7 +158,7 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  * on 14/15 Store detail pages. Product cards themselves were within bounds.
  * Preserve both real clickable controls and their existing accessible labels.
  */
-@media (min-width:1024px) and (max-width:1350px) {
+@media (min-width:1024px) and (max-width:1600px) {
  .site-header .fe-header-tools{
   flex:0 0 auto!important;min-width:0!important;max-width:115px!important;
   gap:5px!important;margin-left:0!important;
@@ -186,7 +186,7 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
 }
 /* Existing 901–1023px icon rule hid even the unread badge. Preserve a readable
  * numeric count when nonzero, and avoid exposing hidden zero-count elements. */
-@media (min-width:901px) and (max-width:1350px) {
+@media (min-width:901px) and (max-width:1600px) {
  .site-header .fe-notify-button .fe-notify-count:not([hidden]){
   display:grid!important;font-size:.65rem!important;line-height:1!important;
  }
