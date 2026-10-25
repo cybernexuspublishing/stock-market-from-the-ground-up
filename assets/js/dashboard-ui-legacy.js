@@ -238,7 +238,7 @@
     const sidebar=document.querySelector('.gu-member-dashboard-shell>.gu-member-side-menu');
     const sidebarTabs=sidebar?Array.from(sidebar.querySelectorAll('a[href]')).filter(a=>{
       const url=new URL(a.getAttribute('href'),location.href);
-      return /\\/dashboard(?:\\.html)?$/.test(url.pathname)&&url.searchParams.has('tab');
+      return new RegExp('^/dashboard(?:[.]html)?$').test(url.pathname)&&url.searchParams.has('tab');
     }):[];
     const sidebarCodes=new Set(sidebarTabs.map(a=>new URL(a.href).searchParams.get('tab')));
     sidebarCodes.add('overview');
@@ -247,7 +247,7 @@
       nav.hidden=true;hub.classList.add('gu-single-member-nav');
       const syncSidebar=code=>sidebar.querySelectorAll('a').forEach(a=>{
         const url=new URL(a.href);
-        const match=/\\/dashboard(?:\\.html)?$/.test(url.pathname);
+        const match=new RegExp('^/dashboard(?:[.]html)?$').test(url.pathname);
         const destination=match?(url.searchParams.get('tab')||'overview'):null;
         if(destination===code)a.setAttribute('aria-current','page');
         else a.removeAttribute('aria-current');
@@ -256,7 +256,7 @@
         const link=e.target.closest('a[href]');
         if(!link||!sidebar.contains(link)||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
         const url=new URL(link.href);
-        if(!/\\/dashboard(?:\\.html)?$/.test(url.pathname))return;
+        if(!new RegExp('^/dashboard(?:[.]html)?$').test(url.pathname))return;
         const code=url.searchParams.get('tab')||'overview';
         if(!renderers[code])return;
         e.preventDefault();
