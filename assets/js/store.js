@@ -109,13 +109,13 @@ function comparison(plans,tools){
  <p class="small">Tool access, membership terms and product availability are verified again by checkout. Each linked heading opens its full product explanation.</p>`;
 }
 function tabs(){
- const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['memberships','books','tools'];
+ const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['memberships','books','all','tools'];
  const select=(name,focus=false)=>{
   const key=parts.includes(name)?name:'memberships';
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
-  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({memberships:'memberships and their comparison',books:'books only',tools:'individual tools only'})[key]+'.';
+  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({memberships:'memberships and their comparison',books:'books only',all:'the entire Store directory',tools:'individual tools only'})[key]+'.';
   if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
  buttons.forEach((b,i)=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
