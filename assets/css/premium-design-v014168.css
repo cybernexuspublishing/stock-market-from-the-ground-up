@@ -87,3 +87,20 @@ html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-tutor{backgro
 html[data-gu-design="premium-light"] .gu-learning-top-nav a{color:#243647}
 html[data-gu-design="premium-light"] .gu-learning-top-nav a[aria-current="page"]{color:#fff}
 @media(max-width:850px){.gu-focused-learning-header .nav{padding-block:10px;gap:9px}.gu-learning-top-nav{justify-content:flex-start;flex-basis:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.gu-learning-top-nav a{white-space:nowrap;flex:none}}
+
+/* v0.14.0.170 — real member-dashboard shell reuses existing data bindings. */
+.gu-member-dashboard-shell{display:flex;align-items:stretch;min-width:0}
+.gu-member-dashboard-shell>main{min-width:0;flex:1;padding:24px 0 45px}
+.gu-member-dashboard-shell>main>.wrap{max-width:1480px;padding-inline:clamp(14px,2vw,32px)}
+.gu-member-dashboard-shell>.gu-member-side-menu{position:sticky;top:70px;align-self:flex-start;height:calc(100vh - 70px);overflow-y:auto;flex:0 0 225px}
+.gu-member-dashboard-shell .gu-side-label{color:#b3a7ed;font-size:.69rem;letter-spacing:.13em;font-weight:800;padding:8px 12px}
+.gu-member-dashboard-shell .gu-member-side-menu details{border-top:1px solid #264153;border-bottom:1px solid #264153;margin-block:4px}
+.gu-member-dashboard-shell .gu-member-side-menu summary{font-weight:700}
+.gu-member-dashboard-shell .gu-member-side-menu a{font-size:.86rem;line-height:1.35}
+.gu-member-dashboard-shell .dashboard-stat-grid{gap:12px}
+.gu-member-dashboard-shell .dashboard-stat{border:1px solid #29475b;border-radius:10px;background:#0e2536;padding:16px}
+.gu-member-dashboard-shell .dashboard-hero{padding:17px 20px}
+.gu-member-dashboard-shell .dashboard-grid{gap:12px}
+@media(max-width:850px){.gu-member-dashboard-shell{flex-direction:column}.gu-member-dashboard-shell>.gu-member-side-menu{position:static;flex:auto;width:100%;height:auto;min-height:0;display:block}.gu-member-dashboard-shell .gu-member-side-menu>a{display:inline-block}.gu-member-dashboard-shell>main{width:100%;padding-top:15px}}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .dashboard-stat{background:#fff;color:#1a2f40;border-color:#dae3eb}
+html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-menu{background:#192f40}
