@@ -274,3 +274,29 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-
 @media(prefers-reduced-motion:reduce){.gu-path-card{transition:none}.gu-path-card:hover{transform:none}}
 /* Keep original authored content readable on the Owner's light theme. */
 html[data-gu-design="premium-light"] .gu-premium-home{color:#eef5ff}
+
+/* Coordinated eight-surface redesign: member, learning, Labs, Academy, Store. */
+.gu-release-actions{display:flex;flex-wrap:wrap;gap:10px;margin:17px 0 23px}
+.gu-release-actions .btn{font-size:.87rem;padding:10px 14px;min-height:42px}
+.gu-registry-number,.gu-store-trustline{font-size:.82rem;letter-spacing:.015em;color:#b9cbea;font-weight:650}
+.gu-redesign-learn> .wrap,.gu-redesign-store> .wrap,.gu-redesign-academy> .wrap,.gu-redesign-labs #gu-lab-registry-view{max-width:1420px}
+.gu-redesign-learn h1,.gu-redesign-labs #gu-lab-registry-view>h1,.gu-redesign-store h1,.gu-redesign-academy h1{font:800 clamp(2.1rem,4.1vw,4.2rem)/1.08 Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:-.052em;max-width:950px;margin:9px 0 18px}
+.gu-redesign-learn .section-intro,.gu-redesign-labs .section-intro,.gu-redesign-store .section-intro,.gu-redesign-academy .section-intro{max-width:890px;font-size:1rem;line-height:1.78}
+.gu-redesign-learn .grid,.gu-redesign-store .grid,.gu-redesign-academy .academy-program-grid{gap:14px}
+.gu-redesign-learn .card,.gu-redesign-store .card,.gu-redesign-academy .academy-program{background:linear-gradient(155deg,#112e44,#081d30);border:1px solid #34566e;border-radius:14px;padding:22px}
+.gu-redesign-learn .card h2,.gu-redesign-learn .card h3,.gu-redesign-academy .academy-program h3{font-family:Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:-.024em;color:#edf4ff}
+.gu-redesign-store .store-category-tabs{border:1px solid #355774;background:#091c2d;padding:8px;border-radius:12px;display:flex;gap:7px;flex-wrap:wrap;max-width:max-content}
+.gu-redesign-store .store-category-tabs button{border-radius:8px;min-height:44px}
+.gu-store-category-hint{color:#b9cbe0;font-size:.83rem;margin:12px 0}
+.gu-redesign-academy .academy-workspace{border:1px solid #43617a;box-shadow:0 14px 35px #0002}
+.gu-redesign-academy .academy-program{transition:border-color .15s,transform .15s}
+.gu-redesign-academy .academy-program:hover{transform:translateY(-2px);border-color:#a698ee}
+.gu-member-dashboard-shell .gu-dashboard-intro{padding:13px 0}
+.gu-member-dashboard-shell>.gu-member-side-menu{background:#071a29;border-color:#28465b}
+.gu-member-dashboard-shell>.gu-member-side-menu .gu-side-label{color:#aa98ed}
+.gu-member-dashboard-shell>.gu-member-side-menu a[aria-current="page"]{background:#322c68;border-left:3px solid #b3a0ff}
+.gu-redesign-labs #gu-lab-registry-view{padding-block:5px 30px}
+@media(max-width:760px){.gu-release-actions{gap:7px}.gu-release-actions .btn{flex:1 1 180px;text-align:center}.gu-redesign-store .store-category-tabs{max-width:none}.gu-redesign-store .store-category-tabs button{flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){.gu-redesign-academy .academy-program{transition:none}.gu-redesign-academy .academy-program:hover{transform:none}}
+html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) .card{background:#fff;color:#1d3448;border-color:#d6e1ea}
+html[data-gu-design="premium-light"] :is(.gu-redesign-learn,.gu-redesign-store,.gu-redesign-academy) .card :is(h2,h3){color:#1d3448}
