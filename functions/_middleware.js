@@ -66,7 +66,8 @@ const LIVE_CHECKOUT_ROUTES=new Set([
  '/api/checkout','/api/checkout-v0135',
  '/api/stripe-customer-checkout-v01438','/api/signed-book-checkout',
  '/api/stripe-live-checkout', // stable public route; SAME strict mode boundary
- '/api/stripe-live-checkout-v01458' // backward-compatible legacy route
+ '/api/stripe-live-checkout-v01458', // backward-compatible legacy route
+ '/api/founding600-checkout' // also constrained by the global TEST/LIVE payment-mode boundary
 ]);
 const LEGACY_TEST_CHECKOUT_ROUTES=new Set(['/api/stripe-managed-sandbox-v01432r2',
  '/api/stripe-staging-member-checkout-v01461']);
