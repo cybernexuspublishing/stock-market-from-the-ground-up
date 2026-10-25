@@ -1,0 +1,76 @@
+/* v0.14.0.264 — read-only TEST/LIVE Founding 600 catalog + webhook reconciliation.
+ * Never creates, updates, confirms, charges or reveals provider credentials.
+ */
+const testPrices={
+ FOUNDING_30:'price_1UUCNbJY9FI7byHBCX2VWdLi',
+ FOUNDING_60:'price_1UUCNkJY9FI7byHBuh6pT4xd'
+};
+const amounts={FOUNDING_30:{cents:4999,days:30},FOUNDING_60:{cents:5999,days:60}};
+const known=(s,p)=>typeof s==='string'&&new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(s);
+const checks={
+ sandbox:{endpoint:'https://stock-market-from-the-ground-up.pages.dev/api/gu39-stripe-webhook',
+  events:['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created']},
+ live:{endpoint:'https://stock-market-from-the-ground-up.pages.dev/api/founding600-webhook',
+  events:['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created']}
+};
+function response(state,detail){return {state,detail}}
+async function getTestOrLive(key,path){
+ const r=await fetch('https://api.stripe.com/v1/'+path,{
+  method:'GET',headers:{authorization:'Bearer '+key,accept:'application/json'},
+  cache:'no-store',signal:AbortSignal.timeout(8000)
+ });
+ if(!r.ok)throw Error('Provider read unavailable');
+ return r.json();
+}
+async function inspectMode({key,livemode,catalog,mode}){
+ const type=livemode?'LIVE':'TEST';
+ if(typeof key!=='string'||!(livemode?key.startsWith('sk_live_'):key.startsWith('sk_test_')))
+  return response('action_required',type+' Stripe server credential unavailable or wrong mode.');
+ if(!catalog||!Object.values(catalog).every(p=>known(p.priceId,'price')))
+  return response('action_required',type+' plan-to-Stripe price mapping missing.');
+ try{
+  const codes=['FOUNDING_30','FOUNDING_60'];
+  const [p30,p60,webhooks]=await Promise.all([
+   getTestOrLive(key,'prices/'+encodeURIComponent(catalog.FOUNDING_30.priceId)),
+   getTestOrLive(key,'prices/'+encodeURIComponent(catalog.FOUNDING_60.priceId)),
+   getTestOrLive(key,'webhook_endpoints?limit=100')
+  ]);
+  const ps=[p30,p60],matches=codes.every((code,i)=>{
+   const p=ps[i],expected=amounts[code];
+   return p.id===catalog[code].priceId&&p.livemode===livemode&&p.currency==='usd'&&
+    p.unit_amount===expected.cents&&p.active===true&&
+    p.recurring?.interval==='day'&&p.recurring?.interval_count===expected.days&&
+    (!catalog[code].productId||p.product===catalog[code].productId);
+  });
+  if(!matches)return response('action_required',type+' prices, billing cadences or Stripe account modes disagree with the approved Founding 600 catalog.');
+  const [a,b]=await Promise.all(ps.map(p=>getTestOrLive(key,'products/'+encodeURIComponent(p.product))));
+  const products=[a,b];
+  if(products.some((p,i)=>p.id!==ps[i].product||p.livemode!==livemode||
+    (p.metadata?.site_sku&&p.metadata.site_sku!==codes[i])))
+    return response('action_required',type+' Founder product identity or SKU mapping mismatch.');
+  const required=checks[mode];
+  const hook=(webhooks.data||[]).find(w=>w.url===required.endpoint&&w.livemode===livemode&&
+   required.events.every(e=>w.enabled_events?.includes(e)));
+  if(!hook)return response('action_required',type+' Founding webhook destination or subscribed lifecycle events do not match.');
+  if(livemode){
+   if(products.some(p=>p.active!==true)||hook.status!=='enabled')
+    return response('pending','LIVE prices and 30/60-day terms match. Founder products and/or dedicated webhook are intentionally inactive; activation, signed-event delivery and entitlement acceptance remain required before selling.');
+   return response('review','LIVE catalog and webhook are configured, but real paid-member fulfillment has not been independently accepted. Do not enable charges from this check.');
+  }
+  if(products.some(p=>p.active!==true)||hook.status!=='enabled')
+   return response('action_required','Stripe TEST Founder products or webhook are inactive; Sandbox checkout cannot be accepted.');
+  return response('verified','Both Founding 600 TEST products, $49.99/30-day and $59.99/60-day prices, and signed-webhook event subscriptions match. Actual hosted TEST transaction acceptance is a separate gate.');
+ }catch{
+  return response('review',type+' Stripe provider could not be independently contacted; no false acceptance or payment action was taken.');
+ }
+}
+export async function founderCatalogReadiness(env){
+ let liveCatalog;
+ try{liveCatalog=JSON.parse(env.GU_F600_LIVE_CATALOG_JSON||'null')}catch{liveCatalog=null}
+ const liveOK=liveCatalog?.FOUNDING_30&&liveCatalog?.FOUNDING_60;
+ const sandbox=await inspectMode({key:env.GU39_STRIPE_TEST_SECRET_KEY,livemode:false,mode:'sandbox',
+  catalog:{FOUNDING_30:{priceId:testPrices.FOUNDING_30},FOUNDING_60:{priceId:testPrices.FOUNDING_60}}});
+ const live=liveOK?await inspectMode({key:env.GU58_STRIPE_LIVE_SECRET_KEY,livemode:true,mode:'live',catalog:liveCatalog}):
+  response('action_required','LIVE Founder catalog is missing one or both configured plan mappings.');
+ return {sandbox,live};
+}
