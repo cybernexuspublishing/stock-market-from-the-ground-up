@@ -40,7 +40,7 @@ function planCard(p){
  <a class="store-plan-primary-link" href="${esc(page)}" aria-label="Read what ${esc(displayName)} includes, excludes and teaches">What’s included, excluded &amp; taught →</a>
  <p>${esc(publicDescription||'Review this plan’s full coverage and billing terms before purchase.')}</p>
  <ul><li>${esc(adLabel(p.planCode))}</li>${p.planCode==='FREE'?freeBenefits(p).map(x=>`<li>${esc(x)}</li>`).join('')+'<li>Public glossary and released samples; advanced Tutor/server replay require paid access</li>':`<li>${esc(p.allTools?'Released first-party premium tools':'Book-aligned independent practice')}</li>`}<li>${['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(p.planCode)?'First-party book companion learning':p.planCode==='ONDEMAND_MONTHLY'?'Independent training branch':'Books purchased separately'}</li></ul>
- <div class="store-sales-actions">${p.planCode==='FREE'?'<a class="btn" href="create-account.html">Get Free Access</a>':
+ <div class="store-sales-actions">${p.planCode==='FREE'&&(!pf||['listed','for_sale'].includes(pf.status))?'<a class="btn" href="create-account.html">Get Free Access</a>':
  ((!pf||['listed','for_sale'].includes(pf.status))&&p.checkoutEnabled&&Number(p.priceCents)>0?'<a class="btn" href="checkout.html?type=plan&amp;code='+encodeURIComponent(p.planCode)+'">Choose This Membership</a>':
  '<span class="store-soon-label">Coming Soon · Enrollment not yet available</span>')}
  <a class="btn secondary" href="${esc(page)}" aria-label="Review ${esc(displayName)} details, exclusions and purchase options">Compare Benefits</a></div></article>`;
@@ -49,6 +49,7 @@ function bookBuy(label,url){const target=safe(url);return target?`<a class="btn 
 function bookCard(p){
  const face=faceFor('book',p.productCode),displayTitle=face?.display_name||p.title,publicDescription=face?.description||p.description;
  const allowPurchases=!face||['listed','for_sale'].includes(face.status);
+ const editorialState=face&&!allowPurchases?({in_development:'In Development',coming_soon:'Coming Soon',ready_for_review:'Release Review',paused:'Paused'}[face.status]||'Coming Soon'):statusLabel(p.publicationStatus);
  const channels=[];
  if(allowPurchases&&p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)channels.push(bookBuy('Buy Kindle on Amazon',p.amazon.kindleUrl));
  if(allowPurchases&&p.amazonPaperbackEnabled!==false&&p.amazon?.paperbackUrl)channels.push(bookBuy('Buy Paperback on Amazon',p.amazon.paperbackUrl));
@@ -63,7 +64,7 @@ function bookCard(p){
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(p.branchSlug||p.family||'other')}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(displayTitle)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(displayTitle)}</a></h3>
- <div class="product-meta"><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
+ <div class="product-meta"><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(editorialState)}</span>
  ${p.salesStatus==='published'&&purchaseCount?'<span class="status-pill">Purchase options listed</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
  <p>${esc(publicDescription||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
@@ -75,13 +76,14 @@ function toolCard(t){
  const face=faceFor('tool',t.toolCode),displayName=face?.display_name||t.name,publicDescription=face?.description||t.description;
  const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled&&(!face||['listed','for_sale'].includes(face.status));
  const price=released?dollars(t.priceCents)+'/month':'Pricing to be announced';
+ const editorialState=face&&!['listed','for_sale'].includes(face.status)?({in_development:'In Development',coming_soon:'Coming Soon',ready_for_review:'Release Review',paused:'Paused'}[face.status]||'Coming Soon'):(released?'Released learning tool':'Coming Soon');
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
  '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Coming Soon · Not yet released')+'</span>';
  return `<article class="v11-tool-card store-sell-card"><div class="eyebrow">${esc(t.category)}</div>
  <h3><a href="${esc(page)}">${esc(displayName)}</a></h3>
  <p>${esc(publicDescription||'Further product information is being prepared.')}</p>
  <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
- <p class="store-sell-status">${released?'Released learning tool':'Coming Soon'}${released&&!enroll?' · Sales opening pending':''}</p>
+ <p class="store-sell-status">${esc(editorialState)}${released&&!enroll?' · Sales opening pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
  <div class="store-sales-actions">${action}<a class="btn secondary" href="${esc(page)}">See What You Get</a></div></article>`;
 }
