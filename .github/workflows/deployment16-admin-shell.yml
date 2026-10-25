@@ -4,6 +4,8 @@ on:
     paths:
       - 'admin-unified-preview.html'
       - 'admin.html'
+      - 'functions/api/admin-control-registry.js'
+      - 'tests/test_admin_rbac_atomic_v014252.mjs'
       - 'assets/js/admin-prelive-v014247.js'
       - 'assets/css/admin-prelive-v014247.css'
       - 'functions/api/admin-prelive-v014247.js'
@@ -40,6 +42,7 @@ jobs:
           node --check assets/js/admin-unified-preview-v014156.mjs
           node --check assets/js/admin-unified-people-v014156.mjs
           node --check functions/api/admin.js
+          node --check functions/api/admin-control-registry.js
           node --check functions/api/admin-prelive-v014247.js
           node --check assets/js/admin-prelive-v014247.js
           node --check assets/js/admin.js
@@ -53,5 +56,6 @@ jobs:
           node tests/test_v014156_admin_service_key_compatibility.mjs
           node tests/test_admin_session_and_error_gate_v014246.mjs
           node tests/test_admin_prelive_v014247.mjs
+          node tests/test_admin_rbac_atomic_v014252.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs

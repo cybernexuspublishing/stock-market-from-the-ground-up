@@ -255,11 +255,29 @@ async function handlePost(env,request,action){
     await audit(env,c.user.id,enabled?'role.assign':'role.remove','user',target,{role});return ok();
   }
   if(action==='save_role'){
-    const c=await withContext(env,request,'roles.manage');const role=safeCode(body.role_code);if(!role||!body.name)return bad('Role code and name are required.');const existing=await one(env,`admin_roles?select=*&role_code=eq.${encodeURIComponent(role)}`);if(existing?.is_system&&!has(c.ctx,'owner.manage'))return bad('Only an OWNER can edit system roles.',403);if(['OWNER'].includes(role)&&!has(c.ctx,'owner.manage'))return bad('OWNER role is owner-controlled.',403);
+    const c=await withContext(env,request,'roles.manage');const role=safeCode(body.role_code);if(!role||!body.name)return bad('Role code and name are required.');if(!c.ctx.roles.includes('OWNER'))return bad('Only an active OWNER may edit role definitions.',403);if(['OWNER','SHOWCASE_VIEWER'].includes(role))return bad('Protected role definitions are immutable in this editor.',403);const existing=await one(env,`admin_roles?select=*&role_code=eq.${encodeURIComponent(role)}`);if(existing?.is_system&&!has(c.ctx,'owner.manage'))return bad('Only an OWNER can edit system roles.',403);if(['OWNER'].includes(role)&&!has(c.ctx,'owner.manage'))return bad('OWNER role is owner-controlled.',403);
     const row={role_code:role,name:clean(body.name).slice(0,120),description:clean(body.description).slice(0,1000),priority:Number(body.priority||100),is_system:existing?.is_system??false,is_assignable:body.is_assignable!==false,updated_at:nowIso()};await serviceRest(env,'admin_roles?on_conflict=role_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'role.save','role',role,{name:row.name});return ok({role_code:role});
   }
   if(action==='set_role_permissions'){
-    const c=await withContext(env,request,'roles.manage');const role=safeCode(body.role_code),perms=[...new Set((body.permissions||[]).map(clean).filter(Boolean))];if(!role)return bad('Role required.');const rr=await one(env,`admin_roles?select=*&role_code=eq.${encodeURIComponent(role)}`);if(!rr)return bad('Role not found.',404);if(rr.is_system&&!has(c.ctx,'owner.manage'))return bad('Only an OWNER can edit system-role permissions.',403);const critical=['owner.manage','users.delete'];if(perms.some(p=>critical.includes(p))&&!has(c.ctx,'owner.manage'))return bad('Owner permission required for critical privileges.',403);await serviceRest(env,`admin_role_permissions?role_code=eq.${encodeURIComponent(role)}`,{method:'DELETE',prefer:'return=minimal'});if(perms.length)await serviceRest(env,'admin_role_permissions',{method:'POST',prefer:'return=minimal',body:perms.map(permission_code=>({role_code:role,permission_code}))});await audit(env,c.user.id,'role.permissions','role',role,{count:perms.length});return ok();
+    const c=await withContext(env,request,'roles.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Only an active OWNER may replace role permissions.',403);
+    const role=safeCode(body.role_code);
+    if(!role||['OWNER','SHOWCASE_VIEWER'].includes(role))return bad('Protected or invalid role cannot be edited.',403);
+    if(!Array.isArray(body.permissions)||!Array.isArray(body.expected_permissions)||
+       body.permissions.length>100||body.expected_permissions.length>100||
+       [...body.permissions,...body.expected_permissions].some(p=>typeof p!=='string'||!p.trim()))
+      return bad('Provide valid desired and expected permission arrays.',400);
+    const desired=[...new Set(body.permissions.map(clean))],expected=[...new Set(body.expected_permissions.map(clean))];
+    try{
+      const {data}=await serviceRest(env,'rpc/v014252_admin_role_permissions_replace',{
+        method:'POST',body:{p_actor:c.user.id,p_role_code:role,p_permissions:desired,p_expected_permissions:expected}
+      });
+      if(data?.ok!==true)return bad('Atomic role update was not confirmed.',503);
+      return ok({role_code:role,permissionsUpdated:data.count,atomic:true});
+    }catch(e){
+      if(/changed after this editor loaded/i.test(e.message||''))return bad('Role changed since this editor loaded. Refresh Roles & Permissions and retry.',409);
+      throw e;
+    }
   }
   if(action==='user_ban'){
     const c=await withContext(env,request,'users.suspend');const target=clean(body.user_id),duration=clean(body.duration||'none');if(!target)return bad('User required.');if(target===c.user.id)return bad('You cannot suspend your own administrative account.',409);await adminAuth(env,`users/${encodeURIComponent(target)}`,{method:'PUT',body:{ban_duration:duration}});await audit(env,c.user.id,duration==='none'?'user.unban':'user.ban','user',target,{duration});return ok();
