@@ -32,7 +32,7 @@ jobs:
           console.log('GET master account:',authorized?'AUTHORIZED':'UNAUTHORIZED','HTTP '+a.status);
           if(authorized) console.log('Master account:',a.result.name);
           if(!authorized)process.exit(1);
-          const pages=await get('/accounts/'+accountId+'/pages/projects?per_page=50');
+          const pages=await get('/accounts/'+accountId+'/pages/projects');
           console.log('Master Pages project read:',pages.success?'OK':'UNAVAILABLE','HTTP '+pages.status);
           if(pages.success&&Array.isArray(pages.result))
             console.log('Existing Pages projects:',JSON.stringify(pages.result.map(p=>({name:p.name,source:p.source?.type,branch:p.production_branch}))));
