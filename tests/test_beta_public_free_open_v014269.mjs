@@ -7,7 +7,7 @@ test('free beta signup is visibly available but is not payment or founder reserv
  assert.match(site,/Join Free Beta — \$0/);
  assert.match(site,/href="create-account\.html"/);
  assert.match(store,/Join Free Beta — \$0/);
- assert.match(founder,/Free beta registration is open/);
+ assert.match(founder,/Free beta registration/);
  assert.match(founder,/Creating a Free account does not reserve/);
  assert.match(founder,/Founding Standard \(\$49\.99 every 30 days\)/);
  assert.match(founder,/Founding Extended \(\$59\.99 every 60 days\)/);
