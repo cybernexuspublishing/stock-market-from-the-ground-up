@@ -57,3 +57,16 @@ jobs:
           grep -q 'founders-learning-blueprint-v014185.js' founders-commons.html
           grep -q 'CREATE POLICY founder_own_design_read_v014184' supabase/migrations/v0.14.0.184_founder_personal_design_preferences.sql
           grep -q 'FOUNDER_ACCESS_REQUIRED' supabase/migrations/v0.14.0.185_founder_learning_blueprint.sql
+
+      - name: Validate founder legacy, both-tier voting and priority communication source
+        run: |
+          node --check assets/js/founder-legacy-v014187.js
+          node --check assets/js/founders-improvement-polls-v014188.js
+          node --check assets/js/admin-founder-improvement-v014188.js
+          node --check assets/js/founders-announcements-v014189.js
+          test -f founder-legacy.html
+          grep -q 'founder-legacy-v014187.js' founder-legacy.html
+          grep -q 'founders-improvement-polls-v014188.js' founders-commons.html
+          grep -q 'founders-announcements-v014189.js' founders-commons.html
+          grep -q 'FOUNDER_ACCESS_REQUIRED' supabase/migrations/v0.14.0.188_founder_shared_improvement_polls.sql
+          grep -q 'Withdrawal is ALWAYS permitted' supabase/migrations/v0.14.0.186_founder_legacy_optin.sql
