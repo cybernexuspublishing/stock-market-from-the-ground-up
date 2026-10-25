@@ -4,6 +4,10 @@ on:
     paths:
       - 'admin-unified-preview.html'
       - 'admin.html'
+      - 'assets/js/admin-prelive-v014247.js'
+      - 'assets/css/admin-prelive-v014247.css'
+      - 'functions/api/admin-prelive-v014247.js'
+      - 'tests/test_admin_prelive_v014247.mjs'
       - 'assets/js/admin.js'
       - 'assets/js/admin-platform.js'
       - 'assets/js/admin-legacy-routing.js'
@@ -36,6 +40,8 @@ jobs:
           node --check assets/js/admin-unified-preview-v014156.mjs
           node --check assets/js/admin-unified-people-v014156.mjs
           node --check functions/api/admin.js
+          node --check functions/api/admin-prelive-v014247.js
+          node --check assets/js/admin-prelive-v014247.js
           node --check assets/js/admin.js
           node --check assets/js/admin-platform.js
           node --check assets/js/admin-legacy-routing.js
@@ -46,5 +52,6 @@ jobs:
           node tests/test_v014156_admin_stage_b_members_audit.mjs
           node tests/test_v014156_admin_service_key_compatibility.mjs
           node tests/test_admin_session_and_error_gate_v014246.mjs
+          node tests/test_admin_prelive_v014247.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs
