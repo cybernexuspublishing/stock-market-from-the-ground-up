@@ -3,6 +3,8 @@ const H={'content-type':'application/json; charset=utf-8','cache-control':'priva
 const send=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...H,...extra}});
 const forbidden=(status)=>send({ok:false,error:status===401?'Sign in required.':'Owner authorization required.'},status);
 const str=x=>String(x||'').trim();
+// Supabase supports both legacy service JWTs and current sb_secret_ keys.
+const serviceHeaders=key=>({apikey:key,...(key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+key})});
 const cfg=env=>{
  const base=str(env.SUPABASE_URL).replace(/\/$/,'');
  const secret=str(env.SUPABASE_SECRET_KEY),pub=str(env.SUPABASE_PUBLISHABLE_KEY||env.SUPABASE_ANON_KEY);
@@ -19,7 +21,7 @@ async function owner(request,c){
  if(!match)return null;
  const person=await result(c.base+'/auth/v1/user',{apikey:c.pub,authorization:'Bearer '+match[1]});
  if(!person?.id||!/^[a-f0-9-]{36}$/i.test(person.id))return null;
- const header={apikey:c.secret,authorization:'Bearer '+c.secret};
+ const header=serviceHeaders(c.secret);
  const [roles,profiles]=await Promise.all([
   result(c.base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(person.id),header),
   result(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+encodeURIComponent(person.id)+'&limit=1',header)
@@ -30,7 +32,7 @@ async function owner(request,c){
  return isOwner?{id:person.id}:null;
 }
 function client(c){
- const auth={apikey:c.secret,authorization:'Bearer '+c.secret};
+ const auth=serviceHeaders(c.secret);
  return {
   rows:async(path)=>{try{return await result(c.base+'/rest/v1/'+path,auth)}catch{return null}},
   count:async(table)=>{try{
