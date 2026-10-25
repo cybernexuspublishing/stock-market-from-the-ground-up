@@ -1,0 +1,57 @@
+name: Yahoo Master — Final Nonsecret Parity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/master-final-safe-parity.yml'
+permissions:
+  contents: read
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Configure inactive zero-dollar QA IDs and keep unaccepted editors off
+        env:
+          CF_TOKEN: ${{ secrets.SMFGU_LIVES_PAGES_DEPLOY }}
+        run: |
+          node --input-type=module <<'NODE'
+          const acct='4fe9e562905cf607b6f004d2374299fc',name='stock-market-from-the-ground-up',token=process.env.CF_TOKEN;
+          if(!token||token.length<20)throw Error('Missing scoped Cloudflare credential');
+          async function request(method,path,body){
+            const r=await fetch('https://api.cloudflare.com/client/v4'+path,{
+              method,headers:{authorization:'Bearer '+token,...(body?{'content-type':'application/json'}:{})},
+              body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(17000)});
+            const j=await r.json().catch(()=>({success:false}));
+            if(!j.success)throw Error('Cloudflare '+method+' HTTP '+r.status);
+            return j.result;
+          }
+          const a=await request('GET','/accounts/'+acct);
+          if(a.id!==acct||!a.name.toLowerCase().includes('yahoo.com'))throw Error('Unexpected target');
+          const path='/accounts/'+acct+'/pages/projects/'+name;
+          const p=await request('GET',path);
+          if(p.id!=='2cf1b496-5f6a-4cb0-89ba-b1519c08154b')throw Error('Wrong Pages project');
+          const v=p.deployment_configs?.production?.env_vars||{};
+          const guard=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED',
+            'GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED',
+            'GU72_ZERO_MONTHLY_QA_ENABLED','GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED'];
+          if(guard.some(k=>v[k]?.value!=='false'))throw Error('LIVE payment flags must remain OFF');
+          const safe={
+            ENABLE_BOOK_CATALOG_EDITS_V135:'false',
+            ENABLE_SHOWCASE_CREATION_V135:'false',
+            GU71_ZERO_LIVE_PRICE_ID:'price_1US1eWJL0O4GGVBH7f78HcMo',
+            GU71_ZERO_LIVE_PRODUCT_ID:'prod_VSxZRZ8jlX5pW7'
+          };
+          // Zero-dollar IDs are provider catalog metadata only, NOT a payment test.
+          // The two zero-dollar QA execution flags remain disabled.
+          const env_vars=Object.fromEntries(Object.entries(safe).map(([k,value])=>[k,{type:'plain_text',value}]));
+          await request('PATCH',path,{deployment_configs:{production:{env_vars}}});
+          const verified=await request('GET',path),e=verified.deployment_configs?.production?.env_vars||{};
+          if(Object.entries(safe).some(([k,value])=>e[k]?.value!==value)||guard.some(k=>e[k]?.value!=='false')||
+             e.TURNSTILE_SECRET_KEY?.type!=='secret_text'||e.GU_BILLING_TASK_SECRET?.type!=='secret_text')
+            throw Error('Post-write parity or payments-shutdown verification failed');
+          console.log(JSON.stringify({account:acct,variablesCount:Object.keys(e).length,
+            configuredSettings:Object.keys(safe),liveAndZeroDollarQAFlagsOff:true,
+            encryptedBindingsPreserved:true,livePaymentOperations:0}));
+          NODE
