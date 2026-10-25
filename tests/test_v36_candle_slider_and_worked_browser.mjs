@@ -45,10 +45,12 @@ try {
   const body=()=>chart.locator('[data-candle-result="body"]');
   const range=()=>chart.locator('[data-candle-result="range"]');
   const percent=()=>chart.locator('[data-candle-result="percent"]');
-  assert.equal(await close().textContent(),String.fromCharCode(36)+'32.00');
-  assert.equal(await body().textContent(),String.fromCharCode(36)+'1.00');
-  assert.equal(await range().textContent(),String.fromCharCode(36)+'2.00');
-  assert.equal(await percent().textContent(),'50.0%');
+  // The Learn stage starts with the authored DIFFERENT $20 example (not
+  // the $31 reference candle). A later worked step deliberately switches cases.
+  assert.equal(await close().textContent(),String.fromCharCode(36)+'21.20');
+  assert.equal(await body().textContent(),String.fromCharCode(36)+'1.20');
+  assert.equal(await range().textContent(),String.fromCharCode(36)+'3.00');
+  assert.equal(await percent().textContent(),'40.0%');
   const buttons=chart.locator('.gu-l33-interactive-tools [data-teaching-feature]');
   assert.deepEqual(await buttons.evaluateAll(nodes=>nodes.map(n=>n.dataset.teachingFeature)),
    ['all','open','close','high','low','body','range','percent']);
@@ -60,21 +62,23 @@ try {
    'Worked example must appear immediately BELOW highlight buttons');
   const slider=chart.locator('.gu-v36-candle-experiment input[type=range]');
   assert.equal(await slider.count(),1,'Learn must have interactive reference-style slider');
-  await slider.evaluate(el=>{el.value='31.35';el.dispatchEvent(new Event('input',{bubbles:true}))});
-  assert.equal(await close().textContent(),String.fromCharCode(36)+'31.35');
-  assert.equal(await body().textContent(),String.fromCharCode(36)+'0.35');
-  assert.equal(await range().textContent(),String.fromCharCode(36)+'2.00');
-  assert.equal(await percent().textContent(),'17.5%');
+  await slider.evaluate(el=>{el.value='21.35';el.dispatchEvent(new Event('input',{bubbles:true}))});
+  assert.equal(await close().textContent(),String.fromCharCode(36)+'21.35');
+  assert.equal(await body().textContent(),String.fromCharCode(36)+'1.35');
+  assert.equal(await range().textContent(),String.fromCharCode(36)+'3.00');
+  assert.equal(await percent().textContent(),'45.0%');
   assert.match(await chart.locator('svg').getAttribute('aria-label'),/bullish/);
   await chart.getByRole('button',{name:'Open',exact:true}).click();
-  assert.match(await host.locator('.gu-v33-instructor-accessible').first().textContent(),/31\.35/);
+  assert.match(await host.locator('.gu-v33-instructor-accessible').first().textContent(),/21\\.35/);
+  // Step four switches to the independent $31 reference case.
+  for(let step=0;step<3;step++)await worked.getByRole('button',{name:'Next worked step'}).click();
   await worked.getByRole('button',{name:'Show and explain on chart'}).click();
-  assert.equal(await close().textContent(),String.fromCharCode(36)+'21.20');
-  assert.equal(await body().textContent(),String.fromCharCode(36)+'1.20');
-  assert.equal(await range().textContent(),String.fromCharCode(36)+'3.00');
-  assert.equal(await percent().textContent(),'40.0%');
-  assert.equal(await slider.getAttribute('min'),'19.00');
-  assert.equal(await slider.getAttribute('max'),'22.00');
+  assert.equal(await close().textContent(),String.fromCharCode(36)+'32.00');
+  assert.equal(await body().textContent(),String.fromCharCode(36)+'1.00');
+  assert.equal(await range().textContent(),String.fromCharCode(36)+'2.00');
+  assert.equal(await percent().textContent(),'50.0%');
+  assert.equal(await slider.getAttribute('min'),'30.50');
+  assert.equal(await slider.getAttribute('max'),'32.50');
   await host.getByRole('button',{name:'Next learning stage'}).click();
   await host.getByRole('heading',{name:/^Experiment —/}).waitFor();
   const exp=host.locator('.gu-v34-unified-lesson .gu-l33-graphic');
