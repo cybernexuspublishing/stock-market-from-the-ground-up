@@ -74,7 +74,7 @@ async function stripeTestProvider(env,priceRows){
    'invoice.paid','invoice.payment_failed','customer.subscription.updated',
    'customer.subscription.deleted','charge.refunded','charge.dispute.created'];
   const webhook=Array.isArray(webhooks?.data)?
-    webhooks.data.find(w=>w.url===(str(env.PUBLIC_SITE_URL)||'https://stock-market-from-the-ground-up.pages.dev').replace(/\\/$/,'')+'/api/gu39-stripe-webhook'&&
+    webhooks.data.find(w=>w.url===(str(env.PUBLIC_SITE_URL)||'https://stock-market-from-the-ground-up.pages.dev').replace(/\/$/,'')+'/api/gu39-stripe-webhook'&&
       w.status==='enabled'&&w.livemode===false&&required.every(e=>w.enabled_events?.includes(e))):null;
   if(!valid||!webhook)
    return {state:'action_required',detail:'Stripe TEST price amounts, SKU metadata or required webhook delivery configuration do not match the database. No LIVE changes were made.'};
