@@ -76,7 +76,7 @@ try {
   assert.equal(await slider.getAttribute('min'),'19.00');
   assert.equal(await slider.getAttribute('max'),'22.00');
   await host.getByRole('button',{name:'Next learning stage'}).click();
-  await host.getByRole('heading',{name:/Experiment/}).waitFor();
+  await host.getByRole('heading',{name:/^Experiment —/}).waitFor();
   const exp=host.locator('.gu-v34-unified-lesson .gu-l33-graphic');
   const experimentSlider=exp.locator('.gu-v36-candle-experiment input[type=range]');
   assert.equal(await experimentSlider.count(),1,'Experiment must reuse identical slider');
