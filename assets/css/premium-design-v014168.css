@@ -125,3 +125,21 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-side-
 html[data-gu-design="premium-light"] .gu-l33-interactive-tools :is(.gu-l33-view-btn,.gu-l33-calculation-btn){background:#f3f2fa;color:#24364a;border-color:#aab9d3}
 html[data-gu-design="premium-light"] .gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{background:#5240a5;color:#fff}
 @media(max-width:580px){.gu-l33-interactive-tools{gap:5px}.gu-l33-interactive-tools .gu-l33-view-btn{padding:6px 8px;min-height:36px}}
+
+/* v0.14.0.173 — compact instructional card readability + narrow-screen safe area. */
+#gu-v32-teaching-slot .gu-v33-instructor{overflow-wrap:anywhere}
+#gu-v32-teaching-slot .gu-v33-instructor-identity{flex:1 1 auto;min-width:0}
+#gu-v32-teaching-slot .gu-v33-instructor-typing{max-width:90ch;white-space:pre-wrap}
+#gu-v32-teaching-slot .gu-v33-instructor :is(button,input,textarea,select){max-width:100%}
+.gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{box-shadow:inset 0 0 0 1px #c4b7ff}
+.gu-member-dashboard-shell .dashboard-stat strong{font-variant-numeric:tabular-nums}
+.gu-member-dashboard-shell .gu-member-side-menu summary{list-style-position:inside}
+@media(max-width:600px){
+ .gu-member-dashboard-shell>main>.wrap{padding-inline:12px}
+ .gu-member-dashboard-shell .gu-member-side-menu>a{padding:8px 10px}
+ #gu-v32-teaching-slot .gu-v33-instructor-typing{font-size:.91rem}
+}
+@media(forced-colors:active){
+ .gu-l33-interactive-tools .gu-l33-view-btn[aria-pressed="true"]{outline:2px solid Highlight;outline-offset:-3px}
+ .gu-learning-top-nav a[aria-current="page"]{outline:2px solid Highlight}
+}
