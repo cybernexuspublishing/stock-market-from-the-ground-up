@@ -108,7 +108,7 @@ jobs:
           test -f supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
           grep -q 'FOUNDER_RECURRING_CONSENT_OR_BINDING_MISSING' supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
           grep -q 'FOUNDER_STALE_BILLING_PERIOD' supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
-          grep -q 'checkout_enabled=false' supabase/migrations/v0.14.0.195_founder_entitlement_catalog_noncharging.sql
+          grep -q 'p.checkout_enabled=true' supabase/migrations/v0.14.0.195_founder_entitlement_catalog_noncharging.sql
           grep -q "expires_at:String" functions/api/founding600-checkout.js
 
       - name: Verify Founder nonpayment benefits and privacy contract
