@@ -47,7 +47,9 @@ try{
   assert.equal(await dialogue.isVisible(),true,'Choosing Check My Understanding reveals the question');
   assert.match(await dialogue.locator('.gu-v33-instructor-prompt').textContent(),/real body/);
   await submit('The high and low');
-  assert.match(await dialogue.locator('.gu-v33-instructor-reply').textContent(),/Not yet/);
+  const feedback=dialogue.locator('.gu-v33-instructor-reply');
+  assert.equal(await feedback.count(),1,'Incorrect formative answer must preserve the feedback area; observed stage: '+(await root.locator('h2,h3').allTextContents()).slice(0,4).join(' | '));
+  assert.match(await feedback.textContent(),/Not yet/,'Incorrect formative answer must provide specific correction');
   await submit('The open and close values determine the real body of the completed candle.');
   await root.getByRole('heading',{name:/Experiment —/}).waitFor();
   assert.match(await progress().textContent(),/Question 1 of 2/);
