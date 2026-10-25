@@ -94,6 +94,7 @@ jobs:
           test -f founding600.html
           grep -q 'founding600-enrollment-v014198.js' founding600.html
           grep -q 'GU_F600_LIVE_CHECKOUT_ENABLED' functions/api/founding600-checkout.js
+          grep -q "'/api/founding600-checkout'" functions/_middleware.js
           grep -q 'GU_F600_LIVE_WEBHOOK_ENABLED' functions/api/founding600-webhook.js
           grep -q 'fulfillment_enabled boolean NOT NULL DEFAULT false' supabase/migrations/v0.14.0.196_founder_paid_cycle_atomic_entitlements.sql
           grep -q 'F600-2026-10-24' supabase/migrations/v0.14.0.198_founder_recurring_consent_record.sql
