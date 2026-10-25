@@ -1,6 +1,6 @@
 {
-  "version": "0.14.0.170",
-  "status": "STAGING_REVIEW_ONLY",
+  "version": "0.14.0.207",
+  "status": "PRODUCTION_SOURCE_BILLING_DISABLED",
   "checkoutEnabled": false,
   "capacity": 600,
   "memberIdentity": "permanent_nonrecyclable",
@@ -43,7 +43,11 @@
       "SPARKS_30",
       "SPARKS_75"
     ],
-    "noStack": true
+    "noStack": true,
+    "standardLifetimeListCents": 249900,
+    "standardLifetimeChargedCents": 224910,
+    "extendedLifetimeChargedCents": 199920,
+    "extendedPermanentVesting": "completed_paid_non_refunded_60_day_term"
   },
   "purchasedSparksExpire": false,
   "benefits": [
@@ -55,5 +59,74 @@
     "measured_outage_protection"
   ],
   "tradingExecutionIncluded": false,
-  "launchConvertsToPublicPlan": false
+  "launchConvertsToPublicPlan": false,
+  "enrollmentEnabled": false,
+  "fulfillmentEnabled": false,
+  "community": {
+    "name": "Founders Commons",
+    "privacy": "private_founder_eligibility_enforced_by_RLS",
+    "categories": 8,
+    "officialTopics": 32,
+    "ordinaryImprovementVoting": "one_verified_vote_per_eligible_founder_per_poll",
+    "extendedDesignVoting": "one_verified_vote_per_eligible_extended_founder_per_ballot",
+    "issueTracking": [
+      "submitted",
+      "under_review",
+      "accepted",
+      "in_development",
+      "released",
+      "deferred",
+      "declined"
+    ],
+    "shareMemberStatus": true
+  },
+  "benefitDetails": {
+    "verified_completion_certificate": {
+      "description": "Non-accredited certificate issued only after independent competency evidence and Owner verification",
+      "recognitionNonFinancial": true
+    },
+    "reviewed_early_release_materials": {
+      "description": "Original, rights-cleared learning materials and fictional-case challenges approved before publication",
+      "restrictedByTier": true
+    },
+    "equal_vote_improvements": {
+      "description": "One vote per eligible founder per ordinary improvement poll; voting is advisory and not equity"
+    },
+    "priority_announcements": {
+      "description": "Private, reviewed in-app announcements targeted to shared Founder or Extended Council audience"
+    },
+    "preserved_learning_progress": {
+      "description": "Retained competency evidence after subscription cancellation subject to privacy and account deletion policy"
+    },
+    "measured_outage_protection": {
+      "description": "Verified service incident creates founder-specific pending time-credit record; provider billing adjustment is activated only after payment acceptance"
+    }
+  },
+  "extendedOnlyBenefits": {
+    "designCouncil": "Member votes on technically feasible and accessible website themes and layouts",
+    "personalDesignStudio": "Aurora styling and enhanced preferences for eligible Extended subscribers",
+    "learningBlueprint": "Six prioritized unassessed or improvement competencies",
+    "caseStudyProposal": "One editorial proposal per 60 days, withdrawable before acceptance",
+    "foundersChoice": "Advisory product improvement prioritization",
+    "challengeWorkshop": "Reviewed additional simulated-practice challenges"
+  },
+  "sharedFounderBenefits": {
+    "privateCommunity": true,
+    "issueReports": true,
+    "improvementPolls": true,
+    "learningBlueprintPriorities": 3,
+    "optInLegacyWall": true,
+    "certificatesOnlyWhenEarned": true,
+    "foundingNumberPermanent": true
+  },
+  "disclosures": {
+    "noCorporateVotingOrEquity": true,
+    "noInvestmentAdvice": true,
+    "noPurchasedMastery": true,
+    "includedSparksExpireAfterPeriod": true,
+    "purchasedSparksNeverExpire": true,
+    "noAutomaticConversionToPublicPlan": true,
+    "memberAccessEndsAtPaidThroughDate": true,
+    "cancellationDoesNotRemoveOriginalFounderNumber": true
+  }
 }
