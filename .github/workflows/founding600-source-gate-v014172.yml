@@ -139,3 +139,9 @@ jobs:
           grep -q 'CURRICULUM_VERSION_MISMATCH' supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
           grep -q "count_defs<>30" supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
           grep -q 'EXTENDED_FOUNDER_REQUIRED' supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
+
+      - name: Verify paid-cycle PostgreSQL trigger regression fix
+        run: |
+          test -f supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql
+          grep -q 'earlier_cycle.stripe_subscription_id' supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql
+          if grep -q 'old.stripe_subscription_id' supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql; then exit 1; fi
