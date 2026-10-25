@@ -22,6 +22,7 @@ for(const [path,status,check] of [
  ['/api/admin?action=system',401,d=>d?.ok===false],
  ['/api/admin-prelive-v014247',401,d=>d?.ok===false],
  ['/api/account?action=identity',401,d=>d?.ok===false],
+ ['/api/free-beta-readiness-v014272',200,d=>d?.ok===true&&typeof d.signupAvailable==='boolean'&&d.readOnly===true],
  ['/api/founding600-checkout',200,d=>d?.ok===true&&d.checkoutEnabled===false&&d.capacity===600&&
   d.plans?.some(p=>p.code==='FOUNDING_30'&&p.priceCents===4999&&p.billingDays===30)&&
   d.plans?.some(p=>p.code==='FOUNDING_60'&&p.priceCents===5999&&p.billingDays===60)]
