@@ -58,7 +58,7 @@ async function apply(env,e,ctx,invoice=null,charge=null){
   p.p_start=date(line.period.start);p.p_end=date(line.period.end);
  }
  if(e.type==='charge.refunded'||e.type==='charge.dispute.created'){
-  if(!charge||ref(charge.invoice)!==invoice?.id||ref(charge.customer)!==ref(ctx.sub.customer)
+  if(!charge||(ref(charge.invoice)&&ref(charge.invoice)!==invoice?.id)||ref(charge.customer)!==ref(ctx.sub.customer)
    ||(e.type==='charge.refunded'&&charge.amount_refunded!==charge.amount))
    throw Error('SANDBOX_FOUNDER_REFUND_SOURCE_INVALID');
  }
@@ -84,8 +84,23 @@ export async function handleFounderSandbox(event,env){
   const id=type==='charge.refunded'?event.data?.object?.id:ref(event.data?.object?.charge);
   if(!valid(id,'ch'))return null;
   charge=await stripe(env,'charges/'+encodeURIComponent(id));
-  const invoiceId=ref(charge.invoice);
-  if(!valid(invoiceId,'in'))return null;
+  let invoiceId=ref(charge.invoice);
+  if(!valid(invoiceId,'in')){
+    const paymentId=ref(charge.payment_intent);
+    if(!valid(paymentId,'pi'))throw Error('SANDBOX_REFUND_PAYMENT_INTENT_REQUIRED');
+    // Stripe 2026 Charge.invoice is often omitted; use the authoritative
+    // InvoicePayment association instead of silently ignoring a full refund.
+    const url='https://api.stripe.com/v1/invoice_payments?payment%5Btype%5D=payment_intent'
+      +'&payment%5Bpayment_intent%5D='+encodeURIComponent(paymentId)+'&limit=10';
+    const res=await fetch(url,{headers:{authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY},cache:'no-store'});
+    if(!res.ok)throw Error('SANDBOX_REFUND_INVOICE_LOOKUP_RETRY');
+    const list=await res.json();
+    if(list.has_more||!Array.isArray(list.data)||list.data.length!==1||
+      list.data[0].status!=='paid'||!valid(list.data[0].invoice,'in')||
+      list.data[0].payment?.payment_intent!==paymentId)
+      throw Error('SANDBOX_REFUND_INVOICE_MAPPING_MISMATCH');
+    invoiceId=list.data[0].invoice;
+  }
   inv=await stripe(env,'invoices/'+encodeURIComponent(invoiceId));
   subId=ref(inv.subscription)||ref(inv.parent?.subscription_details?.subscription);
   if(!valid(subId,'sub'))return null;
