@@ -106,8 +106,14 @@ function render(){
   block(item,cr.body||'');
   if(cr.destination_url){const l=n('a','Open reviewed destination');l.href=cr.destination_url;l.target='_blank';l.rel='noopener noreferrer';item.append(l)}
   if(cr.status==='draft'||cr.status==='paused'){
-   item.append(button('Approve creative',()=>act({action:'review_creative',id:cr.id,state:'approved'},
-    'Creative approved for possible future use. Campaign is still unpublished.')));
+   const label=n('label');const checked=n('input');checked.type='checkbox';
+   label.append(checked,n('span',' I verified advertiser identity, HTTPS destination, creative rights, sponsor disclosure, and absence of misleading or prohibited financial-promotion claims.'));
+   item.append(label);
+   item.append(button('Approve creative',()=>{
+    if(!checked.checked)throw Error('Complete the compliance and destination review confirmation.');
+    return act({action:'review_creative',id:cr.id,state:'approved',complianceConfirmed:true,destinationReviewed:true},
+     'Creative approved for possible future use. Campaign is still unpublished.');
+   }));
    item.append(button('Reject creative',()=>act({action:'review_creative',id:cr.id,state:'rejected'},
     'Creative rejected.')));
   }else if(cr.status==='approved'){
