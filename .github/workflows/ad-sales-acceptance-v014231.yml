@@ -17,6 +17,8 @@ on:
       - 'supabase/migrations/v0.14.0.230_ad_sales_stripe_quote_only_product_mapping.sql'
       - 'supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql'
       - 'tests/test_ad_sales_security_v014231.mjs'
+      - 'tests/test_ad_placement_delivery_v014235.mjs'
+      - 'supabase/migrations/v0.14.0.23*'
       - '.github/workflows/ad-sales-acceptance-v014231.yml'
 permissions:
   contents: read
@@ -37,6 +39,7 @@ jobs:
           node --check assets/js/admin-ad-sales-v014228.js
           node --check assets/js/ad-slots-v014229.js
           node --test tests/test_ad_sales_security_v014231.mjs
+          node --test tests/test_ad_placement_delivery_v014235.mjs
       - name: Verify deployment stays quote-only, payment-safe, disclosed
         run: |
           grep -q 'Sponsor &amp; Advertising Center' admin.html
@@ -53,3 +56,5 @@ jobs:
           test -f supabase/migrations/v0.14.0.227_ad_sales_verified_invoice_and_campaign_review.sql
           test -f supabase/migrations/v0.14.0.230_ad_sales_stripe_quote_only_product_mapping.sql
           test -f supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql
+          test -f supabase/migrations/v0.14.0.233_ad_campaign_delivery_metrics_caps.sql
+          test -f supabase/migrations/v0.14.0.234_ad_privacy_session_frequency_index.sql
