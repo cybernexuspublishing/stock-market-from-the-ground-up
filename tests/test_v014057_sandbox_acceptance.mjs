@@ -4,7 +4,8 @@ import {webcrypto} from 'node:crypto';
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
 const script=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 const load=async p=>import('data:text/javascript;base64,'+Buffer.from(script(p)).toString('base64'));
-const hook=await load('../functions/api/gu39-stripe-webhook.js');
+// The webhook imports its TEST-only founder lifecycle adapter; a data: URL cannot resolve relative ESM imports.
+const hook=await import(new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url).href);
 const api=await load('../functions/api/gu39-sandbox.js');
 const origin='https://example.com',uid='11111111-1111-4111-8111-111111111111';
 const iid='22222222-2222-4222-8222-222222222222';
