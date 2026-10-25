@@ -130,3 +130,12 @@ jobs:
           grep -q 'contentRedacted' supabase/migrations/v0.14.0.212_founder_case_withdrawal_content_redaction.sql
           grep -q 'ONE_PER_60_DAYS' supabase/migrations/v0.14.0.190_founder_educational_resources_and_case_review.sql
           grep -q 'extended' assets/js/founder-learning-studio-v014191.js
+
+      - name: Verify Extended Founder's sixty-day route source and entitlement boundary
+        run: |
+          node --check assets/js/founder-extended-path-v014213.js
+          test -f founder-extended-path.html
+          grep -q 'founder-extended-path.html' founder-learning-studio.html
+          grep -q 'CURRICULUM_VERSION_MISMATCH' supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
+          grep -q "count_defs<>30" supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
+          grep -q 'EXTENDED_FOUNDER_REQUIRED' supabase/migrations/v0.14.0.213_extended_founder_60_day_guided_path.sql
