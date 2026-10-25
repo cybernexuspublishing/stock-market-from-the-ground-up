@@ -18,6 +18,15 @@ on:
       - 'tests/test_v014157_support_security.mjs'
       - 'scripts/deployment17_source_security_readiness.mjs'
       - 'assets/js/admin-unified-*.mjs'
+      - 'assets/js/premium-design-v014168.js'
+      - 'assets/css/premium-design-v014168.css'
+      - 'assets/js/navigation.js'
+      - 'assets/css/mobile-auth.css'
+      - 'dashboard.html'
+      - 'bootcamp-academy.html'
+      - 'index.html'
+      - 'tests/test_premium_shell_contract.mjs'
+      - 'tests/test_navigation_bundle.py'
       - '.github/workflows/deployment18-source-acceptance.yml'
   pull_request:
   workflow_dispatch:
@@ -42,6 +51,10 @@ jobs:
           node tests/test_v014161_lab_engine_v32_teaching.mjs
           node tests/test_v014162_419_universal.mjs
           node tests/test_v014162_lab_player_context.mjs
+          node tests/test_premium_shell_contract.mjs
+          node tests/test_lab_v33_instructor.mjs
+          node --check assets/js/premium-design-v014168.js
+          node --check assets/js/navigation.js
           node tests/test_v014161_d17_admin_legacy_keys.mjs
           node --check scripts/deployment18_acceptance_matrix.mjs
           node --check assets/js/admin-unified-preview-v014156.mjs
