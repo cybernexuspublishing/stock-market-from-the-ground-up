@@ -159,6 +159,7 @@
           <input id="v1341-mobile-search" type="search" autocomplete="off" placeholder="Search menu…">
         </div>
         <nav class="v1341-mobile-links" aria-label="Mobile site navigation"></nav>
+        <p class="v1341-mobile-empty" role="status" hidden>No matching destinations. Try another search.</p>
         <div class="v1341-mobile-auth"></div>
       </section>`;
     document.body.appendChild(drawer);
@@ -183,7 +184,10 @@
     });
     search.addEventListener('input',()=>{
       const term=search.value.trim().toLowerCase();
-      qa('[data-mobile-item]',drawer).forEach(a=>{a.hidden=!!term&&!a.textContent.toLowerCase().includes(term)});
+      let matches=0;
+      qa('[data-mobile-item]',drawer).forEach(a=>{a.hidden=!!term&&!a.textContent.toLowerCase().includes(term);if(!a.hidden)matches++});
+      const empty=q('.v1341-mobile-empty',drawer);
+      if(empty)empty.hidden=matches!==0;
     });
     drawer._close=close;
     return drawer;
@@ -232,6 +236,7 @@
       await populateDrawer(drawer);
       q('#v1341-mobile-search',drawer).value='';
       qa('[data-mobile-item]',drawer).forEach(x=>x.hidden=false);
+      const empty=q('.v1341-mobile-empty',drawer);if(empty)empty.hidden=true;
       drawer.hidden=false;
       document.body.classList.add('v1341-mobile-open');
       btn.setAttribute('aria-expanded','true');
