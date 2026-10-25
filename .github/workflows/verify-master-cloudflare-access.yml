@@ -37,4 +37,23 @@ jobs:
           if(pages.success&&Array.isArray(pages.result))
             console.log('Existing Pages projects:',JSON.stringify(pages.result.map(p=>({name:p.name,source:p.source?.type,branch:p.production_branch}))));
           if(!pages.success)process.exitCode=1;
+          const target='stock-market-from-the-ground-up';
+          const p=await get('/accounts/'+accountId+'/pages/projects/'+target);
+          console.log('Master Pages project detail:',p.success?'OK':'UNAVAILABLE','HTTP '+p.status);
+          if(p.success){
+            const x=p.result||{},v=x.deployment_configs?.production?.env_vars||{};
+            console.log('Master project configuration:',JSON.stringify({
+              id:x.id,name:x.name,subdomain:x.subdomain,production_branch:x.production_branch,
+              build_command:x.build_config?.build_command,output_dir:x.build_config?.destination_dir,
+              source_type:x.source?.type,github_repo:x.source?.config?.repo_name,
+              latest_deployment:x.latest_deployment&&{id:x.latest_deployment.id,status:x.latest_deployment.latest_stage?.status,url:x.latest_deployment.url},
+              configured_variable_names:Object.keys(v),
+              live_approval:v.GU_PAYMENT_LIVE_LAUNCH_APPROVED?.type==='plain_text'?v.GU_PAYMENT_LIVE_LAUNCH_APPROVED.value:null
+            }));
+          }
+          const deployments=await get('/accounts/'+accountId+'/pages/projects/'+target+'/deployments');
+          console.log('Master deployment inventory:',deployments.success?'OK':'UNAVAILABLE','HTTP '+deployments.status);
+          if(deployments.success&&Array.isArray(deployments.result))
+            console.log('Recent deployments:',JSON.stringify(deployments.result.slice(0,4).map(x=>({id:x.id,status:x.latest_stage?.status,created:x.created_on,url:x.url}))));
+          if(!p.success||!deployments.success)process.exitCode=1;
           NODE
