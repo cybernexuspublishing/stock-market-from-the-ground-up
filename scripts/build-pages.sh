@@ -4,10 +4,10 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 output="public"
 rm -rf "$output"
 mkdir -p "$output"
-for must in index.html config.js sw.js release-manifest.json lab-catalog.json manifest.webmanifest _headers _redirects; do
+for must in index.html config.js sw.js release-manifest.json lab-catalog.json manifest.webmanifest _headers _redirects _routes.json; do
   test -f "$must" || { echo "Missing public asset: $must" >&2; exit 1; }
 done
-cp -- ./*.html config.js sw.js release-manifest.json manifest.webmanifest lab-catalog.json _headers _redirects "$output"/
+cp -- ./*.html config.js sw.js release-manifest.json manifest.webmanifest lab-catalog.json _headers _redirects _routes.json "$output"/
 if [[ -e data/interactive-labs.json ]]; then
   echo 'SECURITY BUILD BLOCK: data/interactive-labs.json is present in repository.' >&2
   exit 4
