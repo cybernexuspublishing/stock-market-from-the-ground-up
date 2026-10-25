@@ -23,6 +23,14 @@ with sync_playwright() as p:
   if width==390:
    page.locator('#v1341-mobile-menu').click()
    page.wait_for_selector('#v1341-mobile-drawer:not([hidden])',timeout=8000)
+   assert page.locator('#v1341-mobile-menu').get_attribute('aria-expanded')=='true'
+   page.keyboard.press('Escape')
+   assert page.locator('#v1341-mobile-drawer').is_hidden()
+   assert page.locator('#v1341-mobile-menu').get_attribute('aria-expanded')=='false'
+   assert page.locator('#v1341-mobile-menu').get_attribute('aria-label')=='Open site navigation'
+   assert page.evaluate("document.activeElement?.id")=='v1341-mobile-menu'
+   page.locator('#v1341-mobile-menu').click()
+   page.wait_for_selector('#v1341-mobile-drawer:not([hidden])',timeout=8000)
    assert page.locator('.v1341-mobile-links a',has_text='Dashboard').count()==1
    assert page.locator('.v1341-mobile-links a',has_text='Boot Camp Academy').count()==1
    assert page.locator('.v1341-mobile-links a',has_text='Security / MFA').count()==0
