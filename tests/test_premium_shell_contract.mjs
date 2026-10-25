@@ -7,6 +7,11 @@ const css=read('assets/css/premium-design-v014168.css');
 const dashboard=read('dashboard.html');
 const academy=read('bootcamp-academy.html');
 const site=read('assets/js/site.js');
+const home=read('index.html'),stats=read('assets/js/home-community.js');
+assert(home.includes('assets/js/home-community.js'),'Premium homepage must load the existing member-statistics panel');
+assert(stats.includes('Example online members')&&stats.includes('Example registered members'),'Example statistics must never appear as real counts');
+assert(stats.includes('if(d.show===false)'),'Owner must retain authority to hide statistics');
+
 assert(theme.includes("if(isAdmin){try{const saved=sessionStorage.getItem(KEY)"),'Private Owner theme previews must not leak into public browsing');
 assert(theme.includes("app.querySelector('.gu-design-picker')"),'Owner theme picker must not mount twice');
 assert(theme.includes('new MutationObserver('),'Async Admin rendering must mount the existing design controls');
