@@ -1,11 +1,40 @@
-# Cloudflare Production Account Replacement — Migration Control v1.7
+# Cloudflare Production Account Replacement — Migration Control v1.8
 **Project:** The Stock Market: From the Ground Up  
-**Status:** YAHOO MASTER PUBLIC SITE + INACTIVE WORKER + STRIPE WEBHOOK TARGETS STAGED; BACKEND CUTOVER AND ORIGINAL ACCOUNT RETIREMENT BLOCKED  
+**Status:** PRE-SECRET MIGRATION GATES COMPLETED; SIX ENCRYPTED BACKEND CREDENTIALS AND AUTH/SANDBOX ACCEPTANCE BLOCK ACCOUNT RETIREMENT  
 **Date:** 2026-10-25  
 **Document owner:** Cyber Nexus / Crown & Lantern Press  
 **Repository / location:** `cybernexuspublishing/stock-market-from-the-ground-up`, `docs/cloudflare-account-replacement-2026-10-25.md`  
 **Google Drive location:** Not applicable; GitHub is the controlled source for this migration record.  
 **Purpose:** Retain the source-to-destination inventory, secret-reentry requirements, deployment path, and cutover gates before deleting the original Cloudflare account.
+
+## Master pre-secret configuration closure — migration gate v1.8 (October 25, 2026)
+
+**Permanent master account:** `4fe9e562905cf607b6f004d2374299fc`.
+**Master Pages hostname:** https://stock-market-from-the-ground-up-d1r.pages.dev/.
+**Latest acceptance basis:** earlier successful master 20-check public/security acceptance and migration configuration readbacks. The additional final pre-secret acceptance workflow is https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40241909937; record its actual conclusion independently before marking it passed.
+
+### Work completed this batch
+
+1. Added a read-only GitHub Actions audit `.github/workflows/master-presecret-inventory.yml` and executed it successfully: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40241507124. It verified **36 original master production bindings** before the final parity update, intact `main` GitHub deployment, no preview deployment, no master Worker cron or public endpoint, and all LIVE payment flags false. It compared against the original 46-variable inventory without revealing any secret values.
+2. The inventory identified 11 absent original names: the **six** encrypted provider credentials; editor controls `ENABLE_BOOK_CATALOG_EDITS_V135`, `ENABLE_SHOWCASE_CREATION_V135`; inactive QA Price/Product IDs `GU71_ZERO_LIVE_PRICE_ID`, `GU71_ZERO_LIVE_PRODUCT_ID`; and the designated private QA member identifier `GU72_QA_ALLOWED_USER_ID`.
+3. Read the LIVE Stripe **catalog objects only** to verify that one active USD $0 one-time QA Price exists (`price_1US1eWJL0O4GGVBH7f78HcMo`, `prod_VSxZRZ8jlX5pW7`). This was a read-only catalog lookup; **no LIVE payment was tested**.
+4. Installed the four available safe metadata/settings in Yahoo master Pages: the two editors deliberately `false` until authenticated acceptance and the two $0 LIVE QA Product/Price IDs (metadata only). GitHub Actions https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40241607110 **SUCCESS** and confirmed **40 production environment variables**, all checked LIVE/zero-dollar QA execution flags still false, encrypted master Turnstile and billing Worker secret bindings preserved, and **zero payment operations**.
+5. Kept `GU72_QA_ALLOWED_USER_ID` absent intentionally. Do not invent or substitute a member ID. This is a QA-only identifier and not required to render the public site; fill only after verifying the designated QA account.
+6. Created the explicit six-secret user entry guide `docs/cloudflare-yahoo-master-secret-handoff-v1.0.md`, including matching Stripe TEST and disabled master LIVE webhook IDs and all shutdown controls. This guide contains **no credential values**.
+7. Created `.github/workflows/master-postsecret-readiness.yml` for later owner-triggered GET-only backend and secret-**presence** acceptance; it does not display or read secret material and does not initiate payments. Its advertising backend check remains **blocked** while master `SUPABASE_SECRET_KEY` is missing.
+8. Added `.github/workflows/master-presecret-final-acceptance.yml` to recheck the **40-variable** baseline, six expected encrypted-secret gaps, all shutdown flags, inactive master Worker, plus the standard 20 GET-only public smoke checks. See its linked GitHub run for verified outcome.
+9. Restored completed one-time migration workflows to manual-only operation to prevent accidental reinvocation. The previous interim Live fallback deployment workflow remains paused. Original and interim Cloudflare projects remain as rollback dependencies.
+
+### Remaining blockers (not yet accepted)
+- **Six encrypted provider secrets**: `SUPABASE_SECRET_KEY`, `GU39_STRIPE_TEST_SECRET_KEY`, `GU39_STRIPE_TEST_WEBHOOK_SECRET`, `GU58_STRIPE_LIVE_SECRET_KEY`, `GU58_STRIPE_LIVE_WEBHOOK_SECRET`, `GU_F600_LIVE_WEBHOOK_SECRET`. Provide values **only via encrypted Cloudflare Production secret input**, never chat or GitHub. See the precise handoff guide.
+- **Supabase Auth CAPTCHA/redirect cutover**: the Yahoo master widget's secret in Cloudflare has not been coordinated with the single shared Supabase Auth CAPTCHA provider. Switching prematurely could break old-site sign-ins. Auth redirect URLs and email confirmation/reset callback URLs also require acceptance.
+- **Authenticated member/Admin production acceptance**: OWNER, members A/B isolation, Free/paid entitlements, 419 Labs, Boot Camps, Journal, Simulator, weekly quotas, and Admin editors. Synthetic QA user needed for the disabled zero-dollar QA features, only if separately authorized.
+- **Stripe TEST signed delivery/renewal/failure/refund acceptance**: master TEST webhook remains disabled until its credential is installed and verified. LIVE payment testing is still excluded.
+- **Final webhook/scheduler route cutover, rollback, account retirement**: original LIVE and TEST endpoints and original billing scheduler remain active. Yahoo master Worker has no schedule and the master LIVE endpoints remain disabled. **Deleting old Cloudflare accounts now is unsafe.**
+- **Supabase security advisor**: same existing database reported 123 `rls_enabled_no_policy` INFO findings, 9 anonymous and 77 authenticated-executable SECURITY DEFINER WARN findings, and leaked-password protection WARN. These are pre-existing risks requiring targeted design review; do not blindly revoke function grants or reapply migrations during Cloudflare migration.
+- **GitHub credential least privilege**: Routine Actions should eventually use a separate narrow master Pages/Workers deployment token rather than a no-expiration broad account-admin key. The Cloudflare ChatGPT plugin still returns an ineligible linked-account error; nonpayment migration changes were performed through authenticated GitHub Actions and separately verified provider calls.
+
+**Cutover verdict:** Yahoo is the authoritative **target** and already publicly accessible. Do NOT label it fully accepted for customer/member operations, switch active billing destinations or delete old accounts before the above blockers close.
 
 ## Master consolidation gate v1.7 — October 25, 2026
 
@@ -167,4 +196,4 @@ The following original source bindings are encrypted/write-only and cannot be re
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks on interim Live account | Superseded |\n| 1.5 | 2026-10-25 | Third Cloudflare account designated master, initial credential mismatch, interim fallback paused | Superseded |\n| 1.6 | 2026-10-25 | Master identity, Pages GitHub build, 24-variable no-payment baseline, Turnstile and public URL verified | Superseded |\n| 1.7 | 2026-10-25 | Master inactive billing Worker, paired secret, 36 vars, catalog metadata, three disabled new webhook targets, noncharging 20-check acceptance | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks on interim Live account | Superseded |\n| 1.5 | 2026-10-25 | Third Cloudflare account designated master, initial credential mismatch, interim fallback paused | Superseded |\n| 1.6 | 2026-10-25 | Master identity, Pages GitHub build, 24-variable no-payment baseline, Turnstile and public URL verified | Superseded |\n| 1.7 | 2026-10-25 | Master inactive billing Worker, paired secret, 36 vars, catalog metadata, three disabled new webhook targets, noncharging 20-check acceptance | Superseded |\n| 1.8 | 2026-10-25 | 40-variable safe master parity, six-secret handoff, pre/post-secret gates, retirement holds | Active migration record |
