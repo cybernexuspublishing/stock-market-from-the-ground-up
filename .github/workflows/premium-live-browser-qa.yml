@@ -27,6 +27,10 @@ on:
       - 'assets/js/dashboard-ui-legacy.js'
       - 'assets/js/production-completion.js'
       - 'assets/js/home-community.js'
+      - 'assets/js/supabase-client.js'
+      - 'assets/js/sitewide-runtime.js'
+      - 'tests/test_supabase_client_singleton.mjs'
+      - 'tests/test_frontend_stabilization_browser.py'
       - 'tests/test_premium_browser_live.py'
       - '.github/workflows/premium-live-browser-qa.yml'
   workflow_dispatch:
@@ -46,10 +50,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify shared initialization and build before browser acceptance
+        run: |
+          node tests/test_supabase_client_singleton.mjs
+          node tests/test_premium_shell_contract.mjs
+          node tests/test_v014157_sitewide_skip_navigation.mjs
+          bash scripts/build-pages.sh
       - name: Install Chromium and Playwright
         run: |
           python -m pip install playwright==1.55.0
           python -m playwright install --with-deps chromium
+      - name: Test built static frontend without provider access
+        run: python tests/test_frontend_stabilization_browser.py
       - name: Test published route layouts at desktop tablet and mobile widths
         run: python tests/test_premium_browser_live.py
         env:
@@ -58,6 +73,8 @@ jobs:
         if: always()
         with:
           name: premium-live-browser-evidence-${{ github.run_number }}
-          path: artifacts/premium-browser/
+          path: |
+            artifacts/premium-browser/
+            artifacts/frontend-stabilization/
           if-no-files-found: warn
           retention-days: 14

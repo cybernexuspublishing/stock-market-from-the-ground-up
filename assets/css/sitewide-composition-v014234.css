@@ -12,6 +12,9 @@ body[data-gu-layout-route] :is(.card,.v13-card,.mini-action-card){border-radius:
 body[data-gu-layout-route] :is(h1,h2,h3){overflow-wrap:normal;text-wrap:balance}
 body[data-gu-layout-route] :is(button,a,input,select,textarea):focus-visible{outline:3px solid #d3b8ff;outline-offset:3px}
 body[data-gu-layout-route] :is(input,select,textarea){max-width:100%}
+/* Provider failures can include long URLs or identifiers. Keep notices inside
+   the workspace without clipping the message or forcing horizontal scrolling. */
+body[data-gu-layout-route] :is(.notice,.status-message,[role="alert"]){min-width:0;overflow-wrap:anywhere}
 body[data-gu-layout-route] :is(.grid,.dashboard-grid,.training-link-grid){min-width:0}
 body[data-gu-layout-route] .footer{background:#051323;border-top:1px solid #30496a}
 body[data-gu-layout-route] .footer .wrap{max-width:var(--gu-layout-max)!important}

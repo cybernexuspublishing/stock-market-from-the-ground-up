@@ -44,6 +44,7 @@ globalThis.fetch=async(url,o={})=>{
  if(u.endsWith('/v1/account'))return respond({id:state.account});
  if(u.includes('/gu39_sandbox_settings?'))return respond([{enabled:state.mode}]);
  if(u.endsWith('/auth/v1/user'))return respond({id:uid,email:'test@example.com'});
+ if(u.includes('/rpc/gu_founder_discount_eligibility_v014221'))return respond({ok:true,eligible:false,discountBps:0});
  if(u.includes('/profiles?'))return respond([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?')||u.includes('/admin_user_roles?')||
    u.includes('/site_subscriptions?')||u.includes('/user_tool_passes?')||

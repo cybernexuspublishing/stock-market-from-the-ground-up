@@ -1,0 +1,23 @@
+{
+  "project": "The Stock Market: From the Ground Up",
+  "release": "frontend-stabilization-2026-10-25",
+  "date": "2026-10-25",
+  "branch": "main",
+  "baseline": "eb4b0fd00c7bcf7624add515cd68d3206a4e509e",
+  "status": "local-verified-production-acceptance-pending",
+  "databaseChanges": false,
+  "paymentWrites": false,
+  "files": {
+    ".github/workflows/premium-live-browser-qa.yml": "d12e7a635bbc69d534e2af1778221fb2b9c5d37514d815cf031b98232861472a",
+    "assets/css/sitewide-composition-v014234.css": "1269d9499e7b331b932ef1f4590fe2b994135377e8f4972f5839a4df6cbc9247",
+    "assets/js/sitewide-runtime.js": "311722258c70f450011d4ec92c2cd9cd303e66e5c4159c96f39ed8e0c9951a5c",
+    "assets/js/supabase-client.js": "ed7d7a1a68d4c5f8915e14181955bc30e3ddff60e18b02073d7a9949d23afdb6",
+    "tests/test_premium_browser_live.py": "bfc3cef672432fa697f498a4952b162eda8f854439a1ca6ddec6f3265d496f0f",
+    "tests/test_premium_shell_contract.mjs": "8f472792c036f3c3e441f212f7a071431353433872c61ac43bf4ae45d01f8cdc",
+    "tests/test_v014058_live_fulfillment.mjs": "f45e385d80088b28016783c2ab23e15d6c05838d71ef17a5fd975abb752542a1",
+    "tests/test_v014140_live_checkout_recovery.mjs": "87aef61092ee6f131c12ca1309f0688bfff160068f6671be9d09748afd27b5d3",
+    "tests/test_supabase_client_singleton.mjs": "40f3e53e559ded38a253fa2f7759e6e4abb94e30e4204cc8b8b59b4790c3d968",
+    "tests/test_frontend_stabilization_browser.py": "62f653c9443f61fe10c7adc0358b6d7cca92f62c0bb829a6219ab8ca320ee928",
+    "docs/qa/frontend-stabilization-2026-10-25/viewport-results.json": "6c416a3e64de6911f3171e88de43abb5c1cfcc7fdde2769ed0a2f33e0eedd66d"
+  }
+}

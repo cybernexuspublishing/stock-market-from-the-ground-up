@@ -38,7 +38,6 @@ const legacyRenderer=read('assets/js/production-completion.js');
 const legacySource=read('src/ts/production-completion.ts');
 assert(legacyRenderer.includes("main.classList.contains('gu-premium-home')"),'The deployed legacy renderer must preserve the premium homepage');
 assert(legacySource.includes("main.classList.contains('gu-premium-home')"),'TypeScript source must preserve the premium homepage');
-const home=read('index.html');
 assert(home.includes('gu-home-stage-grid')&&home.includes('gu-home-terminal'),'Production homepage must contain actual educational workstation and layout');
 assert(home.includes('DEMONSTRATION · NOT LIVE DATA'),'Illustrative charts must be labeled explicitly');
 assert(!home.includes('Example online members'),'Do not display invented member activity on authored homepage');

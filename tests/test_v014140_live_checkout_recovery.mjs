@@ -54,6 +54,7 @@ globalThis.fetch=async(url,options={})=>{
  assert(s.startsWith(base+'/')||s.startsWith('https://api.stripe.com/'),
   'Unapproved external endpoint '+s);
  if(s.endsWith('/auth/v1/user')){state.lastAuth=options.headers.authorization;return json({id:uid})}
+ if(s.includes('/rpc/gu_founder_discount_eligibility_v014221'))return json({ok:true,eligible:false,discountBps:0});
  if(s.endsWith('/v1/account'))return json({id:env.GU58_STRIPE_LIVE_ACCOUNT_ID});
  if(s.includes('/gu39_sandbox_settings?'))return json([{enabled:false}]);
  if(s.includes('/profiles?'))return json([{account_kind:'member'}]);

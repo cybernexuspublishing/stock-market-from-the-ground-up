@@ -1,0 +1,182 @@
+[
+  {
+    "route": "learn",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "dashboard",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "store",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "labs",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "bootcamp-academy",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "admin",
+    "width": 1440,
+    "result": "PASS",
+    "measurement": {
+      "width": 1440,
+      "scroll": 1440,
+      "scale": 1
+    }
+  },
+  {
+    "route": "learn",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "dashboard",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "store",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "labs",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "bootcamp-academy",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "admin",
+    "width": 900,
+    "result": "PASS",
+    "measurement": {
+      "width": 900,
+      "scroll": 900,
+      "scale": 1
+    }
+  },
+  {
+    "route": "learn",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  },
+  {
+    "route": "dashboard",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  },
+  {
+    "route": "store",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  },
+  {
+    "route": "labs",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  },
+  {
+    "route": "bootcamp-academy",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  },
+  {
+    "route": "admin",
+    "width": 390,
+    "result": "PASS",
+    "measurement": {
+      "width": 390,
+      "scroll": 390,
+      "scale": 1
+    }
+  }
+]
