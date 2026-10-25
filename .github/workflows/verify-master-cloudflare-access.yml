@@ -35,7 +35,7 @@ jobs:
           const accounts=await get('/accounts?page=1&per_page=50');
           console.log('Account enumeration:',accounts.success?'SUCCEEDED':'FAILED','HTTP',accounts.http);
           const master=accounts.success && Array.isArray(accounts.data)
-            ? accounts.data.find(a=>/stock.market.from.the.ground.up.*yahoo\\.com/i.test(String(a.name||'')))
+            ? accounts.data.find(a=>/stock.market.from.the.ground.up.*yahoo\.com/i.test(String(a.name||'')))
             : null;
           console.log('Expected Yahoo master account:',master?'FOUND':'NOT FOUND');
           if(master)console.log('Verified master account ID:',master.id);
