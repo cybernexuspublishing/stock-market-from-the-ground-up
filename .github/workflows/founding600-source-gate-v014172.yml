@@ -145,3 +145,12 @@ jobs:
           test -f supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql
           grep -q 'earlier_cycle.stripe_subscription_id' supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql
           if grep -q 'old.stripe_subscription_id' supabase/migrations/v0.14.0.214_founder_paid_cycle_trigger_alias_fix.sql; then exit 1; fi
+
+      - name: Run signed Founding 600 Sandbox webhook acceptance
+        run: |
+          node --check functions/_lib/founder-sandbox-lifecycle-v014216.js
+          node --check functions/api/gu39-stripe-webhook.js
+          node --test tests/test_f600_signed_sandbox_webhook_v014217.mjs
+          test -f supabase/migrations/v0.14.0.215_founder_sandbox_shadow_lifecycle.sql
+          grep -q 'gu_f600_sandbox_apply_v014215' functions/_lib/founder-sandbox-lifecycle-v014216.js
+          grep -q 'handleFounderSandbox' functions/api/gu39-stripe-webhook.js
