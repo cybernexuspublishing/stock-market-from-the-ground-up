@@ -17,6 +17,9 @@ on:
       - 'tests/test_v014234_prelive_redesign_playwright.mjs'
       - '.github/workflows/prelive-redesign-v014234.yml'
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
