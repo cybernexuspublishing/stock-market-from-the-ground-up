@@ -10,7 +10,19 @@
 <p>Manage quote requests, advertiser prospects, inventory rates, campaigns, creative approvals, and verified Stripe invoice references. All advertisement delivery and online ad checkout remain OFF until separately authorized.</p>
 <p id="gu-ad-admin-status" role="status" aria-live="polite">Verifying Owner access…</p>
 <div id="gu-ad-admin-main" hidden>
-<section class="gu-ad-panel" aria-labelledby="gu-ad-overview-title"><h2 id="gu-ad-overview-title">Release controls and inventory</h2>
+<section class="gu-ad-panel" aria-labelledby="gu-ad-sandbox-title">
+ <h2 id="gu-ad-sandbox-title">Stripe Sandbox — Advertising Payment Acceptance</h2>
+ <p>Each category has a dedicated <strong>$1.00 Stripe TEST-only price</strong>. This is not the real advertising price. Test payments are recorded only in an isolated QA ledger and will never publish an advertisement.</p>
+ <p id="gu-ad-sandbox-state" role="status" aria-live="polite">Checking Stripe TEST controls…</p>
+ <p class="gu-ad-note">Enabling this test mode also enables the existing sitewide Stripe Sandbox switch, which prevents LIVE customer checkout while testing. Turn it OFF when finished. No LIVE payments, advertising invoices, or delivery are activated.</p>
+ <div class="actions"><button class="btn secondary" type="button" id="gu-ad-sandbox-toggle">Enable advertising Sandbox</button>
+ <button class="btn secondary" type="button" id="gu-ad-sandbox-refresh">Refresh Sandbox results</button></div>
+ <div id="gu-ad-sandbox-packages" class="gu-ad-control-list"></div>
+ <h3>Verified Stripe TEST receipts</h3>
+ <div id="gu-ad-sandbox-orders" class="gu-ad-control-list"></div>
+ <p id="gu-ad-sandbox-feedback" role="status" aria-live="polite"></p>
+ </section>
+ <section class="gu-ad-panel" aria-labelledby="gu-ad-overview-title"><h2 id="gu-ad-overview-title">Release controls and inventory</h2>
 <p id="gu-ad-gate-state" role="status"></p><p class="gu-ad-note">Changing inquiry availability does not enable advertising payments or campaign delivery.</p>
 <button type="button" class="btn secondary" id="gu-ad-refresh">Refresh verified data</button>
 <button type="button" class="btn secondary" id="gu-ad-toggle-inquiries">Pause inquiries</button>
