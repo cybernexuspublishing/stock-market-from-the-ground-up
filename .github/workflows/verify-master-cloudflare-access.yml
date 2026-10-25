@@ -64,5 +64,9 @@ jobs:
               secret_text:Object.values(e).filter(v=>v.type==='secret_text').length
             }));
           }
+          const turnstile=await get('/accounts/'+accountId+'/challenges/widgets');
+          console.log('Master Turnstile widget inventory:',turnstile.success?'AUTHORIZED':'UNAVAILABLE','HTTP '+turnstile.status);
+          if(turnstile.success&&Array.isArray(turnstile.result))
+            console.log('Existing managed widget names:',JSON.stringify(turnstile.result.map(x=>({name:x.name,domains:x.domains}))));
           if(!p.success||!deployments.success)process.exitCode=1;
           NODE
