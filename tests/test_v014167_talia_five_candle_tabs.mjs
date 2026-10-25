@@ -117,8 +117,14 @@ assert(instructor.includes("addQuick('Common Mistakes',()=>teachFeature({type:le
  'Common mistakes must draw from the existing five-focus curriculum');
 assert(instructor.includes('This teaching action does not submit or grade a practice attempt'),
  'Quick practice support must not masquerade as an assessed attempt');
+const academyHtml=readFileSync('bootcamp-academy.html','utf8');
+assert(academyHtml.includes('gu-focused-learning-header')&&academyHtml.includes('gu-learning-top-nav')&&
+ academyHtml.includes('href="bootcamp-academy.html" aria-current="page"'),
+ 'Academy must expose the correct responsive top-only navigation and current page');
 const visualCss=readFileSync('assets/css/premium-design-v014168.css','utf8');
-assert(visualCss.includes('.gu-v41-talia-quick-actions')&&
+assert(visualCss.includes('#academy-lab-slot .gu-v41-talia-quick-actions')&&
+ visualCss.includes('#academy-lab-slot .gu-l33-interactive-tools')&&
+ visualCss.includes('.gu-v41-talia-quick-actions')&&
  visualCss.includes('.gu-v41-talia-quick-action:focus-visible'),
  'The six teacher actions must have compact and keyboard-accessible styling');
 
