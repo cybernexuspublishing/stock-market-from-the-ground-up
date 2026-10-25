@@ -1,4 +1,4 @@
-# Cloudflare Production Account Replacement — Migration Control v1.2
+# Cloudflare Production Account Replacement — Migration Control v1.3
 **Project:** The Stock Market: From the Ground Up  
 **Status:** REPLACEMENT DEPLOYED / BACKEND CUTOVER PENDING — original account must remain active  
 **Date:** 2026-10-25  
@@ -20,7 +20,7 @@
 | Cloudflare Pages | `stock-market-from-the-ground-up`, `stock-market-from-the-ground-up.pages.dev` | `stock-market-from-the-ground-up-lives`, `stock-market-from-the-ground-up-lives.pages.dev` | **Production Pages deployment succeeded 2026-10-25** |
 | Pages build | `bash scripts/build-pages.sh` → `public`; root `/`; branch `main` | Same build settings | Configured |
 | Pages Functions | Repository `functions/` | Deployed via Wrangler Pages; `/api/auth-guard-v0135` confirmed HTTP 200 | Basic check passed; backend acceptance pending |
-| Pages production variables | 46 environment-variable names in source | 40 in destination, including replacement `GU_PUBLIC_SITE_ORIGIN`; 7 source names remain absent | **Backend secrets pending** |
+| Pages production variables | 46 environment-variable names in source | 41 in destination, including replacement `GU_PUBLIC_SITE_ORIGIN` and approved QA user ID; 6 source secret names remain absent | **Backend secrets pending** |
 | Billing Worker | `ground-up-billing-scheduler` | Same name, code from `workers/billing-reconcile-stripe-only-v014129.js` on `main` | Code deployed; no cron enabled |
 | Billing Cron triggers | `0 12 * * *` and `*/25 * * * *` | None; deliberate until cutover | Pending activation |
 | Billing Worker compatibility | `2026-10-20` and `global_fetch_strictly_public` | Same | Verified |
@@ -37,7 +37,7 @@
 - `GU39_STRIPE_TEST_WEBHOOK_SECRET`
 - `GU58_STRIPE_LIVE_SECRET_KEY`
 - `GU58_STRIPE_LIVE_WEBHOOK_SECRET` (original is classified as plaintext; rotate and store as encrypted secret)
-- `GU72_QA_ALLOWED_USER_ID` (carry forward only if still appropriate)
+- `GU72_QA_ALLOWED_USER_ID` was copied as a QA identifier only; both zero-monthly QA and fulfillment switches remain `false`.
 - `GU_F600_LIVE_WEBHOOK_SECRET`
 - `SUPABASE_SECRET_KEY`
 
@@ -72,6 +72,20 @@ Destination-specific differences are deliberate: `GU_BILLING_SITE_ORIGIN`, `PUBL
 - The original website and its **two** billing cron triggers are unchanged. Replacement billing Worker remains deliberately **unscheduled**.
 - **Security correction:** Previous user-issued Cloudflare API token was pasted into a conversation. Owner reports token was rolled and GitHub secret updated. Do not record the credential value; independently review token permission scope because rolling does not reduce broad account/zone access.
 
+## Acting Owner continuation — October 25, 2026 (migration record v1.3)
+- **Turnstile hardening:** Replacement widget `SMFGU Lives Production Turnstile` accepts **only** `stock-market-from-the-ground-up-lives.pages.dev`. Removed `localhost` and `127.0.0.1`; widget secret stayed unchanged. Supabase Auth CAPTCHA must still be aligned to the new widget secret through a supported Auth settings pathway before login acceptance.
+- **QA identity:** Copied the original preapproved QA user identifier directly from source Pages configuration to replacement without displaying the UUID. `GU72_ZERO_MONTHLY_QA_ENABLED=false` and `GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED=false` were reconfirmed; no LIVE billing test was enabled.
+- **Stripe TEST webhook:** Created endpoint `we_1UUYUiJY9FI7byHBSrTYQfkm` at `https://stock-market-from-the-ground-up-lives.pages.dev/api/gu39-stripe-webhook`. It has the 10 required lifecycle-event subscriptions and was verified **DISABLED**. Original TEST webhook remains enabled at original hostname. The new endpoint's signing secret was generated, but automatic provider-to-provider installation was blocked by the connector safety layer; it is NOT present as `GU39_STRIPE_TEST_WEBHOOK_SECRET` in replacement Pages. This needs secure configuration from Stripe's signing-secret display and encrypted Pages settings. Never place secrets in GitHub or chat.
+- **Stripe TEST price identities independently reconciled:** All three advertising one-time TEST prices are active, amount USD 100 cents, and carry the correct `ad_sandbox=true` and `site_sku` metadata. Founding 600 TEST prices are active and equal USD 4999 cents every 30 days and USD 5999 cents every 60 days. No checkout or charge was initiated. Existing global Sandbox switch remains off.
+- **New independent no-charge smoke gate:** `tests/cloudflare-replacement-smoke.mjs` and `.github/workflows/cloudflare-replacement-smoke.yml` were committed on `main`. Checks public pages, canonical and sitemap, Pages Functions, Turnstile public config, private-file 404, webhook-method rejection, and safe public config. Advertising API 503 is reported as a **blocked dependency**, not a pass. Its first run exposed HTTP 308 canonical redirects for legacy `.html` paths; the test was corrected to validate redirects and canonical routes.
+- **Manual fallback hardening:** GitHub Actions `.github/workflows/replacement-cloudflare-pages.yml` is restricted to `workflow_dispatch` on `main`, requiring explicit `DEPLOY_REPLACEMENT` confirmation. Native Cloudflare GitHub integration remains the production deployment source.
+- **Supabase security inventory:** Advisor warns about 9 anonymous-executable and 77 authenticated-executable `SECURITY DEFINER` functions plus missing leaked-password protection; do not blindly revoke RPC access because this is the same existing production database. Review grants and internal authorization per function in separate non-disruptive security acceptance.
+- **Nonpayment route evidence:** Replacement `GET /api/gu39-stripe-webhook` and `GET /api/stripe-live-webhook` return HTTP 405; the read-only `/api/runtime-health-v014259` and `/api/auth-guard-v0135` return success. `/api/ad-sales` still returns HTTP 503 pending `SUPABASE_SECRET_KEY`.
+- **Source account unchanged:** Its billing Worker retains exactly `0 12 * * *` and `*/25 * * * *`; replacement Worker remains unscheduled; Stripe LIVE webhook endpoints and launch switches are unchanged. Account deletion is forbidden before complete cutover acceptance.
+
+### Owner action required for encrypted credentials
+The following original source bindings are encrypted/write-only and cannot be retrieved through the connected Cloudflare management API. Install them securely in replacement Pages from the appropriate original provider/dashboard, using `secret_text`: `SUPABASE_SECRET_KEY`, `GU39_STRIPE_TEST_SECRET_KEY`, `GU39_STRIPE_TEST_WEBHOOK_SECRET` (the **new** TEST webhook's secret, not the old one), `GU58_STRIPE_LIVE_SECRET_KEY`, `GU58_STRIPE_LIVE_WEBHOOK_SECRET` (verify valid value; rotate plaintext source credential), and `GU_F600_LIVE_WEBHOOK_SECRET`. Never turn on the LIVE activation gates merely to copy these values.
+
 ## Production cutover and deletion gates (not yet satisfied)
 1. Replacement Pages deployment, Pages Functions, navigation, Admin, Store, Labs and Academy pass browser acceptance and security checks.
 2. Production Supabase service credential is securely bound in replacement Pages; database and Row Level Security remain unchanged. Coordinate the Turnstile secret with Supabase Auth CAPTCHA (separate widgets cannot be assumed interoperable).
@@ -85,4 +99,4 @@ Destination-specific differences are deliberate: `GU_BILLING_SITE_ORIGIN`, `PUBL
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions, remaining credential and cutover gates | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Active migration record |
