@@ -18,6 +18,9 @@ on:
       - 'supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql'
       - 'tests/test_ad_sales_security_v014231.mjs'
       - 'tests/test_ad_placement_delivery_v014235.mjs'
+      - 'tests/test_ad_sandbox_signed_stripe_v014244.mjs'
+      - 'functions/api/gu39-stripe-webhook.js'
+      - 'functions/_lib/ad-sandbox-lifecycle-v014242.js'
       - 'supabase/migrations/v0.14.0.23*'
       - '.github/workflows/ad-sales-acceptance-v014231.yml'
 permissions:
@@ -35,11 +38,14 @@ jobs:
         run: |
           node --check functions/api/ad-sales.js
           node --check functions/api/ad-slot.js
+          node --check functions/_lib/ad-sandbox-lifecycle-v014242.js
+          node --check functions/api/gu39-stripe-webhook.js
           node --check assets/js/ad-inquiry-v014228.js
           node --check assets/js/admin-ad-sales-v014228.js
           node --check assets/js/ad-slots-v014229.js
           node --test tests/test_ad_sales_security_v014231.mjs
           node --test tests/test_ad_placement_delivery_v014235.mjs
+          node --test tests/test_ad_sandbox_signed_stripe_v014244.mjs
       - name: Verify deployment stays quote-only, payment-safe, disclosed
         run: |
           grep -q 'Sponsor &amp; Advertising Center' admin.html
@@ -58,3 +64,13 @@ jobs:
           test -f supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql
           test -f supabase/migrations/v0.14.0.233_ad_campaign_delivery_metrics_caps.sql
           test -f supabase/migrations/v0.14.0.234_ad_privacy_session_frequency_index.sql
+
+      - name: Verify isolated Stripe TEST ledger and Owner-gated sandbox checkout
+        run: |
+          test -f supabase/migrations/v0.14.0.240_advertising_stripe_sandbox_shadow_ledger.sql
+          test -f supabase/migrations/v0.14.0.241_ad_sandbox_owner_mode_switch.sql
+          grep -q 'handleAdSandbox' functions/api/gu39-stripe-webhook.js
+          grep -q 'AD_SANDBOX_2026' functions/api/ad-sales.js
+          grep -q 'mode.*payment' functions/api/ad-sales.js
+          grep -q 'testing_enabled boolean NOT NULL DEFAULT false' supabase/migrations/v0.14.0.240_advertising_stripe_sandbox_shadow_ledger.sql
+          grep -q 'commercialAdActivated' supabase/migrations/v0.14.0.240_advertising_stripe_sandbox_shadow_ledger.sql
