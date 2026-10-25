@@ -100,4 +100,26 @@ assert(ref.example.includes('order is unknown'),
  'Never fabricate which OHLC extreme happened first');
 assert(ref.steps.some(x=>x.includes('Close − Open = Body')),
  'Reference introduction must display the formula before numerical substitution');
+
+const quickLabels=['Ask Talia','Explain This Concept','Teach This in More Depth',
+ 'Real-World Example','Common Mistakes','Practice Another Example'];
+for(const label of quickLabels){
+ assert(instructor.includes("addQuick('"+label+"'"),
+  'The shared instructor must expose this owner-approved action: '+label);
+}
+assert(instructor.includes("rootEl.insertBefore?.(quickActions,transcript)"),
+ 'Quick actions must appear before the lesson narration in every eligible shared stage');
+assert(instructor.includes("if(stage===1||stage===2||stage===4||stage===6)rootEl.insertBefore?.(quickActions,transcript)"),
+ 'Independent Assess, Transfer and grading stages must never receive a shortcut');
+assert(instructor.includes("addQuick('Ask Talia',()=>openTutor())"),
+ 'Ask Talia must open the existing entitlement-aware tutor, not a bypass');
+assert(instructor.includes("addQuick('Common Mistakes',()=>teachFeature({type:lessonContext.visualType||'general',feature:'mistake'}))"),
+ 'Common mistakes must draw from the existing five-focus curriculum');
+assert(instructor.includes('This teaching action does not submit or grade a practice attempt'),
+ 'Quick practice support must not masquerade as an assessed attempt');
+const visualCss=readFileSync('assets/css/premium-design-v014168.css','utf8');
+assert(visualCss.includes('.gu-v41-talia-quick-actions')&&
+ visualCss.includes('.gu-v41-talia-quick-action:focus-visible'),
+ 'The six teacher actions must have compact and keyboard-accessible styling');
+
 console.log('PASS 5 distinct original bullish and bearish scripts; labeled calculations, integrity check, 0/0, temporal and source boundaries');
