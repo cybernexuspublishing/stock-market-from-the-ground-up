@@ -89,6 +89,11 @@ const ui=api.create({stage:1,subject:'VWAP context and its limitations',concept:
  }});
 assert(ui?.element);
 const nodes=walk(ui.element);
+const reducedMotionReplay=nodes.find(n=>n.className==='btn secondary gu-v33-instructor-skip');
+assert(reducedMotionReplay?.hidden===true&&reducedMotionReplay?.disabled===true,
+ 'When animation is unavailable, the inert replay button must not be offered');
+assert(reducedMotionReplay?.textContent==='Full text displayed',
+ 'Nonanimated narration must expose truthful control state');
 const ask=nodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor');
 const tabs=nodes.filter(n=>n.attrs?.role==='tab');
 const question=walk(nodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea');
