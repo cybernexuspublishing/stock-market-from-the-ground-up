@@ -7,6 +7,7 @@ on:
       - 'functions/api/admin-control-registry.js'
       - 'tests/test_admin_rbac_atomic_v014252.mjs'
       - 'tests/test_admin_staff_flag_gate_v014253.mjs'
+      - 'tests/test_v014077_owner_qa_membership_reset.mjs'
       - 'tests/test_admin_legacy_authorization_v014254.mjs'
       - 'functions/api/admin-access-v01355.js'
       - 'functions/api/admin-site-v01354.js'
