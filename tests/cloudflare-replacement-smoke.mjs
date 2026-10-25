@@ -25,11 +25,20 @@ async function check(name,path,expected,verify=()=>{}) {
 }
 for(const [name,path,text] of [
   ['homepage','/','The Stock Market: From the Ground Up'],
-  ['store','/store.html','Memberships'],
-  ['lab registry','/labs.html','419'],
-  ['boot camp academy','/bootcamp-academy.html','Boot Camp Academy']
+  ['store','/store','Memberships'],
+  ['lab registry','/labs','419'],
+  ['boot camp academy','/bootcamp-academy','Boot Camp Academy']
 ]){
   await check(name,path,200,body=>assert.ok(body.includes(text),'Expected page text missing'));
+}
+for(const [legacy,canonical] of [
+  ['/store.html','/store'],['/labs.html','/labs'],['/bootcamp-academy.html','/bootcamp-academy']
+]){
+  await check('canonical route redirect '+legacy,legacy,308,(_body,response)=>{
+    const dest=new URL(response.headers.get('location')||'',site);
+    assert.equal(dest.origin,site,'Redirect leaves replacement account');
+    assert.equal(dest.pathname,canonical);
+  });
 }
 await check('canonical hostname','/',200,body=>{
   assert.match(body,/<link[^>]*rel=["']canonical["'][^>]*href=["']https:\/\/stock-market-from-the-ground-up-lives\.pages\.dev\//i);
