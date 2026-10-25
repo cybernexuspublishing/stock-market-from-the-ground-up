@@ -33,5 +33,18 @@ for(const path of ['/api/admin?action=save_role_atomic','/api/admin-accounts-v01
   if(![401,403].includes(r.status))problems.push(path+' permitted or misrouted anonymous POST: '+r.status);
  }catch(e){problems.push('Network POST '+path+' '+String(e.message||e))}
 }
+// Determine whether static fallback is canonical-domain routing or all Pages versions.
+const deploymentHosts=['https://2bcb7d83.stock-market-from-the-ground-up.pages.dev',
+ 'https://0a0435a4.stock-market-from-the-ground-up.pages.dev'];
+for(const host of deploymentHosts){
+ for(const path of ['/','/api/admin?action=system','/api/admin-prelive-v014247']){
+  try{
+   const res=await fetch(host+path,{redirect:'manual',cache:'no-store',headers:{accept:'application/json'},
+    signal:AbortSignal.timeout(15000)});
+   console.log('Versioned deployment',new URL(host).hostname,path,'HTTP',res.status,
+    'type',res.headers.get('content-type')||'<none>','server',res.headers.get('server')||'<none>');
+  }catch(error){console.log('Versioned diagnostic unavailable',host,path,String(error.message||error))}
+ }
+}
 assert.equal(problems.length,0,'Production Pages routing/authorization failures:\n'+problems.join('\n'));
 console.log('PASS production static routing, 10 private GET gates and two unauthorized mutation denials');
