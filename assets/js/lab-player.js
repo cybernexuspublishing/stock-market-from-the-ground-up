@@ -369,14 +369,18 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s source material',
    'This Lab provides authorized conceptual instruction. Historical charts, private question reviews and assessment certification require their own approved evidence. No mastery score is implied.'));
- }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';q('player-mode-select')?.addEventListener('change',event=>{
-  const next=event.target.value;
-  if(next===PLAYER.mode)return;
+ }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';// Both the visible mode menu and the accessibility select use one state
+ // transition. Do not rely on a synthetic change event from the menu:
+ // re-rendering may reset the select before that event is processed.
+ const requestPlayerMode=next=>{
+  if(!['guided','practice','blind','assessment'].includes(next))return;
+  if(next===PLAYER.mode){syncPlayerMode();return}
   const fraction=Number(q('gu-v32-teaching-slot')?.querySelector('[data-v32-progress]')?.dataset.v32Progress||0);
   if(PLAYER.locked||fraction>=1/3){syncPlayerMode();return}
-  if(fraction>0)inlineModeConfirmation(next,false);
-  else{PLAYER.mode=next;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer()}
- });
+  if(fraction>0){inlineModeConfirmation(next,false);syncPlayerMode();return}
+  PLAYER.mode=next;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
+ };
+ q('player-mode-select')?.addEventListener('change',event=>requestPlayerMode(event.target.value));
  const modeMenu=q('player-mode-menu'),modeTrigger=q('player-mode-trigger');
   modeTrigger?.addEventListener('click',()=>{
    if(modeTrigger.disabled)return;
@@ -399,7 +403,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
     modeMenu.hidden=true;modeTrigger?.setAttribute('aria-expanded','false');
     if(next===PLAYER.mode)return;
     const select=q('player-mode-select');if(!select||select.disabled)return;
-    select.value=next;select.dispatchEvent(new Event('change',{bubbles:true}));
+    requestPlayerMode(next);
    });
   });
   q('player-mode-help')?.addEventListener('click',()=>{
