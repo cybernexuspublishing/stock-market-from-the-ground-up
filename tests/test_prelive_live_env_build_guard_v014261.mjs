@@ -7,12 +7,12 @@ const flags=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED',
  'GU72_ZERO_MONTHLY_QA_ENABLED'];
 const safe=Object.fromEntries(flags.map(x=>[x,'false']));
 for(const key of flags){
- const process=spawnSync('bash',['scripts/build-pages.sh'],{
+ const result=spawnSync('bash',['scripts/build-pages.sh'],{
   encoding:'utf8',timeout:15000,
   env:{...process.env,...safe,CF_PAGES_BRANCH:'main',[key]:'true'}
  });
- assert.equal(process.status,9,key+' did not block a prematurely activated LIVE build');
- assert.match(process.stderr,/PRE-LIVE BUILD BLOCK/);
- assert(process.stderr.includes(key),'Error must name the misconfigured flag without exposing secrets');
+ assert.equal(result.status,9,key+' did not block a prematurely activated LIVE build');
+ assert.match(result.stderr,/PRE-LIVE BUILD BLOCK/);
+ assert(result.stderr.includes(key),'Error must name the misconfigured flag without exposing secrets');
 }
 console.log('PASS v0.14.0.261: all seven LIVE approval/fulfillment flags independently block main production build');
