@@ -87,6 +87,30 @@ test('paid-through cancellation remains ACTIVE until end and does not mint credi
  assert.equal(m.calls.some(x=>x.p.includes('gu_founder_record_paid_cycle_v014196')),false);
  }finally{sub.cancel_at_period_end=was;m.restore()}
 });
+test('verified failed renewal invoice records past-due but grants no new Sparks',async()=>{
+ const m=mocks(),old=invoice.status;invoice.status='open';
+ try{
+  const r=await onRequestPost({request:await req('invoice.payment_failed',{id:values.invoice}),env});
+  assert.equal(r.status,200);
+  const call=m.calls.find(x=>x.p.endsWith('gu_founder_update_provider_state_v014218'));
+  assert.equal(call?.body?.p_status,'past_due');
+  assert.equal(m.calls.some(x=>x.p.endsWith('gu_founder_record_paid_cycle_v014196')),false);
+ }finally{invoice.status=old;m.restore()}
+});
+test('duplicate paid invoice replay reuses ledger result, never grants twice',async()=>{
+ const m=mocks(),saved=m.calls;
+ const before=globalThis.fetch;
+ globalThis.fetch=async (url,options={})=>{
+  if(new URL(String(url)).pathname.endsWith('gu_founder_record_paid_cycle_v014196'))
+   return new Response(JSON.stringify({ok:true,replayed:true}),{status:200,headers:{'content-type':'application/json'}});
+  return before(url,options);
+ };
+ try{
+  const r=await onRequestPost({request:await req('invoice.paid',{id:values.invoice}),env});
+  assert.equal(r.status,200);
+  assert.equal(await r.text(),'REPLAY');
+ }finally{m.restore()}
+});
 test('full refund reverses exact paid invoice without restoring a founding seat',async()=>{
  const m=mocks();try{const r=await onRequestPost({request:await req('charge.refunded',{id:values.charge}),env});
  assert.equal(r.status,200);assert.equal(await r.text(),'FULL_REFUND_REVERSED');
