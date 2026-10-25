@@ -66,6 +66,14 @@ for(const file of ['/.git/config','/.mcp.json','/supabase/migrations/private.sql
 }
 await check('Stripe TEST webhook rejects GET','/api/gu39-stripe-webhook',405);
 await check('Stripe LIVE webhook rejects GET (not a payment test)','/api/stripe-live-webhook',405);
+await check('owner prelaunch diagnostics reject guest','/api/admin-prelive-v014247',401);
+await check('owner zero-live checkout rejects guest','/api/owner-zero-live-checkout',401);
+await check('zero-monthly live QA remains closed','/api/store-zero-monthly-qa',200,body=>{
+  const x=JSON.parse(body);
+  assert.equal(x.available,false);
+  assert.equal(x.canReset,false);
+  assert.equal(x.offerClosed,true);
+});
 await check('public config has no server keys','/config.js',200,body=>{
   for(const re of [/sb_secret_/i,/sk_live_/i,/sk_test_/i,/whsec_/i,/SUPABASE_SECRET_KEY\s*:/i]){
     assert.doesNotMatch(body,re);
