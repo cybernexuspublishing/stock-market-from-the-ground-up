@@ -98,3 +98,15 @@ jobs:
           grep -q 'GU_F600_LIVE_WEBHOOK_ENABLED' functions/api/founding600-webhook.js
           grep -q 'fulfillment_enabled boolean NOT NULL DEFAULT false' supabase/migrations/v0.14.0.196_founder_paid_cycle_atomic_entitlements.sql
           grep -q 'F600-2026-10-24' supabase/migrations/v0.14.0.198_founder_recurring_consent_record.sql
+
+      - name: Validate founder payment chronology, first-party entitlement catalog, and seat invariants
+        run: |
+          test -f supabase/migrations/v0.14.0.195_founder_entitlement_catalog_noncharging.sql
+          test -f supabase/migrations/v0.14.0.196_founder_paid_cycle_atomic_entitlements.sql
+          test -f supabase/migrations/v0.14.0.198_founder_recurring_consent_record.sql
+          test -f supabase/migrations/v0.14.0.201_exact_founding_paid_cycle_invariants.sql
+          test -f supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
+          grep -q 'FOUNDER_RECURRING_CONSENT_OR_BINDING_MISSING' supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
+          grep -q 'FOUNDER_STALE_BILLING_PERIOD' supabase/migrations/v0.14.0.202_founder_invoice_consent_and_freshness_guard.sql
+          grep -q 'checkout_enabled=false' supabase/migrations/v0.14.0.195_founder_entitlement_catalog_noncharging.sql
+          grep -q "expires_at:String" functions/api/founding600-checkout.js
