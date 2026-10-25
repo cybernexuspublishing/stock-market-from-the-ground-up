@@ -6,6 +6,7 @@ on:
       - 'admin.html'
       - 'functions/api/admin-control-registry.js'
       - 'tests/test_admin_rbac_atomic_v014252.mjs'
+      - 'tests/test_admin_staff_flag_gate_v014253.mjs'
       - 'assets/js/admin-prelive-v014247.js'
       - 'assets/css/admin-prelive-v014247.css'
       - 'functions/api/admin-prelive-v014247.js'
@@ -57,5 +58,6 @@ jobs:
           node tests/test_admin_session_and_error_gate_v014246.mjs
           node tests/test_admin_prelive_v014247.mjs
           node tests/test_admin_rbac_atomic_v014252.mjs
+          node tests/test_admin_staff_flag_gate_v014253.mjs
           node tests/test_v014077_owner_qa_membership_reset.mjs
           node tests/test_v014078_account_source_management.mjs
