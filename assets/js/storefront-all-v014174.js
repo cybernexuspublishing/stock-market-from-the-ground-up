@@ -48,7 +48,13 @@ function detail(){
  const sku=new URLSearchParams(location.search).get('sku')||'';
  const x=source.find(p=>p.sku===sku);
  if(!x){root.innerHTML='<h1>Product not available</h1><p>This listing is unavailable or not publicly displayed.</p><a href="store.html#all" class="btn secondary">Browse Store</a>';return}
- const page=safeRoute(x.product_page);
+ let page=safeRoute(x.product_page);
+ // Existing reviewed learning routes are not payment links.
+ if(!page&&x.category==='tool'&&/^tool:[A-Z0-9_-]+$/.test(x.sku))page='advanced-tool.html?tool='+encodeURIComponent(x.sku.slice(5));
+ if(!page&&x.category==='bootcamp')page='bootcamp-academy.html';
+ if(!page&&x.category==='founding')page='founding600.html';
+ if(!page&&x.category==='addon')page='store.html#tools';
+ if(!page&&x.category==='book')page='store.html#books';
  document.title=x.display_name+' | The Stock Market: From the Ground Up';
  root.innerHTML='<div class="eyebrow">'+esc(groups.find(v=>v[0]===x.category)?.[1]||'Product')+'</div>'+
  '<h1>'+esc(x.display_name)+'</h1><p class="gu174-state">'+esc(labels[x.status]||'Coming Soon')+'</p>'+
