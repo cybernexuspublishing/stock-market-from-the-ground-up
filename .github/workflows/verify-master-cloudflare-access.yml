@@ -1,10 +1,6 @@
 name: Verify Master Cloudflare Credential (Read Only)
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/verify-master-cloudflare-access.yml'
 permissions:
   contents: read
 jobs:
