@@ -47,7 +47,7 @@ try{
   assert.equal(await dialogue.isVisible(),true,'Choosing Check My Understanding reveals the question');
   assert.match(await dialogue.locator('.gu-v33-instructor-prompt').textContent(),/real body/);
   await submit('The high and low');
-  assert.match(await dialogue.locator('.gu-v33-instructor-reply').textContent(),/Not yet/);
+  assert.match(await root.locator('.gu-v33-instructor-reply').textContent(),/Not yet/);
   await submit('The open and close values determine the real body of the completed candle.');
   await root.getByRole('heading',{name:/Experiment —/}).waitFor();
   assert.match(await progress().textContent(),/Question 1 of 2/);
