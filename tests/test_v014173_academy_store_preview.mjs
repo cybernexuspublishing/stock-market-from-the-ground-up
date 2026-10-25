@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const page=read('store-bootcamps.html');
+const store=read('store.html');
+const ids=['BC-05-TRUTH','BC-07-WATCH','BC-10-SCAN','BC-30-CORE','BC-45-CHART','BC-60-RISK','BC-90-PRACT','SC-07-CANDLE','SC-10-TAPE','SC-10-VWAP','SC-07-NEWS','SC-07-EDGAR','SC-10-SIZING','SC-07-BREAK','SC-07-JOURNAL'];
+for(const id of ids)assert.ok(page.includes('data-code="'+id+'"'),'Missing '+id);
+assert.equal((page.match(/data-code="/g)||[]).length,15);
+assert.ok(store.includes('href="store-bootcamps.html"'));
+assert.ok(page.includes('Coming Soon')&&page.includes('Checkout unavailable'));
+assert.ok(page.includes('Final pricing pending'));
+assert.ok(!/<form[^>]+action=[^>]*checkout/i.test(page));
+console.log('PASS: 15 academy previews remain noncharging');
