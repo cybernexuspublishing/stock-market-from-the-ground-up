@@ -1,4 +1,4 @@
-# Cloudflare Production Account Replacement — Migration Control v1.3
+# Cloudflare Production Account Replacement — Migration Control v1.4
 **Project:** The Stock Market: From the Ground Up  
 **Status:** REPLACEMENT DEPLOYED / BACKEND CUTOVER PENDING — original account must remain active  
 **Date:** 2026-10-25  
@@ -86,6 +86,15 @@ Destination-specific differences are deliberate: `GU_BILLING_SITE_ORIGIN`, `PUBL
 ### Owner action required for encrypted credentials
 The following original source bindings are encrypted/write-only and cannot be retrieved through the connected Cloudflare management API. Install them securely in replacement Pages from the appropriate original provider/dashboard, using `secret_text`: `SUPABASE_SECRET_KEY`, `GU39_STRIPE_TEST_SECRET_KEY`, `GU39_STRIPE_TEST_WEBHOOK_SECRET` (the **new** TEST webhook's secret, not the old one), `GU58_STRIPE_LIVE_SECRET_KEY`, `GU58_STRIPE_LIVE_WEBHOOK_SECRET` (verify valid value; rotate plaintext source credential), and `GU_F600_LIVE_WEBHOOK_SECRET`. Never turn on the LIVE activation gates merely to copy these values.
 
+## Read-only migration acceptance gate v1.4 — October 25, 2026
+- **GitHub Actions smoke run 40233818699: SUCCESS**: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40233818699
+- **23 noncharging checks passed, zero test failures.** These cover homepage, Store, Labs, Boot Camp Academy, HTTPS canonical/redirect origin, sitemap/robots, two Pages Functions health probes, public Turnstile sitekey, forbidden repository/static source paths, webhook GET rejection, public configuration secret-leak checks, and guest rejection by Owner-only endpoints.
+- Replacement GET `/api/admin-prelive-v014247` and GET `/api/owner-zero-live-checkout` correctly reject unauthenticated guests (401). GET `/api/store-zero-monthly-qa` confirms `available:false`, `canReset:false`, and `offerClosed:true`.
+- **One explicitly unresolved blocker:** `/api/ad-sales` responds 503 because the server-only `SUPABASE_SECRET_KEY` is not configured. This is not a passed advertising backend or member acceptance gate.
+- Native Cloudflare GitHub integration deploys `main` automatically; manual fallback GitHub workflow separately requires `DEPLOY_REPLACEMENT` and remains nonautomatic. New Turnstile widget is scoped to production hostname only.
+- No LIVE payments were tested, enabled, or initiated. The Stripe TEST destination webhook remains disabled; its signing secret must be obtained from Stripe and installed in Cloudflare encrypted settings before enabling test deliveries.
+- Original Cloudflare project remains operational and its billing schedules are unchanged; the replacement billing scheduler remains inactive.
+
 ## Production cutover and deletion gates (not yet satisfied)
 1. Replacement Pages deployment, Pages Functions, navigation, Admin, Store, Labs and Academy pass browser acceptance and security checks.
 2. Production Supabase service credential is securely bound in replacement Pages; database and Row Level Security remain unchanged. Coordinate the Turnstile secret with Supabase Auth CAPTCHA (separate widgets cannot be assumed interoperable).
@@ -99,4 +108,4 @@ The following original source bindings are encrypted/write-only and cannot be re
 ## Revision history
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Active migration record |
+| 1.0 | 2026-10-25 | Initial verified source/destination inventory and retirement gates | Superseded |\n| 1.1 | 2026-10-25 | Verified replacement Pages deployment, non-sensitive HTTP checks and 503 backend blocker | Superseded |\n| 1.2 | 2026-10-25 | Production replacement-origin fixes, verified SEO and Pages Functions | Superseded |\n| 1.3 | 2026-10-25 | Turnstile hardening, TEST webhook disabled, Sandbox price reconciliation, QA ID copy, noncharging smoke gate | Superseded |\n| 1.4 | 2026-10-25 | 23 verified noncharging smoke checks, Owner endpoint denial, closed zero-monthly QA, unresolved backend credential block | Active migration record |
