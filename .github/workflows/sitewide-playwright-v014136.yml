@@ -90,6 +90,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_founders_commons_browser_v014178.mjs
+      - name: Browser-test Founding 600 Standard and Extended simulated member journeys
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_f600_member_pages_browser_v014220.mjs
       - name: Run central Playwright website regression
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
