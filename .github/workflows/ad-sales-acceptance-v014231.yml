@@ -1,0 +1,55 @@
+name: Advertising Sales Security & Readiness
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'advertise.html'
+      - 'admin-advertising.html'
+      - 'admin.html'
+      - 'assets/js/ad-inquiry-v014228.js'
+      - 'assets/js/admin-ad-sales-v014228.js'
+      - 'assets/js/ad-slots-v014229.js'
+      - 'assets/css/ad-sales-v014228.css'
+      - 'functions/api/ad-sales.js'
+      - 'functions/api/ad-slot.js'
+      - 'supabase/migrations/v0.14.0.22*'
+      - 'supabase/migrations/v0.14.0.230_ad_sales_stripe_quote_only_product_mapping.sql'
+      - 'supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql'
+      - 'tests/test_ad_sales_security_v014231.mjs'
+      - '.github/workflows/ad-sales-acceptance-v014231.yml'
+permissions:
+  contents: read
+jobs:
+  advertising-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Advertising API, Owner controls and rendering source
+        run: |
+          node --check functions/api/ad-sales.js
+          node --check functions/api/ad-slot.js
+          node --check assets/js/ad-inquiry-v014228.js
+          node --check assets/js/admin-ad-sales-v014228.js
+          node --check assets/js/ad-slots-v014229.js
+          node --test tests/test_ad_sales_security_v014231.mjs
+      - name: Verify deployment stays quote-only, payment-safe, disclosed
+        run: |
+          grep -q 'Sponsor &amp; Advertising Center' admin.html
+          grep -q 'Submit inquiry (no charge)' advertise.html
+          grep -q 'Full Monthly and Full Annual may contain limited sponsor placements' advertise.html
+          grep -q 'data-ad-slot="HOME_INLINE"' index.html
+          grep -q 'data-ad-slot="STORE_INLINE"' store.html
+          grep -q 'data-ad-slot="COMMUNITY_INLINE"' market-commons.html
+          grep -q 'data-ad-slot="SAMPLE_LABS"' lab-samples.html
+          grep -q 'data-ad-slot="FREE_DASHBOARD"' dashboard.html
+          grep -q 'ad_delivery_enabled boolean NOT NULL DEFAULT false' supabase/migrations/v0.14.0.226_ad_selling_owner_approval_and_inventory.sql
+          grep -q 'accepting_payments boolean NOT NULL DEFAULT false' supabase/migrations/v0.14.0.226_ad_selling_owner_approval_and_inventory.sql
+          grep -q 'Owner-controlled' supabase/migrations/v0.14.0.226_ad_selling_owner_approval_and_inventory.sql
+          test -f supabase/migrations/v0.14.0.227_ad_sales_verified_invoice_and_campaign_review.sql
+          test -f supabase/migrations/v0.14.0.230_ad_sales_stripe_quote_only_product_mapping.sql
+          test -f supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql
