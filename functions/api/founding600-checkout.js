@@ -67,8 +67,18 @@ async function postBody(req){
  const all=new Uint8Array(bytes);let offset=0;for(const p of parts){all.set(p,offset);offset+=p.byteLength}
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(all))}catch{throw fail('Invalid JSON.',400)}
 }
-export async function onRequestGet(){
- return json({ok:true,checkoutEnabled:false,message:'Founding enrollment opens only after all membership and payment acceptance checks pass.'});
+export async function onRequestGet({env}){
+ let enabled=false;
+ try{
+  const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
+  const tiers=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled');
+  enabled=state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
+   &&tiers.length===2&&tiers.every(t=>t.checkout_enabled===true);
+ }catch{enabled=false}
+ return json({ok:true,checkoutEnabled:enabled,capacity:600,plans:[
+  {code:'FOUNDING_30',priceCents:4999,billingDays:30},
+  {code:'FOUNDING_60',priceCents:5999,billingDays:60}
+ ]});
 }
 export async function onRequestPost({request,env}){
  try{
@@ -87,8 +97,8 @@ export async function onRequestPost({request,env}){
   ||price.billing_scheme!=='per_unit'||price.transform_quantity!==null)
    throw fail('Stripe pricing does not match approved founding terms.');
   const intent=crypto.randomUUID(),expires=new Date(Date.now()+30*60*1000).toISOString();
-  const reserved=await rest(c,'rpc/gu_founder_reserve_v014173','POST',{
-   p_user_id:user.id,p_plan_code:plan,p_intent_key:intent,p_expires_at:expires
+  const reserved=await rest(c,'rpc/gu_founder_reserve_with_consent_v014198','POST',{
+   p_user_id:user.id,p_plan_code:plan,p_intent_key:intent,p_expires_at:expires,p_terms_version:'F600-2026-10-24'
   });
   if(!reserved?.ok||!uuid(reserved.reservationId))
    return json({ok:false,error:reserved?.error||'Founding enrollment is unavailable.'},409);
