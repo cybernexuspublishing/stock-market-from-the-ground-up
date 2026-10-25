@@ -33,6 +33,22 @@ function render(){
 function wire(){
  if(wired)return;wired=true;
  $('admin-storefront-search')?.addEventListener('input',render);
+ $('gu174-new-save')?.addEventListener('click',async ev=>{
+  if(!isOwner)return;
+  const b=ev.currentTarget;
+  const category=$('gu174-new-category').value,code=$('gu174-new-code').value.trim().toUpperCase();
+  const display_name=$('gu174-new-name').value.trim(),description=$('gu174-new-desc').value.trim();
+  if(!/^[A-Z0-9_-]{2,80}$/.test(code)||display_name.length<2){$('admin-storefront-count').textContent='Supply a valid code and title.';return}
+  if(!confirm('Create a Coming Soon Store face with no payment or member entitlement?'))return;
+  b.disabled=true;
+  try{const ans=await admin('storefront_item_create',{category,code,display_name,description});
+   $('admin-storefront-search').value=code;
+   await load(true);
+   $('admin-storefront-count').textContent=ans.notice;
+  }catch(e){$('admin-storefront-count').textContent='Item could not be created: '+e.message}
+  finally{b.disabled=false}
+ });
+
  $('admin-storefront-grid')?.addEventListener('click',async ev=>{
   const b=ev.target.closest('[data-gu174-save]');if(!b)return;
   const sku=b.dataset.gu174Save;const x=items.find(row=>row.sku===sku);if(!x||!isOwner)return;
