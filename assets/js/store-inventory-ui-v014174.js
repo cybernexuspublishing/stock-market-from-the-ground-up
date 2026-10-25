@@ -16,7 +16,7 @@ function init(){
   }
   if(root){
    const sku=new URLSearchParams(location.search).get('sku')||'',p=all.find(x=>x.sku===sku&&!x.href);
-   if(!p){root.innerHTML='<h1>Product not available</h1><p>This item is currently not listed.</p>';return;}
+   if(!p){root.innerHTML='<h1>Checking product availability</h1><p>Confirming this listing with the Store.</p>';return;}
    document.title=p.name+' | The Stock Market: From the Ground Up';
    root.innerHTML='<div class="eyebrow">'+escapeHtml(p.category)+'</div><h1>'+escapeHtml(p.name)+'</h1><p>'+escapeHtml(p.description)+'</p><p><strong>Availability:</strong> Coming Soon — checkout unavailable.</p><p><strong>Price:</strong> Pricing to be announced or confirmed at release.</p>'+(p.duration?'<p><strong>Program length:</strong> '+escapeHtml(p.duration)+'</p>':'')+'<p><strong>Catalog identifier:</strong> '+escapeHtml(p.sku)+'</p><p>Final benefits, assessments, rights, access terms and delivery will be confirmed before purchase opens.</p><a class="btn secondary" href="store-all-products.html">Back to all products</a>';
   }
@@ -30,7 +30,7 @@ function init(){
    return o?{...p,name:o.title,description:o.description,status:'coming_soon'}:p;
   });
   render();
- }).catch(()=>{if(status)status.textContent='Upcoming catalog temporarily unavailable; existing products remain accessible.';});
+ }).catch(()=>{if(status)status.textContent='Upcoming catalog temporarily unavailable; existing products remain accessible.';if(root)root.innerHTML='<h1>Product availability unavailable</h1><p>This product cannot be displayed until its current publication state is confirmed. No checkout is available here.</p><a href="store-all-products.html">Back to all products</a>';});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
