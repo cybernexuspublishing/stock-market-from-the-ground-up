@@ -8,6 +8,7 @@
 - The default destination for authorized website changes is production, but acceptance requires successful build, permission, regression, and deployed-behavior verification. Report source commits separately from deploy acceptance.
 - Stripe products, prices, subscriptions, billing configuration, live charges, and refunds are excluded from automatic changes; obtain separate authorization for payment writes and owner-controlled live checkout testing.
 - Do not report the 419 Labs, Boot Camps, navigation or Talia redesign as complete merely because theme infrastructure was deployed.
+- Require ONE consolidated Owner Acceptance Test only after the entire authorized website release is independently verified as member-ready and production-ready. Do not request Owner testing of incomplete incremental builds, and do not mark any partial functionality as completed.
 
 ## Non-negotiable engineering conduct
 
