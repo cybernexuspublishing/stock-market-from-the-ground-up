@@ -1,16 +1,13 @@
 /* Production Pages routing + real anonymous Admin denial; no payment or authenticated mutations. */
 import assert from 'node:assert/strict';
 const origin='https://stock-market-from-the-ground-up.pages.dev';
-const paths=['/','/admin.html','/release-manifest.json',
+const paths=['/','/admin.html','/release-manifest.json','/api/runtime-health-v014259',
  '/api/admin?action=system','/api/admin?action=users',
  '/api/admin-accounts-v01353?action=list','/api/admin-prelive-v014247',
  '/api/admin-control-registry','/api/admin-access-v01355?tab=overview',
  '/api/admin-site-v01354?action=overview','/api/admin-operations-v0135?action=overview',
  '/api/admin-operations-center-v0135?action=overview','/api/admin-owner-notifications'];
-// Diagnostic switch: fail-open is temporarily disabled by Owner QA; report
-// runtime availability directly before concluding whether routes are misbound.
-const probeAtUtc='2026-10-25T15:55:00Z';
-console.log('Cloudflare fail-closed runtime probe',probeAtUtc);
+// Fail-open was restored after a controlled test; investigate actual Functions routing.
 const problems=[];
 for(const path of paths){
  let res;
@@ -18,7 +15,8 @@ for(const path of paths){
   headers:{accept:'application/json,text/html'},signal:AbortSignal.timeout(15000)})}
  catch(e){problems.push('Network '+path+' '+String(e.message||e));continue}
  const asset=!path.startsWith('/api/');
- const ok=asset?res.status===200:[401,403].includes(res.status);
+ const healthy=path==='/api/runtime-health-v014259';
+ const ok=asset||healthy?res.status===200:[401,403].includes(res.status);
  const cache=(res.headers.get('cache-control')||'').toLowerCase();
  const ct=res.headers.get('content-type')||'unknown';
  console.log('Production',path,'HTTP',res.status,'type',ct,'cache',cache||'<none>');
@@ -26,6 +24,8 @@ for(const path of paths){
  if(!asset&&!cache.includes('no-store'))problems.push(path+' missing no-store cache control');
  if(!asset){
   const body=await res.text();
+  if(!ok)console.log('Unexpected response sample',path,body.replace(/\\s+/g,' ').slice(0,160));
+  if(healthy&&(!body.includes('ground-up-pages-functions')||res.headers.get('x-gu-functions')!=='v014259'))problems.push('Runtime health probe did not execute Pages Functions');
   if(/sb_secret_|sk_live_|whsec_/i.test(body))problems.push(path+' leaked sensitive token');
  }
 }
