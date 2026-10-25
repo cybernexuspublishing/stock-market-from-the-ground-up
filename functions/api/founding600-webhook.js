@@ -136,8 +136,18 @@ async function lifecycle(c,e){
   const chargeId=kind==='charge.refunded'?e.data?.object?.id:e.data?.object?.charge;
   if(!pattern(chargeId,'ch'))return 'IGNORE';
   charge=await stripe(c,'charges/'+encodeURIComponent(chargeId));
-  const invoiceId=typeof charge.invoice==='string'?charge.invoice:charge.invoice?.id;
-  if(!pattern(invoiceId,'in'))return 'IGNORE'; // manual billing review
+  let invoiceId=typeof charge.invoice==='string'?charge.invoice:charge.invoice?.id;
+  // Current Stripe API versions omit Charge.invoice. Resolve the canonical
+  // InvoicePayment association from the verified PaymentIntent instead.
+  if(!pattern(invoiceId,'in')){
+   const intent=typeof charge.payment_intent==='string'?charge.payment_intent:charge.payment_intent?.id;
+   if(!pattern(intent,'pi'))throw Error('CHARGE_HAS_NO_VERIFIED_PAYMENT_INTENT');
+   const matches=await stripe(c,'invoice_payments?payment%5Btype%5D=payment_intent&payment%5Bpayment_intent%5D='+encodeURIComponent(intent)+'&limit=10');
+   if(matches.has_more||!Array.isArray(matches.data)||matches.data.length!==1
+    ||matches.data[0].status!=='paid'||!pattern(matches.data[0].invoice,'in'))
+    throw Error('REFUND_INVOICE_PAYMENT_MAPPING_NOT_UNIQUE');
+   invoiceId=matches.data[0].invoice;
+  }
   invoice=await stripe(c,'invoices/'+encodeURIComponent(invoiceId));
   sid=typeof invoice.subscription==='string'?invoice.subscription:invoice.parent?.subscription_details?.subscription;
  }else return 'IGNORE';
