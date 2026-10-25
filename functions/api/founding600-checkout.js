@@ -6,6 +6,12 @@ const json=(o,status=200)=>new Response(JSON.stringify(o),{status,headers:{'cont
 const fail=(msg,status=503)=>Object.assign(new Error(msg),{status});
 const uuid=s=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s||'');
 const plans={FOUNDING_30:{amount:4999,days:30},FOUNDING_60:{amount:5999,days:60}};
+export function foundingProductReadyForCheckout(product,plan,expectedId){
+ return product?.id===expectedId&&product.livemode===true&&product.active===true&&
+   product.metadata?.site_sku===plan&&product.metadata?.site_checkout_enabled==='true'&&
+   product.metadata?.fulfillment_verified==='true'&&product.metadata?.payment_launch_approved==='true';
+}
+
 function cfg(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const stripe=String(env.GU58_STRIPE_LIVE_SECRET_KEY||'');
@@ -96,6 +102,11 @@ export async function onRequestPost({request,env}){
   ||price.recurring?.interval_count!==expected.days||price.recurring?.usage_type!=='licensed'
   ||price.billing_scheme!=='per_unit'||price.transform_quantity!==null)
    throw fail('Stripe pricing does not match approved founding terms.');
+  // Do not reserve a founder seat before checking that its LIVE product is
+  // genuinely activated, fulfills promised benefits, and is Owner-approved.
+  const product=await stripe(c,'products/'+encodeURIComponent(pm.productId));
+  if(!foundingProductReadyForCheckout(product,plan,pm.productId))
+   throw fail('Founding benefits or Stripe product have not passed final launch acceptance.',503);
   const intent=crypto.randomUUID(),expires=new Date(Date.now()+30*60*1000).toISOString();
   const reserved=await rest(c,'rpc/gu_founder_reserve_with_consent_v014198','POST',{
    p_user_id:user.id,p_plan_code:plan,p_intent_key:intent,p_expires_at:expires,p_terms_version:'F600-2026-10-24'
