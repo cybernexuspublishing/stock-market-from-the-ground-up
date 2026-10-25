@@ -75,4 +75,4 @@ BEGIN
  RETURN jsonb_build_object('ok',true,'replayed',false,'seat',r.founder_number,'expectedPriceId',p_price_id);
 END $bind$;
 REVOKE ALL ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text) FROM PUBLIC,anon,authenticated;
-GRANT EXECUTE ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text,text) TO service_role;
+GRANT EXECUTE ON FUNCTION public.gu_founder_bind_checkout_v014193(uuid,uuid,text,text) TO service_role;
