@@ -135,7 +135,16 @@ async function stripeTest(c,path,init={}){
 }
 async function adSandboxCheckout(c,actor,packageCode,request){
  const origin=new URL(request.url).origin;
- if(origin!=='https://stock-market-from-the-ground-up.pages.dev')
+ // Match the configured canonical origin across account migrations.
+ const configured=str(c.env.PUBLIC_SITE_URL)||'https://stock-market-from-the-ground-up.pages.dev';
+ let expected;
+ try{
+  const u=new URL(configured);
+  if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.search||u.hash||u.port)
+   throw Error('Invalid origin');
+  expected=u.origin;
+ }catch{throw bad('Verified website origin is not configured.',503)}
+ if(origin!==expected)
   throw bad('This test checkout is limited to the verified production website.',403);
  const [settings,globalMode,pricing,liveSettings,acct]=await Promise.all([
   api(c,'gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true'),
