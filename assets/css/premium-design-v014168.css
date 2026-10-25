@@ -164,3 +164,10 @@ html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v41-talia-quick-a
 #academy-lab-slot .gu-l33-interactive-tools :is(button,select):focus-visible{outline:3px solid #b6a8ff;outline-offset:2px}
 html[data-gu-design="premium-light"] #academy-lab-slot .gu-v41-talia-quick-action{background:#f3f0ff;color:#29254f;border-color:#9d8cde}
 @media(max-width:420px){#academy-lab-slot .gu-v41-talia-quick-actions{grid-template-columns:1fr}}
+
+/* Shared instructor header: stable identity with a small visual marker.
+ * No synthetic playback, video controls or impersonated streaming. */
+#gu-v32-teaching-slot .gu-v33-instructor-identity{display:flex;flex-direction:column;min-width:0;justify-content:center;gap:2px}
+#gu-v32-teaching-slot .gu-v33-instructor-identity h3{margin:0;font-size:.94rem;font-weight:750}
+#gu-v32-teaching-slot .gu-v33-instructor-subtitle{font-size:.72rem;line-height:1.4;color:#bbc8d7}
+html[data-gu-design="premium-light"] #gu-v32-teaching-slot .gu-v33-instructor-subtitle{color:#526477}
