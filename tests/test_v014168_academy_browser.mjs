@@ -97,6 +97,14 @@ try{
    await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.hidden===true);
    await page.locator('#academy-save').click();
    assert.match(await page.locator('#academy-save-status').innerText(),/80–2,000/);
+   const unsaved='I recorded the source and timestamp but have not finished my analysis. This draft must stay visible while moving between days; it is not recorded on the server.';
+   await page.locator('#academy-reflection').fill(unsaved);
+   await page.locator('#academy-days .gu-bc-day').nth(1).click();
+   await page.locator('#academy-days .gu-bc-day').first().click();
+   assert.equal(await page.locator('#academy-reflection').inputValue(),unsaved,
+    'Switching study days must never destroy an unsaved reflection draft');
+   assert.match(await page.locator('#academy-save-status').innerText(),/Unsaved reflection draft/);
+   assert.equal(progress.size,0,'Unsaved draft must never become server progress');
    let storedReflection=reflection;
    if(code==='truth5'){
     const answer=page.locator('#academy-self-check-answer');
@@ -118,6 +126,12 @@ try{
    await page.locator('#academy-days .gu-bc-day').last().click();
    await page.locator('#academy-days .gu-bc-day').first().click();
    assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection);
+   const newUnsaved='This is a newer, not-yet-persisted answer. It must survive a local day switch but must never carry over to a different member account.';
+   await page.locator('#academy-reflection').fill(newUnsaved);
+   await page.locator('#academy-days .gu-bc-day').nth(1).click();
+   await page.locator('#academy-days .gu-bc-day').first().click();
+   assert.equal(await page.locator('#academy-reflection').inputValue(),newUnsaved);
+   assert.equal(progress.get(1)?.reflection,storedReflection,'New unsaved content cannot overwrite persisted record');
    await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
    await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
    assert.equal(await page.locator('#academy-reflection').inputValue(),'');
