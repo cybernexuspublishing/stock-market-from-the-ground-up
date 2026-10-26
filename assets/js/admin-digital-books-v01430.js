@@ -35,7 +35,20 @@ function mount(){
      const ext=/\.epub$/i.test(f.name)?'epub':/\.pdf$/i.test(f.name)?'pdf':null;
      if(!ext||f.size<1||f.size>50*1024*1024){rowStatus.textContent='EPUB/PDF required, up to 50 MB.';return}
      busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Uploading into private Supabase Storage…';
-     try{const path=product.code+'/'+crypto.randomUUID()+'.'+ext;
+     try{
+      // The live Storage policy already enforces Owner role + the password/CAPTCHA
+      // confirmation record. Explicitly request it BEFORE the Storage call;
+      // a failed Storage upload cannot activate the RPC auto-retry wrapper.
+      if(!window.GroundUpAdminPasswordConfirm?.ensure)
+       throw Error('Owner password confirmation is unavailable; upload was not attempted.');
+      await window.GroundUpAdminPasswordConfirm.ensure();
+      const signature=new Uint8Array(await f.slice(0,8).arrayBuffer());
+      const pdf=signature.length>=5&&[37,80,68,70,45].every((v,i)=>signature[i]===v);
+      const zip=signature.length>=4&&signature[0]===80&&signature[1]===75&&
+       signature[2]===3&&signature[3]===4;
+      if((ext==='pdf'&&!pdf)||(ext==='epub'&&!zip))
+       throw Error('File signature does not match a PDF or EPUB. Select the original, unmodified edition.');
+      const path=product.code+'/'+crypto.randomUUID()+'.'+ext;
       const {error}=await sb.storage.from('gu-digital-ebooks').upload(path,f,{upsert:false,cacheControl:'0',contentType:ext==='epub'?'application/epub+zip':'application/pdf'});
       if(error)throw error;asset=path;fileStatus.textContent='Uploaded privately: '+path+'. Save the publication controls to link it.';
       rowStatus.textContent='Upload complete. Not published until you save rights controls.';
@@ -44,7 +57,11 @@ function mount(){
     save.onclick=async()=>{if(busy)return;if((sales.checked||downloads.checked)&&!rights.checked){rowStatus.textContent='Confirm distribution rights before enabling sales or downloads.';return}
      if((sales.checked||downloads.checked)&&!asset){rowStatus.textContent='Upload a private eBook file first.';return}
      busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Saving rights and availability…';
-     try{await rpc(sb,'gu_owner_digital_books_save_v01430',{
+     try{
+      if(!window.GroundUpAdminPasswordConfirm?.ensure)
+       throw Error('Owner password confirmation is unavailable; publishing was not attempted.');
+      await window.GroundUpAdminPasswordConfirm.ensure();
+      await rpc(sb,'gu_owner_digital_books_save_v01430',{
       p_code:product.code,p_kdp_select:kdp.checked,p_exclusive_until:until.value?new Date(until.value).toISOString():null,
       p_sales:sales.checked,p_downloads:downloads.checked,p_rights_attested:rights.checked,
       p_asset_path:asset,p_expected_updated_at:product.version});
