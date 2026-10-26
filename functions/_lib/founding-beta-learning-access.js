@@ -13,8 +13,11 @@ export function authoredB01BetaLesson(row){
  const objective=String(row?.objective||c.objective||'');
  const why=String(row?.why||c.why||'');
  const steps=row?.steps||c.steps;
+ const reviewed=source==='editorially_reviewed_educational_illustrative_b01_v1'&&
+  /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(String(row?.reviewed_by||''))&&
+  Number.isFinite(Date.parse(String(row?.reviewed_at||'')));
  return /^F[12]-C\d{2}-L\d{2}$/.test(id)&&
-  source==='original_hypothetical_unreviewed_v01496'&&
+  (source==='original_hypothetical_unreviewed_v01496'||reviewed)&&
   batch==='2026-10-25-B01'&&
   authoring==='ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED'&&
   concept.trim().length>=8&&objective.trim().length>=20&&why.trim().length>=50&&
