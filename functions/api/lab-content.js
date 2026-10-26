@@ -57,13 +57,16 @@ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];i
  return roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>now));}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return send({ok:false,error:'Method not allowed.'},405);const url=new URL(request.url),action=url.searchParams.get('action')||'case';
  if(action==='list'){
-  const access=await toolAccess(env,request,'ONDEMAND_TRAINING');
-  if(!access.authorized)return send({ok:false,error:access.reason},403);
+  const [trainingAccess,interactiveAccess]=await Promise.all([
+   toolAccess(env,request,'ONDEMAND_TRAINING'),toolAccess(env,request,'INTERACTIVE_LEARNING')
+  ]);
+  if(!trainingAccess.authorized&&!interactiveAccess.authorized)
+   return send({ok:false,error:'A matching Interactive Learning or training subscription is required.'},403);
   const actor=await memberIdentity(env,request);
   // Mirror case-by-case access. A Founding or Owner-issued QA entitlement
   // authorizes the original B01 *learning* content, never ebook ownership,
   // rubrics, grading or unreviewed generic material.
-  const premiumAuthorized=access.authorized===true;
+  const premiumAuthorized=trainingAccess.authorized===true;
   const [coverage,betaKind,rows]=await Promise.all([
    Promise.all([1,2,3].map(book=>getBookAccess(env,request,book))),
    foundingBetaLearningAccessKind(env,actor.userId),
@@ -102,7 +105,15 @@ if(SAMPLES.has(id)){
 const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
 const siteLesson=isBetaUpcomingLab(id)&&authoredSiteExclusiveBetaLesson(row);
 if(isBetaUpcomingLab(id)&&!siteLesson)return send({ok:false,error:'This Site-Exclusive lesson is not yet authored for guided study.'},404);
- let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
+ // Independent entitled products can still be confirmed if the other lookup
+ // fails. Never infer an entitlement from a source/network error.
+ const checks=await Promise.allSettled([
+  toolAccess(env,request,'ONDEMAND_TRAINING'),
+  toolAccess(env,request,'INTERACTIVE_LEARNING')
+ ]);
+ const training=checks[0].status==='fulfilled'&&checks[0].value.authorized===true;
+ const interactive=checks[1].status==='fulfilled'&&checks[1].value.authorized===true;
+ const premium=training||interactive;
  // Free samples rely on account eligibility, not on an unrelated book ledger.
 // When a paid training member lacks this particular book, do not expose its
 // authored material. Instead return 404 so the member player can invoke its
@@ -112,7 +123,7 @@ const ownsBook=sample?false:await getBookAccess(env,request,row.book_number);
 const betaAccessKind=premium&&authoredB01BetaLesson(row)?
  await foundingBetaLearningAccessKind(env,actor.userId):null;
 const scopedFoundingBeta=!!betaAccessKind;
-const guided=ownsBook||sample||scopedFoundingBeta||(siteLesson&&premium);
+const guided=ownsBook||sample||scopedFoundingBeta||(siteLesson&&training);
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
@@ -125,6 +136,6 @@ if(!guided)return send({ok:false,error:'An active matching book or training enti
    (instructionReviewed?'founding600_editorially_reviewed_b01_guided_beta':'founding600_authored_b01_guided_beta_ungraded'):
    unreviewed?'private_unreviewed_conceptual_orientation':
    instructionReviewed?'private_editorially_reviewed_b01_instruction':'private_instruction_review_not_established',
-  foundingBetaStudy:scopedFoundingBeta||siteLesson&&premium,ownerQAStudy:betaAccessKind==='owner_qa',gradedCreditEligible:false,
+  foundingBetaStudy:scopedFoundingBeta||siteLesson&&training,ownerQAStudy:betaAccessKind==='owner_qa',gradedCreditEligible:false,
   instructionReviewed,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
