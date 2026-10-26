@@ -90,5 +90,8 @@ test('source forbids free workflow claims of connected external publishing',()=>
  assert.match(migration,/ENABLE ROW LEVEL SECURITY/);
  assert.match(migration,/REVOKE ALL ON public\.gu_social_posts_v014276/);
  assert.match(migration,/CREATE TRIGGER gu_social_posts_audit_v014276/);
+ const repair=fs.readFileSync('supabase/migrations/v0.14.0.277_social_audit_rowtype_repair.sql','utf8');
+ assert.match(repair,/ELSIF TG_TABLE_NAME='gu_social_communities_v014276'/);
+ assert.match(repair,/audit_details := pg_catalog\.jsonb_build_object/);
  assert.match(fs.readFileSync('assets/js/admin-marketing-workspace.js','utf8'),/admin-social-zero-cost\.js/);
 });
