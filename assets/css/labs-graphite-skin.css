@@ -42,3 +42,22 @@ body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v40-pr
 body[data-gu-lab-skin="graphite"].gu-lab-member .site-header .brand span{color:#98edfa!important}
 body[data-gu-lab-skin="graphite"].gu-lab-member .site-header :is(.v12-top-link.store,.v12-account-trigger){border-color:#6e7099!important;background:#151625!important;color:#d8e6f3!important}
 html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #app :is(.shell,.banner,.prototype-bar,.toolbar),html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-setup,.gu-v40-start-preview,.gu-v40-start-candle){background:#f5f7fb!important;color:#21384e!important;border-color:#b7c7d5!important}
+
+/* Sleek progression rail: style the real progress layer, never its value/width. */
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-progress.track{background:linear-gradient(110deg,#15152b,#10263b)!important;border-color:#79adcb!important;box-shadow:inset 0 1px 0 #e4f8ff12,0 0 24px #6acfe617}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-progress-fill{background:linear-gradient(90deg,#237d79,#426aa0,#7664aa)!important;box-shadow:0 0 22px #6acfe61f}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item{background:linear-gradient(180deg,#11192d88,#111c2b55)!important;border-color:#9dbdda25!important;color:#aabed7!important;box-shadow:inset 0 1px 0 #ffffff06}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.current{background:linear-gradient(120deg,#285d786b,#74529866)!important;border-color:#abdcf0!important;color:#f0fcff!important;box-shadow:inset 0 -2px 0 #8de9f5,inset 0 1px 0 #ddf9ff20,0 0 18px #73cbdf0d}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.current .bullet{background:#97f0fa!important;box-shadow:0 0 0 3px #90d9ee10,0 0 12px #90e3ef70}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.complete{background:#1f5f541c!important;color:#bcebdc!important;box-shadow:inset 0 -1px 0 #68c4a24a}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.complete .bullet{background:#7eddb6!important;box-shadow:0 0 8px #62b99a25}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-progress-value{color:#bdeaf8!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .toolbar{background:linear-gradient(100deg,#11192a,#131b31)!important;border-color:#6584a450!important;box-shadow:inset 0 1px 0 #a4c8e20a}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app>.shell{background:radial-gradient(ellipse at 95% 0,#7761bf12,transparent 55%),#0e1628!important;border-color:#6882a66b!important;box-shadow:inset 0 1px 0 #bddff316,0 18px 50px #00000025}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .banner{background:radial-gradient(ellipse at 100% 0,#926bd63b,transparent 70%),linear-gradient(115deg,#1a2948,#161d38)!important;box-shadow:inset 0 1px 0 #e4d7ff10}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v40-start-preview{background:radial-gradient(ellipse at 100% 0,#8362b831,transparent 65%),linear-gradient(135deg,#1b3048,#171e34)!important;border-color:#8a9fcf80!important;box-shadow:inset 0 1px 0 #d3dffd14,0 10px 28px #00000012}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v33-instructor-head .gu-v33-setup{background:linear-gradient(110deg,#3b2c586b,#2646606b)!important;border-color:#a7a0d68c!important;box-shadow:inset 0 1px 0 #ddd5ff13}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-progress.track{background:#edf2fa!important;border-color:#a9bed3!important}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item{background:#eef3fa70!important;color:#314961!important;border-color:#a8bdd155!important}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.current{background:linear-gradient(110deg,#cbeaf2,#ddd8f4)!important;color:#203c53!important;border-color:#6e9ab6!important}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #app :is(.shell,.banner,.toolbar),html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-setup,.gu-v40-start-preview){background:#f5f7fb!important;color:#21384e!important}

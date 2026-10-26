@@ -22,3 +22,7 @@ Owner screenshot F2-C07-L01 showed that the selector bar, historical setup, less
 ## Vibrant palette refinement
 
 Owner requested a more vibrant appearance. Increased surface saturation and separation with violet setup/selector panels, indigo lesson surfaces, brighter cyan accents and selected-stage gradients. Same opt-in stylesheet and same visual-only property allowlist; no markup, geometry, typography, behavior, candle data colors or assessment feedback modifications. Source guard, Pages build and whitespace validation passed. Authenticated visual verification remains unconfirmed.
+
+## Sleek progression rail refinement
+
+Owner explicitly requested a more futuristic progression bar and Lab. Styled the existing real progress-fill background, rail, active stage and completed-stage surfaces using translucent cyan/violet treatments and restrained shadows. The percentage, fill width, stage classes, green completed-state distinction and ARIA progress values remain controlled by the original learning code. Translucent stage surfaces allow the underlying progress layer to remain visible. Refined lesson-frame surface gradients without changing geometry or typography. No decorative fake progress, new stage nodes, timers or animation. Source property guard, unchanged-markup check, Pages build and whitespace validation passed; authenticated visual review remains unconfirmed.
