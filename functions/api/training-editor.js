@@ -87,6 +87,19 @@ if(q.partialTolerance!==undefined||q.partialCreditPct!==undefined){
    q.partialTolerance>1000)
   throw problem('Partial credit requires a numeric question, wider numeric tolerance and an integer percentage between 1 and 99.');
 }}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
+function b01LessonQuality(row,id){
+ const c=row?.content;
+ if(!c||typeof c!=='object'||Array.isArray(c))return false;
+ const strOk=(key,min=40)=>typeof c[key]==='string'&&c[key].trim().length>=min;
+ const how=c.teaching?.how;
+ return c.id===id&&c.lessonBatch==='2026-10-25-B01'&&
+  ['objective','what','why','when','limitation','commonError'].every(k=>strOk(k))&&
+  strOk('workedExample',100)&&/FICTIONAL/i.test(c.workedExample)&&
+  strOk('historicalEvidence',60)&&/NOT VERIFIED/i.test(c.historicalEvidence)&&
+  Array.isArray(c.steps)&&c.steps.length>=4&&c.steps.every(x=>typeof x==='string'&&x.trim().length>=28)&&
+  Array.isArray(c.questions)&&c.questions.length>=1&&
+  Array.isArray(how)&&how.length>=3;
+}
 export async function onRequest({request,env}){try{const actor=await owner(env,request),u=new URL(request.url),action=u.searchParams.get('action')||'list';
  if(request.method==='GET'&&action==='list'){const sets=await listAllReviewSummaries(env);return out({ok:true,sets,allVersionsIncluded:true})}
  if(request.method==='GET'&&action==='knowledge-map'){
@@ -98,6 +111,17 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
   ]);
   if(!maps?.[0])return out({ok:false,error:'No canonical knowledge-mapping candidate exists for this Lab.'},404);
   return out({ok:true,mapping:maps[0],definitions,scope:'knowledge_only_ungraded_source_mapping_until_owner_approval'});
+ }
+ if(request.method==='GET'&&action==='lesson-status'){
+  const id=u.searchParams.get('labId')||'';
+  if(!validLab(id))throw problem('Canonical Lab ID required.');
+  const rows=await db(env,'lab_instruction_v014?select=lab_id,updated_at,source_status,reviewed_at,content&lab_id=eq.'+enc(id)+'&limit=1');
+  const lesson=rows[0];if(!lesson)return out({ok:false,error:'Private authored lesson missing.'},404);
+  // Only Boolean precheck metadata crosses the Owner session. Never return
+  // book paragraphs, numeric examples, member records or hidden answer keys.
+  return out({ok:true,labId:id,sourceStatus:lesson.source_status,
+   updatedAt:lesson.updated_at,reviewedAt:lesson.reviewed_at,
+   substantivePrecheck:b01LessonQuality(lesson,id),scope:'conceptual_fictional_teaching_only'});
  }
  if(request.method==='GET'&&action==='get'){const id=u.searchParams.get('labId')||'',ver=Number(u.searchParams.get('version'));if(!validLab(id)||!Number.isSafeInteger(ver))throw problem('Valid Lab/version required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+ver+'&limit=1');if(!rows[0])return out({ok:false,error:'Rubric not found.'},404);return out({ok:true,set:rows[0]})}
  if(request.method!=='POST')return out({ok:false,error:'Unsupported method.'},405);
@@ -117,6 +141,26 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
    {p_actor:actor,p_lab:id,p_rubric:version,p_competency:code,p_confirm:'APPROVE KNOWLEDGE ONLY'});
   if(saved?.ok!==true)throw problem('Knowledge-mapping approval rejected: '+str(saved?.reason||'unavailable'),409);
   return out({ok:true,...saved,notice:'One approved Lab/rubric/competency mapping. Graded conceptual attempts can provide KNOWLEDGE-only evidence after server reconciliation; other three dimensions and historical validity remain unverified.'});
+ }
+ if(action==='review-lesson'){
+  const expected=str(b.expectedUpdatedAt);
+  if(b.confirmPhrase!=='REVIEW B01 PRIVATE LESSON'||!expected)
+   throw problem('Explicit Owner teaching review and exact loaded revision required.',400);
+  const rows=await db(env,'lab_instruction_v014?select=lab_id,updated_at,source_status,content,reviewed_at&lab_id=eq.'+enc(id)+'&limit=1');
+  const lesson=rows[0];if(!lesson)return out({ok:false,error:'Private lesson not found.'},404);
+  if(lesson.source_status!=='original_hypothetical_unreviewed_v01496')
+   throw problem('Only the original unreviewed B01 lesson can be approved.',409);
+  if(!lesson.updated_at||String(lesson.updated_at)!==expected)
+   throw problem('Private lesson changed before review; reload the current version.',409);
+  if(!b01LessonQuality(lesson,id))
+   throw problem('Lesson needs original, substantive, clearly fictional teaching and independent correction before review.',409);
+  const saved=await db(env,'lab_instruction_v014?lab_id=eq.'+enc(id)+
+    '&source_status=eq.original_hypothetical_unreviewed_v01496&updated_at=eq.'+enc(expected),
+    'PATCH',{source_status:'editorially_reviewed_educational_illustrative_b01_v1',
+     reviewed_by:actor,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+  if(saved.length!==1)throw problem('Lesson changed during review. Nothing was approved.',409);
+  return out({ok:true,labId:id,status:'editorially_reviewed_educational_illustrative_b01_v1',
+   scope:'conceptual_instruction_only',notice:'Lesson review recorded with authenticated Owner and audit metadata. Historical market evidence and Beta Ready are NOT certified.'});
  }
  if(title.length<10||title.length>200)throw problem('Descriptive instructional title is required.');
  if(action==='draft'){
