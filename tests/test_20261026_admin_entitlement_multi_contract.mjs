@@ -10,7 +10,7 @@ const editor=read('assets/js/account-management-entitlements-v01478.js');
 const admin=read('admin.html');
 const ebooks=read('assets/js/admin-digital-books-v01430.js');
 const storeTest=read('tests/test_v014089_products_sales_contract.mjs');
-new Script(api,{filename:'admin-accounts-v01353.js'});
+// Backend is an ES module and is syntax-checked by node --check in CI.
 new Script(editor,{filename:'account-management-entitlements-v01478.js'});
 new Script(ebooks,{filename:'admin-digital-books-v01430.js'});
 assert(admin.includes('account-management-entitlements-v01478.js'),'Canonical account editor must be mounted');
