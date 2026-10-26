@@ -122,11 +122,11 @@
   use.type='button';use.className='btn secondary';use.disabled=true;
   answer.addEventListener('input',()=>{
    const short=answer.value.trim().length<40;
-   compare.disabled=short;use.disabled=short;result.replaceChildren();
+   compare.disabled=short;use.disabled=answer.value.trim().length<80;result.replaceChildren();
   });
   use.addEventListener('click',()=>{
    const written=answer.value.trim();
-   if(written.length<40)return;
+   if(written.length<80){result.replaceChildren(node('p','Write at least 80 characters of original reasoning before adding it to your private reflection.'));return}
    const reflection=get('academy-reflection');
    if(!reflection)return;
    const existing=reflection.value.trim();
@@ -148,7 +148,7 @@
    result.replaceChildren(node('p','Model reasoning (formative; not a score):'),node('p',lesson.reviewGuide),
     node('p','Compare your evidence, source timestamps, limits and no-trade decision. No mastery was awarded.'));
   });
-  mount.append(label,answer,compare,use,result);
+  mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to add your reasoning to a private reflection draft. Saving still requires selecting Save Reflection.'),result);
  }
 
  function renderDay(){
