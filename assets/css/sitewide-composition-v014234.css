@@ -231,3 +231,63 @@ html[data-gu-design="premium-light"] body[data-gu-workspace] .btn.secondary{back
 html[data-gu-design="premium-light"] body[data-gu-workspace] .footer{background:#f1f4f6;border-color:#ccd4da}
 html[data-gu-design="premium-light"] body[data-gu-workspace="site"] .gu-home-terminal{background:#f1f4f6;box-shadow:none}
 html[data-gu-design="premium-light"] body[data-gu-workspace] .auth-card input:not([type="checkbox"]){background:#fff;color:#182d3e}
+
+/* Executive visual refinement: one atmospheric canvas and precise editorial
+   rhythm. Shell-only styles leave the teaching workspaces untouched. */
+html:root body[data-gu-workspace]{--gu-ws-line:#282a3b;--gu-ws-muted:#a5abc1;--gu-ws-accent:#c1adff;background:radial-gradient(ellipse 62% 680px at 91% -5%,#6439a62e,transparent 75%),radial-gradient(ellipse 45% 560px at 0 25%,#23365516,transparent 75%),#060811!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body[data-gu-workspace] .site-header{background:#070913e8!important;border-bottom:1px solid #ffffff0d;backdrop-filter:blur(24px);box-shadow:0 1px 0 #0005}
+body[data-gu-workspace] .site-header .wrap.nav{max-width:1440px!important;padding-block:19px;gap:28px}
+body[data-gu-workspace] .site-header .brand{font-size:.70rem;line-height:1.6;font-weight:600;letter-spacing:.08em;max-width:255px}
+body[data-gu-workspace] .navlinks{gap:20px}
+body[data-gu-workspace] :is(.v12-top-link,.v11-nav-button){font-size:.80rem;letter-spacing:.01em;color:#b6b9cc;font-weight:450}
+body[data-gu-workspace] .v12-signin{border-left:0!important;padding:9px 16px!important;border:1px solid #ffffff20!important;border-radius:7px!important;background:#ffffff04!important}
+body[data-gu-workspace] :is(h1,h2,h3){font-weight:550;letter-spacing:-.04em}
+body[data-gu-workspace] h1{font-size:clamp(2.6rem,4.7vw,4.6rem);line-height:1.07;letter-spacing:-.055em}
+body[data-gu-workspace] h2{font-size:clamp(1.6rem,2.5vw,2.35rem);line-height:1.2}
+body[data-gu-workspace] .eyebrow{font-size:.63rem;letter-spacing:.20em;font-weight:600;color:#aa96d7}
+body[data-gu-workspace] .btn{font-size:.80rem;font-weight:550;letter-spacing:.015em;min-height:44px;border-radius:7px;padding:12px 20px;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
+body[data-gu-workspace] .btn:not(.secondary):not(.danger){background:linear-gradient(125deg,#9672e3,#6d4ac4)!important;border-color:#b193eb!important;box-shadow:inset 0 1px 0 #ffffff26,0 4px 20px #6941b820;color:#fff!important}
+body[data-gu-workspace] .btn.secondary{background:#ffffff02!important;border-color:#ffffff25!important;color:#c6c9db!important;box-shadow:inset 0 1px 0 #ffffff04}
+body[data-gu-workspace] .btn.secondary:hover{background:#ffffff08!important;border-color:#a88cda80!important}
+body[data-gu-workspace] .v11-menu{padding:10px;background:#0d101ef5;border-color:#ffffff19;border-radius:10px;box-shadow:0 20px 60px #0008}
+body[data-gu-workspace="site"] .gu-home-stage{padding-block:clamp(70px,8vw,120px);border-bottom:1px solid #ffffff0b}
+body[data-gu-workspace="site"] .gu-home-stage:after{background-image:linear-gradient(#9796c406 1px,transparent 1px),linear-gradient(90deg,#9796c406 1px,transparent 1px);background-size:80px 80px;mask-image:linear-gradient(90deg,transparent,#0005)}
+body[data-gu-workspace="site"] .gu-home-message h1{font-size:clamp(2.8rem,4.5vw,4.8rem)!important;font-weight:500!important;letter-spacing:-.055em!important;line-height:1.09!important;margin:26px 0;max-width:17ch}
+body[data-gu-workspace="site"] .gu-home-message h1 em{background:linear-gradient(110deg,#d5c5ff,#9873e0)!important;background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important}
+body[data-gu-workspace="site"] .gu-home-message .lead{font-size:1rem;line-height:1.85;color:#a5abc1;max-width:52ch}
+body[data-gu-workspace="site"] .gu-home-message .actions{gap:12px;margin-top:32px}
+body[data-gu-workspace="site"] .gu-home-terminal{border:1px solid #80729d45;background:linear-gradient(145deg,#141626,#090c15);border-radius:12px;box-shadow:0 35px 90px #0008,0 0 70px #7a49bf0d;transform:perspective(1800px) rotateY(-5deg);transform-origin:center}
+body[data-gu-workspace="site"] .gu-terminal-top{background:#ffffff02;border-bottom:1px solid #ffffff0c;font-size:.58rem;letter-spacing:.10em;color:#8991ac;padding:17px 21px}
+body[data-gu-workspace="site"] .gu-terminal-screen{padding:25px}
+body[data-gu-workspace="site"] .gu-terminal-tag{background:#9676d910;border-color:#9676d930;color:#bea7eb;border-radius:4px;font-size:.60rem;letter-spacing:.07em}
+body[data-gu-workspace="site"] :is(.gu-home-path,.gu-home-focus,.gu-home-method){padding-block:80px;background:transparent;border-bottom:1px solid #ffffff0b}
+body[data-gu-workspace="site"] .gu-path-grid{gap:30px}
+body[data-gu-workspace="site"] .gu-path-card{padding-block:27px;border-color:#ffffff18}
+body[data-gu-workspace="site"] .gu-path-card h3{font-size:1.25rem;font-weight:500;margin-block:20px 12px}
+body[data-gu-workspace="site"] .gu-path-card p{font-size:.88rem;line-height:1.85;color:#a5abc1}
+body[data-gu-workspace="site"] :is(.gu-path-number,.gu-path-action){font-size:.65rem;letter-spacing:.10em;color:#a99ac7}
+body[data-gu-workspace="site"] main.gu-redesign-store{padding-top:clamp(52px,6vw,88px)}
+body[data-gu-workspace="site"] .gu-redesign-store>.wrap>h1{font-size:clamp(2.8rem,5vw,4.6rem)!important;line-height:1.07!important;letter-spacing:-.055em;font-weight:500;max-width:17ch;margin-block:18px 24px}
+body[data-gu-workspace="site"] .gu-redesign-store:before{height:720px;background:radial-gradient(ellipse 64% 80% at 100% 0,#7545c81f,transparent 75%)}
+body[data-gu-workspace="site"] .gu-redesign-store .section-intro{font-size:.95rem;color:#a5abc1!important;line-height:1.9;max-width:73ch;margin-block:24px 28px}
+body[data-gu-workspace="site"] .gu-store-trustline{font-size:.65rem;font-weight:500!important;letter-spacing:.12em!important;text-transform:uppercase;color:#9e91bd!important}
+body[data-gu-workspace="site"] .store-category-tabs{margin-top:46px;gap:32px;border-bottom-color:#ffffff16!important}
+body[data-gu-workspace="site"] .store-category-tabs button{font-size:.78rem;font-weight:500;padding-block:17px}
+body[data-gu-workspace="site"] .gu-f600-store-banner{padding-block:40px;margin-top:28px}
+body[data-gu-workspace="site"] .gu-f600-store-banner h2{font-size:clamp(1.65rem,2.5vw,2.3rem);font-weight:500;max-width:33ch;margin-block:14px 22px}
+body[data-gu-workspace="site"] .gu-f600-store-banner p{color:#a5abc1;font-size:.89rem;line-height:1.85;max-width:100ch}
+body[data-gu-workspace="site"] .v11-plan{padding:36px 28px}
+body[data-gu-workspace="site"] .v11-price{font-size:2.65rem;font-weight:450;margin-block:24px;letter-spacing:-.055em}
+body[data-gu-workspace="site"] .v11-plan.recommended{border-top:1px solid #a082d8;background:linear-gradient(180deg,#8b5cdb0a,transparent)}
+body[data-gu-workspace="site"] .store-product-hero{padding-block:32px 48px}
+body[data-gu-workspace="site"] .store-product-section{padding-block:36px}
+body[data-gu-workspace="member"] .gu-member-side-menu,body[data-gu-workspace="admin"] .admin-sidebar{background:#080a13;border-right-color:#ffffff0c}
+body[data-gu-workspace="member"] .gu-member-side-menu a[aria-current="page"]{border-left-color:#b394ec;color:#e0d2ff;background:linear-gradient(90deg,#8b5cdb0b,transparent)}
+body[data-gu-workspace] .footer{padding-block:58px;background:#05070d;border-color:#ffffff0c;font-size:.80rem;color:#9199b1}
+html[data-gu-design="premium-light"] body[data-gu-workspace]{background:#f8f9fc!important;--gu-ws-muted:#4e6271;--gu-ws-line:#ccd4da;--gu-ws-accent:#675088;color:#1a2d3c}
+html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.site-header,.gu-member-side-menu,.admin-sidebar,.v11-menu,.gu-home-terminal,.footer){background:#fff!important;color:#233a4b;border-color:#ccd4da}
+html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.btn.secondary,.v12-signin){background:#fff!important;color:#233a4b!important;border-color:#8b9ca8!important}
+html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.gu-home-message .lead,.gu-path-card p,.gu-redesign-store .section-intro,.gu-f600-store-banner p){color:#4e6271!important}
+@media(max-width:900px){body[data-gu-workspace] .site-header .wrap.nav{gap:14px;padding-block:12px}body[data-gu-workspace] .navlinks{gap:10px}body[data-gu-workspace="site"] .gu-home-terminal{transform:none}body[data-gu-workspace="site"] :is(.gu-home-path,.gu-home-focus,.gu-home-method){padding-block:48px}}
+@media(max-width:580px){body[data-gu-workspace] .site-header .brand{font-size:.63rem;letter-spacing:.04em}body[data-gu-workspace="site"] .gu-home-message h1{font-size:clamp(2.55rem,10vw,3.4rem)!important}body[data-gu-workspace="site"] .gu-redesign-store>.wrap>h1{font-size:2.8rem!important}body[data-gu-workspace="site"] .store-category-tabs{gap:22px}body[data-gu-workspace="site"] .store-category-tabs button{font-size:.75rem}body[data-gu-workspace="site"] .v11-plan{padding:28px 0}}
+@media(prefers-reduced-motion:reduce){body[data-gu-workspace] .btn{transition:none}body[data-gu-workspace="site"] .gu-home-terminal{transform:none}}
