@@ -1,0 +1,26 @@
+/* Interactive Learning Store product: mobile-first, keyboard and reduced-motion safe.
+ * Extends existing commerce design, not an independent learning engine.
+ */
+.il-preview{margin:clamp(1.25rem,3vw,3rem) 0 4rem;padding:clamp(1rem,2.4vw,2rem);border:1px solid var(--line,rgba(146,165,185,.38));border-radius:18px;background:var(--card,rgba(20,42,64,.8));color:inherit;max-width:1180px}
+.il-preview>header{max-width:890px}
+.il-preview .eyebrow{font-weight:700;letter-spacing:.09em;font-size:.82rem}
+.il-preview h2{font-size:clamp(1.35rem,2.8vw,2.1rem);line-height:1.2;margin:.6rem 0 1rem}
+.il-preview h3{font-size:clamp(1.07rem,2vw,1.25rem);margin:0 0 .8rem;line-height:1.3}
+.il-preview p{line-height:1.65;max-width:900px;overflow-wrap:anywhere}
+.il-preview section{padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid var(--line,rgba(146,165,185,.26))}
+.il-preview .il-quote{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin-block:1rem}
+.il-preview .il-quote span{padding:.9rem;border:1px solid var(--line,rgba(146,165,185,.4));border-radius:10px;background:rgba(90,125,165,.085);font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.il-preview .il-actions{display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;margin:1rem 0}
+.il-preview .btn{min-height:44px;white-space:normal;text-align:center;max-width:100%}
+.il-preview .btn:focus-visible,.il-preview input:focus-visible,.il-preview a:focus-visible{outline:3px solid var(--accent,#4cc3bc);outline-offset:3px}
+.il-preview fieldset{border:1px solid var(--line,rgba(146,165,185,.35));border-radius:10px;padding:1.1rem;margin:1rem 0;min-width:0;max-width:900px}
+.il-preview legend{font-weight:700;padding:0 .35rem}
+.il-preview fieldset label{display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 0;line-height:1.45;cursor:pointer;min-height:44px}
+.il-preview input[type=radio]{width:20px;height:20px;flex:0 0 20px;margin:.12rem 0 0}
+.il-preview [data-il-feedback]{border-left:3px solid var(--line,rgba(146,165,185,.5));padding:.7rem 1rem;max-width:900px;min-height:2.4rem;background:rgba(90,125,165,.08)}
+.il-preview [data-il-feedback][data-state=correct]{border-left-color:currentColor;font-weight:600}
+.il-preview [data-il-feedback][data-state=remediation]{border-left-style:dashed}
+.il-preview [hidden]{display:none!important}
+@media(max-width:900px){.il-preview .il-quote{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:390px){.il-preview .il-quote{grid-template-columns:minmax(0,1fr)}.il-preview .il-actions{align-items:stretch;flex-direction:column}.il-preview .il-actions>*{width:100%}}
+@media(prefers-reduced-motion:reduce){.il-preview *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
