@@ -52,7 +52,28 @@ function shuffledChoiceOptions(options,attemptId,questionId){
  const j=seed%(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}
  return arr;
 }
-function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:shuffledChoiceOptions(set.questions[step].options,attempt.id,set.questions[step].id)}:null,report:attempt.completed_at?attempt.report:null,sourceStatus:set.source_status,note:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical instructional assessment. Its invented numbers are NOT historical or actual market observations.':'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
+// Completion feedback is teaching output, not an answer-key export. The
+// protected RPC persists the full audit report, but only these reviewed
+// member-facing fields cross the server boundary. Never spread RPC JSON into
+// an API response: future database fields must stay private by default.
+function memberReport(raw){
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
+ const score=Number(raw.score),correct=Number(raw.correct),total=Number(raw.total);
+ if(!Number.isInteger(score)||score<0||score>100||
+    !Number.isInteger(correct)||correct<0||
+    !Number.isInteger(total)||total<1||correct>total)return null;
+ const details=Array.isArray(raw.details)?raw.details:[];
+ const safeDetails=details.slice(0,40).map(entry=>({
+  question:String(entry?.question??'').slice(0,1000),
+  submitted:String(entry?.submitted??'').slice(0,600),
+  correct:entry?.correct===true,
+  explanation:String(entry?.explanation??'').slice(0,1600)
+ }));
+ return {score,correct,total,details:safeDetails,
+  note:String(raw.note??'').slice(0,600),
+  sourceStatus:String(raw.sourceStatus??'').slice(0,120)};
+}
+function publicState(attempt,set){const step=attempt.step_index||0,n=set.questions.length;return{ok:true,attemptId:attempt.id,labId:attempt.lab_id,mode:attempt.mode,stepIndex:step,total:n,complete:!!attempt.completed_at,question:step<n?{id:set.questions[step].id,prompt:set.questions[step].prompt,kind:set.questions[step].kind,options:shuffledChoiceOptions(set.questions[step].options,attempt.id,set.questions[step].id)}:null,report:attempt.completed_at?memberReport(attempt.report):null,sourceStatus:set.source_status,note:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical instructional assessment. Its invented numbers are NOT historical or actual market observations.':'Uses reviewed book-authored answers only. Historical market data/tape has not been independently verified.'}}
 export async function onRequest({request,env}){try{
  const acl=await toolAccess(env,request,'ONDEMAND_TRAINING');if(!acl.authorized)return reply({ok:false,error:acl.reason},403);
  const u=new URL(request.url),action=u.searchParams.get('action')||'';
@@ -127,6 +148,15 @@ export async function onRequest({request,env}){try{
    knowledgeSync=rec?.ok===true?'reviewed_knowledge_only':'mapping_not_yet_approved';
   }catch{knowledgeSync='optional_mapping_unavailable'}
  }
- return reply({...r,knowledgeSync,masteryAwarded:false})}
+ // A completed grade is immutable; filter every returned field, including
+ // historical reports resumed from the database. Graded feedback is safe for
+ // the member, whereas the answer key remains server-only.
+ if(r.complete===true)return reply({ok:true,complete:true,report:memberReport(r.report),
+  knowledgeSync,masteryAwarded:false});
+ return reply({ok:true,complete:false,
+  correct:r.correct===true?true:r.correct===false?false:null,
+  explanation:typeof r.explanation==='string'?r.explanation.slice(0,1600):null,
+  stepIndex:Number.isSafeInteger(r.stepIndex)?r.stepIndex:null,
+  knowledgeSync,masteryAwarded:false})}
  return reply({ok:false,error:'Unknown training action.'},405);
 }catch(e){return reply({ok:false,error:e.message||'Training request failed.'},e.status||500)}}
