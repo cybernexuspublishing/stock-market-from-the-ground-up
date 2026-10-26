@@ -10,6 +10,11 @@ on:
       - 'functions/api/competencies.js'
       - 'assets/js/interactive-training.js'
       - 'tests/v014_api_contracts.mjs'
+      - 'tests/test_grading_partial_credit_critical_guard.mjs'
+      - 'tests/test_v014117_lab_topic_gate.mjs'
+      - 'functions/api/training-editor.js'
+      - 'supabase/migrations/20261026_grading_partial_credit_critical_errors.sql'
+      - 'supabase/rollbacks/20261026_grading_partial_credit_critical_errors_ROLLBACK.sql'
       - 'tests/test_v014099_curriculum_contract.mjs'
       - 'tests/test_v014162_lab_player_context.mjs'
       - 'tests/test_lab_access_rpc_resilience.mjs'
@@ -25,6 +30,11 @@ on:
       - 'functions/api/competencies.js'
       - 'assets/js/interactive-training.js'
       - 'tests/v014_api_contracts.mjs'
+      - 'tests/test_grading_partial_credit_critical_guard.mjs'
+      - 'tests/test_v014117_lab_topic_gate.mjs'
+      - 'functions/api/training-editor.js'
+      - 'supabase/migrations/20261026_grading_partial_credit_critical_errors.sql'
+      - 'supabase/rollbacks/20261026_grading_partial_credit_critical_errors_ROLLBACK.sql'
       - 'tests/test_v014099_curriculum_contract.mjs'
       - 'functions/api/lab-player-context.js'
       - 'tests/test_lab_content_access_recovery.mjs'
@@ -57,6 +67,8 @@ jobs:
           node tests/lab-engine-v33.test.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/v014_api_contracts.mjs
+          node tests/test_grading_partial_credit_critical_guard.mjs
+          node tests/test_v014117_lab_topic_gate.mjs
           node --check functions/api/interactive-training.js
           node --check functions/api/competencies.js
           node --check assets/js/interactive-training.js
