@@ -114,6 +114,32 @@
   mount.replaceChildren();mount.hidden=!d.lesson;
   if(!d.lesson)return;
   const lesson=d.lesson;
+  // A readable, full-width illustrative OHLC diagram is provided before
+  // instruction. It is NOT a sourced market candle or blind history.
+  if(d.programCode==='free5'&&d.day===2){
+   const fig=node('figure');fig.className='academy-free-figure';
+   const caption=node('figcaption','ORIGINAL FICTIONAL 5-MINUTE CANDLE · Open $20.00 · High $21.50 · Low $19.50 · Close $21.00');
+   const ns='http://www.w3.org/2000/svg';
+   const svg=document.createElementNS(ns,'svg');
+   svg.setAttribute('viewBox','0 0 720 290');svg.setAttribute('role','img');
+   svg.setAttribute('aria-label','Fictional bullish five-minute candlestick. High 21 dollars 50 cents, close 21 dollars, open 20 dollars, low 19 dollars 50 cents. Body 1 dollar; full range 2 dollars.');
+   const line=(tag,attrs,text)=>{
+    const el=document.createElementNS(ns,tag);
+    for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));
+    if(text!==undefined)el.textContent=String(text);
+    svg.append(el);return el;
+   };
+   line('rect',{x:1,y:1,width:718,height:288,rx:12,fill:'#0a2030',stroke:'#386070'});
+   line('line',{x1:185,y1:36,x2:185,y2:252,stroke:'#ade3c0','stroke-width':9,'stroke-linecap':'round'});
+   line('rect',{x:146,y:97,width:78,height:106,rx:4,fill:'#5ecca0',stroke:'#c9f6d7','stroke-width':2});
+   for(const [y,name,value] of [[36,'HIGH','$21.50'],[97,'CLOSE','$21.00'],[203,'OPEN','$20.00'],[252,'LOW','$19.50']]){
+    line('line',{x1:244,y1:y,x2:283,y2:y,stroke:'#74a2b5','stroke-width':1.5});
+    line('text',{x:294,y:y+5,fill:'#e3f1f6','font-size':17,'font-family':'system-ui,sans-serif'},name+'  '+value);
+   }
+   line('text',{x:29,y:270,fill:'#a5bdcb','font-size':13},'Hypothetical prices · chart for visual learning only');
+   fig.append(svg,caption);
+   mount.append(fig);
+  }
   mount.append(node('h4',d.programCode==='free5'?'Talia explains — start from zero knowledge':'Learn the concept'),node('p',lesson.explanation));
   if(lesson.why)mount.append(node('h4','Why this matters'),node('p',lesson.why));
   mount.append(node('h4',d.programCode==='free5'?'Worked FICTIONAL demonstration':'Worked source-check example'),
@@ -216,7 +242,7 @@
   slot.replaceChildren();
   const target=node('div');slot.append(target);
   const labId=d.relatedLabs?.[0]?.id;
-  if(!labId){target.append(node('p','No authorized canonical Lab is linked to this day.'));return;}
+  if(!labId){target.append(node('p',d.programCode==='free5'?'Talia’s worked examples and self-check appear above. You can also practice on fictional candles or make a private research watchlist.':'No authorized canonical Lab is linked to this day.'));return;}
   const study={
    id:labId,concept:d.title,goal:d.objective,
    teaching:{what:d.objective,why:d.observe,when:d.observe,how:d.method||[d.practice],
@@ -303,6 +329,11 @@
    program=data.program;days=loaded;
    progressAvailable=data.progressAvailable===true;enrolled=data.enrolled===true;
    progress.clear();for(const x of data.progress||[])progress.set(x.day,x);
+   if(code==='free5'){
+    const desired=Number(new URL(location.href).searchParams.get('day'));
+    const firstUnsaved=days.find(d=>progress.get(d.day)?.status!=='reflection_saved')?.day||5;
+    dayIndex=Number.isSafeInteger(desired)&&desired>=1&&desired<=5?desired:firstUnsaved;
+   }
    get('academy-course-title').textContent=program.title;
    get('academy-length').textContent=program.days+(code==='free5'?' free beginner lessons · ':'-day Boot Camp · ')+program.level;
    get('academy-enroll').textContent=code==='free5'?'Start my free learning journey':'Enroll in this Boot Camp';
