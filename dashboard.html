@@ -24,7 +24,23 @@
    <article><span class="free-learning-step">02 · PRACTICE</span><h3>Reveal fictional candles</h3><p>Practice on a clearly fabricated five-minute chart, one candle at a time. Document evidence and valid no-trade decisions.</p><a href="simulator.html?practice=free">Open fictional practice</a></article>
    <article><span class="free-learning-step">03 · REFLECT</span><h3>Keep your Journal</h3><p>Save your own educational plan and reflection within the Free weekly Journal allowance. Saved paper trades are not actual executions.</p><a href="journal.html">Open your Journal</a></article>
   </div>
-  <section class="free-learning-followthrough" aria-labelledby="free-next-heading">
+  <details class="free-learning-starting-point">
+  <summary>Tell Talia where you are starting (optional, ungraded)</summary>
+  <label for="free-start-level">Which description fits your current knowledge?</label>
+  <select id="free-start-level">
+   <option value="1">I’m completely new to stocks and markets</option>
+   <option value="2">I’ve seen stock charts but cannot explain the four prices</option>
+   <option value="3">I know basic candles and want to understand source evidence</option>
+  </select>
+  <button class="btn secondary" id="free-start-choose" type="button">Show a suitable first lesson</button>
+  <p id="free-start-result" role="status" aria-live="polite">This choice changes your suggested reading, not your certified skill status. You can review all five lessons.</p>
+ </details>
+ <details class="free-learning-recent">
+ <summary>Your recent saved Journal work</summary>
+ <p id="free-recent-journal-status" role="status" aria-live="polite">Your private Journal entries appear here after they are verified.</p>
+ <ul id="free-recent-journal-list" class="free-recent-journal-list"></ul>
+ </details>
+<section class="free-learning-followthrough" aria-labelledby="free-next-heading">
    <div><h3 id="free-next-heading">Your recommended next lesson</h3>
    <p id="free-next-detail" role="status" aria-live="polite">Checking your private Free Foundations study record…</p>
    <a id="free-next-action" class="btn secondary" href="bootcamp-academy.html?program=free5">Continue with Talia</a>
