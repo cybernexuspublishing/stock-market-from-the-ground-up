@@ -53,6 +53,20 @@ try{
  r=await run();assert.equal(r.status,400,'Whitespace-ambiguous answer key must be rejected');
  assert.equal(approved,0);
  baseKeys.EVIDENCE='One';
+ const numericSeed=questions[2];
+ questions[2]={...numericSeed,partialTolerance:10,partialCreditPct:50,criticalOnWrong:true};
+ r=await run();assert.equal(r.status,409,'Valid optional grading metadata must not bypass individual rubric review');
+ assert.equal(approved,0);
+ questions[2]={...numericSeed,partialTolerance:0,partialCreditPct:50};
+ r=await run();assert.equal(r.status,400,'Partial tolerance must exceed exact-answer tolerance');
+ assert.equal(approved,0);
+ questions[2]={...numericSeed,partialTolerance:10,partialCreditPct:110};
+ r=await run();assert.equal(r.status,400,'Partial credit percentage must be below 100');
+ assert.equal(approved,0);
+ questions[2]={...numericSeed,criticalOnWrong:'yes'};
+ r=await run();assert.equal(r.status,400,'Critical error authoring must be typed boolean');
+ assert.equal(approved,0);
+ questions[2]=numericSeed;
  questions=[...questions,{id:'ETF_INDEX_APPLICATION',kind:'choice',
  prompt:'An index is a calculated benchmark while a listed ETF is an exchange-traded fund whose shares represent exposure to assets. Which response distinguishes them?',
  explanation:'A benchmark index is calculated using its defined rules; investors cannot directly buy the index. ETFs issue tradable fund shares, hold or replicate asset exposures, and can have expense ratios and tracking differences.',
