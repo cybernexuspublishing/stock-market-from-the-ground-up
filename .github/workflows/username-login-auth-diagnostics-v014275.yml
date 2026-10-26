@@ -1,0 +1,24 @@
+name: Username Login, Turnstile and Supabase Service Credentials v0.14.0.275
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/username-login.js'
+      - 'tests/test_username_login_captcha_v014275.mjs'
+      - '.github/workflows/username-login-auth-diagnostics-v014275.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate username alias, exact lookup, real CAPTCHA enforcement, fail-closed errors
+        run: node --test tests/test_username_login_captcha_v014275.mjs
