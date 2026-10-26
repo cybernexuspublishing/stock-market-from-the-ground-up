@@ -105,23 +105,27 @@ try{
     assert(viewport&&viewport.includes('width=device-width'),path+' viewport not responsive');
     const details={page:path,viewport:width,content:legal?'SERVER_LEGAL_NOT_TESTED':'STATIC_RENDERED'};
     if(path==='store.html'){
-     // Real plans/tools come from private Supabase live catalog, deliberately
-     // unavailable in this source-only fixture. Assert fail-closed fallback,
-     // NOT five fabricated live plans. Product-UI data tests run separately.
+     // Founding 30/60 are the only currently offered memberships. The
+     // former five-card Standard Membership tab was intentionally removed.
      await tab.waitForFunction(()=>Boolean(
-      document.querySelector('#store-plans .notice')||
-      document.querySelectorAll('#store-plans article.v11-plan').length===5
+      document.querySelector('#store-founder-plans .notice')||
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
      ),undefined,{timeout:14000});
-     const count=await tab.locator('#store-plans article.v11-plan').count();
-     assert(count===0||count===5,'Unexpected partial plan catalog: '+count);
-     if(count===0){
-      assert.match(await tab.locator('#store-plans').innerText(),/unavailable/i);
-      assert.equal(await tab.locator('#store-plans a[href*="checkout"]').count(),0,
-       'Live checkout must not be offered without catalog');
-      details.billing='CATALOG_UNAVAILABLE_FAIL_CLOSED';
-     }else details.billing='PLAN_RENDERED_WITHOUT_PAYMENT';
-     assert.equal(await tab.locator('#store-products article.product-card').count(),5,
-      'Five books must remain in approved static source fallback');
+     const count=await tab.locator('#store-founder-plans article.catalog-founder-card').count();
+     assert.equal(count,2,'Both approved Founding 600 offers must render from source-controlled terms');
+     assert.equal(await tab.locator('#store-tab-memberships').count(),0,
+      'Hidden standard memberships must remain absent from public navigation');
+     assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
+      'A public founding card cannot bypass server-side checkout readiness');
+     await tab.waitForFunction(()=>Boolean(
+      document.querySelector('#store-products .notice,#store-products .empty-state')||
+      document.querySelector('#store-products article.product-card')
+     ),undefined,{timeout:14000});
+     const bookCount=await tab.locator('#store-products article.product-card').count();
+     assert(bookCount>0||await tab.locator('#store-products .notice,#store-products .empty-state').count()>0,
+      'Unavailable or empty books catalog must show an explicit state');
+     details.billing='FOUNDING_TERMS_RENDERED_NO_UNVERIFIED_CHECKOUT';
+     details.bookCards=bookCount;
     }
     if(width===390&&['index.html','store.html','books.html','learn.html'].includes(path)){
      const scroll=await tab.evaluate(()=>({
@@ -136,16 +140,27 @@ try{
   if(width===1280)await check('Store keyboard navigation and fail-closed billing (static)',async()=>{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
-      document.querySelector('#store-plans .notice')||
-      document.querySelectorAll('#store-plans article.v11-plan').length===5
+      document.querySelector('#store-founder-plans .notice')||
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
     ),undefined,{timeout:14000});
-    await page.locator('#store-tab-memberships').focus();
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
+      'Approved founding membership terms must render on static Store');
+    const available=await page.locator('[data-store-category]:visible').evaluateAll(nodes=>
+      nodes.filter(el=>!el.hidden&&!el.disabled).map(el=>el.id));
+    assert(available.includes('store-tab-founders'),'Founding offers must be the primary Store tab');
+    await page.locator('#store-tab-founders').focus();
     await page.keyboard.press('ArrowRight');
-    assert.equal(await page.locator('#store-tab-books').getAttribute('aria-selected'),'true');
-    await page.locator('#store-tab-tools').click();
-    assert.equal(await page.locator('#store-panel-tools').evaluate(e=>e.hidden),false);
-    const buttons=await page.locator('#store-plans a[href*="checkout"],#store-tools a[href*="checkout"]').count();
-    assert.equal(buttons,0,'Offline Store must not offer a direct paid checkout URL');
+    const expected=available.length>1?available[1]:'store-tab-founders';
+    assert.equal(await page.locator('#'+expected).getAttribute('aria-selected'),'true',
+      'Keyboard navigation must select the next visible category, not a hidden offer');
+    const selectedPanel=expected.replace('store-tab-','store-panel-');
+    assert.equal(await page.locator('#'+selectedPanel).evaluate(e=>e.hidden),false);
+    if(available.includes('store-tab-tools')){
+     await page.locator('#store-tab-tools').click();
+     assert.equal(await page.locator('#store-panel-tools').evaluate(e=>e.hidden),false);
+    }
+    const buttons=await page.locator('#store-founder-plans a[href*="checkout"],#store-tools a[href*="checkout"]').count();
+    assert.equal(buttons,0,'Offline Store must not offer an uncontrolled paid checkout URL');
     // Canonical plans + future tool cards are covered by mocked source contract
     // tests, and real provider permission requires independent Owner acceptance.
     return 'keyboard Store tabs PASS; no uncontrolled checkout; live catalog unverified';
@@ -153,9 +168,11 @@ try{
   if(width===1280)await check('Store automated accessibility baseline',async()=>{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
-      document.querySelector('#store-plans .notice')||
-      document.querySelectorAll('#store-plans article.v11-plan').length===5
+      document.querySelector('#store-founder-plans .notice')||
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
     ),undefined,{timeout:14000});
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
+      'Approved founding membership terms must render on static Store');
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(x=>x.impact==='critical'||x.impact==='serious');
     assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.length})),[],
