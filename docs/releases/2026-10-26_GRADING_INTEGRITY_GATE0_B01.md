@@ -83,3 +83,9 @@ Owner/technical acceptance representative; assessment and curriculum architect; 
 | 1.0 | 2026-10-26 | Shared grading protection, partial credit, critical errors, founder route hardening and B01 structural audit. |
 
 **Footer:** Crown & Lantern Press / Cyber Nexus. Internal evidence-led release record. Educational only; not investment advice or professional certification.
+
+## 2026-10-26 independent-evidence source hardening (v1.1)
+**Roles:** assessment psychometrics, backend, security, learning design, quality assurance.
+Prior complete four-dimensional assessment entries could earn Proficient merely by carrying an `assessment` difficulty label. The competency service now requires an explicit trusted `metadata.independent === true` and absence of assisted/hint/reveal/Sparks markers in **every dimension row**. All absent or ambiguous provenance fails closed to learning/developing evidence, not certified proficiency. Mastery further requires the existing minimum count, repeated independent successes and critical-error checks. The API returns separately labeled `independentAssessments` and `independentScore`; historical raw scores and records are not overwritten.
+**Validation:** an existing source test contains cases for explicit independent evidence, missing provenance, hint use and a single assisted Process dimension. Provider-member runtime and screen-reader QA still require a complete run; do not certify Beta Ready from source tests. No database migration is necessary (metadata is already a protected JSON field and production currently has zero competency evidence rows).
+**Owner technical acceptance:** IMPLEMENTED pending exact-source automated test and authenticated provider evidence. No fabricated member grades or historical market records.

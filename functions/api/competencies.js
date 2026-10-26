@@ -10,19 +10,50 @@ async function caller(env,req){const token=/^Bearer\s+(.+)$/i.exec(req.headers.g
 async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;return jf(`${c.base}/rest/v1/${path}`,{headers})}
 const avg=(rows,dim)=>{const a=dim?rows.filter(r=>r.dimension===dim):rows;if(!a.length)return null;const total=a.reduce((s,r)=>s+Number(r.weight||1),0);return total? a.reduce((s,r)=>s+Number(r.score||0)*Number(r.weight||1),0)/total:null};
 // Distinct attempts, not the four rows (knowledge/recognition/decision/process).
-function assessments(rows){const g=new Map();for(const r of rows){const id=`${r.source_type}\u001f${r.source_id}`;if(!g.has(id))g.set(id,[]);g.get(id).push(r)}
-return [...g.values()].map(rs=>{const dims=new Set(rs.map(x=>x.dimension)),score=avg(rs),ts=Math.max(...rs.map(x=>Date.parse(x.assessed_at)||0));return{rows:rs,score,at:ts,complete:['knowledge','recognition','decision','process'].every(x=>dims.has(x)),passed:rs.every(x=>x.passed&&!x.critical_error),criticalError:rs.some(x=>x.critical_error),difficulty:rs[0]?.difficulty||null}}).sort((a,b)=>b.at-a.at)}
-function streak(tries,unseen=false){let n=0;for(const x of tries){if(!x.complete||!x.passed||x.criticalError||(unseen&&!['unseen','blind','assessment'].includes(String(x.difficulty||'').toLowerCase())))break;n++}return n}
+function assessments(rows){
+ const g=new Map();
+ for(const r of rows){const id=`${r.source_type}\\u001f${r.source_id}`;if(!g.has(id))g.set(id,[]);g.get(id).push(r)}
+ return [...g.values()].map(rs=>{
+  const dims=new Set(rs.map(x=>x.dimension)),score=avg(rs),
+   ts=Math.max(...rs.map(x=>Date.parse(x.assessed_at)||0));
+  const complete=['knowledge','recognition','decision','process'].every(x=>dims.has(x));
+  // An "assessment" difficulty label alone cannot establish independence.
+  // Only audited, explicitly unassisted evidence from a trusted assessor can
+  // qualify for Proficient/Mastered. Absent provenance is not a free pass.
+  const independent=complete&&['unseen','blind','assessment'].includes(
+   String(rs[0]?.difficulty||'').toLowerCase())&&rs.every(x=>{
+   const m=x.metadata;
+   return m&&m.independent===true&&m.assisted!==true&&m.hintUsed!==true&&
+    m.helpUsed!==true&&m.answerRevealed!==true&&m.sparksUsed!==true&&
+    (m.assistance===undefined||m.assistance===null||m.assistance==='none');
+  });
+  return {rows:rs,score,at:ts,complete,independent,
+   passed:rs.every(x=>x.passed&&!x.critical_error),
+   criticalError:rs.some(x=>x.critical_error),
+   difficulty:rs[0]?.difficulty||null}
+ }).sort((a,b)=>b.at-a.at)
+}
+function streak(tries,unseen=false){
+ let n=0;
+ for(const x of tries){
+  if(!x.complete||!x.passed||x.criticalError||(unseen&&!x.independent))break;
+  n++;
+ }
+ return n
+}
 function trend(tries){if(tries.length<6)return null;const av=x=>x.reduce((s,t)=>s+t.score,0)/x.length,d=av(tries.slice(0,3))-av(tries.slice(3,6));return d>=5?'up':d<=-5?'down':'flat'}
 function level(def,tries,score){if(!tries.length||score===null)return'Not Yet Assessed';const pass=Number(def.pass_score??80),master=Number(def.mastery_score??90),min=Number(def.minimum_evidence??10),required=Number(def.metadata?.mastery_pass_streak??3);const complete=tries.filter(x=>x.complete),noRecentCritical=!tries.slice(0,Math.min(min,tries.length)).some(x=>x.criticalError);
 // A high historical average must never mask the latest complete assessment's
 // critical risk/decision error. Do not infer a recent recovery from partial
 // conceptual evidence. A newer fully reviewed clear assessment is required.
-const latestCompleteClear=complete.length>0&&complete[0].passed===true&&complete[0].criticalError!==true;
-if(!complete.length)return'Conceptual Evidence Only';if(score>=master&&complete.length>=min&&streak(tries,true)>=required&&noRecentCritical&&latestCompleteClear)return'Mastered';if(latestCompleteClear&&score>=pass)return'Proficient';if(score>=60)return'Developing';return'Needs Work'}
+const independentComplete=complete.filter(x=>x.independent);
+const independentScore=independentComplete.length?independentComplete.reduce((s,x)=>s+x.score,0)/independentComplete.length:null;
+const latestCompleteClear=complete.length>0&&complete[0].independent===true&&complete[0].passed===true&&complete[0].criticalError!==true;
+if(!complete.length)return'Conceptual Evidence Only';if(independentScore>=master&&independentComplete.length>=min&&streak(tries,true)>=required&&noRecentCritical&&latestCompleteClear)return'Mastered';if(latestCompleteClear&&independentScore>=pass)return'Proficient';if(score>=60)return'Developing';return'Needs Work'}
 function normalize(def,rows){const tries=assessments(rows),completeTries=tries.filter(x=>x.complete),score=completeTries.length?completeTries.reduce((a,t)=>a+t.score,0)/completeTries.length:avg(rows),subScores=Object.fromEntries(['knowledge','recognition','decision','process'].map(x=>[x,avg(rows,x)])),status=level(def,tries,score),criticalErrors=tries.filter(x=>x.criticalError).length;
-const weakest=Object.entries(subScores).filter(([,v])=>v!==null).sort((a,b)=>a[1]-b[1])[0];const diagnosis=!tries.length?'No graded assessments yet. Complete a verified exercise to establish a baseline.':!tries.some(t=>t.complete)?'Partial evidence only: knowledge, recognition, decision and process require individually reviewed evidence for competency proficiency. A conceptual Lab grade is not trading mastery.':criticalErrors?`${criticalErrors} distinct assessment(s) contain critical errors. Review those decisions and retest without seeing future bars.`:weakest&&weakest[1]<80?`Lowest measured dimension: ${weakest[0]} (${Math.round(weakest[1])}%). Practice on new, unseen cases.`:status==='Mastered'?'Mastery criteria currently satisfied. Retest periodically to maintain evidence.':'Continue verified, unseen-case assessments. Completion of four dimension rows is one assessment, not four.';
-return{code:def.competency_code,category:def.category,name:def.name,description:def.description,masteryDefinition:def.mastery_definition,score:score==null?null:Math.round(score*10)/10,status,evidenceCount:tries.length,evidenceRowCount:rows.length,completeAssessments:tries.filter(x=>x.complete).length,criticalErrors,consecutivePasses:streak(tries),unseenPassStreak:streak(tries,true),trend:trend(tries),subScores,diagnosis,nextStep:tries.find(t=>t.complete)?.criticalError?'Review the latest critical risk or decision error, then retest on an independently assessed case.':status==='Not Yet Assessed'?'Complete a mapped graded Lab.':status==='Conceptual Evidence Only'?'A reviewed quiz supplied knowledge-only evidence. Recognition, decision and process still require independent reviewed assessment.':status==='Needs Work'?'Review concept and critical errors, then retest.':status==='Developing'?'Complete guided work followed by unseen-case exercises.':status==='Proficient'?'Build independent passing evidence.':'Maintain performance through periodic unseen-case exercises.',metadata:def.metadata||{}}}
+const independentTries=completeTries.filter(x=>x.independent),independentScore=independentTries.length?Math.round(independentTries.reduce((s,x)=>s+x.score,0)/independentTries.length*10)/10:null;
+const weakest=Object.entries(subScores).filter(([,v])=>v!==null).sort((a,b)=>a[1]-b[1])[0];const diagnosis=!tries.length?'No graded assessments yet. Complete a verified exercise to establish a baseline.':!tries.some(t=>t.complete)?'Partial evidence only: knowledge, recognition, decision and process require individually reviewed evidence for competency proficiency. A conceptual Lab grade is not trading mastery.':!independentTries.length?'Completed learning evidence is not proven independently assessed. Obtain a new, unassisted reviewed assessment; hints, answer reveals and Sparks do not qualify for proficiency.':criticalErrors?`${criticalErrors} distinct assessment(s) contain critical errors. Review those decisions and retest without seeing future bars.`:weakest&&weakest[1]<80?`Lowest measured dimension: ${weakest[0]} (${Math.round(weakest[1])}%). Practice on new, unseen cases.`:status==='Mastered'?'Mastery criteria currently satisfied. Retest periodically to maintain evidence.':'Continue verified, unseen-case assessments. Completion of four dimension rows is one assessment, not four.';
+return{code:def.competency_code,category:def.category,name:def.name,description:def.description,masteryDefinition:def.mastery_definition,score:score==null?null:Math.round(score*10)/10,status,evidenceCount:tries.length,evidenceRowCount:rows.length,completeAssessments:tries.filter(x=>x.complete).length,independentAssessments:independentTries.length,independentScore,criticalErrors,consecutivePasses:streak(tries),unseenPassStreak:streak(tries,true),trend:trend(tries),subScores,diagnosis,nextStep:tries.find(t=>t.complete)?.criticalError?'Review the latest critical risk or decision error, then retest on an independently assessed case.':status==='Not Yet Assessed'?'Complete a mapped graded Lab.':status==='Conceptual Evidence Only'?'A reviewed quiz supplied knowledge-only evidence. Recognition, decision and process still require independent reviewed assessment.':!independentTries.length?'Complete a new unassisted, reviewed assessment with complete provenance; guided scores are learning evidence only.':status==='Needs Work'?'Review concept and critical errors, then retest.':status==='Developing'?'Complete guided work followed by unseen-case exercises.':status==='Proficient'?'Build independent passing evidence.':'Maintain performance through periodic unseen-case exercises.',metadata:def.metadata||{}}}
 const textMatch=(text,keys)=>(keys||[]).some(k=>String(text||'').toLowerCase().includes(String(k).toLowerCase()));
 async function related(env,skill){const kw=skill.metadata?.keywords||[],tk=skill.metadata?.tool_keywords||kw;const [labs,topics,tools]=await Promise.all([
  rest(env,'platform_labs?select=lab_id,title,book_code,custom_href,metadata&active=eq.true&registry_visible=eq.true&order=sort_order.asc&limit=500').catch(()=>[]),

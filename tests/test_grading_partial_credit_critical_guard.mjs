@@ -39,5 +39,8 @@ assert(ui.includes('Critical risk or decision error:'));
 assert(author.includes('partialCreditPct')&&author.includes('partialTolerance'));
 assert(author.includes('criticalOnWrong'));
 assert(skills.includes('latestCompleteClear'));
+assert(skills.includes('m.independent===true'));
+assert(skills.includes('unseen&&!x.independent'));
+assert(skills.includes('independentAssessments:independentTries.length'));
 assert(skills.includes("status==='Proficient'")||skills.includes("return'Proficient'"));
 console.log('PASS grading source: protected keys, server-defined partial credit, critical-error evidence guard, rollback');

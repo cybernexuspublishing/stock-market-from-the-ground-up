@@ -115,10 +115,25 @@ try{
  evidence.push(...['knowledge','recognition','decision','process'].map(d=>({
   user_id:actor,competency_code:'CANDLE_READING',source_type:'reviewed_case',source_id:'newer-clear',
   dimension:d,score:95,passed:true,critical_error:false,difficulty:'assessment',
-  weight:1,assessed_at:'2026-10-21T23:00:00Z'})));
+  metadata:{independent:true,assistance:'none'},weight:1,assessed_at:'2026-10-21T23:00:00Z'})));
  [status,result]=await query();
  assert.equal(result.skills[0].status,'Proficient','A new clean complete result allows proficiency, not automatic mastery');
  assert.equal(result.skills[0].completeAssessments,2);
+ assert.equal(result.skills[0].independentAssessments,1);
+ assert.equal(result.skills[0].independentScore,95);
+ // Removing trusted independence evidence must prevent Proficient classification.
+ evidence=evidence.map(row=>({...row,metadata:{independent:false,assistance:'hint'}}));
+ [status,result]=await query();
+ assert.equal(result.skills[0].status,'Developing','Unverified/assisted assessment cannot satisfy proficiency');
+ assert.equal(result.skills[0].independentAssessments,0);
+ assert.match(result.skills[0].diagnosis,/not proven independently assessed/i);
+ evidence=evidence.map(row=>row.source_id==='newer-clear'?{...row,metadata:{independent:true,assistance:'none'}}:row);
+ [status,result]=await query();
+ assert.equal(result.skills[0].status,'Proficient');
+ // A single dimension marked as assisted taints the entire four-dimensional attempt.
+ evidence=evidence.map(row=>row.source_id==='newer-clear'&&row.dimension==='process'?{...row,metadata:{independent:true,assistance:'Talia'}}:row);
+ [status,result]=await query();
+ assert.equal(result.skills[0].status,'Developing');
  accountKind='showcase';[status,result]=await query();
  assert.equal(status,200);assert.equal(result.synthetic,true);
  accountKind='member';
