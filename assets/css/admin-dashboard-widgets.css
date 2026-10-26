@@ -85,3 +85,8 @@ html[data-gu-design="premium-light"] .admin-widget-action{color:#35637b}
 .cc-activity-events li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:.75rem;padding:.55rem 0;border-top:1px solid #31516b;font-size:.78rem;overflow-wrap:anywhere}
 .cc-activity-events li span,.cc-activity-events li time{color:#b9cedb}
 @media(max-width:600px){.cc-work-record{align-items:flex-start;flex-direction:column}.cc-activity-events li{grid-template-columns:1fr;gap:.2rem}}
+
+/* Small permission-scoped actions immediately below executive KPIs. */
+.admin-dashboard-widgets>h2{font-size:1rem;margin:.65rem 0}
+.cc-dashboard-quick{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem}
+.cc-dashboard-quick>.admin-widget-action{border-radius:7px;min-height:40px}
