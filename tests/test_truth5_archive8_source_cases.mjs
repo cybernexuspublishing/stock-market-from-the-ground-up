@@ -29,7 +29,7 @@ for(const {day,slug,label,type} of cases){
  assert(item.observation.length>180);
  assert(item.limits.length>180);
  assert(item.question.length>90);
- assert(/not independently|not verified|not established|not a documented|not guaranteed/i.test(item.observation+' '+item.limits));
+ assert(/not independently|not verified|not established|not a documented|not guaranteed|does not establish|remain unverified/i.test(item.observation+' '+item.limits));
  assert(!/certified grade|verified fill|broker-confirmed transaction/i.test(item.title+' '+item.observation));
 }
 const capstone=bc.curriculum[4].lesson.sourceClaimCase;
