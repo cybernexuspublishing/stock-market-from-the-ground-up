@@ -46,7 +46,7 @@ END $$;
 DO $$
 DECLARE member uuid:='11111111-1111-4111-8111-111111111111';
  expired uuid:='22222222-2222-4222-8222-222222222222';
- full uuid:='33333333-3333-4333-8333-333333333333';
+ full_member uuid:='33333333-3333-4333-8333-333333333333';
  showcase uuid:='44444444-4444-4444-8444-444444444444';
 BEGIN
  IF NOT public.user_has_tool_access(member,'ONDEMAND_TRAINING')
@@ -59,7 +59,7 @@ BEGIN
  IF public.user_has_tool_access(expired,'ONDEMAND_TRAINING')
  OR public.user_has_tool_access(showcase,'ONDEMAND_TRAINING')
  THEN RAISE EXCEPTION 'Expired or Showcase training access must be denied'; END IF;
- IF NOT public.user_has_tool_access(full,'MARKET_TUTOR')
+ IF NOT public.user_has_tool_access(full_member,'MARKET_TUTOR')
  THEN RAISE EXCEPTION 'Existing Full Platform entitlement regressed'; END IF;
  IF public.user_has_tool_access(NULL,'ONDEMAND_TRAINING')
  THEN RAISE EXCEPTION 'Missing identity was authorized'; END IF;
