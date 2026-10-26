@@ -6,7 +6,7 @@ const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source
 const env={SUPABASE_URL:'https://mock.example',SUPABASE_PUBLISHABLE_KEY:'public',SUPABASE_SECRET_KEY:'private',REQUIRE_STAFF_AAL2_V135:'false'};
 const resp=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
 async function invoke(label,opts){const urls=[];globalThis.fetch=async(url,request)=>{urls.push([url,request]);if(url.endsWith('/auth/v1/user'))return resp({id:'00000000-0000-4000-8000-000000000000'});
- if(url.includes('profiles?'))return resp([{account_kind:opts.account||'member'}]);
+ if(url.includes('profiles?'))return resp([{account_kind:opts.account||'member',deleted_at:opts.deleted?'2026-10-26T00:00:00Z':null}]);
  if(url.includes('admin_user_roles?'))return resp(opts.role===false?[]:[{role_code:'OWNER'}]);
  if(url.includes('admin_user_flags?'))return resp(opts.status?[{status:opts.status}]:[]);
  if(url.includes('admin_control_registry_v01409?'))return resp([{control_key:'builtin:panel-dashboard',label:'Dashboard',kind:'builtin',is_visible:true,group_name:'Overview',sort_order:1}]);
@@ -22,6 +22,8 @@ await invoke('Showcase',{account:'showcase',expect:403});
 await invoke('test',{account:'test',expect:403});
 await invoke('suspended',{status:'suspended',expect:403});
 await invoke('restricted',{status:'restricted',expect:403});
+await invoke('deleted Owner',{deleted:true,expect:403});
+await invoke('deleted Owner cannot save',{deleted:true,method:'POST',payload:config,expect:403});
 await invoke('Owner read',{expect:200});
 await invoke('Owner save',{method:'POST',payload:config,expect:200});
 await invoke('no external custom URL',{method:'POST',payload:{...config,controlKey:'custom:thing123',kind:'custom_link',href:'https://evil.example'},expect:400});
