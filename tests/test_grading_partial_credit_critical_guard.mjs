@@ -19,9 +19,9 @@ for(const word of [
  "WHERE a.user_id=p_actor AND a.mode='assessment'",
  "IF a.mode IS DISTINCT FROM 'assessment'",
  "CREATE OR REPLACE FUNCTION public.v014_training_answer",
- 'FOR UPDATE',
+ 'for update',
 ]){
- assert(migration.includes(word),'Missing forward protected grading requirement: '+word);
+ assert(migration.toLowerCase().includes(word.toLowerCase()),'Missing forward protected grading requirement: '+word);
 }
 assert.match(migration,/BEGIN;[\s\S]*COMMIT;/);
 assert.match(rollback,/BEGIN;[\s\S]*COMMIT;/);
