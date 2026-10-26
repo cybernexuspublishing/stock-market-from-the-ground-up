@@ -83,7 +83,7 @@ try{
  assert.deepEqual(body.guidedBetaIds,[draft,canonical].sort(), 'Ungraded teaching remains available when review attribution is missing');
  assert(!body.guidedBetaIds.includes(upcoming),'No future SITE Lab should receive a beta Start');
  assert(!body.guidedBetaIds.includes(empty),'A selected Lab without any teaching source is not silently launched');
- assert.equal(body.guidedBetaPolicy,'ungraded_existing_private_or_canonical_teaching_no_mastery');
+ assert.equal(body.guidedBetaPolicy,'ungraded_existing_private_canonical_or_site_original_teaching_no_mastery');
  assert(!JSON.stringify(body).includes('A sourced trading observation'),'Public listing must never return private lesson text');
  assert(!JSON.stringify(body).includes('authoring_status'),'Public response returns only eligible Lab IDs');
  const client=await import('node:fs').then(x=>x.readFileSync('assets/js/labs.js','utf8'));
