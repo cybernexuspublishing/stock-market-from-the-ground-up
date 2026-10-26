@@ -28,7 +28,7 @@ export async function onRequest({request,env}){
   // listing of an ID, or an unfinished draft, does not grant beta assessment.
   const [catalog,lessons,approved]=await Promise.all([
    rows(env,'platform_labs','lab_id,active,registry_visible,what:metadata->>what,why:metadata->>why,objective:metadata->>objective,how:metadata->how','',700),
-   rows(env,'lab_instruction_v014','lab_id,source_status,concept:content->>concept,objective:content->>objective,why:content->>why,steps:content->steps','',700),
+   rows(env,'lab_instruction_v014','lab_id,source_status,reviewed_by,reviewed_at,concept:content->>concept,objective:content->>objective,why:content->>why,steps:content->steps','',700),
    rows(env,'lab_training_sets_v014','lab_id,review_state,reviewed_at,reviewed_by',
         '&review_state=eq.reviewed&reviewed_at=not.is.null&reviewed_by=not.is.null',1500)
   ]);
@@ -59,7 +59,9 @@ export async function onRequest({request,env}){
    Array.isArray(r.how)&&r.how.length>=3)
    .map(r=>r.lab_id));
   const reviewedLesson=new Set(lessons.filter(r=>
-   /^(editorially_reviewed|owner_reviewed)(?:_|$)/i.test(String(r.source_status||'')))
+   /^(editorially_reviewed|owner_reviewed)(?:_|$)/i.test(String(r.source_status||''))&&
+   typeof r.reviewed_by==='string'&&r.reviewed_by.length>0&&
+   typeof r.reviewed_at==='string'&&Number.isFinite(Date.parse(r.reviewed_at)))
    .map(r=>r.lab_id).filter(id=>goodId.test(id)&&isBetaCandidateLab(id)));
   const ids=[...new Set(approved.filter(r=>
    r.review_state==='reviewed'&&!!r.reviewed_at&&!!r.reviewed_by)
