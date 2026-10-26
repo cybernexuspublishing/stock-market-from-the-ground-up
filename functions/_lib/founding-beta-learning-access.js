@@ -33,11 +33,11 @@ const validEnd=(date,now)=>!date||Number.isFinite(Date.parse(date))&&Date.parse(
  * seat, refund rights, purchased books, Store discounts or reviewed grades.
  * Verify the issuer from the existing Owner role records, not user_metadata.
  */
-export async function activeFoundingBetaLearningPlan(env,verifiedMemberId){
- if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/.test(String(verifiedMemberId||'')))return false;
+export async function foundingBetaLearningAccessKind(env,verifiedMemberId){
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/.test(String(verifiedMemberId||'')))return null;
  const base=String(env?.SUPABASE_URL||'').replace(/[/]$/,'');
  const secret=String(env?.SUPABASE_SECRET_KEY||'');
- if(!/^https:\/\/[^/]+$/.test(base)||!secret)return false;
+ if(!/^https:\/\/[^/]+$/.test(base)||!secret)return null;
  const headers={apikey:secret,accept:'application/json'};
  if(/^eyJ[A-Za-z0-9_-]+[.]eyJ[A-Za-z0-9_-]+[.][A-Za-z0-9_-]+$/.test(secret))
   headers.authorization='Bearer '+secret;
@@ -60,7 +60,7 @@ export async function activeFoundingBetaLearningPlan(env,verifiedMemberId){
  const rows=idx=>results[idx].status==='fulfilled'?results[idx].value:[];
  if(rows(0).some(x=>tier(x)&&validStatus(x)&&validStart(x.starts_at,now)&&validEnd(x.ends_at,now))||
     rows(1).some(x=>tier(x)&&validStatus(x)&&x.current_period_end&&validEnd(x.current_period_end,now)))
-  return true;
+  return 'founding_plan';
  // A provider-issued pass or a manual pass lacking this specific authorized QA
  // provenance is never enough to disclose original book-aligned B01 instruction.
  for(const pass of rows(2)){
@@ -81,8 +81,11 @@ export async function activeFoundingBetaLearningPlan(env,verifiedMemberId){
    // never supplies the Owner issuer or the pass expiration to this function.
    const roles=await read('admin_user_roles?select=role_code,expires_at&user_id=eq.'+
     encodeURIComponent(issuer)+'&role_code=eq.OWNER&limit=2');
-   if(roles.some(r=>r.role_code==='OWNER'&&validEnd(r.expires_at,now)))return true;
+   if(roles.some(r=>r.role_code==='OWNER'&&validEnd(r.expires_at,now)))return 'owner_qa';
   }catch{/* Deny this QA pass if its issuer cannot be verified. */}
  }
- return false;
+ return null;
+}
+export async function activeFoundingBetaLearningPlan(env,verifiedMemberId){
+ return (await foundingBetaLearningAccessKind(env,verifiedMemberId))!==null;
 }
