@@ -12,18 +12,17 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const nav=()=>$('#admin-tabs'),app=()=>$('#admin-app');
 const defs={
  'Overview':[/^Dashboard$/i,/Control Center Directory|Site Academy/i],
- 'Accounts & Access':[/Account|Roles|Member Activity/i],
- 'Products':[/^Products$/i],
- 'Books & Learning':[/Books|Lab|Learning|Competency|Instructor|Question Bank|Market Data|Tutor|Feature Inventory/i],
- 'Memberships & Commerce':[/Commerce|Membership|Checkout|Payment|Advertising|Subscription|Orders/i],
- 'Community & Support':[/Market Commons|Reports|Moderation|Support|Announcements|Notifications|Communications/i],
- 'Website & Grant Web Solutions':[/Grant Web|Client Draft|Site Operations|Website|Pages|Branding|Forms|Navigation|Site Settings|Inventory|Legal/i],
- 'Security, Operations & QA':[/Audit|System|Security|QA|Archive|Recovery|Feature Control|Automation|Readiness/i]
+ 'People':[/Account|Roles|Member Activity/i],
+ 'Learning':[/Books|Lab|Learning|Competency|Instructor|Question Bank|Market Data|Tutor|Feature Inventory|^Products$/i],
+ 'Commerce':[/Commerce|Membership|Checkout|Payment|Advertising|Marketing|Subscription|Orders/i],
+ 'Community':[/Market Commons|Founders Commons|Reports|Moderation|Support|Announcements|Notifications|Communications/i],
+ 'Platform':[/Grant Web|Client Draft|Site Operations|Website|Pages|Branding|Forms|Navigation|Site Settings|Inventory|Legal|Audit|System|Security|QA|Archive|Recovery|Feature Control|Automation|Readiness/i]
 };
+const normalizedGroup=value=>Object.keys(defs).includes(value)?value:({'Accounts & Access':'People','Products':'Learning','Books & Learning':'Learning','Memberships & Commerce':'Commerce','Community & Support':'Community','Website & Grant Web Solutions':'Platform','Security, Operations & QA':'Platform'})[value]||'Platform';
 const order=Object.keys(defs);
 const storage=new Map();let observer=null,pending=false,ready=false,fetching=false,owner=false;
 function key(el){if(el.id)return `builtin:id-${el.id}`;for(const attr of ['panel','v11Panel','v13Panel','v132Panel','v135Control','ocTab','v1352Menu','v142Create'])if(el.dataset[attr])return `builtin:${attr}-${el.dataset[attr]}`;if(el.tagName==='A'){const href=el.getAttribute('href')||'';const encoded=href.toLowerCase().replace(/[^a-z0-9._:-]/g,'-').slice(0,80);return `builtin:link-${encoded}`;}return `builtin:label-${(el.textContent||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'-').slice(0,80)}`;}
-function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Additional Installed Controls';}
+function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Platform';}
 function builtins(){return $$('button,a',nav()).filter(x=>x.id!=='cc-control-manager'&&!x.classList.contains('cc-admin-custom-link'));}
 // Modules installed before the canonical navigation manager may track their own
 // wrapper by ID. Removing their wrapper makes them re-mount and duplicate buttons.
@@ -74,7 +73,7 @@ const groups=new Map();for(const el of all){const id=controlId(el);const setting
  // Presentation toggle is an additional restriction. It NEVER unhides an authorization-disabled control.
  el.classList.toggle('cc-owner-hidden',!shown);
  if(setting?.label)el.textContent=setting.label;
- const group=setting?.group_name||category(el);if(!groups.has(group))groups.set(group,[]);groups.get(group).push({el,n:Number(setting?.sort_order??10000),id});}
+ const group=normalizedGroup(setting?.group_name||category(el));if(!groups.has(group))groups.set(group,[]);groups.get(group).push({el,n:Number(setting?.sort_order??10000),id});}
 let seq=0;const sorted=[...groups.keys()].sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib)||a.localeCompare(b)});
 const fragment=document.createDocumentFragment();for(const group of sorted){const wrap=document.createElement('div');wrap.className='v13-admin-group cc-admin-group';wrap.dataset.ccNavGroup=group;const title=document.createElement('div');title.className='v13-admin-group-title cc-admin-group-title';title.textContent=group;wrap.append(title);
 for(const item of groups.get(group).sort((a,b)=>a.n-b.n||a.id.localeCompare(b.id)))wrap.append(item.el);fragment.append(wrap);seq++}

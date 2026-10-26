@@ -18,3 +18,15 @@
 #gu36-release-status{display:block;margin:.8rem .75rem 1.1rem;padding:.7rem .6rem;color:#c3d7e8;font-size:.75rem;line-height:1.45;border-top:1px solid #31546b;overflow-wrap:anywhere}
 #gu36-release-status.gu36-version-warning{color:#ffda79;border:1px solid #bc974c;border-radius:7px;background:#241e19}
 @media(max-width:900px){#gu36-simple-admin{margin:.4rem .4rem .8rem}}
+/* Six-area directory: compact navigation, with detailed installed controls
+   retained in the existing disclosure rather than repeated as large tiles. */
+#gu36-simple-admin{background:transparent;border:0;padding:0 3px;margin:0 0 22px}
+#gu36-simple-admin>h2{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8394ad;margin:8px 8px 18px}
+#gu36-simple-admin>label{font-size:.68rem;color:#8fa3c0}
+#gu36-find-admin{font-size:.75rem;padding:10px 12px;min-height:38px;border:1px solid #ffffff1d;border-radius:5px;background:#080e1a;color:#d6dfed}
+#gu36-simple-admin .gu36-quick-links{display:grid;grid-template-columns:1fr;gap:3px;margin-top:18px}
+#gu36-simple-admin .gu36-nav-link{border:0;border-left:2px solid transparent;border-radius:0;padding:12px 10px;min-height:40px;text-align:left;font-size:.80rem;font-weight:450;background:transparent;color:#bdc9dc;box-shadow:none}
+#gu36-simple-admin .gu36-nav-link:hover,#gu36-simple-admin .gu36-nav-link:focus-visible{color:#dfc8ff;background:#b89add09;border-left-color:#b79bd8}
+.gu36-all-controls>summary{font-size:.70rem;padding:12px 8px;color:#8397b4;border-top:1px solid #ffffff13;cursor:pointer}
+.gu36-all-controls .cc-admin-group-title{font-size:.60rem;letter-spacing:.13em;text-transform:uppercase;color:#8b7da7;padding-top:22px}
+.gu36-all-controls #admin-tabs :is(button,a){font-size:.73rem;line-height:1.65;padding:8px 10px;border-radius:0}

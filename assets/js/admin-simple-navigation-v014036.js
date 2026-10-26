@@ -3,16 +3,12 @@
 if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpSimpleAdminNavV014036)return;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const entries=[
- {title:'Dashboard',target:'[data-panel="dashboard"]',query:/^dashboard$/i},
- {title:'Members & Accounts',target:'#admin-account-management-direct',query:/account management|members & accounts/i,backup:'[data-panel="users"]'},
- {title:'Payments & Billing',target:'[data-panel="commerce"]',query:/^(?:commerce|payments & billing(?: center)?|checkout & payments)$/i},
- {title:'Books & Learning',target:'[data-panel="catalog"]',query:/books & catalog|books & products/i},
- {title:'Market Commons',target:'[data-panel="community"]',query:/market commons|moderation/i},
- {title:'Communications',query:/communications|member messages|notifications & announcements/i},
- {title:'Marketing & Advertising',query:/^advertising$|marketing & advertising/i},
- {title:'Website Settings',target:'[data-panel="settings"]',query:/^site settings$|^website settings$/i},
- {title:'Security & Reports',target:'[data-panel="audit"]',query:/audit log|security & reports/i},
- {title:'Grant Web Solutions',target:'a[href="/gws-projects.html"]',query:/grant web solutions/i}
+ {title:'Overview',target:'[data-panel="dashboard"]',query:/^dashboard$/i},
+ {title:'People',target:'#admin-account-management-direct',query:/account management|members/i,backup:'[data-panel="users"]'},
+ {title:'Learning',target:'[data-panel="catalog"]',query:/books & catalog|books & products|content & tutor/i,backup:'[data-panel="content"]'},
+ {title:'Commerce',target:'[data-panel="commerce"]',query:/commerce|payments & billing/i},
+ {title:'Community',target:'[data-panel="community"]',query:/market commons|moderation/i},
+ {title:'Platform',target:'[data-panel="settings"]',query:/site settings|website settings/i}
 ];
 let initialized=false,attached=false;
 function eligible(e){return Boolean(e&&e.isConnected&&!e.disabled&&!e.hidden&&!e.closest('[hidden]')&&!e.classList.contains('cc-owner-hidden')&&e.getAttribute('aria-disabled')!=='true')}
@@ -37,7 +33,7 @@ function mount(){if(initialized)return;
  if($('#gu36-simple-admin')){initialized=true;loadShadowDashboard();return}
  initialized=true;
  const panel=document.createElement('section');panel.id='gu36-simple-admin';panel.className='gu36-simple-admin';panel.setAttribute('aria-label','Admin main sections');
- const heading=document.createElement('h2');heading.textContent='Admin Menu';panel.append(heading);
+ const heading=document.createElement('h2');heading.textContent='Workspace';panel.append(heading);
  const label=document.createElement('label');label.htmlFor='gu36-find-admin';label.textContent='Search admin controls';
  const search=document.createElement('input');search.type='search';search.id='gu36-find-admin';search.placeholder='Search members, Stripe, books…';search.autocomplete='off';
  label.append(search);panel.append(label);
@@ -52,7 +48,7 @@ function mount(){if(initialized)return;
   notice.textContent=q&&!f?'Full search is loading. Basic section names can be searched here.':'';
  });
  const details=document.createElement('details');details.className='gu36-all-controls';
- const summary=document.createElement('summary');summary.textContent='All admin controls';details.append(summary);
+ const summary=document.createElement('summary');summary.textContent='Browse all authorized controls';details.append(summary);
  nav.before(panel);nav.before(details);details.append(nav);
  window.GroundUpSimpleAdminNavV014036=Object.freeze({version:'0.14.0.47',open:(name)=>{const e=entries.find(x=>x.title===name);if(e)activate(e,notice)}});
  loadShadowDashboard();

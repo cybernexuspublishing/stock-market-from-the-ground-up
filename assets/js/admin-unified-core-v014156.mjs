@@ -11,6 +11,7 @@ export const MODULES=Object.freeze([
  {id:'bootcamp',label:'30-Day Bootcamp',group:'Learning',order:30,permission:'content.view',kind:'link',href:'/admin-operations.html'},
  {id:'products',label:'Products & Books',group:'Commerce',order:10,permission:'catalog.view',action:'catalog',collection:'products',kind:'products',legacy:'#products'},
  {id:'billing',label:'Orders & Subscriptions',group:'Commerce',order:20,permission:'commerce.view',action:'commerce',collection:'orders',kind:'billing',legacy:'#commerce'},
+ {id:'marketing',label:'Marketing & Social Media',group:'Commerce',order:30,permission:'ads.view',ownerOnly:true,kind:'link',href:'/admin-advertising.html'},
  {id:'reports',label:'Market Commons Reports',group:'Community',order:10,permission:'forum.view',action:'forum',collection:'reports',kind:'reports',legacy:'#community'},
  {id:'communications',label:'Communications',group:'Community',order:20,permission:'forum.view',kind:'link',href:'/admin.html#community'},
  {id:'settings',label:'Site Settings',group:'Platform',order:10,permission:'settings.view',kind:'link',href:'/admin.html#settings'},
@@ -22,7 +23,7 @@ const ACTIONS=new Set(['context','dashboard','users','user_summary','roles','cat
 const PARAMS=Object.freeze({users:['page','per_page','q'],user_summary:['id'],audit:['page','limit']});
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function authorized(mod,ctx){
- return !!(ctx&&Array.isArray(ctx.permissions)&&ctx.permissions.includes('control_panel.access')&&ctx.permissions.includes(mod.permission));
+ return !!(ctx&&(!mod.ownerOnly||ctx.roles?.includes('OWNER'))&&Array.isArray(ctx.permissions)&&ctx.permissions.includes('control_panel.access')&&ctx.permissions.includes(mod.permission));
 }
 export function resolveRoute(hash,ctx){
  const id=String(hash||'').replace(/^#/,'');

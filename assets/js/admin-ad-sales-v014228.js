@@ -198,7 +198,7 @@ function renderSandbox(){
 }
 async function refresh(){
  if(loading)return;loading=true;
- try{model=await request();render();e('gu-ad-admin-status').textContent='Verified Owner access. Current advertising inventory loaded.';e('gu-ad-admin-main').hidden=false}
+ try{model=await request();render();e('gu-ad-admin-status').textContent='Verified Owner access. Current advertising inventory loaded.';e('gu-ad-admin-main').hidden=false;window.dispatchEvent(new CustomEvent('groundup:ad-admin-ready',{detail:{campaigns:(model.campaigns||[]).length,inquiries:(model.inquiries||[]).length,advertisers:(model.advertisers||[]).length,creatives:(model.creatives||[]).length}}))}
  finally{loading=false}
 }
 async function submit(id,mapper,message){

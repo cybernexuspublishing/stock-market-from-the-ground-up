@@ -14,7 +14,7 @@ for(const m of MODULES){
 }
 const guest={permissions:[]};
 const reader={permissions:['control_panel.access','dashboard.view','users.view']};
-const owner={permissions:['control_panel.access',...MODULES.map(m=>m.permission)]};
+const owner={roles:['OWNER'],permissions:['control_panel.access',...MODULES.map(m=>m.permission)]};
 assert(!MODULES.some(m=>authorized(m,guest)),'Guest denied');
 assert(!MODULES.some(m=>authorized(m,{permissions:['dashboard.view']})),'Control Center global permission required');
 assert.equal(resolveRoute('#roles',reader)?.id,'overview','Unpermitted deep link must fall back');
@@ -51,3 +51,9 @@ assert.equal(globalThis.GroundUpRoutePolicy.classify('/admin-unified-preview.htm
 assert.equal(globalThis.GroundUpRoutePolicy.isProtected('/admin-unified-preview'),true,
  'Unversioned preview route must be protected');
 console.log('PASS D16 Admin shell registry, fail-closed permissions, read-only fresh-session API, XSS-safe preview');
+
+const marketing=MODULES.find(m=>m.id==='marketing');
+assert.equal(marketing.group,'Commerce');
+assert.equal(marketing.href,'/admin-advertising.html');
+assert.equal(authorized(marketing,{permissions:['control_panel.access','ads.view'],roles:['ADMIN']}),false);
+assert.equal(authorized(marketing,owner),true);
