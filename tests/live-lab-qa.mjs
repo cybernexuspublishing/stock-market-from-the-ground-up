@@ -50,6 +50,51 @@ if(token){
     code:code==='PRIVATE_LAB_STORE_UNAVAILABLE'?code:''};
   }catch{return {status:0,type:'network_failure',code:''}}
  };
+ // Release 2026-10-25-B01: acceptance must verify every exact original Lab ID
+ // through the real production authorization boundary, not a mocked status.
+ // Dedicated disposable QA member must have BOTH books and training entitlement.
+ const batch01=['F1-C02-L01','F1-C02-L02','F1-C04-L01','F1-C06-L01',
+  'F1-C07-L01','F1-C07-L02','F1-C08-L01','F1-C08-L02','F1-C08-L03',
+  'F1-C09-L01','F1-C10-L01','F1-C10-L02','F1-C12-L01','F1-C13-L01',
+  'F1-C13-L02','F2-C01-L01','F2-C02-L01','F2-C02-L02','F2-C02-L03','F2-C03-L01'];
+ let verified=0;
+ for(const id of batch01){
+  const [content,context]=await Promise.all([
+   check('/api/lab-content?id='+encodeURIComponent(id)),
+   check('/api/lab-player-context?id='+encodeURIComponent(id))
+  ]);
+  if(content.status===200&&context.status===200)verified++;
+  else{
+   failure=true;
+   console.error('BLOCKED Batch01 '+id+' private='+content.status+'/'+content.type+
+    ' context='+context.status+'/'+context.type+
+    ' — verify test-account book entitlements, authorized source, and API health.');
+  }
+ }
+ console.log('Batch01 real signed-member authorized Lab API coverage: '+verified+'/20.');
+ try{
+  const response=await fetch(origin+'/api/bootcamp-academy?program=truth5',{
+   headers:{authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)
+  });
+  if(!response.ok){failure=true;console.error('BLOCKED Truth5 private Academy GET: HTTP '+response.status+
+   '. Check ONDEMAND_TRAINING entitlement and account restrictions.');}
+  else {
+   const data=await response.json();
+   const days=data.curriculum||[];
+   const correct=data.ok===true&&data.program?.code==='truth5'&&days.length===5&&
+    days.every((d,i)=>d.day===i+1&&typeof d.lesson?.workedExample==='string'&&
+      Array.isArray(d.lesson?.sourceProcedure)&&d.lesson.sourceProcedure.length>=5&&
+      d.officiallyGraded===false&&d.masteryAwarded===false);
+   if(!correct){failure=true;console.error('BLOCKED Truth5 real-member teaching contract is incomplete.');}
+   else console.log('PASS Truth5 five original authenticated study days; no official mastery claimed.');
+   if(data.progressAvailable!==true){
+    failure=true;console.error('BLOCKED Truth5 protected progress storage unavailable.');
+   }
+  }
+ }catch{
+  failure=true;console.error('BLOCKED Truth5 live member Academy API network/data request.');
+ }
+
  for(const id of ['F1-C02-L01','F2-C07-L01','SITE-001']){
   const [content,context]=await Promise.all([
    check('/api/lab-content?id='+encodeURIComponent(id)),
