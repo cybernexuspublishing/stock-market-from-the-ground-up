@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'functions/api/username-login.js'
+      - 'assets/js/signin.js'
       - 'tests/test_username_login_captcha_v014275.mjs'
       - '.github/workflows/username-login-auth-diagnostics-v014275.yml'
   workflow_dispatch:
