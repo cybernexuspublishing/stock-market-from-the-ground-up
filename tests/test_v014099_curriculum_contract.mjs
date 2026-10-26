@@ -146,3 +146,4 @@ try{
 // noncharging Lab recall contract without adding another workflow.
 await import('./test_v014301_lab_concept_spaced_review.mjs');
 await import('./test_v014301_prerequisite_author_demo.mjs');
+await import('./test_v38_formative_reasoning.mjs');
