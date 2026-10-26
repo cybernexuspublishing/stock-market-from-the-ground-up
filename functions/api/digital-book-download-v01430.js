@@ -40,7 +40,7 @@ export async function onRequestPost({request,env}){
   if(access?.allowed!==true)return reply({ok:false,error:'No currently available purchased digital edition for this account.'},403);
   const path=String(access.path||'');
   const pattern=new RegExp('^'+code+'/[a-f0-9-]{36}[.](epub|pdf)$');
-  if(!pattern.test(path))return reply({ok:false,error:'Digital asset not available.'},503);
+  if(!pattern.test(path)||(format&&!path.endsWith('.'+format)))return reply({ok:false,error:'Digital edition not available.'},503);
   const encoded=path.split('/').map(encodeURIComponent).join('/');
   const signed=await jsonFetch(cfg.url+'/storage/v1/object/sign/gu-digital-ebooks/'+encoded,{
    method:'POST',headers:{apikey:cfg.service,authorization:'Bearer '+cfg.service,'content-type':'application/json'},
