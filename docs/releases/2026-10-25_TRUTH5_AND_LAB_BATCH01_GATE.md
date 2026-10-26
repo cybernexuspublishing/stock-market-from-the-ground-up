@@ -239,3 +239,16 @@ The Owner explicitly confirmed that account login and human CAPTCHA now operate 
 - A member-persistence blocker also remains: the real database still reports **no truth5 Academy enrollments/day progress evidence**. Source CI and guest 401 responses are separate from a real signed-in save, logout, return and resume.
 
 **Sign-off:** Technical source safeguards IMPLEMENTED and independently audited private numeric records PROVEN; Lab Subject Editorially Reviewed **0/20**, Beta Ready **0/20**, Boot Camp 1 Beta Ready **NO**. Gate 1 stays open; B02 and all LIVE payment testing remain outside scope.
+
+
+## Gate 1 pre-beta consolidation — October 26, 2026
+
+**Authority and boundary.** The Founding 600 accounts are designated for real signed-in member acceptance of all member features. No additional user accounts or testing portal were created. The existing Founder-only Commons Beta Test Center now includes targeted Truth5 and cross-book B01 workflows, with private Support escalation and safeguards against publishing credentials or answers.
+
+**Protected original source.** A guarded, exactly twenty-row update replaced all **60 remaining generic v96 EVIDENCE/FOCUS/BOUNDARY prompts** within the **existing** v97 draft grading sets. This follows the previously completed 20 individual numerical exercises and 40 original application/limitation questions. No question IDs, canonical Lab IDs, v96 records, historical attempted grades, or LIVE billing settings were created or overwritten. A data postflight found **20/20** six-question rubrics with **six distinct IDs and private keys per set**, **five distinct-answer multiple-choice items per Lab**, no over-limit choice, and 20/20 still marked **draft**. An inaccurate phrase describing market capitalization as a secondary transfer was also repaired, still in the draft only.
+
+**Approval control.** The existing Owner Training Editor API now refuses B01 v97 review if any of its six questions is missing, generic-template, ambiguous, unkeyed or not properly explained. The Editor warns that the structural precheck is **not** independent content review. Promotions must still take place through the authorized single-Lab Owner review action with a truthful reviewer record. We did not forge Owner signatures or use an unlogged bulk SQL review update.
+
+**New repeatable evidence.** Run `supabase/reviews/2026-10-26_GATE1_FOUNDING600_B01_PREFLIGHT_READ_ONLY.sql` to list exact Lab-by-Lab outcomes without revealing private keys or member details. The Founder test center contract is asserted by `tests/test_gate1_founders_beta_handoff.mjs`, included in the existing Boot Camp workflow.
+
+**Pending before any beta-ready certification.** Editorial correctness and individual Owner approval for all twenty rubrics, exact-head CI acceptance, authenticated browser save/logout/resume and live protected grading, keyboard/screen-reader review and Founding 600 member observations remain distinct. The beta member tests are the final designated real-account gate; do not falsely certify them through fixture tests or guest-only checks. The baseline user-approved seven-Boot-Camp, 336-Lab eventual beta target is unchanged; do not start a second Boot Camp/B02 while Truth5/B01 is open.
