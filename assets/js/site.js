@@ -61,11 +61,13 @@ function loadOnce(src,key){if(document.querySelector('script[data-gu-correction=
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
   // Owner-directed workspace refresh is deliberately opt-in by route.
-  // Labs, players, assessments and Boot Camps retain their current layout.
+  // Public pages have no workspace side panel. Teaching canvas styles remain separate.
   const workspaceRoute=(location.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/');
-  if(/^(?:\/|\/index|\/dashboard|\/admin|\/store(?:-[a-z0-9-]+)?|\/product|\/membership|\/books|\/tools|\/my-books|\/my-library|\/my-purchases|\/account|\/settings|\/help|\/about)$/.test(workspaceRoute)){
+  if(/^(?:\/|\/index|\/dashboard|\/admin|\/store(?:-[a-z0-9-]+)?|\/product|\/membership|\/books|\/tools|\/my-books|\/my-library|\/my-purchases|\/account|\/settings|\/help|\/about|\/signin|\/create-account)$/.test(workspaceRoute)){
     document.body.dataset.guWorkspace=workspaceRoute==='/dashboard'?'member':workspaceRoute==='/admin'?'admin':'site';
   }
+
+  if(/^\/(labs|bootcamp|bootcamp-academy)$/.test(workspaceRoute))document.body.dataset.guMemberNavigation='learning';
 
   const declaredRelease=/^\d+\.\d+\.\d+\.\d+$/.test(String(cfg.VERSION||''))?'v'+cfg.VERSION:'unverified';
   for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content=declaredRelease;

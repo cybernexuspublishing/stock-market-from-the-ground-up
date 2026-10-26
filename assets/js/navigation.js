@@ -490,29 +490,25 @@
 
   // One navigation data source: the same filtered groups used in the top bar.
   // Keep the existing member/Admin sidebars and all of their original handlers.
-  function workspaceNavigation(a,groups){
-    if(!document.body.dataset.guWorkspace)return;
-    const kind=document.body.dataset.guWorkspace;
+  function workspaceNavigation(a){
+    const kind=document.body.dataset.guMemberNavigation||document.body.dataset.guWorkspace;
+    // The public website must never acquire a member navigation panel,
+    // even while the visitor has an authenticated session.
+    if(!a.authenticated){document.querySelector('#gu-workspace-sidebar')?.remove();document.getElementById('gu-workspace-toggle')?.remove();return;}
+    if(!['member','admin','learning'].includes(kind))return;
     const header=document.querySelector('.site-header');
     if(header&&!header.dataset.guWorkspaceMeasured){
       header.dataset.guWorkspaceMeasured='1';
       const measure=()=>document.body.style.setProperty('--gu-workspace-header',header.getBoundingClientRect().height+'px');
       measure();if(window.ResizeObserver)new ResizeObserver(measure).observe(header);
     }
-    document.querySelector('.navlinks')?.setAttribute('aria-label','Primary navigation');
     let sidebar=document.querySelector(kind==='member'?'.gu-member-side-menu':kind==='admin'?'.admin-sidebar':'#gu-workspace-sidebar');
-    if(kind==='site'){
-      if(!sidebar){sidebar=document.createElement('aside');sidebar.id='gu-workspace-sidebar';sidebar.className='gu-workspace-sidebar';sidebar.setAttribute('aria-label','Platform navigation');document.querySelector('main')?.before(sidebar);}
+    if(kind==='learning'){
+      if(!sidebar){sidebar=document.createElement('aside');sidebar.id='gu-workspace-sidebar';sidebar.className='gu-workspace-sidebar';sidebar.setAttribute('aria-label','Member workspace navigation');document.querySelector('main')?.before(sidebar);}
       const entry=(label,href)=>`<a href="${esc(safeNavHref(href))}">${esc(label)}</a>`;
-      sidebar.innerHTML=`<div class="gu-workspace-identity"><span class="eyebrow">CROWN &amp; LANTERN PRESS</span><strong>Your learning platform</strong><span>Learn. Practice. Progress.</span></div><nav aria-label="Platform sections">
-       <div class="gu-workspace-group"><span>Workspace</span>${entry('Home','/index.html')}${entry(a.authenticated?'Member Dashboard':'Sign in to your workspace',a.authenticated?'/dashboard.html':'/signin.html')}</div>
-       <div class="gu-workspace-group"><span>Discover &amp; learn</span>${groups.learn.map(i=>entry(i.label,i.href)).join('')}${entry('Boot Camp Academy','/bootcamp-academy.html')}</div>
-       <div class="gu-workspace-group"><span>Practice &amp; community</span>${entry('Market Simulator','/simulator.html')}${entry('Trading Journal','/journal.html')}${entry('Market Commons','/market-commons.html')}</div>
-       <div class="gu-workspace-group"><span>Library &amp; access</span>${entry('Store','/store.html')}${entry('Books','/books.html')}${entry('Memberships','/membership.html')}${entry('Help & Documentation','/help.html')}${a.controlPanel?entry('Admin Control Center','/admin.html'):''}</div>
-       </nav><p class="gu-workspace-note">Education &amp; simulated practice.<br>No trade signals.</p>`;
+      sidebar.innerHTML=`<div class="gu-workspace-identity"><span>MEMBER WORKSPACE</span><strong>Learning &amp; practice</strong></div><nav aria-label="Member sections"><div class="gu-workspace-group">${entry('Dashboard','/dashboard.html')}${entry('Labs','/labs.html')}${entry('Boot Camp Academy','/bootcamp-academy.html')}${entry('Skill Development','/dashboard.html?tab=skills')}${entry('Trading Journal','/journal.html')}${entry('My Books','/dashboard.html?tab=books')}${entry('Membership & Access','/dashboard.html?tab=access')}${entry('Settings','/dashboard.html?tab=settings')}</div></nav>`;
     }
     if(!sidebar)return;
-    if(kind==='site')document.body.classList.add('gu-workspace-ready');
     const canonical=value=>{const u=new URL(value,location.origin);return (u.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/').replace(/^\/index$/,'/')};
     const tab=new URLSearchParams(location.search).get('tab')||'';
     sidebar.querySelectorAll('a[href]').forEach(link=>{
@@ -523,9 +519,9 @@
     if(!sidebar.id)sidebar.id=kind==='member'?'gu-member-sidebar':'gu-admin-sidebar';
     if(!document.getElementById('gu-workspace-toggle')){
       const button=document.createElement('button');button.id='gu-workspace-toggle';button.type='button';button.className='gu-workspace-toggle';button.setAttribute('aria-controls',sidebar.id);
-      const set=collapsed=>{document.body.classList.toggle('gu-workspace-collapsed',collapsed);sidebar.hidden=collapsed;button.setAttribute('aria-expanded',String(!collapsed));button.textContent=kind==='site'?(collapsed?'Show side panel':'Hide side panel'):(collapsed?'Show sections':'Hide sections');};
+      const set=collapsed=>{document.body.classList.toggle('gu-workspace-collapsed',collapsed);document.body.classList.toggle('gu-learning-panel-open',kind==='learning'&&!collapsed);sidebar.hidden=collapsed;button.setAttribute('aria-expanded',String(!collapsed));button.textContent=collapsed?'Member menu':'Close menu';};
       const preferenceKey='gu.workspace.'+kind+'.collapsed';
-      let collapsed=kind!=='site'&&matchMedia('(max-width:900px)').matches;try{const saved=localStorage.getItem(preferenceKey);if(saved!==null)collapsed=saved==='true'}catch(_){}
+      let collapsed=kind==='learning'||matchMedia('(max-width:900px)').matches;try{const saved=localStorage.getItem(preferenceKey);if(saved!==null)collapsed=saved==='true'}catch(_){}
       set(collapsed);button.addEventListener('click',()=>{const next=!document.body.classList.contains('gu-workspace-collapsed');set(next);try{localStorage.setItem(preferenceKey,String(next))}catch(_){}});
       header?.querySelector('.nav')?.prepend(button);
     }
@@ -613,7 +609,6 @@
       nav.addEventListener('keydown',event=>{if(event.key==='Escape'){const group=event.target.closest('.v11-nav-group');if(group&&!group.classList.contains('v11-profile-group')){event.preventDefault();group.classList.remove('open');const b=group.querySelector('button');b?.setAttribute('aria-expanded','false');b?.focus();}}},{signal:nav._groundUpNavController.signal});
       document.addEventListener('click',event=>{if(!nav.contains(event.target))buttons.forEach(b=>b.setAttribute('aria-expanded','false'));},{signal:nav._groundUpNavController.signal});
     }
-    workspaceNavigation(a,groups);
     const so=document.getElementById('v11-signout');if(so)so.onclick=async e=>{e.preventDefault();const sb=await sbReady();await sb?.auth.signOut();accessCache=null;location.href='index.html'};
     if(!document.documentElement.dataset.v11NavClose){document.documentElement.dataset.v11NavClose='1';document.addEventListener('click',()=>document.querySelectorAll('.v11-nav-group.open').forEach(x=>x.classList.remove('open')))}
   }
@@ -788,7 +783,7 @@
 
   async function renderSessionAware(force=false){
     const a=await access(force);if(!gateRegistry(a))return;
-    const items=await navItems(force);makeNav(a,items);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
+    const items=await navItems(force);makeNav(a,items);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
   }
 
   async function watchAuth(){

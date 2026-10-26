@@ -1,27 +1,21 @@
-# Platform workspace frontend
+# Editorial frontend and member navigation correction
 
-Project: The Stock Market: From the Ground Up. Date: 2026-10-25.
-Branch: main. Scope: frontend layout and canonical navigation presentation.
-Requirements: Owner directive in this session; Master §§5–9, 14; preserve Labs and Boot Camp layouts.
+Project: The Stock Market: From the Ground Up. Branch: main.
+Date: October 25, 2026 (America/Chicago). Status: local checks executed; deployment reported separately.
+Controlling instruction: Owner rejected the public sidebar and boxed presentation. This revision supersedes the earlier public-panel implementation in ea7c58b.
 
-## Implementation
+## Resulting behavior
 
-- Existing site.js opts in an explicit set of public, member, Admin, Store and item routes. Labs, players, assessments and Boot Camps are excluded.
-- Existing navigation.js supplies top navigation and the public site panel from the same filtered menu groups. Member/Admin reuse their existing sidebars and original action nodes. No second authentication, authorization or entitlement service.
-- Side panels collapse with an accessible button and a per-surface local preference; member/Admin sections start collapsed on small viewports. Existing canonical mobile site drawer remains responsible for global mobile navigation.
-- Shared composition stylesheet scopes all new rules to the opt-in attribute. Dashboard hierarchy, Admin surfaces/tables, Store category tabs/product grids and item coverage/purchase information use the same visual system. Purchase actions remain controlled by existing server/catalog contracts.
-- Top navigation supports ArrowDown and Escape with expanded-state feedback. No database, payment-provider, pricing, entitlement, lesson or curriculum definitions changed.
+- Public Home, Store, item, membership, sign-in and other public pages have no workspace sidebar or member-menu control, including for signed-in visitors.
+- Dashboard and Admin retain their existing private section navigation. On signed-in Labs and Boot Camp screens, member navigation is a nonmodal overlay outside the teaching canvas. Small learning screens reuse the existing canonical mobile drawer. Guest Academy browsing receives no member panel. This does not create or change entitlements.
+- Public Store, item coverage, homepage learning links, Dashboard and Admin surfaces use typography, whitespace and divider lines instead of nested rounded cards and gradients. Existing product and payment availability remains authoritative.
+- Sign-in had two nested layout owners: navigation.authPageLayout and frontend-complete.authEnhance. The latter now provides only form assistance; the canonical authentication controller owns the sole wrapper. Form fields, submit handlers, password assistance and CAPTCHA enforcement are preserved.
+- The sign-in and registration forms use a centered, responsive column. Hidden advertising slots no longer displace the form; authorized ad delivery remains in its existing controller.
 
-## Validation and limits
+## Executed verification
 
-`tests/test_workspace_layout_browser.py` uses clearly synthetic session/catalog fixtures and actual frontend files. It checks desktop/intermediate/tablet/mobile containment, toggle behavior, category selection and rendered item details. Eight comparisons measure identical main-canvas geometry on Lab Registry, Lab player, Boot Camp and Academy against baseline assets at 1440px/390px. These are layout checks, not authenticated production acceptance.
+20 workspace viewport/category/section-control fixtures passed. Eight baseline teaching-canvas comparisons passed at 1440px/390px, including no movement when opening the learning menu. Six sign-in/registration layouts centered correctly, with one canonical wrapper and no public member panel. Guest Academy panel exclusion passed. The existing 18 static viewport checks passed, as did premium source, Store visibility, Owner Store, Store display, keyboard bypass and shared-auth contracts. Synthetic fixtures are explicitly separate from authenticated production acceptance.
 
-Other checks: build; JavaScript syntax; Store visibility, Owner Store and display contracts; premium shell; shared auth singleton; keyboard skip navigation; existing 18 built-static viewport checks.
+No Labs/Boot Camp HTML, canvas styles, curriculum definitions, SQL, pricing, entitlements, authentication enforcement or LIVE payment settings were edited. Yahoo production target: account 4fe9e562905cf607b6f004d2374299fc; stock-market-from-the-ground-up-d1r.pages.dev.
 
-Deployment and real production readback must be recorded separately. Production account is Yahoo master `4fe9e562905cf607b6f004d2374299fc`; hostname `stock-market-from-the-ground-up-d1r.pages.dev`. All LIVE payment restrictions remain controlling. Actual signed-in member and Owner workflow persistence is not certified by synthetic fixtures.
-
-Rollback: revert this release commit; no migration or data rollback required. This is a frontend release, not certification that the complete website is production-accepted.
-
-## Executed results
-
-20 synthetic workspace viewport/interaction checks and 8 unchanged teaching-canvas comparisons passed; 18 existing built-static checks passed. Store visibility, Owner Store, Store display, premium shell, skip-link and shared-auth contracts passed. Five master-account target checks passed. Source changes are restricted to site/navigation/composition, the QA workflow and test/evidence files. Newer Academy source from upstream main was preserved unchanged. Production sign-in/save/readback remains outside these fixture results.
+Rollback: revert this correction commit; no migration or data rollback. Reverting restores the rejected public sidebar and competing auth wrapper, so evaluate that consequence before using rollback.
