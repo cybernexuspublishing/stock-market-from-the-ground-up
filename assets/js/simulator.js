@@ -13,7 +13,38 @@ function current(){return SIM.candles[SIM.index]||null}
 function etParts(d){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));return {date:`${o.year}-${o.month}-${o.day}`,time:`${o.hour}:${o.minute}:00`,label:`${o.month}/${o.day}/${o.year} ${o.hour}:${o.minute} ET`}}
 function setEnabled(){const loaded=SIM.candles.length>0,locked=SIM.planLocked,open=!!SIM.position?.open,closed=!!SIM.position?.closed,advanced=SIM.maxIndexSeen>SIM.startIndex;$('sim-reset').disabled=!loaded||open||locked||advanced;$('sim-prev').disabled=!loaded||!closed||SIM.index<=0;$('sim-next').disabled=!loaded||SIM.index>=SIM.candles.length-1||!!SIM.ambiguous||closed;$('sim-play').disabled=!loaded||SIM.index>=SIM.candles.length-1||!!SIM.ambiguous||closed;$('sim-lock-plan').disabled=!loaded||locked||closed;$('sim-enter').disabled=!loaded||!locked||open||closed;$('sim-exit').disabled=!open||!!SIM.ambiguous;$('load-csv').disabled=(locked&&loaded)||open||closed;if($('load-provider'))$('load-provider').disabled=!SIM.hasPremium||(locked&&loaded)||open||closed;if($('sim-load-fictional'))$('sim-load-fictional').disabled=(locked&&loaded)||open||closed;$('sim-csv').disabled=(locked&&loaded)||open||closed;['sim-source','sim-start-date','sim-end-date','sim-resample'].forEach(id=>{const e=$(id);if(e)e.disabled=(locked&&loaded)||open||closed});['sim-direction','sim-shares','sim-stop','sim-target','sim-thesis','sim-entry-reason','sim-trigger','sim-invalidation'].forEach(id=>{const e=$(id);if(e)e.disabled=locked})}
 function resetReplay(){if(SIM.planLocked||SIM.maxIndexSeen>SIM.startIndex){smsg('sim-replay-msg','Reset is disabled after future bars have been revealed or the plan is locked. This preserves no-look-ahead integrity.','error');return}pause();SIM.ambiguous=null;$('sim-ambiguous').hidden=true;SIM.index=SIM.startIndex;SIM.maxIndexSeen=SIM.startIndex;SIM.position=null;renderAll();smsg('sim-replay-msg',`Replay reset to bar ${SIM.index+1} of ${SIM.candles.length}.`,'success')}
-function renderAll(){renderChart();renderState();setEnabled()}
+function renderAll(){renderChart();renderState();renderAccessibleBars();setEnabled()}
+function renderAccessibleBars(){
+ const summary=$('sim-candle-accessible'),body=$('sim-visible-bars'),caption=$('sim-candle-table-caption');
+ if(!summary||!body||!caption)return;
+ const bar=current();body.replaceChildren();
+ if(!bar){summary.textContent='No candles loaded. Choose Free fictional starter or import your own CSV.';caption.textContent='No revealed OHLCV observations yet';return}
+ const classification=/fictional/i.test(String(SIM.sourceName||''))?'ORIGINAL FICTIONAL (not market history)':
+  SIM.sourceProvider==='tiingo_byo'?'USER-CONNECTED provider observations (not independently verified)':
+  'USER-SUPPLIED CSV (not independently verified)';
+ const visible=SIM.index+1;
+ const time=etParts(bar.time).label;
+ summary.textContent=classification+' · Revealed candle '+visible+' of '+SIM.candles.length+
+  ' · '+time+' · Open '+fmt(bar.open,4)+', High '+fmt(bar.high,4)+
+  ', Low '+fmt(bar.low,4)+', Close '+fmt(bar.close,4)+
+  ', Volume '+Math.round(bar.volume).toLocaleString('en-US')+
+  '. The next candle remains undisclosed in the interface.';
+ // Bounded table avoids adding thousands of DOM nodes on large member CSVs.
+ // Deliberately never render SIM.candles beyond the member's revealed cursor.
+ const start=Math.max(0,SIM.index-24);
+ for(let i=start;i<=SIM.index;i++){
+  const c=SIM.candles[i],tr=document.createElement('tr');
+  const items=[etParts(c.time).label,fmt(c.open,4),fmt(c.high,4),
+   fmt(c.low,4),fmt(c.close,4),Math.round(c.volume).toLocaleString('en-US')];
+  for(let j=0;j<items.length;j++){
+   const cell=document.createElement(j===0?'th':'td');
+   if(j===0)cell.scope='row';
+   cell.textContent=items[j];tr.append(cell);
+  }
+  body.append(tr);
+ }
+ caption.textContent='Last '+(SIM.index-start+1)+' of '+visible+' revealed OHLCV candles · '+classification;
+}
 function renderState(){const c=current();if(!c){$('sim-symbol-line').textContent='No dataset loaded';$('sim-bar-time').textContent='—';$('sim-last-price').textContent='—';return}const ep=etParts(c.time);$('sim-symbol-line').textContent=`${$('sim-ticker').value.trim().toUpperCase()||'SYMBOL'} · Bar ${SIM.index+1}/${SIM.candles.length} · future hidden`;$('sim-bar-time').textContent=ep.label;$('sim-last-price').textContent=money(c.close);const pos=SIM.position;$('sim-position-status').textContent=pos?.open?'OPEN':pos?.closed?'CLOSED':'FLAT';$('sim-entry-price').textContent=pos?.entry!=null?money(pos.entry):'—';let upnl=null,mfe=null,mae=null;if(pos?.open){upnl=(pos.direction==='LONG'?(c.close-pos.entry):(pos.entry-c.close))*pos.shares;const hi=pos.highest,lo=pos.lowest;mfe=Math.max(0,pos.direction==='LONG'?hi-pos.entry:pos.entry-lo);mae=Math.max(0,pos.direction==='LONG'?pos.entry-lo:hi-pos.entry)}$('sim-unrealized').textContent=upnl==null?'—':money(upnl);$('sim-unrealized').className=upnl>0?'sim-positive':upnl<0?'sim-negative':'sim-neutral';$('sim-excursion').textContent=mfe==null?'—':`MFE ${fmt(mfe)} / MAE ${fmt(mae)}`;renderMetrics()}
 function renderMetrics(){const box=$('sim-metrics');const p=SIM.position;if(!p){box.innerHTML=[['Status','No trade'],['Journal','—'],['MFE','—'],['MAE','—']].map(([a,b])=>`<div class="metric-box"><span>${a}</span><strong>${b}</strong></div>`).join('');return}const row={direction:p.direction,share_quantity:p.shares,actual_entry:p.entry,actual_exit:p.exit,planned_stop:p.stop,highest_while_open:p.highest,lowest_while_open:p.lowest,fees:0,trade_date:p.entryDate,exit_date:p.exitDate,entry_time_et:p.entryTime,exit_time_et:p.exitTime,status:p.closed?'closed':'open'};const m=JT().compute(row);const vals=[['Status',p.closed?'Closed':'Open'],['Gross P&L',m.gross_pnl==null?'—':money(m.gross_pnl)],['Result in R',m.r_multiple==null?'—':`${fmt(m.r_multiple,2)}R`],['MFE',m.mfe_r==null?`${fmt(m.mfe_per_share)} / sh`:`${fmt(m.mfe_r,2)}R`],['MAE',m.mae_r==null?`${fmt(m.mae_per_share)} / sh`:`${fmt(m.mae_r,2)}R`],['MFE captured',m.mfe_capture_pct==null?'—':`${fmt(m.mfe_capture_pct,1)}%`],['Exit',p.exit==null?'—':money(p.exit)],['Journal ID',SIM.journalId||'—']];box.innerHTML=vals.map(([a,b])=>`<div class="metric-box"><span>${a}</span><strong>${b}</strong></div>`).join('')}
 function sessionInfo(d){const ep=etParts(d),[h,m]=ep.time.split(':').map(Number),mins=h*60+m;if(mins<570)return {name:'Morning',fill:'rgba(43,62,93,.22)'};if(mins<960)return {name:'Day',fill:'rgba(46,91,65,.18)'};return {name:'Night',fill:'rgba(91,56,56,.20)'}}
