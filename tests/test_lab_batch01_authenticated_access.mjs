@@ -69,7 +69,11 @@ try{
  assert.equal(r.status,200,'Eligible member must retain sample access if premium tool RPC is down');
  assert.equal(r.body.instructionReviewed,false);
  assert.equal(r.body.assessmentReviewed,false);
- assert.equal(r.body.lab.lessonBatch,'2026-10-25-B01');
+ assert.equal(r.body.lab.id,'F1-C02-L01','Authenticated sample retains its canonical Lab identifier');
+ assert.equal(r.body.lab.concept,'Original source-critical thinking case','Original conceptual teaching survives the source allowlist');
+ assert(!Object.hasOwn(r.body.lab,'lessonBatch'),'Internal editorial batch provenance must not appear in member API');
+ assert(!Object.hasOwn(r.body.lab,'internalGradingClaim'),'Private grading claims must not appear in member API');
+ assert(!Object.hasOwn(r.body.lab,'goal'),'Unreviewed private authoring fields must not leak through the teaching allowlist');
  providerOutage=false;
  r=await check(req('F1-C02-L02'));
  assert.equal(r.status,403,'Free member lacking book and training must be denied non-sample');
@@ -108,7 +112,11 @@ try{
    assert.equal(result.status,200,id+' must be available to the matching book owner');
    assert.equal(result.body.instructionReviewed,false,id+' private draft is not editorially reviewed');
    assert.equal(result.body.assessmentReviewed,false,id+' has no reviewed assessment');
-   assert.equal(result.body.lab?.lessonBatch,'2026-10-25-B01',id+' must use original private batch');
+   assert.equal(result.body.lab?.id,id,id+' must retain its canonical Lab ID');
+   assert.equal(result.body.lab?.concept,'Original source-critical thinking case',id+' must expose the approved conceptual teaching field');
+   assert(!Object.hasOwn(result.body.lab,'lessonBatch'),id+' must not leak internal editorial batch metadata');
+   assert(!Object.hasOwn(result.body.lab,'internalGradingClaim'),id+' must not leak private grading claims');
+   assert(!Object.hasOwn(result.body.lab,'goal'),id+' must not forward arbitrary private authoring metadata');
    assert(!JSON.stringify(result.body).includes('PRIVATE_DO_NOT_FORWARD'),id+' cannot leak a hidden rubric');
   }
  }
