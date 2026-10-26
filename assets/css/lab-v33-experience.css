@@ -885,3 +885,30 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-referen
 body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-reference-row :is(dt,dd){
  white-space:nowrap;overflow-wrap:normal;word-break:normal;
 }
+
+/* v0.14.0.303: prerequisite and delayed recall surfaces */
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance,
+#gu-v32-teaching-slot .gu-v38-delayed-recall{
+ margin:16px 0;padding:16px 18px;border:1px solid #4b7085;
+ border-radius:10px;background:#102b3f;color:#eef7ff;
+}
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance h3,
+#gu-v32-teaching-slot .gu-v38-delayed-recall h3{
+ margin:0 0 10px;font-size:1.13rem;color:#ffe2a3;
+}
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance ul{
+ padding-left:1.35rem;margin:12px 0;
+}
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance li{margin:10px 0;line-height:1.5}
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance a,
+#gu-v32-teaching-slot .gu-v38-delayed-recall a{
+ color:#b9e9ff;text-decoration:underline;text-underline-offset:3px;
+}
+#gu-v32-teaching-slot .gu-v38-prerequisite-guidance :focus-visible,
+#gu-v32-teaching-slot .gu-v38-delayed-recall :focus-visible{
+ outline:3px solid #b9e9ff;outline-offset:3px;
+}
+@media(max-width:480px){
+ #gu-v32-teaching-slot .gu-v38-prerequisite-guidance,
+ #gu-v32-teaching-slot .gu-v38-delayed-recall{padding:14px}
+}
