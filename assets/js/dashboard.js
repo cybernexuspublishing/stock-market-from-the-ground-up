@@ -49,6 +49,12 @@ async function initDashboard() {
     return;
   }
 
+  // Existing beta bookmarks lead to the established, permission-checked
+  // Founders Commons. This redirects; it never awards a founder entitlement.
+  if (new URLSearchParams(location.search).get('tab') === 'beta') {
+    window.location.replace('founders-commons.html');
+    return;
+  }
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
     gate.innerHTML = '<div class="notice">Sign in to view synchronized learning progress. <a href="account.html">Go to Account</a>.</div>';
@@ -58,18 +64,14 @@ async function initDashboard() {
   gate.innerHTML = '';
   const activeTab = new URLSearchParams(location.search).get('tab');
   const viewingSupport = activeTab === 'support';
-  const viewingBeta = activeTab === 'beta';
-  content.hidden = viewingSupport || viewingBeta;
-  if (viewingSupport || viewingBeta) {
-    // Each tab has its own authenticated API reader. Keep Overview private
-    // queries out of those views, and do not infer progress from failed reads.
+  content.hidden = viewingSupport;
+  if (viewingSupport) {
+    // Existing private Support is the only non-overview Dashboard workspace.
     const title = document.querySelector('.gu-dashboard-intro h1');
     const explanation = document.querySelector('.gu-dashboard-intro p.small');
     const shortcuts = document.querySelector('.gu-dashboard-quick');
-    if (title) title.textContent = viewingBeta ? 'Beta Testing Workspace' : 'Private Member Support';
-    if (explanation) explanation.textContent = viewingBeta ?
-      'Explore current educational releases and report what needs improving.' :
-      'Submit and follow up on private support requests.';
+    if (title) title.textContent = 'Private Member Support';
+    if (explanation) explanation.textContent = 'Submit and follow up on private support requests.';
     if (shortcuts) shortcuts.hidden = true;
     return;
   }
