@@ -1,0 +1,9 @@
+/* Lab concept recall shares the existing Skills page design. */
+.gu-lab-recall{padding:22px 0}
+.gu-lab-recall-section{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px}
+.gu-lab-recall-section>h3{grid-column:1/-1}
+.gu-lab-recall-item{padding:16px}
+.gu-lab-recall-item textarea{display:block;width:100%;min-height:112px;padding:12px;margin:8px 0 12px;
+ background:#102b3c;color:#f8fbff;border:1px solid #6689a5;border-radius:8px}
+.gu-lab-recall-item textarea:focus-visible,.gu-lab-recall-item button:focus-visible{outline:3px solid #a6e4ff;outline-offset:3px}
+.gu-lab-recall-item a{display:inline-block;margin-top:10px}
