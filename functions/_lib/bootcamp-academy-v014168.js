@@ -5,6 +5,7 @@
  * protected assessment/replay services.
  */
 import {bootcampCurriculumV014144 as original} from './bootcamp-curriculum-v014144.js';
+import {freeFoundationsV1} from './free-foundations-v1.js';
 export const ACADEMY_VERSION='0.14.0.168';
 const current=new Map(original.days.map(day=>[day.day,day]));
 if(current.size!==30)throw Error('Thirty-day original curriculum changed unexpectedly.');
@@ -236,5 +237,31 @@ export const academyPrograms=Object.freeze(definitions.map(d=>Object.freeze({
  progression:'individual_program_progress_ungraded_no_automatic_mastery',
  curriculum:Object.freeze(Array.from({length:d.days},(_,i)=>dayFor(d,i)))
 })));
-export const academyByCode=Object.freeze(Object.fromEntries(academyPrograms.map(program=>[program.code,program])));
+// Free Foundations shares the same authenticated Academy revision/reflect/reload
+// storage but is NOT an eighth Boot Camp or a protected assessed Lab.
+export const freeFoundationsProgram=Object.freeze({
+ code:'free5',days:5,version:ACADEMY_VERSION,
+ title:'Free Foundations — Learn, Understand, Practice',
+ level:'Absolute beginner',theme:'Ownership, candles, evidence, watchlists and disciplined risk',
+ summary:'Five complete zero-knowledge lessons with Talia, fictional demonstrations, guided self-checks and private ungraded reflections.',
+ status:'original_free_beginner_curriculum_editorial_review_pending',
+ entitlement:'ELIGIBLE_FREE_MEMBER',
+ route:'bootcamp-academy.html?program=free5',
+ priceStatus:'included_free_no_payment_no_sparks',
+ creditPolicy:'All teaching, examples and explanations are always available without Crownlight Sparks.',
+ progression:'own_private_study_reflections_not_official_mastery',
+ curriculum:Object.freeze(freeFoundationsV1.map((entry,i)=>Object.freeze({
+  day:i+1,programDay:i+1,programCode:'free5',
+  title:entry.title,objective:entry.objective,observe:entry.observe,
+  practice:entry.practice,phase:'learn',phaseLabel:'Free guided fundamentals with Talia',
+  method:entry.lesson.sourceProcedure,remediation:entry.lesson.reviewGuide,
+  limitation:entry.lesson.error+' '+entry.lesson.whenNot,
+  skillDomain:entry.skillDomain,relatedLabs:[],
+  toolPath:entry.lesson.practiceLink||'simulator.html?practice=free',
+  officiallyGraded:false,masteryAwarded:false,
+  sourceStatus:'original_fictional_free_foundations_v1',
+  lesson:entry.lesson
+ })))
+});
+export const academyByCode=Object.freeze({...Object.fromEntries(academyPrograms.map(program=>[program.code,program])),free5:freeFoundationsProgram});
 export const academyCatalog=Object.freeze(academyPrograms.map(({curriculum,...summary})=>summary));
