@@ -71,6 +71,15 @@ try{
  assert.equal(body.lab.lessonBatch,undefined,'Protected editorial metadata never reaches the member');
  assert.equal(body.lab.authoringStatus,undefined,'Member receives only allowlisted teaching');
  assert(!JSON.stringify(body).includes('answer_key'));
+ // The companion collection must show the same authorized B01 lesson, rather
+ // than hiding it solely because the founder has not purchased the ebook.
+ r=await lesson({request:request('/api/lab-content?action=list'),env});
+ assert.equal(r.status,200);
+ body=await r.json();
+ assert.deepEqual(body.labs.map(x=>x.id),[LAB]);
+ assert.equal(body.labs[0].learningAccess,'scoped_beta');
+ assert.equal(body.labs[0].officialGradingAvailable,false);
+ assert.equal(body.labs[0].authoringStatus,undefined);
 
  r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
  assert.equal(r.status,200);
@@ -99,6 +108,10 @@ try{
  body=await r.json();assert.equal(body.ownerQAStudy,true);
  assert.equal(body.sourceStatus,'owner_authorized_b01_guided_beta_ungraded');
  assert.equal(body.gradedCreditEligible,false);
+ r=await lesson({request:request('/api/lab-content?action=list'),env});
+ assert.equal(r.status,200);
+ body=await r.json();assert.deepEqual(body.labs.map(x=>x.id),[LAB]);
+ assert.equal(body.labs[0].learningAccess,'scoped_beta');
  r=await graded({request:new Request('https://site.test/api/interactive-training?action=start',{
   method:'POST',headers:{authorization:'Bearer signed-in-session','content-type':'application/json'},
   body:JSON.stringify({labId:LAB,mode:'assessment'})}),env});
@@ -129,6 +142,9 @@ try{
  assert.notEqual(r.status,200,'Ordinary premium member without book cannot open private B01');
  r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
  assert.equal(r.status,403,'Ordinary non-founder premium member has no book access');
+ r=await lesson({request:request('/api/lab-content?action=list'),env});
+ assert.equal(r.status,200);
+ body=await r.json();assert.deepEqual(body.labs,[], 'Unentitled users cannot enumerate private book-derived lessons');
 
  grant=true;suspended=true;
  r=await lesson({request:request('/api/lab-content?id='+LAB),env});
