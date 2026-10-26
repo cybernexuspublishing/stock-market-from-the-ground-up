@@ -162,7 +162,7 @@
         return;
         // v86: the accessible v84 Store is authoritative. Never inject the
         // retired v132 tabs or bypass the current released-tool catalog.
-        if (q('#store-tab-memberships') || q('#store-panel-memberships') || q('.store-category-tabs'))
+        if (q('#store-tab-founders') || q('#store-tab-memberships') || q('#store-panel-memberships') || q('.store-category-tabs'))
             return;
         const products = q('#store-products'), plans = q('#store-plans'); if (!products || !plans || q('#v132-store-tabs'))
             return; const host = products.parentElement;
