@@ -1,0 +1,45 @@
+name: Free Personalized Server Replay V1
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/free-personalized-server-replay-v1.yml'
+      - 'functions/_lib/fictional-replay-policy-v1.js'
+      - 'functions/api/learning-replay-v01492.js'
+      - 'functions/api/free-learning-coach.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/dashboard.js'
+      - 'dashboard.html'
+      - 'simulator.html'
+      - 'tests/test_free_server_fictional_replay_v1.mjs'
+      - 'tests/test_free_learning_coach_v1.mjs'
+      - 'supabase/migrations/20261026_free_learning_coach_preferences_v1.sql'
+permissions:
+  contents: read
+concurrency:
+  group: free-personalized-server-replay-main
+  cancel-in-progress: false
+jobs:
+  backend-and-ux-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and member-isolated server contracts
+        run: |
+          node --check functions/_lib/fictional-replay-policy-v1.js
+          node --check functions/api/learning-replay-v01492.js
+          node --check functions/api/free-learning-coach.js
+          node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/dashboard.js
+          node tests/test_free_server_fictional_replay_v1.mjs
+          node tests/test_free_learning_coach_v1.mjs
+          node tests/test_v014092_replay_contract.mjs
+          node tests/test_v014092_replay_visibility.mjs
+          node tests/test_free_foundations_shared_v1.mjs
