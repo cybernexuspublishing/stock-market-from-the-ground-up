@@ -41,5 +41,6 @@ const api=readFileSync('functions/api/lab-content.js','utf8');
 assert(!/labs:\s*rows\.filter[\s\S]*?\.map\(r=>r\.content\)/.test(api),'bulk list must not return raw content');
 assert(!/lab:\s*row\.content\b/.test(api),'individual lesson must not return raw content');
 assert.match(api,/lab:publicGuidedLesson\(row\.content,row\.lab_id,row\.book_number\)/);
-assert.match(api,/labs:rows\.filter.*publicGuidedLesson\(r\.content,r\.lab_id,r\.book_number\)/s);
+assert.match(api,/const allowed=rows\.filter\(row=>isBetaCandidateLab\(row\.lab_id\)/s);
+assert.match(api,/labs:allowed\.map\(row=>\(\{\s*\.\.\.publicGuidedLesson\(row\.content,row\.lab_id,row\.book_number\)/s);
 console.log('PASS: member Lab API whitelists teaching only, excludes grading/review/private question keys (single and bulk)');
