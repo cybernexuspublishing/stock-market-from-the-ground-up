@@ -42,8 +42,18 @@ function mockFetch(url){
  ];
  else if(u.pathname.endsWith('/lab_instruction_v014')) data=[
    {lab_id:candidate,source_status:'editorially_reviewed_v1'},
-   {lab_id:draft,source_status:'original_hypothetical_unreviewed_v01496'},
-   {lab_id:upcoming,source_status:'editorially_reviewed_v1'}
+   {lab_id:draft,source_status:'original_hypothetical_unreviewed_v01496',...{lesson_batch:'2026-10-25-B01',
+   authoring_status:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
+   concept:'A sourced trading observation',
+   objective:'Explain what source confirms a hypothetical catalyst',
+   why:'A screenshot may misidentify an issuer and omit the financial-reporting period.',
+   steps:['Identify the original issuer and publication date','Compare timestamps before making a decision','Explain the evidence that would invalidate the claim']}},
+   {lab_id:upcoming,source_status:'original_hypothetical_unreviewed_v01496',...{lesson_batch:'2026-10-25-B01',
+   authoring_status:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
+   concept:'A sourced trading observation',
+   objective:'Explain what source confirms a hypothetical catalyst',
+   why:'A screenshot may misidentify an issuer and omit the financial-reporting period.',
+   steps:['Identify the original issuer and publication date','Compare timestamps before making a decision','Explain the evidence that would invalidate the claim']}}
  ];
  else if(u.pathname.endsWith('/lab_training_sets_v014')) data=[
    {lab_id:candidate,review_state:'reviewed',reviewed_by:'reviewer',reviewed_at:'2026-10-26T00:00:00Z'},
@@ -60,6 +70,14 @@ try{
  assert.equal(response.headers.get('cache-control'),'no-store, max-age=0');
  const body=await response.json();
  assert.deepEqual(body.publishedIds,[candidate], 'No draft and no SITE-018–100 can receive Start');
+ assert.deepEqual(body.guidedBetaIds,[draft], 'Original individualized B01 practice should open without falsely reviewing or grading it');
+ assert.equal(body.guidedBetaPolicy,'ungraded_original_b01_beta_teaching_only');
+ assert(!JSON.stringify(body).includes('A sourced trading observation'),'Public listing must never return private lesson text');
+ assert(!JSON.stringify(body).includes('authoring_status'),'Public response returns only eligible Lab IDs');
+ const client=await import('node:fs').then(x=>x.readFileSync('assets/js/labs.js','utf8'));
+ assert(client.includes("Open guided beta practice (ungraded)"));
+ assert(client.includes("!publishedAssessments.has(labId)"),'Ungraded beta may not unlock progress/graded credit control');
+
  assert.equal(body.betaReadyCertified,false, 'Public endpoint cannot certify beta readiness');
 
  globalThis.fetch=async()=>new Response('Database unavailable',{status:503});
