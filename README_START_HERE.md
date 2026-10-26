@@ -1,3 +1,15 @@
+# START HERE — CURRENT REPOSITORY GUIDANCE
+
+**This repository's authoritative release source is the current `main` branch, not the historical v0.14.0.40 overlay described below.** The older instructions are retained only for provenance and must **not** be used as a deployment baseline, migration order, payment-activation checklist or current product-status report.
+
+Before changing or deploying the site, read `AGENTS.md`, `PROJECT_SITEWIDE_RULES.md`, `PROJECT_ADVANCED_ENGINEERING_RULES.md`, `PROJECT_INSTRUCTIONS_FOR_CHATGPT.txt` and the complete source requirements under `docs/sitewide/`. Verify the latest `main` commit against Yahoo Cloudflare production and inspect the corresponding GitHub Actions runs. For learning releases, consult `docs/releases/2026-10-25_TRUTH5_AND_LAB_BATCH01_GATE.md` and current Supabase readiness evidence rather than assuming a version prefix proves acceptance.
+
+**Payment exclusion:** LIVE Stripe transactions, billing configuration changes, charges and refunds remain outside the authorized pre-beta work. Historical examples are fictional unless their licensing and source provenance are independently verified. Production Member Tested and Beta Ready must not be claimed without Founding 600 member evidence.
+
+---
+
+## Archived v0.14.0.40 overlay instructions (historical; do not deploy as current)
+
 # v0.14.0.40 — Stripe secret-key compatibility and live sandbox catalog verification
 
 **REVIEW CANDIDATE — NOT APPLIED TO GITHUB OR CLOUDFLARE BY THIS PACKAGE.**
