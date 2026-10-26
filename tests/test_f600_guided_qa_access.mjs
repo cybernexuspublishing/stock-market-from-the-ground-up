@@ -3,7 +3,7 @@
 // Deterministic mocked Supabase HTTP: source TESTED only, not live member proof.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {activeFoundingBetaLearningPlan,authoredB01BetaLesson}
+import {activeFoundingBetaLearningPlan,foundingBetaLearningAccessKind,authoredB01BetaLesson}
  from '../functions/_lib/founding-beta-learning-access.js';
 
 const MEMBER='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -37,6 +37,8 @@ globalThis.fetch=async(url,init={})=>{
 try{
  assert.equal(await activeFoundingBetaLearningPlan(env,MEMBER),true,
   'Owner-issued 30-day manual training pass must enable original guided B01 study');
+ assert.equal(await foundingBetaLearningAccessKind(env,MEMBER),'owner_qa',
+  'A real Owner-issued limited QA pass must be labeled as QA, not as a paid Founder');
  assert(examined.some(x=>x.route==='admin_user_roles'),
   'A truthful QA pass must independently verify its issuer is an Owner');
  examined=[];
@@ -54,6 +56,8 @@ try{
   starts_at:start,ends_at:end}];
  assert.equal(await activeFoundingBetaLearningPlan(env,MEMBER),true,
   'Existing active Founding plan grant behavior is preserved');
+ assert.equal(await foundingBetaLearningAccessKind(env,MEMBER),'founding_plan',
+  'A legitimate Founder entitlement must remain distinct from the limited Owner QA pass');
  grants=[];providerOutage=true;
  assert.equal(await activeFoundingBetaLearningPlan(env,MEMBER),false,
   'Missing all provider evidence must not invent entitlement');
@@ -81,6 +85,9 @@ assert(ui.includes("F600_GUIDED_QA_V1:"));
 assert(ui.includes('Date.now()+30*24*60*60*1000'));
 const labService=readFileSync('functions/api/lab-content.js','utf8');
 assert(labService.includes('premium&&authoredB01BetaLesson(row)'));
-assert(labService.includes('activeFoundingBetaLearningPlan(env,actor.userId)'));
+assert(labService.includes('foundingBetaLearningAccessKind(env,actor.userId)'),
+ 'The protected Lab API must derive the typed Founder/QA entitlement server-side');
+assert(labService.includes("betaAccessKind==='owner_qa'"),
+ 'The Lab API must preserve explicit Owner QA attribution without claiming a paid Founder plan');
 assert(labService.includes('gradedCreditEligible:false'));
 console.log('PASS F600 noncommercial QA: Owner-only issuer provenance, 30-day scope, private authored B01 access, unrelated tool denial, no fabricated grading.');
