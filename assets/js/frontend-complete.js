@@ -48,7 +48,7 @@ function headerUtilities(){
  let host=qs('.fe-header-tools',nav);
  if(!host){host=document.createElement('div');host.className='fe-header-tools';host.style.display='flex';host.style.gap='.4rem';host.style.alignItems='center';host.innerHTML='<button class="fe-command-button" type="button" aria-label="Search"><span>Search</span><kbd>Ctrl K</kbd></button>';nav.appendChild(host);qs('.fe-command-button',host).onclick=()=>window.SiteUI.openCommand?.()}
  if(!qs('.fe-notify-button',host)){
-  const b=document.createElement('button');b.className='fe-notify-button';b.type='button';b.setAttribute('aria-label','Alerts: notifications and announcements');b.innerHTML='<span aria-hidden="true">●</span><span>Alerts</span><span class="fe-notify-count" hidden>0</span>';
+  const b=document.createElement('button');b.className='fe-notify-button';b.type='button';b.setAttribute('aria-label','Alerts: notifications and announcements');b.innerHTML='<span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2v1"/></svg></span><span>Alerts</span><span class="fe-notify-count" hidden>0</span>';
   host.appendChild(b);b.onclick=openNotifications;loadNotificationCount(b);
   if(!alertRefreshTimer)alertRefreshTimer=setInterval(()=>{if(!document.hidden)loadNotificationCount(b)},60000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadNotificationCount(b)});

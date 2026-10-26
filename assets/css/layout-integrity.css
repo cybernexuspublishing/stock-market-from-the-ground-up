@@ -99,8 +99,8 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  .site-header .fe-command-button,.site-header .fe-notify-button{
    min-width:40px;width:40px;padding:.4rem;justify-content:center;font-size:0!important;
  }
- .site-header .fe-command-button::before{content:"⌕";font-size:1.25rem;line-height:1}
- .site-header .fe-notify-button::before{content:"●";font-size:.9rem;line-height:1}
+ .site-header .fe-command-button::before{content:"";width:20px;height:20px;display:block;background:currentColor;mask:url("/assets/images/ui/search.svg") center/contain no-repeat;-webkit-mask:url("/assets/images/ui/search.svg") center/contain no-repeat}
+ .site-header .fe-notify-button::before{content:"";width:20px;height:20px;display:block;background:currentColor;mask:url("/assets/images/ui/bell.svg") center/contain no-repeat;-webkit-mask:url("/assets/images/ui/bell.svg") center/contain no-repeat}
  .site-header .fe-notify-button span{display:none!important}
 }
 @media(max-width:900px){.site-header .brand{line-height:1.14;max-width:calc(100% - 65px)}}
@@ -172,7 +172,7 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  .site-header .fe-command-button>span,
  .site-header .fe-command-button>kbd{display:none!important}
  .site-header .fe-command-button::before{
-  content:"⌕";font-size:1.35rem;line-height:1;color:inherit;
+  content:"";width:20px;height:20px;display:block;background:currentColor;mask:url("/assets/images/ui/search.svg") center/contain no-repeat;-webkit-mask:url("/assets/images/ui/search.svg") center/contain no-repeat;
  }
  .site-header .fe-notify-button{
   flex:0 0 46px!important;width:46px!important;min-width:46px!important;
@@ -181,7 +181,7 @@ body.v135-commons-integrity .v133-commons-guide-callout{margin-block:1rem;gap:1r
  }
  .site-header .fe-notify-button>span:not(.fe-notify-count){display:none!important}
  .site-header .fe-notify-button::before{
-  content:"●";font-size:.95rem;line-height:1;color:inherit;
+  content:"";width:20px;height:20px;display:block;background:currentColor;mask:url("/assets/images/ui/bell.svg") center/contain no-repeat;-webkit-mask:url("/assets/images/ui/bell.svg") center/contain no-repeat;
  }
 }
 /* Existing 901–1023px icon rule hid even the unread badge. Preserve a readable
