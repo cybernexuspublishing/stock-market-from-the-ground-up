@@ -234,6 +234,27 @@ function tutorSafeSubject(lab){
  * canonical-ID source-only short-circuit does not silently bypass paid AI.
  * Never attach a rubric, historical candles, assessed answer or learner notes.
  */
+// Private member evidence for prerequisite orientation. Fail closed on
+// identity changes; never treat missing evidence as a verified deficiency.
+async function loadLabVerifiedSkills(){
+ const currentEpoch=labPlayerSessionEpoch,user=PLAYER.access?.user;
+ const sb=PLAYER.access?.sb;
+ if(!user?.id||!sb?.auth?.getSession)return {ok:false,reason:'not_authenticated'};
+ const session=(await sb.auth.getSession())?.data?.session;
+ if(!session?.access_token||session.user?.id!==user.id)return {ok:false,reason:'not_authenticated'};
+ const response=await fetch('/api/competencies?action=summary',{
+  cache:'no-store',headers:{authorization:'Bearer '+session.access_token}});
+ const body=await response.json().catch(()=>null);
+ if(currentEpoch!==labPlayerSessionEpoch||PLAYER.access?.user?.id!==user.id)
+  return {ok:false,reason:'account_changed'};
+ if(!response.ok||body?.ok!==true||body.synthetic===true||!Array.isArray(body.skills))
+  return {ok:false,reason:'not_verified'};
+ return {ok:true,skills:body.skills.map(x=>({
+  code:String(x.code||''),status:String(x.status||'Not Yet Assessed'),
+  completeAssessments:Number(x.completeAssessments)||0,
+  independentAssessments:Number(x.independentAssessments)||0
+ }))};
+}
 async function requestLabTutor({question,allowModel=false,signal}={}){
  if(!['guided','practice'].includes(PLAYER.mode))
   throw Error('Tutor explanations are not available during independent decision modes.');
@@ -412,7 +433,7 @@ function renderPlayer(){PLAYER.attemptGeneration++;PLAYER.savingAttempt=false;PL
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor,creditRequest:requestLabQuestionPass});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor,skillEvidenceRequest:loadLabVerifiedSkills,creditRequest:requestLabQuestionPass});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
