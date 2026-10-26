@@ -54,12 +54,27 @@ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];i
  const roles=await rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(id));
  return roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>now));}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return send({ok:false,error:'Method not allowed.'},405);const url=new URL(request.url),action=url.searchParams.get('action')||'case';
- if(action==='list'){const a=await toolAccess(env,request,'ONDEMAND_TRAINING');if(!a.authorized)return send({ok:false,error:a.reason},403);
- // Tool access is NOT equivalent to purchasing every textbook. Filter each book
- // before any book-derived lesson body leaves the service-role backend.
- const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
- const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&order=lab_id.asc&limit=150');
- return send({ok:true,labs:rows.filter(r=>isBetaCandidateLab(r.lab_id)&&coverage[Number(r.book_number)-1]===true).map(r=>publicGuidedLesson(r.content,r.lab_id,r.book_number))})}
+ if(action==='list'){
+  const access=await toolAccess(env,request,'ONDEMAND_TRAINING');
+  if(!access.authorized)return send({ok:false,error:access.reason},403);
+  const actor=await memberIdentity(env,request);
+  // Mirror case-by-case access. A Founding or Owner-issued QA entitlement
+  // authorizes the original B01 *learning* content, never ebook ownership,
+  // rubrics, grading or unreviewed generic material.
+  const [coverage,betaKind,rows]=await Promise.all([
+   Promise.all([1,2,3].map(book=>getBookAccess(env,request,book))),
+   foundingBetaLearningAccessKind(env,actor.userId),
+   rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&order=lab_id.asc&limit=150')
+  ]);
+  const allowed=rows.filter(row=>isBetaCandidateLab(row.lab_id)&&(
+   coverage[Number(row.book_number)-1]===true||
+   (betaKind!==null&&authoredB01BetaLesson(row))));
+  return send({ok:true,labs:allowed.map(row=>({
+   ...publicGuidedLesson(row.content,row.lab_id,row.book_number),
+   learningAccess:coverage[Number(row.book_number)-1]===true?'book':'scoped_beta',
+   officialGradingAvailable:false
+  }))});
+ }
  const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);
 // Authenticate BEFORE privileged database reads, even for published sample IDs.
 // A sample means free guided education for eligible signed-in members—not a
