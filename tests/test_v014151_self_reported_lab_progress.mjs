@@ -7,7 +7,7 @@ const dashboardHtml=readFileSync('dashboard.html','utf8');
 const priv=readFileSync('functions/_lib/owner-lab-readiness-v01493.js','utf8');
 const assessed=readFileSync('functions/api/interactive-training.js','utf8');
 assert(html.includes('Self-tracked complete (not graded)'));
-assert(html.includes('Selecting complete does not pass a reviewed assessment'));
+assert(html.includes('Practice and self-tracked reflections do not award graded competency'), 'Self-tracked Lab progress must remain explicitly ungraded');
 assert(js.includes("if (status === 'completed') return 'Self-tracked complete · not graded'"));
 assert(js.includes('Self-tracked complete (not graded)'));
 assert(js.includes('labSupabase.from(\'lab_progress\').upsert'));
