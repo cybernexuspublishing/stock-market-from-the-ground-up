@@ -66,7 +66,19 @@ globalThis.fetch=async (value,opts={})=>{
  if(name==='platform_labs')return respond([{lab_id:LAB,title:content.concept,
   book_code:'SITE_EXCLUSIVE',active:true,registry_visible:true,lab_type:'supplemental',metadata:{},
   what:'Original journal review',why:'Purpose-driven evidence',objective:content.objective,how:['one','two','three']}]);
- if(name==='lab_instruction_v014')return respond(complete?[row]:[]);
+ if(name==='lab_instruction_v014') {
+  if(!complete)return respond([]);
+  // PostgREST projects named JSON fields into columns for the public ID-only gate.
+  if(uri.searchParams.get('select')?.includes('lesson_batch:'))
+   return respond([{lab_id:LAB,book_number:6,source_status:SITE_BETA_STATUS,
+    reviewed_by:null,reviewed_at:null,concept:content.concept,
+    objective:content.objective,why:content.why,steps:content.steps,
+    lesson_batch:SITE_BETA_BATCH,example_type:content.exampleType,
+    sources:content.sourceURLs}]);
+  return respond([row]);
+ }
+ if(['user_library','book_key_redemptions','user_plan_grants','site_subscriptions',
+     'user_tool_passes','admin_user_roles'].includes(name))return respond([]);
  if(name==='lab_training_sets_v014')return respond([]);
  throw Error('Unexpected fixture data request '+uri);
 };
