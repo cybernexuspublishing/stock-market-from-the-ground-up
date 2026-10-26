@@ -28,6 +28,8 @@ jobs:
           node tests/test_gate1_lab_registry_publish_gate.mjs
           node tests/test_lab_beta_publication_gate.mjs
           node tests/test_beta_partial_release_registry.mjs
+          node tests/test_active_lab_beta_resilience.mjs
+          node --check assets/js/labs.js
           node tests/test_continuous_beta_releases.mjs
           node --check assets/js/member-beta-workspace.js
           node --check assets/js/dashboard.js
