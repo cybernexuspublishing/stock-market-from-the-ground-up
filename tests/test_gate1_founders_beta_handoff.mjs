@@ -19,6 +19,15 @@ assert(registry.includes("const record=await client.from('platform_labs')"),
  'The selected Lab must still resolve through the authenticated canonical registry');
 assert(registry.includes(".eq('active',true).eq('registry_visible',true)"),
  'Direct-link lookup must reject archived or nonvisible Lab metadata');
+const inline=readFileSync('assets/js/labs-inline.js','utf8');
+assert(inline.includes("new URLSearchParams(location.search).get('open')"),
+ 'The original v3.2/v3.3 inline host must recognize Founder links');
+assert(inline.includes("document.body.classList.add('gu-inline-lab-active')"),
+ 'The inline host must announce when it owns the workstation');
+assert(registry.includes("if(document.body.classList.contains('gu-inline-lab-active'))"),
+ 'The secondary collection renderer must not remove an already-open inline Lab');
+assert(registry.includes("document.getElementById('v011-lab-registry-gate')?.remove();"),
+ 'The authenticated inline Lab must not be left behind the temporary registry visibility gate');
 for(const term of ['sign out','unsaved','book not owned','Teach, then assess','keyboard','Support','never counted as a pass'])
  assert(html.toLowerCase().includes(term.toLowerCase()),'Missing pre-beta instruction '+term);
 assert.doesNotMatch(html,/beta participation (automatically|guarantees) (?:passes|certifies|unlocks)/i);
