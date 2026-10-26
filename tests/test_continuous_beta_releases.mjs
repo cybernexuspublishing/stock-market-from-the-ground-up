@@ -1,67 +1,56 @@
-/* Founding 600 release-early contracts. Source-level guardrails,
- * exercised in Node 22 CI; no fabricated member sign-in or test payments.
+/* Member beta activity belongs in the existing access-controlled Founders
+ * Commons, not a duplicate Dashboard workspace. Internal F600 identifiers
+ * and commercial limits remain frozen and must not appear as member brands.
  */
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-const html=readFileSync('dashboard.html','utf8');
-const dashboard=readFileSync('assets/js/dashboard.js','utf8');
-const beta=readFileSync('assets/js/member-beta-workspace.js','utf8');
-const labRegistry=readFileSync('assets/js/lab-registry.js','utf8');
-const labServer=readFileSync('functions/api/lab-player-context.js','utf8');
-const academy=readFileSync('functions/api/bootcamp-academy.js','utf8');
-for(const field of ['id="member-beta-workspace"','id="member-beta-status"',
- 'id="member-beta-labs-summary"','id="member-beta-programs"',
- 'href="dashboard.html?tab=beta"','href="dashboard.html?tab=support"',
- 'src="assets/js/member-beta-workspace.js"','href="assets/css/member-beta-workspace.css"',
- 'data-auth-required="true"']){
- assert(html.includes(field),'Missing beta member entry '+field);
+const read=p=>readFileSync(p,'utf8');
+const dashboardHtml=read('dashboard.html');
+const dashboardJS=read('assets/js/dashboard.js');
+const commons=read('founders-commons.html');
+const commonsJS=read('assets/js/founders-commons-v014178.js');
+const academy=read('functions/api/bootcamp-academy.js');
+const lab=read('functions/api/lab-player-context.js');
+
+assert(dashboardHtml.includes('href="founders-commons.html"'),'Dashboard must link to the single Commons');
+assert(!dashboardHtml.includes('id="member-beta-workspace"'),'Duplicated beta dashboard must be retired');
+assert(!dashboardHtml.includes('src="assets/js/member-beta-workspace.js"'));
+assert(!dashboardHtml.includes('href="assets/css/member-beta-workspace.css"'));
+assert(!existsSync('assets/js/member-beta-workspace.js'));
+assert(!existsSync('assets/css/member-beta-workspace.css'));
+assert(dashboardJS.includes("get('tab') === 'beta'"),'Old beta bookmarks must resolve');
+assert(dashboardJS.includes("window.location.replace('founders-commons.html')"),'Old links should redirect to Commons');
+assert(dashboardJS.includes("activeTab === 'support'"),'Private Support remains independently available');
+assert(!dashboardJS.includes('viewingBeta'),'No duplicate beta page render control');
+
+for(const phrase of ['id="gu-f600-beta-center"','id="gu-f600-content" hidden',
+ 'href="market-commons.html?forum=F600_BUGS"',
+ 'href="market-commons.html?forum=F600_SUGGESTIONS"',
+ 'href="dashboard.html?tab=support"',
+ 'href="labs.html"','href="bootcamp-academy.html"',
+ 'href="bootcamp-academy.html?program=truth5"']){
+ assert(commons.includes(phrase),'Missing real protected Commons test workflow '+phrase);
 }
-assert(dashboard.includes("activeTab === 'beta'"));
-assert(dashboard.includes('content.hidden = viewingSupport || viewingBeta'));
-assert(dashboard.includes('if (viewingSupport || viewingBeta)'));
-assert(beta.includes("get('tab')!=='beta'"));
-assert(beta.includes("await sb.auth.getUser()"),'No unauthenticated member access assumption');
-assert(beta.includes("onAuthStateChange"),'Identity changes must clear private workspace state');
-assert(beta.includes("clearMember()"),'Member-specific screen must be scrubbed');
-assert(beta.includes("Promise.allSettled("),'An optional release API cannot block the entire beta workspace');
-for(const endpoint of ['/api/lab-beta-scope','/api/lab-release-availability',
- '/api/bootcamp-academy?action=catalog']){
- assert(beta.includes(endpoint),'Beta hub must consult authoritative existing source '+endpoint);
+assert(commons.indexOf('id="gu-f600-beta-center"')>commons.indexOf('id="gu-f600-content" hidden'));
+assert(commonsJS.includes("gu_founder_commons_access_v014174"),'Commons server entitlement must remain controlling');
+assert(commonsJS.includes("gu_founder_noncommercial_qa_v014289"),'Existing limited QA privileges must remain distinct');
+assert(commonsJS.includes('Authorized Beta Tester'),'Noncommercial QA must not impersonate paid founders');
+assert(academy.includes("toolAccess(env,request,'ONDEMAND_TRAINING')"),'Academy checks member entitlement on the server');
+assert(lab.includes('isBetaCandidateLab(id)'),'Labs preserve the 336/83 access scope');
+
+for(const page of ['founders-commons.html','founding600.html','store.html',
+  'market-commons.html','dashboard.html']){
+ const html=read(page);
+ assert.doesNotMatch(html,/Founding\s*600/i,page+' leaks internal cohort brand');
+ assert.doesNotMatch(html,/\b600\s+(?:places|founder seats|founding places|shared places|original founding memberships)/i,
+  page+' advertises internal numerical cap');
 }
-assert(beta.includes("Array.isArray(release?.guidedBetaIds)"));
-assert(beta.includes('release.guidedBetaIds.every(id=>!release.publishedIds.includes(id))'));
-assert(beta.includes('scope?.targetSelected===336')&&beta.includes('scope?.targetUpcoming===83'));
-assert(beta.includes('new Set([...scope.selectedForPrebeta,...scope.upcoming]).size===419'));
-assert(beta.includes('source')===false||!beta.includes('source_role_key'));
-assert(!beta.includes('localStorage'),'No cached entitlements or member scores');
-assert(!beta.includes('service_role'));
-assert(!beta.includes('STRIPE_SECRET'));
-assert(!beta.includes('innerHTML='));
-assert(!beta.includes('betaReadyCertified:true'));
-assert(!beta.includes('competencyMasteryAwarded:true'));
-assert(labRegistry.includes('releaseStatusUnverified'));
-assert(labServer.includes('isBetaCandidateLab(id)'));
-assert(academy.includes("toolAccess(env,request,'ONDEMAND_TRAINING')"));
-const known=[
- 'dashboard.html','labs.html','bootcamp-academy.html','bootcamp.html',
- 'journal.html','market-tutor.html','market-commons.html','skills.html',
- 'advanced-tool.html','store.html','assets/css/member-beta-workspace.css'
-];
-for(const item of known)assert(existsSync(item),'Missing actual member route '+item);
-const programs=new Map([
- ['truth5',5],['watchlist7',7],['scanners10',10],['foundations30',30],
- ['charts45',45],['risk60',60],['practicum90',90]
-]);
-for(const [code,days] of programs){
- assert(beta.includes("['"+code+"',{days:"+days+",title:"),
-  'Missing approved '+days+'-day Academy destination');
+for(const path of ['dashboard.html','labs.html','bootcamp-academy.html',
+ 'journal.html','market-tutor.html','market-commons.html','founders-commons.html','store.html']){
+ assert(existsSync(path),'Missing actual member destination '+path);
 }
-const links=[...html.matchAll(/href="([^"]+)"/g)].map(v=>v[1])
- .filter(p=>!p.includes('://')&&!p.startsWith('#'));
-for(const link of links){
- const route=link.split('?')[0].split('#')[0];
- if(!route||route.startsWith('/')||route.includes('{{'))continue;
- if(!route.endsWith('.html'))continue;
- assert(existsSync(route),'Broken Dashboard route '+route);
-}
-console.log('PASS Founding beta continuous release: existing real routes, 336/83 server source, seven days/durations, independent API fallbacks and no invented credit.');
+const approved=JSON.parse(read('data/founding600-terms-v014170.json'));
+assert.equal(approved.capacity,600,'Internal founder cap must remain unchanged');
+assert.deepEqual([approved.plans.FOUNDING_30.recurringCents,approved.plans.FOUNDING_60.recurringCents],[4999,5999]);
+assert.deepEqual([approved.plans.FOUNDING_30.foundingDiscountBps,approved.plans.FOUNDING_60.foundingDiscountBps],[1000,1500]);
+console.log('PASS: one real protected Founders Commons beta hub; old beta link redirects; founder commercial terms preserved; no member-visible Founding 600.');
