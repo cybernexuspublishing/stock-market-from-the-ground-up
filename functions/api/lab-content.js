@@ -3,7 +3,7 @@
  */
 import {toolAccess,memberIdentity} from './member-tool-access.js';
 import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
-import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../_lib/founding-beta-learning-access.js';
+import {authoredB01BetaLesson,foundingBetaLearningAccessKind} from '../_lib/founding-beta-learning-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 // Instructional prose only. The private database contains grading, editorial
@@ -82,8 +82,9 @@ const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,conten
 // separately authorized, metadata-only Lab context; 403 remains hard denial.
 const sample=SAMPLES.has(id);
 const ownsBook=sample?false:await getBookAccess(env,request,row.book_number);
-const scopedFoundingBeta=premium&&authoredB01BetaLesson(row)&&
- await activeFoundingBetaLearningPlan(env,actor.userId);
+const betaAccessKind=premium&&authoredB01BetaLesson(row)?
+ await foundingBetaLearningAccessKind(env,actor.userId):null;
+const scopedFoundingBeta=!!betaAccessKind;
 const guided=ownsBook||sample||scopedFoundingBeta||Number(row.book_number)===6&&premium;
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
@@ -91,10 +92,11 @@ if(!guided)return send({ok:false,error:'An active matching book or training enti
  const instructionReviewed=row.source_status==='editorially_reviewed_educational_illustrative_b01_v1'&&
   !!row.reviewed_by&&Number.isFinite(Date.parse(String(row.reviewed_at||'')));
  return send({ok:true,lab:publicGuidedLesson(row.content,row.lab_id,row.book_number),guidedAllowed:true,advancedAllowed:premium,
-  sourceStatus:scopedFoundingBeta?
+  sourceStatus:betaAccessKind==='owner_qa'?'owner_authorized_b01_guided_beta_ungraded':
+   scopedFoundingBeta?
    (instructionReviewed?'founding600_editorially_reviewed_b01_guided_beta':'founding600_authored_b01_guided_beta_ungraded'):
    unreviewed?'private_unreviewed_conceptual_orientation':
    instructionReviewed?'private_editorially_reviewed_b01_instruction':'private_instruction_review_not_established',
-  foundingBetaStudy:scopedFoundingBeta,gradedCreditEligible:false,
+  foundingBetaStudy:scopedFoundingBeta,ownerQAStudy:betaAccessKind==='owner_qa',gradedCreditEligible:false,
   instructionReviewed,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
