@@ -17,6 +17,7 @@ on:
       - 'free-watchlist.html'
       - 'tests/test_free_foundations_shared_v1.mjs'
       - 'tests/test_free_watchlist_v1.mjs'
+      - 'tests/test_free_membership_browser_v1.mjs'
       - 'supabase/migrations/20261026_free_research_watchlist_v1.sql'
       - 'supabase/migrations/20261026_free_foundations_shared_academy_course.sql'
 permissions:
@@ -32,6 +33,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install pinned Playwright Chromium for responsive interactive QA
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Check source syntax and registered API contracts
         run: |
           node --check functions/_lib/free-foundations-v1.js
@@ -46,3 +51,4 @@ jobs:
           node tests/test_free_member_launchpad_v1.mjs
           node tests/test_v014170_academy_member_contract.mjs
           node tests/test_v014168_academy_family.mjs
+          node tests/test_free_membership_browser_v1.mjs
