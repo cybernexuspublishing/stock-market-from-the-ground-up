@@ -3,6 +3,8 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let sb=null,sessionId='',cursor=0,locked=false,busy=false;
+const fictional=new URLSearchParams(location.search).get('scope')==='fictional';
+const replayLabel=fictional?'ORIGINAL FICTIONAL — 2040 teaching scenario':'VERIFIED HISTORICAL SOURCE';
 let activeUserId=null,authEpoch=0; // Invalidate in-flight requests on account changes.
 // Only server-revealed observations in the current session are plotted.
 const visibleCandles=[];
@@ -12,7 +14,7 @@ async function api(action,payload={}){
  const session=(await sb.auth.getSession()).data?.session;
  if(!session?.access_token||!activeUserId||session.user?.id!==activeUserId)
   throw Error('Sign in with the current account to continue.');
- const endpoint='/api/learning-replay-v01492?action='+encodeURIComponent(action);
+ const endpoint='/api/learning-replay-v01492?scope='+(fictional?'fictional':'historical')+'&action='+encodeURIComponent(action);
  const isRead=['current','catalog','resume','visible'].includes(action);
  const u=['current','visible'].includes(action)?endpoint+'&sessionId='+encodeURIComponent(sessionId):endpoint;
  const res=await fetch(u,{method:isRead?'GET':'POST',cache:'no-store',headers:{
@@ -112,13 +114,15 @@ async function catalog(){
  for(const d of rows){
   if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(String(d.code||'')))continue;
   const option=document.createElement('option');option.value=d.code;
-  option.textContent='VERIFIED HISTORICAL — '+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
+  option.textContent=(fictional?'FICTIONAL TEACHING — ':'VERIFIED HISTORICAL — ')+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
   select.append(option);
   if(d.code===requested){select.value=d.code;$('vr-code').value=d.code;}
  }
- $('vr-dataset-note').textContent=rows.length
-  ?rows.length+' independently verified historical datasets available. Each observation is venue-scoped; no actual broker execution is implied.'
-  :'No independently verified, rights-approved historical datasets are currently available.';
+ $('vr-dataset-note').textContent=fictional?
+  (rows.length?rows.length+' original FICTIONAL scenarios available. Bars are revealed only by the server.':
+    'No original fictional scenario is available.'):
+  (rows.length?rows.length+' independently verified historical datasets available. Each observation is venue-scoped; no actual broker execution is implied.':
+    'No independently verified, rights-approved historical datasets are currently available.');
 }
 async function resume(){
  $('vr-journal-link').hidden=true;
@@ -139,7 +143,7 @@ async function resume(){
   restored=true;
  }catch{addBar(r.bar)}
  $('vr-code').value=r.dataset?.code||'';
- $('vr-source').textContent=['VERIFIED HISTORICAL SOURCE',r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
+ $('vr-source').textContent=[replayLabel,r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
  $('vr-execution').hidden=true;
  notice('Session restored at bar '+cursor+'. '+(restored?'Previously observed candles were restored from the private server.':'Only the current candle was available; earlier observations were not restored.')+' Future data remain private.');
  renderState();
@@ -151,11 +155,11 @@ async function start(){
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
- $('vr-source').textContent='VERIFIED HISTORICAL SOURCE · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
+ $('vr-source').textContent=replayLabel+' · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
 }
 async function lock(){
- if(!sessionId)throw Error('Start with a verified dataset.');
+ if(!sessionId)throw Error('Start an authorized '+(fictional?'fictional':'historical')+' scenario.');
  const decision=$('vr-decision').value,plan=orderPlan();
  if(decision!=='ENTER'&&plan)throw Error('WATCH, NO TRADE and OBSERVE cannot contain an executable order plan. Set Side to No simulated order.');
  const r=await api('lock',{decision,reasoning:$('vr-reason').value,plan});
@@ -191,6 +195,20 @@ async function finish(){
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){
+ if(fictional){
+  document.title='Free Fictional Replay | The Stock Market: From the Ground Up';
+  const main=document.querySelector('main');const h=main?.querySelector('h1');
+  if(h)h.textContent='Free Server-Controlled Fictional Replay';
+  const intro=main?.querySelector('.section-intro');if(intro)intro.textContent='ORIGINAL FICTIONAL EDUCATIONAL SCENARIOS: invented 2040 prices and timestamps. Reveal one candle at a time from a server-owned cursor, lock a reasoned decision, and resume later. No real market history, broker fills, trading advice, assessment or mastery.';
+  const headers=main?.querySelectorAll('.journal-section h2')||[];
+  if(headers[0])headers[0].textContent='1. Choose an original fictional teaching scenario';
+  if(headers[1])headers[1].textContent='2. Server-revealed fictional observation';
+  const first=main?.querySelector('label[for="vr-dataset"]');if(first)first.textContent='Original fictional teaching scenarios';
+  const notices=main?.querySelectorAll('.journal-section .journal-small')||[];
+  for(const el of notices){if(el.textContent.includes('No data is fabricated.'))el.textContent='All prices, volumes and timestamps are fabricated. The server does not send unrevealed candles. No grade or real fill is awarded.';}
+  const leg=main?.querySelector('fieldset legend');if(leg)leg.textContent='Optional education-only decision assumptions (no fill awarded)';
+ }
+
  let u=null;
  try{sb=await window.getSupabaseClient();if(!sb)throw Error('Authentication client unavailable.');
   u=(await sb.auth.getUser()).data?.user;
@@ -201,7 +219,7 @@ async function init(){
    activeUserId=nextId;authEpoch++;resetMemberReplay();
    notice(nextId?'Account changed. Refresh datasets or resume under the new member.':'Signed out. Private replay data has been cleared.',!nextId);
   });
-  notice(u?'Enter a published dataset code to start.':'Sign in before using the replay tool.',!u);}
+  notice(u?(fictional?'Select a fictional scenario to practice. Nothing here is authentic market history.':'Enter a published dataset code to start.'):'Sign in before using replay.',!u);}
  catch(e){notice(e.message,true)}
  $('vr-start').addEventListener('click',()=>call(start));
  $('vr-refresh').addEventListener('click',()=>call(catalog));
