@@ -305,3 +305,20 @@ Production `public.lab_training_sets_v014` previously had no explicit state-tran
 **PROVEN production read-only:** The new endpoint responded HTTP 200, `publishedIds:[]`, `betaReadyCertified:false`. This is consistent with the provider's current twenty B01 draft rubrics and zero official reviews. The interface update is **IMPLEMENTED**, but its exact-head browser CI must pass before separate technical QA acceptance.
 
 **Acceptance boundary:** Owner business permission **ACCEPTED**; individual authenticated rubric review actions **NOT EXECUTED**; Gate 1 member acceptance **NOT YET TESTED**. Founding 600 will provide final genuine member tests. No LIVE Stripe payments or keys were touched.
+
+
+## B01 private lesson editorial review pathway — existing Owner system
+
+**Architectural correction:** The private `lab_instruction_v014` source records had no attributable editorial-review state, even though public publication requires one. Merely finding a lesson record must not enable Start. The previously added public release endpoint now requires both an `editorially_reviewed_*` lesson and a reviewed private assessment, plus an active canonical Lab in the 336-ID beta scope. Remaining Labs stay Upcoming.
+
+**New functionality, no second identity store:** The existing `/api/training-editor` and `training-editor.html` now support `lesson-status` (OWNER-only, Boolean/metadata summary without teaching paragraphs or answer keys) and `review-lesson` (single exact B01 Lab). The review action:
+- Verifies normal Supabase identity, active OWNER role, origin, exact `lab_id` and original `2026-10-25-B01` content.
+- Requires complete what/why/when/objective, at least four substantive steps, original FICTIONAL worked case, corrected misconception, explicit limitations and historical-evidence disclaimer.
+- Requires the exact `updated_at` revision and still-unreviewed source status in the DB update predicate. Changed, incomplete or already reviewed lessons fail closed.
+- Records the **real authenticated reviewer UUID** and review timestamp, with no fabricated identity or direct service-role promotion.
+
+**Supabase migration:** `supabase/migrations/v0.14.0.281_b01_private_lesson_review.sql` is **PROVEN installed** in project `oxihglyfgzywsupnyicb`; the same migration added the reviewer fields, restrictive audit trigger and function. `supabase/rollbacks/v0.14.0.281_b01_private_lesson_review_ROLLBACK.sql` reverses only the new trigger/function, leaving all audit history and source content intact. Query verified trigger presence, security-definer scope, and that anon/authenticated EXECUTE remain disabled. A temporary review event produced exactly one metadata-only Admin audit row inside a transaction; after ROLLBACK, **zero probe records** remained.
+
+**Content preflight:** Independent Supabase read-only checks found all 20 B01 private lessons with FICTIONAL worked examples, >=4 steps, substantive what/why/when/objective/misconception/limitation content and an explicit NOT VERIFIED historical-data caveat. The private answer keys and complete book text were not committed to public assets. A new `tests/test_b01_private_lesson_owner_review.mjs` covers private redaction, Owner role, stale revision, malformed teaching, reviewed-state denial, SQL audit schema and rollback; included in Lab Topic CI.
+
+**Honest release decision:** Owner has authorized this editorial workflow via chat, but the provider still shows zero actual authenticated private lesson reviews and zero B01 grading rubric reviews. The authenticated per-Lab review actions must be performed from the existing Owner account, after which true member journeys await the Founding 600. Code/DB audit is not a Beta Ready substitute.
