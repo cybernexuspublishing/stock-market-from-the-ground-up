@@ -22,6 +22,7 @@ on:
       - 'tests/test_free_foundations_shared_v1.mjs'
       - 'tests/test_free_watchlist_v1.mjs'
       - 'tests/test_free_membership_browser_v1.mjs'
+      - 'tests/test_free_owner_v1_scope.mjs'
       - 'tests/test_v014170_academy_member_contract.mjs'
       - 'tests/test_v014168_academy_family.mjs'
       - 'tests/test_v014147_tutor_boundary.mjs'
@@ -65,6 +66,7 @@ jobs:
           node tests/test_free_foundations_shared_v1.mjs
           node tests/test_free_watchlist_v1.mjs
           node tests/test_free_member_launchpad_v1.mjs
+          node tests/test_free_owner_v1_scope.mjs
           node tests/test_v014170_academy_member_contract.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_free_membership_browser_v1.mjs
