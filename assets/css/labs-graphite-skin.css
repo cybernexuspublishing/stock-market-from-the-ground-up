@@ -25,3 +25,20 @@ body[data-gu-lab-skin="graphite"] #gu-inline-lab-frame{background:var(--gu-lab-b
 html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"]{--gu-lab-bg:#f5f7fb;--gu-lab-panel:#fff;--gu-lab-deep:#eef2f7;--gu-lab-line:#b7c7d5;--gu-lab-text:#21384e;--gu-lab-muted:#4f657b;--gu-lab-accent:#285e77;--gu-lab-primary:#294e66;--gu-lab-tab:#2e6079;--gu-lab-tab-ink:#fff}
 html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"] :is(.site-header,.gu-focused-learning-header){background:#ffffffef}
 @media(forced-colors:active){body[data-gu-lab-skin="graphite"] :is(.btn,button,input,select,textarea){color:ButtonText!important;background:Canvas!important;border-color:ButtonText!important}}
+
+/* Current member renderer surfaces shown in the Owner's screenshot. */
+body[data-gu-lab-skin="graphite"].gu-lab-member #app>.shell{background:#090e18!important;border-color:#4b647b!important;box-shadow:0 0 45px #7199c00b}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .banner{background:radial-gradient(ellipse at 100% 0,#8961c72b,transparent 68%),linear-gradient(115deg,#111827,#0c131f)!important;border-color:#4e627c!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .banner .super{color:#98dce7!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .prototype-bar{background:#161429!important;border-color:#61517c!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .toolbar{background:#0a111c!important;border-color:#3e536b!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item{background:#0f1622!important;border-color:#455971!important;color:#a8bbcf!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #player-stage-grid .stage-item.current{background:linear-gradient(115deg,#1b4659,#35274f)!important;color:#e6fbff!important;border-color:#9ad6e1!important;box-shadow:inset 0 -3px 0 #9ad6e1}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v33-instructor-head .gu-v33-setup{background:#1a1830!important;border-color:#806b9c!important;box-shadow:inset 0 1px 0 #c4a8ea10}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v40-start-preview{background:radial-gradient(ellipse at 100% 0,#65519022,transparent 70%),#111827!important;border-color:#626b91!important;box-shadow:inset 0 1px 0 #a9c6e612}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v40-start-candle{background:repeating-linear-gradient(to bottom,transparent 0,transparent 37px,#a8cce00a 38px),#0b1320!important;border-color:#47677f!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot :is(.gu-v40-preview-outcomes>h3,.gu-v40-start-candle figcaption){color:#a5dce8!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot .gu-v40-preview-number{background:#252039!important;color:#d7bdf4!important;border-color:#8f74b1!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member .site-header .brand span{color:#a9dce7!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member .site-header :is(.v12-top-link.store,.v12-account-trigger){border-color:#6e7099!important;background:#151625!important;color:#d8e6f3!important}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #app :is(.shell,.banner,.prototype-bar,.toolbar),html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-setup,.gu-v40-start-preview,.gu-v40-start-candle){background:#f5f7fb!important;color:#21384e!important;border-color:#b7c7d5!important}

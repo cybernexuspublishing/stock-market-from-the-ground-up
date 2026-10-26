@@ -10,7 +10,10 @@ for(const name of properties)assert(allowed.has(name)||name.startsWith('--gu-lab
 assert(!/animation|transition|transform|font-size|padding|margin|display|position|grid-template/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')));
 for(const name of ['labs.html','lab-player.html','site-lab.html']){
  const current=readFileSync(name,'utf8');const base=execFileSync('git',['show','HEAD:'+name],{encoding:'utf8'});
- assert.equal(current.replace('<link rel="stylesheet" href="assets/css/labs-graphite-skin.css">','').replace(' data-gu-lab-skin="graphite"',''),base,'Teaching markup must be byte-identical after removing opt-in skin link/marker');
+ const normalize=text=>text.replace('<link rel="stylesheet" href="assets/css/labs-graphite-skin.css">','').replace(' data-gu-lab-skin="graphite"','');
+ assert.equal(normalize(current),normalize(base),'Teaching markup must be byte-identical after removing opt-in skin link/marker');
 }
 assert(!/\bsvg\b|\bcanvas\b|\.fill\b|\.feedback\b|\.warn\b/.test(css),'Do not recolor chart data, progress or feedback semantics');
 console.log('PASS Lab skin: visual-only declaration allowlist, no geometry/typography/motion rules, teaching markup unchanged, chart and feedback semantics untouched.');
+
+for(const selector of ['.prototype-bar','#player-stage-grid .stage-item.current','.gu-v33-instructor-head .gu-v33-setup','.gu-v40-start-preview','.gu-v40-preview-outcomes>h3'])assert(css.includes(selector),'Missing current player surface: '+selector);
