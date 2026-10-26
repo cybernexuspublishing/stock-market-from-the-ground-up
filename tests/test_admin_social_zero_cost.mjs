@@ -204,6 +204,10 @@ test('social UI uses new integrated module and no hidden automatic provider call
  for(const part of ['Publishing calendar','Post Studio','Campaign manager','X Communities directory','Manual performance snapshot'])
   assert.match(ui,new RegExp(part,'i'));
  assert.doesNotMatch(ui,/localStorage|sessionStorage|innerHTML\s*=/);
+ // This DOM helper requires (host, tagName, text, className). An earlier
+ // omitted tagName prevented the entire Owner social navigation from mounting.
+ assert.match(ui,/text\(root,'p','Owner-only content, campaigns and community operations\./);
+ assert.doesNotMatch(ui,/text\(root,'Owner-only content, campaigns and community operations\./);
  assert.match(schema,/ENABLE ROW LEVEL SECURITY/);
  assert.match(schema,/SOCIAL_APPROVAL_REQUIRED_BEFORE_MANUAL_PUBLICATION/);
  assert.match(schema,/SOCIAL_REVISION_CONFLICT/);
