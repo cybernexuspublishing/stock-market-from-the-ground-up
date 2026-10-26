@@ -28,7 +28,7 @@ export async function onRequest({request,env}){
   // listing of an ID, or an unfinished draft, does not grant beta assessment.
   const [catalog,lessons,approved]=await Promise.all([
    rows(env,'platform_labs','lab_id,active,registry_visible','',700),
-   rows(env,'lab_instruction_v014','lab_id,source_status','',700),
+   rows(env,'lab_instruction_v014','lab_id,source_status,lesson_batch:content->>lessonBatch,authoring_status:content->>authoringStatus,concept:content->>concept,objective:content->>objective,why:content->>why,steps:content->steps','',700),
    rows(env,'lab_training_sets_v014','lab_id,review_state,reviewed_at,reviewed_by',
         '&review_state=eq.reviewed&reviewed_at=not.is.null&reviewed_by=not.is.null',1500)
   ]);
@@ -38,6 +38,21 @@ export async function onRequest({request,env}){
   // must NEVER become Start-eligible solely because its rubric was reviewed.
   // Explicit status recognition is deliberately fail-closed until the
   // existing editorial approval workflow records the reviewed state.
+  // Guided B01 pre-beta practice is not a published assessment. Preserve
+  // access to genuinely authored, private and ungraded instructional drafts
+  // without granting mastery, changing member data or exposing the lesson.
+  // No generic v96 scaffold / other 83 upcoming IDs can enter this list.
+  const guidedBetaIds=[...new Set(lessons.filter(r=>
+   isBetaCandidateLab(r.lab_id)&&allowed.has(r.lab_id)&&
+   r.source_status==='original_hypothetical_unreviewed_v01496'&&
+   r.lesson_batch==='2026-10-25-B01'&&
+   r.authoring_status==='ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED'&&
+   typeof r.concept==='string'&&r.concept.trim().length>=8&&
+   typeof r.objective==='string'&&r.objective.trim().length>=20&&
+   typeof r.why==='string'&&r.why.trim().length>=50&&
+   Array.isArray(r.steps)&&r.steps.length>=3&&
+   r.steps.every(v=>typeof v==='string'&&v.trim().length>=12))
+   .map(r=>r.lab_id).filter(id=>goodId.test(id)))].sort();
   const reviewedLesson=new Set(lessons.filter(r=>
    /^(editorially_reviewed|owner_reviewed)(?:_|$)/i.test(String(r.source_status||'')))
    .map(r=>r.lab_id).filter(id=>goodId.test(id)&&isBetaCandidateLab(id)));
@@ -45,8 +60,8 @@ export async function onRequest({request,env}){
    r.review_state==='reviewed'&&!!r.reviewed_at&&!!r.reviewed_by)
    .map(r=>r.lab_id).filter(id=>
    goodId.test(id)&&isBetaCandidateLab(id)&&allowed.has(id)&&reviewedLesson.has(id)))].sort();
-  return reply({ok:true,publishedIds:ids,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
-   betaReadyCertified:false});
+  return reply({ok:true,publishedIds:ids,guidedBetaIds,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
+   guidedBetaPolicy:'ungraded_original_b01_beta_teaching_only',betaReadyCertified:false});
  }catch{
   return reply({ok:false,error:'Lab availability cannot be verified. No unreleased Lab should be started.'},503);
  }
