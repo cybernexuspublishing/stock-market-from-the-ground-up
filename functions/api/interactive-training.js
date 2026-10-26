@@ -3,6 +3,7 @@
  * All answer keys and attempts remain in service-role-only tables.
  */
 import {toolAccess} from './member-tool-access.js';
+import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
 import {getBookAccess,getBookCodeAccess} from './lab-content.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -17,6 +18,7 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // and the matching book entitlement. The private Lab metadata is not public.
 const publicSamples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 async function requireMatchingBook(env,request,labId){
+ if(!isBetaCandidateLab(labId))throw fail('This Lab is upcoming and not released for beta grading.',404);
  // One authoritative canonical Lab registry for all 419 existing IDs. A book
  // entitlement must NEVER revive an archived or hidden Lab assessment.
  const rows=await db(env,'platform_labs?select=lab_id,book_code,active,registry_visible&lab_id=eq.'+
