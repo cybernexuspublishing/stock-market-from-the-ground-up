@@ -54,6 +54,7 @@ try{
   const mountStatus=await page.evaluate(()=>({tabs:document.querySelectorAll('[data-social-tab]').length,
    errors:document.querySelector('[data-social-error]')?.textContent||'',text:document.body.textContent.slice(0,500)}));
   assert.equal(mountStatus.tabs,10,'Social UI mount failure at '+width+'px: '+JSON.stringify({mountStatus,browserErrors}));
+  assert.deepEqual(browserErrors,[],'Unexpected JavaScript exceptions during social workspace mount: '+JSON.stringify({width,mountStatus,browserErrors}));
   assert.equal(await page.getByRole('button',{name:'Social Accounts'}).count(),1);
   await page.getByRole('button',{name:'Social Accounts'}).click();
   await page.getByRole('heading',{name:'Platform connection directory'}).waitFor();
@@ -77,6 +78,7 @@ try{
   await page.getByRole('heading',{name:'Manual performance snapshot'}).waitFor();
   const state=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:window.innerWidth}));
   assert(state.scroll<=state.width+4,'Unexpected global horizontal overflow at '+width+': '+JSON.stringify(state));
+  assert.deepEqual(browserErrors,[],'Social workspace emitted a runtime exception at '+width+'px: '+JSON.stringify(browserErrors));
   console.log('PASS social Owner fixture, saved accounts/drafts, tabs, calendar and viewport '+width+'px');
   await context.close();
  }
