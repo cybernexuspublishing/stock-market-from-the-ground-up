@@ -215,8 +215,15 @@
   });
   compare.addEventListener('click',()=>{
    if(answer.value.trim().length<40)return;
-   result.replaceChildren(node('p','Model reasoning (formative; not a score):'),node('p',lesson.reviewGuide),
-    node('p','Compare your evidence, source timestamps, limits and no-trade decision. No mastery was awarded.'));
+   const coaching=node('section');coaching.className='academy-formative-criteria';
+   coaching.setAttribute('aria-label','Talia lesson-specific formative review');
+   coaching.append(node('h5','Talia’s reasoning review — check your own evidence'));
+   const prompts=node('ol');
+   for(const prompt of lesson.reviewPrompts||[])prompts.append(node('li',prompt));
+   if(prompts.children.length)coaching.append(prompts);
+   coaching.append(node('h5','Compare with the worked explanation'),node('p',lesson.reviewGuide),
+    node('p','If part of your answer is missing, revise and compare again. These teaching prompts are NOT a protected grading rubric, automated score or proof of mastery.'));
+   result.replaceChildren(coaching);
   });
   mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to copy reasoning into a private reflection draft. Unsaved answers survive a day change in this tab only and are erased on account switch or reload. Select Save Reflection to persist study notes; this is not graded mastery.'),result);
  }
