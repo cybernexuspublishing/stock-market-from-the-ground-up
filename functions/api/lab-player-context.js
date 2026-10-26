@@ -3,8 +3,9 @@
  * publish book text, unapproved answer keys, chart history or future bars.
  */
 import {memberIdentity} from './member-tool-access.js';
-import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
-import {getBookCodeAccess} from './lab-content.js';
+import {isBetaCandidateLab,isBetaUpcomingLab} from '../_lib/lab-beta-scope-v014286.js';
+import {authoredSiteExclusiveBetaLesson} from '../_lib/site-exclusive-private-lesson-v014294.js';
+import {getBookCodeAccess,publicGuidedLesson} from './lab-content.js';
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',
  'x-content-type-options':'nosniff'}});
@@ -49,7 +50,7 @@ export async function onRequest({request,env}){
   // must not lose Guided orientation merely because premium RPC is unavailable.
   stage='AUTH';
   const actor=await memberIdentity(env,request);
-  if(!isBetaCandidateLab(id))return reply({ok:false,error:'This Lab is upcoming and is not released for beta learning.'},404);
+  if(!isBetaCandidateLab(id)&&!isBetaUpcomingLab(id))return reply({ok:false,error:'This Lab is not released for beta learning.'},404);
   stage='REGISTRY';
   const lab=await read(env,id);
   if(!lab||lab.active!==true||lab.registry_visible!==true||!BOOKS[lab.book_code])
@@ -101,6 +102,40 @@ export async function onRequest({request,env}){
    return reply({ok:false,error:'Matching book or active Interactive Learning access required.'},403);
   }
   stage='TEACHING';
+  // A Site-Exclusive entry is not unlocked by registry visibility alone.
+  // The service-role-only record must contain all nine original teaching
+  // stages and verified original provenance; all identity, entitlement and
+  // restricted-account gates above must already have succeeded.
+  if(isBetaUpcomingLab(id)){
+   if(lab.book_code!=='SITE_EXCLUSIVE'||!premium)
+    return reply({ok:false,error:'Authorized interactive learning is required.'},403);
+   stage='PRIVATE_TEACHING';
+   const uri=c.base+'/rest/v1/lab_instruction_v014?select=lab_id,book_number,source_status,content'+
+     '&lab_id=eq.'+encodeURIComponent(id)+'&limit=1';
+   const response=await fetch(uri,{headers,cache:'no-store'});
+   if(!response.ok)throw Object.assign(Error('Private Site teaching unavailable.'),{status:503});
+   const records=await response.json();
+   if(!Array.isArray(records)||records.length!==1||!authoredSiteExclusiveBetaLesson(records[0]))
+    return reply({ok:false,error:'This Site-Exclusive lesson is not yet released for beta study.'},404);
+   const privateLesson=publicGuidedLesson(records[0].content,id,6);
+   const context={
+    id,book:6,bookCode:'SITE_EXCLUSIVE',chapter:0,chapterTitle:'Site-Exclusive Labs',
+    concept:privateLesson.concept,goal:privateLesson.objective,
+    ticker:'',date:'',timeframe:'',skill:safe(lab.lab_type,90),
+    teaching:{...privateLesson.teaching,questions:[]},
+    practiceSteps:privateLesson.steps,
+    beforeAdvance:[],
+    workedExample:privateLesson.workedExample,
+    commonError:privateLesson.commonError,
+    limitation:privateLesson.limitation,
+    sourceLinks:privateLesson.sourceLinks,
+    dataNote:'Original FICTIONAL instructional case. No verified market history, fills, private rubric or grading is included.'
+   };
+   return reply({ok:true,lab:context,guidedAllowed:true,advancedAllowed:true,
+    sourceStatus:'site_exclusive_original_authored_guided_beta_ungraded',
+    instructionReviewed:false,assessmentReviewed:false,
+    notice:'Author-created Site-Exclusive Guided Beta lesson. Ungraded; no official mastery or broker-simulation claim.'});
+  }
   const title=safe(lab.title,180);
   // These fields already exist in the public canonical catalog. Whitelist
   // only instructional prose; never forward arbitrary metadata or keys.
