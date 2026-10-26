@@ -47,6 +47,13 @@ DO $gate$ BEGIN
    source_status ~ '^(editorially_reviewed|owner_reviewed)(_|$)'
    AND (reviewed_by IS NULL OR reviewed_at IS NULL))
  THEN RAISE EXCEPTION 'ZERO_TRUST_UNATTRIBUTED_LESSON_APPROVAL';END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_class c WHERE c.oid='public.gu_bootcamp_academy_audit_v014295'::regclass
+   AND c.relrowsecurity AND NOT has_table_privilege('anon',c.oid,'SELECT')
+   AND NOT has_table_privilege('authenticated',c.oid,'SELECT')
+   AND has_table_privilege('service_role',c.oid,'INSERT'))
+ OR (SELECT count(*) FROM pg_trigger
+   WHERE tgname IN('gu_v014295_enrollment_audit','gu_v014295_progress_audit') AND tgenabled='O')<>2
+ THEN RAISE EXCEPTION 'ZERO_TRUST_ACADEMY_AUDIT_DISABLED_OR_EXPOSED'; END IF;
  IF NOT EXISTS(SELECT 1 FROM pg_trigger
     WHERE tgname='gu_v014292_graded_revision_guard'
      AND tgrelid='public.lab_training_sets_v014'::regclass AND tgenabled='O')
