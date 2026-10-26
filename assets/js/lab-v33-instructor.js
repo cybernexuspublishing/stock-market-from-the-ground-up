@@ -170,6 +170,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  // The uploaded v3.2 reference teaches through a CONCRETE worked case
  // immediately after defining the term. Preserve that order, and give
  // learners the corresponding visual before asking a question.
+ const authoredWorked=stage===1&&typeof lessonContext?.teaching?.workedExample==='string'
+  ?lessonContext.teaching.workedExample.trim().slice(0,2200):'';
  const shownExample=stage===1&&prototype
   ?[
     prototype.term+': '+prototype.definition,
@@ -178,7 +180,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     ...prototype.steps.slice(0,2).map((value,i)=>'Step '+(i+1)+': '+value),
     'What this does NOT show: '+prototype.caution
    ].join('\n\n')
-  :null;
+  :authoredWorked
+   ?'Individual Lab worked demonstration — illustrative educational content, NOT verified market history:\n\n'+authoredWorked
+   :null;
  const full=introduction+'\n\n'+(shownExample||(openingBlocks?.join('\n\n')||(
   String(lessonContext?.teaching?.what||lessonContext?.guide?.concept||
   lessonContext?.subject?.definition||'').trim()||
