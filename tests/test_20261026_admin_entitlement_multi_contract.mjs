@@ -21,7 +21,7 @@ for(const token of ['catalog_products?select=','platform_tools?select=','platfor
 for(const key of ['plans:null','storeItems:null','books:null','tools:null']){
  assert(api.includes(key),'Catalog must explicitly handle '+key+' unavailable');
 }
-assert(api.includes("p_kind:kind==='manual_learning'?'full_learning_access':code"),
+assert(api.includes('p_kind:kind,') && api.includes("p_code:kind==='manual_learning'?'full_learning_access':code"),
  'Manual grants must continue through the established audited source-RPC');
 assert(api.includes("rpc/gu78_admin_account_resource_grant"),
  'Manual grants cannot write entitlement tables directly');
