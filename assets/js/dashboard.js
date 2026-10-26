@@ -56,11 +56,23 @@ async function initDashboard() {
   }
 
   gate.innerHTML = '';
-  const viewingSupport = new URLSearchParams(location.search).get('tab') === 'support';
-  content.hidden = viewingSupport;
-  // The existing member Support API owns this workspace. Do not perform
-  // unrelated overview reads or reveal stale private dashboard data here.
-  if (viewingSupport) return;
+  const activeTab = new URLSearchParams(location.search).get('tab');
+  const viewingSupport = activeTab === 'support';
+  const viewingBeta = activeTab === 'beta';
+  content.hidden = viewingSupport || viewingBeta;
+  if (viewingSupport || viewingBeta) {
+    // Each tab has its own authenticated API reader. Keep Overview private
+    // queries out of those views, and do not infer progress from failed reads.
+    const title = document.querySelector('.gu-dashboard-intro h1');
+    const explanation = document.querySelector('.gu-dashboard-intro p.small');
+    const shortcuts = document.querySelector('.gu-dashboard-quick');
+    if (title) title.textContent = viewingBeta ? 'Beta Testing Workspace' : 'Private Member Support';
+    if (explanation) explanation.textContent = viewingBeta ?
+      'Explore current educational releases and report what needs improving.' :
+      'Submit and follow up on private support requests.';
+    if (shortcuts) shortcuts.hidden = true;
+    return;
+  }
 
   const [labs, profileResult, progressResult, entitlementResult, attemptResult, redemptionResult] = await Promise.all([
     loadJSON('data/labs.json'),
