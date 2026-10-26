@@ -1,0 +1,31 @@
+name: Admin Entitlement Multi-Grant Contract 2026-10-26
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/admin-accounts-v01353.js'
+      - 'assets/js/account-management-entitlements-v01478.js'
+      - 'assets/js/admin-digital-books-v01430.js'
+      - 'tests/test_20261026_admin_entitlement_multi_contract.mjs'
+      - '.github/workflows/admin-entitlement-multigrant-20261026.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse changed Admin API and member entitlement controls
+        run: |
+          node --check functions/api/admin-accounts-v01353.js
+          node --check assets/js/account-management-entitlements-v01478.js
+          node --check assets/js/admin-digital-books-v01430.js
+      - name: Enforce entitlement registry and batch-grant contract
+        run: node tests/test_20261026_admin_entitlement_multi_contract.mjs
