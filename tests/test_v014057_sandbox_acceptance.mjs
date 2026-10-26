@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
-const script=p=>readFileSync(new URL(p,import.meta.url),'utf8');
-const load=async p=>import('data:text/javascript;base64,'+Buffer.from(script(p)).toString('base64'));
+// Import from file URL so Cloudflare Functions relative _lib imports resolve.
+// A data: URL changes the module base and breaks relative module specifiers.
 const hook=await import(new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url).href);
-const api=await load('../functions/api/gu39-sandbox.js');
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const origin='https://example.com',uid='11111111-1111-4111-8111-111111111111';
 const iid='22222222-2222-4222-8222-222222222222';
 const price='price_test_acceptance123456',product='prod_VRwgISspL5mhls',sid='cs_test_acceptance123456';
