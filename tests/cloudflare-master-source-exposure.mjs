@@ -59,5 +59,28 @@ await verify('POST-only Founding 600 webhook rejects GET',async()=>{
  const r=await fetch(site+'/api/founding600-webhook',{redirect:'manual'});
  assert.ok(r.status===404||r.status===405,'Unexpected GET '+r.status);
 });
+// TEST-only negative signature probes: no customer, checkout, paid invoice,
+ // event replay, or valid HMAC is ever created. The handler must return 401
+ // before it can read or write the independently disabled Sandbox ledger.
+const testPayload=JSON.stringify({
+ id:'evt_test_master_migration_invalid_signature',
+ livemode:false,created:Math.floor(Date.now()/1000),
+ type:'checkout.session.completed',data:{object:{id:'cs_test_invalid'}}
+});
+for(const [label,signature] of [
+ ['absent Stripe-Signature',null],
+ ['forged Stripe-Signature','t='+Math.floor(Date.now()/1000)+',v1='+'0'.repeat(64)]
+]){
+ await verify('TEST webhook rejects '+label,async()=>{
+  const headers={'content-type':'application/json'};
+  if(signature)headers['stripe-signature']=signature;
+  const r=await fetch(site+'/api/gu39-stripe-webhook',{
+   method:'POST',headers,body:testPayload,redirect:'manual',
+   cache:'no-store',signal:AbortSignal.timeout(16000)});
+  const text=await r.text();
+  assert.equal(r.status,401,'Expected signature rejection HTTP 401, got '+r.status);
+  assert.equal(text,'BAD_SIGNATURE');
+ });
+}
 console.log(JSON.stringify({site,passed:passed.length,failed:failures.length,failures,paymentsPerformed:0},null,2));
 if(failures.length)process.exitCode=1;
