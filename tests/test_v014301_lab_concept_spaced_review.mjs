@@ -10,7 +10,7 @@ const prompts=['1D','7D','30D'].map(review_stage=>
 assert.equal(new Set(prompts).size,3);
 assert(prompts[1].includes('Different fictional case'));
 assert(prompts[2].includes('Independent transfer'));
-const sql=read('supabase/migrations/v0.14.0.301_LAB_CONCEPT_SPACED_REVIEW_OWNER_REVIEW_REQUIRED.sql');
+const sql=read('supabase/migrations/v0.14.0.303_LAB_CONCEPT_SPACED_REVIEW_OWNER_REVIEW_REQUIRED.sql');
 for(const control of ["review_stage IN ('1D','7D','30D')",'ENABLE ROW LEVEL SECURITY',
  'FOR SELECT TO authenticated','ON CONFLICT(user_id,lab_id,review_stage) DO NOTHING',
  'AND due_at<=now()','char_length(btrim(p_note)) NOT BETWEEN 30 AND 1500']){
@@ -18,7 +18,7 @@ for(const control of ["review_stage IN ('1D','7D','30D')",'ENABLE ROW LEVEL SECU
 }
 assert(!sql.includes('competency_evidence'),'Recall cannot award mastery');
 assert(!sql.includes('lab_training_attempts'),'Recall cannot alter grades');
-const rollback=read('supabase/rollbacks/v0.14.0.301_LAB_CONCEPT_SPACED_REVIEW_ROLLBACK.sql');
+const rollback=read('supabase/rollbacks/v0.14.0.303_LAB_CONCEPT_SPACED_REVIEW_ROLLBACK.sql');
 assert(rollback.includes('Lab recall records exist'),'Rollback must refuse member-data deletion');
 assert(source.includes("sb.rpc('gu_lab_concept_review_complete_v014'"));
 assert(source.includes('if(thisEpoch!==epoch)return'));
