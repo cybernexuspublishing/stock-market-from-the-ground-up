@@ -41,7 +41,7 @@ window.getSupabaseClient=async()=>({
 });`;
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
- for(const width of [390,1280])for(const mode of ['denied','standard','extended','qa']){
+ for(const width of [390,900,1280,1440])for(const mode of ['denied','standard','extended','qa']){
   const page=await browser.newPage({viewport:{width,height:920}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/assets/js/supabase-client.js',r=>r.fulfill({status:200,contentType:'application/javascript',body:stub(mode)}));
