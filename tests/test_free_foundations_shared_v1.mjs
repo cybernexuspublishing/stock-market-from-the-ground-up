@@ -25,11 +25,16 @@ for(const [i,d] of freeFoundationsProgram.curriculum.entries()){
   assert(d.lesson[key]?.length>75, 'Free day '+d.day+' missing authored '+key);
  }
  assert(d.lesson.sourceProcedure.length>=4);
+ assert(Array.isArray(d.lesson.reviewPrompts)&&d.lesson.reviewPrompts.length===4,
+  'Every Free day needs 4 subject-specific prompts for independent feedback');
+ assert(d.lesson.reviewPrompts.every(prompt=>prompt.length>45&&prompt.endsWith('?')),
+  'Formative review prompts must be instructive questions, not automatically scored rubrics');
 }
 assert(html.includes('bootcamp-academy.html?program=free5'));
 assert(client.includes("['free5',5]"),'Free must be a direct eligible member route');
 assert(client.includes("code!=='free5'&&x.relatedLabs.length===0"),'Free does not need paid Lab IDs');
 assert(client.includes('lesson.why')&&client.includes('lesson.whenNot'));
+assert(client.includes('lesson.reviewPrompts'),'Talia must present lesson-specific reasoning corrections without grades');
 const u1='00000000-0000-4000-8000-000000000123';
 const u2='00000000-0000-4000-8000-000000000456';
 const prev=globalThis.fetch;
