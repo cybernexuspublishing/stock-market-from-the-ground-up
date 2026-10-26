@@ -292,3 +292,16 @@ Production `public.lab_training_sets_v014` previously had no explicit state-tran
 - **STILL EXCLUDED** — LIVE Stripe charges/refunds, any removal of LIVE payment shutdowns, B02 and subsequent Boot Camps while Gate 1 lacks all required evidence.
 
 **Gate 1 sign-off:** Safety improvements substantial, but **OPEN** pending exact-head CI, independent authenticated Owner rubric review and Founding 600 live member acceptance. Do not mark fully accepted prematurely.
+
+
+## Owner chat authorization and secure review access — 2026-10-26
+
+**Owner authorization:** The Owner explicitly signed off on the twenty B01 rubric editorial review actions in this conversation. That business authorization removes any need to ask for another decision. It is **not** a Supabase bearer session, review-state transition, database reviewer signature, or substitute for independent evidence. The existing `training-editor.html` and `/api/training-editor` already provide an authenticated OWNER review workflow with role checks, revision-locked updates and an auditable review-state trigger. Do not duplicate the login or directly forge `reviewed_by` using service-role SQL.
+
+**Authenticated browser integration:** The existing TinyFish profile `Ground Up — QA Member Access` has no recorded production Owner sign-in. A normal browser-profile setup handoff was opened against the site sign-in page, to be completed by the Owner via normal Turnstile and Supabase Auth, with no credentials in chat. Metered TinyFish browser automation was not run: the wallet balance is negative, and the project requires $0 spending. The app integration alone does not establish a saved session.
+
+**Critical catalog defect and correction:** `assets/js/labs.js` previously displayed `Open Interactive Lab` and manual completed status for all 419 registry records, including content not actually released. A new safe `/api/lab-release-availability` endpoint consults the **existing** canonical registry, presence of private instruction and reviewed/routed grading records; it returns only released IDs, never questions, keys, private lessons or member data. The catalog now marks unreleased records **Upcoming**, without Start or completion credit, and fails closed on a 503. Historical progress is preserved. `tests/test_gate1_lab_registry_publish_gate.mjs` and the Boot Camp CI workflow cover this contract.
+
+**PROVEN production read-only:** The new endpoint responded HTTP 200, `publishedIds:[]`, `betaReadyCertified:false`. This is consistent with the provider's current twenty B01 draft rubrics and zero official reviews. The interface update is **IMPLEMENTED**, but its exact-head browser CI must pass before separate technical QA acceptance.
+
+**Acceptance boundary:** Owner business permission **ACCEPTED**; individual authenticated rubric review actions **NOT EXECUTED**; Gate 1 member acceptance **NOT YET TESTED**. Founding 600 will provide final genuine member tests. No LIVE Stripe payments or keys were touched.
