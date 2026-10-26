@@ -7,6 +7,9 @@ on:
       - 'founders-commons.html'
       - 'assets/css/founders-commons-v014178.css'
       - 'assets/js/founders-commons-v014178.js'
+      - 'assets/js/route-policy.js'
+      - 'sw.js'
+      - 'tests/test_founder_private_route_policy.mjs'
       - 'tests/test_founders_commons_browser_v014178.mjs'
       - 'founder-learning-studio.html'
       - 'founder-extended-path.html'
@@ -39,6 +42,7 @@ jobs:
           exit 1
       - name: Validate Standard and Extended mobile/desktop member journeys
         run: |
+          node tests/test_founder_private_route_policy.mjs
           node tests/test_founders_commons_browser_v014178.mjs
           node tests/test_f600_member_pages_browser_v014220.mjs
         env:
