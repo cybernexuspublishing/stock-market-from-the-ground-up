@@ -13,6 +13,13 @@ const server=read('functions/api/member-tool-access.js');
 const migration=read('supabase/migrations/20261026_training_membership_entitlement_fix.sql');
 const rollback=read('supabase/rollbacks/20261026_training_membership_entitlement_fix_ROLLBACK.sql');
 const pg=read('tests/fixtures/20261026_training_membership_delivery.sql');
+const sevenListings=read('assets/js/store-inventory-ui-v014174.js');
+assert(sevenListings.includes('sharedTrainingStudy(p)'));
+assert(sevenListings.includes('store-membership-ondemand-monthly.html'));
+assert(sevenListings.includes('This Boot Camp is not priced or sold standalone'));
+assert(!sevenListings.includes('checkout.html?type=course'),
+ 'Boot Camps have NO approved independent price or fulfillment SKU');
+
 for(const tag of ['id="store-product-root"','data-product-type="plan"',
  'data-product-code="ONDEMAND_MONTHLY"','id="store-training-programs"',
  'data-training-status','data-training-courses',
