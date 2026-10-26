@@ -44,11 +44,16 @@ try{
     return new Response(JSON.stringify({ok:true,record,publicationVerified:false}),{status:201,headers:{'content-type':'application/json'}});
    };
   });
+  const browserErrors=[];
+  page.on('pageerror',error=>browserErrors.push(String(error)));
   await page.addScriptTag({path:paths[1]});
   await page.evaluate(()=>window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{
    detail:{container:document.getElementById('marketing-social-fixture')}
   })));
-  await page.locator('[data-social-tab="posts"]').waitFor();
+  await page.waitForFunction(()=>!!document.querySelector('[data-social-tab="posts"]')||!!document.querySelector('[data-social-error]'),{timeout:5000}).catch(()=>{});
+  const mountStatus=await page.evaluate(()=>({tabs:document.querySelectorAll('[data-social-tab]').length,
+   errors:document.querySelector('[data-social-error]')?.textContent||'',text:document.body.textContent.slice(0,500)}));
+  assert.equal(mountStatus.tabs,10,'Social UI mount failure at '+width+'px: '+JSON.stringify({mountStatus,browserErrors}));
   assert.equal(await page.getByRole('button',{name:'Social Accounts'}).count(),1);
   await page.getByRole('button',{name:'Social Accounts'}).click();
   await page.getByRole('heading',{name:'Platform connection directory'}).waitFor();
