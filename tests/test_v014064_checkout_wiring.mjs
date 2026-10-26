@@ -27,17 +27,17 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_LIVE_DB_CONTRACT_APPROVED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_mock',
  GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_mock0000000',GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
-const state={testing:false,db:true,offer:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,merchant:true,tool:true,posts:0,remote:0};
+const state={testing:false,db:true,offer:true,visible:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,merchant:true,tool:true,posts:0,remote:0};
 const original=globalThis.fetch;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
  const u=String(url);state.remote++;
  if(!state.db)throw Error('Database offline');
  if(u.includes('/gu39_sandbox_settings?'))return json([{enabled:state.testing}]);
- if(u.includes('/platform_plans?'))return json([{active:true,public_visible:true,
+ if(u.includes('/platform_plans?'))return json([{active:true,public_visible:state.visible,
   checkout_enabled:state.offer,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
- if(u.includes('/platform_tools?'))return json([{active:true,public_visible:true,
-  status:state.tool?'live':'preview',name:'Interactive Learning',individual_price_cents:2999}]);
+ if(u.includes('/platform_tools?'))return json([{active:true,public_visible:state.visible,
+  checkout_enabled:state.offer,status:state.tool?'live':'preview',name:'Interactive Learning',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return json({provider:'STRIPE_MANAGED',enabled:state.route});
  if(u.includes('/site_settings?'))return json([{value:state.site}]);
  if(u.endsWith('/v1/account'))return json({id:state.merchant?'acct_mock0000000':'acct_other0000'});
@@ -74,6 +74,7 @@ try{
  for(const [e,label] of bad){r=await get(e);assert.equal(r.liveCheckoutAvailable,false,label)}
  state.testing=true;r=await get();assert.equal(r.liveCheckoutAvailable,false,'Owner TESTING blocks LIVE');state.testing=false;
  state.offer=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'plan checkout lock');state.offer=true;
+ state.visible=false;r=await get();assert.equal(r.liveCheckoutAvailable,true,'hidden but Owner-enabled plan can sell');state.visible=true;
  state.route=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'digital provider route');state.route=true;
  state.site=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'Owner global checkout lock');state.site=true;
  state.merchant=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'wrong Stripe merchant');state.merchant=true;
@@ -92,6 +93,8 @@ try{
  r=await get({},'?type=book&code=FOUNDATION_BOOK_1');assert.equal(r.liveCheckoutAvailable,false,'KDP books not member checkout');
  r=await get({},'?type=plan&code=BOGUS');assert.equal(r.liveCheckoutAvailable,false,'unknown SKU');
  r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'tool with canonical live status');
+ state.offer=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'hidden or visible tool requires explicit checkout_enabled');state.offer=true;
+ state.visible=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'hidden but Owner-enabled tool can sell');state.visible=true;
  assert.equal(r.offer.name,'Interactive Learning');assert.equal(r.offer.unitAmountCents,2999);
  assert.equal(r.offer.billingInterval,'month');
  state.tool=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'tool in preview');
