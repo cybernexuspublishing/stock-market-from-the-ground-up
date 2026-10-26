@@ -69,14 +69,14 @@ window.GroundUpPrelaunchInventory=Object.freeze([
   },
   {
     "sku": "FOUNDING_30",
-    "name": "Founding 600 — Standard 30 Days",
+    "name": "Founding Members — Standard 30 Days",
     "category": "Memberships",
     "status": "coming_soon",
     "description": "Limited founding membership. Enrollment is not open. Existing founder terms and benefits remain controlling."
   },
   {
     "sku": "FOUNDING_60",
-    "name": "Founding 600 — Extended 60 Days",
+    "name": "Founding Members — Extended 60 Days",
     "category": "Memberships",
     "status": "coming_soon",
     "description": "Limited founding membership. Enrollment is not open. Existing founder terms and benefits remain controlling."
