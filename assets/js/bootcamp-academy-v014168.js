@@ -118,6 +118,24 @@
   if(typeof lesson.investigation==='string'&&lesson.investigation.length>100){
    mount.append(node('h4','Independent evidence investigation'),node('p',lesson.investigation));
   }
+  // Original research-linked analysis. These fields are not independent trade
+  // evidence, a historical OHLCV feed, broker fills, or grading materials.
+  const claim=lesson.sourceClaimCase;
+  if(claim&&/^SOURCE_REPORTED_[A-Z_]+$/.test(String(claim.evidenceType||''))){
+   const source=new URL(String(claim.sourceUrl||''));
+   if(source.protocol==='https:'&&source.hostname==='stockstotrade.com'){
+    const caseBox=node('section');caseBox.className='academy-source-claim-case';
+    caseBox.setAttribute('aria-label','Source-reported market claim — verification exercise');
+    caseBox.append(node('h4',claim.title));
+    const citation=node('a','Read original public source: '+claim.sourceLabel);
+    citation.href=source.href;citation.target='_blank';citation.rel='noopener noreferrer';
+    caseBox.append(citation,node('p','Evidence status: SOURCE REPORTED · market data and fills not independently verified.'),
+     node('h5','What the source reports'),node('p',claim.observation),
+     node('h5','What remains unverified or conditional'),node('p',claim.limits),
+     node('h5','Your independent evidence decision'),node('p',claim.question));
+    mount.append(caseBox);
+   }
+  }
   mount.append(node('h4','Common research error'),node('p',lesson.error),
    node('h4','Transfer to a new case'),node('p',lesson.transfer),
    node('h4','Check your understanding — ungraded'),node('p',lesson.selfCheck));
