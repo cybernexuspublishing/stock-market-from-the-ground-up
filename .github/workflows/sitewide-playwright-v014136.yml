@@ -10,12 +10,12 @@ permissions:
 # Runs against the checked-out commit, never against an unpredictable live site.
 # No secrets, sign-in, payments, or external production calls from this workflow.
 # Routine main pushes supersede obsolete push checks. A manually requested
-# release-acceptance run is isolated by run_id and cannot be cancelled by
-# subsequent unrelated pushes. This preserves exact-commit evidence without
+# release-acceptance run and a deliberate re-run (attempt > 1) are isolated
+# by run_id, so subsequent unrelated pushes cannot cancel them. This preserves exact-commit evidence without
 # forcing every rapid development push through costly duplicate browser runs.
 concurrency:
-  group: sitewide-playwright-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'push' }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+  group: sitewide-playwright-${{ github.workflow }}-${{ github.ref }}-${{ (github.event_name == 'workflow_dispatch' || github.run_attempt > 1) && github.run_id || 'push' }}
+  cancel-in-progress: ${{ github.event_name == 'push' && github.run_attempt == 1 }}
 jobs:
   sitewide-browser:
     name: Website Playwright (all major sections, mobile, accessibility)
