@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/academy-progress-contract.yml'
       - 'tests/test_academy_progress_contract.mjs'
+      - 'tests/test_academy_audit_schema_contract.mjs'
+      - 'supabase/migrations/v0.14.0.295_academy_metadata_audit.sql'
+      - 'supabase/rollbacks/v0.14.0.295_academy_metadata_audit_ROLLBACK.sql'
       - 'functions/api/bootcamp-academy.js'
       - 'functions/_lib/bootcamp-academy-v014168.js'
       - 'functions/api/member-tool-access.js'
@@ -25,6 +28,7 @@ jobs:
       - name: Exercise Academy persistence, member isolation and grading protection fixtures
         run: |
           node --test tests/test_academy_progress_contract.mjs
+          node tests/test_academy_audit_schema_contract.mjs
           node tests/test_v014170_academy_member_contract.mjs
           node tests/test_b01_owner_revision_lock.mjs
           node tests/test_b01_private_lesson_owner_review.mjs
