@@ -42,6 +42,8 @@ function mount(){
       if(!window.GroundUpAdminPasswordConfirm?.ensure)
        throw Error('Owner password confirmation is unavailable; upload was not attempted.');
       await window.GroundUpAdminPasswordConfirm.ensure();
+      // Verify the edition ledger exists before creating a private Storage object.
+      await rpc(sb,'gu_owner_digital_history_v014304',{p_code:product.code});
       const signature=new Uint8Array(await f.slice(0,8).arrayBuffer());
       const pdf=signature.length>=5&&[37,80,68,70,45].every((v,i)=>signature[i]===v);
       const zip=signature.length>=4&&signature[0]===80&&signature[1]===75&&
@@ -50,7 +52,9 @@ function mount(){
        throw Error('File signature does not match a PDF or EPUB. Select the original, unmodified edition.');
       const path=product.code+'/'+crypto.randomUUID()+'.'+ext;
       const {error}=await sb.storage.from('gu-digital-ebooks').upload(path,f,{upsert:false,cacheControl:'0',contentType:ext==='epub'?'application/epub+zip':'application/pdf'});
-      if(error)throw error;asset=path;fileStatus.textContent='Uploaded privately: '+path+'. Save the publication controls to link it.';
+      if(error)throw error;
+      await rpc(sb,'gu_owner_digital_register_v014304',{p_code:product.code,p_path:path,p_expected_version:null});
+      asset=path;fileStatus.textContent='Version recorded privately: '+path+'. Save the publication controls to select the primary format.';
       rowStatus.textContent='Upload complete. Not published until you save rights controls.';
      }catch(e){rowStatus.textContent='Upload failed: '+(e.message||'Storage denied request. Confirm your Owner password step-up, upload permissions, and size limits.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
