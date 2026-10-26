@@ -1,10 +1,10 @@
 name: 419 Lab Topic Rubric Gate v0.14.0.117
 on:
   pull_request:
-    paths: ['functions/api/training-editor.js','supabase/migrations/v0.14.0.280_b01_rubric_review_audit.sql','supabase/rollbacks/v0.14.0.280_b01_rubric_review_audit_ROLLBACK.sql','assets/js/training-editor.js','functions/_lib/owner-lab-readiness-v01493.js','assets/js/owner-roadmap-product-readiness-v01491.js','tests/test_v014093_owner_lab_readiness.mjs','tests/test_b01_review_withdrawal_and_private_grading.mjs','functions/api/interactive-training.js','training-editor.html','docs/419_LAB_TOPIC_ALIGNMENT_REVIEW_v014117.csv','tests/test_v014117_lab_topic_gate.mjs','tests/test_b01_owner_revision_lock.mjs','tests/test_v014280_rubric_review_audit.mjs','.github/workflows/lab-topic-gate-v014117.yml']
+    paths: ['functions/api/training-editor.js','supabase/migrations/v0.14.0.280_b01_rubric_review_audit.sql','supabase/migrations/v0.14.0.281_b01_private_lesson_review.sql','supabase/rollbacks/v0.14.0.281_b01_private_lesson_review_ROLLBACK.sql','supabase/rollbacks/v0.14.0.280_b01_rubric_review_audit_ROLLBACK.sql','assets/js/training-editor.js','functions/_lib/owner-lab-readiness-v01493.js','assets/js/owner-roadmap-product-readiness-v01491.js','tests/test_v014093_owner_lab_readiness.mjs','tests/test_b01_review_withdrawal_and_private_grading.mjs','functions/api/interactive-training.js','training-editor.html','docs/419_LAB_TOPIC_ALIGNMENT_REVIEW_v014117.csv','tests/test_v014117_lab_topic_gate.mjs','tests/test_b01_owner_revision_lock.mjs','tests/test_b01_private_lesson_owner_review.mjs','tests/test_v014280_rubric_review_audit.mjs','.github/workflows/lab-topic-gate-v014117.yml']
   push:
     branches: [main]
-    paths: ['functions/api/training-editor.js','supabase/migrations/v0.14.0.280_b01_rubric_review_audit.sql','supabase/rollbacks/v0.14.0.280_b01_rubric_review_audit_ROLLBACK.sql','assets/js/training-editor.js','functions/_lib/owner-lab-readiness-v01493.js','assets/js/owner-roadmap-product-readiness-v01491.js','tests/test_v014093_owner_lab_readiness.mjs','tests/test_b01_review_withdrawal_and_private_grading.mjs','functions/api/interactive-training.js','training-editor.html','docs/419_LAB_TOPIC_ALIGNMENT_REVIEW_v014117.csv','tests/test_v014117_lab_topic_gate.mjs','tests/test_b01_owner_revision_lock.mjs','tests/test_v014280_rubric_review_audit.mjs','.github/workflows/lab-topic-gate-v014117.yml']
+    paths: ['functions/api/training-editor.js','supabase/migrations/v0.14.0.280_b01_rubric_review_audit.sql','supabase/migrations/v0.14.0.281_b01_private_lesson_review.sql','supabase/rollbacks/v0.14.0.281_b01_private_lesson_review_ROLLBACK.sql','supabase/rollbacks/v0.14.0.280_b01_rubric_review_audit_ROLLBACK.sql','assets/js/training-editor.js','functions/_lib/owner-lab-readiness-v01493.js','assets/js/owner-roadmap-product-readiness-v01491.js','tests/test_v014093_owner_lab_readiness.mjs','tests/test_b01_review_withdrawal_and_private_grading.mjs','functions/api/interactive-training.js','training-editor.html','docs/419_LAB_TOPIC_ALIGNMENT_REVIEW_v014117.csv','tests/test_v014117_lab_topic_gate.mjs','tests/test_b01_owner_revision_lock.mjs','tests/test_b01_private_lesson_owner_review.mjs','tests/test_v014280_rubric_review_audit.mjs','.github/workflows/lab-topic-gate-v014117.yml']
 permissions:
   contents: read
 jobs:
@@ -21,6 +21,9 @@ jobs:
           node --check assets/js/training-editor.js
           node tests/test_v014117_lab_topic_gate.mjs
           node tests/test_b01_owner_revision_lock.mjs
+          node tests/test_b01_private_lesson_owner_review.mjs
+          node --check functions/api/training-editor.js
+          node --check assets/js/training-editor.js
           node tests/test_v014280_rubric_review_audit.mjs
           node tests/test_v014093_owner_lab_readiness.mjs
           node tests/test_v014105_reviewed_knowledge_bridge.mjs
