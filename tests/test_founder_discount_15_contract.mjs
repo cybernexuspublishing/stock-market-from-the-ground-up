@@ -20,3 +20,16 @@ test('both migrations guard launch and update discount function',()=>{
  assert.ok(sql.includes('purchase_discount_bps='+bps));
  }
 });
+
+
+test('founding consent links exact published policies and does not promise an in-site trading simulator',()=>{
+ const page=read('founding600.html');
+ for(const doc of ['terms.html','subscription-terms.html','refund-policy.html','privacy.html']){
+  assert.match(page,new RegExp('href="'+doc.replace('.','\\.')+'"'));
+ }
+ assert.match(page,/I explicitly authorize the recurring/);
+ assert.match(page,/does not provide a live in-site trading simulator/);
+ assert.doesNotMatch(page,/10 saved simulator exercises/);
+ assert.doesNotMatch(page,/Full first-party platform tools while paid/);
+ assert.match(page,/id="f600-enroll-button" disabled/);
+});
