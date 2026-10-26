@@ -5,12 +5,21 @@
 const enc=encodeURIComponent;
 const error=(message,status=403)=>Object.assign(new Error(message),{status});
 function config(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),pub=env.SUPABASE_PUBLISHABLE_KEY,secret=env.SUPABASE_SECRET_KEY;if(!base||!pub||!secret)throw error('Training authorization is not configured.',503);return{base,pub,secret}}
-async function ask(url,init){const r=await fetch(url,{...init,cache:'no-store'});if(!r.ok)throw error('Training authorization unavailable.',r.status===401?401:503);return r.json()}
+async function ask(url,init,{identity=false}={}){
+ const r=await fetch(url,{...init,cache:'no-store'});
+ // GoTrue may return either 401 or 403 for an invalid bearer. Both represent
+ // unauthenticated callers, not an unavailable database or member service.
+ if(!r.ok){
+  if(identity&&(r.status===401||r.status===403))throw error('Invalid session.',401);
+  throw error('Training authorization unavailable.',503);
+ }
+ return r.json();
+}
 export async function memberIdentity(env,req){
  const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];
  if(!token)throw error('Sign in required.',401);
  const c=config(env);
- const user=await ask(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});
+ const user=await ask(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}},{identity:true});
  if(!user?.id)throw error('Invalid session.',401);
  return {userId:user.id,config:c};
 }
