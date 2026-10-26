@@ -27,6 +27,13 @@ for(const id of ['sim-start-free','sim-load-fictional','sim-server-mode','sim-le
 }
 assert(html.indexOf('fictional-simulator-starter-v1.js')<html.indexOf('assets/js/simulator.js'),'load fixture before engine');
 assert(html.includes('id="sim-legacy-mode" hidden'),'keep licensed replay as default and CSV hidden until selected');
+const chartAt=html.indexOf('id="sim-chart"');
+const instructorAt=html.indexOf('id="sim-talia-guidance"');
+const planAt=html.indexOf('class="journal-card sim-side"');
+assert(chartAt>=0&&instructorAt>chartAt&&planAt>instructorAt,
+ 'Full-width candle chart must precede instructor guidance and paper-trade controls');
+assert(html.includes('bootcamp-academy.html?program=free5&amp;day=2'),'Talia chart explanation leads to real free typed-answer lesson');
+assert(read('assets/css/simulator.css').includes('.sim-layout{grid-template-columns:minmax(0,1fr)}'),'Chart occupies full width at desktop too');
 assert(html.includes('browser developer tools'),'client sequence must not be misrepresented as blind graded practice');
 assert(mode.includes("params.get('practice')==='free'"),'direct beginner deep links must work');
 assert(mode.includes("'groundup:request-free-practice'"),'Free Start must dispatch to existing simulator');
