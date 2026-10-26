@@ -19,6 +19,7 @@ const defs=Array.from({length:30},(_,i)=>({
  name:'Competency '+(i+1),description:'Approved skill definition',minimum_evidence:10,
  pass_score:80,mastery_score:90,metadata:{mastery_pass_streak:3}}));
 const rubric={lab_id:'SITE-001',version:96,review_state:'draft',
+ updated_at:'2026-10-26T06:00:00.123456Z',
  title:'Site original authored training sample',source_status:'original_hypothetical_unreviewed_v01496',
  questions:[{id:'Q01',kind:'choice',prompt:'Which observation is directly supported by the supplied source?',
  options:['Visible observation','Fabricated future'],explanation:'Identify observed data and distinguish inference.'}],
@@ -35,9 +36,11 @@ globalThis.fetch=async(url,opts={})=>{
  if(path.includes('/competency_evidence?'))return json([]);
  if(path.includes('/lab_training_sets_v014?')&&opts.method==='PATCH'){
   assert.equal(JSON.parse(opts.body).source_status,rubric.source_status);
+  assert(path.includes('updated_at=eq.'+encodeURIComponent(rubric.updated_at)),
+   'Owner draft must perform optimistic revision-locked PATCH');
   return json([{...rubric,review_state:'draft'}]);
  }
- if(path.includes('/lab_training_sets_v014?')&&path.includes('select=version,review_state,source_status'))return json([{version:96,review_state:'draft',source_status:rubric.source_status}]);
+ if(path.includes('/lab_training_sets_v014?')&&path.includes('select=version,review_state,source_status'))return json([{version:96,review_state:'draft',updated_at:rubric.updated_at,source_status:rubric.source_status}]);
  if(path.includes('/lab_training_sets_v014?')&&path.includes('select=*'))return json([rubric]);
  if(path.includes('/lab_training_sets_v014?'))return json([{lab_id:rubric.lab_id,version:96,title:rubric.title,review_state:'draft',source_status:rubric.source_status}]);
  throw Error('Unexpected mock route: '+path);
@@ -70,10 +73,16 @@ try{
  [status,body]=await get(editor,'training-editor?action=list');
  assert.equal(status,200);assert.equal(body.sets[0].review_state,'draft');
  [status,body]=await get(editor,'training-editor?action=draft',{
-  labId:'SITE-001',title:rubric.title,questions:rubric.questions,answerKey:rubric.answer_key
+  labId:'SITE-001',title:rubric.title,questions:rubric.questions,answerKey:rubric.answer_key,
+  expectedUpdatedAt:rubric.updated_at
  });
  assert.equal(status,200);assert.equal(body.reviewState,'draft');
  assert(!JSON.stringify(body).includes('Visible observation'));
+ [status]=await get(editor,'training-editor?action=draft',{
+  labId:'SITE-001',title:rubric.title,questions:rubric.questions,answerKey:rubric.answer_key,
+  expectedUpdatedAt:'2026-10-26T05:59:59.000000Z'
+ });
+ assert.equal(status,409,'A stale draft revision must fail without modifying the rubric');
  role='ADMIN';[status]=await get(editor,'training-editor?action=list');
  assert.equal(status,403,'Owner-only private grading keys');
  role='OWNER';kind='showcase';[status]=await get(editor,'training-editor?action=list');
