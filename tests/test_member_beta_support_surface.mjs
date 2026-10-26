@@ -18,7 +18,7 @@ assert(html.includes('data-auth-required="true"'));
 assert(dashboard.includes("const viewingSupport = activeTab === 'support'")&&
  dashboard.includes("new URLSearchParams(location.search).get('tab')"),
  'Dashboard must honor the linked Support route');
-assert(dashboard.includes('if (viewingSupport) return;'),
+assert(/if \(viewingSupport\) \{[\s\S]*?return;[\s\S]*?\}\s*const \[labs, profileResult/.test(dashboard),
  'When viewing Support, hidden Overview should not fetch unrelated private information');
 for(const action of ["call('list')","call('detail'","call('create'","call('reply'","call('reopen'"]){
  assert(client.includes(action),'Missing working Support action '+action);
