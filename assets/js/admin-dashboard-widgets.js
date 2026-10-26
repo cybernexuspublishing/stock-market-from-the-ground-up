@@ -12,6 +12,22 @@ function render(data){
  root.replaceChildren();
  const stamp=node('div',undefined,'admin-widget-stamp');stamp.append(node('span',data.showcase?'SHOWCASE · SYNTHETIC DATA':'CURRENT RECORDED TOTALS'));
  const time=node('time');const parsed=new Date(data.observedAt||'');if(!Number.isNaN(parsed.getTime())){time.dateTime=parsed.toISOString();time.textContent='Updated '+parsed.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}else time.textContent='Update time unavailable';stamp.append(time);root.append(stamp);
+ // These shortcuts are enabled only when the authoritative dashboard response
+ // confirms the required permission. Their click handlers remain in admin.js.
+ const granted=new Set(Array.isArray(data.permissions)?data.permissions:[]);
+ const quick=node('nav',undefined,'cc-dashboard-quick');
+ quick.setAttribute('aria-label','Authorized Admin quick actions');
+ const shortcuts=[
+  ['Find members','users',['users.view']],
+  ['Review Labs and assessments','training-review',['content.view','learning.manage']],
+  ['Manage Store products','products',['catalog.view']],
+  ['Moderate reports','community',['forum.view']],
+  ['Review audit history','audit',['audit.view']],
+  ['Inspect system','system',['system.view']]
+ ];
+ for(const [label,target,permissions] of shortcuts)
+  if(permissions.some(p=>granted.has(p)))quick.append(action(label,target));
+ if(quick.childElementCount){const h=node('h2','Quick Actions');root.append(h,quick)}
  const charts=node('div',undefined,'admin-widget-charts');
  for(const group of dashboardCharts(data)){
   const chart=node('article',undefined,'admin-widget-card');chart.append(node('h2',group.title),node('p',group.description,'admin-widget-description'));
