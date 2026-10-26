@@ -503,10 +503,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   }else if(stage===1){
    // The instructor and chart are the lesson; do not repeat the same
    // content underneath as an isolated wall of generic competency text.
-   showVisual(1,topic==='Bearish Candle'?'bearish':visualType==='candle'?'worked':'default');freeExplanation();guidedHelp();
+   showVisual(1,topic==='Bearish Candle'?'bearish':visualType==='candle'?'worked':'default');
+   // Talia owns Learn-stage concept, example and deeper-teaching actions.
+   // Keep disclosure fallbacks only if her instructor component is unavailable.
+   if(!instructorInstance){freeExplanation();guidedHelp();}
    attachWallet();
    const deeper=lessonPlan(1);
-   detail(body,'Teach This in More Depth',[
+   if(!instructorInstance)detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
     ...(deeper?.worked||[]),
     'Common error and its correction: '+(deeper?.misconception||guide.commonError),
