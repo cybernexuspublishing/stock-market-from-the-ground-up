@@ -454,7 +454,7 @@ async function loadMemberFirstName(session){
  }catch{return fallback}
  finally{clearTimeout(timer)}
 }
-async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
+async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const reportLink=q('player-report-issue');if(reportLink)reportLink.href='dashboard.html?tab=support&lab='+encodeURIComponent(id);const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
  const session=authResult?.data?.session||null;
  const memberId=session?.user?.id||'';
