@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-// v54: full Stripe/Supabase pre-payment mock, NO live provider requests or actual Stripe sessions.
-const raw=readFileSync(new URL('../functions/api/gu39-sandbox.js',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(raw).toString('base64'));
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const root='https://example.com/api/gu39-sandbox',db='https://aaaaaaaaaaaaaaaaaaaa.supabase.co';
 const actorId='c0e4ee3e-39d2-4720-a8cb-6d03c9cfaa43';
 const mapping={
