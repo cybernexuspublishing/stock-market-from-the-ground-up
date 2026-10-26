@@ -23,17 +23,23 @@ function renderTopicReviewWarning(set){
   !V96_SEED_IDS.has(String(q?.id||''))&&
   String(q?.prompt||'').trim().length>=80&&String(q?.explanation||'').trim().length>=120);
  const isB01=source.startsWith('original_hypothetical_b01_');
- const b01Cases=Array.isArray(set.questions)&&
-  [['B01_APPLICATION',80,70],['B01_LIMITATION',40,55]].every(([id,pMin,eMin])=>{
-   const q=set.questions.find(x=>x?.id===id);
-   return q?.kind==='choice'&&String(q.prompt||'').trim().length>=pMin&&
-    String(q.explanation||'').trim().length>=eMin&&
-    Array.isArray(q.options)&&q.options.length===3&&
-    new Set(q.options.map(x=>String(x).trim().toLowerCase())).size===3;
-  });
- el.textContent=isB01?(b01Cases?
-  'B01 case drafts are present. Independently inspect their answer keys, source evidence, distractors, ambiguity, limitations and concept alignment before explicit Owner approval. No historical market evidence is certified.':
-  'B01 REVIEW BLOCKED: Both distinct topic-specific application and limitation questions need complete evidence and explanations.'):
+ const b01Order=['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDARY','B01_APPLICATION','B01_LIMITATION'];
+ const b01Ready=Array.isArray(set.questions)&&set.questions.length===6&&
+  b01Order.every((id,index)=>{
+   const q=set.questions[index],prompt=String(q?.prompt||'').trim();
+   if(q?.id!==id||prompt.length<30||String(q?.explanation||'').trim().length<80)return false;
+   if(index===2)return q.kind==='number'&&prompt.startsWith('FICTIONAL:');
+   const options=q?.options;
+   return q.kind==='choice'&&Array.isArray(options)&&options.length===3&&
+    new Set(options.map(x=>String(x).trim().toLowerCase())).size===3&&
+    options.every(x=>String(x).length<100);
+  })&&String(set.questions[4].prompt).startsWith('FICTIONAL:')&&
+  !/^In ".+"[,]? which learning method/i.test(String(set.questions[0].prompt))&&
+  !/^Which study objective is appropriate BEFORE acting/i.test(String(set.questions[1].prompt))&&
+  !/^For this ".+" exercise/i.test(String(set.questions[3].prompt));
+ el.textContent=isB01?(b01Ready?
+  'B01 draft quality precheck: six individualized question shapes detected. NOT APPROVED. Before each Owner review, read every answer and misconception, verify calculations and source limits, check keyboard guidance, and confirm the Lab's exact topic. This is conceptual education, not verified historical trading evidence.':
+  'B01 REVIEW BLOCKED: All six questions must be individual to the Lab, with a fictional numeric example, distinct choices, explanations and both application/limitation cases.'):
   isV96?(application?
   'An added topic application question is present. Independently verify its answer, teaching feedback, dataset rights, and the specific Lab concept before approving.':
   'TOPIC-SPECIFIC QUESTION REQUIRED: Original v96 arithmetic/study-method scaffolding is not an adequate subject assessment. Add one new question (new ID, 80+ character prompt, 120+ character explanation) and save the revised draft before review.'):
