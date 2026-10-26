@@ -11,7 +11,10 @@ assert(html.includes('id="free-learning-launchpad"')&&
  html.includes('aria-labelledby="free-learning-title" hidden'),'Free learning plan must not appear before session');
 assert(html.includes('simulator.html?practice=free'),'actual working fictional practice direct link');
 assert(html.includes('assets/css/free-member-launchpad.css'),'real responsive design stylesheet');
-assert(js.includes('if (!active.length) void renderFreeLearningDashboard(sb);'),'paid tier remains distinct from free launchpad');
+assert(js.includes('if (!active.length) {')&&js.includes('void renderFreeLearningDashboard(sb);'),'paid tier remains distinct from Free launchpad');
+assert(js.includes('renderFreeFoundationEvidence(sb,user.id);'),'Free skills must use private Academy progress');
+assert(js.includes('renderRecentFreeJournal(sb,user.id);'),'weekly learning overview includes actual saved Journal data');
+assert(html.includes('Not Yet Assessed'),'never invent assessed skills for Free reflections');
 assert(!js.includes("sb.rpc('gu_v014121_my_free_week_usage', {"),'user ID must never be supplied to owner-scoped usage RPC');
 const match=js.match(/async function renderFreeLearningDashboard\(sb\) \{[\s\S]*?\n\}\n\nasync function initDashboard/);
 assert(match,'Free dashboard usage function must exist');
