@@ -6,6 +6,11 @@ on:
       - 'functions/api/member-tool-access.js'
       - 'functions/api/lab-player-context.js'
       - 'functions/api/lab-content.js'
+      - 'functions/api/interactive-training.js'
+      - 'functions/api/competencies.js'
+      - 'assets/js/interactive-training.js'
+      - 'tests/v014_api_contracts.mjs'
+      - 'tests/test_v014099_curriculum_contract.mjs'
       - 'tests/test_v014162_lab_player_context.mjs'
       - 'tests/test_lab_access_rpc_resilience.mjs'
       - '.github/workflows/shared-lab-engine-v33.yml'
@@ -16,6 +21,11 @@ on:
       - 'assets/js/lab-engine-v33-visual.js'
       - 'assets/js/lab-player.js'
       - 'functions/api/lab-content.js'
+      - 'functions/api/interactive-training.js'
+      - 'functions/api/competencies.js'
+      - 'assets/js/interactive-training.js'
+      - 'tests/v014_api_contracts.mjs'
+      - 'tests/test_v014099_curriculum_contract.mjs'
       - 'functions/api/lab-player-context.js'
       - 'tests/test_lab_content_access_recovery.mjs'
       - 'tests/test_v014162_member_player_browser.mjs'
@@ -46,6 +56,10 @@ jobs:
           node tests/test_v014162_419_universal.mjs
           node tests/lab-engine-v33.test.mjs
           node tests/test_v014099_curriculum_contract.mjs
+          node tests/v014_api_contracts.mjs
+          node --check functions/api/interactive-training.js
+          node --check functions/api/competencies.js
+          node --check assets/js/interactive-training.js
           node tests/test_v014096_419_conceptual_training.mjs
           node tests/test_lab_content_access_recovery.mjs
           node tests/test_v014162_lab_player_context.mjs
