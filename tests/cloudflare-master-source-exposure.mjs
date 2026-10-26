@@ -35,6 +35,18 @@ await verify('Pages health GET',async()=>{
  assert.equal(r.status,200);const b=await r.json();
  assert.equal(b.ok,true);assert.equal(b.readOnly,true);
 });
+await verify('Founding 600 checkout stays locked and excludes secrets',async()=>{
+ const r=await fetch(site+'/api/founding600-checkout',{method:'GET',redirect:'manual',cache:'no-store'});
+ assert.equal(r.status,200);
+ const responseBody=await r.text();
+ const j=JSON.parse(responseBody);
+ assert.equal(j.ok,true);
+ assert.equal(j.checkoutEnabled,false,'LIVE founding checkout unexpectedly opened');
+ assert.equal(j.capacity,600);
+ assert.deepEqual(j.plans.map(p=>[p.code,p.priceCents,p.billingDays]),[
+  ['FOUNDING_30',4999,30],['FOUNDING_60',5999,60]]);
+ assert.doesNotMatch(responseBody,/sk_(?:live|test)_|whsec_|sb_secret_|GU58_STRIPE_LIVE_SECRET_KEY/);
+});
 await verify('Ad catalog 3 packages, checkout disabled',async()=>{
  const r=await fetch(site+'/api/ad-sales',{redirect:'manual'});
  assert.equal(r.status,200);const j=await r.json();
