@@ -2,7 +2,20 @@ const H={'content-type':'application/json; charset=utf-8','cache-control':'no-st
 const out=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:H});
 const clean=v=>String(v??'').trim();
 function cfg(env){const url=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);if(!url||!pub||!secret)throw Object.assign(new Error('Account service is not configured.'),{status:503});return{url,pub,secret}}
-async function jf(url,opt={}){const r=await fetch(url,opt),t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch{d={raw:t}}if(!r.ok)throw Object.assign(new Error(d.message||d.msg||d.error_description||d.error||t||`HTTP ${r.status}`),{status:r.status,data:d});return d}
+async function jf(url,opt={}){const r=await fetch(url,opt),t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch{d={raw:t}}if(!r.ok){
+ const captchaFailure=url.endsWith('/auth/v1/signup')&&
+  (d.error_code==='captcha_failed'||d.code==='captcha_failed');
+ if(captchaFailure){
+  const detail=String(d.msg||d.message||d.error_description||d.error||'');
+  const configurationError=/invalid-input-secret/i.test(detail);
+  // Never echo provider secrets or confusing credentials advice to members.
+  // The same protected Supabase Auth service retains final CAPTCHA authority.
+  throw Object.assign(new Error(configurationError?
+   'Human verification is temporarily unavailable. Contact Support; your account was not created.':
+   'Human verification was not accepted. Uncheck and restart the verification challenge before submitting again.'),{status:configurationError?503:403});
+ }
+ throw Object.assign(new Error(d.message||d.msg||d.error_description||d.error||t||`HTTP ${r.status}`),{status:r.status,data:d});
+}return d}
 async function caller(env,req){const h=req.headers.get('authorization')||'',tok=h.startsWith('Bearer ')?h.slice(7):'';if(!tok)throw Object.assign(new Error('Authentication required.'),{status:401});const{url,pub}=cfg(env);return jf(`${url}/auth/v1/user`,{headers:{apikey:pub,authorization:`Bearer ${tok}`}})}
 async function rest(env,path,{method='GET',body,prefer}={}){const{url,secret}=cfg(env),headers={apikey:secret,...(secret.startsWith('sb_secret_')?{}:{authorization:`Bearer ${secret}`}),accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';if(prefer)headers.prefer=prefer;return jf(`${url}/rest/v1/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
 async function adminAuth(env,path,{method='GET',body}={}){const{url,secret}=cfg(env),headers={apikey:secret,...(secret.startsWith('sb_secret_')?{}:{authorization:`Bearer ${secret}`}),accept:'application/json'};if(body!==undefined)headers['content-type']='application/json';return jf(`${url}/auth/v1/admin/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
