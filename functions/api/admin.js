@@ -129,12 +129,32 @@ async function handleGet(env,request,action,url){
   }
   if(action==='dashboard'){
     const c=await withContext(env,request,'dashboard.view');
-    const [users,library,orders,subs,reports,auditCount,catalog,content]=await Promise.all([
+    // Each operational count comes from its existing authoritative table.
+    // A failing source stays null; absence of data is never reported as zero.
+    const [users,library,orders,subs,reports,auditCount,catalog,content,
+      pendingLabReviews,draftAssessments,founderOccupied,academyActive,
+      openSupportTickets,currentDigitalEditions]=await Promise.all([
       countTable(env,'profiles'),
-      countTable(env,'user_library'),countTable(env,'site_orders'),countTable(env,'site_subscriptions'),countTable(env,'forum_reports','status=eq.open'),countTable(env,'admin_audit_log'),countTable(env,'catalog_products'),countTable(env,'managed_content','status=eq.published')
+      countTable(env,'user_library'),
+      countTable(env,'site_orders'),
+      countTable(env,'site_subscriptions'),
+      countTable(env,'forum_reports','status=eq.open'),
+      countTable(env,'admin_audit_log'),
+      countTable(env,'catalog_products'),
+      countTable(env,'managed_content','status=eq.published'),
+      countTable(env,'lab_instruction_v014','reviewed_at=is.null'),
+      countTable(env,'lab_training_sets_v014','review_state=eq.draft'),
+      countTable(env,'gu_founder_members_v014173','revoked_at=is.null'),
+      countTable(env,'gu_bootcamp_academy_enrollments_v014168','status=eq.active'),
+      countTable(env,'support_tickets','status=in.(new,open,assigned,in_progress,waiting_member,waiting_staff,escalated)'),
+      countTable(env,'gu_digital_versions_v014303','current=eq.true')
     ]);
     const activeEntitlements=await countTable(env,'entitlements','status=in.(active,trialing)');
-    return ok({summary:{users,library,orders,subscriptions:subs,openReports:reports,auditEntries:auditCount,catalogProducts:catalog,publishedContent:content,activeEntitlements},roles:c.ctx.roles});
+    return ok({summary:{users,library,orders,subscriptions:subs,openReports:reports,
+      auditEntries:auditCount,catalogProducts:catalog,publishedContent:content,
+      activeEntitlements,pendingLabReviews,draftAssessments,founderOccupied,
+      academyActive,openSupportTickets,currentDigitalEditions},
+      observedAt:new Date().toISOString(),roles:c.ctx.roles});
   }
   if(action==='users'){
     const c=await withContext(env,request,'users.view');const q=clean(url.searchParams.get('q')).toLowerCase().slice(0,120);const page=adminPageInt(url.searchParams.get('page'));const perPage=adminPageInt(url.searchParams.get('per_page'),{fallback:100,min:20,max:200});

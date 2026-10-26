@@ -39,9 +39,50 @@ async function loadPanel(name,force=false){
  }
 }
 function metric(label,value,target,description){const disabled=target==='account-management'?!has('users.view'):target==='users'?!has('users.view'):target==='commerce'?!has('commerce.view'):target==='catalog'?!has('catalog.view'):target==='content'?!has('content.view'):target==='community'?!has('forum.view'):false;return `<button type="button" class="admin-metric cc-metric-link" data-cc-metric="${ae(target)}" aria-label="${ae(label)}: ${value==null?'not available':ae(value)}. ${ae(description||'Open the corresponding management section')}" title="${ae(description||'Open management section')}" ${disabled?'disabled':''}><span>${ae(label)}</span><strong>${value==null?'—':ae(value)}</strong><small class="cc-metric-hint">${disabled?'Restricted':'View details →'}</small></button>`}
-async function loadDashboard(){const j=await api('dashboard');const s=j.summary||{};document.getElementById('admin-summary').innerHTML=[metric('Users',s.users,'users','Search and manage member accounts'),metric('Active learning access',s.activeEntitlements,'account-management','Review learning grants in Account Management'),metric('Library records',s.library,'account-management','Inspect per-member library access in Account Management'),metric('Site orders',s.orders,'commerce','Review recorded orders'),metric('Subscriptions',s.subscriptions,'commerce','Review recorded subscriptions'),metric('Open reports',s.openReports,'community','Review all submitted community reports'),metric('Catalog products',s.catalogProducts,'catalog','Manage book and catalog products'),metric('Published content',s.publishedContent,'content','Manage published instructional and support content')].join('');document.getElementById('admin-permission-summary').innerHTML=`<p><strong>Roles:</strong> ${(ADMIN.ctx.roles||[]).map(x=>`<span class="admin-badge">${ae(x)}</span>`).join(' ')||'None'}</p><p class="admin-muted">${ADMIN.ctx.permissions.length} effective permissions. High-risk actions are permission-gated and audited.</p>`;const checks=[];if((s.openReports||0)>0)checks.push(`<li><button type="button" class="cc-alert-link" data-cc-metric="community">${ae(s.openReports)} community report${s.openReports===1?'':'s'} awaiting review → Open Reports</button></li>`);if(!has('audit.view'))checks.push('<li>Your role cannot inspect the audit log.</li>');if(!has('system.view'))checks.push('<li>Your role cannot inspect technical integration status.</li>');if(!checks.length)checks.push('<li>No immediate control-center alert was detected from the current summary.</li>');document.getElementById('admin-priority-checks').innerHTML=`<ul>${checks.join('')}</ul>`;const snapshot=Object.freeze({...s,showcase:j.showcase===true,observedAt:new Date().toISOString()});window.GroundUpAdminSummarySnapshot=snapshot;window.dispatchEvent(new CustomEvent('groundup:admin-summary',{detail:snapshot}))}
+async function loadDashboard(){
+ const j=await api('dashboard'),s=j.summary||{};
+ const n=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+ const p=document.getElementById('admin-summary');
+ p.innerHTML=[
+  metric('Users',n(s.users),'users','Registered profile records; inspect member accounts'),
+  metric('Active learning access',n(s.activeEntitlements),'account-management','Active and trialing entitlement records, not unique learners'),
+  metric('Library records',n(s.library),'account-management','Review individual member library access'),
+  metric('Site orders',n(s.orders),'commerce','Recorded orders, not confirmed revenue'),
+  metric('Subscriptions',n(s.subscriptions),'commerce','Subscription records, not necessarily active subscriptions'),
+  metric('Open reports',n(s.openReports),'community','Open community moderation reports'),
+  metric('Catalog products',n(s.catalogProducts),'products','Review catalog items'),
+  metric('Published content',n(s.publishedContent),'content','Review published learning and support content'),
+  metric('Founding occupied places',n(s.founderOccupied),'commerce','Confirmed nonrevoked founding records; 600 places total'),
+  metric('Lab instructions awaiting review',n(s.pendingLabReviews),'training-review','Unreviewed Lab instruction records'),
+  metric('Draft assessment sets',n(s.draftAssessments),'training-review','Assessment sets not yet editorially approved'),
+  metric('Active Academy enrollments',n(s.academyActive),'training-review','Enrollment records with active status'),
+  metric('Open support tickets',n(s.openSupportTickets),'users','Unresolved support ticket records'),
+  metric('Current digital editions',n(s.currentDigitalEditions),'products','Registered current private PDF or EPUB editions')
+ ].join('');
+ document.getElementById('admin-permission-summary').innerHTML=`<p><strong>Roles:</strong> ${(ADMIN.ctx.roles||[]).map(x=>`<span class="admin-badge">${ae(x)}</span>`).join(' ')||'None'}</p><p class="admin-muted">${ADMIN.ctx.permissions.length} effective permissions. Backend enforcement remains authoritative.</p>`;
+ const checks=[],monitored=[
+  ['Community reports',s.openReports,'community','awaiting moderation'],
+  ['Lab instructions',s.pendingLabReviews,'training-review','awaiting editorial review'],
+  ['Assessment sets',s.draftAssessments,'training-review','still in draft'],
+  ['Support tickets',s.openSupportTickets,'users','unresolved']
+ ];
+ let unavailable=false,issues=0;
+ for(const [label,raw,target,state] of monitored){
+  const count=n(raw);
+  if(count===null){unavailable=true;checks.push(`<li role="status">${ae(label)}: source unavailable or not verified. Inspect the related service.</li>`);continue}
+  if(count>0){issues++;checks.push(`<li><button type="button" class="cc-alert-link" data-cc-metric="${ae(target)}">${ae(String(count))} ${ae(label.toLowerCase())} ${ae(state)} → Review</button></li>`)}
+ }
+ if(!has('audit.view'))checks.push('<li>Audit-log inspection is restricted for your role.</li>');
+ if(!has('system.view'))checks.push('<li>Technical integration inspection is restricted for your role.</li>');
+ if(!issues&&!unavailable)checks.unshift('<li>No open items detected in the four monitored queue categories. Other operational checks still require review.</li>');
+ document.getElementById('admin-priority-checks').innerHTML=`<ul>${checks.join('')}</ul>`;
+ const snapshot=Object.freeze({...s,showcase:j.showcase===true,observedAt:j.observedAt||null});
+ window.GroundUpAdminSummarySnapshot=snapshot;
+ window.dispatchEvent(new CustomEvent('groundup:admin-summary',{detail:snapshot}));
+}
+
 // Delegated navigation: the original RBAC-protected panel functions remain authoritative.
-function openMetricTarget(target){if(target==='account-management'){const b=document.querySelector('#admin-tabs [data-v1352-menu]');if(b&&!b.hidden){b.click();return}}const button=document.querySelector(`#admin-tabs button[data-panel="${target}"]`);if(button&&!button.hidden){button.click();if(target==='community')document.getElementById('admin-forum-reports')?.scrollIntoView({block:'start',behavior:'smooth'});return}const notice=document.getElementById('admin-priority-checks');if(notice)notice.insertAdjacentHTML('beforeend','<p role="status">This section is unavailable to the current account.</p>')}
+function openMetricTarget(target){if(target==='training-review'){if(has('content.view')||has('learning.manage')){location.assign('/training-editor.html');return}const s=document.getElementById('admin-priority-checks');if(s)s.insertAdjacentHTML('beforeend','<p role="status">Your role cannot review learning content.</p>');return}if(target==='account-management'){const b=document.querySelector('#admin-tabs [data-v1352-menu]');if(b&&!b.hidden){b.click();return}}const button=document.querySelector(`#admin-tabs button[data-panel="${target}"]`);if(button&&!button.hidden){button.click();if(target==='community')document.getElementById('admin-forum-reports')?.scrollIntoView({block:'start',behavior:'smooth'});return}const notice=document.getElementById('admin-priority-checks');if(notice)notice.insertAdjacentHTML('beforeend','<p role="status">This section is unavailable to the current account.</p>')}
 function installMetricNavigation(){if(document.body.dataset.ccMetricNav==='1')return;document.body.dataset.ccMetricNav='1';document.getElementById('admin-app')?.addEventListener('click',e=>{const b=e.target.closest('[data-cc-metric]');if(b&&!b.disabled)openMetricTarget(b.dataset.ccMetric)})}
 
 async function loadUsers(){const q=document.getElementById('admin-user-search').value.trim();const j=await api('users',{params:{q}});const users=j.users||[];document.getElementById('admin-users-table').innerHTML=users.length?`<table class="admin-table"><thead><tr><th>User</th><th>Username</th><th>Roles</th><th>Account</th><th>Created</th><th></th></tr></thead><tbody>${users.map(u=>`<tr><td><strong>${ae(u.email||'No email')}</strong><div class="admin-muted">${ae(u.id)}</div></td><td>${ae(u.profile?.username||'—')}</td><td>${(u.roles||[]).map(r=>`<span class="admin-badge">${ae(r)}</span>`).join(' ')||'—'}</td><td>${u.banned_until&&new Date(u.banned_until)>new Date()?'<span class="admin-badge danger">Banned</span>':`<span class="admin-badge ${u.flag?.status&&u.flag.status!=='active'?'warn':'good'}">${ae(u.flag?.status||'active')}</span>`}</td><td>${fmtDate(u.created_at)}</td><td><button class="btn secondary admin-open-user" data-id="${ae(u.id)}">Open</button></td></tr>`).join('')}</tbody></table>`:'<div class="admin-empty">No matching accounts.</div>';document.querySelectorAll('.admin-open-user').forEach(b=>b.addEventListener('click',()=>openUser(b.dataset.id)))}
