@@ -37,7 +37,7 @@ assert(registry.includes("document.getElementById('v011-lab-registry-gate')?.rem
 for(const term of ['sign out','unsaved','book not owned','Teach, then assess','keyboard','Support','unavailable activity is ever counted as a pass'])
  assert(html.toLowerCase().includes(term.toLowerCase()),'Missing pre-beta instruction '+term);
 assert.doesNotMatch(html,/beta participation (automatically|guarantees) (?:passes|certifies|unlocks)/i);
-assert(html.includes('Founding 600 testing is open for accessible Guided Beta lessons'),
+assert(html.includes('Founding Member testing is open for accessible Guided Beta lessons'),
  'Founder guidance must no longer make reviewed assessment approval a prerequisite for beta practice');
 assert(html.includes('other source-backed Labs in the selected 336'),
  'Founder guidance must cover the pre-beta target, not solely the original B01');
