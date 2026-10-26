@@ -39,9 +39,11 @@ export async function onRequest({request,env}){
   // Explicit status recognition is deliberately fail-closed until the
   // existing editorial approval workflow records the reviewed state.
   const reviewedLesson=new Set(lessons.filter(r=>
-   /^(editorially_reviewed|approved|published|beta_ready)(?:_|$)/i.test(String(r.source_status||'')))
+   /^(editorially_reviewed|owner_reviewed)(?:_|$)/i.test(String(r.source_status||'')))
    .map(r=>r.lab_id).filter(id=>goodId.test(id)&&isBetaCandidateLab(id)));
-  const ids=[...new Set(approved.map(r=>r.lab_id).filter(id=>
+  const ids=[...new Set(approved.filter(r=>
+   r.review_state==='reviewed'&&!!r.reviewed_at&&!!r.reviewed_by)
+   .map(r=>r.lab_id).filter(id=>
    goodId.test(id)&&isBetaCandidateLab(id)&&allowed.has(id)&&reviewedLesson.has(id)))].sort();
   return reply({ok:true,publishedIds:ids,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
    betaReadyCertified:false});
