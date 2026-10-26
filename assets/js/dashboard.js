@@ -56,7 +56,11 @@ async function initDashboard() {
   }
 
   gate.innerHTML = '';
-  content.hidden = false;
+  const viewingSupport = new URLSearchParams(location.search).get('tab') === 'support';
+  content.hidden = viewingSupport;
+  // The existing member Support API owns this workspace. Do not perform
+  // unrelated overview reads or reveal stale private dashboard data here.
+  if (viewingSupport) return;
 
   const [labs, profileResult, progressResult, entitlementResult, attemptResult, redemptionResult] = await Promise.all([
     loadJSON('data/labs.json'),
