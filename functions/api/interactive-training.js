@@ -67,9 +67,14 @@ function memberReport(raw){
   question:String(entry?.question??'').slice(0,1000),
   submitted:String(entry?.submitted??'').slice(0,600),
   correct:entry?.correct===true,
+  creditFraction:Number.isFinite(Number(entry?.creditFraction))&&Number(entry.creditFraction)>=0&&Number(entry.creditFraction)<=1
+   ?Number(entry.creditFraction):(entry?.correct===true?1:0),
+  criticalError:entry?.criticalError===true,
   explanation:String(entry?.explanation??'').slice(0,1600)
  }));
  return {score,correct,total,details:safeDetails,
+  criticalErrors:Number.isSafeInteger(Number(raw.criticalErrors))&&Number(raw.criticalErrors)>=0
+   ?Number(raw.criticalErrors):safeDetails.filter(entry=>entry.criticalError).length,
   note:String(raw.note??'').slice(0,600),
   sourceStatus:String(raw.sourceStatus??'').slice(0,120)};
 }
