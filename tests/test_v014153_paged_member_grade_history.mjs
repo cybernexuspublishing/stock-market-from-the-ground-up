@@ -37,6 +37,9 @@ try{
  let body=await resp.json();
  assert.equal(body.reviewedRows,251);
  assert.equal(body.latestByLab.length,2,'Older last-attempt for another Lab must remain discoverable');
+ assert.equal(body.latestAssessmentByLab.length,1,'Only Assessment-mode attempts belong in assessment summary');
+ assert(body.latestAssessmentByLab.every(x=>x.mode==='assessment'));
+ assert(!body.latestAssessmentByLab.some(x=>x.labId==='F1-C02-L01'),'Practice score must never masquerade as Assessment score');
  assert(body.latestByLab.some(x=>x.labId==='F1-C02-L01'&&x.score===72));
  assert.equal(body.truncated,false);
  assert.equal(body.recentCompleted.length,100);
