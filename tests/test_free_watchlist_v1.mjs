@@ -91,6 +91,6 @@ try{
  state.restricted=true;r=await call();assert.equal(r.status,403);
  state.restricted=false;state.showcase=true;r=await call();assert.equal(r.status,403);
  state.showcase=false;state.paid=true;r=await call();assert.equal(r.status,200);
- assert.equal(state.writes,3,'only authorized add, update and remove should reach database');
+ assert.equal(state.writes,4,'only authorized add, duplicate reject, update and remove reach database');
  console.log('PASS Free watchlist: real API handler + mocked provider, account isolation, immutable owner, CRUD, source labeling, invalid input and restricted users.');
 }finally{globalThis.fetch=prev}
