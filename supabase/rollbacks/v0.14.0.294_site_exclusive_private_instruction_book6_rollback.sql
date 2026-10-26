@@ -19,6 +19,10 @@ BEGIN
  THEN RAISE EXCEPTION 'Member progress exists; this rollback is unsafe'; END IF;
  IF EXISTS(SELECT 1 FROM public.lab_training_attempts_v014 WHERE lab_id BETWEEN 'SITE-018' AND 'SITE-100')
  THEN RAISE EXCEPTION 'Training attempt references exist; this rollback is unsafe'; END IF;
+ IF EXISTS(SELECT 1 FROM public.lab_attempts WHERE lab_id BETWEEN 'SITE-018' AND 'SITE-100')
+ THEN RAISE EXCEPTION 'Lab reflection attempts exist; this rollback is unsafe'; END IF;
+ IF EXISTS(SELECT 1 FROM public.site_lab_progress WHERE lab_id BETWEEN 'SITE-018' AND 'SITE-100')
+ THEN RAISE EXCEPTION 'Site Lab progress exists; this rollback is unsafe'; END IF;
 END $guard$;
 DELETE FROM public.lab_instruction_v014
  WHERE lab_id BETWEEN 'SITE-018' AND 'SITE-100'
