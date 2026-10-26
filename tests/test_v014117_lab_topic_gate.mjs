@@ -10,7 +10,7 @@ assert(register.some(r=>r.includes('F1-C07-L02')));
 assert(src('assets/js/training-editor.js').includes('TOPIC-SPECIFIC QUESTION REQUIRED'));
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public',SUPABASE_SECRET_KEY:'secret'};
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-let owner=true,approved=0,sourceStatus='original_hypothetical_unreviewed_v01496',rubricVersion=96,questions=[
+let owner=true,approved=0,staleReview=false,sourceStatus='original_hypothetical_unreviewed_v01496',rubricVersion=96,questions=[
  {id:'EVIDENCE',kind:'choice',prompt:'First observation evidence question',explanation:'Observed evidence only.',options:['One','Two']},
  {id:'FOCUS',kind:'choice',prompt:'First observation focus question',explanation:'Focus on what is observable.',options:['One','Two']},
  {id:'ORIGINAL_MATH',kind:'number',prompt:'Observed price range arithmetic',explanation:'Price range is high minus low.',tolerance:0},
@@ -25,9 +25,13 @@ globalThis.fetch=async (url,init={})=>{
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_roles?'))return json(owner?[{role_code:'OWNER',expires_at:null}]:[]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
- if(u.includes('/lab_training_sets_v014?')&&init.method==='PATCH'){approved++;return json([{lab_id:'F1-C07-L02',version:rubricVersion}])}
+ if(u.includes('/lab_training_sets_v014?')&&init.method==='PATCH'){
+  assert(u.includes('review_state=eq.draft')&&u.includes('updated_at=eq.'),'Review must use revision-locked update');
+  if(staleReview)return json([]);
+  approved++;return json([{lab_id:'F1-C07-L02',version:rubricVersion}]);
+ }
  if(u.includes('/lab_training_sets_v014?'))return json([{
-  lab_id:'F1-C07-L02',version:rubricVersion,review_state:'draft',
+  lab_id:'F1-C07-L02',version:rubricVersion,review_state:'draft',updated_at:'2026-10-26T06:00:00.123456Z',
   source_status:sourceStatus,questions,
   answer_key:{...baseKeys,...(questions.some(q=>q.id==='ETF_INDEX_APPLICATION')?{ETF_INDEX_APPLICATION:'One'}:{}),
    ...(rubricVersion===97?{B01_APPLICATION:'A correct distinction',B01_LIMITATION:'A valid limitation'}:{})}
@@ -110,6 +114,10 @@ try{
  r=await run();assert.equal(r.status,409,'Unrelated generic arithmetic cannot be promoted');
  questions[2]=numeric;
  assert.equal(approved,2,'Invalid review attempts must never mutate review state');
+ staleReview=true;
+ r=await run();assert.equal(r.status,409,'Concurrent update must reject Owner review');
+ assert.equal(approved,2,'Stale approval cannot mutate reviewed state');
+ staleReview=false;
  owner=false;r=await run();assert.equal(r.status,403);assert.equal(approved,2);
 }finally{globalThis.fetch=original}
 console.log('PASS v117: 419 canonical candidate register, unamended v96 approval denied, added topic question and Owner ACL required.');
