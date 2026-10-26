@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'tests/cloudflare-master-source-exposure.mjs'
+      - 'tests/test_member_tool_access_error_contract.mjs'
+      - 'functions/api/member-tool-access.js'
       - '.github/workflows/master-source-exposure.yml'
   workflow_dispatch:
 permissions:
@@ -19,5 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Isolated GoTrue invalid-token versus upstream outage contract
+        run: node tests/test_member_tool_access_error_contract.mjs
       - name: Verify source is private to the deployment, guest API authorization, and no LIVE payment calls
         run: node tests/cloudflare-master-source-exposure.mjs
