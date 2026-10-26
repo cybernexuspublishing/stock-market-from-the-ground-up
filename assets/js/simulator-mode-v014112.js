@@ -15,7 +15,7 @@
   a.setAttribute('aria-pressed',String(server));b.setAttribute('aria-pressed',String(!server));
   a.classList.toggle('secondary',!server);b.classList.toggle('secondary',server);
   note.textContent=server?
-   'Server replay reveals only previously authorized candles. A published, license-cleared source or clearly marked original fictional series is required.':
+   'Verified historical replay requires a genuinely source-verified, rights-cleared dataset and a matching entitlement. For instantly usable fictional practice, choose Start Free Practice.':
    'Browser CSV practice loads the whole user-supplied price sequence locally; do not treat this as independently verified history, broker fills or server-graded no-lookahead work.';
   if(server&&!startedServer){
    startedServer=true;
@@ -32,13 +32,20 @@
   if(!byId('sim-mode-server'))return;
   byId('sim-mode-server').addEventListener('click',()=>selectMode('server'));
   byId('sim-mode-csv').addEventListener('click',()=>selectMode('csv'));
+  byId('sim-start-free')?.addEventListener('click',()=>{
+   window.GroundUpFreePracticeRequested=true;
+   selectMode('csv');
+   window.dispatchEvent(new Event('groundup:request-free-practice'));
+  });
   const params=new URLSearchParams(location.search);
   const mode=params.get('mode');
+  const free=params.get('practice')==='free';
+  if(free)window.GroundUpFreePracticeRequested=true;
   // Existing Trade Review and Lab deep links intentionally target the
   // browser CSV workflow; keep their original member Journey intact.
   // An explicit mode=server always overrides a legacy link.
   const legacyLink=['journal_id','lab','topic'].some(k=>params.has(k));
-  selectMode(mode==='csv'||(mode!=='server'&&legacyLink)?'csv':'server');
+  selectMode(free||mode==='csv'||(mode!=='server'&&legacyLink)?'csv':'server');
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
