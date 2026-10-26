@@ -1,0 +1,16 @@
+/* Accessible, spacious product curriculum shelf for the existing Store detail design. */
+#store-training-programs{margin-block:2.5rem 4rem;padding:clamp(1.2rem,2vw,2rem);border:1px solid var(--line,rgba(145,165,185,.35));border-radius:18px;background:var(--card,rgba(18,42,64,.66));color:inherit}
+#store-training-programs>header{max-width:880px;margin-bottom:1.5rem}
+#store-training-programs .eyebrow{letter-spacing:.08em}
+#store-training-programs h2{font-size:clamp(1.35rem,2.5vw,2rem);line-height:1.2;margin:.4rem 0 1rem}
+#store-training-programs [role=status]{min-height:2rem;line-height:1.5;margin-block:1rem}
+.store-training-course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1rem}
+.store-training-course{padding:1.15rem;border:1px solid var(--line,rgba(145,165,185,.4));border-radius:12px;display:flex;flex-direction:column;align-items:start;gap:.6rem;min-width:0;background:rgba(110,140,180,.065)}
+.store-training-course h3{font-size:1.07rem;line-height:1.3;margin:0}
+.store-training-course p{line-height:1.55;margin:.1rem 0;overflow-wrap:anywhere}
+.store-training-course-top{display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;width:100%}
+.store-training-days{font-weight:700}
+.store-training-kind,.store-training-limits{font-size:.87rem;opacity:.85}
+.store-training-course .btn{min-height:44px;margin-top:auto;white-space:normal;max-width:100%;text-align:center}
+.store-training-course .btn:focus-visible{outline:3px solid var(--accent,#53bcb1);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){#store-training-programs *{scroll-behavior:auto}}
