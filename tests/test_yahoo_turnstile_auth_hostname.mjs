@@ -12,8 +12,8 @@ function load(host,pathname){
  let redirected='',widgets=0;
  const location={hostname:host,pathname,search:'?next=%2Fdashboard.html',hash:'#review',
   replace:url=>{redirected=url}};
- const document={querySelector:()=>null,createElement:()=>({dataset:{}}),
-  head:{append:()=>{widgets++}},addEventListener:()=>{}};
+ const document={querySelector:()=>null,createElement:tag=>({tagName:tag,dataset:{}}),
+  head:{append:el=>{if(el?.src?.includes('turnstile-auth.js'))widgets++}},addEventListener:()=>{}};
  runInNewContext(authBootstrap,{location,document,window:{}});
  return {redirected,widgets};
 }
