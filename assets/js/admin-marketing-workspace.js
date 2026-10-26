@@ -57,7 +57,7 @@ function mount(counts){
  textBlock(administration,'Payment and publishing boundaries','Existing Stripe Sandbox controls are isolated under Stripe Sandbox QA. LIVE payment testing, paid advertising and external social publishing have not been enabled by this navigation change.');
  shell.append(menu,content);main.append(shell);
  const stylesheet=node('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/css/admin-social-zero-cost.css';document.head.append(stylesheet);
- import('/assets/js/admin-social-zero-cost.js').then(()=>window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{detail:{container:social}}))).catch(()=>{
+ import('/assets/js/admin-social-operations-v014278.js').then(()=>window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{detail:{container:social}}))).catch(()=>{
   textBlock(social,'Social editor unavailable','The social studio could not load. Existing advertising controls are unaffected.');
  });
  window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1)||'overview');
