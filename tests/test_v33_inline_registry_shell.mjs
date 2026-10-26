@@ -14,6 +14,14 @@ try{
    if(u.origin!==base)return route.abort();
    if(u.pathname==='/assets/js/supabase-client.js')
     return route.fulfill({status:200,contentType:'application/javascript',body:'window.getSupabaseClient=async()=>null;'});
+   // Registry Start links are deliberately unavailable until the server
+   // verifies that the specific Lab has released, ungraded teaching content.
+   // This browser-only fixture simulates that positive release decision;
+   // it does not change real catalog status or grant a production entitlement.
+   if(u.pathname==='/api/lab-release-availability')
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+     ok:true,publishedIds:[],guidedBetaIds:['F2-C01-L01']
+    })});
    if(u.pathname==='/api/lab-content')
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
      ok:true,guidedAllowed:true,advancedAllowed:false,sourceStatus:'private_unreviewed_conceptual_orientation',
