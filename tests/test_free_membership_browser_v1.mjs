@@ -80,7 +80,8 @@ async function makePage(width,routeName){
 }
 try{
  for(const width of [390,900,1280,1440]){
-  const {context,page,problems}=await makePage(width,'bootcamp-academy.html?program=free5');
+  data.enrolled=false;data.progress=new Map();
+  const {context,page,problems}=await makePage(width,'bootcamp-academy.html?program=free5&day=1');
   await page.locator('#academy-course-title').waitFor({timeout:14000});
   assert.match(await page.locator('#academy-course-title').innerText(),/Free Foundations/);
   assert.equal(await page.locator('#academy-days .gu-bc-day').count(),5);
@@ -108,6 +109,7 @@ try{
   await context.close();
  }
  for(const width of [390,900,1280,1440]){
+  data.watchlist=new Map();
   const {context,page,problems}=await makePage(width,'free-watchlist.html');
   await page.locator('#free-watchlist-content').waitFor({state:'visible',timeout:14000});
   await page.locator('#free-watchlist-symbol').fill('GUSIM');
