@@ -40,20 +40,30 @@ with sync_playwright() as pw:
                 page.wait_for_timeout(1300)
                 status=response.status if response else 0
                 if status>=400: raise AssertionError(f'HTTP {status}')
-                # Market Commons is member-only. A verified sign-in redirect
-                # is the public boundary, not a missing Commons layout hook.
+                # Guests cannot inspect protected learning, account, staff or
+                # journal UI. A same-origin sign-in redirect with a preserved
+                # return path is the PASS condition, not a missing layout hook.
+                protected_routes={'labs.html','bootcamp-academy.html','dashboard.html',
+                                  'market-commons.html','simulator.html','journal.html','admin.html'}
                 final=urlparse(page.url)
-                signin_redirect=route=='market-commons.html' and final.path.rstrip('/') in ['/signin','/signin.html']
+                signin_redirect=route in protected_routes and final.path.rstrip('/') in ['/signin','/signin.html']
                 if signin_redirect:
                     assert final.netloc==urlparse(BASE).netloc,'Cross-origin authentication redirect'
-                    assert parse_qs(final.query).get('next') in [['/market-commons'],['/market-commons.html']],'Missing protected return destination'
+                    return_paths=parse_qs(final.query).get('next',[])
+                    expected={'/'+route,'/'+route.removesuffix('.html')}
+                    assert len(return_paths)==1 and return_paths[0] in expected,(
+                        'Protected route lost intended destination',route,return_paths)
                     assert page.locator('input[type="password"]').count()==1,'Missing sign-in form'
                     assert page.locator('body').get_attribute('data-gu-layout-route')=='signin','Missing sign-in layout hook'
-                    assert page.locator('#gu-commons-root').count()==0,'Protected Commons content exposed'
+                    if route=='market-commons.html':
+                        assert page.locator('#gu-commons-root').count()==0,'Protected Commons content exposed'
                     assert not page.evaluate('document.documentElement.scrollWidth > innerWidth + 6'),'Sign-in page horizontal overflow'
-                    page.screenshot(path=str(OUT/f'commons-signin-{width}.png'),full_page=True,animations='disabled')
-                    print(f'PASS protected Commons sign-in boundary {width}px')
+                    page.screenshot(path=str(OUT/f'{route.removesuffix(".html")}-signin-{width}.png'),full_page=True,animations='disabled')
+                    print(f'PASS protected {route} sign-in return boundary {width}px')
                     continue
+                if route in protected_routes:
+                    assert final.path.rstrip('/') in ['/'+route,'/'+route.removesuffix('.html')],(
+                        'Protected route redirected to an unauthorized destination',route,final.path)
                 if route=='':
                     main=page.locator('main.gu-premium-home')
                     assert main.count()==1,'Premium home overwritten by legacy renderer'
