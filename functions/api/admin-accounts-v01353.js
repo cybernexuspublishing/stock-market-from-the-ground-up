@@ -102,6 +102,30 @@ async function lookup(env,id){if(!UID.test(id))throw problem('Invalid account id
  const p=pr?.[0];if(!p)throw problem('Account profile not found.',404);return{profile:p,roles:(roles||[]).filter(x=>!x.expires_at||Date.parse(x.expires_at)>Date.now()).map(x=>x.role_code),test:t.length>0||p.account_kind==='test'};}
 async function availableRoles(env){const rows=await rest(env,'admin_roles?select=role_code,name,is_assignable&is_assignable=eq.true&order=priority.asc');return(rows||[]).filter(x=>x.role_code!=='SHOWCASE_VIEWER');}
 const VALID_TYPES=new Set(['member','test','showcase','moderator','admin','owner']);
+// Resolve account creation to the exact approved role BEFORE invoking Supabase
+// Auth admin create/invite. Never elevate a delegated specialist to ADMIN.
+export function roleForNewAccount(type,requestedRole='NONE',assignableRoles=[]){
+ const selected=clean(requestedRole||'NONE').toUpperCase();
+ const fixed={owner:'OWNER',moderator:'MODERATOR',showcase:'SHOWCASE_VIEWER'};
+ if(type==='admin'){
+  const code=selected==='NONE'?'ADMIN':selected;
+  if(['OWNER','MODERATOR','SHOWCASE_VIEWER','NONE'].includes(code) ||
+      !new Set(assignableRoles).has(code))
+   throw problem('Select an authorized, assignable administrative role.',400);
+  return code;
+ }
+ if(Object.hasOwn(fixed,type)){
+  if(selected!=='NONE'&&selected!==fixed[type])
+   throw problem('The selected role does not match the account type.',400);
+  return fixed[type];
+ }
+ if(type==='member'||type==='test'){
+  if(selected!=='NONE')throw problem('Ordinary and dummy accounts cannot receive administrative roles.',400);
+  return null;
+ }
+ throw problem('Unsupported account type.',400);
+}
+
 function normalizedType(x){const k=x.profile.account_kind;if(k==='test'||k==='showcase')return k;return x.roles.includes('OWNER')?'owner':x.roles.includes('MODERATOR')?'moderator':x.roles.filter(y=>y!=='SHOWCASE_VIEWER').length?'admin':'member'}
 async function assertFinancialNoConversion(env,id){for(const tbl of ['site_orders','site_subscriptions','checkout_intents','order_entitlement_ledger_v135','user_library','user_plan_grants','user_tool_passes','competency_evidence']){const rows=await rest(env,tbl+'?select=*&user_id=eq.'+id+'&limit=1');if(rows?.length)throw problem('Account has production records. Do not convert it into a Dummy or Showcase. Create a separate synthetic identity instead.',409)}}
 function dates(starts,ends){const s=starts?new Date(starts):new Date(), e=ends?new Date(ends):null;if(!Number.isFinite(s.getTime())||(e&&!Number.isFinite(e.getTime()))||(e&&e<=s))throw problem('Membership start/end date is invalid, or the end is not later than the start.');return{start:s.toISOString(),end:e?.toISOString()||null}}
@@ -306,7 +330,7 @@ async function change(env,request,actor,action,b){if(actor.showcase)throw proble
    if(!isSandbox&&/(?:\.test|\.invalid|\.localhost)$/i.test(email.split('@')[1]))throw problem('Real accounts require a deliverable email address.');
    if(isSandbox&&clean(env.TEST_ACCOUNT_ENCRYPTION_KEY||env.MARKET_DATA_ENCRYPTION_KEY))await dummyVaultKey(env);
    await uniqueUsername(env,username);
-   const role={owner:'OWNER',admin:'ADMIN',moderator:'MODERATOR',showcase:'SHOWCASE_VIEWER'}[type]||null;
+   const role=roleForNewAccount(type,b.roleCode||'NONE',type==='admin'?(await availableRoles(env)).map(row=>row.role_code):[]);
    const requestedPlan=clean(b.planCode||'FREE').toUpperCase();let validPlan='FREE';
    if(requestedPlan!=='FREE'&&!isSandbox){const ps=await rest(env,'platform_plans?select=plan_code&plan_code=eq.'+encodeURIComponent(requestedPlan)+'&active=eq.true&limit=1');if(!ps.length)throw problem('Invalid initial membership plan.');validPlan=requestedPlan;}
    if(!isSandbox&&b.creationMethod&&!['invite','owner_password'].includes(b.creationMethod))throw problem('Invalid account creation method.');
