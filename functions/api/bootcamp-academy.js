@@ -67,8 +67,19 @@ export async function onRequest({request,env}){
    return respond({ok:true,version:ACADEMY_VERSION,programs:academyCatalog,
     notice:'Study-only curriculum listings; course completion never awards an official competency or trade result.'});
   }
+  // Reuse the existing Auth/profiles/suspension checks for every Academy
+  // program. The Free course is ungraded; other programs keep paid checks.
   const auth=await toolAccess(env,request,'ONDEMAND_TRAINING');
-  if(!auth.authorized||!auth.userId)throw fault(auth.reason||'Authorized member training access required.',403);
+  let form=null;
+  if(request.method==='POST'){
+   sameOrigin(request);
+   form=await readInput(request);
+  }
+  const requestedCode=request.method==='GET'?url.searchParams.get('program'):form.program;
+  const eligibleFree=requestedCode==='free5'&&
+   auth.reason==='An active plan or matching individual tool entitlement is required.';
+  if(!auth.userId||(!auth.authorized&&!eligibleFree))
+   throw fault(auth.reason||'Authorized member training access required.',403);
   if(request.method==='GET'){
    const code=url.searchParams.get('program');
    if(!allowed(code)){
@@ -103,8 +114,6 @@ export async function onRequest({request,env}){
     disclaimer:progressAvailable?'Member study progress is ungraded and does not grant official mastery.':
      'Private Academy storage is unavailable; no enrollment or completed-day status can be confirmed.'});
   }
-  sameOrigin(request);
-  const form=await readInput(request);
   const result=await db(env,'rpc/gu_bootcamp_academy_save_v014168','POST',{
    p_user:auth.userId,p_program:form.program,p_day:form.day,p_action:form.action,
    p_reflection:form.reflection,p_expected_revision:form.expectedRevision,p_version:ACADEMY_VERSION
