@@ -40,24 +40,65 @@ function statusClass(status) {
   return 'activity-neutral';
 }
 
-function setupFreeStartingPoint(){
+async function setupFreeStartingPoint(sb,memberId){
  const button=document.getElementById('free-start-choose');
  if(!button)return;
- button.addEventListener('click',()=>{
-  const day=Number(document.getElementById('free-start-level')?.value);
-  if(!Number.isInteger(day)||day<1||day>3)return;
-  const link=document.getElementById('free-next-action');
-  if(!link)return;
-  link.dataset.manualChoice='true';
-  link.href='bootcamp-academy.html?program=free5&day='+day;
-  link.textContent='Open suggested Free lesson '+day;
-  setText('free-start-result',day===1?
-   'Talia recommends Day 1: shares, quotations and what a market does. This is a learning preference, not assessed mastery.':
-   day===2?
-   'Talia recommends Day 2: read your first fictional five-minute candle, then revisit Day 1 if needed. No mastery has been awarded.':
-   'Talia recommends Day 3: verify news sources and publication time. Days 1–2 remain available. No skill was certified.');
+ const focus=document.getElementById('free-coach-focus');
+ const minutes=document.getElementById('free-coach-minutes');
+ const level=document.getElementById('free-start-level');
+ const practice=document.getElementById('free-coach-practice');
+ const status=document.getElementById('free-coach-suggestion');
+ let revision=0;
+ async function api(method,body){
+  const session=(await sb.auth.getSession()).data?.session;
+  if(!session?.access_token||session.user?.id!==memberId)throw Error('Account session changed.');
+  const response=await fetch('/api/free-learning-coach',{
+   method,headers:{authorization:'Bearer '+session.access_token,
+    ...(method==='POST'?{'content-type':'application/json'}:{})},
+   cache:'no-store',credentials:'same-origin',
+   ...(body?{body:JSON.stringify(body)}:{})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||data.ok!==true)throw Error(data.error||'Study preferences unavailable.');
+  const active=(await sb.auth.getUser()).data?.user?.id;
+  if(active!==memberId)throw Error('Member changed before preferences could be displayed.');
+  return data;
+ }
+ function show(data){
+  const pref=data.preferences;
+  if(!pref)return;
+  revision=pref.revision;
+  focus.value=pref.focus;minutes.value=String(pref.sessionMinutes);
+  level.value=String(pref.experience==='NEW'?1:pref.experience==='SOME_BASICS'?2:3);
+  const next=data.recommendation;
+  if(next){
+   setText('free-coach-suggestion',
+    'Talia: Day '+next.day+' — '+next.title+'. Your '+pref.sessionMinutes+
+    '-minute study preference guides pace; any topic-specific practice is optional, not a mastery grade. '+next.notice);
+   if(practice&&next.practice){practice.href=next.practice.url;practice.textContent=next.practice.title;}
+   const link=document.getElementById('free-next-action');
+   if(link){link.href=next.url;link.textContent='Continue Free lesson '+next.day;}
+   setText('free-next-detail','Day '+next.day+' of 5 — '+next.title+'. '+next.objective);
+  }
+ }
+ try{show(await api('GET'));}catch{status.textContent='Your saved learning preferences could not be verified. Existing lessons remain available; nothing has been marked complete.';}
+ button.addEventListener('click',async()=>{
+  if(button.disabled)return;
+  button.disabled=true;
+  try{
+   const experience=level.value==='1'?'NEW':level.value==='2'?'SOME_BASICS':'RETURNING';
+   const payload={focus:focus.value,sessionMinutes:Number(minutes.value),experience,
+    expectedRevision:revision};
+   const saved=await api('POST',payload);
+   revision=saved.preferences.revision;
+   show(await api('GET'));
+   setText('free-start-result','Preferences saved to your account, not a verified assessment. Incomplete earlier lessons remain recommended.');
+  }catch{
+   setText('free-start-result','Could not confirm the preference update. Reload and try again; saved progress and official skill status were not changed.');
+  }finally{button.disabled=false;}
  });
 }
+
 async function renderRecentFreeJournal(sb,memberId){
  const detail=document.querySelector('.free-learning-recent');
  const list=document.getElementById('free-recent-journal-list');
@@ -265,7 +306,7 @@ async function initDashboard() {
   if (!active.length) {
    void renderFreeLearningDashboard(sb);
    void renderFreeFoundationEvidence(sb,user.id);
-   setupFreeStartingPoint();
+   void setupFreeStartingPoint(sb,user.id);
    void renderRecentFreeJournal(sb,user.id);
   }
   setText('labs-in-progress', inProgressSet.size);
