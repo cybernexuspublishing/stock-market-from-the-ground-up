@@ -33,3 +33,15 @@ html[data-gu-design="premium-light"] #inventory-list .product-card,html[data-gu-
 html[data-gu-design="premium-light"] #inventory-list h2,html[data-gu-design="premium-light"] #inventory-detail h1,html[data-gu-design="premium-light"] #inventory-detail strong{color:#1a2b43}
 html[data-gu-design="premium-light"] #inventory-list .product-card p,html[data-gu-design="premium-light"] #inventory-detail p{color:#486074}
 html[data-gu-design="premium-light"] #inventory-search,html[data-gu-design="premium-light"] #inventory-category{background:#fff;color:#21364b}
+
+/* Beta-offer status is concise and legible in every established Store category. */
+.store-beta-ribbon{display:inline-flex;align-items:center;align-self:flex-start;gap:.25rem;
+ font-size:.75rem;font-weight:750;letter-spacing:.025em;line-height:1.3;
+ padding:.3rem .55rem;border-radius:.35rem;border:1px solid #c6a14d;
+ background:#29210e;color:#ffe9ac;margin:.45rem 0 .65rem}
+.store-category-tabs .store-category-sparks{display:inline-flex;align-items:center;
+ justify-content:center;border:1px solid #8669be;border-radius:9px;padding:.7rem 1rem;
+ color:#efdcff;text-decoration:none;font-weight:700;min-height:45px}
+.store-category-tabs .store-category-sparks:hover,.store-category-tabs .store-category-sparks:focus-visible{
+ outline:2px solid #f3d18c;outline-offset:2px;background:#47376a}
+.store-category-tabs>[hidden]{display:none!important}
