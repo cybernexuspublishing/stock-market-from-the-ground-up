@@ -2,7 +2,31 @@ name: Admin Clarity and CAPTCHA Guidance v0.14.0.34
 on:
   push:
     branches: [main]
+    paths:
+      - 'admin.html'
+      - 'admin-operations.html'
+      - 'assets/js/admin-*.js'
+      - 'assets/css/admin-*.css'
+      - 'functions/api/admin-*.js'
+      - 'functions/api/auth-*.js'
+      - 'tests/test_v014034_*'
+      - 'tests/test_v014033_*'
+      - 'tests/test_v014032r2_*'
+      - 'scripts/build-pages.sh'
+      - '.github/workflows/admin-ux-and-captcha-v01434.yml'
   pull_request:
+    paths:
+      - 'admin.html'
+      - 'admin-operations.html'
+      - 'assets/js/admin-*.js'
+      - 'assets/css/admin-*.css'
+      - 'functions/api/admin-*.js'
+      - 'functions/api/auth-*.js'
+      - 'tests/test_v014034_*'
+      - 'tests/test_v014033_*'
+      - 'tests/test_v014032r2_*'
+      - 'scripts/build-pages.sh'
+      - '.github/workflows/admin-ux-and-captcha-v01434.yml'
   workflow_dispatch:
 permissions:
   contents: read
