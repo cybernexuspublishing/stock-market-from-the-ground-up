@@ -57,13 +57,19 @@ for(const [index,day] of firstCourse.curriculum.entries()){
  for(const key of ['explanation','workedExample','selfCheck','reviewGuide','error','transfer'])
   assert(typeof lesson[key]==='string'&&lesson[key].length>=90,'Missing '+key+' day '+(index+1));
  assert(Array.isArray(lesson.sourceProcedure)&&lesson.sourceProcedure.length>=5);
+ assert(typeof lesson.investigation==='string'&&lesson.investigation.startsWith('FICTIONAL INDEPENDENT'),
+  'Each Truth5 day must provide a distinct, explicitly fictional evidence investigation');
+ assert(lesson.investigation.length>=380,'Independent investigation cannot be a generic prompt');
  assert.equal(day.method.length,lesson.sourceProcedure.length);
  assert.match(day.sourceStatus,/editorial_review_pending/);
  assert.equal(day.officiallyGraded,false);
  assert.equal(day.masteryAwarded,false);
 }
+assert.equal(new Set(firstCourse.curriculum.map(x=>x.lesson.investigation)).size,5,
+ 'Independently applied research cases must not repeat across the five days');
 const client=fs.readFileSync('assets/js/bootcamp-academy-v014168.js','utf8');
 assert(client.includes("showOriginalInstruction(d)"));
+assert(client.includes("Independent evidence investigation"),'Each authored case must render on the same Academy lesson page');
 assert(client.includes("answer.value.trim().length<40"),'The formative review requires learner reasoning first');
 assert(client.includes("No mastery was awarded."));
 
