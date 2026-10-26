@@ -33,3 +33,12 @@ test('founding consent links exact published policies and does not promise an in
  assert.doesNotMatch(page,/Full first-party platform tools while paid/);
  assert.match(page,/id="f600-enroll-button" disabled/);
 });
+
+test('founding discount audit ledger rejects deprecated 20 percent',()=>{
+ const forward=read('supabase/migrations/v0.14.0.275_founder_15pct_audit_constraint.sql');
+ const rollback=read('supabase/rollbacks/v0.14.0.275_founder_15pct_audit_constraint_ROLLBACK.sql');
+ assert.match(forward,/discount_bps IN \(1000,1500\)/);
+ assert.match(forward,/F600_RELEASE_MUST_REMAIN_CLOSED/);
+ assert.match(forward,/AUDIT_CONTAINS_UNRECONCILED_20PCT_ROWS/);
+ assert.match(rollback,/ROLLBACK_NOT_SAFE_WHILE_ACTIVE_OR_15PCT_AUDIT_EXISTS/);
+});
