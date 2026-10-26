@@ -42,6 +42,10 @@ on:
       - 'tests/test_v014156_admin_service_key_compatibility.mjs'
       - 'assets/js/admin-unified-*.mjs'
       - 'assets/css/admin-unified-preview-v014156.css'
+      - 'tests/test_admin_operational_dashboard_v1.mjs'
+      - 'assets/js/admin-navigation.js'
+      - 'assets/js/admin-dashboard-widgets.js'
+      - 'assets/js/admin-dashboard-widgets-core.mjs'
       - 'tests/test_v014156_admin_shell.mjs'
       - 'tests/test_v014156_admin_stage_b_members_audit.mjs'
       - '.github/workflows/deployment16-admin-shell.yml'
@@ -70,6 +74,9 @@ jobs:
           node --check functions/_lib/founder-catalog-readiness-v014264.js
           node --check assets/js/admin-prelive-v014247.js
           node --check assets/js/admin.js
+          node --check assets/js/admin-navigation.js
+          node --check assets/js/admin-dashboard-widgets-core.mjs
+          node --check tests/test_admin_operational_dashboard_v1.mjs
           node --check assets/js/admin-platform.js
           node --check assets/js/admin-legacy-routing.js
           node --check functions/api/admin-accounts-v01353.js
@@ -79,6 +86,8 @@ jobs:
           node --check functions/api/admin-operations-v0135.js
       - name: Verify Admin module registry, access boundaries and read-only preview
         run: |
+          node tests/test_admin_dashboard_widgets.mjs
+          node tests/test_admin_operational_dashboard_v1.mjs
           node tests/test_v014156_admin_shell.mjs
           node tests/test_v014156_admin_stage_b_members_audit.mjs
           node tests/test_v014156_admin_service_key_compatibility.mjs
