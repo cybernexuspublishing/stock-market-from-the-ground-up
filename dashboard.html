@@ -32,7 +32,19 @@
    <option value="2">I’ve seen stock charts but cannot explain the four prices</option>
    <option value="3">I know basic candles and want to understand source evidence</option>
   </select>
-  <button class="btn secondary" id="free-start-choose" type="button">Show a suitable first lesson</button>
+  <label for="free-coach-focus">What would you most like to understand?</label>
+  <select id="free-coach-focus">
+   <option value="START_BASICS">Shares, markets and basic terminology</option>
+   <option value="CANDLES">Understanding fictional candles and price movement</option>
+   <option value="VERIFY_SOURCES">Checking evidence and the time of a news release</option>
+   <option value="WATCHLIST">Organizing a responsible research watchlist</option>
+   <option value="RISK">Risk, discipline and deciding not to trade</option>
+  </select>
+  <label for="free-coach-minutes">Typical time available for study</label>
+  <select id="free-coach-minutes"><option value="5">5 minutes</option><option value="10" selected>10 minutes</option><option value="15">15 minutes</option><option value="20">20 minutes</option></select>
+  <button class="btn secondary" id="free-start-choose" type="button">Save preferences and ask Talia</button>
+  <p id="free-coach-suggestion" role="status" aria-live="polite">Your saved preferences will guide optional practice; incomplete prerequisites still come first.</p>
+  <a id="free-coach-practice" href="verified-replay.html?scope=fictional">Try server-controlled fictional practice</a>
   <p id="free-start-result" role="status" aria-live="polite">This choice changes your suggested reading, not your certified skill status. You can review all five lessons.</p>
  </details>
  <details class="free-learning-recent">
