@@ -28,7 +28,8 @@ const crosswalk=Object.fromEntries(Array.from({length:419},(_,i)=>[
   relatedCompetencies:['QA_EDUCATION']}
 ]));
 const savedByUser={
- [identities.a]:[{lab_id:labId,status:'completed',completed_at:'2026-10-26T01:00:00Z'}],
+ [identities.a]:[{lab_id:labId,status:'completed',completed_at:'2026-10-26T01:00:00Z'},
+  {lab_id:'QA-002',status:'completed',completed_at:'2026-10-26T01:00:00Z'}],
  [identities.b]:[{lab_id:labId,status:'in_progress',updated_at:'2026-10-26T01:10:00Z'}],
  [identities.c]:[{lab_id:labId,status:'completed',completed_at:'2026-10-26T01:20:00Z'}],
  [identities.d]:[]
@@ -64,7 +65,7 @@ const context={
  },
  fetch:async(url)=>{
   assert.equal(url,'/api/lab-release-availability');
-  return {ok:true,json:async()=>({ok:true,publishedIds:[labId],guidedBetaIds:[]})};
+  return {ok:true,json:async()=>({ok:true,publishedIds:[labId],guidedBetaIds:['QA-002']})};
  },
  URLSearchParams,Map,Set,Promise,Date,Error,Array,String,Object,Number,console
 };
@@ -75,11 +76,16 @@ async function tick(){await new Promise(resolve=>setImmediate(resolve));}
 await tick();
 assert.match(element('lab-body').innerHTML,/data-status="completed"/);
 assert.match(element('lab-body').innerHTML,/Self-tracked complete/);
+assert.match(element('lab-body').innerHTML,/Saved self-tracked Lab activity · ungraded, no mastery credit/,
+ 'Returning members must see saved guided practice without false mastery');
+assert.match(element('lab-body').innerHTML,/row-QA-002" data-status="completed"/);
 
 current=identities.b;
 callback('SIGNED_IN',{user:{id:current}});
 assert.doesNotMatch(element('lab-body').innerHTML,/data-status="completed"/,
  'Old account progress must disappear synchronously when auth changes');
+assert.doesNotMatch(element('lab-body').innerHTML,/Saved self-tracked Lab activity · ungraded, no mastery credit/,
+ 'Previous member guided practice must not be visible to the new user');
 await tick();
 assert.match(element('lab-body').innerHTML,/data-status="in_progress"/);
 assert.doesNotMatch(element('lab-body').innerHTML,/data-status="completed"/);
