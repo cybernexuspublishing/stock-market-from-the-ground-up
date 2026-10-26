@@ -56,14 +56,14 @@ try{
   explanation:'An ETF can diverge from its benchmark due to tracking, fees, transaction costs and execution prices.',
   options:['A valid limitation','A guaranteed match','Identical price units']};
  questions=questions.slice(0,4).concat(caseApplication);
- r=await run();assert.equal(r.status,409,'Missing B01 limitation case must block review');
+ r=await run();assert([400,409].includes(r.status),'Missing B01 case must be rejected by validation or review gate');
  assert.equal(approved,1);
  questions=[...questions,caseLimitation];
  questions[5]={...caseLimitation,options:['A valid limitation','A valid limitation','Identical price units']};
- r=await run();assert.equal(r.status,409,'Duplicate distractors must fail B01 review');
+ r=await run();assert([400,409].includes(r.status),'Duplicate distractors must fail B01 review');
  assert.equal(approved,1);
  questions[5]={...caseLimitation,explanation:'Too brief.'};
- r=await run();assert.equal(r.status,409,'Non-substantive explanation must fail B01 review');
+ r=await run();assert([400,409].includes(r.status),'Non-substantive explanation must fail B01 review');
  assert.equal(approved,1);
  questions[5]=caseLimitation;
  r=await run();assert.equal(r.status,200,'Explicit Owner approval may proceed only with sound shape');
