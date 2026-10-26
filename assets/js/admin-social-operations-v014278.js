@@ -57,7 +57,7 @@ function record(host,name,desc,actions){
 function views(host){
  const nav=e('nav',undefined,'social-tabs');nav.setAttribute('aria-label','Social marketing areas');
  const pages=e('div',undefined,'social-panels'),targets={};
- const areas=[['overview','Overview'],['posts','Post Studio'],['calendar','Calendar'],['campaigns','Campaigns'],['templates','Templates'],['communities','Communities'],['tasks','Engagement tasks'],['metrics','Metrics'],['audit','Audit history']];
+ const areas=[['overview','Overview'],['accounts','Social Accounts'],['posts','Post Studio'],['calendar','Calendar'],['campaigns','Campaigns'],['templates','Templates'],['communities','Communities'],['tasks','Engagement tasks'],['metrics','Metrics'],['audit','Audit history']];
  for(const [id,label] of areas){
   const b=action(label,()=>show(id));b.dataset.socialTab=id;b.setAttribute('aria-current','false');nav.append(b);
   const p=e('section');p.dataset.socialPanel=id;p.hidden=true;pages.append(p);targets[id]=p;
@@ -100,6 +100,18 @@ function renderSection(id,host){
   for(const [title,target] of [['Create a post','posts'],['Plan in calendar','calendar'],['Manage communities','communities'],['Campaign work','campaigns'],['Review tasks','tasks']])links.append(action(title,()=>document.querySelector('[data-social-tab="'+target+'"]')?.click()));
   card.append(links);
   panel(host,'Account status','@SMFGUAcademy · manual-only. Automatic X publishing, community joining, and engagement automation are disabled. No chargeable operations are enabled.');
+ }else if(id==='accounts'){
+  const overview=panel(host,'Platform connection directory','These are capability and connection-status records, not claims of verified account access.');
+  const providers=store.providers||[];
+  for(const provider of providers){
+   record(overview,provider.name+(provider.account?' · '+provider.account:''),
+    'Connection: '+provider.connection.replace(/_/g,' ')+
+    ' · Direct API publishing: '+(provider.apiPublishing?'Authorized':'Disabled')+
+    ' · Native manual publishing: '+(provider.manuallyPublishable?'Available':'Unavailable')+
+    ' · Community joining via Admin: '+(provider.automatedCommunityJoin?'Authorized':'Not connected')+
+    ' · '+provider.policy,[]);
+  }
+  panel(host,'Provider financial control','No credentials are stored in this module. Automated provider operations require official account authorization, appropriate permissions and an explicitly approved spending budget. Spending limit: $0.');
  }else if(id==='posts'){
   const campaigns=[['','No campaign'],...(store.campaigns||[]).map(x=>[x.id,x.title])];
   const f=formCard(host,'X Post Studio','Owner editorial approval is required before manual publication can be recorded.',[
@@ -170,6 +182,16 @@ function renderSection(id,host){
   f.box.append(action('New campaign',()=>{active.campaign=null;f.form.reset()}));
   const list=panel(host,'Saved campaigns','Records here are marketing plans; none initiate paid advertising.');
   for(const c of store.campaigns||[])record(list,c.title,c.category+' · '+c.state+(c.destination_url?' · '+c.destination_url:''),[
+   action('Copy campaign tracking link',async()=>{
+    if(!c.destination_url)return;
+    try{
+     const u=new URL(c.destination_url);
+     u.searchParams.set('utm_source','x');u.searchParams.set('utm_medium','organic_social');
+     u.searchParams.set('utm_campaign',c.category+'_'+c.id.slice(0,8));
+     await navigator.clipboard.writeText(u.href);
+     alert('Tagged campaign link copied. Attribution requires actual website analytics; this does not count a visit.');
+    }catch{alert('Unable to copy a tagged link.')}
+   }),
    action('Edit',()=>{active.campaign=c;const z=f.f;z.title.value=c.title;z.category.value=c.category;z.objective.value=c.objective||'';z.destinationUrl.value=c.destination_url||'';z.state.value=c.state;z.startsAt.value=localDate(c.starts_at);z.endsAt.value=localDate(c.ends_at);z.title.focus()}),
    ...(c.destination_url?[action('Open destination',()=>targetUrl(c.destination_url))]:[])
   ]);
