@@ -5,7 +5,7 @@ import {toolAccess} from '../functions/api/member-tool-access.js';
 import {onRequest as labApi} from '../functions/api/lab-content.js';
 import {onRequest as trainingApi} from '../functions/api/interactive-training.js';
 const env={SUPABASE_URL:'https://unit.supabase.test',SUPABASE_PUBLISHABLE_KEY:'unit_public',SUPABASE_SECRET_KEY:'unit_secret',ENABLE_PAID_CHECKOUT:'false',REQUIRE_STAFF_AAL2_V135:'false'};
-let accountKind='member',owner=true,access=true,bookGrant=true,flagStatus='active',reads=[],mutations=[],gradeComplete=false;
+let accountKind='member',owner=true,access=true,bookGrant=true,flagStatus='active',reads=[],mutations=[],gradeComplete=false,assessmentMode=false;
 const protectedGradingReport={score:100,correct:1,total:1,note:'Reviewed teaching feedback',
  sourceStatus:'book_authored_unverified_market',
  details:[{question:'Which observation is supported?',submitted:'YES',correct:true,
@@ -22,8 +22,9 @@ function mockData(path,init){if(path.includes('/auth/v1/user'))return {id:'aaaaa
  if(path.includes('platform_labs?'))return[{lab_id:'F2-C07-L01',book_code:'FOUNDATION_BOOK_2',active:true,registry_visible:true}];
  if(path.includes('lab_instruction_v014?'))return[{lab_id:'F2-C07-L01',book_number:2,content:{id:'F2-C07-L01',book:2,concept:'Construct a candle'}}];
  if(path.includes('lab_training_sets_v014?'))return[{lab_id:'F2-C07-L01',version:1,review_state:'reviewed',source_status:'book_authored_unverified_market',questions:[{id:'direction',kind:'choice',prompt:'Does Close exceed Open?',options:['YES','NO'],explanation:'PRIVATE'}]}];
- if(path.includes('lab_training_attempts_v014?'))return [{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lab_id:'F2-C07-L01',mode:'guided',step_index:gradeComplete?1:0,completed_at:gradeComplete?'2026-10-26T12:00:00Z':null,report:gradeComplete?protectedGradingReport:null}];
+ if(path.includes('lab_training_attempts_v014?'))return [{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lab_id:'F2-C07-L01',mode:assessmentMode?'assessment':'guided',step_index:gradeComplete?1:0,completed_at:gradeComplete?'2026-10-26T12:00:00Z':null,report:gradeComplete?protectedGradingReport:null}];
  if(path.includes('rpc/v014_training_start'))return {id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',lab_id:'F2-C07-L01',mode:'guided',step_index:0,completed_at:null};
+ if(path.includes('rpc/gu_v014105_sync_reviewed_knowledge'))return {ok:false,reason:'critical_error_unresolved'};
  if(path.includes('rpc/v014_training_answer'))return gradeComplete?{ok:true,complete:true,report:protectedGradingReport,privateAnswer:'SECRET_GRADING_KEY_DO_NOT_EXPOSE'}:{ok:true,complete:false,stepIndex:1,correct:true,explanation:'Authored explanation'};
  if(path.includes('user_library?'))return bookGrant?[{product_code:'FOUNDATION_BOOK_2',expires_at:null}]:[];
  if(path.includes('book_key_redemptions?'))return[];
@@ -60,6 +61,13 @@ assert.equal(body.complete,true);assert.equal(body.report.score,100);
 assert.equal(JSON.stringify(body).includes('SECRET_GRADING_KEY_DO_NOT_EXPOSE'),false,'Completed resume must not leak the stored answer key');
 assert.equal(JSON.stringify(body).includes('SECRET_RUBRIC_DO_NOT_EXPOSE'),false,'Completed resume must not leak the private rubric');
 assert.equal(reads.some(x=>x.includes('rpc/gu_v014105_sync_reviewed_knowledge')),false,'Formative completion must not call knowledge sync RPC');
+assessmentMode=true;
+r=await trainingApi({request:request('/api/interactive-training?action=answer','POST',{attemptId:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',answer:'YES',expectedStep:0}),env});
+assert.equal(r.status,200);body=await r.json();
+assert.equal(body.knowledgeSync,'critical_error_requires_retest','Critical independent assessment must not yield Knowledge evidence');
+assert(reads.some(x=>x.includes('rpc/gu_v014105_sync_reviewed_knowledge')),'Assessment completion must invoke guarded official evidence RPC');
+assert(!JSON.stringify(body).includes('SECRET_GRADING_KEY_DO_NOT_EXPOSE'));
+assessmentMode=false;
 gradeComplete=false;
 bookGrant=false;owner=false;r=await trainingApi({request:request('/api/interactive-training?action=start','POST',{labId:'F2-C07-L01',mode:'guided'}),env});assert.equal(r.status,403,'Standalone training entitlement must not reveal unpaid Book II instruction');bookGrant=true;owner=true;
 accountKind='showcase';r=await trainingApi({request:request('/api/interactive-training?action=available&labId=F2-C07-L01'),env});assert.equal(r.status,403);
