@@ -4,7 +4,7 @@
 const path=location.pathname.toLowerCase();if(!/^\/labs(?:\.html)?$/.test(path))return;
 const q=(s,r=document)=>r.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const COLLECTIONS=[['FOUNDATION_BOOK_1','Foundations Book I'],['FOUNDATION_BOOK_2','Foundations Book II'],['FOUNDATION_BOOK_3','Foundations Book III'],['DAY_TRADING_BOOK_1','Day Trading'],['READING_THE_TAPE','Reading the Tape'],['SITE_EXCLUSIVE','Site-Exclusive Labs']];
-const PAGE_SIZE=50;let client=null,root=null,selected='',page=0,seq=0,targetLab='',betaScope=null;
+const PAGE_SIZE=50;let client=null,root=null,selected='',page=0,seq=0,targetLab='',betaScope=null,publishedLabs=null;
 async function verifyBetaScope(){
  const response=await fetch('/api/lab-beta-scope',{cache:'no-store'});
  if(!response.ok)throw Error('Lab release availability cannot be verified.');
@@ -14,7 +14,14 @@ async function verifyBetaScope(){
   !Array.isArray(data.upcoming)||data.upcoming.length!==83||
   new Set([...data.selectedForPrebeta,...data.upcoming]).size!==419)
   throw Error('Lab release scope is inconsistent; no Labs will be started.');
+ const approvedResponse=await fetch('/api/lab-release-availability',{cache:'no-store'});
+ if(!approvedResponse.ok)throw Error('Reviewed-Lab publication status cannot be verified.');
+ const approved=await approvedResponse.json();
+ if(approved.ok!==true||!Array.isArray(approved.publishedIds)||
+   approved.publishedIds.some(id=>typeof id!=='string'||!data.selectedForPrebeta.includes(id)))
+  throw Error('Reviewed-Lab publication status is inconsistent.');
  betaScope=new Set(data.selectedForPrebeta);
+ publishedLabs=new Set(approved.publishedIds);
 }
 const label=code=>COLLECTIONS.find(x=>x[0]===code)?.[1]||'Historical Labs';
 async function supabase(){for(let i=0;i<50;i++){if(typeof window.getSupabaseClient==='function')try{return await window.getSupabaseClient()}catch{}await new Promise(r=>setTimeout(r,80))}throw Error('Sign-in service unavailable.')}
@@ -23,7 +30,9 @@ function card(l){const m=l.metadata||{},status=l.progress?.status||'not_started'
  const content=`<span class="v133-lab-id">${esc(l.lab_id)}</span><span><strong>${esc(l.title||l.lab_id)}</strong><small>${esc(details)}</small></span><span class="v133-hide-mid">${esc(m.difficulty||l.lab_type||'')}</span><span class="v133-hide-mid">${esc(m.mode||'')}</span>`;
  if(!betaScope?.has(l.lab_id))
   return `<article class="v133-lab-row v133-lab-upcoming" data-lab-record data-lab-id="${esc(l.lab_id)}" aria-label="${esc(l.title||l.lab_id)} — Upcoming, not released">${content}<span class="v133-lab-status v133-lab-chip">Upcoming · No Start</span></article>`;
- return `<a class="v133-lab-row" data-lab-record data-lab-id="${esc(l.lab_id)}" href="${esc(safeHref(l))}" aria-label="Open conceptual study for ${esc(l.title||l.lab_id)}">${content}<span class="v133-lab-status v133-lab-chip">${esc(tag+grade)} · Concept study</span></a>`;
+ if(!publishedLabs?.has(l.lab_id))
+  return `<article class="v133-lab-row v133-lab-editorial" data-lab-record data-lab-id="${esc(l.lab_id)}" aria-label="${esc(l.title||l.lab_id)} — Awaiting individual approval">${content}<span class="v133-lab-status v133-lab-chip">Pre-beta review · No Start yet</span></article>`;
+ return `<a class="v133-lab-row" data-lab-record data-lab-id="${esc(l.lab_id)}" href="${esc(safeHref(l))}" aria-label="Open reviewed study for ${esc(l.title||l.lab_id)}">${content}<span class="v133-lab-status v133-lab-chip">${esc(tag+grade)} · Reviewed exercise</span></a>`;
 }
 function layout(){root.innerHTML=`<section class="v133-lab-hero"><div><div class="eyebrow">Member Learning Environment</div><h1>Historical Lab Registry</h1><p>Choose Foundations Book I, II, III, Day Trading, Reading the Tape, or the Site-Exclusive collection. All 419 canonical Lab IDs are retained. The selected 336 are pre-beta study candidates, not independently approved assessments. The other 83 remain Upcoming without a Start link.</p></div></section><div class="v133-lab-filters v1357-collection-picker"><label for="v1357-member-book"><strong>Book / collection</strong><select id="v1357-member-book" data-lab-book><option value="">Choose a book or Site-Exclusive Labs…</option>${COLLECTIONS.map(([id,title])=>`<option value="${esc(id)}">${esc(title)}</option>`).join('')}</select></label><label for="v1357-member-search"><strong>Filter this page</strong><input id="v1357-member-search" data-search type="search" disabled placeholder="Lab ID, title, ticker, skill…"></label></div><p role="status" aria-live="polite" data-message>Select a collection above to view Labs.</p><div data-list></div><nav class="v1357-page-nav" data-pager aria-label="Lab Registry pages" hidden><button class="btn secondary" type="button" data-prev>Previous</button><span data-page></span><button class="btn secondary" type="button" data-next>Next</button></nav>`;
  q('[data-lab-book]',root).onchange=e=>{selected=e.target.value;page=0;load()};q('[data-prev]',root).onclick=()=>{page=Math.max(0,page-1);load()};q('[data-next]',root).onclick=()=>{page++;load()};q('[data-search]',root).oninput=e=>{const needle=e.target.value.trim().toLowerCase();root.querySelectorAll('[data-lab-record]').forEach(row=>{row.hidden=!!needle&&!row.textContent.toLowerCase().includes(needle)})}}
