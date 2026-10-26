@@ -762,6 +762,46 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
       node
     }));
    for(const guideAction of stageOneGuides)guideAction.node.remove();
+   // Normally Talia owns the four coaching actions and there are no
+   // legacy <details> nodes to relocate. Build the SAME non-grading actions
+   // from the current topic's instructional plan rather than silently
+   // omitting them whenever the Instructor is available.
+   if(instructorInstance){
+    const learn=lessonPlan(1)||{},review=lessonPlan(6)||{};
+    const blocks=(Array.isArray(learn.blocks)?learn.blocks:[])
+     .map(v=>String(v||'').trim()).filter(Boolean);
+    const worked=(Array.isArray(learn.worked)?learn.worked:[])
+     .map(v=>String(v||'').trim()).filter(Boolean);
+    const symbols=visualType==='candle'
+     ?'Open is the first price, Close the last, High the highest and Low the lowest. Real body = |Close − Open|. Full range = High − Low.'
+     :visualType==='vwap'
+      ?'VWAP = Σ(price × shares) ÷ Σ(shares). Verify price, shares and the timeframe.'
+      :String(subject?.symbols||'Name the observable values, the source and their units.');
+    const misconception=String(learn.misconception||review.misconception||guide.commonError||'Separate observations from assumptions.');
+    const limitation=String(learn.limitation||guide.limit||'One completed example cannot determine future price.');
+    const alternate=visualType==='candle'?[
+     'Try a separate illustrative candle: Open $9.00, High $10.00, Low $8.50 and Close $9.50.',
+     'Real body = |$9.50 − $9.00| = $0.50. Full range = $10.00 − $8.50 = $1.50.',
+     'Body share = ($0.50 ÷ $1.50) × 100 ≈ 33.3%. This does not predict the next candle.'
+    ]:visualType==='vwap'?[
+     'Try a separate illustrative set: 200 shares at $4.00 and 100 shares at $7.00.',
+     'Traded dollars = $1,500; total shares = 300; VWAP = $5.00 per share.',
+     'This is a worked average, not a predicted future quote.'
+    ]:[
+     'Apply the explained observation method to a different completed example.',
+     'Identify the evidence, timeframe and source before drawing a conclusion.',
+     'Distinguish what the example demonstrates from what is still uncertain.'
+    ];
+    stageOneGuides=[
+     {name:'Explain This Concept',paragraphs:[...blocks,symbols,
+       'Common error: '+misconception,'Limitation: '+limitation]},
+     {name:'Show a Guided Example',paragraphs:[...worked,
+       'Why this is not a prediction: '+limitation]},
+     {name:'Try Another Example',paragraphs:alternate},
+     {name:'Teach This in More Depth',paragraphs:[...blocks,...worked,
+       'Correct the misconception: '+misconception,'Limitation: '+limitation]}
+    ];
+   }
    if(stageOneGuides.length){
     const tabs=el('div');tabs.className='gu-v33-help-tablist gu-v35-teaching-actions';
     tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Ask Talia to teach');
