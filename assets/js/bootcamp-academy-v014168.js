@@ -132,7 +132,7 @@
    if(existing.includes(addition)){
     result.replaceChildren(node('p','This reasoning is already in your private reflection draft.'));return;
    }
-   const combined=existing?existing+'\\n\\n'+addition:addition;
+   const combined=existing?existing+'\n\n'+addition:addition;
    if(combined.length>2000){
     result.replaceChildren(node('p','Your reflection draft is at its 2,000-character limit. Review and shorten it before adding your reasoning.'));return;
    }
