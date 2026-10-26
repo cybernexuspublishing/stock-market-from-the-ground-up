@@ -53,7 +53,7 @@ No production beta account is to be silently created or allocated a founding sea
 
 A complete non-sensitive report records: feature/page and Lab ID where applicable; reproduction steps; expected result; observed result; device/browser; recurrence; and impact. Private account data, credentials, invoices, answer keys and full auth tokens must never go into Commons. Use the authenticated private Support system for member-specific issues.
 
-Severity: **P0** identity crossover, payments, data loss, unauthorized access or false competence award; **P1** blocked core member journey; **P2** usable but incorrect or inaccessible feature; **P3** copy, clarity, or cosmetic quality defect. P0 freezes affected launch/payment gates immediately. Reproduction, root-cause determination, code fix, regression test and production retest must be linked to the existing issue before it is marked **Released**; mere merge or source CI is not release verification.
+Severity: **P0** identity crossover, payments, data loss, unauthorized access or false competence award; **P1** broken core member journey; **P2** usable but incorrect or inaccessible feature; **P3** copy, clarity, or cosmetic quality defect. P0 requires narrowly containing the directly affected unsafe workflow (and keeping LIVE payment shutdowns intact), while unaffected authorized beta activities continue. Reproduction, root-cause determination, code fix, regression test and authentic member retest must be linked to the existing issue before it is marked **Member Verified**; mere merge or source CI is not member verification.
 
 Use the existing issue states (Submitted, Under Review, Accepted, In Development, Released, Deferred or Declined); do not create a duplicate parallel tracking ledger.
 
@@ -85,3 +85,23 @@ Use the existing issue states (Submitted, Under Review, Accepted, In Development
 | 1.0 | 2026-10-26 | Sitewide founding-member beta standard, nine-module matrix, guarded official discount correction and unified existing member feedback workflows | Operating standard established; source and member QA pending |
 
 **Footer:** Crown & Lantern Press / Cyber Nexus — Internal release engineering and beta acceptance. This is not financial, investment, or legal advice. Live payment activation remains Owner-controlled.
+
+## Founding 600 iterative beta status — Owner clarification (October 26, 2026)
+
+This is a **member testing and improvement program**. It is not subject to an overall pass/fail launch designation at every checkpoint. Existing beta accounts and legitimate time-bounded QA tool grants should be able to evaluate any workflow for which they are genuinely authorized. An unreviewed answer bank must not be represented as graded mastery; that does not prevent appropriately labeled ungraded instruction or member bug reporting.
+
+The operational statuses are:
+| Beta status | Owner meaning |
+| --- | --- |
+| Available for Beta Testing | The specific authorized member journey is open for controlled evaluation. |
+| Testing in Progress | Actual beta member or targeted test evidence is being collected. |
+| Improvement Required | A reproducible defect, content gap or accessibility issue requires correction. |
+| Fix Implemented | Source/runtime correction exists and needs verification by the appropriate tester. |
+| Member Verified | A genuine signed-in tester demonstrated the corrected behavior with retained evidence. |
+| Beta Accepted | That individual feature completed its beta acceptance criteria, including authorization and negative-role checks. |
+
+Record technical evidence separately as IMPLEMENTED, TESTED, and PROVEN; record curriculum readiness separately using the canonical seven-stage learning-content progression. No label in this table certifies an untested learning result, unrelated payment lifecycle, or private member-data isolation. Audit evidence remains immutable. Repeat testing after material changes and keep a transparent actionable issue queue.
+
+Only a demonstrably unsafe *affected* workflow may be temporarily contained while a repair is made; do not stop the 600-member beta program or freeze unrelated Labs, Academy activities, Support, Journal, or community testing because another item is still under review. This is an operational prioritization change, not a relaxation of the Owner's prohibition on LIVE transactions or requirements for real login, CAPTCHA, RLS, licensing, answer protection, or market-evidence provenance.
+
+**Reporting standard:** Replace any blanket beta verdict in current status summaries with per-workstream current capability, access requirements, tested version, bug severity, repair state and genuine member verification evidence.
