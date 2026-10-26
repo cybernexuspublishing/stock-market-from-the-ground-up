@@ -18,7 +18,10 @@ for(const route of ['labs.html','assessments.html','ondemand-training.html','lea
  assert.ok(upcomingSource.includes(route),'Missing reviewed upcoming learning route '+route);
  assert.ok(read(route).length>300,'Future route absent '+route);
 }
-assert.ok(storeJs.includes('GroundUpUpcomingOfferings'),'Store must consume the single shared upcoming offering registry.');
+// V1 owner policy supersedes the old marketing requirement to display all
+// roadmap concepts: unstarted ideas are hidden rather than sold or advertised.
+assert.ok(storeJs.includes('const futureLearning=()=>[];'),'Unstarted roadmap offerings must remain hidden.');
+assert.ok(!storeJs.includes('GroundUpUpcomingOfferings'),'Public Store must not use obsolete generic upcoming cards.');
 assert.ok(storeJs.includes('t.checkoutEnabled'),'Paid CTA requires verified checkout-enabled catalog');
 assert.ok(detail.includes('buyEnabled=released&&t.checkoutEnabled===true'),'Detail checkout is server/catalog gated');
 assert.ok(detail.includes('What you’ll learn in this book'),'Customer-facing book heading');
@@ -45,4 +48,4 @@ assert.ok(api.includes("A new LIVE tool requires"),'Server prevents instant unau
 assert.ok(api.includes("Checkout destinations must be activated"),'Server forbids malicious checkout URL edits');
 assert.ok(api.includes("Pausing a billed LIVE tool requires"),'No accidental paid-user entitlement shutdown');
 assert.ok(!admin.includes('id="v11-plans"'),'Do not create parallel product pricing register');
-console.log('PASS v89: three-category Products admin, preserved book/tool editors, owner-only visibility, sales-first Store, all planned/future offers, checkout and Stripe mutation safeguards.');
+console.log('PASS v89: three-category Products admin, preserved book/tool editors, owner-only visibility, sales-first Store, hidden-unstarted policy, checkout and Stripe mutation safeguards.');
