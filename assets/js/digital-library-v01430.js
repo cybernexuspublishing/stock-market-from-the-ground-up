@@ -20,7 +20,17 @@ async function init(){const root=document.querySelector('#v135-books');if(!root)
    const h=document.createElement('h3');h.textContent=book.title||book.code;card.append(h);
    const source=document.createElement('p');source.textContent=book.accessSource==='lifetime'?'Included with your active Lifetime Membership':'Purchased directly from this website';card.append(source);
    if(!book.downloadEnabled){const note=document.createElement('p');note.textContent='Download unavailable until digital distribution rights and the approved file are ready.';card.append(note)}else{
-    const btn=document.createElement('button');btn.type='button';btn.className='btn';btn.textContent='Download eBook';
+    let formats=null;
+    try{
+     const found=await sb.rpc('gu_digital_formats_v014305',{p_code:book.code});
+     if(!found.error&&found.data?.ok&&Array.isArray(found.data.formats))
+      formats=found.data.formats.filter(x=>x==='pdf'||x==='epub');
+    }catch{}
+    // Existing single-edition downloads continue to work before schema upgrade.
+    if(!formats?.length)formats=[null];
+    for(const fmt of formats){
+    const btn=document.createElement('button');btn.type='button';btn.className='btn';
+    btn.textContent=fmt?'Download '+fmt.toUpperCase():'Download eBook';
     const msg=document.createElement('p');msg.setAttribute('role','status');btn.onclick=async()=>{btn.disabled=true;msg.textContent='Checking your access and preparing a secure download…';
      try{const {data:{session}}=await sb.auth.getSession();if(!session)throw Error('Sign in required.');
       const r=await fetch('/api/digital-book-download-v01430',{method:'POST',cache:'no-store',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},body:JSON.stringify({code:book.code})});
@@ -29,6 +39,7 @@ async function init(){const root=document.querySelector('#v135-books');if(!root)
       msg.textContent='Opening your secure download…';window.location.assign(url.href);
      }catch(e){msg.textContent=e.message||'Could not download.'}finally{btn.disabled=false}};
     card.append(btn,msg);
+    }
    }list.append(card);
   }
  }catch(e){status.textContent='Digital eBooks unavailable: '+(e.message||'Backend not yet installed.')}
