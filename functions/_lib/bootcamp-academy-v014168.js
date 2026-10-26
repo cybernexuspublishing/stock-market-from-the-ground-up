@@ -40,7 +40,8 @@ const truth5Lessons=Object.freeze([
   selfCheck:'A widely shared screenshot says a stock is “guaranteed to squeeze.” What is actually verifiable from the screenshot alone?',
   reviewGuide:'Only that the screenshot contains the assertion. A genuine issuer filing, exchange notice and separately timestamped market observations would need their own verification; none can guarantee a squeeze.',
   error:'Treating repost volume, a professional-looking chart or a follower count as proof of the underlying market claim.',
-  transfer:'Find one claim in a new article and trace it back to the original source. Record the unverified portions without trading.'
+  transfer:'Find one claim in a new article and trace it back to the original source. Record the unverified portions without trading.',
+  investigation:'FICTIONAL INDEPENDENT CASE: At 09:04 ET, an anonymous account posts a screenshot that says a small company signed a guaranteed $40 million contract. At 09:10 ET, a second account links to a page resembling the company press room, but the address is a lookalike domain. Your job is not to choose a trade. Write an evidence ledger identifying the claimant, source URL ownership, original document, publication time, whether a contract value or only a proposed opportunity is stated, and the missing confirmation. Classify the post VERIFIED, PARTLY VERIFIED or UNVERIFIED. A screenshot and a persuasive domain name are insufficient to verify the contract.'
  }),
  Object.freeze({
   explanation:'SEC EDGAR filings identify a legal filer, accession number, form, filing date, accepted timestamp and reporting period. A Form 10-Q describes an interim reporting period; a Form 10-K covers a fiscal year; a Form 8-K reports specified events. The form label does not certify that a headline accurately interprets every item in the filing.',
@@ -49,7 +50,8 @@ const truth5Lessons=Object.freeze([
   selfCheck:'A filing is accepted at 16:12 ET and reports last quarter’s revenue. Which timestamp and period belong in your evidence log?',
   reviewGuide:'Record both the filing acceptance/public availability timestamp and the revenue reporting period. The filing timestamp is not the time that quarter’s transactions took place.',
   error:'Confusing filing acceptance time, fiscal-period end, issuer announcement time, and time of a market print.',
-  transfer:'Repeat the filing identity/period check with a second filing type. If the filing is unavailable, record the gap rather than substituting an article.'
+  transfer:'Repeat the filing identity/period check with a second filing type. If the filing is unavailable, record the gap rather than substituting an article.',
+  investigation:'FICTIONAL INDEPENDENT CASE: A headline says a company “proved record annual profits” after publishing an 8-K that attaches an earnings release. The exhibit includes unaudited quarterly financial results and next-year revenue guidance. In your source ledger record the legal filer, form and item, accession, acceptance time, exhibit, period actually reported, and whether each figure is historical, unaudited, or forward-looking. Explain why the presence of an 8-K does not turn a projection into audited performance. If the exact document is missing, withhold the conclusion rather than substituting a social summary.'
  }),
  Object.freeze({
   explanation:'Market research requires chronology. Event time, publication time, retrieval time, data-feed timestamp and your decision-pause time are distinct. Normalize time zones explicitly, including daylight-saving transitions, before asserting what was publicly knowable.',
@@ -58,7 +60,8 @@ const truth5Lessons=Object.freeze([
   selfCheck:'May a 09:05 ET social repost justify a decision supposedly made at 08:50 ET? Which independently verifiable publication timestamp and decision-time evidence would you need before trusting the claimed analysis?',
   reviewGuide:'No. It occurred after the declared pause. A separately verified earlier issuer release might have been available, but that must be proved independently.',
   error:'Backdating information into an earlier decision because the later explanation makes the price move look obvious.',
-  transfer:'Construct a new four-event timeline and mark exactly what could have been known at two different pauses.'
+  transfer:'Construct a new four-event timeline and mark exactly what could have been known at two different pauses.',
+  investigation:'FICTIONAL INDEPENDENT CASE: A newswire displays an issuer statement at 08:31 ET, a verified issuer page shows an update at 08:46 ET, and a chart screenshot has no export timestamp. A researcher claims to have decided at 08:37 ET using the updated statement and chart. Build two evidence columns: publicly available by 08:37 and only potentially available afterward. You may use the 08:31 item if you verify its actual publication time; you cannot use the 08:46 update at 08:37. The undated chart needs an independently supported observation timestamp. Do not infer causation from the price after the pause.'
  }),
  Object.freeze({
   explanation:'A percentage depends on its numerator, denominator and measurement window. Share price, market capitalization, float turnover and dollar volume answer different questions. Price change is (new price − reference price) ÷ reference price × 100. A split can change displayed per-share prices without changing a shareholder’s proportionate ownership.',
@@ -67,7 +70,8 @@ const truth5Lessons=Object.freeze([
   selfCheck:'A post says “volume exceeded float twice.” Does that prove every freely tradable share changed hands twice?',
   reviewGuide:'No. Volume is aggregate executed shares. The same shares can trade repeatedly; float estimates can be stale; volume/float does not identify unique owners.',
   error:'Using a price percentage, volume-to-float ratio or bar volume as if it guaranteed liquidity or a profitable execution.',
-  transfer:'Audit another promotional statistic and reproduce its arithmetic using original source dates and consistent units.'
+  transfer:'Audit another promotional statistic and reproduce its arithmetic using original source dates and consistent units.',
+  investigation:'FICTIONAL INDEPENDENT CASE: A stock closes at $0.80 before a one-for-ten reverse split and appears at $8.00 on a correctly split-adjusted comparison the next session. A promotional graphic claims a 900% gain. Calculate what happens to an illustrative holder of 1,000 old shares: the holder has 100 new shares, and the theoretical pre/post market value is $800 before any separate market move or transaction costs. Distinguish mechanical per-share repricing from a genuine price return; verify the corporate-action effective date and adjustment convention before trusting a gain scan.'
  }),
  Object.freeze({
   explanation:'Independent verification combines source reliability, chronology, calculation and a defensible decision. A capstone is complete only when the learner can document the reasoning without copying a worked answer. A missing document is a legitimate finding; “no trade” is a valid risk decision.',
@@ -76,7 +80,8 @@ const truth5Lessons=Object.freeze([
   selfCheck:'You cannot locate an original filing or reliably timestamp a quote. What conclusion and trading decision are defensible?',
   reviewGuide:'Mark the relevant market claims unverified, document the missing evidence and select NO TRADE rather than reverse-engineering a justification from later price movement.',
   error:'Choosing an outcome first and then selecting only corroborating screenshots, or reporting a self-reviewed capstone as certified mastery.',
-  transfer:'Complete a fresh claim investigation without hints, retain your private reflection and explain which new evidence would change the classification.'
+  transfer:'Complete a fresh claim investigation without hints, retain your private reflection and explain which new evidence would change the classification.',
+  investigation:'FICTIONAL INDEPENDENT CAPSTONE: At your 09:15 ET pause you have a screenshot claiming a 70% share-price move, an original company release describing a prospective agreement without an announced dollar value, and a delayed quote stamped 08:50 ET. The screenshot does not state its price baseline, the release cannot establish a completed contract, and the quote does not establish executable bid/ask liquidity at 09:15. Produce a two-column ledger of supported facts versus unresolved claims, identify the denominator needed to verify 70%, note a plausible alternative interpretation, and justify VERIFY MORE or NO TRADE. State the exact new records that would change your decision.'
  })
 ]);
 
