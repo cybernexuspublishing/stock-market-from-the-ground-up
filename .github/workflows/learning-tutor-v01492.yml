@@ -11,6 +11,8 @@ on:
       - 'bootcamp-academy.html'
       - 'assets/js/lab-v34-interactive-lessons.js'
       - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/js/lab-v34-competency-examples.js'
+      - 'tests/test_v38_watchlist_learning_fidelity.mjs'
       - 'assets/css/lab-v33-experience.css'
       - 'tests/test_v014167_talia_five_candle_tabs.mjs'
       - 'assets/js/lab-player.js'
@@ -380,6 +382,10 @@ jobs:
           node --check assets/js/lab-v33-instructor.js
           node --check assets/js/lab-v33-visual-interactions.js
           node tests/test_v014167_talia_five_candle_tabs.mjs
+          node --check assets/js/lab-v34-competency-examples.js
+          node --check assets/js/lab-v33-instruction-content.js
+          node --check assets/js/lab-engine-v32-universal.js
+          node tests/test_v38_watchlist_learning_fidelity.mjs
           node tests/test_v014098_integrated_skills_review.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/test_v014100_choice_option_order.mjs
