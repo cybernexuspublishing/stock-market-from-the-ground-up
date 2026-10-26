@@ -14,7 +14,8 @@ globalThis.fetch=async (url,init={})=>{
  if(p==='/rest/v1/admin_user_roles')return json([]);
  if(p==='/rest/v1/rpc/user_has_tool_access')return json(false);
  if(p==='/rest/v1/gu_free_learning_preferences_v1'){
-  assert(u.searchParams.get('user_id')==='eq.'+actor||init.method==='POST','owner filter required');
+  const queryUser=u.searchParams.get('user_id')?.replace(/^eq\./,'');
+  assert(init.method==='POST'||[uid,other].includes(queryUser),'owner-filtered query required');
   if(init.method==='POST'){
    if(stored)return json({message:'duplicate'},409);
    const x=JSON.parse(init.body);stored={...x,revision:1,updated_at:'2026-10-26T20:00:00Z'};
@@ -22,16 +23,16 @@ globalThis.fetch=async (url,init={})=>{
   }
   if(init.method==='PATCH'){
    const expected=Number(u.searchParams.get('revision')?.slice(3));
-   if(!stored||stored.user_id!==actor||stored.revision!==expected)return json([]);
+   if(!stored||stored.user_id!==queryUser||stored.revision!==expected)return json([]);
    const x=JSON.parse(init.body);stored={...stored,...x,updated_at:'2026-10-26T21:00:00Z'};
    return json([stored]);
   }
-  return json(stored?.user_id===actor?[stored]:[]);
+  return json(stored?.user_id===queryUser?[stored]:[]);
  }
  if(p==='/rest/v1/gu_bootcamp_academy_progress_v014168'){
-  assert.equal(u.searchParams.get('user_id'),'eq.'+actor);
+  assert(['eq.'+uid,'eq.'+other].includes(u.searchParams.get('user_id')),'progress must be explicitly scoped to member');
   assert.equal(u.searchParams.get('program_code'),'eq.free5');
-  return json(actor===uid?progress:[]);
+  return json(u.searchParams.get('user_id')==='eq.'+uid?progress:[]);
  }
  throw Error('Unexpected service '+p);
 };
