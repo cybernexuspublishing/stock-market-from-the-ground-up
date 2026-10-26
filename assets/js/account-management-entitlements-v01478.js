@@ -39,20 +39,58 @@
   const orders=item('Order and payment audit history','orders',['Order','Status','Provider','Amount','Management'],r=>
    '<tr><td>'+esc(r.id)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.provider)+'</td><td>'+
    esc((Number(r.total_cents||0)/100).toFixed(2))+' USD</td><td>Retained financial ledger</td></tr>',inventory);
-  const cat=info.grantCatalog||{},booksOpts=(cat.books||[]).map(x=>'<option value="'+esc(x.product_code)+'">'+esc(x.short_title||x.product_code)+'</option>').join(''),
-    toolsOpts=(cat.tools||[]).map(x=>'<option value="'+esc(x.tool_code)+'">'+esc(x.name||x.tool_code)+'</option>').join('');
-  const canGrant=account.type==='member'&&Array.isArray(cat.books)&&Array.isArray(cat.tools);
+  const cat=info.grantCatalog||{};
+  const bookRows=Array.isArray(cat.books)?cat.books:[],toolRows=Array.isArray(cat.tools)?cat.tools:[];
+  const hasBook=code=>Array.isArray(inventory.books)&&inventory.books.some(r=>
+    r.product_code===code&&(!r.expires_at||Date.parse(r.expires_at)>Date.now()));
+  const hasTool=code=>Array.isArray(inventory.tools)&&inventory.tools.some(r=>
+    r.tool_code===code&&active(r));
+  const hasLearning=Array.isArray(inventory.legacyLearning)&&inventory.legacyLearning.some(r=>
+    r.product_key==='full_learning_access'&&active(r));
+  // A failed inventory read must never allow duplicate or blind grants.
+  const canGrant=account.type==='member'&&Array.isArray(cat.books)&&Array.isArray(cat.tools)&&
+    Array.isArray(inventory.books)&&Array.isArray(inventory.tools)&&Array.isArray(inventory.legacyLearning);
+  const option=(kind,code,name,owned)=>'<label class="v1353-info" style="display:block;margin:4px 0">'+
+    '<input type="checkbox" name="resourceCode" data-kind="'+esc(kind)+'" value="'+esc(code)+'"'+
+    ((!canGrant||owned)?' disabled':'')+'> '+esc(name)+' <code>'+esc(code)+'</code>'+
+    (owned?' · Already granted':'')+'</label>';
+  const choices=bookRows.map(x=>option('manual_book',x.product_code,x.short_title||x.product_code,hasBook(x.product_code))).join('')+
+    toolRows.map(x=>option('manual_tool',x.tool_code,x.name||x.tool_code,hasTool(x.tool_code))).join('')+
+    option('manual_learning','FULL_LEARNING_ACCESS','Legacy full learning access (BOOK_TRIAL; not membership)',hasLearning);
+  const catalogTable=(label,rows,cells)=>{
+    if(!Array.isArray(rows))return '<details class="v1353-info"><summary>'+esc(label)+
+      ' — unavailable</summary><p>Catalog source could not be verified. No absence or eligibility is assumed.</p></details>';
+    return '<details class="v1353-info"><summary>'+esc(label)+' ('+rows.length+')</summary>'+
+      '<div class="v1355-scroll"><table class="v1355-table"><thead><tr><th>Code</th><th>Offering</th><th>Management state</th></tr></thead><tbody>'+
+      rows.map(r=>'<tr><td><code>'+esc(cells(r)[0])+'</code></td><td>'+esc(cells(r)[1])+
+        '</td><td>'+esc(cells(r)[2])+'</td></tr>').join('')+'</tbody></table></div></details>';
+  };
+  const fullCatalog='<section class="v1353-info" aria-label="Complete entitlement offering catalog">'+
+    '<h4>Complete Entitlement Offering Catalog</h4>'+
+    '<p>All existing membership, book, tool and Store offering codes are visible here, including hidden and upcoming items. Catalog visibility does not establish access or sale eligibility. Manual grants are limited to active book companions, tools and legacy learning using audited backend operations. Founder seats and Stripe subscriptions cannot be fabricated by a manual grant.</p>'+
+    catalogTable('Membership plans',cat.plans,r=>[r.plan_code,r.name,
+      r.active?'Plan lifecycle only · '+(r.public_visible?'Public':'Hidden'):'Inactive / historical plan'])+
+    catalogTable('Book companions',cat.books,r=>[r.product_code,r.short_title||r.product_code,
+      hasBook(r.product_code)?'Already assigned':'Manual companion grant available'])+
+    catalogTable('Tools and learning access',cat.tools,r=>[r.tool_code,r.name||r.tool_code,
+      hasTool(r.tool_code)?'Already assigned':'Manual tool grant available'])+
+    catalogTable('Store offerings (includes Boot Camps, Sparks and upcoming products)',cat.storeItems,
+      r=>[r.sku,r.display_name,r.category+' · '+r.status+
+        (r.sale_ready?' · Sale-ready':' · Sale not authorized')+
+        (r.visible?' · Catalog-visible':' · Hidden')])+
+    '<p class="small">Crownlight Sparks are a separate ledger, managed below. Purchases, subscriptions, founder membership, and Boot Camp enrollment require their own issuer-authorized lifecycles.</p></section>';
   const wrap=document.createElement('section');wrap.className='v1353-account-inventory';wrap.id='v1478-account-inventory';
   wrap.innerHTML='<h3>Manage All Account Entitlements &amp; Source Records</h3>'+summary+grants+subs+legacy+books+tools+bookKeys+orders+
-  '<form id="v1478-resource-grant" class="v1352-grid"><h4 class="full">Grant manual Book or Tool access</h4>'+
-  '<label>Entitlement<select name="kind"><option value="manual_book">Book Companion</option><option value="manual_tool">Tool Pass</option><option value="manual_learning">Legacy Learning Access</option></select></label>'+
-  '<label data-gu78-book>Book<select name="bookCode">'+booksOpts+'</select></label>'+
-  '<label data-gu78-tool hidden>Tool<select name="toolCode">'+toolsOpts+'</select></label>'+
-  '<p data-gu78-legacy hidden>Grant legacy full_learning_access only; this can establish BOOK_TRIAL separately from platform memberships.</p>'+
+  fullCatalog+
+  '<form id="v1478-resource-grant" class="v1352-grid"><h4 class="full">Grant Multiple Independent Entitlements</h4>'+
+  '<p class="full">Select any combination of active book companions, tools or legacy learning rights. Each selected entitlement receives an independent source-verified grant and audit record. All selected grants share the optional expiration and required reason. These are sequential operations; prior successful grants will remain if a later grant fails.</p>'+
+  '<fieldset class="full" aria-label="Available manual entitlements"><legend>Select one or more entitlements</legend>'+
+   (choices||'<p>No verified entitlements available for manual grant.</p>')+'</fieldset>'+
   '<label>Expiration (optional)<input type="datetime-local" name="expiresAt"></label>'+
   '<label class="full">Audit reason (required)<input name="reason" minlength="10" maxlength="500" required></label>'+
-  '<div class="full"><button class="btn secondary" type="submit" '+(canGrant?'':'disabled')+'>Grant Selected Manual Access</button></div></form>'+
-  '<p class="small">All actions are authenticated, audited, target-specific and source-bound. Stripe billing, purchased books, Book Keys, and financial records have separate issuer-controlled lifecycles. This panel will not falsely claim those were canceled.</p>';
+  '<p class="full" role="status" aria-live="polite" data-gu78-grant-status></p>'+
+  '<div class="full"><button class="btn secondary" type="submit" '+(canGrant?'':'disabled')+'>Grant Selected Entitlements</button></div></form>'+
+  '<p class="small">All grants are authenticated, audited, target-specific and source-bound. Stripe billing, purchased books, Book Keys, and financial records have separate issuer-controlled lifecycles. This panel will not falsely claim those were canceled.</p>';
   const deleteSection=box.querySelector('.v1353-danger:last-of-type');
   if(deleteSection)deleteSection.before(wrap);else box.append(wrap);
   // Owner-only Crownlight Sparks balance controls are part of the existing
@@ -221,23 +259,43 @@
     }
    });
   }
-  const form=wrap.querySelector('#v1478-resource-grant');
-  form.elements.kind.addEventListener('change',()=>{
-   form.querySelector('[data-gu78-book]').hidden=form.elements.kind.value!=='manual_book';
-   form.querySelector('[data-gu78-tool]').hidden=form.elements.kind.value!=='manual_tool';
-   form.querySelector('[data-gu78-legacy]').hidden=form.elements.kind.value!=='manual_learning';
-  });
-  form.addEventListener('submit',async event=>{
-   event.preventDefault();const btn=form.querySelector('button[type=submit]');
-   const kind=form.elements.kind.value,code=kind==='manual_learning'?'FULL_LEARNING_ACCESS':
-     kind==='manual_book'?form.elements.bookCode.value:form.elements.toolCode.value;
-   const expiresAt=form.elements.expiresAt.value?new Date(form.elements.expiresAt.value).toISOString():null;
-   const reason=form.elements.reason.value.trim();
-   if(!window.confirm('Grant '+code+' to '+account.username+' as a manual entitlement? This will be audited.'))return;
-   btn.disabled=true;
-   try{const r=await api('grant_resource',{userId:account.id,kind,code,expiresAt,reason});
-    await finish(r.notice||'Manual entitlement granted. Verify account effective access.')}
-   catch(e){window.alert(e.message);btn.disabled=false}
+  const grantForm=wrap.querySelector('#v1478-resource-grant');
+  grantForm.addEventListener('submit',async event=>{
+   event.preventDefault();
+   const button=grantForm.querySelector('button[type=submit]');
+   const selected=[...grantForm.querySelectorAll('input[name="resourceCode"]:checked:not(:disabled)')]
+    .map(input=>({kind:input.dataset.kind,code:input.value}));
+   const reason=grantForm.elements.reason.value.trim();
+   const dateValue=grantForm.elements.expiresAt.value;
+   const expiresAt=dateValue?new Date(dateValue).toISOString():null;
+   const status=grantForm.querySelector('[data-gu78-grant-status]');
+   if(!selected.length){status.textContent='Select at least one available entitlement.';return;}
+   if(selected.length>40||reason.length<10||reason.length>500){
+    status.textContent='Select up to 40 rights and provide a 10–500 character audit reason.';return;
+   }
+   if(!window.confirm('Grant '+selected.length+' independent entitlement(s) to '+account.username+
+     '? Each is audited separately. This does not create paid subscriptions, founder seats or purchases.'))return;
+   button.disabled=true;let completed=[];
+   status.textContent='Processing 0 of '+selected.length+' independently audited entitlements…';
+   try{
+    for(const [index,entry] of selected.entries()){
+     status.textContent='Processing '+(index+1)+' of '+selected.length+': '+entry.code+'…';
+     const result=await api('grant_resource',{userId:account.id,...entry,expiresAt,reason});
+     if(result?.granted!==true||result.kind!==entry.kind||result.code!==entry.code)
+      throw Error('Server did not confirm '+entry.code+'.');
+     completed.push(entry.code);
+    }
+    await finish(completed.length+' independently audited entitlement(s) granted. Review the member inventory to confirm access.');
+   }catch(error){
+    // Never retry an uncertain request automatically. All prior successful
+    // grants are independent; neither rollback nor success is assumed.
+    status.textContent='Stopped. Confirmed grants: '+(completed.join(', ')||'none')+
+      '. Remaining grants are unverified. Reload the member inventory before retrying.';
+    window.alert(String(error?.message||'Grant verification failed.')+
+      '\nConfirmed: '+(completed.join(', ')||'none')+
+      '\nReload this account to reconcile the entire batch before trying again.');
+    button.disabled=true;
+   }
   });
  }
  window.GroundUpAccountItems=Object.freeze({mount});
