@@ -85,14 +85,14 @@
       "terms": "One-time purchase. 'Lifetime' means the operational life of the platform, subject to published Terms and an active account in good standing."
     },
     "ONDEMAND_MONTHLY": {
-      "summary": "Book-aligned historical replay learning for use with a separately authorized third-party OnDemand installation.",
+      "summary": "Training-only beta membership for the seven listed Academy programs, including source verification, watchlists, scanners, foundational trading, chart reading, risk and independent practice. A separate thinkorswim OnDemand installation is not included.",
       "learn": [
         "Practice no-look-ahead chart review and historical trading decisions.",
         "Use guided replay prompts and a decision journal to distinguish observations from hindsight."
       ],
       "included": [
-        "Guided book-aligned historical replay training where released",
-        "Historical practice prompts and structured decision-journal exercises"
+        "Access to currently available seven-program Academy teaching, including guided practice and private reflections",
+        "Current original educational investigations, decisions, structured reflections and resume when the learning service confirms a save"
       ],
       "excluded": [
         "Downloadable eBooks",
@@ -106,12 +106,12 @@
   "tools": {
     "INTERACTIVE_LEARNING": {
       "outcomes": [
-        "Work through guided, practice, blind-decision and assessment exercises.",
+        "Practice through guided learning, independent observation and blind-decision exercises; official assessment is available only where independently reviewed.",
         "Review historical lab evidence and record the reasoning behind a decision.",
-        "Track competence and revisit missed skills using progress feedback."
+        "Review ungraded saved practice and Not Yet Assessed evidence; do not mistake a reflection for graded competence."
       ],
       "included": [
-        "Released interactive lessons, historical labs and supported assessments",
+        "Authorized guided beta Labs, original educational cases and ungraded practice; individually reviewed assessments are separate and not yet broadly published",
         "Competency and learning-progress workflows under tool access"
       ],
       "excluded": [
@@ -143,7 +143,7 @@
         "Review MFE/MAE and journal connections to assess process."
       ],
       "included": [
-        "Released first-party historical simulator and replay features",
+        "Browser CSV educational replay and any independently rights-approved server-controlled historical replay currently published",
         "Supported trade review and journal integration"
       ],
       "excluded": [
@@ -151,7 +151,7 @@
         "A proprietary third-party OnDemand installation or premium live market-data license",
         "Other separately sold tools and downloadable books"
       ],
-      "requirements": "Requires supported historical datasets, CSVs or independently connected market-data providers as applicable."
+      "requirements": "Browser CSV practice accepts member-supplied data; server-controlled historical replay requires a published, rights-approved dataset and may have none available. No broker-confirmed executions."
     },
     "MARKET_TUTOR": {
       "outcomes": [
