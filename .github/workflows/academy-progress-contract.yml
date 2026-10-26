@@ -22,5 +22,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test real Academy API handler against deterministic simulated dependencies
-        run: node --test tests/test_academy_progress_contract.mjs
+      - name: Exercise Academy persistence, member isolation and grading protection fixtures
+        run: |
+          node --test tests/test_academy_progress_contract.mjs
+          node tests/test_v014170_academy_member_contract.mjs
+          node tests/test_b01_owner_revision_lock.mjs
+          node tests/test_b01_private_lesson_owner_review.mjs
+          node tests/test_b01_review_withdrawal_and_private_grading.mjs
+          node tests/test_grading_partial_credit_critical_guard.mjs
+          node tests/test_v014280_rubric_review_audit.mjs
