@@ -17,10 +17,20 @@ function statusLabel(status) {
 }
 
 function progressControl(labId) {
-  if (!availabilityVerified || !publishedAssessments.has(labId))
-    return guidedBetaLabs.has(labId)
-      ? '<span class="small">Ungraded beta practice — submit your reflection in the Lab; official graded credit is not available</span>'
-      : '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
+  if (!availabilityVerified) return '<span class="small" role="status">Release status unavailable; no grade or progress has been verified</span>';
+  const guided = guidedBetaLabs.has(labId) && !publishedAssessments.has(labId);
+  if (guided) {
+    if (!currentUser) return '<a href="account.html" class="small">Sign in to save ungraded Lab practice</a>';
+    if (!memberProgressAvailable)
+      return '<span class="small" role="status">Private guided-practice progress unavailable — saved status was not verified</span>';
+    const saved = progressMap.get(labId)?.status;
+    return '<span class="small" role="status">' +
+      (saved === 'completed' ? 'Saved self-tracked Lab activity · ungraded, no mastery credit' :
+       saved === 'in_progress' ? 'Saved in-progress Lab activity · ungraded' :
+       'No saved Lab activity yet · ungraded practice') + '</span>';
+  }
+  if (!publishedAssessments.has(labId))
+    return '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
   if (!currentUser) return '<a href="account.html" class="small">Sign in to track progress</a>';
   if (!memberProgressAvailable) return '<span class="small" role="status">Private progress unavailable — your saved status was not verified</span>';
   const status = progressMap.get(labId)?.status || 'not_started';
@@ -41,7 +51,15 @@ function renderLabs(rows) {
   body.innerHTML = rows.map(x => {
     const released = availabilityVerified && publishedAssessments.has(x.id);
     const guidedBeta = availabilityVerified && guidedBetaLabs.has(x.id) && !released;
-    const savedStatus = released ? (progressMap.get(x.id)?.status || 'not_started') : 'not_started';
+    // Guided beta members can see their already-saved practice on returning,
+    // but only after their private user-scoped progress query succeeds.
+    const savedStatus = (released || guidedBeta) && currentUser
+      ? (memberProgressAvailable ? (progressMap.get(x.id)?.status || 'not_started') : 'unverified')
+      : 'not_started';
+    const progressText = savedStatus === 'unverified'
+      ? 'Private progress not verified'
+      : guidedBeta ? statusLabel(savedStatus) + ' · ungraded practice only'
+      : statusLabel(savedStatus);
     return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}">
       <div class="lab-card-main">
         <div class="lab-card-heading">
@@ -61,7 +79,7 @@ function renderLabs(rows) {
         ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:guidedBeta?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open guided beta practice (ungraded)</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
-        <div class="progress-msg" data-msg-for="${x.id}">${statusLabel(savedStatus)}</div>
+        <div class="progress-msg" role="status" data-msg-for="${x.id}">${progressText}</div>
       </div>
     </article>`;
   }).join('');
