@@ -12,7 +12,7 @@ const avg=(rows,dim)=>{const a=dim?rows.filter(r=>r.dimension===dim):rows;if(!a.
 // Distinct attempts, not the four rows (knowledge/recognition/decision/process).
 function assessments(rows){
  const g=new Map();
- for(const r of rows){const id=`${r.source_type}\\u001f${r.source_id}`;if(!g.has(id))g.set(id,[]);g.get(id).push(r)}
+ for(const r of rows){const id=`${r.source_type}\u001f${r.source_id}`;if(!g.has(id))g.set(id,[]);g.get(id).push(r)}
  return [...g.values()].map(rs=>{
   const dims=new Set(rs.map(x=>x.dimension)),score=avg(rs),
    ts=Math.max(...rs.map(x=>Date.parse(x.assessed_at)||0));
