@@ -1,0 +1,48 @@
+name: Free Foundations and Research Watchlist Security
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/free-foundations-watchlist-v1.yml'
+      - 'functions/_lib/free-foundations-v1.js'
+      - 'functions/_lib/bootcamp-academy-v014168.js'
+      - 'functions/api/bootcamp-academy.js'
+      - 'functions/api/free-watchlist.js'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/js/free-watchlist-v1.js'
+      - 'assets/js/dashboard.js'
+      - 'dashboard.html'
+      - 'bootcamp-academy.html'
+      - 'free-watchlist.html'
+      - 'tests/test_free_foundations_shared_v1.mjs'
+      - 'tests/test_free_watchlist_v1.mjs'
+      - 'supabase/migrations/20261026_free_research_watchlist_v1.sql'
+      - 'supabase/migrations/20261026_free_foundations_shared_academy_course.sql'
+permissions:
+  contents: read
+jobs:
+  contract-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source syntax and registered API contracts
+        run: |
+          node --check functions/_lib/free-foundations-v1.js
+          node --check functions/_lib/bootcamp-academy-v014168.js
+          node --check functions/api/bootcamp-academy.js
+          node --check functions/api/free-watchlist.js
+          node --check assets/js/bootcamp-academy-v014168.js
+          node --check assets/js/free-watchlist-v1.js
+          node --check assets/js/dashboard.js
+          node tests/test_free_foundations_shared_v1.mjs
+          node tests/test_free_watchlist_v1.mjs
+          node tests/test_free_member_launchpad_v1.mjs
+          node tests/test_v014170_academy_member_contract.mjs
+          node tests/test_v014168_academy_family.mjs
