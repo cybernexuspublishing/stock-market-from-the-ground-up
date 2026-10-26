@@ -1,0 +1,20 @@
+-- v0.14.0.283 | Read-only policy verification.
+BEGIN READ ONLY;
+select 'profiles/read own profile' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='profiles' and policyname='read own profile';
+select 'profiles/update own profile' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='profiles' and policyname='update own profile';
+select 'profiles/insert own profile' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='profiles' and policyname='insert own profile';
+select 'lab_progress/read own progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_progress' and policyname='read own progress';
+select 'lab_progress/insert own progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_progress' and policyname='insert own progress';
+select 'lab_progress/update own progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_progress' and policyname='update own progress';
+select 'lab_progress/delete own progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_progress' and policyname='delete own progress';
+select 'lab_attempts/read own lab attempts' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_attempts' and policyname='read own lab attempts';
+select 'lab_attempts/insert own lab attempts' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='lab_attempts' and policyname='insert own lab attempts';
+select 'site_lab_progress/members read own site lab progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='site_lab_progress' and policyname='members read own site lab progress';
+select 'site_lab_progress/members create own site lab progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='site_lab_progress' and policyname='members create own site lab progress';
+select 'site_lab_progress/members update own site lab progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='site_lab_progress' and policyname='members update own site lab progress';
+select 'site_lab_progress/members delete own site lab progress' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='site_lab_progress' and policyname='members delete own site lab progress';
+select 'entitlements/read own entitlements' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='entitlements' and policyname='read own entitlements';
+select 'competency_evidence/members read own competency evidence' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='competency_evidence' and policyname='members read own competency evidence';
+select 'user_library/read own library' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='user_library' and policyname='read own library';
+select 'user_plan_grants/read own plan grants' as policy,qual,with_check from pg_policies where schemaname='public' and tablename='user_plan_grants' and policyname='read own plan grants';
+COMMIT;
