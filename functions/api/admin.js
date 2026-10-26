@@ -188,6 +188,39 @@ async function handleGet(env,request,action,url){
   if(action==='commerce'){
     await withContext(env,request,'commerce.view');const [orders,subs]=await Promise.all([tableRows(env,'site_orders','*','&order=created_at.desc&limit=100'),tableRows(env,'site_subscriptions','*','&order=created_at.desc&limit=100')]);return ok({orders,subscriptions:subs});
   }
+  if(action==='store_reports'){
+    const ctx=await withContext(env,request,'commerce.view');
+    if(!ctx.ctx.roles.includes('OWNER'))return out({ok:false,error:'Owner finance reporting access required.'},403);
+    const today=new Date().toISOString().slice(0,10);
+    const from=clean(url.searchParams.get('from'))||new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+    const to=clean(url.searchParams.get('to'))||today;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!/^\d{4}-\d{2}-\d{2}$/.test(to)||
+       !Number.isFinite(Date.parse(from))||!Number.isFinite(Date.parse(to))||
+       from>to||Date.parse(to)-Date.parse(from)>366*86400000)
+      return out({ok:false,error:'Select a valid date range no longer than 366 days.'},400);
+    const orderRows=await tableRows(env,'site_orders',
+       'id,provider,provider_order_id,status,currency,subtotal_cents,tax_cents,total_cents,paid_at,refunded_at,metadata,user_id',
+       '&paid_at=gte.'+encodeURIComponent(from+'T00:00:00Z')+
+       '&paid_at=lt.'+encodeURIComponent(new Date(Date.parse(to+'T00:00:00Z')+86400000).toISOString())+
+       '&order=paid_at.desc&limit=251');
+    // The presence of a paid status without provider provenance is insufficient
+    // evidence to count a real receipt. No TEST/shadow/unknown mode is revenue.
+    const verified=orderRows.slice(0,250).filter(x=>x.status==='paid'&&
+      x.currency==='USD'&&!x.refunded_at&&
+      (x.metadata?.livemode===true||x.metadata?.livemode==='true')&&
+      typeof x.provider_order_id==='string'&&x.provider_order_id.length>=8);
+    const ids=verified.map(o=>Number(o.id)).filter(x=>Number.isSafeInteger(x)&&x>0);
+    const [lines,products]=await Promise.all([
+      ids.length?tableRows(env,'site_order_items','order_id,product_code,description,quantity,unit_price_cents,total_cents',
+       '&order_id=in.('+ids.join(',')+')&limit=1200'):Promise.resolve([]),
+      tableRows(env,'catalog_products','product_code,product_type,family,title','&limit=500')
+    ]);
+    return out({ok:true,from,to,limit:250,truncated:orderRows.length>250,
+       paidOrders:verified,items:lines,categories:products.map(x=>({
+         code:x.product_code,type:x.product_type,category:x.family,title:x.title
+       })),unverifiedOrRefundedRows:orderRows.slice(0,250).length-verified.length,
+       revenuePolicy:'Verified live USD paid orders only; excludes refunded, TEST and unknown provider provenance. Subtotals exclude stated tax. Fees and other costs may be missing.'});
+  }
   if(action==='forum'){
     await withContext(env,request,'forum.view');let topics=[],posts=[],reports=[];try{topics=await tableRows(env,'forum_topics','id,title,ticker,lab_id,status,is_pinned,is_locked,author_id,created_at,updated_at','&order=updated_at.desc&limit=100')}catch{}try{posts=await tableRows(env,'forum_posts','id,topic_id,body,status,author_id,created_at,updated_at','&order=created_at.desc&limit=100')}catch{}try{reports=await tableRows(env,'forum_reports','*','&order=created_at.desc&limit=100')}catch{}return ok({topics,posts,reports});
   }
