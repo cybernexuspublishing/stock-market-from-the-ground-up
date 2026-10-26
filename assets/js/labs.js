@@ -2,6 +2,8 @@ let allLabs = [];
 let progressMap = new Map();
 let currentUser = null;
 let labSupabase = null;
+let publishedAssessments = new Set();
+let availabilityVerified = false;
 
 function norm(s) { return String(s || '').toLowerCase(); }
 
@@ -12,6 +14,8 @@ function statusLabel(status) {
 }
 
 function progressControl(labId) {
+  if (!availabilityVerified || !publishedAssessments.has(labId))
+    return '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
   if (!currentUser) return '<a href="account.html" class="small">Sign in to track progress</a>';
   const status = progressMap.get(labId)?.status || 'not_started';
   return `<label class="sr-only" for="progress-${labId}">Progress for ${labId}</label>
@@ -29,7 +33,8 @@ function renderLabs(rows) {
   if (count) count.textContent = `Showing ${rows.length} of ${allLabs.length} labs`;
 
   body.innerHTML = rows.map(x => {
-    const savedStatus = progressMap.get(x.id)?.status || 'not_started';
+    const released = availabilityVerified && publishedAssessments.has(x.id);
+    const savedStatus = released ? (progressMap.get(x.id)?.status || 'not_started') : 'not_started';
     return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}">
       <div class="lab-card-main">
         <div class="lab-card-heading">
@@ -38,7 +43,7 @@ function renderLabs(rows) {
           ${x.skill?`<span class="pill">${x.skill}</span>`:''}${(x.marketContexts||[]).slice(0,2).map(t=>`<span class="pill pill-context">${t}</span>`).join('')}
         </div>
         <h2 class="lab-concept">${x.concept || 'Historical simulator exercise'}</h2>
-        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${x.sourceStatus==='canonical_ungraded_orientation'?'<p class="small">Concept study available; private authored lesson and reviewed grading may still be pending.</p>':''}</div>
+        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${!released?'<p class="small">Upcoming — this Lab is listed in the canonical registry but its private lesson and assessment are not both published.</p>':''}</div>
       </div>
       <div class="lab-card-meta" aria-label="Lab details">
         <div class="lab-meta-item"><span>Ticker</span><strong>${x.ticker || '—'}</strong></div>
@@ -46,7 +51,7 @@ function renderLabs(rows) {
         <div class="lab-meta-item"><span>Chart</span><strong>${x.timeframe || 'See book'}</strong></div>
       </div>
       <div class="lab-card-progress">
-        <a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>
+        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" data-msg-for="${x.id}">${statusLabel(savedStatus)}</div>
@@ -78,7 +83,7 @@ async function saveProgress(e) {
   const select = e.currentTarget;
   const labId = select.dataset.labId;
   const status = select.value;
-  if (!labSupabase || !currentUser) return;
+  if (!labSupabase || !currentUser || !availabilityVerified || !publishedAssessments.has(labId)) return;
 
   const previousStatus = progressMap.get(labId)?.status || 'not_started';
   const msg = document.querySelector(`[data-msg-for="${labId}"]`);
@@ -146,6 +151,21 @@ async function initLabs() {
     marketContexts:[],sourceStatus:'canonical_ungraded_orientation'};
   });
   if(new Set(allLabs.map(l=>l.id)).size!==419)throw Error('Duplicate canonical Lab identifiers');
+  // Fail closed: a registry item is not a published graded Lab. The Worker
+  // returns only eligible IDs, never private instructional text or keys.
+  try {
+    const ready=await fetch('/api/lab-release-availability',{cache:'no-store'});
+    if(!ready.ok)throw Error('Release verification unavailable');
+    const data=await ready.json();
+    if(data?.ok!==true||!Array.isArray(data.publishedIds)||data.publishedIds.some(id=>typeof id!=='string'))
+      throw Error('Invalid release evidence');
+    const canonical=new Set(allLabs.map(l=>l.id));
+    if(data.publishedIds.some(id=>!canonical.has(id)))throw Error('Unknown release ID');
+    publishedAssessments=new Set(data.publishedIds);
+    availabilityVerified=true;
+  }catch{
+    publishedAssessments=new Set();availabilityVerified=false;
+  }
   labSupabase = await window.getSupabaseClient();
   if (labSupabase) {
     const { data: { user } } = await labSupabase.auth.getUser();
