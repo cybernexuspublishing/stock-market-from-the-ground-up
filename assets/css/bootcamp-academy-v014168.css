@@ -152,3 +152,28 @@ body.gu-bc-learning .academy-program-grid{
  #academy-original-instruction h4{font-size:1.02rem}
  #academy-self-check-answer{min-height:125px}
 }
+
+
+/* Owner-verified source archive (8) — original source-claim teaching.
+   This panel is explicitly not a historical chart/trade certification. */
+#academy-original-instruction .academy-source-claim-case{
+ margin:1.5rem 0;padding:clamp(14px,2vw,22px);
+ max-width:85ch;background:#112d3c;border:1px solid #6b8c9b;
+ border-left:4px solid #e1b96e;border-radius:10px;
+}
+#academy-original-instruction .academy-source-claim-case h4{
+ margin-top:0;color:#ffe1a0;
+}
+#academy-original-instruction .academy-source-claim-case h5{
+ color:#bddbf0;font-size:1rem;line-height:1.4;margin:1.2rem 0 .4rem;
+}
+#academy-original-instruction .academy-source-claim-case a{
+ display:inline-block;color:#a8e4fa;text-decoration:underline;
+ text-underline-offset:.2em;overflow-wrap:anywhere;min-height:24px;
+}
+#academy-original-instruction .academy-source-claim-case a:focus-visible{
+ outline:3px solid #f4d58e;outline-offset:3px;
+}
+@media(max-width:670px){
+ #academy-original-instruction .academy-source-claim-case{padding:14px;}
+}
