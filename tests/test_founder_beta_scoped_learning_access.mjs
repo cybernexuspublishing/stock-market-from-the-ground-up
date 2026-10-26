@@ -1,0 +1,93 @@
+/* Founding 600 B01 beta release policy; no real customers, payments or protected keys.
+ * The Founding plan grants learning access, NOT a purchased ebook, and an
+ * unreviewed draft must never cause an official score or mastery award.
+ */
+import assert from 'node:assert/strict';
+import {onRequest as lesson} from '../functions/api/lab-content.js';
+import {onRequest as graded} from '../functions/api/interactive-training.js';
+import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../functions/_lib/founding-beta-learning-access.js';
+const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const LAB='F1-C02-L02',NEXT='SITE-018';
+const env={SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake',
+ SUPABASE_SECRET_KEY:'sb_secret_fake'};
+const content={lessonBatch:'2026-10-25-B01',
+ authoringStatus:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
+ concept:'Blind replay observation setup',
+ objective:'Explain which observation a blind replay exercise may show at its decision point.',
+ why:'Seeing candles or prints that occurred after the decision supplies future information and invalidates an independent test of trading recognition.',
+ steps:['Choose the fictional ticker and replay time before observing the chart.',
+  'Hide all later candles and state the evidence available at the decision point.',
+  'Record the decision and the invalidation condition before revealing subsequent outcomes.']};
+const draft={lab_id:LAB,book_number:1,
+ source_status:'original_hypothetical_unreviewed_v01496',content};
+const oldFetch=globalThis.fetch;
+let member=true,suspended=false,grant=true,premium=true,reviewed=false,seen=[];
+const respond=(value,status=200)=>new Response(JSON.stringify(value),{status,
+ headers:{'content-type':'application/json'}});
+globalThis.fetch=async(input,init={})=>{
+ const url=new URL(input),p=url.pathname,search=url.search;
+ seen.push(p+search);
+ if(p==='/auth/v1/user')return respond({id:user});
+ if(p.endsWith('/profiles'))return respond([{account_kind:member?'member':'showcase'}]);
+ if(p.endsWith('/admin_user_flags'))return respond([{status:suspended?'suspended':'active'}]);
+ if(p.endsWith('/rpc/user_has_tool_access'))return respond(premium);
+ if(p.endsWith('/platform_labs'))return respond([{lab_id:LAB,book_code:'FOUNDATION_BOOK_1',active:true,registry_visible:true}]);
+ if(p.endsWith('/lab_instruction_v014'))return respond([draft]);
+ if(p.endsWith('/lab_training_sets_v014'))return respond(reviewed?[{
+  lab_id:LAB,version:97,review_state:'reviewed',source_status:'original_hypothetical_b01_individual_review_pending_v01497',
+  questions:[{id:'CASE',prompt:'What is the first observable candle?',kind:'choice',options:['A','B'],explanation:'Private explanatory feedback'}]
+ }]:[]);
+ if(p.endsWith('/user_library'))return respond([]);
+ if(p.endsWith('/book_key_redemptions'))return respond([]);
+ if(p.endsWith('/user_plan_grants'))return respond(grant?[{
+  plan_code:'FOUNDING_30',status:'active',starts_at:'2026-10-01T00:00:00Z',
+  ends_at:'2026-11-01T00:00:00Z',platform_plans:{includes_all_books:false}}]:[]);
+ if(p.endsWith('/site_subscriptions'))return respond([]);
+ if(p.endsWith('/admin_user_roles'))return respond([]);
+ throw Error('Unexpected test fetch '+p+search);
+};
+const request=(path)=>new Request('https://site.test'+path,{headers:{authorization:'Bearer signed-in-session'}});
+try{
+ assert.equal(authoredB01BetaLesson(draft),true);
+ assert.equal(authoredB01BetaLesson({...draft,content:{...content,lessonBatch:'old-unreviewed-template'}}),false);
+ assert.equal(await activeFoundingBetaLearningPlan(env,user),true);
+ let r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,200,'Founder learning grant must open the authored beta lesson');
+ let body=await r.json();
+ assert.equal(body.foundingBetaStudy,true);assert.equal(body.gradedCreditEligible,false);
+ assert.equal(body.sourceStatus,'founding600_authored_b01_guided_beta_ungraded');
+ assert.deepEqual(body.lab,content,'Only authorized teaching, not any protected assessment key');
+ assert(!JSON.stringify(body).includes('answer_key'));
+
+ r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
+ assert.equal(r.status,200);
+ body=await r.json();assert.equal(body.available,false,'No reviewed rubric: no graded assessment');
+ assert(!JSON.stringify(body).includes('Private explanatory feedback'));
+
+ reviewed=true;
+ r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
+ assert.equal(r.status,200,'Reviewed pinned rubric may be enumerated to entitled founder');
+ body=await r.json();assert.equal(body.available,true);
+ assert.equal(body.questionCount,1);
+ assert(!JSON.stringify(body).includes('Private explanatory feedback'));
+
+ reviewed=false;grant=false;
+ assert.equal(await activeFoundingBetaLearningPlan(env,user),false);
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.notEqual(r.status,200,'Ordinary premium member without book cannot open private B01');
+ r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
+ assert.equal(r.status,403,'Ordinary non-founder premium member has no book access');
+
+ grant=true;suspended=true;
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,403,'Suspended founder denied');
+ suspended=false;member=false;
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,403,'Showcase is not an eligible founding member');
+ member=true;
+ r=await lesson({request:request('/api/lab-content?id='+NEXT),env});
+ assert.equal(r.status,404,'The 83 post-beta Labs remain unavailable');
+ r=await lesson({request:new Request('https://site.test/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,401,'No session must not open private beta content');
+ console.log('PASS Founding beta: private authored B01 accessible; no ebook/membership fabrication, no premature grade, excluded/no-access/suspended/showcase denied');
+}finally{globalThis.fetch=oldFetch}
