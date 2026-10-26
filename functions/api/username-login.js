@@ -26,12 +26,15 @@ export async function onRequestPost({request,env}){
  try{
   const profileUrl=new URL(url+'/rest/v1/profiles');
   profileUrl.searchParams.set('username','ilike.'+username);
-  profileUrl.searchParams.set('select','id');
-  profileUrl.searchParams.set('limit','1');
+  profileUrl.searchParams.set('select','id,username');
+  profileUrl.searchParams.set('limit','20');
   const pr=await fetch(profileUrl,{headers:h,cache:'no-store'});
   if(!pr.ok)return json({error:pr.status>=500?'Sign-in service temporarily unavailable.':INVALID},
    pr.status>=500?503:401);
-  const uid=(await pr.json())?.[0]?.id;
+  const rows=await pr.json();
+  // PostgREST ilike treats underscore as a wildcard. Require a literal,
+  // case-insensitive match before retrieving the associated auth account.
+  const uid=Array.isArray(rows)?rows.find(r=>String(r.username||'').toLowerCase()===username)?.id:null;
   if(!uid)return json({error:INVALID},401);
   const ur=await fetch(url+'/auth/v1/admin/users/'+encodeURIComponent(uid),{headers:h,cache:'no-store'});
   if(!ur.ok)return json({error:ur.status>=500?'Sign-in service temporarily unavailable.':INVALID},
