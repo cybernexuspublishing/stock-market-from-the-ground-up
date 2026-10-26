@@ -39,7 +39,7 @@ BEGIN
  plan_code='LIFETIME' AND status IN ('active','trialing')
  AND (starts_at IS NULL OR starts_at<=now()) AND (ends_at IS NULL OR ends_at>now()))
  );
-END $function$
+END $function$;
 
 REVOKE ALL ON FUNCTION public.gu_founder_noncommercial_qa_v014289(uuid) FROM PUBLIC,anon,authenticated,service_role;
 DROP FUNCTION IF EXISTS public.gu_founder_noncommercial_qa_v014289(uuid);
