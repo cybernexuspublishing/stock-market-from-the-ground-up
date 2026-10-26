@@ -83,6 +83,15 @@ function upcomingAdmin(){
 }
 function wire(){
  const root=$('admin-products-panel');if(!root||root.dataset.wired)return;root.dataset.wired='true';
+ $('admin-open-digital-books')?.addEventListener('click',()=>{
+  // Reuse the existing AAL2-protected eBook control inside Commerce.
+  const control=document.querySelector('#admin-tabs [data-panel="commerce"]');
+  if(!control)return msg('Commerce panel unavailable.',true);
+  control.click();
+  const section=document.querySelector('.gu-digital-books');
+  section?.scrollIntoView({behavior:'smooth',block:'start'});
+  section?.querySelector('button')?.focus({preventScroll:true});
+ });
  root.querySelectorAll('[data-product-tab]').forEach(button=>{
   button.addEventListener('click',()=>show(button.dataset.productTab));
   button.addEventListener('keydown',ev=>{
