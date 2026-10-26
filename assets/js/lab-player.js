@@ -236,6 +236,21 @@ function tutorSafeSubject(lab){
  */
 // Private member evidence for prerequisite orientation. Fail closed on
 // identity changes; never treat missing evidence as a verified deficiency.
+// Schedule optional delayed recall with the existing authenticated Supabase
+// session. This never creates grades, competencies, Sparks or subscriptions.
+async function scheduleLabConceptRecall(labId){
+ const epoch=labPlayerSessionEpoch,user=PLAYER.access?.user,sb=PLAYER.access?.sb;
+ if(!user?.id||!sb?.auth?.getSession||typeof sb.rpc!=='function')
+  throw Error('Sign in to schedule your private concept review.');
+ const session=(await sb.auth.getSession())?.data?.session;
+ if(!session?.access_token||session.user?.id!==user.id)
+  throw Error('Your signed-in account could not be verified.');
+ const {data,error}=await sb.rpc('gu_lab_concept_review_schedule_v014',{p_lab_id:labId});
+ if(epoch!==labPlayerSessionEpoch||PLAYER.access?.user?.id!==user.id)
+  throw Error('Account changed; reload your own learning record.');
+ if(error)throw Error('Private recall schedule unavailable. Nothing was marked complete.');
+ return {newReviews:Number(data)||0};
+}
 async function loadLabVerifiedSkills(){
  const currentEpoch=labPlayerSessionEpoch,user=PLAYER.access?.user;
  const sb=PLAYER.access?.sb;
@@ -433,7 +448,7 @@ function renderPlayer(){PLAYER.attemptGeneration++;PLAYER.savingAttempt=false;PL
  // The v3.3 shared journey owns ALL canonical Lab instruction; the 3.2
  // specialist is only a compatibility fallback if the universal script fails to load.
  if(window.GroundUpLabEngineV32Universal){
-  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor,skillEvidenceRequest:loadLabVerifiedSkills,creditRequest:requestLabQuestionPass});
+  void window.GroundUpLabEngineV32Universal.mount({labId:lab.id,mode,target:q("gu-v32-teaching-slot"),lab,focusId:'ev-decision',memberFirstName:PLAYER.access.memberFirstName||'',allowTutorAI:PLAYER.access.tutorAiEnabled!==false,tutorTopic:tutorSafeSubject(lab),tutorRequest:requestLabTutor,skillEvidenceRequest:loadLabVerifiedSkills,recallScheduler:scheduleLabConceptRecall,creditRequest:requestLabQuestionPass});
  }else window.GroundUpLabEngineV32?.mount?.({labId:lab.id,mode,target:q("gu-v32-teaching-slot")});
  if(!blind)void attachFoundationsCurriculum(lab.id);
  mountLabTutorLink(lab,mode);
