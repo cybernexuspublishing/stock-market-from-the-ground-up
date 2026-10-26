@@ -20,3 +20,10 @@
 .academy-free-figure svg{display:block;width:100%;height:auto;border-radius:12px;max-height:420px}
 .academy-free-figure figcaption{font-size:.82rem;color:#cadce2;line-height:1.45;margin-top:8px}
 @media(max-width:420px){.academy-free-figure figcaption{font-size:.76rem}}
+
+/* Lesson-specific formative coaching is teaching guidance, not a hidden grade. */
+.academy-formative-criteria{padding:14px 17px;margin:12px 0;background:#0a2634;border:1px solid #518780;border-radius:10px;line-height:1.65}
+.academy-formative-criteria h5{font-size:.99rem;margin:8px 0;color:#d3f6e4}
+.academy-formative-criteria ol{padding-left:22px;margin:8px 0 16px}
+.academy-formative-criteria li{margin-bottom:7px}
+@media(max-width:420px){.academy-formative-criteria{padding:12px}}
