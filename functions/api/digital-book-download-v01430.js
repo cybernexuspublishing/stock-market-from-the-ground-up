@@ -33,9 +33,9 @@ export async function onRequestPost({request,env}){
   // Supabase Auth verifies JWT; the database RPC enforces caller-bound ownership.
   const user=await jsonFetch(cfg.url+'/auth/v1/user',{headers:authHeaders});
   if(!user?.id)return reply({ok:false,error:'Invalid login session.'},401);
-  const access=await jsonFetch(cfg.url+'/rest/v1/rpc/gu_digital_book_can_download_v01430',{
+  const access=await jsonFetch(cfg.url+'/rest/v1/rpc/'+(format?'gu_digital_format_path_v014305':'gu_digital_book_can_download_v01430'),{
    method:'POST',headers:{...authHeaders,'content-type':'application/json'},
-   body:JSON.stringify({p_code:code})
+   body:JSON.stringify(format?{p_code:code,p_format:format}:{p_code:code})
   });
   if(access?.allowed!==true)return reply({ok:false,error:'No currently available purchased digital edition for this account.'},403);
   const path=String(access.path||'');
