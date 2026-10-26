@@ -106,7 +106,8 @@ for(const id of ['ev-structure','ev-location','ev-volume','ev-invalidation','ev-
 assert(flow.includes("if(work&&['guided','practice'].includes(mode))work.open=false"),
  'Guided flow should keep end-of-lesson protected workbench collapsed until requested');
 assert(!flow.includes('fetch('),'Client presentation must not create another data or entitlement API');
-assert(instructor.includes("el('h3','Talia Mercer')"),"Instructor title must use the approved Talia Mercer identity");
+assert(instructor.includes("el('h3','Talia')"),"Instructor display title must use Owner-approved Talia-only name");
+assert(!instructor.includes("el('h3','Talia Mercer')"),"Do not expose instructor last name in the member header");
 assert(!instructor.includes('Elara Voss'));
 assert(instructor.includes("memberFirstName=''" ),'Retain existing first-name personalization');
 assert(instructor.includes("item.button.setAttribute('role','tab')"));
