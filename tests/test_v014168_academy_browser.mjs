@@ -122,9 +122,11 @@ try{
    if(code==='truth5'){
     const answer=page.locator('#academy-self-check-answer');
     const copy=page.getByRole('button',{name:'Add reasoning to my private reflection'});
-    assert.equal(await copy.isDisabled(),true,'Copy must require original written reasoning');
-    await answer.fill('An unverified screenshot proves only an assertion. I would locate the issuer publication, compare timestamps and reporting periods, and avoid entering without corroboration.');
-    assert.equal(await copy.isEnabled(),true);
+    // The same-session Day 1 draft was deliberately retained across navigation.
+    assert.equal(await answer.inputValue(),originalReasoning,
+     'The original unsaved reasoning must survive a day switch');
+    assert.equal(await copy.isEnabled(),true,
+     'A restored sufficiently long draft must remain copyable');
     await copy.click();
     storedReflection=await page.locator('#academy-reflection').inputValue();
     assert.match(storedReflection,/Independent self-check \(ungraded\)/);
@@ -148,6 +150,11 @@ try{
    // browser completion. This remains a mocked API, not a live member proof.
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
+   if(code==='truth5'){
+    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'',
+     'Local ungraded self-check drafts must not persist or leak after page reload');
+    assert.equal(await page.getByRole('button',{name:'Add reasoning to my private reflection'}).isDisabled(),true);
+   }
    assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection,
     'Reload must restore the exact existing private saved reflection');
    assert.match(await page.locator('#academy-member-progress').innerText(),/1 of /);
