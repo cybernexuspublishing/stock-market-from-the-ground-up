@@ -78,16 +78,24 @@ export async function onRequest({request,env}){
   // A premium RPC outage must not block an independently confirmed book owner
   // or an approved free sample. For other Labs, entitlement failure is fail-closed.
   stage='PREMIUM';
-  let premium=false,premiumFailure=null;
-  try{
-   const rpc=await fetch(c.base+'/rest/v1/rpc/user_has_tool_access',{
-    method:'POST',headers:{...headers,'content-type':'application/json'},
-    body:JSON.stringify({target_user:actor.userId,target_tool:'ONDEMAND_TRAINING'}),
-    cache:'no-store'
-   });
-   if(!rpc.ok)throw Error('Premium entitlement service unavailable');
-   premium=await rpc.json()===true;
-  }catch(e){premiumFailure=e}
+  // Both existing sellable product entitlements use ONE authoritative RPC.
+  // Interactive Learning authorizes beta orientation; SITE-exclusive private
+  // teaching remains restricted to its separate authorized training scope.
+  const checks=await Promise.allSettled(
+   ['ONDEMAND_TRAINING','INTERACTIVE_LEARNING'].map(async tool=>{
+    const rpc=await fetch(c.base+'/rest/v1/rpc/user_has_tool_access',{
+     method:'POST',headers:{...headers,'content-type':'application/json'},
+     body:JSON.stringify({target_user:actor.userId,target_tool:tool}),cache:'no-store'
+    });
+    if(!rpc.ok)throw Error('Premium entitlement service unavailable');
+    return await rpc.json()===true;
+   })
+  );
+  const training=checks[0].status==='fulfilled'&&checks[0].value===true;
+  const interactive=checks[1].status==='fulfilled'&&checks[1].value===true;
+  const premium=training||interactive;
+  const premiumFailure=!premium&&checks.some(x=>x.status==='rejected')?
+   Error('An independent entitlement service failed.'):null;
   stage='BOOK';
   let owns=false,bookFailure=null;
   if(!premium&&!sample&&lab.book_code!=='SITE_EXCLUSIVE'){
@@ -107,7 +115,7 @@ export async function onRequest({request,env}){
   // stages and verified original provenance; all identity, entitlement and
   // restricted-account gates above must already have succeeded.
   if(isBetaUpcomingLab(id)){
-   if(lab.book_code!=='SITE_EXCLUSIVE'||!premium)
+   if(lab.book_code!=='SITE_EXCLUSIVE'||!training)
     return reply({ok:false,error:'Authorized interactive learning is required.'},403);
    stage='PRIVATE_TEACHING';
    const uri=c.base+'/rest/v1/lab_instruction_v014?select=lab_id,book_number,source_status,content'+
