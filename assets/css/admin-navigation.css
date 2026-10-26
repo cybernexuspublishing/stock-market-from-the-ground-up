@@ -34,3 +34,16 @@
 
 /* v0.14.0.10: retain module mount sentinels without showing duplicate group headings. */
 #admin-tabs #cc-preserved-module-roots{display:none!important;visibility:hidden!important;}
+
+
+/* Unified operations sidebar: one accessible collapsible navigation, no new routes. */
+.admin-shell.cc-shell-collapsed{grid-template-columns:72px minmax(0,1fr)}
+.admin-sidebar .cc-admin-nav-toggle{display:block;width:100%;margin:.5rem 0 0;border:1px solid #47667e;border-radius:8px;background:#112b40;color:#e4edf4;padding:.55rem .45rem;font:inherit;font-size:.83rem;text-align:center;cursor:pointer}
+.admin-sidebar .cc-admin-nav-toggle:focus-visible{outline:3px solid #d5b768;outline-offset:2px}
+.admin-sidebar.cc-nav-collapsed{min-height:0;padding:12px 8px}
+.admin-sidebar.cc-nav-collapsed #admin-tabs,.admin-sidebar.cc-nav-collapsed>.admin-back,.admin-sidebar.cc-nav-collapsed #cc-admin-navigation-status{display:none!important}
+.admin-sidebar.cc-nav-collapsed .admin-brand-block{padding:4px 0}
+.admin-sidebar.cc-nav-collapsed .admin-brand-block>.eyebrow,.admin-sidebar.cc-nav-collapsed .admin-brand-block>strong,.admin-sidebar.cc-nav-collapsed .admin-brand-block>span{display:none}
+#admin-tabs .cc-admin-group-title{position:sticky;top:0;z-index:1}
+@media(max-width:1000px){.admin-shell.cc-shell-collapsed{grid-template-columns:1fr}.admin-sidebar.cc-nav-collapsed{position:static}}
+@media(min-width:1001px){.admin-sidebar:not(.cc-nav-collapsed){max-height:100vh;overflow-y:auto;scrollbar-width:thin}}
