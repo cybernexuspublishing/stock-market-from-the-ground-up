@@ -33,20 +33,36 @@ const V96_SEED_QUESTION_IDS=new Set(['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDAR
 function isUnamendedV96Rubric(set){
  const source=str(set.source_status);
  if(source.startsWith('original_hypothetical_b01_')){
+  // All six concepts must be genuinely individualized before an Owner can
+  // review this rubric. Do not let old v96 evidence/focus/boundary templates
+  // pass because just two application questions were appended.
   const qs=set.questions,keys=set.answer_key;
+  const ids=['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDARY','B01_APPLICATION','B01_LIMITATION'];
   if(!Array.isArray(qs)||qs.length!==6||!keys||typeof keys!=='object')return true;
-  const ids=qs.map(q=>str(q?.id));
-  if(new Set(ids).size!==6||
-   ![...V96_SEED_QUESTION_IDS,'B01_APPLICATION','B01_LIMITATION'].every(id=>ids.includes(id)))return true;
-  for(const [id,minPrompt,minExplanation] of [['B01_APPLICATION',80,70],['B01_LIMITATION',40,55]]){
-   const q=qs.find(x=>x?.id===id);
-   if(!q||q.kind!=='choice'||str(q.prompt).length<minPrompt||
-    str(q.explanation).length<minExplanation||
-    !Array.isArray(q.options)||q.options.length!==3||
-    q.options.some(v=>typeof v!=='string'||!v.trim()))return true;
-   const options=q.options.map(v=>v.trim().toLowerCase());
-   if(new Set(options).size!==3||options.filter(v=>v===str(keys[id]).toLowerCase()).length!==1)return true;
+  if(qs.some((q,index)=>str(q?.id)!==ids[index]))return true;
+  const legacy=[
+   /^In ".+"[,]? which learning method/i,
+   /^Which study objective is appropriate BEFORE acting/i,
+   /^For this ".+" exercise, which final action/i,
+   /^ORIGINAL hypothetical observed price interval/i
+  ];
+  for(const [index,id] of ids.entries()){
+   const q=qs[index];
+   if(!q||str(q.prompt).length<30||str(q.explanation).length<80)return true;
+   if([0,1,2,3].some(j=>legacy[j].test(str(q.prompt))))return true;
+   if(index===2){
+    if(q.kind!=='number'||!/^FICTIONAL:/i.test(str(q.prompt))||
+     !Number.isFinite(Number(keys[id]))||!Number.isFinite(Number(q.tolerance))||
+     Number(q.tolerance)<0||Number(q.tolerance)>1000)return true;
+    continue;
+   }
+   if(q.kind!=='choice'||!Array.isArray(q.options)||q.options.length!==3||
+    q.options.some(v=>typeof v!=='string'||!v.trim()||v.length>=100))return true;
+   const unique=q.options.map(v=>v.trim().toLowerCase());
+   if(new Set(unique).size!==3||unique.filter(v=>v===str(keys[id]).toLowerCase()).length!==1)return true;
   }
+  if(!/^FICTIONAL:/i.test(str(qs[4].prompt))||str(qs[4].prompt).length<80||
+   str(qs[5].prompt).length<40)return true;
   return false;
  }
  if(!source.startsWith('original_hypothetical_unreviewed_v01496'))return false;
