@@ -15,12 +15,15 @@ function appendText(parent,tag,value,cls){const n=node(tag,value,cls);parent.app
 function link(href,text,cls){const n=node('a',text,cls);n.href=href;return n}
 function errorNotice(parent,detail){parent.replaceChildren(node('p',detail,'gu-f600-empty'))}
 function planName(plan){return plan==='LIFETIME'?'Lifetime Member':plan==='FOUNDING_60'?'60-Day Extended':plan==='FOUNDING_30'?'30-Day Standard':'Not currently subscribed'}
-function identity(info){
+function identity(info,qa=false){
  const p=el('gu-f600-identity');p.replaceChildren();
  if(info?.founderNumber){
   appendText(p,'strong','Founding #'+String(info.founderNumber).padStart(4,'0'));
   appendText(p,'span','Current access: '+planName(info.currentPlan));
   appendText(p,'span',info.earnedTier==='FOUNDING_60'?'Earned Extended Founder':'Standard Founder');
+ }else if(qa){
+  appendText(p,'strong','Authorized Beta Tester');
+  appendText(p,'span','Temporary 30-day learning QA access · no paid Founding status or benefits');
  }else appendText(p,'strong','Founders moderator');
 }
 async function loadForums(sb,council){
@@ -31,6 +34,7 @@ async function loadForums(sb,council){
  if(!forums.length)throw new Error('Your Founders Commons directory is not available.');
  host.replaceChildren();
  for(const f of forums){
+  if(!council&&f.forum_code==='F600_COUNCIL')continue;
   const card=node('article',undefined,'gu-f600-forum');
   appendText(card,'p',f.forum_code==='F600_COUNCIL'?'EXTENDED DESIGN COUNCIL':'FOUNDING MEMBERS','gu-f600-forum-kicker');
   appendText(card,'h3',f.name);
@@ -94,13 +98,20 @@ async function main(){
   const sb=await window.getSupabaseClient(),user=(await sb.auth.getUser()).data?.user;
   if(!user){location.replace('signin.html?next='+encodeURIComponent('/founders-commons.html'));return}
   const {data:me,error:e}=await sb.rpc('gu_founder_my_status_v014174');if(e)throw e;
-  let isMember=me?.eligible===true,isModerator=false;
-  if(!isMember){
+  let isMember=me?.eligible===true,sharedAccess=isMember,isQA=false;
+  if(!sharedAccess){
    const {data:access,error:ae}=await sb.rpc('gu_founder_commons_access_v014174',{p_scope:'shared'});
-   isModerator=!ae&&access===true;
+   sharedAccess=!ae&&access===true;
+   if(sharedAccess){
+    // Only a server-confirmed, self-scoped and unexpired Owner QA pass gets
+    // the Beta Tester label. No founder number, purchase benefit or Council.
+    const {data:qa,error:qe}=await sb.rpc('gu_founder_noncommercial_qa_v014289',{p_user:user.id});
+    isQA=!qe&&qa===true;
+   }
   }
-  if(!isMember&&!isModerator){message('Founding access was not verified.');el('gu-f600-access').hidden=false;return}
-  identity(me);el('gu-f600-content').hidden=false;message('Private Founders Commons access verified.');
+  if(!sharedAccess){message('Founding access was not verified.');el('gu-f600-access').hidden=false;return}
+  identity(me,isQA);el('gu-f600-content').hidden=false;
+  message(isQA?'Temporary educational beta access verified.': 'Private Founders Commons access verified.');
   const council=me?.council===true;
   await Promise.allSettled([loadForums(sb,council),loadIssues(sb),loadBallots(sb,council)]).then(results=>{
    if(results[0].status==='rejected')errorNotice(el('gu-f600-forums'),'Could not load the permitted community sections.');
