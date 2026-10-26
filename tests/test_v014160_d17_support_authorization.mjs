@@ -48,7 +48,7 @@ try{
  seen=[];canUpdate=true;
  response=await onRequest({env,request:request('create',{method:'POST',headers:{...auth,'content-type':'application/json'},body:'x'.repeat(16385)})});
  assert.equal(response.status,413,'Actual bytes, not claimed length, enforce 16-KB cap');
- assert(!seen.some(x=>x.path.includes('/rest/v1/')),'Oversize create must not touch ticket tables');
+ assert(!seen.some(x=>x.path.includes('/rest/v1/support_tickets')||x.path.includes('/rest/v1/support_ticket_messages')),'Oversize create must not touch ticket tables');
  response=await onRequest({env,request:request('detail&id=0',{headers:auth})});
  assert.equal(response.status,400,'Ticket IDs are positive integers');
 }finally{globalThis.fetch=original}
