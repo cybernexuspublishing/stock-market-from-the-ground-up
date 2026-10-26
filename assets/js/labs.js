@@ -3,6 +3,7 @@ let progressMap = new Map();
 let currentUser = null;
 let labSupabase = null;
 let publishedAssessments = new Set();
+let guidedBetaLabs = new Set();
 let availabilityVerified = false;
 
 function norm(s) { return String(s || '').toLowerCase(); }
@@ -15,7 +16,9 @@ function statusLabel(status) {
 
 function progressControl(labId) {
   if (!availabilityVerified || !publishedAssessments.has(labId))
-    return '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
+    return guidedBetaLabs.has(labId)
+      ? '<span class="small">Ungraded beta practice — submit your reflection in the Lab; official graded credit is not available</span>'
+      : '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
   if (!currentUser) return '<a href="account.html" class="small">Sign in to track progress</a>';
   const status = progressMap.get(labId)?.status || 'not_started';
   return `<label class="sr-only" for="progress-${labId}">Progress for ${labId}</label>
@@ -34,6 +37,7 @@ function renderLabs(rows) {
 
   body.innerHTML = rows.map(x => {
     const released = availabilityVerified && publishedAssessments.has(x.id);
+    const guidedBeta = availabilityVerified && guidedBetaLabs.has(x.id) && !released;
     const savedStatus = released ? (progressMap.get(x.id)?.status || 'not_started') : 'not_started';
     return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}">
       <div class="lab-card-main">
@@ -43,7 +47,7 @@ function renderLabs(rows) {
           ${x.skill?`<span class="pill">${x.skill}</span>`:''}${(x.marketContexts||[]).slice(0,2).map(t=>`<span class="pill pill-context">${t}</span>`).join('')}
         </div>
         <h2 class="lab-concept">${x.concept || 'Historical simulator exercise'}</h2>
-        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${!released?'<p class="small">Upcoming — this Lab is listed in the canonical registry but its private lesson and assessment are not both published.</p>':''}</div>
+        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${guidedBeta?'<p class="small">Original beta guided study · ungraded. Help review the lesson and record your reasoning; official assessment requires separate approval.</p>':!released?'<p class="small">Upcoming — this Lab is listed in the canonical registry but its private lesson and assessment are not both published.</p>':''}</div>
       </div>
       <div class="lab-card-meta" aria-label="Lab details">
         <div class="lab-meta-item"><span>Ticker</span><strong>${x.ticker || '—'}</strong></div>
@@ -51,7 +55,7 @@ function renderLabs(rows) {
         <div class="lab-meta-item"><span>Chart</span><strong>${x.timeframe || 'See book'}</strong></div>
       </div>
       <div class="lab-card-progress">
-        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
+        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:guidedBeta?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open guided beta practice (ungraded)</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" data-msg-for="${x.id}">${statusLabel(savedStatus)}</div>
@@ -157,14 +161,16 @@ async function initLabs() {
     const ready=await fetch('/api/lab-release-availability',{cache:'no-store'});
     if(!ready.ok)throw Error('Release verification unavailable');
     const data=await ready.json();
-    if(data?.ok!==true||!Array.isArray(data.publishedIds)||data.publishedIds.some(id=>typeof id!=='string'))
+    if(data?.ok!==true||!Array.isArray(data.publishedIds)||!Array.isArray(data.guidedBetaIds)||data.publishedIds.some(id=>typeof id!=='string')||data.guidedBetaIds.some(id=>typeof id!=='string'))
       throw Error('Invalid release evidence');
     const canonical=new Set(allLabs.map(l=>l.id));
-    if(data.publishedIds.some(id=>!canonical.has(id)))throw Error('Unknown release ID');
+    if([...data.publishedIds,...data.guidedBetaIds].some(id=>!canonical.has(id)))throw Error('Unknown release ID');
+    if(data.guidedBetaIds.some(id=>data.publishedIds.includes(id)))throw Error('Published and ungraded practice IDs overlap');
     publishedAssessments=new Set(data.publishedIds);
+    guidedBetaLabs=new Set(data.guidedBetaIds);
     availabilityVerified=true;
   }catch{
-    publishedAssessments=new Set();availabilityVerified=false;
+    publishedAssessments=new Set();guidedBetaLabs=new Set();availabilityVerified=false;
   }
   labSupabase = await window.getSupabaseClient();
   if (labSupabase) {
