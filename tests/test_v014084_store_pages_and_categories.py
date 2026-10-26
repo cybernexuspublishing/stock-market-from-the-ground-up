@@ -26,7 +26,7 @@ class Tags(HTMLParser):
 def valid_html(s):
  t=Tags();t.feed(s);assert not t.stack,t.stack
 valid_html(store)
-for category in ('memberships','books','tools'):
+for category in ('founders','memberships','books','tools'):
  assert store.count('id="store-tab-'+category+'"')==1
  assert store.count('id="store-panel-'+category+'"')==1
  assert 'aria-controls="store-panel-'+category+'"' in store

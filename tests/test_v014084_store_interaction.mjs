@@ -23,10 +23,10 @@ const products=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY
 const tools=['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'].map(x=>tt(x));
 tools.push(tt('DISCOVERY_LAB','beta'));
 const data={plans,products:[...products,{type:'bundle',productCode:'BUNDLE',title:'Bundled products',storeVisible:true,salesStatus:'published'}],tools};
-const tabIds=['memberships','books','tools'];
+const tabIds=['founders','memberships','books','tools'];
 const tabNodes=tabIds.map(k=>({...makeNode(k),dataset:{storeCategory:k}}));
 const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){},contains(){return false}}}));
-const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
+const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status','store-founder-plans','store-founder-compare',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
 const preview=makeNode('preview'),winHandlers={};
 const doc={
  readyState:'loading',callback:null,
@@ -42,7 +42,8 @@ const doc={
 };
 const location={hash:'#books',pathname:'/store.html',search:'?ref=training'},history={replaceState(_x,_y,url){assert.match(url,/ref=training/);location.hash='#'+url.split('#').pop()}};
 const window={CommerceTools:ct(data),addEventListener(k,cb){winHandlers[k]=cb}};
-const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent};
+const requests=[];
+const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent,fetch:async(url,options)=>{requests.push({url,options});assert.equal(options?.method,undefined,'Founding catalog must only read terms');return {ok:true,json:async()=>JSON.parse(read('data/founding600-terms-v014170.json'))}}};
 vm.runInNewContext(read('assets/js/store.js'),context);
 await doc.callback();await new Promise(ok=>setTimeout(ok,0));
 assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must select books only');
@@ -61,14 +62,27 @@ assert.match(nodes['store-tools'].innerHTML,/Coming Soon/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
 assert.match(nodes['store-membership-compare'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-membership-compare'].innerHTML,/store-tool-journal-analytics\.html/);
-assert.equal(tabNodes[1].attributes['aria-selected'],'true');
-tabNodes[2].events.click();
+assert.equal(tabNodes[2].attributes['aria-selected'],'true');
+tabNodes[3].events.click();
 assert.equal(nodes['store-panel-tools'].hidden,false);
 assert.equal(nodes['store-panel-books'].hidden,true);
 assert.equal(location.hash,'#tools');
-tabNodes[2].events.keydown({key:'Home',preventDefault(){}});
-assert.equal(location.hash,'#memberships','Keyboard Home must select first Store category');
+tabNodes[3].events.keydown({key:'Home',preventDefault(){}});
+assert.equal(location.hash,'#founders','Keyboard Home must select first Store category');
 assert.ok(tabNodes[0].focused);
+
+assert.equal(nodes['store-panel-founders'].hidden,false);
+assert.equal(nodes['store-panel-memberships'].hidden,true);
+assert.match(nodes['store-founder-plans'].innerHTML,/49\.99/);
+assert.match(nodes['store-founder-plans'].innerHTML,/59\.99/);
+assert.match(nodes['store-founder-plans'].innerHTML,/10% founding purchase discount/);
+assert.match(nodes['store-founder-plans'].innerHTML,/15% founding purchase discount/);
+assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/20%|checkout\.html|checkout\.stripe/);
+assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Included"/);
+assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Not included"/);
+assert.match(nodes['store-membership-compare'].innerHTML,/class="catalog-coverage is-excluded"/);
+assert.equal(requests.length,1);
+assert.equal(requests[0].url,'/data/founding600-terms-v014170.json');
 
 const guides=JSON.parse(read('data/store-product-guides-v01484.json'));
 async function detail(type,code,overrides={}){
