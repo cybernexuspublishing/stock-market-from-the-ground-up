@@ -109,6 +109,7 @@ function setupCollapse(){
  control.className='cc-admin-nav-toggle';control.setAttribute('aria-controls','admin-tabs');
  const apply=collapsed=>{
   sidebar.classList.toggle('cc-nav-collapsed',collapsed);
+  sidebar.closest('.admin-shell')?.classList.toggle('cc-shell-collapsed',collapsed);
   control.setAttribute('aria-expanded',String(!collapsed));
   control.textContent=collapsed?'Open navigation':'Collapse navigation';
   if(collapsed&&nav()?.contains(document.activeElement))control.focus();
