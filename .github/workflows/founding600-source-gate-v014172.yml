@@ -50,6 +50,7 @@ jobs:
       - name: Check member-ready Commons, Design Studio, Blueprint and billing gates
         run: |
           node --check assets/js/founders-commons-v014178.js
+          node tests/test_f600_shared_beta_qa_sql.mjs
           node --check assets/js/founders-design-studio-v014184.js
           node --check assets/js/founders-learning-blueprint-v014185.js
           node --check assets/js/admin-founder-commons-v014181.js
