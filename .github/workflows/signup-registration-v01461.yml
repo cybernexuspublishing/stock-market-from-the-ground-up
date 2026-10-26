@@ -4,6 +4,8 @@ on:
     paths:
       - 'create-account.html'
       - 'assets/js/signup.js'
+      - 'assets/js/site.js'
+      - 'tests/test_yahoo_turnstile_auth_hostname.mjs'
       - 'assets/js/signup-dob.js'
       - 'assets/js/production-completion.js'
       - 'src/ts/production-completion.ts'
@@ -16,6 +18,8 @@ on:
     paths:
       - 'create-account.html'
       - 'assets/js/signup.js'
+      - 'assets/js/site.js'
+      - 'tests/test_yahoo_turnstile_auth_hostname.mjs'
       - 'assets/js/production-completion.js'
       - 'src/ts/production-completion.ts'
       - 'functions/api/account.js'
@@ -34,10 +38,12 @@ jobs:
       - name: Verify all touched JavaScript compiles
         run: |
           node --check assets/js/signup.js
+          node --check assets/js/site.js
           node --check assets/js/signup-dob.js
           node --check assets/js/production-completion.js
           node --check functions/api/account.js
       - name: Verify signup contract without creating accounts
         run: |
           node tests/test_signup_registration_contract_v01461.cjs
+          node tests/test_yahoo_turnstile_auth_hostname.mjs
           node tests/test_signup_dob_v01462.cjs
