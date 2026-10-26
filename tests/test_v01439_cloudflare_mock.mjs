@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-const apiPath=new URL('../functions/api/gu39-sandbox.js',import.meta.url);
-const hookPath=new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url);
-const load=async url=>import('data:text/javascript;base64,'+readFileSync(url).toString('base64'));
-const api=await load(apiPath),hook=await load(hookPath);
+// Load actual Pages Functions from file URLs to resolve relative _lib imports.
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
+const hook=await import(new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url).href);
 const base='https://oxihglyfgzywsupnyicb.supabase.co', id='e1b5d7f0-52dc-493e-b513-71f39aaa879a';
 const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'public-key',SUPABASE_SECRET_KEY:'sb_secret_mock',
  GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_mock',
