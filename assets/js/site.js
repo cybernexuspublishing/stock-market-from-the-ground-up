@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   if(/^\/(store|my-purchases)(?:\.html)?$/.test(location.pathname))
     loadOnce('/assets/js/print-store-channels-v01428.js','printStoreChannels');
+  // Public photo gallery derives from real Owner-uploaded media rows only.
+  if(/^\/store-[a-z0-9_-]+\.html$/i.test(location.pathname))
+    loadOnce('/assets/js/store-product-gallery-v014300.js','publicProductGalleryV014300');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-digital-books-v01430.js','ownerDigitalBooksV01430');
     if(!document.querySelector('link[data-gu-digital-v01430]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/digital-books-v01430.css';css.dataset.guDigitalV01430='1';document.head.append(css)}
