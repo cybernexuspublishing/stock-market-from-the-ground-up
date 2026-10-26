@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   browser-member-ux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 9
     steps:
       - uses: actions/checkout@v4
@@ -25,9 +25,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install pinned browser test runtime
+      - name: Install pinned Playwright client and use hosted Chrome
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
-          npx playwright install --with-deps chromium
+          google-chrome --version
       - name: Test Free fictional replay at 390, 900, 1280 and 1440
         run: node tests/test_free_server_replay_browser_v1.mjs
