@@ -140,6 +140,14 @@ async function loadLabAudit(force=false){
    ' · Private instructional records (including drafts): '+(d.privateInstructions??'unverified')+
    ' · Individually authored B01 conceptual drafts (NOT reviewed): '+(d.individualizedB01Drafts??'unverified')+
    ' · Substantive private lesson shape prechecks (NOT editorial approval): '+(d.substantivePrivateLessonPrechecks??'unverified')+
+   ' · Depth: objective '+(d.depthObjectives??'unverified')+
+   ', purpose '+(d.depthPurposes??'unverified')+
+   ', guided method '+(d.depthGuidedMethods??'unverified')+
+   ', worked example '+(d.depthWorkedExamples??'unverified')+
+   ', misconception '+(d.depthMisconceptions??'unverified')+
+   ', limitation '+(d.depthLimitations??'unverified')+
+   ', independent transfer '+(d.depthIndependentTransfers??'unverified')+
+   ', all seven PRECHECKS '+(d.depthAllSevenPrechecks??'unverified')+
    ' · Original fictional replay datasets: '+(d.originalSimulationReady??'unverified')+
    ' · Reviewed rubrics: '+(d.reviewedRubrics??'unverified')+
    ' · Independently verified historical contexts: '+(d.independentlyVerifiedHistoricalContext??'unverified');
