@@ -103,4 +103,11 @@ assert(html.includes('assets/js/lab-engine-v32-universal.js'));
 assert(html.includes('assets/js/bootcamp-academy-v014168.js'));
 assert(html.includes('id="academy-programs"'));
 assert(html.includes('id="academy-lab-slot"'));
+for(const entrypoint of ['learn.html','bootcamp.html']){
+ const source=fs.readFileSync(entrypoint,'utf8');
+ assert(source.includes('external thinkorswim OnDemand'),
+  entrypoint+' must explicitly identify external order-simulation practice');
+ assert(!source.includes('Journal, Simulator and Market Tutor'),
+  entrypoint+' must not falsely promise an in-site trading simulator');
+}
 console.log('PASS 7 preserved approved Academy titles, 247 unique-day study slots, 419 Lab ID reuse, 30 competencies, protected progress contract');
