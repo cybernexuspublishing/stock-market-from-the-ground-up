@@ -20,7 +20,9 @@ assert 'forum_reports_reporter_date_v01417_idx' in sql
 assert 'REPORT_BACKEND_FAILURE' in report
 assert 'Member JWT + RLS gate' in report
 assert "['commons','legacy'].includes(scope)" in report
-assert 'kdpSelectExclusive' in site
+config=(r/'config.js').read_text()
+assert config.count('kdpSelectExclusive: true') == 3
+assert config.count('directDigitalSaleEnabled: false') == 3
 assert 'loadRichEditor()' in site
 assert 'forum-interactions.js' in site
 assert 'window.getSupabaseClient' in (r/'assets/js/admin-report-policy.js').read_text()
