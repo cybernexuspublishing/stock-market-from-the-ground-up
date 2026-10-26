@@ -6,6 +6,8 @@ test('free beta signup is visibly available but is not payment or founder reserv
  const site=file('index.html'),store=file('store.html'),founder=file('founding600.html');
  assert.match(site,/Join Free Beta — \$0/);
  assert.match(site,/href="create-account\.html"/);
+ assert.match(site,/For historical trade simulation, use thinkorswim OnDemand separately/);
+ assert.doesNotMatch(site,/Education and simulation, not trade signals/);
  assert.match(store,/Free registration does not reserve a founder number/);
  assert.match(store,/href="founding600\.html"/);
  assert.match(founder,/Free beta registration/);
