@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 import {onRequestPost,normalizeLoginUsername} from '../functions/api/username-login.js';
 const url='https://oxihglyfgzywsupnyicb.supabase.co';
 const env={SUPABASE_URL:url,SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',
@@ -90,4 +92,36 @@ test('legacy service-role JWT compatibility retained for profiles and admin',asy
  },async u=>u.pathname==='/rest/v1/profiles'?ok([{id:fakeProfile.id,username:'Adissel'}]):
   u.pathname==='/auth/v1/admin/users/'+fakeProfile.id?ok({email:'account@example.invalid'}):
   u.pathname==='/auth/v1/token'?ok({error_code:'invalid_credentials'},400):ok({},500));
+});
+
+test('production login routes only hashed Yahoo deployment hosts to allowed Turnstile hostname',()=>{
+ const callbacks={};const redirects=[];
+ const ctx={
+  document:{addEventListener(name,cb){callbacks[name]=cb}},
+  location:{hostname:'3f4adff0.stock-market-from-the-ground-up-d1r.pages.dev',
+   pathname:'/signin',search:'?next=%2Flab-player.html',hash:'',
+   replace(dest){redirects.push(dest)}},
+  window:{}
+ };
+ vm.createContext(ctx);
+ vm.runInContext(fs.readFileSync('assets/js/signin.js','utf8'),ctx,{filename:'signin.js'});
+ assert.equal(ctx.canonicalYahooSignin(),true);
+ assert.deepEqual(redirects,['https://stock-market-from-the-ground-up-d1r.pages.dev/signin?next=%2Flab-player.html']);
+ ctx.location.hostname='stock-market-from-the-ground-up-d1r.pages.dev';
+ assert.equal(ctx.canonicalYahooSignin(),false,'canonical Yahoo production must not redirect itself');
+ ctx.location.hostname='stock-market-from-the-ground-up.pages.dev';
+ assert.equal(ctx.canonicalYahooSignin(),false,'legacy hostname is not silently rewritten by production logic');
+ assert.equal(redirects.length,1);
+});
+test('real provider CAPTCHA errors are not misreported as incorrect passwords',()=>{
+ const ctx={document:{addEventListener(){}},location:{hostname:'stock-market-from-the-ground-up-d1r.pages.dev'},window:{}};
+ vm.createContext(ctx);
+ vm.runInContext(fs.readFileSync('assets/js/signin.js','utf8'),ctx,{filename:'signin.js'});
+ const secret=ctx.signinAuthError({code:'captcha_failed',message:'400: captcha protection: request disallowed (invalid-input-secret)'});
+ assert.match(secret,/verification is not correctly configured/i);
+ assert.match(secret,/password has not been checked/i);
+ const absent=ctx.signinAuthError({code:'captcha_failed',message:'no captcha_token found'});
+ assert.match(absent,/Start human verification/i);
+ assert.match(absent,/password may not have been checked/i);
+ assert.equal(ctx.signinAuthError({code:'invalid_credentials',message:'Invalid login credentials.'}),'Invalid login credentials.');
 });
