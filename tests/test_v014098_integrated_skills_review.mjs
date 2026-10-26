@@ -53,6 +53,7 @@ try{
  let [status,body]=await get(training,'interactive-training?action=progress');
  assert.equal(status,200);assert.equal(body.reviewedRows,3);
  assert.deepEqual(body.latestByLab.map(x=>[x.labId,x.score]),[['SITE-001',45],['F1-C02-L01',85]]);
+ assert.deepEqual(body.latestAssessmentByLab.map(x=>[x.labId,x.score]),[['F1-C02-L01',85]],'Practice and Guided modes are not Assessment-mode evidence');
  assert.equal(body.masteryAwarded,false);
  assert(!JSON.stringify(body).includes('answer_key'));
  assert(!JSON.stringify(body).includes('private'));
