@@ -65,7 +65,7 @@ test('Owner snapshot lists all integrated workstreams without external services'
  const m=network();try{
   const r=await onRequest({request:request('GET',null,'valid'),env});
   const body=await r.json();assert.equal(r.status,200);
-  for(const key of ['posts','communities','campaigns','templates','tasks','metrics','audit'])
+  for(const key of ['posts','communities','campaigns','templates','tasks','metrics','accounts','audit'])
    assert.deepEqual(body[key],[],key);
   assert.equal(body.account.apiPublishingEnabled,false);
   assert.equal(body.account.platformApiSpendingLimitCents,0);
@@ -175,6 +175,18 @@ test('manual metrics require a manually recorded published post and at least one
   const write=m.calls.find(x=>x.method==='POST');
   assert.equal(write.body.likes,0);assert.equal(write.body.views,13);
   assert.equal(write.body.source,'owner_manual');
+ }finally{m.stop()}
+});
+test('manual company account registry validates official provider URL and cannot claim OAuth connectivity',async()=>{
+ const m=network();try{
+  const bad=await onRequest({request:act({action:'save_account',provider:'x',handle:'@SMFGUAcademy',profileUrl:'https://attacker.example/SMFGUAcademy'}),env});
+  assert.equal(bad.status,400);
+  const okay=await onRequest({request:act({action:'save_account',provider:'x',handle:'@SMFGUAcademy',profileUrl:'https://x.com/SMFGUAcademy',notes:'Company educational account'}),env});
+  assert.equal(okay.status,201);
+  const write=m.calls.find(x=>x.method==='POST');assert.equal(write.path,'/rest/v1/gu_social_accounts_v014279');
+  assert.equal(write.body.connection_status,'manual_only');
+  assert.equal(write.body.profile_url,'https://x.com/SMFGUAcademy');
+  assert.equal((await okay.json()).publicationVerified,false);
  }finally{m.stop()}
 });
 test('cross-origin mutation cannot reach social data writes',async()=>{
