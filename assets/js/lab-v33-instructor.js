@@ -49,6 +49,82 @@ function animate(node,text,showAll,replay){
  });
  return ()=>{disposed=true;if(raf)root.cancelAnimationFrame?.(raf);raf=0};
 }
+// A transparent, subject-specific formative coach, NOT semantic AI or a
+// protected grader. Missing evidence generates a correction, never mastery.
+// Ambiguous answers in unknown categories must be identified as unverified.
+function inspectFormativeReasoning(plan,response){
+ const value=String(response??'').trim(),text=value.toLowerCase();
+ if(value.length<6)return {status:'revise',message:'Explain your observation in your own words before moving on.'};
+ const checks={
+  watchlist:[
+   {pattern:/(?:not|never|doesn.t|isn.t|no)\W+(?:automatically\W+)?(?:a\W+)?(?:buy|purchase|trade|order|recommendation)|(?:research|watch|observe)\W+(?:list|only|rather than)|(?:scan|rank|screen)\W+.{0,45}(?:not|doesn.t)\W+.{0,15}(?:buy|trade)/i,
+    hint:'Explain why a watchlist or scanner ranking is NOT a buy order or recommendation.'},
+   {pattern:/(?:verify|check|confirm|compare|look up|find)\W+.{0,55}(?:original|primary|dated|source|issuer|filing|announcement|press release|news)|(?:original|primary|dated|issuer|filing|announcement)\W+.{0,55}(?:verify|check|confirm|source)/i,
+    hint:'Name the first-party source or dated evidence you would verify before relying on the claim.'}
+  ],
+  candle:[
+   {pattern:/\bopen(?:ing)?\b/i,hint:'Identify the Open price.'},
+   {pattern:/\bclose|clos(?:ing|ed)\b/i,hint:'Identify the Close price.'},
+   {pattern:/\b(?:body|difference|subtract|between|minus|absolute)\b|[-−]/i,
+    hint:'Explain how the distance between Open and Close determines the real body.'}
+  ],
+  vwap:[
+   {pattern:/\b(?:share|shares|volume|quantity|size|300|100)\b/i,
+    hint:'Identify the traded share quantity.'},
+   {pattern:/\b(?:weight|weighted|greater|more|influence|impact|count|proportion)\b/i,
+    hint:'Explain how a larger trade quantity influences the volume-weighted average more.'},
+   {pattern:/\b(?:price|average|vwap|dollar|execution|trade)\b/i,
+    hint:'Connect those weights to the observed execution prices and average.'}
+  ],
+  ema:[
+   {pattern:/\b(?:ema\s*9|ema9|nine\W*period|shorter\W*(?:period|ema|average)|9\W*period)\b/i,
+    hint:'Identify the shorter EMA9 period.'},
+   {pattern:/\b(?:recent|latest|new|smoothing|faster|react|respond|weight|greater)\b/i,
+    hint:'Explain why a shorter EMA is more responsive to the most recent completed close.'}
+  ],
+  volume:[
+   {pattern:/\b(?:execut|trade|transaction|shares|quantity)\b/i,
+    hint:'Describe completed share transactions, not order-book intentions.'},
+   {pattern:/\b(?:interval|period|minute|time|bar|five|5)\b/i,
+    hint:'Connect volume to the specified completed time interval.'}
+  ],
+  structure:[
+   {pattern:/\b(?:swing|low|lows|pivot|higher)\b/i,
+    hint:'Identify the comparable swing lows being measured.'},
+   {pattern:/\b(?:prior|previous|earlier|later|above|compared|relative)\b/i,
+    hint:'Compare the later observed low with the earlier low rather than guessing the next bar.'}
+  ],
+  depth:[
+   {pattern:/\b(?:bid|9\.90)\b/i,hint:'Identify the bid.'},
+   {pattern:/\b(?:ask|10\.10)\b/i,hint:'Identify the ask.'},
+   {pattern:/\b(?:spread|difference|subtract|minus|0\.20|20\W*cents)\b/i,
+    hint:'Subtract bid from ask to explain the quoted spread.'}
+  ],
+  tape:[
+   {pattern:/\b(?:trade|print|execut|time|timestamp)\b/i,
+    hint:'Identify the time or completed execution recorded in the print.'},
+   {pattern:/\b(?:price|size|shares|quantity)\b/i,
+    hint:'Identify execution price and trade size, not an unseen trader motive.'}
+  ],
+  routing:[
+   {pattern:/\b(?:order|accepted|submitted|limit|filled|fill)\b/i,
+    hint:'Differentiate submission or acceptance of an order from its execution.'},
+   {pattern:/\b(?:partial|unfilled|remaining|may|might|not|doesn.t|status)\b/i,
+    hint:'Explain how an order can remain unfilled or fill only partially.'}
+  ]
+ };
+ const category=String(plan?.category||'general'),rubric=checks[category];
+ if(!rubric)return {status:'unverified',message:'Your explanation is recorded for this ungraded lesson, but I cannot reliably evaluate this subject from free text alone. Compare it with the worked example and check your reasoning during independent practice; this is not a mastery result.'};
+ // Reject explicit unsafe causal claims, not statements that NEGATE them.
+ const overclaim=/(?:\bguarantees?\b|\bproves?\b|\balways\b|\bautomatically\b)\W+(?:(?:a|the|you|it|will|be|to|future)\W+){0,3}(?:profit|win|buy|purchase|next|rise|move|fills?|execution)/i;
+ if(overclaim.test(text)&&!/(?:\bnot\b|\bnever\b|\bno\b|doesn.t|isn.t|cannot|can.t)\W+(?:\w+\W+){0,3}(?:guarantee|prove|always|automatically)/i.test(text))
+  return {status:'revise',message:'That conclusion goes beyond the available evidence. A chart, scanner or order status does not guarantee a trade outcome. Explain what is directly observed instead.'};
+ const gaps=rubric.filter(rule=>!rule.pattern.test(text));
+ if(gaps.length)return {status:'revise',message:'There is an important part missing: '+gaps[0].hint+
+  (gaps.length>1?' Then address: '+gaps[1].hint:'')+
+  ' Use your own explanation; you may retry or ask Talia for another example.'};
+ return {status:'supported',message:'Your explanation includes the central observations for this guided example. This is an ungraded understanding check, not independent assessment or mastery.'};
+}
 function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
@@ -176,22 +252,18 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const value=reflection.value.trim(),index=questionIndex,isFinal=index===prompts.length-1;
   if(understandingMode){
    if(value.length<6){reply.textContent='Explain the answer in your own words so we can check your understanding.';return;}
-   const expected=String(plan?.check?.choices?.[plan?.check?.correct]||'').toLowerCase();
-   const text=value.toLowerCase();
-   // Only ungraded formative concept recognition. This never awards an
-   // official grade and it cannot unlock independent assessment data.
-   const taught=plan?.category==='candle'?/open/i.test(value)&&/close/i.test(value)
-    :plan?.category==='vwap'?/(shares|volume)/i.test(value)&&/(weight|influence|more|greater)/i.test(value)
-    :plan?.category==='ema'?/(ema\s*9|nine.period|shorter)/i.test(value)
-    :expected.split(/[^a-z0-9]+/).filter(w=>w.length>=5)
-       .filter(w=>text.includes(w)).length>=2;
-   if(!taught){
-    reply.textContent='Not yet. '+String(plan?.check?.feedback||'Review the visible example and try again.')+
-     ' Explain the key relationship, then submit another answer.';
+   const feedback=inspectFormativeReasoning(plan,value);
+   if(feedback.status==='revise'){reply.textContent=feedback.message;return;}
+   if(feedback.status==='unverified'){
+    // No unsupported claim of understanding, and no graded event. Permit
+    // ungraded lesson progression rather than trapping a beginner.
+    understandingMode=false;
+    reply.textContent=feedback.message;
+    onUnderstandingPassed?.();
     return;
    }
    understandingMode=false;
-   reply.textContent='That explains the central relationship. We can move to the next learning stage.';
+   reply.textContent=feedback.message;
    onUnderstandingPassed?.();
    return;
   }
@@ -784,5 +856,5 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   disposed=true;passDisposed=true;stopTyping();cancelAnswer?.();pending?.abort();pending=null;
  }};
 }
-root.GroundUpLabV33Instructor=Object.freeze({create,version:'LAB-UX-STD-001-tutor-v1'});
+root.GroundUpLabV33Instructor=Object.freeze({create,inspectFormativeReasoning,version:'LAB-UX-STD-001-tutor-v1'});
 })(globalThis);
