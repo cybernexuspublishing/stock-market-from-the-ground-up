@@ -186,13 +186,19 @@ INDEPENDENT_PLAN:[
  'New case: remove the verified liquidity field. Explain why the plan is now incomplete.'
 ]
 };
-const get=code=>{
- const items=examples[String(code||'')];
+const watchlistSteps=Object.freeze([
+ 'A watchlist is a dated research list, NOT a scanner result, buy order or forecast. Name the company, the available source, its timestamp, the review rule and the reason for inclusion.',
+ 'FICTIONAL Example A: the dated issuer statement is independently verified at 08:35 ET, with a $0.04 spread. WATCH means research remains eligible under the defined conditions, not buy.',
+ 'FICTIONAL Example B: only a social repost is available. Mark VERIFY and identify the original issuer document and timestamp still missing.',
+ 'FICTIONAL Example C: $2 midpoint and $0.20 spread mean a 10% quoted spread. A hypothetical 3% classroom maximum rejects the candidate as NO TRADE, despite the scanner ranking.'
+]);
+const get=(code,title='')=>{
+ const items=/\bwatchlist\b/i.test(String(title))?watchlistSteps:examples[String(code||'')];
  if(!items)return null;
  return Object.freeze({source:'original-illustrative-competency-scenario',steps:[...items],code});
 };
 function create({code,title='',stage=1}={}){
- const scenario=get(code);
+ const scenario=get(code,title);
  if(!scenario||!root.document?.createElement)return null;
  const node=(tag,value,cls)=>{
   const n=root.document.createElement(tag);
@@ -205,7 +211,24 @@ function create({code,title='',stage=1}={}){
  const head=node('div',undefined,'gu-l33-head');
  head.append(node('h3',title||String(code).replaceAll('_',' ')||'Worked study case'));
  head.append(node('span','SIMULATED · STUDY ONLY','gu-v34-evidence-label'));
- surface.append(head,node('p','This is a separate, original educational example. It is not the book’s verified historical chart or a graded assessment.','gu-v34-evidence-note'));
+ surface.append(head,node('p',/\bwatchlist\b/i.test(title)
+  ?'FICTIONAL watchlist worksheet. Scanner results are discovery inputs only; rows are not orders or verified historical trades.'
+  :'This is a separate, original educational example. It is not the book’s verified historical chart or a graded assessment.','gu-v34-evidence-note'));
+ if(/\bwatchlist\b/i.test(title)){
+  const table=node('table',undefined,'gu-v34-watchlist-table');
+  table.append(node('caption','Fictional watchlist — observed 08:35 ET'));
+  const header=node('thead'),headerRow=node('tr');
+  for(const label of ['Candidate','Source at pause','Quoted spread','Research decision'])headerRow.append(node('th',label));
+  header.append(headerRow);table.append(header);
+  const rows=[
+   ['Example A','Dated issuer statement verified','$0.04','WATCH · conditional'],
+   ['Example B','Social repost only; source missing','Unverified','VERIFY primary source'],
+   ['Example C','Illustrative scanner +30%','$0.20 on $2 (10%)','NO TRADE · 3% classroom rule']
+  ];
+  const body=node('tbody');
+  for(const values of rows){const row=node('tr');for(const value of values)row.append(node('td',value));body.append(row)}
+  table.append(body);surface.append(table);
+ }
  const actions=node('div',undefined,'gu-l33-interactive-tools');
  actions.setAttribute('role','group');actions.setAttribute('aria-label','Choose an example step');
  const display=node('div',undefined,'gu-v34-example-step');
