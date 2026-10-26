@@ -736,7 +736,7 @@
 
   function gateRegistry(a){
     if(path.endsWith('/labs.html')||path.endsWith('/labs')){
-      if(!a.authenticated){location.replace('lab-samples.html');return false}
+      if(!a.authenticated){location.replace('/signin.html?next='+encodeURIComponent(location.pathname+location.search+location.hash));return false}
       document.getElementById('v011-lab-registry-gate')?.remove();document.body.style.visibility='visible';
     }
     return true;
