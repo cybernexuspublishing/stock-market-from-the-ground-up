@@ -1,0 +1,22 @@
+/* Free member Launchpad v1 — uses existing Dashboard design tokens and layout. */
+.free-learning-launchpad{border:1px solid #246c69;background:linear-gradient(130deg,#102c38,#10202d 63%,#173139);margin-top:20px}
+.free-learning-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.free-learning-heading>div{min-width:0}
+.free-learning-heading .eyebrow{color:#a6e2c9}
+.free-learning-heading h2{margin:7px 0 9px;line-height:1.25}
+.free-learning-heading p{max-width:75ch;line-height:1.55}
+.free-learning-heading>.btn{flex-shrink:0}
+.free-learning-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:19px 0}
+.free-learning-steps article{border:1px solid rgba(115,176,164,.35);border-radius:12px;background:rgba(3,22,31,.4);padding:16px;min-width:0}
+.free-learning-step{color:#a6e2c9;font-size:.75rem;font-weight:800;letter-spacing:.09em}
+.free-learning-steps h3{font-size:1rem;margin:10px 0 7px}
+.free-learning-steps p{font-size:.93rem;line-height:1.55;margin:0 0 12px}
+.free-learning-steps a{display:inline-block;font-weight:700;text-underline-offset:4px}
+.free-learning-usage{border-top:1px solid rgba(132,198,190,.25);padding-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;row-gap:6px}
+.free-learning-usage>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.free-learning-usage span{font-size:.85rem}
+.free-learning-usage strong{font-variant-numeric:tabular-nums}
+.free-learning-usage p{grid-column:1/-1;font-size:.81rem;margin:5px 0 0}
+.free-learning-launchpad a:focus-visible{outline:3px solid #d1fce0;outline-offset:3px}
+@media(max-width:950px){.free-learning-steps{grid-template-columns:1fr}.free-learning-heading{align-items:flex-start}}
+@media(max-width:620px){.free-learning-heading{flex-direction:column}.free-learning-heading>.btn{width:100%;text-align:center}.free-learning-usage{grid-template-columns:1fr}.free-learning-steps article{padding:14px}}
