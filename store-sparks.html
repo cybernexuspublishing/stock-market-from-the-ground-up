@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crownlight Sparks | Store</title><meta name="description" content="Crownlight Sparks learning credits, package availability and current member wallet rules.">
+<link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/store-catalog-v01484.css">
+<script src="config.js"></script><script defer src="assets/js/site.js"></script><script defer src="assets/js/supabase-client.js"></script>
+<style>.spark-shop{max-width:1080px;margin:auto}.spark-hero{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;padding:2rem 0}.spark-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}.spark-card{border:1px solid var(--border,#8d7b53);border-radius:1rem;padding:1.4rem;position:relative;background:var(--surface,#15212b)}.spark-card h2{font-size:1.28rem}.spark-cost{font-size:1.9rem;font-weight:800}.spark-tag{font-size:.78rem;padding:.25rem .5rem;border:1px solid currentColor;border-radius:.4rem}.spark-terms{margin:1.6rem 0;max-width:800px}a:focus-visible{outline:3px solid #f1ce6c;outline-offset:3px}@media(max-width:580px){.spark-hero{grid-template-columns:1fr}}</style></head>
+<body><header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"><a href="store.html">Store</a><a href="dashboard.html">Dashboard</a></nav></div></header>
+<main class="section"><div class="wrap spark-shop">
+<div class="eyebrow">STORE · SPARKS ONLY</div><div class="spark-hero"><img width="104" height="104" src="assets/img/crownlight-spark.svg" alt="Crownlight Sparks learning-credit emblem"><div><h1>Crownlight Sparks</h1><p>Optional study credits for eligible non-graded practice questions. Teaching, explanations, guided examples and retries remain included without credits.</p></div></div>
+<div class="actions"><a class="btn secondary" href="dashboard.html">View your wallet</a><a class="btn secondary" href="store.html">All current Store offerings</a></div>
+<section aria-labelledby="spark-options"><h2 id="spark-options">Sparks packages</h2><p id="spark-shop-status" role="status" aria-live="polite">Checking package availability…</p><div id="spark-shop-packages" class="spark-grid"></div></section>
+<section class="spark-terms"><h2>How to use your Sparks</h2><p>One Spark may be spent to reveal or skip one eligible ungraded Practice question, after your confirmation. Free tutoring, corrections, examples, and retry opportunities are always available. A skip or revealed answer never counts toward assessed mastery.</p><p>Purchased Sparks do not expire under the approved policy. Included Sparks have separate expiry rules, which your wallet shows. You must have a member account to use Sparks.</p><p>Sparks cannot be exchanged for cash or trading funds. They are learning-platform credits, not cryptocurrency or financial instruments.</p></section>
+</div></main><footer class="footer"><div class="wrap"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="store.html">Store</a></div></footer>
+<script>
+(async function(){
+ const host=document.getElementById('spark-shop-packages'),status=document.getElementById('spark-shop-status');
+ const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n};
+ try{
+  const r=await fetch('data/crownlight-sparks-store-v014167.json',{cache:'no-store'});
+  if(!r.ok)throw Error('Unavailable');const data=await r.json();
+  if(!Array.isArray(data.packages))throw Error('Invalid catalog');
+  const active=!!data.checkoutEnabled;
+  // Current package file explicitly has checkout disabled. A real server-side
+  // checkout must be verified before any purchase control becomes available.
+  for(const p of data.packages){
+   if(!/^[A-Z0-9_]{3,60}$/.test(p.code)||!Number.isInteger(p.quantity)||!Number.isInteger(p.priceCents))continue;
+   const card=el('article',null,'spark-card');card.append(el('span',active&&p.checkoutEnabled?'Beta OPEN':'Coming Soon','spark-tag'),
+    el('h2',p.name),el('p',p.quantity+' Crownlight Sparks'),el('div',(p.priceCents/100).toLocaleString('en-US',{style:'currency',currency:'USD'}),'spark-cost'));
+   const note=el('p',active&&p.checkoutEnabled?'Package availability requires authenticated payment verification.':'Pricing shown for planning; purchases are not yet enabled.','small');card.append(note);
+   // Deliberately avoid inventing a payment URL, checkout capability or price authorization.
+   host.append(card);
+  }
+  status.textContent=host.children.length?(active?'Current package catalog — payment status must be confirmed before checkout.':'Packages announced; purchase and credit fulfillment are not yet activated.'):'No Spark packages are currently published.';
+ }catch{status.textContent='Spark package catalog is unavailable. No purchase was started.';}
+})();
+</script></body></html>
