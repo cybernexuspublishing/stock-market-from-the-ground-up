@@ -1,0 +1,17 @@
+/* Additive Free Foundations workspace treatments. Reuses existing Academy engine. */
+.academy-free-entry{margin:22px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;
+ background:linear-gradient(120deg,#102c38,#142938 60%,#1b4546);border:1px solid #337e77}
+.academy-free-entry .eyebrow{color:#b0eacb}
+.academy-free-entry h2{margin:8px 0}
+.academy-free-entry p{max-width:75ch;line-height:1.65}
+.academy-free-entry .btn{white-space:normal;text-align:center}
+#academy-original-instruction{margin:22px 0;padding:clamp(14px,2vw,26px);background:#112c3b;border:1px solid #3a6e71;border-radius:13px}
+#academy-original-instruction h4{margin:20px 0 8px}
+#academy-original-instruction h4:first-child{margin-top:0}
+#academy-original-instruction ol{padding-left:24px;line-height:1.7}
+#academy-original-instruction textarea{width:100%;max-width:100%;box-sizing:border-box;min-height:112px;border-radius:8px}
+#academy-original-instruction button{margin:10px 10px 5px 0}
+.academy-free-entry a:focus-visible,#academy-original-instruction button:focus-visible,
+#academy-original-instruction textarea:focus-visible{outline:3px solid #d4ffd9;outline-offset:3px}
+@media(max-width:860px){.academy-free-entry{grid-template-columns:1fr;gap:12px}}
+@media(max-width:420px){#academy-original-instruction{padding:13px}.academy-free-entry .btn{width:100%}}
