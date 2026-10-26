@@ -91,7 +91,7 @@ body[data-gu-layout-route] :is(.section-intro,.small,.muted){line-height:1.6}
 
 /* Editorial platform presentation. Public pages never reserve a sidebar column.
    Teaching canvases do not receive data-gu-workspace or these component rules. */
-body[data-gu-workspace]{--gu-workspace-header:74px;--gu-rail:224px;--gu-ws-bg:#070913;--gu-ws-panel:#101323;--gu-ws-line:#292d46;--gu-ws-text:#f0f1fa;--gu-ws-muted:#b1b4cb;--gu-ws-accent:#bca8ff;background:radial-gradient(ellipse 65% 660px at 82% 0,rgba(101,65,204,.19),transparent 72%),radial-gradient(ellipse 45% 520px at 6% 25%,rgba(51,73,149,.10),transparent 75%),var(--gu-ws-bg);color:var(--gu-ws-text)}
+html:root body[data-gu-workspace]{--gu-workspace-header:74px;--gu-rail:224px;--gu-ws-bg:#070913;--gu-ws-panel:#101323;--gu-ws-line:#292d46;--gu-ws-text:#f0f1fa;--gu-ws-muted:#b1b4cb;--gu-ws-accent:#bca8ff;background:radial-gradient(ellipse 65% 660px at 82% 0,rgba(101,65,204,.19),transparent 72%),radial-gradient(ellipse 45% 520px at 6% 25%,rgba(51,73,149,.10),transparent 75%),var(--gu-ws-bg)!important;color:var(--gu-ws-text)}
 body[data-gu-workspace] .site-header{position:sticky;top:0;z-index:110;background:#080a14f2;border-bottom:1px solid #252940;box-shadow:none}
 body[data-gu-workspace] .site-header .wrap.nav{display:flex;align-items:center;gap:22px;width:100%!important;max-width:1440px!important;padding:15px 30px;min-height:74px;margin-inline:auto}
 body[data-gu-workspace] .site-header .brand{font:700 .85rem/1.45 Georgia,serif;letter-spacing:.01em;max-width:260px;flex:0 1 260px;white-space:normal}
@@ -188,7 +188,7 @@ body[data-gu-workspace] .gu-signin-card .auth-submit{border-radius:3px;border:0;
 @media(max-width:900px){body[data-gu-workspace] .site-header .wrap.nav{padding:12px 18px;gap:14px;min-height:68px;flex-wrap:wrap}body[data-gu-workspace] .site-header .brand{font-size:.77rem;flex-basis:220px}body[data-gu-workspace="member"] .gu-member-dashboard-shell,body[data-gu-workspace="admin"] .admin-shell{grid-template-columns:minmax(0,1fr)}body[data-gu-workspace="member"] .gu-member-side-menu,body[data-gu-workspace="admin"] .admin-sidebar{position:static;max-height:none;border-right:0;border-bottom:1px solid #292d46}body[data-gu-workspace="site"] main.section>.wrap{padding-inline:20px}body[data-gu-workspace] main.gu-signin-page{padding:36px 22px 60px}}
 @media(max-width:580px){body[data-gu-workspace="site"] #store-plans{grid-template-columns:minmax(0,1fr)}body[data-gu-workspace="site"] .v11-plan{padding:26px 0}body[data-gu-workspace="site"] .store-category-tabs{gap:20px}body[data-gu-workspace="site"] .store-category-tabs button{font-size:.82rem}body[data-gu-workspace="member"] .gu-member-dashboard-shell>main,body[data-gu-workspace="admin"] .admin-main{padding:24px 18px}body[data-gu-workspace="site"] .gu-home-stage{padding-block:44px}body[data-gu-workspace] .gu-workspace-toggle{font-size:.7rem;padding-right:10px}}
 @media(min-width:901px){body[data-gu-workspace] #v1341-mobile-menu{display:none!important}}
-html[data-gu-design="premium-light"] body[data-gu-workspace]{--gu-ws-bg:#fff;--gu-ws-panel:#f1f4f6;--gu-ws-line:#ccd4da;--gu-ws-text:#1a2d3c;--gu-ws-muted:#4e6271;--gu-ws-accent:#75591d;background:#fff;color:#1a2d3c}
+html[data-gu-design="premium-light"] body[data-gu-workspace]{--gu-ws-bg:#fff;--gu-ws-panel:#f1f4f6;--gu-ws-line:#ccd4da;--gu-ws-text:#1a2d3c;--gu-ws-muted:#4e6271;--gu-ws-accent:#75591d;background:#fff!important;color:#1a2d3c}
 html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.site-header,.gu-member-side-menu,.admin-sidebar,.v11-menu){background:#fff;color:#1a2d3c}
 html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.v11-plan.recommended,.gu-home-terminal){background:#f1f4f6}
 html[data-gu-design="premium-light"] body[data-gu-workspace] .store-product-section :is(p,li){color:#405566}
@@ -212,14 +212,14 @@ body[data-gu-workspace="member"] :is(.v13-card,.dashboard-stat,.book-progress-ca
 
 /* Owner reference refinement: restrained violet atmosphere, thin chrome and
    luminous actions. Scoped to the presentation shell; teaching canvases excluded. */
-body[data-gu-workspace] .btn:not(.secondary):not(.danger){background:linear-gradient(115deg,#7852d6,#5b43b6);border:1px solid #a48ae3;color:#fff;box-shadow:0 4px 18px #6943bc24}
-body[data-gu-workspace] .btn.secondary{border-color:#43465f;background:#ffffff03;color:#d9daec}
+body[data-gu-workspace] .btn:not(.secondary):not(.danger){background:linear-gradient(115deg,#7852d6,#5b43b6)!important;border:1px solid #a48ae3!important;color:#fff!important;box-shadow:0 4px 18px #6943bc24}
+body[data-gu-workspace] .btn.secondary{border:1px solid #43465f!important;background:#ffffff03!important;color:#d9daec!important}
 body[data-gu-workspace] .btn:hover{filter:brightness(1.10)}
 body[data-gu-workspace] .site-header .brand{font-family:system-ui,sans-serif;font-size:.75rem;font-weight:650;letter-spacing:.025em}
 body[data-gu-workspace] .site-header .brand :is(span,strong){color:#c0adf5}
 body[data-gu-workspace] .v12-top-link:hover,body[data-gu-workspace] .v11-nav-button:hover{color:#d6c6ff;background:transparent}
 body[data-gu-workspace="site"] .gu-redesign-store:before{height:540px;background:radial-gradient(ellipse at 78% 0,#7545c825,transparent 62%)}
-body[data-gu-workspace="site"] .store-category-tabs[role="tablist"]{background:transparent;border-color:#30334b}
+body[data-gu-workspace="site"] .store-category-tabs[role="tablist"]{background:transparent!important;border-color:#30334b!important}
 body[data-gu-workspace="site"] .store-category-tabs [role="tab"]{border-radius:0;background:transparent;box-shadow:none}
 body[data-gu-workspace="site"] .store-category-tabs [role="tab"][aria-selected="true"]{background:transparent;color:#d9caff;border-bottom-color:#ad8eea}
 body[data-gu-workspace="site"] .gu-home-terminal{background:linear-gradient(150deg,#14172a,#0a0d19);border:1px solid #3b345c;border-radius:10px;box-shadow:0 0 48px #6c41ad12,0 22px 54px #0005}
@@ -227,7 +227,7 @@ body[data-gu-workspace="site"] .v11-plan.recommended{background:linear-gradient(
 body[data-gu-workspace] .footer{background:#070913;border-color:#252940}
 body[data-gu-workspace] .auth-card input:not([type="checkbox"]){background:#0e1120;border-color:#41455f;border-radius:6px}
 html[data-gu-design="premium-light"] body[data-gu-workspace] .btn:not(.secondary):not(.danger){color:#fff}
-html[data-gu-design="premium-light"] body[data-gu-workspace] .btn.secondary{background:transparent;color:#233a4b;border-color:#8b9ca8}
+html[data-gu-design="premium-light"] body[data-gu-workspace] .btn.secondary{background:transparent!important;color:#233a4b!important;border-color:#8b9ca8!important}
 html[data-gu-design="premium-light"] body[data-gu-workspace] .footer{background:#f1f4f6;border-color:#ccd4da}
 html[data-gu-design="premium-light"] body[data-gu-workspace="site"] .gu-home-terminal{background:#f1f4f6;box-shadow:none}
 html[data-gu-design="premium-light"] body[data-gu-workspace] .auth-card input:not([type="checkbox"]){background:#fff;color:#182d3e}
