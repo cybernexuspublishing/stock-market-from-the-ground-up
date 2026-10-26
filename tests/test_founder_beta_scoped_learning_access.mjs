@@ -65,7 +65,11 @@ try{
  let body=await r.json();
  assert.equal(body.foundingBetaStudy,true);assert.equal(body.gradedCreditEligible,false);
  assert.equal(body.sourceStatus,'founding600_authored_b01_guided_beta_ungraded');
- assert.deepEqual(body.lab,content,'Only authorized teaching, not any protected assessment key');
+ assert.equal(body.lab.concept,content.concept);
+ assert.equal(body.lab.objective,content.objective);
+ assert.deepEqual(body.lab.steps,content.steps);
+ assert.equal(body.lab.lessonBatch,undefined,'Protected editorial metadata never reaches the member');
+ assert.equal(body.lab.authoringStatus,undefined,'Member receives only allowlisted teaching');
  assert(!JSON.stringify(body).includes('answer_key'));
 
  r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
@@ -101,6 +105,21 @@ try{
  r=await lesson({request:request('/api/lab-content?id='+LAB),env});
  assert.notEqual(r.status,200,'Non-Owner manual pass cannot open private B01');
  ownerIssuer=true;qaPass=false;
+ // An actual Owner-reviewed teaching record must stay accessible after the
+ // private editorial source status advances: same authored B01, signed reviewer.
+ draft.source_status='editorially_reviewed_educational_illustrative_b01_v1';
+ draft.reviewed_by='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ draft.reviewed_at='2026-10-26T08:00:00Z';
+ assert.equal(authoredB01BetaLesson(draft),true);
+ grant=true;
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,200,'Authenticated-reviewed private B01 remains teachable to founder');
+ body=await r.json();assert.equal(body.instructionReviewed,true);
+ assert.equal(body.sourceStatus,'founding600_editorially_reviewed_b01_guided_beta');
+ draft.reviewed_by=null;
+ assert.equal(authoredB01BetaLesson(draft),false,'Unsigned claimed lesson review is denied');
+ draft.source_status='original_hypothetical_unreviewed_v01496';
+ draft.reviewed_by=undefined;draft.reviewed_at=undefined;
  reviewed=false;grant=false;
  assert.equal(await activeFoundingBetaLearningPlan(env,user),false);
  r=await lesson({request:request('/api/lab-content?id='+LAB),env});
