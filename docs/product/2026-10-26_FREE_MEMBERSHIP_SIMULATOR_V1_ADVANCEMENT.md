@@ -64,3 +64,27 @@ Full-width labeled chart FIRST; compact contextual controls (not a cramped deskt
 **Accept as implemented:** Free entry-point and fictional starter source code; intentionally retain existing paid rights boundary.  
 **Condition acceptance on:** exact-commit CI, browser behavior, deployed runtime, real Free member authorization and Journal save quota.  
 **Carried forward:** the complete free onboarding journey, server-fictional simulation, advanced execution lifecycle, publication-verified historical datasets and genuine beta testing.
+
+
+## Owner-selected Free Membership V1 controlling experience — 2026-10-26
+
+**Decision status:** Owner-selected design standard. This governs future Free member work but **does not** by itself certify production member acceptance or unlock premium features.
+
+**Owner-selected priorities, in controlling order:**
+
+1. **Personalized beginner journey.** Talia welcomes beginners, obtains an optional, ungraded starting-knowledge choice, uses independently saved Academy progress to recommend a genuine next lesson, and never infers certified mastery from preferences.
+2. **Functional Free fictional simulator.** Immediate originally fictional candle practice with deliberate no-trade decisions, accessible revealed OHLCV and optional server-limited private Journal saving; no fabricated broker fills or false historical claims.
+3. **Guided zero-knowledge foundation lessons.** Each lesson must include objective, what/why/when not, worked fictional example, guided check, misconception, retry/feedback and independent transfer; use the established Academy engine.
+4. **Evidence-backed learning progress.** Knowledge, Recognition, Decision and Process distinguish guided practice from verified assessments; explicitly show `Not Yet Assessed` when qualifying evidence is absent.
+5. **Manual research watchlist education.** Member-owned symbols, source classification, researched reasoning and no-trade options; never substitute verified live market prices when none exist.
+6. **Weekly learning record.** Real account-scoped latest Journal entries, saved Free Foundations reflections, UTC usage quotas and a next recommended action; show `Unavailable` on provider error rather than invent usage.
+7. **Moderated Market Commons onboarding.** Route into existing `START_HERE` and the live community guidelines; teach primary sources, timestamp verification and civil, non-advisory discussion.
+8. **Contextual paid feature explanation.** Explain real entitlement differences clearly; never charge Crownlight Sparks for baseline explanations or lock essential free instruction.
+
+**Visual and accessibility acceptance:** A professional, compact trading-terminal layout with the full-width educational chart first, instructor below, simple primary action, secondary actions progressively disclosed, accessible source labels, OHLCV table/text equivalents, keyboard operation, meaningful focus indicator, status announcements, contrast, and responsive QA at 390/900/1280/1440 px. Apply WCAG 2.2 AA as a tested target, not an unverified compliance assertion. Progressive-disclosure background: [Nielsen Norman Group](https://www.nngroup.com/articles/progressive-disclosure/). Normative accessibility criteria: [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/).
+
+**2026-10-26 implementation reconciliation:** Current `main` already includes `bootcamp-academy.html?program=free5` (five additional ungraded Foundation lessons), `free-watchlist.html` (manual twenty-symbol research), Dashboard starting-level recommendation and four skill-evidence indicators, `simulator.html?practice=free`, private Journal usage, Commons onboarding links, and paid-boundary safeguards. Do not rebuild these as parallel systems. The `tests/test_free_owner_v1_scope.mjs` regression protects these eight intended user capabilities; it proves only source-level parity. 
+
+**Open independent acceptance:** Supabase read-only evidence in this review shows zero `free5` enrollments and zero Free Foundations progress events. Production-signed-in Free-only cross-device enrollment, simulator planning/Journal save, watchlist persistence, account separation and real browser WCAG audit have not been demonstrated. These remain independently gated before `Production Member Tested` or `Beta Ready`. Stripe LIVE payment shutdowns and all fixed Founding 600 terms remain unchanged.
+
+**Revision note:** 2026-10-26 · Owner-selected V1 scope and current-source reconciliation recorded; engineering release acceptance remains governed by `docs/releases/2026-10-26_FREE_MEMBERSHIP_ENTITLEMENT_RELEASE_GATE_v1.md`.
