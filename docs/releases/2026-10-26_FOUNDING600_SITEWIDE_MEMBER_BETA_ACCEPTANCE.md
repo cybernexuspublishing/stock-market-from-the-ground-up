@@ -140,3 +140,15 @@ The Owner explicitly signs off on **all seven Boot Camp programs and all 419 can
 6. In Admin and engineering reports, track **owner beta-testing authorization** separately from **test execution, editorial review and product acceptance**. Do not use "GO" to imply an unexecuted browser or member test passed.
 
 **Owner business acceptance:** GO to include 7/7 Boot Camps and 419/419 Lab IDs in the controlled Founder beta test program. **Engineering/content release acceptance:** evidence-based per-item progression remains open. The beta cohort, rather than Owner-level access, performs genuine member-facing experience tests.
+
+## October 26 follow-through: privately authored remaining 83 Site-Exclusive Labs
+
+Following the Owner's authorization to test all 419 canonical Labs, the previously unstarted Site-Exclusive IDs `SITE-018`–`SITE-100` were authored as original, topic-specific **nine-stage ungraded educational drafts** in the **existing private `lab_instruction_v014`** storage. The source import was verified directly against Supabase: 83/83 records, 83/83 nine-stage arrays, 83/83 official source-link arrays, **zero** review attributions and no new graded sets. These are not copied book manuscripts, certified actual history, or trade recommendations.
+
+The earlier 336/83 classification remains a canonical **development-scope** selection, not a permanent ban on practice. The additional 83 are now independently eligible for Guided Beta when (and only when) the existing member account, training entitlement, complete private instructional source and release availability service all verify successfully. The active Lab registry uses those verified IDs. If one is unavailable or the service cannot verify it, the account must receive a safe, honest denial and be able to report a bug.
+
+The original 419 canonical IDs, private grading restrictions, member progress, sold product entitlements and all seven Boot Camp programs remain unchanged. Official assessment questions, independently reviewed answer keys and mastery credit remain **unreleased** for the newly authored 83. A member's ungraded Guided Beta completion never becomes an official competency score.
+
+**Implementation:** `supabase/migrations/v0.14.0.294_site_exclusive_private_instruction_book6.sql`, `functions/_lib/site-exclusive-private-lesson-v014294.js`, existing `functions/api/{lab-content,lab-player-context,lab-release-availability}.js`, official private audit event `admin_audit_log.id=74`. Details, topic inventory and guarded rollback: `docs/releases/2026-10-26_SITE_EXCLUSIVE_83_GUIDED_BETA_AUTHORING.md`.
+
+**Release evidence remains separate:** Authored 83/83; source-contract tested on specific GitHub Actions commits; provider deployment checked against source SHA; independent per-Lab editorial review and authentic beta-member journey evidence remain to be collected. Owner GO for controlled testing remains in force.
