@@ -72,7 +72,7 @@ export async function onRequest({request,env}){try{
    if(page.length<pageSize){exhaustive=true;break}
   }
   if(!exhaustive)throw fail('Graded history exceeds the safe audit window; full history must be verified before summary.',503);
-  const latest=new Map(),safe=[];
+  const latest=new Map(),latestAssessment=new Map(),safe=[];
   for(const row of rows){
    const id=String(row?.lab_id||''),score=Number(row?.score),completedAt=String(row?.completed_at||'');
    if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!Number.isInteger(score)||score<0||score>100||
@@ -80,8 +80,10 @@ export async function onRequest({request,env}){try{
       !Number.isFinite(Date.parse(completedAt)))continue;
    safe.push({labId:id,score,mode:row.mode,completedAt});
    if(!latest.has(id))latest.set(id,{labId:id,score,mode:row.mode,completedAt});
+   if(row.mode==='assessment'&&!latestAssessment.has(id))latestAssessment.set(id,{labId:id,score,mode:row.mode,completedAt});
   }
-  return reply({ok:true,latestByLab:[...latest.values()],recentCompleted:safe.slice(0,100),
+  return reply({ok:true,latestByLab:[...latest.values()],
+   latestAssessmentByLab:[...latestAssessment.values()],recentCompleted:safe.slice(0,100),
    reviewedRows:safe.length,truncated:false,
    interpretation:'Recorded, server-graded conceptual/book exercises. NOT historical replay proof, four-dimensional competency certification, P&L or brokerage performance.',
    masteryAwarded:false});
