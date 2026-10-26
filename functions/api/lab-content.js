@@ -3,6 +3,7 @@
  */
 import {toolAccess,memberIdentity} from './member-tool-access.js';
 import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
+import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../_lib/founding-beta-learning-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
@@ -56,11 +57,15 @@ const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,conten
 // separately authorized, metadata-only Lab context; 403 remains hard denial.
 const sample=SAMPLES.has(id);
 const ownsBook=sample?false:await getBookAccess(env,request,row.book_number);
-const guided=ownsBook||sample||Number(row.book_number)===6&&premium;
+const scopedFoundingBeta=premium&&authoredB01BetaLesson(row)&&
+ await activeFoundingBetaLearningPlan(env,actor.userId);
+const guided=ownsBook||sample||scopedFoundingBeta||Number(row.book_number)===6&&premium;
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
  return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium,
-  sourceStatus:unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
+  sourceStatus:scopedFoundingBeta?'founding600_authored_b01_guided_beta_ungraded':
+   unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
+  foundingBetaStudy:scopedFoundingBeta,gradedCreditEligible:false,
   instructionReviewed:false,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
