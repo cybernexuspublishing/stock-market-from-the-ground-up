@@ -28,8 +28,10 @@ class Element{
  setAttribute(key,value){this.attrs[key]=String(value)}
 }
 const document={createElement:tag=>new Element(tag),createTextNode:value=>{const el=new Element('#text');el.textContent=String(value);return el}};
-const json={ok:true,truncated:false,latestByLab:[{labId:'F2-C07-L01',score:84,mode:'assessment',completedAt:'2026-10-23T21:00:00Z'}],
- recentCompleted:[{labId:'F2-C07-L01',score:84,mode:'assessment',completedAt:'2026-10-23T21:00:00Z'},
+const json={ok:true,truncated:false,latestByLab:[{labId:'F2-C07-L01',score:92,mode:'guided',completedAt:'2026-10-24T21:00:00Z'}],
+ latestAssessmentByLab:[{labId:'F2-C07-L01',score:84,mode:'assessment',completedAt:'2026-10-23T21:00:00Z'}],
+ recentCompleted:[{labId:'F2-C07-L01',score:92,mode:'guided',completedAt:'2026-10-24T21:00:00Z'},
+ {labId:'F2-C07-L01',score:84,mode:'assessment',completedAt:'2026-10-23T21:00:00Z'},
   {labId:'F2-C07-L01',score:76,mode:'assessment',completedAt:'2026-10-22T21:00:00Z'}]};
 const ctx=createContext({document,console,Date,
  getSupabaseClient:async()=>({auth:{getSession:async()=>({data:{session:{access_token:'TEST_ONLY'}}})}}),
@@ -39,7 +41,8 @@ const target=new Element('section');
 assert.equal(await ctx.GroundUpLabV33GradeDisplay.mount({labId:'F2-C07-L01',target}),true);
 const walk=node=>[node,...(node.children||[]).flatMap(walk)];
 let nodes=walk(target);
-assert(nodes.some(x=>x.textContent==='84%'),'The latest verified score must be displayed');
+assert(nodes.some(x=>x.textContent==='84%'),'An older Assessment-mode score must remain visible when Guided score is newer');
+assert(nodes.some(x=>x.textContent.includes('Latest scored Guided activity: 92%')),'Guided score labeled as learning evidence');
 assert(nodes.some(x=>x.textContent.includes('Not Yet Assessed')),'Unverified competencies stay unassessed');
 assert.equal(nodes.filter(x=>x.className==='gu-v33-grade-dimension').length,4);
 assert.equal(nodes.filter(x=>x.attrs['data-grade-dimension']).length,4);
@@ -48,4 +51,10 @@ assert(!nodes.some(x=>x.textContent.includes('Grade A')),'Never invent letter-gr
 const emptyTarget=new Element('section');
 assert.equal(await ctx.GroundUpLabV33GradeDisplay.mount({labId:'SITE-999',target:emptyTarget}),true);
 assert(walk(emptyTarget).some(x=>x.textContent.includes('Not Yet Assessed')));
-console.log('PASS Learning v3.3: progress bar, 0–100 reviewed scores, 4 unassessed dimensions, member history, no fabricated grade');
+json.latestAssessmentByLab=[];
+json.latestByLab=[{labId:'F2-C07-L01',score:92,mode:'guided',completedAt:'2026-10-24T21:00:00Z'}];
+const guidedOnly=new Element('section');
+assert.equal(await ctx.GroundUpLabV33GradeDisplay.mount({labId:'F2-C07-L01',target:guidedOnly}),true);
+assert(walk(guidedOnly).some(x=>x.textContent.includes('Not Yet Assessed')));
+assert(!walk(guidedOnly).some(x=>x.textContent==='92%'),'Guided score must not be the primary Assessment score');
+console.log('PASS Learning v3.3: mode-accurate assessment score, formative exercise labeling, unassessed dimensions');
