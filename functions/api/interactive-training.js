@@ -116,9 +116,9 @@ export async function onRequest({request,env}){try{
  return reply(publicState(a,set))}
  if(action==='answer'&&request.method==='POST'){const b=await request.json().catch(()=>null),id=String(b?.attemptId||''),answer=String(b?.answer??'').trim();
  if(!uuid.test(id)||!answer||answer.length>600||!Number.isSafeInteger(b?.expectedStep)||b.expectedStep<0)throw fail('Attempt, current step, and response are required.');
- const attempts=await db(env,'lab_training_attempts_v014?select=lab_id&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
- let knowledgeSync='not_applicable';
- if(r.complete===true){
+ const attempts=await db(env,'lab_training_attempts_v014?select=lab_id,mode&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
+ let knowledgeSync=r.complete===true?'formative_mode_not_eligible':'not_applicable';
+ if(r.complete===true&&attempts[0].mode==='assessment'){
   // The grade was already committed atomically. A missing optional v105 mapping
   // NEVER undoes or forges it. Members may retry evidence sync from Skills.
   try{
