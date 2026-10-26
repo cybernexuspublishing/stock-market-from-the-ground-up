@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
+const properties={},storage=new Map(),body={dataset:{}},root={dataset:{},style:{setProperty:(k,v)=>properties[k]=v}};
+let remote={font:'1.2',instructorFont:'1.5',density:'roomy',contrast:'high',motion:'reduced'},failed=false,saves=[];
+const context={window:{},document:{documentElement:root,body,readyState:'loading',addEventListener(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},console,fetch:async(url,opts)=>{if(opts.method==='POST'){if(failed)return {ok:false,json:async()=>({error:'Storage unavailable'})};const b=JSON.parse(opts.body);saves.push(b);remote=b.value;return {ok:true,json:async()=>({ok:true})};}return {ok:true,json:async()=>({ok:true,preferences:[{pref_key:'display',pref_value:remote}]})};}};
+context.window.addEventListener=()=>{};context.window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:'fixture'}}})}});
+vm.runInNewContext(readFileSync('assets/js/display-preferences.js','utf8'),context);
+const display=context.window.SiteDisplay;
+assert.equal(display.get().font,'1');assert.equal(display.get().density,'compact');
+display.apply({font:'2',instructorFont:'1',density:'default'});assert.equal(properties['--fe-font-scale'],'2');assert.equal(properties['--gu-instructor-relative-scale'],'0.5');assert.equal(body.dataset.feDensity,'default');
+await display.load();assert.equal(display.get().font,'1.2');assert.equal(display.get().density,'roomy');
+await display.save({font:'1.5',instructorFont:'2',density:'compact'});assert.equal(saves[0].key,'display');assert.equal(display.get().instructorFont,'2');assert.equal(JSON.parse(storage.get('groundup:display-prefs')).font,'1.5');
+failed=true;await assert.rejects(display.save({font:'1'}),/Storage unavailable/);assert.equal(display.get().font,'1.5');assert.equal(JSON.parse(storage.get('groundup:display-prefs')).font,'1.5');
+assert.equal(display.normalize({font:'no',instructorFont:'99',density:'x'}).density,'compact');
+console.log('Display model PASS: compact default, independent scales, remote loading, persistence, failed-save honesty, invalid-value fallback.');
