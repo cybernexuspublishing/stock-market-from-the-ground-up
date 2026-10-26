@@ -17,8 +17,8 @@ const topics=[{id:7,forum_code:'CHARTS',title:'VWAP <script>unsafe</script>',aut
 qa.set(rows,false);qa.renderForumIndex(host,topics);
 assert.match(host.innerHTML,/Forum directory/);
 assert.match(host.innerHTML,/Recent discussions/);
-assert.match(host.innerHTML,/gu-commons-founder-heading/);
-assert.match(host.innerHTML,/href="store.html#founders"/);
+assert.match(qa.founderEntry(),/gu-commons-founder-heading/);
+assert.match(qa.founderEntry(),/href="store.html#founders"/);
 assert.doesNotMatch(qa.founderEntry(),/href="founders-commons.html"/);
 assert.match(host.innerHTML,/VWAP &lt;script&gt;unsafe&lt;\/script&gt;/);
 assert.doesNotMatch(host.innerHTML,/<script>/);
@@ -36,3 +36,8 @@ assert.match(host.innerHTML,/Page 2 of 3/);
 assert.ok(typeof get('v13-new-topic').onclick==='function','existing composer action retained');
 assert.match(readFileSync(new URL('../market-commons.html',import.meta.url),'utf8'),/data-auth-required="true"/);
 console.log('PASS forum presentation: real directory/thread routes, founder eligibility link, escaped content, bounded counts, pagination and existing composer binding.');
+
+const html=readFileSync(new URL('../market-commons.html',import.meta.url),'utf8');
+assert.ok(html.indexOf('id="gu-commons-founder-spotlight"')<html.indexOf('id="v13-commons"'),'Founder spotlight must precede async forum content');
+assert.match(html,/600<\/span><small>FOUNDERS/);
+assert.doesNotMatch(host.innerHTML,/gu-commons-founder-heading/,'No duplicate founder banner inside forum index');

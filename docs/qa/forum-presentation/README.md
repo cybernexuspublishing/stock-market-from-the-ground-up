@@ -28,3 +28,11 @@ Synthetic checks do not establish authenticated production acceptance or payment
 ## Rollback
 
 Revert this presentation commit. No data or provider rollback is necessary.
+
+## Arrival spotlight refinement
+
+Owner reported that Founders Commons was not noticeable on initial arrival. The banner now exists in initial HTML immediately after the compact page heading and before asynchronous forum content. Founder eligibility updates its action after authentication and before directory loading. A directory/API failure cannot remove the informational banner. No private record is embedded in the page.
+
+Violet/gold emphasis, a 600 Founder emblem, visible channel descriptions and a prominent gold action distinguish it from ordinary categories. Forum category bars, alternating rows, counts and directory shortcuts reinforce forum conventions. Static and dynamic banner markup use the same eligibility-safe initial destination; the private destination is selected only by the existing authorized access result.
+
+Executed again: rendering/escape/pagination regression, forum security regression, JS syntax, Pages build and whitespace validation. Added regression assertion that the initial spotlight precedes asynchronous content and is not duplicated in the rendered directory. Authenticated live visual review remains unverified in a signed-out browser.
