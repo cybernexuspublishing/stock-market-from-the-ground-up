@@ -83,6 +83,16 @@ function mount(){
        const p=el('p',String(row.format).toUpperCase()+' v'+row.version+
         (row.current?' · current':' · archived')+(row.fileExists?'':' · file missing'));
        historyList.append(p);
+       if(row.fileExists){
+        const choose=el('button','Select for primary delivery','btn secondary');
+        choose.type='button';
+        choose.onclick=()=>{
+         asset=row.path;
+         fileStatus.textContent='Selected version: '+row.path;
+         rowStatus.textContent='Selection is not published. Save eBook Rights & Controls to update the primary edition.';
+        };
+        historyList.append(choose);
+       }
       }
      }catch(e){historyList.textContent='History unavailable: '+String(e.message||e)}
     };
