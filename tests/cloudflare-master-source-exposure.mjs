@@ -82,5 +82,25 @@ for(const [label,signature] of [
   assert.equal(text,'BAD_SIGNATURE');
  });
 }
+// Negative authorization probes use an intentionally invalid Bearer token
+// and safe GET requests only. They must never expose private member data.
+const rejectedToken='Bearer invalid-migration-qa-token';
+for(const [name,path,accepted] of [
+ ['Owner/Admin context','/api/admin?action=context',[401,403]],
+ ['Private Academy progress','/api/bootcamp-academy?program=truth5',[401,403]],
+ ['Non-sample authored Lab','/api/lab-content?id=F2-C07-L01',[401,403,404]]
+]){
+ await verify('Forged bearer denied '+name,async()=>{
+  const r=await fetch(site+path,{method:'GET',headers:{authorization:rejectedToken},
+   redirect:'manual',cache:'no-store',signal:AbortSignal.timeout(16000)});
+  assert.ok(accepted.includes(r.status),
+   'Private route unexpectedly returned HTTP '+r.status);
+  const payload=await r.text();
+  const j=JSON.parse(payload);
+  assert.equal(j.ok,false,'Private endpoint did not report denial');
+  assert.equal(j.lab,undefined,'Private Lab payload was returned');
+  assert.equal(j.curriculum,undefined,'Private Academy curriculum was returned');
+ });
+}
 console.log(JSON.stringify({site,passed:passed.length,failed:failures.length,failures,paymentsPerformed:0},null,2));
 if(failures.length)process.exitCode=1;
