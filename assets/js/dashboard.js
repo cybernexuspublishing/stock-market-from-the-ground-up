@@ -40,6 +40,58 @@ function statusClass(status) {
   return 'activity-neutral';
 }
 
+function setupFreeStartingPoint(){
+ const button=document.getElementById('free-start-choose');
+ if(!button)return;
+ button.addEventListener('click',()=>{
+  const day=Number(document.getElementById('free-start-level')?.value);
+  if(!Number.isInteger(day)||day<1||day>3)return;
+  const link=document.getElementById('free-next-action');
+  if(!link)return;
+  link.dataset.manualChoice='true';
+  link.href='bootcamp-academy.html?program=free5&day='+day;
+  link.textContent='Open suggested Free lesson '+day;
+  setText('free-start-result',day===1?
+   'Talia recommends Day 1: shares, quotations and what a market does. This is a learning preference, not assessed mastery.':
+   day===2?
+   'Talia recommends Day 2: read your first fictional five-minute candle, then revisit Day 1 if needed. No mastery has been awarded.':
+   'Talia recommends Day 3: verify news sources and publication time. Days 1–2 remain available. No skill was certified.');
+ });
+}
+async function renderRecentFreeJournal(sb,memberId){
+ const detail=document.querySelector('.free-learning-recent');
+ const list=document.getElementById('free-recent-journal-list');
+ if(!detail||!list)return;
+ let everLoaded=false;
+ detail.addEventListener('toggle',()=>{if(!detail.open||everLoaded)return;
+  everLoaded=true;
+  void(async()=>{
+   try{
+    const result=await sb.from('decision_journal')
+     .select('id,ticker,journal_type,status,updated_at')
+     .eq('user_id',memberId).order('updated_at',{ascending:false}).limit(3);
+    const current=await sb.auth.getUser();
+    if(current.data?.user?.id!==memberId){list.replaceChildren();return;}
+    if(result.error||!Array.isArray(result.data))throw Error('The private Journal is unavailable.');
+    list.replaceChildren();
+    for(const row of result.data){
+     const id=Number(row.id);
+     if(!Number.isSafeInteger(id)||id<1)continue;
+     const item=document.createElement('li');
+     const link=document.createElement('a');
+     link.href='journal-entry.html?id='+id;
+     link.textContent='Record #'+id+' · '+String(row.ticker||'Observation')+
+      ' · '+String(row.journal_type||'member record')+' · '+String(row.status||'saved');
+     item.append(link);list.append(item);
+    }
+    setText('free-recent-journal-status',list.children.length?
+     'Your three most recently updated private Journal records; values and trading outcomes are not independently verified.':
+     'No Journal records saved yet. Your fictional practice can be documented in the Journal when ready.');
+   }catch{setText('free-recent-journal-status','Recent Journal work could not be verified. Your existing records were not changed.');everLoaded=false}
+  })();
+ });
+}
+
 async function renderFreeFoundationEvidence(sb,memberId) {
  const status=document.getElementById('free-next-detail');
  if(!status)return;
@@ -73,8 +125,10 @@ async function renderFreeFoundationEvidence(sb,memberId) {
    'Day '+next.day+' of 5 — '+next.title+'. '+next.objective);
   const link=document.getElementById('free-next-action');
   if(link){
-   link.href='bootcamp-academy.html?program=free5&day='+next.day;
-   link.textContent=saved.length===5?'Review Free Foundations':'Continue Free lesson '+next.day;
+   if(link.dataset.manualChoice!=='true'){
+    link.href='bootcamp-academy.html?program=free5&day='+next.day;
+    link.textContent=saved.length===5?'Review Free Foundations':'Continue Free lesson '+next.day;
+   }
   }
   setText('free-reflection-progress',saved.length+' of 5 private study reflections saved. Practice evidence only; no official mastery awarded.');
   const domainDays={knowledge:[1,3],recognition:[2],decision:[4],process:[5]};
@@ -211,6 +265,8 @@ async function initDashboard() {
   if (!active.length) {
    void renderFreeLearningDashboard(sb);
    void renderFreeFoundationEvidence(sb,user.id);
+   setupFreeStartingPoint();
+   void renderRecentFreeJournal(sb,user.id);
   }
   setText('labs-in-progress', inProgressSet.size);
   setText('labs-not-started', notStartedCount);
