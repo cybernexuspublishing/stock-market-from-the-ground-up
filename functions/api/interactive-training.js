@@ -26,7 +26,7 @@ async function requireMatchingBook(env,request,labId,verifiedActorId,forOfficial
   esc(labId)+'&limit=1'),lab=rows[0];
  if(!lab||lab.active!==true||lab.registry_visible!==true)
   throw fail('This Lab is not in the released registry.',404);
- const privateInstruction=await db(env,'lab_instruction_v014?select=lab_id,book_number,source_status,content&lab_id=eq.'+
+ const privateInstruction=await db(env,'lab_instruction_v014?select=lab_id,book_number,source_status,content,reviewed_by,reviewed_at&lab_id=eq.'+
   esc(labId)+'&limit=1');
  if(privateInstruction[0]){
   const book=Number(privateInstruction[0].book_number);
