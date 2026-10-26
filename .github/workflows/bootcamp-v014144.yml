@@ -25,6 +25,7 @@ jobs:
           node tests/test_gate1_founders_beta_handoff.mjs
           node tests/test_labs_account_switch_isolation.mjs
           node tests/test_lab_content_redaction.mjs
+          node tests/test_site_exclusive_guided_beta_v014294.mjs
           node tests/test_gate1_lab_registry_publish_gate.mjs
           node tests/test_lab_beta_publication_gate.mjs
           node tests/test_beta_partial_release_registry.mjs
