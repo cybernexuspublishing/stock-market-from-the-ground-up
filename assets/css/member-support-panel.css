@@ -1,0 +1,27 @@
+/* Private member Support — integrates into the existing Dashboard theme.
+ * Responsive, keyboard-reachable controls; no decorative or disabled actions.
+ */
+#member-support-panel{max-width:1100px;margin-inline:auto}
+#member-support-panel .card-heading-row{align-items:start;gap:1rem}
+#member-support-panel .v1352-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-block:1rem 1.5rem}
+#member-support-panel .v1352-grid>.full{grid-column:1/-1}
+#member-support-panel .v1352-grid label{display:flex;flex-direction:column;gap:.45rem;min-width:0;font-weight:600}
+#member-support-panel input,
+#member-support-panel textarea,
+#member-support-panel select{width:100%;min-height:44px;padding:.8rem;border:1px solid var(--line,rgba(140,165,200,.45));border-radius:10px;background:var(--card,#14273b);color:inherit;font:inherit}
+#member-support-panel textarea{resize:vertical;min-height:130px}
+#member-support-panel .v1352-grid>.full>.btn{margin:.25rem .6rem .25rem 0;min-height:44px}
+#member-support-panel :is(button,input,textarea,select):focus-visible{outline:3px solid var(--accent,#48c5be);outline-offset:3px}
+#member-support-panel [data-state=error]{font-weight:600}
+#member-support-list{list-style:none;margin:0 0 1.5rem;padding:0;display:grid;gap:.65rem}
+#member-support-list li{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.75rem;border:1px solid var(--line,rgba(140,165,200,.28));border-radius:10px}
+#member-support-list li .btn{min-height:44px;text-align:left;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+#member-support-detail{border-top:1px solid var(--line,rgba(140,165,200,.35));padding-block:1.25rem;max-width:100%;overflow-wrap:anywhere}
+#member-support-detail ol{padding-left:1.3rem;display:grid;gap:1rem}
+#member-support-detail li{padding:.65rem .75rem;border:1px solid var(--line,rgba(140,165,200,.23));border-radius:10px}
+#member-support-detail p{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:700px){#member-support-panel .v1352-grid{grid-template-columns:minmax(0,1fr)}
+ #member-support-panel .card-heading-row{flex-wrap:wrap}
+ #member-support-panel .btn{white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){#member-support-panel *{scroll-behavior:auto!important;transition-duration:0s!important}}
