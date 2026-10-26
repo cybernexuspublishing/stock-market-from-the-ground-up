@@ -113,8 +113,10 @@ assert(instructor.includes("if(stage===1||stage===2||stage===4||stage===6)rootEl
  'Independent Assess, Transfer and grading stages must never receive a shortcut');
 assert(instructor.includes("addQuick('Ask Talia',()=>openTutor())"),
  'Ask Talia must open the existing entitlement-aware tutor, not a bypass');
-assert(instructor.includes("addQuick('Common Mistakes',()=>teachFeature({type:lessonContext.visualType||'general',feature:'mistake'}))"),
- 'Common mistakes must draw from the existing five-focus curriculum');
+assert(instructor.includes("addQuick('Common Mistakes',()=>/\\bwatchlist\\b/i.test(concept)")&&
+ instructor.includes("teachSupplement('Watchlist mistakes'")&&
+ instructor.includes("teachFeature({type:lessonContext.visualType||'general',feature:'mistake'})"),
+ 'Common mistakes must use concept-specific watchlist coaching and existing five-focus teaching for other concepts');
 assert(instructor.includes('This teaching action does not submit or grade a practice attempt'),
  'Quick practice support must not masquerade as an assessed attempt');
 const academyHtml=readFileSync('bootcamp-academy.html','utf8');
