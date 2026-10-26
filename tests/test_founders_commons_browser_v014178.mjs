@@ -50,8 +50,14 @@ try{
   if(mode==='denied'){
     await page.locator('#gu-f600-access').waitFor({state:'visible'});
     assert.equal(await page.locator('#gu-f600-content').isVisible(),false,'No founder content for ordinary member');
+    assert.equal(await page.locator('#gu-f600-beta-center').isVisible(),false,'Beta testing instructions must remain founder-private');
   }else{
     await page.locator('#gu-f600-content').waitFor({state:'visible'});
+    await page.locator('#gu-f600-beta-center').waitFor({state:'visible'});
+    assert.equal(await page.locator('#gu-f600-beta-center article').count(),9,'All nine member feature families covered');
+    assert.equal(await page.locator('#gu-f600-beta-center a[href="market-commons.html?forum=F600_BUGS"]').count(),1);
+    assert.equal(await page.locator('#gu-f600-beta-center a[href="dashboard.html?tab=support"]').count(),1);
+    assert.match(await page.locator('#gu-f600-beta-center').innerText(),/does not bypass entitlement checks/i);
     assert.match(await page.locator('#gu-f600-identity').innerText(),/Founding #00(42|86)/);
     assert.equal(await page.locator('#gu-f600-forums .gu-f600-forum').count(),8);
     if(mode==='standard'){
