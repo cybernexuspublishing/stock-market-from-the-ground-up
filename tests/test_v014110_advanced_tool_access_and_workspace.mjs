@@ -53,9 +53,17 @@ try{
  preview=true;
  r=await access({env,request:req('advanced-tool-access-v014110?tool=WATCHLIST_WORKBENCH')});
  result=await r.json();assert.equal(result.authorized,true);assert.equal(result.accessLevel,'free_preview');
+ assert.equal(result.canSave,false,'Free preview must never grant paid workspace persistence');
+ r=await workspace({env,request:req(path)});assert.equal(r.status,403,'Free preview cannot read premium saved records');
+ assert(!dbRequests.some(x=>x.u.includes('/tool_workspace_records')),'Preview must not reach premium workspace tables');
+ const payload={recordType:'watchlist',title:'ABC',payload:{status:'WATCH',ticker:'ABC'}};
+ r=await workspace({env,request:req(path,'POST',payload,{origin:'https://site.example'})});
+ assert.equal(r.status,403,'Free preview cannot write paid workspace records');
+ preview=false;entitled=true;
+ r=await access({env,request:req('advanced-tool-access-v014110?tool=WATCHLIST_WORKBENCH')});
+ result=await r.json();assert.equal(result.accessLevel,'entitled');assert.equal(result.canSave,true);
  r=await workspace({env,request:req(path)});result=await r.json();assert.equal(r.status,200);
  assert.equal(result.records.length,1);
- const payload={recordType:'watchlist',title:'ABC',payload:{status:'WATCH',ticker:'ABC'}};
  r=await workspace({env,request:req(path,'POST',payload,{origin:'https://attacker.example'})});
  assert.equal(r.status,403);assert.equal(mutationCount,0);
  r=await workspace({env,request:req(path,'POST',{...payload,user_id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'},{origin:'https://site.example'})});
@@ -66,9 +74,6 @@ try{
  assert.equal(r.status,400);assert.equal(mutationCount,2);
  r=await workspace({env,request:req(path+'&all=true','DELETE',undefined,{origin:'https://site.example','x-confirm-delete':'DELETE_MY_TOOL_WORKSPACE'})});
  assert.equal(r.status,200);assert.equal(mutationCount,3);
- preview=false;entitled=true;
- r=await access({env,request:req('advanced-tool-access-v014110?tool=WATCHLIST_WORKBENCH')});
- assert.equal((await r.json()).accessLevel,'entitled');
  for(const value of ['restricted','suspended']){
   state=value;r=await workspace({env,request:req(path)});assert.equal(r.status,403);
  }

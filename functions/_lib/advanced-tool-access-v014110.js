@@ -52,13 +52,13 @@ export async function advancedToolContext(env,request,code){
  if(!/^[0-9a-f-]{36}$/i.test(user?.id||''))throw makeError(401,'Invalid member identity.');
  const id=encodeURIComponent(user.id),tool=encodeURIComponent(code);
  const [profiles,flags,roles,tools]=await Promise.all([
-  privateJson(c,'profiles?select=account_kind&id=eq.'+id+'&limit=1'),
+  privateJson(c,'profiles?select=account_kind,deleted_at&id=eq.'+id+'&limit=1'),
   privateJson(c,'admin_user_flags?select=status&user_id=eq.'+id+'&limit=1'),
   privateJson(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+id),
   privateJson(c,'platform_tools?select=tool_code,name,description,category,status,active,free_preview,individual_price_cents&tool_code=eq.'+tool+'&limit=1')
  ]);
  const kind=profiles?.[0]?.account_kind;
- if(kind!=='member')throw makeError(403,'Only eligible member accounts can use beta tools.');
+ if(kind!=='member'||profiles[0].deleted_at!=null)throw makeError(403,'Only active eligible member accounts can use beta tools.');
  if(['restricted','suspended'].includes(String(flags?.[0]?.status||'').toLowerCase()))
   throw makeError(403,'This account is restricted.');
  // A test/showcase role must never inherit Owner's powerful entitlement.

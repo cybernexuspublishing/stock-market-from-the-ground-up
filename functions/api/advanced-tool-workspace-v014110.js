@@ -20,7 +20,7 @@ export async function onRequest({request,env}){
    if(origin&&origin!==url.origin)throw fail('Cross-origin workspace changes denied.',403);
   }
   const auth=await advancedToolContext(env,request,code);
-  if(!auth.allowed)return out({ok:false,error:'Your current plan does not include this tool.'},403);
+  if(!auth.allowed||auth.accessLevel!=='entitled')return out({ok:false,error:'Saved premium tool workspace requires a currently valid tool entitlement; an ungraded Free preview does not provide storage access.'},403);
   const base='tool_workspace_records',identity='user_id=eq.'+encodeURIComponent(auth.userId)+
    '&tool_code=eq.'+encodeURIComponent(code);
   if(request.method==='GET'){

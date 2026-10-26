@@ -481,7 +481,8 @@
    gate.innerHTML='<div id="tool-status" class="status-message" role="status" aria-live="polite"></div>';
    document.getElementById('tool-content').hidden=false;
    await render();
-   renderWorkspaceManager();
+   if(ACCESS.level==='entitled')renderWorkspaceManager();
+   else status('Preview calculations are educational only. Private premium workspace saving and exports require a current tool entitlement.');
    SB.auth.onAuthStateChange((_event,nextSession)=>{
     if(nextSession?.user?.id===USER?.id)return;
     USER=null;TOOL=null;ACCESS=null;
