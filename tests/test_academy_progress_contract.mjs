@@ -7,6 +7,7 @@ import {onRequest} from '../functions/api/bootcamp-academy.js';
 test('Academy progress end-to-end API contract: auth, persistence, revision and errors',async()=>{
  const prior=globalThis.fetch;
  const uid='00000000-0000-4000-8000-000000000123';
+ const other='00000000-0000-4000-8000-000000000456';
  const env={SUPABASE_URL:'https://fixture.supabase.co',
    SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock_only',
    SUPABASE_SECRET_KEY:'sb_secret_mock_only'};
@@ -16,14 +17,17 @@ test('Academy progress end-to-end API contract: auth, persistence, revision and 
  globalThis.fetch=async (raw,opts={})=>{
   const u=new URL(raw);const path=u.pathname;
   if(path==='/auth/v1/user')return opts.headers?.authorization==='Bearer REAL_FIXTURE'
-   ?j({id:uid}):j({error:'invalid'},401);
+   ?j({id:uid}):opts.headers?.authorization==='Bearer OTHER_FIXTURE'
+   ?j({id:other}):j({error:'invalid'},401);
   if(path==='/rest/v1/profiles')return j([{account_kind:state.rejected?'showcase':'member'}]);
   if(path==='/rest/v1/admin_user_flags')return j([]);
   if(path==='/rest/v1/rpc/user_has_tool_access')return j(true);
   if(path==='/rest/v1/gu_bootcamp_academy_enrollments_v014168')return state.available?
-   j(state.enrollment?[{program_code:'truth5',status:'active',program_version:'0.14.0.168'}]:[]):j({error:'outage'},503);
+   j(u.searchParams.get('user_id')==='eq.'+uid&&state.enrollment?
+    [{program_code:'truth5',status:'active',program_version:'0.14.0.168'}]:[]):j({error:'outage'},503);
   if(path==='/rest/v1/gu_bootcamp_academy_progress_v014168')return state.available?
-   j(state.record?[{day_number:state.record.day,status:state.record.status,revision:state.record.revision,
+   j(u.searchParams.get('user_id')==='eq.'+uid&&state.record?
+    [{day_number:state.record.day,status:state.record.status,revision:state.record.revision,
      reflection:state.record.reflection,started_at:now,updated_at:now}]:[]):j({error:'outage'},503);
   if(path==='/rest/v1/rpc/gu_bootcamp_academy_save_v014168'){
    const p=JSON.parse(opts.body);
@@ -92,6 +96,10 @@ test('Academy progress end-to-end API contract: auth, persistence, revision and 
   assert.equal(result.status,200);
   assert.equal(result.body.progress[0].revision,2);
   assert.equal(result.body.progress[0].reflection,reflection);
+  const isolated=await call({token:'OTHER_FIXTURE'});
+  assert.equal(isolated.status,200,'different genuine Auth identity can request its own Academy');
+  assert.deepEqual(isolated.body.progress,[],'member B must never receive member A private notes');
+  assert.equal(isolated.body.enrolled,false,'member B must not inherit member A enrollment');
   result=await call({method:'POST',
    body:payload('save_reflection',{reflection:reflection+' stale',expectedRevision:1})});
   assert.equal(result.status,409,'concurrent/stale edits must be rejected');
