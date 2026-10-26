@@ -34,7 +34,17 @@ async function load(){const id=++seq,msg=q('[data-message]',root),host=q('[data-
      if(selectedRow){selectedRow.setAttribute('aria-current','location');selectedRow.style.outline='2px solid currentColor';selectedRow.scrollIntoView({block:'center'});}
    }filter.disabled=!labs.length;pager.hidden=!(page>0||more);q('[data-prev]',pager).disabled=page===0;q('[data-next]',pager).disabled=!more;q('[data-page]',pager).textContent='Page '+(page+1);
  }catch(e){if(id!==seq)return;msg.textContent='Unable to load this collection: '+(e.message||'Unknown error');const b=document.createElement('button');b.className='btn secondary';b.textContent='Retry';b.onclick=load;host.append(b)}}
-async function init(){try{client=await supabase();const s=(await client.auth.getSession()).data?.session;if(!s){location.replace('signin.html?next='+encodeURIComponent('/labs.html'+location.search+location.hash));return}document.getElementById('v011-lab-registry-gate')?.remove();document.body.style.visibility='visible';const main=q('main .wrap')||q('main');if(!main)return;main.innerHTML='<div class="v133-labs"></div>';root=q('.v133-labs',main);layout();const params=new URLSearchParams(location.search),code=params.get('book');
+async function init(){try{client=await supabase();const s=(await client.auth.getSession()).data?.session;if(!s){location.replace('signin.html?next='+encodeURIComponent('/labs.html'+location.search+location.hash));return}
+// The current Labs page already hosts an inline v3.2/v3.3 workstation for
+// ?open=LAB-ID. Do not replace its DOM with the secondary collection renderer
+// after the authenticated inline host starts; keep the original workspace.
+// Both renderers still require the normal Auth/entitlement boundary.
+if(document.body.classList.contains('gu-inline-lab-active')){
+ document.getElementById('v011-lab-registry-gate')?.remove();
+ document.body.style.visibility='visible';
+ return;
+}
+document.getElementById('v011-lab-registry-gate')?.remove();document.body.style.visibility='visible';const main=q('main .wrap')||q('main');if(!main)return;main.innerHTML='<div class="v133-labs"></div>';root=q('.v133-labs',main);layout();const params=new URLSearchParams(location.search),code=params.get('book');
  const query=String(params.get('q')||params.get('lab')||params.get('open')||'').trim().toUpperCase();
  let inferred='';
  if(/^F1-C[0-9]{2}-L[0-9]{2}$/.test(query))inferred='FOUNDATION_BOOK_1';
