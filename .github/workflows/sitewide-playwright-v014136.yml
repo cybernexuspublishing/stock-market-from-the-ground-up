@@ -71,6 +71,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
+      - name: Browser-verify Social Marketing Owner workspace at four responsive widths (mocked, no charges)
+        run: node tests/test_admin_social_browser.mjs
       - name: Validate production-safe canonical and source sitemap generation
         run: |
           node tests/test_v014157_public_seo.mjs
