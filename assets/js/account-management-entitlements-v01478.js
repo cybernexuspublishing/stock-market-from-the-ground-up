@@ -188,22 +188,22 @@
    const existing=toolRecords.some(t=>t.tool_code==='ONDEMAND_TRAINING'&&active(t));
    const pilot=document.createElement('section');
    pilot.className='v1353-info';
-   pilot.setAttribute('aria-label','Founding 600 educational beta access');
-   pilot.innerHTML='<h4>Founding 600 · Guided Learning Beta Access</h4>'+
+   pilot.setAttribute('aria-label','Beta Testing Access');
+   pilot.innerHTML='<h4>Guided Learning · Beta Testing Access</h4>'+
     '<p class="small">Authorize this existing member to test the educational Labs and Boot Camp workspaces for 30 days without any payment. This auditable QA pass is not a Founding membership, does not reserve a founding number, does not buy a textbook, and cannot award graded mastery. The existing entitlement service enforces the expiration.</p>'+
     '<p class="small">Other functions, including Journal and Market Tutor, remain separately entitled. Use the existing Tool Pass control below to test them.</p>'+
     '<button type="button" class="btn secondary" data-f600-qa-start'+(existing?' disabled':'')+
       '>Authorize 30-Day Guided Beta Access</button>'+
     '<p data-f600-qa-status role="status" aria-live="polite">'+
        (existing?'A valid ONDEMAND_TRAINING pass is already present. Review its issuer and expiration above.':
-       'No payment or founding benefit will be issued.')+'</p>';
+       'This is temporary learning access, not a Founding Membership.')+'</p>';
    wrap.insertBefore(pilot,wrap.querySelector('#v1478-resource-grant'));
    const start=pilot.querySelector('[data-f600-qa-start]');
    const status=pilot.querySelector('[data-f600-qa-status]');
    start.addEventListener('click',async()=>{
     const expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
     if(!window.confirm('Grant 30 days of noncommercial ONDEMAND_TRAINING beta access to '+
-      account.username+'? This action is Owner-audited, does NOT create a paid Founding 600 member or award official grading.'))return;
+      account.username+'? This action is Owner-audited, does NOT create a paid Founding Member or award official grading.'))return;
     const reason='F600_GUIDED_QA_V1: Owner-authorized 30-day noncommercial Lab and Boot Camp testing; no paid founding entitlements, book purchases, Sparks or grades.';
     start.disabled=true;
     status.textContent='Submitting this exact-member QA grant for database verification…';
