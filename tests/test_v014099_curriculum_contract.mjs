@@ -141,3 +141,7 @@ try{
  assert.equal(status,200);assert.equal(result.skills[0].status,'Not Yet Assessed');
  console.log('PASS v99: 419 canonical crosslinks, 30 original study guides, typed source catalog, source 30 skills, nonmutating SQL, full Lab/Tutor routes, no false proficiency from partial skills.');
 }finally{globalThis.fetch=old}
+
+// The existing learning-core CI automatically executes this independent,
+// noncharging Lab recall contract without adding another workflow.
+await import('./test_v014301_lab_concept_spaced_review.mjs');
