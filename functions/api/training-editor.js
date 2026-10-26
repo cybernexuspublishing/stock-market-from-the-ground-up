@@ -109,10 +109,28 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
   return out({ok:true,...saved,notice:'One approved Lab/rubric/competency mapping. Graded conceptual attempts can provide KNOWLEDGE-only evidence after server reconciliation; other three dimensions and historical validity remain unverified.'});
  }
  if(title.length<10||title.length>200)throw problem('Descriptive instructional title is required.');
- if(action==='draft'){validate(b.questions,b.answerKey);const existing=await db(env,'lab_training_sets_v014?select=version,review_state,source_status&lab_id=eq.'+enc(id)+'&order=version.desc&limit=1');const last=existing[0],version=last?.review_state==='draft'?last.version:(last?.version||0)+1;const row={lab_id:id,version,title,questions:b.questions,answer_key:b.answerKey,review_state:'draft',source_status:last?.source_status||'book_authored_unverified_market',updated_at:new Date().toISOString()};let saved;if(last?.review_state==='draft'){saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version,'PATCH',row)}else saved=await db(env,'lab_training_sets_v014','POST',row);if(saved.length!==1)throw problem('Draft not stored.',503);return out({ok:true,labId:id,version,reviewState:'draft',notice:'Draft stored privately. It cannot grade members until reviewed.'})}
+ if(action==='draft'){
+  validate(b.questions,b.answerKey);
+  const existing=await db(env,'lab_training_sets_v014?select=version,review_state,source_status,updated_at&lab_id=eq.'+enc(id)+'&order=version.desc&limit=1');
+  const last=existing[0],expected=str(b.expectedUpdatedAt);
+  if(last&&(!last.updated_at||!expected||expected!==String(last.updated_at)))
+   throw problem('Rubric changed since it was loaded. Reload the latest version before saving.',409);
+  if(!last&&expected)throw problem('A rubric was added in another session. Reload.',409);
+  const version=last?.review_state==='draft'?last.version:(last?.version||0)+1;
+  const row={lab_id:id,version,title,questions:b.questions,answer_key:b.answerKey,
+   review_state:'draft',source_status:last?.source_status||'book_authored_unverified_market',updated_at:new Date().toISOString()};
+  const saved=last?.review_state==='draft'
+   ?await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+
+     '&review_state=eq.draft&updated_at=eq.'+enc(expected),'PATCH',row)
+   :await db(env,'lab_training_sets_v014','POST',row);
+  if(saved.length!==1)throw problem('Another revision or review intervened; reload and recheck this rubric.',409);
+  return out({ok:true,labId:id,version,updatedAt:saved[0].updated_at,reviewState:'draft',
+   notice:'Draft stored privately. It cannot grade members until reviewed.'});
+ }
  if(action==='review'){const version=Number(b.version);if(!Number.isSafeInteger(version)||b.confirmPhrase!=='REVIEW BOOK RUBRIC')throw problem('Explicit Owner rubric review required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+version+'&limit=1'),set=rows[0];if(!set)return out({ok:false,error:'Rubric not found.'},404);if(set.review_state!=='draft')throw problem('Only draft versions can be approved.');
+ if(!set.updated_at)throw problem('Rubric revision cannot be verified. Reload.',409);
  validate(set.questions,set.answer_key);
  if(isUnamendedV96Rubric(set))throw problem(
- 'Original hypothetical grading drafts require individual topic-specific evidence and subject review. Batch B01 requires both complete application and limitation questions before the Owner approves this exact rubric.',409);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft','PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric review not confirmed.',503);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
+ 'Original hypothetical grading drafts require individual topic-specific evidence and subject review. Batch B01 requires both complete application and limitation questions before the Owner approves this exact rubric.',409);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft&updated_at=eq.'+enc(String(set.updated_at)),'PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric changed during review; reload and independently recheck its content.',409);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
  return out({ok:false,error:'Unknown action.'},404);
 }catch(e){return out({ok:false,error:e.message||'Instruction management unavailable.'},e.status||500)}}
