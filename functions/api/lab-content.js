@@ -39,10 +39,14 @@ const bookCode=b=>({1:'FOUNDATION_BOOK_1',2:'FOUNDATION_BOOK_2',3:'FOUNDATION_BO
 export async function getBookAccess(env,req,book){return getBookCodeAccess(env,req,bookCode(book));}
 export async function getBookCodeAccess(env,req,productCode){
  if(!['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].includes(productCode))return false;
-const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)return false;const c=cfg(env),identity=await fetch(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token},cache:'no-store'});if(!identity.ok)return false;const id=(await identity.json()).id;if(!id)return false;const p=await rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(id)+'&limit=1');if(p[0]?.account_kind!=='member')return false;
- const flags=await rest(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(id)+'&limit=1');
- if(['suspended','restricted'].includes(flags[0]?.status))return false;
+const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)return false;const c=cfg(env),identity=await fetch(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token},cache:'no-store'});if(!identity.ok)return false;const id=(await identity.json()).id;if(!id)return false;const p=await rest(env,'profiles?select=account_kind,deleted_at&id=eq.'+encodeURIComponent(id)+'&limit=1');
+ if(!Array.isArray(p)||p.length!==1||p[0]?.account_kind!=='member'||p[0]?.deleted_at!=null)return false;
+ const flags=await rest(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(id)+'&limit=20');
+ if(!Array.isArray(flags)||flags.some(x=>['suspended','restricted'].includes(String(x?.status||'').toLowerCase())))return false;
+ const roles=await rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(id));
+ if(!Array.isArray(roles))return false;
  const now=Date.now();
+ if(roles.some(x=>x.role_code==='SHOWCASE_VIEWER'&&(!x.expires_at||!Number.isFinite(Date.parse(x.expires_at))||Date.parse(x.expires_at)>now)))return false;
  // Check direct book ownership first. One optional subscription-join failure
  // must not disable an independently valid purchased/redeemed book entitlement.
  const library=await rest(env,'user_library?select=product_code,expires_at&user_id=eq.'+encodeURIComponent(id)+'&product_code=eq.'+productCode+'&limit=20');
@@ -53,7 +57,6 @@ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];i
  if(grants.some(x=>x.platform_plans?.includes_all_books===true&&['active','trialing'].includes(x.status)&&(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
  const subscriptions=await rest(env,'site_subscriptions?select=plan_code,status,current_period_end,platform_plans!inner(includes_all_books)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
  if(subscriptions.some(x=>x.platform_plans?.includes_all_books===true&&['active','trialing'].includes(x.status)&&(!x.current_period_end||Date.parse(x.current_period_end)>now)))return true;
- const roles=await rest(env,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+encodeURIComponent(id));
  return roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>now));}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return send({ok:false,error:'Method not allowed.'},405);const url=new URL(request.url),action=url.searchParams.get('action')||'case';
  if(action==='list'){

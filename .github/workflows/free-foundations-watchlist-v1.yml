@@ -10,6 +10,8 @@ on:
       - 'functions/api/bootcamp-academy.js'
       - 'functions/api/free-watchlist.js'
       - 'functions/api/member-tool-access.js'
+      - 'functions/api/lab-content.js'
+      - 'tests/test_book_entitlement_scope_v1.mjs'
       - 'tests/test_membership_entitlement_boundaries_v1.mjs'
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'assets/js/free-watchlist-v1.js'
@@ -50,6 +52,7 @@ jobs:
           node --check functions/api/free-watchlist.js
           node --check functions/api/member-tool-access.js
           node tests/test_membership_entitlement_boundaries_v1.mjs
+          node tests/test_book_entitlement_scope_v1.mjs
           node --check assets/js/bootcamp-academy-v014168.js
           node --check assets/js/free-watchlist-v1.js
           node --check assets/js/dashboard.js
