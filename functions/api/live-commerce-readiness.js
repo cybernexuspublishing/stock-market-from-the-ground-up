@@ -97,7 +97,12 @@ export async function onRequestGet({request,env}){
   });
   const saleAuthorized=store.filter(x=>x.sale_ready===true).every(x=>{
    const sku=String(x.sku||'');
-   if(!mapped.some(([key])=>key===sku&&Object.prototype.hasOwnProperty.call(m,key)||key===sku&&Object.prototype.hasOwnProperty.call(f,key)))return false;
+   // Store Founding SKUs have a category prefix; the Stripe Founder map does not.
+   const mappedName=sku.startsWith('founding:')?sku.slice(9):sku;
+   const authorizedMapping=sku.startsWith('founding:')
+    ?Object.prototype.hasOwnProperty.call(f,mappedName)
+    :Object.prototype.hasOwnProperty.call(m,mappedName);
+   if(!authorizedMapping)return false;
    if(sku.startsWith('plan:'))return byPlan.get(sku.slice(5))?.checkout_enabled===true;
    if(sku.startsWith('tool:'))return byTool.get(sku.slice(5))?.checkout_enabled===true;
    if(sku.startsWith('founding:'))return byFounder.get(sku.slice(9))?.checkout_enabled===true;
