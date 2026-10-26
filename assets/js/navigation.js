@@ -205,7 +205,8 @@
     links.innerHTML=items.map(([label,href])=>`<a data-mobile-item href="${esc(href)}"><span>${esc(label)}</span><span aria-hidden="true">›</span></a>`).join('');
     if(signed){
       const username=access?.username?`@${esc(access.username)}`:'Signed in';
-      auth.innerHTML=`<div class="v1341-mobile-user"><strong>${username}</strong><span>${esc(access?.planName||'Member account')}</span></div><button type="button" class="v1341-mobile-signout">Sign Out</button>`;
+      auth.innerHTML=`<div class="v1341-mobile-user"><strong>${username}</strong><span>${esc(access?.planName||'Member account')}</span></div><a href="/dashboard.html?tab=sparks" class="v1341-mobile-sparks">Crownlight Sparks: <strong data-sparks-balance>—</strong> · View wallet</a><a href="/store-sparks.html">Buy more Sparks</a><button type="button" class="v1341-mobile-signout">Sign Out</button>`;
+      void window.GroundUpRefreshSparkWallet?.(access);
       q('.v1341-mobile-signout',auth)?.addEventListener('click',async()=>{
         const sb=await supabaseClient();
         await sb?.auth.signOut({scope:'local'});
@@ -826,6 +827,7 @@
       if(el)el.textContent='Your wallet could not be verified. No balance has been assumed.';
     }
   }
+  window.GroundUpRefreshSparkWallet=(a)=>refreshSparkWallet(a);
   async function renderSessionAware(force=false){
     const a=await access(force);if(!gateRegistry(a))return;
     const items=await navItems(force);makeNav(a,items);installSparkNavStyle();void refreshSparkWallet(a);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
