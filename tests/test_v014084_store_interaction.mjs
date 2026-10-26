@@ -23,7 +23,7 @@ const products=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY
 const tools=['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'].map(x=>tt(x));
 tools.push(tt('DISCOVERY_LAB','beta'));
 const data={plans,products:[...products,{type:'bundle',productCode:'BUNDLE',title:'Bundled products',storeVisible:true,salesStatus:'published'}],tools};
-const tabIds=['founders','memberships','books','tools'];
+const tabIds=['founders','books','tools'];
 const tabNodes=tabIds.map(k=>({...makeNode(k),dataset:{storeCategory:k}}));
 const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){},contains(){return false}}}));
 const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status','store-founder-plans','store-founder-compare',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
@@ -47,32 +47,32 @@ const context={window,document:doc,location,history,console,URL,URLSearchParams,
 vm.runInNewContext(read('assets/js/store.js'),context);
 await doc.callback();await new Promise(ok=>setTimeout(ok,0));
 assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must select books only');
-assert.equal(nodes['store-panel-memberships'].hidden,true);
+assert.equal(nodes['store-panel-founders'].hidden,true);
 assert.equal(nodes['store-panel-tools'].hidden,true);
 assert.equal((nodes['store-products'].innerHTML.match(/Explore Book &amp; Purchase Options/g)||[]).length,5);
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Bundled products/,'Nonbooks must not appear in Books');
-assert.equal((nodes['store-plans'].innerHTML.match(/Compare Benefits/g)||[]).length,5);
-assert.match(nodes['store-plans'].innerHTML,/Choose This Membership/);
-assert.doesNotMatch(nodes['store-plans'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT|UNREVIEWED_REPLAY_ANNUAL/,'Unapproved, QA, and legacy extra plans must not be sold');
-assert.doesNotMatch(nodes['store-membership-compare'].innerHTML,/UNREVIEWED_REPLAY_ANNUAL/,'Comparison must follow the same approved five-plan registry');
+assert.equal(nodes['store-plans'].innerHTML,'','Legacy membership plans are not offered');
+assert.doesNotMatch(nodes['store-products'].innerHTML,/Choose This Membership/);
+assert.doesNotMatch(nodes['store-products'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT|UNREVIEWED_REPLAY_ANNUAL/);
+assert.equal(nodes['store-membership-compare'].innerHTML,'','Legacy membership comparison is hidden');
 assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/Pricing to be announced/);
 assert.match(nodes['store-tools'].innerHTML,/Coming Soon/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
-assert.match(nodes['store-membership-compare'].innerHTML,/store-membership-full-monthly\.html/);
-assert.match(nodes['store-membership-compare'].innerHTML,/store-tool-journal-analytics\.html/);
-assert.equal(tabNodes[2].attributes['aria-selected'],'true');
-tabNodes[3].events.click();
+assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
+assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
+assert.equal(tabNodes[1].attributes['aria-selected'],'true');
+tabNodes[2].events.click();
 assert.equal(nodes['store-panel-tools'].hidden,false);
 assert.equal(nodes['store-panel-books'].hidden,true);
 assert.equal(location.hash,'#tools');
-tabNodes[3].events.keydown({key:'Home',preventDefault(){}});
+tabNodes[2].events.keydown({key:'Home',preventDefault(){}});
 assert.equal(location.hash,'#founders','Keyboard Home must select first Store category');
 assert.ok(tabNodes[0].focused);
 
 assert.equal(nodes['store-panel-founders'].hidden,false);
-assert.equal(nodes['store-panel-memberships'].hidden,true);
+assert.equal(nodes['store-panel-books'].hidden,true);
 assert.match(nodes['store-founder-plans'].innerHTML,/49\.99/);
 assert.match(nodes['store-founder-plans'].innerHTML,/59\.99/);
 assert.match(nodes['store-founder-plans'].innerHTML,/10% founding purchase discount/);
@@ -80,7 +80,7 @@ assert.match(nodes['store-founder-plans'].innerHTML,/15% founding purchase disco
 assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/20%|checkout\.html|checkout\.stripe/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Included"/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Not included"/);
-assert.match(nodes['store-membership-compare'].innerHTML,/class="catalog-coverage is-excluded"/);
+assert.match(nodes['store-founder-compare'].innerHTML,/class="catalog-coverage is-excluded"/);
 assert.equal(requests.length,1);
 assert.equal(requests[0].url,'/data/founding-catalog.json');
 
@@ -120,4 +120,4 @@ const exclusive=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOU
 assert.doesNotMatch(exclusive,/Website purchase|Direct digital purchase/,'KDP Select flag must block all direct eBook channels even if a variant was accidentally enabled');
 const xss=await detail('book','FOUNDATION_BOOK_1',{products:[{...book('FOUNDATION_BOOK_1'),title:'<img src=x onerror=alert(1)>'}]});
 assert.doesNotMatch(xss,/<img src=x onerror=/);assert.match(xss,/&lt;img/);
-console.log('PASS v84 UI: exclusive/accessible Store tabs, only 5 memberships + 5 books + 4 released tools, functional detail rendering, no false book checkout, XSS escaped.');
+console.log('PASS v84 UI: Founding-only storefront with 5 book editions, safe detail rendering, no legacy membership purchase cards, and XSS escaping.');
