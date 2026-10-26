@@ -64,6 +64,7 @@ function normalizeAuthorizedLab(raw,canonical,id){
   why:first(originalTeaching.why,l.why),
   when:first(originalTeaching.when,l.when),
   how:strings(originalTeaching.how).length?strings(originalTeaching.how):practiceSteps,
+  workedExample:first(originalTeaching.workedExample,l.workedExample),
   questions:strings(originalTeaching.questions).length?strings(originalTeaching.questions):strings(l.questions)
  };
  return {
