@@ -1,0 +1,30 @@
+/* Free member research workbench, compact trading-terminal treatment. */
+.free-watchlist{max-width:1340px}
+.free-watchlist h1{margin:8px 0 12px}
+.free-watchlist-intro{max-width:82ch;line-height:1.68}
+.free-watchlist-route{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 20px}
+.free-watchlist-route .btn{white-space:normal}
+.free-watchlist-layout{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.15fr);gap:18px;align-items:start}
+.free-watchlist-editor,.free-watchlist-results{min-width:0;border:1px solid #2e6267;background:linear-gradient(145deg,#102637,#0c1e2e)}
+.free-watchlist-field{display:grid;gap:7px;margin:13px 0}
+.free-watchlist-field label{font-weight:700;line-height:1.4}
+.free-watchlist-field input,.free-watchlist-field select,.free-watchlist-field textarea{width:100%;box-sizing:border-box;
+ padding:12px;background:#081827;color:#f3f7f8;border:1px solid #456b76;border-radius:8px;font:inherit}
+.free-watchlist-field textarea{resize:vertical;min-height:70px}
+.free-watchlist-field [readonly]{opacity:.82}
+.free-watchlist-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.free-watchlist-buttons,.free-watchlist-entry-actions{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.free-watchlist-results-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.free-watchlist-results-head strong{color:#9ee1cd;white-space:nowrap;font-variant-numeric:tabular-nums}
+.free-watchlist-items{display:grid;gap:12px}
+.free-watchlist-entry{padding:15px;border:1px solid #365865;background:#0d2834;border-radius:12px}
+.free-watchlist-entry p{overflow-wrap:anywhere;line-height:1.55}
+.free-watchlist-entry-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.free-watchlist-entry-head h3{margin:0}
+.free-watchlist-entry-status{border:1px solid #549082;color:#c5edda;border-radius:999px;padding:4px 8px;font-size:.8rem}
+.free-watchlist-teaching{margin-top:16px;max-width:88ch;border-left:3px solid #5cbea6}
+.free-watchlist-teaching p{line-height:1.66}
+.free-watchlist :focus-visible{outline:3px solid #d7ffe5;outline-offset:3px}
+@media(max-width:1000px){.free-watchlist-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:630px){.free-watchlist-grid{grid-template-columns:1fr}.free-watchlist-route{flex-direction:column;align-items:stretch}
+.free-watchlist-buttons .btn,.free-watchlist-entry-actions .btn,.free-watchlist-route .btn{flex:1 1 100%;text-align:center}}
