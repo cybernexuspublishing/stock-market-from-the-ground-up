@@ -5,6 +5,16 @@
 (function(){
  const authPage=/^\/(signin|create-account)(?:\.html)?$/i.test(location.pathname);
  if(!authPage)return;
+ // Login and registration must use the Yahoo master Turnstile widget's
+ // approved hostname. Preserve the exact local path/query when migrating
+ // from the retired legacy hostname or a hashed Yahoo deployment preview.
+ // This is navigation, never CAPTCHA bypass or token consumption.
+ const canonical='stock-market-from-the-ground-up-d1r.pages.dev';
+ const host=String(location.hostname||'').toLowerCase();
+ if(host==='stock-market-from-the-ground-up.pages.dev'||host.endsWith('.'+canonical)){
+   location.replace('https://'+canonical+location.pathname+location.search+location.hash);
+   return;
+ }
  if(!document.querySelector('script[data-gu-human-verification-v01432]')){
    const human=document.createElement('script');
    human.src='/assets/js/turnstile-auth.js';human.dataset.guHumanVerificationV01432='1';
