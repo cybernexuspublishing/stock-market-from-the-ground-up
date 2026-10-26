@@ -2,7 +2,7 @@
  * No real member account, grades, replay history, credit or payment writes. */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {Script} from 'node:vm';
+import {Script,createContext} from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
 const player=read('lab-player.html');
 const source=read('assets/js/lab-player.js');
@@ -35,4 +35,32 @@ assert(middleware.includes("lab-v33-site-shell.css"),'Shared site middleware mus
 assert(middleware.includes('const mfaDenied=await staffMfaBoundary')&&middleware.includes('const paymentDenied=await paymentModeBoundary'),'Global security guards must remain');
 assert.doesNotThrow(()=>new Script(source), 'Player JS must parse');
 assert.doesNotThrow(()=>new Script(engine), 'Shared learning JS must parse');
+// Assessment readiness must be verified on the protected API before any
+// initial deep link, unlocked mode change or post-lock restart can proceed.
+assert(player.includes('id="player-mode-availability"'));
+assert(source.includes("await assessmentModeReady('assessment')"));
+assert(source.includes('if(!(await assessmentModeReady(next))'));
+assert(source.includes('const ready=await assessmentModeReady(destination)'));
+let responseBody={ok:true,available:false,questionCount:0},httpOK=true;
+const readinessPanel={hidden:true,textContent:''};
+const sandbox=createContext({
+ window:{addEventListener(){}},
+ document:{getElementById:id=>id==='player-mode-availability'?readinessPanel:null,addEventListener(){}},
+ fetch:async()=>({ok:httpOK,json:async()=>responseBody}),
+ AbortController,setTimeout,clearTimeout,encodeURIComponent,console
+});
+new Script(source).runInContext(sandbox);
+new Script("PLAYER.lab={id:'F2-C07-L01'};PLAYER.access={serverAdvancedAllowed:true,sb:{auth:{getSession:async()=>({data:{session:{access_token:'TEST_ONLY'}}})}}};").runInContext(sandbox);
+const evaluate=expression=>new Script(expression).runInContext(sandbox);
+assert.equal((await evaluate('verifiedAssessmentAvailability()')).ready,false,'Draft banks cannot release assessment');
+assert.equal(await evaluate("assessmentModeReady('assessment')"),false);
+assert.match(readinessPanel.textContent,/no Owner-reviewed question bank/);
+assert.equal(readinessPanel.hidden,false);
+responseBody={ok:true,available:true,questionCount:3};
+assert.equal(await evaluate("assessmentModeReady('assessment')"),true);
+assert.equal(readinessPanel.hidden,true);
+httpOK=false;
+assert.equal(await evaluate("assessmentModeReady('assessment')"),false,'API failures must not release assessment');
+assert.match(readinessPanel.textContent,/could not verify/);
+assert.equal(await evaluate("assessmentModeReady('guided')"),true,'Guided teaching cannot require reviewed assessment');
 console.log('PASS Learning v3.3 is production default; compact dropdown, first-stage setup, no hanging optional entitlements, preserved protected boundaries');

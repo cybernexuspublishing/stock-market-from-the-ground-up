@@ -71,7 +71,7 @@ async function canonicalPublishedMetadata(id){
 }
 
 async function loadJSONLocal(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(`Unable to load ${path}`);return r.json()}
-function modeCopy(mode){return ({guided:'Guided Mode follows the book example step by step. Record your observation before revealing each part of the book-guided sequence.',practice:'Practice Mode gives you the historical setup but withholds the guided sequence until you commit your reasoning.',blind:'Blind Decision Mode visually hides the concept, task, and interpretive guidance until you commit your decision. This browser exercise is not a tamper-resistant assessment: source instructions can be available to the client. Only server-verified private assessed cases can establish graded skill evidence.',assessment:'Assessment Mode records a first attempt and grades only reviewed questions using the secure instructor. The legacy reflection-completion percentage is not a competency score.'})[mode]}
+function modeCopy(mode){return ({guided:'Guided Mode follows the book example step by step. Record your observation before revealing each part of the book-guided sequence.',practice:'Practice Mode gives you the historical setup but withholds the guided sequence until you commit your reasoning.',blind:'Blind Decision Mode visually hides the concept, task, and interpretive guidance until you commit your decision. This browser exercise is not a tamper-resistant assessment: source instructions can be available to the client. Only server-verified private assessed cases can establish graded skill evidence.',assessment:'Assessment Mode is available only with a published Owner-reviewed question bank for this Lab. The secure instructor grades reviewed questions. Reflection-completion percentages are not competency scores.'})[mode]}
 function metadata(lab,blind){
   const rows=[['Ticker',lab.ticker],['Historical date',lab.date],['Start / Pause',lab.start],['End',lab.end],['Timeframe',lab.timeframe],['Setup',lab.setupLevel],['Studies/Indicators',lab.studies]];
   if(!blind&&lab.referenceZone)rows.push(['Reference zone',lab.referenceZone]);
@@ -242,6 +242,42 @@ function syncPlayerMode(){
  }
  const row=q('player-mode-restart-row');if(row)row.hidden=!restricted;
 }
+/* The protected training API, not the browser, verifies that a reviewed
+ * assessment question bank exists before members reset or change modes. */
+async function verifiedAssessmentAvailability(){
+ const id=PLAYER.lab?.id,sb=PLAYER.access?.sb;
+ if(!id||!sb?.auth?.getSession)
+  return {ready:false,message:'Assessment readiness could not be verified. Sign in again before requesting an official assessment.'};
+ const session=await bounded(sb.auth.getSession(),3500,null);
+ const token=session?.data?.session?.access_token;
+ if(!token)return {ready:false,message:'Assessment readiness could not be verified. Sign in again before requesting an official assessment.'};
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+ try{
+  const response=await fetch('/api/interactive-training?action=available&labId='+encodeURIComponent(id),{
+   method:'GET',cache:'no-store',headers:{authorization:'Bearer '+token},signal:controller.signal
+  });
+  const data=await response.json().catch(()=>null);
+  if(!response.ok||data?.ok!==true)
+   return {ready:false,message:'The reviewed assessment service could not verify eligibility or readiness. Your existing attempt has not been changed.'};
+  if(data.available!==true||!Number.isInteger(data.questionCount)||data.questionCount<1)
+   return {ready:false,message:'Assessment is not yet released for this Lab: no Owner-reviewed question bank is published. Continue in Guided or Practice Mode; neither awards an official assessment grade.'};
+  return {ready:true,message:''};
+ }catch{
+  return {ready:false,message:'Assessment readiness could not be verified right now. Your existing attempt has not been changed.'};
+ }finally{clearTimeout(timer)}
+}
+function showAssessmentReadiness(message){
+ const el=q('player-mode-availability');if(!el)return;
+ el.textContent=message||'';el.hidden=!message;
+}
+async function assessmentModeReady(nextMode){
+ if(nextMode!=='assessment'||PLAYER.access?.serverAdvancedAllowed!==true){
+  showAssessmentReadiness('');return true;
+ }
+ const result=await verifiedAssessmentAvailability();
+ showAssessmentReadiness(result.message);
+ return result.ready;
+}
 function inlineModeConfirmation(nextMode,allowChoice=false){
  const target=q('player-mode-confirm');if(!target)return;
  target.hidden=false;target.replaceChildren();
@@ -268,8 +304,12 @@ function inlineModeConfirmation(nextMode,allowChoice=false){
  cancel.type=yes.type='button';cancel.className='btn secondary';yes.className='btn';
  cancel.textContent='Cancel';yes.textContent='Yes, Continue';
  cancel.addEventListener('click',()=>{target.hidden=true;target.replaceChildren();syncPlayerMode()});
- yes.addEventListener('click',()=>{
+ yes.addEventListener('click',async()=>{
   const destination=picker?.value||nextMode;
+  yes.disabled=true;
+  const ready=await assessmentModeReady(destination);
+  yes.disabled=false;
+  if(!ready||target.hidden)return;
   target.hidden=true;target.replaceChildren();
   PLAYER.mode=destination;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
  });
@@ -370,7 +410,10 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
  // fail independently of the server-approved Lab and are not authoritative.
  const firstName=await bounded(firstNameRequest,1800,memberFirstNameField(session?.user?.user_metadata?.first_name));
  PLAYER.access={user:session?.user||null,sb:sb||null,memberFirstName:firstName,tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false,redeemedBooks:new Set()};
- PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;q('player-lab-id').textContent=lab.id;
+ PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;
+ if(PLAYER.mode==='assessment'&&PLAYER.access.serverAdvancedAllowed===true&&!(await assessmentModeReady('assessment')))
+  PLAYER.mode=PLAYER.access.serverGuidedAllowed===true?'guided':'practice';
+ q('player-lab-id').textContent=lab.id;
   const picker=q('player-reference-select');
   if(picker){
    if(!Array.from(picker.options).some(o=>o.value===lab.id)){
@@ -384,15 +427,21 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s source material',
    'This Lab provides authorized conceptual instruction. Historical charts, private question reviews and assessment certification require their own approved evidence. No mastery score is implied.'));
- }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice, Blind Decision, and Assessment modes are available.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';// Both the visible mode menu and the accessibility select use one state
+ }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice and Blind Decision are available. Assessment requires a published Owner-reviewed question bank.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';// Both the visible mode menu and the accessibility select use one state
  // transition. Do not rely on a synthetic change event from the menu:
  // re-rendering may reset the select before that event is processed.
- const requestPlayerMode=next=>{
+ let modeSelectionEpoch=0;
+ const requestPlayerMode=async next=>{
+  const requestEpoch=++modeSelectionEpoch;
   if(!['guided','practice','blind','assessment'].includes(next))return;
   if(next===PLAYER.mode){syncPlayerMode();return}
-  const stage=currentPlayerPolicy().stage;
+  const stage=currentPlayerPolicy().stage,previousMode=PLAYER.mode;
   if(PLAYER.locked||stage>=3){syncPlayerMode();return}
   if(stage>0){inlineModeConfirmation(next,false);syncPlayerMode();return}
+  if(!(await assessmentModeReady(next))||requestEpoch!==modeSelectionEpoch||
+     PLAYER.mode!==previousMode||PLAYER.locked||currentPlayerPolicy().stage>=3){
+   syncPlayerMode();return;
+  }
   PLAYER.mode=next;PLAYER.locked=false;PLAYER.revealIndex=0;renderPlayer();
  };
  q('player-mode-select')?.addEventListener('change',event=>requestPlayerMode(event.target.value));
