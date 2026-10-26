@@ -10,16 +10,21 @@ if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nav=()=>$('#admin-tabs'),app=()=>$('#admin-app');
+// Presentation taxonomy only. Existing module IDs, delegated handlers, and
+// backend registry permissions remain authoritative.
 const defs={
  'Overview':[/^Dashboard$/i,/Control Center Directory|Site Academy/i],
- 'People':[/Account|Roles|Member Activity/i],
- 'Learning':[/Books|Lab|Learning|Competency|Instructor|Question Bank|Market Data|Tutor|Feature Inventory|^Products$/i],
- 'Commerce':[/Commerce|Membership|Checkout|Payment|Advertising|Marketing|Subscription|Orders/i],
- 'Community':[/Market Commons|Founders Commons|Reports|Moderation|Support|Announcements|Notifications|Communications/i],
- 'Platform':[/Grant Web|Client Draft|Site Operations|Website|Pages|Branding|Forms|Navigation|Site Settings|Inventory|Legal|Audit|System|Security|QA|Archive|Recovery|Feature Control|Automation|Readiness/i]
+ 'Members & Access':[/Account|^Members$|User Accounts|Role|Permission|Member Activity|Member Preferences/i],
+ 'Learning Administration':[/Lab|Academy|Boot Camp|Instruction|Question Bank|Competenc|Learning|Tutor|Teaching|Training|Curriculum/i],
+ 'Commerce':[/Store|^Products$|Books|Digital|Order|Commerce|Subscription|Payment|Checkout|Stripe|Sparks|Fulfillment|Founding|Founder|Catalog|Print|Refund/i],
+ 'Community':[/Commons|Forum|Moderation|Design Council|Poll|Voting|^Reports|Member Reports/i],
+ 'Website Management':[/Site Setting|Website|Pages|Branding|Design|Themes|Navigation|Announcements|Marketing|Advertising|Social Media|Feature Control|Forms|Communications/i],
+ 'Support & Operations':[/Support|Ticket|Notifications|Site Operations|Health|Integrations|Scheduled|System|Deploy|Logs|QA|Readiness|Automation|Inventory|Recovery|Operations/i],
+ 'Security & Governance':[/Audit|Security|Privacy|Legal|Compliance|Access Review|Governance/i]
 };
-const normalizedGroup=value=>Object.keys(defs).includes(value)?value:({'Accounts & Access':'People','Products':'Learning','Books & Learning':'Learning','Memberships & Commerce':'Commerce','Community & Support':'Community','Website & Grant Web Solutions':'Platform','Security, Operations & QA':'Platform'})[value]||'Platform';
 const order=Object.keys(defs);
+const legacyGroups=new Set(['People','Learning','Commerce','Community','Platform','Overview','Accounts & Access','Products','Books & Learning','Memberships & Commerce','Community & Support','Website & Grant Web Solutions','Security, Operations & QA']);
+const normalizedGroup=(value,el)=>order.includes(value)?value:legacyGroups.has(value)?category(el):value||category(el);
 const storage=new Map();let observer=null,pending=false,ready=false,fetching=false,owner=false;
 function key(el){if(el.id)return `builtin:id-${el.id}`;for(const attr of ['panel','v11Panel','v13Panel','v132Panel','v135Control','ocTab','v1352Menu','v142Create'])if(el.dataset[attr])return `builtin:${attr}-${el.dataset[attr]}`;if(el.tagName==='A'){const href=el.getAttribute('href')||'';const encoded=href.toLowerCase().replace(/[^a-z0-9._:-]/g,'-').slice(0,80);return `builtin:link-${encoded}`;}return `builtin:label-${(el.textContent||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'-').slice(0,80)}`;}
 function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Platform';}
@@ -73,7 +78,7 @@ const groups=new Map();for(const el of all){const id=controlId(el);const setting
  // Presentation toggle is an additional restriction. It NEVER unhides an authorization-disabled control.
  el.classList.toggle('cc-owner-hidden',!shown);
  if(setting?.label)el.textContent=setting.label;
- const group=normalizedGroup(setting?.group_name||category(el));if(!groups.has(group))groups.set(group,[]);groups.get(group).push({el,n:Number(setting?.sort_order??10000),id});}
+ const group=normalizedGroup(setting?.group_name||category(el),el);if(!groups.has(group))groups.set(group,[]);groups.get(group).push({el,n:Number(setting?.sort_order??10000),id});}
 let seq=0;const sorted=[...groups.keys()].sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib)||a.localeCompare(b)});
 const fragment=document.createDocumentFragment();for(const group of sorted){const wrap=document.createElement('div');wrap.className='v13-admin-group cc-admin-group';wrap.dataset.ccNavGroup=group;const title=document.createElement('div');title.className='v13-admin-group-title cc-admin-group-title';title.textContent=group;wrap.append(title);
 for(const item of groups.get(group).sort((a,b)=>a.n-b.n||a.id.localeCompare(b.id)))wrap.append(item.el);fragment.append(wrap);seq++}
@@ -97,7 +102,22 @@ $('#cc-control-add').onsubmit=async e=>{e.preventDefault();const form=e.currentT
 async function save(row,data){const status=$('[data-row-status],[data-add-status]',row),buttons=$$('button',row);buttons.forEach(x=>x.disabled=true);try{await registry('POST',data);status.textContent='Saved and audited.';await refresh();}catch(e){status.textContent=e.message}finally{buttons.forEach(x=>x.disabled=false)}}
 async function refresh(){try{const j=await registry();storage.clear();for(const v of j.items||[])storage.set(v.control_key,v);plan();if($('#cc-control-manager-panel')?.classList.contains('active'))renderManager();status('Admin navigation settings loaded.')}catch(e){status(e.message)}}
 function openManager(){const p=panel();$$('.admin-panel',app()).forEach(el=>el.classList.remove('active'));$$('#admin-tabs button').forEach(el=>el.classList.remove('active'));p.classList.add('active');$('#cc-control-manager')?.classList.add('active');history.replaceState(null,'','#admin-controls');renderManager()}
-async function init(){if(ready)return;ready=true;observer=new MutationObserver(plan);observer.observe(nav(),{childList:true,subtree:true});plan();let data;try{data=await registry();owner=true;for(const item of data.items||[])storage.set(item.control_key,item);managerButton();plan();if(location.hash==='#admin-controls')openManager();}catch(e){/* Admin non-owner sees only permitted installed controls. New registry absent -> keep site working. */if(!/403|authority|session/i.test(e.message))status('Navigation settings unavailable: '+e.message)}setTimeout(plan,1200);setTimeout(plan,3600)}
+function setupCollapse(){
+ const sidebar=$('.admin-sidebar');if(!sidebar||$('#cc-admin-nav-toggle'))return;
+ const block=$('.admin-brand-block',sidebar)||sidebar;
+ const control=document.createElement('button');control.type='button';control.id='cc-admin-nav-toggle';
+ control.className='cc-admin-nav-toggle';control.setAttribute('aria-controls','admin-tabs');
+ const apply=collapsed=>{
+  sidebar.classList.toggle('cc-nav-collapsed',collapsed);
+  control.setAttribute('aria-expanded',String(!collapsed));
+  control.textContent=collapsed?'Open navigation':'Collapse navigation';
+  if(collapsed&&nav()?.contains(document.activeElement))control.focus();
+ };
+ control.addEventListener('click',()=>apply(!sidebar.classList.contains('cc-nav-collapsed')));
+ block.append(control);
+ apply(typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 900px)').matches);
+}
+async function init(){if(ready)return;ready=true;setupCollapse();observer=new MutationObserver(plan);observer.observe(nav(),{childList:true,subtree:true});plan();let data;try{data=await registry();owner=true;for(const item of data.items||[])storage.set(item.control_key,item);managerButton();plan();if(location.hash==='#admin-controls')openManager();}catch(e){/* Admin non-owner sees only permitted installed controls. New registry absent -> keep site working. */if(!/403|authority|session/i.test(e.message))status('Navigation settings unavailable: '+e.message)}setTimeout(plan,1200);setTimeout(plan,3600)}
 function wait(){if(nav()&&app()&&!app().hidden&&$('#admin-gate')?.hidden)init();else setTimeout(wait,150)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 window.GroundUpAdminNavigation=Object.freeze({openReports:()=>{const x=$('[data-panel="community"]',nav());if(x&&!x.hidden){x.click();return true}return false},openAccounts:()=>{const x=$('[data-v1352-menu]',nav())||$('[data-panel="users"]',nav());if(x&&!x.hidden){x.click();return true}return false},manage:openManager});
