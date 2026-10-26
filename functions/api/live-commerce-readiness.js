@@ -42,16 +42,20 @@ export async function onRequestGet({request,env}){
   if(!/^sk_live_[A-Za-z0-9_]+$/.test(live)||!/^acct_[A-Za-z0-9_]{6,}$/.test(accountID)||
    !/^https:\/\/[a-z0-9-]+\.pages\.dev$/.test(host))throw Error('PROVIDER_NOT_CONFIGURED');
   const h=allowedHeaders(secret),api='https://api.stripe.com/v1/';
-  const [store,books,founder,account,prices,products,hooks]=await Promise.all([
+  const [store,books,founder,planRows,toolRows,founderRows,account,prices,products,hooks]=await Promise.all([
     readJSON(base+'/rest/v1/gu_storefront_items_v014174?select=sku,category,sale_ready,visible,status&limit=150',{headers:h}),
     readJSON(base+'/rest/v1/gu_digital_books_v01430?select=product_code&limit=1',{headers:h}),
     readJSON(base+'/rest/v1/gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&limit=1',{headers:h}),
+    readJSON(base+'/rest/v1/platform_plans?select=plan_code,price_cents,billing_interval,active,checkout_enabled&limit=30',{headers:h}),
+    readJSON(base+'/rest/v1/platform_tools?select=tool_code,individual_price_cents,active,status,checkout_enabled&limit=50',{headers:h}),
+    readJSON(base+'/rest/v1/gu_founder_plans_v014173?select=plan_code,price_cents,term_days,checkout_enabled&limit=10',{headers:h}),
     readJSON(api+'account',{headers:{authorization:'Bearer '+live}}),
     readJSON(api+'prices?limit=100',{headers:{authorization:'Bearer '+live}}),
     readJSON(api+'products?limit=100',{headers:{authorization:'Bearer '+live}}),
     readJSON(api+'webhook_endpoints?limit=100',{headers:{authorization:'Bearer '+live}})
   ]);
   if(!Array.isArray(store)||!Array.isArray(books)||!Array.isArray(founder)||
+     !Array.isArray(planRows)||!Array.isArray(toolRows)||!Array.isArray(founderRows)||
      !Array.isArray(prices.data)||!Array.isArray(products.data)||!Array.isArray(hooks.data)||account.id!==accountID||
      store.length!==60||prices.has_more===true||products.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
   const expected=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
@@ -61,9 +65,44 @@ export async function onRequestGet({request,env}){
   const lookup=new Map(prices.data.map(x=>[x.id,x]));
   const productByID=new Map(products.data.map(x=>[x.id,x]));
   const mapped=[...Object.entries(m),...Object.entries(f)];
+  const byPlan=new Map(planRows.map(x=>[x.plan_code,x]));
+  const byTool=new Map(toolRows.map(x=>[x.tool_code,x]));
+  const byFounder=new Map(founderRows.map(x=>[x.plan_code,x]));
   const pricesVerified=mapped.every(([,x])=>{const p=lookup.get(x.price_id);return p&&p.active===true&&
    p.livemode===true&&p.product===x.product_id&&productByID.get(x.product_id)?.active===true&&p.currency==='usd'&&
    Number.isSafeInteger(p.unit_amount)&&p.unit_amount>0});
+  // Validate the OWNER-APPROVED monetary contract and renewal cadence, not
+  // simply an active Stripe Price. This catches $/interval drift even when
+  // the Price ID still points to a valid and active Product.
+  const expectedPrice=sku=>{
+   if(sku.startsWith('plan:')){
+    const a=byPlan.get(sku.slice(5));if(!a||a.active!==true)return null;
+    if(a.billing_interval==='lifetime')return {amount:a.price_cents,type:'one_time'};
+    if(!['month','year'].includes(a.billing_interval))return null;
+    return {amount:a.price_cents,type:'recurring',interval:a.billing_interval,count:1};
+   }
+   if(sku.startsWith('tool:')){
+    const a=byTool.get(sku.slice(5));if(!a||a.active!==true||a.status!=='live')return null;
+    return {amount:a.individual_price_cents,type:'recurring',interval:'month',count:1};
+   }
+   const a=byFounder.get(sku);if(!a||![30,60].includes(a.term_days))return null;
+   return {amount:a.price_cents,type:'recurring',interval:'day',count:a.term_days};
+  };
+  const priceContractVerified=mapped.every(([sku,x])=>{
+   const e=expectedPrice(sku),p=lookup.get(x.price_id);
+   return e&&p&&Number.isSafeInteger(e.amount)&&e.amount>0&&
+    p.unit_amount===e.amount&&p.type===e.type&&
+    (e.type==='one_time'?p.recurring==null:
+     p.recurring?.interval===e.interval&&p.recurring?.interval_count===e.count);
+  });
+  const saleAuthorized=store.filter(x=>x.sale_ready===true).every(x=>{
+   const sku=String(x.sku||'');
+   if(!mapped.some(([key])=>key===sku&&Object.prototype.hasOwnProperty.call(m,key)||key===sku&&Object.prototype.hasOwnProperty.call(f,key)))return false;
+   if(sku.startsWith('plan:'))return byPlan.get(sku.slice(5))?.checkout_enabled===true;
+   if(sku.startsWith('tool:'))return byTool.get(sku.slice(5))?.checkout_enabled===true;
+   if(sku.startsWith('founding:'))return byFounder.get(sku.slice(9))?.checkout_enabled===true;
+   return false;
+  });
   const hookOK=(suffix,events)=>{
    const url=host+'/api/'+suffix;
    const candidates=hooks.data.filter(x=>x.url===url&&x.status==='enabled'&&x.livemode===true);
@@ -79,6 +118,8 @@ export async function onRequestGet({request,env}){
   const test=(ok,id)=>{(ok?safe:blocked).push(id)};
   test(Object.values(gates).every(Boolean),'ALL_OWNER_LIVE_APPROVALS');
   test(pricesVerified,'MAPPED_PRICE_PROVIDER_PARITY');
+  test(priceContractVerified,'MAPPED_PRICE_AMOUNT_AND_CADENCE');
+  test(saleAuthorized,'SALE_READY_OWNER_SKU_AUTHORIZATION');
   test(hookOK('stripe-live-webhook',neededStandard),'STANDARD_WEBHOOK_LIFECYCLE');
   test(hookOK('founding600-webhook',neededFounder),'FOUNDING_WEBHOOK_LIFECYCLE');
   test(founder.length===1&&founder[0].enrollment_enabled===true&&founder[0].billing_enabled===true&&founder[0].fulfillment_enabled===true,'FOUNDING_DATABASE_RELEASE');
@@ -86,7 +127,8 @@ export async function onRequestGet({request,env}){
   // Never treat a book cover, product.active or public_visible as proof of downloadable files.
   test(books.length>0||!store.some(x=>x.category==='book'&&x.sale_ready===true),'DIRECT_BOOK_DELIVERY_IF_OFFERED');
   return json({ok:true,go:blocked.length===0,readOnly:true,host,accountMatched:true,
-    mappedSKUs:mapped.length,verifiedMappedPrices:pricesVerified,storeCount:store.length,
+    mappedSKUs:mapped.length,verifiedMappedPrices:pricesVerified,
+    verifiedAmountAndCadence:priceContractVerified,storeCount:store.length,
     activePriceCount:prices.data.filter(x=>x.active).length,activeProductCount:products.data.filter(x=>x.active).length,categoryCounts:counts,
     verified:safe,blockers:blocked,
     explanation:'Source evidence only. A green preflight does not replace member-browser, signed-event idempotency, cancellation, refunds, digital-rights or final Owner payment acceptance.'});
