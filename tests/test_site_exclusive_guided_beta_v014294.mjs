@@ -125,6 +125,9 @@ try {
  assert.equal(r.status,404);
  r=await lesson({request:new Request('https://website.example/api/lab-content?id='+LAB),env});
  assert.equal(r.status,401,'Anonymous guests cannot read private teaching');
+ const playerUI=readFileSync('assets/js/lab-player.js','utf8');
+ assert(playerUI.includes('function sourceReferencePanel(lab)'));
+ assert(playerUI.includes('Worked example — FICTIONAL educational case'));
  const activeUI=readFileSync('assets/js/labs.js','utf8');
  assert(activeUI.includes('guidedBetaLabs.has(x.id)')&&activeUI.includes('Open guided beta practice (ungraded)'));
  const source=readFileSync('functions/api/lab-content.js','utf8');
