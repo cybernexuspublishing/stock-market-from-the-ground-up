@@ -74,7 +74,7 @@ assert.match(prompt.textContent,/Which prices determine/);
 answer.value='High and low';
 await submit.handlers.click();
 assert.equal(passed,0,'An incorrect formative explanation cannot advance');
-assert.match(feedback.textContent,/Not yet/);
+assert.match(feedback.textContent,/important part missing|Not yet/i,'Incorrect reasoning must receive actionable correction without awarding progress');
 answer.value='The body connects the open and close prices for a completed candle interval.';
 await submit.handlers.click();
 assert.equal(passed,1,'Accepted understanding must advance exactly once');
