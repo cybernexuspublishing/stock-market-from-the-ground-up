@@ -3,16 +3,70 @@
 <meta name="description" content="Guided historical lab practice, exercises, skill tracking, exclusions and tool subscription pricing.">
 <title>Interactive Learning &amp; Historical Labs | The Stock Market: From the Ground Up</title>
 <link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/commerce-tutor.css">
-<link rel="stylesheet" href="assets/css/platform.css"><link rel="stylesheet" href="assets/css/store-catalog-v01484.css">
+<link rel="stylesheet" href="assets/css/platform.css"><link rel="stylesheet" href="assets/css/store-catalog-v01484.css"><link rel="stylesheet" href="assets/css/store-interactive-learning-v1.css">
 <script src="config.js"></script><script defer src="assets/js/site.js"></script>
 <script defer src="assets/js/supabase-client.js"></script><script defer src="assets/js/session-manager.js"></script>
-<script defer src="assets/js/commerce-common.js"></script><script defer src="assets/js/store-product-detail-v01484.js"></script>
+<script defer src="assets/js/commerce-common.js"></script><script defer src="assets/js/store-product-detail-v01484.js"></script><script defer src="assets/js/store-interactive-learning-v1.js"></script>
 </head><body>
 <header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"></nav></div></header>
 <main class="section"><div class="wrap"><div id="store-product-root" class="store-product-detail" data-product-type="tool" data-product-code="INTERACTIVE_LEARNING">
 <h1>Interactive Learning &amp; Historical Labs</h1><p role="status">Loading product coverage and current availability…</p>
 <noscript>JavaScript is required to verify current pricing and purchase availability. <a href="store.html">Return to the Store</a>.</noscript>
-</div></div></main>
+</div>
+<section id="interactive-learning-preview" class="il-preview" aria-labelledby="il-heading">
+ <header>
+  <div class="eyebrow">INTERACTIVE LEARNING · EDUCATIONAL PRODUCT PREVIEW</div>
+  <h2 id="il-heading">Learn the difference between placing an order and receiving a fill</h2>
+  <p>Interactive Learning is designed to teach a decision, let you practice it, then explain the evidence. This public preview uses an original <strong>fictional</strong> stock quote. It is not a paid Lab attempt, brokerage simulation, market recommendation, or official mastery assessment.</p>
+ </header>
+ <section class="il-coverage" aria-labelledby="il-coverage-heading">
+  <h3 id="il-coverage-heading">Current Lab teaching availability</h3>
+  <p data-il-coverage role="status" aria-live="polite">Checking the current public Lab release listing…</p>
+  <p>Only server-authorized study may open. The selected beta curriculum does not mean that every lesson or protected assessment has passed individual editorial review.</p>
+  <div class="il-actions"><a class="btn secondary" href="labs.html">Explore the existing Lab Registry</a><a class="btn secondary" href="membership.html">Compare membership coverage</a></div>
+ </section>
+ <section class="il-lesson" aria-labelledby="il-learn-heading">
+  <h3 id="il-learn-heading">1. Learn: displayed price is not the same as execution price</h3>
+  <p>The <strong>bid</strong> is the highest displayed purchase interest; the <strong>ask</strong> is the lowest displayed selling interest. The difference is the quoted spread. Quotes can move, available quantity can change, and the last trade is not a guaranteed order price.</p>
+  <div class="il-quote" role="group" aria-label="Fictional training quote">
+   <span><strong>Fictional security:</strong> EXAMPLE</span>
+   <span><strong>Bid:</strong> $10.00</span>
+   <span><strong>Ask:</strong> $10.12</span>
+   <span><strong>Quoted spread:</strong> $0.12</span>
+  </div>
+  <p><strong>Worked situation:</strong> A hypothetical learner wants to buy only if the purchase price is <strong>no more than $10.05</strong>. A market order gives no maximum execution price. A buy limit at $10.05 sets a maximum price but may receive no fill. Neither order guarantees a particular outcome.</p>
+  <button class="btn secondary" type="button" data-il-explain>Show why this matters before I practice</button>
+  <div data-il-explain hidden>
+   <p>At the displayed ask of $10.12, an immediate purchase at $10.05 is not demonstrated. Even if a later trade prints $10.05, that alone does not prove this learner's order was filled: order availability, routing, priority, and size matter. Entering a trade is optional—choosing not to trade may be appropriate when evidence is insufficient.</p>
+   <p><strong>Common mistake:</strong> assuming a limit price guarantees execution, or treating a displayed quote as an executed purchase. This preview deliberately has no broker connection and no future-bar reveal.</p>
+  </div>
+  <div data-il-practice hidden>
+   <h3>2. Predict and practice: which instruction enforces a maximum purchase price?</h3>
+   <form data-il-answer aria-describedby="il-question-help">
+    <p id="il-question-help">The learner wants to <strong>buy</strong> at $10.05 or below, even if that means not buying. Select the order instruction that expresses that price condition. All quoted prices are fictional.</p>
+    <fieldset>
+     <legend>Choose the instruction</legend>
+     <label><input type="radio" name="order-choice" value="market"> Market buy; request prompt execution at an available price</label>
+     <label><input type="radio" name="order-choice" value="limit"> Buy limit at $10.05</label>
+     <label><input type="radio" name="order-choice" value="stop"> Sell stop at $10.05</label>
+     <label><input type="radio" name="order-choice" value="certain"> Any order type guarantees both price and execution</label>
+    </fieldset>
+    <div class="il-actions"><button type="button" class="btn" data-il-check>Check my reasoning</button><button type="button" class="btn secondary" data-il-reset>Try again</button></div>
+   </form>
+   <p data-il-feedback data-state="neutral" role="status" aria-live="polite">Choose an instruction after reviewing the worked example.</p>
+   <p data-il-attempt class="small">No answer checked. This is ungraded illustrative practice.</p>
+   <h3>3. Transfer: recognize when not to assume a fill</h3>
+   <p>Suppose a later fictional price bar touches $10.05 but shows no order book, routing data, or fill confirmation. Write down what evidence is missing before claiming that a buy limit order executed. The responsible conclusion is <strong>fill not verified</strong>.</p>
+  </div>
+ </section>
+ <section class="il-sources" aria-labelledby="il-sources-heading">
+  <h3 id="il-sources-heading">Teaching basis and limitations</h3>
+  <p>Original practice content based on the Owner-supplied StocksToTrade research inventory (8), concepts STT-C-0013 (market order), STT-C-0014 (limit order), STT-C-0016 (timing and partial fills), and STT-C-0017 (spread and slippage). Those research notes remain partial, not independent confirmation of any proprietary platform behavior or historical stock dataset.</p>
+  <p>Public verification: <a href="https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-14" rel="noopener noreferrer">SEC Investor Bulletin — Understanding Order Types</a> (updated August 18, 2026) and <a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/ask-price" rel="noopener noreferrer">Investor.gov — Bid/Ask Prices</a>. Educational only; no guaranteed profits or third-party broker services.</p>
+  <p class="small" data-il-status role="status" aria-live="polite">This public example does not record your score or alter your membership.</p>
+ </section>
+</section>
+</div></main>
 <footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><p>Books teach. The platform trains application.</p></div>
 <div><strong>Shop</strong><br><a href="store.html#memberships">Memberships</a><br><a href="store.html#books">Books</a><br><a href="store.html#tools">À-la-Carte Tools</a></div>
 <div><strong>Information</strong><br><a href="membership.html">Membership comparison</a><br><a href="subscription-terms.html">Billing Terms</a><br><a href="refund-policy.html">Refund Policy</a><br><a href="privacy.html">Privacy</a></div></div></footer>
