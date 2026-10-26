@@ -344,7 +344,7 @@ function lesson(input={}){
  else if(stage===6)blocks=[clean(custom.commonError||base.misconception,480),
   clean(custom.limitation||base.limitation,480),
   'Revisit your original decision and explain which observations were available before the result.'];
- else if(stage===7)blocks=[base.transfer,base.limitation,'Lock your analysis before revealing any later replay observation.'];
+ else if(stage===7)blocks=[custom.transfer?clean(custom.transfer,1400):base.transfer,base.limitation,'Use only evidence known at the pause. This is an ungraded transfer exercise, not approved assessment or mastery.'];
  else if(stage===8)blocks=[base.explanation[0],base.misconception,'Transfer the method to a fresh case. Completion of guided teaching is not independent competency mastery.'];
  return {
   category,heading:base.name,objectives:outcomes,blocks:blocks.filter(Boolean),
