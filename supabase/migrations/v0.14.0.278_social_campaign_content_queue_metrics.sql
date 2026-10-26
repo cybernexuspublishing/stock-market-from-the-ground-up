@@ -157,3 +157,28 @@ CREATE TRIGGER gu_social_task_audit_v014278 AFTER INSERT OR UPDATE ON public.gu_
  FOR EACH ROW EXECUTE FUNCTION public.gu_social_operations_audit_v014278();
 CREATE TRIGGER gu_social_metric_audit_v014278 AFTER INSERT ON public.gu_social_metrics_v014278
  FOR EACH ROW EXECUTE FUNCTION public.gu_social_operations_audit_v014278();
+
+-- Cross-record ownership must hold even for privileged server writers.
+CREATE OR REPLACE FUNCTION public.gu_social_scope_guard_v014278()
+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
+SET search_path=pg_catalog,pg_temp AS $$
+BEGIN
+ IF TG_TABLE_NAME='gu_social_posts_v014276' THEN
+  IF NEW.campaign_id IS NOT NULL AND NOT EXISTS(
+   SELECT 1 FROM public.gu_social_campaigns_v014278
+    WHERE id=NEW.campaign_id AND owner_id=NEW.owner_id
+  ) THEN RAISE EXCEPTION 'SOCIAL_CAMPAIGN_OWNER_MISMATCH'; END IF;
+ ELSIF TG_TABLE_NAME='gu_social_metrics_v014278' THEN
+  IF NOT EXISTS(SELECT 1 FROM public.gu_social_posts_v014276
+                WHERE id=NEW.post_id AND owner_id=NEW.owner_id AND status='manual_recorded')
+  THEN RAISE EXCEPTION 'SOCIAL_METRIC_POST_OWNERSHIP_OR_PUBLICATION_REQUIRED'; END IF;
+ ELSE RAISE EXCEPTION 'SOCIAL_UNEXPECTED_TABLE'; END IF;
+ RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.gu_social_scope_guard_v014278() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.gu_social_scope_guard_v014278() TO service_role;
+CREATE TRIGGER gu_social_post_scope_v014278 BEFORE INSERT OR UPDATE ON public.gu_social_posts_v014276
+ FOR EACH ROW EXECUTE FUNCTION public.gu_social_scope_guard_v014278();
+CREATE TRIGGER gu_social_metric_scope_v014278 BEFORE INSERT OR UPDATE ON public.gu_social_metrics_v014278
+ FOR EACH ROW EXECUTE FUNCTION public.gu_social_scope_guard_v014278();
