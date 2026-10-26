@@ -29,6 +29,8 @@ jobs:
           node tests/test_lab_beta_publication_gate.mjs
           node tests/test_f600_guided_qa_access.mjs
           node tests/test_member_beta_support_surface.mjs
+          node tests/test_support_partial_create_resilience.mjs
+          node --check functions/api/support.js
           node --check assets/js/member-support-panel.js
           node --check functions/api/lab-release-availability.js
           node --check assets/js/labs.js
