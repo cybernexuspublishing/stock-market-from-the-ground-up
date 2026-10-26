@@ -30,7 +30,9 @@ globalThis.fetch=async(input,init={})=>{
  if(p==='/auth/v1/user')return respond({id:user});
  if(p.endsWith('/profiles'))return respond([{account_kind:member?'member':'showcase'}]);
  if(p.endsWith('/admin_user_flags'))return respond([{status:suspended?'suspended':'active'}]);
- if(p.endsWith('/admin_user_roles'))return respond([]);
+ if(p.endsWith('/admin_user_roles'))return respond(
+  qaPass&&search.includes('role_code=eq.OWNER')&&ownerIssuer
+   ?[{role_code:'OWNER',expires_at:null}]:[]);
  if(p.endsWith('/rpc/user_has_tool_access'))return respond(premium);
  if(p.endsWith('/platform_labs'))return respond([{lab_id:LAB,book_code:'FOUNDATION_BOOK_1',active:true,registry_visible:true}]);
  if(p.endsWith('/lab_instruction_v014'))return respond(catalogOverflow?Array.from({length:500},()=>draft):[draft]);
