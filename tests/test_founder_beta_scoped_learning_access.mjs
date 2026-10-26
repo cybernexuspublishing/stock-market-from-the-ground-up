@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import {onRequest as lesson} from '../functions/api/lab-content.js';
 import {onRequest as graded} from '../functions/api/interactive-training.js';
-import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../functions/_lib/founding-beta-learning-access.js';
+import {authoredB01BetaLesson,activeFoundingBetaLearningPlan,foundingBetaLearningAccessKind} from '../functions/_lib/founding-beta-learning-access.js';
 const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const LAB='F1-C02-L02',NEXT='SITE-018';
 const env={SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake',
@@ -21,7 +21,7 @@ const content={lessonBatch:'2026-10-25-B01',
 const draft={lab_id:LAB,book_number:1,
  source_status:'original_hypothetical_unreviewed_v01496',content};
 const oldFetch=globalThis.fetch;
-let member=true,suspended=false,grant=true,premium=true,reviewed=false,seen=[];
+let member=true,suspended=false,grant=true,premium=true,reviewed=false,qaPass=false,ownerIssuer=true,seen=[];
 const respond=(value,status=200)=>new Response(JSON.stringify(value),{status,
  headers:{'content-type':'application/json'}});
 globalThis.fetch=async(input,init={})=>{
@@ -43,7 +43,16 @@ globalThis.fetch=async(input,init={})=>{
   plan_code:'FOUNDING_30',status:'active',starts_at:'2026-10-01T00:00:00Z',
   ends_at:'2026-11-01T00:00:00Z',platform_plans:{includes_all_books:false}}]:[]);
  if(p.endsWith('/site_subscriptions'))return respond([]);
- if(p.endsWith('/admin_user_roles'))return respond([]);
+ if(p.endsWith('/user_tool_passes'))return respond(qaPass?[{
+   tool_code:'ONDEMAND_TRAINING',status:'active',starts_at:'2026-10-26T06:00:00Z',
+   ends_at:'2026-11-20T06:00:00Z',provider:null,provider_subscription_id:null,
+   metadata:{admin_manual:true,source:'owner_manual',adminGrantedBy:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+     reason:'F600_GUIDED_QA_V1: Owner-authorized 30-day noncommercial learning test.'}
+ }]:[]);
+ if(p.endsWith('/admin_user_roles'))return respond(qaPass&&search.includes('role_code=eq.OWNER')&&ownerIssuer?[{role_code:'OWNER',expires_at:null}]:[]);
+ if(p.endsWith('/rpc/v014_training_start'))return respond({
+  id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',lab_id:LAB,set_version:97,mode:'assessment',step_index:0,completed_at:null,resumed:false
+ });
  throw Error('Unexpected test fetch '+p+search);
 };
 const request=(path)=>new Request('https://site.test'+path,{headers:{authorization:'Bearer signed-in-session'}});
@@ -70,7 +79,28 @@ try{
  body=await r.json();assert.equal(body.available,true);
  assert.equal(body.questionCount,1);
  assert(!JSON.stringify(body).includes('Private explanatory feedback'));
+ // Actual founding entitlement can attempt reviewed Assessment, without
+ // transferring book ownership or exposing pre-answer explanations.
+ r=await graded({request:new Request('https://site.test/api/interactive-training?action=start',{
+  method:'POST',headers:{authorization:'Bearer signed-in-session','content-type':'application/json'},
+  body:JSON.stringify({labId:LAB,mode:'assessment'})}),env});
+ assert.equal(r.status,201,'Genuine active founding plan may start a reviewed assessment');
+ body=await r.json();assert.equal(body.question?.explanation,undefined);
 
+ // Owner-issued temporary QA passes allow teaching, never official Assessment.
+ grant=false;qaPass=true;
+ assert.equal(await foundingBetaLearningAccessKind(env,user),'owner_qa');
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.equal(r.status,200,'Owner-issued time-limited QA access permits authored B01 lesson');
+ r=await graded({request:new Request('https://site.test/api/interactive-training?action=start',{
+  method:'POST',headers:{authorization:'Bearer signed-in-session','content-type':'application/json'},
+  body:JSON.stringify({labId:LAB,mode:'assessment'})}),env});
+ assert.equal(r.status,403,'Owner QA pass cannot start official Assessment');
+ assert.match((await r.json()).error,/official Assessment requires/i);
+ ownerIssuer=false;
+ r=await lesson({request:request('/api/lab-content?id='+LAB),env});
+ assert.notEqual(r.status,200,'Non-Owner manual pass cannot open private B01');
+ ownerIssuer=true;qaPass=false;
  reviewed=false;grant=false;
  assert.equal(await activeFoundingBetaLearningPlan(env,user),false);
  r=await lesson({request:request('/api/lab-content?id='+LAB),env});
