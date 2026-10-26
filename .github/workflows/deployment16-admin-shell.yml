@@ -44,6 +44,7 @@ on:
       - 'assets/css/admin-unified-preview-v014156.css'
       - 'tests/test_admin_operational_dashboard_v1.mjs'
       - 'tests/test_admin_module_role_matrix_v1.mjs'
+      - 'tests/test_admin_account_creation_least_privilege_v1.mjs'
       - 'tests/v01409_admin_registry_security.mjs'
       - 'assets/js/admin-navigation.js'
       - 'assets/js/admin-dashboard-widgets.js'
@@ -91,6 +92,7 @@ jobs:
           node tests/test_admin_dashboard_widgets.mjs
           node tests/test_admin_operational_dashboard_v1.mjs
           node tests/test_admin_module_role_matrix_v1.mjs
+          node tests/test_admin_account_creation_least_privilege_v1.mjs
           node tests/v01409_admin_registry_security.mjs
           node tests/test_v014156_admin_shell.mjs
           node tests/test_v014156_admin_stage_b_members_audit.mjs
