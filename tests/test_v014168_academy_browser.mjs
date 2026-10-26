@@ -70,6 +70,26 @@ try{
    assert.equal(await page.locator('.academy-program').count(),7);
    assert.equal(await page.locator('#academy-days .gu-bc-day').count(),academyByCode[code].days);
    assert.equal(await page.locator('#academy-course-title').innerText(),academyByCode[code].title);
+   if(code==='truth5'){
+    const section=page.locator('#academy-original-instruction');
+    await section.waitFor({state:'visible'});
+    assert.equal(await section.locator('ol li').count(),academyByCode.truth5.curriculum[0].lesson.sourceProcedure.length);
+    assert.match(await section.innerText(),/FICTIONAL:/,'Working cases must be identified as invented');
+    const answer=page.locator('#academy-self-check-answer');
+    const compare=section.getByRole('button',{name:'Compare my reasoning'});
+    assert.equal(await compare.isDisabled(),true,'Do not reveal the coaching answer before a written learner attempt');
+    await answer.fill('The screenshot only proves an assertion was made. I would verify the issuer, document, publication time and source independently.');
+    assert.equal(await compare.isEnabled(),true);
+    await compare.click();
+    assert.match(await section.innerText(),/No mastery was awarded/);
+    await page.locator('#academy-days .gu-bc-day').nth(1).click();
+    assert.match(await section.innerText(),/SEC EDGAR/,'Day 2 must teach a substantively different source skill');
+    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'','Day transitions cannot silently carry an earlier response into another question');
+    await page.locator('#academy-days .gu-bc-day').first().click();
+    assert.match(await section.innerText(),/widely shared screenshot/);
+    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'');
+    assert.equal(await compare.isDisabled(),true);
+   }
    await page.locator('#academy-enroll').click();
    await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.hidden===true);
    await page.locator('#academy-save').click();
