@@ -21,7 +21,7 @@ const content={lessonBatch:'2026-10-25-B01',
 const draft={lab_id:LAB,book_number:1,
  source_status:'original_hypothetical_unreviewed_v01496',content};
 const oldFetch=globalThis.fetch;
-let member=true,suspended=false,grant=true,premium=true,reviewed=false,qaPass=false,ownerIssuer=true,seen=[];
+let member=true,suspended=false,grant=true,premium=true,reviewed=false,qaPass=false,ownerIssuer=true,catalogOverflow=false,seen=[];
 const respond=(value,status=200)=>new Response(JSON.stringify(value),{status,
  headers:{'content-type':'application/json'}});
 globalThis.fetch=async(input,init={})=>{
@@ -32,7 +32,7 @@ globalThis.fetch=async(input,init={})=>{
  if(p.endsWith('/admin_user_flags'))return respond([{status:suspended?'suspended':'active'}]);
  if(p.endsWith('/rpc/user_has_tool_access'))return respond(premium);
  if(p.endsWith('/platform_labs'))return respond([{lab_id:LAB,book_code:'FOUNDATION_BOOK_1',active:true,registry_visible:true}]);
- if(p.endsWith('/lab_instruction_v014'))return respond([draft]);
+ if(p.endsWith('/lab_instruction_v014'))return respond(catalogOverflow?Array.from({length:500},()=>draft):[draft]);
  if(p.endsWith('/lab_training_sets_v014'))return respond(reviewed?[{
   lab_id:LAB,version:97,review_state:'reviewed',source_status:'original_hypothetical_b01_individual_review_pending_v01497',
   questions:[{id:'CASE',prompt:'What is the first observable candle?',kind:'choice',options:['A','B'],explanation:'Private explanatory feedback'}]
@@ -79,6 +79,11 @@ try{
  assert.deepEqual(body.labs.map(x=>x.id),[LAB]);
  assert.equal(body.labs[0].learningAccess,'scoped_beta');
  assert.equal(body.labs[0].officialGradingAvailable,false);
+ catalogOverflow=true;
+ r=await lesson({request:request('/api/lab-content?action=list'),env});
+ assert.equal(r.status,503,'A truncated catalog cannot silently claim beta learning is empty or complete');
+ assert.match((await r.json()).error,/catalog incomplete/i);
+ catalogOverflow=false;
  assert.equal(body.labs[0].authoringStatus,undefined);
 
  r=await graded({request:request('/api/interactive-training?action=available&labId='+LAB),env});
