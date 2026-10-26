@@ -1,0 +1,39 @@
+name: Founding 600 Isolated PostgreSQL Capacity
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/f600-capacity-isolated.yml'
+      - 'tests/fixtures/f600-capacity-isolated-v1.sql'
+      - 'tests/test_f600_capacity_isolated.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capacity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: qa
+          POSTGRES_USER: qa
+          POSTGRES_PASSWORD: qa
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qa -d qa"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install ephemeral PostgreSQL driver in GitHub runner only
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund pg
+      - name: Stress 600 numbered seats at 16/32/64 parallel clients
+        run: node tests/test_f600_capacity_isolated.cjs
