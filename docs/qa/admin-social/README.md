@@ -46,3 +46,32 @@ Scope: Existing Admin Control Center → Commerce → Marketing & Social Media �
 3. Owner-authenticated browser test of the marketing social tab, saving/reloading a draft, recording a manual X permalink and editing community membership.
 4. Non-Owner and anonymous endpoint rejection against the deployed API.
 5. Build and test richer calendar, campaign attribution, editorial approvals, provider adapters, and analytics without paid external API calls.
+
+
+## Expanded pre-beta social operations (October 26, 2026)
+
+The original social editor has been extended on \`main\`. Treat the latest source as authoritative:
+- \`assets/js/admin-social-operations-v014278.js\` now supplies a real Owner-only internal marketing overview, X Post Studio, local planning calendar, campaigns, editable content templates, X Communities directory, follow-up tasks, manual performance snapshots, and audit history.
+- \`functions/api/admin-social.js\` implements the matching backend and checks active Owner role for every operation. Authenticated non-Owners are denied. All social provider publishing and joining remains unavailable, not simulated.
+- \`supabase/migrations/v0.14.0.278_social_campaign_content_queue_metrics.sql\` adds campaigns, templates, tasks, manually observed metrics, post revisions, safeguards against stale updates, and campaign/post ownership mismatches.
+- \`supabase/migrations/v0.14.0.279_social_account_registry.sql\` adds private manually managed company-profile records with accurate \`manual_only\` status; there are no OAuth tokens.
+- \`functions/_lib/social-provider-capabilities-v014279.mjs\` explicitly describes X, Facebook, Instagram, LinkedIn, YouTube, Reddit, and Discord connection status and enforces $0 cost/authorization restrictions.
+- The Owner can copy UTM-tagged campaign links; this **does not** mean website visits or conversions are collected or verified.
+- The calendar is for planning, not automatic external publishing. Manual post URLs and manually entered metrics are Owner-reported rather than provider-verified.
+- The existing website advertising UI/API, Sandbox switching, LIVE payment safety, and member-facing teaching design remain unchanged.
+
+### Direct Supabase security evidence
+- All nine social tables (v014276, v014278, v014279) have RLS enabled, with no direct \`anon\` or \`authenticated\` SELECT permission. Only the server-side service role has data access.
+- A rollback-only SQL transaction successfully created a campaign, drafted/approved/manually recorded a post, wrote version history, created a template and task, recorded a manual metric, and generated audit events. ROLLBACK removed all fixtures.
+- A rollback-only negative test confirmed that stale versions, unapproved publication, metrics on drafts and cross-owner campaign attachments are rejected.
+- A rollback-only manual company-profile insert confirmed audit generation.
+- Supabase's \`rls_enabled_no_policy\` INFO advisory is expected for these service-role-only tables, and does not indicate public read access. Reference: https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+
+### Remaining release verification — engineering, not Founding 600 beta
+- The updated GitHub social acceptance workflow and the sitewide noncharging Playwright run must **finish successfully** for the latest exact commit before their results can be called passed.
+- Owner-authenticated browser interaction of all new social panels and write/reload behavior remains unverified. This is an Admin acceptance test, **not** a task for Founding 600 member beta testers.
+- Review the new UI at 390px, 900px, 1280px, and 1440px using authenticated browser evidence.
+- Public provider connections, real X API posting, automated Community joining and provider-verified analytics cannot be declared operational without actual provider permission, authorization and an approved budget.
+
+### Founding 600 boundary
+Founding 600 beta members are reserved for **member-facing** features elsewhere in the site; they must not be granted marketing Admin privileges. Internal pre-beta engineering tests remain required and must not be deferred solely because beta members have not yet been selected.
