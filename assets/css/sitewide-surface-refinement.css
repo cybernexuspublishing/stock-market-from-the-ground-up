@@ -1,0 +1,24 @@
+/* v0.14 — close presentation coverage gaps; teaching canvases excluded by marker. */
+html body[data-gu-surface="standard"]{--navy:#090c16;--navy2:#121727;--panel:#111624;--panel2:#151b2c;--ink:#eef0f8;--muted:#a8b0c6;--line:#343b53;--gold:#a890e9;--gold2:#c8b5fc;background:radial-gradient(ellipse at 85% 0,#6841a519,transparent 55%),#090c16;color:var(--ink)}
+html body[data-gu-surface="standard"] .site-header{background:#090c16f5;border-color:#ffffff18}
+html body[data-gu-surface="standard"] :is(.journal-card,.metric-box,.journal-kpi,.sim-position-grid>div,.sim-chart-panel,.sim-side,.fe-security-item){background:#111624;border-color:#ffffff20;box-shadow:none}
+html body[data-gu-surface="standard"] :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){background:#101522;color:#eef0f8;border:1px solid #58617c;border-radius:7px;padding:10px 12px;max-width:100%;font:inherit}
+html body[data-gu-surface="standard"] :is(input,select,textarea):focus-visible{outline:2px solid #c6afff;outline-offset:3px}
+html body[data-gu-surface="standard"] .journal-card{padding:calc(24px * var(--gu-space,.85));border-radius:9px}
+html body[data-gu-surface="standard"] main{min-width:0}
+html body[data-gu-surface="standard"] :is(.fe-page-head,.journal-toolbar,.journal-actions){min-width:0;flex-wrap:wrap;gap:12px}
+html body[data-gu-surface="standard"] .fe-page-head{align-items:flex-start}
+html body[data-gu-surface="standard"] #fe-sim-workspace{margin-block:18px 24px!important;width:100%;border:1px solid #ffffff20;border-radius:9px;background:#111624}
+html body[data-gu-surface="standard"] #fe-sim-workspace .v13-section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+html body[data-gu-surface="standard"] #fe-sim-workspace .actions{align-items:center;flex-wrap:wrap}
+html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset){display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center}
+html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset)>:is(h2,p,label){grid-column:1/-1;margin:0}
+html body[data-gu-surface="standard"] #vr-dataset{width:100%;min-width:0}
+html body[data-gu-surface="standard"] #vr-code{grid-column:1/3;width:100%}
+html body[data-gu-surface="standard"] .sim-side{top:calc(var(--gu-header-height,74px) + 16px)}
+html body[data-gu-fixed-header="true"]{padding-top:var(--gu-header-height,74px)}
+html{scroll-padding-top:calc(var(--gu-header-height,74px) + 20px)}
+html[data-gu-design="premium-light"] body[data-gu-surface="standard"]{--ink:#182839;--muted:#536679;--panel:#fff;--panel2:#f4f7fa;--line:#d5e0e9;--gold:#6b45a1;--gold2:#614092;background:#f5f7fb;color:#182839}
+html[data-gu-design="premium-light"] body[data-gu-surface="standard"] :is(.site-header,.journal-card,.metric-box,.journal-kpi,.sim-position-grid>div,.sim-chart-panel,.sim-side,#fe-sim-workspace){background:#fff;border-color:#d5e0e9}
+html[data-gu-design="premium-light"] body[data-gu-surface="standard"] :is(input,select,textarea){background:#fff;color:#182839;border-color:#8393a6}
+@media(max-width:700px){html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset){grid-template-columns:minmax(0,1fr)}html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset)>*{grid-column:1!important;width:100%;min-width:0}html body[data-gu-surface="standard"] .sim-side{position:static}html body[data-gu-surface="standard"] .fe-page-head{flex-direction:column;align-items:stretch}}

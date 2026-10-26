@@ -15,7 +15,7 @@ try{
 }catch{throw Error('GU_PUBLIC_SITE_ORIGIN must be an HTTPS origin without path, query, credentials, or port');}
 const candidates=[
  'index','about','books','store','learn','tools','lab-samples',
- 'membership','help','faq'
+ 'membership','help','faq','philosophy'
 ];
 const description={
  help:'Get help with account access, books and stock-market learning tools.',

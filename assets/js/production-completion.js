@@ -60,7 +60,7 @@
         host.innerHTML = `<div class="fe-state error">${esc(err.message)}</div>`;
     } }
     async function memberSettings(host) { if (host.dataset.v132)
-        return; host.dataset.v132 = '1'; host.innerHTML = '<div class="v132-subtabs" role="tablist"><button data-s="account">Account</button><button data-s="security">Security</button><button data-s="connections">Connections & API Keys</button><button data-s="book">Book Access</button><button data-s="notifications">Notifications</button><button data-s="accessibility">Accessibility</button><button data-s="privacy">Privacy</button><button data-s="danger">Danger Zone</button></div><div data-settings-body></div>'; const body = q('[data-settings-body]', host); const activate = async (code) => { qa('[data-s]', host).forEach(b => b.classList.toggle('active', b.dataset.s === code)); if (code === 'account') {
+        return; host.dataset.v132 = '1'; host.innerHTML = '<div class="v132-subtabs" role="tablist"><button data-s="account">Account</button><button data-s="security">Security</button><button data-s="connections">Connections & API Keys</button><button data-s="book">Book Access</button><button data-s="notifications">Notifications</button><button data-s="accessibility">Display &amp; Accessibility</button><button data-s="privacy">Privacy</button><button data-s="danger">Danger Zone</button></div><div data-settings-body></div>'; const body = q('[data-settings-body]', host); const activate = async (code) => { qa('[data-s]', host).forEach(b => b.classList.toggle('active', b.dataset.s === code)); if (code === 'account') {
         let identity = {};
         try {
             identity = await api('/api/account?action=identity');
@@ -96,7 +96,7 @@
         body.innerHTML = '<article class="v13-card"><h3>Notifications</h3><p>Control in-app and email preferences as services are enabled.</p><div class="v132-setting-list"><label><span>Community replies</span><input type="checkbox" checked></label><label><span>Learning releases</span><input type="checkbox" checked></label><label><span>Billing/account notices</span><input type="checkbox" checked disabled></label></div></article>';
     }
     else if (code === 'accessibility') {
-        body.innerHTML = '<article class="v13-card"><h3>Accessibility</h3><p>Display preferences are available from the Accessibility panel and are saved to your account where supported.</p><a class="btn secondary" href="accessibility.html">Accessibility information</a></article>';
+        body.innerHTML = '<div data-display-settings></div><p><a href="accessibility.html">Accessibility information</a></p>';if(window.SiteDisplay)window.SiteDisplay.render(q('[data-display-settings]',body));else q('[data-display-settings]',body).innerHTML='<p>Display controls are loading. <a href="settings.html">Open account display settings</a>.</p>';
     }
     else if (code === 'privacy') {
         let cp = { preferences: {} };

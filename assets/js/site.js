@@ -1,3 +1,5 @@
+/* Shared display controls and compact default; current display record remains authoritative. */
+(()=>{if(document.querySelector('script[src*="display-preferences.js"]'))return;const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/display-preferences.css?v=20261026';document.head.append(css);const surface=document.createElement('link');surface.rel='stylesheet';surface.href='/assets/css/sitewide-surface-refinement.css?v=20261026';document.head.append(surface);const js=document.createElement('script');js.src='/assets/js/display-preferences.js?v=20261026';document.head.append(js);})();
 /* v0.14.0.32 — activate the EXISTING Supabase/Turnstile integration.
  * Native Supabase Auth CAPTCHA must ALSO be configured in the Supabase dashboard.
  * This boot guard prevents submitting before the adapter checks the runtime flag.
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Owner-directed workspace refresh is deliberately opt-in by route.
   // Public pages have no workspace side panel. Teaching canvas styles remain separate.
   const workspaceRoute=(location.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/');
-  if(/^(?:\/|\/index|\/dashboard|\/admin|\/store(?:-[a-z0-9-]+)?|\/product|\/membership|\/books|\/tools|\/my-books|\/my-library|\/my-purchases|\/account|\/settings|\/help|\/about|\/signin|\/create-account)$/.test(workspaceRoute)){
+  if(!/^\/(?:labs|lab-player|lab-v32-member|lab-v32-reference|bootcamp|bootcamp-academy|site-lab)(?:\/|$)/.test(workspaceRoute)){
     document.body.dataset.guWorkspace=workspaceRoute==='/dashboard'?'member':workspaceRoute==='/admin'?'admin':'site';
   }
 
