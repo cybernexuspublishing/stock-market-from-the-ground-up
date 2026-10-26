@@ -60,3 +60,24 @@ test('Founders Commons official policy correction uses approved 15 percent only'
  assert.ok(ui.indexOf('id="gu-f600-beta-center"')>ui.indexOf('id="gu-f600-content" hidden'),
   'Beta center must be inside the founder-authenticated content container');
 });
+
+test('founder 60-day public catalog copy has a guarded noncharging correction',()=>{
+ const forward=read('supabase/migrations/20261026_founding60_store_copy_15pct_alignment.sql');
+ const rollback=read('supabase/rollbacks/20261026_founding60_store_copy_ROLLBACK.sql');
+ const preflight=read('supabase/admin/20261026_founding60_store_copy_PREFLIGHT_READ_ONLY.sql');
+ assert.match(forward,/BEGIN;[\s\S]*COMMIT;/);
+ assert.match(forward,/sku='founding:FOUNDING_60'/);
+ assert.match(forward,/purchase_discount_bps=1500/);
+ assert.match(forward,/price_cents=5999/);
+ assert.match(forward,/term_days=60/);
+ assert.match(forward,/enrollment_enabled=false AND billing_enabled=false AND fulfillment_enabled=false/);
+ assert.match(forward,/eligible 20% discount/);
+ assert.match(forward,/eligible 15% discount/);
+ assert.match(forward,/FOR UPDATE/);
+ assert.match(forward,/admin_audit_log/);
+ assert.doesNotMatch(forward,/STRIPE_SECRET|STRIPE_LIVE_SECRET/);
+ assert.match(rollback,/visible=false/);
+ assert.match(rollback,/Never restore the known-false 20% benefit/);
+ assert.match(preflight,/BEGIN READ ONLY/);
+ assert.match(preflight,/ROLLBACK;/);
+});
