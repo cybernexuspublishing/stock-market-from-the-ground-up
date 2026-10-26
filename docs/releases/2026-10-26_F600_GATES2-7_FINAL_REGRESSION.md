@@ -82,7 +82,8 @@ Legal review is not legal advice.
 | 4 | 30/60 paid TEST invoices with correct Sparks | $49.99/5 and $59.99/15; paid event IDs | Two genuine Stripe TEST events and shadow rows matched (dual-endpoint caveat) | `evt_1UUeLq...`, `evt_1UUeM1...`, shadow ledger | PASS | PROVEN |
 | 4 | Full TEST refund/cancel/failed invoice | Correct reversal, paid-through, zero paid for fail | Stripe TEST event IDs matched shadow states | `evt_3UUeLz...`, `evt_1UUeOW...`, `evt_1UUePt...` | PASS | PROVEN |
 | 4 | Idempotent duplicate invoice | No double-grant | Isolated DB RPC `replayed:true` on repeated same provider id | `gu_f600_sandbox_apply_v014215` | PASS | TESTED |
-| 4 | Exclusive Yahoo master signed webhook delivery | Paid TEST event recorded ONLY via master | Paid Stripe TEST invoice created but shadow intent has 0 events/cycles during test | `in_1UUegJJY9FI7byHBz3GQdWpR`; intent `da079c06...` | FAIL | TESTED |
+| 4 | Exclusive Yahoo master signed webhook delivery | Paid TEST event recorded ONLY via master | New 30/60 paid TEST invoice events exclusively reached master, with correct shadow amount, term and Sparks | `evt_1UUfILJ...`, `evt_1UUfIf...`; above detailed evidence | PASS | PROVEN |
+| 4 | Master-only TEST cancel and refund | Scheduled cancellation preserves paid-through; refund reverses paid cycle and remaining included Sparks | Both cases matched real provider events and isolated master shadow rows | `evt_1UUfL3...`, `evt_3UUfId...` | PASS | PROVEN |
 | 4 | Real TEST clock renewals, upgrades and disputes | Provider events and correct cycles | TEST clock created; plugin did not expose advance operation; no proof | `clock_1UUeJ8JY9FI7byHBsTE8Qa9l` | BLOCKED | IMPLEMENTED |
 | 5 | Isolated 600-seat concurrency 16/32/64 | 600 unique, 40 rejects per run, both plans, expiry | Exactly as expected; 1920 total calls | CI 40264373244 | PASS | TESTED |
 | 5 | Simultaneous actual TEST checkouts | No 601st paid founder | Cannot exercise production allocator without enabling LIVE gate | Founding switches remain off | BLOCKED | IMPLEMENTED |
@@ -91,7 +92,7 @@ Legal review is not legal advice.
 | 7 | Prelaunch hold and rollback documentation | No LIVE activation, docs complete | Controls verified and this package prepared | Cloudflare read-only, TEST API, Supabase | PASS | IMPLEMENTED |
 | 7 | Actual authorized LIVE launch | Requires Owner permission and successful earlier gates | Not attempted, as required | Owner policy | BLOCKED | NOT AUTHORIZED |
 
-**Final release decision: NO-GO.** Most important blocker: master-exclusive TEST webhook did not commit signed event to shadow DB. Further blockers: authenticated Owner/member acceptance, TEST renewals/upgrade/dispute, discounted eligible product commerce, member cancellation without metered Billing, attorney approval and complete provider-backed concurrency.
+**Final release decision: NO-GO.** The former master-exclusive TEST webhook failure is FIXED and now proven with fresh paid 30/60-day TEST invoices, cancellation and refund events. The remaining blockers are Further blockers: authenticated Owner/member acceptance, TEST renewals/upgrade/dispute, discounted eligible product commerce, member cancellation without metered Billing, attorney approval and complete provider-backed concurrency.
 **Owner-only actions:** (1) validate or reinstall correct master Stripe TEST endpoint signing secret (`GU39_STRIPE_TEST_WEBHOOK_SECRET`) in encrypted Yahoo Pages Production after matching exact endpoint; never paste in chat; (2) authorize genuine owner/member session QA or supply securely connected testing mechanism, not passwords in public repo; (3) attorney review for automatic renewal/refund/cancellation; (4) later separately authorize any LIVE transaction/cutover or paid billing service.
 **No Cloudflare build-token permissions/scope/name/expiration/IP settings were modified. No LIVE Stripe keys, prices, webhooks or payments were accessed by this run.**
 
@@ -111,4 +112,21 @@ Legal review is not legal advice.
 - Independently observed **the exact event ID** in `public.gu_f600_sandbox_events_v014215` with corresponding plan `FOUNDING_30`, test founder number `8`, and `processed_at=2026-10-26T04:05:11.700966Z`. Since the original and interim TEST webhook endpoints were disabled at delivery, this is master-exclusive signed delivery evidence.
 - **Restored TEST safety** immediately: `gu39_sandbox_settings.enabled=false`; original TEST webhook `we_1URIRZJY9FI7byHBWfVaGJym` enabled; new Yahoo master TEST endpoint and previous master TEST endpoint disabled. No LIVE Stripe resource was accessed or changed.
 - Former Gate 4 master-exclusive signed-webhook FAIL is now **PASS / PROVEN for subscription.updated**. Master-exclusive `invoice.paid` and cycle grant, renewed invoice, test-clock advance, upgrade, dispute and all authentic signed-in member tests are *not yet* proven. Keep NO-GO for real sales.
+
+
+### Yahoo master-only TEST payment lifecycle expansion — 2026-10-26
+
+**Genuine provider evidence; all actions Stripe TEST (livemode=false) and shadow tables only. No LIVE Stripe resources accessed.** Repeated controlled windows with original TEST webhook disabled and replacement Yahoo master TEST endpoint `we_1UUf6eJY9FI7byHB0FuUEutL` enabled; independent `gu39_sandbox_settings.enabled=true` only during test. Each window restored original TEST endpoint enabled, new master endpoint disabled, and test shadow switch disabled. No real customer founder memberships or LIVE paid-cycle rows were created.
+
+| Scenario | Genuine TEST event ID | Result in `gu_f600_sandbox_*` | Evidence |
+| --- | --- | --- | --- |
+| 30-Day initial paid invoice | `evt_1UUfILJY9FI7byHBVGjIwaSS` | Intent founder #9, `$49.99`, 30-day cycle, 5 Sparks, `active` | TEST invoice `in_1UUfIJJY9FI7byHBbtKEMIgD` |
+| 60-Day initial paid invoice | `evt_1UUfIfJY9FI7byHBeNLHgBbp` | Intent founder #10, `$59.99`, 60-day cycle, 15 Sparks, `active` | TEST invoice `in_1UUfIcJY9FI7byHBrYl5MoZN` |
+| 30-Day cancel at paid-through | `evt_1UUfL3JY9FI7byHBrSFVa4Wy` | `cancel_scheduled`; original paid invoice retained, 5 Sparks retained | TEST subscription `sub_1UUfIJJY9FI7byHBtuVQOi87` |
+| 60-Day full refund | `evt_3UUfIdJY9FI7byHB0DABlAvC` | `refunded`, paid cycle reversed, remaining included Sparks 0 | TEST payment intent `pi_3UUfIdJY9FI7byHB0Qo2GTdJ` |
+| Existing subscription update signing verification | `evt_1UUf9mJY9FI7byHBHmylSUuY` | Exact event ID matched shadow ledger exclusively via master | TEST subscription `sub_1UUegIJY9FI7byHBPkNPMIQq` |
+
+All listed event IDs were read back from Stripe TEST (`livemode:false`) and matched to Supabase shadow records. **THIS CLOSES THE HISTORICAL FAILED YAHOO MASTER-ONLY WEBHOOK DELIVERY CASE** and proves master-only initial paid invoice, cancellation scheduling and refund handling. It does **not** prove future scheduled renewal via TEST clock, mid-term upgrade without a duplicate active subscription, dispute creation, fully authenticated production member journey, or provider-integrated 600-person concurrency. A subsequent billing-cycle-anchor reset produced only a `customer.subscription.updated` event; do not label that a renewal. These remain release blockers.
+
+**Restored controls independently checked:** original TEST endpoint `we_1URIRZJY9FI7byHBWfVaGJym` enabled; new master TEST endpoint `we_1UUf6eJY9FI7byHB0FuUEutL` disabled; retired master TEST endpoint disabled; Supabase shadow switch false; live founding members and live paid cycles both zero. Old LIVE webhook, LIVE Stripe prices and all LIVE keys were not touched.
 
