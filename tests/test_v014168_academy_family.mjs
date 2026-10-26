@@ -78,7 +78,7 @@ assert(client.includes("Optional related book Labs"),
  'Academy must disclose independently entitled, nonrequired book Labs');
 assert(client.includes("Independent evidence investigation"),'Each authored case must render on the same Academy lesson page');
 assert(client.includes("answer.value.trim().length<40"),'The formative review requires learner reasoning first');
-assert(client.includes("No mastery was awarded."));
+assert(client.includes('not mastery.')&&client.includes('not graded mastery.'),'Academy must disclose that self-check and reflection do not award mastery');
 
 const academyCss=fs.readFileSync('assets/css/bootcamp-academy-v014168.css','utf8');
 const sharedCss=fs.readFileSync('assets/css/lab-v33-experience.css','utf8');
