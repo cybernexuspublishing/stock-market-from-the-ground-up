@@ -80,10 +80,11 @@ const a=answers[q.id];if(a===undefined||a===null||String(a).length>200)throw pro
 if(q.criticalOnWrong!==undefined&&typeof q.criticalOnWrong!=='boolean')
  throw problem('Critical-error grading must be explicitly true or false.');
 if(q.partialTolerance!==undefined||q.partialCreditPct!==undefined){
- if(q.kind!=='number'||!Number.isFinite(Number(q.partialTolerance))||
-   !Number.isInteger(Number(q.partialCreditPct))||Number(q.partialCreditPct)<1||
-   Number(q.partialCreditPct)>99||Number(q.partialTolerance)<=Number(q.tolerance)||
-   Number(q.partialTolerance)>1000)
+ if(q.kind!=='number'||typeof q.partialTolerance!=='number'||
+   !Number.isFinite(q.partialTolerance)||typeof q.partialCreditPct!=='number'||
+   !Number.isInteger(q.partialCreditPct)||q.partialCreditPct<1||
+   q.partialCreditPct>99||q.partialTolerance<=Number(q.tolerance)||
+   q.partialTolerance>1000)
   throw problem('Partial credit requires a numeric question, wider numeric tolerance and an integer percentage between 1 and 99.');
 }}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
 export async function onRequest({request,env}){try{const actor=await owner(env,request),u=new URL(request.url),action=u.searchParams.get('action')||'list';
