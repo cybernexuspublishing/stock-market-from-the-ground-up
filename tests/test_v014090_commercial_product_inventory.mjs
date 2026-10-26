@@ -18,7 +18,7 @@ const store=read('assets/js/store.js'),admin=read('assets/js/admin-products-v014
 storeHtml=read('store.html'),adminHtml=read('admin.html'),css=read('assets/css/store-sales-v01489.css'),
 payment=read('functions/api/admin.js');
 for(const name of ['store.html','admin.html'])assert.ok(read(name).includes('store-upcoming-offerings-v01490.js'));
-assert.ok(store.includes('GroundUpUpcomingOfferings'));
+assert.ok(store.includes('const futureLearning=()=>[];'),'Unstarted offerings remain hidden from public Store');
 assert.ok(store.includes('futureLearning().filter(x=>!futureIds.has(x.code))'),'Promoted SKU must supersede placeholder');
 assert.ok(store.includes('store-price-label'));
 assert.ok(store.includes('Subscribe Now'),'Selling must have actionable checkout when verified live');
