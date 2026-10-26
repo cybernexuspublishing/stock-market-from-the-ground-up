@@ -30,11 +30,32 @@ export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDE
  // be supplied as apikey; using them as JWT Authorization breaks PostgREST.
  const headers={apikey:c.secret,accept:'application/json'};
  if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;
- const profile=await ask(c.base+'/rest/v1/profiles?select=account_kind&id=eq.'+enc(user.id)+'&limit=1',{headers});if(profile[0]?.account_kind!=='member')return{authorized:false,userId:user.id,reason:'Only eligible production member accounts may use this tool.'};
- const flags=await ask(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+enc(user.id)+'&limit=1',{headers});
- if(['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))return {authorized:false,userId:user.id,reason:'Account access is restricted. Contact support.'};
- const allowed=await ask(c.base+'/rest/v1/rpc/user_has_tool_access',{method:'POST',headers:{...headers,'content-type':'application/json'},body:JSON.stringify({target_user:user.id,target_tool:toolCode})});
- return{authorized:allowed===true,userId:user.id,reason:allowed===true?'':'An active plan or matching individual tool entitlement is required.'};
+
+ // Free study eligibility is a separate, positive authorization decision.
+ // A denied premium tool does not imply the caller is eligible for Free.
+ const profile=await ask(c.base+'/rest/v1/profiles?select=account_kind,deleted_at&id=eq.'+enc(user.id)+'&limit=1',{headers});
+ if(!Array.isArray(profile)||profile.length!==1||profile[0].account_kind!=='member'||profile[0].deleted_at!=null)
+  return {authorized:false,freeEligible:false,denialCode:'ineligible_account',userId:user.id,
+   reason:'Only eligible production member accounts may use this tool.'};
+ const flags=await ask(c.base+'/rest/v1/admin_user_flags?select=status&user_id=eq.'+enc(user.id)+'&limit=20',{headers});
+ if(!Array.isArray(flags)||flags.length>20)throw error('Member restrictions could not be verified.',503);
+ if(flags.some(f=>['suspended','restricted'].includes(String(f?.status||'').toLowerCase())))
+  return {authorized:false,freeEligible:false,denialCode:'restricted_account',userId:user.id,
+   reason:'Account access is restricted. Contact support.'};
+ const roles=await ask(c.base+'/rest/v1/admin_user_roles?select=role_code,expires_at&user_id=eq.'+
+  enc(user.id)+'&role_code=eq.SHOWCASE_VIEWER&limit=20',{headers});
+ if(!Array.isArray(roles)||roles.length>20)throw error('Showcase restrictions could not be verified.',503);
+ if(roles.some(role=>role?.role_code==='SHOWCASE_VIEWER'&&
+   (!role.expires_at||!Number.isFinite(Date.parse(role.expires_at))||Date.parse(role.expires_at)>Date.now())))
+  return {authorized:false,freeEligible:false,denialCode:'showcase_account',userId:user.id,
+   reason:'Showcase accounts cannot use private member study or premium tools.'};
+ const allowed=await ask(c.base+'/rest/v1/rpc/user_has_tool_access',{
+  method:'POST',headers:{...headers,'content-type':'application/json'},
+  body:JSON.stringify({target_user:user.id,target_tool:toolCode})});
+ if(typeof allowed!=='boolean')throw error('Tool entitlement result could not be verified.',503);
+ return {authorized:allowed,freeEligible:true,
+  denialCode:allowed?null:'premium_entitlement_required',userId:user.id,
+  reason:allowed?'':'An active plan or matching individual tool entitlement is required.'};
 }
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'};
-export async function onRequest({request,env}){try{if(request.method!=='GET')return new Response(JSON.stringify({ok:false,error:'Method not allowed.'}),{status:405,headers:H});const toolCode=new URL(request.url).searchParams.get('tool')||'';const a=await toolAccess(env,request,toolCode);return new Response(JSON.stringify({ok:true,authorized:a.authorized,tool:toolCode,reason:a.reason}),{status:200,headers:H})}catch(e){return new Response(JSON.stringify({ok:false,error:e.message||'Authorization error.'}),{status:e.status||500,headers:H})}}
+export async function onRequest({request,env}){try{if(request.method!=='GET')return new Response(JSON.stringify({ok:false,error:'Method not allowed.'}),{status:405,headers:H});const toolCode=new URL(request.url).searchParams.get('tool')||'';const a=await toolAccess(env,request,toolCode);return new Response(JSON.stringify({ok:true,authorized:a.authorized,freeEligible:a.freeEligible===true,denialCode:a.denialCode||null,tool:toolCode,reason:a.reason}),{status:200,headers:H})}catch(e){return new Response(JSON.stringify({ok:false,error:e.message||'Authorization error.'}),{status:e.status||500,headers:H})}}

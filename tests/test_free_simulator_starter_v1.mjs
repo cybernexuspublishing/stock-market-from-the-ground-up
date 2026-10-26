@@ -38,7 +38,7 @@ assert(html.includes('browser developer tools'),'client sequence must not be mis
 assert(mode.includes("params.get('practice')==='free'"),'direct beginner deep links must work');
 assert(mode.includes("'groundup:request-free-practice'"),'Free Start must dispatch to existing simulator');
 assert(sim.includes("if(!acl.ok||grant.ok!==true)"),'provider authorization outage must fail closed');
-assert(sim.includes("freeEligible=grant.authorized===true||"),'eligibility must be explicit, not unconditional');
+assert(sim.includes("freeEligible=grant.freeEligible===true"),'eligibility must be explicit, not unconditional');
 assert(sim.includes("SIM.hasPremium=grant.authorized===true"),'must independently identify premium entitlement');
 assert(!sim.includes("Market Simulator access requires an active Full Membership or the Market Simulator tool pass."),'Free CSV must not be paywalled');
 assert(sim.includes("if(!SIM.hasPremium){smsg('sim-load-msg'"),'connected-provider access remains paid');

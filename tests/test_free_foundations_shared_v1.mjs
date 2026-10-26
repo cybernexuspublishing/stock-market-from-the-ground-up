@@ -46,6 +46,7 @@ globalThis.fetch=async(target,opts={})=>{
  if(p==='/auth/v1/user')return member?answer({id:member}):answer({code:'invalid'},401);
  if(p==='/rest/v1/profiles')return answer([{account_kind:state.showcase?'showcase':'member'}]);
  if(p==='/rest/v1/admin_user_flags')return answer(state.restricted?[{status:'restricted'}]:[]);
+ if(p==='/rest/v1/admin_user_roles')return answer([]);
  if(p==='/rest/v1/rpc/user_has_tool_access')return answer(state.paid);
  if(p==='/rest/v1/gu_bootcamp_academy_enrollments_v014168'){
   const id=u.searchParams.get('user_id')?.slice(3);

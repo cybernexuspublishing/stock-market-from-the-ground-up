@@ -80,8 +80,7 @@ export async function onRequest({request,env}){
   // profile kind, account flags, and existing entitlements. An account with
   // NO paid tool grant is still eligible for ungraded Free research practice.
   const a=await toolAccess(env,request,'MARKET_SIMULATOR');
-  const free=a.userId&&
-   (a.authorized===true||a.reason==='An active plan or matching individual tool entitlement is required.');
+  const free=a.userId&&a.freeEligible===true;
   if(!free)throw fail(a.reason||'Free member access required.',403);
   const id=a.userId;
   if(request.method==='GET'){

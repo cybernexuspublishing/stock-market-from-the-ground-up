@@ -9,6 +9,8 @@ on:
       - 'functions/_lib/bootcamp-academy-v014168.js'
       - 'functions/api/bootcamp-academy.js'
       - 'functions/api/free-watchlist.js'
+      - 'functions/api/member-tool-access.js'
+      - 'tests/test_membership_entitlement_boundaries_v1.mjs'
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'assets/js/free-watchlist-v1.js'
       - 'assets/js/dashboard.js'
@@ -43,6 +45,8 @@ jobs:
           node --check functions/_lib/bootcamp-academy-v014168.js
           node --check functions/api/bootcamp-academy.js
           node --check functions/api/free-watchlist.js
+          node --check functions/api/member-tool-access.js
+          node tests/test_membership_entitlement_boundaries_v1.mjs
           node --check assets/js/bootcamp-academy-v014168.js
           node --check assets/js/free-watchlist-v1.js
           node --check assets/js/dashboard.js

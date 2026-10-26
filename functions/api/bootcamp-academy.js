@@ -77,7 +77,7 @@ export async function onRequest({request,env}){
   }
   const requestedCode=request.method==='GET'?url.searchParams.get('program'):form.program;
   const eligibleFree=requestedCode==='free5'&&
-   auth.reason==='An active plan or matching individual tool entitlement is required.';
+   auth.freeEligible===true;
   if(!auth.userId||(!auth.authorized&&!eligibleFree))
    throw fault(auth.reason||'Authorized member training access required.',403);
   if(request.method==='GET'){

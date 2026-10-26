@@ -28,6 +28,7 @@ globalThis.fetch=async(raw,opts={})=>{
  if(path==='/auth/v1/user')return member?response({id:member}):response({code:'invalid'},401);
  if(path==='/rest/v1/profiles')return response([{account_kind:state.showcase?'showcase':'member'}]);
  if(path==='/rest/v1/admin_user_flags')return response(state.restricted?[{status:'suspended'}]:[]);
+ if(path==='/rest/v1/admin_user_roles')return response([]);
  if(path==='/rest/v1/rpc/user_has_tool_access')return response(state.paid);
  if(path==='/rest/v1/gu_free_research_watchlist_v1'){
   const userParam=u.searchParams.get('user_id'),requested=userParam?.slice(3),symbol=u.searchParams.get('symbol')?.slice(3);
