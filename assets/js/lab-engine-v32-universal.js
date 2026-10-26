@@ -768,7 +768,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    // legacy <details> nodes to relocate. Build the SAME non-grading actions
    // from the current topic's instructional plan rather than silently
    // omitting them whenever the Instructor is available.
-   if(instructorInstance){
+   // Prefer the exact source-backed worked explanations already prepared
+   // by this Lab. Only synthesize a complete accessible four-action fallback
+   // for older lessons that genuinely lack one or more authored actions.
+   if(instructorInstance&&stageOneGuides.length!==4){
     const learn=lessonPlan(1)||{},review=lessonPlan(6)||{};
     const blocks=(Array.isArray(learn.blocks)?learn.blocks:[])
      .map(v=>String(v||'').trim()).filter(Boolean);
