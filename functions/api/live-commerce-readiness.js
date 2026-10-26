@@ -40,25 +40,27 @@ export async function onRequestGet({request,env}){
   if(!/^sk_live_[A-Za-z0-9_]+$/.test(live)||!/^acct_[A-Za-z0-9_]{6,}$/.test(accountID)||
    !/^https:\/\/[a-z0-9-]+\.pages\.dev$/.test(host))throw Error('PROVIDER_NOT_CONFIGURED');
   const h=allowedHeaders(secret),api='https://api.stripe.com/v1/';
-  const [store,books,founder,account,prices,hooks]=await Promise.all([
+  const [store,books,founder,account,prices,products,hooks]=await Promise.all([
     readJSON(base+'/rest/v1/gu_storefront_items_v014174?select=sku,category,sale_ready,visible,status&limit=150',{headers:h}),
     readJSON(base+'/rest/v1/gu_digital_books_v01430?select=product_code&limit=1',{headers:h}),
     readJSON(base+'/rest/v1/gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&limit=1',{headers:h}),
     readJSON(api+'account',{headers:{authorization:'Bearer '+live}}),
     readJSON(api+'prices?limit=100',{headers:{authorization:'Bearer '+live}}),
+    readJSON(api+'products?limit=100',{headers:{authorization:'Bearer '+live}}),
     readJSON(api+'webhook_endpoints?limit=100',{headers:{authorization:'Bearer '+live}})
   ]);
   if(!Array.isArray(store)||!Array.isArray(books)||!Array.isArray(founder)||
-     !Array.isArray(prices.data)||!Array.isArray(hooks.data)||account.id!==accountID||
-     store.length!==60||prices.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
+     !Array.isArray(prices.data)||!Array.isArray(products.data)||!Array.isArray(hooks.data)||account.id!==accountID||
+     store.length!==60||prices.has_more===true||products.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
   const expected=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
    'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'];
   const m=parseMap(env.GU58_STRIPE_LIVE_CATALOG_JSON,expected);
   const f=parseMap(env.GU_F600_LIVE_CATALOG_JSON,['FOUNDING_30','FOUNDING_60']);
   const lookup=new Map(prices.data.map(x=>[x.id,x]));
+  const productByID=new Map(products.data.map(x=>[x.id,x]));
   const mapped=[...Object.entries(m),...Object.entries(f)];
   const pricesVerified=mapped.every(([,x])=>{const p=lookup.get(x.price_id);return p&&p.active===true&&
-   p.livemode===true&&p.product===x.product_id&&p.currency==='usd'&&
+   p.livemode===true&&p.product===x.product_id&&productByID.get(x.product_id)?.active===true&&p.currency==='usd'&&
    Number.isSafeInteger(p.unit_amount)&&p.unit_amount>0});
   const hookOK=(suffix,events)=>{
    const url=host+'/api/'+suffix;
@@ -68,7 +70,7 @@ export async function onRequestGet({request,env}){
   const flags=['GU_PAYMENT_LIVE_LAUNCH_APPROVED','GU58_LIVE_CHECKOUT_ENABLED','GU58_LIVE_WEBHOOK_ENABLED',
    'GU58_LIVE_FULFILLMENT_APPROVED','GU58_LIVE_DB_CONTRACT_APPROVED',
    'GU_F600_LIVE_CHECKOUT_ENABLED','GU_F600_LIVE_WEBHOOK_ENABLED',
-   'GU_F600_LIVE_FULFILLMENT_APPROVED'];
+   'GU_F600_LIVE_FULFILLMENT_APPROVED','GU_LIVE_FINAL_OWNER_PAYMENT_TEST_ACCEPTED'];
   const gates=Object.fromEntries(flags.map(k=>[k,env[k]==='true']));
   const counts={};for(const x of store){const k=String(x.category||'unknown');const c=counts[k]||(counts[k]={total:0,ready:0,hidden:0});c.total++;if(x.sale_ready===true)c.ready++;if(x.visible===false)c.hidden++;}
   const safe=[],blocked=[];
@@ -83,7 +85,7 @@ export async function onRequestGet({request,env}){
   test(books.length>0||!store.some(x=>x.category==='book'&&x.sale_ready===true),'DIRECT_BOOK_DELIVERY_IF_OFFERED');
   return json({ok:true,go:blocked.length===0,readOnly:true,host,accountMatched:true,
     mappedSKUs:mapped.length,verifiedMappedPrices:pricesVerified,storeCount:store.length,
-    activePriceCount:prices.data.filter(x=>x.active).length,categoryCounts:counts,
+    activePriceCount:prices.data.filter(x=>x.active).length,activeProductCount:products.data.filter(x=>x.active).length,categoryCounts:counts,
     verified:safe,blockers:blocked,
     explanation:'Source evidence only. A green preflight does not replace member-browser, signed-event idempotency, cancellation, refunds, digital-rights or final Owner payment acceptance.'});
  }catch{return json({ok:false,go:false,error:'LIVE release evidence unavailable; checkout remains closed.'},503)}
