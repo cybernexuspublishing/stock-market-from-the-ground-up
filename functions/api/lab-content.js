@@ -6,6 +6,31 @@ import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
 import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../_lib/founding-beta-learning-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
+// Instructional prose only. The private database contains grading, editorial
+// review and assessment fields that must NEVER pass through a member API.
+// Use an allowlist rather than returning arbitrary JSON or removing a few
+// currently-known secret keys (future private columns must also remain hidden).
+const lessonText=(v,max=2200)=>typeof v==='string'?v.slice(0,max):'';
+const lessonList=(v)=>Array.isArray(v)?v.filter(x=>typeof x==='string'&&x.trim()).slice(0,14)
+ .map(x=>lessonText(x,850)):[];
+export function publicGuidedLesson(raw,labId,bookNumber){
+ const r=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ const t=r.teaching&&typeof r.teaching==='object'&&!Array.isArray(r.teaching)?r.teaching:{};
+ return {
+  id:String(labId),book:Number(bookNumber)||0,
+  concept:lessonText(r.concept,240),objective:lessonText(r.objective),
+  what:lessonText(r.what),why:lessonText(r.why),when:lessonText(r.when),
+  commonError:lessonText(r.commonError),limitation:lessonText(r.limitation),
+  workedExample:lessonText(r.workedExample),
+  steps:lessonList(r.steps),
+  teaching:{
+   what:lessonText(t.what||r.what),why:lessonText(t.why||r.why),
+   when:lessonText(t.when||r.when),how:lessonList(t.how).length?lessonList(t.how):lessonList(r.steps),
+   commonError:lessonText(t.commonError||r.commonError),
+   limitation:lessonText(t.limitation||r.limitation)
+  }
+ };
+}
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
 async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;const r=await fetch(c.base+'/rest/v1/'+path,{headers,cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Private Lab service temporarily unavailable.'),{status:503,code:'PRIVATE_LAB_STORE_UNAVAILABLE'});return r.json()}
 const bookCode=b=>({1:'FOUNDATION_BOOK_1',2:'FOUNDATION_BOOK_2',3:'FOUNDATION_BOOK_3',4:'DAY_TRADING_BOOK_1',5:'READING_THE_TAPE'})[Number(b)];
@@ -34,7 +59,7 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
  // before any book-derived lesson body leaves the service-role backend.
  const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
  const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&order=lab_id.asc&limit=150');
- return send({ok:true,labs:rows.filter(r=>isBetaCandidateLab(r.lab_id)&&coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
+ return send({ok:true,labs:rows.filter(r=>isBetaCandidateLab(r.lab_id)&&coverage[Number(r.book_number)-1]===true).map(r=>publicGuidedLesson(r.content,r.lab_id,r.book_number))})}
  const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);
 // Authenticate BEFORE privileged database reads, even for published sample IDs.
 // A sample means free guided education for eligible signed-in members—not a
@@ -63,7 +88,7 @@ const guided=ownsBook||sample||scopedFoundingBeta||Number(row.book_number)===6&&
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
- return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium,
+ return send({ok:true,lab:publicGuidedLesson(row.content,row.lab_id,row.book_number),guidedAllowed:true,advancedAllowed:premium,
   sourceStatus:scopedFoundingBeta?'founding600_authored_b01_guided_beta_ungraded':
    unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
   foundingBetaStudy:scopedFoundingBeta,gradedCreditEligible:false,
