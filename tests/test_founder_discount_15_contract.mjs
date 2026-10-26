@@ -53,6 +53,7 @@ test('Founders Commons official policy correction uses approved 15 percent only'
  const ui=read('founders-commons.html');
  assert.match(ui,/id="gu-f600-beta-center"/);
  assert.match(ui,/Sitewide Beta Test Center/);
+ assert.match(ui,/Maximum founding places, not current members/);
  assert.match(ui,/report problems without including personal or payment information/i);
  assert.match(ui,/href="market-commons\.html\?forum=F600_BUGS"/);
  assert.match(ui,/href="dashboard\.html\?tab=support"/);
