@@ -80,7 +80,7 @@ function renderRecordedGrades(evidence){
  if(!evidence?.graded){host.textContent='Recorded step-wise learning grades are not available for this account or entitlement. Existing grades were not replaced with zeros.';return}
  const grades=evidence.graded,rows=Array.isArray(grades.latestByLab)?grades.latestByLab:[];
  const counts=document.getElementById('recorded-training-summary');
- if(counts)counts.textContent=rows.length+' distinct Lab(s) with a recorded private assessment · '+grades.reviewedRows+' recent graded attempt(s)'+(grades.truncated?' · more than 500 rows; showing the most recent only':'')+'. Grades are conceptual assessment evidence, not trading results or automatically awarded mastery.';
+ if(counts)counts.textContent=rows.length+' distinct Lab(s) with scored conceptual exercises · '+grades.reviewedRows+' recorded scored attempt(s)'+(grades.truncated?' · more than 500 rows; showing the most recent only':'')+'. Only Assessment-mode results are labeled assessments. Other scored exercises are formative learning records, not trading results or automatically awarded mastery.';
  host.innerHTML=rows.length?'<ol>'+rows.slice(0,30).map(x=>'<li><a href="labs.html?q='+encodeURIComponent(x.labId)+'">'+se(x.labId)+'</a> — '+Number(x.score)+'% ('+se(x.mode)+', '+se(new Date(x.completedAt).toLocaleDateString())+')</li>').join('')+'</ol>':'<p>No reviewed step-wise training grades are recorded. The 419 draft assessments are not graded until their rubric is reviewed.</p>';
 }
 async function reconcileReviewedKnowledge(sb){
