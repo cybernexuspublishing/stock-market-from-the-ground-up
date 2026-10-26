@@ -29,6 +29,13 @@ assert.deepEqual(classification.rows.map(x=>x.stage),[
 assert(!JSON.stringify(classification).includes('PRIVATE_KEY_MUST_NOT_LEAK'));
 assert(!JSON.stringify(classification).includes('Identifying the premarket high'),'Private lesson content must remain on server');
 assert.equal(classification.breakdown.privateInstructions,3);
+assert.equal(classification.breakdown.depthObjectives,3,'Original private lessons have source objectives');
+assert.equal(classification.breakdown.depthGuidedMethods,3,'Three authentic authored steps are present');
+assert.equal(classification.breakdown.depthWorkedExamples,0,'Do not invent a worked example from metadata');
+assert.equal(classification.breakdown.depthMisconceptions,0,'Missing misconception remains an editorial gap');
+assert.equal(classification.breakdown.depthIndependentTransfers,0,'Generic review cannot be counted as independent transfer');
+assert.equal(classification.breakdown.depthAllSevenPrechecks,0,'Shape-only lessons never get automatic depth acceptance');
+
 assert.equal(classification.breakdown.substantivePrivateLessonPrechecks,3);
 assert.equal(classification.rows[1].substantivePrivateLessonPrecheck,true);
 const draftOnly=classifyOwnerLabs({labs,instructions:[
