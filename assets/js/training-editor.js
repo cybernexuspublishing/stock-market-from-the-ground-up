@@ -13,7 +13,38 @@ function add(q={},key=''){const row=document.createElement('section');row.classN
  const redraw=()=>{question.textContent=row.querySelector('[data-q="prompt"]').value||'Enter the question text.';
   choices.textContent=kind.value==='choice'?'Choices: '+row.querySelector('[data-q="options"]').value.split('|').map(x=>x.trim()).filter(Boolean).join(' • '):'Numeric answer — learner will enter a value.';summary()};
  row.addEventListener('input',redraw);row.addEventListener('change',()=>{toggle();redraw()});redraw()}
-let mappedRubric=null;
+let mappedRubric=null,lessonReview=null;
+async function refreshPrivateLessonReview(){
+ const state=$('#author-lesson-review-status'),approve=$('#author-lesson-review-approve');
+ if(!state||!approve)return;
+ approve.disabled=true;lessonReview=null;
+ const lab=mappedRubric?.labId;
+ if(!lab){state.textContent='Choose one saved B01 rubric before reviewing its private lesson.';return}
+ try{
+  const r=await api('lesson-status','GET',null,'labId='+encodeURIComponent(lab));
+  state.textContent=lab+' · '+r.sourceStatus+
+   (r.substantivePrecheck?' · private teaching structural checks passed':' · authored teaching precheck incomplete')+
+   '. Reviewed lesson status is independent from grading approval and member testing.';
+  lessonReview={lab,expected:r.updatedAt,allowed:r.substantivePrecheck&&
+   r.sourceStatus==='original_hypothetical_unreviewed_v01496'};
+  approve.disabled=!lessonReview.allowed;
+ }catch(err){state.textContent='Private lesson cannot be verified: '+err.message}
+}
+$('#author-lesson-review-refresh').onclick=refreshPrivateLessonReview;
+$('#author-lesson-review-approve').onclick=async()=>{
+ const status=$('#author-lesson-review-status'),button=$('#author-lesson-review-approve');
+ if(!lessonReview?.allowed){status.textContent='Reload the specific unreviewed B01 lesson first.';return}
+ if(!confirm('Approve the current, individually inspected original fictional B01 teaching lesson? Historical tape, independent assessment grades and Beta Ready are NOT certified.'))return;
+ button.disabled=true;
+ try{
+  const r=await api('review-lesson','POST',{labId:lessonReview.lab,
+   expectedUpdatedAt:lessonReview.expected,confirmPhrase:'REVIEW B01 PRIVATE LESSON'});
+  status.textContent=r.notice;
+  lessonReview=null;
+  await refreshPrivateLessonReview();
+ }catch(e){status.textContent='Lesson approval was not recorded: '+e.message;await refreshPrivateLessonReview()}
+};
+
 const V96_SEED_IDS=new Set(['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDARY']);
 function renderTopicReviewWarning(set){
  const el=$('#author-topic-review-notice');if(!el)return;
@@ -143,14 +174,14 @@ $('#author-foundations-missing').addEventListener('change',function(){
  const lab=(bookChoice()==='OTHER'?otherIndex:foundationsIndex)?.find(x=>x.id===this.value);if(!lab)return;
  if(!confirm('Start an UNSAVED private rubric draft for '+lab.id+'? Current unsaved editor changes will be replaced.')){this.value='';return}
  form.elements.labId.value=lab.id;form.elements.title.value=lab.title;
- rows.replaceChildren();add();lastDraft=null;editorRevision=null;mappedRubric=null;
+ rows.replaceChildren();add();lastDraft=null;editorRevision=null;mappedRubric=null;lessonReview=null;void refreshPrivateLessonReview();
  $('#author-topic-review-notice').textContent='A topic-specific question and independent answer review are required before approval.';
  msg.textContent='Prepared UNSAVED draft for '+lab.id+'. Nothing was submitted or approved.';
  this.value='';void loadKnowledgeMap();
 });$('#author-existing').onchange=async e=>{if(!e.target.value)return;const [labId,version]=e.target.value.split('|');try{const d=await api('get','GET',null,'labId='+encodeURIComponent(labId)+'&version='+version),s=d.set;form.elements.labId.value=s.lab_id;form.elements.title.value=s.title;rows.replaceChildren();for(const q of s.questions)add(q,s.answer_key[q.id]);lastDraft=s.review_state==='draft'?{labId,version:s.version}:null;editorRevision=s.updated_at||null;
  mappedRubric={labId,version:s.version,reviewState:s.review_state};
  renderTopicReviewWarning(s);
- void loadKnowledgeMap();
+ void loadKnowledgeMap();void refreshPrivateLessonReview();
  msg.textContent=s.review_state==='reviewed'?'Reviewed version is locked. Saving changes creates a new draft.':'Draft loaded for editing.'}catch(err){msg.textContent=err.message}};
 form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try{for(const node of rows.children){const o=Object.fromEntries([...node.querySelectorAll('[data-q]')].map(e=>[e.dataset.q,e.type==='checkbox'?e.checked:e.value]));const id=o.id.trim(),kind=o.kind;
  if(!id||questions.some(q=>q.id===id))throw Error('Question IDs must be filled and unique.');
@@ -158,7 +189,7 @@ form.onsubmit=async ev=>{ev.preventDefault();const questions=[],answerKey={};try
  const opts=kind==='choice'?o.options.split('|').map(x=>x.trim()).filter(Boolean):[];
  if(kind==='choice'&&(opts.length<2||!opts.includes(o.answer.trim())||new Set(opts.map(x=>x.toLowerCase())).size!==opts.length))throw Error('Correct answer must exactly match one of at least two choices in question '+id+'.');
  if(kind==='number'&&(!o.answer.trim()||!Number.isFinite(Number(o.answer))||!Number.isFinite(Number(o.tolerance))||Number(o.tolerance)<0))throw Error('Numeric questions require a valid answer and a nonnegative tolerance.');
- const partial={};if(kind==='number'&&(o.partialTolerance.trim()||o.partialCreditPct.trim())){if(!o.partialTolerance.trim()||!o.partialCreditPct.trim()||!Number.isFinite(Number(o.partialTolerance))||Number(o.partialTolerance)<=Number(o.tolerance)||Number(o.partialTolerance)>1000||!Number.isInteger(Number(o.partialCreditPct))||Number(o.partialCreditPct)<1||Number(o.partialCreditPct)>99)throw Error('Partial-credit range must exceed exact tolerance and use an integer credit percentage from 1–99 in question '+id+'.');partial.partialTolerance=Number(o.partialTolerance);partial.partialCreditPct=Number(o.partialCreditPct)}questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,criticalOnWrong:o.criticalOnWrong===true,...partial,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey,expectedUpdatedAt:editorRevision});lastDraft={labId:r.labId,version:r.version};editorRevision=r.updatedAt||null;mappedRubric={labId:r.labId,version:r.version,reviewState:'draft'};void loadKnowledgeMap();msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
+ const partial={};if(kind==='number'&&(o.partialTolerance.trim()||o.partialCreditPct.trim())){if(!o.partialTolerance.trim()||!o.partialCreditPct.trim()||!Number.isFinite(Number(o.partialTolerance))||Number(o.partialTolerance)<=Number(o.tolerance)||Number(o.partialTolerance)>1000||!Number.isInteger(Number(o.partialCreditPct))||Number(o.partialCreditPct)<1||Number(o.partialCreditPct)>99)throw Error('Partial-credit range must exceed exact tolerance and use an integer credit percentage from 1–99 in question '+id+'.');partial.partialTolerance=Number(o.partialTolerance);partial.partialCreditPct=Number(o.partialCreditPct)}questions.push({id,prompt:o.prompt.trim(),kind,options:opts,tolerance:kind==='number'?Number(o.tolerance):0,criticalOnWrong:o.criticalOnWrong===true,...partial,explanation:o.explanation.trim()});answerKey[id]=kind==='number'?Number(o.answer):o.answer.trim()}const r=await api('draft','POST',{labId:form.elements.labId.value,title:form.elements.title.value,questions,answerKey,expectedUpdatedAt:editorRevision});lastDraft={labId:r.labId,version:r.version};editorRevision=r.updatedAt||null;mappedRubric={labId:r.labId,version:r.version,reviewState:'draft'};void loadKnowledgeMap();void refreshPrivateLessonReview();msg.textContent=r.notice;await refresh()}catch(e){msg.textContent=e.message}};
 $('#author-review').onclick=async()=>{if(!lastDraft){msg.textContent='First save a draft.';return}if(!confirm('You have individually verified all question prompts, one correct key for each, mathematical and partial-credit tolerances, critical risk flags, explanation quality, and the fictional-versus-historical source label. This ONLY releases authored assessment grading and does not verify historical tape or certify trading skill.'))return;try{const r=await api('review','POST',{labId:lastDraft.labId,title:form.elements.title.value,version:lastDraft.version,confirmPhrase:'REVIEW BOOK RUBRIC'});msg.textContent=r.notice;mappedRubric={labId:r.labId,version:r.version,reviewState:'reviewed'};void loadKnowledgeMap();lastDraft=null;editorRevision=null;await refresh()}catch(e){msg.textContent=e.message}};
 add();refresh().catch(e=>{rubricIndexLoaded=false;showFoundationsQueue();msg.textContent=e.message});
 loadFoundationsIndex().catch(e=>{foundationsIndex=null;showFoundationsQueue();msg.textContent='Foundations index unavailable: '+e.message});
