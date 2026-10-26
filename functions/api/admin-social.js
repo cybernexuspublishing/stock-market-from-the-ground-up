@@ -1,4 +1,5 @@
 import {checkMutationOrigin,boundedForumJson} from '../_lib/forum-request-guards-v014105.js';
+import {SOCIAL_PROVIDER_CAPABILITIES, SOCIAL_MAX_EXTERNAL_SPEND_CENTS} from '../_lib/social-provider-capabilities-v014279.mjs';
 
 /* Free, Owner-only social marketing operations.
  * NO outbound X/Stripe/Meta API calls, paid requests, automatic scheduling or claims of provider verification.
@@ -148,7 +149,7 @@ async function snapshot(c,actor){
   db(c,tables.audit+'?select=action,resource_type,resource_id,details,created_at&actor=eq.'+actor+'&order=created_at.desc&limit=50')
  ]);
  return {ok:true,account:{platform:'x',handle:'@SMFGUAcademy',connectionStatus:'manual_only',apiPublishingEnabled:false,
-  platformApiSpendingLimitCents:0},posts,communities,campaigns,templates,tasks,metrics,audit};
+  platformApiSpendingLimitCents:SOCIAL_MAX_EXTERNAL_SPEND_CENTS},providers:SOCIAL_PROVIDER_CAPABILITIES,posts,communities,campaigns,templates,tasks,metrics,audit};
 }
 function metric(data,actor){
  if(!isUUID(data.postId))throw err('Select a published post.');
