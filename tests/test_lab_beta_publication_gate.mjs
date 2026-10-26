@@ -49,13 +49,14 @@ function mockFetch(url){
    {lab_id:upcoming,active:true,registry_visible:true}
  ];
  else if(u.pathname.endsWith('/lab_instruction_v014')) data=[
-   {lab_id:candidate,source_status:'editorially_reviewed_v1'},
+   {lab_id:candidate,source_status:'editorially_reviewed_v1',reviewed_by:'owner-account',reviewed_at:'2026-10-26T07:00:00Z'},
    {lab_id:draft,source_status:'original_hypothetical_unreviewed_v01496',...{lesson_batch:'2026-10-25-B01',
    authoring_status:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
    concept:'A sourced trading observation',
    objective:'Explain what source confirms a hypothetical catalyst',
    why:'A screenshot may misidentify an issuer and omit the financial-reporting period.',
    steps:['Identify the original issuer and publication date','Compare timestamps before making a decision','Explain the evidence that would invalidate the claim']}},
+   {lab_id:canonical,source_status:'editorially_reviewed_v1',reviewed_by:null,reviewed_at:null},
    {lab_id:upcoming,source_status:'original_hypothetical_unreviewed_v01496',...{lesson_batch:'2026-10-25-B01',
    authoring_status:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
    concept:'A sourced trading observation',
@@ -66,6 +67,7 @@ function mockFetch(url){
  else if(u.pathname.endsWith('/lab_training_sets_v014')) data=[
    {lab_id:candidate,review_state:'reviewed',reviewed_by:'reviewer',reviewed_at:'2026-10-26T00:00:00Z'},
    {lab_id:draft,review_state:'reviewed',reviewed_by:'reviewer',reviewed_at:'2026-10-26T00:00:00Z'},
+   {lab_id:canonical,review_state:'reviewed',reviewed_by:'reviewer',reviewed_at:'2026-10-26T00:00:00Z'},
    {lab_id:upcoming,review_state:'reviewed',reviewed_by:'reviewer',reviewed_at:'2026-10-26T00:00:00Z'}
  ];
  else throw Error('Unexpected test fetch '+u.pathname);
@@ -77,8 +79,8 @@ try{
  assert.equal(response.status,200);
  assert.equal(response.headers.get('cache-control'),'no-store, max-age=0');
  const body=await response.json();
- assert.deepEqual(body.publishedIds,[candidate], 'No draft and no SITE-018–100 can receive Start');
- assert.deepEqual(body.guidedBetaIds,[draft,canonical].sort(), 'Authored private and canonical study must open for Guided Beta without official grade approval');
+ assert.deepEqual(body.publishedIds,[candidate], 'A grading set and unsupported review label cannot publish without attributable lesson review');
+ assert.deepEqual(body.guidedBetaIds,[draft,canonical].sort(), 'Ungraded teaching remains available when review attribution is missing');
  assert(!body.guidedBetaIds.includes(upcoming),'No future SITE Lab should receive a beta Start');
  assert(!body.guidedBetaIds.includes(empty),'A selected Lab without any teaching source is not silently launched');
  assert.equal(body.guidedBetaPolicy,'ungraded_existing_private_or_canonical_teaching_no_mastery');
