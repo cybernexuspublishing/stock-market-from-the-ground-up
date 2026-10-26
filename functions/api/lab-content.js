@@ -1,8 +1,8 @@
 /* Paid instructional content is stored in Supabase service-role-only tables,
  * not in public/static JSON or public GitHub source. Member access is checked.
  */
-import {toolAccess} from './member-tool-access.js';
-const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'}});
+import {toolAccess,memberIdentity} from './member-tool-access.js';
+const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
 async function rest(env,path){const c=cfg(env),headers={apikey:c.secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))headers.authorization='Bearer '+c.secret;const r=await fetch(c.base+'/rest/v1/'+path,{headers,cache:'no-store'});if(!r.ok)throw Object.assign(new Error('Private Lab service temporarily unavailable.'),{status:503,code:'PRIVATE_LAB_STORE_UNAVAILABLE'});return r.json()}
@@ -33,9 +33,22 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
  const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
  const rows=await rest(env,'lab_instruction_v014?select=book_number,content&order=lab_id.asc&limit=150');
  return send({ok:true,labs:rows.filter(r=>coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
- const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
+ const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);
+// Authenticate BEFORE privileged database reads, even for published sample IDs.
+// A sample means free guided education for eligible signed-in members—not a
+// public API bypass for guest, suspended, or Showcase accounts.
+const actor=await memberIdentity(env,request);
+if(SAMPLES.has(id)){
+ const [profiles,flags]=await Promise.all([
+  rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(actor.userId)+'&limit=1'),
+  rest(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(actor.userId)+'&limit=1')
+ ]);
+ if(profiles[0]?.account_kind!=='member'||['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))
+  return send({ok:false,error:'An eligible member account is required for this guided sample.'},403);
+}
+const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
- const ownsBook= SAMPLES.has(id) && !request.headers.get('authorization') ? false : await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id)||Number(row.book_number)===6&&premium;
+ const ownsBook=await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id)||Number(row.book_number)===6&&premium;
  if(!guided)return send({ok:false,error:'An active matching book entitlement is required for this authored exercise.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
  return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium,
