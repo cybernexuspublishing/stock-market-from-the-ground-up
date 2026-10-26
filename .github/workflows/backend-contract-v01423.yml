@@ -6,6 +6,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+
+# Cancel obsolete push checks, preserve isolated manual/explicit reruns.
+concurrency:
+  group: backend-source-${{ github.workflow }}-${{ github.ref }}-${{ (github.event_name == 'workflow_dispatch' || github.run_attempt > 1) && github.run_id || 'push' }}
+  cancel-in-progress: ${{ github.event_name == 'push' && github.run_attempt == 1 }}
 jobs:
   source-and-api:
     name: API/source, privacy and public-build boundaries
