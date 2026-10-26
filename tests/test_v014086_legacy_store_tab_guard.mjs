@@ -7,10 +7,10 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const js=read('assets/js/production-completion.js');
 const ts=read('src/ts/production-completion.ts');
 const tabs=read('store.html');
-assert.ok(tabs.includes('id="store-tab-memberships"'));
+assert.ok(tabs.includes('id="store-tab-founders"'));
 for(const [name,s] of [['production JavaScript',js],['TypeScript source',ts]]){
   const func=s.indexOf('function storeTabs()');
-  const guard=s.indexOf("q('#store-tab-memberships')",func);
+  const guard=s.indexOf("q('#store-tab-founders')",func);
   const legacy=func+s.slice(func).search(/tabs\.id\s*=\s*'v132-store-tabs'/);
   const insert=func+s.slice(func).search(/insertBefore\(tabs,\s*plans\)/);
   assert.ok(func>=0&&guard>func&&guard<legacy&&legacy<insert,name+' Store guard must precede legacy injection');
