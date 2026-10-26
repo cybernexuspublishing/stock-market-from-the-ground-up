@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Free member research watchlist: record sources, uncertainty, review dates and NO TRADE decisions without market-feed or brokerage claims.">
+<title>Free Research Watchlist | The Stock Market: From the Ground Up</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/free-watchlist-v1.css">
+<script src="config.js"></script><script defer src="assets/js/site.js"></script>
+<script defer src="assets/js/supabase-client.js"></script>
+<script defer src="assets/js/session-manager.js"></script>
+<script defer src="assets/js/free-watchlist-v1.js"></script>
+</head><body data-auth-required="true">
+<header class="site-header"><div class="wrap nav">
+<a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a>
+<nav class="navlinks" aria-label="Main navigation"><a href="dashboard.html">Dashboard</a>
+<a href="bootcamp-academy.html?program=free5">Free Foundations</a>
+<a href="simulator.html?practice=free">Fictional Practice</a>
+<a href="market-commons.html">Market Commons</a><a href="account.html">Account</a></nav>
+</div></header>
+<main class="section"><div class="wrap free-watchlist">
+<div class="eyebrow">FREE MEMBERSHIP · RESEARCH &amp; OBSERVATION</div>
+<h1>Your research watchlist</h1>
+<p class="free-watchlist-intro">A watchlist is a list of questions to research, <strong>not a list of stocks to buy</strong>.
+Save up to 20 private notes to your account and resume them on another device after sign-in.
+Symbols and classifications are entered by you; the website does not verify your sources,
+pull a real-time quote, place an order, or issue trading recommendations.</p>
+<div class="free-watchlist-route"><a href="bootcamp-academy.html?program=free5&day=4" class="btn secondary">Learn watchlist fundamentals with Talia</a>
+<a href="simulator.html?practice=free" class="btn secondary">Practice on FICTIONAL candles</a>
+<a href="community-guidelines.html" class="btn secondary">Read source-verification rules</a></div>
+<div id="free-watchlist-gate" role="status" aria-live="polite">Checking signed-in member access…</div>
+<div class="free-watchlist-layout" id="free-watchlist-content" hidden>
+<section class="card free-watchlist-editor" aria-labelledby="free-watchlist-form-heading">
+<h2 id="free-watchlist-form-heading">Record a research candidate</h2>
+<p class="small">This is an educational research record, not a paper-trade execution or independently verified market dataset.</p>
+<form id="free-watchlist-form">
+<div class="free-watchlist-field"><label for="free-watchlist-symbol">Symbol or fictional identifier</label>
+<input id="free-watchlist-symbol" name="symbol" autocomplete="off" maxlength="12" pattern="[A-Za-z][A-Za-z0-9.\\-]{0,11}" required placeholder="GUSIM"></div>
+<div class="free-watchlist-grid">
+<div class="free-watchlist-field"><label for="free-watchlist-status">Current research decision</label>
+<select id="free-watchlist-status" name="status">
+<option value="RESEARCH">Research — investigate</option>
+<option value="WAITING_FOR_SOURCE">Wait for an original source</option>
+<option value="NO_TRADE">No trade — insufficient evidence</option>
+<option value="ARCHIVED">Archived — not a current candidate</option></select></div>
+<div class="free-watchlist-field"><label for="free-watchlist-source-kind">Source classification</label>
+<select id="free-watchlist-source-kind" name="sourceKind">
+<option value="UNVERIFIED">Unverified member entry</option>
+<option value="USER_RESEARCH">My own research — not independently verified</option>
+<option value="FICTIONAL">Original / illustrative fiction</option>
+</select></div></div>
+<div class="free-watchlist-field"><label for="free-watchlist-source-note">What source would you verify? (optional, 400 characters maximum)</label>
+<textarea id="free-watchlist-source-note" name="sourceNote" rows="2" maxlength="400" placeholder="Issuer, SEC filing type, date, period and link to original research…"></textarea></div>
+<div class="free-watchlist-field"><label for="free-watchlist-research-note">Reason for researching / waiting / choosing no trade (30–600 characters)</label>
+<textarea id="free-watchlist-research-note" name="researchNote" rows="5" required minlength="30" maxlength="600"
+ placeholder="State the evidence currently available, what remains unknown and what would change your research decision."></textarea></div>
+<p class="small">No prices are assumed. A ticker can be stale or ambiguous after corporate actions. Keep private personal information out of research notes.</p>
+<div class="free-watchlist-buttons"><button id="free-watchlist-save" type="submit" class="btn">Save research entry</button>
+<button id="free-watchlist-reset" type="button" class="btn secondary">Clear form</button></div>
+</form>
+<p id="free-watchlist-save-status" role="status" aria-live="polite"></p>
+</section>
+<section class="card free-watchlist-results" aria-labelledby="free-watchlist-saved-heading">
+<div class="free-watchlist-results-head"><h2 id="free-watchlist-saved-heading">Your saved research</h2>
+<strong id="free-watchlist-count">— / 20</strong></div>
+<p id="free-watchlist-status" role="status" aria-live="polite">Loading private entries…</p>
+<div id="free-watchlist-list" class="free-watchlist-items" aria-live="polite"></div>
+</section></div>
+<section class="card free-watchlist-teaching" aria-labelledby="free-watchlist-teaching-heading">
+<h2 id="free-watchlist-teaching-heading">Talia’s watchlist rule</h2>
+<p>Before adding a symbol, answer: <strong>Who published this? When? What can be verified? What is missing?</strong>
+A screenshot, high relative volume or a scanner hit does not establish a dependable catalyst, executable liquidity or a future price move.</p>
+<p>In a fictional example, GUSIM can be marked <strong>FICTIONAL</strong> and used for paper-only observation.
+A real ticker with an unsupported rumor belongs in <strong>WAITING FOR SOURCE</strong> or <strong>NO TRADE</strong>
+until independently sourced evidence changes the decision.</p>
+</section>
+</div></main>
+<footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><p>Learn. Understand. Practice. Trade decisions require evidence.</p></div>
+<div><strong>Learning</strong><p><a href="dashboard.html">Dashboard</a> · <a href="bootcamp-academy.html?program=free5">Free Foundations</a></p></div>
+<div><strong>Information</strong><p><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p></div>
+</div></footer></body></html>
