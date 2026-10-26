@@ -1,0 +1,16 @@
+/* Guard the owner's layout freeze: this overlay must remain visual-only. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const css=readFileSync('assets/css/labs-graphite-skin.css','utf8');
+const allowed=new Set(['background','color','border-color','box-shadow','outline-color','caret-color','accent-color']);
+const properties=[...css.replace(/\/\*[\s\S]*?\*\//g,'').matchAll(/(?:\{|;)\s*([\w-]+)\s*:/g)].map(x=>x[1]);
+assert(properties.length>30);
+for(const name of properties)assert(allowed.has(name)||name.startsWith('--gu-lab-'),'Layout/typography property forbidden: '+name);
+assert(!/animation|transition|transform|font-size|padding|margin|display|position|grid-template/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')));
+for(const name of ['labs.html','lab-player.html','site-lab.html']){
+ const current=readFileSync(name,'utf8');const base=execFileSync('git',['show','HEAD:'+name],{encoding:'utf8'});
+ assert.equal(current.replace('<link rel="stylesheet" href="assets/css/labs-graphite-skin.css">','').replace(' data-gu-lab-skin="graphite"',''),base,'Teaching markup must be byte-identical after removing opt-in skin link/marker');
+}
+assert(!/\bsvg\b|\bcanvas\b|\.fill\b|\.feedback\b|\.warn\b/.test(css),'Do not recolor chart data, progress or feedback semantics');
+console.log('PASS Lab skin: visual-only declaration allowlist, no geometry/typography/motion rules, teaching markup unchanged, chart and feedback semantics untouched.');
