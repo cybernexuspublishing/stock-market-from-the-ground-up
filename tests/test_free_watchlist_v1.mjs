@@ -31,7 +31,7 @@ globalThis.fetch=async(raw,opts={})=>{
  if(path==='/rest/v1/admin_user_roles')return response([]);
  if(path==='/rest/v1/rpc/user_has_tool_access')return response(state.paid);
  if(path==='/rest/v1/gu_free_research_watchlist_v1'){
-  const userParam=u.searchParams.get('user_id'),requested=userParam?.slice(3),symbol=u.searchParams.get('symbol')?.slice(3);
+  const userParam=u.searchParams.get('user_id'),requested=verb==='POST'?JSON.parse(opts.body).user_id:userParam?.slice(3),symbol=u.searchParams.get('symbol')?.slice(3);
   assert([u1,u2].includes(requested),'API must always filter by current authenticated user');
   const key=(sym)=>requested+':'+sym;
   if(verb==='GET')return response([...rows.values()].filter(x=>x.user_id===requested));
