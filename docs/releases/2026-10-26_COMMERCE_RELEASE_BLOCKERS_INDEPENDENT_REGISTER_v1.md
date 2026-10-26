@@ -1,7 +1,7 @@
 # Independent Commerce Release Blocker Register — Paid Launch Remains Held
 **Document ID:** SMFGU-COMMERCE-BLOCKERS-20261026
 **Project:** The Stock Market: From the Ground Up
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2026-10-26
 **Status:** OPEN — no general LIVE paid launch acceptance
 **Filename / Type:** docs/releases/2026-10-26_COMMERCE_RELEASE_BLOCKERS_INDEPENDENT_REGISTER_v1.md / Markdown
@@ -24,6 +24,9 @@ No production Stripe price, product, general checkout, founder billing, payment 
 | COM-07 | Consumer, subscription, refund, privacy, advertising, educational and tax controls | Fourteen legal policy drafts recorded as drafts, not approved or deployed | Counsel and jurisdiction-specific review, published approved text, material checkout consent, cancellation and legitimate dispute/refund exceptions |
 | COM-08 | Full authenticated regression and operational readiness | Some workflows passed and some cancelled/pending while main changed; deployment success is not end-to-end acceptance | Pinned commit with passing relevant CI plus verified Cloudflare, Supabase, Stripe TEST/Owner LIVE authorization, email/support and audit evidence |
 
+## October 26, 2026 — Separation confirmation
+The Free-only production entitlement migration (`20261026_membership_entitlement_period_boundaries_v1.sql`) changed one authorization function and wrote a single Admin audit record; it did not activate commercial checkout, issue a member paid grant, change a Stripe Price, or initiate a LIVE transaction. Founder billing was false at the database verification. This is not evidence that COM-01 through COM-08 have been closed. Retain every commerce blocker until its own signed provider-to-fulfillment journey is accepted.
+
 ## Release evidence distinctions
 - **Product active** is not **Price available**, **Store visible**, **checkout authorized**, **payment settled**, **entitlement issued**, or **item delivered**.
 - **Owner/Admin/zero-dollar QA grant** is not proof of customer payment; maintain separate source, scope, dates and revocation audit.
@@ -37,5 +40,6 @@ No production Stripe price, product, general checkout, founder billing, payment 
 3. Establish one controlled checkout/fulfillment TEST evidence chain for each paid product class.
 4. Prove correct signed webhook destinations and release controls before the Owner's separate explicit LIVE acceptance gate.
 
+**Revision history:** 1.1 | 2026-10-26 | Confirmed commerce remains independent of Free-entitlement SQL and Store accessibility changes; unchanged LIVE payment hold.
 **Revision history:** 1.0 | 2026-10-26 | Separated eight commerce blocker groups from Free Member release and added provider-to-delivery acceptance conditions.
-**Footer:** SMFGU-COMMERCE-BLOCKERS-20261026 • 1.0 • OPEN / general LIVE paid launch NOT ACCEPTED.
+**Footer:** SMFGU-COMMERCE-BLOCKERS-20261026 • 1.1 • OPEN / general LIVE paid launch NOT ACCEPTED.
