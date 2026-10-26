@@ -10,7 +10,7 @@
 | Filename / type | `2026-10-26_FOUNDING600_SITEWIDE_MEMBER_BETA_ACCEPTANCE.md` / Markdown |
 | Document ID | GU-F600-BETA-ACCEPTANCE-20261026-V1 |
 | Version / date | 1.0 / October 26, 2026 |
-| Status | OPERATING STANDARD ESTABLISHED; FIRST SOURCE IMPROVEMENTS COMMITTED; AUTHENTIC MEMBER ACCEPTANCE OPEN |
+| Status | OWNER SIGNED OFF: ALL 7 BOOT CAMPS AND ALL 419 LAB IDS AUTHORIZED FOR CONTROLLED FOUNDER BETA TEST SCOPE; INDIVIDUAL CONTENT/PRODUCTION ACCEPTANCE OPEN |
 | Google Drive location | Not assigned; GitHub is the current authoritative record |
 | Google Drive file ID | Not assigned; no Drive file created |
 | Purpose | Ensure all existing member-facing features receive authentic Founding 600 beta testing before public acceptance, with demonstrable defect remediation and security evidence |
@@ -117,3 +117,26 @@ Only a demonstrably unsafe *affected* workflow may be temporarily contained whil
 - Regression coverage: `tests/test_beta_partial_release_registry.mjs`, `tests/test_active_lab_beta_resilience.mjs`, `tests/test_continuous_beta_releases.mjs`, wired into the existing Boot Camp GitHub Actions job. These are engineering tests, not fabricated authenticated member evidence.
 
 **Release ledger:** Code implemented and committed; successful exact-head CI and successful matching Cloudflare deployment must be checked separately. A queued deployment is not a successful runtime release. If one build fails, repair that issue while unrelated beta development continues. This Owner direction is not a license to bypass authentication/Turnstile, break row isolation, publish private keys/answer sets, invent market history, award grades on reflections, activate LIVE payments or put the 83 Upcoming Labs into Start.
+
+
+## Owner release authorization — October 26, 2026: all 7 Boot Camps and 419 Labs
+
+The Owner explicitly signs off on **all seven Boot Camp programs and all 419 canonical Lab identifiers FOR FOUNDING MEMBER BETA TESTING**. This replaces any interpretation of "0/7 accepted" or "0/419 accepted" as a prohibition on *testing*. The whole catalog is eligible for discovery, access checks, navigation, accessibility review, broken-link reporting and usability feedback by authorized beta members.
+
+**Two independent statuses are required and cannot be conflated:**
+
+| Dimension | Boot Camps | Canonical Labs | Interpretation |
+| --- | ---: | ---: | --- |
+| Owner authorized for controlled Founding Member beta testing | 7 / 7 | 419 / 419 | Owner has approved inclusion of every existing program and canonical Lab ID in the test program. |
+| Editorially and assessment verified / technical QA passed / production member tested / Beta Ready | Per-item evidence pending | Per-item evidence pending | Owner authorization alone is not evidence of content completeness, grading validity or genuine member progress. |
+
+**Operational interpretation:**
+
+1. Existing seven Boot Camp routes and the 419-ID Lab registry are in scope for the designated member testing cohort. Founders Commons and private Support are the established feedback paths. Do not create another beta dashboard or permission system.
+2. A Lab that has substantive authorized teaching and passes server-side account/entitlement checks may offer **ungraded Guided Beta instruction**. If a Lab does not yet have appropriate instructional content, members can still evaluate its listing and report content/access defects, but the system must not manufacture a lesson, pretend an assessment is reviewed, or allow unsupported earning of credit.
+3. The current release scope still contains **336 teaching candidates** and **83 Upcoming** IDs. This is a source/content progression, not an exclusion of the 83 from catalog testing. The Owner's testing authorization does **not** silently grant an unreviewed Lab a Start or graded-assessment path. If the Owner separately authorizes authored learning for the 83, implement it individually with real source material and relevant regression evidence rather than toggling everything indiscriminately.
+4. Official graded assessments require individual rubric review, protected server grading, correct identity/entitlement and recorded evidence. A Guided Beta exercise, skipped/revealed answer or ungraded reflection never awards official mastery.
+5. Existing member attempts and all canonical IDs remain unchanged. No LIVE payments, paid external tools, bypassed Turnstile/Auth, data migrations or permanent entitlement grants are authorized by this sign-off.
+6. In Admin and engineering reports, track **owner beta-testing authorization** separately from **test execution, editorial review and product acceptance**. Do not use "GO" to imply an unexecuted browser or member test passed.
+
+**Owner business acceptance:** GO to include 7/7 Boot Camps and 419/419 Lab IDs in the controlled Founder beta test program. **Engineering/content release acceptance:** evidence-based per-item progression remains open. The beta cohort, rather than Owner-level access, performs genuine member-facing experience tests.
