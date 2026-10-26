@@ -12,7 +12,7 @@ async function init(){
   const data=await response.json();
   enabled=response.ok&&data?.ok===true&&data?.checkoutEnabled===true;
  }catch{enabled=false}
- if(!enabled){status.textContent='Founding 600 enrollment is not open for payment.';closed.hidden=false;return}
+ if(!enabled){status.textContent='Founding Members enrollment is not open for payment.';closed.hidden=false;return}
  form.hidden=false;status.textContent='Founding seats are available subject to secure provider verification.';
  const update=()=>{submit.disabled=!(el('f600-consent-renew').checked&&el('f600-consent-terms').checked)};
  form.addEventListener('change',update);update();
