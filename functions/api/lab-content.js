@@ -64,8 +64,13 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
   const [coverage,betaKind,rows]=await Promise.all([
    Promise.all([1,2,3].map(book=>getBookAccess(env,request,book))),
    foundingBetaLearningAccessKind(env,actor.userId),
-   rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&order=lab_id.asc&limit=150')
+   rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&order=lab_id.asc&limit=500')
   ]);
+  // Support all 419 canonical Lab identifiers without silently truncating a
+  // 336-Lab beta catalog. An unexpected provider cap is an explicit error,
+  // never a misleading 'nothing to test' response.
+  if(!Array.isArray(rows)||rows.length>=500)
+   throw Object.assign(new Error('Private Lab catalog incomplete; retry after source synchronization.'),{status:503});
   const allowed=rows.filter(row=>isBetaCandidateLab(row.lab_id)&&(
    coverage[Number(row.book_number)-1]===true||
    (betaKind!==null&&authoredB01BetaLesson(row))));
