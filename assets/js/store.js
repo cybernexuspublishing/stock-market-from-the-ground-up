@@ -160,9 +160,9 @@ async function init(){
    '<div class="notice">Live product prices and checkout status cannot be verified. Please try again later.</div>':
    allTools.map(toolCard).join('')+future.map(upcomingCard).join('');
   const bookTab=document.getElementById('store-tab-books'),toolTab=document.getElementById('store-tab-tools');
-  if(bookTab)bookTab.hidden=!document.getElementById('store-products').querySelector('.product-card');
-  if(toolTab)toolTab.hidden=!document.getElementById('store-tools').querySelector('.store-sell-card');
-  if(!bookTab?.hidden&&location.hash==='#books')bookTab.click();
+  if(bookTab)bookTab.hidden=!document.getElementById('store-products')?.innerHTML.includes('product-card');
+  if(toolTab)toolTab.hidden=!document.getElementById('store-tools')?.innerHTML.includes('store-sell-card');
+  if(bookTab&&!bookTab.hidden&&location.hash==='#books')bookTab.click();
   // This coming-soon training branch has a separate detail page from the
   // existing paid ONDEMAND_MONTHLY SKU; do not merge their checkout eligibility.
   const preview=document.querySelector('.v135-replay-plan-cta a');
