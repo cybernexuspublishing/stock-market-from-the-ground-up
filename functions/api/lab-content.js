@@ -22,14 +22,14 @@ export function publicGuidedLesson(raw,labId,bookNumber){
   concept:lessonText(r.concept,240),objective:lessonText(r.objective),
   what:lessonText(r.what),why:lessonText(r.why),when:lessonText(r.when),
   commonError:lessonText(r.commonError),limitation:lessonText(r.limitation),
-  workedExample:lessonText(r.workedExample),
+  workedExample:lessonText(r.workedExample),transfer:lessonText(r.transfer),
   sourceLinks: Array.isArray(r.sourceURLs)?r.sourceURLs.filter(x=>typeof x==='string'&&/^https:\/\/(?:www\.)?(?:investor\.gov|sec\.gov|nyse\.com)\//i.test(x)).slice(0,3):[],
   steps:lessonList(r.steps),
   teaching:{
    what:lessonText(t.what||r.what),why:lessonText(t.why||r.why),
    when:lessonText(t.when||r.when),how:lessonList(t.how).length?lessonList(t.how):lessonList(r.steps),
    commonError:lessonText(t.commonError||r.commonError),
-   limitation:lessonText(t.limitation||r.limitation)
+   limitation:lessonText(t.limitation||r.limitation),transfer:lessonText(t.transfer||r.transfer)
   }
  };
 }
