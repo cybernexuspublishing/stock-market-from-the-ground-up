@@ -97,16 +97,32 @@ try{
    await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.hidden===true);
    await page.locator('#academy-save').click();
    assert.match(await page.locator('#academy-save-status').innerText(),/80–2,000/);
-   await page.locator('#academy-reflection').fill(reflection);
+   let storedReflection=reflection;
+   if(code==='truth5'){
+    const answer=page.locator('#academy-self-check-answer');
+    const copy=page.getByRole('button',{name:'Add reasoning to my private reflection'});
+    assert.equal(await copy.isDisabled(),true,'Copy must require original written reasoning');
+    await answer.fill('An unverified screenshot proves only an assertion. I would locate the issuer publication, compare timestamps and reporting periods, and avoid entering without corroboration.');
+    assert.equal(await copy.isEnabled(),true);
+    await copy.click();
+    storedReflection=await page.locator('#academy-reflection').inputValue();
+    assert.match(storedReflection,/Independent self-check \(ungraded\)/);
+    assert.match(await page.locator('#academy-original-instruction').innerText(),/NOT saved yet/);
+    assert.equal(progress.size,0,'Copying a local draft must never manufacture saved member progress');
+   }else{
+    await page.locator('#academy-reflection').fill(reflection);
+   }
    await page.locator('#academy-save').click();
    await page.waitForFunction(()=>document.querySelector('#academy-member-progress')?.textContent.includes('1 of '));
-   assert.equal(progress.get(1)?.reflection,reflection);
+   assert.equal(progress.get(1)?.reflection,storedReflection);
    await page.locator('#academy-days .gu-bc-day').last().click();
    await page.locator('#academy-days .gu-bc-day').first().click();
-   assert.equal(await page.locator('#academy-reflection').inputValue(),reflection);
+   assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection);
    await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
    await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
    assert.equal(await page.locator('#academy-reflection').inputValue(),'');
+   if(code==='truth5')assert.equal(await page.locator('#academy-self-check-answer').count(),0,
+    'Private ungraded answers must be removed from DOM after switching members');
    assert.deepEqual(browserErrors,[]);
    console.log('PASS Academy '+code+' '+width+'px, '+academyByCode[code].days+' days; private enrollment, progress and account switching');
    await context.close();
