@@ -564,12 +564,14 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    // The instructor and chart are the lesson; do not repeat the same
    // content underneath as an isolated wall of generic competency text.
    showVisual(1,topic==='Bearish Candle'?'bearish':visualType==='candle'?'worked':'default');
-   // Talia owns Learn-stage concept, example and deeper-teaching actions.
-   // Keep disclosure fallbacks only if her instructor component is unavailable.
-   if(!instructorInstance){freeExplanation();guidedHelp();}
+   // Always prepare the four source-backed teaching explanations. With Talia
+   // mounted, render() converts the disclosures into chart-contained controls;
+   // without Talia, the disclosures remain available as accessible fallbacks.
+   // Preparing them only when Talia was absent left the chart controls empty.
+   freeExplanation();guidedHelp();
    attachWallet();
    const deeper=lessonPlan(1);
-   if(!instructorInstance)detail(body,'Teach This in More Depth',[
+   detail(body,'Teach This in More Depth',[
     ...(deeper?.blocks||[guide.concept,guide.procedure]),
     ...(deeper?.worked||[]),
     'Common error and its correction: '+(deeper?.misconception||guide.commonError),
@@ -752,7 +754,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   // illustration. The four explanation actions now trigger Talia's voice,
   // rather than opening four disconnected text windows.
   let stageOneGuides=[];
-  if(stage===1){
+  if(stage===1&&instructorInstance){
    const names=new Set(['Explain This Concept','Show a Guided Example','Try Another Example','Teach This in More Depth']);
    stageOneGuides=Array.from(body.querySelectorAll('details'))
     .filter(node=>names.has(node.querySelector('summary')?.textContent.trim()))
