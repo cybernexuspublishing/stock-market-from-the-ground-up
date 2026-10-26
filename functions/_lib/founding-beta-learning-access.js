@@ -35,11 +35,11 @@ const validEnd=(date,now)=>!date||Number.isFinite(Date.parse(date))&&Date.parse(
  */
 export async function activeFoundingBetaLearningPlan(env,verifiedMemberId){
  if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/.test(String(verifiedMemberId||'')))return false;
- const base=String(env?.SUPABASE_URL||'').replace(/\\/$/,'');
+ const base=String(env?.SUPABASE_URL||'').replace(/[/]$/,'');
  const secret=String(env?.SUPABASE_SECRET_KEY||'');
  if(!/^https:\/\/[^/]+$/.test(base)||!secret)return false;
  const headers={apikey:secret,accept:'application/json'};
- if(/^eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(secret))
+ if(/^eyJ[A-Za-z0-9_-]+[.]eyJ[A-Za-z0-9_-]+[.][A-Za-z0-9_-]+$/.test(secret))
   headers.authorization='Bearer '+secret;
  const id=encodeURIComponent(verifiedMemberId),status='&status=in.(active,trialing)';
  const prefix=base+'/rest/v1/';
