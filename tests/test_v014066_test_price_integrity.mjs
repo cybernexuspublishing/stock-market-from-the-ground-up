@@ -1,8 +1,6 @@
 /* v0.14.0.66 — no-charge GU39 TEST catalog price integrity. */
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-const raw=readFileSync(new URL('../functions/api/gu39-sandbox.js',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(raw).toString('base64'));
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock',
  GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_mock',
