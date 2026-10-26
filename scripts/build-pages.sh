@@ -38,7 +38,7 @@ for directory in assets learn; do
   cp -R -- "$directory" "$output"/
 done
 mkdir -p "$output/data"
-for file in books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json lab-teaching-bridges-v014168.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
+for file in crownlight-sparks-store-v014167.json books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json lab-teaching-bridges-v014168.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
