@@ -4,7 +4,7 @@
 const path=location.pathname.toLowerCase();if(!/^\/labs(?:\.html)?$/.test(path))return;
 const q=(s,r=document)=>r.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const COLLECTIONS=[['FOUNDATION_BOOK_1','Foundations Book I'],['FOUNDATION_BOOK_2','Foundations Book II'],['FOUNDATION_BOOK_3','Foundations Book III'],['DAY_TRADING_BOOK_1','Day Trading'],['READING_THE_TAPE','Reading the Tape'],['SITE_EXCLUSIVE','Site-Exclusive Labs']];
-const PAGE_SIZE=50;let client=null,root=null,selected='',page=0,seq=0,targetLab='',betaScope=null,publishedLabs=null,guidedBetaLabs=null;
+const PAGE_SIZE=50;let client=null,root=null,selected='',page=0,seq=0,targetLab='',betaScope=null,publishedLabs=null,guidedBetaLabs=null,releaseStatusUnverified=false;
 async function verifyBetaScope(){
  const response=await fetch('/api/lab-beta-scope',{cache:'no-store'});
  if(!response.ok)throw Error('Lab release availability cannot be verified.');
@@ -14,24 +14,37 @@ async function verifyBetaScope(){
   !Array.isArray(data.upcoming)||data.upcoming.length!==83||
   new Set([...data.selectedForPrebeta,...data.upcoming]).size!==419)
   throw Error('Lab release scope is inconsistent; no Labs will be started.');
- const approvedResponse=await fetch('/api/lab-release-availability',{cache:'no-store'});
- if(!approvedResponse.ok)throw Error('Reviewed-Lab publication status cannot be verified.');
- const approved=await approvedResponse.json();
- if(approved.ok!==true||!Array.isArray(approved.publishedIds)||!Array.isArray(approved.guidedBetaIds)||
-   [...approved.publishedIds,...approved.guidedBetaIds].some(id=>typeof id!=='string'||!data.selectedForPrebeta.includes(id))||
-   approved.guidedBetaIds.some(id=>approved.publishedIds.includes(id)))
-  throw Error('Reviewed-Lab publication status is inconsistent.');
+ // The release-status endpoint is an informative listing, NOT the member
+ // authorization boundary. If it is temporarily unavailable, keep 336
+ // candidate links open for independent server authorization in lab-player.
+ // Do not claim a grade, cached availability, progress or a published lesson.
  betaScope=new Set(data.selectedForPrebeta);
- publishedLabs=new Set(approved.publishedIds);
- guidedBetaLabs=new Set(approved.guidedBetaIds);
+ publishedLabs=new Set();guidedBetaLabs=new Set();releaseStatusUnverified=false;
+ try{
+  const approvedResponse=await fetch('/api/lab-release-availability',{cache:'no-store'});
+  if(!approvedResponse.ok)throw Error('Beta publication status unavailable.');
+  const approved=await approvedResponse.json();
+  if(approved.ok!==true||!Array.isArray(approved.publishedIds)||!Array.isArray(approved.guidedBetaIds)||
+    [...approved.publishedIds,...approved.guidedBetaIds].some(id=>typeof id!=='string'||!betaScope.has(id))||
+    approved.guidedBetaIds.some(id=>approved.publishedIds.includes(id)))
+   throw Error('Beta publication status inconsistent.');
+  publishedLabs=new Set(approved.publishedIds);
+  guidedBetaLabs=new Set(approved.guidedBetaIds);
+ }catch{
+  releaseStatusUnverified=true;
+  // Leave BOTH sets empty. The player validates identity, entitlements,
+  // canonical 336 scope, restricted users and teaching source independently.
+ }
 }
 const label=code=>COLLECTIONS.find(x=>x[0]===code)?.[1]||'Historical Labs';
 async function supabase(){for(let i=0;i<50;i++){if(typeof window.getSupabaseClient==='function')try{return await window.getSupabaseClient()}catch{}await new Promise(r=>setTimeout(r,80))}throw Error('Sign-in service unavailable.')}
 function safeHref(l){const fallback='lab-player.html?lab='+encodeURIComponent(l.lab_id);if(!l.custom_href)return fallback;try{const u=new URL(l.custom_href,location.origin);return u.origin===location.origin&&['https:','http:'].includes(u.protocol)?u.pathname+u.search+u.hash:fallback}catch{return fallback}}
-function card(l){const m=l.metadata||{},status=l.progress?.status||'not_started',tag=status==='completed'?'Reflection Saved (Ungraded)':status==='in_progress'?'Reflection In Progress':l.lab_type==='core'?'Book Lab':'Not started';const grade=Number.isInteger(l.gradedScore)&&l.gradedScore>=0&&l.gradedScore<=100?' · Concept '+l.gradedScore+'%':'';const details=[l.chapter_number?'Chapter '+l.chapter_number:'',m.chapter_title||'',l.ticker?[l.ticker,l.historical_date].filter(Boolean).join(' · '):'',m.skill_group||''].filter(Boolean).join(' · ');
+function card(l){const m=l.metadata||{},progressKnown=l.progressVerified!==false,status=progressKnown?(l.progress?.status||'not_started'):'unverified',tag=!progressKnown?'Private progress unavailable':status==='completed'?'Reflection Saved (Ungraded)':status==='in_progress'?'Reflection In Progress':l.lab_type==='core'?'Book Lab':'Not started';const grade=Number.isInteger(l.gradedScore)&&l.gradedScore>=0&&l.gradedScore<=100?' · Concept '+l.gradedScore+'%':'';const details=[l.chapter_number?'Chapter '+l.chapter_number:'',m.chapter_title||'',l.ticker?[l.ticker,l.historical_date].filter(Boolean).join(' · '):'',m.skill_group||''].filter(Boolean).join(' · ');
  const content=`<span class="v133-lab-id">${esc(l.lab_id)}</span><span><strong>${esc(l.title||l.lab_id)}</strong><small>${esc(details)}</small></span><span class="v133-hide-mid">${esc(m.difficulty||l.lab_type||'')}</span><span class="v133-hide-mid">${esc(m.mode||'')}</span>`;
  if(!betaScope?.has(l.lab_id))
   return `<article class="v133-lab-row v133-lab-upcoming" data-lab-record data-lab-id="${esc(l.lab_id)}" aria-label="${esc(l.title||l.lab_id)} — Upcoming, not released">${content}<span class="v133-lab-status v133-lab-chip">Upcoming · No Start</span></article>`;
+ if(releaseStatusUnverified)
+  return `<a class="v133-lab-row v133-lab-beta" data-lab-record data-lab-id="${esc(l.lab_id)}" href="lab-player.html?lab=${encodeURIComponent(l.lab_id)}" aria-label="Check authorized ungraded beta study for ${esc(l.title||l.lab_id)}">${content}<span class="v133-lab-status v133-lab-chip">Verify Guided Beta Access in Lab · No grade</span></a>`;
  if(guidedBetaLabs?.has(l.lab_id))
   return `<a class="v133-lab-row v133-lab-beta" data-lab-record data-lab-id="${esc(l.lab_id)}" href="${esc(safeHref(l))}" aria-label="Open ungraded beta practice for ${esc(l.title||l.lab_id)}">${content}<span class="v133-lab-status v133-lab-chip">Open Guided Beta · Ungraded</span></a>`;
  if(!publishedLabs?.has(l.lab_id))
@@ -47,7 +60,19 @@ async function load(){const id=++seq,msg=q('[data-message]',root),host=q('[data-
    const {data,error}=await client.from('platform_labs').select('lab_id,title,book_code,chapter_number,ticker,historical_date,lab_type,custom_href,metadata,sort_order').eq('active',true).eq('registry_visible',true).eq('book_code',selected).order('sort_order',{ascending:true}).order('lab_id',{ascending:true}).range(from,to);
    if(error)throw error;if(id!==seq)return;
    const records=Array.isArray(data)?data:[],more=records.length>PAGE_SIZE,labs=records.slice(0,PAGE_SIZE);
-   let pmap=new Map();if(labs.length){const ids=labs.map(x=>x.lab_id);const p=await client.from('site_lab_progress').select('lab_id,status,updated_at').eq('user_id',session.user.id).in('lab_id',ids);if(p.error)throw p.error;pmap=new Map((p.data||[]).map(x=>[x.lab_id,x]));}
+   let pmap=new Map(),progressVerified=true;
+    if(labs.length){
+     const ids=labs.map(x=>x.lab_id);
+     try{
+      const p=await client.from('site_lab_progress').select('lab_id,status,updated_at').eq('user_id',session.user.id).in('lab_id',ids);
+      if(p.error||!Array.isArray(p.data))throw Error('Private progress read unverified');
+      pmap=new Map(p.data.map(x=>[x.lab_id,x]));
+     }catch{
+      // Never interpret a failed private read as "Not started" or wipe
+      // stored progress. Show the available catalog with unknown status.
+      progressVerified=false;
+     }
+    }
    // Official server-graded record does NOT mean this Lab reflection was graded.
    let grades=new Map();
    try{
@@ -56,8 +81,10 @@ async function load(){const id=++seq,msg=q('[data-message]',root),host=q('[data-
     if(res.ok){const body=await res.json();if(body.ok&&Array.isArray(body.latestByLab))
      grades=new Map(body.latestByLab.map(row=>[row.labId,row.score]));}
    }catch{/* Basic registry remains accessible if premium grades are unavailable. */}
-   if(id!==seq)return;host.innerHTML=labs.length?`<section class="v133-lab-collection"><div class="v133-lab-collection-head"><h2>${esc(label(selected))}</h2><span>${labs.length} on this page</span></div><div class="v133-lab-list">${labs.map(x=>card({...x,progress:pmap.get(x.lab_id)||null,gradedScore:grades.get(x.lab_id)})).join('')}</div></section>`:'<p class="v133-lab-empty">No visible Labs in this collection or page.</p>';
-   msg.textContent=`${label(selected)}: ${labs.length} Labs on page ${page+1}. Results are loaded only for this collection.`;
+   if(id!==seq)return;host.innerHTML=labs.length?`<section class="v133-lab-collection"><div class="v133-lab-collection-head"><h2>${esc(label(selected))}</h2><span>${labs.length} on this page</span></div><div class="v133-lab-list">${labs.map(x=>card({...x,progress:pmap.get(x.lab_id)||null,progressVerified,gradedScore:grades.get(x.lab_id)})).join('')}</div></section>`:'<p class="v133-lab-empty">No visible Labs in this collection or page.</p>';
+   msg.textContent=`${label(selected)}: ${labs.length} Labs on page ${page+1}. Results are loaded only for this collection.`+
+     (releaseStatusUnverified?' Guided-release status is unavailable; the Lab server must confirm study access individually.':'')+
+     (!progressVerified?' Private progress unavailable; no completion status is inferred.':'');
    if(targetLab){const selectedRow=[...host.querySelectorAll('[data-lab-id]')].find(x=>x.dataset.labId===targetLab);
      if(selectedRow){selectedRow.setAttribute('aria-current','location');selectedRow.style.outline='2px solid currentColor';selectedRow.scrollIntoView({block:'center'});}
    }filter.disabled=!labs.length;pager.hidden=!(page>0||more);q('[data-prev]',pager).disabled=page===0;q('[data-next]',pager).disabled=!more;q('[data-page]',pager).textContent='Page '+(page+1);
