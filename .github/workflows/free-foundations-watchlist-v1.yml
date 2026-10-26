@@ -25,6 +25,8 @@ on:
       - 'tests/test_v014170_academy_member_contract.mjs'
       - 'tests/test_v014168_academy_family.mjs'
       - 'tests/test_v014147_tutor_boundary.mjs'
+      - 'supabase/migrations/20261026_membership_entitlement_period_boundaries_v1.sql'
+      - 'tests/test_membership_entitlement_sql_contract_v1.mjs'
       - 'supabase/migrations/20261026_free_research_watchlist_v1.sql'
       - 'supabase/migrations/20261026_free_foundations_shared_academy_course.sql'
 permissions:
@@ -52,6 +54,7 @@ jobs:
           node --check functions/api/free-watchlist.js
           node --check functions/api/member-tool-access.js
           node tests/test_membership_entitlement_boundaries_v1.mjs
+          node tests/test_membership_entitlement_sql_contract_v1.mjs
           node tests/test_book_entitlement_scope_v1.mjs
           node --check assets/js/bootcamp-academy-v014168.js
           node --check assets/js/free-watchlist-v1.js

@@ -53,10 +53,10 @@ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];i
  if(library.some(x=>!x.expires_at||Date.parse(x.expires_at)>now))return true;
  const redeemed=await rest(env,'book_key_redemptions?select=book_code,starts_at,ends_at&user_id=eq.'+encodeURIComponent(id)+'&book_code=eq.'+productCode+'&limit=20');
  if(redeemed.some(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
- const grants=await rest(env,'user_plan_grants?select=plan_code,status,starts_at,ends_at,platform_plans!inner(includes_all_books)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
- if(grants.some(x=>x.platform_plans?.includes_all_books===true&&['active','trialing'].includes(x.status)&&(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
- const subscriptions=await rest(env,'site_subscriptions?select=plan_code,status,current_period_end,platform_plans!inner(includes_all_books)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
- if(subscriptions.some(x=>x.platform_plans?.includes_all_books===true&&['active','trialing'].includes(x.status)&&(!x.current_period_end||Date.parse(x.current_period_end)>now)))return true;
+ const grants=await rest(env,'user_plan_grants?select=plan_code,status,starts_at,ends_at,platform_plans!inner(includes_all_books,active,billing_interval)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
+ if(grants.some(x=>x.platform_plans?.active===true&&x.platform_plans.includes_all_books===true&&['active','trialing'].includes(x.status)&&x.starts_at&&Date.parse(x.starts_at)<=now&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
+ const subscriptions=await rest(env,'site_subscriptions?select=plan_code,status,current_period_end,platform_plans!inner(includes_all_books,active,billing_interval)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
+ if(subscriptions.some(x=>x.platform_plans?.active===true&&x.platform_plans.includes_all_books===true&&['active','trialing'].includes(x.status)&&((x.platform_plans.billing_interval==='lifetime'&&!x.current_period_end)||(x.current_period_end&&Date.parse(x.current_period_end)>now))))return true;
  return roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>now));}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return send({ok:false,error:'Method not allowed.'},405);const url=new URL(request.url),action=url.searchParams.get('action')||'case';
  if(action==='list'){
