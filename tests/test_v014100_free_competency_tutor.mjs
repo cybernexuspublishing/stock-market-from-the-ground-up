@@ -30,6 +30,8 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}));
  if(u.includes('/profiles?'))return new Response(JSON.stringify([{account_kind:'member'}]));
  if(u.includes('/admin_user_flags?'))return new Response(JSON.stringify([{status:'active'}]));
+ // Production now verifies privileged Showcase roles before Tutor authorization.
+ if(u.includes('/admin_user_roles?'))return new Response(JSON.stringify([]));
  if(u.includes('/rpc/user_has_tool_access'))return new Response('true',{headers:{'content-type':'application/json'}});
  if(u.includes('/rpc/v01492_consume_tutor_quota')||u.includes('api.openai.com')){providerCalls++;throw Error('Paid provider forbidden by default')}
  throw Error('Unexpected outbound request '+u);
