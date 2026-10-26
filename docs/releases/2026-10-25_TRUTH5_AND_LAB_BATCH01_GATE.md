@@ -212,3 +212,30 @@ The Owner explicitly confirmed that account login and human CAPTCHA now operate 
 - Guarded single transaction confirmed the canonical twenty version-97 sets were all unreviewed and contained the expected two IDs; updates changed only `questions[4].explanation`, `questions[5].explanation`, and row `updated_at`. Original v96 assessments, protected keys, prompts, answers, member attempts, entitlement policies and LIVE payments were not changed. Postflight: **20/20 sets remained draft; 20/20 case and limitation feedback now exceed 120 characters; 20/20 keys retained; 0 reviewed**.
 - A new **read-only, exact twenty-ID** SQL audit at `supabase/reviews/2026-10-26_B01_v97_feedback_audit_read_only.sql` independently checks content shape and records **FALSE** for editorial approval and production member acceptance. It exposes only booleans and IDs, not protected answers.
 - Initial four-breakpoint Playwright regression failed because a test asserted a Day 1 self-check would be empty after navigating away. The improved behavior intentionally retains the same account's Day 1 draft; the regression expectation was corrected and strengthened to require **clearing on full reload and account switch**, while preserving only server-saved reflections. Exact-head rerun is required before TESTED status.
+
+
+## Gate 1 coordinated continuation — grading withdrawal, EDGAR chronology and B01 editorial triage
+
+**Scope:** The same Truth5 Boot Camp and exactly twenty canonical B01 Labs. Main branch only. No member attempt, original v96 assessment, official 30-day competency, LIVE billing or secondary Boot Camp was modified.
+
+### Production grading review-withdrawal gap — corrected in API source
+
+- `functions/api/interactive-training.js` now refuses to serve pinned question text from a previously reviewed rubric when its `review_state` has since changed away from `reviewed`. This applies to both resumed `start` responses and the direct `resume` endpoint; HTTP 409 replaces unreviewed question delivery. Scored records are not deleted and remain in separately authorized learning history.
+- `tests/test_b01_review_withdrawal_and_private_grading.mjs` covers the **same twenty** canonical B01 IDs, availability and start denial for drafts, revoked pinned attempt denial, and a positive original-version continuation example after review. These are mock network fixtures, not an authenticated production student.
+- The existing SQL grading RPC `v014_training_answer` already requires `review_state='reviewed'` before grading. Do not replace it or invent a parallel grader. Private tables retain RLS and lack direct `anon` / `authenticated` SELECT grants.
+- The Lab Topic GitHub workflow includes the new regression. [Verified passing Lab Topic gate](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40276894463) on `e2d2496bb11f`. Subsequent `main` commits require their own exact-head acceptance.
+
+### Subject factual review
+
+- Truth5 Days 2–3 now explicitly distinguish SEC EDGAR **filing acceptance time**, **observed public availability** and **the fiscal period represented**. The SEC explains that website availability often lags acceptance, generally by 1–3 minutes and potentially longer; do not backdate public knowability based solely on a filing timestamp. Source: https://www.sec.gov/about/webmaster-frequently-asked-questions
+- This is a teaching correction, not a verified historical price replay or evidence that members learned the distinction. Source family and browser fixtures must run on the exact affected commit.
+
+### Twenty-Lab rubric quality audit
+
+- All **twenty B01 v97** rubrics were checked against the private database; **zero** were approved, and **zero** historical attempts were pinned to B01 v97 during the guarded editorial correction.
+- Replaced **twenty unrelated high-minus-low v96 template numerics** with twenty individual Lab-specific hypothetical calculations and matching privately stored numeric correct values. Subject-specific examples cover replay duration, contamination count, secondary trade gross value, candle body, percent common ownership, ETF notional exposure, capitalization, spread, account quantity, long and short exposure, trading horizon, session minutes, relative bar volume, auction quote spread and after-hours price difference. A single atomic guarded transaction returned **20 updated rows**; postflight independently confirmed 20 specific numeric questions, 20 valid numeric answers and **20 still draft**.
+- **Editorial blockers not cleared:** The inherited `EVIDENCE`, `FOCUS`, and `BOUNDARY` questions remain generic template items in all twenty sets (**60 question prompts require replacement and independent subject review**). An attempt to stage those replacements did not satisfy pre-execution authoring checks and was NOT sent to the database; do not imply it was implemented.
+- Even after the remaining 60 items are rewritten, each of the twenty Lab rubrics still requires individually checked correct and incorrect answer reasoning, ambiguity testing, accessible feedback, member entitlement, and genuine authenticated end-to-end grading. No bulk review promotion is allowed.
+- A member-persistence blocker also remains: the real database still reports **no truth5 Academy enrollments/day progress evidence**. Source CI and guest 401 responses are separate from a real signed-in save, logout, return and resume.
+
+**Sign-off:** Technical source safeguards IMPLEMENTED and independently audited private numeric records PROVEN; Lab Subject Editorially Reviewed **0/20**, Beta Ready **0/20**, Boot Camp 1 Beta Ready **NO**. Gate 1 stays open; B02 and all LIVE payment testing remain outside scope.
