@@ -280,7 +280,7 @@ function mount(host){
  if(mounted||!host)return;mounted=true;
  const root=e('div',undefined,'social-workspace');host.append(root);
  text(root,'p','@SMFGUAcademy · manual-only · API publishing disabled · spending limit $0','social-connection');
- text(root,'Owner-only content, campaigns and community operations. Opening X does not publish; joining a community is performed directly on X.','social-description');
+ text(root,'p','Owner-only content, campaigns and community operations. Opening X does not publish; joining a community is performed directly on X.','social-description');
  active.nav=views(root);
  refresh();
 }
