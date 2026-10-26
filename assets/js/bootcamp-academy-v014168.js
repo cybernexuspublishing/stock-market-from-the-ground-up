@@ -9,7 +9,7 @@
  const expected=new Map([['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
-  progress=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
+  progress=new Map(),drafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
  function node(tag,value){
   const element=document.createElement(tag);
@@ -17,7 +17,7 @@
   return element;
  }
  function clean(){
-  program=null;days=[];enrolled=false;progress.clear();progressAvailable=false;dayIndex=1;
+  program=null;days=[];enrolled=false;progress.clear();drafts.clear();progressAvailable=false;dayIndex=1;
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
   get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
   get('academy-save-status').textContent='';
@@ -139,6 +139,7 @@
     result.replaceChildren(node('p','Your reflection draft is at its 2,000-character limit. Review and shorten it before adding your reasoning.'));return;
    }
    reflection.value=combined;
+   reflection.dispatchEvent(new Event('input',{bubbles:true}));
    result.replaceChildren(node('p','Reasoning added to your private reflection draft. It is NOT saved yet: enroll if needed, then select Save Reflection. This is ungraded study evidence, not mastery.'));
    reflection.focus();
   });
@@ -160,8 +161,8 @@
   get('academy-practice').textContent=d.practice;
   get('academy-limits').textContent=d.limitation||d.caution;
   showOriginalInstruction(d);
-  get('academy-reflection').value=progress.get(dayIndex)?.reflection||'';
-  get('academy-save-status').textContent='';
+  get('academy-reflection').value=drafts.has(dayIndex)?drafts.get(dayIndex):(progress.get(dayIndex)?.reflection||'');
+  get('academy-save-status').textContent=drafts.has(dayIndex)?'Unsaved reflection draft on this page. Select Save Reflection to store it privately.':'';
   get('academy-prev').disabled=dayIndex===1;
   get('academy-next').disabled=dayIndex===days.length;
   get('academy-start').disabled=!enrolled||!progressAvailable||busy;
@@ -212,7 +213,12 @@
     enrolled=true;get('academy-save-status').textContent='You’re enrolled. Your learning notes are saved to your account.';
    }else{
     progress.set(which,result.progress);
-    get('academy-save-status').textContent='Your learning notes are saved.';
+    if(action==='save_reflection'){
+     if(drafts.get(which)===note)drafts.delete(which);
+     get('academy-save-status').textContent=drafts.has(which)?
+      'Your earlier reflection was saved, but newer edits are still unsaved. Select Save Reflection again.':
+      'Your learning notes are saved.';
+    }else get('academy-save-status').textContent='Day started. Your learning is in progress; no reflection has been saved yet.';
    }
   }catch(e){if(actor===userId&&serial===sessionSerial)
    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
@@ -290,6 +296,14 @@
    }
   }
  })());
+ get('academy-reflection').addEventListener('input',()=>{
+  if(!program||!userId)return;
+  const value=get('academy-reflection').value;
+  if(value===(progress.get(dayIndex)?.reflection||''))drafts.delete(dayIndex);
+  else drafts.set(dayIndex,value);
+  get('academy-save-status').textContent=drafts.has(dayIndex)?
+   'Unsaved reflection draft on this page. Select Save Reflection to store it privately.':'';
+ });
  get('academy-start').addEventListener('click',()=>void write('start'));
  get('academy-save').addEventListener('click',()=>void write('save_reflection'));
  get('academy-prev').addEventListener('click',()=>{if(dayIndex>1){dayIndex--;renderDay()}});
