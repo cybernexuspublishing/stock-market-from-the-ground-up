@@ -66,8 +66,41 @@ try{
  r=await run();assert([400,409].includes(r.status),'Non-substantive explanation must fail B01 review');
  assert.equal(approved,1);
  questions[5]=caseLimitation;
- r=await run();assert.equal(r.status,200,'Explicit Owner approval may proceed only with sound shape');
+ r=await run();assert.equal(r.status,409,
+  'Two authored case questions never justify approving the four generic v96 templates');
+ assert.equal(approved,1);
+ questions[0]={id:'EVIDENCE',kind:'choice',
+  prompt:'An index level and an ETF quote are visible. Which item can a fund investor actually purchase?',
+  explanation:'A share in an ETF can be bought and sold under actual brokerage order conditions; a numerical index level is a calculated benchmark, not a tradable share.',
+  options:['One','Two','Three']};
+ questions[1]={id:'FOCUS',kind:'choice',
+  prompt:'Which separate risks must a learner consider when comparing ETF and benchmark returns?',
+  explanation:'Investor fund returns may be affected by fund costs, tracking variations and bid-ask spreads. Index points do not establish executable ETF prices or actual returns.',
+  options:['One','Two','Three']};
+ questions[2]={id:'ORIGINAL_MATH',kind:'number',
+  prompt:'FICTIONAL: Ten ETF shares at $5 each have what gross position value in dollars, before fees?',
+  explanation:'Multiply the ten fund shares by the five-dollar price to obtain the gross notional value; this illustration says nothing about eventual execution or investment profit.',
+  tolerance:0};
+ questions[3]={id:'BOUNDARY',kind:'choice',
+  prompt:'Which claim exceeds what a simplified market index level can establish about ETF execution?',
+  explanation:'The index is a calculated benchmark, so it cannot guarantee that a separate ETF trade is executable at an identical numerical value or without a spread.',
+  options:['One','Two','Three']};
+ r=await run();assert.equal(r.status,200,
+  'Complete individualized six-question fixture is reviewable only through explicit Owner action');
  assert.equal(approved,2);
+ const topicClean=questions[0];
+ questions[0]={...topicClean,prompt:'In "ETF Versus Index", which learning method correctly distinguishes evidence from inference?'};
+ r=await run();assert.equal(r.status,409,'Generic v96 question cannot be promoted as B01');
+ questions[0]={...topicClean};
+ const validBoundary=questions[3];
+ questions[3]={...validBoundary,options:['One','One','Three']};
+ r=await run();assert([400,409].includes(r.status),'Duplicate choices must fail closed');
+ questions[3]=validBoundary;
+ const numeric=questions[2];
+ questions[2]={...numeric,prompt:'Original observed high and low range in cents?'};
+ r=await run();assert.equal(r.status,409,'Unrelated generic arithmetic cannot be promoted');
+ questions[2]=numeric;
+ assert.equal(approved,2,'Invalid review attempts must never mutate review state');
  owner=false;r=await run();assert.equal(r.status,403);assert.equal(approved,2);
 }finally{globalThis.fetch=original}
 console.log('PASS v117: 419 canonical candidate register, unamended v96 approval denied, added topic question and Owner ACL required.');
