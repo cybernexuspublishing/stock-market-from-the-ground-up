@@ -2,7 +2,7 @@ name: Display preferences and philosophy QA
 on:
   push:
     branches: [main]
-    paths: ['assets/js/display-preferences.js', 'assets/css/display-preferences.css', 'functions/api/ui-state.js', 'philosophy.html', 'tests/test_display_preferences*.mjs', 'tests/test_sitewide_appearance_live.mjs', '.github/workflows/display-preferences-qa.yml']
+    paths: ['assets/js/display-preferences.js', 'assets/css/display-preferences.css', 'functions/api/ui-state.js', 'philosophy.html', 'tests/test_display_preferences*.mjs', 'tests/test_dashboard_display_settings_browser.mjs', 'assets/js/dashboard-ui-legacy.js', 'tests/test_sitewide_appearance_live.mjs', '.github/workflows/display-preferences-qa.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,6 +20,7 @@ jobs:
       - run: node tests/test_display_preferences_model.mjs
       - run: node tests/test_display_preferences_api.mjs
       - run: node tests/test_display_preferences.mjs
+      - run: node tests/test_dashboard_display_settings_browser.mjs
       - run: bash scripts/build-pages.sh
   sitewide:
     runs-on: ubuntu-latest

@@ -288,7 +288,7 @@ export async function onRequest(context){
           'frontend-complete.js','production-completion.js',
           'dashboard-ui-legacy.js','live-fixes.js',
           'frontend-freeze.js'
-        ])el.append('<script defer src="/assets/js/'+file+'"></script>',{html:true});
+        ])el.append('<script defer src="/assets/js/'+file+(file==='dashboard-ui-legacy.js'?'?v=display-20261026b':'')+'"></script>',{html:true});
         if(path==='/labs.html'||path==='/labs')el.append('<script defer src="/assets/js/lab-registry.js"></script>',{html:true});
         if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/lab-narrative.js"></script>',{html:true});
         if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/site-lab-experience.js"></script>',{html:true});
