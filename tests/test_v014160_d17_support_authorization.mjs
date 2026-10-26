@@ -13,6 +13,10 @@ globalThis.fetch=async(url,opt={})=>{
  assert(path.includes('/rest/v1/'),'Only mocked Supabase REST may be accessed');
  assert.equal(opt.headers.apikey,env.SUPABASE_SECRET_KEY);
  assert.equal(Object.hasOwn(opt.headers,'authorization'),false,'Modern service keys are opaque');
+ if(path.includes('/profiles?select=account_kind')){
+  assert(path.includes('id=eq.'+uid),'Real profile bound to authenticated member');
+  return json([{account_kind:'member'}]);
+ }
  if(path.includes('support_tickets?select=')) {
   assert(path.includes('requester_user_id=eq.'+uid),'Member read must enforce ownership');
   return json(owned?[{id:11,status:ticketState}]:[]);
