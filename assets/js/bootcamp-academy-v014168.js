@@ -195,36 +195,37 @@
   get('academy-save').disabled=!enrolled||!progressAvailable||busy;
  }
  async function write(action){
-  if(busy||!program||!progressAvailable||!enrolled&&action!=='enroll')return;
-  const actor=userId,serial=sessionSerial,which=dayIndex;
+  // Enrollment has one dedicated, identity-safe handler below. This function
+  // handles only started days and explicitly saved private reflections.
+  if(!['start','save_reflection'].includes(action)||busy||!program||!progressAvailable||!enrolled)return;
+  const actor=userId,serial=sessionSerial,which=dayIndex,code=activeCode;
   const note=get('academy-reflection').value.trim();
   if(action==='save_reflection'&&(note.length<80||note.length>2000)){
    get('academy-save-status').textContent='Write 80–2,000 characters about evidence, uncertainty and a next study action.';
    get('academy-reflection').focus();return;
   }
   busy=true;updateProgress();
-  get('academy-save-status').textContent='Saving your learning notes…';
+  get('academy-save-status').textContent=action==='save_reflection'?'Saving your learning notes…':'Starting your study day…';
   try{
-   const payload={version:VERSION,program:activeCode,action,day:action==='enroll'?0:which,
+   const payload={version:VERSION,program:code,action,day:which,
     ...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(which)?.revision||0}:{})};
-   const result=await request('write',activeCode,payload);
-   if(actor!==userId||serial!==sessionSerial||payload.program!==activeCode)return;
-   if(action==='enroll'){
-    enrolled=true;get('academy-save-status').textContent='You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
-   }else{
-    progress.set(which,result.progress);
-    if(action==='save_reflection'){
-     if(drafts.get(which)===note)drafts.delete(which);
-     if(which===dayIndex)get('academy-save-status').textContent=drafts.has(which)?
-      'Your earlier reflection was saved, but newer edits are still unsaved. Select Save Reflection again.':
-      'Your learning notes are saved.';
-    }else if(which===dayIndex)get('academy-save-status').textContent=result.progress?.status==='reflection_saved'?
-      'Your previously saved reflection remains recorded.':
-      'Day started. No reflection has been saved yet.';
-   }
-  }catch(e){if(actor===userId&&serial===sessionSerial&&(action==='enroll'||which===dayIndex))
-   get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
-  finally{if(actor===userId&&serial===sessionSerial){busy=false;updateProgress();updateDays()}}
+   const result=await request('write',code,payload);
+   if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
+   progress.set(which,result.progress);
+   if(action==='save_reflection'){
+    if(drafts.get(which)===note)drafts.delete(which);
+    if(which===dayIndex)get('academy-save-status').textContent=drafts.has(which)?
+     'Your earlier reflection was saved, but newer edits are still unsaved. Select Save Reflection again.':
+     'Your learning notes are saved.';
+   }else if(which===dayIndex)get('academy-save-status').textContent=result.progress?.status==='reflection_saved'?
+     'Your previously saved reflection remains recorded.':
+     'Day started. No reflection has been saved yet.';
+  }catch(e){
+   if(actor===userId&&serial===sessionSerial&&code===activeCode&&which===dayIndex)
+    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.');
+  }finally{
+   if(actor===userId&&serial===sessionSerial&&code===activeCode){busy=false;updateProgress();updateDays()}
+  }
  }
  async function open(code){
   if(!expected.has(code))return;
@@ -288,7 +289,7 @@
    // account switch or a different program opening during enrollment.
    if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
    if(result.enrolled!==true||result.program!==code)throw Error('Enrollment was not confirmed.');
-   enrolled=true;get('academy-save-status').textContent='You’re enrolled. Choose a day to begin.';
+   enrolled=true;get('academy-save-status').textContent='You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
   }catch(error){
    if(actor===userId&&serial===sessionSerial&&code===activeCode)
     get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.');
