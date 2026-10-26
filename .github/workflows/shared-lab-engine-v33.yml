@@ -7,6 +7,9 @@ on:
       - 'functions/api/lab-player-context.js'
       - 'functions/api/lab-content.js'
       - 'functions/api/interactive-training.js'
+      - 'functions/api/lab-content.js'
+      - 'functions/_lib/founding-beta-learning-access.js'
+      - 'tests/test_founder_beta_scoped_learning_access.mjs'
       - 'functions/api/competencies.js'
       - 'assets/js/interactive-training.js'
       - 'tests/v014_api_contracts.mjs'
@@ -29,6 +32,9 @@ on:
       - 'assets/js/lab-player.js'
       - 'functions/api/lab-content.js'
       - 'functions/api/interactive-training.js'
+      - 'functions/api/lab-content.js'
+      - 'functions/_lib/founding-beta-learning-access.js'
+      - 'tests/test_founder_beta_scoped_learning_access.mjs'
       - 'functions/api/competencies.js'
       - 'assets/js/interactive-training.js'
       - 'tests/v014_api_contracts.mjs'
@@ -71,6 +77,8 @@ jobs:
           node tests/lab-engine-v33.test.mjs
           node tests/test_v014099_curriculum_contract.mjs
           node tests/v014_api_contracts.mjs
+          node tests/test_founder_beta_scoped_learning_access.mjs
+          node --check functions/_lib/founding-beta-learning-access.js
           node tests/test_grading_partial_credit_critical_guard.mjs
           node tests/test_v014117_lab_topic_gate.mjs
           node tests/test_v014_owner_grading_metadata_ui.mjs
