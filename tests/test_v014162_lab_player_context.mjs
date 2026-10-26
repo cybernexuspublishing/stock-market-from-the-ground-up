@@ -36,6 +36,9 @@ try{
  assert.equal(b.lab.goal,'Explain the position-size constraint.');
  assert.equal(b.lab.teaching.what,'Define the risk per share before sizing.');
  assert.equal(b.lab.practiceSteps.length,3);
+ assert.equal(b.lab.start,'','A canonical-only orientation must not invent a historical observation start');
+ assert.equal(b.lab.end,'','A canonical-only orientation must not invent a replay end time');
+ assert.match(b.lab.dataNote,/Canonical registry metadata only/);
  assert(!JSON.stringify(b).includes('NEVER RETURN THIS'));
  assert(!JSON.stringify(b).includes('rubric'));
  assert(!JSON.stringify(b).includes('correctAnswer'));
