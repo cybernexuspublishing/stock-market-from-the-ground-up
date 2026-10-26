@@ -162,7 +162,7 @@ async function init(){
   const bookTab=document.getElementById('store-tab-books'),toolTab=document.getElementById('store-tab-tools');
   if(bookTab)bookTab.hidden=!document.getElementById('store-products')?.innerHTML.includes('product-card');
   if(toolTab)toolTab.hidden=!document.getElementById('store-tools')?.innerHTML.includes('store-sell-card');
-  if(bookTab&&!bookTab.hidden&&location.hash==='#books')bookTab.click();
+  // Initial category fragment was already selected by tabs(); no second click.
   // This coming-soon training branch has a separate detail page from the
   // existing paid ONDEMAND_MONTHLY SKU; do not merge their checkout eligibility.
   const preview=document.querySelector('.v135-replay-plan-cta a');
