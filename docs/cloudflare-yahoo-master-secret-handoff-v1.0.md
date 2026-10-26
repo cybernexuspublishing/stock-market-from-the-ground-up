@@ -1,19 +1,21 @@
-# Yahoo Master — Encrypted Credentials & Cutover Handoff v1.1
+# Yahoo Master — Encrypted Credentials & Cutover Handoff v1.2
 **Project:** The Stock Market: From the Ground Up
 **Date:** 2026-10-25
 **Account:** `4fe9e562905cf607b6f004d2374299fc` (Yahoo master)
 **Pages:** `stock-market-from-the-ground-up`, `https://stock-market-from-the-ground-up-d1r.pages.dev`
 **Status:** Operator secret-entry instructions. **NOT** approval for LIVE payment testing or site/account retirement.
 
-## Current verification — October 25, 2026
+## Current verification — October 25, 2026 (controlling state)
 
-**Five of six** provider bindings have been independently verified as present and encrypted on the Yahoo master Production environment: `SUPABASE_SECRET_KEY`, `GU39_STRIPE_TEST_SECRET_KEY`, `GU39_STRIPE_TEST_WEBHOOK_SECRET`, `GU58_STRIPE_LIVE_SECRET_KEY`, and `GU58_STRIPE_LIVE_WEBHOOK_SECRET`. **Do not re-enter or rotate these merely because this handoff includes all original six instructions.**
+**All SIX required provider secrets are installed as encrypted `secret_text` Production bindings**, independently verified by Cloudflare and [GitHub's six-binding readiness run](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40245936833):
 
-**Only missing secret:** `GU_F600_LIVE_WEBHOOK_SECRET`. In the Stripe LIVE account, open the **master Founding 600** webhook destination `we_1UUZvEJL0O4GGVBHa1CTpKMO`, copy its `whsec_` signing secret, and add it to the Yahoo master Cloudflare Pages **Production** variable of the exact name, type **Secret/Encrypted**. Keep the endpoint disabled; copying a secret is NOT permission to activate LIVE payment processing.
+`SUPABASE_SECRET_KEY`, `GU39_STRIPE_TEST_SECRET_KEY`, `GU39_STRIPE_TEST_WEBHOOK_SECRET`, `GU58_STRIPE_LIVE_SECRET_KEY`, `GU58_STRIPE_LIVE_WEBHOOK_SECRET`, and `GU_F600_LIVE_WEBHOOK_SECRET`. **Do not regenerate, rotate, revoke, or reinstall working credentials without a separately approved credential-change plan.**
 
-**Already accepted (nonpayment):** The new Pages deployment picked up updated bindings. Public `GET /api/ad-sales` responds HTTP 200 with all three ad packages and checkout disabled. Guest Sandbox and Admin routes return HTTP 401. Master smoke run [40245646828](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40245646828) passed **22 checks, 0 failures**. Nonpayment backend run [40245700851](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40245700851) passed without requiring the one LIVE-only secret. No LIVE payment operation was performed.
+**Latest verified non-LIVE gates:** Yahoo master Pages remains GitHub-connected on `main`; the stray repository-root Workers Builds integration and Worker were removed; the intended Pages project is preserved. Master source-exposure/guest security run [40246987048](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40246987048) passed 17 checks. Expanded [Stripe TEST-only negative-signature run 40254098810](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40254098810) passed 19/19, including rejection of unsigned/forged-signature payloads without accepting an event or making any payment. Existing shared Supabase `gu39_sandbox_settings` remains disabled; genuine signed TEST events have **not** been accepted.
 
-**Pending after last secret:** Supabase Auth CAPTCHA/redirect cutover, signed-in Owner/member isolation acceptance, actual Stripe TEST webhook sandbox lifecycle checks, and a separate explicit production billing cutover. The original and interim accounts cannot yet be deleted.
+**Still open:** Supabase Auth CAPTCHA secret and Site URL/redirect configuration validation, authenticated Owner and two-member end-to-end sessions, real provider-delivered **Stripe TEST** lifecycle and reconciliation, and separately authorized LIVE cutover. All LIVE payment/checkout/webhook switches stay `false`; all new LIVE Stripe event destinations stay disabled. Source accounts and existing billing schedules remain untouched until owner-approved retirement.
+
+**Owner authorization boundary:** The build token `stock-market-from-the-ground-up build token` has owner-locked **name, permissions, scope, expiration, IP filtering, and lifecycle**. Acting Owner must request explicit permission here before changing any token configuration, even when a least-privilege recommendation is warranted. Project spend authorization is $0 without prior Owner approval.
 
 ## 1. Exact destination (six credentials)
 Cloudflare Dashboard → choose **Yahoo master account** (verify account ID above) → **Workers & Pages** → **stock-market-from-the-ground-up** → **Settings → Variables and Secrets → Production**.
@@ -62,4 +64,4 @@ Existing master secret bindings `GU_BILLING_TASK_SECRET` and `TURNSTILE_SECRET_K
 - Supabase security advisor warnings for SECURITY DEFINER RPC grants and breached-password checking should be separately reviewed; do not make uncontrolled RLS/grant changes to the shared production database during Cloudflare account migration.
 - The GitHub secret `SMFGU_LIVES_PAGES_DEPLOY` has been used successfully for master migration. Restrict it to least privilege once migrations are complete; do not use a no-expiration, broad billing/token-admin key for routine deployments.
 
-**Next human checkpoint:** Report only **“Founding 600 secret installed”** when that final missing encrypted binding is saved. Do not share the value. The other five provider bindings and the nonpayment backend have already passed presence/read-only acceptance; LIVE payment testing remains disabled.
+**Current operator checkpoint:** No remaining provider-key installation is needed. Preserve all six encrypted Production bindings, complete Auth and TEST-only lifecycle acceptance without LIVE payments, and require Owner approval before touching the Cloudflare build-token settings.
