@@ -149,8 +149,34 @@ async function handleGet(env,request,action,url){
       countTable(env,'support_tickets','status=in.(new,open,assigned,in_progress,waiting_member,waiting_staff,escalated)'),
       countTable(env,'gu_digital_versions_v014303','current=eq.true')
     ]);
+    // Bounded record-level queue. Sensitive records are fetched only for the
+    // corresponding existing server-side permission. A failed query is not zero.
+    const queueSpecs=[
+      {category:'Learning',severity:'warning',permission:'content.view',table:'lab_instruction_v014',select:'lab_id,updated_at',filter:'reviewed_at=is.null',target:'training-review',kind:'instruction'},
+      {category:'Assessments',severity:'warning',permission:'content.view',table:'lab_training_sets_v014',select:'lab_id,version,updated_at',filter:'review_state=eq.draft',target:'training-review',kind:'assessment'},
+      {category:'Community',severity:'warning',permission:'forum.view',table:'forum_reports',select:'id,status,created_at',filter:'status=eq.open',target:'community',kind:'report'},
+      {category:'Support',severity:'warning',permission:'users.view',table:'support_tickets',select:'id,ticket_number,status,priority,created_at',filter:'status=in.(new,open,assigned,in_progress,waiting_member,waiting_staff,escalated)',target:'users',kind:'ticket'}
+    ];
+    const queueResults=await Promise.all(queueSpecs.filter(spec=>has(c.ctx,spec.permission)||spec.permission==='content.view'&&has(c.ctx,'learning.manage')).map(async spec=>{
+      try{
+        const order=spec.kind==='instruction'||spec.kind==='assessment'?'updated_at':'created_at';
+        const rows=await tableRows(env,spec.table,spec.select,`&${spec.filter}&order=${order}.desc&limit=4`);
+        return {category:spec.category,available:true,items:rows.map(row=>({
+          kind:spec.kind,category:spec.category,severity:spec.severity,
+          id:String(row.id??row.lab_id??''),label:spec.kind==='instruction'?'Lab '+String(row.lab_id)+' — instruction review':spec.kind==='assessment'?'Lab '+String(row.lab_id)+' — assessment v'+String(row.version):spec.kind==='report'?'Forum report #'+String(row.id):'Support ticket '+String(row.ticket_number||row.id),
+          status:spec.kind==='instruction'?'Unreviewed':spec.kind==='assessment'?'Draft':String(row.status||'Open'),
+          createdAt:row.created_at||row.updated_at||null,target:spec.target
+        }))};
+      }catch{return {category:spec.category,available:false,items:[]}}
+    }));
+    let recentActivity=null;
+    if(has(c.ctx,'audit.view')){
+      try{recentActivity=(await tableRows(env,'admin_audit_log','id,actor_user_id,action,target_type,target_id,created_at','&order=created_at.desc&limit=8'))
+        .map(event=>({id:event.id,actor:event.actor_user_id||null,action:event.action||'Unknown',targetType:event.target_type||null,targetId:event.target_id||null,at:event.created_at||null}));}
+      catch{recentActivity=null}
+    }
     const activeEntitlements=await countTable(env,'entitlements','status=in.(active,trialing)');
-    return ok({summary:{users,library,orders,subscriptions:subs,openReports:reports,
+    return ok({queue:queueResults,recentActivity,permissions:c.ctx.permissions,summary:{users,library,orders,subscriptions:subs,openReports:reports,
       auditEntries:auditCount,catalogProducts:catalog,publishedContent:content,
       activeEntitlements,pendingLabReviews,draftAssessments,founderOccupied,
       academyActive,openSupportTickets,currentDigitalEditions},
