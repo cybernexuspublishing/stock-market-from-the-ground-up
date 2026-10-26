@@ -275,7 +275,7 @@ export async function onRequest(context){
           el.append('<style id="v011-lab-registry-gate">body{visibility:hidden}</style>',{html:true});
         el.append('<meta name="application-version" content="v0.14.0.14">',{html:true});
         el.append('<meta name="theme-color" content="#061827">',{html:true});
-        el.append('<link rel="stylesheet" href="/assets/css/display-preferences.css?v=20261026"><link rel="stylesheet" href="/assets/css/sitewide-surface-refinement.css?v=20261026"><script defer src="/assets/js/display-preferences.js?v=20261026"></script>',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/display-preferences.css?v=20261026"><link rel="stylesheet" href="/assets/css/sitewide-surface-refinement.css?v=20261026b"><script defer src="/assets/js/display-preferences.js?v=20261026"></script>',{html:true});
         el.append('<link rel="manifest" href="/manifest.webmanifest">',{html:true});
         for(const file of [
           'platform.css','production.css','frontend-complete.css',

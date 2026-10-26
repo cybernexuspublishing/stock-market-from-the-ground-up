@@ -22,3 +22,8 @@ html[data-gu-design="premium-light"] body[data-gu-surface="standard"]{--ink:#182
 html[data-gu-design="premium-light"] body[data-gu-surface="standard"] :is(.site-header,.journal-card,.metric-box,.journal-kpi,.sim-position-grid>div,.sim-chart-panel,.sim-side,#fe-sim-workspace){background:#fff;border-color:#d5e0e9}
 html[data-gu-design="premium-light"] body[data-gu-surface="standard"] :is(input,select,textarea){background:#fff;color:#182839;border-color:#8393a6}
 @media(max-width:700px){html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset){grid-template-columns:minmax(0,1fr)}html body[data-gu-surface="standard"] .journal-card:has(>#vr-dataset)>*{grid-column:1!important;width:100%;min-width:0}html body[data-gu-surface="standard"] .sim-side{position:static}html body[data-gu-surface="standard"] .fe-page-head{flex-direction:column;align-items:stretch}}
+
+/* The four-column Owner release ledger must shrink within its grid tracks. */
+body[data-gu-surface="standard"] .or-release-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr))!important}
+body[data-gu-surface="standard"] .or-release-card{min-width:0;grid-template-columns:minmax(0,1fr)!important}
+body[data-gu-surface="standard"] .or-release-card>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
