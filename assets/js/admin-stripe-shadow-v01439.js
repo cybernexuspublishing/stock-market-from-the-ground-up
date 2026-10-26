@@ -36,7 +36,11 @@
  const liveButton=element('button','Run LIVE Merchant Review — No Charge');liveButton.type='button';
  const liveInfo=element('p','Uses existing encrypted Cloudflare credentials to read LIVE Stripe account, eight prices and webhook details. Does not open checkout, charge, or change TEST/LIVE mode.','gu39-small');
  const liveResults=element('section',undefined,'gu39-complete-report');liveResults.setAttribute('role','status');liveResults.setAttribute('aria-live','polite');
- liveAudit.append(liveTitle,liveInfo,liveButton,liveResults);
+ const releaseButton=element('button','Audit All-Category LIVE Sale Gates — Read Only');releaseButton.type='button';
+ const releaseDescription=element('p','Verifies current Stripe Price/Product mapping, correct LIVE webhook event coverage, 60 canonical Store faces and Owner release switches. Does not approve customer charges or open checkout.','gu39-small');
+ const releaseResults=element('section',undefined,'gu39-complete-report');
+ releaseResults.setAttribute('role','status');releaseResults.setAttribute('aria-live','polite');
+ liveAudit.append(liveTitle,liveInfo,liveButton,liveResults,releaseDescription,releaseButton,releaseResults);
  // $0 LIVE QA is NOT GU58 member checkout. This collapsible test control stays
  // hidden from non-Owners and uses a separate explicit server-side enable gate.
  const zeroQA=element('details',undefined,'gu71-zero-live-checkout');zeroQA.hidden=true;
@@ -357,7 +361,35 @@
   }catch(e){liveResults.replaceChildren(element('p','LIVE merchant review unavailable: '+(e.message||'Unknown error')+'. No payment attempted.'))}
   finally{liveButton.disabled=state?.role!=='OWNER'}
  }
- liveButton.addEventListener('click',runLiveMerchantReview);
+  liveButton.addEventListener('click',runLiveMerchantReview);
+ releaseButton.addEventListener('click',async()=>{
+  releaseButton.disabled=true;
+  releaseResults.replaceChildren(element('p','Reading release evidence; no Stripe Checkout or customer data changes.'));
+  try{
+   const jwt=await auth();
+   const response=await fetch('/api/live-commerce-readiness',{headers:{authorization:'Bearer '+jwt},cache:'no-store'});
+   const x=await response.json().catch(()=>null);
+   if(!response.ok||x?.ok!==true)throw Error(x?.error||'Read-only release evidence is temporarily unavailable.');
+   releaseResults.replaceChildren();
+   releaseResults.append(element('h3',x.go===true?'Preflight gates passed — final member payment acceptance still required':'NO-GO — Public LIVE checkout remains gated'));
+   releaseResults.append(element('p',String(x.storeCount)+' Store faces; '+String(x.mappedSKUs)+' mapped paid SKUs; '+
+    String(x.activePriceCount)+' active LIVE Prices; '+String(x.activeProductCount)+' active Stripe Products.'));
+   const denied=Array.isArray(x.blockers)?x.blockers:[],allowed=Array.isArray(x.verified)?x.verified:[];
+   const list=element('ul');
+   for(const key of denied)list.append(element('li','BLOCKED: '+String(key)));
+   for(const key of allowed)list.append(element('li','VERIFIED: '+String(key)));
+   releaseResults.append(list);
+   const table=element('table'),head=element('thead'),h=element('tr');
+   for(const col of ['Product category','Store faces','Independent sale-ready'])h.append(element('th',col));
+   head.append(h);table.append(head);
+   const body=element('tbody');
+   for(const [category,v] of Object.entries(x.categoryCounts||{})){
+    const row=element('tr');for(const value of [category,String(v.total),String(v.ready)])row.append(element('td',value));body.append(row);
+   }
+   table.append(body);releaseResults.append(table,element('p',String(x.explanation||'')));
+  }catch(e){releaseResults.replaceChildren(element('p','LIVE commerce preflight unavailable: '+(e.message||'Unknown error')+'. Checkout stays closed.'))}
+  finally{releaseButton.disabled=false}
+ });
  const QA_URL='/api/owner-zero-live-checkout';
  const QA_FAILED={
   ZERO_QA_DISABLED:'Zero-dollar LIVE QA is OFF. Keep it off until you intentionally configure the separate $0 LIVE QA Product.',
