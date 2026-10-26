@@ -26,7 +26,8 @@ export async function onRequestPost({request,env}){
   if(!jwt)return reply({ok:false,error:'Sign in required.'},401);
   const body=await request.json().catch(()=>({}));
   const code=body?.code;
-  if(!goodCode(code))return reply({ok:false,error:'Invalid book code.'},400);
+  const format=body?.format==null?null:String(body.format).toLowerCase();
+  if(!goodCode(code)||(format!==null&&!['pdf','epub'].includes(format)))return reply({ok:false,error:'Invalid book code.'},400);
   const cfg=config(env);
   const authHeaders={apikey:cfg.pub,authorization:'Bearer '+jwt};
   // Supabase Auth verifies JWT; the database RPC enforces caller-bound ownership.
