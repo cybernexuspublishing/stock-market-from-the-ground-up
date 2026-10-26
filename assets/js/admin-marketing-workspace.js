@@ -55,7 +55,12 @@ function mount(counts){
  const administration=destinations.administration;textBlock(administration,'Owner-only operations','The existing advertising API verifies Owner authority on every request. Navigation organization does not grant permission. Existing audited advertiser, campaign and creative operations remain authoritative.');
  administration.append(link('admin.html#audit','Open existing activity & audit history'),link('admin.html#commerce','Open existing Commerce & reconciliation'),link('admin.html#roles','Open existing roles & permissions'));
  textBlock(administration,'Payment and publishing boundaries','Existing Stripe Sandbox controls are isolated under Stripe Sandbox QA. LIVE payment testing, paid advertising and external social publishing have not been enabled by this navigation change.');
- shell.append(menu,content);main.append(shell);window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{detail:{container:social}}));window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1)||'overview');
+ shell.append(menu,content);main.append(shell);
+ const stylesheet=node('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/css/admin-social-zero-cost.css';document.head.append(stylesheet);
+ import('/assets/js/admin-social-zero-cost.js').then(()=>window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{detail:{container:social}}))).catch(()=>{
+  textBlock(social,'Social editor unavailable','The social studio could not load. Existing advertising controls are unaffected.');
+ });
+ window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1)||'overview');
 }
 window.addEventListener('groundup:ad-admin-ready',event=>mount(event.detail));
 })();
