@@ -1,0 +1,35 @@
+name: Social Marketing Owner-only Zero-cost Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/v0.14.0.276_social_marketing_owner_only.sql'
+      - 'functions/api/admin-social.js'
+      - 'assets/js/admin-social-zero-cost.js'
+      - 'assets/css/admin-social-zero-cost.css'
+      - 'assets/js/admin-marketing-workspace.js'
+      - 'tests/test_admin_social_zero_cost.mjs'
+      - '.github/workflows/social-marketing-owner.yml'
+permissions:
+  contents: read
+jobs:
+  social-source-and-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and zero-cost social operations security
+        run: |
+          node --check functions/api/admin-social.js
+          node --check assets/js/admin-social-zero-cost.js
+          node --check assets/js/admin-marketing-workspace.js
+          node --test tests/test_admin_social_zero_cost.mjs
+      - name: Confirm existing Ads controls and route unaffected
+        run: |
+          node --test tests/test_ad_sales_security_v014231.mjs
+          test -f admin-advertising.html
+          test -f functions/api/ad-sales.js
