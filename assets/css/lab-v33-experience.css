@@ -872,3 +872,16 @@ body.gu-lab-member #player-stage-progress .stage-grid{
 body.gu-lab-member #player-stage-progress .stage-item{
  min-height:38px;white-space:normal;color:#eff7fd;border-bottom:1px solid #39576c;
 }
+
+/* Authenticated browser regression: generic .gu-v33 dl columns squeezed the
+   narrow candle reference into 128px/39px tracks. Each OHLC pair is one row.
+   Preserve the chart/Talia workspace, approved 3x3 journey and chart geometry. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-reference-rows{
+ grid-template-columns:minmax(0,1fr);
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-reference-row{
+ min-width:0;gap:8px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-reference-row :is(dt,dd){
+ white-space:nowrap;overflow-wrap:normal;word-break:normal;
+}
