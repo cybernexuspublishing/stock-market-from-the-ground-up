@@ -40,6 +40,35 @@ function statusClass(status) {
   return 'activity-neutral';
 }
 
+async function renderFreeLearningDashboard(sb) {
+ const panel=document.getElementById('free-learning-launchpad');
+ if(!panel)return;
+ panel.hidden=false;
+ const status=document.getElementById('free-learning-usage-status');
+ try{
+  // Existing Auth-scoped RPC reads only auth.uid(); never accept a browser user id.
+  const {data,error}=await sb.rpc('gu_v014121_my_free_week_usage');
+  if(error||!data||typeof data!=='object')throw Error('Free usage is unavailable');
+  const allowed=(count,limit)=>Number.isSafeInteger(count)&&count>=0&&
+   Number.isSafeInteger(limit)&&limit>=0;
+  if(!allowed(data.journalUsed,data.journalLimit)||
+   !allowed(data.simulatorSavesUsed,data.simulatorSaveLimit))throw Error('Invalid weekly usage contract');
+  setText('free-learning-journal-usage',
+   data.journalUnlimited?'Premium unlimited':data.journalUsed+' / '+data.journalLimit);
+  setText('free-learning-sim-usage',
+   data.simulatorUnlimited?'Premium unlimited':data.simulatorSavesUsed+' / '+data.simulatorSaveLimit);
+  const at=new Date(data.resetsAtUtc);
+  if(Number.isNaN(at.getTime()))throw Error('Invalid weekly reset date');
+  status.textContent='Saved practice is counted by the existing server ledger. Resets '+
+   at.toLocaleString('en-US',{timeZone:'UTC',timeZoneName:'short',weekday:'long',month:'short',day:'numeric',
+    hour:'2-digit',minute:'2-digit'})+'. Unsaved browser replay does not count.';
+ }catch{
+  setText('free-learning-journal-usage','Unavailable');
+  setText('free-learning-sim-usage','Unavailable');
+  status.textContent='Current usage could not be verified. Existing server-side weekly limits still apply; no additional allowance has been assumed.';
+ }
+}
+
 async function initDashboard() {
   // Existing beta bookmarks lead to the established, permission-checked
   // Founders Commons. This redirects; it never awards a founder entitlement.
@@ -129,6 +158,7 @@ async function initDashboard() {
   }
 
   setText('labs-completed', completedSet.size);
+  if (!active.length) void renderFreeLearningDashboard(sb);
   setText('labs-in-progress', inProgressSet.size);
   setText('labs-not-started', notStartedCount);
   setText('overall-progress', `${pct(completedSet.size, labs.length)}%`);
