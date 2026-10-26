@@ -28,7 +28,7 @@ async function store(env,path,method='GET',body){
  const c=backend(env);
  let r;
  try{r=await fetch(c.base+'/rest/v1/'+path,{
-  method,cache:'no-store',headers:{...c.headers,...(body?{'content-type':'application/json',prefer:'return=representation'}:{})},
+  method,cache:'no-store',headers:{...c.headers,...(method!=='GET'?{prefer:'return=representation'}:{}),...(body!==undefined?{'content-type':'application/json'}:{})},
   body:body===undefined?undefined:JSON.stringify(body),
   signal:AbortSignal.timeout(12000)
  })}catch{throw fail('Watchlist database unavailable.',503)}
