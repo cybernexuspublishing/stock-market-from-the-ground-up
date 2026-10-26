@@ -10,26 +10,4 @@
 <section aria-labelledby="spark-options"><h2 id="spark-options">Sparks packages</h2><p id="spark-shop-status" role="status" aria-live="polite">Checking package availability…</p><div id="spark-shop-packages" class="spark-grid"></div></section>
 <section class="spark-terms"><h2>How to use your Sparks</h2><p>One Spark may be spent to reveal or skip one eligible ungraded Practice question, after your confirmation. Free tutoring, corrections, examples, and retry opportunities are always available. A skip or revealed answer never counts toward assessed mastery.</p><p>Purchased Sparks do not expire under the approved policy. Included Sparks have separate expiry rules, which your wallet shows. You must have a member account to use Sparks.</p><p>Sparks cannot be exchanged for cash or trading funds. They are learning-platform credits, not cryptocurrency or financial instruments.</p></section>
 </div></main><footer class="footer"><div class="wrap"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="store.html">Store</a></div></footer>
-<script>
-(async function(){
- const host=document.getElementById('spark-shop-packages'),status=document.getElementById('spark-shop-status');
- const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n};
- try{
-  const r=await fetch('data/crownlight-sparks-store-v014167.json',{cache:'no-store'});
-  if(!r.ok)throw Error('Unavailable');const data=await r.json();
-  if(!Array.isArray(data.packages))throw Error('Invalid catalog');
-  const active=!!data.checkoutEnabled;
-  // Current package file explicitly has checkout disabled. A real server-side
-  // checkout must be verified before any purchase control becomes available.
-  for(const p of data.packages){
-   if(!/^[A-Z0-9_]{3,60}$/.test(p.code)||!Number.isInteger(p.quantity)||!Number.isInteger(p.priceCents))continue;
-   const card=el('article',null,'spark-card');card.append(el('span',active&&p.checkoutEnabled?'Beta OPEN':'Coming Soon','spark-tag'),
-    el('h2',p.name),el('p',p.quantity+' Crownlight Sparks'),el('div',(p.priceCents/100).toLocaleString('en-US',{style:'currency',currency:'USD'}),'spark-cost'));
-   const note=el('p',active&&p.checkoutEnabled?'Package availability requires authenticated payment verification.':'Pricing shown for planning; purchases are not yet enabled.','small');card.append(note);
-   // Deliberately avoid inventing a payment URL, checkout capability or price authorization.
-   host.append(card);
-  }
-  status.textContent=host.children.length?(active?'Current package catalog — payment status must be confirmed before checkout.':'Packages announced; purchase and credit fulfillment are not yet activated.'):'No Spark packages are currently published.';
- }catch{status.textContent='Spark package catalog is unavailable. No purchase was started.';}
-})();
-</script></body></html>
+<script defer src="assets/js/store-sparks-shop-v014296.js"></script></body></html>
