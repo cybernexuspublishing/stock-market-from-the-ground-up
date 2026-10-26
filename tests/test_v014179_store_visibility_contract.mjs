@@ -12,7 +12,8 @@ for(const state of ['draft','paused']) assert.ok(!api.includes("'"+state+"'"),'P
 assert.ok(api.includes('store_visible===true'));
 assert.ok(!api.includes('items,hidden'),'Public response must not reveal hidden SKU identifiers');
 assert.ok(api.includes("cache-control':'no-store'"),'No stale product visibility cache');
-assert.ok(ui.includes("base.filter(p=>p.status==='existing_catalog')"),'Upcoming products must fail closed when server unavailable');
+assert.ok(ui.includes('const listedCore=p=>')&&ui.includes("/^FOUNDING_(30|60)$/.test(p.sku)")&&ui.includes("p.category==='Books'&&p.status==='existing_catalog'"),'Fallback must allow only the two current Founding offers and existing approved books');
+assert.ok(ui.includes('all=base.filter(listedCore)')&&ui.includes('verified=true;all=base.filter(listedCore);render()'),'When public publication data is unavailable, unverified upcoming SKUs and legacy memberships must stay hidden');
 assert.ok(ui.includes('bySku.has(p.sku)'),'Only explicitly published server records may appear');
 
 assert.ok(admin.includes("expected_version:overrides.get(sku)?.version||0"),'Editor saves must carry CAS version');
