@@ -12,16 +12,16 @@ globalThis.fetch=async(url,init={})=>{
  if(s.includes('/user_library?'))return json([{product_code:'FOUNDATION_BOOK_1',expires_at:null}]);
  if(s.includes('/book_key_redemptions?')||s.includes('/user_plan_grants?')||s.includes('/site_subscriptions?'))return json({code:'MISSING_JOIN'},503);
  if(s.includes('/rpc/user_has_tool_access'))return json({code:'PGRST202'},404);
- if(s.includes('/platform_labs?'))return json([{lab_id:'F1-C03-L01',title:'Market structure',book_code:'FOUNDATION_BOOK_1',chapter_number:3,active:true,registry_visible:true,metadata:{what:'Find the relevant participants',why:'Understand the auction',how:['Define the term','Compare alternatives','Check evidence']}}]);
+ if(s.includes('/platform_labs?'))return json([{lab_id:'F1-C02-L02',title:'Market structure',book_code:'FOUNDATION_BOOK_1',chapter_number:3,active:true,registry_visible:true,metadata:{what:'Find the relevant participants',why:'Understand the auction',how:['Define the term','Compare alternatives','Check evidence']}}]);
  throw Error('Unexpected DB request '+s);
 };
 try{
- const request=new Request('https://site.test/api/lab-player-context?id=F1-C03-L01',{headers:{authorization:'Bearer QA.fake'}});
+ const request=new Request('https://site.test/api/lab-player-context?id=F1-C02-L02',{headers:{authorization:'Bearer QA.fake'}});
  assert.equal(await getBookCodeAccess(env,request,'FOUNDATION_BOOK_1'),true,'Unrelated absent subscription joins do not break valid book ownership');
  const response=await context({request,env});assert.equal(response.status,200);
  const body=await response.json();
  assert.equal(body.guidedAllowed,true);
  assert.equal(body.advancedAllowed,false);
- assert.equal(body.lab.id,'F1-C03-L01');
+ assert.equal(body.lab.id,'F1-C02-L02');
  console.log('PASS entitled book-owner Guided orientation survives missing premium RPC and unrelated subscription joins');
 }finally{globalThis.fetch=oldFetch}
