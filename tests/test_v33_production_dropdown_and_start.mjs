@@ -10,6 +10,19 @@ const engine=read('assets/js/lab-engine-v32-universal.js');
 const css=read('assets/css/lab-v32-prototype-exact.css');
 const route=read('functions/lab-player.js');
 const middleware=read('functions/_middleware.js');
+// The production Lab must require authentication, including embedded mode.
+const policySource=read('assets/js/route-policy.js');
+const policyContext=createContext({});
+new Script(policySource).runInContext(policyContext);
+const gate=policyContext.GroundUpRoutePolicy;
+for(const path of ['/lab-player','/lab-player.html']){
+ assert.equal(gate.classify(path),'member');
+ assert.equal(gate.isProtected(path),true);
+}
+assert.equal(gate.classify('/lab-v32-member.html'),'public');
+assert(middleware.includes('const embeddedMemberGate=new HTMLRewriter()'));
+assert(middleware.includes("gated.headers.set('cache-control','private, no-store, max-age=0')"));
+assert(middleware.includes("el.setAttribute('data-auth-required','true')"));
 assert(player.includes('LEARNING ENGINE v3.3'),'Production must say Learning Engine v3.3, not reference 3.2');
 assert(player.includes('id="player-mode-trigger"')&&player.includes('id="player-mode-menu"'),'Mode selector and dropdown must be present');
 assert(player.includes('aria-haspopup="menu"'),'Learning selector must expose menu semantics');

@@ -240,7 +240,30 @@ export async function onRequest(context){
   // the PARENT already owns navigation and account chrome. Reusing its CSS/JS
   // a second time in the frame would create duplicate menus and page reflows.
   // Do not skip the security boundaries above or the Lab API authorization.
-  if(['/lab-player','/lab-player.html'].includes(path)&&url.searchParams.get('embedded')==='1')return response;
+  if(['/lab-player','/lab-player.html'].includes(path)&&url.searchParams.get('embedded')==='1'){
+    // Embedded learning is still member-only; avoid duplicating the parent
+    // navigation or modifying the approved full-width Lab layout.
+    try{
+      const embeddedMemberGate=new HTMLRewriter()
+        .on('head',{element(el){
+          el.append('<style id="v1342-access-pending">html body{visibility:hidden!important}</style>',{html:true});
+          el.append('<script defer src="/assets/js/auth-boundary.js"></script>',{html:true});
+        }})
+        .on('body',{element(el){
+          el.setAttribute('data-route-access','member');
+          el.setAttribute('data-auth-required','true');
+        }})
+        .transform(response);
+      const gated=new Response(embeddedMemberGate.body,embeddedMemberGate);
+      gated.headers.set('cache-control','private, no-store, max-age=0');
+      gated.headers.set('pragma','no-cache');
+      gated.headers.set('x-robots-tag','noindex, nofollow');
+      gated.headers.delete('content-length');
+      return gated;
+    }catch{
+      return new Response('Protected Lab unavailable.',{status:503,headers:{'cache-control':'no-store'}});
+    }
+  }
   try{
     const modified=new HTMLRewriter()
       .on('head',{element(el){
