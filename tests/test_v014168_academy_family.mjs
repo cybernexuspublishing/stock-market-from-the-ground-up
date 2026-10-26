@@ -14,6 +14,9 @@ const names={
 };
 assert.equal(ACADEMY_VERSION,'0.14.0.168');
 assert.equal(academyPrograms.length,7);
+assert(academyByCode.truth5.curriculum[1].lesson.reviewGuide.includes('public-availability'));
+assert(academyByCode.truth5.curriculum[2].lesson.sourceProcedure.some(s=>s.includes('acceptance timestamp')&&s.includes('public availability')));
+
 assert.equal(academyCatalog.length,7);
 assert.equal(new Set(academyPrograms.map(p=>p.code)).size,7);
 const official=new Set(guides.guides.map(g=>g.code));
