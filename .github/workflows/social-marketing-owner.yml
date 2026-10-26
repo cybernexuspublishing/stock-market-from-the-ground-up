@@ -7,6 +7,7 @@ on:
       - 'supabase/migrations/v0.14.0.276_social_marketing_owner_only.sql'
       - 'supabase/migrations/v0.14.0.277_social_audit_rowtype_repair.sql'
       - 'supabase/migrations/v0.14.0.278_social_campaign_content_queue_metrics.sql'
+      - 'supabase/migrations/v0.14.0.279_social_account_registry.sql'
       - 'functions/api/admin-social.js'
       - 'functions/_lib/social-provider-capabilities-v014279.mjs'
       - 'assets/js/admin-social-zero-cost.js'
