@@ -25,7 +25,7 @@ const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_
 const owner='00000000-0000-4000-8000-000000000011';
 const created='00000000-0000-4000-8000-000000000012';
 const original=globalThis.fetch;
-let authCreations=0,issuedRoles=[],auditActions=[],profileWrites=0;
+let authCreations=0,issuedRoles=[],auditActions=[],profileWrites=0,actorRole='OWNER';
 const response=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
  const u=new URL(String(url)),p=u.pathname,method=options.method||'GET';
@@ -33,13 +33,16 @@ globalThis.fetch=async(url,options={})=>{
  if(p==='/rest/v1/profiles'){
   if(u.searchParams.has('username'))return response([]);
   if(method==='POST'){profileWrites++;return response(null)}
+  if(u.searchParams.get('id')==='eq.'+created)return response([{id:created,username:'QaSupport',account_kind:'member',deleted_at:null}]);
   return response([{id:owner,account_kind:'member',deleted_at:null}]);
  }
  if(p==='/rest/v1/admin_user_roles'){
   if(method==='POST'){issuedRoles.push(JSON.parse(options.body).role_code);return response(null)}
-  return response([{role_code:'OWNER',expires_at:null}]);
+  if(u.searchParams.get('user_id')==='eq.'+created)return response([{role_code:'SUPPORT',expires_at:null}]);
+  return response([{role_code:actorRole,expires_at:null}]);
  }
  if(p==='/rest/v1/admin_user_flags')return response([]);
+ if(p==='/rest/v1/test_account_profiles')return response([]);
  if(p==='/rest/v1/admin_roles')return response(assignable.map(role_code=>({role_code,name:role_code,is_assignable:true})));
  if(p==='/rest/v1/admin_audit_log'){
   if(method==='POST')auditActions.push(JSON.parse(options.body).action);
@@ -70,5 +73,9 @@ try{
  assert(auditActions.includes('v1353.account.create.request'));
  assert(auditActions.includes('v1353.account.created'));
  assert.equal(profileWrites,1);
+ actorRole='ADMIN';
+ const specialist=await onRequest({env,request:new Request('https://site.invalid/api/admin-accounts-v01353?action=detail&id='+created,{headers:{authorization:'Bearer delegated-admin'}})});
+ assert.equal(specialist.status,403,'Delegated Administrator cannot inspect or mutate specialist Support account via member editor');
+ assert.equal(authCreations,1,'Denied delegated staff read cannot reach Auth admin identity endpoint');
  console.log('PASS account provisioning least privilege: real staff role mapping, invalid requests fail before invite, synthetic separation, creation audit (mocked).');
 }finally{globalThis.fetch=original}
