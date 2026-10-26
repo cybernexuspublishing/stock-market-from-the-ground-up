@@ -23,7 +23,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_mockaccount123',
  PUBLIC_SITE_URL:'https://stock-market-from-the-ground-up-d1r.pages.dev',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(map(standard)),
- GU_F600_LIVE_CATALOG_JSON:JSON.stringify(map(founders,standard.length))};
+ GU_F600_LIVE_CATALOG_JSON:JSON.stringify(Object.fromEntries(Object.entries(map(founders,standard.length)).map(([k,v])=>[k,{productId:v.product_id,priceId:v.price_id}])))};
 for(const f of flags)env[f]='false';
 const store=Array.from({length:60},(_,i)=>({sku:'test:'+i,category:
  i<5?'membership':i<7?'founding':i<29?'tool':i<44?'bootcamp':i<51?'book':i<54?'addon':'feature',
