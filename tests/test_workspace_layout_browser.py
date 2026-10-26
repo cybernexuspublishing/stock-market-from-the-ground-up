@@ -86,7 +86,13 @@ with sync_playwright() as p:
       assert page.locator('.v1341-mobile-links a[href="/dashboard.html"]').count()==1
       page.locator('.v1341-mobile-close').click()
       assert page.locator('main').bounding_box()==before
-    else:assert page.locator('#gu-workspace-sidebar').count()==0
+    elif old:
+     # HEAD^ can already include the new overlay; it must be closed and
+     # leave geometry unchanged before and after the current commit.
+     previous_sidebar=page.locator('#gu-workspace-sidebar')
+     if previous_sidebar.count():assert previous_sidebar.is_hidden(),'Baseline teaching overlay is unexpectedly open'
+    else:
+     assert page.locator('#gu-workspace-sidebar').count()==0,'Lab player must not create a second sidebar'
     metrics.append(page.locator('main').evaluate('(e)=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}}'))
     context.close()
    assert metrics[0]==metrics[1],(route,width,'teaching geometry changed',metrics)
