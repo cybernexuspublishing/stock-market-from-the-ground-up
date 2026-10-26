@@ -109,7 +109,7 @@ async function main(){
     isQA=!qe&&qa===true;
    }
   }
-  if(!sharedAccess){message('Founding access was not verified.');el('gu-f600-access').hidden=false;return}
+  if(!sharedAccess){message('Neither qualifying founding membership nor Owner-authorized educational beta access could be verified.');el('gu-f600-access').hidden=false;return}
   identity(me,isQA);el('gu-f600-content').hidden=false;
   message(isQA?'Temporary educational beta access verified.': 'Private Founders Commons access verified.');
   const council=me?.council===true;

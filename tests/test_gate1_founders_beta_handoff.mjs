@@ -6,6 +6,12 @@ const html=readFileSync('founders-commons.html','utf8');
 assert.match(html,/<body[^>]*data-auth-required="true"/);
 assert.match(html,/id="gu-f600-gate1"/);
 assert.match(html,/id="gu-f600-content" hidden/);
+assert(html.includes('Founding membership or authorized beta access required'));
+assert(html.includes('time-limited Owner-authorized educational beta pass'));
+assert(html.includes('Get private beta-access help'));
+const commonsClient=readFileSync('assets/js/founders-commons-v014178.js','utf8');
+assert(commonsClient.includes("gu_founder_noncommercial_qa_v014289"),'The Owner QA pass must use the installed protected access RPC');
+assert(commonsClient.includes('Temporary 30-day learning QA access'),'A QA account cannot be misrepresented as a paid Founder');
 assert.match(html,/bootcamp-academy\.html\?program=truth5/);
 for(const id of ['F1-C02-L01','F2-C01-L01'])assert(html.includes('labs.html?open='+id));
 // Verify Founder Lab handoff and sign-in return-to-Lab contract against actual registry source.
