@@ -27,6 +27,8 @@ jobs:
           node tests/test_lab_content_redaction.mjs
           node tests/test_gate1_lab_registry_publish_gate.mjs
           node tests/test_lab_beta_publication_gate.mjs
+          node tests/test_beta_partial_release_registry.mjs
+          node --check assets/js/lab-registry.js
           node tests/test_f600_guided_qa_access.mjs
           node tests/test_member_beta_support_surface.mjs
           node tests/test_support_partial_create_resilience.mjs
