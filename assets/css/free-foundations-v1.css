@@ -15,3 +15,8 @@
 #academy-original-instruction textarea:focus-visible{outline:3px solid #d4ffd9;outline-offset:3px}
 @media(max-width:860px){.academy-free-entry{grid-template-columns:1fr;gap:12px}}
 @media(max-width:420px){#academy-original-instruction{padding:13px}.academy-free-entry .btn{width:100%}}
+
+.academy-free-figure{width:100%;max-width:100%;margin:0 0 22px}
+.academy-free-figure svg{display:block;width:100%;height:auto;border-radius:12px;max-height:420px}
+.academy-free-figure figcaption{font-size:.82rem;color:#cadce2;line-height:1.45;margin-top:8px}
+@media(max-width:420px){.academy-free-figure figcaption{font-size:.76rem}}
