@@ -177,6 +177,50 @@
     catch(e){window.alert(e.message);button.disabled=false}
    });
   }
+  // F600 beta teaching access reuses the single existing Owner/Admin manual
+  // tool-pass RPC. It never fabricates a paid subscription, founder number,
+  // book ownership, purchase discount, Sparks, or a reviewed grading record.
+  const toolRecords=inventory.tools;
+  const ownerCanPilot=info.permissions?.owner===true && account.type==='member' &&
+   canGrant && Array.isArray(toolRecords) &&
+   (cat.tools||[]).some(t=>t.tool_code==='ONDEMAND_TRAINING');
+  if(ownerCanPilot){
+   const existing=toolRecords.some(t=>t.tool_code==='ONDEMAND_TRAINING'&&active(t));
+   const pilot=document.createElement('section');
+   pilot.className='v1353-info';
+   pilot.setAttribute('aria-label','Founding 600 educational beta access');
+   pilot.innerHTML='<h4>Founding 600 · Guided Learning Beta Access</h4>'+
+    '<p class="small">Authorize this existing member to test the educational Labs and Boot Camp workspaces for 30 days without any payment. This auditable QA pass is not a Founding membership, does not reserve a founding number, does not buy a textbook, and cannot award graded mastery. The existing entitlement service enforces the expiration.</p>'+
+    '<p class="small">Other functions, including Journal and Market Tutor, remain separately entitled. Use the existing Tool Pass control below to test them.</p>'+
+    '<button type="button" class="btn secondary" data-f600-qa-start'+(existing?' disabled':'')+
+      '>Authorize 30-Day Guided Beta Access</button>'+
+    '<p data-f600-qa-status role="status" aria-live="polite">'+
+       (existing?'A valid ONDEMAND_TRAINING pass is already present. Review its issuer and expiration above.':
+       'No payment or founding benefit will be issued.')+'</p>';
+   wrap.insertBefore(pilot,wrap.querySelector('#v1478-resource-grant'));
+   const start=pilot.querySelector('[data-f600-qa-start]');
+   const status=pilot.querySelector('[data-f600-qa-status]');
+   start.addEventListener('click',async()=>{
+    const expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
+    if(!window.confirm('Grant 30 days of noncommercial ONDEMAND_TRAINING beta access to '+
+      account.username+'? This action is Owner-audited, does NOT create a paid Founding 600 member or award official grading.'))return;
+    const reason='F600_GUIDED_QA_V1: Owner-authorized 30-day noncommercial Lab and Boot Camp testing; no paid founding entitlements, book purchases, Sparks or grades.';
+    start.disabled=true;
+    status.textContent='Submitting this exact-member QA grant for database verification…';
+    try{
+     const result=await api('grant_resource',{userId:account.id,kind:'manual_tool',
+      code:'ONDEMAND_TRAINING',expiresAt,reason});
+     if(result?.granted!==true||result?.kind!=='manual_tool'||result?.code!=='ONDEMAND_TRAINING')
+      throw Error('The existing entitlement service did not confirm the beta tool pass.');
+     await finish('30-day beta tool pass recorded. Verify the effective member access and expiration in the account inventory.');
+    }catch(err){
+     status.textContent=String(err?.message||'Beta authorization was not verified. Reload the account before retrying.');
+     // The request may have succeeded before a network failure. Never permit
+     // an immediate repeat until the refreshed database records are checked.
+     start.disabled=true;
+    }
+   });
+  }
   const form=wrap.querySelector('#v1478-resource-grant');
   form.elements.kind.addEventListener('change',()=>{
    form.querySelector('[data-gu78-book]').hidden=form.elements.kind.value!=='manual_book';
