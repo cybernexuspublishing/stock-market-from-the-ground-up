@@ -23,7 +23,7 @@ export async function memberIdentity(env,req){
  if(!user?.id)throw error('Invalid session.',401);
  return {userId:user.id,config:c};
 }
-export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDEMAND_TRAINING','JOURNAL_ANALYTICS','MARKET_TUTOR'].includes(toolCode))throw error('Unknown training tool.',400);
+export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDEMAND_TRAINING','INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_TUTOR'].includes(toolCode))throw error('Unknown training tool.',400);
  const actor=await memberIdentity(env,req);
  const user={id:actor.userId},c=actor.config;
  // Legacy service-role JWTs support Bearer. Modern sb_secret_* values MUST only
