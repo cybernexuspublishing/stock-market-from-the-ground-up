@@ -6,7 +6,7 @@
  const get=id=>document.getElementById(id);
  if(!get('academy-programs'))return;
  const VERSION='0.14.0.168';
- const expected=new Map([['truth5',5],['watchlist7',7],['scanners10',10],
+ const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
   progress=new Map(),drafts=new Map(),selfCheckDrafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
@@ -94,6 +94,11 @@
    const item=node('a','Optional Lab '+row.id);item.href='labs.html?open='+encodeURIComponent(row.id);
    mount.append(item);
   }
+  if(d.programCode==='free5'){
+   const practice=node('a',d.lesson?.practiceLink?'Open the free manual watchlist':'Practice on original fictional candles');
+   practice.href=d.lesson?.practiceLink||'simulator.html?practice=free';
+   mount.append(practice);
+  }
   const link=node('a','Your Market Skills Record');link.href='skills.html';mount.append(link);
  }
 
@@ -109,9 +114,10 @@
   mount.replaceChildren();mount.hidden=!d.lesson;
   if(!d.lesson)return;
   const lesson=d.lesson;
-  mount.append(node('h4','Learn the concept'),node('p',lesson.explanation),
-   node('h4','Worked source-check example'),node('p',lesson.workedExample),
-   node('h4','Apply the method'));
+  mount.append(node('h4',d.programCode==='free5'?'Talia explains — start from zero knowledge':'Learn the concept'),node('p',lesson.explanation));
+  if(lesson.why)mount.append(node('h4','Why this matters'),node('p',lesson.why));
+  mount.append(node('h4',d.programCode==='free5'?'Worked FICTIONAL demonstration':'Worked source-check example'),
+   node('p',lesson.workedExample),node('h4','Guided practice — your turn'));
   const steps=node('ol');
   for(const step of lesson.sourceProcedure||[])steps.append(node('li',step));
   mount.append(steps);
@@ -136,6 +142,7 @@
     mount.append(caseBox);
    }
   }
+  if(lesson.whenNot)mount.append(node('h4','When NOT to act'),node('p',lesson.whenNot));
   mount.append(node('h4','Common research error'),node('p',lesson.error),
    node('h4','Transfer to a new case'),node('p',lesson.transfer),
    node('h4','Check your understanding — ungraded'),node('p',lesson.selfCheck));
@@ -268,7 +275,7 @@
   if(!expected.has(code))return;
   if(code==='foundations30'){window.location.assign('bootcamp.html');return}
   const epoch=++sessionSerial;activeCode=code;clean();
-  status('Checking your authorized member training access…');
+  status(code==='free5'?'Checking your Free member access and private learning record…':'Checking your authorized member training access…');
   try{
    client=await globalThis.getSupabaseClient();
    if(!authListenerAttached&&typeof client.auth.onAuthStateChange==='function'){
@@ -291,13 +298,14 @@
    const loaded=data.curriculum;
    if(data.version!==VERSION||!Array.isArray(loaded)||loaded.length!==expected.get(code)||
     loaded.some((x,i)=>x.day!==i+1||x.programCode!==code||
-      !Array.isArray(x.relatedLabs)||x.relatedLabs.length===0))
+      !Array.isArray(x.relatedLabs)||(code!=='free5'&&x.relatedLabs.length===0)))
     throw Error('This program’s complete learning sequence could not be verified.');
    program=data.program;days=loaded;
    progressAvailable=data.progressAvailable===true;enrolled=data.enrolled===true;
    progress.clear();for(const x of data.progress||[])progress.set(x.day,x);
    get('academy-course-title').textContent=program.title;
-   get('academy-length').textContent=program.days+'-day Boot Camp · '+program.level;
+   get('academy-length').textContent=program.days+(code==='free5'?' free beginner lessons · ':'-day Boot Camp · ')+program.level;
+   get('academy-enroll').textContent=code==='free5'?'Start my free learning journey':'Enroll in this Boot Camp';
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
    updateProgress();renderDay();
