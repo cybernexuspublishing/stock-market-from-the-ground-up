@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const base=new URL('../functions/api/',import.meta.url);
-const load=(name)=>import('data:text/javascript;base64,'+readFileSync(new URL(name,base)).toString('base64'));
+const load=(name)=>import(new URL(name,base).href); // preserve relative imports in actual Stripe TEST module
 const api=await load('gu39-sandbox.js');
 const hook=await load('gu39-stripe-webhook.js');
 const oldFetch=globalThis.fetch;
