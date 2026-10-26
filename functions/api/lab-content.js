@@ -48,8 +48,15 @@ if(SAMPLES.has(id)){
 }
 const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
- const ownsBook=await getBookAccess(env,request,row.book_number);const guided=ownsBook||SAMPLES.has(id)||Number(row.book_number)===6&&premium;
- if(!guided)return send({ok:false,error:'An active matching book entitlement is required for this authored exercise.'},403);
+ // Free samples rely on account eligibility, not on an unrelated book ledger.
+// When a paid training member lacks this particular book, do not expose its
+// authored material. Instead return 404 so the member player can invoke its
+// separately authorized, metadata-only Lab context; 403 remains hard denial.
+const sample=SAMPLES.has(id);
+const ownsBook=sample?false:await getBookAccess(env,request,row.book_number);
+const guided=ownsBook||sample||Number(row.book_number)===6&&premium;
+if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
+if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
  return send({ok:true,lab:row.content,guidedAllowed:true,advancedAllowed:premium,
   sourceStatus:unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
