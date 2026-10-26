@@ -215,12 +215,12 @@
     progress.set(which,result.progress);
     if(action==='save_reflection'){
      if(drafts.get(which)===note)drafts.delete(which);
-     get('academy-save-status').textContent=drafts.has(which)?
+     if(which===dayIndex)get('academy-save-status').textContent=drafts.has(which)?
       'Your earlier reflection was saved, but newer edits are still unsaved. Select Save Reflection again.':
       'Your learning notes are saved.';
-    }else get('academy-save-status').textContent='Day started. Your learning is in progress; no reflection has been saved yet.';
+    }else if(which===dayIndex)get('academy-save-status').textContent='Day started. Your learning is in progress; no reflection has been saved yet.';
    }
-  }catch(e){if(actor===userId&&serial===sessionSerial)
+  }catch(e){if(actor===userId&&serial===sessionSerial&&(action==='enroll'||which===dayIndex))
    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
   finally{if(actor===userId&&serial===sessionSerial){busy=false;updateProgress();updateDays()}}
  }

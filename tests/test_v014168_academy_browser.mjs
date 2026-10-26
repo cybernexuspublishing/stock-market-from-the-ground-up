@@ -126,12 +126,29 @@ try{
    await page.locator('#academy-days .gu-bc-day').last().click();
    await page.locator('#academy-days .gu-bc-day').first().click();
    assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection);
+   // A new page load should recover ONLY server-persisted work, not a fabricated
+   // browser completion. This remains a mocked API, not a live member proof.
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
+   assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection,
+    'Reload must restore the exact existing private saved reflection');
+   assert.match(await page.locator('#academy-member-progress').innerText(),/1 of /);
+   assert.equal(progress.get(1)?.reflection,storedReflection,'Reload cannot modify server progress');
    const newUnsaved='This is a newer, not-yet-persisted answer. It must survive a local day switch but must never carry over to a different member account.';
    await page.locator('#academy-reflection').fill(newUnsaved);
    await page.locator('#academy-days .gu-bc-day').nth(1).click();
    await page.locator('#academy-days .gu-bc-day').first().click();
    assert.equal(await page.locator('#academy-reflection').inputValue(),newUnsaved);
    assert.equal(progress.get(1)?.reflection,storedReflection,'New unsaved content cannot overwrite persisted record');
+   // Simulate an independent concurrent revision. This request must fail
+   // closed, retain the unsaved current draft, and never claim it was saved.
+   progress.set(1,{...progress.get(1),revision:progress.get(1).revision+1});
+   await page.locator('#academy-save').click();
+   await page.waitForFunction(()=>document.querySelector('#academy-save-status')?.textContent.includes('stale revision'));
+   assert.equal(await page.locator('#academy-reflection').inputValue(),newUnsaved,
+    'An optimistic-lock conflict must retain the member-written unsaved draft');
+   assert.notEqual(progress.get(1)?.reflection,newUnsaved,
+    'Rejected save cannot falsify persisted content');
    await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
    await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
    assert.equal(await page.locator('#academy-reflection').inputValue(),'');
