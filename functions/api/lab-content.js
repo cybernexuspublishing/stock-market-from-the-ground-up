@@ -2,6 +2,7 @@
  * not in public/static JSON or public GitHub source. Member access is checked.
  */
 import {toolAccess,memberIdentity} from './member-tool-access.js';
+import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=env.SUPABASE_SECRET_KEY,pub=env.SUPABASE_PUBLISHABLE_KEY;if(!base||!secret||!pub)throw new Error('Private Lab server is not configured.');return{base,secret,pub}}
@@ -31,13 +32,14 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
  // Tool access is NOT equivalent to purchasing every textbook. Filter each book
  // before any book-derived lesson body leaves the service-role backend.
  const coverage=await Promise.all([1,2,3].map(book=>getBookAccess(env,request,book)));
- const rows=await rest(env,'lab_instruction_v014?select=book_number,content&order=lab_id.asc&limit=150');
- return send({ok:true,labs:rows.filter(r=>coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
+ const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content&order=lab_id.asc&limit=150');
+ return send({ok:true,labs:rows.filter(r=>isBetaCandidateLab(r.lab_id)&&coverage[Number(r.book_number)-1]===true).map(r=>r.content)})}
  const id=url.searchParams.get('id')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))return send({ok:false,error:'Invalid Lab ID.'},400);
 // Authenticate BEFORE privileged database reads, even for published sample IDs.
 // A sample means free guided education for eligible signed-in members—not a
 // public API bypass for guest, suspended, or Showcase accounts.
 const actor=await memberIdentity(env,request);
+if(!isBetaCandidateLab(id))return send({ok:false,error:'This Lab is upcoming and not released for beta learning.'},404);
 if(SAMPLES.has(id)){
  const [profiles,flags]=await Promise.all([
   rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(actor.userId)+'&limit=1'),
