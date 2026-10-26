@@ -291,3 +291,14 @@ html[data-gu-design="premium-light"] body[data-gu-workspace] :is(.gu-home-messag
 @media(max-width:900px){body[data-gu-workspace] .site-header .wrap.nav{gap:14px;padding-block:12px}body[data-gu-workspace] .navlinks{gap:10px}body[data-gu-workspace="site"] .gu-home-terminal{transform:none}body[data-gu-workspace="site"] :is(.gu-home-path,.gu-home-focus,.gu-home-method){padding-block:48px}}
 @media(max-width:580px){body[data-gu-workspace] .site-header .brand{font-size:.63rem;letter-spacing:.04em}body[data-gu-workspace="site"] .gu-home-message h1{font-size:clamp(2.55rem,10vw,3.4rem)!important}body[data-gu-workspace="site"] .gu-redesign-store>.wrap>h1{font-size:2.8rem!important}body[data-gu-workspace="site"] .store-category-tabs{gap:22px}body[data-gu-workspace="site"] .store-category-tabs button{font-size:.75rem}body[data-gu-workspace="site"] .v11-plan{padding:28px 0}}
 @media(prefers-reduced-motion:reduce){body[data-gu-workspace] .btn{transition:none}body[data-gu-workspace="site"] .gu-home-terminal{transform:none}}
+
+/* Align the home hero to the same editorial gutters as commerce. */
+body[data-gu-workspace="site"] .gu-premium-home .gu-home-stage{background:transparent!important}
+body[data-gu-workspace="site"] .gu-premium-home .gu-home-stage .wrap{width:calc(100% - 112px)!important;max-width:1280px!important;padding:0!important;margin-inline:auto}
+body[data-gu-workspace="site"] .gu-home-stage-grid{align-items:start;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);gap:48px}
+body[data-gu-workspace="site"] .gu-premium-home .gu-home-message h1{font-size:clamp(2.5rem,3.75vw,4rem)!important;max-width:none!important;letter-spacing:-.05em!important}
+body[data-gu-workspace="site"] .gu-home-terminal{margin-top:64px}
+body[data-gu-workspace="site"] #v1353-member-stats{background:transparent!important;border:0!important;border-top:1px solid #ffffff16!important;border-radius:0!important;box-shadow:none!important;padding:22px 0}
+body[data-gu-workspace="site"] #v1353-member-stats h2{font-size:1rem}
+@media(max-width:1100px){body[data-gu-workspace="site"] .gu-home-stage-grid{grid-template-columns:1fr}body[data-gu-workspace="site"] .gu-home-terminal{margin-top:0;max-width:760px}}
+@media(max-width:700px){body[data-gu-workspace="site"] .gu-premium-home .gu-home-stage .wrap{width:calc(100% - 40px)!important}body[data-gu-workspace="site"] .gu-premium-home .gu-home-message h1{font-size:clamp(2.25rem,7.4vw,3.2rem)!important}}
