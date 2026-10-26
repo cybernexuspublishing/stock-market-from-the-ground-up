@@ -26,7 +26,7 @@ async function scenario(width,kind='free'){
  const page=await context.newPage();const faults=[];
  page.on('pageerror',e=>faults.push(String(e.message||e)));
  await page.route('**/*',async route=>{
-  const request=route.request(),url=new URL(request.url),p=url.pathname;
+  const request=route.request(),url=new URL(request.url()),p=url.pathname;
   if(p==='/api/member-tool-access'){
    const reason=kind==='restricted'?'Account access is restricted. Contact support.':
     'An active plan or matching individual tool entitlement is required.';
