@@ -4,7 +4,7 @@
  */
 import {toolAccess} from './member-tool-access.js';
 import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
-import {authoredB01BetaLesson,activeFoundingBetaLearningPlan} from '../_lib/founding-beta-learning-access.js';
+import {authoredB01BetaLesson,foundingBetaLearningAccessKind} from '../_lib/founding-beta-learning-access.js';
 import {getBookAccess,getBookCodeAccess} from './lab-content.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:H});
@@ -18,7 +18,7 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Reviewed book-derived exercises require BOTH a premium training entitlement
 // and the matching book entitlement. The private Lab metadata is not public.
 const publicSamples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
-async function requireMatchingBook(env,request,labId,verifiedActorId){
+async function requireMatchingBook(env,request,labId,verifiedActorId,forOfficialAssessment=false){
  if(!isBetaCandidateLab(labId))throw fail('This Lab is upcoming and not released for beta grading.',404);
  // One authoritative canonical Lab registry for all 419 existing IDs. A book
  // entitlement must NEVER revive an archived or hidden Lab assessment.
@@ -42,9 +42,11 @@ async function requireMatchingBook(env,request,labId,verifiedActorId){
    // entitlement for already-authored B01 lessons, not ebook ownership.
    // The whole API still requires authenticated ONDEMAND_TRAINING access,
    // and the SQL grader still requires a separately reviewed rubric.
-   const founderTest= !owns && authoredB01BetaLesson(privateInstruction[0])&&
-    await activeFoundingBetaLearningPlan(env,verifiedActorId);
-   if(!owns&&!founderTest)
+   const betaKind= !owns && authoredB01BetaLesson(privateInstruction[0])?
+    await foundingBetaLearningAccessKind(env,verifiedActorId):null;
+   if(!owns&&betaKind==='owner_qa'&&forOfficialAssessment)
+    throw fail('Owner-issued beta study access supports Guided, Practice and Blind learning only; official Assessment requires a genuine approved entitlement.',403);
+   if(!owns&&!betaKind)
     throw fail('Matching book access or active Founding 600 B01 testing access is required.',403);
   }
   return lab.book_code;
@@ -134,7 +136,7 @@ export async function onRequest({request,env}){try{
    masteryAwarded:false});
  }
  if(action==='available'&&request.method==='GET'){const id=u.searchParams.get('labId')||'';if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))throw fail('Invalid Lab ID.');await requireMatchingBook(env,request,id,acl.userId);const rows=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');return reply({ok:true,available:!!rows[0],sourceStatus:rows[0]?.source_status||null,questionCount:rows[0]?.questions?.length||0})}
- if(action==='start'&&request.method==='POST'){const body=await request.json().catch(()=>null),id=String(body?.labId||''),mode=String(body?.mode||'');if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!['guided','practice','blind','assessment'].includes(mode))throw fail('Valid Lab and learning mode required.');await requireMatchingBook(env,request,id,acl.userId);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Reviewed question-by-question training is not published for this Lab.'},404);
+ if(action==='start'&&request.method==='POST'){const body=await request.json().catch(()=>null),id=String(body?.labId||''),mode=String(body?.mode||'');if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)||!['guided','practice','blind','assessment'].includes(mode))throw fail('Valid Lab and learning mode required.');await requireMatchingBook(env,request,id,acl.userId,mode==='assessment');const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,title,questions&lab_id=eq.'+esc(id)+'&review_state=eq.reviewed&order=version.desc&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Reviewed question-by-question training is not published for this Lab.'},404);
  const record=await db(env,'rpc/v014_training_start','POST',{p_actor:acl.userId,p_lab:id,p_mode:mode});
  if(!record?.id)throw fail('Training attempt was not created.',503);
  // Resume uses the original review version, not a rubric published since start.
@@ -145,14 +147,14 @@ export async function onRequest({request,env}){try{
  if(pinned.review_state!=='reviewed')
   return reply({ok:false,error:'This pinned grading version is no longer reviewed. Your saved record remains preserved.'},409);
  return reply(publicState(record,pinned),record.resumed?200:201)}
- if(action==='resume'&&request.method==='GET'){const id=u.searchParams.get('id')||'';if(!uuid.test(id))throw fail('Invalid attempt ID.');const rows=await db(env,'lab_training_attempts_v014?select=id,user_id,lab_id,set_version,mode,step_index,completed_at,report&id=eq.'+esc(id)+'&user_id=eq.'+esc(acl.userId)+'&limit=1');const a=rows[0];if(!a)return reply({ok:false,error:'Attempt not found.'},404);await requireMatchingBook(env,request,a.lab_id,acl.userId);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(a.lab_id)+'&version=eq.'+a.set_version+'&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Training version unavailable.'},503);
+ if(action==='resume'&&request.method==='GET'){const id=u.searchParams.get('id')||'';if(!uuid.test(id))throw fail('Invalid attempt ID.');const rows=await db(env,'lab_training_attempts_v014?select=id,user_id,lab_id,set_version,mode,step_index,completed_at,report&id=eq.'+esc(id)+'&user_id=eq.'+esc(acl.userId)+'&limit=1');const a=rows[0];if(!a)return reply({ok:false,error:'Attempt not found.'},404);await requireMatchingBook(env,request,a.lab_id,acl.userId,a.mode==='assessment');const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(a.lab_id)+'&version=eq.'+a.set_version+'&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Training version unavailable.'},503);
  // Do not reveal questions or old answer-bearing reports after editorial withdrawal.
  if(set.review_state!=='reviewed')
   return reply({ok:false,error:'This pinned training version is no longer reviewed. Prior completed results remain in your private progress record.'},409);
  return reply(publicState(a,set))}
  if(action==='answer'&&request.method==='POST'){const b=await request.json().catch(()=>null),id=String(b?.attemptId||''),answer=String(b?.answer??'').trim();
  if(!uuid.test(id)||!answer||answer.length>600||!Number.isSafeInteger(b?.expectedStep)||b.expectedStep<0)throw fail('Attempt, current step, and response are required.');
- const attempts=await db(env,'lab_training_attempts_v014?select=lab_id,mode&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id,acl.userId);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
+ const attempts=await db(env,'lab_training_attempts_v014?select=lab_id,mode&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id,acl.userId,attempts[0].mode==='assessment');const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
  let knowledgeSync=r.complete===true?'formative_mode_not_eligible':'not_applicable';
  if(r.complete===true&&attempts[0].mode==='assessment'){
   // The grade was already committed atomically. A missing optional v105 mapping
