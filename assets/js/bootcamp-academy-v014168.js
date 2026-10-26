@@ -21,6 +21,8 @@
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
   get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
   get('academy-save-status').textContent='';
+  const selfCheck=get('academy-original-instruction');
+  if(selfCheck){selfCheck.replaceChildren();selfCheck.hidden=true}
  }
  async function request(action,code='',payload=null){
   const options={method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin'};
