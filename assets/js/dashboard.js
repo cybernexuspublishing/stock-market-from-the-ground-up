@@ -41,6 +41,13 @@ function statusClass(status) {
 }
 
 async function initDashboard() {
+  // Existing beta bookmarks lead to the established, permission-checked
+  // Founders Commons. This redirects; it never awards a founder entitlement.
+  if (new URLSearchParams(location.search).get('tab') === 'beta') {
+    window.location.replace('founders-commons.html');
+    return;
+  }
+
   const sb = await window.getSupabaseClient();
   const gate = document.getElementById('dashboard-gate');
   const content = document.getElementById('dashboard-content');
@@ -49,12 +56,6 @@ async function initDashboard() {
     return;
   }
 
-  // Existing beta bookmarks lead to the established, permission-checked
-  // Founders Commons. This redirects; it never awards a founder entitlement.
-  if (new URLSearchParams(location.search).get('tab') === 'beta') {
-    window.location.replace('founders-commons.html');
-    return;
-  }
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
     gate.innerHTML = '<div class="notice">Sign in to view synchronized learning progress. <a href="account.html">Go to Account</a>.</div>';
