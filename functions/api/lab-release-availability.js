@@ -73,7 +73,7 @@ export async function onRequest({request,env}){
   const published=new Set(ids);
   const guidedBetaIds=[...new Set([...authoredPrivate,...canonicalTeaching]
    .filter(id=>allowed.has(id)&&isBetaCandidateLab(id)&&!published.has(id)))].sort();
-  return reply({ok:true,publishedIds:ids,guidedBetaIds,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
+  return reply({ok:true,publishedIds:ids,guidedBetaIds,guidedBetaTestingOpen:guidedBetaIds.length>0,memberEntitlementRequired:true,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
    guidedBetaPolicy:'ungraded_existing_private_or_canonical_teaching_no_mastery',betaReadyCertified:false});
  }catch{
   return reply({ok:false,error:'Lab availability cannot be verified. No unreleased Lab should be started.'},503);

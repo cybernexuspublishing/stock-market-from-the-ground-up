@@ -93,6 +93,8 @@ try{
  assert(registry.includes('Open Guided Beta · Ungraded'),'The member registry must expose beta practice as a clickable item');
  assert(registry.includes('guidedBetaLabs?.has(l.lab_id)'),'Candidate beta links must be driven by the API, not by calendar position');
 
+ assert.equal(body.guidedBetaTestingOpen,true,'Guided teaching must be separately eligible for controlled beta testing');
+ assert.equal(body.memberEntitlementRequired,true,'Beta opening does not waive member entitlement');
  assert.equal(body.betaReadyCertified,false, 'Public endpoint cannot certify beta readiness');
 
  globalThis.fetch=async()=>new Response('Database unavailable',{status:503});

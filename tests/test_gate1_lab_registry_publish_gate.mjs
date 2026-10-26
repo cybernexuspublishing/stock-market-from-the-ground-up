@@ -34,6 +34,7 @@ try{
  assert.equal(r.status,200);
  const body=await r.json();
  assert.deepEqual(body.publishedIds,['F1-C02-L01'],'Require registry+private lesson+reviewed rubric');
+ assert.equal(body.guidedBetaTestingOpen,false,'Without source-qualified teaching there is no Guided candidate in this fixture');
  assert.equal(body.betaReadyCertified,false);
  assert(!JSON.stringify(body).includes('answer_key'));
  r=await onRequest({request:new Request('https://site.test/api/lab-release-availability',{method:'POST'}),env});
