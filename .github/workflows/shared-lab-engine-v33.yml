@@ -4,8 +4,9 @@ on:
     branches: [main]
     paths:
       - 'functions/api/member-tool-access.js'
+      - 'assets/js/lab-player.js'
+      - 'tests/test_lab_content_access_recovery.mjs'
       - 'functions/api/lab-player-context.js'
-      - 'functions/api/lab-content.js'
       - 'functions/api/interactive-training.js'
       - 'functions/api/lab-content.js'
       - 'functions/_lib/founding-beta-learning-access.js'
