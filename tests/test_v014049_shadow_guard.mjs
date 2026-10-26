@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-const source=readFileSync(new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url),'utf8');
-const hook=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const hook=await import(new URL('../functions/api/gu39-stripe-webhook.js',import.meta.url).href);
 const endpoint='https://example.test/api/gu39-stripe-webhook';
 const env={GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock',
  GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_mock',SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_mock'};
