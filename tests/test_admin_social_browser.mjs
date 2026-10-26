@@ -48,7 +48,7 @@ try{
   await page.evaluate(()=>window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{
    detail:{container:document.getElementById('marketing-social-fixture')}
   })));
-  await page.getByText('Manual-only',{exact:false}).first().waitFor();
+  await page.locator('[data-social-tab="posts"]').waitFor();
   assert.equal(await page.getByRole('button',{name:'Social Accounts'}).count(),1);
   await page.getByRole('button',{name:'Social Accounts'}).click();
   await page.getByRole('heading',{name:'Platform connection directory'}).waitFor();
