@@ -1,10 +1,10 @@
-# v0.14.0.256 — Boot Camp 1 + Private Lab Content Batch 01 — Migration Gate Evidence
+# 2026-10-25-B01 — Boot Camp 1 + Private Lab Content Batch 01 — Migration Gate Evidence
 
 ## Document control
 - Project: The Stock Market: From the Ground Up (website and publication companion)
 - Publisher: Crown & Lantern Press / Cyber Nexus
 - Date: October 25, 2026
-- Version: 0.14.0.256 (content and noncharging migration-gate review; **not a schema release**)
+- Content batch version: 2026-10-25-B01; website release version: **unchanged** (content and noncharging migration-gate review; **not a schema release**)
 - Source repository: `cybernexuspublishing/stock-market-from-the-ground-up`
 - Branch: `main`; no separate release branch
 - File path / type: `docs/releases/2026-10-25_TRUTH5_AND_LAB_BATCH01_GATE.md` / Markdown
@@ -62,6 +62,6 @@
 ## Revision history
 | Version | Date | Change | Acceptance |
 |---|---|---|---|
-| 0.14.0.256 | 2026-10-25 | One Boot Camp authored; 20 private Labs updated; security and rollout gate inventoried | Pending member/editorial/browser QA |
+| 2026-10-25-B01 | 2026-10-25 | One Boot Camp authored; 20 private Labs updated; security and rollout gate inventoried | Pending member/editorial/browser QA |
 
 **Document footer:** Crown & Lantern Press / Cyber Nexus — Private educational data lives in Supabase, not the public repository. No payment or historical outcome asserted.
