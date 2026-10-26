@@ -3,95 +3,197 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {onRequest} from '../functions/api/admin-social.js';
 
-const origin='https://social.example.test',id='11111111-1111-4111-8111-111111111111';
-const env={SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
-function mock(owner=true){
- const old=globalThis.fetch,calls=[];
+const site='https://school.example.test';
+const ownerId='11111111-1111-4111-8111-111111111111';
+const postId='22222222-2222-4222-8222-222222222222';
+const campaignId='33333333-3333-4333-8333-333333333333';
+const env={
+ SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',
+ SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',
+ SUPABASE_SECRET_KEY:'sb_secret_test'
+};
+function network({role='OWNER',postStatus='approved',postVersion=1,ownerActive=true}={}){
+ const original=globalThis.fetch,calls=[];
  globalThis.fetch=async (input,opts={})=>{
   const url=new URL(input),path=url.pathname,method=opts.method||'GET';
-  calls.push({path,method});
-  if(path==='/auth/v1/user')return Response.json({id});
-  if(path==='/rest/v1/admin_user_roles')
-   return Response.json(owner?[{role_code:'OWNER',expires_at:null}]:[{role_code:'MEMBER',expires_at:null}]);
+  const body=opts.body?JSON.parse(opts.body):null;
+  calls.push({path,method,body,search:url.search});
+  if(path==='/auth/v1/user')return Response.json({id:ownerId});
+  if(path==='/rest/v1/admin_user_roles')return Response.json([{role_code:role,expires_at:null}]);
   if(path==='/rest/v1/profiles')return Response.json([{account_kind:'member',deleted_at:null}]);
-  if(path==='/rest/v1/admin_user_flags')return Response.json([{status:'active'}]);
-  if(path==='/rest/v1/gu_social_posts_v014276')return Response.json(method==='POST'||method==='PATCH'?[{id,body:'A candle tells a price story.',status:'draft'}]:[]);
-  if(path==='/rest/v1/gu_social_communities_v014276')return Response.json(method==='POST'||method==='PATCH'?[{id,name:'Day Trading Stocks'}]:[]);
-  throw Error('Unexpected outbound request: '+input);
- };
- return {calls,restore(){globalThis.fetch=old}};
-}
-function req(method='GET',body,token=null,requestOrigin=origin){
- const headers={...(token?{authorization:'Bearer '+token}:{}),...(body?{'content-type':'application/json',origin:requestOrigin}:{})};
- return new Request(origin+'/api/admin-social',{method,headers,body:body?JSON.stringify(body):undefined});
-}
-test('anonymous access is rejected before reading private social data',async()=>{
- const n=mock();try{const r=await onRequest({request:req(),env});assert.equal(r.status,401);
-  assert(!n.calls.some(x=>x.path.includes('gu_social_')));
- }finally{n.restore()}
-});
-test('non-Owner access is rejected before private record reads and writes',async()=>{
- const n=mock(false);try{
-  for(const request of [req('GET',null,'token'),req('POST',{action:'save_post',body:'Hello'},'token')]){
-   const r=await onRequest({request,env});assert.equal(r.status,403);
+  if(path==='/rest/v1/admin_user_flags')return Response.json([{status:ownerActive?'active':'suspended'}]);
+  const prefix='/rest/v1/gu_social_';
+  if(path.startsWith(prefix)){
+   const table=path.slice('/rest/v1/'.length);
+   if(method==='GET'){
+    if(table==='gu_social_posts_v014276'&&url.searchParams.get('id')?.startsWith('eq.'))
+     return Response.json([{id:postId,status:postStatus,version:postVersion,owner_id:ownerId}]);
+    return Response.json([]);
+   }
+   return Response.json([{id:table.includes('campaigns')?campaignId:postId,...body,version:body?.version||1}]);
   }
-  assert(!n.calls.some(x=>x.path.includes('gu_social_')));
- }finally{n.restore()}
+  throw Error('Unexpected request: '+input);
+ };
+ return {calls,stop(){globalThis.fetch=original}};
+}
+function request(method='GET',body,token=null,origin=site){
+ return new Request(site+'/api/admin-social',{
+  method,headers:{...(token?{authorization:'Bearer '+token}:{}),
+   ...(body?{'content-type':'application/json',origin}:{})},
+  body:body?JSON.stringify(body):undefined
+ });
+}
+const act=(body,token='valid')=>request('POST',body,token);
+test('rejects anonymous and non-Owner before any social database read',async()=>{
+ const m=network();try{
+  const r=await onRequest({request:request(),env});assert.equal(r.status,401);
+  assert(!m.calls.some(x=>x.path.startsWith('/rest/v1/gu_social_')));
+ }finally{m.stop()}
+ const n=network({role:'MEMBER'});try{
+  for(const req of [request('GET',null,'valid'),act({action:'save_post',body:'Hello'})]){
+   const r=await onRequest({request:req,env});assert.equal(r.status,403);
+  }
+  assert(!n.calls.some(x=>x.path.startsWith('/rest/v1/gu_social_')));
+ }finally{n.stop()}
 });
-test('Owner receives accurate manual-only connection status and empty record sets',async()=>{
- const n=mock();try{
-  const r=await onRequest({request:req('GET',null,'token'),env});assert.equal(r.status,200);
-  const data=await r.json();assert.equal(data.account.connectionStatus,'manual_only');
-  assert.deepEqual(data.posts,[]);assert.deepEqual(data.communities,[]);
- }finally{n.restore()}
+test('suspended Owner cannot open marketing records',async()=>{
+ const m=network({ownerActive:false});try{
+  const r=await onRequest({request:request('GET',null,'valid'),env});assert.equal(r.status,403);
+ }finally{m.stop()}
 });
-test('Owner can save private X draft with no external publishing API call',async()=>{
- const n=mock();try{
-  const r=await onRequest({request:req('POST',{action:'save_post',body:'A candle tells a price story.',status:'draft'},'token'),env});
-  assert.equal(r.status,201);const body=await r.json();assert.equal(body.publicationVerified,false);
-  assert(n.calls.some(x=>x.path==='/rest/v1/gu_social_posts_v014276'&&x.method==='POST'));
-  assert(!n.calls.some(x=>/stripe|api\.x\.com|twitter\.com/.test(x.path)));
- }finally{n.restore()}
+test('Owner snapshot lists all integrated workstreams without external services',async()=>{
+ const m=network();try{
+  const r=await onRequest({request:request('GET',null,'valid'),env});
+  const body=await r.json();assert.equal(r.status,200);
+  for(const key of ['posts','communities','campaigns','templates','tasks','metrics','audit'])
+   assert.deepEqual(body[key],[],key);
+  assert.equal(body.account.apiPublishingEnabled,false);
+  assert.equal(body.account.platformApiSpendingLimitCents,0);
+  assert.equal(body.account.connectionStatus,'manual_only');
+  assert(!m.calls.some(x=>!x.path.startsWith('/auth/')&&!x.path.startsWith('/rest/')));
+ }finally{m.stop()}
 });
-test('invalid oversized post is rejected without database modification',async()=>{
- const n=mock();try{
-  const r=await onRequest({request:req('POST',{action:'save_post',body:'x'.repeat(281)},'token'),env});
-  assert.equal(r.status,400);assert(!n.calls.some(x=>x.method==='POST'||x.method==='PATCH'));
- }finally{n.restore()}
+test('Owner creates post and approves before manual publication',async()=>{
+ const m=network();try{
+  const draft=await onRequest({request:act({action:'save_post',body:'Candlesticks communicate prices.'}),env});
+  assert.equal(draft.status,201);
+  const approved=await onRequest({request:act({
+   action:'save_post',id:postId,version:1,body:'Candlesticks communicate prices.',status:'approved'
+  }),env});
+  assert.equal(approved.status,200);
+  const update=m.calls.find(x=>x.method==='PATCH');
+  assert.match(update.search,/version=eq\.1/);
+  assert.equal(update.body.version,2);
+  assert.equal(update.body.status,'approved');
+  assert.equal(update.body.approved_by,ownerId);
+  assert.equal((await approved.json()).publicationVerified,false);
+ }finally{m.stop()}
 });
-test('cross-origin write fails closed',async()=>{
- const n=mock();try{
-  const r=await onRequest({request:req('POST',{action:'save_post',body:'Hello'},'token','https://unauthorized.example'),env});
-  assert.equal(r.status,403);assert(!n.calls.some(x=>x.method==='POST'||x.method==='PATCH'));
- }finally{n.restore()}
+test('post update requires revision and Owner-only concurrency token',async()=>{
+ const m=network();try{
+  const bad=await onRequest({request:act({action:'save_post',id:postId,body:'Changed without expected revision.'}),env});
+  assert.equal(bad.status,400);
+  assert(!m.calls.some(x=>x.method==='PATCH'));
+ }finally{m.stop()}
 });
-test('manual publication records only owned X permalinks and never calls X',async()=>{
- const n=mock();try{
-  const wrong=await onRequest({request:req('POST',{action:'record_manual_post',id,externalUrl:'https://x.com/AnotherAccount/status/12345'},'token'),env});
-  assert.equal(wrong.status,400);
-  const correct=await onRequest({request:req('POST',{action:'record_manual_post',id,externalUrl:'https://x.com/SMFGUAcademy/status/12345'},'token'),env});
-  assert.equal(correct.status,200);assert.equal((await correct.json()).publicationVerified,false);
-  assert(!n.calls.some(x=>/api\.x\.com|stripe/i.test(x.path)));
- }finally{n.restore()}
+test('Owner cannot report publication from an unapproved post',async()=>{
+ const m=network({postStatus:'draft'});try{
+  const r=await onRequest({request:act({action:'record_manual_post',id:postId,version:1,
+   externalUrl:'https://x.com/SMFGUAcademy/status/12345'}),env});
+  assert.equal(r.status,409);
+  assert(!m.calls.some(x=>x.method==='PATCH'));
+ }finally{m.stop()}
 });
-test('Owner can save a community record without joining it',async()=>{
- const n=mock();try{
-  const r=await onRequest({request:req('POST',{action:'save_community',name:'Day Trading Stocks',communityUrl:'https://x.com/i/communities/12345',membershipStatus:'requested',promotionPolicy:'unverified',notes:'Review rules'},'token'),env});
-  assert.equal(r.status,201);assert.equal((await r.json()).publicationVerified,false);
-  assert(n.calls.some(x=>x.path==='/rest/v1/gu_social_communities_v014276'&&x.method==='POST'));
- }finally{n.restore()}
+test('manual publication is Owner-reported, not verified, and requires approved permalink',async()=>{
+ const m=network();try{
+  for(const externalUrl of ['https://x.com/WrongAccount/status/12345','http://x.com/SMFGUAcademy/status/12',
+   'https://x.com/SMFGUAcademy/status/123?tracking=1']){
+   const r=await onRequest({request:act({action:'record_manual_post',id:postId,version:1,externalUrl}),env});
+   assert.equal(r.status,400);
+  }
+  const r=await onRequest({request:act({action:'record_manual_post',id:postId,version:1,
+   externalUrl:'https://x.com/SMFGUAcademy/status/12345'}),env});
+  assert.equal(r.status,200);
+  assert.equal((await r.json()).publicationVerified,false);
+  const patch=m.calls.find(x=>x.method==='PATCH');
+  assert.equal(patch.body.status,'manual_recorded');
+  assert.equal(patch.body.version,2);
+  assert(!m.calls.some(x=>/stripe|api\.x\.com|api\.twitter\.com/.test(x.path)));
+ }finally{m.stop()}
 });
-test('source forbids free workflow claims of connected external publishing',()=>{
- const ui=fs.readFileSync('assets/js/admin-social-zero-cost.js','utf8');
- const migration=fs.readFileSync('supabase/migrations/v0.14.0.276_social_marketing_owner_only.sql','utf8');
- assert.match(ui,/manual-only connection/);
- assert.match(ui,/No X API or paid service is connected/);
+test('save a campaign, editable template and engagement task',async()=>{
+ const m=network();try{
+  for(const body of [
+   {action:'save_campaign',title:'Founding 600 education',category:'founding600',state:'draft',
+    objective:'Explain paid beta benefits',destinationUrl:'https://example.org/founders'},
+   {action:'save_template',name:'Beginner definition',body:'What is a candlestick?',category:'education'},
+   {action:'save_task',title:'Review community rules',kind:'community_review',details:'Read before posting'}
+  ]){
+   const r=await onRequest({request:act(body),env});assert.equal(r.status,201);
+  }
+  assert.deepEqual(m.calls.filter(x=>x.method==='POST').map(x=>x.path),[
+   '/rest/v1/gu_social_campaigns_v014278','/rest/v1/gu_social_templates_v014278',
+   '/rest/v1/gu_social_tasks_v014278'
+  ]);
+ }finally{m.stop()}
+});
+test('rejects unsafe destination, invalid task state and invalid community URL',async()=>{
+ const m=network();try{
+  for(const body of [
+   {action:'save_campaign',title:'Unsafe campaign',destinationUrl:'http://localhost/test'},
+   {action:'save_task',title:'Queue task',state:'published'},
+   {action:'save_community',name:'Community',communityUrl:'https://x.com/home'}
+  ]){
+   const r=await onRequest({request:act(body),env});assert.equal(r.status,400);
+  }
+  assert(!m.calls.some(x=>x.method==='POST'));
+ }finally{m.stop()}
+});
+test('community record records membership manually but never tries joining',async()=>{
+ const m=network();try{
+  const r=await onRequest({request:act({
+   action:'save_community',name:'Day Trading Stocks',communityUrl:'https://x.com/i/communities/1234',
+   membershipStatus:'requested',promotionPolicy:'restricted',notes:'Promotion needs approval'
+  }),env});
+  assert.equal(r.status,201);
+  const insert=m.calls.find(x=>x.method==='POST');
+  assert.equal(insert.body.membership_status,'requested');
+  assert.equal(insert.body.promotion_policy,'restricted');
+  assert.equal((await r.json()).publicationVerified,false);
+ }finally{m.stop()}
+});
+test('manual metrics require a manually recorded published post and at least one observed value',async()=>{
+ const draft=network({postStatus:'draft'});try{
+  const r=await onRequest({request:act({action:'record_metrics',postId,likes:1}),env});
+  assert.equal(r.status,409);
+ }finally{draft.stop()}
+ const m=network({postStatus:'manual_recorded'});try{
+  const empty=await onRequest({request:act({action:'record_metrics',postId}),env});
+  assert.equal(empty.status,400);
+  const r=await onRequest({request:act({action:'record_metrics',postId,likes:0,views:13}),env});
+  assert.equal(r.status,201);
+  const write=m.calls.find(x=>x.method==='POST');
+  assert.equal(write.body.likes,0);assert.equal(write.body.views,13);
+  assert.equal(write.body.source,'owner_manual');
+ }finally{m.stop()}
+});
+test('cross-origin mutation cannot reach social data writes',async()=>{
+ const m=network();try{
+  const r=await onRequest({request:request('POST',{action:'save_campaign',title:'Test campaign'},'valid','https://attacker.test'),env});
+  assert.equal(r.status,403);
+  assert(!m.calls.some(x=>x.method==='POST'||x.method==='PATCH'));
+ }finally{m.stop()}
+});
+test('social UI uses new integrated module and no hidden automatic provider calls',()=>{
+ const controller=fs.readFileSync('assets/js/admin-marketing-workspace.js','utf8');
+ const ui=fs.readFileSync('assets/js/admin-social-operations-v014278.js','utf8');
+ const schema=fs.readFileSync('supabase/migrations/v0.14.0.278_social_campaign_content_queue_metrics.sql','utf8');
+ assert.match(controller,/admin-social-operations-v014278\.js/);
+ for(const part of ['Publishing calendar','Post Studio','Campaign manager','X Communities directory','Manual performance snapshot'])
+  assert.match(ui,new RegExp(part,'i'));
  assert.doesNotMatch(ui,/localStorage|sessionStorage|innerHTML\s*=/);
- assert.match(migration,/ENABLE ROW LEVEL SECURITY/);
- assert.match(migration,/REVOKE ALL ON public\.gu_social_posts_v014276/);
- assert.match(migration,/CREATE TRIGGER gu_social_posts_audit_v014276/);
- const repair=fs.readFileSync('supabase/migrations/v0.14.0.277_social_audit_rowtype_repair.sql','utf8');
- assert.match(repair,/ELSIF TG_TABLE_NAME='gu_social_communities_v014276'/);
- assert.match(repair,/audit_details := pg_catalog\.jsonb_build_object/);
- assert.match(fs.readFileSync('assets/js/admin-marketing-workspace.js','utf8'),/admin-social-zero-cost\.js/);
+ assert.match(schema,/ENABLE ROW LEVEL SECURITY/);
+ assert.match(schema,/SOCIAL_APPROVAL_REQUIRED_BEFORE_MANUAL_PUBLICATION/);
+ assert.match(schema,/SOCIAL_REVISION_CONFLICT/);
+ assert.match(schema,/SOCIAL_CAMPAIGN_OWNER_MISMATCH/);
 });
