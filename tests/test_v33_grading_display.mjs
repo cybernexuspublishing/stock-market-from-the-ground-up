@@ -21,6 +21,9 @@ assert(!source.includes('/rpc/')&&!source.includes('supabase/migrations'));
 assert(source.includes('/api/interactive-training?action=progress'));
 assert(styles.includes('grid-template-columns:repeat(9,minmax(0,1fr))'));
 assert(training.includes('Reviewed conceptual assessment:'));
+assert(training.includes('Question review or appeal'));
+assert(training.includes('href="dashboard.html?tab=support"'),'Assessment objections must use actual private member Support');
+assert(!training.includes('esc(x.answer)'),'Protected answer keys cannot appear in member feedback');
 class Element{
  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.style={};this.textContent='';this.isConnected=true;}
  append(...nodes){this.children.push(...nodes)}
