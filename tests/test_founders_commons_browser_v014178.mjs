@@ -56,7 +56,7 @@ try{
     await page.locator('#gu-f600-beta-center').waitFor({state:'visible'});
     assert.equal(await page.locator('#gu-f600-beta-center article').count(),9,'All nine member feature families covered');
     assert.equal(await page.locator('#gu-f600-beta-center a[href="market-commons.html?forum=F600_BUGS"]').count(),1);
-    assert.equal(await page.locator('#gu-f600-beta-center a[href="dashboard.html?tab=support"]').count(),1);
+    assert.equal(await page.locator('#gu-f600-beta-center a[href="dashboard.html?tab=support"]').count(),2,'Private Support is available in workflow and reporting paths');
     assert.match(await page.locator('#gu-f600-beta-center').innerText(),/does not bypass entitlement checks/i);
     assert.match(await page.locator('#gu-f600-identity').innerText(),/Founding #00(42|86)/);
     assert.equal(await page.locator('#gu-f600-forums .gu-f600-forum').count(),8);
