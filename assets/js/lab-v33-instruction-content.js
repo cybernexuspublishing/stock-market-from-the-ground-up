@@ -9,6 +9,27 @@ const clean=(value,max=900)=>String(value||'').trim().slice(0,max);
 const sentence=(s)=>/[.!?]$/.test(s)?s:s+'.';
 const currency=n=>'$'+Number(n).toFixed(2);
 const domains={
+ watchlist:{
+  name:'Creating a stock watchlist',
+  explanation:[
+   'A stock watchlist is a dated list of securities to observe or research. It is NOT a buy list, a brokerage order, or a forecast. A scanner searches for securities matching filters; a watchlist holds chosen candidates with their evidence and conditions for further review.',
+   'For each candidate record the issuer, observation time and time zone, verified catalyst/source, price and liquidity context, why you are watching, next review time, and what would remove it from the list.',
+   'Use WATCH, VERIFY or NO TRADE as educational decisions. A large percentage gain does not establish source reliability, sufficient liquidity, a low spread or an entry signal.'
+  ],
+  example:[
+   'FICTIONAL Example A: a dated issuer announcement is verified at 08:35 ET and the quoted spread is $0.04. Mark WATCH only while research and risk conditions are satisfied—not as an order.',
+   'Example B has only an unverified social repost. Mark VERIFY and specify which original company document and publication time must be checked.',
+   'Example C has a fictional $2.00 midpoint and a $0.20 quoted spread: $0.20 ÷ $2.00 = 10%. Under an illustrative 3% maximum-spread classroom rule, mark NO TRADE even if the scanner ranks the stock highly.',
+   'Independent practice: record a new candidate and document its source, dated observation, reason for watching, invalidation condition and review time.'
+  ],
+  misconception:'A scanner result is not automatically a watchlist decision. A watchlist item is not a trading recommendation, entry signal or completed order.',
+  limitation:'Quotes change, screenshots may be stale, and no watchlist ranking guarantees an execution or return.',
+  check:{question:'A scanner flags a high percentage gainer with an unverified news repost. Does adding it to a watchlist make it a buy? What must be verified first?',
+   choices:['No: verify the original dated issuer source and the observation conditions','Yes: scanner rank proves it is a buy'],correct:0,
+   feedback:'A watchlist organizes research. Confirm primary source, timestamp and market conditions; no list membership authorizes a trade.'},
+  experiment:'Change one watchlist input—source verification, spread or review time. Explain whether WATCH, VERIFY or NO TRADE changes, without looking ahead.',
+  transfer:'On a new fictional candidate, state why it deserves research, what data is still missing and the rule that would remove it from the watchlist.'
+ },
  candle:{
   name:'Candlestick anatomy',
   explanation:[
@@ -155,6 +176,7 @@ const domains={
  }
 };
 function inferDomain({visualType='',concept='',subject={}}={}){
+ if(/\bwatchlist\b/i.test(concept))return 'watchlist';
  if(domains[visualType]&&visualType!=='candle')return visualType;
  if(visualType==='candle'||/\bcandlestick\b|\bcandle\b|\bwick\b|\bohlc\b/i.test(concept))return 'candle';
  if(/\bvwap\b/i.test(concept))return 'vwap';
@@ -201,6 +223,11 @@ function fromGuide(input){
  * instruction that simply repeats the original book's "Explain X" verb.
  * These are instructional objectives, not assessed competency credits. */
 const learningOutcomes={
+ watchlist:[
+  'Distinguish a scanner from a watchlist and explain why neither is an order.',
+  'Document the evidence source, time, observation rule and disqualifying condition for a candidate.',
+  'Classify fictional candidates as WATCH, VERIFY or NO TRADE using stated information.'
+ ],
  candle:[
   'Point to the Open, High, Low and Close on a completed candle and identify its real body and wicks.',
   'Calculate the body, full range and body-to-range percentage using the correct prices and units.',
