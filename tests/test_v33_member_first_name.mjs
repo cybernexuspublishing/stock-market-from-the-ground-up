@@ -46,8 +46,9 @@ assert(account.includes("profile:{username:profile.username||'',email:usr.email|
  'Existing identity endpoint must return the profile first name from the authenticated user');
 assert(player.includes("memberFirstName:PLAYER.access.memberFirstName||''"),'Player must forward the authorized first name');
 assert(engine.includes('memberFirstName,allowTutorAI,requestTutor:tutorRequest'),'Engine must propagate first name');
-assert(instructor.includes("el('h3','Talia Mercer')"),'Approved instructor identity must display as Talia Mercer');
+assert(instructor.includes("el('h3','Talia')"),'Owner-approved member instructor identity must display as Talia');
+assert(!instructor.includes("el('h3','Talia Mercer')"),'The last name must not appear in the member instructor header');
 assert(!instructor.includes('Avery — Your Learning Instructor'));
 assert(instructor.includes("firstName?', '+firstName:''"),'Instructor should address learner by first name only');
 assert(!extracted.includes('display_name')&&!extracted.includes('username'),'Never infer first name from username/display_name');
-console.log('PASS Talia Mercer first-name-only greeting, authenticated profile resolution, metadata fallback, no handle/email, and anonymous behavior');
+console.log('PASS Talia first-name-only greeting, authenticated profile resolution, metadata fallback, no handle/email, and anonymous behavior');
