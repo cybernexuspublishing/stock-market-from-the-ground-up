@@ -41,7 +41,16 @@ const truth5Lessons=Object.freeze([
   reviewGuide:'Only that the screenshot contains the assertion. A genuine issuer filing, exchange notice and separately timestamped market observations would need their own verification; none can guarantee a squeeze.',
   error:'Treating repost volume, a professional-looking chart or a follower count as proof of the underlying market claim.',
   transfer:'Find one claim in a new article and trace it back to the original source. Record the unverified portions without trading.',
-  investigation:'FICTIONAL INDEPENDENT CASE: At 09:04 ET, an anonymous account posts a screenshot that says a small company signed a guaranteed $40 million contract. At 09:10 ET, a second account links to a page resembling the company press room, but the address is a lookalike domain. Your job is not to choose a trade. Write an evidence ledger identifying the claimant, source URL ownership, original document, publication time, whether a contract value or only a proposed opportunity is stated, and the missing confirmation. Classify the post VERIFIED, PARTLY VERIFIED or UNVERIFIED. A screenshot and a persuasive domain name are insufficient to verify the contract.'
+  investigation:'FICTIONAL INDEPENDENT CASE: At 09:04 ET, an anonymous account posts a screenshot that says a small company signed a guaranteed $40 million contract. At 09:10 ET, a second account links to a page resembling the company press room, but the address is a lookalike domain. Your job is not to choose a trade. Write an evidence ledger identifying the claimant, source URL ownership, original document, publication time, whether a contract value or only a proposed opportunity is stated, and the missing confirmation. Classify the post VERIFIED, PARTLY VERIFIED or UNVERIFIED. A screenshot and a persuasive domain name are insufficient to verify the contract.',
+  sourceClaimCase:Object.freeze({
+   title:'HIMS — source-reported rejection of a panic-dip trade',
+   sourceLabel:'StocksToTrade, Panic Into Gains (June 23, 2025)',
+   sourceUrl:'https://stockstotrade.com/panic-into-gains/',
+   observation:'The author reports declining a HIMS panic-dip entry because adverse deal-related news changed his risk interpretation. This supports the article reporting a NO TRADE choice; it does not establish a filled transaction, forecast success or independently verified market path.',
+   limits:'The visible prose lacks an exact decision timestamp, quote, fill record and evidence proving a specific result. Confirm the original issuer deal announcement, its first-public time and the contemporaneous quote before assessing the decision; the article may omit alternative causes.',
+   question:'State precisely what this source supports: a reported decision not to trade. What contemporaneous news and market information must be checked before claiming that declining the opportunity was justified?',
+   evidenceType:'SOURCE_REPORTED_NO_TRADE_NOT_BACKTEST'
+  })
  }),
  Object.freeze({
   explanation:'SEC EDGAR filings identify a legal filer, accession number, form, filing date, accepted timestamp and reporting period. A Form 10-Q describes an interim reporting period; a Form 10-K covers a fiscal year; a Form 8-K reports specified events. The form label does not certify that a headline accurately interprets every item in the filing.',
@@ -99,7 +108,16 @@ const truth5Lessons=Object.freeze([
   reviewGuide:'Mark the relevant market claims unverified, document the missing evidence and select NO TRADE rather than reverse-engineering a justification from later price movement.',
   error:'Choosing an outcome first and then selecting only corroborating screenshots, or reporting a self-reviewed capstone as certified mastery.',
   transfer:'Complete a fresh claim investigation without hints, retain your private reflection and explain which new evidence would change the classification.',
-  investigation:'FICTIONAL INDEPENDENT CAPSTONE: At your 09:15 ET pause you have a screenshot claiming a 70% share-price move, an original company release describing a prospective agreement without an announced dollar value, and a delayed quote stamped 08:50 ET. The screenshot does not state its price baseline, the release cannot establish a completed contract, and the quote does not establish executable bid/ask liquidity at 09:15. Produce a two-column ledger of supported facts versus unresolved claims, identify the denominator needed to verify 70%, note a plausible alternative interpretation, and justify VERIFY MORE or NO TRADE. State the exact new records that would change your decision.'
+  investigation:'FICTIONAL INDEPENDENT CAPSTONE: At your 09:15 ET pause you have a screenshot claiming a 70% share-price move, an original company release describing a prospective agreement without an announced dollar value, and a delayed quote stamped 08:50 ET. The screenshot does not state its price baseline, the release cannot establish a completed contract, and the quote does not establish executable bid/ask liquidity at 09:15. Produce a two-column ledger of supported facts versus unresolved claims, identify the denominator needed to verify 70%, note a plausible alternative interpretation, and justify VERIFY MORE or NO TRADE. State the exact new records that would change your decision.',
+  sourceClaimCase:Object.freeze({
+   title:'MNDR and NCPL — compare scan claims without seeing future outcomes',
+   sourceLabel:'StocksToTrade, Choose Between Solid Trades (October 15, 2026)',
+   sourceUrl:'https://stockstotrade.com/choose-between-solid-trades/',
+   observation:'The article labels October 12 five-minute charts and reports 9:38 a.m. ET scanner signals. It states that around five minutes before the open MNDR had approximately 57 million volume and 3.5 million float, versus NCPL around 9 million volume and 4.3 million float. Its later 89% and 77% signal-to-high claims are retrospective and unavailable at the pause.',
+   limits:'The source figures imply about 16.29 MNDR rotations and 2.09 NCPL rotations, not 16 or 2 sets of unique owners. Exact signal availability, feed scope, float dates, bid/ask spreads, executions and a complete performance sample remain unverified. Later highs do not certify an entry or a stop fill.',
+   question:'At 9:38 a.m. ET, first hide both later signal-to-high outcomes. Write what was actually knowable and what still needed verification. Compare reported turnover responsibly and state when a NO TRADE decision would be justified.',
+   evidenceType:'SOURCE_REPORTED_RETROSPECTIVE_COMPARISON'
+  })
  })
 ]);
 
