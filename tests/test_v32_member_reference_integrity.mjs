@@ -11,7 +11,13 @@ const replacement=`// The exact owner v3.2 engine remains intact; the entry Lab 
 const referenceLabParam=new URLSearchParams(location.search).get('lab');
 let S=fresh(referenceLabParam==='F3-C06-L01'||referenceLabParam==='vwap'?'vwap':'candlestick');`;
 assert.equal(ref.split(source).length-1,1,'Reference must expose precisely one initialization entrypoint');
-assert.equal(member,ref.replace(source,replacement),'Member demonstration must keep every original prototype line intact except entry Lab selection');
+const approvedSkin='<link rel="stylesheet" href="assets/css/labs-graphite-skin.css?v=terminal-20261026">'+
+ '<link rel="stylesheet" href="assets/css/lab-terminal-displays.css?v=20261026">'+
+ '</head><body data-gu-lab-skin="graphite" class="gu-lab-member">';
+assert(member.includes(approvedSkin),'Member demonstration must retain the approved graphite and realistic display styling');
+const engineOnly=member.replace(approvedSkin,'</head><body>');
+assert.equal(engineOnly,ref.replace(source,replacement),
+ 'Member demonstration must preserve every original v3.2 engine line except the entry Lab selector and approved stylesheet/body wrapper');
 assert(member.includes('function replayChart()')&&member.includes('function creditControl()'),'Charts and wallet control must be the actual v3.2 implementation');
 assert(member.includes('function assess()')&&member.includes('function review()')&&member.includes('function transfer()')&&member.includes('function results()'),'Full learning and feedback operations required');
 assert(member.includes('NON-PRODUCTION')&&member.includes('Simulated'),'Cannot misrepresent imaginary credits, prices, chart evidence or grading');
