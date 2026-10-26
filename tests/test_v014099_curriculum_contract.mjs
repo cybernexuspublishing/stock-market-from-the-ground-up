@@ -100,6 +100,25 @@ try{
  assert.equal(status,200);assert.equal(result.skills[0].completeAssessments,1);
  assert.equal(result.skills[0].score,50);
  assert.equal(result.skills[0].status,'Needs Work','A perfect partial quiz cannot promote a poor complete assessment');
+ // A latest complete high-scoring assessment with a critical risk error cannot
+ // be 'Proficient' merely because its numeric average is high.
+ evidence=[...['knowledge','recognition','decision','process'].map(d=>({
+  user_id:actor,competency_code:'CANDLE_READING',source_type:'reviewed_case',source_id:'latest-critical',
+  dimension:d,score:95,passed:true,critical_error:d==='decision',difficulty:'assessment',
+  weight:1,assessed_at:'2026-10-20T23:00:00Z'}))];
+ [status,result]=await query();
+ assert.equal(status,200);
+ assert.equal(result.skills[0].score,95);
+ assert.equal(result.skills[0].status,'Developing','Latest critical error caps proficiency despite 95 average');
+ assert.match(result.skills[0].nextStep,/latest critical risk or decision error/);
+ // A newer, independently recorded complete assessment may demonstrate recovery.
+ evidence.push(...['knowledge','recognition','decision','process'].map(d=>({
+  user_id:actor,competency_code:'CANDLE_READING',source_type:'reviewed_case',source_id:'newer-clear',
+  dimension:d,score:95,passed:true,critical_error:false,difficulty:'assessment',
+  weight:1,assessed_at:'2026-10-21T23:00:00Z'})));
+ [status,result]=await query();
+ assert.equal(result.skills[0].status,'Proficient','A new clean complete result allows proficiency, not automatic mastery');
+ assert.equal(result.skills[0].completeAssessments,2);
  accountKind='showcase';[status,result]=await query();
  assert.equal(status,200);assert.equal(result.synthetic,true);
  accountKind='member';
