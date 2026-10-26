@@ -20,14 +20,18 @@ assert.ok(!ts.includes('function createAccountUpgrade'),'Obsolete duplicate subm
 const apiSource = fs.readFileSync('functions/api/account.js','utf8')
   .replace('export async function onRequest','async function onRequest');
 const calls = [];
-let available=true;
+let available=true,captchaFailure=null;
 const fakeFetch=async (url,opts={}) => {
   const target=String(url);
   calls.push({target,opts});
   let body={};
   if(target.includes('/rest/v1/rpc/username_is_available')) body=available;
   else if(target.includes('/rest/v1/site_feature_controls')) body=[{enabled:true}];
-  else if(target.includes('/auth/v1/signup')) body={user:{id:'00000000-0000-4000-8000-000000000009'},session:null};
+  else if(target.includes('/auth/v1/signup')){
+    if(captchaFailure)return new Response(JSON.stringify({error_code:'captcha_failed',msg:captchaFailure}),{
+      status:400,headers:{'content-type':'application/json'}});
+    body={user:{id:'00000000-0000-4000-8000-000000000009'},session:null};
+  }
   else if(target.includes('/rest/v1/')) body=[];
   else throw Error('Unexpected test network request: '+target);
   return new Response(JSON.stringify(body),{headers:{'content-type':'application/json'}});
@@ -74,5 +78,15 @@ async function run(body) {
   assert.equal(forwarded.data.book_claim_token,base.bookClaimToken);
   assert.equal(forwarded.gotrue_meta_security.captcha_token,base.captchaToken);
   assert.ok(calls.some(x=>x.target.includes('/rest/v1/account_private_identity')),'Private DOB must be saved');
+  captchaFailure='Captcha verification failed: invalid-input-secret';
+  let failed=await run(base);
+  assert.equal(failed.status,503,'Wrong managed Turnstile secret is a service issue, not an invalid password');
+  assert.match(failed.body.error,/Human verification is temporarily unavailable/);
+  assert(!failed.body.error.includes('invalid-input-secret'),'Provider error details stay server-side');
+  captchaFailure='Captcha verification failed: no captcha_token found';
+  failed=await run(base);
+  assert.equal(failed.status,403,'Missing or expired challenge must require a new verification');
+  assert.match(failed.body.error,/restart the verification challenge/);
+  captchaFailure=null;
   console.log('PASS: single registration path, canonical username, age gate, terms, CAPTCHA, Book Key, identity storage');
 })().catch(e=>{console.error(e);process.exitCode=1});
