@@ -16,7 +16,7 @@ const bars=[0,1,2].map(i=>({index:i,timestamp:time(i),open:10+i*.1,
 const dataset={code:'GUSIM_DT_C01_L01',title:'Original Fictional Starter',ticker:'SIMULATION',
  sourceAttribution:'Original computer-created fictional educational sequence',
  licenseNotice:'Fictional education only',synthetic:true};
-const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+const browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 async function testAtWidth(width){
  const ctx=await browser.newContext({viewport:{width,height:900}});
  await ctx.addInitScript(()=>{
