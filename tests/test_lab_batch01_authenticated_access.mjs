@@ -8,7 +8,7 @@ import {onRequest as labContext} from '../functions/api/lab-player-context.js';
 const env={SUPABASE_URL:'https://qa.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_qa',
  SUPABASE_SECRET_KEY:'sb_secret_qa'};
 const actor='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-let kind='member',accountStatus='active',premium=false,ownsBook=false,authValid=true;
+let kind='member',accountStatus='active',premium=false,ownsBook=false,ownedBookCode='FOUNDATION_BOOK_1',authValid=true;
 let providerOutage=false,privateReads=0,allCalls=[];
 const saveFetch=globalThis.fetch;
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
@@ -40,7 +40,7 @@ globalThis.fetch=async(url,options={})=>{
     answer_key:'PRIVATE_DO_NOT_FORWARD'}}]);
  }
  if(u.pathname==='/rest/v1/user_library')
-  return reply(ownsBook?[{product_code:'FOUNDATION_BOOK_1',expires_at:null}]:[]);
+  return reply(ownsBook&&u.searchParams.get('product_code')==='eq.'+ownedBookCode?[{product_code:ownedBookCode,expires_at:null}]:[]);
  if(['/rest/v1/book_key_redemptions','/rest/v1/user_plan_grants','/rest/v1/site_subscriptions',
       '/rest/v1/admin_user_roles'].includes(u.pathname))return reply([]);
  throw new Error('Unexpected privileged provider fetch '+s);
@@ -95,5 +95,32 @@ try{
  r=await check(req('F2-C02-L01'));
  assert.equal(r.status,403,'A Book I entitlement cannot authorize Book II');
  assert(allCalls.some(x=>x.includes('/rest/v1/platform_labs')),'Canonical fallback must reach a separately authorized registry read');
- console.log('PASS Batch01 guest/expired/showcase/suspended/restricted; free sample; book isolation; premium safe fallback; no grade or private rubric leak');
+ // Batch B01 registry contract: exercise all twenty existing private Lab IDs,
+ // not a representative pair. Book entitlements are separately scoped.
+ const b01=["F1-C02-L01","F1-C02-L02","F1-C04-L01","F1-C06-L01","F1-C07-L01","F1-C07-L02","F1-C08-L01","F1-C08-L02","F1-C08-L03","F1-C09-L01","F1-C10-L01","F1-C10-L02","F1-C12-L01","F1-C13-L01","F1-C13-L02","F2-C01-L01","F2-C02-L01","F2-C02-L02","F2-C02-L03","F2-C03-L01"];
+ assert.equal(new Set(b01).size,20,'Exactly twenty canonical B01 IDs');
+ accountStatus='active';kind='member';premium=false;ownsBook=true;
+ for(const [book,selected] of [['FOUNDATION_BOOK_1',b01.filter(x=>x.startsWith('F1-'))],
+                                ['FOUNDATION_BOOK_2',b01.filter(x=>x.startsWith('F2-'))]]){
+  ownedBookCode=book;
+  for(const id of selected){
+   const result=await check(req(id));
+   assert.equal(result.status,200,id+' must be available to the matching book owner');
+   assert.equal(result.body.instructionReviewed,false,id+' private draft is not editorially reviewed');
+   assert.equal(result.body.assessmentReviewed,false,id+' has no reviewed assessment');
+   assert.equal(result.body.lab?.lessonBatch,'2026-10-25-B01',id+' must use original private batch');
+   assert(!JSON.stringify(result.body).includes('PRIVATE_DO_NOT_FORWARD'),id+' cannot leak a hidden rubric');
+  }
+ }
+ ownedBookCode='FOUNDATION_BOOK_1';
+ for(const id of b01.filter(x=>x.startsWith('F2-')&&x!=='F2-C01-L01')){
+  const result=await check(req(id));
+  assert.equal(result.status,403,id+' Book II material cannot be obtained with Book I alone');
+ }
+ ownedBookCode='FOUNDATION_BOOK_2';
+ for(const id of b01.filter(x=>x.startsWith('F1-')&&x!=='F1-C02-L01')){
+  const result=await check(req(id));
+  assert.equal(result.status,403,id+' Book I material cannot be obtained with Book II alone');
+ }
+ console.log('PASS all 20 B01 ID access checks for both book rights and cross-book denial; private drafts never grade');
 }finally{globalThis.fetch=saveFetch}
