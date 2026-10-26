@@ -109,7 +109,9 @@ body[data-gu-workspace] .btn.secondary{border:1px solid #5b6b76;background:trans
 body[data-gu-workspace="site"]>main,body[data-gu-workspace="site"]>footer{margin-left:0}
 body[data-gu-workspace="site"] main.section>.wrap{width:100%!important;max-width:1240px!important;margin-inline:auto;padding:0 36px}
 body[data-gu-workspace="site"] main.gu-redesign-store{background:transparent;padding-top:48px}
-body[data-gu-workspace="site"] :is(.gu-home-stage,.gu-home-path,.gu-home-method){background:transparent;box-shadow:none}
+/* Preserve the intentional layered homepage hero gradient. The former
+   workspace-wide transparent reset made it invisible at all breakpoints. */
+body[data-gu-workspace="site"] :is(.gu-home-path,.gu-home-method){background:transparent;box-shadow:none}
 body[data-gu-workspace="site"] .gu-home-stage{padding-block:72px;border-bottom:1px solid var(--gu-ws-line)}
 body[data-gu-workspace="site"] .gu-home-message h1{font-size:clamp(2.2rem,4vw,4rem);line-height:1.12}
 body[data-gu-workspace="site"] .gu-home-stage-grid{gap:48px}
