@@ -73,5 +73,15 @@ try{
  assert(ui.includes("api('review-lesson'"),'Review action missing from existing Owner interface');
  const html=readFileSync('training-editor.html','utf8');
  assert(html.includes('author-lesson-review-approve'));
- console.log('PASS B01 teaching review: Owner-only, no private paragraph returned, versioned, fail closed, no duplicate review.');
+ const migration=readFileSync('supabase/migrations/v0.14.0.281_b01_private_lesson_review.sql','utf8');
+ const rollback=readFileSync('supabase/rollbacks/v0.14.0.281_b01_private_lesson_review_ROLLBACK.sql','utf8');
+ for(const rule of ['SECURITY DEFINER','SET search_path=pg_catalog','LAB_PRIVATE_LESSON_REVIEW_APPROVED',
+  'REVOKE ALL ON FUNCTION','CREATE TRIGGER gu_v014281_lesson_review_audit']){
+  assert(migration.includes(rule),'Production lesson audit DDL missing '+rule);
+ }
+ assert(!migration.includes('answer_key'));
+ assert(!migration.includes('DELETE FROM'));
+ assert(rollback.includes('DROP TRIGGER IF EXISTS gu_v014281_lesson_review_audit'));
+ assert(!rollback.includes('DROP TABLE')&&!rollback.includes('DROP COLUMN'));
+ console.log('PASS B01 teaching review: Owner-only, private source redacted, CAS enforced, and non-destructive audit rollback.');
 }finally{globalThis.fetch=old}
