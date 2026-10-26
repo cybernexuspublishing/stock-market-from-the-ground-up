@@ -11,8 +11,10 @@ const bc=academyByCode.truth5;
 assert.equal(bc.days,5);
 assert.equal(bc.curriculum.length,5);
 const cases=[
+ {day:1,slug:'panic-into-gains',label:'HIMS',type:'SOURCE_REPORTED_NO_TRADE_NOT_BACKTEST'},
  {day:3,slug:'two-key-lessons-from-my-live-plrx-trade',label:'PLRX',type:'SOURCE_REPORTED_CASE_WITH_OPEN_VERIFICATION'},
- {day:4,slug:'perfect-example-of-the-vwap-hold',label:'SSM',type:'SOURCE_REPORTED_RETROSPECTIVE_PLAN_NOT_EXECUTION'}
+ {day:4,slug:'perfect-example-of-the-vwap-hold',label:'SSM',type:'SOURCE_REPORTED_RETROSPECTIVE_PLAN_NOT_EXECUTION'},
+ {day:5,slug:'choose-between-solid-trades',label:'MNDR',type:'SOURCE_REPORTED_RETROSPECTIVE_COMPARISON'}
 ];
 for(const {day,slug,label,type} of cases){
  const record=bc.curriculum[day-1];
@@ -30,6 +32,15 @@ for(const {day,slug,label,type} of cases){
  assert(/not independently|not verified|not established|not a documented|not guaranteed/i.test(item.observation+' '+item.limits));
  assert(!/certified grade|verified fill|broker-confirmed transaction/i.test(item.title+' '+item.observation));
 }
+const capstone=bc.curriculum[4].lesson.sourceClaimCase;
+assert(capstone.observation.includes('9:38 a.m. ET'));
+assert(capstone.observation.includes('89%')&&capstone.observation.includes('77%'));
+assert(capstone.limits.includes('16.29')&&capstone.limits.includes('2.09'));
+assert(Math.abs((57/3.5)-16.285714)<0.00001);
+assert(Math.abs((9/4.3)-2.093023)<0.00001);
+assert(/NO TRADE/.test(capstone.question));
+const noTrade=bc.curriculum[0].lesson.sourceClaimCase;
+assert(noTrade.observation.includes('NO TRADE')&&noTrade.limits.includes('original issuer'));
 const ssm=bc.curriculum[3].lesson.sourceClaimCase;
 assert(ssm.observation.includes('$4.23')&&ssm.observation.includes('$4.10')&&ssm.observation.includes('$4.84'));
 assert(ssm.limits.includes('0.13')&&ssm.limits.includes('0.61')&&ssm.limits.includes('4.69:1'));
@@ -55,4 +66,4 @@ const data=await r.json();
 assert.equal(data.ok,true);
 assert.equal(data.programs.find(x=>x.code==='truth5').days,5);
 assert(!JSON.stringify(data).includes('sourceClaimCase'),'Public unauthenticated catalog must not contain curriculum cases');
-console.log('PASS archive-8 source provenance: PLRX chronology + SSM hypothetical 4.69R/769 shares, conflicting page dates acknowledged, accessible read-only ungraded teaching, catalog does not expose cases');
+console.log('PASS archive-8 source provenance: HIMS no-trade + PLRX chronology + SSM hypothetical + MNDR/NCPL look-ahead 4.69R/769 shares, conflicting page dates acknowledged, accessible read-only ungraded teaching, catalog does not expose cases');
