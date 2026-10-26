@@ -178,6 +178,12 @@ try{
    await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
    await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
    assert.equal(await page.locator('#academy-reflection').inputValue(),'');
+   assert.equal(await page.locator('#academy-days .gu-bc-day').count(),0,
+    'Previous member day navigator must be destroyed, even inside hidden workspace');
+   assert.equal(await page.locator('#academy-day-title').innerText(),'',
+    'Previous member lesson heading must not survive an account switch');
+   assert.equal(await page.locator('#academy-related').locator('a').count(),0,
+    'Previous member related Lab navigation must be destroyed');
    if(code==='truth5'){
     assert.equal(await page.locator('#academy-self-check-answer').count(),0,
      'Private ungraded answers must be removed from DOM after switching members');

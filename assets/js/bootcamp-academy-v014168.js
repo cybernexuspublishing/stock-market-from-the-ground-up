@@ -21,6 +21,14 @@
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
   get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
   get('academy-save-status').textContent='';
+  // Hidden DOM still belongs to the previous member. Remove its content rather
+  // than relying on [hidden] or CSS to prevent cross-account data exposure.
+  for(const id of ['academy-days','academy-related'])get(id)?.replaceChildren();
+  for(const id of ['academy-course-title','academy-course-summary','academy-length',
+   'academy-member-progress','academy-stage-label','academy-day-title',
+   'academy-objective','academy-observe','academy-practice','academy-limits']){
+   const element=get(id);if(element)element.textContent='';
+  }
   const selfCheck=get('academy-original-instruction');
   if(selfCheck){selfCheck.replaceChildren();selfCheck.hidden=true}
  }
