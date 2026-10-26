@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'simulator.html'
+      - 'dashboard.html'
+      - 'assets/js/dashboard.js'
+      - 'assets/css/free-member-launchpad.css'
+      - 'tests/test_free_member_launchpad_v1.mjs'
       - 'assets/css/simulator.css'
       - 'assets/js/simulator.js'
       - 'assets/js/simulator-mode-v014112.js'
@@ -35,6 +39,8 @@ jobs:
           node --check assets/js/fictional-simulator-starter-v1.js
           node --check assets/js/simulator.js
           node --check assets/js/simulator-mode-v014112.js
+          node --check assets/js/dashboard.js
+          node tests/test_free_member_launchpad_v1.mjs
           node tests/test_free_simulator_starter_v1.mjs
           node tests/test_v014112_server_first_simulator.mjs
           node tests/test_free_simulator_browser.mjs
