@@ -18,8 +18,8 @@ const stub=[
  "window.__ACADEMY_CB('SIGNED_IN',{user:{id:next},access_token:'switched'});};"
 ].join('\n');
 try{
- for(const width of [390,1280]){
-  for(const code of width===390?['truth5','practicum90']:codes){
+ for(const width of [390,900,1280,1440]){
+  for(const code of [390,900,1440].includes(width)?['truth5','practicum90']:codes){
    const context=await browser.newContext({viewport:{width,height:930},
     serviceWorkers:'block',reducedMotion:'reduce'});
    const page=await context.newPage();const progress=new Map();let enrolled=false;
@@ -80,18 +80,29 @@ try{
     const answer=page.locator('#academy-self-check-answer');
     const compare=section.getByRole('button',{name:'Compare my reasoning'});
     assert.equal(await compare.isDisabled(),true,'Do not reveal the coaching answer before a written learner attempt');
-    await answer.fill('The screenshot only proves an assertion was made. I would verify the issuer, document, publication time and source independently.');
+    const originalReasoning='The screenshot only proves an assertion was made. I would verify the issuer, document, publication time and source independently.';
+    await answer.fill(originalReasoning);
     assert.equal(await compare.isEnabled(),true);
+    assert.match(await page.locator('#academy-days .gu-bc-day').first().innerText(),/unsaved local work/);
     await compare.click();
     assert.match(await section.innerText(),/No mastery was awarded/);
     await page.locator('#academy-days .gu-bc-day').nth(1).click();
     assert.match(await section.innerText(),/SEC EDGAR/,'Day 2 must teach a substantively different source skill');
     assert.match(await section.innerText(),/unaudited quarterly/,'Day 2 must include separate audited-versus-forward-looking investigation');
-    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'','Day transitions cannot silently carry an earlier response into another question');
+    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'','A different question must not inherit another day’s private reasoning');
+    await page.locator('#academy-self-check-answer').fill('Day two requires independent filing verification and a separate report period.');
     await page.locator('#academy-days .gu-bc-day').first().click();
     assert.match(await section.innerText(),/widely shared screenshot/);
-    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'');
-    assert.equal(await compare.isDisabled(),true);
+    assert.equal(await page.locator('#academy-self-check-answer').inputValue(),originalReasoning,
+     'Returning to a day in the same member session must not destroy an unsaved answer');
+    assert.equal(await compare.isEnabled(),true);
+    const bounds=await section.boundingBox();
+    assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=width+1,
+     'The full teaching panel must fit inside the '+width+'px viewport');
+    assert.match(await section.innerText(),/not graded mastery/);
+    await page.locator('#academy-self-check-answer').focus();
+    assert.equal(await page.evaluate(()=>document.activeElement?.id),'academy-self-check-answer',
+     'The self-check must be reachable by keyboard focus');
    }
    await page.locator('#academy-enroll').click();
    await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.hidden===true);
@@ -159,8 +170,12 @@ try{
    await page.evaluate(()=>window.__ACADEMY_SWITCH('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'));
    await page.waitForFunction(()=>document.querySelector('#academy-workspace')?.hidden===true);
    assert.equal(await page.locator('#academy-reflection').inputValue(),'');
-   if(code==='truth5')assert.equal(await page.locator('#academy-self-check-answer').count(),0,
-    'Private ungraded answers must be removed from DOM after switching members');
+   if(code==='truth5'){
+    assert.equal(await page.locator('#academy-self-check-answer').count(),0,
+     'Private ungraded answers must be removed from DOM after switching members');
+    assert.equal(await page.locator('#academy-days .gu-bc-day').filter({hasText:'unsaved local work'}).count(),0,
+     'Previous account drafts must never appear in a new member session');
+   }
    assert.deepEqual(browserErrors,[]);
    console.log('PASS Academy '+code+' '+width+'px, '+academyByCode[code].days+' days; private enrollment, progress and account switching');
    await context.close();

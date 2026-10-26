@@ -69,6 +69,10 @@ assert.equal(new Set(firstCourse.curriculum.map(x=>x.lesson.investigation)).size
  'Independently applied research cases must not repeat across the five days');
 const client=fs.readFileSync('assets/js/bootcamp-academy-v014168.js','utf8');
 assert(client.includes("showOriginalInstruction(d)"));
+assert(client.includes("selfCheckDrafts.clear()"),
+ 'All ungraded self-check drafts must be destroyed on identity change');
+assert(client.includes("Optional related book Labs"),
+ 'Academy must disclose independently entitled, nonrequired book Labs');
 assert(client.includes("Independent evidence investigation"),'Each authored case must render on the same Academy lesson page');
 assert(client.includes("answer.value.trim().length<40"),'The formative review requires learner reasoning first');
 assert(client.includes("No mastery was awarded."));

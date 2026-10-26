@@ -9,7 +9,7 @@
  const expected=new Map([['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
-  progress=new Map(),drafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
+  progress=new Map(),drafts=new Map(),selfCheckDrafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
  function node(tag,value){
   const element=document.createElement(tag);
@@ -17,7 +17,7 @@
   return element;
  }
  function clean(){
-  program=null;days=[];enrolled=false;progress.clear();drafts.clear();progressAvailable=false;dayIndex=1;
+  program=null;days=[];enrolled=false;progress.clear();drafts.clear();selfCheckDrafts.clear();progressAvailable=false;dayIndex=1;
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
   get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
   get('academy-save-status').textContent='';
@@ -67,8 +67,10 @@
   for(const d of days){
    const button=node('button');button.type='button';button.className='gu-bc-day';
    button.setAttribute('aria-current',d.day===dayIndex?'step':'false');
-   const state=progress.get(d.day)?.status==='reflection_saved'?'Reflection saved':
+   const hasDraft=drafts.has(d.day)||selfCheckDrafts.has(d.day);
+   const stored=progress.get(d.day)?.status==='reflection_saved'?'Reflection saved':
     progress.get(d.day)?.status==='in_progress'?'Started':'Not recorded';
+   const state=hasDraft?stored+' · unsaved local work':stored;
    button.append(node('span','Day '+String(d.day).padStart(2,'0')+' · '+(progressAvailable?state:'Saving unavailable')),
     node('strong',d.title));
    button.addEventListener('click',()=>{dayIndex=d.day;renderDay()});
@@ -77,9 +79,11 @@
  }
  function showRelated(d){
   const mount=get('academy-related');mount.replaceChildren();
+  if((d.relatedLabs||[]).length)
+   mount.append(node('p','Optional related book Labs can require an independent matching book entitlement. These links are not required to complete this Boot Camp lesson and do not grant book access or grading credit.'));
   for(const row of d.relatedLabs||[]){
    if(!/^(?:F[123]|DT|TAPE)-C\d+-L\d+|^SITE-\d+$/.test(row.id))continue;
-   const item=node('a','Lab '+row.id);item.href='labs.html?open='+encodeURIComponent(row.id);
+   const item=node('a','Optional Lab '+row.id);item.href='labs.html?open='+encodeURIComponent(row.id);
    mount.append(item);
   }
   const link=node('a','Your Market Skills Record');link.href='skills.html';mount.append(link);
@@ -114,15 +118,22 @@
   const answer=node('textarea');answer.id='academy-self-check-answer';
   answer.rows=3;answer.minLength=40;answer.maxLength=1200;
   answer.setAttribute('autocomplete','off');
+  // Draft answers stay only in memory, scoped by member/session and day.
+  // Server-side progress remains the existing explicit Save Reflection action.
+  answer.value=selfCheckDrafts.get(dayIndex)||'';
   const compare=node('button','Compare my reasoning');compare.type='button';
-  compare.className='btn secondary';compare.disabled=true;
+  compare.className='btn secondary';compare.disabled=answer.value.trim().length<40;
   const result=node('div');result.setAttribute('role','status');
   result.setAttribute('aria-live','polite');
   const use=node('button','Add reasoning to my private reflection');
-  use.type='button';use.className='btn secondary';use.disabled=true;
+  use.type='button';use.className='btn secondary';use.disabled=answer.value.trim().length<80;
   answer.addEventListener('input',()=>{
-   const short=answer.value.trim().length<40;
-   compare.disabled=short;use.disabled=answer.value.trim().length<80;result.replaceChildren();
+   const value=answer.value;
+   if(value.trim())selfCheckDrafts.set(dayIndex,value);
+   else selfCheckDrafts.delete(dayIndex);
+   const short=value.trim().length<40;
+   compare.disabled=short;use.disabled=value.trim().length<80;result.replaceChildren();
+   updateDays();
   });
   use.addEventListener('click',()=>{
    const written=answer.value.trim();
@@ -148,7 +159,7 @@
    result.replaceChildren(node('p','Model reasoning (formative; not a score):'),node('p',lesson.reviewGuide),
     node('p','Compare your evidence, source timestamps, limits and no-trade decision. No mastery was awarded.'));
   });
-  mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to add your reasoning to a private reflection draft. Saving still requires selecting Save Reflection.'),result);
+  mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to copy reasoning into a private reflection draft. Unsaved answers survive a day change in this tab only and are erased on account switch or reload. Select Save Reflection to persist study notes; this is not graded mastery.'),result);
  }
 
  function renderDay(){
