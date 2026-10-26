@@ -7,6 +7,8 @@ let memberProgressAvailable = false;
 let publishedAssessments = new Set();
 let guidedBetaLabs = new Set();
 let availabilityVerified = false;
+let betaScopeVerified = false;
+let betaCandidateIds = new Set();
 
 function norm(s) { return String(s || '').toLowerCase(); }
 
@@ -17,7 +19,9 @@ function statusLabel(status) {
 }
 
 function progressControl(labId) {
-  if (!availabilityVerified) return '<span class="small" role="status">Release status unavailable; no grade or progress has been verified</span>';
+  if (!availabilityVerified) return betaScopeVerified && betaCandidateIds.has(labId)
+    ? '<span class="small" role="status">The Lab server verifies study access; official grades and saved progress are unverified.</span>'
+    : '<span class="small" role="status">Release status unavailable; no grade or progress has been verified</span>';
   const guided = guidedBetaLabs.has(labId) && !publishedAssessments.has(labId);
   if (guided) {
     if (!currentUser) return '<a href="account.html" class="small">Sign in to save ungraded Lab practice</a>';
@@ -51,14 +55,15 @@ function renderLabs(rows) {
   body.innerHTML = rows.map(x => {
     const released = availabilityVerified && publishedAssessments.has(x.id);
     const guidedBeta = availabilityVerified && guidedBetaLabs.has(x.id) && !released;
+    const betaCheck = !availabilityVerified && betaScopeVerified && betaCandidateIds.has(x.id);
     // Guided beta members can see their already-saved practice on returning,
     // but only after their private user-scoped progress query succeeds.
-    const savedStatus = (released || guidedBeta) && currentUser
+    const savedStatus = (released || guidedBeta || betaCheck) && currentUser
       ? (memberProgressAvailable ? (progressMap.get(x.id)?.status || 'not_started') : 'unverified')
       : 'not_started';
     const progressText = savedStatus === 'unverified'
       ? 'Private progress not verified'
-      : guidedBeta ? statusLabel(savedStatus) + ' · ungraded practice only'
+      : (guidedBeta || betaCheck) ? statusLabel(savedStatus) + ' · ungraded practice only'
       : statusLabel(savedStatus);
     return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}">
       <div class="lab-card-main">
@@ -68,7 +73,7 @@ function renderLabs(rows) {
           ${x.skill?`<span class="pill">${x.skill}</span>`:''}${(x.marketContexts||[]).slice(0,2).map(t=>`<span class="pill pill-context">${t}</span>`).join('')}
         </div>
         <h2 class="lab-concept">${x.concept || 'Historical simulator exercise'}</h2>
-        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${guidedBeta?'<p class="small">Original beta guided study · ungraded. Help review the lesson and record your reasoning; official assessment requires separate approval.</p>':!released?'<p class="small">Upcoming — this Lab is listed in the canonical registry but its private lesson and assessment are not both published.</p>':''}</div>
+        <div class="lab-location"><strong>${x.chapterTitle||'Original companion Lab'}</strong>${guidedBeta?'<p class="small">Original beta guided study · ungraded. Help review the lesson and record your reasoning; official assessment requires separate approval.</p>':betaCheck?'<p class="small">Beta candidate · publication status unavailable. The Lab server independently checks study access; no grade or saved progress is inferred.</p>':!released?'<p class="small">Upcoming — no Start action or grade is available.</p>':''}</div>
       </div>
       <div class="lab-card-meta" aria-label="Lab details">
         <div class="lab-meta-item"><span>Ticker</span><strong>${x.ticker || '—'}</strong></div>
@@ -76,7 +81,7 @@ function renderLabs(rows) {
         <div class="lab-meta-item"><span>Chart</span><strong>${x.timeframe || 'See book'}</strong></div>
       </div>
       <div class="lab-card-progress">
-        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:guidedBeta?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open guided beta practice (ungraded)</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
+        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:guidedBeta?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open guided beta practice (ungraded)</a>`:betaCheck?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Check beta study access in Lab</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" role="status" data-msg-for="${x.id}">${progressText}</div>
@@ -94,7 +99,8 @@ function filterLabs() {
   const chapter = document.getElementById('chapter-filter').value;
   const statusFilter = document.getElementById('status-filter')?.value || '';
   const rows = allLabs.filter(x => {
-    const status = progressMap.get(x.id)?.status || 'not_started';
+    const status = !currentUser || memberProgressAvailable
+      ? (progressMap.get(x.id)?.status || 'not_started') : 'unverified';
     return (!book || String(x.book) === book) &&
       (!chapter || String(x.chapter) === chapter) &&
       (!ticker || norm(x.ticker).includes(ticker)) &&
@@ -213,6 +219,21 @@ async function initLabs() {
     marketContexts:[],sourceStatus:'canonical_ungraded_orientation'};
   });
   if(new Set(allLabs.map(l=>l.id)).size!==419)throw Error('Duplicate canonical Lab identifiers');
+   // This single public canonical scope preserves all 83 Upcoming exclusions.
+   betaCandidateIds=new Set();betaScopeVerified=false;
+   try{
+     const response=await fetch('/api/lab-beta-scope',{cache:'no-store'});
+     if(!response.ok)throw Error('Candidate scope unavailable');
+     const data=await response.json();
+     const canonical=new Set(allLabs.map(l=>l.id));
+     if(data?.ok!==true||data.targetSelected!==336||data.targetUpcoming!==83||
+        !Array.isArray(data.selectedForPrebeta)||data.selectedForPrebeta.length!==336||
+        !Array.isArray(data.upcoming)||data.upcoming.length!==83||
+        new Set([...data.selectedForPrebeta,...data.upcoming]).size!==419||
+        [...data.selectedForPrebeta,...data.upcoming].some(id=>!canonical.has(id)))
+       throw Error('Candidate scope unverified');
+     betaCandidateIds=new Set(data.selectedForPrebeta);betaScopeVerified=true;
+   }catch{/* Never invent candidate IDs when scope verification fails. */}
   // Fail closed: a registry item is not a published graded Lab. The Worker
   // returns only eligible IDs, never private instructional text or keys.
   try {
