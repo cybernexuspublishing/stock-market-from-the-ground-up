@@ -1,0 +1,31 @@
+name: Owner LIVE Commerce Readiness (No-Charge)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/live-commerce-readiness.js'
+      - 'tests/test_live_commerce_readiness_v1.mjs'
+      - '.github/workflows/commerce-live-readiness-owner-v1.yml'
+  pull_request:
+    paths:
+      - 'functions/api/live-commerce-readiness.js'
+      - 'tests/test_live_commerce_readiness_v1.mjs'
+      - '.github/workflows/commerce-live-readiness-owner-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  owner-no-charge-provider-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static syntax
+        run: node --check functions/api/live-commerce-readiness.js
+      - name: Prove release gate is Owner-only, fail-closed and noncharging
+        run: node tests/test_live_commerce_readiness_v1.mjs
