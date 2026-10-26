@@ -548,9 +548,10 @@
       const roles=staffPublic(a.staffRoles);const username=a.username||window.__siteUsername||document.querySelector('.account-trigger')?.textContent?.replace(/[▾@]/g,'').trim()||'Account';
       profile=`<div class="v11-nav-group v11-profile-group v13-profile-hover"><button class="v11-nav-button v12-profile-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v1356-account-menu">@${esc(username)} <span aria-hidden="true">▾</span></button><div class="v11-menu v13-profile-menu" id="v1356-account-menu"><div class="v11-profile-summary"><strong>${esc(shortPlan(a))}</strong><span>${a.renewsAt?'Renews in '+countdown(a.renewsAt):a.expiresAt?'Expires in '+countdown(a.expiresAt):a.planCode==='LIFETIME'||roles.includes('OWNER')?'Never expires':''}</span>${roles.length?`<div class="v11-staff-badges">${roles.map(r=>`<span class="v11-badge staff">${esc(staffLabel(r))}</span>`).join('')}</div>`:''}</div><a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership &amp; Access</a><a href="dashboard.html?tab=skills">Skill Development</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=billing">Purchases &amp; Billing</a><a href="dashboard.html?tab=settings">Settings</a><a href="/mfa-security.html">Security / MFA</a><a href="dashboard.html?tab=support">Support</a>${a.controlPanel?'<a href="admin.html">Admin Control Center</a>':''}${roles.includes('OWNER')?'<a href="/owner-roadmap.html">Website Development Roadmap</a>':''}<a href="#" id="v11-signout">Sign Out</a></div></div>`;
     }
+    const sparkWallet=signed?`<details class="gu-nav-sparks" aria-label="Crownlight Sparks wallet"><summary aria-label="View your Crownlight Sparks wallet"><img src="/assets/img/crownlight-spark.svg" alt="" width="19" height="19"> <strong data-sparks-balance>—</strong> <span>Sparks</span></summary><div class="gu-nav-sparks-popup"><strong>Crownlight Sparks</strong><p>Available: <span data-sparks-popup-balance>—</span></p><p class="small">Reveal or skip an eligible ungraded practice question. Explanations, guided examples, and retries never require Sparks. A reveal or skip does not award mastery.</p><a href="/dashboard.html?tab=sparks">How to use &amp; wallet details</a><a class="btn" href="/store.html#sparks">Buy more Sparks</a></div></details>`:'';
     const top=groups.top.map(i=>`<a class="v12-top-link ${esc(i.style_variant||'')}" href="${esc(safeNavHref(i.href||'#'))}">${esc(i.label)}</a>`).join('');
     nav.className='navlinks v11-nav v12-nav';nav.dataset.v11Owned='1';
-    nav.innerHTML=`${learn}${tools}${top}${signed?profile:'<a class="nav-cta v12-signin" href="signin.html">Sign In</a>'}`;
+    nav.innerHTML=`${learn}${tools}${top}${signed?sparkWallet+profile:'<a class="nav-cta v12-signin" href="signin.html">Sign In</a>'}`;
     // Only one canonical profile menu and one Dashboard destination is emitted.
     // Older plugin renderers must not copy links into the profile dropdown.
     const accountMenu=nav.querySelector('#v1356-account-menu');
@@ -781,9 +782,53 @@
     const main=document.querySelector('main .wrap,main');if(!main)return;const el=document.createElement('aside');el.className='v11-ad-slot';el.hidden=true;main.appendChild(el);await serveAdInto(slot,el,a);if(el.hidden)el.remove();
   }
 
+  function installSparkNavStyle(){
+    if(document.getElementById('gu-sparks-nav-style'))return;
+    const css=document.createElement('style');css.id='gu-sparks-nav-style';
+    css.textContent=`.gu-nav-sparks{position:relative;align-self:center;z-index:30;font-size:.86rem}
+    .gu-nav-sparks summary{display:flex;align-items:center;gap:.3rem;list-style:none;cursor:pointer;
+      border:1px solid var(--border,#a78b4d);border-radius:999px;padding:.37rem .65rem;
+      white-space:nowrap;font-variant-numeric:tabular-nums}
+    .gu-nav-sparks summary::-webkit-details-marker{display:none}
+    .gu-nav-sparks summary:focus-visible{outline:3px solid #e6bf61;outline-offset:2px}
+    .gu-nav-sparks-popup{position:absolute;top:calc(100% + .45rem);right:0;min-width:265px;max-width:min(92vw,340px);
+      padding:1rem;background:var(--surface,#151d25);border:1px solid var(--border,#8d7b53);
+      border-radius:.8rem;box-shadow:0 15px 35px #0006;color:var(--text,#f5f5f5)}
+    .gu-nav-sparks-popup a{display:block;margin-top:.7rem}
+    .gu-nav-sparks-popup p{margin:.55rem 0}
+    @media(max-width:1050px){.gu-nav-sparks{display:none}}`;
+    document.head.appendChild(css);
+  }
+  async function refreshSparkWallet(a){
+    if(!a?.authenticated)return;
+    const targets=[...document.querySelectorAll('[data-sparks-balance],[data-sparks-popup-balance]')];
+    const dashboard=document.getElementById('member-sparks-wallet');
+    if(!targets.length&&!dashboard)return;
+    const sb=await sbReady();if(!sb)return;
+    const session=(await sb.auth.getSession())?.data?.session;
+    if(!session?.access_token)return;
+    try{
+      const resp=await fetch('/api/member-sparks-wallet',{headers:{authorization:'Bearer '+session.access_token},
+        cache:'no-store',credentials:'same-origin'});
+      if(!resp.ok)throw Error('Wallet unavailable');
+      const v=await resp.json(),w=v?.wallet;
+      if(v?.ok!==true||!Number.isSafeInteger(w?.available)||w.available<0)throw Error('Wallet unavailable');
+      for(const el of targets)el.textContent=w.available.toLocaleString();
+      const put=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value)};
+      put('sparks-wallet-total',w.available.toLocaleString());
+      put('sparks-wallet-included',w.included.toLocaleString());
+      put('sparks-wallet-purchased',w.purchased.toLocaleString());
+      put('sparks-wallet-manual',w.manual.toLocaleString());
+      put('sparks-wallet-expiry',w.nextExpiry?new Date(w.nextExpiry).toLocaleDateString():'No included Sparks currently expiring');
+      put('sparks-wallet-status','Current private balance, verified from your Sparks ledger.');
+    }catch{
+      const el=document.getElementById('sparks-wallet-status');
+      if(el)el.textContent='Your wallet could not be verified. No balance has been assumed.';
+    }
+  }
   async function renderSessionAware(force=false){
     const a=await access(force);if(!gateRegistry(a))return;
-    const items=await navItems(force);makeNav(a,items);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
+    const items=await navItems(force);makeNav(a,items);installSparkNavStyle();void refreshSparkWallet(a);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
   }
 
   async function watchAuth(){
