@@ -14,6 +14,7 @@ globalThis.fetch=async(url,init={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:user});
  if(u.includes('/rest/v1/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/rest/v1/admin_user_flags?'))return json([{status:'active'}]);
+ if(u.includes('/rest/v1/admin_user_roles?'))return json([]);
  if(u.includes('/rest/v1/rpc/user_has_tool_access'))return json(allowed);
  if(u.includes('/rest/v1/gu_replay_sessions_v01492?'))return json([{dataset_code:'IEX_APPROVED_1'}]);
  if(u.includes('/rest/v1/market_datasets?'))return json([{

@@ -28,6 +28,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/rpc/user_has_tool_access'))return json(own);
  throw Error('Unexpected mock '+u);
 };

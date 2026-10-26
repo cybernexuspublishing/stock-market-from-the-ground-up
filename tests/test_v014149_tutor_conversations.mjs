@@ -10,6 +10,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/rpc/user_has_tool_access'))return json(allowed);
  if(u.includes('gu_member_tutor_conversations_v014149?')){
   reads++;assert(u.includes('user_id=eq.'+uid)||u.includes('user_id=eq.'+other));

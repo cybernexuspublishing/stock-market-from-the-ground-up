@@ -61,6 +61,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(uri.endsWith('/auth/v1/user'))return json({id:uid});
  if(uri.includes('/profiles?'))return json([{account_kind:kind}]);
  if(uri.includes('/admin_user_flags?'))return json([{status:flag}]);
+ if(uri.includes('/admin_user_roles?'))return json([]);
  if(uri.includes('/rpc/user_has_tool_access'))return json(access);
  if(uri.includes('/decision_journal?')){
   queryCount++;

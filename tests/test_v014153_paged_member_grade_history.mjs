@@ -17,6 +17,7 @@ globalThis.fetch=async(raw,opts={})=>{
  if(path.endsWith('/auth/v1/user'))return json({id:uid});
  if(path.endsWith('/rest/v1/profiles'))return json([{account_kind:account}]);
  if(path.endsWith('/rest/v1/admin_user_flags'))return json([{status:flag}]);
+ if(path.endsWith('/rest/v1/admin_user_roles'))return json([]);
  if(path.endsWith('/rest/v1/rpc/user_has_tool_access'))return json(true);
  if(path.endsWith('/rest/v1/lab_training_attempts_v014')){
   calls++;reads++;

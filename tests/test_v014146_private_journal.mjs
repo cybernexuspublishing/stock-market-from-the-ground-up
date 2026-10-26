@@ -26,6 +26,7 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/auth/v1/user'))return response({id});
  if(u.includes('/profiles?'))return response([{account_kind:member}]);
  if(u.includes('/admin_user_flags?'))return response([{status:flag}]);
+ if(u.includes('/admin_user_roles?'))return response([]);
  if(u.includes('/admin_user_roles?'))return response([{role_code:role,expires_at:null}]);
  if(u.includes('/platform_tools?'))return response([{tool_code:u.includes('TRADE_REVIEW_REPLAY')?
   'TRADE_REVIEW_REPLAY':'STRATEGY_VALIDATION',name:'Testing tool',description:'',category:'Research',

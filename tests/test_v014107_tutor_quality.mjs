@@ -19,6 +19,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/rpc/user_has_tool_access'))return json(true);
  if(u.includes('/rpc/gu_v014103_reserve_ai_request')){quotaCalls++;return json({accepted:true,reason:'reserved',remainingMemberToday:2})}
  if(u==='https://api.openai.com/v1/responses'){

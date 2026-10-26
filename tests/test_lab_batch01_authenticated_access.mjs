@@ -20,6 +20,7 @@ globalThis.fetch=async(url,options={})=>{
   return authValid&&options.headers.authorization==='Bearer valid'?reply({id:actor}):reply({error:'invalid'},401);
  if(u.pathname==='/rest/v1/profiles')return reply([{account_kind:kind}]);
  if(u.pathname==='/rest/v1/admin_user_flags')return reply([{status:accountStatus}]);
+ if(u.pathname==='/rest/v1/admin_user_roles')return reply([]);
  if(u.pathname==='/rest/v1/rpc/user_has_tool_access')return providerOutage?reply({error:'offline'},503):reply(premium);
  if(u.pathname==='/rest/v1/lab_instruction_v014'){
   privateReads++;

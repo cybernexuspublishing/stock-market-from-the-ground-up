@@ -28,6 +28,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(headers.apikey===legacy)assert.equal(headers.authorization,'Bearer '+legacy);
  if(str.includes('/profiles?'))return out([{account_kind:profile}]);
  if(str.includes('/admin_user_flags?'))return out([{status:flag}]);
+ if(str.includes('/admin_user_roles?'))return out([]);
  if(str.includes('/rpc/user_has_tool_access'))return out(grant);
  throw Error('Unexpected source endpoint '+str);
 };

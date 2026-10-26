@@ -19,6 +19,7 @@ globalThis.fetch=async(url,opt={})=>{
  }
  if(u.includes('/profiles?'))return json([{account_kind:kind}]);
  if(u.includes('/admin_user_flags?'))return json([{status:state}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/admin_user_roles?'))return json([{role_code:role,expires_at:null}]);
  if(u.includes('/platform_tools?'))return json([{
   tool_code:'WATCHLIST_WORKBENCH',name:'Watchlist & Trade-Plan Workbench',

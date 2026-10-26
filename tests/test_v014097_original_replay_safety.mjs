@@ -16,6 +16,7 @@ globalThis.fetch=async u=>{
  if(path.endsWith('/auth/v1/user'))return respond({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});
  if(path.includes('/profiles?'))return respond([{account_kind:'member'}]);
  if(path.includes('/admin_user_flags?'))return respond([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return respond([]);
  if(path.includes('/rpc/user_has_tool_access'))return respond(true);
  if(path.includes('/market_datasets?'))return respond([fake]);
  if(path.includes('/gu_replay_bars_v01492?')){bars++;return respond([])}

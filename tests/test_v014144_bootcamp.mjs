@@ -43,6 +43,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(x.endsWith('/auth/v1/user'))return json({id:who});
  if(x.includes('/profiles?'))return json([{account_kind:role}]);
  if(x.includes('/admin_user_flags?'))return json([{status:flag}]);
+ if(x.includes('/admin_user_roles?'))return json([]);
  if(x.includes('/rpc/user_has_tool_access'))return json(access);
  if(x.includes('/gu_bootcamp_progress_v014144?')){
   reads++;assert(x.includes('user_id=eq.'+who),'Only authenticated member may query own study progress');

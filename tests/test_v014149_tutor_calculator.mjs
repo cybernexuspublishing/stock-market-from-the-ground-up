@@ -9,6 +9,7 @@ globalThis.fetch=async(url)=>{
  if(s.endsWith('/auth/v1/user'))return json({id:uid});
  if(s.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(s.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(s.includes('/admin_user_roles?'))return json([]);
  if(s.includes('/rpc/user_has_tool_access'))return json(allowed);
  throw Error('Unexpected '+s);
 };

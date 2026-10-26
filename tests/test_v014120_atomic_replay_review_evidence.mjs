@@ -25,6 +25,7 @@ globalThis.fetch=async(url,init={})=>{
  if(path.endsWith('/auth/v1/user'))return respond({id:actor});
  if(path.includes('/profiles?'))return respond([{account_kind:role}]);
  if(path.includes('/admin_user_flags?'))return respond([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return respond([]);
  if(path.includes('/rpc/user_has_tool_access'))return respond(allowed);
  if(path.includes('/gu_replay_sessions_v01492?'))return respond([{dataset_code:'IEX_APPROVED_1'}]);
  if(path.includes('/market_datasets?'))return respond([{dataset_code:'IEX_APPROVED_1',ticker:'AAPL',

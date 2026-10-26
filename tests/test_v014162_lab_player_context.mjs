@@ -10,6 +10,7 @@ globalThis.fetch=async(url,init={})=>{
  if(target.endsWith('/auth/v1/user'))return json({id:user});
  if(target.includes('/profiles?'))return json([{account_kind:kind}]);
  if(target.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(target.includes('/admin_user_roles?'))return json([]);
  if(target.endsWith('/rpc/user_has_tool_access'))return json(JSON.parse(init.body||'{}').target_tool==='INTERACTIVE_LEARNING'?interactive:authorized);
  if(target.includes('/user_library?'))return json(ownsBook?[{product_code:storedCode,expires_at:null}]:[]);
  if(target.includes('/book_key_redemptions?'))return json([]);

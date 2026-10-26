@@ -13,6 +13,7 @@ globalThis.fetch=async(u,o={})=>{
  if(url.endsWith('/auth/v1/user'))return json({id:account});
  if(url.includes('/profiles?'))return json([{account_kind:kind}]);
  if(url.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(url.includes('/admin_user_roles?'))return json([]);
  if(url.includes('/rpc/user_has_tool_access'))return json(allow);
  if(url.includes('/decision_journal?')){
   privateCalls++;

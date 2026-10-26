@@ -20,6 +20,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:kind}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/rpc/user_has_tool_access'))return json(allow);
  if(u.includes('/gu_ai_service_requests_v014103?')){
   return meterStatus?new Response(JSON.stringify(rows),{status:200,headers:{'content-type':'application/json','content-range':'0-0/0'}}):json({error:'missing table'},404);

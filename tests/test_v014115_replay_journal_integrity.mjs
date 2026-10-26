@@ -30,6 +30,7 @@ globalThis.fetch=async(url,init={})=>{
  if(p.endsWith('/auth/v1/user'))return respond({id:user});
  if(p.includes('/rest/v1/profiles?'))return respond([{account_kind:'member'}]);
  if(p.includes('/rest/v1/admin_user_flags?'))return respond([{status:'active'}]);
+ if(p.includes('/rest/v1/admin_user_roles?'))return respond([]);
  if(p.includes('/rest/v1/rpc/user_has_tool_access'))return respond(true);
  if(p.includes('/rest/v1/gu_replay_sessions_v01492?')){
   if(init.method==='PATCH'){mutationCalls++;return respond([{id:sid}]);}

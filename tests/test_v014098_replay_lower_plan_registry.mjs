@@ -20,6 +20,7 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/auth/v1/user'))return respond({id:uid});
  if(u.includes('/profiles?'))return respond([{account_kind:account}]);
  if(u.includes('/admin_user_flags?'))return respond([{status:'active'}]);
+ if(u.includes('/admin_user_roles?'))return respond([]);
  if(u.includes('/rpc/user_has_tool_access')){
   const tool=JSON.parse(options.body||'{}').target_tool;
   return respond(tool==='MARKET_SIMULATOR'?full:tool==='ONDEMAND_TRAINING'?replay:false);

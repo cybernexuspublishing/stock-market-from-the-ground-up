@@ -38,6 +38,7 @@ globalThis.fetch=async(url,options={})=>{
  if(pathname==='/rest/v1/profiles')
   return json([{account_kind:denyProfile?'showcase':'member'}]);
  if(pathname==='/rest/v1/admin_user_flags')return json([]);
+ if(pathname==='/rest/v1/admin_user_roles')return json([]);
  if(pathname==='/rest/v1/rpc/user_has_tool_access'){
   const actor=JSON.parse(options.body||'{}').target_user;
   return json(!denyAccess&&actor===userA);

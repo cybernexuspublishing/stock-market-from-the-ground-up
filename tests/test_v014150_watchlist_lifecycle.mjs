@@ -11,6 +11,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:uid});
  if(u.includes('/profiles?'))return json([{account_kind:kind}]);
  if(u.includes('/admin_user_flags?'))return json([{status:flag}]);
+ if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/admin_user_roles?'))return json([{role_code:'MEMBER',expires_at:null}]);
  if(u.includes('/platform_tools?'))return json([{tool_code:'WATCHLIST_WORKBENCH',name:'Watchlist',status:'beta',active:true,free_preview:true}]);
  if(u.endsWith('/rpc/user_has_tool_access'))return json(false);

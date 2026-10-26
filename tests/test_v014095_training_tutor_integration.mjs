@@ -14,6 +14,7 @@ globalThis.fetch=async(url,options={})=>{
  if(path.endsWith('/auth/v1/user'))return json({id:member});
  if(path.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(path.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return json([]);
  if(path.includes('/rpc/user_has_tool_access'))return json(true);
  if(path.includes('/decision_journal?'))return json([{mistakes:['Poor stop placement']}]);
  if(path.includes('/lab_attempts?'))return json([]);

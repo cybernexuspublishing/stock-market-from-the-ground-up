@@ -23,6 +23,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(path.endsWith('/auth/v1/user'))return mockJSON({id:actor});
  if(path.includes('/profiles?'))return mockJSON([{account_kind:account}]);
  if(path.includes('/admin_user_flags?'))return mockJSON([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return mockJSON([]);
  if(path.includes('/rpc/user_has_tool_access')){
   const code=JSON.parse(opts.body).target_tool;
   return mockJSON(code==='MARKET_SIMULATOR'?false:code==='ONDEMAND_TRAINING'&&replayAccess);

@@ -62,6 +62,7 @@ globalThis.fetch=async (value,opts={})=>{
  if(uri.pathname==='/auth/v1/user')return respond({id:actor});
  if(name==='profiles')return respond([{account_kind:member?'member':'showcase'}]);
  if(name==='admin_user_flags')return respond([{status:suspended?'suspended':'active'}]);
+ if(name==='admin_user_roles')return respond([]);
  if(name==='user_has_tool_access')return respond(premium);
  if(name==='platform_labs')return respond([{lab_id:LAB,title:content.concept,
   book_code:'SITE_EXCLUSIVE',active:true,registry_visible:true,lab_type:'supplemental',metadata:{},

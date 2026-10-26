@@ -28,6 +28,7 @@ globalThis.fetch=async(url,options={})=>{
  if(p==='/auth/v1/user')return json({id:actor});
  if(p==='/rest/v1/profiles')return json([{account_kind:'member'}]);
  if(p==='/rest/v1/admin_user_flags')return json([{status:'active'}]);
+ if(p==='/rest/v1/admin_user_roles')return json([]);
  if(p==='/rest/v1/rpc/user_has_tool_access')return json(true);
  if(p==='/rest/v1/platform_labs')return json([{lab_id:id,book_code:memberBook,active:true,registry_visible:true}]);
  if(p==='/rest/v1/lab_instruction_v014')return json([{book_number:memberBook==='FOUNDATION_BOOK_1'?1:2}]);

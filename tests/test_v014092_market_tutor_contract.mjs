@@ -15,6 +15,7 @@ globalThis.fetch=async (url,opts={})=>{
  if(u.endsWith('/auth/v1/user'))return json({id:'00000000-0000-4000-8000-000000000001'});
  if(u.includes('/rest/v1/profiles?'))return json([{account_kind:accountKind}]);
  if(u.includes('/rest/v1/admin_user_flags?'))return json([{status}]);
+ if(u.includes('/rest/v1/admin_user_roles?'))return json([]);
  if(u.includes('/rest/v1/rpc/user_has_tool_access'))return json(authorized);
  if(u.includes('/rest/v1/rpc/v01492_consume_tutor_quota'))return json(false,404); // not installed: no model charges
  if(u.includes('api.openai.com'))throw Error('Model must never be called with no installed quota');

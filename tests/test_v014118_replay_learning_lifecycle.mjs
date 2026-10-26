@@ -41,6 +41,7 @@ globalThis.fetch=async(url,init={})=>{
  if(path.endsWith('/auth/v1/user'))return respond({id:user});
  if(path.includes('/rest/v1/profiles?'))return respond([{account_kind:role}]);
  if(path.includes('/rest/v1/admin_user_flags?'))return respond([{status:'active'}]);
+ if(path.includes('/rest/v1/admin_user_roles?'))return respond([]);
  if(path.includes('/rest/v1/rpc/user_has_tool_access'))return respond(allowed);
  if(path.includes('/rest/v1/gu_replay_review_locks_v014118?'))return respond(state);
  if(path.includes('/rest/v1/gu_replay_journal_links_v01494?'))

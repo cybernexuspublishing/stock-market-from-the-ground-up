@@ -16,6 +16,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(path.endsWith('/auth/v1/user'))return json({id:uid});
  if(path.includes('/profiles?'))return json([{account_kind:kind}]);
  if(path.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ if(path.includes('/admin_user_roles?'))return json([]);
  if(path.includes('/rpc/user_has_tool_access'))return json(allow);
  if(path.includes('/gu_member_tutor_exchanges_v014102?')){
   if(failStorage)return json({error:'not installed'},404);
