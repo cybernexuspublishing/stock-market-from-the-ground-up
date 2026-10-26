@@ -312,7 +312,7 @@ function lesson(input={}){
   ...(custom.limitation?['A boundary of this exercise: '+clean(custom.limitation,480)]:[])
  ];
  const stage=Number(input.stage||0);
- const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(material.guide?.code);
+ const caseStudy=root.GroundUpLabV34CompetencyExamples?.get?.(material.guide?.code,material.concept);
  const outcomes=objectives(material,category);
  let blocks=[];
  if(stage===0){
@@ -348,7 +348,7 @@ function lesson(input={}){
  else if(stage===8)blocks=[base.explanation[0],base.misconception,'Transfer the method to a fresh case. Completion of guided teaching is not independent competency mastery.'];
  return {
   category,heading:base.name,objectives:outcomes,blocks:blocks.filter(Boolean),
-  worked:stage===1?(caseStudy?.steps?.length&&category!=='general'
+  worked:stage===1?(caseStudy?.steps?.length&&category!=='general'&&category!=='watchlist'
    ?[...base.example,...caseStudy.steps]:base.example):[],
   misconception:custom.commonError?clean(custom.commonError,480):base.misconception,
   limitation:custom.limitation?clean(custom.limitation,480):base.limitation,
