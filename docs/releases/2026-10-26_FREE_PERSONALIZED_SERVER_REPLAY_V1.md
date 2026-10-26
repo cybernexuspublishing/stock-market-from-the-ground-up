@@ -65,3 +65,39 @@ Live Supabase query confirmed 419 published original FICTIONAL teaching datasets
 | Date | Version | Status | Revision |
 | --- | --- | --- | --- |
 | 2026-10-26 | 1.0 | Engineering implementation | Free server-owned fictional scope, recorded member preferences and no-lookahead/role regression gates |
+
+## 2026-10-26 Provider replay-CAS acceptance addendum
+
+**Role:** Independent release auditor, PostgreSQL and replay security lead.  
+**Trigger:** Follow-up request to complete the next acceptance gate after successful Chromium source tests.  
+**Source revision:** `25e7753e582fa6bdb8f7401d06bce09aeb12e8c6` includes the recorded read-only regression script.  
+**Provider:** Supabase `oxihglyfgzywsupnyicb`.  
+**Evidence script:** `supabase/reviews/20261026_fictional_replay_real_rpc_transaction_QA_ROLLBACK.sql`.
+
+### Initial apparent defect corrected using live evidence
+A preliminary code reading suggested that `v01492_replay_advance` required authentic **historical** evidence and might exclude fictional datasets. Direct inspection of the installed SQL function revealed that it tests **`metadata.evidence_verified`**, which the provider uses for source-integrity/OHLCV validation, separately from **`metadata.historical_evidence_verified`**. The published fictional teaching rows correctly have `evidence_verified=true` (internal validation) while `historical_evidence_verified=false` (not authentic history). Both classifications can coexist without misleading members because the **Cloudflare API enforces the separate historical-versus-fictional source policy before calling the RPC**.
+
+The initially suspected High defect is therefore **rejected as a false positive**. Do not broaden or rewrite the core replay RPC based on that misinterpretation.
+
+### Real provider transaction result: TESTED — PASS
+The rollback-only SQL script executed successfully inside production PostgreSQL:
+
+- Confirmed a published original fictional dataset with 2040 timestamps and rights metadata.
+- Confirmed anonymous and ordinary authenticated clients cannot execute the privileged replay-advance function; the service role can.
+- Created a **temporary QA replay session** using an existing user UUID as an FK, without impersonating that user through GoTrue.
+- Denied advancement before the first reasoned decision was locked.
+- Locked a clearly labeled **NO_TRADE** decision and advanced **exactly one** candle with the real `v01492_replay_advance` RPC.
+- Denied a stale cursor and a different existing member identity.
+- Finished the temporary session, denied subsequent advancement and modification of immutable finished state.
+- Executed `ROLLBACK` and verified **zero persistent replay sessions**, all **419 canonical Labs** preserved, and all **10,056 replay bars** unchanged.
+
+This is an authentic provider **database unit/integration test**, not a real member web login: the QA script runs under the database administrative connection and does not exercise Turnstile, Supabase GoTrue token creation, Cloudflare authorization headers, actual browser device switch, or client-issued post-authenticated persistence. Never label it as **Production Member Tested**.
+
+### Runtime configuration and launch compatibility
+Cloudflare production environment was inspected using variable **names only**, not secret values: the published Pages project includes `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `ENFORCE_AUTH_TURNSTILE_V135`, `TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY`. Exact-run Cloudflare deployment success and source CI should be recorded separately; existence of binding names does not prove secret validity.
+
+The existing genuine-member Free onboarding journey was accepted by the Owner, but **no active original fictional replay sessions existed in Supabase at the provider-check timestamp**. Thus the new replay scope's real member start/reload/resume remains to be proven with a legitimate Turnstile-completed session. Do not disable CAPTCHA or manufacture tokens for acceptance. No LIVE Stripe payments or records were touched.
+
+### Owner acceptance
+**ACCEPT:** replay data plane, locked-decision RPC, stale update protection, member-ID filtering, transactional rollback, no-look-ahead source tests, and deploy metadata where independently verified.  
+**CARRY FORWARD:** true QA member sign-in → Start fictional dataset → Lock → Advance → reload/new session → Resume → Finish, with real GoTrue credentials already held through an authorized verified browser; second signed-in account denial and no grade/Journal credit. No automatic Beta Ready promotion until that trace is recorded.
