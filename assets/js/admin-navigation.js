@@ -27,7 +27,7 @@ const legacyGroups=new Set(['People','Learning','Commerce','Community','Platform
 const normalizedGroup=(value,el)=>order.includes(value)?value:legacyGroups.has(value)?category(el):value||category(el);
 const storage=new Map();let observer=null,pending=false,ready=false,fetching=false,owner=false;
 function key(el){if(el.id)return `builtin:id-${el.id}`;for(const attr of ['panel','v11Panel','v13Panel','v132Panel','v135Control','ocTab','v1352Menu','v142Create'])if(el.dataset[attr])return `builtin:${attr}-${el.dataset[attr]}`;if(el.tagName==='A'){const href=el.getAttribute('href')||'';const encoded=href.toLowerCase().replace(/[^a-z0-9._:-]/g,'-').slice(0,80);return `builtin:link-${encoded}`;}return `builtin:label-${(el.textContent||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'-').slice(0,80)}`;}
-function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Platform';}
+function category(el){const s=(el.textContent||'').trim();for(const [group,regex] of Object.entries(defs))if(regex.some(r=>r.test(s)))return group;return 'Additional Installed Controls';}
 function builtins(){return $$('button,a',nav()).filter(x=>x.id!=='cc-control-manager'&&!x.classList.contains('cc-admin-custom-link'));}
 // Modules installed before the canonical navigation manager may track their own
 // wrapper by ID. Removing their wrapper makes them re-mount and duplicate buttons.
