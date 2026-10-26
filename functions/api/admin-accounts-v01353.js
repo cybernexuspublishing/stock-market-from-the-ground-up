@@ -216,14 +216,27 @@ async function detail(env,actor,id){if(actor.showcase)return respond({ok:true,sy
    else{inventory[k]=null;inventoryErrors[k]='Unable to load this source. Do not assume it is empty.'}
  }
  let effectiveAccess=null,effectiveError=null;
- let grantCatalog={books:null,tools:null},grantCatalogError=null;
+ // A complete Owner-visible entitlement OFFERING catalog. The three manually
+ // grantable resources remain governed by gu78's audited, service-role RPC.
+ // Plans/founder seats, Stripe-issued rights, and upcoming SKUs are inventory
+ // only here; this endpoint never turns a catalog row into paid fulfillment.
+ let grantCatalog={books:null,tools:null,plans:null,storeItems:null},grantCatalogError=null;
  if(x.profile.account_kind==='member'){
-   try{
-     const [bk,tl]=await Promise.all([
-       rest(env,'catalog_products?select=product_code,short_title&active=eq.true&product_type=eq.book&order=sort_order.asc&limit=120'),
-       rest(env,'platform_tools?select=tool_code,name&active=eq.true&order=sort_order.asc&limit=120')]);
-     grantCatalog={books:bk,tools:tl};
-   }catch{grantCatalogError='Catalog service unavailable; new manual grants disabled.'}
+   const catalogSources={
+     books:'catalog_products?select=product_code,short_title&active=eq.true&product_type=eq.book&order=sort_order.asc&limit=120',
+     tools:'platform_tools?select=tool_code,name&active=eq.true&order=sort_order.asc&limit=120',
+     plans:'platform_plans?select=plan_code,name,active,public_visible,checkout_enabled&order=sort_order.asc&limit=120',
+     storeItems:'gu_storefront_items_v014174?select=sku,category,display_name,status,visible,sale_ready&order=display_order.asc&limit=120'
+   };
+   const sourceEntries=Object.entries(catalogSources);
+   const sourceResults=await Promise.allSettled(sourceEntries.map(async([name,path])=>[name,await rest(env,path)]));
+   const missing=[];
+   for(let i=0;i<sourceEntries.length;i++){
+     const [name]=sourceEntries[i],r=sourceResults[i];
+     if(r.status==='fulfilled')grantCatalog[name]=r.value[1];
+     else missing.push(name);
+   }
+   if(missing.length)grantCatalogError='Some entitlement catalog sources are unavailable: '+missing.join(', ')+'. Unverified categories cannot be granted.';
 
    try{effectiveAccess=await rest(env,'rpc/my_platform_access_for_user',{method:'POST',body:{target_user:id}})}
    catch{effectiveError='Effective access resolver unavailable; account status unverified.'}
