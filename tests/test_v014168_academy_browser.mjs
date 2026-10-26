@@ -55,9 +55,9 @@ try{
        input.action==='save_reflection'&&input.expectedRevision!==oldRev)
       return route.fulfill({status:409,contentType:'application/json',
        body:JSON.stringify({ok:false,error:'Invalid progression or stale revision'})});
-     const row={program:code,day:input.day,
+     const row=input.action==='start'&&prior?prior:{program:code,day:input.day,
       revision:oldRev+1,status:input.action==='start'?'in_progress':'reflection_saved',
-      reflection:input.action==='save_reflection'?input.reflection:prior?.reflection||null};
+      reflection:input.action==='save_reflection'?input.reflection:null};
      progress.set(input.day,row);
      return route.fulfill({status:200,contentType:'application/json',
       body:JSON.stringify({ok:true,progress:row,disclaimer:'Saved ungraded self-report.'})});
@@ -95,6 +95,8 @@ try{
    }
    await page.locator('#academy-enroll').click();
    await page.waitForFunction(()=>document.querySelector('#academy-enroll')?.hidden===true);
+   assert.match(await page.locator('#academy-save-status').innerText(),/No study reflection has been saved yet/,
+    'Enrollment alone cannot claim notes are persisted');
    await page.locator('#academy-save').click();
    assert.match(await page.locator('#academy-save-status').innerText(),/80–2,000/);
    const unsaved='I recorded the source and timestamp but have not finished my analysis. This draft must stay visible while moving between days; it is not recorded on the server.';
@@ -123,6 +125,11 @@ try{
    await page.locator('#academy-save').click();
    await page.waitForFunction(()=>document.querySelector('#academy-member-progress')?.textContent.includes('1 of '));
    assert.equal(progress.get(1)?.reflection,storedReflection);
+   const savedRevision=progress.get(1)?.revision;
+   await page.locator('#academy-start').click();
+   await page.waitForFunction(()=>document.querySelector('#academy-save-status')?.textContent.includes('previously saved reflection remains recorded'));
+   assert.equal(progress.get(1)?.revision,savedRevision,'Idempotent Start must not overwrite saved evidence');
+   assert.equal(progress.get(1)?.reflection,storedReflection,'Start must not wipe prior saved notes');
    await page.locator('#academy-days .gu-bc-day').last().click();
    await page.locator('#academy-days .gu-bc-day').first().click();
    assert.equal(await page.locator('#academy-reflection').inputValue(),storedReflection);

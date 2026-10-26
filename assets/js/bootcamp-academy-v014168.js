@@ -210,7 +210,7 @@
    const result=await request('write',activeCode,payload);
    if(actor!==userId||serial!==sessionSerial||payload.program!==activeCode)return;
    if(action==='enroll'){
-    enrolled=true;get('academy-save-status').textContent='You’re enrolled. Your learning notes are saved to your account.';
+    enrolled=true;get('academy-save-status').textContent='You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
    }else{
     progress.set(which,result.progress);
     if(action==='save_reflection'){
@@ -218,7 +218,9 @@
      if(which===dayIndex)get('academy-save-status').textContent=drafts.has(which)?
       'Your earlier reflection was saved, but newer edits are still unsaved. Select Save Reflection again.':
       'Your learning notes are saved.';
-    }else if(which===dayIndex)get('academy-save-status').textContent='Day started. Your learning is in progress; no reflection has been saved yet.';
+    }else if(which===dayIndex)get('academy-save-status').textContent=result.progress?.status==='reflection_saved'?
+      'Your previously saved reflection remains recorded.':
+      'Day started. No reflection has been saved yet.';
    }
   }catch(e){if(actor===userId&&serial===sessionSerial&&(action==='enroll'||which===dayIndex))
    get('academy-save-status').textContent=String(e.message||'Progress was not recorded.')}
