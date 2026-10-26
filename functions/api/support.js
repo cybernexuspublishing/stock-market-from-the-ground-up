@@ -1,7 +1,14 @@
 const H={'content-type':'application/json; charset=utf-8','cache-control':'no-store'};const out=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:H});const clean=v=>String(v??'').trim();
 function cfg(env){const url=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);if(!url||!pub||!secret)throw Object.assign(new Error('Support service is not configured.'),{status:503});return{url,pub,secret}}
 async function jf(url,opt={}){const r=await fetch(url,opt),t=await r.text();let d={};try{d=t?JSON.parse(t):{}}catch{d={raw:t}}if(!r.ok)throw Object.assign(new Error(d.message||d.error||t||`HTTP ${r.status}`),{status:r.status});return d}
-async function caller(env,req){const h=req.headers.get('authorization')||'',tok=h.startsWith('Bearer ')?h.slice(7):'';if(!tok)throw Object.assign(new Error('Authentication required.'),{status:401});const{url,pub}=cfg(env);return jf(`${url}/auth/v1/user`,{headers:{apikey:pub,authorization:`Bearer ${tok}`}})}
+async function caller(env,req){const h=req.headers.get('authorization')||'',tok=h.startsWith('Bearer ')?h.slice(7):'';if(!tok)throw Object.assign(new Error('Authentication required.'),{status:401});const{url,pub}=cfg(env);const user=await jf(`${url}/auth/v1/user`,{headers:{apikey:pub,authorization:`Bearer ${tok}`}});if(!user?.id)throw Object.assign(new Error('Invalid member session.'),{status:401});
+ // A GoTrue token may belong to a synthetic Showcase/test identity. This
+ // private production Support queue is reserved for real member accounts.
+ // Suspended real members retain Support access for account recovery/appeals.
+ const rows=await rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1');
+ if(!Array.isArray(rows)||rows.length!==1||rows[0]?.account_kind!=='member')
+  throw Object.assign(new Error('Real member account required for Support.'),{status:403});
+ return user}
 async function rest(env,path,{method='GET',body,prefer}={}){const{url,secret}=cfg(env),headers={apikey:secret,accept:'application/json',...(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret)?{authorization:'Bearer '+secret}:{})};if(body!==undefined)headers['content-type']='application/json';if(prefer)headers.prefer=prefer;return jf(`${url}/rest/v1/${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)})}
 function ticketId(value){
  const raw=String(value??'');
