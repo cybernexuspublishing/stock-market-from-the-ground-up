@@ -109,11 +109,11 @@ async function testModeOff(c){
 async function product(c,kind,code){const key=kind+':'+code;if(!products.has(key))throw err('Product not included in this test.',403);
  const isPlan=kind==='plan', path=isPlan?`platform_plans?select=*&plan_code=eq.${code}&limit=1`:`platform_tools?select=*&tool_code=eq.${code}&limit=1`;
  const r=(await db(c,path))[0];
-// platform_plans has checkout_enabled; platform_tools has NO such column.
-// For individual tools the approved existing gates are active/public_visible,
-// status='live' and the sitewide commerce checkout flag checked below.
-if(!r||r.active!==true||r.public_visible!==true||
-   (isPlan&&r.checkout_enabled!==true)||
+// Public Store visibility controls discovery, never payment authorization.
+// Both canonical plans and tools now have their own checkout_enabled flag in
+// production Supabase; a hidden SKU is purchasable ONLY after explicit Owner
+// checkout authorization, active status, verified price and all LIVE gates.
+if(!r||r.active!==true||r.checkout_enabled!==true||
    (!isPlan&&r.status!=='live'))throw err('This product is not enabled for checkout.',403);
  const amount=Number(isPlan?r.price_cents:r.individual_price_cents),bill=isPlan?r.billing_interval:'month';
  if(!Number.isSafeInteger(amount)||amount<1||!['month','year','lifetime'].includes(bill))throw err('Invalid catalog price.',503);
