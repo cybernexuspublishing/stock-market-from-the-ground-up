@@ -2,7 +2,8 @@
  * not in public/static JSON or public GitHub source. Member access is checked.
  */
 import {toolAccess,memberIdentity} from './member-tool-access.js';
-import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
+import {isBetaCandidateLab,isBetaUpcomingLab} from '../_lib/lab-beta-scope-v014286.js';
+import {authoredSiteExclusiveBetaLesson} from '../_lib/site-exclusive-private-lesson-v014294.js';
 import {authoredB01BetaLesson,foundingBetaLearningAccessKind} from '../_lib/founding-beta-learning-access.js';
 const send=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const SAMPLES=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
@@ -22,6 +23,7 @@ export function publicGuidedLesson(raw,labId,bookNumber){
   what:lessonText(r.what),why:lessonText(r.why),when:lessonText(r.when),
   commonError:lessonText(r.commonError),limitation:lessonText(r.limitation),
   workedExample:lessonText(r.workedExample),
+  sourceLinks: Array.isArray(r.sourceURLs)?r.sourceURLs.filter(x=>typeof x==='string'&&/^https:\/\/(?:www\.)?(?:investor\.gov|sec\.gov|nyse\.com)\//i.test(x)).slice(0,3):[],
   steps:lessonList(r.steps),
   teaching:{
    what:lessonText(t.what||r.what),why:lessonText(t.why||r.why),
@@ -61,6 +63,7 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
   // Mirror case-by-case access. A Founding or Owner-issued QA entitlement
   // authorizes the original B01 *learning* content, never ebook ownership,
   // rubrics, grading or unreviewed generic material.
+  const premiumAuthorized=access.authorized===true;
   const [coverage,betaKind,rows]=await Promise.all([
    Promise.all([1,2,3].map(book=>getBookAccess(env,request,book))),
    foundingBetaLearningAccessKind(env,actor.userId),
@@ -71,12 +74,14 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
   // never a misleading 'nothing to test' response.
   if(!Array.isArray(rows)||rows.length>=500)
    throw Object.assign(new Error('Private Lab catalog incomplete; retry after source synchronization.'),{status:503});
-  const allowed=rows.filter(row=>isBetaCandidateLab(row.lab_id)&&(
+  const allowed=rows.filter(row=>(isBetaCandidateLab(row.lab_id)||isBetaUpcomingLab(row.lab_id))&&(
+   Number(row.book_number)===6?premiumAuthorized&&authoredSiteExclusiveBetaLesson(row):
    coverage[Number(row.book_number)-1]===true||
    (betaKind!==null&&authoredB01BetaLesson(row))));
   return send({ok:true,labs:allowed.map(row=>({
    ...publicGuidedLesson(row.content,row.lab_id,row.book_number),
-   learningAccess:coverage[Number(row.book_number)-1]===true?'book':'scoped_beta',
+   learningAccess:Number(row.book_number)===6?'authorized_site_exclusive_beta':
+    coverage[Number(row.book_number)-1]===true?'book':'scoped_beta',
    officialGradingAvailable:false
   }))});
  }
@@ -85,7 +90,7 @@ export async function onRequest({request,env}){try{if(request.method!=='GET')ret
 // A sample means free guided education for eligible signed-in members—not a
 // public API bypass for guest, suspended, or Showcase accounts.
 const actor=await memberIdentity(env,request);
-if(!isBetaCandidateLab(id))return send({ok:false,error:'This Lab is upcoming and not released for beta learning.'},404);
+if(!isBetaCandidateLab(id)&&!isBetaUpcomingLab(id))return send({ok:false,error:'This Lab is not released for beta learning.'},404);
 if(SAMPLES.has(id)){
  const [profiles,flags]=await Promise.all([
   rest(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(actor.userId)+'&limit=1'),
@@ -95,6 +100,8 @@ if(SAMPLES.has(id)){
   return send({ok:false,error:'An eligible member account is required for this guided sample.'},403);
 }
 const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
+const siteLesson=isBetaUpcomingLab(id)&&authoredSiteExclusiveBetaLesson(row);
+if(isBetaUpcomingLab(id)&&!siteLesson)return send({ok:false,error:'This Site-Exclusive lesson is not yet authored for guided study.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
  // Free samples rely on account eligibility, not on an unrelated book ledger.
 // When a paid training member lacks this particular book, do not expose its
@@ -105,18 +112,19 @@ const ownsBook=sample?false:await getBookAccess(env,request,row.book_number);
 const betaAccessKind=premium&&authoredB01BetaLesson(row)?
  await foundingBetaLearningAccessKind(env,actor.userId):null;
 const scopedFoundingBeta=!!betaAccessKind;
-const guided=ownsBook||sample||scopedFoundingBeta||Number(row.book_number)===6&&premium;
+const guided=ownsBook||sample||scopedFoundingBeta||(siteLesson&&premium);
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
  const instructionReviewed=row.source_status==='editorially_reviewed_educational_illustrative_b01_v1'&&
   !!row.reviewed_by&&Number.isFinite(Date.parse(String(row.reviewed_at||'')));
  return send({ok:true,lab:publicGuidedLesson(row.content,row.lab_id,row.book_number),guidedAllowed:true,advancedAllowed:premium,
-  sourceStatus:betaAccessKind==='owner_qa'?'owner_authorized_b01_guided_beta_ungraded':
+  sourceStatus:siteLesson?'site_exclusive_original_authored_guided_beta_ungraded':
+   betaAccessKind==='owner_qa'?'owner_authorized_b01_guided_beta_ungraded':
    scopedFoundingBeta?
    (instructionReviewed?'founding600_editorially_reviewed_b01_guided_beta':'founding600_authored_b01_guided_beta_ungraded'):
    unreviewed?'private_unreviewed_conceptual_orientation':
    instructionReviewed?'private_editorially_reviewed_b01_instruction':'private_instruction_review_not_established',
-  foundingBetaStudy:scopedFoundingBeta,ownerQAStudy:betaAccessKind==='owner_qa',gradedCreditEligible:false,
+  foundingBetaStudy:scopedFoundingBeta||siteLesson&&premium,ownerQAStudy:betaAccessKind==='owner_qa',gradedCreditEligible:false,
   instructionReviewed,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
