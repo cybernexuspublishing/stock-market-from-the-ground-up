@@ -113,8 +113,11 @@ export async function onRequest({request,env}){
    concept:title||id,goal:safe(source.objective,700)||'Apply the concept to visible evidence without using later market observations.',
    ticker:safe(lab.ticker,20),date:safe(lab.historical_date,40),
    timeframe:safe(lab.timeframe,35),skill:safe(lab.lab_type,90),
-   start:'Use the observation boundary in your approved companion lesson.',
-   end:'Future observations must remain undisclosed until the server-controlled replay advances.',
+   // Only publish catalog observation boundaries when they actually exist.
+   // Invented start/end instructions would imply a verified replay or a
+   // companion lesson that this metadata-only beta study does not possess.
+   start:safe(source.start,350),
+   end:safe(source.end,350),
    teaching,practiceSteps:teaching.how.length>=3?teaching.how:[
     'Define the concept in your own words before examining the example.',
     'Name the source, timeframe and observations actually available at this moment.',
