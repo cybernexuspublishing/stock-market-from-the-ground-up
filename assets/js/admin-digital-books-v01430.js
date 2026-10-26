@@ -72,7 +72,21 @@ function mount(){
       rowStatus.textContent='Saved and audited; reading authoritative state.';busy=false;await load();
      }catch(e){rowStatus.textContent='Save refused: '+(e.message||'Rights check failed.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
-    card.append(upload,save,rowStatus);list.append(card);
+    const historyButton=el('button','View PDF/EPUB history','btn secondary');historyButton.type='button';
+    const historyList=el('div',null,'small');
+    historyButton.onclick=async()=>{
+     try{
+      await window.GroundUpAdminPasswordConfirm.ensure();
+      const data=await rpc(sb,'gu_owner_digital_history_v014304',{p_code:product.code});
+      historyList.replaceChildren();
+      for(const row of data.versions||[]){
+       const p=el('p',String(row.format).toUpperCase()+' v'+row.version+
+        (row.current?' · current':' · archived')+(row.fileExists?'':' · file missing'));
+       historyList.append(p);
+      }
+     }catch(e){historyList.textContent='History unavailable: '+String(e.message||e)}
+    };
+    card.append(upload,historyButton,save,historyList,rowStatus);list.append(card);
    }
    status.textContent=(data.products||[]).length+' eBooks loaded. A checkbox cannot cancel an actual KDP Select contract.';
   }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'Owner session or password confirmation required')}
