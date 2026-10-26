@@ -819,3 +819,56 @@ body.gu-bc-learning #gu-ws-reflection[hidden]{
   height:auto;
   margin-inline:auto;
 }
+
+
+/* Lab UX v3.8: genuine non-candle concept visual, then Talia below.
+   Preserve separately approved OHLC/VWAP chart geometry. */
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-unified-lesson.gu-v34-concept-lesson{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-items:start;gap:14px;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-concept-lesson>.gu-l33-graphic,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-concept-lesson>.gu-v33-instructor{
+ width:100%!important;max-width:none!important;max-height:none!important;
+ min-width:0;overflow:visible!important;align-self:start;
+}
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-concept-lesson .gu-v33-instructor-narration,
+body.gu-lab-member #gu-v32-teaching-slot .gu-v34-concept-lesson .gu-v33-instructor-reserve{
+ min-height:0!important;max-height:none!important;
+}
+#gu-v32-teaching-slot .gu-v34-watchlist-table{
+ width:100%;border-collapse:collapse;table-layout:fixed;
+ color:#eef5fb;font:500 .91rem/1.5 system-ui,sans-serif;margin:12px 0 16px;
+}
+#gu-v32-teaching-slot .gu-v34-watchlist-table caption{
+ text-align:left;padding:5px 0 12px;color:#f4cf7d;font-weight:700;
+}
+#gu-v32-teaching-slot .gu-v34-watchlist-table th,
+#gu-v32-teaching-slot .gu-v34-watchlist-table td{
+ border:1px solid #496c83;padding:10px 12px;text-align:left;
+ overflow-wrap:anywhere;vertical-align:top;
+}
+#gu-v32-teaching-slot .gu-v34-watchlist-table th{background:#1c4156;font-weight:750;color:#fff}
+#gu-v32-teaching-slot .gu-v34-watchlist-table tbody tr:nth-child(even){background:#142f43}
+#gu-v32-teaching-slot .gu-v34-competency-visual button{
+ background:#19405a;color:#f4faff;border:1px solid #678faa;
+ min-height:40px;border-radius:7px;padding:8px 12px;font:600 .85rem/1.4 system-ui,sans-serif;
+}
+#gu-v32-teaching-slot .gu-v34-competency-visual button:focus-visible{outline:3px solid #a5e7ff;outline-offset:3px}
+@media(max-width:700px){
+ #gu-v32-teaching-slot .gu-v34-watchlist-table{font-size:.8rem}
+ #gu-v32-teaching-slot .gu-v34-watchlist-table th,
+ #gu-v32-teaching-slot .gu-v34-watchlist-table td{padding:7px 6px}
+}
+/* Restore the approved compact 3x3 navigator. Existing 9 stages/IDs and
+   progress values remain unchanged; no oversized pale empty stage panel. */
+body.gu-lab-member #player-stage-progress.track{min-height:0;overflow:visible;background:#172d3d;color:#f0f7fb}
+body.gu-lab-member #player-stage-progress .journey-progress-track-inner{
+ min-width:0!important;height:auto!important;
+}
+body.gu-lab-member #player-stage-progress .stage-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ height:auto;min-width:0;gap:0;
+}
+body.gu-lab-member #player-stage-progress .stage-item{
+ min-height:38px;white-space:normal;color:#eff7fd;border-bottom:1px solid #39576c;
+}
