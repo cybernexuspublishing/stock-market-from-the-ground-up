@@ -2,6 +2,13 @@
 import assert from 'node:assert/strict';
 import {roleForNewAccount,onRequest} from '../functions/api/admin-accounts-v01353.js';
 
+import {readFileSync} from 'node:fs';
+const clientSource=readFileSync(new URL('../assets/js/admin-operations.js',import.meta.url),'utf8');
+assert(clientSource.includes('data-v1352-staff-role hidden'),'Create Account must present an explicit specialist-role selector');
+assert(clientSource.includes("const assignments=(await roleList()).filter"),'Staff role choices must come from server-authorized assignable roles');
+assert(clientSource.includes("staffSelect.dataset.loaded!=='1'"),'Staff role selection must not be enabled before the role list loads');
+assert(clientSource.includes("if(data.type==='admin'&&(!f.elements.roleCode"),'Creating Administrator without verified role selection must fail closed');
+
 const assignable=['ADMIN','MODERATOR','SUPPORT','COMMUNITY_MANAGER','LEARNING_MANAGER'];
 assert.equal(roleForNewAccount('admin','SUPPORT',assignable),'SUPPORT');
 assert.equal(roleForNewAccount('admin','COMMUNITY_MANAGER',assignable),'COMMUNITY_MANAGER');
