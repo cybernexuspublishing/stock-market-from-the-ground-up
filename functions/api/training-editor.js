@@ -76,7 +76,16 @@ if(q.kind==='choice'){
  if(normalized.some(x=>!x)||new Set(normalized).size!==normalized.length)
   throw problem('Choice options must be distinct, nonblank answers; duplicate distractors are not valid.');
 }
-const a=answers[q.id];if(a===undefined||a===null||String(a).length>200)throw problem('Missing answer key for '+q.id);if(q.kind==='choice'&&(!String(a).trim()||String(a)!==String(a).trim()||!q.options.some(x=>String(x).trim().toUpperCase()===String(a).trim().toUpperCase())))throw problem('Choice answer must exactly match one nonblank reviewed option.');if(q.kind==='number'&&(!Number.isFinite(Number(a))||!Number.isFinite(Number(q.tolerance))||Number(q.tolerance)<0||Number(q.tolerance)>1000))throw problem('Invalid numeric answer or tolerance.')}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
+const a=answers[q.id];if(a===undefined||a===null||String(a).length>200)throw problem('Missing answer key for '+q.id);if(q.kind==='choice'&&(!String(a).trim()||String(a)!==String(a).trim()||!q.options.some(x=>String(x).trim().toUpperCase()===String(a).trim().toUpperCase())))throw problem('Choice answer must exactly match one nonblank reviewed option.');if(q.kind==='number'&&(!Number.isFinite(Number(a))||!Number.isFinite(Number(q.tolerance))||Number(q.tolerance)<0||Number(q.tolerance)>1000))throw problem('Invalid numeric answer or tolerance.');
+if(q.criticalOnWrong!==undefined&&typeof q.criticalOnWrong!=='boolean')
+ throw problem('Critical-error grading must be explicitly true or false.');
+if(q.partialTolerance!==undefined||q.partialCreditPct!==undefined){
+ if(q.kind!=='number'||!Number.isFinite(Number(q.partialTolerance))||
+   !Number.isInteger(Number(q.partialCreditPct))||Number(q.partialCreditPct)<1||
+   Number(q.partialCreditPct)>99||Number(q.partialTolerance)<=Number(q.tolerance)||
+   Number(q.partialTolerance)>1000)
+  throw problem('Partial credit requires a numeric question, wider numeric tolerance and an integer percentage between 1 and 99.');
+}}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
 export async function onRequest({request,env}){try{const actor=await owner(env,request),u=new URL(request.url),action=u.searchParams.get('action')||'list';
  if(request.method==='GET'&&action==='list'){const sets=await listAllReviewSummaries(env);return out({ok:true,sets,allVersionsIncluded:true})}
  if(request.method==='GET'&&action==='knowledge-map'){
