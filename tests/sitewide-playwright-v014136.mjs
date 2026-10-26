@@ -175,7 +175,7 @@ try{
       'Approved founding membership terms must render on static Store');
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(x=>x.impact==='critical'||x.impact==='serious');
-    assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.length})),[],
+    assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.map(n=>({target:n.target,html:String(n.html||'').slice(0,420),failure:String(n.failureSummary||'').slice(0,420)}))})),[],
       'Serious/critical automated Store accessibility findings');
     return 'No serious/critical axe issues on static Store; manual and live review still required';
   });
