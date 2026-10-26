@@ -1,3 +1,4 @@
+import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
 /* Public Lab availability: reveal ONLY published Lab IDs; never serve grading
  * questions, answer keys, private lessons, member data, or implementation secrets.
  * Registry visibility does not imply an approved member assessment.
@@ -27,16 +28,22 @@ export async function onRequest({request,env}){
   // listing of an ID, or an unfinished draft, does not grant beta assessment.
   const [catalog,lessons,approved]=await Promise.all([
    rows(env,'platform_labs','lab_id,active,registry_visible','',700),
-   rows(env,'lab_instruction_v014','lab_id','',700),
+   rows(env,'lab_instruction_v014','lab_id,source_status','',700),
    rows(env,'lab_training_sets_v014','lab_id,review_state,reviewed_at,reviewed_by',
         '&review_state=eq.reviewed&reviewed_at=not.is.null&reviewed_by=not.is.null',1500)
   ]);
   const allowed=new Set(catalog.filter(r=>r.active===true&&r.registry_visible===true)
    .map(r=>r.lab_id).filter(id=>goodId.test(id)));
-  const hasLesson=new Set(lessons.map(r=>r.lab_id).filter(id=>goodId.test(id)));
+  // An instruction row is not an editorial approval. An unreviewed/draft row
+  // must NEVER become Start-eligible solely because its rubric was reviewed.
+  // Explicit status recognition is deliberately fail-closed until the
+  // existing editorial approval workflow records the reviewed state.
+  const reviewedLesson=new Set(lessons.filter(r=>
+   /^(editorially_reviewed|approved|published|beta_ready)(?:_|$)/i.test(String(r.source_status||'')))
+   .map(r=>r.lab_id).filter(id=>goodId.test(id)&&isBetaCandidateLab(id)));
   const ids=[...new Set(approved.map(r=>r.lab_id).filter(id=>
-   goodId.test(id)&&allowed.has(id)&&hasLesson.has(id)))].sort();
-  return reply({ok:true,publishedIds:ids,scope:'reviewed_assessment_with_private_lesson_only',
+   goodId.test(id)&&isBetaCandidateLab(id)&&allowed.has(id)&&reviewedLesson.has(id)))].sort();
+  return reply({ok:true,publishedIds:ids,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
    betaReadyCertified:false});
  }catch{
   return reply({ok:false,error:'Lab availability cannot be verified. No unreleased Lab should be started.'},503);
