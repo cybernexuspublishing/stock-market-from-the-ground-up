@@ -252,3 +252,43 @@ The Owner explicitly confirmed that account login and human CAPTCHA now operate 
 **New repeatable evidence.** Run `supabase/reviews/2026-10-26_GATE1_FOUNDING600_B01_PREFLIGHT_READ_ONLY.sql` to list exact Lab-by-Lab outcomes without revealing private keys or member details. The Founder test center contract is asserted by `tests/test_gate1_founders_beta_handoff.mjs`, included in the existing Boot Camp workflow.
 
 **Pending before any beta-ready certification.** Editorial correctness and individual Owner approval for all twenty rubrics, exact-head CI acceptance, authenticated browser save/logout/resume and live protected grading, keyboard/screen-reader review and Founding 600 member observations remain distinct. The beta member tests are the final designated real-account gate; do not falsely certify them through fixture tests or guest-only checks. The baseline user-approved seven-Boot-Camp, 336-Lab eventual beta target is unchanged; do not start a second Boot Camp/B02 while Truth5/B01 is open.
+
+
+## Gate 1 Owner-grade integrity acceptance increment — 2026-10-26
+
+**Roles:** Owner delegate, application security, database architecture, assessment QA, DevOps/release engineering, market-education review and privacy.
+
+### High finding A — stale grading approval and lost draft edits
+
+The original `functions/api/training-editor.js` verified a draft in one read, then issued a separate `review_state=draft` PATCH that **did not check whether the draft content changed between those operations**. The draft save path similarly lacked an atomic revision condition and could race review. This was a High audit/authorization-integrity risk.
+
+- **IMPLEMENTED:** Draft updates and review transitions now require the exact database `updated_at` revision in the server-side PATCH predicate, as well as `review_state=draft`. The Owner editor carries the source revision returned by GET and from successful saves. A stale revision returns HTTP 409 without publishing stale content. The review update remains restricted to an authenticated OWNER and explicit review confirmation.
+- **TEST SOURCE ADDED:** `tests/test_b01_owner_revision_lock.mjs` exercises missing, stale and concurrent revisions, the reviewed-state boundary, and the UI revision contract. `tests/test_v014117_lab_topic_gate.mjs` also tests a concurrent review conflict. Tests are in the existing Lab Topic workflow. **Do not call TESTED until the exact-code workflow run succeeds.**
+- **TRADEOFF:** Existing stale Owner edit windows must reload before saving. This is intentional to prevent silent loss of editorial changes.
+
+### High finding B — missing transactional review audit record
+
+Production `public.lab_training_sets_v014` previously had no explicit state-transition audit trigger. Reviewer name/date fields alone were not a separate activity ledger. To preserve review provenance independently:
+
+- **IMPLEMENTED in main:** `supabase/migrations/v0.14.0.280_b01_rubric_review_audit.sql` and its exact rollback under `supabase/rollbacks/`. The existing `admin_audit_log` receives one metadata-only entry on actual review-state transitions; answer keys, private teaching passages, Journal text and member details are never logged.
+- **PROVEN in Supabase:** The trigger exists on `lab_training_sets_v014`, its function is `SECURITY DEFINER` with a restricted `pg_catalog` search path, and `anon` and `authenticated` have no direct function EXECUTE privileges. An isolated temporary rubric transition inside an explicitly ROLLED BACK transaction produced the expected approved-review audit entry within the transaction. A separate post-test query verified **zero probe audit rows** persisted and real rubric review states were unchanged.
+- **Rollback:** Drop only the introduced trigger and function; retain all historical audit records and assessments. **No data deletion or LIVE payments.**
+- **TEST SOURCE ADDED:** `tests/test_v014280_rubric_review_audit.mjs` and existing Lab Topic workflow coverage protect DDL scope and rollback source. CI must pass on the actual release commit.
+
+### Curriculum spot audit and canonical scope
+
+- Verified the exact twenty `2026-10-25-B01` Lab IDs in Supabase and independent, privately executed expected-number calculations for all twenty v97 fictional numerical questions: **20/20 arithmetic keys correct, 20/20 fictional labeling, 20/20 substantive numeric feedback**. The expected answer values were intentionally **not** committed to a public source file.
+- The complete six-question draft structure and original `truth5` source-verification teaching exist. The audited B01 sets remain **20/20 draft, zero reviewed**; no blanket Owner review was recorded or simulated.
+- Public external references checked: SEC EDGAR acceptance versus public availability (https://www.sec.gov/about/webmaster-frequently-asked-questions), SEC extended-hours liquidity/price risks (https://www.sec.gov/about/reports-publications/investorpubsafterhourshtm), and W3C WCAG 2.2 AA (https://www.w3.org/TR/wcag/). These validate key education and accessibility principles, not a fictional dataset as verified history.
+- `README_START_HERE.md` previously presented a historic v0.14.0.40 overlay as a start page. It now clearly labels the older instructions historical and points to current `main`, `AGENTS.md`, the cumulative sitewide rules and this gate ledger.
+- The attachments available in the current conversation are the trusted StocksToTrade research archives, not a newer complete repository ZIP. Live `main` and the Yahoo Pages deployment remain the current code baseline; do not silently replace either with a research archive.
+
+### Owner decision and remaining gates
+
+- **ACCEPTED: PROVEN** — existing-schema transactional rubric review audit control. Review state and database privileges checked directly; rolled-back test left zero changes.
+- **IMPLEMENTED, awaiting CI** — revision-locked Owner grading edit/review API and UI with tests; do not call this technically accepted until the matching workflow is successful.
+- **NOT ACCEPTED** — 20/20 grading drafts as independently editorially reviewed. The real application requires individual signed-in OWNER reviewer actions; approval cannot be forged through direct service-role SQL or a fabricated identity.
+- **NOT ACCEPTED** — Boot Camp 1 and Batch B01 Production Member Tested or Beta Ready. The Founding 600 must exercise actual entitled sign-in, saved progress across logouts, grading, privacy/entitlement and accessible navigation. Fixture CI is not production member evidence.
+- **STILL EXCLUDED** — LIVE Stripe charges/refunds, any removal of LIVE payment shutdowns, B02 and subsequent Boot Camps while Gate 1 lacks all required evidence.
+
+**Gate 1 sign-off:** Safety improvements substantial, but **OPEN** pending exact-head CI, independent authenticated Owner rubric review and Founding 600 live member acceptance. Do not mark fully accepted prematurely.
