@@ -1,4 +1,4 @@
-let PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0};
+let PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0,attemptGeneration:0,savingAttempt:false,reflectionSaved:false};
 function pe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function q(id){return document.getElementById(id)}
 // User-facing titles are educational topics. IDs are for the book's Lab locator.
@@ -119,7 +119,60 @@ function lockDecision(){const a=collectDecision();if(!a.decision||!a.confidence)
  if(typeof CustomEvent==='function')document.dispatchEvent(new CustomEvent('gu-v33-decision-locked'));
  q('reveal-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 function revealNext(){PLAYER.revealIndex=Math.min(PLAYER.lab.practiceSteps.length,PLAYER.revealIndex+1);renderGuidance()}
-async function saveAttempt(){const msg=q('attempt-msg');const access=PLAYER.access;if(!access.user){msg.textContent='Sign in to save attempts to your Market Skills Record.';msg.className='inline-status error';return}const a=collectDecision();const mistakes=[...document.querySelectorAll('input[name="mistake"]:checked')].map(x=>x.value);const reflection=q('reflection')?.value.trim()||'';const row={user_id:access.user.id,lab_id:PLAYER.lab.id,skill_code:PLAYER.lab.skill,mode:PLAYER.mode,decision:a.decision||null,confidence:a.confidence||null,evidence:{structure:a.structure,location:a.location,volume:a.volume},invalidation:a.invalidation||null,notes:a.notes||null,process_score:processScore(a),process_breakdown:processBreakdown(a),mistakes,reflection,book_number:Number(PLAYER.lab.book)};const {error}=await access.sb.from('lab_attempts').insert(row);if(error){msg.textContent=error.message;msg.className='inline-status error';return}await access.sb.from('lab_progress').upsert({user_id:access.user.id,lab_id:PLAYER.lab.id,status:'completed',score:null,updated_at:new Date().toISOString(),completed_at:new Date().toISOString()},{onConflict:'user_id,lab_id'});msg.innerHTML=`Attempt saved. <a href="skills.html">View your Market Skills Record</a>. Lab discussion is now unlocked for this attempt.`;msg.className='inline-status success';q('complete-attempt').disabled=true;if(q('discuss-lab'))q('discuss-lab').hidden=false}
+async function saveAttempt(){
+ const msg=q('attempt-msg'),button=q('complete-attempt'),access=PLAYER.access;
+ if(!msg||!button||PLAYER.savingAttempt)return;
+ if(!access?.user?.id||!access?.sb?.from){
+  msg.textContent='Sign in to save attempts to your Market Skills Record.';
+  msg.className='inline-status error';return;
+ }
+ const generation=PLAYER.attemptGeneration;
+ PLAYER.savingAttempt=true;button.disabled=true;
+ try{
+  if(!PLAYER.reflectionSaved){
+   const a=collectDecision(),mistakes=[...document.querySelectorAll('input[name="mistake"]:checked')].map(x=>x.value);
+   const reflection=q('reflection')?.value.trim()||'';
+   const row={user_id:access.user.id,lab_id:PLAYER.lab.id,skill_code:PLAYER.lab.skill,
+    mode:PLAYER.mode,decision:a.decision||null,confidence:a.confidence||null,
+    evidence:{structure:a.structure,location:a.location,volume:a.volume},
+    invalidation:a.invalidation||null,notes:a.notes||null,
+    process_score:processScore(a),process_breakdown:processBreakdown(a),
+    mistakes,reflection,book_number:Number(PLAYER.lab.book)};
+   const inserted=await access.sb.from('lab_attempts').insert(row);
+   if(generation!==PLAYER.attemptGeneration||q('attempt-msg')!==msg)return;
+   if(inserted?.error){
+    msg.textContent='Your reflection could not be saved. Correct the error and retry; no completed attempt is confirmed.';
+    msg.className='inline-status error';button.disabled=false;return;
+   }
+   PLAYER.reflectionSaved=true;
+  }
+  const progress=await access.sb.from('lab_progress').upsert({
+   user_id:access.user.id,lab_id:PLAYER.lab.id,status:'completed',score:null,
+   updated_at:new Date().toISOString(),completed_at:new Date().toISOString()
+  },{onConflict:'user_id,lab_id'});
+  if(generation!==PLAYER.attemptGeneration||q('attempt-msg')!==msg)return;
+  if(progress?.error){
+   msg.textContent='Your decision and reflection were saved, but Lab progress was not synchronized. Select Retry progress sync; this will not create another reflection.';
+   msg.className='inline-status error';button.disabled=false;
+   button.textContent='Retry progress sync';
+   if(q('discuss-lab'))q('discuss-lab').hidden=false;
+   return;
+  }
+  msg.innerHTML='Attempt saved and Lab progress synchronized. <a href="skills.html">View your Market Skills Record</a>. Lab discussion is now unlocked for this attempt.';
+  msg.className='inline-status success';button.disabled=true;
+  if(q('discuss-lab'))q('discuss-lab').hidden=false;
+ }catch{
+  if(generation!==PLAYER.attemptGeneration||q('attempt-msg')!==msg)return;
+  msg.textContent=PLAYER.reflectionSaved?
+   'Your reflection was saved, but progress synchronization could not be confirmed. Select Retry progress sync.':
+   'Your reflection save could not be confirmed. Check your Market Skills Record before retrying to avoid a duplicate.';
+  msg.className='inline-status error';
+  button.disabled=!PLAYER.reflectionSaved;
+  if(PLAYER.reflectionSaved)button.textContent='Retry progress sync';
+ }finally{
+  if(generation===PLAYER.attemptGeneration)PLAYER.savingAttempt=false;
+ }
+}
 /* D09: Link only a whitelisted instructional TOPIC to Market Tutor.
  * Never transmit Lab rubric, answer key, learner reasoning, ticker, historical
  * data or future hidden candles. Guided/practice only; no blind answer leaks.
@@ -316,7 +369,7 @@ function inlineModeConfirmation(nextMode,allowChoice=false){
  actions.append(cancel,yes);target.append(actions);yes.focus();
 }
 
-function renderPlayer(){window.GroundUpInteractiveTraining?.cancel?.();const lab=PLAYER.lab,mode=PLAYER.mode,advanced=['practice','blind','assessment'].includes(mode);const allowed=mode==='guided'?PLAYER.access.serverGuidedAllowed===true:PLAYER.access.serverAdvancedAllowed===true;syncPlayerMode();q('player-mode-description').textContent=modeCopy(mode);if(!allowed){q('player-workspace').innerHTML=`<div class="card paywall-card"><h2>${mode==='guided'?'Guided lab access':'Learning Member feature'}</h2><p>${mode==='guided'?'This guided book lab is available to active Learning Members, readers who redeemed this book, and selected free samples.':'Practice, Blind Decision, and Assessment modes require active Full Learning Access.'}</p><div class="actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem a Book Key</a></div></div>`;return}
+function renderPlayer(){PLAYER.attemptGeneration++;PLAYER.savingAttempt=false;PLAYER.reflectionSaved=false;window.GroundUpInteractiveTraining?.cancel?.();const lab=PLAYER.lab,mode=PLAYER.mode,advanced=['practice','blind','assessment'].includes(mode);const allowed=mode==='guided'?PLAYER.access.serverGuidedAllowed===true:PLAYER.access.serverAdvancedAllowed===true;syncPlayerMode();q('player-mode-description').textContent=modeCopy(mode);if(!allowed){q('player-workspace').innerHTML=`<div class="card paywall-card"><h2>${mode==='guided'?'Guided lab access':'Learning Member feature'}</h2><p>${mode==='guided'?'This guided book lab is available to active Learning Members, readers who redeemed this book, and selected free samples.':'Practice, Blind Decision, and Assessment modes require active Full Learning Access.'}</p><div class="actions"><a class="btn" href="membership.html">View Membership</a><a class="btn secondary" href="settings.html">Redeem a Book Key</a></div></div>`;return}
  const blind=mode==='blind'||mode==='assessment';q('player-title').textContent=blind?(mode==='blind'?'Blind Market Decision':'Independent Lab Assessment'):(lab.id==='F2-C07-L01'||lab.id==='F2-C07-L02'?'Build and Understand a Candlestick':lab.id==='F3-C06-L01'?'Understand VWAP and Replay the Market':lab.concept);const task=blind?'':(lab.goal?`<div class="notice"><strong>Book task:</strong> ${pe(lab.goal)}</div>`:'');const before=(mode==='guided'&&lab.beforeAdvance.length)?`<div class="card"><div class="eyebrow">Before You Advance</div>${lab.beforeAdvance.map(x=>`<p>${pe(x)}</p>`).join('')}</div>`:'';q('player-workspace').innerHTML=`<div class="gu-ws"><section id="gu-v32-teaching-slot" aria-label="Lab Engine v3.2 and Learning v3.3"></section><div class="gu-ws-disclosures"><details class="gu-ws-source"><summary>Historical chart and source status</summary><div class="gu-ws-disclosure-body"><aside class="lab-learning-visual" aria-label="Chart and visual source"><div class="lab-learning-provenance">${blind?'<div class="card"><p>Historical source visuals and interpretive cues are concealed in independent decision modes. Use only server-authorized replay observations; no future bars are loaded by this workstation.</p></div>':(portableVisual(lab)||'<div class="card"><h2>No verified chart attached</h2><p>This Lab has no approved source chart embedded. Use the book setup and observation boundary; do not treat a hypothetical or absent visual as real history. A chart must be approved before this Lab can pass full visual acceptance.</p></div>')}</div></aside></div></details><details class="gu-ws-resources"><summary>Historical setup, replay and curriculum references</summary><div class="gu-ws-disclosure-body">${blind?'':originalScenarioLink(lab)}<section class="card"><h2>Original companion competency guides</h2><p>Suggested study topics are separate from the approved book manuscript and graded answers.</p><div id="v01499-original-skills"></div></section><div class="card"><div class="eyebrow">Historical setup</div>${metadata(lab,blind)}${task}</div>${before}<div id="gu-ws-study-source"></div></div></details></div><details id="gu-ws-member-workbench" class="gu-ws-workbench" ${blind?"open":"hidden"}><summary>Member decision, protected assessment and reflection</summary><div class="gu-ws-workbench-body">${evidenceForm()}<div id="reveal-panel" class="card" hidden><div class="eyebrow">Book-guided sequence</div><h2>Reveal only after you committed your read.</h2><div id="guided-sequence"></div><div class="actions"><button class="btn secondary" id="reveal-next" type="button">Reveal next guided step</button></div>${lab.dataNote?`<p class="small"><strong>Data note:</strong> ${pe(lab.dataNote)}</p>`:''}</div><section id="v014-training-slot" class="dashboard-space"></section></div></details><details id="gu-ws-reflection" class="gu-ws-workbench" hidden><summary>Review your choices and save this Lab</summary><div class="gu-ws-workbench-body">${mistakePanel()}</div></details></div>`;
  window.GroundUpLabV33WorkspaceFlow?.mount?.({mode});
  const study=orientationTeaching(lab,blind);if(study)q('gu-ws-study-source')?.insertAdjacentHTML('beforeend',study);

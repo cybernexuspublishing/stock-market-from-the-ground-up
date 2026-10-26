@@ -41,6 +41,7 @@ jobs:
           node tests/test_v32_member_reference_integrity.mjs
           node tests/test_v32_reference_route_boundary.mjs
           node tests/test_v33_production_dropdown_and_start.mjs
+          node tests/test_v33_reflection_progress_recovery.mjs
           node tests/test_lab_ux_std001.mjs
           node tests/test_v33_approved_learning_redesign.mjs
           node tests/test_lab_v33_instructor.mjs
