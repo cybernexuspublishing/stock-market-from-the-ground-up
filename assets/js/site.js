@@ -60,6 +60,13 @@ function loadRichEditor(){
 function loadOnce(src,key){if(document.querySelector('script[data-gu-correction="'+key+'"]'))return;const x=document.createElement('script');x.src=src;x.defer=true;x.setAttribute('data-gu-correction',key);document.head.append(x)}
 document.addEventListener('DOMContentLoaded',()=>{
   setYear();salesState();membershipState();loadRichEditor();
+  // Owner-directed workspace refresh is deliberately opt-in by route.
+  // Labs, players, assessments and Boot Camps retain their current layout.
+  const workspaceRoute=(location.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/');
+  if(/^(?:\/|\/index|\/dashboard|\/admin|\/store(?:-[a-z0-9-]+)?|\/product|\/membership|\/books|\/tools|\/my-books|\/my-library|\/my-purchases|\/account|\/settings|\/help|\/about)$/.test(workspaceRoute)){
+    document.body.dataset.guWorkspace=workspaceRoute==='/dashboard'?'member':workspaceRoute==='/admin'?'admin':'site';
+  }
+
   const declaredRelease=/^\d+\.\d+\.\d+\.\d+$/.test(String(cfg.VERSION||''))?'v'+cfg.VERSION:'unverified';
   for(const meta of document.querySelectorAll('meta[name="application-version"]'))meta.content=declaredRelease;
   document.body.dataset.build=declaredRelease;
