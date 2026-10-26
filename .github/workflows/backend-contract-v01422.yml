@@ -2,7 +2,27 @@ name: Backend Contract v0.14.0.22
 on:
   push:
     branches: [main]
+    paths:
+      - 'functions/api/**'
+      - 'supabase/migrations/**'
+      - 'tests/test_v01401*'
+      - 'tests/test_v01402*'
+      - 'config.js'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'scripts/build-pages.sh'
+      - '.github/workflows/backend-contract-v01422.yml'
   pull_request:
+    paths:
+      - 'functions/api/**'
+      - 'supabase/migrations/**'
+      - 'tests/test_v01401*'
+      - 'tests/test_v01402*'
+      - 'config.js'
+      - 'sw.js'
+      - 'assets/js/route-policy.js'
+      - 'scripts/build-pages.sh'
+      - '.github/workflows/backend-contract-v01422.yml'
   workflow_dispatch:
 permissions:
   contents: read
