@@ -13,6 +13,8 @@ on:
       - 'tests/test_grading_partial_credit_critical_guard.mjs'
       - 'tests/test_v014117_lab_topic_gate.mjs'
       - 'functions/api/training-editor.js'
+      - 'assets/js/training-editor.js'
+      - 'tests/test_v014_owner_grading_metadata_ui.mjs'
       - 'supabase/migrations/20261026_grading_partial_credit_critical_errors.sql'
       - 'supabase/rollbacks/20261026_grading_partial_credit_critical_errors_ROLLBACK.sql'
       - 'tests/test_v014099_curriculum_contract.mjs'
@@ -33,6 +35,8 @@ on:
       - 'tests/test_grading_partial_credit_critical_guard.mjs'
       - 'tests/test_v014117_lab_topic_gate.mjs'
       - 'functions/api/training-editor.js'
+      - 'assets/js/training-editor.js'
+      - 'tests/test_v014_owner_grading_metadata_ui.mjs'
       - 'supabase/migrations/20261026_grading_partial_credit_critical_errors.sql'
       - 'supabase/rollbacks/20261026_grading_partial_credit_critical_errors_ROLLBACK.sql'
       - 'tests/test_v014099_curriculum_contract.mjs'
@@ -69,6 +73,8 @@ jobs:
           node tests/v014_api_contracts.mjs
           node tests/test_grading_partial_credit_critical_guard.mjs
           node tests/test_v014117_lab_topic_gate.mjs
+          node tests/test_v014_owner_grading_metadata_ui.mjs
+          node --check assets/js/training-editor.js
           node --check functions/api/interactive-training.js
           node --check functions/api/competencies.js
           node --check assets/js/interactive-training.js
