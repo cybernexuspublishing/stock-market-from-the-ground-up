@@ -2,6 +2,8 @@ let allLabs = [];
 let progressMap = new Map();
 let currentUser = null;
 let labSupabase = null;
+let progressSessionEpoch = 0;
+let memberProgressAvailable = false;
 let publishedAssessments = new Set();
 let guidedBetaLabs = new Set();
 let availabilityVerified = false;
@@ -20,6 +22,7 @@ function progressControl(labId) {
       ? '<span class="small">Ungraded beta practice — submit your reflection in the Lab; official graded credit is not available</span>'
       : '<span class="small">Upcoming — progress and graded credit are unavailable</span>';
   if (!currentUser) return '<a href="account.html" class="small">Sign in to track progress</a>';
+  if (!memberProgressAvailable) return '<span class="small" role="status">Private progress unavailable — your saved status was not verified</span>';
   const status = progressMap.get(labId)?.status || 'not_started';
   return `<label class="sr-only" for="progress-${labId}">Progress for ${labId}</label>
   <select id="progress-${labId}" class="progress-select" data-lab-id="${labId}" aria-label="Progress for ${labId}">
@@ -87,7 +90,9 @@ async function saveProgress(e) {
   const select = e.currentTarget;
   const labId = select.dataset.labId;
   const status = select.value;
-  if (!labSupabase || !currentUser || !availabilityVerified || !publishedAssessments.has(labId)) return;
+  if (!labSupabase || !currentUser || !memberProgressAvailable || !availabilityVerified || !publishedAssessments.has(labId)) return;
+  const actorId = currentUser.id, epoch = progressSessionEpoch;
+  const sameMember = () => epoch === progressSessionEpoch && currentUser?.id === actorId;
 
   const previousStatus = progressMap.get(labId)?.status || 'not_started';
   const msg = document.querySelector(`[data-msg-for="${labId}"]`);
@@ -103,11 +108,11 @@ async function saveProgress(e) {
     let error = null;
 
     if (status === 'not_started') {
-      ({ error } = await labSupabase.from('lab_progress').delete().eq('user_id', currentUser.id).eq('lab_id', labId));
+      ({ error } = await labSupabase.from('lab_progress').delete().eq('user_id', actorId).eq('lab_id', labId));
       if (!error) progressMap.delete(labId);
     } else {
       const row = {
-        user_id: currentUser.id,
+        user_id: actorId,
         lab_id: labId,
         status,
         updated_at: now,
@@ -118,6 +123,7 @@ async function saveProgress(e) {
     }
 
     if (error) throw error;
+    if (!sameMember()) return; // Never write the previous member's status back into the new session's DOM.
     if (card) card.dataset.status = status;
     if (msg) {
       msg.textContent = `${statusLabel(status)} — saved`;
@@ -127,6 +133,7 @@ async function saveProgress(e) {
       window.setTimeout(filterLabs, 250);
     }
   } catch (error) {
+    if (!sameMember()) return;
     select.value = previousStatus;
     if (card) card.dataset.status = previousStatus;
     if (msg) {
@@ -134,8 +141,41 @@ async function saveProgress(e) {
       msg.classList.add('save-error');
     }
   } finally {
-    select.disabled = false;
+    if (sameMember()) select.disabled = false;
   }
+}
+
+// React to real Supabase account changes without exposing the previous member's
+// progress through hidden DOM, stale asynchronous queries or in-flight writes.
+async function loadMemberProgress(userId, epoch) {
+  try {
+    const { data, error } = await labSupabase.from('lab_progress')
+      .select('lab_id,status,completed_at,updated_at').eq('user_id', userId);
+    if (epoch !== progressSessionEpoch || currentUser?.id !== userId) return;
+    if (error || !Array.isArray(data)) throw error || Error('Private progress unavailable');
+    progressMap.clear();
+    for (const row of data) {
+      if (typeof row.lab_id === 'string' && ['in_progress','completed'].includes(row.status))
+        progressMap.set(row.lab_id, row);
+    }
+    memberProgressAvailable = true;
+  } catch {
+    if (epoch !== progressSessionEpoch || currentUser?.id !== userId) return;
+    progressMap.clear();
+    memberProgressAvailable = false; // Never replace a failed read with invented 'not started' progress.
+  } finally {
+    if (epoch === progressSessionEpoch && currentUser?.id === userId) filterLabs();
+  }
+}
+function handleMemberChange(user) {
+  const nextId = typeof user?.id === 'string' ? user.id : '';
+  if (nextId === (currentUser?.id || '')) return;
+  const epoch = ++progressSessionEpoch;
+  currentUser = nextId ? { id: nextId } : null;
+  progressMap.clear();
+  memberProgressAvailable = false;
+  filterLabs(); // Synchronously scrub prior member status from the existing DOM.
+  if (nextId) void loadMemberProgress(nextId, epoch);
 }
 
 async function initLabs() {
@@ -174,12 +214,15 @@ async function initLabs() {
   }
   labSupabase = await window.getSupabaseClient();
   if (labSupabase) {
-    const { data: { user } } = await labSupabase.auth.getUser();
-    currentUser = user;
-    if (user) {
-      const { data } = await labSupabase.from('lab_progress').select('lab_id,status,completed_at,updated_at').eq('user_id', user.id);
-      (data || []).forEach(p => progressMap.set(p.lab_id, p));
+    if (typeof labSupabase.auth?.onAuthStateChange === 'function') {
+      labSupabase.auth.onAuthStateChange((event, session) => {
+        if (['INITIAL_SESSION','SIGNED_IN','SIGNED_OUT','USER_UPDATED','TOKEN_REFRESHED'].includes(event))
+          handleMemberChange(session?.user || null);
+      });
     }
+    const initialEpoch = progressSessionEpoch;
+    const { data } = await labSupabase.auth.getUser();
+    if (initialEpoch === progressSessionEpoch) handleMemberChange(data?.user || null);
   }
 
   const params = new URLSearchParams(window.location.search);
