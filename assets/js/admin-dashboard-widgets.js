@@ -19,7 +19,55 @@ function render(data){
   for(const item of group.rows){const row=node('div',undefined,'admin-record-bar');const heading=node('div',undefined,'admin-record-bar-label');heading.append(node('span',item.label),node('strong',format(item.count)));const track=node('div',undefined,'admin-record-bar-track');const fill=node('span');fill.style.width=item.width+'%';track.append(fill);row.append(heading,track);graph.append(row)}chart.append(graph);
   const footer=node('div',undefined,'admin-widget-actions');for(const row of group.rows)footer.append(action('Open '+row.label.toLowerCase()+' ↗',row.target));chart.append(footer);charts.append(chart);
  }
- root.append(charts);
+ // Individual queue records come only from the authenticated, permission-scoped
+ // dashboard response. The snapshot timestamp is not an item creation date.
+ const queue=node('section',undefined,'admin-widget-card cc-live-work-queue');
+ queue.setAttribute('aria-label','Requires your attention');
+ queue.append(node('h2','Requires Your Attention'));
+ queue.append(node('p','Latest authorized records from existing operational tables. Select a record group to open its management workspace.','admin-widget-description'));
+ const sources=Array.isArray(data.queue)?data.queue:[];
+ if(!sources.length)queue.append(node('p',data.showcase?'Showcase account: live work items are not represented.':'No record-level sources are available for the current role or dashboard response.','admin-widget-description'));
+ for(const source of sources){
+  const section=node('section',undefined,'cc-work-source');
+  const heading=node('h3',source.category||'Operational review');
+  section.append(heading);
+  if(source.available!==true){section.append(node('p','Source unavailable — status not verified.','cc-work-unavailable'));queue.append(section);continue}
+  if(!Array.isArray(source.items)||!source.items.length){section.append(node('p','No open records returned in this category.','admin-widget-description'));queue.append(section);continue}
+  const list=node('ul',undefined,'cc-work-records');
+  for(const item of source.items){
+   const li=node('li',undefined,'cc-work-record');
+   const body=node('div',undefined,'cc-work-details');
+   body.append(node('strong',item.label||'Administrative record'));
+   const meta=node('div',undefined,'cc-work-meta');
+   meta.append(node('span',(item.severity||'review')+' · '+(item.status||'Pending')));
+   const parsedItem=new Date(item.createdAt||'');
+   if(!Number.isNaN(parsedItem.getTime())){const t=node('time',parsedItem.toLocaleString());t.dateTime=parsedItem.toISOString();meta.append(t)}
+   else meta.append(node('span','Date unavailable'));
+   body.append(meta);li.append(body);
+   const allowed=['training-review','community','users','audit','commerce','products','content'].includes(item.target);
+   if(allowed)li.append(action('Review',item.target));
+   list.append(li);
+  }
+  section.append(list);queue.append(section);
+ }
+ root.append(queue);
+ const activity=node('section',undefined,'admin-widget-card cc-recent-activity');
+ activity.append(node('h2','Administrative Activity'));
+ if(!Array.isArray(data.recentActivity))activity.append(node('p','Audit events unavailable or restricted for this account.','admin-widget-description'));
+ else if(!data.recentActivity.length)activity.append(node('p','No recorded recent administrative events.','admin-widget-description'));
+ else{
+  const entries=node('ol',undefined,'cc-activity-events');
+  for(const item of data.recentActivity){
+   const li=node('li');li.append(node('strong',item.action||'Administrative action'));
+   const desc=node('span',(item.targetType||'Record')+(item.targetId?' · '+item.targetId:''));
+   li.append(desc);
+   const parsedActivity=new Date(item.at||'');
+   if(!Number.isNaN(parsedActivity.getTime())){const t=node('time',parsedActivity.toLocaleString());t.dateTime=parsedActivity.toISOString();li.append(t)}
+   entries.append(li);
+  }
+  activity.append(entries);
+ }
+ root.append(charts,activity);
  const gadgets=node('div',undefined,'admin-widget-gadgets');
  const moderation=node('article',undefined,'admin-widget-card admin-workload');const reports=recordCount(data.openReports);moderation.append(node('div','MODERATION QUEUE','admin-widget-kicker'),node('strong',format(reports),'admin-widget-number'),node('p',reports===null?'Report count is unavailable.':reports===0?'No open reports in the current summary.':'Open reports awaiting review.','admin-widget-description'),action('Review reports ↗','community'));gadgets.append(moderation);
  const audit=node('article',undefined,'admin-widget-card');audit.append(node('div','AUDIT TRAIL','admin-widget-kicker'),node('strong',format(recordCount(data.auditEntries)),'admin-widget-number'),node('p','Recorded audit entries. This total is not a recent-activity feed.','admin-widget-description'),action('Open audit history ↗','audit'));gadgets.append(audit);
