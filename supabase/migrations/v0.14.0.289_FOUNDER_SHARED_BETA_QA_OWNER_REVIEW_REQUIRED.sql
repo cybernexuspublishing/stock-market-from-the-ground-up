@@ -73,6 +73,6 @@ BEGIN
  plan_code='LIFETIME' AND status IN ('active','trialing')
  AND (starts_at IS NULL OR starts_at<=now()) AND (ends_at IS NULL OR ends_at>now()))
  );
-END $function$
+END $function$;
 
 COMMIT;
