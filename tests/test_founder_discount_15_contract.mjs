@@ -42,3 +42,20 @@ test('founding discount audit ledger rejects deprecated 20 percent',()=>{
  assert.match(forward,/AUDIT_CONTAINS_UNRECONCILED_20PCT_ROWS/);
  assert.match(rollback,/ROLLBACK_NOT_SAFE_WHILE_ACTIVE_OR_15PCT_AUDIT_EXISTS/);
 });
+
+test('Founders Commons official policy correction uses approved 15 percent only',()=>{
+ const fix=read('supabase/migrations/20261026_founders_commons_official_15pct_correction.sql');
+ assert.match(fix,/F600_OFFICIAL_V1_02/);
+ assert.match(fix,/F600_OFFICIAL_V1_22/);
+ assert.match(fix,/purchase_discount_bps=1500/);
+ assert.match(fix,/replace\(body,'20% Extended','15% Extended'\)/);
+ assert.match(fix,/Official topic baseline mismatch/);
+ const ui=read('founders-commons.html');
+ assert.match(ui,/id="gu-f600-beta-center"/);
+ assert.match(ui,/Sitewide Beta Test Center/);
+ assert.match(ui,/report problems without including personal or payment information/i);
+ assert.match(ui,/href="market-commons\.html\?forum=F600_BUGS"/);
+ assert.match(ui,/href="dashboard\.html\?tab=support"/);
+ assert.ok(ui.indexOf('id="gu-f600-beta-center"')>ui.indexOf('id="gu-f600-content" hidden'),
+  'Beta center must be inside the founder-authenticated content container');
+});
