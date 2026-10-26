@@ -108,3 +108,47 @@ body.gu-bc-learning .academy-program-grid{
 #academy-lab-slot .gu-v33-tutor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 #academy-lab-slot .gu-v33-tutor-actions button{min-height:35px;padding:6px 9px;font-size:.79rem}
 @media(max-width:640px){#academy-lab-slot .gu-v33-instructor-narration{max-height:none}#academy-lab-slot .gu-v33-support-tablist,#academy-lab-slot .gu-v33-tutor-actions{grid-template-columns:1fr}}
+
+
+/* B01: five-day primary-source teaching, visually integrated with Academy.
+   This is formative instruction, not a separate Lab engine or graded test. */
+#academy-original-instruction{
+ min-width:0;max-width:100%;margin:clamp(16px,2vw,28px) 0;
+ padding:clamp(12px,1.8vw,24px) 0 clamp(16px,2vw,28px);
+ border-block:1px solid #416079;color:#e7f1f8;
+}
+#academy-original-instruction[hidden]{display:none!important}
+#academy-original-instruction h4{
+ margin:clamp(16px,1.5vw,24px) 0 8px;color:#f1d18a;
+ font-size:clamp(1.01rem,1.25vw,1.15rem);line-height:1.4;
+}
+#academy-original-instruction p,#academy-original-instruction li{
+ max-width:75ch;line-height:1.72;overflow-wrap:break-word;
+}
+#academy-original-instruction ol{padding-inline-start:clamp(22px,3vw,34px)}
+#academy-original-instruction li{padding-inline-start:5px;margin-block:9px}
+#academy-original-instruction label{
+ display:block;max-width:75ch;margin:14px 0 7px;
+ color:#eaf5fb;font-weight:600;line-height:1.5;
+}
+#academy-self-check-answer{
+ box-sizing:border-box;display:block;width:100%;max-width:75ch;
+ min-height:106px;padding:11px 13px;
+ color:#f7fbff;background:#0d2739;border:1px solid #7192a8;
+ border-radius:9px;line-height:1.55;resize:vertical;
+}
+#academy-self-check-answer:focus-visible,
+#academy-original-instruction button:focus-visible{
+ outline:3px solid #f4d58e;outline-offset:3px;
+}
+#academy-original-instruction button{margin-block:12px 6px;min-height:44px}
+#academy-original-instruction button:disabled{opacity:.55;cursor:not-allowed}
+#academy-original-instruction [role="status"]{max-width:75ch;line-height:1.65}
+#academy-original-instruction [role="status"]:not(:empty){
+ padding-block:10px;border-top:1px solid #44687f;
+}
+@media(max-width:670px){
+ #academy-original-instruction{padding-inline:0}
+ #academy-original-instruction h4{font-size:1.02rem}
+ #academy-self-check-answer{min-height:125px}
+}
