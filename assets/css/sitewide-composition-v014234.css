@@ -206,3 +206,6 @@ body[data-gu-workspace="site"] .gu-path-card{min-height:0;padding:24px 0;backgro
 body[data-gu-workspace="site"] .gu-path-card:hover{transform:none;border-color:var(--gu-ws-accent)}
 body[data-gu-workspace="site"] .gu-path-icon{display:none}
 body[data-gu-workspace="site"] #v1353-member-stats{border:0;border-top:1px solid var(--gu-ws-line);border-radius:0;background:transparent;box-shadow:none;padding:22px 0}
+/* The authenticated Dashboard renderer uses v13-card rather than .card.
+   Flatten those live-rendered sections as well as the static fallback. */
+body[data-gu-workspace="member"] :is(.v13-card,.dashboard-stat,.book-progress-card,.v1321-feature-group,.v1321-book),body[data-gu-workspace="admin"] .v13-card{background:transparent;border:0;border-bottom:1px solid var(--gu-ws-line);border-radius:0;box-shadow:none}
