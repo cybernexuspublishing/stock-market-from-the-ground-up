@@ -74,7 +74,7 @@ if(SAMPLES.has(id)){
  if(profiles[0]?.account_kind!=='member'||['suspended','restricted'].includes(String(flags[0]?.status||'').toLowerCase()))
   return send({ok:false,error:'An eligible member account is required for this guided sample.'},403);
 }
-const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
+const rows=await rest(env,'lab_instruction_v014?select=lab_id,book_number,content,source_status,reviewed_by,reviewed_at&lab_id=eq.'+encodeURIComponent(id)+'&limit=1'),row=rows[0];if(!row)return send({ok:false,error:'This instructional Lab has not been loaded privately.'},404);
  let premium=false;try{premium=(await toolAccess(env,request,'ONDEMAND_TRAINING')).authorized}catch{}
  // Free samples rely on account eligibility, not on an unrelated book ledger.
 // When a paid training member lacks this particular book, do not expose its
@@ -88,9 +88,13 @@ const guided=ownsBook||sample||scopedFoundingBeta||Number(row.book_number)===6&&
 if(!guided&&premium)return send({ok:false,error:'This book-authored lesson requires the matching book; use the authorized Lab orientation instead.'},404);
 if(!guided)return send({ok:false,error:'An active matching book or training entitlement is required.'},403);
  const unreviewed=String(row.source_status||'').startsWith('original_hypothetical_unreviewed_');
+ const instructionReviewed=row.source_status==='editorially_reviewed_educational_illustrative_b01_v1'&&
+  !!row.reviewed_by&&Number.isFinite(Date.parse(String(row.reviewed_at||'')));
  return send({ok:true,lab:publicGuidedLesson(row.content,row.lab_id,row.book_number),guidedAllowed:true,advancedAllowed:premium,
-  sourceStatus:scopedFoundingBeta?'founding600_authored_b01_guided_beta_ungraded':
-   unreviewed?'private_unreviewed_conceptual_orientation':'private_instruction_review_not_established',
+  sourceStatus:scopedFoundingBeta?
+   (instructionReviewed?'founding600_editorially_reviewed_b01_guided_beta':'founding600_authored_b01_guided_beta_ungraded'):
+   unreviewed?'private_unreviewed_conceptual_orientation':
+   instructionReviewed?'private_editorially_reviewed_b01_instruction':'private_instruction_review_not_established',
   foundingBetaStudy:scopedFoundingBeta,gradedCreditEligible:false,
-  instructionReviewed:false,assessmentReviewed:false});
+  instructionReviewed,assessmentReviewed:false});
 }catch(e){return send({ok:false,error:e.message||'Lab service unavailable.',...(e.code?{code:e.code}:{})},e.status||503)}}
