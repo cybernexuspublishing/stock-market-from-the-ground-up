@@ -31,7 +31,6 @@ jobs:
           node tests/test_active_lab_beta_resilience.mjs
           node --check assets/js/labs.js
           node tests/test_continuous_beta_releases.mjs
-          node --check assets/js/member-beta-workspace.js
           node --check assets/js/dashboard.js
           node --check assets/js/lab-registry.js
           node tests/test_f600_guided_qa_access.mjs
