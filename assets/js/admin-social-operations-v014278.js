@@ -101,6 +101,23 @@ function renderSection(id,host){
   card.append(links);
   panel(host,'Account status','@SMFGUAcademy · manual-only. Automatic X publishing, community joining, and engagement automation are disabled. No chargeable operations are enabled.');
  }else if(id==='accounts'){
+  const f=formCard(host,'Company social profiles','Store company handles and public profile links. Saving a handle never authenticates or connects that social account.',[
+   ['select','provider','Platform',(store.providers||[]).map(x=>[x.id,x.name])],
+   ['text','handle','Account handle or channel name'],
+   ['url','profileUrl','Official public profile URL'],
+   ['textarea','notes','Administration notes']
+  ],async z=>{
+   const payload={action:'save_account',provider:z.provider.value,handle:z.handle.value,profileUrl:z.profileUrl.value,notes:z.notes.value};
+   if(active.account)payload.id=active.account.id;
+   await call(payload);
+  });
+  f.box.append(action('New company profile',()=>{active.account=null;f.form.reset()}));
+  const profiles=panel(host,'Saved company profiles','These are records of intended profiles, not proof of a live API integration.');
+  for(const p of store.accounts||[])record(profiles,p.handle,p.provider+' · '+p.connection_status.replace(/_/g,' ')+(p.notes?' · '+p.notes:''),[
+   action('Edit',()=>{active.account=p;const z=f.f;z.provider.value=p.provider;z.handle.value=p.handle;z.profileUrl.value=p.profile_url;z.notes.value=p.notes||'';z.handle.focus()}),
+   action('Open external profile',()=>targetUrl(p.profile_url))
+  ]);
+  if(!store.accounts?.length)text(profiles,'p','No company profiles saved yet.','social-description');
   const overview=panel(host,'Platform connection directory','These are capability and connection-status records, not claims of verified account access.');
   const providers=store.providers||[];
   for(const provider of providers){
