@@ -102,8 +102,16 @@ export async function onRequest({request,env}){try{
  // Resume uses the original review version, not a rubric published since start.
  const pinned=record.set_version===set.version?set:(await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(id)+'&version=eq.'+Number(record.set_version)+'&limit=1'))[0];
  if(!pinned)throw fail('Pinned rubric version unavailable.',503);
+ // Withdrawn review state must hide pinned questions even for resumed attempts.
+ // Existing member grades stay intact in the private history route.
+ if(pinned.review_state!=='reviewed')
+  return reply({ok:false,error:'This pinned grading version is no longer reviewed. Your saved record remains preserved.'},409);
  return reply(publicState(record,pinned),record.resumed?200:201)}
- if(action==='resume'&&request.method==='GET'){const id=u.searchParams.get('id')||'';if(!uuid.test(id))throw fail('Invalid attempt ID.');const rows=await db(env,'lab_training_attempts_v014?select=id,user_id,lab_id,set_version,mode,step_index,completed_at,report&id=eq.'+esc(id)+'&user_id=eq.'+esc(acl.userId)+'&limit=1');const a=rows[0];if(!a)return reply({ok:false,error:'Attempt not found.'},404);await requireMatchingBook(env,request,a.lab_id);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(a.lab_id)+'&version=eq.'+a.set_version+'&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Training version unavailable.'},503);return reply(publicState(a,set))}
+ if(action==='resume'&&request.method==='GET'){const id=u.searchParams.get('id')||'';if(!uuid.test(id))throw fail('Invalid attempt ID.');const rows=await db(env,'lab_training_attempts_v014?select=id,user_id,lab_id,set_version,mode,step_index,completed_at,report&id=eq.'+esc(id)+'&user_id=eq.'+esc(acl.userId)+'&limit=1');const a=rows[0];if(!a)return reply({ok:false,error:'Attempt not found.'},404);await requireMatchingBook(env,request,a.lab_id);const sets=await db(env,'lab_training_sets_v014?select=lab_id,version,review_state,source_status,questions&lab_id=eq.'+esc(a.lab_id)+'&version=eq.'+a.set_version+'&limit=1');const set=sets[0];if(!set)return reply({ok:false,error:'Training version unavailable.'},503);
+ // Do not reveal questions or old answer-bearing reports after editorial withdrawal.
+ if(set.review_state!=='reviewed')
+  return reply({ok:false,error:'This pinned training version is no longer reviewed. Prior completed results remain in your private progress record.'},409);
+ return reply(publicState(a,set))}
  if(action==='answer'&&request.method==='POST'){const b=await request.json().catch(()=>null),id=String(b?.attemptId||''),answer=String(b?.answer??'').trim();
  if(!uuid.test(id)||!answer||answer.length>600||!Number.isSafeInteger(b?.expectedStep)||b.expectedStep<0)throw fail('Attempt, current step, and response are required.');
  const attempts=await db(env,'lab_training_attempts_v014?select=lab_id&user_id=eq.'+esc(acl.userId)+'&id=eq.'+esc(id)+'&limit=1');if(!attempts[0])throw fail('Attempt not found.',404);await requireMatchingBook(env,request,attempts[0].lab_id);const r=await db(env,'rpc/v014_training_answer','POST',{p_actor:acl.userId,p_attempt:id,p_answer:answer,p_expected_step:b.expectedStep});if(!r?.ok)throw fail('Answer could not be evaluated.',503);
