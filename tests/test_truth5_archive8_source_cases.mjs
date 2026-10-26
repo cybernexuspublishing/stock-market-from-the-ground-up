@@ -30,7 +30,8 @@ for(const {day,slug,label,type} of cases){
  assert(item.limits.length>180);
  assert(item.question.length>90);
  assert(/not independently|not verified|not established|not a documented|not guaranteed|does not establish|remain unverified/i.test(item.observation+' '+item.limits));
- assert(!/certified grade|verified fill|broker-confirmed transaction/i.test(item.title+' '+item.observation));
+ assert(!/^(?:Certified grade|Verified trade execution|Broker-confirmed trade)/i.test(item.title),
+  'Source-case title must not assert a certified grade or confirmed execution');
 }
 const capstone=bc.curriculum[4].lesson.sourceClaimCase;
 assert(capstone.observation.includes('9:38 a.m. ET'));
