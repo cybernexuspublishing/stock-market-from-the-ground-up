@@ -1,0 +1,29 @@
+/* Shared Lab terminal finish. Paint only: the approved workstation geometry,
+   chart viewBoxes, teaching controls and reveal boundaries remain authoritative. */
+body[data-gu-lab-skin="graphite"]{--gu-lab-bg:#060d17;--gu-lab-panel:#0e1b2b;--gu-lab-deep:#091421;--gu-lab-line:#2a4054;--gu-lab-text:#e7f0f6;--gu-lab-muted:#a4bacb;--gu-lab-accent:#82d7e1;--gu-lab-primary:#145d64}
+html:root body[data-gu-lab-skin="graphite"]{background:radial-gradient(ellipse at 75% 0,#163c4a66,transparent 65%),#060d17!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app>.shell{background:#0b1624!important;border-color:#345064!important;box-shadow:0 18px 65px #0006,inset 0 1px 0 #b2e7eb12}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app :is(.banner,.prototype-bar,.toolbar){background:linear-gradient(110deg,#122b38,#0c1929)!important;border-color:#314a5b!important;box-shadow:inset 0 1px 0 #d6f0ff08}
+body[data-gu-lab-skin="graphite"].gu-lab-member #gu-v32-teaching-slot :is(.gu-v33-setup,.gu-v40-start-preview){background:linear-gradient(130deg,#132c3b,#101d2d)!important;border-color:#3a5968!important;box-shadow:inset 0 1px 0 #d6f0ff0c}
+body[data-gu-lab-skin="graphite"] #gu-v32-teaching-slot :is(.gu-l33-graphic,.gu-v33-exact-visual .chart-shell,.gu-v32-synthetic-replay .chart-shell){background:#091521!important;border-color:#355062!important;box-shadow:inset 0 1px 0 #cbeaf00c,0 10px 30px #0002}
+body[data-gu-lab-skin="graphite"] :is(.chart-shell,.chart-area,.gu-l33-chart,.gu-l33-single,.gu-l33-tape,.gu-l33-depth,.gu-l33-routing){background:#08131f!important;border-color:#2a4054!important}
+body[data-gu-lab-skin="graphite"] :is(.chart-data,.gu-l33-chart-reference,.gu-v36-price-reference,.gu-l33-detail,.gu-l33-metrics){background:linear-gradient(145deg,#112333,#0c1926)!important;border-color:#304a5d!important;color:#e7f0f6!important;box-shadow:inset 0 1px 0 #c8ecff08}
+body[data-gu-lab-skin="graphite"] :is(.chart-head,.gu-l33-head){background:#0e2130!important;border-color:#304a5d!important;color:#d9eaf2!important}
+body[data-gu-lab-skin="graphite"] :is(.ohlc-row,.gu-l33-reference-row){border-color:#263e50!important}
+body[data-gu-lab-skin="graphite"] :is(.ohlc-row strong,.gu-l33-reference-row dd,.gu-l33-metrics strong){color:#b5eef1!important}
+body[data-gu-lab-skin="graphite"] :is(.gu-l33-source,.gu-l33-reference-note,.chart-legend,.gu-l33-legend){color:#adc2d2!important}
+body[data-gu-lab-skin="graphite"] :is(.gu-l33-badge,.chart-head .badge){background:#132e32!important;color:#9ae8d1!important;border-color:#37665f!important}
+body[data-gu-lab-skin="graphite"] .gu-l33-tape :is(th,td),body[data-gu-lab-skin="graphite"] .gu-l33-depth :is(th,td){border-color:#283f50!important}
+body[data-gu-lab-skin="graphite"] .gu-l33-buy{color:#6ce0b4!important}
+body[data-gu-lab-skin="graphite"] .gu-l33-sell{color:#ff9caa!important}
+body[data-gu-lab-skin="graphite"] :is(button.primary,.btn:not(.secondary):not(.danger)){background:linear-gradient(110deg,#17646b,#214d66)!important;border-color:#62afb7!important;box-shadow:inset 0 1px 0 #d8ffff1a;color:#f3ffff!important}
+/* Cover both the production journey and alternate member-player journey. */
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .journey{background:#0b1826!important;border-color:#2b4356!important}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .stage-item{border-color:transparent!important;color:#a5bdcf;background:transparent}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .stage-item.current{background:radial-gradient(ellipse at center,#3b9baa26,transparent 75%)!important;color:#d7fbff!important;border-color:transparent!important;box-shadow:inset 0 -2px 0 #78d9de}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .stage-item .bullet{background:#3c566b;border-radius:50%;box-shadow:0 0 0 3px #0c1928,0 0 0 4px #49697d66}
+body[data-gu-lab-skin="graphite"].gu-lab-member #app .stage-item.current .bullet{background:#a1f1ed;box-shadow:0 0 0 4px #1f4653,0 0 16px #78d9de80}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"]{--gu-lab-bg:#f4f7fb;--gu-lab-panel:#fff;--gu-lab-deep:#edf3f8;--gu-lab-text:#19394e;--gu-lab-muted:#4b6475}
+html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"].gu-lab-member #app :is(.shell,.banner,.prototype-bar,.toolbar,.journey),html[data-gu-design="premium-light"] body[data-gu-lab-skin="graphite"] #gu-v32-teaching-slot :is(.gu-v33-setup,.gu-v40-start-preview){background:#edf3f8!important;color:#19394e!important}
+/* Financial charts deliberately retain a dark plot in either site theme. */
+@media(forced-colors:active){body[data-gu-lab-skin="graphite"] #app :is(.stage-item,.chart-data,.gu-l33-chart-reference){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;box-shadow:none!important}}

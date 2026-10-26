@@ -1,0 +1,11 @@
+# Lab terminal displays — 2026-10-26
+
+Requirement: improve Lab chart/display quality and address ineffective styling while preserving the approved workstation layout (Master design, learning, accessibility and provenance requirements; LAB-UX-STD-001).
+
+Baseline: e79ef2fa on main. Existing primary player uses shared subject-aware SVGs and chronological replay. Alternate lab-v32-member.html omitted the Lab skin. Existing skin had layered purple panels; native chart renderers retained older palettes. A missing alternate entrypoint is an observed coverage defect, not proof of the cause on the owner's particular screen.
+
+Implementation: shared paint-only terminal stylesheet across registry, primary/embedded player, site-lab route and alternate member player; explicit asset revisions; cohesive dark navy/cyan/green financial display surfaces; native SVG palette/grid update in three existing renderers; separate volume backdrop and last-visible-close guide for illustrative sequential plots. No raster chart substitutes, third-party dependencies or paid services. Price guide uses the last already-visible illustrative bar. Current OHLCV data, candle coordinates, stage slicing, table values, interactions, permissions, grading and historical provenance remain unchanged. No database/API/payment changes. Existing conditional visual selection is retained: abstract subjects are not given invented price history. This is a shared presentation upgrade, not acceptance of all 419 historical charts.
+
+Checks: terminal SVG test parses 12 rendered plots with XML parser and compares visible candle geometry/identifiers to baseline; existing chart calculations (2), universal journey (6), 419 registry/visual selection, chart/Tutor integration, workstation layout, focused workspace and skin preservation checks passed. JS syntax and Pages build passed. Live primary Lab route was inspected but redirects the unauthenticated browser to sign-in; authenticated visual, mobile and accessibility acceptance remain unverified. Do not report this release as complete sitewide redesign or verified historical chart coverage.
+
+Rollback: revert this commit; no data rollback or migration needed. Restore previous chart files and HTML asset references together.

@@ -69,13 +69,13 @@ function meta(root,type,note){
 function candleSVG({o=31,hv=32.5,l=30.5,c=32}={}){
  const high=Math.max(hv,o,c),low=Math.min(l,o,c),scale=v=>238-(v-low)/Math.max(.01,high-low)*167;
  const direction=c>o?'bullish':c<o?'bearish':'doji';
- const col=direction==='bullish'?'#57d5a5':direction==='bearish'?'#f38b96':'#bed1de';
- const bodyFill=direction==='bullish'?'#1f896b':direction==='bearish'?'#a3465a':'#668093';
+ const col=direction==='bullish'?'#53e2b0':direction==='bearish'?'#ff8394':'#bed1de';
+ const bodyFill=direction==='bullish'?'#159b79':direction==='bearish'?'#bf4f69':'#668093';
  const bodyTop=Math.min(scale(o),scale(c)),bodyHeight=Math.max(3,Math.abs(scale(o)-scale(c)));
  const key=[['HIGH',high],['OPEN',o],['CLOSE',c],['LOW',low]];
  return '<svg viewBox="0 0 670 295" role="img" aria-label="Illustrative '+direction+' candlestick with labeled open high low close, body and full range">'+
- '<rect width="670" height="295" rx="12" fill="#10283c"/>'+
- [60,103,146,189,232].map(y=>'<line x1="24" x2="642" y1="'+y+'" y2="'+y+'" stroke="#284964" stroke-dasharray="4 7"/>').join('')+
+ '<rect width="670" height="295" rx="12" fill="#08131f"/>'+
+ [60,103,146,189,232].map(y=>'<line x1="24" x2="642" y1="'+y+'" y2="'+y+'" stroke="#203244" stroke-width="0.7"/>').join('')+
  '<line data-candle-feature="range" x1="115" x2="115" y1="71" y2="238" stroke="#e7ba68" stroke-width="5"/>'+
  '<line x1="101" x2="129" y1="71" y2="71" stroke="#e7ba68" stroke-width="4"/>'+
  '<line x1="101" x2="129" y1="238" y2="238" stroke="#e7ba68" stroke-width="4"/>'+
@@ -227,17 +227,19 @@ function chart(type,stage,variant){
  const n=(stage===3?5:stage===7?7:8),bars=CANDLES.slice(0,n),low=9.5,high=10.85;
  const x=i=>77+i*83,yy=v=>252-(v-low)/(high-low)*192,points=[],weighted=[],ema9=[],ema20=[];let dollars=0,shares=0,e9=bars[0][3],e20=bars[0][3];
  bars.forEach((b,i)=>{const [op,h,l,c,v]=b;dollars+=c*v;shares+=v;e9=i?e9+(2/10)*(c-e9):c;e20=i?e20+(2/21)*(c-e20):c;weighted.push([x(i),yy(dollars/shares)]);ema9.push([x(i),yy(e9)]);ema20.push([x(i),yy(e20)]);points.push([x(i),yy(c)]);});
- const draw=bars.map((b,i)=>{const [op,h,l,c,v]=b,asc=c>=op,col=asc?'#53cba2':'#f18c99',q=x(i);return '<g data-candle-index="'+i+'" data-candle-time="'+(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2))+'" tabindex="0" role="button" aria-label="Inspect candle at '+(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2))+'"><rect class="gu-l33-selected-candle" x="'+(q-23)+'" y="33" width="46" height="313" rx="5" fill="#edc45a" fill-opacity=".17" stroke="#edc45a" stroke-width="2" visibility="hidden"/><line x1="'+q+'" x2="'+q+'" y1="'+yy(h)+'" y2="'+yy(l)+'" stroke="'+col+'" stroke-width="3"/><rect x="'+(q-13)+'" y="'+Math.min(yy(op),yy(c))+'" width="26" height="'+Math.max(3,Math.abs(yy(op)-yy(c)))+'" fill="'+(asc?'#238967':'#b45261')+'" stroke="'+col+'" stroke-width="2"/></g>';}).join('');
- const vol=bars.map((b,i)=>'<rect data-volume-index="'+i+'" x="'+(x(i)-13)+'" y="'+(343-b[4]/500*70)+'" width="26" height="'+(b[4]/500*70)+'" fill="#527dad"/>').join('');
+ const draw=bars.map((b,i)=>{const [op,h,l,c,v]=b,asc=c>=op,col=asc?'#53e2b0':'#ff8394',q=x(i);return '<g data-candle-index="'+i+'" data-candle-time="'+(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2))+'" tabindex="0" role="button" aria-label="Inspect candle at '+(('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2))+'"><rect class="gu-l33-selected-candle" x="'+(q-23)+'" y="33" width="46" height="313" rx="5" fill="#edc45a" fill-opacity=".17" stroke="#edc45a" stroke-width="2" visibility="hidden"/><line x1="'+q+'" x2="'+q+'" y1="'+yy(h)+'" y2="'+yy(l)+'" stroke="'+col+'" stroke-width="3"/><rect x="'+(q-13)+'" y="'+Math.min(yy(op),yy(c))+'" width="26" height="'+Math.max(3,Math.abs(yy(op)-yy(c)))+'" fill="'+(asc?'#159b79':'#bf4f69')+'" stroke="'+col+'" stroke-width="2"/></g>';}).join('');
+ const vol=bars.map((b,i)=>'<rect data-volume-index="'+i+'" x="'+(x(i)-13)+'" y="'+(343-b[4]/500*70)+'" width="26" height="'+(b[4]/500*70)+'" fill="#367b9e"/>').join('');
  let overlays='';
- if(type==='vwap')overlays='<path d="'+path(weighted)+'" fill="none" stroke="#f0bd67" stroke-width="3.5"/>';
- if(type==='ema')overlays='<path d="'+path(ema9)+'" fill="none" stroke="#f0bd67" stroke-width="3"/><path d="'+path(ema20)+'" fill="none" stroke="#80bcef" stroke-width="3"/>';
+ if(type==='vwap')overlays='<path d="'+path(weighted)+'" fill="none" stroke="#e5c27e" stroke-width="3.5"/>';
+ if(type==='ema')overlays='<path d="'+path(ema9)+'" fill="none" stroke="#e5c27e" stroke-width="3"/><path d="'+path(ema20)+'" fill="none" stroke="#80bcef" stroke-width="3"/>';
  if(type==='structure')overlays='<line x1="45" x2="756" y1="'+yy(10.49)+'" y2="'+yy(10.49)+'" stroke="#e0ba76" stroke-dasharray="8 6" stroke-width="2"/><text x="470" y="'+(yy(10.49)-8)+'" fill="#eed5a1" font-size="15">Illustrative reference level</text>';
  const labels=bars.map((b,i)=>'<text data-time-index="'+i+'" x="'+x(i)+'" y="370" text-anchor="middle" fill="#bed2e1" font-size="13">'+('0'+Math.floor((570+5*i)/60)).slice(-2)+':'+('0'+((570+5*i)%60)).slice(-2)+'</text>').join('');
  const svg='<svg viewBox="0 0 820 395" role="img" aria-label="Illustrative sequential '+type+' illustration with '+bars.length+' completed candles and corresponding blue volume bars">'+
- '<rect width="820" height="395" rx="10" fill="#10283c"/>'+
- [9.6,10,10.4,10.8].map(y=>'<line x1="38" x2="780" y1="'+yy(y)+'" y2="'+yy(y)+'" stroke="#29445d" stroke-dasharray="4 6"/><text x="4" y="'+(yy(y)+5)+'" fill="#bdcedd" font-size="13">'+usd(y)+'</text>').join('')+
+ '<rect width="820" height="395" rx="10" fill="#08131f"/>'+
+ [9.6,10,10.4,10.8].map(y=>'<line x1="38" x2="780" y1="'+yy(y)+'" y2="'+yy(y)+'" stroke="#203244" stroke-width="0.7"/><text x="4" y="'+(yy(y)+5)+'" fill="#bdcedd" font-size="13">'+usd(y)+'</text>').join('')+
+ '<rect x="38" y="266" width="742" height="80" fill="#0c1c2b"/>'+bars.map((b,i)=>'<line x1="'+x(i)+'" x2="'+x(i)+'" y1="36" y2="346" stroke="#172938" stroke-width="0.6"/>').join('')+
  '<line x1="38" x2="780" y1="260" y2="260" stroke="#35536c"/>'+draw+overlays+vol+labels+
+ '<line x1="38" x2="780" y1="'+yy(bars.at(-1)[3])+'" y2="'+yy(bars.at(-1)[3])+'" stroke="#86cbd7" stroke-opacity=".45" stroke-dasharray="2 5"/><text x="773" y="'+(yy(bars.at(-1)[3])-6)+'" text-anchor="end" fill="#b7edf2" font-size="12">LAST '+usd(bars.at(-1)[3])+'</text><text x="47" y="281" fill="#8ba9bf" font-size="11">VOLUME</text>'+
  '<text x="38" y="390" fill="#b5cddd" font-size="13">5-minute illustrative intervals · volume shown below candles</text></svg>';
  const graphic=h('div','gu-l33-chart');graphic.innerHTML=svg;
  // Preserve the owner-approved reference's chart and aligned OHLCV side panel.
@@ -260,7 +262,7 @@ function chart(type,stage,variant){
   'Illustrative running VWAP uses completed bar close × share volume; it is not trade-level VWAP.':
   'All values belong to a illustrative completed candle, not the book’s historical ticker.', 'gu-l33-reference-note'));
  layout.append(graphic,side);root.append(layout);
- const legend=h('div','gu-l33-legend');const entries=[['#53cba2','Rising candle'],['#f18c99','Falling candle'],['#527dad','Volume']];if(type==='vwap')entries.push(['#f0bd67','Weighted illustration']);if(type==='ema')entries.push(['#f0bd67','EMA9'],['#80bcef','EMA20']);if(type==='structure')entries.push(['#e0ba76','Reference level']);
+ const legend=h('div','gu-l33-legend');const entries=[['#53e2b0','Rising candle'],['#ff8394','Falling candle'],['#367b9e','Volume']];if(type==='vwap')entries.push(['#e5c27e','Weighted illustration']);if(type==='ema')entries.push(['#e5c27e','EMA9'],['#80bcef','EMA20']);if(type==='structure')entries.push(['#e0ba76','Reference level']);
  for(const [col,lbl] of entries){const e=h('span');const dot=h('i');dot.style.background=col;e.append(dot,document.createTextNode(lbl));legend.append(e)}root.append(legend);
  const table=h('details','gu-l33-detail');table.append(text('summary','View completed-candle OHLCV values'));
  const tab=h('table');tab.innerHTML='<caption>Illustrative completed intervals only</caption><thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Shares</th></tr></thead>';
