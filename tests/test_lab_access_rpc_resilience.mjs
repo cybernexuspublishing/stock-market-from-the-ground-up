@@ -9,6 +9,8 @@ globalThis.fetch=async(url,init={})=>{
  if(s.endsWith('/auth/v1/user'))return json({id:user});
  if(s.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(s.includes('/admin_user_flags?'))return json([{status:'active'}]);
+ // Authenticated Lab content now verifies effective staff/showcase roles before book access.
+ if(s.includes('/admin_user_roles?'))return json([]);
  if(s.includes('/user_library?'))return json([{product_code:'FOUNDATION_BOOK_1',expires_at:null}]);
  if(s.includes('/book_key_redemptions?')||s.includes('/user_plan_grants?')||s.includes('/site_subscriptions?'))return json({code:'MISSING_JOIN'},503);
  if(s.includes('/rpc/user_has_tool_access'))return json({code:'PGRST202'},404);
