@@ -159,7 +159,7 @@ function metric(data,actor){
   else if(!Number.isSafeInteger(x)||x<0||x>1000000000)throw err('Metric '+key+' must be a nonnegative integer.');
   else result[key]=x;
  }
- if(Object.values(result).every(x=>x===null))throw err('At least one metric is required.');
+ if(['views','likes','replies','reposts','link_clicks'].every(k=>result[k]===null))throw err('At least one metric is required.');
  return result;
 }
 export async function onRequest({request,env}){
@@ -181,7 +181,7 @@ export async function onRequest({request,env}){
    saved=await save(c,tables.posts,actor,data,{
     status:'manual_recorded',external_url:xStatus(data.externalUrl),version:expected+1,
     updated_at:new Date().toISOString()
-   },{requireVersion:false});
+   },{requireVersion:true});
   }else if(data.action==='save_community'){
    saved=await save(c,tables.communities,actor,data,community(data));
   }else if(data.action==='save_campaign'){
