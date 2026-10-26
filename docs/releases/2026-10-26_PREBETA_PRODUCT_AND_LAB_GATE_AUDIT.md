@@ -89,3 +89,15 @@ Commits for this work include the guarded Store migration, rollback, SQL read-on
 **Next authoritatively ordered gate:** Complete and independently review Truth5 plus exact B01 twenty authored Labs first. Then undertake Gate 2 Watchlist7 + B02. Never start B02 merely because B01 structural tests pass. When all seven programs and 336 selected Labs have individual acceptance and real Founding 600 tests, run one consolidated Owner acceptance and record its genuine GO/NO-GO result.
 
 **Document footer:** Internal engineering acceptance evidence only; not legal or investment advice; no attorney, third-party market-data or human QA certification implied.
+
+## Owner override: keep guided practice available (October 26, 2026)
+
+The Owner rejected treating pending release acceptance as a stop-work order or a reason to withhold otherwise usable guided practice. This decision supersedes the preceding blanket practice-opening restriction while keeping existing authentication, privacy, grading and LIVE-payment safety rules.
+
+**IMPLEMENTED on main:** The existing Lab release-availability endpoint now returns original authored B01 ungraded `guidedBetaIds` separately from formally approved `publishedIds`. Only Labs in the selected 336, with active registry status, exact original authored B01 metadata and substantive study steps qualify. The UI opens those lessons with an explicit ungraded beta practice label; progress and official reviewed assessments retain their own authorization. There are no new public answer-key or private lesson responses.
+
+**PROVEN read-only source evidence:** Production Supabase contains 20 matching authored B01 private lessons (15 Book I, five Book II) with meaningful study structure, and 74 additional private instructional rows without that authored-batch evidence. The separate content API still enforces normal authenticated matching book/tool access. The 83 intentionally Upcoming Labs remain unavailable for Start.
+
+**IMPLEMENTED test:** Existing beta publication regression now checks original authored guided practice, exclusion of the 83, nonpublication of private lesson details, and refusal to award unreviewed graded progress. CI and authentic member runtime tests remain pending; no source test is being called a production proof.
+
+**Owner technical disposition:** Do not stop development or founder guided testing while rubric/editorial approval is pending. Preserve the separate official reviewed assessment gate and keep LIVE Stripe payment switches disabled. No member data or credentials changed.
