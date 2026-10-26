@@ -40,6 +40,56 @@ function statusClass(status) {
   return 'activity-neutral';
 }
 
+async function renderFreeFoundationEvidence(sb,memberId) {
+ const status=document.getElementById('free-next-detail');
+ if(!status)return;
+ try{
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session||session.user?.id!==memberId)throw Error('Sign in to continue.');
+  const response=await fetch('/api/bootcamp-academy?program=free5',{
+   method:'GET',headers:{authorization:'Bearer '+session.access_token},
+   credentials:'same-origin',cache:'no-store'
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||data.ok!==true||data.program?.code!=='free5'||
+   !Array.isArray(data.curriculum)||data.curriculum.length!==5||
+   data.progressAvailable!==true||!Array.isArray(data.progress))
+   throw Error('Free study progress could not be verified.');
+  // Late replies for a previously signed-in member must never be shown.
+  const identity=await sb.auth.getUser();
+  if(identity.data?.user?.id!==memberId)return;
+  const byDay=new Map(data.progress.map(row=>[row.day,row]));
+  if(byDay.size!==data.progress.length||
+   data.progress.some(row=>!Number.isInteger(row.day)||row.day<1||row.day>5||
+     !['in_progress','reflection_saved'].includes(row.status)))
+   throw Error('Invalid private study evidence.');
+  const saved=Array.from(byDay.values()).filter(row=>row.status==='reflection_saved');
+  const next=data.curriculum.find(day=>byDay.get(day.day)?.status!=='reflection_saved')||
+   data.curriculum[4];
+  if(!next||!Number.isInteger(next.day)||next.day<1||next.day>5)
+   throw Error('Free curriculum revision mismatch.');
+  setText('free-next-detail',saved.length===5?
+   'You saved all five ungraded reflections. Review your final no-trade and source-check lesson before advanced independent assessment.':
+   'Day '+next.day+' of 5 — '+next.title+'. '+next.objective);
+  const link=document.getElementById('free-next-action');
+  if(link){
+   link.href='bootcamp-academy.html?program=free5&day='+next.day;
+   link.textContent=saved.length===5?'Review Free Foundations':'Continue Free lesson '+next.day;
+  }
+  setText('free-reflection-progress',saved.length+' of 5 private study reflections saved. Practice evidence only; no official mastery awarded.');
+  const domainDays={knowledge:[1,3],recognition:[2],decision:[4],process:[5]};
+  for(const [domain,days] of Object.entries(domainDays)){
+   const practice=days.filter(day=>byDay.get(day)?.status==='reflection_saved').length;
+   setText('free-skill-'+domain,practice+
+    ' / '+days.length+' guided reflections · Not Yet Assessed');
+  }
+ }catch{
+  setText('free-next-detail','We could not verify your private Free Foundations progress. You can still read the lessons; no saved work is being assumed.');
+  for(const name of ['knowledge','recognition','decision','process'])
+   setText('free-skill-'+name,'Not Yet Assessed');
+ }
+}
+
 async function renderFreeLearningDashboard(sb) {
  const panel=document.getElementById('free-learning-launchpad');
  if(!panel)return;
@@ -158,7 +208,10 @@ async function initDashboard() {
   }
 
   setText('labs-completed', completedSet.size);
-  if (!active.length) void renderFreeLearningDashboard(sb);
+  if (!active.length) {
+   void renderFreeLearningDashboard(sb);
+   void renderFreeFoundationEvidence(sb,user.id);
+  }
   setText('labs-in-progress', inProgressSet.size);
   setText('labs-not-started', notStartedCount);
   setText('overall-progress', `${pct(completedSet.size, labs.length)}%`);
