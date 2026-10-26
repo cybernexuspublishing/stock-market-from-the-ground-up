@@ -3,6 +3,7 @@
  * publish book text, unapproved answer keys, chart history or future bars.
  */
 import {memberIdentity} from './member-tool-access.js';
+import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
 import {getBookCodeAccess} from './lab-content.js';
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',
@@ -48,6 +49,7 @@ export async function onRequest({request,env}){
   // must not lose Guided orientation merely because premium RPC is unavailable.
   stage='AUTH';
   const actor=await memberIdentity(env,request);
+  if(!isBetaCandidateLab(id))return reply({ok:false,error:'This Lab is upcoming and is not released for beta learning.'},404);
   stage='REGISTRY';
   const lab=await read(env,id);
   if(!lab||lab.active!==true||lab.registry_visible!==true||!BOOKS[lab.book_code])
