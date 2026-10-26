@@ -110,10 +110,13 @@ async function product(c,kind,code){const key=kind+':'+code;if(!products.has(key
  const isPlan=kind==='plan', path=isPlan?`platform_plans?select=*&plan_code=eq.${code}&limit=1`:`platform_tools?select=*&tool_code=eq.${code}&limit=1`;
  const r=(await db(c,path))[0];
 // Public Store visibility controls discovery, never payment authorization.
-// Both canonical plans and tools now have their own checkout_enabled flag in
-// production Supabase; a hidden SKU is purchasable ONLY after explicit Owner
-// checkout authorization, active status, verified price and all LIVE gates.
-if(!r||r.active!==true||r.checkout_enabled!==true||
+// Plans always require checkout_enabled=true. Tools honor the new canonical
+// Owner checkout_enabled flag when present; older deployments without that
+// column retain their historical status='live' gate until migrated. Current
+// production has the column, so a false toggle is authoritative and blocks.
+if(!r||r.active!==true||
+   (isPlan&&r.checkout_enabled!==true)||
+   (!isPlan&&r.checkout_enabled===false)||
    (!isPlan&&r.status!=='live'))throw err('This product is not enabled for checkout.',403);
  const amount=Number(isPlan?r.price_cents:r.individual_price_cents),bill=isPlan?r.billing_interval:'month';
  if(!Number.isSafeInteger(amount)||amount<1||!['month','year','lifetime'].includes(bill))throw err('Invalid catalog price.',503);
