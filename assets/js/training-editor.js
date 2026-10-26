@@ -38,7 +38,7 @@ function renderTopicReviewWarning(set){
   !/^Which study objective is appropriate BEFORE acting/i.test(String(set.questions[1].prompt))&&
   !/^For this ".+" exercise/i.test(String(set.questions[3].prompt));
  el.textContent=isB01?(b01Ready?
-  'B01 draft quality precheck: six individualized question shapes detected. NOT APPROVED. Before each Owner review, read every answer and misconception, verify calculations and source limits, check keyboard guidance, and confirm the Lab's exact topic. This is conceptual education, not verified historical trading evidence.':
+  'B01 draft quality precheck: six individualized question shapes detected. NOT APPROVED. Before each Owner review, read every answer and misconception, verify calculations and source limits, check keyboard guidance, and confirm the specific Lab topic. This is conceptual education, not verified historical trading evidence.':
   'B01 REVIEW BLOCKED: All six questions must be individual to the Lab, with a fictional numeric example, distinct choices, explanations and both application/limitation cases.'):
   isV96?(application?
   'An added topic application question is present. Independently verify its answer, teaching feedback, dataset rights, and the specific Lab concept before approving.':
