@@ -33,7 +33,7 @@ async function init(){const root=document.querySelector('#v135-books');if(!root)
     btn.textContent=fmt?'Download '+fmt.toUpperCase():'Download eBook';
     const msg=document.createElement('p');msg.setAttribute('role','status');btn.onclick=async()=>{btn.disabled=true;msg.textContent='Checking your access and preparing a secure download…';
      try{const {data:{session}}=await sb.auth.getSession();if(!session)throw Error('Sign in required.');
-      const r=await fetch('/api/digital-book-download-v01430',{method:'POST',cache:'no-store',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},body:JSON.stringify({code:book.code})});
+      const r=await fetch('/api/digital-book-download-v01430',{method:'POST',cache:'no-store',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},body:JSON.stringify(fmt?{code:book.code,format:fmt}:{code:book.code})});
       const d=await r.json();if(!r.ok||!d.ok||!d.url)throw Error(d.error||'Download unavailable.');
       const url=new URL(d.url);if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co'))throw Error('Unsafe download destination.');
       msg.textContent='Opening your secure download…';window.location.assign(url.href);
