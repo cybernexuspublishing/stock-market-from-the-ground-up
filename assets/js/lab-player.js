@@ -131,11 +131,25 @@ function collectDecision(){return {structure:q('ev-structure')?.value.trim()||''
 function processScore(a){const items=[a.structure,a.location,a.volume,a.invalidation,a.decision,a.confidence,a.notes];return Math.round(items.filter(v=>v!==''&&v!==0).length/items.length*100)}
 function processBreakdown(a){return {structure:!!a.structure,location:!!a.location,volume_context:!!a.volume,invalidation:!!a.invalidation,decision:!!a.decision,confidence:!!a.confidence,reasoning:!!a.notes}}
 function renderGuidance(){const lab=PLAYER.lab;const target=q('guided-sequence');if(!target)return;const max=Math.min(PLAYER.revealIndex,lab.practiceSteps.length);target.innerHTML=lab.practiceSteps.slice(0,max).map((s,i)=>`<div class="guided-step"><span>${i+1}</span><p>${pe(s)}</p></div>`).join('');const b=q('reveal-next');if(b){if(max>=lab.practiceSteps.length){b.textContent='All guidance revealed';b.disabled=true}else b.textContent=`Reveal guided step ${max+1}`}}
+function sourceReferencePanel(lab){
+ const links=Array.isArray(lab?.sourceLinks)?lab.sourceLinks.slice(0,3):[];
+ const safe=links.filter(value=>{
+  try{const u=new URL(value);
+   return u.protocol==='https:'&&!u.username&&!u.password&&
+    ['investor.gov','www.investor.gov','sec.gov','www.sec.gov','nyse.com','www.nyse.com']
+      .includes(u.hostname.toLowerCase());
+  }catch{return false;}
+ });
+ if(!safe.length)return '';
+ return '<h3>Research and verification sources</h3>'+
+  '<p class="small">These official educational references explain the subject. They do not verify a fictional chart, an individual execution or historical price data.</p>'+
+  '<ul>'+safe.map((url,i)=>'<li><a href="'+pe(url)+'" rel="noopener noreferrer" target="_blank">Official source '+(i+1)+'</a></li>').join('')+'</ul>';
+}
 function orientationTeaching(lab,blind){
  const t=lab.teaching;if(blind||!t||![t.what,t.why,t.when].some(Boolean))return '';
  const paragraph=(label,value)=>value?`<p><strong>${label}:</strong> ${pe(value)}</p>`:'';
  const questions=Array.isArray(t.questions)?t.questions.slice(0,5):[];
- return `<section class="card" aria-label="Lab-specific conceptual teaching"><div class="eyebrow">Original conceptual study</div><h2>Understand this Lab</h2><p class="small">These are the existing canonical study notes for this Lab. They are not a reviewed answer key or verified historical record. The guided steps remain hidden until you lock your decision.</p>${paragraph('What',t.what)}${paragraph('Why',t.why)}${paragraph('When to use it',t.when)}${questions.length?`<h3>Questions to consider</h3><ol>${questions.map(x=>`<li>${pe(x)}</li>`).join('')}</ol>`:''}</section>`;
+ return `<section class="card" aria-label="Lab-specific conceptual teaching"><div class="eyebrow">Original conceptual study</div><h2>Understand this Lab</h2><p class="small">These are the existing canonical study notes for this Lab. They are not a reviewed answer key or verified historical record. The guided steps remain hidden until you lock your decision.</p>${paragraph('What',t.what)}${paragraph('Why',t.why)}${paragraph('When to use it',t.when)}${paragraph('Worked example — FICTIONAL educational case',lab.workedExample)}${sourceReferencePanel(lab)}${questions.length?`<h3>Questions to consider</h3><ol>${questions.map(x=>`<li>${pe(x)}</li>`).join('')}</ol>`:''}</section>`;
 }
 function lockDecision(){const a=collectDecision();if(!a.decision||!a.confidence){q('decision-msg').textContent='Choose a decision and confidence level before locking your answer.';q('decision-msg').className='inline-status error';return}PLAYER.locked=true;syncPlayerMode();document.querySelectorAll('.decision-card textarea,.decision-card select').forEach(el=>el.disabled=true);q('lock-decision').disabled=true;q('decision-msg').textContent=`Decision locked. Process completeness: ${processScore(a)}%. This score measures whether you documented the process, not whether a trade outcome was profitable.`;q('decision-msg').className='inline-status success';if(PLAYER.mode==='blind'){q('player-title').textContent=PLAYER.lab.concept;const study=orientationTeaching(PLAYER.lab,false);if(study)q('gu-ws-study-source')?.insertAdjacentHTML('beforeend',study);void attachFoundationsCurriculum(PLAYER.lab.id)}q('reveal-panel').hidden=PLAYER.mode!=='guided';if(q('complete-attempt'))q('complete-attempt').disabled=PLAYER.mode==='assessment';PLAYER.revealIndex=PLAYER.mode==='guided'?1:0;renderGuidance();const assessmentBox=q('v014-training-slot');if(assessmentBox){const launchedLab=PLAYER.lab.id,launchedMode=PLAYER.mode,launchedBox=assessmentBox;window.GroundUpInteractiveTraining?.begin(launchedLab,launchedMode,assessmentBox).then(available=>{if(PLAYER.lab?.id!==launchedLab||PLAYER.mode!==launchedMode||q('v014-training-slot')!==launchedBox)return;if(!available&&PLAYER.mode!=='assessment')q('reveal-panel').hidden=false;if(!available&&PLAYER.mode==='assessment'){q('decision-msg').textContent='Assessment scoring is unavailable without a reviewed question bank. You may still practice in Guided Mode; completion is not graded.';}})}
  if(typeof CustomEvent==='function')document.dispatchEvent(new CustomEvent('gu-v33-decision-locked'));
