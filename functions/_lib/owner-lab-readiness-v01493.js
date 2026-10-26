@@ -30,6 +30,15 @@ function substantivePrivateInstruction(row){
   nonempty(body.why)&&body.why.trim().length>=50&&
   Array.isArray(steps)&&steps.length>=3&&steps.every(x=>nonempty(x)&&x.trim().length>=12);
 }
+function individualizedB01Draft(row){
+ const b=row?.content;
+ return row?.source_status==='original_hypothetical_unreviewed_v01496'&&
+  b?.lessonBatch==='2026-10-25-B01'&&
+  b?.authoringStatus==='ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED'&&
+  nonempty(b.concept)&&nonempty(b.objective)&&
+  nonempty(b.workedExample)&&b.workedExample.startsWith('FICTIONAL:')&&
+  Array.isArray(b.steps)&&b.steps.length>=4&&b.steps.every(nonempty);
+}
 function originalSimulation(l,d){
  return !!d&&d.dataset_code==='GUSIM_'+l.lab_id.replaceAll('-','_')&&
   d.status==='published'&&d.dataset_type==='ohlcv'&&d.ticker==='SIMULATION'&&
@@ -48,18 +57,20 @@ export function classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets}
   if(!Array.isArray(rows)||rows.length>=1000)throw new Error('Lab audit response is incomplete or malformed; pagination review required.');
  const byInstruction=new Set(instructions.map(x=>x.lab_id));
  const substantivePrivate=new Set(instructions.filter(substantivePrivateInstruction).map(x=>x.lab_id));
+ const b01Drafts=new Set(instructions.filter(individualizedB01Draft).map(x=>x.lab_id));
  const byAuthored=new Set(labs.filter(x=>substantiveInstruction(x.metadata)).map(x=>x.lab_id));
  const drafted=new Set(rubrics.filter(x=>x.review_state==='draft').map(x=>x.lab_id));
  const reviewed=new Set(rubrics.filter(eligibleRubric).map(x=>x.lab_id));
  const data=new Map(datasets.map(x=>[x.dataset_code,x]));
  const context=new Set(envelopes.filter(x=>eligibleContext(x,data.get(x.dataset_code))).map(x=>x.lab_id));
- const seen=new Set(),breakdown={privateInstructions:0,existingDetailedNarratives:0,originalDraftRubrics:0,reviewedRubrics:0,originalSimulationReady:0,independentlyVerifiedHistoricalContext:0,substantivePrivateLessonPrechecks:0};
+ const seen=new Set(),breakdown={privateInstructions:0,existingDetailedNarratives:0,originalDraftRubrics:0,reviewedRubrics:0,originalSimulationReady:0,independentlyVerifiedHistoricalContext:0,substantivePrivateLessonPrechecks:0,individualizedB01Drafts:0};
  const counts={DISABLED:0,MISSING_PRIVATE_LESSON:0,MISSING_REVIEWED_GRADING:0,MISSING_LICENSED_HISTORICAL_CONTEXT:0,CONTENT_PRECHECK_ONLY_QA_REQUIRED:0};
  const rows=labs.map(l=>{
   if(!nonempty(l.lab_id)||seen.has(l.lab_id))throw new Error('Duplicate or invalid Lab IDs.');seen.add(l.lab_id);
-  const hasInstruction=byInstruction.has(l.lab_id),hasSubstantivePrivate=substantivePrivate.has(l.lab_id),hasNarrative=byAuthored.has(l.lab_id),hasDraft=drafted.has(l.lab_id),hasReview=reviewed.has(l.lab_id),hasHistorical=context.has(l.lab_id);
+  const hasInstruction=byInstruction.has(l.lab_id),hasB01Draft=b01Drafts.has(l.lab_id),hasSubstantivePrivate=substantivePrivate.has(l.lab_id),hasNarrative=byAuthored.has(l.lab_id),hasDraft=drafted.has(l.lab_id),hasReview=reviewed.has(l.lab_id),hasHistorical=context.has(l.lab_id);
   const synthetic=originalSimulation(l,data.get('GUSIM_'+l.lab_id.replaceAll('-','_')));
   if(hasInstruction)breakdown.privateInstructions++;
+  if(hasB01Draft)breakdown.individualizedB01Drafts++;
   if(hasSubstantivePrivate)breakdown.substantivePrivateLessonPrechecks++;
   if(hasNarrative)breakdown.existingDetailedNarratives++;
   if(hasDraft)breakdown.originalDraftRubrics++;
@@ -71,7 +82,7 @@ export function classifyOwnerLabs({labs,instructions,rubrics,envelopes,datasets}
   counts[stage]++;
   return {id:l.lab_id,title:l.title||'Untitled — editorial review required',ticker:l.ticker||null,
     historicalDate:l.historical_date||null,stage,
-    instructionRecordPresent:hasInstruction,substantivePrivateLessonPrecheck:hasSubstantivePrivate,authoredNarrativePresent:hasNarrative,
+    instructionRecordPresent:hasInstruction,individualizedB01DraftPresent:hasB01Draft,substantivePrivateLessonPrecheck:hasSubstantivePrivate,authoredNarrativePresent:hasNarrative,
     privateDraftRubricPresent:hasDraft,reviewedRubricPresent:hasReview,
     originalSimulationAvailable:synthetic,
     verifiedLicensedContextPresent:hasHistorical,certifiedComplete:false};

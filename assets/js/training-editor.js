@@ -22,7 +22,19 @@ function renderTopicReviewWarning(set){
  const application=Array.isArray(set.questions)&&set.questions.some(q=>
   !V96_SEED_IDS.has(String(q?.id||''))&&
   String(q?.prompt||'').trim().length>=80&&String(q?.explanation||'').trim().length>=120);
- el.textContent=isV96?(application?
+ const isB01=source.startsWith('original_hypothetical_b01_');
+ const b01Cases=Array.isArray(set.questions)&&
+  [['B01_APPLICATION',80,70],['B01_LIMITATION',40,55]].every(([id,pMin,eMin])=>{
+   const q=set.questions.find(x=>x?.id===id);
+   return q?.kind==='choice'&&String(q.prompt||'').trim().length>=pMin&&
+    String(q.explanation||'').trim().length>=eMin&&
+    Array.isArray(q.options)&&q.options.length===3&&
+    new Set(q.options.map(x=>String(x).trim().toLowerCase())).size===3;
+  });
+ el.textContent=isB01?(b01Cases?
+  'B01 case drafts are present. Independently inspect their answer keys, source evidence, distractors, ambiguity, limitations and concept alignment before explicit Owner approval. No historical market evidence is certified.':
+  'B01 REVIEW BLOCKED: Both distinct topic-specific application and limitation questions need complete evidence and explanations.'):
+  isV96?(application?
   'An added topic application question is present. Independently verify its answer, teaching feedback, dataset rights, and the specific Lab concept before approving.':
   'TOPIC-SPECIFIC QUESTION REQUIRED: Original v96 arithmetic/study-method scaffolding is not an adequate subject assessment. Add one new question (new ID, 80+ character prompt, 120+ character explanation) and save the revised draft before review.'):
   'Review the chosen rubric against this Lab objective and available evidence. No reviewed rubric alone verifies historical market tape.';

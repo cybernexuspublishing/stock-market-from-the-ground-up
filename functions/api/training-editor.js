@@ -31,11 +31,28 @@ const validLab=x=>/^[A-Za-z0-9_-]{3,90}$/.test(str(x));
 // additional topic question before Owner can approve a v96-origin rubric.
 const V96_SEED_QUESTION_IDS=new Set(['EVIDENCE','FOCUS','ORIGINAL_MATH','BOUNDARY']);
 function isUnamendedV96Rubric(set){
- return str(set.source_status).startsWith('original_hypothetical_unreviewed_v01496') &&
- !Array.isArray(set.questions)?true:
- (str(set.source_status).startsWith('original_hypothetical_unreviewed_v01496') &&
- !set.questions.some(q=>!V96_SEED_QUESTION_IDS.has(str(q?.id)) &&
-  str(q?.prompt).length>=80 && str(q?.explanation).length>=120));
+ const source=str(set.source_status);
+ if(source.startsWith('original_hypothetical_b01_')){
+  const qs=set.questions,keys=set.answer_key;
+  if(!Array.isArray(qs)||qs.length!==6||!keys||typeof keys!=='object')return true;
+  const ids=qs.map(q=>str(q?.id));
+  if(new Set(ids).size!==6||
+   ![...V96_SEED_QUESTION_IDS,'B01_APPLICATION','B01_LIMITATION'].every(id=>ids.includes(id)))return true;
+  for(const [id,minPrompt,minExplanation] of [['B01_APPLICATION',80,70],['B01_LIMITATION',40,55]]){
+   const q=qs.find(x=>x?.id===id);
+   if(!q||q.kind!=='choice'||str(q.prompt).length<minPrompt||
+    str(q.explanation).length<minExplanation||
+    !Array.isArray(q.options)||q.options.length!==3||
+    q.options.some(v=>typeof v!=='string'||!v.trim()))return true;
+   const options=q.options.map(v=>v.trim().toLowerCase());
+   if(new Set(options).size!==3||options.filter(v=>v===str(keys[id]).toLowerCase()).length!==1)return true;
+  }
+  return false;
+ }
+ if(!source.startsWith('original_hypothetical_unreviewed_v01496'))return false;
+ return !Array.isArray(set.questions)||!set.questions.some(q=>
+  !V96_SEED_QUESTION_IDS.has(str(q?.id))&&
+  str(q?.prompt).length>=80&&str(q?.explanation).length>=120);
 }
 function validate(qs,answers){if(!Array.isArray(qs)||qs.length<1||qs.length>40||!answers||typeof answers!=='object'||Array.isArray(answers))throw problem('Provide 1–40 questions and an answer for each.');const ids=new Set();for(const q of qs){if(!/^[A-Za-z][A-Za-z0-9_]{1,40}$/.test(str(q.id))||ids.has(q.id)||!['choice','number'].includes(q.kind)||str(q.prompt).length<12||str(q.prompt).length>1000||str(q.explanation).length<15||str(q.explanation).length>1600)throw problem('Invalid question, answer explanation, or duplicate ID.');ids.add(q.id);if(q.kind==='choice'&&(!Array.isArray(q.options)||q.options.length<2||q.options.length>7||!q.options.every(x=>typeof x==='string'&&x.length<100)))throw problem('Choice questions require 2–7 clear options.');const a=answers[q.id];if(a===undefined||a===null||String(a).length>200)throw problem('Missing answer key for '+q.id);if(q.kind==='choice'&&!q.options.some(x=>String(x).toUpperCase()===String(a).toUpperCase()))throw problem('Choice answer must be among its options.');if(q.kind==='number'&&(!Number.isFinite(Number(a))||!Number.isFinite(Number(q.tolerance))||Number(q.tolerance)<0||Number(q.tolerance)>1000))throw problem('Invalid numeric answer or tolerance.')}if(Object.keys(answers).length!==qs.length)throw problem('Every answer key must match exactly one question.');}
 export async function onRequest({request,env}){try{const actor=await owner(env,request),u=new URL(request.url),action=u.searchParams.get('action')||'list';
@@ -74,6 +91,6 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
  if(action==='review'){const version=Number(b.version);if(!Number.isSafeInteger(version)||b.confirmPhrase!=='REVIEW BOOK RUBRIC')throw problem('Explicit Owner rubric review required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+version+'&limit=1'),set=rows[0];if(!set)return out({ok:false,error:'Rubric not found.'},404);if(set.review_state!=='draft')throw problem('Only draft versions can be approved.');
  validate(set.questions,set.answer_key);
  if(isUnamendedV96Rubric(set))throw problem(
- 'Original v96 four-question generic arithmetic templates do not validate this Lab topic. Independently author at least one NEW question (new ID, 80+ character prompt and 120+ character teaching explanation), save the draft and verify its actual subject alignment before Owner review.',409);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft','PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric review not confirmed.',503);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
+ 'Original hypothetical grading drafts require individual topic-specific evidence and subject review. Batch B01 requires both complete application and limitation questions before the Owner approves this exact rubric.',409);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft','PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric review not confirmed.',503);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
  return out({ok:false,error:'Unknown action.'},404);
 }catch(e){return out({ok:false,error:e.message||'Instruction management unavailable.'},e.status||500)}}

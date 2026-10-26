@@ -138,6 +138,7 @@ async function loadLabAudit(force=false){
   const breakdown='Author-created draft rubrics: '+(d.originalDraftRubrics??'unverified')+
    ' · Existing detailed narratives: '+(d.existingDetailedNarratives??'unverified')+
    ' · Private instructional records (including drafts): '+(d.privateInstructions??'unverified')+
+   ' · Individually authored B01 conceptual drafts (NOT reviewed): '+(d.individualizedB01Drafts??'unverified')+
    ' · Substantive private lesson shape prechecks (NOT editorial approval): '+(d.substantivePrivateLessonPrechecks??'unverified')+
    ' · Original fictional replay datasets: '+(d.originalSimulationReady??'unverified')+
    ' · Reviewed rubrics: '+(d.reviewedRubrics??'unverified')+

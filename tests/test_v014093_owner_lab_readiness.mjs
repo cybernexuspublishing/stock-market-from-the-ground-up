@@ -39,6 +39,18 @@ assert.equal(draftOnly.rows[1].instructionRecordPresent,true);
 assert.equal(draftOnly.rows[1].substantivePrivateLessonPrecheck,false);
 assert.equal(draftOnly.rows[1].stage,'MISSING_PRIVATE_LESSON',
  'Generic preloaded instructional scaffolds must not count as complete teaching');
+const b01Only=classifyOwnerLabs({labs,instructions:[
+ {lab_id:'LAB_B',source_status:'original_hypothetical_unreviewed_v01496',
+  content:{lessonBatch:'2026-10-25-B01',authoringStatus:'ORIGINAL_AUTHORED_EDUCATIONAL_DRAFT_NOT_EDITORIALLY_OR_GRADING_ACCEPTED',
+   concept:'Original replay setup',objective:'Demonstrate chronological observation discipline',
+   workedExample:'FICTIONAL: Stop at a specified bar and record only the visible information.',
+   steps:['Choose a verified source','Document the time zone','Freeze the visible bars','State a no-trade alternative']}},
+ ...instructions.slice(1)
+],rubrics,envelopes,datasets});
+assert.equal(b01Only.breakdown.individualizedB01Drafts,1);
+assert.equal(b01Only.rows[1].individualizedB01DraftPresent,true);
+assert.equal(b01Only.rows[1].substantivePrivateLessonPrecheck,false);
+assert.equal(b01Only.rows[1].certifiedComplete,false);
 const emptyOnly=classifyOwnerLabs({labs,instructions:[
  {lab_id:'LAB_B',source_status:'book_authored_unverified_market',content:{}},
  ...instructions.slice(1)
