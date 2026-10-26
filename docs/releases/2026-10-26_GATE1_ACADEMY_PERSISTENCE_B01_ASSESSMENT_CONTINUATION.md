@@ -69,3 +69,10 @@ All schema changes additive; no historical SQL replay, private source/answer pub
 
 ## Revision history
 2026-10-26 / v1.0 — Real progress QA probe with explicit CAPTCHA failure, dedicated test+CI, B01 private answer-shape assessment, append-only audit migration and live security postflight, honest release disposition.
+
+## Postflight CI closure — 2026-10-26 16:45 UTC
+The first expanded workflow [40361762402](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40361762402) **failed in a new test assertion**, not the product: it matched the plain-English safety warning `never DROP or TRUNCATE` in rollback *comments* as if it were destructive executable SQL. Source fix `ff3a5f5e55352da7d16e46be29301e3f23fc528c` strips SQL comment lines before inspecting rollback statements, retaining the same destructive-operation bans.
+
+The exact-source replacement [Academy Protected Persistence Contract run 40362088439](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40362088439) completed **SUCCESS**. Its seven nonprovider test scripts and the new audit-schema guard all passed, including the actual Academy handler with simulated external dependencies, cross-account isolation, protected grading/Owner review flows and append-only audit safety. These are **TESTED**, not live member write acceptance.
+
+Supabase postflight returned **PASS** for RLS and both active audit triggers, which is **PROVEN database configuration**. The live persistence workflow 40360013544 remains correctly **BLOCKED AT AUTH** because the independent GoTrue password grant received `captcha_failed` after CAPTCHA protections were re-enabled. No durable user reflection or grade was created by these tests. Owner-approved future genuine member session testing must verify the real event insertion and reload before elevating that feature to Production Member Tested.
