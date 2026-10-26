@@ -33,7 +33,10 @@ try{
  }else{
   const key=String(data.error_code||data.code||'');
   const classification=['invalid_credentials','email_not_confirmed','captcha_failed'].includes(key)?key:'AUTH_REJECTED';
-  console.error('FAIL QA authentication: HTTP '+response.status+' classification '+classification+'. Check that the QA account is confirmed and the Secrets contain its email and password.');
+  console.error('FAIL QA authentication: HTTP '+response.status+' classification '+classification+'. '+(
+    classification==='captcha_failed'
+      ?'Supabase Turnstile requires an original one-time human challenge token. This standalone API password grant cannot provide one and MUST NOT be used to infer a wrong password. Verify the Yahoo master widget/GoTrue secret privately, then run an interactive signed-in browser member test.'
+      :'Check dedicated QA account status and authentication provider diagnostics without changing credentials or disabling CAPTCHA.'));
   failure=true;
  }
 }catch{console.error('FAIL QA authentication could not reach Supabase Auth.');failure=true}
