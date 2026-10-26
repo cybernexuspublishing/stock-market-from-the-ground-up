@@ -1,4 +1,5 @@
-import {isBetaCandidateLab} from '../_lib/lab-beta-scope-v014286.js';
+import {isBetaCandidateLab,isBetaUpcomingLab} from '../_lib/lab-beta-scope-v014286.js';
+import {SITE_BETA_BATCH,SITE_BETA_STATUS} from '../_lib/site-exclusive-private-lesson-v014294.js';
 /* Public Lab availability: reveal ONLY published Lab IDs; never serve grading
  * questions, answer keys, private lessons, member data, or implementation secrets.
  * Registry visibility does not imply an approved member assessment.
@@ -28,7 +29,7 @@ export async function onRequest({request,env}){
   // listing of an ID, or an unfinished draft, does not grant beta assessment.
   const [catalog,lessons,approved]=await Promise.all([
    rows(env,'platform_labs','lab_id,active,registry_visible,what:metadata->>what,why:metadata->>why,objective:metadata->>objective,how:metadata->how','',700),
-   rows(env,'lab_instruction_v014','lab_id,source_status,reviewed_by,reviewed_at,concept:content->>concept,objective:content->>objective,why:content->>why,steps:content->steps','',700),
+   rows(env,'lab_instruction_v014','lab_id,book_number,source_status,reviewed_by,reviewed_at,concept:content->>concept,objective:content->>objective,why:content->>why,steps:content->steps,lesson_batch:content->>lessonBatch,example_type:content->>exampleType,sources:content->sourceURLs','',700),
    rows(env,'lab_training_sets_v014','lab_id,review_state,reviewed_at,reviewed_by',
         '&review_state=eq.reviewed&reviewed_at=not.is.null&reviewed_by=not.is.null',1500)
   ]);
@@ -58,6 +59,16 @@ export async function onRequest({request,env}){
    typeof r.objective==='string'&&r.objective.trim().length>=20&&
    Array.isArray(r.how)&&r.how.length>=3)
    .map(r=>r.lab_id));
+  const authoredSite=new Set(lessons.filter(r=>
+    allowed.has(r.lab_id)&&isBetaUpcomingLab(r.lab_id)&&
+    r.book_number===6&&r.source_status===SITE_BETA_STATUS&&
+    r.lesson_batch===SITE_BETA_BATCH&&r.example_type==='ORIGINAL_FICTIONAL_EDUCATIONAL'&&
+    typeof r.concept==='string'&&r.concept.trim().length>25&&
+    typeof r.objective==='string'&&r.objective.trim().length>25&&
+    Array.isArray(r.steps)&&r.steps.length===9&&r.steps.every(x=>typeof x==='string'&&x.length>=40)&&
+    Array.isArray(r.sources)&&r.sources.length>0&&r.sources.every(u=>typeof u==='string'&&
+      /^https:\/\/(?:www\.)?(?:investor\.gov|sec\.gov|nyse\.com)\//i.test(u)))
+   .map(r=>r.lab_id));
   const reviewedLesson=new Set(lessons.filter(r=>
    /^(editorially_reviewed|owner_reviewed)(?:_|$)/i.test(String(r.source_status||''))&&
    typeof r.reviewed_by==='string'&&r.reviewed_by.length>0&&
@@ -71,10 +82,10 @@ export async function onRequest({request,env}){
   // official grade credit from the guided list; let the protected grading
   // API independently confirm the signed/reviewed bank.
   const published=new Set(ids);
-  const guidedBetaIds=[...new Set([...authoredPrivate,...canonicalTeaching]
-   .filter(id=>allowed.has(id)&&isBetaCandidateLab(id)&&!published.has(id)))].sort();
+  const guidedBetaIds=[...new Set([...authoredPrivate,...canonicalTeaching,...authoredSite]
+   .filter(id=>allowed.has(id)&&(isBetaCandidateLab(id)||isBetaUpcomingLab(id))&&!published.has(id)))].sort();
   return reply({ok:true,publishedIds:ids,guidedBetaIds,guidedBetaTestingOpen:guidedBetaIds.length>0,memberEntitlementRequired:true,scope:'approved_beta_candidate_with_editorially_reviewed_lesson_and_reviewed_assessment',
-   guidedBetaPolicy:'ungraded_existing_private_or_canonical_teaching_no_mastery',betaReadyCertified:false});
+   guidedBetaPolicy:'ungraded_existing_private_canonical_or_site_original_teaching_no_mastery',betaReadyCertified:false});
  }catch{
   return reply({ok:false,error:'Lab availability cannot be verified. No unreleased Lab should be started.'},503);
  }
