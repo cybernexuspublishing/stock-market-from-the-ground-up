@@ -280,7 +280,7 @@ export async function onRequest(context){
           'platform.css','production.css','frontend-complete.css',
           'production-completion.css','dashboard.css',
           'frontend-freeze.css','polish.css','mobile-auth.css','learning.css','layout-integrity.css'
-        ])el.append('<link rel="stylesheet" href="/assets/css/'+file+'">',{html:true});
+        ])el.append('<link rel="stylesheet" href="/assets/css/'+file+(file==='layout-integrity.css'?'?v=graphics-20261026':'')+'">',{html:true});
         // Preserve application stack. New auth boundary owns final visibility, staff authorization, and logout.
         for(const file of [
           'navigation.js','production.js',
