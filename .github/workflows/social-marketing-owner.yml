@@ -8,11 +8,13 @@ on:
       - 'supabase/migrations/v0.14.0.277_social_audit_rowtype_repair.sql'
       - 'supabase/migrations/v0.14.0.278_social_campaign_content_queue_metrics.sql'
       - 'functions/api/admin-social.js'
+      - 'functions/_lib/social-provider-capabilities-v014279.mjs'
       - 'assets/js/admin-social-zero-cost.js'
       - 'assets/js/admin-social-operations-v014278.js'
       - 'assets/css/admin-social-zero-cost.css'
       - 'assets/js/admin-marketing-workspace.js'
       - 'tests/test_admin_social_zero_cost.mjs'
+      - 'tests/test_social_provider_capabilities.mjs'
       - '.github/workflows/social-marketing-owner.yml'
 permissions:
   contents: read
@@ -32,6 +34,7 @@ jobs:
           node --check assets/js/admin-social-operations-v014278.js
           node --check assets/js/admin-marketing-workspace.js
           node --test tests/test_admin_social_zero_cost.mjs
+          node --test tests/test_social_provider_capabilities.mjs
       - name: Confirm existing Ads controls and route unaffected
         run: |
           node --test tests/test_ad_sales_security_v014231.mjs
