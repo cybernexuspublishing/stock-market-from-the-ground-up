@@ -150,7 +150,8 @@ export async function onRequest({request,env}){try{
   try{
    const rec=await db(env,'rpc/gu_v014105_sync_reviewed_knowledge','POST',
     {p_actor:acl.userId,p_attempt:id});
-   knowledgeSync=rec?.ok===true?'reviewed_knowledge_only':'mapping_not_yet_approved';
+   knowledgeSync=rec?.ok===true?'reviewed_knowledge_only':
+    rec?.reason==='critical_error_unresolved'?'critical_error_requires_retest':'mapping_not_yet_approved';
   }catch{knowledgeSync='optional_mapping_unavailable'}
  }
  // A completed grade is immutable; filter every returned field, including
