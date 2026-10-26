@@ -132,3 +132,57 @@
 - P1 `docs/CAPABILITIES_AND_GAPS.md` contains obsolete planning claims and historical product states; the current main branch plus per-item evidence ledger supersede old proposals. Never reconcile by deleting historical release documents.
 
 **Gate sign-off:** Research audit and original application-content increments **IMPLEMENTED**. Source/browser tests subject to exact-head CI confirmation; external-source claims independently qualified. Actual signed-in Gate 0, protected grading, and each individual's editorial/production Beta Ready state remain **BLOCKED**.
+
+
+## Gate 1 continuation — new B01 protected draft cases (October 26, 2026)
+
+### Applied roles
+Curriculum architect, market-structure subject specialist, assessment author, private database engineer, frontend instructor engineer, and browser QA reviewer.
+
+### Updated Gate 0 prerequisite
+The Owner explicitly confirmed that account login and human CAPTCHA now operate correctly. Accept that **user-reported operating status**, discontinue repetitive CAPTCHA troubleshooting, and proceed with Gate 1. This report is not a replay of the Owner's authenticated session, and no independently observed signed-in learner save/resume trace has yet been provided. Further Gate 1 acceptance therefore remains evidence-gated.
+
+### Private individualized assessment authoring
+- The **twenty same IDs** and `lessonBatch='2026-10-25-B01'` were checked transactionally before write.
+- One new **version 97 draft** was added to each existing Lab's protected `lab_training_sets_v014`. Each version contains the four unchanged generic v96 questions plus **two original concept-specific questions**, one applied hypothetical case and one evidence/limitation diagnostic, totaling **six** for each Lab and **40 new individual questions** overall.
+- A single constrained transaction verified all 20 new records, exact question count, required private key IDs, and `reviewed_by` / `reviewed_at` null before commit. Read-only Supabase postflight independently showed **20/20 v97 drafts with six questions and both key IDs present; 0 reviewed sets**. Each correct choice is stored in existing service-role-only protected grading data, not written into the public GitHub repository.
+- New `source_status='original_hypothetical_b01_individual_review_pending_v01497'`; `review_state='draft'`, NOT published or graded. The original v96 records, all earlier grading versions, member attempts and snapshots are preserved. The existing API offers reviewed versions only; new questions are **not** offered for assessment until independent QA and editorial acceptance.
+- No additional canonical Lab IDs, teaching engine, competency definitions, market feeds, payment objects, or production-grading approvals were created.
+- Each of these independently written application and limitation items needs human/independent subject review, option ambiguity checks, learner correct/incorrect/partial/invalid test cases, entitlement security and real production member grading proof before Beta Ready.
+
+### Existing Boot Camp 1 progress improvement
+- `assets/js/bootcamp-academy-v014168.js`: after a learner writes an answer to the established **ungraded** self-check, a button **Add reasoning to my private reflection** allows explicit copying into the existing stored-reflection draft, without changing program status or auto-saving. A clearly worded notice tells members to enroll and select Save Reflection. Oversized and duplicate insertions are rejected, and the existing private reflection is preserved on append.
+- On account change, the prior member's unsaved teaching inputs are removed from the DOM alongside the established stored-reflection clearing. The original private Academy API, versioned revision checking, progress table, protected grading service and canonical 30-day competency records remain authoritative.
+- `tests/test_v014168_academy_browser.mjs` was updated for the copied-to-reflection flow, no implicit backend save, save/resume through the existing mock member API, and the cleared self-check DOM after account change. **Passing local/CI fixtures remain TESTED, not real-member PROVEN.**
+- Code commits: [explicit copy](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/commit/b522fdfc13d482e7b81ec2f62e6f07698253b5a4), [newline and account switching](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/commit/13ff2528e7ab2a361d55b500fd8d218b9b310e08), [browser regression](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/commit/a3856168e6d2075e72cfd2df0b1413f507b0fcf5).
+
+### B01 per-item authoring progression (individual production acceptance not inferred)
+| Canonical Lab ID | Topic of new independent case | Verified source and review status |
+|---|---|---|
+| `F1-C02-L01` | Replay completion boundary | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C02-L02` | Independent no-hindsight replay | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C04-L01` | Secondary share transactions | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C06-L01` | Candles versus inferred motives | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C07-L01` | Common equity ownership | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C07-L02` | Index versus ETF exposure | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C08-L01` | Large-company market cap | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C08-L02` | Small-company market cap and split | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C08-L03` | Quoted spread and available liquidity | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C09-L01` | Account-specific buying limits | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C10-L01` | Long-position mark and cost | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C10-L02` | Short exposure and unbounded risk | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C12-L01` | Credible sources versus trade suitability | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C13-L01` | Scalping horizon versus overnight | Authored (draft), v97 6 questions; editorial/production pending |
+| `F1-C13-L02` | Style, approach, setup and context | Authored (draft), v97 6 questions; editorial/production pending |
+| `F2-C01-L01` | Equity market sessions in ET | Authored (draft), v97 6 questions; editorial/production pending |
+| `F2-C02-L01` | Opening versus midday volume | Authored (draft), v97 6 questions; editorial/production pending |
+| `F2-C02-L02` | Midday versus afternoon range | Authored (draft), v97 6 questions; editorial/production pending |
+| `F2-C02-L03` | Late quote versus closing auction | Authored (draft), v97 6 questions; editorial/production pending |
+| `F2-C03-L01` | Regular-close versus after-hours print | Authored (draft), v97 6 questions; editorial/production pending |
+
+### Release decision
+- **IMPLEMENTED**: Five original truth5 daily lessons and 20 Lab private instructional drafts already present; 40 additional specific v97 protected draft assessment items; learner-initiated reflection-copy UI with member-switch privacy cleanup; new browser assertions.
+- **TESTED**: Database postflight 20/20 private v97 rows and key-field presence; GitHub browser fixtures require actual CI success evidence before asserting a pass.
+- **PROVEN**: The new private DB draft rows exist. This does not prove editorial correctness, learner experience, protected grading execution, or production member persistence.
+- **BLOCKED / carried forward**: Independent editorial review for each of twenty, true production member progress and access, reviewed version activation, real graded attempts, and complete mobile/keyboard/screen reader acceptance.
+- **No advancement**: Keep `truth5` and B01 open. Do not start B02 or a second Boot Camp until Gate 1 passes on real-member evidence. Keep LIVE Stripe untouched.
