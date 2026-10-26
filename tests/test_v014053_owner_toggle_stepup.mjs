@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-const text=readFileSync(new URL('../functions/api/gu39-sandbox.js',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(text).toString('base64'));
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const url='https://example.com/api/gu39-sandbox';
 const headers={origin:'https://example.com',authorization:'Bearer mock-owner', 'content-type':'application/json'};
 const env={
