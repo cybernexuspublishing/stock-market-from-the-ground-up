@@ -30,8 +30,11 @@ function scoreBar(score,label){
  fill.style.width=score+'%';wrap.append(fill);return wrap;
 }
 function draw(target,labId,data){
- const recorded=(Array.isArray(data?.latestByLab)?data.latestByLab:[]).find(
+ const latest=(Array.isArray(data?.latestByLab)?data.latestByLab:[]).find(
   entry=>entry.labId===labId&&rowFor(entry));
+ const recorded=(Array.isArray(data?.latestAssessmentByLab)?data.latestAssessmentByLab:[]).find(
+  entry=>entry.labId===labId&&entry.mode==='assessment'&&rowFor(entry))||
+  (latest?.mode==='assessment'?latest:null);
  const recent=(Array.isArray(data?.recentCompleted)?data.recentCompleted:[])
   .filter(entry=>entry.labId===labId&&rowFor(entry)).slice(0,8);
  const shell=elem('section',undefined,'gu-v33-grade-report');
@@ -39,14 +42,18 @@ function draw(target,labId,data){
  shell.append(elem('h3','Your Recorded Assessment Results'));
  if(recorded){
   const label=elem('p',undefined,'gu-v33-grade-main');
-  label.append(elem('strong',recorded.score+'%'),document.createTextNode(' · Latest recorded conceptual assessment'));
+  label.append(elem('strong',recorded.score+'%'),document.createTextNode(' · Latest recorded Assessment-mode conceptual score'));
   shell.append(label,scoreBar(recorded.score,'Latest server-graded assessment score out of 100'));
   const scale=elem('div',undefined,'gu-v33-grade-ticks');
   for(const tick of [0,25,50,75,100])scale.append(elem('span',tick+'%'));
   shell.append(scale);
-  shell.append(elem('p','This is the score from a completed, reviewed conceptual assessment. It is not a probability of profitable trading, a historical replay score, or a competency certification.','gu-v33-grade-explainer'));
+  shell.append(elem('p','This is the recorded score from an Assessment-mode conceptual exercise with a reviewed rubric. It does not establish unassisted performance, profitable trading, historical replay skill, or competency certification.','gu-v33-grade-explainer'));
  }else{
-  shell.append(elem('p','Not Yet Assessed — no eligible completed server-graded assessment is recorded for this Lab.','gu-v33-grade-status'));
+  shell.append(elem('p','Not Yet Assessed — no completed Assessment-mode conceptual score is recorded for this Lab.','gu-v33-grade-status'));
+ }
+ if(latest&&latest.mode!=='assessment'){
+  const label=({guided:'Guided',practice:'Practice',blind:'Blind'})[latest.mode]||'Learning';
+  shell.append(elem('p','Latest scored '+label+' activity: '+latest.score+'%. This is learning/practice evidence, not an Assessment-mode score.','gu-v33-grade-explainer'));
  }
  shell.append(elem('h4','Four evidence dimensions'));
  const grid=elem('div',undefined,'gu-v33-grade-dimensions');
