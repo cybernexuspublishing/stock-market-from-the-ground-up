@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-// Real Cloudflare module in a dependency-free Node mock. Never connects to Stripe.
-const source=readFileSync(new URL('../functions/api/gu39-sandbox.js',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const endpoint='https://example.com/api/gu39-sandbox?view=readiness';
 const owner='11111111-1111-4111-8111-111111111111';
 const PRICE_KEYS=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
