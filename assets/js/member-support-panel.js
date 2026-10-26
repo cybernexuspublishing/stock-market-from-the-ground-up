@@ -97,7 +97,12 @@
      text('p',m.body||''));
     messages.append(item);
    }
-   if(!v.messages.length)messages.append(text('li','No messages are recorded yet.'));
+   // A durable ticket keeps its full first description even if the optional
+   // mirrored conversation insert failed. Always display that persisted report.
+   if(!v.messages.length&&v.ticket.description)
+    messages.append(text('li','Original private report: '+v.ticket.description));
+   else if(!v.messages.length)
+    messages.append(text('li','No messages are recorded yet.'));
    detail.append(messages);
    const closed=['closed','resolved'].includes(v.ticket.status);
    const actions=document.createElement('form');
@@ -158,7 +163,9 @@
    const answer=await call('create',{method:'POST',body:{category,subject,description:fullDescription}});
    if(!answer.ticket?.id)throw Error('Support did not confirm the ticket identifier.');
    form.reset();await loadTickets();await openTicket(answer.ticket.id);
-   setStatus('Your support request was created. Use its private conversation for updates.');
+   setStatus(answer.initialMessageRecorded===false
+     ? 'Your report was saved. The original description remains on the ticket; its conversation copy could not be confirmed.'
+     : 'Your support request was created. Use its private conversation for updates.');
   }catch(e){
    setStatus((e.message||'Support submission was not confirmed.')+
      ' Review your ticket list before submitting again to avoid duplicates.',true);
