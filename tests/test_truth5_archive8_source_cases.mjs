@@ -57,7 +57,7 @@ const css=readFileSync('assets/css/bootcamp-academy-v014168.css','utf8');
 assert(ui.includes('lesson.sourceClaimCase')&&ui.includes('document.createElement(tag)'));
 assert(ui.includes('source.hostname===')&&ui.includes("source.hostname==='stockstotrade.com'"));
 assert(ui.includes("citation.rel='noopener noreferrer'"));
-assert(ui.includes('node(\\'p\\',claim.observation)'));
+assert(ui.includes("node('p',claim.observation)"));
 assert(!/caseBox\.innerHTML|citation\.innerHTML/.test(ui),'Untrusted source teaching may not become HTML');
 assert(css.includes('academy-source-claim-case')&&css.includes(':focus-visible'));
 const r=await onRequest({request:new Request('https://example.test/api/bootcamp-academy?action=catalog'),env:{}});
