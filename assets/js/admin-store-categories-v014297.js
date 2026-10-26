@@ -32,9 +32,9 @@ function mount(){
  void load();
  const obs=new MutationObserver(()=>{
   const input=document.getElementById('dlg-p-family');
-  if(!input||input.dataset.storeCategoryWired||!categories.length)return;
+  if(!input||input.tagName!=='INPUT'||input.dataset.storeCategoryWired||!categories.length)return;
   input.dataset.storeCategoryWired='1';
-  const select=el('select');select.id=input.id;
+  const select=el('select');select.id=input.id;select.dataset.storeCategoryWired='1';
   const known=input.value,slugs=new Set(categories.filter(x=>x.active).map(x=>x.slug));
   for(const item of categories.filter(x=>x.active)){
    const option=el('option',item.name);option.value=item.slug;select.append(option);
