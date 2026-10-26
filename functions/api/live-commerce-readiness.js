@@ -7,7 +7,9 @@ const json=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:H});
 const neededStandard=['checkout.session.completed','checkout.session.async_payment_succeeded','invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created'];
 const neededFounder=['invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted','charge.refunded','charge.dispute.created'];
 const setting=e=>String(e??'').trim();
-const validateMapValue=x=>x&&typeof x==='object'&&/^prod_[A-Za-z0-9_]{6,}$/.test(setting(x.product_id))&&/^price_[A-Za-z0-9_]{6,}$/.test(setting(x.price_id));
+const productID=x=>setting(x?.product_id||x?.productId);
+const priceID=x=>setting(x?.price_id||x?.priceId);
+const validateMapValue=x=>x&&typeof x==='object'&&/^prod_[A-Za-z0-9_]{6,}$/.test(productID(x))&&/^price_[A-Za-z0-9_]{6,}$/.test(priceID(x));
 const readJSON=async(url,opts={})=>{
  const response=await fetch(url,{cache:'no-store',...opts});
  if(!response.ok)throw Error('READ_FAILED');
@@ -20,9 +22,9 @@ function parseMap(raw,expectedKeys){
  let map;try{map=JSON.parse(setting(raw)||'{}')}catch{throw Error('BAD_CATALOG_MAP')}
  if(!map||typeof map!=='object'||Array.isArray(map)||Object.keys(map).length!==expectedKeys.length||
  !expectedKeys.every(k=>validateMapValue(map[k]))||
- new Set(expectedKeys.map(k=>map[k].product_id)).size!==expectedKeys.length||
- new Set(expectedKeys.map(k=>map[k].price_id)).size!==expectedKeys.length)throw Error('BAD_CATALOG_MAP');
- return map;
+ new Set(expectedKeys.map(k=>productID(map[k]))).size!==expectedKeys.length||
+ new Set(expectedKeys.map(k=>priceID(map[k]))).size!==expectedKeys.length)throw Error('BAD_CATALOG_MAP');
+ return Object.fromEntries(expectedKeys.map(k=>[k,{product_id:productID(map[k]),price_id:priceID(map[k])}]));
 }
 export async function onRequestGet({request,env}){
  const token=/^Bearer\s+(\S+)$/i.exec(request.headers.get('authorization')||'')?.[1];
