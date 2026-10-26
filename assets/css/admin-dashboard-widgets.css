@@ -1,0 +1,35 @@
+/* SaaS-style operational dashboard; no changes to authorization or actions. */
+[data-admin-panel="dashboard"] #admin-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-block:1px solid #ffffff13;margin:20px 0 0}
+[data-admin-panel="dashboard"] #admin-summary>*{border:0;border-right:1px solid #ffffff10;border-bottom:1px solid #ffffff10;border-radius:0;background:transparent;box-shadow:none;padding:22px 20px;min-width:0}
+[data-admin-panel="dashboard"] #admin-summary>*:nth-child(4n){border-right:0}
+[data-admin-panel="dashboard"] #admin-summary strong{font-size:2rem;font-weight:450;letter-spacing:-.05em;color:#e2d4fa}
+[data-admin-panel="dashboard"] #admin-summary .cc-metric-hint{font-size:.60rem;opacity:.65}
+.admin-dashboard-widgets{padding:24px 0 30px}
+.admin-widget-stamp{display:flex;justify-content:space-between;gap:20px;font:500 .58rem/1.7 ui-monospace,monospace;letter-spacing:.10em;color:#899bb6;margin-bottom:18px}
+.admin-widget-stamp time{letter-spacing:0;font:400 .66rem/1.7 system-ui,sans-serif;color:#71839f}
+.admin-widget-charts{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.admin-widget-card{min-width:0;border:1px solid #ffffff14;border-radius:10px;background:linear-gradient(140deg,#15172a80,#0a122180);padding:25px;box-shadow:0 12px 28px #0002}
+.admin-widget-card h2{font:500 1.05rem/1.5 system-ui,sans-serif;letter-spacing:-.02em;color:#d8e1f1;margin:0 0 10px}
+.admin-widget-description{font:.74rem/1.85 system-ui,sans-serif;color:#8e9fb9;max-width:75ch;margin:0 0 20px}
+.admin-record-chart{display:grid;gap:24px;padding:12px 0 28px}
+.admin-record-bar-label{display:flex;justify-content:space-between;gap:14px;font:.73rem/1.7 system-ui,sans-serif;color:#b9c6dc;margin-bottom:9px}
+.admin-record-bar-label strong{font:500 .78rem/1.7 ui-monospace,monospace;color:#d9c8f4;font-variant-numeric:tabular-nums}
+.admin-record-bar-track{height:11px;background:#ffffff06;border-radius:4px;border:1px solid #ffffff07;overflow:hidden;background-image:linear-gradient(90deg,transparent 24.9%,#ffffff06 25%,transparent 25.1%,transparent 49.9%,#ffffff06 50%,transparent 50.1%,transparent 74.9%,#ffffff06 75%,transparent 75.1%)}
+.admin-record-bar-track>span{display:block;height:100%;background:linear-gradient(90deg,#69509c,#b28ae1);border-radius:3px;box-shadow:0 0 14px #a880df20;min-width:0}
+.admin-record-bar:nth-child(2) .admin-record-bar-track>span{background:linear-gradient(90deg,#3f688d,#7faed2)}
+.admin-record-bar:nth-child(3) .admin-record-bar-track>span{background:linear-gradient(90deg,#347e80,#73beb4)}
+.admin-widget-actions{display:flex;flex-wrap:wrap;gap:8px 18px;border-top:1px solid #ffffff0a;padding-top:16px}
+.admin-widget-action{font:500 .66rem/1.8 system-ui,sans-serif;color:#bba5dd;background:transparent;border:0;padding:4px 0;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:4px}
+.admin-widget-gadgets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:22px}
+.admin-widget-kicker{font:500 .57rem/1.7 ui-monospace,monospace;letter-spacing:.13em;color:#9b8db6}
+.admin-widget-number{display:block;font:450 2.8rem/1.25 system-ui,sans-serif;letter-spacing:-.06em;color:#e0d5f3;margin:15px 0 12px;font-variant-numeric:tabular-nums}
+.admin-workload .admin-widget-number{color:#dec390}
+.admin-widget-footnote{font:.65rem/1.8 system-ui,sans-serif;color:#71819c;margin:20px 0 0}
+.admin-widget-action:focus-visible{outline:2px solid #c7a6ea;outline-offset:4px}
+@media(max-width:1100px){[data-admin-panel="dashboard"] #admin-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-widget-charts{grid-template-columns:1fr}.admin-widget-gadgets{gap:14px}}
+@media(max-width:650px){.admin-widget-gadgets{grid-template-columns:1fr}.admin-widget-card{padding:22px 18px}.admin-widget-stamp{flex-wrap:wrap;gap:5px}[data-admin-panel="dashboard"] #admin-summary>*{padding:18px 12px}[data-admin-panel="dashboard"] #admin-summary strong{font-size:1.6rem}}
+html[data-gu-design="premium-light"] .admin-widget-card{background:#fff;color:#233a4b;border-color:#d1d7e1;box-shadow:0 6px 20px #00000005}
+html[data-gu-design="premium-light"] :is(.admin-widget-card h2,.admin-record-bar-label,.admin-record-bar-label strong,.admin-widget-number){color:#233a4b}
+html[data-gu-design="premium-light"] .admin-widget-description{color:#526580}
+html[data-gu-design="premium-light"] .admin-record-bar-track{background-color:#eef0f6;border-color:#e4e7ef}
+@media(forced-colors:active){.admin-record-bar-track{border:1px solid CanvasText}.admin-record-bar-track>span{background:Highlight}}
