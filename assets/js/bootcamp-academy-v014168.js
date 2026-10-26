@@ -116,13 +116,36 @@
   compare.className='btn secondary';compare.disabled=true;
   const result=node('div');result.setAttribute('role','status');
   result.setAttribute('aria-live','polite');
-  answer.addEventListener('input',()=>{compare.disabled=answer.value.trim().length<40;result.replaceChildren()});
+  const use=node('button','Add reasoning to my private reflection');
+  use.type='button';use.className='btn secondary';use.disabled=true;
+  answer.addEventListener('input',()=>{
+   const short=answer.value.trim().length<40;
+   compare.disabled=short;use.disabled=short;result.replaceChildren();
+  });
+  use.addEventListener('click',()=>{
+   const written=answer.value.trim();
+   if(written.length<40)return;
+   const reflection=get('academy-reflection');
+   if(!reflection)return;
+   const existing=reflection.value.trim();
+   const addition='Independent self-check (ungraded): '+written;
+   if(existing.includes(addition)){
+    result.replaceChildren(node('p','This reasoning is already in your private reflection draft.'));return;
+   }
+   const combined=existing?existing+'\\n\\n'+addition:addition;
+   if(combined.length>2000){
+    result.replaceChildren(node('p','Your reflection draft is at its 2,000-character limit. Review and shorten it before adding your reasoning.'));return;
+   }
+   reflection.value=combined;
+   result.replaceChildren(node('p','Reasoning added to your private reflection draft. It is NOT saved yet: enroll if needed, then select Save Reflection. This is ungraded study evidence, not mastery.'));
+   reflection.focus();
+  });
   compare.addEventListener('click',()=>{
    if(answer.value.trim().length<40)return;
    result.replaceChildren(node('p','Model reasoning (formative; not a score):'),node('p',lesson.reviewGuide),
     node('p','Compare your evidence, source timestamps, limits and no-trade decision. No mastery was awarded.'));
   });
-  mount.append(label,answer,compare,result);
+  mount.append(label,answer,compare,use,result);
  }
 
  function renderDay(){
