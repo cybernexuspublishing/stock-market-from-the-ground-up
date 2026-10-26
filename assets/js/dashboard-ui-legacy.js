@@ -33,7 +33,7 @@
   function skillStatusClass(status){return String(status||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')}
   function skillScoreLabel(x){return x?.score===null||x?.score===undefined?'Not Yet Assessed':`${Math.round(Number(x.score))}%`}
   const SKILL_ICON_CODES=new Set(["CHART_STRUCTURE", "CANDLE_READING", "VWAP_CONTEXT", "EMA_CONTEXT", "VOLUME_ANALYSIS", "MULTI_TIMEFRAME", "BREAKOUT_RECOGNITION", "FAILED_BREAKOUT", "PULLBACK_RECOGNITION", "HOD_PM_LEVELS", "RCT_RECOGNITION", "SQUEEZE_CONTEXT", "RISK_PER_SHARE", "POSITION_SIZING", "RISK_REWARD", "ORDER_SELECTION", "SLIPPAGE_SPREAD", "CATALYST_ANALYSIS", "FLOAT_SUPPLY", "SEC_FILINGS", "CANDIDATE_QUALITY", "MARKET_REGIME", "TAPE_READING", "LEVEL2_READING", "HALTS_LULD", "ENTER_WATCH_NO_TRADE", "INVALIDATION_DISCIPLINE", "CHASE_FOMO_DISCIPLINE", "MFE_MAE_REVIEW", "INDEPENDENT_PLAN"]);
-  function skillIllustration(code,name){const key=String(code||'').toUpperCase();const icon=SKILL_ICON_CODES.has(key)?key.toLowerCase().replace(/_/g,'-'):'independent-plan';return `<img class="skill-illustration" src="/assets/images/skill-illustrations/${icon}.svg" alt="${esc(name||key)} concept illustration (not historical market data)" loading="lazy" decoding="async" width="144" height="132">`;}
+  function skillIllustration(code,name){const key=String(code||'').toUpperCase();const icon=SKILL_ICON_CODES.has(key)?key.toLowerCase().replace(/_/g,'-'):'independent-plan';return `<img class="skill-illustration" src="/assets/images/skill-illustrations/${icon}.svg?v=graphics-20261026" alt="${esc(name||key)} concept illustration (not historical market data)" loading="lazy" decoding="async" width="144" height="132">`;}
 
 
   let legacySnapshot={text:'',bars:[]};
