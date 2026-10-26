@@ -132,7 +132,7 @@ function paintLabPrerequisites(host,codes,guides,evidence){
  host.append(list);
  host.append(el('p','Your Learning Development report uses only actual verified assessments. Guided explanations and optional practice do not create mastery credit.'));
 }
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,skillEvidenceRequest,memberFirstName='',allowTutorAI=true}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,skillEvidenceRequest,recallScheduler,memberFirstName='',allowTutorAI=true}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -958,6 +958,25 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    });
    prompt.className='btn secondary gu-v33-evidence-shortcut';
    body.append(prompt);
+  }
+  if(stage===8&&typeof recallScheduler==='function'){
+   const recall=el('section');recall.className='gu-v38-delayed-recall';
+   recall.append(el('h3','Remember this lesson after today'));
+   recall.append(el('p','Schedule ungraded concept recall in 1, 7 and 30 days. Different reflection prompts help you remember the method without seeing the original answers.'));
+   const result=el('p');result.setAttribute('role','status');
+   const schedule=button('Schedule my three recall reviews',async()=>{
+    schedule.disabled=true;result.textContent='Saving your private review schedule…';
+    try{
+     const outcome=await recallScheduler(labId);
+     result.textContent=outcome?.newReviews>0?
+      'Your 1-day, 7-day and 30-day reviews are scheduled. Existing reviews were preserved.' :
+      'Your three recall reviews are already scheduled. No duplicate records were added.';
+    }catch{result.textContent='The recall schedule could not be verified. No learning credit was awarded.';}
+    finally{schedule.disabled=false;}
+   });
+   schedule.className='btn secondary';
+   const reviews=el('a','Open my concept reviews');reviews.href='skills.html#lab-concept-review';
+   recall.append(schedule,result,reviews);body.append(recall);
   }
   previous.disabled=stage===0;next.disabled=stage===8;
  }
