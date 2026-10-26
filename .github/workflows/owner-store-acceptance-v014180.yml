@@ -43,3 +43,7 @@ jobs:
           node --check assets/js/navigation.js
           node --check assets/js/store.js
           node --check assets/js/store-inventory-ui-v014174.js
+          bash scripts/build-pages.sh
+          test -f public/store-sparks.html
+          test -f public/data/crownlight-sparks-store-v014167.json
+          test ! -d public/functions
