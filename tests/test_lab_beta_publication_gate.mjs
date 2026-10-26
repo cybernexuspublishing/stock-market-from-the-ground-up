@@ -31,6 +31,8 @@ const originalFetch=globalThis.fetch;
 const candidate='F1-C02-L01';
 const draft='F1-C02-L02';
 const upcoming='SITE-018';
+const canonical='F2-C02-L01';
+const empty='F2-C02-L02';
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_test_only'};
 function mockFetch(url){
  const u=new URL(url);
@@ -38,6 +40,12 @@ function mockFetch(url){
  if(u.pathname.endsWith('/platform_labs')) data=[
    {lab_id:candidate,active:true,registry_visible:true},
    {lab_id:draft,active:true,registry_visible:true},
+   {lab_id:canonical,active:true,registry_visible:true,
+    what:'This case uses an issuer announcement instead of social speculation.',
+    why:'Time-stamping the original filing matters when interpreting market reactions.',
+    objective:'Find the original disclosure and state the time boundary.',
+    how:['Read the source announcement','Compare exchange trading sessions','Record uncertainty and risk']},
+   {lab_id:empty,active:true,registry_visible:true},
    {lab_id:upcoming,active:true,registry_visible:true}
  ];
  else if(u.pathname.endsWith('/lab_instruction_v014')) data=[
@@ -70,13 +78,18 @@ try{
  assert.equal(response.headers.get('cache-control'),'no-store, max-age=0');
  const body=await response.json();
  assert.deepEqual(body.publishedIds,[candidate], 'No draft and no SITE-018–100 can receive Start');
- assert.deepEqual(body.guidedBetaIds,[draft], 'Original individualized B01 practice should open without falsely reviewing or grading it');
- assert.equal(body.guidedBetaPolicy,'ungraded_original_b01_beta_teaching_only');
+ assert.deepEqual(body.guidedBetaIds,[draft,canonical].sort(), 'Authored private and canonical study must open for Guided Beta without official grade approval');
+ assert(!body.guidedBetaIds.includes(upcoming),'No future SITE Lab should receive a beta Start');
+ assert(!body.guidedBetaIds.includes(empty),'A selected Lab without any teaching source is not silently launched');
+ assert.equal(body.guidedBetaPolicy,'ungraded_existing_private_or_canonical_teaching_no_mastery');
  assert(!JSON.stringify(body).includes('A sourced trading observation'),'Public listing must never return private lesson text');
  assert(!JSON.stringify(body).includes('authoring_status'),'Public response returns only eligible Lab IDs');
  const client=await import('node:fs').then(x=>x.readFileSync('assets/js/labs.js','utf8'));
  assert(client.includes("Open guided beta practice (ungraded)"));
  assert(client.includes("!publishedAssessments.has(labId)"),'Ungraded beta may not unlock progress/graded credit control');
+ const registry=(await import('node:fs')).readFileSync('assets/js/lab-registry.js','utf8');
+ assert(registry.includes('Open Guided Beta · Ungraded'),'The member registry must expose beta practice as a clickable item');
+ assert(registry.includes('guidedBetaLabs?.has(l.lab_id)'),'Candidate beta links must be driven by the API, not by calendar position');
 
  assert.equal(body.betaReadyCertified,false, 'Public endpoint cannot certify beta readiness');
 
