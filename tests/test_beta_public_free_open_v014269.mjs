@@ -11,7 +11,9 @@ test('free beta signup is visibly available but is not payment or founder reserv
  assert.match(founder,/Creating a Free account does not reserve/);
  assert.match(founder,/Founding Standard \(\$49\.99 every 30 days\)/);
  assert.match(founder,/Founding Extended \(\$59\.99 every 60 days\)/);
- assert.match(founder,/15 new Journal records and 10 saved simulator exercises/);
+ assert.match(founder,/Free Membership includes public lessons and glossary access/);
+ assert.match(founder,/This website does not provide a live in-site trading simulator/);
+ assert.doesNotMatch(founder,/15 new Journal records and 10 saved simulator exercises/);
  assert.match(founder,/id="f600-enrollment-closed" hidden/);
  assert.match(founder,/id="f600-enrollment-form" hidden/);
 });
