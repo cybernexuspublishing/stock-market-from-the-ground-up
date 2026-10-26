@@ -8,7 +8,7 @@ test('free beta signup is visibly available but is not payment or founder reserv
  assert.match(site,/href="create-account\.html"/);
  assert.match(site,/For historical trade simulation, use thinkorswim OnDemand separately/);
  assert.doesNotMatch(site,/Education and simulation, not trade signals/);
- assert.match(store,/Free registration does not reserve a founder number/);
+ assert.match(store,/Free registration does not reserve a founding number/);
  assert.match(store,/href="founding600\.html"/);
  assert.match(founder,/Free beta registration/);
  assert.match(founder,/Creating a Free account does not reserve/);
