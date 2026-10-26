@@ -1,0 +1,29 @@
+name: Live Academy Persistence QA (authenticated, no billing)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-academy-progress-qa.yml'
+      - 'tests/live-academy-progress-qa.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: live-academy-progress-main
+  cancel-in-progress: false
+jobs:
+  verify-member-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify genuine QA password auth, study save, revision CAS and token-refresh resume
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/live-academy-progress-qa.mjs
