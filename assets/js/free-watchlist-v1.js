@@ -99,7 +99,7 @@
   const result=await request();
   if(!Array.isArray(result.entries)||result.entries.length>20)throw Error('Invalid account-specific watchlist response.');
   state.entries=result.entries;
-  render();say('free-watchlist-status',result.entries.length+
+  render();say('free-watchlist-live-status',result.entries.length+
    ' private research entries loaded. This list contains no verified quote, order or trading signal.');
  }
  async function submit(event){
