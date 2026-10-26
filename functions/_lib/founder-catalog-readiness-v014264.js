@@ -63,7 +63,21 @@ async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
   }
   if(products.some(p=>p.active!==true)||hook.status!=='enabled')
    return response('action_required','Stripe TEST Founder products or webhook are inactive; Sandbox checkout cannot be accepted.');
-  return response('verified','Both Founding 600 TEST products, $49.99/30-day and $59.99/60-day prices, and signed-webhook event subscriptions match. Actual hosted TEST transaction acceptance is a separate gate.');
+  // A green catalog is meaningless if an older production TEST destination
+  // also receives invoice events. Require exactly one active GU39 endpoint
+  // for this platform, with no second active signing-secret destination.
+  const projectTestHooks=(webhooks.data||[]).filter(w=>{
+   if(w.livemode!==false||w.status!=='enabled')return false;
+   try{
+    const u=new URL(w.url);
+    return u.protocol==='https:'&&u.pathname==='/api/gu39-stripe-webhook'&&
+     u.hostname.endsWith('.pages.dev')&&
+     u.hostname.startsWith('stock-market-from-the-ground-up');
+   }catch{return false}
+  });
+  if(projectTestHooks.length!==1||projectTestHooks[0]!==hook)
+   return response('action_required','TEST webhook routing is not exclusive to the configured site; disable legacy or duplicate TEST destinations before declaring Sandbox readiness.');
+  return response('verified','Both Founding 600 TEST products, $49.99/30-day and $59.99/60-day prices, and exclusively configured signed-webhook event subscriptions match. A provider-delivered TEST invoice remains a separate acceptance test.');
  }catch{
   return response('review',type+' Stripe provider could not be independently contacted; no false acceptance or payment action was taken.');
  }
