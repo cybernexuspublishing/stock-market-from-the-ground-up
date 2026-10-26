@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/advanced-tool-workspace-v014110.js';
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
-let kind='member',flag='active',mutations=0,records=1;
+let kind='member',flag='active',mutations=0,records=1,entitled=true;
 const saved=globalThis.fetch;
 const json=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opt={})=>{
@@ -13,7 +13,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.includes('/admin_user_flags?'))return json([{status:flag}]);
  if(u.includes('/admin_user_roles?'))return json([{role_code:'MEMBER',expires_at:null}]);
  if(u.includes('/platform_tools?'))return json([{tool_code:'WATCHLIST_WORKBENCH',name:'Watchlist',status:'beta',active:true,free_preview:true}]);
- if(u.endsWith('/rpc/user_has_tool_access'))return json(false);
+ if(u.endsWith('/rpc/user_has_tool_access'))return json(entitled);
  if(u.includes('/tool_workspace_records')&&method==='PATCH'){
   mutations++;
   assert(u.includes('user_id=eq.'+uid),'server-scoped member');
@@ -36,6 +36,12 @@ const req=(method,data,headers={})=>new Request(route,{method,headers:{authoriza
 try{
  let r=await onRequest({env,request:req('PATCH',payload,{origin:'https://other.example'})});
  assert.equal(r.status,403);assert.equal(mutations,0);
+ // A Free preview may show teaching material but may not mutate paid workspace storage.
+ entitled=false;
+ r=await onRequest({env,request:req('PATCH',payload)});
+ assert.equal(r.status,403,'Free preview must not save premium workspace records');
+ assert.equal(mutations,0);
+ entitled=true;
  r=await onRequest({env,request:req('PATCH',{...payload,expectedUpdatedAt:'wrong'})});
  assert.equal(r.status,400);assert.equal(mutations,0);
  r=await onRequest({env,request:req('PATCH',payload,{origin:'https://site.example'})});
