@@ -15,7 +15,7 @@ const tables=Object.freeze({
  posts:'gu_social_posts_v014276',communities:'gu_social_communities_v014276',
  campaigns:'gu_social_campaigns_v014278',templates:'gu_social_templates_v014278',
  tasks:'gu_social_tasks_v014278',metrics:'gu_social_metrics_v014278',
- revisions:'gu_social_post_revisions_v014278',audit:'gu_social_audit_v014276'
+ revisions:'gu_social_post_revisions_v014278',accounts:'gu_social_accounts_v014279',audit:'gu_social_audit_v014276'
 });
 function config(env){
  const base=val(env.SUPABASE_URL).replace(/\/$/,''),secret=val(env.SUPABASE_SECRET_KEY),pub=val(env.SUPABASE_PUBLISHABLE_KEY);
@@ -117,6 +117,20 @@ function task(data){
   due_at:date(data.dueAt,'task date'),target_url:https(data.targetUrl,'task link'),
   updated_at:new Date().toISOString()};
 }
+function account(data){
+ const provider=among(data.provider, SOCIAL_PROVIDER_CAPABILITIES.map(x=>x.id),'provider');
+ const handle=bounded(data.handle,2,120,'Social handle');
+ const profile_url=https(data.profileUrl,'social profile');
+ if(!profile_url)throw err('Provide a public HTTPS profile URL.');
+ const u=new URL(profile_url),domains={
+  x:['x.com','twitter.com'],facebook:['facebook.com','www.facebook.com'],instagram:['instagram.com','www.instagram.com'],
+  linkedin:['linkedin.com','www.linkedin.com'],youtube:['youtube.com','www.youtube.com'],
+  reddit:['reddit.com','www.reddit.com'],discord:['discord.com','discord.gg']
+ };
+ if(!domains[provider].includes(u.hostname.toLowerCase()))throw err('Profile URL must match selected provider.');
+ return {provider,handle,profile_url,connection_status:'manual_only',
+  notes:bounded(data.notes||'',0,1000,'Account notes'),updated_at:new Date().toISOString()};
+}
 async function save(c,table,actor,data,payload,{requireVersion=false}={}){
  if(data.id!==undefined&&!isUUID(data.id))throw err('Invalid record identifier.');
  let path=table,method='POST';
@@ -139,17 +153,18 @@ async function list(c,table,actor,cols='*',order='updated_at.desc',limit=100){
  return db(c,table+'?select='+cols+'&owner_id=eq.'+actor+'&order='+order+'&limit='+limit);
 }
 async function snapshot(c,actor){
- const [posts,communities,campaigns,templates,tasks,metrics,audit]=await Promise.all([
+ const [posts,communities,campaigns,templates,tasks,metrics,accounts,audit]=await Promise.all([
   list(c,tables.posts,actor,'id,body,status,planned_at,external_url,campaign_id,version,approved_at,created_at,updated_at'),
   list(c,tables.communities,actor,'id,name,community_url,membership_status,promotion_policy,notes,last_verified_at,updated_at'),
   list(c,tables.campaigns,actor,'id,title,objective,destination_url,category,state,starts_at,ends_at,created_at,updated_at'),
   list(c,tables.templates,actor,'id,name,body,category,created_at,updated_at'),
   list(c,tables.tasks,actor,'id,title,details,kind,state,due_at,target_url,updated_at'),
   list(c,tables.metrics,actor,'id,post_id,observed_at,views,likes,replies,reposts,link_clicks,source','observed_at.desc'),
+  list(c,tables.accounts,actor,'id,provider,handle,profile_url,connection_status,notes,updated_at'),
   db(c,tables.audit+'?select=action,resource_type,resource_id,details,created_at&actor=eq.'+actor+'&order=created_at.desc&limit=50')
  ]);
  return {ok:true,account:{platform:'x',handle:'@SMFGUAcademy',connectionStatus:'manual_only',apiPublishingEnabled:false,
-  platformApiSpendingLimitCents:SOCIAL_MAX_EXTERNAL_SPEND_CENTS},providers:SOCIAL_PROVIDER_CAPABILITIES,posts,communities,campaigns,templates,tasks,metrics,audit};
+  platformApiSpendingLimitCents:SOCIAL_MAX_EXTERNAL_SPEND_CENTS},providers:SOCIAL_PROVIDER_CAPABILITIES,accounts,posts,communities,campaigns,templates,tasks,metrics,audit};
 }
 function metric(data,actor){
  if(!isUUID(data.postId))throw err('Select a published post.');
@@ -185,6 +200,8 @@ export async function onRequest({request,env}){
    },{requireVersion:true});
   }else if(data.action==='save_community'){
    saved=await save(c,tables.communities,actor,data,community(data));
+  }else if(data.action==='save_account'){
+   saved=await save(c,tables.accounts,actor,data,account(data));
   }else if(data.action==='save_campaign'){
    saved=await save(c,tables.campaigns,actor,data,campaign(data));
   }else if(data.action==='save_template'){
