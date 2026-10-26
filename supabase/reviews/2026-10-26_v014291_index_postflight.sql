@@ -1,0 +1,4 @@
+-- Read-only verification of v0.14.0.291 (index name + leading key)
+BEGIN READ ONLY;
+SELECT t.relname AS table_name,i.relname AS index_name,a.attname AS leading_column,idx.indisvalid,idx.indisready FROM pg_index idx JOIN pg_class i ON i.oid=idx.indexrelid JOIN pg_class t ON t.oid=idx.indrelid JOIN pg_attribute a ON a.attrelid=t.oid AND a.attnum=idx.indkey[0] WHERE t.relnamespace='public'::regnamespace AND (t.relname,i.relname) IN (('admin_role_permissions','gu_v014291_role_permission_code'),('commons_topics','gu_v014291_commons_topic_author'),('lab_instruction_v014','gu_v014291_lesson_reviewer'),('lab_training_sets_v014','gu_v014291_grading_reviewer'),('market_datasets','gu_v014291_market_provider'),('platform_labs','gu_v014291_lab_editor'),('gu_f600_sandbox_events_v014215','gu_v014291_founder_test_event'),('forum_reports','gu_v014291_report_reporter')) ORDER BY t.relname;
+COMMIT;
