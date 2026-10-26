@@ -14,7 +14,7 @@ function layout(){root.innerHTML=`<section class="v133-lab-hero"><div><div class
  q('[data-lab-book]',root).onchange=e=>{selected=e.target.value;page=0;load()};q('[data-prev]',root).onclick=()=>{page=Math.max(0,page-1);load()};q('[data-next]',root).onclick=()=>{page++;load()};q('[data-search]',root).oninput=e=>{const needle=e.target.value.trim().toLowerCase();root.querySelectorAll('[data-lab-record]').forEach(row=>{row.hidden=!!needle&&!row.textContent.toLowerCase().includes(needle)})}}
 async function load(){const id=++seq,msg=q('[data-message]',root),host=q('[data-list]',root),pager=q('[data-pager]',root),filter=q('[data-search]',root);host.replaceChildren();pager.hidden=true;filter.disabled=true;filter.value='';if(!selected){msg.textContent='Select one collection. No Lab records have been requested.';return}
  msg.textContent='Loading '+label(selected)+' (page '+(page+1)+')…';try{
-   const {data:{session}}=await client.auth.getSession();if(!session){location.replace('signin.html?next='+encodeURIComponent('/labs.html'));return}
+   const {data:{session}}=await client.auth.getSession();if(!session){location.replace('signin.html?next='+encodeURIComponent('/labs.html'+location.search+location.hash));return}
    const from=page*PAGE_SIZE,to=from+PAGE_SIZE;
    const {data,error}=await client.from('platform_labs').select('lab_id,title,book_code,chapter_number,ticker,historical_date,lab_type,custom_href,metadata,sort_order').eq('active',true).eq('registry_visible',true).eq('book_code',selected).order('sort_order',{ascending:true}).order('lab_id',{ascending:true}).range(from,to);
    if(error)throw error;if(id!==seq)return;
@@ -34,8 +34,8 @@ async function load(){const id=++seq,msg=q('[data-message]',root),host=q('[data-
      if(selectedRow){selectedRow.setAttribute('aria-current','location');selectedRow.style.outline='2px solid currentColor';selectedRow.scrollIntoView({block:'center'});}
    }filter.disabled=!labs.length;pager.hidden=!(page>0||more);q('[data-prev]',pager).disabled=page===0;q('[data-next]',pager).disabled=!more;q('[data-page]',pager).textContent='Page '+(page+1);
  }catch(e){if(id!==seq)return;msg.textContent='Unable to load this collection: '+(e.message||'Unknown error');const b=document.createElement('button');b.className='btn secondary';b.textContent='Retry';b.onclick=load;host.append(b)}}
-async function init(){try{client=await supabase();const s=(await client.auth.getSession()).data?.session;if(!s){location.replace('signin.html?next=%2Flabs.html');return}document.getElementById('v011-lab-registry-gate')?.remove();document.body.style.visibility='visible';const main=q('main .wrap')||q('main');if(!main)return;main.innerHTML='<div class="v133-labs"></div>';root=q('.v133-labs',main);layout();const params=new URLSearchParams(location.search),code=params.get('book');
- const query=String(params.get('q')||params.get('lab')||'').trim().toUpperCase();
+async function init(){try{client=await supabase();const s=(await client.auth.getSession()).data?.session;if(!s){location.replace('signin.html?next='+encodeURIComponent('/labs.html'+location.search+location.hash));return}document.getElementById('v011-lab-registry-gate')?.remove();document.body.style.visibility='visible';const main=q('main .wrap')||q('main');if(!main)return;main.innerHTML='<div class="v133-labs"></div>';root=q('.v133-labs',main);layout();const params=new URLSearchParams(location.search),code=params.get('book');
+ const query=String(params.get('q')||params.get('lab')||params.get('open')||'').trim().toUpperCase();
  let inferred='';
  if(/^F1-C[0-9]{2}-L[0-9]{2}$/.test(query))inferred='FOUNDATION_BOOK_1';
  else if(/^F2-C[0-9]{2}-L[0-9]{2}$/.test(query))inferred='FOUNDATION_BOOK_2';
