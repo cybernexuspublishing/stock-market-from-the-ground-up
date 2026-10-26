@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'founders-commons.html'
+      - 'assets/css/founders-commons-v014178.css'
+      - 'assets/js/founders-commons-v014178.js'
+      - 'tests/test_founders_commons_browser_v014178.mjs'
       - 'founder-learning-studio.html'
       - 'founder-extended-path.html'
       - 'founder-benefits.html'
@@ -35,6 +38,8 @@ jobs:
           done
           exit 1
       - name: Validate Standard and Extended mobile/desktop member journeys
-        run: node tests/test_f600_member_pages_browser_v014220.mjs
+        run: |
+          node tests/test_founders_commons_browser_v014178.mjs
+          node tests/test_f600_member_pages_browser_v014220.mjs
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
