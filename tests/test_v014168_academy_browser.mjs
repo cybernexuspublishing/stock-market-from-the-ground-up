@@ -86,7 +86,8 @@ try{
     assert.equal(await compare.isEnabled(),true);
     assert.match(await page.locator('#academy-days .gu-bc-day').first().innerText(),/unsaved local work/);
     await compare.click();
-    assert.match(await section.innerText(),/No mastery was awarded/);
+    assert.match(await section.innerText(),/NOT a protected grading rubric, automated score or proof of mastery/,
+      'Formative reasoning review must not award or imply independent mastery');
     await page.locator('#academy-days .gu-bc-day').nth(1).click();
     assert.match(await section.innerText(),/SEC EDGAR/,'Day 2 must teach a substantively different source skill');
     assert.match(await section.innerText(),/unaudited quarterly/,'Day 2 must include separate audited-versus-forward-looking investigation');
