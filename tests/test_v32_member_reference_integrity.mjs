@@ -13,6 +13,8 @@ let S=fresh(referenceLabParam==='F3-C06-L01'||referenceLabParam==='vwap'?'vwap':
 assert.equal(ref.split(source).length-1,1,'Reference must expose precisely one initialization entrypoint');
 const approvedSkin='<link rel="stylesheet" href="assets/css/labs-graphite-skin.css?v=terminal-20261026">'+
  '<link rel="stylesheet" href="assets/css/lab-terminal-displays.css?v=20261026">'+
+ '<link rel="stylesheet" href="/assets/css/display-preferences.css?v=20261026">'+
+ '<script defer src="/assets/js/display-preferences.js?v=20261026"></script>'+
  '</head><body data-gu-lab-skin="graphite" class="gu-lab-member">';
 assert(member.includes(approvedSkin),'Member demonstration must retain the approved graphite and realistic display styling');
 const engineOnly=member.replace(approvedSkin,'</head><body>');
