@@ -6,6 +6,8 @@ on:
       - 'functions/api/*stripe*.js'
       - 'functions/api/*checkout*.js'
       - 'functions/api/*billing*.js'
+      - 'functions/api/payment-catalog-v01433.js'
+      - 'tests/test_all_category_owner_catalog_readiness_v1.mjs'
       - 'assets/js/my-purchases.js'
       - 'assets/js/admin-digital-books-v01430.js'
       - 'assets/js/store*.js'
@@ -22,6 +24,8 @@ on:
       - 'functions/api/*stripe*.js'
       - 'functions/api/*checkout*.js'
       - 'functions/api/*billing*.js'
+      - 'functions/api/payment-catalog-v01433.js'
+      - 'tests/test_all_category_owner_catalog_readiness_v1.mjs'
       - 'assets/js/my-purchases.js'
       - 'assets/js/admin-digital-books-v01430.js'
       - 'assets/js/store*.js'
@@ -57,6 +61,8 @@ jobs:
           python tests/test_v014034_admin_accessibility.py
           python tests/test_v014033_payment_source.py
           node tests/test_v014032r2_stripe_sandbox.mjs
+      - name: Verify all-category Owner catalogue is read-only and fail-closed
+        run: node tests/test_all_category_owner_catalog_readiness_v1.mjs
       - name: Verify Cloudflare Pages boundary
         run: |
           bash scripts/build-pages.sh
