@@ -36,7 +36,7 @@ assert(!client.includes("list.innerHTML="));
 assert(!client.includes("detail.innerHTML="));
 assert(!client.includes("localStorage"));
 assert(!client.includes("service_role"));
-assert(client.includes("F600"));
+assert(html.includes("FOUNDING BETA"));
 assert(server.includes("requester_user_id=eq."));
 assert(server.includes("is_internal=eq.false"));
 assert(server.includes("action==='reopen'"));
