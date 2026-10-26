@@ -46,7 +46,8 @@ function mount(counts){
  for(const section of original)if(!assigned.has(section))overview.append(section);
  const social=destinations.social;
  textBlock(social,'X · @SMFGUAcademy','Intended company account. A verified publishing connection has not been established in this Admin module. No credentials are stored or inferred from the account name.');
- textBlock(social,'Post drafts, publishing calendar and community management','Not implemented in this release. These require an Owner-only persistence, approval and audit workflow plus a verified external-platform integration. No automatic posting, community joining or paid service is enabled.');
+ textBlock(social,'Saved posts and community journal','The free Owner-only Post Studio and X Communities directory are available below after database setup. Planning dates are internal reminders. External publishing is recorded manually, not verified by X.');
+ textBlock(social,'Automatic X publishing and joining','Not implemented in this release. Official X authorization and a nonzero approved API budget are not available. Community membership actions occur in X, not through automation.');
  textBlock(social,'Zero-cost scope','No subscription or paid advertising service has been purchased or authorized by this workspace.');
  const promotion=destinations.promotion;const campaigns=textBlock(promotion,'Promotion destinations','Use the existing public pages as approved campaign destinations; editing a campaign remains in Campaign management.');
  campaigns.append(link('store.html#founders','Founding 600 offers'),link('bootcamp-academy.html','Boot Camp Academy'),link('labs.html','Lab directory'));
@@ -54,7 +55,7 @@ function mount(counts){
  const administration=destinations.administration;textBlock(administration,'Owner-only operations','The existing advertising API verifies Owner authority on every request. Navigation organization does not grant permission. Existing audited advertiser, campaign and creative operations remain authoritative.');
  administration.append(link('admin.html#audit','Open existing activity & audit history'),link('admin.html#commerce','Open existing Commerce & reconciliation'),link('admin.html#roles','Open existing roles & permissions'));
  textBlock(administration,'Payment and publishing boundaries','Existing Stripe Sandbox controls are isolated under Stripe Sandbox QA. LIVE payment testing, paid advertising and external social publishing have not been enabled by this navigation change.');
- shell.append(menu,content);main.append(shell);window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1)||'overview');
+ shell.append(menu,content);main.append(shell);window.dispatchEvent(new CustomEvent('groundup:marketing-social-ready',{detail:{container:social}}));window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1)||'overview');
 }
 window.addEventListener('groundup:ad-admin-ready',event=>mount(event.detail));
 })();
