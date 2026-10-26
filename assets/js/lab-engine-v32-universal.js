@@ -732,6 +732,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    const coach=body.querySelector('.gu-v33-instructor');
    if(chart&&coach){
     const hero=el('section');hero.className='gu-v33-stage-hero gu-v34-unified-lesson';
+    if(chart.classList.contains('gu-v34-competency-visual'))hero.classList.add('gu-v34-concept-lesson');
     hero.setAttribute('aria-label','Interactive demonstration followed by Talia');
     // Preserve the v3.2 visual sequence: topic/feature controls, illustrated
     // chart with measured values, THEN Talia teaching and the typed answer.
@@ -745,7 +746,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     }
     if(stage===1){
      const worked=lessonPlan(1)?.worked||[];
-     if(worked.length){
+     if(worked.length&&(visualType==='candle'||visualType==='vwap')){
       const work=el('section');work.className='gu-v35-chart-worked';
       work.setAttribute('aria-label','Interactive worked example on the chart');
       const label=el('h4','Worked example — different illustrative case');work.append(label);
@@ -839,6 +840,17 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
      if(!chart.contains(event.target))return;
      // Keep the member's current slider/worked case visible; narrate the
      // actual prices instead of silently replacing the selected candle.
+     if(event.detail?.type==='general'){
+      const match=/^case-(\d+)$/.exec(String(event.detail.feature||''));
+      const selected=match?Number(match[1]):-1;
+      const steps=root.GroundUpLabV34CompetencyExamples?.get?.(guide.code,topic)?.steps||[];
+      if(selected>=0&&selected<steps.length)
+       instructorInstance?.teachSupplement?.('Worked example · Step '+(selected+1)+' of '+steps.length,[
+        steps[selected],
+        'This fictional example describes only the stated observation. It is not a brokerage order or verified market history.'
+       ]);
+      return; // Never read raw case-0 identifiers aloud as instruction.
+     }
      const values=chart.getTeachingCandle?.();
      instructorInstance?.teachFeature?.({...event.detail,values});
     });
