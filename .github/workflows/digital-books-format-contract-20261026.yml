@@ -1,0 +1,37 @@
+name: Digital Editions Private Download Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/digital-book-download-v01430.js'
+      - 'assets/js/digital-library-v01430.js'
+      - 'assets/js/admin-digital-books-v01430.js'
+      - 'tests/test_20261026_digital_download_format.mjs'
+      - 'supabase/migrations/v0.14.0.303_*'
+      - 'supabase/migrations/v0.14.0.304_*'
+      - 'supabase/migrations/v0.14.0.305_*'
+      - '.github/workflows/digital-books-format-contract-20261026.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: digital-editions-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'push' }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+jobs:
+  private-asset-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse digital member and Owner modules
+        run: |
+          node --check functions/api/digital-book-download-v01430.js
+          node --check assets/js/digital-library-v01430.js
+          node --check assets/js/admin-digital-books-v01430.js
+      - name: Test private signed PDF/EPUB access and rejection
+        run: node tests/test_20261026_digital_download_format.mjs
