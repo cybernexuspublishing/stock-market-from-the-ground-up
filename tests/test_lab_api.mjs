@@ -7,6 +7,7 @@ globalThis.fetch=async (path,init={})=>{const u=new URL(path);queries.push(u.hre
  if(u.pathname.endsWith('/auth/v1/user'))return response({id:'11111111-1111-4111-8111-111111111111'});
  if(u.pathname.endsWith('/profiles'))return response([{account_kind:'member'}]);
  if(u.pathname.endsWith('/admin_user_roles'))return response([{role_code:'OWNER',expires_at:null}]);
+ if(u.pathname.endsWith('/admin_user_flags'))return response([]);
  if(u.pathname.endsWith('/platform_labs')){
   if(u.searchParams.get('select')==='lab_id'&&!u.searchParams.has('limit'))return response([],{'Content-Range':'0-0/16'});
   const code=u.searchParams.get('book_code');assert(code&&code.includes('DAY_TRADING_BOOK_1'));
