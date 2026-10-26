@@ -20,6 +20,9 @@ on:
       - 'tests/test_free_foundations_shared_v1.mjs'
       - 'tests/test_free_watchlist_v1.mjs'
       - 'tests/test_free_membership_browser_v1.mjs'
+      - 'tests/test_v014170_academy_member_contract.mjs'
+      - 'tests/test_v014168_academy_family.mjs'
+      - 'tests/test_v014147_tutor_boundary.mjs'
       - 'supabase/migrations/20261026_free_research_watchlist_v1.sql'
       - 'supabase/migrations/20261026_free_foundations_shared_academy_course.sql'
 permissions:
