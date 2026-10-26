@@ -1,9 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-// All provider and Supabase HTTP traffic below is mocked. The endpoint under
-// test is the real Cloudflare source; no checkout creation or live grants.
-const source=readFileSync(new URL('../functions/api/gu39-sandbox.js',import.meta.url),'utf8');
-const api=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const api=await import(new URL('../functions/api/gu39-sandbox.js',import.meta.url).href);
 const origin='https://example.com',endpoint=origin+'/api/gu39-sandbox';
 const user='11111111-1111-4111-8111-111111111111',intent='22222222-2222-4222-8222-222222222222';
 const sku='plan:FULL_MONTHLY';
