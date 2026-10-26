@@ -2,11 +2,30 @@
 // educational drafts or any of the 83 post-beta canonical identifiers.
 import assert from 'node:assert/strict';
 import {onRequest} from '../functions/api/lab-release-availability.js';
+import {onRequest as scopeRequest} from '../functions/api/lab-beta-scope.js';
+import {isBetaCandidateLab,isBetaUpcomingLab} from '../functions/_lib/lab-beta-scope-v014286.js';
 import {BETA_CANDIDATE_IDS,BETA_UPCOMING_IDS} from '../functions/_lib/lab-beta-scope-v014286.js';
 
 assert.equal(BETA_CANDIDATE_IDS.length,336);
 assert.equal(BETA_UPCOMING_IDS.length,83);
 assert.equal(new Set([...BETA_CANDIDATE_IDS,...BETA_UPCOMING_IDS]).size,419);
+assert.equal(isBetaCandidateLab('F1-C02-L01'),true);
+assert.equal(isBetaUpcomingLab('SITE-018'),true);
+assert.equal(isBetaCandidateLab('SITE-018'),false);
+assert.equal(isBetaUpcomingLab('SITE-017'),false);
+const scope=await scopeRequest({request:new Request('https://site.example/api/lab-beta-scope')});
+assert.equal(scope.status,200);
+assert.equal(scope.headers.get('cache-control'),'no-store');
+const scopeBody=await scope.json();
+assert.equal(scopeBody.targetSelected,336);
+assert.equal(scopeBody.targetUpcoming,83);
+assert.equal(scopeBody.readiness,'candidate_selection_only_not_editorial_or_assessment_approval');
+assert.equal(scopeBody.selectedForPrebeta.length,336);
+assert.equal(scopeBody.upcoming.length,83);
+assert(!JSON.stringify(scopeBody).includes('answer_key'));
+const scopePost=await scopeRequest({request:new Request('https://site.example/api/lab-beta-scope',{method:'POST'})});
+assert.equal(scopePost.status,405);
+
 
 const originalFetch=globalThis.fetch;
 const candidate='F1-C02-L01';
