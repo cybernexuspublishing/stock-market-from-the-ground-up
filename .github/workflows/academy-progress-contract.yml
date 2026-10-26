@@ -1,0 +1,26 @@
+name: Academy Protected Persistence Contract
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/academy-progress-contract.yml'
+      - 'tests/test_academy_progress_contract.mjs'
+      - 'functions/api/bootcamp-academy.js'
+      - 'functions/_lib/bootcamp-academy-v014168.js'
+      - 'functions/api/member-tool-access.js'
+permissions:
+  contents: read
+jobs:
+  verify-private-progress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test real Academy API handler against deterministic simulated dependencies
+        run: node --test tests/test_academy_progress_contract.mjs
