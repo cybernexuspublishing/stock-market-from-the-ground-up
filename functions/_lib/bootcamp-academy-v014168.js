@@ -61,7 +61,16 @@ const truth5Lessons=Object.freeze([
   reviewGuide:'No. It occurred after the declared pause. A separately verified earlier issuer release might have been available, but that must be proved independently.',
   error:'Backdating information into an earlier decision because the later explanation makes the price move look obvious.',
   transfer:'Construct a new four-event timeline and mark exactly what could have been known at two different pauses.',
-  investigation:'FICTIONAL INDEPENDENT CASE: A newswire displays an issuer statement at 08:31 ET, a verified issuer page shows an update at 08:46 ET, and a chart screenshot has no export timestamp. A researcher claims to have decided at 08:37 ET using the updated statement and chart. Build two evidence columns: publicly available by 08:37 and only potentially available afterward. You may use the 08:31 item if you verify its actual publication time; you cannot use the 08:46 update at 08:37. The undated chart needs an independently supported observation timestamp. Do not infer causation from the price after the pause.'
+  investigation:'FICTIONAL INDEPENDENT CASE: A newswire displays an issuer statement at 08:31 ET, a verified issuer page shows an update at 08:46 ET, and a chart screenshot has no export timestamp. A researcher claims to have decided at 08:37 ET using the updated statement and chart. Build two evidence columns: publicly available by 08:37 and only potentially available afterward. You may use the 08:31 item if you verify its actual publication time; you cannot use the 08:46 update at 08:37. The undated chart needs an independently supported observation timestamp. Do not infer causation from the price after the pause.',
+  sourceClaimCase:Object.freeze({
+   title:'PLRX — source-reported trade chronology (not independently verified fills)',
+   sourceLabel:'StocksToTrade, Two key lessons from my live PLRX trade (July 12, 2022)',
+   sourceUrl:'https://stockstotrade.com/two-key-lessons-from-my-live-plrx-trade/',
+   observation:'The author reports a $22.01 buy-stop trigger, a $20 planned risk reference, unexpected sluggish price action, an offering announcement after the close, and an eventual loss of approximately $0.22 per share. These are statements in the public article—not verified broker executions or a rights-cleared chart.',
+   limits:'The exact fill time, quantities, source-time-stamped offering announcement, data-feed path, and independently reconciled profit/loss are not established. The reported planned $2.01 price gap and the later $0.22 per-share loss measure different things. The stop trigger is not a guaranteed transaction price.',
+   question:'At a 3:50 p.m. ET decision pause, which evidence is contemporaneously available and which offering/outcome details are future information? Do not reconstruct the missing fills or claim the outcome was predictable.',
+   evidenceType:'SOURCE_REPORTED_CASE_WITH_OPEN_VERIFICATION'
+  })
  }),
  Object.freeze({
   explanation:'A percentage depends on its numerator, denominator and measurement window. Share price, market capitalization, float turnover and dollar volume answer different questions. Price change is (new price − reference price) ÷ reference price × 100. A split can change displayed per-share prices without changing a shareholder’s proportionate ownership.',
@@ -71,7 +80,16 @@ const truth5Lessons=Object.freeze([
   reviewGuide:'No. Volume is aggregate executed shares. The same shares can trade repeatedly; float estimates can be stale; volume/float does not identify unique owners.',
   error:'Using a price percentage, volume-to-float ratio or bar volume as if it guaranteed liquidity or a profitable execution.',
   transfer:'Audit another promotional statistic and reproduce its arithmetic using original source dates and consistent units.',
-  investigation:'FICTIONAL INDEPENDENT CASE: A stock closes at $0.80 before a one-for-ten reverse split and appears at $8.00 on a correctly split-adjusted comparison the next session. A promotional graphic claims a 900% gain. Calculate what happens to an illustrative holder of 1,000 old shares: the holder has 100 new shares, and the theoretical pre/post market value is $800 before any separate market move or transaction costs. Distinguish mechanical per-share repricing from a genuine price return; verify the corporate-action effective date and adjustment convention before trusting a gain scan.'
+  investigation:'FICTIONAL INDEPENDENT CASE: A stock closes at $0.80 before a one-for-ten reverse split and appears at $8.00 on a correctly split-adjusted comparison the next session. A promotional graphic claims a 900% gain. Calculate what happens to an illustrative holder of 1,000 old shares: the holder has 100 new shares, and the theoretical pre/post market value is $800 before any separate market move or transaction costs. Distinguish mechanical per-share repricing from a genuine price return; verify the corporate-action effective date and adjustment convention before trusting a gain scan.',
+  sourceClaimCase:Object.freeze({
+   title:'SSM — check the source-reported risk/reward arithmetic',
+   sourceLabel:'StocksToTrade, Perfect Example of the VWAP Hold (Sep 2026; page dating requires reconciliation)',
+   sourceUrl:'https://stockstotrade.com/perfect-example-of-the-vwap-hold/',
+   observation:'The article labels a Sep. 1 SSM chart and presents an illustrative $4.23 entry, $4.10 risk reference and $4.84 target. Those price levels are a retrospective plan, not a documented fill, executed stop or realized trade. The research archive captured a Sep. 5 displayed date while a later public retrieval showed Sep. 4; check original publication metadata before asserting chronology.',
+   limits:'Nominal price risk $0.13/share; target distance $0.61/share; potential price-distance reward/risk = 0.61 ÷ 0.13 ≈ 4.69:1, not a guaranteed 5:1 execution. At a $100 planned-risk cap, floor(100 ÷ 0.13) = 769 whole shares before slippage and fees; 770 shares implies $100.10 planned exposure. Actual stop execution can be worse.',
+   question:'Before seeing any later bars, identify what is source-reported versus independently verified, then calculate the exact maximum whole-share size. Would a missing quote, incomplete volume scope or timing contradiction change your NO TRADE decision?',
+   evidenceType:'SOURCE_REPORTED_RETROSPECTIVE_PLAN_NOT_EXECUTION'
+  })
  }),
  Object.freeze({
   explanation:'Independent verification combines source reliability, chronology, calculation and a defensible decision. A capstone is complete only when the learner can document the reasoning without copying a worked answer. A missing document is a legitimate finding; “no trade” is a valid risk decision.',
