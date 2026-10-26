@@ -43,7 +43,9 @@ assert 'membershipIds.includes(p?.planCode)' in script
 assert 'approvedPlanCatalog' in script
 assert "new Set(items.map(p=>p.planCode)).size!==items.length" in script
 assert "toolPaths" in script and "bookPaths" in script and "planPaths" in script
-assert "store-membership-compare" in store
+assert 'id="store-founder-compare"' in store
+assert 'aria-label="Founding membership benefit comparison"' in store
+assert 'id="store-tab-memberships"' not in store
 assert "scope=\"col\"" in script and "scope=\"row\"" in script
 assert "store-zero-monthly" not in store
 assert "store-zero-monthly" not in script
