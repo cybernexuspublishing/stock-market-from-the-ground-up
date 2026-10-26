@@ -7,7 +7,7 @@ function mount(){
  if(document.querySelector('[data-gu-digital-v01430]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  const section=el('section',null,'admin-card gu-digital-books');section.dataset.guDigitalV01430='1';
- section.append(el('h2','Digital eBook Publishing & Downloads'),el('p','Upload an EPUB/PDF now, and independently enable or disable direct digital sales and customer downloads. Both remain blocked during Amazon KDP Select enrollment. Changes require OWNER MFA (AAL2).'));
+ section.append(el('h2','Digital eBook Publishing & Downloads'),el('p','Upload an EPUB/PDF now, and independently enable or disable direct digital sales and customer downloads. Both remain blocked during Amazon KDP Select enrollment. Protected changes require an active Owner session and recent password reconfirmation with CAPTCHA; no authenticator app is required.'));
  const status=el('p','Waiting to verify Owner permissions…');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const loadButton=el('button','Refresh eBooks','btn secondary');loadButton.type='button';
  const list=el('div',null,'gu-digital-list');section.append(loadButton,status,list);panel.append(section);
@@ -39,9 +39,9 @@ function mount(){
       const {error}=await sb.storage.from('gu-digital-ebooks').upload(path,f,{upsert:false,cacheControl:'0',contentType:ext==='epub'?'application/epub+zip':'application/pdf'});
       if(error)throw error;asset=path;fileStatus.textContent='Uploaded privately: '+path+'. Save the publication controls to link it.';
       rowStatus.textContent='Upload complete. Not published until you save rights controls.';
-     }catch(e){rowStatus.textContent='Upload failed: '+(e.message||'Storage denied request. Confirm MFA and size limits.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
+     }catch(e){rowStatus.textContent='Upload failed: '+(e.message||'Storage denied request. Confirm your Owner password step-up, upload permissions, and size limits.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
-    save.onclick=async()=>{if(busy)return;if(!kdp.checked&&!rights.checked){rowStatus.textContent='Verify KDP Select has ended and confirm your rights first.';return}
+    save.onclick=async()=>{if(busy)return;if((sales.checked||downloads.checked)&&!rights.checked){rowStatus.textContent='Confirm distribution rights before enabling sales or downloads.';return}
      if((sales.checked||downloads.checked)&&!asset){rowStatus.textContent='Upload a private eBook file first.';return}
      busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Saving rights and availability…';
      try{await rpc(sb,'gu_owner_digital_books_save_v01430',{
@@ -54,7 +54,7 @@ function mount(){
     card.append(upload,save,rowStatus);list.append(card);
    }
    status.textContent=(data.products||[]).length+' eBooks loaded. A checkbox cannot cancel an actual KDP Select contract.';
-  }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'OWNER MFA required')}
+  }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'Owner session or password confirmation required')}
   finally{busy=false;loadButton.disabled=false}
  }
  loadButton.onclick=load;return true;
