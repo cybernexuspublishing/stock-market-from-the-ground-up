@@ -81,7 +81,58 @@ const synthetic=Object.freeze({
  transfer:{prompt:'New illustrative trades: 150 shares at $12 and 50 shares at $16. What is their VWAP?',answer:13}}
 });
 function validNumber(input,n){return input.trim()!==''&&Number.isFinite(Number(input))&&Math.abs(Number(input)-n)<.016}
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,memberFirstName='',allowTutorAI=true}={}){
+// Curated prerequisites reference existing canonical competency guides only.
+// No client-side grade inference: a missing assessment remains Not Yet Assessed.
+const LAB_PREREQUISITES=Object.freeze({
+ VWAP_CONTEXT:['CANDLE_READING','VOLUME_ANALYSIS'],
+ EMA_CONTEXT:['CANDLE_READING'],
+ VOLUME_ANALYSIS:['CANDLE_READING'],
+ CHART_STRUCTURE:['CANDLE_READING'],
+ MULTI_TIMEFRAME:['CANDLE_READING','CHART_STRUCTURE'],
+ BREAKOUT_RECOGNITION:['CHART_STRUCTURE','VOLUME_ANALYSIS'],
+ FAILED_BREAKOUT:['BREAKOUT_RECOGNITION'],
+ PULLBACK_RECOGNITION:['CHART_STRUCTURE'],
+ RISK_REWARD:['RISK_PER_SHARE','POSITION_SIZING'],
+ POSITION_SIZING:['RISK_PER_SHARE'],
+ ORDER_SELECTION:['SLIPPAGE_SPREAD'],
+ TAPE_READING:['VOLUME_ANALYSIS'],
+ LEVEL2_READING:['SLIPPAGE_SPREAD','ORDER_SELECTION'],
+ INVALIDATION_DISCIPLINE:['RISK_PER_SHARE'],
+ INDEPENDENT_PLAN:['ORDER_SELECTION','INVALIDATION_DISCIPLINE'],
+ MFE_MAE_REVIEW:['RISK_REWARD'],
+ SEC_FILINGS:['CATALYST_ANALYSIS'],
+ FLOAT_SUPPLY:['CATALYST_ANALYSIS']
+});
+function labPrerequisiteCodes(codes,guides){
+ const result=[];
+ for(const code of codes)for(const required of LAB_PREREQUISITES[code]||[]){
+  if(required!==code&&guides.has(required)&&!result.includes(required))result.push(required);
+ }
+ return result.slice(0,4);
+}
+function paintLabPrerequisites(host,codes,guides,evidence){
+ host.replaceChildren();
+ host.append(el('h3','Foundation skills for this lesson'));
+ host.append(el('p','Suggested preparation—not a gate or diagnosis. Missing assessment records mean Not Yet Assessed.'));
+ if(!codes.length){host.append(el('p','No additional prerequisite competency is assigned to this Lab. Begin with Talia’s introduction.'));return}
+ const list=el('ul');
+ for(const code of codes){
+  const guide=guides.get(code);
+  if(!guide)continue;
+  const item=el('li'),link=el('a',guide.title||code);
+  link.href='skills.html#guide-'+encodeURIComponent(code);
+  const verified=evidence?.ok===true&&Array.isArray(evidence.skills);
+  const skill=verified?evidence.skills.find(s=>s.code===code):null;
+  const state=!verified?'Status unavailable — cannot verify your account evidence':
+   skill?.completeAssessments>0?(skill.status||'Not Yet Assessed'):'Not Yet Assessed';
+  item.append(link,el('span',' · '+state));
+  if(state==='Not Yet Assessed')item.append(el('span',' · learn or revisit; this is not a failed assessment'));
+  list.append(item);
+ }
+ host.append(list);
+ host.append(el('p','Your Learning Development report uses only actual verified assessments. Guided explanations and optional practice do not create mastery credit.'));
+}
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,skillEvidenceRequest,memberFirstName='',allowTutorAI=true}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -126,6 +177,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  const item=map.byLab[labId];
  if(!item){target.replaceChildren(el('p','This Lab is not part of the canonical curriculum.'));return false}
  const codes=(item.relatedCompetencies||[]).filter(x=>map.guides.has(x));
+ const neededPrerequisites=labPrerequisiteCodes(codes,map.guides);
+ let skillEvidence=null,updatePrerequisitePanel=null;
  const guide=map.guides.get(codes[0]);
  if(!guide){target.replaceChildren(el('p','This Lab lacks an approved competency study bridge.'));return false}
  const kind=root.GroundUpLabEngineV32?.kindFor?.(labId)||'general';
@@ -400,7 +453,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   shell.querySelectorAll?.(':scope > .gu-v33-support-tabs').forEach(node=>node.remove());
   shell.querySelector?.(':scope > .gu-v33-setup')?.remove?.();
   instructorInstance?.dispose?.();instructorInstance=null;
-  body.replaceChildren();mark('');showJourney();
+  body.replaceChildren();updatePrerequisitePanel=null;mark('');showJourney();
   const names={0:'',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
@@ -461,6 +514,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     // introduction or in a second independent content panel.
     if(instructorInstance?.setStartSetup)instructorInstance.setStartSetup(setup);
     else body.append(setup);
+   }
+   if(neededPrerequisites.length){
+    const prep=el('section');prep.className='gu-v38-prerequisite-guidance';
+    prep.setAttribute('aria-label','Prerequisite learning guidance');
+    updatePrerequisitePanel=()=>paintLabPrerequisites(prep,neededPrerequisites,map.guides,skillEvidence);
+    updatePrerequisitePanel();
+    body.append(prep);
    }
    // Learning objectives are now delivered directly by Talia in the
    // typed instructor panel. No second competing 'What you will learn' card.
@@ -917,7 +977,17 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    }
   }
  }
- render();return true;
+ render();
+ // Ask the existing authenticated competency service, only during non-blind
+ // modes. Account changes and rerenders cannot replay stale personalized state.
+ if(typeof skillEvidenceRequest==='function'&&neededPrerequisites.length){
+  Promise.resolve().then(()=>skillEvidenceRequest()).then(result=>{
+   if(sessions.get(target)!==token)return;
+   skillEvidence=result?.ok===true?result:null;
+   updatePrerequisitePanel?.();
+  }).catch(()=>{if(sessions.get(target)===token){skillEvidence=null;updatePrerequisitePanel?.();}});
+ }
+ return true;
 }
 root.GroundUpLabEngineV32Universal=Object.freeze({
  mount,version:'3.3.0',canonicalTarget:419,steps:STEPS,mathDiagnostic,validNumber
