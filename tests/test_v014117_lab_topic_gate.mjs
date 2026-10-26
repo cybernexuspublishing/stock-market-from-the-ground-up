@@ -40,6 +40,15 @@ const run=()=>onRequest({env,request:new Request('https://site.test/api/training
 })});
 try{
  let r=await run();assert.equal(r.status,409);assert.equal(approved,0);
+ const originalChoiceOptions=questions[0].options;
+ questions[0].options=['One',' one '];
+ r=await run();assert.equal(r.status,400,'Duplicate and whitespace-equivalent choice distractors must be rejected for every rubric');
+ assert.equal(approved,0);
+ questions[0].options=originalChoiceOptions;
+ baseKeys.EVIDENCE=' One ';
+ r=await run();assert.equal(r.status,400,'Whitespace-ambiguous answer key must be rejected');
+ assert.equal(approved,0);
+ baseKeys.EVIDENCE='One';
  questions=[...questions,{id:'ETF_INDEX_APPLICATION',kind:'choice',
  prompt:'An index is a calculated benchmark while a listed ETF is an exchange-traded fund whose shares represent exposure to assets. Which response distinguishes them?',
  explanation:'A benchmark index is calculated using its defined rules; investors cannot directly buy the index. ETFs issue tradable fund shares, hold or replicate asset exposures, and can have expense ratios and tracking differences.',
