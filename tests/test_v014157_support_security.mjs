@@ -7,7 +7,7 @@ const base='https://example.supabase.co';
 const env={SUPABASE_URL:base,SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock'};
 const originalFetch=globalThis.fetch;
 const calls=[];
-let status='closed',belongs=true,canUpdate=true;
+let status='closed',belongs=true,canUpdate=true,accountKind='member';
 function reply(data,statusCode=200){
  return new Response(JSON.stringify(data),{status:statusCode,headers:{'content-type':'application/json'}});
 }
@@ -21,6 +21,10 @@ globalThis.fetch=async (input,options={})=>{
  assert.equal(options.headers.apikey,env.SUPABASE_SECRET_KEY);
  assert.equal(options.headers.authorization,undefined,'Opaque sb_secret must never become JWT Bearer');
  const path=address.slice((base+'/rest/v1/').length);
+ if(path.startsWith('profiles?select=account_kind')){
+  assert(path.includes('id=eq.'+UID),'Profile must match authenticated member');
+  return reply([{account_kind:accountKind}]);
+ }
  if(path.startsWith('support_tickets?select=id,status')){
   assert(path.includes('requester_user_id=eq.'+UID),'Support record lookup must be member scoped');
   return reply(belongs?[{id:41,status}]:[]);
@@ -44,7 +48,15 @@ function req(action,method='POST',body={id:41},headers={}){
  });
 }
 try{
+ accountKind='showcase';
  let result=await onRequest({request:req('reopen','POST',{id:41}),env});
+ assert.equal(result.status,403,'Synthetic Showcase must not write private production Support tickets');
+ assert(!calls.some(x=>x.address.includes('/support_tickets')),'Showcase denial must precede any support row lookup');
+ accountKind='test';calls.length=0;
+ result=await onRequest({request:req('detail','GET'),env});
+ assert.equal(result.status,403,'Synthetic test account cannot read private production tickets');
+ accountKind='member';calls.length=0;
+ result=await onRequest({request:req('reopen','POST',{id:41}),env});
  assert.equal(result.status,200,'Owned closed ticket may reopen');
  assert(calls.some(x=>x.options.method==='PATCH'),'Confirmed ownership then patched ticket');
  calls.length=0;belongs=false;
