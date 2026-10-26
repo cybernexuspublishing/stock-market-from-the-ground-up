@@ -29,7 +29,7 @@
 - Founding Extended Stripe metadata and description were corrected from 20% to approved 15%; no subscription Price or billing term was changed.
 - The Supabase Store had 60 canonical presentation faces, 0 sale_ready=true at audit; six included capability faces are not independently paid merchandise.
 - Four standard paid memberships and four paid tools use GU58 checkout; two Founding plans use F600. No verified generic signed fulfillment exists for Sparks purchases, books, Boot Camps or unreleased tool SKUs. Digital asset inventory was 0.
-- The Owner payment-catalog API was extended to report all-category visibility, mapped provider controls and fail-closed blockers without initiating any purchase. A dedicated no-money role and category regression was added to membership CI; CI passing status remains unverified.
+- The Owner payment-catalog API was extended to report all-category visibility, mapped provider controls and fail-closed blockers without initiating any purchase. A dedicated no-money role and category regression was added to membership CI. Membership and Stripe Catalog Contract passed at commit a08fc41d05995784cd3f1e8f08794394f12553cb (run 40385347456); Admin Payment Center also passed on that same commit (run 40385347488) after an earlier fixture failure was corrected. Subsequent commits and full end-to-end production acceptance remain separate and unverified.
 
 ## Legal policy release
 - Published Supabase legal_documents remained ten v1.1 policies at review.
