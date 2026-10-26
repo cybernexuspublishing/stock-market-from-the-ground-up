@@ -206,7 +206,9 @@ async function init(){
   const first=main?.querySelector('label[for="vr-dataset"]');if(first)first.textContent='Original fictional teaching scenarios';
   const notices=main?.querySelectorAll('.journal-section .journal-small')||[];
   for(const el of notices){if(el.textContent.includes('No data is fabricated.'))el.textContent='All prices, volumes and timestamps are fabricated. The server does not send unrevealed candles. No grade or real fill is awarded.';}
-  const leg=main?.querySelector('fieldset legend');if(leg)leg.textContent='Optional education-only decision assumptions (no fill awarded)';
+  const leg=main?.querySelector('fieldset legend');if(leg){leg.textContent='Paper execution assumptions are not used in this Free fictional decision replay';leg.parentElement.hidden=true;}
+  const disclosure=main?.querySelector('p.journal-small:last-of-type');
+  if(disclosure&&disclosure.textContent.includes('Market, limit and stop fills'))disclosure.textContent='Only decisions and observations are studied here. No real or fictional fill, trading profit, score or certification is awarded.';
  }
 
  let u=null;
