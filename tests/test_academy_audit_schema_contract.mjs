@@ -21,8 +21,10 @@ const fields=migration.slice(migration.indexOf('CREATE TABLE public.gu_bootcamp_
 assert(!/\breflection\s+(?:jsonb?|text)\b/i.test(fields),'Audit table must not store reflection bodies');
 assert(!/\b(?:answer_key|questions|rubric|private_lesson|access_token|refresh_token)\s+(?:jsonb?|text)\b/i.test(fields),
  'Audit table must not store exam or credential material');
-for(const banned of [/DROP TABLE/i,/TRUNCATE/i,/DELETE FROM/i,/DROP COLUMN/i])
- assert(!banned.test(rollback),'Rollback must preserve existing member audit records');
+// Comments explicitly explain forbidden destructive operations; inspect SQL only.
+const executableRollback=rollback.split('\n').filter(line=>!/^[\s]*--/.test(line)).join('\n');
+for(const banned of [/\bDROP\s+TABLE\b/i,/\bTRUNCATE\b/i,/\bDELETE\s+FROM\b/i,/\bDROP\s+COLUMN\b/i])
+ assert(!banned.test(executableRollback),'Rollback must preserve existing member audit records');
 assert(rollback.includes('DROP TRIGGER IF EXISTS'));
 assert(post.includes('BEGIN READ ONLY;'));
 assert(post.includes('member_can_read'));
