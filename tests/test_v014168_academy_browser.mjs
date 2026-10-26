@@ -75,6 +75,8 @@ try{
     await section.waitFor({state:'visible'});
     assert.equal(await section.locator('ol li').count(),academyByCode.truth5.curriculum[0].lesson.sourceProcedure.length);
     assert.match(await section.innerText(),/FICTIONAL:/,'Working cases must be identified as invented');
+    assert.match(await section.innerText(),/Independent evidence investigation/);
+    assert.match(await section.innerText(),/lookalike domain/,'Day 1 must include an independent source-identity case');
     const answer=page.locator('#academy-self-check-answer');
     const compare=section.getByRole('button',{name:'Compare my reasoning'});
     assert.equal(await compare.isDisabled(),true,'Do not reveal the coaching answer before a written learner attempt');
@@ -84,6 +86,7 @@ try{
     assert.match(await section.innerText(),/No mastery was awarded/);
     await page.locator('#academy-days .gu-bc-day').nth(1).click();
     assert.match(await section.innerText(),/SEC EDGAR/,'Day 2 must teach a substantively different source skill');
+    assert.match(await section.innerText(),/unaudited quarterly/,'Day 2 must include separate audited-versus-forward-looking investigation');
     assert.equal(await page.locator('#academy-self-check-answer').inputValue(),'','Day transitions cannot silently carry an earlier response into another question');
     await page.locator('#academy-days .gu-bc-day').first().click();
     assert.match(await section.innerText(),/widely shared screenshot/);
