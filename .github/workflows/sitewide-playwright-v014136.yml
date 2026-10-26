@@ -9,9 +9,13 @@ permissions:
 
 # Runs against the checked-out commit, never against an unpredictable live site.
 # No secrets, sign-in, payments, or external production calls from this workflow.
+# Routine main pushes supersede obsolete push checks. A manually requested
+# release-acceptance run is isolated by run_id and cannot be cancelled by
+# subsequent unrelated pushes. This preserves exact-commit evidence without
+# forcing every rapid development push through costly duplicate browser runs.
 concurrency:
-  group: sitewide-playwright-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: sitewide-playwright-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'push' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 jobs:
   sitewide-browser:
     name: Website Playwright (all major sections, mobile, accessibility)
@@ -67,6 +71,11 @@ jobs:
         run: node tests/test_v014161_lab_engine_v32_teaching.mjs
       - name: Enforce all nine Lab Engine v3.2 progression boundaries
         run: node tests/test_v014162_v32_stage_integrity.mjs
+      - name: Verify Owner social marketing API and zero-spend provider security on exact commit
+        run: |
+          node --check functions/api/admin-social.js
+          node --check assets/js/admin-social-operations-v014278.js
+          node --test tests/test_admin_social_zero_cost.mjs tests/test_social_provider_capabilities.mjs
       - name: Install pinned Chromium browser test runner
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
