@@ -1,0 +1,73 @@
+name: Commerce and Sparks Isolated Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/v014163_sparks_pg_*'
+      - 'tests/test_20261026_admin_entitlement_multi_contract.mjs'
+      - 'tests/test_lantern_sparks_admin_security.mjs'
+      - 'tests/test_member_sparks_wallet_v014296.mjs'
+      - 'assets/js/account-management-entitlements-v01478.js'
+      - 'assets/js/my-purchases.js'
+      - 'functions/api/admin-accounts-v01353.js'
+      - 'functions/api/*stripe*.js'
+      - 'functions/api/*sparks*.js'
+      - 'supabase/migrations/v0.14.0.163_*'
+      - 'supabase/migrations/v0.14.0.164_*'
+      - '.github/workflows/commerce-sparks-isolated-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: commerce-sparks-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'push' }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+jobs:
+  no-charge-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run existing noncharging Admin, wallet and Stripe mocks
+        run: |
+          node tests/test_20261026_admin_entitlement_multi_contract.mjs
+          node tests/test_member_sparks_wallet_v014296.mjs
+          node tests/test_lantern_sparks_admin_security.mjs
+          node tests/test_v01438_stripe_lifecycle_mock.mjs
+  disposable-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: disposable_ci_only
+          POSTGRES_DB: sparks_isolated_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sparks_isolated_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: disposable_ci_only
+      PGDATABASE: sparks_isolated_ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run actual Sparks SQL migrations and assert ledger invariants
+        run: |
+          if ! command -v psql >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; fi
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014163_sparks_pg_bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.163_QUESTION_PASS_LEDGER_OWNER_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.164_LANTERN_SPARKS_ADMIN_REVIEW_REQUIRED.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014163_sparks_pg_acceptance.sql
