@@ -1,4 +1,26 @@
 let PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0,attemptGeneration:0,savingAttempt:false,reflectionSaved:false};
+let labPlayerSessionEpoch=0,labPlayerAccountId='',labPlayerAuthSubscribed=false;
+function scrubLabPlayerOnIdentityChange(nextUserId){
+ const id=typeof nextUserId==='string'?nextUserId:'';
+ if(id===labPlayerAccountId)return;
+ labPlayerAccountId=id;++labPlayerSessionEpoch;
+ PLAYER={lab:null,access:null,mode:'guided',locked:false,revealIndex:0,attemptGeneration:0,savingAttempt:false,reflectionSaved:false};
+ for(const name of ['player-workspace','player-access-note','player-reference-select']){
+  document.getElementById(name)?.replaceChildren();
+ }
+ for(const name of ['player-lab-id','player-title','player-location']){
+  const el=document.getElementById(name);if(el)el.textContent='';
+ }
+ const workspace=document.getElementById('lab-player-content');
+ if(workspace)workspace.hidden=true;
+ const gate=document.getElementById('lab-player-gate');
+ if(gate){
+  gate.replaceChildren();
+  const notice=document.createElement('div');notice.className='notice';
+  notice.textContent='Your account changed. Private lesson content and unsaved work were cleared. Reopen the Lab to continue with the current account.';
+  gate.append(notice);
+ }
+}
 function pe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function q(id){return document.getElementById(id)}
 // User-facing titles are educational topics. IDs are for the book's Lab locator.
@@ -432,12 +454,24 @@ async function loadMemberFirstName(session){
  }catch{return fallback}
  finally{clearTimeout(timer)}
 }
-async function initPlayer(){try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
+async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
  const session=authResult?.data?.session||null;
+ const memberId=session?.user?.id||'';
+ if(memberId!==labPlayerAccountId)scrubLabPlayerOnIdentityChange(memberId);
+ loadEpoch=labPlayerSessionEpoch;
+ if(!labPlayerAuthSubscribed&&typeof sb?.auth?.onAuthStateChange==='function'){
+  labPlayerAuthSubscribed=true;
+  sb.auth.onAuthStateChange((event,nextSession)=>{
+   if(['INITIAL_SESSION','SIGNED_IN','SIGNED_OUT','USER_UPDATED','TOKEN_REFRESHED'].includes(event))
+    scrubLabPlayerOnIdentityChange(nextSession?.user?.id||'');
+  });
+ }
+ const memberUnchanged=()=>loadEpoch===labPlayerSessionEpoch&&memberId===labPlayerAccountId;
  const firstNameRequest=session?loadMemberFirstName(session):Promise.resolve('');
  const fetchOptions={cache:'no-store',headers:session?{authorization:'Bearer '+session.access_token}:{}};let response=await fetchLabWithDeadline('/api/lab-content?id='+encodeURIComponent(id),fetchOptions);
  let payload=await response.json().catch(()=>({}));
+ if(!memberUnchanged())return;
  // Canonical book companion route remains authoritative when published.
  // Only missing authored content is eligible for server-authorized, ungraded
  // registry orientation. A 403 entitlement denial is NEVER bypassed.
@@ -448,6 +482,7 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
 
   response=await fetchLabWithDeadline('/api/lab-player-context?id='+encodeURIComponent(id||''),fetchOptions);
   payload=await response.json().catch(()=>({}));
+  if(!memberUnchanged())return;
  }
  if(!response.ok||!payload.ok){
   const failure=new Error(response.status===503?
@@ -455,17 +490,24 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
    payload.error||'Lab not available.');
   failure.qaCode=String(payload.code||'');
   throw failure;
- }const lab=normalizeAuthorizedLab(payload.lab,await canonicalPublishedMetadata(id),id);PLAYER.lab=lab;
+ }
+ const canonical=await canonicalPublishedMetadata(id);
+ if(!memberUnchanged())return;
+ const lab=normalizeAuthorizedLab(payload.lab,canonical,id);PLAYER.lab=lab;
  // Server-reported entitlement is authoritative. Optional client-side
  // dashboard access state may fail separately and must not hide a valid Lab.
  // The Lab API has already authorized the entitlement. Do not block the
  // lesson display on optional legacy dashboard queries, which can hang or
  // fail independently of the server-approved Lab and are not authoritative.
  const firstName=await bounded(firstNameRequest,1800,memberFirstNameField(session?.user?.user_metadata?.first_name));
+ if(!memberUnchanged())return;
  PLAYER.access={user:session?.user||null,sb:sb||null,memberFirstName:firstName,tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false,redeemedBooks:new Set()};
  PLAYER.access.isMember=payload.advancedAllowed===true;PLAYER.access.serverAdvancedAllowed=payload.advancedAllowed===true;PLAYER.access.serverGuidedAllowed=payload.guidedAllowed===true;PLAYER.access.redeemedBooks=payload.guidedAllowed?new Set([Number(lab.book)]):new Set();const requestedMode=new URLSearchParams(location.search).get('mode');if(['guided','practice','blind','assessment'].includes(requestedMode))PLAYER.mode=requestedMode;
- if(PLAYER.mode==='assessment'&&PLAYER.access.serverAdvancedAllowed===true&&!(await assessmentModeReady('assessment')))
+ if(PLAYER.mode==='assessment'&&PLAYER.access.serverAdvancedAllowed===true&&!(await assessmentModeReady('assessment'))){
+  if(!memberUnchanged())return;
   PLAYER.mode=PLAYER.access.serverGuidedAllowed===true?'guided':'practice';
+ }
+ if(!memberUnchanged())return;
  q('player-lab-id').textContent=lab.id;
   const picker=q('player-reference-select');
   if(picker){
@@ -547,7 +589,9 @@ async function initPlayer(){try{const id=new URLSearchParams(location.search).ge
   }
   syncPlayerMode();
  });
+ if(!memberUnchanged())return;
  renderPlayer()}catch(e){
+ if(loadEpoch!==null&&loadEpoch!==labPlayerSessionEpoch)return;
  const gate=q('lab-player-gate');
  gate.replaceChildren();
  const notice=document.createElement('div');notice.className='notice';
