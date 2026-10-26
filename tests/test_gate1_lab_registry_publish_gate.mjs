@@ -11,7 +11,7 @@ const fixture={
   {lab_id:'F2-C01-L01',active:false,registry_visible:true},
   {lab_id:'F2-C02-L01',active:true,registry_visible:false}
  ],
- lab_instruction_v014:[{lab_id:'F1-C02-L01',source_status:'editorially_reviewed_v1'},{lab_id:'F2-C01-L01',source_status:'editorially_reviewed_v1'},{lab_id:'F2-C02-L01',source_status:'editorially_reviewed_v1'}],
+ lab_instruction_v014:[{lab_id:'F1-C02-L01',source_status:'editorially_reviewed_v1',reviewed_by:'reviewer-fixture',reviewed_at:'2026-10-26T07:00:00Z'},{lab_id:'F2-C01-L01',source_status:'editorially_reviewed_v1'},{lab_id:'F2-C02-L01',source_status:'editorially_reviewed_v1'}],
  lab_training_sets_v014:[
   {lab_id:'F1-C02-L01',review_state:'reviewed',reviewed_by:'owner',reviewed_at:'2026-10-26'},
   {lab_id:'F1-C02-L02',review_state:'reviewed',reviewed_by:'owner',reviewed_at:'2026-10-26'},
