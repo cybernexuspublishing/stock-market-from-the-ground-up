@@ -53,14 +53,14 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
- const title=el('h3','Talia Mercer');
+ const title=el('h3','Talia');
  const head=el('div',undefined,'gu-v33-instructor-head');
  const avatar=el('span','T','gu-v33-instructor-avatar');
  // Static instructor monogram fallback; never imply a synthetic live video feed.
- avatar.setAttribute('title','Talia Mercer — text-based learning instructor');
+ avatar.setAttribute('title','Talia — text-based learning instructor');
  avatar.setAttribute('aria-hidden','true');
  const identity=el('div',undefined,'gu-v33-instructor-identity');
- identity.append(title,el('span','Your market educator · text-based instruction','gu-v33-instructor-subtitle'));
+ identity.append(title,el('span','Your instructor · guided explanations and written answers','gu-v33-instructor-subtitle'));
  if(stage!==0)head.append(avatar,identity);
  else head.hidden=true; // Historical Lab Setup will occupy this header instead.
  rootEl.append(head);
@@ -580,7 +580,18 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  ]){
   const control=el('button',label,'btn secondary gu-v34-topic-button');
   control.type='button';
-  listen(control,'click',()=>teachFeature({type:lessonContext.visualType||'general',feature:focus}));
+  listen(control,'click',()=>{
+   if(/\bwatchlist\b/i.test(concept)){
+    const content={
+     understand:plan?.blocks?.slice(1,4),
+     recognize:plan?.worked?.slice(0,2),
+     apply:plan?.worked?.slice(2,4),
+     mistake:[plan?.misconception,'Correction: use dated primary sources and explicit inclusion rules.'],
+     limits:[plan?.limitation,'A watchlist entry is never a filled order or guaranteed return.']
+    };
+    teachSupplement(label,(content[focus]||[]).filter(Boolean));
+   }else teachFeature({type:lessonContext.visualType||'general',feature:focus});
+  });
   topicTools.append(control);
  }
  if(stage===1||stage===2||stage===4||stage===6)rootEl.insertBefore?.(topicTools,transcript);
