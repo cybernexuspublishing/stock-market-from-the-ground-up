@@ -19,7 +19,7 @@
       "name": "Founding Extended",
       "billingIntervalDays": 60,
       "recurringCents": 5999,
-      "foundingDiscountBps": 2000,
+      "foundingDiscountBps": 1500,
       "incSparks": 15,
       "incSparksExpiryDaysAfterTermEnd": 150,
       "autoRenew": true,
@@ -46,7 +46,7 @@
     "noStack": true,
     "standardLifetimeListCents": 249900,
     "standardLifetimeChargedCents": 224910,
-    "extendedLifetimeChargedCents": 199920,
+    "extendedLifetimeChargedCents": 212415,
     "extendedPermanentVesting": "completed_paid_non_refunded_60_day_term"
   },
   "purchasedSparksExpire": false,

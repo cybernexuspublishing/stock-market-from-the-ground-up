@@ -25,7 +25,7 @@ try{
   if(path.includes('gu_founder_release_v014173'))return wrap([{enrollment_enabled:false,billing_enabled:false,fulfillment_enabled:false}]);
   if(path.includes('gu_founder_plans_v014173'))return wrap([
     {plan_code:'FOUNDING_30',term_days:30,price_cents:4999,checkout_enabled:false,purchase_discount_bps:1000},
-    {plan_code:'FOUNDING_60',term_days:60,price_cents:5999,checkout_enabled:false,purchase_discount_bps:2000}
+    {plan_code:'FOUNDING_60',term_days:60,price_cents:5999,checkout_enabled:false,purchase_discount_bps:1500}
   ]);
   if(path.includes('gu_ad_sandbox_prices'))return wrap([
    {package_code:'SITE_SPONSOR',test_price_id:'price_alpha123',test_amount_cents:100},

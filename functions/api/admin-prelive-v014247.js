@@ -121,7 +121,7 @@ export async function onRequest({request,env}){
  const plan60=Array.isArray(founderPlans)?founderPlans.find(x=>x.plan_code==='FOUNDING_60'):null;
  const validFounderTerms=founderPlans?.length===2&&
    plan30?.term_days===30&&plan30?.price_cents===4999&&plan30?.purchase_discount_bps===1000&&
-   plan60?.term_days===60&&plan60?.price_cents===5999&&plan60?.purchase_discount_bps===2000;
+   plan60?.term_days===60&&plan60?.price_cents===5999&&plan60?.purchase_discount_bps===1500;
  const founderLiveHeld=release?.enrollment_enabled===false&&release?.billing_enabled===false&&
    release?.fulfillment_enabled===false&&plan30?.checkout_enabled===false&&plan60?.checkout_enabled===false;
  const founderQaObserved=Number.isInteger(founderQaEvents)&&founderQaEvents>0&&
@@ -139,7 +139,7 @@ export async function onRequest({request,env}){
     founderLiveHeld?'Enrollment, billing, fulfillment and both founding plan checkouts are disabled.':
       'Unable to verify all five LIVE safety switches as disabled. Escalate before release.'),
   check('founding_terms','Founding 600 frozen plan terms',validFounderTerms?'verified':'action_required',
-    validFounderTerms?'Standard: $49.99/30 days, 10% eligible-purchase discount; Extended: $59.99/60 days, 20% eligible-purchase discount.':
+    validFounderTerms?'Standard: $49.99/30 days, 10% eligible-purchase discount; Extended: $59.99/60 days, 15% eligible-purchase discount.':
       'Founding plan prices, durations, permanent-discount rules or catalog records could not be verified.'),
   check('founding_sandbox','Founding 600 Sandbox ledger',founderQaObserved?'review':'pending',
     founderQaObserved?'TEST event and billing-cycle records exist; independently reconcile event IDs against Stripe before closing provider acceptance.':

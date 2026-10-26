@@ -34,7 +34,7 @@ jobs:
             assert.equal(c.plans.FOUNDING_30.incSparksExpiryDaysAfterTermEnd,90);
             assert.equal(c.plans.FOUNDING_60.recurringCents,5999);
             assert.equal(c.plans.FOUNDING_60.billingIntervalDays,60);
-            assert.equal(c.plans.FOUNDING_60.foundingDiscountBps,2000);
+            assert.equal(c.plans.FOUNDING_60.foundingDiscountBps,1500);
             assert.equal(c.plans.FOUNDING_60.incSparks,15);
             assert.equal(c.plans.FOUNDING_60.incSparksExpiryDaysAfterTermEnd,150);
             assert.deepEqual(c.discount.exclude,['FOUNDING_30','FOUNDING_60']);
@@ -43,6 +43,9 @@ jobs:
             assert.equal(c.tradingExecutionIncluded,false);
             console.log('PASS Founding600 production-safe source contract (paid checkout remains disabled)');
           "
+
+      - name: Enforce 10/15 percent founder commercial contract
+        run: node --test tests/test_founder_discount_15_contract.mjs
 
       - name: Check member-ready Commons, Design Studio, Blueprint and billing gates
         run: |

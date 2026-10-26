@@ -29,8 +29,8 @@ test('Founder Standard earned 10% cannot silently pay list price on six eligible
   assert.equal(count(),6);
  });
 });
-test('Founder Extended earned 20% cannot silently pay list price',async()=>{
- await verify({ok:true,eligible:true,discountBps:2000,founderSubscriptionExcluded:true},async count=>{
+test('Founder Extended earned 15% cannot silently pay list price',async()=>{
+ await verify({ok:true,eligible:true,discountBps:1500,founderSubscriptionExcluded:true},async count=>{
   for(const [kind,code] of eligible){
    await assert.rejects(assertFounderDiscountCheckoutSafe(cfg,userId,kind,code),
      e=>e.status===409);
@@ -49,7 +49,7 @@ test('Malformed/mismatched discount policy fails closed with no checkout approva
  for(const policy of [null,[],{}, {ok:false,error:'AUTH_REQUIRED'},
   {ok:true,eligible:true,discountBps:0},
   {ok:true,eligible:false,discountBps:1000},
-  {ok:true,eligible:true,discountBps:1500},
+  {ok:true,eligible:true,discountBps:2000},
   {ok:true,eligible:true,discountBps:2000,founderSubscriptionExcluded:false}]){
   await verify(policy,async()=>{
    await assert.rejects(assertFounderDiscountCheckoutSafe(cfg,userId,'plan','LIFETIME'),
