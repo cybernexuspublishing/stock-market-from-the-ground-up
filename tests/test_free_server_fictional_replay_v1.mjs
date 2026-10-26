@@ -51,13 +51,13 @@ globalThis.fetch=async(raw,init={})=>{
     created_at:new Date().toISOString(),decision:null,decision_plan:null};return json([started],201);
   }
   if(init.method==='PATCH'){
-   if(!started||started.user_id!==actor)return json([]);
+   if(!started||u.searchParams.get('user_id')!=='eq.'+started.user_id)return json([]);
    if(u.searchParams.has('decision_locked')&&started.decision_locked)return json([]);
    if(u.searchParams.has('current_index')&&Number(u.searchParams.get('current_index').slice(3))!==started.current_index)return json([]);
    const patch=JSON.parse(init.body);Object.assign(started,patch);
    return json([started]);
   }
-  if(!started||started.user_id!==actor||started.status!=='active')return json([]);
+  if(!started||u.searchParams.get('user_id')!=='eq.'+started.user_id||started.status!=='active')return json([]);
   return json([started]);
  }
  if(p==='/rest/v1/rpc/v01492_replay_advance'){
