@@ -608,7 +608,9 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   quickActions.append(button);
  };
  addQuick('Ask Talia',()=>openTutor());
- addQuick('Explain This Concept',()=>teachFeature({type:lessonContext.visualType||'general',feature:'understand'}));
+ addQuick('Explain This Concept',()=>/\bwatchlist\b/i.test(concept)
+  ?teachSupplement('What a watchlist means',plan?.blocks?.slice(1,4)||[])
+  :teachFeature({type:lessonContext.visualType||'general',feature:'understand'}));
  addQuick('Teach This in More Depth',()=>teachSupplement('Deeper explanation',[
   String(plan?.blocks?.join(' ')||lessonContext?.teaching?.what||lessonContext?.guide?.concept||
    'Begin with the definition, identify the displayed evidence, and explain each observation before drawing a conclusion.'),
@@ -622,8 +624,15 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   'Identify the source and timeframe before treating any example as a historical market record.',
   String(plan?.limitation||'A single completed example does not guarantee repetition.')
  ]));
- addQuick('Common Mistakes',()=>teachFeature({type:lessonContext.visualType||'general',feature:'mistake'}));
- addQuick('Practice Another Example',()=>teachSupplement('Try another independent example',[
+ addQuick('Common Mistakes',()=>/\bwatchlist\b/i.test(concept)
+  ?teachSupplement('Watchlist mistakes',[String(plan?.misconception||''),String(plan?.limitation||'')])
+  :teachFeature({type:lessonContext.visualType||'general',feature:'mistake'}));
+ addQuick('Practice Another Example',()=>teachSupplement('Try another independent example',
+  /\bwatchlist\b/i.test(concept)?[
+   'FICTIONAL Example D: you see a new candidate at 09:05 ET with a source-linked headline, no verified quote and an uncertain spread. Do not place an order.',
+   'Write its issuer/source/time, the evidence still missing, your WATCH/VERIFY/NO TRADE classification, and the specific event that would remove it from consideration.',
+   'Compare the record with the class watchlist table. This is independent ungraded practice; use the Practice stage to save your work.'
+  ]:[
   'Choose a different completed candle or exercise from the current Lab, if one is available. Record your own observation before revealing guidance.',
   String(plan?.worked?.[0]||lessonContext?.guide?.procedure||
    'For a candlestick, record Open, High, Low and Close, then calculate the real body and full range. If the range is positive, calculate body percentage.'),
