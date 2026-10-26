@@ -80,13 +80,13 @@ User-authorized StocksToTrade ZIP (6) contains a QA research register reporting 
 | B01 Labs (20) | **Authored**, structural grading preflight PROVEN; **0 reviewed / 0 Beta Ready** |
 | Remaining 399 Labs | **Not accepted**; separate stage evidence required |
 | Seven Boot Camps | **0/7 Beta Ready** |
-| Overall website | **NO-GO** for final member-ready acceptance, LIVE payments remain prohibited |
+| Founding 600 beta testing | **ACTIVE DEVELOPMENT AND CONTROLLED MEMBER TESTING** on authorized workflows; full sitewide acceptance remains individually unverified; LIVE payments remain disabled |
 
 ## Change/rollback control
 
 Commits for this work include the guarded Store migration, rollback, SQL read-only preflight, added founder test; and the Lab publication API, its regression, and Boot Camp CI registration. Keep their GitHub commit history and verify newest `main` against the actual Yahoo Cloudflare production deployment before an Owner release verdict. There were no new LIVE prices, payment events, member records or private answer-key exports.
 
-**Next authoritatively ordered gate:** Complete and independently review Truth5 plus exact B01 twenty authored Labs first. Then undertake Gate 2 Watchlist7 + B02. Never start B02 merely because B01 structural tests pass. When all seven programs and 336 selected Labs have individual acceptance and real Founding 600 tests, run one consolidated Owner acceptance and record its genuine GO/NO-GO result.
+**Next development and beta-evidence sequence:** Continue substantive Truth5/B01 teaching, independent grading reviews and authenticated member trials while fixing shared-platform and other approved beta features in parallel. Carry each Boot Camp and Lab toward its own evidence-based acceptance; do not count draft assessments as mastery. Complete the seven-program / selected-336 roadmap, then publish one consolidated Owner evidence report by individual feature status, defect severity and remaining member-verification tasks. Beta iteration is never assigned a blanket binary launch verdict.
 
 **Document footer:** Internal engineering acceptance evidence only; not legal or investment advice; no attorney, third-party market-data or human QA certification implied.
 
@@ -125,3 +125,15 @@ The Owner rejected treating pending release acceptance as a stop-work order or a
 **Owner decisions:** Accepted as IMPLEMENTED for the isolated new guided QA workflow and corrected private Support path. Not declared full Beta Ready or production member tested. Keep building and supporting beta practice instead of freezing the site for draft assessment review. Official reviewed grading, safe Auth, 83 Upcoming labs and all LIVE payment shutdowns remain independent safety constraints.
 
 **Owner action using existing UI, not a new credential request:** An authenticated Owner can open Admin → Account Management → an existing real beta member → Manage All Account Entitlements → Authorize 30-Day Guided Beta Access. Record the resulting successful grant readback. Then sign in as that separate member, open Labs and Academy, record and resume work, submit a support report and ensure another member cannot read it. Do not type account credentials in public bug reports or grant Founder financial benefits for these QA passes.
+
+## Current Owner policy — iterative Founding 600 beta classification (2026-10-26)
+
+**Controlling correction:** Founding 600 tester access is an ongoing development, instruction, feedback, remediation and verification process. A missing member acceptance record is **not** a stop-work instruction, nor a reason to impose a blanket binary verdict on the entire beta. Any older binary wording in historical engineering snapshots is superseded for *current beta operations*, without rewriting the underlying test results or authorizing LIVE financial activity.
+
+Record every member-facing item using the most specific supported status: **Available for Beta Testing**, **Testing in Progress**, **Improvement Required**, **Fix Implemented**, **Member Verified**, or **Beta Accepted**. Keep the separate technical evidence label **IMPLEMENTED**, **TESTED**, or **PROVEN** and the seven-stage individual educational acceptance progression unchanged. These dimensions must not be conflated: beta-accessible material is not automatically assessment-verified, and a deployment is not automatically a genuine member test.
+
+For a material P0 defect (cross-account exposure, data loss, unsafe assessment award, payment/identity compromise), temporarily contain only the impacted workflow while repairs and testing of unaffected systems continue. Continue offering other properly authorized beta features; disclose limitations accurately. Retain server-enforced authentication/entitlements, CAPTCHA/Turnstile, protected answers, member isolation, market-data provenance, the 83 explicitly Upcoming Labs and the existing LIVE payment shutdowns. These are non-negotiable behavioral controls, not launch-label rhetoric.
+
+**Current evidence carried forward:** 336 selected Labs have available instructional source coverage (94 substantive private records plus 242 substantive canonical narratives). This supports controlled, ungraded study candidates; it does not demonstrate 336 fully completed instructional products or confer graded mastery. Current genuine-member tests, boot-camp completion, protected rubric review, responsive device checks and provider-backed lifecycle tests continue to accrue evidence independently.
+
+**Acceptance reporting requirement:** State what members can actually open today, what they can do end to end, any known limitations, issue owner and next test. Present counts for individually Beta Accepted Labs and Boot Camps, but never replace open engineering work with a platform-wide binary restriction.
