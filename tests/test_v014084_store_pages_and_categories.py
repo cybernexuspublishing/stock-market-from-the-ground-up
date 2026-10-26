@@ -26,12 +26,15 @@ class Tags(HTMLParser):
 def valid_html(s):
  t=Tags();t.feed(s);assert not t.stack,t.stack
 valid_html(store)
-for category in ('founders','memberships','books','tools'):
+for category in ('founders','books','tools'):
  assert store.count('id="store-tab-'+category+'"')==1
  assert store.count('id="store-panel-'+category+'"')==1
  assert 'aria-controls="store-panel-'+category+'"' in store
  assert 'role="tabpanel"' in store
  assert 'store.html#' in details
+# Non-offered paid memberships remain manageable but absent from the public tablist.
+assert 'id="store-tab-memberships"' not in store
+assert 'id="store-panel-memberships"' not in store
 assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
 assert ".filter(p=>p.type==='book'" in script
