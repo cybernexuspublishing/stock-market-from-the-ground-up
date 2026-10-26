@@ -123,17 +123,24 @@ async function foundingCatalog(){
 }
 
 function tabs(){
- const buttons=[...document.querySelectorAll('[data-store-category]')].filter(b=>!b.hidden),parts=['founders','books','tools'];
+ const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['founders','books','tools'];
+ const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled);
  const select=(name,focus=false)=>{
-  const key=parts.includes(name)?name:'founders';
+  const available=visibleButtons();
+  const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:'founders';
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
   const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',books:'books only',tools:'individual tools only'})[key]+'.';
   if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
- buttons.forEach((b,i)=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
-  b.addEventListener('keydown',e=>{let idx;if(e.key==='ArrowRight')idx=(i+1)%buttons.length;else if(e.key==='ArrowLeft')idx=(i+buttons.length-1)%buttons.length;else if(e.key==='Home')idx=0;else if(e.key==='End')idx=buttons.length-1;else return;e.preventDefault();select(buttons[idx].dataset.storeCategory,true)})});
+ buttons.forEach(b=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
+  b.addEventListener('keydown',e=>{
+   const available=visibleButtons(),i=available.indexOf(b);
+   if(i<0||!available.length)return;
+   let idx;if(e.key==='ArrowRight')idx=(i+1)%available.length;else if(e.key==='ArrowLeft')idx=(i+available.length-1)%available.length;else if(e.key==='Home')idx=0;else if(e.key==='End')idx=available.length-1;else return;
+   e.preventDefault();select(available[idx].dataset.storeCategory,true)
+  })});
  window.addEventListener('hashchange',()=>{const key=location.hash.replace('#','');if(parts.includes(key))select(key)});
  select(location.hash.replace('#',''));
  const filters=[...document.querySelectorAll('#store-tabs button')];
