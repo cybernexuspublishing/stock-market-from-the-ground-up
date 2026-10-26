@@ -100,7 +100,11 @@
    node('h4','Apply the method'));
   const steps=node('ol');
   for(const step of lesson.sourceProcedure||[])steps.append(node('li',step));
-  mount.append(steps,node('h4','Common research error'),node('p',lesson.error),
+  mount.append(steps);
+  if(typeof lesson.investigation==='string'&&lesson.investigation.length>100){
+   mount.append(node('h4','Independent evidence investigation'),node('p',lesson.investigation));
+  }
+  mount.append(node('h4','Common research error'),node('p',lesson.error),
    node('h4','Transfer to a new case'),node('p',lesson.transfer),
    node('h4','Check your understanding — ungraded'),node('p',lesson.selfCheck));
   const label=node('label','Write your independent reasoning before comparing it with a model explanation.');
