@@ -73,3 +73,20 @@
 .gu-founders-page .gu-f600-forum p:not(.gu-f600-forum-kicker){font-size:.79rem;line-height:1.8;color:#aebcd1;margin:0;max-width:100ch}
 .gu-founders-page .gu-f600-forum.gu-f600-locked{opacity:1;background:#0e1521}
 @media(max-width:650px){.gu-founders-page .gu-f600-forum{display:block;padding:22px 18px}.gu-founders-page .gu-f600-forum-link{display:inline-block;margin-top:16px}}
+
+/* Founding 600 sitewide member beta center. Inherits Commons access gate. */
+.gu-f600-beta-center{margin:20px 0 28px}
+.gu-f600-beta-center>p:not(.gu-f600-eyebrow){max-width:95ch;line-height:1.65;color:#d3e2f0}
+.gu-f600-beta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.gu-f600-beta-grid article{min-width:0;padding:18px;border:1px solid #355878;background:#132c46;border-radius:12px;display:flex;flex-direction:column;gap:10px}
+.gu-f600-beta-grid h3{margin:0;color:#f5f9ff;font-size:1rem}
+.gu-f600-beta-grid p{margin:0;color:#cfdeed;font-size:.88rem;line-height:1.55;flex:1}
+.gu-f600-beta-grid a{align-self:flex-start;text-decoration:underline;text-underline-offset:3px}
+.gu-f600-beta-grid a:focus-visible,.gu-f600-beta-report a:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.gu-f600-beta-report{border-top:1px solid #385675;padding-top:18px}
+.gu-f600-beta-report h3{color:#fff;margin:0 0 10px;font-size:1.1rem}
+.gu-f600-beta-report p{line-height:1.6;max-width:95ch}
+.gu-f600-beta-report .btn{display:inline-block;margin:5px 8px 5px 0}
+.gu-f600-beta-note{color:#c5d8e8;font-size:.84rem}
+@media(max-width:1000px){.gu-f600-beta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.gu-f600-beta-grid{grid-template-columns:1fr}.gu-f600-beta-center{padding:18px}.gu-f600-beta-report .btn{max-width:100%;white-space:normal}}
