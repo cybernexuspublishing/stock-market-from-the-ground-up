@@ -6,6 +6,7 @@ on:
       - '.github/workflows/f600-capacity-isolated.yml'
       - 'tests/fixtures/f600-capacity-isolated-v1.sql'
       - 'tests/test_f600_capacity_isolated.cjs'
+      - 'docs/releases/2026-10-26_F600_GATES2-7_FINAL_REGRESSION.md'
   workflow_dispatch:
 permissions:
   contents: read
