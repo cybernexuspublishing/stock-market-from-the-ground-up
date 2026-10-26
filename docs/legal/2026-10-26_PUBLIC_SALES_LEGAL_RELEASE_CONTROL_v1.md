@@ -1,3 +1,5 @@
+> **October 26, 2026 publication update.** The planning statements below concerning unpublished drafts were superseded by the successful publication of fourteen policy documents to Supabase. Ten former Version 1.1 records are archived; public versions are 2.0 or 2.0.1. For the controlling record of publication and currently effective routes, see [Legal Policy Publication Record](2026-10-26_LEGAL_PUBLICATION_RECORD_V2.md). This publication does not constitute licensed-attorney approval, a completed Missouri business-registration review, or approval to collect LIVE payment.
+
 # Public LIVE Sales — Legal Architecture and Release Control
 
 **Project:** The Stock Market: From the Ground Up  
@@ -7,7 +9,7 @@
 **Type:** Markdown  
 **Version:** 1.0 — legal and engineering readiness review  
 **Prepared:** October 26, 2026  
-**Status:** POLICY DRAFTS PRODUCED; LAUNCH NOT LEGALLY OR TECHNICALLY ACCEPTED  
+**Status:** POLICIES PUBLISHED IN PRODUCTION; LEGAL REVIEW AND LIVE PAID CHECKOUT ACCEPTANCE STILL OPEN  
 **Google Drive location / file ID:** Not assigned; GitHub main is source of draft  
 **Purpose:** Assess full-site public commerce, define specialty-counsel review, and prevent false compliance claims.  
 **Dependencies:** Supabase published legal_documents v1.1; 14 new policy/addendum drafts; Cloudflare LIVE environment; Stripe/Link; founder terms; KDP edition rights; Auth; Store; ads and Market Commons.
