@@ -3,6 +3,7 @@
  * OHLCV bars. No datasets are seeded. No tick or brokerage fills are claimed.
  */
 import {toolAccess} from './member-tool-access.js';
+import {fictionalReplayPermitted,FICTIONAL_REPLAY_DISCLOSURE} from '../_lib/fictional-replay-policy-v1.js';
 import {fillEstimate,bracketOutcome} from '../_lib/replay-engine-v01492.js';
 import {replayAvailableToEntitlement,verifiedHistoricalDataset} from '../_lib/verified-historical-dataset-v014143.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
@@ -66,28 +67,42 @@ function lockedPlan(p){
 export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))throw bad('Method not allowed.',405);
+  const url=new URL(request.url);
+  const scope=url.searchParams.get('scope')||'historical';
+  if(!['historical','fictional'].includes(scope))throw bad('Unknown replay source classification.',400);
+  if(request.method==='POST'){
+   const origin=request.headers.get('origin'),site=request.headers.get('sec-fetch-site');
+   if(origin&&origin!==url.origin||site&&!['same-origin','none'].includes(site))
+    throw bad('Cross-origin replay changes are denied.',403);
+  }
   const simulator=await toolAccess(env,request,'MARKET_SIMULATOR');
   // No fictional market observations may be served as instructional evidence.
   // Replay-only members may use explicitly approved historical datasets
   // without acquiring the full Market Simulator entitlement.
-  const auth=simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
+  const auth=scope==='fictional'?simulator:
+   simulator.authorized?simulator:await toolAccess(env,request,'ONDEMAND_TRAINING');
   const entitlement=simulator.authorized?'MARKET_SIMULATOR':'ONDEMAND_TRAINING';
-  if(!auth.authorized)throw bad('An active Market Simulator or Historical Replay training entitlement is required.',403);
-  const permitted=dataset=>replayAvailableToEntitlement(dataset,entitlement);
+  if(scope==='fictional'?!auth.userId||auth.freeEligible!==true:!auth.authorized)
+   throw bad(scope==='fictional'?'An eligible signed-in member is required for fictional practice.':
+    'An active Market Simulator or Historical Replay training entitlement is required.',403);
+  const permitted=dataset=>scope==='fictional'?
+   fictionalReplayPermitted(dataset):replayAvailableToEntitlement(dataset,entitlement);
+  const disclosure=scope==='fictional'?FICTIONAL_REPLAY_DISCLOSURE:
+   'Only independently verified, display-licensed authentic historical market observations are permitted.';
 
-  const url=new URL(request.url),action=String(url.searchParams.get('action')||'current');
+  const action=String(url.searchParams.get('action')||'current');
   const body=request.method==='POST'?await bodyOf(request):{};
   if(action==='catalog'&&request.method==='GET'){
    const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=700');
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
-   return out({ok:true,datasets:rows.filter(permitted).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:'Only independently verified authentic historical observations with explicit display rights are available. IEX venue-only volume is not consolidated volume. Future bars remain private.'});
+   return out({ok:true,scope,classification:scope==='fictional'?'FICTIONAL':'VERIFIED HISTORICAL',datasets:rows.filter(permitted).slice(0,scope==='fictional'?20:700).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:disclosure+' Only server-revealed bars are returned.'});
   }
   if(action==='resume'&&request.method==='GET'){
    // Durable sessions are discovered by authenticated user identity, not a
    // browser-stored sessionId. Return exactly the current visible observation.
    const active=await db(env,'gu_replay_sessions_v01492?select=id,dataset_code,current_index,decision_locked,decision,status,expires_at&user_id=eq.'+
     encodeURIComponent(auth.userId)+'&status=eq.active&expires_at=gt.'+encodeURIComponent(new Date().toISOString())+
-    '&order=created_at.desc&limit=1');
+    '&dataset_code='+(scope==='fictional'?'like.GUSIM_*':'not.like.GUSIM_*')+'&order=created_at.desc&limit=1');
    const selected=one(active);
    if(!selected)return out({ok:true,session:null,notice:'No current replay session. Choose a licensed dataset.'});
    const rights=one(await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
@@ -98,7 +113,8 @@ export async function onRequest({request,env}){
    return out({ok:true,session:{id:selected.id,currentIndex:selected.current_index,decisionLocked:selected.decision_locked,
     decision:selected.decision,bar,dataset:{code:rights.dataset_code,title:rights.title,ticker:rights.ticker,
     sourceAttribution:rights.source_attribution,licenseNotice:rights.license_note,synthetic:rights.metadata?.original_synthetic===true}},
-    notice:'Restored from the private, owner-scoped replay session. Earlier bars must be replayed in sequence if required.'});
+    scope,notice:scope==='fictional'?disclosure+' Saved cursor restored, unrevealed bars remain private.':
+    'Restored from the private, owner-scoped historical replay session. Earlier bars must be replayed in sequence if required.'});
   }
   if(action==='start'&&request.method==='POST'){
    const code=String(body.datasetCode||'').toUpperCase();
@@ -118,13 +134,15 @@ export async function onRequest({request,env}){
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
    return out({ok:true,sessionId:sess.id,dataset:{code,title:source.title,ticker:source.ticker,
     sourceAttribution:source.source_attribution,licenseNotice:source.license_note,synthetic:source.metadata?.original_synthetic===true},
-    currentIndex:0,bar:first,decisionLocked:false,notice:'Only the first authentic historical venue observation is visible. Lock a decision before requesting any later bar. Market executions and fills remain modeled, not recorded fills.'},201);
+    currentIndex:0,bar:first,decisionLocked:false,scope,notice:scope==='fictional'?
+      disclosure+' Lock a reasoned decision before revealing the next fictional candle.':
+      'Only the first authentic historical venue observation is visible. Lock a decision before requesting any later bar. Market executions and fills remain modeled, not recorded fills.'},201);
   }
   const id=String(body.sessionId||url.searchParams.get('sessionId')||'');
   // Finalization is an idempotent, service-only PostgreSQL transaction.
   // It creates ONE immutable first-decision Journal snapshot and closes the
   // existing replay session atomically, rather than relying on two HTTP writes.
-  if(action==='finish'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
+  if(action==='finish'&&scope==='historical'&&request.method==='POST'&&env.GU_REPLAY_JOURNAL_V01494_ENABLED==='true'){
    if(!uid.test(id))throw bad('Invalid session ID.');
    {
     // The finish RPC can return a previously linked record; validate
@@ -196,12 +214,13 @@ export async function onRequest({request,env}){
    if(!bar)throw bad('Replay advanced but next bar is missing; Owner repair needed.',503);
    const plan=s.decision_plan;
    let execution=null;
-   if(value===1&&plan){
+   if(value===1&&plan&&scope==='historical'){
     const calc=fillEstimate(plan,{open:bar.open,high:bar.high,low:bar.low,close:bar.close,volume:bar.volume});
     execution=calc;
    }
    return out({ok:true,sessionId:id,currentIndex:value,bar,execution,decisionLocked:true,
-    notice:'OHLCV data can suggest execution, not prove actual queue position, partial fills, tape or intrabar order.'});
+    scope,notice:scope==='fictional'?disclosure+' No fill or market result is inferred.':
+    'OHLCV data can suggest execution, not prove actual queue position, partial fills, tape or intrabar order.'});
   }
   // Backward-compatible default until Owner-reviewed additive RPC is installed.
   // Existing replay sessions must remain finishable during a phased rollout.
@@ -214,7 +233,8 @@ export async function onRequest({request,env}){
    if(!one(rows))throw bad('Replay changed; refresh and retry.',409);
    return out({ok:true,sessionId:id,barsSeen:s.current_index+1,
     journalLinked:false,
-    notice:'Replay finished. Automatic Journal capture is not enabled until the private transaction is installed and verified. No score or trade outcome was awarded.'});
+    scope,notice:scope==='fictional'?disclosure+' Practice finished; no Journal record or mastery was awarded.':
+    'Replay finished. Automatic Journal capture is not enabled until the private transaction is installed and verified. No score or trade outcome was awarded.'});
   }
   throw bad('Unsupported action.',404);
  }catch(e){const code=[400,401,403,404,405,409,413].includes(e.status)?e.status:503;
