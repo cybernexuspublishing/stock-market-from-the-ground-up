@@ -34,7 +34,6 @@ globalThis.fetch=async url=>{
  }]);
  if(u.pathname.endsWith('/profiles'))return json([{account_kind:'member'}]);
  if(u.pathname.endsWith('/admin_user_flags'))return json([{status:'active'}]);
- if(u.pathname.endsWith('/admin_user_roles'))return json([]);
  if(u.pathname.endsWith('/user_library')){
   const expected={1:'FOUNDATION_BOOK_1',4:'DAY_TRADING_BOOK_1',5:'READING_THE_TAPE'}[book];
   assert.equal(u.searchParams.get('product_code'),'eq.'+expected);

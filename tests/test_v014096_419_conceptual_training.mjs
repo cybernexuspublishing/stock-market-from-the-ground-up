@@ -36,7 +36,6 @@ globalThis.fetch=async(u,opts={})=>{
  if(path.endsWith('/auth/v1/user'))return json({id:member});
  if(path.includes('/profiles?'))return json([{account_kind:showcase?'showcase':'member'}]);
  if(path.includes('/admin_user_flags?'))return json([{status:'active'}]);
- if(path.includes('/admin_user_roles?'))return json([]);
  if(path.includes('/rpc/user_has_tool_access'))return json(access);
  if(path.includes('/lab_instruction_v014?'))return json([]);
  if(path.includes('/platform_labs?'))return json([{lab_id:current,book_code:code,active:true,registry_visible:registryVisible}]);

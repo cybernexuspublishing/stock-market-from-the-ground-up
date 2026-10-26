@@ -23,7 +23,6 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/profiles?'))return json([{account_kind:kind}]);
  if(u.includes('/admin_user_roles?'))return json([{role_code:role,expires_at:null}]);
  if(u.includes('/admin_user_flags?'))return json([{status:account}]);
- if(u.includes('/admin_user_roles?'))return json([]);
  if(u.includes('/rpc/user_has_tool_access'))return json(access);
  if(u.includes('/gu_lab_competency_knowledge_map_v014105?'))return json([{lab_id:'SITE-001',
   competency_code:'CHART_STRUCTURE',review_state:'candidate',mapping_method:'topic_keyword_suggestion_ungraded',

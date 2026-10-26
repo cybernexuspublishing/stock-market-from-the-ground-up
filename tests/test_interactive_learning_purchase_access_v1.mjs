@@ -41,7 +41,6 @@ globalThis.fetch=async (url,opt={})=>{
  if(p.endsWith('/auth/v1/user'))return unauthenticated?reply({error:'Invalid token'},401):reply({id:member});
  if(p.endsWith('/profiles'))return reply([{account_kind:'member'}]);
  if(p.endsWith('/admin_user_flags'))return reply([{status:restricted?'suspended':'active'}]);
- if(p.endsWith('/admin_user_roles'))return reply([]);
  if(p.endsWith('/rpc/user_has_tool_access')){
   const target=JSON.parse(opt.body||'{}').target_tool;
   if(target==='INTERACTIVE_LEARNING'&&failInteractive)return reply({error:'Unavailable'},503);

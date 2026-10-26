@@ -29,7 +29,6 @@ globalThis.fetch=async(url,opts={})=>{
  if(path.endsWith('/auth/v1/user'))return json({id:uid});
  if(path.includes('/profiles?'))return json([{account_kind:kind}]);
  if(path.includes('/admin_user_flags?'))return json([{status:accountStatus}]);
- if(path.includes('/admin_user_roles?'))return json([]);
  if(path.includes('/admin_user_roles?'))return json([{role_code:role,expires_at:null}]);
  if(path.includes('/rpc/user_has_tool_access'))return json(grant);
  if(path.includes('/lab_training_attempts_v014?'))return json(completed);
