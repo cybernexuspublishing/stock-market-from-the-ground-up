@@ -96,6 +96,9 @@ try{
  assert.equal(await foundingBetaLearningAccessKind(env,user),'owner_qa');
  r=await lesson({request:request('/api/lab-content?id='+LAB),env});
  assert.equal(r.status,200,'Owner-issued time-limited QA access permits authored B01 lesson');
+ body=await r.json();assert.equal(body.ownerQAStudy,true);
+ assert.equal(body.sourceStatus,'owner_authorized_b01_guided_beta_ungraded');
+ assert.equal(body.gradedCreditEligible,false);
  r=await graded({request:new Request('https://site.test/api/interactive-training?action=start',{
   method:'POST',headers:{authorization:'Bearer signed-in-session','content-type':'application/json'},
   body:JSON.stringify({labId:LAB,mode:'assessment'})}),env});
