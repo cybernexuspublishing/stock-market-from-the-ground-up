@@ -6,6 +6,7 @@ assert(/^http:\/\/127\.0\.0\.1:\d+$/.test(base),'Only local Pages fixture is per
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const codes=['truth5','watchlist7','scanners10','charts45','risk60','practicum90'];
 const reflection='I reviewed a documented source, its date and an available observation. I compared two interpretations, recorded which evidence was missing, and did not infer a future price or completed execution.';
+const originalReasoning='The screenshot only proves an assertion was made. I would verify the issuer, document, publication time and source independently.';
 const stub=[
  "window.__ACADEMY_UID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';",
  "window.__ACADEMY_CB=()=>{};",
@@ -80,7 +81,7 @@ try{
     const answer=page.locator('#academy-self-check-answer');
     const compare=section.getByRole('button',{name:'Compare my reasoning'});
     assert.equal(await compare.isDisabled(),true,'Do not reveal the coaching answer before a written learner attempt');
-    const originalReasoning='The screenshot only proves an assertion was made. I would verify the issuer, document, publication time and source independently.';
+   
     await answer.fill(originalReasoning);
     assert.equal(await compare.isEnabled(),true);
     assert.match(await page.locator('#academy-days .gu-bc-day').first().innerText(),/unsaved local work/);
