@@ -19,6 +19,22 @@ try{
  const hasFields=await page.locator('#login-identifier').count()===1&&await page.locator('#login-password').count()===1;
  if(hasFields)console.log('PASS public sign-in fields present.');
  else{console.error('WARN sign-in form fields are missing on the live page.');failure=true}
+ // Check the real production CAPTCHA gate without fabricating or consuming a challenge.
+ const guardResponse=await page.request.get(origin+'/api/auth-guard-v0135',{timeout:20000});
+ const guard=await guardResponse.json().catch(()=>({}));
+ if(!guardResponse.ok()||guard.ok!==true||guard.enabled!==true){
+  failure=true;console.error('FAIL real production CAPTCHA configuration unavailable or not enabled.');
+ }else{
+  const start=page.locator('#v143-start-human');
+  try{
+   await start.waitFor({state:'attached',timeout:15000});
+   const submitEnabled=await page.locator('.auth-card button[type="submit"]').isEnabled();
+   const challengeChecked=await start.isChecked();
+   if(submitEnabled||challengeChecked){
+    failure=true;console.error('FAIL sign-in must be locked until a genuine human verification.');
+   }else console.log('PASS real Turnstile gate present; button remains locked before a human challenge.');
+  }catch{failure=true;console.error('FAIL production sign-in did not initialize manual Turnstile gate.');}
+ }
  await page.close();
 }catch{console.error('WARN public sign-in page failed the Playwright smoke.');failure=true}
 finally{await browser.close()}
