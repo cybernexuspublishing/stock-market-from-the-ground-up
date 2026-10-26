@@ -20,6 +20,9 @@ jobs:
       - name: Test actual bootcamp API, all 30 days, 419 Lab mapping and unsafe account transitions
         run: |
           node tests/test_v014144_bootcamp.mjs
+          node tests/test_v014168_academy_family.mjs
+          node --check functions/_lib/bootcamp-academy-v014168.js
+          node --check assets/js/bootcamp-academy-v014168.js
           node --check functions/api/bootcamp.js
           node --check assets/js/bootcamp.js
           node --check functions/api/ondemand-training.js
