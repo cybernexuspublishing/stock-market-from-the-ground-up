@@ -46,8 +46,9 @@ function strongAssurance(actor){if(!actor.owner)throw problem('OWNER authority r
 function targetAccess(actor,id,x){
  if(actor.owner)return;
  if(actor.user.id===id)throw problem('Administrators cannot change their own account through delegated Member Management.',403);
- if(x.roles.some(role=>['OWNER','ADMIN','MODERATOR'].includes(role)) ||
-    x.profile.account_kind!=='member')
+ // All active specialist staff identities require Owner authority, not just
+ // the legacy Owner / Admin / Moderator categories.
+ if(x.roles.length>0 || x.profile.account_kind!=='member')
    throw problem('Administrators may manage ordinary member accounts only. Staff, Owner, and synthetic identities require an Owner.',403);
 }
 function ensureName(v,label){const x=clean(v);if(x.length<1||x.length>80||/[<>\x00-\x1f]/.test(x))throw problem(label+' must be 1–80 characters with no markup or control characters.');return x}
