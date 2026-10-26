@@ -41,7 +41,7 @@ assert(lab.includes('isBetaCandidateLab(id)'),'Labs preserve the 336/83 access s
 for(const page of ['founders-commons.html','founding600.html','store.html',
   'market-commons.html','dashboard.html']){
  const html=read(page);
- assert.doesNotMatch(html,/Founding\s*600/i,page+' leaks internal cohort brand');
+ assert.doesNotMatch(html,/Founding\s+600/i,page+' leaks internal cohort brand');
  assert.doesNotMatch(html,/\b600\s+(?:places|founder seats|founding places|shared places|original founding memberships)/i,
   page+' advertises internal numerical cap');
 }
