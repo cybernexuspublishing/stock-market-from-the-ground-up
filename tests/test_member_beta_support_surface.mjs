@@ -15,7 +15,8 @@ for(const token of ['id="member-support-panel"','id="member-support-form"',
  assert(html.includes(token),'Missing accessible Support control '+token);
 }
 assert(html.includes('data-auth-required="true"'));
-assert(dashboard.includes("get('tab') === 'support'"),
+assert(dashboard.includes("const viewingSupport = activeTab === 'support'")&&
+ dashboard.includes("new URLSearchParams(location.search).get('tab')"),
  'Dashboard must honor the linked Support route');
 assert(dashboard.includes('if (viewingSupport) return;'),
  'When viewing Support, hidden Overview should not fetch unrelated private information');
