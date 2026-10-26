@@ -8,7 +8,7 @@ Purpose: Implement Owner-requested digital catalog presentation, separate Foundi
 ## Requirements and implementation
 
 - Owner catalog request: four exclusive Store tabs, including Founding Memberships. Keyboard arrows, Home/End and direct hash selection retain the existing controller.
-- Founder offers: read the existing approved `data/founding600-terms-v014170.json`. Display both recurring offers, shared 600-place program, discounts, included Sparks and eligibility notes. No new checkout, reservation or entitlement path. Full terms and enrollment remain on the canonical Founding 600 page.
+- Founder offers: read a minimal public display projection generated at build from the existing approved `data/founding600-terms-v014170.json`. Display both recurring offers, shared 600-place program, discounts, included Sparks and eligibility notes. No new checkout, reservation or entitlement path. Full terms and enrollment remain on the canonical Founding 600 page.
 - General membership comparison: included/not-included marks have accessible names and visible conditional notes. Billing and sponsorship remain text rather than misleading yes/no claims.
 - Existing membership page: accessible coverage symbols and comparison styling.
 - All-products catalog: refined searchable shelves and separate founder category. Upcoming-product publication continues to require the existing server override; no hidden offering is made public by the category filter.

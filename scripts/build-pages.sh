@@ -42,6 +42,16 @@ for file in books.json challenges.json commerce-config.json stripe-product-regis
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
+# Public display projection from canonical founder terms; never expose internal
+# billing state or treat the display artifact as checkout authority.
+python3 - "$output/data/founding-catalog.json" <<'PYFOUNDERS'
+import json,sys
+from pathlib import Path
+terms=json.loads(Path('data/founding600-terms-v014170.json').read_text())
+fields=('name','billingIntervalDays','recurringCents','foundingDiscountBps','incSparks')
+public={'capacity':terms['capacity'],'plans':{code:{key:terms['plans'][code][key] for key in fields} for code in ('FOUNDING_30','FOUNDING_60')}}
+Path(sys.argv[1]).write_text(json.dumps(public,separators=(',',':'))+'\n')
+PYFOUNDERS
 # Both bootcamp lesson sources contain original, non-secret, ungraded teaching
 # references. Do not publish private rubrics or authenticated research exports.
 test -s "$output/data/bootcamp-formative-v014154.json"

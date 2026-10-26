@@ -111,7 +111,7 @@ function comparison(plans,tools){
 async function foundingCatalog(){
  const target=document.getElementById('store-founder-plans'),matrix=document.getElementById('store-founder-compare');if(!target||!matrix)return;
  try{
-  const response=await fetch('/data/founding600-terms-v014170.json',{cache:'no-store'});if(!response.ok)throw Error('Terms unavailable');
+  const response=await fetch('/data/founding-catalog.json',{cache:'no-store'});if(!response.ok)throw Error('Terms unavailable');
   const terms=await response.json();const codes=['FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
   if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)))throw Error('Invalid founding terms');

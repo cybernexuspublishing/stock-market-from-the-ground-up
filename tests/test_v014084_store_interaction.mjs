@@ -82,7 +82,7 @@ assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Included"/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Not included"/);
 assert.match(nodes['store-membership-compare'].innerHTML,/class="catalog-coverage is-excluded"/);
 assert.equal(requests.length,1);
-assert.equal(requests[0].url,'/data/founding600-terms-v014170.json');
+assert.equal(requests[0].url,'/data/founding-catalog.json');
 
 const guides=JSON.parse(read('data/store-product-guides-v01484.json'));
 async function detail(type,code,overrides={}){
