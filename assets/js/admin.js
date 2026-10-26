@@ -76,7 +76,7 @@ async function loadDashboard(){
  if(!has('system.view'))checks.push('<li>Technical integration inspection is restricted for your role.</li>');
  if(!issues&&!unavailable)checks.unshift('<li>No open items detected in the four monitored queue categories. Other operational checks still require review.</li>');
  document.getElementById('admin-priority-checks').innerHTML=`<ul>${checks.join('')}</ul>`;
- const snapshot=Object.freeze({...s,showcase:j.showcase===true,observedAt:j.observedAt||null});
+ const snapshot=Object.freeze({...s,showcase:j.showcase===true,observedAt:j.observedAt||null,queue:Array.isArray(j.queue)?j.queue:[],recentActivity:Array.isArray(j.recentActivity)?j.recentActivity:null,permissions:Array.isArray(j.permissions)?j.permissions:[]});
  window.GroundUpAdminSummarySnapshot=snapshot;
  window.dispatchEvent(new CustomEvent('groundup:admin-summary',{detail:snapshot}));
 }
