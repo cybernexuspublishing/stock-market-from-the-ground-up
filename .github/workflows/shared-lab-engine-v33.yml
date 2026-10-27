@@ -12,6 +12,8 @@ on:
       - 'tests/test_v135_public_assessment_projection.mjs'
       - 'functions/api/assessment-v0135.js'
       - 'supabase/migrations/20261027_lab_journey_v33_private_checkpoint.sql'
+      - 'supabase/migrations/20261027_lab_journey_v33_legacy_merge_guard.sql'
+      - 'supabase/rollbacks/20261027_lab_journey_v33_legacy_merge_guard_ROLLBACK.sql'
       - 'tests/test_lab_content_access_recovery.mjs'
       - 'functions/api/lab-player-context.js'
       - 'functions/api/interactive-training.js'
