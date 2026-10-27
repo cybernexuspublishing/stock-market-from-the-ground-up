@@ -12,6 +12,11 @@ on:
       - "tests/test_v014180_owner_store_acceptance.mjs"
       - "tests/test_member_sparks_wallet_v014296.mjs"
       - "tests/test_owner_store_categories_gallery_v014300.mjs"
+      - "tests/test_owner_background_and_stripe_map_v1.mjs"
+      - "assets/js/admin-site-background-v1.js"
+      - "assets/js/site-background-v1.js"
+      - "functions/api/website-design.js"
+      - "functions/api/payment-catalog-v01433.js"
       - "assets/js/admin-store-categories-v014297.js"
       - "assets/js/admin-store-photos-v014300.js"
       - "assets/js/store-product-gallery-v014300.js"
@@ -46,6 +51,8 @@ jobs:
           node tests/test_v014180_owner_store_acceptance.mjs
           node tests/test_member_sparks_wallet_v014296.mjs
           node tests/test_owner_store_categories_gallery_v014300.mjs
+          node tests/test_owner_background_and_stripe_map_v1.mjs
+          node tests/test_v014033_payment_catalog.mjs
           node --check assets/js/admin-store-categories-v014297.js
           node --check assets/js/admin-store-photos-v014300.js
           node --check assets/js/store-product-gallery-v014300.js
