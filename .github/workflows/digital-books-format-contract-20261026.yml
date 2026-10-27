@@ -7,6 +7,9 @@ on:
       - 'assets/js/digital-library-v01430.js'
       - 'assets/js/admin-digital-books-v01430.js'
       - 'tests/test_20261026_digital_download_format.mjs'
+      - 'tests/test_foundations_book_customer_delivery_prelive_v1.mjs'
+      - 'functions/api/checkout-v0135.js'
+      - 'functions/api/stripe-live-checkout-v01458.js'
       - 'supabase/migrations/v0.14.0.303_*'
       - 'supabase/migrations/v0.14.0.304_*'
       - 'supabase/migrations/v0.14.0.305_*'
@@ -34,4 +37,7 @@ jobs:
           node --check assets/js/digital-library-v01430.js
           node --check assets/js/admin-digital-books-v01430.js
       - name: Test private signed PDF/EPUB access and rejection
-        run: node tests/test_20261026_digital_download_format.mjs
+        run: |
+          node tests/test_20261026_digital_download_format.mjs
+          node tests/test_v014030_download_api.mjs
+          node tests/test_foundations_book_customer_delivery_prelive_v1.mjs
