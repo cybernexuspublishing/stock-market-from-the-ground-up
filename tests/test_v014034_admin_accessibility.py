@@ -20,7 +20,9 @@ for term in ('Digital Payment Settings','Save Payment Service','Start Stripe Tes
  assert term in provider,term
 pw=read('assets/js/admin-password-confirm-v01432r1.js')
 assert 'password.disabled=true' in pw and 'password.disabled=false' in pw
-assert 'if(password.disabled||!token||!password.value)return' in pw
+assert 'if(password.disabled||(captchaRequired&&!token)||!password.value)return' in pw
+assert "captchaRequired=cfg.enabled===true" in pw
+assert "password is still required" in pw.lower()
 assert 'human verification' in pw.lower()
 assert 'https://supabase.com/docs/guides/auth/auth-captcha' in pw
 assert 'Turnstile CAPTCHA is not configured.' not in pw
