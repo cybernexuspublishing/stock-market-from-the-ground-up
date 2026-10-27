@@ -156,3 +156,19 @@
  .gu-all-products-ad-shell>.gu-store-rail{position:static;width:100%}}
 @media(max-width:700px){.gu-ad-slot.gu-house-promo{grid-template-columns:minmax(0,1fr)}
  .gu-house-art{min-height:62px}}
+
+/* Contrast and density adjustments for Firefox, narrower rails and high zoom. */
+.gu-ad-slot.gu-house-promo{color:#f7fbff;background:linear-gradient(118deg,#0d2637,#12334b 63%,#0c2638);
+ border-color:#668da4}
+.gu-house-disclosure{color:#eef7fd;border-color:#9bb8c8}
+.gu-house-eyebrow{color:#f1d39d}
+.gu-house-promo .gu-house-text{color:#e4f0fa}
+.gu-owner-placement-name{color:#d0e7f4}
+.gu-store-ad-shell .gu-store-rail .gu-house-promo{width:100%;box-sizing:border-box}
+.gu-all-products-ad-shell>.gu-store-rail{min-width:0}
+.gu-all-products-ad-shell .gu-ad-slot.gu-house-promo{max-width:100%;box-sizing:border-box}
+@media(max-width:1200px){
+ .gu-store-ad-shell.gu-all-products-ad-shell{grid-template-columns:minmax(0,1fr)!important}
+ .gu-all-products-ad-shell>.gu-store-rail{position:static!important;width:100%}
+ .gu-all-products-ad-shell>.gu-store-ad-core{width:100%}
+}
