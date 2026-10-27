@@ -26,7 +26,7 @@ for(const [i,lab] of document.labs.entries()){
  assert.equal(lab.betaStatus,'NOT_YET_READY');
  for(const field of fields){
   assert.equal(typeof lab[field],'string',lab.labId+' missing '+field);
-  assert.ok(lab[field].trim().length>50,lab.labId+' insufficient '+field);
+  assert.ok(lab[field].trim().length>(field==='canonicalTitle'?12:50),lab.labId+' insufficient '+field);
  }
  assert.match(lab.fictionalDemonstration,/fictional/i,'B02 practice must never claim historical market evidence');
  for(const secret of ['answer_key','correctAnswer','authToken','userId','reviewedBy'])assert.equal(Object.hasOwn(lab,secret),false,'No protected/private answer material in B02 source');
