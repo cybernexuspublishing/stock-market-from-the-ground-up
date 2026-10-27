@@ -11,8 +11,20 @@ Status: NOT YET ACCEPTED FOR CUSTOMER DELIVERY; LIVE SALES OFF
 - No digital publishing-control record, primary customer-delivery file, rights attestation, or customer download enablement.
 - Zero site_orders and site_order_items at inspection.
 
+
+## Current architecture discrepancy: digital Stripe purchases
+- `gu_digital_paid_owned_v01430(text,uuid)` currently requires a matching verified order with provider `LEMON_SQUEEZY`, paid checkout intent and digital order item. Signed Stripe orders are not recognized.
+- `gu_signed_book_orders_v01431` and `gu_signed_book_offers_v01431` are exclusively `paperback` or `hardcover` by enforced CHECK constraints, not digital-book receipts.
+- `gu58_live_checkout_intents` handles paid plans/tools (GU58). Do not repurpose GU58 membership events as digital-book entitlement proof.
+- Separate Stripe digital book Checkout Session, catalog pricing/format, strictly bound account/order/price, idempotent signed webhooks and refund/reversal ledger must be engineered and individually accepted before enabling Book I digital Stripe purchase.
+- TEST purchases through other products, arbitrary mock RPC responses, and OWNER private preview are NOT accepted substitutes for a signed Stripe digital-book purchase-to-library chain.
+
+## New protected Owner action
+- Book Edit now includes `Assign Current EPUB as Primary (Sales OFF)`. It performs Owner step-up, checks the current registered EPUB/version/file existence and invokes the existing optimistic-version guarded `gu_owner_digital_books_save_v01430` with `p_sales=false`, `p_downloads=false`; the Owner's rights-attestation checkbox is not silently changed.
+- **Action still requires an authenticated Owner click**; code deployment does not mean primary path was assigned. Verify resulting private control row before marking accepted.
+
 ## Outstanding customer-delivery release gates
-1. Owner independently verifies actual KDP Select enrollment/exclusivity expiry in Amazon KDP. The database KDP flag is not proof. Official source: https://kdp.amazon.com/en_US/help/topic/GD9PMU58BV24QFZ7
+1. OWNER CONFIRMATION RECEIVED (October 27, 2026): Owner states Amazon KDP Select exclusivity terms have ended for ALL books. This is an Owner declaration, not an independent Amazon contract-system verification. Do not invent an individual expiration date; retain contract evidence/attestation through the existing Owner-controlled publishing UI. Official source: https://kdp.amazon.com/en_US/help/topic/GD9PMU58BV24QFZ7
 2. Owner selects current EPUB v2 as primary delivery in Book Edit and saves through authenticated, password-step-up publishing controls. Keep sales/downloads OFF until actual distribution rights are attested. Do not bypass the guarded publishing procedure with SQL.
 3. Configure and TEST-verify an actual digital checkout variant and provider Price ID, without inventing a provider mapping or enabling LIVE transactions.
 4. Acceptance with authenticated noncharging test data: signed paid order and digital item; My Books; 60-second signed file; Free/anon/cross-account denial; refund/chargeback revocation; replay/idempotency; stale/restricted account; missing file; KDP exclusivity denial.
