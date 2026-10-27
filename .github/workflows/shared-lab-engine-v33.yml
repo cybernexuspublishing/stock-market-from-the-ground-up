@@ -5,6 +5,11 @@ on:
     paths:
       - 'functions/api/member-tool-access.js'
       - 'assets/js/lab-player.js'
+      - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/js/lab-journey-checkpoint-v33.js'
+      - 'lab-player.html'
+      - 'tests/test_v33_member_checkpoint_resume.mjs'
+      - 'supabase/migrations/20261027_lab_journey_v33_private_checkpoint.sql'
       - 'tests/test_lab_content_access_recovery.mjs'
       - 'functions/api/lab-player-context.js'
       - 'functions/api/interactive-training.js'
@@ -70,6 +75,8 @@ jobs:
           node-version: '22'
       - run: |
           node --check assets/js/lab-player.js
+          node --check assets/js/lab-journey-checkpoint-v33.js
+          node tests/test_v33_member_checkpoint_resume.mjs
           node --check assets/js/lab-engine-v32-universal.js
           node --check assets/js/lab-engine-v32-teaching.js
           node --check assets/js/lab-engine-v33-visual.js
@@ -93,6 +100,7 @@ jobs:
           node tests/test_lab_access_rpc_resilience.mjs
           bash scripts/build-pages.sh
           test -f public/lab-player.html
+          test -f public/assets/js/lab-journey-checkpoint-v33.js
           test -f public/assets/js/lab-engine-v32-universal.js
           test -f public/assets/js/lab-engine-v33-visual.js
           test -f public/assets/css/lab-engine-v32-teaching.css
