@@ -32,7 +32,7 @@ async function ensure(){if(inflight)return inflight;inflight=new Promise((resolv
  // showModal() dialog is placed above it, preserving the Edit Book form.
  document.body.append(shade);
  try{shade.showModal();box.focus()}catch(e){shade.remove();reject(Error('Password dialog could not open: '+(e?.message||'unknown error')));return}
- let widgetId=null,token='',complete=false;
+ let widgetId=null,token='',complete=false,captchaRequired=true;
  const close=(err)=>{if(complete)return;complete=true;password.value='';if(widgetId!==null)try{window.turnstile?.remove(widgetId)}catch{}if(shade.open)shade.close();shade.remove();previous?.focus?.({preventScroll:true});inflight=null;if(err)reject(err);else resolve(true)};
  cancel.onclick=()=>close(Error('Password confirmation canceled.'));
  // The browser's native Escape/cancel event must reject the guarded operation.
@@ -46,13 +46,19 @@ async function ensure(){if(inflight)return inflight;inflight=new Promise((resolv
  };shade.addEventListener('keydown',dialogKeys);
  async function load(){try{
   const cfg=await fetch('/api/auth-guard-v0135',{cache:'no-store'}).then(r=>r.json());
-  if(!cfg?.enabled||!cfg.sitekey)throw Error('Human verification has not been set up for this website. Please follow the steps below.');
+  if(cfg?.ok!==true)throw Error('Human verification configuration unavailable.');
+  captchaRequired=cfg.enabled===true;
+  if(!captchaRequired){
+   setup.hidden=true;challenge.hidden=true;password.disabled=false;verify.disabled=false;
+   status.textContent='CAPTCHA is disabled by the Owner. Your account password is still required.';password.focus();return;
+  }
+  if(!cfg.sitekey)throw Error('Human verification has not been set up for this website.');
   if(!window.turnstile){await new Promise((yes,no)=>{const existing=document.querySelector('script[data-gu-pw-turnstile]');if(existing){const check=setInterval(()=>{if(window.turnstile){clearInterval(check);yes()}},120);setTimeout(()=>{clearInterval(check);no(Error('Human verification unavailable.'))},12000);return}
    const s=document.createElement('script');s.dataset.guPwTurnstile='1';s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.onload=yes;s.onerror=()=>no(Error('Human verification could not load.'));document.head.append(s)})}
   widgetId=window.turnstile.render(challenge,{sitekey:cfg.sitekey,action:'admin_stepup',theme:'auto',callback:t=>{token=t;verify.disabled=false;status.textContent='Human verification complete.'},'expired-callback':()=>{token='';verify.disabled=true;status.textContent='Verification expired.'},'error-callback':()=>{token='';verify.disabled=true;status.textContent='Verification failed.'}});
   setup.hidden=true;password.disabled=false;status.textContent='Complete the human verification, then enter your password.';password.focus();
  }catch(e){password.disabled=true;password.value='';verify.disabled=true;setup.hidden=false;status.textContent=e.message||'Human verification is unavailable. Follow the setup steps below.'}}
- form.onsubmit=async e=>{e.preventDefault();if(password.disabled||!token||!password.value)return;verify.disabled=true;status.textContent='Confirming your credentials…';
+ form.onsubmit=async e=>{e.preventDefault();if(password.disabled||(captchaRequired&&!token)||!password.value)return;verify.disabled=true;status.textContent='Confirming your credentials…';
   try{const sb=await window.getSupabaseClient();const {data:{session}}=await sb.auth.getSession();if(!session)throw Error('Your session has expired.');
    const r=await fetch('/api/admin-password-confirm-v01432r1',{method:'POST',cache:'no-store',headers:{'content-type':'application/json',authorization:'Bearer '+session.access_token},body:JSON.stringify({password:password.value,captchaToken:token})});
    const out=await r.json();if(!r.ok||!out.ok)throw Error(out.error||'Password confirmation failed.');close();
