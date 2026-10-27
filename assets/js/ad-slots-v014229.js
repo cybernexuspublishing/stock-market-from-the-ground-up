@@ -52,12 +52,19 @@ function available(mount,slot,ownerPreview=false){
 }
 async function init(){
  const places=[...document.querySelectorAll('[data-ad-slot]')];
- if(!places.length||typeof window.getSupabaseClient!=='function')return;
+ if(!places.length)return;
  let token='',sid='';
+ // Use Supabase's existing local session without waiting for an external CDN.
+ // The server verifies the token, OWNER role and ad-free entitlement itself.
+ // If local session state cannot be read, fail closed instead of guessing
+ // that a paid ad-free member is signed out.
  try{
-  const sb=await window.getSupabaseClient(),session=await sb.auth.getSession();
-  if(session.error)return; // Never treat unknown membership as a signed-out visitor.
-  token=session.data?.session?.access_token||'';
+  const raw=localStorage.getItem('sb-oxihglyfgzywsupnyicb-auth-token');
+  if(raw){
+   const session=JSON.parse(raw);
+   if(!session||typeof session.access_token!=='string'||!session.access_token)return;
+   token=session.access_token;
+  }
   sid=sessionStorage.getItem('gu_ad_session_v014229')||'';
   if(!sid){sid=crypto.randomUUID();sessionStorage.setItem('gu_ad_session_v014229',sid)}
  }catch{return}
