@@ -15,10 +15,12 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return json({ok:true,role:state.role});
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return json(state.step);
  if(u.endsWith('/v1/account'))return json({id:'acct_testlive12345678'});
- if(u.endsWith('/v1/products/prod_validABC123'))return json({id:'prod_validABC123',livemode:true,active:true,name:'Market Discovery Lab'});
+ if(u.endsWith('/v1/products/prod_validABC123'))return json({id:'prod_validABC123',livemode:true,active:true,name:'Market Discovery Lab',metadata:{site_sku:'DISCOVERY_LAB',catalog_category:'tool_candidate'}});
  if(u.endsWith('/v1/prices/price_validABC123'))return json({id:'price_validABC123',product:'prod_validABC123',livemode:true,active:true,
   currency:'usd',unit_amount:state.priceCents,billing_scheme:'per_unit',transform_quantity:null,
   type:'recurring',recurring:{interval:'month',interval_count:1,usage_type:'licensed'}});
+ if(u.includes('/rest/v1/gu_storefront_items_v014174?'))return json([{sku:'tool:DISCOVERY_LAB',category:'tool'}]);
+ if(u.includes('/rest/v1/gu_owner_stripe_registry_v1?'))return json([]);
  if(u.includes('/rest/v1/platform_tools?'))return json([{individual_price_cents:2999}]);
  if(u.endsWith('/rpc/gu_owner_register_stripe_product_v1')){
   state.dbWrites++;const p=JSON.parse(opts.body);
