@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate source code and disabled checkout
+      - name: Validate frozen Founding contract and staged 14-day checkout lock
         run: |
           node --check functions/_lib/founding600-benefit-guards-v014170.mjs
           node --check assets/js/lab-engine-v33-visual.js
@@ -26,6 +26,12 @@ jobs:
             import assert from 'node:assert/strict';
             const c=JSON.parse(fs.readFileSync('data/founding600-terms-v014170.json','utf8'));
             assert.equal(c.capacity,600);
+            assert.deepEqual(Object.keys(c.plans).sort(),['FOUNDING_14','FOUNDING_30','FOUNDING_60']);
+            assert.equal(c.plans.FOUNDING_14.recurringCents,2299);
+            assert.equal(c.plans.FOUNDING_14.billingIntervalDays,14);
+            assert.equal(c.plans.FOUNDING_14.foundingDiscountBps,500);
+            assert.equal(c.plans.FOUNDING_14.incSparks,5);
+            assert.equal(c.plans.FOUNDING_14.checkoutEnabled,false,'The 14-day plan must not be made sellable by a source-only change');
             assert.equal(c.checkoutEnabled,false,'No paid checkout before certified production acceptance');
             assert.equal(c.plans.FOUNDING_30.recurringCents,4999);
             assert.equal(c.plans.FOUNDING_30.billingIntervalDays,30);
@@ -37,11 +43,11 @@ jobs:
             assert.equal(c.plans.FOUNDING_60.foundingDiscountBps,1500);
             assert.equal(c.plans.FOUNDING_60.incSparks,15);
             assert.equal(c.plans.FOUNDING_60.incSparksExpiryDaysAfterTermEnd,150);
-            assert.deepEqual(c.discount.exclude,['FOUNDING_30','FOUNDING_60']);
+            assert.deepEqual(c.discount.exclude,['FOUNDING_14','FOUNDING_30','FOUNDING_60']);
             assert(c.discount.eligible.includes('LIFETIME'));
             assert.equal(c.purchasedSparksExpire,false);
             assert.equal(c.tradingExecutionIncluded,false);
-            console.log('PASS Founding600 production-safe source contract (paid checkout remains disabled)');
+            console.log('PASS Founding terms: 14-day starter staged only, 30/60 pricing and discounts unchanged; no checkout activation in this workflow');
           "
 
       - name: Enforce 10/15 percent founder commercial contract
