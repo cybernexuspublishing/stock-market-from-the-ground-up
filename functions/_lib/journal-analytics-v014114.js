@@ -10,8 +10,11 @@ const finite=v=>{
 const rounding=(n,d=4)=>n===null?null:Number(n.toFixed(d));
 const pct=(n,d)=>d?rounding(n/d*100,2):null;
 const avg=xs=>xs.length?rounding(xs.reduce((a,b)=>a+b,0)/xs.length):null;
-const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&
- !Number.isNaN(Date.parse(s+'T12:00:00Z'));
+const validDate=s=>{
+ if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;
+ const date=new Date(s+'T12:00:00Z');
+ return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===s;
+};
 const settled=r=>r&&r.status==='closed'&&['live','paper'].includes(r.journal_type)&&
  !['NO TRADE','OBSERVATION ONLY'].includes(r.decision)&&finite(r.net_pnl)!==null;
 const orderKey=r=>(validDate(r.exit_date)?r.exit_date:validDate(r.trade_date)?r.trade_date:'9999-12-31')+
@@ -107,9 +110,41 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   lowSample:n<20,performanceBasis:'self_reported_member_journal',
   caveat:'Member-entered trade results are neither broker-reconciled nor licensed historical market evidence; drawdown is cumulative journal net from a zero baseline, not percentage account drawdown.'
  };
+ // The research (8) journal audit requires every performance metric to expose
+ // population, missingness, units, cost basis and observation interval. These
+ // are metadata only; do not return individual journal records to the client.
+ const observedWindow=String(days)==='all'?'all recorded dates':String(days)+' calendar days through '+today;
+ const baseRule='Closed member-entered live/paper records with valid trade dates in the selected window';
+ const resolvedRule=baseRule+' and valid self-reported net P&L; NO TRADE and OBSERVATION ONLY are excluded';
+ const missingNet=base.length-n;
+ const metricDefinitions=[
+  {key:'winRate',name:'Win rate',unit:'percent',inclusion:resolvedRule,
+   denominatorCount:n,missingCount:missingNet,costBasis:'Self-reported net P&L; individual transaction fees are not independently reconciled',
+   observationInterval:observedWindow,note:'Flat $0 outcomes remain in the denominator. Unknown outcomes do not become losses or flats.'},
+  {key:'expectancyPerTrade',name:'Mean net per resolved trade',unit:'USD per record',inclusion:resolvedRule,
+   denominatorCount:n,missingCount:missingNet,costBasis:'Member-entered net P&L after any costs the member included; missing costs are not presumed zero',
+   observationInterval:observedWindow,note:'Arithmetic historical average of the selected records, not a forecast.'},
+  {key:'profitFactor',name:'Gross-positive / absolute-negative net ratio',unit:'ratio',inclusion:resolvedRule,
+   denominatorCount:n,missingCount:missingNet,costBasis:'Ratio of positive entered net P&L to absolute negative entered net P&L; no separate cost audit',
+   observationInterval:observedWindow,note:'Undefined when no recorded negative net P&L; not a verified investment return.'},
+  {key:'averageR',name:'Average recorded R',unit:'R',inclusion:resolvedRule+' where an R value was separately recorded',
+   denominatorCount:riskVals.length,missingCount:n-riskVals.length+missingNet,
+   costBasis:'Self-reported R-multiples; initial modeled risk and expenses are not independently validated',
+   observationInterval:observedWindow,note:'Missing initial risk/R is unavailable, not automatically zero.'},
+  {key:'maxDrawdownCurrency',name:'Maximum cumulative-net drawdown',unit:'USD',
+   inclusion:resolvedRule+' in chronological closing order from a zero baseline',
+   denominatorCount:n,missingCount:missingNet,costBasis:'Running sum of recorded net P&L, not brokerage account equity',
+   observationInterval:observedWindow,note:'Not account-equity percentage drawdown; deposits, withdrawals and open positions are not represented.'},
+  {key:'mfe_r',name:'Average reported MFE',unit:'R',inclusion:resolvedRule+' with an MFE value',
+   denominatorCount:mfe.length,missingCount:n-mfe.length+missingNet,costBasis:'Member-supplied excursion measure; intratrade market data and fill history are not verified',
+   observationInterval:observedWindow,note:'A closing result cannot establish maximum favorable excursion.'},
+  {key:'mae_r',name:'Average reported MAE',unit:'R',inclusion:resolvedRule+' with an MAE value',
+   denominatorCount:mae.length,missingCount:n-mae.length+missingNet,costBasis:'Member-supplied excursion measure; intratrade market data and fill history are not verified',
+   observationInterval:observedWindow,note:'A closing result cannot establish maximum adverse excursion.'}
+ ]; 
  const setup=[...groups.values()].map(g=>({setup:g.setup,...summarizeGroup(g)}))
   .sort((a,b)=>b.n-a.n||a.setup.localeCompare(b.setup)).slice(0,30);
- return {ok:true,summary,setup,equity,breakdowns,livePaper:{
+ return {ok:true,summary,metricDefinitions,setup,equity,breakdowns,livePaper:{
   live:summarizeGroup(score.live),paper:summarizeGroup(score.paper)},
   asOf:today,filter:{type,days:String(days)},
   notices:[
