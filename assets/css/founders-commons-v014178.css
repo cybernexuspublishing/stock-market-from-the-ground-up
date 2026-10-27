@@ -90,3 +90,19 @@
 .gu-f600-beta-note{color:#c5d8e8;font-size:.84rem}
 @media(max-width:1000px){.gu-f600-beta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.gu-f600-beta-grid{grid-template-columns:1fr}.gu-f600-beta-center{padding:18px}.gu-f600-beta-report .btn{max-width:100%;white-space:normal}}
+
+/* Shared forum presentation: the canonical Market Commons component renders
+ * founder-only categories and their discussion threads, not a secondary lookalike. */
+.gu-founders-page .gu-f600-main-commons{background:transparent;margin:22px 0 32px;padding:0}
+.gu-founders-page .gu-f600-main-commons .gu-commons-heading{margin:12px 0 24px}
+.gu-founders-page .gu-f600-main-commons .gu-commons-heading h2{font-size:clamp(1.5rem,2.8vw,2.2rem);
+ margin:8px 0;color:#f6f8fc;font-weight:650}
+.gu-founders-page .gu-f600-main-commons .gu-commons-heading p{color:#bcd0e3;line-height:1.7}
+.gu-founders-page .gu-f600-main-commons .v132-forum-category,
+.gu-founders-page .gu-f600-main-commons .v132-forum-topic-table{min-width:0;overflow-wrap:anywhere}
+.gu-founders-page .gu-f600-main-commons .v132-forum-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.gu-founders-page .gu-f600-main-commons .v132-forum-toolbar .btn{margin:0}
+.gu-founders-page .gu-f600-main-commons .v132-forum-row{min-width:0}
+.gu-founders-page .gu-f600-sections{display:none} /* canonical forum directory replaces duplicate founder board list */
+@media(max-width:650px){.gu-founders-page .gu-f600-main-commons .v132-forum-toolbar{gap:6px}
+ .gu-founders-page .gu-f600-main-commons .gu-commons-heading{margin-top:4px}}
