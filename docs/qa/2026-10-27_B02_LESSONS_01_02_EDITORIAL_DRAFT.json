@@ -1,0 +1,212 @@
+{
+  "documentId": "SMFGU-B02-LESSONS-01-02-20261027",
+  "version": "1.0",
+  "status": "EDITORIAL_DRAFT_NOT_IN_PRODUCTION",
+  "batch": "2026-10-27-B02",
+  "purpose": "Two original learner-facing instructional scripts for the B02 Foundation Book II canonical Labs; private grading and review remain separate.",
+  "provenance": "FICTIONAL market examples only. No claims of historical order book observations, licensed market data, executed trades or verified vendor latency.",
+  "stages": [
+    "Start",
+    "Learn",
+    "Experiment",
+    "Predict",
+    "Practice",
+    "Assess",
+    "Review",
+    "Transfer",
+    "Results"
+  ],
+  "labs": [
+    {
+      "labId": "F2-C03-L02",
+      "title": "Premarket Information Release and Repricing",
+      "topic": "Source availability and decision-time chronology",
+      "objective": "At a declared decision pause, separate a document's processing or acceptance timestamp from verified public availability, delivered evidence and later market activity.",
+      "instructor": "Talia",
+      "definitions": [
+        {
+          "term": "Premarket",
+          "explain": "For a U.S.-listed stock, trading activity before the regular 9:30 a.m. Eastern Time opening session. Actual eligible hours depend on broker, venue and security."
+        },
+        {
+          "term": "Acceptance timestamp",
+          "explain": "A timestamp showing when a filing entered an official processing system. It is not automatically proof the filing was already publicly accessible or reached the learner's data feed."
+        },
+        {
+          "term": "Public availability",
+          "explain": "The earliest time for which reliable evidence establishes that the document was accessible to the public. This must be verified independently of acceptance when the distinction matters."
+        },
+        {
+          "term": "Decision cutoff",
+          "explain": "The declared pause at which the learner must make a decision using only evidence then available. Later timestamps are outside that information set."
+        },
+        {
+          "term": "Repricing",
+          "explain": "A change in displayed quotes or traded prices. Coincidence with an information release alone does not establish that the release caused the change."
+        }
+      ],
+      "nineStageJourney": [
+        {
+          "stage": "Start",
+          "teach": "Talia: We will act as investigators, not hindsight traders. Our job is to decide what could have been known at a specific time. Every time in this exercise is fictional.",
+          "learnerAction": "Read the event ledger and state the decision cutoff before making a claim."
+        },
+        {
+          "stage": "Learn",
+          "teach": "A filing may have an acceptance timestamp, a later verified public-access time, and still later delivery to a particular news feed. Those are three different events. A quote may update later still. Market evidence must be timestamped, sourced, and available by the pause. A post-pause update cannot be smuggled into an earlier decision.",
+          "learnerAction": "Explain the difference between acceptance, public accessibility, delivery and subsequent quote movement."
+        },
+        {
+          "stage": "Experiment",
+          "teach": "FICTIONAL event ledger (ET): 08:04:00 filing accepted; 08:06:00 public availability independently verified; 08:07:20 learner's information screen records delivery; 08:08:00 decision pause; 08:09:00 displayed bid/ask move. There is no recorded trade or size at the pause.",
+          "learnerAction": "Sort the four different event categories and mark which precede the declared pause."
+        },
+        {
+          "stage": "Predict",
+          "teach": "At 08:08, the quote movement scheduled for 08:09 is still unknown. Talia asks for a decision without telling you how the later quotes will move.",
+          "learnerAction": "Record the claim you can support at 08:08 and one claim you must not make yet, before seeing the post-pause event.",
+          "feedback": "If you use the 08:09 quote to justify an 08:08 forecast, your evidence set includes future information. Rebuild it using the cutoff."
+        },
+        {
+          "stage": "Practice",
+          "teach": "Talia: Verify every clock. An observation is the documented event. A hypothesis is a possible explanation. A trade decision also needs spread, order-size and eligibility information that this ledger lacks.",
+          "learnerAction": "Classify: (a) verified document availability before 08:08, (b) later quote change, (c) an assertion that the filing caused a fill, (d) a defensible no-trade decision.",
+          "feedback": "An absence of order-book or transaction evidence is not an invitation to assume a fill. Choose 'not enough evidence' when appropriate."
+        },
+        {
+          "stage": "Assess",
+          "teach": "Ungraded authoring draft. Official grading can become available only after a private rubric receives individual authenticated Owner review. Do not award mastery based on this lesson alone.",
+          "learnerAction": "In your own words, describe the available evidence, the unknowns and a justified no-trade condition at the cutoff."
+        },
+        {
+          "stage": "Review",
+          "teach": "Talia: Correct your chronology before you correct your conviction. A later market move may be consistent with a hypothesis without proving that hypothesis or confirming you could have traded it.",
+          "learnerAction": "Explain any earlier use of information not available by the pause and revise the observation.",
+          "feedback": "When confused, write two columns labeled 'available at cutoff' and 'learned later'."
+        },
+        {
+          "stage": "Transfer",
+          "teach": "Independent FICTIONAL case: filing accepted 08:04, public access verified 08:12, first vendor delivery 08:14, learner paused at 08:08 and later saw a quote at 08:16.",
+          "learnerAction": "Apply the same chronology rule to this new sequence. Do not borrow the first scenario's times.",
+          "feedback": "The independently verified access/delivery times belong after the pause. Never infer earlier access from an acceptance timestamp alone."
+        },
+        {
+          "stage": "Results",
+          "teach": "Your learning record should capture the decision cutoff, specific source evidence, hypothesis limits and revised reasoning—not a fabricated trading return.",
+          "learnerAction": "Save the learning reflection through the existing authorized progress workflow when implemented; do not claim a server save without confirmation."
+        }
+      ],
+      "dataIntegrity": [
+        "No hindsight use of post-cutoff quotes",
+        "Do not equate SEC acceptance with verified public availability",
+        "All prices and clocks fictional",
+        "No causal assertion from temporal correlation",
+        "No execution claim without order eligibility, spread, size and actual fill evidence"
+      ],
+      "editorialChecks": [
+        "Verify public-versus-acceptance terminology against SEC documentation",
+        "Ensure the independent transfer is not the same sequence",
+        "Screen-reader chronology table uses actual labels",
+        "No trading performance guarantee",
+        "Check all nine stages retain user input before reveal"
+      ],
+      "status": "AUTHORING_COMPLETE_EDITORIAL_AND_PROTECTED_GRADING_PENDING"
+    },
+    {
+      "labId": "F2-C04-L01",
+      "title": "Bid, Ask, Last, Spread, and Midpoint in a Frequently Updating Quote",
+      "topic": "Quote mechanics and asynchronous last prints",
+      "objective": "Calculate a snapshot's quoted spread and mathematical midpoint while separating last-traded price, bid/ask timestamps, quoted size and actual execution evidence.",
+      "instructor": "Talia",
+      "definitions": [
+        {
+          "term": "Bid",
+          "explain": "The displayed highest price a buying participant is currently quoting under the observed market-data convention. It may change or disappear; size and market access matter."
+        },
+        {
+          "term": "Ask / offer",
+          "explain": "The displayed lowest price a selling participant is currently quoting under the observed market-data convention. It does not guarantee a specific order will fill."
+        },
+        {
+          "term": "Last",
+          "explain": "The price of the most recent reported transaction in the selected feed. Its timestamp need not match the current quote timestamp, and it is not a standing executable offer."
+        },
+        {
+          "term": "Quoted spread",
+          "explain": "Best displayed ask minus best displayed bid for one synchronized snapshot: spread = ask - bid."
+        },
+        {
+          "term": "Midpoint",
+          "explain": "The arithmetic average of the displayed best bid and ask: midpoint = (bid + ask) / 2. It is a reference calculation, not a guaranteed fill price."
+        }
+      ],
+      "nineStageJourney": [
+        {
+          "stage": "Start",
+          "teach": "Talia: We will read the quote, not guess the next candle. Prices and timestamps in this case are invented and are not a real brokerage quote.",
+          "learnerAction": "Before calculating anything, identify which fields are standing quotes and which describe a completed reported trade."
+        },
+        {
+          "stage": "Learn",
+          "teach": "When a valid bid is $10.00 and ask is $10.08, the displayed spread is $10.08 - $10.00 = $0.08. The midpoint is ($10.00 + $10.08) / 2 = $10.04. A last reported trade at $10.12 can differ because it may have been reported earlier, from a different condition or from another moment; a mismatch alone is not proof of a data error.",
+          "learnerAction": "Explain each of the three numbers and which two determine the spread and midpoint."
+        },
+        {
+          "stage": "Experiment",
+          "teach": "FICTIONAL snapshot: bid $10.00 at 09:45:10 ET, quoted size 100 shares; ask $10.08 at 09:45:10, quoted size 75 shares; last reported print $10.12 timestamped 09:45:07. No order submission or fill was observed.",
+          "learnerAction": "Calculate the current displayed spread and midpoint. Describe the last print separately, including its earlier timestamp."
+        },
+        {
+          "stage": "Predict",
+          "teach": "Talia: At this snapshot a learner considers buying 250 shares. The displayed ask size is only 75 shares. Do not assume the quoted ask can fill the entire proposed order.",
+          "learnerAction": "Record what you expect to know and what you cannot know about a hypothetical 250-share buy before any future quote or execution event is revealed.",
+          "feedback": "The current top-of-book quote is not a promise of execution across a larger incoming order."
+        },
+        {
+          "stage": "Practice",
+          "teach": "A quote update changes the fictional best bid to $10.03 while the ask remains $10.08 at the new synchronized snapshot. The last print remains $10.12 with its original time.",
+          "learnerAction": "Recalculate the updated spread and midpoint, then identify what did not change.",
+          "feedback": "At the new synchronized snapshot spread = $0.05, midpoint = $10.055; whether a platform rounds the displayed midpoint to cents is a display choice, not evidence of a fill."
+        },
+        {
+          "stage": "Assess",
+          "teach": "Ungraded authoring draft. Grading and mastery require a separately authenticated, reviewed private assessment version.",
+          "learnerAction": "Describe why the three quoted/printed prices cannot be interchanged when estimating current transaction risk."
+        },
+        {
+          "stage": "Review",
+          "teach": "Talia: A quoted spread is one possible source of execution friction. Slippage, depth, hidden liquidity, routing and order type can matter. A stale last price is not today's executable bid or ask.",
+          "learnerAction": "Explain a previous calculation, state its timestamp, and name one missing piece of order-execution evidence.",
+          "feedback": "If your calculation used last instead of bid or ask, identify the correct inputs and retry."
+        },
+        {
+          "stage": "Transfer",
+          "teach": "Independent FICTIONAL quote: synchronized bid $24.90 size 50 shares; ask $25.10 size 40 shares; last print $25.35 timestamped three seconds earlier; hypothetical buy order for 100 shares.",
+          "learnerAction": "Calculate the new displayed spread and midpoint, then explain why 100 shares cannot be guaranteed at the displayed ask.",
+          "feedback": "The new spread is $0.20 and midpoint $25.00. The displayed ask size is smaller than the proposed order; even matching size would not guarantee a fill."
+        },
+        {
+          "stage": "Results",
+          "teach": "A sound outcome is a correct price calculation plus a precise statement of what the snapshot does not show. Do not convert a hypothetical quote observation into a claim that a trade occurred.",
+          "learnerAction": "Record the observation and its limits in the existing member Journal workflow when authorized; verify save confirmation before claiming persistence."
+        }
+      ],
+      "dataIntegrity": [
+        "Snapshot bid and ask timestamps must be comparable",
+        "Spread and midpoint derive from bid and ask, never last",
+        "Do not silently round subcent midpoint in calculation",
+        "Historical trade print is not a firm order quote",
+        "Size 75 cannot guarantee a 250-share buy at that price",
+        "All examples hypothetical"
+      ],
+      "editorialChecks": [
+        "Validate arithmetic including $10.055 midpoint",
+        "Account for update timestamp coherency",
+        "Use accessible labels for bid, ask, last and sizes",
+        "Verify independent transfer does not reuse first quote",
+        "Reject guaranteed-execution or liquidity claims"
+      ],
+      "status": "AUTHORING_COMPLETE_EDITORIAL_AND_PROTECTED_GRADING_PENDING"
+    }
+  ]
+}
