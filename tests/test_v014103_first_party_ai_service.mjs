@@ -17,7 +17,7 @@ const savedFetch=globalThis.fetch;
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url);requests.push({u,opts});
- if(u.endsWith('/auth/v1/user'))return json({id:uid});
+ if(u.endsWith('/auth/v1/user'))return json({id:uid,user_metadata:{market_tutor_ai_enabled:true}});
  if(u.includes('/profiles?'))return json([{account_kind:kind}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/admin_user_roles?'))return json([]);
