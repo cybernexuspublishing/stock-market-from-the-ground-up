@@ -28,7 +28,7 @@ const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock',SUPABASE_PUBLI
  GU61_STAGING_ENABLED:'true',GU61_STAGING_PROJECT_REF:'aaaaaaaaaaaaaaaaaaaa',GU61_STAGING_HOSTNAME:'pr-62.stocks.pages.dev',
  GU61_STRIPE_TEST_CATALOG_JSON:JSON.stringify(mapped)};
 const state={mode:true,validPrice:true,account:'acct_expectedmock',postStripe:0,dbWrites:0,postBody:null,
- intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0,expectTool:false};
+ intentId:intent,paid:true,invoiceStatus:'paid',expectedAction:'subscription_active',expectedCancel:false,unbound:false,bindWrites:0,expectTool:false,toolEnabled:true};
 const respond=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 const liveSession={id:'cs_test_mock123456',livemode:false,status:'complete',payment_status:'paid',
  url:'https://checkout.stripe.com/c/pay/cs_test_mock123456',mode:'subscription',currency:'usd',
@@ -53,9 +53,9 @@ globalThis.fetch=async(url,o={})=>{
  if(u.includes('/account_private_identity?'))return respond([{age_eligible:true,date_of_birth:'1990-01-01'}]);
  if(u.includes('/platform_plans?'))return respond([{active:true,public_visible:true,
  checkout_enabled:true,billing_interval:'month',price_cents:6999}]);
- // platform_tools intentionally has no checkout_enabled column.
+ // Owner-controlled per-tool checkout switch exists and must be honored.
  if(u.includes('/platform_tools?'))return respond([{active:true,public_visible:true,
-  status:'live',individual_price_cents:2999}]);
+  checkout_enabled:state.toolEnabled,status:'live',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return respond({enabled:true,provider:'STRIPE_MANAGED'});
  if(u.includes('/site_settings?'))return respond([{value:true}]);
  if(u.endsWith('/v1/prices/'+mapped['plan:FULL_MONTHLY'].price_id))
@@ -194,6 +194,11 @@ try{
  // Verify the tool checkout path does not rely on a nonexistent checkout_enabled
  // column in platform_tools. All other Owner and provider gates remain active.
  state.expectTool=true;
+ state.toolEnabled=false;
+ r=await pay({}, {type:'tool',code:'INTERACTIVE_LEARNING'});
+ assert.equal(r.status,403,'Disabled individual tool cannot create TEST checkout');
+ assert.equal(state.postStripe,1,'Disabled tool cannot contact Stripe to charge');
+ state.toolEnabled=true;
  crypto.randomUUID=()=>intent;
  r=await pay({}, {type:'tool',code:'INTERACTIVE_LEARNING'});
  crypto.randomUUID=orig;
