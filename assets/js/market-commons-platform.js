@@ -4,7 +4,7 @@
   let SB,USER,forums=[],FOUNDER_ALLOWED=false;
   const IS_FOUNDER=String(location.pathname||'').endsWith('/founders-commons.html');
   const PAGE=IS_FOUNDER?'founders-commons.html':'market-commons.html';
-  async function initAuth(){SB=await window.getSupabaseClient();const s=(await SB.auth.getSession()).data.session;if(!s){location.replace(`signin.html?next=${encodeURIComponent(location.pathname+location.search)}`);return false}USER=s.user;
+  async function initAuth(){SB=await window.getSupabaseClient();const session=typeof SB.auth.getSession==='function'?(await SB.auth.getSession()).data?.session:null;const user=session?.user||(await SB.auth.getUser()).data?.user;if(!user){location.replace(`signin.html?next=${encodeURIComponent(location.pathname+location.search)}`);return false}USER=user;
     if(IS_FOUNDER){
       // The Founders route itself must verify founder or noncommercial QA entitlement,
       // even if a public Commons session is otherwise valid.
