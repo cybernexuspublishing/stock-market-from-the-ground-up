@@ -46,7 +46,7 @@ async function scenario(mode){
   if(url==='/api/admin-password-confirm-v01432r1')return {ok:true,json:async()=>({ok:true})};
   throw Error('Unexpected request: '+url);
  };
- const runtime={document,window,fetch,setInterval:()=>1,clearInterval(){},setTimeout(){},clearTimeout(){},
+ const runtime={document,window,location:{pathname:'/admin.html'},fetch,setInterval:()=>1,clearInterval(){},setTimeout(){},clearTimeout(){},
   Error,Promise};
  vm.runInNewContext(source,runtime,{timeout:1000});
  assert.equal(typeof window.GroundUpAdminPasswordConfirm?.ensure,'function');
