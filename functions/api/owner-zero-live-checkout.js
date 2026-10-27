@@ -174,10 +174,10 @@ export async function onRequestGet({request,env}){
 export async function onRequestPost({request,env}){
  try{
   if(request.headers.get('origin')!==site(env))throw fail('CROSS_SITE_POST_BLOCKED',403);
-  if(Number(request.headers.get('content-length')||0)>512)throw fail('REQUEST_TOO_LARGE',413);
+  if(Number(request.headers.get('content-length')||0)>4500)throw fail('REQUEST_TOO_LARGE',413);
   const user=await authorize(request,env),c=setup(request,env);
   const raw=await request.text();if(raw.length>4500)throw fail('REQUEST_TOO_LARGE',413);
-  const input=JSON.parse(raw);
+  let input;try{input=JSON.parse(raw)}catch{throw fail('INVALID_QA_SELECTION',400)}
   if(!input||typeof input!=='object'||Array.isArray(input)||input.confirm!=='CREATE_ZERO_DOLLAR_LIVE_QA')
    throw fail('EXPLICIT_OWNER_CONFIRMATION_REQUIRED',400);
   const batch=['category','selected','all'].includes(input.selection);
