@@ -56,6 +56,7 @@ async function evt(eventId,type,obj){
 }
 try{
  assert.equal((await (await checkoutGet({env:{}})).json()).ready,false);
+ assert.equal((await (await checkoutGet({env})).json()).ready,true,'Only verified TEST provider and price may report ready');
  assert.equal((await checkout({env:{},request:req('/api/book-stripe-test-checkout-v1',{code:BOOK_CODE,format:'epub'})})).status,503);
  assert.equal((await checkout({env,request:req('/api/book-stripe-test-checkout-v1',{code:BOOK_CODE,format:'epub'},false)})).status,401);
  assert.equal((await checkout({env,request:req('/api/book-stripe-test-checkout-v1',{code:BOOK_CODE,format:'pdf'})})).status,400);
