@@ -25,7 +25,23 @@ try{
  console.log('PASS real Chromium UI password sign-in to production member Dashboard.');
  await page.goto(origin+'/dashboard.html?tab=support&purpose=book_receipt',{
   waitUntil:'domcontentloaded',timeout:30000});
- await page.locator('#member-support-panel').waitFor({state:'visible',timeout:25000});
+ try{await page.locator('#member-support-panel').waitFor({state:'visible',timeout:22000})}
+ catch(error){
+  const detail=await page.evaluate(async()=>{
+   let authenticated=false,authIssue='unknown';
+   try{const client=await window.getSupabaseClient?.();const response=await client?.auth.getSession();
+     authenticated=!!response?.data?.session?.access_token;authIssue=response?.error?'session_error':'no_session_error';
+   }catch{authIssue='auth_exception'}
+   return {route:location.pathname,tab:new URLSearchParams(location.search).get('tab'),
+    panelExists:!!document.getElementById('member-support-panel'),
+    panelHidden:document.getElementById('member-support-panel')?.hidden,
+    supportState:(document.getElementById('member-support-status')?.textContent||'').slice(0,130),
+    gateStatus:(document.getElementById('dashboard-gate')?.textContent||'').slice(0,100),
+    authenticated,authIssue,clientLoaded:typeof window.getSupabaseClient==='function'};
+  }).catch(()=>({route:'navigation_failure'}));
+  console.error('SUPPORT_QA_DIAGNOSTIC '+JSON.stringify(detail));
+  throw error;
+ }
  assert.equal(await page.locator('#member-book-receipt-form').isVisible(),true);
  assert.equal(await page.locator('#member-book-receipt-form input[name="receipt"][type="file"]').count(),1);
  assert.equal(await page.locator('#member-book-receipt-form button[type="submit"]').isVisible(),true);
