@@ -8,7 +8,7 @@ const finite=v=>{
  // booleans/arrays/objects and whitespace cannot silently count as flats.
  if(v===null||v===undefined)return null;
  if(typeof v!=='number'&&typeof v!=='string')return null;
- if(typeof v==='string'&&(!v.trim()||!/^[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?$/.test(v.trim())))return null;
+ if(typeof v==='string'&&(!v.trim()||!/^[-+]?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)(?:[eE][-+]?[0-9]+)?$/.test(v.trim())))return null;
  const n=typeof v==='number'?v:Number(v);
  return Number.isFinite(n)?n:null;
 };
