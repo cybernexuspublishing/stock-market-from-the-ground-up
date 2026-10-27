@@ -13,6 +13,10 @@ function parseTimestamp(row){
   (row.date&&row.time?`${row.date}T${row.time}`:row.date)||'').trim();
  const valid=/^\d{4}-\d{2}-\d{2}(?:[T ][0-2]\d:[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-](?:0\d|1[0-4]):[0-5]\d))?$/i;
  if(!valid.test(raw))return null;
+ const year=Number(raw.slice(0,4)),month=Number(raw.slice(5,7)),day=Number(raw.slice(8,10));
+ const cal=new Date(Date.UTC(year,month-1,day));
+ if(cal.getUTCFullYear()!==year||cal.getUTCMonth()+1!==month||cal.getUTCDate()!==day)
+  return null; // Date.parse may normalize impossible dates such as Feb 30.
  const d=new Date(raw);return Number.isFinite(d.getTime())?d:null;
 }
 const SIM_CSV_MAX_BYTES=4*1024*1024,SIM_CSV_MAX_BARS=20000;
