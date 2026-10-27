@@ -7,6 +7,9 @@ const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const categoryLabels=Object.freeze({membership:'Memberships',founding:'Founding Memberships',
  book:'Books',tool:'Tools',bootcamp:'Boot Camps',addon:'Add-ons',feature:'Included Features'});
 const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrelaunchInventory:[];
+// If the authoritative visible-only API fails, expose only previously approved
+// Founding and book catalog identities. Upcoming/private overlays stay hidden.
+const listedCore=p=>/^FOUNDING_(30|60)$/.test(p.sku)||(p.category==='Books'&&p.status==='existing_catalog');
 const $=id=>document.getElementById(id);
 const clean=x=>String(x??'').trim();
 let all=[],isVerified=false,isFull=false;
@@ -78,8 +81,7 @@ async function load(){
    throw Error('Catalog integrity check failed');
   all=j.items.map(normalize);isFull=true;
  }catch{
-  const core=base.filter(x=>x.status==='existing_catalog'||
-    /FOUNDING_(30|60)/.test(x.sku)||x.status==='coming_soon');
+  const core=base.filter(listedCore);
   all=core.map(fromLocal);
  }
  isVerified=true;
