@@ -10,6 +10,8 @@ assert(api.includes("String(set.updated_at)!==expected"),'Reject stale Owner UI 
 assert(api.includes("'&review_state=eq.draft&updated_at=eq.'+enc(expected)"),'CAS must use the specific Owner-inspected revision');
 assert(ui.includes('expectedUpdatedAt:editorRevision'),'Owner UI must supply loaded timestamp');
 assert(ui.includes("if(!editorRevision)"),'No approval without source revision');
+assert(ui.includes('if(editorDirty||editorSaving)'), 'Unsaved Owner draft must not be approved');
+assert(ui.includes('editorDirty=editorChangeSequence!==saveSequence'), 'Concurrent edits during save remain unsaved');
 
 const id='F1-C02-L01',stamp='2026-10-27T10:00:00.123456Z';
 const env={SUPABASE_URL:'https://fixture.invalid',SUPABASE_PUBLISHABLE_KEY:'public',SUPABASE_SECRET_KEY:'fixture-only-secret'};
