@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {onRequestGet,onRequestPost as checkout} from '../functions/api/founding600-checkout.js';
 import {onRequestPost as webhook} from '../functions/api/founding600-webhook.js';
-test('founding GET reports a closed checkout without keys or account data',async()=>{
+test('founding GET fails closed with missing env and omits internal cap',async()=>{
  const response=await onRequestGet({env:{}});
  const body=await response.json();
  assert.equal(response.status,200);
  assert.equal(body.checkoutEnabled,false);
- assert.equal(body.capacity,600);
+ assert.equal(Object.hasOwn(body,'capacity'),false,'Public status must omit internal founder seat limit');
  assert.equal(body.plans[0].billingDays,30);
  assert.equal(body.plans[1].billingDays,60);
 });
