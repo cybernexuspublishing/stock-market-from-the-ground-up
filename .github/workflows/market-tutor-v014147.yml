@@ -33,6 +33,7 @@ jobs:
           node tests/test_v014149_tutor_retrieval.mjs
           node tests/test_v014149_tutor_arithmetic.mjs
           node tests/test_v014149_tutor_provider.mjs
+          node tests/test_market_tutor_sellable_beta_scope_v1.mjs
           node tests/test_v014149_tutor_conversations.mjs
           node tests/test_v014149_tutor_calculator.mjs
           node tests/test_v014149_tutor_data_export.mjs
