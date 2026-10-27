@@ -53,6 +53,15 @@ try{
  const html=readFileSync(new URL('../market-tutor.html',import.meta.url),'utf8');
  const js=readFileSync(new URL('../assets/js/market-tutor.js',import.meta.url),'utf8');
  assert(html.includes('id="tutor-ai-consent"'));
+ assert(!html.includes('id="tutor-ai-consent" type="checkbox" hidden'),'Members may visibly decline per-request inference');
+ assert(html.includes('Optional AI is off by default.'));
+ const profile=readFileSync(new URL('../account.html',import.meta.url),'utf8');
+ const profileJs=readFileSync(new URL('../assets/js/profile.js',import.meta.url),'utf8');
+ assert(profile.includes('id="profile-tutor-ai-enabled" type="checkbox">'),'No default consent from static HTML');
+ assert(profileJs.includes('market_tutor_ai_enabled===true'),'Default Profile consent is explicitly OFF');
+ assert(js.includes('market_tutor_ai_enabled===true'),'Tutor must not infer affirmative saved consent');
  assert(js.includes("allowModel:$('tutor-ai-consent')?.checked===true"));
+ assert(readFileSync(new URL('../functions/api/member-tool-access.js',import.meta.url),'utf8').includes('aiOptedIn:user?.user_metadata?.market_tutor_ai_enabled===true'));
+ assert(readFileSync(new URL('../functions/api/market-tutor-v01492.js',import.meta.url),'utf8').includes('profileAiOptedIn!==true'));
  console.log('PASS v103: opt-in required before atomic first-party request quota and provider call; deterministic teaching otherwise.');
 }finally{globalThis.fetch=original}
