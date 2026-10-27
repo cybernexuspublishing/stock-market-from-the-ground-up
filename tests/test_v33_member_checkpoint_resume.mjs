@@ -48,8 +48,13 @@ const sb={
   assert(!('rubric' in parameters.p_checkpoint));
   calls++;concurrent++;maxConcurrent=Math.max(maxConcurrent,concurrent);
   await new Promise(resolve=>setTimeout(resolve,2));
-  db.responses={...db.responses,learning_journey_v33:parameters.p_checkpoint};
-  concurrent--;return {data:{ok:true,saved:parameters.p_checkpoint},error:null};
+  const lastRev=db.responses.learning_journey_v33?.rev||0;
+  if(lastRev!==parameters.p_expected_revision){
+   concurrent--;return {data:null,error:{code:'40001',message:'stale writer'}};
+  }
+  const saved={...parameters.p_checkpoint,rev:lastRev+1};
+  db.responses={...db.responses,learning_journey_v33:saved};
+  concurrent--;return {data:{ok:true,saved},error:null};
  }
 };
 const store=checkpoint.create({sb,userId:ID,labId:lab,mode:'guided',alive:()=>accountActive});
@@ -62,15 +67,22 @@ assert.equal(db.responses.q1,'Older site Lab response','Original Lab reflection 
 assert.equal(db.responses.learning_journey_v33.stage,5);
 assert.equal(maxConcurrent,1,'Queued checkpoint writes must be serialized');
 assert.equal(calls,2);
+assert.equal(db.responses.learning_journey_v33.rev,2,'Confirmed CAS revisions increment for each distinct write');
+const otherTab=checkpoint.create({sb,userId:ID,labId:lab,mode:'guided',alive:()=>accountActive});
+await otherTab.load();
+await store.save({...input,stage:6});
+await assert.rejects(otherTab.save({...input,stage:3}),/newer draft/i,
+ 'A stale tab cannot overwrite a later learning checkpoint');
+assert.equal(db.responses.learning_journey_v33.stage,6);
 const resumed=await store.load();
-assert.equal(resumed.stage,5);
+assert.equal(resumed.stage,6);
 assert.equal(resumed.practiceCount,2);
 assert.equal(resumed.learnerReplies.length,2);
 const practiceOnly=checkpoint.create({sb,userId:ID,labId:lab,mode:'practice',alive:()=>accountActive});
 assert.equal(await practiceOnly.load(),null,'The practice mode cannot preload guided instructional state');
 accountActive=false;
 await assert.rejects(store.save({...input,stage:6}),/account changed/i);
-assert.equal(calls,2,'Sign-out must block stale writes');
+assert.equal(calls,4,'Sign-out must block stale writes');
 assert.equal(await store.load(),null,'Account swap must not reuse private checkpoint');
 assert.equal(checkpoint.create({sb,userId:'bad',labId:lab,mode:'guided'}),null);
 const player=read('assets/js/lab-player.js'),engine=read('assets/js/lab-engine-v32-universal.js');
@@ -90,6 +102,7 @@ const sql=read('supabase/migrations/20261027_lab_journey_v33_private_checkpoint.
 for(const token of ['SECURITY INVOKER','auth.uid()','site_lab_progress','jsonb_set','ON CONFLICT',
  'learning_journey_v33','REVOKE ALL','GRANT EXECUTE','authenticated','in_progress'])
  assert(sql.includes(token),'Missing private Postgres checkpoint invariant '+token);
+assert(sql.includes('p_expected_revision bigint')&&sql.includes("ERRCODE='40001'"));
 assert(!sql.includes('UPDATE public.lab_progress'));
 assert(!sql.includes('INSERT INTO public.lab_attempts'));
 assert(!sql.includes('GRANT EXECUTE ON FUNCTION public.gu_v33_save_lab_journey(text,jsonb) TO anon'));
