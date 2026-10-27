@@ -27,6 +27,7 @@ jobs:
           node tests/test_v014114_private_journal_analytics.mjs
           node tests/test_sellable_journal_metric_contract_research8.mjs
           node tests/test_journal_future_exit_asof_v1.mjs
+          node tests/test_journal_account_switch_scrub_v1.mjs
           node --check functions/_lib/journal-analytics-v014114.js
           node --check assets/js/journal-analytics.js
           node --check assets/js/market-analysis-engine-v014146.js
