@@ -61,7 +61,7 @@ python3 - "$output/data/founding-catalog.json" <<'PYFOUNDERS'
 import json,sys
 from pathlib import Path
 terms=json.loads(Path('data/founding600-terms-v014170.json').read_text())
-fields=('name','billingIntervalDays','recurringCents','foundingDiscountBps','incSparks')
+fields=('name','billingIntervalDays','recurringCents','foundingDiscountBps','incSparks','incSparksExpiryDaysAfterTermEnd')
 public={'plans':{code:{key:terms['plans'][code][key] for key in fields} for code in ('FOUNDING_14','FOUNDING_30','FOUNDING_60')}}
 Path(sys.argv[1]).write_text(json.dumps(public,separators=(',',':'))+'\n')
 PYFOUNDERS

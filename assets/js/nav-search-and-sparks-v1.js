@@ -85,7 +85,7 @@ function installSearch(nav){
  input.setAttribute('aria-label','Search site and products');
  input.setAttribute('aria-keyshortcuts','Control+K Meta+K');
  input.setAttribute('aria-haspopup','dialog');
- const hint=el('kbd','gu-nav-search-hint','Ctrl K');
+ const hint=el('kbd','gu-nav-search-hint','Ctrl + K');
  wrapper.append(input,hint);nav.append(wrapper);
  input.addEventListener('input',()=>{hint.hidden=!!input.value});
  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();show(input.value)}});
