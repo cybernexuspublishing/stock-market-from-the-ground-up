@@ -83,7 +83,8 @@
   for(const [label,value] of values)metric(cards,label,value);
   const quality=$('analytics-quality');quality.replaceChildren();
   for(const line of [
-   'Closed records selected: '+s.recordsMatched+'. Excluded unresolved or invalid P&L: '+s.excludedNoResult+'.',
+   'Closed records selected: '+s.recordsMatched+'. Excluded from resolved calculations: '+s.excludedNoResult+'.',
+   'Excluded records with future exit dates: '+(s.excludedFutureExitDates??0)+'. Invalid or before-entry exit dates: '+(s.excludedInvalidExitDates??0)+'.',
    'Average R uses '+s.rRatedTrades+' valid recorded R values; missing R is not treated as zero.',
    s.profitFactorReason?'Profit factor unavailable: '+s.profitFactorReason.replaceAll('_',' ')+'.':'Profit factor uses gross profit divided by absolute gross loss.',
    ...result.notices
