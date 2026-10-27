@@ -45,4 +45,4 @@ export async function onRequestPost({request,env}){
   return reply({ok:true,testing:true,url:s.url,notice:'Stripe TEST only; no real charge or LIVE book entitlement.'});
  }catch(e){return clientError(e)}
 }
-export function onRequestGet({env}){try{config(env);return reply({ok:true,testing:true,ready:true})}catch{return reply({ok:true,testing:true,ready:false})}}
+export async function onRequestGet({env}){try{const c=config(env);await accountOK(c);await priceOK(c);return reply({ok:true,testing:true,ready:true})}catch{return reply({ok:true,testing:true,ready:false})}}
