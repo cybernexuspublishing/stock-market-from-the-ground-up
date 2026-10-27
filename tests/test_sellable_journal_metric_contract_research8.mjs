@@ -3,7 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {report} from '../functions/_lib/journal-analytics-v014114.js';
+import {finite,report} from '../functions/_lib/journal-analytics-v014114.js';
 
 const rows=[
  {id:'A',created_at:'2026-10-01T10:00:00Z',trade_date:'2026-10-01',exit_date:'2026-10-01',status:'closed',journal_type:'paper',decision:'TRADE',net_pnl:120,r_multiple:null,process_grade:'GOOD'},
@@ -48,6 +48,17 @@ assert.equal(byKey.mfe_r.missingCount,5);
 assert(!('id' in r.metricDefinitions[0]));
 assert(!JSON.stringify(r).includes('2026-10-05T10:00:00Z'));
 
+assert.equal(finite('   '),null,'Whitespace is not a flat trade');
+assert.equal(finite(false),null,'Boolean values are not numeric P&L');
+assert.equal(finite([]),null,'Array values are not numeric P&L');
+assert.equal(finite('bad'),null);
+assert.equal(finite('0'),0,'Explicit real zero remains a valid flat result');
+assert.equal(finite('-30.25'),-30.25);
+assert.equal(finite('1e2'),100);
+const whitespace=report([...rows,{...rows[0],id:'whitespace',trade_date:'2026-10-06',net_pnl:'  '}],{type:'paper',days:'all',today:'2026-10-26'});
+assert.equal(whitespace.summary.resolvedTrades,4);
+assert.equal(whitespace.summary.excludedNoResult,2);
+assert.equal(whitespace.summary.totalNet,40);
 const invalid={...rows[0],id:'invalid',trade_date:'2026-02-30',exit_date:'2026-02-30',net_pnl:999999};
 const wrong=report([...rows,invalid],{type:'paper',days:'all',today:'2026-10-26'});
 assert.equal(wrong.summary.recordsMatched,5,'Impossible calendar dates must not enter the sample');
