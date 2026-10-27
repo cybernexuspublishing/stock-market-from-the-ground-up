@@ -1,0 +1,40 @@
+/* 40 owner-reviewed B01 question metadata, no answer keys, source-only contract.
+ * The protected contents live in Supabase and are NEVER embedded here.
+ */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=x=>readFileSync(x,'utf8');
+const p='docs/qa/2026-10-27_B01_NEXT40_EDITORIAL_DECISION_REGISTER.csv';
+const rows=read(p).trim().split(/\r?\n/);
+assert.equal(rows.length,41,'Exactly forty reviewed choice records plus a header');
+const selected=['F1-C02-L01','F1-C02-L02','F1-C04-L01','F1-C06-L01','F1-C07-L01','F1-C07-L02','F1-C08-L01','F1-C08-L02'];
+for(const id of selected)assert.equal(rows.filter(x=>x.startsWith('"'+id+'",')).length,5,id+' has five individual choice findings');
+const critical=rows.slice(1).filter(x=>x.includes('CRITICAL_LOOKAHEAD_PROCESS_VIOLATION'));
+assert.equal(critical.length,2,'Only two justified look-ahead process mistakes are marked critical');
+assert(critical.every(x=>x.startsWith('"F1-C02-L0')),'Do not treat generic conceptual mistakes as dangerous trades');
+assert(rows.slice(1).every(x=>x.includes('BINARY_NO_PARTIAL_APPROVED_FOR_CHOICE')));
+assert(rows.slice(1).every(x=>x.includes('KEY_ECHO_REMOVED_EXPLANATION_SUBSTANTIVE')));
+assert(rows.slice(1).every(x=>x.includes('NOT_REVIEWED')&&x.includes('BLOCKED_UNREVIEWED_SET')));
+assert(!rows.slice(1).some(x=>x.includes('BETA_ACCEPTED')||x.includes('MASTERY_AWARDED')));
+const editor=read('functions/api/training-editor.js');
+assert(editor.includes('Private assessment feedback repeats an exact keyed choice'));
+assert(editor.includes("String(q.explanation||'').toLocaleLowerCase().includes"));
+assert(editor.includes("String(set.source_status||'').includes('b01')"));
+assert(editor.includes("review_state:'reviewed'"),'Owner continues to use existing review lifecycle');
+const backup=read('supabase/migrations/20261027_b01_editorial_private_backup.sql');
+const rollback=read('supabase/rollbacks/20261027_b01_editorial_private_backup_ROLLBACK.sql');
+assert(backup.includes('private.b01_question_backups_20261027'));
+assert(backup.includes('ENABLE ROW LEVEL SECURITY'));
+assert(backup.includes('REVOKE ALL ON TABLE')&&backup.includes('anon,authenticated,service_role'));
+assert(rollback.includes('md5(current_row.questions::text)<>item.applied_md5'));
+assert(rollback.includes("current_row.review_state<>'draft'"));
+assert(rollback.includes('lab_training_attempts_v014'),'Never rollback private graded attempts');
+assert(rollback.includes('prior_questions'),'Private backup restores original authored source');
+assert(!/\b(?:DROP|TRUNCATE)\s+(?:TABLE|public\.lab_training)/i.test(rollback),'No destructive member data rollback');
+const audit=read('supabase/reviews/2026-10-27_B01_NEXT40_READ_ONLY.sql');
+assert(audit.includes('BEGIN READ ONLY;'));
+assert(audit.includes('ROLLBACK;'));
+assert(audit.includes('no_verbatim_key_in_feedback'));
+assert(!audit.includes('SELECT answer_key,'));
+assert(!audit.includes('SELECT private_key,'));
+console.log('PASS B01 next 40: eight canonical Lab groups, individual review decisions, 2 justified process-critical flags, no automatic mastery and reversible private source corrections.');
