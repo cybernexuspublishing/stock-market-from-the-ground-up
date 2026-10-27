@@ -4,6 +4,7 @@ if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
 const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!=null)n.textContent=txt;if(cls)n.className=cls;return n};
 let busy=false;
 let editorCode=null,editorTarget=null;
+let loading=null;
 function mount(){
  if(document.querySelector('[data-gu-digital-v01430]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
@@ -13,7 +14,7 @@ function mount(){
  const loadButton=el('button','Refresh eBooks','btn secondary');loadButton.type='button';
  const list=el('div',null,'gu-digital-list');section.append(loadButton,status,list);panel.append(section);
  async function rpc(sb,name,args={}){const {data,error}=await sb.rpc(name,args);if(error)throw Error(error.message||'Database unavailable.');if(!data?.ok)throw Error('Digital publishing contract unavailable.');return data}
- async function load(){if(busy)return;busy=true;loadButton.disabled=true;list.replaceChildren();status.textContent='Reading protected publication settings…';
+ async function refresh(){if(busy)return;busy=true;loadButton.disabled=true;list.replaceChildren();status.textContent='Reading protected publication settings…';
   try{const sb=await window.getSupabaseClient(),data=await rpc(sb,'gu_owner_digital_books_get_v01430');
    for(const product of data.products||[]){
     const card=el('article',null,'gu-digital-row');card.append(el('h3',product.title||product.code));
@@ -108,6 +109,13 @@ function mount(){
   }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'Owner session or password confirmation required')}
   finally{busy=false;loadButton.disabled=false}
  }
+ // Serialize refreshes so opening Edit while the Commerce prefetch is pending
+ // waits for the same authoritative response rather than losing its uploader.
+ async function load(){
+  if(loading)return loading;
+  loading=refresh();
+  try{return await loading}finally{loading=null}
+ }
  loadButton.onclick=load;
   // One source of truth for uploads, rights checks and signed-version history.
   // Never create a second storage route or a second set of publishing toggles.
@@ -117,10 +125,12 @@ function mount(){
      throw Error('Save this book with a valid product code before uploading its edition.');
     editorCode=code;editorTarget=host;
     await load();
-    if(host.isConnected&&!host.querySelector('.gu-digital-row'))
+    if(!host.isConnected||editorTarget!==host||editorCode!==code)return;
+    if(!host.querySelector('.gu-digital-row'))
      throw Error(status.textContent||'This book is not available to the authorized digital publishing service.');
    }
   };
+  window.dispatchEvent(new Event('gu-digital-books-ready'));
   document.getElementById('admin-dialog')?.addEventListener('close',()=>{
    if(!editorTarget)return;
    editorCode=null;editorTarget=null;
