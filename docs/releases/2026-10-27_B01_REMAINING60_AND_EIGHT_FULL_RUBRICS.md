@@ -105,3 +105,10 @@ The existing private source archive table `private.b01_question_backups_20261027
 **Reconciliation:** Existing previous 40-item and remaining 60-item editorial registers together cover **all 100 B01 choice questions**. The first eight six-question rubric content checks are separately documented; formal review of each exact current version is still blocked on authenticated Owner-route publication and security provenance. The previous 120-question technical audit is not blanket assessment readiness.
 
 **Document status:** v1.1, DRAFT CORRECTION PROVEN; formal rubric approval and genuine member browser verification OPEN. Google Drive copy/document ID not created. No LIVE payment tests or billing changes.
+
+
+## v1.2 — Formal Owner publication stale-revision safeguard (October 27, 2026)
+
+Owner review of an assessment now requires the **exact `updated_at` revision viewed in the authenticated private editor**. The member-facing/public source holds no keyed answers. The browser passes `expectedUpdatedAt` from the reviewed draft; the server compares this against the still-Draft record before content evaluation and uses the **Owner-inspected** timestamp as the PostgREST compare-and-swap predicate. A missing or mismatched timestamp returns HTTP 409 and requires a fresh private review. An authenticated Owner, explicit `REVIEW BOOK RUBRIC` phrase, topic-specific content validation, B01 key-echo guard and ordinary published-set denial remain mandatory. This does not publish any existing B01 rubrics or replace the protected scorer.
+
+Tests: `tests/test_b01_owner_review_revision_cas.mjs` and updated `tests/test_v014117_lab_topic_gate.mjs`; workflow B01 Protected Assessment and Guided Remediation. Existing Draft states and actual member-journey acceptance are still open.

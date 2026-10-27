@@ -38,12 +38,14 @@ globalThis.fetch=async (url,init={})=>{
  }]);
  throw Error('Unexpected API call '+u);
 };
-const run=()=>onRequest({env,request:new Request('https://site.test/api/training-editor?action=review',{
+const run=(expectedUpdatedAt='2026-10-26T06:00:00.123456Z')=>onRequest({env,request:new Request('https://site.test/api/training-editor?action=review',{
  method:'POST',headers:{authorization:'Bearer test',origin:'https://site.test','content-type':'application/json'},
- body:JSON.stringify({labId:'F1-C07-L02',title:'ETF Versus Index',version:rubricVersion,confirmPhrase:'REVIEW BOOK RUBRIC'})
+ body:JSON.stringify({labId:'F1-C07-L02',title:'ETF Versus Index',version:rubricVersion,expectedUpdatedAt,confirmPhrase:'REVIEW BOOK RUBRIC'})
 })});
 try{
- let r=await run();assert.equal(r.status,409);assert.equal(approved,0);
+ let r=await run(null);assert.equal(r.status,409,'Owner review without inspected revision must fail closed');assert.equal(approved,0);
+ r=await run('2026-10-26T06:00:00.123455Z');assert.equal(r.status,409,'Stale Owner screen must not silently approve newer private source');assert.equal(approved,0);
+ r=await run();assert.equal(r.status,409);assert.equal(approved,0);
  const originalChoiceOptions=questions[0].options;
  questions[0].options=['One',' one '];
  r=await run();assert.equal(r.status,400,'Duplicate and whitespace-equivalent choice distractors must be rejected for every rubric');
