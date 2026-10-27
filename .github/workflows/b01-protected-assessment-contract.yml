@@ -12,6 +12,7 @@ on:
       - 'tests/test_grading_partial_credit_critical_guard.mjs'
       - 'tests/test_b01_invalid_choice_and_remediation.mjs'
       - 'functions/api/training-editor.js'
+      - 'assets/js/training-editor.js'
       - 'tests/test_v014117_lab_topic_gate.mjs'
       - 'tests/test_b01_owner_review_revision_cas.mjs'
       - 'supabase/migrations/20261027_b01_editorial_private_backup.sql'
@@ -75,6 +76,7 @@ jobs:
       - run: |
           node --check assets/js/interactive-training.js
           node --check functions/api/interactive-training.js
+          node --check assets/js/training-editor.js
           node tests/test_b01_review_withdrawal_and_private_grading.mjs
           node tests/test_grading_partial_credit_critical_guard.mjs
           node tests/test_b01_invalid_choice_and_remediation.mjs
