@@ -1,5 +1,5 @@
 /* Reviewed step-wise instruction. All grading comes from the server; browsers
-   never receive private answer keys until the attempt is completed. */
+   never receive private answer keys, including after completion. */
 window.GroundUpInteractiveTraining=(function(){
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let labId='',mode='',attemptId='',step=0,total=0,completed=false;let mount=null,epoch=0;
@@ -12,8 +12,30 @@ window.GroundUpInteractiveTraining=(function(){
  const line=form.querySelector('[data-train-form]');
  line.replaceChildren();const go=document.createElement('button');go.type='button';go.className='btn';go.textContent='Continue to Next Step';line.append(go);
  notice(result.explanation?`${result.correct?'Correct.':'Needs improvement.'} ${result.explanation}`:'Your selected answer is locked. Its correctness will be explained in the final assessment.');
+ if(mode==='guided'&&result.correct===false&&result.explanation){
+  const correction=document.createElement('p');correction.className='small';
+  correction.textContent='Guided correction: identify the missing evidence or calculation step from the reviewed explanation. Before continuing, consider how you would check a different fictional example. Your original answer remains recorded; ungraded self-study cannot change it.';
+  line.append(correction);
+ }
  go.onclick=async()=>{go.disabled=true;try{const next=await call('resume','GET');if(renderedEpoch!==epoch||!mount?.isConnected)return;show(next);notice(`Step ${step+1} of ${total}. Continue using your own interpretation.`)}catch(e){if(renderedEpoch===epoch&&mount?.isConnected){notice(e.message);go.disabled=false}}};
- }catch(e){if(renderedEpoch===epoch&&mount?.isConnected)notice(e.message)}finally{button.disabled=false}}
+ }catch(e){
+  if(renderedEpoch===epoch&&mount?.isConnected){
+   notice(e.message);
+   if(String(e.message||'').includes('Refresh the current question')){
+    let retry=form.querySelector('[data-train-resume]');
+    if(!retry){
+     retry=document.createElement('button');retry.type='button';retry.className='btn secondary';
+     retry.dataset.trainResume='';retry.textContent='Refresh my saved assessment step';
+     form.append(retry);
+    }
+    retry.onclick=async()=>{retry.disabled=true;try{
+     const current=await call('resume','GET');
+     if(renderedEpoch!==epoch||!mount?.isConnected)return;
+     show(current);notice('Current saved question restored; no duplicate answer was submitted.');
+    }catch(error){if(renderedEpoch===epoch&&mount?.isConnected){notice(error.message);retry.disabled=false}}};
+   }
+  }
+ }finally{button.disabled=false}}
  }
  function report(r){
  if(!r)return '<p>Not Yet Assessed. A verified grading record is not available.</p>';
