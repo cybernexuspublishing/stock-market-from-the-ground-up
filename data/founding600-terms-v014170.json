@@ -1,5 +1,5 @@
 {
-  "version": "0.14.0.310_FOUNDING14_STAGED",
+  "version": "0.14.0.311_FOUNDING_SPARKS_10_15_20",
   "status": "THREE_TIER_STARTER_TEST_ONLY",
   "checkoutEnabled": false,
   "capacity": 600,
@@ -10,7 +10,7 @@
       "billingIntervalDays": 14,
       "recurringCents": 2299,
       "foundingDiscountBps": 500,
-      "incSparks": 5,
+      "incSparks": 10,
       "incSparksExpiryDaysAfterTermEnd": 60,
       "autoRenew": true,
       "enhanced": false,
@@ -22,7 +22,7 @@
       "billingIntervalDays": 30,
       "recurringCents": 4999,
       "foundingDiscountBps": 1000,
-      "incSparks": 5,
+      "incSparks": 15,
       "incSparksExpiryDaysAfterTermEnd": 90,
       "autoRenew": true,
       "enhanced": false
@@ -32,7 +32,7 @@
       "billingIntervalDays": 60,
       "recurringCents": 5999,
       "foundingDiscountBps": 1500,
-      "incSparks": 15,
+      "incSparks": 20,
       "incSparksExpiryDaysAfterTermEnd": 150,
       "autoRenew": true,
       "enhanced": true
@@ -143,5 +143,10 @@
     "noAutomaticConversionToPublicPlan": true,
     "memberAccessEndsAtPaidThroughDate": true,
     "cancellationDoesNotRemoveOriginalFounderNumber": true
+  },
+  "standardOnlyBenefits": {
+    "higherIncludedSparks": "15 included Sparks per 30-day term vs 10 per 14-day Starter term",
+    "largerPurchaseDiscount": "10% on eligible purchases vs Starter's 5%",
+    "vestedPurchaseDiscount": "Standard's 10% permanent founder discount eligibility after verified enrollment; Starter's 5% discount applies only while active"
   }
 }
