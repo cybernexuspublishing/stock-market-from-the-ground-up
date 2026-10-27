@@ -83,6 +83,42 @@ function upcomingAdmin(){
 }
 function wire(){
  const root=$('admin-products-panel');if(!root||root.dataset.wired)return;root.dataset.wired='true';
+ // Central Stripe import: Cloudflare reads the same canonical Supabase
+ // mappings at runtime. Creating a catalog item never silently sells it.
+ if(!root.querySelector('[data-stripe-product-import]')){
+  const panel=document.createElement('section');panel.className='admin-card';panel.dataset.stripeProductImport='1';
+  const heading=document.createElement('h3');heading.textContent='Connect an existing Stripe LIVE product';
+  const explain=document.createElement('p');
+  explain.textContent='Enter your canonical Store SKU and the existing Stripe Product ID and Price ID. The server verifies the live price/cadence, writes one audited Supabase registry record, and publishes the item to Cloudflare-backed All Products automatically. New independent checkout is not enabled by import.';
+  const form=document.createElement('form');form.className='admin-grid';
+  const inputs=[['sku','Store SKU (e.g., tool:DISCOVERY_LAB)'],['productId','Stripe Product ID (prod_…)'],['priceId','Stripe Price ID (price_…)']];
+  const fields={};
+  for(const [key,name] of inputs){
+   const label=document.createElement('label');label.textContent=name;
+   const input=document.createElement('input');input.required=true;input.name=key;
+   input.autocomplete='off';input.maxLength=120;
+   input.placeholder=key==='sku'?'tool:MY_PRODUCT':key==='productId'?'prod_…':'price_…';
+   label.append(input);form.append(label);fields[key]=input;
+  }
+  const submit=document.createElement('button');submit.type='submit';submit.className='btn';submit.textContent='Verify and synchronize Stripe product';
+  const report=document.createElement('p');report.setAttribute('role','status');report.setAttribute('aria-live','polite');
+  form.append(submit);panel.append(heading,explain,form,report);root.prepend(panel);
+  form.addEventListener('submit',async event=>{
+   event.preventDefault();
+   if(!owner()){report.textContent='An active Owner session is required.';return}
+   if(!confirm('Verify this Stripe LIVE Product and Price and publish its catalog record? This will not start a charge or bypass fulfillment.'))return;
+   submit.disabled=true;report.textContent='Checking account, currency, billing interval and product ownership…';
+   try{
+    const ensure=window.GroundUpAdminPasswordConfirm?.ensure;
+    if(typeof ensure!=='function')throw Error('Owner password confirmation is not available.');
+    await ensure();
+    const result=await request('/api/owner-stripe-product-sync',{sku:fields.sku.value.trim(),productId:fields.productId.value.trim(),priceId:fields.priceId.value.trim()});
+    report.textContent='Synchronized '+result.sku+' to Supabase and the Cloudflare public catalog. '+(result.newStoreItem?'Created a new product listing.':'Confirmed an existing listing.')+' Checkout/entitlement controls were not changed.';
+    window.dispatchEvent(new Event('groundup-product-updated'));
+   }catch(err){report.textContent='Product sync not completed: '+(err.message||'Unknown error')}
+   finally{submit.disabled=false}
+  });
+ }
  $('admin-open-digital-books')?.addEventListener('click',()=>{
   // Book upload belongs to the selected book edit form, never Commerce.
   show('books');
