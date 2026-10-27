@@ -89,34 +89,69 @@ function wire(){
   const panel=document.createElement('section');panel.className='admin-card';panel.dataset.stripeProductImport='1';
   const heading=document.createElement('h3');heading.textContent='Connect an existing Stripe LIVE product';
   const explain=document.createElement('p');
-  explain.textContent='Enter your canonical Store SKU and the existing Stripe Product ID and Price ID. The server verifies the live price/cadence, writes one audited Supabase registry record, and publishes the item to Cloudflare-backed All Products automatically. New independent checkout is not enabled by import.';
+  explain.textContent='Enter the Stripe LIVE Product ID and Price ID. Verify to retrieve its existing SKU or select a category to generate a permanent one. Publish synchronizes Stripe metadata, Supabase and the Cloudflare-backed Store without changing paid checkout.';
   const form=document.createElement('form');form.className='admin-grid';
-  const inputs=[['sku','Store SKU (e.g., tool:DISCOVERY_LAB)'],['productId','Stripe Product ID (prod_…)'],['priceId','Stripe Price ID (price_…)']];
   const fields={};
-  for(const [key,name] of inputs){
+  for(const [key,name,placeholder] of [['productId','Stripe Product ID','prod_…'],['priceId','Stripe Price ID','price_…']]){
    const label=document.createElement('label');label.textContent=name;
    const input=document.createElement('input');input.required=true;input.name=key;
-   input.autocomplete='off';input.maxLength=120;
-   input.placeholder=key==='sku'?'tool:MY_PRODUCT':key==='productId'?'prod_…':'price_…';
+   input.autocomplete='off';input.maxLength=160;input.placeholder=placeholder;
    label.append(input);form.append(label);fields[key]=input;
   }
-  const submit=document.createElement('button');submit.type='submit';submit.className='btn';submit.textContent='Verify and synchronize Stripe product';
+  const categoryLabel=document.createElement('label');categoryLabel.textContent='Store category — automatic or select for a new product';
+  const category=document.createElement('select');category.name='category';
+  for(const [code,title] of [['','Auto-detect from Stripe and Supabase'],
+   ['tool','Learning Tool'],['book','Book'],['course','Boot Camp / Course'],
+   ['plan','Membership'],['founding','Founding Membership'],
+   ['addon','Crownlight Sparks / Add-on'],['feature','Included Feature']]){
+   const opt=document.createElement('option');opt.value=code;opt.textContent=title;category.append(opt);
+  }
+  categoryLabel.append(category);form.append(categoryLabel);
+  const verify=document.createElement('button');verify.type='button';verify.className='btn secondary';
+  verify.textContent='Verify Stripe IDs & Resolve SKU';
+  const save=document.createElement('button');save.type='submit';save.className='btn';
+  save.textContent='Save & Publish Product';save.disabled=true;
+  const resolved=document.createElement('p');resolved.setAttribute('role','status');
+  resolved.setAttribute('aria-live','polite');resolved.textContent='SKU will be resolved from Stripe.';
   const report=document.createElement('p');report.setAttribute('role','status');report.setAttribute('aria-live','polite');
-  form.append(submit);panel.append(heading,explain,form,report);root.prepend(panel);
-  form.addEventListener('submit',async event=>{
-   event.preventDefault();
-   if(!owner()){report.textContent='An active Owner session is required.';return}
-   if(!confirm('Verify this Stripe LIVE Product and Price and publish its catalog record? This will not start a charge or bypass fulfillment.'))return;
-   submit.disabled=true;report.textContent='Checking account, currency, billing interval and product ownership…';
+  form.append(verify,save);panel.append(heading,explain,form,resolved,report);root.prepend(panel);
+  let checked=null,busy=false;
+  const input=()=>({productId:fields.productId.value.trim(),priceId:fields.priceId.value.trim(),category:category.value});
+  const clear=()=>{checked=null;save.disabled=true;resolved.textContent='Verify the Stripe IDs again after changing any field.';};
+  for(const el of [fields.productId,fields.priceId,category])el.addEventListener('input',clear);
+  verify.addEventListener('click',async()=>{
+   if(!owner()){report.textContent='An Owner session is required.';return}
+   if(!form.reportValidity()||busy)return;
+   busy=true;verify.disabled=true;save.disabled=true;
+   report.textContent='Verifying LIVE Stripe Price and resolving the canonical SKU…';
    try{
     const ensure=window.GroundUpAdminPasswordConfirm?.ensure;
     if(typeof ensure!=='function')throw Error('Owner password confirmation is not available.');
     await ensure();
-    const result=await request('/api/owner-stripe-product-sync',{sku:fields.sku.value.trim(),productId:fields.productId.value.trim(),priceId:fields.priceId.value.trim()});
-    report.textContent='Synchronized '+result.sku+' to Supabase and the Cloudflare public catalog. '+(result.newStoreItem?'Created a new product listing.':'Confirmed an existing listing.')+' Checkout/entitlement controls were not changed.';
-    window.dispatchEvent(new Event('groundup-product-updated'));
-   }catch(err){report.textContent='Product sync not completed: '+(err.message||'Unknown error')}
-   finally{submit.disabled=false}
+    checked=await request('/api/owner-stripe-product-sync',{operation:'preview',...input()});
+    const cadence=checked.billingInterval==='one_time'?' one-time':' every '+checked.billingIntervalCount+' '+checked.billingInterval;
+    resolved.textContent='Verified Store SKU: '+checked.sku+' · '+checked.productName+' · '+money(checked.priceCents)+cadence+
+      ' · '+(checked.generated?'new permanent SKU':'existing '+checked.source.replaceAll('_',' '))+
+      '. No checkout permissions will change.';
+    report.textContent='Ready to save and publish.';save.disabled=false;
+   }catch(err){checked=null;resolved.textContent='SKU not verified.';report.textContent='Verification failed: '+(err.message||'Unknown error')}
+   finally{busy=false;verify.disabled=false}
+  });
+  form.addEventListener('submit',async event=>{
+   event.preventDefault();
+   if(!checked||busy){report.textContent='Verify both Stripe IDs first.';return}
+   if(!owner()){report.textContent='An Owner session is required.';return}
+   if(!confirm('Publish '+checked.productName+' ('+checked.sku+') to Stripe metadata and the Cloudflare-backed Supabase Store? This does not enable independent paid checkout.'))return;
+   busy=true;verify.disabled=true;save.disabled=true;
+   report.textContent='Synchronizing verified Stripe metadata, Supabase and the public Store…';
+   try{
+    const result=await request('/api/owner-stripe-product-sync',{operation:'save',...input(),expectedSku:checked.sku});
+    resolved.textContent='Store SKU: '+result.sku+'.';
+    report.textContent='Synchronized '+result.sku+' across Stripe, Supabase and the Cloudflare-backed Store. '+
+     (result.newStoreItem?'New listing published.':'Existing listing linked.')+' Paid checkout unchanged.';
+    checked=null;window.dispatchEvent(new Event('groundup-product-updated'));
+   }catch(err){checked=null;report.textContent='Sync not confirmed: '+(err.message||'Unknown error')+'. Re-verify the same IDs before retrying.'}
+   finally{busy=false;verify.disabled=false;save.disabled=true}
   });
  }
  $('admin-open-digital-books')?.addEventListener('click',()=>{
