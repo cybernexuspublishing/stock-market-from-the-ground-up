@@ -57,3 +57,8 @@ Change history: v1.1 — extended formative feedback, conservative text cues, li
 **Boundary:** CI browser sessions use fixture accounts, not real member credentials. The real Academy progress table showed no saved rows in the audited production snapshot. No protected B01 rubric has been promoted from Draft. No LIVE payment test, customer checkout, or billing change occurred.
 
 **Revision history:** v1.2 — accepted exact-head Free Foundations CI and Cloudflare deployment evidence; genuine member and independent protected editorial signoff remain outstanding.
+
+
+## v1.3 — B01 protected editorial correction status (October 27, 2026)
+
+Free Phase A formative teaching remains local, ungraded and verified by the existing source/fixture QA. B01 protected editorial proof is not equivalent to a Free-member Auth browser session. The previously noted B01 clock-boundary ambiguity has been corrected in the original *private Draft v97* question with explicit finalized-and-delivered candle evidence and a guarded backup. Three existing critical decision-process flags have been individually re-reviewed, with no extra flags or partial percentages inferred. The documented 40+60 editorial checks cover 100 B01 choices; all formal reviewed rubric approvals and member assessment acceptance remain open. See `docs/releases/2026-10-27_B01_REMAINING60_AND_EIGHT_FULL_RUBRICS.md` v1.1. Google Drive copy and ID not created.
