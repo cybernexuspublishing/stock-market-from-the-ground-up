@@ -35,14 +35,14 @@ await verify('Pages health GET',async()=>{
  assert.equal(r.status,200);const b=await r.json();
  assert.equal(b.ok,true);assert.equal(b.readOnly,true);
 });
-await verify('Founding 600 checkout stays locked and excludes secrets',async()=>{
+await verify('Founding Members public checkout status excludes private metadata and secrets',async()=>{
  const r=await fetch(site+'/api/founding600-checkout',{method:'GET',redirect:'manual',cache:'no-store'});
  assert.equal(r.status,200);
  const responseBody=await r.text();
  const j=JSON.parse(responseBody);
  assert.equal(j.ok,true);
- assert.equal(j.checkoutEnabled,false,'LIVE founding checkout unexpectedly opened');
- assert.equal(j.capacity,600);
+ assert.equal(typeof j.checkoutEnabled,'boolean','Checkout status must reflect the independently controlled live state');
+ assert.equal(Object.hasOwn(j,'capacity'),false,'The public API must not reveal internal seat limit');
  assert.deepEqual(j.plans.map(p=>[p.code,p.priceCents,p.billingDays]),[
   ['FOUNDING_30',4999,30],['FOUNDING_60',5999,60]]);
  assert.doesNotMatch(responseBody,/sk_(?:live|test)_|whsec_|sb_secret_|GU58_STRIPE_LIVE_SECRET_KEY/);
