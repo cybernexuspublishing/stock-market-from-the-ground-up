@@ -3,7 +3,9 @@
 [data-gu34-captcha] details{margin-top:.85rem;padding:.75rem;border:1px solid #52758a;border-radius:10px;line-height:1.65}
 [data-gu34-captcha] details summary{cursor:pointer;font-weight:700}
 [data-gu34-captcha] details a{display:inline-block;margin:.3rem 0;color:#ffdb7c}
-[data-gu34-captcha] p[role=status]{padding:.75rem .9rem;background:#123348;border-left:3px solid #ffcd52}
+[data-gu34-captcha] p[role=status]{margin:.5rem 0;color:inherit;background:transparent;border:0;padding:0;line-height:1.45}
+[data-gu34-captcha] .gu34-turnstile-deploy{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin:.85rem 0}
+[data-gu34-captcha] .gu34-turnstile-deploy p{flex:1 1 240px}
 .gu-pw-setup{margin-top:.9rem;border:1px solid #d29d32;padding:.9rem;border-radius:8px;background:#163249;color:#fff;line-height:1.5}
 .gu-pw-setup strong{color:#ffdf8e}
 .gu-pw-setup a{color:#ffe4a7;text-decoration:underline}
