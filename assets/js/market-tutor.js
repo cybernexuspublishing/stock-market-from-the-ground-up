@@ -548,7 +548,7 @@ async function refreshAiServiceStatus(){
   if(!response.ok||!x?.ok)throw Error('AI status cannot be verified');
   if(TUTOR.identityEpoch!==epoch||TUTOR.user?.id!==requestedUser)return;
   toggle.disabled=x.authorized!==true||x.enabled!==true||x.remainingToday===0||x.globalAvailable===false;
-  toggle.checked=!toggle.disabled&&TUTOR.user?.user_metadata?.market_tutor_ai_enabled!==false;
+  toggle.checked=!toggle.disabled&&TUTOR.user?.user_metadata?.market_tutor_ai_enabled===true;
   if(x.authorized!==true){
    host.textContent='Paid Market Tutor access is not active on this account.';
    count.textContent='View the Market Tutor product or Full Platform membership to get eligible access.';
