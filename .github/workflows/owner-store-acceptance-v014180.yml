@@ -34,6 +34,11 @@ on:
       - "functions/api/member-sparks-wallet.js"
       - "assets/js/navigation.js"
       - "assets/js/store.js"
+      - "functions/api/owner-zero-live-checkout.js"
+      - "assets/js/admin-stripe-shadow-v01439.js"
+      - "tests/test_v014071_zero_live_checkout.mjs"
+      - "functions/api/storefront-public-catalog.js"
+      - "supabase/migrations/20261027_owner_approved_store_price_display_reconciliation_v1.sql"
       - "store.html"
       - "store-sparks.html"
       - "dashboard.html"
@@ -58,6 +63,9 @@ jobs:
           node tests/test_v014176_product_seed_and_owner_editor.mjs
           node tests/test_v014179_store_visibility_contract.mjs
           node tests/test_v014180_owner_store_acceptance.mjs
+          node tests/test_v014071_zero_live_checkout.mjs
+          node --check functions/api/owner-zero-live-checkout.js
+          node --check assets/js/admin-stripe-shadow-v01439.js
           node tests/test_member_sparks_wallet_v014296.mjs
           node tests/test_owner_store_categories_gallery_v014300.mjs
           node tests/test_owner_background_and_stripe_map_v1.mjs
