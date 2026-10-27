@@ -76,7 +76,8 @@
    if(f.size>5*1024*1024){notice(status,'Image is over 5 MB. Choose a smaller image.');return}
    const url=URL.createObjectURL(f);
    preview.style.backgroundImage='url("'+url+'")';
-   preview.addEventListener('load',()=>URL.revokeObjectURL(url),{once:true});
+   // A background div does not dispatch an image load event.
+   setTimeout(()=>URL.revokeObjectURL(url),30000);
    notice(status,'Preview only. Upload & Apply to publish the image to the website.');
   };
   save.onclick=async()=>{
@@ -99,7 +100,7 @@
     window.GroundUpSiteBackground?.reload();
     notice(status,'Website background published and saved. Refresh another page to verify it.');
    }catch(e){
-    if(uploaded){try{(await client()).storage.from(bucket).remove([uploaded])}catch{}}
+    if(uploaded){try{const sb=await client();await sb.storage.from(bucket).remove([uploaded]);}catch{}}
     notice(status,'Background not changed: '+e.message);
    }finally{saving=false;save.disabled=restore.disabled=false}
   };
