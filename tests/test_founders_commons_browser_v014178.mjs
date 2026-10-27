@@ -14,7 +14,7 @@ window.getSupabaseClient=async()=>({
      return {data:(${JSON.stringify(mode)}==='denied'||${JSON.stringify(mode)}==='qa')?{eligible:false}:
        ${JSON.stringify(mode)}==='standard'?{eligible:true,founderNumber:42,earnedTier:'FOUNDING_30',currentPlan:'FOUNDING_30',council:false}:
        {eligible:true,founderNumber:86,earnedTier:'FOUNDING_60',currentPlan:'FOUNDING_60',council:true},error:null};
-   if(name==='gu_founder_commons_access_v014174')return {data:${JSON.stringify(mode)}==='qa',error:null};
+   if(name==='gu_founder_commons_access_v014174')return {data:${JSON.stringify(mode)}!=='denied',error:null};
    if(name==='gu_founder_noncommercial_qa_v014289')return {data:${JSON.stringify(mode)}==='qa'&&args?.p_user==='11111111-1111-4111-8111-111111111111',error:null};
    if(name==='gu_founder_cast_design_vote_v014176')return {data:{ok:true,recorded:true},error:null};
    return {data:null,error:{message:'Unknown RPC'}};
@@ -35,7 +35,7 @@ window.getSupabaseClient=async()=>({
      gu_founder_issues_v014176:[{topic_id:101,issue_kind:'bug',issue_state:'under_review',updated_at:'2026-10-24T17:00:00Z'}],
      gu_founder_design_ballots_v014176:${JSON.stringify(mode)}==='extended'?[{id:'22222222-2222-4222-8222-222222222222',title:'Vote on the next dashboard theme',description:'Choose one reviewed, accessible theme for the next site release.',choices:['Deep navy','Charcoal'],state:'open',opens_at:'2026-10-20T00:00:00Z',closes_at:'2026-11-01T00:00:00Z'}]:[]
    };
-   const chain={select(){return this},eq(){return this},order(){return this},limit(){return this},then(resolve){return Promise.resolve(resolve({data:types[table]||[],error:null}))}};
+   const chain={select(){return this},eq(){return this},in(){return this},order(){return this},limit(){return this},range(){return this},maybeSingle(){return this},then(resolve){return Promise.resolve(resolve({data:types[table]||[],error:null}))}};
    return chain;
  }
 });`;
@@ -55,6 +55,8 @@ try{
   }else{
     await page.locator('#gu-f600-content').waitFor({state:'visible'});
     await page.locator('#gu-f600-beta-center').waitFor({state:'visible'});
+    await page.locator('#v13-commons .gu-commons-index-heading').first().waitFor({state:'visible'});
+    assert.match(await page.locator('#v13-commons').innerText(),/Forum directory/);
     assert.equal(await page.locator('#gu-f600-beta-center article').count(),9,'All nine member feature families covered');
     assert.equal(await page.locator('#gu-f600-beta-center a[href="market-commons.html?forum=F600_BUGS"]').count(),1);
     assert.equal(await page.locator('#gu-f600-beta-center a[href="dashboard.html?tab=support"]').count(),2,'Private Support is available in workflow and reporting paths');
@@ -65,10 +67,10 @@ try{
     }else assert.match(await page.locator('#gu-f600-identity').innerText(),/Founding #00(42|86)/);
     assert.equal(await page.locator('#gu-f600-forums .gu-f600-forum').count(),8);
     if(mode==='standard'||mode==='qa'){
-      assert.equal(await page.locator('a[href*="F600_COUNCIL"]').count(),0,'Standard Founder or QA member cannot navigate Design Council');
+      assert.equal(await page.locator('#v13-commons a[href*="F600_COUNCIL"]').count(),0,'Standard Founder or QA member cannot navigate Design Council');
       assert.match(await page.locator('#gu-f600-ballots').innerText(),/reserved for eligible Extended/i);
     }else{
-      assert.equal(await page.locator('a[href*="F600_COUNCIL"]').count(),1);
+      assert.equal(await page.locator('#v13-commons a[href*="F600_COUNCIL"]').count(),1);
       await page.locator('#gu-f600-ballots .gu-f600-ballot').waitFor();
       await page.locator('#gu-f600-ballots input[type=radio]').first().check();
       await page.getByRole('button',{name:'Cast my one vote'}).click();
