@@ -4,7 +4,19 @@ const respond=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{'cont
 const clean=x=>String(x??'').trim();const fail=(s,c=400)=>Object.assign(new Error(s),{status:c});
 function cfg(env){const base=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean(env.SUPABASE_PUBLISHABLE_KEY),secret=clean(env.SUPABASE_SECRET_KEY);if(!base||!pub||!secret)throw fail('Assessment service unavailable.',503);return{base,pub,secret}}
 async function requestJson(url,init){const r=await fetch(url,{...init,cache:'no-store'}),t=await r.text();if(!r.ok)throw fail('Assessment request rejected.',r.status>=500?503:r.status);try{return t?JSON.parse(t):null}catch{return null}}
-async function db(env,p,{method='GET',body,userToken}={}){const c=cfg(env),key=userToken?c.pub:c.secret;return requestJson(c.base+'/rest/v1/'+p,{method,headers:{apikey:key,authorization:'Bearer '+(userToken||c.secret),accept:'application/json',...(body!==undefined?{'content-type':'application/json'}:{})},body:body===undefined?undefined:JSON.stringify(body)})}
+async function db(env,p,{method='GET',body,userToken}={}){
+ const c=cfg(env),key=userToken?c.pub:c.secret;
+ const headers={apikey:key,accept:'application/json',
+  ...(body!==undefined?{'content-type':'application/json'}:{})};
+ // A modern sb_secret_* API key is NOT a JWT and must not be put in the
+ // Authorization Bearer header. The verified user JWT is used only for
+ // user-scoped access; legacy service-role JWTs retain compatibility.
+ if(userToken)headers.authorization='Bearer '+userToken;
+ else if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(c.secret))
+  headers.authorization='Bearer '+c.secret;
+ return requestJson(c.base+'/rest/v1/'+p,{method,headers,
+  body:body===undefined?undefined:JSON.stringify(body)});
+}
 async function auth(env,req){const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw fail('Sign in to practice.',401);const c=cfg(env),u=await requestJson(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});if(!u?.id)throw fail('Invalid session.',401);const p=(await db(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1'))?.[0];if(p?.account_kind!=='member')throw fail('Synthetic or test accounts cannot generate scored evidence.',403);
 const flags=(await db(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1'))?.[0];if(['suspended','restricted'].includes(String(flags?.status||'').toLowerCase()))throw fail('Account access is restricted.',403);
 const a=await db(env,'rpc/my_platform_access',{method:'POST',body:{},userToken:token});const eligible=Boolean(a?.allTools||['LIFETIME','FULL_MONTHLY','FULL_ANNUAL','BOOK_TRIAL'].includes(a?.planCode)||a?.tools?.some(x=>x.toolCode==='INTERACTIVE_LEARNING'&&x.included));return{user:u,eligible}}
