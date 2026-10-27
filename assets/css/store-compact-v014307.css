@@ -28,3 +28,20 @@
  #store-founder-compare thead th:first-child{width:40%}
  #store-founder-compare thead th:not(:first-child){width:30%}
 }
+/* Founding cards compact at ordinary 100% zoom; preserve readable touch targets. */
+.gu-redesign-store .store-category-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.gu-redesign-store #store-panel-memberships,[data-store-category="memberships"]{display:none!important}
+.gu-redesign-store .catalog-founder-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.4vw,20px);align-items:stretch;max-width:1400px;margin:0 auto}
+.gu-redesign-store .catalog-founder-card{min-width:0;display:flex;flex-direction:column;padding:clamp(16px,1.9vw,26px)!important;gap:10px;border:1px solid #726d95;background:linear-gradient(145deg,#18182e 0%,#121627 85%)!important;box-shadow:0 9px 27px #0002;border-radius:14px;color:#e9e7fa}
+.gu-redesign-store .catalog-founder-card.is-extended{border-color:#b39150;background:linear-gradient(145deg,#231e2b,#191824)!important}
+.gu-redesign-store .catalog-founder-card h3{margin:4px 0!important;font-size:clamp(1.15rem,1.65vw,1.5rem)!important;color:#fff}
+.gu-redesign-store .catalog-founder-price{font-size:clamp(2rem,3vw,3.1rem)!important;line-height:1.12;margin:0!important;color:#fff}
+.gu-redesign-store .catalog-founder-card .catalog-founder-price small{display:block;font-size:.82rem;color:#d2cbe7;margin-top:6px}
+.gu-redesign-store .catalog-founder-card ul{margin:8px 0 4px;padding-left:1.15rem;display:grid;gap:5px}
+.gu-redesign-store .catalog-founder-card li{font-size:.84rem;line-height:1.55;color:#d4d4ed}
+.gu-redesign-store .catalog-founder-card .small{font-size:.77rem;color:#c7bedc;margin-top:auto}
+.gu-redesign-store .catalog-founder-card .btn{display:block;text-align:center;min-height:42px;padding:9px 12px}
+.gu-redesign-store .catalog-founder-card .catalog-founder-status{font-size:.73rem;line-height:1.5;color:#c6c1d8}
+.gu-redesign-store #store-founder-compare{margin:14px 0}
+@media(max-width:1050px){.gu-redesign-store .catalog-founder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.gu-redesign-store .catalog-founder-grid{grid-template-columns:minmax(0,1fr)}.gu-redesign-store .store-category-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
