@@ -75,6 +75,36 @@ function mount(){
       rowStatus.textContent='Saved and audited; reading authoritative state.';busy=false;await load();
      }catch(e){rowStatus.textContent='Save refused: '+(e.message||'Rights check failed.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
+
+    // Record the current private EPUB through existing password-guarded
+    // Owner publishing RPC. Never auto-enable sales or member downloads.
+    const prepare=el('button','Assign Current EPUB as Primary (Sales OFF)','btn secondary');
+    prepare.type='button';
+    prepare.onclick=async()=>{
+     if(busy)return;
+     busy=true;prepare.disabled=save.disabled=upload.disabled=loadButton.disabled=true;
+     rowStatus.textContent='Checking current EPUB and verifying Owner authorization…';
+     try{
+      if(!window.GroundUpAdminPasswordConfirm?.ensure)throw Error('Owner password confirmation unavailable.');
+      await window.GroundUpAdminPasswordConfirm.ensure();
+      const history=await rpc(sb,'gu_owner_digital_history_v014304',{p_code:product.code});
+      const candidates=(history.versions||[]).filter(v=>v.format==='epub'&&v.current===true&&v.fileExists===true);
+      if(candidates.length!==1)throw Error('Exactly one current private EPUB is required.');
+      const path=candidates[0].path;
+      if(typeof path!=='string'||!new RegExp('^'+product.code+'/[a-f0-9-]{36}[.]epub$').test(path))
+       throw Error('Unexpected private EPUB path.');
+      await rpc(sb,'gu_owner_digital_books_save_v01430',{
+       p_code:product.code,p_kdp_select:kdp.checked,
+       p_exclusive_until:until.value?new Date(until.value).toISOString():null,
+       p_sales:false,p_downloads:false,p_rights_attested:rights.checked,
+       p_asset_path:path,p_expected_updated_at:product.version
+      });
+      asset=path;sales.checked=false;downloads.checked=false;
+      rowStatus.textContent='Primary private EPUB assigned; customer downloads and sales remain OFF.';
+      busy=false;await load();
+     }catch(e){rowStatus.textContent='Primary EPUB not changed: '+(e.message||'Owner verification unavailable.')}
+     finally{busy=false;prepare.disabled=save.disabled=upload.disabled=loadButton.disabled=false;}
+    };
     const historyButton=el('button','View PDF/EPUB history','btn secondary');historyButton.type='button';
     const historyList=el('div',null,'small');
     historyButton.onclick=async()=>{
@@ -146,7 +176,7 @@ function mount(){
       previewResult.textContent='Private preview unavailable: '+(e.message||'Owner authorization or file validation failed.');
      }finally{previewButton.disabled=false}
     };
-    card.append(upload,historyButton,previewFormat,previewButton,previewResult,save,historyList,rowStatus);
+    card.append(upload,prepare,historyButton,previewFormat,previewButton,previewResult,save,historyList,rowStatus);
     // Reuse the existing guarded uploader inside Products > Books > Edit.
     // The selected book card moves to the editor; other books remain in Commerce.
     if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
