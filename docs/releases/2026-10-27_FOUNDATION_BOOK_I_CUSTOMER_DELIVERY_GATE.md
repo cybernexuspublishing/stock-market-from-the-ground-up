@@ -32,3 +32,12 @@ Status: NOT YET ACCEPTED FOR CUSTOMER DELIVERY; LIVE SALES OFF
 
 Preserve both EPUB versions, private Storage, and existing customer-access and payment safety switches. No LIVE charges or production entitlement grants are authorized by this release-gate record.
 Source: production read-only Supabase queries, Owner-confirmed EPUB opening, and GitHub download-service contracts.
+
+## October 27 implementation and TEST catalog update
+- Added Owner Book Edit action: "Assign Current EPUB as Primary (Sales OFF)". It uses Owner password step-up, verifies the current private version in the protected history ledger, and saves through existing optimistic-version and audit RPC. Customer sales/downloads remain OFF. **Code deployed; Owner must click to create the publishing record**.
+- Owner Store CI accepted the primary-file guard checks (GitHub Actions run 40475478039). This is a source regression, not member paid-fulfillment acceptance.
+- Correct Stripe TEST account: stock-market-from-the-ground-up-Test Mode, `acct_1URGkDJY9FI7byHB`, **not** the unrelated MommaBees account.
+- Existing Foundations Book I TEST product `prod_VVF9MJLGagIs8Q`; created verified TEST price `price_1UV603JY9FI7byHBAcdpKMKb` for a one-time USD $10.99 EPUB. This Price is active in TEST but product `active=false`, `site_checkout_enabled=false`, and no checkout is configured or purchased. The provider product's default_price now references this TEST Price.
+- LIVE Stripe book product remains independent; no LIVE price, checkout or payment activation occurred.
+- All digital customer grants remain blocked until a separate verified Stripe one-time book event -> account-bound order -> access ledger -> refund/reversal integration is accepted. Existing Lemon Squeezy-only predicate is not valid evidence for Stripe books.
+- Latest read-only production audit at time of this note: primary file still unassigned; customer downloads and sales OFF; site_orders and checkout_intents empty.
