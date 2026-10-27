@@ -157,12 +157,25 @@ export async function onRequestGet({request,env}){
     throw fail('NOT_THIS_OWNER_QA_SESSION',403);
    const safe=response.amount_total===0&&response.amount_subtotal===0&&
     response.payment_intent==null&&response.subscription==null;
+   let batchEvidence=null;
+   if(response.metadata?.gu71_batch_id){
+    const batch=response.metadata.gu71_batch_id,base=val(env.SUPABASE_URL).replace(/\/$/,''),
+      key=val(env.SUPABASE_SECRET_KEY);
+    if(!/^[0-9a-f-]{36}$/i.test(batch)||!key)throw fail('QA_BATCH_UNAVAILABLE',503);
+    const h={apikey:key,...(key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+key})};
+    const rows=await getJson(base+'/rest/v1/gu_owner_zero_live_batches_v1?select=id,selected_skus,selector,stripe_session_id,signed_webhook_verified_at&owner_id=eq.'+
+     encodeURIComponent(user)+'&id=eq.'+encodeURIComponent(batch)+'&limit=1',{headers:h},'QA_BATCH_UNAVAILABLE');
+    if(!Array.isArray(rows)||rows.length!==1||rows[0].stripe_session_id!==sid)throw fail('QA_BATCH_UNAVAILABLE',503);
+    batchEvidence={id:batch,selectedCount:rows[0].selected_skus?.length||0,scope:rows[0].selector,
+     signedWebhookVerified:!!rows[0].signed_webhook_verified_at};
+   }
    return json({ok:true,readOnly:true,checkoutComplete:response.status==='complete',
     noCharge:safe,orderTotalCents:response.amount_total,
     paymentStatus:response.payment_status,status:response.status,
     verifiedSafe:safe&&response.status==='complete',
     memberEntitlementGranted:false,
     targetSku:response.metadata?.gu71_target_sku||null,
+    batchEvidence,
     notice:'Stripe-hosted zero-amount Checkout only. Not a GU58 membership, Managed Payments or paid-charge verification.'});
   }
   await verify(c);
