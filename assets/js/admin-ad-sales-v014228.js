@@ -45,9 +45,26 @@ function render(){
   ' · No automatic ad checkout is available.';
  e('gu-ad-toggle-inquiries').textContent=gates.accepting_inquiries?'Pause quote inquiries':'Reopen quote inquiries';
  const placements=e('gu-ad-placements');placements.replaceChildren();
- for(const p of model.placements||[])line(placements,p.name,
-  p.placement_code+' · '+p.page_pattern+' · '+(p.active?'Inventory enabled':'Inventory disabled')+
-  ' · '+(p.free_only?'Public/Free only':'Membership policy enforced'));
+ for(const p of model.placements||[]){
+  const item=line(placements,p.name,
+   p.placement_code+' · '+p.page_pattern+' · '+(p.active?'Inventory enabled':'Inventory disabled')+
+   ' · '+(p.free_only?'Public/Free only':'Membership policy enforced'));
+  const label=n('label',undefined,'gu-ad-carousel-control');
+  const input=n('input');input.type='checkbox';input.checked=p.metadata?.carousel_enabled===true;
+  input.setAttribute('aria-label','Enable carousel mode for '+p.name);
+  label.append(input,n('span',' Enable carousel mode'));
+  const note=n('p','Only cycles among multiple independently approved, paid sponsor creatives. Unsold space stays a single placeholder.','gu-ad-note');
+  const result=n('p',undefined,'gu-ad-note');result.setAttribute('role','status');
+  input.addEventListener('change',async()=>{
+   input.disabled=true;
+   try{await request({action:'set_placement_carousel',placementCode:p.placement_code,enabled:input.checked});
+    result.textContent='Carousel preference saved. No advertising release or payment was enabled.';
+    await refresh();
+   }catch(err){input.checked=!input.checked;result.textContent='Not saved: '+err.message}
+   finally{input.disabled=false}
+  });
+  item.append(label,note,result);
+ }
  const cards=e('gu-ad-packages');cards.replaceChildren();
  for(const p of model.packages||[]){
   const item=line(cards,p.name,p.description);
