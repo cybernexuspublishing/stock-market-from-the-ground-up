@@ -9,6 +9,7 @@ on:
       - 'assets/js/lab-journey-checkpoint-v33.js'
       - 'lab-player.html'
       - 'tests/test_v33_member_checkpoint_resume.mjs'
+      - 'tests/test_v33_checkpoint_acknowledgement.mjs'
       - 'tests/test_v135_public_assessment_projection.mjs'
       - 'functions/api/assessment-v0135.js'
       - 'supabase/migrations/20261027_lab_journey_v33_private_checkpoint.sql'
@@ -81,6 +82,7 @@ jobs:
           node --check assets/js/lab-player.js
           node --check assets/js/lab-journey-checkpoint-v33.js
           node tests/test_v33_member_checkpoint_resume.mjs
+          node tests/test_v33_checkpoint_acknowledgement.mjs
           node tests/test_v135_public_assessment_projection.mjs
           node --check functions/api/assessment-v0135.js
           node --check assets/js/lab-engine-v32-universal.js
