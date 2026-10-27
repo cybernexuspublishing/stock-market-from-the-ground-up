@@ -42,8 +42,20 @@
     if(!valid())return null;
     if(error)throw Error('Saved journey cannot be verified; start locally or retry.');
     const raw=data?.responses?.learning_journey_v33;
-    const found=normalize(raw,mode);
-    revision=found&&Number.isSafeInteger(raw?.rev)&&raw.rev>=0?raw.rev:0;
+    // One authoritative row now keeps BOTH guided and practice checkpoints
+    // beneath an atomic v2 revision. Still read the original v1 flat record
+    // without altering or deleting any member's older study history.
+    const v2=raw?.version===2;
+    if(v2&&(!raw.modes||typeof raw.modes!=='object'||Array.isArray(raw.modes)))
+     throw Error('Saved journey format is invalid; reload without overwriting it.');
+    const scoped=v2?raw.modes[mode]:raw;
+    const found=normalize(scoped,mode);
+    // The CAS revision belongs to the shared record, NOT the selected mode.
+    // Previously switching from guided to practice reset it to zero, causing
+    // a stale-write failure or replacing the other mode's checkpoint.
+    if(raw&&(!Number.isSafeInteger(raw.rev)||raw.rev<0))
+     throw Error('Saved journey revision is invalid; no progress was overwritten.');
+    revision=raw?.rev||0;
     return found;
    },
    save(raw){
