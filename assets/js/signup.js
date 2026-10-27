@@ -53,7 +53,7 @@ function showAccountCreated(email,bookTrial){
   if(accessEl){
     accessEl.textContent=bookTrial
       ? 'Book key accepted. Thirty days of Full Learning Access will activate when you verify your email.'
-      : 'Confirm your email address to finish registration. Book-specific Free benefits require receipt verification from your registered email.';
+      : 'Confirm your email address to finish registration. Book-specific Free benefits require a Support ticket with your purchase receipt attached.';
   }
   if(formCard) formCard.hidden=true;
   if(panel){
@@ -134,7 +134,7 @@ async function createAccount(e){
       }
       setFieldStatus('book-key-status','Book Key accepted. Thirty days of Full Learning Access will activate after email verification. Each book uses a different key, and the same book can be redeemed only once per account.','available');
     }else{
-      setFieldStatus('book-key-status','Book Key redemption is optional and separate from receipt verification. For purchased-book Free access, send a valid receipt from your registered email.');
+      setFieldStatus('book-key-status','Book Key redemption is optional. For purchased-book Free access, submit your receipt in an account Support ticket after signing in.');
     }
 
     // The server enforces date-of-birth eligibility before Supabase creates an account.
