@@ -63,7 +63,16 @@ try{
 
 
  r=await onRequest({request:req('PUT'),env});assert.equal(r.status,405);
- allow=false;r=await onRequest({request:req('GET'),env});assert.equal(r.status,403);
+ allow=false;
+ r=await onRequest({request:req('GET'),env});
+ assert.equal(r.status,200,'Expired tool purchase must not lock owner out of their saved educational notes');
+ let expired=await r.json();assert.equal(expired.history.length,1);
+ r=await onRequest({request:req('PATCH','',{id:recordId,feedback:'helpful',note:'I retained my original notes.'}),env});
+ assert.equal(r.status,200,'Expired subscriber can annotate their own retained notes');
+ r=await onRequest({request:req('POST','',entry),env});
+ assert.equal(r.status,405,'An expired account cannot forge a new Tutor reply via history');
+ assert(read('functions/api/market-tutor-v01492.js').includes('if(!auth.authorized)'),
+  'Actual Tutor inference and new teaching remain entitlement-gated');
  allow=true;kind='showcase';r=await onRequest({request:req('GET'),env});assert.equal(r.status,403);
  kind='member';failStorage=true;r=await onRequest({request:req('GET'),env});assert.equal(r.status,503);
  assert.equal(calls.filter(c=>c.path.includes('api.openai.com')).length,0);
@@ -86,5 +95,5 @@ try{
  assert(js.includes('Type and submit my answer'),'Guided question must have a learner response submission path');
  assert(js.includes('TUTOR.user?.id!==submittingUser'),'Prevent cross-account answer persistence races');
  assert(!/(?:window\.)?localStorage\s*(?:\.|\[)/.test(js),'Never put private Tutor transcripts into shared-browser persistent storage');
- console.log('PASS v102: entitlement-gated Tutor history, per-member scope, idempotency keys, private delete/export, optional SQL fallback, no grades or paid AI.');
+ console.log('PASS v102: member-owned notes retained after paid expiry, new paid tutoring gated, per-member scope, idempotent history, no grades or AI.');
 }finally{globalThis.fetch=prior}
