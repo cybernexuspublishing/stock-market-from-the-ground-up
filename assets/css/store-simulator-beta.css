@@ -1,0 +1,14 @@
+/* Product 04: use the existing Store design tokens and leave checkout to
+ * the authoritative product-detail component. No third-party dependencies. */
+#simulator-beta-scope-heading{font-size:clamp(1.5rem,2.3vw,2rem)}
+.store-simulator-scope-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1rem 0 1.6rem}
+.store-simulator-scope-grid>div{background:#112f47;border:1px solid #395a74;border-radius:12px;padding:1.25rem;min-width:0}
+.store-simulator-scope-grid h3{margin-top:0;line-height:1.35}
+.store-simulator-scope-grid p{line-height:1.65}
+.store-simulator-beta-cover{float:right;width:min(28%,175px);height:auto;max-height:175px;object-fit:contain;margin:0 0 1rem 1.5rem}
+#simulator-beta-scope-heading~h3{margin-top:1.75rem}
+.store-product-section code{overflow-wrap:anywhere}
+#simulator-beta-scope-heading~details{margin:1rem 0;padding:1rem;border:1px solid #4e7185;border-radius:10px}
+#simulator-beta-scope-heading~details summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+#simulator-beta-scope-heading~details summary:focus-visible,.store-simulator-scope-grid a:focus-visible{outline:3px solid #f2d178;outline-offset:3px}
+@media(max-width:700px){.store-simulator-scope-grid{grid-template-columns:minmax(0,1fr)}.store-simulator-beta-cover{float:none;width:min(50%,160px);margin:.5rem 0 1.25rem}}
