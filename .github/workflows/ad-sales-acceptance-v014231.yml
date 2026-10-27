@@ -20,6 +20,7 @@ on:
       - 'supabase/migrations/v0.14.0.232_ad_destination_regex_length_fix.sql'
       - 'tests/test_ad_sales_security_v014231.mjs'
       - 'tests/test_ad_placement_delivery_v014235.mjs'
+      - 'tests/test_ad_house_preview_render_v1.mjs'
       - 'tests/test_ad_sandbox_signed_stripe_v014244.mjs'
       - 'functions/api/gu39-stripe-webhook.js'
       - 'functions/_lib/ad-sandbox-lifecycle-v014242.js'
@@ -48,6 +49,7 @@ jobs:
           node --check assets/js/ad-slots-v014229.js
           node --test tests/test_ad_sales_security_v014231.mjs
           node --test tests/test_ad_placement_delivery_v014235.mjs
+          node tests/test_ad_house_preview_render_v1.mjs
           node --test tests/test_ad_legacy_delivery_guard_v014248.mjs
           node --test tests/test_ad_sandbox_signed_stripe_v014244.mjs
       - name: Verify deployment stays quote-only, payment-safe, disclosed
