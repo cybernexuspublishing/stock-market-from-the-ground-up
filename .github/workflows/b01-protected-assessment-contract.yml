@@ -1,0 +1,63 @@
+name: B01 Protected Assessment and Guided Remediation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/interactive-training.js'
+      - 'assets/js/interactive-training.js'
+      - 'supabase/migrations/20261027_b01_reject_unlisted_answers.sql'
+      - 'supabase/rollbacks/20261027_b01_reject_unlisted_answers_ROLLBACK.sql'
+      - 'tests/fixtures/b01_protected_grade_*.sql'
+      - 'tests/test_b01_review_withdrawal_and_private_grading.mjs'
+      - 'tests/test_grading_partial_credit_critical_guard.mjs'
+      - 'tests/test_b01_invalid_choice_and_remediation.mjs'
+      - '.github/workflows/b01-protected-assessment-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-private-grader-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: disposable-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute reviewed grader against synthetic cases, not production draft keys
+        run: |
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/b01_protected_grade_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261027_b01_reject_unlisted_answers.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/b01_protected_grade_scenarios.sql
+  member-api-and-remediation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check assets/js/interactive-training.js
+          node --check functions/api/interactive-training.js
+          node tests/test_b01_review_withdrawal_and_private_grading.mjs
+          node tests/test_grading_partial_credit_critical_guard.mjs
+          node tests/test_b01_invalid_choice_and_remediation.mjs
