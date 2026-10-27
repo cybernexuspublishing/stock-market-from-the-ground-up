@@ -15,7 +15,7 @@ async function mock(run,remote){
  const saved=globalThis.fetch;
  let events=[];
  globalThis.fetch=async(path,options={})=>{
-  events.push({path:String(path),options});
+  if(!String(path).includes('/rest/v1/site_settings?'))events.push({path:String(path),options});
   return remote(new URL(path),options);
  };
  try{return await run(events)}finally{globalThis.fetch=saved}
@@ -60,7 +60,7 @@ test('unverified Turnstile never requests a password grant',async()=>{
   const r=await onRequestPost({request:input('Adissel',''),env});
   assert.equal(r.status,403);assert.match((await r.json()).error,/verification required/i);
   assert.equal(visited,0);
- },async()=>{visited++;return ok({},500)});
+ },async u=>{if(u.pathname!=='/rest/v1/site_settings')visited++;return ok({},500)});
 });
 for(const [providerError,status,messagePart] of [
  [{error_code:'captcha_failed',msg:'captcha protection: request disallowed (invalid-input-secret)'},503,'not working'],
