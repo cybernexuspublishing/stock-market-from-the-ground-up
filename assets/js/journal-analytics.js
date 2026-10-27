@@ -49,7 +49,27 @@
   tip.textContent='Journal net results from '+money(points[0].value)+' to '+money(points.at(-1).value);
   svg.append(tip);host.append(svg);
  }
+ function renderMethods(items){
+  const host=$('analytics-metric-methods');host.replaceChildren();
+  if(!Array.isArray(items)||items.length!==7||items.some(v=>
+     !v||typeof v.name!=='string'||typeof v.unit!=='string'||
+     typeof v.inclusion!=='string'||typeof v.costBasis!=='string'||
+     !Number.isSafeInteger(v.denominatorCount)||v.denominatorCount<0||
+     !Number.isSafeInteger(v.missingCount)||v.missingCount<0||
+     typeof v.observationInterval!=='string'||typeof v.note!=='string'))
+    throw Error('The calculation methodology could not be verified.');
+  for(const item of items){
+   const row=document.createElement('tr');
+   const fields=[item.name+' ('+item.unit+')',item.inclusion,
+     String(item.denominatorCount),String(item.missingCount),
+     item.costBasis+'; '+item.note,item.observationInterval];
+   fields.forEach((field,index)=>appendCell(row,index===0?'th':'td',field));
+   row.firstElementChild.scope='row';host.append(row);
+  }
+ }
  function render(result){
+  // Never show stale metrics if the server omits source/missingness contracts.
+  renderMethods(result.metricDefinitions);
   const s=result.summary;
   const cards=$('analytics-kpis');cards.replaceChildren();
   const values=[
