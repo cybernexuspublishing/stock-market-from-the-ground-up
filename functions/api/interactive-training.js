@@ -18,7 +18,7 @@ async function db(env,path,method='GET',body){const c=cfg(env),r=await fetch(c.b
  // exposing the private SQL grader, answer key, or database exception text.
  let code='',message='';try{const e=JSON.parse(t);code=String(e?.code||'');message=String(e?.message||'')}catch{}
  if(path==='rpc/v014_training_answer'){
-  if(code==='22023')throw fail('Select an answer from the current options, or enter a valid decimal number. Your attempt was not advanced.',422);
+  if(code==='22023'||(code==='P0001'&&['Enter a numeric answer','A valid response is required'].includes(message)))throw fail('Select an answer from the current options, or enter a valid decimal number. Your attempt was not advanced.',422);
   if(message==='Stale training step. Resume current attempt.')throw fail('Your saved attempt moved to another step. Refresh the current question before answering again.',409);
   if(message==='Reviewed answer key unavailable')throw fail('The reviewed question version is no longer available. Your previous work remains saved.',409);
  }
