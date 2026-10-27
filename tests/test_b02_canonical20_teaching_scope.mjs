@@ -35,4 +35,23 @@ const b01=[ 'F1-C02-L01','F1-C02-L02','F1-C04-L01','F1-C06-L01','F1-C07-L01','F1
  'F1-C08-L01','F1-C08-L02','F1-C08-L03','F1-C09-L01','F1-C10-L01','F1-C10-L02',
  'F1-C12-L01','F1-C13-L01','F1-C13-L02','F2-C01-L01','F2-C02-L01','F2-C02-L02','F2-C02-L03','F2-C03-L01'];
 assert.equal(b01.filter(x=>ids.includes(x)).length,0,'Never overlap B01 and B02');
+// Separately authored full learner-facing lesson drafts are not grading publication.
+const lessonDraft=JSON.parse(readFileSync(new URL('../docs/qa/2026-10-27_B02_LESSONS_01_02_EDITORIAL_DRAFT.json',import.meta.url),'utf8'));
+assert.equal(lessonDraft.status,'EDITORIAL_DRAFT_NOT_IN_PRODUCTION');
+assert.equal(lessonDraft.labs.length,2);
+assert.deepEqual(lessonDraft.labs.map(x=>x.labId),ids.slice(0,2));
+assert.deepEqual(lessonDraft.stages,['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
+for(const lab of lessonDraft.labs){
+ assert.equal(lab.instructor,'Talia');
+ assert.ok(lab.definitions.length>=5,'Define the foundational concepts before practical prediction');
+ assert.deepEqual(lab.nineStageJourney.map(x=>x.stage),lessonDraft.stages);
+ for(const step of lab.nineStageJourney){
+  assert.ok(step.teach.length>=70,lab.labId+' needs genuine teaching in '+step.stage);
+  assert.ok(step.learnerAction.length>=45,lab.labId+' needs meaningful learner input in '+step.stage);
+ }
+ assert.ok(lab.dataIntegrity.length>=5&&lab.editorialChecks.length>=5);
+ assert.equal(lab.status,'AUTHORING_COMPLETE_EDITORIAL_AND_PROTECTED_GRADING_PENDING');
+ assert.match(JSON.stringify(lab),/FICTIONAL|fictional/);
+ for(const field of ['answer_key','correctAnswer','reviewedBy','memberId','authToken'])assert.equal(Object.hasOwn(lab,field),false);
+}
 console.log('PASS B02: 20 original canonical IDs; six instructional briefs per Lab, no B01 overlap, private keys or unapproved beta claims.');
