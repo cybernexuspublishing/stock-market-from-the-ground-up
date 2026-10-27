@@ -59,15 +59,35 @@
    for(const x of d.items){
     if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(String(x.sku||'')))continue;
     const option=element('option',String(x.name)+' ('+String(x.sku)+')');
-    option.value=x.sku;zeroSkuSelect.append(option);
+    option.value=x.sku;zeroSkuSelect.append(option);const multi=element('option',String(x.name)+' ('+String(x.sku)+')');multi.value=x.sku;zeroMany.append(multi);
    }
   }catch{zeroReadout.replaceChildren(element('p','Could not verify the full catalog. General $0 diagnostics remain available.'))}
  });
- const zeroCheck=element('button','Check $0 LIVE QA Product — No Checkout');zeroCheck.type='button';
+ const zeroModeLabel=element('label','Diagnostic scope');
+ const zeroMode=element('select');zeroMode.id='gu71-qa-scope';
+ for(const [code,title] of [['one','One selected item'],['category','Entire category'],['selected','Selected items'],['all','All catalog items']]){
+  const opt=element('option',title);opt.value=code;zeroMode.append(opt);
+ }
+ zeroModeLabel.append(zeroMode);
+ const zeroCategoryLabel=element('label','Category for the $0 diagnostic');
+ const zeroCategory=element('select');zeroCategory.id='gu71-qa-category';
+ for(const name of ['membership','founding','tool','bootcamp','book','addon','feature']){
+  const opt=element('option',name);opt.value=name;zeroCategory.append(opt);
+ }
+ zeroCategoryLabel.append(zeroCategory);
+ const zeroManyLabel=element('label','Products to include in one $0 diagnostic (Ctrl/Command-click to select multiple)');
+ const zeroMany=element('select');zeroMany.id='gu71-qa-many';zeroMany.multiple=true;zeroMany.size=9;
+ zeroManyLabel.append(zeroMany);
+ const zeroUpdateScope=()=>{
+  zeroSkuLabel.hidden=zeroMode.value!=='one';zeroSkuSelect.hidden=zeroMode.value!=='one';
+  zeroCategoryLabel.hidden=zeroMode.value!=='category';zeroManyLabel.hidden=zeroMode.value!=='selected';
+ };
+ zeroMode.addEventListener('change',zeroUpdateScope);zeroUpdateScope();
+  const zeroCheck=element('button','Check $0 LIVE QA Product — No Checkout');zeroCheck.type='button';
  const zeroStart=element('button','Create Owner $0 LIVE Checkout — Explicit Confirmation');zeroStart.type='button';
  zeroStart.disabled=true;
  const zeroReadout=element('section',undefined,'gu39-complete-report');zeroReadout.setAttribute('role','status');zeroReadout.setAttribute('aria-live','polite');
- zeroQA.append(zeroHeader,zeroDescription,zeroSkuLabel,zeroSkuSelect,zeroCheck,zeroStart,zeroReadout);
+ zeroQA.append(zeroHeader,zeroDescription,zeroModeLabel,zeroSkuLabel,zeroSkuSelect,zeroCategoryLabel,zeroManyLabel,zeroCheck,zeroStart,zeroReadout);
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
@@ -417,12 +437,12 @@
   PASSWORD_RECONFIRM_REQUIRED:'Use the Owner password confirmation before trying again.',
   ZERO_CHECKOUT_NOT_SUPPORTED:'Stripe did not accept this $0 Checkout configuration. Stop; do not enter card details or replace with a paid Price.'
  };
- async function zeroFetch(method='GET',sessionId,sku=''){
+ async function zeroFetch(method='GET',sessionId,sku='',batch=null){
   const jwt=await auth();
   const url=QA_URL+(sessionId?'?session_id='+encodeURIComponent(sessionId):'');
   const perform=async()=>{const r=await fetch(url,{method,headers:{authorization:'Bearer '+jwt,
    ...(method==='POST'?{'content-type':'application/json'}:{})},
-   ...(method==='POST'?{body:JSON.stringify({confirm:'CREATE_ZERO_DOLLAR_LIVE_QA',...(sku?{sku}:{})})}:{cache:'no-store'})});
+   ...(method==='POST'?{body:JSON.stringify({confirm:'CREATE_ZERO_DOLLAR_LIVE_QA',...(batch|| (sku?{sku}:{}))})}:{cache:'no-store'})});
    return {r,data:await r.json().catch(()=>null)}};
   let {r,data}=await perform();
   if(!r.ok&&data?.error==='PASSWORD_RECONFIRM_REQUIRED'){
@@ -446,12 +466,18 @@
   finally{zeroCheck.disabled=state?.role!=='OWNER'}
  });
  zeroStart.addEventListener('click',async()=>{
-  const target=zeroSkuSelect.value;
-   if(!window.confirm('Create ONE $0 Stripe LIVE diagnostic for '+(target||'general QA')+'? No card, no subscription, no entitlements. This is not a paid purchase.'))return;
+  const mode=zeroMode.value,chosen=[...zeroMany.selectedOptions].map(x=>x.value);
+  const batch=mode==='all'?{selection:'all'}:mode==='category'?{selection:'category',category:zeroCategory.value}:
+   mode==='selected'?{selection:'selected',skus:chosen}:null;
+  const target=mode==='one'?zeroSkuSelect.value:'';
+  if(mode==='selected'&&!chosen.length){zeroReadout.replaceChildren(element('p','Select at least one product.'));return}
+  const label=mode==='one'?(target||'general checkout'):mode==='category'?zeroCategory.value+' category':
+   mode==='all'?'all products':chosen.length+' selected products';
+  if(!window.confirm('Create ONE $0 Stripe LIVE diagnostic for '+label+'? No card, subscription, entitlement or actual paid fulfillment. Stripe-hosted completion is still required.'))return;
   zeroStart.disabled=true;
-  zeroReadout.replaceChildren(element('p','Creating an Owner-only Stripe LIVE $0.00 Checkout Session. Not a paid order.'));
+  zeroReadout.replaceChildren(element('p','Creating one Owner-only $0 LIVE diagnostic session for the chosen scope; not a paid order.'));
   try{
-   const r=await zeroFetch('POST',null,target);
+   const r=await zeroFetch('POST',null,target,batch);
    if(!r.zeroDollar||!r.sessionUrl)throw Error('Zero-dollar validation missing; do not proceed.');
    window.location.assign(r.sessionUrl);
   }catch(e){zeroReadout.replaceChildren(element('p',e.message))}
