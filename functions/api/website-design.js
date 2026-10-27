@@ -9,7 +9,20 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))return reply({ok:false,error:'Method not allowed'},405);
   if(request.method==='GET'){
    const rows=await db(env,'site_settings?select=value&setting_key=eq.website_design_theme_v014168&public_read=is.true&limit=1');
-   return reply({ok:true,design:rows?.[0]?.value||{theme:'premium-dark',revision:1}});
+   // Public image settings are separately validated; never return arbitrary
+   // URLs from administrator-authored JSON or expose private storage objects.
+   let background={enabled:false};
+   try{
+    const b=await db(env,'site_settings?select=value&setting_key=eq.website_background_v1&public_read=is.true&limit=1');
+    const v=b?.[0]?.value||{},path=String(v.path||'');
+    if(v.enabled===true&&/^[a-f0-9-]{36}\/SITE_BACKGROUND\/[a-z0-9_-]{10,60}\.(?:jpg|jpeg|png|webp)$/.test(path)){
+     const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
+     background={enabled:true,imageUrl:base+'/storage/v1/object/public/gu-store-photos/'+path.split('/').map(encodeURIComponent).join('/'),
+      overlay:Number.isFinite(v.overlay)?Math.max(.35,Math.min(.92,v.overlay)):.76,
+      position:['center','top','bottom'].includes(v.position)?v.position:'center'};
+    }
+   }catch{/* The standard theme remains usable while background service is unavailable. */}
+   return reply({ok:true,design:rows?.[0]?.value||{theme:'premium-dark',revision:1},background});
   }
   const origin=request.headers.get('origin');
   if(!origin||new URL(origin).origin!==new URL(request.url).origin)return reply({ok:false,error:'Invalid request origin'},403);
