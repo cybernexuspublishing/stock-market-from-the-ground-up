@@ -106,4 +106,10 @@ assert(sql.includes('p_expected_revision bigint')&&sql.includes("ERRCODE='40001'
 assert(!sql.includes('UPDATE public.lab_progress'));
 assert(!sql.includes('INSERT INTO public.lab_attempts'));
 assert(!sql.includes('GRANT EXECUTE ON FUNCTION public.gu_v33_save_lab_journey(text,jsonb) TO anon'));
+const guard=read('supabase/migrations/20261027_lab_journey_v33_legacy_merge_guard.sql');
+assert(guard.includes('BEFORE UPDATE OF responses'));
+assert(guard.includes('new_rev<=old_rev'));
+assert(guard.includes("OLD.responses ? 'learning_journey_v33'"));
+assert(!guard.includes('UPDATE public.lab_progress'));
+assert(read('supabase/rollbacks/20261027_lab_journey_v33_legacy_merge_guard_ROLLBACK.sql').includes('DROP TRIGGER'));
 console.log('PASS v3.3 member progress: 9-stage safe serialization, original response preserved, auth epoch prevents stale writes; never grades or exposes rubric.');
