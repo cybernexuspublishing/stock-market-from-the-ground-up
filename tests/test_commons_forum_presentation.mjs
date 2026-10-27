@@ -39,5 +39,5 @@ console.log('PASS forum presentation: real directory/thread routes, founder elig
 
 const html=readFileSync(new URL('../market-commons.html',import.meta.url),'utf8');
 assert.ok(html.indexOf('id="gu-commons-founder-spotlight"')<html.indexOf('id="v13-commons"'),'Founder spotlight must precede async forum content');
-assert.match(html,/600<\/span><small>FOUNDERS/);
+assert.match(html,/F<\/span><small>MEMBERS/);
 assert.doesNotMatch(host.innerHTML,/gu-commons-founder-heading/,'No duplicate founder banner inside forum index');
