@@ -16,6 +16,8 @@ on:
       - 'supabase/migrations/20261027_b01_editorial_private_backup.sql'
       - 'supabase/rollbacks/20261027_b01_editorial_private_backup_ROLLBACK.sql'
       - 'supabase/reviews/2026-10-27_B01_NEXT40_READ_ONLY.sql'
+      - 'docs/qa/2026-10-27_B01_NEXT40_EDITORIAL_DECISION_REGISTER.csv'
+      - 'tests/test_b01_next40_editorial_contract.mjs'
       - '.github/workflows/b01-protected-assessment-contract.yml'
   workflow_dispatch:
 permissions:
@@ -67,3 +69,4 @@ jobs:
           node tests/test_grading_partial_credit_critical_guard.mjs
           node tests/test_b01_invalid_choice_and_remediation.mjs
           node tests/test_v014117_lab_topic_gate.mjs
+          node tests/test_b01_next40_editorial_contract.mjs
