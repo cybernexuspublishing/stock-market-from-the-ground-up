@@ -15,12 +15,20 @@ export async function onRequestGet({env}){
    return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
   const headers=key.startsWith('sb_secret_')?{apikey:key}:{apikey:key,authorization:'Bearer '+key};
   const query='gu_storefront_items_v014174?select=sku,category,display_name,description,price_label,duration_label,product_page,status,visible,sale_ready,display_order&visible=eq.true&order=display_order.asc&limit=150';
-  const r=await fetch(base+'/rest/v1/'+query,{headers,cache:'no-store'});
-  if(!r.ok)return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
-  const rows=await r.json();
-  if(!Array.isArray(rows)||rows.length>150)throw Error('Invalid catalog');
+  // Cross-check the canonical membership visibility registry; storefront
+  // listing flags must not expose plans the Owner has explicitly hidden.
+  const plansQuery='platform_plans?select=plan_code,public_visible,active&limit=150';
+  const [r,p]=await Promise.all([
+   fetch(base+'/rest/v1/'+query,{headers,cache:'no-store'}),
+   fetch(base+'/rest/v1/'+plansQuery,{headers,cache:'no-store'})
+  ]);
+  if(!r.ok||!p.ok)return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
+  const [rows,plans]=await Promise.all([r.json(),p.json()]);
+  if(!Array.isArray(rows)||rows.length>150||!Array.isArray(plans)||plans.length>150)throw Error('Invalid catalog');
+  const visiblePlans=new Set(plans.filter(x=>x?.active===true&&x.public_visible===true).map(x=>String(x.plan_code||'')));
   const items=rows.filter(x=>x?.visible===true&&allowedCats.has(x.category)&&
-   /^[a-z]+:[A-Z0-9_\-]+$/.test(String(x.sku||''))).map(x=>({
+   /^[a-z]+:[A-Z0-9_\-]+$/.test(String(x.sku||''))&&
+   (!String(x.sku).startsWith('plan:')||visiblePlans.has(String(x.sku).slice(5)))).map(x=>({
    sku:limited(x.sku,90),category:x.category,name:limited(x.display_name,220),
    description:limited(x.description,1600),price:limited(x.price_label,100),
    duration:limited(x.duration_label,100),status:statuses.has(x.status)?x.status:'unavailable',
