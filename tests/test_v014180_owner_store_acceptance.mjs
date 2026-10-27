@@ -32,7 +32,11 @@ try {
  resp=await endpoint.onRequestGet({env:{}});
  assert.equal(resp.status,503);
  const client=read('assets/js/store-inventory-ui-v014174.js');
- assert.ok(client.includes("base.filter(p=>p.status==='existing_catalog')"));
+ // V1 Founding-only Store policy supersedes the legacy unrestricted
+ // existing_catalog listing. Keep started public book entries, not legacy plans.
+ assert.ok(client.includes('base.filter(listedCore)'));
+ assert.ok(client.includes("p.category==='Books'&&p.status==='existing_catalog'"));
+ assert.ok(client.includes("FOUNDING_(30|60)"));
  assert.ok(client.includes('bySku.has(p.sku)'));
  assert.ok(!client.includes('stripe-live-checkout'));
  const admin=read('functions/api/admin.js');
