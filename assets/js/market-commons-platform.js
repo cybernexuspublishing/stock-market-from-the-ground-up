@@ -1,7 +1,7 @@
 (function(){'use strict';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=d=>d&&!Number.isNaN(new Date(d).getTime())?new Date(d).toLocaleString():'—';
-  let SB,USER,forums=[],FOUNDER_ALLOWED=false;
+  let SB,USER,forums=[],FOUNDER_ALLOWED=false,FOUNDER_COUNCIL=false;
   const IS_FOUNDER=String(location.pathname||'').endsWith('/founders-commons.html');
   const PAGE=IS_FOUNDER?'founders-commons.html':'market-commons.html';
   async function initAuth(){SB=await window.getSupabaseClient();const session=typeof SB.auth.getSession==='function'?(await SB.auth.getSession()).data?.session:null;const user=session?.user||(await SB.auth.getUser()).data?.user;if(!user){location.replace(`signin.html?next=${encodeURIComponent(location.pathname+location.search)}`);return false}USER=user;
@@ -12,6 +12,8 @@
        const access=await SB.rpc('gu_founder_commons_access_v014174',{p_scope:'shared'});
        if(access.error||access.data!==true)return false;
        FOUNDER_ALLOWED=true;
+       const member=await SB.rpc('gu_founder_my_status_v014174');
+       FOUNDER_COUNCIL=!member.error&&member.data?.council===true;
       }catch{return false}
     }
     // Show the private community link only to a server-authorized Founder/Owner.
@@ -56,7 +58,7 @@
     const dir=SB.from('commons_forums').select('*').eq('active',true);
     const {data:f,error:fe}=await (IS_FOUNDER?dir.eq('section_name','Founders Commons'):dir).order('sort_order');
     if(fe){host.textContent='Market Commons is unavailable: '+fe.message;return}
-    forums=f||[];
+    forums=(f||[]).filter(x=>!IS_FOUNDER||x.forum_code!=='F600_COUNCIL'||FOUNDER_COUNCIL);
     if(topic){const id=Number(topic);if(!Number.isSafeInteger(id)||id<=0){host.textContent='Invalid discussion identifier.';return}return renderTopic(host,id)}
     const fields='id,forum_code,title,ticker,is_pinned,is_locked,is_official,reply_count,last_post_at,created_at,author_label,profiles:author_user_id(username)';
     if(forum){
