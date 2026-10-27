@@ -34,7 +34,11 @@ export async function onRequest({request,env}){
  try{
   if(!['GET','POST','PATCH','DELETE'].includes(request.method))return out({ok:false,error:'Method not allowed'},405);
   const auth=await toolAccess(env,request,'MARKET_TUTOR');
-  if(!auth.authorized)return out({ok:false,error:'An active Market Tutor entitlement is required to access saved Tutor notes.'},403);
+  // Historic member-owned notes remain readable/editable/deletable after
+  // cancellation or expiry. toolAccess has already verified the real Supabase
+  // user, account eligibility, Showcase restrictions and member-scoped ID.
+  // New Tutor responses continue to require MARKET_TUTOR entitlement at /api/market-tutor.
+  if(auth.freeEligible!==true)return out({ok:false,error:'Eligible member account required for private Tutor notes.'},403);
   if(!UID.test(auth.userId))return out({ok:false,error:'Invalid member identity.'},403);
   const member=encodeURIComponent(auth.userId),url=new URL(request.url);
   if(request.method==='PATCH'||request.method==='DELETE'){
@@ -92,7 +96,7 @@ export async function onRequest({request,env}){
   return out({ok:false,error:'Tutor responses are saved by the trusted Tutor endpoint, not uploaded by the browser.'},405);
  }catch(e){
   if(e.status===401)return out({ok:false,error:'Sign in required.'},401);
-  if(e.status===403)return out({ok:false,error:'Tutor access required.'},403);
+  if(e.status===403)return out({ok:false,error:'Eligible member account required.'},403);
   if(e.status===409)return out({ok:false,error:e.message},409);
   return out({ok:false,error:'Private Tutor history is not installed or temporarily unavailable; this does not affect current-session learning.'},503);
  }
