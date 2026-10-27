@@ -22,6 +22,14 @@ const validDate=s=>{
 };
 const settled=r=>r&&r.status==='closed'&&['live','paper'].includes(r.journal_type)&&
  !['NO TRADE','OBSERVATION ONLY'].includes(r.decision)&&finite(r.net_pnl)!==null;
+// A closed journal row may be entered with an impossible, earlier-than-entry
+// or future exit date. Its entered P&L is NOT available as-of this report.
+// A missing exit date remains legacy self-reported data and is disclosed;
+// do not silently delete old member records or invent a close timestamp.
+const exitKnownAsOf=(r,today)=>{
+ if(r.exit_date===null||r.exit_date===undefined||r.exit_date==='')return true;
+ return validDate(r.exit_date)&&r.exit_date>=r.trade_date&&r.exit_date<=today;
+};
 const orderKey=r=>(validDate(r.exit_date)?r.exit_date:validDate(r.trade_date)?r.trade_date:'9999-12-31')+
  '|'+String(r.created_at||'')+'|'+String(r.id??'');
 const sanitizedText=x=>String(x||'Unclassified').trim().slice(0,80)||'Unclassified';
@@ -36,7 +44,13 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   (type==='all'||r.journal_type===type)&&validDate(r.trade_date)&&
   (cutoff===null||Date.parse(r.trade_date+'T12:00:00Z')>=cutoff)&&
   Date.parse(r.trade_date+'T12:00:00Z')<=todayDate);
- const eligible=base.filter(settled).sort((a,b)=>orderKey(a).localeCompare(orderKey(b)));
+ const excludedInvalidExitDates=base.filter(r=>
+   r.exit_date!==null&&r.exit_date!==undefined&&r.exit_date!==''&&
+   (!validDate(r.exit_date)||r.exit_date<r.trade_date)).length;
+ const excludedFutureExitDates=base.filter(r=>
+   validDate(r.exit_date)&&r.exit_date>today).length;
+ const eligible=base.filter(r=>settled(r)&&exitKnownAsOf(r,today))
+  .sort((a,b)=>orderKey(a).localeCompare(orderKey(b)));
  const unscored=base.length-eligible.length;
  let sum=0,peak=0,drawdown=0,winCount=0,lossCount=0,flatCount=0,grossProfit=0,grossLoss=0;
  let riskVals=[],processGood=0,processBad=0,processUnknown=0,follow=0,followKnown=0,badWins=0;
@@ -103,6 +117,7 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   expectancyNet:g.n?rounding(g.net/g.n,2):null,avgR:avg(g.r),ratedRCount:g.r.length});
  const summary={
   recordsMatched:base.length,resolvedTrades:n,excludedNoResult:unscored,
+  excludedInvalidExitDates,excludedFutureExitDates,
   winCount,lossCount,flatCount,winRate:pct(winCount,n),
   totalNet:rounding(sum,2),grossProfit:rounding(grossProfit,2),grossLoss:rounding(grossLoss,2),
   profitFactor:grossLoss>0?rounding(grossProfit/grossLoss):null,
@@ -120,7 +135,7 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
  // are metadata only; do not return individual journal records to the client.
  const observedWindow=String(days)==='all'?'all recorded dates':String(days)+' calendar days through '+today;
  const baseRule='Closed member-entered live/paper records with valid trade dates in the selected window';
- const resolvedRule=baseRule+' and valid self-reported net P&L; NO TRADE and OBSERVATION ONLY are excluded';
+ const resolvedRule=baseRule+' and valid self-reported net P&L with no invalid, before-entry, or post-as-of exit date; NO TRADE and OBSERVATION ONLY are excluded';
  const missingNet=base.length-n;
  const metricDefinitions=[
   {key:'winRate',name:'Win rate',unit:'percent',inclusion:resolvedRule,
@@ -154,7 +169,9 @@ const report=(rows,{type='all',days='all',today=new Date().toISOString().slice(0
   asOf:today,filter:{type,days:String(days)},
   notices:[
    n<20?'Small sample: fewer than 20 resolved trades; results are especially unstable.':'Even larger samples may not represent future performance.',
-   unscored?'Closed journal records missing valid net P&L are excluded from win rate, expectancy and drawdown.':'Only closed, resolved live/paper trades contribute.',
+   unscored?'Records without a valid resolved outcome, including invalid or future-dated exits, are excluded from win rate, expectancy and drawdown.':'Only closed, resolved live/paper trades contribute.',
+   excludedFutureExitDates?excludedFutureExitDates+' record(s) contain a future exit date and cannot contribute to an as-of analysis.':'No future-exit records in this selection.',
+   excludedInvalidExitDates?excludedInvalidExitDates+' record(s) have an impossible or before-entry exit date and were excluded.':'No invalid-exit dates in this selection.',
    'No trading recommendation. Original hypothetical, paper and real-money results must remain distinguishable.'
   ]};
 };
