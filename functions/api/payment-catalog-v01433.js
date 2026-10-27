@@ -15,7 +15,7 @@ export async function onRequestGet({request,env}){
   const role=await fetch(base+'/rest/v1/rpc/gu_owner_digital_payment_route_read_v01432r2',{method:'POST',body:'{}',headers:authHeaders,cache:'no-store'});
   if(!role.ok)return answer({ok:false,error:'OWNER/ADMIN permissions or database routing unavailable.'},role.status===401?401:role.status===403?403:503);
   const staff=await role.json().catch(()=>null);if(!staff?.ok||!['OWNER','ADMIN'].includes(staff.role))return answer({ok:false,error:'OWNER/ADMIN access required.'},403);
-  const headers={apikey:secret,authorization:'Bearer '+secret};
+  const headers={apikey:secret,...(secret.startsWith('sb_secret_')?{}:{authorization:'Bearer '+secret})};
   const [plans,tools,books,store,registered]=await Promise.all([
    get(base+'/rest/v1/platform_plans?select=plan_code,name,price_cents,billing_interval,active,public_visible,checkout_enabled&order=sort_order.asc&limit=200',headers),
    get(base+'/rest/v1/platform_tools?select=tool_code,name,individual_price_cents,status,active,public_visible,checkout_enabled&order=sort_order.asc&limit=200',headers),
