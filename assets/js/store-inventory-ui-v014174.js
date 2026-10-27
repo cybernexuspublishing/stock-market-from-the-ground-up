@@ -1,66 +1,103 @@
-/* v0.14.0.175: public catalog overlays; purchase controls remain in existing store. */
+/* Current first-party Supabase storefront display. No payment or entitlement changes.
+ * Live public catalog is authoritative; checked-in historical inventory is a
+ * display-only fallback when the API cannot be reached.
+ */
 (()=>{'use strict';
-const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const categoryLabels=Object.freeze({membership:'Memberships',founding:'Founding Memberships',
+ book:'Books',tool:'Tools',bootcamp:'Boot Camps',addon:'Add-ons',feature:'Included Features'});
 const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrelaunchInventory:[];
-// Only current founding offers, existing book editions, and Owner-published
-// in-progress releases are displayed. Legacy memberships remain private.
-const listedCore=p=>/^FOUNDING_(30|60)$/.test(p.sku)||(p.category==='Books'&&p.status==='existing_catalog');
 const $=id=>document.getElementById(id);
-const categoryName=p=>/^FOUNDING_(30|60)$/.test(p.sku)?'Founding Memberships':p.category;
-const detail=p=>/^FOUNDING_(30|60)$/.test(p.sku)?'store.html#founders':p.href||('store-upcoming-product.html?sku='+encodeURIComponent(p.sku));
-
-const primaryTraining=Object.freeze({
- 'BC-05-TRUTH':'bootcamp-academy.html?program=truth5',
- 'BC-07-WATCH':'bootcamp-academy.html?program=watchlist7',
- 'BC-10-SCAN':'bootcamp-academy.html?program=scanners10',
- 'BC-30-CORE':'bootcamp.html',
- 'BC-45-CHART':'bootcamp-academy.html?program=charts45',
- 'BC-60-RISK':'bootcamp-academy.html?program=risk60',
- 'BC-90-PRACT':'bootcamp-academy.html?program=practicum90'
-});
-// Existing approved training membership, never individual Boot Camp checkout.
-function sharedTrainingStudy(p){
- const route=primaryTraining[p.sku];if(!route)return '';
- return '<section class="store-training-access" aria-label="Available guided beta study">'+
- '<h2>Guided beta study through an existing membership</h2>'+
- '<p>This Boot Camp is not priced or sold standalone. Its current guided curriculum may be studied through an authorized Historical Replay Learning membership. Learning assessments and independent mastery evidence are separate from ungraded practice.</p>'+
- '<div class="actions"><a class="btn secondary" href="'+escapeHtml(route)+'">Explore in Academy</a> '+
- '<a class="btn secondary" href="store-membership-ondemand-monthly.html">Review training membership</a></div>'+
- '<p class="small">Account authorization and lesson availability are checked at the destination. No payment is initiated here.</p></section>';
+const clean=x=>String(x??'').trim();
+let all=[],isVerified=false,isFull=false;
+function fromLocal(x){return {sku:x.sku,name:x.name,description:x.description||'',
+ category:x.category||'Upcoming',price:x.status==='existing_catalog'?'See product details':'Pricing to be announced',
+ duration:x.duration||'',status:x.status==='existing_catalog'?'listed':'coming_soon',
+ saleReady:false,page:/^[a-z0-9-]+\.html$/.test(x.href||'')?x.href:null};}
+function normalize(x){return {...x,category:categoryLabels[x.category]||x.category};}
+function detail(x){
+ if(x.page)return x.page;
+ if(x.category==='Founding Memberships')return 'founding600.html';
+ const code=clean(x.sku).split(':').pop();
+ return 'store-upcoming-product.html?sku='+encodeURIComponent(code);
 }
-
-let verified=false;let all=base.filter(listedCore); // never fallback to legacy membership SKUs
+function label(x){
+ return x.saleReady?'Purchase subject to secure checkout verification':
+ x.status==='coming_soon'?'Coming Soon · Beta / development':
+ x.status==='listed'?'Listed · Purchasing not yet enabled':'Not available to purchase';
+}
+function cards(items){
+ return items.map(x=>`<article class="product-card store-sell-card" data-store-sku="${escapeHtml(x.sku)}">
+ <div class="eyebrow">${escapeHtml(x.category)}</div>
+ <span class="store-soon-label">${escapeHtml(label(x))}</span>
+ <h2>${escapeHtml(x.name)}</h2>
+ <p>${escapeHtml(x.description)}</p>
+ <p><strong>Price:</strong> ${escapeHtml(x.price||'Pricing to be confirmed')}</p>
+ ${x.duration?`<p><strong>Term:</strong> ${escapeHtml(x.duration)}</p>`:''}
+ <p class="small">Catalog ID: ${escapeHtml(x.sku)}</p>
+ <a class="btn secondary" href="${escapeHtml(detail(x))}">${x.saleReady?'Review checkout availability':'View product details'}</a>
+ </article>`).join('');
+}
+function show(){
+ const list=$('inventory-list'),root=$('inventory-detail'),search=$('inventory-search'),filter=$('inventory-category'),status=$('inventory-status');
+ if(list){
+  const term=clean(search?.value).toLowerCase(),cat=clean(filter?.value);
+  const rows=all.filter(x=>(!cat||x.category===cat)&&(!term||
+   (x.name+' '+x.sku+' '+x.description+' '+x.category).toLowerCase().includes(term)));
+  list.innerHTML=cards(rows)||'<p>No matching products.</p>';
+  if(status)status.textContent=rows.length+' of '+all.length+' available catalog listings shown. '+
+   (isFull?'Current production catalog verified.':'A reduced fallback catalog is shown.')+
+   ' Listings do not imply payment availability.';
+ }
+ if(root){
+  const raw=new URLSearchParams(location.search).get('sku')||'';
+  const x=all.find(x=>x.sku===raw||x.sku.split(':').pop()===raw);
+  if(!x){
+   root.innerHTML='<h1>Product currently unavailable</h1><p>Its current catalog information could not be verified. No purchase has been initiated.</p><a href="store-all-products.html">Back to all products</a>';
+   return;
+  }
+  document.title=x.name+' | The Stock Market: From the Ground Up';
+  root.innerHTML='<div class="eyebrow">'+escapeHtml(x.category)+'</div><h1>'+escapeHtml(x.name)+'</h1>'+
+   '<p>'+escapeHtml(x.description)+'</p><p><strong>Price:</strong> '+escapeHtml(x.price||'Pricing to be confirmed')+'</p>'+
+   (x.duration?'<p><strong>Term:</strong> '+escapeHtml(x.duration)+'</p>':'')+
+   '<p><strong>Availability:</strong> '+escapeHtml(label(x))+'</p>'+
+   '<p>Catalog ID: '+escapeHtml(x.sku)+'</p>'+
+   '<p>Checkout requires separately verified price, delivery, legal and payment authorization; viewing a listing never creates an order.</p>'+
+   (x.category==='Boot Camps'?'<a class="btn secondary" href="bootcamp-academy.html">Explore the Boot Camp Academy</a> ':'' )+
+   '<a class="btn secondary" href="store-all-products.html">Back to all products</a>';
+ }
+}
+async function load(){
+ try{
+  const r=await fetch('/api/storefront-public-catalog',{cache:'no-store',credentials:'same-origin'});
+  if(!r.ok)throw Error('Current catalog unavailable');
+  const j=await r.json();
+  if(j.ok!==true||j.source!=='verified_storefront'||!Array.isArray(j.items)||
+    j.count!==j.items.length||j.items.length<50||j.items.length>150||
+    new Set(j.items.map(x=>x.sku)).size!==j.items.length)
+   throw Error('Catalog integrity check failed');
+  all=j.items.map(normalize);isFull=true;
+ }catch{
+  const core=base.filter(x=>x.status==='existing_catalog'||
+    /FOUNDING_(30|60)/.test(x.sku)||x.status==='coming_soon');
+  all=core.map(fromLocal);
+ }
+ isVerified=true;
+ const category=$('inventory-category');
+ if(category){
+  const options=['',...new Set(all.map(x=>x.category))].sort((a,b)=>a?b?a.localeCompare(b):1:-1);
+  category.replaceChildren();
+  for(const label of options){const o=document.createElement('option');o.value=label;o.textContent=label||'All categories';category.append(o)}
+  const requested=new URLSearchParams(location.search).get('category');
+  if(requested&&options.includes(requested))category.value=requested;
+ }
+ show();
+}
 function init(){
- const list=$('inventory-list'),root=$('inventory-detail'),search=$('inventory-search'),category=$('inventory-category'),status=$('inventory-status');
- const render=()=>{
-  if(list){
-   if(!verified){list.innerHTML='<p role="status">Checking current product availability…</p>';if(status)status.textContent='Checking product availability…';}
-   else {
-   const q=(search?.value||'').trim().toLowerCase(),cat=category?.value||'';
-   const selected=all.filter(p=>(!cat||categoryName(p)===cat)&&(!q||(p.name+' '+p.sku+' '+p.description).toLowerCase().includes(q)));
-   list.innerHTML=selected.map(p=>'<article class="product-card store-sell-card"><div class="eyebrow">'+escapeHtml(categoryName(p))+'</div><span class="store-soon-label">'+(p.status==='release_ready'?'Beta OPEN':'Coming Soon')+'</span><h2>'+escapeHtml(p.name)+'</h2><p>'+escapeHtml(p.description)+'</p><p class="small">Product ID: '+escapeHtml(p.sku)+'</p><p class="store-soon-label">'+(p.status==='release_ready'?'Beta OPEN · Check verified checkout':'See product page for current availability')+'</p><a class="btn secondary" href="'+escapeHtml(detail(p))+'">View product details</a></article>').join('')||'<p>No matching products.</p>';
-   status.textContent=selected.length+' of '+all.length+' catalog items shown.';
-   }
-  }
-  if(root){
-   const sku=new URLSearchParams(location.search).get('sku')||'',p=all.find(x=>x.sku===sku&&!x.href);
-   if(!p){root.innerHTML=verified?'<h1>Product not available</h1><p>This item is not currently published in the Store.</p><a href="store-all-products.html">Back to all products</a>':'<h1>Checking product availability</h1><p>Confirming this listing with the Store.</p>';return;}
-   document.title=p.name+' | The Stock Market: From the Ground Up';
-   root.innerHTML='<div class="eyebrow">'+escapeHtml(categoryName(p))+'</div><h1>'+escapeHtml(p.name)+'</h1><p>'+escapeHtml(p.description)+'</p><p><strong>Availability:</strong> Coming Soon — checkout unavailable.</p><p><strong>Price:</strong> Pricing to be announced or confirmed at release.</p>'+(p.duration?'<p><strong>Program length:</strong> '+escapeHtml(p.duration)+'</p>':'')+'<p><strong>Catalog identifier:</strong> '+escapeHtml(p.sku)+'</p><p>Standalone sale requires separately approved pricing, delivery, and assessment terms.</p>'+sharedTrainingStudy(p)+'<a class="btn secondary" href="store-all-products.html">Back to all products</a>';
-  }
- };
- search?.addEventListener('input',render);category?.addEventListener('change',render);render();
- fetch('/api/store-product-overrides',{cache:'no-store'}).then(async response=>{if(!response.ok)throw Error('Unavailable');return response.json()}).then(data=>{
-  if(!data.ok)throw Error('Catalog response unavailable');
-  const bySku=new Map((data.items||[]).map(x=>[x.sku,x]));
-  all=base.filter(p=>listedCore(p)||(p.status==='coming_soon'&&bySku.has(p.sku))).map(p=>{
-   const o=bySku.get(p.sku);
-   return o?{...p,name:o.title,description:o.description,status:o.lifecycle}:p;
-  });
-  if(category){for(const option of [...category.options].filter(o=>o.value))option.hidden=!all.some(p=>categoryName(p)===option.value);
-   if(category.selectedOptions[0]?.hidden)category.value='';}
-  verified=true;render();
- }).catch(()=>{verified=true;all=base.filter(listedCore);render();if(status)status.textContent='Upcoming catalog temporarily unavailable; existing products remain accessible.';if(root)root.innerHTML='<h1>Product availability unavailable</h1><p>This product cannot be displayed until its current publication state is confirmed. No checkout is available here.</p><a href="store-all-products.html">Back to all products</a>';});
+ $('inventory-search')?.addEventListener('input',show);
+ $('inventory-category')?.addEventListener('change',show);
+ const status=$('inventory-status');if(status)status.textContent='Verifying the current Store inventory…';
+ void load();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
