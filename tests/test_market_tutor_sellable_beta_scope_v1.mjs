@@ -13,7 +13,8 @@ for(const literal of [
 ])assert(page.includes(literal),'Missing truthful buyer-facing Tutor content: '+literal);
 assert(page.includes('provisional')&&page.includes('later observations'));
 assert(!page.includes('checkout.html?type=tool'),'A page must not bypass authorized checkout');
-assert(!/we guarantee profits|guarantees trading returns|certified profitable trader/i.test(page),\n 'No affirmative profitability or certification promises');
+assert(!/we guarantee profits|guarantees trading returns|certified profitable trader/i.test(page),
+ 'No affirmative profitability or certification promises');
 assert(api.includes("toolAccess(env,request,'MARKET_TUTOR')"),'Current Tutor API must gate actual entitlement');
 assert(api.includes('reserveAiRequest'),'Generative calls must use the transactional AI quota gate');
 assert(api.includes('seeksPersonalTradeAdvice'),'Advice-request restrictions required');
