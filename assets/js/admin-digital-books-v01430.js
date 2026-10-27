@@ -3,6 +3,7 @@
 if(!/^\/admin(?:\.html)?$/i.test(location.pathname))return;
 const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!=null)n.textContent=txt;if(cls)n.className=cls;return n};
 let busy=false;
+let editorCode=null,editorTarget=null;
 function mount(){
  if(document.querySelector('[data-gu-digital-v01430]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
@@ -96,13 +97,37 @@ function mount(){
       }
      }catch(e){historyList.textContent='History unavailable: '+String(e.message||e)}
     };
-    card.append(upload,historyButton,save,historyList,rowStatus);list.append(card);
+    card.append(upload,historyButton,save,historyList,rowStatus);
+    // Reuse the existing guarded uploader inside Products > Books > Edit.
+    // The selected book card moves to the editor; other books remain in Commerce.
+    if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
+     editorTarget.replaceChildren(card);
+    }else list.append(card);
    }
    status.textContent=(data.products||[]).length+' eBooks loaded. A checkbox cannot cancel an actual KDP Select contract.';
   }catch(e){status.textContent='Digital eBook administration unavailable: '+(e.message||'Owner session or password confirmation required')}
   finally{busy=false;loadButton.disabled=false}
  }
- loadButton.onclick=load;return true;
+ loadButton.onclick=load;
+  // One source of truth for uploads, rights checks and signed-version history.
+  // Never create a second storage route or a second set of publishing toggles.
+  window.GroundUpDigitalBooks={
+   async mountEditor(code,host){
+    if(!/^[A-Z0-9_]{3,90}$/.test(code)||!host?.isConnected)
+     throw Error('Save this book with a valid product code before uploading its edition.');
+    editorCode=code;editorTarget=host;
+    await load();
+    if(host.isConnected&&!host.querySelector('.gu-digital-row'))
+     throw Error(status.textContent||'This book is not available to the authorized digital publishing service.');
+   }
+  };
+  document.getElementById('admin-dialog')?.addEventListener('close',()=>{
+   if(!editorTarget)return;
+   editorCode=null;editorTarget=null;
+   // Return the edition controls to the original Commerce view after editing.
+   if(!busy)void load();
+  });
+  return true;
 }
 let attempts=0;const t=setInterval(()=>{if(mount()||++attempts>80)clearInterval(t)},250);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
