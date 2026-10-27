@@ -62,6 +62,14 @@ assert.match(nodes['store-tools'].innerHTML,/Coming Soon/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
+for(const asset of ['interactive-learning','journal-analytics','market-simulator','market-tutor']){
+ assert.match(read('assets/img/store-tools/'+asset+'.svg'),/<svg /);
+ assert.match(nodes['store-tools'].innerHTML,new RegExp('assets/img/store-tools/'+asset+'\\.svg'));
+}
+assert.ok(read('store.html').includes('id="store-tab-sparks"'));
+assert.ok(read('store.html').includes('id="store-panel-sparks"'));
+assert.ok(read('assets/js/admin-products-v01489.js').includes("show('books')"));
+
 assert.equal(tabNodes[1].attributes['aria-selected'],'true');
 tabNodes[2].events.click();
 assert.equal(nodes['store-panel-sparks'].hidden,false,'Crownlight Sparks must have its own tab');
