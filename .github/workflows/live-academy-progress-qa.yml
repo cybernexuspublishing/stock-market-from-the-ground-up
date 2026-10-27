@@ -1,3 +1,4 @@
+# Owner QA invocation October 27: rerun with existing repository secrets only; no credential changes or live billing.
 name: Live Academy Persistence QA (authenticated, no billing)
 on:
   workflow_dispatch:
