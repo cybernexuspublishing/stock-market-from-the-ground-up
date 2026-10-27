@@ -7,7 +7,7 @@
  const params=new URLSearchParams(location.search);
  if(params.get('tab')!=='support')return;
  const by=id=>document.getElementById(id);
- const panel=by('member-support-panel'),form=by('member-support-form'),
+ const panel=by('member-support-panel'),form=by('member-support-form'),receiptForm=by('member-book-receipt-form'),
   status=by('member-support-status'),list=by('member-support-list'),
   detail=by('member-support-detail');
  if(!panel||!form||!status||!list||!detail)return;
@@ -24,7 +24,7 @@
  };
  const clearPrivate=()=>{
   ++epoch;memberId='';selectedTicket=null;list.replaceChildren();
-  detail.replaceChildren();panel.hidden=true;form.reset();
+  detail.replaceChildren();panel.hidden=true;form.reset();receiptForm?.reset();
  };
  async function session(){
   if(!client||!memberId)throw Error('Sign in to continue.');
@@ -95,6 +95,8 @@
     item.append(text('strong',m.author_kind==='staff'?'Support team':'Member'),
      text('span',' · '+datetime(m.created_at),'small'),
      text('p',m.body||''));
+    if(Array.isArray(m.attachments)&&m.attachments.some(a=>a?.kind==='book_receipt'))
+     item.append(text('p','Private receipt attachment submitted for Admin review.','small'));
     messages.append(item);
    }
    // A durable ticket keeps its full first description even if the optional
@@ -172,7 +174,52 @@
    await loadTickets();
   }finally{busy=false;submit.disabled=false}
  }
+
+ async function createBookReceipt(event){
+  event.preventDefault();if(busy||!receiptForm||!client)return;
+  const f=receiptForm.elements,receipt=f.receipt.files?.[0],
+   bookCode=String(f.bookCode.value||''),retailer=String(f.retailer.value||'').trim(),
+   orderReference=String(f.orderReference.value||'').trim(),
+   notes=String(f.notes.value||'').trim();
+  const types={'application/pdf':'pdf','image/png':'png','image/jpeg':'jpg'};
+  const ext=types[receipt?.type],filename=String(receipt?.name||'').toLowerCase();
+  if(!receipt||!ext||receipt.size<100||receipt.size>6291456||
+    !/\.(pdf|png|jpe?g)$/.test(filename)||
+    (ext==='pdf'&&!filename.endsWith('.pdf'))||
+    (ext==='png'&&!filename.endsWith('.png'))||
+    (ext==='jpg'&&!/\.jpe?g$/.test(filename))){
+   setStatus('Attach a valid PDF, JPG or PNG receipt no larger than 6 MB.',true);return;
+  }
+  if(!/^[A-Z0-9_]{3,90}$/.test(bookCode)||retailer.length<2||
+     retailer.length>100||orderReference.length>150||notes.length>1200){
+   setStatus('Select the book and enter its retailer.',true);return;
+  }
+  busy=true;const button=receiptForm.querySelector('[type="submit"]');button.disabled=true;
+  const userId=memberId,revision=epoch;
+  try{
+   await session();
+   setStatus('Uploading your receipt to private Support storage…');
+   const path=userId+'/'+crypto.randomUUID()+'.'+ext;
+   const uploaded=await client.storage.from('gu-book-receipts')
+    .upload(path,receipt,{contentType:receipt.type,upsert:false,cacheControl:'0'});
+   if(uploaded.error)throw Error('Private receipt upload could not be verified.');
+   if(userId!==memberId||revision!==epoch)
+    throw Error('Account changed during upload. Reopen Support before submitting.');
+   const result=await call('book_receipt',{method:'POST',body:{
+    bookCode,retailer,orderReference,notes,evidencePath:path
+   }});
+   receiptForm.reset();
+   await loadTickets();await openTicket(result.ticket.id);
+   setStatus('Receipt and ticket '+(result.ticket.ticket_number||result.ticket.id)+
+    ' saved for Admin review. The review target is three calendar days.');
+  }catch(error){
+   setStatus((error.message||'Receipt submission not confirmed.')+
+    ' Review your ticket list before retrying.',true);
+   await loadTickets();
+  }finally{busy=false;button.disabled=false}
+ }
  form.addEventListener('submit',event=>void create(event));
+ receiptForm?.addEventListener('submit',event=>void createBookReceipt(event));
  by('member-support-refresh')?.addEventListener('click',()=>void loadTickets());
  async function init(){
   try{
@@ -182,6 +229,7 @@
    const user=response.data?.user;
    if(response.error||!user?.id)throw Error('Sign in to open your private Support workspace.');
    memberId=user.id;++epoch;panel.hidden=false;
+   if(params.get('purpose')==='book_receipt')by('member-book-receipt-title')?.scrollIntoView({block:'start'});
    const lab=params.get('lab');
    if(lab&&/^[A-Za-z0-9_-]{3,90}$/.test(lab)){
     form.elements.category.value='historical_labs';

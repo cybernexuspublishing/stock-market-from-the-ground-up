@@ -4,6 +4,22 @@
  <p class="small">Reports go directly into your existing private Support queue. Include the page, Lab ID, what you expected, what occurred, and steps to reproduce. Do not include passwords, verification codes, payment-card information or another member's details. For educational questions, use the instructor and ordinary lesson guidance.</p>
  <p id="member-support-context" class="small">For bugs, account access, inaccurate instructional material, accessibility problems or saved-progress errors.</p>
  <p id="member-support-status" role="status" aria-live="polite"></p>
+<section id="member-book-receipt" aria-labelledby="member-book-receipt-title">
+<h3 id="member-book-receipt-title">Book Purchase Verification</h3>
+<p class="small">Submit your receipt privately to Admin. Accepted requests are reviewed within three calendar days. You do not need to email the receipt.</p>
+<form id="member-book-receipt-form" class="v1352-grid">
+<label>Purchased book<select name="bookCode" required><option value="">Select your book</option>
+<option value="FOUNDATION_BOOK_1">Stock Market Foundations — Book I</option>
+<option value="FOUNDATION_BOOK_2">Stock Market Foundations — Book II</option>
+<option value="FOUNDATION_BOOK_3">Stock Market Foundations — Book III</option>
+<option value="DAY_TRADING_BOOK_1">Day Trading</option>
+<option value="READING_THE_TAPE">Reading the Tape</option></select></label>
+<label>Retailer<input name="retailer" required maxlength="100" placeholder="Where you purchased the book"></label>
+<label>Order reference (if available)<input name="orderReference" maxlength="150"></label>
+<label>Purchase receipt (required)<input name="receipt" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required><span class="small">PDF/JPG/PNG, up to 6 MB. Redact unrelated card details.</span></label>
+<label class="full">Details (optional)<textarea name="notes" maxlength="1200" rows="3"></textarea></label>
+<div class="full"><button class="btn" type="submit">Send receipt to Admin</button></div>
+</form></section>
  <form id="member-support-form" class="v1352-grid">
   <label>Issue type<select name="category" required><option value="bug">Bug or broken feature</option><option value="historical_labs">Lab teaching, replay or progress</option><option value="technical">Technical issue</option><option value="accessibility">Accessibility</option><option value="book_access">Book access</option><option value="journal">Trading journal</option><option value="market_tutor">Market Tutor</option><option value="market_commons">Market Commons</option><option value="membership">Membership access</option><option value="other">Other member issue</option></select></label>
   <label>Subject<input type="text" name="subject" minlength="3" maxlength="180" autocomplete="off" required placeholder="Which feature and what happened?"></label>
