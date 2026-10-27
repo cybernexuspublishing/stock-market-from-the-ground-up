@@ -3,6 +3,9 @@
   const BUILD='v0.13.4';
   const path=(location.pathname||'/').toLowerCase();
   if(!/\/dashboard(\.html)?$/.test(path)) return;
+  // Canonical member Support and protected book-receipt forms are owned by
+  // member-support-panel.js; legacy Dashboard must not replace their DOM.
+  if(new URLSearchParams(location.search).get('tab')==='support')return;
   const q=(s,r=document)=>r.querySelector(s);
   const qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -259,6 +262,7 @@
         if(!new RegExp('^/dashboard(?:[.]html)?$').test(url.pathname))return;
         const code=url.searchParams.get('tab')||'overview';
         if(!renderers[code])return;
+        if(code==='support')return; // full navigation initializes canonical private Support
         e.preventDefault();
         activate(code).then(()=>syncSidebar(code)).catch(console.error);
       });

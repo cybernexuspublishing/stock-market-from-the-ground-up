@@ -55,6 +55,7 @@ jobs:
           node --test tests/test_founder_discount_15_contract.mjs
           node --test tests/test_book_receipt_contact_v1.mjs
           node tests/test_book_receipt_support_contract_v1.mjs
+          node tests/test_support_routing_v1.mjs
 
       - name: Check member-ready Commons, Design Studio, Blueprint and billing gates
         run: |
