@@ -40,9 +40,9 @@ try{
  assert(nav.includes('data-sparks-balance')&&nav.includes('/api/member-sparks-wallet'));
  assert(nav.includes('store-sparks.html')&&nav.includes('How to use'));
  const store=readFileSync('store.html','utf8');
- assert(!store.includes('id="store-tab-memberships"'));
+ assert(store.includes('id="store-tab-memberships"'),'Current Store includes established membership catalog tab');
  assert(store.includes('id="store-tab-founders"'));
  const source=readFileSync('assets/js/store.js','utf8');
- assert(source.includes("parts=['founders','books','sparks','tools']"));
- console.log('PASS secure member Sparks wallet + Founding-only public Store: isolated identity, no-charge, private ledger, no fake balance');
+ assert(source.includes("parts=['founders','memberships','books','sparks','tools']"),'Five canonical categories including Sparks');
+ console.log('PASS secure member Sparks wallet + five-category public Store: isolated identity, no-charge, private ledger, no fake balance');
 }finally{globalThis.fetch=realFetch}
