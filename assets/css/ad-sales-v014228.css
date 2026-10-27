@@ -71,3 +71,64 @@
 @media(max-width:660px){.gu-store-rail .gu-ad-placeholder{flex-direction:column;align-items:stretch}
  .gu-store-rail .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:100%}}
 @media(prefers-reduced-motion:reduce){.gu-ad-sponsored *{animation:none!important;transition:none!important}}
+
+/* Live first-party promotion fill and Owner layout-only previews.
+ * No paid-sponsor claims; all creative is internal educational site content.
+ */
+.gu-ad-slot.gu-house-promo{
+ --gu-house-glow:#75bfd2;--gu-house-gold:#d6b574;
+ position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,36%);
+ align-items:stretch;gap:clamp(12px,2vw,32px);overflow:hidden;min-width:0;
+ background:linear-gradient(116deg,#091b2b 2%,#12344c 64%,#0b2337 100%);
+ border:1px solid rgba(137,198,216,.45);border-radius:16px;
+ padding:clamp(18px,2.8vw,32px);margin:24px 0;color:#f2f9ff;
+ box-shadow:0 14px 38px rgba(0,14,32,.2);
+}
+.gu-ad-slot.gu-house-promo:before{content:"";position:absolute;inset:0;pointer-events:none;
+ background:radial-gradient(circle at 91% 28%,rgba(89,189,210,.19),transparent 41%);
+ z-index:-1}
+.gu-house-promo-copy{min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:8px}
+.gu-house-disclosure{display:inline-flex;align-items:center;align-self:flex-start;
+ font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;font-weight:750;color:#dceff6;
+ background:rgba(9,28,43,.72);border:1px solid rgba(160,209,218,.52);
+ border-radius:999px;padding:4px 10px}
+.gu-house-eyebrow{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:#e6c78b;font-weight:730}
+.gu-house-promo .gu-house-title{color:#fff;font-size:clamp(1.18rem,2vw,1.65rem);line-height:1.18;
+ max-width:26ch;letter-spacing:-.025em;font-weight:750;margin:0}
+.gu-house-promo .gu-house-text{margin:0;color:#d4e8f5;font-size:clamp(.82rem,1.2vw,.94rem);line-height:1.55;max-width:55ch}
+.gu-ad-slot.gu-house-promo .gu-house-cta{display:inline-flex;align-items:center;justify-content:center;
+ text-decoration:none;color:#081725;background:#edd2a0;border:1px solid #edd2a0;
+ font-size:.83rem;font-weight:750;border-radius:9px;padding:10px 16px;margin-top:8px;
+ min-height:40px;max-width:100%}
+.gu-ad-slot.gu-house-promo .gu-house-cta:hover,.gu-ad-slot.gu-house-promo .gu-house-cta:focus-visible{
+ background:#fff0ca;outline:2px solid #dcefff;outline-offset:3px}
+.gu-house-art{align-self:stretch;min-height:130px;border:1px solid rgba(168,221,233,.32);
+ background:linear-gradient(125deg,rgba(15,55,75,.73),rgba(7,23,36,.75));
+ border-radius:12px;position:relative;overflow:hidden;display:flex;flex-direction:column;
+ justify-content:center;align-items:center;text-align:center;padding:20px 12px;gap:8px}
+.gu-house-art:before{content:"";position:absolute;inset:0;
+ background-image:linear-gradient(to right,rgba(156,206,223,.12) 1px,transparent 1px),
+ linear-gradient(to bottom,rgba(156,206,223,.12) 1px,transparent 1px);
+ background-size:22px 22px;mask-image:linear-gradient(to right,transparent,#000)}
+.gu-house-art-kicker,.gu-house-art-wordmark,.gu-house-art-subtitle{position:relative;z-index:1}
+.gu-house-art-kicker{color:#c3e1e9;font-size:.7rem;letter-spacing:.3em}
+.gu-house-art-wordmark{color:#f0d2a1;font-size:clamp(1.55rem,3.1vw,2.6rem);line-height:1;
+ letter-spacing:.04em;overflow-wrap:anywhere}
+.gu-house-art-subtitle{font-size:.56rem;letter-spacing:.13em;color:#b9dce9}
+.gu-owner-ad-preview{border-style:dashed!important}
+.gu-owner-placement-name{grid-column:1/-1;color:#b8d1df;border-top:1px solid rgba(184,216,223,.22);
+ padding-top:9px;font-size:.7rem;letter-spacing:.06em}
+.gu-store-rail .gu-ad-slot.gu-house-promo{display:flex;flex-direction:column;gap:12px;padding:18px 12px;
+ margin:6px 0}
+.gu-store-rail .gu-house-art{min-height:85px;padding:13px 8px}
+.gu-store-rail .gu-house-art-wordmark{font-size:1.45rem}
+.gu-store-rail .gu-house-title{font-size:1.1rem}
+.gu-store-rail .gu-house-text{font-size:.82rem}
+.gu-auth-ad-inventory .gu-ad-slot.gu-house-promo{margin:0;grid-template-columns:minmax(0,1fr);padding:18px}
+.gu-auth-ad-inventory .gu-house-art{min-height:85px}
+@media(max-width:700px){
+ .gu-ad-slot.gu-house-promo{grid-template-columns:minmax(0,1fr);padding:20px;gap:14px}
+ .gu-house-art{min-height:96px}.gu-house-art-wordmark{font-size:1.75rem}
+ .gu-store-rail .gu-ad-slot.gu-house-promo{width:100%;box-sizing:border-box}
+}
+@media(prefers-reduced-motion:reduce){.gu-house-promo *{animation:none!important;transition:none!important}}
