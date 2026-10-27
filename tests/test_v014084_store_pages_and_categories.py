@@ -26,15 +26,16 @@ class Tags(HTMLParser):
 def valid_html(s):
  t=Tags();t.feed(s);assert not t.stack,t.stack
 valid_html(store)
-for category in ('founders','books','tools'):
+for category in ('founders','memberships','books','tools'):
  assert store.count('id="store-tab-'+category+'"')==1
  assert store.count('id="store-panel-'+category+'"')==1
  assert 'aria-controls="store-panel-'+category+'"' in store
  assert 'role="tabpanel"' in store
  assert 'store.html#' in details
-# Non-offered paid memberships remain manageable but absent from the public tablist.
-assert 'id="store-tab-memberships"' not in store
-assert 'id="store-panel-memberships"' not in store
+# The approved Memberships tab is distinct from Founding Members. Its
+# server-verified price/entitlement gates, not tab presence, control purchase.
+assert store.count('id="store-tab-memberships"')==1
+assert store.count('id="store-panel-memberships"')==1
 assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
 assert ".filter(p=>p.type==='book'" in script
@@ -45,7 +46,8 @@ assert "new Set(items.map(p=>p.planCode)).size!==items.length" in script
 assert "toolPaths" in script and "bookPaths" in script and "planPaths" in script
 assert 'id="store-founder-compare"' in store
 assert 'aria-label="Founding membership benefit comparison"' in store
-assert 'id="store-tab-memberships"' not in store
+assert 'id="store-member-plans"' in store
+assert 'approvedPlanCatalog' in script
 assert "scope=\"col\"" in script and "scope=\"row\"" in script
 assert "store-zero-monthly" not in store
 assert "store-zero-monthly" not in script
