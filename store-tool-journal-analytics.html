@@ -25,6 +25,9 @@
 <tr><th scope="row">C</th><td>−$30</td><td>Resolved loss</td></tr>
 <tr><th scope="row">D</th><td>$0</td><td>Resolved flat</td></tr>
 <tr><th scope="row">E</th><td>Unknown</td><td>Unresolved — excluded from resolved-outcome denominator</td></tr></tbody></table></div>
+<h3>Time integrity: exclude a result not yet knowable</h3>
+<p><strong>Fictional, as-of-time check:</strong> Suppose a paper trade was entered on October 24, but its documented closing date is November 2. A report dated October 26 must <strong>exclude</strong> that outcome even if a later-edited journal row contains an apparent profit. A closing date earlier than the entry or an impossible calendar date is also excluded. The private Analytics report shows these exclusion counts rather than silently increasing the win rate.</p>
+<p>Legacy closed records without a known exit date can still be counted using the recorded trading date; their timing is not independently proven. Record the actual date of closure whenever possible and keep hypothetical activity separate from real-money records.</p>
 <h3>Worked example: calculate without hiding missing outcomes</h3>
 <p>There are <strong>four resolved outcomes</strong>, not five. Win rate = 1 ÷ 4 = <strong>25%</strong>. The two losses total $80, so average loss magnitude = $80 ÷ 2 = <strong>$40</strong>. Resolved net outcome = $120 − $50 − $30 + $0 = <strong>+$40</strong>. Mean net per resolved observation = $40 ÷ 4 = <strong>+$10</strong>. The fifth outcome is unknown, not a zero or a loss.</p>
 <p>Under this specific net-result convention, gain-to-absolute-loss ratio = 120 ÷ (50 + 30) = <strong>1.50</strong>. An R-multiple cannot be responsibly calculated without each trade's separately recorded initial modeled risk. The largest peak-to-subsequent-trough change in the ordered resolved outcomes is <strong>$80</strong>; this is not account-equity drawdown without starting equity and capital flows.</p>
