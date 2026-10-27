@@ -140,7 +140,7 @@ async function foundingCatalog(){
    ['Extended Design Council',[no(),yes()]],
    ['Enhanced learning preferences',[no(),yes()]]
   ];
-  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Standard and Extended. ${esc(terms.capacity)} places shared across both offers.</caption><thead><tr><th scope="col">Benefit</th>${plans.map(p=>`<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${values.map(comparisonCell).join('')}</tr>`).join('')}</tbody></table>`;
+  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Members Standard and Extended benefit comparison.</caption><thead><tr><th scope="col">Benefit</th>${plans.map(p=>`<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${values.map(comparisonCell).join('')}</tr>`).join('')}</tbody></table>`;
  }catch{target.innerHTML='<div class="notice">Founding terms are temporarily unavailable. <a href="founding600.html">Review the founding program</a>.</div>';matrix.textContent='Comparison unavailable until approved terms can be loaded.';}
 }
 
