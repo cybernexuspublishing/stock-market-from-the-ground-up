@@ -6,6 +6,8 @@
 const inventory=Object.freeze({
  HOME_INLINE:'Home · banner',STORE_INLINE:'Store · bottom banner',
  STORE_LEFT:'Store · left rail',STORE_RIGHT:'Store · right rail',
+ ALL_PRODUCTS_LEFT:'All Products · left rail',ALL_PRODUCTS_RIGHT:'All Products · right rail',ALL_PRODUCTS_BOTTOM:'All Products · bottom banner',
+
  COMMUNITY_TOP:'Market Commons · top banner',COMMUNITY_INLINE:'Market Commons · bottom banner',
  FREE_DASHBOARD:'Dashboard · contextual',SAMPLE_LABS:'Sample Labs · contextual',
  BOOKS_BOTTOM:'Books · bottom banner',MEMBERSHIP_BOTTOM:'Membership · bottom banner',
