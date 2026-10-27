@@ -82,6 +82,27 @@ try{
  assert.equal(result.advancedAllowed,true);
  assert.equal(result.sourceStatus,'canonical_registry_safe_orientation_only');
  assert(!JSON.stringify(result).includes('SECRET'));
+ // Product 02: only a valid Interactive Learning grant sees the four
+ // original predecision supplements, with no future data or official grade.
+ for(const labId of ['F2-C06-L01','DT-C06-L03','F3-C01-L03','DT-C49-L01']){
+  let proof=await labContext({env,request:request('/api/lab-player-context',labId)});
+  assert.equal(proof.status,200,'Authorized canonical module '+labId);
+  const body=await proof.json();
+  assert.equal(body.sourceStatus,'original_interactive_beta_intro_ungraded');
+  assert.equal(body.lab.id,labId);
+  assert.equal(body.instructionReviewed,false);
+  assert.equal(body.assessmentReviewed,false);
+  assert.match(body.lab.teaching.what,/FICTIONAL/);
+  assert.equal(body.lab.practiceSteps.length,4);
+  assert(!JSON.stringify(body).includes('correctAnswer'));
+  assert(!JSON.stringify(body).includes('SECRET'));
+ }
+ interactive=false;training=true;
+ let trainingOnly=await labContext({env,request:request('/api/lab-player-context','F2-C06-L01')});
+ assert.equal(trainingOnly.status,200,'Independent training entitlement retains ordinary guided access');
+ assert.equal((await trainingOnly.json()).sourceStatus,'canonical_registry_safe_orientation_only',
+  'Training-only grant must not silently become Interactive Learning purchase');
+ training=false;interactive=true;
 
  r=await labContent({env,request:request('/api/lab-content','F2-C07-L01')});
  assert.equal(r.status,404,'Purchase does not grant separate Book II authored private lesson');
