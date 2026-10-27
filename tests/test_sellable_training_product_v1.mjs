@@ -14,7 +14,7 @@ const migration=read('supabase/migrations/20261026_training_membership_entitleme
 const rollback=read('supabase/rollbacks/20261026_training_membership_entitlement_fix_ROLLBACK.sql');
 const pg=read('tests/fixtures/20261026_training_membership_delivery.sql');
 const sevenListings=read('assets/js/store-inventory-ui-v014174.js');
-assert(sevenListings.includes('sharedTrainingStudy(p)'));
+assert(sevenListings.includes("x.category==='Boot Camps'"),'Boot Camp product details must remain distinct');
 assert(sevenListings.includes('store-membership-ondemand-monthly.html'));
 assert(sevenListings.includes('This Boot Camp is not priced or sold standalone'));
 assert(!sevenListings.includes('checkout.html?type=course'),
