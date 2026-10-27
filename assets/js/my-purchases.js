@@ -21,7 +21,7 @@
  const billingNotice=x=>{
   const st=String(x.status||'').toLowerCase();
   if(['past_due','paused','unpaid','failed'].includes(st))
-   return '<p role="alert" class="notice">A subscription payment may not have been confirmed. Paid access can be restricted immediately; no grace period is promised. Use Manage Billing / Cancel to fix payment details or contact support.</p>';
+   return '<p role="alert" class="notice">A subscription payment may not have been confirmed. Paid access can be restricted immediately; no grace period is promised. Use Manage Billing / Cancel where available, or <a href="dashboard.html?tab=support">contact private Support</a> for billing help.</p>';
   if(['canceled','expired'].includes(st))
    return '<p class="small">This subscription has ended. Check Current Platform Access for remaining tools.</p>';
   if(x.cancel_at_period_end===true)
@@ -31,7 +31,7 @@
  const portalButton=(kind,row)=>row.provider==='STRIPE_MANAGED'&&row.metadata?.source==='gu58_live_signed_stripe'&&
   /^sub_[A-Za-z0-9_]{6,150}$/.test(String(row.provider_subscription_id||''))?
   `<button type="button" class="btn secondary" data-billing-kind="${kind}" data-billing-record="${Number(row.id)}">Manage Billing / Cancel</button>`:
-  '<span class="small">For payment changes or cancellation, contact website support.</span>';
+  '<span class="small">For payment changes or cancellation, <a href="dashboard.html?tab=support">open private Support</a>.</span>';
  async function portal(sb,member,kind,recordId,button){
   const status=document.getElementById('billing-status');
   button.disabled=true;status.textContent='Verifying your billing subscription…';
