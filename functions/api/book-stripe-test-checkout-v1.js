@@ -45,4 +45,4 @@ export async function onRequestPost({request,env}){
   return reply({ok:true,testing:true,url:s.url,notice:'Stripe TEST only; no real charge or LIVE book entitlement.'});
  }catch(e){return clientError(e)}
 }
-export function onRequestGet(){return reply({ok:false,error:'POST required.'},405)}
+export function onRequestGet({env}){try{config(env);return reply({ok:true,testing:true,ready:true})}catch{return reply({ok:true,testing:true,ready:false})}}
