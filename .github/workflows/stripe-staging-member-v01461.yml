@@ -53,6 +53,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014060_ephemeral_membership_schema.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/v0.14.0.61_STAGING_MEMBER_FULFILLMENT_REVIEW_REQUIRED.sql
           psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014061_staging_member_acceptance.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v014061_four_tool_billing_lifecycle.sql
       - name: Preserve locked LIVE and prior Stripe TEST contracts
         run: |
           node tests/test_v014058_live_fulfillment.mjs
