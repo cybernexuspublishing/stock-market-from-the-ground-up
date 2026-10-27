@@ -20,3 +20,28 @@
 .gu-ad-slot .gu-ad-mark{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:#a5c8e9}
 .gu-ad-slot p{margin:.35rem 0;color:#d8e8f5}
 @media(max-width:600px){.gu-ad-panel{padding:14px}.gu-ad-form{grid-template-columns:minmax(0,1fr)}}
+
+/* Noncommercial inventory preview: never treated as a sponsored creative or billable view. */
+.gu-ad-placeholder{display:flex;align-items:center;justify-content:space-between;gap:18px;
+ border:1px dashed rgba(156,188,215,.54);border-radius:14px;padding:19px 22px;
+ background:linear-gradient(115deg,rgba(22,48,71,.86),rgba(13,30,47,.88));color:#f1f6fc}
+.gu-ad-placeholder-copy{display:grid;gap:5px;min-width:0}
+.gu-ad-placeholder-kicker{font-size:.7rem;letter-spacing:.12em;font-weight:750;color:#a8c4dd}
+.gu-ad-placeholder-title{font-size:1.08rem;font-weight:650;line-height:1.3}
+.gu-ad-placeholder-description{font-size:.82rem;color:#b9cfe1}
+.gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{display:inline-flex;align-items:center;justify-content:center;
+ flex:none;padding:10px 14px;border-radius:9px;background:rgba(177,202,230,.09);
+ border:1px solid rgba(177,202,230,.44);color:#f4f8ff;font-size:.83rem;font-weight:650;text-decoration:none}
+.gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link:hover,.gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link:focus-visible{
+ border-color:#b4d4ef;background:rgba(177,202,230,.18);outline-offset:3px}
+.gu-auth-ad-inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+ max-width:1080px;margin:30px auto 4px}
+.gu-auth-ad-inventory>[data-ad-slot]{min-width:0}
+.gu-auth-ad-inventory>[data-ad-slot$="_BOTTOM"]{grid-column:1/-1}
+.gu-auth-ad-inventory .gu-ad-placeholder{padding:14px 16px;gap:10px}
+.gu-auth-ad-inventory .gu-ad-slot{margin:0}
+.gu-auth-ad-inventory .gu-ad-placeholder-title{font-size:.96rem}
+@media(max-width:760px){.gu-ad-placeholder{align-items:flex-start;flex-direction:column;padding:15px}
+ .gu-auth-ad-inventory{grid-template-columns:1fr;padding:0 16px}
+ .gu-auth-ad-inventory>[data-ad-slot$="_BOTTOM"]{grid-column:auto}
+ .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:100%;box-sizing:border-box}}
