@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     loadOnce('/assets/js/admin-simple-navigation-v014036.js','adminSimpleNavigationV014036');
     if(!document.querySelector('link[data-gu36-admin-style]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-simple-navigation-v014036.css';l.dataset.gu36AdminStyle='1';document.head.append(l)}
     loadOnce('/assets/js/admin-human-verification-v01434.js','adminHumanVerificationV01434');
+    loadOnce('/assets/js/admin-membership-qa-users-v1.js','adminMembershipQaUsersV1');
     if(!document.querySelector('link[data-gu34-captcha-style]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-human-verification-v01434.css';l.dataset.gu34CaptchaStyle='1';document.head.append(l)}
     if(!document.querySelector('link[data-gu33-payment-center]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/admin-payment-center-v01433.css';l.dataset.gu33PaymentCenter='1';document.head.append(l)}
   }
