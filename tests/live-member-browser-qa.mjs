@@ -57,15 +57,24 @@ try{
  await page.locator('#member-support-panel').waitFor({state:'visible',timeout:20000});
  assert(await page.locator('#member-book-receipt-form').isVisible(),'Receipt form must survive full session reload');
  console.log('PASS member Support and receipt form survive full signed-in page reload.');
- const status=await page.evaluate(async()=>{
-  const sb=await window.getSupabaseClient();
-  if(!sb)return 'missing_client';
-  const {error}=await sb.auth.signOut();
-  if(error)return 'error';
-  const {data}=await sb.auth.getSession();
-  return data?.session?'still_signed_in':'signed_out';
- });
- assert.equal(status,'signed_out');
+ let signOut='pending';
+ try{
+  signOut=await page.evaluate(async()=>{
+   const sb=await window.getSupabaseClient();
+   if(!sb)return 'missing_client';
+   const {error}=await sb.auth.signOut();
+   if(error)return 'error';
+   const {data}=await sb.auth.getSession();
+   return data?.session?'still_signed_in':'signed_out';
+  });
+ }catch(error){
+  // The session manager legitimately redirects to sign-in on SIGNED_OUT;
+  // a destroyed Chromium execution context is not a failed sign-out.
+  if(/Execution context was destroyed|navigation/i.test(String(error?.message||'')))
+   signOut='navigated_on_signout';
+  else throw error;
+ }
+ assert(['signed_out','navigated_on_signout'].includes(signOut),'Supabase sign-out must complete or redirect');
  await page.goto(origin+'/dashboard.html?tab=support',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForTimeout(2200);
  assert.equal(await page.locator('#member-support-panel').isVisible(),false,
