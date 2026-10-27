@@ -71,3 +71,7 @@ A real logged-in member, Turnstile challenge and rubric-v97 graded response coul
 Retain the owner-only, data-preserving private archive. Review a script's source and secure backup permission before attempting rollback. Never delete historical member attempts or override the admin financial safety interlock for a curriculum-only release.
 
 **Version history:** v1.0 — question 1–40 detailed review, private feedback corrections, risk classification, source-sensitive safeguards, legitimate grading tests, Cloudflare security interlock identified.
+
+## Production deployment reconciliation — Later same-day proof
+
+The earlier failed Cloudflare deployments remain incident evidence. A **subsequent, exact-source production deployment at `d85140fc8025a4615c8c388992ab4acb2c5a93f2` succeeded** on Cloudflare Pages project `stock-market-from-the-ground-up`; provider deployment ID `af6e64ae-fbba-41aa-b409-bf6f283b7252`. Provider log independently reports `bash scripts/build-pages.sh`, `Cloudflare Pages static output: 511 files`, `Compiled Worker successfully`, `Success: Assets published!`, and `Success: Your site was deployed!`. The earlier `GU58_LIVE_DB_CONTRACT_APPROVED` block was not bypassed or edited by this work. The environment-flag discrepancy is retained for read-only Owner operational reconciliation, but the **B01 source review safeguard is now deployed at that exact revision**. This deployment evidence does not establish a genuine member assessment or any LIVE commerce authorization.
