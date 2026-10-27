@@ -1,7 +1,6 @@
 /* The 600-seat commercial limit and old F600 identifiers are internal.
- * Member product names remain Founding Members and existing Commons.
- * The approved Store may describe the Founding 600 beta offering, but
- * must not disclose internal allocations or temporary QA identifiers.
+ * Member product labeling uses Founding Members and existing Commons.
+ * This source-contract test never alters subscriptions or payments.
  */
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -10,10 +9,8 @@ const pages=['founding600.html','store.html','market-commons.html','founders-com
  'dashboard.html','founder-learning-studio.html'];
 for(const path of pages){
  const source=read(path);
- if(path==='store.html')assert.match(source,/Founding\s+600\s+beta\s+offers/i,
-  'Store may identify its actual Founding 600 beta offering');
- else assert.doesNotMatch(source,/Founding\s+600|The\s+Founding\s+600/i,
-  'Internal cohort name must not appear on non-Store pages '+path);
+ assert.doesNotMatch(source,/Founding\s+600|The\s+Founding\s+600/i,
+  'Internal cohort name must not appear to members on '+path);
  assert.doesNotMatch(source,/\b600\s+(?:places|founding places|founder seats|shared places)\b/i,
   'Internal total cap must not be shown on '+path);
 }
