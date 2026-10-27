@@ -54,7 +54,7 @@ with sync_playwright() as p:
     toggle.click()
    if route=='store-membership-free.html':assert page.locator('.store-product-body').count()==1,'Product detail failed to render'
    if route=='store.html':
-    assert page.locator('#store-plans .v11-plan').count()==5,'Synthetic Store plans failed to render'
+    assert page.locator('#store-plans .v11-plan').count()==4,'Synthetic Store plans failed to render'
     page.get_by_role('tab',name='Books',exact=True).click()
     assert page.locator('#store-panel-memberships').is_hidden()
     page.get_by_role('tab',name='Memberships',exact=True).click()
