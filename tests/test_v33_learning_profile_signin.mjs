@@ -30,21 +30,21 @@ assert(sources.captcha.includes('lock(true)')&&sources.captcha.includes('token=t
  'Preserve disabled CTA and Turnstile success token gating');
 assert(sources.captcha.includes('getToken()')&&sources.captcha.includes('if(enabled&&(!initialized||!checkbox?.checked||!token))'),
  'Manual verification must remain mandatory while configured');
-assert(profilePage.includes('id="profile-tutor-ai-enabled" type="checkbox" checked'));
+assert(profilePage.includes('id="profile-tutor-ai-enabled" type="checkbox"'));
 assert(profilePage.includes('configured external AI provider'),
  'Explain optional AI data processing in profile');
-assert(sources.profile.includes('market_tutor_ai_enabled!==false'),
- 'Default-on only when member has not chosen an opt-out');
+assert(sources.profile.includes('market_tutor_ai_enabled===true'),
+ 'Optional model inference must require affirmative member choice');
 assert(sources.profile.includes('sb.auth.updateUser({data:{market_tutor_ai_enabled:requested}})'),
  'Profile opt-out must persist in the authenticated user record');
-assert(sources.player.includes('tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false'));
-assert(sources.player.includes("allowTutorAI:PLAYER.access.tutorAiEnabled!==false"));
+assert(sources.player.includes('tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled===true'));
+assert(sources.player.includes("allowTutorAI:PLAYER.access.tutorAiEnabled===true"));
 assert(sources.engine.includes('memberFirstName,allowTutorAI,requestTutor:tutorRequest'));
 assert(sources.instructor.includes("allowModel:allowTutorAI===true"),'AI preference must control Lab request');
 assert(!sources.instructor.includes('consentRow'),'Lab must not ask a redundant AI preference');
-assert(memberTutorPage.includes('id="tutor-ai-consent" type="checkbox" hidden disabled'),'Full Tutor uses guarded hidden eligibility flag');
+assert(memberTutorPage.includes('id="tutor-ai-consent" type="checkbox" disabled'),'Full Tutor provides a visible guarded member opt-in control');
 assert(memberTutorPage.includes('your Profile'));
-assert(sources.tutor.includes('TUTOR.user?.user_metadata?.market_tutor_ai_enabled!==false'),'Full Tutor uses profile preference');
+assert(sources.tutor.includes('TUTOR.user?.user_metadata?.market_tutor_ai_enabled===true'),'Full Tutor uses profile preference');
 assert(sources.tutor.includes('toggle.checked=!toggle.disabled'),'Full Tutor must respect server access/quota');
 assert(!sources.tutor.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').checked=false"),
  'Request completion must not reset profile preference');
@@ -60,4 +60,4 @@ assert(!read('lab-player.html').includes('Educational instruction. Official asse
 assert(sources.player.includes("if(!['guided','practice'].includes(PLAYER.mode))"),
  'Predict and assessment must preserve Tutor access boundary');
 assert(sources.instructor.includes("const firstName="),'Existing first-name-only greetings remain intact');
-console.log('PASS sign-in layout + Turnstile gating; instructor viewport + tabs; profile AI default/opt-out for Labs and Tutor');
+console.log('PASS sign-in layout + Turnstile gating; instructor viewport + tabs; member AI opt-in for Labs and Tutor');
