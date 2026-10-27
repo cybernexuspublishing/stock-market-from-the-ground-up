@@ -124,6 +124,16 @@ export async function onRequest({request,env}){
   if(request.method==='GET'){
    const slot=url.searchParams.get('slot')||'',page=url.searchParams.get('page')||'',
     token=url.searchParams.get('sessionToken')||'';
+   // Owner preview renders a layout-only house creative for active inventory,
+   // independent of paid campaign delivery. It never counts sponsor impressions.
+   if(url.searchParams.get('ownerPreview')==='1'){
+    if(!Object.hasOwn(slots,slot)||!slots[slot].includes(page))return ok({ad:null,placeholderAvailable:false});
+    const previewRole=await planCode(c,request);
+    if(previewRole==='OWNER'){
+     const placement=await query(c,'ad_placements?select=placement_code,active&placement_code=eq.'+encodeURIComponent(slot));
+     return ok({ad:null,placeholderAvailable:placement?.[0]?.active===true,ownerPreview:true});
+    }
+   }
    const placeholderAvailable=await placeholderEligibility(c,slot,page,request);
    if(!placeholderAvailable)return ok({ad:null,placeholderAvailable:false});
    const placementRows=await query(c,'ad_placements?select=metadata&placement_code=eq.'+encodeURIComponent(slot)+'&active=eq.true');
