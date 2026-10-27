@@ -90,7 +90,7 @@ assert.match(nodes['store-founder-plans'].innerHTML,/10% OFF eligible purchases/
 assert.match(nodes['store-founder-plans'].innerHTML,/15% OFF eligible purchases/);
 assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/20%|checkout\.html|checkout\.stripe/);
 assert.match(nodes['store-founder-compare'].innerHTML,/5 \/ 30-day term/);
-assert.match(nodes['store-founder-compare'].innerHTML,/15 \/ 60-day term/);
+assert.match(nodes['store-founder-compare'].innerHTML,/20 \/ 60-day term/);
 assert.doesNotMatch(nodes['store-founder-compare'].innerHTML,/Brokerage services or guaranteed trading profits/);
 assert.match(nodes['store-founder-compare'].innerHTML,/Founding Member certificate/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Included"/);
