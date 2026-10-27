@@ -26,9 +26,10 @@ export async function onRequestGet({env}){
   const [rows,plans]=await Promise.all([r.json(),p.json()]);
   if(!Array.isArray(rows)||rows.length>150||!Array.isArray(plans)||plans.length>150)throw Error('Invalid catalog');
   const visiblePlans=new Set(plans.filter(x=>x?.active===true&&x.public_visible===true).map(x=>String(x.plan_code||'')));
+  const knownPlans=new Set(plans.map(x=>String(x.plan_code||'')));
   const items=rows.filter(x=>x?.visible===true&&allowedCats.has(x.category)&&
    /^[a-z]+:[A-Z0-9_\-]+$/.test(String(x.sku||''))&&
-   (!String(x.sku).startsWith('plan:')||visiblePlans.has(String(x.sku).slice(5)))).map(x=>({
+   (!String(x.sku).startsWith('plan:')||!knownPlans.has(String(x.sku).slice(5))||visiblePlans.has(String(x.sku).slice(5)))).map(x=>({
    sku:limited(x.sku,90),category:x.category,name:limited(x.display_name,220),
    description:limited(x.description,1600),price:limited(x.price_label,100),
    duration:limited(x.duration_label,100),status:statuses.has(x.status)?x.status:'unavailable',
