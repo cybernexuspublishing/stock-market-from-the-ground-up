@@ -112,6 +112,15 @@ try{
   prompt:'Which claim exceeds what a simplified market index level can establish about ETF execution?',
   explanation:'The index is a calculated benchmark, so it cannot guarantee that a separate ETF trade is executable at an identical numerical value or without a spread.',
   options:['One','Two','Three']};
+ const originalCase=questions[4];
+ questions[4]={...originalCase,explanation:originalCase.explanation+
+  ' This improperly repeats the private keyed selection: A correct distinction.'};
+ r=await run();
+ assert.equal(r.status,409,'An otherwise valid B01 draft must not quote its private keyed option');
+ const privateEcho=await r.json();
+ assert.match(privateEcho.error,/repeats an exact keyed choice/);
+ assert.equal(approved,1,'Owner review must not update a keyed-echo draft');
+ questions[4]=originalCase;
  r=await run();assert.equal(r.status,200,
   'Complete individualized six-question fixture is reviewable only through explicit Owner action');
  assert.equal(approved,2);
