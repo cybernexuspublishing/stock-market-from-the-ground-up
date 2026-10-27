@@ -229,7 +229,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  let instructorInstance=null,creditBusy=false;
  const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
  const passRequests=new Map();
- let checkpointReady=false,checkpointTimer=null;
+ let checkpointReady=false,checkpointTimer=null,checkpointChangeSerial=0;
  token.dispose=()=>{
   if(checkpointTimer!==null)clearTimeout(checkpointTimer);
   checkpointTimer=null;checkpointReady=false;
@@ -249,13 +249,15 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   if(!progressStore||!checkpointReady||sessions.get(target)!==token)return;
   if(checkpointTimer!==null)clearTimeout(checkpointTimer);
   checkpointTimer=null;
-  const checkpoint=checkpointSnapshot();
+  const checkpoint=checkpointSnapshot(),savingSerial=checkpointChangeSerial;
   saveCheckpointControl.disabled=true;
   checkpointNote.textContent='Saving private, ungraded learning progress…';
   try{
    await progressStore.save(checkpoint);
    if(sessions.get(target)===token)checkpointNote.textContent=
-    'Saved through '+STEPS[checkpoint.stage]+'. This records study only; assessment credit is separate.';
+    savingSerial===checkpointChangeSerial
+     ?'Saved through '+STEPS[checkpoint.stage]+'. This records study only; assessment credit is separate.'
+     :'An earlier learning draft was saved; newer changes are still awaiting confirmation. No grade was awarded.';
   }catch{
    if(sessions.get(target)===token)checkpointNote.textContent=
     'Progress was not confirmed saved. Select Save my learning checkpoint to retry; no grade was awarded.';
@@ -265,6 +267,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  }
  function scheduleCheckpoint(){
   if(!checkpointReady||!progressStore||sessions.get(target)!==token)return;
+  checkpointChangeSerial++;
   if(checkpointTimer!==null)clearTimeout(checkpointTimer);
   checkpointTimer=setTimeout(()=>{checkpointTimer=null;void saveCheckpointNow()},420);
  }
