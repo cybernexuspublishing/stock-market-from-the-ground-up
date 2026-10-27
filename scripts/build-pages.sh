@@ -54,14 +54,15 @@ for file in crownlight-sparks-store-v014167.json books.json challenges.json comm
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
   cp -- "data/$file" "$output/data/$file"
 done
-# Public display projection from canonical founder terms; never expose internal
-# billing state or treat the display artifact as checkout authority.
+# Public display projection from canonical founder terms. Preserve the internal
+# seat limit ONLY in protected commercial contracts, not public static JSON;
+# never expose billing state or treat this artifact as checkout authority.
 python3 - "$output/data/founding-catalog.json" <<'PYFOUNDERS'
 import json,sys
 from pathlib import Path
 terms=json.loads(Path('data/founding600-terms-v014170.json').read_text())
 fields=('name','billingIntervalDays','recurringCents','foundingDiscountBps','incSparks')
-public={'capacity':terms['capacity'],'plans':{code:{key:terms['plans'][code][key] for key in fields} for code in ('FOUNDING_30','FOUNDING_60')}}
+public={'plans':{code:{key:terms['plans'][code][key] for key in fields} for code in ('FOUNDING_30','FOUNDING_60')}}
 Path(sys.argv[1]).write_text(json.dumps(public,separators=(',',':'))+'\n')
 PYFOUNDERS
 # Both bootcamp lesson sources contain original, non-secret, ungraded teaching
