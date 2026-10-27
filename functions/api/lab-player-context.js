@@ -5,6 +5,7 @@
 import {memberIdentity} from './member-tool-access.js';
 import {isBetaCandidateLab,isBetaUpcomingLab} from '../_lib/lab-beta-scope-v014286.js';
 import {authoredSiteExclusiveBetaLesson} from '../_lib/site-exclusive-private-lesson-v014294.js';
+import {originalInteractiveIntro} from '../_lib/interactive-learning-canonical-v1.js';
 import {getBookCodeAccess,publicGuidedLesson} from './lab-content.js';
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',
@@ -170,9 +171,31 @@ export async function onRequest({request,env}){
    ],
    beforeAdvance:[],dataNote:'Canonical registry metadata only. A substantive authored private lesson or reviewed answer set may still be unavailable; no market history or grade is implied.'
   };
+  // Only the independently verified paid Interactive Learning tool unlocks
+  // these four original fictional, predecision teaching supplements.
+  // Free samples, book-only access and separate training subscriptions do not.
+  const originalInteractiveSupplement=interactive&&isBetaCandidateLab(id)
+   ?originalInteractiveIntro(id):null;
+  if(originalInteractiveSupplement){
+   context.goal=originalInteractiveSupplement.objective;
+   context.teaching={...context.teaching,
+    what:originalInteractiveSupplement.what+' '+originalInteractiveSupplement.currentObservation,
+    why:originalInteractiveSupplement.why,
+    when:'Before making an as-of-time decision using a source-sensitive chart or journal',
+    how:[
+     'Inspect the FICTIONAL initial observation and record exactly what is known at this decision time.',
+     'State one assumption that is NOT established by the evidence.',
+     originalInteractiveSupplement.decisionPrompt,
+     'State an invalidation or no-trade condition without requesting future data.'
+    ],questions:[originalInteractiveSupplement.decisionPrompt]};
+   context.practiceSteps=context.teaching.how;
+   context.beforeAdvance=[originalInteractiveSupplement.decisionPrompt];
+   context.dataNote=originalInteractiveSupplement.limitations+
+    ' No future bars, brokerage fills, scoring keys or verified historical observations are included.';
+  }
   return reply({ok:true,lab:context,guidedAllowed:true,
    advancedAllowed:premium,
-   sourceStatus:'canonical_registry_safe_orientation_only',
+   sourceStatus:originalInteractiveSupplement?'original_interactive_beta_intro_ungraded':'canonical_registry_safe_orientation_only',
    instructionReviewed:false,assessmentReviewed:false,
    notice:'Original member orientation, not an approved 419-Lab graded assessment.'});
  }catch(e){
