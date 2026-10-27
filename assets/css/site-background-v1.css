@@ -1,0 +1,20 @@
+/* An Owner-selected background is optional and remains behind real content.
+ * Default design unchanged. Contrast overlay >= 35% retains legibility. */
+html[data-gu-site-background="image"] body{
+ background-image:linear-gradient(rgba(6,16,30,var(--gu-site-bg-overlay,.76)),rgba(6,16,30,var(--gu-site-bg-overlay,.76))),var(--gu-site-bg-image)!important;
+ background-color:#07182b!important;
+ background-size:cover!important;
+ background-position:var(--gu-site-bg-position,center)!important;
+ background-repeat:no-repeat!important;
+ background-attachment:fixed!important
+}
+.gu-site-bg-editor{display:grid;gap:1rem;margin:1.2rem 0 1.6rem}
+.gu-site-bg-editor h2{margin:0}
+.gu-site-bg-editor label{display:flex;flex-direction:column;align-items:start;gap:.45rem;font-weight:700}
+.gu-site-bg-editor input[type=file]{width:100%;max-width:560px}
+.gu-site-bg-editor input[type=range]{width:min(420px,100%);accent-color:#e8b960}
+.gu-site-bg-editor output{font-size:.88rem;color:#e8c985}
+.gu-site-bg-editor select{max-width:270px;min-height:42px}
+.gu-site-bg-preview{aspect-ratio:16/7;max-height:260px;min-height:110px;border:1px solid #456584;border-radius:12px;background:#101f36 center/cover no-repeat}
+.gu-site-bg-editor [role=status]{font-size:.9rem}
+@media(max-width:720px){html[data-gu-site-background="image"] body{background-attachment:scroll!important}.gu-site-bg-preview{aspect-ratio:16/9}}
