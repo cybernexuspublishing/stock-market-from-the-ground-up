@@ -52,6 +52,6 @@ try{
  assert.equal(r.status,503,'RLS/network failures must not be silently treated as missing optional column');
  storageFault=false;r=await history({env,request:req('DELETE',{origin:'https://evil.test'})});assert.equal(r.status,403);
  r=await history({env,request:req('PATCH',{'sec-fetch-site':'cross-site'})});assert.equal(r.status,403);
- own=false;r=await history({env,request:req('GET')});assert.equal(r.status,403);
- console.log('PASS D07: verified idempotent server-side Tutor history, no wrong-answer save acknowledgement, scoped legacy fallback and history mutation CSRF denial.');
+ own=false;r=await history({env,request:req('GET')});assert.equal(r.status,200,'Expired paying member retains access to their own notes; new tutoring still requires entitlement');
+ console.log('PASS D07: verified idempotent Tutor history, owned notes retained after entitlement expiry, no wrong-answer save acknowledgement and CSRF denial.');
 }finally{globalThis.fetch=old}
