@@ -81,7 +81,7 @@ export async function onRequestGet({env}){
   enabled=state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
    &&tiers.length===2&&tiers.every(t=>t.checkout_enabled===true);
  }catch{enabled=false}
- return json({ok:true,checkoutEnabled:enabled,capacity:600,plans:[
+ return json({ok:true,checkoutEnabled:enabled,plans:[
   {code:'FOUNDING_30',priceCents:4999,billingDays:30},
   {code:'FOUNDING_60',priceCents:5999,billingDays:60}
  ]});
