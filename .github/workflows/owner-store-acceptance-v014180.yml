@@ -41,6 +41,20 @@ on:
       - "assets/js/navigation.js"
       - "assets/js/store.js"
       - "functions/api/owner-zero-live-checkout.js"
+      - "functions/api/owner-stripe-product-sync.js"
+      - "functions/api/owner-captcha-control.js"
+      - "functions/_lib/auth-captcha-state-v1.js"
+      - "assets/js/admin-products-v01489.js"
+      - "assets/js/admin-human-verification-v01434.js"
+      - "functions/api/auth-guard-v0135.js"
+      - "functions/api/username-login.js"
+      - "functions/api/admin-password-confirm-v01432r1.js"
+      - "functions/api/stripe-live-webhook-v01458.js"
+      - "tests/test_owner_zero_catalog_batch_v1.mjs"
+      - "tests/test_owner_stripe_sync_and_captcha_v1.mjs"
+      - "supabase/migrations/20261027_owner_stripe_registry_and_zero_live_batches_v1.sql"
+      - "supabase/migrations/20261027_owner_captcha_control_v1.sql"
+
       - "assets/js/admin-stripe-shadow-v01439.js"
       - "tests/test_v014071_zero_live_checkout.mjs"
       - "functions/api/storefront-public-catalog.js"
@@ -70,6 +84,18 @@ jobs:
           node tests/test_v014179_store_visibility_contract.mjs
           node tests/test_v014180_owner_store_acceptance.mjs
           node tests/test_v014071_zero_live_checkout.mjs
+          node tests/test_owner_zero_catalog_batch_v1.mjs
+          node tests/test_owner_stripe_sync_and_captcha_v1.mjs
+          node --check functions/api/owner-stripe-product-sync.js
+          node --check functions/api/owner-captcha-control.js
+          node --check functions/_lib/auth-captcha-state-v1.js
+          node --check assets/js/admin-products-v01489.js
+          node --check assets/js/admin-human-verification-v01434.js
+          node --check assets/js/admin-password-confirm-v01432r1.js
+          node --check functions/api/auth-guard-v0135.js
+          node --check functions/api/username-login.js
+          node --check functions/api/admin-password-confirm-v01432r1.js
+          node --check functions/api/stripe-live-webhook-v01458.js
           node --check functions/api/owner-zero-live-checkout.js
           node --check assets/js/admin-stripe-shadow-v01439.js
           node tests/test_member_sparks_wallet_v014296.mjs
