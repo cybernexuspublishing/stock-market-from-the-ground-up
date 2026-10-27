@@ -7,9 +7,9 @@ let inflight=null,installed=false;
 const protectedError=e=>/PASSWORD_RECONFIRM_REQUIRED|OWNER_MFA_REQUIRED|OWNER_AAL2_REQUIRED|OWNER_ROLE_REQUIRED_FOR_PROTECTED_SETTING/i.test(String(e?.message||e||''));
 const node=(t,content)=>{const x=document.createElement(t);if(content!==undefined)x.textContent=content;return x};
 async function ensure(){if(inflight)return inflight;inflight=new Promise((resolve,reject)=>{
- const shade=node('div');shade.className='gu-pw-shade';shade.setAttribute('role','presentation');
- const box=node('section');box.className='gu-pw-dialog';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Confirm password for sensitive action');
- const title=node('h2','Confirm your password');const info=node('p','Sensitive account settings and private shipping details require a recent password confirmation. No authenticator application or MFA is required.');
+ const shade=node('dialog');shade.className='gu-pw-shade';shade.setAttribute('aria-labelledby','gu-pw-dialog-title');
+ const box=node('section');box.className='gu-pw-dialog';box.tabIndex=-1;
+ const title=node('h2','Confirm your password');title.id='gu-pw-dialog-title';const info=node('p','Sensitive account settings and private shipping details require a recent password confirmation. No authenticator application or MFA is required.');
  const form=node('form');const label=node('label','Current account password');const password=node('input');password.type='password';password.required=true;password.disabled=true;password.autocomplete='current-password';password.maxLength=1024;label.append(password);
  const challenge=node('div');const status=node('p','Loading human verification…');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const verify=node('button','Confirm Password');verify.type='submit';verify.disabled=true;const cancel=node('button','Cancel');cancel.type='button';
@@ -25,11 +25,18 @@ async function ensure(){if(inflight)return inflight;inflight=new Promise((resolv
  const cloudflare=node('a','Open Cloudflare Turnstile setup');cloudflare.href='https://dash.cloudflare.com/';cloudflare.target='_blank';cloudflare.rel='noopener noreferrer';
  const supabase=node('a','Open Supabase CAPTCHA instructions');supabase.href='https://supabase.com/docs/guides/auth/auth-captcha';supabase.target='_blank';supabase.rel='noopener noreferrer';
  setup.append(guide,cloudflare,node('br'),supabase);
- form.append(label,challenge,verify,cancel,status,setup);box.append(title,info,form);shade.append(box);document.body.append(shade);
+ form.append(label,challenge,verify,cancel,status,setup);box.append(title,info,form);shade.append(box);
+ // A native modal Edit Book dialog occupies the browser top layer. A div
+ // overlay cannot appear above it regardless of z-index. Another native
+ // showModal() dialog is placed above it, preserving the Edit Book form.
+ document.body.append(shade);
+ try{shade.showModal();box.focus()}catch(e){shade.remove();reject(Error('Password dialog could not open: '+(e?.message||'unknown error')));return}
  const previous=document.activeElement;let widgetId=null,token='',complete=false;
- const close=(err)=>{if(complete)return;complete=true;password.value='';if(widgetId!==null)try{window.turnstile?.remove(widgetId)}catch{}shade.remove();previous?.focus?.();inflight=null;if(err)reject(err);else resolve(true)};
+ const close=(err)=>{if(complete)return;complete=true;password.value='';if(widgetId!==null)try{window.turnstile?.remove(widgetId)}catch{}if(shade.open)shade.close();shade.remove();previous?.focus?.({preventScroll:true});inflight=null;if(err)reject(err);else resolve(true)};
  cancel.onclick=()=>close(Error('Password confirmation canceled.'));
- const dialogKeys=e=>{if(e.key==='Escape')close(Error('Password confirmation canceled.'));
+ // The browser's native Escape/cancel event must reject the guarded operation.
+ shade.addEventListener('cancel',e=>{e.preventDefault();close(Error('Password confirmation canceled.'))});
+ const dialogKeys=e=>{if(e.key==='Escape'){e.preventDefault();close(Error('Password confirmation canceled.'));return}
   if(e.key!=='Tab')return;
   const active=[...box.querySelectorAll('input,button,[tabindex]')].filter(x=>!x.disabled&&x.getAttribute('tabindex')!=='-1');
   if(!active.length)return;
