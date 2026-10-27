@@ -3,7 +3,12 @@
  * No trading recommendation, predictions, source dataset promotion, or scoring.
  */
 const finite=v=>{
- if(v===null||v===undefined||v==='')return null;
+ // Empty or malformed member-entered observations are missing, never $0.
+ // A database numeric value may be a number or canonical numeric string;
+ // booleans/arrays/objects and whitespace cannot silently count as flats.
+ if(v===null||v===undefined)return null;
+ if(typeof v!=='number'&&typeof v!=='string')return null;
+ if(typeof v==='string'&&(!v.trim()||!/^[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?$/.test(v.trim())))return null;
  const n=typeof v==='number'?v:Number(v);
  return Number.isFinite(n)?n:null;
 };
