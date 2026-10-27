@@ -33,7 +33,7 @@ test('real founder checkout is still strictly server- and provider-gated',()=>{
  assert.equal(metadata.fulfillmentEnabled,false);
  assert.equal(metadata.plans.FOUNDING_14.recurringCents,2299);
  assert.equal(metadata.plans.FOUNDING_14.foundingDiscountBps,500);
- assert.equal(metadata.plans.FOUNDING_14.incSparks,5);
+ assert.equal(metadata.plans.FOUNDING_14.incSparks,10);
  assert.equal(metadata.plans.FOUNDING_30.recurringCents,4999);
  assert.equal(metadata.plans.FOUNDING_60.recurringCents,5999);
 });
