@@ -16,7 +16,7 @@ const prior=globalThis.fetch;let providerCalls=0,quotaCalls=0,returned='neutral'
 const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url);
- if(u.endsWith('/auth/v1/user'))return json({id:uid});
+ if(u.endsWith('/auth/v1/user'))return json({id:uid,user_metadata:{market_tutor_ai_enabled:true}});
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/admin_user_roles?'))return json([]);
