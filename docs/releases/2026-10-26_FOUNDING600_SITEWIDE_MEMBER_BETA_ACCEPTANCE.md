@@ -9,7 +9,7 @@
 | Source / location | GitHub `cybernexuspublishing/stock-market-from-the-ground-up`, `main`, `docs/releases/` |
 | Filename / type | `2026-10-26_FOUNDING600_SITEWIDE_MEMBER_BETA_ACCEPTANCE.md` / Markdown |
 | Document ID | GU-F600-BETA-ACCEPTANCE-20261026-V1 |
-| Version / date | 1.0 / October 26, 2026 |
+| Version / date | 1.1 / October 27, 2026 (original signoff October 26) |
 | Status | OWNER SIGNED OFF: ALL 7 BOOT CAMPS AND ALL 419 LAB IDS AUTHORIZED FOR CONTROLLED FOUNDER BETA TEST SCOPE; INDIVIDUAL CONTENT/PRODUCTION ACCEPTANCE OPEN |
 | Google Drive location | Not assigned; GitHub is the current authoritative record |
 | Google Drive file ID | Not assigned; no Drive file created |
@@ -152,3 +152,18 @@ The original 419 canonical IDs, private grading restrictions, member progress, s
 **Implementation:** `supabase/migrations/v0.14.0.294_site_exclusive_private_instruction_book6.sql`, `functions/_lib/site-exclusive-private-lesson-v014294.js`, existing `functions/api/{lab-content,lab-player-context,lab-release-availability}.js`, official private audit event `admin_audit_log.id=74`. Details, topic inventory and guarded rollback: `docs/releases/2026-10-26_SITE_EXCLUSIVE_83_GUIDED_BETA_AUTHORING.md`.
 
 **Release evidence remains separate:** Authored 83/83; source-contract tested on specific GitHub Actions commits; provider deployment checked against source SHA; independent per-Lab editorial review and authentic beta-member journey evidence remain to be collected. Owner GO for controlled testing remains in force.
+
+
+## October 27 Owner reaffirmation — authentic member tests performed by the Founding 600
+
+The Owner explicitly confirms **Founding 600 beta participants themselves** perform the real authenticated Free Foundations and other member-facing acceptance journeys during the controlled beta. No Owner impersonation and no fabricated Auth browser sessions are required before inviting eligible testers.
+
+**Controlled beta entry:** ensure technically safe source, deployment, legitimate Turnstile/Auth, privacy/RLS, entitlements, progress persistence, appropriate test instructions, and fail-closed Draft grading for the paths made available. No completed future beta journey is required as an entry prerequisite.
+
+**Participant execution:** using their own valid accounts and correct plans, founding testers cover Free onboarding, Talia educational lessons, correction and retries, fictional no-trade exercises, watchlist and Journal saves and limits, sign-out and new sign-in, multi-session resume, accessible/mobile presentation, entitlement denials and account isolation. Collect privacy-safe defect and acceptance evidence, with per-scenario expected/actual result, date, build SHA, role and platform, and retest after fixes. A passing fixture is not a real participant test.
+
+**Protected grading:** the Owner must separately review each exact B01 rubric through authenticated authorized private editor action before testers can receive an official score for it. Ungraded Guided/Practice may be tested while rubric review remains pending. Never bypass Turnstile or release private draft keys, grant false mastery or create LIVE payment activity.
+
+**Final acceptance:** beta participation alone does not prove an individual feature passed. Require executed observations and resolved defects. Distinguish testing authorization, test execution, reviewed assessment publication and final product acceptance.
+
+Status: Founding 600 cohort authorized for controlled beta scope; human journey execution assigned to cohort but NOT YET ACCEPTED; B01 formal rubric Owner approval remains separate. Revision: v1.1 — October 27, 2026.

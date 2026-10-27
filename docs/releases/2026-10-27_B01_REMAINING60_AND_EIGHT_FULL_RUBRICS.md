@@ -4,7 +4,7 @@
 |---|---|
 | Project | The Stock Market: From the Ground Up |
 | ID | SMFGU-B01-REMAINING60-EIGHT-RUBRICS-20261027 |
-| Date/version | October 27, 2026 / v1.0 |
+| Date/version | October 27, 2026 / v1.3 |
 | Branch/repository | `main` / `cybernexuspublishing/stock-market-from-the-ground-up` |
 | Status | Individual editorial CONTENT REVIEWED, technical regression TESTED, production Supabase changes PROVEN; zero formal rubric approvals and zero actual member grading |
 | Google Drive | Not created or assigned |
@@ -112,3 +112,16 @@ The existing private source archive table `private.b01_question_backups_20261027
 Owner review of an assessment now requires the **exact `updated_at` revision viewed in the authenticated private editor**. The member-facing/public source holds no keyed answers. The browser passes `expectedUpdatedAt` from the reviewed draft; the server compares this against the still-Draft record before content evaluation and uses the **Owner-inspected** timestamp as the PostgREST compare-and-swap predicate. A missing or mismatched timestamp returns HTTP 409 and requires a fresh private review. An authenticated Owner, explicit `REVIEW BOOK RUBRIC` phrase, topic-specific content validation, B01 key-echo guard and ordinary published-set denial remain mandatory. This does not publish any existing B01 rubrics or replace the protected scorer.
 
 Tests: `tests/test_b01_owner_review_revision_cas.mjs` and updated `tests/test_v014117_lab_topic_gate.mjs`; workflow B01 Protected Assessment and Guided Remediation. Existing Draft states and actual member-journey acceptance are still open.
+
+
+## v1.3 — Controlling separation of Owner rubric publication and Founding 600 user testing
+
+The Owner confirms genuine authenticated member testing belongs to Founding 600 beta testers during the controlled cohort period. Do not block the start of eligible ungraded Guided/Practice testing solely because the future human beta-journey acceptance has not yet occurred. Existing statements calling authentic member verification "required" refer to final acceptance, not pre-beta simulated gate passage.
+
+Official graded assessments have a **different gate**: each B01 v97 Draft rubric must undergo independent, exact-revision inspection and explicit Owner-only private publication before it can be given to an entitled member for protected graded testing. The existing review path requires Owner Auth, role authorization, the "REVIEW BOOK RUBRIC" confirmation, exact source revision CAS, substantive content validation and private-answer protections. Do not use direct database promotion or fake Owner/Turnstile sessions.
+
+Entry order: engineering and security preflight; individual Owner approval for any graded content being exposed; real Founding 600 tests of authorized accessible features; evidence-based remediation and beta retests; final acceptance only after genuine results. Draft-rubric grading must fail closed; ungraded course testing continues independently.
+
+Current control: no new rubric approvals, no synthetic graded attempts, no claimed genuine member session. Full B01 Beta Accepted remains NOT ACCEPTED until its applicable human grading and completion evidence exists.
+
+Revision history: v1.3 — Owner assigned member tests to Founding 600, distinguishing beta entry from official grading release and beta exit.

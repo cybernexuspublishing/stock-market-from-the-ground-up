@@ -6,9 +6,9 @@
 | Document ID | SMFGU-FREE-PHASE-A-001 |
 | File / type | docs/releases/2026-10-27_FREE_TEACHING_PHASE_A_001.md / Markdown |
 | Google Drive location / ID | Not created / none; GitHub main is authoritative |
-| Date / Version | October 27, 2026 / v1.0 |
+| Date / Version | October 27, 2026 / v1.4 |
 | Owner decision | Phase A teaching improvements approved |
-| Status | Source implemented; exact-head CI, deployed browser and editorial acceptance open |
+| Status | Teaching source and CI/deployment verified; Founding 600 authentic member journeys assigned for controlled beta; graded B01 assessment approval separate |
 | Dependencies | Existing five-day Free Foundations, Academy API, authenticated private reflection, shared v3.x teaching engine |
 | Purpose | Improve learning depth, alternative explanations and remediation without weakening entitlement or grading boundaries |
 
@@ -24,7 +24,7 @@
 
 New contract test: tests/test_free_phase_a_teaching_v1.mjs. Existing Free Foundations GitHub Actions workflow now runs the additional test and module syntax check alongside the original Auth, entitlement and browser contracts.
 
-**Still required:** completed exact-head CI; confirmed Cloudflare production deployment; actual authenticated Free-member responsive, keyboard and screen-reader journeys; independent editorial review of new wording; learner comprehension testing. Only then can the end-to-end Phase A release be accepted.
+**Owner-corrected sequencing:** source, CI and Cloudflare deployment evidence are recorded below. Real Turnstile-protected Free-member sign-in, responsive/mobile, keyboard/screen-reader, comprehension, remediation, persistence and cross-session tasks are assigned to Founding 600 testers during controlled beta. These real member journeys are mandatory for **beta exit/final member acceptance**, not an impossible pre-beta human-test prerequisite. The protected B01 grading release is a separate, rubric-specific Owner approval gate.
 
 Existing protected Lab/B01 question sets remain Draft/Not Assessment Verified. Further rubric-by-rubric review and protected learning-remediation acceptance are separate Phase A tasks and must not be bypassed.
 
@@ -62,3 +62,20 @@ Change history: v1.1 — extended formative feedback, conservative text cues, li
 ## v1.3 — B01 protected editorial correction status (October 27, 2026)
 
 Free Phase A formative teaching remains local, ungraded and verified by the existing source/fixture QA. B01 protected editorial proof is not equivalent to a Free-member Auth browser session. The previously noted B01 clock-boundary ambiguity has been corrected in the original *private Draft v97* question with explicit finalized-and-delivered candle evidence and a guarded backup. Three existing critical decision-process flags have been individually re-reviewed, with no extra flags or partial percentages inferred. The documented 40+60 editorial checks cover 100 B01 choices; all formal reviewed rubric approvals and member assessment acceptance remain open. See `docs/releases/2026-10-27_B01_REMAINING60_AND_EIGHT_FULL_RUBRICS.md` v1.1. Google Drive copy and ID not created.
+
+
+## v1.4 — Controlling Owner assignment: Founding 600 conducts real member acceptance
+
+On October 27, 2026 the Owner assigned authentic Free-member and sitewide journeys to the **Founding 600 beta testing cohort**, rather than to Owner-run impersonated sessions or automation masquerading as a member.
+
+**Entry into controlled beta** requires technically secure and correctly authorized functionality available to eligible testers, including Turnstile/Auth, entitlement isolation, safe private persistence, no access to Draft protected grading, CI and deployment verification and defect reporting. It does **not** require already-completed human beta participant sessions.
+
+**During beta** Founding 600 testers using real eligible accounts verify onboarding, Talia teaching and guided feedback, fictional candles and no-trade decisions, Journal and watchlist usage and quota handling, accessibility and mobile behavior, save, sign-out, genuine subsequent sign-in, cross-session recovery, and member data isolation. Capture concise privacy-safe evidence, fixes and retests. A zero-progress snapshot before beta is a baseline, not evidence of failure or successful acceptance.
+
+**Protected rubrics** remain Draft and blocked from official assessment grading unless each exact version is reviewed and authorized by a genuinely signed-in Owner through the existing guarded private approval interface. While grading is blocked, approved ungraded Guided/Practice experience can be tested. No fictitious mastery or score may be granted.
+
+**Exit from beta** requires real participant evidence and issue resolution; neither test-fixture CI nor a beta program invitation substitutes for it.
+
+Disposition: Teaching engineering IMPLEMENTED/TESTED; genuine human member journey ASSIGNED TO F600 BETA AND NOT YET ACCEPTED; B01 formal publication OWNER APPROVAL OPEN. No Stripe, account, quota, or access policy change. This section supersedes earlier generic pre-beta human-journey phrasing.
+
+Revision history: v1.4 — Owner transferred member-journey execution to Founding 600 and clarified the distinct beta entry and exit gates.
