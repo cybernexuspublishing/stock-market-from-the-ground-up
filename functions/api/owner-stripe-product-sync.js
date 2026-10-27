@@ -120,6 +120,7 @@ function chooseSku(product,productId,priceId,category,explicit,items,matches){
  if(explicit&&sku!==explicit)throw error('Manual SKU differs from the verified Stripe/Store identifier',409);
  if(linked&&sku!==linked.sku)throw error('Registered product mapping changed unexpectedly',409);
  const conflicting=items.find(row=>row.sku===sku);
+ if(generated&&conflicting&&!linked)throw error('Generated SKU already exists in the Store; review this product instead of overwriting it',409);
  if(conflicting&&conflicting.category!==({
   plan:'membership',course:'bootcamp'}[sku.split(':')[0]]||sku.split(':')[0]))
   throw error('The Store SKU belongs to a different category',409);
