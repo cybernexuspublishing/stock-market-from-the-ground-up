@@ -105,14 +105,19 @@ try{
     assert(viewport&&viewport.includes('width=device-width'),path+' viewport not responsive');
     const details={page:path,viewport:width,content:legal?'SERVER_LEGAL_NOT_TESTED':'STATIC_RENDERED'};
     if(path==='store.html'){
-     // Founding 30/60 are the only currently offered memberships. The
-     // former five-card Standard Membership tab was intentionally removed.
+     // All three Founding tiers display, while 14-day Starter checkout stays blocked. The
+     // the standard Membership tab keeps independent plan eligibility.
      await tab.waitForFunction(()=>Boolean(
       document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
      ),undefined,{timeout:14000});
      const count=await tab.locator('#store-founder-plans article.catalog-founder-card').count();
-     assert.equal(count,2,'Both approved Founding 600 offers must render from source-controlled terms');
+     assert.equal(count,3,'All three approved Founding Members offers must render from source-controlled terms');
+     const founderCards=tab.locator('#store-founder-plans article.catalog-founder-card');
+     assert.match(await founderCards.first().innerText(),/Founding Starter|14 DAYS/i,
+      'Staged 14-day Starter must remain visible in source-controlled terms');
+     assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
+      'Staged Starter must not offer a direct purchase link');
      assert.equal(await tab.locator('#store-tab-memberships').count(),1,
       'All Owner-activated standard memberships must appear beside Founding 600');
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
@@ -141,10 +146,10 @@ try{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
       document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
     ),undefined,{timeout:14000});
-    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
-      'Approved founding membership terms must render on static Store');
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),3,
+      'All three founding memberships must render on static Store');
     const available=await page.locator('[data-store-category]:visible').evaluateAll(nodes=>
       nodes.filter(el=>!el.hidden&&!el.disabled).map(el=>el.id));
     assert(available.includes('store-tab-founders'),'Founding offers must be the primary Store tab');
@@ -169,10 +174,10 @@ try{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
       document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
     ),undefined,{timeout:14000});
-    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
-      'Approved founding membership terms must render on static Store');
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),3,
+      'All three founding memberships must render on static Store');
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(x=>x.impact==='critical'||x.impact==='serious');
     assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.map(n=>({target:n.target,html:String(n.html||'').slice(0,420),failure:String(n.failureSummary||'').slice(0,420)}))})),[],
