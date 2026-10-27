@@ -36,7 +36,7 @@ assert(player.includes("saveHistory:false"),'New in-Lab Tutor use does not silen
 assert(!player.includes("allowModel:true,saveHistory:false"),'AI generation must remain member opt-in');
 assert(js.includes('allowTutorAI=true'),'AI should follow the member profile default instead of an in-Lab checkbox');
 assert(!js.includes('consentRow'),'Do not display a duplicate AI preference in each Lab');
-assert(player.includes('tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled!==false'),'Signed-in profile may opt out of AI assistance');
+assert(player.includes('tutorAiEnabled:session?.user?.user_metadata?.market_tutor_ai_enabled===true'),'Signed-in Profile must explicitly opt in before optional AI assistance');
 assert(js.includes('FICTIONAL Example D: you see a new candidate at 09:05 ET'),'Supplemental watchlist lesson must clearly label its original hypothetical scenario');
 assert(!/historical market (?:tape|chart|data) independently verified/i.test(js),'Instructor may not claim fictional exercises are verified market history');
 assert(js.includes("Lab answers")===false,'Never transmit local answer fields');
