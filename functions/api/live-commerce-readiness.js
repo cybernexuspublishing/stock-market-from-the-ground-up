@@ -131,7 +131,17 @@ export async function onRequestGet({request,env}){
   test(store.some(x=>x.sale_ready===true),'AT_LEAST_ONE_VERIFIED_SALE_READY_OFFER');
   // Never treat a book cover, product.active or public_visible as proof of downloadable files.
   test(books.length>0||!store.some(x=>x.category==='book'&&x.sale_ready===true),'DIRECT_BOOK_DELIVERY_IF_OFFERED');
-  return json({ok:true,go:blocked.length===0,readOnly:true,host,accountMatched:true,
+  // Distinguish actual Owner-enabled paid checkout from completed post-launch
+  // transaction acceptance. A pending first paid lifecycle must not be called
+  // 'checkout disabled' when the production flags, mappings and webhook agree.
+  const operatingFlags=flags.filter(k=>k!=='GU_LIVE_FINAL_OWNER_PAYMENT_TEST_ACCEPTED');
+  const operationalCheckoutConfigured=operatingFlags.every(k=>gates[k]===true)&&
+    pricesVerified&&priceContractVerified&&saleAuthorized&&
+    hookOK('stripe-live-webhook',neededStandard)&&hookOK('founding600-webhook',neededFounder)&&
+    founder.length===1&&founder[0].enrollment_enabled===true&&
+    founder[0].billing_enabled===true&&founder[0].fulfillment_enabled===true&&
+    store.some(x=>x.sale_ready===true);
+  return json({ok:true,go:blocked.length===0,operationalCheckoutConfigured,firstPaidTransactionAccepted:gates.GU_LIVE_FINAL_OWNER_PAYMENT_TEST_ACCEPTED===true,readOnly:true,host,accountMatched:true,
     mappedSKUs:mapped.length,verifiedMappedPrices:pricesVerified,
     verifiedAmountAndCadence:priceContractVerified,storeCount:store.length,
     activePriceCount:prices.data.filter(x=>x.active).length,activeProductCount:products.data.filter(x=>x.active).length,categoryCounts:counts,
