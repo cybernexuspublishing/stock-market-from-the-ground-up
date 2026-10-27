@@ -29,7 +29,7 @@ const sb={
   const rev=stored?.rev||0;writes++;
   if(args.p_expected_revision!==rev)return {data:null,error:{code:'40001'}};
   const modes=stored?.version===2?{...stored.modes}:
-   stored?.mode?{[stored.mode]:JSON.parse(JSON.stringify(stored).replace(/"rev":\d+,?/,'') )}:{};
+   stored?.mode?{[stored.mode]:Object.fromEntries(Object.entries(stored).filter(([k])=>k!=='rev'))}:{};
   const saved={version:2,rev:rev+1,modes:{...modes,[args.p_checkpoint.mode]:args.p_checkpoint}};
   stored=saved;return {data:{ok:true,saved},error:null};
  }
