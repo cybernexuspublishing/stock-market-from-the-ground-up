@@ -71,7 +71,7 @@ function paymentPanel(){const panel=qs('.admin-panel[data-admin-panel="commerce"
    const table=make('table');const header=make('thead'),tr=make('tr');for(const col of ['Item Code','Product','Price','Billing','Stripe Price Connected?','Sales Status'])tr.append(make('th',col));header.append(tr);table.append(header);
    const body=make('tbody');for(const p of data.products||[]){const row=make('tr');const price=Number.isInteger(p.amountCents)?(p.amountCents/100).toLocaleString(undefined,{style:'currency',currency:'USD'}):'Not priced';
     for(const value of [p.key,p.name,price,p.billing,p.mapped?'Connected in Cloudflare':'Not Connected',p.eligible?'May Be Eligible':p.reason||'Disabled'])row.append(make('td',value));body.append(row)}table.append(body);mappingTable.append(table);
-   mappingStatus.textContent=`${data.mappedCount} of ${data.catalogCount} website SKUs have mapped Stripe Price IDs. These mappings are not verified checkouts. Selected route: ${data.route} (${data.routeEnabled?'enabled':'disabled'}).`;
+   mappingStatus.textContent=`${data.mappedCount} of ${data.catalogCount} standard website SKUs have configured Stripe Price IDs, plus ${data.foundingMappedCount??0} Founding mappings (${data.inventoryMappedCount??0} across ${data.inventoryCount??0} Store inventory entries). These are configured mappings, NOT verified checkouts. Selected route: ${data.route} (${data.routeEnabled?'enabled':'disabled'}).`;
   }catch(e){mappingStatus.textContent='Stripe catalog status unavailable: '+(e.message||'Request failed.')}
   finally{mappingButton.disabled=false}
  };
