@@ -56,18 +56,23 @@ async function planCode(c,request){
  if(active.has('A_LA_CARTE')||active.has('PICK_WHAT_YOU_WANT'))return 'A_LA_CARTE';
  return 'FREE';
 }
-async function eligibility(c,slot,path,request){
+async function placeholderEligibility(c,slot,path,request){
+ // Placeholder inventory is independent from the LIVE advertising release switch.
+ // Plan / route checks remain server-authoritative, including ad-free memberships.
  if(!Object.hasOwn(slots,slot)||!slots[slot].includes(path))return false;
- const flags=await query(c,'gu_ad_sales_settings_v014226?select=ad_delivery_enabled,accepting_payments&singleton=eq.true');
- if(flags?.[0]?.ad_delivery_enabled!==true||flags?.[0]?.accepting_payments!==true)return false;
  const placement=await query(c,'ad_placements?select=placement_code,active&placement_code=eq.'+encodeURIComponent(slot));
  if(placement?.[0]?.active!==true)return false;
  const role=await planCode(c,request);
  if(!role||role==='OWNER'||role==='LIFETIME')return false;
- if(role==='SIGNED_OUT'&&!['HOME_INLINE','STORE_INLINE','COMMUNITY_INLINE','SAMPLE_LABS','SIGNIN_LEFT',
- 'SIGNIN_RIGHT','SIGNIN_BOTTOM','SIGNUP_LEFT','SIGNUP_RIGHT','SIGNUP_BOTTOM'].includes(slot))return false;
+ if(role==='SIGNED_OUT'&&slot==='FREE_DASHBOARD')return false;
+ if(/^(SIGNIN|SIGNUP)_/.test(slot)&&role!=='SIGNED_OUT')return false;
  const policies=await query(c,'plan_ad_policies?select=ads_enabled,allowed_slots&access_code=eq.'+encodeURIComponent(role));
  return policies?.[0]?.ads_enabled===true&&(policies[0].allowed_slots||[]).includes(slot);
+}
+async function eligibility(c,slot,path,request,audienceAlreadyVerified=false){
+ const flags=await query(c,'gu_ad_sales_settings_v014226?select=ad_delivery_enabled,accepting_payments&singleton=eq.true');
+ if(flags?.[0]?.ad_delivery_enabled!==true||flags?.[0]?.accepting_payments!==true)return false;
+ return audienceAlreadyVerified===true||placeholderEligibility(c,slot,path,request);
 }
 async function underFrequencyLimit(c,request,token){
  if(!/^[a-f0-9-]{36}$/i.test(token||''))return false;
@@ -115,13 +120,15 @@ export async function onRequest({request,env}){
   if(request.method==='GET'){
    const slot=url.searchParams.get('slot')||'',page=url.searchParams.get('page')||'',
     token=url.searchParams.get('sessionToken')||'';
-   if(!(await eligibility(c,slot,page,request))||
-      !(await underFrequencyLimit(c,request,token)))return ok({ad:null});
-   const options=await eligibleAds(c,slot);if(!options.length)return ok({ad:null});
+   const placeholderAvailable=await placeholderEligibility(c,slot,page,request);
+   if(!placeholderAvailable)return ok({ad:null,placeholderAvailable:false});
+   if(!(await eligibility(c,slot,page,request,true))||
+      !(await underFrequencyLimit(c,request,token)))return ok({ad:null,placeholderAvailable:true});
+   const options=await eligibleAds(c,slot);if(!options.length)return ok({ad:null,placeholderAvailable:true});
    // Rotate equally; no personal data, cross-site tracking or advertiser targeting.
    const bytes=new Uint32Array(1);crypto.getRandomValues(bytes);
    const item=options[bytes[0]%options.length];
-   return ok({ad:{creativeId:item.id,campaignId:item.campaign_id,slot,
+   return ok({placeholderAvailable:true,ad:{creativeId:item.id,campaignId:item.campaign_id,slot,
     headline:item.headline,body:item.body,destinationUrl:item.destination_url,
     label:item.disclosure_label}});
   }
