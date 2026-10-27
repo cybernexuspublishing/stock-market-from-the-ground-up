@@ -125,3 +125,11 @@ Entry order: engineering and security preflight; individual Owner approval for a
 Current control: no new rubric approvals, no synthetic graded attempts, no claimed genuine member session. Full B01 Beta Accepted remains NOT ACCEPTED until its applicable human grading and completion evidence exists.
 
 Revision history: v1.3 — Owner assigned member tests to Founding 600, distinguishing beta entry from official grading release and beta exit.
+
+## October 27, 2026 — Owner editorial attestation
+
+Owner explicitly stated: I reviewed, referring to the B01 20 v97 rubrics. This confirms Owner-stated human editorial review and must not be reported as if the Owner never reviewed the content.
+
+Formal database review_state=reviewed is distinct from an editorial attestation. An authenticated, authorized Owner must use the existing exact-revision secure approval endpoint to generate reviewed_by, reviewed_at and a CAS-protected review transition. No forged Owner session, manual database promotion, invented audit record, protected key disclosure or unreviewed grading is authorized by the statement alone.
+
+Source/CI review remains complete at its previously documented scope. Formal publication and real Founding 600 grader testing remain separate evidence gates.

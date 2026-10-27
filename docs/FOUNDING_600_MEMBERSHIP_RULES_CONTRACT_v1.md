@@ -32,3 +32,13 @@ Existing append-only historical migrations remain unchanged. Rollback only while
 **Not yet PROVEN:** Renewal produced by advancing Stripe TEST clock (tool operation unavailable), plan upgrade without duplicate subscription, real dispute, authentic logged-in Owner/two-member account isolation, product-specific discounted purchases, fully accessible self-service cancellation and attorney review. An attempted Stripe TEST subscription with no usable payment method was refused before invoicing; its shadow intent stayed prepared with zero paid cycles. This is not a `invoice.payment_failed` webhook proof.
 
 **Operational hold:** Original Stripe TEST delivery path restored, Yahoo-master TEST destination standby/disabled, Sandbox database switch off. All LIVE checkout/webhook/fulfillment remains off; production founder ledgers remain empty. No LIVE Stripe keys, prices, webhook endpoints or financial payments were used.
+
+## Owner change — October 27, 2026: Founding Starter and book-receipt Free access
+
+New FOUNDING_14 Starter: $22.99 USD automatically billed every 14 days until canceled, 5% discount on eligible first-party purchases while membership is active, five included Crownlight Sparks per paid cycle, 60-day post-term Spark expiry, shared Founders Commons (not the Extended Design Council). Exactly 600 numbered founding seats are shared across the three plans; no change to Standard $49.99/30 days or Extended $59.99/60 days.
+
+Stripe TEST item prod_VWFwFoggxZfcx3 and TEST recurring price price_1UVDQoJY9FI7byHBuiYDnHrX were created without charges. The 14-day plan is registered in Supabase with checkout_enabled=false. Existing 30/60 launch flags remain as found. The live payment-to-seat, 14-day webhook/renewal, refund, Spark award and 5% discount/Commons access gates remain incomplete; never present Starter checkout as available or award its benefits until they are verified.
+
+Free plan is retained and public_visible=false. Owner policy: book buyer registers and sends a purchase receipt from that exact registered email, with manual matching to a valid purchased book. Valid claims must be reviewed and the purchased book activated within three calendar days from receipt. The restricted database table gu_book_receipt_claims_20261027 records case and due date; it does not automatically create rights. Receipt delivery inbox, inbound sender verification, secure storage and staff approval remain to be implemented and accepted. Existing verified first-party checkout fulfillment is a separate route.
+
+No LIVE Stripe subscription transaction was executed. Consumer renewal notice/cancellation/refunds and historical privacy policy must be checked before opening the new tier.
