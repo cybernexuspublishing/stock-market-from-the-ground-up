@@ -11,7 +11,7 @@ const failure=(message,status=503)=>Object.assign(Error(message),{status});
 async function read(url,init){
  const r=await fetch(url,{cache:'no-store',...init});
  const v=await r.json().catch(()=>null);
- if(!r.ok||!v)throw failure('Provider request failed',r.status===401?401:r.status===403?403:503);
+ if(!r.ok||v===null)throw failure('Provider request failed',r.status===401?401:r.status===403?403:503);
  return v;
 }
 function config(env){
