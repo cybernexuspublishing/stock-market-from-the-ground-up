@@ -23,6 +23,8 @@ const accountAdmin=read('assets/js/account-management-entitlements-v01478.js');
 const build=read('scripts/build-pages.sh');
 assert(!build.includes("'capacity':terms['capacity']"), 'Public Pages projection must not disclose the internal shared 600-seat limit');
 assert(build.includes("public={'plans':"), 'Public founding projection must include only approved presentation fields');
+assert(!read('assets/js/store.js').includes('terms.capacity'), 'Store must not refer to a private-only seat count');
+assert(!read('functions/api/founding600-checkout.js').includes('capacity:600'), 'Public checkout status must not disclose the seat limit');
 assert(store.includes('Founding Members'));
 assert(inventory.includes('Founding Members — Standard 30 Days'));
 assert(inventory.includes('Founding Members — Extended 60 Days'));
