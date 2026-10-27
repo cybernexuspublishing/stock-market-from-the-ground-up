@@ -10,6 +10,7 @@ try{
   if(String(url).includes('/platform_plans?'))return Response.json([{plan_code:'FULL_MONTHLY',name:'Full Monthly',price_cents:6999,billing_interval:'month',active:true,public_visible:true},{plan_code:'FREE',name:'Free',price_cents:0,billing_interval:'none',active:true,public_visible:true}]);
   if(String(url).includes('/platform_tools?'))return Response.json([{tool_code:'INTERACTIVE_LEARNING',name:'Interactive Learning',individual_price_cents:2999,status:'live',active:true,public_visible:true},{tool_code:'PLANNED',name:'Planned Tool',individual_price_cents:2999,status:'planned',active:true,public_visible:true}]);
   if(String(url).includes('/catalog_products?'))return Response.json([{product_code:'FOUNDATION_BOOK_1',title:'Foundations',product_type:'book',kdp_select:true,direct_digital_enabled:false,metadata:{},active:true,store_visible:true,sales_status:'published'}]);
+  if(String(url).includes('/gu_owner_stripe_registry_v1?'))return Response.json([]);
   if(String(url).includes('/gu_storefront_items_v014174?'))return Response.json([{sku:'tool:INTERACTIVE_LEARNING',category:'tool',display_name:'Interactive Learning',status:'listed',visible:false,sale_ready:false,price_label:'$29.99',version:1}]);
   if(String(url).includes('/gu_storefront_items_v014174?'))return Response.json([{sku:'founding:FOUNDING_30',category:'founding',display_name:'Founding Standard',status:'coming_soon',visible:false,sale_ready:false,price_label:'$49.99',version:1}]);
   throw Error('Unexpected URL '+url);
@@ -25,7 +26,7 @@ try{
  assert.equal(data.products.find(x=>x.key==='tool:PLANNED').eligible,false);
  assert.equal(JSON.stringify(data).includes('mock_service_key'),false);
  assert.equal(JSON.stringify(data).includes('price_demoTEST123'),false);
- assert.equal(calls.filter(c=>c.auth==='Bearer mock_service_key').length,4);
+ assert.equal(calls.filter(c=>c.auth==='Bearer mock_service_key').length,5);
  // The current production contract uses GU58/F600 catalogs; legacy map may
  // be missing entirely. Never report a false 0 mapped in that configuration.
  delete env.STRIPE_MANAGED_PRICE_MAP_JSON;
