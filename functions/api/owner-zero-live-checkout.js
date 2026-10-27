@@ -80,9 +80,9 @@ async function verify(c){
 async function verifyDiagnosticTarget(env,sku){
  if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(sku||''))
   throw fail('INVALID_QA_TARGET_SKU',400);
- const base=val(env.SUPABASE_URL).replace(/\\/$/,'');
+ const base=val(env.SUPABASE_URL).replace(/\/$/,'');
  const secret=val(env.SUPABASE_SECRET_KEY);
- if(!/^https:\\/\\/[a-z0-9]{20}\\.supabase\\.co$/.test(base)||!secret)throw fail('CATALOG_UNAVAILABLE');
+ if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!secret)throw fail('CATALOG_UNAVAILABLE');
  const headers=secret.startsWith('sb_secret_')?{apikey:secret}:{apikey:secret,authorization:'Bearer '+secret};
  const r=await getJson(base+'/rest/v1/gu_storefront_items_v014174?select=sku&sku=eq.'+encodeURIComponent(sku)+'&limit=1',
   {headers},'CATALOG_UNAVAILABLE');
