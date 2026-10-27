@@ -11,7 +11,7 @@ for(const f of ['assets/js/admin-products-v01489.js','assets/js/store.js','asset
  assert.ok(read(f).length>1000);
 }
 assert.ok(store.includes('store-sales-v01489.css'));
-for(const s of ['Subscribe Now','Choose This Membership','Coming Soon','Pricing to be announced'])assert.ok(storeJs.includes(s),s);
+for(const s of ['Subscribe Now','Choose This Membership','Coming Soon','Existing configured beta tool price'])assert.ok(storeJs.includes(s),s);
 assert.ok(storeJs.includes('allTools.map(toolCard)'),'Public Store must display planned/beta catalog rows, not only live paid SKUs');
 const upcomingSource=read('assets/js/store-upcoming-offerings-v01490.js');
 for(const route of ['labs.html','assessments.html','ondemand-training.html','learn.html','data-connections.html','lab-samples.html']){
