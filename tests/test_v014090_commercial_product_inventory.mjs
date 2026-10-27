@@ -34,6 +34,6 @@ assert.ok(editor.includes("status:'planned'"));
 assert.ok(payment.includes("LIVE Stripe prices cannot be edited here"),'Do not desynchronize Stripe prices');
 assert.ok(payment.includes("A new LIVE tool requires a separate verified release"));
 assert.ok(payment.includes("changing LIVE tool entitlements")||payment.includes("Changing LIVE tool entitlements"));
-assert.ok(store.includes('Pricing to be announced'));
+assert.ok(store.includes("dollars(t.priceCents)+'/month'"));
 assert.ok(read('assets/js/store-product-detail-v01484.js').includes('What you’ll learn in this book'));
 console.log('PASS v90: all six established upcoming capabilities, explicit price states, protected sale CTA, one Admin Products category, planned prefill and Stripe price invariants.');
