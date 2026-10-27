@@ -15,16 +15,40 @@ const inventory=Object.freeze({
 });
 const make=(tag,value,cls)=>{const a=document.createElement(tag);if(value!==undefined)a.textContent=String(value);if(cls)a.className=cls;return a};
 const safe=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&u.port===''?u.href:null}catch{return null}};
-function available(mount,slot){
- const region=make('aside',undefined,'gu-ad-slot gu-ad-placeholder');
- region.setAttribute('aria-label','Available advertising space');
- const copy=make('div',undefined,'gu-ad-placeholder-copy');
- copy.append(make('span','ADVERTISING SPACE AVAILABLE','gu-ad-placeholder-kicker'),
-  make('strong','Feature your business here','gu-ad-placeholder-title'),
-  make('span',inventory[slot]+' · Subject to editorial review','gu-ad-placeholder-description'));
- const link=make('a','Request a sponsorship quote','gu-ad-placeholder-link');
- link.href='/advertise.html';
- region.append(copy,link);mount.replaceChildren(region);
+const housePromos=Object.freeze({
+ books:{eyebrow:'THE STOCK MARKET · FROM THE GROUND UP',title:'A stronger foundation starts here.',
+  body:'Build market knowledge one clear, practical lesson at a time.',action:'Explore the books',url:'/books.html',art:'BOOKS'},
+ beta:{eyebrow:'FOUNDING MEMBERSHIP',title:'Help shape a better learning platform.',
+  body:'Explore the founding memberships and the learning experience behind them.',action:'See memberships',url:'/store.html',art:'BETA'},
+ learning:{eyebrow:'GUIDED LEARNING',title:'Understand the decision before the trade.',
+  body:'Try guided examples built around market evidence, risk, and sound reasoning.',action:'Explore learning',url:'/learn.html',art:'LEARN'},
+ community:{eyebrow:'THE MARKET COMMONS',title:'Build skill through thoughtful discussion.',
+  body:'Learn from shared market observations, reviews, and educational conversations.',action:'Explore Market Commons',url:'/market-commons.html',art:'COMMONS'}
+});
+function houseFor(slot){
+ if(/STORE|MEMBERSHIP/.test(slot))return housePromos.beta;
+ if(/COMMUNITY/.test(slot))return housePromos.community;
+ if(/SAMPLE|DASHBOARD|TOOLS/.test(slot))return housePromos.learning;
+ return housePromos.books;
+}
+function available(mount,slot,ownerPreview=false){
+ const item=houseFor(slot);
+ const region=make('aside',undefined,'gu-ad-slot gu-house-promo'+(ownerPreview?' gu-owner-ad-preview':''));
+ region.setAttribute('aria-label',ownerPreview?'Owner advertising placement preview':'First-party site promotion');
+ const body=make('div',undefined,'gu-house-promo-copy');
+ const disclosure=make('span',ownerPreview?'OWNER PREVIEW · NOT A PAID AD':'SITE PROMOTION','gu-house-disclosure');
+ const category=make('span',item.eyebrow,'gu-house-eyebrow');
+ const title=make('h3',item.title,'gu-house-title');
+ const details=make('p',item.body,'gu-house-text');
+ const link=make('a',item.action,'gu-house-cta');link.href=item.url;
+ body.append(disclosure,category,title,details,link);
+ const art=make('div',undefined,'gu-house-art');
+ art.setAttribute('aria-hidden','true');
+ art.append(make('span','THE','gu-house-art-kicker'),make('strong',item.art,'gu-house-art-wordmark'),
+  make('span','LEARN · UNDERSTAND · PRACTICE','gu-house-art-subtitle'));
+ region.append(body,art);
+ if(ownerPreview)region.append(make('span',inventory[slot]+' · '+slot,'gu-owner-placement-name'));
+ mount.replaceChildren(region);
 }
 async function init(){
  const places=[...document.querySelectorAll('[data-ad-slot]')];
@@ -55,10 +79,23 @@ async function init(){
     if(next&&Number.isSafeInteger(currentId))query.set('excludeCreativeId',String(currentId));
     const response=await fetch('/api/ad-slot?'+query.toString(),{cache:'no-store',headers,credentials:'same-origin'});
     if(!response.ok)throw Error('Sponsor authorization unavailable');
-    const data=await response.json(),ad=data?.ad;
+    const data=await response.json();
     stop();
-    if(!data||data.placeholderAvailable!==true){mount.replaceChildren();currentId=null;return}
-    if(!ad){currentId=null;available(mount,slot);return}
+    let delivered=data;
+    if(!delivered?.placeholderAvailable&&token){
+     // An Owner is ad-free as a member but can inspect active placements
+     // without creating a pretend paid campaign or any billable event.
+     const previewQuery=new URLSearchParams({slot,page,ownerPreview:'1'});
+     const preview=await fetch('/api/ad-slot?'+previewQuery.toString(),{
+      cache:'no-store',headers,credentials:'same-origin'});
+     if(preview.ok){
+      const candidate=await preview.json();
+      if(candidate?.ownerPreview===true)delivered=candidate;
+     }
+    }
+    if(!delivered||delivered.placeholderAvailable!==true){mount.replaceChildren();currentId=null;return}
+    if(!delivered.ad){currentId=null;available(mount,slot,delivered.ownerPreview===true);return}
+    const ad=delivered.ad;
     if(ad.slot!==slot||!Number.isSafeInteger(ad.creativeId)||!Number.isSafeInteger(ad.campaignId))throw Error('Invalid sponsor');
     const href=safe(ad.destinationUrl);if(!href)throw Error('Invalid destination');
     currentId=ad.creativeId;
@@ -69,7 +106,7 @@ async function init(){
     link.append(make('span',ad.label==='Sponsored'?'Sponsored':'Advertisement','gu-ad-mark'),
       make('h3',ad.headline),make('p',ad.body));
     region.append(link);
-    const rotate=data.carouselEnabled===true&&data.hasMore===true;
+    const rotate=delivered.carouselEnabled===true&&delivered.hasMore===true;
     if(rotate){
      const controls=make('div',undefined,'gu-ad-carousel-controls');
      const nextBtn=make('button','Next sponsor','gu-ad-carousel-next');nextBtn.type='button';
