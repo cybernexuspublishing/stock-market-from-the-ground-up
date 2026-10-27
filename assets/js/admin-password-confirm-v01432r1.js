@@ -46,7 +46,7 @@ async function ensure(){if(inflight)return inflight;inflight=new Promise((resolv
  };shade.addEventListener('keydown',dialogKeys);
  async function load(){try{
   const cfg=await fetch('/api/auth-guard-v0135',{cache:'no-store'}).then(r=>r.json());
-  if(cfg?.ok!==true)throw Error('Human verification configuration unavailable.');
+  if(cfg?.ok===false)throw Error('Human verification configuration unavailable.');
   captchaRequired=cfg.enabled===true;
   if(!captchaRequired){
    setup.hidden=true;challenge.hidden=true;password.disabled=false;verify.disabled=false;
