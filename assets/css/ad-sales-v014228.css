@@ -45,3 +45,29 @@
  .gu-auth-ad-inventory{grid-template-columns:1fr;padding:0 16px}
  .gu-auth-ad-inventory>[data-ad-slot$="_BOTTOM"]{grid-column:auto}
  .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:100%;box-sizing:border-box}}
+
+/* Per-placement carousel controls and Store rail inventory. */
+.gu-ad-carousel-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px}
+.gu-ad-carousel-controls button{background:#193a54;color:#f4faff;border:1px solid #7993ad;
+ border-radius:8px;padding:9px 12px;font:inherit;font-size:.78rem;cursor:pointer}
+.gu-ad-carousel-controls button:focus-visible{outline:3px solid #b4d8ff;outline-offset:2px}
+.gu-ad-carousel-control{display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer}
+.gu-ad-carousel-control input{width:19px;height:19px;accent-color:#94c4e7}
+.gu-store-ad-shell{display:grid;grid-template-columns:minmax(125px,175px) minmax(0,1fr) minmax(125px,175px);
+ gap:18px;max-width:1680px;margin:0 auto;align-items:start}
+.gu-store-ad-core{min-width:0}
+.gu-store-rail{min-width:0;position:sticky;top:24px}
+.gu-store-rail .gu-ad-placeholder{padding:18px 11px;flex-direction:column;align-items:stretch}
+.gu-store-rail .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:100%;box-sizing:border-box;
+ padding:10px 5px;text-align:center}
+.gu-store-rail .gu-ad-placeholder-description{overflow-wrap:anywhere}
+.gu-store-rail .gu-ad-slot{margin:6px 0}
+@media(max-width:1120px){.gu-store-ad-shell{display:flex;flex-direction:column}
+ .gu-store-ad-core{order:0;width:100%}
+ .gu-store-rail{position:static;order:1;width:100%}
+ .gu-store-rail .gu-ad-placeholder{flex-direction:row;align-items:center}
+ .gu-store-rail .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:auto;padding:10px 12px}
+}
+@media(max-width:660px){.gu-store-rail .gu-ad-placeholder{flex-direction:column;align-items:stretch}
+ .gu-store-rail .gu-ad-slot.gu-ad-placeholder>a.gu-ad-placeholder-link{width:100%}}
+@media(prefers-reduced-motion:reduce){.gu-ad-sponsored *{animation:none!important;transition:none!important}}
