@@ -22,6 +22,7 @@ jobs:
           node tests/test_v014144_bootcamp.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_lab_batch01_authenticated_access.mjs
+          node tests/test_b02_canonical20_teaching_scope.mjs
           node tests/test_gate1_founders_beta_handoff.mjs
           node tests/test_labs_account_switch_isolation.mjs
           node tests/test_lab_content_redaction.mjs
