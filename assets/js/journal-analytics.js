@@ -10,6 +10,21 @@
  const money=n=>n==null?'—':Number(n).toLocaleString(undefined,
   {style:'currency',currency:'USD',maximumFractionDigits:2});
  const rate=n=>n==null?'—':fmt(n,1)+'%';
+ const privateResultIds=[
+  'analytics-kpis','analytics-quality','analytics-metric-methods',
+  'analytics-equity-chart','analytics-equity-points','analytics-setups',
+  'analytics-transfer','analytics-process','analytics-entry-reasons',
+  'analytics-exit-reasons','analytics-sessions','analytics-mistakes',
+  'analytics-plan-adherence','analytics-excursion'
+ ];
+ function erasePrivateAnalytics(reason){
+  requestCounter++;activeUserId=null;
+  $('analytics-content').hidden=true;
+  for(const id of privateResultIds)$(id)?.replaceChildren();
+  $('analytics-gate').textContent=reason||'Sign in again to view private Journal Analytics.';
+  $('analytics-status').textContent='Private analytics hidden. Verify your account session.';
+ }
+
  function appendCell(row,name,value){
   const cell=document.createElement(name);cell.textContent=String(value);row.append(cell);
  }
@@ -157,6 +172,26 @@
  document.addEventListener('DOMContentLoaded',()=>{
   $('analytics-type').addEventListener('change',()=>void load());
   $('analytics-window').addEventListener('change',()=>void load());
-  void load();
+  // Auth may change in another tab while this page still displays computed
+  // private member results. Scrub the DOM immediately, not only after another
+  // network request happens to finish. Request epochs invalidate in-flight IO.
+  void (async()=>{
+   try{
+    sb=await window.getSupabaseClient();
+    if(!sb?.auth?.onAuthStateChange)throw Error('Auth listener unavailable');
+    sb.auth.onAuthStateChange((event,session)=>{
+     const nextId=session?.user?.id||null;
+     if(event==='SIGNED_OUT'||(activeUserId&&nextId!==activeUserId)){
+      erasePrivateAnalytics('Your account session changed. Private analytics were cleared.');
+      if(nextId)queueMicrotask(()=>void load());
+      return;
+     }
+     if(event==='SIGNED_IN'&&nextId&&!activeUserId)queueMicrotask(()=>void load());
+    });
+    await load();
+   }catch{
+    erasePrivateAnalytics('Current account session cannot be verified. Reload after signing in.');
+   }
+  })();
  });
 })();
