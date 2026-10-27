@@ -87,6 +87,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!document.querySelector('link[data-gu-sitewide-acceptance]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/sitewide-acceptance.css';css.dataset.guSitewideAcceptance='1';document.head.append(css)}
   if(!document.querySelector('link[data-gu-premium-design]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/premium-design-v014168.css';l.dataset.guPremiumDesign='1';document.head.append(l)}
   loadOnce('/assets/js/premium-design-v014168.js','premiumDesignV014168');
+  // Compact the entire existing focused-learning header, including the
+  // dynamically inserted member-menu button and account utilities.
+  if(document.querySelector('.site-header.gu-focused-learning-header')&&!document.querySelector('link[data-gu-focused-header-v1]')){
+   const css=document.createElement('link');
+   css.rel='stylesheet';css.href='/assets/css/focused-learning-header-v1.css';
+   css.dataset.guFocusedHeaderV1='1';document.head.append(css);
+  }
+
   loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
   // Owner-selected site background; defaults preserve the existing theme.
   if(!document.querySelector('link[data-gu-site-background-v1]')){
