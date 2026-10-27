@@ -51,6 +51,8 @@ on:
       - "functions/api/admin-password-confirm-v01432r1.js"
       - "functions/api/stripe-live-webhook-v01458.js"
       - "tests/test_owner_zero_catalog_batch_v1.mjs"
+      - "tests/test_owner_stripe_autosku_v1.mjs"
+      - "supabase/migrations/20261027_owner_stripe_autosku_constraints_v3.sql"
       - "tests/test_owner_stripe_sync_and_captcha_v1.mjs"
       - "supabase/migrations/20261027_owner_stripe_registry_and_zero_live_batches_v1.sql"
       - "supabase/migrations/20261027_owner_captcha_control_v1.sql"
@@ -86,6 +88,7 @@ jobs:
           node tests/test_v014071_zero_live_checkout.mjs
           node tests/test_owner_zero_catalog_batch_v1.mjs
           node tests/test_owner_stripe_sync_and_captcha_v1.mjs
+          node tests/test_owner_stripe_autosku_v1.mjs
           node --check functions/api/owner-stripe-product-sync.js
           node --check functions/api/owner-captcha-control.js
           node --check functions/_lib/auth-captcha-state-v1.js
