@@ -56,7 +56,7 @@ begin
   then raise exception 'Select one of the current question options'
     using errcode='22023';
   end if;
-  result_ok=(upper(trim(p_answer))=upper(key #>> '{}');
+  result_ok=(upper(trim(p_answer))=upper(key #>> '{}'));
   credit_fraction=CASE WHEN result_ok THEN 1 ELSE 0 END;
  else
   raise exception 'Reviewed question kind is invalid' using errcode='22023';
