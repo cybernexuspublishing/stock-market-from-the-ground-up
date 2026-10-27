@@ -132,3 +132,27 @@
  .gu-store-rail .gu-ad-slot.gu-house-promo{width:100%;box-sizing:border-box}
 }
 @media(prefers-reduced-motion:reduce){.gu-house-promo *{animation:none!important;transition:none!important}}
+
+/* Owner October 27 compact placement design. Operates at physical CSS pixels,
+ * not screenshot's Firefox 40% zoom. Keeps readable minimum text and targets. */
+.gu-ad-slot.gu-house-promo{margin:12px 0;padding:clamp(12px,1.4vw,18px);gap:12px;
+ grid-template-columns:minmax(0,1fr) minmax(98px,28%);border-radius:12px;box-shadow:0 6px 20px #0002}
+.gu-house-promo-copy{gap:5px}
+.gu-house-promo .gu-house-title{font-size:clamp(1rem,1.4vw,1.3rem);max-width:33ch}
+.gu-house-promo .gu-house-text{font-size:.83rem;line-height:1.4}
+.gu-house-eyebrow{font-size:.68rem}
+.gu-house-art{min-height:84px;padding:10px 8px}
+.gu-house-art-wordmark{font-size:clamp(1.2rem,2vw,1.8rem)}
+.gu-ad-slot.gu-house-promo .gu-house-cta{padding:7px 12px;min-height:36px;margin-top:4px}
+.gu-store-rail .gu-ad-slot.gu-house-promo{padding:12px 10px;gap:8px}
+.gu-store-rail .gu-house-art{min-height:64px}
+.gu-store-rail .gu-house-title{font-size:1rem}
+.gu-store-rail .gu-house-text{font-size:.79rem}
+.gu-store-ad-shell.gu-all-products-ad-shell{grid-template-columns:minmax(140px,190px) minmax(0,1fr) minmax(140px,190px)}
+.gu-all-products-ad-shell>.gu-store-rail{position:sticky;top:76px}
+.gu-auth-ad-inventory .gu-ad-slot.gu-house-promo{padding:12px}
+.gu-auth-ad-inventory .gu-house-art{min-height:62px}
+@media(max-width:1100px){.gu-store-ad-shell.gu-all-products-ad-shell{display:flex;flex-direction:column}
+ .gu-all-products-ad-shell>.gu-store-rail{position:static;width:100%}}
+@media(max-width:700px){.gu-ad-slot.gu-house-promo{grid-template-columns:minmax(0,1fr)}
+ .gu-house-art{min-height:62px}}
