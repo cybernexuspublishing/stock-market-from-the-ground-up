@@ -137,9 +137,12 @@ async function modelDraft(env,{q,mode,source,answer}){
  }catch(e){safeTutorMetric('provider',{reason:e?.name==='AbortError'?'timeout':'provider_exception'});return null}
  finally{clearTimeout(timer)}
 }
-async function paidLearningDraft(env,body,userId,q,mode,source,answer){
+async function paidLearningDraft(env,body,userId,q,mode,source,answer,profileAiOptedIn){
  if(body.allowModel!==true||seeksPersonalTradeAdvice(q,answer)||!source.length)
   return {text:null,reason:'source_only'};
+ // An untrusted browser allowModel=true alone is never consent. This must
+ // match the affirmative saved preference returned by verified GoTrue /user.
+ if(profileAiOptedIn!==true)return {text:null,reason:'profile_ai_opt_in_required'};
  const requestId=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(body.requestId||''))
   ?String(body.requestId):crypto.randomUUID();
  const reservation=await reserveAiRequest(env,userId,requestId);
@@ -244,7 +247,7 @@ export async function onRequest({request,env}){
    const reference=[...selectedGuides.map(g=>({title:g.title,
     summary:[g.concept,g.procedure,'Limitation: '+g.limit,'Invalidation: '+g.invalidation]
      .join(' ').slice(0,900)})),...source.slice(0,3-selectedGuides.length)].slice(0,3);
-   const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,reference,answer);
+   const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,reference,answer,auth.aiOptedIn);
    return finish({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
     answer:model.text||answerFromGuide(guide,mode,answer),aiReason:model.reason,
     remainingAiToday:model.remainingMemberToday??null,
@@ -256,7 +259,7 @@ export async function onRequest({request,env}){
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }
   const baseline=deterministic(q,mode,sources,answer);
-  const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,source,answer);
+  const model=await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,source,answer,auth.aiOptedIn);
   const generation=model.text?'grounded-model-draft':'reviewed-glossary-logic';
   return finish({ok:true,generation,answer:model.text||baseline,sources,
    aiReason:model.reason,remainingAiToday:model.remainingMemberToday??null,
