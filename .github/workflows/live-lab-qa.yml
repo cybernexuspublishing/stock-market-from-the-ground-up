@@ -26,10 +26,13 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Verify real production member sign-in, receipt UI, full reload and sign-out
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/live-member-browser-qa.mjs
       - name: Verify QA member access to live Lab APIs without changing records
         env:
           LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
           LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
-        run: |
-          node tests/live-lab-qa.mjs
-          node tests/live-member-browser-qa.mjs
+        run: node tests/live-lab-qa.mjs
