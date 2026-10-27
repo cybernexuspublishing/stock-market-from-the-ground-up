@@ -16,7 +16,7 @@ const labels=[
  '4 MiB CSV','20,000 OHLCV candles',
  'fictional teaching candles','not independently verified',
  'Browser-imported CSVs','brokerage execution platform',
- 'does not reveal which occurred first','future',
+ 'do not reveal which occurred first',
  'verified historical','published',
  'simulator.html?practice=free','verified-replay.html',
  'journal.html','Store above verifies'
