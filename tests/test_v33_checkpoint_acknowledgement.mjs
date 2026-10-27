@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const engine=readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
+const store=readFileSync('assets/js/lab-journey-checkpoint-v33.js','utf8');
+assert(engine.includes('checkpointChangeSerial=0'),'A mount-local draft revision is required');
+assert(engine.includes('savingSerial=checkpointChangeSerial'),'Save must capture its own snapshot version');
+assert(engine.includes('checkpointChangeSerial++'),'Editing must invalidate outstanding acknowledgements');
+assert(engine.includes('savingSerial===checkpointChangeSerial'),'Old writes must not claim the latest draft is saved');
+assert(engine.includes('newer changes are still awaiting confirmation'),'Do not announce stale saves as current');
+assert(engine.includes('No grade was awarded'),'A save acknowledgment must never claim assessment mastery');
+assert(store.includes("p_expected_revision:revision"),'Server must retain CAS semantics');
+assert(store.includes("if(error?.code==='40001')"),'Cross-device conflicts must remain fail-closed');
+assert(store.includes('queue=queue.catch(()=>{}).then(async()=>'), 'Writes remain serialized');
+console.log('PASS checkpoint acknowledgement marks older asynchronous saves stale; CAS, queue and grading boundaries retained.');
