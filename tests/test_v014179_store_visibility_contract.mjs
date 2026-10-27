@@ -13,8 +13,10 @@ assert.ok(api.includes('store_visible===true'));
 assert.ok(!api.includes('items,hidden'),'Public response must not reveal hidden SKU identifiers');
 assert.ok(api.includes("cache-control':'no-store'"),'No stale product visibility cache');
 assert.ok(ui.includes('const listedCore=p=>')&&ui.includes("/^FOUNDING_(30|60)$/.test(p.sku)")&&ui.includes("p.category==='Books'&&p.status==='existing_catalog'"),'Fallback must allow only the two current Founding offers and existing approved books');
-assert.ok(ui.includes('all=base.filter(listedCore)')&&ui.includes('verified=true;all=base.filter(listedCore);render()'),'When public publication data is unavailable, unverified upcoming SKUs and legacy memberships must stay hidden');
-assert.ok(ui.includes('bySku.has(p.sku)'),'Only explicitly published server records may appear');
+assert.ok(ui.includes('base.filter(listedCore)')&&ui.includes('isFull=true'),'Only the authorized production catalog may expand beyond the safe fallback');
+assert.ok(ui.includes("'/api/storefront-public-catalog'"),'Only published public production storefront records may expand the catalog');
+const publicSource=read('functions/api/storefront-public-catalog.js');
+assert.ok(publicSource.includes('visible=eq.true')&&publicSource.includes('x?.visible===true'),'The public endpoint must never expose hidden inventory');
 
 assert.ok(admin.includes("expected_version:overrides.get(sku)?.version||0"),'Editor saves must carry CAS version');
 assert.ok(admin.includes("api('store_product_release_check',undefined,sku)"),'Owner readiness button must call server');
