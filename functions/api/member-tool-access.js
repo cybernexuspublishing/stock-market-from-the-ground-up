@@ -21,7 +21,7 @@ export async function memberIdentity(env,req){
  const c=config(env);
  const user=await ask(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}},{identity:true});
  if(!user?.id)throw error('Invalid session.',401);
- return {userId:user.id,config:c};
+ return {userId:user.id,aiOptedIn:user?.user_metadata?.market_tutor_ai_enabled===true,config:c};
 }
 export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDEMAND_TRAINING','INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_TUTOR'].includes(toolCode))throw error('Unknown training tool.',400);
  const actor=await memberIdentity(env,req);
@@ -53,7 +53,7 @@ export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDE
   method:'POST',headers:{...headers,'content-type':'application/json'},
   body:JSON.stringify({target_user:user.id,target_tool:toolCode})});
  if(typeof allowed!=='boolean')throw error('Tool entitlement result could not be verified.',503);
- return {authorized:allowed,freeEligible:true,
+ return {authorized:allowed,freeEligible:true,aiOptedIn:actor.aiOptedIn===true,
   denialCode:allowed?null:'premium_entitlement_required',userId:user.id,
   reason:allowed?'':'An active plan or matching individual tool entitlement is required.'};
 }
