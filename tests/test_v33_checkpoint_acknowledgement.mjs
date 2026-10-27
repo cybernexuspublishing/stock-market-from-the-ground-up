@@ -8,6 +8,9 @@ assert(engine.includes('checkpointChangeSerial++'),'Editing must invalidate outs
 assert(engine.includes('savingSerial===checkpointChangeSerial'),'Old writes must not claim the latest draft is saved');
 assert(engine.includes('newer changes are still awaiting confirmation'),'Do not announce stale saves as current');
 assert(engine.includes('No grade was awarded'),'A save acknowledgment must never claim assessment mastery');
+assert(engine.includes('A newer learning draft exists on another device or tab.'),'Conflict must be visible to the learner');
+assert(engine.includes('checkpointReady=false;'),'After CAS conflict, disable stale writes instead of cycling failed retries');
+assert(engine.includes('saveCheckpointControl.disabled=!checkpointReady;'),'Save button must remain disabled until the next verified reload');
 assert(store.includes("p_expected_revision:revision"),'Server must retain CAS semantics');
 assert(store.includes("if(error?.code==='40001')"),'Cross-device conflicts must remain fail-closed');
 assert(store.includes('queue=queue.catch(()=>{}).then(async()=>'), 'Writes remain serialized');
