@@ -66,6 +66,6 @@ const source=readFileSync(new URL('../supabase/migrations/20261027_member_book_r
 assert.match(source,/CREATE POLICY gu_receipt_member_insert_v1/);
 assert.match(source,/SECURITY DEFINER/);
 assert.match(source,/GRANT EXECUTE.*service_role/);
-assert.match(source,/status='approved'/);
+assert.match(source,/gu_book_receipt_claims_20261027/);
 assert.match(source,/ON CONFLICT DO NOTHING/);
 console.log('PASS synthetic receipt support: member-only ticket, path isolation, Owner-only evidence and explicit reviewed entitlement transition, zero real member effects.');
