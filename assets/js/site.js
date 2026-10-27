@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/assets/css/site-background-v1.css';sheet.dataset.guSiteBackgroundV1='1';document.head.append(sheet);
   }
   loadOnce('/assets/js/site-background-v1.js','siteBackgroundV1');
-  if(/^\\/admin(?:\\.html)?$/.test(location.pathname))loadOnce('/assets/js/admin-site-background-v1.js','ownerSiteBackgroundV1');
+  if(/^\/admin(?:\.html)?$/.test(location.pathname))loadOnce('/assets/js/admin-site-background-v1.js','ownerSiteBackgroundV1');
   loadOnce('/assets/js/release-integrity-v014036.js','releaseIntegrityV014036');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-payment-center-v01433.js','adminPaymentCenterV01433');
