@@ -203,7 +203,7 @@ export async function onRequestPost({request,env}){
   if(saved?.ok!==true||saved.sku!==resolved.sku)
    throw error('Supabase did not confirm the imported product',503);
   if(resolved.stripeMetadataNeedsSync)await syncStripeMetadata(c,productId,resolved.sku,resolved.category);
-  return output({...saved,...info,preview:false,stripeMetadataSynchronized:true,
+  return output({...saved,...info,source:'verified_stripe_live',skuSource:resolved.source,preview:false,stripeMetadataSynchronized:true,
    cloudflareRegistry:'runtime_from_supabase',
    notice:'Stripe metadata, website catalog and Supabase registry are synchronized. The import does not activate a paid checkout.'});
  }catch(e){return output({ok:false,error:e.message||'Product synchronization failed'},e.status||503)}
