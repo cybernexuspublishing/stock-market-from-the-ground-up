@@ -1,6 +1,7 @@
 /* Member beta activity belongs in the existing access-controlled Founders
  * Commons, not a duplicate Dashboard workspace. Internal F600 identifiers
- * and commercial limits remain frozen and must not appear as member brands.
+ * and commercial limits remain frozen. The approved Store may describe its
+ * customer-facing Founding 600 beta offers, never disclose private controls.
  */
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
@@ -41,7 +42,8 @@ assert(lab.includes('isBetaCandidateLab(id)'),'Labs preserve the 336/83 access s
 for(const page of ['founders-commons.html','founding600.html','store.html',
   'market-commons.html','dashboard.html']){
  const html=read(page);
- assert.doesNotMatch(html,/Founding\s+600/i,page+' leaks internal cohort brand');
+ if(page!=='store.html')assert.doesNotMatch(html,/Founding\s+600/i,page+' leaks internal cohort brand outside approved Store listing');
+ else assert.match(html,/Founding\s+600\s+beta\s+offers/i,'Store must transparently identify its approved Founding 600 beta offers');
  assert.doesNotMatch(html,/\b600\s+(?:places|founder seats|founding places|shared places|original founding memberships)/i,
   page+' advertises internal numerical cap');
 }
@@ -53,4 +55,4 @@ const approved=JSON.parse(read('data/founding600-terms-v014170.json'));
 assert.equal(approved.capacity,600,'Internal founder cap must remain unchanged');
 assert.deepEqual([approved.plans.FOUNDING_30.recurringCents,approved.plans.FOUNDING_60.recurringCents],[4999,5999]);
 assert.deepEqual([approved.plans.FOUNDING_30.foundingDiscountBps,approved.plans.FOUNDING_60.foundingDiscountBps],[1000,1500]);
-console.log('PASS: one real protected Founders Commons beta hub; old beta link redirects; founder commercial terms preserved; no member-visible Founding 600.');
+console.log('PASS: one protected Founders Commons beta hub; Store-only Founding 600 beta listing; other surfaces exclude internal brand and capacity; founder terms preserved.');
