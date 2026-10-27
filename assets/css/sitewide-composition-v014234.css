@@ -488,3 +488,52 @@ body[data-gu-layout-route="market-commons"] :is(#gu-commons-directory,#gu-common
 @media(max-width:1000px){body[data-gu-layout-route="market-commons"] .gu-commons-founder-entry{grid-template-columns:76px minmax(0,1fr);gap:20px;padding:25px}body[data-gu-layout-route="market-commons"] .gu-commons-founder-actions{grid-column:2;max-width:300px}body[data-gu-layout-route="market-commons"] .gu-commons-founder-mark{align-self:start}}
 @media(max-width:600px){body[data-gu-layout-route="market-commons"] .gu-commons-founder-entry{grid-template-columns:50px minmax(0,1fr);gap:16px;padding:22px 18px;margin-bottom:22px}body[data-gu-layout-route="market-commons"] .gu-commons-founder-mark>span{font-size:1.3rem}body[data-gu-layout-route="market-commons"] .gu-commons-founder-mark>small{font-size:.30rem}body[data-gu-layout-route="market-commons"] .gu-commons-founder-entry h2{font-size:1.65rem}body[data-gu-layout-route="market-commons"] .gu-commons-founder-actions{grid-column:1 / -1;max-width:none}body[data-gu-layout-route="market-commons"] .gu-commons-founder-copy>small{display:block}body[data-gu-layout-route="market-commons"] .gu-commons-founder-entry .gu-commons-founder-mark small{font-size:.30rem}}
 @media(prefers-reduced-motion:reduce){body[data-gu-layout-route="market-commons"] *{scroll-behavior:auto!important}}
+
+
+/* Vibrant market-study palette: dark site and member shells only.
+   Owner-selected background images and the light theme retain precedence. */
+html:not([data-gu-design="premium-light"]):not([data-gu-site-background="image"]) body[data-gu-workspace]{
+ --gu-ws-bg:#040d13;--gu-ws-panel:#091a21;--gu-ws-line:#235349;
+ --gu-ws-accent:#62f4cb;--gu-ws-text:#f0f8fa;--gu-ws-muted:#b4cbd0;
+ background:radial-gradient(ellipse 70% 620px at 85% 2%,rgba(0,167,119,.22),transparent 72%),radial-gradient(ellipse 42% 500px at 5% 25%,rgba(67,79,190,.14),transparent 76%),#040d13!important;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] .site-header{
+ background:rgba(3,14,20,.97);border-bottom-color:#1f6558;box-shadow:0 4px 24px #001b18a8;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] :is(.v11-menu,.gu-member-side-menu,.admin-sidebar){
+ border-color:#275c54;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] :is(.eyebrow,.gu-path-number,.gu-path-action){color:#71f2cf}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] :is(a,button,input,select,textarea):focus-visible{outline-color:#7df8dc}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-home-message h1 em{
+ background:linear-gradient(105deg,#6ff8d1,#5dbbff 70%,#b8a1ff)!important;
+ background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-home-terminal{
+ background:linear-gradient(145deg,#0a2427,#07121e);border-color:#2b8e79;
+ box-shadow:0 26px 72px #0009,0 0 48px #04c79c24;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-path-grid>a{
+ border:1px solid #28675e;border-radius:10px;
+ background:linear-gradient(155deg,#0d2528,#0a1422 72%);
+ padding:22px;box-shadow:0 12px 32px #0003;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-path-grid>a:hover{
+ border-color:#64dfc5;box-shadow:0 12px 32px #0004,0 0 22px #11ca9c20;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-home-message .btn:not(.secondary){
+ background:#35e6b7!important;border-color:#35e6b7!important;color:#041c19!important;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] .btn.secondary{
+ border-color:#49877c;color:#ddf8f0;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace] .footer{
+ background:#041316;border-color:#245b51;
+}
+
+html:not([data-gu-design="premium-light"]):not([data-gu-site-background="image"]) body[data-gu-workspace="site"] .gu-premium-home .gu-home-stage{
+ background:radial-gradient(ellipse at 78% 30%,#07543d75,transparent 50%),linear-gradient(115deg,#030e16,#061923 62%,#06140f)!important;
+}
+html:not([data-gu-design="premium-light"]) body[data-gu-workspace="site"] .gu-home-terminal{
+ border-color:#2b8e79!important;box-shadow:0 26px 72px #0009,0 0 48px #04c79c24!important;
+}
