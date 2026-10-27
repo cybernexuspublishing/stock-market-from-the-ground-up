@@ -22,7 +22,9 @@ try{
    await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
   }
   await page.getByRole('button',{name:'Next learning stage'}).click();
-  assert.match(await page.locator('#universal-test [role=status]').innerText(),/Lock your prediction/);
+  const predictionStatus=page.locator('#universal-test [role="status"]').filter({hasText:'Lock your prediction before continuing.'});
+  assert.equal(await predictionStatus.count(),1,'Prediction feedback must have one accessible status announcement');
+  assert.match(await predictionStatus.innerText(),/Lock your prediction/);
   await page.locator('#universal-test textarea').fill('Future continuation is not known, and crossing below the level would invalidate my hypothesis.');
   await page.getByRole('button',{name:'Lock my prediction'}).click();
   await page.getByRole('button',{name:'Next learning stage'}).click();
