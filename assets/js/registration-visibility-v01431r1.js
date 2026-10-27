@@ -8,7 +8,7 @@ async function install(){const form=document.querySelector('#create-account-form
  try{const response=await fetch('/api/free-beta-readiness-v014272',{cache:'no-store',headers:{accept:'application/json'}});
   const state=await response.json();if(!response.ok||state?.ok!==true)throw Error('Beta status unavailable');
   permitted=state.signupAvailable===true;
-  msg.textContent=permitted?'Free beta registration is available. Email confirmation is required.':
+  msg.textContent=permitted?'Account registration is available. Email confirmation is required; book-based Free eligibility requires receipt verification.':
     'Free beta registration is temporarily unavailable while the account service is being configured. No account details have been submitted.';
   if(btn)btn.disabled=!permitted;
  }catch{permitted=false;msg.textContent='Free beta registration cannot be verified right now. No account details have been submitted.';if(btn)btn.disabled=true}

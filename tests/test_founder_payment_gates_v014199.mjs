@@ -8,8 +8,10 @@ test('founding GET fails closed with missing env and omits internal cap',async()
  assert.equal(response.status,200);
  assert.equal(body.checkoutEnabled,false);
  assert.equal(Object.hasOwn(body,'capacity'),false,'Public status must omit internal founder seat limit');
- assert.equal(body.plans[0].billingDays,30);
- assert.equal(body.plans[1].billingDays,60);
+ assert.equal(body.plans[0].billingDays,14);
+ assert.equal(body.plans[0].checkoutEnabled,false);
+ assert.equal(body.plans[1].billingDays,30);
+ assert.equal(body.plans[2].billingDays,60);
 });
 test('founding checkout fails closed before any Stripe or Supabase access',async()=>{
  const before=globalThis.fetch;let calls=0;

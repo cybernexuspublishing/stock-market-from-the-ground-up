@@ -4,7 +4,7 @@
  */
 (()=>{'use strict';
 const C=()=>window.CommerceTools;
-const membershipIds=['FREE','FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'];
+const membershipIds=['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'];
 const planPaths={FREE:'store-membership-free.html',FULL_MONTHLY:'store-membership-full-monthly.html',FULL_ANNUAL:'store-membership-full-annual.html',LIFETIME:'store-membership-lifetime.html',ONDEMAND_MONTHLY:'store-membership-ondemand-monthly.html'};
 const bookPaths={FOUNDATION_BOOK_1:'store-book-foundation-1.html',FOUNDATION_BOOK_2:'store-book-foundation-2.html',FOUNDATION_BOOK_3:'store-book-foundation-3.html',DAY_TRADING_BOOK_1:'store-book-day-trading-1.html',READING_THE_TAPE:'store-book-reading-the-tape.html'};
 const toolPaths={INTERACTIVE_LEARNING:'store-tool-interactive-learning.html',JOURNAL_ANALYTICS:'store-tool-journal-analytics.html',MARKET_SIMULATOR:'store-tool-market-simulator.html',MARKET_TUTOR:'store-tool-market-tutor.html'};
@@ -114,7 +114,7 @@ async function foundingCatalog(){
  const target=document.getElementById('store-founder-plans'),matrix=document.getElementById('store-founder-compare');if(!target||!matrix)return;
  try{
   const response=await fetch('/data/founding-catalog.json',{cache:'no-store'});if(!response.ok)throw Error('Terms unavailable');
-  const terms=await response.json();const codes=['FOUNDING_30','FOUNDING_60'];
+  const terms=await response.json();const codes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
   if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)))throw Error('Invalid founding terms');
   let accepting=false;
@@ -123,24 +123,24 @@ async function foundingCatalog(){
    const state=status.ok?await status.json():null;
    accepting=state?.ok===true&&state.checkoutEnabled===true;
   }catch{accepting=false}
-  target.innerHTML=plans.map((p,i)=>`<article class="catalog-founder-card ${i?'is-extended':''}"><div class="catalog-founder-orbit" aria-hidden="true"></div><div class="catalog-founder-top"><span class="eyebrow">Founding ${i?'Extended':'Standard'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div><span class="store-beta-ribbon">${accepting?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span><h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div><p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p><ul><li>Permanent founder number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i?'Extended Design Council and enhanced learning preferences':'Founder improvement polls and learning priorities'}</li></ul><p class="small">Automatic renewal. Included Sparks have expiry terms. Discounts exclude founding membership fees and do not stack.</p><a class="btn ${i?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability ↗</a><span class="catalog-founder-status">${accepting?'Enrollment is open · Stripe LIVE checkout verifies member eligibility.':'Enrollment unavailable · Please review the terms.'}</span></article>`).join('');
+  target.innerHTML=plans.map((p,i)=>{const canJoin=accepting&&i!==0;return `<article class="catalog-founder-card ${i===2?'is-extended':''}"><div class="catalog-founder-orbit" aria-hidden="true"></div><div class="catalog-founder-top"><span class="eyebrow">Founding ${i===0?'Starter':i===1?'Standard':'Extended'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div><span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span><h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div><p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p><ul><li>Permanent founder number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and enhanced learning preferences':'Founder improvement polls and learning priorities'}</li></ul><p class="small">Automatic renewal. Included Sparks have expiry terms. Discounts exclude founding membership fees and do not stack.</p><a class="btn ${i===2?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability ↗</a><span class="catalog-founder-status">${canJoin?'Enrollment is open · Stripe LIVE checkout verifies member eligibility.':'Enrollment unavailable · Please review the terms.'}</span></article>`;}).join('');
   const yes=()=>coverage(true),no=()=>coverage(false);
   const rows=[
    ['Membership',plans.map(p=>dollars(p.recurringCents)+' / '+p.billingIntervalDays+' days')],
    ['Purchase discount',plans.map(p=>(p.foundingDiscountBps/100)+'% OFF eligible purchases')],
    ['Included Sparks',plans.map(p=>String(p.incSparks)+' / '+p.billingIntervalDays+'-day term')],
-   ['Permanent founding number',[yes(),yes()]],
-   ['Private Founders Commons',[yes(),yes()]],
-   ['Founder improvement polls',[yes(),yes()]],
-   ['Founding Member certificate',[yes(),yes()]],
-   ['Early-release educational materials',[yes(),yes()]],
-   ['Priority feature announcements',[yes(),yes()]],
-   ['Learning progress preservation',[yes(),yes()]],
-   ['Service-interruption protection',[yes(),yes()]],
-   ['Extended Design Council',[no(),yes()]],
-   ['Enhanced learning preferences',[no(),yes()]]
+   ['Permanent founding number',plans.map(()=>yes())],
+   ['Private Founders Commons',plans.map(()=>yes())],
+   ['Founder improvement polls',plans.map(()=>yes())],
+   ['Founding Member certificate',plans.map(()=>yes())],
+   ['Early-release educational materials',plans.map(()=>yes())],
+   ['Priority feature announcements',plans.map(()=>yes())],
+   ['Learning progress preservation',plans.map(()=>yes())],
+   ['Service-interruption protection',plans.map(()=>yes())],
+   ['Extended Design Council',[no(),no(),yes()]],
+   ['Enhanced learning preferences',[no(),no(),yes()]]
   ];
-  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Members Standard and Extended benefit comparison.</caption><thead><tr><th scope="col">Benefit</th>${plans.map(p=>`<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${values.map(comparisonCell).join('')}</tr>`).join('')}</tbody></table>`;
+  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Members Starter, Standard and Extended benefit comparison. Shared capacity: 600.</caption><thead><tr><th scope="col">Benefit</th>${plans.map(p=>`<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${values.map(comparisonCell).join('')}</tr>`).join('')}</tbody></table>`;
  }catch{target.innerHTML='<div class="notice">Founding terms are temporarily unavailable. <a href="founding600.html">Review the founding program</a>.</div>';matrix.textContent='Comparison unavailable until approved terms can be loaded.';}
 }
 
