@@ -84,13 +84,12 @@ function upcomingAdmin(){
 function wire(){
  const root=$('admin-products-panel');if(!root||root.dataset.wired)return;root.dataset.wired='true';
  $('admin-open-digital-books')?.addEventListener('click',()=>{
-  // Reuse the existing AAL2-protected eBook control inside Commerce.
-  const control=document.querySelector('#admin-tabs [data-panel="commerce"]');
-  if(!control)return msg('Commerce panel unavailable.',true);
-  control.click();
-  const section=document.querySelector('.gu-digital-books');
-  section?.scrollIntoView({behavior:'smooth',block:'start'});
-  section?.querySelector('button')?.focus({preventScroll:true});
+  // Book upload belongs to the selected book edit form, never Commerce.
+  show('books');
+  msg('Choose Edit on the book you want to upload. PDF/EPUB files and publishing rights are managed in the same editor.');
+  const first=$('admin-catalog-list')?.querySelector('.admin-edit-product');
+  first?.focus({preventScroll:true});
+  $('admin-products-books')?.scrollIntoView({behavior:'smooth',block:'start'});
  });
  root.querySelectorAll('[data-product-tab]').forEach(button=>{
   button.addEventListener('click',()=>show(button.dataset.productTab));
