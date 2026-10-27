@@ -45,7 +45,7 @@ function show(){
  const list=$('inventory-list'),root=$('inventory-detail'),search=$('inventory-search'),filter=$('inventory-category'),status=$('inventory-status');
  if(list){
   const term=clean(search?.value).toLowerCase(),cat=clean(filter?.value);
-  const rows=all.filter(x=>(!cat||x.category===cat)&&(!term||
+  const rows=all.filter(x=>x.category!=='Memberships'&&(!cat||x.category===cat)&&(!term||
    (x.name+' '+x.sku+' '+x.description+' '+x.category).toLowerCase().includes(term)));
   list.innerHTML=cards(rows)||'<p>No matching products.</p>';
   if(status)status.textContent=rows.length+' of '+all.length+' available catalog listings shown. '+
