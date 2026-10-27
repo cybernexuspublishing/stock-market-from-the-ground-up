@@ -9,11 +9,11 @@ const env={SUPABASE_URL:'https://mock.supabase.co',
  SUPABASE_SECRET_KEY:'sb_secret_mock',
  AI_SERVICE_ENABLED:'true',AI_SERVICE_MEMBER_DAILY_LIMIT:'5',AI_SERVICE_GLOBAL_DAILY_LIMIT:'10',AI_SERVICE_GLOBAL_MONTHLY_LIMIT:'30',AI_TUTOR_API_KEY:'fake-do-not-use',AI_TUTOR_MODEL:'mock-model',
  AI_PAID_PROVIDER_OWNER_APPROVED:'true',AI_TUTOR_APPROVED_MODELS:'mock-model'};
-let quotaCalls=0,modelCalls=0,prompt='';
+let quotaCalls=0,modelCalls=0,prompt='',profileOptIn=false;
 const original=globalThis.fetch,json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url);
- if(u.endsWith('/auth/v1/user'))return json({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});
+ if(u.endsWith('/auth/v1/user'))return json({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',user_metadata:{market_tutor_ai_enabled:profileOptIn}});
  if(u.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(u.includes('/admin_user_flags?'))return json([{status:'active'}]);
  if(u.includes('/admin_user_roles?'))return json([]);
@@ -43,6 +43,10 @@ try{
  assert.equal(r.status,200);assert.equal(r.body.generation,'reviewed-glossary-logic');
  assert.equal(quotaCalls,0);assert.equal(modelCalls,0,'No model/fee without positive opt-in');
  r=await ask(false);assert.equal(quotaCalls,0);assert.equal(modelCalls,0);
+ r=await ask(true);
+ assert.equal(r.status,200);assert.equal(r.body.aiReason,'profile_ai_opt_in_required');
+ assert.equal(quotaCalls,0);assert.equal(modelCalls,0,'Client-supplied true cannot bypass saved opt-out');
+ profileOptIn=true;
  r=await ask(true);
  assert.equal(r.status,200);assert.equal(r.body.generation,'grounded-model-draft');
  assert.equal(quotaCalls,1);assert.equal(modelCalls,1);assert(prompt.includes('"store":false'));
