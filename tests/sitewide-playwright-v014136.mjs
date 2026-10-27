@@ -113,8 +113,8 @@ try{
      ),undefined,{timeout:14000});
      const count=await tab.locator('#store-founder-plans article.catalog-founder-card').count();
      assert.equal(count,2,'Both approved Founding 600 offers must render from source-controlled terms');
-     assert.equal(await tab.locator('#store-tab-memberships').count(),0,
-      'Hidden standard memberships must remain absent from public navigation');
+     assert.equal(await tab.locator('#store-tab-memberships').count(),1,
+      'All Owner-activated standard memberships must appear beside Founding 600');
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
      await tab.waitForFunction(()=>Boolean(
