@@ -43,16 +43,27 @@ try {
  const liveRows=[
   {sku:'founding:FOUNDING_30',category:'founding',display_name:'Founding Standard',description:'Private founders beta',price_label:'$49.99',duration_label:'30 days',product_page:'',status:'coming_soon',visible:true,sale_ready:false},
   {sku:'tool:INTERACTIVE_LEARNING',category:'tool',display_name:'Interactive Labs',description:'First party educational beta',price_label:'$29.99',duration_label:'monthly',product_page:'https://attacker.example',status:'listed',visible:true,sale_ready:false},
-  {sku:'feature:GUIDED_HISTORICAL_LABS',category:'feature',display_name:'Guided Labs',description:'Included in eligible memberships',price_label:'Not sold separately',duration_label:'',product_page:'labs.html',status:'coming_soon',visible:true,sale_ready:false}
+  {sku:'feature:GUIDED_HISTORICAL_LABS',category:'feature',display_name:'Guided Labs',description:'Included in eligible memberships',price_label:'Not sold separately',duration_label:'',product_page:'labs.html',status:'coming_soon',visible:true,sale_ready:false},
+  {sku:'plan:FREE',category:'membership',display_name:'Free Membership',description:'Hidden by Owner',price_label:'Free',duration_label:'',product_page:'store-membership-free.html',status:'listed',visible:true,sale_ready:false}
  ];
- globalThis.fetch=async(url,options)=>{assert.match(String(url),/gu_storefront_items_v014174/);
-  assert.match(String(url),/visible=eq.true/);
+ globalThis.fetch=async(url,options)=>{
   assert.equal(options.headers.apikey,'sb_secret_mock');
-  return new Response(JSON.stringify(liveRows),{status:200,headers:{'content-type':'application/json'}})};
+  const target=String(url);
+  if(target.includes('gu_storefront_items_v014174')){
+   assert.match(target,/visible=eq.true/);
+   return Response.json(liveRows);
+  }
+  if(target.includes('platform_plans?select=plan_code,public_visible,active')){
+   return Response.json([{plan_code:'FREE',public_visible:false,active:true},
+    {plan_code:'ONDEMAND_MONTHLY',public_visible:true,active:true}]);
+  }
+  throw new Error('Unexpected catalog query: '+target);
+ };
  const publicResponse=await publicCatalog.onRequestGet({env:goodEnv});
  assert.equal(publicResponse.status,200);
  const report=await publicResponse.json();assert.equal(report.count,3);
- assert.deepEqual(report.items.map(x=>x.sku),liveRows.map(x=>x.sku));
+ assert.deepEqual(report.items.map(x=>x.sku),liveRows.filter(x=>x.sku!=='plan:FREE').map(x=>x.sku));
+ assert.ok(!JSON.stringify(report).includes('Free Membership'),'Canonical plan public_visible=false must suppress stale visible Store records');
  assert.equal(report.items[1].page,null,'Never expose untrusted external product URLs');
  assert.ok(!JSON.stringify(report).includes('sb_secret_mock'));
  assert.equal(report.items[0].saleReady,false);
