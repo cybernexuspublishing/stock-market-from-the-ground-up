@@ -23,7 +23,7 @@ try{
  try{await page.waitForURL(u=>new URL(u).pathname==='/dashboard.html',{timeout:30000})}
  catch{throw Error('Real browser password sign-in did not reach the member Dashboard (credentials never logged).')}
  console.log('PASS real Chromium UI password sign-in to production member Dashboard.');
- await page.goto(origin+'/dashboard.html?tab=support&purpose=book_receipt',{
+ const supportResponse=await page.goto(origin+'/dashboard.html?tab=support&purpose=book_receipt',{
   waitUntil:'domcontentloaded',timeout:30000});
  try{await page.locator('#member-support-panel').waitFor({state:'visible',timeout:22000})}
  catch(error){
@@ -35,11 +35,14 @@ try{
    return {route:location.pathname,tab:new URLSearchParams(location.search).get('tab'),
     panelExists:!!document.getElementById('member-support-panel'),
     panelHidden:document.getElementById('member-support-panel')?.hidden,
+    title:document.title,htmlLength:document.documentElement.outerHTML.length,
+    dashboardContent:!!document.getElementById('dashboard-content'),
+    firstHeading:(document.querySelector('h1')?.textContent||'').slice(0,70),
     supportState:(document.getElementById('member-support-status')?.textContent||'').slice(0,130),
     gateStatus:(document.getElementById('dashboard-gate')?.textContent||'').slice(0,100),
     authenticated,authIssue,clientLoaded:typeof window.getSupabaseClient==='function'};
   }).catch(()=>({route:'navigation_failure'}));
-  console.error('SUPPORT_QA_DIAGNOSTIC '+JSON.stringify(detail));
+  console.error('SUPPORT_QA_DIAGNOSTIC '+JSON.stringify({httpStatus:supportResponse?.status(),...detail}));
   throw error;
  }
  assert.equal(await page.locator('#member-book-receipt-form').isVisible(),true);
