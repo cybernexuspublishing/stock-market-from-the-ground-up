@@ -21,6 +21,8 @@ test('Academy progress end-to-end API contract: auth, persistence, revision and 
    ?j({id:other}):j({error:'invalid'},401);
   if(path==='/rest/v1/profiles')return j([{account_kind:state.rejected?'showcase':'member'}]);
   if(path==='/rest/v1/admin_user_flags')return j([]);
+  // Existing member gate verifies SHOWCASE_VIEWER before permitting study.
+  if(path==='/rest/v1/admin_user_roles')return j([]);
   if(path==='/rest/v1/rpc/user_has_tool_access')return j(true);
   if(path==='/rest/v1/gu_bootcamp_academy_enrollments_v014168')return state.available?
    j(u.searchParams.get('user_id')==='eq.'+uid&&state.enrollment?

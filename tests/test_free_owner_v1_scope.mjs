@@ -18,7 +18,7 @@ const s=(condition,message)=>assert(condition,message);
 
 // Priority 1 — recommended beginning, never a fake certification.
 s(page.includes('free-start-level')&&page.includes('free-start-choose') &&
-  dashboard.includes('setupFreeStartingPoint()')&&dashboard.includes('renderFreeFoundationEvidence'),
+  dashboard.includes('setupFreeStartingPoint(sb,user.id)')&&dashboard.includes('renderFreeFoundationEvidence(sb,user.id)'),
   'Talia starting-point recommendation must connect to actual member progress');
 s(page.includes('free-next-action')&&page.includes('free-next-detail'), 'real next lesson link required');
 // Priority 2 — one-click ungraded fictional practice with transparent source.
