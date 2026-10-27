@@ -78,10 +78,12 @@ export async function onRequestGet({env}){
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
   const tiers=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled');
+  const originalTiers=tiers.filter(t=>Object.hasOwn(plans,t.plan_code));
   enabled=state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
-   &&tiers.length===2&&tiers.every(t=>t.checkout_enabled===true);
+   &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true);
  }catch{enabled=false}
  return json({ok:true,checkoutEnabled:enabled,plans:[
+  {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:false},
   {code:'FOUNDING_30',priceCents:4999,billingDays:30},
   {code:'FOUNDING_60',priceCents:5999,billingDays:60}
  ]});

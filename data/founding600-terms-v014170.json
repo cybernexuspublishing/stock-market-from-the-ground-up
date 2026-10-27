@@ -1,10 +1,22 @@
 {
-  "version": "0.14.0.207",
-  "status": "PRODUCTION_SOURCE_BILLING_DISABLED",
+  "version": "0.14.0.310_FOUNDING14_STAGED",
+  "status": "THREE_TIER_STARTER_TEST_ONLY",
   "checkoutEnabled": false,
   "capacity": 600,
   "memberIdentity": "permanent_nonrecyclable",
   "plans": {
+    "FOUNDING_14": {
+      "name": "Founding Starter",
+      "billingIntervalDays": 14,
+      "recurringCents": 2299,
+      "foundingDiscountBps": 500,
+      "incSparks": 5,
+      "incSparksExpiryDaysAfterTermEnd": 60,
+      "autoRenew": true,
+      "enhanced": false,
+      "checkoutEnabled": false,
+      "discountActiveMembershipOnly": true
+    },
     "FOUNDING_30": {
       "name": "Founding Standard",
       "billingIntervalDays": 30,
@@ -29,6 +41,7 @@
   "discount": {
     "duration": "lifetime_of_original_eligible_account",
     "exclude": [
+      "FOUNDING_14",
       "FOUNDING_30",
       "FOUNDING_60"
     ],
@@ -47,7 +60,9 @@
     "standardLifetimeListCents": 249900,
     "standardLifetimeChargedCents": 224910,
     "extendedLifetimeChargedCents": 212415,
-    "extendedPermanentVesting": "completed_paid_non_refunded_60_day_term"
+    "extendedPermanentVesting": "completed_paid_non_refunded_60_day_term",
+    "starterDiscountActiveOnly": true,
+    "starterPermanentVesting": false
   },
   "purchasedSparksExpire": false,
   "benefits": [
