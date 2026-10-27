@@ -43,6 +43,6 @@ try{
  assert(!store.includes('id="store-tab-memberships"'));
  assert(store.includes('id="store-tab-founders"'));
  const source=readFileSync('assets/js/store.js','utf8');
- assert(source.includes("parts=['founders','books','tools']"));
+ assert(source.includes("parts=['founders','books','sparks','tools']"));
  console.log('PASS secure member Sparks wallet + Founding-only public Store: isolated identity, no-charge, private ledger, no fake balance');
 }finally{globalThis.fetch=realFetch}
