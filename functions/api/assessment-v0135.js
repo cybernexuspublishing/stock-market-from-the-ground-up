@@ -8,10 +8,42 @@ async function db(env,p,{method='GET',body,userToken}={}){const c=cfg(env),key=u
 async function auth(env,req){const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];if(!token)throw fail('Sign in to practice.',401);const c=cfg(env),u=await requestJson(c.base+'/auth/v1/user',{headers:{apikey:c.pub,authorization:'Bearer '+token}});if(!u?.id)throw fail('Invalid session.',401);const p=(await db(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(u.id)+'&limit=1'))?.[0];if(p?.account_kind!=='member')throw fail('Synthetic or test accounts cannot generate scored evidence.',403);
 const flags=(await db(env,'admin_user_flags?select=status&user_id=eq.'+encodeURIComponent(u.id)+'&limit=1'))?.[0];if(['suspended','restricted'].includes(String(flags?.status||'').toLowerCase()))throw fail('Account access is restricted.',403);
 const a=await db(env,'rpc/my_platform_access',{method:'POST',body:{},userToken:token});const eligible=Boolean(a?.allTools||['LIFETIME','FULL_MONTHLY','FULL_ANNUAL','BOOK_TRIAL'].includes(a?.planCode)||a?.tools?.some(x=>x.toolCode==='INTERACTIVE_LEARNING'&&x.included));return{user:u,eligible}}
-function safe(c){return{code:c.case_code,title:c.title,description:c.description,competencyCode:c.competency_code,version:c.version,questions:c.questions,alreadySubmitted:!!c.alreadySubmitted}}
+/* Only these public fields may reach the browser. Cases may later acquire
+ * scoring rubric, critical-error rationale, option weights, or other privileged
+ * metadata INSIDE questions: passing through that JSON leaks answer evidence.
+ * A malformed published case is withheld rather than presented as gradable.
+ */
+function safe(c){
+ const original=Array.isArray(c?.questions)?c.questions:[];
+ if(original.length<4||original.length>40)return null;
+ const seen=new Set(),questions=[];
+ for(const question of original){
+  const id=typeof question?.id==='string'?question.id:'';
+  const dimension=typeof question?.dimension==='string'?question.dimension:'';
+  const prompt=typeof question?.prompt==='string'?question.prompt:'';
+  if(!/^[A-Za-z0-9_-]{1,50}$/.test(id)||seen.has(id)||
+    !['knowledge','recognition','decision','process'].includes(dimension)||
+    prompt.trim().length<5||prompt.length>1800||
+    !Array.isArray(question?.options)||question.options.length<2||question.options.length>8)
+   return null;
+  const options=[],codes=new Set();
+  for(const option of question.options){
+   const code=typeof option?.code==='string'?option.code:'';
+   const label=typeof option?.label==='string'?option.label:'';
+   if(!/^[A-Za-z0-9_-]{1,30}$/.test(code)||codes.has(code)||
+    label.trim().length<1||label.length>700)return null;
+   codes.add(code);
+   options.push({code,label}); // omit "correct", key, weight and private details
+  }
+  seen.add(id);questions.push({id,dimension,prompt,options});
+ }
+ return{code:c.case_code,title:c.title,description:c.description,
+  competencyCode:c.competency_code,version:c.version,questions,
+  alreadySubmitted:!!c.alreadySubmitted};
+}
 export async function onRequest({request,env}){try{const a=await auth(env,request),url=new URL(request.url),action=clean(url.searchParams.get('action'))||'list';if(!a.eligible)return respond({ok:false,error:'Graded assessments require eligible learning access.'},403);
  if(action==='list'&&request.method==='GET'){
- const cases=await db(env,'competency_cases_v135?select=case_code,title,description,competency_code,questions,version&active=eq.true&reviewed_at=not.is.null&limit=200');const attempts=await db(env,'competency_attempts_v135?select=case_code,final_score,submitted_at&user_id=eq.'+encodeURIComponent(a.user.id)+'&limit=200');const submitted=new Set((attempts||[]).map(x=>x.case_code));return respond({ok:true,cases:(cases||[]).map(c=>safe({...c,alreadySubmitted:submitted.has(c.case_code)})),attempts})}
+ const cases=await db(env,'competency_cases_v135?select=case_code,title,description,competency_code,questions,version&active=eq.true&reviewed_at=not.is.null&limit=200');const attempts=await db(env,'competency_attempts_v135?select=case_code,final_score,submitted_at&user_id=eq.'+encodeURIComponent(a.user.id)+'&limit=200');const submitted=new Set((attempts||[]).map(x=>x.case_code));return respond({ok:true,cases:(cases||[]).map(c=>safe({...c,alreadySubmitted:submitted.has(c.case_code)})).filter(Boolean),attempts})}
  if(action==='submit'&&request.method==='POST'){
  const body=await request.json().catch(()=>({})),caseCode=clean(body.caseCode).toUpperCase(),answers=body.answers;
  if(!/^[A-Z0-9_\-]{3,90}$/.test(caseCode)||!answers||Array.isArray(answers)||typeof answers!=='object'||Object.keys(answers).length>40||JSON.stringify(answers).length>7000)throw fail('Invalid assessment submission.');
