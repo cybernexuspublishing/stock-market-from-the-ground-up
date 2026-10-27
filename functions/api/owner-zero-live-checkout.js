@@ -75,6 +75,21 @@ async function verify(c){
   throw fail('NOT_AN_EXACT_ZERO_DOLLAR_ONE_TIME_PRICE');
  return true;
 }
+// Target a canonical product identity, including a beta/unreleased listing.
+ // No permission to fulfill, discount, grant access or create a paid Price.
+async function verifyDiagnosticTarget(env,sku){
+ if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(sku||''))
+  throw fail('INVALID_QA_TARGET_SKU',400);
+ const base=val(env.SUPABASE_URL).replace(/\\/$/,'');
+ const secret=val(env.SUPABASE_SECRET_KEY);
+ if(!/^https:\\/\\/[a-z0-9]{20}\\.supabase\\.co$/.test(base)||!secret)throw fail('CATALOG_UNAVAILABLE');
+ const headers=secret.startsWith('sb_secret_')?{apikey:secret}:{apikey:secret,authorization:'Bearer '+secret};
+ const r=await getJson(base+'/rest/v1/gu_storefront_items_v014174?select=sku&sku=eq.'+encodeURIComponent(sku)+'&limit=1',
+  {headers},'CATALOG_UNAVAILABLE');
+ if(!Array.isArray(r)||r.length!==1||r[0].sku!==sku)throw fail('QA_TARGET_NOT_IN_CANONICAL_STORE',404);
+ return sku;
+}
+
 async function stripeSession(c,params,idempotencyKey){
  const response=await getJson('https://api.stripe.com/v1/checkout/sessions',{
   method:'POST',headers:{authorization:'Bearer '+c.key,
@@ -110,6 +125,7 @@ export async function onRequestGet({request,env}){
     paymentStatus:response.payment_status,status:response.status,
     verifiedSafe:safe&&response.status==='complete',
     memberEntitlementGranted:false,
+    targetSku:response.metadata?.gu71_target_sku||null,
     notice:'Stripe-hosted zero-amount Checkout only. Not a GU58 membership, Managed Payments or paid-charge verification.'});
   }
   await verify(c);
@@ -124,8 +140,12 @@ export async function onRequestPost({request,env}){
   if(Number(request.headers.get('content-length')||0)>512)throw fail('REQUEST_TOO_LARGE',413);
   const user=await authorize(request,env),c=setup(request,env);
   const input=await request.json().catch(()=>null);
-  if(input?.confirm!=='CREATE_ZERO_DOLLAR_LIVE_QA'||Object.keys(input).length!==1)
+  if(input?.confirm!=='CREATE_ZERO_DOLLAR_LIVE_QA'||!input||typeof input!=='object'||
+     Object.keys(input).some(k=>!['confirm','sku'].includes(k))||
+     Object.keys(input).length>2)
    throw fail('EXPLICIT_OWNER_CONFIRMATION_REQUIRED',400);
+  const sku=input.sku===undefined?'':val(input.sku);
+  if(input.sku!==undefined)await verifyDiagnosticTarget(env,sku);
   await verify(c);
   const p=new URLSearchParams();
   p.set('mode','payment');p.set('line_items[0][price]',c.price);
@@ -135,11 +155,12 @@ export async function onRequestPost({request,env}){
   p.set('client_reference_id',user);
   p.set('metadata[gu71_zero_qa]','true');p.set('metadata[gu71_owner]',user);
   p.set('metadata[gu71_price_id]',c.price);
+  if(sku)p.set('metadata[gu71_target_sku]',sku);
   p.set('success_url',c.origin+'/admin.html?gu71=complete&session_id={CHECKOUT_SESSION_ID}');
   p.set('cancel_url',c.origin+'/admin.html?gu71=cancelled');
   const day=new Date().toISOString().slice(0,10);
-  const session=await stripeSession(c,p,'gu71-zero-'+user+'-'+day);
-  return json({ok:true,live:true,zeroDollar:true,sessionUrl:session.url,
+  const session=await stripeSession(c,p,'gu71-zero-'+user+'-'+day+'-'+(sku||'general'));
+  return json({ok:true,live:true,zeroDollar:true,targetSku:sku||null,sessionUrl:session.url,
    notice:'Owner zero-dollar one-time Stripe Checkout only. NO membership or tool entitlements.'});
  }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE'},e.status||503)}
 }
