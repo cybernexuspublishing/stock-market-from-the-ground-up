@@ -71,7 +71,7 @@ const publicMessage=({400:'Invalid request.',401:'Sign in required.',403:'Reques
 return out({ok:false,error:publicMessage},status)}}
 ).test(path))
  return out({ok:false,error:'Valid book, retailer and receipt attachment are required.'},400);
- if(!usr.email_confirmed_at)return out({ok:false,error:'Confirm your member account email.',403},403);
+ if(!usr.email_confirmed_at)return out({ok:false,error:'Confirm your member account email.'},403);
  const result=await rest(env,'rpc/gu_support_create_book_receipt_v1',{method:'POST',
  body:{p_member:usr.id,p_book_code:book,p_retailer:retailer,p_order_ref:reference,
  p_evidence_path:path,p_notes:notes}});
