@@ -132,7 +132,7 @@ function paintLabPrerequisites(host,codes,guides,evidence){
  host.append(list);
  host.append(el('p','Your Learning Development report uses only actual verified assessments. Guided explanations and optional practice do not create mastery credit.'));
 }
-async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,skillEvidenceRequest,recallScheduler,memberFirstName='',allowTutorAI=true}={}){
+async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,creditRequest,skillEvidenceRequest,recallScheduler,memberFirstName='',allowTutorAI=true,progressStore=null}={}){
  if(!target||typeof target.replaceChildren!=='function')return false;
  const previousSession=sessions.get(target);
  previousSession?.dispose?.();
@@ -215,16 +215,59 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Learning journey progress');meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax','100');meter.append(meterFill);body.className='gu-v32-body';nav.className='actions';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const previous=button('Previous stage',()=>{if(stage>0&&!creditBusy){stage--;render()}}),
  next=button('Next learning stage',()=>nextStage());
- nav.append(previous,next);shell.append(heading,disclosure,progress,meter,journey,body,status,nav);target.replaceChildren(shell);
+ const checkpointNote=el('p','', 'gu-v33-checkpoint-status');
+ checkpointNote.setAttribute('role','status');
+ checkpointNote.setAttribute('aria-live','polite');
+ const saveCheckpointControl=button('Save my learning checkpoint',()=>void saveCheckpointNow());
+ saveCheckpointControl.className='btn secondary';saveCheckpointControl.hidden=!progressStore;
+ nav.append(previous,next,saveCheckpointControl);
+ shell.append(heading,disclosure,progress,meter,journey,body,status,nav,checkpointNote);
+ target.replaceChildren(shell);
  let stage=0,observations='',prediction='',predictionLocked=false,practice='',practiceCount=0,
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null,creditBusy=false;
  const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
  const passRequests=new Map();
- token.dispose=()=>{instructorInstance?.dispose?.();instructorInstance=null};
+ let checkpointReady=false,checkpointTimer=null;
+ token.dispose=()=>{
+  if(checkpointTimer!==null)clearTimeout(checkpointTimer);
+  checkpointTimer=null;checkpointReady=false;
+  instructorInstance?.dispose?.();instructorInstance=null;
+ };
  const narratedStages=new Set();
  const learnerReplies=new Map(); // stage => accepted answers in question order
+ function checkpointSnapshot(){
+  return{
+   version:1,mode,stage,observations,prediction,predictionLocked,
+   practice,practiceCount,practiceResolved,practiceAssisted,
+   transfer,transferCount,transferResolved,selfReview,reflection,
+   learnerReplies:[...learnerReplies.entries()]
+  };
+ }
+ async function saveCheckpointNow(){
+  if(!progressStore||!checkpointReady||sessions.get(target)!==token)return;
+  if(checkpointTimer!==null)clearTimeout(checkpointTimer);
+  checkpointTimer=null;
+  const checkpoint=checkpointSnapshot();
+  saveCheckpointControl.disabled=true;
+  checkpointNote.textContent='Saving private, ungraded learning progress…';
+  try{
+   await progressStore.save(checkpoint);
+   if(sessions.get(target)===token)checkpointNote.textContent=
+    'Saved through '+STEPS[checkpoint.stage]+'. This records study only; assessment credit is separate.';
+  }catch{
+   if(sessions.get(target)===token)checkpointNote.textContent=
+    'Progress was not confirmed saved. Select Save my learning checkpoint to retry; no grade was awarded.';
+  }finally{
+   if(sessions.get(target)===token)saveCheckpointControl.disabled=false;
+  }
+ }
+ function scheduleCheckpoint(){
+  if(!checkpointReady||!progressStore||sessions.get(target)!==token)return;
+  if(checkpointTimer!==null)clearTimeout(checkpointTimer);
+  checkpointTimer=setTimeout(()=>{checkpointTimer=null;void saveCheckpointNow()},420);
+ }
  function instructorQuestions(current){
   const reference=String(topic).slice(0,100);
   // Start is orientation only; Learn teaches before Check My Understanding.
@@ -298,6 +341,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   }
   list[index]=answer;
   learnerReplies.set(stage,list);
+  scheduleCheckpoint();
   return{accepted:true};
  }
  async function handleQuestionPass({action,index}={}){
@@ -609,7 +653,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    if(!special)showVisual(2);
    else if(kind==='vwap')showVisual(2);
    const input=field(body,'Record what changed and why (optional)',observations);
-   body.append(button('Record my observation',()=>{observations=input.value.trim();mark(observations?'Observation retained within this page.':'Add an observation if helpful.')}));freeExplanation();
+   body.append(button('Record my observation',()=>{observations=input.value.trim();scheduleCheckpoint();mark(observations?'Observation recorded as a private learning draft.':'Add an observation if helpful.')}));freeExplanation();
   }else if(stage===3){
    showVisual(3);
    appendParagraph(body,'Predict or describe the next relevant observation before seeing any subsequent market evidence. State what would invalidate your interpretation.');
@@ -1024,6 +1068,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    recall.append(schedule,result,reviews);body.append(recall);
   }
   previous.disabled=stage===0;next.disabled=stage===8;
+  scheduleCheckpoint();
  }
  function nextStage(fromInstructor=false){
   if(creditBusy){mark('Finish confirming your Crownlight Sparks first.');return}
@@ -1041,7 +1086,30 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    }
   }
  }
- render();
+ if(progressStore){
+  checkpointNote.textContent='Checking your private, ungraded learning checkpoint…';
+  try{
+   const saved=await progressStore.load();
+   if(sessions.get(target)!==token)return false;
+   if(saved){
+    stage=saved.stage;observations=saved.observations;
+    prediction=saved.prediction;predictionLocked=saved.predictionLocked;
+    practice=saved.practice;practiceCount=saved.practiceCount;
+    practiceResolved=saved.practiceResolved;practiceAssisted=saved.practiceAssisted;
+    transfer=saved.transfer;transferCount=saved.transferCount;
+    transferResolved=saved.transferResolved;selfReview=saved.selfReview;
+    reflection=saved.reflection;
+    for(const [key,values] of saved.learnerReplies)learnerReplies.set(key,values);
+    checkpointNote.textContent='Resumed your ungraded learning draft at '+STEPS[stage]+
+     '. No grade, mastered competency or historical outcome was restored.';
+   }else checkpointNote.textContent='No saved draft yet. This ungraded learning journey can save to your private account.';
+  }catch{
+   if(sessions.get(target)!==token)return false;
+   checkpointNote.textContent='Private progress could not be loaded. You may study locally; no saved checkpoint is claimed.';
+  }
+ }else checkpointNote.textContent='This learning journey is local to this page until an eligible member session is available.';
+ if(sessions.get(target)!==token)return false;
+ render();checkpointReady=true;
  // Ask the existing authenticated competency service, only during non-blind
  // modes. Account changes and rerenders cannot replay stale personalized state.
  if(typeof skillEvidenceRequest==='function'&&neededPrerequisites.length){
