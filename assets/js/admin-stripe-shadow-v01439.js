@@ -371,7 +371,7 @@
    const x=await response.json().catch(()=>null);
    if(!response.ok||x?.ok!==true)throw Error(x?.error||'Read-only release evidence is temporarily unavailable.');
    releaseResults.replaceChildren();
-   releaseResults.append(element('h3',x.go===true?'Preflight gates passed — final member payment acceptance still required':'NO-GO — Public LIVE checkout remains gated'));
+   releaseResults.append(element('h3',x.operationalCheckoutConfigured===true?'LIVE selling configured — first paid fulfillment acceptance pending':x.go===true?'Payment release checks passed':'NO-GO — LIVE payment configuration incomplete'));
    releaseResults.append(element('p',String(x.storeCount)+' Store faces; '+String(x.mappedSKUs)+' mapped paid SKUs; '+
     String(x.activePriceCount)+' active LIVE Prices; '+String(x.activeProductCount)+' active Stripe Products.'));
    const denied=Array.isArray(x.blockers)?x.blockers:[],allowed=Array.isArray(x.verified)?x.verified:[];
@@ -387,7 +387,7 @@
     const row=element('tr');for(const value of [category,String(v.total),String(v.ready)])row.append(element('td',value));body.append(row);
    }
    table.append(body);releaseResults.append(table,element('p',String(x.explanation||'')));
-  }catch(e){releaseResults.replaceChildren(element('p','LIVE commerce preflight unavailable: '+(e.message||'Unknown error')+'. Checkout stays closed.'))}
+  }catch(e){releaseResults.replaceChildren(element('p','LIVE commerce preflight unavailable: '+(e.message||'Unknown error')+'. Check LIVE status independently.'))}
   finally{releaseButton.disabled=false}
  });
  const QA_URL='/api/owner-zero-live-checkout';
