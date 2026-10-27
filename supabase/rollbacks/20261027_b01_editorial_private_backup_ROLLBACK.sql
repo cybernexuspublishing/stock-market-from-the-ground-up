@@ -26,8 +26,8 @@ BEGIN
    WHERE lab_id=item.lab_id AND version=item.version
      AND review_state='draft' AND md5(questions::text)=item.applied_md5;
   IF NOT FOUND THEN RAISE EXCEPTION 'B01 rollback CAS mismatch for %',item.lab_id; END IF;
-  INSERT INTO public.admin_audit_log(actor_user_id,action,target_type,target_id,details)
-  VALUES(NULL,'B01_EDITORIAL_SOURCE_ROLLBACK','lab_training_sets_v014',item.lab_id||':v'||item.version,
+  INSERT INTO public.admin_audit_log(id,actor_user_id,action,target_type,target_id,details)
+  VALUES(nextval('public.admin_audit_log_id_seq'::regclass),NULL,'B01_EDITORIAL_SOURCE_ROLLBACK','lab_training_sets_v014',item.lab_id||':v'||item.version,
    jsonb_build_object('reason','reversible private draft feedback correction',
    'restore_from_private_backup',true,'review_state','draft'));
  END LOOP;
