@@ -26,15 +26,15 @@ class Tags(HTMLParser):
 def valid_html(s):
  t=Tags();t.feed(s);assert not t.stack,t.stack
 valid_html(store)
-for category in ('founders','memberships','books','tools'):
+for category in ('founders','books','tools'):
  assert store.count('id="store-tab-'+category+'"')==1
  assert store.count('id="store-panel-'+category+'"')==1
  assert 'aria-controls="store-panel-'+category+'"' in store
  assert 'role="tabpanel"' in store
  assert 'store.html#' in details
-# The approved Memberships tab is distinct from Founding Members. Its
-# server-verified price/entitlement gates, not tab presence, control purchase.
-assert store.count('id="store-tab-memberships"')==1
+# Owner directed old public Memberships selection hidden; existing member and
+# billing records remain available to their authenticated owners.
+assert store.count('id="store-tab-memberships"')==0
 assert store.count('id="store-panel-memberships"')==1
 assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
