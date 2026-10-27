@@ -28,6 +28,7 @@ assert.match(toolPeriod(overdue),/Unconfirmed billing period end/);
 assert.match(toolPeriod(ended),/Recorded ended billing period/);
 assert.match(toolPeriod({status:'active'}),/No verified paid-through date/);
 assert.equal(billingNotice(active),'');
+assert(text.includes('dashboard.html?tab=support'),'Unavailable billing portal has a usable private Support route');
 assert.match(billingNotice(scheduled),/Cancellation is scheduled/);
 assert.match(billingNotice(overdue),/role="alert"/);
 assert.match(billingNotice(ended),/subscription has ended/i);
