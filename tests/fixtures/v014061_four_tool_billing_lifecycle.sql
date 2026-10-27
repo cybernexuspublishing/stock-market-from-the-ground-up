@@ -8,6 +8,11 @@ INSERT INTO auth.users(id) VALUES
  ('55555555-5555-4555-8555-555555555555'),
  ('66666666-6666-4666-8666-666666666666'),
  ('77777777-7777-4777-8777-777777777777');
+INSERT INTO public.profiles(id) VALUES
+ ('44444444-4444-4444-8444-444444444444'),
+ ('55555555-5555-4555-8555-555555555555'),
+ ('66666666-6666-4666-8666-666666666666'),
+ ('77777777-7777-4777-8777-777777777777');
 INSERT INTO public.gu61_staging_checkout_intents(
  id,user_id,sku_kind,sku_code,price_id,quoted_amount_cents,stripe_session_id,status)
 VALUES
@@ -64,6 +69,37 @@ BEGIN
  END LOOP;
  RAISE NOTICE 'PASS all four paid tools activate exactly one isolated entitlement';
 END $paid$;
+-- Against the read-only snapshot of the ACTUAL production access function,
+-- test that nonmember, restricted and Showcase identities cannot use paid tools.
+UPDATE public.profiles SET account_kind='showcase'
+ WHERE id='77777777-7777-4777-8777-777777777777';
+DO $nonmember$ BEGIN
+ IF public.user_has_tool_access('77777777-7777-4777-8777-777777777777','MARKET_TUTOR')
+ THEN RAISE EXCEPTION 'SHOWCASE_PROFILE_GRANTED_PAID_TUTOR'; END IF;
+END $nonmember$;
+UPDATE public.profiles SET account_kind='member'
+ WHERE id='77777777-7777-4777-8777-777777777777';
+INSERT INTO public.admin_user_flags(user_id,status) VALUES
+ ('77777777-7777-4777-8777-777777777777','restricted');
+DO $restricted$ BEGIN
+ IF public.user_has_tool_access('77777777-7777-4777-8777-777777777777','MARKET_TUTOR')
+ THEN RAISE EXCEPTION 'RESTRICTED_MEMBER_GRANTED_PAID_TUTOR'; END IF;
+END $restricted$;
+DELETE FROM public.admin_user_flags
+ WHERE user_id='77777777-7777-4777-8777-777777777777';
+INSERT INTO public.admin_user_roles(user_id,role_code) VALUES
+ ('77777777-7777-4777-8777-777777777777','SHOWCASE_VIEWER');
+DO $showcase$ BEGIN
+ IF public.user_has_tool_access('77777777-7777-4777-8777-777777777777','MARKET_TUTOR')
+ THEN RAISE EXCEPTION 'SHOWCASE_ROLE_GRANTED_PAID_TUTOR'; END IF;
+END $showcase$;
+DELETE FROM public.admin_user_roles
+ WHERE user_id='77777777-7777-4777-8777-777777777777';
+DO $restore$ BEGIN
+ IF NOT public.user_has_tool_access('77777777-7777-4777-8777-777777777777','MARKET_TUTOR')
+ THEN RAISE EXCEPTION 'ELIGIBLE_PAID_MEMBER_NOT_RESTORED'; END IF;
+ RAISE NOTICE 'PASS profile, restrictions and showcase roles override verified purchase';
+END $restore$;
 -- Redelivery must be idempotent, even though subscription price and tool are valid.
 SELECT public.gu61_staging_stripe_apply_event('evt_tool_interactive_1','subscription_active',
  'cs_test_interactive0001','sub_tool_interactive01',NULL,'price_interactive0001',2999,'usd',
