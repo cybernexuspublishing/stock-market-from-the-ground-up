@@ -18,6 +18,11 @@ on:
       - 'supabase/reviews/2026-10-27_B01_NEXT40_READ_ONLY.sql'
       - 'docs/qa/2026-10-27_B01_NEXT40_EDITORIAL_DECISION_REGISTER.csv'
       - 'tests/test_b01_next40_editorial_contract.mjs'
+      - 'tests/test_b01_remaining60_and_eight_rubrics.mjs'
+      - 'docs/qa/2026-10-27_B01_REMAINING60_QUESTION_EDITORIAL_REGISTER.csv'
+      - 'docs/qa/2026-10-27_B01_EIGHT_FULL_RUBRIC_CONTENT_REGISTER.csv'
+      - 'supabase/reviews/20261027_b01_remaining60_choices_read_only.sql'
+      - 'supabase/reviews/20261027_b01_eight_full_rubric_read_only.sql'
       - '.github/workflows/b01-protected-assessment-contract.yml'
   workflow_dispatch:
 permissions:
@@ -70,3 +75,4 @@ jobs:
           node tests/test_b01_invalid_choice_and_remediation.mjs
           node tests/test_v014117_lab_topic_gate.mjs
           node tests/test_b01_next40_editorial_contract.mjs
+          node tests/test_b01_remaining60_and_eight_rubrics.mjs
