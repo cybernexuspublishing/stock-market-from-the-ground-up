@@ -13,7 +13,17 @@ const esc=encodeURIComponent;
 function cfg(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),secret=String(env.SUPABASE_SECRET_KEY||'');if(!/^https:\/\/[^/]+$/.test(base)||!secret)throw fail('Training system configuration unavailable.',503);return {base,secret}}
 // Opaque sb_secret_* Supabase keys MUST NOT be sent as Bearer JWTs.
 const serviceHeaders=secret=>{const headers={apikey:secret,accept:'application/json'};if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))headers.authorization='Bearer '+secret;return headers};
-async function db(env,path,method='GET',body){const c=cfg(env),r=await fetch(c.base+'/rest/v1/'+path,{method,headers:{...serviceHeaders(c.secret),...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'}),t=await r.text();if(!r.ok)throw fail('Training database contract unavailable; verify installed objects and server permissions.',503);try{return t?JSON.parse(t):[]}catch{throw fail('Invalid training database response.',503)}}
+async function db(env,path,method='GET',body){const c=cfg(env),r=await fetch(c.base+'/rest/v1/'+path,{method,headers:{...serviceHeaders(c.secret),...(body===undefined?{}:{'content-type':'application/json',prefer:'return=representation'})},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'}),t=await r.text();if(!r.ok){
+ // Translate known input/step errors into safe, actionable statuses without
+ // exposing the private SQL grader, answer key, or database exception text.
+ let code='',message='';try{const e=JSON.parse(t);code=String(e?.code||'');message=String(e?.message||'')}catch{}
+ if(path==='rpc/v014_training_answer'){
+  if(code==='22023')throw fail('Select an answer from the current options, or enter a valid decimal number. Your attempt was not advanced.',422);
+  if(message==='Stale training step. Resume current attempt.')throw fail('Your saved attempt moved to another step. Refresh the current question before answering again.',409);
+  if(message==='Reviewed answer key unavailable')throw fail('The reviewed question version is no longer available. Your previous work remains saved.',409);
+ }
+ throw fail('Training database contract unavailable; verify installed objects and server permissions.',503);
+ }try{return t?JSON.parse(t):[]}catch{throw fail('Invalid training database response.',503)}}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Reviewed book-derived exercises require BOTH a premium training entitlement
 // and the matching book entitlement. The private Lab metadata is not public.
