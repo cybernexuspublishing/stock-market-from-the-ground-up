@@ -47,7 +47,7 @@ globalThis.fetch=async(path,o={})=>{
   writes++;
   const p=JSON.parse(o.body);
   mapped.push({sku:p.p_sku,stripe_product_id:p.p_product_id,stripe_price_id:p.p_price_id});
-  if(!rows.find(r=>r.sku===p.p_sku))rows.push({sku:p.p_sku,category:p.p_sku.split(':')[0]});
+  if(!rows.find(r=>r.sku===p.p_sku))rows.push({sku:p.p_sku,category:p.p_sku.startsWith('course:')?'bootcamp':p.p_sku.split(':')[0]});
   return reply({ok:true,sku:p.p_sku,newStoreItem:writes===1});
  }
  throw Error('Unhandled '+method+' '+u);
