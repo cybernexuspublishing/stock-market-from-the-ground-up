@@ -449,7 +449,25 @@ async function handlePost(env,request,action){
     const c=await withContext(env,request,'catalog.manage');const code=safeCode(body.product_code);await serviceRest(env,`catalog_products?product_code=eq.${encodeURIComponent(code)}`,{method:'PATCH',prefer:'return=minimal',body:{active:false,updated_at:nowIso(),updated_by:c.user.id}});await audit(env,c.user.id,'catalog.archive','product',code,{});return ok();
   }
   if(action==='setting_save'){
-    const c=await withContext(env,request,'settings.manage');const key=clean(body.setting_key);if(!key)return bad('Setting key required.');if(key==='commerce.checkout_enabled')return bad('Checkout activation is controlled by the audited payment rollout, not generic Site Settings.',409);if(/secret|password|token|private[_-]?key|service[_-]?role/i.test(key))return bad('Secrets must stay in Cloudflare environment variables, not site_settings.',409);const row={setting_key:key,category:clean(body.category||'general'),value:body.value,public_read:!!body.public_read,description:clean(body.description)||null,updated_at:nowIso(),updated_by:c.user.id};await serviceRest(env,'site_settings?on_conflict=setting_key',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'setting.save','setting',key,{public_read:row.public_read});return ok();
+    const c=await withContext(env,request,'settings.manage');const key=clean(body.setting_key);if(!key)return bad('Setting key required.');if(key==='commerce.checkout_enabled')return bad('Checkout activation is controlled by the audited payment rollout, not generic Site Settings.',409);if(/secret|password|token|private[_-]?key|service[_-]?role/i.test(key))return bad('Secrets must stay in Cloudflare environment variables, not site_settings.',409);if(key==='website_background_v1'){
+      if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner can publish a website background.',403);
+      const v=body.value;
+      const prefix=String(c.user.id||'').toLowerCase()+'/SITE_BACKGROUND/';
+      const path=String(v?.path||'');
+      const valid=path.startsWith(prefix)&&/^[a-z0-9_-]{10,60}\\.(jpg|jpeg|png|webp)$/.test(path.slice(prefix.length));
+      if(!v||typeof v!=='object'||Array.isArray(v)||typeof v.enabled!=='boolean'||
+         !Number.isFinite(v.overlay)||v.overlay<.35||v.overlay>.92||
+         !['center','top','bottom'].includes(v.position)||
+         (v.enabled&&!valid)||(!v.enabled&&path))return bad('Invalid Owner background or image path.',400);
+      if(v.enabled){
+       const {url}=envConfig(env);
+       const imageUrl=url+'/storage/v1/object/public/gu-store-photos/'+path.split('/').map(encodeURIComponent).join('/');
+       const check=await fetch(imageUrl,{method:'HEAD',cache:'no-store'});
+       if(!check.ok||!/^image\\/(jpeg|png|webp)/i.test(check.headers.get('content-type')||''))return bad('Uploaded background image not verified.',409);
+      }
+      body.category='design';body.public_read=true;body.description='Owner-approved sitewide background image and readability overlay';
+    }
+    const row={setting_key:key,category:clean(body.category||'general'),value:body.value,public_read:!!body.public_read,description:clean(body.description)||null,updated_at:nowIso(),updated_by:c.user.id};await serviceRest(env,'site_settings?on_conflict=setting_key',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'setting.save','setting',key,{public_read:row.public_read});return ok();
   }
   if(action==='content_save'){
     const c=await withContext(env,request,'content.manage');const type=clean(body.content_type);if(type==='tutor_topic'&&!has(c.ctx,'tutor.manage'))return bad('Tutor management permission required.',403);if(type==='announcement'&&!has(c.ctx,'announcements.manage'))return bad('Announcement management permission required.',403);const code=safeCode(body.content_code);if(!code||!body.title)return bad('Content code and title are required.');const allowed=['tutor_topic','announcement','resource','release','challenge','faq'];if(!allowed.includes(type))return bad('Invalid content type.');const row={content_code:code,content_type:type,title:clean(body.title),summary:clean(body.summary)||null,body:clean(body.body)||null,status:['draft','published','archived'].includes(body.status)?body.status:'draft',sort_order:Number(body.sort_order||100),starts_at:body.starts_at||null,ends_at:body.ends_at||null,metadata:body.metadata&&typeof body.metadata==='object'?body.metadata:{},updated_at:nowIso(),updated_by:c.user.id};await serviceRest(env,'managed_content?on_conflict=content_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'content.save','content',code,{type,status:row.status});return ok({content_code:code});
