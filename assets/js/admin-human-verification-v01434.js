@@ -4,26 +4,26 @@ const make=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.
 function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="settings"]');if(!panel)return false;
  const box=make('section');box.className='admin-card';box.dataset.gu34Captcha='1';
- const heading=make('h2','Human Verification (CAPTCHA)');
- const summary=make('p','Protect sign-in, account creation, password reset and sensitive Admin changes from automated requests. No authenticator app is required.');
+ const heading=make('h2','Human Verification');
+ const summary=make('p','Turnstile protection for account access.');
  const status=make('p','Checking website setup…');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const button=make('button','Check Human Verification');button.type='button';button.className='btn secondary';
- const instructions=make('details');const title=make('summary','How to finish setup');
+ const instructions=make('details');const title=make('summary','Turnstile setup');
  const steps=make('ol');[
   'In Cloudflare, create a Turnstile widget and add '+window.location.hostname+' as an allowed hostname.',
-  'In Cloudflare Pages, add TURNSTILE_SITE_KEY and the secret TURNSTILE_SECRET_KEY. Set ENFORCE_AUTH_TURNSTILE_V135 to true, then redeploy.',
+  'In Cloudflare Pages, configure TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY. Use the Admin button below to enforce and redeploy.',
   'In Supabase Authentication → Bot and Abuse Protection, enable Cloudflare Turnstile using the same secret.',
   'Verify sign-in, registration, password reset, and Admin password confirmation in a test account.'
  ].forEach(item=>steps.append(make('li',item)));
  const cf=make('a','Cloudflare dashboard');cf.href='https://dash.cloudflare.com/';cf.target='_blank';cf.rel='noopener noreferrer';
  const sp=make('a','Supabase CAPTCHA guide');sp.href='https://supabase.com/docs/guides/auth/auth-captcha';sp.target='_blank';sp.rel='noopener noreferrer';
  instructions.append(title,steps,cf,make('br'),sp);
- box.append(heading,summary,status,button,instructions);panel.prepend(box);
+ box.append(heading,status,button,instructions);panel.prepend(box);
  const ownerControl=make('section');ownerControl.className='admin-card';
  const ownerStatus=make('p','Checking Owner CAPTCHA controls…');ownerStatus.setAttribute('role','status');ownerStatus.setAttribute('aria-live','polite');
  const ownerToggle=make('button','Disable website CAPTCHA');ownerToggle.type='button';ownerToggle.className='btn secondary';ownerToggle.hidden=true;ownerToggle.disabled=true;
  const ownerHelp=make('p','The switch must change both Supabase Auth and Cloudflare website verification. If the management credential is missing, no partial disable is permitted.');ownerHelp.className='small';
- ownerControl.append(ownerStatus,ownerToggle,ownerHelp);
+ ownerControl.append(ownerStatus,ownerToggle);
  box.append(ownerControl);
  let actual=null;
  async function ownerToken(){const sb=await window.getSupabaseClient();const {data:{session}}=await sb.auth.getSession();
@@ -39,8 +39,8 @@ function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
    ownerToggle.hidden=false;ownerToggle.disabled=!data.available||!data.synchronized;
    ownerToggle.textContent=data.websiteEnabled?'Disable website CAPTCHA':'Enable website CAPTCHA';
    ownerStatus.textContent=data.available?
-    ('Website '+(data.websiteEnabled?'ENABLED':'DISABLED')+'; Supabase Auth '+(data.supabaseEnabled?'ENABLED':'DISABLED')+'. '+(data.synchronized?'Both layers agree.':'Settings do not match.')) :
-    'One-click CAPTCHA control requires a Supabase Management API credential in Cloudflare Production (SUPABASE_MANAGEMENT_ACCESS_TOKEN). CAPTCHA remains enabled.';
+    ('Website: '+(data.websiteEnabled?'On':'Off')+' · Supabase: '+(data.supabaseEnabled?'On':'Off')+'.') :
+    'Supabase CAPTCHA management unavailable.';
   }catch(err){ownerToggle.disabled=true;ownerStatus.textContent=err.message||'Owner CAPTCHA state unavailable'}
  }
  ownerToggle.addEventListener('click',async()=>{
@@ -61,13 +61,52 @@ function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
   await ownerCheck();
  });
  void ownerCheck();
+ const deploy=make('button','Enable Turnstile & Redeploy');
+ deploy.type='button';deploy.className='btn';deploy.disabled=true;
+ const deployStatus=make('p','Checking deployment access…');
+ deployStatus.setAttribute('role','status');deployStatus.setAttribute('aria-live','polite');
+ const redeploySection=make('div');redeploySection.className='gu34-turnstile-deploy';
+ redeploySection.append(deploy,deployStatus);box.append(redeploySection);
+ async function deployState(){
+  try{
+   const r=await fetch('/api/owner-turnstile-redeploy-v1',{headers:{authorization:'Bearer '+await ownerToken()},cache:'no-store'});
+   const v=await r.json().catch(()=>null);
+   if(r.status===401||r.status===403){redeploySection.hidden=true;return}
+   if(!r.ok||v?.ok!==true)throw Error(v?.error||'Deployment state unavailable');
+   redeploySection.hidden=false;
+   deploy.disabled=!v.configured||!v.keysReady;
+   deployStatus.textContent=!v.keysReady?'Turnstile keys missing.':
+    !v.configured?'Cloudflare Pages management token required.':
+    (v.enabled?'Turnstile enabled. Redeploy available.':'Turnstile off. Ready to enable and redeploy.');
+  }catch(e){deploy.disabled=true;deployStatus.textContent=e.message||'Deployment status unavailable'}
+ }
+ deploy.onclick=async()=>{
+  if(deploy.disabled)return;
+  if(!window.confirm('Enable Turnstile on the production website and redeploy Cloudflare Pages?'))return;
+  deploy.disabled=true;deployStatus.textContent='Confirming Owner access…';
+  try{
+   const step=window.GroundUpAdminPasswordConfirm?.ensure;
+   if(typeof step!=='function')throw Error('Owner password confirmation unavailable');
+   await step();
+   deployStatus.textContent='Starting Cloudflare deployment…';
+   const r=await fetch('/api/owner-turnstile-redeploy-v1',{
+    method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+await ownerToken()},
+    body:JSON.stringify({confirm:'ENABLE_AUTH_TURNSTILE_AND_REDEPLOY'})});
+   const data=await r.json().catch(()=>null);
+   if(!r.ok||data?.ok!==true||data.redeployStarted!==true)
+    throw Error(data?.error||'Cloudflare deployment failed');
+   deployStatus.textContent='Turnstile enabled. Deployment started.';
+  }catch(e){deployStatus.textContent=e.message||'Deployment not started'}
+  finally{await deployState()}
+ };
+ void deployState();
 
- const check=async()=>{button.disabled=true;status.textContent='Checking public website CAPTCHA configuration…';
+ const check=async()=>{button.disabled=true;status.textContent='Checking Turnstile…';
   try{const r=await fetch('/api/auth-guard-v0135',{cache:'no-store'});const j=await r.json();
    if(r.ok&&j.ok===true&&j.enabled===true&&typeof j.sitekey==='string'&&j.sitekey.length>5)
-    status.textContent='Website CAPTCHA keys appear configured. Supabase verification still needs a real sign-in and password-confirmation test.';
-   else{status.textContent='CAPTCHA setup is incomplete. Follow the setup steps below. Password confirmation stays blocked until it is configured.';instructions.open=true}
-  }catch{status.textContent='Could not check CAPTCHA setup. Sensitive actions remain blocked until verified.';instructions.open=true}
+    status.textContent='Turnstile configured.';
+   else{status.textContent='Turnstile setup incomplete.';}
+  }catch{status.textContent='Turnstile status unavailable.';}
   finally{button.disabled=false}};
  button.onclick=check;void check();return true;
 }
