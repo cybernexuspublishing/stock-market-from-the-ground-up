@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!document.querySelector('link[href*="sitewide-composition-v014234.css"]')){
       const link=document.createElement('link');
       link.rel='stylesheet';
-      link.href='/assets/css/sitewide-composition-v014234.css';
+      link.href='/assets/css/sitewide-composition-v014234.css?v=emerald20261027';
       link.setAttribute('data-gu-sitewide-composition','1');
       document.head.append(link);
     }

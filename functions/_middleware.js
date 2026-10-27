@@ -318,7 +318,7 @@ export async function onRequest(context){
         if(path==='/admin.html'||path==='/admin')el.append('<link rel="stylesheet" href="/assets/css/admin-operations.css">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/control-center.css">',{html:true});
         // Final visual composition layer after legacy layout CSS; route-specific and passive.
-        el.append('<link rel="stylesheet" href="/assets/css/sitewide-composition-v014234.css">',{html:true});
+        el.append('<link rel="stylesheet" href="/assets/css/sitewide-composition-v014234.css?v=emerald20261027">',{html:true});
         el.append('<link rel="stylesheet" href="/assets/css/accounts-and-lab-preview.css">',{html:true});
         /* admin.html already loads admin-navigation.css; do not duplicate this stylesheet. */
         el.append('<script defer src="/assets/js/service-worker.js"></script>',{html:true});
