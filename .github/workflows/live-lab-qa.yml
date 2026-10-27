@@ -30,4 +30,6 @@ jobs:
         env:
           LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
           LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
-        run: node tests/live-lab-qa.mjs
+        run: |
+          node tests/live-lab-qa.mjs
+          node tests/live-member-browser-qa.mjs

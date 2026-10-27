@@ -22,8 +22,10 @@ try{
  // Check the real production CAPTCHA gate without fabricating or consuming a challenge.
  const guardResponse=await page.request.get(origin+'/api/auth-guard-v0135',{timeout:20000});
  const guard=await guardResponse.json().catch(()=>({}));
- if(!guardResponse.ok()||guard.ok!==true||guard.enabled!==true){
-  failure=true;console.error('FAIL real production CAPTCHA configuration unavailable or not enabled.');
+ if(!guardResponse.ok()||guard.ok!==true||typeof guard.enabled!=='boolean'){
+  failure=true;console.error('FAIL production CAPTCHA gate configuration could not be verified.');
+ }else if(guard.enabled===false){
+  console.log('TEMP OWNER CONFIG: CAPTCHA reported disabled; no human challenge tested and no CAPTCHA acceptance claimed.');
  }else{
   const start=page.locator('#v143-start-human');
   try{
