@@ -26,7 +26,7 @@ const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limi
   return membershipIds.map(code=>items.find(p=>p.planCode===code)).filter(Boolean);
  };
 const activeTool=t=>t.status==='live'&&Number(t.priceCents)>0;
-const listedTool=t=>['live','beta','in_development','development'].includes(String(t.status||''));
+const listedTool=t=>['live','beta','planned','in_development','development'].includes(String(t.status||''));
 const futureLearning=()=>[]; // Not-started roadmap concepts are hidden, not marketed as products.
 function planCard(p){
  const rec=p.planCode==='FULL_MONTHLY',page=details('plan',p.planCode);
@@ -70,9 +70,9 @@ function bookCard(p){
 const toolImages={INTERACTIVE_LEARNING:'assets/img/store-tools/interactive-learning.svg',JOURNAL_ANALYTICS:'assets/img/store-tools/journal-analytics.svg',MARKET_SIMULATOR:'assets/img/store-tools/market-simulator.svg',MARKET_TUTOR:'assets/img/store-tools/market-tutor.svg'};
 function toolCard(t){
  const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled;
- const price=released?dollars(t.priceCents)+'/month':'Pricing to be announced';
+ const price=Number(t.priceCents)>0?dollars(t.priceCents)+'/month':t.toolCode==='ONDEMAND_TRAINING'?'Included with Historical Replay Learning — $19.99/month':'Included with eligible membership';
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
- '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Coming Soon · Not yet released')+'</span>';
+ '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Beta / development · Individual checkout unavailable')+'</span>';
  return `<article class="v11-tool-card store-sell-card">${toolImages[t.toolCode]?`<a class="store-tool-visual" href="${esc(page)}" aria-label="Explore ${esc(t.name)}"><img src="${esc(toolImages[t.toolCode])}" alt="" loading="lazy" width="640" height="320"></a>`:'<div class="store-tool-visual store-tool-visual-generic" aria-hidden="true"></div>'}<div class="eyebrow">${esc(t.category)}</div>
  <span class="store-beta-ribbon">${enroll?'Beta OPEN':'Coming Soon'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
  <p>${esc(t.description||'Further product information is being prepared.')}</p>
