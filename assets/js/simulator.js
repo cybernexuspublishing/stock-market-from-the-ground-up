@@ -6,8 +6,52 @@ function smsg(id,text,type=''){const e=$(id);if(!e)return;e.textContent=text||''
 function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
 function fmt(v,d=4){return Number.isFinite(Number(v))?Number(v).toFixed(d):'—'}
 function money(v){return Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}):'—'}
-function parseTimestamp(row){const raw=row.timestamp||row.datetime||row.date_time||row.time_stamp||(row.date&&row.time?`${row.date}T${row.time}`:row.date);const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}
-function parseCSV(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<2)throw new Error('CSV needs a header row and at least one candle.');const headers=lines[0].split(',').map(x=>x.trim().toLowerCase());const rows=[];for(let i=1;i<lines.length;i++){const parts=splitCSVLine(lines[i]);const row={};headers.forEach((h,j)=>row[h]=parts[j]?.trim()??'');const ts=parseTimestamp(row),open=n(row.open),high=n(row.high),low=n(row.low),close=n(row.close),volume=n(row.volume)||0;if(!ts||[open,high,low,close].some(v=>v===null))continue;if(high<Math.max(open,close)||low>Math.min(open,close)||high<low)continue;rows.push({time:ts,open,high,low,close,volume})}rows.sort((a,b)=>a.time-b.time);if(rows.length<2)throw new Error('No valid OHLCV rows found. Use timestamp,open,high,low,close,volume.');return rows}
+// CSV timestamps must carry a timezone when intraday. Browser-local parsing
+// changes across member devices and is not acceptable as historical evidence.
+function parseTimestamp(row){
+ const raw=String(row.timestamp||row.datetime||row.date_time||row.time_stamp||
+  (row.date&&row.time?`${row.date}T${row.time}`:row.date)||'').trim();
+ const valid=/^\d{4}-\d{2}-\d{2}(?:[T ][0-2]\d:[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-](?:0\d|1[0-4]):[0-5]\d))?$/i;
+ if(!valid.test(raw))return null;
+ const d=new Date(raw);return Number.isFinite(d.getTime())?d:null;
+}
+const SIM_CSV_MAX_BYTES=4*1024*1024,SIM_CSV_MAX_BARS=20000;
+function parseCSV(text){
+ if(typeof text!=='string'||text.length>SIM_CSV_MAX_BYTES)
+  throw Error('CSV exceeds the 4 MiB browser practice limit.');
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+ if(lines.length<3)throw Error('CSV needs a header and at least two OHLCV candles.');
+ if(lines.length>SIM_CSV_MAX_BARS+1)throw Error('CSV has over 20,000 candles; narrow the practice window.');
+ const headers=splitCSVLine(lines[0]).map(x=>x.trim().toLowerCase());
+ const required=['open','high','low','close','volume'];
+ const timeHeaders=['timestamp','datetime','date_time','time_stamp','date'];
+ if(required.some(k=>headers.filter(h=>h===k).length!==1)||
+  !timeHeaders.some(k=>headers.includes(k))||
+  new Set(headers).size!==headers.length)
+  throw Error('CSV requires unique timestamp,open,high,low,close,volume columns.');
+ const rows=[],seen=new Set();
+ for(let i=1;i<lines.length;i++){
+  const parts=splitCSVLine(lines[i]);
+  if(parts.length!==headers.length)
+   throw Error('CSV row '+(i+1)+' has '+parts.length+' cells; expected '+headers.length+'.');
+  const row={};headers.forEach((h,j)=>row[h]=parts[j].trim());
+  const ts=parseTimestamp(row);
+  if(!ts)throw Error('CSV row '+(i+1)+' needs a valid ISO date or timezone-qualified timestamp.');
+  const num=key=>/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$/.test(row[key])?
+   Number(row[key]):NaN;
+  const open=num('open'),high=num('high'),low=num('low'),close=num('close'),volume=num('volume');
+  if(![open,high,low,close,volume].every(Number.isFinite)||
+    Math.min(open,high,low,close)<=0||volume<0||
+    high<Math.max(open,close)||low>Math.min(open,close)||high<low)
+   throw Error('CSV row '+(i+1)+' has an invalid OHLCV value, zero/negative price, or impossible range.');
+  const at=ts.getTime();
+  if(seen.has(at))throw Error('CSV row '+(i+1)+' repeats an existing timestamp. Resolve duplicate bars before replay.');
+  seen.add(at);
+  rows.push({time:ts,open,high,low,close,volume});
+ }
+ rows.sort((a,b)=>a.time-b.time);
+ return rows;
+}
 function splitCSVLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out}
 function current(){return SIM.candles[SIM.index]||null}
 function etParts(d){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));return {date:`${o.year}-${o.month}-${o.day}`,time:`${o.hour}:${o.minute}:00`,label:`${o.month}/${o.day}/${o.year} ${o.hour}:${o.minute} ET`}}
@@ -79,7 +123,7 @@ function loadFictionalPractice(){
  smsg('sim-load-msg','Loaded '+SIM.candles.length+' ORIGINAL FICTIONAL candles. Use Next Bar to reveal one at a time, or write and lock an educational plan to save a paper Journal entry. No official grade or real fill.','success');
  renderAll();
 }
-async function loadCSV(){const file=$('sim-csv').files?.[0];if(!file){smsg('sim-load-msg','Choose a CSV file first.','error');return}try{const text=await file.text();SIM.candles=parseCSV(text);SIM.sourceName=file.name;SIM.sourceProvider='csv_upload';const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} candles from ${file.name}. Future candles are hidden from the replay.`, 'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
+async function loadCSV(){const file=$('sim-csv').files?.[0];if(!file){smsg('sim-load-msg','Choose a CSV file first.','error');return}try{if(file.size>SIM_CSV_MAX_BYTES)throw Error('CSV file exceeds 4 MiB. Select a smaller teaching window.');const text=await file.text();SIM.candles=parseCSV(text);SIM.sourceName=file.name;SIM.sourceProvider='csv_upload';const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} candles from ${file.name}. Future candles are hidden from the replay.`, 'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
 async function loadProvider(){if(!SIM.hasPremium){smsg('sim-load-msg','Connected-provider market data requires the Market Simulator entitlement. Free members can use the fictional starter or their own CSV without a paid tool.','error');return}const ticker=$('sim-ticker').value.trim().toUpperCase(),start=$('sim-start-date')?.value,end=$('sim-end-date')?.value,freq=$('sim-resample')?.value||'1min';if(!ticker||!start||!end){smsg('sim-load-msg','Ticker, context start date, and context end date are required.','error');return}try{const {data}=await SIM.sb.auth.getSession(),token=data.session?.access_token;if(!token)throw new Error('Sign in required.');smsg('sim-load-msg','Loading connected market data…');const q=new URLSearchParams({action:'bars',provider:'TIINGO_BYO',ticker,start,end,freq});const r=await fetch(`/api/marketdata?${q}`,{headers:{authorization:`Bearer ${token}`},cache:'no-store'});const j=await r.json();if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);SIM.candles=(j.bars||[]).map(x=>({time:new Date(x.timestamp),open:n(x.open),high:n(x.high),low:n(x.low),close:n(x.close),volume:n(x.volume)||0})).filter(x=>!Number.isNaN(x.time.getTime())&&[x.open,x.high,x.low,x.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time);if(SIM.candles.length<2)throw new Error('The provider returned too few valid bars for this date range.');SIM.sourceName=`Tiingo ${ticker} ${start} to ${end}`;SIM.sourceProvider='tiingo_byo';const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} provider bars. Future candles remain hidden. ${j.sourceNote||''}`,'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
 async function loadContextEnvelope(lab){if(!lab)return;try{const {data}=await SIM.sb.from('historical_context_envelopes').select('*').eq('lab_id',lab).in('status',['verified','published']).order('updated_at',{ascending:false}).limit(1);const e=data?.[0];if(!e)return;SIM.contextEnvelope=e;const d=x=>x?new Date(x).toISOString().slice(0,10):'';$('sim-ticker').value=e.ticker||$('sim-ticker').value;if($('sim-start-date'))$('sim-start-date').value=d(e.context_start_at);if($('sim-end-date'))$('sim-end-date').value=d(e.context_end_at);const note=$('sim-context-note');if(note){note.hidden=false;note.innerHTML=`<strong>Historical Context Envelope:</strong> ${e.multi_day_runner?'Multi-day runner':'Single teaching move'} · Context ${d(e.context_start_at)} → ${d(e.context_end_at)} · teaching boundary preserved. Morning/Day/Night sessions are shown across the full context window.`}}catch{}}
 function validatePlan(){const miss=[];if(!$('sim-ticker').value.trim())miss.push('ticker');if(!n($('sim-shares').value)||n($('sim-shares').value)<=0)miss.push('shares');if(!$('sim-thesis').value.trim())miss.push('thesis');if(!$('sim-entry-reason').value.trim())miss.push('reason for entry');if(!$('sim-trigger').value.trim())miss.push('entry trigger');if(!$('sim-invalidation').value.trim())miss.push('invalidation');if(n($('sim-stop').value)===null)miss.push('planned stop');return miss}
