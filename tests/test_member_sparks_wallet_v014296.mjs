@@ -40,7 +40,7 @@ try{
  assert(nav.includes('data-sparks-balance')&&nav.includes('/api/member-sparks-wallet'));
  assert(nav.includes('store-sparks.html')&&nav.includes('How to use'));
  const store=readFileSync('store.html','utf8');
- assert(store.includes('id="store-tab-memberships"'),'Current Store includes established membership catalog tab');
+ assert(!store.includes('id="store-tab-memberships"'),'Owner-hidden legacy membership selection remains unavailable');
  assert(store.includes('id="store-tab-founders"'));
  const source=readFileSync('assets/js/store.js','utf8');
  assert(source.includes("parts=['founders','memberships','books','sparks','tools']"),'Five canonical categories including Sparks');
