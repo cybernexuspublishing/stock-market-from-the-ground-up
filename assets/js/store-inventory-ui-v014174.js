@@ -66,7 +66,9 @@ function show(){
    '<p><strong>Availability:</strong> '+escapeHtml(label(x))+'</p>'+
    '<p>Catalog ID: '+escapeHtml(x.sku)+'</p>'+
    '<p>Checkout requires separately verified price, delivery, legal and payment authorization; viewing a listing never creates an order.</p>'+
-   (x.category==='Boot Camps'?'<a class="btn secondary" href="bootcamp-academy.html">Explore the Boot Camp Academy</a> ':'' )+
+   (x.category==='Boot Camps'?'<p>This Boot Camp is not priced or sold standalone. Review the existing OnDemand Training membership for current access and eligibility.</p>'+
+   '<a class="btn secondary" href="store-membership-ondemand-monthly.html">Review OnDemand Training membership</a> '+
+   '<a class="btn secondary" href="bootcamp-academy.html">Explore the Boot Camp Academy</a> ':'' )+
    '<a class="btn secondary" href="store-all-products.html">Back to all products</a>';
  }
 }
