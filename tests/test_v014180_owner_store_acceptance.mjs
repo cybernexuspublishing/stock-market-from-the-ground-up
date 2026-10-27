@@ -32,13 +32,33 @@ try {
  resp=await endpoint.onRequestGet({env:{}});
  assert.equal(resp.status,503);
  const client=read('assets/js/store-inventory-ui-v014174.js');
- // V1 Founding-only Store policy supersedes the legacy unrestricted
- // existing_catalog listing. Keep started public book entries, not legacy plans.
- assert.ok(client.includes('base.filter(listedCore)'));
- assert.ok(client.includes("p.category==='Books'&&p.status==='existing_catalog'"));
- assert.ok(client.includes("FOUNDING_(30|60)"));
- assert.ok(client.includes('bySku.has(p.sku)'));
- assert.ok(!client.includes('stripe-live-checkout'));
+ // The public All Products page now reads the FULL canonical storefront,
+ // never a standalone paid/checkout grant. Historical list is fallback only.
+ assert.ok(client.includes("'/api/storefront-public-catalog'"));
+ assert.ok(client.includes("j.source!=='verified_storefront'"));
+ assert.ok(client.includes('isFull=true'));
+ assert.ok(client.includes('base.filter'));
+ assert.ok(!client.includes('/api/stripe-live-checkout'));
+ const publicCatalog=await import(new URL('../functions/api/storefront-public-catalog.js',import.meta.url).href);
+ const liveRows=[
+  {sku:'founding:FOUNDING_30',category:'founding',display_name:'Founding Standard',description:'Private founders beta',price_label:'$49.99',duration_label:'30 days',product_page:'',status:'coming_soon',visible:true,sale_ready:false},
+  {sku:'tool:INTERACTIVE_LEARNING',category:'tool',display_name:'Interactive Labs',description:'First party educational beta',price_label:'$29.99',duration_label:'monthly',product_page:'https://attacker.example',status:'listed',visible:true,sale_ready:false},
+  {sku:'feature:GUIDED_HISTORICAL_LABS',category:'feature',display_name:'Guided Labs',description:'Included in eligible memberships',price_label:'Not sold separately',duration_label:'',product_page:'labs.html',status:'coming_soon',visible:true,sale_ready:false}
+ ];
+ globalThis.fetch=async(url,options)=>{assert.match(String(url),/gu_storefront_items_v014174/);
+  assert.match(String(url),/visible=eq.true/);
+  assert.equal(options.headers.apikey,'sb_secret_mock');
+  return new Response(JSON.stringify(liveRows),{status:200,headers:{'content-type':'application/json'}})};
+ const publicResponse=await publicCatalog.onRequestGet({env:goodEnv});
+ assert.equal(publicResponse.status,200);
+ const report=await publicResponse.json();assert.equal(report.count,3);
+ assert.deepEqual(report.items.map(x=>x.sku),liveRows.map(x=>x.sku));
+ assert.equal(report.items[1].page,null,'Never expose untrusted external product URLs');
+ assert.ok(!JSON.stringify(report).includes('sb_secret_mock'));
+ assert.equal(report.items[0].saleReady,false);
+ globalThis.fetch=async()=>new Response('Backend unavailable',{status:503});
+ assert.equal((await publicCatalog.onRequestGet({env:goodEnv})).status,503);
+ assert.equal((await publicCatalog.onRequestGet({env:{}})).status,503);
  const admin=read('functions/api/admin.js');
  assert.ok(admin.includes("action==='store_product_overlay_save'"));
  assert.ok(admin.includes("action==='store_product_release_check'"));
