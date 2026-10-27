@@ -43,6 +43,6 @@ try{
  assert(!store.includes('id="store-tab-memberships"'),'Owner-hidden legacy membership selection remains unavailable');
  assert(store.includes('id="store-tab-founders"'));
  const source=readFileSync('assets/js/store.js','utf8');
- assert(source.includes("parts=['founders','memberships','books','sparks','tools']"),'Five canonical categories including Sparks');
- console.log('PASS secure member Sparks wallet + five-category public Store: isolated identity, no-charge, private ledger, no fake balance');
+ assert(source.includes("parts=['founders','books','sparks','tools']"),'Four public Store categories; legacy memberships hidden and Sparks visible');
+ console.log('PASS secure member Sparks wallet + four-category public Store: isolated identity, no-charge, private ledger, no fake balance');
 }finally{globalThis.fetch=realFetch}
