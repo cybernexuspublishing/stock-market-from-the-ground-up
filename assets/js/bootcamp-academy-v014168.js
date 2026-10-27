@@ -245,6 +245,27 @@
    const prompts=node('ol');
    for(const prompt of lesson.reviewPrompts||[])prompts.append(node('li',prompt));
    if(prompts.children.length)coaching.append(prompts);
+   if(d.programCode==='free5'&&lesson.phaseA){
+    // This does not diagnose free text or establish correctness: it prompts review.
+    const aid=globalThis.GroundUpFreeFormativeV1?.review?.(d.day,answer.value);
+    if(aid){
+     const panel=node('section');panel.className='academy-free-formative-note';
+     panel.setAttribute('aria-label','Talia ungraded follow-up questions');
+     panel.append(node('h5','Focused follow-up — not a grade'),node('p',aid.limitation));
+     if(aid.noted.length){
+      panel.append(node('p','Words noticed in your explanation (not proof of understanding):'));
+      const list=node('ul');for(const x of aid.noted)list.append(node('li',x));panel.append(list);
+     }
+     if(aid.ambiguous.length){
+      panel.append(node('p','Check the meaning of this potentially misleading phrase:'));
+      const list=node('ul');for(const x of aid.ambiguous)list.append(node('li',x));panel.append(list);
+     }
+     panel.append(node('p','Explain the following independently, then compare with the lesson:'));
+     const list=node('ol');
+     for(const q of (aid.followUps.length?aid.followUps:(lesson.reviewPrompts||[])).slice(0,3))list.append(node('li',q));
+     panel.append(list);coaching.append(panel);
+    }
+   }
    coaching.append(node('h5','Compare with the worked explanation'),node('p',lesson.reviewGuide),
     node('p','If part of your answer is missing, revise and compare again. These teaching prompts are NOT a protected grading rubric, automated score or proof of mastery.'));
    result.replaceChildren(coaching);

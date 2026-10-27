@@ -91,6 +91,11 @@ try{
   assert.equal(await page.locator('.academy-free-figure svg').count(),1);
   assert.match(await page.locator('.academy-free-figure figcaption').innerText(),/FICTIONAL/);
   await page.locator('#academy-days .gu-bc-day').first().click();
+  await page.locator('#academy-self-check-answer').fill(
+   'The last trade is a previous matched transaction, but I have not yet checked the bid, ask, quantity or fill uncertainty.');
+  await page.locator('#academy-original-instruction button').filter({hasText:'Compare my reasoning'}).click();
+  assert.equal(await page.locator('.academy-free-formative-note').count(),1);
+  assert.match(await page.locator('.academy-free-formative-note').innerText(),/not a grade/i);
   if(!data.enrolled){await page.locator('#academy-enroll').click();await page.waitForFunction(()=>document.querySelector('#academy-enroll').hidden);}
   await page.locator('#academy-start').click();
   await page.waitForFunction(()=>document.querySelector('#academy-save-status')?.textContent.includes('Day started'));

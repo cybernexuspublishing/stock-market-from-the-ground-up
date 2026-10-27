@@ -39,3 +39,8 @@
 .academy-free-phase-a-reveal{margin:12px 0 0;padding:10px;border-left:3px solid #8cdfb4;background:#092734}
 .academy-free-phase-a summary:focus-visible{outline:3px solid #d4ffd9;outline-offset:4px}
 @media(max-width:520px){.academy-free-phase-a-glossary{grid-template-columns:1fr;row-gap:3px}.academy-free-phase-a-glossary dd{margin-bottom:12px}}
+
+.academy-free-formative-note{margin:14px 0;padding:14px 16px;border:1px solid #60908f;border-radius:10px;background:#082c39;line-height:1.65}
+.academy-free-formative-note ul,.academy-free-formative-note ol{padding-left:24px}
+.academy-free-formative-note li{margin:5px 0}
+@media(max-width:420px){.academy-free-formative-note{padding:12px}}

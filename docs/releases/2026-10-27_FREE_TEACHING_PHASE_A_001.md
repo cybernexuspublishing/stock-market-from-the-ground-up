@@ -33,3 +33,16 @@ Existing protected Lab/B01 question sets remain Draft/Not Assessment Verified. F
 Revert the scoped source commit after checking for subsequent dependent changes. No data deletion or SQL rollback is needed because this adds no tables or member writes.
 
 v1.0 — 2026-10-27: supplemental lesson depth, misconception pathways, interface, QA and release control.
+
+
+## Version 1.1 — Additional Free formative coaching and protected audit (October 27, 2026)
+
+A conservative on-device wording aid now offers Free learners focused follow-up questions for each of the five existing lessons. Recognized terms are not evidence of comprehension. Undetected concepts may be paraphrased. A small set of potentially misleading phrases triggers careful, non-graded clarification rather than a claim of error. It does not score, certify, transmit free-text answers, use a private rubric, or change member progress.
+
+Current live Supabase B01 draft v97 audit: 20 Labs, 120 questions, 100 choices and 20 numeric items; zero reviewed items, three criticalOnWrong=true choice items and zero configured partial-credit policies. Unlike an earlier same-day report recording zero critical flags, the current database explicitly flags F1-C02-L01 / question 5, F1-C02-L02 / question 5, and F1-C12-L01 / question 5. The intervening authorship/provenance is not yet verified. The first two assess blind decision chronology and independent information boundaries; the third addresses NO TRADE in the presence of execution-risk and incomplete chart evidence. These were inspected against their private answer and explanation internally, with no keys or prompts published. The first question's exact 09:45 boundary needs an explicit check that the completed candle was actually final and delivered by the pause; a clock label alone is insufficient. All three remain draft and require independent policy signoff; 97 other choice keys remain individually unapproved.
+
+The Free/Truth5 production Academy progress table presently has no rows. Thus no genuine signed-in member journey has been evidenced by those records. Chromium fixture tests, even with full lesson interaction and reload, must not be described as genuine member sessions.
+
+Acceptance still open: exact-head CI, production deployment, signed-in real-member responsive and assistive-technology checks, and individually approved critical/partial policy. No Supabase DML, membership changes, private keys, Stripe, or live transactions were performed.
+
+Change history: v1.1 — extended formative feedback, conservative text cues, live risk-policy reconciliation, CI/browser regression.
