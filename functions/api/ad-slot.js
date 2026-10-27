@@ -6,6 +6,8 @@
 const slots=Object.freeze({
  HOME_INLINE:['/','/index.html'],STORE_INLINE:['/store.html'],
  STORE_LEFT:['/store.html'],STORE_RIGHT:['/store.html'],
+ ALL_PRODUCTS_LEFT:['/store-all-products.html'],ALL_PRODUCTS_RIGHT:['/store-all-products.html'],ALL_PRODUCTS_BOTTOM:['/store-all-products.html'],
+
  COMMUNITY_TOP:['/market-commons.html'],
  BOOKS_BOTTOM:['/books.html'],MEMBERSHIP_BOTTOM:['/membership.html'],
  TOOLS_BOTTOM:['/tools.html'],ABOUT_BOTTOM:['/about.html'],
