@@ -1,4 +1,4 @@
-"""Isolated browser contract: missing Turnstile never enables password submission."""
+"""Isolated browser contract: enabled but incompletely configured Turnstile never enables password submission."""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 R=Path(__file__).resolve().parents[1]
@@ -7,7 +7,7 @@ HTML='''<!doctype html><html><body><div id="admin-gate" hidden></div><div id="ad
 <script>
 window.__calls=[];
 window.getSupabaseClient=async()=>({rpc:async()=>({data:{ok:true}}),auth:{getSession:async()=>({data:{session:{access_token:'example'}}})}});
-window.fetch=async(url,opts)=>{window.__calls.push({url:String(url),method:opts?.method||'GET'});return Response.json({ok:true,enabled:false,sitekey:null})};
+window.fetch=async(url,opts)=>{window.__calls.push({url:String(url),method:opts?.method||'GET'});return Response.json({ok:true,enabled:true,sitekey:null})};
 </script></body></html>'''
 with sync_playwright() as pw:
  browser=pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium' if Path('/usr/bin/chromium').exists() else None,args=['--no-sandbox'])
