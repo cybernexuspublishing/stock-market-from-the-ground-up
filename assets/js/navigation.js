@@ -570,11 +570,25 @@
     // all use the same node; do not rewrite this menu from another enhancer.
     nav._groundUpNavController?.abort();nav._groundUpNavController=new AbortController();
     const profileGroup=nav.querySelector('.v11-profile-group');
+    const sparks=nav.querySelector('.gu-nav-sparks');
+    if(sparks){
+      let hoverOpen=null,hoverClose=null;
+      const clearTimers=()=>{clearTimeout(hoverOpen);clearTimeout(hoverClose)};
+      const closeProfile=()=>{const pg=nav.querySelector('.v11-profile-group');
+        pg?.classList.remove('open');pg?.querySelector('.v12-profile-button')?.setAttribute('aria-expanded','false')};
+      sparks.addEventListener('pointerenter',event=>{if(event.pointerType==='touch')return;
+        clearTimers();hoverOpen=setTimeout(()=>{closeProfile();sparks.open=true},420)});
+      sparks.addEventListener('pointerleave',event=>{if(event.pointerType==='touch')return;
+        clearTimers();hoverClose=setTimeout(()=>{if(!sparks.matches(':focus-within'))sparks.open=false},520)});
+      sparks.addEventListener('toggle',()=>{if(sparks.open)closeProfile()});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape'){clearTimers();sparks.open=false}},
+        {signal:nav._groundUpNavController.signal});
+    }
     if(profileGroup){
       const trigger=profileGroup.querySelector('.v12-profile-button');
       let pinned=false,closeTimer=null;
       const cancelClose=()=>{if(closeTimer!==null){clearTimeout(closeTimer);closeTimer=null}};
-      const update=open=>{cancelClose();profileGroup.classList.toggle('open',open);trigger?.setAttribute('aria-expanded',String(open))};
+      const update=open=>{cancelClose();if(open){const spark=nav.querySelector('.gu-nav-sparks');if(spark)spark.open=false;}profileGroup.classList.toggle('open',open);trigger?.setAttribute('aria-expanded',String(open))};
       const scheduleClose=()=>{
         if(pinned)return;
         cancelClose();closeTimer=setTimeout(()=>{
