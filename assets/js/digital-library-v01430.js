@@ -55,7 +55,7 @@ async function initBookStripeTest(){
   box.style.cssText='margin:1rem 0;padding:1.25rem;border:1px solid #7496b7;border-radius:14px';
   const h=document.createElement('h2');h.textContent='Stripe TEST — Foundations Book I EPUB';
   const info=document.createElement('p');
-  info.textContent='Sandbox purchase and file-delivery acceptance only. No real charge, LIVE membership or customer entitlement.';
+  info.textContent='Stripe TEST only — no real charge.';
   const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:.65rem;flex-wrap:wrap';
   const buy=document.createElement('button');buy.className='btn';buy.type='button';buy.textContent='TEST Checkout — $10.99 (test card)';
@@ -72,9 +72,9 @@ async function initBookStripeTest(){
     owned=Array.isArray(data.books)&&data.books.some(b=>b.code==='FOUNDATION_BOOK_1'&&b.testOnly===true);
     open.disabled=!ready||!owned;
     buy.disabled=!ready||owned;
-    status.textContent=owned?'Verified TEST purchase: EPUB download available.':'No paid TEST EPUB for this account. A completed Checkout must be confirmed by the signed webhook.';
+    status.textContent=owned?'Verified TEST purchase: EPUB download available.':'No TEST EPUB purchase yet.';
     if(new URLSearchParams(location.search).get('test_epub')==='complete'&&!owned)
-     status.textContent='Stripe TEST Checkout returned. Signed payment confirmation is still pending; use Refresh TEST purchase.';
+     status.textContent='TEST payment pending. Select Refresh TEST purchase.';
    }catch(e){open.disabled=true;buy.disabled=true;status.textContent='TEST ledger unavailable: '+(e.message||'verification failed');}
   }
   actions.append(buy,check,open);box.append(h,info,status,actions);
@@ -83,7 +83,7 @@ async function initBookStripeTest(){
   const d=await r.json().catch(()=>({}));
   ready=r.ok&&d.testing===true&&d.ready===true;
   await verify();
-  if(!ready){buy.disabled=true;open.disabled=true;status.textContent='Book Stripe TEST is not enabled in Cloudflare. No payment can be initiated.';return;}
+  if(!ready){buy.disabled=true;open.disabled=true;status.textContent='TEST checkout unavailable.';return;}
   check.onclick=()=>verify();
   buy.onclick=async()=>{
    buy.disabled=true;status.textContent='Preparing account-bound Stripe TEST checkout…';
