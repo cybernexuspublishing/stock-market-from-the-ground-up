@@ -4,6 +4,8 @@ on:
     paths:
       - 'functions/api/learning-replay-v01492.js'
       - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/simulator.js'
+      - 'tests/test_sellable_simulator_csv_integrity_v1.mjs'
       - 'assets/js/journal-entry.js'
       - 'assets/js/journal.js'
       - 'supabase/migrations/v0.14.0.115_REPLAY_JOURNAL_PROVENANCE_OWNER_REVIEW_REQUIRED.sql'
@@ -14,6 +16,8 @@ on:
     paths:
       - 'functions/api/learning-replay-v01492.js'
       - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/simulator.js'
+      - 'tests/test_sellable_simulator_csv_integrity_v1.mjs'
       - 'assets/js/journal-entry.js'
       - 'assets/js/journal.js'
       - 'supabase/migrations/v0.14.0.115_REPLAY_JOURNAL_PROVENANCE_OWNER_REVIEW_REQUIRED.sql'
@@ -34,6 +38,8 @@ jobs:
         run: |
           node --check functions/api/learning-replay-v01492.js
           node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/simulator.js
+          node tests/test_sellable_simulator_csv_integrity_v1.mjs
           node --check assets/js/journal-entry.js
           node --check assets/js/journal.js
           node tests/test_v014115_replay_journal_integrity.mjs
