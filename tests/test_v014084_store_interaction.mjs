@@ -57,8 +57,8 @@ assert.doesNotMatch(nodes['store-products'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WAN
 assert.equal(nodes['store-membership-compare'].innerHTML,'','Legacy membership comparison is hidden');
 assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
-assert.match(nodes['store-tools'].innerHTML,/Pricing to be announced/);
-assert.match(nodes['store-tools'].innerHTML,/Coming Soon/);
+assert.match(nodes['store-tools'].innerHTML,/\$29\.99/,'Existing beta-tool prices must be displayed');
+assert.match(nodes['store-tools'].innerHTML,/Beta \/ development/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
