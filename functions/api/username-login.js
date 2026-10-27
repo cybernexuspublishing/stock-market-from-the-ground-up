@@ -1,3 +1,4 @@
+import {effectiveCaptchaEnabled} from '../_lib/auth-captcha-state-v1.js';
 /* Username/password sign-in; account enumeration protected and CAPTCHA never bypassed.
  * Registered usernames only contain letters/digits/underscores. A human-typed
  * hyphen is treated as an underscore so legacy "James-Test" identifies James_Test.
@@ -19,7 +20,7 @@ export async function onRequestPost({request,env}){
   captchaToken=String(body.captchaToken||'');
  if(!/^[a-z][a-z0-9_]{2,23}$/.test(username)||!password||password.length>512)
   return json({error:INVALID},401);
- if(env.ENFORCE_AUTH_TURNSTILE_V135==='true'&&
+ if(await effectiveCaptchaEnabled(env)&&
   (!env.TURNSTILE_SITE_KEY||!env.TURNSTILE_SECRET_KEY||!captchaToken||captchaToken.length>2048))
   return json({error:'Human verification required or unavailable.'},403);
  const h=credHeaders(secret);
