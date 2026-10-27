@@ -99,7 +99,54 @@ function mount(){
       }
      }catch(e){historyList.textContent='History unavailable: '+String(e.message||e)}
     };
-    card.append(upload,historyButton,save,historyList,rowStatus);
+    // Positive download acceptance for the Owner only. Does not select a
+    // primary customer file, issue entitlements, or enable publishing.
+    const previewFormat=el('select');previewFormat.setAttribute('aria-label','Private test format');
+    for(const ext of ['epub','pdf']){
+     const option=el('option',ext.toUpperCase());option.value=ext;previewFormat.append(option);
+    }
+    const previewButton=el('button','Test Private Download','btn secondary');
+    previewButton.type='button';
+    const previewResult=el('div',null,'small');
+    previewResult.setAttribute('role','status');
+    previewResult.setAttribute('aria-live','polite');
+    let previewCleanup=null;
+    previewButton.onclick=async()=>{
+     if(busy)return;
+     if(previewCleanup){clearTimeout(previewCleanup);previewCleanup=null}
+     previewResult.replaceChildren();
+     previewResult.textContent='Checking protected Owner access and the current private edition…';
+     previewButton.disabled=true;
+     try{
+      if(!window.GroundUpAdminPasswordConfirm?.ensure)
+       throw Error('Owner password confirmation unavailable.');
+      await window.GroundUpAdminPasswordConfirm.ensure();
+      const {data:auth,error:authError}=await sb.auth.getSession();
+      if(authError||!auth?.session?.access_token)throw Error('Sign in again to test your book.');
+      const format=previewFormat.value;
+      const response=await fetch('/api/digital-book-owner-preview-v1',{
+       method:'POST',cache:'no-store',
+       headers:{authorization:'Bearer '+auth.session.access_token,'content-type':'application/json'},
+       body:JSON.stringify({code:product.code,format})
+      });
+      const result=await response.json().catch(()=>null);
+      if(!response.ok||!result?.ok||typeof result.url!=='string')
+       throw Error(result?.error||'Private download preview unavailable.');
+      const u=new URL(result.url);
+      if(u.protocol!=='https:'||!u.hostname.endsWith('.supabase.co')||
+       !u.pathname.startsWith('/storage/v1/object/sign/gu-digital-ebooks/'+product.code+'/'))
+       throw Error('Private preview destination failed security validation.');
+      const a=el('a','Open private '+format.toUpperCase()+' v'+result.version+' download (60 seconds)','btn secondary');
+      a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';a.referrerPolicy='no-referrer';
+      previewResult.replaceChildren(a);
+      previewCleanup=setTimeout(()=>{
+       a.remove();previewResult.textContent='Private preview link expired. Select Test Private Download again.';
+      },60000);
+     }catch(e){
+      previewResult.textContent='Private preview unavailable: '+(e.message||'Owner authorization or file validation failed.');
+     }finally{previewButton.disabled=false}
+    };
+    card.append(upload,historyButton,previewFormat,previewButton,previewResult,save,historyList,rowStatus);
     // Reuse the existing guarded uploader inside Products > Books > Edit.
     // The selected book card moves to the editor; other books remain in Commerce.
     if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
