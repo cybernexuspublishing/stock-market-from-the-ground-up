@@ -84,6 +84,7 @@ function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
   if(deploy.disabled)return;
   if(!window.confirm('Enable Turnstile on the production website and redeploy Cloudflare Pages?'))return;
   deploy.disabled=true;deployStatus.textContent='Confirming Owner access…';
+  let started=false;
   try{
    const step=window.GroundUpAdminPasswordConfirm?.ensure;
    if(typeof step!=='function')throw Error('Owner password confirmation unavailable');
@@ -95,9 +96,9 @@ function install(){if(document.querySelector('[data-gu34-captcha]'))return true;
    const data=await r.json().catch(()=>null);
    if(!r.ok||data?.ok!==true||data.redeployStarted!==true)
     throw Error(data?.error||'Cloudflare deployment failed');
-   deployStatus.textContent='Turnstile enabled. Deployment started.';
+   started=true;deployStatus.textContent='Turnstile enabled. Deployment started.';
   }catch(e){deployStatus.textContent=e.message||'Deployment not started'}
-  finally{await deployState()}
+  finally{if(!started)await deployState();else deploy.disabled=false}
  };
  void deployState();
 
