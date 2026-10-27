@@ -24,6 +24,7 @@ globalThis.fetch=async (url,options={})=>{
  if(p==='/rest/v1/rpc/v014_training_answer'){
   rpcCalls++;
   if(mode==='invalid')return json({code:'22023',message:'Select one of the current question options',details:'PRIVATE SQL DETAIL'},400);
+  if(mode==='number_invalid')return json({code:'P0001',message:'Enter a numeric answer',details:'PRIVATE numeric key'},400);
   if(mode==='stale')return json({code:'P0001',message:'Stale training step. Resume current attempt.',hint:'PRIVATE INTERNAL HINT'},400);
   if(mode==='withdrawn')return json({code:'P0001',message:'Reviewed answer key unavailable'},400);
   if(mode==='down')return json({code:'XX000',message:'PRIVATE INTERNAL DATABASE ERROR'},500);
@@ -38,6 +39,7 @@ const request=()=>new Request('https://fixture.test/api/interactive-training?act
 try{
  for(const [kind,status,phrase] of [
   ['invalid',422,'Select an answer from the current options'],
+  ['number_invalid',422,'enter a valid decimal number'],
   ['stale',409,'Refresh the current question'],
   ['withdrawn',409,'no longer available'],
   ['down',503,'Training database contract unavailable']
@@ -49,7 +51,7 @@ try{
   assert(body.error.includes(phrase),kind+' safe user-facing response');
   assert(!JSON.stringify(body).includes('PRIVATE'),'Never forward raw database details');
  }
- assert.equal(rpcCalls,4);
+ assert.equal(rpcCalls,5);
  const js=readFileSync('assets/js/interactive-training.js','utf8');
  assert(js.includes('Guided correction: identify the missing evidence'));
  assert(js.includes('Refresh my saved assessment step'));
