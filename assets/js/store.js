@@ -117,7 +117,13 @@ async function foundingCatalog(){
   const terms=await response.json();const codes=['FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
   if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)))throw Error('Invalid founding terms');
-  target.innerHTML=plans.map((p,i)=>`<article class="catalog-founder-card ${i?'is-extended':''}"><div class="catalog-founder-orbit" aria-hidden="true"></div><div class="catalog-founder-top"><span class="eyebrow">Founding ${i?'Extended':'Standard'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div><span class="store-beta-ribbon">Founding Beta · Subscription enrollment opens after payment verification</span><h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div><p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p><ul><li>Permanent founder number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i?'Extended Design Council and enhanced learning preferences':'Founder improvement polls and learning priorities'}</li></ul><p class="small">Automatic renewal. Included Sparks have expiry terms. Discounts exclude founding membership fees and do not stack.</p><a class="btn ${i?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability ↗</a><span class="catalog-founder-status">Payment availability is verified on the enrollment page.</span></article>`).join('');
+  let accepting=false;
+  try{
+   const status=await fetch('/api/founding600-checkout',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+   const state=status.ok?await status.json():null;
+   accepting=state?.ok===true&&state.checkoutEnabled===true;
+  }catch{accepting=false}
+  target.innerHTML=plans.map((p,i)=>`<article class="catalog-founder-card ${i?'is-extended':''}"><div class="catalog-founder-orbit" aria-hidden="true"></div><div class="catalog-founder-top"><span class="eyebrow">Founding ${i?'Extended':'Standard'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div><span class="store-beta-ribbon">${accepting?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span><h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div><p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p><ul><li>Permanent founder number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i?'Extended Design Council and enhanced learning preferences':'Founder improvement polls and learning priorities'}</li></ul><p class="small">Automatic renewal. Included Sparks have expiry terms. Discounts exclude founding membership fees and do not stack.</p><a class="btn ${i?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability ↗</a><span class="catalog-founder-status">${accepting?'Enrollment is open · Stripe LIVE checkout verifies member eligibility.':'Enrollment unavailable · Please review the terms.'}</span></article>`).join('');
   const yes=()=>coverage(true),no=()=>coverage(false);
   const rows=[
    ['Membership',plans.map(p=>dollars(p.recurringCents)+' / '+p.billingIntervalDays+' days')],
@@ -139,7 +145,7 @@ async function foundingCatalog(){
 }
 
 function tabs(){
- const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['founders','books','sparks','tools'];
+ const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['founders','memberships','books','sparks','tools'];
  const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled);
  const select=(name,focus=false)=>{
   const available=visibleButtons();
@@ -147,7 +153,7 @@ function tabs(){
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
-  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',books:'books only',sparks:'Crownlight Sparks packages',tools:'individual tools only'})[key]+'.';
+  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',memberships:'platform memberships and current prices',books:'books only',sparks:'Crownlight Sparks packages',tools:'individual tools only'})[key]+'.';
   if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
  buttons.forEach(b=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
@@ -173,8 +179,16 @@ async function init(){
   const catalog=await C().load();
   const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
   const allTools=(d.tools||[]).filter(listedTool);
-  // Standard memberships are not current offers. Their existing entitlements
-  // remain untouched, but no legacy plan cards or comparisons are rendered.
+  // All current public plans now have a distinct, price-verified Store tab.
+  // The server-side read-only per-SKU Stripe preflight controls purchase buttons.
+  const plans=approvedPlanCatalog(d.plans||[]);
+  const planHost=document.getElementById('store-member-plans');
+  if(planHost)planHost.innerHTML=d.commerceUnavailable?
+   '<div class="notice">Current membership prices cannot be verified; checkout is unavailable.</div>':
+   plans.length?plans.map(planCard).join(''):
+   '<div class="notice">Public membership offers are temporarily unavailable.</div>';
+  const planCompare=document.getElementById('store-member-compare');
+  if(planCompare)planCompare.innerHTML=d.commerceUnavailable?'':comparison(plans,allTools);
   document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired'&&!['draft','not_started','archived'].includes(p.publicationStatus)).map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   const futureIds=new Set(allTools.map(x=>x.toolCode));
