@@ -2,7 +2,7 @@
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=d=>d&&!Number.isNaN(new Date(d).getTime())?new Date(d).toLocaleString():'—';
   let SB,USER,forums=[],FOUNDER_ALLOWED=false;
-  const IS_FOUNDER=location.pathname.endsWith('/founders-commons.html');
+  const IS_FOUNDER=String(location.pathname||'').endsWith('/founders-commons.html');
   const PAGE=IS_FOUNDER?'founders-commons.html':'market-commons.html';
   async function initAuth(){SB=await window.getSupabaseClient();const s=(await SB.auth.getSession()).data.session;if(!s){location.replace(`signin.html?next=${encodeURIComponent(location.pathname+location.search)}`);return false}USER=s.user;
     if(IS_FOUNDER){
