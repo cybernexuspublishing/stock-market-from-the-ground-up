@@ -11,6 +11,7 @@ on:
       - 'tests/test_v33_member_checkpoint_resume.mjs'
       - 'tests/test_v33_checkpoint_acknowledgement.mjs'
       - 'tests/test_v33_dual_mode_atomic_resume.mjs'
+      - 'tests/fixtures/v33_dual_mode_*.sql'
       - 'supabase/migrations/20261027_lab_journey_v33_dual_mode_atomic_review.sql'
       - 'supabase/rollbacks/20261027_lab_journey_v33_dual_mode_atomic_ROLLBACK.sql'
       - 'tests/test_v135_public_assessment_projection.mjs'
@@ -71,6 +72,36 @@ on:
 permissions:
   contents: read
 jobs:
+  dual-mode-postgres-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test-only-not-production
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: test-only-not-production
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify real member-owned PostgreSQL checkpoint RPC
+        run: |
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v33_dual_mode_schema.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261027_lab_journey_v33_dual_mode_atomic_review.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261027_lab_journey_v33_legacy_merge_guard.sql
+          psql -v ON_ERROR_STOP=1 -f tests/fixtures/v33_dual_mode_lifecycle.sql
   source-and-curriculum-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 12
