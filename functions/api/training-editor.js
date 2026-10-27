@@ -184,6 +184,15 @@ export async function onRequest({request,env}){try{const actor=await owner(env,r
  if(action==='review'){const version=Number(b.version);if(!Number.isSafeInteger(version)||b.confirmPhrase!=='REVIEW BOOK RUBRIC')throw problem('Explicit Owner rubric review required.');const rows=await db(env,'lab_training_sets_v014?select=*&lab_id=eq.'+enc(id)+'&version=eq.'+version+'&limit=1'),set=rows[0];if(!set)return out({ok:false,error:'Rubric not found.'},404);if(set.review_state!=='draft')throw problem('Only draft versions can be approved.');
  if(!set.updated_at)throw problem('Rubric revision cannot be verified. Reload.',409);
  validate(set.questions,set.answer_key);
+ // B01 legacy generator sometimes embedded an exact keyed choice in a
+ // pedagogical explanation. The Owner review path must reject the entire
+ // rubric until each keyed-phrase echo has been removed in the private source.
+ // Never send the keyed phrase itself back to the browser or Owner list.
+ if(String(set.source_status||'').includes('b01')&&set.questions.some(q=>
+   q?.kind==='choice'&&String(set.answer_key?.[q.id]||'').trim().length>12&&
+   String(q.explanation||'').toLocaleLowerCase().includes(
+     String(set.answer_key[q.id]).trim().toLocaleLowerCase())))
+   throw problem('Private assessment feedback repeats an exact keyed choice. Revise this draft before review.',409);
  if(isUnamendedV96Rubric(set))throw problem(
  'Original hypothetical grading drafts require individual topic-specific evidence and subject review. Batch B01 requires both complete application and limitation questions before the Owner approves this exact rubric.',409);const saved=await db(env,'lab_training_sets_v014?lab_id=eq.'+enc(id)+'&version=eq.'+version+'&review_state=eq.draft&updated_at=eq.'+enc(String(set.updated_at)),'PATCH',{review_state:'reviewed',reviewed_by:actor,reviewed_at:new Date().toISOString()});if(saved.length!==1)throw problem('Rubric changed during review; reload and independently recheck its content.',409);return out({ok:true,labId:id,version,reviewState:'reviewed',notice:set.source_status?.startsWith('original_hypothetical')?'Original hypothetical rubric reviewed for conceptual grading only; NOT historical market evidence or trading mastery.':'Book-authored rubric approved for mechanical grading. Market-data verification is still pending.'})}
  return out({ok:false,error:'Unknown action.'},404);
