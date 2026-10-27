@@ -6,7 +6,8 @@ let busy=false;
 let editorCode=null,editorTarget=null;
 let loading=null;
 function mount(){
- if(document.querySelector('[data-gu-digital-v01430]'))return true;
+ // A CSS <link> has data-gu-digital-v01430 too. It is not a mounted upload panel.
+ if(document.querySelector('section.gu-digital-books[data-gu-digital-v01430]'))return true;
  const panel=document.querySelector('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  const section=el('section',null,'admin-card gu-digital-books');section.dataset.guDigitalV01430='1';
  section.append(el('h2','Digital eBook Publishing & Downloads'),el('p','Upload an EPUB/PDF now, and independently enable or disable direct digital sales and customer downloads. Both remain blocked during Amazon KDP Select enrollment. Protected changes require an active Owner session and recent password reconfirmation with CAPTCHA; no authenticator app is required.'));
