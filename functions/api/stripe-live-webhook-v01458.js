@@ -241,6 +241,23 @@ async function verifyOwnerZeroQA(request,e,raw){
   const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(session.id)+'/line_items?limit=2');
   if(lines.data?.length!==1||lines.data[0].price?.id!==priceId||
      lines.data[0].quantity!==1||lines.data[0].amount_total!==0)throw Error('unexpected_line_items');
+  // A completed 0-cent Checkout still requires a provider-delivered signed
+  // event before recording the batch as verified. Do not grant any entitlement.
+  if(meta.gu71_batch_id){
+   const batch=meta.gu71_batch_id,base=v(e.SUPABASE_URL).replace(/\/$/,''),
+     key=v(e.SUPABASE_SECRET_KEY);
+   if(!uuid(batch)||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!key)
+    throw Error('qa_batch_invalid_config');
+   const h={apikey:key,...(key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+key}),
+    'content-type':'application/json',prefer:'return=representation'};
+   const url=base+'/rest/v1/gu_owner_zero_live_batches_v1?id=eq.'+encodeURIComponent(batch)+
+    '&owner_id=eq.'+encodeURIComponent(uid)+'&stripe_session_id=eq.'+encodeURIComponent(session.id);
+   const response=await fetch(url,{method:'PATCH',headers:h,cache:'no-store',
+    body:JSON.stringify({signed_webhook_event_id:event.id,signed_webhook_verified_at:new Date().toISOString()})});
+   const records=response.ok?await response.json().catch(()=>null):null;
+   if(!Array.isArray(records)||records.length!==1||records[0].stripe_session_id!==session.id)
+    throw Error('qa_batch_signature_evidence_not_stored');
+  }
   return resp('qa-zero-signed-verified-no-grant',200);
  }catch{return resp('Zero QA webhook verification unavailable; retry',503)}
 }
