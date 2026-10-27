@@ -17,7 +17,7 @@ async function read(url,options={}){
  if(!r.ok||value===null)throw error('CAPTCHA control provider unavailable',r.status>=400&&r.status<500?r.status:503);
  return value;
 }
-async function owner(req,c){
+async function owner(req,c,requireStepup=true){
  const token=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];
  if(!token)throw error('Sign in as Owner',401);
  const h={apikey:c.pub,authorization:'Bearer '+token,'content-type':'application/json'};
@@ -25,8 +25,10 @@ async function owner(req,c){
  if(!/^[a-f0-9-]{36}$/i.test(u.id||''))throw error('Owner session not valid',401);
  const role=await read(c.base+'/rest/v1/rpc/gu_staff_role_v01432r1',{method:'POST',headers:h,body:'{}'});
  if(role?.ok!==true||role.role!=='OWNER')throw error('Owner authorization required',403);
+ if(requireStepup){
  const step=await read(c.base+'/rest/v1/rpc/gu_staff_stepup_active_v01432r1',{method:'POST',headers:h,body:'{}'});
  if(step!==true)throw error('Confirm your Owner password first',403);
+ }
  return u.id;
 }
 const managementUrl=c=>'https://api.supabase.com/v1/projects/'+c.ref+'/config/auth';
@@ -55,7 +57,7 @@ async function updateProvider(c,enabled){
 }
 export async function onRequestGet({request,env}){
  try{
-  const c=conf(env);await owner(request,c);
+  const c=conf(env);await owner(request,c,false);
   const website=await site(c),available=!!c.pat;
   if(!available)return j({ok:true,available:false,websiteEnabled:website,
    notice:'Add SUPABASE_MANAGEMENT_ACCESS_TOKEN as an encrypted Cloudflare Production secret with auth_config_read/auth_config_write permissions. The website switch cannot override Supabase Auth.'});
