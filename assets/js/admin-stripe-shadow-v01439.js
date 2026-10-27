@@ -46,11 +46,28 @@
  const zeroQA=element('details',undefined,'gu71-zero-live-checkout');zeroQA.hidden=true;
  const zeroHeader=element('summary','Owner LIVE $0.00 Checkout — Separate QA Product (No Membership Grant)');
  const zeroDescription=element('p','One-time Stripe-hosted $0.00 Checkout, no card required. Requires a separate flagged QA Product/Price and explicit server-side GU71 switch. Does NOT test paid processing, Managed Payments, signed GU58 fulfillment or grant an entitlement.','gu39-small');
+ const zeroSkuLabel=element('label','Select a product for a separate $0 LIVE diagnostic');
+ zeroSkuLabel.htmlFor='gu71-qa-target-sku';
+ const zeroSkuSelect=element('select');zeroSkuSelect.id='gu71-qa-target-sku';
+ const general=element('option','General $0 checkout diagnostic');general.value='';zeroSkuSelect.append(general);
+ zeroQA.addEventListener('toggle',async()=>{
+  if(!zeroQA.open||zeroSkuSelect.options.length>1)return;
+  try{
+   const r=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
+   const d=r.ok?await r.json():null;
+   if(d?.ok!==true||!Array.isArray(d.items)||d.items.length<50)throw Error('Catalog unavailable');
+   for(const x of d.items){
+    if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(String(x.sku||'')))continue;
+    const option=element('option',String(x.name)+' ('+String(x.sku)+')');
+    option.value=x.sku;zeroSkuSelect.append(option);
+   }
+  }catch{zeroReadout.replaceChildren(element('p','Could not verify the full catalog. General $0 diagnostics remain available.'))}
+ });
  const zeroCheck=element('button','Check $0 LIVE QA Product — No Checkout');zeroCheck.type='button';
  const zeroStart=element('button','Create Owner $0 LIVE Checkout — Explicit Confirmation');zeroStart.type='button';
  zeroStart.disabled=true;
  const zeroReadout=element('section',undefined,'gu39-complete-report');zeroReadout.setAttribute('role','status');zeroReadout.setAttribute('aria-live','polite');
- zeroQA.append(zeroHeader,zeroDescription,zeroCheck,zeroStart,zeroReadout);
+ zeroQA.append(zeroHeader,zeroDescription,zeroSkuLabel,zeroSkuSelect,zeroCheck,zeroStart,zeroReadout);
  const refresh=element('button','Refresh Testing Status');refresh.type='button';
  const verify=element('button','Verify All 8 Sandbox Products');verify.type='button';
  const preflight=element('button','Run Payment Test Preflight');preflight.type='button';
@@ -400,12 +417,12 @@
   PASSWORD_RECONFIRM_REQUIRED:'Use the Owner password confirmation before trying again.',
   ZERO_CHECKOUT_NOT_SUPPORTED:'Stripe did not accept this $0 Checkout configuration. Stop; do not enter card details or replace with a paid Price.'
  };
- async function zeroFetch(method='GET',sessionId){
+ async function zeroFetch(method='GET',sessionId,sku=''){
   const jwt=await auth();
   const url=QA_URL+(sessionId?'?session_id='+encodeURIComponent(sessionId):'');
   const perform=async()=>{const r=await fetch(url,{method,headers:{authorization:'Bearer '+jwt,
    ...(method==='POST'?{'content-type':'application/json'}:{})},
-   ...(method==='POST'?{body:JSON.stringify({confirm:'CREATE_ZERO_DOLLAR_LIVE_QA'})}:{cache:'no-store'})});
+   ...(method==='POST'?{body:JSON.stringify({confirm:'CREATE_ZERO_DOLLAR_LIVE_QA',...(sku?{sku}:{})})}:{cache:'no-store'})});
    return {r,data:await r.json().catch(()=>null)}};
   let {r,data}=await perform();
   if(!r.ok&&data?.error==='PASSWORD_RECONFIRM_REQUIRED'){
@@ -429,11 +446,12 @@
   finally{zeroCheck.disabled=state?.role!=='OWNER'}
  });
  zeroStart.addEventListener('click',async()=>{
-  if(!window.confirm('Create ONE real Stripe LIVE Checkout Session for the isolated $0.00 QA product? No card, no subscription, no entitlements. This does not test paid charges.'))return;
+  const target=zeroSkuSelect.value;
+   if(!window.confirm('Create ONE $0 Stripe LIVE diagnostic for '+(target||'general QA')+'? No card, no subscription, no entitlements. This is not a paid purchase.'))return;
   zeroStart.disabled=true;
   zeroReadout.replaceChildren(element('p','Creating an Owner-only Stripe LIVE $0.00 Checkout Session. Not a paid order.'));
   try{
-   const r=await zeroFetch('POST');
+   const r=await zeroFetch('POST',null,target);
    if(!r.zeroDollar||!r.sessionUrl)throw Error('Zero-dollar validation missing; do not proceed.');
    window.location.assign(r.sessionUrl);
   }catch(e){zeroReadout.replaceChildren(element('p',e.message))}
@@ -448,7 +466,7 @@
    try{
     const r=await zeroFetch('GET',returnId);
     zeroReadout.replaceChildren(element('h3',r.verifiedSafe?'PASS — Stripe returned a verified $0 Checkout.':'REVIEW — Zero-dollar order NOT verified.'));
-    zeroReadout.append(element('p','Stripe status: '+r.status+'; payment status: '+r.paymentStatus+'; amount: '+r.orderTotalCents+' cents; charge absent: '+r.noCharge+'. No membership was granted.'));
+    zeroReadout.append(element('p','Target catalog item: '+(r.targetSku||'General QA')+'. Stripe status: '+r.status+'; payment status: '+r.paymentStatus+'; amount: '+r.orderTotalCents+' cents; charge absent: '+r.noCharge+'. No membership was granted.'));
     zeroReadout.append(element('p','This does not certify signed GU58 webhook delivery, Managed Payments, recurring billing or paid checkout.'));
    }catch(e){zeroReadout.replaceChildren(element('p','Owner verification unavailable: '+e.message))}
   },1250);
