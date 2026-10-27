@@ -9,8 +9,8 @@ export const fail=(message,status=503)=>Object.assign(Error(message),{status});
 export const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(x||''));
 export const token=req=>/^Bearer\s+([^\s]+)$/i.exec(req.headers.get('authorization')||'')?.[1]||'';
 export const originOK=req=>req.headers.get('origin')===new URL(req.url).origin;
-export function config(env){
- if(env.GU_BOOK_STRIPE_TEST_ENABLED!=='true')throw fail('Book TEST checkout disabled.');
+export function config(env,{requireEnabled=true}={}){
+ if(requireEnabled&&env.GU_BOOK_STRIPE_TEST_ENABLED!=='true')throw fail('Book TEST checkout disabled.');
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const pub=String(env.SUPABASE_PUBLISHABLE_KEY||'');
  const service=String(env.SUPABASE_SECRET_KEY||'');
