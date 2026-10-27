@@ -147,6 +147,30 @@
   const steps=node('ol');
   for(const step of lesson.sourceProcedure||[])steps.append(node('li',step));
   mount.append(steps);
+  if(d.programCode==='free5'&&lesson.phaseA){
+   // Instructional support, not a grade or another learning engine.
+   const subject=lesson.phaseA,area=node('section');
+   area.className='academy-free-phase-a';
+   area.setAttribute('aria-label','Talia teaches beginner terms and corrects common mistakes');
+   area.append(node('h4','Talia explains the important words'));
+   const glossary=node('dl');glossary.className='academy-free-phase-a-glossary';
+   for(const term of subject.terms)glossary.append(node('dt',term[0]),node('dd',term[1]));
+   area.append(glossary,node('h4','Follow the demonstration step by step'));
+   const walk=node('ol');for(const part of subject.steps)walk.append(node('li',part));
+   area.append(walk,node('h4','Where did your reasoning become confusing?'),
+    node('p','Choose a common mistake, study a different explanation, then try a new fictional case before opening its worked review. No grade or mastery is awarded.'));
+   for(const item of subject.corrections){
+    const help=node('details');help.className='academy-free-phase-a-error';
+    help.append(node('summary',item.name),node('h5','Why this interpretation is incorrect'),node('p',item.why),
+     node('h5','Talia teaches it another way'),node('p',item.how),
+     node('h5','Try another fictional case'),node('p',item.case));
+    const reveal=node('details');reveal.className='academy-free-phase-a-reveal';
+    reveal.append(node('summary','Compare with a worked review — ungraded'),node('p',item.review));
+    help.append(reveal);area.append(help);
+   }
+   area.append(node('p','The worked review and private reflections are learning aids, not protected assessment scores. Return to the main self-check to explain the concept in your own words.'));
+   mount.append(area);
+  }
   if(typeof lesson.investigation==='string'&&lesson.investigation.length>100){
    mount.append(node('h4','Independent evidence investigation'),node('p',lesson.investigation));
   }

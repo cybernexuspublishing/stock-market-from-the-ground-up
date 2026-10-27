@@ -6,6 +6,7 @@
  */
 import {bootcampCurriculumV014144 as original} from './bootcamp-curriculum-v014144.js';
 import {freeFoundationsV1} from './free-foundations-v1.js';
+import {phaseAFreeFoundations} from './free-foundations-phase-a-v1.js';
 export const ACADEMY_VERSION='0.14.0.168';
 const current=new Map(original.days.map(day=>[day.day,day]));
 if(current.size!==30)throw Error('Thirty-day original curriculum changed unexpectedly.');
@@ -260,7 +261,7 @@ export const freeFoundationsProgram=Object.freeze({
   toolPath:entry.lesson.practiceLink||'simulator.html?practice=free',
   officiallyGraded:false,masteryAwarded:false,
   sourceStatus:'original_fictional_free_foundations_v1',
-  lesson:entry.lesson
+  lesson:Object.freeze({...entry.lesson,phaseA:phaseAFreeFoundations[i]})
  })))
 });
 export const academyByCode=Object.freeze({...Object.fromEntries(academyPrograms.map(program=>[program.code,program])),free5:freeFoundationsProgram});

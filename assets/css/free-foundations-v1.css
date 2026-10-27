@@ -27,3 +27,15 @@
 .academy-formative-criteria ol{padding-left:22px;margin:8px 0 16px}
 .academy-formative-criteria li{margin-bottom:7px}
 @media(max-width:420px){.academy-formative-criteria{padding:12px}}
+
+/* Phase A Free instructional scaffolding, within the existing Academy layout. */
+.academy-free-phase-a{margin:22px 0;padding:clamp(14px,2vw,22px);border:1px solid #598b86;background:#092b37;border-radius:12px;line-height:1.7}
+.academy-free-phase-a h4{margin:18px 0 9px}.academy-free-phase-a h5{margin:14px 0 6px;color:#d1f5e0}
+.academy-free-phase-a-glossary{display:grid;grid-template-columns:minmax(90px,145px) minmax(0,1fr);gap:8px 14px}
+.academy-free-phase-a-glossary dt{font-weight:700;color:#e1fce8}
+.academy-free-phase-a-glossary dd{margin:0;overflow-wrap:anywhere}
+.academy-free-phase-a-error{border:1px solid #487a7e;border-radius:10px;padding:12px 14px;margin:12px 0;background:#123440}
+.academy-free-phase-a-error>summary,.academy-free-phase-a-reveal>summary{cursor:pointer;font-weight:650;line-height:1.5}
+.academy-free-phase-a-reveal{margin:12px 0 0;padding:10px;border-left:3px solid #8cdfb4;background:#092734}
+.academy-free-phase-a summary:focus-visible{outline:3px solid #d4ffd9;outline-offset:4px}
+@media(max-width:520px){.academy-free-phase-a-glossary{grid-template-columns:1fr;row-gap:3px}.academy-free-phase-a-glossary dd{margin-bottom:12px}}

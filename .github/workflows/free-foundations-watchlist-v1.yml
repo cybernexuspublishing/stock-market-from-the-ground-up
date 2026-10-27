@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/free-foundations-watchlist-v1.yml'
       - 'functions/_lib/free-foundations-v1.js'
+      - 'functions/_lib/free-foundations-phase-a-v1.js'
+      - 'tests/test_free_phase_a_teaching_v1.mjs'
       - 'functions/_lib/bootcamp-academy-v014168.js'
       - 'functions/api/bootcamp-academy.js'
       - 'functions/api/free-watchlist.js'
@@ -52,6 +54,7 @@ jobs:
       - name: Check source syntax and registered API contracts
         run: |
           node --check functions/_lib/free-foundations-v1.js
+          node --check functions/_lib/free-foundations-phase-a-v1.js
           node --check functions/_lib/bootcamp-academy-v014168.js
           node --check functions/api/bootcamp-academy.js
           node --check functions/api/free-watchlist.js
@@ -64,6 +67,7 @@ jobs:
           node --check assets/js/free-watchlist-v1.js
           node --check assets/js/dashboard.js
           node tests/test_free_foundations_shared_v1.mjs
+          node tests/test_free_phase_a_teaching_v1.mjs
           node tests/test_free_watchlist_v1.mjs
           node tests/test_free_member_launchpad_v1.mjs
           node tests/test_free_owner_v1_scope.mjs
