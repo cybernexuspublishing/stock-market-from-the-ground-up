@@ -33,7 +33,7 @@
     !/^[0-9a-f-]{36}$/i.test(String(userId||''))||!['guided','practice'].includes(mode))
    return null;
   const valid=()=>typeof alive==='function'?alive()===true:true;
-  let queue=Promise.resolve();
+  let queue=Promise.resolve(),revision=0;
   return{
    async load(){
     if(!valid())return null;
@@ -41,7 +41,10 @@
      .select('responses').eq('user_id',userId).eq('lab_id',labId).maybeSingle();
     if(!valid())return null;
     if(error)throw Error('Saved journey cannot be verified; start locally or retry.');
-    return normalize(data?.responses?.learning_journey_v33,mode);
+    const raw=data?.responses?.learning_journey_v33;
+    const found=normalize(raw,mode);
+    revision=found&&Number.isSafeInteger(raw?.rev)&&raw.rev>=0?raw.rev:0;
+    return found;
    },
    save(raw){
     // Serialized writes preserve stage order even on high-latency connections.
@@ -50,11 +53,15 @@
     queue=queue.catch(()=>{}).then(async()=>{
      if(!valid())throw Error('Member account changed; previous draft was not saved.');
      const {data,error}=await sb.rpc('gu_v33_save_lab_journey',{
-      p_lab:labId,p_checkpoint:checkpoint
+      p_lab:labId,p_checkpoint:checkpoint,p_expected_revision:revision
      });
      if(!valid())throw Error('Account changed while saving; reopen the Lab.');
-     if(error||data?.ok!==true)
+     if(error?.code==='40001')throw Error(
+      'Another device or tab saved a newer draft. Reload this Lab before saving again; no grade changed.');
+     if(error||data?.ok!==true||!Number.isSafeInteger(data?.saved?.rev)||
+       data.saved.rev!==revision+1)
       throw Error('Your learning checkpoint was not confirmed. Retry saving; no grade was awarded.');
+     revision=data.saved.rev;
      return data.saved;
     });
     return queue;
