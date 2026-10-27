@@ -91,14 +91,16 @@ test('misplaced ad slot never displays the inventory placeholder',async()=>{
   assert.equal((await r.json()).placeholderAvailable,false);
  }finally{m.restore()}
 });
-test('all eighteen configured placement mounts are connected without adding sponsors to lessons',()=>{
+test('all twenty-one configured placement mounts are connected without adding sponsors to lessons',()=>{
  const mounted=[
   ['index.html','HOME_INLINE'],['store.html','STORE_INLINE'],
   ['market-commons.html','COMMUNITY_INLINE'],['lab-samples.html','SAMPLE_LABS'],
   ['dashboard.html','FREE_DASHBOARD'],
   ['signin.html','SIGNIN_LEFT'],['signin.html','SIGNIN_RIGHT'],['signin.html','SIGNIN_BOTTOM'],
   ['create-account.html','SIGNUP_LEFT'],['create-account.html','SIGNUP_RIGHT'],['create-account.html','SIGNUP_BOTTOM'],
-  ['store.html','STORE_LEFT'],['store.html','STORE_RIGHT'],['market-commons.html','COMMUNITY_TOP'],
+  ['store.html','STORE_LEFT'],['store.html','STORE_RIGHT'],
+  ['store-all-products.html','ALL_PRODUCTS_LEFT'],['store-all-products.html','ALL_PRODUCTS_RIGHT'],['store-all-products.html','ALL_PRODUCTS_BOTTOM'],
+  ['market-commons.html','COMMUNITY_TOP'],
   ['books.html','BOOKS_BOTTOM'],['membership.html','MEMBERSHIP_BOTTOM'],
   ['tools.html','TOOLS_BOTTOM'],['about.html','ABOUT_BOTTOM']
  ];
@@ -144,6 +146,14 @@ test('first-party house creatives occupy empty inventory without pretending to b
  assert.ok(!js.includes("record('impression',item)"),'House content must not generate sponsored billable impressions');
 });
 
+test('ad renderer normalizes extensionless canonical Pages URLs before requesting allowed placements',()=>{
+ const src=fs.readFileSync('assets/js/ad-slots-v014229.js','utf8');
+ assert.match(src,/const rawPage=location\.pathname/);
+ assert.match(src,/rawPage\+'\.html'/);
+ const api=fs.readFileSync('functions/api/ad-slot.js','utf8');
+ for(const code of ['ALL_PRODUCTS_LEFT','ALL_PRODUCTS_RIGHT','ALL_PRODUCTS_BOTTOM'])
+  assert.ok(api.includes(code+":['/store-all-products.html']"));
+});
 test('carousel checkbox controls rotation but cannot bypass campaign eligibility',async()=>{
  const m=server({carousel:true,delivery:true});
  try{
