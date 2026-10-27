@@ -15,7 +15,9 @@ const bars=env.parseCSV(csv);
 assert.equal(bars.length,3);
 assert.equal(bars[0].open,10);
 assert.equal(bars[2].volume,151000);
-assert.equal(bars[1].time.toISOString(),'2026-01-02T14:35:00.000Z');
+assert.equal(bars[1].time.toISOString(),'2040-01-02T14:35:00.000Z');
+assert(csv.includes('data_classification')&&csv.includes('fictional_illustrative'),'The downloadable teaching CSV must identify invented market data');
+assert(script.includes('2040-01-02T09:30:00-05:00')&&script.includes('fictional_illustrative'),'The Download Template control must also generate marked fictional data');
 
 const head='timestamp,open,high,low,close,volume';
 const a='2026-01-02T09:30:00-05:00,10,11,9,10.5,900';
