@@ -102,7 +102,7 @@ async function readOwner(c){
  const [settings,packages,placements,inquiries,advertisers,campaigns,creatives,proof]=await Promise.all([
  api(c,'gu_ad_sales_settings_v014226?select=*&singleton=eq.true'),
  api(c,'gu_ad_packages_v014226?select=*&order=code.asc'),
- api(c,'ad_placements?select=placement_code,name,page_pattern,active,free_only&order=sort_order.asc'),
+ api(c,'ad_placements?select=placement_code,name,page_pattern,active,free_only,metadata&order=sort_order.asc'),
  api(c,'gu_ad_inquiries_v014226?select=*&order=created_at.desc&limit=150'),
  api(c,'advertisers?select=id,name,contact_email,website_url,status,created_at&order=created_at.desc&limit=150'),
  api(c,'ad_campaigns?select=*&order=created_at.desc&limit=150'),
@@ -245,6 +245,19 @@ export async function onRequest({request,env}){
    return respond({ok:true,reference:rows[0].id,notice:'Request received for manual review. No payment has been taken.'},201);
   }
   const who=await owner(c,request),actor=who.id;
+  if(action==='set_placement_carousel'){
+   const code=str(body.placementCode),enabled=body.enabled;
+   if(!/^[A-Z0-9_]{4,48}$/.test(code)||typeof enabled!=='boolean')
+    throw bad('Specify a valid placement and the carousel checkbox state.');
+   const existing=await api(c,'ad_placements?select=placement_code,metadata&placement_code=eq.'+encodeURIComponent(code)+'&limit=1');
+   if(existing?.length!==1)throw bad('Advertising placement not found.',404);
+   const metadata=existing[0].metadata&&typeof existing[0].metadata==='object'&&!Array.isArray(existing[0].metadata)?existing[0].metadata:{};
+   const saved=await api(c,'ad_placements?placement_code=eq.'+encodeURIComponent(code),{
+    method:'PATCH',body:{metadata:{...metadata,carousel_enabled:enabled}}});
+   if(saved?.length!==1)throw bad('Placement preference was not saved.',503);
+   await audit(c,actor,'set_placement_carousel','placement',code,{carouselEnabled:enabled});
+   return respond({ok:true,placementCode:code,carouselEnabled:enabled,liveDeliveryChanged:false});
+  }
   if(action==='update_rate'){
    const code=str(body.code),basis=str(body.pricingBasis),price=body.priceCents==null?null:Number(body.priceCents),
       days=body.durationDays==null?null:Number(body.durationDays);
