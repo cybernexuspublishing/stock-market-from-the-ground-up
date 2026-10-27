@@ -258,11 +258,20 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     savingSerial===checkpointChangeSerial
      ?'Saved through '+STEPS[checkpoint.stage]+'. This records study only; assessment credit is separate.'
      :'An earlier learning draft was saved; newer changes are still awaiting confirmation. No grade was awarded.';
-  }catch{
-   if(sessions.get(target)===token)checkpointNote.textContent=
-    'Progress was not confirmed saved. Select Save my learning checkpoint to retry; no grade was awarded.';
+  }catch(error){
+   if(sessions.get(target)===token){
+    const conflict=/Another device or tab saved a newer draft/.test(String(error?.message||''));
+    if(conflict){
+     // A later tab/device already advanced the authoritative revision.
+     // Further retries from this stale view would repeat the same failure;
+     // never silently merge or replace another saved learning decision.
+     checkpointReady=false;
+     checkpointNote.textContent='A newer learning draft exists on another device or tab. Reload this Lab before making more saved changes. Your previous study is not overwritten; no grade was awarded.';
+    }else checkpointNote.textContent=
+     'Progress was not confirmed saved. Select Save my learning checkpoint to retry; no grade was awarded.';
+   }
   }finally{
-   if(sessions.get(target)===token)saveCheckpointControl.disabled=false;
+   if(sessions.get(target)===token)saveCheckpointControl.disabled=!checkpointReady;
   }
  }
  function scheduleCheckpoint(){
