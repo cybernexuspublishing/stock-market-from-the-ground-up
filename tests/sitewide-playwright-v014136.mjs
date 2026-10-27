@@ -118,8 +118,8 @@ try{
       'Staged 14-day Starter must remain visible in source-controlled terms');
      assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
       'Staged Starter must not offer a direct purchase link');
-     assert.equal(await tab.locator('#store-tab-memberships').count(),1,
-      'All Owner-activated standard memberships must appear beside Founding 600');
+     assert.equal(await tab.locator('#store-tab-memberships').count(),0,
+      'Owner-hidden legacy memberships must not appear beside Founding 600');
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
      await tab.waitForFunction(()=>Boolean(
