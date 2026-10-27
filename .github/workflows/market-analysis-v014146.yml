@@ -28,6 +28,9 @@ jobs:
           node tests/test_sellable_journal_metric_contract_research8.mjs
           node tests/test_journal_future_exit_asof_v1.mjs
           node tests/test_journal_account_switch_scrub_v1.mjs
+          node tests/test_sellable_simulator_csv_integrity_v1.mjs
+          node tests/test_sellable_simulator_store_v1.mjs
+          node --check assets/js/simulator.js
           node --check functions/_lib/journal-analytics-v014114.js
           node --check assets/js/journal-analytics.js
           node --check assets/js/market-analysis-engine-v014146.js
