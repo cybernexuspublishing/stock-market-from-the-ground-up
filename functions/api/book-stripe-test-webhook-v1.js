@@ -45,7 +45,7 @@ async function sessionForPi(c,pi){
  return {m,s};
 }
 export async function onRequestPost({request,env}){
- let c;try{c=config(env)}catch{return reply({ok:false,error:'Book TEST webhook unavailable'},503)}
+ let c;try{c=config(env,{requireEnabled:false})}catch{return reply({ok:false,error:'Book TEST webhook unavailable'},503)}
  try{
   if(Number(request.headers.get('content-length')||0)>262144)return reply({ok:false,error:'Payload too large'},413);
   const raw=await request.text();
