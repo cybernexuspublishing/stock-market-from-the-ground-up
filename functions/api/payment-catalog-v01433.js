@@ -22,7 +22,16 @@ export async function onRequestGet({request,env}){
    get(base+'/rest/v1/catalog_products?select=product_code,title,product_type,kdp_select,direct_digital_enabled,website_checkout_enabled,metadata,active,store_visible,sales_status&product_type=eq.book&order=product_code.asc&limit=200',headers),
    get(base+'/rest/v1/gu_storefront_items_v014174?select=sku,category,display_name,status,visible,sale_ready,price_label,version&order=category.asc,sku.asc&limit=150',headers)
   ]);
-  let map={};try{const v=JSON.parse(String(env.STRIPE_MANAGED_PRICE_MAP_JSON||'{}'));if(v&&typeof v==='object'&&!Array.isArray(v))map=v}catch{/* Invalid map -> mark all unmapped, do not suggest ready. */}
+  // Production uses GU58 and F600 named product/price catalogs. The legacy
+  // STRIPE_MANAGED_PRICE_MAP_JSON is optional, and cannot be the only source:
+  // absent legacy mapping previously falsely reported every product unmapped.
+  const parseMap=(raw)=>{try{const x=JSON.parse(String(raw||'{}'));return x&&!Array.isArray(x)&&typeof x==='object'?x:{}}catch{return {}}};
+  const legacy=parseMap(env.STRIPE_MANAGED_PRICE_MAP_JSON);
+  const gu58=parseMap(env.GU58_STRIPE_LIVE_CATALOG_JSON);
+  const founding=parseMap(env.GU_F600_LIVE_CATALOG_JSON);
+  const priceFrom=x=>typeof x==='string'?x:(x?.price_id||x?.priceId||'');
+  const validPrice=x=>/^price_[A-Za-z0-9_]{6,}$/.test(String(x||''));
+  const catalogPrice=(key)=>priceFrom(gu58[key])||priceFrom(legacy[key]);
   const rows=[];
   for(const p of Array.isArray(plans)?plans:[]){const amount=Number(p.price_cents);const free=amount===0;
    rows.push({key:'plan:'+String(p.plan_code||''),name:String(p.name||p.plan_code||''),type:'membership',amountCents:validAmount(amount)?amount:null,currency:'USD',billing:String(p.billing_interval||''),visible:p.public_visible===true,checkoutEnabled:p.checkout_enabled===true,eligible:!free&&p.active===true&&p.checkout_enabled===true,reason:free?'Free — no Stripe product':(!p.active?'Inactive':!p.checkout_enabled?'Owner checkout disabled':'Verify Stripe eligibility')})}
@@ -30,13 +39,13 @@ export async function onRequestGet({request,env}){
    rows.push({key:'tool:'+String(p.tool_code||''),name:String(p.name||p.tool_code||''),type:'tool',amountCents:validAmount(amount)?amount:null,currency:'USD',billing:'month',visible:p.public_visible===true,checkoutEnabled:p.checkout_enabled===true,eligible:p.active===true&&p.checkout_enabled===true&&p.status==='live',reason:p.status!=='live'?'Not released for paid enrollment':(!p.active?'Inactive':!p.checkout_enabled?'Owner checkout disabled':'Verify product qualification')})}
   for(const p of Array.isArray(books)?books:[]){const amount=p.metadata?.website_price_by_format_cents_v135?.digital;
    rows.push({key:'book:'+String(p.product_code||''),name:String(p.title||p.product_code||''),type:'ebook',amountCents:validAmount(amount)?Number(amount):null,currency:'USD',billing:'one_time',visible:p.store_visible===true,checkoutEnabled:p.website_checkout_enabled===true,eligible:p.active===true&&p.website_checkout_enabled===true&&p.sales_status==='published'&&p.kdp_select===false&&p.direct_digital_enabled===true,reason:p.kdp_select?'KDP Select — no direct distribution':(!p.direct_digital_enabled?'Direct digital sale disabled':'Verify publishing and download rights')})}
-  const result=rows.filter(x=>/^(plan|tool|book):[A-Z0-9_]{3,90}$/.test(x.key)).map(x=>({...x,mapped:/^price_[A-Za-z0-9_]{6,}$/.test(String(map[x.key]||'')),priceIdPresent:Boolean(map[x.key])}));
+  const result=rows.filter(x=>/^(plan|tool|book):[A-Z0-9_]{3,90}$/.test(x.key)).map(x=>{
+   const id=catalogPrice(x.key);
+   return {...x,mapped:validPrice(id),priceIdPresent:Boolean(id),mappingSource:priceFrom(gu58[x.key])?'GU58_LIVE':priceFrom(legacy[x.key])?'LEGACY':'NONE'};
+  });
   // Extend the existing authorized Owner catalog report to ALL 60 canonical
   // Store faces. This is evidence only; never turns on checkout or grants access.
   // Store-facing visibility is a presentation flag, not a purchase entitlement.
-  let gu58={},founding={};
-  try{gu58=JSON.parse(String(env.GU58_STRIPE_LIVE_CATALOG_JSON||'{}'))}catch{}
-  try{founding=JSON.parse(String(env.GU_F600_LIVE_CATALOG_JSON||'{}'))}catch{}
   const validPair=o=>Boolean(o&&typeof o==='object'&&
    /^prod_[A-Za-z0-9_]{6,}$/.test(String(o.product_id||o.productId||''))&&
    /^price_[A-Za-z0-9_]{6,}$/.test(String(o.price_id||o.priceId||'')));
@@ -63,6 +72,9 @@ export async function onRequestGet({request,env}){
   });
   return answer({ok:true,route:staff.provider,routeEnabled:staff.enabled===true,
    catalogCount:result.length,mappedCount:result.filter(x=>x.mapped).length,
+   foundingMappedCount:Object.values(founding).filter(validPair).length,
+   inventoryMappedCount:inventory.filter(x=>x.stripeMappingPresent).length,
+   mappingSources:['GU58_STRIPE_LIVE_CATALOG_JSON','GU_F600_LIVE_CATALOG_JSON','STRIPE_MANAGED_PRICE_MAP_JSON (legacy, optional)'],
    inventoryCount:inventory.length,inventory,products:result,
    warning:'Read-only inventory. Stripe product activation and Store visibility never authorize checkout. No payment, entitlement or setting changed.'});
  }catch{return answer({ok:false,error:'Unable to inspect the private payment catalog.'},503)}
