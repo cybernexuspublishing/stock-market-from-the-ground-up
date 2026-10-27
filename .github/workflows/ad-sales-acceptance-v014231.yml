@@ -52,7 +52,7 @@ jobs:
           node --test tests/test_ad_sandbox_signed_stripe_v014244.mjs
       - name: Verify deployment stays quote-only, payment-safe, disclosed
         run: |
-          grep -q 'Sponsor &amp; Advertising Center' admin.html
+          grep -q 'href="admin-advertising.html".*Marketing &amp; Social Media' admin.html
           grep -q 'Submit inquiry (no charge)' advertise.html
           grep -q 'Full Monthly and Full Annual may contain limited sponsor placements' advertise.html
           grep -q 'data-ad-slot="HOME_INLINE"' index.html
