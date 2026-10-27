@@ -1,0 +1,59 @@
+/* Shared Boot Camp / focused learning header: do not let the injected member
+   drawer toggle or account utilities push the primary links off-screen.
+   The seven canonical learning destinations remain keyboard-reachable. */
+.gu-focused-learning-header{width:100%;max-width:100%;box-sizing:border-box}
+.gu-focused-learning-header .wrap.nav{width:100%;max-width:none;min-width:0;box-sizing:border-box;gap:clamp(7px,.7vw,14px)}
+.gu-focused-learning-header #gu-workspace-toggle{
+ flex:0 0 auto;min-width:105px;max-width:132px;white-space:nowrap;
+ background:transparent;color:inherit;border:0;border-right:1px solid #35516b;
+ border-radius:0;padding:10px 12px;margin:0;min-height:44px;
+ cursor:pointer;font-size:.82rem;font-weight:650;line-height:1.35;
+}
+.gu-focused-learning-header #gu-workspace-toggle:focus-visible,
+.gu-focused-learning-header .gu-learning-top-nav a:focus-visible{
+ outline:3px solid #b39af9;outline-offset:2px
+}
+.gu-focused-learning-header .brand{
+ flex:0 1 240px;min-width:160px;max-width:240px;
+ font-size:clamp(.87rem,1vw,1.02rem);line-height:1.13;
+ white-space:normal;overflow-wrap:normal;
+}
+.gu-focused-learning-header .gu-learning-top-nav{
+ display:flex;flex:1 1 0%;min-width:0;max-width:100%;gap:clamp(3px,.3vw,7px);
+ align-items:center;justify-content:flex-start;flex-wrap:nowrap;
+ overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+ scrollbar-width:thin;scrollbar-color:#6d639f transparent;
+}
+.gu-focused-learning-header .gu-learning-top-nav a{
+ display:inline-flex;flex:none;white-space:nowrap;padding:8px clamp(6px,.5vw,10px);
+ font-size:clamp(.76rem,.78vw,.88rem);min-height:44px;
+}
+.gu-focused-learning-header .fe-header-tools{
+ flex:0 0 auto;max-width:132px;min-width:0;align-items:center;
+}
+@media(min-width:901px){
+ .gu-focused-learning-header>.wrap.nav{
+  min-height:72px;display:flex;align-items:center;flex-wrap:nowrap;
+  padding-inline:clamp(12px,1.15vw,26px);
+ }
+ .gu-focused-learning-header #v1341-mobile-menu{display:none!important}
+}
+@media(max-width:900px){
+ .gu-focused-learning-header>.wrap.nav{
+  display:flex;flex-wrap:wrap;align-items:center;min-height:70px;
+  padding:8px clamp(12px,2vw,22px);gap:6px 10px;
+ }
+ .gu-focused-learning-header .brand{flex:1 1 170px;max-width:260px;min-width:135px}
+ .gu-focused-learning-header .gu-learning-top-nav{
+  order:10;flex:1 0 100%;max-width:100%;min-width:0;
+  justify-content:flex-start;white-space:nowrap;flex-wrap:nowrap;
+  border-top:1px solid #34516c55;padding-top:4px;padding-bottom:4px;
+ }
+ .gu-focused-learning-header .fe-header-tools{margin-left:auto;max-width:110px}
+ .gu-focused-learning-header #gu-workspace-toggle{min-width:92px;max-width:114px;padding-inline:8px}
+}
+@media(max-width:470px){
+ .gu-focused-learning-header .brand{min-width:112px;flex-basis:130px;font-size:.78rem}
+ .gu-focused-learning-header .fe-header-tools{max-width:96px}
+ .gu-focused-learning-header #gu-workspace-toggle{font-size:.72rem;min-width:80px;max-width:96px}
+}
