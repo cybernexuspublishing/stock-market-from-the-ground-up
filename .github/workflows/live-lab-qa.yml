@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/live-lab-qa.yml'
       - 'tests/live-lab-qa.mjs'
+      - 'tests/live-member-browser-qa.mjs'
 permissions:
   contents: read
 concurrency:
