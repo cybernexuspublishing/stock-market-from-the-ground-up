@@ -96,7 +96,7 @@
       "chapter": 5,
       "canonicalTitle": "Compare Lower Trading Activity With the Prior Exercise",
       "learningObjective": "Compare volume for equal-duration completed bars and define the reference period.",
-      "fictionalDemonstration": "A completed five-minute bar records 12,000 shares after a completed 40,000-share bar.",
+      "fictionalDemonstration": "A completed fictional five-minute bar records 12,000 shares after a completed 40,000-share bar.",
       "guidedDecision": "Compute an observational ratio before describing the activity change.",
       "independentTransfer": "Repeat with an unequal-duration bar and refuse a raw-volume-only comparison.",
       "riskBoundary": "One pair of bars cannot establish normal volume, participant motivation, daily liquidity or executable size.",
