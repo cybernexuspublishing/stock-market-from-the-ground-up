@@ -14,6 +14,9 @@ on:
       - "tests/test_owner_store_categories_gallery_v014300.mjs"
       - "tests/test_owner_background_and_stripe_map_v1.mjs"
       - "tests/test_book_uploader_and_learning_header_v1.mjs"
+      - "tests/test_admin_password_modal_top_layer_v1.mjs"
+      - "assets/js/admin-password-confirm-v01432r1.js"
+      - "assets/css/admin-password-confirm-v01432r1.css"
       - "assets/js/admin-digital-books-v01430.js"
       - "assets/css/focused-learning-header-v1.css"
       - "assets/js/admin-site-background-v1.js"
@@ -56,6 +59,7 @@ jobs:
           node tests/test_owner_store_categories_gallery_v014300.mjs
           node tests/test_owner_background_and_stripe_map_v1.mjs
           node tests/test_book_uploader_and_learning_header_v1.mjs
+          node tests/test_admin_password_modal_top_layer_v1.mjs
           node tests/test_v014033_payment_catalog.mjs
           node --check assets/js/admin-store-categories-v014297.js
           node --check assets/js/admin-store-photos-v014300.js
