@@ -17,6 +17,12 @@ on:
       - "tests/test_admin_password_modal_top_layer_v1.mjs"
       - "tests/test_private_book_owner_preview_v1.mjs"
       - "tests/test_book_primary_assignment_guard_v1.mjs"
+      - "tests/test_book_stripe_test_pipeline_v1.mjs"
+      - "functions/api/book-stripe-test-checkout-v1.js"
+      - "functions/api/book-stripe-test-webhook-v1.js"
+      - "functions/api/book-stripe-test-download-v1.js"
+      - "functions/_lib/book-stripe-test-v1.js"
+      - "assets/js/digital-library-v01430.js"
       - "functions/api/digital-book-owner-preview-v1.js"
       - "assets/js/admin-password-confirm-v01432r1.js"
       - "assets/css/admin-password-confirm-v01432r1.css"
@@ -73,6 +79,8 @@ jobs:
           node tests/test_admin_password_modal_top_layer_v1.mjs
           node tests/test_private_book_owner_preview_v1.mjs
           node tests/test_book_primary_assignment_guard_v1.mjs
+          node tests/test_book_stripe_test_pipeline_v1.mjs
+          node --check assets/js/digital-library-v01430.js
           node tests/test_v014033_payment_catalog.mjs
           node --check assets/js/admin-store-categories-v014297.js
           node --check assets/js/admin-store-photos-v014300.js
