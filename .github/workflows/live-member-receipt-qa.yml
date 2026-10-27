@@ -1,0 +1,31 @@
+name: Live Member Receipt Security QA (authenticated, no billing)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-member-receipt-qa.yml'
+      - 'tests/live-member-receipt-qa.mjs'
+      - 'functions/api/support.js'
+      - 'functions/api/admin-book-receipts.js'
+permissions:
+  contents: read
+concurrency:
+  group: live-receipt-auth-main
+  cancel-in-progress: true
+jobs:
+  signed-member-read-only-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Real QA member login and ticket/Owner isolation (no live payments, no writes)
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/live-member-receipt-qa.mjs
