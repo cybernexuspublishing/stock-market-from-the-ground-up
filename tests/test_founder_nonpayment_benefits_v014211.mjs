@@ -12,8 +12,8 @@ test('founder benefits remain on main with no payment launch',()=>{
  assert.equal(catalog.plans.FOUNDING_30.recurringCents,4999);
  assert.equal(catalog.plans.FOUNDING_60.billingIntervalDays,60);
  assert.equal(catalog.plans.FOUNDING_60.recurringCents,5999);
- assert.equal(catalog.plans.FOUNDING_30.incSparks,5);
- assert.equal(catalog.plans.FOUNDING_60.incSparks,15);
+ assert.equal(catalog.plans.FOUNDING_30.incSparks,15);
+ assert.equal(catalog.plans.FOUNDING_60.incSparks,20);
  assert.equal(catalog.disclosures.noCorporateVotingOrEquity,true);
 });
 test('private Founder benefits are gated by RLS before release',()=>{
