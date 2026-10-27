@@ -185,3 +185,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureSitewideComposition,{once:true});
   else ensureSitewideComposition();
 })();
+
+
+/* Sitewide interactive search and exclusive Sparks/Profile controls. */
+(()=>{if(typeof document==='undefined')return;
+ if(!document.querySelector('link[data-gu-nav-search]')){
+  const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/nav-search-and-sparks-v1.css';
+  style.dataset.guNavSearch='1';document.head.append(style);
+ }
+ if(!document.querySelector('script[data-gu-nav-search]')){
+  const script=document.createElement('script');script.src='/assets/js/nav-search-and-sparks-v1.js';
+  script.dataset.guNavSearch='1';script.defer=true;document.head.append(script);
+ }
+})();
