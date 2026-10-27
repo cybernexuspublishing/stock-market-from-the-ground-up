@@ -4,12 +4,13 @@ import {onRequest as adSlot} from '../functions/api/ad-slot.js';
 import fs from 'node:fs';
 const root='https://training.example',session='11111111-1111-4111-8111-111111110355';
 const env={SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_PUBLISHABLE_KEY:'pub_ci',SUPABASE_SECRET_KEY:'sb_secret_ci'};
-function server({lifetime=false,limit=false,delivery=true,carousel=false}={}){
+function server({lifetime=false,owner=false,limit=false,delivery=true,carousel=false}={}){
  const old=globalThis.fetch,calls=[];
  globalThis.fetch=async(input,opts={})=>{
   const url=new URL(String(input)),p=url.pathname;calls.push({path:p,url:url.toString(),method:opts.method||'GET'});
   let rows=[];
   if(p==='/auth/v1/user')rows={id:'11111111-1111-4111-8111-111111110006'};
+  else if(p.endsWith('/admin_user_roles'))rows=owner?[{role_code:'OWNER',expires_at:null}]:[];
   else if(p.endsWith('/gu_ad_sales_settings_v014226'))rows=[{ad_delivery_enabled:delivery,accepting_payments:delivery}];
   else if(p.endsWith('/ad_placements'))rows=[{placement_code:'HOME_INLINE',active:true,metadata:{carousel_enabled:carousel}}];
   else if(p.endsWith('/plan_ad_policies'))rows=[{ads_enabled:true,allowed_slots:['HOME_INLINE'],
@@ -108,6 +109,39 @@ test('all eighteen configured placement mounts are connected without adding spon
  }
  for(const file of ['lab-player.html','simulator.html','market-tutor.html'])
   assert.doesNotMatch(fs.readFileSync(file,'utf8'),/data-ad-slot=/);
+});
+
+test('Owner may preview active placements without paid invoices, impression logging or launching sponsorship delivery',async()=>{
+ const m=server({owner:true,delivery:false});
+ try{
+  const authorized=new Request(root+url+'&ownerPreview=1',{headers:{authorization:'Bearer OWNER_TOKEN'}});
+  const data=await (await adSlot({request:authorized,env})).json();
+  assert.equal(data.placeholderAvailable,true);
+  assert.equal(data.ownerPreview,true);
+  assert.equal(data.ad,null);
+  assert.equal(m.calls.some(x=>x.path.endsWith('/ad_campaigns')),false);
+  assert.equal(m.calls.some(x=>x.path.endsWith('/ad_events')),false);
+  const normal=await (await adSlot({request:new Request(root+url,{headers:{authorization:'Bearer OWNER_TOKEN'}}),env})).json();
+  assert.equal(normal.placeholderAvailable,false,'Owner remains ad-free outside preview');
+ }finally{m.restore()}
+});
+test('non-Owner and off-route requests cannot activate the advertising Owner preview',async()=>{
+ const m=server({owner:false,delivery:false});
+ try{
+  const x=await (await adSlot({request:new Request(root+url+'&ownerPreview=1',{headers:{authorization:'Bearer MEMBER_TOKEN'}}),env})).json();
+  assert.notEqual(x.ownerPreview,true);
+  const y=await (await adSlot({request:new Request(root+'/api/ad-slot?slot=HOME_INLINE&page=%2Flab-player.html&ownerPreview=1',
+   {headers:{authorization:'Bearer MEMBER_TOKEN'}}),env})).json();
+  assert.equal(y.placeholderAvailable,false);
+ }finally{m.restore()}
+});
+test('first-party house creatives occupy empty inventory without pretending to be paid sponsors',()=>{
+ const js=fs.readFileSync('assets/js/ad-slots-v014229.js','utf8');
+ const css=fs.readFileSync('assets/css/ad-sales-v014228.css','utf8');
+ for(const term of ['gu-house-promo','SITE PROMOTION','OWNER PREVIEW · NOT A PAID AD','housePromos','ownerPreview'])
+  assert.ok(js.includes(term),term);
+ assert.ok(css.includes('.gu-house-promo'));
+ assert.ok(!js.includes("record('impression',item)"),'House content must not generate sponsored billable impressions');
 });
 
 test('carousel checkbox controls rotation but cannot bypass campaign eligibility',async()=>{
