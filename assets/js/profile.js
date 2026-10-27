@@ -15,7 +15,7 @@ async function loadProfilePage(){
   if(!profile?.username) document.getElementById('username-warning').hidden=false;
   const aiPreference=document.getElementById('profile-tutor-ai-enabled');
   if(aiPreference){
-    aiPreference.checked=user.user_metadata?.market_tutor_ai_enabled!==false;
+    aiPreference.checked=user.user_metadata?.market_tutor_ai_enabled===true;
     aiPreference.addEventListener('change',async()=>{
       const requested=aiPreference.checked,status=document.getElementById('profile-tutor-ai-status');
       aiPreference.disabled=true;
