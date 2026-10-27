@@ -117,12 +117,24 @@ function editProduct(p={}){openEditor(p.product_code?`Edit ${p.short_title}`:'Ad
   const digitalHost=document.createElement('div');
   section.append(heading,help,digitalHost);body.append(section);
   if(p.product_code){
-   if(!window.GroundUpDigitalBooks?.mountEditor){
-    help.textContent='The protected book uploader did not initialize. Reload Admin and reopen this book.';
-   }else{
-    window.GroundUpDigitalBooks.mountEditor(p.product_code,digitalHost).catch(err=>{
+   const attach=()=>{
+    if(!section.isConnected||!document.getElementById('admin-dialog')?.open)return;
+    if(!window.GroundUpDigitalBooks?.mountEditor){
+     help.textContent='The protected book uploader failed to load. Refresh Admin to retry.';
+     return;
+    }
+    help.textContent='Loading protected file editions and publishing rights…';
+    window.GroundUpDigitalBooks.mountEditor(p.product_code,digitalHost).then(()=>{
+     if(section.isConnected&&digitalHost.querySelector('.gu-digital-row'))
+      help.textContent='Book files are private. Uploading never activates sales automatically.';
+    }).catch(err=>{
      if(section.isConnected)help.textContent='Book uploader unavailable: '+(err.message||'Owner permission required.');
     });
+   };
+   if(window.GroundUpDigitalBooks?.mountEditor)attach();
+   else{
+    help.textContent='Loading protected book upload service…';
+    window.addEventListener('gu-digital-books-ready',attach,{once:true});
    }
   }
  },0)}
