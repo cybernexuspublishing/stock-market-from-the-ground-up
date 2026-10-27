@@ -32,3 +32,12 @@ Date: 2026-10-27 | Status: **CODE + DB CONTRACT ACCEPTED; REAL STRIPE TEST CHECK
 - No LIVE payments, product fulfillment activation, customer rights attestations, or real book entitlement were changed.
 - Production `gu_digital_paid_owned_v01430` still recognizes Lemon Squeezy, NOT Stripe digital book ownership. TEST ledger is isolated and does NOT fix LIVE fulfillment. Build and verify an independent signed Stripe LIVE digital-book order mapping before selling eBooks to customers.
 - Owner publishing rights and primary customer delivery asset remain under the existing separate Owner password-confirmation control.
+
+## October 27 — TEST webhook configuration repaired and accepted
+- Stripe TEST account `acct_1URGkDJY9FI7byHB` now has an **enabled**, TEST-mode dedicated webhook endpoint `we_1UVDdVJY9FI7byHB4uVM7t7d` at `/api/book-stripe-test-webhook-v1`, subscribed to all six required Checkout/payment/reversal event types.
+- Correct Yahoo-master Cloudflare Pages `stock-market-from-the-ground-up` production has `GU_BOOK_STRIPE_TEST_ENABLED=true`; both `GU_BOOK_STRIPE_TEST_SECRET_KEY` and `GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET` have type `secret_text` (encrypted). The latter previously incorrectly held the webhook URL as plaintext; it was replaced with the freshly generated Stripe TEST endpoint signing secret without displaying the value.
+- Cloudflare PATCH retained all 51 existing production environment bindings. LIVE checkout settings and customer entitlements were not changed by the correction.
+- `functions/api/book-stripe-test-checkout-v1.js` GET readiness now verifies the actual Stripe TEST account and exact active $10.99 one-time Price instead of reporting true based solely on environment binding presence.
+- Owner Store regression run 40545841985: successful at commit `61bcc7724e3c848251e350e28430cc3491454e10`. Yahoo Cloudflare production deployment of that commit: success.
+- At verification time: no TEST checkout intent and no signed TEST event in the Supabase QA ledger. An authenticated real Stripe TEST card purchase, webhook delivery, TEST EPUB download and TEST refund lifecycle have **not** yet occurred. No claim of acceptance for actual provider-to-member event delivery.
+- Resume actual noncharging TEST QA using only `QaPaid26` on the My Books page, then inspect genuine signed test ledger and refund/reversal evidence. Do not enable LIVE book sales from this TEST readiness.
