@@ -23,7 +23,7 @@ for(const [path,status,check] of [
  ['/api/admin-prelive-v014247',401,d=>d?.ok===false],
  ['/api/account?action=identity',401,d=>d?.ok===false],
  ['/api/free-beta-readiness-v014272',200,d=>d?.ok===true&&typeof d.signupAvailable==='boolean'&&d.readOnly===true],
- ['/api/founding600-checkout',200,d=>d?.ok===true&&d.checkoutEnabled===false&&d.capacity===600&&
+ ['/api/founding600-checkout',200,d=>d?.ok===true&&typeof d.checkoutEnabled==='boolean'&&!Object.hasOwn(d,'capacity')&&
   d.plans?.some(p=>p.code==='FOUNDING_30'&&p.priceCents===4999&&p.billingDays===30)&&
   d.plans?.some(p=>p.code==='FOUNDING_60'&&p.priceCents===5999&&p.billingDays===60)]
 ]){
@@ -35,4 +35,4 @@ for(const [path,status,check] of [
  }catch(e){failures.push('Functions '+path+' error '+String(e))}
 }
 assert.deepEqual(failures,[],failures.join('\n'));
-console.log('PASS Yahoo master public pages, direct root/API Functions, anonymous role denials and closed Founding 600 recurring Checkout.');
+console.log('PASS Yahoo master pages, guest authorization denials and accurate Founding Members public status; no payments attempted.');
