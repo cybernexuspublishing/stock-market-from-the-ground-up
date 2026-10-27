@@ -70,7 +70,10 @@ async function init(){
   sid=sessionStorage.getItem('gu_ad_session_v014229')||'';
   if(!sid){sid=crypto.randomUUID();sessionStorage.setItem('gu_ad_session_v014229',sid)}
  }catch{return}
- const page=location.pathname==='/'?'/index.html':location.pathname;
+ // Cloudflare canonical URLs often omit .html; normalize the page used by
+ // the server's exact placement-route allowlist without relaxing that allowlist.
+ const rawPage=location.pathname==='/'?'/index.html':location.pathname;
+ const page=/^\/[a-z0-9-]+$/.test(rawPage)?rawPage+'.html':rawPage;
  for(const mount of places){
   const slot=mount.getAttribute('data-ad-slot')||'';
   if(!Object.hasOwn(inventory,slot))continue;
