@@ -7,6 +7,9 @@ on:
       - '.github/workflows/live-lab-qa.yml'
       - 'tests/live-lab-qa.mjs'
       - 'tests/live-member-browser-qa.mjs'
+      - 'assets/js/dashboard-ui-legacy.js'
+      - 'functions/_middleware.js'
+      - 'tests/test_support_routing_v1.mjs'
 permissions:
   contents: read
 concurrency:
