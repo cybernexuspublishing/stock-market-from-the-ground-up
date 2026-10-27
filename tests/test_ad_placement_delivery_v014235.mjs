@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {onRequest as adSlot} from '../functions/api/ad-slot.js';
+import fs from 'node:fs';
 const root='https://training.example',session='11111111-1111-4111-8111-111111110355';
 const env={SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_PUBLISHABLE_KEY:'pub_ci',SUPABASE_SECRET_KEY:'sb_secret_ci'};
 function server({lifetime=false,limit=false,delivery=true}={}){
@@ -65,4 +66,42 @@ test('ad metrics cannot be submitted cross-site or against disabled serving gate
     sessionToken:session})}),env});
   assert.equal(r.status,403);assert.equal(m.calls.length,0);
  }finally{m.restore()}
+});
+
+test('eligible unsold slots show first-party inventory without enabling LIVE delivery',async()=>{
+ const m=server({delivery:false});try{
+  const r=await adSlot({request:new Request(root+url),env}),data=await r.json();
+  assert.equal(r.status,200);assert.equal(data.ad,null);
+  assert.equal(data.placeholderAvailable,true);
+  assert.equal(m.calls.some(x=>x.path.endsWith('/ad_campaigns')),false);
+ }finally{m.restore()}
+});
+test('ad-free Lifetime entitlement suppresses the default inventory placeholder',async()=>{
+ const m=server({lifetime:true,delivery:false});try{
+  const r=await adSlot({request:new Request(root+url,{headers:{authorization:'Bearer TEST_USER_TOKEN'}}),env});
+  const data=await r.json();
+  assert.equal(data.ad,null);assert.equal(data.placeholderAvailable,false);
+ }finally{m.restore()}
+});
+test('misplaced ad slot never displays the inventory placeholder',async()=>{
+ const m=server({delivery:false});try{
+  const r=await adSlot({request:new Request(root+'/api/ad-slot?slot=HOME_INLINE&page=%2Flab-player.html'),env});
+  assert.equal((await r.json()).placeholderAvailable,false);
+ }finally{m.restore()}
+});
+test('all eleven configured placement mounts are connected without adding sponsors to lessons',()=>{
+ const mounted=[
+  ['index.html','HOME_INLINE'],['store.html','STORE_INLINE'],
+  ['market-commons.html','COMMUNITY_INLINE'],['lab-samples.html','SAMPLE_LABS'],
+  ['dashboard.html','FREE_DASHBOARD'],
+  ['signin.html','SIGNIN_LEFT'],['signin.html','SIGNIN_RIGHT'],['signin.html','SIGNIN_BOTTOM'],
+  ['create-account.html','SIGNUP_LEFT'],['create-account.html','SIGNUP_RIGHT'],['create-account.html','SIGNUP_BOTTOM']
+ ];
+ for(const [file,code] of mounted){
+  const source=fs.readFileSync(file,'utf8');
+  assert.ok(source.includes('data-ad-slot="'+code+'"'),file+': '+code+' missing');
+  assert.ok(source.includes('assets/js/ad-slots-v014229.js'),file+': renderer missing');
+ }
+ for(const file of ['lab-player.html','simulator.html','market-tutor.html'])
+  assert.doesNotMatch(fs.readFileSync(file,'utf8'),/data-ad-slot=/);
 });
