@@ -5,6 +5,10 @@
  */
 const slots=Object.freeze({
  HOME_INLINE:['/','/index.html'],STORE_INLINE:['/store.html'],
+ STORE_LEFT:['/store.html'],STORE_RIGHT:['/store.html'],
+ COMMUNITY_TOP:['/market-commons.html'],
+ BOOKS_BOTTOM:['/books.html'],MEMBERSHIP_BOTTOM:['/membership.html'],
+ TOOLS_BOTTOM:['/tools.html'],ABOUT_BOTTOM:['/about.html'],
  COMMUNITY_INLINE:['/market-commons.html'],SAMPLE_LABS:['/lab-samples.html'],
  FREE_DASHBOARD:['/dashboard.html'],
  SIGNIN_LEFT:['/signin.html'],SIGNIN_RIGHT:['/signin.html'],SIGNIN_BOTTOM:['/signin.html'],
@@ -122,13 +126,21 @@ export async function onRequest({request,env}){
     token=url.searchParams.get('sessionToken')||'';
    const placeholderAvailable=await placeholderEligibility(c,slot,page,request);
    if(!placeholderAvailable)return ok({ad:null,placeholderAvailable:false});
+   const placementRows=await query(c,'ad_placements?select=metadata&placement_code=eq.'+encodeURIComponent(slot)+'&active=eq.true');
+   const carouselEnabled=placementRows?.[0]?.metadata?.carousel_enabled===true;
    if(!(await eligibility(c,slot,page,request,true))||
-      !(await underFrequencyLimit(c,request,token)))return ok({ad:null,placeholderAvailable:true});
-   const options=await eligibleAds(c,slot);if(!options.length)return ok({ad:null,placeholderAvailable:true});
-   // Rotate equally; no personal data, cross-site tracking or advertiser targeting.
+      !(await underFrequencyLimit(c,request,token)))return ok({ad:null,placeholderAvailable:true,carouselEnabled});
+   const options=await eligibleAds(c,slot);
+   if(!options.length)return ok({ad:null,placeholderAvailable:true,carouselEnabled});
+   // Each carousel transition is a fresh server-authorized request. Do not cache future creatives.
+   const exclude=Number(url.searchParams.get('excludeCreativeId'));
+   const alternatives=carouselEnabled&&Number.isSafeInteger(exclude)&&options.length>1
+    ?options.filter(x=>x.id!==exclude):options;
+   const pool=alternatives.length?alternatives:options;
    const bytes=new Uint32Array(1);crypto.getRandomValues(bytes);
-   const item=options[bytes[0]%options.length];
-   return ok({placeholderAvailable:true,ad:{creativeId:item.id,campaignId:item.campaign_id,slot,
+   const item=pool[bytes[0]%pool.length];
+   return ok({placeholderAvailable:true,carouselEnabled,hasMore:carouselEnabled&&options.length>1,
+    ad:{creativeId:item.id,campaignId:item.campaign_id,slot,
     headline:item.headline,body:item.body,destinationUrl:item.destination_url,
     label:item.disclosure_label}});
   }
