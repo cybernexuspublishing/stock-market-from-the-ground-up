@@ -90,6 +90,43 @@ async function verifyDiagnosticTarget(env,sku){
  return sku;
 }
 
+async function diagnosticSelection(env,input){
+ const base=val(env.SUPABASE_URL).replace(/\/$/,''),secret=val(env.SUPABASE_SECRET_KEY);
+ if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!secret)throw fail('CATALOG_UNAVAILABLE');
+ const h={apikey:secret,...(secret.startsWith('sb_secret_')?{}:{authorization:'Bearer '+secret})};
+ const all=await getJson(base+'/rest/v1/gu_storefront_items_v014174?select=sku,category,visible&visible=eq.true&limit=150',
+  {headers:h},'CATALOG_UNAVAILABLE');
+ if(!Array.isArray(all)||all.length>150)throw fail('CATALOG_UNAVAILABLE');
+ const available=new Map(all.map(x=>[x.sku,x]));
+ let skus,selector;
+ if(input?.selection==='category'){
+  if(!['membership','book','bootcamp','tool','addon','feature','founding'].includes(input.category))throw fail('INVALID_QA_CATEGORY',400);
+  skus=all.filter(x=>x.category===input.category).map(x=>x.sku);selector='category:'+input.category;
+ }else if(input?.selection==='selected'){
+  if(!Array.isArray(input.skus)||input.skus.length<1||input.skus.length>100)throw fail('INVALID_QA_SELECTION',400);
+  skus=input.skus;selector='selected';
+ }else if(input?.selection==='all'){skus=all.map(x=>x.sku);selector='all';}
+ else throw fail('INVALID_QA_SELECTION',400);
+ if(!skus.length||skus.length>100||skus.some(x=>typeof x!=='string'||!available.has(x))||
+  new Set(skus).size!==skus.length)throw fail('QA_SELECTION_NOT_PUBLISHED',400);
+ return {skus,selector,headers:{...h,'content-type':'application/json'},base};
+}
+async function batchSave(c,user,selection){
+ const r=await getJson(selection.base+'/rest/v1/gu_owner_zero_live_batches_v1',
+ {method:'POST',headers:{...selection.headers,prefer:'return=representation'},
+ body:JSON.stringify({owner_id:user,selected_skus:selection.skus,selector:selection.selector})},'QA_BATCH_SAVE_FAILED');
+ if(!Array.isArray(r)||r.length!==1||!/^[0-9a-f-]{36}$/i.test(r[0].id))throw fail('QA_BATCH_SAVE_FAILED');
+ return r[0].id;
+}
+async function batchBind(selection,batchId,sessionId){
+ const r=await fetch(selection.base+'/rest/v1/gu_owner_zero_live_batches_v1?id=eq.'+batchId,
+ {method:'PATCH',headers:{...selection.headers,prefer:'return=representation'},
+ body:JSON.stringify({stripe_session_id:sessionId}),cache:'no-store'});
+ if(!r.ok)throw fail('QA_BATCH_BIND_FAILED');
+ const j=await r.json().catch(()=>null);
+ if(!Array.isArray(j)||j.length!==1||j[0].stripe_session_id!==sessionId)throw fail('QA_BATCH_BIND_FAILED');
+}
+
 async function stripeSession(c,params,idempotencyKey){
  const response=await getJson('https://api.stripe.com/v1/checkout/sessions',{
   method:'POST',headers:{authorization:'Bearer '+c.key,
@@ -139,13 +176,16 @@ export async function onRequestPost({request,env}){
   if(request.headers.get('origin')!==site(env))throw fail('CROSS_SITE_POST_BLOCKED',403);
   if(Number(request.headers.get('content-length')||0)>512)throw fail('REQUEST_TOO_LARGE',413);
   const user=await authorize(request,env),c=setup(request,env);
-  const input=await request.json().catch(()=>null);
-  if(input?.confirm!=='CREATE_ZERO_DOLLAR_LIVE_QA'||!input||typeof input!=='object'||
-     Object.keys(input).some(k=>!['confirm','sku'].includes(k))||
-     Object.keys(input).length>2)
+  const raw=await request.text();if(raw.length>4500)throw fail('REQUEST_TOO_LARGE',413);
+  const input=JSON.parse(raw);
+  if(!input||typeof input!=='object'||Array.isArray(input)||input.confirm!=='CREATE_ZERO_DOLLAR_LIVE_QA')
    throw fail('EXPLICIT_OWNER_CONFIRMATION_REQUIRED',400);
-  const sku=input.sku===undefined?'':val(input.sku);
-  if(input.sku!==undefined)await verifyDiagnosticTarget(env,sku);
+  const batch=['category','selected','all'].includes(input.selection);
+  const allowed=batch?['confirm','selection','category','skus']:['confirm','sku'];
+  if(Object.keys(input).some(k=>!allowed.includes(k)))throw fail('INVALID_QA_SELECTION',400);
+  const sku=batch?'':input.sku===undefined?'':val(input.sku);
+  const selection=batch?await diagnosticSelection(env,input):null;
+  if(!batch&&input.sku!==undefined)await verifyDiagnosticTarget(env,sku);
   await verify(c);
   const p=new URLSearchParams();
   p.set('mode','payment');p.set('line_items[0][price]',c.price);
@@ -156,11 +196,17 @@ export async function onRequestPost({request,env}){
   p.set('metadata[gu71_zero_qa]','true');p.set('metadata[gu71_owner]',user);
   p.set('metadata[gu71_price_id]',c.price);
   if(sku)p.set('metadata[gu71_target_sku]',sku);
+  const batchId=selection?await batchSave(c,user,selection):null;
+  if(selection){p.set('metadata[gu71_batch_id]',batchId);
+   p.set('metadata[gu71_target_count]',String(selection.skus.length));
+   p.set('metadata[gu71_selector]',selection.selector);
+  }
   p.set('success_url',c.origin+'/admin.html?gu71=complete&session_id={CHECKOUT_SESSION_ID}');
   p.set('cancel_url',c.origin+'/admin.html?gu71=cancelled');
   const day=new Date().toISOString().slice(0,10);
-  const session=await stripeSession(c,p,'gu71-zero-'+user+'-'+day+'-'+(sku||'general'));
-  return json({ok:true,live:true,zeroDollar:true,targetSku:sku||null,sessionUrl:session.url,
+  const session=await stripeSession(c,p,batchId?'gu71-zero-batch-'+batchId:'gu71-zero-'+user+'-'+day+'-'+(sku||'general'));
+  if(batchId)await batchBind(selection,batchId,session.id);
+  return json({ok:true,live:true,zeroDollar:true,targetSku:sku||null,diagnosticBatch:batchId||null,selectedCount:selection?.skus.length||null,sessionUrl:session.url,
    notice:'Owner zero-dollar one-time Stripe Checkout only. NO membership or tool entitlements.'});
  }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE'},e.status||503)}
 }
