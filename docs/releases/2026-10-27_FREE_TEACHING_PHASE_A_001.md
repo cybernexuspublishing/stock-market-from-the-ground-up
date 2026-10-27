@@ -46,3 +46,14 @@ The Free/Truth5 production Academy progress table presently has no rows. Thus no
 Acceptance still open: exact-head CI, production deployment, signed-in real-member responsive and assistive-technology checks, and individually approved critical/partial policy. No Supabase DML, membership changes, private keys, Stripe, or live transactions were performed.
 
 Change history: v1.1 — extended formative feedback, conservative text cues, live risk-policy reconciliation, CI/browser regression.
+
+
+## Verification addendum — Version 1.2, October 27, 2026
+
+**Exact implementation commit:** 69654b969156d4b0a2f678d73d3ca4baae86dc24 (Phase A feedback and B01 review).
+**GitHub Actions evidence:** Free Foundations and Research Watchlist Security run 40525577242, successfully completed for that exact SHA. The run passed syntax, authorization and member entitlement contracts; Free Phase A partial-reasoning tests; and real Chromium tests at 390, 900, 1280, and 1440 pixels using simulated Auth/API fixtures.
+**Cloudflare evidence:** Yahoo master production Pages project stock-market-from-the-ground-up, successful build and deployment id 1cbcb9c0-4377-4b11-9644-122b52878ea8, corresponding to exact SHA 69654b969156d4b0a2f678d73d3ca4baae86dc24.
+**Status:** SOURCE IMPLEMENTED; CI TESTED; CLOUDFARE PRODUCTION DEPLOYMENT PROVEN; GENUINE AUTHENTICATED MEMBER ACCEPTANCE OPEN.
+**Boundary:** CI browser sessions use fixture accounts, not real member credentials. The real Academy progress table showed no saved rows in the audited production snapshot. No protected B01 rubric has been promoted from Draft. No LIVE payment test, customer checkout, or billing change occurred.
+
+**Revision history:** v1.2 — accepted exact-head Free Foundations CI and Cloudflare deployment evidence; genuine member and independent protected editorial signoff remain outstanding.
