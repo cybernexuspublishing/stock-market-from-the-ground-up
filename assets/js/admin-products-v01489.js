@@ -191,6 +191,8 @@ async function load(){
  try{
   wire();
   context=await admin('context');
+  const syncPanel=root.querySelector('[data-stripe-product-import]');
+  if(syncPanel)syncPanel.hidden=!owner();
   const requests=[can('commerce.view')?admin('platform'):Promise.resolve({plans:[],tools:[]}),
    can('catalog.view')?window.GroundUpAdminBookEditor?.load():Promise.resolve()];
   const result=await Promise.allSettled(requests);
