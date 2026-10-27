@@ -88,6 +88,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!document.querySelector('link[data-gu-premium-design]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/assets/css/premium-design-v014168.css';l.dataset.guPremiumDesign='1';document.head.append(l)}
   loadOnce('/assets/js/premium-design-v014168.js','premiumDesignV014168');
   loadOnce('/assets/js/sitewide-runtime.js','sitewideRuntime');
+  // Owner-selected site background; defaults preserve the existing theme.
+  if(!document.querySelector('link[data-gu-site-background-v1]')){
+   const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/assets/css/site-background-v1.css';sheet.dataset.guSiteBackgroundV1='1';document.head.append(sheet);
+  }
+  loadOnce('/assets/js/site-background-v1.js','siteBackgroundV1');
+  if(/^\\/admin(?:\\.html)?$/.test(location.pathname))loadOnce('/assets/js/admin-site-background-v1.js','ownerSiteBackgroundV1');
   loadOnce('/assets/js/release-integrity-v014036.js','releaseIntegrityV014036');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
     loadOnce('/assets/js/admin-payment-center-v01433.js','adminPaymentCenterV01433');
