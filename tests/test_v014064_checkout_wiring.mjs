@@ -27,13 +27,14 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_LIVE_DB_CONTRACT_APPROVED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_mock',
  GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_mock0000000',GU58_STRIPE_LIVE_WEBHOOK_SECRET:'whsec_mock',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(mapped)};
-const state={testing:false,db:true,offer:true,visible:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,merchant:true,tool:true,posts:0,remote:0};
+const state={testing:false,db:true,offer:true,visible:true,listed:true,saleReady:true,route:true,site:true,price:true,intervalCount:1,usageType:'licensed',billingScheme:'per_unit',transformQuantity:null,merchant:true,tool:true,posts:0,remote:0};
 const original=globalThis.fetch;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
  const u=String(url);state.remote++;
  if(!state.db)throw Error('Database offline');
  if(u.includes('/gu39_sandbox_settings?'))return json([{enabled:state.testing}]);
+ if(u.includes('/gu_storefront_items_v014174?'))return json([{visible:state.listed,sale_ready:state.saleReady,status:'for_sale'}]);
  if(u.includes('/platform_plans?'))return json([{active:true,public_visible:state.visible,
   checkout_enabled:state.offer,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
  if(u.includes('/platform_tools?'))return json([{active:true,public_visible:state.visible,
@@ -74,7 +75,9 @@ try{
  for(const [e,label] of bad){r=await get(e);assert.equal(r.liveCheckoutAvailable,false,label)}
  state.testing=true;r=await get();assert.equal(r.liveCheckoutAvailable,false,'Owner TESTING blocks LIVE');state.testing=false;
  state.offer=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'plan checkout lock');state.offer=true;
- state.visible=false;r=await get();assert.equal(r.liveCheckoutAvailable,true,'hidden but Owner-enabled plan can sell');state.visible=true;
+ state.visible=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'hidden plan must never be sold');state.visible=true;
+ state.listed=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'hidden Store listing must block direct checkout');state.listed=true;
+ state.saleReady=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'unreleased Store listing must block checkout');state.saleReady=true;
  state.route=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'digital provider route');state.route=true;
  state.site=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'Owner global checkout lock');state.site=true;
  state.merchant=false;r=await get();assert.equal(r.liveCheckoutAvailable,false,'wrong Stripe merchant');state.merchant=true;
@@ -94,7 +97,8 @@ try{
  r=await get({},'?type=plan&code=BOGUS');assert.equal(r.liveCheckoutAvailable,false,'unknown SKU');
  r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'tool with canonical live status');
  state.offer=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'hidden or visible tool requires explicit checkout_enabled');state.offer=true;
- state.visible=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'hidden but Owner-enabled tool can sell');state.visible=true;
+ state.visible=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'hidden tool cannot sell');state.visible=true;
+ r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,true,'published and eligible tool can sell');
  assert.equal(r.offer.name,'Interactive Learning');assert.equal(r.offer.unitAmountCents,2999);
  assert.equal(r.offer.billingInterval,'month');
  state.tool=false;r=await get({},'?type=tool&code=INTERACTIVE_LEARNING');assert.equal(r.liveCheckoutAvailable,false,'tool in preview');
