@@ -71,7 +71,7 @@ async function rosterStatus(c){
  const result=[];
  for(const [plan,username,tag] of ROSTER){
   const profile=byName.get(username);
-  let ready=false;
+  let ready=false,chartReady=false;
   if(profile){
    const user=await target(c,profile.id),meta=user?.app_metadata||{};
    if(user?.id!==profile.id||meta.qa_batch!==BATCH||meta.smfgu_qa_only!==true||
@@ -79,7 +79,7 @@ async function rosterStatus(c){
     throw err('Existing username conflicts with noncommercial test roster',409);
    ready=profile.email_verified===true&&profile.account_kind==='member';
    var expiry=Date.parse(meta.qa_chart_expires_at||'');
-   var chartReady=ready&&meta.qa_chart_batch===CHART_BATCH&&
+   chartReady=ready&&meta.qa_chart_batch===CHART_BATCH&&
     Object.hasOwn(CHART_TIERS,plan)&&meta.qa_chart_tier===CHART_TIERS[plan]&&
     Number.isFinite(expiry)&&expiry>Date.now();
   }
