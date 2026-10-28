@@ -354,5 +354,5 @@
   if(btn)btn.textContent=state.fullscreen?'Exit':'Expand';
   requestAnimationFrame(()=>state.chart?.resize(Math.max(280,state.shell.querySelector('.crownlight-plot').clientWidth),state.shell.querySelector('.crownlight-plot').clientHeight));
  }
- root.CrownlightStudio={render:redraw,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count})};
+ root.CrownlightStudio={render:redraw,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count,spacing:state.chart?.timeScale().options().barSpacing??null})};
 })(window);
