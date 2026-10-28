@@ -215,3 +215,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* Single canonical footer legal navigation; fallback only for legacy footers. */
 (()=>{const apply=()=>{const f=document.querySelector('footer');if(!f||f.querySelector('a[href="/legal.html"],a[href="legal.html"],[data-gu-legal-directory]'))return;const nav=document.createElement('nav');nav.dataset.guLegalDirectory='1';nav.setAttribute('aria-label','Legal policies');nav.className='wrap gu-footer-legacy-legal';const a=document.createElement('a');a.href='/legal.html';a.textContent='Legal & Policies';nav.append(a);f.append(nav)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply()})();
 (()=>{if(document.querySelector('link[data-gu-legal-footer-style]'))return;const s=document.createElement('link');s.rel='stylesheet';s.href='/assets/css/legal-footer-v1.css?v=20261027';s.dataset.guLegalFooterStyle='1';document.head.append(s)})();
+
+
+/* Sitewide presentation overrides. Editing controls are returned only after
+ * signed-in Owner/Admin/Moderator authorization; backend re-verifies every write. */
+(()=>{if(typeof document==='undefined'||document.querySelector('[data-cl-site-layout-editor]'))return;
+ const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/crownlight-site-layout-editor-v1.css?v=1';
+ css.dataset.clSiteLayoutEditor='1';document.head.append(css);
+ const script=document.createElement('script');script.src='/assets/js/crownlight-site-layout-editor-v1.js?v=1';
+ script.defer=true;script.dataset.clSiteLayoutEditor='1';document.head.append(script);
+})();
