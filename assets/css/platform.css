@@ -31,3 +31,62 @@
  overscroll-behavior:contain;
  scrollbar-width:thin;
 }
+
+/* Tools dropdown: aligned Trade Lab and Research navigation (2026-10-28). */
+.site-header .v12-nav .v12-mega-menu{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  column-gap:1.1rem;
+  row-gap:0;
+  padding:.7rem;
+  max-height:calc(100dvh - 90px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:#0a1524;
+  border-color:#315268;
+  box-shadow:0 18px 38px rgba(0,0,0,.55);
+}
+.site-header .v12-nav .v12-mega-menu > section{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-auto-flow:row;
+  align-content:start;
+  align-items:stretch;
+  gap:2px;
+  min-width:0;
+}
+.site-header .v12-nav .v12-mega-menu .v12-menu-title{
+  margin:0 0 .32rem;
+  padding:.38rem .58rem .5rem;
+  line-height:1.35;
+}
+.site-header .v12-nav .v12-mega-menu > section > a{
+  display:flex!important;
+  position:static;
+  float:none;
+  align-items:center;
+  justify-content:flex-start;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  min-height:35px;
+  margin:0;
+  padding:.45rem .58rem;
+  font-size:.9rem;
+  line-height:1.35;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.site-header .v12-nav .v12-mega-menu > section > a[href*="tools.html#"]{
+  margin-top:.4rem;
+  border-top:1px solid #315268;
+  border-radius:0;
+  padding-top:.75rem;
+}
+@media(max-width:850px){
+  .site-header .v12-nav .v12-mega-menu{
+    grid-template-columns:minmax(0,1fr)!important;
+    min-width:0!important;
+    max-width:calc(100vw - 2rem);
+    transform:none!important;
+  }
+}
