@@ -1,36 +1,70 @@
 {
-  "version": "0.14.0.167",
+  "version": "2.0.0-proposed",
   "brand": "Crownlight Sparks",
   "brandIcon": "assets/img/crownlight-spark.svg",
-  "status": "planned_pricing_checkout_disabled",
+  "status": "owner_approved_pending_server_acceptance_checkout_disabled",
   "creditUnit": "Spark",
-  "supportPolicy": "One Spark optionally reveals or skips one non-graded Practice question. Free instruction and retries never require Sparks. No official mastery or grade is awarded for using a Spark.",
-  "includedExpiryRule": "Included credits expire 60 days after their qualifying membership period ends, subject to the controlling member terms.",
-  "purchasedExpiryRule": "Purchased Sparks do not expire under the current proposed credit policy.",
+  "supportPolicy": "Crownlight Sparks may be redeemed for eligible optional practice conveniences and, once released, temporary ad-free access. Core instruction and ordinary practice retries remain included. Reveals and skips never award official mastery.",
+  "includedExpiryRule": "Owner approved non-expiring Sparks for V2; existing wallet ledger migration pending. Current credited balances continue to follow existing backend rules until migration is accepted.",
+  "purchasedExpiryRule": "Purchased Sparks do not expire.",
   "currency": "USD",
   "checkoutEnabled": false,
   "feeModel": "one_time_optional_addon",
   "packages": [
     {
-      "code": "SPARKS_10",
+      "code": "SPARKS_25",
       "name": "Starter",
-      "quantity": 10,
-      "priceCents": 399,
+      "quantity": 25,
+      "priceCents": 500,
       "checkoutEnabled": false
     },
     {
-      "code": "SPARKS_30",
-      "name": "Practice",
-      "quantity": 30,
-      "priceCents": 999,
+      "code": "SPARKS_55",
+      "name": "Explorer",
+      "quantity": 55,
+      "priceCents": 1000,
       "checkoutEnabled": false
     },
     {
-      "code": "SPARKS_75",
-      "name": "Extended Practice",
-      "quantity": 75,
-      "priceCents": 1999,
+      "code": "SPARKS_90",
+      "name": "Advancement",
+      "quantity": 90,
+      "priceCents": 1500,
       "checkoutEnabled": false
+    },
+    {
+      "code": "SPARKS_125",
+      "name": "Premium",
+      "quantity": 125,
+      "priceCents": 2000,
+      "checkoutEnabled": false
+    },
+    {
+      "code": "SPARKS_275",
+      "name": "Ultimate",
+      "quantity": 275,
+      "priceCents": 4000,
+      "checkoutEnabled": false
+    }
+  ],
+  "adFreePasses": [
+    {
+      "code": "ADFREE_DAY",
+      "durationHours": 24,
+      "costSparks": 5,
+      "redeemEnabled": false
+    },
+    {
+      "code": "ADFREE_WEEK",
+      "durationHours": 168,
+      "costSparks": 18,
+      "redeemEnabled": false
+    },
+    {
+      "code": "ADFREE_MONTH",
+      "durationHours": 720,
+      "costSparks": 50,
+      "redeemEnabled": false
     }
   ]
 }
