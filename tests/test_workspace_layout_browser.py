@@ -49,9 +49,18 @@ with sync_playwright() as p:
    if route in ['dashboard.html','admin.html']:
     toggle=page.locator('#gu-workspace-toggle');toggle.wait_for()
     target='#'+toggle.get_attribute('aria-controls')
-    assert page.locator(target).is_visible()==(width>900)
-    toggle.click();assert page.locator(target).is_visible()==(width<=900)
-    toggle.click()
+    if route=='dashboard.html':
+     # Compact Dashboard tabs replace the duplicate legacy sidebar visually.
+     assert page.locator(target).is_hidden(),'Dashboard must not show duplicate sidebar'
+     before=page.locator('main').bounding_box()
+     toggle.click()
+     assert page.locator(target).is_hidden(),'Legacy dashboard sidebar must stay hidden'
+     assert page.locator('main').bounding_box()==before,'Dashboard canvas shifted'
+     toggle.click()
+    else:
+     assert page.locator(target).is_visible()==(width>900)
+     toggle.click();assert page.locator(target).is_visible()==(width<=900)
+     toggle.click()
    if route=='store-membership-free.html':assert page.locator('.store-product-body').count()==1,'Product detail failed to render'
    if route=='store.html':
     assert page.locator('#store-tab-founders').count()==1,'Founder membership Store tab must exist'
