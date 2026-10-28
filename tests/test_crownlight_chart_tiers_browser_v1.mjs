@@ -51,7 +51,32 @@ if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOpti
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
 assert.equal(await page.locator('.cl-tier-kline-canvas').count(),expected);
 assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'KLineChart must render real canvas');
-await page.waitForFunction(()=>window.CrownlightChartTiers.getInstances().every(x=>x.chart.getDataList().length===2));}
+// A canvas alone is not proof of readable price candles: a flood of indicator
+// panes previously collapsed the candle pane to almost zero height.
+const pricePane=await page.evaluate(()=>window.CrownlightChartTiers.getInstances().map(e=>({
+  candleHeight:e.chart.getSize?.('candle_pane')?.height||0,
+  ema:e.chart.getIndicators?.({name:'EMA'})||[],
+  indicatorNames:(e.chart.getIndicators?.()||[]).map(x=>x.name)
+})));
+assert(pricePane.every(p=>p.candleHeight>=200),'Candle pane must stay visibly tall: '+JSON.stringify(pricePane.map(p=>p.candleHeight)));
+assert(pricePane.every(p=>p.ema.length===1&&p.ema[0].paneId==='candle_pane'),'EMA must overlay price, not occupy its own pane');
+await page.waitForFunction(()=>window.CrownlightChartTiers.getInstances().every(x=>x.chart.getDataList().length===2));
+// Owner regression: persistent EMA + RSI previously spawned duplicate panes
+// and hid the candle chart when restoring a member workspace.
+await page.evaluate(()=>{
+ const t=window.CrownlightChartTiers;
+ for(let i=0;i<3;i++){t.addStudy('EMA');t.addStudy('RSI')}
+});
+const panes=await page.evaluate(()=>window.CrownlightChartTiers.getInstances().map(e=>({
+  height:e.chart.getSize('candle_pane')?.height||0,
+  ema:e.chart.getIndicators({name:'EMA'}).length,
+  rsi:e.chart.getIndicators({name:'RSI'}).length,
+  source:e.chart.getDataList().length,
+  hostHeight:e.host.getBoundingClientRect().height
+})));
+assert(panes.every(p=>p.height>=200&&p.ema===1&&p.rsi===1&&p.source===2&&p.hostHeight>=460),
+ 'Restored studies must leave readable candles, no duplicate pane: '+JSON.stringify(panes));
+}
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),
 [...two,{timestamp:two[1].timestamp+60000,open:11,high:11.8,low:10.6,close:11.7,volume:1000}]);
 assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().revealed),3);

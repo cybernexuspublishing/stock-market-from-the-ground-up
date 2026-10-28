@@ -54,9 +54,10 @@ function applyOverlays(){
  }
 }
 function applyStudies(){
- const charts=getCharts();
- for(const entry of charts)for(const name of workspace.studies||[]){
-  try{entry.chart.createIndicator(name,true)}catch{}
+ // Use the shared v10 pane-aware helper: saved EMA/MA belongs on the
+ // candlesticks, oscillators belong in distinct panes, names cannot duplicate.
+ for(const name of new Set(workspace.studies||[])){
+  try{Tier()?.addStudy?.(name)}catch(e){console.warn('Crownlight saved study skipped',e?.message)}
  }
 }
 function synchronize(source,event,type){

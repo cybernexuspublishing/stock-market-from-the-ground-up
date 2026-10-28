@@ -223,19 +223,67 @@ function makeView(id,type){
  state.view.querySelector('[data-cl-tier-panels]').append(box);
  return box;
 }
+// KLineChart v10: EMA/MA are overlays on candle_pane. A plain
+// createIndicator('EMA', false) creates a NEW pane and squeezes the
+// price candles out when saved studies are restored (reported by Owner).
+const CANDLE_STUDIES=new Set(['BBI','BOLL','EMA','MA','SAR','SMA']);
+const VALID_STUDIES=new Set(['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL']);
+function fitStudyPanes(entry){
+ const indicators=entry.chart.getIndicators?.()||[];
+ const separate=[...new Set(indicators.filter(i=>i?.paneId!=='candle_pane'&&!CANDLE_STUDIES.has(i?.name))
+  .map(i=>i?.paneId||i?.name).filter(Boolean))];
+ // Every oscillator gets room below a reserved, readable price chart.
+ // Expand its host instead of packing 3-8 studies into a fixed 440px.
+ const height=Math.max(460,330+125*separate.length);
+ if(entry.host)entry.host.style.height=height+'px';
+ entry.chart.resize?.();
+ entry.chart.setPaneOptions?.({id:'candle_pane',height:270,minHeight:220,dragEnabled:true});
+ for(const paneId of separate.filter(id=>!VALID_STUDIES.has(id)))
+  entry.chart.setPaneOptions?.({id:paneId,height:110,minHeight:75,dragEnabled:true});
+ entry.chart.resize?.();
+}
+function addStudyToChart(entry,name){
+ if(!VALID_STUDIES.has(name))return false;
+ const chart=entry.chart;
+ if(chart.getIndicators?.({name})?.length)return false;
+ const candleOverlay=CANDLE_STUDIES.has(name);
+ // v10 requires the explicit candle pane id for price overlays.
+ const id=chart.createIndicator(candleOverlay?{name,paneId:'candle_pane'}:name,candleOverlay);
+ if(!id)return false;
+ fitStudyPanes(entry);
+ return true;
+}
+function addStudy(name){
+ if(!VALID_STUDIES.has(name))return false;
+ let added=false;
+ for(const entry of state.charts)added=addStudyToChart(entry,name)||added;
+ return added;
+}
+function removeStudy(name){
+ if(!VALID_STUDIES.has(name))return false;
+ let removed=false;
+ for(const entry of state.charts){
+  removed=entry.chart.removeIndicator({name})||removed;
+  fitStudyPanes(entry);
+ }
+ return removed;
+}
 function initOne(id,type){
- const chart=window.klinecharts?.init?.(id,{styles:'dark',layout:{pane:{height:130,minHeight:60,dragEnabled:true}}});
+ const host=document.getElementById(id);
+ const chart=window.klinecharts?.init?.(host,{styles:'dark',layout:{pane:{height:110,minHeight:75,dragEnabled:true}}});
  if(!chart)throw Error('KLineChart could not initialize');
+ const entry={id,chart,host};
  chart.setSymbol({ticker:state.symbol||'REPLAY',pricePrecision:4,volumePrecision:0});
  chart.setPeriod(period());
  chart.setDataLoader({getBars:({callback})=>{
-  // V10: no append of future bars, no external history requests from this renderer.
+  // v10: never append unrevealed or future candles.
   callback(state.bars.map(b=>({...b})),{forward:false,backward:false});
  }});
- try{chart.createIndicator('VOL',true)}catch(e){console.warn('Volume indicator unavailable',e)}
- try{chart.createIndicator('EMA',false)}catch(e){console.warn('EMA indicator unavailable',e)}
- if(type==='analysis')try{chart.createIndicator('MACD',true)}catch(e){console.warn('MACD unavailable',e)}
- return {id,chart};
+ try{addStudyToChart(entry,'VOL')}catch(e){console.warn('Volume indicator unavailable',e)}
+ try{addStudyToChart(entry,'EMA')}catch(e){console.warn('EMA indicator unavailable',e)}
+ if(type==='analysis')try{addStudyToChart(entry,'MACD')}catch(e){console.warn('MACD unavailable',e)}
+ fitStudyPanes(entry);
+ return entry;
 }
 async function loadEngine(){
  if(window.klinecharts?.init)return;
@@ -312,7 +360,7 @@ function createControls(){
  for(const name of ['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'])indicator.add(new Option(name,name));
  const add=el('button','btn secondary','Add indicator');add.type='button';
  add.onclick=()=>{
-  try{for(const entry of state.charts)entry.chart.createIndicator(indicator.value,true);
+  try{addStudy(indicator.value);
    const saved=document.querySelector('[data-cl-studies]');
    if(saved){const names=saved.value.split(',').map(x=>x.trim()).filter(Boolean);
     if(!names.includes(indicator.value))saved.value=[...names,indicator.value].join(', ')}
@@ -322,7 +370,7 @@ function createControls(){
  const remove=el('button','btn secondary','Remove indicator');remove.type='button';
  remove.onclick=()=>{
   let removed=false;
-  for(const entry of state.charts){try{removed=entry.chart.removeIndicator({name:indicator.value})||removed}catch{}}
+  try{removed=removeStudy(indicator.value)}catch{}
   const saved=document.querySelector('[data-cl-studies]');
   if(saved)saved.value=saved.value.split(',').map(x=>x.trim()).filter(x=>x&&x!==indicator.value).join(', ');
   status(removed?'Removed '+indicator.value+'. Save workspace to retain this change.':'No matching indicator in the current chart workspace.');
@@ -383,6 +431,6 @@ window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],revealed:state.bars.length,
  verified:state.verified,charts:state.charts.length,
  accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
-}),choose:t=>choose(t)};
+}),choose:t=>choose(t),addStudy,removeStudy};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init());else void init();
 })();
