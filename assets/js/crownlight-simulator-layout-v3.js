@@ -7,8 +7,17 @@
  const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text)node.textContent=text;return node};
  const state={initialized:false,active:'plan',userId:null};
  function setupImport(){
-  const parent=$('sim-content'),section=[...parent.querySelectorAll(':scope > section')].find(x=>x.querySelector(':scope > h2')?.textContent?.includes('Load replay data'));
-  if(!section||section.querySelector('details.cl-workbench-import'))return;
+  const parent=$('sim-content');if(!parent)return;
+  const section=[...parent.querySelectorAll(':scope > section')].find(x=>
+   x.classList.contains('cl-import-shell')||
+   x.querySelector(':scope > h2')?.textContent?.includes('Load replay data'));
+  if(!section)return;
+  // Ensure the data-import section stays ahead of the chart, even when an
+  // older browser layout script has moved its DOM node.
+  const chartSection=parent.querySelector(':scope > .sim-layout');
+  if(chartSection&&[...parent.children].indexOf(section)>[...parent.children].indexOf(chartSection))
+   parent.insertBefore(section,chartSection);
+  if(section.querySelector('details.cl-workbench-import'))return;
   const details=el('details','cl-workbench-import');details.open=true;
   const summary=el('summary','','1. Data source and historical replay setup');
   const info=el('span','cl-import-hint','Choose a provider, historical date or teaching dataset. Click to expand or collapse.');
