@@ -154,7 +154,7 @@ async function stripeSession(c,params,idempotencyKey){
   const detail={},provider=response?.error||{};
   if(/^[a-z0-9_]{2,72}$/.test(val(provider.code)))detail.code=provider.code;
   if(/^[a-z0-9_]{2,72}$/.test(val(provider.type)))detail.type=provider.type;
-  if(/^[a-zA-Z0-9_\\[\\].]{1,90}$/.test(val(provider.param)))detail.param=provider.param;
+  const param=val(provider.param);if(param.length>=1&&param.length<=90&&[...param].every(ch=>'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[].'.includes(ch)))detail.param=param;
   const reqId=val(http.headers.get('request-id'));
   if(/^req_[A-Za-z0-9_]{6,100}$/.test(reqId))detail.requestId=reqId;
   if(http.status>=400&&http.status<=599)detail.httpStatus=http.status;
