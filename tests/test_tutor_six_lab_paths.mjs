@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import {getApprovedLabContext,labGuidance,requestedLearningStage} from '../functions/_lib/tutor-lab-context-v014149.js';
 
 const cases=[
- ['F2-C07-L01','Construct an Up / Bullish Candle','open and close'],
+ ['F2-C07-L01','Construct an Up / Bullish Candle','open, high, low, and close'],
  ['DT-C11-L01','VWAP as a session reference','session reference'],
  ['DT-C19-L02','Share Volume','traded shares'],
- ['DT-C34-L01','Define the Box','upper and lower bounds'],
- ['DT-C45-L01','Failed breakout','proposed breakout level'],
+ ['DT-C34-L01','Define the Box','upper and lower boundary'],
+ ['DT-C45-L01','Failed breakout','predeclared boundary'],
  ['DT-C05-L01','Risk per trade','distance per share']
 ];
 const byLab=Object.fromEntries(cases.map(([id,title])=>[id,{title}]));
@@ -20,6 +20,9 @@ for(const [id,title,cue] of cases){
  assert.equal(context.learningStage,'Practice');
  const answer=labGuidance(context,'question');
  assert(answer.includes(cue),`${id} must have its own teaching cue`);
+ assert(answer.includes('Worked example (fictional):'));
+ assert(answer.includes('Practice independently:'));
+ assert(answer.includes('Public reference for further study:'));
  assert(answer.includes('Try the next step independently'));
  assert(!/answer.?key|future price|actual fill/i.test(answer));
 }
