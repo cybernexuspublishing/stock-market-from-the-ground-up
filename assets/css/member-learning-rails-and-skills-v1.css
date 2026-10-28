@@ -123,6 +123,15 @@ body[data-gu-layout-route="skills"] .gu-skills-page .skill-card h3{
 .gu-skills-page .section-intro{font-size:.9rem!important;line-height:1.5!important}
 .gu-skills-page .dashboard-space{margin-block:16px!important}
 .gu-skills-page .dashboard-space h2{font-size:1.38rem!important;line-height:1.3!important}
+/* Ad-free or ineligible audience: reclaim the two empty side columns. */
+@supports selector(:has(*)){
+ .gu-learning-ad-layout:not(:has(.gu-learning-side-rail .gu-house-promo,.gu-learning-side-rail .gu-ad-sponsored)){
+  grid-template-columns:minmax(0,1fr)!important;max-width:1160px!important
+ }
+ .gu-learning-ad-layout:not(:has(.gu-learning-side-rail .gu-house-promo,.gu-learning-side-rail .gu-ad-sponsored))>.gu-learning-side-rail{
+  display:none!important
+ }
+}
 @media(max-width:1250px){
  .gu-learning-ad-layout{grid-template-columns:132px minmax(0,1fr) 132px!important;gap:12px!important}
  body.gu-bc-learning .gu-learning-ad-core #academy-programs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
