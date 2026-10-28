@@ -89,7 +89,7 @@ export async function onRequest({request,env}){
      String((await flags.json())?.[0]?.status||'').toLowerCase()))
     throw deny('Crownlight Sparks is unavailable for this account.',403);
    const balance=await rpc(env,'groundup_question_pass_summary',{p_user_id:actor.userId});
-   return reply({ok:true,balance,creditRule:'One pass for Reveal or Skip; free instruction and retries do not spend credits.'});
+   return reply({ok:true,balance,creditRule:'Four Sparks for an eligible Reveal or Skip; ordinary instruction and retries remain included.'});
   }
   const spec=await bookAuthorized(env,request,labId);
   const {questionId,action,attemptId,requestId}=operation||{};
