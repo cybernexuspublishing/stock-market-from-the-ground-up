@@ -76,10 +76,10 @@
    grid:{vertLines:{color:'rgba(83,116,158,.12)'},horzLines:{color:'rgba(83,116,158,.14)'}},
    crosshair:{mode:lib.CrosshairMode?.Normal??0,vertLine:{color:'#8a70f7',style:lib.LineStyle?.Dashed??2,labelBackgroundColor:'#6c50cf'},horzLine:{color:'#43dcf5',style:lib.LineStyle?.Dashed??2,labelBackgroundColor:'#11657e'}},
    rightPriceScale:{borderColor:'#2e486b',scaleMargins:{top:.1,bottom:.12}},
-   timeScale:{borderColor:'#2e486b',barSpacing:16,minBarSpacing:3,rightOffset:2,timeVisible:true,secondsVisible:false,fixRightEdge:true,fixLeftEdge:true,
+   timeScale:{borderColor:'#2e486b',barSpacing:14,minBarSpacing:.6,rightOffset:16,timeVisible:true,secondsVisible:false,fixRightEdge:false,fixLeftEdge:false,
     tickMarkFormatter:time=>timeNY(Number(time)*1000).replace(/,\s*\d{4}/,'')},
    localization:{timeFormatter:time=>timeNY(Number(time)*1000)},
-   handleScroll:{pressedMouseMove:true,mouseWheel:false,horzTouchDrag:true,vertTouchDrag:false},
+   handleScroll:{pressedMouseMove:true,mouseWheel:false,horzTouchDrag:true,vertTouchDrag:true},
    handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
    kineticScroll:{touch:true,mouse:true}
   });
@@ -100,7 +100,7 @@
   actions.addEventListener('click',event=>{
    const button=event.target.closest('[data-cl]');if(!button)return;
    const cmd=button.dataset.cl,scale=chart.timeScale();
-   if(cmd==='zoom-in'||cmd==='zoom-out'){const current=scale.options().barSpacing||16;scale.applyOptions({barSpacing:Math.max(3,Math.min(56,current*(cmd==='zoom-in'?1.3:.77)))})}
+   if(cmd==='zoom-in'||cmd==='zoom-out'){const current=scale.options().barSpacing||16;scale.applyOptions({barSpacing:Math.max(.6,Math.min(56,current*(cmd==='zoom-in'?1.3:.66)))})}
    if(cmd==='reset'){state.follow=true;fitVisible();save()}
    if(cmd==='follow'){state.follow=!state.follow;updateFollow();save();if(state.follow)scale.scrollToRealTime()}
    if(cmd==='studies')openStudies();
@@ -120,7 +120,7 @@
   if(!state.chart||!state.count)return;
   const scale=state.chart.timeScale();
   const count=state.count;
-  scale.setVisibleLogicalRange({from:Math.max(-1,count-Math.min(90,Math.max(23,count))),to:count+2});
+  scale.setVisibleLogicalRange({from:Math.max(-1,count-Math.min(90,Math.max(23,count))),to:count+16});
  }
  function updateFollow(){
   const button=state.shell?.querySelector('[data-cl="follow"]');
