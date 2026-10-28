@@ -139,10 +139,28 @@ async function batchBind(selection,batchId,sessionId){
 }
 
 async function stripeSession(c,params,idempotencyKey){
- const response=await getJson('https://api.stripe.com/v1/checkout/sessions',{
-  method:'POST',headers:{authorization:'Bearer '+c.key,
-   'content-type':'application/x-www-form-urlencoded','Idempotency-Key':idempotencyKey},
-  body:params.toString()},'ZERO_CHECKOUT_NOT_SUPPORTED');
+ // Keep the provider's safe machine-readable rejection for Owner diagnostics.
+ // Never return Stripe's raw error message, credentials, request body, or PII.
+ let http,response;
+ try{
+  http=await fetch('https://api.stripe.com/v1/checkout/sessions',{
+   method:'POST',headers:{authorization:'Bearer '+c.key,
+    'content-type':'application/x-www-form-urlencoded','Idempotency-Key':idempotencyKey},
+   body:params.toString(),cache:'no-store'});
+  response=await http.json().catch(()=>null);
+ }catch{throw fail('ZERO_CHECKOUT_NOT_SUPPORTED')}
+ if(!http.ok||!response||response.error){
+  const err=fail('ZERO_CHECKOUT_NOT_SUPPORTED');
+  const detail={},provider=response?.error||{};
+  if(/^[a-z0-9_]{2,72}$/.test(val(provider.code)))detail.code=provider.code;
+  if(/^[a-z0-9_]{2,72}$/.test(val(provider.type)))detail.type=provider.type;
+  if(/^[a-zA-Z0-9_\\[\\].]{1,90}$/.test(val(provider.param)))detail.param=provider.param;
+  const reqId=val(http.headers.get('request-id'));
+  if(/^req_[A-Za-z0-9_]{6,100}$/.test(reqId))detail.requestId=reqId;
+  if(http.status>=400&&http.status<=599)detail.httpStatus=http.status;
+  err.stripeDiagnostic=detail;
+  throw err;
+ }
  // The Owner never receives a link that could lead to any money/card/subscription.
  if(!/^cs_live_[A-Za-z0-9_]+$/.test(val(response.id))||response.livemode!==true||
   response.amount_total!==0||response.amount_subtotal!==0||response.mode!=='payment'||
@@ -193,7 +211,7 @@ export async function onRequestGet({request,env}){
   return json({ok:true,readOnly:true,ownerOnly:true,configuredZeroPrice:true,
    liveCustomerPaymentsApproved:false,oneTime:true,amountCents:0,
    notice:'Strictly Owner-only $0 one-time LIVE checkout, separate from all paid memberships.'});
- }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE'},e.status||503)}
+ }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE',...(e.stripeDiagnostic?{stripeDiagnostic:e.stripeDiagnostic}:{})},e.status||503)}
 }
 export async function onRequestPost({request,env}){
  try{
@@ -227,8 +245,9 @@ export async function onRequestPost({request,env}){
   }
   p.set('success_url',c.origin+'/admin.html?gu71=complete&session_id={CHECKOUT_SESSION_ID}');
   p.set('cancel_url',c.origin+'/admin.html?gu71=cancelled');
-  const day=new Date().toISOString().slice(0,10);
-  const session=await stripeSession(c,p,batchId?'gu71-zero-batch-'+batchId:'gu71-zero-'+user+'-'+day+'-'+(sku||'general'));
+  // A distinct explicit Owner click must not collide with an earlier session's
+  // Stripe idempotency key, especially when metadata or catalog state changes.
+  const session=await stripeSession(c,p,'gu71-zero-'+crypto.randomUUID());
   if(batchId)await batchBind(selection,batchId,session.id);
   return json({ok:true,live:true,zeroDollar:true,targetSku:sku||null,diagnosticBatch:batchId||null,selectedCount:selection?.skus.length||null,sessionUrl:session.url,
    notice:'Owner zero-dollar one-time Stripe Checkout only. NO membership or tool entitlements.'});
