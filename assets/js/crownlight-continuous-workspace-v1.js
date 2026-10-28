@@ -33,8 +33,9 @@
      link.textContent='Compare classic layout';
      info.append(link);
     }
-    const toolbar=document.getElementById('cl-chart-visibility-toolbar');
-    (toolbar||content.firstElementChild)?.insertAdjacentElement('afterend',info);
+    // Keep the Owner-preview notice outside the live workbench DOM; the
+    // Source > Chart > Trade ordering observer must not reposition it.
+    content.before(info);
    }else if(j.ownerPreview){
     const toolbar=document.getElementById('cl-chart-visibility-toolbar');
     if(toolbar&&!toolbar.querySelector('.cl-owner-preview-link')){
