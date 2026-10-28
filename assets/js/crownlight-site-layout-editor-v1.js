@@ -7,7 +7,7 @@
  const selector='main .journal-card,main .card,main .dashboard-space,main .academy-program,main .gu-bc-lesson,main .catalog-founder-card,main .catalog-free-member-card,main .v1321-feature-group';
  const excluded='form,dialog,[data-payment],[data-stripe],.v1321-secret-form,[data-auth-form],.crownlight-plot,.cl-live-plot';
  const $=s=>document.querySelector(s);
- const cards=[...document.querySelectorAll(selector)].filter(x=>!x.closest(excluded)&&!x.matches(excluded)).slice(0,110);
+ const cards=[...document.querySelectorAll(selector)].filter(x=>!x.closest(excluded)&&!x.matches(excluded)&&!x.querySelector('form,input[type="password"],input[autocomplete="cc-number"],[data-stripe],iframe')).slice(0,110);
  if(!cards.length)return;
  const state={editing:false,config:new Map(),role:false,token:'',activeDrag:null};
  const slug=s=>String(s||'').trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'').slice(0,62);
@@ -23,8 +23,22 @@
  const keyed=new Map();
  for(const card of cards){const key=cardKey(card);if(validKey.test(key)&&!keyed.has(key)){card.dataset.guLayoutKey=key;keyed.set(key,card)}}
  async function session(){
+  if(typeof window.getSupabaseClient!=='function'){
+   // Keep public page loads lightweight: load auth support only when this browser
+   // already holds a Supabase session storage record (never read its contents).
+   let hasAccount=false;
+   try{hasAccount=Object.keys(localStorage).some(k=>/^sb-[a-z0-9]+-auth-token$/.test(k))}catch{}
+   if(!hasAccount)return null;
+   const inject=src=>new Promise((resolve,reject)=>{
+    const script=document.createElement('script');script.src=src;
+    script.addEventListener('load',resolve,{once:true});script.addEventListener('error',reject,{once:true});document.head.append(script);
+   });
+   if(!window.SITE_CONFIG)await inject('/config.js');
+   if(typeof window.getSupabaseClient!=='function')await inject('/assets/js/supabase-client.js');
+  }
   if(typeof window.getSupabaseClient!=='function')return null;
-  const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();return data?.session||null;
+  const sb=await window.getSupabaseClient();if(!sb)return null;
+  const {data}=await sb.auth.getSession();return data?.session||null;
  }
  async function api(method='GET',payload=null){
   const url='/api/site-card-layout?page='+encodeURIComponent(page);
