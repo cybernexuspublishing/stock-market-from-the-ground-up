@@ -46,6 +46,7 @@ def run():
   page.wait_for_function('document.querySelectorAll("dialog.v2-avatar-modal").length===0',timeout=5000)
   assert page.evaluate('window.__applied.length')==0,'Cancel must not save'
   page.locator('#edit').click()
+  page.locator('[data-avatar-style="all"]').click()
   page.locator('[data-avatar-id="m12"]').click()
   page.evaluate('window.__reject=true')
   page.locator('[data-avatar-apply]').click()
