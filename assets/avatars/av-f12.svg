@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Portrait avatar Sol F"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#49344f"/><stop offset="1" stop-color="#071525"/></linearGradient><linearGradient id="coat" x2="0" y2="1"><stop stop-color="#e1a3e8"/><stop offset="1" stop-color="#194567"/></linearGradient></defs>
+ <rect width="192" height="192" rx="27" fill="url(#bg)"/>
+ <circle cx="159" cy="26" r="64" fill="#e1a3e8" opacity=".13"/><circle cx="24" cy="174" r="55" fill="#fff" opacity=".04"/>
+ <circle cx="96" cy="82" r="65" fill="none" stroke="#e1a3e8" stroke-width="1.7" opacity=".4"/>
+ <path d="M50 77C44 33 67 26 90 24C125 16 153 40 145 91L155 157 131 150 125 93 67 92 62 152 36 156Z" fill="#332437" /><path d="M18 191C22 149 50 130 76 125L95 144 116 125C150 133 173 151 174 191Z" fill="url(#coat)"/><path d="M76 126l20 21 20-21" fill="none" stroke="#f1f8ff" stroke-width="4" opacity=".68"/><path d="M96 147v45" stroke="#071e30" stroke-width="3" opacity=".34"/>
+ <path d="M81 124v16q15 16 30 0v-16" fill="#efc5a7"/>
+ <ellipse cx="96" cy="90" rx="40" ry="46" fill="#efc5a7"/>
+ <path d="M56 67Q81 32 110 42Q127 43 141 65" stroke="#332437" stroke-width="18" stroke-linecap="round" fill="none"/>
+ <path d="M67 84q10-7 19-1m19 0q10-7 19 1" stroke="#332437" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+ <ellipse cx="78" cy="91" rx="3.5" ry="4.5" fill="#182a37"/><ellipse cx="115" cy="91" rx="3.5" ry="4.5" fill="#182a37"/>
+ <path d="M96 94l-4 13 7 2" stroke="#6f4b45" stroke-width="2" opacity=".6" fill="none"/>
+ <path d="M84 118q12 8 25-1" stroke="#773f46" stroke-width="3" stroke-linecap="round" fill="none"/>
+ <path d="M47 75Q54 31 92 33Q131 31 143 75Z" fill="#e1a3e8"/><path d="M37 72Q99 82 153 73" stroke="#163b51" stroke-width="10" stroke-linecap="round"/>
+ <path d="M25 177Q67 145 96 147Q137 146 169 178" stroke="#e1a3e8" stroke-width="2" fill="none" opacity=".72"/></svg>
