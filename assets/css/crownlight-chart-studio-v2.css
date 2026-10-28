@@ -91,3 +91,12 @@
 .crownlight-coach [data-cl="copy-observation"]{font:inherit;font-size:.83rem;font-weight:750;color:#111325;background:linear-gradient(120deg,#c9b4ff,#80e1fa);border:0;border-radius:9px;padding:10px 16px;cursor:pointer}
 .crownlight-coach [data-cl="coach-feedback"]{font-size:.78rem;color:#afebcb}
 @media(max-width:650px){.crownlight-coach{padding:14px}.crownlight-coach-math{grid-template-columns:1fr}}
+
+/* Immersive chart-first layout; trade planning and execution follow the chart. */
+.sim-layout:has(.sim-chart-panel.crownlight-active){grid-template-columns:minmax(0,1fr)}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-side{position:static;max-width:100%;border:1px solid #3c4d78;background:linear-gradient(128deg,#11182d,#0c182d);border-radius:18px;box-shadow:0 16px 45px #0004}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-controls{background:linear-gradient(90deg,#101f37,#10192b);border:1px solid #31486a;border-radius:12px;padding:12px 14px}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-controls .btn{background:linear-gradient(110deg,#332c67,#6547aa);border:1px solid #7d68c5;color:#fff}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-controls .btn:hover{filter:brightness(1.15)}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-talia-guidance{background:linear-gradient(110deg,rgba(31,43,87,.55),rgba(16,61,70,.5));border:1px solid #53638b;border-radius:12px;padding:15px 19px}
+.sim-layout:has(.sim-chart-panel.crownlight-active) .sim-talia-guidance h3{color:#f6d39a;font-size:1rem}
