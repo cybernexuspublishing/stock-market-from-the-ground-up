@@ -533,7 +533,12 @@ async function handlePost(env,request,action){
          !Array.isArray(v.pages)||v.pages.length<1||v.pages.length>allowedPages.size||
          new Set(v.pages).size!==v.pages.length||
          v.pages.some(page=>typeof page!=='string'||!allowedPages.has(page))||
-         Object.keys(v).some(k=>!['enabled','pages'].includes(k)))
+         Object.keys(v).some(k=>!['enabled','pages','styles'].includes(k))||
+         (v.styles!==undefined&&(
+           !v.styles||typeof v.styles!=='object'||Array.isArray(v.styles)||
+           Object.keys(v.styles).some(page=>!allowedPages.has(page)||!v.pages.includes(page)||
+             !['classic','continuous','focus','compact','spacious'].includes(v.styles[page]))
+         )))
         return bad('Specify a boolean enabled state and distinct approved page filenames.',400);
       body.category='design';body.public_read=false;
       body.description='Owner-controlled Crownlight continuous trading workspace presentation';

@@ -22,7 +22,11 @@ export async function onRequestGet({request,env}){
   const setting=settings[0]?.value||{};
   const enabled=setting.enabled===true;
   const selected=(Array.isArray(setting.pages)?setting.pages:['simulator.html']).filter(p=>PAGES.has(p));
-  const published=enabled&&selected.includes(page);
+  // Per-page preset. Older saved settings without a style map retain Continuous.
+  const PRESETS=new Set(['classic','continuous','focus','compact','spacious']);
+  const savedRaw=setting.styles&&typeof setting.styles==='object'&&!Array.isArray(setting.styles)?setting.styles[page]:null;
+  const savedStyle=PRESETS.has(savedRaw)?savedRaw:'continuous';
+  const published=enabled&&selected.includes(page)&&savedStyle!=='classic';
   let owner=false;
   if(/^Bearer\s+\S+$/i.test(request.headers.get('authorization')||'')){
    try{
@@ -37,9 +41,11 @@ export async function onRequestGet({request,env}){
     }
    }catch{owner=false}
   }
-  const desired=u.searchParams.get('workspace');
-  const continuous=(published&&!(owner&&desired==='classic'))||(owner&&desired==='continuous');
-  return send({ok:true,page,mode:continuous?'continuous':'classic',published,ownerPreview:owner,
-   preview:owner&&continuous&&!published});
+  const requested=u.searchParams.get('workspace');
+  // Query strings are never entitlements. Only a verified OWNER can preview
+  // an unpublished style or override a published choice to compare Classic.
+  const mode=owner&&PRESETS.has(requested)?requested:(published?savedStyle:'classic');
+  return send({ok:true,page,mode,savedStyle,published,ownerPreview:owner,
+   preview:owner&&mode!=='classic'&&(!published||mode!==savedStyle)});
  }catch{return send({ok:false,error:'Page presentation unavailable'},503)}
 }
