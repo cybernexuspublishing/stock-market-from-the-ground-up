@@ -74,7 +74,14 @@ export async function alpacaIexBars(credentials,q){
  }catch{throw Object.assign(new Error('Alpaca IEX market data unavailable or your account lacks permission.'),{status:503})}
  finally{clearTimeout(timeout)}
  if(!Array.isArray(data?.bars)||data.next_page_token)throw Object.assign(new Error('Alpaca history is incomplete. Select a shorter date window.'),{status:503});
- return validateHistoricalOhlcv(data.bars.map(x=>({timestamp:x.t,open:x.o,high:x.h,low:x.l,close:x.c,volume:x.v})),{startDate:start,endDate:end});
+ const validated=validateHistoricalOhlcv(data.bars.map(x=>({timestamp:x.t,open:x.o,high:x.h,low:x.l,close:x.c,volume:x.v})),{startDate:start,endDate:end});
+ // Optional Alpaca bar observations. Absent values remain absent, never inferred.
+ return validated.map((bar,i)=>{
+  const source=data.bars[i],extra={};
+  if(Number.isSafeInteger(source.n)&&source.n>=0)extra.tradeCount=source.n;
+  if(typeof source.vw==='number'&&Number.isFinite(source.vw)&&source.vw>0)extra.providerVwap=source.vw;
+  return {...bar,...extra};
+ });
 }
 export async function onRequest(context){const {request,env}=context,u=new URL(request.url),action=clean(u.searchParams.get('action'));try{
  if(!['GET','POST'].includes(request.method))return out({error:'Method not allowed.'},405);
