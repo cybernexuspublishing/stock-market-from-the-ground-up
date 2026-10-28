@@ -441,6 +441,9 @@
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
    updateProgress();renderDay();
+   if(code==='free5'&&new URL(location.href).searchParams.has('day')){
+    requestAnimationFrame(()=>{const target=get('academy-workspace');if(!target.hidden){target.scrollIntoView({behavior:'instant',block:'start'});get('academy-day-title')?.setAttribute('tabindex','-1');get('academy-day-title')?.focus({preventScroll:true})}});
+   }
    status(progressAvailable?'Choose a day and begin learning with Talia.':
     'You can read the lessons, but we cannot save your notes right now. Please try again later.');
   }catch(error){
