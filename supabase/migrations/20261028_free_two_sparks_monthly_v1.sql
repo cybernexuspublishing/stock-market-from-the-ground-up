@@ -18,7 +18,7 @@ ALTER TABLE public.groundup_question_pass_buckets
   (source IN ('purchased','manual') AND billing_period_ends_at IS NULL AND expires_at IS NULL)
   OR (source='included' AND billing_period_ends_at IS NOT NULL AND expires_at IS NOT NULL AND
    expires_at IN (billing_period_ends_at+interval '60 days',billing_period_ends_at+interval '90 days',billing_period_ends_at+interval '150 days'))
-  OR (source='free_included' AND billing_period_ends_at IS NULL AND expires_at=issued_at+interval '1 month')
+  OR (source='free_included' AND billing_period_ends_at IS NULL AND expires_at>issued_at AND expires_at<=issued_at+interval '32 days')
  );
 
 CREATE OR REPLACE FUNCTION public.groundup_free_sparks_ensure(p_user_id uuid)
@@ -56,7 +56,7 @@ BEGIN
  v_origin:='FREE_MONTHLY_V1:'||to_char(v_begin AT TIME ZONE 'UTC','YYYYMMDDHH24MISS');
  INSERT INTO public.groundup_question_pass_buckets
    (user_id,source,origin_key,initial_credits,remaining_credits,issued_at,billing_period_ends_at,expires_at)
- VALUES(p_user_id,'free_included',v_origin,2,2,v_begin,NULL,v_begin+interval '1 month')
+ VALUES(p_user_id,'free_included',v_origin,2,2,v_begin,NULL,v_end)
  ON CONFLICT (user_id,origin_key) DO NOTHING;
  GET DIAGNOSTICS v_issued=ROW_COUNT;
  RETURN jsonb_build_object('ok',true,'issued',2*v_issued,'currentWindowEndsAt',v_end,
