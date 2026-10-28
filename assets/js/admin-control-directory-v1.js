@@ -12,7 +12,7 @@ const entries=[
  ['Member Support','Members & Access','[data-panel="users"]','Account Details & Support'],
  ['Staff & Permissions','Members & Access','[data-panel="roles"]','Roles & Permissions'],
  ['Showcase Demo Logins','Members & Access','#admin-create-account-direct','Create Showcase Account;Synthetic Showcase Account',true],
- ['Test Accounts','Members & Access',null,'Membership Test Accounts;QA Accounts',true,'/admin.html#membership-test'],
+ ['Test Accounts','Members & Access','[data-panel="settings"]','Membership Test Accounts;QA Accounts',true],
  ['Lab Library','Learning Administration',null,'Lab Registry Management','/admin-operations.html'],
  ['Lab Preview','Learning Administration',null,'Read-only Member Lab Preview',false,'/admin-lab-preview.html'],
  ['Question Bank','Learning Administration',null,'Instructor Question Bank',false,'/training-editor.html'],
@@ -66,10 +66,6 @@ function canShow(entry){
 function openEntry(entry,message){
  if(!canShow(entry)){message.textContent='This control is not available for your role.';return;}
  if(entry.href&&entry.href!='/admin.html#membership-test'){location.assign(entry.href);return;}
- if(entry.href==='/admin.html#membership-test'){
-  const test=$('#admin-membership-qa-users')||$('#v1-membership-test-accounts');
-  if(test){test.scrollIntoView({block:'start'});return;}
- }
  let target=entry.target?$('#admin-tabs '+entry.target):null;
  if(!target){
   target=[...document.querySelectorAll('#admin-tabs button,#admin-tabs a')].find(x=>x.textContent.trim().toLowerCase()===entry.label.toLowerCase()&&!x.hidden&&!x.disabled);
@@ -80,6 +76,9 @@ function openEntry(entry,message){
  }
  if(target.matches('a[href]')){location.assign(target.href);return;}
  target.click();
+ if(entry.label==='Test Accounts'){
+  let count=0;const timer=setInterval(()=>{const qa=$('#gu-membership-qa-users-v1');if(qa&&!qa.hidden){clearInterval(timer);qa.scrollIntoView({block:'start'});}else if(++count>30){clearInterval(timer);message.textContent='The authorized Test Accounts editor has not become available.';}},100);
+ }
  if(entry.productTab){
   let n=0;const tick=setInterval(()=>{const b=$('#admin-products-tab-'+entry.productTab);if(b&&!b.disabled){clearInterval(tick);b.click();}else if(++n>20)clearInterval(tick);},100);
  }
