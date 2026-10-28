@@ -159,6 +159,19 @@ function controls(){
  notice=document.createElement('p');notice.className='cl-workspace-status';notice.role='status';notice.textContent='Member workspace loads after authentication.';
  ui.append(row,notice);parent.append(ui);
 }
+function scrubMemberWorkspace(){
+ // Any in-flight GET for the previous member must not restore stale settings.
+ permissionEpoch++;permissionReady=false;loadingWorkspace=false;storeAvailable=false;
+ workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};
+ syncEnabled=true;linked=false;
+ if(ui){
+  const studies=ui.querySelector('[data-cl-studies]');if(studies)studies.value='';
+  const toggle=ui.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
+ }
+ applyLayout();
+ msg('Account changed. Previous workspace cleared; current member settings restore after authorization.');
+}
+window.addEventListener('crownlight:member-changed',scrubMemberWorkspace);
 window.addEventListener('crownlight:tier-permission',()=>{permissionEpoch++;void restore()});
 window.addEventListener('crownlight:tier-mounted',e=>{
  applyLayout();

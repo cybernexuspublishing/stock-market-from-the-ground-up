@@ -488,6 +488,8 @@ async function init(){
    state.sparkOffers=[];state.sparkBalance=null;state.sparkLoadError='';
    state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
      state.authUserId=null;stopCharts();
+     // Clear saved member-private controls before the new account is verified.
+     window.dispatchEvent(new CustomEvent('crownlight:member-changed'));
     }
     if(event==='SIGNED_OUT'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||differentUser)
      void permission();
