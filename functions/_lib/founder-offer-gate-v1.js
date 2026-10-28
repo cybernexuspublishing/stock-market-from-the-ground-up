@@ -19,10 +19,11 @@ export async function foundingOfferState(env){
   const json=await r.json();if(!Array.isArray(json))throw Error('Unexpected founder registry response');
   return json;
  };
- const [release,members,reservations]=await Promise.all([
+ const [release,members,reservations,offers]=await Promise.all([
   get('gu_founder_release_v014173?select=public_launch_open,enrollment_enabled&singleton=eq.true&limit=1'),
   get('gu_founder_members_v014173?select=founder_number&order=founder_number.asc&limit='+PAGE_SIZE),
-  get('gu_founder_reservations_v014173?select=founder_number,reservation_state,expires_at&limit='+PAGE_SIZE)
+  get('gu_founder_reservations_v014173?select=founder_number,reservation_state,expires_at&limit='+PAGE_SIZE),
+  get('gu_storefront_items_v014174?select=sku,visible,sale_ready,status&category=eq.founding&limit=12')
  ]);
  if(release.length!==1||typeof release[0].public_launch_open!=='boolean')throw Error('Launch phase unverified');
  const used=new Set(members.filter(x=>Number.isInteger(x.founder_number)).map(x=>x.founder_number));
@@ -37,7 +38,12 @@ export async function foundingOfferState(env){
  }
  const full=used.size>=600;
  const publicLaunch=release[0].public_launch_open===true;
+ // The Owner's unpublished catalogue must not be advertised as an open
+ // founding enrollment. Public offer discovery is separate from paid access.
+ const advertised=offers.some(x=>/^founding:FOUNDING_(14|30|60)$/.test(String(x.sku||''))
+  &&x.visible===true&&x.sale_ready===true&&x.status==='for_sale');
  return {phase:publicLaunch?'public':'beta',publicLaunch,full,capacity:600,
   occupied:Math.min(used.size,600),remaining:Math.max(0,600-used.size),
-  offersVisible:!publicLaunch&&!full,enrollmentEnabled:release[0].enrollment_enabled===true&&!publicLaunch&&!full};
+  offersVisible:!publicLaunch&&!full&&advertised,
+  enrollmentEnabled:release[0].enrollment_enabled===true&&!publicLaunch&&!full&&advertised};
 }
