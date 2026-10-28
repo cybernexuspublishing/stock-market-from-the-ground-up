@@ -59,6 +59,8 @@ assert.match(studio,/copyObservation/);
 assert.match(studio,/visible=sim\.candles\.slice\(0,sim\.index\+1\)/);
 assert.match(studio,/Outside 04:00–20:00 ET/);
 assert.match(studio,/localStorage\.setItem/);
+assert.match(studio,/scopeToMember\(sim\?\.user\?\.id\)/);
+assert.match(studio,/KEY\+':'\+state\.userId/);
 assert.match(studio,/attributionLogo:true/);
 assert.match(sim,/window\.CrownlightStudio\?\.render\(SIM\)/);
 assert.match(sim,/Overnight/);
