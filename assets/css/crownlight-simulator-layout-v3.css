@@ -1,0 +1,41 @@
+/* Crownlight Chart Studio V3 premium responsive learning desk. */
+#sim-content .cl-import-shell{padding:0;overflow:hidden;background:linear-gradient(120deg,#14152c,#102439);border:1px solid #4a5d86;box-shadow:0 13px 38px #0004;border-radius:16px}
+.cl-workbench-import>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 21px;font-weight:850;color:#f3edff;font-size:1.15rem;cursor:pointer;letter-spacing:-.015em}
+.cl-workbench-import>summary::-webkit-details-marker{display:none}
+.cl-workbench-import>summary:after{content:"Expand / Collapse  ⌄";color:#9de2f5;font-size:.75rem;font-weight:700;letter-spacing:.06em}
+.cl-workbench-import[open]>summary:after{content:"Collapse  ⌃"}
+.cl-import-hint{display:block;margin:-9px 21px 13px;color:#9cb9d5;font-size:.78rem;line-height:1.4}
+.cl-import-interior{padding:6px 20px 22px;border-top:1px solid #33466e}
+.cl-import-interior>:first-child{margin-top:15px}
+#sim-lab-picker{width:100%;min-width:0;min-height:45px;background:#111c31;color:#f1f4ff;border:1px solid #54668b;border-radius:9px;font:inherit;padding:10px}
+#sim-lab-id[hidden]{display:none!important}
+.cl-lab-help{font-size:.75rem;color:#acc1db;line-height:1.5;margin:8px 0 0}
+.cl-selected-lab-link{color:#9ee7ff;text-decoration:underline}
+.cl-chart-visibility{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,#111936,#102a38);border:1px solid #46578b;border-radius:13px;padding:13px 18px;margin:15px 0 9px}
+.cl-chart-visibility strong{font-size:1.07rem;color:#fcfaff;letter-spacing:-.02em}
+.cl-collapse-btn{border:1px solid #7e71ac;background:#242348;color:#d6ebff;border-radius:9px;padding:9px 13px;font:inherit;font-weight:750;cursor:pointer}
+.cl-collapse-btn:hover,.cl-collapse-btn:focus-visible{border-color:#aadafa;background:#313263}
+.sim-chart-panel[hidden]{display:none!important}
+.cl-workbench-tabs{margin:18px 0 27px;border:1px solid #425687;border-radius:17px;background:linear-gradient(142deg,#12162e,#102036);overflow:hidden;box-shadow:0 20px 50px #0004}
+.cl-workbench-tabbar{display:flex;gap:5px;align-items:end;flex-wrap:wrap;padding:13px 15px 0;background:#0c152b;border-bottom:1px solid #394b77}
+.cl-workbench-tab{color:#bdcce9;font:inherit;font-size:.88rem;font-weight:750;padding:13px 18px;border:1px solid transparent;border-radius:12px 12px 0 0;background:transparent;cursor:pointer}
+.cl-workbench-tab:hover{background:#222749;color:#fff}
+.cl-workbench-tab[aria-selected="true"]{color:#fff;border-color:#725fc3;border-bottom-color:#261f50;background:linear-gradient(150deg,#5b3fae,#312958)}
+.cl-workbench-tab:focus-visible{outline:2px solid #66dcfa;outline-offset:2px}
+.cl-workbench-panels{padding:20px}
+.cl-tab-panel[hidden]{display:none!important}
+.cl-tab-panel>h2{margin:0 0 18px;font-size:clamp(1.35rem,2vw,1.85rem);color:#f7f6ff}
+.cl-tab-panel .journal-form{max-width:100%}
+.cl-tab-panel .journal-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cl-tab-panel .sim-position-grid{margin-top:14px}
+.cl-workbench-panels .sim-side{position:static;max-width:none;padding:0;border:0;box-shadow:none;background:transparent}
+.crownlight-tutor-heading{margin:20px 0 11px;font-size:1.05rem;color:#ffdda0;letter-spacing:.015em}
+.crownlight-tutor-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.crownlight-tutor-fact{background:linear-gradient(145deg,#19284b,#103342);border:1px solid #46658a;border-radius:12px;padding:13px}
+.crownlight-tutor-fact strong{color:#82edff;font-size:.85rem}
+.crownlight-tutor-fact p{font-size:.8rem;line-height:1.6;color:#dceaf7;margin:7px 0 0}
+.crownlight-tutor-cues{margin-top:14px;padding:8px 14px;border-left:3px solid #b28cff;background:#251b443f}
+.crownlight-tutor-cues p{font-size:.83rem;line-height:1.6;color:#dae5f5}
+.crownlight-tutor-questions{padding-left:23px}
+.crownlight-tutor-questions li{padding:5px 0;color:#e2d7ff;line-height:1.65;font-size:.85rem}
+@media(max-width:720px){.cl-workbench-tabbar{gap:0}.cl-workbench-tab{flex:1 1 45%;font-size:.78rem;padding:10px 6px}.cl-workbench-panels{padding:13px}.cl-workbench-panels .journal-grid.two{grid-template-columns:1fr}.crownlight-tutor-facts{grid-template-columns:1fr}.cl-chart-visibility{padding:11px 13px}}
