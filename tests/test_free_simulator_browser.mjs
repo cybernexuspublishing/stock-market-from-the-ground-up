@@ -51,7 +51,16 @@ async function scenario(width,kind='free'){
  try{
   await page.goto(origin+'/simulator.html?'+(kind==='studio'?'studio=standard':'practice=free'),{waitUntil:'domcontentloaded',timeout:20000});
   if(kind==='free'||kind==='studio'){
-   await page.waitForFunction(()=>document.querySelector('#sim-load-msg')?.textContent.includes('Loaded 36'),{timeout:15000});
+   await page.waitForFunction(()=>document.querySelector('#sim-load-msg')?.textContent.includes('Loaded 36'),null,{timeout:8000}).catch(async error=>{
+    const details=await page.evaluate(()=>({
+      gate:document.querySelector('#sim-gate')?.textContent,
+      visible:document.querySelector('#sim-content')?.hidden,
+      loaded:document.querySelector('#sim-load-msg')?.textContent,
+      free:window.GroundUpFreePracticeRequested,
+      selected:document.querySelector('#sim-mode-csv')?.getAttribute('aria-pressed')
+    }));
+    throw Error('Simulator fixture diagnostics: '+JSON.stringify({details,faults})+'; '+error.message);
+   });
    assert.equal(await page.locator('#sim-legacy-mode').isVisible(),true);
    assert.equal(await page.locator('#sim-content').isVisible(),true);
    assert.match(await page.locator('#sim-load-msg').innerText(),/ORIGINAL FICTIONAL/);
