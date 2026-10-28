@@ -23,6 +23,7 @@ jobs:
           node tests/test_v014093_tutor_practice.mjs
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014100_free_competency_tutor.mjs
+          node tests/test_tutor_stt_research_guides_v1.mjs
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs

@@ -251,10 +251,12 @@ export async function onRequest({request,env}){
    return finish({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
     answer:model.text||answerFromGuide(guide,mode,answer),aiReason:model.reason,
     remainingAiToday:model.remainingMemberToday??null,
-    sources:[...selectedGuides.map((g,i)=>({id:g.code,title:g.title,summary:g.concept,sourceLabel:'Original in-platform competency guide',
-     sourceId:'['+(i+1)+']',bookContext:'Original 30-competency study guide',
+    sources:[...selectedGuides.map((g,i)=>({id:g.code,title:g.title,summary:g.concept,
+     sourceLabel:g.researchGuide===true?'Original research-informed Tutor guide (ungraded)':'Original in-platform competency guide',
+     sourceId:'['+(i+1)+']',bookContext:g.researchGuide===true?'Owner STT research; not a validated trading edge':'Original 30-competency study guide',
+     referenceUrls:g.researchGuide===true?g.sourceUrls||[]:[],
      practiceUrl:'/labs.html?q='+encodeURIComponent(g.title)})),...publicMatches(source.slice(0,3-selectedGuides.length)).map((t,i)=>({...t,sourceId:'['+(i+1+selectedGuides.length)+']'}))],
-    graded:false,masteryAwarded:false,sourceLimit:'Only the 30 original public competency guides, no unverified tape or private rubric.',
+    graded:false,masteryAwarded:false,sourceLimit:guide.researchGuide===true?'Original public research-informed lesson; no strategy performance certification, private rubric or licensed market feed.':'Only the 30 original public competency guides, no unverified tape or private rubric.',
     notice:'Zero-cost original competency instruction. A self-check is not a graded Lab or independently reviewed historical observation.',
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
   }

@@ -10,7 +10,7 @@ function chooseGuides(index,q){
  if(!Array.isArray(index?.guides)||index.guides.length!==30)return [];
  const query=words(q);
  if(!query.length)return [];
- const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[])];
+ const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[]),...(Array.isArray(index.researchGuides)?index.researchGuides:[])];
  return candidates.map(g=>{
   const title=String(g.title||'').toLowerCase(),code=String(g.code||'').toLowerCase().replaceAll('_',' ');
   const concept=String(g.concept||'').toLowerCase();
@@ -33,9 +33,36 @@ async function loadPublicGuides(env,request){
  publicGuideCache.set(env.ASSETS,{value:data,expires:Date.now()+300000});
  return data;
 }
+const researchCache=new WeakMap();
+async function loadResearchGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return [];
+ const saved=researchCache.get(env.ASSETS);
+ if(saved&&saved.expires>Date.now())return saved.guides;
+ const r=await env.ASSETS.fetch(new Request(new URL('/data/tutor-research-guides-v1.json',request.url),{method:'GET'}));
+ if(!r.ok)throw Error('Supplemental public teaching asset unavailable');
+ const payload=await r.json(),guides=payload?.guides;
+ if(payload?.kind!=='original_public_tutor_supplemental_research_guides'||!Array.isArray(guides)||guides.length<32||guides.length>200)
+  throw Error('Invalid research guide catalogue');
+ const ids=new Set();
+ for(const g of guides){
+  if(!/^[A-Z][A-Z0-9_]{3,72}$/.test(String(g?.code||''))||ids.has(g.code)||
+     g.researchGuide!==true||g.supplemental!==true||g.officialCompetency!==false||
+     !String(g.archiveBasis||'').includes('STT')||
+     ['title','concept','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
+       .some(k=>typeof g[k]!=='string'||g[k].length<40))
+   throw Error('Invalid original research lesson');
+  ids.add(g.code);
+ }
+ researchCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
+ return guides;
+}
 async function originalGuides(env,request,question){
- try{return chooseGuides(await loadPublicGuides(env,request),question)}
- catch{return []}
+ try{
+  const published=await loadPublicGuides(env,request);
+  let researchGuides=[];
+  try{researchGuides=await loadResearchGuides(env,request)}catch{/* Existing 30-guide Tutor remains functional. */}
+  return chooseGuides({...published,researchGuides},question);
+ }catch{return []}
 }
 function answerFromGuide(g,mode,answer){
  const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;
