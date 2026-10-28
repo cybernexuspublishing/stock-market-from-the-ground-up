@@ -119,15 +119,6 @@ function render(){
   svg.append(ns('circle',{cx:490,cy:yy,r:3.8,fill:level.color}));
  }
  // Listing labels separately avoids incorrectly implying chronological movement.
- const legendLabels=levels.map(r=>r.label);
- const firstCol=levels.length>3?4:2;
- levels.forEach((level,i)=>{
-  const lx=i<firstCol?29:355,ly=222+(i>=firstCol?0:0);
-  if(levels.length>3){
-   const x=i<3?29:355;const j=i<3?i:i-3;
-   svg.append(ns('rect',{x,y:218+j*0,width:0,height:0}));void lx;void ly;
-  }
- });
  levels.slice().sort((a,b)=>b.value-a.value).forEach((level,i)=>{
   const x=i>=3?351:25,row=i>=3?i-3:i,ylabel=13+row*13;
   svg.append(ns('circle',{cx:x+3,cy:ylabel,r:3,fill:level.color}));
