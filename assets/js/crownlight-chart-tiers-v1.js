@@ -8,7 +8,7 @@ const LIB='https://cdn.jsdelivr.net/npm/klinecharts@10.1.0/dist/umd/klinecharts.
 const levels={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const names={STANDARD:'Standard · Lightweight Charts',ADVANCED:'Advanced · KLineChart',
  PROFESSIONAL:'Professional · Multi-chart KLineChart'};
-const state={allowed:['STANDARD'],tier:'STANDARD',selected:'STANDARD',bars:[],symbol:'REPLAY',
+const state={allowed:['STANDARD'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
  timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
 const status=t=>{if(state.notice)state.notice.textContent=t};
@@ -29,7 +29,7 @@ async function permission(){
   const client=await window.getSupabaseClient();
   const session=(await client.auth.getSession()).data?.session;
   if(authEpoch!==state.authEpoch)return;
-  if(!session?.access_token){state.verified=false;state.tier='STANDARD';state.allowed=['STANDARD'];state.selected='STANDARD';stopCharts();renderChoices();status('Sign in to use Crownlight charts.');
+  if(!session?.access_token){state.authUserId=null;state.verified=false;state.tier='STANDARD';state.allowed=['STANDARD'];state.selected='STANDARD';stopCharts();renderChoices();status('Sign in to use Crownlight charts.');
    window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:false,tier:'STANDARD'}}));return}
   const r=await fetch('/api/chart-tier-access',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
   if(!r.ok)throw Error('Chart entitlement unavailable');
@@ -37,13 +37,25 @@ async function permission(){
   if(authEpoch!==state.authEpoch)return;
   if(j?.ok!==true||j.eligible!==true||!Array.isArray(j.allowed))throw Error('Chart access not confirmed');
   state.allowed=['STANDARD',...['ADVANCED','PROFESSIONAL'].filter(t=>j.allowed.includes(t))];
-  state.tier=state.allowed.at(-1);state.verified=true;
+  state.tier=state.allowed.at(-1);state.verified=true;state.authUserId=session.user?.id||null;
   if(!state.allowed.includes(state.selected)){state.selected='STANDARD';stopCharts()}
   status('Your membership includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
  }catch{if(authEpoch!==state.authEpoch)return;state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
   status('Advanced chart permissions could not be verified. Standard chart remains available to eligible signed-in members.');}
  renderChoices();
  window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:state.verified,tier:state.tier}}));
+ autoStartRequestedStudio();
+}
+function autoStartRequestedStudio(){
+ const requested=String(window.GroundUpStudioRequestedTier||'').toUpperCase();
+ if(state.autoStarted||!['STANDARD','ADVANCED','PROFESSIONAL'].includes(requested))return;
+ if(!state.verified||!state.view||state.bars.length===0)return;
+ if(!state.allowed.includes(requested)){
+  status(requested+' Studio is not available to this account. Select Standard or request matching chart access.');
+  return;
+ }
+ state.autoStarted=true;
+ void choose(requested);
 }
 function stopCharts(){
  for(const entry of state.charts){try{window.klinecharts?.dispose(entry.id)}catch{}}
@@ -93,7 +105,7 @@ async function loadEngine(){
    s.onload=()=>window.klinecharts?.init?resolve():reject(new Error('Missing chart API'));
    s.onerror=()=>reject(new Error('Charting library unavailable'));
    document.head.append(s);
-  });
+  }).catch(error=>{state.loading=null;throw error});
  }
  return state.loading;
 }
@@ -178,7 +190,8 @@ window.addEventListener('crownlight:revealed-bars',e=>{
  state.symbol=String(d.symbol||'REPLAY').slice(0,40);
  state.timeframe=String(d.timeframe||'1-minute').slice(0,48);
  state.source=String(d.source||'').slice(0,60);
- if(state.selected!=='STANDARD'&&state.charts.length){
+ autoStartRequestedStudio();
+  if(state.selected!=='STANDARD'&&state.charts.length){
   for(const entry of state.charts){
    try{entry.chart.setSymbol({ticker:state.symbol,pricePrecision:4,volumePrecision:0});entry.chart.setPeriod(period());entry.chart.resetData()}
    catch{status('An enhanced replay refresh failed. Standard remains available.')}
@@ -191,7 +204,16 @@ async function init(){
  await permission();
  try{
   const client=await window.getSupabaseClient();
-  client.auth.onAuthStateChange(()=>{state.version++;state.bars=[];state.selected='STANDARD';stopCharts();void permission()});
+  client.auth.onAuthStateChange((event,session)=>{
+    if(event==='INITIAL_SESSION')return;
+    const differentUser=!!session?.user?.id&&!!state.authUserId&&session.user.id!==state.authUserId;
+    if(event==='SIGNED_OUT'||differentUser){
+     state.version++;state.bars=[];state.selected='STANDARD';state.autoStarted=false;
+     state.authUserId=null;stopCharts();
+    }
+    if(event==='SIGNED_OUT'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||differentUser)
+     void permission();
+   });
  }catch{}
 }
 window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='STANDARD'?state.charts.slice():[],
