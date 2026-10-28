@@ -68,7 +68,7 @@ try{
    await page.locator('#cc-directory-search').fill('showcase');
    assert.ok(await page.getByRole('button',{name:/Showcase Demo Logins/}).count()===1);
    await page.locator('#cc-directory-search').fill('stripe');
-   assert.ok(await page.getByRole('button',{name:/Payments \(Stripe\)/}).count()===1);
+   assert.ok(await page.locator('#cc-directory-results').getByRole('button',{name:/Payments \(Stripe\)/}).count()===1);
   }else{
    assert.ok(await page.locator('#cc-showcase-banner').count()===1);
    assert.ok(await page.locator('#admin-tabs [data-cc-nav-group="Security & Governance"]').count()>=0);
