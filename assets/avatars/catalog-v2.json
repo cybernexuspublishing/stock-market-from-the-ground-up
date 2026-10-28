@@ -2,238 +2,238 @@
   "version": 2,
   "avatars": [
     {
-      "id": "f1",
-      "group": "f",
-      "label": "Member avatar F1",
-      "src": "/assets/avatars/av-f1.svg"
-    },
-    {
-      "id": "f2",
-      "group": "f",
-      "label": "Member avatar F2",
-      "src": "/assets/avatars/av-f2.svg"
-    },
-    {
-      "id": "f3",
-      "group": "f",
-      "label": "Member avatar F3",
-      "src": "/assets/avatars/av-f3.svg"
-    },
-    {
-      "id": "m1",
-      "group": "m",
-      "label": "Member avatar M1",
-      "src": "/assets/avatars/av-m1.svg"
-    },
-    {
-      "id": "m2",
-      "group": "m",
-      "label": "Member avatar M2",
-      "src": "/assets/avatars/av-m2.svg"
-    },
-    {
-      "id": "m3",
-      "group": "m",
-      "label": "Member avatar M3",
-      "src": "/assets/avatars/av-m3.svg"
-    },
-    {
-      "id": "n1",
-      "group": "n",
-      "label": "Member avatar N1",
-      "src": "/assets/avatars/av-n1.svg"
-    },
-    {
-      "id": "n2",
-      "group": "n",
-      "label": "Member avatar N2",
-      "src": "/assets/avatars/av-n2.svg"
-    },
-    {
-      "id": "n3",
-      "group": "n",
-      "label": "Member avatar N3",
-      "src": "/assets/avatars/av-n3.svg"
-    },
-    {
       "id": "f4",
       "group": "f",
-      "label": "Portrait avatar Aurora F",
+      "label": "Aurora",
       "src": "/assets/avatars/av-f4.svg"
     },
     {
       "id": "f5",
       "group": "f",
-      "label": "Portrait avatar Atlas F",
+      "label": "Atlas",
       "src": "/assets/avatars/av-f5.svg"
     },
     {
       "id": "f6",
       "group": "f",
-      "label": "Portrait avatar Mira F",
+      "label": "Mira",
       "src": "/assets/avatars/av-f6.svg"
     },
     {
       "id": "f7",
       "group": "f",
-      "label": "Portrait avatar Vega F",
+      "label": "Vega",
       "src": "/assets/avatars/av-f7.svg"
     },
     {
       "id": "f8",
       "group": "f",
-      "label": "Portrait avatar Sage F",
+      "label": "Sage",
       "src": "/assets/avatars/av-f8.svg"
     },
     {
       "id": "f9",
       "group": "f",
-      "label": "Portrait avatar Ember F",
+      "label": "Ember",
       "src": "/assets/avatars/av-f9.svg"
     },
     {
       "id": "f10",
       "group": "f",
-      "label": "Portrait avatar Marin F",
+      "label": "Marin",
       "src": "/assets/avatars/av-f10.svg"
     },
     {
       "id": "f11",
       "group": "f",
-      "label": "Portrait avatar Sierra F",
+      "label": "Sierra",
       "src": "/assets/avatars/av-f11.svg"
     },
     {
       "id": "f12",
       "group": "f",
-      "label": "Portrait avatar Sol F",
+      "label": "Sol",
       "src": "/assets/avatars/av-f12.svg"
     },
     {
       "id": "f13",
       "group": "f",
-      "label": "Portrait avatar Cosmo F",
+      "label": "Cosmo",
       "src": "/assets/avatars/av-f13.svg"
     },
     {
       "id": "m4",
       "group": "m",
-      "label": "Portrait avatar Aurora M",
+      "label": "Aurora",
       "src": "/assets/avatars/av-m4.svg"
     },
     {
       "id": "m5",
       "group": "m",
-      "label": "Portrait avatar Atlas M",
+      "label": "Atlas",
       "src": "/assets/avatars/av-m5.svg"
     },
     {
       "id": "m6",
       "group": "m",
-      "label": "Portrait avatar Mira M",
+      "label": "Mira",
       "src": "/assets/avatars/av-m6.svg"
     },
     {
       "id": "m7",
       "group": "m",
-      "label": "Portrait avatar Vega M",
+      "label": "Vega",
       "src": "/assets/avatars/av-m7.svg"
     },
     {
       "id": "m8",
       "group": "m",
-      "label": "Portrait avatar Sage M",
+      "label": "Sage",
       "src": "/assets/avatars/av-m8.svg"
     },
     {
       "id": "m9",
       "group": "m",
-      "label": "Portrait avatar Ember M",
+      "label": "Ember",
       "src": "/assets/avatars/av-m9.svg"
     },
     {
       "id": "m10",
       "group": "m",
-      "label": "Portrait avatar Marin M",
+      "label": "Marin",
       "src": "/assets/avatars/av-m10.svg"
     },
     {
       "id": "m11",
       "group": "m",
-      "label": "Portrait avatar Sierra M",
+      "label": "Sierra",
       "src": "/assets/avatars/av-m11.svg"
     },
     {
       "id": "m12",
       "group": "m",
-      "label": "Portrait avatar Sol M",
+      "label": "Sol",
       "src": "/assets/avatars/av-m12.svg"
     },
     {
       "id": "m13",
       "group": "m",
-      "label": "Portrait avatar Cosmo M",
+      "label": "Cosmo",
       "src": "/assets/avatars/av-m13.svg"
     },
     {
       "id": "n4",
       "group": "n",
-      "label": "Illustrated avatar Aurora",
+      "label": "Aurora",
       "src": "/assets/avatars/av-n4.svg"
     },
     {
       "id": "n5",
       "group": "n",
-      "label": "Illustrated avatar Atlas",
+      "label": "Atlas",
       "src": "/assets/avatars/av-n5.svg"
     },
     {
       "id": "n6",
       "group": "n",
-      "label": "Illustrated avatar Mira",
+      "label": "Mira",
       "src": "/assets/avatars/av-n6.svg"
     },
     {
       "id": "n7",
       "group": "n",
-      "label": "Illustrated avatar Vega",
+      "label": "Vega",
       "src": "/assets/avatars/av-n7.svg"
     },
     {
       "id": "n8",
       "group": "n",
-      "label": "Illustrated avatar Sage",
+      "label": "Sage",
       "src": "/assets/avatars/av-n8.svg"
     },
     {
       "id": "n9",
       "group": "n",
-      "label": "Illustrated avatar Ember",
+      "label": "Ember",
       "src": "/assets/avatars/av-n9.svg"
     },
     {
       "id": "n10",
       "group": "n",
-      "label": "Illustrated avatar Marin",
+      "label": "Marin",
       "src": "/assets/avatars/av-n10.svg"
     },
     {
       "id": "n11",
       "group": "n",
-      "label": "Illustrated avatar Sierra",
+      "label": "Sierra",
       "src": "/assets/avatars/av-n11.svg"
     },
     {
       "id": "n12",
       "group": "n",
-      "label": "Illustrated avatar Sol",
+      "label": "Sol",
       "src": "/assets/avatars/av-n12.svg"
     },
     {
       "id": "n13",
       "group": "n",
-      "label": "Illustrated avatar Cosmo",
+      "label": "Cosmo",
       "src": "/assets/avatars/av-n13.svg"
+    },
+    {
+      "id": "f1",
+      "group": "f",
+      "label": "Classic avatar F1",
+      "src": "/assets/avatars/av-f1.svg"
+    },
+    {
+      "id": "f2",
+      "group": "f",
+      "label": "Classic avatar F2",
+      "src": "/assets/avatars/av-f2.svg"
+    },
+    {
+      "id": "f3",
+      "group": "f",
+      "label": "Classic avatar F3",
+      "src": "/assets/avatars/av-f3.svg"
+    },
+    {
+      "id": "m1",
+      "group": "m",
+      "label": "Classic avatar M1",
+      "src": "/assets/avatars/av-m1.svg"
+    },
+    {
+      "id": "m2",
+      "group": "m",
+      "label": "Classic avatar M2",
+      "src": "/assets/avatars/av-m2.svg"
+    },
+    {
+      "id": "m3",
+      "group": "m",
+      "label": "Classic avatar M3",
+      "src": "/assets/avatars/av-m3.svg"
+    },
+    {
+      "id": "n1",
+      "group": "n",
+      "label": "Classic avatar N1",
+      "src": "/assets/avatars/av-n1.svg"
+    },
+    {
+      "id": "n2",
+      "group": "n",
+      "label": "Classic avatar N2",
+      "src": "/assets/avatars/av-n2.svg"
+    },
+    {
+      "id": "n3",
+      "group": "n",
+      "label": "Classic avatar N3",
+      "src": "/assets/avatars/av-n3.svg"
     }
   ]
 }

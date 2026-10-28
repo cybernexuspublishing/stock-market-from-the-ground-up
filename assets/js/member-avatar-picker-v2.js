@@ -55,5 +55,45 @@
   else{dialog.setAttribute('open','');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true')}
   (tiles.find(x=>x.dataset.avatarId===selected)||tiles[0])?.focus();
  }
- window.GroundUpAvatarPicker=Object.freeze({open});
+
+ async function mountInline({host,currentUrl='',onApply}={}){
+  if(!host||typeof onApply!=='function')throw Error('Avatar selection is not available.');
+  if(host.querySelector('[data-avatar-library]')){host.querySelector('[data-avatar-library]').hidden=false;return}
+  const response=await fetch(catalogUrl,{cache:'no-store'});
+  if(!response.ok)throw Error('Avatar library unavailable.');
+  const data=await response.json();
+  const candidates=Array.isArray(data.avatars)?data.avatars.filter(x=>verified(x?.id)):[];
+  if(candidates.length!==39||new Set(candidates.map(x=>x.id)).size!==39)throw Error('Avatar library is incomplete.');
+  // Display newly authored portrait selections first; retain the original nine
+  // for customers who already selected them, without treating a fallback as new.
+  const choices=[...candidates].sort((a,b)=>Number(/[fmn][1-3]$/.test(a.id))-Number(/[fmn][1-3]$/.test(b.id)));
+  const panel=document.createElement('section');panel.className='v2-avatar-inline';panel.setAttribute('data-avatar-library','');
+  panel.setAttribute('aria-label','Member Avatar Library');
+  panel.innerHTML='<div class="v2-avatar-inline-head"><div><h3>Member Avatar Library</h3>'+
+   '<p>Choose an avatar, then Apply. Your public forum picture changes only after it is saved.</p></div>'+
+   '<button type="button" class="btn secondary" data-avatar-close>Close</button></div>'+
+   '<div class="v2-avatar-modal-grid" role="group" aria-label="Available member avatars">'+
+   choices.map(x=>'<button type="button" class="v2-avatar-tile" data-avatar-id="'+escape(x.id)+'" aria-pressed="false" aria-label="Select '+escape(x.label||x.id)+'">'+
+   '<img src="/assets/avatars/av-'+escape(x.id)+'.svg" alt="" loading="lazy" width="88" height="88">'+
+   '<span>'+escape(x.label||x.id)+'</span></button>').join('')+'</div>'+
+   '<p data-avatar-message role="status" aria-live="polite"></p><div class="v2-avatar-inline-actions">'+
+   '<button type="button" class="btn secondary" data-avatar-cancel>Cancel</button>'+
+   '<button type="button" class="btn" data-avatar-apply>Apply Avatar</button></div>';
+  host.append(panel);
+  let selected=choices.find(x=>currentUrl.endsWith('/av-'+x.id+'.svg'))?.id||'',busy=false;
+  const tiles=[...panel.querySelectorAll('[data-avatar-id]')],apply=panel.querySelector('[data-avatar-apply]'),
+   message=panel.querySelector('[data-avatar-message]');
+  const refresh=()=>{for(const tile of tiles)tile.setAttribute('aria-pressed',String(tile.dataset.avatarId===selected));apply.disabled=busy||!selected};
+  const close=()=>{if(!busy){panel.hidden=true;message.textContent=''}};
+  panel.querySelectorAll('[data-avatar-close],[data-avatar-cancel]').forEach(x=>x.addEventListener('click',close));
+  for(const tile of tiles)tile.addEventListener('click',()=>{if(busy)return;selected=tile.dataset.avatarId;message.textContent='';refresh()});
+  apply.addEventListener('click',async()=>{
+   if(!selected||busy)return;busy=true;refresh();message.textContent='Saving your selected picture…';
+   try{await onApply(domain+'/assets/avatars/av-'+selected+'.svg');message.textContent='Your profile picture was saved.';close()}
+   catch(e){message.textContent=e?.message||'Your picture could not be saved.'}
+   finally{busy=false;refresh()}
+  });
+  refresh();tiles.find(x=>x.dataset.avatarId===selected)?.scrollIntoView({block:'nearest'});
+ }
+ window.GroundUpAvatarPicker=Object.freeze({open,mountInline});
 })();

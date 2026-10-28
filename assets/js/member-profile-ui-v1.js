@@ -33,8 +33,8 @@ async function mount(body){
   host.innerHTML='<div class="v1321-section-head"><div><div class="eyebrow">Member identity</div><h2>Public Profile & Display Title</h2></div></div>'+
    '<p class="small">Your public bio, avatar and display title never change your subscription, staff role or actual learning entitlements. Your email and legal name are not shown publicly.</p>'+
    '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-n1.svg')+'" alt="Your current avatar"><div><strong>Profile picture</strong><p class="small">Choose a site avatar or upload a picture you own. Your selected avatar is visible to other members.</p>'+
-   '<button type="button" class="btn secondary v2-edit-picture" data-edit-picture>Edit Picture</button>'+
-   '<label>Upload your own picture<input data-avatar-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div></div>'+
+   '<button type="button" class="btn secondary v2-edit-picture" data-edit-picture>Choose from Avatar Library</button>'+
+   '<label>Upload your own picture<input data-avatar-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div data-avatar-inline-host></div>'+
    '<label>Gender selection for default avatars<select name="gender"><option value="rather_not_say">Rather not say</option><option value="female">Female</option><option value="male">Male</option></select></label>'+
    '<label>Biography (up to 1,000 characters)<textarea name="bio" maxlength="1000" rows="3" placeholder="Tell other learners about your interests and learning goals.">'+esc(p.bio)+'</textarea></label>'+
    '<button class="btn" type="submit">Save Profile</button></form>'+
@@ -48,8 +48,8 @@ async function mount(body){
   $('[data-edit-picture]',host).addEventListener('click',async ev=>{
    const trigger=ev.currentTarget;
    try{
-    if(!window.GroundUpAvatarPicker?.open)throw Error('The avatar picker could not be loaded.');
-    await window.GroundUpAvatarPicker.open({currentUrl:avatarUrl,onApply:async url=>{
+    if(!window.GroundUpAvatarPicker?.mountInline)throw Error('The Dashboard avatar library could not be loaded.');
+    await window.GroundUpAvatarPicker.mountInline({host:$('[data-avatar-inline-host]',host),currentUrl:avatarUrl,onApply:async url=>{
      // Preserve existing stored bio and gender; applying an avatar must not
      // silently submit unsaved changes in the adjacent profile form.
      const latest=(await request()).profile;
