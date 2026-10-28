@@ -74,23 +74,23 @@
   if(event.button!==0)return;event.preventDefault();event.stopPropagation();
   const startX=event.clientX,startY=event.clientY,r=card.getBoundingClientRect(),parent=card.parentElement?.getBoundingClientRect();
   const startW=r.width,startH=r.height,container=Math.max(1,parent?.width||startW);
-  event.currentTarget.setPointerCapture(event.pointerId);
+  const handle=event.currentTarget;handle.setPointerCapture(event.pointerId);
   const onMove=e=>{
    const width=Math.max(30,Math.min(100,Math.round(100*(startW+e.clientX-startX)/container)));
    const height=Math.max(80,Math.min(1200,Math.round(startH+e.clientY-startY)));
    card.style.width=width+'%';card.style.maxWidth='100%';card.style.minHeight=height+'px';card.style.boxSizing='border-box';
   };
   const onEnd=e=>{
-   const handle=event.currentTarget;handle.removeEventListener('pointermove',onMove);
+   handle.removeEventListener('pointermove',onMove);
    handle.removeEventListener('pointerup',onEnd);handle.removeEventListener('pointercancel',onCancel);
    const width=Math.round(100*card.getBoundingClientRect().width/container),height=Math.round(card.getBoundingClientRect().height);
    void save(card,{widthPct:Math.min(100,Math.max(30,width)),minHeightPx:Math.min(1200,Math.max(80,height))});
   };
-  const onCancel=()=>{const handle=event.currentTarget;handle.removeEventListener('pointermove',onMove);
+  const onCancel=()=>{handle.removeEventListener('pointermove',onMove);
    handle.removeEventListener('pointerup',onEnd);handle.removeEventListener('pointercancel',onCancel)};
-  event.currentTarget.addEventListener('pointermove',onMove);
-  event.currentTarget.addEventListener('pointerup',onEnd,{once:true});
-  event.currentTarget.addEventListener('pointercancel',onCancel,{once:true});
+  handle.addEventListener('pointermove',onMove);
+  handle.addEventListener('pointerup',onEnd,{once:true});
+  handle.addEventListener('pointercancel',onCancel,{once:true});
  }
  function applySavedOrder(){
   // Only reorder siblings when their DOM parent already contains the same cards.
