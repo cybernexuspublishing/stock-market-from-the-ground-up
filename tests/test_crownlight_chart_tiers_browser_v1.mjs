@@ -41,6 +41,11 @@ await page.waitForFunction(t=>window.CrownlightChartTiers?.getStatus().tier===t,
 assert.equal(await page.locator('.cl-chart-tier-bar select').count(),1);
 const enabled=await page.locator('.cl-chart-tier-bar select option:not([disabled])').count();
 assert.equal(enabled,tier==='STANDARD'?1:tier==='ADVANCED'?2:3);
+await page.getByRole('button',{name:/Unlock options/}).click();
+assert.equal(await page.locator('#cl-chart-tier-access-details').isVisible(),true);
+assert.match(await page.locator('#cl-chart-tier-access-details').innerText(),/Sparks/);
+await page.keyboard.press('Escape');
+assert.equal(await page.locator('#cl-chart-tier-access-details').isVisible(),false);
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),two);
 if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
