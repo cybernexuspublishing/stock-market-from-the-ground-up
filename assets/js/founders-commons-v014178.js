@@ -99,6 +99,10 @@ async function main(){
   if(!user){location.replace('signin.html?next='+encodeURIComponent('/founders-commons.html'));return}
   const {data:me,error:e}=await sb.rpc('gu_founder_my_status_v014174');if(e)throw e;
   let isMember=me?.eligible===true,sharedAccess=isMember,isQA=false;
+  // Staff oversight is not founder membership and never permits casting design votes.
+  const staff=await sb.rpc('gu_commons_staff_read_v20261028');
+  const staffRead=!staff.error&&staff.data===true;
+  sharedAccess=sharedAccess||staffRead;
   if(!sharedAccess){
    const {data:access,error:ae}=await sb.rpc('gu_founder_commons_access_v014174',{p_scope:'shared'});
    sharedAccess=!ae&&access===true;
@@ -111,9 +115,9 @@ async function main(){
   }
   if(!sharedAccess){message('Neither qualifying founding membership nor Owner-authorized educational beta access could be verified.');el('gu-f600-access').hidden=false;return}
   identity(me,isQA);el('gu-f600-content').hidden=false;
-  message(isQA?'Temporary educational beta access verified.': 'Private Founders Commons access verified.');
+  message(staffRead&&!isMember?'Authorized community staff oversight verified.':(isQA?'Temporary educational beta access verified.':'Private Founders Commons access verified.'));
   const council=me?.council===true;
-  await Promise.allSettled([loadForums(sb,council),loadIssues(sb),loadBallots(sb,council)]).then(results=>{
+  await Promise.allSettled([loadForums(sb,council||staffRead),loadIssues(sb),loadBallots(sb,council)]).then(results=>{
    if(results[0].status==='rejected')errorNotice(el('gu-f600-forums'),'Could not load the permitted community sections.');
   });
  }catch{message('Membership verification or the community service is unavailable. No private data was loaded.');el('gu-f600-access').hidden=false}
