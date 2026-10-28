@@ -33,7 +33,7 @@ async function publicPage(width=1440){
  await ctx.route('**/api/storefront-public-catalog',route=>route.fulfill({
   status:200,contentType:'application/json',
   body:JSON.stringify({ok:true,source:'verified_storefront',items,count:items.length,
-   layout:{tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3}})
+   layout:{tool_columns:5,tool_rows:5,catalog_columns:5,catalog_rows:3}})
  }));
  const page=await ctx.newPage();return {ctx,page};
 }

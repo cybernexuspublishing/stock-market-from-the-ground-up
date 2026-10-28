@@ -6,6 +6,10 @@ on:
       - 'tests/test_v014085_bundled_guide_contract.mjs'
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store.js'
+      - 'assets/js/store-catalog-visuals-v1.js'
+      - 'assets/js/store-inventory-ui-v014174.js'
+      - 'functions/api/storefront-public-catalog.js'
+      - 'tests/test_store_catalog_media_contract_v1.mjs'
       - 'assets/js/commerce-presentation.js'
       - 'tests/test_v014138_no_legacy_replay_injection.mjs'
       - 'assets/js/store-upcoming-offerings-v01490.js'
@@ -30,6 +34,10 @@ on:
       - '.github/workflows/storefront-live-acceptance-v01485.yml'
       - 'assets/js/store-product-detail-v01484.js'
       - 'assets/js/store.js'
+      - 'assets/js/store-catalog-visuals-v1.js'
+      - 'assets/js/store-inventory-ui-v014174.js'
+      - 'functions/api/storefront-public-catalog.js'
+      - 'tests/test_store_catalog_media_contract_v1.mjs'
       - 'assets/js/commerce-presentation.js'
       - 'tests/test_v014138_no_legacy_replay_injection.mjs'
       - 'assets/js/store-upcoming-offerings-v01490.js'
@@ -65,6 +73,10 @@ jobs:
       - name: Verify protected commercial Store and unified Products catalog
         run: |
           node --check assets/js/store.js
+          node --check assets/js/store-catalog-visuals-v1.js
+          node --check assets/js/store-inventory-ui-v014174.js
+          node --check assets/js/legal-platform.js
+          node tests/test_store_catalog_media_contract_v1.mjs
           node --check assets/js/store-upcoming-offerings-v01490.js
           node --check assets/js/admin-products-v01489.js
           node --check assets/js/admin-platform.js
