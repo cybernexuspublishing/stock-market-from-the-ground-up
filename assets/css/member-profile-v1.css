@@ -97,3 +97,14 @@ body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell>main>.wrap{max
  grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:480px){.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid{
  grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* High-fidelity member-avatar gallery, consistent with premium dark interface. */
+.v2-avatar-modal-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
+.v2-avatar-tile{background:transparent;border:2px solid transparent;border-radius:13px;gap:4px;padding:5px 2px;color:#e4f4ff}
+.v2-avatar-tile img{width:100%;max-width:104px;aspect-ratio:1;object-fit:cover;border:2px solid #247e87;border-radius:50%;box-shadow:0 4px 13px rgba(0,0,0,.28)}
+.v2-avatar-tile span{font-weight:700;font-size:.85rem;line-height:1.25;min-height:1.25em;color:#eff5ff}
+.v2-avatar-tile[aria-pressed="true"]{border-color:#42eabd;background:rgba(24,152,124,.12)}
+.v2-avatar-tile[aria-pressed="true"] img{border-color:#64f6cb;box-shadow:0 0 0 2px rgba(73,242,195,.15)}
+.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;max-height:420px}
+@media(max-width:760px){.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid,.v2-avatar-modal-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:440px){.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid,.v2-avatar-modal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

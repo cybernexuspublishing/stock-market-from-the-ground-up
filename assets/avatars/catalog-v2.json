@@ -1,239 +1,246 @@
 {
-  "version": 2,
+  "version": 3,
   "avatars": [
     {
       "id": "f4",
       "group": "f",
-      "label": "Aurora",
-      "src": "/assets/avatars/av-f4.svg"
+      "label": "Avatar 1 — Captain",
+      "src": "/assets/avatars/av-f4.webp",
+      "format": "webp",
+      "number": 1
     },
     {
       "id": "f5",
       "group": "f",
-      "label": "Atlas",
-      "src": "/assets/avatars/av-f5.svg"
+      "label": "Avatar 2 — Explorer",
+      "src": "/assets/avatars/av-f5.webp",
+      "format": "webp",
+      "number": 2
     },
     {
       "id": "f6",
       "group": "f",
-      "label": "Mira",
-      "src": "/assets/avatars/av-f6.svg"
+      "label": "Avatar 3 — Analyst",
+      "src": "/assets/avatars/av-f6.webp",
+      "format": "webp",
+      "number": 3
     },
     {
       "id": "f7",
       "group": "f",
-      "label": "Vega",
-      "src": "/assets/avatars/av-f7.svg"
+      "label": "Avatar 4 — Navigator",
+      "src": "/assets/avatars/av-f7.webp",
+      "format": "webp",
+      "number": 4
     },
     {
       "id": "f8",
       "group": "f",
-      "label": "Sage",
-      "src": "/assets/avatars/av-f8.svg"
+      "label": "Avatar 5 — Pioneer",
+      "src": "/assets/avatars/av-f8.webp",
+      "format": "webp",
+      "number": 5
     },
     {
       "id": "f9",
       "group": "f",
-      "label": "Ember",
-      "src": "/assets/avatars/av-f9.svg"
+      "label": "Avatar 6 — Strategist",
+      "src": "/assets/avatars/av-f9.webp",
+      "format": "webp",
+      "number": 6
     },
     {
       "id": "f10",
       "group": "f",
-      "label": "Marin",
-      "src": "/assets/avatars/av-f10.svg"
+      "label": "Avatar 7 — Mentor",
+      "src": "/assets/avatars/av-f10.webp",
+      "format": "webp",
+      "number": 7
     },
     {
       "id": "f11",
       "group": "f",
-      "label": "Sierra",
-      "src": "/assets/avatars/av-f11.svg"
+      "label": "Avatar 8 — Researcher",
+      "src": "/assets/avatars/av-f11.webp",
+      "format": "webp",
+      "number": 8
     },
     {
       "id": "f12",
       "group": "f",
-      "label": "Sol",
-      "src": "/assets/avatars/av-f12.svg"
+      "label": "Avatar 9 — Director",
+      "src": "/assets/avatars/av-f12.webp",
+      "format": "webp",
+      "number": 9
     },
     {
       "id": "f13",
       "group": "f",
-      "label": "Cosmo",
-      "src": "/assets/avatars/av-f13.svg"
+      "label": "Avatar 10 — Professional",
+      "src": "/assets/avatars/av-f13.webp",
+      "format": "webp",
+      "number": 10
     },
     {
       "id": "m4",
       "group": "m",
-      "label": "Aurora",
-      "src": "/assets/avatars/av-m4.svg"
+      "label": "Avatar 11 — Advisor",
+      "src": "/assets/avatars/av-m4.webp",
+      "format": "webp",
+      "number": 11
     },
     {
       "id": "m5",
       "group": "m",
-      "label": "Atlas",
-      "src": "/assets/avatars/av-m5.svg"
+      "label": "Avatar 12 — Student",
+      "src": "/assets/avatars/av-m5.webp",
+      "format": "webp",
+      "number": 12
     },
     {
       "id": "m6",
       "group": "m",
-      "label": "Mira",
-      "src": "/assets/avatars/av-m6.svg"
+      "label": "Avatar 13 — Scholar",
+      "src": "/assets/avatars/av-m6.webp",
+      "format": "webp",
+      "number": 13
     },
     {
       "id": "m7",
       "group": "m",
-      "label": "Vega",
-      "src": "/assets/avatars/av-m7.svg"
+      "label": "Avatar 14 — Trader",
+      "src": "/assets/avatars/av-m7.webp",
+      "format": "webp",
+      "number": 14
     },
     {
       "id": "m8",
       "group": "m",
-      "label": "Sage",
-      "src": "/assets/avatars/av-m8.svg"
+      "label": "Avatar 15 — Planner",
+      "src": "/assets/avatars/av-m8.webp",
+      "format": "webp",
+      "number": 15
     },
     {
       "id": "m9",
       "group": "m",
-      "label": "Ember",
-      "src": "/assets/avatars/av-m9.svg"
+      "label": "Avatar 16 — Observer",
+      "src": "/assets/avatars/av-m9.webp",
+      "format": "webp",
+      "number": 16
     },
     {
       "id": "m10",
       "group": "m",
-      "label": "Marin",
-      "src": "/assets/avatars/av-m10.svg"
+      "label": "Avatar 17 — Golden Retriever",
+      "src": "/assets/avatars/av-m10.webp",
+      "format": "webp",
+      "number": 17
     },
     {
       "id": "m11",
       "group": "m",
-      "label": "Sierra",
-      "src": "/assets/avatars/av-m11.svg"
+      "label": "Avatar 18 — Companion Cat",
+      "src": "/assets/avatars/av-m11.webp",
+      "format": "webp",
+      "number": 18
     },
     {
       "id": "m12",
       "group": "m",
-      "label": "Sol",
-      "src": "/assets/avatars/av-m12.svg"
+      "label": "Avatar 19 — Explorer II",
+      "src": "/assets/avatars/av-m12.webp",
+      "format": "webp",
+      "number": 19
     },
     {
       "id": "m13",
       "group": "m",
-      "label": "Cosmo",
-      "src": "/assets/avatars/av-m13.svg"
+      "label": "Avatar 20 — Market Learner",
+      "src": "/assets/avatars/av-m13.webp",
+      "format": "webp",
+      "number": 20
     },
     {
       "id": "n4",
       "group": "n",
-      "label": "Aurora",
-      "src": "/assets/avatars/av-n4.svg"
+      "label": "Avatar 21 — Research Lead",
+      "src": "/assets/avatars/av-n4.webp",
+      "format": "webp",
+      "number": 21
     },
     {
       "id": "n5",
       "group": "n",
-      "label": "Atlas",
-      "src": "/assets/avatars/av-n5.svg"
+      "label": "Avatar 22 — Digital Specialist",
+      "src": "/assets/avatars/av-n5.webp",
+      "format": "webp",
+      "number": 22
     },
     {
       "id": "n6",
       "group": "n",
-      "label": "Mira",
-      "src": "/assets/avatars/av-n6.svg"
+      "label": "Avatar 23 — Cybernetic Analyst",
+      "src": "/assets/avatars/av-n6.webp",
+      "format": "webp",
+      "number": 23
     },
     {
       "id": "n7",
       "group": "n",
-      "label": "Vega",
-      "src": "/assets/avatars/av-n7.svg"
+      "label": "Avatar 24 — Night Guardian",
+      "src": "/assets/avatars/av-n7.webp",
+      "format": "webp",
+      "number": 24
     },
     {
       "id": "n8",
       "group": "n",
-      "label": "Sage",
-      "src": "/assets/avatars/av-n8.svg"
+      "label": "Avatar 25 — Graduate",
+      "src": "/assets/avatars/av-n8.webp",
+      "format": "webp",
+      "number": 25
     },
     {
       "id": "n9",
       "group": "n",
-      "label": "Ember",
-      "src": "/assets/avatars/av-n9.svg"
+      "label": "Avatar 26 — Portfolio Analyst",
+      "src": "/assets/avatars/av-n9.webp",
+      "format": "webp",
+      "number": 26
     },
     {
       "id": "n10",
       "group": "n",
-      "label": "Marin",
-      "src": "/assets/avatars/av-n10.svg"
+      "label": "Avatar 27 — Student II",
+      "src": "/assets/avatars/av-n10.webp",
+      "format": "webp",
+      "number": 27
     },
     {
       "id": "n11",
       "group": "n",
-      "label": "Sierra",
-      "src": "/assets/avatars/av-n11.svg"
+      "label": "Avatar 28 — Rookie",
+      "src": "/assets/avatars/av-n11.webp",
+      "format": "webp",
+      "number": 28
     },
     {
       "id": "n12",
       "group": "n",
-      "label": "Sol",
-      "src": "/assets/avatars/av-n12.svg"
+      "label": "Avatar 29 — Market Bull",
+      "src": "/assets/avatars/av-n12.webp",
+      "format": "webp",
+      "number": 29
     },
     {
       "id": "n13",
       "group": "n",
-      "label": "Cosmo",
-      "src": "/assets/avatars/av-n13.svg"
-    },
-    {
-      "id": "f1",
-      "group": "f",
-      "label": "Classic avatar F1",
-      "src": "/assets/avatars/av-f1.svg"
-    },
-    {
-      "id": "f2",
-      "group": "f",
-      "label": "Classic avatar F2",
-      "src": "/assets/avatars/av-f2.svg"
-    },
-    {
-      "id": "f3",
-      "group": "f",
-      "label": "Classic avatar F3",
-      "src": "/assets/avatars/av-f3.svg"
-    },
-    {
-      "id": "m1",
-      "group": "m",
-      "label": "Classic avatar M1",
-      "src": "/assets/avatars/av-m1.svg"
-    },
-    {
-      "id": "m2",
-      "group": "m",
-      "label": "Classic avatar M2",
-      "src": "/assets/avatars/av-m2.svg"
-    },
-    {
-      "id": "m3",
-      "group": "m",
-      "label": "Classic avatar M3",
-      "src": "/assets/avatars/av-m3.svg"
-    },
-    {
-      "id": "n1",
-      "group": "n",
-      "label": "Classic avatar N1",
-      "src": "/assets/avatars/av-n1.svg"
-    },
-    {
-      "id": "n2",
-      "group": "n",
-      "label": "Classic avatar N2",
-      "src": "/assets/avatars/av-n2.svg"
-    },
-    {
-      "id": "n3",
-      "group": "n",
-      "label": "Classic avatar N3",
-      "src": "/assets/avatars/av-n3.svg"
+      "label": "Avatar 30 — Momentum",
+      "src": "/assets/avatars/av-n13.webp",
+      "format": "webp",
+      "number": 30
     }
-  ]
+  ],
+  "description": "30 premium illustrated WebP avatars; archived SVG identities remain valid for existing members."
 }

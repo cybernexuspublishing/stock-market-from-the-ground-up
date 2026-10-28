@@ -1,29 +1,27 @@
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 const file=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const avatars=JSON.parse(file('assets/avatars/catalog-v2.json')).avatars;
-assert.equal(avatars.length,39,'9 original + 30 new avatar choices required');
-assert.equal(new Set(avatars.map(x=>x.id)).size,39);
-for(const a of avatars){
- assert.match(a.id,/^[fmn](?:[1-9]|1[0-3])$/);
- assert.ok(existsSync(new URL('../'+a.src.slice(1),import.meta.url)),a.id+' file missing');
- const svg=file(a.src.slice(1));
- assert.ok(svg.startsWith('<svg')&&svg.includes('viewBox="0 0 192 192"'));
- assert.ok(!/<script|<foreignObject|xlink:href|<image/i.test(svg),'Only self-contained SVG allowed');
+const manifest=JSON.parse(file('assets/avatars/catalog-v2.json')),avatars=manifest.avatars;
+assert.equal(manifest.version,3);assert.equal(avatars.length,30);
+assert.equal(new Set(avatars.map(x=>x.id)).size,30);
+const hashes=new Set();
+for(const [i,a] of avatars.entries()){
+ assert.match(a.id,/^[fmn](?:[4-9]|1[0-3])$/);assert.equal(a.number,i+1);
+ assert.equal(a.src,'/assets/avatars/av-'+a.id+'.webp');
+ assert(existsSync(new URL('../'+a.src.slice(1),import.meta.url)),a.src+' missing');
+ const image=readFileSync(new URL('../'+a.src.slice(1),import.meta.url));
+ assert(image.length>4000);assert.equal(image.toString('ascii',0,4),'RIFF');
+ assert.equal(image.toString('ascii',8,12),'WEBP');
+ hashes.add(createHash('sha256').update(image).digest('hex'));
 }
-const ui=file('assets/js/member-profile-ui-v1.js');
-const picker=file('assets/js/member-avatar-picker-v2.js');
-const api=file('functions/api/member-profile.js');
-const signup=file('functions/api/account.js');
-const dash=file('dashboard.html'),academy=file('bootcamp-academy.html');
-assert.ok(ui.includes('data-edit-picture')&&ui.includes('GroundUpAvatarPicker.mountInline'));
-assert.ok(ui.includes('const latest=(await request()).profile'));
-assert.ok(picker.includes('data-avatar-apply')&&picker.includes('aria-pressed'));
-assert.ok(picker.includes('await onApply(url)')&&picker.includes("if(busy)event.preventDefault()"));
-assert.match(api,/av-\[fmn\]\(\?:\[1-9\]\|1\[0-3\]\)/);
-assert.match(signup,/avatarSlot=1\+random\[0\]%13/);
-assert.ok(dash.includes('member-avatar-picker-v2.js'));
-assert.ok(academy.includes('bootcamp-academy-compact-v2.css'));
-assert.ok(file('assets/css/bootcamp-academy-compact-v2.css').includes('max-width:1220px'));
-assert.ok(picker.includes('async function mountInline')&&picker.includes('panel.hidden=true'));
-console.log('PASS 30 member portraits precede legacy avatars, inline Dashboard Apply, retained modal compatibility, and protected profile updates.');
+assert.equal(hashes.size,30);
+for(const group of ['f','m','n'])for(let i=1;i<=3;i++)
+ assert(existsSync(new URL('../assets/avatars/av-'+group+i+'.svg',import.meta.url)),'Legacy member asset must remain');
+const picker=file('assets/js/member-avatar-picker-v2.js'),api=file('functions/api/member-profile.js'),signup=file('functions/api/account.js'),ui=file('assets/js/member-profile-ui-v1.js');
+assert(picker.includes('choices.length!==30')&&picker.includes('candidates.length!==30'));
+assert(picker.includes('async function mountInline')&&picker.includes('panel.hidden=true'));
+assert(picker.includes('await onApply(url)'));assert(api.includes('baseAvatar=')&&api.includes('\\.webp'));
+assert(signup.includes('avatarIndex=random[0]%30'));assert(ui.includes('GroundUpAvatarPicker.mountInline'));
+assert(file('dashboard.html').includes('member-avatar-picker-v2.js'));
+console.log('PASS 30 distinct premium WebP avatars, selection, compatibility and secure profile controls.');

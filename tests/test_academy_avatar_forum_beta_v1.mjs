@@ -25,17 +25,17 @@ const profile=file('assets/js/member-profile-ui-v1.js'),picker=file('assets/js/m
 assert(profile.includes('GroundUpAvatarPicker.mountInline'),'Dashboard must use an inline picker');
 assert(picker.includes('async function mountInline')&&picker.includes('panel.hidden=true'),'Inline Apply must save then close');
 const catalog=JSON.parse(file('assets/avatars/catalog-v2.json'));
-assert.equal(catalog.avatars.length,39);
-assert(catalog.avatars.slice(0,30).every(x=>!/^([fmn])[1-3]$/.test(x.id)),'Show the 30 new portraits before legacy defaults');
-const uniqueSVG=new Set;
-for(const a of catalog.avatars.slice(0,30)){
+assert.equal(catalog.avatars.length,30);
+assert(catalog.avatars.every(x=>x.src.endsWith('.webp')),'Gallery presents exclusively high-quality WebP portraits');
+const uniqueWebP=new Set;
+for(const a of catalog.avatars){
  const p=a.src.slice(1);
  assert(existsSync(new URL('../'+p,import.meta.url)),p+' missing');
- const source=file(p);uniqueSVG.add(source);
- assert(source.startsWith('<svg')&&source.includes('viewBox="0 0 192 192"'));
- assert(!/<script|<foreignObject|xlink:href|<image/i.test(source),'External image reference prohibited');
+ const buffer=readFileSync(new URL('../'+p,import.meta.url));
+ assert.equal(buffer.toString('ascii',8,12),'WEBP');
+ uniqueWebP.add(buffer.toString('base64'));
 }
-assert.equal(uniqueSVG.size,30,'New portraits must be individually illustrated, not repeated assets');
+assert.equal(uniqueWebP.size,30,'New portraits must all be different WebP images');
 const memberRPC=file('supabase/migrations/20261028_author_avatars_public_presentation_v1.sql');
 assert(memberRPC.includes('auth.uid()')&&memberRPC.includes('status='+"\'published\'"),'Author eligibility requires signed-in member and published content');
 assert(memberRPC.includes('to authenticated')&&!memberRPC.includes('grant select on public.profiles'),'Do not publish the private profiles table');

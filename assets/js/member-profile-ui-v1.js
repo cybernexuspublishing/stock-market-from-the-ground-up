@@ -32,7 +32,7 @@ async function mount(body){
 
   host.innerHTML='<div class="v1321-section-head"><div><div class="eyebrow">Member identity</div><h2>Public Profile & Display Title</h2></div></div>'+
    '<p class="small">Your public bio, avatar and display title never change your subscription, staff role or actual learning entitlements. Your email and legal name are not shown publicly.</p>'+
-   '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-n1.svg')+'" alt="Your current avatar"><div><strong>Profile picture</strong><p class="small">Choose a site avatar or upload a picture you own. Your selected avatar is visible to other members.</p>'+
+   '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-f4.webp')+'" alt="Your current avatar"><div><strong>Profile picture</strong><p class="small">Choose a site avatar or upload a picture you own. Your selected avatar is visible to other members.</p>'+
    '<button type="button" class="btn secondary v2-edit-picture" data-edit-picture>Choose from Avatar Library</button>'+
    '<label>Upload your own picture<input data-avatar-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div data-avatar-inline-host></div>'+
    '<label>Gender selection for default avatars<select name="gender"><option value="rather_not_say">Rather not say</option><option value="female">Female</option><option value="male">Male</option></select></label>'+
@@ -55,7 +55,7 @@ async function mount(body){
      const latest=(await request()).profile;
      const saved=await request('save',{gender:latest.gender,bio:latest.bio,avatarUrl:url});
      avatarUrl=saved.profile.avatarUrl;
-     $('[data-avatar-preview]',host).src=avatarUrl||'/assets/avatars/av-n1.svg';
+     $('[data-avatar-preview]',host).src=avatarUrl||'/assets/avatars/av-f4.webp';
      setStatus(host,'Avatar updated on your account.');
     }});
    }catch(e){setStatus(host,e.message,true);trigger.focus()}
@@ -65,7 +65,7 @@ async function mount(body){
     const {sb,userId}=await session(),file=$('[data-avatar-upload]',host).files?.[0];
     if(file)avatarUrl=await imageFile(file,userId,sb);
     const res=await request('save',{gender:$('[name=gender]',host).value,bio:$('[name=bio]',host).value,avatarUrl});
-    $('[data-avatar-preview]',host).src=res.profile.avatarUrl||'/assets/avatars/av-n1.svg';
+    $('[data-avatar-preview]',host).src=res.profile.avatarUrl||'/assets/avatars/av-f4.webp';
     $('[data-avatar-upload]',host).value='';setStatus(host,'Profile saved.');
    }catch(e){setStatus(host,e.message,true)}finally{btn.disabled=false}
   });

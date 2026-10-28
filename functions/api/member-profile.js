@@ -8,7 +8,7 @@ const err=(s,status=400)=>Object.assign(new Error(s),{status});
 const UUID=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
 const types=['female','male','rather_not_say'];
 const titles={learner:'Market Learner',researcher:'Research Student',journaler:'Journal Practitioner',founder:'Founding Member',book_owner:'Verified Book Owner',premium_member:'Premium Learning Member',academy_member:'Academy Member',custom:'Custom Display Title'};
-const baseAvatar=/^https:\/\/stock-market-from-the-ground-up-d1r\.pages\.dev\/assets\/avatars\/av-[fmn](?:[1-9]|1[0-3])\.svg$/;
+const baseAvatar=/^https:\/\/stock-market-from-the-ground-up-d1r\.pages\.dev\/assets\/avatars\/av-(?:[fmn](?:[1-9]|1[0-3])\.svg|[fmn](?:[4-9]|1[0-3])\.webp)$/;
 const uploadKey=(uid,path)=>new RegExp('^'+uid+'/[0-9a-f]{32}\\.webp$').test(path);
 const clean=x=>String(x??'').trim();
 const h=key=>({apikey:key,accept:'application/json','content-type':'application/json',...(key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+key})});

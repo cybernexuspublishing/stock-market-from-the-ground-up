@@ -1,7 +1,7 @@
 /* Lightweight member-avatar presentation; all author URLs are server-validated. */
 (()=>{'use strict';
  const uuid=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
- const fallback='/assets/avatars/av-n1.svg';
+ const fallback='/assets/avatars/av-f4.webp';
  let pending=false,busy=false;
  function validUrl(value){
   try{const u=new URL(value,location.origin);

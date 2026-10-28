@@ -20,7 +20,7 @@ def run():
    if path.startswith('/assets/avatars/av-'):
     name=Path(path).name
     image=ROOT/'assets/avatars'/name
-    if image.is_file():return r.fulfill(status=200,content_type='image/svg+xml',body=image.read_text())
+    if image.is_file():return r.fulfill(status=200,content_type='image/webp' if image.suffix=='.webp' else 'image/svg+xml',body=image.read_bytes())
    return r.fulfill(status=200,content_type='text/html',body=HTML)
   page.route('https://avatar-qa.test/**',route)
   page.goto('https://avatar-qa.test/profile')
@@ -34,8 +34,8 @@ def run():
   }""")
   page.locator('#edit').click()
   tiles=page.locator('.v2-avatar-tile')
-  page.wait_for_function('document.querySelectorAll(".v2-avatar-tile").length===39',timeout=9000)
-  assert tiles.count()==39,'Modal must present all nine original plus 30 new avatars'
+  page.wait_for_function('document.querySelectorAll(".v2-avatar-tile").length===30',timeout=9000)
+  assert tiles.count()==30,'Modal must present all 30 illustrated portraits'
   assert page.locator('dialog.v2-avatar-modal').is_visible()
   page.locator('[data-avatar-id="f13"]').click()
   assert page.locator('[data-avatar-id="f13"]').get_attribute('aria-pressed')=='true'
@@ -52,7 +52,7 @@ def run():
   page.evaluate('window.__reject=false')
   page.locator('[data-avatar-apply]').click()
   page.wait_for_function('window.__applied.length===1')
-  assert page.evaluate('window.__applied[0].endsWith("/assets/avatars/av-m12.svg")')
+  assert page.evaluate('window.__applied[0].endsWith("/assets/avatars/av-m12.webp")')
   page.wait_for_function('document.querySelectorAll("dialog.v2-avatar-modal").length===0',timeout=5000)
   page.close()
 
@@ -79,7 +79,7 @@ def run():
     return r.fulfill(status=200,content_type='application/json',body=CATALOG)
    if path.startswith('/assets/avatars/av-'):
     img=ROOT/'assets/avatars'/Path(path).name
-    if img.is_file():return r.fulfill(status=200,content_type='image/svg+xml',body=img.read_text())
+    if img.is_file():return r.fulfill(status=200,content_type='image/webp' if img.suffix=='.webp' else 'image/svg+xml',body=img.read_bytes())
    return r.fulfill(status=200,content_type='text/html',body=profile_html)
   page=browser.new_page(viewport={'width':1200,'height':820})
   page.route('https://member-avatar-qa.test/**',member_route)
@@ -99,9 +99,9 @@ def run():
   page.locator('[data-avatar-id="n13"]').click()
   assert stored['writes']==[],'Selection must never trigger a profile write'
   page.locator('[data-avatar-apply]').click()
-  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-n13.svg')""")
+  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-n13.webp')""")
   assert len(stored['writes'])==1,'Apply should submit one authenticated member-profile save'
-  assert stored['avatarUrl'].endswith('/assets/avatars/av-n13.svg')
+  assert stored['avatarUrl'].endswith('/assets/avatars/av-n13.webp')
   page.locator('.v2-avatar-inline').wait_for(state='hidden')
   assert stored['gender']=='female' and stored['bio']=='Existing member biography','Unrelated profile fields changed'
   page.close()
@@ -123,5 +123,5 @@ def run():
    assert not geometry['overflow'],(width,geometry)
    page.close()
   browser.close()
- print('PASS 39 avatars, Cancel/Apply, profile API integration (mocked), rejected saves, and four Academy widths.')
+ print('PASS 30 premium avatars, Cancel/Apply, profile API integration (mocked), rejected saves, and four Academy widths.')
 if __name__=='__main__':run()

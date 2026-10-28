@@ -12,7 +12,7 @@ async function memberSummary(root,uid){
   const r=await fetch('/api/member-profile?userId='+encodeURIComponent(uid),{headers:{authorization:'Bearer '+token},cache:'no-store'});
   const j=await r.json();if(!j.ok||!status?.isConnected)return;
   const p=j.profile;
-  const img=status.querySelector('img');if(img)img.src=p.avatarUrl||'/assets/avatars/av-n1.svg';
+  const img=status.querySelector('img');if(img)img.src=p.avatarUrl||'/assets/avatars/av-f4.webp';
   const name=status.querySelector('[data-member-name]'),meta=status.querySelector('[data-member-meta]'),bio=status.querySelector('[data-member-bio]');
   if(name)name.textContent=(p.username?'@'+p.username:'Member')+' — '+p.titleLabel;
   if(meta)meta.textContent='Gender preference: '+(p.gender==='female'?'Female':p.gender==='male'?'Male':'Rather not say')+' · Email: '+(p.email||'Not available');
@@ -36,7 +36,7 @@ function mount(root){
  ];
  const sections=[];
  const summary=document.createElement('section');summary.className='v1-editor-summary';
- summary.innerHTML='<img src="/assets/avatars/av-n1.svg" alt="Member avatar"><div><strong data-member-name>Account presentation</strong><p class="small" data-member-meta>Account details remain in the individual sections.</p><p class="small" data-member-bio>Public biography and title appear here when authorized.</p></div>';
+ summary.innerHTML='<img src="/assets/avatars/av-f4.webp" alt="Member avatar"><div><strong data-member-name>Account presentation</strong><p class="small" data-member-meta>Account details remain in the individual sections.</p><p class="small" data-member-bio>Public biography and title appear here when authorized.</p></div>';
  root.prepend(summary,nav);
  const show=code=>{
   sections.forEach((element,i)=>{const yes=tabDefs[i][1]===code;element.hidden=!yes;element.setAttribute('aria-hidden',String(!yes));});
