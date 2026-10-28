@@ -126,13 +126,14 @@ async function foundingCatalog(){
   const terms=await response.json();const codes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
   if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)))throw Error('Invalid founding terms');
-  let accepting=false;
+  let accepting=false,eligible=new Map();
   try{
    const status=await fetch('/api/founding600-checkout',{cache:'no-store',signal:AbortSignal.timeout(12000)});
    const state=status.ok?await status.json():null;
    accepting=state?.ok===true&&state.checkoutEnabled===true;
+   eligible=new Map((Array.isArray(state?.plans)?state.plans:[]).map(p=>[p.code,p.checkoutEnabled===true]));
   }catch{accepting=false}
-  target.innerHTML=plans.map((p,i)=>{const canJoin=accepting&&i!==0;return `<article class="catalog-founder-card ${i===2?'is-extended':''}">
+  target.innerHTML=plans.map((p,i)=>{const canJoin=accepting&&eligible.get(codes[i])===true;return `<article class="catalog-founder-card ${i===2?'is-extended':''}">
  <div class="catalog-founder-orbit" aria-hidden="true"></div>
  <div class="catalog-founder-top"><span class="eyebrow">Founding ${i===0?'Starter':i===1?'Standard':'Extended'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div>
  <span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span>
