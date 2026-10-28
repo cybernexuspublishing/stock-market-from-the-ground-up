@@ -3,7 +3,7 @@
  * duplicate all-controls directory, or cloned module actions are created.
  */
 (()=>{'use strict';
-if(!/^\\/admin(?:\\.html)?$/i.test(location.pathname)||window.GroundUpSimpleAdminNavV014036)return;
+if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpSimpleAdminNavV014036)return;
 const $=(s,r=document)=>r.querySelector(s);
 function allowed(el){return !!(el&&el.isConnected&&!el.disabled&&!el.hidden&&!el.closest('[hidden]')&&!el.classList.contains('cc-owner-hidden'));}
 function attachShadow(){
