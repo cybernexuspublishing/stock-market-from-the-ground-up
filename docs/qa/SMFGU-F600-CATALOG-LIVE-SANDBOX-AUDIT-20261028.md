@@ -1,0 +1,59 @@
+# Founding 600 — LIVE and Sandbox Catalog and Starter Checkout Gate Audit
+
+**Document ID:** SMFGU-F600-CATALOG-QA-20261028  
+**Project:** The Stock Market: From the Ground Up  
+**Version:** 1.0  
+**Status:** Configuration remediated; Starter LIVE $0 Owner diagnostic and paid entitlement acceptance **pending**  
+**Date:** October 28, 2026  
+**Source location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up/docs/qa/`  
+**Google Drive location:** Not established; no Google Drive file or identifier has been created.  
+**File name / type:** `SMFGU-F600-CATALOG-LIVE-SANDBOX-AUDIT-20261028.md` / Markdown  
+**Purpose:** Record production/sandbox provider pricing, Cloudflare mappings, database contract and remaining noncharging acceptance gates.  
+**Dependencies:** Production GitHub main; Yahoo Cloudflare Pages project `stock-market-from-the-ground-up`; Supabase `oxihglyfgzywsupnyicb`; Stock Market LIVE and TEST Stripe accounts.  
+**Document control:** Operational evidence only; not payment authorization, a legal opinion, or a license to make recurring charges.
+
+## Verified canonical beta membership catalog
+
+| Plan | LIVE Stripe product / price | TEST Stripe product / price | Amount | Billing | Founder discount | Included Sparks | Chart |
+| --- | --- | --- | ---: | --- | ---: | ---: | --- |
+| Free | No paid Stripe price | No paid Stripe price | $0 | No charge | N/A | By Free policy | Standard |
+| Founding Starter (`FOUNDING_14`) | `prod_VWc8uqYtWhCqFi` / `price_1UVYuCJL0O4GGVBHetKgTrYq` | `prod_VWFwFoggxZfcx3` / `price_1UVDQoJY9FI7byHBuiYDnHrX` | $22.99 | 14 days, recurring | 5% | 10 | Standard |
+| Founding Standard (`FOUNDING_30`) | `prod_VVF9poZ15hcsIm` / `price_1UUEgWJL0O4GGVBHWVsQfwvg` | `prod_VVCnll7D6GUMYR` / `price_1UUCNbJY9FI7byHBCX2VWdLi` | $49.99 | 30 days, recurring | 10% | 15 | Advanced |
+| Founding Extended (`FOUNDING_60`) | `prod_VVF9SaeXxAv1QL` / `price_1UUEgYJL0O4GGVBHE7pmnWKz` | `prod_VVCna7iF60IFyK` / `price_1UUCNkJY9FI7byHBuh6pT4xd` | $59.99 | 60 days, recurring | 15% | 20 | Professional |
+
+**Separately verified future/general-public map:** In BOTH Stripe LIVE and TEST, all eight `GU58_STRIPE_LIVE_CATALOG_JSON` / `GU39_STRIPE_TEST_PRICE_MAP_JSON` prices are active and exactly match: Full Monthly $69.99/month, Full Annual $699/year, Lifetime $2,499 once, Historical Replay $19.99/month, and Interactive Learning / Journal / Simulator / Tutor each $29.99/month. These are not authorized for general-public launch.
+
+**Cloudflare configuration:** Production project has `GU_F600_LIVE_CATALOG_JSON` and `GU_F600_TEST_CATALOG_JSON` containing all three Founding plans, plus the existing eight-price LIVE and TEST general catalogs. Separate Preview environment bindings have not been provisioned; the TEST credentials and catalog configuration are server-side production bindings guarded by sandbox-specific endpoints. No encrypted secrets were copied into public source or a separate account. LIVE and TEST Stripe are distinct accounts.
+
+## Corrective work completed (not a paid test)
+
+1. Created previously missing 14-Day LIVE product and recurring price with exact 14-day cadence, marked `qa_pending` and `site_checkout_enabled=false`; preserved approved regular $22.99 price.
+2. Corrected TEST founder 30/60 Sparks and 60-day discount metadata; corrected LIVE 30/60 misleading prelaunch price metadata.
+3. Extended the Cloudflare LIVE founder price map and added a separate 14/30/60 TEST founder price map. Existing deployment bindings and encrypted secrets retained.
+4. Extended Founding Checkout source to recognize the 14-Day SKU and independently verify each plan's database checkout gate, price, cadence, and LIVE product authorization **before** reserving a seat or creating Stripe checkout.
+5. Extended the dedicated signed founding webhook to validate all three recurring terms and invoice amounts. Updated atomic Founder reservation and provider subscription lifecycle database functions to recognize 14-Day, preserving 600-seat locking and per-plan checkout controls.
+6. Repaired stale database paid-cycle constraints to accept 14/30/60 prices and 10/15/20 included Sparks; confirmed no existing paid cycles before migration. Existing real production memberships were not modified.
+7. Updated storefront and Founding enrollment to display 14-Day as available only after the **individual** server-side gate opens.
+8. Added mocked noncharging regression tests of the disabled 14-Day plan, provider preflight and Sparks/seat invariants. Mocked tests do not count as authenticated LIVE acceptance.
+
+## Distinguish the two payment test modes
+
+- **OWNER LIVE $0.00 diagnostic:** Existing `/api/owner-zero-live-checkout`, using separate `prod_VSxZRZ8jlX5pW7` and `price_1US1eWJL0O4GGVBH7f78HcMo`. Exactly $0, one-time, no recurring payment, subscription, Founder seat or member entitlement. Only allowed while `FOUNDING_14.checkout_enabled=false`, with an authenticated Owner and recent password step-up. It cannot establish paid subscription entitlement acceptance.
+- **14-Day member paid checkout:** Dedicated `/api/founding600-checkout` uses $22.99 recurring LIVE price and requires the database plan gate and Stripe product metadata both to approve payment. During the diagnostic, these remain FALSE, so no paying customer may enter this flow.
+
+## Outstanding acceptance and release blockers
+
+- Actual Owner-authenticated LIVE $0.00 checkout session and its completed `no_payment_required` verification have not been performed here. No Owner browser session or password-step-up token was available in the connector; do not invent a result.
+- GitHub `docs/qa/SMFGU-MEMBERSHIP-TEST-ACCOUNTS-20261027.md` lists a proposed QA account batch, but fresh production `auth.users` count was zero for those identities. Account passwords are never stored in GitHub; a test identity cannot be obtained by reading source files.
+- Production Founder number count and verified active paid-cycle count were both zero when audited. A separate authenticated paid Founder lifecycle acceptance remains open and cannot be satisfied by an unrelated $0 one-time diagnostic.
+- The 14-Day individual database checkout gate and LIVE Stripe product metadata remain FALSE. Preserve this intentional blocking state until Owner $0 QA, provider webhook verification, renewal/cancel/refund checks and genuine entitlement acceptance have been evidenced.
+- `public_launch_open=false`: general-public plans must remain hidden. Once 600 seats are issued or public launch opens, new founding enrollment closes while earned member benefits remain intact.
+- Not all repository workflows necessarily complete simultaneously after every `main` push. Record matching accepted head commit and final CI results before release signoff.
+
+## Revision history
+
+| Version | Date | Change | Status |
+| --- | --- | --- | --- |
+| 1.0 | 2026-10-28 | Cross-platform verification, price reconciliation, critical paid-cycle constraint correction, safe Starter release staging | Pending real Owner and authenticated member acceptance |
+
+**Footer — SMFGU-F600-CATALOG-QA-20261028 | v1.0 | Internal owner-controlled QA record | Not authorization for LIVE charges.**
