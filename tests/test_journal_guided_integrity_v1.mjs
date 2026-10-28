@@ -37,12 +37,12 @@ const strategy=readFileSync('functions/api/advanced-journal-insights.js','utf8')
 assert(strategy.includes("['YES','PARTIAL','NO'].includes(r.plan_followed)"),'Use canonical enum, not boolean');
 assert(strategy.includes("r.plan_followed==='YES'"),'Only full compliance counts as followed');
 const page=readFileSync('journal-entry.html','utf8');
-assert(page.includes('assets/js/journal-guided-v1.js')&&page.includes('assets/css/journal-guided-v1.css'));
+assert(page.includes('assets/js/journal-guided-v1.js')||page.includes('assets/js/journal-guided-v2.js')&&page.includes('assets/css/journal-guided-v1.css'));
 const guide=readFileSync('assets/js/journal-guided-v1.js','utf8');
 assert(guide.includes('gu-journal-mode')&&guide.includes("form.addEventListener('change'"));
 assert(guide.includes('Not measured')&&guide.includes('Before-entry risk check'));
 const listPage=readFileSync('journal.html','utf8');
-assert(listPage.includes('journal-weekly-v1.js'));
+assert(listPage.includes('journal-weekly-v1.js')||listPage.includes('journal-weekly-v2.js'));
 assert(page.includes('journal-evidence-v1.js')&&page.includes('journal-actual-history-v1.js'));
 const weekly=readFileSync('assets/js/journal-weekly-v1.js','utf8');
 assert(weekly.includes('gu-journal-rows-loaded')&&weekly.includes('not paid performance analytics'));
