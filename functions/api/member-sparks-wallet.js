@@ -30,6 +30,9 @@ export async function onRequest({request,env}){
   if(profiles?.[0]?.account_kind!=='member'||
      ['restricted','suspended'].includes(String(flags?.[0]?.status||'').toLowerCase()))
    throw fail('Wallet unavailable for this account.',403);
+  const freeGrant=await get(base,secret,'rpc/groundup_free_sparks_ensure',{
+   method:'POST',body:JSON.stringify({p_user_id:userId})});
+  if(freeGrant?.ok!==true)throw fail('Free credit eligibility could not be verified.',503);
   const summary=await get(base,secret,'rpc/groundup_question_pass_summary',{
    method:'POST',body:JSON.stringify({p_user_id:userId})});
   if(!summary||!['included','purchased','manual','available'].every(k=>unsigned(summary[k]))||
@@ -37,6 +40,9 @@ export async function onRequest({request,env}){
    throw fail('Wallet ledger could not be reconciled.',503);
   return json({ok:true,wallet:{available:summary.available,included:summary.included,
    purchased:summary.purchased,manual:summary.manual,nextExpiry:summary.nextExpiry||null},
+   freeCredits:{allowance:2,expiryPolicy:'One calendar month from each monthly grant; no rollover.',
+    nextGrantAt:freeGrant.nextGrantAt||null,issuedThisRequest:freeGrant.issued||0,
+    applies:freeGrant.reason!=='paid_account_excluded'},
    howToUse:'Use a Crownlight Spark to skip or reveal one eligible ungraded practice question. All teaching, explanations and retries remain available without Sparks. A revealed or skipped answer never awards official assessment mastery.',
    purchaseEnabled:false});
  }catch(e){
