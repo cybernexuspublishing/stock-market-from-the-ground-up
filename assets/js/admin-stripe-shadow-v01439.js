@@ -50,12 +50,16 @@
  zeroSkuLabel.htmlFor='gu71-qa-target-sku';
  const zeroSkuSelect=element('select');zeroSkuSelect.id='gu71-qa-target-sku';
  const general=element('option','General $0 checkout diagnostic');general.value='';zeroSkuSelect.append(general);
+ // Dedicated 14-Day zero-dollar diagnostic; the actual $22.99 checkout stays closed.
+ const f14=element('option','Founding 14-Day — LIVE $0.00 QA only (NO membership grant)');
+ f14.value='founding:FOUNDING_14';zeroSkuSelect.append(f14);
  zeroQA.addEventListener('toggle',async()=>{
-  if(!zeroQA.open||zeroSkuSelect.options.length>1)return;
+  if(!zeroQA.open||zeroSkuSelect.dataset.catalogLoaded==='1')return;
   try{
    const r=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
    const d=r.ok?await r.json():null;
    if(d?.ok!==true||!Array.isArray(d.items)||d.items.length<50)throw Error('Catalog unavailable');
+   zeroSkuSelect.dataset.catalogLoaded='1';
    for(const x of d.items){
     if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(String(x.sku||'')))continue;
     const option=element('option',String(x.name)+' ('+String(x.sku)+')');
