@@ -19,6 +19,7 @@ import {parseTutorRequest} from '../_lib/tutor-request-boundary-v014147.js';
 import {ownedConversation,attachTutorExchange} from './member-tutor-conversations.js';
 import {recordTutorGap} from '../_lib/tutor-gaps-v014149.js';
 import {getApprovedLabContext,labGuidance} from '../_lib/tutor-lab-context-v014149.js';
+import {teachingForLab} from '../_lib/tutor-lab-teaching-v1.js';
 import {isContextualTutorFollowup,getVerifiedPriorTutorQuestion} from '../_lib/tutor-conversation-context-v014159.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const reply=(v,s=200)=>new Response(JSON.stringify(v),{status:s,headers:H});
@@ -231,7 +232,11 @@ export async function onRequest({request,env}){
   // only. Never query unreviewed/private questions, future bars, or answer keys.
   const labContext=await getApprovedLabContext(env,request,q).catch(()=>null);
   if(labContext){
-   const guide=await approvedGuideForCodes(env,request,labContext.relatedCompetencyCodes);
+   const preferred=teachingForLab(labContext.labId)?.guideCode;
+   const codes=preferred&&labContext.relatedCompetencyCodes.includes(preferred)
+    ?[preferred,...labContext.relatedCompetencyCodes.filter(code=>code!==preferred)]
+    :labContext.relatedCompetencyCodes;
+   const guide=await approvedGuideForCodes(env,request,codes);
    return finish({
     ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
     answer:labGuidance(labContext,mode,answer)+(guide?'\n\nApproved public competency guide:\n'+answerFromGuide(guide,mode,answer):''),
