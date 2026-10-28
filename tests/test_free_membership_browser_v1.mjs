@@ -111,6 +111,18 @@ try{
     'Changing evidence must update the worked example for Lesson '+lesson);
    if(lesson===2)assert.equal(await studio.locator('svg[role=img]').count(),1,
     'Fictional candle should remain a labeled visual learning example');
+   // Every Free lesson now includes a separate replay-setup style rehearsal.
+   await page.locator('.academy-free-stage-button').nth(3).click();
+   const setup=page.locator('.academy-lab-rehearsal:visible');
+   assert.equal(await setup.count(),1,'Every Free lesson rehearses the Lab setup method');
+   assert.match(await setup.innerText(),/Original fictional educational example/);
+   const lock=setup.getByRole('button',{name:'Lock my observation and see Talia’s review'});
+   assert.equal(await lock.isDisabled(),true,'Reasoning must precede the worked review');
+   await setup.getByRole('textbox',{name:'Your independent fictional replay decision'})
+    .fill('This is only fictional evidence. I would document the visible facts, verify the missing source information, and avoid assuming future candles.');
+   await lock.click();
+   assert.equal(await setup.locator('.academy-lab-review').isVisible(),true);
+   assert.match(await setup.locator('.academy-lab-review').innerText(),/not a pass, official assessment/);
    await page.locator('.academy-free-stage-button').nth(4).click();
    const challenge=page.locator('.academy-studio-challenge');
    assert.equal(await challenge.count(),1,'Every Free day has an independent ungraded choice');
@@ -124,6 +136,11 @@ try{
    await page.locator('.academy-free-stage-button').nth(8).click();
    assert.match(await page.locator('.academy-studio-preview').innerText(),/Basic Historical Replay Setup/);
    assert.equal(await page.locator('.academy-studio-preview a[href="labs.html"]').count(),1);
+   const value=page.locator('.academy-lab-value-preview:visible');
+   assert.equal(await value.count(),1);
+   assert.equal(await value.locator('article').count(),4);
+   assert.match(await value.innerText(),/Historical replay/);
+   assert.equal(await value.locator('a[href="membership.html"]').count(),1);
   }
   await page.locator('#academy-days .gu-bc-day').nth(1).click();
   assert.equal(await page.locator('.academy-free-figure svg').count(),1);
