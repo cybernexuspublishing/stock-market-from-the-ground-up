@@ -42,7 +42,7 @@ export async function onRequest({request,env}){
   if(raw.length>1024)return response({ok:false,error:'INVALID_REQUEST'},413);
   let b;try{b=JSON.parse(raw)}catch{return response({ok:false,error:'INVALID_REQUEST'},400)}
   if(!b||!SKUS.has(b.sku)||typeof b.requestId!=='string'||!uuid.test(b.requestId)||
-     !Number.isSafeInteger(b.expectedCost)||b.expectedCost<1||b.expectedCost>100000
+     !Number.isSafeInteger(b.expectedCost)||b.expectedCost<1||b.expectedCost>100000)
    return response({ok:false,error:'INVALID_REQUEST'},400);
   // An existing paid/full membership or Owner QA access is not a Sparks purchase.
   const current=await crownlightChartEntitlement(env,request);
