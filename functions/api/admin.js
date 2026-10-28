@@ -528,7 +528,13 @@ async function handlePost(env,request,action){
     if(key==='feature.crownlight_continuous_workspace_v1'){
       if(!c.ctx.roles.includes('OWNER'))return bad('Owner authority required for Chart Studio presentation.',403);
       const v=body.value;
-      if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length!==1||typeof v.enabled!=='boolean')return bad('Use only a boolean enabled property.',400);
+      const allowedPages=new Set(["simulator.html","dashboard.html","labs.html","learn.html","market-tutor.html","journal.html","bootcamp-academy.html","my-library.html","account.html","market-commons.html","forum.html","skills.html","membership.html","store.html","index.html"]);
+      if(!v||typeof v!=='object'||Array.isArray(v)||typeof v.enabled!=='boolean'||
+         !Array.isArray(v.pages)||v.pages.length<1||v.pages.length>allowedPages.size||
+         new Set(v.pages).size!==v.pages.length||
+         v.pages.some(page=>typeof page!=='string'||!allowedPages.has(page))||
+         Object.keys(v).some(k=>!['enabled','pages'].includes(k)))
+        return bad('Specify a boolean enabled state and distinct approved page filenames.',400);
       body.category='design';body.public_read=false;
       body.description='Owner-controlled Crownlight continuous trading workspace presentation';
     }
