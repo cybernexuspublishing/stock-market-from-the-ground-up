@@ -197,6 +197,7 @@ try{
     await page.locator('#store-tab-founders').focus();
     await page.keyboard.press('ArrowRight');
     const expected=available.length>1?available[1]:'store-tab-founders';
+    await page.waitForFunction(id=>document.getElementById(id)?.getAttribute('aria-selected')==='true',expected,{timeout:4000});
     assert.equal(await page.locator('#'+expected).getAttribute('aria-selected'),'true',
       'Keyboard navigation must select the next visible category, not a hidden offer');
     const selectedPanel=expected.replace('store-tab-','store-panel-');
