@@ -3,7 +3,7 @@ import {onRequestGet} from '../functions/api/storefront-public-catalog.js';
 const env={SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_SECRET_KEY:'mock-secret'};
 const state={full:false,publicLaunch:false,available:true};
 const source=[
- {sku:'plan:FOUNDING_30',category:'founding',display_name:'Founding Standard',description:'Beta 30d',price_label:'$49.99',
+ {sku:'founding:FOUNDING_30',category:'founding',display_name:'Founding Standard',description:'Beta 30d',price_label:'$49.99',
  duration_label:'30 days',product_page:'founding600.html',status:'listed',visible:true,sale_ready:false,display_order:0},
  {sku:'book:FOUNDATION_BOOK_1',category:'book',display_name:'Foundations Book I',description:'Book',price_label:'$10.99',
  duration_label:'',product_page:'store-book-foundation-1.html',status:'listed',visible:true,sale_ready:true,display_order:1}
