@@ -154,7 +154,105 @@
 
   async function renderBooks(host){const a=await access(),books=a?.books||[];host.innerHTML=`<div class="v1321-section-head"><div><div class="eyebrow">My Books</div><h1>Book & Companion Access</h1><p>Book access is separate from membership access.</p></div><a class="btn secondary" href="store.html">Open Store</a></div><div class="v1321-book-grid">${books.length?books.map(b=>`<article class="v1321-book"><span class="${b.included?'yes':'no'}">${b.included?'✓ Included':'✕ Not included'}</span><strong>${esc(b.shortTitle||b.title||'Book')}</strong><small>${esc(b.publicationStatus||'')}</small></article>`).join(''):'<div class="fe-state">No book access is currently assigned to this account.</div>'}</div>`}
 
-  async function credentialList(host){host.innerHTML='<div class="fe-state">Loading secure connections…</div>';try{const j=await api('/api/credentials?action=list'),map=new Map((j.connections||[]).map(x=>[x.service_code,x]));const defs=[{code:'TIINGO_BYO',name:'Tiingo',fields:[['token','API Token']]},{code:'ALPACA_BYO',name:'Alpaca',fields:[['apiKey','API Key'],['apiSecret','API Secret']]}];host.innerHTML=defs.map(d=>{const c=map.get(d.code);return`<article class="v1321-connection" data-service="${d.code}"><div><strong>${d.name}</strong><span class="v1321-status ${c?'ok':''}">${c?'Connected / saved':'Not connected'}</span><small>${c?`Saved credential ${esc(c.masked_hint||'••••')}`:'Your full saved key is never returned to the browser.'}</small></div><div class="actions"><button class="btn secondary" type="button" data-add>${c?'Replace':'Add Key / Token'}</button>${c?'<button class="btn secondary" type="button" data-remove>Remove</button>':''}</div></article>`}).join('');qa('[data-service]',host).forEach(card=>{const def=defs.find(x=>x.code===card.dataset.service);q('[data-add]',card).onclick=()=>{q('.v1321-secret-form',card)?.remove();const f=document.createElement('form');f.className='v1321-secret-form';f.innerHTML=def.fields.map(([k,l])=>`<label>${l}<span class="v1321-secret-wrap"><input type="password" name="${k}" autocomplete="off" required><button type="button" class="v1321-secret-toggle">Show</button></span></label>`).join('')+'<div class="actions"><button class="btn">Test & Save Securely</button><button type="button" class="btn secondary" data-cancel>Cancel</button></div>';card.appendChild(f);qa('.v1321-secret-toggle',f).forEach(b=>b.onclick=()=>{const i=b.parentElement.querySelector('input'),show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Hide':'Show'});q('[data-cancel]',f).onclick=()=>f.remove();f.onsubmit=async e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f).entries());try{await api('/api/credentials?action=save',{method:'POST',body:JSON.stringify({serviceCode:def.code,values})});toast('Connection saved securely.','ok');await credentialList(host)}catch(err){toast(err.message,'bad')}}};q('[data-remove]',card)?.addEventListener('click',async()=>{if(!confirm('Remove this saved connection?'))return;await api('/api/credentials?action=delete',{method:'POST',body:JSON.stringify({serviceCode:def.code})});await credentialList(host)})})}catch(e){host.innerHTML=`<div class="fe-state error">${esc(e.message)}</div>`}}
+  async function credentialList(host){
+    host.innerHTML='<div class="fe-state">Loading secure connections…</div>';
+    try{
+      const result=await api('/api/credentials?action=list');
+      const connections=new Map((result.connections||[]).map(row=>[row.service_code,row]));
+      const providers=[
+        {code:'TIINGO_BYO',name:'Tiingo',fields:[['token','Personal API token']]},
+        {code:'ALPACA_BYO',name:'Alpaca Market Data (IEX)',fields:[['apiKey','API Key ID'],['apiSecret','API Secret']]}
+      ];
+      host.innerHTML=providers.map(provider=>{
+        const saved=connections.get(provider.code);
+        const verified=saved?.status==='connected'&&Boolean(saved.last_tested_at);
+        const state=verified?'Connected — verified':saved?.status==='verification_failed'?'Verification failed':saved?'Saved — not verified':'Not connected';
+        const selected=saved?.metadata?.accountType;
+        const account=provider.code==='ALPACA_BYO'&&['paper','live'].includes(selected)?
+          '<small>Selected account: '+(selected==='paper'?'Paper Trading':'Live (market data only)')+'</small>':'';
+        return '<article class="v1321-connection" data-service="'+provider.code+'"><div><strong>'+provider.name+'</strong>'+
+          '<span class="v1321-status '+(verified?'ok':'')+'">'+state+'</span>'+
+          '<small>'+(saved?'Stored credentials '+esc(saved.masked_hint||'••••'):'Each member connects their own API credentials.')+'</small>'+
+          account+(saved?.last_tested_at?'<small>Last verified: '+new Date(saved.last_tested_at).toLocaleString()+'</small>':'')+
+          '</div><div class="actions"><button class="btn secondary" type="button" data-add>'+(saved?'Change Account / Replace':'Choose Account & Connect')+'</button>'+
+          (provider.code==='ALPACA_BYO'&&saved?'<button class="btn secondary" type="button" data-verify>Test Market Data</button>':'')+
+          (saved?'<button class="btn secondary" type="button" data-remove>Remove</button>':'')+
+          '</div><p class="v1321-connection-feedback" aria-live="polite"></p></article>';
+      }).join('');
+      qa('[data-service]',host).forEach(card=>{
+        const provider=providers.find(x=>x.code===card.dataset.service);
+        const current=connections.get(provider.code);
+        const status=q('.v1321-connection-feedback',card);
+        q('[data-add]',card).onclick=()=>{
+          const old=document.querySelector('.v1321-provider-dialog');
+          if(old)old.remove();
+          const modal=document.createElement('dialog');
+          modal.className='v1321-provider-dialog';
+          modal.setAttribute('aria-labelledby','v1321-provider-title');
+          const alpaca=provider.code==='ALPACA_BYO';
+          const previous=current?.metadata?.accountType==='live'?'live':'paper';
+          const choice=alpaca?
+            '<fieldset><legend>Choose which Alpaca account to connect</legend>'+
+            '<label class="v1321-provider-choice"><input type="radio" name="alpacaAccount" value="paper" '+(previous==='paper'?'checked':'')+'> Paper Trading account <small>Recommended for initial market-data setup</small></label>'+
+            '<label class="v1321-provider-choice"><input type="radio" name="alpacaAccount" value="live" '+(previous==='live'?'checked':'')+'> Live account — market data only <small>No live orders or brokerage transactions are enabled</small></label>'+
+            '</fieldset><p class="v1321-provider-hint">The market-data endpoint is selected automatically. Only one Alpaca key pair is active per website member; connecting another replaces the previous pair.</p>':
+            '<p class="v1321-provider-hint">Connect your own Tiingo token. The endpoint is configured automatically.</p>';
+          modal.innerHTML='<h2 id="v1321-provider-title">Connect '+provider.name+'</h2>'+
+            choice+provider.fields.map(([key,label])=>
+              '<label class="v1321-provider-field">'+label+'<span class="v1321-secret-wrap">'+
+              '<input type="password" data-provider-field="'+key+'" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" aria-label="'+label+'">'+
+              '<button class="btn secondary" type="button" data-show-secret>Show</button></span></label>'
+            ).join('')+
+            '<p class="v1321-provider-hint">Keys are encrypted on the server and are never displayed after saving.</p>'+
+            '<p class="v1321-provider-feedback" role="status" aria-live="polite"></p>'+
+            '<div class="actions"><button type="button" class="btn" data-save-provider>Verify Market Data & Save</button>'+
+            '<button type="button" class="btn secondary" data-cancel-provider>Cancel</button></div>';
+          document.body.appendChild(modal);
+          const close=()=>{modal.close();modal.remove()};
+          q('[data-cancel-provider]',modal).onclick=close;
+          modal.addEventListener('close',()=>modal.remove(),{once:true});
+          qa('[data-show-secret]',modal).forEach(button=>button.onclick=()=>{
+            const field=q('[data-provider-field]',button.parentElement);
+            const show=field.type==='password';field.type=show?'text':'password';
+            button.textContent=show?'Hide':'Show';
+          });
+          q('[data-save-provider]',modal).onclick=async()=>{
+            const btn=q('[data-save-provider]',modal),notice=q('.v1321-provider-feedback',modal);
+            const fields=qa('[data-provider-field]',modal);
+            if(fields.some(field=>!field.value.trim())){notice.textContent='Enter all required API credential fields.';return}
+            const values=Object.fromEntries(fields.map(field=>[field.dataset.providerField,field.value]));
+            const accountType=alpaca?q('input[name="alpacaAccount"]:checked',modal)?.value:null;
+            btn.disabled=true;notice.textContent='Verifying your credentials against the market-data provider…';
+            try{
+              const response=await api('/api/credentials?action=save',{method:'POST',
+                body:JSON.stringify({serviceCode:provider.code,values,...(alpaca?{accountType}:{})})});
+              if(response.verified!==true)throw Error('Market-data verification was not confirmed.');
+              close();await credentialList(host);toast('Market-data account verified and saved securely.','ok');
+            }catch(error){notice.textContent=error.message||'Connection verification failed. No credentials were changed.'}
+            finally{btn.disabled=false}
+          };
+          modal.showModal();
+        };
+        const verify=q('[data-verify]',card);
+        if(verify)verify.onclick=async()=>{
+          verify.disabled=true;status.textContent='Testing the saved Alpaca IEX connection…';
+          try{
+            const result=await api('/api/credentials?action=verify',{method:'POST',body:JSON.stringify({serviceCode:'ALPACA_BYO'})});
+            if(result.verified!==true)throw Error('Market-data test not confirmed.');
+            await credentialList(host);
+            toast('Alpaca IEX historical data verified.','ok');
+          }catch(error){status.textContent=error.message||'Alpaca market-data test failed.';verify.disabled=false}
+        };
+        const remove=q('[data-remove]',card);
+        if(remove)remove.onclick=async()=>{
+          if(!confirm('Remove your saved '+provider.name+' connection from this website account?'))return;
+          remove.disabled=true;
+          try{await api('/api/credentials?action=delete',{method:'POST',body:JSON.stringify({serviceCode:provider.code})});await credentialList(host)}
+          catch(error){status.textContent=error.message;remove.disabled=false}
+        };
+      });
+    }catch(error){host.innerHTML='<div class="fe-state error">'+esc(error.message)+'</div>'}
+  }
 
   async function settingsPanel(host){host.innerHTML=`<div class="v1321-settings"><nav class="v1321-settings-nav" aria-label="Settings sections">${[['account','Account'],['security','Security'],['connections','Connections & API Keys'],['book','Book Access'],['notifications','Notifications'],['accessibility','Display & Accessibility'],['privacy','Privacy'],['danger','Danger Zone']].map(([c,l])=>`<button type="button" data-setting="${c}">${l}</button>`).join('')}</nav><section class="v1321-settings-body" data-settings-body></section></div>`;const body=q('[data-settings-body]',host);let settingsRequest=0;async function show(code){const request=++settingsRequest;qa('[data-setting]',host).forEach(b=>b.classList.toggle('active',b.dataset.setting===code));if(code==='account'){let j={profile:{}};try{j=await api('/api/account?action=identity')}catch{}const p=j.profile||{},name=[p.firstName,p.lastName].filter(Boolean).join(' ')||'—';if(request!==settingsRequest)return;body.innerHTML=`<div class="v1321-section-head"><div><div class="eyebrow">Account</div><h2>Account Information</h2></div></div><article class="v13-card"><div class="v1324-account-facts"><div><span>Name</span><strong>${esc(name)}</strong></div><div><span>Username</span><strong>${p.username?`@${esc(p.username)}`:'—'}</strong></div></div><div class="v1324-email-edit"><label>Email Address<input type="email" data-email value="${esc(p.email||'')}" autocomplete="email"></label><button class="btn" type="button" data-change-email>Change Email</button></div></article>`;q('[data-change-email]',body)?.addEventListener('click',async()=>{const email=String(q('[data-email]',body)?.value||'').trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email)){toast('Enter a valid email address.','bad');return}if(email===String(p.email||'').toLowerCase()){toast('That is already your email address.','info');return}try{const sb=await getSB();if(!sb)throw new Error('Account service is unavailable.');const redirect=`${location.origin}/dashboard.html?tab=settings`;const {error}=await sb.auth.updateUser({email},{emailRedirectTo:redirect});if(error)throw error;toast('Email change requested. Check your email to confirm it.','ok')}catch(e){toast(e.message||'Unable to change email.','bad')}})}
     else if(code==='security'){const sb=await getSB(),ses=(await sb?.auth.getSession())?.data?.session,u=ses?.user;let timeout=30;try{const {data}=await sb.from('profiles').select('session_timeout_minutes').eq('id',u.id).maybeSingle();timeout=Number(data?.session_timeout_minutes||30)}catch{}if(request!==settingsRequest)return;body.innerHTML=`<div class="v1321-section-head"><div><div class="eyebrow">Security</div><h2>Security & Sessions</h2></div></div><article class="v13-card"><div class="v1321-security-list"><div><strong>Email verification</strong><span>${u?.email_confirmed_at?'Verified':'Not verified'}</span></div><div><strong>Last sign in</strong><span>${u?.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString():'Unavailable'}</span></div><label><strong>Automatic sign-out</strong><select data-timeout><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option><option value="480">8 hours</option><option value="1440">24 hours</option></select></label></div><div class="actions"><button class="btn" type="button" data-save-timeout>Save Security Settings</button><a class="btn secondary" href="signin.html?reset=1">Password / Sign-in Help</a></div></article>`;q('[data-timeout]',body).value=String(timeout);q('[data-save-timeout]',body).onclick=async()=>{try{const v=Number(q('[data-timeout]',body).value);const {error}=await sb.from('profiles').update({session_timeout_minutes:v}).eq('id',u.id);if(error)throw error;toast('Security settings saved.','ok')}catch(e){toast(e.message,'bad')}}}
