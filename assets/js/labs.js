@@ -40,12 +40,12 @@ async function loadRegistryRights(userId,epoch){
   if(j?.ok!==true||j.freeEligible!==true||!Array.isArray(j.bookCodes)||!Array.isArray(j.freeSampleIds))
    throw Error('Invalid entitlement response');
   if(epoch===progressSessionEpoch&&currentUser?.id===userId){registryRights=j;
-   document.body.dataset.labRegistryAccess='verified';
+   if(document.body?.dataset)document.body.dataset.labRegistryAccess='verified';
    const el=document.getElementById('lab-access-status');if(el)el.textContent='Your account access has been checked. Available Labs can be opened; locked Labs require additional access.';
   }
  }catch{
   if(epoch===progressSessionEpoch&&currentUser?.id===userId){registryRights=null;
-   document.body.dataset.labRegistryAccess='unavailable';
+   if(document.body?.dataset)document.body.dataset.labRegistryAccess='unavailable';
    const el=document.getElementById('lab-access-status');if(el)el.textContent='Member access could not be confirmed. Lab launch actions remain locked.';
   }
  }finally{
