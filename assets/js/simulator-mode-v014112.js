@@ -15,7 +15,7 @@
   a.setAttribute('aria-pressed',String(server));b.setAttribute('aria-pressed',String(!server));
   a.classList.toggle('secondary',!server);b.classList.toggle('secondary',server);
   note.textContent=server?
-   'Verified historical replay requires a genuinely source-verified, rights-cleared dataset and a matching entitlement. For instantly usable fictional practice, choose Start Free Practice.':
+   'Server-controlled original fictional scenarios are included for eligible signed-in Free members. Select the preloaded scenario below and choose Start Replay. Authentic historical replay remains separate and requires verified licensed data.':
    'Browser CSV practice loads the whole user-supplied price sequence locally; do not treat this as independently verified history, broker fills or server-graded no-lookahead work.';
   if(server&&!startedServer){
    startedServer=true;
@@ -26,11 +26,15 @@
    window.dispatchEvent(new Event('groundup:activate-legacy-simulator'));
   }
   if(server&&typeof window.GroundUpLegacySimulatorPause==='function')window.GroundUpLegacySimulatorPause();
-  if(focus)(server?s:l).querySelector('h2')?.focus?.();
+  if(focus){
+   const target=server?s:l,heading=target.querySelector('h2');
+   if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
+   target.scrollIntoView({block:'start',behavior:'smooth'});
+  }
  }
  function init(){
   if(!byId('sim-mode-server'))return;
-  byId('sim-mode-server').addEventListener('click',()=>selectMode('server'));
+  byId('sim-mode-server').addEventListener('click',()=>selectMode('server',{focus:true}));
   byId('sim-mode-csv').addEventListener('click',()=>selectMode('csv'));
   byId('sim-start-free')?.addEventListener('click',()=>{
    window.GroundUpFreePracticeRequested=true;
