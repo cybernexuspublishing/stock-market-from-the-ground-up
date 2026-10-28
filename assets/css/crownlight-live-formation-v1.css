@@ -1,0 +1,31 @@
+/* Crownlight Live Candle Formation — luminous obsidian trading desk. */
+.crownlight-live-control{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px 20px;padding:17px 20px;margin:12px 0;background:linear-gradient(111deg,#251647,#0f2942 62%,#102b35);border:1px solid #6f5aaf;border-radius:15px;box-shadow:inset 0 1px 0 #9ee5ff26,0 12px 32px #0005}
+.cl-live-brand{font-weight:900;letter-spacing:.16em;font-size:.71rem;color:#e3c0ff}
+.crownlight-live-intro p{margin:5px 0 0;max-width:610px;color:#ccdcee;font-size:.85rem;line-height:1.5}
+.crownlight-live-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.crownlight-live-buttons button{border:1px solid #7c6cba;min-height:40px;border-radius:10px;padding:9px 14px;font:inherit;font-weight:800;font-size:.82rem;color:#fff;cursor:pointer;transition:filter .15s ease}
+.crownlight-live-buttons button:hover:not(:disabled){filter:brightness(1.18)}
+.crownlight-live-buttons button:focus-visible{outline:2px solid #67e8ff;outline-offset:2px}
+.crownlight-live-buttons button:disabled{opacity:.43;cursor:not-allowed}
+.cl-live-live-btn{background:linear-gradient(125deg,#087b75,#0d8c9e);border-color:#40c9cb!important}
+.cl-live-demo-btn{background:linear-gradient(120deg,#7950c0,#4e54ba)}
+.cl-live-stop-btn{background:linear-gradient(130deg,#2d334b,#141b35)}
+.crownlight-live-status{flex:1 1 100%;color:#c3d3ee;font-size:.8rem;margin:0;line-height:1.5}
+.crownlight-live-status[data-kind="live"]{color:#67ffc8}
+.crownlight-live-status[data-kind="demo"]{color:#fbd381}
+.crownlight-live-status[data-kind="error"]{color:#ffb2bc}
+.crownlight-live-status[data-kind="connecting"]{color:#78dbff}
+.crownlight-live-stage{background:radial-gradient(ellipse at 80% 0,#20476638,transparent 40%),linear-gradient(150deg,#0a1932,#090d20);border:1px solid #42679c;border-radius:17px;margin:13px 0;padding:14px;box-shadow:0 16px 45px #0005;min-width:0}
+.crownlight-live-stage[hidden],.crownlight-live-suspended{display:none!important}
+.cl-live-stage-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 10px 11px}
+.cl-live-stage-head span{display:block;color:#74dcff;font-size:.72rem;font-weight:800;letter-spacing:.14em}
+.cl-live-stage-head strong{display:block;color:#fff;font-weight:800;font-variant-numeric:tabular-nums;font-size:clamp(.9rem,1.7vw,1.2rem);margin-top:5px}
+.cl-live-stage-head>strong{color:#ffe09a;font-size:clamp(1.5rem,2.7vw,2.3rem)}
+.cl-live-stage-strip{background:#10243b;color:#d6e9f7;border:1px solid #304d72;border-bottom:0;border-radius:12px 12px 0 0;padding:12px;font-size:.83rem;font-variant-numeric:tabular-nums;line-height:1.6}
+.cl-live-plot{height:540px;min-height:350px;border:1px solid #304d72;border-radius:0 0 12px 12px;background:#060d20;overflow:hidden}
+.cl-live-plot canvas{border:0!important;margin:0!important;max-height:none!important;border-radius:0!important;background:transparent!important;padding:0!important}
+.cl-live-stage-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 20px;margin:13px 5px 3px;color:#abd1e4;font-size:.78rem;line-height:1.5}
+.cl-live-stage-foot strong{color:#64f3c6}
+.cl-live-method{font-size:.75rem;color:#8da5c8;line-height:1.6;margin:12px 5px 3px}
+@media(max-width:650px){.crownlight-live-control{padding:13px}.crownlight-live-buttons{width:100%}.crownlight-live-buttons button{flex:1 1 auto}.crownlight-live-stage{padding:7px}.cl-live-plot{height:430px}.cl-live-stage-head{flex-wrap:wrap}.cl-live-stage-foot{font-size:.75rem}}
+@media(prefers-reduced-motion:reduce){.crownlight-live-buttons button{transition:none}}
