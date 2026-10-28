@@ -6,6 +6,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 node tests/test_journal_guided_integrity_v1.mjs
 # Journal V2 must pass before any main-branch production publication.
 node tests/test_journal_v2.mjs
+# Professional Journal V3: visual data integrity and no fabricated historical candles.
+node tests/test_journal_visual_v3.mjs
+for asset in assets/js/journal-visual-v3.js assets/js/journal-trade-story-v3.js; do
+  node --check "$asset"
+done
 for asset in assets/js/journal-v2-logic.js assets/js/journal-guided-v2.js assets/js/journal-weekly-v2.js; do
   node --check "$asset"
 done
