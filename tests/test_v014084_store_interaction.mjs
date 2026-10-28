@@ -12,7 +12,7 @@ const makeNode=(name)=>({name,innerHTML:'',hidden:false,dataset:{},tabIndex:0,
 const book=id=>({type:'book',productCode:id,shortTitle:id,title:'Educational '+id,storeVisible:true,salesStatus:'published',
   branchSlug:'foundations',author:'J. S. Grant',publisher:'Crown & Lantern Press',
   publicationStatus:'publication_candidate',amazon:{kindleUrl:'',paperbackUrl:'',hardcoverUrl:''},
-  directDigital:{enabled:false},directPhysical:{enabled:false},coverImageUrl:'/assets/images/books/foundation-book-1.webp'});
+  directDigital:{enabled:false},directPhysical:{enabled:false},coverImageUrl:'/assets/images/books/foundation-book-1.webp',metadata:id==='FOUNDATION_BOOK_1'?{amazon_listing_url:'https://www.amazon.com/dp/B0HMPSNLGS'}:{}});
 const pl=(id,cents,billing,allTools)=>({planCode:id,label:id,description:'Guided plan',priceCents:cents,billingInterval:billing,checkoutEnabled:true,allTools,allBooks:false});
 const betaToolCodes=new Set(['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR']);
 const tt=(code,status='live')=>({toolCode:code,name:code,description:'Teaching tool',priceCents:2999,status,category:'Learn',freePreview:false,href:'learn.html',checkoutEnabled:status==='live',betaTestingReady:status==='live'&&betaToolCodes.has(code)});
@@ -69,6 +69,8 @@ assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must 
 assert.equal(nodes['store-panel-founders'].hidden,true);
 assert.equal(nodes['store-panel-tools'].hidden,true);
 assert.equal((nodes['store-products'].innerHTML.match(/Explore Book &amp; Purchase Options/g)||[]).length,5);
+assert.match(nodes['store-products'].innerHTML,/View Amazon listing/,'Owner-supplied retailer link must be visible for books');
+assert.doesNotMatch(nodes['store-products'].innerHTML,/Buy Kindle on Amazon/,'Unverified retail format must not be invented');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Bundled products/,'Nonbooks must not appear in Books');
 assert.equal(nodes['store-plans'].innerHTML,'','Legacy membership plans are not offered');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Choose This Membership/);
