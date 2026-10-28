@@ -19,7 +19,7 @@ create table if not exists public.journal_evidence_v1 (
  constraint journal_evidence_key_shape_v1 check(
    split_part(object_key,'/',1)=user_id::text and
    split_part(object_key,'/',2)=journal_id::text and
-   object_key ~ ('^'||user_id::text||'/'||journal_id::text||'/[0-9a-f-]{36}\\.(png|jpg|jpeg|webp)$')
+   object_key ~ ('^'||user_id::text||'/'||journal_id::text||'/[0-9a-f-]{36}[.](png|jpg|jpeg|webp)$')
  )
 );
 create index if not exists journal_evidence_v1_owner_idx on public.journal_evidence_v1(user_id,journal_id,created_at desc);
@@ -36,14 +36,29 @@ drop policy if exists journal_evidence_v1_insert_own on public.journal_evidence_
 create policy journal_evidence_v1_insert_own on public.journal_evidence_v1
  for insert to authenticated with check((select auth.uid())=user_id and
    exists(select 1 from public.decision_journal j
-     where j.id=journal_id and j.user_id=(select auth.uid())) and
-   (select count(*) from public.journal_evidence_v1 e
-      where e.journal_id=journal_id and e.user_id=(select auth.uid()))<6);
+     where j.id=journal_id and j.user_id=(select auth.uid())));
 drop policy if exists journal_evidence_v1_delete_own on public.journal_evidence_v1;
 create policy journal_evidence_v1_delete_own on public.journal_evidence_v1
  for delete to authenticated using((select auth.uid())=user_id and
    exists(select 1 from public.decision_journal j
      where j.id=journal_id and j.user_id=(select auth.uid())));
+
+-- Serialize same-Journal uploads and impose a server-side six-image cap.
+create or replace function public.journal_evidence_v1_enforce_cap()
+returns trigger language plpgsql security invoker set search_path=public as $
+begin
+ perform 1 from public.decision_journal j where j.id=new.journal_id
+  and j.user_id=auth.uid() for update;
+ if not found then raise exception 'Journal evidence ownership verification failed'; end if;
+ if (select count(*) from public.journal_evidence_v1 e
+   where e.journal_id=new.journal_id and e.user_id=new.user_id)>=6 then
+    raise exception 'Journal evidence limit reached (6 images per record)';
+ end if;
+ return new;
+end $;
+drop trigger if exists journal_evidence_v1_limit on public.journal_evidence_v1;
+create trigger journal_evidence_v1_limit before insert on public.journal_evidence_v1
+ for each row execute function public.journal_evidence_v1_enforce_cap();
 
 -- Storage paths use user_uuid/journal_id/random_uuid.ext. Never expose a public bucket.
 -- Restrict storage writes and reads to an existing journal owned by the caller.
@@ -54,6 +69,8 @@ create policy gu_journal_evidence_select_v1 on storage.objects
  and (storage.foldername(name))[1]=(select auth.uid())::text
  and exists(select 1 from public.decision_journal j
   where j.user_id=(select auth.uid()) and j.id::text=(storage.foldername(name))[2])
+ and exists(select 1 from public.journal_evidence_v1 e
+   where e.user_id=(select auth.uid()) and e.object_key=name)
 );
 drop policy if exists gu_journal_evidence_insert_v1 on storage.objects;
 create policy gu_journal_evidence_insert_v1 on storage.objects
@@ -62,6 +79,8 @@ create policy gu_journal_evidence_insert_v1 on storage.objects
  and (storage.foldername(name))[1]=(select auth.uid())::text
  and exists(select 1 from public.decision_journal j
   where j.user_id=(select auth.uid()) and j.id::text=(storage.foldername(name))[2])
+ and exists(select 1 from public.journal_evidence_v1 e
+   where e.user_id=(select auth.uid()) and e.object_key=name)
 );
 drop policy if exists gu_journal_evidence_delete_v1 on storage.objects;
 create policy gu_journal_evidence_delete_v1 on storage.objects
@@ -70,4 +89,6 @@ create policy gu_journal_evidence_delete_v1 on storage.objects
  and (storage.foldername(name))[1]=(select auth.uid())::text
  and exists(select 1 from public.decision_journal j
   where j.user_id=(select auth.uid()) and j.id::text=(storage.foldername(name))[2])
+ and exists(select 1 from public.journal_evidence_v1 e
+   where e.user_id=(select auth.uid()) and e.object_key=name)
 );
