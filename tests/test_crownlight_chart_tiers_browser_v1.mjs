@@ -18,9 +18,15 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disab
 try {
 for(const [tier,expected] of [['STANDARD',0],['ADVANCED',1],['PROFESSIONAL',2]]) {
 const context=await browser.newContext({viewport:{width:1280,height:900}});
-await context.addInitScript(()=>{const user={id:'11111111-1111-4111-8111-111111111111'};
+let grantedTier=tier;
+await context.addInitScript(()=>{
+let user={id:'11111111-1111-4111-8111-111111111111'};
 let signedIn=true,handler=null;
 window.__qaSignOut=()=>{signedIn=false;handler?.('SIGNED_OUT',{session:null})};
+window.__qaSwitchUser=()=>{user={id:'22222222-2222-4222-8222-222222222222'};
+ handler?.('SIGNED_IN',{user,access_token:'mock'});};
+window.__qaTokenRefresh=()=>handler?.('TOKEN_REFRESHED',{user,access_token:'mock'});
+window.__qaExpireClock=()=>{const now=Date.now();Date.now=()=>now+7200000};
 window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:signedIn?{user,access_token:'mock'}:null}}),
 onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}}}});});
 const page=await context.newPage(),errors=[];page.on('pageerror',x=>errors.push(x.message));
@@ -31,7 +37,8 @@ if(u.origin!==origin)return route.abort();
 if(u.pathname==='/api/chart-workspace')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,tier,workspace:{version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]},updatedAt:null})});
 if(u.pathname==='/api/simulator-lab-context')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,labId:'F1-C02-L01',title:'Free Foundations Sample',referenceDate:null})});
 if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',
-body:JSON.stringify({ok:true,eligible:true,tier,allowed:tier==='STANDARD'?['STANDARD']:tier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL']})});
+body:JSON.stringify({ok:true,eligible:true,tier:grantedTier,allowed:grantedTier==='STANDARD'?['STANDARD']:grantedTier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL'],
+temporaryAccess:grantedTier==='PROFESSIONAL'?{kind:'SPARKS',tier:'PROFESSIONAL',expiresAt:new Date(Date.now()+3600000).toISOString()}:undefined})});
 if(u.pathname==='/')return route.fulfill({status:200,contentType:'text/html',body:html});
 const f=join(root,u.pathname.slice(1)),ext=extname(f);
 if(!f.startsWith(root+'/')||!existsSync(f))return route.fulfill({status:404,body:''});
@@ -50,6 +57,16 @@ await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',
 if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
 assert.equal(await page.locator('.cl-tier-kline-canvas').count(),expected);
+assert.equal(await page.locator('.cl-tier-chart-summary').count(),expected,
+ 'Every chart has one separate readable OHLCV summary');
+const firstSummary=await page.locator('.cl-tier-chart-summary').first().innerText();
+assert.match(firstSummary,/GUFICTION/);
+assert.match(firstSummary,/Open/);
+assert.match(firstSummary,/Close/);
+assert.match(firstSummary,/11\.0000/);
+await page.locator('.cl-tier-study-readout').first().evaluate(el=>el.open=true);
+assert.match(await page.locator('[data-cl-summary-study-values]').first().innerText(),/EMA|VOL/);
+assert.equal(await page.locator('.cl-tier-study-readout').first().evaluate(el=>el.open),true);
 assert.equal(await page.locator('.crownlight-shell').isVisible(),false,'Enhanced Studio must not display duplicate Standard chart/player');
 const canvasStyles=await page.locator('.cl-tier-kline-canvas canvas').first().evaluate(c=>{
  const s=getComputedStyle(c);return {border:s.borderTopWidth,marginTop:s.marginTop,maxHeight:s.maxHeight}
@@ -148,11 +165,71 @@ if(tier==='PROFESSIONAL'){
  });
  assert(Number.isSafeInteger(result.received),'Synchronized view must receive a real timestamp');
  assert(result.received<=result.last,'Chart sync must never request a later, unrevealed candle');
+ // Unequal studies (left VOL+RSI; right VOL+MACD+RSI) must not make unequal cards.
+ await page.waitForFunction(()=>{
+  const e=window.CrownlightChartTiers.getInstances();
+  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
+ });
+ const initialHeights=await page.locator('.cl-tier-kline-canvas').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));
+ assert(initialHeights.every(h=>h>=550),'Price + separate studies remain readable');
+ await page.locator('[data-cl-layout]').selectOption('STACKED');
+ await page.waitForFunction(()=>{
+  const e=window.CrownlightChartTiers.getInstances();
+  return e.length===2&&e[0].host.getBoundingClientRect().height<e[1].host.getBoundingClientRect().height;
+ });
+ await page.locator('[data-cl-layout]').selectOption('SIDE_BY_SIDE');
+ await page.waitForFunction(()=>{
+  const e=window.CrownlightChartTiers.getInstances();
+  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
+ });
+ await page.setViewportSize({width:820,height:1000});
+ await page.waitForFunction(()=>{
+  const grid=document.querySelector('.cl-chart-tier-panels'),cols=getComputedStyle(grid).gridTemplateColumns.split(' ');
+  const e=window.CrownlightChartTiers.getInstances();
+  return cols.length===1&&e.length===2&&e[0].host.getBoundingClientRect().height<e[1].host.getBoundingClientRect().height;
+ });
+ await page.setViewportSize({width:1280,height:900});
+ await page.waitForFunction(()=>{
+  const e=window.CrownlightChartTiers.getInstances();
+  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
+ });
+ console.log('PASS Professional equal-height desktop charts, independent stacked/mobile heights, and compact OHLCV.');
 }
 await page.locator('[data-cl-save]').click();
 await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
 if(tier==='PROFESSIONAL'){
  await page.locator('[data-cl-studies]').fill('EMA, RSI');
+ // Account switching must remove the previous member's candles and saved labels
+ // before a new member can be shown any chart.
+ await page.evaluate(()=>window.__qaSwitchUser());
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().revealed===0&&
+  window.CrownlightChartTiers.getStatus().charts===0);
+ assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Account switch must remove both private charts');
+ assert.equal(await page.locator('[data-cl-studies]').inputValue(),'','Account switch must clear prior saved study labels');
+ await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{
+  symbol:'NEW-SYNTHETIC',timeframe:'1-minute',bars:b}})),two);
+ await page.locator('.cl-chart-tier-bar select').selectOption('PROFESSIONAL');
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().charts===2);
+ // A revoked permission observed on token refresh must immediately downgrade.
+ grantedTier='STANDARD';
+ await page.evaluate(()=>window.__qaTokenRefresh());
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().verified===true&&
+  window.CrownlightChartTiers.getStatus().selected==='STANDARD'&&
+  window.CrownlightChartTiers.getStatus().charts===0);
+ assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Revoked Studio cannot leave premium canvases');
+ // Regrant in the deterministic fixture, then advance the clock past a
+ // short-lived Sparks pass and confirm the 1-second countdown rechecks server.
+ grantedTier='PROFESSIONAL';
+ await page.evaluate(()=>window.__qaTokenRefresh());
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().tier==='PROFESSIONAL');
+ await page.locator('.cl-chart-tier-bar select').selectOption('PROFESSIONAL');
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().charts===2);
+ grantedTier='STANDARD';
+ await page.evaluate(()=>window.__qaExpireClock());
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().tier==='STANDARD'&&
+  window.CrownlightChartTiers.getStatus().charts===0,null,{timeout:6000});
+ assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Expired Sparks pass must remove Professional charts');
+ console.log('PASS account-switch cleanup, entitlement revocation and expiring Sparks downgrade (mocked backend, real browser).');
  await page.evaluate(()=>window.__qaSignOut());
  await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().verified===false);
  assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Sign out must scrub the private Professional workspace');
