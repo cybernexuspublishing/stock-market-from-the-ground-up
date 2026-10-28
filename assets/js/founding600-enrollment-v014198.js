@@ -5,12 +5,13 @@
 const el=id=>document.getElementById(id);
 async function init(){
  // Do not display founding offer pages after general launch or sold-out capacity.
+ let offer=null;
  try{const r=await fetch('/api/founding-offer-status',{cache:'no-store'});
-  const state=r.ok?await r.json():null;
-  if(state?.ok===true&&state.offersVisible!==true){
-   location.replace('store.html#'+(state.publicLaunch?'memberships':'books'));return;
-  }
+  offer=r.ok?await r.json():null;
  }catch{}
+ if(offer?.ok!==true||offer.offersVisible!==true){
+  location.replace('store.html#'+(offer?.publicLaunch?'memberships':'books'));return;
+ }
  const status=el('f600-enrollment-status'),form=el('f600-enrollment-form'),
  closed=el('f600-enrollment-closed'),submit=el('f600-enroll-button'),feedback=el('f600-enrollment-feedback');
  let enabled=false;
