@@ -66,7 +66,11 @@ async function originalGuides(env,request,question){
  }catch{return []}
 }
 function answerFromGuide(g,mode,answer){
- const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;
+ const links=(g.researchGuide===true&&Array.isArray(g.sourceUrls)?g.sourceUrls:[])
+  .filter(u=>typeof u==='string'&&/^https:\/\/(www\.investor\.gov|www\.sec\.gov|www\.finra\.org|toslc\.thinkorswim\.com)\//.test(u)).slice(0,2);
+ const evidence=g.researchGuide===true?'\n\nResearch note: This is an original educational explanation informed by the owner's STT source studies, not a verified market event or profitable-strategy claim.'+
+  (links.length?'\nAdditional public regulatory/platform reference (not evidence of historical performance): '+links.join(' '):''):'';
+ const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation+evidence;
  if(mode==='question')return main+'\n\nUngraded self-check: '+g.selfCheck;
  if(mode==='review')return main+'\n\nUse this review criterion: '+g.reviewExplanation+' no rubric was graded or scored.\n\n'+ungradedResponseReview(answer);
  return main+'\n\nCommon error to avoid: '+g.commonError+'\n\nPractice: '+g.selfCheck;

@@ -53,6 +53,8 @@ const req=new Request('https://example.test/api/market-tutor');
 const hits=await originalGuides({ASSETS:sourceAsset},req,'Regulation SHO SSR short-sale restriction');
 assert(hits.some(g=>g.code==='SSR_SHO'));
 assert(answerFromGuide(hits.find(g=>g.code==='SSR_SHO'),'explain','').includes('Supplementary ungraded'));
+assert(answerFromGuide(hits.find(g=>g.code==='SSR_SHO'),'explain','').includes('https://www.sec.gov/investor/pubs/regsho.htm'));
+assert(answerFromGuide(hits.find(g=>g.code==='SSR_SHO'),'explain','').includes('not a verified market event'));
 const missing={fetch:async req=>new URL(req.url).pathname==='/data/competency-study-guides-v01499.json'
  ?Response.json(base):Response.json({error:'optional catalog disabled'},{status:503})};
 const fallback=await originalGuides({ASSETS:missing},req,'candlestick wick candle body');
