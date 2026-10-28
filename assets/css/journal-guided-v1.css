@@ -31,3 +31,12 @@
 .gu-evidence-item img{max-width:100%;height:auto;max-height:360px;object-fit:contain;display:block;margin:10px 0;border:1px solid #38536d;border-radius:6px}
 .gu-evidence-item button{margin-top:8px}
 @media(max-width:620px){.gu-evidence-list{grid-template-columns:1fr}}
+
+#gu-actual-history{margin:18px 0}
+.gu-history-item{margin:10px 0;border:1px solid #38536d;border-radius:8px;background:#081b2b;padding:10px}
+.gu-history-item summary{cursor:pointer;font-weight:700}
+.gu-history-item summary:focus-visible{outline:2px solid #f4cc72;outline-offset:3px}
+.gu-history-fields{display:grid;grid-template-columns:minmax(100px,180px) minmax(0,1fr);gap:6px 10px;overflow-wrap:anywhere}
+.gu-history-fields dt{color:#9db4c6}.gu-history-fields dd{margin:0;white-space:pre-wrap}
+.gu-weekly{margin:18px 0}.gu-weekly ul{margin:8px 0;padding-left:24px}
+@media(max-width:620px){.gu-history-fields{grid-template-columns:1fr}}
