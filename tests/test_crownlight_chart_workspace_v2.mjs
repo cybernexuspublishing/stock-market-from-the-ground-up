@@ -30,6 +30,7 @@ globalThis.fetch=async(input,opts={})=>{const u=new URL(input);assert.equal(u.or
  if(u.pathname==='/rest/v1/gu_founder_members_v014173')return j(u.searchParams.has('user_id')?[{revoked_at:null}]:[]);
  if(u.pathname==='/rest/v1/gu_founder_paid_cycles_v014173')return j([{plan_code:'FOUNDING_60',billing_start:before,billing_end:after,reversed_at:null}]);
  if(u.pathname==='/rest/v1/gu_founder_reservations_v014173'||u.pathname==='/rest/v1/user_plan_grants')return j([]);
+ if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return j([]);
  if(u.pathname==='/rest/v1/crownlight_chart_workspaces_v1'){
   if(opts.method==='POST'){const b=JSON.parse(opts.body);assert.equal(b.user_id,uid,'Server must bind signed-in identity');
    assert(!('access_token' in b.settings));db={settings:b.settings,updated_at:after};return j([db])}
