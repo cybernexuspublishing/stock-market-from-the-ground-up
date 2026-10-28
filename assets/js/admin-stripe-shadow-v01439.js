@@ -461,7 +461,17 @@
    if(typeof fn!=='function')throw Error('Owner password confirmation required.');
    await fn();({r,data}=await perform());
   }
-  if(!r.ok||data?.ok!==true)throw Error(QA_FAILED[data?.error]||('LIVE $0 QA unavailable: '+String(data?.error||r.status)));
+  if(!r.ok||data?.ok!==true){
+   let reason=QA_FAILED[data?.error]||('LIVE $0 QA unavailable: '+String(data?.error||r.status));
+   if(data?.error==='ZERO_CHECKOUT_NOT_SUPPORTED'){
+    const info=data?.stripeDiagnostic||{};
+    const details=[info.code?'Code: '+info.code:null,info.param?'Parameter: '+info.param:null,
+     info.httpStatus?'HTTP '+info.httpStatus:null,info.requestId?'Stripe request: '+info.requestId:null].filter(Boolean);
+    if(details.length)reason+=' Stripe diagnostic: '+details.join(' · ')+'.';
+    else reason+=' Stripe did not provide a machine-readable error; check LIVE API request logs.';
+   }
+   throw Error(reason);
+  }
   return data;
  }
  zeroCheck.addEventListener('click',async()=>{
