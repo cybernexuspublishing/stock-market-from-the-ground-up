@@ -325,14 +325,14 @@
 
 
  function mountFreeLessonStages(mount,d){
-  // Keep every authored example, correction, formative check and the existing
-  // private reflection flow. Stages change visibility, not grading or progress.
-  const names=['Learn','Observe','Practice','Correct','Transfer','Check'];
+  // Use the shared nine-stage teaching sequence without inventing assessment
+  // grades. Existing private reflections and authorized Lab engines are unchanged.
+  const names=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'];
   const headings={
-   'Talia explains — start from zero knowledge':0,'Why this matters':0,
-   'Worked FICTIONAL demonstration':1,'Guided practice — your turn':2,
-   'Independent evidence investigation':4,'When NOT to act':4,
-   'Common research error':4,'Transfer to a new case':4,
+   'Talia explains — start from zero knowledge':1,'Why this matters':1,
+   'Worked FICTIONAL demonstration':2,'Guided practice — your turn':4,
+   'Independent evidence investigation':7,'When NOT to act':7,
+   'Common research error':7,'Transfer to a new case':7,
    'Check your understanding — ungraded':5
   };
   const frame=node('section');frame.className='academy-free-journey';
@@ -344,12 +344,12 @@
    const panel=node('section');panel.id='academy-free-stage-'+i;panel.className='academy-free-stage';
    panel.setAttribute('aria-label',name);return panel;
   });
-  let stage=0;
+  let stage=1;
   for(const item of [...mount.childNodes]){
    if(item.nodeType===1&&item.tagName==='H4'&&Object.prototype.hasOwnProperty.call(headings,item.textContent.trim()))
     stage=headings[item.textContent.trim()];
-   else if(item.nodeType===1&&item.classList.contains('academy-free-phase-a'))stage=3;
-   else if(item.nodeType===1&&item.classList.contains('academy-source-claim-case'))stage=4;
+   else if(item.nodeType===1&&item.classList.contains('academy-free-phase-a'))stage=6;
+   else if(item.nodeType===1&&item.classList.contains('academy-source-claim-case'))stage=7;
    panels[stage].append(item);
   }
   // One practical observation response before showing the full review.
@@ -365,7 +365,16 @@
     'Which facts support your answer, and what remains unknown?')+
     ' This is an instructional hint, not an automated correctness grade.';
   });
-  panels[2].append(node('label','Your turn — explain what you observed and what is still unknown'),field,ask,feedback);
+  panels[4].append(node('label','Your turn — explain what you observed and what is still unknown'),field,ask,feedback);
+  panels[0].append(node('h4','Your learning goal'),node('p',d.objective),
+   node('p','Talia will teach the concepts and worked examples before you practice. You may complete these lessons at your own pace.'));
+  panels[3].append(node('h4','Identify the unknown, not the future outcome'),
+   node('p',d.limitation||d.caution||'Do not predict the next candle from incomplete evidence.'),
+   node('p','Before you act, identify one missing fact and one observation that would change your interpretation.'));
+  const finish=node('button','Go to my private reflection');finish.type='button';finish.className='btn secondary';
+  finish.addEventListener('click',()=>get('academy-reflection')?.focus());
+  panels[8].append(node('h4','Record what you understand'),
+   node('p','Return to any stage to correct your reasoning. Explain your observations, what remains uncertain, and what you would do next. Save your private study reflection below. This is not a grade, pass, or mastery award.'),finish);
   const controls=node('nav');controls.className='academy-free-stage-controls';
   controls.setAttribute('aria-label','Guided lesson navigation');
   const previous=node('button','Previous step');previous.type='button';previous.className='btn secondary';
