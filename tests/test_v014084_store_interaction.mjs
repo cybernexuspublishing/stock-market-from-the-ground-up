@@ -14,7 +14,8 @@ const book=id=>({type:'book',productCode:id,shortTitle:id,title:'Educational '+i
   publicationStatus:'publication_candidate',amazon:{kindleUrl:'',paperbackUrl:'',hardcoverUrl:''},
   directDigital:{enabled:false},directPhysical:{enabled:false},coverImageUrl:'/assets/images/books/foundation-book-1.webp'});
 const pl=(id,cents,billing,allTools)=>({planCode:id,label:id,description:'Guided plan',priceCents:cents,billingInterval:billing,checkoutEnabled:true,allTools,allBooks:false});
-const tt=(code,status='live')=>({toolCode:code,name:code,description:'Teaching tool',priceCents:2999,status,category:'Learn',freePreview:false,href:'learn.html',checkoutEnabled:status==='live'});
+const betaToolCodes=new Set(['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR']);
+const tt=(code,status='live')=>({toolCode:code,name:code,description:'Teaching tool',priceCents:2999,status,category:'Learn',freePreview:false,href:'learn.html',checkoutEnabled:status==='live',betaTestingReady:status==='live'&&betaToolCodes.has(code)});
 const plans=[pl('FREE',0,'none',false),pl('FULL_MONTHLY',6999,'month',true),pl('FULL_ANNUAL',69900,'year',true),
  pl('LIFETIME',249900,'lifetime',true),pl('ONDEMAND_MONTHLY',1999,'month',false),
  pl('PICK_WHAT_YOU_WANT',0,'none',false),pl('QA_TEST',0,'month',true),
@@ -70,7 +71,9 @@ assert.equal(nodes['store-membership-compare'].innerHTML,'','Legacy membership c
 assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/\$29\.99/,'Existing beta-tool prices must be displayed');
-assert.match(nodes['store-tools'].innerHTML,/Approved beta testing/);
+assert.equal((nodes['store-tools'].innerHTML.match(/Beta Testing Ready/g)||[]).length,4,'Exactly four sale-ready tools are marked for beta evaluation');
+assert.match(nodes['store-tools'].innerHTML,/Beta in development/);
+assert.doesNotMatch(nodes['store-tools'].innerHTML,/Beta OPEN/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
@@ -132,6 +135,8 @@ const missing=await detail('plan','FULL_MONTHLY',{plans:[]});
 assert.doesNotMatch(missing,/Review plan &amp; secure checkout|Review plan & secure checkout/);
 const tool=await detail('tool','MARKET_SIMULATOR');
 assert.match(tool,/29\.99/);assert.match(tool,/checkout\.html\?type=tool/);assert.match(tool,/no-look-ahead/i);
+assert.match(tool,/Beta Testing Ready/);
+assert.match(tool,/not completed member acceptance/i);
 const unreleased=await detail('tool','MARKET_SIMULATOR',{tools:[tt('MARKET_SIMULATOR','paused')]});
 assert.doesNotMatch(unreleased,/Subscribe Now/);
 const bookPage=await detail('book','FOUNDATION_BOOK_1');

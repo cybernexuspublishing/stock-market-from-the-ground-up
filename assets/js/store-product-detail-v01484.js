@@ -86,6 +86,8 @@ function toolDetail(t,guide,code){
  const actions=buyEnabled?button('Subscribe Now — secure checkout',`checkout.html?type=tool&code=${encodeURIComponent(code)}`):
  '<span class="store-soon-label">Coming Soon · Enrollment not yet available</span>';
  const sections=[
+ t?.betaTestingReady===true&&released?
+ '<section class="store-product-section" aria-label="Beta testing status"><h2>Beta Testing Ready</h2><p>Owner-authorized for Founding 600 member testing. This is not completed member acceptance, a verified trading result, or confirmation that payment is currently available. Checkout and entitlements are verified separately.</p></section>':'',
  list('What you’ll learn and practice',guide?.outcomes),
  list('What individual tool access includes',guide?.included),
  list('What this purchase does not include',guide?.excluded),

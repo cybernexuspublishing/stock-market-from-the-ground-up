@@ -72,6 +72,10 @@ on:
       - "assets/js/admin-stripe-shadow-v01439.js"
       - "tests/test_v014071_zero_live_checkout.mjs"
       - "functions/api/storefront-public-catalog.js"
+      - "assets/js/commerce-common.js"
+      - "assets/js/store-product-detail-v01484.js"
+      - "tests/test_beta_testing_ready_catalog_v1.mjs"
+      - "tests/test_v014084_store_interaction.mjs"
       - "supabase/migrations/20261027_owner_approved_store_price_display_reconciliation_v1.sql"
       - "store.html"
       - "store-sparks.html"
@@ -91,6 +95,8 @@ jobs:
           node-version: '22'
       - name: Main catalog and release boundaries
         run: |
+          node tests/test_beta_testing_ready_catalog_v1.mjs
+          node tests/test_v014084_store_interaction.mjs
           node tests/test_v014174_unified_storefront_inventory.mjs
           node tests/test_v014175_admin_prelaunch_inventory.mjs
           node tests/test_v014175_owner_product_overlays.mjs

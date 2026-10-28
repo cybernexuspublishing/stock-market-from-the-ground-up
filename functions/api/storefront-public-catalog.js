@@ -19,15 +19,23 @@ export async function onRequestGet({env}){
   // Cross-check the canonical membership visibility registry; storefront
   // listing flags must not expose plans the Owner has explicitly hidden.
   const plansQuery='platform_plans?select=plan_code,public_visible,active&limit=150';
-  const [r,p,layoutResponse,founder]=await Promise.all([
+  const [r,p,layoutResponse,founder,toolResponse]=await Promise.all([
    fetch(base+'/rest/v1/'+query,{headers,cache:'no-store'}),
    fetch(base+'/rest/v1/'+plansQuery,{headers,cache:'no-store'}),
    fetch(base+'/rest/v1/gu_store_layout_v1?select=tool_columns,tool_rows,catalog_columns,catalog_rows&singleton=eq.true&limit=1',{headers,cache:'no-store'}).catch(()=>null),
-   foundingOfferState(env)
+   foundingOfferState(env),
+   fetch(base+'/rest/v1/platform_tools?select=tool_code,status,active,public_visible,checkout_enabled,metadata&limit=150',{headers,cache:'no-store'}).catch(()=>null)
   ]);
   if(!r.ok||!p.ok)return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
   const [rows,plans]=await Promise.all([r.json(),p.json()]);
   if(!Array.isArray(rows)||rows.length>150||!Array.isArray(plans)||plans.length>150)throw Error('Invalid catalog');
+  // Canonical Tool registry authorization is independent of listing/sale status.
+  // Missing registry evidence fails closed rather than showing a readiness badge.
+  const toolRows=toolResponse?.ok?await toolResponse.json().catch(()=>[]):[];
+  const betaReadyTools=new Set((Array.isArray(toolRows)&&toolRows.length<=150?toolRows:[])
+   .filter(t=>t&&t.active===true&&t.public_visible===true&&t.checkout_enabled===true&&t.status==='live'&&
+    t.metadata?.beta_testing?.status==='ready_for_beta_testing')
+   .map(t=>String(t.tool_code||'')));
   const visiblePlans=new Set(plans.filter(x=>x?.active===true&&x.public_visible===true).map(x=>String(x.plan_code||'')));
   const knownPlans=new Set(plans.map(x=>String(x.plan_code||'')));
   const items=rows.filter(x=>x?.visible===true&&allowedCats.has(x.category)&&
@@ -37,7 +45,10 @@ export async function onRequestGet({env}){
    sku:limited(x.sku,90),category:x.category,name:limited(x.display_name,220),
    description:limited(x.description,1600),price:limited(x.price_label,100),
    duration:limited(x.duration_label,100),status:statuses.has(x.status)?x.status:'unavailable',
-   saleReady:x.sale_ready===true,updatedAt:/^\d{4}-\d{2}-\d{2}T/.test(String(x.updated_at||''))?x.updated_at:null,
+   saleReady:x.sale_ready===true,
+   betaTestingReady:x.category==='tool'&&x.sale_ready===true&&x.status==='for_sale'&&
+     betaReadyTools.has(String(x.sku).slice(5)),
+   updatedAt:/^\d{4}-\d{2}-\d{2}T/.test(String(x.updated_at||''))?x.updated_at:null,
    displayOrder:Number.isInteger(x.display_order)?x.display_order:9999,
    // Only local, rootless .html product destinations may be exposed.
    page:/^[a-z0-9-]+\.html$/.test(String(x.product_page||''))?x.product_page:null

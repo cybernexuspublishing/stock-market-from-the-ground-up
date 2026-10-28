@@ -34,7 +34,9 @@ window.CommerceTools=(function(){'use strict';
   function mapTool(t){return {
     toolCode:t.tool_code,name:t.name,category:t.category,description:t.description||'',href:t.href||'',
     status:t.status,priceCents:Number(t.individual_price_cents||0),checkoutUrl:t.individual_checkout_url||'',
-    freePreview:!!t.free_preview,sortOrder:Number(t.sort_order||100),checkoutEnabled:!!t.checkout_enabled,lemonVariantId:t.lemon_variant_id||''
+    freePreview:!!t.free_preview,sortOrder:Number(t.sort_order||100),checkoutEnabled:!!t.checkout_enabled,lemonVariantId:t.lemon_variant_id||'',
+    betaTestingReady:t.active===true&&t.public_visible===true&&t.status==='live'&&t.checkout_enabled===true&&
+      t.metadata?.beta_testing?.status==='ready_for_beta_testing'
   }}
   async function staticLoad(){const [cfg,products]=await Promise.all([
     fetch('data/commerce-config.json',{cache:'no-store'}).then(r=>r.json()),

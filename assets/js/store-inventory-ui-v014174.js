@@ -42,7 +42,9 @@ function detail(x){
  return 'store-upcoming-product.html?sku='+encodeURIComponent(code);
 }
 function label(x){
- return x.saleReady?'Purchase subject to secure checkout verification':
+ return x.betaTestingReady===true&&x.saleReady===true&&String(x.sku).startsWith('tool:')?
+ 'Beta Testing Ready · Founding 600 member testing pending; checkout independently verified':
+ x.saleReady?'Purchase subject to secure checkout verification':
  x.status==='coming_soon'?'Coming Soon · Beta / development':
  x.status==='listed'?'Listed · Purchasing not yet enabled':'Not available to purchase';
 }
@@ -53,7 +55,7 @@ function summary(x){const d=clean(x.description).replace(/\s+/g,' ');return d.le
 function cards(items){
  return items.map(x=>`<article class="product-card store-sell-card" data-store-sku="${escapeHtml(x.sku)}">
  ${image(x)}<div class="eyebrow">${escapeHtml(x.category)}</div>
- <span class="store-soon-label">${escapeHtml(label(x))}</span>
+ <span class="${x.betaTestingReady===true?'store-beta-ribbon':'store-soon-label'}">${escapeHtml(label(x))}</span>
  <h2>${escapeHtml(x.name)}</h2>
  <p class="gu-catalog-summary">${summary(x)}</p>
  <p><strong>Price:</strong> ${escapeHtml(x.price||'Pricing to be confirmed')}</p>

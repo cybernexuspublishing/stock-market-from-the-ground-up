@@ -83,10 +83,10 @@ function toolCard(t){
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
  '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Beta / development · Individual checkout unavailable')+'</span>';
  return `<article class="v11-tool-card store-sell-card">${toolImages[t.toolCode]?`<a class="store-tool-visual" href="${esc(page)}" aria-label="Explore ${esc(t.name)}"><img src="${esc(toolImages[t.toolCode])}" alt="" loading="lazy" width="640" height="320"></a>`:'<div class="store-tool-visual store-tool-visual-generic" aria-hidden="true"></div>'}<div class="eyebrow">${esc(t.category)}</div>
- <span class="store-beta-ribbon">${enroll?'Beta OPEN':t.status==='beta'?'Approved beta testing':released?'Released tool':'Individual checkout unavailable'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
+ <span class="store-beta-ribbon">${t.betaTestingReady===true&&released?'Beta Testing Ready':t.status==='beta'?'Beta in development':released?'Released tool':'Individual checkout unavailable'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
  <p class="gu-tool-description">${toolSummary(t,page)}</p>
  <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
- <p class="store-sell-status">${released?'Released learning tool':t.status==='beta'?'Beta learning tool':'Not currently released'}${released&&!enroll?' · Individual sales pending':''}</p>
+ <p class="store-sell-status">${t.betaTestingReady===true&&released?'Ready for Founding 600 member evaluation · Not yet beta-accepted':released?'Released learning tool':t.status==='beta'?'Beta learning tool':'Not currently released'}${released&&!enroll?' · Individual sales pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
  <div class="store-sales-actions">${action}<a class="btn secondary" href="${esc(page)}">See What You Get</a></div></article>`;
 }
@@ -259,7 +259,7 @@ function renderGroupCatalog(host,nav,items,layout){
    if(!groups.has(k))groups.set(k,[]);groups.get(k).push(item)}
   host.innerHTML=[...groups].map(([type,rows])=>'<section class="gu-store-type-section"><h3>'+esc(type)+'</h3><div class="gu-store-type-grid">'+rows.map(x=>{
    const href=catalogUrl(x);
-   return '<article class="gu-store-type-card">'+catalogImage(x)+'<span class="eyebrow">'+esc(x.status||'Listed')+
+   return '<article class="gu-store-type-card">'+catalogImage(x)+(x.betaTestingReady===true?'<span class="store-beta-ribbon">Beta Testing Ready</span>':'')+'<span class="eyebrow">'+esc(x.status||'Listed')+
    '</span><h4><a href="'+esc(href)+'">'+esc(x.name)+'</a></h4><p class="gu-catalog-summary">'+catalogSummary(x)+'</p>'+
    '<p class="small">Price: '+esc(x.price||'Not announced')+'</p><a href="'+esc(href)+'">View details</a></article>';
   }).join('')+'</div></section>').join('')||'<p>No matching public product listings.</p>';
