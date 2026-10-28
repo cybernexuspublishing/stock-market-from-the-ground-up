@@ -13,10 +13,18 @@ assert "version:String(window.SITE_CONFIG?.VERSION" in read('assets/js/commerce-
 assert "loadOnce('/assets/js/admin-simple-navigation-v014036.js'" in read('assets/js/site.js')
 assert "loadOnce('/assets/js/release-integrity-v014036.js'" in read('assets/js/site.js')
 nav=read('assets/js/admin-simple-navigation-v014036.js')
-for name in ['Dashboard','Members & Accounts','Payments & Billing','Books & Learning','Market Commons','Communications','Marketing & Advertising','Website Settings','Security & Reports','Grant Web Solutions','All admin controls']:
- assert name in nav,name
-assert 'details.append(nav)' in nav
-assert 'cc-owner-hidden' in nav
+assert 'No parallel Workspace menu' in nav
+assert 'details.append(nav)' not in nav
+assert "GroundUpSimpleAdminNavV014036" in nav
+assert "gu36-owner-zero-live-qa" in nav
+assert "cc-owner-hidden" in nav
+assert 'loadOnce' not in nav or 'admin-stripe-shadow-v01439.js' in nav
+admin=read('admin.html')
+for name in ['Today','Members','Add a Member','Products &amp; Prices','Orders &amp; Subscriptions','Sparks Packages','Activity Log','Client Website Drafts (Grant Web Solutions)']:
+ assert name in admin,name
+organized=read('assets/js/admin-navigation.js')
+for name in ['Overview','Members & Access','Learning Administration','Commerce','Community','Website Management','Support & Operations','Security & Governance']:
+ assert name in organized,name
 assert 'GU_ADMIN_ROLE' not in nav
 css=read('assets/css/admin-simple-navigation-v014036.css')
 assert '#gu36-simple-admin' in css and 'focus-visible' in css
