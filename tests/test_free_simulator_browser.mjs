@@ -57,7 +57,16 @@ async function scenario(width,kind='free'){
       visible:document.querySelector('#sim-content')?.hidden,
       loaded:document.querySelector('#sim-load-msg')?.textContent,
       free:window.GroundUpFreePracticeRequested,
-      selected:document.querySelector('#sim-mode-csv')?.getAttribute('aria-pressed')
+      selected:document.querySelector('#sim-mode-csv')?.getAttribute('aria-pressed'),
+      ready:document.readyState,
+      inited:typeof SIM==='object'&&!!SIM.user,
+      premium:typeof SIM==='object'?SIM.hasPremium:null,
+      bars:typeof SIM==='object'?SIM.candles?.length:null,
+      source:typeof SIM==='object'?SIM.sourceName:null,
+      starter:typeof window.GroundUpFictionalSimulatorStarterV1?.generate,
+      listener:typeof document.querySelector('#sim-load-fictional')?.onclick,
+      sourceValue:document.querySelector('#sim-source')?.value,
+      content:document.querySelector('#sim-content')?.outerHTML.slice(0,160)
     }));
     throw Error('Simulator fixture diagnostics: '+JSON.stringify({details,faults})+'; '+error.message);
    });
