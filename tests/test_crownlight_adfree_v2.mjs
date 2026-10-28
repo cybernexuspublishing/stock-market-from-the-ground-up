@@ -15,9 +15,9 @@ globalThis.fetch=async (url,opts={})=>{
   assert.equal(JSON.parse(opts.body).p_user_id,user);
   return response({ok:true,eligible:true,active:false});
  }
- if(path.endsWith('gu_sparks_adfree_redeem_v1')){
+ if(path.endsWith('gu_sparks_adfree_redeem_v2')){
   const p=JSON.parse(opts.body);assert.equal(p.p_user_id,user);
-  assert.equal(p.p_request_id,requestId);assert.equal(p.p_sku,'ADFREE_DAY');
+  assert.equal(p.p_request_id,requestId);assert.equal(p.p_sku,'ADFREE_DAY');assert.equal(p.p_expected_cost,5);
   requests++;return response({ok:true,spent:5,expiresAt:'2026-11-01T12:00:00Z'});
  }
  throw Error('Undeclared fetch '+path);
@@ -30,9 +30,9 @@ const req=(method='GET',body,origin='https://site.example',auth=true)=>new Reque
 try{
  let r=await onRequest({request:req(),env});assert.equal(r.status,200);
  assert.equal((await r.json()).eligible,true);
- r=await onRequest({request:req('POST',{sku:'ADFREE_DAY',requestId,userId:'bogus'}),env});
+ r=await onRequest({request:req('POST',{sku:'ADFREE_DAY',requestId,expectedCost:5,userId:'bogus'}),env});
  assert.equal(r.status,200);assert.equal((await r.json()).spent,5);
- r=await onRequest({request:req('POST',{sku:'ADFREE_DAY',requestId},'https://evil.example'),env});
+ r=await onRequest({request:req('POST',{sku:'ADFREE_DAY',requestId,expectedCost:5},'https://evil.example'),env});
  assert.equal(r.status,403);
  r=await onRequest({request:req('POST',{sku:'INVALID',requestId}),env});
  assert.equal(r.status,400);
