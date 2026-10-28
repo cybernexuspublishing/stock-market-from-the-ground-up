@@ -8,7 +8,7 @@ const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':
  'x-content-type-options':'nosniff'};
 const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:HEADERS});
 const fault=(reason,status=400)=>Object.assign(new Error(reason),{status});
-const allowed=code=>Object.hasOwn(academyByCode,code);
+const allowed=code=>Object.hasOwn(academyByCode,code)&&code!=='foundations30';
 function database(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const secret=String(env.SUPABASE_SECRET_KEY||'');
