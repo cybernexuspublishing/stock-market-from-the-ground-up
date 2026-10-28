@@ -71,6 +71,17 @@ Connected production project: `oxihglyfgzywsupnyicb`, named `stock-market-from-t
 3. For security issues, close access with reviewed RLS/grant updates and investigate; do not make the image bucket public to work around a permission error.
 4. Full DB rollback requires a separate reviewed migration and retention/deletion decision. SQL changes are not safely reverted by a Git revert.
 
+
+## Verified implementation evidence — October 28, 2026 UTC
+
+**GitHub source/build revision:** `7be2e6ceb5df6c03a99f88bba8e4109f392f164f`, branch `main`. Cloudflare Pages production deployment `9dd72b5a-3c2c-412c-bb0a-6af061c45545`, Yahoo-owned account, project `stock-market-from-the-ground-up`, completed with `deploy/success`.
+
+**Build evidence:** Cloudflare deployment logs show `bash scripts/build-pages.sh` and the exact line `PASS Journal v1: null/flat, planned R, fee validation, MFE range, ET/DST, enum, guided UI.` All six new/updated Journal JavaScript modules passed `node --check`, the site output generated 572 static files, and Pages Functions compiled. This proves the deterministic source regression and production build, not a genuine authenticated user journey or a passing comprehensive GitHub Actions suite.
+
+**SQL transaction QA:** On the correct production project, a single transaction inserted temporary Journal/evidence records using two existing account identities, simulated the authenticated database role and each subject in turn, verified own-row reads versus cross-account denial, verified six-image limit and seventh-image rejection, exercised post-closure correction-history generation, verified that the second identity could not see it, and rolled back. No test records remained: `decision_journal=0`, `journal_evidence_v1=0`, `journal_actual_history_v1=0`, `journal_reviews=0`. This is database-level simulation, **not** a substitute for real signed-in HTTP authorization and browser testing.
+
+**Remaining release gate:** Real member sign-in, signed URL expiry and image download, file upload/deletion, two-browser session isolation, Free quota, payment entitlement segregation, mobile/keyboard/screen-reader acceptance, and exact-head GitHub Actions completion evidence still need independently observed results. No LIVE payments were initiated.
+
 ## Revision history
 
 | Version | Date | Change | Status |
