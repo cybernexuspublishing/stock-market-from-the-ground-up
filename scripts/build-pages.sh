@@ -4,6 +4,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 # Journal V1 critical financial, policy-source and guided UI regressions.
 # This test is deterministic: it uses fictional inputs and no database/payment action.
 node tests/test_journal_guided_integrity_v1.mjs
+# Journal V2 must pass before any main-branch production publication.
+node tests/test_journal_v2.mjs
+for asset in assets/js/journal-v2-logic.js assets/js/journal-guided-v2.js assets/js/journal-weekly-v2.js; do
+  node --check "$asset"
+done
 for asset in assets/js/journal-common.js assets/js/journal-entry.js assets/js/journal-guided-v1.js assets/js/journal-evidence-v1.js assets/js/journal-actual-history-v1.js assets/js/journal-weekly-v1.js; do
   node --check "$asset"
 done
