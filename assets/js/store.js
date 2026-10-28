@@ -53,6 +53,10 @@ function bookFamily(p){
 }
 function bookCard(p){
  const channels=[];
+ // Format-neutral Owner-supplied retailer listing; do not assume Kindle/print.
+ const ownerListing=String(p.metadata?.amazon_listing_url||'');
+ if(/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(ownerListing))
+  channels.push(bookBuy('View Amazon listing',ownerListing));
  if(p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)channels.push(bookBuy('Buy Kindle on Amazon',p.amazon.kindleUrl));
  if(p.amazonPaperbackEnabled!==false&&p.amazon?.paperbackUrl)channels.push(bookBuy('Buy Paperback on Amazon',p.amazon.paperbackUrl));
  if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)channels.push(bookBuy('Buy Hardcover on Amazon',p.amazon.hardcoverUrl));
@@ -62,13 +66,13 @@ function bookCard(p){
  const purchaseCount=channels.length;
  if(p.sampleUrl)channels.push(bookBuy('Read Sample',p.sampleUrl));
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
- const available=purchaseCount?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`+channels.join('');
- const ribbon=p.publicationStatus==='published'&&purchaseCount?'Beta OPEN':'Coming Soon';
+ const available=purchaseCount?channels.join(''):`<span class="store-soon-label">Book listed · Purchase channel awaiting verification</span>`+channels.join('');
+ const ribbon=purchaseCount?'Retailer listing recorded':p.salesStatus==='selling'?'Book listed · Purchase link pending':'Book listing available';
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(bookFamily(p))}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
  <div class="product-meta"><span class="store-beta-ribbon">${ribbon}</span><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
- ${p.salesStatus==='published'&&purchaseCount?'<span class="status-pill">Purchase options listed</span>':''}
+ ${purchaseCount?'<span class="status-pill">Retailer listing recorded</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
  <p>${esc(p.description||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
  <p class="small">By ${esc(p.author)} · ${esc(p.publisher)}</p>
