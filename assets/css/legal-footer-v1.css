@@ -1,0 +1,30 @@
+/* SMFGU shared footer: explicit policy and transparency navigation, 2026-10-27.
+   Applied to both historic footer builders; no page-specific layout widening. */
+footer.footer .gu-legal-footer-grid,footer .gu-legal-footer-grid{
+  display:grid;grid-template-columns:minmax(220px,1.65fr) repeat(4,minmax(100px,.82fr)) repeat(2,minmax(146px,1.12fr));
+  column-gap:clamp(.8rem,1.65vw,2rem);row-gap:1.5rem;align-items:start;
+  padding-block:2rem 1.8rem;
+}
+footer .gu-legal-footer-grid>div{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:.4rem}
+footer .gu-legal-footer-grid strong{display:block;margin-bottom:.2rem;font-weight:700}
+footer .gu-legal-footer-grid a{display:inline-block;overflow-wrap:anywhere;line-height:1.4;color:#c7d9e5;text-decoration:none;text-underline-offset:.2em}
+footer .gu-legal-footer-grid a:hover,footer .gu-legal-footer-grid a:focus-visible{color:#fff;text-decoration:underline}
+footer .gu-legal-footer-grid a:focus-visible{outline:2px solid #edc96d;outline-offset:3px}
+footer .gu-legal-footer-grid p{max-width:32ch;line-height:1.6;margin:.25rem 0 0}
+footer .gu-footer-bottom{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem 1.5rem;padding-block:.9rem 1.25rem}
+footer .gu-footer-motto{font-size:.85rem;white-space:normal;color:#9fb4c4}
+footer .gu-footer-legacy-legal{padding-block:.6rem 1rem}
+footer .gu-footer-legacy-legal a{color:inherit;text-underline-offset:.2em}
+@media(max-width:1250px){
+ footer.footer .gu-legal-footer-grid,footer .gu-legal-footer-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ footer .gu-legal-footer-grid .gu-footer-brand{grid-column:span 2}
+}
+@media(max-width:800px){
+ footer.footer .gu-legal-footer-grid,footer .gu-legal-footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ footer .gu-legal-footer-grid .gu-footer-brand{grid-column:span 2}
+}
+@media(max-width:540px){
+ footer.footer .gu-legal-footer-grid,footer .gu-legal-footer-grid{grid-template-columns:minmax(0,1fr)!important}
+ footer .gu-legal-footer-grid .gu-footer-brand{grid-column:auto}
+ footer .gu-footer-bottom{align-items:flex-start;flex-direction:column}
+}

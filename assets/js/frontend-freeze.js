@@ -23,16 +23,21 @@ function repairLegacyLinks(){
 }
 async function stableFooter(){
   const footer=q('footer.footer,footer');if(!footer)return;
+  if(footer.dataset.v121==='1'&&footer.dataset.guLegalFooter==='1')return;
   const ses=await session(),signed=!!ses;
-  footer.dataset.v133='1';
-  footer.innerHTML=`<div class="wrap v133-footer-grid">
-    <div><strong>The Stock Market: From the Ground Up</strong><p>Books, guided learning, research, historical practice, simulation, journaling, and market-skill development.</p></div>
-    <div><strong>Learn</strong><a href="learn.html">Learning System</a><a href="${signed?'labs.html':'lab-samples.html'}">${signed?'Lab Registry':'Sample Labs'}</a><a href="market-tutor.html">Market Tutor</a></div>
-    <div><strong>Practice</strong><a href="simulator.html">Simulator</a><a href="journal.html">Trading Journal</a><a href="tools.html">All Tools</a><a href="market-commons.html">Market Commons</a></div>
-    <div><strong>Account</strong>${signed?'<a href="dashboard.html">Dashboard</a><a href="dashboard.html?tab=access">Membership & Access</a><a href="dashboard.html?tab=books">My Books</a><a href="dashboard.html?tab=settings">Settings</a><a href="dashboard.html?tab=billing">Purchases & Billing</a>':'<a href="signin.html">Sign In</a><a href="create-account.html">Create Account</a><a href="membership.html">Membership</a>'}</div>
-    <div><strong>Company</strong><a href="store.html">Store</a><a href="advertise.html">Advertise</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="help.html">Help</a></div>
-  </div><div class="wrap v133-footer-bottom"><span>© ${new Date().getFullYear()} J. S. Grant. Published under the Crown & Lantern Press imprint.</span></div>`;
+  if(footer.dataset.v121==='1'&&footer.dataset.guLegalFooter==='1')return;
+  footer.dataset.v133='1';footer.dataset.guLegalFooter='1';footer.dataset.guFooterAuthenticated=String(signed);
+  footer.innerHTML=`<div class="wrap v121-footer-grid gu-legal-footer-grid">
+    <div class="gu-footer-brand"><strong>The Stock Market: From the Ground Up</strong><p>Books, interactive learning, research, simulation, journaling, and market-skill development.</p></div>
+    <div><strong>Learn</strong><a href="/learn.html">Learning System</a><a href="${signed?'/labs.html':'/lab-samples.html'}">${signed?'Lab Registry':'Sample Labs'}</a><a href="/market-tutor.html">Market Tutor</a><a href="/philosophy.html">Teaching Philosophy</a></div>
+    <div><strong>Platform</strong><a href="/tools.html">All Tools</a><a href="/simulator.html">Simulator</a><a href="/journal.html">Journal</a><a href="/market-commons.html">Market Commons</a></div>
+    <div><strong>Account</strong>${signed?'<a href="/dashboard.html">Dashboard</a><a href="/dashboard.html?tab=access">Membership & Access</a><a href="/dashboard.html?tab=books">My Books</a><a href="/dashboard.html?tab=settings">Settings</a><a href="/dashboard.html?tab=billing">Purchases & Billing</a>':'<a href="/signin.html">Sign In</a><a href="/create-account.html">Create Account</a><a href="/membership.html">Membership</a>'}</div>
+    <div><strong>Company</strong><a href="/store.html">Store</a><a href="/advertise.html">Advertise</a><a href="/about.html">About</a><a href="/help.html">Help</a></div>
+    <div><strong>Legal</strong><a href="/terms.html">Terms of Service</a><a href="/privacy.html">Privacy Policy</a><a href="/refund-policy.html">Refunds & Cancellation</a><a href="/subscription-terms.html">Subscription & Billing</a><a href="/cookie-policy.html">Cookie Policy</a><a href="/educational-disclaimer.html">Trading Disclaimer</a><a href="/dmca-takedown-policy.html">DMCA Takedown</a><a href="/legal.html"><b>All Policies</b></a></div>
+    <div><strong>Transparency</strong><a href="/editorial-guidelines.html">Editorial Guidelines</a><a href="/affiliate-disclosure.html">Affiliate Disclosure</a><a href="/related-entities-disclosure.html">Related Entities</a><a href="/ai-use-disclosure.html">AI Use Disclosure</a><a href="/advertising-disclosure.html">Advertising Disclosure</a><a href="/community-guidelines.html">Community Guidelines</a><a href="/accessibility.html">Accessibility</a></div>
+  </div><div class="wrap v121-footer-bottom gu-footer-bottom"><span>© ${new Date().getFullYear()} J. S. Grant. Published under the Crown & Lantern Press imprint.</span><span class="gu-footer-motto">Learn It. Understand It. Practice It. Trade It.</span></div>`;
 }
+
 async function homeBooks(){
   if(!(path==='/'||/\/index\.html$/.test(path)))return;
   for(let i=0;i<35&&!q('#v132-home');i++)await sleep(80);
