@@ -9,7 +9,8 @@ const categoryLabels=Object.freeze({membership:'Memberships',founding:'Founding 
 const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrelaunchInventory:[];
 // If the authoritative visible-only API fails, expose only previously approved
 // Founding and book catalog identities. Upcoming/private overlays stay hidden.
-const listedCore=p=>/^FOUNDING_(30|60)$/.test(p.sku)||(p.category==='Books'&&p.status==='existing_catalog');
+// On a catalog outage, hide founder sales instead of reviving retired marketing.
+const listedCore=p=>p.category==='Books'&&p.status==='existing_catalog';
 const $=id=>document.getElementById(id);
 const clean=x=>String(x??'').trim();
 let all=[],isVerified=false,isFull=false,pageNumber=1,layout={catalog_columns:5,catalog_rows:3};
@@ -109,7 +110,7 @@ async function load(){
   if(!r.ok)throw Error('Current catalog unavailable');
   const j=await r.json();
   if(j.ok!==true||j.source!=='verified_storefront'||!Array.isArray(j.items)||
-    j.count!==j.items.length||j.items.length<50||j.items.length>150||
+    j.count!==j.items.length||j.items.length>150||
     new Set(j.items.map(x=>x.sku)).size!==j.items.length)
    throw Error('Catalog integrity check failed');
   all=j.items.map(normalize);isFull=true;
