@@ -25,15 +25,19 @@ tools.push(tt('DISCOVERY_LAB','beta'));
 const data={plans,products:[...products,{type:'bundle',productCode:'BUNDLE',title:'Bundled products',storeVisible:true,salesStatus:'published'}],tools};
 const tabIds=['founders','books','sparks','tools'];
 const tabNodes=tabIds.map(k=>({...makeNode(k),dataset:{storeCategory:k}}));
+const membershipTab={...makeNode('memberships'),dataset:{storeCategory:'memberships'},hidden:true};
+// The real Store creates this future-public tab but keeps it hidden throughout beta.
+tabNodes[0].hidden=true;
 const filters=['all','foundations','day-trading','reading-the-tape'].map(k=>({...makeNode(k),dataset:{filter:k},classList:{toggle(){},contains(){return false}}}));
-const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status','store-founder-plans','store-founder-compare',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
+const nodes=Object.fromEntries(['store-plans','store-products','store-tools','store-membership-compare','store-category-status','store-founder-plans','store-founder-compare','store-panel-memberships',...tabIds.map(k=>'store-panel-'+k)].map(k=>[k,makeNode(k)]));
+nodes['store-tab-founders']=tabNodes[0];nodes['store-tab-memberships']=membershipTab;
 const preview=makeNode('preview'),winHandlers={};
 const doc={
  readyState:'loading',callback:null,
  addEventListener(k,cb){if(k==='DOMContentLoaded')this.callback=cb},
  getElementById(id){return nodes[id]||null},
  querySelectorAll(q){
-   if(q==='[data-store-category]')return tabNodes;
+   if(q==='[data-store-category]')return [tabNodes[0],membershipTab,...tabNodes.slice(1)];
    if(q==='#store-tabs button')return filters;
    if(q==='#store-products [data-family]')return [];
    return [];
@@ -43,7 +47,15 @@ const doc={
 const location={hash:'#books',pathname:'/store.html',search:'?ref=training'},history={replaceState(_x,_y,url){assert.match(url,/ref=training/);location.hash='#'+url.split('#').pop()}};
 const window={CommerceTools:ct(data),addEventListener(k,cb){winHandlers[k]=cb}};
 const requests=[];
-const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent,fetch:async(url,options)=>{requests.push({url,options});assert.equal(options?.method,undefined,'Founding catalog must only read terms');return {ok:true,json:async()=>JSON.parse(read('data/founding600-terms-v014170.json'))}}};
+const context={window,document:doc,location,history,console,URL,URLSearchParams,encodeURIComponent,fetch:async(url,options)=>{
+  requests.push({url,options});assert.equal(options?.method,undefined,'Store rendering must only perform GET');
+  if(url==='/api/founding-offer-status')return {ok:true,json:async()=>({
+   ok:true,offersVisible:true,publicLaunch:false,phase:'beta',remaining:600,enrollmentEnabled:true
+  })};
+  if(url==='/api/founding600-checkout')return {ok:true,json:async()=>({ok:true,checkoutEnabled:false})};
+  if(url==='/api/storefront-public-catalog')return {ok:false,json:async()=>({ok:false})};
+  return {ok:true,json:async()=>JSON.parse(read('data/founding600-terms-v014170.json'))};
+ }};
 vm.runInNewContext(read('assets/js/store.js'),context);
 await doc.callback();await new Promise(ok=>setTimeout(ok,0));
 assert.equal(nodes['store-panel-books'].hidden,false,'Direct link to books must select books only');
