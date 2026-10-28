@@ -366,6 +366,18 @@
     ' This is an instructional hint, not an automated correctness grade.';
   });
   panels[4].append(node('label','Your turn — explain what you observed and what is still unknown'),field,ask,feedback);
+  // Full Lab-inspired teaching sequence, with original fictional Free-only
+  // exercises. This preview never overrides book/assessment authorization.
+  const studio=globalThis.GroundUpFreeStudioV3;
+  if(studio?.mount?.(d.day,panels[2],panels[4])!==true){
+   panels[2].append(node('p','Interactive practice is unavailable. The written demonstration remains available.'));
+  }
+  const premium=node('section');premium.className='academy-studio-preview';
+  premium.append(node('h4','What comes after Free Foundations?'),
+   node('p','This lesson demonstrates our full Lab approach: Talia teaches, you experiment with evidence, make a decision, then review your reasoning. Labs such as Basic Historical Replay Setup offer additional guided scenarios, learning modes and practice, where authorized. Free study does not unlock restricted book content or official assessments.'));
+  const catalog=node('a','Explore full Labs and access requirements');
+  catalog.href='labs.html';catalog.className='btn secondary';
+  premium.append(catalog);panels[8].append(premium);
   panels[0].append(node('h4','Your learning goal'),node('p',d.objective),
    node('p','Talia will teach the concepts and worked examples before you practice. You may complete these lessons at your own pace.'));
   panels[3].append(node('h4','Identify the unknown, not the future outcome'),
