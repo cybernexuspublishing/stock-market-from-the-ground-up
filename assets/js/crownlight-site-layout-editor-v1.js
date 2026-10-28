@@ -7,8 +7,8 @@
  const selector='main .journal-card,main .card,main .dashboard-space,main .academy-program,main .gu-bc-lesson,main .catalog-founder-card,main .catalog-free-member-card,main .v1321-feature-group';
  const excluded='form,dialog,[data-payment],[data-stripe],.v1321-secret-form,[data-auth-form],.crownlight-plot,.cl-live-plot';
  const $=s=>document.querySelector(s);
- const cards=[...document.querySelectorAll(selector)].filter(x=>!x.closest(excluded)&&!x.matches(excluded)&&!x.querySelector('form,input[type="password"],input[autocomplete="cc-number"],[data-stripe],iframe')).slice(0,110);
- if(!cards.length)return;
+ let cards=[];
+ function candidates(){return [...document.querySelectorAll(selector)].filter(x=>!x.closest(excluded)&&!x.matches(excluded)&&!x.querySelector('form,input[type="password"],input[autocomplete="cc-number"],[data-stripe],iframe')).slice(0,110)}
  const state={editing:false,config:new Map(),role:false,token:'',activeDrag:null};
  const slug=s=>String(s||'').trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'').slice(0,62);
  function cardKey(card){
@@ -21,7 +21,17 @@
  }
  const validKey=/^[a-zA-Z0-9_:.-]{1,128}$/;
  const keyed=new Map();
- for(const card of cards){const key=cardKey(card);if(validKey.test(key)&&!keyed.has(key)){card.dataset.guLayoutKey=key;keyed.set(key,card)}}
+ function collectCards(){
+  const found=candidates();cards=found;let added=0;
+  for(const card of found){
+   const key=cardKey(card);
+   if(validKey.test(key)&&!keyed.has(key)){
+    card.dataset.guLayoutKey=key;keyed.set(key,card);added++;
+    const row=state.config.get(key);if(row)apply(card,row);
+   }
+  }
+  return added;
+ }
  async function session(){
   if(typeof window.getSupabaseClient!=='function'){
    // Keep public page loads lightweight: load auth support only when this browser
@@ -141,11 +151,17 @@
   }
  }
  async function init(){
+  collectCards();
   let saved;
   try{saved=await api('GET')}catch{return}
   for(const row of saved.items||[]){const card=keyed.get(row.card_key);
    if(!card)continue;state.config.set(row.card_key,row);apply(card,row)}
   applySavedOrder();
+  const main=document.querySelector('main');
+  if(main){
+   const observer=new MutationObserver(()=>{if(collectCards()>0)applySavedOrder()});
+   observer.observe(main,{childList:true,subtree:true});
+  }
   const identity=await session().catch(()=>null);
   if(!identity?.access_token)return;
   state.token=identity.access_token;
