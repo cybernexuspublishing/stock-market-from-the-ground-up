@@ -35,6 +35,13 @@ on:
       - 'tests/test_crownlight_owner_presentation_v1.mjs'
       - 'tests/test_crownlight_continuous_layout_browser_v1.mjs'
       - 'functions/api/chart-studio-presentation.js'
+      - 'functions/api/page-workspace-presentation.js'
+      - 'assets/css/crownlight-page-workspace-v2.css'
+      - 'tests/test_crownlight_page_presentation_v2.mjs'
+      - 'tests/test_crownlight_page_workspace_browser_v2.mjs'
+      - 'assets/js/site.js'
+      - 'assets/js/admin-crownlight-workspace-v1.js'
+      - 'admin.html'
       - 'assets/js/crownlight-continuous-workspace-v1.js'
       - 'assets/css/crownlight-continuous-workspace-v1.css'
       - 'assets/js/admin-crownlight-workspace-v1.js'
@@ -129,6 +136,10 @@ jobs:
           node --check assets/js/crownlight-continuous-workspace-v1.js
           node --check assets/js/admin-crownlight-workspace-v1.js
           node tests/test_crownlight_owner_presentation_v1.mjs
+          node --check functions/api/page-workspace-presentation.js
+          node --check assets/js/site.js
+          node tests/test_crownlight_page_presentation_v2.mjs
+          node tests/test_crownlight_page_workspace_browser_v2.mjs
           node tests/test_crownlight_continuous_layout_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs
