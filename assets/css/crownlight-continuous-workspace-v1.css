@@ -76,3 +76,65 @@ body[data-cl-workspace="continuous"] .cl-workbench-preview-strip a{color:#9de2fb
   grid-template-columns:1fr;
  }
 }
+/* Focused: full-width chart first; trade desk below in a straightforward flow. */
+body[data-cl-workspace="focus"] main.section>.wrap{max-width:1640px;width:calc(100% - 28px)}
+body[data-cl-workspace="focus"] #sim-content{
+ display:flex!important;flex-direction:column;align-items:stretch;gap:12px
+}
+body[data-cl-workspace="focus"] #sim-content>#cl-replay-import,
+body[data-cl-workspace="focus"] #sim-content>#cl-chart-visibility-toolbar,
+body[data-cl-workspace="focus"] #sim-content>.sim-layout,
+body[data-cl-workspace="focus"] #sim-content>#cl-simulator-workbench{
+ width:100%;max-width:none;min-width:0;position:static;max-height:none;overflow:visible
+}
+body[data-cl-workspace="focus"] #sim-content>.sim-layout{order:2}
+body[data-cl-workspace="focus"] #sim-content>#cl-simulator-workbench{order:3}
+body[data-cl-workspace="focus"] #sim-content .sim-chart-panel{border-radius:12px;padding:15px}
+body[data-cl-workspace="focus"] #sim-content .cl-chart-tier-panels{gap:14px}
+/* Compact: trading terminal information density, left chart/right action rail. */
+body[data-cl-workspace="compact"] main.section>.wrap{max-width:1780px;width:calc(100% - 18px)}
+body[data-cl-workspace="compact"] #sim-content{
+ display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(300px,.9fr);
+ grid-template-areas:"source source" "toolbar toolbar" "chart workbench";
+ align-items:start;gap:6px 8px
+}
+body[data-cl-workspace="compact"] #sim-content>#cl-replay-import{grid-area:source;min-width:0}
+body[data-cl-workspace="compact"] #sim-content>#cl-chart-visibility-toolbar{grid-area:toolbar;min-width:0}
+body[data-cl-workspace="compact"] #sim-content>.sim-layout{grid-area:chart;min-width:0}
+body[data-cl-workspace="compact"] #sim-content>#cl-simulator-workbench{
+ grid-area:workbench;min-width:0;position:sticky;top:8px;max-height:calc(100vh - 16px);
+ overflow-y:auto;overscroll-behavior:contain
+}
+body[data-cl-workspace="compact"] #sim-content .sim-chart-panel{padding:7px;border-radius:5px}
+body[data-cl-workspace="compact"] #sim-content .cl-tier-chart-summary{min-height:0;padding:6px}
+body[data-cl-workspace="compact"] #sim-content .cl-workbench-tab{min-height:34px;padding:5px;font-size:.72rem}
+body[data-cl-workspace="compact"] #sim-content .cl-workbench-panels{padding:7px}
+/* Spacious: intentional breathing room; full-width chart above a roomy desk. */
+body[data-cl-workspace="spacious"] main.section>.wrap{max-width:1460px;width:calc(100% - 48px)}
+body[data-cl-workspace="spacious"] #sim-content{
+ display:flex!important;flex-direction:column;align-items:stretch;gap:22px
+}
+body[data-cl-workspace="spacious"] #sim-content>#cl-replay-import,
+body[data-cl-workspace="spacious"] #sim-content>#cl-chart-visibility-toolbar,
+body[data-cl-workspace="spacious"] #sim-content>.sim-layout,
+body[data-cl-workspace="spacious"] #sim-content>#cl-simulator-workbench{
+ width:100%;max-width:none;min-width:0;position:static;max-height:none;overflow:visible
+}
+body[data-cl-workspace="spacious"] #sim-content>.sim-layout{order:2}
+body[data-cl-workspace="spacious"] #sim-content>#cl-simulator-workbench{order:3}
+body[data-cl-workspace="spacious"] #sim-content .sim-chart-panel{padding:22px;border-radius:16px}
+body[data-cl-workspace="spacious"] #sim-content .cl-chart-tier-switcher{padding:18px;border-radius:14px}
+body[data-cl-workspace="spacious"] #sim-content .cl-workbench-panels{padding:22px}
+@media(max-width:1200px){
+ body[data-cl-workspace="compact"] #sim-content{
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"source" "toolbar" "chart" "workbench"
+ }
+ body[data-cl-workspace="compact"] #sim-content>#cl-simulator-workbench{
+  position:static;max-height:none;overflow:visible
+ }
+}
+@media(max-width:700px){
+ body[data-cl-workspace="spacious"] main.section>.wrap{width:calc(100% - 20px)}
+ body[data-cl-workspace="spacious"] #sim-content{gap:12px}
+ body[data-cl-workspace="spacious"] #sim-content .sim-chart-panel{padding:12px}
+}
