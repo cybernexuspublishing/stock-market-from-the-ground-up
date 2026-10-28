@@ -1,0 +1,23 @@
+/* Crownlight Chart Studio V2 — professional saved workspace and guided Talia lab */
+.cl-workspace-controls,.cl-talia-guided{border:1px solid #345a78;border-radius:13px;background:#101e34;color:#e4effb;padding:14px;margin:13px 0;min-width:0}
+.cl-workspace-row,.cl-talia-actions,.cl-talia-lab-link{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.cl-workspace-row label{display:flex;align-items:center;gap:7px;font-size:.85rem}
+.cl-workspace-row button,.cl-talia-actions button,.cl-talia-lab-link button,.cl-talia-toggle{border:1px solid #4e779a;color:#eef8ff;background:#193550;border-radius:8px;padding:9px 12px;font:inherit;cursor:pointer}
+.cl-workspace-row button:hover,.cl-talia-guided button:hover{background:#2c5275}
+.cl-workspace-row input[type=text],.cl-talia-guided input,.cl-talia-guided textarea{background:#09172a;color:#eaf3ff;border:1px solid #557594;border-radius:7px;padding:9px;font:inherit;max-width:100%;min-width:0}
+.cl-workspace-row input[type=text]{width:170px}
+.cl-workspace-status,.cl-talia-status{color:#b6cee4;font-size:.83rem;line-height:1.5;margin:10px 0 0}
+.cl-talia-toggle{font-weight:760;letter-spacing:.015em;width:100%;text-align:left}
+.cl-talia-body{padding:12px 2px 0;line-height:1.55}
+.cl-talia-body[hidden]{display:none!important}
+.cl-talia-body h3{font-size:1.15rem;margin:5px 0}.cl-talia-body h4{margin:12px 0 5px}
+.cl-talia-body p{margin:6px 0}.cl-talia-disclaimer{color:#b4d7df}
+.cl-talia-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:7px}
+.cl-talia-facts p{background:#0b253d;border:1px solid #285270;padding:9px 11px;border-radius:8px;font-size:.85rem}
+.cl-talia-cues p{border-left:3px solid #50cbb5;padding:4px 0 4px 10px}
+.cl-talia-questions{padding-left:23px;font-size:.92rem}
+.cl-talia-answer{display:block;width:100%;min-height:90px;resize:vertical;margin:11px 0}
+.cl-talia-actions a,.cl-talia-lab-link a{color:#9addfa;text-decoration:underline}
+.cl-talia-lab-link{margin-top:12px}
+.cl-talia-lab-link input{width:220px}
+@media(max-width:620px){.cl-workspace-controls,.cl-talia-guided{padding:11px}.cl-workspace-row>*{width:100%}.cl-talia-lab-link input{width:100%}.cl-talia-actions button{flex:1}}
