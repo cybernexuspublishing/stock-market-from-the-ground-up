@@ -289,12 +289,15 @@ function ensureOverview(){
 }
 function adminContext(){return typeof ADMIN!=='undefined'?ADMIN.ctx:window.ADMIN?.ctx;}
 function ensureTopbar(){
- const main=$('.admin-main');if(!main)return;let bar=$('#cc-admin-topbar');
- if(!bar){bar=document.createElement('div');bar.id='cc-admin-topbar';bar.className='cc-admin-topbar';bar.innerHTML='<div class="cc-topbar-search"></div><div class="cc-topbar-status"><span id="cc-env-status">Checking environment</span><span id="cc-role-status">STAFF</span><a href="/index.html">Return to site</a></div>';main.insertBefore(bar,main.firstChild);}
- const search=$('.gu33-global-search',main);if(search&&!bar.contains(search))$('.cc-topbar-search',bar).append(search);
- const roles=adminContext()?.roles||[];$('#cc-role-status',bar).textContent=roles.includes('SHOWCASE_VIEWER')?'SHOWCASE':roles.includes('OWNER')?'OWNER':roles.length?'STAFF':'ROLE UNVERIFIED';
- const host=String(location.hostname||'').toLowerCase();
- $('#cc-env-status',bar).textContent=host==='stock-market-from-the-ground-up-d1r.pages.dev'?'LIVE SITE':'ENVIRONMENT UNVERIFIED';
+ // admin-payment-center owns global search and the site owns the existing
+ // production header. Do not add a second header or move its live search DOM.
+ const bar=$('#cc-admin-topbar');if(bar){
+  const search=$('.gu33-global-search',bar),main=$('.admin-main');
+  if(search&&main)main.insertBefore(search,$('#admin-app')||main.firstChild);
+  bar.remove();
+ }
+ const search=$('.gu33-global-search',document);
+ if(search)search.classList.add('cc-compact-admin-search');
 }
 function ensureShowcase(){
  const showcase=(adminContext()?.roles||[]).includes('SHOWCASE_VIEWER');
