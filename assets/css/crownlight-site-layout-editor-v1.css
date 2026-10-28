@@ -1,0 +1,12 @@
+/* Sitewide staff presentation editor; only visible after authenticated role verification. */
+#gu-layout-admin-toolbar{position:fixed;right:20px;bottom:16px;z-index:200000;width:min(300px,calc(100vw - 32px));padding:8px 12px;border:1px solid #8d76de;border-radius:13px;background:linear-gradient(135deg,#241647,#103449);color:#eaf4ff;box-shadow:0 16px 55px #000a;display:flex;flex-direction:column;gap:4px}
+#gu-layout-toggle{border:1px solid #bba7ff;border-radius:9px;background:linear-gradient(120deg,#6d4cbb,#2985a2);color:#fff;font:inherit;font-weight:800;font-size:.82rem;padding:9px;cursor:pointer}
+#gu-layout-feedback{font-size:.72rem;line-height:1.45;color:#c9d8ea;margin:0;max-height:40px;overflow:auto}
+.gu-site-layout-editing .gu-layout-editable{outline:2px dashed #9f8aff!important;outline-offset:-2px;position:relative!important;min-width:0}
+.gu-site-layout-editing .gu-layout-editable:hover{outline-color:#56def0!important}
+.gu-layout-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end;max-width:100%;padding:6px!important;margin:0 0 9px!important;background:#162244!important;border:1px solid #596bad!important;border-radius:8px;position:relative;z-index:2}
+.gu-layout-controls button{font:inherit;font-size:.73rem;font-weight:750;border:1px solid #627cab;border-radius:7px;color:#e4efff;background:#253858;padding:7px 10px;cursor:pointer;touch-action:none}
+.gu-layout-controls .gu-layout-move{cursor:grab}
+.gu-layout-controls .gu-layout-resize{background:#4659a5;color:#fff;cursor:nwse-resize}
+.gu-layout-controls button:focus-visible{outline:2px solid #79e9f8;outline-offset:2px}
+@media(max-width:700px){#gu-layout-admin-toolbar{bottom:10px;right:10px}.gu-layout-controls{gap:3px}.gu-layout-controls button{font-size:.67rem;padding:6px 8px}}
