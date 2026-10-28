@@ -28,7 +28,7 @@ async function api(path,method='GET',body=null){
  },{path,method,body});
 }
 async function signIn(){
- await page.goto(origin+'/signin.html?next='+encodeURIComponent('/simulator.html?studio=ADVANCED'),{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto(origin+'/signin.html?next='+encodeURIComponent('/dashboard.html'),{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#login-identifier').fill(email);
  await page.locator('#login-password').fill(password);
  await page.locator('.auth-card button[type="submit"]').click();
@@ -43,14 +43,22 @@ async function signIn(){
   const details={url:page.url(),message:await page.locator('#signin-message').textContent().catch(()=>null)};
   throw Error('Real UI sign-in did not establish a browser session: '+JSON.stringify(details));
  }
- const from=page.url();
- if(new URL(from).pathname!=='/simulator.html'){
-  console.log('INFO authenticated sign-in landed at '+new URL(from).pathname+'; opening Chart Studio directly.');
-  await page.goto(origin+'/simulator.html?studio=ADVANCED',{waitUntil:'domcontentloaded',timeout:30000});
+ const atSignIn=await page.evaluate(async()=>{
+  const sb=await window.getSupabaseClient();const [{data:session},{data:user,error}]=await Promise.all([
+   sb.auth.getSession(),sb.auth.getUser()]);
+  return {hasSession:!!session?.session?.access_token,validUser:!!user?.user&&!error,
+   id:user?.user?.id||null};
+ });
+ if(!atSignIn.validUser||atSignIn.id!==target){
+  throw Error('Authenticated QA credential/session identity not verified at sign-in: '+
+    JSON.stringify({hasSession:atSignIn.hasSession,validUser:atSignIn.validUser,
+     matchesJames:atSignIn.id===target,pathname:new URL(page.url()).pathname}));
  }
+ console.log('PASS credential identity verified as James_Test before Chart Studio navigation');
+ await page.goto(origin+'/simulator.html?studio=ADVANCED',{waitUntil:'domcontentloaded',timeout:30000});
  const uid=await page.evaluate(async()=>{const sb=await window.getSupabaseClient();
   const {data,error}=await sb.auth.getUser();return error?null:data?.user?.id;});
- assert.equal(uid,target,'The encrypted credentials must authenticate as James_Test, not a different member');
+ assert.equal(uid,target,'Authenticated session did not survive navigation to Chart Studio');
  accountVerified=true;
 }
 try{
