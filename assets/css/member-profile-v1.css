@@ -115,3 +115,8 @@ body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell>main>.wrap{max
 .v4-avatar-filters button[aria-pressed="true"]{border-color:#37d9b7;background:#134f51;color:#f7ffff}
 .v2-avatar-tile[hidden]{display:none!important}
 .member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid{max-height:440px}
+
+/* Compact Member Dashboard workspace, retaining normal responsive access. */
+body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell{max-width:1150px!important}
+body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell>main>.wrap{max-width:1090px!important}
+@media(max-width:760px){body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell{max-width:100%!important}body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell>main>.wrap{padding-inline:15px!important}}
