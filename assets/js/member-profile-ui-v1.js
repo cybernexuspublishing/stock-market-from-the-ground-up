@@ -35,7 +35,7 @@ async function mount(body){
    '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-f4.webp')+'" alt="Your current avatar"><div><strong>Profile picture</strong><p class="small">Choose a site avatar or upload a picture you own. Your selected avatar is visible to other members.</p>'+
    '<button type="button" class="btn secondary v2-edit-picture" data-edit-picture>Choose from Avatar Library</button>'+
    '<label>Upload your own picture<input data-avatar-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div data-avatar-inline-host></div>'+
-   '<label>Gender selection for default avatars<select name="gender"><option value="rather_not_say">Rather not say</option><option value="female">Female</option><option value="male">Male</option></select></label>'+
+   '<label>Gender (optional profile preference)<select name="gender"><option value="rather_not_say">Rather not say</option><option value="female">Female</option><option value="male">Male</option></select></label>'+
    '<label>Biography (up to 1,000 characters)<textarea name="bio" maxlength="1000" rows="3" placeholder="Tell other learners about your interests and learning goals.">'+esc(p.bio)+'</textarea></label>'+
    '<button class="btn" type="submit">Save Profile</button></form>'+
    '<hr><form data-title-form><label>Displayed title<select data-title-choice>'+options+'</select></label><p class="small">Founding Member is selectable only after the verified Founder ledger confirms enrollment. Display titles are decorative; they do not confer access.</p>'+
