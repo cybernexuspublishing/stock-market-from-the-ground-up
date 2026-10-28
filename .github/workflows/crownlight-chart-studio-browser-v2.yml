@@ -32,6 +32,7 @@ on:
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'assets/css/member-profile-v1.css'
       - 'tests/test_site_card_layout_editor_v1.mjs'
+      - 'tests/test_site_card_layout_editor_browser_v1.mjs'
       - 'supabase/migrations/20261028_sitewide_card_layout_editor_v1.sql'
       - 'simulator.html'
       - 'assets/js/crownlight-indicator-math-v2.js'
@@ -67,6 +68,7 @@ jobs:
           node tests/test_crownlight_live_bridge_mock_v1.mjs
           node tests/test_crownlight_paper_workbench_v3.mjs
           node tests/test_site_card_layout_editor_v1.mjs
+          node tests/test_site_card_layout_editor_browser_v1.mjs
           node --check assets/js/crownlight-site-layout-editor-v1.js
           node --check functions/api/site-card-layout.js
           node --check assets/js/bootcamp-academy-v014168.js
