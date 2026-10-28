@@ -105,6 +105,7 @@ jobs:
           node --check assets/js/founder-learning-studio-v014191.js
           node --check assets/js/admin-founder-learning-v014191.js
           node --test tests/test_founder_payment_gates_v014199.mjs
+          node tests/test_founding14_staged_checkout_v1.mjs
           node --test tests/test_founder_full_price_checkout_guard_v014268.mjs
           node --test tests/test_beta_public_free_open_v014269.mjs
           node --test tests/test_founder_live_product_preflight_v014265.mjs
