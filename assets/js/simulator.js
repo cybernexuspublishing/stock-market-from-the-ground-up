@@ -153,7 +153,7 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  if(!acl.ok||grant.ok!==true)throw new Error('Simulator account authorization could not be verified.');
  const freeEligible=grant.freeEligible===true;
  if(!freeEligible){gate.textContent='This account is not eligible for member market practice. '+String(grant.reason||'Contact support.');return}
- SIM.hasPremium=grant.authorized===true; if(!SIM.hasPremium){gate.textContent='Free browser CSV and fictional practice are available to signed-in members. Connected data and protected historical replay require a separate entitlement. Saved paper exercises remain subject to the Free weekly Journal limits.';for(const opt of $('sim-source')?.querySelectorAll('option[value="tiingo"],option[value="alpaca"]')||[])opt.disabled=true;}
+ SIM.hasPremium=grant.authorized===true; if(!SIM.hasPremium){gate.textContent='Chart Studio allows the included fictional teaching dataset and your own CSV. Connected Tiingo/Alpaca history requires a separate Market Simulator entitlement even when personal credentials are verified. The chart-only QA permission does not grant provider data or paper brokerage access.';for(const opt of $('sim-source')?.querySelectorAll('option[value="tiingo"],option[value="alpaca"]')||[])opt.disabled=true;}
  const params=new URLSearchParams(location.search);const linked=Number(params.get('journal_id'));if(linked)await loadLinkedJournal(linked);const lab=params.get('lab');if(lab&&$('sim-lab-id')&&!$('sim-lab-id').value)$('sim-lab-id').value=lab;if(lab)await loadContextEnvelope(lab);const topic=params.get('topic');if(topic&&!$('sim-entry-reason').value)$('sim-entry-reason').value=`Tutor practice topic: ${topic}`;if(SIM.hasPremium)gate.textContent='';$('sim-content').hidden=false;
  window.CrownlightWorkbenchLayout?.init({canUsePaper:SIM.hasPremium===true,getToken:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session?.access_token||null}});
  if(SIM.hasPremium)window.CrownlightPaperTerminal?.initialize?.({getSession:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session||null}});
@@ -163,7 +163,17 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  const changes=SIM.sb.auth.onAuthStateChange?.((event,session)=>{
   if(event==='SIGNED_OUT'||session?.user?.id&&session.user.id!==SIM.user.id)window.CrownlightLive?.stop();
  });
- $('load-csv').onclick=loadCSV;if($('sim-load-fictional'))$('sim-load-fictional').onclick=loadFictionalPractice;if($('load-provider'))$('load-provider').onclick=loadProvider;$('load-demo-template').onclick=downloadTemplate;if($('sim-source'))$('sim-source').onchange=()=>{const connected=['tiingo','alpaca'].includes($('sim-source').value);if($('sim-csv-wrap'))$('sim-csv-wrap').hidden=connected;$('load-csv').hidden=connected;if($('load-provider'))$('load-provider').hidden=!connected};if($('load-provider'))$('load-provider').hidden=true;$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll();if(window.GroundUpFreePracticeRequested)loadFictionalPractice()}catch(e){gate.innerHTML=`<div class="notice">${JT()?.esc?JT().esc(e.message):e.message}</div>`}}
+ $('load-csv').onclick=loadCSV;if($('sim-load-fictional'))$('sim-load-fictional').onclick=loadFictionalPractice;if($('load-provider'))$('load-provider').onclick=loadProvider;$('load-demo-template').onclick=downloadTemplate;if($('sim-source'))$('sim-source').onchange=()=>{const connected=['tiingo','alpaca'].includes($('sim-source').value);if($('sim-csv-wrap'))$('sim-csv-wrap').hidden=connected;$('load-csv').hidden=connected;if($('load-provider'))$('load-provider').hidden=!connected};if($('load-provider'))$('load-provider').hidden=true;$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll();if(window.GroundUpFreePracticeRequested)loadFictionalPractice();
+ if(window.GroundUpStudioRequestedTier){
+  const disclosure=document.querySelector('#cl-replay-import details.cl-workbench-import');
+  if(disclosure)disclosure.open=false;
+  const chart=document.getElementById('cl-chart-tier-switcher')||document.querySelector('.sim-chart-panel');
+  if(chart){
+   chart.setAttribute('tabindex','-1');
+   window.requestAnimationFrame(()=>{chart.scrollIntoView({block:'start'});chart.focus({preventScroll:true});});
+  }
+ }
+ }catch(e){gate.innerHTML=`<div class="notice">${JT()?.esc?JT().esc(e.message):e.message}</div>`}}
 /* The secure replay panel owns the default simulator screen.
  * Legacy browser CSV initialization runs only after the member explicitly
  * selects unverified practice, never while inspecting server-only history.
