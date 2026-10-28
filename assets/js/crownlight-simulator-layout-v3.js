@@ -94,6 +94,26 @@
   old.after(picker);
   const note=el('p','cl-lab-help','All 419 canonical Labs are listed. Locked or unreleased Labs cannot be opened using this selector.');
   picker.after(note);
+  picker.hidden=true;picker.setAttribute('aria-hidden','true');picker.tabIndex=-1;
+  const compact=el('div','cl-lab-combobox');
+  compact.innerHTML='<button type="button" class="cl-lab-trigger" aria-expanded="false" aria-controls="cl-lab-results">Select a lesson or Lab <span aria-hidden="true">⌄</span></button><div id="cl-lab-results" class="cl-lab-popover" hidden><label for="cl-lab-search">Search lessons or Labs</label><input id="cl-lab-search" type="search" placeholder="Search title, topic or Lab ID" autocomplete="off"><div class="cl-lab-options" role="listbox" aria-label="Available and locked Labs"></div></div>';
+  picker.after(compact);
+  const trigger=compact.querySelector('.cl-lab-trigger'),popover=compact.querySelector('.cl-lab-popover'),search=compact.querySelector('#cl-lab-search'),results=compact.querySelector('.cl-lab-options');
+  const renderOptions=()=>{const query=search.value.trim().toLowerCase();results.replaceChildren();let displayed=0;
+   for(const option of [...picker.options]){
+    if(!option.value||!option.textContent.toLowerCase().includes(query))continue;
+    if(displayed++>=65)break;
+    const b=el('button','cl-lab-option',option.textContent);b.type='button';b.dataset.value=option.value;
+    b.setAttribute('role','option');b.setAttribute('aria-selected',String(picker.value===option.value));
+    if(option.disabled){b.disabled=true;b.classList.add('cl-lab-option-locked');b.title='This Lab is unavailable under the current membership or release status';}
+    b.addEventListener('click',()=>{picker.value=option.value;picker.dispatchEvent(new Event('change',{bubbles:true}));trigger.firstChild.textContent=option.textContent+' ';popover.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus()});results.append(b)
+   }
+   if(!displayed)results.append(el('p','cl-lab-empty','No matching lessons or Labs.'));
+  };
+  trigger.addEventListener('click',()=>{popover.hidden=!popover.hidden;trigger.setAttribute('aria-expanded',String(!popover.hidden));if(!popover.hidden){renderOptions();search.focus()}});
+  search.addEventListener('input',renderOptions);
+  compact.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popover.hidden){popover.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus()}});
+  document.addEventListener('click',e=>{if(!compact.contains(e.target)){popover.hidden=true;trigger.setAttribute('aria-expanded','false')}});
   let catalog=null;
   const load=async()=>{
    try{
@@ -127,14 +147,14 @@
      option.disabled=!canOpen;holder.append(option);if(canOpen)available++;
     }
     if(old.value&&[...picker.options].some(o=>o.value==='lab:'+old.value&&!o.disabled))picker.value='lab:'+old.value;
-    note.textContent='419 canonical Labs · '+available+' released Labs available under the current permission check. Free Foundations Days 1–5 are unlocked. 🔒 indicates unavailable; selecting a Lab does not bypass server authorization.';
-   }catch{note.textContent='Lab catalog currently unavailable. Free Foundations remains accessible in Boot Camp Academy.'}
+    note.textContent='';renderOptions();
+   }catch{note.textContent='Lab list unavailable. Open Free Foundations from the Academy.';}
   };
   picker.addEventListener('change',()=>{
    const selected=picker.selectedOptions[0];
    if(selected?.disabled){picker.value='';return}
    if(picker.value.startsWith('academy:free5:')){
-    const day=Number(picker.value.split(':')[2]);location.assign('bootcamp-academy.html?program=free5&day='+day);return
+    const day=Number(picker.value.split(':')[2]);location.assign('bootcamp-academy.html?program=free5&day='+day+'#academy-workspace');return
    }
    if(picker.value.startsWith('lab:')){old.value=picker.value.slice(4);const href=el('a','cl-selected-lab-link','Open selected Lab');
     href.href='lab-player.html?lab='+encodeURIComponent(old.value);
