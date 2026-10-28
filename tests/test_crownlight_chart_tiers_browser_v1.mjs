@@ -21,7 +21,7 @@ await context.addInitScript(()=>{const user={id:'11111111-1111-4111-8111-1111111
 window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{user,access_token:'mock'}}}),
 onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}});});
 const page=await context.newPage(),errors=[];page.on('pageerror',x=>errors.push(x.message));
-await page.route('**/*',async route=>{const u=new URL(route.request().url);
+await page.route('**/*',async route=>{const u=new URL(route.request().url());
 if(u.hostname==='cdn.jsdelivr.net'){assert.equal(u.pathname,'/npm/klinecharts@10.1.0/dist/umd/klinecharts.min.js');
 return route.fulfill({status:200,contentType:'application/javascript',body:readFileSync(kline)});}
 if(u.origin!==origin)return route.abort();
