@@ -216,6 +216,14 @@
   else state.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,prior.from),to:Math.min(data.length+2,prior.to)});
   state.hover=data[data.length-1]||null;showHover(state.hover);renderLegend();
   if(!state.shell.querySelector('.crownlight-source').hidden)showSource();
+  // Shared read-only chart adapter: emit only revealed OHLCV data. Never send
+  // an unrevealed candle, a full scenario array, or member credentials.
+  root.dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{
+   symbol:String(sim.sourceName||'REPLAY').slice(0,40),
+   timeframe:String(document.querySelector('#sim-timeframe')?.value||'').slice(0,48),
+   source:String(sim.sourceProvider||''),
+   bars:data.map(b=>({timestamp:b.time.getTime(),open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume}))
+  }}));
   return true;
  }
  function showHover(b){
