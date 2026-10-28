@@ -119,6 +119,9 @@ assert.match(element('lab-body').innerHTML,/data-status="not_started"/);
 current='';
 callback('SIGNED_OUT',null);
 assert.doesNotMatch(element('lab-body').innerHTML,/data-status="completed"|data-status="in_progress"/);
-assert.match(element('lab-body').innerHTML,/Sign in to track progress/);
+assert.match(element('lab-body').innerHTML,/Sign in required/,
+ 'Signed-out members must see the authorization gate');
+assert.doesNotMatch(element('lab-body').innerHTML,/lab-open-btn/,
+ 'No previously authorized Lab launch may survive sign-out');
 assert.doesNotMatch(source,/localStorage|sessionStorage/);
 console.log('PASS Lab account switch: immediate DOM scrub, separate member progress, late response ignored, sign-out clears');
