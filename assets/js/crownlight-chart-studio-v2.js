@@ -52,12 +52,14 @@
    '<button type="button" data-cl="follow" title="Follow the latest revealed candle">Follow</button>'+
    '<button type="button" data-cl="studies">Indicators <span class="cl-dot">●</span></button>'+
    '<button type="button" data-cl="level">＋ Level</button>'+
-   '<button type="button" data-cl="source">Source</button>'+
+   '<button type="button" data-cl="source">Source</button>'+ 
+   '<button type="button" data-cl="coach">Talia · Chart Lab</button>'+
    '<button type="button" data-cl="fullscreen">⛶ <span class="cl-text">Expand</span></button></div></div>'+
    '<div class="crownlight-legend" aria-label="Selected indicators"></div>'+
    '<div class="crownlight-market-strip" aria-live="off"><span data-cl="hover-title">Move over a candle to inspect it</span><span data-cl="hover-data">O — H — L — C — V —</span></div>'+
    '<div class="crownlight-plot" role="img" aria-label="Interactive candle chart. Mouse wheel zooms; drag pans. Keyboard controls are above."></div>'+
-   '<div class="crownlight-help">Scroll to zoom at the cursor · Drag to explore revealed candles · Crosshair displays exact observed values · ET timestamps · <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts™</a> (Copyright © 2025 TradingView, Inc.)</div>'+
+   '<div class="crownlight-help">Scroll to zoom at the cursor · Drag to explore revealed candles · Crosshair displays exact observed values · ET timestamps · <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts™</a> (Copyright © 2025 TradingView, Inc.)</div>'+ 
+   '<section class="crownlight-coach" hidden aria-label="Talia chart learning panel"><div class="crownlight-coach-head"><span class="crownlight-coach-symbol">T</span><div><span>CHART LAB</span><h3>Read the Evidence with Talia</h3></div></div><div data-cl="coach-body"></div><label for="crownlight-observation">Your observation — what is known, unknown, or invalidated?</label><textarea id="crownlight-observation" rows="3" placeholder="Write your own analysis before revealing the next candle. No-trade is a valid conclusion."></textarea><div class="actions"><button type="button" data-cl="copy-observation">Copy observation</button><span data-cl="coach-feedback" role="status" aria-live="polite"></span></div></section>'+
    '<section class="crownlight-source" hidden aria-label="Market data source"><h3>Source and data integrity</h3><div data-cl="source-body"></div></section>';
   canvas.before(shell);
   const chartBox=shell.querySelector('.crownlight-plot');
@@ -97,6 +99,8 @@
    if(cmd==='studies')openStudies();
    if(cmd==='level')addLevel();
    if(cmd==='source'){const element=shell.querySelector('.crownlight-source');element.hidden=!element.hidden; if(!element.hidden)showSource()}
+   if(cmd==='coach'){const element=shell.querySelector('.crownlight-coach');element.hidden=!element.hidden;if(!element.hidden)showCoach(state.hover||state.sim?.candles[state.sim?.index])}
+   if(cmd==='copy-observation')void copyObservation();
    if(cmd==='fullscreen')toggleFullscreen();
   });
   state.observer=new ResizeObserver(()=>{if(state.chart){chart.resize(Math.max(280,chartBox.clientWidth),chartBox.clientHeight||620)}});
@@ -216,18 +220,21 @@
   if(Number.isFinite(b.tradeCount))extra+=' · Trades '+num(b.tradeCount);
   if(Number.isFinite(b.providerVwap))extra+=' · Bar VWAP $'+money(b.providerVwap);
   details.textContent='O '+money(b.open)+'  H '+money(b.high)+'  L '+money(b.low)+'  C '+money(b.close)+'  Vol '+num(b.volume)+extra;
+  if(!state.shell.querySelector('.crownlight-coach').hidden)showCoach(b);
  }
  function showSource(){
   const body=state.shell?.querySelector('[data-cl="source-body"]');if(!body||!state.sim)return;
-  const sim=state.sim;body.replaceChildren();
+  const sim=state.sim;body.replaceChildren();const visible=sim.candles.slice(0,sim.index+1);
+  const outside=visible.filter(bar=>MathLib().session(bar).kind==='overnight').length;
   const rows=[
    ['Source',sim.sourceName||'Member-provided file'],['Provider',sim.sourceProvider||'User import'],
    ['Loaded bar count',sim.candles.length+' (client-inspectable for this practice mode)'],
    ['Revealed bars',sim.index+1],
    ['Time zone','America/New_York'],
    ['Current session',MathLib().session(sim.candles[sim.index]).kind],
-   ['Trade counts',sim.candles.some(b=>Number.isFinite(b.tradeCount))?'Available where returned':'Not supplied'],
-   ['Per-bar provider VWAP',sim.candles.some(b=>Number.isFinite(b.providerVwap))?'Available where returned':'Not supplied'],
+   ['Trade counts',visible.some(b=>Number.isFinite(b.tradeCount))?'Available on revealed bars':'Not supplied on revealed bars'],
+   ['Per-bar provider VWAP',visible.some(b=>Number.isFinite(b.providerVwap))?'Available on revealed bars':'Not supplied on revealed bars'],
+   ['Outside 04:00–20:00 ET',outside+' revealed bars (provider timestamp retained; verify coverage)'],
    ['Session VWAP overlay','HLC3 × volume approximation, not exact trade VWAP'],
    ['Feed integrity','Not independently certified; data completeness and redistribution rights not established'],
    ['Assessment','Ungraded personal practice only; browser contains full source array']
@@ -235,6 +242,43 @@
   const dl=h('dl','crownlight-facts');rows.forEach(([k,v])=>{dl.append(h('dt','',k),h('dd','',String(v)))});
   body.append(dl);
   if(sim.sourceNote)body.append(h('p','crownlight-source-note',sim.sourceNote));
+ }
+ function showCoach(bar){
+  const target=state.shell?.querySelector('[data-cl="coach-body"]');if(!target||!bar)return;
+  const range=bar.high-bar.low,body=Math.abs(bar.close-bar.open),upper=bar.high-Math.max(bar.open,bar.close);
+  const lower=Math.min(bar.open,bar.close)-bar.low,position=range>0?(bar.close-bar.low)/range:null;
+  const direction=bar.close>bar.open?'Bullish':bar.close<bar.open?'Bearish':'Doji / unchanged close';
+  const index=state.sim.candles.findIndex(x=>x.time.getTime()===bar.time.getTime());
+  const prior=state.sim.candles.slice(Math.max(0,index-20),index).filter(x=>x.volume>=0);
+  const relative=prior.length>=5&&prior.reduce((sum,x)=>sum+x.volume,0)>0?
+   bar.volume/(prior.reduce((sum,x)=>sum+x.volume,0)/prior.length):null;
+  target.replaceChildren();
+  const title=h('p','crownlight-coach-lead',direction+' candle · '+timeNY(bar.time.getTime())+' ET');
+  const table=h('dl','crownlight-coach-math');
+  const values=[
+   ['Real body',money(body)+' = |close − open|'],
+   ['Full range',money(range)+' = high − low'],
+   ['Upper wick',money(Math.max(0,upper))],
+   ['Lower wick',money(Math.max(0,lower))],
+   ['Body / range',range>0?(100*body/range).toFixed(1)+'%':'Undefined (zero range)'],
+   ['Close position',position===null?'Undefined (zero range)':(100*position).toFixed(1)+'% above candle low'],
+   ['Relative volume',relative===null?'Not assessed: need at least five prior observed bars':relative.toFixed(2)+'× preceding '+prior.length+'-bar mean (local sample)']
+  ];
+  values.forEach(([name,value])=>{table.append(h('dt','',name),h('dd','',value))});
+  const question=h('p','crownlight-coach-question','What does the current candle establish? Which market observations are still unknown, and what evidence would justify waiting rather than trading?');
+  const warning=h('p','crownlight-coach-notice','A candle describes past observations. It cannot prove the next price move or trade execution. This is ungraded educational practice.');
+  target.append(title,table,question,warning);
+ }
+ async function copyObservation(){
+  const note=state.shell?.querySelector('#crownlight-observation')?.value?.trim();
+  const feedback=state.shell?.querySelector('[data-cl="coach-feedback"]');
+  if(!note){if(feedback)feedback.textContent='Write your own observation first.';return}
+  const b=state.hover||state.sim?.candles[state.sim.index];if(!b)return;
+  const message='Crownlight Chart Lab — '+(state.sim.sourceName||'Member source')+
+    '\n'+timeNY(b.time.getTime())+' ET — O '+b.open+' H '+b.high+' L '+b.low+' C '+b.close+' Volume '+b.volume+
+    '\nMember observation: '+note+'\nUngraded personal practice; source not independently certified.';
+  try{await navigator.clipboard.writeText(message);if(feedback)feedback.textContent='Copied for your Trading Journal.'}
+  catch{if(feedback)feedback.textContent='Browser clipboard access unavailable; select and copy your observation manually.'}
  }
  function openStudies(){
   if(!state.shell)return;state.modal?.remove();
