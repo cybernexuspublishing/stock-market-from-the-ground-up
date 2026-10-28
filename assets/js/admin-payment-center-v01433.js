@@ -44,7 +44,7 @@ function openTarget(item){
 }
 function paymentPanel(){const panel=qs('.admin-panel[data-admin-panel="commerce"]');if(!panel)return false;
  if(qs('[data-gu33-payment-hub]',panel))return true;
- const heading=qs('.admin-heading h1',panel);if(heading)heading.textContent='Payments & Billing Center';
+ const heading=qs('.admin-heading h1',panel);if(heading)heading.textContent='Orders & Subscriptions';
  const sub=qs('.admin-heading p',panel);if(sub)sub.textContent='Find your payment settings, products, orders and memberships in one place.';
  const hub=make('section',undefined,'gu33-payment-hub');hub.dataset.gu33PaymentHub='1';
  const intro=make('div',undefined,'gu33-hub-top');intro.append(make('h2','Manage Payments'),make('p','Choose a payment service below. Stripe handles digital sales tests, Lemon Squeezy is optional, and printed books have separate payment and shipping settings. Each option needs its own setup.'));
