@@ -12,6 +12,7 @@
    x.classList.contains('cl-import-shell')||
    x.querySelector(':scope > h2')?.textContent?.includes('Load replay data'));
   if(!section)return;
+  section.id='cl-replay-import';
   // Ensure the data-import section stays ahead of the chart, even when an
   // older browser layout script has moved its DOM node.
   const chartSection=parent.querySelector(':scope > .sim-layout');
@@ -32,7 +33,7 @@
  function setupChart(){
   const area=document.querySelector('#sim-content .sim-layout'),chart=area?.querySelector('.sim-chart-panel');
   if(!area||!chart)return;
-  const toolbar=el('div','cl-chart-visibility');
+  const toolbar=el('div','cl-chart-visibility');toolbar.id='cl-chart-visibility-toolbar';
   const label=el('strong','','2. Interactive chart and replay');
   const button=el('button','cl-collapse-btn','Hide chart');
   button.type='button';button.setAttribute('aria-expanded','true');
@@ -56,7 +57,7 @@
   const aside=layout?.querySelector(':scope > aside.sim-side');
   const metrics=[...parent.querySelectorAll(':scope > section')].find(x=>x.querySelector(':scope > h2')?.textContent?.includes('Simulation metrics'));
   if(!aside||!metrics)return;
-  const wrapper=el('section','cl-workbench-tabs');
+  const wrapper=el('section','cl-workbench-tabs');wrapper.id='cl-simulator-workbench';
   wrapper.setAttribute('aria-label','Trade planning, execution and learning metrics');
   const nav=el('div','cl-workbench-tabbar');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Simulator workbench');
   const panels=el('div','cl-workbench-panels');
@@ -243,11 +244,39 @@
   });
   load();
  }
+ function restoreStepOrder(){
+  const parent=$('sim-content');
+  if(!parent)return;
+  const source=$('cl-replay-import'),toolbar=$('cl-chart-visibility-toolbar');
+  const chart=parent.querySelector(':scope > .sim-layout'),tabs=$('cl-simulator-workbench');
+  if(!source||!chart)return;
+  // Keep DOM/screen-reader order identical to visual order. Older stored layout
+  // positions must never put the source picker after the chart or trade tabs.
+  const expected=[source,toolbar,chart,tabs].filter(el=>el&&el.parentElement===parent);
+  const current=[...parent.children];
+  if(expected.every((el,i)=>current[i]===el))return;
+  for(let i=expected.length-1;i>=0;i--)parent.prepend(expected[i]);
+ }
+ function watchOrder(){
+  const host=$('sim-content');if(!host)return;
+  let queued=false;
+  const observer=new MutationObserver(()=>{
+   if(queued)return;queued=true;
+   requestAnimationFrame(()=>{queued=false;restoreStepOrder()});
+  });
+  observer.observe(host,{childList:true});
+ }
  function init(opts={}){
   if(state.initialized)return;const rootContent=$('sim-content');
   if(!rootContent)return;state.initialized=true;
   setupImport();setupChart();setupTabs(opts);setupLabPicker(opts);
-  const timeframe=$('sim-timeframe');if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';});}
+  restoreStepOrder();watchOrder();
+  const timeframe=$('sim-timeframe');
+  if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{
+   if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';
+   const mirror=$('cl-chart-visibility-toolbar')?.querySelector('input');
+   if(mirror&&document.activeElement!==mirror)mirror.value=timeframe.value;
+  });}
  }
  root.CrownlightWorkbenchLayout={init};
 })(window);
