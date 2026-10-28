@@ -11,7 +11,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_PUBL
  GU71_ZERO_LIVE_PRICE_ID:'price_gu71Zero123',PUBLIC_SITE_URL:base};
 const user='11111111-1111-4111-8111-111111111111';
 const state={role:'OWNER',step:true,amount:0,kind:'one_time',marked:true,wrongProduct:false,sessionAmount:0,
- method:'if_required',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null,founder14Checkout:false};
+ method:'if_required',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null,founder14Checkout:false,providerReject:false};
 const json=(obj,code=200)=>new Response(JSON.stringify(obj),{status:code,headers:{'content-type':'application/json'}});
 const saved=globalThis.fetch;
 globalThis.fetch=async(url,options={})=>{
@@ -50,6 +50,7 @@ globalThis.fetch=async(url,options={})=>{
   assert.equal(x.has('managed_payments[enabled]'),false);
   assert.equal(x.has('subscription_data[metadata][gu58_intent]'),false);
   assert.equal(x.has('metadata[gu58_intent]'),false);
+  if(state.providerReject)return json({error:{type:'invalid_request_error',code:'idempotency_key_in_use',param:'line_items[0][price]'}},400);
   return json({id:'cs_live_qa123456',livemode:true,mode:'payment',amount_subtotal:state.sessionAmount,
    amount_total:state.sessionAmount,payment_intent:null,subscription:null,
    payment_method_collection:state.method,url:'https://checkout.stripe.com/c/pay/cs_live_qa123456'});
@@ -94,7 +95,7 @@ try{
  assert.equal(r.status,200);
  out=await r.json();assert.equal(out.targetSku,'course:BC-05-TRUTH');
  assert.equal(state.targetSku,'course:BC-05-TRUTH');
- assert.match(state.lastIdempotency,/BC-05-TRUTH$/);
+ assert.match(state.lastIdempotency,/^gu71-zero-[0-9a-f-]{36}$/);
  assert.equal(state.stripePost,2,'Target-specific QA can create a separate zero-only Session');
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','course:SC-10-VWAP');
  assert.equal(r.status,404,'Unrecognized catalog items must not be diagnosed with a fabricated SKU');
@@ -103,10 +104,25 @@ try{
  assert.equal(r.status,200,'Owner-only live 14-day diagnostic must use the existing exact-zero one-time price');
  out=await r.json();assert.equal(out.targetSku,'founding:FOUNDING_14');
  assert.equal(state.targetSku,'founding:FOUNDING_14');assert.equal(state.stripePost,3);
+ const previousAttempt=state.lastIdempotency;
+ r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','founding:FOUNDING_14');
+ assert.equal(r.status,200,'A second deliberate zero-dollar attempt remains isolated');
+ assert.notEqual(state.lastIdempotency,previousAttempt,'Stripe idempotency key must differ per explicit Owner action');
+ assert.equal(state.stripePost,4);
+ state.providerReject=true;
+ r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','founding:FOUNDING_14');
+ assert.equal(r.status,503,'Stripe rejection never opens a checkout session');
+ let failure=await r.json();
+ assert.equal(failure.error,'ZERO_CHECKOUT_NOT_SUPPORTED');
+ assert.equal(failure.stripeDiagnostic.code,'idempotency_key_in_use');
+ assert.equal(failure.stripeDiagnostic.param,'line_items[0][price]');
+ assert.equal(failure.stripeDiagnostic.httpStatus,400);
+ assert(!JSON.stringify(failure).includes('sk_live_'),'Credentials must never leak to Owner response');
+ state.providerReject=false;
  state.founder14Checkout=true;
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','founding:FOUNDING_14');
  assert.equal(r.status,409,'Zero QA must refuse a simultaneously activated $22.99 paid 14-day checkout');
- assert.equal(state.stripePost,3);
+ assert.equal(state.stripePost,5);
  state.founder14Checkout=false;
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','course:NOT VALID');
  assert.equal(r.status,400);assert.equal(state.stripePost,3);
