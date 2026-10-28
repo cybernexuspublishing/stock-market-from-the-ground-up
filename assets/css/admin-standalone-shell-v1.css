@@ -1,0 +1,10 @@
+/* Standalone Admin pages use one consistent compact toolbar. */
+.cc-standalone-bar{position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.7rem;padding:.75rem 1rem;margin:0 auto 1.4rem;max-width:1400px;background:#0e2a3e;color:#eef5f8;border:1px solid #385a74;border-radius:10px;font-size:.88rem}
+.cc-standalone-bar a{color:#f6d68e;text-decoration:underline;text-underline-offset:.15em}
+.cc-standalone-breadcrumb{font-weight:700}
+.cc-standalone-search{display:flex;gap:.4rem;flex:1 1 250px;max-width:430px;margin:0}
+.cc-standalone-search input{width:100%;min-width:0;padding:.5rem .65rem;background:#fff;color:#102a40;border:1px solid #54718b;border-radius:6px}
+.cc-standalone-search button{padding:.45rem .75rem;border:1px solid #c5d4df;background:#123b58;color:#fff;border-radius:6px;cursor:pointer}
+.cc-standalone-bar :is(a,input,button):focus-visible{outline:2px solid #f6d68e;outline-offset:3px}
+.cc-standalone-page-title{font-size:clamp(1.4rem,3vw,2.2rem)}
+@media(max-width:620px){.cc-standalone-bar{margin:0 .5rem 1rem}.cc-standalone-search{flex-basis:100%;max-width:none}}
