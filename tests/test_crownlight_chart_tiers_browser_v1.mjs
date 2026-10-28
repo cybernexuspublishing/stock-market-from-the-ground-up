@@ -80,6 +80,41 @@ assert(panes.every(p=>p.height>=200&&p.ema===1&&p.rsi===1&&p.source===2&&p.hostH
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),
 [...two,{timestamp:two[1].timestamp+60000,open:11,high:11.8,low:10.6,close:11.7,volume:1000}]);
 assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().revealed),3);
+if(tier==='ADVANCED'){
+ // High-fidelity regression probe for Owner's 21/940 Tiingo replay (only 21 supplied).
+ const providerBars=Array.from({length:21},(_,i)=>{
+  const base=341.50+Math.sin(i*0.82)*0.11+i*0.005;
+  const open=Number(base.toFixed(4)),close=Number((base+(i%2?-.085:.075)).toFixed(4));
+  return {timestamp:1791964800000+i*60000,open,high:Number((Math.max(open,close)+.035).toFixed(4)),
+   low:Number((Math.min(open,close)-.035).toFixed(4)),close,volume:i%5===0?120:1};
+ });
+ await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{
+  symbol:'AAPL',timeframe:'1-minute',source:'tiingo_byo',bars:b}})),providerBars);
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getInstances()[0]?.chart.getDataList().length===21,{timeout:15000});
+ await page.waitForTimeout(250);
+ const probe=await page.evaluate(()=>{
+  const entry=window.CrownlightChartTiers.getInstances()[0],chart=entry.chart;
+  const data=chart.getDataList(),visible=chart.getVisibleRange(),canvas=[...entry.host.querySelectorAll('canvas')];
+  const locations=data.slice(-5).map(d=>({stamp:d.timestamp,
+   pt:chart.convertToPixel({timestamp:d.timestamp,value:d.close},{paneId:'candle_pane'})}));
+  const samples=canvas.map(el=>{
+   const w=el.width,h=el.height,ctx=el.getContext('2d');
+   if(!ctx)return {w,h,error:'no2d'};
+   const pixels=ctx.getImageData(0,0,w,h).data;
+   let bull=0,bear=0;
+   for(let yy=40;yy<Math.min(h,Math.round(h*.8));yy+=2)
+    for(let xx=35;xx<Math.max(35,w-70);xx+=2){
+     const a=(yy*w+xx)*4,r=pixels[a],g=pixels[a+1],b=pixels[a+2];
+     if(g>105&&g>r*1.35&&g>b*1.1)bull++;
+     if(r>125&&r>g*1.6&&r>b*1.2)bear++;
+    }
+   return {w,h,bull,bear};
+  });
+  return {visible,data:data.length,locations,canvas:samples,holder:{
+   width:entry.host.getBoundingClientRect().width,height:entry.host.getBoundingClientRect().height}};
+ });
+ console.log('CROWNLIGHT_REAL_CANDLE_PIXEL_PROBE '+JSON.stringify(probe));
+}
 await page.locator('.cl-talia-toggle').click();
 assert.match(await page.locator('.cl-talia-facts').innerText(),/EMA 9|VWAP/i);
 await page.locator('.cl-talia-answer').fill('No trade until price acceptance; invalidation below prior low.');
