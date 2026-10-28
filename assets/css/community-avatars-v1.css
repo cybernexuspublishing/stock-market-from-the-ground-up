@@ -1,0 +1,5 @@
+.gu-author-avatar{display:inline-block;vertical-align:middle;width:34px;height:34px;
+ object-fit:cover;border:1px solid #4c8c88;border-radius:50%;background:#102e40}
+[data-community-avatar-user]{display:inline-flex;vertical-align:middle;align-items:center;flex:none;margin-right:8px}
+.v13-post-head,.forum-post-head{align-items:center}
+@media(max-width:550px){.gu-author-avatar{width:28px;height:28px}}

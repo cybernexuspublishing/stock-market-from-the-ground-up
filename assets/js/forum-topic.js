@@ -10,6 +10,7 @@ async function loadTopic(){
   document.getElementById('topic-title').textContent=t.title;
   document.getElementById('topic-category').textContent=t.category_name;
   document.getElementById('topic-author').textContent=`@${t.author_username}`;
+  if(t.author_id)document.getElementById('topic-author').insertAdjacentHTML('beforebegin','<span data-community-avatar-user="'+fesc(t.author_id)+'"></span>');
   document.getElementById('topic-date').textContent=new Date(t.created_at).toLocaleString();
   const ticker=document.getElementById('topic-ticker'); if(t.ticker){ticker.textContent=`$${t.ticker}`;ticker.hidden=false}
   const lab=document.getElementById('topic-lab'); if(t.lab_id&&lab){lab.textContent=t.lab_id;lab.href=`lab-player.html?lab=${encodeURIComponent(t.lab_id)}`;lab.hidden=false}
@@ -26,7 +27,7 @@ async function loadTopic(){
 async function loadPosts(){
   const sb=await window.getSupabaseClient(); const list=document.getElementById('topic-replies');
   const {data,error}=await sb.rpc('forum_list_posts',{target_topic_id:topicId}); if(error){list.innerHTML=`<div class="notice">${fesc(error.message)}</div>`;return}
-  list.innerHTML=(data||[]).map(p=>`<article class="forum-post" id="post-${p.post_id}"><div class="forum-post-head"><strong>@${fesc(p.author_username)}</strong><span class="small">${new Date(p.created_at).toLocaleString()}</span></div><div class="forum-post-body">${window.GroundUpForumEditor?.render(p.body)||fesc(p.body).replace(/\n/g,'<br>')}</div><button class="link-button small" type="button" onclick="reportPost(${p.post_id})">Report</button></article>`).join('')||'<div class="small">No replies yet.</div>';
+  list.innerHTML=(data||[]).map(p=>`<article class="forum-post" id="post-${p.post_id}"><div class="forum-post-head"><span data-community-avatar-user="${fesc(p.author_id||'')}"></span><strong>@${fesc(p.author_username)}</strong><span class="small">${new Date(p.created_at).toLocaleString()}</span></div><div class="forum-post-body">${window.GroundUpForumEditor?.render(p.body)||fesc(p.body).replace(/\n/g,'<br>')}</div><button class="link-button small" type="button" onclick="reportPost(${p.post_id})">Report</button></article>`).join('')||'<div class="small">No replies yet.</div>';
 }
 async function addReply(e){
   e?.preventDefault(); if(topicLocked)return;
