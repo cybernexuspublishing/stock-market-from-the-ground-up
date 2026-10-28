@@ -37,7 +37,7 @@ async function loadRows(){
   rows.length+' Journal records loaded. Filters and export cover all loaded records.';
  window.dispatchEvent(new CustomEvent('gu-journal-rows-loaded',{detail:{rows:JSTATE.rows,truncated:JSTATE.truncated}}));
 }
-async function createJournal(e){e.preventDefault();jm('Creating…');const row={user_id:JSTATE.user.id,journal_type:document.getElementById('new-type').value,ticker:document.getElementById('new-ticker').value.trim().toUpperCase(),trade_date:document.getElementById('new-date').value,timeframe:document.getElementById('new-timeframe').value.trim()||null,setup:document.getElementById('new-setup').value.trim()||null,session_label:document.getElementById('new-session').value||null,status:'draft',decision:null};const {data,error}=await JSTATE.sb.from('decision_journal').insert(row).select('id').single();if(error){jm(freeQuotaMessage(error),'error');await showFreeUsage();return}location.href=`journal-entry.html?id=${data.id}`}
+async function createJournal(e){e.preventDefault();jm('Creating…');const row={user_id:JSTATE.user.id,journal_type:document.getElementById('new-type').value,ticker:document.getElementById('new-ticker').value.trim().toUpperCase(),trade_date:document.getElementById('new-date').value,timeframe:document.getElementById('new-timeframe').value.trim()||null,setup:(document.getElementById('new-setup').value==='__CUSTOM__'?document.getElementById('new-setup-custom').value.trim():document.getElementById('new-setup').value)||null,session_label:document.getElementById('new-session').value||null,status:'draft',decision:null};const {data,error}=await JSTATE.sb.from('decision_journal').insert(row).select('id').single();if(error){jm(freeQuotaMessage(error),'error');await showFreeUsage();return}location.href=`journal-entry.html?id=${data.id}`}
 async function exportJournal(){
  try{await loadRows();if(JSTATE.truncated){
   const note=document.getElementById('gu-v2-list-limits');
@@ -65,5 +65,17 @@ async function initJournal(){const gate=document.getElementById('journal-gate');
   gate.textContent='Account session changed. Reload to access your own private Journal.';
   window.dispatchEvent(new CustomEvent('gu-journal-rows-loaded',{detail:{rows:[],truncated:false}}));
  });
- JSTATE.tax=await window.JournalTools.taxonomy();const type=document.getElementById('new-type');type.innerHTML=JSTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');const session=document.getElementById('new-session');JSTATE.tax.sessions.forEach(x=>session.insertAdjacentHTML('beforeend',`<option>${window.JournalTools.esc(x)}</option>`));document.getElementById('new-date').value=new Date().toISOString().slice(0,10);gate.innerHTML='';document.getElementById('journal-content').hidden=false;document.getElementById('new-journal-toggle').onclick=()=>document.getElementById('new-journal-panel').hidden=false;document.getElementById('cancel-new-journal').onclick=()=>document.getElementById('new-journal-panel').hidden=true;document.getElementById('new-journal-form').addEventListener('submit',createJournal);['journal-type-filter','journal-status-filter'].forEach(id=>document.getElementById(id).addEventListener('change',renderJournal));document.getElementById('journal-search').addEventListener('input',renderJournal);document.getElementById('export-journal').onclick=exportJournal;await loadRows();await showFreeUsage()}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools?.esc(err.message)||err.message}</div>`}}
+ JSTATE.tax=await window.JournalTools.taxonomy();
+ const setupSelect=document.getElementById('new-setup'),custom=document.getElementById('new-setup-custom'),
+   customLabel=document.getElementById('new-setup-custom-label');
+ for(const title of JSTATE.tax.setups||[]){
+  const option=document.createElement('option');option.value=title;option.textContent=title;setupSelect.append(option);
+ }
+ const customOption=document.createElement('option');
+ customOption.value='__CUSTOM__';customOption.textContent='Other — describe my setup';setupSelect.append(customOption);
+ const syncSetup=()=>{const enabled=setupSelect.value==='__CUSTOM__';
+  custom.hidden=customLabel.hidden=!enabled;custom.required=enabled;
+ };
+ setupSelect.addEventListener('change',syncSetup);syncSetup();
+ const type=document.getElementById('new-type');type.innerHTML=JSTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');const session=document.getElementById('new-session');JSTATE.tax.sessions.forEach(x=>session.insertAdjacentHTML('beforeend',`<option>${window.JournalTools.esc(x)}</option>`));document.getElementById('new-date').value=new Date().toISOString().slice(0,10);gate.innerHTML='';document.getElementById('journal-content').hidden=false;document.getElementById('new-journal-toggle').onclick=()=>document.getElementById('new-journal-panel').hidden=false;document.getElementById('cancel-new-journal').onclick=()=>document.getElementById('new-journal-panel').hidden=true;document.getElementById('new-journal-form').addEventListener('submit',createJournal);['journal-type-filter','journal-status-filter'].forEach(id=>document.getElementById(id).addEventListener('change',renderJournal));document.getElementById('journal-search').addEventListener('input',renderJournal);document.getElementById('export-journal').onclick=exportJournal;await loadRows();await showFreeUsage()}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools?.esc(err.message)||err.message}</div>`}}
 document.addEventListener('DOMContentLoaded',initJournal);
