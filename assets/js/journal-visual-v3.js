@@ -69,7 +69,7 @@ function build(){
  const detail=el('div',undefined,'gu-j3-date-detail');detail.id='gu-j3-date-detail';detail.setAttribute('aria-live','polite');
  const legend=el('div',undefined,'gu-j3-legend');
  for(const title of ['Recorded decisions','No-trade only','Mixed activities'])legend.append(el('span',title));
- const caption=el('p','Calendar shading describes activity type, never profitability. A blank day does not imply a loss.','gu-j3-note');
+ const caption=el('p','Weekends and NYSE market holidays are not selectable. Early-close trading days remain selectable. The Journal record list below still shows observations saved on closed dates. This calendar is for U.S. equities, not other markets.','gu-j3-note');
  calendar.append(header,ctrl,dates,detail,legend,caption);
  dashboard.append(overview,calendar);
  anchor.after(dashboard);
@@ -110,13 +110,17 @@ function render(){
   if(day<1||day>last){const blank=el('div');blank.setAttribute('aria-hidden','true');dates.append(blank);continue}
   const date=dayKey(new Date(Date.UTC(month.getUTCFullYear(),month.getUTCMonth(),day)));
   const included=rows.filter(r=>validDate(r.trade_date)&&r.trade_date===date);
+  const marketClosure=window.JournalMarketCalendar?.closed(date)||null;
   const btn=el('button',undefined,'gu-j3-day');btn.type='button';
+  if(marketClosure){btn.disabled=true;btn.classList.add('gu-j3-market-closed');btn.title=marketClosure;btn.dataset.closed='true';}
+
   btn.append(el('span',String(day)));btn.dataset.count=String(included.length);
   const pass=included.filter(r=>r.status==='no_trade'||(['closed','reviewed'].includes(r.status)&&r.decision==='NO TRADE')).length;
   if(included.length)btn.dataset.kind=pass===included.length?'no_trade':pass?'mixed':'recorded';
   if(included.length)btn.append(el('strong',String(included.length)));
   btn.setAttribute('aria-pressed',selected===date?'true':'false');
-  btn.setAttribute('aria-label',date+', '+included.length+' Journal record'+(included.length===1?'':'s'));
+  btn.setAttribute('aria-label',date+(marketClosure?' — '+marketClosure+'; not selectable':'')+', '+included.length+' Journal record'+(included.length===1?'':'s'));
+  if(marketClosure)btn.setAttribute('aria-disabled','true');
   btn.addEventListener('click',()=>{selected=date;renderDetail();dates.querySelectorAll('[aria-pressed]').forEach(n=>n.setAttribute('aria-pressed',String(n===btn)))});
   dates.append(btn);
  }
