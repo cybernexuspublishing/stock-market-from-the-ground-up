@@ -28,7 +28,7 @@ const can=p=>context?.permissions?.includes(p)||false;
 const owner=()=>context?.roles?.includes('OWNER')||false;
 function show(tab){
  current=tab;
- for(const name of ['memberships','books','tools']){
+ for(const name of ['books','tools','memberships','founding','sparks']){
   const x=$('admin-products-'+name),button=$('admin-products-tab-'+name),selected=tab===name;
   if(x)x.hidden=!selected;
   if(button){button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1}
@@ -169,11 +169,12 @@ function wire(){
   button.addEventListener('click',()=>show(button.dataset.productTab));
   button.addEventListener('keydown',ev=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;
-   ev.preventDefault();const names=['memberships','books','tools'],n=names.indexOf(button.dataset.productTab);
-   const i=ev.key==='Home'?0:ev.key==='End'?2:ev.key==='ArrowRight'?(n+1)%3:(n+2)%3;
+   ev.preventDefault();const names=['books','tools','memberships','founding','sparks'],n=names.indexOf(button.dataset.productTab);
+   const i=ev.key==='Home'?0:ev.key==='End'?names.length-1:ev.key==='ArrowRight'?(n+1)%names.length:(n+names.length-1)%names.length;
    show(names[i]);$('admin-products-tab-'+names[i]).focus();
   });
  });
+ $('admin-products-open-sparks')?.addEventListener('click',()=>{const target=document.querySelector('#admin-tabs [data-panel="sparks"]');if(!target||target.hidden||target.disabled){msg('Sparks editor is restricted to the authorized Owner.',true);return;}target.click();});
  $('admin-products-new-tool')?.addEventListener('click',()=>{try{window.GroundUpAdminToolEditor?.add()}catch(ex){msg(ex.message,true)}});
  root.addEventListener('click',async ev=>{
   const upcoming=ev.target.closest('[data-upcoming-create]');
@@ -236,12 +237,14 @@ async function load(){
   const result=await Promise.allSettled(requests);
   if(result[0].status!=='fulfilled')throw result[0].reason;
   live=result[0].value;
-  $('admin-products-membership-list').innerHTML=live.plans.length?live.plans.map(membershipCard).join(''):'<p>Membership catalog is restricted or unavailable.</p>';
+  const isFounding=p=>/FOUNDING|FOUNDER/i.test(String(p.plan_code||''));
+  $('admin-products-membership-list').innerHTML=live.plans.some(p=>!isFounding(p))?live.plans.filter(p=>!isFounding(p)).map(membershipCard).join(''):'<p>Membership catalog is restricted or unavailable.</p>';
+  $('admin-products-founding-list').innerHTML=live.plans.some(isFounding)?live.plans.filter(isFounding).map(membershipCard).join(''):'<p>No founding plans are available to this administrative account.</p>';
   $('admin-products-tool-list').innerHTML=(live.tools.length?live.tools.map(toolCard).join(''):'<p>Tool catalog is restricted or unavailable.</p>')+upcomingAdmin();
   $('admin-products-new-tool').hidden=!can('tools.manage');
   if(result[1].status!=='fulfilled')msg('Books could not be loaded: '+result[1].reason?.message,true);
   else msg((live.plans?.length||0)+' membership configurations · '+(live.tools?.length||0)+' tool records. Book listings are managed in the Books tab.');
-  const hash=location.hash.slice(1);show(hash==='#'?current:hash.endsWith('-tools')?'tools':hash.endsWith('-books')?'books':current);
+  const hash=location.hash.slice(1);const selected=hash.match(/^products-(books|tools|memberships|founding|sparks)$/)?.[1];show(selected||current);
  }catch(ex){msg('Products catalog unavailable: '+ex.message,true)}
  finally{pending=false}
 }
