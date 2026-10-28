@@ -37,10 +37,19 @@ async function originalGuides(env,request,question){
  try{return chooseGuides(await loadPublicGuides(env,request),question)}
  catch{return []}
 }
+async function approvedGuideForCodes(env,request,codes){
+ if(!Array.isArray(codes))return null;
+ const allowed=codes.filter(code=>typeof code==='string'&&/^[A-Z_]{3,60}$/.test(code)).slice(0,4);
+ if(!allowed.length)return null;
+ try{
+  const index=await loadPublicGuides(env,request);
+  return allowed.map(code=>index.guides.find(g=>g.code===code)).find(Boolean)||null;
+ }catch{return null}
+}
 function answerFromGuide(g,mode,answer){
  const main=(g.supplemental===true?'Supplementary ungraded topic (not an official competency) — ':'')+g.title+': '+g.concept+'\n\nWhat to do: '+g.procedure+'\n\nWhat this does not establish: '+g.limit+'\n\nInvalidation: '+g.invalidation;
  if(mode==='question')return main+'\n\nUngraded self-check: '+g.selfCheck;
  if(mode==='review')return main+'\n\nUse this review criterion: '+g.reviewExplanation+' no rubric was graded or scored.\n\n'+ungradedResponseReview(answer);
  return main+'\n\nCommon error to avoid: '+g.commonError+'\n\nPractice: '+g.selfCheck;
 }
-export {chooseGuides,originalGuides,answerFromGuide};
+export {chooseGuides,originalGuides,approvedGuideForCodes,answerFromGuide};
