@@ -1,0 +1,45 @@
+name: Crownlight Chart Studio Real Chromium (Free, Offline)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/crownlight-chart-studio-v2.js'
+      - 'assets/js/crownlight-indicator-math-v2.js'
+      - 'assets/css/crownlight-chart-studio-v2.css'
+      - 'tests/test_crownlight_chart_browser_v2.mjs'
+      - '.github/workflows/crownlight-chart-studio-browser-v2.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crownlight-chart-studio-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  chart-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install only pinned, public free packages
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1
+          npx playwright install --with-deps chromium
+      - name: Run real offline Chromium chart studio checks
+        run: |
+          node --check assets/js/crownlight-chart-studio-v2.js
+          node --check assets/js/crownlight-indicator-math-v2.js
+          node tests/test_crownlight_chart_studio_v2.mjs
+          node tests/test_crownlight_chart_browser_v2.mjs
+      - name: Preserve mobile and desktop screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crownlight-chromium-screenshots
+          path: artifacts/crownlight-*.png
+          if-no-files-found: ignore
+          retention-days: 7
