@@ -23,3 +23,11 @@
 .cl-chart-tier-switcher[data-cl-layout="STACKED"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}
 .cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
 @media(max-width:1000px){.cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
+
+.cl-chart-tier-access-trigger{padding:10px;border:1px solid #6f8aa8;border-radius:8px;background:#15263c;color:#e6f2ff;cursor:pointer}
+.cl-chart-tier-bar select option:disabled{color:#8b9bae;background:#1b2739}
+.cl-chart-tier-access-popup{margin-top:12px;padding:14px;border:1px solid #607b9b;border-radius:10px;background:#0c1b30;display:grid;gap:12px}
+.cl-chart-tier-access-popup[hidden],.cl-chart-tier-countdown[hidden]{display:none!important}
+.cl-chart-tier-access-item{padding:12px;border:1px solid #3e5a79;border-radius:8px}
+.cl-chart-tier-access-item p,.cl-chart-tier-sparks-explanation{font-size:.85rem;line-height:1.5;color:#c2d4e6}
+.cl-chart-tier-countdown{padding:10px;margin-top:12px;border-radius:8px;background:#172e42;font-variant-numeric:tabular-nums}
