@@ -477,13 +477,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    const wallet=el('section');wallet.className='wallet';wallet.append(el('h3','Crownlight Sparks Wallet'));
    const metrics=el('div');metrics.className='grid2';
    const fields={};
-   for(const [key,name,note] of [['included','Included','Eligible Sparks expire 60 days after their billing period ends'],['purchased','Purchased','Purchased Sparks do not expire'],['manual','Owner-adjusted','Account adjustments recorded by the Owner']]){
+   for(const [key,name,note] of [['included','Included','Included Sparks never expire'],['purchased','Purchased','Purchased Sparks do not expire'],['manual','Owner-adjusted','Account adjustments recorded by the Owner']]){
     const unit=el('div');unit.className='metric';unit.append(el('span',name));
     const count=el('strong','—');count.dataset.passCount=key;unit.append(count,el('span',note));metrics.append(unit);fields[key]=count;
    }
    wallet.append(metrics);
    const balanceState=el('p','Sign in to check your Crownlight Sparks balance.','gu-v33-pass-wallet-status');wallet.append(balanceState);
-   appendParagraph(wallet,'Reveal or Skip uses one Crownlight Spark per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
+   appendParagraph(wallet,'Reveal or Skip uses four Crownlight Sparks per practice question after you confirm. Free explanations, hints and retries never cost a credit. A revealed or skipped step counts as Study Only, not a grade.');
    if(typeof creditRequest==='function'){
     balanceState.textContent='Checking your credit balance…';
     void creditRequest({action:'balance'}).then(data=>{
@@ -494,7 +494,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
      fields.purchased.textContent=String(info.purchased);
      fields.manual.textContent=String(Number.isInteger(info.manual)?info.manual:0);
      balanceState.textContent=String(info.available)+' available'+
-      (info.nextExpiry?' · Next included-credit expiry: '+new Date(info.nextExpiry).toLocaleDateString():'');
+      '';
     }).catch(error=>{
      if(wallet.isConnected)balanceState.textContent=String(error?.message||'Balance unavailable. No credit is charged.');
     });
