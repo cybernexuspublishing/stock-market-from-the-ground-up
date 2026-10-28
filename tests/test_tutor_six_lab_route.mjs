@@ -1,18 +1,22 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/market-tutor-v01492.js';
 
 const cases=[
- ['F2-C07-L01','Construct an Up / Bullish Candle','open and close'],
+ ['F2-C07-L01','Construct an Up / Bullish Candle','open, high, low, and close'],
  ['DT-C11-L01','VWAP as a session reference','session reference'],
- ['DT-C19-L02','Share Volume','traded shares'],
- ['DT-C34-L01','Define the Box','upper and lower bounds'],
- ['DT-C45-L01','Failed breakout','proposed breakout level'],
- ['DT-C05-L01','Risk per trade','distance per share']
+ ['DT-C19-L02','Share Volume','shares traded'],
+ ['DT-C34-L01','Define the Box','upper and lower boundary'],
+ ['DT-C45-L01','Failed breakout','predeclared boundary'],
+ ['DT-C05-L01','Risk per trade','Risk per share']
 ];
 const byLab=Object.fromEntries(cases.map(([id,title])=>[id,{title}]));
+const bySkill={CANDLE_READING:['F2-C07-L01'],VWAP_CONTEXT:['DT-C11-L01'],VOLUME_ANALYSIS:['DT-C19-L02'],
+ BREAKOUT_RECOGNITION:['DT-C34-L01'],FAILED_BREAKOUT:['DT-C45-L01'],RISK_PER_SHARE:['DT-C05-L01']};
+const publicGuides=JSON.parse(readFileSync(new URL('../data/competency-study-guides-v01499.json',import.meta.url),'utf8'));
 const env={SUPABASE_URL:'https://test123.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',
- ASSETS:{fetch:async()=>new Response(JSON.stringify({totalCanonicalLabs:419,byLab,
-  bySkill:{TEST_COMPETENCY:cases.map(([id])=>id)}}))}};
+ ASSETS:{fetch:async request=>new Response(JSON.stringify(String(request.url).includes('competency-study-guides')
+  ?publicGuides:{totalCanonicalLabs:419,byLab,bySkill}))}};
 const original=globalThis.fetch;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 let modelCalls=0;const paths=[];
@@ -40,6 +44,9 @@ try{
   assert.equal(data.labContext.labId,id);
   assert.equal(data.labContext.learningStage,'Practice');
   assert(data.answer.includes(cue),id);
+  assert(data.answer.includes('Approved public competency guide:'),id);
+  assert(data.answer.includes('Public reference for further study:'),id);
+  assert(data.sources.some(source=>source.sourceLabel==='Original public competency study guide'),id);
   assert.equal(data.graded,false);
   assert.equal(data.masteryAwarded,false);
  }
