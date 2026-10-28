@@ -40,7 +40,17 @@
   function renderGuideBody(raw){
     const lines=String(raw||'').replace(/\r/g,'').split('\n'),out=[];let list=null;
     const close=()=>{if(list){out.push(`</${list}>`);list=null}};
-    const inline=s=>esc(s).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');
+    const inline=s=>{
+      // Start with escaped text and only recognize explicit HTTP(S) references.
+      // This makes verified source citations usable without granting users arbitrary HTML.
+      const safe=esc(s).replace(/https?:\/\/[^\s<>"'\x60]+/gi,token=>{
+        let value=token,tail='';
+        while(value&&/[.,;!?:)]$/.test(value)){tail=value.slice(-1)+tail;value=value.slice(0,-1)}
+        if(!value)return token;
+        return '<a href="'+value+'" target="_blank" rel="noopener noreferrer nofollow">'+value+'</a>'+tail;
+      });
+      return safe.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\x60([^\x60]+)\x60/g,'<code>$1</code>');
+    };
     for(const line0 of lines){const line=line0.trim();if(!line){close();continue}
       let m;if((m=line.match(/^###\s+(.+)$/))){close();out.push(`<h3>${inline(m[1])}</h3>`);continue}
       if((m=line.match(/^##\s+(.+)$/))){close();out.push(`<h2>${inline(m[1])}</h2>`);continue}
