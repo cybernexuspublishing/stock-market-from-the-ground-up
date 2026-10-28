@@ -104,7 +104,7 @@ def run():
   page.locator('[data-avatar-id="r15"]').click()
   assert stored['writes']==[],'Selection must never trigger a profile write'
   page.locator('[data-avatar-apply]').click()
-  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-r15.webp')""")
+  page.wait_for_function("""() => new URL(document.querySelector('[data-avatar-preview]')?.getAttribute('src') || '', location.href).pathname.endsWith('/assets/avatars/av-r15.webp')""")
   assert len(stored['writes'])==1,'Apply should submit one authenticated member-profile save'
   assert stored['avatarUrl'].endswith('/assets/avatars/av-r15.webp')
   page.locator('.v2-avatar-inline').wait_for(state='hidden')
