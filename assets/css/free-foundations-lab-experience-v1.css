@@ -1,0 +1,21 @@
+/* Free Foundations Lab-method sample v1. Fictional, ungraded teaching only. */
+.academy-lab-rehearsal,.academy-lab-value-preview{padding:clamp(16px,2.3vw,24px);margin:14px 0;border:1px solid #467786;border-radius:14px;background:linear-gradient(135deg,#0d283b,#123447);color:#e5f3ff}
+.academy-lab-rehearsal h4,.academy-lab-value-preview h4{margin:5px 0 12px;color:#ffe3b7}
+.academy-lab-kicker{letter-spacing:.06em;text-transform:uppercase;font-size:.8rem!important;font-weight:750;color:#abedd8!important}
+.academy-lab-rehearsal h5,.academy-lab-value-preview h5{color:#d5f7ed;margin:16px 0 8px;font-size:1rem}
+.academy-lab-setup{display:grid;grid-template-columns:minmax(100px,.35fr) minmax(0,1fr);border:1px solid #47788c;border-radius:10px;overflow:hidden;margin:14px 0}
+.academy-lab-setup dt,.academy-lab-setup dd{margin:0;padding:9px 12px;border-bottom:1px solid #395969;overflow-wrap:anywhere}
+.academy-lab-setup dt{background:#113d50;font-weight:750}
+.academy-lab-setup dd{background:#112d42}
+.academy-lab-setup dt:nth-last-of-type(1),.academy-lab-setup dd:nth-last-of-type(1){border-bottom:0}
+.academy-lab-rehearsal label{display:block;font-weight:750;margin:16px 0 9px}
+.academy-lab-rehearsal textarea{box-sizing:border-box;width:100%;min-height:100px;border:1px solid #80abc0;background:#0b1f31;color:#f1faff;border-radius:9px;padding:12px;font:inherit}
+.academy-lab-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.academy-lab-actions .btn{white-space:normal}
+.academy-lab-review{padding:14px;background:#143b47;border-left:4px solid #81d4bc;border-radius:8px;margin-top:12px}
+.academy-lab-review[hidden]{display:none!important}
+.academy-lab-value-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.academy-lab-value-grid article{border:1px solid #45758b;border-radius:9px;background:#10283d;padding:12px;min-width:0}
+.academy-lab-value-grid h5{margin:0 0 8px}
+.academy-lab-value-grid p{margin:0;line-height:1.6}
+@media(max-width:680px){.academy-lab-value-grid{grid-template-columns:minmax(0,1fr)}.academy-lab-setup{grid-template-columns:minmax(0,1fr)}.academy-lab-setup dt{border-bottom:0;padding-bottom:0}.academy-lab-setup dd{padding-top:3px}}
