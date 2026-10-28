@@ -23,7 +23,22 @@ for(const [id,title,cue] of cases){
  assert(answer.includes('Try the next step independently'));
  assert(!/answer.?key|future price|actual fill/i.test(answer));
 }
+// Non-example canonical Labs remain on the shared protected fallback.
+const fallbackId='SITE-001';
+const fallbackAsset={fetch:async()=>new Response(JSON.stringify({
+ totalCanonicalLabs:419,byLab:{[fallbackId]:{title:'A separate public practice Lab'}},
+ bySkill:{TEST_COMPETENCY:[fallbackId]}
+}))};
+const fallback=await getApprovedLabContext({ASSETS:fallbackAsset},request,
+ `For canonical Lab ${fallbackId}. Learning Journey stage: Assess. Explain this concept.`);
+assert.equal(fallback.labId,fallbackId);
+assert.equal(fallback.learningStage,'Assess');
+const fallbackAnswer=labGuidance(fallback,'question');
+assert(fallbackAnswer.includes('Use only the evidence visible at the Lab observation point'));
+assert(fallbackAnswer.includes('I cannot provide its answer key'));
+assert(fallbackAnswer.includes('Ungraded self-check'));
+assert(!fallbackAnswer.includes('distance per share'));
+
 assert.equal(requestedLearningStage('Learning Journey stage: Review'),'Review');
 assert.equal(requestedLearningStage('No stage supplied'),null);
 console.log('PASS six public Lab teaching paths and stage-aware fallback');
-
