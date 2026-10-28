@@ -8,8 +8,9 @@ const kline=join(root,'node_modules/klinecharts/dist/umd/klinecharts.min.js');
 assert(existsSync(kline),'Pinned real KLineChart must be installed');
 const origin='https://tier-fixture.test';
 const html=['<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">',
-'<link rel="stylesheet" href="/assets/css/crownlight-chart-tiers-v1.css">',
-'<script defer src="/assets/js/crownlight-chart-tiers-v1.js"></script></head><body>',
+'<link rel="stylesheet" href="/assets/css/crownlight-chart-tiers-v1.css"><link rel="stylesheet" href="/assets/css/crownlight-chart-v2-experience.css">',
+'<script defer src="/assets/js/crownlight-indicator-math-v2.js"></script><script defer src="/assets/js/crownlight-chart-tutor-v1.js"></script>',
+'<script defer src="/assets/js/crownlight-chart-tiers-v1.js"></script><script defer src="/assets/js/crownlight-workspace-v2.js"></script><script defer src="/assets/js/crownlight-talia-lab-v2.js"></script></head><body>',
 '<section class="sim-chart-panel"><div class="crownlight-shell"><div class="crownlight-plot">Standard chart</div></div></section></body></html>'].join('');
 const two=[{timestamp:1792935000000,open:10,high:11,low:9,close:10.5,volume:1100},
 {timestamp:1792935060000,open:10.5,high:12,low:10,close:11,volume:1400}];
@@ -25,6 +26,8 @@ await page.route('**/*',async route=>{const u=new URL(route.request().url());
 if(u.hostname==='cdn.jsdelivr.net'){assert.equal(u.pathname,'/npm/klinecharts@10.1.0/dist/umd/klinecharts.min.js');
 return route.fulfill({status:200,contentType:'application/javascript',body:readFileSync(kline)});}
 if(u.origin!==origin)return route.abort();
+if(u.pathname==='/api/chart-workspace')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,tier,workspace:{version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]},updatedAt:null})});
+if(u.pathname==='/api/simulator-lab-context')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,labId:'F1-C02-L01',title:'Free Foundations Sample',referenceDate:null})});
 if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',
 body:JSON.stringify({ok:true,eligible:true,tier,allowed:tier==='STANDARD'?['STANDARD']:tier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL']})});
 if(u.pathname==='/')return route.fulfill({status:200,contentType:'text/html',body:html});
@@ -44,6 +47,14 @@ assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'K
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),
 [...two,{timestamp:two[1].timestamp+60000,open:11,high:11.8,low:10.6,close:11.7,volume:1000}]);
 assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().revealed),3);
+await page.locator('.cl-talia-toggle').click();
+assert.match(await page.locator('.cl-talia-facts').innerText(),/EMA 9|VWAP/i);
+await page.locator('.cl-talia-answer').fill('No trade until price acceptance; invalidation below prior low.');
+await page.getByRole('button',{name:'Review my observation'}).click();
+assert.match(await page.locator('.cl-talia-status').innerText(),/ungraded/i);
+if(tier==='PROFESSIONAL')assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().linked),true);
+await page.locator('[data-cl-save]').click();
+await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
 assert.deepEqual(errors,[]);console.log('PASS '+tier+' real Chromium '+expected+' KLine charts and revealed candle updates');
 }finally{await context.close()}}
 }finally{await browser.close()}
