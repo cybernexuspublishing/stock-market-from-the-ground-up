@@ -101,7 +101,7 @@ body[data-gu-workspace="site"] #store-tools .store-tool-visual{max-height:115px}
 .gu-store-type-card p{font-size:.8rem;line-height:1.45;margin:0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .gu-store-type-card>a{margin-top:auto}
 .gu-store-type-card a{color:#c9e7fa}
-@media(max-width:1450px){
+@media(max-width:1250px){
  body[data-gu-workspace="site"] #store-tools{grid-template-columns:repeat(3,minmax(0,1fr))!important}
  .catalog-all #inventory-list .gu-inventory-type-grid,.gu-store-type-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 }

@@ -31,116 +31,80 @@ const named=['store-membership-free.html','store-membership-full-monthly.html','
 let main,ctx;
 try{
  ({page:main,context:ctx}=await makePage());
- await run('Store responds and initializes',async()=>{
-   const resp=await main.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:25000});
-   assert.ok(resp?.ok(),'Store response '+resp?.status());
-   await main.waitForFunction(()=>{
-     const plans=document.querySelector('#store-plans'),books=document.querySelector('#store-products');
-     return plans&&books&&plans.innerHTML.trim()!==''&&books.innerHTML.trim()!=='';
-   },{timeout:22000});
-   const plans=await main.locator('#store-plans article.v11-plan').count();
-   const books=await main.locator('#store-products article.product-card').count();
-   assert.equal(plans,5,'Expected five publicly listed memberships, not test/free QA');
-   assert.equal(books,5,'Expected five book product cards');
-   const totalTools=await main.locator('#store-tools article.v11-tool-card').count();
-   const futureTools=await main.locator('#store-tools .store-future-card').count();
-   assert.ok(totalTools>=4,'Expected existing tool offers AND upcoming tool cards');
-   assert.ok(futureTools>=6,'All six established learning capabilities must appear as Coming Soon independent offerings unless promoted to verified catalog SKUs');
-   assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),totalTools,'Every tool card requires clearly visible price or pending-pricing label');
-   assert.equal(await main.locator('#store-tools .store-sell-card .store-price-label').count(),totalTools,'Each tool price requires a visible Price label');
-   const liveOffers=await main.locator('#store-tools article.v11-tool-card:not(.store-future-card)').count();
-   assert.ok(liveOffers>=4,'Existing four current tools must remain listed');
-   assert.equal(await main.locator('#store-membership-compare table').count(),1,'Feature comparison not rendered');
-   assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired $0 QA returned');
-   return 'plans='+plans+', books='+books+', listed tools='+totalTools+', future='+futureTools+', comparison=1';
+
+ await run('Store initializes its current Founder and educational catalog',async()=>{
+   const response=await main.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:25000});
+   assert.ok(response?.ok(),'Store response '+response?.status());
+   await main.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===3,{timeout:22000});
+   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:22000});
+   await main.waitForFunction(()=>document.querySelectorAll('#store-tools article.v11-tool-card').length>=4,{timeout:22000});
+   assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),3,'Three Founder tiers required');
+   assert.equal(await main.locator('#store-products article.product-card').count(),5,'Five book product cards required');
+   assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),await main.locator('#store-tools article.v11-tool-card').count(),'Every tool must disclose price/status');
+   assert.equal(await main.locator('#store-tab-memberships').count(),0,'Owner-hidden legacy Membership tab must not return');
+   assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired QA offer returned');
+   return '3 Founder tiers, 5 books, verified tool cards, no legacy Membership tab';
  });
- await run('Tab isolation and stateful deep links',async()=>{
-   const options=['memberships','books','tools'];
+ await run('Six Store tabs are exclusive and preserve deep links',async()=>{
+   const options=['founders','books','sparks','tools','current','upcoming'];
    for(const t of options){
      await main.locator('#store-tab-'+t).click();
-     assert.equal(await main.locator('#store-tab-'+t).getAttribute('aria-selected'),'true','Incorrect aria-selected for '+t);
+     assert.equal(await main.locator('#store-tab-'+t).getAttribute('aria-selected'),'true');
      for(const other of options){
-       const hidden=await main.locator('#store-panel-'+other).evaluate(n=>n.hidden);
-       assert.equal(hidden,other!==t,'Panel isolation '+t+'/'+other);
+       assert.equal(await main.locator('#store-panel-'+other).evaluate(el=>el.hidden),other!==t,'Panel isolation '+t+'/'+other);
      }
-     assert.equal(new URL(main.url()).hash,'#'+t,'Hash deep link '+t);
+     assert.equal(new URL(main.url()).hash,'#'+t,'Deep-link '+t);
    }
    await main.reload({waitUntil:'domcontentloaded'});
-   await main.waitForFunction(()=>document.querySelector('#store-panel-tools')?.hidden===false,{timeout:14000});
-   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:18000});
-   return 'all three tabs exclusive, hash navigation and refresh persisted';
+   await main.waitForFunction(()=>document.querySelector('#store-panel-upcoming')?.hidden===false,{timeout:18000});
+   return 'Six tab states and reload of Upcoming Releases';
  });
- await run('Keyboard-only tab navigation',async()=>{
-   await main.locator('#store-tab-memberships').click();
-   await main.locator('#store-tab-memberships').focus();
+ await run('Accessible keyboard Store tabs',async()=>{
+   await main.locator('#store-tab-founders').click();
+   await main.locator('#store-tab-founders').focus();
    await main.keyboard.press('ArrowRight');
    assert.equal(await main.locator('#store-tab-books').getAttribute('aria-selected'),'true');
    await main.keyboard.press('End');
-   assert.equal(await main.locator('#store-tab-tools').getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-upcoming').getAttribute('aria-selected'),'true');
    await main.keyboard.press('Home');
-   assert.equal(await main.locator('#store-tab-memberships').getAttribute('aria-selected'),'true');
-   return 'ArrowRight, End, Home; visible panel + focus';
+   assert.equal(await main.locator('#store-tab-founders').getAttribute('aria-selected'),'true');
+   return 'ArrowRight, End and Home select the expected tabs';
  });
- await run('Book filters and product links',async()=>{
+ await run('Book filters hide nonmatching books and restore all five',async()=>{
    await main.locator('#store-tab-books').click();
-   await main.locator('#store-tabs button[data-filter="foundations"]').click();
-   assert.equal(await main.locator('#store-products article.product-card:visible').count(),3);
-   await main.locator('#store-tabs button[data-filter="all"]').click();
-   assert.equal(await main.locator('#store-products article.product-card:visible').count(),5);
-   const links=await main.locator('#store-products article.product-card h3 a').evaluateAll(a=>a.map(x=>new URL(x.href).pathname));
-   assert.equal(new Set(links).size,5,'Book product links not unique');
-   assert.ok(links.every(l=>/\/store-book-/.test(l)));
-   return 'Foundations 3, all books 5, five unique detail links';
- });
- await run('Every membership has immediate descriptive link, including Historical Replay Monthly',async()=>{
-   await main.locator('#store-tab-memberships').click();
-   const cards=main.locator('#store-plans article.v11-plan');
-   if((await cards.count())!==5){
-    const publicListings=await cards.evaluateAll(rows=>rows.map(el=>({
-     name:el.querySelector('h3')?.textContent.trim(),
-     url:el.querySelector('h3 a')?.getAttribute('href'),
-     price:el.querySelector('.v11-price')?.textContent.trim()
-    })));
-    console.error('STORE_UNAPPROVED_MEMBERSHIP_LIST '+JSON.stringify(publicListings));
+   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:16000});
+   for(const [filter,count] of [['foundations',3],['day-trading',1],['reading-the-tape',1],['all',5]]){
+     await main.locator('#store-tabs button[data-filter="'+filter+'"]').click();
+     assert.equal(await main.locator('#store-products article.product-card:visible').count(),count,'Book filter '+filter);
    }
-   assert.equal(await cards.count(),5,'Only five reviewed public memberships may be offered');
-   const immediateLinks=await main.locator('#store-plans .v11-price + .store-plan-primary-link').evaluateAll(a=>a.map(x=>({
-    parent:x.parentElement?.tagName,href:x.getAttribute('href'),
-    card:x.closest('article.v11-plan')?.querySelector('h3')?.textContent.trim()||'OUTSIDE_ARTICLE'
-   })));
-   assert.equal(immediateLinks.length,5,'All membership cards need one near-price link: '+JSON.stringify(immediateLinks));
-   const ondemand=main.locator('#store-plans .v11-plan').filter({has:main.locator('h3 a[href="store-membership-ondemand-monthly.html"]')});
-   assert.equal(await ondemand.count(),1,'Missing historical replay monthly item');
-   assert.equal(await ondemand.locator('.store-plan-primary-link').isVisible(),true,'Historical Replay details link is invisible');
-   assert.equal(await ondemand.locator('.store-plan-primary-link').getAttribute('href'),'store-membership-ondemand-monthly.html');
-   return '5 near-price details links; OnDemand monthly links to its educational product page';
+   const links=await main.locator('#store-products article.product-card h3 a').evaluateAll(a=>a.map(el=>new URL(el.href).pathname));
+   assert.equal(new Set(links).size,5);
+   assert.ok(links.every(h=>/\/store-book-/.test(h)));
+   return 'Foundations 3, Day Trading 1, Reading the Tape 1, All 5';
  });
- await run('Every future offer is explicitly coming soon, never purchasable',async()=>{
-   await main.locator('#store-tab-tools').click();
-   const cards=main.locator('#store-tools .store-future-card');
-   assert.ok(await cards.count()>=3);
-   for(let n=0;n<await cards.count();n++){
-     const c=cards.nth(n),text=await c.innerText();
-     assert.match(text,/Coming Soon/);
-     assert.match(text,/Pricing to be announced/);
-     const urls=await c.locator('a').evaluateAll(x=>x.map(a=>a.getAttribute('href')));
-     assert.ok(urls.every(u=>!String(u).includes('checkout.html')),'Future tool must not link checkout');
-   }
-   const prices=await main.locator('#store-tools .store-sell-price').count();
-   return 'future='+await cards.count()+', prices='+prices+', no future checkout links';
+ await run('Current and Upcoming products are separate grouped catalogs',async()=>{
+   await main.locator('#store-tab-current').click();
+   await main.waitForFunction(()=>document.querySelector('#store-current-products')?.textContent.trim().length>0,{timeout:17000});
+   assert.equal(await main.locator('#store-panel-current').isVisible(),true);
+   assert.equal(await main.locator('#store-panel-upcoming').isHidden(),true);
+   await main.locator('#store-tab-upcoming').click();
+   await main.waitForFunction(()=>document.querySelector('#store-upcoming-products')?.textContent.trim().length>0,{timeout:17000});
+   assert.equal(await main.locator('#store-panel-upcoming').isVisible(),true);
+   assert.equal(await main.locator('#store-panel-current').isHidden(),true);
+   return 'Exclusive current/upcoming panels and populated status surfaces';
  });
- await run('Public purchase buttons do not create sessions',async()=>{
-   const links=await main.locator('#store-plans a,#store-products a,#store-tools a').evaluateAll(a=>a.map(el=>el.getAttribute('href')));
-   assert.ok(links.every(h=>!/^https:\/\/checkout\.stripe\.com/i.test(h||'')),'Direct uncontrolled Stripe checkout link');
-   assert.ok(links.every(h=>!/store-zero-monthly|qa-test-plan/i.test(h||'')),'Retired QA link');
-   return 'only links inspected; no clicks or payment calls';
+ await run('No uncontrolled checkout or retired membership CTA',async()=>{
+   const links=await main.locator('#store-founder-plans a,#store-products a,#store-tools a,#store-current-products a,#store-upcoming-products a').evaluateAll(a=>a.map(el=>el.getAttribute('href')));
+   assert.ok(links.every(h=>!/^https:\/\/checkout\.stripe\.com/i.test(h||'')));
+   assert.ok(links.every(h=>!/store-zero-monthly|qa-test-plan/i.test(h||'')));
+   return 'Only links examined; no checkout or payment requests';
  });
- await run('Store accessibility (WCAG 2 A/AA automated checks)',async()=>{
-   await main.locator('#store-tab-memberships').click();
+ await run('Store automated accessibility evaluation',async()=>{
+   await main.locator('#store-tab-founders').click();
    const result=await new AxeBuilder({page:main}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
-   const severe=result.violations.filter(v=>['critical','serious'].includes(v.impact));
-   assert.equal(severe.length,0,severe.map(v=>v.id+': '+v.nodes.length+' nodes').join('; '));
-   return 'no serious/critical automated accessibility violations (not a manual WCAG certification)';
+   const serious=result.violations.filter(v=>['critical','serious'].includes(v.impact));
+   assert.equal(serious.length,0,serious.map(v=>v.id+': '+v.nodes.length).join('; '));
+   return 'No serious/critical automated issues; not manual WCAG certification';
  });
  for(const [i,path] of named.entries()){
    await run('Detail '+path,async()=>{
@@ -197,7 +161,7 @@ try{
  await run('Mobile layout and category tap controls',async()=>{
    const {page:p,context:c}=await makePage(390,844);
    try{await p.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:24000});
-     await p.waitForFunction(()=>document.querySelector('#store-plans')?.innerHTML.trim().length>0,{timeout:20000});
+     await p.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===3,{timeout:20000});
      await p.locator('#store-tab-tools').click();
      assert.equal(await p.locator('#store-panel-tools').isVisible(),true);
      const widths=await p.evaluate(()=>({body:document.body.scrollWidth,viewport:innerWidth}));
