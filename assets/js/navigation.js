@@ -487,7 +487,7 @@
     try{const url=new URL(value,location.origin);if(url.origin!==location.origin||!['http:','https:'].includes(url.protocol))return '#';return url.pathname+url.search+url.hash}
     catch{return '#'}
   }
-  function navLink(label,href,tool,a){const locked=tool&&!hasTool(a,tool);return `<a href="${esc(safeNavHref(href))}">${esc(label)}${locked?'<small>À-la-Carte</small>':''}</a>`}
+  function navLink(label,href){return `<a href="${esc(safeNavHref(href))}">${esc(label)}</a>`}
 
   // One navigation data source: the same filtered groups used in the top bar.
   // Keep the existing member/Admin sidebars and all of their original handlers.
@@ -541,7 +541,7 @@
       top:[{item_code:'TOP_COMMONS',label:'Market Commons',href:'forum.html',style_variant:'community'},{item_code:'TOP_STORE',label:'Store',href:'store.html',style_variant:'store'}]
     };
     for(const k of Object.keys(groups))if(!groups[k].length)groups[k]=fallback[k];
-    const render=i=>navLink(i.label,i.href,i.tool_code,a);
+    const render=i=>navLink(i.label,i.href);
     const learn=`<div class="v11-nav-group"><button class="v11-nav-button" type="button">Learn <span aria-hidden="true">▾</span></button><div class="v11-menu">${groups.learn.map(render).join('')}<a href="/assessments.html">Skill Assessments</a><a href="/book-preview.html">Books &amp; Previews</a></div></div>`;
     const tools=`<div class="v11-nav-group v12-tools-group"><button class="v11-nav-button" type="button">Tools <span aria-hidden="true">▾</span></button><div class="v11-menu v12-mega-menu"><section><div class="v12-menu-title">Trade Lab</div>${groups.trade.map(render).join('')}<a href="/ondemand-training.html">Replay Training</a></section><section><div class="v12-menu-title">Research</div>${groups.research.map(render).join('')}</section></div></div>`;
     let profile='';
