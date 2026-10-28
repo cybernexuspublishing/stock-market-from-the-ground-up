@@ -6,13 +6,29 @@ const ACTUAL_KEYS=['exit_date','entry_time_et','exit_time_et','actual_entry','ac
 function e(id){return document.getElementById(id)}
 function msg(id,text,type=''){const el=e(id);if(!el)return;el.textContent=text||'';el.className=`status-message ${type}`}
 function setOptions(select,items){items.forEach(x=>select.insertAdjacentHTML('beforeend',`<option value="${window.JournalTools.esc(x)}">${window.JournalTools.esc(x)}</option>`))}
-function fieldValue(key){const id=F[key];if(!id)return null;const el=e(id);if(!el)return null;if(el.type==='number'){return el.value===''?null:Number(el.value)}return el.value===''?null:el.value}
+function fieldValue(key){const id=F[key];if(!id)return null;const el=e(id);if(!el)return null;if(key==='setup'&&el.value==='__CUSTOM__')return e('j-setup-custom')?.value.trim()||null;if(el.type==='number'){return el.value===''?null:Number(el.value)}return el.value===''?null:el.value}
 function collect(keys){const out={};keys.forEach(k=>out[k]=fieldValue(k));return out}
-function setField(key,val){const el=e(F[key]);if(!el)return;el.value=val==null?'':String(val)}
+function setField(key,val){const el=e(F[key]);if(!el)return;
+ if(key==='setup'&&el.tagName==='SELECT'&&val!=null&&String(val)&&
+  ![...el.options].some(o=>o.value===String(val))){
+  const option=document.createElement('option');
+  option.value=String(val);option.textContent=String(val)+' (previously recorded)';
+  el.append(option);
+ }
+ el.value=val==null?'':String(val);
+ if(key==='setup')updateSetupCustom();
+}
+function updateSetupCustom(){
+ const field=e('j-setup'),custom=e('j-setup-custom'),label=e('j-setup-custom-label');
+ if(!field||!custom||!label)return;
+ const active=field.value==='__CUSTOM__';
+ custom.hidden=label.hidden=!active;custom.required=active;
+ custom.disabled=!!ESTATE.snapshot;field.disabled=!!ESTATE.snapshot;
+}
 function mistakes(){return [...document.querySelectorAll('input[name="journal-mistake"]:checked')].map(x=>x.value)}
 function fill(row){Object.keys(F).forEach(k=>setField(k,row[k]));document.querySelectorAll('input[name="journal-mistake"]').forEach(x=>x.checked=(row.mistakes||[]).includes(x.value))}
 function planLocked(){return !!ESTATE.snapshot}
-function applyLockState(){const locked=planLocked();PLAN_KEYS.forEach(k=>{const el=e(F[k]);if(el)el.disabled=locked});e('lock-plan').disabled=locked;e('save-plan').disabled=locked;if(locked){e('plan-lock-state').innerHTML=`<div class="plan-lock-banner"><strong>Pre-trade plan locked:</strong> ${new Date(ESTATE.snapshot.locked_at).toLocaleString()}. The snapshot below is immutable; actual execution and post-trade review remain editable.</div>`;renderSnapshot();e('locked-plan-panel').hidden=false;e('plan-vs-actual').hidden=false}else{e('plan-lock-state').innerHTML='<div class="notice"><strong>Plan not locked yet.</strong> Save your pre-trade reasoning, then lock it before the outcome whenever practical.</div>';e('locked-plan-panel').hidden=true;e('plan-vs-actual').hidden=true}}
+function applyLockState(){const locked=planLocked();PLAN_KEYS.forEach(k=>{const el=e(F[k]);if(el)el.disabled=locked});updateSetupCustom();e('lock-plan').disabled=locked;e('save-plan').disabled=locked;if(locked){e('plan-lock-state').innerHTML=`<div class="plan-lock-banner"><strong>Pre-trade plan locked:</strong> ${new Date(ESTATE.snapshot.locked_at).toLocaleString()}. The snapshot below is immutable; actual execution and post-trade review remain editable.</div>`;renderSnapshot();e('locked-plan-panel').hidden=false;e('plan-vs-actual').hidden=false}else{e('plan-lock-state').innerHTML='<div class="notice"><strong>Plan not locked yet.</strong> Save your pre-trade reasoning, then lock it before the outcome whenever practical.</div>';e('locked-plan-panel').hidden=true;e('plan-vs-actual').hidden=true}}
 function pair(label,value){return `<dt>${window.JournalTools.esc(label)}</dt><dd>${window.JournalTools.esc(value??'—')}</dd>`}
 function renderSnapshot(){if(!ESTATE.snapshot)return;const s=ESTATE.snapshot.snapshot||{};const html=`<dl>${pair('Ticker',s.ticker)}${pair('Date',s.trade_date)}${pair('Direction',s.direction)}${pair('Session',s.session_label)}${pair('Setup',s.setup)}${pair('Decision',s.decision)}${pair('Thesis',s.thesis)}${pair('Reason for entry',s.entry_reason)}${pair('Entry trigger',s.entry_trigger)}${pair('Invalidation',s.invalidation)}${pair('NO TRADE condition',s.no_trade_condition)}${pair('Planned entry',s.planned_entry)}${pair('Planned stop',s.planned_stop)}${pair('Planned target',s.planned_target)}${pair('Shares',s.share_quantity)}${pair('Planned exit reason',s.planned_exit_reason)}${pair('State before entry',s.emotion_before)}</dl>`;e('locked-plan-body').innerHTML=html;e('plan-compare-body').innerHTML=html}
 function renderMetrics(row){const JT=window.JournalTools,m=JT.compute(row);const vals=[['Gross P&L',m.gross_pnl==null?'—':JT.money(m.gross_pnl)],['Net P&L',m.net_pnl==null?'—':JT.money(m.net_pnl)],['Initial planned risk',m.initial_planned_risk==null?'—':JT.money(m.initial_planned_risk)],['Result in R',m.r_multiple==null?'—':`${JT.dec(m.r_multiple,2)}R`],['MFE / share',m.mfe_per_share==null?'—':JT.money(m.mfe_per_share)],['MAE / share',m.mae_per_share==null?'—':JT.money(m.mae_per_share)],['MFE in R',m.mfe_r==null?'—':`${JT.dec(m.mfe_r,2)}R`],['MAE in R',m.mae_r==null?'—':`${JT.dec(m.mae_r,2)}R`],['Gross MFE captured',m.mfe_capture_pct==null?'—':JT.pct(m.mfe_capture_pct)],['Time in trade',m.duration_minutes==null?'—':`${m.duration_minutes} min`],['Outcome',JT.outcome({...row,...m})],['Process / outcome',JT.processOutcome({...row,...m})]];e('metric-grid').innerHTML=vals.map(([a,b])=>`<div class="metric-box"><span>${JT.esc(a)}</span><strong>${JT.esc(b)}</strong></div>`).join('');if(planLocked()){e('actual-compare-body').innerHTML=`<dl>${pair('Actual entry',row.actual_entry)}${pair('Actual exit',row.actual_exit)}${pair('Actual exit reason',row.actual_exit_reason)}${pair('Plan followed',row.plan_followed)}${pair('Process grade',row.process_grade)}${pair('Net P&L',m.net_pnl==null?'—':JT.money(m.net_pnl))}${pair('R multiple',m.r_multiple==null?'—':`${JT.dec(m.r_multiple,2)}R`)}${pair('MFE',m.mfe_r==null?'—':`${JT.dec(m.mfe_r,2)}R`)}${pair('MAE',m.mae_r==null?'—':`${JT.dec(m.mae_r,2)}R`)}</dl>`}}
@@ -132,5 +148,15 @@ async function initEntry(){const gate=e('entry-gate');try{ESTATE.id=Number(new U
   }
   gate.textContent='Account changed. Reload under the current member to open the appropriate private Journal record.';
  });
- ESTATE.tax=await window.JournalTools.taxonomy();e('j-type').innerHTML=ESTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');setOptions(e('j-session'),ESTATE.tax.sessions);setOptions(e('j-entry-reason-cat'),ESTATE.tax.entryReasons);setOptions(e('j-planned-exit-cat'),ESTATE.tax.exitReasons);setOptions(e('j-exit-reason-cat'),ESTATE.tax.exitReasons);e('mistake-grid').innerHTML=ESTATE.tax.mistakes.map(x=>`<label><input type="checkbox" name="journal-mistake" value="${window.JournalTools.esc(x)}"> ${window.JournalTools.esc(x)}</label>`).join('');await loadRow();gate.innerHTML='';e('entry-content').hidden=false;e('save-plan').onclick=savePlan;e('lock-plan').onclick=lockPlan;e('save-actual').onclick=()=>saveActual();e('close-calc').onclick=closeAndCalculate;e('record-no-trade').onclick=recordNoTrade;ACTUAL_KEYS.forEach(k=>{const el=e(F[k]);if(el)el.addEventListener('input',()=>renderMetrics({...ESTATE.row,...collect(PLAN_KEYS),...collect(ACTUAL_KEYS)}))})}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools.esc(err.message)}</div>`}}
+ ESTATE.tax=await window.JournalTools.taxonomy();
+ const setup=e('j-setup');
+ if(setup){
+  for(const value of ESTATE.tax.setups||[]){
+   const opt=document.createElement('option');opt.value=value;opt.textContent=value;setup.append(opt);
+  }
+  const other=document.createElement('option');other.value='__CUSTOM__';
+  other.textContent='Other — describe my setup';setup.append(other);
+  setup.addEventListener('change',updateSetupCustom);
+ }
+ e('j-type').innerHTML=ESTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');setOptions(e('j-session'),ESTATE.tax.sessions);setOptions(e('j-entry-reason-cat'),ESTATE.tax.entryReasons);setOptions(e('j-planned-exit-cat'),ESTATE.tax.exitReasons);setOptions(e('j-exit-reason-cat'),ESTATE.tax.exitReasons);e('mistake-grid').innerHTML=ESTATE.tax.mistakes.map(x=>`<label><input type="checkbox" name="journal-mistake" value="${window.JournalTools.esc(x)}"> ${window.JournalTools.esc(x)}</label>`).join('');await loadRow();gate.innerHTML='';e('entry-content').hidden=false;e('save-plan').onclick=savePlan;e('lock-plan').onclick=lockPlan;e('save-actual').onclick=()=>saveActual();e('close-calc').onclick=closeAndCalculate;e('record-no-trade').onclick=recordNoTrade;ACTUAL_KEYS.forEach(k=>{const el=e(F[k]);if(el)el.addEventListener('input',()=>renderMetrics({...ESTATE.row,...collect(PLAN_KEYS),...collect(ACTUAL_KEYS)}))})}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools.esc(err.message)}</div>`}}
 document.addEventListener('DOMContentLoaded',initEntry);
