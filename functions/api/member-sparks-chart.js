@@ -41,7 +41,8 @@ export async function onRequest({request,env}){
   const raw=await request.text();
   if(raw.length>1024)return response({ok:false,error:'INVALID_REQUEST'},413);
   let b;try{b=JSON.parse(raw)}catch{return response({ok:false,error:'INVALID_REQUEST'},400)}
-  if(!b||!SKUS.has(b.sku)||typeof b.requestId!=='string'||!uuid.test(b.requestId))
+  if(!b||!SKUS.has(b.sku)||typeof b.requestId!=='string'||!uuid.test(b.requestId)||
+     !Number.isSafeInteger(b.expectedCost)||b.expectedCost<1||b.expectedCost>100000
    return response({ok:false,error:'INVALID_REQUEST'},400);
   // An existing paid/full membership or Owner QA access is not a Sparks purchase.
   const current=await crownlightChartEntitlement(env,request);
@@ -49,8 +50,8 @@ export async function onRequest({request,env}){
   const want=b.sku.startsWith('CHART_ADVANCED_')?'ADVANCED':'PROFESSIONAL';
   if(rank[current.tier]>=rank[want]&&current.temporaryAccess?.kind!=='SPARKS')
    return response({ok:false,error:'ALREADY_INCLUDED'},409);
-  const result=await rest(actor,'rpc/gu_sparks_chart_redeem_v1',{
-   p_user_id:actor.userId,p_sku:b.sku,p_request_id:b.requestId
+  const result=await rest(actor,'rpc/gu_sparks_chart_redeem_v2',{
+   p_user_id:actor.userId,p_sku:b.sku,p_request_id:b.requestId,p_expected_cost:b.expectedCost
   });
   return response(result,result.ok===true?200:409);
  }catch(e){return response({ok:false,error:e?.status===401?'SIGN_IN_REQUIRED':'SPARKS_SERVICE_UNAVAILABLE'},
