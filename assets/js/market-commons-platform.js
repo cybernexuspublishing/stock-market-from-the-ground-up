@@ -62,7 +62,7 @@
     if(fe){host.textContent='Market Commons is unavailable: '+fe.message;return}
     forums=(f||[]).filter(x=>!IS_FOUNDER||x.forum_code!=='F600_COUNCIL'||FOUNDER_COUNCIL);
     if(topic){const id=Number(topic);if(!Number.isSafeInteger(id)||id<=0){host.textContent='Invalid discussion identifier.';return}return renderTopic(host,id)}
-    const fields='id,forum_code,title,ticker,is_pinned,is_locked,is_official,reply_count,last_post_at,created_at,author_label,profiles:author_user_id(username)';
+    const fields='id,forum_code,title,ticker,status,is_pinned,is_locked,is_official,reply_count,last_post_at,created_at,author_label,profiles:author_user_id(username)';
     if(forum){
       if(!forums.some(x=>x.forum_code===forum)){host.textContent='This sub-forum is not available.';return}
       const requested=Number(q.get('page')||'1');
