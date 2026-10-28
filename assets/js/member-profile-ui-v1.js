@@ -2,7 +2,7 @@
 (()=>{'use strict';if(!/^\/dashboard(?:\.html)?$/.test(location.pathname))return;
 const $=(s,r=document)=>r.querySelector(s),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const route='/api/member-profile';let mounting=false;
-const avatars=Object.freeze(['f1','f2','f3','m1','m2','m3','n1','n2','n3']);
+
 async function session(){const sb=await window.getSupabaseClient();const {data,error}=await sb.auth.getSession();if(error||!data?.session)throw Error('Sign in to edit your profile.');return{sb,token:data.session.access_token,userId:data.session.user.id}}
 async function request(action,body){const {token}=await session();const response=await fetch(route,{method:action?'POST':'GET',
  headers:{authorization:'Bearer '+token,...(action?{'content-type':'application/json'}:{})},
@@ -29,11 +29,11 @@ async function mount(body){
   const j=await request();if(!body.isConnected)return;
   const p=j.profile,host=document.createElement('section');host.id='member-presentation-v1';host.className='v13-card member-profile-settings';
   const options=(j.choices||[]).map(x=>'<option value="'+esc(x.code)+'" '+(p.selectedTitle===x.code?'selected':'')+'>'+esc(x.label)+'</option>').join('');
-  const current=avatars.some(x=>p.avatarUrl.includes('av-'+x+'.svg'))?p.avatarUrl:'';
+
   host.innerHTML='<div class="v1321-section-head"><div><div class="eyebrow">Member identity</div><h2>Public Profile & Display Title</h2></div></div>'+
    '<p class="small">Your public bio, avatar and display title never change your subscription, staff role or actual learning entitlements. Your email and legal name are not shown publicly.</p>'+
-   '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-n1.svg')+'" alt="Your current avatar"><div><strong>Avatar</strong><p class="small">Select a generated avatar or upload a photo you own. Uploads are visible to other members.</p>'+
-   '<div class="v1-avatar-choices">'+avatars.map(x=>'<button type="button" data-avatar-path="https://stock-market-from-the-ground-up-d1r.pages.dev/assets/avatars/av-'+x+'.svg" aria-label="Choose avatar '+x+'" class="'+(current.includes('av-'+x+'.svg')?'selected':'')+'"><img src="/assets/avatars/av-'+x+'.svg" alt=""></button>').join('')+'</div>'+
+   '<form data-profile-form class="v1-profile-form"><div class="v1-avatar-row"><img data-avatar-preview src="'+esc(p.avatarUrl||'/assets/avatars/av-n1.svg')+'" alt="Your current avatar"><div><strong>Profile picture</strong><p class="small">Choose a site avatar or upload a picture you own. Your selected avatar is visible to other members.</p>'+
+   '<button type="button" class="btn secondary v2-edit-picture" data-edit-picture>Edit Picture</button>'+
    '<label>Upload your own picture<input data-avatar-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div></div>'+
    '<label>Gender selection for default avatars<select name="gender"><option value="rather_not_say">Rather not say</option><option value="female">Female</option><option value="male">Male</option></select></label>'+
    '<label>Biography (up to 1,000 characters)<textarea name="bio" maxlength="1000" rows="3" placeholder="Tell other learners about your interests and learning goals.">'+esc(p.bio)+'</textarea></label>'+
@@ -45,10 +45,21 @@ async function mount(body){
    '<p class="v1-profile-status" data-profile-status role="status" aria-live="polite"></p>';
   body.append(host);$('[name=gender]',host).value=p.gender;
   let avatarUrl=p.avatarUrl;
-  host.querySelectorAll('[data-avatar-path]').forEach(btn=>btn.addEventListener('click',()=>{
-   avatarUrl=btn.dataset.avatarPath;$('[data-avatar-preview]',host).src=avatarUrl;
-   host.querySelectorAll('[data-avatar-path]').forEach(x=>x.classList.toggle('selected',x===btn));
-  }));
+  $('[data-edit-picture]',host).addEventListener('click',async ev=>{
+   const trigger=ev.currentTarget;
+   try{
+    if(!window.GroundUpAvatarPicker?.open)throw Error('The avatar picker could not be loaded.');
+    await window.GroundUpAvatarPicker.open({currentUrl:avatarUrl,onApply:async url=>{
+     // Preserve existing stored bio and gender; applying an avatar must not
+     // silently submit unsaved changes in the adjacent profile form.
+     const latest=(await request()).profile;
+     const saved=await request('save',{gender:latest.gender,bio:latest.bio,avatarUrl:url});
+     avatarUrl=saved.profile.avatarUrl;
+     $('[data-avatar-preview]',host).src=avatarUrl||'/assets/avatars/av-n1.svg';
+     setStatus(host,'Avatar updated on your account.');
+    }});
+   }catch(e){setStatus(host,e.message,true);trigger.focus()}
+  });
   $('[data-profile-form]',host).addEventListener('submit',async ev=>{
    ev.preventDefault();const btn=ev.submitter;btn.disabled=true;try{
     const {sb,userId}=await session(),file=$('[data-avatar-upload]',host).files?.[0];
