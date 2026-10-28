@@ -51,8 +51,9 @@ try{
    assert((await page.locator('.crownlight-plot canvas').count())>0,'Actual candlestick chart must render');
    const before=await page.evaluate(()=>window.CrownlightStudio.getStatus().spacing);
    await page.locator('[data-cl="zoom-in"]').click();
+   await page.waitForTimeout(250);
    const after=await page.evaluate(()=>window.CrownlightStudio.getStatus().spacing);
-   assert(Number.isFinite(before)&&after>before,'Real chart zoom changes candle spacing');
+   assert(Number.isFinite(before)&&Number.isFinite(after)&&after>before,'Real chart zoom changes candle spacing (before='+before+', after='+after+')');
    await page.locator('.crownlight-plot').hover({position:{x:100,y:150}});
    await page.mouse.wheel(0,-210);
    await page.locator('[data-cl="source"]').click();
