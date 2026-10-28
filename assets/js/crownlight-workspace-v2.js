@@ -18,6 +18,7 @@ function applyLayout(){
  if(control){control.value=layout;control.disabled=!eligible}
  const container=document.getElementById('cl-chart-tier-switcher');
  if(container)container.dataset.clLayout=eligible?layout:'SIDE_BY_SIDE';
+ window.requestAnimationFrame(()=>Tier()?.balancePanels?.());
 }
 function sessionToken(){
  return window.getSupabaseClient().then(sb=>sb.auth.getSession()).then(r=>r.data?.session?.access_token||null);
