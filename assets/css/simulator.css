@@ -52,3 +52,11 @@
   border-radius:10px;background:#102338;color:#d9e8f5;line-height:1.55;
 }
 .sim-awaiting-data-message[hidden]{display:none!important}
+
+/* Explicitly preserve the hidden attribute for account-gated modes. A site's
+   display utility or grid rule must never make a restricted Simulator visible. */
+#sim-content[hidden],
+#sim-server-mode[hidden],
+#sim-legacy-mode[hidden]{
+ display:none!important;
+}
