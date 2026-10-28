@@ -187,6 +187,9 @@
   window.addEventListener('blur',cancel,true);
  }
  function applySavedOrder(){
+  // Simulator has a fixed pedagogical step order. Presentation drags may move
+  // cards visually but must never reorder the data source after the chart.
+  if(page==='simulator')return;
   // Never move cards across other non-card page sections. Reordering every
   // child on page load previously moved "1. Load replay data" behind the chart.
   // Only persisted indexes among an already contiguous peer group are safe.
