@@ -82,8 +82,7 @@ BEGIN
   RETURN false;
  END IF;
  RETURN true;
-END; $function$
-
+END; $function$;
 REVOKE ALL ON FUNCTION public.v0143_commons_can_open(boolean,boolean,text,text) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.v0143_commons_can_open(boolean,boolean,text,text) TO authenticated,service_role;
 
