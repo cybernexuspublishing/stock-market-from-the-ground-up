@@ -33,6 +33,10 @@ globalThis.fetch=async(url,opt={})=>{
   plan_code:state.plan,billing_start:before,billing_end:state.expired?before:after,
   reversed_at:state.reversed?before:null}]:[]);
  if(u.pathname==='/rest/v1/gu_founder_reservations_v014173')return json([]);
+ if(u.pathname==='/rest/v1/gu_storefront_items_v014174')return json([
+  {sku:'founding:FOUNDING_30',visible:true,sale_ready:true,status:'for_sale'},
+  {sku:'founding:FOUNDING_60',visible:true,sale_ready:true,status:'for_sale'}
+ ]);
  if(u.pathname==='/rest/v1/user_plan_grants')return json(state.grant?[{
   plan_code:state.grant,status:'active',starts_at:before,ends_at:after}]:[]);
  if(u.pathname==='/rest/v1/gu_sparks_chart_passes_v1')return json([]);
