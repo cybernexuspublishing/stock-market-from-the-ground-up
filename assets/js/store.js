@@ -71,7 +71,7 @@ function bookCard(p){
  return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(bookFamily(p))}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
- <div class="product-meta"><span class="store-beta-ribbon">${ribbon}</span><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
+ <div class="product-meta"><span class="store-beta-ribbon">${ribbon}</span><span class="status-pill ${purchaseCount?'status-active':''}">${esc(p.salesStatus==='selling'?'Book sales listing':statusLabel(p.publicationStatus))}</span>
  ${purchaseCount?'<span class="status-pill">Retailer listing recorded</span>':''}
  ${p.includedLifetime?'<span class="status-pill">Included with Lifetime companion access</span>':''}</div>
  <p>${esc(p.description||'Full product details, learning subjects and approved purchase formats are available on the book page.')}</p>
