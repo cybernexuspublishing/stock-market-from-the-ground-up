@@ -37,7 +37,7 @@ try{
  const page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
-  const u=new URL(route.request().url);
+  const u=new URL(route.request().url());
   if(u.origin!==origin)return route.abort();
   if(u.pathname==='/')return route.fulfill({status:200,contentType:'text/html',body:html});
   const path=join(root,u.pathname.slice(1)),ext=extname(path);
