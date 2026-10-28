@@ -48,7 +48,8 @@ async function loadResearchGuides(env,request){
   if(!/^[A-Z][A-Z0-9_]{3,72}$/.test(String(g?.code||''))||ids.has(g.code)||
      g.researchGuide!==true||g.supplemental!==true||g.officialCompetency!==false||
      !String(g.archiveBasis||'').includes('STT')||
-     ['title','concept','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
+     (typeof g.title!=='string'||g.title.length<8)||
+     ['concept','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
        .some(k=>typeof g[k]!=='string'||g[k].length<40))
    throw Error('Invalid original research lesson');
   ids.add(g.code);
