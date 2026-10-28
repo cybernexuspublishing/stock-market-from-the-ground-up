@@ -64,11 +64,13 @@ async function mount(body){
     setStatus(host,'Display title saved. Your access permissions have not changed.');
    }catch(e){setStatus(host,e.message,true)}finally{btn.disabled=false}
   });
+  let pendingPurchase=null;
   $('[data-custom-title-form]',host).addEventListener('submit',async ev=>{
    ev.preventDefault();const title=$('[name=title]',host).value.trim();
    if(!confirm('Spend 5 Crownlight Sparks for the display title “'+title+'”? This does not grant any new account permissions.'))return;
    const btn=ev.submitter;btn.disabled=true;try{
-    const j=await request('buy_custom_title',{title,requestId:crypto.randomUUID()});
+    if(!pendingPurchase||pendingPurchase.title!==title)pendingPurchase={title,id:crypto.randomUUID()};
+    const j=await request('buy_custom_title',{title,requestId:pendingPurchase.id});pendingPurchase=null;
     const options=$('[data-title-choice]',host),option=options.querySelector('[value="custom"]')||document.createElement('option');
     option.value='custom';option.textContent='Custom Display Title';if(!option.isConnected)options.append(option);options.value='custom';
     setStatus(host,j.alreadyUsed?'Custom title is already recorded.':'Custom title saved. 5 Sparks were deducted from your verified balance.');
