@@ -14,6 +14,7 @@ globalThis.fetch=async (url,opts={})=>{
  if(path==='/auth/v1/user')return response({id:member});
  if(path==='/rest/v1/profiles')return response([{account_kind:kind}]);
  if(path==='/rest/v1/admin_user_flags')return response([{status:flag}]);
+ if(path==='/rest/v1/rpc/groundup_free_sparks_ensure')return response({ok:true,issued:0,monthlyAllowance:5,nextGrantAt:null});
  if(path==='/rest/v1/rpc/groundup_question_pass_summary'){
   const args=JSON.parse(opts.body);
   assert.equal(args.p_user_id,member,'wallet cannot read query-selected other member');
@@ -26,7 +27,7 @@ globalThis.fetch=async (url,opts={})=>{
 try{
  let r=await onRequest({request:req(),env});assert.equal(r.status,200);
  let j=await r.json();assert(j.ok);assert.deepEqual(j.wallet,data);
- assert.equal(j.purchaseEnabled,false);assert.match(j.howToUse,/never awards official assessment mastery/);
+ assert.equal(j.purchaseEnabled,false);assert.match(j.howToUse,/never award official assessment mastery/);assert.equal(j.freeCredits.allowance,5);
  assert.match(r.headers.get('cache-control'),/no-store/);
  assert(!JSON.stringify(j).includes(member)&&!JSON.stringify(j).includes(wrong));
  assert.equal(counts['/rest/v1/rpc/groundup_question_pass_summary'],1);
