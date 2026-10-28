@@ -39,6 +39,7 @@ async function permission(){
  }catch{state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
   status('Advanced chart permissions could not be verified. Standard chart remains available to eligible signed-in members.');}
  renderChoices();
+ window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:state.verified,tier:state.tier}}));
 }
 function stopCharts(){
  for(const entry of state.charts){try{window.klinecharts?.dispose(entry.id)}catch{}}
@@ -95,7 +96,7 @@ async function loadEngine(){
 async function choose(tier){
  if(!state.verified||!state.allowed.includes(tier)){status('This engine is not included in your verified membership.');renderChoices();return}
  state.selected=tier;stopCharts();renderChoices();
- if(tier==='STANDARD'){status('Standard Crownlight chart is active.');return}
+ if(tier==='STANDARD'){status('Standard Crownlight chart is active.');window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));return}
  const request=++state.version;
  status('Loading '+tier.toLowerCase()+' charts…');
  const enhanced=state.view.querySelector('[data-cl-tier-advanced]');
@@ -108,6 +109,7 @@ async function choose(tier){
   if(tier==='PROFESSIONAL')makeView('cl-tier-secondary','Indicator study');
   state.charts.push(initOne('cl-tier-primary','primary'));
   if(tier==='PROFESSIONAL')state.charts.push(initOne('cl-tier-secondary','analysis'));
+  window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));
   status(state.bars.length?
    tier+' chart: '+state.bars.length+' revealed candles. All future candles remain hidden.':
    'Load fictional or authorized history to begin chart analysis.');
@@ -177,7 +179,9 @@ async function init(){
   client.auth.onAuthStateChange(()=>{state.version++;state.bars=[];state.selected='STANDARD';stopCharts();void permission()});
  }catch{}
 }
-window.CrownlightChartTiers={getStatus:()=>({
+window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='STANDARD'?state.charts.slice():[],
+ getRevealedBars:()=>state.bars.map(b=>({...b})),
+ getStatus:()=>({
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],revealed:state.bars.length,
  verified:state.verified,charts:state.charts.length
 }),choose:t=>choose(t)};
