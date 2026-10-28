@@ -56,12 +56,22 @@ try{
   try{
    await page.goto(origin+'/fixture.html',{waitUntil:'load'});
    await page.evaluate((paid)=>{window.__canUsePaper=paid;
+    const canvas=document.querySelector('#sim-content');
+    const source=canvas?.querySelector(':scope > section.journal-card');
+    if(source)canvas.append(source); // reproduce the October 28 regression: import card moved behind chart.
     window.CrownlightWorkbenchLayout.init({canUsePaper:window.__canUsePaper===true,getToken:async()=> 'mock-token'});
     window.CrownlightPaperTerminal.initialize({getSession:async()=>({access_token:'mock-token'})});
     window.confirm=()=>false;
    },entitlement!=='free');
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
+   assert.equal(await page.locator('.cl-import-shell').count(),1,'Replay setup must still exist');
+   assert.equal(await page.evaluate(()=>{
+      const content=document.querySelector('#sim-content');
+      return [...content.children].indexOf(content.querySelector('.cl-import-shell'))<
+       [...content.children].indexOf(content.querySelector('.sim-layout'))
+     }),true,'Step 1 must be restored before the interactive chart');
+
    assert.equal(await page.locator('#sim-lab-picker option[value^="academy:free5"]').count(),5);
    const freeSample=page.locator('#sim-lab-picker option[value="lab:F1-C02-L01"]');
    const guidedCandidate=page.locator('#sim-lab-picker option[value="lab:F2-C07-L01"]');
