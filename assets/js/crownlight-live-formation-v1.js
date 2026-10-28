@@ -11,7 +11,7 @@
  const aggLib=()=>root.CrownlightLiveAggregator;
  const state={ws:null,mode:null,agg:null,chart:null,candles:null,volume:null,ema9:null,ema20:null,
    generation:0,renderQueued:false,closedByUser:false,demoTimer:null,demoTick:0,canLive:false,
-   getSession:null,getSymbol:null,resize:null,sourceSymbol:'',ticks:0};
+   getSession:null,getSymbol:null,resize:null,clock:null,sourceSymbol:'',ticks:0};
  function setStatus(label,kind='idle'){
   const el=$('cl-live-status');if(el){el.textContent=label;el.dataset.kind=kind}
  }
@@ -91,6 +91,7 @@
   state.generation++;
   state.closedByUser=true;
   if(state.demoTimer){clearInterval(state.demoTimer);state.demoTimer=null}
+  if(state.clock){clearInterval(state.clock);state.clock=null}
   if(state.ws){const ws=state.ws;state.ws=null;try{ws.close(1000,'Member stopped live stream')}catch{}}
   if(state.chart){state.chart.remove();state.chart=null;state.candles=null;state.volume=null}
   if(state.resize){state.resize.disconnect();state.resize=null}
@@ -107,6 +108,7 @@
   const symbol=String(state.getSymbol?.()||'').trim().toUpperCase();
   if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(symbol)){setStatus('Enter a valid ticker before connecting.','error');return}
   try{begin('iex',symbol)}catch(e){setStatus(e.message,'error');return}
+  state.clock=setInterval(()=>{if(state.mode==='iex'&&state.agg?.finalizeAt(Date.now()-1000))scheduleRender()},1000);
   setStatus('Verifying your private Alpaca IEX connection…','connecting');
   setMeta('Actual IEX trades only · data may be quiet outside market sessions · one active Alpaca stream per key.');
   const gen=state.generation;
@@ -138,7 +140,7 @@
    };
    ws.onerror=()=>{if(gen===state.generation)setStatus('Connection interrupted. Check Alpaca stream access and retry.','error')};
    ws.onclose=()=>{if(gen===state.generation){state.ws=null;if(!$('cl-live-status')?.dataset.kind?.includes('error'))setStatus('Stream closed · select Start to reconnect.','idle');
-    state.mode=null;controls()}}
+    state.mode=null;if(state.clock){clearInterval(state.clock);state.clock=null}controls()}}
   }catch(e){if(gen!==state.generation)return;setStatus(e.message||'Unable to open the live feed.','error');state.mode=null;controls()}
  }
  function practice(){
