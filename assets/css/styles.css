@@ -90,3 +90,23 @@
 .v01411-public-announcement strong{color:#f0c45a}
 .v01411-public-announcement p{flex:1 1 100%;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .v01411-public-announcement button{margin-left:auto}
+
+/* Member-owned provider account chooser — accessible site dialog, not browser credential manager. */
+.v1321-provider-dialog{width:min(92vw,560px);max-height:90dvh;overflow:auto;box-sizing:border-box;padding:26px;background:#0b2135;color:#ecf4fc;border:1px solid #376582;border-radius:18px;box-shadow:0 22px 90px #000b}
+.v1321-provider-dialog::backdrop{background:rgba(1,9,18,.76)}
+.v1321-provider-dialog h2{color:#fff;margin:0 0 16px;font-size:1.25rem}
+.v1321-provider-dialog fieldset{margin:0 0 14px;padding:14px;border:1px solid #2b5677;border-radius:12px;min-width:0}
+.v1321-provider-dialog legend{font-weight:700;padding:0 7px}
+.v1321-provider-choice{display:grid;grid-template-columns:22px minmax(0,1fr);gap:0 10px;align-items:start;padding:12px;margin:6px 0;border:1px solid #315774;border-radius:10px;cursor:pointer;font-weight:700;line-height:1.35}
+.v1321-provider-choice:has(input:checked){background:#153752;border-color:#9ecce7}
+.v1321-provider-choice input{margin:2px 0 0;accent-color:#a9d5f4}
+.v1321-provider-choice small{grid-column:2;color:#b3cadd;font-size:.83rem;font-weight:400;line-height:1.4}
+.v1321-provider-field{display:block;margin:14px 0;color:#ecf4fc;font-weight:650}
+.v1321-provider-field .v1321-secret-wrap{display:flex;gap:8px;margin-top:7px;align-items:center}
+.v1321-provider-field input{flex:1;min-width:0;height:44px;box-sizing:border-box;border:1px solid #4b7390;border-radius:9px;background:#071726;color:#fff;padding:9px 12px;font:inherit}
+.v1321-provider-field button{flex-shrink:0}
+.v1321-provider-hint{color:#b7cfdf;font-size:.88rem;line-height:1.5;margin:10px 0}
+.v1321-provider-feedback{min-height:1.4em;color:#f6cf8d;font-size:.92rem}
+.v1321-provider-dialog .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.v1321-connection-feedback{min-height:0;margin:0;color:#f6cf8d;font-size:.88rem}
+@media(max-width:520px){.v1321-provider-dialog{padding:18px}.v1321-provider-dialog .actions button{flex:1}}
