@@ -96,6 +96,12 @@ function boot(){
  actions.append(back,next);
  toolbar.append(top,progress,help,actions);
  form.parentElement.insertBefore(toolbar,form);
+ window.JournalTools?.taxonomy().then(tax=>{
+   const input=$('j-setup');if(!input||!Array.isArray(tax?.setups))return;
+   const datalist=document.createElement('datalist');datalist.id='gu-journal-entry-setup-options';
+   for(const value of tax.setups){const option=document.createElement('option');option.value=value;datalist.append(option)}
+   input.setAttribute('list',datalist.id);input.insertAdjacentElement('afterend',datalist);
+ }).catch(()=>{});
  const risk=document.createElement('aside');risk.className='gu-risk-panel journal-card';risk.id='gu-journal-risk';risk.setAttribute('aria-live','polite');
  sections[1].querySelector('.journal-actions')?.before(risk);
  const coach=document.createElement('aside');coach.className='gu-coach-panel journal-card';coach.id='gu-journal-coach';coach.setAttribute('aria-live','polite');
