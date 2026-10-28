@@ -154,6 +154,9 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  window.CrownlightLive?.initialize({canLive:SIM.hasPremium===true,
   getSymbol:()=>$('sim-ticker')?.value||'AAPL',
   getSession:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session||null}});
+ const changes=SIM.sb.auth.onAuthStateChange?.((event,session)=>{
+  if(event==='SIGNED_OUT'||session?.user?.id&&session.user.id!==SIM.user.id)window.CrownlightLive?.stop();
+ });
  $('load-csv').onclick=loadCSV;if($('sim-load-fictional'))$('sim-load-fictional').onclick=loadFictionalPractice;if($('load-provider'))$('load-provider').onclick=loadProvider;$('load-demo-template').onclick=downloadTemplate;if($('sim-source'))$('sim-source').onchange=()=>{const connected=['tiingo','alpaca'].includes($('sim-source').value);if($('sim-csv-wrap'))$('sim-csv-wrap').hidden=connected;$('load-csv').hidden=connected;if($('load-provider'))$('load-provider').hidden=!connected};if($('load-provider'))$('load-provider').hidden=true;$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll();if(window.GroundUpFreePracticeRequested)loadFictionalPractice()}catch(e){gate.innerHTML=`<div class="notice">${JT()?.esc?JT().esc(e.message):e.message}</div>`}}
 /* The secure replay panel owns the default simulator screen.
  * Legacy browser CSV initialization runs only after the member explicitly
