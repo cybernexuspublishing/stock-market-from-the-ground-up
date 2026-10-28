@@ -16,7 +16,7 @@ function attachShadow(){
  }
 }
 function installOwnerQa(){
- const nav=$('#admin-tabs'),ctx=window.ADMIN?.ctx;
+ const nav=$('#admin-tabs'),ctx=typeof ADMIN!=='undefined'?ADMIN.ctx:window.ADMIN?.ctx;
  if(!nav||!ctx?.roles?.includes('OWNER')||!ctx?.permissions?.includes('commerce.view'))return;
  if($('#gu36-owner-zero-live-qa'))return;
  const qa=document.createElement('button');qa.type='button';qa.id='gu36-owner-zero-live-qa';
