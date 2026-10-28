@@ -127,6 +127,20 @@ with sync_playwright() as p:
      right=page.locator('.gu-signin-ad-rail').nth(1).bounding_box()
      assert left and right and left['x']+left['width']<=bounds['x']+1,'Left ad overlaps form'
      assert bounds['x']+bounds['width']<=right['x']+1,'Right ad overlaps form'
+     assert bounds['width']<=410,(width,'Sign-in form should be compact',bounds)
+     assert left['x']<width*.12,(width,'Left promotion needs outer rail positioning',left)
+     assert right['x']+right['width']>width*.88,(width,'Right promotion needs outer rail positioning',right)
+    # A canonical member-navigation enhancer inserts Remember me. It must
+    # remain outside the two-button Sign In/Create Account action grid.
+    remember=page.locator('#v11-remember-me')
+    remember.wait_for(state='attached',timeout=7000)
+    assert page.locator('.gu-auth-primary-actions .v11-remember-row').count()==0,(
+     width,'Remember me must remain outside the two-button action grid')
+    buttons=page.locator('.gu-auth-primary-actions>button')
+    assert buttons.count()==2,(width,'Exactly two sign-in action buttons required')
+    b1,b2=buttons.nth(0).bounding_box(),buttons.nth(1).bounding_box()
+    assert b1 and b2 and abs(b1['y']-b2['y'])<4,(
+     width,'Sign In and Create Account must share one row')
    else:
     assert page.locator('#v121-auth-grid').count()==1
     assert page.locator('.fe-auth-layout').count()==0,'Competing form wrapper returned'
