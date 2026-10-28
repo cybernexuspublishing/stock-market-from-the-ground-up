@@ -84,7 +84,7 @@
    const stored=progress.get(d.day)?.status==='reflection_saved'?'Reflection saved':
     progress.get(d.day)?.status==='in_progress'?'Started':'Not recorded';
    const state=hasDraft?stored+' · unsaved local work':stored;
-   button.append(node('span','Day '+String(d.day).padStart(2,'0')+' · '+(progressAvailable?state:'Saving unavailable')),
+   button.append(node('span',(activeCode==='free5'?'Lesson ':'Day ')+String(d.day).padStart(2,'0')+' · '+(progressAvailable?state:'Saving unavailable')),
     node('strong',d.title));
    button.addEventListener('click',()=>{dayIndex=d.day;renderDay()});
    container.append(button);
@@ -319,19 +319,94 @@
     node('p','If part of your answer is missing, revise and compare again. These teaching prompts are NOT a protected grading rubric, automated score or proof of mastery.'));
    result.replaceChildren(coaching);
   });
-  mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to copy reasoning into a private reflection draft. Unsaved answers survive a day change in this tab only and are erased on account switch or reload. Select Save Reflection to persist study notes; this is not graded mastery.'),result);
+  mount.append(label,answer,compare,use,node('p','At least 40 characters to compare coaching; 80 characters to copy reasoning into a private reflection draft. Unsaved answers survive changing lessons in this tab only and are erased on account switch or reload. Save Reflection preserves study notes; this is not graded mastery.'),result);
+  if(d.programCode==='free5')mountFreeLessonStages(mount,d);
+ }
+
+
+ function mountFreeLessonStages(mount,d){
+  // Keep every authored example, correction, formative check and the existing
+  // private reflection flow. Stages change visibility, not grading or progress.
+  const names=['Learn','Observe','Practice','Correct','Transfer','Check'];
+  const headings={
+   'Talia explains — start from zero knowledge':0,'Why this matters':0,
+   'Worked FICTIONAL demonstration':1,'Guided practice — your turn':2,
+   'Independent evidence investigation':4,'When NOT to act':4,
+   'Common research error':4,'Transfer to a new case':4,
+   'Check your understanding — ungraded':5
+  };
+  const frame=node('section');frame.className='academy-free-journey';
+  const intro=node('p','Talia · Guided Learning — learn at your own pace. Study the example, try the method, correct mistakes, then check your understanding. No official grade is awarded.');
+  intro.className='academy-free-intro';
+  const nav=node('div');nav.className='academy-free-stage-nav';nav.setAttribute('role','group');
+  nav.setAttribute('aria-label','Guided lesson steps');
+  const panels=names.map((name,i)=>{
+   const panel=node('section');panel.id='academy-free-stage-'+i;panel.className='academy-free-stage';
+   panel.setAttribute('aria-label',name);return panel;
+  });
+  let stage=0;
+  for(const item of [...mount.childNodes]){
+   if(item.nodeType===1&&item.tagName==='H4'&&Object.prototype.hasOwnProperty.call(headings,item.textContent.trim()))
+    stage=headings[item.textContent.trim()];
+   else if(item.nodeType===1&&item.classList.contains('academy-free-phase-a'))stage=3;
+   else if(item.nodeType===1&&item.classList.contains('academy-source-claim-case'))stage=4;
+   panels[stage].append(item);
+  }
+  // One practical observation response before showing the full review.
+  const field=node('textarea');field.rows=3;field.maxLength=800;
+  const key='free5-guided:'+d.day;field.value=selfCheckDrafts.get(key)||'';
+  field.setAttribute('aria-label','Your guided practice observation');
+  const ask=node('button','Ask Talia for a hint');ask.type='button';ask.className='btn secondary';
+  const feedback=node('p');feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
+  field.addEventListener('input',()=>{selfCheckDrafts.set(key,field.value);feedback.textContent=''});
+  ask.addEventListener('click',()=>{
+   if(field.value.trim().length<25){feedback.textContent='Write the observed facts in your own words before asking for guidance.';return}
+   feedback.textContent=(d.lesson?.reviewPrompts?.[0]||
+    'Which facts support your answer, and what remains unknown?')+
+    ' This is an instructional hint, not an automated correctness grade.';
+  });
+  panels[2].append(node('label','Your turn — explain what you observed and what is still unknown'),field,ask,feedback);
+  const controls=node('nav');controls.className='academy-free-stage-controls';
+  controls.setAttribute('aria-label','Guided lesson navigation');
+  const previous=node('button','Previous step');previous.type='button';previous.className='btn secondary';
+  const next=node('button','Next step');next.type='button';next.className='btn';
+  const progressText=node('span');progressText.setAttribute('role','status');
+  controls.append(previous,progressText,next);
+  let active=0;
+  const buttons=names.map((name,i)=>{
+   const button=node('button',(i+1)+'. '+name);button.type='button';button.className='academy-free-stage-button';
+   button.setAttribute('aria-controls',panels[i].id);button.onclick=()=>activate(i);nav.append(button);return button;
+  });
+  function activate(n){
+   active=Math.min(names.length-1,Math.max(0,n));
+   panels.forEach((p,i)=>p.hidden=i!==active);
+   buttons.forEach((b,i)=>{b.setAttribute('aria-pressed',String(i===active));b.classList.toggle('active',i===active)});
+   previous.disabled=active===0;next.disabled=active===names.length-1;
+   next.textContent=active===names.length-1?'Review complete':'Next: '+names[active+1];
+   progressText.textContent='Step '+(active+1)+' of '+names.length;
+  }
+  previous.onclick=()=>activate(active-1);next.onclick=()=>activate(active+1);
+  frame.append(intro,nav,...panels,controls);mount.append(frame);
+  activate(0);
  }
 
  function renderDay(){
   const d=days[dayIndex-1];if(!d)return;
   ++renderSerial;const renderEpoch=renderSerial;
-  get('academy-stage-label').textContent='Day '+dayIndex+' of '+days.length+' · '+(d.phaseLabel||'Guided learning');
+  get('academy-stage-label').textContent=(d.programCode==='free5'?'Lesson ':'Day ')+dayIndex+' of '+days.length+' · '+(d.phaseLabel||'Guided learning');
   get('academy-day-title').textContent=d.title;
   get('academy-objective').textContent=d.objective;
   get('academy-observe').textContent=d.observe;
   get('academy-practice').textContent=d.practice;
   get('academy-limits').textContent=d.limitation||d.caution;
   showOriginalInstruction(d);
+  const free=d.programCode==='free5';
+  get('academy-index-title').textContent=free?'Your five lessons':'Study days';
+  get('academy-days').setAttribute('aria-label',free?'Select a Free Foundations lesson':'Select a Boot Camp study day');
+  get('academy-start').textContent=free?'Mark this lesson started':'Mark this day started';
+  get('academy-prev').textContent=free?'Previous lesson':'Previous day';
+  get('academy-next').textContent=free?'Next lesson':'Next day';
+  get('academy-workspace').classList.toggle('academy-free-lesson-mode',free);
   get('academy-reflection').value=drafts.has(dayIndex)?drafts.get(dayIndex):(progress.get(dayIndex)?.reflection||'');
   get('academy-save-status').textContent=drafts.has(dayIndex)?'Unsaved reflection draft on this page. Select Save Reflection to store it privately.':'';
   get('academy-prev').disabled=dayIndex===1;
@@ -446,7 +521,7 @@
      target.setAttribute('tabindex','-1');target.scrollIntoView({behavior:'auto',block:'start'});
      target.focus({preventScroll:true});}));
    }
-   status(progressAvailable?'Choose a day and begin learning with Talia.':
+   status(progressAvailable?(code==='free5'?'Choose a lesson and learn with Talia at your own pace.':'Choose a study day and begin learning with Talia.'):
     'You can read the lessons, but we cannot save your notes right now. Please try again later.');
   }catch(error){
    if(epoch!==sessionSerial)return;clean();
