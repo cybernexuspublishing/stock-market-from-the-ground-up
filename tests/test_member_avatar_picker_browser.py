@@ -34,25 +34,26 @@ def run():
   }""")
   page.locator('#edit').click()
   tiles=page.locator('.v2-avatar-tile')
+  page.wait_for_function('document.querySelectorAll(".v2-avatar-tile").length===39',timeout=9000)
   assert tiles.count()==39,'Modal must present all nine original plus 30 new avatars'
   assert page.locator('dialog.v2-avatar-modal').is_visible()
   page.locator('[data-avatar-id="f13"]').click()
   assert page.locator('[data-avatar-id="f13"]').get_attribute('aria-pressed')=='true'
   assert page.evaluate('window.__applied.length')==0,'Selecting alone must not save'
   page.locator('[data-avatar-cancel]').click()
-  assert page.locator('dialog.v2-avatar-modal').count()==0
+  page.wait_for_function('document.querySelectorAll("dialog.v2-avatar-modal").length===0',timeout=5000)
   assert page.evaluate('window.__applied.length')==0,'Cancel must not save'
   page.locator('#edit').click()
   page.locator('[data-avatar-id="m12"]').click()
   page.evaluate('window.__reject=true')
   page.locator('[data-avatar-apply]').click()
-  assert page.get_by_text('Server rejected the change').is_visible()
+  page.get_by_text('Server rejected the change').wait_for(state='visible',timeout=5000)
   assert page.evaluate('window.__applied.length')==0
   page.evaluate('window.__reject=false')
   page.locator('[data-avatar-apply]').click()
   page.wait_for_function('window.__applied.length===1')
   assert page.evaluate('window.__applied[0].endsWith("/assets/avatars/av-m12.svg")')
-  assert page.locator('dialog.v2-avatar-modal').count()==0
+  page.wait_for_function('document.querySelectorAll("dialog.v2-avatar-modal").length===0',timeout=5000)
   page.close()
 
   for width,expected_cols in [(1600,4),(950,3),(740,2),(390,1)]:
