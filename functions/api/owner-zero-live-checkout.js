@@ -251,5 +251,5 @@ export async function onRequestPost({request,env}){
   if(batchId)await batchBind(selection,batchId,session.id);
   return json({ok:true,live:true,zeroDollar:true,targetSku:sku||null,diagnosticBatch:batchId||null,selectedCount:selection?.skus.length||null,sessionUrl:session.url,
    notice:'Owner zero-dollar one-time Stripe Checkout only. NO membership or tool entitlements.'});
- }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE'},e.status||503)}
+ }catch(e){return json({ok:false,error:e.code||'ZERO_QA_UNAVAILABLE',...(e.stripeDiagnostic?{stripeDiagnostic:e.stripeDiagnostic}:{})},e.status||503)}
 }
