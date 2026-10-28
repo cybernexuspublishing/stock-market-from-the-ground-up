@@ -525,6 +525,13 @@ async function handlePost(env,request,action){
       }
       body.category='design';body.public_read=true;body.description='Owner-approved sitewide background image and readability overlay';
     }
+    if(key==='feature.crownlight_continuous_workspace_v1'){
+      if(!c.ctx.roles.includes('OWNER'))return bad('Owner authority required for Chart Studio presentation.',403);
+      const v=body.value;
+      if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length!==1||typeof v.enabled!=='boolean')return bad('Use only a boolean enabled property.',400);
+      body.category='design';body.public_read=false;
+      body.description='Owner-controlled Crownlight continuous trading workspace presentation';
+    }
     const row={setting_key:key,category:clean(body.category||'general'),value:body.value,public_read:!!body.public_read,description:clean(body.description)||null,updated_at:nowIso(),updated_by:c.user.id};await serviceRest(env,'site_settings?on_conflict=setting_key',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:row});await audit(env,c.user.id,'setting.save','setting',key,{public_read:row.public_read});return ok();
   }
   if(action==='content_save'){
