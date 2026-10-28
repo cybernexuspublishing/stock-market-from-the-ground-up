@@ -22,18 +22,25 @@
   {id:'ema20',type:'EMA',period:20,color:'#37ddf6',width:2},
   {id:'vwap',type:'VWAP',period:1,color:'#f7c76a',width:2}
  ];
- let prefs;
- try{prefs=JSON.parse(localStorage.getItem(KEY)||'null')}catch{}
- if(!prefs||!Array.isArray(prefs.studies))prefs={studies:defaults.map(x=>({...x})),levels:[],follow:true};
- prefs.studies=prefs.studies.filter(x=>LABELS[x?.type]&&typeof x?.color==='string').slice(0,18);
- if(!Array.isArray(prefs.levels))prefs.levels=[];
+ let prefs={studies:defaults.map(x=>({...x})),levels:[],follow:true};
  const state={mounted:false,chart:null,candles:null,volume:null,series:[],lines:[],source:'',count:-1,
-  hover:null,sim:null,follow:prefs.follow!==false,fullscreen:false,inspectOpen:false,modal:null,observer:null,markerApi:null};
+  hover:null,sim:null,follow:true,fullscreen:false,inspectOpen:false,modal:null,observer:null,markerApi:null,userId:null};
  const $=id=>document.getElementById(id);
  const h=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
  const money=n=>Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}):'—';
  const num=n=>Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:3}):'—';
- const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({studies:prefs.studies,levels:prefs.levels.slice(-15),follow:state.follow}))}catch{}};
+ const save=()=>{if(!state.userId)return;try{localStorage.setItem(KEY+':'+state.userId,JSON.stringify({studies:prefs.studies,levels:prefs.levels.slice(-15),follow:state.follow}))}catch{}};
+ function scopeToMember(userId){
+  if(typeof userId!=='string'||!userId)return;
+  if(state.userId===userId)return;
+  state.userId=userId;let stored=null;
+  try{stored=JSON.parse(localStorage.getItem(KEY+':'+userId)||'null')}catch{}
+  prefs=stored&&Array.isArray(stored.studies)?stored:{studies:defaults.map(x=>({...x})),levels:[],follow:true};
+  prefs.studies=prefs.studies.filter(x=>LABELS[x?.type]&&typeof x.color==='string').slice(0,18);
+  if(!Array.isArray(prefs.levels))prefs.levels=[];
+  state.follow=prefs.follow!==false;state.source='';state.count=-1;state.hover=null;
+  if(state.mounted){updateFollow();renderLegend()}
+ }
  function timeNY(ms){
   return new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ms));
  }
@@ -167,6 +174,7 @@
   }
  }
  function redraw(sim){
+  scopeToMember(sim?.user?.id);
   if(!initialize())return false;
   const data=sim.candles.slice(0,sim.index+1);
   const source=sim.sourceProvider+'|'+sim.sourceName+'|'+sim.candles.length;
@@ -206,7 +214,7 @@
   if(reset||!prior)fitVisible();
   else if(state.follow)state.chart.timeScale().scrollToRealTime();
   else state.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,prior.from),to:Math.min(data.length+2,prior.to)});
-  showHover(data[data.length-1]);renderLegend();
+  state.hover=data[data.length-1]||null;showHover(state.hover);renderLegend();
   if(!state.shell.querySelector('.crownlight-source').hidden)showSource();
   return true;
  }
