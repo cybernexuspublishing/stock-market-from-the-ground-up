@@ -72,12 +72,13 @@ async function scenario(width,kind='free'){
    });
    assert.equal(await page.locator('#sim-legacy-mode').isVisible(),true);
    assert.equal(await page.locator('#sim-content').isVisible(),true);
-   assert.match(await page.locator('#sim-load-msg').innerText(),/ORIGINAL FICTIONAL/);
+   assert.match(await page.locator('#sim-load-msg').textContent(),/ORIGINAL FICTIONAL/);
    if(kind==='studio'){
     assert.equal(await page.locator('#cl-replay-import details.cl-workbench-import').evaluate(e=>e.open),false,
      'Studio direct link must keep source controls available but initially collapsed');
     assert.equal(await page.evaluate(()=>window.GroundUpStudioRequestedTier),'STANDARD');
     assert.equal(await page.evaluate(()=>window.CrownlightChartTiers?.getStatus().selected),'STANDARD');
+    await page.locator('#cl-replay-import details.cl-workbench-import').evaluate(el=>el.open=true);
    }
    assert.equal(await page.locator('#sim-ticker').inputValue(),'GUSIM');
    assert.equal(await page.locator('#sim-source option[value="tiingo"]').isDisabled(),false,
