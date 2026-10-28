@@ -1,0 +1,40 @@
+/* Legal and policy readability. Presentation only; no contract text is silently amended. */
+.v13-legal-page{max-width:min(100%,1060px)!important;padding:30px 20px 60px!important}
+.v13-legal-page>h1{font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.24;margin:10px 0}
+.v13-legal-page>.v132-policy-body{border:0!important;background:transparent!important;padding:0!important;box-shadow:none!important}
+.v13-legal-page .gu-policy-section{
+ display:block;padding:21px 25px;margin:0 0 21px;
+ border:1px solid #328c70;border-left:4px solid #3cb68a;
+ border-radius:10px;background:linear-gradient(115deg,#0e1e2a,#111b2b);
+ box-shadow:0 6px 22px rgba(0,0,0,.12);
+}
+.v13-legal-page .gu-policy-section h2{font-size:clamp(1.1rem,2vw,1.4rem);
+ margin:0 0 15px;line-height:1.38;color:#defbf1}
+.v13-legal-page .gu-policy-section p{margin:0 0 14px;line-height:1.75;color:#e2ebf3}
+.v13-legal-page .gu-policy-section ul{margin:7px 0 15px;padding-left:24px}
+.v13-legal-page .gu-policy-section li{margin:7px 0;line-height:1.65}
+.v13-legal-page .gu-policy-section :last-child{margin-bottom:0}
+.v13-legal-page .gu-legal-related{margin-top:26px!important;padding:22px!important;
+ border:1px solid #328c70!important;background:#0e1e2a!important}
+.v13-legal-page .gu-legal-related h2{margin:0 0 15px;font-size:1.25rem;color:#defbf1}
+.v13-legal-page .gu-legal-related ul{padding:0!important;margin:0!important;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important;list-style:none!important}
+.v13-legal-page .gu-legal-related li{margin:0!important;
+ border:1px solid #328c70;border-radius:9px;background:#12283a}
+.v13-legal-page .gu-legal-related li a{display:block;padding:14px 16px;
+ color:#b8f4de;text-decoration:none;font-weight:600;line-height:1.4}
+.v13-legal-page .gu-legal-related li a:hover,
+.v13-legal-page .gu-legal-related li a:focus-visible{outline:2px solid #7bdfb8;
+ outline-offset:2px;background:#153d43}
+@media(max-width:640px){
+ .v13-legal-page .gu-policy-section{padding:17px;margin-bottom:17px}
+ .v13-legal-page .gu-legal-related ul{grid-template-columns:minmax(0,1fr)}
+}
+@media(prefers-color-scheme:light){
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-policy-section,
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-legal-related{background:#f5fffb!important;color:#223d37!important}
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-policy-section h2{color:#175f48!important}
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-policy-section p{color:#263c39!important}
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-legal-related li{background:#ecfff8}
+ html[data-gu-design="premium-light"] .v13-legal-page .gu-legal-related li a{color:#134c39}
+}

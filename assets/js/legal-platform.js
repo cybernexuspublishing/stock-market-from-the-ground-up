@@ -1,14 +1,31 @@
 (function(){
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>')}
- function render(md){const lines=String(md||'').replace(/\r/g,'').split('\n');let html='',para=[],list=[];const flushP=()=>{if(para.length){html+=`<p>${inline(para.join(' '))}</p>`;para=[]}},flushL=()=>{if(list.length){html+='<ul>'+list.map(x=>`<li>${inline(x)}</li>`).join('')+'</ul>';list=[]}};for(const raw of lines){const line=raw.trim();if(!line){flushP();flushL();continue}const h=line.match(/^(#{1,4})\s+(.+)$/);if(h){flushP();flushL();const n=h[1].length;html+=`<h${n}>${inline(h[2])}</h${n}>`;continue}const li=line.match(/^[-*]\s+(.+)$/);if(li){flushP();list.push(li[1]);continue}flushL();para.push(line)}flushP();flushL();return html}
+ function render(md){
+  const lines=String(md||'').replace(/\r/g,'').split('\n');
+  let html='',para=[],list=[],open=false;
+  const flushP=()=>{if(para.length){html+='<p>'+inline(para.join(' '))+'</p>';para=[]}};
+  const flushL=()=>{if(list.length){html+='<ul>'+list.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';list=[]}};
+  const section=()=>{flushP();flushL();if(open)html+='</section>';
+   html+='<section class="gu-policy-section">';open=true};
+  for(const raw of lines){
+   const line=raw.trim();if(!line){flushP();flushL();continue}
+   const heading=line.match(/^(#{1,4})\s+(.+)$/);
+   if(heading){section();const level=Math.max(2,heading[1].length-1);html+='<h'+level+'>'+inline(heading[2])+'</h'+level+'>';continue}
+   const item=line.match(/^[-*]\s+(.+)$/);
+   if(item){flushP();list.push(item[1]);continue}
+   flushL();if(!open)section();para.push(line);
+  }
+  flushP();flushL();if(open)html+='</section>';
+  return html;
+ }
  async function init(){const code=document.body.dataset.legalDoc,h=document.getElementById('legal-doc');if(!code||!h)return;const sb=await window.getSupabaseClient(),{data,error}=await sb.from('legal_documents').select('*').eq('document_code',code).eq('status','published').maybeSingle();if(error||!data){h.innerHTML='<div class="notice">Policy document unavailable.</div>';return}document.title=`${data.title} | The Stock Market: From the Ground Up`;h.innerHTML=`<div class="eyebrow">Policy · Version ${esc(data.version)}</div><h1>${esc(data.title)}</h1><p><small>Effective ${new Date(data.effective_at).toLocaleDateString()}</small></p><article class="v13-card v132-policy-body">${render(data.body_markdown)}</article>`}
  // Related conditions are separate customer-facing pages, not hidden internal drafts.
  const origInit=init;
  init=async function(){await origInit();const host=document.getElementById('legal-doc');
   if(!host||!host.querySelector('.v132-policy-body'))return;
   const nav=document.createElement('nav');nav.setAttribute('aria-label','Related policies and purchase terms');
-  nav.className='v13-card';nav.style.marginTop='1.5rem';
+  nav.className='v13-card gu-legal-related';nav.style.marginTop='1.75rem';
   nav.innerHTML='<h2>Related purchase terms</h2><ul>'+
    '<li><a href="founding-600-terms.html">Founding 600 Membership Terms</a></li>'+
    '<li><a href="crownlight-sparks-terms.html">Crownlight Sparks Purchase Terms</a></li>'+
@@ -20,5 +37,10 @@
    '<li><a href="privacy.html">Privacy Policy</a></li>'+
    '</ul>';host.appendChild(nav);
  };
+ if(!document.querySelector('link[data-gu-legal-design]')){
+  const sheet=document.createElement('link');sheet.rel='stylesheet';
+  sheet.href='/assets/css/legal-policy-cards-v1.css?v=20261027';
+  sheet.dataset.guLegalDesign='1';document.head.append(sheet);
+ }
  document.addEventListener('DOMContentLoaded',init)
 })();

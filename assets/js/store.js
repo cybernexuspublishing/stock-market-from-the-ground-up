@@ -75,7 +75,7 @@ function bookCard(p){
  ${p.companionAccess?'<div class="library-actions"><a class="btn secondary" href="dashboard.html?tab=settings">Redeem Book Key</a><a class="btn secondary" href="dashboard.html?tab=books">Companion Access</a></div>':''}</article>`;
 }
 const toolImages={INTERACTIVE_LEARNING:'assets/img/store-tools/interactive-learning.svg',JOURNAL_ANALYTICS:'assets/img/store-tools/journal-analytics.svg',MARKET_SIMULATOR:'assets/img/store-tools/market-simulator.svg',MARKET_TUTOR:'assets/img/store-tools/market-tutor.svg'};
-const toolSummary=(t,page)=>{const d=String(t.description||'').replace(/\\s+/g,' ').trim();
+const toolSummary=(t,page)=>{const d=String(t.description||'').replace(/\s+/g,' ').trim();
  return d.length>120?esc(d.slice(0,120).trimEnd())+'… <a class="gu-catalog-read-more" href="'+esc(page)+'">Read more</a>':esc(d||'See the full product details.')};
 function toolCard(t){
  const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled;
@@ -192,8 +192,8 @@ function tabs(){
 
 const catalogImage=x=>{const img=window.GroundUpCatalogVisuals?.resolve?.(x);
  return img?'<a class="gu-catalog-card-image" href="'+esc(catalogUrl(x))+'"><img src="'+esc(img.src)+'" alt="'+esc(img.alt)+'" loading="lazy" width="340" height="190"></a>':''};
-const catalogUrl=x=>typeof x.page==='string'&&/^[a-z0-9-]+\\.html$/.test(x.page)?x.page:'store-upcoming-product.html?sku='+encodeURIComponent(String(x.sku||'').split(':').pop());
-const catalogSummary=x=>{const desc=String(x.description||'').replace(/\\s+/g,' ').trim();
+const catalogUrl=x=>typeof x.page==='string'&&/^[a-z0-9-]+\.html$/.test(x.page)?x.page:'store-upcoming-product.html?sku='+encodeURIComponent(String(x.sku||'').split(':').pop());
+const catalogSummary=x=>{const desc=String(x.description||'').replace(/\s+/g,' ').trim();
  return desc.length>132?esc(desc.slice(0,132).trimEnd())+'… <a class="gu-catalog-read-more" href="'+esc(catalogUrl(x))+'">Read more</a>':esc(desc)};
 const publicCurrent=x=>x.saleReady===true||['published','selling','for_sale','listed','release_ready'].includes(x.status);
 const publicNewest=(a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))||

@@ -47,7 +47,7 @@ function label(x){
 }
 function image(x){const m=window.GroundUpCatalogVisuals?.resolve?.(x);return m?
  '<a class="gu-catalog-card-image" href="'+escapeHtml(detail(x))+'" aria-label="View '+escapeHtml(x.name)+'"><img src="'+escapeHtml(m.src)+'" alt="'+escapeHtml(m.alt)+'" loading="lazy" width="340" height="190"></a>':''}
-function summary(x){const d=clean(x.description).replace(/\\s+/g,' ');return d.length>132?
+function summary(x){const d=clean(x.description).replace(/\s+/g,' ');return d.length>132?
  '<span>'+escapeHtml(d.slice(0,132).trimEnd())+'…</span> <a class="gu-catalog-read-more" href="'+escapeHtml(detail(x))+'">Read more</a>':escapeHtml(d);}
 function cards(items){
  return items.map(x=>`<article class="product-card store-sell-card" data-store-sku="${escapeHtml(x.sku)}">
