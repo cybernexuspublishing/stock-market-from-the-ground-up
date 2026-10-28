@@ -34,7 +34,8 @@ for category in ('founders','books','tools'):
  assert 'store.html#' in details
 # Owner directed old public Memberships selection hidden; existing member and
 # billing records remain available to their authenticated owners.
-assert store.count('id="store-tab-memberships"')==0
+assert store.count('id="store-tab-memberships"')==1
+assert 'id="store-tab-memberships"' in store and 'data-store-category="memberships" hidden' in store, 'Future public Membership tab stays hidden during founding beta'
 assert store.count('id="store-panel-memberships"')==1
 assert 'aria-selected="true"' in store
 assert 'ArrowLeft' in script and 'ArrowRight' in script and "e.key==='Home'" in script
