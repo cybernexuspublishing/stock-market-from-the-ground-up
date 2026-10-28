@@ -109,7 +109,7 @@ try{
  assert.equal(state.stripePost,3);
  state.founder14Checkout=false;
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','course:NOT VALID');
- assert.equal(r.status,400);assert.equal(state.stripePost,2);
+ assert.equal(r.status,400);assert.equal(state.stripePost,3);
  const inspect=()=>handler.onRequestGet({request:new Request(base+'/api/owner-zero-live-checkout?session_id=cs_live_qa123456',
  {headers:{authorization:'Bearer owner-token'}}),env});
  r=await inspect();assert.equal(r.status,200);out=await r.json();
