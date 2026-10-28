@@ -116,8 +116,52 @@
    mount.setAttribute('aria-label','Original Boot Camp teaching and self-check');
    get('academy-engine').before(mount);
   }
-  mount.replaceChildren();mount.hidden=!d.lesson;
-  if(!d.lesson)return;
+  mount.replaceChildren();mount.hidden=false;
+  if(!d.lesson){
+   // The 7/10/45/60/90-day beta courses reuse Owner-approved market topics
+   // but did not previously render direct teaching when the Lab bridge failed.
+   // This creates a complete *ungraded* daily coaching path, not new verified
+   // history or a protected assessment.
+   const phase=d.phaseLabel||'Guided study';
+   const section=node('section');section.className='academy-beta-daily-coach';
+   section.append(node('p','BETA LEARNING SESSION · '+phase),
+    node('h4','Talia explains today’s learning objective'),
+    node('p',d.objective),
+    node('h4','First, identify the evidence'),
+    node('p',d.observe),
+    node('h4','Follow the guided method'));
+   const steps=node('ol');
+   for(const method of (Array.isArray(d.method)?d.method:[d.practice]).filter(Boolean))
+    steps.append(node('li',method));
+   section.append(steps,node('h4','Apply the method in a different case'),node('p',d.practice),
+    node('h4','Recognize invalid or missing evidence'),
+    node('p',d.limitation||'If an observation is not supported by a dated, verified source, withhold the claim and record uncertainty.'),
+    node('h4','Unassisted self-check — educational beta'));
+   const prompt=node('p','What evidence is observable for '+d.title+'? Give an alternative explanation, identify one missing fact, and state the condition that would invalidate your conclusion.');
+   const response=node('textarea');response.className='academy-beta-answer';
+   response.rows=4;response.maxLength=1200;response.setAttribute('aria-label','Your own ungraded reasoning for this study day');
+   const key=d.programCode+':'+d.day;response.value=selfCheckDrafts.get(key)||'';
+   response.addEventListener('input',()=>selfCheckDrafts.set(key,response.value));
+   const help=node('details');help.append(node('summary','Compare with Talia’s review criteria (after attempting)'),
+    node('p','A sound response separates observations from assumptions, cites the source and timeframe, considers an alternative, states uncertainty and names an invalidation condition. An unsupported or incomplete case may justify no trade.'));
+   const copy=node('button','Add my self-check to the private reflection');
+   copy.type='button';copy.className='btn secondary';
+   const notice=node('p');notice.setAttribute('role','status');
+   copy.addEventListener('click',()=>{
+    const answer=response.value.trim();
+    if(answer.length<40){notice.textContent='Write at least 40 characters of your own reasoning first.';return}
+    const field=get('academy-reflection'),addition='Day '+d.day+' beta self-check: '+answer;
+    const composed=(field.value.trim()?field.value.trim()+'\n\n':'')+addition;
+    if(composed.length>2000){notice.textContent='Your private reflection would exceed 2,000 characters. Shorten it before copying.';return}
+    field.value=composed;field.dispatchEvent(new Event('input',{bubbles:true}));
+    notice.textContent='Self-check copied to the reflection. Select Save private reflection to preserve it.';
+   });
+   const feedback=node('a','Report a lesson issue to member Support');
+   feedback.href='dashboard.html?tab=support&context='+encodeURIComponent('Boot Camp '+d.programCode+' Day '+d.day);
+   feedback.className='text-link';
+   section.append(prompt,response,help,copy,notice,feedback);
+   mount.append(section);return;
+  }
   const lesson=d.lesson;
   // A readable, full-width illustrative OHLC diagram is provided before
   // instruction. It is NOT a sourced market candle or blind history.
