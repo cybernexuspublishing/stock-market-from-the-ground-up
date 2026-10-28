@@ -55,6 +55,9 @@ const context={window,document:doc,location,history,console,URL,URLSearchParams,
   })};
   if(url==='/api/founding600-checkout')return {ok:true,json:async()=>({ok:true,checkoutEnabled:false})};
   if(url==='/api/storefront-public-catalog')return {ok:true,json:async()=>({ok:true,source:'verified_storefront',items:[
+   {sku:'plan:FREE',category:'membership',status:'listed',saleReady:false},
+   ...['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'].map(code=>({sku:'book:'+code,category:'book',status:'listed',saleReady:false})),
+   ...['INTERACTIVE_LEARNING','JOURNAL_ANALYTICS','MARKET_SIMULATOR','MARKET_TUTOR'].map(code=>({sku:'tool:'+code,category:'tool',status:'for_sale',saleReady:true,betaTestingReady:true})),
    {sku:'founding:FOUNDING_30',category:'founding',saleReady:false},
    {sku:'founding:FOUNDING_60',category:'founding',saleReady:false}
   ]})};
@@ -75,9 +78,9 @@ assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).len
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/\$29\.99/,'Existing beta-tool prices must be displayed');
 assert.equal((nodes['store-tools'].innerHTML.match(/Beta Testing Ready/g)||[]).length,4,'Exactly four sale-ready tools are marked for beta evaluation');
-assert.match(nodes['store-tools'].innerHTML,/Beta in development/);
+assert.doesNotMatch(nodes['store-tools'].innerHTML,/Beta in development/,'Unaccepted tools must remain hidden');
 assert.doesNotMatch(nodes['store-tools'].innerHTML,/Beta OPEN/);
-assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
+assert.doesNotMatch(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Unaccepted beta tool must remain hidden');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
 for(const asset of ['interactive-learning','journal-analytics','market-simulator','market-tutor']){

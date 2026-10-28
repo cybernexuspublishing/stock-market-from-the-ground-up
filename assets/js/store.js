@@ -4,7 +4,7 @@
  */
 (()=>{'use strict';
 const C=()=>window.CommerceTools;
-const membershipIds=['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','ONDEMAND_MONTHLY'];
+const membershipIds=['FREE'];
 const planPaths={FREE:'store-membership-free.html',FULL_MONTHLY:'store-membership-full-monthly.html',FULL_ANNUAL:'store-membership-full-annual.html',LIFETIME:'store-membership-lifetime.html',ONDEMAND_MONTHLY:'store-membership-ondemand-monthly.html'};
 const bookPaths={FOUNDATION_BOOK_1:'store-book-foundation-1.html',FOUNDATION_BOOK_2:'store-book-foundation-2.html',FOUNDATION_BOOK_3:'store-book-foundation-3.html',DAY_TRADING_BOOK_1:'store-book-day-trading-1.html',READING_THE_TAPE:'store-book-reading-the-tape.html'};
 const toolPaths={INTERACTIVE_LEARNING:'store-tool-interactive-learning.html',JOURNAL_ANALYTICS:'store-tool-journal-analytics.html',MARKET_SIMULATOR:'store-tool-market-simulator.html',MARKET_TUTOR:'store-tool-market-tutor.html'};
@@ -16,7 +16,8 @@ const suffix=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]|
 const statusLabel=s=>({published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
 const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Minimal sponsor placements',LIFETIME:'Ad-free'})[code]||'Standard sponsor placements';
 const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limit_week)&&Number.isInteger(m.simulator_saves_week))return [`Up to ${m.journal_limit_week} new Trading Journal records per UTC week`,`Up to ${m.simulator_saves_week} saved CSV/browser simulator exercises per UTC week (within Journal allowance)`];if(Number.isInteger(m.journal_limit)&&Number.isInteger(m.simulator_sessions_month))return [`Up to ${m.journal_limit} Journal records total`,`Up to ${m.simulator_sessions_month} saved simulator results per month`];return ['Limited Journal and browser simulator saves; check your current allowance'];};
-// Only the five owner-approved public membership codes belong in this view.
+// Free is the sole general public membership; Founder 14/30/60 use their
+// independently gated, Owner-approved dedicated membership catalog.
  // Future plans require explicit registry review and a dedicated product page.
  // Never allow a duplicate canonical SKU to generate two purchase cards.
  const availablePlan=p=>membershipIds.includes(p?.planCode);
@@ -183,16 +184,16 @@ async function enforceOfferVisibility(){
   if(r.ok){const j=await r.json();if(j.ok===true)state=j}
  }catch{}
  founderTab.hidden=state?.offersVisible!==true;
- publicTab.hidden=state?.publicLaunch!==true;
+ publicTab.hidden=state?.ok!==true;
  const publicPanel=document.getElementById('store-panel-memberships');
- if(publicPanel)publicPanel.inert=state?.publicLaunch!==true;
+ if(publicPanel)publicPanel.inert=state?.ok!==true;
  const status=document.getElementById('store-category-status');
  if(!state&&status)status.textContent='Membership launch status could not be verified; enrollment offers remain hidden.';
  // Never display founding offers once the gate closes, even if a stale hash is present.
  const requested=location.hash.replace('#','');
- const fallback=state?.publicLaunch?'memberships':state?.offersVisible?'founders':'books';
+ const fallback=state?.offersVisible?'founders':state?.ok?'memberships':'books';
  window.CrownlightStoreSelectCategory?.(
-  (requested==='founders'&&!state?.offersVisible)||(requested==='memberships'&&!state?.publicLaunch)||!requested?fallback:requested
+  (requested==='founders'&&!state?.offersVisible)||(requested==='memberships'&&!state?.ok)||!requested?fallback:requested
  );
  if(state?.offersVisible){
   await foundingCatalog(); // Only request founding copy if offers really are visible.
@@ -303,10 +304,14 @@ async function init(){
  try{
   const catalog=await C().load();
   const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
-  const allTools=(d.tools||[]).filter(listedTool);
+  const listingResponse=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
+   const listing=listingResponse.ok?await listingResponse.json():null;
+   if(listing?.ok!==true||listing.source!=='verified_storefront'||!Array.isArray(listing.items))throw Error('Store publication unavailable');
+   const visible=new Set(listing.items.map(x=>x.sku));
+   const allTools=(d.tools||[]).filter(t=>t.status==='live'&&t.betaTestingReady===true&&visible.has('tool:'+t.toolCode));
   // All current public plans now have a distinct, price-verified Store tab.
   // The server-side read-only per-SKU Stripe preflight controls purchase buttons.
-  const plans=approvedPlanCatalog(d.plans||[]);
+  const plans=approvedPlanCatalog(d.plans||[]).filter(p=>visible.has('plan:'+p.planCode));
   const planHost=document.getElementById('store-member-plans');
   if(planHost)planHost.innerHTML=d.commerceUnavailable?
    '<div class="notice">Current membership prices cannot be verified; checkout is unavailable.</div>':
@@ -314,7 +319,7 @@ async function init(){
    '<div class="notice">Public membership offers are temporarily unavailable.</div>';
   const planCompare=document.getElementById('store-member-compare');
   if(planCompare)planCompare.innerHTML=d.commerceUnavailable?'':comparison(plans,allTools);
-  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired'&&!['draft','not_started','archived'].includes(p.publicationStatus)).map(bookCard).join('')||
+  document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&visible.has('book:'+p.productCode)&&p.storeVisible!==false&&p.salesStatus!=='retired'&&!['draft','not_started','archived'].includes(p.publicationStatus)).map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
   document.querySelector('#store-tabs button.active')?.click();
   const liveOrBeta=allTools.filter(t=>['live','beta'].includes(String(t.status||'')));
