@@ -39,9 +39,15 @@ async function loadRegistryRights(userId,epoch){
   const j=await r.json();
   if(j?.ok!==true||j.freeEligible!==true||!Array.isArray(j.bookCodes)||!Array.isArray(j.freeSampleIds))
    throw Error('Invalid entitlement response');
-  if(epoch===progressSessionEpoch&&currentUser?.id===userId)registryRights=j;
+  if(epoch===progressSessionEpoch&&currentUser?.id===userId){registryRights=j;
+   document.body.dataset.labRegistryAccess='verified';
+   const el=document.getElementById('lab-access-status');if(el)el.textContent='Your account access has been checked. Available Labs can be opened; locked Labs require additional access.';
+  }
  }catch{
-  if(epoch===progressSessionEpoch&&currentUser?.id===userId)registryRights=null;
+  if(epoch===progressSessionEpoch&&currentUser?.id===userId){registryRights=null;
+   document.body.dataset.labRegistryAccess='unavailable';
+   const el=document.getElementById('lab-access-status');if(el)el.textContent='Member access could not be confirmed. Lab launch actions remain locked.';
+  }
  }finally{
   if(epoch===progressSessionEpoch&&currentUser?.id===userId)filterLabs();
  }
@@ -239,6 +245,8 @@ function handleMemberChange(user) {
   progressMap.clear();
   memberProgressAvailable = false;
   registryRights = null;
+  document.body.dataset.labRegistryAccess=nextId?'checking':'signed-out';
+  const box=document.getElementById('lab-access-status');if(box)box.textContent=nextId?'Checking your Lab access…':'Sign in to view your available Labs.';
   filterLabs(); // Synchronously scrub prior member status and entitlements.
   if (nextId) {void loadMemberProgress(nextId, epoch);void loadRegistryRights(nextId, epoch);}
 }
