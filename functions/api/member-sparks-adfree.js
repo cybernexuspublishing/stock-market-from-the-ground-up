@@ -29,10 +29,12 @@ export async function onRequest({request,env}){
   let body;
   try{body=JSON.parse(raw)}catch{return json({ok:false,error:'INVALID_REQUEST'},400)}
   if(!body||!['ADFREE_DAY','ADFREE_WEEK','ADFREE_MONTH'].includes(body.sku)
-   ||typeof body.requestId!=='string'||!UUID.test(body.requestId))
+   ||typeof body.requestId!=='string'||!UUID.test(body.requestId)||!Number.isSafeInteger(body.expectedCost)||
+   body.expectedCost<1||body.expectedCost>100000)
    return json({ok:false,error:'INVALID_REQUEST'},400);
-  const value=await rpc(actor.config,'gu_sparks_adfree_redeem_v1',{
-   p_user_id:actor.userId,p_sku:body.sku,p_request_id:body.requestId});
+  const value=await rpc(actor.config,'gu_sparks_adfree_redeem_v2',{
+   p_user_id:actor.userId,p_sku:body.sku,p_request_id:body.requestId,
+   p_expected_cost:body.expectedCost});
   return json(value,value.ok===true?200:409);
  }catch(e){
   return json({ok:false,error:e?.status===401?'SIGN_IN_REQUIRED':'SPARKS_SERVICE_UNAVAILABLE'},

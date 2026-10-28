@@ -15,7 +15,7 @@
  try{
   const catResp=await fetch('data/crownlight-sparks-store-v014167.json',{cache:'no-store'});
   if(!catResp.ok)throw Error('Catalog unavailable');
-  const catalog=await catResp.json(),passes=Array.isArray(catalog.adFreePasses)?catalog.adFreePasses:[];
+  const catalog=await catResp.json();let passes=Array.isArray(catalog.adFreePasses)?catalog.adFreePasses:[];
   if(passes.length!==3)throw Error('Pass catalog unavailable');
   const client=await window.getSupabaseClient?.();
   const session=(await client?.auth.getSession())?.data?.session;
@@ -26,11 +26,17 @@
    host.append(link);return;
   }
   const token=session.access_token,headers={authorization:'Bearer '+token};
-  const [eligibleResponse,walletResponse]=await Promise.all([
+  const [eligibleResponse,walletResponse,pricingResponse]=await Promise.all([
    fetch('/api/member-sparks-adfree',{headers,cache:'no-store',credentials:'same-origin'}),
-   fetch('/api/member-sparks-wallet',{headers,cache:'no-store',credentials:'same-origin'})
+   fetch('/api/member-sparks-wallet',{headers,cache:'no-store',credentials:'same-origin'}),
+   fetch('/api/member-sparks-pricing',{headers,cache:'no-store',credentials:'same-origin'})
   ]);
-  if(!eligibleResponse.ok||!walletResponse.ok)throw Error('Account permissions could not be verified');
+  if(!eligibleResponse.ok||!walletResponse.ok||!pricingResponse.ok)throw Error('Account or pricing could not be verified');
+  const livePrices=await pricingResponse.json();
+  if(livePrices.ok!==true||!Array.isArray(livePrices.items))throw Error('Sparks prices cannot be confirmed');
+  const byCode=new Map(livePrices.items.filter(x=>x.fulfillment==='ADFREE_PASS').map(x=>[x.sku,x]));
+  passes=passes.map(x=>({...x,costSparks:byCode.get(x.code)?.costSparks,
+    redeemEnabled:x.redeemEnabled===true&&byCode.has(x.code)}));
   const current=await eligibleResponse.json(),ledger=await walletResponse.json();
   if(current.ok!==true||ledger.ok!==true||!Number.isSafeInteger(ledger.wallet?.available))
    throw Error('Wallet could not be verified');
@@ -64,7 +70,7 @@
      const response=await fetch('/api/member-sparks-adfree',{
       method:'POST',headers:{...headers,'content-type':'application/json'},
       credentials:'same-origin',cache:'no-store',
-      body:JSON.stringify({sku:pass.code,requestId})
+      body:JSON.stringify({sku:pass.code,requestId,expectedCost:pass.costSparks})
      });
      const result=await response.json();
      if(!response.ok||result.ok!==true)throw Error(result.error||'Redemption was not confirmed');
