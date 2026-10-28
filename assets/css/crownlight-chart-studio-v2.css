@@ -67,3 +67,7 @@
 @media(max-width:960px){.crownlight-toolbar{align-items:flex-start}.crownlight-plot{height:510px}}
 @media(max-width:650px){.sim-chart-panel.crownlight-active{padding:12px;border-radius:16px}.crownlight-toolbar{padding:11px}.crownlight-identity strong{letter-spacing:.14em}.crownlight-toolbar-actions button{min-height:39px;padding:6px 10px}.crownlight-plot{height:440px}.crownlight-market-strip{padding:10px}.crownlight-study-row{grid-template-columns:1fr}.crownlight-study-settings{justify-content:flex-start}.crownlight-dialog{padding:17px}.crownlight-facts{grid-template-columns:1fr}.crownlight-facts dt{margin-bottom:-7px}.crownlight-expanded .crownlight-plot{height:calc(100dvh - 310px)}}
 @media(prefers-reduced-motion:reduce){.crownlight-toolbar-actions button{transition:none}}
+
+/* Prevent legacy simulator canvas styling from deforming the chart library's own canvases. */
+.sim-chart-panel.crownlight-active .crownlight-plot canvas{border:0!important;margin:0!important;max-height:none!important;border-radius:0!important;background:transparent!important;padding:0!important}
+.crownlight-help a{color:#9ed9f8;text-decoration:underline;text-underline-offset:2px}
