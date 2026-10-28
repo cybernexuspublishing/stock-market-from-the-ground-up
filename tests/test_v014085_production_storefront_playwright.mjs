@@ -35,15 +35,15 @@ try{
  await run('Store initializes its current Founder and educational catalog',async()=>{
    const response=await main.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:25000});
    assert.ok(response?.ok(),'Store response '+response?.status());
-   await main.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===3,{timeout:22000});
+   await main.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===2,{timeout:22000});
    await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:22000});
    await main.waitForFunction(()=>document.querySelectorAll('#store-tools article.v11-tool-card').length>=4,{timeout:22000});
-   assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),3,'Three Founder tiers required');
+   assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),2,'Only the two publicly released Founding 30-Day and 60-Day offers may appear');
    assert.equal(await main.locator('#store-products article.product-card').count(),5,'Five book product cards required');
    assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),await main.locator('#store-tools article.v11-tool-card').count(),'Every tool must disclose price/status');
    assert.equal(await main.locator('#store-tab-memberships').count(),0,'Owner-hidden legacy Membership tab must not return');
    assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired QA offer returned');
-   return '3 Founder tiers, 5 books, verified tool cards, no legacy Membership tab';
+   return '2 publicly released Founder tiers, 5 books, verified tool cards, no legacy Membership tab';
  });
  await run('Six Store tabs are exclusive and preserve deep links',async()=>{
    const options=['founders','books','sparks','tools','current','upcoming'];
@@ -161,7 +161,7 @@ try{
  await run('Mobile layout and category tap controls',async()=>{
    const {page:p,context:c}=await makePage(390,844);
    try{await p.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:24000});
-     await p.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===3,{timeout:20000});
+     await p.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===2,{timeout:20000});
      await p.locator('#store-tab-tools').click();
      assert.equal(await p.locator('#store-panel-tools').isVisible(),true);
      const widths=await p.evaluate(()=>({body:document.body.scrollWidth,viewport:innerWidth}));
