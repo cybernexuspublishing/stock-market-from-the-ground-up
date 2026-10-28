@@ -530,7 +530,7 @@ async function handlePost(env,request,action){
       const v=body.value;
       const allowedPages=new Set(["simulator.html","dashboard.html","labs.html","learn.html","market-tutor.html","journal.html","bootcamp-academy.html","my-library.html","account.html","market-commons.html","forum.html","skills.html","membership.html","store.html","index.html"]);
       if(!v||typeof v!=='object'||Array.isArray(v)||typeof v.enabled!=='boolean'||
-         !Array.isArray(v.pages)||v.pages.length<1||v.pages.length>allowedPages.size||
+         !Array.isArray(v.pages)||v.pages.length>allowedPages.size||
          new Set(v.pages).size!==v.pages.length||
          v.pages.some(page=>typeof page!=='string'||!allowedPages.has(page))||
          Object.keys(v).some(k=>!['enabled','pages','styles'].includes(k))||

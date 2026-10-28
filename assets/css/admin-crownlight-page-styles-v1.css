@@ -1,0 +1,66 @@
+/* Crownlight per-page layout picker, isolated to Site Settings panel. */
+#admin-crownlight-workspace-control{max-width:none}
+#admin-crownlight-workspace-control .cl-page-style-row{
+ display:grid;grid-template-columns:19px minmax(0,1fr) minmax(110px,138px);
+ align-items:center;gap:7px 9px;padding:8px;background:rgba(50,91,121,.08);
+ border:1px solid rgba(97,151,178,.2);border-radius:7px;min-width:0
+}
+#admin-crownlight-workspace-control .cl-page-style-row label{
+ cursor:pointer;min-width:0;font-size:.83rem;line-height:1.25
+}
+#admin-crownlight-workspace-control .cl-page-style-row select{
+ width:100%;min-width:0;min-height:35px;padding:5px 6px;font-size:.79rem
+}
+#admin-crownlight-workspace-control .cl-page-style-gallery-wrap{margin:16px 0}
+#admin-crownlight-workspace-control .cl-page-style-head h3{margin:0 0 4px;font-size:1rem}
+#admin-crownlight-workspace-control .cl-page-style-head p{margin:0 0 12px;font-size:.84rem}
+#admin-crownlight-workspace-control .cl-page-style-gallery{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:9px
+}
+#admin-crownlight-workspace-control .cl-page-style-option{
+ display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:7px;
+ padding:10px;min-width:0;background:#101e2c;color:#d9eaf6;
+ border:1px solid #35516b;border-radius:10px;cursor:pointer;font:inherit
+}
+#admin-crownlight-workspace-control .cl-page-style-option:hover,
+#admin-crownlight-workspace-control .cl-page-style-option:focus-visible{
+ border-color:#6dc7ee;outline-offset:2px
+}
+#admin-crownlight-workspace-control .cl-page-style-option.is-selected{
+ border:2px solid #61dcf4;padding:9px;background:#153147
+}
+#admin-crownlight-workspace-control .cl-page-style-option strong{font-size:.89rem}
+#admin-crownlight-workspace-control .cl-page-style-option small{
+ font-size:.73rem;line-height:1.4;color:#accadd
+}
+#admin-crownlight-workspace-control .cl-page-style-mini{
+ display:grid;grid-template-columns:1.7fr 1fr;grid-template-rows:13px 65px 14px;
+ gap:4px;height:104px;padding:8px;background:#091725;border:1px solid #314c65;
+ border-radius:6px;overflow:hidden
+}
+#admin-crownlight-workspace-control .cl-page-style-mini span{border-radius:3px;background:#26465c}
+#admin-crownlight-workspace-control .cl-mini-top{grid-column:1/-1;background:#426c85!important}
+#admin-crownlight-workspace-control .cl-mini-main{grid-column:1;grid-row:2;background:#236176!important}
+#admin-crownlight-workspace-control .cl-mini-side{grid-column:2;grid-row:2}
+#admin-crownlight-workspace-control .cl-mini-bottom{grid-column:1/-1;grid-row:3}
+#admin-crownlight-workspace-control .cl-mini-classic{grid-template-columns:1fr;grid-template-rows:13px 42px 25px}
+#admin-crownlight-workspace-control .cl-mini-classic .cl-mini-main{grid-column:1;grid-row:2}
+#admin-crownlight-workspace-control .cl-mini-classic .cl-mini-side{grid-column:1;grid-row:3;background:#294458}
+#admin-crownlight-workspace-control .cl-mini-classic .cl-mini-bottom{display:none}
+#admin-crownlight-workspace-control .cl-mini-focus{grid-template-columns:1fr;grid-template-rows:13px 58px 13px}
+#admin-crownlight-workspace-control .cl-mini-focus .cl-mini-main{grid-column:1;grid-row:2}
+#admin-crownlight-workspace-control .cl-mini-focus .cl-mini-side{grid-column:1;grid-row:3}
+#admin-crownlight-workspace-control .cl-mini-focus .cl-mini-bottom{display:none}
+#admin-crownlight-workspace-control .cl-mini-compact{gap:2px;grid-template-columns:1.45fr 1fr}
+#admin-crownlight-workspace-control .cl-mini-compact span{border-radius:1px}
+#admin-crownlight-workspace-control .cl-mini-spacious{gap:9px;padding:13px;grid-template-columns:1fr;grid-template-rows:10px 39px 15px;height:104px}
+#admin-crownlight-workspace-control .cl-mini-spacious .cl-mini-main{grid-column:1;grid-row:2}
+#admin-crownlight-workspace-control .cl-mini-spacious .cl-mini-side{grid-column:1;grid-row:3}
+#admin-crownlight-workspace-control .cl-mini-spacious .cl-mini-bottom{display:none}
+#admin-crownlight-workspace-control .cl-page-style-note{font-size:.8rem;margin:9px 0;color:#bcd2e5}
+#admin-crownlight-workspace-control .cl-page-style-reset{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+@media(max-width:650px){
+ #admin-crownlight-workspace-control .cl-page-style-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #admin-crownlight-workspace-control .cl-page-style-row{grid-template-columns:19px minmax(0,1fr)}
+ #admin-crownlight-workspace-control .cl-page-style-row select{grid-column:2}
+}
