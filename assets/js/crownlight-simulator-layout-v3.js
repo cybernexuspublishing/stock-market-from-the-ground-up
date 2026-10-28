@@ -32,7 +32,15 @@
    button.setAttribute('aria-expanded',String(!chart.hidden));
    if(!chart.hidden)requestAnimationFrame(()=>root.dispatchEvent(new Event('resize')));
   };
-  toolbar.append(label,button);area.before(toolbar);
+  const timeframe=el('label','cl-chart-timeframe-input','Display timeframe label');
+  const input=el('input');input.type='text';input.maxLength=48;
+  input.placeholder='1-minute';input.value=$('sim-timeframe')?.value||'1-minute';
+  input.setAttribute('aria-label','Chart timeframe display label; this does not resample market data');
+  input.oninput=()=>{
+   const original=$('sim-timeframe');if(original){original.value=input.value;original.dispatchEvent(new Event('input',{bubbles:true}))}
+  };
+  timeframe.append(input);
+  toolbar.append(label,timeframe,button);area.before(toolbar);
  }
  function setupTabs(){
   const parent=$('sim-content'),layout=parent?.querySelector('.sim-layout');
@@ -175,19 +183,50 @@
     note.textContent='';renderOptions();
    }catch{note.textContent='Lab list unavailable. Open Free Foundations from the Academy.';}
   };
+  async function applyLabContext(id){
+   const marker=old.dataset.contextRequest=String(Date.now())+':'+Math.random().toString(36).slice(2);
+   const start=$('sim-start-date'),end=$('sim-end-date');
+   const t0=$('cl-lab-start-time'),t1=$('cl-lab-end-time');
+   for(const field of [start,end,t0,t1])if(field)field.value='';
+   const tooltip='Lab reference date and time are loaded only when supplied in the verified catalog.';
+   note.textContent='Loading the selected Lab reference date and time…';
+   try{
+    const token=await getToken?.();
+    if(!token)throw Error('Sign in to view Lab reference context.');
+    const res=await fetch('/api/simulator-lab-context?lab='+encodeURIComponent(id),{
+     headers:{authorization:'Bearer '+token},cache:'no-store'});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||data.ok!==true)throw Error(data.error||'This Lab context is unavailable.');
+    if(old.dataset.contextRequest!==marker)return;
+    if(data.referenceDate){if(start)start.value=data.referenceDate;if(end)end.value=data.referenceDate}
+    if(data.startTimeET&&t0)t0.value=data.startTimeET;
+    if(data.endTimeET&&t1)t1.value=data.endTimeET;
+    const ticker=$('sim-ticker');
+    if(data.ticker&&ticker)ticker.value=data.ticker;
+    const source=data.referenceDate?'Lab reference date: '+data.referenceDate+'. ':'No historical reference date recorded. ';
+    const times=data.startTimeET&&data.endTimeET?
+     'Start '+data.startTimeET+' ET, end '+data.endTimeET+' ET. ':
+     'No verified intraday start/end time recorded; select a time manually if needed. ';
+    const idlink=el('a','cl-selected-lab-link','Open selected Lab');
+    idlink.href='lab-player.html?lab='+encodeURIComponent(id);
+    note.replaceChildren(document.createTextNode(source+times),idlink);
+   }catch(error){if(old.dataset.contextRequest===marker)
+    note.textContent='Lab '+id+': '+String(error.message||'Date and time are unavailable.')+
+      ' The original replay date/time has not been changed.';}
+  }
   picker.addEventListener('change',()=>{
    const selected=picker.selectedOptions[0];
    if(selected?.disabled){picker.value='';return}
    if(picker.value.startsWith('academy:free5:')){
-    const day=Number(picker.value.split(':')[2]);location.assign('bootcamp-academy.html?program=free5&day='+day+'#academy-workspace');return
+    const day=Number(picker.value.split(':')[2]);
+    if(Number.isInteger(day)&&day>=1&&day<=5)
+      location.assign('bootcamp-academy.html?program=free5&day='+day+'#academy-day-title');
+    return;
    }
    if(picker.value.startsWith('lab:')){old.value=picker.value.slice(4);
     if($('sim-start-date'))$('sim-start-date').value='';if($('sim-end-date'))$('sim-end-date').value='';
     if($('cl-lab-start-time'))$('cl-lab-start-time').value='';if($('cl-lab-end-time'))$('cl-lab-end-time').value='';
-    root.GroundUpSimulatorLoadVerifiedLabContext?.(old.value);
-    const href=el('a','cl-selected-lab-link','Open selected Lab');
-    href.href='lab-player.html?lab='+encodeURIComponent(old.value);
-    note.replaceChildren(document.createTextNode('Related Lab selected: '+old.value+'. '),href);}
+    void applyLabContext(old.value);}
    else old.value='';
   });
   load();
