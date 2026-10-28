@@ -5,6 +5,19 @@ on:
     branches: [main]
     paths:
       - 'assets/js/crownlight-chart-studio-v2.js'
+      - 'assets/js/crownlight-chart-tiers-v1.js'
+      - 'assets/css/crownlight-chart-tiers-v1.css'
+      - 'functions/api/chart-tier-access.js'
+      - 'functions/_lib/founder-offer-gate-v1.js'
+      - 'functions/api/founding-offer-status.js'
+      - 'functions/api/founding600-checkout.js'
+      - 'assets/js/store.js'
+      - 'assets/js/founding600-enrollment-v014198.js'
+      - 'tests/test_crownlight_chart_tiers_v1.mjs'
+      - 'tests/test_crownlight_chart_tiers_browser_v1.mjs'
+      - 'supabase/migrations/20261028_crownlight_founder_600_public_launch_gate_v1.sql'
+      - 'store.html'
+      - 'founding600.html'
       - 'assets/js/crownlight-live-aggregator-v1.js'
       - 'assets/js/crownlight-live-formation-v1.js'
       - 'assets/css/crownlight-live-formation-v1.css'
@@ -64,13 +77,19 @@ jobs:
           node-version: '22'
       - name: Install only pinned, public free packages
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1 klinecharts@10.1.0
           npx playwright install --with-deps chromium
       - name: Run real offline Chromium chart studio checks
         run: |
           node --check assets/js/crownlight-chart-studio-v2.js
           node --check assets/js/crownlight-indicator-math-v2.js
           node tests/test_crownlight_chart_studio_v2.mjs
+          node --check assets/js/crownlight-chart-tiers-v1.js
+          node --check functions/api/chart-tier-access.js
+          node --check functions/_lib/founder-offer-gate-v1.js
+          node --check assets/js/store.js
+          node tests/test_crownlight_chart_tiers_v1.mjs
+          node tests/test_crownlight_chart_tiers_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs
           node tests/test_crownlight_paper_workbench_v3.mjs
