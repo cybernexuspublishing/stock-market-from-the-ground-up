@@ -60,6 +60,15 @@ try{
  r=await onRequestGet({env});d=await r.json();
  assert.equal(d.checkoutEnabled,true);
  assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[true,true,true],'Admin publishing plus all existing payment readiness gates is required');
+ // Each tier can be published separately. An unavailable plan must stay hidden.
+ founderPublished=false;
+ r=await onRequestGet({env});d=await r.json();
+ assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[false,false,false]);
+ founderPublished=true;starterOpen=false;
+ r=await onRequestGet({env});d=await r.json();
+ assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[false,true,true],'14-day plan remains unavailable even if other terms are ready');
+ assert.equal(d.checkoutEnabled,true,'Another eligible term can remain available without Starter');
+ starterOpen=true;
  const bad={id:'prod_mock14',active:true,livemode:true,metadata:{site_sku:'FOUNDING_14',site_checkout_enabled:'false',fulfillment_verified:'false',payment_launch_approved:'false'}};
  assert.equal(foundingProductReadyForCheckout(bad,'FOUNDING_14','prod_mock14'),false);
  assert.equal(foundingProductReadyForCheckout({...bad,metadata:{site_sku:'FOUNDING_14',site_checkout_enabled:'true',fulfillment_verified:'true',payment_launch_approved:'true'}},'FOUNDING_14','prod_mock14'),true);

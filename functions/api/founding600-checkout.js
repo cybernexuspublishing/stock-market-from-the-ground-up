@@ -76,7 +76,7 @@ async function postBody(req){
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(all))}catch{throw fail('Invalid JSON.',400)}
 }
 export async function onRequestGet({env}){
- let enabled=false,offer,starterReady=false,published=()=>false;
+ let enabled=false,offer,open=()=>false;
  try{offer=await foundingOfferState(env)}catch{offer={offersVisible:false,enrollmentEnabled:false,phase:'unverified',remaining:0}}
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
@@ -85,23 +85,26 @@ export async function onRequestGet({env}){
    rest(c,'platform_plans?select=plan_code,active,public_visible,checkout_enabled&plan_code=in.(FOUNDING_14,FOUNDING_30,FOUNDING_60)'),
    rest(c,'gu_storefront_items_v014174?select=sku,visible,sale_ready,status&category=eq.founding')
   ]);
-  published=plan=>{
+  const published=plan=>{
    const p=publicPlans.find(x=>x.plan_code===plan);
    const item=storeRows.find(x=>x.sku==='founding:'+plan);
    return p?.active===true&&p.public_visible===true&&p.checkout_enabled===true
      &&item?.visible===true&&item.sale_ready===true&&item.status==='for_sale';
   };
-  const originalTiers=tiers.filter(t=>t.plan_code==='FOUNDING_30'||t.plan_code==='FOUNDING_60');
-  const starter=tiers.find(t=>t.plan_code==='FOUNDING_14');
-  enabled=offer.enrollmentEnabled===true&&state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
-   &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true)
-   &&originalTiers.every(t=>published(t.plan_code));
-  starterReady=!!(enabled&&c.map.FOUNDING_14?.priceId&&starter?.checkout_enabled===true&&published('FOUNDING_14'));
- }catch{enabled=false}
+  // Each Founder term has an independent Admin publication and paid-readiness gate.
+  // Releasing 14 days never forces 30/60 days (or vice versa) into the Store.
+  const globalReady=offer.enrollmentEnabled===true&&state?.length===1
+   &&state[0].enrollment_enabled===true&&state[0].billing_enabled===true
+   &&state[0].fulfillment_enabled===true;
+  open=plan=>globalReady&&published(plan)
+   &&tiers.some(t=>t.plan_code===plan&&t.checkout_enabled===true)
+   &&!!c.map[plan]?.priceId;
+  enabled=Object.keys(plans).some(open);
+ }catch{enabled=false;open=()=>false}
  return json({ok:true,checkoutEnabled:enabled,offersVisible:offer.offersVisible===true,phase:offer.phase,remaining:offer.remaining,plans:[
-  {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:starterReady},
-  {code:'FOUNDING_30',priceCents:4999,billingDays:30,checkoutEnabled:enabled&&published('FOUNDING_30')},
-  {code:'FOUNDING_60',priceCents:5999,billingDays:60,checkoutEnabled:enabled&&published('FOUNDING_60')}
+  {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:open('FOUNDING_14')},
+  {code:'FOUNDING_30',priceCents:4999,billingDays:30,checkoutEnabled:open('FOUNDING_30')},
+  {code:'FOUNDING_60',priceCents:5999,billingDays:60,checkoutEnabled:open('FOUNDING_60')}
  ]});
 }
 export async function onRequestPost({request,env}){

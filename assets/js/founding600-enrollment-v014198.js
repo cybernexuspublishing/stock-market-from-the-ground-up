@@ -20,14 +20,25 @@ async function init(){
   const data=await response.json();
   enabled=response.ok&&data?.ok===true&&data?.checkoutEnabled===true;
   const eligibility=new Map((Array.isArray(data?.plans)?data.plans:[]).map(p=>[p.code,p.checkoutEnabled===true]));
-  const starter=form.querySelector('input[name="plan"][value="FOUNDING_14"]');
-  if(starter){
-   starter.disabled=!(enabled&&eligibility.get('FOUNDING_14')===true);
+  // Only individually authorized tiers appear in an accepting checkout.
+  // A nonpublic plan cannot be selected by editing the DOM or guessing a SKU:
+  // the server independently repeats every gate on POST.
+  const planInputs=[...form.querySelectorAll('input[name="plan"]')];
+  for(const radio of planInputs){
+   radio.disabled=!(enabled&&eligibility.get(radio.value)===true);
+   const panel=radio.closest('label');
+   if(panel)panel.hidden=radio.disabled;
+   if(radio.checked&&radio.disabled)radio.checked=false;
+  }
+  const firstEligible=planInputs.find(radio=>!radio.disabled);
+  if(firstEligible&&!planInputs.some(radio=>radio.checked))firstEligible.checked=true;
+  const starter=planInputs.find(radio=>radio.value==='FOUNDING_14');
+  if(starter&&!starter.disabled){
    const panel=starter.closest('label');
    const caption=panel?.querySelector('.gu-f600-eyebrow');
    const line=panel?.querySelector('.gu-f600-term-status');
-   if(caption)caption.textContent=starter.disabled?'FOUNDING STARTER · ENROLLMENT NOT OPEN':'FOUNDING STARTER · ENROLLMENT OPEN';
-   if(line)line.textContent=starter.disabled?'Recurring every 14 days · enrollment not open':'Billed automatically every 14 days';
+   if(caption)caption.textContent='FOUNDING STARTER · ENROLLMENT OPEN';
+   if(line)line.textContent='Billed automatically every 14 days';
   }
  }catch{enabled=false}
  if(!enabled){status.textContent='Founding Members enrollment is not open for payment.';closed.hidden=false;return}
