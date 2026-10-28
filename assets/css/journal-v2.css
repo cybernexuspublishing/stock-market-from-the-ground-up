@@ -1,0 +1,38 @@
+/* Trading Journal v2.0: compact, accessible, progressively disclosed workspace */
+#entry-content{max-width:1040px;margin-inline:auto}
+.gu-v2-head{margin:14px 0 18px;border-radius:14px}
+.gu-v2-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gu-v2-top label{font-weight:700}
+.gu-v2-top select{padding:9px 12px;color:#f2f6fb;background:#071929;border:1px solid #466681;border-radius:8px;max-width:260px}
+.gu-v2-version{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:#b2c5d4;margin-left:auto}
+.gu-v2-progress{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 10px}
+.gu-v2-step{border:1px solid #405c72;border-radius:9px;background:#112b40;color:#d5e7f3;padding:9px 13px;font:inherit;font-size:.84rem;cursor:pointer;flex:1 1 auto;min-width:125px}
+.gu-v2-step.active{background:#2a3642;border-color:#d4ad63;color:white;box-shadow:inset 0 0 0 1px #a17e41}
+.gu-v2-step:hover:not(.active){background:#193950}
+.gu-v2-help{max-width:90ch;line-height:1.55;color:#c6d5e0;margin:12px 0}
+.gu-v2-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.gu-v2-actions button:disabled{opacity:.46;cursor:not-allowed}
+.gu-v2-head button:focus-visible,.gu-v2-head select:focus-visible,.gu-v2-risk button:focus-visible{outline:3px solid #f2c86d;outline-offset:2px}
+.gu-v2-concealed{display:none!important}
+.gu-v2-risk,.gu-v2-reflection{margin:16px 0;background:#102535;border:1px solid #365269}
+.gu-v2-risk h3,.gu-v2-reflection h3{margin-top:0}
+.gu-v2-risk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0}
+.gu-v2-risk-item{background:#071b2c;border:1px solid #35566f;border-radius:9px;padding:10px}
+.gu-v2-risk-item span{color:#aac2d2;display:block;font-size:.79rem}
+.gu-v2-risk-item strong{display:block;margin-top:5px;font-variant-numeric:tabular-nums;font-size:1.06rem}
+.gu-v2-warning{color:#ffcc9b;border-left:3px solid #ecb96a;padding:7px 11px;margin:12px 0}
+.gu-v2-reflection li{padding:4px 0}
+.gu-v2-review{margin:14px 0}
+.gu-v2-review-top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.gu-v2-review-filters{display:flex;flex-wrap:wrap;gap:10px}
+.gu-v2-review-filters label{display:flex;gap:6px;align-items:center;font-size:.85rem}
+.gu-v2-review-filters select{background:#071929;color:#f2f6fb;border:1px solid #466681;padding:7px 9px;border-radius:8px}
+.gu-v2-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.gu-v2-stat{background:#071b2b;border:1px solid #375671;border-radius:9px;padding:12px}
+.gu-v2-stat strong{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.gu-v2-stat span{color:#b1c4d2;font-size:.8rem}
+.gu-v2-review table{width:100%;border-collapse:collapse}.gu-v2-review th,.gu-v2-review td{text-align:left;padding:9px;border-bottom:1px solid #304b63}
+.gu-v2-review th{font-size:.82rem;color:#b3c8d8}
+.gu-v2-review-notice{color:#abc3d4;font-size:.83rem;max-width:90ch}
+@media(max-width:720px){.gu-v2-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gu-v2-risk-grid{grid-template-columns:1fr}.gu-v2-version{margin-left:0}}
+@media(max-width:500px){.gu-v2-step{flex:1 1 44%;min-width:0}.gu-v2-head{padding:12px}.gu-v2-top select{width:100%}.gu-v2-review-top{align-items:stretch}.gu-v2-review-filters{width:100%}.gu-v2-review-filters label{flex:1 1 auto}.gu-v2-review-filters select{max-width:150px}}
