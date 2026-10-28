@@ -193,7 +193,7 @@ function special(){const n=nav();function button(id,label,cb,show){let b=$('#'+i
 const click=(sel)=>{const el=$(sel,n);if(!el||!isAuthorized(el))return false;el.click();return true;};
 button('cc-direct-reports','Community Reports',()=>click('[data-panel="community"]'),()=>isAuthorized($('[data-panel="community"]',n)));
 button('cc-direct-moderation','Moderation Queue',()=>{if(typeof window.GroundUpAdminWorkflows?.openModeration!=='function')return false;window.GroundUpAdminWorkflows.openModeration();return true;},()=>{try{return !!window.GroundUpAdminCan?.('forum.moderate')&&!!window.GroundUpAdminWorkflows?.openModeration}catch{return false}});
-button('cc-find-control','Find a Tool',()=>{ensureTopbar();const field=$('#gu33-global-input');if(!field)return false;field.focus();return true;},()=>true);
+button('cc-find-control','Find a Tool',()=>window.GroundUpAdminDirectory?.open?.()===true,()=>true);
 button('cc-payments-shortcut','Payments (Stripe)',()=>{const target=$('[data-panel="commerce"]',n);if(!isAuthorized(target))return false;target.click();let count=0;const timer=setInterval(()=>{const hub=$('[data-gu33-payment-hub]');if(hub){clearInterval(timer);hub.scrollIntoView({block:'start',behavior:'smooth'});}else if(++count>20)clearInterval(timer);},150);return true;},()=>isAuthorized($('[data-panel="commerce"]',n)));
 }
 function displayControls(){const n=nav();if(!n)return;observer?.disconnect();special();
@@ -267,7 +267,7 @@ function plan(){if(pending)return;pending=true;setTimeout(()=>{pending=false;if(
 function navigateTo(selector){
  const el=$(selector,nav());if(!el||!isAuthorized(el)||el.classList.contains('cc-owner-hidden')){status('This control is not installed or is not available to the signed-in role.');return;}
  openGroup=el.closest('[data-cc-nav-group]')?.dataset.ccNavGroup||openGroup;
- if(el.tagName==='A'){location.assign(el.href);return;}el.click();
+ if(el.tagName==='A'){location.assign(el.href);return;}if(selector==='#cc-find-control'&&window.GroundUpAdminDirectory?.open){window.GroundUpAdminDirectory.open('Showcase Demo Logins');return;}el.click();
 }
 function syncPanelHeadings(){
  const active=$('#admin-tabs button.active[data-panel]'),id=active?.dataset.panel;
@@ -282,7 +282,7 @@ function syncPanelHeadings(){
 }
 function ensureOverview(){
  const panel=$('[data-admin-panel="dashboard"]',app());if(!panel||$('#cc-overview-shortcuts'))return;
- const items=[['Find or help a member','#admin-account-management-direct'],['Add a member','#admin-create-account-direct'],['Change a price','[data-panel="products"]'],['Check an order or refund','[data-panel="commerce"]'],['Review a reported post','#cc-direct-moderation'],['Post an announcement','[data-oc-tab="notifications"]'],['Change registration or background','[data-panel="settings"]'],['Turn a feature on or off','[data-panel="settings"]'],['See who changed something','[data-panel="audit"]'],['Show the admin to a developer','[data-cc-showcase-logins]']];
+ const items=[['Find or help a member','#admin-account-management-direct'],['Add a member','#admin-create-account-direct'],['Change a price','[data-panel="products"]'],['Check an order or refund','[data-panel="commerce"]'],['Review a reported post','#cc-direct-moderation'],['Post an announcement','[data-oc-tab="notifications"]'],['Change registration or background','[data-panel="settings"]'],['Turn a feature on or off','[data-panel="settings"]'],['See who changed something','[data-panel="audit"]'],['Show the admin to a developer','#cc-find-control']];
  const section=document.createElement('section');section.id='cc-overview-shortcuts';section.className='admin-card cc-overview-shortcuts';const title=document.createElement('h2');title.textContent='I want to…';section.append(title);
  const grid=document.createElement('div');grid.className='cc-shortcuts-grid';
  for(const [name,target] of items){const b=document.createElement('button');b.type='button';b.className='btn secondary';b.textContent=name;b.addEventListener('click',()=>navigateTo(target));grid.append(b)}section.append(grid);panel.append(section);
@@ -290,9 +290,11 @@ function ensureOverview(){
 function adminContext(){return typeof ADMIN!=='undefined'?ADMIN.ctx:window.ADMIN?.ctx;}
 function ensureTopbar(){
  const main=$('.admin-main');if(!main)return;let bar=$('#cc-admin-topbar');
- if(!bar){bar=document.createElement('div');bar.id='cc-admin-topbar';bar.className='cc-admin-topbar';bar.innerHTML='<div class="cc-topbar-search"></div><div class="cc-topbar-status"><span id="cc-env-status">Pre-live</span><span id="cc-role-status">STAFF</span><a href="/index.html">Return to site</a></div>';main.insertBefore(bar,main.firstChild);}
+ if(!bar){bar=document.createElement('div');bar.id='cc-admin-topbar';bar.className='cc-admin-topbar';bar.innerHTML='<div class="cc-topbar-search"></div><div class="cc-topbar-status"><span id="cc-env-status">Checking environment</span><span id="cc-role-status">STAFF</span><a href="/index.html">Return to site</a></div>';main.insertBefore(bar,main.firstChild);}
  const search=$('.gu33-global-search',main);if(search&&!bar.contains(search))$('.cc-topbar-search',bar).append(search);
- const roles=adminContext()?.roles||[];$('#cc-role-status',bar).textContent=roles.includes('SHOWCASE_VIEWER')?'SHOWCASE':roles.includes('OWNER')?'OWNER':'STAFF';
+ const roles=adminContext()?.roles||[];$('#cc-role-status',bar).textContent=roles.includes('SHOWCASE_VIEWER')?'SHOWCASE':roles.includes('OWNER')?'OWNER':roles.length?'STAFF':'ROLE UNVERIFIED';
+ const host=String(location.hostname||'').toLowerCase();
+ $('#cc-env-status',bar).textContent=host==='stock-market-from-the-ground-up-d1r.pages.dev'?'LIVE SITE':'ENVIRONMENT UNVERIFIED';
 }
 function ensureShowcase(){
  const showcase=(adminContext()?.roles||[]).includes('SHOWCASE_VIEWER');
