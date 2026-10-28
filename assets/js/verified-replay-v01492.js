@@ -3,7 +3,11 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let sb=null,sessionId='',cursor=0,locked=false,busy=false;
-const fictional=new URLSearchParams(location.search).get('scope')==='fictional';
+const replayParams=new URLSearchParams(location.search);
+const embedded=!!document.getElementById('sim-server-mode');
+// The Market Simulator uses published, original fictional bars by default;
+// historical replay remains a separate rights-reviewed member workflow.
+const fictional=replayParams.get('scope')==='fictional'||(embedded&&replayParams.get('scope')!=='historical');
 const replayLabel=fictional?'ORIGINAL FICTIONAL — 2040 teaching scenario':'VERIFIED HISTORICAL SOURCE';
 let activeUserId=null,authEpoch=0; // Invalidate in-flight requests on account changes.
 // Only server-revealed observations in the current session are plotted.
@@ -109,6 +113,7 @@ async function catalog(){
  const data=await api('catalog');
  const rows=Array.isArray(data.datasets)?data.datasets:[];
  const requested=new URLSearchParams(location.search).get('dataset')||'';
+ const selectedCode=fictional?(rows.some(r=>r.code===requested)?requested:rows[0]?.code||''):requested;
  const select=$('vr-dataset');select.replaceChildren();
  const first=document.createElement('option');first.value='';first.textContent=rows.length?'Select a published dataset':'No reviewed datasets available';select.append(first);
  for(const d of rows){
@@ -116,7 +121,7 @@ async function catalog(){
   const option=document.createElement('option');option.value=d.code;
   option.textContent=(fictional?'FICTIONAL TEACHING — ':'VERIFIED HISTORICAL — ')+String(d.title||d.code)+' ('+String(d.ticker||'unlisted ticker')+')';
   select.append(option);
-  if(d.code===requested){select.value=d.code;$('vr-code').value=d.code;}
+  if(d.code===selectedCode){select.value=d.code;$('vr-code').value=d.code;}
  }
  $('vr-dataset-note').textContent=fictional?
   (rows.length?rows.length+' original FICTIONAL scenarios available. Bars are revealed only by the server.':
@@ -150,7 +155,7 @@ async function resume(){
 }
 async function start(){
  $('vr-journal-link').hidden=true;
- const code=String($('vr-dataset').value||$('vr-code').value).trim().toUpperCase();
+ const code=String($('vr-code').value||$('vr-dataset').value).trim().toUpperCase();
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
@@ -196,8 +201,9 @@ async function finish(){
 }
 async function init(){
  if(fictional){
-  document.title='Free Fictional Replay | The Stock Market: From the Ground Up';
-  const main=document.querySelector('main');const h=main?.querySelector('h1');
+  if(!embedded)document.title='Free Fictional Replay | The Stock Market: From the Ground Up';
+  const main=embedded?$('sim-server-mode'):document.querySelector('main');
+  const h=embedded?$('sim-server-title'):main?.querySelector('h1');
   if(h)h.textContent='Free Server-Controlled Fictional Replay';
   const intro=main?.querySelector('.section-intro');if(intro)intro.textContent='ORIGINAL FICTIONAL EDUCATIONAL SCENARIOS: invented 2040 prices and timestamps. Reveal one candle at a time from a server-owned cursor, lock a reasoned decision, and resume later. No real market history, broker fills, trading advice, assessment or mastery.';
   const headers=main?.querySelectorAll('.journal-section h2')||[];
