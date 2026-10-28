@@ -108,6 +108,11 @@ export async function handleFounderSandbox(event,env){
  }
  const context=await subFor(env,subId);
  if(!context)return null;
+ // Stripe emits subscription.updated for ordinary renewal/payment metadata too.
+ // Only a genuine cancel-at-period-end update may mark the QA seat cancel_scheduled.
+ // invoice.paid already advances the active term and Sparks balance.
+ if(type==='customer.subscription.updated'&&context.sub.cancel_at_period_end!==true)
+  return {status:200,body:'F600_TEST_UPDATE_NO_CANCEL'};
  if(inv&&(ref(inv.subscription)||ref(inv.parent?.subscription_details?.subscription))!==subId)
  throw Error('SANDBOX_FOUNDER_INVOICE_SUBSCRIPTION_MISMATCH');
  return apply(env,event,context,inv,charge);
