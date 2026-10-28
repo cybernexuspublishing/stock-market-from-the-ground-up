@@ -94,6 +94,8 @@ function build(){
  inner.append(heading,notice,facts,cues,sub,questions,answer,actions,lb,status);
  host.append(toggle,inner);
  const switcher=document.getElementById('cl-chart-tier-switcher');if(switcher)switcher.insertAdjacentElement('afterend',host);else region.append(host);
+ const sourceLab=new URLSearchParams(location.search).get('lab')||'';
+ if(labPattern.test(sourceLab)){labInput.value=sourceLab;void attachLab()}
 }
 window.addEventListener('crownlight:revealed-bars',e=>{
  const d=e.detail||{};model.bars=Array.isArray(d.bars)?d.bars.map(b=>({...b})):[];model.label=String(d.symbol||'REPLAY').slice(0,32);
