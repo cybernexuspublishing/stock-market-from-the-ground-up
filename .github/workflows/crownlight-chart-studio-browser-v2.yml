@@ -26,6 +26,13 @@ on:
       - 'functions/api/member-sparks-wallet.js'
       - 'supabase/migrations/20261028_free_two_sparks_monthly_v1.sql'
       - 'assets/js/simulator.js'
+      - 'assets/js/crownlight-site-layout-editor-v1.js'
+      - 'assets/css/crownlight-site-layout-editor-v1.css'
+      - 'functions/api/site-card-layout.js'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/css/member-profile-v1.css'
+      - 'tests/test_site_card_layout_editor_v1.mjs'
+      - 'supabase/migrations/20261028_sitewide_card_layout_editor_v1.sql'
       - 'simulator.html'
       - 'assets/js/crownlight-indicator-math-v2.js'
       - 'assets/css/crownlight-chart-studio-v2.css'
@@ -59,6 +66,10 @@ jobs:
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs
           node tests/test_crownlight_paper_workbench_v3.mjs
+          node tests/test_site_card_layout_editor_v1.mjs
+          node --check assets/js/crownlight-site-layout-editor-v1.js
+          node --check functions/api/site-card-layout.js
+          node --check assets/js/bootcamp-academy-v014168.js
           node tests/test_alpaca_saved_paper_verification_v1.mjs
           node --check functions/api/credentials.js
           node tests/test_crownlight_workbench_browser_v3.mjs
