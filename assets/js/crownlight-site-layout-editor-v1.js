@@ -65,7 +65,7 @@
   if(Number.isInteger(row.width_pct)&&row.width_pct>=30&&row.width_pct<=100){
    card.style.setProperty('width',row.width_pct+'%','important');card.style.setProperty('max-width','100%','important');card.style.setProperty('box-sizing','border-box','important');card.style.setProperty('justify-self','start','important');
   }
-  if(Number.isInteger(row.min_height_px)&&row.min_height_px>=80&&row.min_height_px<=1200)card.style.setProperty('min-height',row.min_height_px+'px','important');
+  if(Number.isInteger(row.min_height_px)&&row.min_height_px>=80&&row.min_height_px<=1200){card.style.setProperty('height',row.min_height_px+'px','important');card.style.setProperty('min-height','80px','important');card.style.setProperty('overflow','auto','important');}
  }
  function status(message){const el=$('#gu-layout-feedback');if(el)el.textContent=message}
  async function save(card,changes={}){
@@ -101,7 +101,7 @@
    latestWidth=nextWidth;latestHeight=nextHeight;
    card.style.setProperty('width',nextWidth+'%','important');
    card.style.setProperty('max-width','100%','important');
-   card.style.setProperty('min-height',nextHeight+'px','important');
+   card.style.setProperty('height',nextHeight+'px','important');card.style.setProperty('min-height','80px','important');card.style.setProperty('overflow','auto','important');
    card.style.setProperty('box-sizing','border-box','important');
    card.style.setProperty('justify-self','start','important');
    status('Resizing to '+nextWidth+'% × '+nextHeight+'px · release to save');
@@ -117,7 +117,7 @@
   };
   const cancel=()=>{if(finished)return;finished=true;cleanup();
    const previous=state.config.get(card.dataset.guLayoutKey);
-   card.style.removeProperty('width');card.style.removeProperty('max-width');card.style.removeProperty('min-height');card.style.removeProperty('justify-self');
+   card.style.removeProperty('width');card.style.removeProperty('max-width');card.style.removeProperty('height');card.style.removeProperty('min-height');card.style.removeProperty('overflow');card.style.removeProperty('justify-self');
    if(previous)apply(card,previous);status('Resize canceled without saving');
   };
   const end=e=>{if(e.pointerId!==event.pointerId||finished)return;
@@ -169,7 +169,7 @@
    const reset=document.createElement('button');reset.type='button';reset.textContent='Reset';reset.className='gu-layout-reset';
    reset.onclick=async()=>{status('Resetting card…');try{await api('DELETE',{cardKey:card.dataset.guLayoutKey});
     state.config.delete(card.dataset.guLayoutKey);card.style.removeProperty('width');card.style.removeProperty('max-width');
-    card.style.removeProperty('min-height');card.style.removeProperty('justify-self');status('Card layout reset.')}catch(e){status(e.message)}};
+    card.style.removeProperty('min-height');card.style.removeProperty('height');card.style.removeProperty('overflow');card.style.removeProperty('justify-self');status('Card layout reset.')}catch(e){status(e.message)}};
    bar.append(handle,resize,reset);card.prepend(bar);card.append(corner);
    card.addEventListener('dragover',e=>{if(!state.editing||!state.activeDrag||
     state.activeDrag.parentElement!==card.parentElement||state.activeDrag===card)return;
