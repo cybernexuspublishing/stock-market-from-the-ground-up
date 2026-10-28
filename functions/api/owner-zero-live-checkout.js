@@ -84,6 +84,17 @@ async function verifyDiagnosticTarget(env,sku){
  const secret=val(env.SUPABASE_SECRET_KEY);
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!secret)throw fail('CATALOG_UNAVAILABLE');
  const headers=secret.startsWith('sb_secret_')?{apikey:secret}:{apikey:secret,authorization:'Bearer '+secret};
+ // The 14-day Founder SKU is in the canonical founding-plan registry but is
+ // deliberately NOT a customer-sellable Store item. This exception is diagnostic
+ // only: the separate GU71 price is $0 one-time; no paid Founder enrollment.
+ if(sku==='founding:FOUNDING_14'){
+  const rows=await getJson(base+'/rest/v1/gu_founder_plans_v014173?select=plan_code,price_cents,term_days,checkout_enabled&plan_code=eq.FOUNDING_14&limit=1',
+   {headers},'CATALOG_UNAVAILABLE');
+  if(!Array.isArray(rows)||rows.length!==1||rows[0].plan_code!=='FOUNDING_14'||
+   rows[0].price_cents!==2299||rows[0].term_days!==14||
+   rows[0].checkout_enabled!==false)throw fail('FOUNDER_14_PAID_QA_GATE_MUST_REMAIN_CLOSED',409);
+  return sku;
+ }
  const r=await getJson(base+'/rest/v1/gu_storefront_items_v014174?select=sku&sku=eq.'+encodeURIComponent(sku)+'&limit=1',
   {headers},'CATALOG_UNAVAILABLE');
  if(!Array.isArray(r)||r.length!==1||r[0].sku!==sku)throw fail('QA_TARGET_NOT_IN_CANONICAL_STORE',404);
