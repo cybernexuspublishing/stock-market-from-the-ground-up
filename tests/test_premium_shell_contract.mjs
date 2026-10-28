@@ -48,9 +48,9 @@ for(const selector of ['.gu-redesign-academy #academy-lab-slot','.gu-redesign-la
 assert(css.includes('prefers-contrast:more'),'High contrast safety must exist');
 assert(css.includes('premium-light'),'Light theme override must exist');
 const memberController=read('assets/js/dashboard-ui-legacy.js');
-assert(memberController.includes("hub.classList.add('gu-single-member-nav')"),'Dashboard must switch to single sidebar navigation only after route coverage');
+assert(memberController.includes("nav.hidden=false;hub.classList.remove('gu-single-member-nav')"),'Dashboard must retain the owner-approved member tab strip alongside the permanent sidebar');
 assert(memberController.includes("defs.every(([code])=>sidebarCodes.has(code))"),'Sidebar integration must verify every required member tab');
-assert(css.includes('.gu-single-member-nav .v1322-member-tabs[hidden]'),'Duplicate dashboard tab strip must be suppressed only for unified navigation');
+assert(css.includes('.gu-single-member-nav .v1322-member-tabs[hidden]'),'Legacy suppressed navigation styles must remain scoped to the removed legacy state');
 for(const tab of ['access','skills','books','settings','help','support','billing','activity'])assert(dashboard.includes('dashboard.html?tab='+tab),'Sidebar missing authoritative section '+tab);
 const metricSource=read('assets/js/member-dashboard.js');
 assert(memberController.includes('gu-member-start'),'Dashboard must offer immediate learning actions');
