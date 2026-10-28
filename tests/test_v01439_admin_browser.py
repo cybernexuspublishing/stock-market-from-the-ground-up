@@ -7,7 +7,7 @@ nav=(R/'assets/js/admin-simple-navigation-v014036.js').read_text()
 card=(R/'assets/js/admin-stripe-shadow-v01439.js').read_text()
 html='''<!doctype html><html><head></head><body>
 <aside class="admin-sidebar"><nav id="admin-tabs"><button data-panel="dashboard">Dashboard</button><button data-panel="commerce">Commerce</button></nav></aside>
-<div id="admin-gate" hidden></div><main id="admin-app"><section class="admin-panel" data-admin-panel="commerce"><section class="gu33-payment-hub"></section></section></main></body></html>'''
+<div id="admin-gate" hidden></div><main id="admin-app"><section class="admin-panel" data-admin-panel="commerce"><div class="admin-heading"><h1>Payments &amp; Billing</h1></div><section class="gu33-payment-hub"></section></section></main></body></html>'''
 with sync_playwright() as p:
  browser=p.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=browser.new_page();page.set_content(html)
