@@ -22,6 +22,7 @@ const pages=[
  ['Account Settings','/dashboard.html?tab=settings','Preferences and settings'],
  ['Advertise','/advertise.html','Sponsorships and advertising information']
 ];
+let founderOffersVisible=false;
 let productList=null;
 const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 let dialog=null,dialogInput=null,results=null,activeInput=null;
@@ -45,7 +46,8 @@ function render(){
  if(!results)return;
  results.replaceChildren();
  const q=String(dialogInput.value||'').trim().toLowerCase();
- const locations=pages.filter(([name,url,desc])=>(name+' '+desc).toLowerCase().includes(q))
+ const locations=pages.filter(([name,url,desc])=>(founderOffersVisible||!url.includes('#founders'))&&
+  (name+' '+desc).toLowerCase().includes(q))
   .map(([name,url,desc])=>({name,url,desc}));
  const catalog=(productList||[]).filter(x=>(String(x.name||'')+' '+String(x.sku||'')+' '+String(x.category||'')).toLowerCase().includes(q))
   .slice(0,44).map(x=>({
@@ -58,6 +60,13 @@ function render(){
  }
  if(!results.childElementCount)results.append(el('p','gu-global-search-empty','No matching pages or products. Try a shorter term.'));
 }
+async function checkFoundingVisibility(){
+ try{const r=await fetch('/api/founding-offer-status',{cache:'no-store'});
+  if(r.ok){const j=await r.json();founderOffersVisible=j.ok===true&&j.offersVisible===true}
+ }catch{founderOffersVisible=false}
+ render();
+}
+void checkFoundingVisibility();
 async function loadCatalog(){
  if(productList!==null)return;
  productList=[];
