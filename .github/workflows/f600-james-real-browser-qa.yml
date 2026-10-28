@@ -1,0 +1,33 @@
+name: Founding 600 — James_Test Real Member Browser Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - tests/test_f600_james_real_browser_qa.mjs
+      - .github/workflows/f600-james-real-browser-qa.yml
+permissions:
+  contents: read
+concurrency:
+  group: f600-james-real-auth-main
+  cancel-in-progress: true
+jobs:
+  genuine-member:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install open-source Chromium and Playwright
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify James_Test production login, Founder denial, reload and logout
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_f600_james_real_browser_qa.mjs
