@@ -11,9 +11,15 @@ test('free beta signup is visibly available but is not payment or founder reserv
  assert.match(store,/Free Membership is retained for verified book purchasers/);
  assert.match(store,/href="founding600\.html"/);
  assert.match(founder,/Founding enrollment status/);
- assert.match(founder,/Founding Starter/);
- assert.match(founder,/Founding Standard \(\$49\.99 every 30 days\)/);
- assert.match(founder,/Founding Extended \(\$59\.99 every 60 days\)/);
+ assert.match(founder,/FOUNDING STARTER/);
+ assert.match(founder,/\$22\.99/);
+ assert.match(founder,/every 14 days/);
+ assert.match(founder,/FOUNDING STANDARD/);
+ assert.match(founder,/\$49\.99/);
+ assert.match(founder,/every 30 days/);
+ assert.match(founder,/FOUNDING EXTENDED/);
+ assert.match(founder,/\$59\.99/);
+ assert.match(founder,/every 60 days/);
  assert.match(founder,/Free Membership is retained for verified book purchasers/);
  assert.match(founder,/No new purchase is made on this page/);
  assert.doesNotMatch(founder,/15 new Journal records and 10 saved simulator exercises/);
