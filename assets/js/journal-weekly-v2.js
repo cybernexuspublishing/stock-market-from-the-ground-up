@@ -95,12 +95,7 @@ function boot(){
    }
   });
  }).catch(()=>{signedUser=null;ownRows=[];render()});
- window.JournalTools?.taxonomy().then(tax=>{
-  const input=$('new-setup');if(!input||!Array.isArray(tax?.setups))return;
-  const dl=t('datalist');dl.id='gu-v2-setup-choices';
-  for(const value of tax.setups){const option=t('option');option.value=value;dl.append(option)}
-  input.setAttribute('list',dl.id);input.after(dl);
- }).catch(()=>{});
+
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
