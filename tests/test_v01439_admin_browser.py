@@ -36,6 +36,13 @@ with sync_playwright() as p:
  assert page.locator('#gu71-zero-live-checkout').evaluate('(e)=>e.open') is True
  page.wait_for_function("document.querySelector('#gu71-qa-target-sku').dataset.catalogLoaded === '1'",timeout=3000)
  assert page.locator('#gu71-qa-target-sku option').count()==3, 'General, independent Founding 14 and one visible catalog record'
+ # The simplified Workspace menu must expose the Owner workflow directly,
+ # outside the legacy navigation details collapsed by the newer Admin shell.
+ page.add_script_tag(content=nav.replace("location.pathname","'/admin.html'"))
+ page.locator('#gu36-owner-zero-live-qa').wait_for(timeout=3000)
+ assert page.locator('#gu36-owner-zero-live-qa').is_visible()
+ page.locator('#gu36-owner-zero-live-qa').click()
+ assert page.locator('#gu71-zero-live-checkout').evaluate('(e)=>e.open') is True
  assert 'SHADOW' not in page.locator('#gu39-shadow').inner_text().upper() or True # no live access marker required
  page.close()
  # A failed *sandbox* status API must never hide the independent Owner-only LIVE $0 UI.
