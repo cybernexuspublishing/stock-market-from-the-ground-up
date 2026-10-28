@@ -378,6 +378,9 @@
   const catalog=node('a','Explore full Labs and access requirements');
   catalog.href='labs.html';catalog.className='btn secondary';
   premium.append(catalog);panels[8].append(premium);
+  // Same explicit evidence-then-decision pattern as a full Lab, but fictional,
+  // ungraded, and without granting restricted membership/book entitlements.
+  globalThis.GroundUpFreeLabExperienceV1?.mount?.(d.day,panels[3],panels[8]);
   panels[0].append(node('h4','Your learning goal'),node('p',d.objective),
    node('p','Talia will teach the concepts and worked examples before you practice. You may complete these lessons at your own pace.'));
   panels[3].append(node('h4','Identify the unknown, not the future outcome'),
