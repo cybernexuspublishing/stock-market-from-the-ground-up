@@ -66,13 +66,6 @@ function boot(){
  const reflection=make('aside',undefined,'gu-v2-reflection journal-card');
  reflection.id='gu-v2-reflection';
  actual.querySelector('.journal-actions')?.before(reflection);
- const suggestions=window.JournalTools?.taxonomy().then(tax=>{
-  const field=$('j-setup');if(!field||!Array.isArray(tax?.setups)||$('gu-v2-setups'))return;
-  const dl=make('datalist');dl.id='gu-v2-setups';
-  for(const value of tax.setups){const o=make('option');o.value=value;dl.append(o)}
-  field.setAttribute('list',dl.id);field.after(dl);
- }).catch(()=>{});
- void suggestions;
  let selected='context';
  const enabled=()=>steps.filter(s=>s.els.some(el=>!el.hidden));
  function redraw(){
@@ -119,14 +112,23 @@ function boot(){
    budget.addEventListener('input',()=>updatePanels());
    const summary=make('div');summary.id='gu-v2-risk-values';
    const apply=make('button','Use suggested whole-share quantity','btn secondary');apply.id='gu-v2-apply';apply.type='button';
+   const applied=make('p','', 'journal-small');
+   applied.id='gu-v2-apply-feedback';applied.setAttribute('role','status');
    apply.addEventListener('click',()=>{
-    const value=Number(apply.dataset.shares);
-    if(!Number.isSafeInteger(value)||value<=0||current.disabled)return;
+    const feedback=$('gu-v2-apply-feedback'),value=Number(apply.dataset.shares);
+    if(current.disabled){
+     feedback.textContent='The pre-trade plan is locked. Position size cannot be changed.';return;
+    }
+    if(!Number.isSafeInteger(value)||value<=0){
+     feedback.textContent='To calculate a share suggestion, choose LONG or SHORT, enter a positive planned entry and a stop on the risk side, then enter your maximum dollar risk above zero. The budget must cover at least one whole share.';
+     return;
+    }
     current.value=String(value);
     current.dispatchEvent(new Event('input',{bubbles:true}));
+    feedback.textContent='Applied '+value+' planned shares. Save Draft or lock the plan when ready. No order was placed.';
    });
    const foot=make('p','Educational planning arithmetic only. No order is placed. Fees, slippage, halts, short-sale requirements, partial fills and gap risk can increase real exposure.','journal-small');
-   risk.append(title,budgetLabel,budget,summary,apply,foot);
+   risk.append(title,budgetLabel,budget,summary,apply,applied,foot);
   }
   const calculated=jv.planRisk({
    direction:$('j-direction')?.value,entry:entry.value,stop:stop.value,
@@ -149,8 +151,12 @@ function boot(){
    if(calculated.withinBudget===false)dest.append(make('p','The planned share quantity exceeds the entered dollar-risk budget.','gu-v2-warning'));
   }
   const apply=$('gu-v2-apply');apply.dataset.shares=calculated.maxWholeShares??'';
-  apply.disabled=!calculated.valid||!Number.isSafeInteger(calculated.maxWholeShares)||
-    calculated.maxWholeShares<=0||current.disabled;
+  // Keep the button actionable while the plan is editable so members can
+  // learn exactly which prerequisite is missing; locked plans stay immutable.
+  apply.disabled=!!current.disabled;
+  apply.title=current.disabled?'Locked pre-trade plan cannot be edited.':
+   (Number.isSafeInteger(calculated.maxWholeShares)&&calculated.maxWholeShares>0?
+    'Apply suggested whole shares to the editable plan.':'Enter a valid risk budget, entry and stop to calculate whole shares.');
   reflection.replaceChildren(make('h3','Talia — focused next practice'));
   const tagged=[...form.querySelectorAll('input[name="journal-mistake"]:checked')].map(x=>x.value);
   if(!tagged.length)reflection.append(make('p','Describe what you observed and tag any process mistakes. A well-followed plan can still lose money.','journal-small'));
