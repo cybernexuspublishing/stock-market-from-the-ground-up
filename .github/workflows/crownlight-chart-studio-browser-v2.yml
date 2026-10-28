@@ -13,6 +13,14 @@ on:
       - 'functions/_lib/crownlight-live-auth-v1.js'
       - 'tests/test_crownlight_live_formation_v1.mjs'
       - 'tests/test_crownlight_live_bridge_mock_v1.mjs'
+      - 'tests/test_crownlight_paper_workbench_v3.mjs'
+      - 'assets/js/crownlight-paper-terminal-v1.js'
+      - 'assets/js/crownlight-simulator-layout-v3.js'
+      - 'assets/js/crownlight-chart-tutor-v1.js'
+      - 'assets/css/crownlight-simulator-layout-v3.css'
+      - 'functions/api/alpaca-paper.js'
+      - 'functions/api/member-sparks-wallet.js'
+      - 'supabase/migrations/20261028_free_two_sparks_monthly_v1.sql'
       - 'assets/js/simulator.js'
       - 'simulator.html'
       - 'assets/js/crownlight-indicator-math-v2.js'
@@ -46,6 +54,11 @@ jobs:
           node tests/test_crownlight_chart_studio_v2.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs
+          node tests/test_crownlight_paper_workbench_v3.mjs
+          node --check functions/api/alpaca-paper.js
+          node --check assets/js/crownlight-simulator-layout-v3.js
+          node --check assets/js/crownlight-paper-terminal-v1.js
+          node --check assets/js/crownlight-chart-tutor-v1.js
           node --check assets/js/crownlight-live-formation-v1.js
           node --check functions/api/live-market-stream.js
           node --check functions/api/live-market-ticket.js
