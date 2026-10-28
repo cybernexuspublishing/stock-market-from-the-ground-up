@@ -1,0 +1,23 @@
+/* SMFGU Journal V1: compact responsive guided entry. The advanced form remains available. */
+#entry-content{max-width:1080px;margin-inline:auto}
+#entry-content .journal-card{box-sizing:border-box}
+.gu-workflow{position:relative;max-width:100%;padding:14px 16px;margin:18px 0}
+.gu-workflow-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.gu-workflow-top label{font-weight:700}
+.gu-workflow-top select{max-width:260px;padding:9px 12px;border:1px solid #45627a;border-radius:8px;color:#fff;background:#071929}
+.gu-workflow-progress{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.gu-stage{background:#10283a;border:1px solid #39566b;color:#dae7f3;border-radius:8px;padding:9px 10px;cursor:pointer;font:inherit;font-size:.86rem}
+.gu-stage.current{border-color:#caa45a;background:#263243;color:#fff;box-shadow:inset 0 0 0 1px #a78a55}
+.gu-stage:focus-visible,.gu-workflow button:focus-visible,.gu-workflow select:focus-visible{outline:3px solid #f4cc72;outline-offset:2px}
+.gu-workflow-help{margin:8px 0 12px;max-width:85ch;line-height:1.55;color:#c5d6e2}
+.gu-workflow-actions{display:flex;gap:9px;justify-content:space-between}
+.gu-guided-concealed{display:none!important}
+.gu-risk-panel,.gu-coach-panel{margin-top:18px;background:#102336}
+.gu-risk-panel h3,.gu-coach-panel h3{margin:0 0 10px}
+.gu-risk-cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gu-risk-cell{border:1px solid #38536d;border-radius:8px;padding:10px;background:#081b2b}
+.gu-risk-cell span{display:block;color:#b6cbd7;font-size:.8rem}
+.gu-risk-cell strong{display:block;font-size:1.1rem;margin-top:4px}
+.gu-coach-panel ul{margin:8px 0;padding-left:22px}
+.gu-coach-panel li{padding:4px 0}
+@media (max-width:620px){.gu-workflow-top select{max-width:100%;width:100%}.gu-stage{flex:1 1 45%;text-align:center}.gu-risk-cells{grid-template-columns:1fr}}
