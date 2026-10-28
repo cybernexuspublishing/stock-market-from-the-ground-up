@@ -38,10 +38,9 @@ async function signIn(){
  for(let attempt=1;attempt<=2;attempt++){
   await page.locator('.auth-card button[type="submit"]').click();
   try{
-   await page.waitForFunction(async()=>{
-    try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();
-     return !!data?.session?.access_token;}catch{return false}
-   },null,{timeout:9000});
+   // Cloudflare Pages canonicalizes *.html URLs to extensionless routes.
+   // Wait for navigation to settle, not a transient SDK session on /signin.
+   await page.waitForURL(u=>/^\/dashboard(?:\.html)?$/i.test(u.pathname),{timeout:12000});
    signedIn=true;break;
   }catch{}
   const message=String(await page.locator('#signin-message').textContent().catch(()=>'')); 
