@@ -82,6 +82,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser-verify grouped Admin navigation, role isolation and all five Store tabs
         run: node tests/test_admin_organized_browser_v1.mjs
+      - name: Browser-measure Admin layout density and Founders field containment
+        run: node tests/test_admin_visual_layout_v1.mjs
       - name: Browser-verify Social Marketing Owner workspace at four responsive widths (mocked, no charges)
         run: node tests/test_admin_social_browser.mjs
       - name: Validate production-safe canonical and source sitemap generation
