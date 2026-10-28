@@ -1,0 +1,69 @@
+/* CROWNLIGHT CHART STUDIO V2 — high-contrast editorial fin-tech aesthetic
+   Clear analytical hierarchy, luminous accents, no decorative obstruction of price data. */
+:root{--cl-violet:#a783ff;--cl-cyan:#39def5;--cl-gold:#f3c16c;--cl-green:#2bf2b1;--cl-rose:#ff648b;--cl-white:#f6faff}
+.sim-chart-panel.crownlight-active{position:relative;isolation:isolate;padding:23px;border:1px solid #31567e;border-radius:22px;background:radial-gradient(ellipse at 4% -10%,rgba(101,73,190,.18),transparent 52%),radial-gradient(ellipse at 96% 6%,rgba(24,185,209,.10),transparent 42%),linear-gradient(149deg,#10172b 0%,#090f1f 48%,#080e1a 100%);box-shadow:0 22px 65px rgba(0,0,0,.4),inset 0 1px 0 rgba(167,194,255,.11);overflow:hidden}
+.sim-chart-panel.crownlight-active:before{content:"";height:2px;position:absolute;inset:0 18px auto 18px;background:linear-gradient(90deg,transparent,#7d5de1 27%,#30c7e9 58%,#e9b95a 84%,transparent);opacity:.75}
+.sim-chart-panel.crownlight-active .sim-chart-head{align-items:center;margin-bottom:17px;flex-wrap:wrap}
+.sim-chart-panel.crownlight-active .sim-chart-head h2{font-size:clamp(1.15rem,2.2vw,1.85rem);letter-spacing:-.028em;color:#f7f8ff;font-weight:750;margin:6px 0}
+.sim-chart-panel.crownlight-active .sim-quote strong{color:var(--cl-gold);font-size:clamp(1.5rem,2.8vw,2.3rem);font-variant-numeric:tabular-nums;text-shadow:0 0 28px rgba(244,192,105,.15)}
+.sim-chart-panel.crownlight-active #sim-chart{display:none}
+.crownlight-shell{color:#eef3ff;min-width:0}
+.crownlight-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border:1px solid #283a60;border-radius:14px;padding:12px 15px;background:linear-gradient(105deg,rgba(30,28,60,.97),rgba(8,32,48,.96));box-shadow:inset 0 1px 0 rgba(177,218,255,.08)}
+.crownlight-identity{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.crownlight-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;font-size:1.24rem;font-weight:900;font-family:Georgia,serif;color:#091022;background:linear-gradient(135deg,#d4c1ff,#66e8fa 56%,#f9d68c);box-shadow:0 0 24px rgba(83,194,255,.12)}
+.crownlight-identity strong{display:block;font-size:1rem;letter-spacing:.2em;font-weight:850;color:#f8f9ff;line-height:1.1}
+.crownlight-identity small{display:block;margin-top:3px;letter-spacing:.14em;font-size:.65rem;color:#9eb0d8;font-weight:700}
+.crownlight-identity em{font-style:normal;color:var(--cl-gold)}
+.crownlight-toolbar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.crownlight-toolbar-actions button{font:inherit;font-weight:720;font-size:.8rem;min-height:36px;padding:7px 11px;border:1px solid #3d5276;color:#dfe9ff;background:linear-gradient(180deg,#1b2841,#141d34);border-radius:9px;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;white-space:nowrap}
+.crownlight-toolbar-actions button:hover,.crownlight-toolbar-actions button:focus-visible{border-color:#ae8dff;color:#fff;background:#293453}
+.crownlight-toolbar-actions button:active{transform:translateY(1px)}
+.crownlight-toolbar-actions button.is-on{border-color:#22bdcd;background:#123a4a;color:#7ff2f9}
+.crownlight-toolbar-actions button[data-cl="studies"]{background:linear-gradient(115deg,#5334a1,#314a9b);border-color:#8266dd;color:#fff}
+.crownlight-toolbar-actions button[data-cl="source"]{border-color:#76613a;color:#ffe2ab}
+.crownlight-toolbar-actions .cl-dot{font-size:.45rem;color:#6cf4ff;vertical-align:middle}
+.crownlight-legend{display:flex;gap:7px;align-items:center;flex-wrap:wrap;min-height:36px;padding:9px 3px}
+.crownlight-study-chip{border-radius:20px;border:1px solid #354664;background:#18233c;color:#d7e2fa;font-size:.76rem;display:inline-flex;gap:6px;align-items:center;padding:5px 10px;cursor:pointer}
+.crownlight-study-chip:hover{border-color:#ac91ed}
+.crownlight-study-chip .cl-color{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor}
+.crownlight-market-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px 16px;background:linear-gradient(90deg,#0f2032,#101b30);border:1px solid #314766;border-bottom:0;border-radius:14px 14px 0 0;padding:12px 17px;font-size:.81rem;font-variant-numeric:tabular-nums}
+.crownlight-market-strip [data-cl="hover-title"]{color:#ddc795;font-weight:730}
+.crownlight-market-strip [data-cl="hover-data"]{color:#bdd7f0;word-break:break-word}
+.crownlight-plot{height:620px;min-height:380px;background:#06101d;position:relative;border:1px solid #304868;border-radius:0 0 14px 14px;overflow:hidden;touch-action:pan-y}
+.crownlight-help{padding:12px 6px 14px;color:#849ec0;font-size:.76rem;letter-spacing:.015em;line-height:1.5}
+.crownlight-source{border:1px solid #395a74;border-radius:13px;background:linear-gradient(130deg,#112438,#101a31);padding:18px;margin-bottom:12px}
+.crownlight-source h3{margin:0 0 14px;color:#f5d38a;letter-spacing:.04em}
+.crownlight-facts{display:grid;grid-template-columns:minmax(140px,.8fr) minmax(0,2fr);gap:10px 16px;margin:0}
+.crownlight-facts dt{color:#a8bbdb;font-size:.82rem}
+.crownlight-facts dd{margin:0;font-weight:650;color:#e2ecfc;overflow-wrap:anywhere;font-size:.85rem}
+.crownlight-source-note{font-size:.79rem;color:#c2d1e0;line-height:1.5;margin-top:18px}
+.crownlight-dialog{width:min(94vw,850px);max-height:88dvh;overflow:auto;box-sizing:border-box;background:linear-gradient(145deg,#17142f,#0d1930 60%,#082231);border:1px solid #536295;border-radius:21px;color:#f0f5ff;padding:28px;box-shadow:0 36px 130px #000c}
+.crownlight-dialog::backdrop{background:rgba(2,7,17,.87);backdrop-filter:blur(7px)}
+.crownlight-dialog header{margin-bottom:18px}
+.crownlight-dialog header h2{font-size:1.9rem;line-height:1.1;margin:7px 0;color:#fff;letter-spacing:-.03em}
+.crownlight-dialog header p,.crownlight-dialog footer p{font-size:.88rem;color:#acc3dc;line-height:1.6;margin:8px 0}
+.crownlight-eyebrow{font-size:.7rem;font-weight:850;letter-spacing:.2em;color:#7bddef}
+.crownlight-dialog-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid #2e5172;border-radius:12px;padding:13px;margin-bottom:15px}
+.crownlight-dialog button{background:linear-gradient(125deg,#5d42b6,#366ea8);border:1px solid #816de9;color:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700}
+.crownlight-dialog button:hover{filter:brightness(1.17)}
+.crownlight-dialog input,.crownlight-dialog select{background:#0b1a2d;color:#f3f7ff;border:1px solid #426385;padding:8px;border-radius:8px;font:inherit;max-width:100%}
+.crownlight-dialog-toolbar label{font-size:.82rem;color:#b7cce0}
+.crownlight-study-list{display:grid;gap:9px}
+.crownlight-study-row{display:grid;grid-template-columns:minmax(140px,1fr) minmax(0,2fr);align-items:center;gap:12px;padding:13px;border:1px solid #354a76;border-radius:11px;background:linear-gradient(110deg,rgba(46,46,95,.35),rgba(13,42,63,.5))}
+.crownlight-study-heading{font-weight:750;font-size:.88rem;color:#e3eaff}
+.crownlight-study-settings{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.crownlight-study-settings label{display:flex;gap:6px;align-items:center;color:#a8bed4;font-size:.75rem}
+.crownlight-study-settings label input[type="number"]{width:58px}
+.crownlight-study-settings input[type="color"]{height:32px;width:40px;padding:2px;cursor:pointer}
+.crownlight-study-settings .crownlight-remove{background:#44253c;border-color:#925273;color:#ffe0e9}
+.crownlight-dialog footer{margin-top:17px;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;align-items:center}
+.crownlight-dialog footer p{width:100%;margin-bottom:6px}
+.crownlight-dialog footer button[data-close]{background:linear-gradient(120deg,#7761d7,#3265a4)}
+.cl-empty{font-size:.79rem;color:#a8bad9}
+.crownlight-chart-expanded .sim-chart-panel.crownlight-expanded{position:fixed;inset:12px;z-index:99000;overflow:auto;height:calc(100dvh - 24px);box-sizing:border-box;max-width:none;width:auto;background:#080f22}
+.crownlight-expanded .crownlight-plot{height:calc(100dvh - 260px);min-height:300px}
+.crownlight-expanded .sim-chart-head{margin-bottom:8px}
+.crownlight-chart-expanded{overflow:hidden}
+@media(max-width:960px){.crownlight-toolbar{align-items:flex-start}.crownlight-plot{height:510px}}
+@media(max-width:650px){.sim-chart-panel.crownlight-active{padding:12px;border-radius:16px}.crownlight-toolbar{padding:11px}.crownlight-identity strong{letter-spacing:.14em}.crownlight-toolbar-actions button{min-height:39px;padding:6px 10px}.crownlight-plot{height:440px}.crownlight-market-strip{padding:10px}.crownlight-study-row{grid-template-columns:1fr}.crownlight-study-settings{justify-content:flex-start}.crownlight-dialog{padding:17px}.crownlight-facts{grid-template-columns:1fr}.crownlight-facts dt{margin-bottom:-7px}.crownlight-expanded .crownlight-plot{height:calc(100dvh - 310px)}}
+@media(prefers-reduced-motion:reduce){.crownlight-toolbar-actions button{transition:none}}
