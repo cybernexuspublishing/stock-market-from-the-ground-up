@@ -2,6 +2,7 @@
  * Reserve the seat BEFORE creating Stripe Checkout; signed webhooks fulfill.
  * This never shares payment secrets with a browser or supports test subscriptions.
  */
+import {foundingOfferState} from '../_lib/founder-offer-gate-v1.js';
 const json=(o,status=200)=>new Response(JSON.stringify(o),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const fail=(msg,status=503)=>Object.assign(new Error(msg),{status});
 const uuid=s=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s||'');
@@ -74,15 +75,16 @@ async function postBody(req){
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(all))}catch{throw fail('Invalid JSON.',400)}
 }
 export async function onRequestGet({env}){
- let enabled=false;
+ let enabled=false,offer;
+ try{offer=await foundingOfferState(env)}catch{offer={offersVisible:false,enrollmentEnabled:false,phase:'unverified',remaining:0}}
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
   const tiers=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled');
   const originalTiers=tiers.filter(t=>Object.hasOwn(plans,t.plan_code));
-  enabled=state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
+  enabled=offer.enrollmentEnabled===true&&state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
    &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true);
  }catch{enabled=false}
- return json({ok:true,checkoutEnabled:enabled,plans:[
+ return json({ok:true,checkoutEnabled:enabled,offersVisible:offer.offersVisible===true,phase:offer.phase,remaining:offer.remaining,plans:[
   {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:false},
   {code:'FOUNDING_30',priceCents:4999,billingDays:30},
   {code:'FOUNDING_60',priceCents:5999,billingDays:60}
@@ -95,6 +97,9 @@ export async function onRequestPost({request,env}){
   const input=await postBody(request),plan=String(input?.plan||'');
   if(!Object.hasOwn(plans,plan)||input?.autoRenewConsent!==true||input?.founderTermsConsent!==true)
    throw fail('Select a plan and accept its recurring payment and founding terms.',400);
+  // Before any Stripe or reservation interaction, enforce founder lifecycle.
+  let offer;try{offer=await foundingOfferState(env)}catch{throw fail('Founding admission could not be verified.',503)}
+  if(!offer.offersVisible||!offer.enrollmentEnabled)throw fail('Founding enrollment is closed.',409);
   const c=cfg(env),user=await ageAndOwner(c,request);
   const account=await stripe(c,'account');if(account.id!==c.acct)throw fail('Payment account mismatch.');
   const pm=c.map[plan],price=await stripe(c,'prices/'+encodeURIComponent(pm.priceId)),expected=plans[plan];
