@@ -92,6 +92,39 @@ try{
   assert.equal(await page.locator('.academy-free-stage-button[aria-pressed=true]').count(),1);
   assert.match(await page.locator('#academy-objective').innerText(),/ownership|difference/i);
   assert.equal(await page.locator('#academy-enroll').isVisible(),!data.enrolled);
+  // Each Free lesson now uses the Lab-inspired fictional teaching studio,
+  // without exposing a paid Lab, private assessment or broker order.
+  const correctByLesson=[2,1,1,1,1];
+  for(let lesson=1;lesson<=5;lesson++){
+   await page.locator('#academy-days .gu-bc-day').nth(lesson-1).click();
+   await page.locator('.academy-free-stage-button').nth(2).click();
+   const studio=page.locator('.academy-free-studio');
+   assert.equal(await studio.count(),1,'Every Free day gets an interactive worked example');
+   assert.match(await studio.innerText(),/FICTIONAL TEACHING DATA/);
+   const slider=studio.locator('input[type=range]');
+   const before=await studio.locator('.academy-studio-main').innerText();
+   await slider.evaluate(input=>{
+    input.value=input.value===input.min?input.max:input.min;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+   });
+   assert.notEqual(await studio.locator('.academy-studio-main').innerText(),before,
+    'Changing evidence must update the worked example for Lesson '+lesson);
+   if(lesson===2)assert.equal(await studio.locator('svg[role=img]').count(),1,
+    'Fictional candle should remain a labeled visual learning example');
+   await page.locator('.academy-free-stage-button').nth(4).click();
+   const challenge=page.locator('.academy-studio-challenge');
+   assert.equal(await challenge.count(),1,'Every Free day has an independent ungraded choice');
+   await challenge.locator('input[type=radio]').nth(correctByLesson[lesson-1]).check();
+   await challenge.getByRole('button',{name:'Check my reasoning (ungraded)'}).click();
+   assert.match(await challenge.locator('[role=status]').innerText(),/does not award mastery/);
+   await challenge.getByRole('button',{name:'Teach this another way'}).click();
+   assert.match(await challenge.locator('[role=status]').innerText(),/Talia:/);
+   await challenge.getByRole('button',{name:'Try another example'}).click();
+   assert.equal(await challenge.getByRole('button',{name:'Check my reasoning (ungraded)'}).isDisabled(),true);
+   await page.locator('.academy-free-stage-button').nth(8).click();
+   assert.match(await page.locator('.academy-studio-preview').innerText(),/Basic Historical Replay Setup/);
+   assert.equal(await page.locator('.academy-studio-preview a[href="labs.html"]').count(),1);
+  }
   await page.locator('#academy-days .gu-bc-day').nth(1).click();
   assert.equal(await page.locator('.academy-free-figure svg').count(),1);
   await page.locator('.academy-free-stage-button').nth(1).click();
