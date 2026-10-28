@@ -148,6 +148,18 @@ async function finishTrade(price,reason){pause();const c=current(),p=SIM.positio
 async function manualExit(){if(!SIM.position?.open)return;await finishTrade(current().close,$('sim-exit-reason').value||'Other')}
 function resolveAmbiguous(which){if(!SIM.ambiguous||!SIM.position?.open)return;SIM.position.ambiguousBars=(SIM.position.ambiguousBars||0)+1;const p=SIM.position;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(which==='stop')finishTrade(p.stop,'Stop / risk exit');else if(which==='target')finishTrade(p.target,'Planned target');else{smsg('sim-trade-msg','Ambiguous candle acknowledged. Position remains open.','success');renderAll()}}
 function downloadTemplate(){const txt='timestamp,open,high,low,close,volume,data_classification\n2040-01-02T09:30:00-05:00,10.00,10.08,9.96,10.05,125000,fictional_illustrative\n2040-01-02T09:35:00-05:00,10.05,10.12,10.01,10.09,143000,fictional_illustrative\n';const blob=new Blob([txt],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ground-up-simulator-template.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function clearSimulatorOnSessionLoss(){
+ // Never retain an old member's client-inspectable provider history on account change.
+ pause();
+ try{window.CrownlightLive?.stop?.()}catch{}
+ try{window.CrownlightStudio?.clearMemberState?.()}catch{}
+ SIM.candles=[];SIM.index=0;SIM.startIndex=0;SIM.maxIndexSeen=0;
+ SIM.position=null;SIM.ambiguous=null;SIM.journalId=null;SIM.linkedJournalId=null;
+ SIM.planLocked=false;SIM.contextEnvelope=null;SIM.sourceName=null;SIM.sourceProvider='csv_upload';
+ SIM.sourceNote='';SIM.sourceFeed=null;SIM.originalFictional=false;SIM.hasPremium=false;SIM.user=null;
+ const content=$('sim-content');if(content){content.hidden=true;content.replaceChildren()}
+ const gate=$('sim-gate');if(gate)gate.textContent='Your session changed. Sign in and reload the Simulator to continue.';
+}
 async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupabaseClient();const {data:{user}}=await SIM.sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to use the Market Simulator.</div>';return}SIM.user=user;
  const {data:{session}}=await SIM.sb.auth.getSession();
  if(!session?.access_token)throw new Error('A verified session is required for the Market Simulator.');
@@ -167,7 +179,7 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
   getSymbol:()=>$('sim-ticker')?.value||'AAPL',
   getSession:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session||null}})}catch(e){console.warn('Optional live candle formation initialization failed',e)}
  try{SIM.sb.auth.onAuthStateChange?.((event,session)=>{
-  if(event==='SIGNED_OUT'||session?.user?.id&&session.user.id!==SIM.user.id)window.CrownlightLive?.stop?.();
+  if(event==='SIGNED_OUT'||(session?.user?.id&&SIM.user&&session.user.id!==SIM.user.id))clearSimulatorOnSessionLoss();
  })}catch(e){console.warn('Optional live-auth monitoring failed',e)}
  $('load-csv').onclick=loadCSV;if($('sim-load-fictional'))$('sim-load-fictional').onclick=loadFictionalPractice;if($('load-provider'))$('load-provider').onclick=loadProvider;$('load-demo-template').onclick=downloadTemplate;if($('sim-source'))$('sim-source').onchange=()=>{
  const connected=['tiingo','alpaca'].includes($('sim-source').value);

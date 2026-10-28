@@ -15,11 +15,14 @@ async function scenario(width,kind='free'){
  const context=await browser.newContext({viewport:{width,height:Math.max(750,Math.round(width*.6))}});
  await context.addInitScript(({kind})=>{
   const user=kind==='guest'?null:{id:'00000000-0000-4000-8000-000000000123'};
+  let signedIn=true;
+  const authListeners=[];
+  window.__qaSignOut=()=>{signedIn=false;for(const handler of authListeners)handler('SIGNED_OUT',null)};
   window.getSupabaseClient=async()=>({
    auth:{
-    getUser:async()=>({data:{user}}),
-    getSession:async()=>({data:{session:user?{user,access_token:'fixture-only-not-real'}:null}}),
-    onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
+    getUser:async()=>({data:{user:signedIn?user:null}}),
+    getSession:async()=>({data:{session:signedIn&&user?{user,access_token:'fixture-only-not-real'}:null}}),
+    onAuthStateChange:handler=>{authListeners.push(handler);return {data:{subscription:{unsubscribe(){}}}}}
    }
   });
  },{kind});
@@ -112,6 +115,13 @@ async function scenario(width,kind='free'){
    await page.locator('#sim-mode-csv').click();
    assert.equal(await page.locator('#sim-legacy-mode').isVisible(),true);
    assert.equal(await page.locator('#sim-next').isEnabled(),true);
+   if(kind==='studio'){
+    await page.evaluate(()=>window.__qaSignOut());
+    await page.waitForFunction(()=>document.querySelector('#sim-content')?.hidden===true && SIM.candles.length===0);
+    assert.equal(await page.locator('#sim-content').isVisible(),false,'Previous member Simulator controls must be hidden');
+    assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().revealed),0,'Tier cache must lose prior member bars');
+    assert.match(await page.locator('#sim-gate').innerText(),/session changed/i);
+   }
    console.log('PASS '+width+'px '+kind+' member loaded 36 fictional bars and advanced chart with provider gated.');
   }else if(kind==='restricted'){
    await page.waitForFunction(()=>document.querySelector('#sim-gate')?.textContent.includes('not eligible'),{timeout:15000});

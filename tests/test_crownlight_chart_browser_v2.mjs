@@ -89,6 +89,10 @@ try{
    assert.deepEqual(errors,[],'Browser errors at '+width+'px');
    mkdirSync(join(root,'artifacts'),{recursive:true});
    await page.screenshot({path:join(root,'artifacts/crownlight-'+width+'px.png'),fullPage:true});
+   await page.evaluate(()=>window.CrownlightStudio.clearMemberState());
+   assert.equal(await page.evaluate(()=>window.CrownlightStudio.getStatus().revealed),0,'Chart observations must be scrubbed on session loss');
+   assert.equal(await page.locator('.crownlight-source').isVisible(),false,'Private source details hidden on session loss');
+   assert.equal(await page.locator('.crownlight-coach').isVisible(),false,'Private Talia notes hidden on session loss');
    console.log('PASS real Chromium '+width+'px: canvas, zoom/wheel, indicators, coaching, source, replay and responsive width');
   }finally{await context.close()}
  }

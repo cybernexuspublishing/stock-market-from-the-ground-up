@@ -378,5 +378,41 @@
   if(btn)btn.textContent=state.fullscreen?'Exit':'Expand';
   requestAnimationFrame(()=>state.chart?.resize(Math.max(280,state.shell.querySelector('.crownlight-plot').clientWidth),state.shell.querySelector('.crownlight-plot').clientHeight));
  }
- root.CrownlightStudio={render:redraw,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count,spacing:state.chart?.timeScale().options().barSpacing??null})};
+ function clearMemberState(){
+  // A user change must not leave provider candles, notes or studies visible in a former session.
+  state.sim=null;state.hover=null;state.userId=null;state.source='';state.count=0;
+  prefs={studies:defaults.map(x=>({...x})),levels:[],follow:true};
+  state.follow=true;
+  if(state.chart){
+   try{state.candles?.setData([]);state.volume?.setData([])}catch{}
+   state.series.forEach(s=>{try{state.chart.removeSeries(s)}catch{}});state.series=[];
+   state.lines.forEach(line=>{try{state.candles.removePriceLine(line)}catch{}});state.lines=[];
+   try{state.markerApi?.setMarkers([])}catch{}
+  }
+  if(state.modal){state.modal.remove();state.modal=null}
+  if(state.shell){
+   const title=state.shell.querySelector('[data-cl="hover-title"]');
+   const values=state.shell.querySelector('[data-cl="hover-data"]');
+   if(title)title.textContent='Sign in to view chart observations';
+   if(values)values.textContent='O — H — L — C — V —';
+   const source=state.shell.querySelector('.crownlight-source');
+   const coach=state.shell.querySelector('.crownlight-coach');
+   if(source)source.hidden=true;
+   if(coach)coach.hidden=true;
+   state.shell.querySelector('[data-cl="source-body"]')?.replaceChildren();
+   state.shell.querySelector('[data-cl="coach-body"]')?.replaceChildren();
+   const note=state.shell.querySelector('#crownlight-observation');
+   if(note)note.value='';
+   const feedback=state.shell.querySelector('[data-cl="coach-feedback"]');
+   if(feedback)feedback.textContent='';
+   const panel=state.shell.closest('.sim-chart-panel');
+   panel?.classList.remove('crownlight-expanded');
+  }
+  state.fullscreen=false;
+  document.body.classList.remove('crownlight-chart-expanded');
+  if(state.mounted)renderLegend();
+  root.dispatchEvent(new CustomEvent('crownlight:revealed-bars',
+   {detail:{symbol:'REPLAY',timeframe:'',source:'',bars:[]}}));
+ }
+ root.CrownlightStudio={render:redraw,clearMemberState,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count,spacing:state.chart?.timeScale().options().barSpacing??null})};
 })(window);
