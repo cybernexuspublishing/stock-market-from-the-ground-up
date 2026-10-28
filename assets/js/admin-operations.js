@@ -167,7 +167,7 @@ async function editForm(a){const info=await api('detail',null,{id:a.id}),account
    member.startsAt=info.effectiveAccess.startsAt||member.startsAt;
    member.endsAt=info.effectiveAccess.expiresAt||info.effectiveAccess.renewsAt||member.endsAt;
  }
- const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);
+ const d=dialog('Edit Account — '+account.username),box=$('[data-v1352-body]',d);box.dataset.userId=account.id;
  const roleOptions=[{role_code:'NONE',name:'No staff role'},...availableRoles];if(!roleOptions.some(x=>x.role_code==='OWNER'))roleOptions.push({role_code:'OWNER',name:'Owner / Super Administrator (confirmation required)'});
  const toLocal=v=>{if(!v)return '';const x=new Date(v);if(!Number.isFinite(x.getTime()))return '';const shift=x.getTimezoneOffset()*60000;return new Date(x.getTime()-shift).toISOString().slice(0,16)};
  box.innerHTML=`<div class="v1353-account-editor"><form id="v1353-identity-form" class="v1352-grid">

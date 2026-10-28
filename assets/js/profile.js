@@ -8,6 +8,15 @@ async function loadProfilePage(){
   const {data:profile}=await sb.from('profiles').select('username,created_at,session_timeout_minutes').eq('id',user.id).maybeSingle();
   const {data:ents}=await sb.from('entitlements').select('status,product_key,ends_at').eq('user_id',user.id).in('status',['active','trialing']).limit(1);
   document.getElementById('profile-username').textContent=profile?.username?`@${profile.username}`:'Legacy account — username required';
+  const session=(await sb.auth.getSession()).data?.session;
+   if(session){try{const response=await fetch('/api/member-profile',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+    const result=await response.json();if(response.ok&&result.ok){
+     const p=result.profile;
+     document.getElementById('profile-public-title').textContent=p.titleLabel||'Market Learner';
+     document.getElementById('profile-public-bio').textContent=p.bio||'No biography added yet.';
+     if(p.avatarUrl)document.getElementById('profile-public-avatar').src=p.avatarUrl;
+    }}catch{}}
+
   document.getElementById('profile-email').textContent=user.email||'';
   document.getElementById('profile-member-since').textContent=profile?.created_at?new Date(profile.created_at).toLocaleDateString():'—';
   const active=(ents||[]).find(e=>!e.ends_at||new Date(e.ends_at).getTime()>Date.now());

@@ -53,7 +53,7 @@ function mount(root){
  // Each original form's submit handlers are left in place; moving DOM nodes is not required.
  show('identity');
  if(modal?.open){
-  const uid=modal.querySelector('[data-account-id]')?.dataset?.accountId||
+  const uid=modal.querySelector('[data-v1352-body]')?.dataset?.userId||
     new URLSearchParams(location.search).get('userId');
   if(uid&&/^[0-9a-f-]{36}$/i.test(uid))void memberSummary(root,uid);
  }

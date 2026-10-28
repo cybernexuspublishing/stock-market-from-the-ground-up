@@ -1,6 +1,6 @@
 /* Nonprivileged member presentation controls: never assigns actual permissions. */
 (()=>{'use strict';if(!/^\/dashboard(?:\.html)?$/.test(location.pathname))return;
-const $=(s,r=document)=>r.querySelector(s),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':'&#39;'}[c]));
+const $=(s,r=document)=>r.querySelector(s),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const route='/api/member-profile';let mounting=false;
 const avatars=Object.freeze(['f1','f2','f3','m1','m2','m3','n1','n2','n3']);
 async function session(){const sb=await window.getSupabaseClient();const {data,error}=await sb.auth.getSession();if(error||!data?.session)throw Error('Sign in to edit your profile.');return{sb,token:data.session.access_token,userId:data.session.user.id}}
