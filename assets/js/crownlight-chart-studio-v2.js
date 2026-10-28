@@ -93,7 +93,7 @@
    if(!state.sim||param?.time===undefined||!param.time){return}
    const ms=Number(param.time)*1000;
    const rows=state.sim.candles.slice(0,state.sim.index+1);
-   const bar=rows.find(b=>b.time.getTime()===ms);
+   const bar=rows.find(b=>Math.floor(b.time.getTime()/1000)===Number(param.time));
    if(bar){state.hover=bar;showHover(bar)}
   });
   const actions=shell.querySelector('.crownlight-toolbar-actions');
@@ -239,7 +239,7 @@
    ['Loaded bar count',sim.candles.length+' (client-inspectable for this practice mode)'],
    ['Revealed bars',sim.index+1],
    ['Time zone','America/New_York'],
-   ['Current session',MathLib().session(sim.candles[sim.index]).kind],
+   ['Current session',sim.candles[sim.index]?MathLib().session(sim.candles[sim.index]).kind:'No candles loaded'],
    ['Trade counts',visible.some(b=>Number.isFinite(b.tradeCount))?'Available on revealed bars':'Not supplied on revealed bars'],
    ['Per-bar provider VWAP',visible.some(b=>Number.isFinite(b.providerVwap))?'Available on revealed bars':'Not supplied on revealed bars'],
    ['Outside 04:00–20:00 ET',outside+' revealed bars (provider timestamp retained; verify coverage)'],
