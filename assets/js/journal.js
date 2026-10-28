@@ -46,5 +46,20 @@ async function exportJournal(){
  }catch(err){const note=document.getElementById('gu-v2-list-limits');
   if(note)note.textContent='Journal export could not be completed: '+String(err?.message||'Unknown error');}
 }
-async function initJournal(){const gate=document.getElementById('journal-gate');try{JSTATE.sb=await window.getSupabaseClient();const {data:{user}}=await JSTATE.sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to use the Trading Journal.</div>';return}JSTATE.user=user;JSTATE.tax=await window.JournalTools.taxonomy();const type=document.getElementById('new-type');type.innerHTML=JSTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');const session=document.getElementById('new-session');JSTATE.tax.sessions.forEach(x=>session.insertAdjacentHTML('beforeend',`<option>${window.JournalTools.esc(x)}</option>`));document.getElementById('new-date').value=new Date().toISOString().slice(0,10);gate.innerHTML='';document.getElementById('journal-content').hidden=false;document.getElementById('new-journal-toggle').onclick=()=>document.getElementById('new-journal-panel').hidden=false;document.getElementById('cancel-new-journal').onclick=()=>document.getElementById('new-journal-panel').hidden=true;document.getElementById('new-journal-form').addEventListener('submit',createJournal);['journal-type-filter','journal-status-filter'].forEach(id=>document.getElementById(id).addEventListener('change',renderJournal));document.getElementById('journal-search').addEventListener('input',renderJournal);document.getElementById('export-journal').onclick=exportJournal;await loadRows();await showFreeUsage()}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools?.esc(err.message)||err.message}</div>`}}
+async function initJournal(){const gate=document.getElementById('journal-gate');try{JSTATE.sb=await window.getSupabaseClient();const {data:{user}}=await JSTATE.sb.auth.getUser();if(!user){gate.innerHTML='<div class="notice">Sign in to use the Trading Journal.</div>';return}JSTATE.user=user;
+ JSTATE.sb.auth.onAuthStateChange((_event,session)=>{
+  if(session?.user?.id===JSTATE.user?.id)return;
+  // The Journal list contains private member notes, not just public symbols.
+  // Immediately scrub rendered rows and free usage after a changed identity.
+  JSTATE.user=null;JSTATE.rows=[];JSTATE.truncated=false;
+  document.getElementById('journal-rows')?.replaceChildren();
+  document.getElementById('journal-content').hidden=true;
+  document.getElementById('new-journal-form')?.reset();
+  for(const id of ['journal-free-usage','gu-v2-list-limits']){
+   const el=document.getElementById(id);if(el)el.textContent='';
+  }
+  gate.textContent='Account session changed. Reload to access your own private Journal.';
+  window.dispatchEvent(new CustomEvent('gu-journal-rows-loaded',{detail:{rows:[],truncated:false}}));
+ });
+ JSTATE.tax=await window.JournalTools.taxonomy();const type=document.getElementById('new-type');type.innerHTML=JSTATE.tax.journalTypes.map(x=>`<option value="${x.value}">${x.label}</option>`).join('');const session=document.getElementById('new-session');JSTATE.tax.sessions.forEach(x=>session.insertAdjacentHTML('beforeend',`<option>${window.JournalTools.esc(x)}</option>`));document.getElementById('new-date').value=new Date().toISOString().slice(0,10);gate.innerHTML='';document.getElementById('journal-content').hidden=false;document.getElementById('new-journal-toggle').onclick=()=>document.getElementById('new-journal-panel').hidden=false;document.getElementById('cancel-new-journal').onclick=()=>document.getElementById('new-journal-panel').hidden=true;document.getElementById('new-journal-form').addEventListener('submit',createJournal);['journal-type-filter','journal-status-filter'].forEach(id=>document.getElementById(id).addEventListener('change',renderJournal));document.getElementById('journal-search').addEventListener('input',renderJournal);document.getElementById('export-journal').onclick=exportJournal;await loadRows();await showFreeUsage()}catch(err){gate.innerHTML=`<div class="notice">${window.JournalTools?.esc(err.message)||err.message}</div>`}}
 document.addEventListener('DOMContentLoaded',initJournal);
