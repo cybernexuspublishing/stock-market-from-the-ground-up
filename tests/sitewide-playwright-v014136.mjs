@@ -68,7 +68,13 @@ async function newPage(width){
  contexts.push(ctx);
  // Never contact Stripe, live Supabase, Google, or external auth providers.
  await ctx.route('**/*',route=>{
-  if(originAllowed(route.request().url()))return route.continue();
+  const url=route.request().url();
+  // Offline fixture: simulate a verified beta with seats remaining. No real provider calls.
+  if(originAllowed(url)&&new URL(url).pathname==='/api/founding-offer-status')
+   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    ok:true,offersVisible:true,publicLaunch:false,phase:'beta',remaining:600,enrollmentEnabled:true
+   })});
+  if(originAllowed(url))return route.continue();
   return route.abort();
  });
  const page=await ctx.newPage();
@@ -118,8 +124,9 @@ try{
       'Staged 14-day Starter must remain visible in source-controlled terms');
      assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
       'Staged Starter must not offer a direct purchase link');
-     assert.equal(await tab.locator('#store-tab-memberships').count(),0,
-      'Owner-hidden legacy memberships must not appear beside Founding 600');
+     assert.equal(await tab.locator('#store-tab-memberships').count(),1);
+     assert.equal(await tab.locator('#store-tab-memberships').isVisible(),false,
+      'Public-launch Membership tab must remain hidden during founding beta');
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
      await tab.waitForFunction(()=>Boolean(
