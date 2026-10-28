@@ -49,8 +49,9 @@
    card.append(element('h3',labels[pass.code]+' Ad-Free Pass'),
     element('p',pass.costSparks+' Sparks','spark-cost'));
    const action=element('button','Redeem '+pass.costSparks+' Sparks','btn');
-   action.type='button';action.disabled=ledger.wallet.available<pass.costSparks;
-   if(action.disabled)card.append(element('p','Insufficient Sparks','small'));
+   action.type='button';action.disabled=pass.redeemEnabled!==true||ledger.wallet.available<pass.costSparks;
+   if(pass.redeemEnabled!==true)card.append(element('p','This pass is not available for redemption yet.','small'));
+   else if(action.disabled)card.append(element('p','Insufficient Sparks','small'));
    else card.append(element('p','This pass extends any active ad-free time.','small'));
    action.addEventListener('click',async()=>{
     const approval=window.confirm('Spend '+pass.costSparks+' Crownlight Sparks for '+labels[pass.code]+
