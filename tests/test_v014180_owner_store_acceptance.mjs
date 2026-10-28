@@ -54,6 +54,7 @@ try {
   if(target.includes('gu_founder_members_v014173')||target.includes('gu_founder_reservations_v014173'))return Response.json([]);
   if(target.includes('gu_store_layout_v1'))return Response.json([]);
   if(target.includes('gu_storefront_items_v014174')){
+   if(target.includes('category=eq.founding'))return Response.json(liveRows.filter(x=>x.category==='founding'));
    assert.match(target,/visible=eq.true/);
    return Response.json(liveRows);
   }
