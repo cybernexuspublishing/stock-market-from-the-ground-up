@@ -25,12 +25,44 @@ with sync_playwright() as p:
  assert page.locator('#gu39-payment-mode').is_disabled()
  assert page.locator('#gu39-shadow button:has-text("Open Stripe Test Checkout")').is_disabled()
  assert 'Live Customer Checkout' in page.locator('#gu39-shadow').inner_text()
+ assert page.locator('#gu71-zero-live-checkout').is_visible(), 'Owner zero-dollar QA control must be visible independently of TEST state'
+ assert page.locator('#gu71-owner-nav-shortcut').is_visible(), 'Owner needs a directly discoverable Admin navigation shortcut'
+ assert page.locator('#gu71-owner-commerce-shortcut').is_visible(), 'Owner needs a direct Payments & Billing section shortcut'
+ # The public storefront may have fewer than 50 visible entries after unready items are hidden.
+ page.evaluate("""()=>{window.fetch=async(url)=>String(url).includes('/api/storefront-public-catalog')
+  ? new Response(JSON.stringify({ok:true,items:[{sku:'book:FOUNDATION_BOOK_1',name:'Foundations I'}]}),{status:200,headers:{'content-type':'application/json'}})
+  : new Response(JSON.stringify({ok:true,role:'OWNER',enabled:false,cloudflareGate:false,priceIdsConfigured:0}),{status:200,headers:{'content-type':'application/json'}})}""")
+ page.locator('#gu71-owner-nav-shortcut').click()
+ assert page.locator('#gu71-zero-live-checkout').evaluate('(e)=>e.open') is True
+ page.wait_for_function("document.querySelector('#gu71-qa-target-sku').dataset.catalogLoaded === '1'",timeout=3000)
+ assert page.locator('#gu71-qa-target-sku option').count()==3, 'General, independent Founding 14 and one visible catalog record'
  assert 'SHADOW' not in page.locator('#gu39-shadow').inner_text().upper() or True # no live access marker required
  page.close()
+ # A failed *sandbox* status API must never hide the independent Owner-only LIVE $0 UI.
+ blocked=browser.new_page();blocked.set_content(html)
+ blocked.evaluate("""()=>{window.ADMIN={ctx:{roles:['OWNER'],permissions:['commerce.view']}};window.SITE_CONFIG={VERSION:'0.14.0.149'};
+  window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:'mock-owner-jwt'}}})}});
+  window.fetch=async()=>new Response(JSON.stringify({ok:false,error:'OWNER_TEST_MODE_DISABLED'}),{status:503,headers:{'content-type':'application/json'}})}""")
+ blocked.add_script_tag(content=card.replace('location.pathname',"'/admin.html'"))
+ blocked.locator('#gu39-shadow').wait_for(timeout=2000)
+ assert blocked.locator('#gu71-zero-live-checkout').is_visible(), 'Sandbox API failure hid Owner zero-dollar diagnostic'
+ assert blocked.locator('#gu71-owner-nav-shortcut').count()==1
+ assert blocked.get_by_role('button',name='Check $0 LIVE QA Product — No Checkout').is_enabled()
+ blocked.close()
+ # An ADMIN may view sandbox diagnostics but must never see the Owner-only LIVE diagnostic.
+ nonowner=browser.new_page();nonowner.set_content(html)
+ nonowner.evaluate("""()=>{window.ADMIN={ctx:{roles:['ADMIN'],permissions:['commerce.view']}};window.SITE_CONFIG={VERSION:'0.14.0.149'};
+  window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{access_token:'mock-admin-jwt'}}})}});
+  window.fetch=async()=>new Response(JSON.stringify({ok:true,role:'ADMIN',enabled:false,cloudflareGate:false}),{status:200,headers:{'content-type':'application/json'}})}""")
+ nonowner.add_script_tag(content=card.replace('location.pathname',"'/admin.html'"))
+ nonowner.locator('#gu39-shadow').wait_for(timeout=2000)
+ assert nonowner.locator('#gu71-zero-live-checkout').is_hidden()
+ assert nonowner.locator('#gu71-owner-nav-shortcut').count()==0
+ nonowner.close()
  hidden=browser.new_page();hidden.set_content(html.replace('<button data-panel="commerce">','<button hidden data-panel="commerce">'))
  hidden.evaluate("window.ADMIN={ctx:{roles:['MODERATOR'],permissions:['commerce.view']}}")
  hidden.add_script_tag(content=card.replace('location.pathname',"'/admin.html'"))
  hidden.wait_for_timeout(600)
  assert hidden.locator('#gu39-shadow').count()==0
  hidden.close();browser.close()
-print('PASS v39: shadow panel mounts for authorized Commerce, fails closed without enabled staff tab, defaults OFF')
+print('PASS v39+GU71: Owner LIVE $0 access visible despite failed TEST status, safe sparse catalog, clear shortcuts and ADMIN role isolation')
