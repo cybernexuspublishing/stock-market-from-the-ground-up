@@ -109,15 +109,18 @@ async function testModeOff(c){
 async function product(c,kind,code){const key=kind+':'+code;if(!products.has(key))throw err('Product not included in this test.',403);
  const isPlan=kind==='plan', path=isPlan?`platform_plans?select=*&plan_code=eq.${code}&limit=1`:`platform_tools?select=*&tool_code=eq.${code}&limit=1`;
  const r=(await db(c,path))[0];
-// Public Store visibility controls discovery, never payment authorization.
+// Public visibility is an explicit payment authorization gate as well as a discovery gate.
+// A hidden catalog item must never be purchaseable by guessing its URL.
 // Plans always require checkout_enabled=true. Tools honor the new canonical
 // Owner checkout_enabled flag when present; older deployments without that
 // column retain their historical status='live' gate until migrated. Current
 // production has the column, so a false toggle is authoritative and blocks.
-if(!r||r.active!==true||
+if(!r||r.active!==true||r.public_visible!==true||
    (isPlan&&r.checkout_enabled!==true)||
-   (!isPlan&&r.checkout_enabled===false)||
+   (!isPlan&&r.checkout_enabled!==true)||
    (!isPlan&&r.status!=='live'))throw err('This product is not enabled for checkout.',403);
+ const listing=(await db(c,'gu_storefront_items_v014174?select=visible,sale_ready,status&sku=eq.'+encodeURIComponent(key)+'&limit=1'))[0];
+ if(!listing||listing.visible!==true||listing.sale_ready!==true||listing.status!=='for_sale')throw err('Product is not published for checkout.',403);
  const amount=Number(isPlan?r.price_cents:r.individual_price_cents),bill=isPlan?r.billing_interval:'month';
  if(!Number.isSafeInteger(amount)||amount<1||!['month','year','lifetime'].includes(bill))throw err('Invalid catalog price.',503);
  const name=String(r.name||'').trim();

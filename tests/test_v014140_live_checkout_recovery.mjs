@@ -60,6 +60,7 @@ globalThis.fetch=async(url,options={})=>{
  if(s.includes('/profiles?'))return json([{account_kind:'member'}]);
  if(s.includes('/admin_user_flags?')||s.includes('/admin_user_roles?'))return json([]);
  if(s.includes('/account_private_identity?'))return json([{age_eligible:true,date_of_birth:'1990-01-01'}]);
+ if(s.includes('/gu_storefront_items_v014174?'))return json([{visible:true,sale_ready:true,status:'for_sale'}]);
  if(s.includes('/platform_plans?'))return json([{active:true,public_visible:true,
   checkout_enabled:true,price_cents:6999,billing_interval:'month',name:'Full Platform Monthly'}]);
  if(s.includes('/site_subscriptions?')||s.includes('/user_tool_passes?')||s.includes('/user_plan_grants?'))return json([]);
@@ -131,6 +132,8 @@ const reset=()=>Object.assign(state,{pending:null,created:0,postStripe:0,provide
  patched:0,insertRace:false,failPatch:false,zeroPatch:false,invalidLinePrice:false,invalidProvider:false,
  alreadyPaid:false,expired:false,unknownStatus:false,key:null,postIntent:null,
  firstKey:null,sessionBody:null});
+// A guessed direct checkout URL is not authority to buy a hidden SKU.
+// Product publication and the independent storefront release flag are checked on every attempt.
 const row=(status='prepared',extra={})=>({id:intent,user_id:uid,sku_kind:'plan',
  sku_code:'FULL_MONTHLY',price_id:price,quoted_amount_cents:6999,currency:'usd',
  stripe_session_id:status==='checkout_created'?state.sessionId:null,

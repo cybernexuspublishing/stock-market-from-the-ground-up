@@ -81,16 +81,27 @@ export async function onRequestGet({env}){
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
   const tiers=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled');
+  const [publicPlans,storeRows]=await Promise.all([
+   rest(c,'platform_plans?select=plan_code,active,public_visible,checkout_enabled&plan_code=in.(FOUNDING_14,FOUNDING_30,FOUNDING_60)'),
+   rest(c,'gu_storefront_items_v014174?select=sku,visible,sale_ready,status&category=eq.founding')
+  ]);
+  const published=plan=>{
+   const p=publicPlans.find(x=>x.plan_code===plan);
+   const item=storeRows.find(x=>x.sku==='founding:'+plan);
+   return p?.active===true&&p.public_visible===true&&p.checkout_enabled===true
+     &&item?.visible===true&&item.sale_ready===true&&item.status==='for_sale';
+  };
   const originalTiers=tiers.filter(t=>t.plan_code==='FOUNDING_30'||t.plan_code==='FOUNDING_60');
   const starter=tiers.find(t=>t.plan_code==='FOUNDING_14');
   enabled=offer.enrollmentEnabled===true&&state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
-   &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true);
-  starterReady=!!(enabled&&c.map.FOUNDING_14?.priceId&&starter?.checkout_enabled===true);
+   &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true)
+   &&originalTiers.every(t=>published(t.plan_code));
+  starterReady=!!(enabled&&c.map.FOUNDING_14?.priceId&&starter?.checkout_enabled===true&&published('FOUNDING_14'));
  }catch{enabled=false}
  return json({ok:true,checkoutEnabled:enabled,offersVisible:offer.offersVisible===true,phase:offer.phase,remaining:offer.remaining,plans:[
   {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:starterReady},
-  {code:'FOUNDING_30',priceCents:4999,billingDays:30},
-  {code:'FOUNDING_60',priceCents:5999,billingDays:60}
+  {code:'FOUNDING_30',priceCents:4999,billingDays:30,checkoutEnabled:enabled&&published('FOUNDING_30')},
+  {code:'FOUNDING_60',priceCents:5999,billingDays:60,checkoutEnabled:enabled&&published('FOUNDING_60')}
  ]});
 }
 export async function onRequestPost({request,env}){
@@ -107,6 +118,18 @@ export async function onRequestPost({request,env}){
   const row=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled,price_cents,term_days&plan_code=eq.'+plan+'&limit=1');
   if(row.length!==1||row[0].checkout_enabled!==true||row[0].price_cents!==plans[plan].amount||row[0].term_days!==plans[plan].days||!c.map[plan])
    throw fail('This founding plan is not accepting payments.',409);
+  // Explicit Admin publication is independent from a catalogue price or a
+  // LIVE provider flag. Hidden and not-for-sale entries fail before Stripe.
+  const [publicPlanRows,storeRows,overrides]=await Promise.all([
+    rest(c,'platform_plans?select=active,public_visible,checkout_enabled&plan_code=eq.'+plan+'&limit=1'),
+    rest(c,'gu_storefront_items_v014174?select=visible,sale_ready,status&sku=eq.'+encodeURIComponent('founding:'+plan)+'&limit=1'),
+    rest(c,'store_product_overrides_v014175?select=store_visible,lifecycle&sku=eq.'+plan+'&limit=1')
+  ]);
+  if(publicPlanRows[0]?.active!==true||publicPlanRows[0]?.public_visible!==true
+    ||publicPlanRows[0]?.checkout_enabled!==true
+    ||storeRows[0]?.visible!==true||storeRows[0]?.sale_ready!==true||storeRows[0]?.status!=='for_sale'
+    ||overrides[0]?.store_visible!==true||overrides[0]?.lifecycle!=='release_ready')
+   throw fail('This founding plan is hidden or not released for purchase.',409);
   const account=await stripe(c,'account');if(account.id!==c.acct)throw fail('Payment account mismatch.');
   const pm=c.map[plan],price=await stripe(c,'prices/'+encodeURIComponent(pm.priceId)),expected=plans[plan];
   if(price.id!==pm.priceId||price.product!==pm.productId||price.livemode!==true||price.active!==true

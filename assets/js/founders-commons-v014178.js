@@ -14,13 +14,13 @@ function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefi
 function appendText(parent,tag,value,cls){const n=node(tag,value,cls);parent.append(n);return n}
 function link(href,text,cls){const n=node('a',text,cls);n.href=href;return n}
 function errorNotice(parent,detail){parent.replaceChildren(node('p',detail,'gu-f600-empty'))}
-function planName(plan){return plan==='LIFETIME'?'Lifetime Member':plan==='FOUNDING_60'?'60-Day Extended':plan==='FOUNDING_30'?'30-Day Standard':'Not currently subscribed'}
+function planName(plan){return plan==='LIFETIME'?'Lifetime Member':plan==='FOUNDING_60'?'60-Day Extended':plan==='FOUNDING_30'?'30-Day Standard':plan==='FOUNDING_14'?'14-Day Starter':'Not currently subscribed'}
 function identity(info,qa=false){
  const p=el('gu-f600-identity');p.replaceChildren();
  if(info?.founderNumber){
   appendText(p,'strong','Founding #'+String(info.founderNumber).padStart(4,'0'));
   appendText(p,'span','Current access: '+planName(info.currentPlan));
-  appendText(p,'span',info.earnedTier==='FOUNDING_60'?'Earned Extended Founder':'Standard Founder');
+  appendText(p,'span',info.earnedTier==='FOUNDING_60'?'Earned Extended Founder':info.earnedTier==='FOUNDING_14'?'Earned Starter Founder':'Standard Founder');
  }else if(qa){
   appendText(p,'strong','Authorized Beta Tester');
   appendText(p,'span','Temporary 30-day learning QA access · no paid Founding status or benefits');

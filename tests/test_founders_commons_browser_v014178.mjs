@@ -14,6 +14,7 @@ window.getSupabaseClient=async()=>({
    if(name==='gu_founder_my_status_v014174')
      return {data:(${JSON.stringify(mode)}==='denied'||${JSON.stringify(mode)}==='qa'||isStaff)?{eligible:false}:
        ${JSON.stringify(mode)}==='standard'?{eligible:true,founderNumber:42,earnedTier:'FOUNDING_30',currentPlan:'FOUNDING_30',council:false}:
+       ${JSON.stringify(mode)}==='starter'?{eligible:true,founderNumber:14,earnedTier:'FOUNDING_14',currentPlan:'FOUNDING_14',council:false}:
        {eligible:true,founderNumber:86,earnedTier:'FOUNDING_60',currentPlan:'FOUNDING_60',council:true},error:null};
    if(name==='gu_commons_staff_read_v20261028')return {data:isStaff,error:null};
    if(name==='gu_founder_commons_access_v014174')return {data:${JSON.stringify(mode)}!=='denied',error:null};
@@ -33,7 +34,7 @@ window.getSupabaseClient=async()=>({
      ['F600_TRACKER','Feedback and Development Tracker']
    ])};
    const types={
-     commons_forums:categories.filter(([id])=>${JSON.stringify(mode)}!=='standard'||id!=='F600_COUNCIL').map(([forum_code,name])=>({forum_code,name,description:'Private founding educational discussion'})),
+     commons_forums:categories.filter(([id])=>!['standard','starter'].includes(${JSON.stringify(mode)})||id!=='F600_COUNCIL').map(([forum_code,name])=>({forum_code,name,description:'Private founding educational discussion'})),
      commons_topics:[{id:98,forum_code:'F600_MEMBERSHIP',title:'Crownlight Sparks: included and purchased',body:'## WHAT CHANGED\\nCrownlight Sparks are nonexpiring learning credits.\\n\\n## DISCUSSION EXERCISE\\nNine Sparks minus four Sparks leaves five Sparks.',status:'published',is_official:true,author_label:'Official Founders Team',created_at:'2026-10-28T00:00:00Z',reply_count:0}],
      commons_posts:[],
      gu_founder_issues_v014176:[{topic_id:101,issue_kind:'bug',issue_state:'under_review',updated_at:'2026-10-24T17:00:00Z'}],
@@ -46,7 +47,7 @@ window.getSupabaseClient=async()=>({
 });`;
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
- for(const width of [390,900,1280,1440])for(const mode of ['denied','standard','extended','qa','admin','moderator']){
+ for(const width of [390,900,1280,1440])for(const mode of ['denied','starter','standard','extended','qa','admin','moderator']){
   const page=await browser.newPage({viewport:{width,height:920}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/assets/js/supabase-client.js',r=>r.fulfill({status:200,contentType:'application/javascript',body:stub(mode)}));
@@ -74,10 +75,11 @@ try{
       assert.match(await page.locator('#gu-f600-identity').innerText(),/Founders moderator/i);
       assert.doesNotMatch(await page.locator('#gu-f600-identity').innerText(),/Founding #|Earned Extended/i);
       assert.match(await page.locator('#gu-f600-status').innerText(),/staff oversight verified/i);
-    }else assert.match(await page.locator('#gu-f600-identity').innerText(),/Founding #00(42|86)/);
+    }else assert.match(await page.locator('#gu-f600-identity').innerText(),/Founding #00(14|42|86)/);
     assert.equal(await page.locator('#gu-f600-forums .gu-f600-forum').count(),8);
-    if(mode==='standard'||mode==='qa'){
-      assert.equal(await page.locator('#v13-commons a[href*="F600_COUNCIL"]').count(),0,'Standard Founder or QA member cannot navigate Design Council');
+    if(mode==='starter')assert.match(await page.locator('#gu-f600-identity').innerText(),/14-Day Starter|Earned Starter Founder/);
+    if(mode==='starter'||mode==='standard'||mode==='qa'){
+      assert.equal(await page.locator('#v13-commons a[href*="F600_COUNCIL"]').count(),0,'Starter, Standard or QA member cannot navigate Design Council');
       assert.match(await page.locator('#gu-f600-ballots').innerText(),/reserved for eligible Extended/i);
     }else if(mode==='admin'||mode==='moderator'){
       assert.equal(await page.locator('#v13-commons a[href*="F600_COUNCIL"]').count(),1,'Staff may inspect Council topics');
@@ -100,7 +102,7 @@ try{
  // This intentionally tests a mocked published Founder discussion and the real
  // production page/renderer source on localhost. It is NOT an authenticated
  // production acceptance of delegated staff credentials.
- for(const mode of ['standard','extended','admin','moderator']){
+ for(const mode of ['starter','standard','extended','admin','moderator']){
   const page=await browser.newPage({viewport:{width:1280,height:900}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/assets/js/supabase-client.js',r=>r.fulfill({status:200,contentType:'application/javascript',body:stub(mode)}));

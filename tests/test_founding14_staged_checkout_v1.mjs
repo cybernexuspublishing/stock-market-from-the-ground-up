@@ -18,7 +18,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
   FOUNDING_30:{priceId:'price_mock30',productId:'prod_mock30'},
   FOUNDING_60:{priceId:'price_mock60',productId:'prod_mock60'}
  })};
-let starterOpen=false,providerCalls=0,dbWrites=0;
+let starterOpen=false,founderPublished=false,providerCalls=0,dbWrites=0;
 const original=globalThis.fetch;const response=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
  const u=new URL(String(url));
@@ -28,6 +28,8 @@ globalThis.fetch=async(url,options={})=>{
  const p=u.pathname;
  if(p==='/rest/v1/gu_founder_release_v014173')return response([{public_launch_open:false,enrollment_enabled:true,billing_enabled:true,fulfillment_enabled:true}]);
  if(p==='/rest/v1/gu_founder_members_v014173'||p==='/rest/v1/gu_founder_reservations_v014173')return response([]);
+ if(p==='/rest/v1/platform_plans')return response(['FOUNDING_14','FOUNDING_30','FOUNDING_60'].map(plan_code=>({plan_code,active:true,public_visible:founderPublished,checkout_enabled:founderPublished})));
+ if(p==='/rest/v1/gu_storefront_items_v014174')return response(['FOUNDING_14','FOUNDING_30','FOUNDING_60'].map(code=>({sku:'founding:'+code,visible:founderPublished,sale_ready:founderPublished,status:founderPublished?'for_sale':'coming_soon'})));
  if(p==='/rest/v1/gu_founder_plans_v014173'){
   if(u.searchParams.has('plan_code'))return response([{plan_code:'FOUNDING_14',checkout_enabled:starterOpen,price_cents:2299,term_days:14}]);
   return response([
@@ -47,13 +49,17 @@ const req=()=>new Request(origin+'/api/founding600-checkout',{method:'POST',head
 },body:JSON.stringify({plan:'FOUNDING_14',autoRenewConsent:true,founderTermsConsent:true})});
 try{
  let r=await onRequestGet({env}),d=await r.json();
- assert.equal(r.status,200);assert.equal(d.checkoutEnabled,true);
- assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[false,undefined,undefined]);
+ assert.equal(r.status,200);assert.equal(d.checkoutEnabled,false,'Hidden founder listings must block checkout, even when payment gates are ready');
+ assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[false,false,false]);
  r=await onRequestPost({request:req(),env});assert.equal(r.status,409,'Unreleased 14-Day checkout must be refused before contacting Stripe');
  assert.equal(providerCalls,0);assert.equal(dbWrites,0);
  starterOpen=true;
  r=await onRequestGet({env});d=await r.json();
- assert.equal(d.plans[0].checkoutEnabled,true,'Only separate DB plan gate can expose Starter');
+ assert.equal(d.plans[0].checkoutEnabled,false,'Starter remains closed while hidden from the Store');
+ founderPublished=true;
+ r=await onRequestGet({env});d=await r.json();
+ assert.equal(d.checkoutEnabled,true);
+ assert.deepEqual(d.plans.map(x=>x.checkoutEnabled),[true,true,true],'Admin publishing plus all existing payment readiness gates is required');
  const bad={id:'prod_mock14',active:true,livemode:true,metadata:{site_sku:'FOUNDING_14',site_checkout_enabled:'false',fulfillment_verified:'false',payment_launch_approved:'false'}};
  assert.equal(foundingProductReadyForCheckout(bad,'FOUNDING_14','prod_mock14'),false);
  assert.equal(foundingProductReadyForCheckout({...bad,metadata:{site_sku:'FOUNDING_14',site_checkout_enabled:'true',fulfillment_verified:'true',payment_launch_approved:'true'}},'FOUNDING_14','prod_mock14'),true);
