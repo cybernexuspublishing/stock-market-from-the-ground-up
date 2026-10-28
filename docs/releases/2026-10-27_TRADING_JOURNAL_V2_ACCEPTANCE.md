@@ -59,6 +59,14 @@
 3. If a logged-in data integrity or privacy defect occurs, disable the affected V2 client control and investigate the specific RLS/API path; do not bypass entitlement or make private screenshots public.
 4. Reconcile any client-side calculation issues against the member's original locked plan and auditable actual correction history before correcting historical records.
 
+## V2.0 data-completeness and session-isolation hardening
+
+After the initial V2 build, the existing `assets/js/journal.js` list path was strengthened to fetch member-owned records in bounded 400-row pages instead of relying on a single PostgREST response (which can be capped). A 3,000-row safety ceiling is explicit: the table and process summary disclose possible older-record omissions; **CSV backup/export is blocked** rather than silently producing a partial archive. The V2 process review propagates that partial-history status. Sorting uses trade date, creation time and ID to limit unstable order; concurrent insertions during multi-page reads still require a fresh reload for perfect snapshot semantics.
+
+Both `journal.js` and the V2 process review clear member-specific data after session/account changes. Pagination responses are checked against the member ID that initiated the query before any rendering. These are database-authenticated, RLS-scoped reads, not a new server entitlement.
+
+**Remaining scale limitation:** At more than 3,000 rows, an authenticated server-side streaming/export and cursor-based pagination design would be needed for a complete export. This is a transparent future enhancement, not a claim that omitted records do not exist.
+
 ## Acceptance status
 
 **Implementation:** source complete after all paths and tests are committed.  
