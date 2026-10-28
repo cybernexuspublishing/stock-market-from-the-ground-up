@@ -31,18 +31,29 @@ async function signIn(){
  await page.goto(origin+'/signin.html?next='+encodeURIComponent('/dashboard.html'),{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#login-identifier').fill(email);
  await page.locator('#login-password').fill(password);
- await page.locator('.auth-card button[type="submit"]').click();
- // Verify the real SDK session first; some site revisions redirect to the
- // Dashboard instead of honoring a nested next URL. Chart launch is a separate step.
- try{
-  await page.waitForFunction(async()=>{
-   try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();
-    return !!data?.session?.access_token;}catch{return false}
-  },null,{timeout:20000});
- }catch(err){
-  const details={url:page.url(),message:await page.locator('#signin-message').textContent().catch(()=>null)};
-  throw Error('Real UI sign-in did not establish a browser session: '+JSON.stringify(details));
+ // The live GoTrue service has returned transient HTTP 500 (unexpected EOF
+ // / context canceled). Retry once ONLY for those exact infrastructure errors;
+ // never retry incorrect credentials, denied CAPTCHA or an unknown failure.
+ let signedIn=false;
+ for(let attempt=1;attempt<=2;attempt++){
+  await page.locator('.auth-card button[type="submit"]').click();
+  try{
+   await page.waitForFunction(async()=>{
+    try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();
+     return !!data?.session?.access_token;}catch{return false}
+   },null,{timeout:9000});
+   signedIn=true;break;
+  }catch{}
+  const message=String(await page.locator('#signin-message').textContent().catch(()=>'')); 
+  if(attempt<2&&/unexpected EOF|context canceled|internal server error|service temporarily unavailable/i.test(message)){
+   console.log('WARN transient authentication provider failure; retrying once without bypassing CAPTCHA.');
+   await page.waitForTimeout(1600);
+   continue;
+  }
+  throw Error('Real UI sign-in failed, without a verified QA identity: '+
+   JSON.stringify({message:message.slice(0,220),pathname:new URL(page.url()).pathname}));
  }
+ if(!signedIn)throw Error('Real UI sign-in was not confirmed');
  const atSignIn=await page.evaluate(async()=>{
   const sb=await window.getSupabaseClient();const [{data:session},{data:user,error}]=await Promise.all([
    sb.auth.getSession(),sb.auth.getUser()]);
