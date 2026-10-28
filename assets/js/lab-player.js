@@ -367,7 +367,19 @@ function syncPlayerMode(){
   const menu=q('player-mode-menu');if(menu)menu.hidden=true;
   if(trigger)trigger.setAttribute('aria-expanded','false');
  }
- const row=q('player-mode-restart-row');if(row)row.hidden=!restricted;
+ const row=q('player-mode-restart-row');
+ if(row){
+  row.hidden=!restricted;
+  const note=row.querySelector('.small');
+  if(note)note.textContent='Restart locked at this decision boundary. Crownlight Sparks full-restart authorization is not yet enabled.';
+ }
+ const restart=q('player-restart-mode');
+ if(restart){
+  // The current Sparks service covers question Reveal/Skip only. It cannot
+  // charge or authorize a full-Lab restart; fail closed at the stage lock.
+  restart.disabled=restricted;
+  restart.title=restricted?'Requires an authenticated full-Lab restart entitlement. No Sparks were charged.':'';
+ }
 }
 /* The protected training API, not the browser, verifies that a reviewed
  * assessment question bank exists before members reset or change modes. */
@@ -432,6 +444,11 @@ function inlineModeConfirmation(nextMode,allowChoice=false){
  cancel.textContent='Cancel';yes.textContent='Yes, Continue';
  cancel.addEventListener('click',()=>{target.hidden=true;target.replaceChildren();syncPlayerMode()});
  yes.addEventListener('click',async()=>{
+  if(PLAYER.locked||currentPlayerPolicy().stage>=3){
+   target.replaceChildren();
+   target.textContent='Restart is locked. A verified Crownlight Sparks full-restart service is not yet available. No credits were charged.';
+   syncPlayerMode();return;
+  }
   const destination=picker?.value||nextMode;
   yes.disabled=true;
   const ready=await assessmentModeReady(destination);
@@ -511,6 +528,86 @@ async function loadMemberFirstName(session){
  }catch{return fallback}
  finally{clearTimeout(timer)}
 }
+/* Curriculum navigator: only publication status and names are public.
+ * Member entitlements are always enforced by the selected destination API. */
+async function populateLearningDestinationSelector(currentLab){
+ const picker=q('player-reference-select');
+ if(!picker||!currentLab?.id)return;
+ const epoch=labPlayerSessionEpoch,current='lab:'+currentLab.id;
+ picker.replaceChildren();
+ const appendOption=(host,text,value,disabled=false)=>{
+  const option=document.createElement('option');
+  option.textContent=text;option.value=value;option.disabled=disabled;
+  host.append(option);return option;
+ };
+ appendOption(picker,labTopic(currentLab)+' · '+currentLab.id,current);
+ picker.value=current;
+ const read=async url=>{
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+  try{
+   const response=await fetch(url,{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw Error('Catalog unavailable');
+   return await response.json();
+  }finally{clearTimeout(timer)}
+ };
+ const results=await Promise.allSettled([
+  read('/data/competency-lab-paths-v01499.json'),
+  read('/api/lab-release-availability'),
+  read('/api/bootcamp-academy?action=catalog')
+ ]);
+ if(epoch!==labPlayerSessionEpoch||PLAYER.lab?.id!==currentLab.id)return;
+ picker.replaceChildren();
+ const catalog=results[0].status==='fulfilled'?results[0].value:null;
+ const release=results[1].status==='fulfilled'?results[1].value:null;
+ const academy=results[2].status==='fulfilled'?results[2].value:null;
+ const group=title=>{
+  const el=document.createElement('optgroup');el.label=title;picker.append(el);return el;
+ };
+ if(catalog?.totalCanonicalLabs===419&&catalog.byLab&&
+   Object.keys(catalog.byLab).length===419&&release?.ok===true&&
+   Array.isArray(release.publishedIds)&&Array.isArray(release.guidedBetaIds)){
+  const published=new Set(release.publishedIds),guided=new Set(release.guidedBetaIds);
+  const publishedGroup=group('Owner-reviewed Labs · access verified on open');
+  const guidedGroup=group('Guided beta Labs · ungraded');
+  const upcomingGroup=group('Not yet released · disabled');
+  for(const [id,entry] of Object.entries(catalog.byLab).sort(([a],[b])=>a.localeCompare(b))){
+   if(!/^[A-Za-z0-9_-]{3,90}$/.test(id))continue;
+   const title=String(entry?.title||id).trim().slice(0,110);
+   const available=published.has(id)||guided.has(id);
+   const holder=published.has(id)?publishedGroup:guided.has(id)?guidedGroup:upcomingGroup;
+   appendOption(holder,title+' · '+id+(available?'':' · Upcoming'),'lab:'+id,!available);
+  }
+ }else{
+  appendOption(group('Current Lab'),labTopic(currentLab)+' · '+currentLab.id,current);
+ }
+ const bootGroup=group('Boot Camps');
+ appendOption(bootGroup,'Free Foundations · 5 days','academy:free5');
+ const codes=new Set(['truth5','watchlist7','scanners10','foundations30','charts45','risk60','practicum90']);
+ if(academy?.ok===true&&Array.isArray(academy.programs)){
+  for(const program of academy.programs){
+   if(!codes.has(program?.code)||!Number.isInteger(program.days))continue;
+   appendOption(bootGroup,String(program.title||program.code).slice(0,100)+
+    ' · '+program.days+' days','academy:'+program.code);
+  }
+ }
+ picker.value=current;
+ if(picker.value!==current){
+  appendOption(group('Current Lab'),labTopic(currentLab)+' · '+currentLab.id,current);
+  picker.value=current;
+ }
+ picker.addEventListener('change',()=>{
+  const destination=picker.value;
+  if(destination===current)return;
+  let href='';
+  if(destination.startsWith('lab:')&&/^[A-Za-z0-9_-]{3,90}$/.test(destination.slice(4))){
+   if(!picker.selectedOptions[0]?.disabled)href='lab-player.html?lab='+encodeURIComponent(destination.slice(4));
+  }else if(destination==='academy:foundations30')href='bootcamp.html';
+  else if(/^academy:(free5|truth5|watchlist7|scanners10|charts45|risk60|practicum90)$/.test(destination))
+   href='bootcamp-academy.html?program='+encodeURIComponent(destination.slice(8));
+  if(href)location.assign(href);
+  else picker.value=current;
+ });
+}
 async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const reportLink=q('player-report-issue');if(reportLink)reportLink.href='dashboard.html?tab=support&lab='+encodeURIComponent(id);const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
  const session=authResult?.data?.session||null;
@@ -566,14 +663,7 @@ async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(
  }
  if(!memberUnchanged())return;
  q('player-lab-id').textContent=lab.id;
-  const picker=q('player-reference-select');
-  if(picker){
-   if(!Array.from(picker.options).some(o=>o.value===lab.id)){
-    const choice=document.createElement('option');choice.value=lab.id;choice.textContent=labTopic(lab)+' · '+lab.id;picker.append(choice);
-   }
-   picker.value=lab.id;
-   picker.addEventListener('change',()=>{const id=picker.value;if(/^[A-Za-z0-9_-]{3,90}$/.test(id))location.assign('lab-player.html?lab='+encodeURIComponent(id))});
-  }
+  void populateLearningDestinationSelector(lab);
   q('player-title').textContent=labTopic(lab);
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
