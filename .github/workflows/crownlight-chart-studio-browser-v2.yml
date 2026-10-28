@@ -17,6 +17,10 @@ on:
       - 'tests/test_crownlight_workbench_browser_v3.mjs'
       - 'assets/js/crownlight-paper-terminal-v1.js'
       - 'assets/js/crownlight-simulator-layout-v3.js'
+      - 'functions/api/simulator-lab-context.js'
+      - 'tests/test_simulator_lab_context_v1.mjs'
+      - 'assets/css/crownlight-member-density-v1.css'
+      - 'dashboard.html'
       - 'assets/css/member-profile-v1.css'
       - 'assets/js/member-dashboard.js'
       - 'tests/test_owner_audit_dashboard_20261028.mjs'
@@ -78,6 +82,8 @@ jobs:
           node tests/test_alpaca_saved_paper_verification_v1.mjs
           node --check functions/api/credentials.js
           node tests/test_crownlight_workbench_browser_v3.mjs
+          node tests/test_simulator_lab_context_v1.mjs
+          node --check functions/api/simulator-lab-context.js
           node tests/test_owner_audit_dashboard_20261028.mjs
           node --check functions/api/alpaca-paper.js
           node --check assets/js/crownlight-simulator-layout-v3.js
