@@ -92,7 +92,10 @@
   const placeholder=new Option('Choose a Lab or Free Foundations lesson','');picker.append(placeholder);
   old.hidden=true;old.setAttribute('aria-hidden','true');old.tabIndex=-1;
   old.after(picker);
-  const note=el('p','cl-lab-help','All 419 canonical Labs are listed. Locked or unreleased Labs cannot be opened using this selector.');
+  const timeRange=el('div','cl-lab-time-range');
+  timeRange.innerHTML='<label>Verified Lab start time (ET)<input id="cl-lab-start-time" type="time" aria-label="Lab context start time Eastern"></label><label>Verified Lab end time (ET)<input id="cl-lab-end-time" type="time" aria-label="Lab context end time Eastern"></label>';
+  picker.after(timeRange);
+  const note=el('p','cl-lab-help','');
   picker.after(note);
   picker.hidden=true;picker.setAttribute('aria-hidden','true');picker.tabIndex=-1;
   const compact=el('div','cl-lab-combobox');
@@ -156,7 +159,11 @@
    if(picker.value.startsWith('academy:free5:')){
     const day=Number(picker.value.split(':')[2]);location.assign('bootcamp-academy.html?program=free5&day='+day+'#academy-workspace');return
    }
-   if(picker.value.startsWith('lab:')){old.value=picker.value.slice(4);const href=el('a','cl-selected-lab-link','Open selected Lab');
+   if(picker.value.startsWith('lab:')){old.value=picker.value.slice(4);
+    if($('sim-start-date'))$('sim-start-date').value='';if($('sim-end-date'))$('sim-end-date').value='';
+    if($('cl-lab-start-time'))$('cl-lab-start-time').value='';if($('cl-lab-end-time'))$('cl-lab-end-time').value='';
+    root.GroundUpSimulatorLoadVerifiedLabContext?.(old.value);
+    const href=el('a','cl-selected-lab-link','Open selected Lab');
     href.href='lab-player.html?lab='+encodeURIComponent(old.value);
     note.replaceChildren(document.createTextNode('Related Lab selected: '+old.value+'. '),href);}
    else old.value='';
@@ -167,6 +174,7 @@
   if(state.initialized)return;const rootContent=$('sim-content');
   if(!rootContent)return;state.initialized=true;
   setupImport();setupChart();setupTabs();setupLabPicker(opts);
+  const timeframe=$('sim-timeframe');if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';});}
  }
  root.CrownlightWorkbenchLayout={init};
 })(window);
