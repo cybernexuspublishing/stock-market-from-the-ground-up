@@ -79,6 +79,7 @@ try{
     assert.equal(await option.isEnabled(),true);
     await option.click();
     assert.equal(await page.locator('#sim-lab-id').inputValue(),'SITE-021');
+    await page.waitForFunction(()=>document.querySelector('.cl-lab-help')?.textContent?.includes('Lab reference date'));
     assert.match(await page.locator('.cl-lab-help').innerText(),/Lab reference date/);
     assert.match(await page.locator('.cl-selected-lab-link').getAttribute('href'),/lab-player.html\?lab=SITE-021/);
    }
