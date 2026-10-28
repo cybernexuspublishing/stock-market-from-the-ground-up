@@ -183,10 +183,10 @@ try{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
       document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
     ),undefined,{timeout:14000});
-    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),3,
-      'All three founding memberships must render on static Store');
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
+      'Only the two Owner-published Founding 30/60 offers may render on this fixture');
     const available=await page.locator('[data-store-category]:visible').evaluateAll(nodes=>
       nodes.filter(el=>!el.hidden&&!el.disabled).map(el=>el.id));
     assert(available.includes('store-tab-founders'),'Founding offers must be the primary Store tab');
@@ -211,10 +211,10 @@ try{
     await page.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>Boolean(
       document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2
     ),undefined,{timeout:14000});
-    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),3,
-      'All three founding memberships must render on static Store');
+    assert.equal(await page.locator('#store-founder-plans article.catalog-founder-card').count(),2,
+      'Only the two Owner-published Founding 30/60 offers may render on this fixture');
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(x=>x.impact==='critical'||x.impact==='serious');
     assert.deepEqual(severe.map(x=>({id:x.id,nodes:x.nodes.map(n=>({target:n.target,html:String(n.html||'').slice(0,420),failure:String(n.failureSummary||'').slice(0,420)}))})),[],
