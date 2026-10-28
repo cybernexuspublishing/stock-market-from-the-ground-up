@@ -14,11 +14,11 @@ function validDate(value){
 const toMonth=d=>new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));
 const monthText=d=>new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric',timeZone:'UTC'}).format(d);
 function counts(rows,asOf){
- const today=dayKey(asOf);const cutoff=new Date(asOf.getTime()-13*86400000);
+ const today=dayKey(asOf);const cutoff=new Date(Date.UTC(asOf.getUTCFullYear(),asOf.getUTCMonth(),asOf.getUTCDate()-13));
  const counted=rows.filter(r=>validDate(r.trade_date)&&r.trade_date<=today);
  const recent=counted.filter(r=>new Date(r.trade_date+'T00:00:00Z')>=new Date(Date.UTC(cutoff.getUTCFullYear(),cutoff.getUTCMonth(),cutoff.getUTCDate())));
  return {total:counted.length,completed:counted.filter(r=>['closed','no_trade','reviewed'].includes(r.status)).length,
-  passes:counted.filter(r=>r.status==='no_trade'||r.decision==='NO TRADE').length,
+  passes:counted.filter(r=>r.status==='no_trade'||(['closed','reviewed'].includes(r.status)&&r.decision==='NO TRADE')).length,
   awaiting:counted.filter(r=>!['closed','no_trade','reviewed'].includes(r.status)).length,
   bars:Array.from({length:14},(_,i)=>{
    const d=new Date(Date.UTC(asOf.getUTCFullYear(),asOf.getUTCMonth(),asOf.getUTCDate()-(13-i)));
@@ -112,7 +112,7 @@ function render(){
   const included=rows.filter(r=>validDate(r.trade_date)&&r.trade_date===date);
   const btn=el('button',undefined,'gu-j3-day');btn.type='button';
   btn.append(el('span',String(day)));btn.dataset.count=String(included.length);
-  const pass=included.filter(r=>r.status==='no_trade'||r.decision==='NO TRADE').length;
+  const pass=included.filter(r=>r.status==='no_trade'||(['closed','reviewed'].includes(r.status)&&r.decision==='NO TRADE')).length;
   if(included.length)btn.dataset.kind=pass===included.length?'no_trade':pass?'mixed':'recorded';
   if(included.length)btn.append(el('strong',String(included.length)));
   btn.setAttribute('aria-pressed',selected===date?'true':'false');
@@ -167,5 +167,6 @@ function boot(){
   });
  }).catch(()=>{userId=null;rows=[];render()});
 }
+window.JournalV3Visual=Object.freeze({validDate,counts,dayKey,toMonth});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
