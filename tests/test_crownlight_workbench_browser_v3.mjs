@@ -9,7 +9,7 @@ const html=[
 '<link rel="stylesheet" href="/assets/css/crownlight-simulator-layout-v3.css">',
 '<style>*{box-sizing:border-box}body{margin:0;background:#091121;color:#fff;font-family:system-ui;font-size:14px}#sim-content{max-width:1280px;margin:auto;padding:16px}.sim-layout{display:grid;grid-template-columns:1fr;gap:10px}.journal-card{padding:16px;border:1px solid #39456a;border-radius:12px}.sim-chart-panel{min-width:0}input,button,select{font:inherit}</style></head><body>',
 '<div id="sim-content"><section class="journal-card journal-section"><h2>1. Load replay data</h2>',
-'<div><label for="sim-lab-id">Historical Lab ID (optional)</label><input id="sim-lab-id"><input id="sim-ticker"><select id="sim-source"><option value="csv">CSV</option></select></div><div id="sim-load-msg"></div></section>',
+'<div class="sim-import-grid"><div><label for="sim-source">Data source</label><select id="sim-source"><option value="csv">CSV</option></select></div><div><label for="sim-ticker">Ticker</label><input id="sim-ticker"></div><div><label for="sim-timeframe">Timeframe</label><input id="sim-timeframe" value="1-minute"></div><div><label for="sim-lab-id">Related Lab</label><input id="sim-lab-id"></div><div><label for="sim-start-date">Context start</label><input type="date" id="sim-start-date"></div><div><label for="sim-end-date">Context end</label><input type="date" id="sim-end-date"></div><div><label>Interval</label><select><option>1 minute</option></select></div><div><label>Visible bars</label><select><option>21</option></select></div><div><label>OHLCV CSV</label><input type="file"></div></div><div id="sim-load-msg"></div></section>',
 '<section class="sim-layout journal-section"><div class="sim-chart-panel journal-card"><h2>Chart</h2><canvas id="sim-chart"></canvas></div>',
 '<aside class="journal-card sim-side"><h2>2. Plan the trade</h2><input id="sim-shares" value="100"><input id="sim-stop">',
 '<div class="sim-divider"></div><h2>3. Execute</h2><button id="sim-enter">Replay Enter</button></aside></section>',
@@ -65,6 +65,37 @@ try{
    },entitlement!=='free');
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
+   // Regression: an asynchronous legacy layout move must also be repaired, not just
+   // an invalid source order that existed before initialization.
+   await page.evaluate(()=>{
+    const parent=document.querySelector('#sim-content'),source=document.querySelector('#cl-replay-import');
+    parent.append(source);
+   });
+   await page.waitForFunction(()=>{
+    const parent=document.querySelector('#sim-content');
+    return [...parent.children].slice(0,4).map(x=>x.id||x.className).join('|')===
+      'cl-replay-import|cl-chart-visibility-toolbar|sim-layout journal-section|cl-simulator-workbench';
+   });
+   const measurements=await page.evaluate(()=>{
+    const parent=document.querySelector('#sim-content'),
+     groups=[...document.querySelectorAll('#sim-content #cl-replay-import .sim-import-grid>div')],
+     box=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width}};
+    return {source:box(parent.querySelector('#cl-replay-import')),
+     chart:box(parent.querySelector('.sim-layout')),groups:groups.map(box),
+     sourceText:document.querySelector('#cl-replay-import .cl-workbench-import summary')?.textContent,
+     open:document.querySelector('#cl-replay-import .cl-workbench-import')?.open,
+     gridColumns:getComputedStyle(document.querySelector('.sim-import-grid')).gridTemplateColumns};
+   });
+   assert.equal(measurements.open,true,'Step 1 must remain visibly expanded');
+   assert.match(measurements.sourceText,/1\. Data source/);
+   assert(Math.abs(measurements.source.width-measurements.chart.width)<=4,'Import form and chart must use the same working width');
+   assert.equal(measurements.groups.length,9,'Complete original replay fields must survive reflow');
+   const overlap=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*
+    Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+   assert(overlap(measurements.groups[3],measurements.groups[4])<=4,'Related Lab must not overlap Context start date');
+   assert(overlap(measurements.groups[3],measurements.groups[5])<=4,'Related Lab must not overlap Context end date');
+   for(const b of measurements.groups)assert(b.right<=measurements.source.right+3&&b.left>=measurements.source.left-3,'Inputs must stay inside the form');
+
    assert.equal(await page.locator('.cl-import-shell').count(),1,'Replay setup must still exist');
    assert.equal(await page.evaluate(()=>{
       const content=document.querySelector('#sim-content');
