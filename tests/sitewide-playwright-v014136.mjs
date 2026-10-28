@@ -137,10 +137,13 @@ try{
      assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
       'Coming-soon Founder tiers must not have direct purchase links');
      assert.equal(await tab.locator('#store-tab-memberships').count(),1);
-     assert.equal(await tab.locator('#store-tab-memberships').isVisible(),true,
-      'Free Membership must remain visible during the Founding beta');
-     assert.match(await tab.locator('#store-member-plans').innerText(),/Free/i);
-     assert.doesNotMatch(await tab.locator('#store-member-plans').innerText(),/Full Platform|Lifetime|Annual Membership/i);
+     // General membership tab is intentionally CSS-hidden during Founding beta;
+     // its Free program copy must be retained without exposing paid checkout.
+     assert.equal(await tab.locator('#store-tab-memberships').isVisible(),false,
+      'Future general Membership tab must remain hidden during Founding beta');
+     const freePanelText=await tab.locator('#store-panel-memberships').textContent();
+     assert.match(freePanelText,/Free Membership/i);
+     assert.doesNotMatch(freePanelText,/Full Platform|Lifetime|Annual Membership/i);
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
      // Positive publication path: all three tiers display when Owner

@@ -211,7 +211,10 @@ async function enforceOfferVisibility(){
 
 function tabs(){
  const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['founders','memberships','books','sparks','tools','current','upcoming'];
- const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled);
+ // Skip CSS-hidden categories as well as HTML-hidden tabs, preserving keyboard
+ // focus order in the compact Founding Store without unpublishing any offer.
+ const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled&&
+  (typeof b.getClientRects!=='function'||b.getClientRects().length>0));
  const select=(name,focus=false)=>{
   const available=visibleButtons();
   const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:(available[0]?.dataset.storeCategory||'books');

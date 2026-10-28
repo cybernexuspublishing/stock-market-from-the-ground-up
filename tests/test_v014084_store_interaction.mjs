@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-const safeHref=s=>{const str=String(s||'');return /^(https:\/\/|(?:\.\/)?[\w-]+\.html(?:[?#].*)?|\/[\w\/.\-]+(?:[?#].*)?)$/.test(str)?str:''};
+const safeHref=s=>{const str=String(s||'');return /^(?:https:\/\/[a-z0-9.-]+(?:\/[^\s<>]*)?|(?:\.\/)?[\w-]+\.html(?:[?#].*)?|\/[\w\/.\-]+(?:[?#].*)?)$/i.test(str)?str:''};
 const ct=(data)=>({load:async()=>data,esc,safeHref,moneyCents:n=>Number(n).toLocaleString('en-US',{style:'currency',currency:'USD'})});
 const makeNode=(name)=>({name,innerHTML:'',hidden:false,dataset:{},tabIndex:0,
    classes:new Set(),attributes:{},events:{},
