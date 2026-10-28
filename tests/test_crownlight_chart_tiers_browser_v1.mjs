@@ -172,12 +172,12 @@ if(tier==='PROFESSIONAL'){
  });
  const initialHeights=await page.locator('.cl-tier-kline-canvas').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));
  assert(initialHeights.every(h=>h>=550),'Price + separate studies remain readable');
- await page.locator('[data-cl-layout]').selectOption('STACKED');
+ await page.locator('select[data-cl-layout]').selectOption('STACKED');
  await page.waitForFunction(()=>{
   const e=window.CrownlightChartTiers.getInstances();
   return e.length===2&&e[0].host.getBoundingClientRect().height<e[1].host.getBoundingClientRect().height;
  });
- await page.locator('[data-cl-layout]').selectOption('SIDE_BY_SIDE');
+ await page.locator('select[data-cl-layout]').selectOption('SIDE_BY_SIDE');
  await page.waitForFunction(()=>{
   const e=window.CrownlightChartTiers.getInstances();
   return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
