@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const script=readFileSync('assets/js/crownlight-lab-chart-handoff-v2.js','utf8');
+const lab=readFileSync('lab-player.html','utf8');
+const sim=readFileSync('assets/js/crownlight-talia-lab-v2.js','utf8');
+const workspace=readFileSync('functions/api/chart-workspace.js','utf8');
+assert.match(lab,/crownlight-lab-chart-handoff-v2\.js/);
+assert.match(script,/content\.hidden===true/,'Chart Lab action must stay hidden until authorized Lab content is revealed');
+assert.match(script,/MutationObserver/,'Account changes must re-hide links when Lab access is withdrawn');
+assert.match(sim,/simulator-lab-context\?lab=/,'Lab IDs must be checked using the existing server-side Lab access API');
+assert.match(sim,/body\?\.ok!==true/,'Unauthorized or unavailable Lab contexts must not open');
+assert.match(sim,/timeSource|referenceDate/,'Only verified metadata may be shown; never invent market timestamps');
+assert.match(workspace,/crownlightChartEntitlement/,'Workspace must validate actual member entitlement');
+assert.doesNotMatch(workspace,/\b(?:trading_order|buy_order|grade_ledger|live_payment)\b/);
+console.log('PASS Crownlight Lab integration: authorized player handoff, server Lab context, no grade or payment access');
