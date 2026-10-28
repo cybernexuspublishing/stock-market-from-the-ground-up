@@ -5,6 +5,7 @@
  */
 const lessons=Object.freeze({
  'F2-C07-L01':{
+  guideCode:'CANDLE_READING',
   meaning:'A standard candle summarizes open, high, low, and close for one stated interval. Its body joins open and close; its wicks reach the high and low.',
   why:'The four prices let you describe what happened during that interval before discussing any pattern.',
   method:'Read the interval and chart type first. If close exceeds open, calculate body size as close minus open; calculate full range as high minus low.',
@@ -15,6 +16,7 @@ const lessons=Object.freeze({
   url:'https://chartschool.stockcharts.com/table-of-contents/chart-analysis/candlestick-charts/introduction-to-candlesticks'
  },
  'DT-C11-L01':{
+  guideCode:'VWAP_CONTEXT',
   meaning:'VWAP is an average price weighted by traded volume over a declared accumulation window.',
   why:'It provides a session reference for comparing an observed price with a volume-weighted history, not a forecast.',
   method:'For a simplified trade ledger, add price times shares for each trade, then divide by total shares. Check the platform’s bar price convention and session reset before comparing displayed lines.',
@@ -25,6 +27,7 @@ const lessons=Object.freeze({
   url:'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/volume-weighted-average-price-vwap'
  },
  'DT-C19-L02':{
+  guideCode:'VOLUME_ANALYSIS',
   meaning:'Share volume counts shares traded in a stated interval and reporting population.',
   why:'A count only becomes comparable when the time window and feed scope match.',
   method:'Read the volume bar’s interval and units. Compare it with a declared same-scope baseline; do not substitute short interest or a partial-venue short-sale file for whole-market volume.',
@@ -35,6 +38,7 @@ const lessons=Object.freeze({
   url:'https://www.nasdaq.com/glossary/v/volume'
  },
  'DT-C34-L01':{
+  guideCode:'CHART_STRUCTURE',
   meaning:'A trading range is a region where observed price repeatedly approaches an upper and lower boundary.',
   why:'Marking the boundaries before later candles appear makes a breakout criterion testable without hindsight.',
   method:'Use only visible bars to mark upper and lower zones, record the session and price field, and predeclare whether a wick or close beyond the zone counts as a break.',
@@ -45,6 +49,7 @@ const lessons=Object.freeze({
   url:'https://chartschool.stockcharts.com/table-of-contents/chart-analysis/support-and-resistance'
  },
  'DT-C45-L01':{
+  guideCode:'FAILED_BREAKOUT',
   meaning:'A failed breakout is a move beyond a predeclared boundary that does not satisfy or sustain the chosen confirmation rule.',
   why:'It helps separate an observed probe from a later interpretation without treating the outcome as knowable in advance.',
   method:'Record the original boundary and confirmation rule, identify the first visible crossing, then compare only subsequent candles available at the review stage.',
@@ -55,6 +60,7 @@ const lessons=Object.freeze({
   url:'https://chartschool.stockcharts.com/table-of-contents/chart-analysis/chart-patterns/rectangle'
  },
  'DT-C05-L01':{
+  guideCode:'RISK_PER_SHARE',
   meaning:'Risk per share is the modeled price distance between a proposed entry and an invalidation price, stated in dollars per share.',
   why:'It separates a planned loss model from the number of shares and from an actual exit fill.',
   method:'For a hypothetical long position with entry E above invalidation S, distance d = E − S dollars per share. For budget B dollars, whole-share quantity is floor(B / d) only when d is positive and other constraints are ignored.',
