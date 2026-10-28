@@ -382,21 +382,21 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  paintQuestion();
  // The original v3.2 Crownlight Sparks workflow is restored here for
  // *illustrative, ungraded* practice questions only. A real member ledger
- // confirms the balance and spends one credit atomically, never JavaScript.
+ // confirms the balance and spends four credits atomically, never JavaScript.
  const creditControls=el('section',undefined,'gu-v33-pass-controls');
  creditControls.setAttribute('aria-label','Crownlight Sparks: optional reveal or skip');
  const passHeading=el('h4','Crownlight Sparks · Reveal or Skip');
  const passBalance=el('p','Checking available credits…','gu-v33-pass-balance');
- const passNote=el('p','Both options use one Crownlight Spark. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
+ const passNote=el('p','Each option uses four Crownlight Sparks. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
  const passConfirmation=el('div',undefined,'gu-v33-pass-confirm');passConfirmation.hidden=true;
  const passQuestion=el('p','');
- const passConfirm=el('button','Confirm 1-credit use','btn gu-v33-pass-confirm-btn');
+ const passConfirm=el('button','Confirm 4-Spark use','btn gu-v33-pass-confirm-btn');
  const passCancel=el('button','Cancel','btn secondary');
  passConfirm.type=passCancel.type='button';
  passConfirmation.append(passQuestion,passConfirm,passCancel);
  const passChoices=el('div',undefined,'gu-v33-pass-choice-row');
- const passReveal=el('button','Reveal answer · 1 credit','btn secondary');
- const passSkip=el('button','Skip question · 1 credit','btn secondary');
+ const passReveal=el('button','Reveal answer · 4 Sparks','btn secondary');
+ const passSkip=el('button','Skip question · 4 Sparks','btn secondary');
  passReveal.type=passSkip.type='button';passReveal.disabled=passSkip.disabled=true;
  passChoices.append(passReveal,passSkip);
  const passFeedback=el('p','','gu-v33-pass-feedback');passFeedback.setAttribute('role','status');
@@ -409,35 +409,35 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   passAvailable=balance.available;
   passBalance.textContent='Available: '+balance.available+' · Included: '+balance.included+
    ' · Purchased: '+balance.purchased;
-  passReveal.disabled=passSkip.disabled=passAvailable<1||passBusy||passUsed;
+  passReveal.disabled=passSkip.disabled=passAvailable<4||passBusy||passUsed;
  }
  function resetPassQuestion(){
   passUsed=false;passPending='';passConfirmation.hidden=true;passContinue.hidden=true;
   passFeedback.textContent='';
-  passReveal.disabled=passSkip.disabled=passAvailable<1;
+  passReveal.disabled=passSkip.disabled=passAvailable<4;
  }
  if(stage===4&&typeof onCreditAction==='function'){
   void onCreditAction({action:'balance'}).then(response=>{
    if(passDisposed)return;
    showPassBalance(response.balance);
-   if(response.balance.available<1)passFeedback.textContent='No Crownlight Sparks are available. You can still learn and retry for free.';
+   if(response.balance.available<4)passFeedback.textContent='You need 4 Sparks to reveal or skip. You can still learn and retry for free.';
   }).catch(error=>{
    if(passDisposed)return;
    passBalance.textContent='Balance unavailable';
    passFeedback.textContent=String(error?.message||'No verified balance is available.');
   });
   const choose=action=>{
-   if(passBusy||passUsed||passAvailable<1)return;
+   if(passBusy||passUsed||passAvailable<4)return;
    passPending=action;
    passQuestion.textContent=(action==='reveal'?'Reveal the study answer':'Skip this practice question')+
-    ' for one Crownlight Spark? It will not count as an independently correct answer.';
+    ' for four Crownlight Sparks? It will not count as an independently correct answer.';
    passConfirmation.hidden=false;passConfirm.focus?.();
   };
   listen(passReveal,'click',()=>choose('reveal'));
   listen(passSkip,'click',()=>choose('skip'));
   listen(passCancel,'click',()=>{passPending='';passConfirmation.hidden=true;passFeedback.textContent='No credit used.'});
   listen(passConfirm,'click',async()=>{
-   if(passBusy||passUsed||!passPending||passAvailable<1)return;
+   if(passBusy||passUsed||!passPending||passAvailable<4)return;
    passBusy=true;onCreditPending?.(true);passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
    submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
@@ -449,14 +449,14 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     passUsed=true;passPending='';passConfirmation.hidden=true;
     showPassBalance(result.balance);
     const answerText=String(result.answerText||'This question is recorded as Study Only.');
-    passFeedback.textContent=answerText+' One credit was used'+(result.alreadyUsed?' previously':'')+'.';
+    passFeedback.textContent=answerText+' Four Sparks were used'+(result.alreadyUsed?' previously':'')+'.';
     reply.textContent='This step is marked Study Only. It is not graded.';
     reflection.disabled=true;submitReflection.disabled=true;
     passContinue.hidden=false;
     passContinue.textContent=idx===prompts.length-1?'Continue to next learning stage':'Continue to next practice question';
    }catch(error){
     if(!passDisposed)passFeedback.textContent=String(error?.message||'Credit service unavailable. No new credit was confirmed.');
-    passReveal.disabled=passSkip.disabled=passAvailable<1;
+    passReveal.disabled=passSkip.disabled=passAvailable<4;
     submitReflection.disabled=false;
    }finally{
     passBusy=false;onCreditPending?.(false);passConfirm.disabled=false;
