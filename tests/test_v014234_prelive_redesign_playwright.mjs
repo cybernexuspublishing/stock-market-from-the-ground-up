@@ -21,8 +21,10 @@ const items=registry.map((item,index)=>({
  page:/^[a-z0-9-]+\\.html$/.test(item.href||'')?item.href:null
 }));
 const visibleItems=items.filter(x=>x.category!=='membership');
-const listedFallback=registry.filter(x=>/^FOUNDING_(30|60)$/.test(x.sku)||
- (x.category==='Books'&&x.status==='existing_catalog'));
+const listedFallback=registry.filter(x=>x.category==='Books'&&x.status==='existing_catalog');
+// An unavailable public catalog must never revive Founding membership sales.
+assert(listedFallback.every(x=>x.category==='Books'));
+assert(!listedFallback.some(x=>/^FOUNDING_/.test(x.sku)));
 
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const events=[];
