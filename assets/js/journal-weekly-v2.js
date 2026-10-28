@@ -38,7 +38,7 @@ function panel(){
  host.append(top,body,disclosure);
  anchor.after(host);return host;
 }
-let ownRows=[],pendingRows=[],signedUser=null;
+let ownRows=[],pendingRows=[],signedUser=null,partialHistory=false;
 function render(){
  const host=$('gu-v2-review'),output=$('gu-v2-review-body');if(!host||!output)return;
  if(!signedUser){output.replaceChildren(t('p','Sign in to view your private process review.'));return}
@@ -48,6 +48,7 @@ function render(){
     type:$('gu-v2-kind')?.value||'all',asOf:new Date()});}
  catch(e){output.replaceChildren(t('p','Unable to calculate process review: '+e.message));return}
  output.replaceChildren();
+ if(partialHistory)output.append(t('p','Incomplete history: only the latest 3,000 member-owned records were loaded. These process totals may omit older records.','gu-v2-warning'));
  const grid=t('div',undefined,'gu-v2-stat-grid');
  for(const [label,value] of [['Records',result.total],['Completed records',result.completed],
   ['Unfinished records',result.drafts],['No-trade decisions',result.noTrade]]){
@@ -80,6 +81,7 @@ function boot(){
  $('gu-v2-kind')?.addEventListener('change',render);
  window.addEventListener('gu-journal-rows-loaded',e=>{
   pendingRows=Array.isArray(e.detail?.rows)?e.detail.rows:[];
+  partialHistory=e.detail?.truncated===true;
   if(signedUser)ownRows=pendingRows.filter(r=>r?.user_id===signedUser);
   render();
  });
@@ -89,7 +91,7 @@ function boot(){
   ownRows=signedUser?pendingRows.filter(r=>r?.user_id===signedUser):[];render();
   sb.auth.onAuthStateChange((_event,session)=>{
    if(session?.user?.id!==signedUser){
-    ownRows=[];pendingRows=[];signedUser=null;render();
+    ownRows=[];pendingRows=[];partialHistory=false;signedUser=null;render();
    }
   });
  }).catch(()=>{signedUser=null;ownRows=[];render()});
