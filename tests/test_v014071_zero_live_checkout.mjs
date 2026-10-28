@@ -11,7 +11,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_PUBL
  GU71_ZERO_LIVE_PRICE_ID:'price_gu71Zero123',PUBLIC_SITE_URL:base};
 const user='11111111-1111-4111-8111-111111111111';
 const state={role:'OWNER',step:true,amount:0,kind:'one_time',marked:true,wrongProduct:false,sessionAmount:0,
- method:'if_required',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null};
+ method:'if_required',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null,founder14Checkout:false};
 const json=(obj,code=200)=>new Response(JSON.stringify(obj),{status:code,headers:{'content-type':'application/json'}});
 const saved=globalThis.fetch;
 globalThis.fetch=async(url,options={})=>{
@@ -20,6 +20,9 @@ globalThis.fetch=async(url,options={})=>{
  if(u.endsWith('/rpc/gu_staff_role_v01432r1'))return json({ok:true,role:state.role});
  if(u.endsWith('/rpc/gu_staff_stepup_active_v01432r1'))return json(state.step);
  if(u.includes('/rest/v1/')&&method!=='POST'&&method!=='GET')state.dbWrites++;
+ if(u.includes('/rest/v1/gu_founder_plans_v014173?')){
+  return json([{plan_code:'FOUNDING_14',price_cents:2299,term_days:14,checkout_enabled:state.founder14Checkout}]);
+ }
  if(u.includes('/rest/v1/gu_storefront_items_v014174?')){
   assert.equal(options.headers.apikey,'sb_secret_mock');
   return json(u.includes(encodeURIComponent('course:BC-05-TRUTH'))?[{sku:'course:BC-05-TRUTH'}]:[]);
@@ -96,6 +99,15 @@ try{
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','course:SC-10-VWAP');
  assert.equal(r.status,404,'Unrecognized catalog items must not be diagnosed with a fabricated SKU');
  assert.equal(state.stripePost,2,'Unknown product must not create a provider session');
+ r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','founding:FOUNDING_14');
+ assert.equal(r.status,200,'Owner-only live 14-day diagnostic must use the existing exact-zero one-time price');
+ out=await r.json();assert.equal(out.targetSku,'founding:FOUNDING_14');
+ assert.equal(state.targetSku,'founding:FOUNDING_14');assert.equal(state.stripePost,3);
+ state.founder14Checkout=true;
+ r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','founding:FOUNDING_14');
+ assert.equal(r.status,409,'Zero QA must refuse a simultaneously activated $22.99 paid 14-day checkout');
+ assert.equal(state.stripePost,3);
+ state.founder14Checkout=false;
  r=await post(env,'CREATE_ZERO_DOLLAR_LIVE_QA','course:NOT VALID');
  assert.equal(r.status,400);assert.equal(state.stripePost,2);
  const inspect=()=>handler.onRequestGet({request:new Request(base+'/api/owner-zero-live-checkout?session_id=cs_live_qa123456',
