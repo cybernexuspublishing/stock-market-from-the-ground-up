@@ -19,8 +19,10 @@ try {
 for(const [tier,expected] of [['STANDARD',0],['ADVANCED',1],['PROFESSIONAL',2]]) {
 const context=await browser.newContext({viewport:{width:1280,height:900}});
 await context.addInitScript(()=>{const user={id:'11111111-1111-4111-8111-111111111111'};
-window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{user,access_token:'mock'}}}),
-onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}});});
+let signedIn=true,handler=null;
+window.__qaSignOut=()=>{signedIn=false;handler?.('SIGNED_OUT',{session:null})};
+window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:signedIn?{user,access_token:'mock'}:null}}),
+onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}}}});});
 const page=await context.newPage(),errors=[];page.on('pageerror',x=>errors.push(x.message));
 await page.route('**/*',async route=>{const u=new URL(route.request().url());
 if(u.hostname==='cdn.jsdelivr.net'){assert.equal(u.pathname,'/npm/klinecharts@10.1.0/dist/umd/klinecharts.min.js');
@@ -72,6 +74,12 @@ if(tier==='PROFESSIONAL'){
 }
 await page.locator('[data-cl-save]').click();
 await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
+if(tier==='PROFESSIONAL'){
+ await page.evaluate(()=>window.__qaSignOut());
+ await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().verified===false);
+ assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Sign out must scrub the private Professional workspace');
+ assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().charts),0);
+}
 assert.deepEqual(errors,[]);console.log('PASS '+tier+' real Chromium '+expected+' KLine charts and revealed candle updates');
 }finally{await context.close()}}
 }finally{await browser.close()}
