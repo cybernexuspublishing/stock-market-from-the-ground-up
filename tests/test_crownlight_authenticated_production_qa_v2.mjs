@@ -15,6 +15,7 @@ const members=[
  ['FOUNDING_60','PROFESSIONAL']
 ];
 const tokens=[],ids=new Set();
+const indicators={FREE:'MA',FOUNDING_14:'RSI',FOUNDING_30:'EMA',FOUNDING_60:'MACD'};
 async function login(plan){
  const email=process.env['CROWN_QA_'+plan+'_EMAIL'],password=process.env['CROWN_QA_'+plan+'_PASSWORD'];
  if(!email||!password)throw Error('Missing secured QA member credentials for '+plan+'; no simulated acceptance');
@@ -42,6 +43,12 @@ for(const [plan,expected] of members){
  const read=await fetch(origin+'/api/chart-workspace',{headers:{authorization:'Bearer '+token}});
  assert.equal(read.status,200,plan+' must read only its own saved workspace');
  const payload=await read.json();assert.equal(payload.ok,true);
+ const update=await fetch(origin+'/api/chart-workspace',{method:'PUT',
+  headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+  body:JSON.stringify({selected:expected,sync:true,studies:[indicators[plan]],drawings:[]})});
+ assert.equal(update.status,200,plan+' must be allowed to save its own workspace');
+ const saved=await update.json();assert.equal(saved.ok,true);
+ assert.deepEqual(saved.workspace.studies,[indicators[plan]]);
  const expectedAllowed=expected==='STANDARD'?['STANDARD']:expected==='ADVANCED'?['STANDARD','ADVANCED']:
   ['STANDARD','ADVANCED','PROFESSIONAL'];
  assert.deepEqual(ent.allowed,expectedAllowed);
@@ -53,6 +60,7 @@ const unauthWorkspace=await fetch(origin+'/api/chart-workspace');assert.equal(un
 const leak=await fetch(origin+'/api/chart-workspace?user_id='+encodeURIComponent([...ids][0]),{
  headers:{authorization:'Bearer '+tokens.at(-1).token}});
 assert.equal(leak.status,200);
-// The API never accepts a user_id filter; check it does not leak target user's stored settings.
+// The API must ignore the injected user_id and return the signed-in user's own record.
 const data=await leak.json();assert.equal(data.ok,true);
+assert.deepEqual(data.workspace.studies,['MACD'],'Cross-member workspace data must not leak via a user_id query');
 console.log('PASS authenticated, noncharging PRODUCTION chart entitlement and guest-denial matrix');
