@@ -48,13 +48,14 @@ export async function crownlightChartEntitlement(env,request){
  const free=await toolAccess(env,request,'MARKET_SIMULATOR');
  if(free.freeEligible!==true)return {ok:true,eligible:false,tier:null,allowed:[]};
  const uid=encodeURIComponent(free.userId),now=Date.now(),c=cfg(env);
- const [founder,cycles,grants,launch,chartQA]=await Promise.all([
+ const [founder,cycles,grants,launch,chartQA,chartPasses]=await Promise.all([
   rows(c,'gu_founder_members_v014173?select=revoked_at&user_id=eq.'+uid+'&limit=1'),
   rows(c,'gu_founder_paid_cycles_v014173?select=plan_code,billing_start,billing_end,reversed_at&user_id=eq.'+uid+'&limit=100'),
   rows(c,'user_plan_grants?select=plan_code,status,starts_at,ends_at&user_id=eq.'+uid+'&limit=100'),
   foundingOfferState(env),
   // Independent, time-limited chart access; never treated as a paid plan.
-  rows(c,'crownlight_chart_qa_grants_v1?select=tier,scope,starts_at,ends_at,revoked_at&user_id=eq.'+uid+'&limit=2')
+  rows(c,'crownlight_chart_qa_grants_v1?select=tier,scope,starts_at,ends_at,revoked_at&user_id=eq.'+uid+'&limit=2'),
+  rows(c,'gu_sparks_chart_passes_v1?select=tier,expires_at&user_id=eq.'+uid+'&limit=2')
  ]);
  let tier='STANDARD',reason='Free Membership',temporaryAccess=null;
  const consider=(plan,label)=>{const t=tierOf[plan];if(t&&rank[t]>rank[tier]){tier=t;reason=label}};
@@ -72,6 +73,13 @@ export async function crownlightChartEntitlement(env,request){
    if(g.status==='active'&&Number.isFinite(start)&&start<=now&&end>now&&
       ['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(g.plan_code))
     consider(g.plan_code,'Active '+g.plan_code+' plan grant');
+  }
+ }
+ for(const pass of chartPasses){
+  const until=Date.parse(pass.expires_at);
+  if(['ADVANCED','PROFESSIONAL'].includes(pass.tier)&&Number.isFinite(until)&&until>now&&rank[pass.tier]>rank[tier]){
+   tier=pass.tier;reason='Active Crownlight Sparks Chart Studio pass';
+   temporaryAccess={kind:'SPARKS',tier:pass.tier,expiresAt:new Date(until).toISOString()};
   }
  }
  const qa=await verifiedNoncommercialChartTier(c,uid,now);
@@ -95,7 +103,7 @@ export async function crownlightChartEntitlement(env,request){
   advancedEngine:'KLineChart 10.1.0',professionalEngine:'Enhanced KLineChart 10.1.0',
   temporaryBetaAccess:!!qa||manuallyAuthorized,noncommercialChartQa:!!qa||manuallyAuthorized,
   temporaryAccess,
-  sparksChartPasses:{enabled:false,reason:'Chart Studio Sparks access requires a separately approved, server-priced pass offer.'}};
+  sparksChartPasses:{enabled:true,source:'server-catalog'}};
 }
 export async function onRequestGet({request,env}){
  try{return json(await crownlightChartEntitlement(env,request))}
