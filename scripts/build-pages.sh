@@ -8,6 +8,10 @@ node tests/test_journal_guided_integrity_v1.mjs
 node tests/test_journal_v2.mjs
 # Professional Journal V3: visual data integrity and no fabricated historical candles.
 node tests/test_journal_visual_v3.mjs
+node tests/test_journal_calendar_setup_replay_v3.mjs
+node --check assets/js/journal-market-calendar-v3.js
+node --check assets/js/simulator-mode-v014112.js
+node --check assets/js/verified-replay-v01492.js
 for asset in assets/js/journal-visual-v3.js assets/js/journal-trade-story-v3.js; do
   node --check "$asset"
 done
