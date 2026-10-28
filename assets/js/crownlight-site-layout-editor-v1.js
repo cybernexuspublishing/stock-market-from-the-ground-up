@@ -63,9 +63,9 @@
  function apply(card,row){
   if(!card||!row)return;
   if(Number.isInteger(row.width_pct)&&row.width_pct>=30&&row.width_pct<=100){
-   card.style.width=row.width_pct+'%';card.style.maxWidth='100%';card.style.boxSizing='border-box';
+   card.style.setProperty('width',row.width_pct+'%','important');card.style.setProperty('max-width','100%','important');card.style.setProperty('box-sizing','border-box','important');card.style.setProperty('justify-self','start','important');
   }
-  if(Number.isInteger(row.min_height_px)&&row.min_height_px>=80&&row.min_height_px<=1200)card.style.minHeight=row.min_height_px+'px';
+  if(Number.isInteger(row.min_height_px)&&row.min_height_px>=80&&row.min_height_px<=1200)card.style.setProperty('min-height',row.min_height_px+'px','important');
  }
  function status(message){const el=$('#gu-layout-feedback');if(el)el.textContent=message}
  async function save(card,changes={}){
@@ -81,26 +81,54 @@
   catch(e){status(e.message+' Changes have not been saved.')}
  }
  function beginResize(event,card){
-  if(event.button!==0)return;event.preventDefault();event.stopPropagation();
-  const startX=event.clientX,startY=event.clientY,r=card.getBoundingClientRect(),parent=card.parentElement?.getBoundingClientRect();
-  const startW=r.width,startH=r.height,container=Math.max(1,parent?.width||startW);
-  const handle=event.currentTarget;handle.setPointerCapture(event.pointerId);
-  const onMove=e=>{
-   const width=Math.max(30,Math.min(100,Math.round(100*(startW+e.clientX-startX)/container)));
-   const height=Math.max(80,Math.min(1200,Math.round(startH+e.clientY-startY)));
-   card.style.width=width+'%';card.style.maxWidth='100%';card.style.minHeight=height+'px';card.style.boxSizing='border-box';
+  if(!state.editing||event.button!==0)return;
+  event.preventDefault();event.stopPropagation();
+  const handle=event.currentTarget,startX=event.clientX,startY=event.clientY;
+  const rect=card.getBoundingClientRect();
+  const container=card.parentElement?.getBoundingClientRect().width||rect.width;
+  let latestWidth=Math.min(100,Math.max(30,Math.round(rect.width/container*100)));
+  let latestHeight=Math.min(1200,Math.max(80,Math.round(rect.height)));
+  let changed=false,finished=false;
+  handle.classList.add('gu-resizing');
+  card.classList.add('gu-layout-resizing');
+  document.body.classList.add('gu-layout-pointer-active');
+  try{handle.setPointerCapture(event.pointerId)}catch{}
+  const move=e=>{
+   if(e.pointerId!==event.pointerId||finished)return;
+   const nextWidth=Math.min(100,Math.max(30,Math.round((rect.width+e.clientX-startX)/container*100)));
+   const nextHeight=Math.min(1200,Math.max(80,Math.round(rect.height+e.clientY-startY)));
+   changed=changed||nextWidth!==latestWidth||nextHeight!==latestHeight;
+   latestWidth=nextWidth;latestHeight=nextHeight;
+   card.style.setProperty('width',nextWidth+'%','important');
+   card.style.setProperty('max-width','100%','important');
+   card.style.setProperty('min-height',nextHeight+'px','important');
+   card.style.setProperty('box-sizing','border-box','important');
+   card.style.setProperty('justify-self','start','important');
+   status('Resizing to '+nextWidth+'% × '+nextHeight+'px · release to save');
   };
-  const onEnd=e=>{
-   handle.removeEventListener('pointermove',onMove);
-   handle.removeEventListener('pointerup',onEnd);handle.removeEventListener('pointercancel',onCancel);
-   const width=Math.round(100*card.getBoundingClientRect().width/container),height=Math.round(card.getBoundingClientRect().height);
-   void save(card,{widthPct:Math.min(100,Math.max(30,width)),minHeightPx:Math.min(1200,Math.max(80,height))});
+  const cleanup=()=>{
+   window.removeEventListener('pointermove',move,true);
+   window.removeEventListener('pointerup',end,true);
+   window.removeEventListener('pointercancel',cancel,true);
+   window.removeEventListener('blur',cancel,true);
+   handle.classList.remove('gu-resizing');card.classList.remove('gu-layout-resizing');
+   document.body.classList.remove('gu-layout-pointer-active');
+   try{if(handle.hasPointerCapture(event.pointerId))handle.releasePointerCapture(event.pointerId)}catch{}
   };
-  const onCancel=()=>{handle.removeEventListener('pointermove',onMove);
-   handle.removeEventListener('pointerup',onEnd);handle.removeEventListener('pointercancel',onCancel)};
-  handle.addEventListener('pointermove',onMove);
-  handle.addEventListener('pointerup',onEnd,{once:true});
-  handle.addEventListener('pointercancel',onCancel,{once:true});
+  const cancel=()=>{if(finished)return;finished=true;cleanup();
+   const previous=state.config.get(card.dataset.guLayoutKey);
+   card.style.removeProperty('width');card.style.removeProperty('max-width');card.style.removeProperty('min-height');card.style.removeProperty('justify-self');
+   if(previous)apply(card,previous);status('Resize canceled without saving');
+  };
+  const end=e=>{if(e.pointerId!==event.pointerId||finished)return;
+   finished=true;cleanup();
+   if(changed)void save(card,{widthPct:latestWidth,minHeightPx:latestHeight});
+   else status('Drag the resize handle diagonally, then release to save');
+  };
+  window.addEventListener('pointermove',move,true);
+  window.addEventListener('pointerup',end,true);
+  window.addEventListener('pointercancel',cancel,true);
+  window.addEventListener('blur',cancel,true);
  }
  function applySavedOrder(){
   // Only reorder siblings when their DOM parent already contains the same cards.
@@ -124,6 +152,7 @@
   for(const card of keyed.values()){
    card.classList.toggle('gu-layout-editable',state.editing);
    card.querySelector(':scope > .gu-layout-controls')?.remove();
+   card.querySelector(':scope > .gu-layout-corner')?.remove();
    if(!state.editing)continue;
    const bar=document.createElement('div');bar.className='gu-layout-controls';
    const handle=document.createElement('button');handle.type='button';handle.textContent='Move card';
@@ -133,11 +162,15 @@
    const resize=document.createElement('button');resize.type='button';resize.className='gu-layout-resize';
    resize.textContent='↘ Resize';resize.title='Drag to resize; automatically saves on mouse release';
    resize.addEventListener('pointerdown',e=>beginResize(e,card));
+   const corner=document.createElement('button');corner.type='button';corner.className='gu-layout-corner';
+   corner.textContent='↘';corner.title='Drag this corner left/right or up/down to resize the entire card. Save occurs on release.';
+   corner.setAttribute('aria-label','Drag to resize whole card; release to save');
+   corner.addEventListener('pointerdown',e=>beginResize(e,card));
    const reset=document.createElement('button');reset.type='button';reset.textContent='Reset';reset.className='gu-layout-reset';
    reset.onclick=async()=>{status('Resetting card…');try{await api('DELETE',{cardKey:card.dataset.guLayoutKey});
     state.config.delete(card.dataset.guLayoutKey);card.style.removeProperty('width');card.style.removeProperty('max-width');
-    card.style.removeProperty('min-height');status('Card layout reset.')}catch(e){status(e.message)}};
-   bar.append(handle,resize,reset);card.prepend(bar);
+    card.style.removeProperty('min-height');card.style.removeProperty('justify-self');status('Card layout reset.')}catch(e){status(e.message)}};
+   bar.append(handle,resize,reset);card.prepend(bar);card.append(corner);
    card.addEventListener('dragover',e=>{if(!state.editing||!state.activeDrag||
     state.activeDrag.parentElement!==card.parentElement||state.activeDrag===card)return;
     e.preventDefault();e.dataTransfer.dropEffect='move'});
