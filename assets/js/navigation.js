@@ -431,7 +431,7 @@
     if(!document.getElementById('v11-remember-me')){
       const row=document.createElement('label');row.className='v11-remember-row';row.title='Remembers your Username/Email Address. Passwords are never stored by this site.';row.innerHTML='<input type="checkbox" id="v11-remember-me"> <span>Remember me</span>';
       const submit=form.querySelector('button[type="submit"],input[type="submit"]');
-      if(submit)submit.insertAdjacentElement('beforebegin',row);else form.appendChild(row);
+      if(submit){const actions=submit.closest('.gu-auth-primary-actions');(actions||submit).insertAdjacentElement('beforebegin',row)}else form.appendChild(row);
       const cb=row.querySelector('input');cb.checked=localStorage.getItem('v11.remember.enabled')==='1';
     }
     if(!form.dataset.v11RememberBound){

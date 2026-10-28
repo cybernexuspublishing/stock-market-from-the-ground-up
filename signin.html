@@ -34,6 +34,70 @@ html body main.gu-signin-page .gu-auth-ad-bottom{max-width:470px!important;margi
 @media(max-width:1050px){html body main.gu-signin-page .gu-signin-ad-layout{max-width:640px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:"form form" "left right";row-gap:20px!important}html body main.gu-signin-page .gu-signin-ad-layout>#gu-signin-center{justify-self:center!important;max-width:470px!important}}
 @media(max-width:560px){html body main.gu-signin-page{padding:25px 15px 40px!important}html body main.gu-signin-page .gu-signin-ad-layout{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"form" "left" "right";width:100%!important;max-width:470px!important}html body main.gu-signin-page .gu-signin-ad-layout>#gu-signin-center{max-width:100%!important}}
 @media(prefers-reduced-motion:reduce){html body main.gu-signin-page *{transition:none!important}}
+
+/* v2: wider separation of stationary ad rails and a compact centered form. */
+@media(min-width:1051px){
+ html body main.gu-signin-page .gu-signin-ad-layout{
+  width:100%!important;max-width:1530px!important;
+  grid-template-columns:minmax(0,195px) minmax(0,400px) minmax(0,195px)!important;
+  justify-content:space-between!important;gap:20px!important
+ }
+ html body main.gu-signin-page .gu-signin-ad-layout>#gu-signin-center{
+  width:100%!important;max-width:400px!important;justify-self:center!important
+ }
+ html body main.gu-signin-page .gu-signin-ad-rail{
+  width:195px!important;max-width:100%!important
+ }
+}
+html body main.gu-signin-page{padding-top:clamp(24px,3vw,40px)!important}
+html body main.gu-signin-page #gu-signin-center h1{font-size:clamp(1.6rem,2vw,1.9rem)!important;margin:0 0 6px!important}
+html body main.gu-signin-page #gu-signin-center .section-intro{margin:0 0 12px!important;line-height:1.4!important;font-size:.88rem!important}
+html body main.gu-signin-page #gu-signin-center .fe-breadcrumbs{margin:5px 0 10px!important;padding:0!important;font-size:.83rem!important}
+html body main.gu-signin-page #gu-signin-center .gu-auth-primary-actions{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ margin:12px 0 0!important;column-gap:10px!important;row-gap:0!important
+}
+html body main.gu-signin-page #gu-signin-center .gu-auth-primary-actions>.v11-remember-row{
+ grid-column:1/-1!important;display:flex!important
+}
+html body main.gu-signin-page #gu-signin-center .v11-remember-row{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:9px!important;margin:8px 0 3px!important;padding:0!important;
+ font-size:.85rem!important;line-height:1.35!important;min-height:28px!important
+}
+html body main.gu-signin-page #gu-signin-center .password-visibility-toggle{
+ display:block!important;margin:5px 0 3px auto!important;
+ padding:4px 0!important;min-height:30px!important;font-size:.81rem!important;
+ text-align:right!important;width:auto!important
+}
+html body main.gu-signin-page #gu-signin-center .auth-links{padding:9px 0 0!important;margin:10px 0 0!important}
+html body main.gu-signin-page #gu-signin-center form>label:not(.v11-remember-row){margin:8px 0 5px!important}
+html body main.gu-signin-page #gu-signin-center input:not([type=checkbox]){min-height:44px!important}
+html body main.gu-signin-page #gu-signin-center input:-webkit-autofill,
+html body main.gu-signin-page #gu-signin-center input:-moz-autofill{
+ box-shadow:inset 0 0 0 1000px #101522!important;
+ -webkit-box-shadow:inset 0 0 0 1000px #101522!important;
+ -webkit-text-fill-color:#f4f6ff!important;color:#f4f6ff!important;
+ caret-color:#f4f6ff!important
+}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-house-art-wordmark{
+ font-size:clamp(1.16rem,1.3vw,1.47rem)!important;
+ line-height:1.1!important;letter-spacing:.015em!important;
+ white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important
+}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-house-promo-copy{gap:7px!important}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-house-title{font-size:.96rem!important;line-height:1.28!important}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-house-art{padding-inline:8px!important;min-height:92px!important}
+html body main.gu-signin-page .gu-auth-ad-bottom{max-width:400px!important;margin-top:19px!important}
+@media(max-width:1050px){
+ html body main.gu-signin-page .gu-signin-ad-layout>#gu-signin-center{max-width:400px!important}
+ html body main.gu-signin-page .gu-signin-ad-layout{max-width:800px!important}
+}
+@media(max-width:560px){
+ html body main.gu-signin-page .gu-signin-ad-layout{max-width:400px!important}
+ html body main.gu-signin-page .gu-signin-ad-layout>#gu-signin-center{max-width:100%!important}
+ html body main.gu-signin-page .gu-auth-ad-bottom{max-width:100%!important}
+}
 </style></head><body><header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"><a href="books.html">Books</a><a href="learn.html">Learning System</a><a href="labs.html">Lab Registry</a><a href="forum.html">Forum</a><a href="membership.html">Membership</a><a href="corrections.html">Verification</a><a href="about.html">About</a><a class="nav-cta" href="account.html">Account</a></nav></div></header><main class="section gu-signin-page"><div class="gu-signin-ad-layout"><aside class="gu-signin-ad-rail" data-ad-slot="SIGNIN_LEFT" aria-label="Sign-in left promotion"></aside><div class="wrap auth-page" id="gu-signin-center"><div class="gu-signin-form-column"><div class="eyebrow">Member access</div><h1>Sign in.</h1><p class="section-intro">Use either your verified email address or your username.</p><div class="auth-card card gu-signin-card"><form onsubmit="doSignIn(event)"><label for="login-identifier">Email or username</label><input id="login-identifier" autocomplete="username" required><label for="login-password">Password</label><input type="password" id="login-password" autocomplete="current-password" required><div id="signin-message" class="inline-status" aria-live="polite"></div><div class="gu-auth-primary-actions"><button class="btn auth-submit" type="submit">Sign in to My Account</button><button class="btn secondary gu-signup-action" type="button" onclick="window.location.assign('create-account.html')">Create Account</button></div></form><div class="auth-links"><button type="button" class="link-button" onclick="document.getElementById('reset-panel').hidden=!document.getElementById('reset-panel').hidden">Forgot password?</button></div><section id="reset-panel" class="auth-subpanel" hidden><label for="reset-email">Account email</label><input type="email" id="reset-email" autocomplete="email"><button class="btn secondary" type="button" onclick="sendPasswordReset()">Send reset email</button><div id="reset-message" class="small"></div></section></div></div></div><aside class="gu-signin-ad-rail" data-ad-slot="SIGNIN_RIGHT" aria-label="Sign-in right promotion"></aside></div><div class="wrap gu-auth-ad-inventory gu-auth-ad-bottom" aria-label="Sign-in bottom promotion"><div data-ad-slot="SIGNIN_BOTTOM"></div></div></main><footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><div>Learn It. Understand It. Practice It. Trade It.</div><div class="small">Educational material only; not individualized investment advice.</div></div><div><strong>Readers</strong><br><a href="labs.html">Lab Registry</a><br><a href="forum.html">Member Forum</a><br><a href="membership.html">Membership</a></div><div><strong>Policies</strong><br><a href="community-guidelines.html">Community Guidelines</a><br><a href="privacy.html">Privacy</a><br><a href="terms.html">Terms</a><br>© <span data-year></span> Crown & Lantern Press</div></div></footer><script>
 /* Keep the real verification controls before submit, including late-injected controls.
    This changes document order only; authentication and CAPTCHA handlers stay intact. */
