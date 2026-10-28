@@ -86,4 +86,15 @@ assert(weekly.includes("r?.user_id===signedUser"),'Only current member records e
 assert(weekly.includes("gu-journal-rows-loaded"),'Process dashboard must reuse RLS-owned records');
 assert(weekly.includes("No-trade decisions")||weekly.includes("No-trade decisions".toLowerCase())||weekly.includes('No-trade decisions'.replace('No-','No-')));
 assert(!weekly.includes('net_pnl')&&!weekly.includes('gross_pnl'));
+const listing=read('assets/js/journal.js');
+assert(listing.includes('range(offset,offset+size-1)'),
+ 'Member history must page through the server response cap');
+assert(listing.includes('truncated=true')&&listing.includes('if(JSTATE.truncated)'),
+ 'Incomplete history and CSV export must be disclosed, not silently truncated');
+assert(listing.includes('JSTATE.user?.id!==ownerId'),
+ 'A late response from the previous account must never repopulate the Journal list');
+assert(listing.includes('auth.onAuthStateChange'),
+ 'Switching accounts must scrub the private Journal list');
+assert(weekly.includes('partialHistory=e.detail?.truncated===true'),
+ 'Weekly process results must disclose when the source list is incomplete');
 console.log('PASS Journal V2: stage mapping, budget math, no-trade, date bounds, source isolation and closed-trade recalculation.');
