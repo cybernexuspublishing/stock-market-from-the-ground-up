@@ -113,6 +113,29 @@ try{
   'Real saved studies must not create duplicate price/oscillator panes: '+JSON.stringify(chartProof));
  console.log('PASS real production Advanced candlesticks visible: '+chartProof.candles+
   ' bars, '+chartProof.priceHeight+'px price pane, one EMA overlay, no duplicate RSI');
+ assert.equal(await page.locator('.crownlight-shell').isVisible(),false,
+  'Advanced must display ONE chart player, not a second Standard chart above KLine');
+ const rendered=await page.evaluate(()=>{
+  const entry=window.CrownlightChartTiers.getInstances()[0],layers=[...entry.host.querySelectorAll('canvas')];
+  let bull=0,bear=0;
+  for(const el of layers){
+   const st=getComputedStyle(el);
+   if(st.marginTop!=='0px'||st.borderTopWidth!=='0px'||st.maxHeight!=='none')
+    throw Error('KLine layer inherits broken fallback canvas styling: '+[st.marginTop,st.borderTopWidth,st.maxHeight]);
+   const ctx=el.getContext('2d'),w=el.width,h=el.height;if(!ctx||w<110)continue;
+   const px=ctx.getImageData(0,0,w,h).data;
+   for(let y=40;y<Math.min(h,Math.round(h*.8));y+=2)
+    for(let x=30;x<Math.max(30,w-40);x+=2){
+     const i=(y*w+x)*4,r=px[i],g=px[i+1],b=px[i+2];
+     if(g>105&&g>r*1.35&&g>b*1.1)bull++;
+     if(r>125&&r>g*1.6&&r>b*1.2)bear++;
+    }
+  }
+  return {bull,bear,layers:layers.length};
+ });
+ assert(rendered.bull+rendered.bear>15,
+  'Actual production price candles must be painted, not just loaded into JS: '+JSON.stringify(rendered));
+ console.log('PASS real production KLine canvas has colored candlestick pixels and no duplicate Standard player: '+JSON.stringify(rendered));
  const current=await api('/api/chart-workspace');
  assert.equal(current.status,200);assert.equal(current.data.ok,true);
  existing=current.data;
