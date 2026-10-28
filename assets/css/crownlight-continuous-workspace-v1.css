@@ -1,0 +1,78 @@
+/* Crownlight Continuous Trading Workspace — presentation only.
+ * No CSS scaling of KLine / Lightweight canvases, no changes to replay data.
+ * Disabled by default; preview for verified OWNER only while unpublished.
+ */
+body[data-cl-workspace="continuous"] main.section>.wrap{
+ width:min(100% - 24px,1700px);max-width:1700px;
+}
+body[data-cl-workspace="continuous"] main.section{padding-top:12px;padding-bottom:20px}
+body[data-cl-workspace="continuous"] #sim-content{
+ display:grid!important;
+ grid-template-columns:minmax(0,1.95fr) minmax(330px,1fr);
+ grid-template-areas:"source source" "toolbar toolbar" "chart workbench";
+ gap:9px 12px;align-items:start;
+}
+body[data-cl-workspace="continuous"] #sim-content>#cl-replay-import{
+ grid-area:source;min-width:0;width:100%;margin:0!important;
+ border-radius:7px;box-shadow:none;
+}
+body[data-cl-workspace="continuous"] #sim-content>#cl-chart-visibility-toolbar{
+ grid-area:toolbar;min-width:0;width:100%;margin:0!important;
+ border-radius:6px;padding:6px 10px;
+}
+body[data-cl-workspace="continuous"] #sim-content>.sim-layout{
+ grid-area:chart;min-width:0;width:100%;max-width:none;margin:0;
+}
+body[data-cl-workspace="continuous"] #sim-content>#cl-simulator-workbench{
+ grid-area:workbench;min-width:0;width:100%;max-width:none;margin:0;
+ position:sticky;top:12px;max-height:calc(100vh - 24px);
+ overflow:auto;overscroll-behavior:contain;border-radius:7px;
+}
+body[data-cl-workspace="continuous"] #sim-content .sim-chart-panel{
+ border-radius:7px;padding:10px 12px;box-shadow:none;
+}
+body[data-cl-workspace="continuous"] #sim-content .cl-chart-tier-switcher{
+ border-radius:7px;padding:8px;box-shadow:none;
+}
+body[data-cl-workspace="continuous"] #sim-content .cl-workbench-tabbar{
+ padding:6px 7px 0;gap:2px;
+}
+body[data-cl-workspace="continuous"] #sim-content .cl-workbench-tab{
+ font-size:.77rem;padding:8px 6px;min-height:38px;
+ flex:1 1 44%;
+}
+body[data-cl-workspace="continuous"] #sim-content .cl-workbench-panels{
+ padding:10px;
+}
+body[data-cl-workspace="continuous"] #sim-content .cl-workbench-panels .journal-grid.two{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+body[data-cl-workspace="continuous"] .cl-chart-visibility strong{font-size:.88rem}
+body[data-cl-workspace="continuous"] #cl-replay-import .cl-workbench-import>summary{
+ font-size:.9rem;padding:8px 12px;
+}
+body[data-cl-workspace="continuous"] .cl-chart-tier-panels{gap:8px}
+body[data-cl-workspace="continuous"] .cl-tier-chart-summary{padding:7px 9px;border-radius:6px 6px 0 0}
+body[data-cl-workspace="continuous"] .cl-tier-kline-canvas{border-radius:0 0 6px 6px}
+body[data-cl-workspace="continuous"] #sim-content .cl-workspace-controls{margin-top:7px;padding:7px 9px}
+body[data-cl-workspace="continuous"] .cl-workbench-preview-strip{
+ grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+ color:#b8d7eb;background:#0b2537;border:1px solid #32637a;
+ font-size:.78rem;border-radius:6px;padding:6px 9px;gap:8px;
+}
+body[data-cl-workspace="continuous"] .cl-workbench-preview-strip a{color:#9de2fb}
+@media(max-width:1240px){
+ body[data-cl-workspace="continuous"] #sim-content{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"source" "toolbar" "chart" "workbench";
+ }
+ body[data-cl-workspace="continuous"] #sim-content>#cl-simulator-workbench{
+  position:static;max-height:none;overflow:visible;
+ }
+}
+@media(max-width:660px){
+ body[data-cl-workspace="continuous"] main.section>.wrap{width:calc(100% - 18px)}
+ body[data-cl-workspace="continuous"] #sim-content .cl-workbench-panels .journal-grid.two{
+  grid-template-columns:1fr;
+ }
+}
