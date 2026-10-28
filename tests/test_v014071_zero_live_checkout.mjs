@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 const src=readFileSync(new URL('../functions/api/owner-zero-live-checkout.js',import.meta.url),'utf8');
 const handler=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
 const adminUi=readFileSync(new URL('../assets/js/admin-stripe-shadow-v01439.js',import.meta.url),'utf8');
+assert(!src.includes("p.set('payment_method_collection'"),'No unsupported Checkout payment_method_collection parameter in payment mode');
 assert(adminUi.includes('stripeDiagnostic')&&adminUi.includes('Stripe request:'),'Owner Admin must display safe provider diagnostics after a rejected $0 Checkout');
 assert(src.includes("'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[].'.includes(ch)"),'Stripe nested error params must be sanitized without stripping valid brackets');
 const base='https://stock-market-from-the-ground-up.pages.dev';
@@ -14,7 +15,7 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_PUBL
  GU71_ZERO_LIVE_PRICE_ID:'price_gu71Zero123',PUBLIC_SITE_URL:base};
 const user='11111111-1111-4111-8111-111111111111';
 const state={role:'OWNER',step:true,amount:0,kind:'one_time',marked:true,wrongProduct:false,sessionAmount:0,
- method:'if_required',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null,founder14Checkout:false,providerReject:false};
+ method:'always',status:'complete',account:'acct_correct12345',stripePost:0,dbWrites:0,authCount:0,targetSku:null,lastIdempotency:null,founder14Checkout:false,providerReject:false};
 const json=(obj,code=200)=>new Response(JSON.stringify(obj),{status:code,headers:{'content-type':'application/json'}});
 const saved=globalThis.fetch;
 globalThis.fetch=async(url,options={})=>{
@@ -46,7 +47,8 @@ globalThis.fetch=async(url,options={})=>{
   state.lastIdempotency=options.headers['Idempotency-Key'];
   assert.equal(x.get('mode'),'payment');assert.equal(x.get('line_items[0][quantity]'),'1');
   assert.equal(x.get('line_items[0][price]'),'price_gu71Zero123');
-  assert.equal(x.get('payment_method_collection'),'if_required');
+  assert.equal(x.has('payment_method_collection'),false,'A zero-cost payment-mode Session must not send subscription-only payment_method_collection');
+  assert.equal(x.get('customer_creation'),'always','No-cost Checkout requires a Customer, not a subscription');
   assert.equal(x.get('automatic_tax[enabled]'),'false');
   assert.equal(x.get('metadata[gu71_zero_qa]'),'true');
   assert.equal(x.get('metadata[gu71_owner]'),user);
@@ -136,7 +138,7 @@ try{
  assert.equal(out.memberEntitlementGranted,false);
  state.sessionAmount=10;r=await post();assert.equal(r.status,503,'Unexpected amount response never reveals session URL');
  r=await inspect();out=await r.json();assert.equal(out.verifiedSafe,false);
- state.sessionAmount=0;state.method='always';r=await post();assert.equal(r.status,503,'Card-required Checkout is not permitted');
+ state.sessionAmount=0;state.method='unrecognized';r=await post();assert.equal(r.status,503,'Unrecognized payment method collection cannot disclose a Checkout URL');
  assert.equal(state.dbWrites,0);
  console.log('PASS v71: Owner step-up and explicit POST, zero one-time only, separate product metadata, no paid SKU/card/subscription/member grant, safe Stripe-hosted URL.');
 }finally{globalThis.fetch=saved}
