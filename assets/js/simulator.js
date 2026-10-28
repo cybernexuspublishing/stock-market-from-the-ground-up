@@ -151,6 +151,8 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  if(!freeEligible){gate.textContent='This account is not eligible for member market practice. '+String(grant.reason||'Contact support.');return}
  SIM.hasPremium=grant.authorized===true; if(!SIM.hasPremium){gate.textContent='Free browser CSV and fictional practice are available to signed-in members. Connected data and protected historical replay require a separate entitlement. Saved paper exercises remain subject to the Free weekly Journal limits.';for(const opt of $('sim-source')?.querySelectorAll('option[value="tiingo"],option[value="alpaca"]')||[])opt.disabled=true;}
  const params=new URLSearchParams(location.search);const linked=Number(params.get('journal_id'));if(linked)await loadLinkedJournal(linked);const lab=params.get('lab');if(lab&&$('sim-lab-id')&&!$('sim-lab-id').value)$('sim-lab-id').value=lab;if(lab)await loadContextEnvelope(lab);const topic=params.get('topic');if(topic&&!$('sim-entry-reason').value)$('sim-entry-reason').value=`Tutor practice topic: ${topic}`;if(SIM.hasPremium)gate.textContent='';$('sim-content').hidden=false;
+ window.CrownlightWorkbenchLayout?.init({getToken:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session?.access_token||null}});
+ window.CrownlightPaperTerminal?.initialize?.({getSession:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session||null}});
  window.CrownlightLive?.initialize({canLive:SIM.hasPremium===true,
   getSymbol:()=>$('sim-ticker')?.value||'AAPL',
   getSession:async()=>{const {data}=await SIM.sb.auth.getSession();return data?.session||null}});
