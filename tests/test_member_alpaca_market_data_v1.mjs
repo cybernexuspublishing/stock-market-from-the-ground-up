@@ -25,9 +25,9 @@ globalThis.fetch=async(input,options={})=>{
    saveCount++;stored=JSON.parse(options.body);
    assert.equal(stored.status,'connected');
    assert(stored.credential_ciphertext&&!JSON.stringify(stored).includes(pair.apiSecret),'Store only encrypted credentials');
-   assert.equal(stored.metadata.feed,'iex');return response([]);
+   assert.equal(stored.metadata.feed,'iex');assert.equal(stored.metadata.accountType,'paper');return response([]);
   }
-  if(options.method==='PATCH'){verifyUpdates++;return response([])}
+  if(options.method==='PATCH'){verifyUpdates++;assert.equal(JSON.parse(options.body).metadata.accountType,'paper');return response([])}
   if(u.searchParams.get('select')?.includes('credential_ciphertext'))return response(stored?[stored]:[]);
   return response([]);
  }
@@ -47,13 +47,13 @@ const request=(action,method='POST',body,origin='https://site.test')=>new Reques
  body:method==='POST'?JSON.stringify(body||{}):undefined
 });
 try{
- let res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',values:pair},'https://evil.test')});
+ let res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',accountType:'paper',values:pair},'https://evil.test')});
  assert.equal(res.status,403);assert.equal(external,0);
  denied=true;
- res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',values:pair})});
+ res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',accountType:'paper',values:pair})});
  assert.equal(res.status,403);assert.equal(saveCount,0,'A failed Alpaca test must not save credentials');
  denied=false;
- res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',values:pair})});
+ res=await credentials({env,request:request('save','POST',{serviceCode:'ALPACA_BYO',accountType:'paper',values:pair})});
  assert.equal(res.status,200);assert.equal((await res.json()).verified,true);assert.equal(saveCount,1);
  res=await credentials({env,request:request('verify','POST',{serviceCode:'ALPACA_BYO'})});
  assert.equal(res.status,200);assert.equal((await res.json()).feed,'iex');assert.equal(verifyUpdates,1);
@@ -63,6 +63,12 @@ try{
  await assert.rejects(alpacaIexBars(pair,{ticker:'AAPL',start:'2026-10-22',end:'2026-10-22',freq:'bad'}),/frequency/);
  assert(external>=4);
  assert(apiPaths.every(p=>!p.includes('/orders')&&!p.includes('/account')),'No broker/order APIs used');
+ const activeUi=readFileSync('assets/js/dashboard-ui-legacy.js','utf8');
+ assert.match(activeUi,/v1321-provider-dialog/);
+ assert.match(activeUi,/Choose which Alpaca account to connect/);
+ assert.match(activeUi,/modal.showModal\(\)/);
+ assert.match(activeUi,/accountType/);
+ assert.match(activeUi,/autocomplete="new-password"/);
  const ui=readFileSync('src/ts/production-completion.ts','utf8');
  assert.match(ui,/Alpaca — Market Data \(IEX\)/);
  assert.match(ui,/Test Market Data/);
