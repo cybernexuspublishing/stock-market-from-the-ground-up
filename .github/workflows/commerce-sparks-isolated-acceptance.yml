@@ -7,6 +7,11 @@ on:
       - 'tests/test_20261026_admin_entitlement_multi_contract.mjs'
       - 'tests/test_lantern_sparks_admin_security.mjs'
       - 'tests/test_member_sparks_wallet_v014296.mjs'
+      - 'tests/test_sparks_pricing_manager_v1.mjs'
+      - 'assets/js/admin-sparks-pricing-v1.js'
+      - 'functions/api/chart-tier-access.js'
+      - 'supabase/migrations/20261028_crownlight_sparks_*'
+      - 'supabase/migrations/20261028_crownlight_chart_sparks_*'
       - 'assets/js/account-management-entitlements-v01478.js'
       - 'assets/js/my-purchases.js'
       - 'functions/api/admin-accounts-v01353.js'
@@ -37,6 +42,7 @@ jobs:
           node tests/test_20261026_admin_entitlement_multi_contract.mjs
           node tests/test_member_sparks_wallet_v014296.mjs
           node tests/test_lantern_sparks_admin_security.mjs
+          node tests/test_sparks_pricing_manager_v1.mjs
           node tests/test_v01438_stripe_lifecycle_mock.mjs
   disposable-postgres:
     runs-on: ubuntu-latest
