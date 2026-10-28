@@ -125,7 +125,7 @@ async function foundingCatalog(){
   const response=await fetch('/data/founding-catalog.json',{cache:'no-store'});if(!response.ok)throw Error('Terms unavailable');
   const terms=await response.json();const codes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
-  if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)))throw Error('Invalid founding terms');
+  if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)||p.includedSparksNeverExpire!==true))throw Error('Invalid founding terms');
   let accepting=false,eligible=new Map();
   try{
    const status=await fetch('/api/founding600-checkout',{cache:'no-store',signal:AbortSignal.timeout(12000)});
@@ -140,7 +140,7 @@ async function foundingCatalog(){
  <h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div>
  <p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p>
  <ul><li>Crownlight Chart Studio: ${['Standard','Advanced','Professional'][i]} tier while the founding term is active</li><li>Permanent founding number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and learning preferences':'Founder improvement polls and learning priorities'}</li></ul>
- <p class="small">Renews automatically until canceled. <a href="founding600.html">Review benefit exclusions and Sparks expiry.</a></p>
+ <p class="small">Renews automatically until canceled. <a href="founding600.html">Review benefit exclusions and nonexpiring Crownlight Sparks.</a></p>
  <a class="btn ${i===2?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability</a></article>`;}).join('');
   const yes=()=>coverage(true),no=()=>coverage(false);
   const rows=[
@@ -153,7 +153,7 @@ async function foundingCatalog(){
    ['Founder improvement polls',plans.map(()=>yes())],
    ['Founding Member certificate',plans.map(()=>yes())],
    ['Permanent founder discount eligibility',[no(),yes(),yes()]],
-   ['Included Sparks expiry after term',plans.map(p=>String(p.incSparksExpiryDaysAfterTermEnd)+' days')],
+   ['Unused included Sparks expiration',plans.map(()=>'Never')],
    ['Learning progress preservation',plans.map(()=>yes())],
    ['Service-interruption protection',plans.map(()=>yes())],
    ['Extended Design Council',[no(),no(),yes()]],

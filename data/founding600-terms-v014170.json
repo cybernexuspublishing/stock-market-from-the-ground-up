@@ -11,11 +11,12 @@
       "recurringCents": 2299,
       "foundingDiscountBps": 500,
       "incSparks": 10,
-      "incSparksExpiryDaysAfterTermEnd": 60,
+      "incSparksExpiryDaysAfterTermEnd": null,
       "autoRenew": true,
       "enhanced": false,
       "checkoutEnabled": false,
-      "discountActiveMembershipOnly": true
+      "discountActiveMembershipOnly": true,
+      "includedSparksNeverExpire": true
     },
     "FOUNDING_30": {
       "name": "Founding Standard",
@@ -23,9 +24,10 @@
       "recurringCents": 4999,
       "foundingDiscountBps": 1000,
       "incSparks": 15,
-      "incSparksExpiryDaysAfterTermEnd": 90,
+      "incSparksExpiryDaysAfterTermEnd": null,
       "autoRenew": true,
-      "enhanced": false
+      "enhanced": false,
+      "includedSparksNeverExpire": true
     },
     "FOUNDING_60": {
       "name": "Founding Extended",
@@ -33,9 +35,10 @@
       "recurringCents": 5999,
       "foundingDiscountBps": 1500,
       "incSparks": 20,
-      "incSparksExpiryDaysAfterTermEnd": 150,
+      "incSparksExpiryDaysAfterTermEnd": null,
       "autoRenew": true,
-      "enhanced": true
+      "enhanced": true,
+      "includedSparksNeverExpire": true
     }
   },
   "discount": {
@@ -138,15 +141,17 @@
     "noCorporateVotingOrEquity": true,
     "noInvestmentAdvice": true,
     "noPurchasedMastery": true,
-    "includedSparksExpireAfterPeriod": true,
+    "includedSparksExpireAfterPeriod": false,
     "purchasedSparksNeverExpire": true,
     "noAutomaticConversionToPublicPlan": true,
     "memberAccessEndsAtPaidThroughDate": true,
-    "cancellationDoesNotRemoveOriginalFounderNumber": true
+    "cancellationDoesNotRemoveOriginalFounderNumber": true,
+    "includedSparksNeverExpire": true
   },
   "standardOnlyBenefits": {
     "higherIncludedSparks": "15 included Sparks per 30-day term vs 10 per 14-day Starter term",
     "largerPurchaseDiscount": "10% on eligible purchases vs Starter's 5%",
     "vestedPurchaseDiscount": "Standard's 10% permanent founder discount eligibility after verified enrollment; Starter's 5% discount applies only while active"
-  }
+  },
+  "sparkPolicyVersion": "CROWNLIGHT_V2_NONEXPIRING"
 }

@@ -141,6 +141,14 @@ The temporary role grants and hidden-topic status were intentionally rolled back
 - `assets/js/market-commons-platform.js` now turns escaped, explicit HTTP(S) source URLs in official guides into links with `noopener`/`noreferrer` protection. The committed JavaScript was syntax-parsed successfully. Authenticated visual link testing is still outstanding.
 - The exact latest commit and full GitHub Action statuses must be captured separately after all triggered workflows finish. A successful Cloudflare deploy does not close authenticated permission/browser review.
 
+## Commercial V2 reconciliation — 2026-10-28 follow-up
+
+- Founder 14-Day catalogue: $22.99/14 days, 5% eligible-purchase discount while active, 10 included Sparks, `checkout_enabled=false`. Do not represent this as open enrollment.
+- Founder 30-Day: $49.99/30 days, 10% earned eligible-purchase discount, 15 included Sparks; Founder 60-Day: $59.99/60 days, 15% eligible-purchase discount subject to term and vesting, 20 included Sparks. Both recorded in the product registry; the overall `public_launch_open=false` release flag remains controlling.
+- Lifetime plan: $2,499 catalogue price, `public_visible=false` despite a protected internal checkout route. The checkout function explicitly rejects any earned Founder discount that it cannot actually honor; do not promise immediate discounted Lifetime checkout.
+- Founders `founding600.html`, Store source projection and comparison, and canonical JSON updated to show V2 nonexpiration. Legacy database `sparks_expiry_after_term_days` fields are historical and not customer expiry promises; the `groundup_question_pass_buckets` database constraint requires `expires_at IS NULL`.
+- Source-only public content checks do not replace real signed-in browser validation. Existing mock Playwright checks do not satisfy actual Admin/Moderator role acceptance.
+
 ## Revision history
 
 | Version | Date | Change | Status |

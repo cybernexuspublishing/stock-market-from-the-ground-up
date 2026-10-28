@@ -94,3 +94,23 @@ test('founder 60-day public catalog copy has a guarded noncharging correction',(
  assert.match(preflight,/BEGIN READ ONLY/);
  assert.match(preflight,/ROLLBACK;/);
 });
+
+test('current Founder public descriptions use the V2 nonexpiring Sparks rule',()=>{
+  const page=read('founding600.html'),store=read('assets/js/store.js'),build=read('scripts/build-pages.sh');
+  for(const code of ['FOUNDING_14','FOUNDING_30','FOUNDING_60']){
+    assert.equal(c.plans[code].incSparksExpiryDaysAfterTermEnd,null,code+' obsolete expiry must be disabled');
+    assert.equal(c.plans[code].includedSparksNeverExpire,true,code+' must be nonexpiring');
+  }
+  assert.equal(c.sparkPolicyVersion,'CROWNLIGHT_V2_NONEXPIRING');
+  assert.equal(c.disclosures.includedSparksExpireAfterPeriod,false);
+  assert.equal(c.disclosures.includedSparksNeverExpire,true);
+  assert.doesNotMatch(page,/Included Sparks expire (60|90|150) days/i);
+  assert.match(page,/Unused included and purchased Crownlight Sparks never expire/);
+  assert.match(store,/Unused included Sparks expiration/);
+  assert.match(store,/plans\.map\(\(\)=>'Never'\)/);
+  assert.doesNotMatch(store,/Sparks expiry|expiry after term/i);
+  assert.match(build,/includedSparksNeverExpire/);
+  assert.doesNotMatch(build,/'incSparksExpiryDaysAfterTermEnd'/);
+  assert.match(read('functions/api/stripe-live-checkout-v01458.js'),
+    /Your earned Founder discount is not yet supported by this checkout/);
+});
