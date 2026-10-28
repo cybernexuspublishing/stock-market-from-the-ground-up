@@ -1,0 +1,50 @@
+name: Crownlight Authenticated Production QA (manual, noncharging)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-member-entitlements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-qa-noncharging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify QA credentials are configured before requesting a signed-in acceptance
+        env:
+          CROWN_QA_SUPABASE_URL: ${{ secrets.CROWN_QA_SUPABASE_URL }}
+          CROWN_QA_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.CROWN_QA_SUPABASE_PUBLISHABLE_KEY }}
+          CROWN_QA_FREE_EMAIL: ${{ secrets.CROWN_QA_FREE_EMAIL }}
+          CROWN_QA_FREE_PASSWORD: ${{ secrets.CROWN_QA_FREE_PASSWORD }}
+          CROWN_QA_FOUNDING_14_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_14_EMAIL }}
+          CROWN_QA_FOUNDING_14_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_14_PASSWORD }}
+          CROWN_QA_FOUNDING_30_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_30_EMAIL }}
+          CROWN_QA_FOUNDING_30_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_30_PASSWORD }}
+          CROWN_QA_FOUNDING_60_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_60_EMAIL }}
+          CROWN_QA_FOUNDING_60_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_60_PASSWORD }}
+        run: |
+          node --check tests/test_crownlight_authenticated_production_qa_v2.mjs
+          node - <<'NODE'
+          const env=['CROWN_QA_SUPABASE_URL','CROWN_QA_SUPABASE_PUBLISHABLE_KEY','CROWN_QA_FREE_EMAIL','CROWN_QA_FREE_PASSWORD','CROWN_QA_FOUNDING_14_EMAIL','CROWN_QA_FOUNDING_14_PASSWORD','CROWN_QA_FOUNDING_30_EMAIL','CROWN_QA_FOUNDING_30_PASSWORD','CROWN_QA_FOUNDING_60_EMAIL','CROWN_QA_FOUNDING_60_PASSWORD'];
+          const missing=env.filter(x=>!process.env[x]);
+          if(missing.length)throw Error('Dedicated real QA credentials not configured: '+missing.join(', ')+'. No mocked acceptance permitted.');
+          NODE
+      - name: Actual member sign-in, production chart tier and private-workspace authorization; no payments
+        env:
+          CROWN_QA_SITE_URL: https://stock-market-from-the-ground-up-d1r.pages.dev
+          CROWN_QA_SUPABASE_URL: ${{ secrets.CROWN_QA_SUPABASE_URL }}
+          CROWN_QA_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.CROWN_QA_SUPABASE_PUBLISHABLE_KEY }}
+          CROWN_QA_FREE_EMAIL: ${{ secrets.CROWN_QA_FREE_EMAIL }}
+          CROWN_QA_FREE_PASSWORD: ${{ secrets.CROWN_QA_FREE_PASSWORD }}
+          CROWN_QA_FOUNDING_14_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_14_EMAIL }}
+          CROWN_QA_FOUNDING_14_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_14_PASSWORD }}
+          CROWN_QA_FOUNDING_30_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_30_EMAIL }}
+          CROWN_QA_FOUNDING_30_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_30_PASSWORD }}
+          CROWN_QA_FOUNDING_60_EMAIL: ${{ secrets.CROWN_QA_FOUNDING_60_EMAIL }}
+          CROWN_QA_FOUNDING_60_PASSWORD: ${{ secrets.CROWN_QA_FOUNDING_60_PASSWORD }}
+        run: node tests/test_crownlight_authenticated_production_qa_v2.mjs
