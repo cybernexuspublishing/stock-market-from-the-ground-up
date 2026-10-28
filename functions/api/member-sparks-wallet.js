@@ -40,10 +40,10 @@ export async function onRequest({request,env}){
    throw fail('Wallet ledger could not be reconciled.',503);
   return json({ok:true,wallet:{available:summary.available,included:summary.included,
    purchased:summary.purchased,manual:summary.manual,nextExpiry:summary.nextExpiry||null},
-   freeCredits:{allowance:2,expiryPolicy:'One calendar month from each monthly grant; no rollover.',
+   freeCredits:{allowance:5,expiryPolicy:'Sparks never expire.',
     nextGrantAt:freeGrant.nextGrantAt||null,issuedThisRequest:freeGrant.issued||0,
     applies:freeGrant.reason!=='paid_account_excluded'},
-   howToUse:'Use a Crownlight Spark to skip or reveal one eligible ungraded practice question. All teaching, explanations and retries remain available without Sparks. A revealed or skipped answer never awards official assessment mastery.',
+   howToUse:'Crownlight Sparks are used for optional marketplace benefits, including 4-Spark ungraded Reveal or Skip actions and temporary ad-free passes for eligible plans. All ordinary instruction and practice retries remain available. Reveals and skips never award official assessment mastery.',
    purchaseEnabled:false});
  }catch(e){
   return json({ok:false,error:e.status===401?'Please sign in to view your Sparks.':
