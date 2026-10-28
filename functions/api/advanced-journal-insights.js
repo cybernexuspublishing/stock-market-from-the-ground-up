@@ -24,7 +24,7 @@ export function summarize(rows){
   if(rValue!==null){g.measured++;g.rSum+=rValue;if(rValue>0)g.wins++}
   if(mfe!==null){g.mfeSum+=mfe;g.mfeCount++}
   if(mae!==null){g.maeSum+=mae;g.maeCount++}
-  if(r.plan_followed===true||r.plan_followed===false){g.followedKnown++;if(r.plan_followed)g.followed++}
+  if(['YES','PARTIAL','NO'].includes(r.plan_followed)){g.followedKnown++;if(r.plan_followed==='YES')g.followed++}
  }
  return [...groups.values()].map(g=>({
   journalType:g.journalType,setup:g.setup,records:g.records,measured:g.measured,
