@@ -30,7 +30,7 @@ globalThis.fetch=async(url,init={})=>{
 const req=(method='GET',args={})=>new Request('https://site-fixture.test/api/site-card-layout?page=simulator',{
  method,headers:{...(args.authorized?{authorization:'Bearer fixture-session'}:{}),
  ...(method!=='GET'?{'content-type':'application/json',origin:args.origin||'https://site-fixture.test'}:{})},
- body:method==='GET'?undefined:JSON.stringify(args.body||{cardKey:'id:sim-card',widthPct:75,minHeightPx:380,sortIndex:2})});
+ body:method==='GET'?undefined:JSON.stringify(args.body||{cardKey:'id:sim-card',widthPct:75,minHeightPx:380,sortIndex:2,offsetXPx:18,offsetYPx:-25})});
 try{
  let r=await onRequest({request:req() ,env});
  let data=await r.json();assert.equal(data.ok,true);assert.equal(data.canEdit,false);assert.equal(writes,0);
@@ -42,8 +42,11 @@ try{
  r=await onRequest({request:req('POST',{authorized:true,origin:'https://attacker.test'}),env});assert.equal(r.status,403);
  r=await onRequest({request:req('POST',{authorized:true,body:{cardKey:'id:sim-card',widthPct:105}}),env});assert.equal(r.status,400);
  r=await onRequest({request:req('POST',{authorized:true,body:{cardKey:'id:sim-card',widthPct:80,evilProperty:true}}),env});assert.equal(r.status,400);
+ r=await onRequest({request:req('POST',{authorized:true,body:{cardKey:'id:sim-card',offsetXPx:400}}),env});assert.equal(r.status,400);
+ r=await onRequest({request:req('POST',{authorized:true,body:{cardKey:'id:sim-card',offsetYPx:-281}}),env});assert.equal(r.status,400);
  r=await onRequest({request:req('POST',{authorized:true}),env});data=await r.json();assert.equal(data.saved,true);assert.equal(writes,1);
  assert.equal(rows[0].width_pct,75);assert.equal(rows[0].min_height_px,380);
+ assert.equal(rows[0].offset_x_px,18);assert.equal(rows[0].offset_y_px,-25);
  r=await onRequest({request:req('GET'),env});data=await r.json();assert.equal(data.items.length,1);
  r=await onRequest({request:req('DELETE',{authorized:true,body:{cardKey:'id:sim-card'}}),env});
  assert.equal(r.status,200);assert.equal(rows.length,0);
@@ -57,7 +60,7 @@ try{
  const css=readFileSync('assets/css/crownlight-site-layout-editor-v1.css','utf8');
  const site=readFileSync('assets/js/site.js','utf8');
  assert.match(ui,/beginResize/);assert.match(ui,/addEventListener\('pointerup'/);
- assert.match(ui,/addEventListener\('drop'/);assert.match(ui,/function toggle/);
+ assert.match(ui,/beginMove/);assert.match(ui,/applySavedOrder/);assert.match(ui,/function toggle/);
  assert.match(ui,/state\.token=identity\.access_token/);
  assert.match(css,/gu-layout-controls/);assert.match(site,/crownlight-site-layout-editor-v1\.js/);
  console.log('PASS sitewide editor: anonymous read-only, staff role gate, expired role denial, CSRF, bounded geometry, audit-ready save/reset and pointer release');
