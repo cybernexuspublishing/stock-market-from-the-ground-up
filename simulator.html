@@ -8,18 +8,18 @@
 </section>
 <div class="journal-card journal-section" role="group" aria-labelledby="sim-modes-label">
 <h2 id="sim-modes-label">Choose your learning mode</h2><div class="journal-actions">
-<button type="button" class="btn" id="sim-mode-server" aria-controls="sim-server-mode" aria-pressed="true">Server-Controlled Replay (default)</button>
+<button type="button" class="btn" id="sim-mode-server" aria-controls="sim-server-mode" aria-pressed="true">Server-Controlled Fictional Replay (default)</button>
 <button type="button" class="btn secondary" id="sim-mode-csv" aria-controls="sim-legacy-mode" aria-pressed="false">Free Fictional / CSV Practice</button>
 </div><p id="sim-mode-notice" role="status" aria-live="polite">Choose a mode to begin.</p>
 </div>
 <section id="sim-server-mode" aria-labelledby="sim-server-title">
-<h2 id="sim-server-title">Server-controlled rights-cleared historical replay</h2>
-<p class="journal-small">Open the <a href="verified-replay.html">historical replay workbench</a> for a separate view. Only revealed candles are available during a session.</p>
-<div id="vr-notice" class="status-message" role="status" aria-live="polite">Sign in with Market Simulator or eligible Historical Replay access to begin.</div>
-<section class="journal-card journal-section"><h2>1. Choose an authorized historical dataset</h2>
-<label for="vr-dataset">Rights-reviewed, independently verified historical datasets</label><select id="vr-dataset"><option value="">Refresh the available datasets</option></select><button type="button" class="btn secondary" id="vr-refresh">Refresh Datasets</button><button type="button" class="btn secondary" id="vr-resume">Resume Saved Session</button><p class="journal-small" id="vr-dataset-note" role="status" aria-live="polite">Available historical datasets appear here.</p><label for="vr-code">Dataset code (also available for Owner-supplied codes)</label><input id="vr-code" maxlength="80" placeholder="DATASET_CODE" autocomplete="off">
-<button type="button" class="btn" id="vr-start">Start Replay</button><p class="journal-small">No historical observations are fabricated. A session requires existing source-verified server-side bars.</p></section>
-<section id="vr-session" class="journal-card journal-section" hidden><h2>2. Server-controlled historical observation</h2>
+<h2 id="sim-server-title">Server-controlled original fictional replay</h2>
+<p class="journal-small">Practice with originally authored fictional candles, revealed one at a time by the server. No real market history or confirmed fills are implied. For separately rights-approved real data, <a href="verified-replay.html?scope=historical">open verified historical replay</a>.</p>
+<div id="vr-notice" class="status-message" role="status" aria-live="polite">Sign in to start an original fictional learning scenario.</div>
+<section class="journal-card journal-section"><h2>1. Choose an original fictional teaching scenario</h2>
+<label for="vr-dataset">Published original fictional scenarios</label><select id="vr-dataset"><option value="">Refresh the available datasets</option></select><button type="button" class="btn secondary" id="vr-refresh">Refresh Datasets</button><button type="button" class="btn secondary" id="vr-resume">Resume Saved Session</button><p class="journal-small" id="vr-dataset-note" role="status" aria-live="polite">Published fictional learning scenarios appear here.</p><label for="vr-code">Dataset code (also available for Owner-supplied codes)</label><input id="vr-code" maxlength="80" placeholder="DATASET_CODE" autocomplete="off">
+<button type="button" class="btn" id="vr-start">Start Replay</button><p class="journal-small">All fictional OHLCV bars are originally authored and stored privately; a session reveals only currently authorized bars. Historical market observations are not implied.</p></section>
+<section id="vr-session" class="journal-card journal-section" hidden><h2>2. Server-revealed fictional observation</h2>
 <p>Private session: <code id="vr-id"></code>. Current bar: <strong id="vr-index"></strong>.</p>
 <div id="vr-source"></div>
 <figure class="journal-card"><h3>Only the visible observations</h3><svg id="vr-visible-chart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 330" width="100%" role="img" aria-label="No OHLCV observations loaded yet"></svg><figcaption id="vr-visible-count" class="journal-small" aria-live="polite">No candles loaded. Future data remain private on the server.</figcaption></figure>
