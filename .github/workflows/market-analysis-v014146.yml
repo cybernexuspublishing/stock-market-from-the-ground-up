@@ -31,6 +31,11 @@ jobs:
           node tests/test_journal_guided_integrity_v1.mjs
           node --check assets/js/journal-guided-v1.js
           node --check assets/js/journal-common.js
+          node --check assets/js/journal-evidence-v1.js
+          node --check assets/js/journal-actual-history-v1.js
+          node --check assets/js/journal-weekly-v1.js
+          node --check assets/js/journal-entry.js
+          node --check assets/js/journal.js
           node tests/test_sellable_simulator_csv_integrity_v1.mjs
           node tests/test_sellable_simulator_store_v1.mjs
           node --check assets/js/simulator.js
