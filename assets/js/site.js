@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   style.dataset.guNavSearch='1';document.head.append(style);
  }
  if(!document.querySelector('script[data-gu-nav-search]')){
-  const script=document.createElement('script');script.src='/assets/js/nav-search-and-sparks-v1.js';
+  const script=document.createElement('script');script.src='/assets/js/nav-search-and-sparks-v1.js?v=charttiers1';
   script.dataset.guNavSearch='1';script.defer=true;document.head.append(script);
  }
 })();
