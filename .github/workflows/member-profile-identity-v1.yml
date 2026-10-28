@@ -1,0 +1,39 @@
+name: Member Identity V1 — Noncharging Source Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/avatars/**'
+      - 'assets/js/member-profile-ui-v1.js'
+      - 'assets/js/admin-account-sections-v1.js'
+      - 'assets/js/profile.js'
+      - 'assets/js/signup.js'
+      - 'assets/js/dashboard-ui-legacy.js'
+      - 'functions/api/account.js'
+      - 'functions/api/member-profile.js'
+      - 'supabase/migrations/20261028_member_profile_identity_titles_avatars_v1.sql'
+      - 'dashboard.html'
+      - 'create-account.html'
+      - 'admin.html'
+      - 'tests/test_member_profile_identity_v1.mjs'
+      - '.github/workflows/member-profile-identity-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Verify member identity source and server code
+        run: |
+          node --check functions/api/member-profile.js
+          node --check functions/api/account.js
+          node --check assets/js/member-profile-ui-v1.js
+          node --check assets/js/admin-account-sections-v1.js
+          node --check assets/js/signup.js
+          node --check assets/js/dashboard-ui-legacy.js
+          node tests/test_member_profile_identity_v1.mjs

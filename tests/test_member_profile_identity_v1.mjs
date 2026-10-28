@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync} from 'node:fs';
+const file=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const form=file('create-account.html'),signup=file('assets/js/signup.js'),auth=file('functions/api/account.js');
+const api=file('functions/api/member-profile.js'),ui=file('assets/js/member-profile-ui-v1.js');
+const dash=file('assets/js/dashboard-ui-legacy.js'),admin=file('assets/js/admin-account-sections-v1.js');
+const db=file('supabase/migrations/20261028_member_profile_identity_titles_avatars_v1.sql');
+for(const value of ['female','male','rather_not_say'])assert.ok(form.includes('value="'+value+'"'));
+assert.match(signup,/dateOfBirth,gender,username/);
+assert.match(auth,/crypto\.getRandomValues\(random\)/);
+assert.match(auth,/gender_choice:gender,avatar_url:avatarUrl/);
+for(const code of ['f1','f2','f3','m1','m2','m3','n1','n2','n3']){
+ assert.ok(existsSync(new URL('../assets/avatars/av-'+code+'.svg',import.meta.url)));
+}
+assert.match(api,/memberIdentity\(env,request\)/);
+assert.match(api,/isFounder\(cfg,userId\)/);
+assert.match(api,/verifiedTitles\(cfg,userId,founder\)/);
+assert.match(api,/gu_member_custom_title_purchase_v1/);
+assert.match(api,/target!==userId/);
+assert.match(api,/gu-member-avatars/);
+assert.match(ui,/image\/webp/);
+assert.match(ui,/data-profile-form/);
+assert.match(ui,/data-custom-title-form/);
+assert.match(ui,/confirm\(/);
+assert.match(admin,/v1-editor-tabs/);
+assert.match(dash,/nav\.hidden=false;hub\.classList\.remove\('gu-single-member-nav'\)/);
+assert.ok(db.includes('pg_advisory_xact_lock(hashtextextended(p_user_id::text,489301))'));
+assert.ok(db.includes('revoke all on function public.gu_member_custom_title_purchase_v1'));
+assert.ok(db.includes('check(selected_title in'));
+assert.ok(!api.includes('checkout.stripe.com'));
+console.log('PASS: profile choices, signup, default avatars, Admin tabs, verified titles, restricted Sparks-spend RPC.');
