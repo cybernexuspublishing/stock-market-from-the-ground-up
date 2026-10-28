@@ -125,7 +125,7 @@ function inspectFormativeReasoning(plan,response){
   ' Use your own explanation; you may retry or ask Talia for another example.'};
  return {status:'supported',message:'Your explanation includes the central observations for this guided example. This is an ungraded understanding check, not independent assessment or mastery.'};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,conversation=[],onTutorExchange,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -756,6 +756,16 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  let pending=null,disposed=false;
  const tutor=el('section',undefined,'gu-v33-tutor');
  tutor.append(el('h4','Ask Market Tutor about this concept'));
+ const history=el('ol',undefined,'gu-v33-tutor-history');
+ history.setAttribute('aria-label','Current Lab Tutor conversation');
+ for(const turn of (Array.isArray(conversation)?conversation:[]).slice(-8)){
+  if(!turn||typeof turn.question!=='string'||typeof turn.answer!=='string')continue;
+  const item=el('li',undefined,'gu-v33-tutor-turn');
+  item.append(el('strong','You · '+String(STEPS[turn.stage]||'Lab')),
+   el('p',turn.question),el('strong',turn.generation==='grounded-model-draft'?'Talia · AI draft':'Talia · source-guided'),el('p',turn.answer));
+  history.append(item);
+ }
+ if(history.children.length)tutor.append(history);
  tutor.append(el('p','Ask a question about this lesson. Responses are educational and subject to your membership access and usage limits. Please omit personal financial information.','gu-v33-tutor-note'));
  const questionLabel=el('label','Your general learning question');
  const question=el('textarea');question.rows=2;question.maxLength=240;question.placeholder='What does this concept mean, and how can I recognize it?';questionLabel.append(question);
@@ -782,18 +792,19 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   const controller=new AbortController();pending=controller;ask.disabled=true;dismiss.hidden=false;
   answer.hidden=true;respond('Requesting an educational response from Market Tutor…');
   try{
-   const data=await requestTutor({question:outbound,allowModel:allowTutorAI===true,signal:controller.signal});
+   const data=await requestTutor({question:outbound,stage,allowModel:allowTutorAI===true,signal:controller.signal});
    if(disposed||controller.signal.aborted)return;
    const response=String(data?.answer||'').trim();
    if(!response)throw Error('Market Tutor did not return an explanation.');
    const ai=data.generation==='grounded-model-draft';
    answer.hidden=false;cancelAnswer?.();
    answerAccessible.textContent=response;
+   onTutorExchange?.({question:typed,answer:response,generation:data.generation,stage});
    const replay=el('button','Show full answer');replay.type='button';replay.className='btn secondary gu-v33-instructor-skip';
    answer.append(replay);
    cancelAnswer=animate(answerVisual,response,seen,replay);
    respond((ai?'AI-generated educational draft':'Source-grounded Market Tutor response')+
-    '. Not official grading or investment advice. '+(data.aiReason&&allowTutorAI&&!ai?'AI draft not available; source-grounded explanation shown.':''));
+    '. Not official grading or investment advice. '+(data.aiReason&&data.aiReason!=='source_only'&&allowTutorAI&&!ai?'AI draft not available; source-grounded explanation shown.':''));
   }catch(error){
    if(error?.name!=='AbortError'&&!disposed)respond(error?.message||'Tutor unavailable; the concept lessons remain accessible.',true);
   }finally{
