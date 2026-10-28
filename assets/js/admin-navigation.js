@@ -26,6 +26,8 @@ const defs={
 // A renamed link never changes its route, controller, permission, or registry key.
 const canonical=[
  [/^builtin:panel-dashboard$/i,'Today','Overview'],
+ [/^builtin:id-cc-find-control$/i,'Find a Tool','Overview'],
+ [/^builtin:id-cc-payments-shortcut$/i,'Payments (Stripe)','Commerce'],
  [/^builtin:id-admin-account-management-direct$/i,'Members','Members & Access'],
  [/^builtin:id-admin-create-account-direct$/i,'Add a Member','Members & Access'],
  [/^builtin:panel-users$/i,'Member Support','Members & Access'],
@@ -112,8 +114,10 @@ function isAuthorized(el){return !el.hidden&&!el.disabled&&!el.closest('[hidden]
 function status(m){let s=$('#cc-admin-navigation-status');if(!s){s=document.createElement('p');s.id='cc-admin-navigation-status';s.setAttribute('role','status');s.setAttribute('aria-live','polite');nav().after(s)}s.textContent=m||'';}
 function special(){const n=nav();function button(id,label,cb,show){let b=$('#'+id,n);if(!b){b=document.createElement('button');b.type='button';b.id=id;b.className='cc-admin-shortcut';b.textContent=label;b.onclick=()=>{if(!cb())status('This workflow is unavailable or not authorized.');};n.append(b)}b.hidden=!show();return b;}
 const click=(sel)=>{const el=$(sel,n);if(!el||!isAuthorized(el))return false;el.click();return true;};
-button('cc-direct-reports','Reports — All Member Reports',()=>click('[data-panel="community"]'),()=>isAuthorized($('[data-panel="community"]',n)));
-button('cc-direct-moderation','Market Commons — Moderation Queue',()=>{if(typeof window.GroundUpAdminWorkflows?.openModeration!=='function')return false;window.GroundUpAdminWorkflows.openModeration();return true;},()=>{try{return !!window.GroundUpAdminCan?.('forum.moderate')&&!!window.GroundUpAdminWorkflows?.openModeration}catch{return false}});
+button('cc-direct-reports','Community Reports',()=>click('[data-panel="community"]'),()=>isAuthorized($('[data-panel="community"]',n)));
+button('cc-direct-moderation','Moderation Queue',()=>{if(typeof window.GroundUpAdminWorkflows?.openModeration!=='function')return false;window.GroundUpAdminWorkflows.openModeration();return true;},()=>{try{return !!window.GroundUpAdminCan?.('forum.moderate')&&!!window.GroundUpAdminWorkflows?.openModeration}catch{return false}});
+button('cc-find-control','Find a Tool',()=>{ensureTopbar();const field=$('#gu33-global-input');if(!field)return false;field.focus();return true;},()=>true);
+button('cc-payments-shortcut','Payments (Stripe)',()=>{const target=$('[data-panel="commerce"]',n);if(!isAuthorized(target))return false;target.click();let count=0;const timer=setInterval(()=>{const hub=$('[data-gu33-payment-hub]');if(hub){clearInterval(timer);hub.scrollIntoView({block:'start',behavior:'smooth'});}else if(++count>20)clearInterval(timer);},150);return true;},()=>isAuthorized($('[data-panel="commerce"]',n)));
 }
 function displayControls(){const n=nav();if(!n)return;observer?.disconnect();special();
 for(const link of $$('.cc-admin-custom-link',n))link.remove();
@@ -151,14 +155,21 @@ for(const group of sorted){
  const activate=()=>{openGroup=group;for(const node of $('.cc-admin-group',n)){node.classList.toggle('cc-group-open',node.dataset.ccNavGroup===group);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(node.dataset.ccNavGroup===group));}};
  title.addEventListener('click',activate);title.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
  wrap.append(title);wrap.classList.toggle('cc-group-open',group===openGroup);
+ let visible=0,overflow=null,overflowCount=0;
  for(const item of groups.get(group).sort((a,b)=>Number(a.restricted)-Number(b.restricted)||a.n-b.n||a.id.localeCompare(b.id))){
    if(item.el.classList.contains('cc-admin-custom-link'))continue;
-   if(item.restricted&&owner&&!item.el.querySelector('.cc-owner-chip')&&!item.el.dataset.ccOwnerChip){
+   if(item.restricted&&owner&&!item.el.dataset.ccOwnerChip){
      item.el.dataset.ccOwnerChip='1';item.el.setAttribute('title',(item.el.title?item.el.title+' — ':'')+'Owner or developer control');
      item.el.classList.add('cc-restricted-item');
    }
-   wrap.append(item.el);
+   const useMore=visible>=8||item.restricted&&visible>=3;
+   if(useMore){
+     if(!overflow){overflow=document.createElement('details');overflow.className='cc-group-more';const summary=document.createElement('summary');summary.textContent='Additional controls';overflow.append(summary);wrap.append(overflow);}
+     overflow.append(item.el);overflowCount++;
+   }else wrap.append(item.el);
+   visible++;
  }
+ if(overflow){overflow.querySelector('summary').textContent='More controls ('+overflowCount+')';if(overflow.querySelector('.active'))overflow.open=true;}
  fragment.append(wrap);
 }
 const manager=$('#cc-control-manager',n);if(manager){const target=$('.cc-admin-group',fragment).find(x=>x.dataset.ccNavGroup==='Security & Governance');
@@ -168,6 +179,7 @@ const manager=$('#cc-control-manager',n);if(manager){const target=$('.cc-admin-g
 // indefinitely whenever their own mount watchdogs ran.
 fragment.append(preserveModuleMounts(n));
 n.replaceChildren(fragment);
+ syncPanelHeadings();
  const selected=$('#admin-tabs button.active,#admin-tabs a[aria-current="page"]');
  if(selected?.closest('[data-cc-nav-group]')){const group=selected.closest('[data-cc-nav-group]').dataset.ccNavGroup;if(group!==openGroup){openGroup=group;for(const node of $('.cc-admin-group',n)){const active=node.dataset.ccNavGroup===group;node.classList.toggle('cc-group-open',active);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(active));}}}
  ensureOverview();ensureTopbar();ensureShowcase();
@@ -177,6 +189,17 @@ function navigateTo(selector){
  const el=$(selector,nav());if(!el||!isAuthorized(el)||el.classList.contains('cc-owner-hidden')){status('This control is not available to the signed-in role.');return;}
  openGroup=el.closest('[data-cc-nav-group]')?.dataset.ccNavGroup||openGroup;
  if(el.tagName==='A'){location.assign(el.href);return;}el.click();
+}
+function syncPanelHeadings(){
+ const active=$('#admin-tabs button.active[data-panel]'),id=active?.dataset.panel;
+ if(!id)return;
+ const panel=$('[data-admin-panel="'+id+'"]',app()),heading=panel?.querySelector('.admin-heading h1');
+ if(!heading)return;
+ const rule=canon(controlId(active)),label=rule?.[1]||active.textContent.trim();
+ if(heading.textContent!==label)heading.textContent=label;
+ let breadcrumb=panel.querySelector('.cc-admin-breadcrumb');
+ if(!breadcrumb){breadcrumb=document.createElement('p');breadcrumb.className='cc-admin-breadcrumb';panel.querySelector('.admin-heading')?.prepend(breadcrumb);}
+ breadcrumb.textContent=(rule?.[2]||category(active))+' / '+label;
 }
 function ensureOverview(){
  const panel=$('[data-admin-panel="dashboard"]',app());if(!panel||$('#cc-overview-shortcuts'))return;
@@ -229,7 +252,10 @@ function setupCollapse(){
  block.append(control);
  apply(typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 900px)').matches);
 }
-async function init(){if(ready)return;ready=true;setupCollapse();observer=new MutationObserver(plan);observer.observe(nav(),{childList:true,subtree:true});plan();let data;try{data=await registry();owner=true;for(const item of data.items||[])storage.set(item.control_key,item);managerButton();plan();if(location.hash==='#admin-controls')openManager();}catch(e){/* Admin non-owner sees only permitted installed controls. New registry absent -> keep site working. */if(!/403|authority|session/i.test(e.message))status('Navigation settings unavailable: '+e.message)}setTimeout(plan,1200);setTimeout(plan,3600)}
+async function init(){if(ready)return;ready=true;setupCollapse();
+ nav()?.addEventListener('click',e=>{const target=e.target.closest('button,a');if(!target)return;const group=target.closest('.cc-admin-group');if(group){openGroup=group.dataset.ccNavGroup;target.closest('details.cc-group-more')?.setAttribute('open','');}setTimeout(syncPanelHeadings,0);},true);
+ [500,1500,3000].forEach(ms=>setTimeout(ensureTopbar,ms));
+ observer=new MutationObserver(plan);observer.observe(nav(),{childList:true,subtree:true});plan();let data;try{data=await registry();owner=true;for(const item of data.items||[])storage.set(item.control_key,item);managerButton();plan();if(location.hash==='#admin-controls')openManager();}catch(e){/* Admin non-owner sees only permitted installed controls. New registry absent -> keep site working. */if(!/403|authority|session/i.test(e.message))status('Navigation settings unavailable: '+e.message)}setTimeout(plan,1200);setTimeout(plan,3600)}
 function wait(){if(nav()&&app()&&!app().hidden&&$('#admin-gate')?.hidden)init();else setTimeout(wait,150)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 window.GroundUpAdminNavigation=Object.freeze({openReports:()=>{const x=$('[data-panel="community"]',nav());if(x&&!x.hidden){x.click();return true}return false},openAccounts:()=>{const x=$('[data-v1352-menu]',nav())||$('[data-panel="users"]',nav());if(x&&!x.hidden){x.click();return true}return false},manage:openManager});
