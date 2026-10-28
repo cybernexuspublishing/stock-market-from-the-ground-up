@@ -195,10 +195,10 @@ const passed=ctx.GroundUpLabV33Instructor.create({
  stage:4,concept:'Candlestick construction',lessonContext:{visualType:'candle'},
  questions:['Enter the numerical result for body.','Enter the numerical result for range.','Enter the numerical result for percent.'],
  onCreditAction:async({action,index})=>{
-  if(action==='balance')return{ok:true,balance:{included:credits,purchased:0,available:credits}};
+  if(action==='balance')return{ok:true,prices:{reveal:4,skip:4},balance:{included:credits,purchased:0,available:credits}};
   assert.equal(action,'reveal');assert.equal(index,0);
   spent++;credits-=4;
-  return{ok:true,balance:{included:credits,purchased:0,available:credits},
+  return{ok:true,spent:4,balance:{included:credits,purchased:0,available:credits},
    answerText:'Body = |Close − Open| = $1.00',studyOnly:true};
  },
  onComplete:()=>{completed=true}
@@ -217,7 +217,7 @@ assert.equal(confirm.hidden,true);assert.equal(spent,0,'Cancel cannot spend a cr
 passButton('Reveal answer · 4 Sparks').handlers.click();
 await passButton('Confirm 4-Spark use').handlers.click();
 assert.equal(spent,1,'Confirmation must spend exactly once');
-assert(passNodes.some(n=>n.className==='gu-v33-pass-feedback'&&n.textContent.includes('Four Sparks were used')),
+assert(passNodes.some(n=>n.className==='gu-v33-pass-feedback'&&n.textContent.includes('4 Sparks were used')),
  'Confirmed paid reveal must display the study answer and credit result');
 assert(passNodes.some(n=>n.className.includes('gu-v33-instructor-submit')&&n.disabled),
  'Revealed answer must not also be submitted as independent practice');

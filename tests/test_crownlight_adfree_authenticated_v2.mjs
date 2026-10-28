@@ -31,7 +31,7 @@ globalThis.fetch=async (url,opts={})=>{
   return response({ok:true,eligible:plan==='FREE',active:expires>Date.now(),
    expiresAt:expires>Date.now()?new Date(expires).toISOString():null,planCode:plan});
  }
- if(p==='/rest/v1/rpc/gu_sparks_adfree_redeem_v1'){
+ if(p==='/rest/v1/rpc/gu_sparks_adfree_redeem_v2'){
   assert.equal(h.apikey,env.SUPABASE_SECRET_KEY);
   const b=JSON.parse(opts.body);
   assert.equal(b.p_user_id,member,'User query or posted ID cannot impersonate another member');
@@ -89,23 +89,23 @@ try{
  for(const [i,sku] of ['ADFREE_DAY','ADFREE_WEEK','ADFREE_MONTH'].entries()){
   const requestId='33333333-3333-4333-8333-'+String(i+1).padStart(12,'0');
   const previousExpiry=expires;
-  r=await redeem({request:req('POST',{sku,requestId,userId:wrong,costSparks:1}),env});
+  r=await redeem({request:req('POST',{sku,requestId,expectedCost:({ADFREE_DAY:5,ADFREE_WEEK:18,ADFREE_MONTH:50})[sku],userId:wrong,costSparks:1}),env});
   assert.equal(r.status,200,sku+' must be redeemable');
   const body=await r.json();
   assert.equal(body.ok,true);assert.equal(body.spent,prices[sku]);
   assert(expires>previousExpiry,'Pass purchase must extend existing duration');
-  r=await redeem({request:req('POST',{sku,requestId}),env});
+  r=await redeem({request:req('POST',{sku,requestId,expectedCost:({ADFREE_DAY:5,ADFREE_WEEK:18,ADFREE_MONTH:50})[sku]}),env});
   assert.equal(r.status,200);assert.equal((await r.json()).alreadyRedeemed,true);
   assert.equal(debits.length,i+1,'Idempotent replay cannot double spend');
  }
  assert.equal(balance,7);assert.deepEqual(debits.map(x=>x.cost),[5,18,50]);
  r=await redeem({request:req('POST',{
-  sku:'ADFREE_WEEK',requestId:'44444444-4444-4444-8444-444444444444'}),env});
+  sku:'ADFREE_WEEK',expectedCost:18,requestId:'44444444-4444-4444-8444-444444444444'}),env});
  assert.equal(r.status,409);assert.equal((await r.json()).error,'INSUFFICIENT_SPARKS');
  r=await redeem({request:req('POST',{
-  sku:'ADFREE_WEEK',requestId:'33333333-3333-4333-8333-000000000001'}),env});
+  sku:'ADFREE_WEEK',expectedCost:18,requestId:'33333333-3333-4333-8333-000000000001'}),env});
  assert.equal(r.status,409);assert.equal((await r.json()).error,'REQUEST_REUSED');
- r=await redeem({request:req('POST',{sku:'ADFREE_DAY',requestId:'55555555-5555-4555-8555-555555555555'},true,'https://attacker.example'),env});
+ r=await redeem({request:req('POST',{sku:'ADFREE_DAY',expectedCost:5,requestId:'55555555-5555-4555-8555-555555555555'},true,'https://attacker.example'),env});
  assert.equal(r.status,403);
  r=await redeem({request:req('POST',{sku:'INVALID',requestId:'55555555-5555-4555-8555-555555555555'}),env});
  assert.equal(r.status,400);
