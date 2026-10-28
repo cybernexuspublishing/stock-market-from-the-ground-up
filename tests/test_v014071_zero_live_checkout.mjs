@@ -5,6 +5,7 @@ const src=readFileSync(new URL('../functions/api/owner-zero-live-checkout.js',im
 const handler=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
 const adminUi=readFileSync(new URL('../assets/js/admin-stripe-shadow-v01439.js',import.meta.url),'utf8');
 assert(adminUi.includes('stripeDiagnostic')&&adminUi.includes('Stripe request:'),'Owner Admin must display safe provider diagnostics after a rejected $0 Checkout');
+assert(src.includes("'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[].'.includes(ch)"),'Stripe nested error params must be sanitized without stripping valid brackets');
 const base='https://stock-market-from-the-ground-up.pages.dev';
 const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock',
  GU58_STRIPE_LIVE_ACCOUNT_ID:'acct_correct12345',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_mock',
