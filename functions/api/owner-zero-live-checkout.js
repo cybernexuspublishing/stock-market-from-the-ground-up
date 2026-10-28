@@ -165,7 +165,7 @@ async function stripeSession(c,params,idempotencyKey){
  if(!/^cs_live_[A-Za-z0-9_]+$/.test(val(response.id))||response.livemode!==true||
   response.amount_total!==0||response.amount_subtotal!==0||response.mode!=='payment'||
   response.payment_intent!=null||response.subscription!=null||
-  response.payment_method_collection!=='if_required')
+  !['always','auto','if_required'].includes(response.payment_method_collection))
   throw fail('ZERO_SESSION_FAIL_CLOSED');
  let uri;try{uri=new URL(response.url)}catch{throw fail('INVALID_PROVIDER_URL')}
  if(uri.protocol!=='https:'||uri.hostname!=='checkout.stripe.com')throw fail('INVALID_PROVIDER_URL');
@@ -232,7 +232,10 @@ export async function onRequestPost({request,env}){
   const p=new URLSearchParams();
   p.set('mode','payment');p.set('line_items[0][price]',c.price);
   p.set('line_items[0][quantity]','1');
-  p.set('payment_method_collection','if_required');p.set('customer_creation','if_required');
+  // The $0 payment-mode Checkout automatically omits card collection. Stripe's
+  // payment_method_collection=if_required is supported only in subscription mode.
+  // Create a Customer for the zero-cost order without setting up a subscription.
+  p.set('customer_creation','always');
   p.set('automatic_tax[enabled]','false');
   p.set('client_reference_id',user);
   p.set('metadata[gu71_zero_qa]','true');p.set('metadata[gu71_owner]',user);
