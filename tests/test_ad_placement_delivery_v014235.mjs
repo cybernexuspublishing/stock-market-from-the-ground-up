@@ -91,7 +91,7 @@ test('misplaced ad slot never displays the inventory placeholder',async()=>{
   assert.equal((await r.json()).placeholderAvailable,false);
  }finally{m.restore()}
 });
-test('all twenty-one configured placement mounts are connected without adding sponsors to lessons',()=>{
+test('all twenty-five configured placement mounts are connected without adding sponsors to lessons',()=>{
  const mounted=[
   ['index.html','HOME_INLINE'],['store.html','STORE_INLINE'],
   ['market-commons.html','COMMUNITY_INLINE'],['lab-samples.html','SAMPLE_LABS'],
@@ -101,6 +101,8 @@ test('all twenty-one configured placement mounts are connected without adding sp
   ['store.html','STORE_LEFT'],['store.html','STORE_RIGHT'],
   ['store-all-products.html','ALL_PRODUCTS_LEFT'],['store-all-products.html','ALL_PRODUCTS_RIGHT'],['store-all-products.html','ALL_PRODUCTS_BOTTOM'],
   ['market-commons.html','COMMUNITY_TOP'],
+  ['bootcamp-academy.html','BOOTCAMP_LEFT'],['bootcamp-academy.html','BOOTCAMP_RIGHT'],
+  ['skills.html','SKILLS_LEFT'],['skills.html','SKILLS_RIGHT'],
   ['books.html','BOOKS_BOTTOM'],['membership.html','MEMBERSHIP_BOTTOM'],
   ['tools.html','TOOLS_BOTTOM'],['about.html','ABOUT_BOTTOM']
  ];

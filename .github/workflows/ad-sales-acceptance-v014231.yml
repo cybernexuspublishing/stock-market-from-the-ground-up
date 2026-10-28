@@ -6,6 +6,13 @@ on:
     paths:
       - 'advertise.html'
       - 'admin-advertising.html'
+      - 'bootcamp-academy.html'
+      - 'skills.html'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/js/skills.js'
+      - 'assets/css/member-learning-rails-and-skills-v1.css'
+      - 'supabase/migrations/20261028_member_learning_ad_rails_v1.sql'
+      - 'tests/test_learning_programs_ads_and_progress_v1.mjs'
       - 'admin.html'
       - 'assets/js/ad-inquiry-v014228.js'
       - 'assets/js/admin-ad-sales-v014228.js'
@@ -47,6 +54,9 @@ jobs:
           node --check assets/js/ad-inquiry-v014228.js
           node --check assets/js/admin-ad-sales-v014228.js
           node --check assets/js/ad-slots-v014229.js
+          node --check assets/js/bootcamp-academy-v014168.js
+          node --check assets/js/skills.js
+          node tests/test_learning_programs_ads_and_progress_v1.mjs
           node --test tests/test_ad_sales_security_v014231.mjs
           node --test tests/test_ad_placement_delivery_v014235.mjs
           node tests/test_ad_house_preview_render_v1.mjs
