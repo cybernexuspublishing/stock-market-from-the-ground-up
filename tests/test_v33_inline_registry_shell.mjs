@@ -12,8 +12,32 @@ try{
   await context.route('**/*',route=>{
    const u=new URL(route.request().url());
    if(u.origin!==base)return route.abort();
+   // Authenticate the localhost browser fixture. Production still requires the
+   // server's separate release and member-specific entitlement decisions.
    if(u.pathname==='/assets/js/supabase-client.js')
-    return route.fulfill({status:200,contentType:'application/javascript',body:'window.getSupabaseClient=async()=>null;'});
+    return route.fulfill({status:200,contentType:'application/javascript',body:`
+     const member={id:'11111111-1111-4111-8111-111111111111',user_metadata:{first_name:'QA'}};
+     const session={access_token:'fixture-member-token',user:member};
+     const client={auth:{
+       getSession:async()=>({data:{session}}),
+       getUser:async()=>({data:{user:member}}),
+       onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
+      },
+      from(table){
+       if(table==='lab_progress')return {select:()=>({eq:()=>Promise.resolve({data:[],error:null})})};
+       if(table==='lab_attempts')return {select:()=>({eq:()=>({eq:()=>Promise.resolve({count:0,error:null})})})};
+       return {select:()=>({eq:()=>({maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null})})})};
+      }
+     };
+     window.getSupabaseClient=async()=>client;`});
+   if(u.pathname==='/api/lab-registry-access'){
+    if(route.request().headers()['authorization']!=='Bearer fixture-member-token')
+     return route.fulfill({status:401,contentType:'application/json',body:'{"ok":false}'});
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+     ok:true,freeEligible:true,interactive:false,training:false,bookCodes:[],
+     freeSampleIds:['F2-C01-L01']
+    })});
+   }
    // Registry Start links are deliberately unavailable until the server
    // verifies that the specific Lab has released, ungraded teaching content.
    // This browser-only fixture simulates that positive release decision;
@@ -22,6 +46,8 @@ try{
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
      ok:true,publishedIds:[],guidedBetaIds:['F2-C01-L01']
     })});
+   if(u.pathname==='/api/lab-content'&&route.request().headers()['authorization']!=='Bearer fixture-member-token')
+    return route.fulfill({status:401,contentType:'application/json',body:'{"ok":false,"error":"SIGN_IN_REQUIRED"}'});
    if(u.pathname==='/api/lab-content')
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
      ok:true,guidedAllowed:true,advancedAllowed:false,sourceStatus:'private_unreviewed_conceptual_orientation',
