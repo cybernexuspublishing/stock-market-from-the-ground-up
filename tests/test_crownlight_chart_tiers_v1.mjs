@@ -4,7 +4,7 @@ import {onRequestGet as founderOffer} from '../functions/api/founding-offer-stat
 const uuid='11111111-1111-4111-8111-111111111111',base='https://mockchart.supabase.co';
 const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'secret_fixture',SUPABASE_PUBLISHABLE_KEY:'pub_fixture'};
 const now=Date.now(),before=new Date(now-3600000).toISOString(),after=new Date(now+3600000).toISOString();
-const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true,qa:null,qaExpired:false};
+const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true,qa:null,qaExpired:false,manualTier:null,manualExpired:false,manualRevoked:false,manualScope:'CHART_STUDIO_ONLY'};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;let calls=[];
 globalThis.fetch=async(url,opt={})=>{
@@ -35,6 +35,9 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.pathname==='/rest/v1/gu_founder_reservations_v014173')return json([]);
  if(u.pathname==='/rest/v1/user_plan_grants')return json(state.grant?[{
   plan_code:state.grant,status:'active',starts_at:before,ends_at:after}]:[]);
+ if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return json(state.manualTier?[{
+  tier:state.manualTier,scope:state.manualScope,starts_at:before,
+  ends_at:state.manualExpired?before:after,revoked_at:state.manualRevoked?before:null}]:[]);
  throw Error('Unexpected provider request '+u.pathname);
 };
 const request=()=>new Request('https://website.test/api/chart-tier-access',{headers:{authorization:'Bearer mocked-access-token'}});
@@ -46,6 +49,12 @@ async function check(tier){
 }
 try{
  await check('STANDARD');
+ state.manualTier='ADVANCED';await check('ADVANCED');
+ state.manualTier='PROFESSIONAL';await check('PROFESSIONAL');
+ state.manualRevoked=true;await check('STANDARD');state.manualRevoked=false;
+ state.manualExpired=true;await check('STANDARD');state.manualExpired=false;
+ state.manualScope='UNRELATED_PREMIUM';await check('STANDARD');state.manualScope='CHART_STUDIO_ONLY';
+ state.manualTier=null;await check('STANDARD');
  state.qa='FREE';await check('STANDARD');
  state.qa='FOUNDING_30';await check('ADVANCED');
  state.qa='FOUNDING_60';await check('PROFESSIONAL');
@@ -72,5 +81,5 @@ try{
  const ineligible=await (await chartTier({request:request(),env})).json();assert.deepEqual(ineligible.allowed,[]);
  const guest=await chartTier({request:new Request('https://website.test/api/chart-tier-access'),env});
  assert.equal(guest.status,401);
- console.log('PASS Crownlight Chart Tiers: Free / Founding 14/30/60 / reversed / expired / revoked / post-launch full / 600 sold-out / public-launch / restricted / guest');
+ console.log('PASS Crownlight Chart Tiers: Free / reversible scoped Advanced & Professional chart QA / expired / revoked / Founding 14/30/60 / reversed / public-launch / restricted / guest');
 }finally{globalThis.fetch=original}

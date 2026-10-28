@@ -48,11 +48,13 @@ export async function crownlightChartEntitlement(env,request){
  const free=await toolAccess(env,request,'MARKET_SIMULATOR');
  if(free.freeEligible!==true)return {ok:true,eligible:false,tier:null,allowed:[]};
  const uid=encodeURIComponent(free.userId),now=Date.now(),c=cfg(env);
- const [founder,cycles,grants,launch]=await Promise.all([
+ const [founder,cycles,grants,launch,chartQA]=await Promise.all([
   rows(c,'gu_founder_members_v014173?select=revoked_at&user_id=eq.'+uid+'&limit=1'),
   rows(c,'gu_founder_paid_cycles_v014173?select=plan_code,billing_start,billing_end,reversed_at&user_id=eq.'+uid+'&limit=100'),
   rows(c,'user_plan_grants?select=plan_code,status,starts_at,ends_at&user_id=eq.'+uid+'&limit=100'),
-  foundingOfferState(env)
+  foundingOfferState(env),
+  // Independent, time-limited chart access; never treated as a paid plan.
+  rows(c,'crownlight_chart_qa_grants_v1?select=tier,scope,starts_at,ends_at,revoked_at&user_id=eq.'+uid+'&limit=2')
  ]);
  let tier='STANDARD',reason='Free Membership';
  const consider=(plan,label)=>{const t=tierOf[plan];if(t&&rank[t]>rank[tier]){tier=t;reason=label}};
@@ -75,10 +77,22 @@ export async function crownlightChartEntitlement(env,request){
  const qa=await verifiedNoncommercialChartTier(c,uid,now);
  if(qa&&rank[qa]>rank[tier]){tier=qa;reason='Noncommercial Chart Studio QA — no paid membership or founder seat';}
  else if(qa&&tier==='STANDARD')reason='Noncommercial Chart Studio Standard QA';
+ // Scoped manual QA grants are service-role-only. They never unlock books,
+ // Labs, trading data, Sparks, subscriptions, or Founder 600 benefits.
+ const manuallyAuthorized=chartQA.length===1&&chartQA[0].scope==='CHART_STUDIO_ONLY'&&
+  ['ADVANCED','PROFESSIONAL'].includes(chartQA[0].tier)&&
+  chartQA[0].revoked_at===null&&
+  Number.isFinite(Date.parse(chartQA[0].starts_at))&&Date.parse(chartQA[0].starts_at)<=now&&
+  Number.isFinite(Date.parse(chartQA[0].ends_at))&&Date.parse(chartQA[0].ends_at)>now&&
+  Date.parse(chartQA[0].ends_at)-Date.parse(chartQA[0].starts_at)<=14*86400000;
+ if(manuallyAuthorized&&rank[chartQA[0].tier]>rank[tier]){
+  tier=chartQA[0].tier;
+  reason='Temporary noncommercial Chart Studio testing — chart-only';
+ }
  return {ok:true,eligible:true,tier,reason,allowed:['STANDARD',...(rank[tier]>=1?['ADVANCED']:[]),
   ...(rank[tier]>=2?['PROFESSIONAL']:[])],
   advancedEngine:'KLineChart 10.1.0',professionalEngine:'Enhanced KLineChart 10.1.0',
-  temporaryBetaAccess:!!qa,noncommercialChartQa:!!qa};
+  temporaryBetaAccess:!!qa||manuallyAuthorized,noncommercialChartQa:!!qa||manuallyAuthorized};
 }
 export async function onRequestGet({request,env}){
  try{return json(await crownlightChartEntitlement(env,request))}
