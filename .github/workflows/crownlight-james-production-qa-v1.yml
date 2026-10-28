@@ -1,0 +1,43 @@
+name: Crownlight Chart Studio — James_Test Authenticated Production Acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      redeem_test_sparks:
+        description: "Spend existing James_Test QA Sparks (no payment); default does not debit"
+        required: true
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_crownlight_james_production_acceptance_v1.mjs'
+      - '.github/workflows/crownlight-james-production-qa-v1.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crownlight-james-production-acceptance
+  cancel-in-progress: true
+jobs:
+  authentic-chart-member:
+    name: Real James_Test sign-in / workspace / Sparks quote
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check QA test syntax
+        run: node --check tests/test_crownlight_james_production_acceptance_v1.mjs
+      - name: Install pinned open-source Chromium test browser
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Genuine production browser acceptance (no payments)
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+          CROWN_QA_ALLOW_SPARKS_DEBIT: ${{ inputs.redeem_test_sparks || 'false' }}
+        run: node tests/test_crownlight_james_production_acceptance_v1.mjs
