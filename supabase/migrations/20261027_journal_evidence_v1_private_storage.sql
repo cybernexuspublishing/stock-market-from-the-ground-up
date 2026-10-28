@@ -45,7 +45,7 @@ create policy journal_evidence_v1_delete_own on public.journal_evidence_v1
 
 -- Serialize same-Journal uploads and impose a server-side six-image cap.
 create or replace function public.journal_evidence_v1_enforce_cap()
-returns trigger language plpgsql security invoker set search_path=public as $
+returns trigger language plpgsql security invoker set search_path=public as $journal_guard$
 begin
  perform 1 from public.decision_journal j where j.id=new.journal_id
   and j.user_id=auth.uid() for update;
@@ -55,7 +55,7 @@ begin
     raise exception 'Journal evidence limit reached (6 images per record)';
  end if;
  return new;
-end $;
+end $journal_guard$;
 drop trigger if exists journal_evidence_v1_limit on public.journal_evidence_v1;
 create trigger journal_evidence_v1_limit before insert on public.journal_evidence_v1
  for each row execute function public.journal_evidence_v1_enforce_cap();
