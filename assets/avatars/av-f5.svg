@@ -1,14 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Portrait avatar Atlas F"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#24234b"/><stop offset="1" stop-color="#071525"/></linearGradient><linearGradient id="coat" x2="0" y2="1"><stop stop-color="#b3a4ff"/><stop offset="1" stop-color="#194567"/></linearGradient></defs>
- <rect width="192" height="192" rx="27" fill="url(#bg)"/>
- <circle cx="159" cy="26" r="64" fill="#b3a4ff" opacity=".13"/><circle cx="24" cy="174" r="55" fill="#fff" opacity=".04"/>
- <circle cx="96" cy="82" r="65" fill="none" stroke="#b3a4ff" stroke-width="1.7" opacity=".4"/>
- <path d="M50 77C44 33 67 26 90 24C125 16 153 40 145 91L155 157 131 150 125 93 67 92 62 152 36 156Z" fill="#2a2028" /><path d="M18 191C22 149 50 130 76 125L95 144 116 125C150 133 173 151 174 191Z" fill="url(#coat)"/><path d="M76 126l20 21 20-21" fill="none" stroke="#f1f8ff" stroke-width="4" opacity=".68"/><path d="M96 147v45" stroke="#071e30" stroke-width="3" opacity=".34"/>
- <path d="M81 124v16q15 16 30 0v-16" fill="#c88865"/>
- <ellipse cx="96" cy="90" rx="40" ry="46" fill="#c88865"/>
- <path d="M58 78Q76 49 98 60Q125 35 138 70" stroke="#2a2028" stroke-width="13" fill="none" stroke-linecap="round"/>
- <path d="M67 84q10-7 19-1m19 0q10-7 19 1" stroke="#2a2028" stroke-width="3.5" stroke-linecap="round" fill="none"/>
- <ellipse cx="78" cy="91" rx="3.5" ry="4.5" fill="#182a37"/><ellipse cx="115" cy="91" rx="3.5" ry="4.5" fill="#182a37"/>
- <path d="M96 94l-4 13 7 2" stroke="#6f4b45" stroke-width="2" opacity=".6" fill="none"/>
- <path d="M84 118q12 8 25-1" stroke="#773f46" stroke-width="3" stroke-linecap="round" fill="none"/>
- <g fill="none" stroke="#233e50" stroke-width="3.7"><rect x="65" y="83" width="24" height="18" rx="7"/><rect x="104" y="83" width="24" height="18" rx="7"/><path d="M89 90h15M60 89h5M128 90h7"/></g>
- <path d="M25 177Q67 145 96 147Q137 146 169 178" stroke="#b3a4ff" stroke-width="2" fill="none" opacity=".72"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title"><title id="title">Atlas original illustrated member portrait</title>
+ <defs><linearGradient id="bg" x1=".1" y1="0" x2=".85" y2="1"><stop stop-color="#20355d"/><stop offset="1" stop-color="#091727"/></linearGradient><linearGradient id="jacket" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#a585e8"/><stop offset="1" stop-color="#20355d"/></linearGradient></defs>
+ <circle cx="96" cy="96" r="93" fill="url(#bg)" stroke="#cba0fa" stroke-opacity=".6" stroke-width="2"/>
+ <circle cx="127" cy="54" r="51" fill="#cba0fa" opacity=".11"/>
+ <path d="M14 155L44 130M158 34L177 44M153 166L176 152" stroke="#cba0fa" stroke-opacity=".22" stroke-width="2" fill="none"/>
+ <path d="M11 191Q22 153 64 148L78 142Q97 154 115 142L129 148Q172 153 181 191Z" fill="url(#jacket)"/>
+ <path d="M74 150Q96 167 119 150L116 170Q96 185 77 170Z" fill="#b76e4a" opacity=".95"/>
+ <path d="M84 133L84 154Q96 165 110 154L108 133" fill="#b76e4a"/>
+ <ellipse cx="56" cy="107" rx="8" ry="12" fill="#b76e4a"/><ellipse cx="137" cy="106" rx="8" ry="12" fill="#b76e4a"/>
+ <path d="M56 83Q57 51 97 47Q139 52 137 87L135 112Q129 146 97 150Q67 147 59 114Z" fill="#b76e4a" stroke="#20355d" stroke-width="1.3"/>
+ <path d="M60 88Q63 60 97 57Q128 59 135 87" fill="#462d37" opacity=".12"/>
+ <path d="M45 111Q32 36 94 35Q154 39 151 120L139 135Q144 83 126 71Q92 76 64 64Q51 87 56 124Z" fill="#462d37"/><path d="M48 116Q38 154 63 166" stroke="#462d37" stroke-width="19" fill="none"/><path d="M145 112Q159 153 130 163" stroke="#462d37" stroke-width="16" fill="none"/>
+ <path d="M69 98Q77 93 84 97M109 97Q117 92 126 97" stroke="#462d37" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+ <ellipse cx="77" cy="107" rx="3.6" ry="3.2" fill="#162033"/><ellipse cx="117" cy="107" rx="3.6" ry="3.2" fill="#162033"/>
+ <path d="M95 108Q91 119 98 120" stroke="#6c3f35" stroke-opacity=".55" stroke-width="2.3" fill="none"/>
+ <g fill="#462d37" opacity=".35"><circle cx="69" cy="118" r="1.1"/><circle cx="75" cy="117" r="1.1"/><circle cx="119" cy="118" r="1.1"/><circle cx="125" cy="117" r="1.1"/></g>
+ <path d="M83 127Q96 128 109 126" fill="none" stroke="#713e43" stroke-width="2.4" stroke-linecap="round"/>
+ <path d="M64 153Q96 175 128 152" stroke="#cba0fa" stroke-width="2" opacity=".7" fill="none"/>
+ <path d="M72 157L96 179L120 157" fill="none" stroke="#cba0fa" stroke-width="3"/>
+ <path d="M16 167Q25 158 30 159M165 26Q169 35 174 37" stroke="#cba0fa" stroke-width="2" opacity=".4"/>
+ </svg>

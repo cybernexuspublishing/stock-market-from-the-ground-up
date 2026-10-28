@@ -1,1 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Illustrated avatar Marin"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#24234b"/><stop offset="1" stop-color="#0a1627"/></linearGradient></defs><rect width="192" height="192" rx="27" fill="url(#bg)"/><circle cx="96" cy="92" r="75" fill="#b3a4ff" opacity=".13"/><circle cx="96" cy="92" r="72" fill="none" stroke="#b3a4ff" stroke-width="1.5" opacity=".35"/><path d="M18 191C22 149 50 130 76 125L95 144 116 125C150 133 173 151 174 191Z" fill="#b3a4ff"/><path d="M76 126l20 21 20-21" fill="none" stroke="#f1f8ff" stroke-width="4" opacity=".68"/><path d="M96 147v45" stroke="#071e30" stroke-width="3" opacity=".34"/><ellipse cx="95" cy="91" rx="42" ry="48" fill="#d69a72"/><path d="M53 79Q47 39 77 35Q124 22 138 66L129 76Q104 52 68 79Z" fill="#6b4033"/><ellipse cx="80" cy="91" rx="4" ry="5" fill="#152c37"/><ellipse cx="113" cy="91" rx="4" ry="5" fill="#152c37"/><path d="M86 119q12 7 23 0" stroke="#7a3c44" stroke-width="3" fill="none"/><path d="M75 120q20 25 43 0" fill="none" stroke="#6b4033" stroke-width="7" opacity=".8"/><path d="M47 72Q52 30 96 29Q134 30 145 72Z" fill="#b3a4ff"/><path d="M48 73h98" stroke="#133851" stroke-width="8"/><path d="M25 173q70-18 143 0" fill="none" stroke="#b3a4ff" stroke-width="3" opacity=".6"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title"><title id="title">Marin original illustrated member portrait</title>
+ <defs><linearGradient id="bg" x1=".1" y1="0" x2=".85" y2="1"><stop stop-color="#20355d"/><stop offset="1" stop-color="#091727"/></linearGradient><linearGradient id="jacket" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#c778b3"/><stop offset="1" stop-color="#20355d"/></linearGradient></defs>
+ <circle cx="96" cy="96" r="93" fill="url(#bg)" stroke="#e5bf7b" stroke-opacity=".6" stroke-width="2"/>
+ <circle cx="51" cy="54" r="51" fill="#e5bf7b" opacity=".11"/>
+ <path d="M14 155L44 130M158 34L177 44M153 166L176 152" stroke="#e5bf7b" stroke-opacity=".22" stroke-width="2" fill="none"/>
+ <path d="M11 191Q22 153 64 148L78 142Q97 154 115 142L129 148Q172 153 181 191Z" fill="url(#jacket)"/>
+ <path d="M74 150Q96 167 119 150L116 170Q96 185 77 170Z" fill="#d19b74" opacity=".95"/>
+ <path d="M84 133L84 154Q96 165 110 154L108 133" fill="#d19b74"/>
+ <ellipse cx="56" cy="107" rx="8" ry="12" fill="#d19b74"/><ellipse cx="137" cy="106" rx="8" ry="12" fill="#d19b74"/>
+ <path d="M56 83Q57 51 97 47Q139 52 137 87L135 112Q129 146 97 150Q67 147 59 114Z" fill="#d19b74" stroke="#20355d" stroke-width="1.3"/>
+ <path d="M60 88Q63 60 97 57Q128 59 135 87" fill="#5b392b" opacity=".12"/>
+ <path d="M47 96Q35 41 93 34Q155 36 147 97L135 79Q105 88 78 58Q65 79 57 98Z" fill="#5b392b"/><path d="M119 59Q112 85 138 96" fill="#5b392b"/>
+ <path d="M69 98Q77 93 84 97M109 97Q117 92 126 97" stroke="#5b392b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+ <ellipse cx="77" cy="107" rx="3.6" ry="2.6" fill="#162033"/><ellipse cx="117" cy="107" rx="3.6" ry="2.6" fill="#162033"/>
+ <path d="M95 108Q91 119 98 120" stroke="#6c3f35" stroke-opacity=".55" stroke-width="2.3" fill="none"/>
+ <g fill="#5b392b" opacity=".35"><circle cx="69" cy="118" r="1.1"/><circle cx="75" cy="117" r="1.1"/><circle cx="119" cy="118" r="1.1"/><circle cx="125" cy="117" r="1.1"/></g>
+ <path d="M85 126Q96 137 109 126" fill="none" stroke="#713e43" stroke-width="2.4" stroke-linecap="round"/>
+ <path d="M64 153Q96 175 128 152" stroke="#e5bf7b" stroke-width="2" opacity=".7" fill="none"/>
+ 
+ <path d="M16 167Q25 158 30 159M165 26Q169 35 174 37" stroke="#e5bf7b" stroke-width="2" opacity=".4"/>
+ </svg>
