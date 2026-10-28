@@ -138,7 +138,7 @@ async function foundingCatalog(){
  <span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span>
  <h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div>
  <p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p>
- <ul><li>Permanent founding number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and learning preferences':'Founder improvement polls and learning priorities'}</li></ul>
+ <ul><li>Crownlight Chart Studio: ${['Standard','Advanced','Professional'][i]} tier while the founding term is active</li><li>Permanent founding number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and learning preferences':'Founder improvement polls and learning priorities'}</li></ul>
  <p class="small">Renews automatically until canceled. <a href="founding600.html">Review benefit exclusions and Sparks expiry.</a></p>
  <a class="btn ${i===2?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability</a></article>`;}).join('');
   const yes=()=>coverage(true),no=()=>coverage(false);
@@ -146,6 +146,7 @@ async function foundingCatalog(){
    ['Membership',plans.map(p=>dollars(p.recurringCents)+' / '+p.billingIntervalDays+' days')],
    ['Purchase discount',plans.map(p=>(p.foundingDiscountBps/100)+'% OFF eligible purchases')],
    ['Included Sparks',plans.map(p=>String(p.incSparks)+' / '+p.billingIntervalDays+'-day term')],
+   ['Crownlight Chart Studio',['Standard','Advanced','Professional']],
    ['Permanent founding number',plans.map(()=>yes())],
    ['Private Founders Commons',plans.map(()=>yes())],
    ['Founder improvement polls',plans.map(()=>yes())],
