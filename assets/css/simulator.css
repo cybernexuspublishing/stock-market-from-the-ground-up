@@ -38,3 +38,17 @@
 .sim-talia-guidance p{margin:6px 0 10px;font-size:.94rem;line-height:1.65}
 .sim-talia-guidance a{text-underline-offset:4px;font-weight:700}
 .sim-talia-guidance a:focus-visible{outline:3px solid #d1fce0;outline-offset:3px}
+
+/* An unloaded chart is an instruction step, not a large empty plot.
+   Reveal the canvas after a validated dataset has actually loaded. */
+.sim-chart-panel.sim-awaiting-data #sim-chart,
+.sim-chart-panel.sim-awaiting-data #sim-candle-accessible,
+.sim-chart-panel.sim-awaiting-data #sim-visible-bars,
+.sim-chart-panel.sim-awaiting-data #cl-chart-tier-switcher [data-cl-tier-advanced]{
+  display:none!important;
+}
+.sim-awaiting-data-message{
+  padding:1.1rem 1.25rem;margin:1rem 0;border:1px solid #426b89;
+  border-radius:10px;background:#102338;color:#d9e8f5;line-height:1.55;
+}
+.sim-awaiting-data-message[hidden]{display:none!important}
