@@ -49,6 +49,10 @@ try {
  globalThis.fetch=async(url,options)=>{
   assert.equal(options.headers.apikey,'sb_secret_mock');
   const target=String(url);
+  // Verified beta is open and there are no issued or reserved founder seats.
+  if(target.includes('gu_founder_release_v014173'))return Response.json([{public_launch_open:false,enrollment_enabled:true}]);
+  if(target.includes('gu_founder_members_v014173')||target.includes('gu_founder_reservations_v014173'))return Response.json([]);
+  if(target.includes('gu_store_layout_v1'))return Response.json([]);
   if(target.includes('gu_storefront_items_v014174')){
    assert.match(target,/visible=eq.true/);
    return Response.json(liveRows);
