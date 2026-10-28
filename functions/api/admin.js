@@ -228,6 +228,11 @@ async function handleGet(env,request,action,url){
   if(action==='settings'){
     await withContext(env,request,'settings.view');return ok({settings:await tableRows(env,'site_settings','*','&order=category.asc,setting_key.asc')});
   }
+  if(action==='sparks_prices'){
+    const c=await withContext(env,request,'settings.view');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner may manage Sparks pricing.',403);
+    return ok({prices:await tableRows(env,'gu_sparks_price_catalog_v1','*','&order=category.asc,sku.asc')});
+  }
   if(action==='content'){
     await withContext(env,request,'content.view');const type=clean(url.searchParams.get('type'));return ok({content:await tableRows(env,'managed_content','*',`${type?`&content_type=eq.${encodeURIComponent(type)}`:''}&order=content_type.asc,sort_order.asc,title.asc`)});
   }
@@ -447,6 +452,45 @@ async function handlePost(env,request,action){
   }
   if(action==='catalog_archive'){
     const c=await withContext(env,request,'catalog.manage');const code=safeCode(body.product_code);await serviceRest(env,`catalog_products?product_code=eq.${encodeURIComponent(code)}`,{method:'PATCH',prefer:'return=minimal',body:{active:false,updated_at:nowIso(),updated_by:c.user.id}});await audit(env,c.user.id,'catalog.archive','product',code,{});return ok();
+  }
+  if(action==='sparks_price_save'){
+    const c=await withContext(env,request,'settings.manage');
+    if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner may set Sparks prices.',403);
+    const sku=clean(body.sku).toUpperCase();
+    const cost=Number(body.sparks_cost),label=clean(body.label),description=clean(body.description);
+    if(!/^[A-Z][A-Z0-9_]{2,79}$/.test(sku)||!Number.isSafeInteger(cost)||cost<1||cost>100000||
+       label.length<3||label.length>120||description.length>500)
+      return bad('Supply a valid SKU, description, and Sparks cost (1–100,000).',400);
+    const state=clean(body.state).toLowerCase();
+    if(!['active','planned','disabled'].includes(state))return bad('Invalid release status.',400);
+    const original=await one(env,'gu_sparks_price_catalog_v1?select=sku,category,fulfillment,version,sparks_cost,state,label,description,duration_hours&sku=eq.'+
+      encodeURIComponent(sku)+'&limit=1');
+    if(original){
+      const version=Number(body.version);
+      if(!Number.isSafeInteger(version)||version!==original.version)return bad('Price changed elsewhere; refresh and try again.',409);
+      if(original.fulfillment==='UNINTEGRATED'&&state==='active')
+        return bad('Unintegrated items cannot be released without a verified redemption handler.',409);
+      const {data}=await serviceRest(env,'gu_sparks_price_catalog_v1?sku=eq.'+encodeURIComponent(sku)+
+         '&version=eq.'+original.version,{
+        method:'PATCH',prefer:'return=representation',
+        body:{sparks_cost:cost,label,description,state,version:original.version+1,
+          updated_by:c.user.id,updated_at:nowIso()}
+      });
+      if(!Array.isArray(data)||data.length!==1)return bad('Price was modified concurrently. Refresh the catalog.',409);
+      await audit(env,c.user.id,'sparks.price.update','sparks_sku',sku,{
+        before:{sparks_cost:original.sparks_cost,state:original.state,version:original.version},
+        after:{sparks_cost:cost,state,version:original.version+1}});
+      return ok({price:data[0]});
+    }
+    if(body.version!==null&&body.version!==undefined)return bad('SKU not found; refresh before updating.',404);
+    if(state==='active')return bad('New products are drafts until a redemption handler is implemented and accepted.',409);
+    const {data}=await serviceRest(env,'gu_sparks_price_catalog_v1',{
+      method:'POST',prefer:'return=representation',body:{
+        sku,category:'OTHER',label,description,sparks_cost:cost,
+        fulfillment:'UNINTEGRATED',state:'planned',duration_hours:null,updated_by:c.user.id}
+    });
+    await audit(env,c.user.id,'sparks.price.draft_create','sparks_sku',sku,{sparks_cost:cost});
+    return ok({price:data?.[0]});
   }
   if(action==='setting_save'){
     const c=await withContext(env,request,'settings.manage');const key=clean(body.setting_key);if(!key)return bad('Setting key required.');if(key==='commerce.checkout_enabled')return bad('Checkout activation is controlled by the audited payment rollout, not generic Site Settings.',409);if(/secret|password|token|private[_-]?key|service[_-]?role/i.test(key))return bad('Secrets must stay in Cloudflare environment variables, not site_settings.',409);if(key==='website_background_v1'){
