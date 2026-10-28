@@ -218,10 +218,57 @@ function period(){
  return {span:x?Math.max(1,Math.min(240,Number(x[1]))):1,type:'minute'};
 }
 function makeView(id,type){
+ const frame=el('section','cl-tier-chart-frame');
+ frame.setAttribute('aria-label',type+' chart and revealed market evidence');
+ const summary=el('div','cl-tier-chart-summary');
+ const header=el('div','cl-tier-summary-head');
+ const name=el('strong','',type==='analysis'?'Comparison · Indicators':'Price · Technical structure');
+ name.dataset.clSummaryTitle='';
+ const source=el('span');source.dataset.clSummarySource='';
+ header.append(name,source);
+ const quote=el('div','cl-tier-ohlcv');quote.dataset.clSummaryOhlcv='';
+ quote.setAttribute('aria-label','Latest revealed candle');
+ const detail=el('details','cl-tier-study-readout');
+ const detailLabel=el('summary','','Study values (expand)');detailLabel.dataset.clSummaryStudies='';
+ const detailValue=el('p');detailValue.dataset.clSummaryStudyValues='';
+ detail.append(detailLabel,detailValue);
+ summary.append(header,quote,detail);
  const box=el('div','cl-tier-kline-canvas');box.id=id;
  box.setAttribute('role','img');box.setAttribute('aria-label',type+' chart showing revealed candles only');
- state.view.querySelector('[data-cl-tier-panels]').append(box);
+ frame.append(summary,box);
+ state.view.querySelector('[data-cl-tier-panels]').append(frame);
  return box;
+}
+function updateCompactReadout(entry){
+ if(!entry?.host?.isConnected)return;
+ const frame=entry.host.parentElement,last=state.bars.at(-1);
+ const source=frame.querySelector('[data-cl-summary-source]');
+ const quote=frame.querySelector('[data-cl-summary-ohlcv]');
+ const list=frame.querySelector('[data-cl-summary-studies]');
+ const detail=frame.querySelector('[data-cl-summary-study-values]');
+ if(source)source.textContent=state.symbol+' · '+state.timeframe+' · '+state.bars.length+' revealed';
+ if(quote){
+  quote.replaceChildren();
+  const fields=last?[['Open',last.open.toFixed(4)],['High',last.high.toFixed(4)],
+   ['Low',last.low.toFixed(4)],['Close',last.close.toFixed(4)],
+   ['Volume',last.volume.toLocaleString('en-US')]]:[['Data','No revealed candles']];
+  for(const [label,value]of fields){
+   const part=el('span','cl-tier-quote-item');
+   part.append(el('span','',label),el('strong','',value));quote.append(part);
+  }
+ }
+ const indicators=entry.chart.getIndicators?.()||[];
+ const unique=[...new Set(indicators.map(i=>i.name).filter(Boolean))];
+ if(list)list.textContent='Study values · '+(unique.join(', ')||'none')+' (expand)';
+ if(detail)detail.textContent=indicators.map(indicator=>{
+  const lastResult=indicator.result?.at(-1)||{};
+  const figures=(indicator.figures||[]).slice(0,4);
+  const values=figures.map(f=>{
+   const value=lastResult?.[f.key];
+   return Number.isFinite(value)?String(f.title||f.key).trim()+': '+Number(value).toFixed(3):null;
+  }).filter(Boolean);
+  return indicator.name+(values.length?' — '+values.join(' · '):' — not enough revealed bars');
+ }).join(' | ')||'No active studies';
 }
 // KLineChart v10: EMA/MA are overlays on candle_pane. A plain
 // createIndicator('EMA', false) creates a NEW pane and squeezes the
@@ -256,6 +303,7 @@ function fitStudyPanes(entry){
   entry.chart.setPaneOptions?.({id:paneId,height:110,minHeight:75,dragEnabled:true});
  entry.chart.resize?.();
  balancePanels();
+ updateCompactReadout(entry);
 }
 function addStudyToChart(entry,name){
  if(!VALID_STUDIES.has(name))return false;
@@ -332,6 +380,7 @@ async function choose(tier){
   state.charts.push(initOne('cl-tier-primary','primary'));
   if(tier==='PROFESSIONAL')state.charts.push(initOne('cl-tier-secondary','analysis'));
   balancePanels();
+  state.charts.forEach(updateCompactReadout);
   window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));
   status(state.bars.length?
    tier+' chart: '+state.bars.length+' revealed candles. All future candles remain hidden.':
@@ -418,7 +467,7 @@ window.addEventListener('crownlight:revealed-bars',e=>{
  autoStartRequestedStudio();
   if(state.selected!=='STANDARD'&&state.charts.length){
   for(const entry of state.charts){
-   try{entry.chart.setSymbol({ticker:state.symbol,pricePrecision:4,volumePrecision:0});entry.chart.setPeriod(period());entry.chart.resetData()}
+   try{entry.chart.setSymbol({ticker:state.symbol,pricePrecision:4,volumePrecision:0});entry.chart.setPeriod(period());entry.chart.resetData();updateCompactReadout(entry)}
    catch{status('An enhanced replay refresh failed. Standard remains available.')}
   }
   status(state.selected+': '+state.bars.length+' revealed candles. No future bars provided.');
