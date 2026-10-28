@@ -55,7 +55,7 @@
    '<div class="crownlight-legend" aria-label="Selected indicators"></div>'+
    '<div class="crownlight-market-strip" aria-live="off"><span data-cl="hover-title">Move over a candle to inspect it</span><span data-cl="hover-data">O — H — L — C — V —</span></div>'+
    '<div class="crownlight-plot" role="img" aria-label="Interactive candle chart. Mouse wheel zooms; drag pans. Keyboard controls are above."></div>'+
-   '<div class="crownlight-help">Scroll to zoom at the cursor · Drag to explore revealed candles · Crosshair displays exact observed values · ET timestamps</div>'+
+   '<div class="crownlight-help">Scroll to zoom at the cursor · Drag to explore revealed candles · Crosshair displays exact observed values · ET timestamps · <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts™</a> (Copyright © 2025 TradingView, Inc.)</div>'+
    '<section class="crownlight-source" hidden aria-label="Market data source"><h3>Source and data integrity</h3><div data-cl="source-body"></div></section>';
   canvas.before(shell);
   const chartBox=shell.querySelector('.crownlight-plot');
