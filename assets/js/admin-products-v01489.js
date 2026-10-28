@@ -59,12 +59,15 @@ function membershipCard(p){
 }
 function toolCard(t){
  const published=t.active&&t.public_visible;
+ const betaReady=published&&t.status==='live'&&t.checkout_enabled===true&&
+  t.metadata?.beta_testing?.status==='ready_for_beta_testing';
  const price=t.status==='live'&&Number(t.individual_price_cents)>0?money(t.individual_price_cents)+'/month':'Pricing not announced';
  const state=t.status==='live'?(t.checkout_enabled?'Listed · Checkout ON':'Released · Checkout not enabled'):
  'Coming Soon · '+String(t.status||'planned').replaceAll('_',' ');
  return '<article class="admin-card product-admin-card"><div class="eyebrow">À-la-Carte</div><h3>'+e(t.name)+'</h3>'+
  '<p class="product-admin-price">'+e(price)+'</p><p>'+e(t.description||'Further product details are being prepared.')+'</p>'+
  '<p class="product-admin-status">'+e(state)+(published?'':' · Not publicly displayed')+'</p>'+
+ (betaReady?'<p class="product-admin-status">Beta Testing Ready · Founding 600 member acceptance pending</p>':'')+
  '<p class="small">SKU: <code>'+e(t.tool_code)+'</code> · Preview: '+(t.free_preview?'Configured':'Not configured')+'</p>'+
  '<div class="product-admin-actions"><a class="btn secondary" href="'+e(urlFor('tool',t.tool_code))+'" target="_blank" rel="noopener">View Customer Page</a>'+
  (can('tools.manage')?'<button type="button" class="btn" data-tool-edit="'+e(t.tool_code)+'">Edit Tool</button>':'')+'</div></article>';

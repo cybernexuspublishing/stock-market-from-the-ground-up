@@ -58,6 +58,7 @@ try {
    assert.match(target,/visible=eq.true/);
    return Response.json(liveRows);
   }
+  if(target.includes('platform_tools?select=tool_code,status,active,public_visible,checkout_enabled,metadata'))return Response.json([]);
   if(target.includes('platform_plans?select=plan_code,public_visible,active')){
    return Response.json([{plan_code:'FREE',public_visible:false,active:true},
     {plan_code:'ONDEMAND_MONTHLY',public_visible:true,active:true}]);
@@ -66,10 +67,11 @@ try {
  };
  const publicResponse=await publicCatalog.onRequestGet({env:goodEnv});
  assert.equal(publicResponse.status,200);
- const report=await publicResponse.json();assert.equal(report.count,3);
- assert.deepEqual(report.items.map(x=>x.sku),liveRows.filter(x=>x.sku!=='plan:FREE').map(x=>x.sku));
+ const report=await publicResponse.json();assert.equal(report.count,2,'Founding enrollment-closed product is not publicly offered');
+ assert.deepEqual(report.items.map(x=>x.sku),liveRows.filter(x=>!['plan:FREE','founding:FOUNDING_30'].includes(x.sku)).map(x=>x.sku));
  assert.ok(!JSON.stringify(report).includes('Free Membership'),'Canonical plan public_visible=false must suppress stale visible Store records');
- assert.equal(report.items[1].page,null,'Never expose untrusted external product URLs');
+ assert.equal(report.items[0].page,null,'Never expose untrusted external product URLs');
+ assert(report.items.every(x=>x.betaTestingReady===false),'No canonical ready tool in this fixture');
  assert.ok(!JSON.stringify(report).includes('sb_secret_mock'));
  assert.equal(report.items[0].saleReady,false);
  globalThis.fetch=async()=>new Response('Backend unavailable',{status:503});
