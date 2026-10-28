@@ -130,9 +130,13 @@ try{
  }
  await page.evaluate(async()=>{const sb=await window.getSupabaseClient();await sb.auth.signOut()})
   .catch(err=>{if(!/Execution context was destroyed|navigation/i.test(String(err?.message||'')))throw err});
- await page.goto(origin+'/simulator.html?studio=ADVANCED',{waitUntil:'domcontentloaded',timeout:30000});
- const loggedOut=await page.evaluate(async()=>{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();return !data?.session;});
- assert.equal(loggedOut,true);
+ // A protected Simulator deep link redirects guests during initialization.
+ // Inspect the stable sign-in page after sign-out to avoid racing that navigation.
+ await page.goto(origin+'/signin.html',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(async()=>{
+  try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();
+   return !data?.session;}catch{return false}
+ },null,{timeout:12000});
  console.log('PASS genuine sign-out and invalidation of browser session');
  await signIn();
  const restored=await api('/api/chart-workspace');
