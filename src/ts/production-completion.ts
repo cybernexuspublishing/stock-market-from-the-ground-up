@@ -25,74 +25,97 @@
   async function renderConnections(host:HTMLElement){
     host.innerHTML='<div class="fe-state">Loading secure connections…</div>';
     try{
-      const j=await api('/api/credentials?action=list');
-      const map=new Map((j.connections||[]).map((x:AnyObj)=>[x.service_code,x]));
+      const result=await api('/api/credentials?action=list');
+      const connectionMap=new Map((result.connections||[]).map((x:AnyObj)=>[x.service_code,x]));
       const services=[
-        {code:'TIINGO_BYO',name:'Tiingo — Personal Market Data',fields:[['token','Personal API Token','password']],help:'help.html#tokens-tiingo',description:'Use your personal Tiingo API token. The endpoint is configured automatically.'},
-        {code:'ALPACA_BYO',name:'Alpaca — Market Data (IEX)',fields:[['apiKey','Alpaca API Key ID','password'],['apiSecret','Alpaca API Secret','password']],help:'help.html#tokens-alpaca',description:'Your Alpaca Paper Trading Key ID and Secret also work with the Market Data API. We use data.alpaca.markets automatically to check IEX historical candles. Paper trading orders and live brokerage orders are not used.'}
+        {code:'TIINGO_BYO',name:'Tiingo — Personal Market Data',fields:[['token','Personal API Token']],help:'help.html#tokens-tiingo'},
+        {code:'ALPACA_BYO',name:'Alpaca — Market Data (IEX)',fields:[['apiKey','Alpaca API Key ID'],['apiSecret','Alpaca API Secret']],help:'help.html#tokens-alpaca'}
       ];
       host.innerHTML=services.map(service=>{
-        const c:any=map.get(service.code);
-        const verified=c?.status==='connected'&&Boolean(c.last_tested_at);
-        const status=verified?'Connected — provider verified':c?.status==='verification_failed'?'Verification failed':c?'Saved — not verified':'Not connected';
-        return `<article class="v132-connection-card" data-service="${service.code}">
-          <div><div class="eyebrow">Personal Market Data Connection</div>
-            <h4>${service.name}</h4><p>${service.description}</p>
-            <p><strong>Connection:</strong> ${status}${c?` · ${esc(c.masked_hint||'••••')}`:''}</p>
-            ${c?.last_tested_at?`<small>Last verified: ${new Date(c.last_tested_at).toLocaleString()}</small>`:''}
-            ${service.code==='ALPACA_BYO'?'<p class="v132-field-note">Feed: IEX single exchange (not consolidated SIP). Access depends on your Alpaca account. Market-data only; no orders are placed.</p>':''}
-          </div><div class="actions">
-            <button type="button" class="btn secondary" data-add>${c?'Replace Credentials':'Connect Account'}</button>
-            ${service.code==='ALPACA_BYO'&&c?'<button type="button" class="btn secondary" data-verify>Test Market Data</button>':''}
-            ${c?'<button type="button" class="btn secondary" data-remove>Disconnect</button>':''}
-            <a class="btn secondary" href="${service.help}">How to get it</a>
-          </div><p data-connection-result class="v132-field-note" aria-live="polite"></p>
-        </article>`;
+        const saved:any=connectionMap.get(service.code);
+        const verified=saved?.status==='connected'&&Boolean(saved.last_tested_at);
+        const status=verified?'Connected — provider verified':saved?.status==='verification_failed'?'Verification failed':saved?'Saved — not verified':'Not connected';
+        const account=saved?.metadata?.accountType;
+        const accountNote=service.code==='ALPACA_BYO'&&['paper','live'].includes(account)?
+          '<p>Selected account: '+(account==='paper'?'Paper Trading':'Live account (market data only)')+'</p>':'';
+        return '<article class="v132-connection-card" data-service="'+service.code+'"><div>'+
+          '<div class="eyebrow">Personal Market Data Connection</div><h4>'+service.name+'</h4>'+
+          '<p>'+status+(saved?' · '+esc(saved.masked_hint||'••••'):'')+'</p>'+accountNote+
+          (saved?.last_tested_at?'<small>Last verified '+new Date(saved.last_tested_at).toLocaleString()+'</small>':'')+
+          (service.code==='ALPACA_BYO'?'<p>Read-only IEX market data; not consolidated SIP. The endpoint is automatic. No brokerage orders are sent.</p>':'')+
+          '</div><div class="actions"><button type="button" class="btn secondary" data-add>'+(saved?'Change Account / Replace':'Choose Account & Connect')+'</button>'+
+          (service.code==='ALPACA_BYO'&&saved?'<button type="button" class="btn secondary" data-verify>Test Market Data</button>':'')+
+          (saved?'<button type="button" class="btn secondary" data-remove>Disconnect</button>':'')+
+          '<a class="btn secondary" href="'+service.help+'">How to get it</a></div>'+
+          '<p data-connection-result role="status" aria-live="polite"></p></article>';
       }).join('');
       qa<HTMLElement>('[data-service]',host).forEach(card=>{
         const service=services.find(x=>x.code===card.dataset.service)!;
-        const result=q<HTMLElement>('[data-connection-result]',card)!;
-        const show=(message:string)=>{result.textContent=message};
+        const saved:any=connectionMap.get(service.code);
+        const notice=q<HTMLElement>('[data-connection-result]',card)!;
         q<HTMLButtonElement>('[data-add]',card)!.onclick=()=>{
-          let form=q<HTMLFormElement>('.v132-credential-form',card);
-          if(form){form.remove();return}
-          form=document.createElement('form');form.className='v132-credential-form';
-          form.innerHTML=service.fields.map(([key,label,type])=>`<label>${label}<span class="v132-secret-field"><input type="${type}" name="${key}" autocomplete="off" required></span></label>`).join('')+
-          '<div class="actions"><button type="submit" class="btn">Verify Market Data & Save</button><button type="button" class="btn secondary" data-cancel>Cancel</button></div>'+
-          '<p class="v132-field-note">Encrypted server-side after successful verification. Full credentials are never displayed again. The member supplies their own account keys.</p>';
-          card.appendChild(form);credentialVisibility(form);
-          q<HTMLButtonElement>('[data-cancel]',form)!.onclick=()=>form!.remove();
-          form.onsubmit=async event=>{
-            event.preventDefault();const button=q<HTMLButtonElement>('button[type="submit"]',form!)!;
-            button.disabled=true;show('Contacting provider to verify credentials and IEX historical market data…');
+          document.querySelector('.v1321-provider-dialog')?.remove();
+          const modal=document.createElement('dialog');modal.className='v1321-provider-dialog';
+          modal.setAttribute('aria-labelledby','v1321-provider-title');
+          const alpaca=service.code==='ALPACA_BYO';
+          const previous=saved?.metadata?.accountType==='live'?'live':'paper';
+          modal.innerHTML='<h2 id="v1321-provider-title">Connect '+service.name+'</h2>'+
+            (alpaca?'<fieldset><legend>Choose which Alpaca account to connect</legend>'+
+              '<label class="v1321-provider-choice"><input type="radio" name="alpacaAccount" value="paper" '+(previous==='paper'?'checked':'')+'> Paper Trading account <small>Recommended for initial market-data use</small></label>'+
+              '<label class="v1321-provider-choice"><input type="radio" name="alpacaAccount" value="live" '+(previous==='live'?'checked':'')+'> Live account — market data only <small>We do not place orders or access trading endpoints</small></label>'+
+              '</fieldset><p class="v1321-provider-hint">The market-data endpoint is automatic. One active Alpaca key pair can be saved per member account.</p>':
+              '<p class="v1321-provider-hint">Use your personal Tiingo token. Provider endpoints are automatic.</p>')+
+            service.fields.map(([key,label])=>'<label class="v1321-provider-field">'+label+
+              '<span class="v1321-secret-wrap"><input type="password" data-provider-field="'+key+'" aria-label="'+label+'" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true">'+
+              '<button class="btn secondary" type="button" data-show-secret>Show</button></span></label>').join('')+
+            '<p class="v1321-provider-hint">Credentials remain encrypted server-side and are not returned after saving.</p>'+
+            '<p class="v1321-provider-feedback" role="status" aria-live="polite"></p>'+
+            '<div class="actions"><button class="btn" type="button" data-save-provider>Verify Market Data & Save</button>'+
+            '<button class="btn secondary" type="button" data-cancel-provider>Cancel</button></div>';
+          document.body.appendChild(modal);
+          const close=()=>{modal.close();modal.remove()};
+          modal.addEventListener('close',()=>modal.remove(),{once:true});
+          q<HTMLButtonElement>('[data-cancel-provider]',modal)!.onclick=close;
+          qa<HTMLButtonElement>('[data-show-secret]',modal).forEach(button=>button.onclick=()=>{
+            const input=q<HTMLInputElement>('[data-provider-field]',button.parentElement!)!;
+            const show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'Hide':'Show';
+          });
+          q<HTMLButtonElement>('[data-save-provider]',modal)!.onclick=async()=>{
+            const button=q<HTMLButtonElement>('[data-save-provider]',modal)!;
+            const feedback=q<HTMLElement>('.v1321-provider-feedback',modal)!;
+            const inputs=qa<HTMLInputElement>('[data-provider-field]',modal);
+            if(inputs.some(input=>!input.value.trim())){feedback.textContent='Enter all required API credentials.';return}
+            const values=Object.fromEntries(inputs.map(input=>[input.dataset.providerField!,input.value]));
+            const accountType=alpaca?q<HTMLInputElement>('input[name="alpacaAccount"]:checked',modal)?.value:null;
+            button.disabled=true;feedback.textContent='Verifying the market-data connection…';
             try{
-              const values=Object.fromEntries(new FormData(form!).entries());
-              const response=await api('/api/credentials?action=save',{method:'POST',body:JSON.stringify({serviceCode:service.code,values})});
-              if(response?.ok!==true||response?.verified!==true)throw Error('Provider verification was not confirmed.');
-              show('Market data verified and credentials saved securely.');await renderConnections(host);
-            }catch(err:any){show(String(err?.message||'Market data verification failed. No credentials were changed.'))}
+              const result=await api('/api/credentials?action=save',{method:'POST',
+                body:JSON.stringify({serviceCode:service.code,values,...(alpaca?{accountType}:{})})});
+              if(result?.verified!==true)throw Error('Provider verification was not confirmed.');
+              close();await renderConnections(host);toast('Market-data connection verified and saved securely.','ok');
+            }catch(error:any){feedback.textContent=String(error?.message||'Connection verification failed.')}
             finally{button.disabled=false}
           };
+          modal.showModal();
         };
         const verify=q<HTMLButtonElement>('[data-verify]',card);
         if(verify)verify.onclick=async()=>{
-          verify.disabled=true;show('Verifying the saved Alpaca credentials against IEX market data…');
+          verify.disabled=true;notice.textContent='Testing the saved Alpaca connection…';
           try{
-            const x=await api('/api/credentials?action=verify',{method:'POST',body:JSON.stringify({serviceCode:'ALPACA_BYO'})});
-            if(x?.ok!==true||x?.verified!==true)throw Error('Verification not confirmed.');
+            const result=await api('/api/credentials?action=verify',{method:'POST',body:JSON.stringify({serviceCode:'ALPACA_BYO'})});
+            if(result?.verified!==true)throw Error('Provider verification failed.');
             await renderConnections(host);
-          }catch(err:any){show(String(err?.message||'Alpaca test failed.'))}
-          finally{verify.disabled=false}
+          }catch(error:any){notice.textContent=String(error?.message||'Provider unavailable.');verify.disabled=false}
         };
         const remove=q<HTMLButtonElement>('[data-remove]',card);
         if(remove)remove.onclick=async()=>{
-          if(!confirm('Disconnect and delete your saved API credentials?'))return;
+          if(!confirm('Remove your saved '+service.name+' credentials from this member account?'))return;
           remove.disabled=true;
           try{await api('/api/credentials?action=delete',{method:'POST',body:JSON.stringify({serviceCode:service.code})});await renderConnections(host)}
-          catch(err:any){show(String(err?.message||'Unable to disconnect.'));remove.disabled=false}
+          catch(error:any){notice.textContent=String(error?.message||'Unable to remove connection.');remove.disabled=false}
         };
       });
-    }catch(err:any){host.innerHTML=`<div class="fe-state error">${esc(err.message)}</div>`}
+    }catch(error:any){host.innerHTML='<div class="fe-state error">'+esc(error?.message||'Connection settings unavailable.')+'</div>'}
   }
 
   async function memberSettings(host:HTMLElement){if(host.dataset.v132)return;host.dataset.v132='1';host.innerHTML='<div class="v132-subtabs" role="tablist"><button data-s="account">Account</button><button data-s="security">Security</button><button data-s="connections">Connections & API Keys</button><button data-s="book">Book Access</button><button data-s="notifications">Notifications</button><button data-s="accessibility">Accessibility</button><button data-s="privacy">Privacy</button><button data-s="danger">Danger Zone</button></div><div data-settings-body></div>';const body=q<HTMLElement>('[data-settings-body]',host)!;const activate=async(code:string)=>{qa<HTMLButtonElement>('[data-s]',host).forEach(b=>b.classList.toggle('active',b.dataset.s===code));if(code==='account'){let identity:any={};try{identity=await api('/api/account?action=identity')}catch{}const missing=!identity.profile?.dateOfBirthPresent;body.innerHTML=`<article class="v13-card"><h3>Account</h3><div class="v132-grid two"><label>Username<input value="${esc(identity.profile?.username||'')}" readonly></label><label>Email<input value="${esc(identity.profile?.email||'')}" readonly></label>${missing?`<label>First Name<input data-identity-first value="${esc(identity.profile?.firstName||'')}" required></label><label>Last Name<input data-identity-last value="${esc(identity.profile?.lastName||'')}" required></label><label>Date of Birth (DD/MM/YYYY)<input data-identity-dob inputmode="numeric" placeholder="DD/MM/YYYY" required></label><div class="v132-field-action"><button class="btn" data-identity-save>Complete Account Identity</button></div>`:`<label>First Name<input value="${esc(identity.profile?.firstName||'')}" readonly></label><label>Last Name<input value="${esc(identity.profile?.lastName||'')}" readonly></label>`}</div><p class="v132-field-note">${missing?'Complete the required 18+ account eligibility information. Date of birth is stored as restricted private account data and is not shown publicly.':'Username and verified account identity are controlled account records. Contact Support if a legal account correction is required.'}</p></article>`;const save=q<HTMLButtonElement>('[data-identity-save]',body);if(save)save.onclick=async()=>{save.disabled=true;try{await api('/api/account?action=identity_complete',{method:'POST',body:JSON.stringify({firstName:q<HTMLInputElement>('[data-identity-first]',body)!.value,lastName:q<HTMLInputElement>('[data-identity-last]',body)!.value,dateOfBirth:q<HTMLInputElement>('[data-identity-dob]',body)!.value})});toast('Account identity completed.','ok');await activate('account')}catch(err:any){toast(err.message,'bad')}finally{save.disabled=false}}}else if(code==='connections'){body.innerHTML='<div id="v132-connections"></div>';await renderConnections(q<HTMLElement>('#v132-connections',body)!)}else if(code==='security'){body.innerHTML='<article class="v13-card"><h3>Security</h3><p>Use a unique password, protect connected API credentials, and sign out from shared devices.</p><a class="btn secondary" href="signin.html?reset=1">Password / Sign-in Help</a></article>'}else if(code==='book'){body.innerHTML='<article class="v13-card"><h3>Book Access & Book Keys</h3><iframe class="v13-settings-frame" src="settings.html?embedded=1" title="Book access settings"></iframe></article>'}else if(code==='notifications'){body.innerHTML='<article class="v13-card"><h3>Notifications</h3><p>Control in-app and email preferences as services are enabled.</p><div class="v132-setting-list"><label><span>Community replies</span><input type="checkbox" checked></label><label><span>Learning releases</span><input type="checkbox" checked></label><label><span>Billing/account notices</span><input type="checkbox" checked disabled></label></div></article>'}else if(code==='accessibility'){body.innerHTML='<article class="v13-card"><h3>Accessibility</h3><p>Display preferences are available from the Accessibility panel and are saved to your account where supported.</p><a class="btn secondary" href="accessibility.html">Accessibility information</a></article>'}else if(code==='privacy'){let cp:any={preferences:{}};try{cp=await api('/api/account?action=consent')}catch{}const x=cp.preferences||{};body.innerHTML=`<article class="v13-card"><h3>Privacy & Data</h3><p>Control optional analytics, advertising personalization, marketing email, and community email preferences. Essential authentication, security, billing, and transactional processing cannot be disabled where required to operate the service.</p><div class="v132-setting-list"><label><span>Optional analytics</span><input type="checkbox" data-consent="analytics" ${x.analytics?'checked':''}></label><label><span>Advertising personalization</span><input type="checkbox" data-consent="advertisingPersonalization" ${x.advertising_personalization?'checked':''}></label><label><span>Marketing email</span><input type="checkbox" data-consent="marketingEmail" ${x.marketing_email?'checked':''}></label><label><span>Community email</span><input type="checkbox" data-consent="communityEmail" ${x.community_email!==false?'checked':''}></label></div><div class="actions"><button class="btn" data-save-consent>Save Privacy Preferences</button><a class="btn secondary" href="privacy.html">Privacy Policy</a><button class="btn secondary" data-export>Export My Activity</button></div></article>`;q<HTMLButtonElement>('[data-save-consent]',body)!.onclick=async()=>{const v:any={};qa<HTMLInputElement>('[data-consent]',body).forEach(c=>v[c.dataset.consent!]=c.checked);await api('/api/account?action=consent',{method:'POST',body:JSON.stringify(v)});toast('Privacy preferences saved.','ok')};q<HTMLButtonElement>('[data-export]',body)!.onclick=()=>location.href='dashboard.html?tab=activity'}else if(code==='danger'){body.innerHTML='<article class="v13-card v132-danger"><h3>Delete Account</h3><p>Deleting your account ends normal account access. Some transaction, tax, fraud-prevention, dispute, security, or audit records may be retained where required.</p><button class="btn danger" data-delete>Delete Account</button></article>';q<HTMLButtonElement>('[data-delete]',body)!.onclick=memberDeleteFlow} };qa<HTMLButtonElement>('[data-s]',host).forEach(b=>b.onclick=()=>activate(b.dataset.s!));await activate(new URLSearchParams(location.search).get('section')||'account')}
