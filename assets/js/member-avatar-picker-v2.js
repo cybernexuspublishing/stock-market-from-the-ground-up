@@ -42,6 +42,7 @@
    for(const b of dialog.querySelectorAll('[data-avatar-style]'))b.setAttribute('aria-pressed',String(b===btn));
    for(const tile of dialog.querySelectorAll('[data-avatar-id]'))tile.hidden=style!=='all' && (style==='realistic')!==tile.dataset.avatarId.startsWith('r');
   });
+  (dialog.querySelector('[data-avatar-style="'+(selected&&!selected.startsWith('r')?'illustrated':'realistic')+'"]'))?.click();
   const close=()=>{if(!busy)dialog.close()};
   dialog.querySelectorAll('[data-avatar-dismiss],[data-avatar-cancel]').forEach(x=>x.addEventListener('click',close));
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault()});
@@ -102,6 +103,7 @@
    for(const b of panel.querySelectorAll('[data-avatar-style]'))b.setAttribute('aria-pressed',String(b===btn));
    for(const tile of panel.querySelectorAll('[data-avatar-id]'))tile.hidden=style!=='all' && (style==='realistic')!==tile.dataset.avatarId.startsWith('r');
   });
+  (panel.querySelector('[data-avatar-style="'+(selected&&!selected.startsWith('r')?'illustrated':'realistic')+'"]'))?.click();
   const close=()=>{if(!busy){panel.hidden=true;message.textContent=''}};
   panel.querySelectorAll('[data-avatar-close],[data-avatar-cancel]').forEach(x=>x.addEventListener('click',close));
   for(const tile of tiles)tile.addEventListener('click',()=>{if(busy)return;selected=tile.dataset.avatarId;message.textContent='';refresh()});
