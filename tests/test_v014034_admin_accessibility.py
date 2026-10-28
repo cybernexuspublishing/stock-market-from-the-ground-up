@@ -28,7 +28,8 @@ assert 'https://supabase.com/docs/guides/auth/auth-captcha' in pw
 assert 'Turnstile CAPTCHA is not configured.' not in pw
 assert 'OWNER_AAL2_REQUIRED' in pw
 panel=read('assets/js/admin-human-verification-v01434.js')
-assert 'ENFORCE_AUTH_TURNSTILE_V135' in panel
+assert "'/api/owner-captcha-control'" in panel
+assert 'window.GroundUpAdminPasswordConfirm?.ensure' in panel
 assert "fetch('/api/auth-guard-v0135'" in panel
 assert 'Your website owner' not in panel or 'TURNSTILE_SECRET_KEY' in panel
 for f in ['config.js','sw.js','assets/js/route-policy.js','assets/js/site.js',

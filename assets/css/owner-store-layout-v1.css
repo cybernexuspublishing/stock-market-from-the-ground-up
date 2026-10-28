@@ -1,0 +1,70 @@
+/* Owner Store and public-site responsive layout — 2026-10-27.
+ * Presentation-only. Does not alter sale/entitlement authorization. */
+html body header.site-header,
+html body[data-gu-workspace] header.site-header{position:relative!important;top:auto!important}
+html body .gu-store-ad-shell > .gu-store-rail,
+html body .gu-all-products-ad-shell > .gu-store-rail,
+html body .gu-signin-ad-rail{position:static!important;top:auto!important;align-self:start}
+html body .gu-store-ad-shell > .gu-store-rail{min-width:0;max-width:100%}
+html body .gu-store-ad-shell .gu-store-ad-core{min-width:0}
+body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:14px!important;max-width:none!important;width:100%;align-items:stretch}
+body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-card{
+ padding:16px!important;gap:7px!important;min-width:0;overflow-wrap:anywhere}
+body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-card h3{font-size:1.16rem!important}
+body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-price{font-size:2.2rem!important}
+body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-card li{font-size:.79rem;line-height:1.45;padding-block:4px}
+body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs{
+ display:flex!important;flex-wrap:wrap!important;grid-template-columns:none!important;gap:9px 19px!important}
+body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button{flex:0 1 auto!important;padding:11px 4px!important;min-width:0}
+body[data-gu-workspace="site"] #store-products [hidden]{display:none!important}
+body[data-gu-workspace="site"] #store-products .product-card[hidden]{display:none!important}
+/* The sign-in center has exactly two direct grid children: intro and form. */
+html body main.gu-signin-page #gu-signin-center,
+html body main.gu-signin-page#gu-main-content #gu-signin-center{
+ box-sizing:border-box;display:grid!important;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;
+ gap:26px!important;width:100%!important;max-width:830px!important;min-width:0!important;
+ margin:0!important;padding:0!important;align-items:start}
+html body main.gu-signin-page #gu-signin-center>.gu-signin-form-column{min-width:0;max-width:100%;grid-column:2}
+html body main.gu-signin-page #gu-signin-center>.signin-introduction{min-width:0;max-width:100%;grid-column:1;padding:12px 0!important}
+html body main.gu-signin-page #gu-signin-center .signin-introduction h2{
+ font-size:clamp(1.5rem,2vw,2.1rem)!important;line-height:1.2!important;overflow-wrap:normal}
+html body main.gu-signin-page #gu-signin-center .gu-signin-form-column h1{font-size:1.8rem!important;line-height:1.2}
+html body main.gu-signin-page #gu-signin-center .gu-signin-card{min-width:0;width:100%;box-sizing:border-box;margin:0}
+html body main.gu-signin-page .gu-auth-primary-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+html body main.gu-signin-page .gu-auth-primary-actions button{width:100%;min-width:0;min-height:44px!important;margin:0!important;padding:8px 10px!important;white-space:normal}
+html body main.gu-signin-page .gu-signin-ad-layout{min-width:0}
+html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout{
+ display:grid;grid-template-columns:minmax(150px,190px) minmax(0,830px) minmax(150px,190px);
+ gap:22px;max-width:1280px;margin-inline:auto;align-items:start}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-ad-slot.gu-house-promo{box-sizing:border-box;max-width:100%;overflow-wrap:anywhere}
+html body main.gu-signin-page .gu-signin-ad-rail .gu-house-art{min-height:60px}
+html body main.gu-signin-page .gu-auth-ad-bottom{max-width:830px!important;margin:18px auto 0!important}
+/* Market Commons: avoid full-bleed forum tables at desktop width. */
+body[data-gu-layout-route="market-commons"] .gu-commons-page>.wrap{
+ box-sizing:border-box;width:calc(100% - 48px)!important;max-width:1120px!important;margin-inline:auto!important}
+body[data-gu-layout-route="market-commons"] .v13-commons-shell{min-width:0;max-width:100%}
+@media(max-width:1420px){
+ html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);max-width:830px}
+ html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout>#gu-signin-center{
+  grid-column:1/-1;grid-row:1}
+ html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout>.gu-signin-ad-rail{
+  grid-row:2;min-width:0}
+}
+@media(max-width:1150px){
+ body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:750px){
+ body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans{grid-template-columns:minmax(0,1fr)!important}
+ html body main.gu-signin-page #gu-signin-center,
+ html body main.gu-signin-page#gu-main-content #gu-signin-center{
+  grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+ html body main.gu-signin-page #gu-signin-center>.signin-introduction,
+ html body main.gu-signin-page #gu-signin-center>.gu-signin-form-column{
+  grid-column:1!important}
+ html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout{grid-template-columns:minmax(0,1fr)}
+ html body main.gu-signin-page#gu-main-content .gu-signin-ad-layout>.gu-signin-ad-rail{grid-row:auto}
+ body[data-gu-layout-route="market-commons"] .gu-commons-page>.wrap{width:calc(100% - 30px)!important}
+}

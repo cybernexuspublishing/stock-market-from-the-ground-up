@@ -199,3 +199,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   script.dataset.guNavSearch='1';script.defer=true;document.head.append(script);
  }
 })();
+
+/* Owner-approved non-sticky site header and responsive merchandising layout. */
+(()=>{if(typeof document==='undefined')return;
+ if(!document.querySelector('link[data-gu-owner-layout-v1]')){
+  const link=document.createElement('link');link.rel='stylesheet';
+  link.href='/assets/css/owner-store-layout-v1.css?v=20261027b';
+  link.dataset.guOwnerLayoutV1='1';document.head.append(link);
+ }
+})();

@@ -28,7 +28,15 @@ const housePromos=Object.freeze({
   body:'Learn from shared market observations, reviews, and educational conversations.',action:'Explore Market Commons',url:'/market-commons.html',art:'COMMONS'}
 });
 function houseFor(slot){
- if(/STORE|MEMBERSHIP/.test(slot))return housePromos.beta;
+ const perPlacement={
+  SIGNIN_LEFT:'learning',SIGNIN_RIGHT:'community',SIGNIN_BOTTOM:'books',
+  SIGNUP_LEFT:'beta',SIGNUP_RIGHT:'learning',SIGNUP_BOTTOM:'community',
+  STORE_LEFT:'books',STORE_RIGHT:'learning',STORE_INLINE:'community',
+  ALL_PRODUCTS_LEFT:'learning',ALL_PRODUCTS_RIGHT:'beta',ALL_PRODUCTS_BOTTOM:'books',
+  COMMUNITY_TOP:'learning',COMMUNITY_INLINE:'books',HOME_INLINE:'beta'
+ };
+ if(perPlacement[slot])return housePromos[perPlacement[slot]];
+ if(/MEMBERSHIP/.test(slot))return housePromos.beta;
  if(/COMMUNITY/.test(slot))return housePromos.community;
  if(/SAMPLE|DASHBOARD|TOOLS/.test(slot))return housePromos.learning;
  return housePromos.books;
