@@ -72,7 +72,7 @@ with sync_playwright() as pw:
  # Successful password re-confirmation triggers exactly one retry.
  page=setup(browser)
  page.get_by_role('button',name='Review Billing Reconciliation — No Charge').click()
- dialog=page.get_by_role('dialog',name='Confirm password for sensitive action')
+ dialog=page.get_by_role('dialog',name='Confirm your password')
  dialog.wait_for()
  assert page.evaluate('window.mock.reads')==1
  assert page.evaluate('window.mock.dialogs')==1
