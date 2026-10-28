@@ -1,6 +1,12 @@
 /* Founder 14 LIVE readiness contract — no Stripe writes, no fake subscriptions. */
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {onRequestGet,onRequestPost,foundingProductReadyForCheckout} from '../functions/api/founding600-checkout.js';
+const reservation=readFileSync(new URL('../supabase/migrations/20261028_founder14_atomic_reservation_support.sql',import.meta.url),'utf8');
+const ledger=readFileSync(new URL('../supabase/migrations/20261028_founder_14_cycle_sparks_and_lifecycle_gate.sql',import.meta.url),'utf8');
+assert.match(reservation,/FOUNDING_14','Atomic reservation must recognize Starter');
+for(const [plan,cents,sparks] of [['FOUNDING_14',2299,10],['FOUNDING_30',4999,15],['FOUNDING_60',5999,20]])
+ assert(ledger.includes(`plan_code='${plan}' AND price_cents=${cents} AND granted_sparks=${sparks}`),'Paid-cycle ledger must match approved membership terms');
 const origin='https://qa-f600.example';
 const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',SUPABASE_SECRET_KEY:'sb_secret_mock',
