@@ -43,6 +43,13 @@ function planCard(p){
  <a class="btn secondary" href="${esc(page)}" aria-label="Review ${esc(p.label)} details, exclusions and purchase options">Compare Benefits</a></div></article>`;
 }
 function bookBuy(label,url){const target=safe(url);return target?`<a class="btn secondary" href="${esc(target)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:''}
+function bookFamily(p){
+ const code=String(p.productCode||'').toUpperCase(),slug=String(p.branchSlug||p.family||'').toLowerCase();
+ if(code.startsWith('FOUNDATION_')||slug.includes('foundation'))return 'foundations';
+ if(code.includes('DAY_TRADING')||slug.includes('day-trading'))return 'day-trading';
+ if(code.includes('READING_THE_TAPE')||slug.includes('tape'))return 'reading-the-tape';
+ return 'other';
+}
 function bookCard(p){
  const channels=[];
  if(p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)channels.push(bookBuy('Buy Kindle on Amazon',p.amazon.kindleUrl));
@@ -56,7 +63,7 @@ function bookCard(p){
  const page=details('book',p.productCode),cover=safe(p.coverImageUrl);
  const available=purchaseCount?channels.join(''):`<span class="store-soon-label">Coming Soon · Book purchase links pending</span>`+channels.join('');
  const ribbon=p.publicationStatus==='published'&&purchaseCount?'Beta OPEN':'Coming Soon';
- return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(p.branchSlug||p.family||'other')}">
+ return `<article class="product-card" data-code="${esc(p.productCode)}" data-family="${esc(bookFamily(p))}">
  <a href="${esc(page)}" class="store-cover-link" aria-label="Read details about ${esc(p.title)}"><div class="fe-cover">${cover?`<img src="${esc(cover)}" alt="Cover of ${esc(p.shortTitle)}" loading="lazy">`:esc(p.shortTitle)}</div></a>
  <div class="eyebrow">${esc(p.shortTitle)}</div><h3><a href="${esc(page)}">${esc(p.title)}</a></h3>
  <div class="product-meta"><span class="store-beta-ribbon">${ribbon}</span><span class="status-pill ${p.publicationStatus==='published'?'status-active':''}">${esc(statusLabel(p.publicationStatus))}</span>
@@ -74,10 +81,10 @@ function toolCard(t){
  const action=enroll?'<a class="btn" href="checkout.html?type=tool&amp;code='+encodeURIComponent(t.toolCode)+'">Subscribe Now</a>':
  '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Beta / development · Individual checkout unavailable')+'</span>';
  return `<article class="v11-tool-card store-sell-card">${toolImages[t.toolCode]?`<a class="store-tool-visual" href="${esc(page)}" aria-label="Explore ${esc(t.name)}"><img src="${esc(toolImages[t.toolCode])}" alt="" loading="lazy" width="640" height="320"></a>`:'<div class="store-tool-visual store-tool-visual-generic" aria-hidden="true"></div>'}<div class="eyebrow">${esc(t.category)}</div>
- <span class="store-beta-ribbon">${enroll?'Beta OPEN':'Coming Soon'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
+ <span class="store-beta-ribbon">${enroll?'Beta OPEN':t.status==='beta'?'Approved beta testing':released?'Released tool':'Individual checkout unavailable'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
  <p>${esc(t.description||'Further product information is being prepared.')}</p>
  <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
- <p class="store-sell-status">${released?'Released learning tool':'Coming Soon'}${released&&!enroll?' · Sales opening pending':''}</p>
+ <p class="store-sell-status">${released?'Released learning tool':t.status==='beta'?'Beta learning tool':'Not currently released'}${released&&!enroll?' · Individual sales pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
  <div class="store-sales-actions">${action}<a class="btn secondary" href="${esc(page)}">See What You Get</a></div></article>`;
 }
@@ -145,7 +152,7 @@ async function foundingCatalog(){
 }
 
 function tabs(){
- const buttons=[...document.querySelectorAll('[data-store-category]')].filter(b=>b.dataset.storeCategory!=='memberships'),parts=['founders','books','sparks','tools'];
+ const buttons=[...document.querySelectorAll('[data-store-category]')].filter(b=>b.dataset.storeCategory!=='memberships'),parts=['founders','books','sparks','tools','current','upcoming'];
  const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled);
  const select=(name,focus=false)=>{
   const available=visibleButtons();
@@ -153,7 +160,7 @@ function tabs(){
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
-  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',memberships:'platform memberships and current prices',books:'books only',sparks:'Crownlight Sparks packages',tools:'individual tools only'})[key]+'.';
+  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',memberships:'platform memberships and current prices',books:'books only',sparks:'Crownlight Sparks packages',tools:'released and beta-approved individual tools',current:'current products grouped by type',upcoming:'upcoming releases grouped by type'})[key]+'.';
   if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
  buttons.forEach(b=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
@@ -172,6 +179,64 @@ function tabs(){
  }));
  for(const b of filters)b.setAttribute('aria-pressed',String(b.classList.contains('active')));
 }
+
+const publicCurrent=x=>x.saleReady===true||['published','selling','for_sale','listed','release_ready'].includes(x.status);
+const publicNewest=(a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))||
+ Number(a.displayOrder??9999)-Number(b.displayOrder??9999)||String(a.sku||'').localeCompare(String(b.sku||''));
+function pageControls(host,page,pages,onPage){
+ if(!host)return;host.replaceChildren();if(pages<=1)return;
+ const make=(label,disabled,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.disabled=disabled;b.addEventListener('click',action);return b};
+ const n=document.createElement('span');n.textContent='Page '+page+' of '+pages;
+ host.append(make('Previous',page===1,()=>onPage(page-1)),n,make('Next',page===pages,()=>onPage(page+1)));
+}
+function renderToolPages(tools,layout){
+ const host=document.getElementById('store-tools'),nav=document.getElementById('store-tools-pagination');
+ const size=Math.max(2,Math.min(72,Number(layout.tool_columns||5)*Number(layout.tool_rows||6)));
+ let page=1;
+ const draw=()=>{const pages=Math.max(1,Math.ceil(tools.length/size));page=Math.min(page,pages);
+  host.style.setProperty('--gu-tool-columns',String(layout.tool_columns||5));
+  host.innerHTML=tools.slice((page-1)*size,page*size).map(toolCard).join('')||
+    '<p>No approved beta or released individual tool listings are available.</p>';
+  pageControls(nav,page,pages,p=>{page=p;draw();host.scrollIntoView({block:'start'})});
+ };draw();
+}
+function renderGroupCatalog(host,nav,items){
+ let page=1;const size=15;
+ const draw=()=>{
+  const pages=Math.max(1,Math.ceil(items.length/size));page=Math.min(page,pages);
+  const subset=items.slice((page-1)*size,page*size),groups=new Map();
+  for(const item of subset){const k=String(item.category||'Other');
+   if(!groups.has(k))groups.set(k,[]);groups.get(k).push(item)}
+  host.innerHTML=[...groups].map(([type,rows])=>'<section class="gu-store-type-section"><h3>'+esc(type)+'</h3><div class="gu-store-type-grid">'+rows.map(x=>{
+   const href=typeof x.page==='string'&&/^[a-z0-9-]+\.html$/.test(x.page)?x.page:
+    'store-upcoming-product.html?sku='+encodeURIComponent(String(x.sku||'').split(':').pop());
+   return '<article class="gu-store-type-card"><span class="eyebrow">'+esc(x.status||'Listed')+
+   '</span><h4><a href="'+esc(href)+'">'+esc(x.name)+'</a></h4><p>'+esc(x.description)+'</p>'+
+   '<p class="small">Price: '+esc(x.price||'Not announced')+'</p><a href="'+esc(href)+'">View details</a></article>';
+  }).join('')+'</div></section>').join('')||'<p>No matching public product listings.</p>';
+  pageControls(nav,page,pages,p=>{page=p;draw();host.scrollIntoView({block:'start'})});
+ };draw();
+}
+async function renderStoreCatalogPanels(){
+ const fallback={tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3};
+ try{
+  const r=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
+  if(!r.ok)throw Error('Product catalog unavailable');
+  const data=await r.json();
+  if(data.ok!==true||data.source!=='verified_storefront'||!Array.isArray(data.items))throw Error('Catalog verification failed');
+  const list=data.items.filter(x=>x.category!=='membership').sort(publicNewest);
+  const current=list.filter(publicCurrent),upcoming=list.filter(x=>!publicCurrent(x));
+  renderGroupCatalog(document.getElementById('store-current-products'),document.getElementById('store-current-pagination'),current);
+  renderGroupCatalog(document.getElementById('store-upcoming-products'),document.getElementById('store-upcoming-pagination'),upcoming);
+  return data.layout&&typeof data.layout==='object'?data.layout:fallback;
+ }catch{
+  for(const id of ['store-current-products','store-upcoming-products']){
+   const h=document.getElementById(id);if(h)h.textContent='Current product data could not be verified. Open the full catalog to try again.';
+  }
+  return fallback;
+ }
+}
+
 async function init(){
  tabs();
  foundingCatalog();
@@ -191,11 +256,13 @@ async function init(){
   if(planCompare)planCompare.innerHTML=d.commerceUnavailable?'':comparison(plans,allTools);
   document.getElementById('store-products').innerHTML=(d.products||[]).filter(p=>p.type==='book'&&p.storeVisible!==false&&p.salesStatus!=='retired'&&!['draft','not_started','archived'].includes(p.publicationStatus)).map(bookCard).join('')||
    '<div class="empty-state">No books are currently listed in this catalog.</div>';
-  const futureIds=new Set(allTools.map(x=>x.toolCode));
-  const future=futureLearning().filter(x=>!futureIds.has(x.code));
-  document.getElementById('store-tools').innerHTML=d.commerceUnavailable?
-   '<div class="notice">Live product prices and checkout status cannot be verified. Please try again later.</div>':
-   allTools.map(toolCard).join('')+future.map(upcomingCard).join('');
+  document.querySelector('#store-tabs button.active')?.click();
+  const liveOrBeta=allTools.filter(t=>['live','beta'].includes(String(t.status||'')));
+  const storeLayout=await renderStoreCatalogPanels();
+  if(d.commerceUnavailable){
+    document.getElementById('store-tools').innerHTML='<div class="notice">Live product prices and checkout status cannot be verified. No purchase can be initiated.</div>';
+  }else renderToolPages(liveOrBeta,storeLayout);
+
   const bookTab=document.getElementById('store-tab-books'),toolTab=document.getElementById('store-tab-tools');
   if(bookTab)bookTab.hidden=!document.getElementById('store-products')?.innerHTML.includes('product-card');
   if(toolTab)toolTab.hidden=!document.getElementById('store-tools')?.innerHTML.includes('store-sell-card');

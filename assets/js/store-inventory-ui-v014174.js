@@ -12,7 +12,23 @@ const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrela
 const listedCore=p=>/^FOUNDING_(30|60)$/.test(p.sku)||(p.category==='Books'&&p.status==='existing_catalog');
 const $=id=>document.getElementById(id);
 const clean=x=>String(x??'').trim();
-let all=[],isVerified=false,isFull=false;
+let all=[],isVerified=false,isFull=false,pageNumber=1,layout={catalog_columns:5,catalog_rows:3};
+const currentItem=x=>x.saleReady===true||['published','selling','for_sale','listed','release_ready'].includes(x.status);
+const orderNewest=(a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))||
+ (Number(a.displayOrder??9999)-Number(b.displayOrder??9999))||String(a.sku).localeCompare(String(b.sku));
+function groups(items){
+ const byType=new Map();
+ for(const x of items){if(!byType.has(x.category))byType.set(x.category,[]);byType.get(x.category).push(x)}
+ return [...byType].map(([category,rows])=>'<section class="gu-inventory-type"><h2>'+escapeHtml(category)+'</h2><div class="gu-inventory-type-grid">'+cards(rows)+'</div></section>').join('');
+}
+function paging(host,total,select){
+ if(!host)return;host.replaceChildren();if(total<=1)return;
+ const back=document.createElement('button'),next=document.createElement('button'),number=document.createElement('span');
+ back.type='button';next.type='button';back.textContent='Previous';next.textContent='Next';
+ back.disabled=pageNumber<=1;next.disabled=pageNumber>=total;number.textContent='Page '+pageNumber+' of '+total;
+ back.addEventListener('click',()=>select(pageNumber-1));next.addEventListener('click',()=>select(pageNumber+1));
+ host.append(back,number,next);
+}
 function fromLocal(x){return {sku:x.sku,name:x.name,description:x.description||'',
  category:x.category||'Upcoming',price:x.status==='existing_catalog'?'See product details':'Pricing to be announced',
  duration:x.duration||'',status:x.status==='existing_catalog'?'listed':'coming_soon',
@@ -44,13 +60,24 @@ function cards(items){
 function show(){
  const list=$('inventory-list'),root=$('inventory-detail'),search=$('inventory-search'),filter=$('inventory-category'),status=$('inventory-status');
  if(list){
-  const term=clean(search?.value).toLowerCase(),cat=clean(filter?.value);
-  const rows=all.filter(x=>x.category!=='Memberships'&&(!cat||x.category===cat)&&(!term||
-   (x.name+' '+x.sku+' '+x.description+' '+x.category).toLowerCase().includes(term)));
-  list.innerHTML=cards(rows)||'<p>No matching products.</p>';
-  if(status)status.textContent=rows.length+' of '+all.length+' available catalog listings shown. '+
-   (isFull?'Current production catalog verified.':'A reduced fallback catalog is shown.')+
-   ' Listings do not imply payment availability.';
+  const term=clean(search?.value).toLowerCase(),cat=clean(filter?.value),release=clean($('inventory-release')?.value)||'all';
+  const rows=all.filter(x=>x.category!=='Memberships'&&(!cat||x.category===cat)&&
+    (release==='all'||(release==='current'?currentItem(x):!currentItem(x)))&&(!term||
+   (x.name+' '+x.sku+' '+x.description+' '+x.category).toLowerCase().includes(term))).sort(orderNewest);
+  const pageSize=Math.max(2,Math.min(72,layout.catalog_columns*layout.catalog_rows));
+  const pages=Math.max(1,Math.ceil(rows.length/pageSize));
+  pageNumber=Math.min(pages,Math.max(1,pageNumber));
+  const subset=rows.slice((pageNumber-1)*pageSize,pageNumber*pageSize);
+  list.innerHTML=groups(subset)||'<p>No matching products.</p>';
+  list.style.setProperty('--gu-catalog-columns',String(layout.catalog_columns));
+  paging($('inventory-pagination'),pages,p=>{
+    pageNumber=p;const url=new URL(location.href);
+    url.searchParams.set('page',String(p));history.replaceState(history.state,'',url);
+    show();list.scrollIntoView({block:'start',behavior:'auto'});
+  });
+  if(status)status.textContent=rows.length+' verified catalog listings · '+subset.length+
+   ' on page '+pageNumber+' of '+pages+' · sorted by latest catalog update.'+
+   (isFull?'':' Reduced fallback catalog.')+' Purchase availability is shown individually.';
  }
  if(root){
   const raw=new URLSearchParams(location.search).get('sku')||'';
@@ -82,6 +109,9 @@ async function load(){
     new Set(j.items.map(x=>x.sku)).size!==j.items.length)
    throw Error('Catalog integrity check failed');
   all=j.items.map(normalize);isFull=true;
+  if(j.layout&&typeof j.layout==='object')for(const k of Object.keys(layout)){
+   const n=Number(j.layout[k]);if(Number.isInteger(n)&&n>=1&&n<=12)layout[k]=n;
+  }
  }catch{
   const core=base.filter(listedCore);
   all=core.map(fromLocal);
@@ -92,14 +122,21 @@ async function load(){
   const options=['',...new Set(all.map(x=>x.category))].sort((a,b)=>a?b?a.localeCompare(b):1:-1);
   category.replaceChildren();
   for(const label of options){const o=document.createElement('option');o.value=label;o.textContent=label||'All categories';category.append(o)}
-  const requested=new URLSearchParams(location.search).get('category');
+  const params=new URLSearchParams(location.search);
+  const requested=params.get('category');
   if(requested&&options.includes(requested))category.value=requested;
  }
+ const params2=new URLSearchParams(location.search),mode=params2.get('status');
+ if($('inventory-release')&&['current','upcoming','all'].includes(mode))$('inventory-release').value=mode;
+ const number=Number(params2.get('page'));pageNumber=Number.isSafeInteger(number)&&number>0?number:1;
  show();
 }
 function init(){
- $('inventory-search')?.addEventListener('input',show);
- $('inventory-category')?.addEventListener('change',show);
+ $('inventory-search')?.addEventListener('input',()=>{pageNumber=1;show()});
+ $('inventory-category')?.addEventListener('change',()=>{pageNumber=1;show()});
+ $('inventory-release')?.addEventListener('change',()=>{pageNumber=1;
+  const url=new URL(location.href);url.searchParams.set('status',$('inventory-release').value);url.searchParams.delete('page');
+  history.replaceState(history.state,'',url);show()});
  const status=$('inventory-status');if(status)status.textContent='Verifying the current Store inventory…';
  void load();
 }

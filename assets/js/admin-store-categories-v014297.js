@@ -22,6 +22,7 @@ function mount(){
  '<p role="status" aria-live="polite" id="store-category-admin-message"></p>'+
  '<div id="store-category-admin-list" class="admin-grid"></div>';
  root.append(box);
+ addStoreLayoutControl(root);
  box.querySelector('#store-add-category').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget,name=String(new FormData(form).get('name')||'').trim(),slug=normalize(name);
   if(name.length<2||slug.length<2)return message('Enter a valid category name.',true);
@@ -82,5 +83,42 @@ function render(){
   });
  }
 }
+
+function addStoreLayoutControl(root){
+ const panel=el('section');panel.className='admin-card';panel.id='admin-store-layout-manager';
+ panel.innerHTML='<h2>Store Display & Pagination</h2><p class="small">Desktop column counts and page lengths only. Smaller screens automatically use fewer columns. Product visibility, prices and checkout eligibility are not changed.</p>'+
+ '<form id="gu-store-layout-form" class="admin-toolbar">'+
+ '<label>Tool columns<input name="tool_columns" type="number" min="2" max="6" value="5" required></label>'+
+ '<label>Tool rows<input name="tool_rows" type="number" min="1" max="12" value="6" required></label>'+
+ '<label>Catalog columns<input name="catalog_columns" type="number" min="2" max="6" value="5" required></label>'+
+ '<label>Catalog rows<input name="catalog_rows" type="number" min="1" max="12" value="3" required></label>'+
+ '<button type="submit" class="btn">Save Store Layout</button></form>'+
+ '<p id="gu-store-layout-result" role="status" aria-live="polite"></p>';
+ root.append(panel);
+ const form=panel.querySelector('form'),status=panel.querySelector('#gu-store-layout-result');
+ async function refresh(){
+  try{await owner();const r=await client.from('gu_store_layout_v1').select('tool_columns,tool_rows,catalog_columns,catalog_rows').eq('singleton',true).single();
+   if(r.error)throw r.error;
+   for(const key of ['tool_columns','tool_rows','catalog_columns','catalog_rows'])form.elements[key].value=r.data[key];
+   status.textContent='Current Store display settings loaded.';
+  }catch(e){status.textContent=e.message||'Store display settings unavailable.';}
+ }
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();const value={};
+  for(const key of ['tool_columns','tool_rows','catalog_columns','catalog_rows']){
+   const n=Number(form.elements[key].value);const max=key.endsWith('columns')?6:12;
+   if(!Number.isInteger(n)||n<1||n>max||(key.endsWith('columns')&&n<2)){
+    status.textContent='Enter a valid row and column count.';return;
+   }
+   value[key]=n;
+  }
+  try{await owner();const r=await client.from('gu_store_layout_v1').update(value).eq('singleton',true).select('tool_columns,tool_rows,catalog_columns,catalog_rows');
+   if(r.error)throw r.error;if(r.data?.length!==1)throw Error('Owner authorization or layout update failed.');
+   status.textContent='Store layout saved. Public catalog displays use these settings when reloaded.';
+  }catch(e){status.textContent=e.message||'Unable to save layout.'}
+ });
+ void refresh();
+}
+
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();

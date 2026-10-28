@@ -14,13 +14,14 @@ export async function onRequestGet({env}){
   if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!key)
    return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
   const headers=key.startsWith('sb_secret_')?{apikey:key}:{apikey:key,authorization:'Bearer '+key};
-  const query='gu_storefront_items_v014174?select=sku,category,display_name,description,price_label,duration_label,product_page,status,visible,sale_ready,display_order&visible=eq.true&order=display_order.asc&limit=150';
+  const query='gu_storefront_items_v014174?select=sku,category,display_name,description,price_label,duration_label,product_page,status,visible,sale_ready,display_order,updated_at&visible=eq.true&order=display_order.asc&limit=150';
   // Cross-check the canonical membership visibility registry; storefront
   // listing flags must not expose plans the Owner has explicitly hidden.
   const plansQuery='platform_plans?select=plan_code,public_visible,active&limit=150';
-  const [r,p]=await Promise.all([
+  const [r,p,layoutResponse]=await Promise.all([
    fetch(base+'/rest/v1/'+query,{headers,cache:'no-store'}),
-   fetch(base+'/rest/v1/'+plansQuery,{headers,cache:'no-store'})
+   fetch(base+'/rest/v1/'+plansQuery,{headers,cache:'no-store'}),
+   fetch(base+'/rest/v1/gu_store_layout_v1?select=tool_columns,tool_rows,catalog_columns,catalog_rows&singleton=eq.true&limit=1',{headers,cache:'no-store'}).catch(()=>null)
   ]);
   if(!r.ok||!p.ok)return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
   const [rows,plans]=await Promise.all([r.json(),p.json()]);
@@ -33,10 +34,17 @@ export async function onRequestGet({env}){
    sku:limited(x.sku,90),category:x.category,name:limited(x.display_name,220),
    description:limited(x.description,1600),price:limited(x.price_label,100),
    duration:limited(x.duration_label,100),status:statuses.has(x.status)?x.status:'unavailable',
-   saleReady:x.sale_ready===true,
+   saleReady:x.sale_ready===true,updatedAt:/^\d{4}-\d{2}-\d{2}T/.test(String(x.updated_at||''))?x.updated_at:null,
+   displayOrder:Number.isInteger(x.display_order)?x.display_order:9999,
    // Only local, rootless .html product destinations may be exposed.
    page:/^[a-z0-9-]+\.html$/.test(String(x.product_page||''))?x.product_page:null
   }));
-  return json({ok:true,source:'verified_storefront',items,count:items.length});
+  let layout={tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3};
+  if(layoutResponse?.ok){const setting=(await layoutResponse.json().catch(()=>[]))?.[0];
+   if(setting)for(const key of Object.keys(layout)){
+    const v=Number(setting[key]);if(Number.isInteger(v)&&v>=1&&v<=12)layout[key]=v;
+   }
+  }
+  return json({ok:true,source:'verified_storefront',items,count:items.length,layout});
  }catch{return json({ok:false,error:'Store catalog is temporarily unavailable.'},503)}
 }
