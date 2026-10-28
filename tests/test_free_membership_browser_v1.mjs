@@ -85,12 +85,23 @@ try{
   await page.locator('#academy-course-title').waitFor({timeout:14000});
   assert.match(await page.locator('#academy-course-title').innerText(),/Free Foundations/);
   assert.equal(await page.locator('#academy-days .gu-bc-day').count(),5);
+  assert.match(await page.locator('#academy-index-title').innerText(),/lessons/i);
+  assert.match(await page.locator('#academy-stage-label').innerText(),/Lesson 1 of 5/i);
+  assert.equal(await page.locator('.academy-free-stage-button').count(),9);
+  assert.equal(await page.locator('.academy-free-stage:not([hidden])').count(),1);
+  assert.equal(await page.locator('.academy-free-stage-button[aria-pressed=true]').count(),1);
   assert.match(await page.locator('#academy-objective').innerText(),/ownership|difference/i);
   assert.equal(await page.locator('#academy-enroll').isVisible(),!data.enrolled);
   await page.locator('#academy-days .gu-bc-day').nth(1).click();
   assert.equal(await page.locator('.academy-free-figure svg').count(),1);
+  await page.locator('.academy-free-stage-button').nth(1).click();
+  assert.equal(await page.locator('.academy-free-figure svg').isVisible(),true,'Fictional chart taught in Learn stage');
+  await page.locator('.academy-free-stage-button').nth(4).click();
+  await page.locator('.academy-free-stage textarea').filter({visible:true}).first().fill('I can describe the observed candle but I still cannot know what happens in the next interval.');
+  await page.locator('.academy-free-stage button').filter({hasText:'Ask Talia for a hint'}).click();
   assert.match(await page.locator('.academy-free-figure figcaption').innerText(),/FICTIONAL/);
   await page.locator('#academy-days .gu-bc-day').first().click();
+  await page.locator('.academy-free-stage-button').nth(5).click();
   await page.locator('#academy-self-check-answer').fill(
    'The last trade is a previous matched transaction, but I have not yet checked the bid, ask, quantity or fill uncertainty.');
   await page.locator('#academy-original-instruction button').filter({hasText:'Compare my reasoning'}).click();
@@ -98,7 +109,7 @@ try{
   assert.match(await page.locator('.academy-free-formative-note').innerText(),/not a grade/i);
   if(!data.enrolled){await page.locator('#academy-enroll').click();await page.waitForFunction(()=>document.querySelector('#academy-enroll').hidden);}
   await page.locator('#academy-start').click();
-  await page.waitForFunction(()=>document.querySelector('#academy-save-status')?.textContent.includes('Day started'));
+  await page.waitForFunction(()=>document.querySelector('#academy-save-status')?.textContent.includes('started'));
   const note='FICTIONAL practice reflection: A last trade is not an executable quote, and I need the current source, bid, ask, available quantity and timestamp. I choose NO TRADE while the evidence is missing.';
   await page.locator('#academy-reflection').fill(note);
   await page.locator('#academy-save').click();
@@ -110,7 +121,7 @@ try{
   const check=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,width:innerWidth}));
   assert(check.scrollWidth<=check.width+8,'No horizontal overflow for '+width+'px '+JSON.stringify(check));
   assert.deepEqual(problems,[],'no browser exception '+width);
-  console.log('PASS Free five-day Talia + saved reflection/reload and accessible FICTIONAL OHLC chart at '+width+'px.');
+  console.log('PASS Free five self-paced nine-stage Talia lessons + private reflection/reload and FICTIONAL OHLC chart at '+width+'px.');
   await context.close();
  }
  for(const width of [390,900,1280,1440]){
