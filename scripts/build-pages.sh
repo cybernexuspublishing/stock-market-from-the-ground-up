@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
+# Journal V1 critical financial, policy-source and guided UI regressions.
+# This test is deterministic: it uses fictional inputs and no database/payment action.
+node tests/test_journal_guided_integrity_v1.mjs
+for asset in assets/js/journal-common.js assets/js/journal-entry.js assets/js/journal-guided-v1.js assets/js/journal-evidence-v1.js assets/js/journal-actual-history-v1.js assets/js/journal-weekly-v1.js; do
+  node --check "$asset"
+done
 # Owner-authorized release state may build on main. A webhook must remain
 # deployable independently of new checkout so renewals/refunds are processed even
 # when the Owner pauses new sales. This is a safety boundary, NOT a prelaunch lock.
