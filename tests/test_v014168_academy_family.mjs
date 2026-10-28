@@ -104,7 +104,10 @@ const api=fs.readFileSync('functions/api/bootcamp-academy.js','utf8');
 assert(api.includes("toolAccess(env,request,'ONDEMAND_TRAINING')"));
 assert(api.includes('sameOrigin(request)'));
 assert(api.includes('expectedRevision'));
-assert(api.includes("code!=='foundations30'"));
+assert(api.includes("form.program==='foundations30'")&&api.includes('gu_foundations30_beta_enroll_v1'),
+ '30-day enrollment is supported without routing daily progress through the Academy service');
+assert(api.includes("data.program==='foundations30'&&data.action!=='enroll'"),
+ '30-day study progress must remain under the canonical original Boot Camp API');
 const html=fs.readFileSync('bootcamp-academy.html','utf8');
 assert(html.includes('assets/js/lab-engine-v32-universal.js'));
 assert(html.includes('assets/js/bootcamp-academy-v014168.js'));
