@@ -25,7 +25,7 @@ assert.match(studio.compute(4,0).main,/UNVERIFIED/);
 assert.match(studio.compute(4,2).detail,/liquidity still unknown/);
 const risk=studio.compute(5,9.8),wide=studio.compute(5,9.5);
 assert.match(risk.main,/100 illustrative whole shares/);
-assert.match(risk.detail,/\$1,000\.00/);
+assert.match(risk.detail,/\$1000\.00/);
 assert.match(wide.main,/40 illustrative whole shares/);
 assert.match(studio.compute(5,9.95).sub,/No order was placed/);
 for(const [day,value] of [[1,5],[2,25],[3,470],[4,3],[5,10]]){
