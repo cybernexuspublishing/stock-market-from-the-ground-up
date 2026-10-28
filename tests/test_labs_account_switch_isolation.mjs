@@ -39,6 +39,7 @@ let current=identities.a,callback=null;
 const supabase={
  auth:{
   getUser:async()=>({data:{user:current?{id:current}:null}}),
+  getSession:async()=>({data:{session:current?{access_token:'fixture-'+current,user:{id:current}}:null}}),
   onAuthStateChange(cb){callback=cb;return {data:{subscription:{unsubscribe(){}}}}}
  },
  from(table){
@@ -63,9 +64,17 @@ const context={
   if(path==='data/competency-lab-paths-v01499.json')return{totalCanonicalLabs:419,byLab:crosswalk};
   throw Error('Unexpected fixture source: '+path);
  },
- fetch:async(url)=>{
-  assert.equal(url,'/api/lab-release-availability');
-  return {ok:true,json:async()=>({ok:true,publishedIds:[labId],guidedBetaIds:['QA-002']})};
+ fetch:async(url,opts={})=>{
+  if(url==='/api/lab-release-availability')
+   return {ok:true,json:async()=>({ok:true,publishedIds:[labId],guidedBetaIds:['QA-002']})};
+  if(url==='/api/lab-beta-scope')return {ok:false,json:async()=>({ok:false})};
+  if(url==='/api/lab-registry-access'){
+   const token=String(opts.headers?.authorization||'');
+   assert(/^Bearer fixture-[a-d]{8}-/.test(token),'Registry rights require a member session');
+   return {ok:true,json:async()=>({ok:true,freeEligible:true,
+    interactive:false,training:true,bookCodes:[],freeSampleIds:[]})};
+  }
+  throw Error('Unexpected registry request: '+url);
  },
  URLSearchParams,Map,Set,Promise,Date,Error,Array,String,Object,Number,console
 };
