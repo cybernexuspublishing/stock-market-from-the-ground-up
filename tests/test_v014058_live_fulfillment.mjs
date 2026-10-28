@@ -52,8 +52,9 @@ globalThis.fetch=async(url,o={})=>{
  if(u.includes('/account_private_identity?'))return respond([{age_eligible:true,date_of_birth:'1990-01-01'}]);
  if(u.includes('/platform_plans?'))return respond([{active:true,public_visible:true,
  checkout_enabled:true,name:'Full Platform Monthly',billing_interval:'month',price_cents:6999}]);
- // platform_tools intentionally has no checkout_enabled column.
- if(u.includes('/platform_tools?'))return respond([{active:true,public_visible:true,
+ // Checkout requires a released product and a published, sale-ready Store entry.
+ if(u.includes('/gu_storefront_items_v014174?'))return respond([{visible:true,sale_ready:true,status:'for_sale'}]);
+  if(u.includes('/platform_tools?'))return respond([{active:true,public_visible:true,checkout_enabled:true,
   status:'live',name:'Interactive Learning',individual_price_cents:2999}]);
  if(u.includes('/rpc/gu_digital_payment_route_get_v01432r2'))return respond({enabled:true,provider:'STRIPE_MANAGED'});
  if(u.includes('/site_settings?'))return respond([{value:true}]);
@@ -210,8 +211,8 @@ try{
  assert.equal(state.bindWrites,1);
  assert.equal(state.postStripe,1);
  assert.equal(state.dbWrites,9);
- // Verify the tool checkout path does not rely on a nonexistent checkout_enabled
- // column in platform_tools. All other Owner and provider gates remain active.
+ // Verify the tool checkout path requires an explicit checkout_enabled
+ // flag in platform_tools. All other Owner and provider gates remain active.
  state.expectTool=true;
  crypto.randomUUID=()=>intent;
  r=await pay({}, {type:'tool',code:'INTERACTIVE_LEARNING'});
