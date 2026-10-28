@@ -6,6 +6,12 @@ on:
     paths:
       - 'assets/js/crownlight-chart-studio-v2.js'
       - 'assets/js/crownlight-chart-tiers-v1.js'
+      - 'assets/js/crownlight-workspace-v2.js'
+      - 'assets/js/crownlight-talia-lab-v2.js'
+      - 'assets/css/crownlight-chart-v2-experience.css'
+      - 'functions/api/chart-workspace.js'
+      - 'tests/test_crownlight_chart_workspace_v2.mjs'
+      - 'supabase/migrations/20261028_crownlight_member_chart_workspaces_v2.sql'
       - 'functions/api/storefront-public-catalog.js'
       - 'assets/js/store-inventory-ui-v014174.js'
       - 'assets/js/founder-offer-links-v1.js'
@@ -96,6 +102,10 @@ jobs:
           node --check functions/_lib/founder-offer-gate-v1.js
           node --check assets/js/store.js
           node tests/test_crownlight_chart_tiers_v1.mjs
+          node --check assets/js/crownlight-workspace-v2.js
+          node --check assets/js/crownlight-talia-lab-v2.js
+          node --check functions/api/chart-workspace.js
+          node tests/test_crownlight_chart_workspace_v2.mjs
           node tests/test_crownlight_founder_storefront_v1.mjs
           node tests/test_crownlight_chart_tiers_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
