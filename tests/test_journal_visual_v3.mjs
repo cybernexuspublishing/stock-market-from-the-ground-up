@@ -26,8 +26,8 @@ const sample=[
  {user_id:'owner',journal_type:'paper',trade_date:'2026-10-27',status:'reviewed',decision:'NO TRADE'}
 ];
 const out=v.counts(sample,new Date('2026-10-27T23:00:00Z'));
-assert.equal(out.total,5);
-assert.equal(out.completed,3);
+assert.equal(out.total,6);
+assert.equal(out.completed,4);
 assert.equal(out.passes,2,'Only completed no-trade decisions qualify');
 assert.equal(out.awaiting,2);
 assert.equal(out.bars.length,14);
@@ -38,7 +38,7 @@ for(const token of [
   'gu-journal-rows-loaded','r.user_id===userId','sb.auth.onAuthStateChange',
   'userId=null;rows=[];pending=[]','r.trade_date===selected',
   'journal-entry.html?id=','gu-j3-kpis','gu-j3-calendar',
-  'data-count','Journal record','Member-recorded data','gu-j3-bars'
+  'btn.dataset.count','Journal record','Member-recorded data','gu-j3-bars'
 ])assert(dashboard.includes(token),'Dashboard integrity token missing: '+token);
 assert(!dashboard.includes('net_pnl')&&!dashboard.includes('gross_pnl')&&!dashboard.includes('winRate'),
  'Free visual overview must not reconstruct premium financial aggregations');
