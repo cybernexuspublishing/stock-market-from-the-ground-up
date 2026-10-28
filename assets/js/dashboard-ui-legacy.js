@@ -247,7 +247,7 @@
     sidebarCodes.add('overview');
     const unified=defs.every(([code])=>sidebarCodes.has(code));
     if(unified){
-      nav.hidden=true;hub.classList.add('gu-single-member-nav');
+      nav.hidden=false;hub.classList.remove('gu-single-member-nav');
       const syncSidebar=code=>sidebar.querySelectorAll('a').forEach(a=>{
         const url=new URL(a.href);
         const match=new RegExp('^/dashboard(?:[.]html)?$').test(url.pathname);

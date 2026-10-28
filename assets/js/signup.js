@@ -76,6 +76,7 @@ async function createAccount(e){
   const confirm=document.getElementById('signup-password-confirm')?.value||'';
   const bookKey=document.getElementById('signup-book-key')?.value.trim()||'';
   const terms=document.getElementById('signup-terms')?.checked===true;
+  const gender=document.getElementById('signup-gender')?.value||'rather_not_say';
   const firstName=document.getElementById('signup-first-name')?.value.trim()||'';
   const lastName=document.getElementById('signup-last-name')?.value.trim()||'';
   const dobInput=document.getElementById('signup-dob');
@@ -146,7 +147,7 @@ async function createAccount(e){
       method:'POST',
       headers:{'content-type':'application/json'},
       cache:'no-store',
-      body:JSON.stringify({firstName,lastName,dateOfBirth,username,email,password,
+      body:JSON.stringify({firstName,lastName,dateOfBirth,gender,username,email,password,
         confirmPassword:confirm,termsAccepted:terms,bookClaimToken:claimToken,captchaToken})
     });
     const result=await response.json().catch(()=>({}));
