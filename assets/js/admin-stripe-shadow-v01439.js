@@ -49,7 +49,7 @@
  liveAudit.append(liveTitle,liveInfo,liveButton,liveResults,releaseDescription,releaseButton,releaseResults);
  // $0 LIVE QA is NOT GU58 member checkout. This collapsible test control stays
  // hidden from non-Owners and uses a separate explicit server-side enable gate.
- const zeroQA=element('details',undefined,'gu71-zero-live-checkout');zeroQA.hidden=true;
+ const zeroQA=element('details',undefined,'gu71-zero-live-checkout');zeroQA.id='gu71-zero-live-checkout';zeroQA.hidden=true;
  const zeroHeader=element('summary','Owner LIVE $0.00 Checkout — Separate QA Product (No Membership Grant)');
  const zeroDescription=element('p','One-time Stripe-hosted $0.00 Checkout, no card required. Requires a separate flagged QA Product/Price and explicit server-side GU71 switch. Does NOT test paid processing, Managed Payments, signed GU58 fulfillment or grant an entitlement.','gu39-small');
  const zeroSkuLabel=element('label','Select a product for a separate $0 LIVE diagnostic');
