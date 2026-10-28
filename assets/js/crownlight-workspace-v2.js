@@ -102,7 +102,10 @@ async function persist(){
 async function restore(){
  const epoch=++permissionEpoch;
  permissionReady=Tier()?.getStatus().verified===true;
- if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]};storeAvailable=false;return}
+ if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]};syncEnabled=true;linked=false;storeAvailable=false;
+  const box=ui?.querySelector('[data-cl-studies]');if(box)box.value='';
+  const toggle=ui?.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
+  msg('Session changed. Saved workspace controls cleared. Sign in again to restore your settings.');return}
  loadingWorkspace=true;
  try{
   const r=await endpoint('GET');
