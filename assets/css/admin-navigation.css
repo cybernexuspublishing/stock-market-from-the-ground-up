@@ -69,3 +69,12 @@
 .cc-shortcuts-grid button{text-align:left;white-space:normal}
 #cc-showcase-banner{position:sticky;top:0;z-index:12;background:#603d14;color:#fff0c6;padding:.75rem 1rem;border:1px solid #f2bd56;border-radius:8px}
 @media(max-width:700px){.cc-admin-topbar{align-items:stretch}.cc-topbar-status{justify-content:space-between}}
+
+/* Preserve access to the complete installed-control inventory without a flat 63-item sidebar. */
+#admin-tabs details.cc-group-more{display:block;padding:.2rem .35rem}
+#admin-tabs details.cc-group-more>summary{cursor:pointer;list-style-position:inside;color:#efce84;font-size:.84rem;padding:.35rem;border:1px solid #315572;border-radius:6px}
+#admin-tabs details.cc-group-more[open]>summary{margin-bottom:.25rem}
+#admin-tabs details.cc-group-more>*:not(summary){display:block;width:100%}
+#admin-tabs .cc-admin-group:not(.cc-group-open)>details.cc-group-more{display:none!important}
+#admin-tabs details.cc-group-more>summary:focus-visible{outline:2px solid #f4c75a;outline-offset:2px}
+.cc-admin-breadcrumb{font-size:.8rem;letter-spacing:.025em;color:#abc6d8;margin:0 0 .45rem}
