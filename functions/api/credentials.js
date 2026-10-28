@@ -65,7 +65,44 @@ export async function onRequest({request,env}){const u=new URL(request.url),acti
    await rest(env,`user_secure_credentials?user_id=eq.${encodeURIComponent(usr.id)}&service_code=eq.ALPACA_BYO`,{method:'PATCH',prefer:'return=minimal',body:{status:'verification_failed',last_error:'Market-data verification failed.',updated_at:new Date().toISOString()}});
    throw e;
   }
-  await rest(env,`user_secure_credentials?user_id=eq.${encodeURIComponent(usr.id)}&service_code=eq.ALPACA_BYO`,{method:'PATCH',prefer:'return=minimal',body:{status:'connected',last_tested_at:verified.verifiedAt,last_error:null,updated_at:new Date().toISOString(),metadata:{...(rows[0].metadata||{}),version:2,providerVerification:'alpaca_iex_historical_bar',marketDataOnly:true,feed:'iex'}}});
+  await rest(env,`user_secure_credentials?user_id=eq.${encodeURIComponent(usr.id)}&service_code=eq.ALPACA_BYO`,{method:'PATCH',prefer:'return=minimal',body:{status:'connected',last_tested_at:verified.verifiedAt,last_error:null,updated_at:new Date().toISOString(),metadata:{...(rows[0].metadata||{}),version:2,providerVerification:'alpaca_iex_historical_bar',marketDataOnly:!(rows[0].metadata?.accountType==='paper'&&rows[0].metadata?.paperAccountVerifiedAt),feed:'iex'}}});
   return out({ok:true,verified:true,serviceCode:service,feed:'iex'});
+ }
+ if(action==='verify-paper'&&request.method==='POST'){
+  const body=await request.json().catch(()=>({}));
+  if(clean(body?.serviceCode).toUpperCase()!=='ALPACA_BYO')
+   return out({ok:false,error:'Only a saved personal Alpaca account can be verified.'},400);
+  const path='user_secure_credentials?user_id=eq.'+encodeURIComponent(usr.id)+'&service_code=eq.ALPACA_BYO';
+  const rows=await rest(env,path+'&select=credential_ciphertext,credential_iv,status,metadata&limit=1');
+  const stored=rows?.[0];
+  if(!stored||stored.status!=='connected')
+   return out({ok:false,error:'Save and verify your Alpaca market-data credentials first.'},403);
+  const values=JSON.parse(await decrypt(env,stored.credential_ciphertext,stored.credential_iv));
+  if(!values||typeof values.apiKey!=='string'||typeof values.apiSecret!=='string')
+   return out({ok:false,error:'Saved Alpaca credentials are incomplete.'},503);
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+  let account;
+  try{
+   // Fixed paper endpoint; never accept a provider URL or account ID from browser.
+   const response=await fetch('https://paper-api.alpaca.markets/v2/account',{
+    method:'GET',headers:{'APCA-API-KEY-ID':values.apiKey,'APCA-API-SECRET-KEY':values.apiSecret,
+     accept:'application/json'},signal:controller.signal,cache:'no-store'});
+   if(response.status===401||response.status===403)
+    return out({ok:false,error:'These saved credentials were not accepted by Alpaca Paper Trading. Existing market-data access is unchanged.'},403);
+   if(!response.ok)return out({ok:false,error:'Alpaca Paper Trading account verification is unavailable. Existing credentials were not changed.'},503);
+   account=await response.json();
+  }catch{return out({ok:false,error:'The paper account could not be reached. Existing credentials were not changed.'},503)}
+  finally{clearTimeout(timer)}
+  if(typeof account?.id!=='string'||!account.id||typeof account?.status!=='string')
+   return out({ok:false,error:'Paper account identity could not be verified.'},503);
+  const now=new Date().toISOString();
+  await rest(env,path,{method:'PATCH',prefer:'return=minimal',body:{
+   display_label:'Alpaca Paper + Market Data',last_tested_at:now,last_error:null,updated_at:now,
+   metadata:{...(stored.metadata||{}),version:3,accountType:'paper',
+    accountTypeSource:'provider_verified_paper',paperAccountVerifiedAt:now,
+    marketDataOnly:false,paperOrdersEnabled:true}
+  }});
+  return out({ok:true,verified:true,paperVerified:true,accountStatus:account.status,
+   serviceCode:'ALPACA_BYO',message:'Saved Alpaca keys verified against the actual Paper Trading account. No orders were placed.'});
  }
  if(action==='delete'&&request.method==='POST'){const b=await request.json(),service=clean(b.serviceCode).toUpperCase();if(!['TIINGO_BYO','ALPACA_BYO'].includes(service))return out({error:'Unsupported connection type.'},400);await rest(env,`user_secure_credentials?user_id=eq.${encodeURIComponent(usr.id)}&service_code=eq.${encodeURIComponent(service)}`,{method:'DELETE',prefer:'return=minimal'});if(service==='TIINGO_BYO')await rest(env,`user_market_data_connections?user_id=eq.${encodeURIComponent(usr.id)}&provider_code=eq.TIINGO_BYO`,{method:'DELETE',prefer:'return=minimal'});return out({ok:true})}return out({error:'Unknown action.'},404)}catch(e){return out({error:e.message||'Credential operation failed.'},e.status||500)}}
