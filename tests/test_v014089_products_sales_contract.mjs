@@ -12,7 +12,9 @@ for(const f of ['assets/js/admin-products-v01489.js','assets/js/store.js','asset
 }
 assert.ok(store.includes('store-sales-v01489.css'));
 for(const s of ['Subscribe Now','Choose This Membership','Coming Soon',"dollars(t.priceCents)+'/month'"])assert.ok(storeJs.includes(s),s);
-assert.ok(storeJs.includes('allTools.map(toolCard)'),'Public Store must display planned/beta catalog rows, not only live paid SKUs');
+assert.ok(storeJs.includes("['live','beta'].includes(String(t.status||''))"),'Current learning tools must include released and approved beta offerings');
+assert.ok(storeJs.includes('renderStoreCatalogPanels()'),'Current and upcoming listings must come from the verified catalog');
+assert.ok(store.includes('id="store-tab-upcoming"')&&store.includes('id="store-tab-current"'));
 const upcomingSource=read('assets/js/store-upcoming-offerings-v01490.js');
 for(const route of ['labs.html','assessments.html','ondemand-training.html','learn.html','data-connections.html','lab-samples.html']){
  assert.ok(upcomingSource.includes(route),'Missing reviewed upcoming learning route '+route);

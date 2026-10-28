@@ -200,11 +200,14 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
 })();
 
-/* Owner-approved non-sticky site header and responsive merchandising layout. */
+/* Layout overrides load AFTER the sitewide stylesheet in document order. */
 (()=>{if(typeof document==='undefined')return;
- if(!document.querySelector('link[data-gu-owner-layout-v1]')){
+ function ensure(){
+  if(document.querySelector('link[data-gu-owner-layout-v1]'))return;
   const link=document.createElement('link');link.rel='stylesheet';
-  link.href='/assets/css/owner-store-layout-v1.css?v=20261027b';
+  link.href='/assets/css/owner-store-layout-v1.css?v=20261027c';
   link.dataset.guOwnerLayoutV1='1';document.head.append(link);
  }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure,{once:true});
+ else ensure();
 })();

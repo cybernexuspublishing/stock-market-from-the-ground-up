@@ -19,7 +19,8 @@ storeHtml=read('store.html'),adminHtml=read('admin.html'),css=read('assets/css/s
 payment=read('functions/api/admin.js');
 for(const name of ['store.html','admin.html'])assert.ok(read(name).includes('store-upcoming-offerings-v01490.js'));
 assert.ok(store.includes('const futureLearning=()=>[];'),'Unstarted offerings remain hidden from public Store');
-assert.ok(store.includes('futureLearning().filter(x=>!futureIds.has(x.code))'),'Promoted SKU must supersede placeholder');
+assert.ok(store.includes('const futureLearning=()=>[];'),'Unstarted roadmap placeholders must stay out of public Store');
+assert.ok(store.includes('renderStoreCatalogPanels()'),'Current and upcoming public listings must use verified catalog, not unapproved roadmap placeholders');
 assert.ok(store.includes('store-price-label'));
 assert.ok(store.includes('Subscribe Now'),'Selling must have actionable checkout when verified live');
 assert.ok(store.includes('checkout.html?type=tool'),'Only existing protected local checkout can sell tools');

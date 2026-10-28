@@ -12,7 +12,7 @@ assert.ok(ui.includes('let all=[],isVerified=false,isFull=false'));
 assert.ok(ui.includes('isFull=true'));
 assert.ok(ui.includes('Product currently unavailable'));
 assert.ok(ui.includes('Verifying the current Store inventory'));
-assert.ok(ui.includes('A reduced fallback catalog is shown'));
+assert.ok(ui.includes('Reduced fallback catalog.'),'Unverified catalog must be disclosed as reduced');
 assert.ok(ui.includes('j.count!==j.items.length'),'Catalog integrity must be verified before showing all products');
 assert.ok(ui.includes('if(!r.ok)throw Error'),'Failed backend responses must be rejected');
 assert.ok(ui.includes('base.filter(listedCore)'),'Public catalog failures cannot reveal unapproved inventory');

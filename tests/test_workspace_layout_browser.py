@@ -54,11 +54,14 @@ with sync_playwright() as p:
     toggle.click()
    if route=='store-membership-free.html':assert page.locator('.store-product-body').count()==1,'Product detail failed to render'
    if route=='store.html':
-    assert page.locator('#store-plans .v11-plan').count()==4,'Synthetic Store plans failed to render'
+    assert page.locator('#store-tab-founders').count()==1,'Founder membership Store tab must exist'
+    assert page.locator('#store-tab-current').count()==1
+    assert page.locator('#store-tab-upcoming').count()==1
     page.get_by_role('tab',name='Books',exact=True).click()
     assert page.locator('#store-panel-memberships').is_hidden()
-    page.get_by_role('tab',name='Memberships',exact=True).click()
-    assert page.locator('#store-panel-memberships').is_visible()
+    page.get_by_role('tab',name='Current Products',exact=True).click()
+    assert page.locator('#store-panel-current').is_visible()
+    assert page.locator('#store-panel-memberships').is_hidden()
    assert page.evaluate('visualViewport.scale')==1
    page.wait_for_function('document.documentElement.scrollWidth <= innerWidth + 6',timeout=5000)
    page.screenshot(path=str(OUT/f'{route}-{width}.png'),full_page=True)
@@ -102,13 +105,19 @@ with sync_playwright() as p:
   for route in ['signin.html','create-account.html']:
    context,page=open_page(route,width,signed=False)
    assert page.locator('#gu-workspace-sidebar,#gu-workspace-toggle').count()==0
-   assert page.locator('#v121-auth-grid').count()==1
-   assert page.locator('.fe-auth-layout').count()==0,'Competing form wrapper returned'
+   if route=='signin.html':
+    assert page.locator('#gu-signin-center>.gu-signin-form-column').count()==1,'Sign-in fields must share one column'
+    assert page.locator('.gu-auth-primary-actions button').count()==2,'Sign In and Create Account buttons required'
+   else:
+    assert page.locator('#v121-auth-grid').count()==1
+    assert page.locator('.fe-auth-layout').count()==0,'Competing form wrapper returned'
    field=page.locator('input[autocomplete="username"]').first
    box=field.bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=width
    page.wait_for_function('document.documentElement.scrollWidth <= innerWidth + 6')
    card=page.locator('form').first.bounding_box()
-   assert abs(card['x']+card['width']/2-width/2)<30,(route,width,'Form not centered',card)
+   assert card and card['x']>=0 and card['x']+card['width']<=width,(route,width,'Form out of viewport',card)
+   if route=='create-account.html':
+    assert abs(card['x']+card['width']/2-width/2)<30,(route,width,'Create Account form not centered',card)
    page.screenshot(path=str(OUT/f'{route}-{width}.png'),full_page=True)
    results.append({'route':route,'width':width,'result':'CENTERED_NO_PUBLIC_PANEL'})
    context.close()

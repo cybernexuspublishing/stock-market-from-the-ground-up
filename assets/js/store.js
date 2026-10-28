@@ -194,14 +194,15 @@ function renderToolPages(tools,layout){
  const size=Math.max(2,Math.min(72,Number(layout.tool_columns||5)*Number(layout.tool_rows||6)));
  let page=1;
  const draw=()=>{const pages=Math.max(1,Math.ceil(tools.length/size));page=Math.min(page,pages);
-  host.style.setProperty('--gu-tool-columns',String(layout.tool_columns||5));
+  host.style?.setProperty?.('--gu-tool-columns',String(layout.tool_columns||5));
   host.innerHTML=tools.slice((page-1)*size,page*size).map(toolCard).join('')||
     '<p>No approved beta or released individual tool listings are available.</p>';
   pageControls(nav,page,pages,p=>{page=p;draw();host.scrollIntoView({block:'start'})});
  };draw();
 }
-function renderGroupCatalog(host,nav,items){
- let page=1;const size=15;
+function renderGroupCatalog(host,nav,items,layout){
+ if(!host)return;
+ let page=1;const size=Math.max(2,Math.min(72,Number(layout?.catalog_columns||5)*Number(layout?.catalog_rows||3)));
  const draw=()=>{
   const pages=Math.max(1,Math.ceil(items.length/size));page=Math.min(page,pages);
   const subset=items.slice((page-1)*size,page*size),groups=new Map();
@@ -226,9 +227,10 @@ async function renderStoreCatalogPanels(){
   if(data.ok!==true||data.source!=='verified_storefront'||!Array.isArray(data.items))throw Error('Catalog verification failed');
   const list=data.items.filter(x=>x.category!=='membership').sort(publicNewest);
   const current=list.filter(publicCurrent),upcoming=list.filter(x=>!publicCurrent(x));
-  renderGroupCatalog(document.getElementById('store-current-products'),document.getElementById('store-current-pagination'),current);
-  renderGroupCatalog(document.getElementById('store-upcoming-products'),document.getElementById('store-upcoming-pagination'),upcoming);
-  return data.layout&&typeof data.layout==='object'?data.layout:fallback;
+  const opts=data.layout&&typeof data.layout==='object'?data.layout:fallback;
+  renderGroupCatalog(document.getElementById('store-current-products'),document.getElementById('store-current-pagination'),current,opts);
+  renderGroupCatalog(document.getElementById('store-upcoming-products'),document.getElementById('store-upcoming-pagination'),upcoming,opts);
+  return opts;
  }catch{
   for(const id of ['store-current-products','store-upcoming-products']){
    const h=document.getElementById(id);if(h)h.textContent='Current product data could not be verified. Open the full catalog to try again.';

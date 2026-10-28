@@ -58,7 +58,7 @@ assert.equal(nodes['store-membership-compare'].innerHTML,'','Legacy membership c
 assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/\$29\.99/,'Existing beta-tool prices must be displayed');
-assert.match(nodes['store-tools'].innerHTML,/Beta \/ development/);
+assert.match(nodes['store-tools'].innerHTML,/Approved beta testing/);
 assert.match(nodes['store-tools'].innerHTML,/DISCOVERY_LAB/,'Existing beta tool must appear marked coming soon');
 assert.doesNotMatch(nodes['store-products'].innerHTML,/store-membership-full-monthly\.html/);
 assert.match(nodes['store-tools'].innerHTML,/store-tool-journal-analytics\.html/);
@@ -89,15 +89,16 @@ assert.match(nodes['store-founder-plans'].innerHTML,/59\.99/);
 assert.match(nodes['store-founder-plans'].innerHTML,/10% OFF eligible purchases/);
 assert.match(nodes['store-founder-plans'].innerHTML,/15% OFF eligible purchases/);
 assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/20%|checkout\.html|checkout\.stripe/);
-assert.match(nodes['store-founder-compare'].innerHTML,/5 \/ 30-day term/);
+assert.match(nodes['store-founder-compare'].innerHTML,/15 \/ 30-day term/);
 assert.match(nodes['store-founder-compare'].innerHTML,/20 \/ 60-day term/);
 assert.doesNotMatch(nodes['store-founder-compare'].innerHTML,/Brokerage services or guaranteed trading profits/);
 assert.match(nodes['store-founder-compare'].innerHTML,/Founding Member certificate/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Included"/);
 assert.match(nodes['store-founder-compare'].innerHTML,/aria-label="Not included"/);
 assert.match(nodes['store-founder-compare'].innerHTML,/class="catalog-coverage is-excluded"/);
-assert.equal(requests.length,1);
-assert.equal(requests[0].url,'/data/founding-catalog.json');
+assert.ok(requests.some(x=>x.url==='/data/founding-catalog.json'));
+assert.ok(requests.some(x=>x.url==='/api/storefront-public-catalog'));
+assert.ok(requests.every(x=>x.options?.method===undefined),'The Store must not start payment or write requests');
 
 const guides=JSON.parse(read('data/store-product-guides-v01484.json'));
 async function detail(type,code,overrides={}){
