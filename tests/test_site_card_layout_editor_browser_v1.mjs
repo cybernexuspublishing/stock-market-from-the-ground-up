@@ -35,6 +35,19 @@ try{for(const authorized of [false,true]){
   await page.mouse.move(bbox.x+bbox.width/2-120,bbox.y+bbox.height/2+45,{steps:8});await page.mouse.up();
   await page.waitForFunction(()=>document.querySelector('#gu-layout-feedback')?.textContent?.includes('saved'));
   assert(writes>=1,'Resize saves after pointer release');assert(records.has('id:study-card'));
+  const beforeCornerWrites=writes;
+  const corner=page.locator('#study-card .gu-layout-corner');
+  assert.equal(await corner.isVisible(),true,'Bottom-right whole-card resize grip visible');
+  const grip=await corner.boundingBox();assert(grip);
+  await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);
+  await page.mouse.down();
+  await page.mouse.move(grip.x+grip.width/2-90,grip.y+grip.height/2+60,{steps:12});
+  assert.equal(writes,beforeCornerWrites,'No server writes until pointer released');
+  await page.mouse.up();
+  await page.waitForFunction(n=>document.querySelector('#gu-layout-feedback')?.textContent?.includes('saved'),null,{timeout:5000});
+  assert(writes>beforeCornerWrites,'Bottom-right grip should persist resized dimensions on mouse release');
+  assert.equal(await page.locator('#study-card').evaluate(e=>getComputedStyle(e).height.endsWith('px')),true);
+
   await page.locator('#gu-layout-toggle').click();assert.equal(await page.locator('.gu-layout-controls').count(),0);
   await page.reload({waitUntil:'load'});await page.waitForFunction(()=>document.querySelector('#study-card')?.style.width!=='');
   assert.match(await page.locator('#study-card').getAttribute('style'),/width:/);assert.deepEqual(errors,[]);
