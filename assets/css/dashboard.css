@@ -57,3 +57,15 @@
 @media(max-width:900px){.v1324-overview-split{grid-template-columns:1fr}.v1324-progress-grid{grid-template-columns:1fr}.v1324-summary-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.v1324-account-facts{grid-template-columns:1fr}.v1324-email-edit{grid-template-columns:1fr}.v1324-block-head{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.v1324-progress-track>span{transition:none}}
+
+
+/* Member dashboard density adjustment; preserve staff-controlled geometry and responsive grids. */
+.gu-member-dashboard-shell{max-width:1240px!important;margin-inline:auto;min-width:0}
+#v1322-member-hub{max-width:1180px;margin-inline:auto}
+.v1321-overview{gap:.65rem}
+.v1321-overview .v132-dashboard-hero{padding:.8rem 1rem}
+.v1321-feature-group>header{padding:.55rem .7rem}
+.v1321-feature-row{min-height:35px;padding:.32rem .63rem}
+.v1321-quick-grid{gap:.55rem}
+.v1321-quick-grid a{padding:.68rem}
+@media(max-width:760px){.gu-member-dashboard-shell,#v1322-member-hub{max-width:100%}}
