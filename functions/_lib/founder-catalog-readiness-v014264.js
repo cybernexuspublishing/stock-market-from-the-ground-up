@@ -2,10 +2,11 @@
  * Never creates, updates, confirms, charges or reveals provider credentials.
  */
 const testPrices={
+ FOUNDING_14:'price_1UVDQoJY9FI7byHBuiYDnHrX',
  FOUNDING_30:'price_1UUCNbJY9FI7byHBCX2VWdLi',
  FOUNDING_60:'price_1UUCNkJY9FI7byHBuh6pT4xd'
 };
-const amounts={FOUNDING_30:{cents:4999,days:30},FOUNDING_60:{cents:5999,days:60}};
+const amounts={FOUNDING_14:{cents:2299,days:14},FOUNDING_30:{cents:4999,days:30},FOUNDING_60:{cents:5999,days:60}};
 const known=(s,p)=>typeof s==='string'&&new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(s);
 const checks={
  sandbox:{endpoint:'https://stock-market-from-the-ground-up.pages.dev/api/gu39-stripe-webhook',
@@ -29,13 +30,13 @@ async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
  if(!catalog||!Object.values(catalog).every(p=>known(p.priceId,'price')))
   return response('action_required',type+' plan-to-Stripe price mapping missing.');
  try{
-  const codes=['FOUNDING_30','FOUNDING_60'];
-  const [p30,p60,webhooks]=await Promise.all([
-   getTestOrLive(key,'prices/'+encodeURIComponent(catalog.FOUNDING_30.priceId)),
-   getTestOrLive(key,'prices/'+encodeURIComponent(catalog.FOUNDING_60.priceId)),
+  const codes=catalog.FOUNDING_14?['FOUNDING_14','FOUNDING_30','FOUNDING_60']:['FOUNDING_30','FOUNDING_60'];
+  if(codes.some(code=>!catalog[code]?.priceId))return response('action_required',type+' Founding catalog incomplete');
+  const [ps,webhooks]=await Promise.all([
+   Promise.all(codes.map(code=>getTestOrLive(key,'prices/'+encodeURIComponent(catalog[code].priceId)))),
    getTestOrLive(key,'webhook_endpoints?limit=100')
   ]);
-  const ps=[p30,p60],matches=codes.every((code,i)=>{
+  const matches=codes.every((code,i)=>{
    const p=ps[i],expected=amounts[code];
    return p.id===catalog[code].priceId&&p.livemode===livemode&&p.currency==='usd'&&
     p.unit_amount===expected.cents&&p.active===true&&
@@ -57,8 +58,8 @@ async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
    required.events.every(e=>w.enabled_events?.includes(e)));
   if(!hook)return response('action_required',type+' Founding webhook destination or subscribed lifecycle events do not match.');
   if(livemode){
-   if(products.some(p=>p.active!==true)||hook.status!=='enabled')
-    return response('pending','LIVE prices and 30/60-day terms match. Founder products and/or dedicated webhook are intentionally inactive; activation, signed-event delivery and entitlement acceptance remain required before selling.');
+   if(products.some(p=>p.active!==true)||hook.status!=='enabled'||(catalog.FOUNDING_14&&products[0].metadata?.site_checkout_enabled!=='true'))
+    return response('pending','LIVE Founder prices and billing intervals match. The 14-Day product remains QA-only, or a provider release gate is inactive; verify paid-cycle fulfillment before selling.');
    return response('review','LIVE catalog and webhook are configured, but real paid-member fulfillment has not been independently accepted. Do not enable charges from this check.');
   }
   if(products.some(p=>p.active!==true)||hook.status!=='enabled')
@@ -77,7 +78,7 @@ async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
   });
   if(projectTestHooks.length!==1||projectTestHooks[0]!==hook)
    return response('action_required','TEST webhook routing is not exclusive to the configured site; disable legacy or duplicate TEST destinations before declaring Sandbox readiness.');
-  return response('verified','Both Founding 600 TEST products, $49.99/30-day and $59.99/60-day prices, and exclusively configured signed-webhook event subscriptions match. A provider-delivered TEST invoice remains a separate acceptance test.');
+  return response('verified',codes.length+' Founding 600 TEST products, their approved recurring prices, and the exclusively configured signed-webhook event subscriptions match. A provider-delivered TEST invoice remains a separate acceptance test.');
  }catch{
   return response('review',type+' Stripe provider could not be independently contacted; no false acceptance or payment action was taken.');
  }
