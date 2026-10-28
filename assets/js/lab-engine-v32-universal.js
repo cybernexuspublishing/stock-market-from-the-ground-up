@@ -237,6 +237,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  };
  const narratedStages=new Set();
  const learnerReplies=new Map(); // stage => accepted answers in question order
+ const tutorConversation=[]; // current Lab attempt only; never persisted or sent as unverified priorTurns
  function checkpointSnapshot(){
   return{
    version:1,mode,stage,observations,prediction,predictionLocked,
@@ -525,7 +526,11 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     stage,subject:topic,concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource,
       labId,bridge:map.bridges.get(labId)},
-    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
+    memberFirstName,allowTutorAI,requestTutor:tutorRequest,
+    conversation:tutorConversation,onTutorExchange:turn=>{
+     tutorConversation.push(turn);
+     if(tutorConversation.length>8)tutorConversation.shift();
+    },seen:narratedStages.has(stage),
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
     onCreditPending:busy=>{creditBusy=busy===true;previous.disabled=creditBusy||stage===0;next.disabled=creditBusy||stage===8},
