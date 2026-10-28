@@ -29,6 +29,10 @@ jobs:
           node tests/test_journal_future_exit_asof_v1.mjs
           node tests/test_journal_account_switch_scrub_v1.mjs
           node tests/test_journal_guided_integrity_v1.mjs
+          node tests/test_journal_v2.mjs
+          node --check assets/js/journal-v2-logic.js
+          node --check assets/js/journal-guided-v2.js
+          node --check assets/js/journal-weekly-v2.js
           node --check assets/js/journal-guided-v1.js
           node --check assets/js/journal-common.js
           node --check assets/js/journal-evidence-v1.js
