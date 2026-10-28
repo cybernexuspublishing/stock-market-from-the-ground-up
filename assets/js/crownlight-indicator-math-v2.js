@@ -75,7 +75,7 @@
  }
  function session(bar){
   const p=etParts(bar.time);const minute=p.hour*60+p.minute;
-  return {day:p.day,kind:minute>=570&&minute<960?'regular':minute>=240&&minute<570?'pre':minute>=960&&minute<1200?'after':'overnight'};
+  return {day:p.day,minute,kind:minute>=570&&minute<960?'regular':minute>=240&&minute<570?'pre':minute>=960&&minute<1200?'after':'overnight'};
  }
  function vwapProxy(bars){
   // A volume-weighted HLC3 bar approximation, not a true trade VWAP.
@@ -107,7 +107,45 @@
   });
   return levels;
  }
- const api={sma,ema,rsi,atr,bollinger,macd,vwapProxy,observedLevels,session};
+ function openingRange(bars,minutes=5){
+  const span=Math.max(1,Math.min(60,Math.round(Number(minutes)||5)));
+  let day='',high=-Infinity,low=Infinity,haveAny=false;
+  const upper=[],lower=[];
+  for(const b of bars){
+   const meta=session(b);
+   if(meta.day!==day){day=meta.day;high=-Infinity;low=Infinity;haveAny=false}
+   if(meta.kind==='regular'&&meta.minute>=570&&meta.minute<570+span){
+    high=Math.max(high,b.high);low=Math.min(low,b.low);haveAny=true;
+   }
+   const complete=haveAny&&meta.kind==='regular'&&meta.minute>=570+span;
+   upper.push(complete?high:null);lower.push(complete?low:null);
+  }
+  return {upper,lower};
+ }
+ function confirmedStructure(bars,side=2){
+  const radius=Math.max(1,Math.min(5,Math.round(Number(side)||2)));
+  const marks=[];let previousHigh=null,previousLow=null;
+  for(let i=radius;i<bars.length-radius;i++){
+   let isHigh=true,isLow=true;
+   for(let k=i-radius;k<=i+radius;k++){
+    if(k===i)continue;
+    if(bars[k].high>=bars[i].high)isHigh=false;
+    if(bars[k].low<=bars[i].low)isLow=false;
+   }
+   if(isHigh){
+    const kind=previousHigh===null?'Swing H':bars[i].high>previousHigh?'HH':'LH';
+    marks.push({index:i,label:kind,kind:'high',price:bars[i].high,confirmedAt:i+radius});
+    previousHigh=bars[i].high;
+   }
+   if(isLow){
+    const kind=previousLow===null?'Swing L':bars[i].low>previousLow?'HL':'LL';
+    marks.push({index:i,label:kind,kind:'low',price:bars[i].low,confirmedAt:i+radius});
+    previousLow=bars[i].low;
+   }
+  }
+  return marks.sort((a,b)=>a.index-b.index);
+ }
+ const api={sma,ema,rsi,atr,bollinger,macd,vwapProxy,observedLevels,openingRange,confirmedStructure,session};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;
  root.CrownlightIndicatorMath=api;
 })(typeof window!=='undefined'?window:globalThis);
