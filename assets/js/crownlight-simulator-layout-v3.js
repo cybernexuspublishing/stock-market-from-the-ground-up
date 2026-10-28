@@ -180,8 +180,10 @@
       'Requires authorized Historical Replay Training access.':'Requires matching member access to this Lab.';
      holder.append(option);
     }
-    if(old.value&&[...picker.options].some(o=>o.value==='lab:'+old.value&&!o.disabled))picker.value='lab:'+old.value;
-    note.textContent='';renderOptions();
+    if(old.value&&[...picker.options].some(o=>o.value==='lab:'+old.value&&!o.disabled)){
+      picker.value='lab:'+old.value;void applyLabContext(old.value);
+    }else note.textContent='';
+    renderOptions();
    }catch{note.textContent='Lab list unavailable. Open Free Foundations from the Academy.';}
   };
   async function applyLabContext(id){
