@@ -18,7 +18,7 @@ const html=[
 ].join('');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
- for(const width of [390,1440]){
+ for(const {width,entitlement} of [{width:390,entitlement:'free'},{width:900,entitlement:'interactive'},{width:1440,entitlement:'training'}]){
   const ctx=await browser.newContext({viewport:{width,height:850},locale:'en-US'});
   const page=await ctx.newPage(),errors=[];let posts=0;
   page.on('pageerror',e=>errors.push(e.message));
@@ -27,8 +27,16 @@ try{
    const u=new URL(route.request().url());
    if(u.origin!==origin)return route.abort();
    if(u.pathname==='/fixture.html')return route.fulfill({status:200,contentType:'text/html',body:html});
-   if(u.pathname==='/api/lab-release-availability')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,publishedIds:['F1-C02-L01'],guidedBetaIds:[]})});
-   if(u.pathname==='/api/member-tool-access')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,authorized:false,freeEligible:true})});
+   if(u.pathname==='/api/lab-release-availability')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    ok:true,publishedIds:['F1-C02-L01'],guidedBetaIds:['F2-C07-L01','SITE-021'],trainingOnlyIds:['SITE-021']
+   })});
+   if(u.pathname==='/api/member-tool-access'){
+    const tool=u.searchParams.get('tool');
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+     ok:true,tool,authorized:entitlement==='training'?tool==='ONDEMAND_TRAINING':
+      entitlement==='interactive'?tool==='INTERACTIVE_LEARNING':false,freeEligible:true
+    })});
+   }
    if(u.pathname==='/api/alpaca-paper'){
     if(route.request().method()!=='GET'){posts++;return route.fulfill({status:500,body:'No fixture order'})}
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -50,7 +58,25 @@ try{
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="academy:free5"]').count(),5);
-   assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]:disabled').count(),419);
+   const freeSample=page.locator('#sim-lab-picker option[value="lab:F1-C02-L01"]');
+   const guidedCandidate=page.locator('#sim-lab-picker option[value="lab:F2-C07-L01"]');
+   const siteOnly=page.locator('#sim-lab-picker option[value="lab:SITE-021"]');
+   assert.equal(await freeSample.isDisabled(),false,'Free member has an eligible released sample');
+   assert.equal(await guidedCandidate.isDisabled(),entitlement==='free');
+   assert.equal(await siteOnly.isDisabled(),entitlement!=='training',
+    'SITE-021 must require ONDEMAND_TRAINING, not standalone INTERACTIVE_LEARNING');
+   assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]:disabled').count(),
+    entitlement==='free'?418:entitlement==='interactive'?417:416);
+   if(entitlement==='training'){
+    await page.locator('.cl-lab-trigger').click();
+    await page.locator('#cl-lab-search').fill('SITE-021');
+    const option=page.locator('.cl-lab-option[data-value="lab:SITE-021"]');
+    assert.equal(await option.isEnabled(),true);
+    await option.click();
+    assert.equal(await page.locator('#sim-lab-id').inputValue(),'SITE-021');
+    assert.match(await page.locator('.cl-lab-help').innerText(),/Related Lab selected/);
+    assert.match(await page.locator('.cl-selected-lab-link').getAttribute('href'),/lab-player.html\?lab=SITE-021/);
+   }
    await page.locator('.cl-workbench-import summary').click();
    assert.equal(await page.locator('.cl-workbench-import').getAttribute('open'),null);
    await page.locator('.cl-collapse-btn').click();assert.equal(await page.locator('.sim-chart-panel').isVisible(),false);
@@ -63,7 +89,7 @@ try{
    await page.locator('#cl-paper-submit').click();assert.equal(posts,0);
    assert((await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth))<=3);
    assert.deepEqual(errors,[],'No runtime errors: '+errors.join('|'));
-   console.log('PASS Chart Studio workbench '+width+'px: 419 locked Labs, free5, collapse, tabs, paper and confirmation');
+   console.log('PASS Chart Studio workbench '+width+'px ('+entitlement+'): Free samples, SITE training entitlement, guided releases, collapse, tabs and paper');
   }finally{await ctx.close()}
  }
 }finally{await browser.close()}
