@@ -48,7 +48,7 @@ try{
   try{
    await page.goto(origin+'/labs.html',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>document.querySelectorAll('#lab-body article.lab-card').length===419,{timeout:20000});
-   await page.waitForFunction(()=>document.querySelector('#row-F1-C02-L01')?.dataset.access==='available'||document.querySelector('#row-F1-C02-L01')?.dataset.access==='locked');
+   await page.waitForFunction(expected=>document.body.dataset.labRegistryAccess===expected,mode==='offline'?'unavailable':'verified',{timeout:20000});
    assert.equal(await page.locator('#lab-body article.lab-card').count(),419);
    const state=async id=>page.locator('#row-'+id).getAttribute('data-access');
    const open=async id=>page.locator('#row-'+id+' .lab-open-btn').count();
