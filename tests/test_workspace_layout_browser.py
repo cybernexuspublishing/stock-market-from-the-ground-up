@@ -108,6 +108,16 @@ with sync_playwright() as p:
    if route=='signin.html':
     assert page.locator('#gu-signin-center>.gu-signin-form-column').count()==1,'Sign-in fields must share one column'
     assert page.locator('.gu-auth-primary-actions button').count()==2,'Sign In and Create Account buttons required'
+    bounds=page.locator('#gu-signin-center').bounding_box()
+    form_width=page.locator('#gu-signin-center form').bounding_box()['width']
+    assert bounds and bounds['width']>=min(345,width-30),(width,'Sign-in grid collapsed',bounds)
+    assert form_width>=min(345,width-30),(width,'Sign-in form collapsed',form_width)
+    assert abs(bounds['x']+bounds['width']/2-width/2)<55,(width,'Form column off-center',bounds)
+    if width>1050:
+     left=page.locator('.gu-signin-ad-rail').nth(0).bounding_box()
+     right=page.locator('.gu-signin-ad-rail').nth(1).bounding_box()
+     assert left and right and left['x']+left['width']<=bounds['x']+1,'Left ad overlaps form'
+     assert bounds['x']+bounds['width']<=right['x']+1,'Right ad overlaps form'
    else:
     assert page.locator('#v121-auth-grid').count()==1
     assert page.locator('.fe-auth-layout').count()==0,'Competing form wrapper returned'
