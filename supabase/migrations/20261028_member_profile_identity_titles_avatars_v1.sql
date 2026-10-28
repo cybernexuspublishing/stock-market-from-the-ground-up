@@ -38,7 +38,7 @@ returns jsonb language plpgsql security definer set search_path=public,pg_temp a
 declare n integer:=5;v text:=btrim(p_title);b record;old record;
 begin
  if p_user_id is null or p_request_id is null or v !~ '^[A-Za-z0-9][A-Za-z0-9 ._\-]{2,25}$'
- or v ~* '(admin|moderator|mod[[:space:]]|owner|operator|staff|employee|support|helpdesk|official|verified|certified|licensed|broker|adviser|advisor|financial|trader[[:space:]]?pro|founder|ambassador|council|security|system|platform|ceo|chief|president|director|superuser|root)' then
+ or v ~* '(admin|moderator|mod($|[^[:alpha:]])|owner|operator|staff|employee|support|helpdesk|official|verified|certified|licensed|broker|adviser|advisor|financial|trader[[:space:]]?pro|founder|ambassador|council|security|system|platform|ceo|chief|president|director|superuser|root)' then
   return jsonb_build_object('ok',false,'error','Title is invalid or reserved');
  end if;
  if not exists(select 1 from public.profiles where id=p_user_id and account_kind='member' and deleted_at is null) then
