@@ -111,3 +111,18 @@ body:has(.gu-j3-story) #entry-content{max-width:1220px}
 body:has(.gu-j3-story) #entry-content>h1{letter-spacing:-.04em}
 @media(max-width:980px){.gu-j3-analytics .journal-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.gu-j3-analytics .journal-card{padding:15px}.gu-j3-analytics .journal-kpis{grid-template-columns:1fr 1fr}.gu-j3-analytics .journal-kpi strong{font-size:1.14rem}}
+
+/* Closed U.S. equity market dates are visible, but never actionable. */
+.gu-j3-calendar .gu-j3-day.gu-j3-market-closed,
+.gu-j3-calendar .gu-j3-day.gu-j3-market-closed[disabled]{
+ background:#0a1420;border:1px dashed #304354;color:#657d8f;
+ opacity:.68;cursor:not-allowed;box-shadow:none;
+}
+.gu-j3-calendar .gu-j3-day.gu-j3-market-closed strong{color:#9d9aad}
+.gu-j3-calendar .gu-j3-day.gu-j3-market-closed:hover{border-color:#304354;background:#0a1420}
+.gu-j3-calendar .gu-j3-day.gu-j3-market-closed:focus-visible{outline:2px dashed #6e8796}
+.gu-v2-risk #gu-v2-apply:not([disabled]){border-color:#bc9961;color:#f4d49a;cursor:pointer}
+.gu-v2-risk #gu-v2-apply[disabled]{opacity:.5;cursor:not-allowed}
+.gu-v2-risk #gu-v2-apply-feedback{min-height:1.6em;color:#c4d5e0}
+.journal-form select#j-setup,.journal-form select#new-setup{cursor:pointer}
+.journal-form input[hidden],.journal-form label[hidden]{display:none!important}
