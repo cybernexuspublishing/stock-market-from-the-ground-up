@@ -1,9 +1,21 @@
 {
   "journalTypes": [
-    {"value":"live","label":"Live Trade"},
-    {"value":"paper","label":"Paper / Simulator Trade"},
-    {"value":"observation","label":"Live Observation / No Trade"},
-    {"value":"historical_lab","label":"Historical Lab"}
+    {
+      "value": "live",
+      "label": "Live Trade"
+    },
+    {
+      "value": "paper",
+      "label": "Paper / Simulator Trade"
+    },
+    {
+      "value": "observation",
+      "label": "Live Observation / No Trade"
+    },
+    {
+      "value": "historical_lab",
+      "label": "Historical Lab"
+    }
   ],
   "entryReasons": [
     "Breakout / breakdown trigger",
@@ -60,5 +72,22 @@
     "Failed to select NO TRADE",
     "Execution / platform error",
     "Other"
+  ],
+  "taxonomyVersion": "2026-10-27",
+  "setups": [
+    "Breakout — confirmed",
+    "Failed breakout / rejection",
+    "Pullback — continuation",
+    "VWAP reclaim / hold",
+    "VWAP rejection",
+    "EMA9 / EMA20 continuation",
+    "Support / resistance reaction",
+    "Range break / consolidation",
+    "Higher low / lower high continuation",
+    "Momentum continuation",
+    "Reversal — confirmed",
+    "Catalyst / news reaction",
+    "Opening-range setup",
+    "No qualified setup / pass"
   ]
 }
