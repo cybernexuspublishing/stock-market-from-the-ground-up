@@ -16,6 +16,7 @@ on:
       - 'assets/js/route-policy.js'
       - 'data/commerce-config.json'
       - 'tests/test_owner_roadmap_workflow_v014063.mjs'
+      - 'tests/test_owner_audit_dashboard_20261028.mjs'
       - 'tests/test_owner_roadmap_progress_v014045.mjs'
       - '.github/workflows/owner-roadmap-workflow-v014063.yml'
   push:
@@ -32,6 +33,7 @@ on:
       - 'release-manifest.json'
       - 'data/commerce-config.json'
       - 'tests/test_owner_roadmap_workflow_v014063.mjs'
+      - 'tests/test_owner_audit_dashboard_20261028.mjs'
       - '.github/workflows/owner-roadmap-workflow-v014063.yml'
 permissions:
   contents: read
@@ -62,6 +64,7 @@ jobs:
           node tests/test_owner_roadmap_workflow_v014063.mjs
           node tests/test_owner_roadmap_progress_v014045.mjs
           node tests/test_owner_roadmap_additions_20261018.mjs
+          node tests/test_owner_audit_dashboard_20261028.mjs
           python3 tests/test_owner_roadmap_v014044.py
       - name: Validate public build and release parity
         run: |
