@@ -1,0 +1,143 @@
+/* Member education advertising layout: only left and right positions.
+   No rail is sticky. The member's core learning space remains usable. */
+body[data-gu-layout-route="bootcamp-academy"] main.gu-redesign-academy.section,
+body[data-gu-layout-route="skills"] main.gu-skills-page.section{
+ padding:20px 16px 34px!important;min-width:0!important
+}
+.gu-learning-ad-layout{display:grid!important;
+ grid-template-columns:minmax(0,160px) minmax(0,1fr) minmax(0,160px)!important;
+ gap:clamp(12px,1.5vw,24px)!important;width:min(100%,1660px)!important;
+ max-width:1660px!important;margin:0 auto!important;align-items:start!important
+}
+.gu-learning-ad-core{min-width:0!important}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-ad-core>.wrap,
+body[data-gu-layout-route="skills"] .gu-learning-ad-core>.wrap{
+ width:100%!important;max-width:1130px!important;min-width:0!important;
+ padding:0!important;margin:0 auto!important;box-sizing:border-box!important
+}
+.gu-learning-side-rail{min-width:0!important;position:static!important;align-self:start!important}
+.gu-learning-side-rail .gu-ad-slot.gu-house-promo{position:static!important;
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ min-height:310px!important;margin:0!important;padding:13px 10px!important;
+ gap:8px!important;overflow-wrap:anywhere!important
+}
+.gu-learning-side-rail .gu-house-promo-copy{display:flex!important;flex-direction:column!important;gap:7px!important}
+.gu-learning-side-rail .gu-house-title{font-size:.87rem!important;line-height:1.3!important}
+.gu-learning-side-rail .gu-house-text{font-size:.77rem!important;line-height:1.45!important}
+.gu-learning-side-rail .gu-house-cta{width:100%!important;box-sizing:border-box!important;
+ text-align:center!important;font-size:.73rem!important;padding:8px 6px!important}
+.gu-learning-side-rail .gu-house-art{margin-top:auto!important;min-height:70px!important;
+ padding:7px!important;max-width:100%!important}
+.gu-learning-side-rail .gu-house-art-wordmark{font-size:1.04rem!important;
+ overflow-wrap:anywhere!important;line-height:1.15!important;text-align:center!important}
+.gu-learning-side-rail .gu-ad-slot.gu-ad-sponsored{max-width:100%!important}
+body[data-gu-layout-route="bootcamp-academy"] .gu-focused-learning-header>.wrap.nav{
+ max-width:1640px!important;gap:12px!important
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-top-nav{
+ flex:0 0 auto!important;min-width:0!important
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-menu{position:relative}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-menu>summary{
+ list-style:none;cursor:pointer;border:1px solid #506b8b;border-radius:8px;
+ padding:10px 12px;color:#dce8f8;font-size:.85rem;white-space:nowrap
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-menu>summary::-webkit-details-marker{display:none}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-menu[open]>summary{
+ border-color:#ad92f0;background:#231d49
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-list{
+ position:absolute;top:calc(100% + 8px);left:0;z-index:120;
+ min-width:235px;max-width:min(85vw,325px);display:grid;gap:2px;
+ padding:9px;background:#0a172b;border:1px solid #506b8b;border-radius:10px;
+ box-shadow:0 15px 38px #0008
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-list a{
+ font-size:.86rem;color:#e6effa;display:block;padding:8px 10px;border-radius:6px;
+ text-decoration:none
+}
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-list a[aria-current="page"],
+body[data-gu-layout-route="bootcamp-academy"] .gu-learning-section-list a:hover{background:#34286a}
+body[data-gu-layout-route="bootcamp-academy"] .site-header .navlinks{
+ margin-left:auto!important;min-width:0!important;gap:12px!important
+}
+/* Compact imagery and card lengths without hiding actionable destinations. */
+body.gu-bc-learning .gu-learning-ad-core #academy-programs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:12px!important
+}
+body.gu-bc-learning .gu-learning-ad-core #academy-programs .academy-program{
+ min-height:0!important;max-height:none!important;padding:12px!important;
+ gap:6px!important;box-shadow:none!important
+}
+body.gu-bc-learning #academy-programs .academy-program-image{
+ width:100%!important;height:108px!important;max-height:108px!important;
+ object-fit:contain!important;display:block!important;
+ padding:6px!important;box-sizing:border-box!important;border-radius:8px!important;
+ background:#0b2134;border:1px solid #395a71
+}
+body.gu-bc-learning #academy-programs .academy-program h3{
+ font-size:.97rem!important;line-height:1.3!important;margin:2px 0!important
+}
+body.gu-bc-learning #academy-programs .academy-program p:not(.small){
+ font-size:.79rem!important;line-height:1.4!important;
+ display:-webkit-box!important;-webkit-line-clamp:3!important;
+ -webkit-box-orient:vertical!important;overflow:hidden!important
+}
+body.gu-bc-learning #academy-programs .academy-program p.small{font-size:.74rem!important}
+body.gu-bc-learning .academy-free-entry{display:flex!important;align-items:center!important;gap:15px!important}
+body.gu-bc-learning .academy-free-entry .gu-academy-free-art{
+ width:86px!important;height:84px!important;object-fit:contain!important;flex:none!important
+}
+/* Market Skills: visual records, not trading-success predictions. */
+body[data-gu-layout-route="skills"] main.gu-skills-page .metric-grid{display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;
+ padding:0!important;margin:12px 0 20px!important
+}
+body[data-gu-layout-route="skills"] main.gu-skills-page .metric{
+ background:#132840!important;border:1px solid #456787!important;border-radius:10px!important;
+ padding:13px!important;display:grid!important;gap:5px!important
+}
+body[data-gu-layout-route="skills"] main.gu-skills-page .metric strong{
+ display:block!important;font-size:1.3rem!important;line-height:1.2!important
+}
+body[data-gu-layout-route="skills"] main.gu-skills-page .metric span{font-size:.78rem!important;line-height:1.4!important}
+body[data-gu-layout-route="skills"] .gu-skills-page .skill-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important
+}
+body[data-gu-layout-route="skills"] .gu-skills-page .skill-card{
+ padding:13px!important;min-width:0!important;display:flex!important;
+ flex-direction:column!important;gap:8px!important
+}
+body[data-gu-layout-route="skills"] .gu-skills-page .skill-card h3{
+ font-size:1rem!important;line-height:1.3!important;margin:0!important
+}
+.gu-skill-meter{display:grid;gap:5px;margin:7px 0!important}
+.gu-skill-meter-label{display:flex;justify-content:space-between;align-items:baseline;
+ gap:10px;font-size:.74rem;line-height:1.4;color:#c5d8e7}
+.gu-skill-meter progress{width:100%;height:11px;display:block;accent-color:#56ceb0;
+ border:1px solid #49716f;border-radius:999px;background:#1c3044;overflow:hidden}
+.gu-skill-meter progress::-webkit-progress-bar{background:#1c3044;border-radius:999px}
+.gu-skill-meter progress::-webkit-progress-value{background:#56ceb0;border-radius:999px}
+.gu-skill-meter progress::-moz-progress-bar{background:#56ceb0;border-radius:999px}
+.gu-skills-page .section-intro{font-size:.9rem!important;line-height:1.5!important}
+.gu-skills-page .dashboard-space{margin-block:16px!important}
+.gu-skills-page .dashboard-space h2{font-size:1.38rem!important;line-height:1.3!important}
+@media(max-width:1250px){
+ .gu-learning-ad-layout{grid-template-columns:132px minmax(0,1fr) 132px!important;gap:12px!important}
+ body.gu-bc-learning .gu-learning-ad-core #academy-programs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body[data-gu-layout-route="skills"] .gu-skills-page .skill-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:980px){
+ .gu-learning-ad-layout{grid-template-columns:minmax(0,1fr)!important;gap:15px!important}
+ .gu-learning-ad-core{grid-row:1!important}
+ .gu-learning-side-rail{display:none!important}
+}
+@media(max-width:710px){
+ body.gu-bc-learning .gu-learning-ad-core #academy-programs,
+ body[data-gu-layout-route="skills"] .gu-skills-page .skill-grid{grid-template-columns:minmax(0,1fr)!important}
+ body[data-gu-layout-route="skills"] main.gu-skills-page .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.gu-bc-learning .academy-free-entry .gu-academy-free-art{display:none!important}
+ body[data-gu-layout-route="bootcamp-academy"] .site-header .navlinks{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){.gu-skill-meter progress{transition:none!important}}

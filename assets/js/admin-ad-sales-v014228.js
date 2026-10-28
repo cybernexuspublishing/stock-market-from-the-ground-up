@@ -49,6 +49,20 @@ function render(){
   const item=line(placements,p.name,
    p.placement_code+' · '+p.page_pattern+' · '+(p.active?'Inventory enabled':'Inventory disabled')+
    ' · '+(p.free_only?'Public/Free only':'Membership policy enforced'));
+  const activeLabel=n('label',undefined,'gu-ad-carousel-control');
+  const activeInput=n('input');activeInput.type='checkbox';activeInput.checked=p.active===true;
+  activeInput.setAttribute('aria-label','Enable advertising inventory for '+p.name);
+  activeLabel.append(activeInput,n('span',' Inventory enabled (applies to this placement only)'));
+  const activeState=n('p',undefined,'gu-ad-note');activeState.setAttribute('role','status');
+  activeInput.addEventListener('change',async()=>{
+   activeInput.disabled=true;
+   try{await request({action:'set_placement_active',placementCode:p.placement_code,enabled:activeInput.checked});
+    activeState.textContent='Placement setting saved; payment and delivery release gates are unchanged.';
+    await refresh();
+   }catch(err){activeInput.checked=!activeInput.checked;activeState.textContent='Not saved: '+err.message}
+   finally{activeInput.disabled=false}
+  });
+  item.append(activeLabel,activeState);
   const label=n('label',undefined,'gu-ad-carousel-control');
   const input=n('input');input.type='checkbox';input.checked=p.metadata?.carousel_enabled===true;
   input.setAttribute('aria-label','Enable carousel mode for '+p.name);

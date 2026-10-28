@@ -6,6 +6,8 @@
  const get=id=>document.getElementById(id);
  if(!get('academy-programs'))return;
  const VERSION='0.14.0.168';
+ const programIllustration=Object.freeze({"truth5":"sec-filings","watchlist7":"candidate-quality","scanners10":"catalyst-analysis","foundations30":"chart-structure","charts45":"multi-timeframe","risk60":"risk-per-share","practicum90":"independent-plan"});
+
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
@@ -63,11 +65,12 @@
    const card=node('article');card.className='academy-program'+(p.code===activeCode?' academy-program--active':'');
    const duration=node('span',p.days+'-day Boot Camp · '+p.level);duration.className='academy-duration';
    const heading=node('h3',p.title),description=node('p',p.summary);
+   const image=node('img');image.className='academy-program-image';image.src='/assets/images/skill-illustrations/'+programIllustration[p.code]+'.svg';image.alt='Conceptual illustration for '+p.title+'; not historical market data';image.loading='lazy';image.width=144;image.height=132;
    const note=node('p','Explore lessons, worked examples, and guided practice');note.className='small';
    const action=node('a',p.code==='foundations30'?'Open original 30-day Boot Camp':'Open this Boot Camp');
    action.className='btn secondary';
    action.href=p.code==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+encodeURIComponent(p.code);
-   card.append(duration,heading,description,note,action);root.append(card);
+   card.append(image,duration,heading,description,note,action);root.append(card);
   }
  }
  function updateDays(){

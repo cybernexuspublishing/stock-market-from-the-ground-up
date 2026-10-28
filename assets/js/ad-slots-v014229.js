@@ -5,6 +5,7 @@
 (()=>{'use strict';
 const inventory=Object.freeze({
  HOME_INLINE:'Home · banner',STORE_INLINE:'Store · bottom banner',
+ BOOTCAMP_LEFT:'Boot Camp Academy — Left Sponsor',BOOTCAMP_RIGHT:'Boot Camp Academy — Right Sponsor',SKILLS_LEFT:'Market Skills Record — Left Sponsor',SKILLS_RIGHT:'Market Skills Record — Right Sponsor',
  STORE_LEFT:'Store · left rail',STORE_RIGHT:'Store · right rail',
  ALL_PRODUCTS_LEFT:'All Products · left rail',ALL_PRODUCTS_RIGHT:'All Products · right rail',ALL_PRODUCTS_BOTTOM:'All Products · bottom banner',
 
@@ -30,6 +31,7 @@ const housePromos=Object.freeze({
 function houseFor(slot){
  const perPlacement={
   SIGNIN_LEFT:'learning',SIGNIN_RIGHT:'community',SIGNIN_BOTTOM:'books',
+  BOOTCAMP_LEFT:'learning',BOOTCAMP_RIGHT:'books',SKILLS_LEFT:'learning',SKILLS_RIGHT:'community',
   SIGNUP_LEFT:'beta',SIGNUP_RIGHT:'learning',SIGNUP_BOTTOM:'community',
   STORE_LEFT:'books',STORE_RIGHT:'learning',STORE_INLINE:'community',
   ALL_PRODUCTS_LEFT:'learning',ALL_PRODUCTS_RIGHT:'beta',ALL_PRODUCTS_BOTTOM:'books',

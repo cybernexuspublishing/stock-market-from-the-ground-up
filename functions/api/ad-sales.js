@@ -245,6 +245,19 @@ export async function onRequest({request,env}){
    return respond({ok:true,reference:rows[0].id,notice:'Request received for manual review. No payment has been taken.'},201);
   }
   const who=await owner(c,request),actor=who.id;
+  if(action==='set_placement_active'){
+   const code=str(body.placementCode),enabled=body.enabled;
+   if(!/^[A-Z0-9_]{4,48}$/.test(code)||typeof enabled!=='boolean')
+    throw bad('Specify a known advertising placement and the enabled state.');
+   const existing=await api(c,'ad_placements?select=placement_code,active&placement_code=eq.'+encodeURIComponent(code)+'&limit=1');
+   if(existing?.length!==1)throw bad('Placement not found.',404);
+   const saved=await api(c,'ad_placements?placement_code=eq.'+encodeURIComponent(code),{
+    method:'PATCH',body:{active:enabled}});
+   if(saved?.length!==1)throw bad('Placement availability could not be saved.',503);
+   await audit(c,actor,'set_placement_active','placement',code,{active:enabled,
+     previousActive:existing[0].active});
+   return respond({ok:true,placementCode:code,active:enabled,paymentStateChanged:false});
+  }
   if(action==='set_placement_carousel'){
    const code=str(body.placementCode),enabled=body.enabled;
    if(!/^[A-Z0-9_]{4,48}$/.test(code)||typeof enabled!=='boolean')
