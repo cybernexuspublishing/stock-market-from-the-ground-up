@@ -9,6 +9,43 @@ let guidedBetaLabs = new Set();
 let availabilityVerified = false;
 let betaScopeVerified = false;
 let betaCandidateIds = new Set();
+let registryRights = null;
+let trainingOnlyIds = new Set();
+
+
+const BOOK_CODES={1:'FOUNDATION_BOOK_1',2:'FOUNDATION_BOOK_2',3:'FOUNDATION_BOOK_3',4:'DAY_TRADING_BOOK_1',5:'READING_THE_TAPE'};
+function entitlementStatus(lab){
+ const released=availabilityVerified&&(publishedAssessments.has(lab.id)||guidedBetaLabs.has(lab.id));
+ if(!released)return {state:'upcoming',label:'Not released',reason:'This Lab has not been released for member study.'};
+ if(!currentUser)return {state:'locked',label:'Sign in required',reason:'A registered member account is required.'};
+ if(!registryRights?.freeEligible)return {state:'locked',label:'Access not verified',reason:'Membership access could not be verified.'};
+ const sample=registryRights.freeSampleIds?.includes(lab.id);
+ const trainingOnly=trainingOnlyIds.has(lab.id)||lab.book===6;
+ const bookCode=BOOK_CODES[lab.book];
+ const owned=bookCode&&registryRights.bookCodes?.includes(bookCode);
+ const permitted=sample|| (trainingOnly?registryRights.training===true:
+  registryRights.interactive===true||registryRights.training===true||owned===true);
+ return permitted?{state:'available',label:'Available to you',reason:'Guided access; final authorization occurs on opening.'}:
+ {state:'locked',label:trainingOnly?'Training access required':'Membership or book access required',
+  reason:trainingOnly?'Requires an eligible training entitlement.':
+   'Requires Interactive Learning, eligible training, or an independently owned matching book.'};
+}
+async function loadRegistryRights(userId,epoch){
+ try{
+  const {data}=await labSupabase.auth.getSession();
+  if(!data?.session?.access_token||data.session.user?.id!==userId)throw Error('Session unavailable');
+  const r=await fetch('/api/lab-registry-access',{headers:{authorization:'Bearer '+data.session.access_token},cache:'no-store'});
+  if(!r.ok)throw Error('Member access unavailable');
+  const j=await r.json();
+  if(j?.ok!==true||j.freeEligible!==true||!Array.isArray(j.bookCodes)||!Array.isArray(j.freeSampleIds))
+   throw Error('Invalid entitlement response');
+  if(epoch===progressSessionEpoch&&currentUser?.id===userId)registryRights=j;
+ }catch{
+  if(epoch===progressSessionEpoch&&currentUser?.id===userId)registryRights=null;
+ }finally{
+  if(epoch===progressSessionEpoch&&currentUser?.id===userId)filterLabs();
+ }
+}
 
 function norm(s) { return String(s || '').toLowerCase(); }
 
@@ -19,6 +56,8 @@ function statusLabel(status) {
 }
 
 function progressControl(labId) {
+  if(entitlementStatus(allLabs.find(l=>l.id===labId)||{id:labId}).state!=='available')
+    return '<span class="small" role="status">Locked — progress tracking is not available for this Lab.</span>';
   if (!availabilityVerified) return betaScopeVerified && betaCandidateIds.has(labId)
     ? '<span class="small" role="status">The Lab server verifies study access; official grades and saved progress are unverified.</span>'
     : '<span class="small" role="status">Release status unavailable; no grade or progress has been verified</span>';
@@ -53,6 +92,7 @@ function renderLabs(rows) {
   if (count) count.textContent = `Showing ${rows.length} of ${allLabs.length} labs`;
 
   body.innerHTML = rows.map(x => {
+    const access=entitlementStatus(x);
     const released = availabilityVerified && publishedAssessments.has(x.id);
     const guidedBeta = availabilityVerified && guidedBetaLabs.has(x.id) && !released;
     const betaCheck = !availabilityVerified && betaScopeVerified && betaCandidateIds.has(x.id);
@@ -65,10 +105,10 @@ function renderLabs(rows) {
       ? 'Private progress not verified'
       : (guidedBeta || betaCheck) ? statusLabel(savedStatus) + ' · ungraded practice only'
       : statusLabel(savedStatus);
-    return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}">
+    return `<article class="lab-card" id="row-${x.id}" data-status="${savedStatus}" data-access="${access.state}">
       <div class="lab-card-main">
         <div class="lab-card-heading">
-          <span class="lab-id-badge">${x.id}</span>
+          <span class="lab-id-badge">${x.id}</span><span class="lab-access-tag lab-access-${access.state}" aria-label="${access.label}">${access.state==='available'?'Available':access.state==='upcoming'?'Upcoming':'🔒 '+access.label}</span>
           <span class="lab-book-badge">${x.book===6?'Site-exclusive':x.book===5?'Reading the Tape':x.book===4?'Day Trading':'Book '+x.book}${x.chapter?' · Chapter '+x.chapter:''}</span>
           ${x.skill?`<span class="pill">${x.skill}</span>`:''}${(x.marketContexts||[]).slice(0,2).map(t=>`<span class="pill pill-context">${t}</span>`).join('')}
         </div>
@@ -81,7 +121,7 @@ function renderLabs(rows) {
         <div class="lab-meta-item"><span>Chart</span><strong>${x.timeframe || 'See book'}</strong></div>
       </div>
       <div class="lab-card-progress">
-        ${released?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open Interactive Lab</a>`:guidedBeta?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Open guided beta practice (ungraded)</a>`:betaCheck?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">Check beta study access in Lab</a>`:'<span class="small" aria-label="Lab not yet released">Upcoming — no Start action available</span>'}
+        ${access.state==='available'?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">${released?'Open Interactive Lab':'Open guided beta practice (ungraded)'}</a>`:`<span class="lab-access-explanation" role="status">${access.state==='upcoming'?'🔒 Upcoming — not released':'🔒 '+access.reason}</span>`}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" role="status" data-msg-for="${x.id}">${progressText}</div>
@@ -198,8 +238,9 @@ function handleMemberChange(user) {
   currentUser = nextId ? { id: nextId } : null;
   progressMap.clear();
   memberProgressAvailable = false;
-  filterLabs(); // Synchronously scrub prior member status from the existing DOM.
-  if (nextId) void loadMemberProgress(nextId, epoch);
+  registryRights = null;
+  filterLabs(); // Synchronously scrub prior member status and entitlements.
+  if (nextId) {void loadMemberProgress(nextId, epoch);void loadRegistryRights(nextId, epoch);}
 }
 
 async function initLabs() {
@@ -247,9 +288,10 @@ async function initLabs() {
     if(data.guidedBetaIds.some(id=>data.publishedIds.includes(id)))throw Error('Published and ungraded practice IDs overlap');
     publishedAssessments=new Set(data.publishedIds);
     guidedBetaLabs=new Set(data.guidedBetaIds);
+    trainingOnlyIds=new Set(Array.isArray(data.trainingOnlyIds)?data.trainingOnlyIds:[]);
     availabilityVerified=true;
   }catch{
-    publishedAssessments=new Set();guidedBetaLabs=new Set();availabilityVerified=false;
+    publishedAssessments=new Set();guidedBetaLabs=new Set();trainingOnlyIds=new Set();availabilityVerified=false;
   }
   labSupabase = await window.getSupabaseClient();
   if (labSupabase) {
