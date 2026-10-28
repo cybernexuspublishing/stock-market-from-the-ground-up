@@ -281,8 +281,9 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  if(!token)throw Error('Sign in to use Market Tutor. Your Lab explanations remain available without an AI request.');
  const id=String(PLAYER.lab?.id||'');
  const onlyGeneral=String(question||'').trim();
+ const stageName=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'][currentPlayerStage()];
  const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)&&allowModel!==true
-  ?('For canonical Lab '+id+': '+onlyGeneral).slice(0,450):onlyGeneral.slice(0,450);
+  ?('For canonical Lab '+id+'. Learning Journey stage: '+stageName+'. '+onlyGeneral).slice(0,450):onlyGeneral.slice(0,450);
  if(clean.length<4)throw Error('Enter a general learning question first.');
  const reply=await fetch('/api/market-tutor',{method:'POST',cache:'no-store',signal,
   headers:{authorization:'Bearer '+token,'content-type':'application/json'},
