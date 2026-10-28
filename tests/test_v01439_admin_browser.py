@@ -54,6 +54,8 @@ with sync_playwright() as p:
  blocked.locator('#gu39-shadow').wait_for(timeout=2000)
  assert blocked.locator('#gu71-zero-live-checkout').is_visible(), 'Sandbox API failure hid Owner zero-dollar diagnostic'
  assert blocked.locator('#gu71-owner-nav-shortcut').count()==1
+ # The Owner control is inside closed <details>; expand before a visible-role assertion.
+ blocked.locator('#gu71-zero-live-checkout summary').click()
  assert blocked.get_by_role('button',name='Check $0 LIVE QA Product — No Checkout').is_enabled()
  blocked.close()
  # An ADMIN may view sandbox diagnostics but must never see the Owner-only LIVE diagnostic.
