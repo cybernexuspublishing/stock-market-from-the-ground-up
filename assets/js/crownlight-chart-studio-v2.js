@@ -11,7 +11,9 @@
   MACD:'MACD (12, 26, 9)',BB:'Bollinger Bands',ATR:'Average True Range',
   VOL_SMA:'Volume Moving Average',PMH:'Observed Premarket High',PML:'Observed Premarket Low',
   HOD:'Observed High of Day',LOD:'Observed Low of Day',
-  PDH:'Previous Observed Day High',PDL:'Previous Observed Day Low'
+  PDH:'Previous Observed Day High',PDL:'Previous Observed Day Low',
+  ORH:'Observed Opening Range High',ORL:'Observed Opening Range Low',
+  STRUCTURE:'Confirmed HH / HL / LH / LL pivots'
  };
  const COLORS=['#a78bfa','#22d3ee','#f5c768','#46edbc','#fb7185','#ffb65b','#90a7ff','#50d4f5'];
  const KEY='crownlight.chartstudio.v2.appearance';
@@ -26,7 +28,7 @@
  prefs.studies=prefs.studies.filter(x=>LABELS[x?.type]&&typeof x?.color==='string').slice(0,18);
  if(!Array.isArray(prefs.levels))prefs.levels=[];
  const state={mounted:false,chart:null,candles:null,volume:null,series:[],lines:[],source:'',count:-1,
-  hover:null,sim:null,follow:prefs.follow!==false,fullscreen:false,inspectOpen:false,modal:null,observer:null};
+  hover:null,sim:null,follow:prefs.follow!==false,fullscreen:false,inspectOpen:false,modal:null,observer:null,markerApi:null};
  const $=id=>document.getElementById(id);
  const h=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
  const money=n=>Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}):'—';
@@ -152,6 +154,10 @@
    const v=m.macd(bars,12,26,9);add(v.line,study.color,2,'MACD');add(v.signal,'#ffd074',2,'MACD signal');
   }
   else if(study.type==='VOL_SMA')add(m.sma(bars.map(b=>b.volume),p),study.color,1,'Volume MA '+p);
+  else if(study.type==='ORH'||study.type==='ORL'){
+   const range=m.openingRange(bars,Number(study.period)||5);
+   add(study.type==='ORH'?range.upper:range.lower,study.color,0,study.type+' observed');
+  }
   else if(['HOD','LOD','PMH','PML','PDH','PDL'].includes(study.type)){
    add(m.observedLevels(bars)[study.type],study.color,0,study.type+' observed');
   }
@@ -169,10 +175,30 @@
   // Never compute a study using bars after sim.index.
   state.series.forEach(series=>{try{state.chart.removeSeries(series)}catch{}});state.series=[];
   prefs.studies.forEach(study=>{try{makeStudy(study,data)}catch(error){console.warn('Chart indicator unavailable',study.type,error?.message)}});
+  // Swing classifications appear only after their right-side confirmation bars have been revealed.
+  const structure=prefs.studies.find(study=>study.type==='STRUCTURE');
+  if(typeof root.LightweightCharts.createSeriesMarkers==='function'){
+   const markers=structure?MathLib().confirmedStructure(data,structure.period||2).map(p=>({
+    time:Math.floor(data[p.index].time.getTime()/1000),
+    position:p.kind==='high'?'aboveBar':'belowBar',
+    shape:p.kind==='high'?'arrowDown':'arrowUp',
+    color:p.kind==='high'?'#ff91af':'#5fffd6',text:p.label
+   })):[];
+   if(!state.markerApi)state.markerApi=root.LightweightCharts.createSeriesMarkers(state.candles,markers);
+   else state.markerApi.setMarkers(markers);
+  }
   state.lines.forEach(x=>{try{state.candles.removePriceLine(x)}catch{}});state.lines=[];
-  (prefs.levels||[]).filter(x=>Number.isFinite(x.price)).slice(-15).forEach(x=>{
+  (prefs.levels||[]).filter(x=>Number.isFinite(x.price)&&x.source===state.source).slice(-15).forEach(x=>{
    try{state.lines.push(state.candles.createPriceLine({price:x.price,color:x.color||'#f7c76a',lineWidth:2,axisLabelVisible:true,title:'Member level'}))}catch{}
   });
+  const pos=sim.position;
+  if(pos){
+   [['entry','#ffd26f','ENTRY'],['stop','#ff668c','STOP'],['target','#36e4bb','TARGET']].forEach(([key,color,title])=>{
+    if(Number.isFinite(pos[key])&&pos[key]>0){
+     try{state.lines.push(state.candles.createPriceLine({price:pos[key],color,lineWidth:2,axisLabelVisible:true,title}))}catch{}
+    }
+   });
+  }
   if(reset||!prior)fitVisible();
   else if(state.follow)state.chart.timeScale().scrollToRealTime();
   else state.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,prior.from),to:Math.min(data.length+2,prior.to)});
@@ -230,10 +256,10 @@
     const header=h('div','crownlight-study-heading',LABELS[study.type]);
     row.append(header);
     const controls=h('div','crownlight-study-settings');
-    if(['EMA','SMA','RSI','ATR','BB','VOL_SMA'].includes(study.type)){
-     const label=h('label','','Period');const input=h('input');input.type='number';input.min='2';input.max='200';input.value=String(study.period||14);
+    if(['EMA','SMA','RSI','ATR','BB','VOL_SMA','STRUCTURE','ORH','ORL'].includes(study.type)){
+     const label=h('label','','Period');const input=h('input');input.type='number';input.min=study.type==='STRUCTURE'||study.type==='ORH'||study.type==='ORL'?'1':'2';input.max=study.type==='STRUCTURE'?'5':study.type==='ORH'||study.type==='ORL'?'60':'200';input.value=String(study.period||14);
      input.setAttribute('aria-label',LABELS[study.type]+' period');input.addEventListener('change',()=>{
-      const next=Math.round(Number(input.value));study.period=Number.isFinite(next)?Math.max(2,Math.min(200,next)):14;input.value=String(study.period);save();redraw(state.sim)});
+      const next=Math.round(Number(input.value));const min=study.type==='STRUCTURE'||study.type==='ORH'||study.type==='ORL'?1:2;const max=study.type==='STRUCTURE'?5:study.type==='ORH'||study.type==='ORL'?60:200;study.period=Number.isFinite(next)?Math.max(min,Math.min(max,next)):14;input.value=String(study.period);save();redraw(state.sim)});
      label.append(input);controls.append(label);
     }
     const colorLabel=h('label','','Color');const color=h('input');color.type='color';color.value=/^#[0-9a-f]{6}$/i.test(study.color)?study.color:'#a78bfa';
@@ -250,7 +276,7 @@
   dialog.querySelector('[data-add]').onclick=()=>{
    if(prefs.studies.length>=18)return;
    const type=dialog.querySelector('#cl-new-study').value;
-   prefs.studies.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,period:['BB','EMA','SMA'].includes(type)?20:14,color:COLORS[prefs.studies.length%COLORS.length],width:2});
+   prefs.studies.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,period:['BB','EMA','SMA'].includes(type)?20:['ORH','ORL'].includes(type)?5:type==='STRUCTURE'?2:14,color:COLORS[prefs.studies.length%COLORS.length],width:2});
    save();redraw(state.sim);populate();
   };
   dialog.querySelector('[data-preset]').onclick=()=>{prefs.studies=defaults.map(x=>({...x}));save();redraw(state.sim);populate()};
@@ -265,7 +291,7 @@
   if(input===null)return;
   const price=Number(input);
   if(!Number.isFinite(price)||price<=0){alert('Enter a positive numeric price.');return}
-  prefs.levels.push({price,color:'#f7c76a'});prefs.levels=prefs.levels.slice(-15);save();redraw(state.sim);
+  prefs.levels.push({price,color:'#f7c76a',source:state.source});prefs.levels=prefs.levels.slice(-15);save();redraw(state.sim);
  }
  function toggleFullscreen(){
   const panel=state.shell?.closest('.sim-chart-panel');if(!panel)return;
