@@ -37,6 +37,11 @@ try{
       entitlement==='interactive'?tool==='INTERACTIVE_LEARNING':false,freeEligible:true
     })});
    }
+   if(u.pathname==='/api/simulator-lab-context'){
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+      ok:true,labId:u.searchParams.get('lab'),referenceDate:'2024-04-26',startTimeET:null,endTimeET:null,ticker:'GOOG',timeframe:null
+    })});
+   }
    if(u.pathname==='/api/alpaca-paper'){
     if(route.request().method()!=='GET'){posts++;return route.fulfill({status:500,body:'No fixture order'})}
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
@@ -50,11 +55,11 @@ try{
   });
   try{
    await page.goto(origin+'/fixture.html',{waitUntil:'load'});
-   await page.evaluate(()=>{
-    window.CrownlightWorkbenchLayout.init({getToken:async()=> 'mock-token'});
+   await page.evaluate((paid)=>{window.__canUsePaper=paid;
+    window.CrownlightWorkbenchLayout.init({canUsePaper:window.__canUsePaper===true,getToken:async()=> 'mock-token'});
     window.CrownlightPaperTerminal.initialize({getSession:async()=>({access_token:'mock-token'})});
     window.confirm=()=>false;
-   });
+   },entitlement!=='free');
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="academy:free5"]').count(),5);
@@ -74,7 +79,7 @@ try{
     assert.equal(await option.isEnabled(),true);
     await option.click();
     assert.equal(await page.locator('#sim-lab-id').inputValue(),'SITE-021');
-    assert.match(await page.locator('.cl-lab-help').innerText(),/Related Lab selected/);
+    assert.match(await page.locator('.cl-lab-help').innerText(),/Lab reference date/);
     assert.match(await page.locator('.cl-selected-lab-link').getAttribute('href'),/lab-player.html\?lab=SITE-021/);
    }
    await page.locator('.cl-workbench-import summary').click();
@@ -83,10 +88,14 @@ try{
    await page.locator('.cl-collapse-btn').click();assert.equal(await page.locator('.sim-chart-panel').isVisible(),true);
    await page.locator('#cl-tab-execute').click();assert.equal(await page.locator('#sim-enter').isVisible(),true);
    await page.locator('#cl-tab-metrics').click();assert.equal(await page.locator('#sim-metrics').isVisible(),true);
-   await page.locator('#cl-tab-paper').click();
-   await page.waitForFunction(()=>document.querySelector('#cl-paper-overview')?.textContent?.includes('100,000'));
-   assert.match(await page.locator('#cl-paper-status').innerText(),/Connected/);
-   await page.locator('#cl-paper-submit').click();assert.equal(posts,0);
+   if(entitlement==='free'){
+    assert.equal(await page.locator('#cl-tab-paper').count(),0,'Free account must not expose paid Paper Trading tab');
+   }else{
+    await page.locator('#cl-tab-paper').click();
+    await page.waitForFunction(()=>document.querySelector('#cl-paper-overview')?.textContent?.includes('100,000'));
+    assert.match(await page.locator('#cl-paper-status').innerText(),/Connected/);
+    await page.locator('#cl-paper-submit').click();assert.equal(posts,0);
+   }
    assert((await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth))<=3);
    assert.deepEqual(errors,[],'No runtime errors: '+errors.join('|'));
    console.log('PASS Chart Studio workbench '+width+'px ('+entitlement+'): Free samples, SITE training entitlement, guided releases, collapse, tabs and paper');
