@@ -5,7 +5,7 @@
 **Document ID:** SMFGU-COMMONS-EDITORIAL-20261028-001
 **Filename:** `docs/market-commons/EDITORIAL_AND_ROLE_ACCEPTANCE_2026-10-28.md`
 **File type:** Markdown (.md)
-**Version:** 1.0
+**Version:** 1.1
 **Prepared / audited:** October 28, 2026
 **Google Drive location / Google document ID:** Not assigned. GitHub `main` is the controlling location for this register.
 **Status:** Production topic corrections applied and database-level role simulations passed; authenticated browser acceptance and final subject-matter editorial approval remain pending.
@@ -135,10 +135,16 @@ The temporary role grants and hidden-topic status were intentionally rolled back
 4. Finish all relevant GitHub Actions for one stable `main` revision, identify the exact matching successful Cloudflare production deployment, and keep LIVE payments outside this forum acceptance.
 5. Obtain final instructional subject-matter review of all topics for educational accuracy, rights and product terminology; this register does not assert attorney approval or investment advice.
 
+## Reproducibility and source presentation
+
+- Topic #98's corrected production content is also preserved in the idempotent source file `supabase/migrations/20261028_commons_topic98_sparks_v2_policy_repair.sql`. A source re-execution on current production returned `updated=0, audit_rows=0`, verifying the original outdated-prefix guard prevented duplication.
+- `assets/js/market-commons-platform.js` now turns escaped, explicit HTTP(S) source URLs in official guides into links with `noopener`/`noreferrer` protection. The committed JavaScript was syntax-parsed successfully. Authenticated visual link testing is still outstanding.
+- The exact latest commit and full GitHub Action statuses must be captured separately after all triggered workflows finish. A successful Cloudflare deploy does not close authenticated permission/browser review.
+
 ## Revision history
 
 | Version | Date | Change | Status |
 |---|---|---|---|
-| 1.0 | 2026-10-28 | Per-topic editorial register, V2 Sparks reconciliation, production postflight and rollback-only permission matrix | Source recorded; acceptance gates outstanding |
+| 1.0 | 2026-10-28 | Per-topic editorial register, V2 Sparks reconciliation, production postflight and rollback-only permission matrix | Source recorded |\n| 1.1 | 2026-10-28 | Add topic 98 reproducibility source and safe source-link rendering evidence | Browser and CI acceptance pending |
 
-**Document control footer:** SMFGU-COMMONS-EDITORIAL-20261028-001 · v1.0 · October 28, 2026 · GitHub `main` · Owner/Security/Editorial Review · No live payments.
+**Document control footer:** SMFGU-COMMONS-EDITORIAL-20261028-001 · v1.1 · October 28, 2026 · GitHub `main` · Owner/Security/Editorial Review · No live payments.
