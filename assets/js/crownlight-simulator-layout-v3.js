@@ -42,7 +42,7 @@
   timeframe.append(input);
   toolbar.append(label,timeframe,button);area.before(toolbar);
  }
- function setupTabs(){
+ function setupTabs({canUsePaper=false}={}){
   const parent=$('sim-content'),layout=parent?.querySelector('.sim-layout');
   const aside=layout?.querySelector(':scope > aside.sim-side');
   const metrics=[...parent.querySelectorAll(':scope > section')].find(x=>x.querySelector(':scope > h2')?.textContent?.includes('Simulation metrics'));
@@ -63,7 +63,8 @@
   }
   aside.remove();metricsPanel.append(...[...metrics.childNodes]);metrics.remove();
   paper.innerHTML='<h2>Alpaca Paper Trading</h2><p>Use your own verified Alpaca Paper Trading account. These are simulated brokerage orders executed by Alpaca at current paper-market conditions, not historical replay fills.</p><div id="cl-paper-terminal"></div>';
-  const tabs=[['plan','Plan the trade',plan],['execute','Replay execution',execution],['metrics','Results & Journal',metricsPanel],['paper','Alpaca Paper',paper]];
+  const tabs=[['plan','Plan the trade',plan],['execute','Replay execution',execution],['metrics','Results & Journal',metricsPanel]];
+  if(canUsePaper)tabs.push(['paper','Alpaca Paper',paper]);
   for(const [id,label,panel] of tabs){
    const b=el('button','cl-workbench-tab',label);b.type='button';b.id='cl-tab-'+id;
    b.setAttribute('role','tab');b.setAttribute('aria-controls',panel.id);b.setAttribute('aria-selected','false');
@@ -234,7 +235,7 @@
  function init(opts={}){
   if(state.initialized)return;const rootContent=$('sim-content');
   if(!rootContent)return;state.initialized=true;
-  setupImport();setupChart();setupTabs();setupLabPicker(opts);
+  setupImport();setupChart();setupTabs(opts);setupLabPicker(opts);
   const timeframe=$('sim-timeframe');if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';});}
  }
  root.CrownlightWorkbenchLayout={init};
