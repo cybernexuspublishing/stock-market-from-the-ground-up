@@ -41,9 +41,11 @@ export async function foundingOfferState(env){
  // The Owner's unpublished catalogue must not be advertised as an open
  // founding enrollment. Public offer discovery is separate from paid access.
  const advertised=offers.some(x=>/^founding:FOUNDING_(14|30|60)$/.test(String(x.sku||''))
+  &&x.visible===true);
+ const saleReady=offers.some(x=>/^founding:FOUNDING_(14|30|60)$/.test(String(x.sku||''))
   &&x.visible===true&&x.sale_ready===true&&x.status==='for_sale');
  return {phase:publicLaunch?'public':'beta',publicLaunch,full,capacity:600,
   occupied:Math.min(used.size,600),remaining:Math.max(0,600-used.size),
   offersVisible:!publicLaunch&&!full&&advertised,
-  enrollmentEnabled:release[0].enrollment_enabled===true&&!publicLaunch&&!full&&advertised};
+  enrollmentEnabled:release[0].enrollment_enabled===true&&!publicLaunch&&!full&&saleReady};
 }

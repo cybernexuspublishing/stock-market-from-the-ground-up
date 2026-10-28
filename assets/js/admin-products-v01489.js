@@ -55,7 +55,7 @@ function membershipCard(p){
  '<p class="product-admin-price">'+e(price)+'</p><p>'+e(p.description||'Membership product description not yet provided.')+'</p>'+
  '<p class="product-admin-status">'+e(status)+'</p>'+
  '<div class="product-admin-actions"><a class="btn secondary" target="_blank" rel="noopener" href="'+e(urlFor('plan',p.plan_code))+'">View Customer Page</a></div>'+copy+buttons+
- '<p class="small">Changing a Stripe-linked membership price, billing interval or included entitlements requires synchronized provider mapping, customer disclosure, and a separate audited rollout. This editor never changes those terms silently.</p></article>';
+ '<p class="small">Publishing a membership makes its approved Store listing visible but does not enable checkout. Founders also require the Owner Store product overlay to be visible, and an independently approved provider/fulfillment release. Hidden and unavailable membership direct checkout URLs remain blocked.</p><p class="small">Changing a Stripe-linked membership price, billing interval or included entitlements requires synchronized provider mapping, customer disclosure, and a separate audited rollout. This editor never changes those terms silently.</p></article>';
 }
 function toolCard(t){
  const published=t.active&&t.public_visible;
