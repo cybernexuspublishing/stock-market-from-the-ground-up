@@ -2,6 +2,7 @@
  * All purchase authorization remains in the original, server-only checkout.
  * No Stripe, sensitive metadata, member identity, or entitlements are returned.
  */
+import {foundingOfferState} from '../_lib/founder-offer-gate-v1.js';
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const limited=(v,n)=>String(v??'').slice(0,n);
@@ -18,10 +19,11 @@ export async function onRequestGet({env}){
   // Cross-check the canonical membership visibility registry; storefront
   // listing flags must not expose plans the Owner has explicitly hidden.
   const plansQuery='platform_plans?select=plan_code,public_visible,active&limit=150';
-  const [r,p,layoutResponse]=await Promise.all([
+  const [r,p,layoutResponse,founder]=await Promise.all([
    fetch(base+'/rest/v1/'+query,{headers,cache:'no-store'}),
    fetch(base+'/rest/v1/'+plansQuery,{headers,cache:'no-store'}),
-   fetch(base+'/rest/v1/gu_store_layout_v1?select=tool_columns,tool_rows,catalog_columns,catalog_rows&singleton=eq.true&limit=1',{headers,cache:'no-store'}).catch(()=>null)
+   fetch(base+'/rest/v1/gu_store_layout_v1?select=tool_columns,tool_rows,catalog_columns,catalog_rows&singleton=eq.true&limit=1',{headers,cache:'no-store'}).catch(()=>null),
+   foundingOfferState(env)
   ]);
   if(!r.ok||!p.ok)return json({ok:false,error:'Store catalog is temporarily unavailable.'},503);
   const [rows,plans]=await Promise.all([r.json(),p.json()]);
@@ -29,6 +31,7 @@ export async function onRequestGet({env}){
   const visiblePlans=new Set(plans.filter(x=>x?.active===true&&x.public_visible===true).map(x=>String(x.plan_code||'')));
   const knownPlans=new Set(plans.map(x=>String(x.plan_code||'')));
   const items=rows.filter(x=>x?.visible===true&&allowedCats.has(x.category)&&
+   (founder.offersVisible===true||!(x.category==='founding'||/FOUNDING_(14|30|60)/.test(String(x.sku||''))))&&
    /^[a-z]+:[A-Z0-9_\-]+$/.test(String(x.sku||''))&&
    (!String(x.sku).startsWith('plan:')||!knownPlans.has(String(x.sku).slice(5))||visiblePlans.has(String(x.sku).slice(5)))).map(x=>({
    sku:limited(x.sku,90),category:x.category,name:limited(x.display_name,220),
