@@ -6,7 +6,7 @@ const ref=x=>typeof x==='string'?x:x?.id||null;
 const valid=(s,p)=>new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(String(s||''));
 const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x||'');
 const date=n=>Number.isSafeInteger(n)&&n>0?new Date(n*1000).toISOString():null;
-const PRICE={FOUNDING_30:{id:'price_1UUCNbJY9FI7byHBCX2VWdLi',amount:4999,days:30},FOUNDING_60:{id:'price_1UUCNkJY9FI7byHBuh6pT4xd',amount:5999,days:60}};
+const PRICE={FOUNDING_14:{id:'price_1UVDQoJY9FI7byHBuiYDnHrX',amount:2299,days:14,sparks:10},FOUNDING_30:{id:'price_1UUCNbJY9FI7byHBCX2VWdLi',amount:4999,days:30,sparks:15},FOUNDING_60:{id:'price_1UUCNkJY9FI7byHBuh6pT4xd',amount:5999,days:60,sparks:20}};
 async function stripe(env,path){
  const r=await fetch('https://api.stripe.com/v1/'+path,{headers:{authorization:'Bearer '+env.GU39_STRIPE_TEST_SECRET_KEY},cache:'no-store'});
  if(!r.ok)throw Error('SANDBOX_PROVIDER_RETRY');
@@ -38,6 +38,7 @@ async function subFor(env,id){
  const plan=PRICE[qa[0].plan_code],item=sub.items?.data?.[0];
  if(!plan||sub.items?.data?.length!==1||ref(item?.price)!==plan.id
  ||item.price?.recurring?.interval!=='day'||item.price?.recurring?.interval_count!==plan.days
+ ||item.price?.unit_amount!==plan.amount||item.price?.currency!=='usd'||item.price?.active!==true
  ||(qa[0].stripe_subscription_id&&qa[0].stripe_subscription_id!==sub.id)
  ||(qa[0].stripe_customer_id&&qa[0].stripe_customer_id!==ref(sub.customer)))
  throw Error('SANDBOX_FOUNDER_PRICE_BINDING_INVALID');
