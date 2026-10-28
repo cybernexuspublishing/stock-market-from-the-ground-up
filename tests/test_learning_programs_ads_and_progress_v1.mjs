@@ -41,7 +41,7 @@ assert(catalog.includes("image.alt='Conceptual illustration"),'Course artwork ne
 assert(catalog.includes('card.append(image,duration,heading,description,note,action)'),'Course card artwork should render before content');
 assert(record.includes('function progressMeter(')&&record.includes('<progress max="100"'),'Skills record requires semantic progress bars');
 assert(record.includes('subScores')&&record.includes('known.length/4*100'),'Official coverage must reflect verified scored dimensions');
-assert(record.includes('new Set(a.map(r=>String(r.lab_id||')),'Repeated attempts may not inflate unique Lab progress');
+assert(record.includes('distinctLabs=new Set('),'Repeated attempts may not inflate unique Lab progress');
 assert(record.includes("if(attempts.error)"),'Private record errors cannot be mistaken for zero evidence');
 assert(record.includes("hasEvidence?String(v)+'%': 'Not yet recorded'"),'Missing evidence must remain Not Yet Recorded');
 assert(ownerAPI.includes("if(action==='set_placement_active')")&&ownerAPI.includes("await audit(c,actor,'set_placement_active'"),'Placement controls require owner-side audit');
