@@ -302,7 +302,7 @@ function ensureShowcase(){
    if(el.dataset.ccShowcaseNavigation)continue;
    const name=(el.textContent||'').trim();
    const safeSearch=el.matches('input[type="search"]');
-   const safeRead=el.tagName==='BUTTON'&&(el.hasAttribute('data-refresh')||/^(refresh|view|preview|search|find|next|previous|filter|reload|back|expand|collapse|show details|open details)\\b/i.test(name))&&!/checkout|purchase|payment|activate|grant|refund/i.test(name);
+   const safeRead=el.tagName==='BUTTON'&&(el.hasAttribute('data-refresh')||/^(refresh|view|preview|search|find|next|previous|filter|reload|back|expand|collapse|show details|open details)\b/i.test(name))&&!/checkout|purchase|payment|activate|grant|refund/i.test(name);
    if(safeSearch||safeRead)continue;
    el.disabled=true;el.title='Disabled in Showcase';
   }
