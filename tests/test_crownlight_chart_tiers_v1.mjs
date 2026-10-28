@@ -44,7 +44,7 @@ globalThis.fetch=async(url,opt={})=>{
 const request=()=>new Request('https://website.test/api/chart-tier-access',{headers:{authorization:'Bearer mocked-access-token'}});
 async function check(tier){
  const r=await chartTier({request:request(),env}),b=await r.json();
- assert.equal(r.status,200);assert.equal(b.tier,tier);
+ assert.equal(r.status,200,JSON.stringify({tier,response:b,lastCalls:calls.slice(-15)}));assert.equal(b.tier,tier);
  assert.deepEqual(b.allowed,tier==='STANDARD'?['STANDARD']:tier==='ADVANCED'?['STANDARD','ADVANCED']:
   ['STANDARD','ADVANCED','PROFESSIONAL']);
 }
