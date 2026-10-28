@@ -4,7 +4,7 @@ import {onRequestGet as founderOffer} from '../functions/api/founding-offer-stat
 const uuid='11111111-1111-4111-8111-111111111111',base='https://mockchart.supabase.co';
 const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'secret_fixture',SUPABASE_PUBLISHABLE_KEY:'pub_fixture'};
 const now=Date.now(),before=new Date(now-3600000).toISOString(),after=new Date(now+3600000).toISOString();
-const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true,qa:null,qaExpired:false,manualTier:null,manualExpired:false,manualRevoked:false,manualScope:'CHART_STUDIO_ONLY',owner:false,ownerExpired:false};
+const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true,qa:null,qaExpired:false,manualTier:null,manualExpired:false,manualRevoked:false,manualScope:'CHART_STUDIO_ONLY',owner:false,ownerExpired:false,staffRole:null,staffExpired:false};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;let calls=[];
 globalThis.fetch=async(url,opt={})=>{
@@ -22,7 +22,10 @@ globalThis.fetch=async(url,opt={})=>{
  }
  if(u.pathname==='/rest/v1/profiles')return json(state.profile?[{account_kind:'member',deleted_at:null}]:[]);
  if(u.pathname==='/rest/v1/admin_user_flags')return json(state.restricted?[{status:'restricted'}]:[]);
- if(u.pathname==='/rest/v1/admin_user_roles')return json(state.owner?[{role_code:'OWNER',expires_at:state.ownerExpired?before:null}]:[]);
+ if(u.pathname==='/rest/v1/admin_user_roles'){
+  const role=state.owner?'OWNER':state.staffRole;
+  return json(role?[{role_code:role,expires_at:(state.ownerExpired||state.staffExpired)?before:null}]:[]);
+ }
  if(u.pathname==='/rest/v1/rpc/user_has_tool_access')return json(false);
  if(u.pathname==='/rest/v1/gu_founder_release_v014173')return json([{public_launch_open:state.publicLaunch,enrollment_enabled:true}]);
  if(u.pathname==='/rest/v1/gu_founder_members_v014173'){
@@ -57,9 +60,15 @@ try{
  state.owner=true;await check('PROFESSIONAL');
  let ownerPayload=await (await chartTier({request:request(),env})).json();
  assert.equal(ownerPayload.ownerChartAccess,true);
- assert.match(ownerPayload.reason,/Verified Owner/);
+ assert.match(ownerPayload.reason,/Verified OWNER/);
+ assert.equal(ownerPayload.staffChartRole,'OWNER');
  state.ownerExpired=true;await check('STANDARD');
  state.ownerExpired=false;state.owner=false;
+ state.staffRole='ADMIN';await check('PROFESSIONAL');
+ state.staffRole='MODERATOR';await check('PROFESSIONAL');
+ state.staffExpired=true;await check('STANDARD');state.staffExpired=false;
+ state.staffRole='COMMUNITY_HELPER';await check('STANDARD');
+ state.staffRole=null;
  state.manualTier='ADVANCED';await check('ADVANCED');
  const temporary=await (await chartTier({request:request(),env})).json();
  assert.equal(temporary.temporaryAccess?.kind,'QA');
