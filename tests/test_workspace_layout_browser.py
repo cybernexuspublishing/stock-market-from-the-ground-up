@@ -50,13 +50,16 @@ with sync_playwright() as p:
     toggle=page.locator('#gu-workspace-toggle');toggle.wait_for()
     target='#'+toggle.get_attribute('aria-controls')
     if route=='dashboard.html':
-     # Compact Dashboard tabs replace the duplicate legacy sidebar visually.
-     assert page.locator(target).is_hidden(),'Dashboard must not show duplicate sidebar'
-     before=page.locator('main').bounding_box()
+     # Owner-approved Dashboard has exactly one permanent member sidebar.
+     # The header menu toggles that SAME sidebar; it must not inject a duplicate.
+     assert page.locator('.gu-member-dashboard-shell>.gu-member-side-menu').count()==1,'Dashboard lost its canonical member sidebar'
+     assert page.locator('#gu-workspace-sidebar').count()==0,'Duplicate legacy workspace sidebar was inserted'
+     assert target=='#gu-member-sidebar','Header toggle must control the canonical member sidebar'
+     assert page.locator(target).is_visible()==(width>900),'Dashboard sidebar initial responsive state'
      toggle.click()
-     assert page.locator(target).is_hidden(),'Legacy dashboard sidebar must stay hidden'
-     assert page.locator('main').bounding_box()==before,'Dashboard canvas shifted'
+     assert page.locator(target).is_visible()==(width<=900),'Dashboard toggle must reverse member sidebar visibility'
      toggle.click()
+     assert page.locator(target).is_visible()==(width>900),'Dashboard toggle must restore original state'
     else:
      assert page.locator(target).is_visible()==(width>900)
      toggle.click();assert page.locator(target).is_visible()==(width<=900)
