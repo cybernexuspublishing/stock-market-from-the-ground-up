@@ -2,8 +2,8 @@
 
 **Document ID:** SMFGU-F600-CATALOG-QA-20261028  
 **Project:** The Stock Market: From the Ground Up  
-**Version:** 1.0  
-**Status:** Configuration remediated; Starter LIVE $0 Owner diagnostic and paid entitlement acceptance **pending**  
+**Version:** 1.1  
+**Status:** Stripe Product activation and TEST webhook signed-event route verified; Starter LIVE $0 Owner diagnostic and paid entitlement acceptance **pending**  
 **Date:** October 28, 2026  
 **Source location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up/docs/qa/`  
 **Google Drive location:** Not established; no Google Drive file or identifier has been created.  
@@ -50,10 +50,34 @@
 - `public_launch_open=false`: general-public plans must remain hidden. Once 600 seats are issued or public launch opens, new founding enrollment closes while earned member benefits remain intact.
 - Not all repository workflows necessarily complete simultaneously after every `main` push. Record matching accepted head commit and final CI results before release signoff.
 
+## October 28 follow-up — catalog activation and signed TEST webhook acceptance
+
+**Control scope:** Activate catalog Products in Stripe without turning unfinished SKUs into purchasable customer offers; preserve existing approved prices and no charge in LIVE.
+
+**Executed and verified:**
+- Stripe LIVE product activation: **56/56 active** (already active; no LIVE Product mutations required).
+- Stripe TEST product activation: **58/58 active** after activation of 43 previously inactive TEST Products. No TEST Product was assigned an invented price, default Price or buyer-facing checkout permission.
+- Production Supabase `gu_storefront_items_v014174`: **49 entries with `sale_ready=false` hidden**; `plan:FREE` intentionally remains visible despite not being a paid sale. Six `visible=true,sale_ready=true` items remain; other sale-ready entries retain their existing Owner visibility choices. The public storefront endpoint filters on `visible=true`, and no unready paid catalog item remains visible through that registry.
+- Verified Stripe TEST card ending **4242**, authorized paid invoice **`in_1UVZY5JY9FI7byHByRzCzfKm`** for **$22.99** on exact 14-day TEST subscription **`sub_1UVZY4JY9FI7byHBS2oX9pkH`**. This is Stripe TEST ONLY, not a LIVE charge or website/member checkout. Subscription is set to cancel at period end, with no real membership entitlement; the provider-only subscription's sandbox enrollment tag was removed to prevent mistaken full-lifecycle QA handling.
+- Enabled current-domain Stripe TEST webhook **`we_1UUf6eJY9FI7byHB0FuUEutL`** to `https://stock-market-from-the-ground-up-d1r.pages.dev/api/gu39-stripe-webhook`; disabled obsolete enabled TEST route **`we_1URIRZJY9FI7byHBWfVaGJym`**.
+- With the legacy endpoint disabled, temporarily enabled the Owner-controlled isolated GU39 sandbox gate and caused a genuine signed **`customer.subscription.updated`** for an existing 30-day QA subscription. Stripe event **`evt_1UVZaFJY9FI7byHBGKojO0id`** reached **zero pending webhook deliveries** and appeared **exactly once** in Supabase `gu_f600_sandbox_events_v014215`. Restored `gu39_sandbox_settings.enabled=false` immediately after verification. This acceptance covers correct-domain signed webhook ingestion and idempotent event recording for that event type, not full 14-day member fulfillment.
+- No production Founding paid cycles, founder memberships, or real customer payment tests were created.
+
+**Still gated / do not misrepresent as passed:**
+- The Owner's previously issued **LIVE one-time $0.00 diagnostic** remains open, not completed. It cannot be completed by Stripe TEST card 4242. Owner-authenticated hosted checkout and post-checkout verification are still required.
+- The **14-day $22.99 recurring LIVE checkout** remains disabled by both the individual Supabase plan flag and Stripe LIVE Product checkout/fulfillment metadata. Activation is **not** implied by `Product.active=true`; avoid modifying these gates before authentic member and signed paid-lifecycle acceptance.
+- Production QA test-identity roster is not provisioned. A GitHub QA account *definition* is not a usable Supabase login; no passwords or sessions are stored in source.
+- Historical TEST 30/60 purchase acceptance is separate from new 14-day TEST provider-only invoice. 14-day signed membership fulfillment, cancellation/refund/renewal and member RLS/browser acceptance remain open.
+- All unpriced and unreleased Products remain registered and active **without invented Prices or sale authorization**. Legacy Sparks packages are not the approved Sparks V2 catalog; correct pricing and entitlement implementation remain a separate gate.
+- Cloudflare version/production deployment matching and all-triggered CI must be reverified for the final documentation commit; a successful deployment alone does not constitute payment acceptance.
+
+**Operational separation:** Stripe Product `active` is catalog availability; Supabase `visible` governs site display; `sale_ready` and the payment controller's per-plan/metadata/authorization gates govern checkout. None of these alone proves shipped fulfillment.
+
 ## Revision history
 
 | Version | Date | Change | Status |
 | --- | --- | --- | --- |
 | 1.0 | 2026-10-28 | Cross-platform verification, price reconciliation, critical paid-cycle constraint correction, safe Starter release staging | Pending real Owner and authenticated member acceptance |
+| 1.1 | 2026-10-28 | 58/58 TEST Product activation, Supabase hidden-product control, 14-day TEST Visa paid invoice, new-domain signed webhook delivery | Catalog state accepted; LIVE $0 and member lifecycle acceptance pending |
 
-**Footer — SMFGU-F600-CATALOG-QA-20261028 | v1.0 | Internal owner-controlled QA record | Not authorization for LIVE charges.**
+**Footer — SMFGU-F600-CATALOG-QA-20261028 | v1.1 | Internal owner-controlled QA record | Not authorization for LIVE charges.**
