@@ -5,7 +5,7 @@
 **Document ID:** SMFGU-JOURNAL-V3-001  
 **Filename / file type:** `docs/releases/2026-10-27_TRADING_JOURNAL_V3_PROFESSIONAL_VISUAL_EDITION.md` / Markdown (.md)  
 **Google Drive location/document ID:** Not assigned. GitHub `main` is controlling.  
-**Version:** 3.0 · **Owner instruction:** October 27, 2026 · **Status:** Source implemented; deployment and authenticated browser acceptance are separate gates.
+**Version:** 3.0 · **Owner instruction:** October 27, 2026 · **Status:** Production source/build acceptance verified; real signed-in browser and screenshot acceptance pending.
 **Purpose:** A genuinely functional premium-appearance Trading Journal centered on member-recorded activity, a calendar, a visual trade narrative and existing paid server-calculated analytics—not a static screenshot or a simulator pretending to have historical data.
 **Dependencies:** V2.0 Journal (locked pre-trade plan, member-owned `decision_journal`, V1 private evidence, correction history), existing `journal-analytics.html`, current Free quota and paid `JOURNAL_ANALYTICS` entitlement. No new data vendor or database schema.
 
@@ -54,6 +54,22 @@
 ## Rollback
 
 Revert V3 HTML stylesheet and script references together, keeping the existing V2 system, database/locked snapshots and private file assets intact. Do not delete `decision_journal` or evidence/audit data. Rebuild and verify the exact reverted `main` revision; new code is a presentation-layer addition only.
+
+## Production build evidence — verified October 28, 2026 UTC
+
+**Owner account:** Yahoo master Cloudflare account; **Pages project:** `stock-market-from-the-ground-up` (not MommaBees); **production branch:** `main`.
+
+Source commit `3f27870a326f698d096e56efea1192565cbc5ba9` produced Cloudflare production deployment `3b425738-3984-484f-99e4-49006cbc35c5`, which returned stage `deploy` / status `success`. Build logs explicitly contained:
+
+- `PASS Journal v1: null/flat, planned R, fee validation, MFE range, ET/DST, enum, guided UI.`
+- `PASS Journal V2: stage mapping, budget math, no-trade, date bounds, source isolation and closed-trade recalculation.`
+- `PASS Journal V3: real-record calendar, confirmed no-trade, 14-day chart, price-only story, account isolation and premium boundaries.`
+- `Cloudflare Pages static output: 618 files`
+- `Success: Your site was deployed!`
+
+Commit `75606310113032bf9680d1b928043d40fa8bb812` (same V3 functionality with existing GitHub market-analysis workflow added) also achieved Cloudflare `deploy` / `success`. Later release-document-only changes require an exact-revision deployment check separately.
+
+**What this proves:** the source integration, deterministic tests and built web assets passed provider-side publication. **What it does not prove:** real signed-in Free/paid workflows, actual pixel-perfect screenshots, browser keyboard/screen-reader testing, or completed GitHub Actions jobs. These acceptance gates remain explicitly open and must not be represented as completed.
 
 ## Revision history
 
