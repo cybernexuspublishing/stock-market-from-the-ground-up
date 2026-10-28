@@ -125,7 +125,7 @@ function search(){if(qs('[data-gu33-global-search]'))return true;
    if(!allowed(nav)||nav.closest('#cc-preserved-module-roots,.cc-owner-hidden'))continue;
    const label=nav.textContent.trim();if(!label||/^(cards|dense)$/i.test(label))continue;
    const key='nav:'+label+':'+(nav.dataset.panel||nav.dataset.ocTab||nav.id||nav.getAttribute('href')||'');if(seen.has(key))continue;seen.add(key);
-   records.push({text:label,detail:'Admin section',keywords:'navigation '+label,click:()=>{if(!allowed(nav))return false;nav.click();return true}})
+   records.push({text:label,detail:'Admin section',keywords:'navigation '+label+' '+(nav.dataset.ccSearchAliases||''),click:()=>{if(!allowed(nav))return false;nav.click();return true}})
   }
   for(const item of paymentExtras)if(item.permission())records.push(item);
   // Never index member names, email addresses, reports, private tokens or form values.
