@@ -54,6 +54,10 @@
   const legacyLink=['journal_id','lab','topic'].some(k=>params.has(k));
   selectMode(free||studioRequested||mode==='csv'||(mode!=='server'&&legacyLink)?'csv':'server');
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ // A deferred script runs with readyState='interactive' before later deferred
+ // scripts have registered their event handlers. Wait for DOMContentLoaded
+ // unless the document is already complete, or the legacy Simulator's
+ // activation event is lost and its buttons never receive handlers.
+ if(document.readyState!=='complete')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
 })();
