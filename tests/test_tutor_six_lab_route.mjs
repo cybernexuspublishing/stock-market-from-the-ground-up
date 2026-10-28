@@ -22,6 +22,7 @@ globalThis.fetch=async url=>{
  if(path.endsWith('/auth/v1/user'))return json({id:'00000000-0000-4000-8000-000000000001'});
  if(path.includes('/rest/v1/profiles?'))return json([{account_kind:'member'}]);
  if(path.includes('/rest/v1/admin_user_flags?'))return json([{status:'active'}]);
+ if(path.includes('/rest/v1/admin_user_roles?'))return json([]);
  if(path.includes('/rest/v1/rpc/user_has_tool_access'))return json(true);
  if(path.includes('/rest/v1/rpc/'))return json(false,404);
  modelCalls++;throw Error('Unexpected external request: '+path);
