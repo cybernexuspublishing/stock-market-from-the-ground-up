@@ -9,7 +9,8 @@ const levels={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const names={STANDARD:'Standard · Lightweight Charts',ADVANCED:'Advanced · KLineChart',
  PROFESSIONAL:'Professional · Multi-chart KLineChart'};
 const state={allowed:['STANDARD'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
- timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null};
+ timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null,
+ accessExpiry:null,accessKind:null,accessTier:null,expireRechecked:false,sparksAvailable:false};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
 const status=t=>{if(state.notice)state.notice.textContent=t};
 const price=(n)=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
@@ -29,7 +30,7 @@ async function permission(){
   const client=await window.getSupabaseClient();
   const session=(await client.auth.getSession()).data?.session;
   if(authEpoch!==state.authEpoch)return;
-  if(!session?.access_token){state.authUserId=null;state.verified=false;state.tier='STANDARD';state.allowed=['STANDARD'];state.selected='STANDARD';stopCharts();renderChoices();status('Sign in to use Crownlight charts.');
+  if(!session?.access_token){state.authUserId=null;state.accessExpiry=null;state.accessKind=null;state.accessTier=null;state.verified=false;state.tier='STANDARD';state.allowed=['STANDARD'];state.selected='STANDARD';stopCharts();renderChoices();status('Sign in to use Crownlight charts.');
    window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:false,tier:'STANDARD'}}));return}
   const r=await fetch('/api/chart-tier-access',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
   if(!r.ok)throw Error('Chart entitlement unavailable');
@@ -38,9 +39,19 @@ async function permission(){
   if(j?.ok!==true||j.eligible!==true||!Array.isArray(j.allowed))throw Error('Chart access not confirmed');
   state.allowed=['STANDARD',...['ADVANCED','PROFESSIONAL'].filter(t=>j.allowed.includes(t))];
   state.tier=state.allowed.at(-1);state.verified=true;state.authUserId=session.user?.id||null;
+  const access=j.temporaryAccess;
+  const expiry=access&&['QA','SPARKS'].includes(access.kind)&&
+   ['ADVANCED','PROFESSIONAL'].includes(access.tier)&&
+   Number.isFinite(Date.parse(access.expiresAt||''))&&Date.parse(access.expiresAt)>Date.now()
+   ?String(access.expiresAt):null;
+  if(expiry!==state.accessExpiry)state.expireRechecked=false;
+  state.accessExpiry=expiry;state.accessKind=expiry?access.kind:null;
+  state.accessTier=expiry?access.tier:null;
+  state.sparksAvailable=j.sparksChartPasses?.enabled===true;
   if(!state.allowed.includes(state.selected)){state.selected='STANDARD';stopCharts()}
   status('Your membership includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
  }catch{if(authEpoch!==state.authEpoch)return;state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
+  state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
   status('Advanced chart permissions could not be verified. Standard chart remains available to eligible signed-in members.');}
  renderChoices();
  window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:state.verified,tier:state.tier}}));
@@ -61,6 +72,58 @@ function stopCharts(){
  for(const entry of state.charts){try{window.klinecharts?.dispose(entry.id)}catch{}}
  state.charts=[];state.view?.querySelector('[data-cl-tier-panels]')?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
 }
+const requirements={
+ ADVANCED:'Requires an eligible intermediate membership (such as an active Founding 30-Day plan), or an eligible temporary Crownlight Sparks Studio pass when available.',
+ PROFESSIONAL:'Requires an eligible premium membership (such as an active Founding 60-Day, Full, or Lifetime plan), or an eligible temporary Crownlight Sparks Studio pass when available.'
+};
+function remainingText(ms){
+ const total=Math.max(0,Math.ceil(ms/1000));
+ const days=Math.floor(total/86400),hours=Math.floor(total%86400/3600);
+ const mins=Math.floor(total%3600/60),secs=total%60;
+ return (days?days+'d ':'')+[hours,mins,secs].map(n=>String(n).padStart(2,'0')).join(':');
+}
+function updateCountdown(){
+ const output=state.view?.querySelector('[data-cl-tier-countdown]');
+ if(!output)return;
+ if(!state.verified||!state.accessExpiry){output.hidden=true;output.textContent='';return}
+ const expiry=Date.parse(state.accessExpiry);
+ if(!Number.isFinite(expiry)){output.hidden=true;return}
+ const remaining=expiry-Date.now();
+ output.hidden=false;
+ output.textContent=remaining<=0
+  ?'Temporary '+state.accessTier+' Studio access expired. Rechecking authorization…'
+  :'Temporary '+state.accessTier+' '+(state.accessKind==='SPARKS'?'Sparks pass':'QA access')+
+   ' · Remaining '+remainingText(remaining)+' · Ends '+new Date(expiry).toLocaleString();
+ if(remaining<=0&&!state.expireRechecked){
+  state.expireRechecked=true;
+  void permission();
+ }
+}
+function explainLockedTier(){
+ const host=state.view?.querySelector('[data-cl-tier-access-details]');
+ if(!host)return;
+ host.replaceChildren();
+ let locked=0;
+ for(const tier of ['ADVANCED','PROFESSIONAL']){
+  if(state.verified&&state.allowed.includes(tier))continue;
+  locked++;
+  const block=el('section','cl-chart-tier-access-item');
+  const heading=el('strong','','🔒 '+tier+' Studio');
+  const description=el('p','',requirements[tier]);
+  const membership=el('a','btn secondary','Compare memberships');
+  membership.href='/membership.html';
+  block.append(heading,description,membership);
+  host.append(block);
+ }
+ if(!locked)host.append(el('p','','Your account can use all three Chart Studios. No additional membership is required.'));
+ const spark=el('p','cl-chart-tier-sparks-explanation',
+  state.sparksAvailable
+   ?'Temporary Studio Sparks passes are available only when an eligible server-priced offer is displayed.'
+   :'Temporary Studio Sparks passes are planned but not yet priced or available for redemption. No Sparks will be deducted.');
+ const shop=el('a','cl-chart-tier-sparks-link','Review Crownlight Sparks');
+ shop.href='/store-sparks.html';
+ host.append(spark,shop);
+}
 function renderChoices(){
  if(!state.view)return;
  const select=state.view.querySelector('select');
@@ -68,10 +131,12 @@ function renderChoices(){
  for(const option of select.options){
   const authorized=state.verified&&state.allowed.includes(option.value);
   option.disabled=!authorized;
-  option.textContent=names[option.value]+(authorized?'':' · Locked');
+  option.textContent=(authorized?'':'🔒 ')+names[option.value]+(authorized?'':' · Locked');
+  option.title=authorized?'Included in your current access':(requirements[option.value]||'Sign in to verify your membership.');
  }
  select.value=state.selected;
  state.view.querySelector('[data-cl-tier-advanced]')?.toggleAttribute('hidden',state.selected==='STANDARD');
+ explainLockedTier();updateCountdown();
 }
 function period(){
  const x=/(\d+)\s*[- ]?min/i.exec(state.timeframe);
@@ -139,13 +204,31 @@ function createControls(){
  panel.setAttribute('aria-label','Crownlight Chart Studio tier');
  const header=el('div','cl-chart-tier-bar');
  const label=el('label','', 'Chart Studio experience');
- const select=el('select');select.setAttribute('aria-label','Chart engine available to your membership');
+ const select=el('select');select.setAttribute('aria-label','Choose a Chart Studio; locked tiers are unavailable');
+ select.title='Choose an available Studio. Select Unlock options for locked Studio requirements.';
  for(const k of Object.keys(names)){const op=new Option(names[k]+' · Locked',k);op.disabled=true;select.append(op)}
  select.onchange=()=>void choose(select.value);
  label.append(select);
  state.notice=el('p','cl-chart-tier-status','Verifying chart membership…');
  state.notice.setAttribute('role','status');state.notice.setAttribute('aria-live','polite');
- header.append(label,state.notice);panel.append(header);
+ const detailsButton=el('button','cl-chart-tier-access-trigger','🔒 Unlock options');
+ detailsButton.type='button';detailsButton.setAttribute('aria-expanded','false');
+ detailsButton.setAttribute('aria-controls','cl-chart-tier-access-details');
+ detailsButton.title='View locked Studio requirements and temporary Sparks access information';
+ const timer=el('p','cl-chart-tier-countdown');timer.dataset.clTierCountdown='';timer.hidden=true;
+ timer.setAttribute('role','status');timer.setAttribute('aria-live','off');
+ const popup=el('div','cl-chart-tier-access-popup');popup.id='cl-chart-tier-access-details';
+ popup.dataset.clTierAccessDetails='';popup.hidden=true;
+ popup.setAttribute('aria-label','Studio membership and Sparks access options');
+ detailsButton.onclick=()=>{
+  popup.hidden=!popup.hidden;
+  detailsButton.setAttribute('aria-expanded',String(!popup.hidden));
+  if(!popup.hidden)popup.querySelector('a')?.focus();
+ };
+ panel.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden){
+  popup.hidden=true;detailsButton.setAttribute('aria-expanded','false');detailsButton.focus();
+ }});
+ header.append(label,detailsButton,state.notice);panel.append(header,timer,popup);
  const enhanced=el('div','cl-chart-tier-enhanced');enhanced.dataset.clTierAdvanced='';enhanced.hidden=true;
  const tools=el('div','cl-chart-tier-tools');
  tools.append(el('strong','', 'KLineChart technical studies and drawings'));
@@ -201,6 +284,7 @@ window.addEventListener('crownlight:revealed-bars',e=>{
 });
 async function init(){
  if(!createControls())return;
+ window.setInterval(updateCountdown,1000);
  await permission();
  try{
   const client=await window.getSupabaseClient();
@@ -209,6 +293,7 @@ async function init(){
     const differentUser=!!session?.user?.id&&!!state.authUserId&&session.user.id!==state.authUserId;
     if(event==='SIGNED_OUT'||differentUser){
      state.version++;state.bars=[];state.selected='STANDARD';state.autoStarted=false;
+   state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
      state.authUserId=null;stopCharts();
     }
     if(event==='SIGNED_OUT'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||differentUser)
@@ -220,7 +305,8 @@ window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='
  getRevealedBars:()=>state.bars.map(b=>({...b})),
  getStatus:()=>({
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],revealed:state.bars.length,
- verified:state.verified,charts:state.charts.length
+ verified:state.verified,charts:state.charts.length,
+ accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
 }),choose:t=>choose(t)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init());else void init();
 })();
