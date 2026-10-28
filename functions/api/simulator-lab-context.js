@@ -5,7 +5,7 @@
 import {toolAccess} from './member-tool-access.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const send=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:H});
-const ID=/^(?:F[123]|DT|TAPE)-C\d{2}-L\d{2}$/;
+const ID=/^(?:(?:F[123]|DT|TAPE)-C\d{2}-L\d{2}|SITE-\d{3})$/;
 export async function onRequest({request,env}){
  if(request.method!=='GET')return send({ok:false,error:'Method not allowed'},405);
  const labId=new URL(request.url).searchParams.get('lab')||'';
