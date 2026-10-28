@@ -425,7 +425,7 @@
    const loaded=data.curriculum;
    if(data.version!==VERSION||!Array.isArray(loaded)||loaded.length!==expected.get(code)||
     loaded.some((x,i)=>x.day!==i+1||x.programCode!==code||
-      !Array.isArray(x.relatedLabs)||(code!=='free5'&&x.relatedLabs.length===0)))
+      !Array.isArray(x.relatedLabs)))
     throw Error('This program’s complete learning sequence could not be verified.');
    program=data.program;days=loaded;
    progressAvailable=data.progressAvailable===true;enrolled=data.enrolled===true;
@@ -443,7 +443,16 @@
    updateProgress();renderDay();
    status(progressAvailable?'Choose a day and begin learning with Talia.':
     'You can read the lessons, but we cannot save your notes right now. Please try again later.');
-  }catch(error){if(epoch!==sessionSerial)return;clean();status(error.message||'Unable to open this Academy program.')}
+  }catch(error){
+   if(epoch!==sessionSerial)return;clean();
+   const message=String(error.message||'Unable to open this Academy program.');
+   status(message);
+   if(/active plan|matching individual tool entitlement|authorized member training access/i.test(message)){
+    const hint=node('p','Beta access requires a verified training entitlement, an eligible Founding Member plan, or Owner-approved temporary training QA access. A course listing alone is not a subscription.');
+    const link=node('a','Review membership and training access');link.href='dashboard.html?tab=access';link.className='btn secondary';
+    get('academy-status').append(hint,link);
+   }
+  }
  }
  async function init(){
   const url=new URL(location.href),code=url.searchParams.get('program')||'';
