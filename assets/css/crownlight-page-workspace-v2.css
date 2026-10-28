@@ -2,7 +2,14 @@
  * Excludes administrative, authentication, checkout and payment pages.
  */
 body[data-cl-workspace="continuous"] main.section{padding-block:12px 24px}
-body[data-cl-workspace="continuous"] main.section>.wrap{
+/* Distinct templates use different primary containers. These selectors
+ * expand the full page without rearranging commerce, ads, Lab or forum DOM. */
+body[data-cl-workspace="continuous"] main.section>.wrap,
+body[data-cl-workspace="continuous"] main.gu-commons-page>.wrap,
+body[data-cl-workspace="continuous"] main.gu-premium-home>section>.wrap,
+body[data-cl-workspace="continuous"] main.gu-redesign-store>.gu-store-ad-shell,
+body[data-cl-workspace="continuous"] main.gu-redesign-academy>.gu-learning-ad-layout,
+body[data-cl-workspace="continuous"] main.gu-skills-page>.gu-learning-ad-layout{
  width:calc(100% - 28px);max-width:1700px;margin-inline:auto
 }
 body[data-cl-workspace="continuous"] .site-header .wrap{max-width:1700px}
@@ -24,6 +31,11 @@ body[data-cl-workspace="continuous"] main.section .journal-subtitle{margin-block
 }
 .cl-page-workspace-notice a{color:#9feaff}
 @media(max-width:850px){
- body[data-cl-workspace="continuous"] main.section>.wrap{width:calc(100% - 20px)}
+ body[data-cl-workspace="continuous"] main.section>.wrap,
+ body[data-cl-workspace="continuous"] main.gu-commons-page>.wrap,
+ body[data-cl-workspace="continuous"] main.gu-premium-home>section>.wrap,
+ body[data-cl-workspace="continuous"] main.gu-redesign-store>.gu-store-ad-shell,
+ body[data-cl-workspace="continuous"] main.gu-redesign-academy>.gu-learning-ad-layout,
+ body[data-cl-workspace="continuous"] main.gu-skills-page>.gu-learning-ad-layout{width:calc(100% - 20px)}
  body[data-cl-workspace="continuous"] main.section{padding-block:10px}
 }

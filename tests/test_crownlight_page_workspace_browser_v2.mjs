@@ -23,5 +23,21 @@ try{
  await page.setViewportSize({width:740,height:920});full=await metrics();assert(full.width>=690&&full.width<=740);
  await page.evaluate(()=>document.body.dataset.clWorkspace='classic');
  let again=await metrics();assert(again.width<1000,'Disable must restore Classic layout without reload');
- console.log('PASS full-page content width, compact cards, responsive viewport and reversible Classic layout');
+ // Verify actual specialized page shells, not only pages with main.section>.wrap.
+ await page.setViewportSize({width:1520,height:950});
+ for(const [mainClass,wrapper] of [
+  ['gu-premium-home','<section class="gu-home-stage"><div class="wrap" id="shell"></div></section>'],
+  ['gu-commons-page','<div class="wrap" id="shell"></div>'],
+  ['section gu-redesign-store','<div class="gu-store-ad-shell" id="shell"></div>'],
+  ['section gu-redesign-academy','<div class="gu-learning-ad-layout" id="shell"></div>'],
+  ['section gu-skills-page','<div class="gu-learning-ad-layout" id="shell"></div>']
+ ]){
+  await page.setContent('<html><body data-cl-workspace="classic"><main class="'+mainClass+'">'+wrapper+'</main></body></html>');
+  await page.addStyleTag({content:'.wrap,.gu-store-ad-shell,.gu-learning-ad-layout{width:100%;max-width:980px;margin:auto}'});
+  await page.addStyleTag({content:css});
+  await page.evaluate(()=>document.body.dataset.clWorkspace='continuous');
+  const width=await page.locator('#shell').evaluate(e=>e.getBoundingClientRect().width);
+  assert(width>1350,'Full-page mode must cover specialized '+mainClass+' shell, got '+width);
+ }
+ console.log('PASS full-page content width, specialized page shells, compact cards, responsive viewport and Classic restoration');
 }finally{await browser.close()}
