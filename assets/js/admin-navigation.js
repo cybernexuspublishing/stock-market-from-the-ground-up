@@ -185,14 +185,15 @@ function ensureOverview(){
  const grid=document.createElement('div');grid.className='cc-shortcuts-grid';
  for(const [name,target] of items){const b=document.createElement('button');b.type='button';b.className='btn secondary';b.textContent=name;b.addEventListener('click',()=>navigateTo(target));grid.append(b)}section.append(grid);panel.append(section);
 }
+function adminContext(){return typeof ADMIN!=='undefined'?ADMIN.ctx:window.ADMIN?.ctx;}
 function ensureTopbar(){
  const main=$('.admin-main');if(!main)return;let bar=$('#cc-admin-topbar');
  if(!bar){bar=document.createElement('div');bar.id='cc-admin-topbar';bar.className='cc-admin-topbar';bar.innerHTML='<div class="cc-topbar-search"></div><div class="cc-topbar-status"><span id="cc-env-status">Pre-live</span><span id="cc-role-status">STAFF</span><a href="/index.html">Return to site</a></div>';main.insertBefore(bar,main.firstChild);}
  const search=$('.gu33-global-search',main);if(search&&!bar.contains(search))$('.cc-topbar-search',bar).append(search);
- const roles=window.ADMIN?.ctx?.roles||[];$('#cc-role-status',bar).textContent=roles.includes('SHOWCASE_VIEWER')?'SHOWCASE':roles.includes('OWNER')?'OWNER':'STAFF';
+ const roles=adminContext()?.roles||[];$('#cc-role-status',bar).textContent=roles.includes('SHOWCASE_VIEWER')?'SHOWCASE':roles.includes('OWNER')?'OWNER':'STAFF';
 }
 function ensureShowcase(){
- const showcase=(window.ADMIN?.ctx?.roles||[]).includes('SHOWCASE_VIEWER');
+ const showcase=(adminContext()?.roles||[]).includes('SHOWCASE_VIEWER');
  document.body.classList.toggle('cc-showcase',showcase);if(!showcase)return;
  let banner=$('#cc-showcase-banner');if(!banner){banner=document.createElement('p');banner.id='cc-showcase-banner';banner.setAttribute('role','status');banner.textContent='DEMO: fictional data, read-only. Nothing here changes the real site.';$('.admin-main')?.prepend(banner);}
  for(const group of $('.cc-admin-group',nav()))if(['Support & Operations','Security & Governance'].includes(group.dataset.ccNavGroup))group.hidden=true;
