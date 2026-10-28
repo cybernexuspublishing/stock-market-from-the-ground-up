@@ -24,7 +24,7 @@
       FOUNDER_ALLOWED=STAFF_READ||(!error&&eligible===true);
       if(FOUNDER_ALLOWED){
         const nav=document.getElementById('v134-commons-member-nav');
-        if(nav&&!nav.querySelector('[data-founders-commons-link]')){
+        if(nav&&!nav.querySelector('[data-founders-commons-link], a[href="founders-commons.html"]')){
           const a=document.createElement('a');
           a.href='founders-commons.html';a.textContent='Founders Commons';
           a.setAttribute('data-founders-commons-link','true');nav.append(a);

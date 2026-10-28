@@ -53,6 +53,7 @@ try{
   await page.route('**/assets/js/session-manager.js',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
   await page.goto(base+'/founders-commons.html',{waitUntil:'domcontentloaded',timeout:30000});
   await page.locator('#gu-f600-status').waitFor({state:'visible',timeout:30000});
+  assert.equal(await page.locator('#v134-commons-member-nav a[href="founders-commons.html"]').count(),1,'Founders navigation link must never duplicate');
   if(mode==='denied'){
     await page.locator('#gu-f600-access').waitFor({state:'visible'});
     assert.equal(await page.locator('#gu-f600-content').isVisible(),false,'No founder content for ordinary member');
