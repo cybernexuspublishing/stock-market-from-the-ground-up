@@ -29,5 +29,5 @@ assert(existsSync('assets/avatars/av-n6.webp'));
 const about=readFileSync('about.html','utf8');
 assert.match(about,/Tiingo market-data account/);
 assert.match(about,/Alpaca market-data account \(IEX coverage\)/);
-assert.match(about,/not the full consolidated U.S. market/);
+assert.match(about,/(?:not the full consolidated|must not be described as the full consolidated) U.S. market/);
 console.log('PASS Oct 28 roadmap audit, accurate dashboard release counts, saved avatar layout, scoped provider copy and preserved Owner status boundaries');
