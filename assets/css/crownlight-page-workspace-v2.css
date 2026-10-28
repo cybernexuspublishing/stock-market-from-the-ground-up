@@ -1,0 +1,29 @@
+/* Page-wide continuous workspace: conservative presentation-only adjustments.
+ * Excludes administrative, authentication, checkout and payment pages.
+ */
+body[data-cl-workspace="continuous"] main.section{padding-block:12px 24px}
+body[data-cl-workspace="continuous"] main.section>.wrap{
+ width:calc(100% - 28px);max-width:1700px;margin-inline:auto
+}
+body[data-cl-workspace="continuous"] .site-header .wrap{max-width:1700px}
+body[data-cl-workspace="continuous"] main.section>.wrap>h1{
+ font-size:clamp(1.55rem,2.3vw,2.3rem);line-height:1.18;margin-block:5px 10px
+}
+body[data-cl-workspace="continuous"] main.section .journal-card,
+body[data-cl-workspace="continuous"] main.section .learning-card,
+body[data-cl-workspace="continuous"] main.section .dashboard-card{
+ border-radius:8px;box-shadow:none
+}
+body[data-cl-workspace="continuous"] main.section .journal-section{margin-block:10px}
+body[data-cl-workspace="continuous"] main.section .journal-subtitle{margin-block:6px 12px}
+.cl-page-workspace-notice{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ width:min(calc(100% - 28px),1700px);margin:8px auto;padding:8px 12px;
+ border:1px solid #397187;border-radius:7px;background:#102a3d;
+ color:#b9e2ed;font-size:.79rem
+}
+.cl-page-workspace-notice a{color:#9feaff}
+@media(max-width:850px){
+ body[data-cl-workspace="continuous"] main.section>.wrap{width:calc(100% - 20px)}
+ body[data-cl-workspace="continuous"] main.section{padding-block:10px}
+}

@@ -225,3 +225,6 @@ document.addEventListener('DOMContentLoaded',()=>{
  const script=document.createElement('script');script.src='/assets/js/crownlight-site-layout-editor-v1.js?v=4';
  script.defer=true;script.dataset.clSiteLayoutEditor='1';document.head.append(script);
 })();
+
+/* Shared page-layout loader; allowlisted pages only, no checkout/admin/auth routes. */
+(()=>{'use strict';const pages=new Set(["simulator.html","dashboard.html","labs.html","learn.html","market-tutor.html","journal.html","bootcamp-academy.html","my-library.html","account.html","market-commons.html","forum.html","skills.html","membership.html","store.html","index.html"]);const page=location.pathname.split('/').pop()||'index.html';if(!pages.has(page)||document.querySelector('[data-cl-page-workspace-script]'))return;const link=document.createElement('link');link.rel='stylesheet';link.href='/assets/css/crownlight-page-workspace-v2.css?v=2';document.head.append(link);if(page==='simulator.html'){const extra=document.createElement('link');extra.rel='stylesheet';extra.href='/assets/css/crownlight-continuous-workspace-v1.css?v=2';document.head.append(extra)}const script=document.createElement('script');script.defer=true;script.dataset.clPageWorkspaceScript='1';script.src='/assets/js/crownlight-continuous-workspace-v1.js?v=2';document.head.append(script)})();

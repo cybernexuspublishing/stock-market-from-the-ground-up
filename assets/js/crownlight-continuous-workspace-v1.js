@@ -1,54 +1,41 @@
-/* Continuously arranged Simulator preview.
- * The backend decides visibility; ?workspace=continuous is only honored for
- * signed-in OWNER when sitewide rollout is disabled.
- */
-(()=>{
- 'use strict';
- const modeEndpoint='/api/chart-studio-presentation';
- const content=document.getElementById('sim-content');
- if(!content)return;
+/* Sitewide page-mode selector; server enforces published pages and Owner preview. */
+(()=>{'use strict';
+ const page=location.pathname.split('/').pop()||'index.html';
+ const desired=new URLSearchParams(location.search).get('workspace');
  async function init(){
   try{
-   const sb=await window.getSupabaseClient();
-   const {data}=await sb.auth.getSession();
-   if(!data?.session?.access_token)return;
-   const requested=new URLSearchParams(location.search).get('workspace');
-   const url=modeEndpoint+(requested?'?workspace='+encodeURIComponent(requested):'');
-   const r=await fetch(url,{headers:{authorization:'Bearer '+data.session.access_token},cache:'no-store'});
-   if(!r.ok)return;
-   const j=await r.json();
-   if(j.ok!==true||!['classic','continuous'].includes(j.mode))return;
-   document.body.dataset.clWorkspace=j.mode;
-   if(j.mode==='continuous'){
-    const info=document.createElement('div');info.className='cl-workbench-preview-strip';
-    info.setAttribute('role','status');
-    const label=document.createElement('span');
-    label.textContent=j.preview?
-     'OWNER PREVIEW · Continuous Trading Workspace · Customer layout remains unchanged':
-     'Continuous Trading Workspace · Chart, replay and trade planning in one desk';
-    info.append(label);
-    if(j.ownerPreview){
-     const link=document.createElement('a');
-     link.href='simulator.html?workspace=classic';
-     link.textContent='Compare classic layout';
-     info.append(link);
-    }
-    // Keep the Owner-preview notice outside the live workbench DOM; the
-    // Source > Chart > Trade ordering observer must not reposition it.
-    content.before(info);
-   }else if(j.ownerPreview){
-    const toolbar=document.getElementById('cl-chart-visibility-toolbar');
-    if(toolbar&&!toolbar.querySelector('.cl-owner-preview-link')){
-     const link=document.createElement('a');
-     link.className='cl-owner-preview-link';
-     link.href='simulator.html?workspace=continuous';
-     link.textContent='Preview continuous workspace';
-     link.style.cssText='color:#9bdfff;font-size:.8rem;white-space:nowrap';
-     toolbar.append(link);
-    }
+   let token=null;
+   if(typeof window.getSupabaseClient==='function'){
+    try{const sb=await window.getSupabaseClient();token=(await sb.auth.getSession()).data?.session?.access_token||null}catch{}
+   }
+   const q=new URLSearchParams({page});if(desired)q.set('workspace',desired);
+   const r=await fetch('/api/page-workspace-presentation?'+q.toString(),{
+    headers:token?{authorization:'Bearer '+token}:{},cache:'no-store'});
+   if(!r.ok)throw Error('No verified layout');
+   const result=await r.json();
+   if(result.ok!==true||!['classic','continuous'].includes(result.mode))throw Error('Invalid mode');
+   document.body.dataset.clWorkspace=result.mode;
+   document.body.dataset.clWorkspacePage=page;
+   document.querySelectorAll('.cl-page-workspace-notice').forEach(x=>x.remove());
+   if(result.ownerPreview){
+    const box=document.createElement('div');box.className='cl-page-workspace-notice';
+    box.setAttribute('role','status');
+    const span=document.createElement('span');
+    span.textContent=result.mode==='continuous'?
+      (result.preview?'OWNER PREVIEW · Continuous full-page workspace · Customer layout unchanged':'Continuous full-page workspace · Owner comparison'):
+      'Classic full-page layout';
+    const link=document.createElement('a'),next=new URL(location.href);
+    next.searchParams.set('workspace',result.mode==='continuous'?'classic':'continuous');
+    link.href=next.pathname+next.search+next.hash;
+    link.textContent=result.mode==='continuous'?'Compare classic':'Preview continuous workspace';
+    box.append(span,link);document.querySelector('main')?.before(box);
    }
    requestAnimationFrame(()=>dispatchEvent(new Event('resize')));
-  }catch(err){console.warn('Crownlight presentation remains Classic:',err?.message||'configuration unavailable')}
+  }catch{
+   document.body.dataset.clWorkspace='classic';
+   document.querySelectorAll('.cl-page-workspace-notice').forEach(x=>x.remove());
+  }
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else void init();
 })();
