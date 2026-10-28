@@ -36,7 +36,7 @@ export async function onRequest({request,env}){
  if(!pageRe.test(page))return reply({ok:false,error:'Invalid page layout key.'},400);
  try{
   if(request.method==='GET'){
-   const rows=await rest(env,'gu_site_card_layout_v1?select=card_key,width_pct,min_height_px,sort_index&page_key=eq.'+
+   const rows=await rest(env,'gu_site_card_layout_v1?select=card_key,width_pct,min_height_px,sort_index,offset_x_px,offset_y_px&page_key=eq.'+
     encodeURIComponent(page)+'&order=card_key.asc&limit=300');
    let canEdit=false;
    if(request.headers.has('authorization'))canEdit=Boolean(await editor(env,request).catch(()=>null));
@@ -54,13 +54,14 @@ export async function onRequest({request,env}){
    await rest(env,path,{method:'DELETE',headers:{prefer:'return=minimal'}});
    return reply({ok:true,cardKey:card,reset:true});
   }
-  if(Object.keys(body).some(k=>!['cardKey','widthPct','minHeightPx','sortIndex'].includes(k)))
+  if(Object.keys(body).some(k=>!['cardKey','widthPct','minHeightPx','sortIndex','offsetXPx','offsetYPx'].includes(k)))
    return reply({ok:false,error:'Unsupported card layout field.'},400);
   const nullable=(v,min,max)=>v===null||v===undefined?null:Number.isInteger(v)&&v>=min&&v<=max?v:NaN;
   const width=nullable(body.widthPct,30,100),height=nullable(body.minHeightPx,80,1200),order=nullable(body.sortIndex,0,300);
-  if([width,height,order].some(x=>Number.isNaN(x)))return reply({ok:false,error:'Layout dimensions outside permitted limits.'},400);
+  const moveX=nullable(body.offsetXPx,-280,280),moveY=nullable(body.offsetYPx,-280,280);
+  if([width,height,order,moveX,moveY].some(x=>Number.isNaN(x)))return reply({ok:false,error:'Layout dimensions outside permitted limits.'},400);
   const payload={page_key:page,card_key:card,width_pct:width,min_height_px:height,
-   sort_index:order,updated_by:userId,updated_at:new Date().toISOString()};
+   sort_index:order,offset_x_px:moveX,offset_y_px:moveY,updated_by:userId,updated_at:new Date().toISOString()};
   await rest(env,'gu_site_card_layout_v1?on_conflict=page_key,card_key',{method:'POST',
    headers:{'content-type':'application/json',prefer:'resolution=merge-duplicates,return=minimal'},
    body:JSON.stringify(payload)});
