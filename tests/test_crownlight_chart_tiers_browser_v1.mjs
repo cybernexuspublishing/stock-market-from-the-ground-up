@@ -75,10 +75,13 @@ if(tier==='PROFESSIONAL'){
 await page.locator('[data-cl-save]').click();
 await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
 if(tier==='PROFESSIONAL'){
+ await page.locator('[data-cl-studies]').fill('EMA, RSI');
  await page.evaluate(()=>window.__qaSignOut());
  await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().verified===false);
  assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Sign out must scrub the private Professional workspace');
  assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().charts),0);
+ assert.equal(await page.locator('[data-cl-studies]').inputValue(),'','User switch must scrub saved study labels');
+ assert.equal(await page.locator('.cl-talia-facts').locator('p').count(),0,'User switch must scrub previous chart readings');
 }
 assert.deepEqual(errors,[]);console.log('PASS '+tier+' real Chromium '+expected+' KLine charts and revealed candle updates');
 }finally{await context.close()}}
