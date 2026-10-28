@@ -10,7 +10,7 @@ const names={STANDARD:'Standard · Lightweight Charts',ADVANCED:'Advanced · KLi
  PROFESSIONAL:'Professional · Multi-chart KLineChart'};
 const state={allowed:['STANDARD'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
  timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null,
- accessExpiry:null,accessKind:null,accessTier:null,expireRechecked:false,sparksAvailable:false};
+ accessExpiry:null,accessKind:null,accessTier:null,expireRechecked:false,sparksAvailable:false,sparkOffers:[],sparkBalance:null,sparkLoadError:'',sparkLoading:false};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
 const status=t=>{if(state.notice)state.notice.textContent=t};
 const price=(n)=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
@@ -99,6 +99,62 @@ function updateCountdown(){
   void permission();
  }
 }
+
+async function sparksToken(){
+ const client=await window.getSupabaseClient();
+ const session=(await client.auth.getSession()).data?.session;
+ if(!session?.access_token)throw Error('Sign in to redeem Crownlight Sparks.');
+ return session.access_token;
+}
+async function loadSparkOffers(){
+ if(state.sparkLoading)return;
+ state.sparkLoading=true;state.sparkLoadError='';
+ try{
+  const token=await sparksToken(),headers={authorization:'Bearer '+token};
+  const [offersResponse,walletResponse]=await Promise.all([
+   fetch('/api/member-sparks-chart',{headers,cache:'no-store',credentials:'same-origin'}),
+   fetch('/api/member-sparks-wallet',{headers,cache:'no-store',credentials:'same-origin'})
+  ]);
+  if(!offersResponse.ok||!walletResponse.ok)throw Error('Offer or wallet verification unavailable.');
+  const catalog=await offersResponse.json(),wallet=await walletResponse.json();
+  if(catalog.ok!==true||wallet.ok!==true||!Number.isSafeInteger(wallet.wallet?.available))
+   throw Error('Price or Spark balance cannot be verified.');
+  state.sparkOffers=(catalog.offers||[]).filter(o=>['ADVANCED','PROFESSIONAL'].includes(o.tier)&&
+    Number.isSafeInteger(o.costSparks)&&o.costSparks>0&&
+    Number.isSafeInteger(o.durationHours)&&o.durationHours>0);
+  state.sparkBalance=wallet.wallet.available;
+ }catch(error){state.sparkLoadError=String(error.message||error);state.sparkOffers=[];state.sparkBalance=null;}
+ finally{state.sparkLoading=false;explainLockedTier()}
+}
+async function redeemSparkOffer(offer,button,feedback){
+ if(!state.verified||state.allowed.includes(offer.tier))return;
+ if(!Number.isSafeInteger(state.sparkBalance)||state.sparkBalance<offer.costSparks){
+  feedback.textContent='Insufficient Crownlight Sparks. No credits were deducted.';return
+ }
+ if(!window.confirm('Redeem '+offer.costSparks+' Crownlight Sparks for '+offer.label+
+  '? This activates a temporary Chart Studio pass. Existing active pass time is extended.'))return;
+ button.disabled=true;feedback.textContent='Verifying wallet and redeeming…';
+ try{
+  const token=await sparksToken();
+  const result=await fetch('/api/member-sparks-chart',{
+   method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+   credentials:'same-origin',cache:'no-store',
+   body:JSON.stringify({sku:offer.sku,requestId:crypto.randomUUID(),expectedCost:offer.costSparks})
+  });
+  const data=await result.json().catch(()=>({}));
+  if(!result.ok||data.ok!==true)throw Error(data.error||'Redemption not confirmed.');
+  feedback.textContent='Pass activated until '+new Date(data.expiresAt).toLocaleString()+'.';
+  await permission();
+  await loadSparkOffers();
+  if(state.allowed.includes(offer.tier))void choose(offer.tier);
+ }catch(error){
+  feedback.textContent='No confirmed redemption: '+String(error.message||error)+
+   '. Check your wallet before retrying.';
+  button.disabled=false;
+  if(/PRICE_CHANGED/.test(feedback.textContent))void loadSparkOffers();
+ }
+}
+
 function explainLockedTier(){
  const host=state.view?.querySelector('[data-cl-tier-access-details]');
  if(!host)return;
@@ -117,12 +173,31 @@ function explainLockedTier(){
  }
  if(!locked)host.append(el('p','','Your account can use all three Chart Studios. No additional membership is required.'));
  const spark=el('p','cl-chart-tier-sparks-explanation',
-  state.sparksAvailable
-   ?'Temporary Studio Sparks passes are available only when an eligible server-priced offer is displayed.'
-   :'Temporary Studio Sparks passes are planned but not yet priced or available for redemption. No Sparks will be deducted.');
+  state.sparkLoading?'Checking current Sparks prices and member balance…':
+  state.sparkLoadError?'Sparks options temporarily unavailable: '+state.sparkLoadError:
+  state.sparkBalance!==null?'Verified wallet balance: '+state.sparkBalance+' Sparks.':
+  'Open this panel to view current Sparks pass prices and available wallet balance.');
+ host.append(spark);
+ if(state.sparksAvailable&&state.sparkOffers.length){
+  const prices=el('div','cl-chart-sparks-prices');
+  for(const offer of state.sparkOffers){
+   if(state.allowed.includes(offer.tier))continue;
+   const row=el('div','cl-chart-sparks-pass');
+   row.append(el('strong','',offer.label),el('span','',offer.costSparks+' Sparks'));
+   const action=el('button','btn secondary','Redeem '+offer.costSparks+' Sparks');
+   action.type='button';action.disabled=state.sparkBalance===null||state.sparkBalance<offer.costSparks;
+   action.title=action.disabled?'Insufficient Sparks or wallet unavailable.':'Redeem a temporary Chart Studio pass';
+   const feedback=el('span','cl-chart-sparks-feedback');feedback.setAttribute('role','status');
+   action.onclick=()=>void redeemSparkOffer(offer,action,feedback);
+   row.append(action,feedback);prices.append(row);
+  }
+  host.append(prices);
+ }
+ const refresh=el('button','btn secondary','Refresh Sparks offers');
+ refresh.type='button';refresh.onclick=()=>void loadSparkOffers();
  const shop=el('a','cl-chart-tier-sparks-link','Review Crownlight Sparks');
  shop.href='/store-sparks.html';
- host.append(spark,shop);
+ host.append(refresh,shop);
 }
 function renderChoices(){
  if(!state.view)return;
@@ -223,7 +298,7 @@ function createControls(){
  detailsButton.onclick=()=>{
   popup.hidden=!popup.hidden;
   detailsButton.setAttribute('aria-expanded',String(!popup.hidden));
-  if(!popup.hidden)popup.querySelector('a')?.focus();
+  if(!popup.hidden){popup.querySelector('a')?.focus();void loadSparkOffers();}
  };
  panel.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden){
   popup.hidden=true;detailsButton.setAttribute('aria-expanded','false');detailsButton.focus();
@@ -293,6 +368,7 @@ async function init(){
     const differentUser=!!session?.user?.id&&!!state.authUserId&&session.user.id!==state.authUserId;
     if(event==='SIGNED_OUT'||differentUser){
      state.version++;state.bars=[];state.selected='STANDARD';state.autoStarted=false;
+   state.sparkOffers=[];state.sparkBalance=null;state.sparkLoadError='';
    state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
      state.authUserId=null;stopCharts();
     }
