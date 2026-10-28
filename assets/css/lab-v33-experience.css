@@ -912,3 +912,82 @@ body.gu-lab-member #gu-v32-teaching-slot .gu-v36-price-reference .gu-v36-referen
  #gu-v32-teaching-slot .gu-v38-prerequisite-guidance,
  #gu-v32-teaching-slot .gu-v38-delayed-recall{padding:14px}
 }
+
+
+/* v3.9 — 100%-zoom desktop density and legible selected-candle OHLCV.
+ * Keep the approved Guided/Talia teaching sequence and chart data unchanged.
+ * The embedded player and standalone Lab share one responsive layout. */
+@media (min-width:1180px) {
+ html:not(.gu-lab-embedded) body.gu-lab-member>#app>.shell,
+ html:not(.gu-lab-embedded) body.gu-lab-member>#app>.gu-lab-breadcrumb,
+ html.gu-lab-embedded body.gu-lab-member>#app>.shell {
+  max-width:1560px!important;
+  margin-inline:auto!important;
+ }
+}
+body.gu-lab-member #player-reference-select {
+ width:clamp(240px,32vw,485px);
+ max-width:100%;
+ min-height:42px;
+ font-size:.88rem;
+ text-overflow:ellipsis;
+}
+body.gu-lab-member #player-mode-restart-row {
+ align-items:center;flex-wrap:wrap;gap:10px;
+}
+body.gu-lab-member #player-mode-restart-row .small {
+ max-width:72ch;line-height:1.45;
+}
+body.gu-lab-member #player-restart-mode:disabled {
+ opacity:.4!important;
+ background:#25313b!important;
+ color:#afbac5!important;
+ border-color:#58616c!important;
+ cursor:not-allowed!important;
+ filter:grayscale(1);
+}
+@container (max-width:1020px) {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-chart-reference-layout {
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:9px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-chart-reference {
+  display:block!important;width:100%;min-width:0;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-reference-values {
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:5px 13px;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-reference-row {
+  display:flex!important;min-width:0!important;
+  gap:8px;align-items:baseline;justify-content:space-between;
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-reference-row :is(dt,dd) {
+  display:inline!important;min-width:0!important;
+  white-space:nowrap!important;word-break:normal!important;
+  overflow-wrap:normal!important;overflow:visible!important;
+  font-variant-numeric:tabular-nums;
+ }
+}
+@container (max-width:560px) {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-reference-values {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@container (max-width:370px) {
+ :is(body.gu-lab-member,body.gu-bc-learning) #gu-v32-teaching-slot
+  .gu-v34-unified-lesson .gu-l33-reference-values {
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+@media(max-width:680px){
+ body.gu-lab-member #player-reference-select{width:100%}
+ body.gu-lab-member .prototype-bar .optionrow>label{width:100%}
+}
