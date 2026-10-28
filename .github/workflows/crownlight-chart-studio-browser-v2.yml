@@ -5,6 +5,13 @@ on:
     branches: [main]
     paths:
       - 'assets/js/crownlight-chart-studio-v2.js'
+      - 'assets/js/crownlight-live-aggregator-v1.js'
+      - 'assets/js/crownlight-live-formation-v1.js'
+      - 'assets/css/crownlight-live-formation-v1.css'
+      - 'functions/api/live-market-stream.js'
+      - 'functions/api/live-market-ticket.js'
+      - 'functions/_lib/crownlight-live-auth-v1.js'
+      - 'tests/test_crownlight_live_formation_v1.mjs'
       - 'assets/js/crownlight-indicator-math-v2.js'
       - 'assets/css/crownlight-chart-studio-v2.css'
       - 'tests/test_crownlight_chart_browser_v2.mjs'
@@ -34,6 +41,10 @@ jobs:
           node --check assets/js/crownlight-chart-studio-v2.js
           node --check assets/js/crownlight-indicator-math-v2.js
           node tests/test_crownlight_chart_studio_v2.mjs
+          node tests/test_crownlight_live_formation_v1.mjs
+          node --check assets/js/crownlight-live-formation-v1.js
+          node --check functions/api/live-market-stream.js
+          node --check functions/api/live-market-ticket.js
           node tests/test_crownlight_chart_browser_v2.mjs
       - name: Preserve mobile and desktop screenshot evidence
         if: always()
