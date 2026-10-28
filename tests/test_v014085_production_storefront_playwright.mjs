@@ -6,9 +6,23 @@
 import {chromium} from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import assert from 'node:assert/strict';
-import {writeFileSync} from 'node:fs';
+import {writeFileSync,readFileSync} from 'node:fs';
 const base=(process.env.STOREFRONT_BASE||'https://stock-market-from-the-ground-up-d1r.pages.dev').replace(/\/$/,'');
 const results=[],errors=[],pageErrors=[];
+const isLocal=/^(127\\.0\\.0\\.1|localhost)$/.test(new URL(base).hostname);
+const founderCodes=['FOUNDING_30','FOUNDING_60']; // The 14-day SKU remains unpublished.
+const fiveBooks=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'];
+const founderTerms=JSON.parse(readFileSync(new URL('../data/founding600-terms-v014170.json',import.meta.url),'utf8'));
+const previewBookProducts=JSON.parse(readFileSync(new URL('../data/store-products.json',import.meta.url),'utf8'))
+ .filter(p=>fiveBooks.includes(p.productCode));
+const localPublishedItems=[
+ ...founderCodes.map(code=>({sku:'founding:'+code,category:'founding',name:founderTerms.plans[code].name,status:'listed',saleReady:false,page:'founding600.html'})),
+ ...previewBookProducts.map(p=>({sku:'book:'+p.productCode,category:'book',name:p.title,
+ description:'Educational book preview; no automatic checkout.',status:'listed',saleReady:false,page:({
+ FOUNDATION_BOOK_1:'store-book-foundation-1.html',FOUNDATION_BOOK_2:'store-book-foundation-2.html',
+ FOUNDATION_BOOK_3:'store-book-foundation-3.html',DAY_TRADING_BOOK_1:'store-book-day-trading-1.html',
+ READING_THE_TAPE:'store-book-reading-the-tape.html'})[p.productCode]}))
+];
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 async function run(name,fn){
   const row={name,status:'PASS',info:''};results.push(row);
@@ -18,6 +32,36 @@ async function run(name,fn){
 }
 async function makePage(width=1440,height=900){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'});
+ if(isLocal){
+  // Local Python static servers do not execute Cloudflare Pages Functions.
+  // These are isolated, explicitly noncommercial browser fixtures, never production substitutes.
+  await context.route('**/*',route=>{
+   const url=new URL(route.request().url());
+   if(url.origin!==base)return route.abort();
+   const path=url.pathname;
+   let body=null;
+   if(path==='/api/founding-offer-status')body={
+    ok:true,offersVisible:true,publicLaunch:false,phase:'beta',remaining:600,enrollmentEnabled:false
+   };
+   else if(path==='/api/storefront-public-catalog')body={
+    ok:true,source:'verified_storefront',items:localPublishedItems,
+    count:localPublishedItems.length,layout:{tool_columns:5,tool_rows:5,catalog_columns:5,catalog_rows:3}
+   };
+   else if(path==='/api/founding600-checkout')body={
+    ok:true,checkoutEnabled:false,offersVisible:true,plans:founderCodes.map(code=>({code,checkoutEnabled:false}))
+   };
+   else if(path==='/data/founding-catalog.json')body={
+    plans:founderTerms.plans
+   };
+   else if(path==='/api/digital-payment-route-v01432r2')body={ok:true,enabled:false,checkoutEnabled:false};
+   if(body)return route.fulfill({status:200,contentType:'application/json',
+    body:JSON.stringify(body)});
+   // Fail closed on unknown API calls. Never send simulated member data to a live service.
+   if(path.startsWith('/api/'))return route.fulfill({status:503,contentType:'application/json',
+    body:'{"ok":false,"error":"Static preview: server function unavailable"}'});
+   return route.continue();
+  });
+ }
  const page=await context.newPage();
  page.on('pageerror',e=>pageErrors.push({url:page.url(),message:e.message.slice(0,260),stack:String(e.stack||'').slice(0,1600)}));
  return {page,context};
@@ -28,22 +72,72 @@ const named=['store-membership-free.html','store-membership-full-monthly.html','
  'store-book-day-trading-1.html','store-book-reading-the-tape.html',
  'store-tool-interactive-learning.html','store-tool-journal-analytics.html','store-tool-market-simulator.html','store-tool-market-tutor.html',
  'store-membership-replay-training.html'];
-let main,ctx;
+let main,ctx,catalog=null,offerState=null,bookCodes=[],founderVisible=false,bookCount=0;
 try{
  ({page:main,context:ctx}=await makePage());
+ await run('Public catalog and Founder status contract (read-only)',async()=>{
+  const [catalogResponse,offerResponse]=await Promise.all([
+   main.request.get(base+'/api/storefront-public-catalog',{timeout:20000}),
+   main.request.get(base+'/api/founding-offer-status',{timeout:20000})
+  ]);
+  // APIRequestContext does not use page routing: localhost fixtures must be read
+  // through the browser so the same isolated route rules apply.
+  if(isLocal){
+   const responses=await main.evaluate(async()=>{
+    const [c,o]=await Promise.all([fetch('/api/storefront-public-catalog'),fetch('/api/founding-offer-status')]);
+    return {c:await c.json(),o:await o.json(),cStatus:c.status,oStatus:o.status};
+   });
+   catalog=responses.c;offerState=responses.o;
+   assert.equal(responses.cStatus,200);
+   assert.equal(responses.oStatus,200);
+  }else{
+   assert.equal(catalogResponse.status(),200,'Production public catalog API must return HTTP 200');
+   assert.equal(offerResponse.status(),200,'Production Founder status API must return HTTP 200');
+   catalog=await catalogResponse.json();offerState=await offerResponse.json();
+  }
+  assert.equal(catalog?.ok,true,'Catalog API must verify its data');
+  assert.equal(catalog?.source,'verified_storefront');
+  assert.ok(Array.isArray(catalog.items),'Catalog must include an items array');
+  assert.ok(catalog.count===undefined||catalog.count===catalog.items.length,'Catalog count integrity');
+  assert.equal(offerState?.ok,true,'Founder status must be verifiable');
+  bookCodes=catalog.items.filter(x=>x.category==='book').map(x=>String(x.sku||'').slice(5));
+  bookCount=bookCodes.filter(x=>fiveBooks.includes(x)).length;
+  founderVisible=offerState.offersVisible===true;
+  if(!founderVisible)assert.equal(catalog.items.filter(x=>x.category==='founding').length,0,
+   'Public API must not disclose unpublished Founder offers');
+  return 'Published book count='+bookCount+'; Founders visible='+founderVisible;
+ });
 
  await run('Store initializes its current Founder and educational catalog',async()=>{
    const response=await main.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:25000});
    assert.ok(response?.ok(),'Store response '+response?.status());
-   await main.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===2,{timeout:22000});
-   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:22000});
-   await main.waitForFunction(()=>document.querySelectorAll('#store-tools article.v11-tool-card').length>=4,{timeout:22000});
-   assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),2,'Only the two publicly released Founding 30-Day and 60-Day offers may appear');
-   assert.equal(await main.locator('#store-products article.product-card').count(),5,'Five book product cards required');
-   assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),await main.locator('#store-tools article.v11-tool-card').count(),'Every tool must disclose price/status');
+   if(founderVisible){
+    const expected= catalog.items.filter(x=>x.category==='founding'&&founderCodes.some(c=>x.sku==='founding:'+c)).length;
+    assert.ok(expected>0,'Founder gate open but no published Founder SKU is visible');
+    await main.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,expected,{timeout:22000});
+    assert.equal(await main.locator('#store-tab-founders').isVisible(),true);
+   }else{
+    assert.equal(await main.locator('#store-tab-founders').isVisible(),false,'Unpublished Founder tab must be hidden');
+    assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),0);
+   }
+   if(bookCount){
+    await main.waitForFunction(n=>document.querySelectorAll('#store-products article.product-card').length===n,bookCount,{timeout:22000});
+   }else{
+    await main.waitForFunction(()=>!!document.querySelector('#store-products .empty-state'),{timeout:22000});
+    assert.equal(await main.locator('#store-products article.product-card').count(),0);
+   }
+   if(!isLocal)await main.waitForFunction(()=>document.querySelectorAll('#store-tools article.v11-tool-card').length>=4,{timeout:22000});
+   assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),
+   founderVisible?catalog.items.filter(x=>x.category==='founding').length:0,
+   'Founder cards must match published public catalog and gate');
+   assert.equal(await main.locator('#store-products article.product-card').count(),bookCount,
+   'Book cards must match publicly visible catalog records');
+   if(!isLocal)assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),
+    await main.locator('#store-tools article.v11-tool-card').count(),
+    'Every released tool must disclose price/status');
    assert.equal(await main.locator('#store-tab-memberships').count(),0,'Owner-hidden legacy Membership tab must not return');
    assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired QA offer returned');
-   return '2 publicly released Founder tiers, 5 books, verified tool cards, no legacy Membership tab';
+   return 'Verified '+(founderVisible?'published Founder cards':'hidden Founder offers')+', '+bookCount+' published books, no legacy Membership tab';
  });
  await run('Six Store tabs are exclusive and preserve deep links',async()=>{
    const options=['founders','books','sparks','tools','current','upcoming'];
