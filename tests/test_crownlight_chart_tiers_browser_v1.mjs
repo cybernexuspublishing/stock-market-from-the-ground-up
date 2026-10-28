@@ -8,7 +8,7 @@ const kline=join(root,'node_modules/klinecharts/dist/umd/klinecharts.min.js');
 assert(existsSync(kline),'Pinned real KLineChart must be installed');
 const origin='https://tier-fixture.test';
 const html=['<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">',
-'<link rel="stylesheet" href="/assets/css/crownlight-chart-tiers-v1.css"><link rel="stylesheet" href="/assets/css/crownlight-chart-v2-experience.css">',
+'<link rel="stylesheet" href="/assets/css/simulator.css"><link rel="stylesheet" href="/assets/css/crownlight-chart-tiers-v1.css"><link rel="stylesheet" href="/assets/css/crownlight-chart-v2-experience.css">',
 '<script defer src="/assets/js/crownlight-indicator-math-v2.js"></script><script defer src="/assets/js/crownlight-chart-tutor-v1.js"></script>',
 '<script defer src="/assets/js/crownlight-chart-tiers-v1.js"></script><script defer src="/assets/js/crownlight-workspace-v2.js"></script><script defer src="/assets/js/crownlight-talia-lab-v2.js"></script></head><body>',
 '<section class="sim-chart-panel"><div class="crownlight-shell"><div class="crownlight-plot">Standard chart</div></div></section></body></html>'].join('');
@@ -50,6 +50,13 @@ await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',
 if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
 assert.equal(await page.locator('.cl-tier-kline-canvas').count(),expected);
+assert.equal(await page.locator('.crownlight-shell').isVisible(),false,'Enhanced Studio must not display duplicate Standard chart/player');
+const canvasStyles=await page.locator('.cl-tier-kline-canvas canvas').first().evaluate(c=>{
+ const s=getComputedStyle(c);return {border:s.borderTopWidth,marginTop:s.marginTop,maxHeight:s.maxHeight}
+});
+assert.equal(canvasStyles.border,'0px','Library canvas must not inherit legacy Simulator borders');
+assert.equal(canvasStyles.marginTop,'0px','Library canvases must not be displaced by legacy margin');
+assert.equal(canvasStyles.maxHeight,'none','Library canvas must preserve its internal height');
 assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'KLineChart must render real canvas');
 // A canvas alone is not proof of readable price candles: a flood of indicator
 // panes previously collapsed the candle pane to almost zero height.
@@ -114,6 +121,11 @@ if(tier==='ADVANCED'){
    width:entry.host.getBoundingClientRect().width,height:entry.host.getBoundingClientRect().height}};
  });
  console.log('CROWNLIGHT_REAL_CANDLE_PIXEL_PROBE '+JSON.stringify(probe));
+ const candleColors=probe.canvas.reduce((sum,layer)=>sum+(layer.bull||0)+(layer.bear||0),0);
+ assert(candleColors>25,'Tiingo-like 21-candle chart must draw colored bodies/wicks, not just legends: '+JSON.stringify(probe));
+ const last=probe.locations.at(-1)?.pt;
+ assert(last&&Number.isFinite(last.x)&&Number.isFinite(last.y),
+  'Latest revealed candle must map to visible chart coordinates');
 }
 await page.locator('.cl-talia-toggle').click();
 assert.match(await page.locator('.cl-talia-facts').innerText(),/EMA 9|VWAP/i);

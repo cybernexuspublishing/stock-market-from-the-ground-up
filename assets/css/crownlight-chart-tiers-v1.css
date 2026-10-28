@@ -14,8 +14,15 @@
 .cl-chart-tier-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 .cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:repeat(2,minmax(0,1fr))}
 .cl-tier-kline-canvas{min-width:0;width:100%;height:440px;border-radius:11px;background:#091727;border:1px solid #345a83;overflow:hidden}
-.cl-tier-enhanced .crownlight-shell .crownlight-plot{display:none}
-.cl-tier-enhanced .crownlight-shell .crownlight-toolbar{border-bottom:1px solid #375476}
+/* A Studio is one selected player, never a second stacked viewer.
+ * Keep Standard alive for replay state, but hide it while Enhanced is selected. */
+.cl-tier-enhanced .sim-chart-panel > .crownlight-shell{display:none!important}
+.cl-chart-tier-switcher .cl-tier-kline-canvas canvas{
+  /* KLineChart owns its layered canvas geometry. Never inherit the legacy
+     Simulator fallback-canvas width/height/margins/border rules. */
+  margin:0!important;border:0!important;border-radius:0!important;
+  max-height:none!important;background:transparent!important;
+}
 @media(max-width:1000px){.cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.cl-chart-tier-bar{align-items:stretch}.cl-chart-tier-bar label{width:100%}.cl-tier-kline-canvas{height:350px}.cl-chart-tier-switcher{padding:10px}.cl-chart-tier-tools{align-items:stretch}}
 
