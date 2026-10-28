@@ -8,7 +8,20 @@ test('approved tiers, capacity and no charge',()=>{assert.equal(c.capacity,600);
 test('store, Admin and server gate use 15 percent',()=>{assert.match(read('founding600.html'),/15% eligible purchase discount/);
  assert.doesNotMatch(read('founding600.html'),/20%/);
  assert.match(read('functions/api/admin-prelive-v014247.js'),/plan60\?\.purchase_discount_bps===1500/);
- assert.match(read('functions/api/stripe-live-checkout-v01458.js'),/\[0,1000,1500\]/)});
+ assert.match(read('functions/api/stripe-live-checkout-v01458.js'),/\[0,500,1000,1500\]/)});
+test('Starter 5 percent is active-term only, with no premature discounted Checkout',()=>{
+ const sql=read('supabase/migrations/20261028_f600_starter_5pct_discount_guard.sql');
+ assert.match(sql,/plan_code='FOUNDING_14'/);
+ assert.match(sql,/WHEN starter_active THEN 500/);
+ assert.match(sql,/plan_code='FOUNDING_60'/);
+ assert.match(sql,/THEN 1500/);
+ assert.match(sql,/plan_code='FOUNDING_30'/);
+ assert.match(sql,/THEN 1000/);
+ assert.match(sql,/c\.reversed_at IS NULL/);
+ const checkout=read('functions/api/stripe-live-checkout-v01458.js');
+ assert.match(checkout,/\[0,500,1000,1500\]/);
+ assert.match(checkout,/Your earned Founder discount is not yet supported by this checkout/);
+});
 test('both migrations guard launch and update discount function',()=>{
  for(const [p,bps] of [['supabase/migrations/v0.14.0.274_founding600_15pct_contract_gate2.sql',1500],
  ['supabase/rollbacks/v0.14.0.274_founding600_15pct_contract_gate2_ROLLBACK.sql',2000]]){
