@@ -228,6 +228,19 @@ function makeView(id,type){
 // price candles out when saved studies are restored (reported by Owner).
 const CANDLE_STUDIES=new Set(['BBI','BOLL','EMA','MA','SAR','SMA']);
 const VALID_STUDIES=new Set(['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL']);
+// Align outer heights when Professional charts are displayed side by side.
+// Preserve per-chart natural heights when stacked or on small screens.
+function balancePanels(){
+ const charts=state.charts;
+ if(!charts.length)return;
+ const together=state.selected==='PROFESSIONAL'&&charts.length===2&&
+  state.view?.dataset.clLayout!=='STACKED'&&window.matchMedia('(min-width: 1001px)').matches;
+ const equal=together?Math.max(...charts.map(e=>e.naturalHeight||460)):null;
+ for(const e of charts){
+  const h=(equal||e.naturalHeight||460)+'px';
+  if(e.host.style.height!==h){e.host.style.height=h;e.chart.resize?.();}
+ }
+}
 function fitStudyPanes(entry){
  const indicators=entry.chart.getIndicators?.()||[];
  const separate=[...new Set(indicators.filter(i=>i?.paneId!=='candle_pane'&&!CANDLE_STUDIES.has(i?.name))
@@ -235,12 +248,14 @@ function fitStudyPanes(entry){
  // Every oscillator gets room below a reserved, readable price chart.
  // Expand its host instead of packing 3-8 studies into a fixed 440px.
  const height=Math.max(460,330+125*separate.length);
+ entry.naturalHeight=height;
  if(entry.host)entry.host.style.height=height+'px';
  entry.chart.resize?.();
  entry.chart.setPaneOptions?.({id:'candle_pane',height:270,minHeight:220,dragEnabled:true});
  for(const paneId of separate.filter(id=>!VALID_STUDIES.has(id)))
   entry.chart.setPaneOptions?.({id:paneId,height:110,minHeight:75,dragEnabled:true});
  entry.chart.resize?.();
+ balancePanels();
 }
 function addStudyToChart(entry,name){
  if(!VALID_STUDIES.has(name))return false;
@@ -257,6 +272,7 @@ function addStudy(name){
  if(!VALID_STUDIES.has(name))return false;
  let added=false;
  for(const entry of state.charts)added=addStudyToChart(entry,name)||added;
+ balancePanels();
  return added;
 }
 function removeStudy(name){
@@ -266,12 +282,14 @@ function removeStudy(name){
   removed=entry.chart.removeIndicator({name})||removed;
   fitStudyPanes(entry);
  }
+ balancePanels();
  return removed;
 }
 function initOne(id,type){
  const host=document.getElementById(id);
  const chart=window.klinecharts?.init?.(host,{styles:'dark',layout:{pane:{height:110,minHeight:75,dragEnabled:true}}});
  if(!chart)throw Error('KLineChart could not initialize');
+ chart.setStyles({candle:{tooltip:{showRule:'follow_cross'}},indicator:{tooltip:{showRule:'follow_cross'}}});
  const entry={id,chart,host};
  chart.setSymbol({ticker:state.symbol||'REPLAY',pricePrecision:4,volumePrecision:0});
  chart.setPeriod(period());
@@ -313,6 +331,7 @@ async function choose(tier){
   if(tier==='PROFESSIONAL')makeView('cl-tier-secondary','Indicator study');
   state.charts.push(initOne('cl-tier-primary','primary'));
   if(tier==='PROFESSIONAL')state.charts.push(initOne('cl-tier-secondary','analysis'));
+  balancePanels();
   window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));
   status(state.bars.length?
    tier+' chart: '+state.bars.length+' revealed candles. All future candles remain hidden.':
@@ -405,6 +424,7 @@ window.addEventListener('crownlight:revealed-bars',e=>{
   status(state.selected+': '+state.bars.length+' revealed candles. No future bars provided.');
  }
 });
+window.addEventListener('resize',balancePanels);
 async function init(){
  if(!createControls())return;
  window.setInterval(updateCountdown,1000);
@@ -431,6 +451,6 @@ window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],revealed:state.bars.length,
  verified:state.verified,charts:state.charts.length,
  accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
-}),choose:t=>choose(t),addStudy,removeStudy};
+}),choose:t=>choose(t),addStudy,removeStudy,balancePanels};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init());else void init();
 })();
