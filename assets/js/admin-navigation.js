@@ -132,7 +132,8 @@ const groups=new Map();for(const el of all){const id=controlId(el);const setting
  if(!el.dataset.ccLegacyLabel)el.dataset.ccLegacyLabel=(el.textContent||'').trim();
  const approved=rule?.[1];
  // Explicit Owner edits remain authoritative, but a stock legacy label is updated.
- const customized=setting?.label&&setting.label!==el.dataset.ccLegacyLabel;
+ const historicLabels=[el.dataset.ccLegacyLabel,...(synonyms[approved]||'').split(';').map(x=>x.trim())];
+ const customized=Boolean(setting?.label&&!historicLabels.some(x=>x&&x.toLowerCase()===String(setting.label).trim().toLowerCase()));
  if(customized)el.textContent=setting.label;
  else if(approved)el.textContent=approved;
  el.dataset.ccSearchAliases=[el.dataset.ccLegacyLabel,synonyms[approved]||''].filter(Boolean).join('; ');
