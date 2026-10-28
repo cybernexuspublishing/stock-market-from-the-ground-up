@@ -168,7 +168,7 @@
     const section=name=>{const group=el('optgroup');group.label=name;picker.append(group);return group};
     const beginner=section('Free Foundations');
     for(let day=1;day<=5;day++){
-     const opt=new Option('Day '+day+' — Free beginner learning','academy:free5:'+day);beginner.append(opt);
+     const opt=new Option('Lesson '+day+' — Free Foundations','academy:free5:'+day);beginner.append(opt);
     }
     const free=section('Available free sample Labs'),availableLabs=section('Available guided Labs');
     const requiresAccess=section('Requires matching access'),unreleased=section('Not released for guided study');
