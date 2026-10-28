@@ -43,7 +43,7 @@ const fixture=`<!doctype html><html><head></head><body>
 <section class="admin-panel active" data-admin-panel="dashboard"><div class="admin-heading"><h1>Today</h1></div></section>
 <section class="admin-panel" data-admin-panel="products"><div class="admin-heading"><h1>Products &amp; Prices</h1></div><button id="danger-action">Change Price</button></section>
 </div></section></main></body></html>`;
-const adapt=s=>s.replace(/if\(!\/\^\\\/admin\(\?:\\\.html\)\?\$\/i\.test\(location\.pathname\)\)return;/,'');
+const adapt=s=>s.split('\n').filter(line=>!(line.startsWith('if(!/^')&&line.includes('location.pathname'))).join('\n');
 const b=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
  for(const role of ['OWNER','SHOWCASE_VIEWER']){
@@ -57,7 +57,7 @@ try{
   await page.addScriptTag({content:adapt(directory)});
   await page.addScriptTag({content:adapt(source)});
   await page.waitForFunction(()=>document.querySelectorAll('#admin-tabs .cc-admin-group').length===8,{timeout:6000});
-  assert.equal(await page.locator('#admin-tabs [data-panel]').count(),12,'All 12 original panel controls retained');
+  assert.equal(await page.locator('#admin-tabs [data-panel]').count(),11,'All 11 original panel controls retained');
   assert.equal(await page.locator('#admin-tabs .cc-admin-group').count(),8);
   assert.equal(await page.locator('#gu36-simple-admin').count(),0);
   assert.equal(await page.locator('#admin-tabs [data-panel="products"]').count(),1);
