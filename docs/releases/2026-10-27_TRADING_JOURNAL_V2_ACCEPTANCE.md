@@ -65,6 +65,23 @@
 **Verification:** requires exact main revision build log, CI completion and real member browser signoff; do not call this fully accepted from a GitHub commit alone.  
 **Owner decision:** Version 2.0 approved for implementation, with LIVE payments expressly excluded.
 
+## Verified V2 build evidence — October 28, 2026 UTC
+
+**Cloudflare owner account:** Yahoo Stock Market from the Ground Up (not MommaBees); **Pages project:** `stock-market-from-the-ground-up`; **production branch:** `main`; **public Pages domain:** `https://stock-market-from-the-ground-up-d1r.pages.dev`.
+
+At source commit `010975e5b5203c7b0021ccfbd7b787e7b5604a4d`, production deployment `c4958a72-215a-4710-9409-9b4cb129a60b` completed `deploy/success`. The provider build log independently contained:
+
+- `PASS Journal v1: null/flat, planned R, fee validation, MFE range, ET/DST, enum, guided UI.`
+- `PASS Journal V2: stage mapping, budget math, no-trade, date bounds, source isolation and closed-trade recalculation.`
+- `Cloudflare Pages static output: 578 files`
+- `Success: Your site was deployed!`
+
+V2 tests and syntax checks are now included in `scripts/build-pages.sh` and `.github/workflows/market-analysis-v014146.yml`. This is independent evidence of the deterministic regression run and exact-revision Cloudflare build, **not** confirmation that every GitHub Actions job has completed or that a signed-in user has passed full end-to-end testing. Later documentation-only commits and unrelated concurrent site changes require their own exact-SHA deployment matching.
+
+**Database migration:** None for V2. Original V1 evidence storage and correction history remain in place.
+
+**Unresolved acceptance:** Actual signed-in browser verification of draft, lock, edit/recalculate, review queue, two-user RLS, attachment upload/download/delete, concurrent editor, quotas and keyboard/screen-reader behavior remains open; do not certify a complete live member journey using static code assertions alone.
+
 ## Revision history
 
 | Version | Date | Description | Status |
