@@ -2,7 +2,7 @@
   "version": "2.0.0-proposed",
   "brand": "Crownlight Sparks",
   "brandIcon": "assets/img/crownlight-spark.svg",
-  "status": "owner_approved_pending_server_acceptance_checkout_disabled",
+  "status": "adfree_redemption_enabled_package_checkout_disabled",
   "creditUnit": "Spark",
   "supportPolicy": "Crownlight Sparks may be redeemed for eligible optional practice conveniences and, once released, temporary ad-free access. Core instruction and ordinary practice retries remain included. Reveals and skips never award official mastery.",
   "includedExpiryRule": "Owner approved non-expiring Sparks for V2; existing wallet ledger migration pending. Current credited balances continue to follow existing backend rules until migration is accepted.",
@@ -52,19 +52,19 @@
       "code": "ADFREE_DAY",
       "durationHours": 24,
       "costSparks": 5,
-      "redeemEnabled": false
+      "redeemEnabled": true
     },
     {
       "code": "ADFREE_WEEK",
       "durationHours": 168,
       "costSparks": 18,
-      "redeemEnabled": false
+      "redeemEnabled": true
     },
     {
       "code": "ADFREE_MONTH",
       "durationHours": 720,
       "costSparks": 50,
-      "redeemEnabled": false
+      "redeemEnabled": true
     }
   ]
 }
