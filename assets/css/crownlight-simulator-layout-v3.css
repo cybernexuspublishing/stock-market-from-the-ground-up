@@ -66,3 +66,24 @@
 .cl-paper-caution{font-size:.79rem;color:#9eb9d0;line-height:1.6}
 @media(max-width:1040px){.cl-paper-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.cl-paper-order-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:580px){.cl-paper-overview{grid-template-columns:1fr 1fr}.cl-paper-stat strong{font-size:1rem}.cl-paper-order-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cl-paper-actions button{flex:1 1 100%}}
+
+/* Compact search palette: 419 items remain in the underlying registry, not an oversized native popover. */
+.cl-lab-combobox{position:relative;min-width:0;z-index:15}
+.cl-lab-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:44px;padding:8px 12px;background:#10192e;border:1px solid #557199;border-radius:9px;color:#e9f4ff;font:inherit;text-align:left;cursor:pointer}
+.cl-lab-trigger:hover,.cl-lab-trigger:focus-visible{border-color:#a48aee;outline-offset:2px}
+.cl-lab-popover{position:absolute;top:calc(100% + 6px);right:0;min-width:min(360px,85vw);width:min(520px,88vw);max-width:calc(100vw - 30px);z-index:100;display:grid;gap:8px;padding:12px;background:linear-gradient(145deg,#151e39,#091a2e);border:1px solid #6174ad;border-radius:13px;box-shadow:0 22px 70px #000c}
+.cl-lab-popover[hidden]{display:none!important}
+.cl-lab-popover label{font-size:.75rem;color:#b5d7ef}
+.cl-lab-popover input{background:#0a1425;color:#fff;border:1px solid #4f6598;border-radius:8px;min-height:42px;padding:9px;width:100%;box-sizing:border-box}
+.cl-lab-options{max-height:232px;overflow-y:auto;overscroll-behavior:contain;display:grid;gap:3px}
+.cl-lab-option{padding:10px 12px;color:#e6eefe;border:0;background:#192844;border-radius:6px;cursor:pointer;text-align:left;font-size:.78rem;line-height:1.45}
+.cl-lab-option:hover,.cl-lab-option:focus-visible{background:#394c7f}
+.cl-lab-option:disabled{opacity:.56;cursor:not-allowed}
+.cl-lab-option-locked{color:#a8b6c9}
+.cl-lab-empty{color:#afc7df;font-size:.85rem}
+.cl-lab-help:empty{display:none}
+.cl-lab-time-range{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}
+.cl-lab-time-range label{font-size:.72rem;display:grid;gap:5px;color:#c4d6eb;font-weight:600}
+.cl-lab-time-range input{min-width:0;width:100%;padding:7px;box-sizing:border-box;background:#0c192f;border:1px solid #4c6691;border-radius:8px;color:#fff;min-height:37px}
+.cl-chart-timeframe{display:inline-block;margin-bottom:6px;border:1px solid #476ca4;border-radius:100px;padding:5px 10px;font-size:.72rem;color:#b5ebff;font-weight:750}
+@media(max-width:560px){.cl-lab-popover{right:auto;left:0;width:min(90vw,420px)}.cl-lab-time-range{grid-template-columns:1fr}}
