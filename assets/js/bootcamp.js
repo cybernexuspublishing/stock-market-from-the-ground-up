@@ -6,6 +6,24 @@
  if(!root)return;
  let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),sourceCases=new Map(),progressAvailable=false,busy=false,loadSerial=0;
  const status=text=>{q('gu-bc-status').textContent=text};
+ async function betaEnrollment(enroll=false){
+  const note=q('gu-bc-enrollment-status'),button=q('gu-bc-enroll');
+  const auth=(await sb.auth.getSession()).data?.session;
+  if(!auth||auth.user?.id!==activeUser)return;
+  const response=await fetch('/api/bootcamp-academy'+(enroll?'':'?program=foundations30'),{
+   method:enroll?'POST':'GET',cache:'no-store',
+   headers:{authorization:'Bearer '+auth.access_token,...(enroll?{'content-type':'application/json'}:{})},
+   ...(enroll?{body:JSON.stringify({version:'0.14.0.168',program:'foundations30',day:0,action:'enroll'})}:{})
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.ok!==true)throw Error(result.error||'Beta enrollment status unavailable.');
+  if(result.enrolled===true){
+   button.hidden=true;note.textContent='Enrolled in the 30-day educational beta. Your day notes remain in the original study record.';
+  }else{
+   button.hidden=false;note.textContent='Your existing training access is confirmed. Enrollment records this course in your beta program list.';
+  }
+ }
+
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n};
  const link=(href,title)=>{
    const a=el('a',title);a.href=href;return a;
@@ -177,7 +195,10 @@
    }catch{sourceCases.clear()}
    progressAvailable=data.progressAvailable===true;
    progress=new Map((data.progress||[]).map(row=>[row.day,row]));
-   root.hidden=false;status(progressAvailable?'Active member training access confirmed. Your private reflection progress was loaded.':
+   root.hidden=false;
+   void betaEnrollment(false).catch(()=>{q('gu-bc-enrollment-status').textContent=
+    'You can continue your existing 30-day lessons; the optional beta enrollment status is unavailable.'});
+   status(progressAvailable?'Active member training access confirmed. Your private reflection progress was loaded.':
     'Training curriculum available, but progress storage is not installed or verified. Saving is disabled.');
    render();
   }catch(e){if(id===loadSerial){clear();status(e.message||'Learning service unavailable. No progress was changed.')}}
@@ -198,6 +219,11 @@
   }
   field.value+=addition;field.focus();
   q('gu-bc-save-status').textContent='Question copied into the local reflection; answer it and choose Save private ungraded reflection to retain it.';
+ });
+ q('gu-bc-enroll')?.addEventListener('click',async event=>{
+  const btn=event.currentTarget;if(btn.disabled)return;btn.disabled=true;
+  try{await betaEnrollment(true)}catch(e){q('gu-bc-enrollment-status').textContent=e.message||'Enrollment not saved.'}
+  finally{btn.disabled=false}
  });
  q('gu-bc-start').addEventListener('click',()=>void write('start'));
  q('gu-bc-save').addEventListener('click',()=>void write('save_reflection'));

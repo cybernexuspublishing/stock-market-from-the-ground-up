@@ -8,7 +8,7 @@ const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':
  'x-content-type-options':'nosniff'};
 const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:HEADERS});
 const fault=(reason,status=400)=>Object.assign(new Error(reason),{status});
-const allowed=code=>Object.hasOwn(academyByCode,code)&&code!=='foundations30';
+const allowed=code=>Object.hasOwn(academyByCode,code);
 function database(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const secret=String(env.SUPABASE_SECRET_KEY||'');
@@ -46,6 +46,7 @@ async function readInput(request){
  if(!allowed(data.program))throw fault('Unknown Academy program. The existing 30-day course has a separate route.');
  const plan=academyByCode[data.program];
  if(!['enroll','start','save_reflection'].includes(data.action))throw fault('Unknown progress action.');
+ if(data.program==='foundations30'&&data.action!=='enroll')throw fault('The existing 30-day learning service owns all day-progress updates.');
  if(data.version!==ACADEMY_VERSION)throw fault('Curriculum version changed. Refresh before saving.',409);
  if(data.action==='enroll'&&data.day!==0)throw fault('Enrollment must not specify a study day.');
  if(data.action!=='enroll'&&(!Number.isSafeInteger(data.day)||data.day<1||data.day>plan.days))
@@ -82,9 +83,14 @@ export async function onRequest({request,env}){
    throw fault(auth.reason||'Authorized member training access required.',403);
   if(request.method==='GET'){
    const code=url.searchParams.get('program');
-   if(!allowed(code)){
-    if(code==='foundations30')return respond({ok:true,existingRoute:'bootcamp.html',program:academyByCode.foundations30});
-    throw fault('Unknown Academy program.',404);
+   if(!allowed(code))throw fault('Unknown Academy program.',404);
+   if(code==='foundations30'){
+    const rows=await db(env,'gu_bootcamp_academy_enrollments_v014168?select=status,program_version&user_id=eq.'+
+     encodeURIComponent(auth.userId)+'&program_code=eq.foundations30&limit=1');
+    if(!Array.isArray(rows)||rows.length>1)throw fault('Cannot verify 30-day enrollment.',503);
+    return respond({ok:true,existingRoute:'bootcamp.html',program:academyByCode.foundations30,
+     enrolled:rows.length===1&&rows[0].status==='active'&&rows[0].program_version===ACADEMY_VERSION,
+     notesRoute:'The original 30-day progress ledger remains authoritative.'});
    }
    const program=academyByCode[code];
    const curriculum=program.curriculum;
@@ -113,6 +119,13 @@ export async function onRequest({request,env}){
     progress:progressAvailable?rows:null,progressAvailable,enrolled,
     disclaimer:progressAvailable?'Member study progress is ungraded and does not grant official mastery.':
      'Private Academy storage is unavailable; no enrollment or completed-day status can be confirmed.'});
+  }
+  if(form.program==='foundations30'){
+   const stored=await db(env,'rpc/gu_foundations30_beta_enroll_v1','POST',{p_user:auth.userId});
+   if(stored?.ok!==true||stored.enrollment!=='active'||stored.program!=='foundations30'||
+      stored.graded!==false||stored.competencyMasteryAwarded!==false)
+    throw fault('30-day enrollment could not be independently verified.',503);
+   return respond({ok:true,enrolled:true,program:'foundations30',version:ACADEMY_VERSION});
   }
   const result=await db(env,'rpc/gu_bootcamp_academy_save_v014168','POST',{
    p_user:auth.userId,p_program:form.program,p_day:form.day,p_action:form.action,

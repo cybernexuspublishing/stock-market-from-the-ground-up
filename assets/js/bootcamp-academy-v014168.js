@@ -66,8 +66,10 @@
    const duration=node('span',p.days+'-day Boot Camp · '+p.level);duration.className='academy-duration';
    const heading=node('h3',p.title),description=node('p',p.summary);
    const image=node('img');image.className='academy-program-image';image.src='/assets/images/skill-illustrations/'+programIllustration[p.code]+'.svg';image.alt='Conceptual illustration for '+p.title+'; not historical market data';image.loading='lazy';image.width=144;image.height=132;
-   const note=node('p','Explore lessons, worked examples, and guided practice');note.className='small';
-   const action=node('a',p.code==='foundations30'?'Open original 30-day Boot Camp':'Open this Boot Camp');
+   const note=node('p',p.status==='original_30_day_controlling'?
+    'Original 30-day curriculum · Beta enrollment available':
+    'Educational beta curriculum · Lessons and reflections available to authorized testers');note.className='small';
+   const action=node('a',p.code==='foundations30'?'Enroll / open 30-day Boot Camp':'Explore and enroll in beta');
    action.className='btn secondary';
    action.href=p.code==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+encodeURIComponent(p.code);
    card.append(image,duration,heading,description,note,action);root.append(card);
