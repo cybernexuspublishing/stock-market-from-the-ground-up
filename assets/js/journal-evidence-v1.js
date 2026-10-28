@@ -32,7 +32,7 @@ async function start(){
  const panel=build();if(!panel)return;
  const notice=$('gu-evidence-status'),list=$('gu-evidence-list'),add=$('gu-evidence-add');
  const error=(message)=>{notice.textContent=message||''};
- let sb,user,id,active=true,busy=false;
+ let sb,user,id,active=true,busy=false,atCapacity=false;
  try{
    id=Number(new URLSearchParams(location.search).get('id'));
    if(!Number.isSafeInteger(id)||id<=0)throw Error('Invalid Journal record ID.');
@@ -54,7 +54,7 @@ async function start(){
    const {data, error:dbError}=await sb.from('journal_evidence_v1').select('*')
       .eq('journal_id',id).eq('user_id',user.id).order('created_at',{ascending:true});
    if(dbError)throw dbError;
-   add.disabled=(data||[]).length>=MAX;
+   atCapacity=(data||[]).length>=MAX;add.disabled=atCapacity;
    if(!data?.length){list.append(text('p','No screenshots have been attached to this record.'));error('');return;}
    error(`${data.length} of ${MAX} private screenshot places used.`);
    for(const item of data){
@@ -117,7 +117,7 @@ async function start(){
    }catch(e){
      error('Screenshot was not saved: '+e.message);
      if(metadataId&&!uploaded){await sb.from('journal_evidence_v1').delete().eq('id',metadataId).eq('user_id',user.id)}
-   }finally{busy=false; if(active)add.disabled=false;}
+   }finally{busy=false; if(active)add.disabled=atCapacity;}
  });
  $('gu-evidence-refresh').addEventListener('click',()=>load().catch(e=>error('Cannot refresh evidence: '+e.message)));
  await load().catch(e=>{add.disabled=true;error('Private evidence storage is not available: '+e.message)});
