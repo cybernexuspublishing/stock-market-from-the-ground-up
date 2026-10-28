@@ -1,0 +1,29 @@
+/* Free Foundations interactive teaching studio. Reuses Academy's nine stages. */
+.academy-free-studio,.academy-studio-challenge{color:#eaf4ff;background:linear-gradient(146deg,#0c2537,#132e3c);border:1px solid #4a8190;border-radius:14px;padding:clamp(15px,2.5vw,24px);margin:16px 0}
+.academy-free-studio h4,.academy-studio-challenge h4{font-size:clamp(1.1rem,1.65vw,1.35rem);margin:8px 0 14px;color:#f5dea8}
+.academy-free-studio h5,.academy-studio-challenge legend{font-size:1rem;font-weight:750;color:#d7f0ff;margin:0 0 12px}
+.academy-studio-eyebrow{font-size:.82rem!important;letter-spacing:.055em;color:#8fe6d8!important;font-weight:800}
+.academy-studio-notice{border-left:3px solid #8cdab6;background:#0a3340;padding:11px 14px;border-radius:5px;font-size:.88rem!important}
+.academy-studio-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(250px,.85fr);gap:16px;align-items:stretch}
+.academy-studio-evidence,.academy-studio-control{min-width:0;padding:17px;background:#092034;border:1px solid #395c76;border-radius:12px}
+.academy-studio-main{font-weight:750;font-size:1.1rem!important;color:#adf2d8!important}
+.academy-studio-detail{line-height:1.75}
+.academy-studio-sub{color:#bfd1e9!important;font-size:.91rem!important}
+.academy-studio-control label{display:block;font-weight:750;margin:16px 0 10px}
+.academy-studio-control input[type=range]{display:block;width:100%;min-height:36px;accent-color:#85dcca;cursor:pointer}
+.academy-studio-value{display:block;text-align:center;font-weight:850;color:#c6f3dd;margin:6px 0}
+.academy-studio-facts{padding-left:20px;margin:12px 0}
+.academy-studio-facts li{margin:7px 0}
+.academy-studio-candle{width:100%;max-width:550px;height:auto;display:block;margin:12px auto}
+.academy-studio-challenge fieldset{border:0;min-width:0;padding:0;margin:14px 0}
+.academy-studio-choice{display:flex;align-items:flex-start;gap:12px;margin:8px 0;padding:12px;background:#0a2639;border:1px solid #406078;border-radius:9px;cursor:pointer}
+.academy-studio-choice:focus-within{outline:2px solid #b6eafa;outline-offset:2px}
+.academy-studio-choice input{margin-top:4px;accent-color:#81d0b4}
+.academy-studio-actions{display:flex;gap:9px;flex-wrap:wrap}
+.academy-studio-actions .btn{white-space:normal}
+.academy-studio-feedback{min-height:2em;padding:10px 0;color:#d8f3dc!important}
+.academy-studio-preview{margin-top:15px;padding:16px 18px;border:1px solid #4c6c8e;border-radius:12px;background:#112b43}
+.academy-studio-preview h4{margin:0 0 8px}
+.academy-studio-preview a{display:inline-flex;margin-top:8px}
+@media(max-width:760px){.academy-studio-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){.academy-free-studio,.academy-studio-challenge{padding:12px}.academy-studio-evidence,.academy-studio-control{padding:12px}.academy-studio-actions .btn{width:100%}}
