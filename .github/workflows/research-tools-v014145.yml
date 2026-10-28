@@ -24,6 +24,8 @@ jobs:
           node tests/test_v014145_research_scanner.mjs
           node tests/test_v014145_marketdata_byo_security.mjs
           node tests/test_v014150_market_data_integrity.mjs
+          node tests/test_member_alpaca_market_data_v1.mjs
+          node --check functions/api/credentials.js
           node tests/test_v014150_market_bar_import.mjs
           node tests/test_v014150_scanner_filters.mjs
           node tests/test_v014150_indicator_math.mjs
