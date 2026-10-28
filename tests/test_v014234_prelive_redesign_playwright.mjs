@@ -11,6 +11,19 @@ const registry=Array.from(scope.window.GroundUpPrelaunchInventory);
 const upcoming=registry.filter(x=>x.status==='coming_soon');
 assert.equal(registry.length,51);assert.equal(upcoming.length,38);
 const rows=upcoming.map(x=>({sku:x.sku,title:x.name,description:x.description,store_visible:true,lifecycle:'coming_soon',version:1}));
+
+const labelCategory=Object.freeze({'Books':'book','Tools':'tool','Boot Camps':'bootcamp','Add-ons':'addon','Memberships':'membership'});
+const items=registry.map((item,index)=>({
+ sku:item.sku,category:/^FOUNDING_/.test(item.sku)?'founding':labelCategory[item.category]||'feature',
+ name:item.name,description:item.description,price:'See product details',duration:'',
+ status:item.status==='coming_soon'?'coming_soon':'listed',saleReady:false,
+ updatedAt:new Date(Date.UTC(2026,0,index+1)).toISOString(),displayOrder:index+1,
+ page:/^[a-z0-9-]+\\.html$/.test(item.href||'')?item.href:null
+}));
+const visibleItems=items.filter(x=>x.category!=='membership');
+const listedFallback=registry.filter(x=>/^FOUNDING_(30|60)$/.test(x.sku)||
+ (x.category==='Books'&&x.status==='existing_catalog'));
+
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const events=[];
 const check=async(name,fn)=>{try{await fn();console.log('PASS '+name)}catch(e){events.push(name+': '+e.message);console.error('FAIL '+name+': '+e.message)}};
@@ -63,7 +76,7 @@ try{
   const page=await ctx.newPage();
   try{
    await page.goto(base+'/store-all-products.html');
-   await page.waitForFunction(()=>document.querySelectorAll('#inventory-list .product-card').length===listedFallback.length,listedFallback.length);
+   await page.waitForFunction(expected=>document.querySelectorAll('#inventory-list .product-card').length===expected,listedFallback.length);
    assert.equal(await page.locator('#inventory-list .product-card').count(),listedFallback.length);
    await page.goto(base+'/store-upcoming-product.html?sku=BC-05-TRUTH');
    await page.waitForFunction(()=>document.querySelector('#inventory-detail')?.textContent?.includes('Product currently unavailable'));

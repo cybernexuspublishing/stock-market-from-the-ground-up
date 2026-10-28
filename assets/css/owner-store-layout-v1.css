@@ -117,12 +117,12 @@ body[data-gu-workspace="site"] #store-tools .store-tool-visual{max-height:115px}
 
 /* Product explanations must precede purchase options on narrow screens. */
 @media(max-width:860px){
- html body .store-detail-page .store-product-body{
+ html body.store-detail-page .store-product-body{
   display:flex!important;flex-direction:column!important;align-items:stretch!important;
   grid-template-columns:none!important;min-width:0!important}
- html body .store-detail-page .store-product-sections{
+ html body.store-detail-page .store-product-sections{
   order:0!important;position:static!important;width:100%!important;max-width:100%!important;min-width:0}
- html body .store-detail-page aside.store-product-purchase{
+ html body.store-detail-page aside.store-product-purchase{
   order:1!important;position:static!important;top:auto!important;
   width:100%!important;max-width:100%!important;min-width:0!important;
   align-self:stretch!important;margin:0!important;box-sizing:border-box}
