@@ -77,7 +77,7 @@ function category(el){const match=canon(controlId(el));if(match)return match[2];
  // Preserve every unclassified installed control and flag it for Owner review.
  return 'Support & Operations';
 }
-function builtins(){return $('button,a',nav()).filter(x=>x.id!=='cc-control-manager'&&!x.hasAttribute('data-cc-group-toggle')&&!x.classList.contains('cc-admin-custom-link'));}
+function builtins(){return $$('button,a',nav()).filter(x=>x.id!=='cc-control-manager'&&!x.hasAttribute('data-cc-group-toggle')&&!x.classList.contains('cc-admin-custom-link'));}
 // Modules installed before the canonical navigation manager may track their own
 // wrapper by ID. Removing their wrapper makes them re-mount and duplicate buttons.
 // Keep their actual wrapper in a visually inert holding area, with the actions
@@ -153,7 +153,7 @@ for(const group of sorted){
  const wrap=document.createElement('div');wrap.className='v13-admin-group cc-admin-group';wrap.dataset.ccNavGroup=group;
  const title=document.createElement('div');title.className='v13-admin-group-title cc-admin-group-title';title.textContent=group;
  title.setAttribute('role','button');title.tabIndex=0;title.setAttribute('aria-expanded',String(group===openGroup));
- const activate=()=>{openGroup=group;for(const node of $('.cc-admin-group',n)){node.classList.toggle('cc-group-open',node.dataset.ccNavGroup===group);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(node.dataset.ccNavGroup===group));}};
+ const activate=()=>{openGroup=group;for(const node of $$('.cc-admin-group',n)){node.classList.toggle('cc-group-open',node.dataset.ccNavGroup===group);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(node.dataset.ccNavGroup===group));}};
  title.addEventListener('click',activate);title.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
  wrap.append(title);wrap.classList.toggle('cc-group-open',group===openGroup);
  let visible=0,overflow=null,overflowCount=0;
@@ -173,7 +173,7 @@ for(const group of sorted){
  if(overflow){overflow.querySelector('summary').textContent='More controls ('+overflowCount+')';if(overflow.querySelector('.active'))overflow.open=true;}
  fragment.append(wrap);
 }
-const manager=$('#cc-control-manager',n);if(manager){const target=$('.cc-admin-group',fragment).find(x=>x.dataset.ccNavGroup==='Security & Governance');
+const manager=$('#cc-control-manager',n);if(manager){const target=$$('.cc-admin-group',fragment).find(x=>x.dataset.ccNavGroup==='Security & Governance');
  if(target)target.append(manager);else fragment.append(manager);}
 // Preserve the original module mount sentinels. Earlier versions silently
 // dropped them via replaceChildren(), causing modules to install new controls
@@ -182,7 +182,7 @@ fragment.append(preserveModuleMounts(n));
 n.replaceChildren(fragment);
  syncPanelHeadings();
  const selected=$('#admin-tabs button.active,#admin-tabs a[aria-current="page"]');
- if(selected?.closest('[data-cc-nav-group]')){const group=selected.closest('[data-cc-nav-group]').dataset.ccNavGroup;if(group!==openGroup){openGroup=group;for(const node of $('.cc-admin-group',n)){const active=node.dataset.ccNavGroup===group;node.classList.toggle('cc-group-open',active);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(active));}}}
+ if(selected?.closest('[data-cc-nav-group]')){const group=selected.closest('[data-cc-nav-group]').dataset.ccNavGroup;if(group!==openGroup){openGroup=group;for(const node of $$('.cc-admin-group',n)){const active=node.dataset.ccNavGroup===group;node.classList.toggle('cc-group-open',active);node.querySelector('.cc-admin-group-title')?.setAttribute('aria-expanded',String(active));}}}
  ensureOverview();ensureTopbar();ensureShowcase();
  observer?.observe(n,{childList:true,subtree:true});}
 function plan(){if(pending)return;pending=true;setTimeout(()=>{pending=false;if(!ready||!nav()||!app()||app().hidden||!$('#admin-gate')?.hidden)return;displayControls()},90)}
@@ -220,9 +220,9 @@ function ensureShowcase(){
  const showcase=(adminContext()?.roles||[]).includes('SHOWCASE_VIEWER');
  document.body.classList.toggle('cc-showcase',showcase);if(!showcase)return;
  let banner=$('#cc-showcase-banner');if(!banner){banner=document.createElement('p');banner.id='cc-showcase-banner';banner.setAttribute('role','status');banner.textContent='DEMO: fictional data, read-only. Nothing here changes the real site.';$('.admin-main')?.prepend(banner);}
- for(const group of $('.cc-admin-group',nav()))if(['Support & Operations','Security & Governance'].includes(group.dataset.ccNavGroup))group.hidden=true;
+ for(const group of $$('.cc-admin-group',nav()))if(['Support & Operations','Security & Governance'].includes(group.dataset.ccNavGroup))group.hidden=true;
  // The server is the required enforcement boundary; this is a secondary UI safeguard.
- for(const el of $('.admin-panel input,.admin-panel select,.admin-panel textarea,.admin-panel button',app()))if(!el.dataset.ccShowcaseNavigation){el.disabled=true;el.title='Disabled in Showcase';}
+ for(const el of $$('.admin-panel input,.admin-panel select,.admin-panel textarea,.admin-panel button',app()))if(!el.dataset.ccShowcaseNavigation){el.disabled=true;el.title='Disabled in Showcase';}
 }
 async function token(){const sb=await window.getSupabaseClient?.();return (await sb?.auth?.getSession?.())?.data?.session?.access_token||'';}
 async function registry(action='GET',data){const access=await token();if(!access)throw Error('Owner session required.');const r=await fetch('/api/admin-control-registry',{method:action,cache:'no-store',headers:{authorization:'Bearer '+access,'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw Error(j.error||`HTTP ${r.status}`);return j;}
