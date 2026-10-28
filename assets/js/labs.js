@@ -245,7 +245,7 @@ function handleMemberChange(user) {
   progressMap.clear();
   memberProgressAvailable = false;
   registryRights = null;
-  document.body.dataset.labRegistryAccess=nextId?'checking':'signed-out';
+  if(document.body?.dataset)document.body.dataset.labRegistryAccess=nextId?'checking':'signed-out';
   const box=document.getElementById('lab-access-status');if(box)box.textContent=nextId?'Checking your Lab access…':'Sign in to view your available Labs.';
   filterLabs(); // Synchronously scrub prior member status and entitlements.
   if (nextId) {void loadMemberProgress(nextId, epoch);void loadRegistryRights(nextId, epoch);}
