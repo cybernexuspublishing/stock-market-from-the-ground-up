@@ -57,4 +57,35 @@ const missing={fetch:async req=>new URL(req.url).pathname==='/data/competency-st
  ?Response.json(base):Response.json({error:'optional catalog disabled'},{status:503})};
 const fallback=await originalGuides({ASSETS:missing},req,'candlestick wick candle body');
 assert(fallback.some(g=>g.code==='CANDLE_READING'));
+// Test the real authenticated Tutor API boundary using synthetic member fixtures.
+// Neither a real account nor a billed provider call is involved.
+const {onRequest}=await import('../functions/api/market-tutor-v01492.js');
+const previous=globalThis.fetch;
+let billableCalls=0;
+globalThis.fetch=async url=>{
+ const target=String(url);
+ if(target.endsWith('/auth/v1/user'))return Response.json({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});
+ if(target.includes('/profiles?'))return Response.json([{account_kind:'member'}]);
+ if(target.includes('/admin_user_flags?')||target.includes('/admin_user_roles?'))return Response.json([]);
+ if(target.includes('/rpc/user_has_tool_access'))return new Response('true',{headers:{'content-type':'application/json'}});
+ if(target.includes('api.openai.com')||target.includes('v01492_consume_tutor_quota')){
+  billableCalls++;throw Error('Paid AI or quota reservation forbidden by source-only test');
+ }
+ throw Error('Unrecognized synthetic API request');
+};
+try{
+ const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
+  SUPABASE_SECRET_KEY:'sb_secret_mock',ASSETS:sourceAsset};
+ const res=await onRequest({env,request:new Request('https://example.test/api/market-tutor-v01492',{
+  method:'POST',headers:{authorization:'Bearer test-session','content-type':'application/json'},
+  body:JSON.stringify({question:'Explain Regulation SHO SSR short sale price test restriction',mode:'explain'})
+ })});
+ assert.equal(res.status,200);
+ const result=await res.json();
+ assert.equal(result.generation,'original-competency-guide');
+ assert(result.sources.some(x=>x.id==='SSR_SHO'&&/research-informed/.test(x.sourceLabel)));
+ assert.equal(result.graded,false);
+ assert.equal(result.masteryAwarded,false);
+ assert.equal(billableCalls,0);
+}finally{globalThis.fetch=previous}
 console.log('PASS STT research 32 original public Tutor lessons; 30 canonical skills unchanged; sources checked; optional research asset fails safely');
