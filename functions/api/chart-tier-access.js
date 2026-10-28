@@ -85,10 +85,11 @@ export async function crownlightChartEntitlement(env,request){
  // OWNER is a server-verified administrative role, not a purchased plan.
  // Allow professional chart UI inspection without altering commercial grants,
  // Sparks, data licensing, Lab access, or brokerage entitlements.
- const ownerRows=await rows(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+uid+'&role_code=eq.OWNER&limit=10');
- const ownerChartAccess=ownerRows.some(role=>role.role_code==='OWNER'&&
-  (role.expires_at===null||role.expires_at===undefined||
-   (Number.isFinite(Date.parse(role.expires_at))&&Date.parse(role.expires_at)>now)));
+ const staffRows=await rows(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+uid+'&role_code=in.(OWNER,ADMIN,MODERATOR)&limit=20');
+ const activeStaff=staffRows.filter(r=>['OWNER','ADMIN','MODERATOR'].includes(r.role_code)&&
+  (r.expires_at==null||(Number.isFinite(Date.parse(r.expires_at))&&Date.parse(r.expires_at)>now)));
+ const staffChartRole=['OWNER','ADMIN','MODERATOR'].find(role=>activeStaff.some(r=>r.role_code===role))||null;
+ const ownerChartAccess=staffChartRole==='OWNER';
  const qa=await verifiedNoncommercialChartTier(c,uid,now);
  if(qa&&rank[qa.tier]>rank[tier]){tier=qa.tier;reason='Noncommercial Chart Studio QA — no paid membership or founder seat';temporaryAccess={kind:'QA',tier:qa.tier,expiresAt:qa.expiresAt};}
  else if(qa&&tier==='STANDARD')reason='Noncommercial Chart Studio Standard QA';
@@ -105,8 +106,11 @@ export async function crownlightChartEntitlement(env,request){
   reason='Temporary noncommercial Chart Studio testing — chart-only';
   temporaryAccess={kind:'QA',tier:chartQA[0].tier,expiresAt:new Date(chartQA[0].ends_at).toISOString()};
  }
- if(ownerChartAccess){tier='PROFESSIONAL';reason='Verified Owner — all Chart Studio interfaces (noncommercial)';temporaryAccess=null;}
- return {ok:true,eligible:true,tier,reason,ownerChartAccess,allowed:['STANDARD',...(rank[tier]>=1?['ADVANCED']:[]),
+ if(staffChartRole){
+  tier='PROFESSIONAL';reason='Verified '+staffChartRole+' — Chart Studio interfaces (noncommercial)';
+  temporaryAccess=null;
+ }
+ return {ok:true,eligible:true,tier,reason,ownerChartAccess,staffChartRole,allowed:['STANDARD',...(rank[tier]>=1?['ADVANCED']:[]),
   ...(rank[tier]>=2?['PROFESSIONAL']:[])],
   advancedEngine:'KLineChart 10.1.0',professionalEngine:'Enhanced KLineChart 10.1.0',
   temporaryBetaAccess:!!qa||manuallyAuthorized,noncommercialChartQa:!!qa||manuallyAuthorized,
