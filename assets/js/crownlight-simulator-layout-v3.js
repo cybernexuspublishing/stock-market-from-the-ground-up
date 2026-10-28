@@ -108,7 +108,7 @@
     if(displayed++>=65)break;
     const b=el('button','cl-lab-option',option.textContent);b.type='button';b.dataset.value=option.value;
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(picker.value===option.value));
-    if(option.disabled){b.disabled=true;b.classList.add('cl-lab-option-locked');b.title='This Lab is unavailable under the current membership or release status';}
+    if(option.disabled){b.disabled=true;b.classList.add('cl-lab-option-locked');b.title=option.dataset.reason||'This Lab is not available to your account';}
     b.addEventListener('click',()=>{picker.value=option.value;picker.dispatchEvent(new Event('change',{bubbles:true}));trigger.firstChild.textContent=option.textContent+' ';popover.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus()});results.append(b)
    }
    if(!displayed)results.append(el('p','cl-lab-empty','No matching lessons or Labs.'));
@@ -120,34 +120,56 @@
   let catalog=null;
   const load=async()=>{
    try{
-    const [c,r,a]=await Promise.all([
+    const [c,r,access]=await Promise.all([
      fetch('data/competency-lab-paths-v01499.json',{cache:'force-cache'}).then(x=>x.ok?x.json():null),
      fetch('/api/lab-release-availability',{cache:'no-store'}).then(x=>x.ok?x.json():null),
-     getToken?.().then(async token=>{
-      if(!token)return null;
-      const response=await fetch('/api/member-tool-access?tool=INTERACTIVE_LEARNING',{headers:{authorization:'Bearer '+token},cache:'no-store'});
-      return response.ok?response.json():null;
-     }).catch(()=>null)
+     (async()=>{
+      const token=await getToken?.();
+      if(!token)return {freeEligible:false,interactive:false,training:false};
+      const headers={authorization:'Bearer '+token};
+      const checks=await Promise.allSettled(['INTERACTIVE_LEARNING','ONDEMAND_TRAINING'].map(async tool=>{
+       const response=await fetch('/api/member-tool-access?tool='+tool,{headers,cache:'no-store'});
+       if(!response.ok)throw Error('Entitlement verification unavailable');
+       const data=await response.json();
+       if(data?.ok!==true)throw Error('Invalid entitlement verification response');
+       return data;
+      }));
+      const verified=checks.filter(x=>x.status==='fulfilled').map(x=>x.value);
+      return {
+       freeEligible:verified.some(x=>x.freeEligible===true),
+       interactive:verified.some(x=>x.tool==='INTERACTIVE_LEARNING'&&x.authorized===true),
+       training:verified.some(x=>x.tool==='ONDEMAND_TRAINING'&&x.authorized===true)
+      };
+     })().catch(()=>({freeEligible:false,interactive:false,training:false}))
     ]);
     if(c?.totalCanonicalLabs!==419||Object.keys(c.byLab||{}).length!==419)throw Error('Canonical Lab list unavailable.');
+    if(r?.ok!==true||!Array.isArray(r.publishedIds)||!Array.isArray(r.guidedBetaIds)||!Array.isArray(r.trainingOnlyIds))
+     throw Error('Verified Lab release information unavailable.');
     catalog=c;
-    const published=new Set(r?.publishedIds||[]),guided=new Set(r?.guidedBetaIds||[]);
-    const premium=a?.authorized===true;
-    const section=(name)=>{const group=el('optgroup');group.label=name;picker.append(group);return group};
-    const beginner=section('Free Foundations — all five days unlocked');
+    const published=new Set(r.publishedIds),guided=new Set(r.guidedBetaIds),trainingOnly=new Set(r.trainingOnlyIds);
+    const freeSamples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
+    const section=name=>{const group=el('optgroup');group.label=name;picker.append(group);return group};
+    const beginner=section('Free Foundations');
     for(let day=1;day<=5;day++){
      const opt=new Option('Day '+day+' — Free beginner learning','academy:free5:'+day);beginner.append(opt);
     }
-    const free=section('Released public sample Labs'),paid=section('Available with Interactive Learning entitlement'),locked=section('Locked or unreleased Labs');
-    let available=0;
+    const free=section('Available free sample Labs'),availableLabs=section('Available guided Labs');
+    const requiresAccess=section('Requires matching access'),unreleased=section('Not released for guided study');
     for(const [id,entry]of Object.entries(c.byLab).sort(([a],[b])=>a.localeCompare(b))){
-     const isPublished=published.has(id),isGuided=guided.has(id),isFree=entry.publicSample===true;
-     const canOpen=isFree||(premium&&(isPublished||isGuided));
-     const holder=canOpen?(isFree?free:paid):locked;
-     const status=canOpen?'':'🔒 ';
+     const isPublished=published.has(id),isGuided=guided.has(id),isReleased=isPublished||isGuided;
+     const isFree=freeSamples.has(id),siteTrainingOnly=trainingOnly.has(id);
+     const entitled=isFree?access.freeEligible:
+      siteTrainingOnly?access.training:(access.interactive||access.training);
+     const canOpen=isReleased&&entitled;
+     const holder=canOpen?(isFree?free:availableLabs):isReleased?requiresAccess:unreleased;
+     const suffix=!isReleased?'Not released':!entitled?'Access required':isGuided?'Ungraded beta':'Reviewed release';
      const title=String(entry.title||id).slice(0,95);
-     const option=new Option(status+title+' · '+id+(isPublished?'':' · unreviewed'),'lab:'+id);
-     option.disabled=!canOpen;holder.append(option);if(canOpen)available++;
+     const option=new Option((canOpen?'':'🔒 ')+title+' · '+id+' · '+suffix,'lab:'+id);
+     option.disabled=!canOpen;
+     if(!isReleased)option.dataset.reason='This lesson is not yet released for guided study.';
+     else if(!entitled)option.dataset.reason=siteTrainingOnly?
+      'Requires authorized Historical Replay Training access.':'Requires matching member access to this Lab.';
+     holder.append(option);
     }
     if(old.value&&[...picker.options].some(o=>o.value==='lab:'+old.value&&!o.disabled))picker.value='lab:'+old.value;
     note.textContent='';renderOptions();
