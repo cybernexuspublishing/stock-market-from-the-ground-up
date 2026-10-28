@@ -47,3 +47,25 @@
 #admin-tabs .cc-admin-group-title{position:sticky;top:0;z-index:1}
 @media(max-width:1000px){.admin-shell.cc-shell-collapsed{grid-template-columns:1fr}.admin-sidebar.cc-nav-collapsed{position:static}}
 @media(min-width:1001px){.admin-sidebar:not(.cc-nav-collapsed){max-height:100vh;overflow-y:auto;scrollbar-width:thin}}
+
+/* Approved eight-group navigation. Existing module nodes and handlers remain mounted. */
+#admin-tabs .cc-admin-group:not(.cc-group-open)>:not(.cc-admin-group-title){display:none!important}
+#admin-tabs .cc-admin-group[hidden]{display:none!important}
+#admin-tabs .cc-admin-group-title[role="button"]{cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-radius:6px}
+#admin-tabs .cc-admin-group-title[role="button"]::after{content:"+";font-size:1.1rem}
+#admin-tabs .cc-admin-group-title[aria-expanded="true"]::after{content:"−"}
+#admin-tabs .cc-admin-group-title:focus-visible{outline:2px solid #f4c75a;outline-offset:2px}
+#admin-tabs .cc-pinned{display:grid;gap:.1rem;margin-bottom:.5rem}
+#admin-tabs .cc-pinned .cc-admin-group-title{position:static}
+#admin-tabs .cc-restricted-item::after{content:"OWNER";font-size:.62rem;padding:.12rem .28rem;border:1px solid #708aa0;border-radius:4px;margin-left:.4rem;letter-spacing:.05em}
+.cc-admin-topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;padding:.65rem .8rem;border:1px solid #345573;border-radius:10px;background:#0d283c}
+.cc-topbar-search{flex:1 1 310px;min-width:min(100%,250px)}
+.cc-admin-topbar .gu33-global-search{margin:0;width:100%;padding:0;border:0;background:transparent}
+.cc-topbar-status{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center}
+.cc-topbar-status span{padding:.25rem .5rem;border-radius:7px;background:#153b55;color:#edf4f7;font-size:.8rem;font-weight:700}
+.cc-topbar-status a{color:#f7cf79;text-decoration:underline}
+.cc-overview-shortcuts{margin-top:1rem}
+.cc-shortcuts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem;margin-top:.8rem}
+.cc-shortcuts-grid button{text-align:left;white-space:normal}
+#cc-showcase-banner{position:sticky;top:0;z-index:12;background:#603d14;color:#fff0c6;padding:.75rem 1rem;border:1px solid #f2bd56;border-radius:8px}
+@media(max-width:700px){.cc-admin-topbar{align-items:stretch}.cc-topbar-status{justify-content:space-between}}
