@@ -6,8 +6,8 @@ const has=p=>ADMIN.ctx?.permissions?.includes(p);
 function status(el,msg,type=''){if(!el)return;el.textContent=msg||'';el.className=`status-message ${type}`}
 async function token(){ADMIN.sb=ADMIN.sb||await window.getSupabaseClient();const {data,error}=await ADMIN.sb.auth.getSession();if(error||!data?.session?.access_token)throw new Error('Your administrative session has expired. Sign in again.');return data.session.access_token}
 async function api(action,{method='GET',body,params={}}={}){const t=await token();const q=new URLSearchParams({action,...Object.fromEntries(Object.entries(params).filter(([,v])=>v!==undefined&&v!==null&&v!==''))});const r=await fetch(`/api/admin?${q}`,{method,headers:{authorization:`Bearer ${t}`,'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});let j={};try{j=await r.json()}catch{}if(!r.ok||!j.ok)throw new Error(j.error||`Admin request failed (${r.status})`);return j}
-function panelPermission(panel){return ({dashboard:'dashboard.view',users:'users.view',roles:'roles.view',catalog:'catalog.view',products:'catalog.view',commerce:'commerce.view',content:'content.view',community:'forum.view',settings:'settings.view',audit:'audit.view',system:'system.view'})[panel]}
-function setupTabs(){document.querySelectorAll('#admin-tabs button[data-panel]').forEach(b=>{const perm=panelPermission(b.dataset.panel);b.hidden=!!perm&&!has(perm);b.addEventListener('click',()=>openPanel(b.dataset.panel))});document.querySelectorAll('[data-refresh]').forEach(b=>b.addEventListener('click',()=>loadPanel(b.dataset.refresh,true)))}
+function panelPermission(panel){return ({dashboard:'dashboard.view',users:'users.view',roles:'roles.view',catalog:'catalog.view',products:'catalog.view',commerce:'commerce.view',content:'content.view',community:'forum.view',settings:'settings.view',sparks:'settings.view',audit:'audit.view',system:'system.view'})[panel]}
+function setupTabs(){document.querySelectorAll('#admin-tabs button[data-panel]').forEach(b=>{const perm=panelPermission(b.dataset.panel);b.hidden=!!perm&&(!has(perm)||(b.dataset.panel==='sparks'&&!ADMIN.ctx?.roles?.includes('OWNER')));b.addEventListener('click',()=>openPanel(b.dataset.panel))});document.querySelectorAll('[data-refresh]').forEach(b=>b.addEventListener('click',()=>loadPanel(b.dataset.refresh,true)))}
 async function openPanel(name){if(!name||!has(panelPermission(name)))return;document.querySelectorAll('#admin-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));document.querySelectorAll('.admin-panel').forEach(x=>x.classList.toggle('active',x.dataset.adminPanel===name));history.replaceState(null,'',`#${name}`);await loadPanel(name)}
 async function loadPanel(name,force=false){
  const panel=document.querySelector(`[data-admin-panel="${name}"]`);
@@ -22,6 +22,7 @@ async function loadPanel(name,force=false){
   if(name==='content')return await loadContent();
   if(name==='community')return await loadCommunity();
   if(name==='settings')return await loadSettings();
+  if(name==='sparks')return await window.GroundUpSparksAdmin?.load();
   if(name==='audit')return await loadAudit();
   if(name==='system')return await loadSystem();
  }catch(error){

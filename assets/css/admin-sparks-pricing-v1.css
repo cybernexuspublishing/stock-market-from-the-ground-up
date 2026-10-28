@@ -1,0 +1,7 @@
+.sp-price-toolbar,.sp-price-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.sp-price-toolbar{align-items:end}.sp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.sp-price-field{display:grid;gap:6px;font-size:.85rem;font-weight:600}
+.sp-price-field input,.sp-price-field select,.sp-price-toolbar select{width:100%;min-height:39px;background:#111d33;color:#f3f7ff;border:1px solid #58708e;border-radius:7px;padding:8px;font:inherit}
+.sp-price-card{min-width:0}.sp-price-note{font-size:.85rem;color:#b7c9dd}.sp-price-sku{font-family:monospace;word-break:break-all}
+.sp-price-meta{font-size:.77rem;color:#a2bad5}.sp-price-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.sp-price-feedback{font-size:.84rem}.sp-error{color:#ffaaa5}
