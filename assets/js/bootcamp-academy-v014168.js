@@ -460,7 +460,7 @@
    get('academy-reflection').focus();return;
   }
   busy=true;updateProgress();
-  get('academy-save-status').textContent=action==='save_reflection'?'Saving your learning notes…':'Starting your study day…';
+  get('academy-save-status').textContent=action==='save_reflection'?'Saving your learning notes…':(code==='free5'?'Starting your lesson…':'Starting your study day…');
   try{
    const payload={version:VERSION,program:code,action,day:which,
     ...(action==='save_reflection'?{reflection:note,expectedRevision:progress.get(which)?.revision||0}:{})};
@@ -474,7 +474,7 @@
      'Your learning notes are saved.';
    }else if(which===dayIndex)get('academy-save-status').textContent=result.progress?.status==='reflection_saved'?
      'Your previously saved reflection remains recorded.':
-     'Day started. No reflection has been saved yet.';
+     (code==='free5'?'Lesson started. No reflection has been saved yet.':'Day started. No reflection has been saved yet.');
   }catch(e){
    if(actor===userId&&serial===sessionSerial&&code===activeCode&&which===dayIndex)
     get('academy-save-status').textContent=String(e.message||'Progress was not recorded.');
@@ -564,7 +564,7 @@
    // account switch or a different program opening during enrollment.
    if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
    if(result.enrolled!==true||result.program!==code)throw Error('Enrollment was not confirmed.');
-   enrolled=true;get('academy-save-status').textContent='You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
+   enrolled=true;get('academy-save-status').textContent=code==='free5'?'Your free learning journey is ready. Choose any lesson and use Save Reflection when ready.':'You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
   }catch(error){
    if(actor===userId&&serial===sessionSerial&&code===activeCode)
     get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.');
