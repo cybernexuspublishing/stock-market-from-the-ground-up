@@ -9,17 +9,21 @@ async function loadRows(){
  // V2: Supabase PostgREST has a response-row cap. Explicitly page and never
  // silently imply a partial CSV/learning review contains every record.
  const size=400,limit=3000,rows=[],seen=new Set();
+ const ownerId=JSTATE.user?.id;
+ if(!ownerId)throw new Error('Current authenticated member is required.');
  let truncated=false;
  for(let offset=0;offset<limit;offset+=size){
   const {data,error}=await JSTATE.sb.from('decision_journal').select('*')
-   .eq('user_id',JSTATE.user.id).order('trade_date',{ascending:false})
+   .eq('user_id',ownerId).order('trade_date',{ascending:false})
    .order('created_at',{ascending:false}).order('id',{ascending:false})
    .range(offset,offset+size-1);
   if(error)throw error;
+  if(JSTATE.user?.id!==ownerId)throw new Error('Account changed while loading private Journal records.');
   for(const row of data||[]){if(seen.has(row.id))continue;seen.add(row.id);rows.push(row)}
   if((data||[]).length<size)break;
   if(offset+size>=limit)truncated=true;
  }
+ if(JSTATE.user?.id!==ownerId)throw new Error('Account changed while loading private Journal records.');
  JSTATE.rows=rows;JSTATE.truncated=truncated;
  renderJournal();
  let note=document.getElementById('gu-v2-list-limits');
