@@ -41,9 +41,14 @@ try{
  assert(nav.includes('data-sparks-balance')&&nav.includes('/api/member-sparks-wallet'));
  assert(nav.includes('store-sparks.html')&&nav.includes('How to use'));
  const store=readFileSync('store.html','utf8');
- assert(!store.includes('id="store-tab-memberships"'),'Owner-hidden legacy membership selection remains unavailable');
+ // Legacy memberships are retained in the DOM for eventual public release,
+ // but never exposed without an affirmative, server-verified public-launch flag.
+ assert(store.includes('id="store-tab-memberships"'),'Public memberships retain a separately gated tab');
  assert(store.includes('id="store-tab-founders"'));
  const source=readFileSync('assets/js/store.js','utf8');
- assert(source.includes("parts=['founders','books','sparks','tools','current','upcoming']"),'Six public Store categories, with legacy memberships hidden');
+ assert(source.includes("parts=['founders','memberships','books','sparks','tools','current','upcoming']"),'Seven Store categories exist but visibility remains independently gated');
+ assert(source.includes('publicTab.hidden=state?.publicLaunch!==true'),'Membership tab must fail closed unless public launch is explicitly open');
+ assert(source.includes('publicPanel.inert=state?.publicLaunch!==true'),'Inactive public membership panel must remain noninteractive');
+ assert(source.includes("(requested==='memberships'&&!state?.publicLaunch)"),'Hash navigation must not bypass the public launch gate');
  console.log('PASS secure member Sparks wallet + six-category public Store: isolated identity, no-charge, private ledger, no fake balance');
 }finally{globalThis.fetch=realFetch}

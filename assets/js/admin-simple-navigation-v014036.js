@@ -41,6 +41,26 @@ function mount(){if(initialized)return;
  const notice=document.createElement('p');notice.className='gu36-nav-notice';notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');
  for(const e of entries){const btn=document.createElement('button');btn.type='button';btn.textContent=e.title;btn.className='gu36-nav-link';btn.dataset.gu36Target=e.title;
  btn.addEventListener('click',()=>activate(e,notice));shortcuts.append(btn)}
+ // A dedicated Owner-only $0 LIVE diagnostic shortcut belongs in the main
+ // Workspace menu, not only in a collapsed legacy navigation or Stripe TEST hub.
+ // This reveals no billing authority: GU71 continues to enforce Owner JWT,
+ // password confirmation, a verified $0 one-time Price and same-origin POST.
+ const context=typeof ADMIN!=='undefined'?ADMIN.ctx:null;
+ if(context?.roles?.includes('OWNER')&&context?.permissions?.includes('commerce.view')){
+  const qa=document.createElement('button');qa.type='button';qa.id='gu36-owner-zero-live-qa';
+  qa.className='gu36-nav-link';qa.textContent='Owner LIVE $0.00 QA';
+  qa.addEventListener('click',()=>{
+   const commerce=$('#admin-tabs button[data-panel="commerce"]');
+   if(!commerce||commerce.disabled){notice.textContent='Payments & Billing is unavailable to this account.';return}
+   commerce.click();
+   let tries=0;const timer=setInterval(()=>{
+    const target=$('#gu71-zero-live-checkout');
+    if(target){clearInterval(timer);target.open=true;target.scrollIntoView({block:'start',behavior:'smooth'});notice.textContent='';}
+    else if(++tries>=40){clearInterval(timer);notice.textContent='Owner QA controls did not load. Refresh the Admin panel and review the payment controls.';}
+   },100);
+  });
+  shortcuts.append(qa);
+ }
  panel.append(shortcuts,notice);
  search.addEventListener('input',()=>{
   const f=$('#gu33-global-input');if(f){f.value=search.value;f.dispatchEvent(new Event('input',{bubbles:true}))}
