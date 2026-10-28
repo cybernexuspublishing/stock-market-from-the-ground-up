@@ -136,7 +136,7 @@ export async function assertFounderDiscountCheckoutSafe(c,userId,kind,code){
  if(!FOUNDER_DISCOUNT_ITEMS.has(kind+':'+code))return;
  const policy=await db(c,'rpc/gu_founder_discount_eligibility_v014221','POST',{p_user:userId});
  if(!policy||policy.ok!==true||typeof policy.eligible!=='boolean'||
-  !Number.isInteger(policy.discountBps)||![0,1000,1500].includes(policy.discountBps)||
+  !Number.isInteger(policy.discountBps)||![0,500,1000,1500].includes(policy.discountBps)||
   policy.eligible!==(policy.discountBps>0)||
   (policy.discountBps>0&&policy.founderSubscriptionExcluded!==true))
   throw err('Founder purchase discount authorization could not be verified.',503);
