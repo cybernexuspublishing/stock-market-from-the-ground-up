@@ -41,4 +41,32 @@ assert(page.includes('assets/js/journal-guided-v1.js')&&page.includes('assets/cs
 const guide=readFileSync('assets/js/journal-guided-v1.js','utf8');
 assert(guide.includes('gu-journal-mode')&&guide.includes("form.addEventListener('change'"));
 assert(guide.includes('Not measured')&&guide.includes('Before-entry risk check'));
+const listPage=readFileSync('journal.html','utf8');
+assert(listPage.includes('journal-weekly-v1.js'));
+assert(page.includes('journal-evidence-v1.js')&&page.includes('journal-actual-history-v1.js'));
+const weekly=readFileSync('assets/js/journal-weekly-v1.js','utf8');
+assert(weekly.includes('gu-journal-rows-loaded')&&weekly.includes('not paid performance analytics'));
+const evidence=readFileSync('assets/js/journal-evidence-v1.js','utf8');
+assert(evidence.includes("BUCKET='gu-journal-evidence'"));
+assert(evidence.includes("MAX=6,MAX_BYTES=5*1024*1024"));
+assert(evidence.includes("createSignedUrl(item.object_key,60)"));
+assert(evidence.includes("self_reported_before_decision"));
+const evidenceSql=readFileSync('supabase/migrations/20261027_journal_evidence_v1_private_storage.sql','utf8');
+for(const token of ['journal_evidence_v1_read_own','journal_evidence_v1_insert_own',
+ 'journal_evidence_v1_delete_own','gu_journal_evidence_select_v1',
+ 'gu_journal_evidence_insert_v1','gu_journal_evidence_delete_v1',
+ 'journal_evidence_v1_enforce_cap','private']){
+ assert(evidenceSql.includes(token),'Missing evidence protection '+token);
+}
+const historySql=readFileSync('supabase/migrations/20261027_journal_actual_corrections_v1.sql','utf8');
+assert(historySql.includes('journal_actual_audit_v1')&&historySql.includes('security definer'));
+assert(historySql.includes('revoke all on public.journal_actual_history_v1 from public,anon,authenticated;'));
+assert(historySql.includes('grant select on public.journal_actual_history_v1 to authenticated;'));
+assert(historySql.includes('old.status not in'));
+const entryJs=readFileSync('assets/js/journal-entry.js','utf8');
+assert(entryJs.includes('Stop must be on the risk side'));
+assert(entryJs.includes('Explicit fees must be entered'));
+assert(entryJs.includes('gu-journal-actual-updated'));
+const taxonomy=JSON.parse(readFileSync('data/journal-taxonomy.json','utf8'));
+assert(taxonomy.taxonomyVersion==='2026-10-27'&&taxonomy.setups.length>=10);
 console.log('PASS Journal v1: null/flat, planned R, fee validation, MFE range, ET/DST, enum, guided UI.');
