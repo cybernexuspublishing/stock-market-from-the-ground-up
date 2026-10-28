@@ -8,6 +8,7 @@ const answer=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:
 const ranks={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const VALID_STUDIES=new Set(['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL']);
 const VALID_DRAWINGS=new Set(['segment','horizontalStraightLine','fibonacciLine']);
+const VALID_LAYOUTS=new Set(['SIDE_BY_SIDE','STACKED','PRICE_FOCUS']);
 const validNumber=n=>typeof n==='number'&&Number.isFinite(n);
 export function normalizeWorkspace(input,entitlement){
  const raw=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
@@ -23,7 +24,8 @@ export function normalizeWorkspace(input,entitlement){
    validNumber(p?.value)&&p.value>0).map(p=>({timestamp:p.timestamp,value:p.value}));
   if(points.length&&drawings.length<24)drawings.push({name:x.name,points});
  }
- return {version:2,selected,sync:raw.sync!==false,studies,drawings};
+ const layout=selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(raw.layout)?raw.layout:'SIDE_BY_SIDE';
+ return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout};
 }
 const cfg=env=>{
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');

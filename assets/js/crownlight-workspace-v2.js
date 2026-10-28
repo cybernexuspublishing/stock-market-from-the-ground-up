@@ -3,12 +3,22 @@
  * Server verifies membership for every workspace GET/PUT. Manual Save captures drawings.
  */
 (()=>{'use strict';
-let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]};
+let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};
 let permissionEpoch=0,loadingWorkspace=false,linked=false,guard=false,syncEnabled=true;
 let ui=null,notice=null,permissionReady=false,storeAvailable=false;
 const Tier=()=>window.CrownlightChartTiers;
 const msg=t=>{if(notice)notice.textContent=t};
 function getCharts(){return Tier()?.getInstances?.()||[]}
+const VALID_LAYOUTS=new Set(['SIDE_BY_SIDE','STACKED','PRICE_FOCUS']);
+function applyLayout(){
+ const selected=Tier()?.getStatus?.()?.selected||'STANDARD';
+ const eligible=Tier()?.getStatus?.()?.verified===true&&selected==='PROFESSIONAL';
+ const layout=VALID_LAYOUTS.has(workspace.layout)?workspace.layout:'SIDE_BY_SIDE';
+ const control=ui?.querySelector('[data-cl-layout]');
+ if(control){control.value=layout;control.disabled=!eligible}
+ const container=document.getElementById('cl-chart-tier-switcher');
+ if(container)container.dataset.clLayout=eligible?layout:'SIDE_BY_SIDE';
+}
 function sessionToken(){
  return window.getSupabaseClient().then(sb=>sb.auth.getSession()).then(r=>r.data?.session?.access_token||null);
 }
@@ -93,6 +103,7 @@ async function persist(){
  if(!permissionReady){msg('Sign in and verify access before saving.');return}
  workspace.selected=Tier().getStatus().selected;
  workspace.sync=syncEnabled;
+ workspace.layout=Tier().getStatus().selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(ui?.querySelector('[data-cl-layout]')?.value)?ui.querySelector('[data-cl-layout]').value:'SIDE_BY_SIDE';
  workspace.drawings=activeDrawings();
  const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
  workspace.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase()).filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
@@ -102,9 +113,10 @@ async function persist(){
 async function restore(){
  const epoch=++permissionEpoch;
  permissionReady=Tier()?.getStatus().verified===true;
- if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]};syncEnabled=true;linked=false;storeAvailable=false;
+ if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};syncEnabled=true;linked=false;storeAvailable=false;
   const box=ui?.querySelector('[data-cl-studies]');if(box)box.value='';
   const toggle=ui?.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
+  applyLayout();
   msg('Session changed. Saved workspace controls cleared. Sign in again to restore your settings.');return}
  loadingWorkspace=true;
  try{
@@ -115,6 +127,7 @@ async function restore(){
    const toggle=ui.querySelector('[data-cl-sync]');if(toggle)toggle.checked=syncEnabled;
    const indicators=ui.querySelector('[data-cl-studies]');if(indicators)indicators.value=(workspace.studies||[]).join(', ');
   }
+  applyLayout();
   msg(r.updatedAt?'Private workspace loaded.':'Workspace ready; save to retain changes across sessions.');
   if(workspace.selected!=='STANDARD'&&Tier().getStatus().allowed.includes(workspace.selected))
    await Tier().choose(workspace.selected);
@@ -131,14 +144,22 @@ function controls(){
  const indicators=document.createElement('label');indicators.textContent='Saved studies ';
  const input=document.createElement('input');input.type='text';input.dataset.clStudies='';
  input.placeholder='EMA, RSI, MACD';input.maxLength=85;input.setAttribute('aria-label','Saved indicators, comma-separated');indicators.append(input);
+ const layoutLabel=document.createElement('label');layoutLabel.textContent='Professional layout ';
+ const layoutSelect=document.createElement('select');layoutSelect.dataset.clLayout='';
+ layoutSelect.setAttribute('aria-label','Professional chart panel layout');
+ for(const [name,desc] of [['SIDE_BY_SIDE','Side by side'],['STACKED','Stacked'],['PRICE_FOCUS','Price focus']])
+  layoutSelect.add(new Option(desc,name));
+ layoutSelect.onchange=()=>{workspace.layout=layoutSelect.value;applyLayout();msg('Chart layout changed. Save workspace to retain this preference.')};
+ layoutLabel.append(layoutSelect);
  const save=document.createElement('button');save.type='button';save.textContent='Save workspace';save.dataset.clSave='';save.onclick=()=>void persist();
  const reload=document.createElement('button');reload.type='button';reload.textContent='Restore';reload.dataset.clRestore='';reload.onclick=()=>void restore();
- row.append(label,indicators,save,reload);
+ row.append(label,indicators,layoutLabel,save,reload);
  notice=document.createElement('p');notice.className='cl-workspace-status';notice.role='status';notice.textContent='Member workspace loads after authentication.';
  ui.append(row,notice);parent.append(ui);
 }
 window.addEventListener('crownlight:tier-permission',()=>{permissionEpoch++;void restore()});
 window.addEventListener('crownlight:tier-mounted',e=>{
+ applyLayout();
  if(e.detail?.tier==='PROFESSIONAL')wireSync();
  if(e.detail?.tier!=='STANDARD'&&!loadingWorkspace){applyStudies();applyOverlays()}
  if(loadingWorkspace&&e.detail?.tier!=='STANDARD'){applyStudies();applyOverlays()}
@@ -147,8 +168,8 @@ window.addEventListener('crownlight:revealed-bars',()=>{
  // Never restore drawings that reference bars later than the last revealed bar.
  if(getCharts().length===2)wireSync();
 });
-function init(){controls()}
+function init(){controls();applyLayout()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady}),
+window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout}),
  synchronize,restore,persist};
 })();

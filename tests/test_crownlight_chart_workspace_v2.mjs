@@ -5,6 +5,11 @@ const normalized=normalizeWorkspace({selected:'PROFESSIONAL',sync:false,studies:
  drawings:[{name:'segment',points:[{timestamp:1790000000000,value:21},{timestamp:1790000060000,value:22}]},
  {name:'unsafeHTML',points:[{timestamp:1790000000000,value:0}]}],secret:'never-store'},entitlement);
 assert.equal(normalized.selected,'STANDARD');assert.equal(normalized.sync,false);
+assert.equal(normalized.layout,'SIDE_BY_SIDE','Advanced member cannot persist a Professional layout');
+const pro={tier:'PROFESSIONAL',allowed:['STANDARD','ADVANCED','PROFESSIONAL']};
+assert.equal(normalizeWorkspace({selected:'PROFESSIONAL',layout:'STACKED'},pro).layout,'STACKED');
+assert.equal(normalizeWorkspace({selected:'PROFESSIONAL',layout:'PRICE_FOCUS'},pro).layout,'PRICE_FOCUS');
+assert.equal(normalizeWorkspace({selected:'PROFESSIONAL',layout:'UNSAFE_CSS'},pro).layout,'SIDE_BY_SIDE');
 assert.deepEqual(normalized.studies,['EMA','RSI']);
 assert.equal(normalized.drawings.length,1);assert.equal('secret' in normalized,false);
 assert.equal((await onRequest({request:new Request('https://site.test/api/chart-workspace',{method:'DELETE'}),env:{}})).status,405);
@@ -35,10 +40,10 @@ try{
  let r=await onRequest({request:req,env}),data=await r.json();
  assert.equal(r.status,200);assert.equal(data.tier,'PROFESSIONAL');
  assert.equal(data.workspace.selected,'PROFESSIONAL');
- const body={selected:'PROFESSIONAL',sync:true,studies:['RSI','MACD'],drawings:[],user_id:'00000000-0000-4000-8000-000000000000',access_token:'should never store'};
+ const body={selected:'PROFESSIONAL',sync:true,layout:'PRICE_FOCUS',studies:['RSI','MACD'],drawings:[],user_id:'00000000-0000-4000-8000-000000000000',access_token:'should never store'};
  r=await onRequest({request:new Request('https://site.test/api/chart-workspace',{method:'PUT',headers:{authorization:'Bearer QA_TOKEN','content-type':'application/json'},body:JSON.stringify(body)}),env});
  data=await r.json();assert.equal(r.status,200);assert.equal(data.workspace.selected,'PROFESSIONAL');
- assert.equal(data.workspace.studies.length,2);assert.equal(db.settings.access_token,undefined);
+ assert.equal(data.workspace.studies.length,2);assert.equal(data.workspace.layout,'PRICE_FOCUS');assert.equal(db.settings.access_token,undefined);
  assert(events.some(e=>e.path.endsWith('/crownlight_chart_workspaces_v1')&&e.method==='POST'));
  console.log('PASS Crownlight private workspace: auth required, no member-chosen user_id, server-tier validation and secrets excluded');
 }finally{globalThis.fetch=original}

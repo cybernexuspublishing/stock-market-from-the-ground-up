@@ -21,3 +21,6 @@
 .cl-talia-lab-link{margin-top:12px}
 .cl-talia-lab-link input{width:220px}
 @media(max-width:620px){.cl-workspace-controls,.cl-talia-guided{padding:11px}.cl-workspace-row>*{width:100%}.cl-talia-lab-link input{width:100%}.cl-talia-actions button{flex:1}}
+
+.cl-workspace-row select{min-width:145px;max-width:100%;background:#09172a;color:#eaf3ff;border:1px solid #557594;border-radius:7px;padding:9px;font:inherit}
+.cl-workspace-row select:disabled{opacity:.55;cursor:not-allowed}

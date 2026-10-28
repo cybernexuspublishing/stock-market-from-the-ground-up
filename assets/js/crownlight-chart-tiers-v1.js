@@ -72,7 +72,7 @@ function makeView(id,type){
  return box;
 }
 function initOne(id,type){
- const chart=window.klinecharts?.init?.(id,{styles:'dark'});
+ const chart=window.klinecharts?.init?.(id,{styles:'dark',layout:{pane:{height:130,minHeight:60,dragEnabled:true}}});
  if(!chart)throw Error('KLineChart could not initialize');
  chart.setSymbol({ticker:state.symbol||'REPLAY',pricePrecision:4,volumePrecision:0});
  chart.setPeriod(period());
@@ -139,12 +139,23 @@ function createControls(){
  tools.append(el('strong','', 'KLineChart technical studies and drawings'));
  const indicator=el('select');
  indicator.setAttribute('aria-label','Add an indicator');
- for(const name of ['RSI','MACD','BOLL','MA'])indicator.add(new Option(name,name));
+ for(const name of ['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'])indicator.add(new Option(name,name));
  const add=el('button','btn secondary','Add indicator');add.type='button';
  add.onclick=()=>{
   try{for(const entry of state.charts)entry.chart.createIndicator(indicator.value,true);
-   status('Added '+indicator.value+' indicator to the visible chart workspace.')}
+   const saved=document.querySelector('[data-cl-studies]');
+   if(saved){const names=saved.value.split(',').map(x=>x.trim()).filter(Boolean);
+    if(!names.includes(indicator.value))saved.value=[...names,indicator.value].join(', ')}
+   status('Added '+indicator.value+' indicator. Save workspace to retain the study.')}
   catch{status('That study is not available in the current KLineChart build.')}
+ };
+ const remove=el('button','btn secondary','Remove indicator');remove.type='button';
+ remove.onclick=()=>{
+  let removed=false;
+  for(const entry of state.charts){try{removed=entry.chart.removeIndicator({name:indicator.value})||removed}catch{}}
+  const saved=document.querySelector('[data-cl-studies]');
+  if(saved)saved.value=saved.value.split(',').map(x=>x.trim()).filter(x=>x&&x!==indicator.value).join(', ');
+  status(removed?'Removed '+indicator.value+'. Save workspace to retain this change.':'No matching indicator in the current chart workspace.');
  };
  const drawing=el('select');drawing.setAttribute('aria-label','Select drawing tool');
  for(const [k,v]of [['segment','Trendline'],['horizontalStraightLine','Horizontal level'],['fibonacciLine','Fibonacci levels']])drawing.add(new Option(v,k));
@@ -152,7 +163,7 @@ function createControls(){
   try{state.charts[0]?.chart.createOverlay(drawing.value);status('Click on the chart to place the selected drawing tool.')}
   catch{status('Drawing tool unavailable.')}
  };
- tools.append(indicator,add,drawing,draw);
+ tools.append(indicator,add,remove,drawing,draw);
  const note=el('p','cl-chart-tier-note','The second Professional chart studies the SAME revealed candles; it does not display a future timeframe or undisclosed data.');
  const grid=el('div','cl-chart-tier-panels');grid.dataset.clTierPanels='';
  enhanced.append(tools,note,grid);panel.append(enhanced);
