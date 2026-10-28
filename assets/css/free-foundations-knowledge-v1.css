@@ -1,0 +1,27 @@
+/* Complete Free Foundations knowledge reference: responsive, ungraded. */
+.gu-free-knowledge{border:1px solid #3d6c81;border-radius:14px;padding:clamp(15px,2vw,28px);background:linear-gradient(135deg,#10253b,#112f40);margin:22px 0;color:#e5f3ff}
+.gu-free-reference-head h2{font-size:clamp(1.32rem,2vw,1.7rem);color:#fff3d2;margin:9px 0}
+.gu-free-reference-head p{max-width:88ch;line-height:1.6}
+.gu-free-reference-eyebrow{font-size:.78rem;letter-spacing:.08em;font-weight:800;color:#9de3d3}
+.gu-free-reference-intro{font-weight:650;color:#ceeaf4;line-height:1.6}
+.gu-free-reference-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.gu-free-reference-topic{border:1px solid #537a93;border-radius:10px;background:#102b40;min-width:0}
+.gu-free-reference-topic summary{cursor:pointer;font-size:1rem;font-weight:800;padding:15px 17px;color:#f5ead6;line-height:1.45}
+.gu-free-reference-topic summary:focus-visible{outline:3px solid #98e5ff;outline-offset:3px;border-radius:8px}
+.gu-free-reference-topic[open]{grid-column:1/-1;background:#0f2839}
+.gu-free-reference-body{padding:0 clamp(15px,2.2vw,24px) 18px;max-width:92ch}
+.gu-free-reference-body h3{font-size:1.12rem;color:#f8dda9;margin:20px 0 8px}
+.gu-free-reference-body h4{font-size:1rem;color:#c5efdd;margin:14px 0 7px}
+.gu-free-reference-body p,.gu-free-reference-body li{line-height:1.75;overflow-wrap:break-word}
+.gu-free-reference-body ol{padding-left:24px}
+.gu-free-reference-body li{padding:2px 0}
+.gu-free-reference-body label{font-weight:700;display:block;margin:15px 0 8px}
+.gu-free-reference-body textarea{display:block;box-sizing:border-box;width:100%;margin:10px 0;min-height:100px;border:1px solid #86a5ba;background:#0a1f2e;color:#f0f9ff;border-radius:8px;padding:12px;font:inherit;font-weight:400}
+.gu-free-reference-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.gu-free-reference-actions .btn{white-space:normal}
+.gu-free-reference-actions .btn:disabled{opacity:.58;cursor:not-allowed}
+.gu-free-reference-review{padding:12px 15px;margin:10px 0;background:#103e4a;border-left:4px solid #80e1ba;border-radius:6px}
+.gu-free-reference-review[hidden]{display:none!important}
+.gu-free-reference-footer a{color:#a6eaff;font-weight:700}
+.gu-free-reference-boundary{padding:11px 14px;background:#122a41;border-left:3px solid #71adc0;border-radius:5px;font-size:.87rem}
+@media(max-width:760px){.gu-free-reference-list{grid-template-columns:minmax(0,1fr)}.gu-free-reference-topic[open]{grid-column:auto}.gu-free-knowledge{margin:16px 0}}
