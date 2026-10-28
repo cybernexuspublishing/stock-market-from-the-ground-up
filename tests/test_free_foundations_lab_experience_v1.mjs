@@ -28,4 +28,12 @@ assert(src.includes('No grade or server record was created'));
 assert(!/\bfetch\s*\(|\.rpc\s*\(|\/api\/|checkout\.html/.test(src),
  'Free-only preview must not access privileged APIs or payments');
 assert(css.includes('max-width:680px'));
+const watchlist=read('free-watchlist.html');
+const simulator=read('simulator.html');
+assert(watchlist.includes('Learn it first. Practice your own research decision.'));
+assert(watchlist.includes('bootcamp-academy.html?program=free5&amp;day=4'));
+assert(simulator.includes('Talia’s Lab method: learn, set up, pause, decide, review'));
+assert(simulator.includes('bootcamp-academy.html?program=free5&amp;day=3'));
+assert(simulator.includes('paying does not create unavailable market history'));
+
 console.log('PASS five Free Foundations Lab-method samples and accurate Free-to-Full-Lab entitlement boundaries');
