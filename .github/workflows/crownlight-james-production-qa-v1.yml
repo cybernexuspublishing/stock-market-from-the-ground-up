@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'tests/test_crownlight_james_production_acceptance_v1.mjs'
+      - 'tests/test_crownlight_james_live_api_v1.mjs'
       - '.github/workflows/crownlight-james-production-qa-v1.yml'
 permissions:
   contents: read
@@ -41,3 +42,22 @@ jobs:
           LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
           CROWN_QA_ALLOW_SPARKS_DEBIT: ${{ inputs.redeem_test_sparks || 'false' }}
         run: node tests/test_crownlight_james_production_acceptance_v1.mjs
+
+  real-password-http-contract:
+    name: Real James_Test HTTP authentication / workspace / quoted Sparks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check strict signed-in production API QA
+        run: node --check tests/test_crownlight_james_live_api_v1.mjs
+      - name: Real password authentication and private Chart Studio API (no charges)
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_crownlight_james_live_api_v1.mjs
