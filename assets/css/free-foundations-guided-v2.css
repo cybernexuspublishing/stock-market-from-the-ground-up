@@ -1,0 +1,24 @@
+/* Self-paced Free Foundations. Presentation-only; no change to member grants or assessment. */
+.academy-free-lesson-mode .gu-bc-index{position:sticky;top:85px}
+.academy-free-lesson-mode .gu-bc-lesson{min-width:0}
+.academy-free-lesson-mode #academy-original-instruction{padding:0;border:0;background:transparent;margin:20px 0}
+.academy-free-journey{border:1px solid #4b7296;background:linear-gradient(140deg,#172940,#103039);border-radius:16px;overflow:hidden}
+.academy-free-intro{margin:0;padding:18px 22px;color:#e1eff9;line-height:1.6;background:#15243d;border-bottom:1px solid #3d5e86}
+.academy-free-stage-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:15px;background:#0d1e32}
+.academy-free-stage-button{min-width:0;min-height:43px;padding:10px;border-radius:9px;border:1px solid #4c658e;background:#142c47;color:#d5e9fd;font:inherit;font-weight:750;cursor:pointer}
+.academy-free-stage-button.active,.academy-free-stage-button[aria-pressed=true]{background:linear-gradient(110deg,#6445bf,#267995);border-color:#9adff4;color:white}
+.academy-free-stage-button:focus-visible,.academy-free-stage-controls button:focus-visible{outline:3px solid #8be5ff;outline-offset:2px}
+.academy-free-stage{padding:clamp(17px,3vw,30px);min-height:180px}
+.academy-free-stage[hidden]{display:none!important}
+.academy-free-stage p,.academy-free-stage li{font-size:clamp(.98rem,1.15vw,1.1rem);line-height:1.75;color:#ecf4fc}
+.academy-free-stage h4{font-family:inherit;font-size:clamp(1.08rem,1.7vw,1.3rem);font-weight:800;color:#ffe0a4;margin:22px 0 10px}
+.academy-free-stage h4:first-child{margin-top:0}
+.academy-free-stage textarea{width:100%;min-height:110px;box-sizing:border-box;background:#0e2136;color:#ecf7ff;border:1px solid #6e88a5;border-radius:10px;padding:12px}
+.academy-free-stage label{display:block;margin:14px 0 8px;font-weight:750}
+.academy-free-stage figure{max-width:100%;margin:0 0 20px}
+.academy-free-stage .academy-free-phase-a{border:1px solid #457a86;border-radius:12px;background:#0c2a37;padding:16px}
+.academy-free-stage-controls{display:flex;align-items:center;gap:13px;flex-wrap:wrap;justify-content:space-between;padding:14px 20px;background:#0c1d33;border-top:1px solid #47688e}
+.academy-free-stage-controls [role=status]{font-size:.89rem;color:#cee5f9}
+.academy-free-stage-controls button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:700px){.academy-free-lesson-mode .gu-bc-index{position:static}.academy-free-stage-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.academy-free-stage-controls{justify-content:flex-start}}
+@media(max-width:420px){.academy-free-stage-nav{gap:5px;padding:9px}.academy-free-stage-button{font-size:.85rem}.academy-free-stage{padding:14px}}
