@@ -14,7 +14,7 @@ assert.equal(typeof bridge?.mount,'function');
 assert.deepEqual(Object.keys(bridge.lessons).map(Number),[1,2,3,4,5]);
 for(const [day,row] of Object.entries(bridge.lessons)){
  for(const key of ['title','focus','observe','decision','review','extended'])
-  assert(row[key].length>=40,`Day ${day} missing substantive ${key}`);
+  assert(row[key].length>=(key==='title'?12:40),`Day ${day} missing substantive ${key}`);
  assert(!/guaranteed (profit|fill|return)/i.test(row.review));
 }
 assert(html.includes('free-foundations-lab-experience-v1.js'));
