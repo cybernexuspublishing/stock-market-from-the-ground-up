@@ -76,7 +76,8 @@ let main,ctx,catalog=null,offerState=null,bookCodes=[],founderVisible=false,book
 try{
  ({page:main,context:ctx}=await makePage());
  await run('Public catalog and Founder status contract (read-only)',async()=>{
-  const [catalogResponse,offerResponse]=await Promise.all([
+  if(isLocal)await main.goto(base+'/store.html',{waitUntil:'domcontentloaded'});
+  const [catalogResponse,offerResponse]=isLocal?[null,null]:await Promise.all([
    main.request.get(base+'/api/storefront-public-catalog',{timeout:20000}),
    main.request.get(base+'/api/founding-offer-status',{timeout:20000})
   ]);
@@ -135,12 +136,14 @@ try{
    if(!isLocal)assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),
     await main.locator('#store-tools article.v11-tool-card').count(),
     'Every released tool must disclose price/status');
-   assert.equal(await main.locator('#store-tab-memberships').count(),0,'Owner-hidden legacy Membership tab must not return');
+   assert.equal(await main.locator('#store-tab-memberships').isVisible(),false,
+    'Unreleased Membership tab must remain hidden');
    assert.equal(await main.getByText('Monthly Membership Test').count(),0,'Retired QA offer returned');
    return 'Verified '+(founderVisible?'published Founder cards':'hidden Founder offers')+', '+bookCount+' published books, no legacy Membership tab';
  });
  await run('Six Store tabs are exclusive and preserve deep links',async()=>{
-   const options=['founders','books','sparks','tools','current','upcoming'];
+   const options=['founders','books','sparks','tools','current','upcoming']
+    .filter(t=>t!=='founders'||founderVisible);
    for(const t of options){
      await main.locator('#store-tab-'+t).click();
      assert.equal(await main.locator('#store-tab-'+t).getAttribute('aria-selected'),'true');
@@ -154,27 +157,43 @@ try{
    return 'Six tab states and reload of Upcoming Releases';
  });
  await run('Accessible keyboard Store tabs',async()=>{
-   await main.locator('#store-tab-founders').click();
-   await main.locator('#store-tab-founders').focus();
+   const tabs=['founders','books','sparks','tools','current','upcoming']
+    .filter(t=>t!=='founders'||founderVisible);
+   await main.locator('#store-tab-'+tabs[0]).click();
+   await main.locator('#store-tab-'+tabs[0]).focus();
    await main.keyboard.press('ArrowRight');
-   assert.equal(await main.locator('#store-tab-books').getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-'+tabs[1]).getAttribute('aria-selected'),'true');
    await main.keyboard.press('End');
-   assert.equal(await main.locator('#store-tab-upcoming').getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-'+tabs.at(-1)).getAttribute('aria-selected'),'true');
    await main.keyboard.press('Home');
-   assert.equal(await main.locator('#store-tab-founders').getAttribute('aria-selected'),'true');
-   return 'ArrowRight, End and Home select the expected tabs';
+   assert.equal(await main.locator('#store-tab-'+tabs[0]).getAttribute('aria-selected'),'true');
+   return 'ArrowRight, End and Home select published Store tabs';
  });
  await run('Book filters hide nonmatching books and restore all five',async()=>{
    await main.locator('#store-tab-books').click();
-   await main.waitForFunction(()=>document.querySelectorAll('#store-products article.product-card').length===5,{timeout:16000});
-   for(const [filter,count] of [['foundations',3],['day-trading',1],['reading-the-tape',1],['all',5]]){
+   if(!bookCount){
+    assert.equal(await main.locator('#store-products article.product-card').count(),0);
+    assert.match(await main.locator('#store-products').innerText(),/No books are currently listed/);
+    return 'Unpublished book listings remain hidden; empty state available';
+   }
+   await main.waitForFunction(n=>document.querySelectorAll('#store-products article.product-card').length===n,bookCount,{timeout:16000});
+   const families={
+    foundations:['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3'],
+    'day-trading':['DAY_TRADING_BOOK_1'],
+    'reading-the-tape':['READING_THE_TAPE']
+   };
+   for(const [filter,count] of [
+    ['foundations',families.foundations.filter(c=>bookCodes.includes(c)).length],
+    ['day-trading',families['day-trading'].filter(c=>bookCodes.includes(c)).length],
+    ['reading-the-tape',families['reading-the-tape'].filter(c=>bookCodes.includes(c)).length],
+    ['all',bookCount]]){
      await main.locator('#store-tabs button[data-filter="'+filter+'"]').click();
      assert.equal(await main.locator('#store-products article.product-card:visible').count(),count,'Book filter '+filter);
    }
    const links=await main.locator('#store-products article.product-card h3 a').evaluateAll(a=>a.map(el=>new URL(el.href).pathname));
-   assert.equal(new Set(links).size,5);
+   assert.equal(new Set(links).size,bookCount);
    assert.ok(links.every(h=>/\/store-book-/.test(h)));
-   return 'Foundations 3, Day Trading 1, Reading the Tape 1, All 5';
+   return 'Book filters match '+bookCount+' authorized public book listings';
  });
  await run('Current and Upcoming products are separate grouped catalogs',async()=>{
    await main.locator('#store-tab-current').click();
@@ -194,7 +213,7 @@ try{
    return 'Only links examined; no checkout or payment requests';
  });
  await run('Store automated accessibility evaluation',async()=>{
-   await main.locator('#store-tab-founders').click();
+   await main.locator('#store-tab-'+(founderVisible?'founders':'books')).click();
    const result=await new AxeBuilder({page:main}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
    const serious=result.violations.filter(v=>['critical','serious'].includes(v.impact));
    assert.equal(serious.length,0,serious.map(v=>v.id+': '+v.nodes.length).join('; '));
@@ -212,6 +231,18 @@ try{
          return r&&(!r.textContent.includes('Loading product coverage')||r.textContent.includes('temporarily unavailable'));
        },{timeout:18000});
        const text=await root.innerText();
+       if(path.startsWith('store-book-')&&!bookCodes.includes(({
+        'store-book-foundation-1.html':'FOUNDATION_BOOK_1',
+        'store-book-foundation-2.html':'FOUNDATION_BOOK_2',
+        'store-book-foundation-3.html':'FOUNDATION_BOOK_3',
+        'store-book-day-trading-1.html':'DAY_TRADING_BOOK_1',
+        'store-book-reading-the-tape.html':'READING_THE_TAPE'
+       })[path])){
+        assert.match(text,/Book not currently listed/i,'Hidden book detail must fail closed');
+        assert.equal(await root.locator('a[href*="checkout"]').count(),0,
+         'Unpublished book must not display checkout');
+        return 'Unpublished book detail correctly unavailable';
+       }
        assert.ok(!/Loading product coverage/i.test(text),'Hydration not completed');
        assert.ok(!/Product information temporarily unavailable|Unable to verify the product catalog/i.test(text),
          'Customer sees a product catalog failure');
@@ -255,7 +286,12 @@ try{
  await run('Mobile layout and category tap controls',async()=>{
    const {page:p,context:c}=await makePage(390,844);
    try{await p.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:24000});
-     await p.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===2,{timeout:20000});
+     if(founderVisible){
+      const expected=catalog.items.filter(x=>x.category==='founding').length;
+      await p.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,expected,{timeout:20000});
+     }else{
+      assert.equal(await p.locator('#store-tab-founders').isVisible(),false);
+     }
      await p.locator('#store-tab-tools').click();
      assert.equal(await p.locator('#store-panel-tools').isVisible(),true);
      const widths=await p.evaluate(()=>({body:document.body.scrollWidth,viewport:innerWidth}));
@@ -269,6 +305,11 @@ try{
      try{
        const response=await p.goto(base+'/'+path,{waitUntil:'domcontentloaded',timeout:24000});
        assert.ok(response?.ok(),'Cannot load '+path);
+       if(path==='store-book-foundation-1.html'&&!bookCodes.includes('FOUNDATION_BOOK_1')){
+        await p.getByText('Book not currently listed').waitFor();
+        assert.equal(await p.locator('a[href*="checkout"]').count(),0);
+        continue;
+       }
        await p.waitForFunction(()=>!!document.querySelector('.store-product-body'),{timeout:18000});
        const metrics=await p.evaluate(()=>{
          const primary=document.querySelector('.store-product-sections').getBoundingClientRect();
