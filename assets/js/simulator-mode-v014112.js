@@ -29,7 +29,7 @@
   if(focus){
    const target=server?s:l,heading=target.querySelector('h2');
    if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
-   target.scrollIntoView({block:'start',behavior:'smooth'});
+   target.scrollIntoView?.({block:'start',behavior:'smooth'});
   }
  }
  function init(){
