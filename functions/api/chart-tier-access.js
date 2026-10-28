@@ -5,6 +5,8 @@
 import {toolAccess} from './member-tool-access.js';
 import {foundingOfferState} from '../_lib/founder-offer-gate-v1.js';
 const rank={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
+const QA_BATCH='SMFGU-MEMBERSHIP-9-20261027',CHART_BATCH='SMFGU-CHART-3-20261028';
+const QA_PLANS={FREE:['STANDARD','free'],FOUNDING_30:['ADVANCED','founding-30'],FOUNDING_60:['PROFESSIONAL','founding-60']};
 const tierOf={FOUNDING_14:'STANDARD',FOUNDING_30:'ADVANCED',FOUNDING_60:'PROFESSIONAL',
  FULL_MONTHLY:'PROFESSIONAL',FULL_ANNUAL:'PROFESSIONAL',LIFETIME:'PROFESSIONAL'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{
@@ -22,6 +24,25 @@ async function rows(c,path){
  const r=await fetch(c.base+'/rest/v1/'+path,{headers:c.headers,cache:'no-store'});
  if(!r.ok)throw Error('Chart membership could not be verified');
  const data=await r.json();if(!Array.isArray(data))throw Error('Invalid membership response');return data;
+}
+async function verifiedNoncommercialChartTier(c,uid,now){
+ // A real, email-confirmed Auth Admin-created QA identity is NOT a paid subscription.
+ // App metadata is controlled by GoTrue Admin, never user_metadata or browser labels.
+ try{
+  const r=await fetch(c.base+'/auth/v1/admin/users/'+uid,{headers:c.headers,cache:'no-store'});
+  if(!r.ok)return null;
+  const response=await r.json();
+  const user=response?.user||response,meta=user?.app_metadata||{};
+  const plan=String(meta.qa_target_plan||''),spec=QA_PLANS[plan];
+  if(!spec||meta.smfgu_qa_only!==true||meta.noncommercial!==true||
+     meta.qa_batch!==QA_BATCH||meta.qa_chart_batch!==CHART_BATCH||
+     meta.qa_chart_tier!==spec[0]||user?.id!==decodeURIComponent(uid)||
+     user?.email!=='stockmarketfromthegroundup+test-'+spec[1]+'-20261027@gmail.com'||
+     !user.email_confirmed_at||user.deleted_at)return null;
+  const until=Date.parse(meta.qa_chart_expires_at||'');
+  if(!Number.isFinite(until)||until<=now||until-now>14*86400000+300000)return null;
+  return spec[0];
+ }catch{return null}
 }
 export async function crownlightChartEntitlement(env,request){
  const free=await toolAccess(env,request,'MARKET_SIMULATOR');
@@ -51,10 +72,13 @@ export async function crownlightChartEntitlement(env,request){
     consider(g.plan_code,'Active '+g.plan_code+' plan grant');
   }
  }
+ const qa=await verifiedNoncommercialChartTier(c,uid,now);
+ if(qa&&rank[qa]>rank[tier]){tier=qa;reason='Noncommercial Chart Studio QA — no paid membership or founder seat';}
+ else if(qa&&tier==='STANDARD')reason='Noncommercial Chart Studio Standard QA';
  return {ok:true,eligible:true,tier,reason,allowed:['STANDARD',...(rank[tier]>=1?['ADVANCED']:[]),
   ...(rank[tier]>=2?['PROFESSIONAL']:[])],
   advancedEngine:'KLineChart 10.1.0',professionalEngine:'Enhanced KLineChart 10.1.0',
-  temporaryBetaAccess:false};
+  temporaryBetaAccess:!!qa,noncommercialChartQa:!!qa};
 }
 export async function onRequestGet({request,env}){
  try{return json(await crownlightChartEntitlement(env,request))}

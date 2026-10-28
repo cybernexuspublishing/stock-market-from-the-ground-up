@@ -4,12 +4,22 @@ import {onRequestGet as founderOffer} from '../functions/api/founding-offer-stat
 const uuid='11111111-1111-4111-8111-111111111111',base='https://mockchart.supabase.co';
 const env={SUPABASE_URL:base,SUPABASE_SECRET_KEY:'secret_fixture',SUPABASE_PUBLISHABLE_KEY:'pub_fixture'};
 const now=Date.now(),before=new Date(now-3600000).toISOString(),after=new Date(now+3600000).toISOString();
-const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true};
+const state={plan:null,publicLaunch:false,full:false,revoked:false,reversed:false,expired:false,restricted:false,grant:null,profile:true,qa:null,qaExpired:false};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;let calls=[];
 globalThis.fetch=async(url,opt={})=>{
  const u=new URL(url);assert.equal(u.hostname,'mockchart.supabase.co');calls.push(u.pathname);
  if(u.pathname==='/auth/v1/user')return json({id:uuid});
+ if(u.pathname==='/auth/v1/admin/users/'+uuid){
+  if(!state.qa)return json({id:uuid,app_metadata:{},email_confirmed_at:after});
+  const tag={FREE:'free',FOUNDING_30:'founding-30',FOUNDING_60:'founding-60'}[state.qa];
+  const qaTier={FREE:'STANDARD',FOUNDING_30:'ADVANCED',FOUNDING_60:'PROFESSIONAL'}[state.qa];
+  return json({id:uuid,email:'stockmarketfromthegroundup+test-'+tag+'-20261027@gmail.com',
+   email_confirmed_at:before,app_metadata:{smfgu_qa_only:true,noncommercial:true,
+    qa_batch:'SMFGU-MEMBERSHIP-9-20261027',qa_chart_batch:'SMFGU-CHART-3-20261028',
+    qa_chart_tier:qaTier,qa_target_plan:state.qa,
+    qa_chart_expires_at:state.qaExpired?before:after}});
+ }
  if(u.pathname==='/rest/v1/profiles')return json(state.profile?[{account_kind:'member',deleted_at:null}]:[]);
  if(u.pathname==='/rest/v1/admin_user_flags')return json(state.restricted?[{status:'restricted'}]:[]);
  if(u.pathname==='/rest/v1/admin_user_roles')return json([]);
@@ -36,6 +46,10 @@ async function check(tier){
 }
 try{
  await check('STANDARD');
+ state.qa='FREE';await check('STANDARD');
+ state.qa='FOUNDING_30';await check('ADVANCED');
+ state.qa='FOUNDING_60';await check('PROFESSIONAL');
+ state.qaExpired=true;await check('STANDARD');state.qaExpired=false;state.qa=null;
  state.plan='FOUNDING_14';await check('STANDARD');
  state.plan='FOUNDING_30';await check('ADVANCED');
  state.plan='FOUNDING_60';await check('PROFESSIONAL');
