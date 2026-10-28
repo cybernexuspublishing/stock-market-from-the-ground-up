@@ -56,7 +56,7 @@ function processSummary(rows,{asOf=new Date(),weeks=1,type='all'}={}){
   if(!r||!Object.prototype.hasOwnProperty.call(types,r.journal_type)||!validDay(r.trade_date))continue;
   if(type!=='all'&&r.journal_type!==type)continue;
   const when=new Date(r.trade_date+'T00:00:00Z');
-  if(when<start||when>=end)continue;
+  if(when<start||when>=end||when>(asOf instanceof Date?asOf:new Date(asOf)))continue;
   total++;types[r.journal_type]++;
   const complete=['closed','no_trade','reviewed'].includes(r.status);
   if(complete)completed++;else drafts++;
