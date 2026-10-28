@@ -103,7 +103,10 @@ window.addEventListener('crownlight:revealed-bars',e=>{
 });
 window.addEventListener('crownlight:tier-mounted',()=>{if(host&&!host.querySelector('.cl-talia-body').hidden)render()});
 window.addEventListener('crownlight:tier-permission',e=>{
- if(!e.detail?.verified){model.bars=[];model.lab=null;if(answer)answer.value='';if(link)link.hidden=true}
+ if(!e.detail?.verified){model.bars=[];model.lab=null;model.label='';if(answer)answer.value='';if(link)link.hidden=true;
+  facts?.replaceChildren();cues?.replaceChildren();questions?.replaceChildren();
+  if(heading)heading.textContent='Talia · Chart Reading Lab';
+  say('Session changed. Private chart observations were cleared. Sign in and load permitted replay data again.');}
 });
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
 window.CrownlightTaliaV2={getStatus:()=>({revealed:model.bars.length,labVerified:!!model.lab})};
