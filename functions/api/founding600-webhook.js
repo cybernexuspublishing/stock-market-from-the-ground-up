@@ -3,6 +3,7 @@
  * Only provider-fetched PAID invoices produce seat/membership/Sparks grants.
  */
 const text=(value,status=200)=>new Response(String(value),{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
+const foundingTerms={FOUNDING_14:{days:14,cents:2299},FOUNDING_30:{days:30,cents:4999},FOUNDING_60:{days:60,cents:5999}};
 const pattern=(s,p)=>new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(String(s||''));
 function envConfig(e){
  const base=String(e.SUPABASE_URL||'').replace(/\/$/,'');
@@ -70,7 +71,7 @@ async function fulfill(c,event){
  const item=sub.items?.data?.[0];
  if(sub.items?.data?.length!==1||item?.price?.id!==price
  ||item.price?.recurring?.interval!=='day'
- ||item.price.recurring.interval_count!==(reserved.plan_code==='FOUNDING_30'?30:60))
+ ||item.price.recurring.interval_count!==foundingTerms[reserved.plan_code]?.days)
  throw Error('STRIPE_CADENCE_MISMATCH');
  const line=verified.lines?.data?.find(l=>(l.price?.id||l.pricing?.price_details?.price)===price);
  if(verified.lines?.has_more===true||verified.lines?.data?.length!==1)
@@ -78,7 +79,8 @@ async function fulfill(c,event){
  const start=iso(line?.period?.start),end=iso(line?.period?.end);
  if(!start||!end||!pattern(verified.customer,'cus')||!pattern(event.id,'evt'))
  throw Error('INVALID_CYCLE');
- const expected=reserved.plan_code==='FOUNDING_30'?4999:5999;
+ const expected=foundingTerms[reserved.plan_code]?.cents;
+ if(!expected)throw Error('UNRECOGNIZED_FOUNDER_PLAN');
  if(!line||line.amount!==expected||verified.subtotal!==expected||verified.amount_paid<expected)
  throw Error('INVOICE_PRICE_MISMATCH');
  // Stripe invoice.paid also fires for out-of-band/manual marks. Grant access
@@ -115,7 +117,7 @@ async function subscriptionContext(c,sid){
  if(!p||r.reservation_state!=='consumed'||r.checkout_subscription_id!==sid||
  r.checkout_price_id!==p.priceId||sub.items?.data?.length!==1||item?.price?.id!==p.priceId||
  item.price?.recurring?.interval!=='day'||
- item.price.recurring.interval_count!==(r.plan_code==='FOUNDING_30'?30:60))
+ item.price.recurring.interval_count!==foundingTerms[r.plan_code]?.days)
  throw Error('FOUNDER_SUBSCRIPTION_BINDING_FAILED');
  const sess=await stripe(c,'checkout/sessions/'+encodeURIComponent(r.checkout_session_id));
  if(sess.id!==r.checkout_session_id||sess.client_reference_id!==rid||sess.subscription!==sid||
