@@ -42,7 +42,7 @@ async function permission(){
 }
 function stopCharts(){
  for(const entry of state.charts){try{window.klinecharts?.dispose(entry.id)}catch{}}
- state.charts=[];state.view?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
+ state.charts=[];state.view?.querySelector('[data-cl-tier-panels]')?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
 }
 function renderChoices(){
  if(!state.view)return;
