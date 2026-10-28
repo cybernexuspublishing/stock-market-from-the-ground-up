@@ -161,12 +161,43 @@ async function foundingCatalog(){
  }catch{target.innerHTML='<div class="notice">Founding terms are temporarily unavailable. <a href="founding600.html">Review the founding program</a>.</div>';matrix.textContent='Comparison unavailable until approved terms can be loaded.';}
 }
 
+
+async function enforceOfferVisibility(){
+ const founderTab=document.getElementById('store-tab-founders'),publicTab=document.getElementById('store-tab-memberships');
+ if(!founderTab||!publicTab)return;
+ let state=null;
+ try{
+  const r=await fetch('/api/founding-offer-status',{cache:'no-store'});
+  if(r.ok){const j=await r.json();if(j.ok===true)state=j}
+ }catch{}
+ founderTab.hidden=state?.offersVisible!==true;
+ publicTab.hidden=state?.publicLaunch!==true;
+ const publicPanel=document.getElementById('store-panel-memberships');
+ if(publicPanel)publicPanel.inert=state?.publicLaunch!==true;
+ const status=document.getElementById('store-category-status');
+ if(!state&&status)status.textContent='Membership launch status could not be verified; enrollment offers remain hidden.';
+ // Never display founding offers once the gate closes, even if a stale hash is present.
+ const requested=location.hash.replace('#','');
+ const fallback=state?.publicLaunch?'memberships':state?.offersVisible?'founders':'books';
+ window.CrownlightStoreSelectCategory?.(
+  (requested==='founders'&&!state?.offersVisible)||(requested==='memberships'&&!state?.publicLaunch)||!requested?fallback:requested
+ );
+ if(state?.offersVisible){
+  await foundingCatalog(); // Only request founding copy if offers really are visible.
+ }else{
+  const holder=document.getElementById('store-founder-plans');
+  const compare=document.getElementById('store-founder-compare');
+  if(holder)holder.replaceChildren();
+  if(compare)compare.replaceChildren();
+ }
+}
+
 function tabs(){
- const buttons=[...document.querySelectorAll('[data-store-category]')].filter(b=>b.dataset.storeCategory!=='memberships'),parts=['founders','books','sparks','tools','current','upcoming'];
+ const buttons=[...document.querySelectorAll('[data-store-category]')],parts=['founders','memberships','books','sparks','tools','current','upcoming'];
  const visibleButtons=()=>buttons.filter(b=>!b.hidden&&!b.disabled);
  const select=(name,focus=false)=>{
   const available=visibleButtons();
-  const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:'founders';
+  const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:(available[0]?.dataset.storeCategory||'books');
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
@@ -181,6 +212,7 @@ function tabs(){
    e.preventDefault();select(available[idx].dataset.storeCategory,true)
   })});
  window.addEventListener('hashchange',()=>{const key=location.hash.replace('#','');if(parts.includes(key))select(key)});
+ window.CrownlightStoreSelectCategory=select;
  select(location.hash.replace('#',''));
  const filters=[...document.querySelectorAll('#store-tabs button')];
  filters.forEach(b=>b.addEventListener('click',()=>{
@@ -255,7 +287,7 @@ async function renderStoreCatalogPanels(){
 
 async function init(){
  tabs();
- foundingCatalog();
+ void enforceOfferVisibility();
  try{
   const catalog=await C().load();
   const d=typeof C().verifiedCheckout==='function'?await C().verifiedCheckout(catalog):catalog;
