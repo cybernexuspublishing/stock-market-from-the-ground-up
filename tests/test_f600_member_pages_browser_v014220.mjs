@@ -34,7 +34,7 @@ async function visit(context,path){
 }
 try{
  for(const width of [390,1280]){
-  for(const tier of ['standard','extended']){
+  for(const tier of ['starter','standard','extended']){
    const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});
    await context.route('**/*',async route=>{
     const url=new URL(route.request().url());
@@ -50,6 +50,9 @@ try{
    assert.equal(await first.page.locator('#f600-learning-releases article').count(),tier==='extended'?5:3);
    assert.equal(await first.page.locator('#f600-case-form').isVisible(),tier==='extended');
    assert.deepEqual(first.errors,[],'Learning Studio browser errors '+tier+' '+width);
+   // Starter and Standard see shared founder instruction without 60-day-only extras.
+   if(tier==='starter')assert.equal(await first.page.locator('#f600-case-form').isVisible(),false,
+    '14-day Starter must not inherit 60-day Founders Council or case privileges');
    const path=await visit(context,'founder-extended-path.html');
    if(tier==='extended'){
      await path.page.locator('#f600-path-content').waitFor({state:'visible'});
@@ -73,4 +76,4 @@ try{
   }
  }
 }finally{await browser.close()}
-console.log('Founding 600 Standard/Extended Playwright journeys passed at 390px and 1280px.');
+console.log('Founding 600 Starter/Standard/Extended synthetic Playwright journeys passed at 390px and 1280px, no LIVE billing.');

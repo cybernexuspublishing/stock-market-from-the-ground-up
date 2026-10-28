@@ -123,7 +123,7 @@ try{
  plan='LIFETIME';
  r=await redeem({request:req(),env});
  assert.equal((await r.json()).eligible,false);
- r=await redeem({request:req('POST',{sku:'ADFREE_DAY',
+ r=await redeem({request:req('POST',{sku:'ADFREE_DAY',expectedCost:5,
   requestId:'66666666-6666-4666-8666-666666666666'}),env});
  assert.equal(r.status,409);assert.equal((await r.json()).error,'NOT_ELIGIBLE');
  assert.equal(balance,7,'Ineligible accounts must never be charged');
