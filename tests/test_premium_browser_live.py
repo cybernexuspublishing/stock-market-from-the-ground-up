@@ -53,6 +53,9 @@ with sync_playwright() as pw:
                     expected={'/'+route,'/'+route.removesuffix('.html')}
                     assert len(return_paths)==1 and return_paths[0] in expected,(
                         'Protected route lost intended destination',route,return_paths)
+                    # Sign-in can arrive after the protected-route redirect and layout hydration.
+                    # Still require the real password field: a redirect or loading shell alone cannot pass.
+                    page.locator('input[type="password"]').wait_for(state='visible',timeout=12000)
                     assert page.locator('input[type="password"]').count()==1,'Missing sign-in form'
                     assert page.locator('body').get_attribute('data-gu-layout-route')=='signin','Missing sign-in layout hook'
                     if route=='market-commons.html':
