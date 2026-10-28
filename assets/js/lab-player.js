@@ -360,6 +360,16 @@ function syncPlayerMode(){
  const trigger=q('player-mode-trigger');
  const policy=currentPlayerPolicy();
  const restricted=PLAYER.locked||policy.stage>=3;
+ const advanced=PLAYER.access?.serverAdvancedAllowed===true;
+ for(const option of Array.from(select.options)){
+  option.disabled=option.value!=='guided'&&!advanced;
+ }
+ const menu=q('player-mode-menu');
+ menu?.querySelectorAll('[data-member-mode]').forEach(button=>{
+  const isAdvanced=button.dataset.memberMode!=='guided';
+  button.disabled=isAdvanced&&!advanced;
+  button.title=button.disabled?'Full Learning Access is required for this mode.':'';
+ });
  select.value=PLAYER.mode;select.disabled=restricted;
  if(trigger){trigger.disabled=restricted;trigger.textContent=({guided:'Guided',practice:'Practice',blind:'Blind Decision',assessment:'Assessment'})[PLAYER.mode]+' ▾';}
  const label=q('player-mode-status');if(label)label.textContent=restricted?'Locked for this attempt':'Unlocked';
@@ -432,7 +442,9 @@ function inlineModeConfirmation(nextMode,allowChoice=false){
   const label=document.createElement('label');label.textContent='Select mode for the new attempt';
   picker=document.createElement('select');picker.setAttribute('aria-label','New learning mode');
   for(const [code,text] of [['guided','Guided'],['practice','Practice'],['blind','Blind Decision'],['assessment','Assessment']]){
-   const option=document.createElement('option');option.value=code;option.textContent=text;picker.append(option);
+   const option=document.createElement('option');option.value=code;option.textContent=text;
+   option.disabled=code!=='guided'&&PLAYER.access?.serverAdvancedAllowed!==true;
+   picker.append(option);
   }
   picker.value=nextMode;
   picker.addEventListener('change',()=>{selected.textContent=picker.value});
@@ -676,6 +688,10 @@ async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(
  const requestPlayerMode=async next=>{
   const requestEpoch=++modeSelectionEpoch;
   if(!['guided','practice','blind','assessment'].includes(next))return;
+  if(next!=='guided'&&PLAYER.access?.serverAdvancedAllowed!==true){
+   showAssessmentReadiness('This mode requires Full Learning Access. Guided teaching remains available.');
+   syncPlayerMode();return;
+  }
   if(next===PLAYER.mode){syncPlayerMode();return}
   const stage=currentPlayerPolicy().stage,previousMode=PLAYER.mode;
   if(PLAYER.locked||stage>=3){syncPlayerMode();return}
