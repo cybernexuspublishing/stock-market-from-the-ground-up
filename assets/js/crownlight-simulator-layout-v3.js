@@ -25,10 +25,8 @@
   const inner=el('div','cl-import-interior');
   for(const child of [...section.childNodes])inner.appendChild(child);
   details.append(summary,info,inner);section.append(details);section.classList.add('cl-import-shell');
-  const load=$('sim-load-msg');
-  if(load){const observer=new MutationObserver(()=>{
-   if(/Loaded \d+ provider bars|Loaded \d+ candles|Original fictional starter/i.test(load.textContent||''))details.open=false;
-  });observer.observe(load,{childList:true,subtree:true,characterData:true})}
+  // Source controls must not disappear when a dataset loads. The member may
+  // collapse Step 1 explicitly using its heading; never auto-collapse it.
  }
  function setupChart(){
   const area=document.querySelector('#sim-content .sim-layout'),chart=area?.querySelector('.sim-chart-panel');
