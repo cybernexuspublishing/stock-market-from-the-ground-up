@@ -1,0 +1,42 @@
+/* Founders Commons Admin form layout.
+ * Separates label text from editable fields and keeps existing form names/actions. */
+.gu-founders-page .gu-f600-main{width:min(100% - 36px,1280px);max-width:1280px;padding:24px 0 48px}
+.gu-founders-page .gu-f600-hero{padding:22px 26px;gap:16px;margin-bottom:15px;border-radius:13px}
+.gu-founders-page .gu-f600-hero h1{font-family:inherit;font-size:clamp(1.65rem,2.5vw,2.4rem);font-weight:750;line-height:1.18;letter-spacing:-.025em}
+.gu-founders-page .gu-f600-hero p{font-size:.92rem;margin:5px 0;line-height:1.5}
+.gu-founders-page .gu-f600-layout{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0;align-items:start}
+.gu-founders-page .gu-f600-panel{padding:18px 20px;border-radius:12px;min-width:0;overflow-wrap:anywhere}
+.gu-founders-page .gu-f600-panel h2{font-family:inherit;font-size:1.24rem;line-height:1.28;letter-spacing:-.01em;margin:0 0 12px}
+.gu-founders-page .gu-f600-panel h3{font-size:1.02rem;line-height:1.3}
+.gu-founders-page .gu-f600-panel p{font-size:.9rem;line-height:1.48}
+.gu-founders-page .gu-f600-panel form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:13px}
+.gu-founders-page .gu-f600-panel form>label{display:flex;flex-direction:column;align-items:stretch;justify-content:start;gap:6px;min-width:0;margin:0;font-size:.85rem;font-weight:650;line-height:1.35;color:#e7f0fb}
+.gu-founders-page .gu-f600-panel form>label:has(textarea),
+.gu-founders-page .gu-f600-panel form>label:has([name="choices"]),
+.gu-founders-page .gu-f600-panel form>label:has([name="body"]){grid-column:1/-1}
+.gu-founders-page .gu-f600-panel form>label:has(input[type="checkbox"]){grid-column:1/-1;display:flex;flex-direction:row;align-items:flex-start;gap:9px}
+.gu-founders-page .gu-f600-panel form :is(input:not([type="checkbox"]),select,textarea){display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:40px;background:#081a2c;color:#f2f8ff;border:1px solid #66829b;border-radius:7px;padding:9px 11px;font:inherit;font-size:.9rem;line-height:1.45}
+.gu-founders-page .gu-f600-panel form textarea{min-height:90px;resize:vertical}
+.gu-founders-page .gu-f600-panel form label:has([name="body"]) textarea{min-height:168px}
+.gu-founders-page .gu-f600-panel form input[type="checkbox"]{flex:none;width:17px;height:17px;margin:2px 0 0;accent-color:#ad8eee}
+.gu-founders-page .gu-f600-panel form :is(button[type="submit"],button[type="button"]){grid-column:1/-1;justify-self:start;min-height:38px;font-size:.88rem;padding:8px 14px;margin:0}
+.gu-founders-page .gu-f600-panel form>[role="status"],
+.gu-founders-page .gu-f600-panel form>p{grid-column:1/-1;min-width:0;font-size:.85rem;margin:0}
+.gu-founders-page .gu-f600-panel :is(input,textarea,select):focus-visible{outline:2px solid #b6cdff;outline-offset:2px}
+.gu-founders-page .gu-f600-panel :is(input,textarea,select)::placeholder{color:#a2b4c8}
+.gu-founders-page .gu-f600-panel #f600-admin-learning-releases{display:grid;gap:8px;min-width:0}
+.gu-founders-page .gu-f600-panel #f600-admin-learning-releases>*{overflow-wrap:anywhere}
+.gu-founders-page .gu-f600-panel #f600-certificate-form{grid-template-columns:1fr}
+.gu-founders-page .gu-f600-panel #f600-certificate-form>label{grid-column:1/-1}
+.gu-founders-page .gu-f600-panel .btn{white-space:normal;max-width:100%;text-align:center}
+@media(max-width:1120px){
+ .gu-founders-page .gu-f600-layout{grid-template-columns:1fr}
+ .gu-founders-page .gu-f600-main{width:min(100% - 30px,940px)}
+}
+@media(max-width:660px){
+ .gu-founders-page .gu-f600-main{width:calc(100% - 20px);padding:14px 0 32px}
+ .gu-founders-page .gu-f600-hero{padding:16px 18px}
+ .gu-founders-page .gu-f600-panel{padding:15px}
+ .gu-founders-page .gu-f600-panel form{grid-template-columns:1fr;gap:10px}
+ .gu-founders-page .gu-f600-panel form>label{grid-column:1/-1}
+}
