@@ -12,6 +12,7 @@ on:
       - "tests/test_v014180_owner_store_acceptance.mjs"
       - "tests/test_member_sparks_wallet_v014296.mjs"
       - "tests/test_crownlight_adfree_v2.mjs"
+      - "tests/test_crownlight_adfree_authenticated_v2.mjs"
       - "functions/api/member-sparks-adfree.js"
       - "assets/js/store-sparks-adfree-v2.js"
       - "functions/api/ad-slot.js"
@@ -114,6 +115,7 @@ jobs:
           node --check assets/js/admin-stripe-shadow-v01439.js
           node tests/test_member_sparks_wallet_v014296.mjs
           node tests/test_crownlight_adfree_v2.mjs
+          node tests/test_crownlight_adfree_authenticated_v2.mjs
           node --check functions/api/member-sparks-adfree.js
           node --check assets/js/store-sparks-adfree-v2.js
           node tests/test_owner_store_categories_gallery_v014300.mjs
