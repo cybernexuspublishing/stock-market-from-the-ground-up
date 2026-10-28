@@ -85,7 +85,7 @@ export async function onRequestGet({env}){
    rest(c,'platform_plans?select=plan_code,active,public_visible,checkout_enabled&plan_code=in.(FOUNDING_14,FOUNDING_30,FOUNDING_60)'),
    rest(c,'gu_storefront_items_v014174?select=sku,visible,sale_ready,status&category=eq.founding')
   ]);
-  const published=plan=>{
+  published=plan=>{
    const p=publicPlans.find(x=>x.plan_code===plan);
    const item=storeRows.find(x=>x.sku==='founding:'+plan);
    return p?.active===true&&p.public_visible===true&&p.checkout_enabled===true
