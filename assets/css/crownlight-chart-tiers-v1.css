@@ -1,0 +1,20 @@
+/* Crownlight Chart Studio V1: member-gated chart presentation only. */
+.cl-chart-tier-switcher{margin:16px 0 8px;padding:16px;background:#101d35;border:1px solid #3a5b80;border-radius:14px;color:#ebf4fe;min-width:0}
+.cl-chart-tier-bar{display:flex;align-items:end;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.cl-chart-tier-bar label{font-size:.85rem;font-weight:750;display:grid;gap:6px;min-width:min(100%,290px)}
+.cl-chart-tier-bar select{min-width:0;width:100%;padding:10px;background:#0b1728;color:#f0f9ff;border:1px solid #57749f;border-radius:8px;font:inherit}
+.cl-chart-tier-status{font-size:.83rem;color:#b8d5ea;line-height:1.5;max-width:620px;margin:0}
+.cl-chart-tier-enhanced[hidden]{display:none!important}
+.cl-chart-tier-enhanced{margin-top:14px}
+.cl-chart-tier-tools{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 10px}
+.cl-chart-tier-tools strong{margin-right:10px;font-size:.86rem}
+.cl-chart-tier-tools button{cursor:pointer}
+.cl-chart-tier-tools select{min-width:125px;padding:8px 10px;background:#122742;color:#eaf7ff;border:1px solid #55749a;border-radius:8px}
+.cl-chart-tier-note{font-size:.79rem;color:#a7c3dd}
+.cl-chart-tier-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:repeat(2,minmax(0,1fr))}
+.cl-tier-kline-canvas{min-width:0;width:100%;height:440px;border-radius:11px;background:#091727;border:1px solid #345a83;overflow:hidden}
+.cl-tier-enhanced .crownlight-shell .crownlight-plot{display:none}
+.cl-tier-enhanced .crownlight-shell .crownlight-toolbar{border-bottom:1px solid #375476}
+@media(max-width:1000px){.cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.cl-chart-tier-bar{align-items:stretch}.cl-chart-tier-bar label{width:100%}.cl-tier-kline-canvas{height:350px}.cl-chart-tier-switcher{padding:10px}.cl-chart-tier-tools{align-items:stretch}}
