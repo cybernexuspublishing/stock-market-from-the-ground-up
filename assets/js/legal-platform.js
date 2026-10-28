@@ -26,15 +26,27 @@
   if(!host||!host.querySelector('.v132-policy-body'))return;
   const nav=document.createElement('nav');nav.setAttribute('aria-label','Related policies and purchase terms');
   nav.className='v13-card gu-legal-related';nav.style.marginTop='1.75rem';
-  nav.innerHTML='<h2>Related purchase terms</h2><ul>'+
-   '<li><a href="founding-600-terms.html">Founding 600 Membership Terms</a></li>'+
-   '<li><a href="crownlight-sparks-terms.html">Crownlight Sparks Purchase Terms</a></li>'+
-   '<li><a href="digital-books-terms.html">Digital Books and Downloads Terms</a></li>'+
-   '<li><a href="bootcamp-terms.html">Boot Camp and Clinic Terms</a></li>'+
-   '<li><a href="terms.html">Terms of Service</a></li>'+
-   '<li><a href="subscription-terms.html">Subscription and Billing Terms</a></li>'+
-   '<li><a href="refund-policy.html">Refund and Cancellation Policy</a></li>'+
-   '<li><a href="privacy.html">Privacy Policy</a></li>'+
+  nav.innerHTML='<h2>Related policies &amp; purchase terms</h2><ul>'+
+   '<li><a href="/legal.html">Legal & Policies directory</a></li>'+
+   '<li><a href="/terms.html">Terms of Service</a></li>'+
+   '<li><a href="/refund-policy.html">Refund & Cancellation Policy</a></li>'+
+   '<li><a href="/subscription-terms.html">Subscription & Billing Terms</a></li>'+
+   '<li><a href="/privacy.html">Privacy Policy</a></li>'+
+   '<li><a href="/cookie-policy.html">Cookie & Local Storage Notice</a></li>'+
+   '<li><a href="/educational-disclaimer.html">Educational & Trading Disclaimer</a></li>'+
+   '<li><a href="/editorial-guidelines.html">Editorial Guidelines</a></li>'+
+   '<li><a href="/ai-use-disclosure.html">AI Use Disclosure</a></li>'+
+   '<li><a href="/affiliate-disclosure.html">Affiliate & Referral Disclosure</a></li>'+
+   '<li><a href="/advertising-disclosure.html">Advertising & Sponsorship Disclosure</a></li>'+
+   '<li><a href="/related-entities-disclosure.html">Related Brands & Third-Party Relationships</a></li>'+
+   '<li><a href="/community-guidelines.html">Community Guidelines</a></li>'+
+   '<li><a href="/copyright.html">Copyright & Intellectual Property</a></li>'+
+   '<li><a href="/dmca-takedown-policy.html">DMCA Takedown Policy</a></li>'+
+   '<li><a href="/accessibility.html">Accessibility Statement</a></li>'+
+   '<li><a href="/founding-600-terms.html">Founding 600</a></li>'+
+   '<li><a href="/crownlight-sparks-terms.html">Crownlight Sparks</a></li>'+
+   '<li><a href="/digital-books-terms.html">Digital Books & Downloads</a></li>'+
+   '<li><a href="/bootcamp-terms.html">Boot Camp & Clinic Terms</a></li>'+
    '</ul>';host.appendChild(nav);
  };
  if(!document.querySelector('link[data-gu-legal-design]')){

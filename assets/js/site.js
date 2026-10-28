@@ -211,3 +211,6 @@ document.addEventListener('DOMContentLoaded',()=>{
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure,{once:true});
  else ensure();
 })();
+
+/* Legal directory link for public and member page footers. */
+(()=>{const add=()=>{const f=document.querySelector('footer');if(!f||f.querySelector('[data-gu-legal-directory]'))return;const n=document.createElement('nav');n.dataset.guLegalDirectory='1';n.setAttribute('aria-label','Legal and transparency');n.style.cssText='max-width:76rem;margin:1rem auto 0;padding:1rem 1.5rem;border-top:1px solid rgba(127,127,127,.25);font-size:.875rem';const a=document.createElement('a');a.href='/legal.html';a.textContent='Legal & Policies';n.append(a);f.append(n)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add,{once:true});else add()})();
