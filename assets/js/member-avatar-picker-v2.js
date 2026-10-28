@@ -1,7 +1,8 @@
 /* Public avatar picker. Candidate selection is local until Apply succeeds.
  * The member-profile endpoint controls all writes and entitlements. */
 (()=>{'use strict';
- const catalogUrl='/assets/avatars/catalog-v2.json';
+ const catalogUrl='/assets/avatars/catalog-v2.json?v=5';
+ const imageSrc=x=>x.src+(x.id.startsWith('r')?'?v=5':'');
  const verified=id=>/^(?:[fmn](?:[4-9]|1[0-3])|r(?:0[1-9]|[12][0-9]|30))$/.test(String(id||''));
  const valid=x=>verified(x?.id)&&x.src==='/assets/avatars/av-'+x.id+'.webp';
  const domain='https://stock-market-from-the-ground-up-d1r.pages.dev';
@@ -28,7 +29,7 @@
    '<button type="button" data-avatar-style="realistic" aria-pressed="false">More lifelike (30)</button></div>'+
    '<div class="v2-avatar-modal-grid" role="group" aria-label="Available member avatars">'+
    choices.map(x=>'<button type="button" class="v2-avatar-tile" data-avatar-id="'+escape(x.id)+'" aria-pressed="'+(x.id===selected)+'" aria-label="Select '+escape(x.label||'Member avatar')+'">'+
-    '<img src="'+escape(x.src)+'" alt="" loading="lazy" width="88" height="88">'+
+    '<img src="'+escape(imageSrc(x))+'" alt="" loading="lazy" width="88" height="88">'+
     '<span>'+String(choices.indexOf(x)+1)+'</span></button>').join('')+'</div>'+
    '<p class="v2-avatar-modal-status" role="status" aria-live="polite" data-avatar-message></p>'+
    '<div class="v2-avatar-modal-footer"><button type="button" class="btn secondary" data-avatar-cancel>Cancel</button>'+
@@ -88,7 +89,7 @@
    '<button type="button" data-avatar-style="realistic" aria-pressed="false">More lifelike (30)</button></div>'+
    '<div class="v2-avatar-modal-grid" role="group" aria-label="Available member avatars">'+
    choices.map(x=>'<button type="button" class="v2-avatar-tile" data-avatar-id="'+escape(x.id)+'" aria-pressed="false" aria-label="Select '+escape(x.label||x.id)+'">'+
-   '<img src="'+escape(x.src)+'" alt="" loading="lazy" width="88" height="88">'+
+   '<img src="'+escape(imageSrc(x))+'" alt="" loading="lazy" width="88" height="88">'+
    '<span>'+String(choices.indexOf(x)+1)+'</span></button>').join('')+'</div>'+
    '<p data-avatar-message role="status" aria-live="polite"></p><div class="v2-avatar-inline-actions">'+
    '<button type="button" class="btn secondary" data-avatar-cancel>Cancel</button>'+

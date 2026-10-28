@@ -3,7 +3,7 @@ import {readFileSync,existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 const file=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const manifest=JSON.parse(file('assets/avatars/catalog-v2.json')),avatars=manifest.avatars;
-assert.equal(manifest.version,4);assert.equal(avatars.length,60);
+assert.equal(manifest.version,5);assert.equal(avatars.length,60);
 assert.equal(new Set(avatars.map(x=>x.id)).size,60);
 const hashes=new Set();
 for(const [i,a] of avatars.entries()){
@@ -25,6 +25,11 @@ assert(picker.includes('await onApply(url)'));assert(api.includes('baseAvatar=')
 assert(signup.includes('avatarIndex=random[0]%30'));assert(ui.includes('GroundUpAvatarPicker.mountInline'));
 assert(file('dashboard.html').includes('member-avatar-picker-v2.js'));
 assert(file('dashboard.html').includes('data-dashboard-avatar'));
+assert(picker.includes('imageSrc=x=>x.src+'));assert(picker.includes('catalog-v2.json?v=5'));
+assert(file('assets/js/dashboard-profile-avatar-v4.js').includes('cacheFresh(url)'));
+assert(file('assets/js/community-avatars-v1.js').includes('cacheFresh(portraits'));
+assert(avatars.slice(30).every(x=>x.collection==='neon-realistic-v5'));
+assert(avatars.slice(0,30).every(x=>!x.collection));
 assert(file('assets/js/dashboard-profile-avatar-v4.js').includes('gu:profile-avatar-updated'));
 assert(file('assets/css/dashboard-profile-avatar-v4.css').includes('gu-dashboard-profile-picture'));
-console.log('PASS 60 unique WebP avatars, Dashboard top-left portrait, profile save, and retained older choices.');
+console.log('PASS 30 neon-lit v5 portraits, 30 original portraits, preserved IDs, updated preview caches and Dashboard identity.');

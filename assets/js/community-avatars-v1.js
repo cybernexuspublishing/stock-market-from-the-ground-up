@@ -2,6 +2,7 @@
 (()=>{'use strict';
  const uuid=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
  const fallback='/assets/avatars/av-f4.webp';
+ const cacheFresh=url=>typeof url==='string'&&/\/assets\/avatars\/av-r(?:0[1-9]|[12][0-9]|30)\.webp$/.test(url)?url+'?v=5':url;
  let pending=false,busy=false;
  function validUrl(value){
   try{const u=new URL(value,location.origin);
@@ -29,7 +30,7 @@
   for(const item of nodes){
    if(!item.isConnected)continue;
    const image=document.createElement('img');image.className='gu-author-avatar';
-   image.src=portraits[item.dataset.communityAvatarUser]||fallback;
+   image.src=cacheFresh(portraits[item.dataset.communityAvatarUser])||fallback;
    image.alt='';image.width=34;image.height=34;image.loading='lazy';
    item.appendChild(image);
   }

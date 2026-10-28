@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "avatars": [
     {
       "id": "f4",
@@ -244,243 +244,303 @@
     {
       "id": "r01",
       "group": "realistic",
-      "label": "Avatar 31 — More lifelike portrait",
+      "label": "Avatar 31 — Neon realistic portrait",
       "src": "/assets/avatars/av-r01.webp",
       "format": "webp",
-      "number": 31
+      "number": 31,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r02",
       "group": "realistic",
-      "label": "Avatar 32 — More lifelike portrait",
+      "label": "Avatar 32 — Neon realistic portrait",
       "src": "/assets/avatars/av-r02.webp",
       "format": "webp",
-      "number": 32
+      "number": 32,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r03",
       "group": "realistic",
-      "label": "Avatar 33 — More lifelike portrait",
+      "label": "Avatar 33 — Neon realistic portrait",
       "src": "/assets/avatars/av-r03.webp",
       "format": "webp",
-      "number": 33
+      "number": 33,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r04",
       "group": "realistic",
-      "label": "Avatar 34 — More lifelike portrait",
+      "label": "Avatar 34 — Neon realistic portrait",
       "src": "/assets/avatars/av-r04.webp",
       "format": "webp",
-      "number": 34
+      "number": 34,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r05",
       "group": "realistic",
-      "label": "Avatar 35 — More lifelike portrait",
+      "label": "Avatar 35 — Neon realistic portrait",
       "src": "/assets/avatars/av-r05.webp",
       "format": "webp",
-      "number": 35
+      "number": 35,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r06",
       "group": "realistic",
-      "label": "Avatar 36 — More lifelike portrait",
+      "label": "Avatar 36 — Neon realistic portrait",
       "src": "/assets/avatars/av-r06.webp",
       "format": "webp",
-      "number": 36
+      "number": 36,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r07",
       "group": "realistic",
-      "label": "Avatar 37 — More lifelike portrait",
+      "label": "Avatar 37 — Neon realistic portrait",
       "src": "/assets/avatars/av-r07.webp",
       "format": "webp",
-      "number": 37
+      "number": 37,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r08",
       "group": "realistic",
-      "label": "Avatar 38 — More lifelike portrait",
+      "label": "Avatar 38 — Neon realistic portrait",
       "src": "/assets/avatars/av-r08.webp",
       "format": "webp",
-      "number": 38
+      "number": 38,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r09",
       "group": "realistic",
-      "label": "Avatar 39 — More lifelike portrait",
+      "label": "Avatar 39 — Neon realistic portrait",
       "src": "/assets/avatars/av-r09.webp",
       "format": "webp",
-      "number": 39
+      "number": 39,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r10",
       "group": "realistic",
-      "label": "Avatar 40 — More lifelike portrait",
+      "label": "Avatar 40 — Neon realistic portrait",
       "src": "/assets/avatars/av-r10.webp",
       "format": "webp",
-      "number": 40
+      "number": 40,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r11",
       "group": "realistic",
-      "label": "Avatar 41 — More lifelike portrait",
+      "label": "Avatar 41 — Neon realistic portrait",
       "src": "/assets/avatars/av-r11.webp",
       "format": "webp",
-      "number": 41
+      "number": 41,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r12",
       "group": "realistic",
-      "label": "Avatar 42 — More lifelike portrait",
+      "label": "Avatar 42 — Neon realistic portrait",
       "src": "/assets/avatars/av-r12.webp",
       "format": "webp",
-      "number": 42
+      "number": 42,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r13",
       "group": "realistic",
-      "label": "Avatar 43 — More lifelike portrait",
+      "label": "Avatar 43 — Neon realistic portrait",
       "src": "/assets/avatars/av-r13.webp",
       "format": "webp",
-      "number": 43
+      "number": 43,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r14",
       "group": "realistic",
-      "label": "Avatar 44 — More lifelike portrait",
+      "label": "Avatar 44 — Neon realistic portrait",
       "src": "/assets/avatars/av-r14.webp",
       "format": "webp",
-      "number": 44
+      "number": 44,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r15",
       "group": "realistic",
-      "label": "Avatar 45 — More lifelike portrait",
+      "label": "Avatar 45 — Neon realistic portrait",
       "src": "/assets/avatars/av-r15.webp",
       "format": "webp",
-      "number": 45
+      "number": 45,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r16",
       "group": "realistic",
-      "label": "Avatar 46 — More lifelike portrait",
+      "label": "Avatar 46 — Neon realistic portrait",
       "src": "/assets/avatars/av-r16.webp",
       "format": "webp",
-      "number": 46
+      "number": 46,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r17",
       "group": "realistic",
-      "label": "Avatar 47 — More lifelike portrait",
+      "label": "Avatar 47 — Neon realistic portrait",
       "src": "/assets/avatars/av-r17.webp",
       "format": "webp",
-      "number": 47
+      "number": 47,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r18",
       "group": "realistic",
-      "label": "Avatar 48 — More lifelike portrait",
+      "label": "Avatar 48 — Neon realistic portrait",
       "src": "/assets/avatars/av-r18.webp",
       "format": "webp",
-      "number": 48
+      "number": 48,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r19",
       "group": "realistic",
-      "label": "Avatar 49 — More lifelike portrait",
+      "label": "Avatar 49 — Neon realistic portrait",
       "src": "/assets/avatars/av-r19.webp",
       "format": "webp",
-      "number": 49
+      "number": 49,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r20",
       "group": "realistic",
-      "label": "Avatar 50 — More lifelike portrait",
+      "label": "Avatar 50 — Neon realistic portrait",
       "src": "/assets/avatars/av-r20.webp",
       "format": "webp",
-      "number": 50
+      "number": 50,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r21",
       "group": "realistic",
-      "label": "Avatar 51 — More lifelike portrait",
+      "label": "Avatar 51 — Neon realistic portrait",
       "src": "/assets/avatars/av-r21.webp",
       "format": "webp",
-      "number": 51
+      "number": 51,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r22",
       "group": "realistic",
-      "label": "Avatar 52 — More lifelike portrait",
+      "label": "Avatar 52 — Neon realistic portrait",
       "src": "/assets/avatars/av-r22.webp",
       "format": "webp",
-      "number": 52
+      "number": 52,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r23",
       "group": "realistic",
-      "label": "Avatar 53 — More lifelike portrait",
+      "label": "Avatar 53 — Neon realistic portrait",
       "src": "/assets/avatars/av-r23.webp",
       "format": "webp",
-      "number": 53
+      "number": 53,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r24",
       "group": "realistic",
-      "label": "Avatar 54 — More lifelike portrait",
+      "label": "Avatar 54 — Neon realistic portrait",
       "src": "/assets/avatars/av-r24.webp",
       "format": "webp",
-      "number": 54
+      "number": 54,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r25",
       "group": "realistic",
-      "label": "Avatar 55 — More lifelike portrait",
+      "label": "Avatar 55 — Neon realistic portrait",
       "src": "/assets/avatars/av-r25.webp",
       "format": "webp",
-      "number": 55
+      "number": 55,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r26",
       "group": "realistic",
-      "label": "Avatar 56 — More lifelike portrait",
+      "label": "Avatar 56 — Neon realistic portrait",
       "src": "/assets/avatars/av-r26.webp",
       "format": "webp",
-      "number": 56
+      "number": 56,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r27",
       "group": "realistic",
-      "label": "Avatar 57 — More lifelike portrait",
+      "label": "Avatar 57 — Neon realistic portrait",
       "src": "/assets/avatars/av-r27.webp",
       "format": "webp",
-      "number": 57
+      "number": 57,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r28",
       "group": "realistic",
-      "label": "Avatar 58 — More lifelike portrait",
+      "label": "Avatar 58 — Neon realistic portrait",
       "src": "/assets/avatars/av-r28.webp",
       "format": "webp",
-      "number": 58
+      "number": 58,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r29",
       "group": "realistic",
-      "label": "Avatar 59 — More lifelike portrait",
+      "label": "Avatar 59 — Neon realistic portrait",
       "src": "/assets/avatars/av-r29.webp",
       "format": "webp",
-      "number": 59
+      "number": 59,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     },
     {
       "id": "r30",
       "group": "realistic",
-      "label": "Avatar 60 — More lifelike portrait",
+      "label": "Avatar 60 — Neon realistic portrait",
       "src": "/assets/avatars/av-r30.webp",
       "format": "webp",
-      "number": 60
+      "number": 60,
+      "collection": "neon-realistic-v5",
+      "style": "lifelike-cinematic"
     }
   ],
-  "description": "Sixty member avatars: thirty premium illustrations and thirty more lifelike portraits."
+  "description": "Sixty member avatar portraits: thirty original illustrations and thirty more lifelike, neon-lit illustrations."
 }

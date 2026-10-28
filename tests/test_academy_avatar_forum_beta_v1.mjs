@@ -26,6 +26,7 @@ assert(profile.includes('GroundUpAvatarPicker.mountInline'),'Dashboard must use 
 assert(picker.includes('async function mountInline')&&picker.includes('panel.hidden=true'),'Inline Apply must save then close');
 const catalog=JSON.parse(file('assets/avatars/catalog-v2.json'));
 assert.equal(catalog.avatars.length,60);
+assert.equal(catalog.version,5);
 assert(catalog.avatars.every(x=>x.src.endsWith('.webp')),'Gallery presents exclusively high-quality WebP portraits');
 const uniqueWebP=new Set;
 for(const a of catalog.avatars){
