@@ -30,7 +30,7 @@ function paging(host,total,select){
  host.append(back,number,next);
 }
 function fromLocal(x){return {sku:x.sku,name:x.name,description:x.description||'',
- category:x.category||'Upcoming',price:x.status==='existing_catalog'?'See product details':'Pricing to be announced',
+ category:/^FOUNDING_(14|30|60)$/.test(x.sku)?'Founding Memberships':x.category||'Upcoming',price:x.status==='existing_catalog'?'See product details':'Pricing to be announced',
  duration:x.duration||'',status:x.status==='existing_catalog'?'listed':'coming_soon',
  saleReady:false,page:/^[a-z0-9-]+\.html$/.test(x.href||'')?x.href:null};}
 function normalize(x){return {...x,category:categoryLabels[x.category]||x.category};}
