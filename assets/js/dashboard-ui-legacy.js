@@ -173,9 +173,9 @@
         return '<article class="v1321-connection" data-service="'+provider.code+'"><div><strong>'+provider.name+'</strong>'+
           '<span class="v1321-status '+(verified?'ok':'')+'">'+state+'</span>'+
           '<small>'+(saved?'Stored credentials '+esc(saved.masked_hint||'••••'):'Each member connects their own API credentials.')+'</small>'+
-          account+(saved?.last_tested_at?'<small>Last verified: '+new Date(saved.last_tested_at).toLocaleString()+'</small>':'')+
+          account+(provider.code==='ALPACA_BYO'&&saved?.metadata?.paperAccountVerifiedAt?'<small>Paper Trading: provider verified · no orders submitted during verification</small>':'')+(saved?.last_tested_at?'<small>Last verified: '+new Date(saved.last_tested_at).toLocaleString()+'</small>':'')+
           '</div><div class="actions"><button class="btn secondary" type="button" data-add>'+(saved?'Change Account / Replace':'Choose Account & Connect')+'</button>'+
-          (provider.code==='ALPACA_BYO'&&saved?'<button class="btn secondary" type="button" data-verify>Test Market Data</button>':'')+
+          (provider.code==='ALPACA_BYO'&&saved?'<button class="btn secondary" type="button" data-verify>Test Market Data</button><button class="btn secondary" type="button" data-verify-paper>Verify Saved Paper Account</button>':'')+
           (saved?'<button class="btn secondary" type="button" data-remove>Remove</button>':'')+
           '</div><p class="v1321-connection-feedback" aria-live="polite"></p></article>';
       }).join('');
@@ -242,6 +242,17 @@
             await credentialList(host);
             toast('Alpaca IEX historical data verified.','ok');
           }catch(error){status.textContent=error.message||'Alpaca market-data test failed.';verify.disabled=false}
+        };
+        const paper=q('[data-verify-paper]',card);
+        if(paper)paper.onclick=async()=>{
+          paper.disabled=true;status.textContent='Checking your encrypted keys against Alpaca Paper Trading — no orders will be placed…';
+          try{
+            const result=await api('/api/credentials?action=verify-paper',{method:'POST',
+              body:JSON.stringify({serviceCode:'ALPACA_BYO'})});
+            if(result.paperVerified!==true)throw Error('Paper account authentication was not confirmed.');
+            await credentialList(host);
+            toast('Your saved Alpaca Paper Trading account has been verified. No orders placed.','ok');
+          }catch(error){status.textContent=error.message||'Paper account test failed. Market-data connection was not changed.';paper.disabled=false}
         };
         const remove=q('[data-remove]',card);
         if(remove)remove.onclick=async()=>{
