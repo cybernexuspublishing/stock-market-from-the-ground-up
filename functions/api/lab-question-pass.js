@@ -89,23 +89,31 @@ export async function onRequest({request,env}){
      String((await flags.json())?.[0]?.status||'').toLowerCase()))
     throw deny('Crownlight Sparks is unavailable for this account.',403);
    const balance=await rpc(env,'groundup_question_pass_summary',{p_user_id:actor.userId});
-   return reply({ok:true,balance,creditRule:'Four Sparks for an eligible Reveal or Skip; ordinary instruction and retries remain included.'});
+   const catalog=await fetch(url+'/rest/v1/gu_sparks_price_catalog_v1?select=sku,sparks_cost,state&sku=in.(PRACTICE_REVEAL,PRACTICE_SKIP)',{headers,cache:'no-store'});
+   if(!catalog.ok)throw deny('Practice Sparks prices unavailable.',503);
+   const rows=await catalog.json();
+   const reveal=rows.find(x=>x.sku==='PRACTICE_REVEAL'&&x.state==='active')?.sparks_cost;
+   const skip=rows.find(x=>x.sku==='PRACTICE_SKIP'&&x.state==='active')?.sparks_cost;
+   if(!Number.isSafeInteger(reveal)||!Number.isSafeInteger(skip))throw deny('Practice Sparks prices unavailable.',503);
+   return reply({ok:true,balance,prices:{reveal,skip},
+    creditRule:'Server-priced optional Reveal or Skip; ordinary instruction and retries remain included.'});
   }
   const spec=await bookAuthorized(env,request,labId);
-  const {questionId,action,attemptId,requestId}=operation||{};
+  const {questionId,action,attemptId,requestId,expectedCost}=operation||{};
   if(!spec.questions.includes(questionId)||!['reveal','skip'].includes(action)||
    typeof attemptId!=='string'||!UUID.test(attemptId)||
-   typeof requestId!=='string'||!UUID.test(requestId))
+   typeof requestId!=='string'||!UUID.test(requestId)||
+   !Number.isSafeInteger(expectedCost)||expectedCost<1||expectedCost>100000)
    return reply({ok:false,error:'Invalid credit request.'},400);
-  const spent=await rpc(env,'groundup_question_pass_spend',{
+  const spent=await rpc(env,'groundup_question_pass_spend_v2',{
    p_user_id:actor.userId,p_attempt_id:attemptId,p_lab_id:labId,
-   p_question_id:questionId,p_action:action,p_request_id:requestId
+   p_question_id:questionId,p_action:action,p_request_id:requestId,p_expected_cost:expectedCost
   });
   if(spent.ok!==true){
    return reply({ok:false,error:String(spent.error||'Crownlight Sparks unavailable.').slice(0,180),
     balance:spent.balance||null},409);
   }
-  return reply({ok:true,action,alreadyUsed:spent.alreadyUsed===true,balance:spent.balance,
+  return reply({ok:true,action,spent:spent.spent,alreadyUsed:spent.alreadyUsed===true,balance:spent.balance,
    studyOnly:true,assessed:false});
  }catch(e){
   return reply({ok:false,error:e?.status===503?'Crownlight Sparks service is unavailable. Check your wallet for the current balance.':

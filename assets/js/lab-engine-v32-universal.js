@@ -356,7 +356,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   scheduleCheckpoint();
   return{accepted:true};
  }
- async function handleQuestionPass({action,index}={}){
+ async function handleQuestionPass({action,index,expectedCost}={}){
   if(typeof creditRequest!=='function')throw Error('Crownlight Sparks has not been connected.');
   if(action==='balance')return creditRequest({action:'balance'});
   if(stage!==4||!['guided','practice'].includes(mode)||!passAttemptId)
@@ -372,7 +372,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    if(!requestId)throw Error('Credit confirmation cannot be completed in this browser.');
    passRequests.set(id,requestId);
   }
-  const saved=await creditRequest({action,questionId:step.id,attemptId:passAttemptId,requestId});
+  const saved=await creditRequest({action,questionId:step.id,attemptId:passAttemptId,requestId,expectedCost});
   if(saved?.ok!==true)throw Error('The pass could not be confirmed.');
   practiceAssisted=true;
   // The normal answer validator requires sequential indexes. Record the

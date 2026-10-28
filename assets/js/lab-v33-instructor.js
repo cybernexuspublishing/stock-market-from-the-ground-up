@@ -387,76 +387,90 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  creditControls.setAttribute('aria-label','Crownlight Sparks: optional reveal or skip');
  const passHeading=el('h4','Crownlight Sparks · Reveal or Skip');
  const passBalance=el('p','Checking available credits…','gu-v33-pass-balance');
- const passNote=el('p','Each option uses four Crownlight Sparks. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
+ const passNote=el('p','Checking live Sparks prices. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
  const passConfirmation=el('div',undefined,'gu-v33-pass-confirm');passConfirmation.hidden=true;
  const passQuestion=el('p','');
- const passConfirm=el('button','Confirm 4-Spark use','btn gu-v33-pass-confirm-btn');
+ const passConfirm=el('button','Confirm Sparks use','btn gu-v33-pass-confirm-btn');
  const passCancel=el('button','Cancel','btn secondary');
  passConfirm.type=passCancel.type='button';
  passConfirmation.append(passQuestion,passConfirm,passCancel);
  const passChoices=el('div',undefined,'gu-v33-pass-choice-row');
- const passReveal=el('button','Reveal answer · 4 Sparks','btn secondary');
- const passSkip=el('button','Skip question · 4 Sparks','btn secondary');
+ const passReveal=el('button','Reveal answer · checking price','btn secondary');
+ const passSkip=el('button','Skip question · checking price','btn secondary');
  passReveal.type=passSkip.type='button';passReveal.disabled=passSkip.disabled=true;
  passChoices.append(passReveal,passSkip);
  const passFeedback=el('p','','gu-v33-pass-feedback');passFeedback.setAttribute('role','status');
  const passContinue=el('button','Continue','btn secondary');passContinue.type='button';passContinue.hidden=true;
  creditControls.append(passHeading,passBalance,passNote,passConfirmation,passChoices,passFeedback,passContinue);
  let passAvailable=0,passPending='',passBusy=false,passUsed=false,passDisposed=false;
+ const passCosts={reveal:null,skip:null};
+ const costOf=action=>passCosts[action];
  function showPassBalance(balance){
   if(!balance||!Number.isInteger(balance.available)||balance.available<0)
    throw Error('Credit balance could not be verified.');
   passAvailable=balance.available;
   passBalance.textContent='Available: '+balance.available+' · Included: '+balance.included+
    ' · Purchased: '+balance.purchased;
-  passReveal.disabled=passSkip.disabled=passAvailable<4||passBusy||passUsed;
+  passReveal.disabled=passBusy||passUsed||!Number.isSafeInteger(passCosts.reveal)||passAvailable<passCosts.reveal;
+  passSkip.disabled=passBusy||passUsed||!Number.isSafeInteger(passCosts.skip)||passAvailable<passCosts.skip;
  }
  function resetPassQuestion(){
   passUsed=false;passPending='';passConfirmation.hidden=true;passContinue.hidden=true;
   passFeedback.textContent='';
-  passReveal.disabled=passSkip.disabled=passAvailable<4;
+  passReveal.disabled=!Number.isSafeInteger(passCosts.reveal)||passAvailable<passCosts.reveal;
+  passSkip.disabled=!Number.isSafeInteger(passCosts.skip)||passAvailable<passCosts.skip;
  }
  if(stage===4&&typeof onCreditAction==='function'){
   void onCreditAction({action:'balance'}).then(response=>{
    if(passDisposed)return;
+   if(!Number.isSafeInteger(response.prices?.reveal)||!Number.isSafeInteger(response.prices?.skip))
+    throw Error('Sparks offer prices cannot be verified.');
+   passCosts.reveal=response.prices.reveal;passCosts.skip=response.prices.skip;
+   passNote.textContent='Reveal: '+passCosts.reveal+' Sparks. Skip: '+passCosts.skip+
+    ' Sparks. Free teaching, corrections and retries remain included; assisted steps are Study Only.';
+   passReveal.textContent='Reveal answer · '+passCosts.reveal+' Sparks';
+   passSkip.textContent='Skip question · '+passCosts.skip+' Sparks';
    showPassBalance(response.balance);
-   if(response.balance.available<4)passFeedback.textContent='You need 4 Sparks to reveal or skip. You can still learn and retry for free.';
+   if(response.balance.available<Math.min(passCosts.reveal,passCosts.skip))
+    passFeedback.textContent='Your balance is insufficient for either action. Instruction remains free.';
   }).catch(error=>{
    if(passDisposed)return;
    passBalance.textContent='Balance unavailable';
    passFeedback.textContent=String(error?.message||'No verified balance is available.');
   });
   const choose=action=>{
-   if(passBusy||passUsed||passAvailable<4)return;
+   if(passBusy||passUsed||!Number.isSafeInteger(costOf(action))||passAvailable<costOf(action))return;
    passPending=action;
    passQuestion.textContent=(action==='reveal'?'Reveal the study answer':'Skip this practice question')+
-    ' for four Crownlight Sparks? It will not count as an independently correct answer.';
+    ' for '+costOf(action)+' Crownlight Sparks? It will not count as an independently correct answer.';
+   passConfirm.textContent='Confirm '+costOf(action)+'-Spark use';
    passConfirmation.hidden=false;passConfirm.focus?.();
   };
   listen(passReveal,'click',()=>choose('reveal'));
   listen(passSkip,'click',()=>choose('skip'));
   listen(passCancel,'click',()=>{passPending='';passConfirmation.hidden=true;passFeedback.textContent='No credit used.'});
   listen(passConfirm,'click',async()=>{
-   if(passBusy||passUsed||!passPending||passAvailable<4)return;
+   if(passBusy||passUsed||!passPending||passAvailable<costOf(passPending))return;
    passBusy=true;onCreditPending?.(true);passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
    submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
    passFeedback.textContent='Confirming your Crownlight Sparks…';
    try{
-    const result=await onCreditAction({action:chosen,index:idx});
+    const result=await onCreditAction({action:chosen,index:idx,expectedCost:costOf(chosen)});
     if(passDisposed)return;
     if(result?.ok!==true)throw Error('Credit use could not be confirmed.');
     passUsed=true;passPending='';passConfirmation.hidden=true;
     showPassBalance(result.balance);
     const answerText=String(result.answerText||'This question is recorded as Study Only.');
-    passFeedback.textContent=answerText+' Four Sparks were used'+(result.alreadyUsed?' previously':'')+'.';
+    passFeedback.textContent=answerText+' '+result.spent+' Sparks were used'+(result.alreadyUsed?' previously':'')+'.';
     reply.textContent='This step is marked Study Only. It is not graded.';
     reflection.disabled=true;submitReflection.disabled=true;
     passContinue.hidden=false;
     passContinue.textContent=idx===prompts.length-1?'Continue to next learning stage':'Continue to next practice question';
    }catch(error){
     if(!passDisposed)passFeedback.textContent=String(error?.message||'Credit service unavailable. No new credit was confirmed.');
-    passReveal.disabled=passSkip.disabled=passAvailable<4;
+    passReveal.disabled=passAvailable<passCosts.reveal;
+    passSkip.disabled=passAvailable<passCosts.skip;
     submitReflection.disabled=false;
    }finally{
     passBusy=false;onCreditPending?.(false);passConfirm.disabled=false;

@@ -304,7 +304,7 @@ async function requestLabTutor({question,allowModel=false,signal}={}){
  * Reads verified counts and sends a single idempotent action to the server.
  * Free teaching and retries never invoke this API.
  */
-async function requestLabQuestionPass({action='balance',questionId='',attemptId='',requestId=''}={}){
+async function requestLabQuestionPass({action='balance',questionId='',attemptId='',requestId='',expectedCost}={}){
  if(!['guided','practice'].includes(PLAYER.mode))
   throw Error('Crownlight Sparks is not available during independent assessments.');
  const sb=PLAYER.access?.sb,labId=PLAYER.lab?.id;
@@ -319,7 +319,7 @@ async function requestLabQuestionPass({action='balance',questionId='',attemptId=
   const response=await fetch(url,{
    method:isBalance?'GET':'POST',cache:'no-store',signal:controller.signal,
    headers:{authorization:'Bearer '+token,...(isBalance?{}:{'content-type':'application/json'})},
-   body:isBalance?undefined:JSON.stringify({labId,questionId,attemptId,requestId,action})
+   body:isBalance?undefined:JSON.stringify({labId,questionId,attemptId,requestId,action,expectedCost})
   });
   const data=await response.json().catch(()=>null);
   if(!response.ok||data?.ok!==true)
