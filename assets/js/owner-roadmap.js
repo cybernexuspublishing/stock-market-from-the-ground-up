@@ -152,6 +152,20 @@ function renderReleasePlan(){
  mount.append(grid,note);
 }
 
+function renderCurrentAudit(audit){
+ const host=$('#or-current-audit');if(!host)return;
+ if(!audit||!Array.isArray(audit.items)){host.textContent='Current integration audit is unavailable; saved Owner roadmap tasks remain unchanged.';return;}
+ const stamp=String(audit.date||'');
+ host.innerHTML='<p class="or-muted"><strong>Evidence date:</strong> '+esc(stamp)+
+  '. '+esc(audit.scope||'')+'</p>'+
+  '<p>'+esc(audit.ownerProgressRule||'')+'</p>'+
+  '<div class="or-phase-grid">'+audit.items.map(item=>'<article class="or-phase-card">'+
+   '<strong>'+esc(String(item.status||'unreviewed').replace(/_/g,' '))+'</strong>'+
+   '<h3>'+esc(item.id)+' · '+esc(item.title)+'</h3>'+
+   '<p><strong>Area:</strong> '+esc(item.area)+'</p>'+
+   '<p>'+esc(item.evidence)+'</p>'+
+   '<p><strong>Next acceptance:</strong> '+esc(item.nextCheck)+'</p></article>').join('')+'</div>';
+}
 function renderPrivateBrief(brief){
  const mount=$('#or-private-brief'),policy=$('#or-private-governance');
  if(!mount||!policy)return;
@@ -305,6 +319,7 @@ async function reload(){
   const data=await api();
   releasePlan=data.releasePlan||null;metadata=data.metadata||{};engineering=data.engineeringReview||{};delegation=data.delegatedReview||{};delegated=data.delegatedBaseline||{};all=[...(data.items||[]),...(data.custom||[])];stored=data.progress||{};loaded=true;
   renderPrivateBrief(data.operationalBrief);
+  renderCurrentAudit(data.currentAudit);
   renderReleasePlan();
   window.OwnerRoadmapProductsV88?.render(data);
   window.OwnerProductReadinessV91?.render(data);
