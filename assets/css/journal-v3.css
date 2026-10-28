@@ -85,3 +85,29 @@ body:has(.gu-j3-hero) .journal-card textarea:focus,body:has(.gu-j3-hero) .journa
 @media(max-width:1040px){.gu-j3-shell{grid-template-columns:1fr}.gu-j3-story-grid{grid-template-columns:1fr}.gu-j3-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:690px){.gu-j3-hero{padding:21px 18px}.gu-j3-panel{padding:14px}.gu-j3-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.gu-j3-story-head{display:block}.gu-j3-story-detail{grid-template-columns:1fr 1fr}.gu-j3-cal-week{font-size:.58rem}.gu-j3-calendar{gap:3px}.gu-j3-day{font-size:.7rem;border-radius:5px}.gu-j3-kpi strong{font-size:1.4rem}}
 @media(prefers-reduced-motion:no-preference){.gu-j3-day,.gu-j3-story-card{transition:border-color .15s,background .15s}.gu-j3-story-card:hover,.gu-j3-day:not([disabled]):hover{border-color:#c7a76e}}
+
+/* The separate paid Analytics route keeps its existing server entitlement gate. */
+.gu-j3-analytics{background:radial-gradient(ellipse 70% 330px at 40% 0,#193346 0,transparent 70%),#07111d;min-height:80vh}
+.gu-j3-analytics .wrap{max-width:1300px}
+.gu-j3-analytics .eyebrow{color:#d4ad74;letter-spacing:.15em;text-transform:uppercase;font-size:.71rem}
+.gu-j3-analytics h1{letter-spacing:-.045em;font-size:clamp(2rem,3vw,3rem);margin:.25em 0}
+.gu-j3-analytics #analytics-content>.journal-toolbar{border:1px solid #34495b;background:#0c2030;border-radius:12px;padding:13px}
+.gu-j3-analytics #analytics-content select{border-radius:8px;padding:9px 13px;background:#081827;color:#e9f3f8;border:1px solid #3b586e}
+.gu-j3-analytics .journal-card{border-color:#29465a;border-radius:16px;background:linear-gradient(150deg,#0e2434,#091927);padding:22px;box-shadow:0 14px 35px #0003}
+.gu-j3-analytics .journal-card h2{letter-spacing:-.03em;color:#f0f5fb;font-size:1.19rem}
+.gu-j3-analytics .journal-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.gu-j3-analytics .journal-kpi{border:1px solid #314d62;border-top:2px solid #ad8952;background:#0b1d2b;border-radius:12px;padding:16px}
+.gu-j3-analytics .journal-kpi strong{font-variant-numeric:tabular-nums;font-size:1.5rem;color:#e4c486}
+.gu-j3-analytics .journal-kpi span{color:#9db5c5}
+.gu-j3-analytics #analytics-equity-chart{border:1px solid #2b4559;border-radius:12px;background:#091a2a;padding:14px;margin:14px 0}
+.gu-j3-analytics #analytics-equity-chart svg path{stroke:#69bfb1}
+.gu-j3-analytics .journal-table-wrap{border:1px solid #2b455b;border-radius:11px}
+.gu-j3-analytics .journal-table tbody tr:hover{background:#142e40}
+.gu-j3-analytics .journal-table th{color:#aabfd0}
+.gu-j3-analytics .journal-subtitle{color:#bbccda;line-height:1.6}
+body:has(.gu-j3-story){background:#081521}
+body:has(.gu-j3-story) main.section>.wrap{max-width:1270px}
+body:has(.gu-j3-story) #entry-content{max-width:1220px}
+body:has(.gu-j3-story) #entry-content>h1{letter-spacing:-.04em}
+@media(max-width:980px){.gu-j3-analytics .journal-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.gu-j3-analytics .journal-card{padding:15px}.gu-j3-analytics .journal-kpis{grid-template-columns:1fr 1fr}.gu-j3-analytics .journal-kpi strong{font-size:1.14rem}}
