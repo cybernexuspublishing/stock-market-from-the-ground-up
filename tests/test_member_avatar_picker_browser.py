@@ -56,6 +56,53 @@ def run():
   page.wait_for_function('document.querySelectorAll("dialog.v2-avatar-modal").length===0',timeout=5000)
   page.close()
 
+
+  # Integrated Dashboard profile → dialog → authenticated member-profile save.
+  # The provider endpoint is mocked; no live member records are changed.
+  stored={'gender':'female','bio':'Existing member biography','avatarUrl':
+   'https://stock-market-from-the-ground-up-d1r.pages.dev/assets/avatars/av-f1.svg','writes':[]}
+  profile_html='''<!doctype html><html><body><section data-v1322-panel="settings">
+    <div data-settings-body><span data-email>private@example.test</span></div>
+    </section></body></html>'''
+  def member_route(r):
+   path=urlsplit(r.request.url).path
+   if path=='/api/member-profile':
+    if r.request.method=='POST':
+     body=json.loads(r.request.post_data)
+     assert body.get('action')=='save'
+     stored['writes'].append(body)
+     stored['gender']=body['gender'];stored['bio']=body['bio'];stored['avatarUrl']=body['avatarUrl']
+    return r.fulfill(status=200,content_type='application/json',body=json.dumps({
+     'ok':True,'profile':{'id':'a1','selectedTitle':'learner',**{k:stored[k] for k in ['gender','bio','avatarUrl']}},
+     'choices':[{'code':'learner','label':'Market Learner'}]}))
+   if path=='/assets/avatars/catalog-v2.json':
+    return r.fulfill(status=200,content_type='application/json',body=CATALOG)
+   if path.startswith('/assets/avatars/av-'):
+    img=ROOT/'assets/avatars'/Path(path).name
+    if img.is_file():return r.fulfill(status=200,content_type='image/svg+xml',body=img.read_text())
+   return r.fulfill(status=200,content_type='text/html',body=profile_html)
+  page=browser.new_page(viewport={'width':1200,'height':820})
+  page.route('https://member-avatar-qa.test/**',member_route)
+  page.goto('https://member-avatar-qa.test/dashboard.html')
+  page.evaluate("""() => {
+    window.getSupabaseClient=async()=>({auth:{getSession:async()=>({
+      data:{session:{access_token:'synthetic',user:{id:'a1'}}},error:null
+    })}})
+  }""")
+  page.add_script_tag(path=str(ROOT/'assets/js/member-avatar-picker-v2.js'))
+  page.add_script_tag(path=str(ROOT/'assets/js/member-profile-ui-v1.js'))
+  page.evaluate("document.dispatchEvent(new Event('DOMContentLoaded'))")
+  page.locator('[data-edit-picture]').wait_for(timeout=7500)
+  page.locator('[data-edit-picture]').click()
+  page.locator('[data-avatar-id="n13"]').click()
+  assert stored['writes']==[],'Selection must never trigger a profile write'
+  page.locator('[data-avatar-apply]').click()
+  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-n13.svg')""")
+  assert len(stored['writes'])==1,'Apply should submit one authenticated member-profile save'
+  assert stored['avatarUrl'].endswith('/assets/avatars/av-n13.svg')
+  assert stored['gender']=='female' and stored['bio']=='Existing member biography','Unrelated profile fields changed'
+  page.close()
+
   for width,expected_cols in [(1600,4),(950,3),(740,2),(390,1)]:
    page=browser.new_page(viewport={"width":width,"height":850})
    page.set_content('<body class="gu-bc-learning"><main class="section gu-redesign-academy">'+
@@ -73,5 +120,5 @@ def run():
    assert not geometry['overflow'],(width,geometry)
    page.close()
   browser.close()
- print('PASS 39 real avatar choices, Cancel/Apply/persistence failure handling, four Academy widths.')
+ print('PASS 39 avatars, Cancel/Apply, profile API integration (mocked), rejected saves, and four Academy widths.')
 if __name__=='__main__':run()
