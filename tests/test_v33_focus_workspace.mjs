@@ -190,14 +190,14 @@ assert(!learnNodes.some(n=>n.className==='gu-v33-instructor-prompt'&&
  'Supplemental help must not generate a generic reflective question');
 learn.dispose();
 // Original v3.2 credits may be used only after explicit member confirmation.
-let spent=0,credits=2,completed=false;
+let spent=0,credits=8,completed=false;
 const passed=ctx.GroundUpLabV33Instructor.create({
  stage:4,concept:'Candlestick construction',lessonContext:{visualType:'candle'},
  questions:['Enter the numerical result for body.','Enter the numerical result for range.','Enter the numerical result for percent.'],
  onCreditAction:async({action,index})=>{
   if(action==='balance')return{ok:true,balance:{included:credits,purchased:0,available:credits}};
   assert.equal(action,'reveal');assert.equal(index,0);
-  spent++;credits--;
+  spent++;credits-=4;
   return{ok:true,balance:{included:credits,purchased:0,available:credits},
    answerText:'Body = |Close − Open| = $1.00',studyOnly:true};
  },
@@ -208,16 +208,16 @@ const passButton=(value)=>passNodes.find(n=>n.tagName==='button'&&n.textContent=
 const confirm=passNodes.find(n=>n.className==='gu-v33-pass-confirm');
 assert(confirm?.hidden,'Credit confirmation must begin concealed');
 await Promise.resolve();await Promise.resolve();
-assert.equal(passButton('Reveal answer · 1 credit').disabled,false,'Verified positive balance unlocks optional Reveal');
-passButton('Reveal answer · 1 credit').handlers.click();
+assert.equal(passButton('Reveal answer · 4 Sparks').disabled,false,'Verified positive balance unlocks optional Reveal');
+passButton('Reveal answer · 4 Sparks').handlers.click();
 assert.equal(confirm.hidden,false,'Reveal must open a confirmation directly above controls');
 assert.equal(spent,0,'Selecting a credit action must not spend it');
 passButton('Cancel').handlers.click();
 assert.equal(confirm.hidden,true);assert.equal(spent,0,'Cancel cannot spend a credit');
-passButton('Reveal answer · 1 credit').handlers.click();
-await passButton('Confirm 1-credit use').handlers.click();
+passButton('Reveal answer · 4 Sparks').handlers.click();
+await passButton('Confirm 4-Spark use').handlers.click();
 assert.equal(spent,1,'Confirmation must spend exactly once');
-assert(passNodes.some(n=>n.className==='gu-v33-pass-feedback'&&n.textContent.includes('One credit was used')),
+assert(passNodes.some(n=>n.className==='gu-v33-pass-feedback'&&n.textContent.includes('Four Sparks were used')),
  'Confirmed paid reveal must display the study answer and credit result');
 assert(passNodes.some(n=>n.className.includes('gu-v33-instructor-submit')&&n.disabled),
  'Revealed answer must not also be submitted as independent practice');
