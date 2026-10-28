@@ -91,6 +91,28 @@ try{
  const revealed=await page.evaluate(()=>window.CrownlightChartTiers.getRevealedBars());
  assert(revealed.length>=2 && Number.isSafeInteger(revealed[0].timestamp));
  assert(revealed[1].timestamp>revealed[0].timestamp);
+ // Owner's actual failure: data and EMA values present, but candlestick
+ // pane collapsed beneath duplicate indicators. Check the REAL signed-in
+ // production chart rather than only observing canvas creation.
+ await page.waitForFunction(()=>{
+  const chart=window.CrownlightChartTiers?.getInstances?.()[0]?.chart;
+  return !!chart&&chart.getDataList().length>=2&&
+   (chart.getSize('candle_pane')?.height||0)>=200;
+ },null,{timeout:20000});
+ const chartProof=await page.evaluate(()=>{
+  const chart=window.CrownlightChartTiers.getInstances()[0].chart;
+  const ema=chart.getIndicators({name:'EMA'});
+  const rsi=chart.getIndicators({name:'RSI'});
+  return {candles:chart.getDataList().length,
+   priceHeight:chart.getSize('candle_pane')?.height||0,
+   ema:ema.length,emaPane:ema[0]?.paneId||null,rsi:rsi.length};
+ });
+ assert(chartProof.candles>=2&&chartProof.priceHeight>=200,
+  'Actual production candle pane is not visible: '+JSON.stringify(chartProof));
+ assert(chartProof.ema===1&&chartProof.emaPane==='candle_pane'&&chartProof.rsi<=1,
+  'Real saved studies must not create duplicate price/oscillator panes: '+JSON.stringify(chartProof));
+ console.log('PASS real production Advanced candlesticks visible: '+chartProof.candles+
+  ' bars, '+chartProof.priceHeight+'px price pane, one EMA overlay, no duplicate RSI');
  const current=await api('/api/chart-workspace');
  assert.equal(current.status,200);assert.equal(current.data.ok,true);
  existing=current.data;
