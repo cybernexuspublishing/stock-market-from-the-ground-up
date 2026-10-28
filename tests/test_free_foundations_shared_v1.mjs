@@ -32,7 +32,8 @@ for(const [i,d] of freeFoundationsProgram.curriculum.entries()){
 }
 assert(html.includes('bootcamp-academy.html?program=free5'));
 assert(client.includes("['free5',5]"),'Free must be a direct eligible member route');
-assert(client.includes("code!=='free5'&&x.relatedLabs.length===0"),'Free does not need paid Lab IDs');
+assert(client.includes('!Array.isArray(x.relatedLabs)))'),'All daily Lab links are optional reference lists');
+assert(!client.includes("code!=='free5'&&x.relatedLabs.length===0"),'No Boot Camp may be blocked solely because an optional Lab reference is unavailable');
 assert(client.includes('lesson.why')&&client.includes('lesson.whenNot'));
 assert(client.includes('lesson.reviewPrompts'),'Talia must present lesson-specific reasoning corrections without grades');
 const u1='00000000-0000-4000-8000-000000000123';
