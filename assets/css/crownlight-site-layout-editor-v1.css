@@ -10,3 +10,13 @@
 .gu-layout-controls .gu-layout-resize{background:#4659a5;color:#fff;cursor:nwse-resize}
 .gu-layout-controls button:focus-visible{outline:2px solid #79e9f8;outline-offset:2px}
 @media(max-width:700px){#gu-layout-admin-toolbar{bottom:10px;right:10px}.gu-layout-controls{gap:3px}.gu-layout-controls button{font-size:.67rem;padding:6px 8px}}
+
+
+/* Reliable whole-card resize for authorized staff; independent of card layout mode. */
+.gu-site-layout-editing .gu-layout-editable{min-width:0!important}
+.gu-site-layout-editing .gu-layout-editable.gu-layout-resizing{transition:none!important;will-change:width,min-height;outline-color:#39e8f0!important}
+.gu-layout-pointer-active,.gu-layout-pointer-active *{user-select:none!important;cursor:nwse-resize!important}
+.gu-site-layout-editing .gu-layout-corner{position:absolute;z-index:20;right:4px;bottom:4px;width:36px;height:36px;display:grid;place-items:center;border:2px solid #b1a0f7;border-radius:9px;background:linear-gradient(135deg,#5b3fb9,#117e9a);box-shadow:0 0 0 3px #08172b,inset 0 1px 0 #ffffff44;color:#fff;font-weight:900;font-size:1.15rem;cursor:nwse-resize;touch-action:none}
+.gu-site-layout-editing .gu-layout-corner:hover,.gu-site-layout-editing .gu-layout-corner:focus-visible{background:#2677bc;outline:2px solid #73f1ff;outline-offset:2px}
+.gu-site-layout-editing .gu-layout-resize{touch-action:none}
+.gu-site-layout-editing .gu-layout-editable{padding-bottom:max(38px,var(--gu-card-padding-bottom,12px))}
