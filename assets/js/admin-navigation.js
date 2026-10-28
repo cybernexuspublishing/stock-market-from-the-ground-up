@@ -96,16 +96,22 @@ const legacyNames=new Map([
  ['sub-forums',['Forum Sections','Community']],
  ['founders commons · design council',['Founders Commons','Community']],
  ['site announcements',['Announcements','Community']],
+ ['announcements',['Announcements','Community']],
+ ['member notices',['Member Notices','Community']],
+ ['founders commons',['Founders Commons','Community']],
+ ['advertising sales',['Advertising Sales','Website Management']],
  ['manage member notifications',['Member Notices','Community']],
  ['community health',['Community Health','Community']],
  ['visibility & inventory',['Show or Hide Features','Website Management']],
  ['feature visibility',['Show or Hide Features','Website Management']],
  ['marketing & social media',['Advertising Sales','Website Management']],
+ ['social media planner',['Social Media Planner','Website Management']],
  ['advertising',['Advertising Sales','Website Management']],
  ['social operations',['Social Media Planner','Website Management']],
  ['grant web solutions · client drafts',['Client Website Drafts (Grant Web Solutions)','Website Management']],
  ['site operations center',['Operations Center','Support & Operations']],
  ['operations & intelligence',['Operations Center','Support & Operations']],
+ ['operations center',['Operations Center','Support & Operations']],
  ['pre-live acceptance center',['Launch Readiness','Support & Operations']],
  ['system & integrations',['Integrations Status','Support & Operations']],
  ['unified admin preview',['Admin Preview','Support & Operations']],
@@ -256,7 +262,7 @@ n.replaceChildren(fragment);
  observer?.observe(n,{childList:true,subtree:true});}
 function plan(){if(pending)return;pending=true;setTimeout(()=>{pending=false;if(!ready||!nav()||!app()||app().hidden||!$('#admin-gate')?.hidden)return;displayControls()},90)}
 function navigateTo(selector){
- const el=$(selector,nav());if(!el||!isAuthorized(el)||el.classList.contains('cc-owner-hidden')){status('This control is not available to the signed-in role.');return;}
+ const el=$(selector,nav());if(!el||!isAuthorized(el)||el.classList.contains('cc-owner-hidden')){status('This control is not installed or is not available to the signed-in role.');return;}
  openGroup=el.closest('[data-cc-nav-group]')?.dataset.ccNavGroup||openGroup;
  if(el.tagName==='A'){location.assign(el.href);return;}el.click();
 }
@@ -273,7 +279,7 @@ function syncPanelHeadings(){
 }
 function ensureOverview(){
  const panel=$('[data-admin-panel="dashboard"]',app());if(!panel||$('#cc-overview-shortcuts'))return;
- const items=[['Find or help a member','#admin-account-management-direct'],['Add a member','#admin-create-account-direct'],['Change a price','[data-panel="products"]'],['Check an order or refund','[data-panel="commerce"]'],['Review a reported post','#cc-direct-moderation'],['Post an announcement','[data-panel="content"]'],['Change registration or background','[data-panel="settings"]'],['Turn a feature on or off','[data-panel="settings"]'],['See who changed something','[data-panel="audit"]'],['Show the admin to a developer','#cc-control-manager']];
+ const items=[['Find or help a member','#admin-account-management-direct'],['Add a member','#admin-create-account-direct'],['Change a price','[data-panel="products"]'],['Check an order or refund','[data-panel="commerce"]'],['Review a reported post','#cc-direct-moderation'],['Post an announcement','[data-oc-tab="notifications"]'],['Change registration or background','[data-panel="settings"]'],['Turn a feature on or off','[data-panel="settings"]'],['See who changed something','[data-panel="audit"]'],['Show the admin to a developer','[data-cc-showcase-logins]']];
  const section=document.createElement('section');section.id='cc-overview-shortcuts';section.className='admin-card cc-overview-shortcuts';const title=document.createElement('h2');title.textContent='I want to…';section.append(title);
  const grid=document.createElement('div');grid.className='cc-shortcuts-grid';
  for(const [name,target] of items){const b=document.createElement('button');b.type='button';b.className='btn secondary';b.textContent=name;b.addEventListener('click',()=>navigateTo(target));grid.append(b)}section.append(grid);panel.append(section);
