@@ -25,7 +25,7 @@ const profile=file('assets/js/member-profile-ui-v1.js'),picker=file('assets/js/m
 assert(profile.includes('GroundUpAvatarPicker.mountInline'),'Dashboard must use an inline picker');
 assert(picker.includes('async function mountInline')&&picker.includes('panel.hidden=true'),'Inline Apply must save then close');
 const catalog=JSON.parse(file('assets/avatars/catalog-v2.json'));
-assert.equal(catalog.avatars.length,30);
+assert.equal(catalog.avatars.length,60);
 assert(catalog.avatars.every(x=>x.src.endsWith('.webp')),'Gallery presents exclusively high-quality WebP portraits');
 const uniqueWebP=new Set;
 for(const a of catalog.avatars){
@@ -35,7 +35,7 @@ for(const a of catalog.avatars){
  assert.equal(buffer.toString('ascii',8,12),'WEBP');
  uniqueWebP.add(buffer.toString('base64'));
 }
-assert.equal(uniqueWebP.size,30,'New portraits must all be different WebP images');
+assert.equal(uniqueWebP.size,60,'All sixty portraits must be different WebP images');
 const memberRPC=file('supabase/migrations/20261028_author_avatars_public_presentation_v1.sql');
 assert(memberRPC.includes('auth.uid()')&&memberRPC.includes('status='+"\'published\'"),'Author eligibility requires signed-in member and published content');
 assert(memberRPC.includes('to authenticated')&&!memberRPC.includes('grant select on public.profiles'),'Do not publish the private profiles table');

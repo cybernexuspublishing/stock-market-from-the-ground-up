@@ -34,9 +34,11 @@ def run():
   }""")
   page.locator('#edit').click()
   tiles=page.locator('.v2-avatar-tile')
-  page.wait_for_function('document.querySelectorAll(".v2-avatar-tile").length===30',timeout=9000)
-  assert tiles.count()==30,'Modal must present all 30 illustrated portraits'
+  page.wait_for_function('document.querySelectorAll(".v2-avatar-tile").length===60',timeout=9000)
+  assert tiles.count()==60,'Modal must present 60 avatars'
   assert page.locator('dialog.v2-avatar-modal').is_visible()
+  page.locator('[data-avatar-style="illustrated"]').click()
+  assert page.locator('[data-avatar-id="r02"]').is_hidden()
   page.locator('[data-avatar-id="f13"]').click()
   assert page.locator('[data-avatar-id="f13"]').get_attribute('aria-pressed')=='true'
   assert page.evaluate('window.__applied.length')==0,'Selecting alone must not save'
@@ -96,12 +98,14 @@ def run():
   page.locator('[data-edit-picture]').click()
   page.locator('.v2-avatar-inline').wait_for(state='visible')
   assert page.locator('dialog.v2-avatar-modal').count()==0,'Dashboard must not open the legacy modal'
-  page.locator('[data-avatar-id="n13"]').click()
+  page.locator('[data-avatar-style="realistic"]').click()
+  assert page.locator('[data-avatar-id="n13"]').is_hidden()
+  page.locator('[data-avatar-id="r15"]').click()
   assert stored['writes']==[],'Selection must never trigger a profile write'
   page.locator('[data-avatar-apply]').click()
-  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-n13.webp')""")
+  page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-r15.webp')""")
   assert len(stored['writes'])==1,'Apply should submit one authenticated member-profile save'
-  assert stored['avatarUrl'].endswith('/assets/avatars/av-n13.webp')
+  assert stored['avatarUrl'].endswith('/assets/avatars/av-r15.webp')
   page.locator('.v2-avatar-inline').wait_for(state='hidden')
   assert stored['gender']=='female' and stored['bio']=='Existing member biography','Unrelated profile fields changed'
   page.close()
