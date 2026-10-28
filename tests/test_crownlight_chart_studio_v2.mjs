@@ -29,6 +29,18 @@ assert.equal(m.session({time:new Date('2026-10-14T04:20:00Z')}).kind,'overnight'
 assert.equal(m.session({time:new Date('2026-10-14T13:30:00Z')}).kind,'regular');
 const more=[...bars,{...bars[0],time:new Date('2026-10-23T13:30:00Z'),close:100,high:101,low:99,volume:200}];
 assert.equal(m.vwapProxy(more).at(-1),100,'HLC3 VWAP resets for new session');
+const range=m.openingRange(bars,5);
+assert.equal(range.upper[4],null,'Opening range must not appear before its five-minute window finishes');
+assert.equal(range.upper[5],5.5);
+assert.equal(range.lower[5],0.5);
+const zigzag=[10,12,9,13,8,14,7,15,6].map((value,i)=>({time:new Date(Date.parse('2026-10-22T13:30:00Z')+i*60000),open:value,close:value,high:value+.2,low:value-.2,volume:100}));
+const pivot=m.confirmedStructure(zigzag.slice(0,5),2);
+assert(pivot.every(x=>x.confirmedAt<5),'Pivots must be confirmed by already-revealed right-side bars');
+assert.equal(m.confirmedStructure(zigzag.slice(0,3),2).length,0,'No premature swing labels');
+assert.match(studio,/createSeriesMarkers/);
+assert.match(studio,/ORH:'Observed Opening Range High'/);
+assert.match(studio,/STRUCTURE:'Confirmed HH/);
+assert.match(studio,/source===state\.source/);
 const levels=m.observedLevels(more);assert.equal(levels.PDH[0],null);
 assert.equal(levels.PDH.at(-1),11.5,'Previous observed day level comes from earlier candles');
 assert.equal(levels.HOD.at(-1),101,'HOD uses the revealed current day only');
