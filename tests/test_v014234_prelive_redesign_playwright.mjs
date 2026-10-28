@@ -17,16 +17,25 @@ const check=async(name,fn)=>{try{await fn();console.log('PASS '+name)}catch(e){e
 async function publicPage(width=1440){
  const ctx=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
  await ctx.route('**/api/store-product-overrides',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,items:rows})}));
+ await ctx.route('**/api/storefront-public-catalog',route=>route.fulfill({
+  status:200,contentType:'application/json',
+  body:JSON.stringify({ok:true,source:'verified_storefront',items,count:items.length,
+   layout:{tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3}})
+ }));
  const page=await ctx.newPage();return {ctx,page};
 }
 try{
  for(const width of [375,768,1440]){
-  await check('Catalog renders 51 entries and navigation at '+width+'px',async()=>{
+  await check('Catalog paginates owner-visible inventory and navigation at '+width+'px',async()=>{
    const {ctx,page}=await publicPage(width);
    try{
     await page.goto(base+'/store-all-products.html',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>document.querySelectorAll('#inventory-list .product-card').length===51,{timeout:10000});
-    assert.equal(await page.locator('#inventory-list .product-card').count(),51);
+    await page.waitForFunction(()=>document.querySelectorAll('#inventory-list .product-card').length===15,{timeout:12000});
+    assert.equal(await page.locator('#inventory-list .product-card').count(),15);
+    assert.ok((await page.locator('#inventory-status').innerText()).includes(String(visibleItems.length)),'Catalog total must reflect Owner-visible SKUs');
+    await page.locator('#inventory-pagination button').last().click();
+    assert.equal(await page.locator('#inventory-list .product-card').count(),Math.min(15,visibleItems.length-15),'Second page must show the next fifteen or remaining SKUs');
+    await page.locator('#inventory-pagination button').first().click();
     assert.ok(await page.locator('.site-header nav a').count()>=5);
     const measure=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
     assert.ok(measure.scroll<=measure.viewport+3,'Horizontal overflow: '+JSON.stringify(measure));
@@ -50,14 +59,15 @@ try{
  await check('Unpublished item fails closed while established products remain',async()=>{
   const ctx=await browser.newContext({viewport:{width:1280,height:800}});
   await ctx.route('**/api/store-product-overrides',route=>route.fulfill({status:503,contentType:'application/json',body:'{"ok":false}'}));
+  await ctx.route('**/api/storefront-public-catalog',route=>route.fulfill({status:503,contentType:'application/json',body:'{"ok":false}'}));
   const page=await ctx.newPage();
   try{
    await page.goto(base+'/store-all-products.html');
-   await page.waitForFunction(()=>document.querySelectorAll('#inventory-list .product-card').length===13);
-   assert.equal(await page.locator('#inventory-list .product-card').count(),13);
+   await page.waitForFunction(()=>document.querySelectorAll('#inventory-list .product-card').length===listedFallback.length,listedFallback.length);
+   assert.equal(await page.locator('#inventory-list .product-card').count(),listedFallback.length);
    await page.goto(base+'/store-upcoming-product.html?sku=BC-05-TRUTH');
-   await page.waitForFunction(()=>document.querySelector('#inventory-detail')?.textContent?.includes('availability unavailable'));
-   assert.match(await page.locator('#inventory-detail').innerText(),/cannot be displayed/i);
+   await page.waitForFunction(()=>document.querySelector('#inventory-detail')?.textContent?.includes('Product currently unavailable'));
+   assert.match(await page.locator('#inventory-detail').innerText(),/could not be verified/i);
   }finally{await ctx.close()}
  });
  await check('Mock Owner editor save/readiness and unauthorized rejection',async()=>{
