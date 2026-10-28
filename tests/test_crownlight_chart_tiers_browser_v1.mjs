@@ -33,11 +33,11 @@ if(!f.startsWith(root+'/')||!existsSync(f))return route.fulfill({status:404,body
 return route.fulfill({status:200,contentType:ext==='.css'?'text/css':'application/javascript',body:readFileSync(f)});});
 try{await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
 await page.waitForFunction(t=>window.CrownlightChartTiers?.getStatus().tier===t,tier);
-assert.equal(await page.locator('.cl-chart-tier-switcher select').count(),1);
-const enabled=await page.locator('.cl-chart-tier-switcher option:not([disabled])').count();
+assert.equal(await page.locator('.cl-chart-tier-bar select').count(),1);
+const enabled=await page.locator('.cl-chart-tier-bar select option:not([disabled])').count();
 assert.equal(enabled,tier==='STANDARD'?1:tier==='ADVANCED'?2:3);
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),two);
-if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-switcher select').selectOption(tier);
+if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
 assert.equal(await page.locator('.cl-tier-kline-canvas').count(),expected);
 assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'KLineChart must render real canvas');}
