@@ -110,3 +110,16 @@
 .cl-lab-help:empty{display:none!important}
 .cl-lab-time-range{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:760px){#sim-server-mode>section.journal-card:first-of-type{display:block;max-width:100%}#sim-server-mode>section.journal-card:first-of-type>*{margin-bottom:9px}#sim-server-mode>section.journal-card:first-of-type>select,#sim-server-mode>section.journal-card:first-of-type>input{width:100%}#sim-server-mode>section.journal-card:first-of-type>.btn{margin:3px 5px 5px 0}}
+
+
+/* V3 width containment: controls wrap rather than extending the page at 390px. */
+#sim-content,.cl-workbench-tabs,.cl-workbench-panels,.cl-tab-panel,.cl-chart-visibility,.cl-lab-combobox,.cl-lab-selector{min-width:0;max-width:100%;box-sizing:border-box}
+.cl-chart-visibility{flex-wrap:wrap}
+.cl-chart-visibility>strong{flex:1 1 190px;min-width:0}
+.cl-chart-timeframe-input{flex:1 1 154px;display:grid;gap:4px;min-width:0;font-size:.7rem;color:#bfd6ed}
+.cl-chart-timeframe-input input{display:block;min-width:0;width:100%;max-width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #4c6b9d;background:#102038;color:#ecf6ff;padding:9px;font:inherit;font-size:.85rem;min-height:37px}
+.cl-chart-visibility .cl-collapse-btn{flex:0 0 auto}
+.cl-workbench-tabbar{min-width:0}
+.cl-import-interior .sim-import-grid{min-width:0}
+.cl-import-interior input,.cl-import-interior select{max-width:100%;box-sizing:border-box}
+@media(max-width:560px){.cl-chart-visibility>strong{flex-basis:100%}.cl-chart-timeframe-input{flex:1 1 150px}.cl-workbench-panels{padding:11px}.cl-tab-panel{overflow-wrap:anywhere}}
