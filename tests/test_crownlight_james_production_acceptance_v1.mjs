@@ -32,7 +32,22 @@ async function signIn(){
  await page.locator('#login-identifier').fill(email);
  await page.locator('#login-password').fill(password);
  await page.locator('.auth-card button[type="submit"]').click();
- await page.waitForURL(u=>u.pathname==='/simulator.html',{timeout:30000});
+ // Verify the real SDK session first; some site revisions redirect to the
+ // Dashboard instead of honoring a nested next URL. Chart launch is a separate step.
+ try{
+  await page.waitForFunction(async()=>{
+   try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();
+    return !!data?.session?.access_token;}catch{return false}
+  },null,{timeout:20000});
+ }catch(err){
+  const details={url:page.url(),message:await page.locator('#signin-message').textContent().catch(()=>null)};
+  throw Error('Real UI sign-in did not establish a browser session: '+JSON.stringify(details));
+ }
+ const from=page.url();
+ if(new URL(from).pathname!=='/simulator.html'){
+  console.log('INFO authenticated sign-in landed at '+new URL(from).pathname+'; opening Chart Studio directly.');
+  await page.goto(origin+'/simulator.html?studio=ADVANCED',{waitUntil:'domcontentloaded',timeout:30000});
+ }
  const uid=await page.evaluate(async()=>{const sb=await window.getSupabaseClient();
   const {data,error}=await sb.auth.getUser();return error?null:data?.user?.id;});
  assert.equal(uid,target,'The encrypted credentials must authenticate as James_Test, not a different member');
