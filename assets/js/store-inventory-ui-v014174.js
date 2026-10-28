@@ -46,7 +46,7 @@ function label(x){
  'Beta Testing Ready · Founding 600 member testing pending; checkout independently verified':
  x.saleReady?'Purchase subject to secure checkout verification':
  x.status==='coming_soon'?'Coming Soon · Beta / development':
- x.status==='listed'?'Listed · Purchasing not yet enabled':'Not available to purchase';
+ x.status==='listed'?(x.category==='Books'?'Book listed · See retailer availability':'Listed · Purchasing not yet enabled'):'Not available to purchase';
 }
 function image(x){const m=window.GroundUpCatalogVisuals?.resolve?.(x);return m?
  '<a class="gu-catalog-card-image" href="'+escapeHtml(detail(x))+'" aria-label="View '+escapeHtml(x.name)+'"><img src="'+escapeHtml(m.src)+'" alt="'+escapeHtml(m.alt)+'" loading="lazy" width="340" height="190"></a>':''}
