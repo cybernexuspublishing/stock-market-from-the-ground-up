@@ -121,3 +121,24 @@ body.gu-bc-learning main.gu-redesign-academy .academy-study-grid .gu-bc-day{
 .academy-beta-daily-coach details{border:1px solid #456a7b;border-radius:8px;
  padding:9px;font-size:.88rem}
 .academy-beta-daily-coach details summary{cursor:pointer}
+
+
+/* v3.9 — modest desktop footprint, preserve teaching width and touch targets. */
+@media(min-width:1100px){
+ body.gu-bc-learning main.gu-redesign-academy.section>.wrap{
+  max-width:1160px!important;
+ }
+ body.gu-bc-learning main.gu-redesign-academy .academy-study-grid{
+  grid-template-columns:200px minmax(0,1fr)!important;
+  gap:12px!important;
+ }
+}
+body.gu-bc-learning main.gu-redesign-academy .academy-workspace{
+ min-width:0;overflow-wrap:normal;
+}
+body.gu-bc-learning main.gu-redesign-academy .academy-study-grid .gu-bc-lesson{
+ min-width:0;
+}
+body.gu-bc-learning main.gu-redesign-academy .academy-study-grid .gu-bc-lesson :is(svg,canvas,img){
+ max-width:100%;height:auto;
+}
