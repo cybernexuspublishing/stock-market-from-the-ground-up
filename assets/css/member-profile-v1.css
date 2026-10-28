@@ -108,3 +108,10 @@ body[data-gu-layout-route="dashboard"] .gu-member-dashboard-shell>main>.wrap{max
 .member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;max-height:420px}
 @media(max-width:760px){.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid,.v2-avatar-modal-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:440px){.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid,.v2-avatar-modal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* v4 avatar gallery style switcher */
+.v4-avatar-filters{display:flex;flex-wrap:wrap;gap:8px;padding:9px 10px}
+.v4-avatar-filters button{border:1px solid #416275;background:#142c41;border-radius:8px;color:#dbefff;padding:7px 12px;font-size:.82rem;cursor:pointer}
+.v4-avatar-filters button[aria-pressed="true"]{border-color:#37d9b7;background:#134f51;color:#f7ffff}
+.v2-avatar-tile[hidden]{display:none!important}
+.member-profile-settings .v2-avatar-inline .v2-avatar-modal-grid{max-height:440px}

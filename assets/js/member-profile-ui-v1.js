@@ -56,6 +56,7 @@ async function mount(body){
      const saved=await request('save',{gender:latest.gender,bio:latest.bio,avatarUrl:url});
      avatarUrl=saved.profile.avatarUrl;
      $('[data-avatar-preview]',host).src=avatarUrl||'/assets/avatars/av-f4.webp';
+     window.dispatchEvent(new CustomEvent('gu:profile-avatar-updated',{detail:{avatarUrl}}));
      setStatus(host,'Avatar updated on your account.');
     }});
    }catch(e){setStatus(host,e.message,true);trigger.focus()}
@@ -66,7 +67,7 @@ async function mount(body){
     if(file)avatarUrl=await imageFile(file,userId,sb);
     const res=await request('save',{gender:$('[name=gender]',host).value,bio:$('[name=bio]',host).value,avatarUrl});
     $('[data-avatar-preview]',host).src=res.profile.avatarUrl||'/assets/avatars/av-f4.webp';
-    $('[data-avatar-upload]',host).value='';setStatus(host,'Profile saved.');
+    $('[data-avatar-upload]',host).value='';window.dispatchEvent(new CustomEvent('gu:profile-avatar-updated',{detail:{avatarUrl:res.profile.avatarUrl}}));setStatus(host,'Profile saved.');
    }catch(e){setStatus(host,e.message,true)}finally{btn.disabled=false}
   });
   $('[data-title-form]',host).addEventListener('submit',async ev=>{

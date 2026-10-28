@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "avatars": [
     {
       "id": "f4",
@@ -240,7 +240,247 @@
       "src": "/assets/avatars/av-n13.webp",
       "format": "webp",
       "number": 30
+    },
+    {
+      "id": "r01",
+      "group": "realistic",
+      "label": "Avatar 31 — More lifelike portrait",
+      "src": "/assets/avatars/av-r01.webp",
+      "format": "webp",
+      "number": 31
+    },
+    {
+      "id": "r02",
+      "group": "realistic",
+      "label": "Avatar 32 — More lifelike portrait",
+      "src": "/assets/avatars/av-r02.webp",
+      "format": "webp",
+      "number": 32
+    },
+    {
+      "id": "r03",
+      "group": "realistic",
+      "label": "Avatar 33 — More lifelike portrait",
+      "src": "/assets/avatars/av-r03.webp",
+      "format": "webp",
+      "number": 33
+    },
+    {
+      "id": "r04",
+      "group": "realistic",
+      "label": "Avatar 34 — More lifelike portrait",
+      "src": "/assets/avatars/av-r04.webp",
+      "format": "webp",
+      "number": 34
+    },
+    {
+      "id": "r05",
+      "group": "realistic",
+      "label": "Avatar 35 — More lifelike portrait",
+      "src": "/assets/avatars/av-r05.webp",
+      "format": "webp",
+      "number": 35
+    },
+    {
+      "id": "r06",
+      "group": "realistic",
+      "label": "Avatar 36 — More lifelike portrait",
+      "src": "/assets/avatars/av-r06.webp",
+      "format": "webp",
+      "number": 36
+    },
+    {
+      "id": "r07",
+      "group": "realistic",
+      "label": "Avatar 37 — More lifelike portrait",
+      "src": "/assets/avatars/av-r07.webp",
+      "format": "webp",
+      "number": 37
+    },
+    {
+      "id": "r08",
+      "group": "realistic",
+      "label": "Avatar 38 — More lifelike portrait",
+      "src": "/assets/avatars/av-r08.webp",
+      "format": "webp",
+      "number": 38
+    },
+    {
+      "id": "r09",
+      "group": "realistic",
+      "label": "Avatar 39 — More lifelike portrait",
+      "src": "/assets/avatars/av-r09.webp",
+      "format": "webp",
+      "number": 39
+    },
+    {
+      "id": "r10",
+      "group": "realistic",
+      "label": "Avatar 40 — More lifelike portrait",
+      "src": "/assets/avatars/av-r10.webp",
+      "format": "webp",
+      "number": 40
+    },
+    {
+      "id": "r11",
+      "group": "realistic",
+      "label": "Avatar 41 — More lifelike portrait",
+      "src": "/assets/avatars/av-r11.webp",
+      "format": "webp",
+      "number": 41
+    },
+    {
+      "id": "r12",
+      "group": "realistic",
+      "label": "Avatar 42 — More lifelike portrait",
+      "src": "/assets/avatars/av-r12.webp",
+      "format": "webp",
+      "number": 42
+    },
+    {
+      "id": "r13",
+      "group": "realistic",
+      "label": "Avatar 43 — More lifelike portrait",
+      "src": "/assets/avatars/av-r13.webp",
+      "format": "webp",
+      "number": 43
+    },
+    {
+      "id": "r14",
+      "group": "realistic",
+      "label": "Avatar 44 — More lifelike portrait",
+      "src": "/assets/avatars/av-r14.webp",
+      "format": "webp",
+      "number": 44
+    },
+    {
+      "id": "r15",
+      "group": "realistic",
+      "label": "Avatar 45 — More lifelike portrait",
+      "src": "/assets/avatars/av-r15.webp",
+      "format": "webp",
+      "number": 45
+    },
+    {
+      "id": "r16",
+      "group": "realistic",
+      "label": "Avatar 46 — More lifelike portrait",
+      "src": "/assets/avatars/av-r16.webp",
+      "format": "webp",
+      "number": 46
+    },
+    {
+      "id": "r17",
+      "group": "realistic",
+      "label": "Avatar 47 — More lifelike portrait",
+      "src": "/assets/avatars/av-r17.webp",
+      "format": "webp",
+      "number": 47
+    },
+    {
+      "id": "r18",
+      "group": "realistic",
+      "label": "Avatar 48 — More lifelike portrait",
+      "src": "/assets/avatars/av-r18.webp",
+      "format": "webp",
+      "number": 48
+    },
+    {
+      "id": "r19",
+      "group": "realistic",
+      "label": "Avatar 49 — More lifelike portrait",
+      "src": "/assets/avatars/av-r19.webp",
+      "format": "webp",
+      "number": 49
+    },
+    {
+      "id": "r20",
+      "group": "realistic",
+      "label": "Avatar 50 — More lifelike portrait",
+      "src": "/assets/avatars/av-r20.webp",
+      "format": "webp",
+      "number": 50
+    },
+    {
+      "id": "r21",
+      "group": "realistic",
+      "label": "Avatar 51 — More lifelike portrait",
+      "src": "/assets/avatars/av-r21.webp",
+      "format": "webp",
+      "number": 51
+    },
+    {
+      "id": "r22",
+      "group": "realistic",
+      "label": "Avatar 52 — More lifelike portrait",
+      "src": "/assets/avatars/av-r22.webp",
+      "format": "webp",
+      "number": 52
+    },
+    {
+      "id": "r23",
+      "group": "realistic",
+      "label": "Avatar 53 — More lifelike portrait",
+      "src": "/assets/avatars/av-r23.webp",
+      "format": "webp",
+      "number": 53
+    },
+    {
+      "id": "r24",
+      "group": "realistic",
+      "label": "Avatar 54 — More lifelike portrait",
+      "src": "/assets/avatars/av-r24.webp",
+      "format": "webp",
+      "number": 54
+    },
+    {
+      "id": "r25",
+      "group": "realistic",
+      "label": "Avatar 55 — More lifelike portrait",
+      "src": "/assets/avatars/av-r25.webp",
+      "format": "webp",
+      "number": 55
+    },
+    {
+      "id": "r26",
+      "group": "realistic",
+      "label": "Avatar 56 — More lifelike portrait",
+      "src": "/assets/avatars/av-r26.webp",
+      "format": "webp",
+      "number": 56
+    },
+    {
+      "id": "r27",
+      "group": "realistic",
+      "label": "Avatar 57 — More lifelike portrait",
+      "src": "/assets/avatars/av-r27.webp",
+      "format": "webp",
+      "number": 57
+    },
+    {
+      "id": "r28",
+      "group": "realistic",
+      "label": "Avatar 58 — More lifelike portrait",
+      "src": "/assets/avatars/av-r28.webp",
+      "format": "webp",
+      "number": 58
+    },
+    {
+      "id": "r29",
+      "group": "realistic",
+      "label": "Avatar 59 — More lifelike portrait",
+      "src": "/assets/avatars/av-r29.webp",
+      "format": "webp",
+      "number": 59
+    },
+    {
+      "id": "r30",
+      "group": "realistic",
+      "label": "Avatar 60 — More lifelike portrait",
+      "src": "/assets/avatars/av-r30.webp",
+      "format": "webp",
+      "number": 60
     }
   ],
-  "description": "30 premium illustrated WebP avatars; archived SVG identities remain valid for existing members."
+  "description": "Sixty member avatars: thirty premium illustrations and thirty more lifelike portraits."
 }
