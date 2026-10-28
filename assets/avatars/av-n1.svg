@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Member avatar illustration">
+<defs><linearGradient id="b" x2="1" y2="1"><stop stop-color="#19293c"/><stop offset="1" stop-color="#0a1428"/></linearGradient><linearGradient id="g" x2="1" y2="1"><stop stop-color="#7ad6e6" stop-opacity=".9"/><stop offset="1" stop-color="#7051ba"/></linearGradient></defs>
+<rect width="192" height="192" rx="28" fill="url(#b)"/>
+<circle cx="153" cy="32" r="58" fill="#7ad6e6" opacity=".1"/>
+<path d="M24 192q0-64 72-69 72 5 72 69" fill="url(#g)"/>
+<path d="M69 121v17q28 26 54 0v-17" fill="#b18164"/>
+<ellipse cx="96" cy="87" rx="43" ry="51" fill="#b18164"/>
+<path d="M50 85Q47 35 77 29Q131 13 145 61L142 104Q132 72 122 62Q99 76 69 65L55 108Z" fill="#3c3359"/>
+<path d="M70 92h16m21 0h16" stroke="#192235" stroke-linecap="round" stroke-width="4"/>
+<path d="M95 92l-3 15 8 1" stroke="#734a49" stroke-width="2" fill="none" opacity=".55"/>
+<path d="M83 120q14 8 27 0" stroke="#733e45" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+<path d="M14 178q35-41 82-40 47-1 82 40" fill="none" stroke="#7ad6e6" stroke-opacity=".6" stroke-width="3"/>
+</svg>
