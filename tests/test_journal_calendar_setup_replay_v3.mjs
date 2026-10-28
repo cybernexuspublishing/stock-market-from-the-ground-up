@@ -62,4 +62,9 @@ assert(simMode.includes("selectMode('server',{focus:true})"),'Default mode shoul
 assert(policy.includes('historical_evidence_verified')&&policy.includes('licensed_for_member_display'),
  'No rights or historical-source qualification may be bypassed');
 assert(!replay.includes("const fictional=true"), 'Standalone historical replay must remain separate');
+const replayAPI=get('functions/api/learning-replay-v01492.js');
+assert(replayAPI.includes("rows.filter(permitted).slice(0,700)"),
+ 'The 419 permitted original fictional scenarios must be browsable and Lab deep links must remain selectable');
+assert(!replayAPI.includes("scope==='fictional'?20:700"),'The former 20-scenario catalog limit loses linked practice codes');
+
 console.log('PASS Journal: NYSE closure calendar, setup selectors/custom persistence, explainable risk sizing, server fictional replay default.');
