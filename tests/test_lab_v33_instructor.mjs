@@ -82,10 +82,11 @@ for(const type of ['candle','vwap','ema','structure','volume','tape','depth','ro
  assert(lesson.blocks.length>=3&&lesson.worked.length>=3&&lesson.check,'Every specialized instructor needs definitions, example and concept check: '+type);
 }
 const calls=[];
+const exchanges=[];
 function walk(n){return [n,...n.children.flatMap(walk)]}
 const ui=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',
- requestTutor:async x=>{
-  calls.push({question:x.question,allowModel:x.allowModel});
+ onTutorExchange:turn=>exchanges.push(turn),requestTutor:async x=>{
+  calls.push({question:x.question,stage:x.stage,allowModel:x.allowModel});
   return {answer:'VWAP uses observed price and volume information; it does not guarantee a breakout.',generation:'reviewed-glossary-logic'};
  }});
 assert(ui?.element);
@@ -139,9 +140,30 @@ assert.equal(calls.length,0,'Never automatically call server when Lab opens');
 question.value='What does VWAP measure?';
 await ask.handlers.click();
 assert.equal(calls.length,1);
+assert.equal(calls[0].stage,1,'Learn stage reaches the shared Tutor callback');
+assert.equal(exchanges.length,1,'Successful response becomes a current-attempt exchange');
+const continued=api.create({stage:2,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',conversation:exchanges});
+const continuedHistory=walk(continued.element).find(n=>n.className==='gu-v33-tutor-history');
+assert(continuedHistory&&walk(continuedHistory).some(n=>n.textContent==='What does VWAP measure?'),'Tutor conversation survives a stage transition');
+assert(walk(continuedHistory).some(n=>n.textContent.includes('VWAP uses observed price')),'Prior source response remains visible');
+continued.dispose();
 assert.equal(calls[0].allowModel,true,'AI enabled by default only after member submits a Tutor question');
 assert(!calls[0].question.includes('replay answer'),'Never attach hidden answer');
 assert.match(status.textContent,/Source-grounded Market Tutor response/);
+let attempts=0;
+const retryView=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',
+ requestTutor:async()=>{if(++attempts===1)throw Error('Tutor temporarily unavailable.');return {answer:'Source explanation after retry.',generation:'original-competency-guide',aiReason:'source_only'};}});
+const retryNodes=walk(retryView.element);
+walk(retryNodes.find(n=>n.className==='gu-v33-tutor')).find(n=>n.tagName==='textarea').value='How does VWAP work?';
+const retryAsk=retryNodes.find(n=>n.tagName==='button'&&n.textContent==='Ask Market Tutor');
+const retryStatus=retryNodes.find(n=>n.className==='gu-v33-tutor-status');
+await retryAsk.handlers.click();
+assert.match(retryStatus.textContent,/temporarily unavailable/);
+assert.equal(retryAsk.disabled,false,'Failed request must restore Ask control');
+await retryAsk.handlers.click();
+assert.match(retryStatus.textContent,/Source-grounded Market Tutor response/);
+assert.equal(attempts,2,'Learner may retry after an error');
+retryView.dispose();
 const optedOut=api.create({stage:1,subject:'VWAP context and its limitations',concept:'VWAP Reclaim',allowTutorAI:false,
  requestTutor:async x=>{calls.push({question:x.question,allowModel:x.allowModel});return {answer:'Source-based explanation.',generation:'reviewed-glossary-logic'};}});
 const optedNodes=walk(optedOut.element);
