@@ -276,6 +276,22 @@
   const question=h('p','crownlight-coach-question','What does the current candle establish? Which market observations are still unknown, and what evidence would justify waiting rather than trading?');
   const warning=h('p','crownlight-coach-notice','A candle describes past observations. It cannot prove the next price move or trade execution. This is ungraded educational practice.');
   target.append(title,table,question,warning);
+  const tutor=root.CrownlightChartTutor?.analyze(
+   state.sim.candles.slice(0,Math.min(state.sim.index,index)+1)
+  );
+  if(tutor){
+   const heading=h('h4','crownlight-tutor-heading','What the indicators actually establish');
+   const facts=h('div','crownlight-tutor-facts');
+   tutor.facts.forEach(item=>{
+    const row=h('div','crownlight-tutor-fact');row.append(h('strong','',item.name),h('p','',item.reading));facts.append(row);
+   });
+   const cues=h('div','crownlight-tutor-cues');
+   tutor.cues.forEach(t=>cues.append(h('p','',t)));
+   const prompts=h('ol','crownlight-tutor-questions');
+   tutor.questions.forEach(t=>{const li=h('li','',t);prompts.append(li)});
+   target.append(heading,facts,cues,h('h4','crownlight-tutor-heading','Entry, exit and no-trade evidence'),prompts,
+    h('p','crownlight-coach-notice',tutor.sourceNote));
+  }
  }
  async function copyObservation(){
   const note=state.shell?.querySelector('#crownlight-observation')?.value?.trim();
