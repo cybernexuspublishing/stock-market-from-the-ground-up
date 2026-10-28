@@ -18,6 +18,8 @@ const list=(title,arr)=>arr?.length?`<section class="store-product-section"><h2>
 const topic=(title,v)=>v?`<section class="store-product-section"><h2>${e(title)}</h2><p>${e(v)}</p></section>`:'';
 const button=(text,link,external=false)=>safe(link)?`<a class="btn secondary" href="${e(link)}"${external?' target="_blank" rel="noopener noreferrer"':''}>${e(text)}</a>`:'';
 const formatInfo=p=>{const out=[];
+ const ownerListing=String(p.metadata?.amazon_listing_url||'');
+ if(/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(ownerListing))out.push(button('View Amazon listing',ownerListing,true));
  if(p.amazonKindleEnabled!==false&&p.amazon?.kindleUrl)out.push(button('Kindle on Amazon',p.amazon.kindleUrl,true));
  if(p.amazonPaperbackEnabled!==false&&p.amazon?.paperbackUrl)out.push(button('Paperback on Amazon',p.amazon.paperbackUrl,true));
  if(p.amazonHardcoverEnabled!==false&&p.amazon?.hardcoverUrl)out.push(button('Hardcover on Amazon',p.amazon.hardcoverUrl,true));
