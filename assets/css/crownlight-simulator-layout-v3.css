@@ -87,3 +87,26 @@
 .cl-lab-time-range input{min-width:0;width:100%;padding:7px;box-sizing:border-box;background:#0c192f;border:1px solid #4c6691;border-radius:8px;color:#fff;min-height:37px}
 .cl-chart-timeframe{display:inline-block;margin-bottom:6px;border:1px solid #476ca4;border-radius:100px;padding:5px 10px;font-size:.72rem;color:#b5ebff;font-weight:750}
 @media(max-width:560px){.cl-lab-popover{right:auto;left:0;width:min(90vw,420px)}.cl-lab-time-range{grid-template-columns:1fr}}
+
+
+/* Compact the large server-controlled scenario setup shown in Owner screenshot. */
+#sim-server-mode>section.journal-card:first-of-type{max-width:850px;box-sizing:border-box;padding:17px 19px;margin:12px auto 14px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px 11px;align-items:end}
+#sim-server-mode>section.journal-card:first-of-type>h2{grid-column:1/-1;font-size:clamp(1.2rem,2vw,1.65rem);margin:0 0 3px}
+#sim-server-mode>section.journal-card:first-of-type>label{grid-column:1/-1;font-size:.81rem;margin:0}
+#sim-server-mode>section.journal-card:first-of-type>select{grid-column:1;min-width:0;width:100%;min-height:42px}
+#sim-server-mode>section.journal-card:first-of-type>#vr-refresh,#sim-server-mode>section.journal-card:first-of-type>#vr-resume{grid-row:3;white-space:nowrap;min-height:42px}
+#sim-server-mode>section.journal-card:first-of-type>#vr-refresh{grid-column:2}
+#sim-server-mode>section.journal-card:first-of-type>#vr-resume{grid-column:3}
+#sim-server-mode>section.journal-card:first-of-type>#vr-dataset-note{grid-column:1/-1;font-size:.77rem;margin:0}
+#sim-server-mode>section.journal-card:first-of-type>#vr-code{grid-column:1/3;min-width:0;width:100%;box-sizing:border-box;min-height:42px}
+#sim-server-mode>section.journal-card:first-of-type>#vr-start{grid-column:3;min-height:42px}
+#sim-server-mode>section.journal-card:first-of-type>p:last-child{grid-column:1/-1;margin:0;font-size:.73rem}
+#sim-server-mode>section.journal-card:first-of-type>#vr-code + #vr-start{grid-row:auto}
+#sim-server-mode>section.journal-card:first-of-type>input{padding:9px}
+#sim-content .cl-import-shell{max-width:960px;margin-inline:auto}
+#sim-content .cl-workbench-import>summary{padding:12px 16px;font-size:1rem}
+#sim-content .cl-import-hint{margin:-5px 16px 9px}
+#sim-content .cl-import-interior{padding:5px 16px 17px}
+.cl-lab-help:empty{display:none!important}
+.cl-lab-time-range{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){#sim-server-mode>section.journal-card:first-of-type{display:block;max-width:100%}#sim-server-mode>section.journal-card:first-of-type>*{margin-bottom:9px}#sim-server-mode>section.journal-card:first-of-type>select,#sim-server-mode>section.journal-card:first-of-type>input{width:100%}#sim-server-mode>section.journal-card:first-of-type>.btn{margin:3px 5px 5px 0}}
