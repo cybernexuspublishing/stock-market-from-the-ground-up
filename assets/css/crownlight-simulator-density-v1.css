@@ -1,0 +1,136 @@
+/* Crownlight Market Simulator density V1.
+ * Compact is the default for this page only. No CSS zoom/transform: canvases
+ * retain their native device-pixel ratio, geometry, and replay coordinates.
+ * Comfortable mode remains an accessible one-click alternative.
+ */
+body[data-sim-density="compact"] main.section{padding-top:15px;padding-bottom:26px}
+body[data-sim-density="compact"] main.section>.wrap>h1{
+ font-size:clamp(1.75rem,2.4vw,2.25rem);line-height:1.17;margin:4px 0 7px
+}
+body[data-sim-density="compact"] main.section>.wrap>.eyebrow{font-size:.68rem;letter-spacing:.09em}
+body[data-sim-density="compact"] .journal-subtitle{font-size:.87rem;line-height:1.4;margin:4px 0 11px}
+body[data-sim-density="compact"] main.section .journal-section{margin:9px 0}
+body[data-sim-density="compact"] main.section .journal-card{
+ padding:11px 13px;border-radius:8px;box-shadow:none
+}
+body[data-sim-density="compact"] main.section .journal-card h2{
+ font-family:inherit;font-size:clamp(1.05rem,1.5vw,1.4rem);line-height:1.3;margin:0 0 9px
+}
+body[data-sim-density="compact"] main.section .journal-card h3{font-size:1rem;margin:0 0 8px}
+body[data-sim-density="compact"] .sim-free-spotlight{margin:8px 0 12px;gap:12px}
+body[data-sim-density="compact"] .sim-free-spotlight p{font-size:.85rem;line-height:1.4;margin:5px 0}
+body[data-sim-density="compact"] .sim-free-actions{gap:6px}
+body[data-sim-density="compact"] .btn{padding:8px 11px;border-radius:6px;font-size:.86rem}
+body[data-sim-density="compact"] #sim-content{gap:7px}
+body[data-sim-density="compact"] #sim-content>#cl-replay-import{
+ background:#0a1929;border:1px solid #2c455e;border-radius:8px;
+ box-shadow:none;padding:0!important;overflow:visible
+}
+body[data-sim-density="compact"] #sim-content .cl-workbench-import>summary{
+ padding:8px 12px;font-size:.93rem;line-height:1.35
+}
+body[data-sim-density="compact"] #sim-content .cl-import-hint{margin:-2px 12px 7px}
+body[data-sim-density="compact"] #sim-content .cl-import-interior{padding:5px 12px 11px}
+body[data-sim-density="compact"] #sim-content #cl-replay-import .sim-import-grid{
+ gap:7px 10px
+}
+body[data-sim-density="compact"] #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){
+ padding:8px 10px;border-radius:7px
+}
+body[data-sim-density="compact"] #sim-content #cl-replay-import .sim-import-grid label{
+ font-size:.77rem;line-height:1.28;margin:0 0 3px
+}
+body[data-sim-density="compact"] #sim-content #cl-replay-import input,
+body[data-sim-density="compact"] #sim-content #cl-replay-import select{
+ padding:6px 9px;min-height:35px;font-size:.86rem;border-radius:6px
+}
+body[data-sim-density="compact"] .sim-import-grid .journal-actions{gap:6px;margin-top:8px}
+body[data-sim-density="compact"] #cl-chart-visibility-toolbar{
+ margin:0;padding:7px 11px;border-radius:7px;
+ background:#0b1b2e;border-color:#2c455f;gap:9px
+}
+body[data-sim-density="compact"] .cl-chart-visibility strong{font-size:.95rem}
+body[data-sim-density="compact"] .cl-chart-timeframe-input input{padding:5px 8px;min-height:33px}
+.cl-density-switch{
+ padding:6px 10px;border:1px solid #547398;border-radius:7px;
+ background:#172942;color:#e6f6ff;font:inherit;font-size:.81rem;
+ font-weight:700;cursor:pointer;white-space:nowrap
+}
+.cl-density-switch[aria-pressed="true"]{color:#89f6d8;border-color:#328f82;background:#0e3439}
+.cl-density-switch:focus-visible{outline:2px solid #8bdcff;outline-offset:2px}
+body[data-sim-density="compact"] #sim-content .sim-chart-panel.crownlight-active{
+ padding:10px 12px;border:1px solid #2e4b65;border-radius:8px;
+ background:#091525;box-shadow:none
+}
+body[data-sim-density="compact"] #sim-content .sim-chart-head{margin-bottom:7px}
+body[data-sim-density="compact"] #sim-content .sim-chart-head h2{font-size:1.15rem;margin:2px 0}
+body[data-sim-density="compact"] #sim-content .sim-quote strong{font-size:1.35rem}
+body[data-sim-density="compact"] #sim-content .crownlight-toolbar{
+ padding:7px 9px;border-radius:7px;gap:7px;box-shadow:none
+}
+body[data-sim-density="compact"] #sim-content .crownlight-toolbar-actions button{
+ padding:5px 9px;min-height:33px;border-radius:5px;font-size:.76rem
+}
+body[data-sim-density="compact"] #sim-content .crownlight-legend{
+ min-height:0;padding:4px 0;gap:5px
+}
+body[data-sim-density="compact"] #sim-content .crownlight-study-chip{
+ padding:3px 7px;font-size:.69rem
+}
+body[data-sim-density="compact"] #sim-content .crownlight-market-strip{
+ padding:7px 10px;border-radius:7px 7px 0 0;font-size:.76rem
+}
+body[data-sim-density="compact"] #sim-content .crownlight-plot{
+ height:530px;min-height:350px;border-radius:0 0 7px 7px
+}
+body[data-sim-density="compact"] #sim-content .crownlight-help{
+ padding:6px 3px 7px;line-height:1.35;font-size:.7rem
+}
+body[data-sim-density="compact"] #sim-content .crownlight-coach{
+ padding:11px 13px;margin:7px 0;border-radius:7px;box-shadow:none
+}
+body[data-sim-density="compact"] #sim-content .sim-controls{gap:5px;margin-top:6px;padding:6px 8px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-switcher{
+ margin:8px 0 4px;padding:10px;border-radius:8px;
+ background:#0a192b;box-shadow:none
+}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-bar{gap:7px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-bar select{padding:7px 9px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-countdown{padding:7px 10px;margin-top:6px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-enhanced{margin-top:8px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-note{margin:4px 0 8px;line-height:1.35}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-tools{gap:6px;margin-bottom:7px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-tools select{padding:6px 8px}
+body[data-sim-density="compact"] #sim-content .cl-chart-tier-panels{gap:9px}
+body[data-sim-density="compact"] #sim-content .cl-tier-chart-summary{
+ min-height:0;padding:8px 9px;border-radius:7px 7px 0 0
+}
+body[data-sim-density="compact"] #sim-content .cl-tier-kline-canvas{
+ border-radius:0 0 7px 7px
+}
+body[data-sim-density="compact"] #sim-content .cl-workspace-controls{
+ margin:8px 0 0;padding:8px 10px;border-radius:7px
+}
+body[data-sim-density="compact"] #sim-content .cl-workbench-tabs{
+ margin:0 0 9px;background:#0b1a2b;
+ border:1px solid #2d4967;border-radius:8px;box-shadow:none
+}
+body[data-sim-density="compact"] #sim-content .cl-workbench-tabbar{padding:6px 8px 0}
+body[data-sim-density="compact"] #sim-content .cl-workbench-tab{
+ padding:7px 11px;font-size:.8rem;border-radius:6px 6px 0 0
+}
+body[data-sim-density="compact"] #sim-content .cl-workbench-panels{padding:10px}
+body[data-sim-density="compact"] #sim-content .cl-tab-panel>h2{font-size:1.25rem;margin-bottom:10px}
+body[data-sim-density="compact"] #sim-content .journal-form label{margin:7px 0 4px}
+body[data-sim-density="compact"] #sim-content .journal-form input,
+body[data-sim-density="compact"] #sim-content .journal-form select,
+body[data-sim-density="compact"] #sim-content .journal-form textarea{padding:8px 9px}
+@media(max-width:700px){
+ body[data-sim-density="compact"] #sim-content .crownlight-plot{height:440px;min-height:340px}
+ body[data-sim-density="compact"] #sim-content #cl-replay-import input,
+ body[data-sim-density="compact"] #sim-content #cl-replay-import select{
+  min-height:42px;font-size:1rem
+ }
+ body[data-sim-density="compact"] #sim-content .cl-workbench-tab{min-height:42px}
+ .cl-density-switch{min-height:42px}
+}

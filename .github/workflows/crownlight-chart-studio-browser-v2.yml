@@ -56,6 +56,8 @@ on:
       - 'tests/test_owner_audit_dashboard_20261028.mjs'
       - 'assets/js/crownlight-chart-tutor-v1.js'
       - 'assets/css/crownlight-simulator-layout-v3.css'
+      - 'assets/css/crownlight-simulator-density-v1.css'
+      - 'tests/test_crownlight_simulator_density_browser_v1.mjs'
       - 'functions/api/alpaca-paper.js'
       - 'functions/api/credentials.js'
       - 'assets/js/dashboard-ui-legacy.js'
@@ -114,6 +116,7 @@ jobs:
           node tests/test_crownlight_lab_handoff_v2.mjs
           node tests/test_crownlight_founder_storefront_v1.mjs
           node tests/test_crownlight_chart_tiers_browser_v1.mjs
+          node tests/test_crownlight_simulator_density_browser_v1.mjs
           node tests/test_crownlight_provider_entitlement_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs

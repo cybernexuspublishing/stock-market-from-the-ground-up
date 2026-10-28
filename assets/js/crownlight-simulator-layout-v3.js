@@ -48,7 +48,22 @@
    const original=$('sim-timeframe');if(original){original.value=input.value;original.dispatchEvent(new Event('input',{bubbles:true}))}
   };
   timeframe.append(input);
-  toolbar.append(label,timeframe,button);area.before(toolbar);
+  const density=el('button','cl-density-switch','Compact view');
+  density.type='button';
+  density.setAttribute('aria-label','Toggle compact or comfortable Simulator workspace density');
+  const key='clSimulatorDensityV1';
+  let compact=true;
+  try{compact=localStorage.getItem(key)!=='comfortable'}catch{}
+  function applyDensity(){
+   document.body.dataset.simDensity=compact?'compact':'comfortable';
+   density.setAttribute('aria-pressed',String(compact));
+   density.textContent=compact?'Compact view':'Comfortable view';
+   density.title=compact?'Use comfortable spacing':'Use compact spacing';
+   requestAnimationFrame(()=>root.dispatchEvent(new Event('resize')));
+  }
+  density.onclick=()=>{compact=!compact;try{localStorage.setItem(key,compact?'compact':'comfortable')}catch{}applyDensity()};
+  applyDensity();
+  toolbar.append(label,timeframe,density,button);area.before(toolbar);
  }
  function setupTabs({canUsePaper=false}={}){
   const parent=$('sim-content'),layout=parent?.querySelector('.sim-layout');

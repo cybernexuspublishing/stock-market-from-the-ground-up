@@ -337,7 +337,32 @@ function initOne(id,type){
  const host=document.getElementById(id);
  const chart=window.klinecharts?.init?.(host,{styles:'dark',layout:{pane:{height:110,minHeight:75,dragEnabled:true}}});
  if(!chart)throw Error('KLineChart could not initialize');
- chart.setStyles({candle:{tooltip:{showRule:'follow_cross'}},indicator:{tooltip:{showRule:'follow_cross'}}});
+ // KLineChart 10.1 supported incremental styles. Preserve native pixel
+ // resolution and real bar values; presentation is consistent with Standard.
+ chart.setStyles({
+  grid:{
+   horizontal:{show:true,color:'#20354a',style:'dashed',dashedValue:[3,5],size:1},
+   vertical:{show:true,color:'#172b40',style:'dashed',dashedValue:[3,6],size:1}
+  },
+  candle:{
+   type:'candle_solid',
+   bar:{compareRule:'current_open',
+    upColor:'#2bf2b1',downColor:'#ff648b',noChangeColor:'#b2c0d2',
+    upBorderColor:'#27cba0',downBorderColor:'#f04c77',
+    noChangeBorderColor:'#b2c0d2',
+    upWickColor:'#9dffe1',downWickColor:'#ffabc0',
+    noChangeWickColor:'#b2c0d2'},
+   priceMark:{last:{show:true,upColor:'#2bf2b1',downColor:'#ff648b',noChangeColor:'#b2c0d2'}},
+   tooltip:{showRule:'follow_cross'}
+  },
+  indicator:{tooltip:{showRule:'follow_cross'}},
+  xAxis:{axisLine:{color:'#36516d'},tickText:{color:'#b1cbe0',size:11}},
+  yAxis:{axisLine:{color:'#36516d'},tickText:{color:'#b1cbe0',size:11}},
+  crosshair:{
+   horizontal:{line:{show:true,color:'#7ea8c9',style:'dashed',dashedValue:[4,4],size:1}},
+   vertical:{line:{show:true,color:'#7ea8c9',style:'dashed',dashedValue:[4,4],size:1}}
+  }
+ });
  const entry={id,chart,host};
  chart.setSymbol({ticker:state.symbol||'REPLAY',pricePrecision:4,volumePrecision:0});
  chart.setPeriod(period());
