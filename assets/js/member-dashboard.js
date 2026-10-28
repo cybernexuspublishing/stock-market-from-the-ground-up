@@ -6,23 +6,40 @@ let currentHost=null,pend=null;
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const numeric=x=>Number.isFinite(Number(x))?String(x):'—';
 async function fill(box){const sb=await window.getSupabaseClient(),{data:{session}}=await sb.auth.getSession();if(!session)return;
-const [r,a,prog,skills]=await Promise.all([
+const headers={authorization:'Bearer '+session.access_token};
+const verified=async endpoint=>{try{const response=await fetch(endpoint,{headers,cache:'no-store'});if(!response.ok)return null;const data=await response.json();return data?.ok===true?data:null}catch{return null}};
+const [r,a,prog,skills,release,interactive,training]=await Promise.all([
  sb.from('platform_labs').select('lab_id,book_code,active,registry_visible,public_sample').eq('active',true).eq('registry_visible',true),
  window.PlatformAccess?.get?.()||Promise.resolve(null),
  sb.from('site_lab_progress').select('lab_id,status,completed_at,started_at').eq('user_id',session.user.id),
- fetch('/api/competencies?action=summary',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'}).then(v=>v.ok?v.json():null).catch(()=>null)
+ verified('/api/competencies?action=summary'),
+ verified('/api/lab-release-availability'),
+ verified('/api/member-tool-access?tool=INTERACTIVE_LEARNING'),
+ verified('/api/member-tool-access?tool=ONDEMAND_TRAINING')
 ]);if(!box.isConnected)return;
+const snapshotValid=!r.error&&release&&Array.isArray(release.publishedIds)&&
+ Array.isArray(release.guidedBetaIds)&&Array.isArray(release.trainingOnlyIds);
+const released=new Set(snapshotValid?[...release.publishedIds,...release.guidedBetaIds]:[]);
+const trainingOnly=new Set(snapshotValid?release.trainingOnlyIds:[]);
+const samples=new Set(['F1-C02-L01','F2-C01-L01','F3-C01-L01']);
 const labs=r.data||[],included=new Set((a?.books||[]).filter(b=>b.included).map(b=>b.productCode||b.bookCode).filter(Boolean));
-const all=!!(a?.allTools||['FULL_MONTHLY','FULL_ANNUAL','LIFETIME','BOOK_TRIAL'].includes(a?.planCode)||a?.tools?.some(t=>t.toolCode==='INTERACTIVE_LEARNING'&&t.included));
-const permitted=x=>all||x.public_sample||included.has(x.book_code);
-const eligible=labs.filter(permitted);const progress=(prog.data||[]).filter(x=>eligible.some(l=>l.lab_id===x.lab_id));
+const fullBooks=!!(a?.allBooks||['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(a?.planCode));
+const allowed=x=>released.has(x.lab_id)&&(
+ (samples.has(x.lab_id)&&((interactive?.freeEligible===true)||(training?.freeEligible===true)))||
+ (trainingOnly.has(x.lab_id)?training?.authorized===true:
+ (interactive?.authorized===true||training?.authorized===true||
+ (x.book_code!=='SITE_EXCLUSIVE'&&(fullBooks||included.has(x.book_code)))))
+);
+const eligible=snapshotValid?labs.filter(allowed):[];
+const allowedIds=new Set(eligible.map(x=>x.lab_id));
+const progress=(prog.data||[]).filter(x=>allowedIds.has(x.lab_id));
 const done=new Set(progress.filter(x=>x.status==='completed').map(x=>x.lab_id)).size;
 const doing=new Set(progress.filter(x=>x.status==='in_progress').map(x=>x.lab_id)).size;
 const assessed=(skills?.skills||[]).filter(x=>x.score!==null&&x.score!==undefined).length;
 const totalSkills=(skills?.skills||[]).length;
 const toolCount=(a?.tools||[]).filter(t=>t.included&&t.status!=='retired').length;
 const cards=[
- ['Your Labs',r.error?'—':eligible.length,'Available with your current access'],
+ ['Guided Labs',snapshotValid?eligible.length:'—','Eligible lessons under current verified release and tool rules'],
  ['Labs Completed',prog.error?'—':done,'Completed accessible Lab IDs'],
  ['In Progress',prog.error?'—':doing,'Ready for continued practice'],
  ['Skills Assessed',totalSkills?`${assessed} / ${totalSkills}`:'—','Official scored skill evidence']
