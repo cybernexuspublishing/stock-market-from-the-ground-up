@@ -24,19 +24,23 @@ function safeBars(input){
  return bars;
 }
 async function permission(){
+ const authEpoch=state.authEpoch=(state.authEpoch||0)+1;
  try{
   const client=await window.getSupabaseClient();
   const session=(await client.auth.getSession()).data?.session;
-  if(!session?.access_token){state.verified=false;state.allowed=['STANDARD'];status('Sign in to use Crownlight charts.');return}
+  if(authEpoch!==state.authEpoch)return;
+  if(!session?.access_token){state.verified=false;state.tier='STANDARD';state.allowed=['STANDARD'];state.selected='STANDARD';stopCharts();renderChoices();status('Sign in to use Crownlight charts.');
+   window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:false,tier:'STANDARD'}}));return}
   const r=await fetch('/api/chart-tier-access',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
   if(!r.ok)throw Error('Chart entitlement unavailable');
   const j=await r.json();
+  if(authEpoch!==state.authEpoch)return;
   if(j?.ok!==true||j.eligible!==true||!Array.isArray(j.allowed))throw Error('Chart access not confirmed');
   state.allowed=['STANDARD',...['ADVANCED','PROFESSIONAL'].filter(t=>j.allowed.includes(t))];
   state.tier=state.allowed.at(-1);state.verified=true;
   if(!state.allowed.includes(state.selected)){state.selected='STANDARD';stopCharts()}
   status('Your membership includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
- }catch{state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
+ }catch{if(authEpoch!==state.authEpoch)return;state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
   status('Advanced chart permissions could not be verified. Standard chart remains available to eligible signed-in members.');}
  renderChoices();
  window.dispatchEvent(new CustomEvent('crownlight:tier-permission',{detail:{verified:state.verified,tier:state.tier}}));
