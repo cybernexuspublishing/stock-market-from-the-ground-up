@@ -71,7 +71,15 @@ async function scenario(width,kind='free'){
     assert.equal(await page.evaluate(()=>window.CrownlightChartTiers?.getStatus().selected),'STANDARD');
    }
    assert.equal(await page.locator('#sim-ticker').inputValue(),'GUSIM');
-   assert.equal(await page.locator('#sim-source option[value="tiingo"]').isDisabled(),true);
+   assert.equal(await page.locator('#sim-source option[value="tiingo"]').isDisabled(),false,
+    'Providers remain discoverable; server access is still denied without entitlement');
+   await page.locator('#sim-source').selectOption('tiingo');
+   assert.equal(await page.locator('#load-provider').isVisible(),true);
+   assert.equal(await page.locator('#load-provider').isEnabled(),true);
+   await page.locator('#load-provider').click();
+   assert.match(await page.locator('#sim-load-msg').innerText(),/separate Market Simulator data access/i);
+   assert.match(await page.locator('a[href="dashboard.html?tab=settings&section=connections"]').count().then(String),/^1$/);
+   await page.locator('#sim-source').selectOption('csv');
    assert.equal(await page.locator('#sim-load-fictional').isEnabled(),true);
    const currentSummary=page.locator('#sim-candle-accessible');
    assert.match(await currentSummary.innerText(),/ORIGINAL FICTIONAL/);
