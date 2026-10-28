@@ -11,9 +11,22 @@
 .cl-chart-tier-tools button{cursor:pointer}
 .cl-chart-tier-tools select{min-width:125px;padding:8px 10px;background:#122742;color:#eaf7ff;border:1px solid #55749a;border-radius:8px}
 .cl-chart-tier-note{font-size:.79rem;color:#a7c3dd}
-.cl-chart-tier-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
-.cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:repeat(2,minmax(0,1fr))}
-.cl-tier-kline-canvas{min-width:0;width:100%;height:440px;border-radius:11px;background:#091727;border:1px solid #345a83;overflow:hidden}
+.cl-chart-tier-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.cl-chart-tier-panels:has(>.cl-tier-chart-frame+ .cl-tier-kline-canvas){grid-template-columns:repeat(2,minmax(0,1fr))}
+.cl-tier-chart-frame{min-width:0;width:100%;display:flex;flex-direction:column;gap:0}
+.cl-tier-chart-summary{min-width:0;min-height:135px;padding:11px 13px;background:#102238;
+ border:1px solid #345a83;border-bottom:0;border-radius:11px 11px 0 0}
+.cl-tier-summary-head{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;font-size:.82rem}
+.cl-tier-summary-head strong{color:#e9f5ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cl-tier-summary-head span{color:#acc9dc;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cl-tier-ohlcv{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:7px}
+.cl-tier-quote-item{min-width:0;display:flex;flex-direction:column;gap:2px;padding:4px 5px;border-radius:5px;background:#0a1b2a}
+.cl-tier-quote-item span{color:#9abbd4;font-size:.67rem}
+.cl-tier-quote-item strong{color:#eff8ff;font-size:.76rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.cl-tier-study-readout{margin-top:6px;color:#b8d3e6;font-size:.74rem}
+.cl-tier-study-readout summary{cursor:pointer;outline-offset:3px}
+.cl-tier-study-readout p{margin:6px 0 0;overflow-wrap:anywhere;line-height:1.5}
+.cl-tier-kline-canvas{min-width:0;width:100%;height:440px;border-radius:0 0 11px 11px;background:#091727;border:1px solid #345a83;overflow:hidden}
 /* A Studio is one selected player, never a second stacked viewer.
  * Keep Standard alive for replay state, but hide it while Enhanced is selected. */
 .cl-tier-enhanced .sim-chart-panel > .crownlight-shell{display:none!important}
@@ -23,13 +36,13 @@
   margin:0!important;border:0!important;border-radius:0!important;
   max-height:none!important;background:transparent!important;
 }
-@media(max-width:1000px){.cl-chart-tier-panels:has(>.cl-tier-kline-canvas+ .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1000px){.cl-chart-tier-panels:has(>.cl-tier-chart-frame+ .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.cl-chart-tier-bar{align-items:stretch}.cl-chart-tier-bar label{width:100%}.cl-tier-kline-canvas{height:350px}.cl-chart-tier-switcher{padding:10px}.cl-chart-tier-tools{align-items:stretch}}
 
 /* Member-selected Professional layouts; narrow viewports always stack safely. */
-.cl-chart-tier-switcher[data-cl-layout="STACKED"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}
-.cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
-@media(max-width:1000px){.cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-kline-canvas + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
+.cl-chart-tier-switcher[data-cl-layout="STACKED"] .cl-chart-tier-panels:has(>.cl-tier-chart-frame + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}
+.cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-chart-frame + .cl-tier-kline-canvas){grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+@media(max-width:1000px){.cl-chart-tier-switcher[data-cl-layout="PRICE_FOCUS"] .cl-chart-tier-panels:has(>.cl-tier-chart-frame + .cl-tier-kline-canvas){grid-template-columns:minmax(0,1fr)}}
 
 .cl-chart-tier-access-trigger{padding:10px;border:1px solid #6f8aa8;border-radius:8px;background:#15263c;color:#e6f2ff;cursor:pointer}
 .cl-chart-tier-bar select option:disabled{color:#8b9bae;background:#1b2739}
@@ -38,3 +51,5 @@
 .cl-chart-tier-access-item{padding:12px;border:1px solid #3e5a79;border-radius:8px}
 .cl-chart-tier-access-item p,.cl-chart-tier-sparks-explanation{font-size:.85rem;line-height:1.5;color:#c2d4e6}
 .cl-chart-tier-countdown{padding:10px;margin-top:12px;border-radius:8px;background:#172e42;font-variant-numeric:tabular-nums}
+
+@media(max-width:620px){.cl-tier-chart-summary{min-height:0;padding:10px}.cl-tier-ohlcv{grid-template-columns:repeat(3,minmax(0,1fr))}}
