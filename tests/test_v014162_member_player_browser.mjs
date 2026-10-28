@@ -111,9 +111,20 @@ try{
   assert.equal(stageLock.disabled,true,'Predict must lock mode choice; state='+JSON.stringify(stageLock));
   assert.match(await page.locator('#player-mode-status').innerText(),/Locked/);
   assert.equal(await page.locator('#player-mode-restart-row').isVisible(),true);
-  await page.getByRole('button',{name:'Change Mode / Restart'}).click();
-  await page.getByRole('combobox',{name:'New learning mode'}).selectOption('blind');
-  await page.getByRole('button',{name:'Yes, Continue'}).click();
+  const protectedRestart=page.getByRole('button',{name:'Change Mode / Restart'});
+  assert.equal(await protectedRestart.isDisabled(),true,
+   'A locked attempt cannot restart without a separately authorized full-Lab entitlement');
+  assert.match(await page.locator('#player-mode-restart-row').innerText(),/authorization is not yet enabled/,
+   'Unreleased Sparks restart must never imply that a debit or reset succeeded');
+  // A new page load is a fresh, ungraded exercise; it must not mutate the
+  // already locked attempt or charge Crownlight Sparks for a restart.
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.getByRole('button',{name:'Start Guided Learning →'}).waitFor({timeout:15000});
+  await page.locator('#player-mode-trigger').click();
+  await page.locator('#player-mode-menu [data-member-mode="blind"]').click();
+  const blindConfirmation=page.locator('#player-mode-confirm');
+  if(await blindConfirmation.isVisible())
+   await blindConfirmation.getByRole('button',{name:'Yes, Continue'}).click();
   assert.equal(await page.locator('#player-mode-select').inputValue(),'blind');
   assert.match(await page.locator('#player-mode-trigger').innerText(),/Blind Decision/);
   assert.match(await page.locator('#gu-v32-teaching-slot').innerText(),/Blind Decision — Evidence First/);
