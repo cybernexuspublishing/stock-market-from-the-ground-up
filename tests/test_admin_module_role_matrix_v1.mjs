@@ -35,8 +35,8 @@ const call=async(action,token='valid')=>onRequest({env,request:new Request('http
 try{
  const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
  const panels=[...html.matchAll(/data-admin-panel="([^"]+)"/g)].map(m=>m[1]);
- assert.deepEqual(panels,['dashboard','users','roles','products','commerce','content','community','settings','audit','system'],
-  'Ten canonical management panels remain mounted once each');
+ assert.deepEqual(panels,['dashboard','users','roles','products','commerce','content','community','sparks','settings','audit','system'],
+  'Eleven canonical management panels remain mounted once each');
  let res=await call('roles',null);
  assert.equal(res.status,401,'Anonymous reads must be denied');
 
