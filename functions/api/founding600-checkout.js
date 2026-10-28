@@ -76,7 +76,7 @@ async function postBody(req){
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(all))}catch{throw fail('Invalid JSON.',400)}
 }
 export async function onRequestGet({env}){
- let enabled=false,offer,starterReady=false;
+ let enabled=false,offer,starterReady=false,published=()=>false;
  try{offer=await foundingOfferState(env)}catch{offer={offersVisible:false,enrollmentEnabled:false,phase:'unverified',remaining:0}}
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
