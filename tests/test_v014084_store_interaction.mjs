@@ -54,7 +54,10 @@ const context={window,document:doc,location,history,console,URL,URLSearchParams,
    ok:true,offersVisible:true,publicLaunch:false,phase:'beta',remaining:600,enrollmentEnabled:true
   })};
   if(url==='/api/founding600-checkout')return {ok:true,json:async()=>({ok:true,checkoutEnabled:false})};
-  if(url==='/api/storefront-public-catalog')return {ok:false,json:async()=>({ok:false})};
+  if(url==='/api/storefront-public-catalog')return {ok:true,json:async()=>({ok:true,source:'verified_storefront',items:[
+   {sku:'founding:FOUNDING_30',category:'founding',saleReady:false},
+   {sku:'founding:FOUNDING_60',category:'founding',saleReady:false}
+  ]})};
   return {ok:true,json:async()=>JSON.parse(read('data/founding600-terms-v014170.json'))};
  }};
 vm.runInNewContext(read('assets/js/store.js'),context);
@@ -101,6 +104,8 @@ assert.equal(nodes['store-panel-founders'].hidden,false);
 assert.equal(nodes['store-panel-books'].hidden,true);
 assert.match(nodes['store-founder-plans'].innerHTML,/49\.99/);
 assert.match(nodes['store-founder-plans'].innerHTML,/59\.99/);
+assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/22\.99|14 DAYS/,'Unpublished 14-day Founder tier stays hidden');
+assert.doesNotMatch(nodes['store-founder-compare'].innerHTML,/14 days|10 \/ 14-day term/,'Unpublished tier must not leak into Founder comparison');
 assert.match(nodes['store-founder-plans'].innerHTML,/10% OFF eligible purchases/);
 assert.match(nodes['store-founder-plans'].innerHTML,/15% OFF eligible purchases/);
 assert.doesNotMatch(nodes['store-founder-plans'].innerHTML,/20%|checkout\.html|checkout\.stripe/);

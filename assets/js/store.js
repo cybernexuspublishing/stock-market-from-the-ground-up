@@ -126,6 +126,16 @@ async function foundingCatalog(){
   const terms=await response.json();const codes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'];
   const plans=codes.map(code=>terms.plans?.[code]);
   if(plans.some(p=>!p||!Number.isInteger(p.recurringCents)||!Number.isInteger(p.billingIntervalDays)||!Number.isInteger(p.foundingDiscountBps)||p.includedSparksNeverExpire!==true))throw Error('Invalid founding terms');
+  // Owner publication is authoritative even when a separate checkout route
+  // is inactive. Never display hidden Founder SKU cards or comparison columns.
+  const listedResponse=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
+  const publicCatalog=listedResponse.ok?await listedResponse.json():null;
+  if(publicCatalog?.ok!==true||publicCatalog.source!=='verified_storefront'
+    ||!Array.isArray(publicCatalog.items))throw Error('Founder visibility unavailable');
+  const publicFounders=new Set(publicCatalog.items.filter(x=>x?.category==='founding'&&
+   /^founding:FOUNDING_(14|30|60)$/.test(String(x.sku||''))).map(x=>String(x.sku).slice('founding:'.length)));
+  const displayIndices=codes.map((code,i)=>publicFounders.has(code)?i:-1).filter(i=>i>=0);
+  if(!displayIndices.length){target.replaceChildren();matrix.replaceChildren();return}
   let accepting=false,eligible=new Map();
   try{
    const status=await fetch('/api/founding600-checkout',{cache:'no-store',signal:AbortSignal.timeout(12000)});
@@ -133,7 +143,7 @@ async function foundingCatalog(){
    accepting=state?.ok===true&&state.checkoutEnabled===true;
    eligible=new Map((Array.isArray(state?.plans)?state.plans:[]).map(p=>[p.code,p.checkoutEnabled===true]));
   }catch{accepting=false}
-  target.innerHTML=plans.map((p,i)=>{const canJoin=accepting&&eligible.get(codes[i])===true;return `<article class="catalog-founder-card ${i===2?'is-extended':''}">
+  target.innerHTML=displayIndices.map(i=>{const p=plans[i],canJoin=accepting&&eligible.get(codes[i])===true;return `<article class="catalog-founder-card ${i===2?'is-extended':''}">
  <div class="catalog-founder-orbit" aria-hidden="true"></div>
  <div class="catalog-founder-top"><span class="eyebrow">Founding ${i===0?'Starter':i===1?'Standard':'Extended'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div>
  <span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span>
@@ -159,7 +169,7 @@ async function foundingCatalog(){
    ['Extended Design Council',[no(),no(),yes()]],
    ['Enhanced learning preferences',[no(),no(),yes()]]
   ];
-  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Members Starter, Standard and Extended benefit comparison. Shared capacity: 600.</caption><thead><tr><th scope="col">Benefit</th>${plans.map(p=>`<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${values.map(comparisonCell).join('')}</tr>`).join('')}</tbody></table>`;
+  matrix.innerHTML=`<table class="catalog-comparison"><caption>Founding Members Starter, Standard and Extended benefit comparison. Shared capacity: 600.</caption><thead><tr><th scope="col">Benefit</th>${displayIndices.map(i=>{const p=plans[i];return `<th scope="col">${esc(p.name)}<small class="catalog-cell-note">${esc(p.billingIntervalDays)} days</small></th>`}).join('')}</tr></thead><tbody>${rows.map(([label,values])=>`<tr><th scope="row">${esc(label)}</th>${displayIndices.map(i=>comparisonCell(values[i])).join('')}</tr>`).join('')}</tbody></table>`;
  }catch{target.innerHTML='<div class="notice">Founding terms are temporarily unavailable. <a href="founding600.html">Review the founding program</a>.</div>';matrix.textContent='Comparison unavailable until approved terms can be loaded.';}
 }
 
