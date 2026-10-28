@@ -74,6 +74,15 @@ async function newPage(width){
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
     ok:true,offersVisible:true,publicLaunch:false,phase:'beta',remaining:600,enrollmentEnabled:true
    })});
+  // Owner-published Store fixture: Standard and Extended visible,
+  // 14-day Starter hidden; no LIVE checkout or outside network.
+  if(originAllowed(url)&&new URL(url).pathname==='/api/storefront-public-catalog')
+   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    ok:true,source:'verified_storefront',items:[
+     {sku:'founding:FOUNDING_30',category:'founding',visible:true,saleReady:false},
+     {sku:'founding:FOUNDING_60',category:'founding',visible:true,saleReady:false}
+    ]
+   })});
   if(originAllowed(url))return route.continue();
   return route.abort();
  });
@@ -111,24 +120,45 @@ try{
     assert(viewport&&viewport.includes('width=device-width'),path+' viewport not responsive');
     const details={page:path,viewport:width,content:legal?'SERVER_LEGAL_NOT_TESTED':'STATIC_RENDERED'};
     if(path==='store.html'){
-     // All three Founding tiers display, while 14-day Starter checkout stays blocked. The
-     // the standard Membership tab keeps independent plan eligibility.
-     await tab.waitForFunction(()=>Boolean(
-      document.querySelector('#store-founder-plans .notice')||
-      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3
-     ),undefined,{timeout:14000});
+     // Only explicitly Owner-published tiers belong in member-facing Store.
+     // The synthetic catalog lists 30/60 and intentionally hides Starter.
+     await tab.waitForFunction(()=>
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===2,
+      undefined,{timeout:14000});
      const count=await tab.locator('#store-founder-plans article.catalog-founder-card').count();
-     assert.equal(count,3,'All three approved Founding Members offers must render from source-controlled terms');
+     assert.equal(count,2,'Only Owner-published Founder offers may render');
      const founderCards=tab.locator('#store-founder-plans article.catalog-founder-card');
-     assert.match(await founderCards.first().innerText(),/Founding Starter|14 DAYS/i,
-      'Staged 14-day Starter must remain visible in source-controlled terms');
+     assert.match(await founderCards.first().innerText(),/Founding Standard|30 DAYS/i);
+     assert.doesNotMatch(await tab.locator('#store-founder-plans').innerText(),
+      /Founding Starter|14 DAYS/i,'Unpublished Starter must stay hidden');
+     assert.doesNotMatch(await tab.locator('#store-founder-compare').innerText(),
+      /Founding Starter|14-day term/i,'Unpublished tier must not leak into comparison');
      assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
-      'Staged Starter must not offer a direct purchase link');
+      'Coming-soon Founder tiers must not have direct purchase links');
      assert.equal(await tab.locator('#store-tab-memberships').count(),1);
      assert.equal(await tab.locator('#store-tab-memberships').isVisible(),false,
       'Public-launch Membership tab must remain hidden during founding beta');
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
+     // Positive publication path: all three tiers display when Owner
+     // visibility includes Starter as well; no direct checkout is enabled.
+     await tab.route('**/api/storefront-public-catalog',route=>route.fulfill({
+      status:200,contentType:'application/json',body:JSON.stringify({
+       ok:true,source:'verified_storefront',items:[
+        {sku:'founding:FOUNDING_14',category:'founding',visible:true,saleReady:false},
+        {sku:'founding:FOUNDING_30',category:'founding',visible:true,saleReady:false},
+        {sku:'founding:FOUNDING_60',category:'founding',visible:true,saleReady:false}
+       ]
+      })
+     }));
+     await tab.reload({waitUntil:'domcontentloaded'});
+     await tab.waitForFunction(()=>
+      document.querySelectorAll('#store-founder-plans article.catalog-founder-card').length===3,
+      undefined,{timeout:14000});
+     assert.match(await tab.locator('#store-founder-plans article.catalog-founder-card').first().innerText(),
+      /Founding Starter|14 DAYS/i);
+     assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
+      'Owner publication alone does not authorize purchase');
      await tab.waitForFunction(()=>Boolean(
       document.querySelector('#store-products .notice,#store-products .empty-state')||
       document.querySelector('#store-products article.product-card')
