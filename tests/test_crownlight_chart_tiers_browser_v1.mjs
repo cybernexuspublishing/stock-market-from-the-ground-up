@@ -43,7 +43,8 @@ await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',
 if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
 assert.equal(await page.locator('.cl-tier-kline-canvas').count(),expected);
-assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'KLineChart must render real canvas');}
+assert((await page.locator('.cl-tier-kline-canvas canvas').count())>=expected,'KLineChart must render real canvas');
+await page.waitForFunction(()=>window.CrownlightChartTiers.getInstances().every(x=>x.chart.getDataList().length===2));}
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),
 [...two,{timestamp:two[1].timestamp+60000,open:11,high:11.8,low:10.6,close:11.7,volume:1000}]);
 assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getStatus().revealed),3);
@@ -52,7 +53,23 @@ assert.match(await page.locator('.cl-talia-facts').innerText(),/EMA 9|VWAP/i);
 await page.locator('.cl-talia-answer').fill('No trade until price acceptance; invalidation below prior low.');
 await page.getByRole('button',{name:'Review my observation'}).click();
 assert.match(await page.locator('.cl-talia-status').innerText(),/ungraded/i);
-if(tier==='PROFESSIONAL')assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().linked),true);
+await page.locator('[data-cl-lab-id]').fill('F1-C02-L01');
+await page.getByRole('button',{name:'Verify Lab'}).click();
+await page.waitForFunction(()=>!document.querySelector('.cl-talia-lab-link a')?.hidden);
+assert.match(await page.locator('.cl-talia-status').innerText(),/Verified Lab/);
+assert.match(await page.locator('.cl-talia-lab-link a').getAttribute('href'),/F1-C02-L01/);
+if(tier==='PROFESSIONAL'){
+ assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().linked),true);
+ const result=await page.evaluate(()=>{
+  const [left,right]=window.CrownlightChartTiers.getInstances();
+  let received=null;const prior=right.chart.scrollToTimestamp;
+  right.chart.scrollToTimestamp=function(stamp,...args){received=stamp;return prior.call(this,stamp,...args)};
+  window.CrownlightWorkspaceV2.synchronize(left,null,'onScroll');
+  return {received,last:left.chart.getDataList().at(-1)?.timestamp};
+ });
+ assert(Number.isSafeInteger(result.received),'Synchronized view must receive a real timestamp');
+ assert(result.received<=result.last,'Chart sync must never request a later, unrevealed candle');
+}
 await page.locator('[data-cl-save]').click();
 await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
 assert.deepEqual(errors,[]);console.log('PASS '+tier+' real Chromium '+expected+' KLine charts and revealed candle updates');
