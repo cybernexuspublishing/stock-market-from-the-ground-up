@@ -296,8 +296,22 @@ function ensureShowcase(){
  document.body.classList.toggle('cc-showcase',showcase);if(!showcase)return;
  let banner=$('#cc-showcase-banner');if(!banner){banner=document.createElement('p');banner.id='cc-showcase-banner';banner.setAttribute('role','status');banner.textContent='DEMO: fictional data, read-only. Nothing here changes the real site.';$('.admin-main')?.prepend(banner);}
  for(const group of $$('.cc-admin-group',nav()))if(['Support & Operations','Security & Governance'].includes(group.dataset.ccNavGroup))group.hidden=true;
- // The server is the required enforcement boundary; this is a secondary UI safeguard.
- for(const el of $$('.admin-panel input,.admin-panel select,.admin-panel textarea,.admin-panel button',app()))if(!el.dataset.ccShowcaseNavigation){el.disabled=true;el.title='Disabled in Showcase';}
+ // UI safeguards supplement, but never replace, server-side HTTP 403 mutation denial.
+ const protect=()=>{
+  for(const el of $$('.admin-panel input,.admin-panel select,.admin-panel textarea,.admin-panel button',app())){
+   if(el.dataset.ccShowcaseNavigation)continue;
+   const name=(el.textContent||'').trim();
+   const safeSearch=el.matches('input[type="search"]');
+   const safeRead=el.tagName==='BUTTON'&&(el.hasAttribute('data-refresh')||/^(refresh|view|preview|search|find|next|previous|filter|reload|back|expand|collapse|show details|open details)\\b/i.test(name))&&!/checkout|purchase|payment|activate|grant|refund/i.test(name);
+   if(safeSearch||safeRead)continue;
+   el.disabled=true;el.title='Disabled in Showcase';
+  }
+ };
+ protect();
+ if(!window.__ccShowcaseContentObserver){
+  const guard=new MutationObserver(protect);guard.observe(app(),{childList:true,subtree:true});
+  window.__ccShowcaseContentObserver=guard;
+ }
 }
 async function token(){const sb=await window.getSupabaseClient?.();return (await sb?.auth?.getSession?.())?.data?.session?.access_token||'';}
 async function registry(action='GET',data){const access=await token();if(!access)throw Error('Owner session required.');const r=await fetch('/api/admin-control-registry',{method:action,cache:'no-store',headers:{authorization:'Bearer '+access,'content-type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw Error(j.error||`HTTP ${r.status}`);return j;}
