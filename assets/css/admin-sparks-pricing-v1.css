@@ -5,3 +5,8 @@
 .sp-price-card{min-width:0}.sp-price-note{font-size:.85rem;color:#b7c9dd}.sp-price-sku{font-family:monospace;word-break:break-all}
 .sp-price-meta{font-size:.77rem;color:#a2bad5}.sp-price-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
 .sp-price-feedback{font-size:.84rem}.sp-error{color:#ffaaa5}
+
+.sp-price-summary{font-size:.95rem;color:#d5e6f7;font-weight:650;line-height:1.5}
+.sp-price-field input:focus-visible,.sp-price-field select:focus-visible,.sp-price-actions button:focus-visible{outline:2px solid #b5a4f0;outline-offset:2px}
+.sp-price-card{border-top:2px solid #425b83}
+.sp-price-feedback[role=status]{max-width:32rem;overflow-wrap:anywhere}

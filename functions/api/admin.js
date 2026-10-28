@@ -463,9 +463,22 @@ async function handlePost(env,request,action){
       return bad('Supply a valid SKU, description, and Sparks cost (1–100,000).',400);
     const state=clean(body.state).toLowerCase();
     if(!['active','planned','disabled'].includes(state))return bad('Invalid release status.',400);
+    // Category and duration are catalog metadata for new, nonredeemable drafts only.
+    // Existing SKUs retain their fulfillment contract and duration: an Owner price
+    // change must never silently alter the customer's purchased pass duration.
+    const draftCategory=clean(body.category||'OTHER').toUpperCase();
+    const draftHours=body.duration_hours===undefined||body.duration_hours===null||
+      body.duration_hours===''?null:Number(body.duration_hours);
+    if(!['CHART_STUDIO','AD_FREE','PRACTICE','OTHER'].includes(draftCategory)||
+      (draftHours!==null&&(!Number.isSafeInteger(draftHours)||draftHours<1||draftHours>8760)))
+      return bad('New-item category or planned duration is invalid.',400);
     const original=await one(env,'gu_sparks_price_catalog_v1?select=sku,category,fulfillment,version,sparks_cost,state,label,description,duration_hours&sku=eq.'+
       encodeURIComponent(sku)+'&limit=1');
     if(original){
+      if(body.category!==undefined&&clean(body.category).toUpperCase()!==original.category)
+        return bad('Existing offer category cannot change without a separate fulfillment review.',409);
+      if(body.duration_hours!==undefined&&body.duration_hours!==original.duration_hours)
+        return bad('Existing offer duration is locked to its redemption contract.',409);
       const version=Number(body.version);
       if(!Number.isSafeInteger(version)||version!==original.version)return bad('Price changed elsewhere; refresh and try again.',409);
       if(original.fulfillment==='UNINTEGRATED'&&state==='active')
@@ -486,10 +499,11 @@ async function handlePost(env,request,action){
     if(state==='active')return bad('New products are drafts until a redemption handler is implemented and accepted.',409);
     const {data}=await serviceRest(env,'gu_sparks_price_catalog_v1',{
       method:'POST',prefer:'return=representation',body:{
-        sku,category:'OTHER',label,description,sparks_cost:cost,
-        fulfillment:'UNINTEGRATED',state:'planned',duration_hours:null,updated_by:c.user.id}
+        sku,category:draftCategory,label,description,sparks_cost:cost,
+        fulfillment:'UNINTEGRATED',state:'planned',duration_hours:draftHours,updated_by:c.user.id}
     });
-    await audit(env,c.user.id,'sparks.price.draft_create','sparks_sku',sku,{sparks_cost:cost});
+    await audit(env,c.user.id,'sparks.price.draft_create','sparks_sku',sku,{
+      sparks_cost:cost,category:draftCategory,duration_hours:draftHours,state:'planned'});
     return ok({price:data?.[0]});
   }
   if(action==='setting_save'){

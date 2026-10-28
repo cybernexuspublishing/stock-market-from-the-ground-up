@@ -68,19 +68,32 @@ function editablePrice(offer,refresh){
 function draftForm(refresh){
  const card=el('article','admin-card sp-price-card');
  card.append(el('h2','','Add a Spark-priced item'),
-  el('p','sp-price-note','Create a planned catalog entry. It cannot be purchased or redeemed until its server-side fulfillment is implemented.'));
+  el('p','sp-price-note','Create a planned catalog entry in any category. Every new item starts unavailable: entering a price alone never unlocks a feature, charges Sparks, or creates an entitlement.'));
  const grid=el('div','sp-price-fields');
  const sku=control('SKU (capital letters and underscores)','');
  const label=control('Customer-facing name','');
  const cost=control('Spark cost','1','number');
  const description=control('Description','');
- grid.append(sku.wrap,label.wrap,cost.wrap,description.wrap);card.append(grid);
+ const categoryLabel=el('label','sp-price-field');
+ categoryLabel.append(el('span','','Catalog category'));
+ const category=el('select');
+ category.setAttribute('aria-label','New item catalog category');
+ for(const [value,text] of [
+  ['OTHER','Other / Future'],['CHART_STUDIO','Chart Studio'],
+  ['AD_FREE','Ad-free'],['PRACTICE','Learning and Practice']
+ ])category.add(new Option(text,value));
+ categoryLabel.append(category);
+ const duration=control('Planned duration (hours; optional)','', 'number');
+ duration.input.min='1';duration.input.max='8760';
+ duration.input.placeholder='Leave blank for action-based pricing';
+ grid.append(sku.wrap,label.wrap,cost.wrap,description.wrap,categoryLabel,duration.wrap);card.append(grid);
  const feedback=el('span','sp-price-feedback');feedback.setAttribute('role','status');
  const save=el('button','btn','Add planned item');save.type='button';
  save.onclick=async()=>{
   save.disabled=true;status(feedback,'Creating planned catalog item…');
   try{await api('sparks_price_save',{sku:sku.input.value.trim().toUpperCase(),
    label:label.input.value.trim(),description:description.input.value.trim(),
+   category:category.value,duration_hours:duration.input.value.trim()===''?null:Number(duration.input.value),
    sparks_cost:Number(cost.input.value),state:'planned'});await refresh();}
   catch(e){status(feedback,String(e.message||e),true)}
   finally{save.disabled=false}
@@ -101,8 +114,12 @@ async function load(){
    group.add(new Option(text.replaceAll('_',' '),text));
   const reload=el('button','btn secondary','Refresh prices');reload.type='button';
   reload.onclick=()=>void load();controls.append(search.wrap,group,reload);host.append(controls);
-  const notice=el('p','sp-price-note','Prices in this catalog govern new redemption requests. Historical debit records are immutable. Planned items have no redemption handler. Do not advertise an unavailable feature as purchasable.');
+  const notice=el('p','sp-price-note','Owner-controlled prices apply to new, server-confirmed redemption requests only. Existing pass durations and historical debits cannot be repriced retroactively. New catalog entries are planned and cannot be activated until their server-side fulfillment and acceptance are separately completed.');
   host.append(notice);
+  const overview=el('p','sp-price-summary',
+   entries.length+' catalog items · '+entries.filter(x=>x.state==='active').length+
+   ' active · '+entries.filter(x=>x.state!=='active').length+' planned/disabled');
+  host.append(overview);
   const list=el('div','sp-price-grid');host.append(list);
   const paint=()=>{
    list.replaceChildren();
