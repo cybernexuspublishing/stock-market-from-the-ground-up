@@ -8,7 +8,7 @@ const svg=text('assets/img/crownlight-spark.svg');
 const ownerApi=text('functions/api/admin-lantern-sparks.js');
 assert.equal(catalog.brand,'Crownlight Sparks');
 assert.equal(catalog.checkoutEnabled,false,'External payment activation is deferred');
-assert.equal(catalog.packages.length,3);
+assert.equal(catalog.packages.length,5);
 for(const p of catalog.packages){
  assert.equal(p.checkoutEnabled,false);
  assert(Number.isSafeInteger(p.quantity)&&p.quantity>0);
@@ -25,6 +25,6 @@ assert(!store.includes('checkout.html?type=pass'),'Sparks must not accidentally 
 assert(!store.includes('checkout.html?type=spark'),'Sparks must not accidentally activate checkout');
 assert(ownerApi.includes('groundup_question_pass_adjust'),
  'Administrative adjustments must use authenticated server-owned ledger');
-assert(catalog.supportPolicy.includes('never require Sparks'),
+assert(catalog.supportPolicy.includes('Core instruction and ordinary practice retries remain included'),
  'Always-free instruction must not be paywalled');
-console.log('PASS Crownlight Sparks logo, 3 source-matched package previews, disabled checkout, server-owned Admin ledger');
+console.log('PASS Crownlight Sparks logo, 5 source-matched package previews, disabled checkout, server-owned Admin ledger');
