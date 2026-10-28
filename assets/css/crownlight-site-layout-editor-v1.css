@@ -20,3 +20,11 @@
 .gu-site-layout-editing .gu-layout-corner:hover,.gu-site-layout-editing .gu-layout-corner:focus-visible{background:#2677bc;outline:2px solid #73f1ff;outline-offset:2px}
 .gu-site-layout-editing .gu-layout-resize{touch-action:none}
 .gu-site-layout-editing .gu-layout-editable{padding-bottom:max(38px,var(--gu-card-padding-bottom,12px))}
+
+
+/* Layout Studio V2: explicit pointer-driven card movement. */
+.gu-site-layout-editing .gu-layout-move{cursor:grab!important;touch-action:none!important;background:#244469!important}
+.gu-site-layout-editing .gu-layout-move[aria-grabbed=true]{cursor:grabbing!important;background:#196b91!important}
+.gu-site-layout-editing .gu-layout-editable.gu-layout-moving{z-index:15!important;outline-color:#43f0da!important;box-shadow:0 12px 46px #0008;transition:none!important;will-change:translate}
+.gu-layout-dragging,.gu-layout-dragging *{cursor:grabbing!important;user-select:none!important}
+.gu-site-layout-editing .gu-layout-editable .cl-workbench-import{max-width:100%}
