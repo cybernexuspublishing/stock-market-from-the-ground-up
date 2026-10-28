@@ -7,7 +7,7 @@ const reply=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:HEAD}
 const err=(s,status=400)=>Object.assign(new Error(s),{status});
 const UUID=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
 const types=['female','male','rather_not_say'];
-const titles={learner:'Market Learner',researcher:'Research Student',journaler:'Journal Practitioner',founder:'Founding Member',custom:'Custom Display Title'};
+const titles={learner:'Market Learner',researcher:'Research Student',journaler:'Journal Practitioner',founder:'Founding Member',book_owner:'Verified Book Owner',premium_member:'Premium Learning Member',academy_member:'Academy Member',custom:'Custom Display Title'};
 const baseAvatar=/^https:\/\/stock-market-from-the-ground-up-d1r\.pages\.dev\/assets\/avatars\/av-[fmn][1-3]\.svg$/;
 const uploadKey=(uid,path)=>new RegExp('^'+uid+'/[0-9a-f]{32}\\.webp$').test(path);
 const clean=x=>String(x??'').trim();
@@ -32,6 +32,23 @@ async function isFounder(cfg,userId){
  const x=await rest(cfg,'gu_founder_members_v014173?select=founder_number&user_id=eq.'+encodeURIComponent(userId)+'&revoked_at=is.null&limit=1');
  return Array.isArray(x)&&Number.isInteger(x[0]?.founder_number);
 }
+async function verifiedTitles(cfg,userId,founder){
+ const now=new Date().toISOString(),base='user_id=eq.'+userId;
+ const [books,grants,subscriptions]=await Promise.all([
+  rest(cfg,'user_library?select=id&'+base+'&or=(expires_at.is.null,expires_at.gt.'+encodeURIComponent(now)+')&limit=1'),
+  rest(cfg,'user_plan_grants?select=plan_code,starts_at,ends_at,status&'+base+'&status=eq.active&limit=30'),
+  rest(cfg,'site_subscriptions?select=plan_code,status,current_period_end&'+base+'&status=in.(active,trialing)&limit=30')
+ ]);
+ const active=(grants||[]).filter(g=>(!g.starts_at||Date.parse(g.starts_at)<=Date.now())&&(!g.ends_at||Date.parse(g.ends_at)>Date.now()))
+  .map(g=>String(g.plan_code||''));
+ const provider=(subscriptions||[]).filter(g=>!g.current_period_end||Date.parse(g.current_period_end)>Date.now()).map(g=>String(g.plan_code||''));
+ const all=[...active,...provider];const available=new Set(['learner','researcher','journaler']);
+ if(founder)available.add('founder');
+ if((books||[]).length)available.add('book_owner');
+ if(all.some(x=>x!=='FREE'))available.add('premium_member');
+ if(all.some(x=>/ONDEMAND|ACADEMY|BOOTCAMP|BOOT_CAMP/i.test(x)))available.add('academy_member');
+ return available;
+}
 async function read(cfg,userId){
  const [rows,values,founder]=await Promise.all([
   rest(cfg,'profiles?select=id,username,first_name,last_name,email,bio,avatar_url,gender_choice,created_at,account_kind,deleted_at&id=eq.'+userId+'&limit=1'),
@@ -40,13 +57,14 @@ async function read(cfg,userId){
  ]);
  const p=rows?.[0];
  if(!p||p.deleted_at)throw err('Profile not found.',404);
- const v=values?.[0]||{};
+ const v=values?.[0]||{},allowed=await verifiedTitles(cfg,userId,founder);
+ if(v.custom_title)allowed.add('custom');
+ const visible=allowed.has(v.selected_title)?v.selected_title:'learner';
  return {profile:{id:p.id,username:p.username,firstName:p.first_name,lastName:p.last_name,email:p.email,
   bio:p.bio||'',avatarUrl:p.avatar_url||'',gender:p.gender_choice||'rather_not_say',
-  createdAt:p.created_at,accountKind:p.account_kind,selectedTitle:v.selected_title||'learner',
-  customTitle:v.custom_title||'',titleLabel:v.selected_title==='custom'?(v.custom_title||titles.learner):titles[v.selected_title]||titles.learner},
-  choices:Object.entries(titles).filter(([k])=>k!=='founder'||founder)
-   .filter(([k])=>k!=='custom'||!!v.custom_title).map(([code,label])=>({code,label}))};
+  createdAt:p.created_at,accountKind:p.account_kind,selectedTitle:visible,
+  customTitle:v.custom_title||'',titleLabel:visible==='custom'?(v.custom_title||titles.learner):titles[visible]||titles.learner},
+  choices:Object.entries(titles).filter(([k])=>allowed.has(k)).map(([code,label])=>({code,label}))};
 }
 export async function onRequest({env,request}){
  if(!['GET','POST'].includes(request.method))return reply({ok:false,error:'Method not allowed'},405);
@@ -73,6 +91,9 @@ export async function onRequest({env,request}){
   if(target!==userId)throw err('Members may only edit their own presentation.',403);
   const p=(await rest(cfg,'profiles?select=account_kind,deleted_at&id=eq.'+userId+'&limit=1'))?.[0];
   if(p?.account_kind!=='member'||p.deleted_at)throw err('Member profile unavailable.',403);
+  const flags=await rest(cfg,'admin_user_flags?select=status&user_id=eq.'+userId+'&limit=1');
+  if(['suspended','restricted'].includes(String(flags?.[0]?.status||'').toLowerCase()))
+   throw err('Profile edits are temporarily restricted.',403);
   const body=await request.json().catch(()=>({})),action=clean(body.action);
   if(action==='save'){
    const gender=clean(body.gender),bio=clean(body.bio);
@@ -83,7 +104,8 @@ export async function onRequest({env,request}){
   }else if(action==='select_title'){
    const choice=clean(body.title);
    if(!Object.hasOwn(titles,choice))throw err('Invalid display title.');
-   if(choice==='founder'&&!await isFounder(cfg,userId))throw err('Founding status has not been verified.',403);
+   const confirmed=await read(cfg,userId);
+   if(!confirmed.choices.some(x=>x.code===choice))throw err('This entitlement title has not been verified.',403);
    if(choice==='custom'){
     const row=await rest(cfg,'gu_member_profile_titles_v1?select=custom_title&user_id=eq.'+userId+'&limit=1');
     if(!row?.[0]?.custom_title)throw err('No purchased custom title found.');
