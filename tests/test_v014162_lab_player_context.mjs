@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {onRequest} from '../functions/api/lab-player-context.js';
 const old=globalThis.fetch,user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
-let active=true,authorized=true,interactive=false,kind='member',storedCode='DAY_TRADING_BOOK_1',ownsBook=false;const calls=[];
+let active=true,authorized=true,interactive=false,kind='member',storedCode='DAY_TRADING_BOOK_1',ownsBook=false,howOverride=null;const calls=[];
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,init={})=>{
  const target=String(url);calls.push({target,init});
@@ -22,7 +22,7 @@ globalThis.fetch=async(url,init={})=>{
   return json([{lab_id:(new URL(target)).searchParams.get('lab_id')?.replace(/^eq\./,'')||'DT-C01-L01',title:'Position sizing practice',book_code:storedCode,chapter_number:null,
    ticker:null,historical_date:null,timeframe:null,lab_type:'interactive',active,registry_visible:true,
    metadata:{what:'Define the risk per share before sizing.',why:'A fixed loss limit needs a known invalidation.',when:'Before a hypothetical entry.',
-    objective:'Explain the position-size constraint.',how:['Identify the limit.','Calculate risk per share.','Check size.'],
+    objective:'Explain the position-size constraint.',how:howOverride||['Identify the limit.','Calculate risk per share.','Check size.'],
     questions:['What changes if the stop is wider?'],answer_key:'NEVER RETURN THIS'}}]);
  }
  throw Error('Unexpected request '+target);
@@ -42,6 +42,16 @@ try{
  assert(!JSON.stringify(b).includes('NEVER RETURN THIS'));
  assert(!JSON.stringify(b).includes('rubric'));
  assert(!JSON.stringify(b).includes('correctAnswer'));
+ // The curriculum's nine-step sequence must reach Review, Transfer and Results.
+ // Keep a strict bound: metadata must not be allowed to stream arbitrary extra steps.
+ howOverride=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results','UNTRUSTED_TENTH'];
+ r=await onRequest({env,request:req()});assert.equal(r.status,200);
+ b=await r.json();
+ assert.deepEqual(b.lab.teaching.how,howOverride.slice(0,9));
+ assert.deepEqual(b.lab.practiceSteps,howOverride.slice(0,9));
+ assert(!JSON.stringify(b).includes('UNTRUSTED_TENTH'));
+ assert(!JSON.stringify(b).includes('NEVER RETURN THIS'));
+ howOverride=null;
  active=false;r=await onRequest({env,request:req()});assert.equal(r.status,404);
  active=true;authorized=false;interactive=true;
  r=await onRequest({env,request:req()});assert.equal(r.status,200,'Interactive Learning purchase reaches authorized metadata-only Lab study');

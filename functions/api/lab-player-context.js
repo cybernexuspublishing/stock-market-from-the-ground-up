@@ -150,7 +150,7 @@ export async function onRequest({request,env}){
   // only instructional prose; never forward arbitrary metadata or keys.
   const source=lab.metadata&&typeof lab.metadata==='object'?lab.metadata:{};
   const teaching={what:safe(source.what,700),why:safe(source.why,700),when:safe(source.when,700),
-   how:sentences(source.how),questions:sentences(source.questions,5)};
+   how:sentences(source.how,9),questions:sentences(source.questions,5)};
   const context={
    id:lab.lab_id,book:book.number,bookCode:lab.book_code,
    chapter:lab.chapter_number||0,chapterTitle:book.label,
