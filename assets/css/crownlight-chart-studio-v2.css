@@ -71,3 +71,23 @@
 /* Prevent legacy simulator canvas styling from deforming the chart library's own canvases. */
 .sim-chart-panel.crownlight-active .crownlight-plot canvas{border:0!important;margin:0!important;max-height:none!important;border-radius:0!important;background:transparent!important;padding:0!important}
 .crownlight-help a{color:#9ed9f8;text-decoration:underline;text-underline-offset:2px}
+
+/* Talia's evidence panel: educational calculation, not a trading recommendation. */
+.crownlight-toolbar-actions button[data-cl="coach"]{color:#fff;border-color:#c19c65;background:linear-gradient(120deg,#4b327a 0%,#7b4b87 52%,#875e43 100%);box-shadow:0 0 22px rgba(168,114,247,.12)}
+.crownlight-coach{margin:7px 0 16px;padding:21px;background:linear-gradient(116deg,rgba(38,31,79,.91),rgba(10,47,63,.95));border:1px solid rgba(154,136,236,.48);box-shadow:inset 0 1px 0 rgba(215,211,255,.11);border-radius:15px}
+.crownlight-coach-head{display:flex;align-items:center;gap:13px;margin-bottom:15px}
+.crownlight-coach-symbol{display:grid;place-items:center;min-width:44px;height:44px;font-size:1.38rem;font-family:Georgia,serif;font-weight:700;color:#0c1022;border-radius:50%;background:linear-gradient(130deg,#ffdba2,#dda4ff 50%,#72e0fb);box-shadow:0 0 26px rgba(163,116,236,.2)}
+.crownlight-coach-head span:not(.crownlight-coach-symbol){font-size:.66rem;letter-spacing:.19em;color:#e2bd7b;font-weight:850}
+.crownlight-coach-head h3{margin:3px 0 0;color:#f8f6ff;font-size:1.22rem;letter-spacing:-.02em}
+.crownlight-coach-lead{font-size:.92rem;font-weight:750;color:#6aecef;margin:12px 0}
+.crownlight-coach-math{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 20px}
+.crownlight-coach-math dt{font-size:.75rem;color:#abbedc;padding:8px 0 0}
+.crownlight-coach-math dd{font-size:.82rem;color:#e8f1ff;line-height:1.4;font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(150,176,210,.17);padding:0 0 8px;margin:0}
+.crownlight-coach-question{color:#fcdda8;font-weight:700;font-size:.89rem;line-height:1.6;margin:16px 0 10px}
+.crownlight-coach-notice{color:#aab9d0;font-size:.78rem;line-height:1.5}
+.crownlight-coach label{display:block;color:#f1efff;font-weight:700;font-size:.83rem;margin:15px 0 8px}
+.crownlight-coach textarea{box-sizing:border-box;width:100%;min-height:90px;background:#071a2d;color:#f1faff;border:1px solid #51739b;border-radius:10px;padding:13px;font:inherit;line-height:1.55;resize:vertical}
+.crownlight-coach .actions{display:flex;gap:12px;align-items:center;margin-top:11px;flex-wrap:wrap}
+.crownlight-coach [data-cl="copy-observation"]{font:inherit;font-size:.83rem;font-weight:750;color:#111325;background:linear-gradient(120deg,#c9b4ff,#80e1fa);border:0;border-radius:9px;padding:10px 16px;cursor:pointer}
+.crownlight-coach [data-cl="coach-feedback"]{font-size:.78rem;color:#afebcb}
+@media(max-width:650px){.crownlight-coach{padding:14px}.crownlight-coach-math{grid-template-columns:1fr}}
