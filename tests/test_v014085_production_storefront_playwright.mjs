@@ -173,7 +173,7 @@ try{
    await main.locator('#store-tab-books').click();
    if(!bookCount){
     assert.equal(await main.locator('#store-products article.product-card').count(),0);
-    assert.match(await main.locator('#store-products').innerText(),/No books are currently listed/);
+    assert.match(await main.locator('#store-products .empty-state').textContent(),/No books are currently listed/);
     return 'Unpublished book listings remain hidden; empty state available';
    }
    await main.waitForFunction(n=>document.querySelectorAll('#store-products article.product-card').length===n,bookCount,{timeout:16000});
