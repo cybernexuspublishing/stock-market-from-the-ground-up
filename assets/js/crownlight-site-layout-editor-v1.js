@@ -159,7 +159,7 @@
   applySavedOrder();
   const main=document.querySelector('main');
   if(main){
-   const observer=new MutationObserver(()=>{if(collectCards()>0)applySavedOrder()});
+   const observer=new MutationObserver(()=>{if(collectCards()>0){applySavedOrder();if(state.editing){toggle();toggle()}}});
    observer.observe(main,{childList:true,subtree:true});
   }
   const identity=await session().catch(()=>null);
