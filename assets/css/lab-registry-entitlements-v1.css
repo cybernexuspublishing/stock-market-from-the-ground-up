@@ -1,0 +1,11 @@
+/* Member-specific Lab discoverability, independent of protected lesson authorization. */
+.lab-access-tag{display:inline-flex;align-items:center;gap:5px;border:1px solid #62809d;border-radius:8px;padding:5px 9px;font-size:.76rem;line-height:1.35;font-weight:800;letter-spacing:.01em}
+.lab-access-available{color:#b4f4d5;background:#10392f;border-color:#3c917a}
+.lab-access-locked{color:#f1d3ab;background:#322716;border-color:#997542}
+.lab-access-upcoming{color:#c4d4e9;background:#17283d;border-color:#4a6588}
+.lab-card[data-access="locked"]{border-color:#46546d}
+.lab-card[data-access="upcoming"]{opacity:.92}
+.lab-access-explanation{display:block;border:1px solid #4d627a;border-radius:9px;background:#121d30;color:#d8e3f2;padding:10px 12px;line-height:1.5;font-size:.86rem}
+.lab-card .lab-card-heading{display:flex;align-items:center;gap:7px 9px;flex-wrap:wrap}
+.lab-card .lab-access-tag{flex:0 0 auto}
+@media(max-width:620px){.lab-card .lab-card-heading{align-items:start}.lab-access-tag{max-width:100%;white-space:normal}}
