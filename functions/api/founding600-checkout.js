@@ -6,7 +6,7 @@ import {foundingOfferState} from '../_lib/founder-offer-gate-v1.js';
 const json=(o,status=200)=>new Response(JSON.stringify(o),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const fail=(msg,status=503)=>Object.assign(new Error(msg),{status});
 const uuid=s=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s||'');
-const plans={FOUNDING_30:{amount:4999,days:30},FOUNDING_60:{amount:5999,days:60}};
+const plans={FOUNDING_14:{amount:2299,days:14},FOUNDING_30:{amount:4999,days:30},FOUNDING_60:{amount:5999,days:60}};
 export function foundingProductReadyForCheckout(product,plan,expectedId){
  return product?.id===expectedId&&product.livemode===true&&product.active===true&&
    product.metadata?.site_sku===plan&&product.metadata?.site_checkout_enabled==='true'&&
@@ -24,9 +24,10 @@ function cfg(env){
  ||!stripe.startsWith('sk_live_')||!key||!pub||!/^acct_[A-Za-z0-9_]{6,}$/.test(acct))
  throw fail('Founding enrollment is not yet open.');
  let map;try{map=JSON.parse(String(env.GU_F600_LIVE_CATALOG_JSON||''))}catch{throw fail('Founding pricing is unavailable.')}
- if(!map||Object.keys(map).length!==2
- ||Object.keys(plans).some(p=>!/^price_[A-Za-z0-9_]{6,}$/.test(map[p]?.priceId||'')
- ||!/^prod_[A-Za-z0-9_]{6,}$/.test(map[p]?.productId||'')))
+ if(!map||!['FOUNDING_30','FOUNDING_60'].every(k=>!!map[k])
+ ||Object.keys(map).some(k=>!Object.hasOwn(plans,k))
+ ||Object.entries(map).some(([p,m])=>!/^price_[A-Za-z0-9_]{6,}$/.test(m?.priceId||'')
+ ||!/^prod_[A-Za-z0-9_]{6,}$/.test(m?.productId||'')))
  throw fail('Founding catalog is not authorized.');
  return {base,stripe,pub,key,acct,map};
 }
@@ -75,17 +76,19 @@ async function postBody(req){
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(all))}catch{throw fail('Invalid JSON.',400)}
 }
 export async function onRequestGet({env}){
- let enabled=false,offer;
+ let enabled=false,offer,starterReady=false;
  try{offer=await foundingOfferState(env)}catch{offer={offersVisible:false,enrollmentEnabled:false,phase:'unverified',remaining:0}}
  try{
   const c=cfg(env),state=await rest(c,'gu_founder_release_v014173?select=enrollment_enabled,billing_enabled,fulfillment_enabled&singleton=eq.true&limit=1');
   const tiers=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled');
-  const originalTiers=tiers.filter(t=>Object.hasOwn(plans,t.plan_code));
+  const originalTiers=tiers.filter(t=>t.plan_code==='FOUNDING_30'||t.plan_code==='FOUNDING_60');
+  const starter=tiers.find(t=>t.plan_code==='FOUNDING_14');
   enabled=offer.enrollmentEnabled===true&&state?.length===1&&state[0].enrollment_enabled&&state[0].billing_enabled&&state[0].fulfillment_enabled
    &&originalTiers.length===2&&originalTiers.every(t=>t.checkout_enabled===true);
+  starterReady=!!(enabled&&c.map.FOUNDING_14?.priceId&&starter?.checkout_enabled===true);
  }catch{enabled=false}
  return json({ok:true,checkoutEnabled:enabled,offersVisible:offer.offersVisible===true,phase:offer.phase,remaining:offer.remaining,plans:[
-  {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:false},
+  {code:'FOUNDING_14',priceCents:2299,billingDays:14,checkoutEnabled:starterReady},
   {code:'FOUNDING_30',priceCents:4999,billingDays:30},
   {code:'FOUNDING_60',priceCents:5999,billingDays:60}
  ]});
@@ -101,6 +104,9 @@ export async function onRequestPost({request,env}){
   let offer;try{offer=await foundingOfferState(env)}catch{throw fail('Founding admission could not be verified.',503)}
   if(!offer.offersVisible||!offer.enrollmentEnabled)throw fail('Founding enrollment is closed.',409);
   const c=cfg(env),user=await ageAndOwner(c,request);
+  const row=await rest(c,'gu_founder_plans_v014173?select=plan_code,checkout_enabled,price_cents,term_days&plan_code=eq.'+plan+'&limit=1');
+  if(row.length!==1||row[0].checkout_enabled!==true||row[0].price_cents!==plans[plan].amount||row[0].term_days!==plans[plan].days||!c.map[plan])
+   throw fail('This founding plan is not accepting payments.',409);
   const account=await stripe(c,'account');if(account.id!==c.acct)throw fail('Payment account mismatch.');
   const pm=c.map[plan],price=await stripe(c,'prices/'+encodeURIComponent(pm.priceId)),expected=plans[plan];
   if(price.id!==pm.priceId||price.product!==pm.productId||price.livemode!==true||price.active!==true
