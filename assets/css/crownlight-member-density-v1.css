@@ -1,0 +1,13 @@
+/* Crownlight Member Dashboard V1: narrower, more legible desktop canvas.
+ * Layout-editor per-card style remains authoritative when staff edits dimensions.
+ */
+.gu-member-dashboard-shell{width:min(100%,1240px)!important;max-width:1240px!important;margin:0 auto!important;box-sizing:border-box}
+.gu-member-dashboard-shell main,.gu-member-dashboard-shell .gu-member-dashboard-content,#v1322-member-hub{min-width:0;max-width:100%}
+.gu-member-dashboard-shell #v1322-member-hub{width:100%;margin:0}
+.gu-member-dashboard-shell .v1321-overview{gap:.6rem}
+.gu-member-dashboard-shell .v1321-overview .v132-dashboard-hero{padding:.75rem .9rem}
+.gu-member-dashboard-shell .v1321-quick-grid{gap:.55rem}
+.gu-member-dashboard-shell .v1321-feature-group>header{padding:.55rem .65rem}
+.gu-member-dashboard-shell .v1321-feature-row{min-height:35px;padding:.29rem .61rem}
+.gu-member-dashboard-shell .v1321-help-grid{gap:.65rem}
+@media(max-width:850px){.gu-member-dashboard-shell{width:100%!important;padding-inline:8px}}
