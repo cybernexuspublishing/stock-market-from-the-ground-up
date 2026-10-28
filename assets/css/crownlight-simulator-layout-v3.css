@@ -39,3 +39,30 @@
 .crownlight-tutor-questions{padding-left:23px}
 .crownlight-tutor-questions li{padding:5px 0;color:#e2d7ff;line-height:1.65;font-size:.85rem}
 @media(max-width:720px){.cl-workbench-tabbar{gap:0}.cl-workbench-tab{flex:1 1 45%;font-size:.78rem;padding:10px 6px}.cl-workbench-panels{padding:13px}.cl-workbench-panels .journal-grid.two{grid-template-columns:1fr}.crownlight-tutor-facts{grid-template-columns:1fr}.cl-chart-visibility{padding:11px 13px}}
+
+/* Alpaca Paper Trading panel stays visually and operationally separate from historical replay. */
+.cl-paper-shell{display:grid;gap:14px;max-width:100%}
+.cl-paper-banner{padding:16px 18px;background:linear-gradient(110deg,#123c40,#242553);border:1px solid #3fa9a4;border-radius:12px;font-size:.84rem;color:#d5f8ee;line-height:1.65}
+.cl-paper-banner strong{color:#8cffe1;letter-spacing:.1em}
+#cl-paper-status{font-size:.87rem;color:#c9dbef;background:#151f37;border:1px solid #3e567c;border-radius:9px;padding:12px 14px;margin:0}
+.cl-paper-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.cl-paper-stat{display:flex;flex-direction:column;gap:7px;padding:15px;background:linear-gradient(138deg,#19264a,#122b3b);border:1px solid #4a658e;border-radius:12px}
+.cl-paper-stat span{font-size:.73rem;color:#c0cee3}
+.cl-paper-stat strong{color:#f8db98;font-size:1.24rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cl-paper-order-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.cl-paper-order-grid label{font-size:.78rem;color:#e8eafa;font-weight:750;display:flex;flex-direction:column;gap:8px}
+.cl-paper-order-grid input,.cl-paper-order-grid select{width:100%;min-width:0;min-height:45px;box-sizing:border-box;padding:9px;background:#10192e;color:#f5f7fe;border:1px solid #546f99;border-radius:9px;font:inherit}
+.cl-paper-order-grid [hidden]{display:none!important}
+.cl-paper-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cl-paper-actions button{border:1px solid #9a86f0;border-radius:10px;padding:12px 17px;background:linear-gradient(110deg,#6549b0,#795fc6);font:inherit;font-weight:800;color:#fff;cursor:pointer}
+.cl-paper-actions button:disabled{opacity:.42;cursor:not-allowed}
+.cl-paper-actions button#cl-paper-refresh{background:#182847;border-color:#456da1}
+.cl-paper-shell h3{font-size:1.1rem;color:#ffd9a1;margin:10px 0 0}
+.cl-paper-scroll{overflow-x:auto;border:1px solid #354c72;border-radius:10px}
+.cl-paper-table{border-collapse:collapse;width:100%;min-width:500px;font-size:.78rem;font-variant-numeric:tabular-nums}
+.cl-paper-table th,.cl-paper-table td{text-align:left;padding:11px;border-bottom:1px solid #253c59;white-space:nowrap}
+.cl-paper-table th{background:#162443;color:#b8d3f2;font-weight:800}
+.cl-paper-table tbody tr:nth-child(2n){background:#101b2e}
+.cl-paper-caution{font-size:.79rem;color:#9eb9d0;line-height:1.6}
+@media(max-width:1040px){.cl-paper-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.cl-paper-order-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:580px){.cl-paper-overview{grid-template-columns:1fr 1fr}.cl-paper-stat strong{font-size:1rem}.cl-paper-order-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cl-paper-actions button{flex:1 1 100%}}
