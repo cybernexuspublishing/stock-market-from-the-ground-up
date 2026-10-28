@@ -123,3 +123,93 @@
 .cl-import-interior .sim-import-grid{min-width:0}
 .cl-import-interior input,.cl-import-interior select{max-width:100%;box-sizing:border-box}
 @media(max-width:560px){.cl-chart-visibility>strong{flex-basis:100%}.cl-chart-timeframe-input{flex:1 1 150px}.cl-workbench-panels{padding:11px}.cl-tab-panel{overflow-wrap:anywhere}}
+
+
+/* Chart Studio V3.1: restore source > chart > trade workflow, prevent clipped Lab selectors.
+ * Full width is intentionally limited to the simulator, not other public site pages.
+ */
+body:has(#sim-legacy-mode) main.section > .wrap{max-width:1360px;width:100%;margin-inline:auto}
+#sim-legacy-mode,#sim-legacy-mode #sim-content{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+#sim-content{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+#sim-content>#cl-replay-import{order:0}
+#sim-content>#cl-chart-visibility-toolbar{order:1}
+#sim-content>.sim-layout{order:2}
+#sim-content>#cl-simulator-workbench{order:3}
+#sim-content>#cl-replay-import,
+#sim-content>#cl-chart-visibility-toolbar,
+#sim-content>.sim-layout,
+#sim-content>#cl-simulator-workbench{
+  flex:none;width:100%;max-width:100%;min-width:0;
+  box-sizing:border-box;margin-inline:0;
+}
+#sim-content>.sim-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+#sim-content>.sim-layout>.sim-chart-panel{min-width:0;width:100%;max-width:100%;box-sizing:border-box}
+#sim-content>#cl-replay-import{padding:0!important;overflow:visible}
+#sim-content>#cl-replay-import>.cl-workbench-import{width:100%;max-width:100%;min-width:0}
+#sim-content #cl-replay-import .cl-import-interior{min-width:0;max-width:100%;overflow:visible}
+#sim-content #cl-replay-import .sim-import-grid{
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:14px 18px;align-items:start;min-width:0;width:100%;
+}
+#sim-content #cl-replay-import .sim-import-grid>div{
+  min-width:0;max-width:100%;grid-column:span 3;
+}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(1){grid-column:span 4}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(2),
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(3){grid-column:span 4}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){
+  grid-column:span 6;display:flex;flex-direction:column;align-items:stretch;gap:8px;
+  padding:13px 15px;background:#102440;border:1px solid #415c85;border-radius:12px;
+}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(5),
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(6){grid-column:span 3}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(7),
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(8){grid-column:span 3}
+#sim-content #cl-replay-import .sim-import-grid>div:nth-child(9){grid-column:span 6}
+#sim-content #cl-replay-import .sim-import-grid label{
+  min-width:0;max-width:100%;margin:0 0 6px;
+  line-height:1.4;overflow-wrap:break-word;
+}
+#sim-content #cl-replay-import .sim-import-grid input,
+#sim-content #cl-replay-import .sim-import-grid select{
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+  text-overflow:ellipsis;
+}
+#sim-content #cl-replay-import .cl-lab-combobox{position:relative;width:100%;min-width:0}
+#sim-content #cl-replay-import .cl-lab-help{
+  width:100%;min-width:0;margin:0;line-height:1.5;
+  overflow-wrap:anywhere;word-break:normal;
+}
+#sim-content #cl-replay-import .cl-lab-time-range{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;
+  width:100%;min-width:0;margin:4px 0 0;
+}
+#sim-content #cl-replay-import .cl-lab-time-range>label{
+  min-width:0;overflow-wrap:normal;
+}
+#sim-content #cl-replay-import .cl-lab-time-range input{min-width:0;width:100%}
+#sim-content #cl-replay-import .cl-lab-popover{
+  z-index:65;left:0;right:auto;max-width:min(530px,calc(100vw - 54px));box-sizing:border-box;
+}
+#sim-content #cl-replay-import .journal-actions{align-items:center}
+#sim-content>#cl-chart-visibility-toolbar{margin:2px 0}
+#sim-content>#cl-simulator-workbench{margin:0 0 18px}
+@media(max-width:1020px){
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(1){grid-column:span 6}
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(2),
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(3){grid-column:span 3}
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){grid-column:span 12}
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(5),
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(6),
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(7),
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(8){grid-column:span 6}
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(9){grid-column:span 12}
+}
+@media(max-width:650px){
+ #sim-content #cl-replay-import .sim-import-grid{grid-template-columns:minmax(0,1fr);gap:13px}
+ #sim-content #cl-replay-import .sim-import-grid>div,
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(n){grid-column:1/-1}
+ #sim-content #cl-replay-import .cl-lab-time-range{grid-template-columns:minmax(0,1fr)}
+ #sim-content #cl-replay-import .cl-import-interior{padding:12px}
+ #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){padding:11px}
+}
