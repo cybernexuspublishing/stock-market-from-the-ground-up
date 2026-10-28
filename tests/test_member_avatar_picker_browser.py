@@ -94,12 +94,15 @@ def run():
   page.evaluate("document.dispatchEvent(new Event('DOMContentLoaded'))")
   page.locator('[data-edit-picture]').wait_for(timeout=7500)
   page.locator('[data-edit-picture]').click()
+  page.locator('.v2-avatar-inline').wait_for(state='visible')
+  assert page.locator('dialog.v2-avatar-modal').count()==0,'Dashboard must not open the legacy modal'
   page.locator('[data-avatar-id="n13"]').click()
   assert stored['writes']==[],'Selection must never trigger a profile write'
   page.locator('[data-avatar-apply]').click()
   page.wait_for_function("""() => document.querySelector('[data-avatar-preview]')?.getAttribute('src')?.endsWith('av-n13.svg')""")
   assert len(stored['writes'])==1,'Apply should submit one authenticated member-profile save'
   assert stored['avatarUrl'].endswith('/assets/avatars/av-n13.svg')
+  page.locator('.v2-avatar-inline').wait_for(state='hidden')
   assert stored['gender']=='female' and stored['bio']=='Existing member biography','Unrelated profile fields changed'
   page.close()
 

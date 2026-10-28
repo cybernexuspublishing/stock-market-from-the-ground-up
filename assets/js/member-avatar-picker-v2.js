@@ -89,7 +89,7 @@
   for(const tile of tiles)tile.addEventListener('click',()=>{if(busy)return;selected=tile.dataset.avatarId;message.textContent='';refresh()});
   apply.addEventListener('click',async()=>{
    if(!selected||busy)return;busy=true;refresh();message.textContent='Saving your selected picture…';
-   try{await onApply(domain+'/assets/avatars/av-'+selected+'.svg');message.textContent='Your profile picture was saved.';close()}
+   try{await onApply(domain+'/assets/avatars/av-'+selected+'.svg');message.textContent='Your profile picture was saved.';panel.hidden=true}
    catch(e){message.textContent=e?.message||'Your picture could not be saved.'}
    finally{busy=false;refresh()}
   });
