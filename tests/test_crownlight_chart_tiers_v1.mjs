@@ -50,6 +50,11 @@ async function check(tier){
 try{
  await check('STANDARD');
  state.manualTier='ADVANCED';await check('ADVANCED');
+ const temporary=await (await chartTier({request:request(),env})).json();
+ assert.equal(temporary.temporaryAccess?.kind,'QA');
+ assert.equal(temporary.temporaryAccess?.tier,'ADVANCED');
+ assert.equal(temporary.temporaryAccess?.expiresAt,after);
+ assert.equal(temporary.sparksChartPasses?.enabled,false,'Unpriced Sparks Studio passes must not be sold');
  state.manualTier='PROFESSIONAL';await check('PROFESSIONAL');
  state.manualRevoked=true;await check('STANDARD');state.manualRevoked=false;
  state.manualExpired=true;await check('STANDARD');state.manualExpired=false;
