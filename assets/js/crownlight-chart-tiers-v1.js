@@ -300,7 +300,7 @@ function createControls(){
   detailsButton.setAttribute('aria-expanded',String(!popup.hidden));
   if(!popup.hidden){popup.querySelector('a')?.focus();void loadSparkOffers();}
  };
- panel.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden){
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden){
   popup.hidden=true;detailsButton.setAttribute('aria-expanded','false');detailsButton.focus();
  }});
  header.append(label,detailsButton,state.notice);panel.append(header,timer,popup);
