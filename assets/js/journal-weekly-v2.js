@@ -38,7 +38,7 @@ function panel(){
  host.append(top,body,disclosure);
  anchor.after(host);return host;
 }
-let ownRows=[],signedUser=null;
+let ownRows=[],pendingRows=[],signedUser=null;
 function render(){
  const host=$('gu-v2-review'),output=$('gu-v2-review-body');if(!host||!output)return;
  if(!signedUser){output.replaceChildren(t('p','Sign in to view your private process review.'));return}
@@ -78,14 +78,18 @@ function boot(){
  if(!panel())return;
  $('gu-v2-range')?.addEventListener('change',render);
  $('gu-v2-kind')?.addEventListener('change',render);
- window.addEventListener('gu-journal-rows-loaded',e=>{if(!signedUser)return;
-  ownRows=Array.isArray(e.detail?.rows)?e.detail.rows:[];render()});
+ window.addEventListener('gu-journal-rows-loaded',e=>{
+  pendingRows=Array.isArray(e.detail?.rows)?e.detail.rows:[];
+  if(signedUser)ownRows=pendingRows.filter(r=>r?.user_id===signedUser);
+  render();
+ });
  window.getSupabaseClient().then(async sb=>{
   const {data:{user}}=await sb.auth.getUser();
-  signedUser=user?.id||null;render();
+  signedUser=user?.id||null;
+  ownRows=signedUser?pendingRows.filter(r=>r?.user_id===signedUser):[];render();
   sb.auth.onAuthStateChange((_event,session)=>{
    if(session?.user?.id!==signedUser){
-    ownRows=[];signedUser=null;render();
+    ownRows=[];pendingRows=[];signedUser=null;render();
    }
   });
  }).catch(()=>{signedUser=null;ownRows=[];render()});
