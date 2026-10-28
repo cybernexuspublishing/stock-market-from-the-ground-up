@@ -2,8 +2,8 @@
 
 **Document ID:** SMFGU-F600-CATALOG-QA-20261028  
 **Project:** The Stock Market: From the Ground Up  
-**Version:** 1.1  
-**Status:** Stripe Product activation and TEST webhook signed-event route verified; Starter LIVE $0 Owner diagnostic and paid entitlement acceptance **pending**  
+**Version:** 1.2  
+**Status:** Owner LIVE $0 Checkout accepted; 14-day TEST initial paid-cycle, signed lifecycle, cancellation, full refund and Sparks reversal accepted. LIVE diagnostic signed webhook delivery, genuine provider renewal and authenticated site-level 14-day paid fulfillment remain pending.  
 **Date:** October 28, 2026  
 **Source location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up/docs/qa/`  
 **Google Drive location:** Not established; no Google Drive file or identifier has been created.  
@@ -73,11 +73,46 @@
 
 **Operational separation:** Stripe Product `active` is catalog availability; Supabase `visible` governs site display; `sale_ready` and the payment controller's per-plan/metadata/authorization gates govern checkout. None of these alone proves shipped fulfillment.
 
+## October 28 follow-up — real 14-day signed Stripe TEST acceptance (supersedes earlier pending notes)
+
+**Environment:** Stripe TEST `acct_1URGkDJY9FI7byHB` → current-domain GU39 signed webhook → Supabase isolated `gu_f600_sandbox_*` ledger. No LIVE paid transaction.
+
+**Actual provider-delivered evidence:**
+
+| Lifecycle stage | Provider / signed database outcome | Acceptance |
+| --- | --- | --- |
+| Initial paid purchase | TEST subscription `sub_1UVbCWJY9FI7byHBmKZsA5xY`, invoice `in_1UVbCWJY9FI7byHBXrMH0vBa`, paid **$22.99**, exactly 14 days | PASS |
+| Signed paid invoice | `invoice.paid` event `evt_1UVbCYJY9FI7byHB2GfyFQDe`, 0 pending, exactly one isolated paid cycle | PASS |
+| Sparks | 10 included QA Sparks, paid period October 28–November 11, expiry January 10, 2027 | PASS |
+| Scheduled cancellation | `customer.subscription.updated`, `evt_1UVbDHJY9FI7byHBVm5ernv5`, 0 pending, kept original paid-through date | PASS |
+| Full refund | Actual Stripe TEST refund `re_3UVbCWJY9FI7byHB1amX0ofe`, $22.99, matched charge to the exact paid InvoicePayment | PASS |
+| Signed refund reversal | `charge.refunded`, `evt_3UVbCWJY9FI7byHB1ajwLqT1`, 0 pending; remaining QA Sparks **0** | PASS |
+| Final cancellation | Stripe subscription canceled, signed `customer.subscription.deleted` event `evt_1UVbKYJY9FI7byHBvJyK7SYr`, 0 pending; QA status `canceled` | PASS |
+| LIVE data isolation | 0 production Founder seats, 0 LIVE paid cycles, 0 LIVE Founder reservations | PASS |
+
+**Controls restored:** `gu39_sandbox_settings.enabled=false`; `FOUNDING_14.checkout_enabled=false` in production. The TEST subscription is canceled and its initial invoice fully refunded; there is no outstanding 14-day TEST renewal obligation.
+
+**Implementation and schema fixes:** The provider adapter now accepts exactly 14/30/60 day prices and refuses wrong amounts, wrong Stripe account and incomplete QA metadata. Production Supabase migration `20261028_f600_14day_sandbox_catalog_parity.sql` admits the 14-day TEST plan, creates 10/15/20 Sparks for *new* QA cycles, and retains 2026-10-25/26 historical 5/15 Sparks records without falsifying prior QA evidence. Only `service_role` can call the isolated paid-event function. Routine `customer.subscription.updated` events no longer falsely schedule cancellation.
+
+**Transactional database simulations, all rolled back:** All three exact tiers (prices, periods, 10/15/20 Sparks), idempotent paid-event replay, scheduled cancellation, refunded Sparks; separate 14-day two-cycle renewal/payment failure/recovery and prior-period refund preserving new-period access; simulated consenting existing member reservation, unique 600-seat number, paid-cycle entitlement creation and full refund reversal. These are not provider-delivered future renewal events nor real member browser login tests.
+
+**Approved 14-day commercial benefit gap:** `gu_founder_discount_eligibility_v014221` previously failed to recognize Starter's 5% discount. The source-controlled SQL patch now recognizes **500 basis points only during an active, nonreversed 14-day paid term**, preserving 30-Day 10% and 60-Day 15%. General first-party discounted Checkout remains fail-closed until actual eligible-price selection, signed payment and fulfillment are implemented. A real authenticated member discount purchase is not accepted.
+
+**Owner LIVE $0.00 diagnostic:** Stripe LIVE session `cs_live_a1bbjaB1N0UNjQqTQTM9YTDUuLfHBPF8YFuAHG7ZOirAOa3q9h4eAazJeQ` is complete at $0, with no card, payment intent, subscription, Founder seat or entitlement; the related `checkout.session.completed` event `evt_1UVaw9JL0O4GGVBHKjQTd21w` still reports **1 pending webhook delivery**. No durable signed delivery record was available. **Checkout accepted; signed delivery not accepted.** Do not infer an event was delivered from the checkout success alone.
+
+**Open release gates (must not be mislabeled as passed):**
+1. Inspect Stripe LIVE Workbench event deliveries for the exact GU71 event, correct the failing current-domain webhook endpoint if necessary, resend the *same signed event* and confirm HTTP 2xx / zero pending. Do not forge signatures or assume success.
+2. Real Stripe TEST Test Clock **advance** through a future 14-day automatic renewal and payment-failure/recovery; the connected Stripe API operation catalog exposes Test Clock creation but not advance, so actual provider time travel was not performed.
+3. Actual signed-in `James_Test` website member journey, live member authorization and per-member entitlement persistence. Provider TEST QA ledger is isolated by design and is not a user-login test.
+4. Full discounted first-party Checkout acceptance, exact Founder 5/10/15% contract where applicable, and the latest-commit CI and production browser acceptance.
+5. Owner release approval before changing 14-day LIVE Stripe product metadata, database gate or paid checkout. No LIVE paid test, authorization or production enrollment was performed.
+
 ## Revision history
 
 | Version | Date | Change | Status |
 | --- | --- | --- | --- |
 | 1.0 | 2026-10-28 | Cross-platform verification, price reconciliation, critical paid-cycle constraint correction, safe Starter release staging | Pending real Owner and authenticated member acceptance |
-| 1.1 | 2026-10-28 | 58/58 TEST Product activation, Supabase hidden-product control, 14-day TEST Visa paid invoice, new-domain signed webhook delivery | Catalog state accepted; LIVE $0 and member lifecycle acceptance pending |
+| 1.1 | 2026-10-28 | 58/58 TEST Product activation, Supabase hidden-product control, 14-day TEST Visa paid invoice, new-domain signed webhook delivery | Historical snapshot; superseded by v1.2 |
+| 1.2 | 2026-10-28 | Owner $0 Checkout success; actual 14-day signed TEST invoice, cancellation, full refund, Sparks reversal; isolated seat/renewal SQL tests; outstanding LIVE event and provider renewal gates | TEST initial lifecycle accepted; LIVE paid release blocked |
 
-**Footer — SMFGU-F600-CATALOG-QA-20261028 | v1.1 | Internal owner-controlled QA record | Not authorization for LIVE charges.**
+**Footer — SMFGU-F600-CATALOG-QA-20261028 | v1.2 | Internal owner-controlled QA record | Not authorization for LIVE charges.**
