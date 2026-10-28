@@ -1,4 +1,4 @@
-/* v0.14.0.148 release version synced — OWNER testing console in Payments & Billing. SHADOW ONLY. */
+/* v0.14.0.149 Owner navigation and zero-dollar QA visibility, independent of sandbox status. */
 (()=>{'use strict';
  if(!/^\/admin(?:\.html)?$/i.test(location.pathname)||window.GroundUpStripeShadowV01439)return;
  const $=(s,r=document)=>r.querySelector(s),element=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x};
@@ -18,6 +18,12 @@
   return gate?.hidden===true&&app&&!app.hidden&&
     Array.isArray(ctx?.permissions)&&ctx.permissions.includes('commerce.view')&&
     roles.some(x=>['OWNER','ADMIN'].includes(String(x).toUpperCase()));
+ }
+ // The Owner-only LIVE diagnostic remains discoverable even if the separate
+ // Stripe TEST sandbox API fails or TESTING mode is disabled.
+ // The GU71 server still requires Owner JWT and a fresh password step-up.
+ function ownerVisible(){const ctx=typeof ADMIN!=='undefined'?ADMIN.ctx:null;
+  return permitted()&&Array.isArray(ctx?.roles)&&ctx.roles.includes('OWNER');
  }
  const root=element('section',undefined,'gu39-shadow-card');root.id='gu39-shadow';root.setAttribute('aria-label','Stripe sandbox payment testing');
  const title=element('h2','Stripe Payment Testing');
@@ -58,7 +64,7 @@
   try{
    const r=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
    const d=r.ok?await r.json():null;
-   if(d?.ok!==true||!Array.isArray(d.items)||d.items.length<50)throw Error('Catalog unavailable');
+   if(d?.ok!==true||!Array.isArray(d.items))throw Error('Catalog unavailable');
    zeroSkuSelect.dataset.catalogLoaded='1';
    for(const x of d.items){
     if(!/^(addon|book|course|feature|founding|membership|plan|tool):[A-Z0-9_-]{2,90}$/.test(String(x.sku||'')))continue;
@@ -159,8 +165,9 @@
      :'LIVE SELECTED · Real customer checkout is NOT approved. Switching TESTING off does not authorize real charges.';
   begin.disabled=data.role!=='OWNER'||!data.enabled||!data.cloudflareGate||data.priceIdsConfigured!==8||!catalogReady||auditApprovedForSku!==sel.value;
   liveAudit.hidden=data.role!=='OWNER';liveButton.disabled=data.role!=='OWNER';
-  zeroQA.hidden=data.role!=='OWNER';zeroCheck.disabled=data.role!=='OWNER';
-  if(data.role!=='OWNER')zeroStart.disabled=true;
+  // The TEST sandbox readout is not the authority for the independent LIVE QA panel.
+  const visible=ownerVisible();zeroQA.hidden=!visible;zeroCheck.disabled=!visible;
+  if(!visible)zeroStart.disabled=true;
   message.textContent='All displayed purchases remain sandbox-only; actual Stripe processing and entitlement safety require acceptance testing.';
  }
  async function getState(){refresh.disabled=true;message.textContent='Checking authorized sandbox status…';try{const token=await auth();const r=await fetch('/api/gu39-sandbox',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Sandbox unavailable.');show(data)}catch(e){toggle.disabled=begin.disabled=true;message.textContent=e.message||'Unable to access payment testing controls.'}finally{refresh.disabled=false}}
@@ -593,7 +600,33 @@
   location.assign(destination.href)});
  function mount(){if(loaded||!permitted())return;const panel=$('#admin-app .admin-panel[data-admin-panel="commerce"]');if(!panel)return;
   const host=$('.gu33-payment-hub',panel)||panel;
-  if($('#gu39-shadow')){loaded=true;return}loaded=true;host.prepend(root);window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.155',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
+  if($('#gu39-shadow')){loaded=true;return}
+  loaded=true;host.prepend(root);
+  // A separate GU39 TEST status failure must not conceal the Owner's LIVE $0 QA.
+  // UI visibility is for discovery only; GU71 enforces Owner and price checks.
+  const allowedOwner=ownerVisible();zeroQA.hidden=!allowedOwner;zeroCheck.disabled=!allowedOwner;
+  const jump=()=>{
+   const commerce=$('#admin-tabs button[data-panel="commerce"]');
+   if(commerce&&!commerce.hidden&&!commerce.classList.contains('cc-owner-hidden'))commerce.click();
+   zeroQA.open=true;
+   setTimeout(()=>zeroQA.scrollIntoView({block:'start',behavior:'smooth'}),100);
+  };
+  if(allowedOwner){
+   const heading=$('.admin-heading',panel);
+   if(heading&&!$('#gu71-owner-commerce-shortcut',heading)){
+    const button=element('button','Owner LIVE $0.00 Checkout QA','btn secondary');
+    button.type='button';button.id='gu71-owner-commerce-shortcut';button.addEventListener('click',jump);heading.append(button);
+   }
+   const nav=$('#admin-tabs');
+   if(nav&&!$('#gu71-owner-nav-shortcut',nav)){
+    const button=element('button','Owner LIVE $0.00 Checkout QA');
+    button.type='button';button.id='gu71-owner-nav-shortcut';
+    button.setAttribute('aria-controls','gu71-zero-live-checkout');
+    button.addEventListener('click',jump);nav.append(button);
+   }
+   zeroReadout.replaceChildren(element('p','Owner-only $0 LIVE QA. Check the zero-price product before creating a Checkout session. This control remains accessible when Stripe TEST diagnostics are disabled.'));
+  }
+  window.GroundUpStripeShadowV01439=Object.freeze({version:window.SITE_CONFIG?.VERSION||'0.14.0.155',refresh:getState,verifyCatalog,runPreflight,runCompletePaymentReview,auditCheckout});getState()}
  // Unlike the old one-time navigation loader, this watcher tolerates delayed
  // authentication, Owner permission hydration, and Admin menu reconstruction.
  const observer=new MutationObserver(()=>mount());
