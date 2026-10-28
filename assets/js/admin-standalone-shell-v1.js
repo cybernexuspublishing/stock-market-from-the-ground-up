@@ -22,7 +22,13 @@ function install(){
  const submit=make('button',null,'Search');submit.type='submit';form.append(input,submit);
  form.addEventListener('submit',event=>{event.preventDefault();const q=input.value.trim();location.assign('/admin.html'+(q?'?find='+encodeURIComponent(q):''));});
  const back=make('a',null,'Return to site');back.href='/index.html';
- bar.append(home,breadcrumb,form,back);
+ const env=make('span','cc-standalone-badge',location.hostname.toLowerCase()==='stock-market-from-the-ground-up-d1r.pages.dev'?'LIVE SITE':'ENVIRONMENT UNVERIFIED');
+ const role=make('span','cc-standalone-badge','ROLE GATED');
+ const roles=window.ADMIN?.ctx?.roles||[];
+ if(roles.includes('SHOWCASE_VIEWER'))role.textContent='SHOWCASE';
+ else if(roles.includes('OWNER'))role.textContent='OWNER';
+ else if(roles.length)role.textContent='STAFF';
+ bar.append(home,breadcrumb,form,env,role,back);
  main.prepend(bar);
  const title=main.querySelector('h1');
  if(title)title.textContent=route.title;
