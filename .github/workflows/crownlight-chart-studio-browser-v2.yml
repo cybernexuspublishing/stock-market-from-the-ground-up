@@ -8,6 +8,9 @@ on:
       - 'assets/js/crownlight-chart-tiers-v1.js'
       - 'assets/js/crownlight-workspace-v2.js'
       - 'assets/js/crownlight-talia-lab-v2.js'
+      - 'assets/js/crownlight-lab-chart-handoff-v2.js'
+      - 'tests/test_crownlight_lab_handoff_v2.mjs'
+      - 'lab-player.html'
       - 'assets/css/crownlight-chart-v2-experience.css'
       - 'functions/api/chart-workspace.js'
       - 'tests/test_crownlight_chart_workspace_v2.mjs'
@@ -106,6 +109,8 @@ jobs:
           node --check assets/js/crownlight-talia-lab-v2.js
           node --check functions/api/chart-workspace.js
           node tests/test_crownlight_chart_workspace_v2.mjs
+          node --check assets/js/crownlight-lab-chart-handoff-v2.js
+          node tests/test_crownlight_lab_handoff_v2.mjs
           node tests/test_crownlight_founder_storefront_v1.mjs
           node tests/test_crownlight_chart_tiers_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
