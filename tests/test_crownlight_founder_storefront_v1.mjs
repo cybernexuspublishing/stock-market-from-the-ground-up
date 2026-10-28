@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {onRequestGet} from '../functions/api/storefront-public-catalog.js';
-const env={SUPABASE_URL:'https://mockcatalog.supabase.co',SUPABASE_SECRET_KEY:'mock-secret'};
+const env={SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_SECRET_KEY:'mock-secret'};
 const state={full:false,publicLaunch:false,available:true};
 const source=[
  {sku:'plan:FOUNDING_30',category:'founding',display_name:'Founding Standard',description:'Beta 30d',price_label:'$49.99',
@@ -11,7 +11,7 @@ const source=[
 const json=(a,status=200)=>new Response(JSON.stringify(a),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;
 globalThis.fetch=async input=>{
- const u=new URL(input);assert.equal(u.hostname,'mockcatalog.supabase.co');
+ const u=new URL(input);assert.equal(u.hostname,'abcdefghijklmnopqrst.supabase.co');
  switch(u.pathname){
   case '/rest/v1/gu_founder_release_v014173':return json([{public_launch_open:state.publicLaunch,enrollment_enabled:true}]);
   case '/rest/v1/gu_founder_members_v014173':return json(state.full?Array.from({length:600},(_,i)=>({founder_number:i+1})):[]);
