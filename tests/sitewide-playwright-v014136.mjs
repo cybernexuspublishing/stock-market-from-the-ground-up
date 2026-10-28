@@ -79,6 +79,7 @@ async function newPage(width){
   if(originAllowed(url)&&new URL(url).pathname==='/api/storefront-public-catalog')
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
     ok:true,source:'verified_storefront',items:[
+     {sku:'plan:FREE',category:'membership',visible:true,saleReady:false,status:'listed'},
      {sku:'founding:FOUNDING_30',category:'founding',visible:true,saleReady:false},
      {sku:'founding:FOUNDING_60',category:'founding',visible:true,saleReady:false}
     ]
@@ -136,8 +137,10 @@ try{
      assert.equal(await founderCards.first().locator('a[href*="checkout"]').count(),0,
       'Coming-soon Founder tiers must not have direct purchase links');
      assert.equal(await tab.locator('#store-tab-memberships').count(),1);
-     assert.equal(await tab.locator('#store-tab-memberships').isVisible(),false,
-      'Public-launch Membership tab must remain hidden during founding beta');
+     assert.equal(await tab.locator('#store-tab-memberships').isVisible(),true,
+      'Free Membership must remain visible during the Founding beta');
+     assert.match(await tab.locator('#store-member-plans').innerText(),/Free/i);
+     assert.doesNotMatch(await tab.locator('#store-member-plans').innerText(),/Full Platform|Lifetime|Annual Membership/i);
      assert.equal(await tab.locator('#store-founder-plans a[href*="checkout"]').count(),0,
       'A public founding card cannot bypass server-side checkout readiness');
      // Positive publication path: all three tiers display when Owner
@@ -145,6 +148,7 @@ try{
      await tab.route('**/api/storefront-public-catalog',route=>route.fulfill({
       status:200,contentType:'application/json',body:JSON.stringify({
        ok:true,source:'verified_storefront',items:[
+        {sku:'plan:FREE',category:'membership',visible:true,saleReady:false,status:'listed'},
         {sku:'founding:FOUNDING_14',category:'founding',visible:true,saleReady:false},
         {sku:'founding:FOUNDING_30',category:'founding',visible:true,saleReady:false},
         {sku:'founding:FOUNDING_60',category:'founding',visible:true,saleReady:false}

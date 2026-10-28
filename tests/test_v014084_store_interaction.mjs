@@ -74,7 +74,7 @@ assert.equal(nodes['store-plans'].innerHTML,'','Legacy membership plans are not 
 assert.doesNotMatch(nodes['store-products'].innerHTML,/Choose This Membership/);
 assert.doesNotMatch(nodes['store-products'].innerHTML,/QA_TEST|PICK_WHAT_YOU_WANT|UNREVIEWED_REPLAY_ANNUAL/);
 assert.equal(nodes['store-membership-compare'].innerHTML,'','Legacy membership comparison is hidden');
-assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,5);
+assert.equal((nodes['store-tools'].innerHTML.match(/See What You Get/g)||[]).length,4);
 assert.match(nodes['store-tools'].innerHTML,/Subscribe Now/);
 assert.match(nodes['store-tools'].innerHTML,/\$29\.99/,'Existing beta-tool prices must be displayed');
 assert.equal((nodes['store-tools'].innerHTML.match(/Beta Testing Ready/g)||[]).length,4,'Exactly four sale-ready tools are marked for beta evaluation');
