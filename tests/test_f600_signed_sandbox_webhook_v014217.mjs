@@ -42,8 +42,8 @@ function network(opts={}){
   }]);
   if(path.endsWith('/rest/v1/rpc/gu_f600_sandbox_apply_v014215')){
    const p=JSON.parse(options.body);
-   assert.equal(p.p_kind,'invoice.paid');
-   assert.equal(p.p_amount,opts.invoiceAmount||amount);
+   assert.equal(p.p_kind,opts.expectedKind||'invoice.paid');
+   if(!opts.expectedKind)assert.equal(p.p_amount,opts.invoiceAmount||amount);
    assert.equal(p.p_intent,fixture.intent);
    return result({ok:true,mode:'SANDBOX',replayed:false,includedSparks:sparks})
   }
@@ -56,7 +56,8 @@ function network(opts={}){
   if(path.includes('/v1/subscriptions/'))return result({
    id:fixture.sub,livemode:false,customer:fixture.customer,status:'active',
    metadata:{f600_qa_intent:fixture.intent,f600_qa_program:'FOUNDING600_TEST'},
-   items:{data:[{price:{id:price,unit_amount:amount,currency:'usd',active:true,recurring:{interval:'day',interval_count:days}}}]}
+   items:{data:[{price:{id:price,unit_amount:amount,currency:'usd',active:true,recurring:{interval:'day',interval_count:days}}}]},
+   cancel_at_period_end:opts.cancelAtPeriodEnd===true
   });
   throw Error('Unexpected network call '+path)
  };
@@ -86,6 +87,24 @@ test('14-day wrong invoice amount never reaches sandbox ledger',async()=>{
  try{const response=await onRequestPost({request:await request(makeEvent()),env});
   assert.equal(response.status,503);
   assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,0);
+ }finally{n.restore()}
+});
+test('routine Stripe subscription update cannot falsely schedule QA cancellation',async()=>{
+ const n=network({plan:'FOUNDING_14'});
+ const event=makeEvent(false,'customer.subscription.updated');event.data.object.id=fixture.sub;
+ try{const response=await onRequestPost({request:await request(event),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_UPDATE_NO_CANCEL');
+  assert.equal(n.calls.filter(c=>c.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,0);
+ }finally{n.restore()}
+});
+test('real Stripe cancel-at-period-end update may schedule QA cancellation',async()=>{
+ const n=network({plan:'FOUNDING_14',cancelAtPeriodEnd:true,expectedKind:'customer.subscription.updated'});
+ const event=makeEvent(false,'customer.subscription.updated');event.data.object.id=fixture.sub;
+ try{const response=await onRequestPost({request:await request(event),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_CUSTOMER_SUBSCRIPTION_UPDATED');
+  assert.equal(n.calls.filter(c=>c.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
  }finally{n.restore()}
 });
 test('bad Stripe signature cannot read Supabase or touch provider',async()=>{
