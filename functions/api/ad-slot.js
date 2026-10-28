@@ -58,6 +58,10 @@ async function planCode(c,request){
   ...(grants||[]).filter(x=>!x.ends_at||Date.parse(x.ends_at)>Date.now()).map(x=>x.plan_code)
  ]);
  if(active.has('LIFETIME'))return 'LIFETIME';
+ // Active Sparks passes suppress sponsor delivery and impressions on all devices.
+ const pass=await query(c,'gu_sparks_adfree_passes_v1?select=expires_at&user_id=eq.'+
+  encodeURIComponent(user.id)+'&expires_at=gt.'+encodeURIComponent(new Date().toISOString())+'&limit=1');
+ if(pass?.length)return 'SPARKS_ADFREE';
  if(active.has('FULL_ANNUAL'))return 'FULL_ANNUAL';
  if(active.has('FULL_MONTHLY'))return 'FULL_MONTHLY';
  if(active.has('A_LA_CARTE')||active.has('PICK_WHAT_YOU_WANT'))return 'A_LA_CARTE';
@@ -70,7 +74,7 @@ async function placeholderEligibility(c,slot,path,request){
  const placement=await query(c,'ad_placements?select=placement_code,active&placement_code=eq.'+encodeURIComponent(slot));
  if(placement?.[0]?.active!==true)return false;
  const role=await planCode(c,request);
- if(!role||role==='OWNER'||role==='LIFETIME')return false;
+ if(!role||['OWNER','LIFETIME','SPARKS_ADFREE'].includes(role))return false;
  if(role==='SIGNED_OUT'&&slot==='FREE_DASHBOARD')return false;
  if(/^(SIGNIN|SIGNUP)_/.test(slot)&&role!=='SIGNED_OUT')return false;
  const policies=await query(c,'plan_ad_policies?select=ads_enabled,allowed_slots&access_code=eq.'+encodeURIComponent(role));
@@ -84,7 +88,7 @@ async function eligibility(c,slot,path,request,audienceAlreadyVerified=false){
 async function underFrequencyLimit(c,request,token){
  if(!/^[a-f0-9-]{36}$/i.test(token||''))return false;
  const code=await planCode(c,request);
- if(!code||code==='OWNER'||code==='LIFETIME')return false;
+ if(!code||['OWNER','LIFETIME','SPARKS_ADFREE'].includes(code))return false;
  const policies=await query(c,'plan_ad_policies?select=max_impressions_per_session,max_impressions_per_24h,minimum_minutes_between_ads&access_code=eq.'+encodeURIComponent(code));
  const p=policies?.[0];if(!p||p.max_impressions_per_session<1||p.max_impressions_per_24h<1)return false;
  const history=await query(c,'ad_events?select=created_at&event_type=eq.impression&session_token=eq.'+
