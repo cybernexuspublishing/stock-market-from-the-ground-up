@@ -12,7 +12,8 @@ for(const state of ['draft','paused']) assert.ok(!api.includes("'"+state+"'"),'P
 assert.ok(api.includes('store_visible===true'));
 assert.ok(!api.includes('items,hidden'),'Public response must not reveal hidden SKU identifiers');
 assert.ok(api.includes("cache-control':'no-store'"),'No stale product visibility cache');
-assert.ok(ui.includes('const listedCore=p=>')&&ui.includes("/^FOUNDING_(30|60)$/.test(p.sku)")&&ui.includes("p.category==='Books'&&p.status==='existing_catalog'"),'Fallback must allow only the two current Founding offers and existing approved books');
+assert.ok(ui.includes('const listedCore=p=>')&&ui.includes("p.category==='Books'&&p.status==='existing_catalog'")&&
+ !ui.includes("/^FOUNDING_(30|60)$/.test(p.sku)"),'Unverified fallback must retain existing approved books but never revive founding offers after closure');
 assert.ok(ui.includes('base.filter(listedCore)')&&ui.includes('isFull=true'),'Only the authorized production catalog may expand beyond the safe fallback');
 assert.ok(ui.includes("'/api/storefront-public-catalog'"),'Only published public production storefront records may expand the catalog');
 const publicSource=read('functions/api/storefront-public-catalog.js');
