@@ -42,7 +42,7 @@ function boot(){
  [['guided','Guided learning'],['full','Full professional form']].forEach(([v,t])=>{
   const option=make('option',t);option.value=v;mode.append(option);
  });
- const version=make('span','Journal 2.0','gu-v2-version');
+ const version=make('span','Journal 3.0','gu-v2-version');
  top.append(label,mode,version);
  const progress=make('nav',undefined,'gu-v2-progress');progress.id='gu-v2-progress';progress.setAttribute('aria-label','Journal learning stages');
  const description=make('p','','gu-v2-help');description.id='gu-v2-help';
