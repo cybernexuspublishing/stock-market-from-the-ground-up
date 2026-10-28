@@ -165,35 +165,47 @@ if(tier==='PROFESSIONAL'){
  });
  assert(Number.isSafeInteger(result.received),'Synchronized view must receive a real timestamp');
  assert(result.received<=result.last,'Chart sync must never request a later, unrevealed candle');
- // Unequal studies (left VOL+RSI; right VOL+MACD+RSI) must not make unequal cards.
- await page.waitForFunction(()=>{
-  const e=window.CrownlightChartTiers.getInstances();
-  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
- });
- const initialHeights=await page.locator('.cl-tier-kline-canvas').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));
- assert(initialHeights.every(h=>h>=550),'Price + separate studies remain readable');
- await page.locator('select[data-cl-layout]').selectOption('STACKED');
- await page.waitForFunction(()=>{
-  const e=window.CrownlightChartTiers.getInstances();
-  return e.length===2&&e[0].host.getBoundingClientRect().height<e[1].host.getBoundingClientRect().height;
- });
- await page.locator('select[data-cl-layout]').selectOption('SIDE_BY_SIDE');
- await page.waitForFunction(()=>{
-  const e=window.CrownlightChartTiers.getInstances();
-  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
- });
+ // These DOM geometry assertions detect the Owner-reported regression:
+ // new chart-frame wrappers accidentally fell through to a one-column grid.
+ const geometry=()=>page.locator('.cl-tier-chart-frame').evaluateAll(es=>es.map(e=>{
+  const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom};
+ }));
+ const onSameRow=rects=>rects.length===2&&Math.abs(rects[0].y-rects[1].y)<2;
+ const ratio=rects=>rects[0].width/rects[1].width;
+ const testMode=async mode=>{
+  await page.locator('select[data-cl-layout]').selectOption(mode);
+  await page.waitForFunction(mode=>{
+   const cards=[...document.querySelectorAll('.cl-tier-chart-frame')].map(e=>e.getBoundingClientRect());
+   if(cards.length!==2)return false;
+   if(mode==='STACKED')return cards[1].top>=cards[0].bottom-2&&Math.abs(cards[0].width-cards[1].width)<3;
+   const aligned=Math.abs(cards[0].top-cards[1].top)<2;
+   const proportion=cards[0].width/cards[1].width;
+   return aligned&&(mode==='SIDE_BY_SIDE'?proportion>.95&&proportion<1.05:proportion>1.85&&proportion<2.15);
+  },mode,{timeout:8000});
+  return geometry();
+ };
+ const side=await testMode('SIDE_BY_SIDE');
+ assert(onSameRow(side)&&ratio(side)>.95&&ratio(side)<1.05,
+  'Side by side must render equal-width columns on the same row: '+JSON.stringify(side));
+ const paneHeights=await page.locator('.cl-tier-kline-canvas').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));
+ assert(paneHeights.every(h=>h>=550),'Price and oscillator panes remain readable');
+ assert(Math.abs(paneHeights[0]-paneHeights[1])<2,'Side-by-side outer chart heights align');
+ const stacked=await testMode('STACKED');
+ assert(stacked[1].y>=stacked[0].bottom-2,'Stacked mode must place charts on separate rows');
+ const focus=await testMode('PRICE_FOCUS');
+ assert(onSameRow(focus)&&ratio(focus)>1.85&&ratio(focus)<2.15,
+  'Price focus must make the left chart twice the right width: '+JSON.stringify(focus));
  await page.setViewportSize({width:820,height:1000});
  await page.waitForFunction(()=>{
-  const grid=document.querySelector('.cl-chart-tier-panels'),cols=getComputedStyle(grid).gridTemplateColumns.split(' ');
-  const e=window.CrownlightChartTiers.getInstances();
-  return cols.length===1&&e.length===2&&e[0].host.getBoundingClientRect().height<e[1].host.getBoundingClientRect().height;
+  const cards=[...document.querySelectorAll('.cl-tier-chart-frame')].map(e=>e.getBoundingClientRect());
+  return cards.length===2&&cards[1].top>=cards[0].bottom-2;
  });
+ const narrow=await geometry();
+ assert(narrow[1].y>=narrow[0].bottom-2,'Narrow Price focus must stack safely');
  await page.setViewportSize({width:1280,height:900});
- await page.waitForFunction(()=>{
-  const e=window.CrownlightChartTiers.getInstances();
-  return e.length===2&&Math.abs(e[0].host.getBoundingClientRect().height-e[1].host.getBoundingClientRect().height)<2;
- });
- console.log('PASS Professional equal-height desktop charts, independent stacked/mobile heights, and compact OHLCV.');
+ const sideAgain=await testMode('SIDE_BY_SIDE');
+ assert(onSameRow(sideAgain),'Side by side must restore after changing window size');
+ console.log('PASS Professional layout geometry: equal columns, stacked rows, 2:1 Price focus, responsive narrow viewport, restore.');
 }
 await page.locator('[data-cl-save]').click();
 await page.waitForFunction(()=>/Workspace saved privately/.test(document.querySelector('.cl-workspace-status')?.textContent||''));
