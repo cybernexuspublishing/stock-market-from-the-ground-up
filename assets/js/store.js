@@ -75,6 +75,8 @@ function bookCard(p){
  ${p.companionAccess?'<div class="library-actions"><a class="btn secondary" href="dashboard.html?tab=settings">Redeem Book Key</a><a class="btn secondary" href="dashboard.html?tab=books">Companion Access</a></div>':''}</article>`;
 }
 const toolImages={INTERACTIVE_LEARNING:'assets/img/store-tools/interactive-learning.svg',JOURNAL_ANALYTICS:'assets/img/store-tools/journal-analytics.svg',MARKET_SIMULATOR:'assets/img/store-tools/market-simulator.svg',MARKET_TUTOR:'assets/img/store-tools/market-tutor.svg'};
+const toolSummary=(t,page)=>{const d=String(t.description||'').replace(/\\s+/g,' ').trim();
+ return d.length>120?esc(d.slice(0,120).trimEnd())+'… <a class="gu-catalog-read-more" href="'+esc(page)+'">Read more</a>':esc(d||'See the full product details.')};
 function toolCard(t){
  const page=details('tool',t.toolCode),released=activeTool(t),enroll=released&&t.checkoutEnabled;
  const price=Number(t.priceCents)>0?dollars(t.priceCents)+'/month':t.toolCode==='ONDEMAND_TRAINING'?'Included with Historical Replay Learning — $19.99/month':'Included with eligible membership';
@@ -82,7 +84,7 @@ function toolCard(t){
  '<span class="store-soon-label">'+(released?'Purchasing opens soon':'Beta / development · Individual checkout unavailable')+'</span>';
  return `<article class="v11-tool-card store-sell-card">${toolImages[t.toolCode]?`<a class="store-tool-visual" href="${esc(page)}" aria-label="Explore ${esc(t.name)}"><img src="${esc(toolImages[t.toolCode])}" alt="" loading="lazy" width="640" height="320"></a>`:'<div class="store-tool-visual store-tool-visual-generic" aria-hidden="true"></div>'}<div class="eyebrow">${esc(t.category)}</div>
  <span class="store-beta-ribbon">${enroll?'Beta OPEN':t.status==='beta'?'Approved beta testing':released?'Released tool':'Individual checkout unavailable'}</span><h3><a href="${esc(page)}">${esc(t.name)}</a></h3>
- <p>${esc(t.description||'Further product information is being prepared.')}</p>
+ <p class="gu-tool-description">${toolSummary(t,page)}</p>
  <p class="store-sell-price"><span class="store-price-label">Price</span> ${esc(price)}</p>
  <p class="store-sell-status">${released?'Released learning tool':t.status==='beta'?'Beta learning tool':'Not currently released'}${released&&!enroll?' · Individual sales pending':''}</p>
  ${t.freePreview?'<span class="v11-badge">Limited free preview</span>':''}
@@ -188,6 +190,11 @@ function tabs(){
  for(const b of filters)b.setAttribute('aria-pressed',String(b.classList.contains('active')));
 }
 
+const catalogImage=x=>{const img=window.GroundUpCatalogVisuals?.resolve?.(x);
+ return img?'<a class="gu-catalog-card-image" href="'+esc(catalogUrl(x))+'"><img src="'+esc(img.src)+'" alt="'+esc(img.alt)+'" loading="lazy" width="340" height="190"></a>':''};
+const catalogUrl=x=>typeof x.page==='string'&&/^[a-z0-9-]+\\.html$/.test(x.page)?x.page:'store-upcoming-product.html?sku='+encodeURIComponent(String(x.sku||'').split(':').pop());
+const catalogSummary=x=>{const desc=String(x.description||'').replace(/\\s+/g,' ').trim();
+ return desc.length>132?esc(desc.slice(0,132).trimEnd())+'… <a class="gu-catalog-read-more" href="'+esc(catalogUrl(x))+'">Read more</a>':esc(desc)};
 const publicCurrent=x=>x.saleReady===true||['published','selling','for_sale','listed','release_ready'].includes(x.status);
 const publicNewest=(a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))||
  Number(a.displayOrder??9999)-Number(b.displayOrder??9999)||String(a.sku||'').localeCompare(String(b.sku||''));
@@ -217,17 +224,16 @@ function renderGroupCatalog(host,nav,items,layout){
   for(const item of subset){const k=String(item.category||'Other');
    if(!groups.has(k))groups.set(k,[]);groups.get(k).push(item)}
   host.innerHTML=[...groups].map(([type,rows])=>'<section class="gu-store-type-section"><h3>'+esc(type)+'</h3><div class="gu-store-type-grid">'+rows.map(x=>{
-   const href=typeof x.page==='string'&&/^[a-z0-9-]+\.html$/.test(x.page)?x.page:
-    'store-upcoming-product.html?sku='+encodeURIComponent(String(x.sku||'').split(':').pop());
-   return '<article class="gu-store-type-card"><span class="eyebrow">'+esc(x.status||'Listed')+
-   '</span><h4><a href="'+esc(href)+'">'+esc(x.name)+'</a></h4><p>'+esc(x.description)+'</p>'+
+   const href=catalogUrl(x);
+   return '<article class="gu-store-type-card">'+catalogImage(x)+'<span class="eyebrow">'+esc(x.status||'Listed')+
+   '</span><h4><a href="'+esc(href)+'">'+esc(x.name)+'</a></h4><p class="gu-catalog-summary">'+catalogSummary(x)+'</p>'+
    '<p class="small">Price: '+esc(x.price||'Not announced')+'</p><a href="'+esc(href)+'">View details</a></article>';
   }).join('')+'</div></section>').join('')||'<p>No matching public product listings.</p>';
   pageControls(nav,page,pages,p=>{page=p;draw();host.scrollIntoView({block:'start'})});
  };draw();
 }
 async function renderStoreCatalogPanels(){
- const fallback={tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3};
+ const fallback={tool_columns:5,tool_rows:5,catalog_columns:5,catalog_rows:3};
  try{
   const r=await fetch('/api/storefront-public-catalog',{cache:'no-store'});
   if(!r.ok)throw Error('Product catalog unavailable');

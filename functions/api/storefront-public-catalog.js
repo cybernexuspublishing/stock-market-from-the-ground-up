@@ -6,7 +6,7 @@ const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:
  'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const limited=(v,n)=>String(v??'').slice(0,n);
 const statuses=new Set(['listed','coming_soon','ready_for_review','for_sale','paused','in_development','release_ready','published','selling','unavailable']);
-const allowedCats=new Set(['membership','tool','book','bootcamp','founding','addon','feature']);
+const allowedCats=new Set(['membership','tool','book','bootcamp','course','founding','addon','feature']);
 export async function onRequestGet({env}){
  try{
   const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
@@ -39,7 +39,7 @@ export async function onRequestGet({env}){
    // Only local, rootless .html product destinations may be exposed.
    page:/^[a-z0-9-]+\.html$/.test(String(x.product_page||''))?x.product_page:null
   }));
-  let layout={tool_columns:5,tool_rows:6,catalog_columns:5,catalog_rows:3};
+  let layout={tool_columns:5,tool_rows:5,catalog_columns:5,catalog_rows:3};
   if(layoutResponse?.ok){const setting=(await layoutResponse.json().catch(()=>[]))?.[0];
    if(setting)for(const key of Object.keys(layout)){
     const v=Number(setting[key]);if(Number.isInteger(v)&&v>=1&&v<=12)layout[key]=v;

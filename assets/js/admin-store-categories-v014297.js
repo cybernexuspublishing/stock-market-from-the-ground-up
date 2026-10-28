@@ -89,7 +89,7 @@ function addStoreLayoutControl(root){
  panel.innerHTML='<h2>Store Display & Pagination</h2><p class="small">Desktop column counts and page lengths only. Smaller screens automatically use fewer columns. Product visibility, prices and checkout eligibility are not changed.</p>'+
  '<form id="gu-store-layout-form" class="admin-toolbar">'+
  '<label>Tool columns<input name="tool_columns" type="number" min="2" max="6" value="5" required></label>'+
- '<label>Tool rows<input name="tool_rows" type="number" min="1" max="12" value="6" required></label>'+
+ '<label>Tool rows<input name="tool_rows" type="number" min="1" max="12" value="5" required></label>'+
  '<label>Catalog columns<input name="catalog_columns" type="number" min="2" max="6" value="5" required></label>'+
  '<label>Catalog rows<input name="catalog_rows" type="number" min="1" max="12" value="3" required></label>'+
  '<button type="submit" class="btn">Save Store Layout</button></form>'+

@@ -52,7 +52,7 @@ body[data-gu-layout-route="market-commons"] .v13-commons-shell{min-width:0;max-w
  body[data-gu-layout-route="market-commons"] .gu-commons-page>.wrap{width:calc(100% - 30px)!important}
 }
 
-/* Configurable product grids: desktop target is 5 x 6 Tools, 5 x 3 catalog. */
+/* Configurable product grids: desktop target is 5 x 5 Tools, 5 x 3 catalog. */
 body[data-gu-workspace="site"] #store-tools{
  display:grid!important;grid-template-columns:repeat(var(--gu-tool-columns,5),minmax(0,1fr))!important;
  gap:12px!important;max-width:none}
@@ -110,3 +110,56 @@ body[data-gu-workspace="site"] #store-tools .store-tool-visual{max-height:115px}
   width:100%!important;max-width:100%!important;min-width:0!important;
   align-self:stretch!important;margin:0!important;box-sizing:border-box}
 }
+
+/* Marketing hierarchy: the Store introduction is a single restrained header. */
+body[data-gu-workspace="site"] .gu-redesign-store .gu-store-ad-core>.wrap>h1{
+ font-size:clamp(1.7rem,2.5vw,2.55rem)!important;line-height:1.2!important;
+ margin:9px 0 7px!important;letter-spacing:-.025em!important}
+body[data-gu-workspace="site"] .gu-redesign-store .catalog-founder-intro{
+ padding:18px 0 24px!important;max-width:100%!important}
+body[data-gu-workspace="site"] .gu-redesign-store .catalog-founder-intro h2{
+ font-size:clamp(1.35rem,2.2vw,2.1rem)!important;margin:6px 0 10px!important}
+body[data-gu-workspace="site"] .gu-redesign-store .catalog-founder-intro p{
+ font-size:.88rem!important;line-height:1.55!important;max-width:76ch}
+body[data-gu-workspace="site"] .gu-redesign-store .catalog-founder-grid{margin-top:4px}
+/* Tall promotional inventory without following the page scroll. */
+html body .gu-store-ad-shell>.gu-store-rail .gu-ad-slot.gu-house-promo{
+ min-height:420px!important;display:flex!important;flex-direction:column!important;
+ gap:14px!important;padding:18px 12px!important}
+html body .gu-store-ad-shell>.gu-store-rail .gu-house-art{
+ min-height:175px!important;margin-top:auto}
+html body .gu-store-ad-shell>.gu-store-rail .gu-house-cta{margin-top:12px}
+@media(max-width:1120px){
+ html body .gu-store-ad-shell>.gu-store-rail .gu-ad-slot.gu-house-promo{min-height:180px!important}
+ html body .gu-store-ad-shell>.gu-store-rail .gu-house-art{min-height:80px!important}
+}
+/* Accessible compact cards with first-party artwork and guaranteed detail links. */
+.gu-catalog-card-image{display:block;overflow:hidden;aspect-ratio:16/9;border:1px solid #3b5870;
+ background:linear-gradient(125deg,#0f2636,#172b45);border-radius:9px;margin-bottom:9px}
+.gu-catalog-card-image img{display:block;width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box}
+.gu-catalog-read-more{color:#a7f3da!important;text-underline-offset:3px;white-space:nowrap}
+.gu-catalog-summary{font-size:.79rem!important;line-height:1.5!important;min-height:0}
+.gu-store-type-card,.catalog-all #inventory-list .product-card{
+ min-height:0!important;gap:7px!important;padding:12px!important;align-self:start}
+.gu-store-type-card .eyebrow{font-size:.68rem}
+.gu-store-type-card h4{margin:2px 0!important;font-size:.94rem!important;
+ line-height:1.35!important;display:-webkit-box;-webkit-line-clamp:2;
+ -webkit-box-orient:vertical;overflow:hidden}
+.gu-store-type-card p{margin:0!important;line-height:1.45!important}
+.catalog-all #inventory-list .product-card h2{font-size:1rem!important;
+ line-height:1.35!important;display:-webkit-box;-webkit-line-clamp:2;
+ -webkit-box-orient:vertical;overflow:hidden}
+.catalog-all #inventory-list .product-card .gu-catalog-summary{min-height:0!important}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card{gap:7px!important;padding:11px!important}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card .store-tool-visual{
+ height:108px!important;max-height:108px!important;overflow:hidden}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card h3{
+ font-size:.95rem!important;line-height:1.3!important;margin:4px 0!important}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card .gu-tool-description{
+ margin:0!important;line-height:1.4!important;font-size:.76rem!important}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card .store-sales-actions{
+ display:flex;flex-direction:column;gap:5px;margin-top:auto}
+body[data-gu-workspace="site"] #store-tools>.v11-tool-card .btn{
+ min-height:34px;padding:7px!important;font-size:.74rem!important}
+.gu-product-detail-art{max-width:360px;margin:16px 0}
+.gu-product-detail-art .gu-catalog-card-image{aspect-ratio:4/3}

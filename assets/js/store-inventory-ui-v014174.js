@@ -4,7 +4,7 @@
  */
 (()=>{'use strict';
 const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const categoryLabels=Object.freeze({membership:'Memberships',founding:'Founding Memberships',
+const categoryLabels=Object.freeze({membership:'Memberships',founding:'Founding Memberships',course:'Boot Camps',
  book:'Books',tool:'Tools',bootcamp:'Boot Camps',addon:'Add-ons',feature:'Included Features'});
 const base=Array.isArray(window.GroundUpPrelaunchInventory)?window.GroundUpPrelaunchInventory:[];
 // If the authoritative visible-only API fails, expose only previously approved
@@ -45,12 +45,16 @@ function label(x){
  x.status==='coming_soon'?'Coming Soon · Beta / development':
  x.status==='listed'?'Listed · Purchasing not yet enabled':'Not available to purchase';
 }
+function image(x){const m=window.GroundUpCatalogVisuals?.resolve?.(x);return m?
+ '<a class="gu-catalog-card-image" href="'+escapeHtml(detail(x))+'" aria-label="View '+escapeHtml(x.name)+'"><img src="'+escapeHtml(m.src)+'" alt="'+escapeHtml(m.alt)+'" loading="lazy" width="340" height="190"></a>':''}
+function summary(x){const d=clean(x.description).replace(/\\s+/g,' ');return d.length>132?
+ '<span>'+escapeHtml(d.slice(0,132).trimEnd())+'…</span> <a class="gu-catalog-read-more" href="'+escapeHtml(detail(x))+'">Read more</a>':escapeHtml(d);}
 function cards(items){
  return items.map(x=>`<article class="product-card store-sell-card" data-store-sku="${escapeHtml(x.sku)}">
- <div class="eyebrow">${escapeHtml(x.category)}</div>
+ ${image(x)}<div class="eyebrow">${escapeHtml(x.category)}</div>
  <span class="store-soon-label">${escapeHtml(label(x))}</span>
  <h2>${escapeHtml(x.name)}</h2>
- <p>${escapeHtml(x.description)}</p>
+ <p class="gu-catalog-summary">${summary(x)}</p>
  <p><strong>Price:</strong> ${escapeHtml(x.price||'Pricing to be confirmed')}</p>
  ${x.duration?`<p><strong>Term:</strong> ${escapeHtml(x.duration)}</p>`:''}
  <p class="small">Catalog ID: ${escapeHtml(x.sku)}</p>
@@ -87,7 +91,7 @@ function show(){
    return;
   }
   document.title=x.name+' | The Stock Market: From the Ground Up';
-  root.innerHTML='<div class="eyebrow">'+escapeHtml(x.category)+'</div><h1>'+escapeHtml(x.name)+'</h1>'+
+  root.innerHTML='<div class="gu-product-detail-art">'+image(x)+'</div><div class="eyebrow">'+escapeHtml(x.category)+'</div><h1>'+escapeHtml(x.name)+'</h1>'+
    '<p>'+escapeHtml(x.description)+'</p><p><strong>Price:</strong> '+escapeHtml(x.price||'Pricing to be confirmed')+'</p>'+
    (x.duration?'<p><strong>Term:</strong> '+escapeHtml(x.duration)+'</p>':'')+
    '<p><strong>Availability:</strong> '+escapeHtml(label(x))+'</p>'+
