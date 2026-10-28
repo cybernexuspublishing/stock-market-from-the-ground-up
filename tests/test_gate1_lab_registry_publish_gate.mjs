@@ -43,7 +43,7 @@ try{
  r=await onRequest({request:new Request('https://site.test/api/lab-release-availability'),env});
  assert.equal(r.status,503,'Unavailable verification must fail closed');
  const client=readFileSync('assets/js/labs.js','utf8');
- for(const term of ['publishedAssessments.has(x.id)','availabilityVerified','Upcoming — no Start action available',
+ for(const term of ['publishedAssessments.has(x.id)','availabilityVerified','Upcoming — no Start action or grade is available.',
   '!publishedAssessments.has(labId)','/api/lab-release-availability','cache:\'no-store\'']){
   assert(client.includes(term),'Client fail-closed control missing: '+term);
  }
