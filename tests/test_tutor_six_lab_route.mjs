@@ -12,7 +12,11 @@ const cases=[
 ];
 const byLab=Object.fromEntries(cases.map(([id,title])=>[id,{title}]));
 const bySkill={CANDLE_READING:['F2-C07-L01'],VWAP_CONTEXT:['DT-C11-L01'],VOLUME_ANALYSIS:['DT-C19-L02'],
- BREAKOUT_RECOGNITION:['DT-C34-L01'],FAILED_BREAKOUT:['DT-C45-L01'],RISK_PER_SHARE:['DT-C05-L01']};
+ BREAKOUT_RECOGNITION:['DT-C34-L01','DT-C45-L01'],FAILED_BREAKOUT:['DT-C45-L01'],RISK_PER_SHARE:['DT-C05-L01']};
+const expectedGuide={
+ 'F2-C07-L01':'CANDLE_READING','DT-C11-L01':'VWAP_CONTEXT','DT-C19-L02':'VOLUME_ANALYSIS',
+ 'DT-C34-L01':'CHART_STRUCTURE','DT-C45-L01':'FAILED_BREAKOUT','DT-C05-L01':'RISK_PER_SHARE'
+};
 const publicGuides=JSON.parse(readFileSync(new URL('../data/competency-study-guides-v01499.json',import.meta.url),'utf8'));
 const env={SUPABASE_URL:'https://test123.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',
  ASSETS:{fetch:async request=>new Response(JSON.stringify(String(request.url).includes('competency-study-guides')
@@ -46,7 +50,7 @@ try{
   assert(data.answer.includes(cue),id);
   assert(data.answer.includes('Approved public competency guide:'),id);
   assert(data.answer.includes('Public reference for further study:'),id);
-  assert(data.sources.some(source=>source.sourceLabel==='Original public competency study guide'),id);
+  assert.equal(data.sources.find(source=>source.sourceLabel==='Original public competency study guide')?.id,expectedGuide[id],id);
   assert.equal(data.graded,false);
   assert.equal(data.masteryAwarded,false);
  }
