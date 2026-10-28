@@ -11,6 +11,8 @@ on:
       - 'store.html'
       - 'assets/css/premium-design-v014168.css'
       - 'assets/css/sitewide-composition-v014234.css'
+      - 'assets/css/owner-store-layout-v1.css'
+      - 'signin.html'
       - 'functions/_middleware.js'
       - 'assets/js/site.js'
       - 'assets/js/navigation.js'
