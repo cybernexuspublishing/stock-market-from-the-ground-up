@@ -105,7 +105,7 @@ function toolDetail(t,guide,code){
 function bookDetail(p,guide,code){
  const title=p?.title||code;
  const acts=p?formatInfo(p):[],cover=p?.coverImageUrl&&safe(p.coverImageUrl)?`<img src="${e(p.coverImageUrl)}" alt="Cover of ${e(title)}" class="store-product-book-cover">`:'';
- const detail=[['Catalog status',p?status(p.publicationStatus):'Unable to verify'],
+ const detail=[['Catalog status',p?.salesStatus==='selling'?'Book listed for retail availability':p?status(p.publicationStatus):'Unable to verify'],
  ['Author',p?.author||'—'],['Publisher',p?.publisher||'—'],
  ['Store offer status',p?.salesStatus==='published'?'Sale-ready catalog; formats must still be activated':p?.salesStatus||'Not verified'],
  ['Website delivery',p?.directDigital?.enabled&&!p.kdpSelect?'Check direct-digital availability': 'Not enabled for a direct eBook download from this listing'] ];
