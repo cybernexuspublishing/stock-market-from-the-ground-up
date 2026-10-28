@@ -139,6 +139,8 @@ const synonyms={
  'Integrations Status':'System; System & Integrations',
  'Advertising Sales':'Marketing & Social Media; Advertising',
  'Client Website Drafts (Grant Web Solutions)':'Grant Web Solutions · Client Drafts',
+ 'Question Bank':'Instructor · Question Bank',
+ 'Founders Commons':'Founders Commons · Design Council',
  'Book Receipt Claims':'Book Receipt Verification'
 };
 function canon(id,el){const match=canonical.find(([re])=>re.test(id));if(match)return match;const label=String(el?.dataset.ccLegacyLabel||el?.textContent||'').trim().toLowerCase();const alias=legacyNames.get(label);return alias?[null,...alias]:undefined;}
@@ -208,7 +210,8 @@ const groups=new Map();for(const el of all){const id=controlId(el);const setting
  const approved=rule?.[1];
  // Explicit Owner edits remain authoritative, but a stock legacy label is updated.
  const historicLabels=[el.dataset.ccLegacyLabel,...(synonyms[approved]||'').split(';').map(x=>x.trim())];
- const customized=Boolean(setting?.label&&!historicLabels.some(x=>x&&x.toLowerCase()===String(setting.label).trim().toLowerCase()));
+ const historicAlias=legacyNames.get(String(setting?.label||'').trim().toLowerCase());
+ const customized=Boolean(setting?.label&&!historicLabels.some(x=>x&&x.toLowerCase()===String(setting.label).trim().toLowerCase())&&historicAlias?.[0]!==approved);
  if(customized)el.textContent=setting.label;
  else if(approved)el.textContent=approved;
  el.dataset.ccSearchAliases=[el.dataset.ccLegacyLabel,synonyms[approved]||''].filter(Boolean).join('; ');
