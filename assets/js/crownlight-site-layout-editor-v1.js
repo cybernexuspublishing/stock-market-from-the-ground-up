@@ -66,6 +66,10 @@
    card.style.setProperty('width',row.width_pct+'%','important');card.style.setProperty('max-width','100%','important');card.style.setProperty('box-sizing','border-box','important');card.style.setProperty('justify-self','start','important');
   }
   if(Number.isInteger(row.min_height_px)&&row.min_height_px>=80&&row.min_height_px<=1200){card.style.setProperty('height',row.min_height_px+'px','important');card.style.setProperty('min-height','80px','important');card.style.setProperty('overflow','auto','important');}
+  const x=Number.isInteger(row.offset_x_px)?Math.max(-280,Math.min(280,row.offset_x_px)):0;
+  const y=Number.isInteger(row.offset_y_px)?Math.max(-280,Math.min(280,row.offset_y_px)):0;
+  if(x||y)card.style.setProperty('translate',x+'px '+y+'px','important');
+  else card.style.removeProperty('translate');
  }
  function status(message){const el=$('#gu-layout-feedback');if(el)el.textContent=message}
  async function save(card,changes={}){
@@ -73,10 +77,13 @@
   const previous=state.config.get(key)||{};
   const payload={cardKey:key,widthPct:changes.widthPct??previous.width_pct??null,
    minHeightPx:changes.minHeightPx??previous.min_height_px??null,
-   sortIndex:changes.sortIndex??previous.sort_index??null};
+   sortIndex:changes.sortIndex??previous.sort_index??null,
+   offsetXPx:changes.offsetXPx??previous.offset_x_px??0,
+   offsetYPx:changes.offsetYPx??previous.offset_y_px??0};
   status('Saving layout…');
   try{await api('POST',payload);state.config.set(key,{width_pct:payload.widthPct,
-   min_height_px:payload.minHeightPx,sort_index:payload.sortIndex});
+   min_height_px:payload.minHeightPx,sort_index:payload.sortIndex,
+   offset_x_px:payload.offsetXPx,offset_y_px:payload.offsetYPx});
    status('Layout saved.');}
   catch(e){status(e.message+' Changes have not been saved.')}
  }
@@ -130,19 +137,77 @@
   window.addEventListener('pointercancel',cancel,true);
   window.addEventListener('blur',cancel,true);
  }
+ function beginMove(event,card){
+  if(!state.editing||event.button!==0||!card.dataset.guLayoutKey)return;
+  event.preventDefault();event.stopPropagation();
+  const handle=event.currentTarget,initialX=event.clientX,initialY=event.clientY;
+  const saved=state.config.get(card.dataset.guLayoutKey)||{};
+  const offsetX=Number.isInteger(saved.offset_x_px)?saved.offset_x_px:0;
+  const offsetY=Number.isInteger(saved.offset_y_px)?saved.offset_y_px:0;
+  const box=card.getBoundingClientRect(),parent=card.parentElement?.getBoundingClientRect();
+  // Keep the whole card within its original section to prevent horizontal scrolling.
+  const leftLimit=Math.max(-280,Math.ceil(offsetX-(box.left-(parent?.left??box.left))));
+  const rightLimit=Math.min(280,Math.floor(offsetX+((parent?.right??box.right)-box.right)));
+  let x=offsetX,y=offsetY,changed=false,finished=false;
+  document.body.classList.add('gu-layout-dragging');
+  card.classList.add('gu-layout-moving');
+  handle.setAttribute('aria-grabbed','true');
+  try{handle.setPointerCapture(event.pointerId)}catch{}
+  const move=e=>{
+   if(finished||e.pointerId!==event.pointerId)return;
+   x=Math.round(Math.min(Math.max(leftLimit,rightLimit<leftLimit?leftLimit:rightLimit),Math.max(leftLimit,offsetX+e.clientX-initialX)));
+   y=Math.max(-280,Math.min(280,Math.round(offsetY+e.clientY-initialY)));
+   changed=changed||x!==offsetX||y!==offsetY;
+   card.style.setProperty('translate',x+'px '+y+'px','important');
+   status('Moving card · horizontal '+x+'px, vertical '+y+'px · release to save');
+  };
+  const cleanup=()=>{
+   window.removeEventListener('pointermove',move,true);
+   window.removeEventListener('pointerup',end,true);
+   window.removeEventListener('pointercancel',cancel,true);
+   window.removeEventListener('blur',cancel,true);
+   document.body.classList.remove('gu-layout-dragging');
+   card.classList.remove('gu-layout-moving');
+   handle.removeAttribute('aria-grabbed');
+   try{if(handle.hasPointerCapture(event.pointerId))handle.releasePointerCapture(event.pointerId)}catch{}
+  };
+  const cancel=()=>{if(finished)return;finished=true;cleanup();
+   if(offsetX||offsetY)card.style.setProperty('translate',offsetX+'px '+offsetY+'px','important');
+   else card.style.removeProperty('translate');
+   status('Move canceled; saved position preserved');
+  };
+  const end=e=>{if(finished||e.pointerId!==event.pointerId)return;
+   finished=true;cleanup();
+   if(changed&&(x!==offsetX||y!==offsetY))void save(card,{offsetXPx:x,offsetYPx:y});
+   else status('No move saved. Reduce card width first if you need horizontal room.');
+  };
+  window.addEventListener('pointermove',move,true);
+  window.addEventListener('pointerup',end,true);
+  window.addEventListener('pointercancel',cancel,true);
+  window.addEventListener('blur',cancel,true);
+ }
  function applySavedOrder(){
-  // Only reorder siblings when their DOM parent already contains the same cards.
+  // Never move cards across other non-card page sections. Reordering every
+  // child on page load previously moved "1. Load replay data" behind the chart.
+  // Only persisted indexes among an already contiguous peer group are safe.
   const parents=new Set([...keyed.values()].map(c=>c.parentElement));
   for(const parent of parents){
    if(!parent)continue;
-   const siblings=[...parent.children].filter(c=>c.dataset?.guLayoutKey);
-   const sorted=[...siblings].sort((a,b)=>{
-    const aa=state.config.get(a.dataset.guLayoutKey)?.sort_index,bb=state.config.get(b.dataset.guLayoutKey)?.sort_index;
-    const ia=Number.isInteger(aa)?aa:1000+siblings.indexOf(a),ib=Number.isInteger(bb)?bb:1000+siblings.indexOf(b);
-    return ia-ib;
-   });
-   const anchor=siblings.at(-1)?.nextSibling||null;
-   for(const c of sorted)parent.insertBefore(c,anchor);
+   const children=[...parent.children];let i=0;
+   while(i<children.length){
+    if(!children[i].dataset?.guLayoutKey){i++;continue}
+    const group=[];while(i<children.length&&children[i].dataset?.guLayoutKey)group.push(children[i++]);
+    if(group.length<2||!group.some(c=>Number.isInteger(state.config.get(c.dataset.guLayoutKey)?.sort_index)))continue;
+    const ordered=[...group].sort((a,b)=>{
+     const aa=state.config.get(a.dataset.guLayoutKey)?.sort_index;
+     const bb=state.config.get(b.dataset.guLayoutKey)?.sort_index;
+     return (Number.isInteger(aa)?aa:1000+group.indexOf(a))-
+      (Number.isInteger(bb)?bb:1000+group.indexOf(b));
+    });
+    if(ordered.every((c,n)=>c===group[n]))continue;
+    const anchor=group.at(-1).nextSibling;
+    for(const card of ordered)parent.insertBefore(card,anchor);
+   }
   }
  }
  function toggle(){
@@ -156,9 +221,9 @@
    if(!state.editing)continue;
    const bar=document.createElement('div');bar.className='gu-layout-controls';
    const handle=document.createElement('button');handle.type='button';handle.textContent='Move card';
-   handle.className='gu-layout-move';handle.draggable=true;handle.title='Drag to reorder within this section';
-   handle.addEventListener('dragstart',e=>{state.activeDrag=card;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',card.dataset.guLayoutKey)});
-   handle.addEventListener('dragend',()=>{state.activeDrag=null});
+   handle.className='gu-layout-move';handle.title='Hold and drag to move card left, right, up or down; saved when released';
+   handle.setAttribute('aria-label','Hold and drag to reposition this card; save on pointer release');
+   handle.addEventListener('pointerdown',e=>beginMove(e,card));
    const resize=document.createElement('button');resize.type='button';resize.className='gu-layout-resize';
    resize.textContent='↘ Resize';resize.title='Drag to resize; automatically saves on mouse release';
    resize.addEventListener('pointerdown',e=>beginResize(e,card));
@@ -169,18 +234,9 @@
    const reset=document.createElement('button');reset.type='button';reset.textContent='Reset';reset.className='gu-layout-reset';
    reset.onclick=async()=>{status('Resetting card…');try{await api('DELETE',{cardKey:card.dataset.guLayoutKey});
     state.config.delete(card.dataset.guLayoutKey);card.style.removeProperty('width');card.style.removeProperty('max-width');
-    card.style.removeProperty('min-height');card.style.removeProperty('height');card.style.removeProperty('overflow');card.style.removeProperty('justify-self');status('Card layout reset.')}catch(e){status(e.message)}};
+    card.style.removeProperty('min-height');card.style.removeProperty('height');card.style.removeProperty('overflow');card.style.removeProperty('justify-self');card.style.removeProperty('translate');status('Card layout reset.')}catch(e){status(e.message)}};
    bar.append(handle,resize,reset);card.prepend(bar);card.append(corner);
-   card.addEventListener('dragover',e=>{if(!state.editing||!state.activeDrag||
-    state.activeDrag.parentElement!==card.parentElement||state.activeDrag===card)return;
-    e.preventDefault();e.dataTransfer.dropEffect='move'});
-   card.addEventListener('drop',e=>{const moving=state.activeDrag;if(!moving||moving===card||moving.parentElement!==card.parentElement)return;
-    e.preventDefault();const box=card.getBoundingClientRect();
-    card.parentElement.insertBefore(moving,e.clientY>box.top+box.height/2?card.nextSibling:card);
-    const siblings=[...card.parentElement.children].filter(x=>x.dataset.guLayoutKey);
-    siblings.forEach((c,i)=>void save(c,{sortIndex:i}));
-    state.activeDrag=null;
-   });
+
   }
  }
  async function init(){
