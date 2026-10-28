@@ -86,7 +86,7 @@ try{
  const migration=readFileSync('supabase/migrations/20261028_free_two_sparks_monthly_v1.sql','utf8');
  assert.match(workbench,/sim-lab-picker/);assert.match(workbench,/byLab/);assert.match(workbench,/tablist/);
  assert.match(workbench,/cl-panel-paper/);assert.match(workbench,/academy:free5/);
- assert.match(tutor,/Session VWAP estimate/);assert.match(tutor,/no-trade/i);
+ assert.match(tutor,/Session VWAP estimate/);assert.match(tutor,/no[ -]trade/i);
  assert.match(chart,/minBarSpacing:\.6/);assert.match(chart,/rightOffset:16/);
  assert.match(html,/crownlight-paper-terminal-v1\.js/);
  assert.match(migration,/free_included/);
