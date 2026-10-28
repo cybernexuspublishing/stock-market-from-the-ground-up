@@ -11,6 +11,10 @@ on:
       - "tests/test_v01417*.mjs"
       - "tests/test_v014180_owner_store_acceptance.mjs"
       - "tests/test_member_sparks_wallet_v014296.mjs"
+      - "tests/test_crownlight_adfree_v2.mjs"
+      - "functions/api/member-sparks-adfree.js"
+      - "assets/js/store-sparks-adfree-v2.js"
+      - "functions/api/ad-slot.js"
       - "tests/test_owner_store_categories_gallery_v014300.mjs"
       - "tests/test_owner_background_and_stripe_map_v1.mjs"
       - "tests/test_book_uploader_and_learning_header_v1.mjs"
@@ -109,6 +113,9 @@ jobs:
           node --check functions/api/owner-zero-live-checkout.js
           node --check assets/js/admin-stripe-shadow-v01439.js
           node tests/test_member_sparks_wallet_v014296.mjs
+          node tests/test_crownlight_adfree_v2.mjs
+          node --check functions/api/member-sparks-adfree.js
+          node --check assets/js/store-sparks-adfree-v2.js
           node tests/test_owner_store_categories_gallery_v014300.mjs
           node tests/test_owner_background_and_stripe_map_v1.mjs
           node tests/test_book_uploader_and_learning_header_v1.mjs
