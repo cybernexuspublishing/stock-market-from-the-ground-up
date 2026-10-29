@@ -115,10 +115,22 @@ try{
    if(founderVisible){
     const expected= catalog.items.filter(x=>x.category==='founding'&&founderCodes.some(c=>x.sku==='founding:'+c)).length;
     assert.ok(expected>0,'Founder gate open but no published Founder SKU is visible');
-    await main.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,expected,{timeout:22000});
+    try{
+     await main.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,expected,{timeout:22000});
+    }catch(e){
+     const observed=await main.evaluate(()=>({
+      cards:document.querySelectorAll('#store-founder-plans .catalog-founder-card').length,
+      text:document.querySelector('#store-founder-plans')?.textContent?.slice(0,450),
+      selected:document.querySelector('#store-tab-founders')?.getAttribute('aria-selected'),
+      active:!document.querySelector('#store-panel-founders')?.hidden,
+      status:document.querySelector('#store-category-status')?.textContent
+     }));
+     throw new Error('Founder card count mismatch: expected '+expected+
+      ' actual '+JSON.stringify(observed)+'; '+e.message);
+    }
     assert.equal(await main.locator('#store-tab-founders').isVisible(),true);
    }else{
-    assert.equal(await main.locator('#store-tab-founders').isVisible(),false,'Unpublished Founder tab must be hidden');
+    assert.equal(await main.locator('#store-tab-founders').isVisible(),true,'Founding Memberships category must stay visible while enrollment is gated');
     assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),0);
    }
    if(bookCount){
@@ -162,11 +174,11 @@ try{
    await main.locator('#store-tab-'+tabs[0]).click();
    await main.locator('#store-tab-'+tabs[0]).focus();
    await main.keyboard.press('ArrowRight');
-   assert.equal(await main.locator('#store-tab-'+tabs[1]).getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-'+tabs[1]).getAttribute('aria-selected'),'true','ArrowRight from '+tabs[0]+' should select '+tabs[1]);
    await main.keyboard.press('End');
-   assert.equal(await main.locator('#store-tab-'+tabs.at(-1)).getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-'+tabs.at(-1)).getAttribute('aria-selected'),'true','End must select the last visible Store category');
    await main.keyboard.press('Home');
-   assert.equal(await main.locator('#store-tab-'+tabs[0]).getAttribute('aria-selected'),'true');
+   assert.equal(await main.locator('#store-tab-'+tabs[0]).getAttribute('aria-selected'),'true','Home must select the first visible Store category');
    return 'ArrowRight, End and Home select published Store tabs';
  });
  await run('Book filters hide nonmatching books and restore all five',async()=>{
