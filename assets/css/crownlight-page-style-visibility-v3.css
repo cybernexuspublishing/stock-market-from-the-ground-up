@@ -60,6 +60,13 @@ body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-stage{
  }
 }
 /* Store: preserve existing advertisement rails, change the REAL products grid. */
+body[data-cl-workspace="compact"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid),
+body[data-cl-workspace="continuous"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid),
+body[data-cl-workspace="focus"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid),
+body[data-cl-workspace="spacious"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
+ display:grid!important;min-width:0;
+}
+
 @media(min-width:1320px){
  body[data-cl-workspace="compact"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
   grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important
