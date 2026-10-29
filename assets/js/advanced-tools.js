@@ -252,6 +252,12 @@
    '<div><label for="w-stop">Planned stop (not guaranteed)</label><input id="w-stop"></div>'+
    '<div><label for="w-target">Research target (not prediction)</label><input id="w-target"></div></div>'+
    '<label for="w-why">Why further research?</label><textarea id="w-why" rows="3"></textarea>'+
+   '<fieldset class="v11-research-gates"><legend>Before marking READY — self-reported research gates</legend>'+
+   '<label><input type="checkbox" id="w-gate-source"> I reviewed the original source, issuer identity and publication date.</label>'+
+   '<label><input type="checkbox" id="w-gate-structure"> I recorded the chart session, timeframe, previous close and reference levels.</label>'+
+   '<label><input type="checkbox" id="w-gate-liquidity"> I considered current spread, volume versus displayed depth and potential slippage.</label>'+
+   '<label><input type="checkbox" id="w-gate-invalidation"> I defined a trigger, failure condition and NO TRADE alternative.</label>'+
+   '<p class="small">Checks are your own observations, not independent source verification or proof of executable prices.</p></fieldset>'+
    '<div class="actions"><button type="button" class="btn" id="w-save">Save Research Candidate</button></div>')+
    panel('Private saved candidates','<div id="w-list"></div>')+
    panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
@@ -264,7 +270,8 @@
    line.textContent=(rec.title||'')+' · '+(rec.payload?.status||'WATCH')+
     ' · Invalidation: '+(rec.payload?.invalidation||'Unspecified')+
     ' · Source: '+(rec.payload?.sourceNote||'Legacy record: no source')+
-    ' · At: '+(rec.payload?.asOf||'Date unknown');
+    ' · At: '+(rec.payload?.asOf||'Date unknown')+
+    ' · Research gates: '+Object.values(rec.payload?.researchGates||{}).filter(Boolean).length+'/4 self-reported reviewed';
    const edit=document.createElement('button');edit.type='button';edit.className='btn secondary';
    edit.textContent='Edit';edit.setAttribute('aria-label','Edit saved candidate '+String(rec.title||''));
    edit.addEventListener('click',()=>{
@@ -276,6 +283,9 @@
     value('w-source',p.sourceNote);value('w-cat',p.catalyst);value('w-level',p.level);
     value('w-entry',p.entry);value('w-inv',p.invalidation);value('w-stop',p.stop);
     value('w-target',p.target);value('w-why',p.why);
+    for(const k of ['source','structure','liquidity','invalidation']){
+     const check=document.getElementById('w-gate-'+k);if(check)check.checked=p.researchGates?.[k]===true;
+    }
     saveButton.textContent='Update Saved Candidate';
     document.getElementById('w-ticker').focus();
     status('Editing your saved research candidate. Save to update only this version.','success');
@@ -300,7 +310,11 @@
        !Number.isFinite(Date.parse(asOf))||Date.parse(asOf)>Date.now()+300000)
        throw Error('A nonfuture source timestamp with timezone offset is required.');
     if(!value('w-inv'))throw Error('Document a clear invalidation or NO TRADE rule.');
-    const payload={status:value('w-status'),catalyst:value('w-cat'),level:value('w-level'),
+    const researchGates=Object.fromEntries(['source','structure','liquidity','invalidation']
+     .map(k=>[k,document.getElementById('w-gate-'+k)?.checked===true]));
+    if(value('w-status')==='READY'&&Object.values(researchGates).some(done=>!done))
+     throw Error('A READY research state requires all four self-reported review gates. Select WATCH or NO TRADE if anything remains uncertain.');
+    const payload={status:value('w-status'),researchGates,catalyst:value('w-cat'),level:value('w-level'),
      entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
      target:value('w-target'),why:value('w-why'),asOf,sourceNote,
      evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};
