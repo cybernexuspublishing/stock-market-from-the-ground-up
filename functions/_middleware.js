@@ -66,6 +66,7 @@ const LIVE_CHECKOUT_ROUTES=new Set([
  '/api/checkout','/api/checkout-v0135',
  '/api/stripe-customer-checkout-v01438','/api/signed-book-checkout',
  '/api/stripe-live-checkout', // stable public route; SAME strict mode boundary
+ '/api/book-stripe-live-checkout-v1', // same TEST/LIVE mode barrier; separate verified digital book path
  '/api/stripe-live-checkout-v01458', // backward-compatible legacy route
  '/api/founding600-checkout' // also constrained by the global TEST/LIVE payment-mode boundary
 ]);

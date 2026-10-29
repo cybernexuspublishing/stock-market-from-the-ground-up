@@ -73,8 +73,28 @@ async function init(){
     // separate Admin shadow ledger, NEVER in customer checkout. Do not route
     // customer browsers to deprecated staging-specific v38/v61 endpoints.
     if(books){
-      btn.textContent='Direct digital checkout unavailable';
-      msg.textContent='Book purchases follow the separate publishing-rights and approved retailer checkout rules.';
+      const readiness=route.enabled===true
+       ?await fetch('/api/book-stripe-live-checkout-v1?action=quote&code='+encodeURIComponent(code)+'&format='+encodeURIComponent(format),
+        {cache:'no-store'}).then(async r=>r.ok?await r.json():null).catch(()=>null)
+       :null;
+      const offer=readiness?.offer;
+      if(readiness?.ok===true&&readiness.readOnly===true&&readiness.livePayments===false&&
+       readiness.liveCheckoutAvailable===true&&offer?.type==='book'&&offer.code===code&&
+       offer.format===format&&offer.currency==='USD'&&offer.billingInterval==='one_time'&&
+       Number.isSafeInteger(offer.unitAmountCents)&&offer.unitAmountCents>0&&
+       typeof offer.name==='string'&&offer.name.length<=120){
+       orderLabel.textContent=offer.name;
+       amount.textContent='Verified eBook price: '+(offer.unitAmountCents/100).toLocaleString('en-US',
+        {style:'currency',currency:'USD'})+' one-time. Any applicable taxes are disclosed before payment.';
+       current={target:'/api/book-stripe-live-checkout-v1',provider:'STRIPE_BOOK_LIVE',
+        type,code,format,checkoutReady:true};
+       btn.disabled=false;btn.textContent='Continue to secure Stripe eBook checkout';
+       msg.textContent='The download appears in My Books only after Stripe confirms a paid order.';
+       void loadLumen(offer.unitAmountCents);
+      }else{
+       btn.textContent='eBook checkout not yet activated';
+       msg.textContent='This title’s protected file, verified rights and LIVE payment fulfillment must all be approved before checkout.';
+      }
       return;
     }
     const readyUrl='/api/stripe-live-checkout?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code);
@@ -125,7 +145,13 @@ async function init(){
   if(!root.querySelector('#terms-ok').checked){msg.textContent='Accept the purchase terms before continuing.';return}
   btn.disabled=true;
   try{
-   if(current.provider==='STRIPE_MANAGED_LIVE'){
+   if(current.provider==='STRIPE_BOOK_LIVE'){
+      const j=await req(current.target,{method:'POST',body:JSON.stringify({code,format:current.format})});
+      const link=new URL(j.url);if(link.protocol!=='https:'||link.hostname!=='checkout.stripe.com')
+       throw Error('Unexpected Stripe book checkout address.');
+      location.assign(link.href);return;
+    }
+    if(current.provider==='STRIPE_MANAGED_LIVE'){
      // The server revalidates amount/cadence/ownership on every POST; a
      // stale browser quote never authorizes a specific charge.
      const j=await req(current.target,{method:'POST',body:JSON.stringify({type,code})});

@@ -30,6 +30,13 @@ on:
       - "functions/api/owner-turnstile-redeploy-v1.js"
       - "assets/js/admin-human-verification-v01434.js"
       - "assets/css/admin-human-verification-v01434.css"
+      - "functions/api/book-stripe-live-checkout-v1.js"
+      - "functions/_lib/book-stripe-live-v1.js"
+      - "supabase/migrations/20261029_book_stripe_live_fulfillment_v1.sql"
+      - "tests/test_book_stripe_live_fulfillment_v1.mjs"
+      - "assets/js/checkout-platform.js"
+      - "functions/api/stripe-live-webhook-v01458.js"
+      - "functions/_middleware.js"
       - "functions/api/book-stripe-test-checkout-v1.js"
       - "functions/api/book-stripe-test-webhook-v1.js"
       - "functions/api/book-stripe-test-download-v1.js"
@@ -134,6 +141,9 @@ jobs:
           node tests/test_book_primary_assignment_guard_v1.mjs
           node tests/test_book_digital_save_workflow_v1.mjs
           node tests/test_book_stripe_test_pipeline_v1.mjs
+          node tests/test_book_stripe_live_fulfillment_v1.mjs
+          node --check functions/api/book-stripe-live-checkout-v1.js
+          node --check functions/_lib/book-stripe-live-v1.js
           node tests/test_owner_turnstile_redeploy_v1.mjs
           node tests/test_owner_membership_qa_users_v1.mjs
           node --check assets/js/admin-membership-qa-users-v1.js

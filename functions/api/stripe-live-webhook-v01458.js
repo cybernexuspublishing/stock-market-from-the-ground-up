@@ -1,3 +1,4 @@
+import {applyVerifiedBookEvent} from '../_lib/book-stripe-live-v1.js';
 /* v0.14.0.58 | Independent LIVE Stripe webhook candidate. Disabled by default.
  * No preview or shadow access can grant real memberships. Signed, provider-verified
  * events alone may invoke the service-only SQL entitlement ledger, after launch.
@@ -342,7 +343,9 @@ export async function onRequestPost({request,env}){
  try{
   const account=await getStripe(c,'account');
   if(account.id!==c.account)throw Error('Unexpected LIVE Stripe merchant account.');
-  const action=await processEvent(c,event);if(!action)return resp('ignored',200);
+  const bookApplied=await applyVerifiedBookEvent({...c,service:c.key},event);
+  if(bookApplied===true)return resp('book-live-verified',200);
+    const action=await processEvent(c,event);if(!action)return resp('ignored',200);
   const result=await apply(c,action);if(!result?.ok)throw Error('No verified result');return resp('verified',200);
  }catch{ // Retry on out-of-order events; no silent acknowledgement of failed fulfillment.
   return resp('Fulfillment temporarily unavailable; retry',503);
