@@ -132,6 +132,7 @@ jobs:
           node tests/test_admin_password_modal_top_layer_v1.mjs
           node tests/test_private_book_owner_preview_v1.mjs
           node tests/test_book_primary_assignment_guard_v1.mjs
+          node tests/test_book_digital_save_workflow_v1.mjs
           node tests/test_book_stripe_test_pipeline_v1.mjs
           node tests/test_owner_turnstile_redeploy_v1.mjs
           node tests/test_owner_membership_qa_users_v1.mjs

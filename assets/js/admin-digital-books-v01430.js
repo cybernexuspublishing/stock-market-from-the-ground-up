@@ -5,6 +5,16 @@ const el=(tag,txt,cls)=>{const n=document.createElement(tag);if(txt!=null)n.text
 let busy=false;
 let editorCode=null,editorTarget=null;
 let loading=null;
+let activeEditorControls=null;
+const friendlySaveError=value=>{
+ const message=String(value||'Unknown publishing error');
+ if(message.includes('KDP_EXCLUSIVITY_OR_RIGHTS_NOT_CLEARED'))return 'Sales cannot be enabled until KDP Select is OFF, distribution rights are acknowledged, and a verified KDP Select end date has been recorded in the past.';
+ if(message.includes('DIGITAL_PROVIDER_VARIANT_AND_PRICE_REQUIRED'))return 'The selling configuration is missing a validated digital checkout provider variant or price. The book file and rights can be saved as a draft, but paid sales cannot be enabled until checkout mapping is configured.';
+ if(message.includes('DIGITAL_SETTINGS_STALE'))return 'The product record changed since this editor opened. Reopen Edit and retry to avoid overwriting a newer update.';
+ if(message.includes('DIGITAL_SALE_REQUIRES_DOWNLOAD_FULFILLMENT'))return 'Enable purchased-book downloads before enabling direct digital sales.';
+ if(message.includes('OWNER_AAL2_REQUIRED')||message.includes('PASSWORD_RECONFIRM_REQUIRED'))return 'Owner authorization or recent password confirmation is required. Reconfirm your Owner password and retry.';
+ return message;
+};
 function mount(){
  // A CSS <link> has data-gu-digital-v01430 too. It is not a mounted upload panel.
  if(document.querySelector('section.gu-digital-books[data-gu-digital-v01430]'))return true;
@@ -61,20 +71,54 @@ function mount(){
       rowStatus.textContent='Upload complete. Not published until you save rights controls.';
      }catch(e){rowStatus.textContent='Upload failed: '+(e.message||'Storage denied request. Confirm your Owner password step-up, upload permissions, and size limits.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
-    save.onclick=async()=>{if(busy)return;if((sales.checked||downloads.checked)&&!rights.checked){rowStatus.textContent='Confirm distribution rights before enabling sales or downloads.';return}
-     if((sales.checked||downloads.checked)&&!asset){rowStatus.textContent='Upload a private eBook file first.';return}
-     busy=true;upload.disabled=save.disabled=loadButton.disabled=true;rowStatus.textContent='Saving rights and availability…';
+    const currentState=()=>JSON.stringify({
+     kdp:kdp.checked,sales:sales.checked,downloads:downloads.checked,
+     rights:rights.checked,until:until.value,asset
+    });
+    let savedState=currentState();
+    const saveControls=async({draft=false,reload=true}={})=>{
+     if(busy)throw Error('Another book operation is still running. Finish it before saving.');
+     const intendsSales=!draft&&(sales.checked||downloads.checked);
+     if(intendsSales&&!rights.checked)throw Error('Confirm distribution rights before enabling sales or downloads.');
+     if(intendsSales&&kdp.checked)throw Error('KDP Select must be OFF before direct digital sales or downloads.');
+     if(intendsSales&&!asset)throw Error('Select and verify a private EPUB or PDF before enabling sales.');
+     if(!draft&&sales.checked&&!downloads.checked)throw Error('Enable purchased-book downloads before direct eBook purchases.');
+     if(intendsSales&&(!until.value||!Number.isFinite(new Date(until.value).getTime())||
+       new Date(until.value).getTime()>Date.now()))
+      throw Error('Enter the actual verified KDP Select term end date, which must already be in the past. Do not enter an invented date.');
+     busy=true;upload.disabled=save.disabled=loadButton.disabled=true;
+     rowStatus.textContent=draft?'Saving private book setup with sales and downloads OFF…':'Verifying and saving eBook rights and sales settings…';
      try{
       if(!window.GroundUpAdminPasswordConfirm?.ensure)
        throw Error('Owner password confirmation is unavailable; publishing was not attempted.');
       await window.GroundUpAdminPasswordConfirm.ensure();
       await rpc(sb,'gu_owner_digital_books_save_v01430',{
-      p_code:product.code,p_kdp_select:kdp.checked,p_exclusive_until:until.value?new Date(until.value).toISOString():null,
-      p_sales:sales.checked,p_downloads:downloads.checked,p_rights_attested:rights.checked,
-      p_asset_path:asset,p_expected_updated_at:product.version});
-      rowStatus.textContent='Saved and audited; reading authoritative state.';busy=false;await load();
-     }catch(e){rowStatus.textContent='Save refused: '+(e.message||'Rights check failed.')}finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
+       p_code:product.code,p_kdp_select:kdp.checked,
+       p_exclusive_until:until.value?new Date(until.value).toISOString():null,
+       p_sales:draft?false:sales.checked,p_downloads:draft?false:downloads.checked,
+       p_rights_attested:rights.checked,p_asset_path:asset,
+       p_expected_updated_at:product.version
+      });
+      if(draft){sales.checked=false;downloads.checked=false}
+      const parentDigital=document.getElementById('dlg-p-dd');
+      const parentKdp=document.getElementById('dlg-p-kdp');
+      if(parentDigital)parentDigital.checked=sales.checked;
+      if(parentKdp)parentKdp.checked=kdp.checked;
+      savedState=currentState();
+      rowStatus.textContent=draft?'Private edition setup saved and audited. Sales and downloads remain OFF.':
+       'Digital book settings saved and audited. Verify payment-provider readiness before accepting orders.';
+      if(reload){busy=false;await load()}
+      return true;
+     }catch(e){
+      rowStatus.textContent='Save refused: '+friendlySaveError(e.message);
+      throw Error(friendlySaveError(e.message));
+     }finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
+    save.onclick=()=>{void saveControls().catch(()=>{})};
+    const draftSave=el('button','Save book setup (Sales OFF)','btn secondary');
+    draftSave.type='button';
+    draftSave.onclick=()=>{void saveControls({draft:true}).catch(()=>{})};
+
 
     // Record the current private EPUB through existing password-guarded
     // Owner publishing RPC. Never auto-enable sales or member downloads.
@@ -176,10 +220,11 @@ function mount(){
       previewResult.textContent='Private preview unavailable: '+(e.message||'Owner authorization or file validation failed.');
      }finally{previewButton.disabled=false}
     };
-    card.append(upload,prepare,historyButton,previewFormat,previewButton,previewResult,save,historyList,rowStatus);
+    card.append(upload,prepare,historyButton,previewFormat,previewButton,previewResult,save,draftSave,historyList,rowStatus);
     // Reuse the existing guarded uploader inside Products > Books > Edit.
     // The selected book card moves to the editor; other books remain in Commerce.
     if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
+     activeEditorControls={code:product.code,hasPending:()=>currentState()!==savedState,save:()=>saveControls({reload:false}),sales:()=>sales.checked};
      editorTarget.replaceChildren(card);
     }else list.append(card);
    }
@@ -198,6 +243,9 @@ function mount(){
   // One source of truth for uploads, rights checks and signed-version history.
   // Never create a second storage route or a second set of publishing toggles.
   window.GroundUpDigitalBooks={
+   hasPendingEditorChanges(code){return activeEditorControls?.code===code&&activeEditorControls.hasPending()},
+   currentSales(code){return activeEditorControls?.code===code?activeEditorControls.sales():null},
+   async saveEditor(code){if(activeEditorControls?.code!==code)throw Error('Protected eBook editor is not loaded. Open Edit again.');return activeEditorControls.save()},
    async mountEditor(code,host){
     if(!/^[A-Z0-9_]{3,90}$/.test(code)||!host?.isConnected)
      throw Error('Save this book with a valid product code before uploading its edition.');
@@ -211,7 +259,7 @@ function mount(){
   window.dispatchEvent(new Event('gu-digital-books-ready'));
   document.getElementById('admin-dialog')?.addEventListener('close',()=>{
    if(!editorTarget)return;
-   editorCode=null;editorTarget=null;
+   editorCode=null;editorTarget=null;activeEditorControls=null;
    // Return the edition controls to the original Commerce view after editing.
    if(!busy)void load();
   });
