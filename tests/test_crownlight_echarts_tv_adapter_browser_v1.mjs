@@ -63,7 +63,7 @@ try{
  admin.on('pageerror',err=>errors.push(err.message));
  await admin.route('**/assets/vendor/echarts/6.1.0/echarts.min.js',
   r=>r.fulfill({status:200,contentType:'application/javascript',body:readFileSync(echartsDist)}));
- await admin.setContent('<html><body><section class="admin-panel active"><div id="crownlight-admin-echarts">'+
+ await admin.setContent('<html><head><base href="https://charts-analytics-fixture.test/"></head><body><section class="admin-panel active"><div id="crownlight-admin-echarts">'+
   '<select data-admin-echarts-view><option value="bar">Bars</option><option value="pie">Pie</option></select>'+
   '<div data-admin-echarts-chart hidden style="width:1100px;height:350px"></div><p data-admin-echarts-status></p>'+
   '</div></section></body></html>');
