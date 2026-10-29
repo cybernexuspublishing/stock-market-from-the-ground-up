@@ -47,8 +47,9 @@ try{
   console.log('PASS real-account positive: decision locked, future bar revealed, Talia matched, session resumed.');
   await page.locator('#vr-finish').click();
  }
- await page.evaluate(async()=>{const sb=await window.getSupabaseClient();await sb.auth.signOut()});
- const signed=await page.evaluate(async()=>{const sb=await window.getSupabaseClient();return !!(await sb.auth.getSession()).data?.session});
- assert.equal(signed,false);
+ await page.evaluate(async()=>{const sb=await window.getSupabaseClient();await sb.auth.signOut()})
+  .catch(err=>{if(!/Execution context was destroyed|navigation/i.test(String(err?.message||'')))throw err});
+ await page.goto(site+'/signin.html',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(async()=>{try{const sb=await window.getSupabaseClient();const {data}=await sb.auth.getSession();return !data?.session}catch{return false}},null,{timeout:12000});
  console.log('PASS real authenticated browser, guest-data exclusion and sign-out.');
 }finally{await browser.close();}
