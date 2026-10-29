@@ -34,13 +34,14 @@ export async function onRequestGet({request,env}){
   if(!Number.isSafeInteger(desired))throw error('Invalid Lumen amount.');
   const {userId,config:c}=await memberIdentity(env,request);
   const uid=encodeURIComponent(userId),enc=encodeURIComponent(sku);
-  const [profiles,flags,roles,products,registered,wallet]=await Promise.all([
+  const [profiles,flags,roles,products,registered,wallet,settings]=await Promise.all([
    get(c,'profiles?select=account_kind,deleted_at&id=eq.'+uid+'&limit=1'),
    get(c,'admin_user_flags?select=status&user_id=eq.'+uid+'&limit=20'),
    get(c,'admin_user_roles?select=role_code,expires_at&user_id=eq.'+uid+'&limit=30'),
    get(c,'gu_storefront_items_v014174?select=sku,display_name,status,sale_ready,visible&sku=eq.'+enc+'&limit=1'),
    get(c,'gu_owner_stripe_registry_v1?select=sku,amount_cents,currency,billing_interval&sku=eq.'+enc+'&limit=1'),
-   get(c,'rpc/groundup_question_pass_summary',{p_user_id:userId})
+   get(c,'rpc/groundup_question_pass_summary',{p_user_id:userId}),
+   get(c,'gu_lumen_value_settings_v1?select=active_cents,mixed_checkout_enabled&singleton=eq.true&limit=1')
   ]);
   if(profiles?.length!==1||profiles[0].account_kind!=='member'||profiles[0].deleted_at!=null||
    flags?.some(x=>['suspended','restricted'].includes(String(x?.status||'').toLowerCase()))||
@@ -51,6 +52,9 @@ export async function onRequestGet({request,env}){
    registeredItem.sku!==sku||registeredItem.currency!=='usd'||
    !Number.isSafeInteger(registeredItem.amount_cents)||registeredItem.amount_cents<=0)
    throw error('This product has no verified released sale price.',409);
+  const cents=settings?.[0]?.active_cents;
+  if(!Number.isSafeInteger(cents)||cents<1||cents>100)
+   throw error('Lumen value is temporarily unavailable.',503);
   const balance=wallet?.available;
   if(!Number.isSafeInteger(balance)||balance<0||balance>1000000000)
    throw error('Lumen wallet balance could not be verified.',503);
@@ -63,17 +67,17 @@ export async function onRequestGet({request,env}){
    included=result;
   }
   if(included)return out({ok:true,sku,name:item.display_name,alreadyIncluded:true,
-   unitValueCents:7,availableLumens:balance,eligibleNetCents:0,lumensApplied:0,
+   unitValueCents:cents,availableLumens:balance,eligibleNetCents:0,lumensApplied:0,
    discountCents:0,cashDueCents:0,remainingLumens:balance,
    checkoutDiscountActive:false,notice:'This program is already included. No additional purchase is required.'});
   const quote=previewLumenDiscount({eligibleNetCents:registeredItem.amount_cents,
-   availableLumens:balance,requestedLumens:desired,productKind:kind},lumenDiscountPolicy);
+   availableLumens:balance,requestedLumens:desired,productKind:kind},{...lumenDiscountPolicy,denominationCents:cents});
   if(!quote.eligible)throw error('This item is excluded from Lumen discounts.',409);
   return out({ok:true,sku,name:item.display_name,alreadyIncluded:false,
    currency:'USD',billingInterval:registeredItem.billing_interval,
-   priceCents:registeredItem.amount_cents,unitValueCents:7,
+   priceCents:registeredItem.amount_cents,unitValueCents:cents,
    availableLumens:balance,requestedLumens:desired,
-   maxLumensUsable:Math.min(balance,Math.ceil(registeredItem.amount_cents/7)),
+   maxLumensUsable:Math.min(balance,Math.ceil(registeredItem.amount_cents/cents)),
    lumensApplied:quote.appliedLumens,discountCents:quote.discountCents,
    cashDueCents:quote.remainingSubtotalCents,remainingLumens:quote.remainingLumens,
    fullyCovered:quote.fullyCovered,checkoutDiscountActive:false,
