@@ -55,8 +55,9 @@ export async function onRequest({request,env}){
   if(!row||!plan||plan.payload?.kind!=='ADVANCED_TRADE_PLAN_SNAPSHOT_V1'||
    !data||row.ticker!==String(data.symbol||'').toUpperCase())
    throw err('The saved plan does not belong to this Journal ticker.',409);
-  if(row.status!=='draft'||row.plan_locked_at)
-   throw err('Source links may be attached only before the original plan is locked.',409);
+  if(!['draft','planned'].includes(row.status)||
+   (row.plan_locked_at && Date.parse(plan.created_at)>Date.parse(row.plan_locked_at)))
+   throw err('Research must precede the locked plan and its outcome.',409);
   const asOf=Date.parse(data.asOf||''),published=data.sourceAt?Date.parse(data.sourceAt):null;
   if(!Number.isFinite(asOf)||asOf>Date.now()+300000||
    (data.sourceAt&&(!Number.isFinite(published)||published>asOf)))
