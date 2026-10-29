@@ -179,7 +179,7 @@ body.gu-bc-learning.academy-direct-route #academy-day-title:focus{
 
 /* Shared Talia classroom — Free Foundations and all authorized Boot Camps. */
 body.gu-bc-learning.academy-classroom-active
- :is(.academy-free-entry,#academy-free-knowledge,#academy-program-list,
+ :is(.academy-free-entry,#academy-program-list,
  main.gu-redesign-academy .gu-release-actions,
  main.gu-redesign-academy .section-intro){display:none!important}
 body.gu-bc-learning.academy-classroom-active #academy-workspace{
@@ -269,3 +269,12 @@ body.gu-bc-learning .academy-classroom-briefing-grid p{
   padding:10px!important
  }
 }
+
+
+/* The original 12-topic knowledge reference is part of the Free classroom,
+ * after the interactive lesson rather than a detached pre-course catalog. */
+body.gu-bc-learning.academy-classroom-active .academy-classroom-library{
+ display:block!important;min-width:0;max-width:none;margin:18px 0 0;
+ padding:10px 0;border-top:1px solid #36566e
+}
+body.gu-bc-learning.academy-classroom-active .academy-classroom-library[hidden]{display:none!important}
