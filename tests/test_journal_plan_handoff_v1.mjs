@@ -53,7 +53,7 @@ try{
  access=true;member='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
  // Fixture returns a nonmember private record on purpose; no real service
  // would do so, so the request's user_id filter is what must be checked.
- r=await onRequest({request:make('17'),env});assert.equal(r.status,503,'Test enforces owner isolation fixture');
+ r=await onRequest({request:make('17'),env});assert.equal(r.status,404,'Other members cannot import a private saved plan');
  const frontend=readFileSync(new URL('../assets/js/journal-plan-transfer-v1.js',import.meta.url),'utf8');
  const list=readFileSync(new URL('../assets/js/journal.js',import.meta.url),'utf8');
  const detail=readFileSync(new URL('../assets/js/journal-entry.js',import.meta.url),'utf8');
