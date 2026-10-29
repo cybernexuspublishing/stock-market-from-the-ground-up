@@ -114,10 +114,10 @@ function mount(){
       throw Error(friendlySaveError(e.message));
      }finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
-    save.onclick=()=>{void saveControls().catch(()=>{})};
+    save.onclick=()=>{void saveControls().catch(e=>{rowStatus.textContent='Save refused: '+friendlySaveError(e.message)})};
     const draftSave=el('button','Save book setup (Sales OFF)','btn secondary');
     draftSave.type='button';
-    draftSave.onclick=()=>{void saveControls({draft:true}).catch(()=>{})};
+    draftSave.onclick=()=>{void saveControls({draft:true}).catch(e=>{rowStatus.textContent='Draft save refused: '+friendlySaveError(e.message)})};
 
 
     // Record the current private EPUB through existing password-guarded
