@@ -7,8 +7,8 @@
 const LIB='https://cdn.jsdelivr.net/npm/klinecharts@10.1.0/dist/umd/klinecharts.min.js';
 const levels={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const names={STANDARD:'Standard · Lightweight Charts',ADVANCED:'Advanced · KLineChart',
- PROFESSIONAL:'Professional · Multi-chart KLineChart'};
-const state={allowed:['STANDARD'],visible:['STANDARD','ADVANCED','PROFESSIONAL'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
+ PROFESSIONAL:'Professional · Multi-chart KLineChart',ECHARTS:'Apache ECharts · Price & Volume Analytics'};
+const state={allowed:['STANDARD'],visible:['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
  timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null,
  accessExpiry:null,accessKind:null,accessTier:null,expireRechecked:false,sparksAvailable:false,sparkOffers:[],sparkBalance:null,sparkLoadError:'',sparkLoading:false};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
@@ -28,12 +28,12 @@ async function loadMenuVisibility(){
  try{
   const r=await fetch('/api/chart-studio-menu',{cache:'no-store'});
   if(!r.ok)throw Error('Menu setting unavailable');
-  const data=await r.json(),tiers=['STANDARD','ADVANCED','PROFESSIONAL'];
+  const data=await r.json(),tiers=['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS'];
   if(data.ok!==true||!Array.isArray(data.visible)||data.visible.length<1||
      new Set(data.visible).size!==data.visible.length||
      data.visible.some(t=>!tiers.includes(t)))throw Error('Invalid menu visibility');
   state.visible=tiers.filter(t=>data.visible.includes(t));
- }catch{state.visible=['STANDARD','ADVANCED','PROFESSIONAL']}
+ }catch{state.visible=['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS']}
  renderChoices();
 }
 async function permission(){
@@ -60,7 +60,7 @@ async function permission(){
   state.accessExpiry=expiry;state.accessKind=expiry?access.kind:null;
   state.accessTier=expiry?access.tier:null;
   state.sparksAvailable=j.sparksChartPasses?.enabled===true;
-  if(!state.allowed.includes(state.selected)){state.selected='STANDARD';stopCharts()}
+  if(!isEntitled(state.selected)){state.selected='STANDARD';stopCharts()}
   status('Your membership includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
  }catch{if(authEpoch!==state.authEpoch)return;state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
   state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
@@ -73,14 +73,16 @@ function autoStartRequestedStudio(){
  const requested=String(window.GroundUpStudioRequestedTier||'').toUpperCase();
  if(state.autoStarted||!state.visible.includes(requested))return;
  if(!state.verified||!state.view||state.bars.length===0)return;
- if(!state.allowed.includes(requested)){
+ if(!isEntitled(requested)){
   status(requested+' Studio is not available to this account. Select Standard or request matching chart access.');
   return;
  }
  state.autoStarted=true;
  void choose(requested);
 }
+function isEntitled(t){return state.verified&&state.allowed.includes(t==='ECHARTS'?'STANDARD':t)}
 function stopCharts(){
+ window.CrownlightEChartsStudio?.unmount();
  for(const entry of state.charts){try{window.klinecharts?.dispose(entry.id)}catch{}}
  state.charts=[];state.view?.querySelector('[data-cl-tier-panels]')?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
 }
@@ -218,9 +220,9 @@ function renderChoices(){
  if(!select)return;
  // Server-administered visibility never grants membership authorization.
  select.replaceChildren();
- for(const tier of ['STANDARD','ADVANCED','PROFESSIONAL']){
+ for(const tier of ['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS']){
   if(!state.visible.includes(tier))continue;
-  const authorized=state.verified&&state.allowed.includes(tier);
+  const authorized=isEntitled(tier);
   const option=new Option((authorized?'':'🔒 ')+names[tier]+(authorized?'':' · Locked'),tier);
   option.disabled=!authorized;
   option.title=authorized?'Included in your current access':(requirements[tier]||'Sign in to verify your membership.');
@@ -231,9 +233,14 @@ function renderChoices(){
   const placeholder=new Option('No matching Chart Studio selected','');
   placeholder.disabled=true;select.prepend(placeholder);select.value='';
  }
- if(state.verified&&!state.visible.some(t=>state.allowed.includes(t)))
+ if(state.verified&&!state.visible.some(t=>isEntitled(t)))
   status('No displayed Chart Studio is included in this membership. Your account access has not changed.');
  state.view.querySelector('[data-cl-tier-advanced]')?.toggleAttribute('hidden',state.selected==='STANDARD');
+ const tools=state.view.querySelector('.cl-chart-tier-tools');if(tools)tools.hidden=state.selected==='ECHARTS';
+ const note=state.view.querySelector('.cl-chart-tier-note');
+ if(note)note.textContent=state.selected==='ECHARTS'
+  ?'Apache ECharts displays already revealed educational OHLCV only. No trading execution or unrevealed future bars.'
+  :'The second Professional chart studies the SAME revealed candles; it does not display a future timeframe or undisclosed data.';
  explainLockedTier();updateCountdown();
 }
 function period(){
@@ -413,10 +420,24 @@ async function loadEngine(){
 }
 async function choose(tier){
  if(!state.visible.includes(tier)){status('This Studio is hidden from the menu.');renderChoices();return}
- if(!state.verified||!state.allowed.includes(tier)){status('This engine is not included in your verified membership.');renderChoices();return}
+ if(!isEntitled(tier)){status('This engine is not included in your verified membership.');renderChoices();return}
  state.selected=tier;stopCharts();renderChoices();
  if(tier==='STANDARD'){status('Standard Crownlight chart is active.');window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));return}
  const request=++state.version;
+ if(tier==='ECHARTS'){
+  status('Loading Apache ECharts revealed candlesticks and volume…');
+  document.body.classList.add('cl-tier-enhanced');
+  const enhanced=state.view.querySelector('[data-cl-tier-advanced]');enhanced.hidden=false;
+  try{
+   await window.CrownlightEChartsStudio.mount(enhanced.querySelector('[data-cl-tier-panels]'),state.bars,state.symbol,state.timeframe);
+   if(request!==state.version||state.selected!=='ECHARTS'||!isEntitled('ECHARTS')){
+    window.CrownlightEChartsStudio.unmount();return;
+   }
+   status('Apache ECharts active · '+state.bars.length+' revealed candles only.');
+   window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier:'ECHARTS'}}));
+  }catch(e){if(request===state.version){state.selected='STANDARD';stopCharts();renderChoices();status('ECharts unavailable; Standard remains available. '+(e?.message||''))}}
+  return;
+ }
  status('Loading '+tier.toLowerCase()+' charts…');
  const enhanced=state.view.querySelector('[data-cl-tier-advanced]');
  enhanced.hidden=false;
@@ -514,7 +535,8 @@ window.addEventListener('crownlight:revealed-bars',e=>{
  state.timeframe=String(d.timeframe||'1-minute').slice(0,48);
  state.source=String(d.source||'').slice(0,60);
  autoStartRequestedStudio();
-  if(state.selected!=='STANDARD'&&state.charts.length){
+  if(state.selected==='ECHARTS')window.CrownlightEChartsStudio?.update(state.bars,state.symbol,state.timeframe);
+   if(state.selected!=='STANDARD'&&state.charts.length){
   for(const entry of state.charts){
    try{entry.chart.setSymbol({ticker:state.symbol,pricePrecision:4,volumePrecision:0});entry.chart.setPeriod(period());entry.chart.resetData();updateCompactReadout(entry)}
    catch{status('An enhanced replay refresh failed. Standard remains available.')}
@@ -550,7 +572,7 @@ window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='
  getRevealedBars:()=>state.bars.map(b=>({...b})),
  getStatus:()=>({
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],visible:[...state.visible],revealed:state.bars.length,
- verified:state.verified,charts:state.charts.length,
+ verified:state.verified,charts:state.charts.length,echartsReady:window.CrownlightEChartsStudio?.getStatus().ready===true,
  accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
 }),choose:t=>choose(t),addStudy,removeStudy,balancePanels};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init());else void init();
