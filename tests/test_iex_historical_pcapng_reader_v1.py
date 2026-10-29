@@ -43,6 +43,23 @@ class StrictPCAPNG(unittest.TestCase):
         self.assertEqual(len(kept),1)
         ignored=list(stream_pcapng(io.BytesIO(a+b+c),symbol_filter={'AAPL'}))
         self.assertEqual(len(ignored),0)
+    def test_trade_break_is_scoped_and_reports_original_trade_id(self):
+        a,b,c=fake_capture()
+        broken=bytearray(c)
+        # EPB begins at offset 8 with 20-byte fields, then Ethernet(14)+IPv4(20)+UDP(8)+TP(40)+length(2)
+        at=8+20+14+20+8+40+2
+        self.assertEqual(broken[at],0x54)
+        broken[at]=0x42
+        events=list(stream_pcapng(io.BytesIO(a+b+broken),symbol_filter={'DIS'},include_breaks=True))
+        self.assertEqual(len(events),1)
+        self.assertEqual(events[0][1][-1],'B')
+        self.assertEqual(events[0][1][4],9)
+    def test_packet_observer_receives_protocol_header(self):
+        a,b,c=fake_capture()
+        packet_headers=[]
+        list(stream_pcapng(io.BytesIO(a+b+c),symbol_filter={'DIS'},packet_observer=lambda p:packet_headers.append(p[:40])))
+        self.assertEqual(len(packet_headers),1)
+        self.assertEqual(packet_headers[0][0],1)
     def test_bad_trailer_rejected(self):
         a,b,c=fake_capture()
         with self.assertRaises(CaptureError):
