@@ -27,6 +27,12 @@ for(const unit of modules.modules){
  assert(Number.isInteger(unit.transferCorrect)&&unit.transferCorrect>=0&&unit.transferCorrect<=2);
  assert(unit.feedback.length>50&&unit.scope.startsWith('Fictional'),'Uncertain scenario framing '+unit.id);
  assert(permitted.test(unit.sourceUrl),'Only checked public educational sources '+unit.id);
+ for(const [key,answer] of [['choiceFeedback',unit.correct],['transferFeedbackByChoice',unit.transferCorrect]]){
+  assert(Array.isArray(unit[key])&&unit[key].length===3,'Separate distractor diagnosis '+unit.id);
+  assert.equal(unit[key][answer],null,'Correct choice should not have misconception');
+  for(let i=0;i<3;i++)if(i!==answer)
+   assert(typeof unit[key][i]==='string'&&unit[key][i].length>=80,'Specific misconception feedback '+unit.id+' '+i);
+ }
 }
 const build=read('scripts/build-pages.sh');
 for(const f of ['tutor-research-guides-v1.json','tutor-decision-playbooks-v1.json','tutor-advanced-decision-guides-v1.json',

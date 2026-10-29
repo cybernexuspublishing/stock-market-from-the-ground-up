@@ -41,7 +41,17 @@
       "transferCorrect": 1,
       "transferFeedback": "The new context requires independent price structure and risk evidence; an SMA touch alone cannot qualify entry.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        "A crossing only shows price's relation to a historical moving average; it cannot prove the next close will follow through. Confirm your setup independently.",
+        null,
+        "An SMA is computed from observed prices, not from identities of buyers. It cannot tell you whether institutions supplied the trading volume."
+      ],
+      "transferFeedbackByChoice": [
+        "A single touch of SMA is only a price/reference interaction. A setup also needs observable confirmation and risk analysis.",
+        null,
+        "An unfinished candle's intrabar high cannot be treated as its completed close. Doing so would contaminate the decision timestamp."
+      ]
     },
     {
       "id": "IND-02",
@@ -69,7 +79,17 @@
       "transferCorrect": 1,
       "transferFeedback": "A derivative indicator does not override an independent risk or structure veto.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        null,
+        "Two moving averages crossing does not establish a tested profit rate or a future fill. A whipsaw can reverse the relationship immediately.",
+        "An average crossover describes completed values; it does not determine the next candle's closing price or the size of its possible move."
+      ],
+      "transferFeedbackByChoice": [
+        "A rising EMA cannot cancel a prewritten invalidation level. It is derived from overlapping price observations and may lag the break.",
+        null,
+        "The EMA describes smoothed closes; it does not set the trade's holding period without an independent written plan."
+      ]
     },
     {
       "id": "IND-03",
@@ -97,7 +117,17 @@
       "transferCorrect": 1,
       "transferFeedback": "Oversold is context, not an observable completed reversal.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/relative-strength-index-rsi",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        "RSI above 70 can persist in a strong trend. The threshold describes smoothed recent gains relative to losses, not a scheduled reversal.",
+        null,
+        "RSI says nothing about execution guarantees. Stops may trigger and fill at different prices, particularly across gaps or illiquid books."
+      ],
+      "transferFeedbackByChoice": [
+        "An RSI of 32 measures momentum and need not lead to an immediate bounce. Support and resumption must be observed separately.",
+        null,
+        "The oscillator does not reveal trader identity or prove that institutions are on one side of a print."
+      ]
     },
     {
       "id": "IND-04",
@@ -125,7 +155,17 @@
       "transferCorrect": 1,
       "transferFeedback": "The documented risk condition cannot be erased by a correlated indicator.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/macd-moving-average-convergence-divergence-oscillator",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        null,
+        "MACD crossing its signal line is a measurement, not an instruction to place an order. Price structure, costs and invalidation remain separate.",
+        "MACD compares historical moving averages; it does not measure cash flows, business valuation, or whether a stock is intrinsically cheap."
+      ],
+      "transferFeedbackByChoice": [
+        "A favorable MACD is not an excuse to ignore a breached risk limit. An invalidation is a separate decision rule.",
+        null,
+        "Slippage, spread and actual order fills do not disappear when an indicator line turns positive."
+      ]
     },
     {
       "id": "IND-05",
@@ -153,7 +193,17 @@
       "transferCorrect": 1,
       "transferFeedback": "ATR estimates historic movement size, not directional probability or executable stop fills.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        "High minus low omits price movement between the previous close and today's range when a gap occurs. True range explicitly considers both gaps.",
+        null,
+        "Close minus open measures net body movement. It can miss the full wick range and changes since the previous bar's close, so it is not true range."
+      ],
+      "transferFeedbackByChoice": [
+        "ATR measures prior movement magnitude, including gaps, but cannot establish whether price will rise or fall next.",
+        null,
+        "A higher ATR signals changed variability; quote depth and transaction spreads still require separate measurement."
+      ]
     },
     {
       "id": "IND-06",
@@ -181,7 +231,17 @@
       "transferCorrect": 0,
       "transferFeedback": "Compression can change risk context but does not dictate future direction.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/bollinger-bands",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        null,
+        "An upper band touch can occur repeatedly during a trend. It is neither a mandatory sell instruction nor confirmation of a bearish reversal.",
+        "Bollinger bands use a rolling volatility estimate; a chosen multiple does not guarantee a 95% chance of a profitable reversal."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "Band compression is a historical observation. The direction of any subsequent breakout must be confirmed rather than inferred in advance.",
+        "A band contraction is not equivalent to a successfully qualified entry; a watchlist and risk plan still have independent requirements."
+      ]
     },
     {
       "id": "IND-07",
@@ -209,7 +269,17 @@
       "transferCorrect": 1,
       "transferFeedback": "Anchors and feed scope must be reconciled before drawing a conclusion.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        null,
+        "A bar-volume approximation cannot identify institutional order flow or counterparties. Trade and quote data still cannot reliably prove a trader's identity.",
+        "A VWAP crossing is an observation around a declared price reference. It does not prove future continuation, a successful entry, or a guaranteed fill."
+      ],
+      "transferFeedbackByChoice": [
+        "Choosing whichever VWAP matches a later outcome is hindsight selection. The session anchor must be declared before interpreting a setup.",
+        null,
+        "VWAPs computed over different sessions cannot safely be averaged without reconciling source coverage, timestamps, and calculation intent."
+      ]
     },
     {
       "id": "IND-08",
@@ -237,7 +307,17 @@
       "transferCorrect": 1,
       "transferFeedback": "Time-matched and full-session denominators are distinct metrics.",
       "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
-      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy.",
+      "choiceFeedback": [
+        null,
+        "RVOL 3.0 indicates three times the measured historical activity, not a three-percent return. Volume intensity and price direction are different quantities.",
+        "A scanner or indicator observation never automatically confirms the required price trigger, actual liquidity, or a member's permissible risk."
+      ],
+      "transferFeedbackByChoice": [
+        "Clock-matched RVOL and RVOL relative to a full trading day have different denominators; they cannot be treated as identical measures.",
+        null,
+        "Large activity does not prove short covering. Borrow status, order-flow classification, and actual positions require independent sources."
+      ]
     },
     {
       "id": "WATCH-01",
@@ -262,7 +342,17 @@
       "transferCorrect": 1,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        "A scanner discovery lacks a completed trigger and has not passed a separate execution-risk review. An entry would rely on unobserved future evidence.",
+        null,
+        "Fictional watchlist self-checks cannot award scored Lab credit. The learner is explaining candidate state, not satisfying a protected rubric."
+      ],
+      "transferFeedbackByChoice": [
+        "A profitable future move does not make an unconfirmed prior trigger valid. Judge the earlier decision using evidence known at the time.",
+        null,
+        "Changing the recorded decision timestamp after seeing the outcome is data leakage and undermines any meaningful strategy review."
+      ]
     },
     {
       "id": "WATCH-02",
@@ -287,7 +377,17 @@
       "transferCorrect": 0,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        "Price movement without verified issuer news, adjusted-gap reconciliation, and acceptable spread is still discovery or pending research, not a qualified breakout.",
+        null,
+        "A large gap does not guarantee opening continuation; thin premarket trades and the opening auction can behave very differently."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "Raw pre-split and post-split price references are not directly comparable; reconcile corporate action adjustment before calling it a gap.",
+        "A split is a share-capital change, not itself a positive earnings report or a validated demand catalyst."
+      ]
     },
     {
       "id": "WATCH-03",
@@ -312,7 +412,17 @@
       "transferCorrect": 0,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        "A 10:00 cumulative volume sample and a full-session reference cover different clock durations. The mismatched denominator undermines an RVOL claim.",
+        null,
+        "Relative volume describes activity. A calculated high value cannot guarantee upward direction, continuation, or a profitable entry."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "High volume does not remove a hard execution-cost veto. A wide spread can make a promising candidate ineligible for the written setup.",
+        "Bid and ask prices and depth are material for possible fills; they cannot be omitted merely because RVOL is elevated."
+      ]
     },
     {
       "id": "WATCH-04",
@@ -337,7 +447,17 @@
       "transferCorrect": 1,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        null,
+        "Technical indicators are supporting context, not permission to override a predeclared spread or liquidity veto. Execution cost remains a hard gate.",
+        "Visible spreads can change at execution, but you cannot assume they will vanish in time to save a trade plan that currently fails its cost threshold."
+      ],
+      "transferFeedbackByChoice": [
+        "Displayed ask size is an observed quote, not a guarantee that an entire larger order can execute at that same price.",
+        null,
+        "A stop instruction can trigger without filling at the reference price; modeled price distance is not a guaranteed loss ceiling."
+      ]
     },
     {
       "id": "WATCH-05",
@@ -362,7 +482,17 @@
       "transferCorrect": 1,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        null,
+        "An article published after the replay pause was not publicly available at that decision timestamp. Using it would introduce lookahead bias.",
+        "An eventual rally cannot justify an earlier decision with news unavailable at the time. Evidence chronology must remain independent of outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "A social claim without a primary issuer document or timestamp remains pending verification. It cannot qualify a source-driven catalyst lane.",
+        null,
+        "An unverified headline and an actual broker order are different things. Neither requires the other to exist or be correct."
+      ]
     },
     {
       "id": "WATCH-06",
@@ -387,7 +517,17 @@
       "transferCorrect": 0,
       "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
       "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
-      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence.",
+      "choiceFeedback": [
+        "A later price increase cannot retroactively erase an earlier spread veto. Preserve the as-of-time decision and evaluate subsequent prices separately.",
+        null,
+        "Deleting an entry or risk condition destroys the audit trail. A useful NO TRADE journal preserves the original source, time and reason."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "The fact that the instrument later fell or rallied cannot make the original recorded criteria disappear or retroactively determine a decision's quality.",
+        "A complete NO TRADE decision needs evidence, a timestamp and an articulated violated gate; an undocumented prediction is insufficient."
+      ]
     }
   ],
   "rights": "All bars and symbol names are synthetic. No licensed market-data redistribution or private assessment keys."

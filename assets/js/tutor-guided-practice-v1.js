@@ -246,12 +246,12 @@
    button.addEventListener('click',()=>{
     if(transfer){state.transferEvaluated=true;state.transferCorrect=selected===g.transferCorrect;}
     else{state.attempts++;state.evaluated=true;state.correct=selected===g.correct;
-     state.feedback=state.correct?g.feedback:'That explanation misses a required condition. '+g.feedback;}
+     state.feedback=state.correct?g.feedback:(g.choiceFeedback?.[selected]||g.feedback);}
     render();
    });
    if(isChecked){
     const correct=transfer?state.transferCorrect:state.correct;
-    const text=transfer?(correct?'The changed scenario is well interpreted. ':'Compare the new situation with the original rule. ')+g.transferFeedback:
+    const text=transfer?(correct?'The changed scenario is well interpreted. '+g.transferFeedback:'Talia identified this misconception: '+(g.transferFeedbackByChoice?.[selected]||g.transferFeedback)):
      (correct?'Your reasoning is consistent with the evidence. ':'Not yet: ')+state.feedback;
     const feedback=add(host,'p',text,'tgp-feedback '+(correct?'tgp-success':'tgp-warning'));
     feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
