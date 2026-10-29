@@ -6,12 +6,45 @@ unknown link types or nonexistent interfaces. Existing classic-PCAP reader is
 unchanged. Public replay release remains separately gated.
 """
 import struct
-from iex_tops import CaptureError, MAX_PACKET, read_exact, udp_payload, trades_from_payload
+from iex_tops import CaptureError, MAX_PACKET, SYMBOL, read_exact, udp_payload, trades_from_payload
 
 SECTION=b'\x0a\x0d\x0d\x0a'
 MAX_BLOCK=MAX_PACKET+65536
 
-def stream_pcapng(f):
+def filtered_trades(payload, accepted):
+    """Validate the transport/message structure, but accept only requested tickers.
+
+    IEX trade reports include securities with Nasdaq integrated symbols outside
+    the classroom ticker alphabet. An unrelated symbol must not abort a valid
+    requested-case extraction; malformed requested trades are always errors.
+    """
+    if len(payload)<40 or payload[0]!=1:
+        return
+    payload_size,count=struct.unpack_from('<HH',payload,12)
+    if payload_size!=len(payload)-40:raise CaptureError('IEX payload size mismatch')
+    pos=40
+    for _ in range(count):
+        if pos+2>len(payload):raise CaptureError('IEX message length missing')
+        size=struct.unpack_from('<H',payload,pos)[0];pos+=2
+        if size<1 or pos+size>len(payload):raise CaptureError('IEX message boundary invalid')
+        body=payload[pos:pos+size];pos+=size
+        if body[0]!=0x54:continue
+        if len(body)!=38:raise CaptureError('Unexpected TOPS trade report layout')
+        try:symbol=body[10:18].rstrip(b' \\x00').decode('ascii')
+        except UnicodeDecodeError:
+            raise CaptureError('Non-ASCII IEX trade symbol')
+        if symbol not in accepted:continue
+        nanos=struct.unpack_from('<q',body,2)[0]
+        qty=struct.unpack_from('<I',body,18)[0]
+        price=struct.unpack_from('<q',body,22)[0]
+        trade_id=struct.unpack_from('<q',body,30)[0]
+        if not SYMBOL.fullmatch(symbol) or nanos<=0 or price<=0 or qty<=0 or qty>50000000:
+            raise CaptureError('Malformed selected-symbol TOPS trade')
+        yield nanos,symbol,qty,price,trade_id,body[1]
+    if pos!=len(payload):raise CaptureError('IEX message count mismatch')
+
+
+def stream_pcapng(f, symbol_filter=None):
     endian=None
     links=[]
     packet=0
@@ -68,5 +101,5 @@ def stream_pcapng(f):
         packet+=1
         payload=udp_payload(frame,linktype)
         if payload is None:continue
-        for trade in trades_from_payload(payload):
+        for trade in (filtered_trades(payload,symbol_filter) if symbol_filter is not None else trades_from_payload(payload)):
             yield packet,trade
