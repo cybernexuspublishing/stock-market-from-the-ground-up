@@ -109,7 +109,7 @@ const before=await call(token,'advance',{sessionId,expectedIndex:0});
 assert.equal(before.status,403,'Future bar must be denied before first decision lock');
 const locked=await call(token,'lock',{sessionId,decision:'NO_TRADE',
  reasoning:'QA decision: the first observed candle alone does not establish a trade; wait for confirmation.'});
-assert.equal(locked.status,200);
+assert.equal(locked.status,200,'Authentic source lock denied: '+JSON.stringify(locked.body));
 const visible0=await call(token,'visible',undefined,'&sessionId='+encodeURIComponent(sessionId));
 assert.equal(visible0.status,200);
 assert(visible0.body.bars.every(x=>x.index===0),'No future observation in initial visible history');
