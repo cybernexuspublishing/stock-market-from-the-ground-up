@@ -158,7 +158,7 @@ export async function onRequest({request,env}){
     const owned=one(await db(env,'gu_replay_sessions_v01492?select=dataset_code&user_id=eq.'+
      encodeURIComponent(auth.userId)+'&id=eq.'+encodeURIComponent(id)+'&limit=1'));
     if(!owned)throw bad('Replay session unavailable.',404);
-    const dataset=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
+    const dataset=one(await db(env,'market_datasets?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+
      encodeURIComponent(owned.dataset_code)+'&limit=1'));
     if(!permitted(dataset))throw bad('Historical dataset access is not approved for this training entitlement, or source rights were revoked.',403);
    }
@@ -174,7 +174,7 @@ export async function onRequest({request,env}){
   const s=await session(env,id,auth.userId);
   // Revocation is immediate: an already-started session cannot continue after
   // the Owner withdraws display rights, historical verification or publication.
-  const rights=one(await db(env,'market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(s.dataset_code)+'&limit=1'));
+  const rights=one(await db(env,'market_datasets?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'+encodeURIComponent(s.dataset_code)+'&limit=1'));
   if(!permitted(rights))throw bad('Replay dataset is no longer authorized for this membership.',403);
   if(action==='visible'&&request.method==='GET'){
    // Replay history is clipped at the member's LOCKED server cursor.
