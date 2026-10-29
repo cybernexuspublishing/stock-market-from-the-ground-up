@@ -8,7 +8,8 @@ const dashboard=read('dashboard.html');
 const academy=read('bootcamp-academy.html');
 const site=read('assets/js/site.js');
 const home=read('index.html'),stats=read('assets/js/home-community.js');
-assert(home.includes('assets/js/home-community.js'),'Premium homepage must load the existing member-statistics panel');
+assert(!home.includes('assets/js/home-community.js'),'Owner-removed example membership statistics must not be injected into the public homepage');
+assert(!read('functions/_middleware.js').includes('home-community.js'),'Edge middleware must not re-inject the owner-removed example statistics');
 assert(stats.includes('Example online members')&&stats.includes('Example registered members'),'Example statistics must never appear as real counts');
 assert(stats.includes('if(d.show===false)'),'Owner must retain authority to hide statistics');
 
