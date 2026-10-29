@@ -714,7 +714,7 @@ body.simulator-page #sim-server-mode > section.sim-server-scenario{
 body.simulator-page #sim-content:not([hidden]){
  display:grid!important;
  grid-template-columns:minmax(0,1.9fr) minmax(330px,.92fr)!important;
- grid-template-areas:"source source" "toolbar toolbar" "chart workbench"!important;
+ grid-template-areas:"toolbar toolbar" "chart workbench" "source source"!important;
  gap:8px 13px!important;align-items:start!important;
  width:100%!important;max-width:none!important;min-width:0
 }
@@ -802,7 +802,7 @@ body.simulator-page #vr-session > figure svg{max-width:100%;height:auto}
 @media(max-width:1250px){
  body.simulator-page #sim-content:not([hidden]){
   grid-template-columns:minmax(0,1fr)!important;
-  grid-template-areas:"source" "toolbar" "chart" "workbench"!important
+  grid-template-areas:"toolbar" "chart" "workbench" "source"!important
  }
  body.simulator-page #sim-content:not([hidden]) > #cl-simulator-workbench{
   position:static!important;top:auto!important;
@@ -833,3 +833,33 @@ body.simulator-page #vr-session > figure svg{max-width:100%;height:auto}
   flex:1 1 100%!important;min-height:42px!important
  }
 }
+
+
+/* Owner adjustment: chart-first workflow with data-source setup beneath replay.
+ * Keep the actual OHLCV interval unchanged; timeframe control is a display label.
+ */
+body.simulator-page #sim-content:not([hidden]) > #cl-replay-import{
+ grid-area:source!important;
+ margin:8px 0 0!important;
+ align-self:stretch!important;
+}
+body.simulator-page #cl-chart-visibility-toolbar .cl-chart-timeframe-input{
+ display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:0 1 290px;
+ font-size:.74rem
+}
+body.simulator-page #cl-chart-visibility-toolbar #cl-timeframe-display{
+ min-width:110px;max-width:180px;width:auto!important;
+ box-sizing:border-box;min-height:35px;padding:6px 10px;
+ border-radius:6px;font-size:.79rem
+}
+body.simulator-page #cl-chart-visibility-toolbar .cl-timeframe-hint{
+ display:block;flex:1 1 100%;font-size:.64rem;
+ line-height:1.2;color:#a4c0d3
+}
+body.simulator-page #sim-content .sim-controls #sim-speed{
+ min-width:90px;min-height:36px;font-size:.79rem
+}
+body.simulator-page #sim-content .sim-controls label[for="sim-speed"]{
+ font-size:.78rem;font-weight:680
+}
+body.simulator-page .sim-mode-switch #sim-mode-notice:empty{display:none!important}
