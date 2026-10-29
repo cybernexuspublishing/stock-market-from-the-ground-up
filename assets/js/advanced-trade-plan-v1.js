@@ -316,7 +316,18 @@
   reload.addEventListener('click',()=>void loadHistory());
   activate('research');calculatePreview();host.append(main);
   void loadHistory();
-  return Object.freeze({calculate,activate,refresh:loadHistory});
+  function loadCandidate(rec){
+   const p=rec?.payload||{};
+   const fields={symbol:rec?.title||'',catalyst:p.catalyst||'',source:p.sourceNote||'',
+    asOf:p.asOf||'',levels:p.level||'',trigger:p.entry||'',
+    invalidation:p.invalidation||'',thesis:p.why||'',decision:p.status==='NO TRADE'?'NO TRADE':'WATCH'};
+   for(const [k,field] of [['entry','entry'],['stop','stop'],['target','target1']]){
+    const raw=String(p[k]??'').trim();
+    if(/^\d+(?:\.\d+)?$/.test(raw))fields[field]=raw;
+   }
+   fill(fields);activate('research');
+  }
+  return Object.freeze({calculate,activate,refresh:loadHistory,loadCandidate});
  }
  root.GroundUpAdvancedTradePlanV1=Object.freeze({calculate,mount,version:'1.0'});
 })(window);
