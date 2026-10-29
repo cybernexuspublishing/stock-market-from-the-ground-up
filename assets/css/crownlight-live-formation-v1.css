@@ -29,3 +29,11 @@
 .cl-live-method{font-size:.75rem;color:#8da5c8;line-height:1.6;margin:12px 5px 3px}
 @media(max-width:650px){.crownlight-live-control{padding:13px}.crownlight-live-buttons{width:100%}.crownlight-live-buttons button{flex:1 1 auto}.crownlight-live-stage{padding:7px}.cl-live-plot{height:430px}.cl-live-stage-head{flex-wrap:wrap}.cl-live-stage-foot{font-size:.75rem}}
 @media(prefers-reduced-motion:reduce){.crownlight-live-buttons button{transition:none}}
+
+
+/* Fictional Candle Formation: clock speed applies only to synthetic ticks, never live IEX. */
+.crownlight-live-buttons .cl-live-speed-wrap{display:flex;align-items:center;gap:6px;
+ font-size:.75rem;color:#d6eafb;flex-wrap:wrap}
+#cl-live-speed{background:#111e33;color:#eef7ff;border:1px solid #607d9a;border-radius:6px;
+ min-height:35px;padding:6px 9px;font-size:.8rem}
+#cl-live-pause[hidden]{display:none!important}
