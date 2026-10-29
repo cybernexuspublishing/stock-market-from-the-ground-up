@@ -1,0 +1,33 @@
+name: IEX May 2024 Full Archive Fingerprint — One-time Quarantine
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/iex-historical-full-fingerprint-v1.yml'
+permissions:
+  contents: read
+jobs:
+  verify-original-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile scripts/market-data/iex_archive_full_integrity.py scripts/market-data/iex_historical_archive_probe.py
+      - name: Stream full original IEX May 7 archive (max 3 GiB); no file redistribution
+        run: |
+          python scripts/market-data/iex_archive_full_integrity.py \
+            --date 2024-05-07 \
+            --max-mib 3000 \
+            --output /tmp/iex-full-archive-review/20240507_full_checksum.json
+      - name: Preserve small checksum-only record privately for audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: iex-20240507-complete-source-fingerprint
+          path: /tmp/iex-full-archive-review/20240507_full_checksum.json
+          retention-days: 7
+          if-no-files-found: error
