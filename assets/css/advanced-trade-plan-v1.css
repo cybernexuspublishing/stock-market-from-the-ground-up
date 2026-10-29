@@ -51,3 +51,11 @@
 .tp-intelligence .tp-stat strong{font-size:1.15rem;color:#f2f9fc;font-variant-numeric:tabular-nums}
 .tp-intelligence .tp-chart{height:285px;background:#0b2234;border-radius:10px;margin:12px 0;max-width:100%}
 .tp-intelligence .tp-chart[hidden]{display:none!important}
+
+#tp-builder .tp-talia-method{margin:14px 0;padding:14px;border:1px solid #35637a;border-radius:10px;background:#0b2939}
+#tp-builder .tp-talia-method summary{cursor:pointer;font-weight:750;color:#d7eaf3}
+#tp-builder .tp-talia-method ol{padding-left:21px;margin:12px 0;line-height:1.65;color:#bfd4e0}
+#tp-builder .tp-talia-method li{margin-bottom:7px}
+#tp-builder #tp-timeline .tp-chart{height:430px;min-height:310px}
+#tp-builder #tp-timeline>label{display:block;margin:17px 0 6px;font-weight:700}
+#tp-builder #tp-timeline>input[type=file]{width:100%;padding:11px;border:1px solid #355e74;background:#0b2537;border-radius:9px;color:#d7eaf3}
