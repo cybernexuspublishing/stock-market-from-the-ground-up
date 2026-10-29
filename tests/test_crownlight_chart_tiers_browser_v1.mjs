@@ -47,7 +47,7 @@ try{await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
 await page.waitForFunction(t=>window.CrownlightChartTiers?.getStatus().tier===t,tier);
 assert.equal(await page.locator('.cl-chart-tier-bar select').count(),1);
 const enabled=await page.locator('.cl-chart-tier-bar select option:not([disabled])').count();
-assert.equal(enabled,tier==='STANDARD'?1:tier==='ADVANCED'?2:3);
+assert.equal(enabled,tier==='STANDARD'?2:tier==='ADVANCED'?3:4);
 await page.getByRole('button',{name:/Unlock options/}).click();
 assert.equal(await page.locator('#cl-chart-tier-access-details').isVisible(),true);
 assert.match(await page.locator('#cl-chart-tier-access-details').innerText(),/Sparks/);

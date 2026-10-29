@@ -56,13 +56,14 @@ try{
  });
  await page.addScriptTag({content:admin});
  await page.waitForFunction(()=>!document.querySelector('#admin-chart-studio-menu-control').hidden);
- const check=page.locator('[data-chart-menu-tier]');assert.equal(await check.count(),3);
+ const check=page.locator('[data-chart-menu-tier]');assert.equal(await check.count(),4);
  await page.locator('[data-chart-menu-tier="ADVANCED"]').uncheck();
  await page.locator('[data-chart-menu-save]').click();
  await page.waitForFunction(()=>window.__saved!==null);
- assert.deepEqual((await page.evaluate(()=>window.__saved)).value.visible,['STANDARD','PROFESSIONAL']);
+ assert.deepEqual((await page.evaluate(()=>window.__saved)).value.visible,['STANDARD','PROFESSIONAL','ECHARTS']);
  await page.locator('[data-chart-menu-tier="STANDARD"]').uncheck();
  await page.locator('[data-chart-menu-tier="PROFESSIONAL"]').uncheck();
+ await page.locator('[data-chart-menu-tier="ECHARTS"]').uncheck();
  assert.equal(await page.locator('[data-chart-menu-save]').isDisabled(),true);
- console.log('PASS Chromium: 3-tier dropdown visibility, locked membership, Owner saves, cannot hide all');
+ console.log('PASS Chromium: 4-view dropdown visibility, locked membership, Owner saves, cannot hide all');
 }finally{await browser.close()}
