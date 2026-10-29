@@ -73,7 +73,7 @@ const questions=[
  ['STUDY_STRATEGY_AFTERNOON_VWAP_HOLD','When to consider Afternoon VWAP Hold'],
  ['STUDY_STRATEGY_ABCD','What is the ABCD Pattern structure'],
  ['STUDY_STRATEGY_ORACLE_SIGNAL','Explain Oracle Signal Workflow limitations'],
- ['STUDY_STRATEGY_NO_TRIGGER_CASH_HOLD','Why no trigger cash hold no trade']
+ ['STUDY_STRATEGY_CASH_NO_TRIGGER','Why no trigger cash hold no trade']
 ];
 for(const [code,question] of questions){
  const r=chooseGuides(index,question);
