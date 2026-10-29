@@ -20,9 +20,16 @@
  const classification=card=>{
   if(card.classList.contains('catalog-founder-card')){
    const extended=card.classList.contains('is-extended');
-   return {kind:extended?'extended':'founder',name:card.querySelector('h3')?.textContent||'Founding Membership',category:'Founding membership'};
+   const name=card.querySelector('h3')?.textContent||'Founding Membership';
+   const match=name.match(/\b(14|30|60)[\s-]*day\b/i);
+   return {kind:extended?'extended':'founder',name,category:'Founding membership',metric:match?match[1]+' DAYS':''};
   }
-  if(card.classList.contains('store-crownlight-package'))return {kind:'lumens',name:card.querySelector('h3')?.textContent||'Lumen bundle',category:'Crownlight Lumens'};
+  if(card.classList.contains('store-crownlight-package')){
+   const name=card.querySelector('h3')?.textContent||'Lumen bundle';
+   const quantity=card.querySelector('.quantity')?.textContent||'';
+   const match=quantity.match(/\b([1-9][0-9]{0,5})\s+Crownlight\s+Lumens\b/i);
+   return {kind:'lumens',name,category:'Crownlight Lumens',metric:match?match[1]+' LUMENS':''};
+  }
   if(card.closest('#store-tools'))return {kind:'tool',name:card.querySelector('h3')?.textContent||'Learning tool',category:'Learning tool'};
   const type=card.closest('.gu-store-type-section')?.querySelector('h3')?.textContent||'';
   if(/book/i.test(type)||card.closest('#store-panel-books'))return null;
@@ -30,7 +37,7 @@
   const kind=/research|scanner|data|chart|stock|market/i.test(type+' '+name)?'research':'learning';
   return {kind,name,category:type||'Learning product'};
  };
- function elements(type,w,h){
+ function elements(type,w,h,metric='',productName=''){
   const [accent,light]=palette[type]||palette.learning;
   const cy=h*.53,ax=Math.max(58,w*.26),radius=Math.min(39,h*.35),right=w-18;
   const a=[
@@ -47,12 +54,12 @@
    a.push(poly([[ax-dx,base-8],[ax-dx*.72,top+10],[ax-dx*.28,cy-4],[ax,top-12],[ax+dx*.30,cy-4],[ax+dx*.74,top+10],[ax+dx,base-8],[ax+dx*.86,base+11],[ax-dx*.88,base+11]],'rgba(17,40,64,.7)',accent,{shadowColor:accent,shadowBlur:11}));
    a.push(line(ax-dx*.73,base,ax+dx*.73,base,light,2));
    for(const x of [ax-dx*.57,ax,ax+dx*.57])a.push(circle(x,cy+5,3,light));
-   a.push(label(w*.55,cy-11,'ACCESS',light,18,800),label(w*.55,cy+14,'TOOLS · LABS · COMMUNITY','rgba(213,233,255,.67)',10,650));
+   a.push(label(w*.55,cy-11,metric||'MEMBER ACCESS',light,metric?20:16,800),label(w*.55,cy+14,metric?'RECURRING MEMBERSHIP':'TOOLS · LABS · COMMUNITY','rgba(213,233,255,.67)',10,650));
   }else if(type==='lumens'){
    a.push(circle(ax,cy,radius+9,'rgba(249,202,98,.05)',{stroke:'rgba(255,220,148,.35)',lineWidth:2}));
    a.push(circle(ax,cy,radius,'rgba(247,184,67,.10)',{stroke:accent,lineWidth:3,shadowColor:accent,shadowBlur:15}));
    a.push(poly([[ax,cy-24],[ax+8,cy-8],[ax+24,cy],[ax+8,cy+8],[ax,cy+24],[ax-8,cy+8],[ax-24,cy],[ax-8,cy-8]],accent,light));
-   a.push(label(w*.55,cy-9,'EARN · REDEEM',light,17,800),label(w*.55,cy+16,'NON-EXPIRING CREDITS','rgba(243,232,199,.78)',10,600));
+   a.push(label(w*.55,cy-9,metric||'LUMEN PACKAGE',light,metric?20:16,800),label(w*.55,cy+16,'NON-CASH PLATFORM CREDITS','rgba(243,232,199,.78)',10,600));
   }else{
    const origin=ax-41;
    if(type==='tool'||type==='research'){
@@ -62,7 +69,9 @@
      a.push(rect(origin+x-ww*.27,cy-34+y,ww*.55,hh,'rgba(78,206,178,.28)',2,{stroke:accent,lineWidth:1.5}));
     }
     a.push(path([[w*.55,cy+24],[w*.64,cy+4],[w*.72,cy+9],[w*.81,cy-16],[w*.91,cy-26]],light,2.8));
+    const subject=productName.toUpperCase().replace(/\s+/g,' ').trim();
     a.push(label(w*.55,cy-20,type==='tool'?'PRACTICE & ANALYZE':'INVESTIGATE',light,15,800));
+    if(subject)a.push(label(w*.55,cy+41,subject.length>29?subject.slice(0,28)+'…':subject,'rgba(220,242,255,.8)',9,600));
    }else{
     const xpos=ax-32;
     a.push(rect(xpos,cy-25,65,54,'rgba(120,140,242,.11)',8,{stroke:accent,lineWidth:2}));
@@ -80,6 +89,8 @@
   box.setAttribute('role','img');
   box.setAttribute('aria-label','Decorative, illustrative vector artwork for '+info.name+'; not actual market data or a performance claim');
   box.dataset.artKind=info.kind;
+  if(info.metric)box.dataset.artMetric=info.metric;
+  box.dataset.artTitle=info.name;
   const anchor=card.querySelector('.catalog-founder-top');
   if(anchor?.nextSibling)card.insertBefore(box,anchor.nextSibling);
   else card.insertBefore(box,card.firstChild);
@@ -96,7 +107,7 @@
    graphics.set(box,chart);
    const kind=box.dataset.artKind||'learning';
    const w=Math.max(box.clientWidth,230),h=Math.max(box.clientHeight,125);
-   chart.setOption({animation:false,aria:{enabled:false},tooltip:{show:false},graphic:elements(kind,w,h)},true);
+   chart.setOption({animation:false,aria:{enabled:false},tooltip:{show:false},graphic:elements(kind,w,h,box.dataset.artMetric||'',box.dataset.artTitle||'')},true);
    box.closest('article')?.classList.add('gu-echart-ready');
   }catch{
    box.classList.add('gu-echart-unavailable');
