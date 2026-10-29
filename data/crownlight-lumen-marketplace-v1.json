@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "brand": "Crownlight Lumens",
+  "unit": "Lumen",
+  "walletExpires": false,
+  "catalogStatus": "existing_redemptions_only_no_new_sales",
+  "currentFulfillment": "Existing ad-free and Chart Studio server-authorized redemptions continue to control prices, member eligibility and credit deduction.",
+  "proposed": [
+    {
+      "id": "WATCHLIST_TOOL_PASS",
+      "category": "Trading & research",
+      "name": "Advanced Watchlist & Trade-Plan Builder access",
+      "type": "digital_trial",
+      "durationsDays": [
+        1,
+        7,
+        14,
+        30,
+        180
+      ],
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Shared workbench rights; included plans receive no duplicate charge"
+    },
+    {
+      "id": "RESEARCH_TOOLS_PASS",
+      "category": "Trading & research",
+      "name": "Research-tool micro-passes",
+      "type": "digital_trial",
+      "durationsDays": [
+        1,
+        7,
+        14,
+        30,
+        180
+      ],
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Risk calculator, catalyst checklist and watchlist analytics after a supported entitlement path exists"
+    },
+    {
+      "id": "DIGITAL_WORKSHEETS",
+      "category": "Digital downloads",
+      "name": "Study planners, journal templates and printable worksheets",
+      "type": "digital",
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Original or properly licensed files with verified fulfillment"
+    },
+    {
+      "id": "AVATAR_PACKS",
+      "category": "Account customization",
+      "name": "Avatar and profile-theme packs",
+      "type": "account_digital",
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Cosmetic only; cannot grant staff privileges or affect grades"
+    },
+    {
+      "id": "COMMUNITY_BADGES",
+      "category": "Account customization",
+      "name": "Optional cosmetic profile and community badges",
+      "type": "account_digital",
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Not a mastery badge, grade or staff credential"
+    },
+    {
+      "id": "PREMIUM_PRACTICE",
+      "category": "Learning",
+      "name": "Optional practice conveniences and eligible early retakes",
+      "type": "digital",
+      "status": "planned",
+      "priceLumens": null,
+      "notes": "Free teaching and ordinary retries remain included; private assessment authority unchanged"
+    },
+    {
+      "id": "APPAREL",
+      "category": "Future physical merchandise",
+      "name": "Crown & Lantern apparel and accessories",
+      "type": "physical",
+      "status": "future",
+      "priceLumens": null,
+      "notes": "No physical checkout until inventory, fulfillment, shipping, returns and tax handling are independently accepted"
+    }
+  ]
+}
