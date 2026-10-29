@@ -69,20 +69,18 @@
    data:['#83c9ef','#d6f2ff'],community:['#e8a7ca','#ffe0f0']
   };
   const [accent,light]=accents[scene]||accents.learning;
-  const sx=w/340,sy=h/150;
-  const R=(x,y,ww,hh,fill,r=0,extra={})=>rect(x*sx,y*sy,ww*sx,hh*sy,fill,r*sx,extra);
-  const L=(x,y,xx,yy,c=accent,th=2)=>line(x*sx,y*sy,xx*sx,yy*sy,c,th*Math.min(sx,sy));
-  const C=(x,y,r,c=accent)=>circle(x*sx,y*sy,r*Math.min(sx,sy),c);
-  const P=(p,c=accent,th=2.5)=>path(p.map(([x,y])=>[x*sx,y*sy]),c,th*Math.min(sx,sy));
-  const T=(x,y,txt,c=light,sz=11,bold=700)=>label(x*sx,y*sy,txt,c,sz*Math.min(sx,sy),bold);
-  const a=[
-   R(0,0,340,150,'rgba(9,25,43,.95)',12),
-   R(0,0,340,28,'rgba(30,63,89,.72)',10),
-   C(15,14,3.1,'#ec8f91'),C(26,14,3.1,'#e7c277'),C(37,14,3.1,'#80cba7'),
-   T(49,18,shortName(name,39),'#e6eef9',10,700),
-   R(12,139,316,1,'rgba(185,214,239,.19)'),
-   R(318,10,5,5,accent,2)
-  ];
+  const sx=w/340,sy=h/150,a=[];
+  const R=(x,y,ww,hh,fill,r=0,extra={})=>a.push(rect(x*sx,y*sy,ww*sx,hh*sy,fill,r*sx,extra));
+  const L=(x,y,xx,yy,c=accent,th=2)=>a.push(line(x*sx,y*sy,xx*sx,yy*sy,c,th*Math.min(sx,sy)));
+  const C=(x,y,r,c=accent)=>a.push(circle(x*sx,y*sy,r*Math.min(sx,sy),c));
+  const P=(p,c=accent,th=2.5)=>a.push(path(p.map(([x,y])=>[x*sx,y*sy]),c,th*Math.min(sx,sy)));
+  const T=(x,y,txt,c=light,sz=11,bold=700)=>a.push(label(x*sx,y*sy,txt,c,sz*Math.min(sx,sy),bold));
+  R(0,0,340,150,'rgba(9,25,43,.95)',12);
+  R(0,0,340,28,'rgba(30,63,89,.72)',10);
+  C(15,14,3.1,'#ec8f91');C(26,14,3.1,'#e7c277');C(37,14,3.1,'#80cba7');
+  T(49,18,shortName(name,39),'#e6eef9',10,700);
+  R(12,139,316,1,'rgba(185,214,239,.19)');
+  R(318,10,5,5,accent,2);
   if(scene==='watchlist'){
    T(17,43,'WATCHLIST',accent,10,800);
    T(108,43,'RESEARCH CANDIDATES','#c1d6e5',8,650);
@@ -207,7 +205,7 @@
     R(48,y+13,182-i*21,3,'rgba(226,172,203,.3)',2);
    }
   }
-  a.push(T(17,147,'ILLUSTRATIVE PRODUCT PREVIEW','#6688a1',7,600));
+  T(17,147,'ILLUSTRATIVE PRODUCT PREVIEW','#6688a1',7,600);
   return a;
  }
  function elements(type,w,h,metric='',productName=''){
