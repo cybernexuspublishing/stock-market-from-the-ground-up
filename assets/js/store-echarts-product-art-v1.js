@@ -299,9 +299,15 @@
   if(info.metric)box.dataset.artMetric=info.metric;
   box.dataset.artTitle=info.name;
   if(!['founder','extended','lumens'].includes(info.kind))box.dataset.artScene=sceneFor(info.name,info.kind);
-  const anchor=card.querySelector('.catalog-founder-top');
-  if(anchor?.nextSibling)card.insertBefore(box,anchor.nextSibling);
-  else card.insertBefore(box,card.firstChild);
+  // Put the price and product title ahead of the visual for purchasing clarity.
+  // Other tools retain their leading product-scene preview.
+  const price=card.classList.contains('catalog-founder-card')?card.querySelector('.catalog-founder-price'):null;
+  if(price)price.insertAdjacentElement('afterend',box);
+  else{
+   const anchor=card.querySelector('.catalog-founder-top');
+   if(anchor?.nextSibling)card.insertBefore(box,anchor.nextSibling);
+   else card.insertBefore(box,card.firstChild);
+  }
   waiting.add(box);seen.add(card);
   if(observer)observer.observe(box);else void render(box);
  }
