@@ -39,6 +39,9 @@ try{
  balance=286;r=await onRequestGet({env,request:req(286)});d=await r.json();
  assert.equal(d.lumensApplied,286);assert.equal(d.discountCents,1999);
  assert.equal(d.cashDueCents,0);assert.equal(d.fullyCovered,true);
+ assert.equal(d.cashPaymentSupported,true);
+ r=await onRequestGet({env,request:req(285)});d=await r.json();
+ assert.equal(d.cashDueCents,4);assert.equal(d.cashPaymentSupported,false);
  isOwner=true;r=await onRequestGet({env,request:req(40)});d=await r.json();
  assert.equal(d.alreadyIncluded,true);assert.equal(d.lumensApplied,0);
  isOwner=false;allowed=false;
