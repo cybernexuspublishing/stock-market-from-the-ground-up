@@ -4,20 +4,20 @@
  */
 (function(root){
  'use strict';
- const URL='https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js';
+ const URL='/assets/vendor/echarts/6.1.0/echarts.min.js';
  let pending=null;
  function load(){
   if(root.echarts?.init)return Promise.resolve(root.echarts);
   if(pending)return pending;
   pending=new Promise((resolve,reject)=>{
    const script=document.createElement('script');
-   script.src=URL;script.async=true;script.crossOrigin='anonymous';
+   script.src=URL;script.async=true;
    script.dataset.crownlightEcharts='6.1.0';
-   script.onload=()=>root.echarts?.init?resolve(root.echarts):reject(new Error('ECharts initialization unavailable'));
-   script.onerror=()=>reject(new Error('Apache ECharts could not load. Existing Chart Studio remains available.'));
+   script.onload=()=>root.echarts?.init?resolve(root.echarts):reject(new Error('Local ECharts initialization unavailable'));
+   script.onerror=()=>{script.remove();reject(new Error('Local Apache ECharts bundle unavailable. Existing Chart Studio remains available.'))};
    document.head.append(script);
   }).catch(e=>{pending=null;throw e});
   return pending;
  }
- root.CrownlightECharts={load,version:'6.1.0',isLoaded:()=>!!root.echarts?.init};
+ root.CrownlightECharts={load,version:'6.1.0',assetUrl:URL,isLoaded:()=>!!root.echarts?.init};
 })(window);

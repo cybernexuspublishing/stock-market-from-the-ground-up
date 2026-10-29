@@ -69,6 +69,27 @@ for directory in assets learn; do
   test -d "$directory" || { echo "Missing directory: $directory" >&2; exit 1; }
   cp -R -- "$directory" "$output"/
 done
+# Pin and serve the full ECharts runtime from OUR OWN Pages origin.
+# This removes runtime reliance on a third-party CDN and keeps the Apache-2.0
+# package license beside the published asset. No proprietary TV assets.
+# Install in a throwaway directory outside public, never publish node_modules.
+vendor_temp="$(mktemp -d)"
+trap 'rm -rf "$vendor_temp"' EXIT
+npm install --prefix "$vendor_temp" --no-save --no-package-lock --ignore-scripts --no-audit --no-fund --omit=optional echarts@6.1.0 >/dev/null
+vendor_source="$vendor_temp/node_modules/echarts"
+test -s "$vendor_source/dist/echarts.min.js" || { echo "ECharts 6.1.0 missing after installation" >&2; exit 7; }
+mkdir -p "$output/assets/vendor/echarts/6.1.0"
+cp -- "$vendor_source/dist/echarts.min.js" "$output/assets/vendor/echarts/6.1.0/echarts.min.js"
+if [[ -f "$vendor_source/LICENSE" ]]; then
+  cp -- "$vendor_source/LICENSE" "$output/assets/vendor/echarts/6.1.0/LICENSE"
+else
+  echo 'ECharts license missing from npm package; refusing build.' >&2; exit 7
+fi
+# The chart loader MUST reference this exact self-hosted version.
+grep -Fq '/assets/vendor/echarts/6.1.0/echarts.min.js' assets/js/crownlight-echarts-loader-v1.js || {
+ echo 'ECharts loader does not match published pinned bundle' >&2; exit 7;
+}
+printf 'Verified same-origin Apache ECharts 6.1.0 static asset (%s bytes)\n' "$(wc -c < "$output/assets/vendor/echarts/6.1.0/echarts.min.js")"
 mkdir -p "$output/data"
 for file in crownlight-sparks-store-v014167.json books.json challenges.json commerce-config.json stripe-product-registry-v01437.json environments.json interactive-lab-index.json journal-taxonomy.json labs.json releases.json simulator_csv_template.csv skills.json store-products.json tutor-index.json competency-study-guides-v01499.json competency-lab-paths-v01499.json lab-teaching-bridges-v014168.json bootcamp-formative-v014154.json bootcamp-source-cases-v014166.json; do
   test -f "data/$file" || { echo "Missing public data: data/$file" >&2; exit 1; }
