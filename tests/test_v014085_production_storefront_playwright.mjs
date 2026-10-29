@@ -112,22 +112,27 @@ try{
  await run('Store initializes its current Founder and educational catalog',async()=>{
    const response=await main.goto(base+'/store.html',{waitUntil:'domcontentloaded',timeout:25000});
    assert.ok(response?.ok(),'Store response '+response?.status());
+   let verifiedFounderCount=0;
    if(founderVisible){
-    const expected= catalog.items.filter(x=>x.category==='founding'&&founderCodes.some(c=>x.sku==='founding:'+c)).length;
-    assert.ok(expected>0,'Founder gate open but no published Founder SKU is visible');
-    try{
-     await main.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,expected,{timeout:22000});
-    }catch(e){
-     const observed=await main.evaluate(()=>({
-      cards:document.querySelectorAll('#store-founder-plans .catalog-founder-card').length,
-      text:document.querySelector('#store-founder-plans')?.textContent?.slice(0,450),
-      selected:document.querySelector('#store-tab-founders')?.getAttribute('aria-selected'),
-      active:!document.querySelector('#store-panel-founders')?.hidden,
-      status:document.querySelector('#store-category-status')?.textContent
-     }));
-     throw new Error('Founder card count mismatch: expected '+expected+
-      ' actual '+JSON.stringify(observed)+'; '+e.message);
-    }
+    await main.waitForFunction(()=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length>0,
+     {timeout:22000});
+    const latestResponse=await main.request.get(base+'/api/storefront-public-catalog',{headers:{'cache-control':'no-cache'}});
+    assert.ok(latestResponse.ok(),'Published Founder catalog must be verifiable');
+    const latest=await latestResponse.json();
+    assert.equal(latest.source,'verified_storefront');
+    const currentCodes=latest.items.filter(x=>x.category==='founding'&&
+     founderCodes.some(c=>x.sku==='founding:'+c)).map(x=>x.sku.slice('founding:'.length));
+    verifiedFounderCount=currentCodes.length;
+    assert.ok(verifiedFounderCount>0,'No currently published Founder SKU');
+    const termsResponse=await main.request.get(base+'/data/founding-catalog.json');
+    assert.ok(termsResponse.ok(),'Current Founder pricing must be available');
+    const terms=await termsResponse.json();
+    await main.waitForFunction(n=>document.querySelectorAll('#store-founder-plans .catalog-founder-card').length===n,
+     verifiedFounderCount,{timeout:14000});
+    const titles=await main.locator('#store-founder-plans .catalog-founder-card h3').allTextContents();
+    const expectedNames=currentCodes.map(code=>terms.plans?.[code]?.name).filter(Boolean);
+    assert.deepEqual(titles.slice().sort(),expectedNames.slice().sort(),
+     'Displayed Founder plans must match currently published SKUs and verified terms');
     assert.equal(await main.locator('#store-tab-founders').isVisible(),true);
    }else{
     assert.equal(await main.locator('#store-tab-founders').isVisible(),true,'Founding Memberships category must stay visible while enrollment is gated');
@@ -141,8 +146,8 @@ try{
    }
    if(!isLocal)await main.waitForFunction(()=>document.querySelectorAll('#store-tools article.v11-tool-card').length>=4,{timeout:22000});
    assert.equal(await main.locator('#store-founder-plans .catalog-founder-card').count(),
-   founderVisible?catalog.items.filter(x=>x.category==='founding').length:0,
-   'Founder cards must match published public catalog and gate');
+    founderVisible?verifiedFounderCount:0,
+    'Founder cards must match the CURRENT published catalog and gate, not a stale snapshot');
    assert.equal(await main.locator('#store-products article.product-card').count(),bookCount,
    'Book cards must match publicly visible catalog records');
    if(!isLocal)assert.equal(await main.locator('#store-tools .store-sell-card .store-sell-price').count(),
