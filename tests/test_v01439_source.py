@@ -11,8 +11,17 @@ assert f'groundup-v{cache}-public' in read('sw.js')
 assert json.loads(read('release-manifest.json'))['version']==version
 assert json.loads(read('release-manifest.json'))['customerCheckoutApproved'] is False
 assert json.loads(read('data/commerce-config.json'))['version']==version
-assert 'loadShadowDashboard()' in read('assets/js/admin-simple-navigation-v014036.js')
-assert 'admin-stripe-shadow-v01439.js' in read('assets/js/admin-simple-navigation-v014036.js')
+# The GU39 panel now mounts itself after authentication/permissions hydrate.
+# The retired navigation callback loadShadowDashboard() must not be restored.
+shadow=read('assets/js/admin-stripe-shadow-v01439.js')
+nav=read('assets/js/admin-simple-navigation-v014036.js')
+assert 'admin-stripe-shadow-v01439.js' in read('admin.html')
+assert 'admin-stripe-shadow-v01439.js' in nav
+assert 'function mount()' in shadow
+assert "document.addEventListener('DOMContentLoaded',start" in shadow
+assert "roles.some(x=>['OWNER','ADMIN'].includes" in shadow
+assert "ctx.permissions.includes('commerce.view')" in shadow
+assert 'window.GroundUpStripeShadowV01439' in shadow
 sql=read('supabase/migrations/v0.14.0.39_ISOLATED_STRIPE_SANDBOX_OWNER_REVIEW_REQUIRED.sql')
 for term in ['DEFAULT false','gu39_sandbox_settings','gu39_sandbox_intents','gu39_sandbox_events','gu39_sandbox_access',
   'ENABLE ROW LEVEL SECURITY','FROM PUBLIC,anon,authenticated','TO service_role',
