@@ -12,7 +12,7 @@ function chooseGuides(index,q){
  if(!query.length)return [];
  const genericDecision=new Set(['why','enter','entry','exit','exiting','hold','holding','wait','decision','trade','trading','setup','setups','when','what','look','for','stop','loss','pattern']);
  const distinctive=query.filter(w=>!genericDecision.has(w));
- const decisionIntent=/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation)\b/i.test(String(q||''));
+ const decisionIntent=/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation|earnings|guidance|balance sheet|cash flow|long.term|portfolio|rebalanc|sector|regime|breadth|confluenc|conflicting|signals|order flow|tape|level ii|order book|options|option premium|theta|vega|assignment|implied volatility|diversif|fundamentals)\b/i.test(String(q||''));
  const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[]),
   ...(Array.isArray(index.researchGuides)?index.researchGuides:[]),
   ...(decisionIntent&&Array.isArray(index.decisionGuides)?index.decisionGuides:[])];
@@ -97,13 +97,42 @@ async function loadDecisionGuides(env,request){
  decisionCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
  return guides;
 }
+const advancedCache=new WeakMap();
+const ADVANCED_REFERENCE=/^https:\/\/(?:www\.)?(?:investor\.gov|optionseducation\.org|schwab\.com)\//i;
+async function loadAdvancedDecisionGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return [];
+ const hit=advancedCache.get(env.ASSETS);
+ if(hit&&hit.expires>Date.now())return hit.guides;
+ const r=await env.ASSETS.fetch(new Request(new URL('/data/tutor-advanced-decision-guides-v1.json',request.url),{method:'GET'}));
+ if(!r.ok)throw Error('Optional advanced public decision asset unavailable');
+ const data=await r.json(),guides=data?.guides;
+ if(data?.kind!=='original_public_tutor_advanced_decision_guides'||!Array.isArray(guides)||guides.length!==13)
+  throw Error('Invalid advanced Tutor decision catalog');
+ const ids=new Set();
+ for(const g of guides){
+  if(!/^[A-Z][A-Z0-9_]{3,72}$/.test(String(g?.code||''))||ids.has(g.code)||
+    g.advancedDecisionGuide!==true||g.decisionPlaybook!==true||g.researchGuide!==true||
+    g.supplemental!==true||g.officialCompetency!==false||
+    !Array.isArray(g.sourceUrls)||!g.sourceUrls.length||g.sourceUrls.length>4||
+    !g.sourceUrls.every(u=>typeof u==='string'&&ADVANCED_REFERENCE.test(u))||
+    ['title','horizon','concept','watchFor','entryEvidence','holdEvidence','exitEvidence',
+     'noTrade','fictionalCase','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
+      .some(k=>typeof g[k]!=='string'||g[k].length<25)||
+    !g.fictionalCase.startsWith('FICTIONAL:'))
+   throw Error('Invalid advanced decision lesson');
+  ids.add(g.code);
+ }
+ advancedCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
+ return guides;
+}
 async function originalGuides(env,request,question){
  try{
   const published=await loadPublicGuides(env,request);
   let researchGuides=[],decisionGuides=[];
   try{researchGuides=await loadResearchGuides(env,request)}catch{/* Original approved guides remain available. */}
-  if(/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation)\b/i.test(String(question||''))){
+  if(/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation|earnings|guidance|balance sheet|cash flow|long.term|portfolio|rebalanc|sector|regime|breadth|confluenc|conflicting|signals|order flow|tape|level ii|order book|options|option premium|theta|vega|assignment|implied volatility|diversif|fundamentals)\b/i.test(String(question||''))){
    try{decisionGuides=await loadDecisionGuides(env,request)}catch{/* Never disable original lessons for an optional curriculum asset. */}
+   try{decisionGuides.push(...await loadAdvancedDecisionGuides(env,request))}catch{/* Baseline 18 playbooks and canonical lessons remain available. */}
   }
   return chooseGuides({...published,researchGuides,decisionGuides},question);
  }catch{return []}
@@ -111,6 +140,7 @@ async function originalGuides(env,request,question){
 function formatDecisionGuide(g,mode,reflection){
  const lines=[
   'Supplementary ungraded trade-decision coaching — '+g.title,
+  ...(g.horizon?['Governing time horizon: '+g.horizon]:[]),
   'Setup thesis: '+g.concept,
   'What to look for: '+g.watchFor,
   'WHY consider entry (only if the evidence is observed): '+g.entryEvidence,
