@@ -11,7 +11,7 @@ const toolPaths={INTERACTIVE_LEARNING:'store-tool-interactive-learning.html',JOU
 const details=(type,code)=>({plan:planPaths,book:bookPaths,tool:toolPaths}[type]?.[code]||'store-product.html?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code));
 const safe=(value)=>C().safeHref(value);
 const esc=(value)=>C().esc(value);
-const dollars=c=>C().moneyCents(Number(c||0)/100);
+const dollars=c=>C().moneyCents(Number(c||0)); // one cents-to-dollars conversion in shared formatter
 const suffix=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]||'';
 const statusLabel=s=>({published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
 const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Minimal sponsor placements',LIFETIME:'Ad-free'})[code]||'Standard sponsor placements';
