@@ -95,7 +95,7 @@ export async function onRequest({request,env}){
   if(action==='catalog'&&request.method==='GET'){
    const rows=await db(env,'market_datasets?select=dataset_code,title,ticker,dataset_type,status,source_attribution,license_note,metadata&status=eq.published&dataset_type=eq.ohlcv&order=dataset_code.asc&limit=700');
    if(!Array.isArray(rows))throw bad('Dataset catalog is unavailable.',503);
-   return out({ok:true,scope,classification:scope==='fictional'?'FICTIONAL':'VERIFIED HISTORICAL',datasets:rows.filter(permitted).slice(0,700).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,synthetic:x.metadata?.original_synthetic===true})),notice:disclosure+' Only server-revealed bars are returned.'});
+   return out({ok:true,scope,classification:scope==='fictional'?'FICTIONAL':'VERIFIED HISTORICAL',datasets:rows.filter(permitted).slice(0,700).map(x=>({code:x.dataset_code,title:x.title,ticker:x.ticker,sourceAttribution:x.source_attribution,licenseNotice:x.license_note,date:x.metadata?.source_date||null,synthetic:x.metadata?.original_synthetic===true})),notice:disclosure+' Only server-revealed bars are returned.'});
   }
   if(action==='resume'&&request.method==='GET'){
    // Durable sessions are discovered by authenticated user identity, not a
