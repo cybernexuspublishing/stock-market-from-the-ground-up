@@ -296,11 +296,27 @@
   });
   observer.observe(host,{childList:true});
  }
+ function bindWorkbenchHeight(){
+  const content=$('sim-content'),chart=content?.querySelector('.sim-layout > .sim-chart-panel');
+  const workbench=$('cl-simulator-workbench');
+  if(!content||!chart||!workbench)return;
+  const update=()=>{
+   const height=Math.ceil(chart.getBoundingClientRect().height);
+   if(height>100)content.style.setProperty('--sim-chart-panel-height',height+'px');
+  };
+  update();
+  if(typeof ResizeObserver==='function'){
+   const observer=new ResizeObserver(update);
+   observer.observe(chart);
+   window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+  }
+  window.addEventListener('crownlight:tier-mounted',update);
+ }
  function init(opts={}){
   if(state.initialized)return;const rootContent=$('sim-content');
   if(!rootContent)return;state.initialized=true;
   setupImport();setupChart();setupTabs(opts);setupLabPicker(opts);
-  restoreStepOrder();watchOrder();
+  restoreStepOrder();watchOrder();bindWorkbenchHeight();
   const timeframe=$('sim-timeframe');
   if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{
    if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';
