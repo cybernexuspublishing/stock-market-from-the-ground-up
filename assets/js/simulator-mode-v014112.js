@@ -34,6 +34,9 @@
   return true;
  }
  function observePresets(){
+  // Some contract tests intentionally supply only getElementById; this optional
+  // presentation helper must not require a complete DOM implementation.
+  if(typeof document.querySelector!=='function'||typeof document.querySelectorAll!=='function')return;
   if(movePresetPanel())return;
   const target=document.querySelector('main');
   if(!target||typeof MutationObserver!=='function')return;
