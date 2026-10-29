@@ -33,11 +33,11 @@ export async function getApprovedLabContext(env,request,question){
   learningStage:requestedLearningStage(question),relatedCompetencyCodes:codes,practiceUrl:'/labs.html?q='+encodeURIComponent(id),
   registryScope:'canonical_lab_id_and_public_competency_crosswalk_only'};
 }
-export function labGuidance(context,mode,reflection=''){
+export function labGuidance(context,mode,reflection='',learnerQuestion=''){
  const n=context.labId,codes=context.relatedCompetencyCodes.join(', ');
  const stage=STAGES.includes(context.learningStage)?context.learningStage:null;
  const lesson=teachingForLab(n);
- const focus=lesson?formatLabTeaching(lesson):'Use only the evidence visible at the Lab observation point. Name the concept, its limitation, and what would change your interpretation.';
+ const focus=lesson?formatLabTeaching(lesson,{question:learnerQuestion,stage}):'Use only the evidence visible at the Lab observation point. Name the concept, its limitation, and what would change your interpretation.';
  const stagePrompt={Start:'State what you already know and what the lesson will examine.',Learn:'Define the concept in plain language before applying it.',Experiment:'Change one observation at a time and describe what changes.',Predict:'Write a prediction before revealing later evidence.',Practice:'Try the next step independently, then explain your reasoning.',Assess:'Use the Lab assessment instructions; I cannot provide its answer key.',Review:'Compare your reasoning with the evidence available at the time.',Transfer:'Describe when the same concept would or would not apply elsewhere.',Results:'Review your recorded result without treating it as trading proficiency.'};
  const a='Lab '+n+' is registered in the 419-Lab curriculum. Public competency links: '+codes+'. '+
   (context.labTitle?'Public lesson title: '+context.labTitle+'. ':'')+
