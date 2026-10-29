@@ -24,6 +24,8 @@ globalThis.fetch=async url=>{
  if(path.includes('/rest/v1/admin_user_flags?'))return json([{status:'active'}]);
  if(path.includes('/rest/v1/admin_user_roles?'))return json([]);
  if(path.includes('/rest/v1/rpc/user_has_tool_access'))return json(true);
+ // Product access policy is an optional read-only configuration, not a model call.
+ if(path.includes('/rest/v1/gu_product_access_config_v1?'))return json([]);
  if(path.includes('/rest/v1/rpc/'))return json(false,404);
  modelCalls++;throw Error('Unexpected external request: '+path);
 };
