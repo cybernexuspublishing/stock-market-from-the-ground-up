@@ -5,7 +5,7 @@
 import {toolAccess} from './member-tool-access.js';
 import {fictionalReplayPermitted,FICTIONAL_REPLAY_DISCLOSURE} from '../_lib/fictional-replay-policy-v1.js';
 import {fillEstimate,bracketOutcome} from '../_lib/replay-engine-v01492.js';
-import {replayAvailableToEntitlement,verifiedHistoricalDataset} from '../_lib/verified-historical-dataset-v014143.js';
+import {replayAvailableToEntitlement,verifiedHistoricalDataset,historicalQaReleasePermitted} from '../_lib/verified-historical-dataset-v014143.js';
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'};
 const out=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:H});
 const bad=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -86,7 +86,8 @@ export async function onRequest({request,env}){
    throw bad(scope==='fictional'?'An eligible signed-in member is required for fictional practice.':
     'An active Market Simulator or Historical Replay training entitlement is required.',403);
   const permitted=dataset=>scope==='fictional'?
-   fictionalReplayPermitted(dataset):replayAvailableToEntitlement(dataset,entitlement);
+   fictionalReplayPermitted(dataset):(replayAvailableToEntitlement(dataset,entitlement)&&
+   historicalQaReleasePermitted(dataset,auth.userId));
   const disclosure=scope==='fictional'?FICTIONAL_REPLAY_DISCLOSURE:
    'Only independently verified, display-licensed authentic historical market observations are permitted.';
 
