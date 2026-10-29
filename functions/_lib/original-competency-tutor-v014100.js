@@ -28,6 +28,19 @@ function chooseGuides(index,q){
    score+=distinctive.filter(w=>topic.has(w)).length*18;
    if(g.code==='DECISION_FRAMEWORK'&&distinctive.length>0)score-=30;
   }
+  if(g.masterStudy===true){
+   // Named study terms must outrank unrelated descriptions mentioning trend,
+   // volume or a generic setup. Do not reward partial substring acronyms.
+   const qText=String(q||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+   const titleText=String(g.title||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+   if(titleText.length>=4&&qText.includes(titleText))score+=100;
+   const terms=words(g.title+' '+String(g.code||'').replace(/^STUDY_(?:WATCH_|STRATEGY_)?/,'').replaceAll('_',' '))
+    .filter(w=>!genericDecision.has(w));
+   const present=new Set(query);
+   score+=new Set(terms.filter(w=>present.has(w))).size*14;
+   const suffix=String(g.code||'').replace(/^STUDY_(?:WATCH_|STRATEGY_)?/,'');
+   if(/^[A-Z0-9]{3,6}$/.test(suffix)&&present.has(suffix.toLowerCase()))score+=100;
+  }
   return {g,score};
  }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score||a.g.code.localeCompare(b.g.code)).slice(0,2).map(x=>x.g);
 }
