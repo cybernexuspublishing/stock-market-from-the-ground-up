@@ -10,7 +10,7 @@
  function createDatafeed(){
   let bars=[],ticker='REPLAY',listeners=new Map();
   const copy=x=>({...x});
-  const emit=(fn,...args)=>queueMicrotask(()=>fn(...args));
+  const emit=(fn,...args)=>setTimeout(()=>fn(...args),0);
   const validate=input=>{
    const result=[];let previous=-1;
    for(const p of Array.isArray(input)?input:[]){
