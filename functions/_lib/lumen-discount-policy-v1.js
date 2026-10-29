@@ -30,7 +30,7 @@ export function previewLumenDiscount({eligibleNetCents,availableLumens,requested
   const requested=nonnegative(requestedLumens,'requestedLumens');
   if(!policy.eligibleKinds.includes(productKind))
     return {status:'PREVIEW_ONLY',eligible:false,appliedLumens:0,discountCents:0,remainingLumens:balance,remainingSubtotalCents:net};
-  const percentCap=Math.floor(net*policy.maxPercentBasisPoints/10000);
+  const percentCap=Number((BigInt(net)*BigInt(policy.maxPercentBasisPoints))/10000n);
   const cap=Math.min(percentCap,policy.maxOrderDiscountCents);
   const capLumens=Math.floor(cap/policy.denominationCents);
   const appliedLumens=Math.min(requested,balance,capLumens);
