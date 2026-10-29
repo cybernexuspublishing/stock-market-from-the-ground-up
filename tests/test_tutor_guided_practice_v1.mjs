@@ -11,9 +11,9 @@ const catalogs=[
 assert.equal(base.guides.length,30);
 assert.equal(base.supplementalGuides.length,1);
 assert.equal(modules.kind,'talia_guided_practice_original_ungraded_v1');
-assert.equal(modules.modules.length,14);
-assert.equal(modules.indicatorCount,8);
-assert.equal(modules.watchlistCount,6);
+assert.equal(modules.modules.length,24);
+assert.equal(modules.indicatorCount,14);
+assert.equal(modules.watchlistCount,10);
 assert.deepEqual(Array.from(modules.stages),['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
 assert.equal(new Set(modules.modules.map(x=>x.id)).size,14);
 const available=new Map([...base.guides,...base.supplementalGuides,...catalogs.flatMap(c=>c.guides)].map(x=>[x.code,x]));
@@ -81,4 +81,57 @@ const macd=api.metric(bars.slice(0,40),'macd',12);
 assert(Number.isFinite(macd.value),'MACD histogram with 40 bars');
 const later=api.metric(bars.slice(0,48),'sma',5);
 assert.notEqual(later.value,sma.value,'Later fictional prices must not leak into earlier study');
-console.log('PASS Talia guided practice v1: 14 authored scenarios, 9 stages, 8 indicators and 6 watchlists, as-of price math, hard vetoes, authored source-ownership, all seven public curricula in Pages build, ungraded privacy boundary.');
+
+const mathNew=[
+ ['obv',8],['cmf',12],['mfi',12],['roc',10],['donchian',12],['keltner',12]
+];
+for(const [name,period] of mathNew){
+ const m=api.metric(bars.slice(0,40),name,period);
+ assert(Number.isFinite(m.value),'Additional indicator must be calculable: '+name);
+ assert(api.metric(bars.slice(0,16),name,20).value===null || name==='obv',
+  'No fabricated warmup value '+name);
+}
+const obv=api.metric(subset,'obv',8);
+let obvExpected=0;
+for(let i=1;i<subset.length;i++){
+ if(subset[i].close>subset[i-1].close)obvExpected+=subset[i].volume;
+ else if(subset[i].close<subset[i-1].close)obvExpected-=subset[i].volume;
+}
+assert.equal(obv.value,obvExpected,'OBV signed-volume sum and completed bars');
+const roc=api.metric(subset,'roc',10);
+assert(Math.abs(roc.value-(subset.at(-1).close/subset[subset.length-11].close-1)*100)<1e-10);
+const cmf=api.metric(subset,'cmf',12);
+assert(cmf.value>=-1&&cmf.value<=1,'CMF bounded by close location');
+const mfi=api.metric(subset,'mfi',12);
+assert(mfi.value>=0&&mfi.value<=100,'MFI bounded, no division by zero');
+const donchian=api.metric(subset,'donchian',12),window=subset.slice(-12);
+assert.equal(donchian.upper,Math.max(...window.map(b=>b.high)));
+assert.equal(donchian.lower,Math.min(...window.map(b=>b.low)));
+const keltner=api.metric(subset,'keltner',12);
+assert(Math.abs(keltner.upper-keltner.value-2*api.metric(subset,'atr',12).value)<1e-9);
+for(const name of ['cmf','mfi','roc','keltner','donchian']){
+ const paused=api.metric(subset,name,12),future=api.metric(bars.slice(0,48),name,12);
+ if(Number.isFinite(paused.value))assert.notEqual(paused.value,future.value,'No future bars in '+name);
+}
+const fict={
+ a:{price:12,allowed:true,relative:1.08,restricted:false,shortable:false,fresh:true},
+ b:{price:8,allowed:true,relative:0.90,restricted:false,shortable:true,fresh:true},
+ c:{price:4,allowed:true,relative:1.12,restricted:false,shortable:true,fresh:false}
+};
+assert.equal(api.specialGate(fict.a,'boolean').pass,true);
+assert.equal(api.specialGate(fict.c,'boolean').pass,false,'ALL veto precedes ANY');
+assert.equal(api.specialGate(fict.c,'freshness').pass,false,'Stale quote must fail');
+assert.equal(api.specialGate(fict.b,'sector').pass,false,'Positive absolute return may underperform peers');
+assert.equal(api.specialGate(fict.a,'borrow').pass,false,'Short locate must not be presumed');
+const newCodes=[
+ 'STUDY_OBV','STUDY_CMF','STUDY_MFI','STUDY_ROC','STUDY_DONCHIAN_CHANNELS','STUDY_KELTNER_CHANNELS',
+ 'STUDY_WATCH_DISCOVERY_FILTERS','STUDY_WATCH_DATA_FRESHNESS',
+ 'STUDY_WATCH_SECTOR_RELATIVE','STUDY_WATCH_HALT_SSR_BORROW'
+];
+for(const code of newCodes){
+ const unit=modules.modules.find(x=>x.guideCode===code);
+ assert(unit,'Missing added scenario '+code);
+ assert(unit.why.length>50&&unit.method.length>50&&unit.limitation.length>50);
+ assert(unit.scaffold.length>70,'Concept-specific corrective scaffold '+code);
+}
+console.log('PASS Talia guided practice: 24 authored scenarios, 9 stages, 14 indicators and 10 watchlists; original/no-lookahead math, four distinct advanced scan predicates, ungraded source/privacy boundary.');

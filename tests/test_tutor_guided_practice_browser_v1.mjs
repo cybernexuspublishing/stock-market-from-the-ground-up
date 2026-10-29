@@ -22,7 +22,7 @@ try{
   const response=await page.goto(base+'/market-tutor.html',{waitUntil:'domcontentloaded'});
   assert.equal(response.status(),200);
   await page.locator('#tgp-select').waitFor({state:'visible',timeout:15000});
-  assert.equal(await page.locator('#tgp-select option').count(),14);
+  assert.equal(await page.locator('#tgp-select option').count(),24);
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/No market feed|No market feed/i);
   await page.locator('#tgp-select').selectOption('IND-01');
   const next=()=>page.locator('#tutor-guided-practice .tgp-actions button').filter({hasText:/^Continue$/}).click();
@@ -52,8 +52,22 @@ try{
   await page.locator('#tutor-guided-practice .tgp-gate input[type=range]').first().evaluate(el=>{el.value='3.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
   assert.match(await row.innerText(),/Eligible for risk review/);
   assert.equal(tutorPosts,0,'Synthetic scanner cannot send provider requests');
+  await page.locator('#tgp-select').selectOption('IND-14');
+  await next();await next(); // Keltner Learn → Experiment
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/two Wilder ATR|Keltner/i);
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Channel\/band when available|Bands \(when available\)/);
+  await page.locator('#tgp-select').selectOption('WATCH-07');
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Focus rule for this lesson:/);
+  assert.match(await page.locator('.tgp-scan-table').innerText(),/Special gate/);
+  assert.match(await page.locator('.tgp-scan-table').innerText(),/mandatory universe\/price/);
+  await page.locator('#tgp-select').selectOption('WATCH-10');
+  await next();await next();
+  assert.match(await page.locator('.tgp-scan-table').innerText(),/short borrow unavailable/);
+  assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');
   assert(await page.locator('#tutor-guided-practice').isVisible());
   await ctx.close();
-  console.log('PASS guided practice browser '+width+'px: visual indicator, no-lookahead pause, distractor correction, no-charge tutor handoff, editable liquidity gates');
+  console.log('PASS guided practice browser '+width+'px: 14 indicator/10 watchlist modules, adaptive correction, calculated bands, separate short-borrow/Boolean gates');
  }
 }finally{await browser.close()}

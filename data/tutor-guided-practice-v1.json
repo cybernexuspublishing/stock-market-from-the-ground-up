@@ -1,8 +1,8 @@
 {
   "kind": "talia_guided_practice_original_ungraded_v1",
   "version": "1.0",
-  "indicatorCount": 8,
-  "watchlistCount": 6,
+  "indicatorCount": 14,
+  "watchlistCount": 10,
   "stages": [
     "Start",
     "Learn",
@@ -528,6 +528,418 @@
         "The fact that the instrument later fell or rallied cannot make the original recorded criteria disappear or retroactively determine a decision's quality.",
         "A complete NO TRADE decision needs evidence, a timestamp and an articulated violated gate; an undocumented prediction is insufficient."
       ]
+    },
+    {
+      "id": "IND-09",
+      "kind": "indicator",
+      "guideCode": "STUDY_OBV",
+      "title": "On-Balance Volume",
+      "learn": "OBV adds a completed bar's share volume when its close exceeds the previous close and subtracts it when the close falls; no change means zero addition. Its starting value is arbitrary.",
+      "why": "OBV can describe whether volume coincides with closing-price direction but cannot reveal who traded.",
+      "method": "Compare adjacent completed closes, accumulate plus or minus volume, and interpret changes rather than the arbitrary starting total.",
+      "limitation": "A large bar can dominate OBV. It is not an order-flow aggressor classifier.",
+      "question": "What does OBV add when the completed close rises with 12,000 shares?",
+      "options": [
+        "12,000 shares to the prior OBV balance.",
+        "12,000 confirmed institutional purchases.",
+        "A guaranteed $12,000 future price advance."
+      ],
+      "correct": 0,
+      "feedback": "The evidence supports: 12,000 shares to the prior OBV balance. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "Why can a failed resistance close overrule a favorable OBV slope?",
+      "transferOptions": [
+        "OBV is a binding risk limit.",
+        "Confirmed price invalidation still governs the setup.",
+        "OBV proves short covering."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "In this changed case, the evidence supports: Confirmed price invalidation still governs the setup. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        null,
+        "The statement “12,000 confirmed institutional purchases.” does not follow from the defined evidence. 12,000 shares to the prior OBV balance. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “A guaranteed $12,000 future price advance.” does not follow from the defined evidence. 12,000 shares to the prior OBV balance. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “OBV is a binding risk limit.” does not follow from the defined evidence. Confirmed price invalidation still governs the setup. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “OBV proves short covering.” does not follow from the defined evidence. Confirmed price invalidation still governs the setup. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compare adjacent completed closes, accumulate plus or minus volume, and interpret changes rather than the arbitrary starting total. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "obv",
+      "pattern": "trend",
+      "period": 8
+    },
+    {
+      "id": "IND-10",
+      "kind": "indicator",
+      "guideCode": "STUDY_CMF",
+      "title": "Chaikin Money Flow",
+      "learn": "CMF weights each bar's volume by its closing location within the high-low range, then divides the signed total by all shares over the selected completed-bar window.",
+      "why": "CMF summarizes closing-location behavior under volume, not the identity of buyers or cash moving into accounts.",
+      "method": "Compute (2×close−high−low)/(high−low) for each bar; zero-range bars contribute zero signed flow. Sum value×volume and divide by summed volume.",
+      "limitation": "The prior-close gap is not part of the close-location multiplier and can change the larger chart context.",
+      "question": "At the exact midpoint of a candle's high-low range, what is its CMF close-location multiplier?",
+      "options": [
+        "Positive one for bullish volume.",
+        "Zero because the close is midrange.",
+        "Negative one because sellers dominate."
+      ],
+      "correct": 1,
+      "feedback": "The evidence supports: Zero because the close is midrange. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "After an overnight price gap, CMF is near zero. Which interpretation is strongest?",
+      "transferOptions": [
+        "The gap did not occur.",
+        "CMF proves all traders are neutral.",
+        "The bar-based CMF may miss the gap; verify price structure separately."
+      ],
+      "transferCorrect": 2,
+      "transferFeedback": "In this changed case, the evidence supports: The bar-based CMF may miss the gap; verify price structure separately. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        "The statement “Positive one for bullish volume.” does not follow from the defined evidence. Zero because the close is midrange. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Negative one because sellers dominate.” does not follow from the defined evidence. Zero because the close is midrange. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “The gap did not occur.” does not follow from the defined evidence. The bar-based CMF may miss the gap; verify price structure separately. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “CMF proves all traders are neutral.” does not follow from the defined evidence. The bar-based CMF may miss the gap; verify price structure separately. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compute (2×close−high−low)/(high−low) for each bar; zero-range bars contribute zero signed flow. Sum value×volume and divide by summed volume. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "cmf",
+      "pattern": "chop",
+      "period": 12
+    },
+    {
+      "id": "IND-11",
+      "kind": "indicator",
+      "guideCode": "STUDY_MFI",
+      "title": "Money Flow Index",
+      "learn": "MFI is a bounded oscillator combining typical-price direction with volume-weighted flow over a chosen completed-bar window.",
+      "why": "It can help compare price and participation momentum while remaining distinct from actual identified institutional cash flows.",
+      "method": "Classify each current typical-price×volume as positive, negative or neutral relative to the prior typical price. Compute 100−100/(1+positive/negative), handling zero denominators.",
+      "limitation": "High MFI can remain elevated in trends, and the algorithm cannot name transaction counterparties.",
+      "question": "What does an elevated MFI reading establish by itself?",
+      "options": [
+        "Certain bearish reversal on the next bar.",
+        "Strong recent typical-price/volume momentum without a reversal guarantee.",
+        "Identified net institutional purchases."
+      ],
+      "correct": 1,
+      "feedback": "The evidence supports: Strong recent typical-price/volume momentum without a reversal guarantee. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "What must MFI do when positive flow exists but negative flow equals zero?",
+      "transferOptions": [
+        "Handle the zero denominator, conventionally producing 100.",
+        "Produce a negative unlimited value.",
+        "Assume execution at the midquote."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "In this changed case, the evidence supports: Handle the zero denominator, conventionally producing 100. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        "The statement “Certain bearish reversal on the next bar.” does not follow from the defined evidence. Strong recent typical-price/volume momentum without a reversal guarantee. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Identified net institutional purchases.” does not follow from the defined evidence. Strong recent typical-price/volume momentum without a reversal guarantee. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "The statement “Produce a negative unlimited value.” does not follow from the defined evidence. Handle the zero denominator, conventionally producing 100. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “Assume execution at the midquote.” does not follow from the defined evidence. Handle the zero denominator, conventionally producing 100. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Classify each current typical-price×volume as positive, negative or neutral relative to the prior typical price. Compute 100−100/(1+positive/negative), handling zero denominators. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "mfi",
+      "pattern": "reversal",
+      "period": 12
+    },
+    {
+      "id": "IND-12",
+      "kind": "indicator",
+      "guideCode": "STUDY_ROC",
+      "title": "Price Rate of Change",
+      "learn": "Rate of Change compares the latest completed close with a close a declared number of completed bars earlier, expressed as a percentage.",
+      "why": "Normalized price change makes historical comparisons possible once the sampling interval and corporate-action basis match.",
+      "method": "Calculate 100×(latest close/close N bars ago−1) only with a nonzero, comparable historical reference.",
+      "limitation": "ROC describes a past return; reverse splits or mismatched periods can make unadjusted comparisons misleading.",
+      "question": "A closing price rises from $10 to $12 over ten completed bars. What is ROC(10)?",
+      "options": [
+        "Positive 20% historical change.",
+        "A guaranteed 20% increase in the next ten bars.",
+        "Two additional shares issued per investor."
+      ],
+      "correct": 0,
+      "feedback": "The evidence supports: Positive 20% historical change. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "How should a learner calculate ROC across a reverse split?",
+      "transferOptions": [
+        "Use nominal raw prices to show a huge signal.",
+        "Reconcile corporate-action adjustment and identical bar windows.",
+        "Substitute an oscillator for the changed share count."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "In this changed case, the evidence supports: Reconcile corporate-action adjustment and identical bar windows. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        null,
+        "The statement “A guaranteed 20% increase in the next ten bars.” does not follow from the defined evidence. Positive 20% historical change. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “Two additional shares issued per investor.” does not follow from the defined evidence. Positive 20% historical change. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “Use nominal raw prices to show a huge signal.” does not follow from the defined evidence. Reconcile corporate-action adjustment and identical bar windows. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Substitute an oscillator for the changed share count.” does not follow from the defined evidence. Reconcile corporate-action adjustment and identical bar windows. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Calculate 100×(latest close/close N bars ago−1) only with a nonzero, comparable historical reference. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "roc",
+      "pattern": "trend",
+      "period": 10
+    },
+    {
+      "id": "IND-13",
+      "kind": "indicator",
+      "guideCode": "STUDY_DONCHIAN_CHANNELS",
+      "title": "Donchian Channels",
+      "learn": "Donchian channels show the rolling highest high and lowest low of N completed candles, with their midpoint as an optional reference.",
+      "why": "They make a predeclared price-range boundary visible before evaluating a hypothetical breakout.",
+      "method": "Compute max(high) and min(low) within the declared completed-bar window; this exercise includes the current completed bar.",
+      "limitation": "A strategy using the previous channel must exclude the current bar; touching the channel never guarantees breakout acceptance.",
+      "question": "What does the upper Donchian channel represent?",
+      "options": [
+        "Highest high in the chosen completed window.",
+        "A guaranteed limit order execution level.",
+        "Volume-weighted transaction price."
+      ],
+      "correct": 0,
+      "feedback": "The evidence supports: Highest high in the chosen completed window. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "Why distinguish the previous channel from one including the current bar?",
+      "transferOptions": [
+        "Both must always produce identical highs.",
+        "The previous channel uses an earlier fixed window for an as-of-time breakout test.",
+        "Future bars are always allowed in retrospective channel values."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "In this changed case, the evidence supports: The previous channel uses an earlier fixed window for an as-of-time breakout test. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        null,
+        "The statement “A guaranteed limit order execution level.” does not follow from the defined evidence. Highest high in the chosen completed window. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “Volume-weighted transaction price.” does not follow from the defined evidence. Highest high in the chosen completed window. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “Both must always produce identical highs.” does not follow from the defined evidence. The previous channel uses an earlier fixed window for an as-of-time breakout test. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Future bars are always allowed in retrospective channel values.” does not follow from the defined evidence. The previous channel uses an earlier fixed window for an as-of-time breakout test. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compute max(high) and min(low) within the declared completed-bar window; this exercise includes the current completed bar. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "donchian",
+      "pattern": "trend",
+      "period": 12
+    },
+    {
+      "id": "IND-14",
+      "kind": "indicator",
+      "guideCode": "STUDY_KELTNER_CHANNELS",
+      "title": "Keltner Channels",
+      "learn": "In this explicit Keltner variant, an EMA of completed closes forms the center while upper/lower envelopes sit two ATR values away.",
+      "why": "This can show how an observed price excursion compares with a rolling volatility-adjusted reference.",
+      "method": "Compute EMA(close,N) and Wilder ATR(N) using the displayed complete bars; plot center ± 2×ATR. Other platforms may use different definitions.",
+      "limitation": "Keltner and Bollinger bands need not agree because the former uses ATR and the latter a standard-deviation method.",
+      "question": "EMA center is $20 and ATR is $1 with multiplier two. What upper band follows?",
+      "options": [
+        "$22 under the stated formula.",
+        "$21 because ATR is never multiplied.",
+        "$20 because the next candle must be flat."
+      ],
+      "correct": 0,
+      "feedback": "The evidence supports: $22 under the stated formula. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "Why can Keltner and Bollinger boundaries differ on the same candles?",
+      "transferOptions": [
+        "One must be selected after the later trade outcome.",
+        "They use different dispersion measures and specified parameters.",
+        "Both guarantee identical limit-order fills."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "In this changed case, the evidence supports: They use different dispersion measures and specified parameters. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars. Calculations do not use unrevealed bars, live quotes, grades, or trade orders.",
+      "choiceFeedback": [
+        null,
+        "The statement “$21 because ATR is never multiplied.” does not follow from the defined evidence. $22 under the stated formula. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “$20 because the next candle must be flat.” does not follow from the defined evidence. $22 under the stated formula. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “One must be selected after the later trade outcome.” does not follow from the defined evidence. They use different dispersion measures and specified parameters. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Both guarantee identical limit-order fills.” does not follow from the defined evidence. They use different dispersion measures and specified parameters. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compute EMA(close,N) and Wilder ATR(N) using the displayed complete bars; plot center ± 2×ATR. Other platforms may use different definitions. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "metric": "keltner",
+      "pattern": "gap",
+      "period": 12
+    },
+    {
+      "id": "WATCH-07",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_DISCOVERY_FILTERS",
+      "title": "Boolean Scanner Logic",
+      "learn": "An advanced scanner separates ALL required conditions, ANY qualifying alternatives and NONE exclusions inside a declared securities universe.",
+      "why": "Explicit Boolean groups show why a candidate qualifies instead of hiding mandatory risk vetoes inside a composite score.",
+      "method": "This fictional scanner requires price at least $5, an allowed universe, any of relative strength ≥1.05 or borrow availability, and no restricted flag.",
+      "limitation": "These are fictional teaching predicates, not actual Stock Hacker settings or authorization to place orders.",
+      "question": "Can two passing ANY filters override a failed required ALL condition?",
+      "options": [
+        "No; a failed mandatory condition excludes the symbol.",
+        "Yes; the two positives outweigh the failed hard gate.",
+        "Yes; a scanner match proves an order filled."
+      ],
+      "correct": 0,
+      "feedback": "The evidence supports: No; a failed mandatory condition excludes the symbol. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "A security passes ALL and ANY but belongs to the excluded NONE group. What follows?",
+      "transferOptions": [
+        "A new higher-high candle cancels the exclusion.",
+        "The source-defined exclusion still prevents qualification.",
+        "The symbol automatically becomes an executed position."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "In this changed case, the evidence supports: The source-defined exclusion still prevents qualification. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-security screening data. These predicates are not live broker conditions, market recommendations, or persistent user watchlist records.",
+      "choiceFeedback": [
+        null,
+        "The statement “Yes; the two positives outweigh the failed hard gate.” does not follow from the defined evidence. No; a failed mandatory condition excludes the symbol. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “Yes; a scanner match proves an order filled.” does not follow from the defined evidence. No; a failed mandatory condition excludes the symbol. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “A new higher-high candle cancels the exclusion.” does not follow from the defined evidence. The source-defined exclusion still prevents qualification. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “The symbol automatically becomes an executed position.” does not follow from the defined evidence. The source-defined exclusion still prevents qualification. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. This fictional scanner requires price at least $5, an allowed universe, any of relative strength ≥1.05 or borrow availability, and no restricted flag. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "rule": "boolean"
+    },
+    {
+      "id": "WATCH-08",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_DATA_FRESHNESS",
+      "title": "Quote and Source Freshness",
+      "learn": "A source can be authentic but too stale for the declared decision time. Distinguish event time, provider receipt time and the learner's replay pause.",
+      "why": "Source chronology prevents delayed prices or announcements from masquerading as executable real-time evidence.",
+      "method": "Compare each fictional row's freshness flag, issuer time, and current decision timestamp before evaluating the candidate's technical attributes.",
+      "limitation": "A delayed quote is not proof of a current broker fill, and archived primary documents may be published after the historical pause.",
+      "question": "A three-minute-old quote is shown during a one-minute setup. What is justified?",
+      "options": [
+        "Treat it as current because volume is high.",
+        "WAIT for timely quote evidence before risk qualification.",
+        "Assume an immediate filled stop order."
+      ],
+      "correct": 1,
+      "feedback": "The evidence supports: WAIT for timely quote evidence before risk qualification. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "An issuer filing was released after the recorded decision pause. What can the learner use at that pause?",
+      "transferOptions": [
+        "The later filing as confirmed prior catalyst.",
+        "A rumor with an assumed timestamp.",
+        "Only information actually public at or before that pause."
+      ],
+      "transferCorrect": 2,
+      "transferFeedback": "In this changed case, the evidence supports: Only information actually public at or before that pause. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-security screening data. These predicates are not live broker conditions, market recommendations, or persistent user watchlist records.",
+      "choiceFeedback": [
+        "The statement “Treat it as current because volume is high.” does not follow from the defined evidence. WAIT for timely quote evidence before risk qualification. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “Assume an immediate filled stop order.” does not follow from the defined evidence. WAIT for timely quote evidence before risk qualification. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “The later filing as confirmed prior catalyst.” does not follow from the defined evidence. Only information actually public at or before that pause. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “A rumor with an assumed timestamp.” does not follow from the defined evidence. Only information actually public at or before that pause. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compare each fictional row's freshness flag, issuer time, and current decision timestamp before evaluating the candidate's technical attributes. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "rule": "freshness"
+    },
+    {
+      "id": "WATCH-09",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_SECTOR_RELATIVE",
+      "title": "Sector Benchmark Comparison",
+      "learn": "Relative strength compares matched-period security performance against a chosen market or sector benchmark; a green stock can still underperform.",
+      "why": "Benchmark comparisons can improve watchlist research quality without asserting future sector leadership.",
+      "method": "Compare consistent adjusted returns and sector membership for the same interval; a fictional ratio at least one passes only this contextual filter.",
+      "limitation": "Different dividend/split methods and time windows may invalidate apparent relative outperformance.",
+      "question": "Stock return is 8% while its benchmark returns 12% in the same period. What happened?",
+      "options": [
+        "It outperformed since its price rose.",
+        "It gained absolutely but underperformed relatively.",
+        "It must lose 4% tomorrow."
+      ],
+      "correct": 1,
+      "feedback": "The evidence supports: It gained absolutely but underperformed relatively. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "Stock prices are raw but benchmark returns include dividends. How should Talia compare them?",
+      "transferOptions": [
+        "Reconcile return basis and corporate actions first.",
+        "Ignore the discrepancy if RVOL is high.",
+        "Declare the larger number the guaranteed best investment."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "In this changed case, the evidence supports: Reconcile return basis and corporate actions first. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-security screening data. These predicates are not live broker conditions, market recommendations, or persistent user watchlist records.",
+      "choiceFeedback": [
+        "The statement “It outperformed since its price rose.” does not follow from the defined evidence. It gained absolutely but underperformed relatively. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “It must lose 4% tomorrow.” does not follow from the defined evidence. It gained absolutely but underperformed relatively. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        null,
+        "The statement “Ignore the discrepancy if RVOL is high.” does not follow from the defined evidence. Reconcile return basis and corporate actions first. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “Declare the larger number the guaranteed best investment.” does not follow from the defined evidence. Reconcile return basis and corporate actions first. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Compare consistent adjusted returns and sector membership for the same interval; a fictional ratio at least one passes only this contextual filter. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "rule": "sector"
+    },
+    {
+      "id": "WATCH-10",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_HALT_SSR_BORROW",
+      "title": "Short-Sale Eligibility and Halts",
+      "learn": "A bearish chart idea does not establish short-borrow access; halt status and applicable SSR price-test restrictions are separate from market structure.",
+      "why": "Eligibility research prevents teaching fictional short entries as if real broker approval and share location were automatic.",
+      "method": "Independently check documented borrow availability, no current halt, the setup trigger and existing liquidity/source requirements.",
+      "limitation": "SSR is not a blanket short-sale ban; short-side risks can greatly exceed a mirrored long-side chart plan.",
+      "question": "A short setup appears but borrow is unavailable. What follows?",
+      "options": [
+        "The chart confirms automatic short eligibility.",
+        "NO TRADE for that short variant pending borrow approval.",
+        "SSR supplies a share locate automatically."
+      ],
+      "correct": 1,
+      "feedback": "The evidence supports: NO TRADE for that short variant pending borrow approval. This is an ungraded explanation of observations, not a guaranteed price outcome or order execution.",
+      "transferQuestion": "A security is halted after an earlier strong bearish candle. What is correct?",
+      "transferOptions": [
+        "The previous candle guarantees a short fill.",
+        "A favorable RSI substitutes for exchange trading status.",
+        "A halt requires separate status and reopening evidence before any hypothetical execution."
+      ],
+      "transferCorrect": 2,
+      "transferFeedback": "In this changed case, the evidence supports: A halt requires separate status and reopening evidence before any hypothetical execution. Separate observable source facts from assumptions and review risk before any hypothetical trade.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-security screening data. These predicates are not live broker conditions, market recommendations, or persistent user watchlist records.",
+      "choiceFeedback": [
+        "The statement “The chart confirms automatic short eligibility.” does not follow from the defined evidence. NO TRADE for that short variant pending borrow approval. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null,
+        "The statement “SSR supplies a share locate automatically.” does not follow from the defined evidence. NO TRADE for that short variant pending borrow approval. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome."
+      ],
+      "transferFeedbackByChoice": [
+        "The statement “The previous candle guarantees a short fill.” does not follow from the defined evidence. A halt requires separate status and reopening evidence before any hypothetical execution. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        "The statement “A favorable RSI substitutes for exchange trading status.” does not follow from the defined evidence. A halt requires separate status and reopening evidence before any hypothetical execution. The fictional scenario still needs independent confirmation and cannot establish a guaranteed market outcome.",
+        null
+      ],
+      "scaffold": "Find the declared source, timeframe and calculation first. Independently check documented borrow availability, no current halt, the setup trigger and existing liquidity/source requirements. The defensible answer is the one that does not promise future prices or waive hard gates.",
+      "rule": "borrow"
     }
   ],
   "rights": "All bars and symbol names are synthetic. No licensed market-data redistribution or private assessment keys."

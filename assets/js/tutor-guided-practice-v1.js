@@ -55,6 +55,56 @@
    const baseline=bars.length*20000;
    return {value:observed/baseline,series:[],note:'Fictional matched-clock baseline: '+baseline.toLocaleString()+' shares over '+bars.length+' bars. Activity, not direction.'};
   }
+  if(k==='obv'){
+   let v=0;for(let i=1;i<bars.length;i++){
+    if(bars[i].close>bars[i-1].close)v+=bars[i].volume;
+    if(bars[i].close<bars[i-1].close)v-=bars[i].volume;
+   }
+   return {value:v,series:[],note:'Zero-seeded OBV: signed volume by close change, not identified buy/sell orders.'};
+  }
+  if(k==='cmf'){
+   if(bars.length<len)return {value:null,series:[],note:'CMF needs '+len+' completed bars.'};
+   let numerator=0,denominator=0;
+   for(const b of bars.slice(-len)){
+    const range=b.high-b.low,clv=range===0?0:(2*b.close-b.high-b.low)/range;
+    numerator+=clv*b.volume;denominator+=b.volume;
+   }
+   return {value:denominator>0?numerator/denominator:null,series:[],note:'CMF sums close-location-weighted volume; not actual institutional fund flow.'};
+  }
+  if(k==='mfi'){
+   if(bars.length<=len)return {value:null,series:[],note:'MFI needs '+(len+1)+' completed bars.'};
+   let pos=0,neg=0;
+   for(let i=bars.length-len;i<bars.length;i++){
+    const old=(bars[i-1].high+bars[i-1].low+bars[i-1].close)/3,now=(bars[i].high+bars[i].low+bars[i].close)/3;
+    const value=now*bars[i].volume;
+    if(now>old)pos+=value;else if(now<old)neg+=value;
+   }
+   return {value:neg===0?(pos===0?50:100):pos===0?0:100-100/(1+pos/neg),series:[],
+    note:'Typical-price × volume MFI. The no-flow case is defined as 50; not identified buyer flow.'};
+  }
+  if(k==='roc'){
+   if(bars.length<=len)return {value:null,series:[],note:'ROC needs '+(len+1)+' completed bars.'};
+   const old=bars[bars.length-len-1].close;
+   return {value:old!==0?100*(bars.at(-1).close/old-1):null,series:[],
+    note:'ROC = percentage change over '+len+' completed closes, with split-adjustment requirements.'};
+  }
+  if(k==='donchian'){
+   const series=[],upperSeries=[],lowerSeries=[];
+   for(let i=0;i<bars.length;i++){
+    if(i<len-1){series.push(null);upperSeries.push(null);lowerSeries.push(null);continue}
+    const window=bars.slice(i-len+1,i+1),hi=Math.max(...window.map(x=>x.high)),lo=Math.min(...window.map(x=>x.low));
+    upperSeries.push(hi);lowerSeries.push(lo);series.push((hi+lo)/2);
+   }
+   return {value:series[n],series,upperSeries,lowerSeries,upper:upperSeries[n],lower:lowerSeries[n],
+    note:'Inclusive Donchian rolling high/low from completed bars; a prior-channel breakout needs an offset.'};
+  }
+  if(k==='keltner'){
+   const series=math.ema(bars.map(b=>b.close),len),ranges=math.atr(bars,len);
+   const upperSeries=series.map((v,i)=>finite(v)&&finite(ranges[i])?v+2*ranges[i]:null);
+   const lowerSeries=series.map((v,i)=>finite(v)&&finite(ranges[i])?v-2*ranges[i]:null);
+   return {value:series[n],series,upperSeries,lowerSeries,upper:upperSeries[n],lower:lowerSeries[n],
+    note:'Explicit Keltner variant: EMA of closes +/- two Wilder ATR units. Platform methods vary.'};
+  }
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
  function reset(unit){
@@ -80,7 +130,8 @@
   }
   select.value=state.unit.id;
   select.addEventListener('change',()=>reset(state.units.find(u=>u.id===select.value)||state.units[0]));
-  const small=add(selector,'span','14 original scenarios · 8 indicator / 6 watchlist · 9 learning stages','tgp-meta');
+  const ind=state.units.filter(x=>x.kind==='indicator').length;
+  const small=add(selector,'span',state.units.length+' original scenarios · '+ind+' indicator / '+(state.units.length-ind)+' watchlist · 9 learning stages','tgp-meta');
   small.setAttribute('aria-label','Available practice lessons');
  }
  function stages(host){
@@ -106,9 +157,12 @@
   }else if(state.stage===1){
    add(host,'h4','What it means');
    add(host,'p',g.learn);
+   if(g.method){add(host,'h4','How to calculate or apply it');add(host,'p',g.method)}
    add(host,'h4','Why it matters');
+   if(g.why)add(host,'p',g.why);
    add(host,'p',g.kind==='indicator'?'Indicators describe a chosen calculation on observed bars. Their context can help organize research, but they cannot independently prove an entry, HOLD, EXIT or probability of profit.':'A professional watchlist separates source verification, candidate discovery, setup qualification and risk. An impressive scan result must still survive hard vetoes.');
    add(host,'h4','What can go wrong');
+   if(g.limitation)add(host,'p',g.limitation);
    add(host,'p',g.kind==='indicator'?'Changing the lookback, bar completion, session or data feed can change the plotted value. A crossing may fail.':'Stale quotes, source-timestamp errors, missing catalyst evidence, halts and borrow restrictions can invalidate an otherwise attractive candidate.');
   }else if(state.stage===2){
    add(host,'p',g.kind==='indicator'?'Move the historical-pause slider or study length and watch calculations change using only the revealed fictional bars.':'Change the fictional scanner requirements. Each row is re-evaluated against mandatory gates; a high RVOL never overrides a liquidity veto.');
@@ -171,6 +225,17 @@
    info.series.forEach((v,i)=>{if(!finite(v))return;const x=left+span*(i+0.5),yy=y(v);buffer+=(buffer?' L ':'M ')+x.toFixed(2)+' '+yy.toFixed(2)});
    if(buffer)svg.append(svgEl('path',{d:buffer,stroke:'#c8ad66','stroke-width':2.2,fill:'none','stroke-linejoin':'round'}));
   }
+  if(info.upperSeries&&info.lowerSeries){
+   for(const values of [info.upperSeries,info.lowerSeries]){
+    let d='',continuous=false;
+    values.forEach((v,i)=>{
+     if(!finite(v)){continuous=false;return}
+     const x=left+span*(i+0.5),yy=y(v);
+     d+=(continuous?' L ':' M ')+x.toFixed(2)+' '+yy.toFixed(2);continuous=true;
+    });
+    if(d)svg.append(svgEl('path',{d,stroke:'#95a6c7','stroke-width':1.5,fill:'none','stroke-dasharray':'5 3'}));
+   }
+  }
   const xt=svgEl('text',{x:left,y:262,fill:'currentColor','font-size':12});xt.textContent='09:30 ET  ·  1-minute bars  ·  '+bars.length+' completed / 48 fictional';svg.append(xt);
   host.append(svg);
   const stats=add(host,'div',undefined,'tgp-stats');
@@ -182,19 +247,34 @@
   add(host,'p','These are deterministic invented prices. A pause only calculates from bars shown, not later bars. Price overlays are not displayed for separate-scale oscillators.','tgp-caption');
  }
  const candidates=[
-  {symbol:'FICT-A',spread:0.40,rvol:2.8,verified:true,halted:false,trigger:true},
-  {symbol:'FICT-B',spread:3.20,rvol:4.1,verified:true,halted:false,trigger:true},
-  {symbol:'FICT-C',spread:0.35,rvol:3.7,verified:false,halted:false,trigger:true},
-  {symbol:'FICT-D',spread:0.45,rvol:2.3,verified:true,halted:true,trigger:false}
+  {symbol:'FICT-A',spread:0.40,rvol:2.8,verified:true,halted:false,trigger:true,price:12,allowed:true,restricted:false,relative:1.08,shortable:false,fresh:true},
+  {symbol:'FICT-B',spread:3.20,rvol:4.1,verified:true,halted:false,trigger:true,price:8,allowed:true,restricted:false,relative:0.90,shortable:true,fresh:true},
+  {symbol:'FICT-C',spread:0.35,rvol:3.7,verified:false,halted:false,trigger:true,price:4,allowed:true,restricted:false,relative:1.12,shortable:true,fresh:false},
+  {symbol:'FICT-D',spread:0.45,rvol:2.3,verified:true,halted:true,trigger:false,price:6,allowed:false,restricted:true,relative:1.14,shortable:false,fresh:true}
  ];
- function assessCandidate(c){
-  const reasons=[];
+ function specialGate(c,rule){
+  if(rule==='boolean'){
+   const all=c.price>=5&&c.allowed,any=c.relative>=1.05||c.shortable,none=!c.restricted;
+   return {pass:all&&any&&none,description:'ALL(price at least $5 and selected universe) + ANY(relative strength at least 1.05 or borrow) + NONE(restricted)',
+    reason:!all?'mandatory universe/price condition failed':!any?'no ANY condition passed':!none?'restricted list exclusion':'passed all Boolean groups'};
+  }
+  if(rule==='freshness')return {pass:c.fresh===true,description:'Quote and source timestamp verified',
+   reason:c.fresh?'fresh source in fictional scenario':'stale source or quote'};
+  if(rule==='sector')return {pass:c.relative>=1,description:'Same-period sector relative ratio at least 1.00',
+   reason:c.relative>=1?'benchmark-relative context passes':'underperforms its chosen benchmark'};
+  if(rule==='borrow')return {pass:c.shortable===true,description:'Broker short-borrow eligibility independently confirmed',
+   reason:c.shortable?'fictional borrow appears available':'short borrow unavailable or unverified'};
+  return null;
+ }
+ function assessCandidate(c,rule=state.unit?.rule){
+  const reasons=[],special=specialGate(c,rule);
   if(c.spread>state.maxSpread)reasons.push('spread exceeds limit');
   if(c.rvol<state.minRvol)reasons.push('RVOL below threshold');
   if(state.requiresVerified&&!c.verified)reasons.push('catalyst not verified');
   if(state.excludeHalted&&c.halted)reasons.push('halt risk');
   if(!c.trigger)reasons.push('trigger not confirmed');
-  return {pass:reasons.length===0,reasons};
+  if(special&&!special.pass)reasons.push(special.reason);
+  return {pass:reasons.length===0,reasons,special};
  }
  function renderWatch(host){
   const controls=add(host,'div',undefined,'tgp-gates');
@@ -211,15 +291,18 @@
    input.checked=state[f.id];holder.append(document.createTextNode(' '+f.label));
    input.addEventListener('change',e=>{state[f.id]=e.target.checked;render()});
   }
+  const extra=specialGate(candidates[0],state.unit?.rule);
+  if(extra)add(host,'p','Focus rule for this lesson: '+extra.description,'tgp-caption');
   const wrapper=add(host,'div',undefined,'tgp-table-scroll'),table=add(wrapper,'table',undefined,'tgp-scan-table');
   const thead=add(table,'thead'),tr=add(thead,'tr');
-  ['Fictional symbol','Spread','RVOL','Primary source','Halt','Setup','Gate result'].forEach(h=>add(tr,'th',h));
+  ['Fictional symbol','Spread','RVOL','Primary source','Halt','Setup',...(extra?['Special gate']:[]),'Gate result'].forEach(h=>add(tr,'th',h));
   const tbody=add(table,'tbody');
   candidates.forEach(c=>{
    const r=add(tbody,'tr');const a=assessCandidate(c);
    [c.symbol,c.spread.toFixed(2)+'%',c.rvol.toFixed(1)+'×',c.verified?'Verified':'Pending',c.halted?'Halted':'Clear',
-    c.trigger?'Observed':'Waiting',a.pass?'Eligible for risk review':'Not qualified'].forEach((x,i)=>add(r,'td',x,i===6?(a.pass?'tgp-good':'tgp-warning'):undefined));
-   if(!a.pass){const hint=add(tbody,'tr');const cell=add(hint,'td','Reason: '+a.reasons.join('; '),'tgp-caption');cell.colSpan=7;}
+    c.trigger?'Observed':'Waiting',...(extra?[a.special?.pass?'Pass':'Fail']:[]),a.pass?'Eligible for risk review':'Not qualified']
+      .forEach((x,i)=>add(r,'td',x,i===(extra?7:6)?(a.pass?'tgp-good':'tgp-warning'):undefined));
+   if(!a.pass){const hint=add(tbody,'tr');const cell=add(hint,'td','Reason: '+a.reasons.join('; '),'tgp-caption');cell.colSpan=extra?8:7;}
   });
   add(host,'p','The adjustable values are fictional learning-policy gates, not recommended thresholds. “Eligible for risk review” never means an order is placed.','tgp-caption');
  }
@@ -257,7 +340,7 @@
     feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
    }
    if(!transfer&&state.attempts>=2&&!state.correct){
-    add(host,'p','Talia’s scaffold: Identify what the indicator or scanner *measures*. Rule out answers promising future price or ignoring a documented source, execution, or risk veto. Try another option.','tgp-feedback');
+    add(host,'p',g.scaffold||'Talia’s scaffold: Identify what the indicator or scanner *measures*. Rule out answers promising future price or ignoring a documented source, execution, or risk veto. Try another option.','tgp-feedback');
    }
   }
  }
@@ -329,8 +412,8 @@
    const r=await fetch('/data/tutor-guided-practice-v1.json',{credentials:'same-origin',cache:'no-cache'});
    if(!r.ok)throw Error('Teaching asset missing');
    const data=await r.json(),units=data?.modules;
-   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==8||
-     data?.watchlistCount!==6||!Array.isArray(units)||units.length!==14||
+   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==14||
+     data?.watchlistCount!==10||!Array.isArray(units)||units.length!==24||
      !root.CrownlightIndicatorMath)throw Error('Teaching catalog or indicator math unavailable');
    const ids=new Set();
    for(const m of units){
@@ -352,7 +435,7 @@
   }
  }
  // Nonprivate, side-effect free test exposure: neither stored learner data nor order actions.
- root.TaliaGuidedPracticeV1=Object.freeze({candleData,assessCandidate,metric:(bars,metricName,period)=>{
+ root.TaliaGuidedPracticeV1=Object.freeze({candleData,assessCandidate,specialGate,metric:(bars,metricName,period)=>{
   const prior=state.unit,priorPeriod=state.period;
   state.unit={metric:metricName};state.period=period;
   try{return metric(bars)}finally{state.unit=prior;state.period=priorPeriod}
