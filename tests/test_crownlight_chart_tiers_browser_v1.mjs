@@ -43,7 +43,7 @@ if(u.pathname==='/api/member-sparks-chart')return route.fulfill({status:200,cont
  {tier:'PROFESSIONAL',label:'Professional Studio · 24 hours',sku:'STUDIO_PROFESSIONAL_DAY',costSparks:15,durationHours:24}
  ]})});
 if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',
-body:JSON.stringify({ok:true,eligible:true,tier:grantedTier,allowed:grantedTier==='STANDARD'?['STANDARD']:grantedTier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL'],
+body:JSON.stringify({ok:true,eligible:true,sparksChartPasses:{enabled:true},tier:grantedTier,allowed:grantedTier==='STANDARD'?['STANDARD']:grantedTier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL'],
 temporaryAccess:grantedTier==='PROFESSIONAL'?{kind:'SPARKS',tier:'PROFESSIONAL',expiresAt:new Date(Date.now()+3600000).toISOString()}:undefined})});
 if(u.pathname==='/')return route.fulfill({status:200,contentType:'text/html',body:html});
 const f=join(root,u.pathname.slice(1)),ext=extname(f);
