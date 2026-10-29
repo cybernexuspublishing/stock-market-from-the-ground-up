@@ -322,7 +322,7 @@ async function load(){
     section('Historical founding records','No longer offered through the Founding 600 program.',oldFounders.map(membershipCard))+'</details>':'');
   const released=tools.filter(t=>t.status==='live'),drafts=tools.filter(t=>['beta','planned','in_development','development'].includes(t.status));
   const other=tools.filter(t=>!released.includes(t)&&!drafts.includes(t));
-  $('admin-products-tool-list').innerHTML=section('Released tools ('+released.length+')','LIVE is a registry state; beta acceptance, public listing and checkout readiness are separate.',released.map(toolCard))+
+  $('admin-products-tool-list').innerHTML=section('LIVE registry tools ('+released.length+')','LIVE is a registry state; beta acceptance, public listing and checkout readiness are separate.',released.map(toolCard))+
    '<details class="product-archive"><summary>Beta / planned tool records ('+drafts.length+') — not live standalone products</summary>'+
    section('Unreleased tool registry','These registered tools have not passed standalone paid release.',drafts.map(toolCard))+'</details>'+
    (other.length?section('Other tool states ('+other.length+')','No records omitted.',other.map(toolCard)):'')+
