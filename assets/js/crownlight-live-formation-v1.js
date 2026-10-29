@@ -22,7 +22,7 @@
   if($('cl-live-demo'))$('cl-live-demo').disabled=running;
   if($('cl-live-stop'))$('cl-live-stop').disabled=!running;
   if($('cl-live-pause')){$('cl-live-pause').hidden=state.mode!=='demo';$('cl-live-pause').disabled=state.mode!=='demo';$('cl-live-pause').textContent=state.demoPaused?'Resume Fictional Formation':'Pause Fictional Formation';}
-  if($('cl-live-speed')){$('cl-live-speed').disabled=state.mode!=='demo';$('cl-live-speed').value=String(state.demoSpeed);}
+  if($('cl-live-speed')){$('cl-live-speed').disabled=state.mode==='iex';$('cl-live-speed').value=String(state.demoSpeed);}
  }
  function setView(active){
   const stage=$('crownlight-live-stage');
