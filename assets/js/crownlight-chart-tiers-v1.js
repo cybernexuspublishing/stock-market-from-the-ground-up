@@ -145,8 +145,8 @@ async function redeemSparkOffer(offer,button,feedback){
  if(!Number.isSafeInteger(state.sparkBalance)||state.sparkBalance<offer.costSparks){
   feedback.textContent='Insufficient Crownlight Sparks. No credits were deducted.';return
  }
- if(!window.confirm('Redeem '+offer.costSparks+' Crownlight Sparks for '+offer.label+
-  '? This activates a temporary Chart Studio pass. Existing active pass time is extended.'))return;
+ // The member confirms using the priced redemption button in the modal.
+ // The server still checks expectedCost, eligibility, ledger and wallet atomically.
  button.disabled=true;feedback.textContent='Verifying wallet and redeeming…';
  try{
   const token=await sparksToken();
@@ -214,6 +214,65 @@ function explainLockedTier(){
  shop.href='/store-sparks.html';
  host.append(refresh,shop);
 }
+async function showLockedTier(tier){
+ const dialog=state.view?.querySelector('#cl-chart-tier-purchase-dialog');
+ if(!dialog||!['ADVANCED','PROFESSIONAL'].includes(tier)||
+    !state.visible.includes(tier)||isEntitled(tier))return;
+ const fill=content=>{dialog.replaceChildren(...content)};
+ const title=el('h2','',names[tier]);
+ const close=el('button','btn secondary','Close');close.type='button';
+ close.onclick=()=>dialog.close();
+ const intro=el('p','','Loading your available Sparks and current pass prices…');
+ fill([title,intro,close]);
+ if(!dialog.open)dialog.showModal();
+ await loadSparkOffers();
+ if(!dialog.open)return;
+ const verified=state.verified,owned=isEntitled(tier);
+ const balance=Number.isSafeInteger(state.sparkBalance)?state.sparkBalance:null;
+ const offers=state.sparkOffers.filter(o=>o.tier===tier);
+ const details=el('div','cl-tier-price-details');
+ details.append(el('p','',requirements[tier]));
+ if(owned)details.append(el('p','', 'This Studio is already unlocked. No Sparks purchase is needed.'));
+ else if(!verified)details.append(el('p','','Account access could not be verified. No Sparks will be spent.'));
+ else if(!state.sparksAvailable||!offers.length){
+  details.append(el('p','',state.sparkLoadError||'No authorized Sparks passes are currently offered for this Studio.'));
+ }else{
+  details.append(el('p','cl-tier-wallet','Available balance: '+(balance===null?'Unavailable':balance)+' Sparks'));
+  for(const offer of offers){
+   const row=el('div','cl-tier-offer');
+   const remaining=balance===null?null:balance-offer.costSparks;
+   row.append(el('strong','',offer.label),
+    el('span','', 'Cost: '+offer.costSparks+' Sparks'),
+    el('span','', 'Remaining after purchase: '+(remaining===null?'Unavailable':Math.max(0,remaining))+' Sparks'));
+   const feedback=el('p','cl-chart-sparks-feedback');
+   feedback.setAttribute('role','status');
+   const action=el('button','btn','Confirm redemption · '+offer.costSparks+' Sparks');
+   action.type='button';action.disabled=balance===null||remaining<0||!verified;
+   action.onclick=()=>void redeemSparkOffer(offer,action,feedback);
+   row.append(action,feedback);details.append(row);
+  }
+ }
+ const compare=el('a','btn secondary','Compare memberships');compare.href='/membership.html';
+ const shop=el('a','btn secondary','View Sparks');shop.href='/store-sparks.html';
+ fill([title,details,compare,shop,close]);
+ close.focus();
+}
+function renderLockedButtons(){
+ const host=state.view?.querySelector('[data-cl-locked-items]');
+ if(!host)return;
+ host.replaceChildren();
+ if(!state.verified)return;
+ for(const tier of ['ADVANCED','PROFESSIONAL']){
+  if(!state.visible.includes(tier)||isEntitled(tier))continue;
+  const button=el('button','cl-locked-studio');
+  button.type='button';
+  button.setAttribute('aria-label', 'Locked: '+names[tier]+'. View Sparks cost and balance');
+  button.append(el('span','cl-locked-icon','🔒'),el('span','',names[tier]));
+  button.onclick=()=>void showLockedTier(tier);
+  host.append(button);
+ }
+ host.hidden=host.childElementCount===0;
+}
 function renderChoices(){
  if(!state.view)return;
  const select=state.view.querySelector('select');
@@ -241,7 +300,7 @@ function renderChoices(){
  if(note)note.textContent=state.selected==='ECHARTS'
   ?'Apache ECharts displays already revealed educational OHLCV only. No trading execution or unrevealed future bars.'
   :'The second Professional chart studies the SAME revealed candles; it does not display a future timeframe or undisclosed data.';
- explainLockedTier();updateCountdown();
+ explainLockedTier();renderLockedButtons();updateCountdown();
 }
 function period(){
  const x=/(\d+)\s*[- ]?min/i.exec(state.timeframe);
@@ -472,24 +531,14 @@ function createControls(){
  label.append(select);
  state.notice=el('p','cl-chart-tier-status','Verifying chart membership…');
  state.notice.setAttribute('role','status');state.notice.setAttribute('aria-live','polite');
- const detailsButton=el('button','cl-chart-tier-access-trigger','🔒 Unlock options');
- detailsButton.type='button';detailsButton.setAttribute('aria-expanded','false');
- detailsButton.setAttribute('aria-controls','cl-chart-tier-access-details');
- detailsButton.title='View locked Studio requirements and temporary Sparks access information';
+ const locked=el('div','cl-locked-items');locked.dataset.clLockedItems='';locked.hidden=true;
  const timer=el('p','cl-chart-tier-countdown');timer.dataset.clTierCountdown='';timer.hidden=true;
  timer.setAttribute('role','status');timer.setAttribute('aria-live','off');
- const popup=el('div','cl-chart-tier-access-popup');popup.id='cl-chart-tier-access-details';
- popup.dataset.clTierAccessDetails='';popup.hidden=true;
- popup.setAttribute('aria-label','Studio membership and Sparks access options');
- detailsButton.onclick=()=>{
-  popup.hidden=!popup.hidden;
-  detailsButton.setAttribute('aria-expanded',String(!popup.hidden));
-  if(!popup.hidden){popup.querySelector('a')?.focus();void loadSparkOffers();}
- };
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden){
-  popup.hidden=true;detailsButton.setAttribute('aria-expanded','false');detailsButton.focus();
- }});
- header.append(label,detailsButton,state.notice);panel.append(header,timer,popup);
+ const dialog=el('dialog','cl-chart-price-dialog');dialog.id='cl-chart-tier-purchase-dialog';
+ dialog.setAttribute('aria-label','Review locked Chart Studio Sparks cost');
+ document.body.append(dialog);
+ header.append(label,locked,state.notice);panel.append(header,timer);
+
  const enhanced=el('div','cl-chart-tier-enhanced');enhanced.dataset.clTierAdvanced='';enhanced.hidden=true;
  const tools=el('div','cl-chart-tier-tools');
  tools.append(el('strong','', 'KLineChart technical studies and drawings'));
