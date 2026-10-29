@@ -28,7 +28,7 @@ globalThis.fetch=async(url,options={})=>{
  if(path==='/rest/v1/gu_product_access_config_v1')return mock([]);
  if(path==='/rest/v1/tool_workspace_records'){
    query=u.searchParams.toString();
-   assert.match(query,/user_id=eq\.aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/);
+   assert(query.includes('user_id=eq.'+member),'Saved plan query must use current member ID');
    assert.match(query,/tool_code=eq\.WATCHLIST_WORKBENCH/);
    assert.match(query,/record_type=eq\.scenario_review/);
    return mock(member===id?[saved]:[]);
