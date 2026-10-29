@@ -55,6 +55,20 @@ try{
   assert.equal(data.graded,false);
   assert.equal(data.masteryAwarded,false);
  }
+ const targetedRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'Lab F2-C07-L01. Learning Journey stage: Learn. Why does this candle matter?',
+   mode:'explain',allowModel:false,saveHistory:false})});
+ const targeted=await (await onRequest({request:targetedRequest,env})).json();
+ assert(targeted.answer.includes('Why it matters:'));
+ assert(!targeted.answer.includes('Worked example (fictional):'));
+ const assessRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'Lab F2-C07-L01. Learning Journey stage: Assess. How do I calculate this?',
+   mode:'explain',allowModel:false,saveHistory:false})});
+ const assess=await (await onRequest({request:assessRequest,env})).json();
+ assert.equal(assess.labContext.learningStage,'Assess');
+ assert(!assess.answer.includes('Worked example (fictional):'));
  assert.equal(modelCalls,0);
  console.log('PASS six authenticated source-only Tutor API routes with stage context');
 }finally{globalThis.fetch=original}
