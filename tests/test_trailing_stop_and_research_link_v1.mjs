@@ -40,4 +40,9 @@ assert.match(read('assets/js/advanced-trade-plan-v1.js'),/visibleRows\(\),maxBar
 const migration=read('supabase/migrations/20261029_journal_research_provenance_link_v1.sql');
 assert.match(migration,/ENABLE ROW LEVEL SECURITY/i);
 assert.match(migration,/BEFORE UPDATE OR DELETE/i);
+const deletion=read('supabase/migrations/20261029_journal_provenance_delete_cascade_v1.sql');
+assert.match(deletion,/BEFORE UPDATE/i);
+assert.match(deletion,/ON DELETE CASCADE/i);
+assert.doesNotMatch(deletion,/BEFORE UPDATE OR DELETE/i);
+
 console.log('PASS revealed-only trailing stops, gap treatment, immutable research links and secure Journal transfer');
