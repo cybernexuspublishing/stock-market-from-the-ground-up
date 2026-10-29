@@ -28,5 +28,5 @@ assert.equal(first.priceCents,500);
 assert.equal(first.quantity,25);
 assert.equal(first.checkoutEnabled,false);
 assert.match(credits,/25 credits for \$5/i);
-assert.match(credits,/different from the proposed \$0\.10 checkout-discount amount/i);
+assert.match(credits,/different from the proposed \$0\.07 checkout-discount amount/i);
 console.log('PASS Lumens welcome non-cash conditions, prospective status, version history, non-renewing trials and price mismatch visibility');
