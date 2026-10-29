@@ -26,6 +26,7 @@ jobs:
           node tests/test_tutor_stt_research_guides_v1.mjs
           node tests/test_tutor_trade_decision_playbooks_v1.mjs
           node tests/test_tutor_advanced_decision_guides_v1.mjs
+          node tests/test_tutor_market_study_v1.mjs
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs

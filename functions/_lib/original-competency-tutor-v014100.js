@@ -15,7 +15,8 @@ function chooseGuides(index,q){
  const decisionIntent=/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation|earnings|guidance|balance sheet|cash flow|long.term|portfolio|rebalanc|sector|regime|breadth|confluenc|conflicting|signals|order flow|tape|level ii|order book|options|option premium|theta|vega|assignment|implied volatility|diversif|fundamentals)\b/i.test(String(q||''));
  const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[]),
   ...(Array.isArray(index.researchGuides)?index.researchGuides:[]),
-  ...(decisionIntent&&Array.isArray(index.decisionGuides)?index.decisionGuides:[])];
+  ...(decisionIntent&&Array.isArray(index.decisionGuides)?index.decisionGuides:[]),
+  ...(Array.isArray(index.masterStudyGuides)?index.masterStudyGuides:[])];
  return candidates.map(g=>{
   const title=String(g.title||'').toLowerCase(),code=String(g.code||'').toLowerCase().replaceAll('_',' ');
   const concept=String(g.concept||'').toLowerCase();
@@ -125,16 +126,58 @@ async function loadAdvancedDecisionGuides(env,request){
  advancedCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
  return guides;
 }
+const masterStudyCache=new WeakMap();
+const MASTER_STUDY_SOURCES=/^https:\/\/(?:www\.)?(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com|www\.cmegroup\.com|www\.investor\.gov)\//i;
+const MASTER_GROUPS=Object.freeze([
+ {file:'tutor-indicator-study-v1.json',group:'indicators',count:61},
+ {file:'tutor-watchlist-study-v1.json',group:'watchlists',count:22},
+ {file:'tutor-strategy-study-v1.json',group:'strategies',count:50}
+]);
+async function loadMasterStudyGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return [];
+ const last=masterStudyCache.get(env.ASSETS);
+ if(last&&last.expires>Date.now())return last.guides;
+ const groups=await Promise.all(MASTER_GROUPS.map(async spec=>{
+  try{
+   const r=await env.ASSETS.fetch(new Request(new URL('/data/'+spec.file,request.url),{method:'GET'}));
+   if(!r.ok)return [];
+   const data=await r.json(),guides=data?.guides;
+   if(data?.kind!=='original_public_tutor_master_study'||data?.group!==spec.group||
+      data?.count!==spec.count||!Array.isArray(guides)||guides.length!==spec.count)
+    return [];
+   const codes=new Set();
+   for(const g of guides){
+    if(!/^STUDY_[A-Z0-9_]{3,75}$/.test(String(g?.code||''))||codes.has(g.code)||
+       g.masterStudy!==true||g.supplemental!==true||g.officialCompetency!==false||
+       g.researchGuide!==true||!['indicator','watchlist','strategy'].includes(g.kind)||
+       !Array.isArray(g.sourceUrls)||!g.sourceUrls.length||g.sourceUrls.length>5||
+       !g.sourceUrls.every(u=>typeof u==='string'&&MASTER_STUDY_SOURCES.test(u))||
+       ['title','concept','formula','whyUse','howToUse','procedure','limit','limits',
+        'invalidation','commonError','selfCheck','reviewExplanation','fictionalPrompt']
+          .some(k=>typeof g[k]!=='string'||g[k].length<18))
+     return [];
+    codes.add(g.code);
+   }
+   return guides;
+  }catch{return []}
+ }));
+ const guides=groups.flat();
+ const unique=new Set(guides.map(x=>x.code));
+ if(unique.size!==guides.length)return [];
+ masterStudyCache.set(env.ASSETS,{expires:Date.now()+300000,guides});
+ return guides;
+}
 async function originalGuides(env,request,question){
  try{
   const published=await loadPublicGuides(env,request);
-  let researchGuides=[],decisionGuides=[];
+  let researchGuides=[],decisionGuides=[],masterStudyGuides=[];
   try{researchGuides=await loadResearchGuides(env,request)}catch{/* Original approved guides remain available. */}
+  try{masterStudyGuides=await loadMasterStudyGuides(env,request)}catch{/* New study is optional and never blocks the 30 core guides. */}
   if(/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation|earnings|guidance|balance sheet|cash flow|long.term|portfolio|rebalanc|sector|regime|breadth|confluenc|conflicting|signals|order flow|tape|level ii|order book|options|option premium|theta|vega|assignment|implied volatility|diversif|fundamentals)\b/i.test(String(question||''))){
    try{decisionGuides=await loadDecisionGuides(env,request)}catch{/* Never disable original lessons for an optional curriculum asset. */}
    try{decisionGuides.push(...await loadAdvancedDecisionGuides(env,request))}catch{/* Baseline 18 playbooks and canonical lessons remain available. */}
   }
-  return chooseGuides({...published,researchGuides,decisionGuides},question);
+  return chooseGuides({...published,researchGuides,decisionGuides,masterStudyGuides},question);
  }catch{return []}
 }
 function formatDecisionGuide(g,mode,reflection){
@@ -158,7 +201,34 @@ function formatDecisionGuide(g,mode,reflection){
  if(mode==='question')lines.push('Answer the evidence/invalidation check without consulting a future candle.');
  return lines.join('\n\n');
 }
+function formatMasterStudyGuide(g,mode,reflection){
+ const out=[
+  'Original ungraded stock-market study — '+g.title,
+  'Learning family: '+g.family+' ('+g.kind+')',
+  'WHAT it does: '+g.concept,
+  'HOW it works or is defined: '+g.formula,
+  'WHY it helps a learner: '+g.whyUse,
+  'HOW to use it in research: '+g.howToUse,
+  'Step-by-step process: '+g.procedure,
+  'Limits and uncertainty: '+g.limit,
+  'Failure or invalidation: '+g.invalidation,
+  'Common mistake: '+g.commonError
+ ];
+ if(g.kind==='strategy')out.push(
+  'Entry evidence: '+g.entryEvidence,
+  'Conditional HOLD reasoning: '+g.holdEvidence,
+  'Possible EXIT reasoning: '+g.exitEvidence,
+  'WAIT / NO TRADE: '+g.noTrade
+ );
+ out.push('Original fictional teaching prompt: '+g.fictionalPrompt);
+ out.push('Reference documentation (does not prove a strategy edge or current broker settings): '+g.sourceUrls.join(' '));
+ out.push('Ungraded understanding check: '+g.selfCheck);
+ if(mode==='review')out.push('Your reflection is ungraded; it does not earn mastery: '+ungradedResponseReview(reflection));
+ if(mode==='question')out.push('Answer from evidence visible at the pause, not from later prices.');
+ return out.join('\n\n');
+}
 function answerFromGuide(g,mode,answer){
+ if(g.masterStudy===true)return formatMasterStudyGuide(g,mode,answer);
  if(g.decisionPlaybook===true)return formatDecisionGuide(g,mode,answer);
  const links=(g.researchGuide===true&&Array.isArray(g.sourceUrls)?g.sourceUrls:[])
   .filter(u=>typeof u==='string'&&/^https:\/\/(www\.investor\.gov|www\.sec\.gov|www\.finra\.org|toslc\.thinkorswim\.com)\//.test(u)).slice(0,2);

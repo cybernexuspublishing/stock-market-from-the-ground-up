@@ -247,18 +247,21 @@ export async function onRequest({request,env}){
    const reference=[...selectedGuides.map(g=>({title:g.title,
     summary:[g.concept,g.procedure,'Limitation: '+g.limit,'Invalidation: '+g.invalidation]
      .join(' ').slice(0,900)})),...source.slice(0,3-selectedGuides.length)].slice(0,3);
-   const model=guide.decisionPlaybook===true?{text:null,reason:'decision_playbook_source_only'}:
+   const model=guide.masterStudy===true?{text:null,reason:'original_market_study_source_only'}:
+    guide.decisionPlaybook===true?{text:null,reason:'decision_playbook_source_only'}:
     await paidLearningDraft(env,body,auth.userId,contextualQuestion,mode,reference,answer,auth.aiOptedIn);
    return finish({ok:true,generation:model.text?'grounded-model-draft':'original-competency-guide',
     answer:model.text||answerFromGuide(guide,mode,answer),aiReason:model.reason,
     remainingAiToday:model.remainingMemberToday??null,
     sources:[...selectedGuides.map((g,i)=>({id:g.code,title:g.title,summary:g.concept,
-     sourceLabel:g.decisionPlaybook===true?'Original setup decision playbook (ungraded)':
+     sourceLabel:g.masterStudy===true?'Original stock-market study guide (ungraded)':
+      g.decisionPlaybook===true?'Original setup decision playbook (ungraded)':
       g.researchGuide===true?'Original research-informed Tutor guide (ungraded)':'Original in-platform competency guide',
      sourceId:'['+(i+1)+']',bookContext:g.researchGuide===true?'Owner STT research; not a validated trading edge':'Original 30-competency study guide',
      referenceUrls:g.researchGuide===true?g.sourceUrls||[]:[],
      practiceUrl:'/labs.html?q='+encodeURIComponent(g.title)})),...publicMatches(source.slice(0,3-selectedGuides.length)).map((t,i)=>({...t,sourceId:'['+(i+1+selectedGuides.length)+']'}))],
-    graded:false,masteryAwarded:false,sourceLimit:guide.decisionPlaybook===true?'Original fictional setup-reasoning framework, not individualized trade advice, a validated edge, a fill guarantee or graded competency':
+    graded:false,masteryAwarded:false,sourceLimit:guide.masterStudy===true?'Original source-informed indicator/watchlist/strategy study; no validated trading edge, current market quotation, broker endorsement or graded competency.':
+     guide.decisionPlaybook===true?'Original fictional setup-reasoning framework, not individualized trade advice, a validated edge, a fill guarantee or graded competency':
      guide.researchGuide===true?'Original public research-informed lesson; no strategy performance certification, private rubric or licensed market feed.':'Only the 30 original public competency guides, no unverified tape or private rubric.',
     notice:'Zero-cost original competency instruction. A self-check is not a graded Lab or independently reviewed historical observation.',
     links:{labs:'/labs.html',journal:'/journal.html',skills:'/skills.html',simulator:'/simulator.html'}});
