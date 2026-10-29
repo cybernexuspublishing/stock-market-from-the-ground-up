@@ -1,6 +1,6 @@
 /* v0.14.0.35 — Preserve existing commerce API; ensure every approved book has a cover. */
 window.CommerceTools=(function(){'use strict';
-  const moneyCents=n=>Number(n||0).toLocaleString(undefined,{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  const moneyCents=n=>(Number(n||0)/100).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}); // catalog price_cents -> USD
   const money=moneyCents;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const safeHref=url=>{const s=String(url||'').trim();return /^https:\/\//i.test(s)||/^(?:\.\/)?[A-Za-z0-9_\-]+\.html(?:[?#].*)?$/.test(s)||/^\/[A-Za-z0-9_\-\/.]+(?:[?#].*)?$/.test(s)?s:''};
