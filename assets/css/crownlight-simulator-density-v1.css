@@ -863,3 +863,24 @@ body.simulator-page #sim-content .sim-controls label[for="sim-speed"]{
  font-size:.78rem;font-weight:680
 }
 body.simulator-page .sim-mode-switch #sim-mode-notice:empty{display:none!important}
+
+
+/* Keep trade-plan/execution tabs within the vertical boundary of the chart panel.
+ * At narrow widths the pane stacks naturally and returns to normal document flow. */
+@media(min-width:1251px){
+ body.simulator-page #sim-content:not([hidden]) > #cl-simulator-workbench{
+  max-height:var(--sim-chart-panel-height,700px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important
+ }
+}
+body.simulator-page #sim-chart-notice{
+ position:sticky;bottom:10px;z-index:12;width:min(100%,800px);margin:6px auto;
+ padding:9px 12px;border-radius:7px;background:#122943;color:#e3f2fb;
+ border:1px solid #51759c;box-shadow:0 8px 25px #0006;
+ font-size:.77rem;line-height:1.45
+}
+body.simulator-page #sim-chart-notice[data-error="true"]{background:#3c2027;border-color:#bb6b77;color:#fff0f2}
+body.simulator-page #sim-chart-notice[hidden]{display:none!important}
+body.simulator-page #sim-candle-accessible{position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important}
