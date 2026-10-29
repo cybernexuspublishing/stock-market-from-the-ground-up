@@ -24,6 +24,7 @@ jobs:
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014100_free_competency_tutor.mjs
           node tests/test_tutor_stt_research_guides_v1.mjs
+          node tests/test_tutor_video_research_v1.mjs
           node tests/test_tutor_trade_decision_playbooks_v1.mjs
           node tests/test_tutor_advanced_decision_guides_v1.mjs
           node tests/test_tutor_market_study_v1.mjs
@@ -78,6 +79,7 @@ jobs:
           node --check functions/api/owner-tutor-topic-gaps.js
           node --check functions/api/member-tutor-data-delete.js
           bash scripts/build-pages.sh
+          test -s public/data/tutor-video-transcript-research-v1.json
           test -s public/data/tutor-guided-practice-v1.json
           test -s public/data/tutor-indicator-study-v1.json
           test -s public/data/tutor-watchlist-study-v1.json

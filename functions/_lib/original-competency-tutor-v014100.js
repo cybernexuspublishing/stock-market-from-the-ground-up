@@ -83,6 +83,28 @@ async function loadResearchGuides(env,request){
  researchCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
  return guides;
 }
+// Optional independent source-informed video intake: never changes official competencies.
+const videoResearchCache=new WeakMap();
+async function loadVideoResearchGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return [];
+ const cached=videoResearchCache.get(env.ASSETS);
+ if(cached&&cached.expires>Date.now())return cached.guides;
+ const result=await env.ASSETS.fetch(new Request(new URL('/data/tutor-video-transcript-research-v1.json',request.url),{method:'GET'}));
+ if(!result.ok)throw Error('Optional video research asset unavailable');
+ const data=await result.json(),guides=data?.guides;
+ if(data?.kind!=='original_public_tutor_video_transcript_research'||data?.count!==14||!Array.isArray(guides)||guides.length!==14)throw Error('Invalid optional video research catalog');
+ const ids=new Set();
+ for(const g of guides){
+  if(!/^VIDEO_[A-Z0-9_]{4,72}$/.test(String(g?.code||''))||ids.has(g.code)||
+   g.researchGuide!==true||g.supplemental!==true||g.officialCompetency!==false||
+   !String(g.archiveBasis||'').includes('STT')||!Array.isArray(g.sourceRefs)||g.sourceRefs.length<1||
+   !['title','concept','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
+      .every(k=>typeof g[k]==='string'&&g[k].length>=40))throw Error('Invalid optional video research lesson');
+  ids.add(g.code);
+ }
+ videoResearchCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
+ return guides;
+}
 const decisionCache=new WeakMap();
 const DECISION_CITATION=/^https:\/\/(?:www\.)?(?:cmegroup\.com|fidelity\.com|schwab\.com|investor\.gov|sec\.gov|chartschool\.stockcharts\.com|help\.stockcharts\.com)\//i;
 async function loadDecisionGuides(env,request){
@@ -187,6 +209,7 @@ async function originalGuides(env,request,question){
   const published=await loadPublicGuides(env,request);
   let researchGuides=[],decisionGuides=[],masterStudyGuides=[];
   try{researchGuides=await loadResearchGuides(env,request)}catch{/* Original approved guides remain available. */}
+  try{researchGuides.push(...await loadVideoResearchGuides(env,request))}catch{/* Supplemental video studies are optional; original sources remain available. */}
   try{masterStudyGuides=await loadMasterStudyGuides(env,request)}catch{/* New study is optional and never blocks the 30 core guides. */}
   if(/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation|earnings|guidance|balance sheet|cash flow|long.term|portfolio|rebalanc|sector|regime|breadth|confluenc|conflicting|signals|order flow|tape|level ii|order book|options|option premium|theta|vega|assignment|implied volatility|diversif|fundamentals)\b/i.test(String(question||''))){
    try{decisionGuides=await loadDecisionGuides(env,request)}catch{/* Never disable original lessons for an optional curriculum asset. */}

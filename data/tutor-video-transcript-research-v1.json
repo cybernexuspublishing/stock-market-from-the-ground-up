@@ -1,0 +1,310 @@
+{
+  "kind": "original_public_tutor_video_transcript_research",
+  "version": "1.0",
+  "date": "2026-10-29",
+  "project": "The Stock Market: From the Ground Up",
+  "status": "source-informed ungraded educational catalog; not independent historical bar verification",
+  "count": 14,
+  "copyright": "Original educational analysis only. No StocksToTrade transcript, proprietary footage, charts or trading-course text is republished.",
+  "notice": "User-supplied dated transcripts are research inputs, not verified strategy-performance evidence, market data rights or current broker product descriptions.",
+  "guides": [
+    {
+      "code": "VIDEO_CANDLE_SEQUENCE",
+      "title": "Candlestick OHLC and intrabar-sequence uncertainty",
+      "concept": "Candlestick color compares the bar close with its open; the real body spans those values and the wicks mark its high and low. The OHLC bar does not reveal the ordering of intrabar trades.",
+      "procedure": "First identify the instrument, aggregation interval and completed-bar boundary. Read O, H, L and C, compute body and range, and state whether the bar was bullish, bearish or near-equal. Do not narrate a rise-then-fall-then-rebound path without a finer-grained source.",
+      "limit": "A daily or five-minute candle cannot prove the intrabar sequence, actual executable prints, spread or who initiated the trades.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Claiming that a lower wick proves a specific time-ordered sequence of buyers and sellers.",
+      "selfCheck": "The historical replay includes one five-minute candle only. Which intrabar paths remain unknown?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A daily or five-minute candle cannot prove the intrabar sequence, actual executable prints, spread or who initiated the trades.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Candlestick Charts; Five Ways to Analyze Stock Charts",
+      "sourceRefs": [
+        "STT-VIDEO-01"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_GAP_VOLUME",
+      "title": "Price gaps, doji bodies and separate volume bars",
+      "concept": "A gap compares one session's trading with the preceding session, while a doji-like body shows a small open-to-close difference within a bar. A small body does not necessarily imply a small full high-to-low range.",
+      "procedure": "Record the prior session close, next applicable session open, session conventions and OHLC for each compared bar. Examine the full wick range and plot volume bars as share counts per interval instead of interpreting them as price candles.",
+      "limit": "A gap or large share-volume bar does not validate a catalyst, direction of subsequent prices or ability to exit at a quoted level.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Equating a tiny candle body with an uneventful trading day or treating volume bars as additional OHLC candles.",
+      "selfCheck": "Can a doji have an unusually wide high-to-low range, and what data would prove the true opening gap?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A gap or large share-volume bar does not validate a catalyst, direction of subsequent prices or ability to exit at a quoted level.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Essential Beginner Candlestick Guide; Five Ways to Analyze Stock Charts",
+      "sourceRefs": [
+        "STT-VIDEO-02"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_STOP_REALITY",
+      "title": "Stop-market, stop-limit and trailing-stop execution limitations",
+      "concept": "A planned exit is a risk-control instruction, not a guarantee of an exact fill. A stop order commonly becomes a market order when triggered, while a stop-limit constrains price but may remain unexecuted; trailing stops move by defined rules.",
+      "procedure": "Before any hypothetical entry identify the exchange session, brokerage trigger convention, order type, stop reference, bid-ask spread, expected adverse slippage and what happens during a halt, gap or fast market.",
+      "limit": "A stop threshold is not a guaranteed loss cap; a thin order book or gap can cause a worse fill or an unfilled stop-limit order.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Teaching a stop-loss as an automatic insurance policy or asserting that daily volume guarantees sufficient instantaneous buying depth.",
+      "selfCheck": "The stock gaps below a sell-stop trigger. Compare what may happen to a stop-market order and a stop-limit order.",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A stop threshold is not a guaranteed loss cap; a thin order book or gap can cause a worse fill or an unfilled stop-limit order.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Stop-Loss Best Practices; Technical Indicators and Execution",
+      "sourceRefs": [
+        "STT-VIDEO-03"
+      ],
+      "sourceUrls": [
+        "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-15"
+      ],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_TRADE_PLAN",
+      "title": "Precommitted trade thesis, trigger, invalidation and exit objectives",
+      "concept": "A defensible trading plan separates the reason a security is under observation from the precise evidence that would permit a hypothetical entry, the level that would invalidate it, and the exit conditions.",
+      "procedure": "Write ticker and dated evidence, catalyst source, candidate structure, entry trigger, invalidation, share count, modeled loss, exit objective, maximum time and NO TRADE conditions before revealing the next candle.",
+      "limit": "A well-written plan does not establish a statistical edge, and a profit target is neither forecast nor guaranteed execution.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Backfilling an entry trigger after the breakout or widening a stop merely because the trade moves against the thesis.",
+      "selfCheck": "Which parts of a trade plan must be recorded before the entry event, and what would force a NO TRADE decision?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A well-written plan does not establish a statistical edge, and a profit target is neither forecast nor guaranteed execution.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: How to Build a Trading Plan; Daily Income Trader Walkthrough",
+      "sourceRefs": [
+        "STT-VIDEO-04"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_LIQUIDITY_SIZE",
+      "title": "Volume versus executable liquidity and position size",
+      "concept": "Daily share volume measures turnover, but an executable exit also depends on contemporaneous spread, quoted depth, volatility, lot size, routing and competing orders.",
+      "procedure": "Contrast average daily volume with price-level bid depth and the spread at a documented time. Estimate modeled loss from shares times entry-to-invalidation distance plus costs and slippage, then scale down if the risk exceeds the allowed budget.",
+      "limit": "A million shares of daily volume is not a universally sufficient liquidity threshold; a visible quote may be canceled and large orders can move price.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Using an arbitrary daily-volume cutoff as proof that a stop will execute at its stop price.",
+      "selfCheck": "A stock traded two million shares but has a wide bid-ask spread and little displayed depth. Is it necessarily easy to sell?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A million shares of daily volume is not a universally sufficient liquidity threshold; a visible quote may be canceled and large orders can move price.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Stop-Loss Best Practices; The Importance of Stock Volume",
+      "sourceRefs": [
+        "STT-VIDEO-05"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_DIP_RECLAIM",
+      "title": "Opening dip and later high-level reclaim as an observational pattern",
+      "concept": "A so-called dip-and-rip discussion describes a premarket advance followed by an opening pullback and a later attempt to reclaim a previously declared high with participation. Its label is not an executable rule.",
+      "procedure": "Declare whether the reference high is premarket or regular-session, record the opening low, decide what constitutes a completed-bar break and acceptable spread, then evaluate an explicit failed-reclaim case at the same pause time.",
+      "limit": "Examples selected after a large successful move suffer hindsight and selection bias; a 09:45 clock window or high break alone does not confer profitability.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Calling every pullback a dip-and-rip or deciding the historical entry only after seeing the day's highest price.",
+      "selfCheck": "A stock opens weak and approaches the premarket high on falling volume. What evidence is still missing?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: Examples selected after a large successful move suffer hindsight and selection bias; a 09:45 clock window or high break alone does not confer profitability.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Three Simple Day-Trading Patterns; Dip-and-Rip Explainer; Dip-and-Rip 2020",
+      "sourceRefs": [
+        "STT-VIDEO-06"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_VWAP_AFTERNOON",
+      "title": "VWAP holds, reclaims and afternoon continuation uncertainty",
+      "concept": "VWAP represents a volume-weighted average of included trades. An afternoon consolidation near that reference followed by a high-of-day test is a chart scenario, not proof that buyers must dominate.",
+      "procedure": "State session anchor and market-data source, distinguish exact trade-weighted VWAP from an OHLCV bar proxy, record completed-bar price relative to VWAP and observed volume before defining a confirmation and failure level.",
+      "limit": "Price above VWAP does not directly reveal the number or identity of buyers; VWAP alone neither predicts the next trade nor guarantees fill quality.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Treating one VWAP touch or an afternoon clock time as a buy instruction, or calling a bar-based VWAP calculation exact trade VWAP.",
+      "selfCheck": "What additional structure, volume and risk evidence would you need before considering an afternoon VWAP-reclaim exercise?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: Price above VWAP does not directly reveal the number or identity of buyers; VWAP alone neither predicts the next trade nor guarantees fill quality.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: VWAP Reclaim Example; VWAP Hold High-of-Day; Three Simple Day-Trading Patterns",
+      "sourceRefs": [
+        "STT-VIDEO-07"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_REDGREEN_PDC",
+      "title": "Prior-day-close red-to-green versus individual candle colors",
+      "concept": "A red-to-green move in the supplied trading vocabulary is defined relative to the prior regular-session close; it is not necessarily a green-colored candle or a recovery above that particular candle's open.",
+      "procedure": "Mark the prior regular-session closing price, then read current price and the current candle's own open separately. Label the exact session scope and indicate when crossing of the prior close occurs.",
+      "limit": "A transition across the prior close is only a reference observation; it cannot independently establish momentum continuation or profitable entry.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Confusing green on the day with a bullish minute candle or using an after-hours last price as the prior regular close without disclosure.",
+      "selfCheck": "Can a red five-minute candle occur while the stock remains green relative to yesterday's close? Explain.",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A transition across the prior close is only a reference observation; it cannot independently establish momentum continuation or profitable entry.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Anatomy of a Stock Chart; Weak Open Red-to-Green",
+      "sourceRefs": [
+        "STT-VIDEO-08"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_BREAKOUT_LEVELS",
+      "title": "Breakouts, whole-dollar levels and failure confirmation",
+      "concept": "Prior highs, consolidation boundaries and psychologically salient whole- or half-dollar prices can attract attention, but their exact predictive value depends on observed market conditions and tested definitions.",
+      "procedure": "Mark the area using only prior completed bars, classify level as approximate rather than a magic price, observe a predeclared trigger, evaluate follow-through, then record a false breakout and the resulting invalidation.",
+      "limit": "A level touch, round-number crossing or high historical percentage move does not mean the next level must trade or that a breakout has positive expectancy.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Assuming each whole-dollar break automatically creates a spike or overlooking an immediate failed breakout into prior resistance.",
+      "selfCheck": "Price briefly crosses a round number and returns below its defined level. Which confirmation and invalidation checks apply?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A level touch, round-number crossing or high historical percentage move does not mean the next level must trade or that a breakout has positive expectancy.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Whole and Half-Dollar Levels; Clean Versus Messy Charts; Avoiding False Breakouts",
+      "sourceRefs": [
+        "STT-VIDEO-09"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_SECTOR_EVIDENCE",
+      "title": "Hot sectors, sympathy candidates and catalyst verification",
+      "concept": "Sector leadership and related-security price changes can support a watchlist hypothesis, but correlated short-term trading does not prove a common fundamental catalyst or causal relationship.",
+      "procedure": "Compare multiple securities in the same defined industry, note contemporaneous news and filings, separate primary from sympathy catalysts, timestamp what was publicly available, and monitor relevant peers without assuming identical outcomes.",
+      "limit": "A historical sector narrative or viral headline can be outdated, promotional or wrong; yesterday's leader fading is not proof another ticker will fall.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Classifying a ticker as a sympathy play solely because two prices moved upward together, or accepting an unsourced press release.",
+      "selfCheck": "What evidence would distinguish a genuine shared catalyst from coincidental price co-movement?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A historical sector narrative or viral headline can be outdated, promotional or wrong; yesterday's leader fading is not proof another ticker will fall.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Finding Hot Sectors; Three Bounce-Stock Factors; Weekly Watchlist",
+      "sourceRefs": [
+        "STT-VIDEO-10"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_SHORT_COVER",
+      "title": "Short squeeze mechanics and evidence limits",
+      "concept": "A short squeeze is a process in which rising prices and constrained short positioning can prompt buy-to-cover activity that adds demand. Low reported float and high turnover alone do not prove a squeeze occurred.",
+      "procedure": "Check security identity and dated float, borrow availability, reported short interest and its reporting lag, price-volume chronology and competing explanations. Distinguish a hypothesis about short covering from directly observed cover executions.",
+      "limit": "A company announcement can be misleading; borrow and locate prices vary across firms, and short-sale exposure has theoretically unbounded loss risk.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Treating all high-volume low-float advances as confirmed forced covering, or presenting anecdotal locate fees as universal broker terms.",
+      "selfCheck": "What evidence supports a short-covering hypothesis and what important information is not visible in a price candle?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: A company announcement can be misleading; borrow and locate prices vary across firms, and short-sale exposure has theoretically unbounded loss risk.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Identifying Short Squeezes; Live Short-Squeeze Trade Plans; Covering Mechanics",
+      "sourceRefs": [
+        "STT-VIDEO-11"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_JOURNAL_EVIDENCE",
+      "title": "Trading journal source records, position sizing and review",
+      "concept": "A useful trade journal captures the ticker, dated thesis, setup, planned versus actual size, entry and exit prices, cost and realized outcome; it also distinguishes decisions known at entry from later observations.",
+      "procedure": "Write the pre-entry plan and source references before the simulated order. After the event, add the actual or modeled fills, fees, adverse/favorable excursions where available, plan compliance and an explicit next-case learning adjustment.",
+      "limit": "Self-reported wins, example targets or hindsight chart annotations are not authenticated brokerage execution records and do not establish statistical edge.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Recording only winners or overwriting the original plan with a cleaner hindsight narrative.",
+      "selfCheck": "How would you audit whether a trade honored its original invalidation rather than a revised stop?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: Self-reported wins, example targets or hindsight chart annotations are not authenticated brokerage execution records and do not establish statistical edge.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Five Fields for a Trading Journal; Trading Plans; Accountability and Discipline",
+      "sourceRefs": [
+        "STT-VIDEO-12"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_FIRST_RED_EXIT",
+      "title": "First completed red five-minute bar as a possible exit-review cue",
+      "concept": "An initial red five-minute candle after a series of rising candles may signal a change in short-term conditions; the pattern name by itself does not determine the best profit-taking decision.",
+      "procedure": "Declare five-minute aggregation boundaries in advance, wait for the relevant bar to complete, compare its range and volume with prior bars and the written exit plan, then evaluate alternative outcomes without looking ahead.",
+      "limit": "One red candle need not end a trend, and the result depends on order type, spread, path and predeclared profit-taking policy.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Treating the first red candle as a guaranteed top or retrospectively selecting whichever red bar would have maximized returns.",
+      "selfCheck": "The first red five-minute candle closes above the previous swing low. Does this alone prove the trend has reversed?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: One red candle need not end a trend, and the result depends on order type, spread, path and predeclared profit-taking policy.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Five-Minute Candle Theory; Adaptive Exit Decision",
+      "sourceRefs": [
+        "STT-VIDEO-13"
+      ],
+      "sourceUrls": [],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    },
+    {
+      "code": "VIDEO_BROKER_MARGIN",
+      "title": "Cash, margin and 2026 intraday-margin transition",
+      "concept": "A cash account and a margin account differ in borrowing, short-sale permissions and settlement mechanics. Older video descriptions of pattern-day-trader restrictions must be dated because FINRA's replacement margin standards began June 4, 2026 with a broker transition period through October 20, 2027.",
+      "procedure": "Verify current account type, broker adoption stage of FINRA intraday-margin standards, settled funds, margin requirement, short borrow availability, fees, and current customer agreement before stating an applicable rule or hypothetically sizing a trade.",
+      "limit": "Legacy descriptions of a fixed three-day-trade limit or uniform two-to-four-times buying power are not reliable universal descriptions in October 2026.",
+      "invalidation": "Invalidate or pause this interpretation when the documented timestamp, chart interval, market-data source, governing rule or risk conditions no longer match the observed setup; do not infer hidden future events.",
+      "commonError": "Repeating old PDT limits as current universal law, or treating margin leverage as a risk-free multiplier.",
+      "selfCheck": "A learner cites an older video on the PDT rule. Which broker-specific and current FINRA sources must be checked first?",
+      "reviewExplanation": "Review the recorded source context and answer the check without later price bars. The exercise is ungraded and cannot establish strategy performance or real-market execution. Specific caution: Legacy descriptions of a fixed three-day-trade limit or uniform two-to-four-times buying power are not reliable universal descriptions in October 2026.",
+      "supplemental": true,
+      "officialCompetency": false,
+      "researchGuide": true,
+      "evidenceClass": "owner_supplied_video_transcript_research_original_education_not_verified_trading_edge",
+      "archiveBasis": "STT owner-supplied StocksToTrade video transcripts 2026-10-29: Cash Versus Margin Accounts; Broker Comparison; Historical Margin Examples",
+      "sourceRefs": [
+        "STT-VIDEO-14"
+      ],
+      "sourceUrls": [
+        "https://www.investor.gov/introduction-investing/investing-basics/glossary/pattern-day-trader"
+      ],
+      "fictionalPrompt": "FICTIONAL: Pause a constructed chart before the next bar, document the required evidence and invalidation, and defend either WAIT or NO TRADE without seeing the future."
+    }
+  ]
+}
