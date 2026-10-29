@@ -7,9 +7,9 @@
 - File type: Markdown, GitHub-controlled new source evidence document
 - Document ID: SMFGU-HR-IEX-20240507-EVIDENCE-001
 - Google Drive location: Proposed The Stock Market: From the Ground Up / Website / Research / Historical Replay / IEX Source Evidence; not uploaded
-- Version: 1.1
+- Version: 1.2
 - Date: October 29, 2026 (UTC)
-- Status: **OFFICIAL SOURCE IDENTIFIED; FULL FILE HASH VERIFIED; PUBLICATION PENDING**
+- Status: **ONE DATASET PUBLISHED TO QA-ONLY PRODUCTION; GENUINE AUTHENTICATED REPLAY ACCEPTED; GENERAL RETAIL RELEASE NOT APPROVED**
 - Purpose: Maintain first-party archive identification and integrity evidence for six canonical Labs.
 - Dependencies: IEX TOPS v1.66; source packet/sequence and trade-break review; individual Lesson editorial approval; authenticated positive-path acceptance.
 
@@ -79,3 +79,33 @@ IEX reflects **IEX venue executions only**, not SIP consolidated national tape, 
 - 1.0 — October 29, 2026: First-party catalog and full compressed archive verified; six candidate windows extracted with corrected sale eligibility; publication explicitly withheld.
 
 - 1.1 — October 29, 2026: Expanded independent IEX provider verification from two sample candles to all 30 opening-minute candles (180 exact field matches). Full-day correction audit still pending.
+
+## Final controlled acceptance addendum — v1.2, October 29, 2026
+
+**Verified provenance:** Full original IEX TOPS May 7, 2024 capture, 2,258,120,982 compressed bytes, gzip checksum/CRC passed; complete capture SHA-256 `4ad7fc26ce52471e1d631a5583353ae109422356cc723da34d8f37c7c80dcce5`. Full-day 71,591,683 IEX-TP message packets audited, no sequence gaps or overlaps, no trade breaks for the six May 7 candidate tickers. Original IEX venue only; not SIP/NBBO.
+
+**DIS price data:** 30 minute bars `2024-05-07T13:30:00Z` to `2024-05-07T13:59:00Z` imported into private `gu_replay_bars_v01492`, no invented minutes, IEX-only accumulated shares 408,106. Extracted 30-bar SHA-256 `5cc9af15daff3ada9e2456dc70183f98326f5ed698deb4b753ec4ef7631b67cc`. All 180 DIS 1-minute OHLCV/trade-count field values reconciled with Alpaca's IEX research feed; **Alpaca data were not republished**.
+
+**Corporate action:** Raw chart (not adjusted), issuer's official investor stock-split history lists no May 2024 split. This is a source-date corporate action review, not a claim of universal adjusted-price comparability.
+
+**Limited IEX terms review:** IEX Historical Data Terms explicitly describe distribution with attribution and hyperlinks. The webpage renders the required exact attribution and clickable IEX Terms link. The limited Owner-directed educational QA approval is not an attorney opinion or permission for broader uninhibited data reuse. Legal review before general retail launch remains recommended. <https://www.iex.io/legal/hist-data-terms>
+
+**Access classification:** DIS dataset `HR_DIS_20240507` moved from private draft to `published` **only with `qa_release_only=true`**, a server-validated allowlist of the dedicated QA account, all normal entitlement requirements, and `license_publication_reviewed=true` scoped to this limited exercise. Ordinary members do not receive its historical bars; all other 88 historical case records remain in draft. This is **not a retail release**.
+
+**Genuine production acceptance:** <https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40827085229> — **SUCCESS**. Actual authorized password-authenticated QA user, live Cloudflare Pages + Supabase, correct DIS opening timestamp, protected first decision, nonlookahead bar advancement, stale cursor rejection, Talia synchronization, real browser chart, cross-load resume, server-acknowledged finish, session sign-out. No payments or Sparks transactions. Database postflight after the final run: five finished QA sessions, all decisions locked, **zero active QA sessions**. Earlier test runs were legitimately corrected for duplicate-session conflict, omitted ticker in authorization rechecks, onboarding modal, and browser finish-acknowledgment race.
+
+**Remaining scope:** Public/founder-member access **not approved**, actual second signed-in non-QA identity penetration test remains separate, 88 other historical datasets require authentic independent verification and individual publication approval. No LIVE Stripe checkout/charge was initiated.
+
+### Release-control checkpoint
+- Source verification: **Accepted for DIS limited QA**.
+- Draft candle storage: **Complete**.
+- IEX attribution: **Displayed and linked**.
+- Controlled QA-only dataset publication: **Complete**.
+- Real authenticated replay / browser acceptance: **Passed**.
+- General member publication: **Closed**.
+- Remaining 88 real-market publications: **Not completed**.
+
+### Revision history
+- v1.2 — 2026-10-29 — DIS source verified, 30 real minute candles staged then published QA-only, full real-member production acceptance passed; retail flag remains closed.
+
+**Document footer:** SMFGU-HR-IEX-20240507-EVIDENCE-001 | HR source evidence v1.2 | Controlled record | Not attorney-reviewed.
