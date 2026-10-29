@@ -20,7 +20,7 @@ export async function onRequestGet({env}){
   // Legacy three-choice settings predate the ECharts engine: show it by default.
   // Version 2 settings can explicitly hide it in the Admin Control Center.
   const visible=rows.length===0?ALL:(stored?.version===2?stored.visible:
-   Array.isArray(stored?.visible)?[...new Set([...stored.visible,'ECHARTS'])]:null);
+   Array.isArray(stored?.visible)&&stored.visible.length?[...new Set([...stored.visible,'ECHARTS'])]:null);
   if(!Array.isArray(visible)||visible.length<1||visible.length>ALL.length||
      new Set(visible).size!==visible.length||visible.some(t=>!ALL.includes(t)))
    throw Error('Invalid approved visibility setting');
