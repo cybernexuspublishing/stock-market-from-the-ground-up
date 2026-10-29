@@ -72,11 +72,24 @@ const lessons=Object.freeze({
  }
 });
 export function teachingForLab(id){return lessons[id]||null}
-export function formatLabTeaching(lesson){
+export function formatLabTeaching(lesson,{question='',stage=null}={}){
  if(!lesson)return '';
- return 'What it means: '+lesson.meaning+'\n\nWhy it matters: '+lesson.why+
-  '\n\nHow to work with it: '+lesson.method+'\n\nWorked example (fictional): '+lesson.example+
-  '\n\nLimitation: '+lesson.limit+'\n\nPractice independently: '+lesson.practice+
-  '\n\nPublic reference for further study: '+lesson.reference+' — '+lesson.url;
+ const q=String(question).toLowerCase().slice(0,450);
+ const assess=stage==='Assess';
+ const intent=/\b(why|matter|important|purpose)\b/.test(q)?'why':
+  /\b(how|calculate|formula|compute|work|example|steps?)\b/.test(q)?'method':
+  /\b(limit|risk|mistake|error|wrong|fail|cannot|can't)\b/.test(q)?'limit':
+  /\b(practice|recognize|identify|spot)\b/.test(q)?'practice':'overview';
+ const parts=['What it means: '+lesson.meaning];
+ if(intent==='why'||intent==='overview')parts.push('Why it matters: '+lesson.why);
+ if(intent==='method'||intent==='overview'){
+  parts.push('How to work with it: '+lesson.method);
+  if(!assess)parts.push('Worked example (fictional): '+lesson.example);
+ }
+ if(intent==='limit'||intent==='overview')parts.push('Limitation: '+lesson.limit);
+ if(intent==='practice')parts.push('How to work with it: '+lesson.method);
+ if(intent!=='limit'&&!assess)parts.push('Practice independently: '+lesson.practice);
+ if(assess)parts.push('During Assess, use the displayed exercise instructions and your own reasoning. I cannot reveal a worked answer or answer key.');
+ parts.push('Public reference for further study: '+lesson.reference+' — '+lesson.url);
+ return parts.join('\\n\\n');
 }
-
