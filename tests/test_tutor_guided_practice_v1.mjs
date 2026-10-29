@@ -11,21 +11,24 @@ const catalogs=[
 assert.equal(base.guides.length,30);
 assert.equal(base.supplementalGuides.length,1);
 assert.equal(modules.kind,'talia_guided_practice_original_ungraded_v1');
-assert.equal(modules.modules.length,36);
-assert.equal(modules.indicatorCount,20);
-assert.equal(modules.watchlistCount,16);
+assert.equal(modules.modules.length,134);
+assert.equal(modules.indicatorCount,61);
+assert.equal(modules.watchlistCount,22);
+assert.equal(modules.strategyCount,50);
+assert.equal(modules.eventCount,1);
 assert.deepEqual(Array.from(modules.stages),['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
-assert.equal(new Set(modules.modules.map(x=>x.id)).size,36);
+assert.equal(new Set(modules.modules.map(x=>x.id)).size,134);
+assert.equal(new Set(modules.modules.map(x=>x.guideCode)).size,134);
 const available=new Map([...base.guides,...base.supplementalGuides,...catalogs.flatMap(c=>c.guides)].map(x=>[x.code,x]));
-const permitted=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com)\//;
+const permitted=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com|www\.sec\.gov|www\.prnewswire\.com)\//;
 for(const unit of modules.modules){
- assert(available.has(unit.guideCode),'Guide must actually exist '+unit.guideCode);
+ assert(available.has(unit.guideCode)||unit.guideCode==='REPLAY_EVENT_CREX_2020_04_28','Guide must actually exist or be source-verified event '+unit.guideCode);
  assert(unit.learn.length>60,'Concept-first teaching '+unit.id);
  assert(unit.question.length>40&&unit.transferQuestion.length>40,'Scaffolded questions '+unit.id);
  assert(unit.options.length===3&&unit.transferOptions.length===3);
  assert(Number.isInteger(unit.correct)&&unit.correct>=0&&unit.correct<=2);
  assert(Number.isInteger(unit.transferCorrect)&&unit.transferCorrect>=0&&unit.transferCorrect<=2);
- assert(unit.feedback.length>50&&unit.scope.startsWith('Fictional'),'Uncertain scenario framing '+unit.id);
+ assert(unit.feedback.length>50&&(unit.scope.startsWith('Fictional')||(unit.kind==='event'&&unit.scope.startsWith('Verified'))),'Uncertain scenario framing '+unit.id);
  assert(permitted.test(unit.sourceUrl),'Only checked public educational sources '+unit.id);
  for(const [key,answer] of [['choiceFeedback',unit.correct],['transferFeedbackByChoice',unit.transferCorrect]]){
   assert(Array.isArray(unit[key])&&unit[key].length===3,'Separate distractor diagnosis '+unit.id);
@@ -193,4 +196,43 @@ assert.match(api.specialGate(unresolved,'riskfirst').display,/Score 98/,'Show hi
 assert.match(api.specialGate(unresolved,'snapshot').reason,/reproducible/,'Frozen as-of-time scanner requirement');
 assert.equal(api.specialGate({...complete,listedCommon:false},'universe').pass,false,'Wrong instrument cannot pass');
 assert.equal(api.specialGate({...complete,higherFrameStamped:false},'timeframes').pass,false,'Incomplete context fails');
-console.log('PASS Talia Guided Practice Batch 03: 36 authored modules (20 indicator/16 watchlist), exact calculations, 10 advanced source/risk gates, warmup, no-lookahead, privacy and ungraded boundaries.');
+
+const allIndicator=modules.modules.filter(m=>m.kind==='indicator'),allWatch=modules.modules.filter(m=>m.kind==='watchlist');
+const allStrategy=modules.modules.filter(m=>m.kind==='strategy'),allEvent=modules.modules.filter(m=>m.kind==='event');
+assert.equal(allIndicator.length,61);assert.equal(allWatch.length,22);assert.equal(allStrategy.length,50);assert.equal(allEvent.length,1);
+const sourceIndicators=JSON.parse(read('data/tutor-indicator-study-v1.json')).guides;
+const sourceWatch=JSON.parse(read('data/tutor-watchlist-study-v1.json')).guides;
+const sourceStrategies=JSON.parse(read('data/tutor-strategy-study-v1.json')).guides;
+for(const [modulesList,sourceList] of [[allIndicator,sourceIndicators],[allWatch,sourceWatch],[allStrategy,sourceStrategies]]){
+ assert.deepEqual(modulesList.map(x=>x.guideCode).slice().sort(),sourceList.map(x=>x.code).slice().sort(),
+ 'Full source catalog mapped without missing or invented lessons');
+}
+const numeric=allIndicator.filter(m=>m.metric!=='study-concept');
+const qualitative=allIndicator.filter(m=>m.metric==='study-concept');
+assert.equal(numeric.length,20,'Do not mislabel specialized studies as numerically implemented');
+assert.equal(qualitative.length,41,'Interpretation-only lessons must be honestly labeled');
+for(const g of qualitative){
+ assert.equal(g.practiceLevel,'interpretation_without_numeric_calculation');
+ assert(g.formulaOrRule.length>10&&g.uncertainty.length>30,'Formula reference and limits must be taught');
+ assert.equal(api.metric(bars.slice(0,32),'study-concept',12).value,null,'No fabricated numeric value');
+}
+for(const g of allStrategy){
+ assert.equal(g.practiceLevel,'conditional_setup_reasoning');
+ assert(g.entryEvidence.length>35&&g.holdEvidence.length>30&&g.exitEvidence.length>30&&g.noTrade.length>25,
+  'Named strategy requires specific entry/HOLD/EXIT/no-trade, not only generic buy signal: '+g.id);
+ assert(g.scope.includes('not a reproduced proprietary signal')||g.scope.includes('research hypothesis'));
+ assert(g.options[g.correct].includes(g.entryEvidence),'Entry answer must reference source-specific evidence '+g.id);
+}
+const ev=allEvent[0];
+assert.equal(ev.priceReplayVerified,false);
+assert.equal(ev.eventDisplayedTime,'15:01 ET');
+assert(ev.sourceUrl.includes('sec.gov')&&ev.secondarySourceUrl.includes('prnewswire.com'));
+assert(ev.scope.includes('NOT an authenticated historical trade replay'));
+for(const rule of ['watchlistPurpose','strategyLanes','rankQueue','alertTrigger','eventCalendar','historicalRunners']){
+ const good={allowed:true,listedCommon:true,levelsKnown:true,snapshotFrozen:true,fresh:true,trigger:true,
+ fiveMinuteClosed:true,verified:true,identityVerified:true,actionReconciled:true};
+ assert.equal(api.specialGate(good,rule).pass,true,'Correct gate accepts complete fictional evidence: '+rule);
+ const bad={...good,snapshotFrozen:false,listedCommon:false,levelsKnown:false,trigger:false,verified:false,identityVerified:false};
+ assert.equal(api.specialGate(bad,rule).pass,false,'Missing mandatory source fails: '+rule);
+}
+console.log('PASS Talia full Guided Practice catalog: 134 modules — 61 indicators (20 calculated, 41 interpretation only), 22 watchlists, 50 source-named strategy research, 1 verified event-only chronology; unique codes, no fabricated trade results, no grading/paid inference.');

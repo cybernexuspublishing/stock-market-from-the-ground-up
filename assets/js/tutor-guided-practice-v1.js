@@ -10,7 +10,7 @@
  const add=(parent,tag,text,cls)=>{const el=node(tag,text,cls);parent.appendChild(el);return el};
  const svgNS='http://www.w3.org/2000/svg';
  const svgEl=(name,attrs)=>{const el=document.createElementNS(svgNS,name);Object.entries(attrs||{}).forEach(([k,v])=>el.setAttribute(k,String(v)));return el};
- const sourceAllowed=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com)\//;
+ const sourceAllowed=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com|www\.sec\.gov|www\.prnewswire\.com)\//;
  const finite=v=>typeof v==='number'&&Number.isFinite(v);
  const round=(v,d=2)=>finite(v)?v.toFixed(d):'not available yet';
  const sample=[
@@ -136,6 +136,8 @@
    const total=bars.slice(-len).reduce((n,b)=>n+b.volume,0);
    return {value:total/len,series:[],note:'Per-bar volume SMA in shares. One-minute bars only; not cumulative matched-time RVOL or order-side flow.'};
   }
+  if(k==='study-concept')return {value:null,series:[],note:'Interpretation-only study: the formula is described but NOT numerically computed in this exercise. Reference: '+state.unit.formulaOrRule};
+  if(k==='strategy-case')return {value:null,series:[],note:'Fictional chart background only; no source-named setup, signal, entry or market fill is claimed to have occurred.'};
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
  function reset(unit){
@@ -150,19 +152,20 @@
   const top=add(host,'div',undefined,'tgp-head');
   add(top,'p','Talia · One-on-one guided practice','tgp-kicker');
   add(top,'h2','Learn it. Observe it. Decide it. Explain it.');
-  add(top,'p','Original fictional demonstrations. No market feed, trade recommendation, official assessment grade, or competency credit. Your choices remain in this page session only.','tgp-note');
+  add(top,'p','Original fictional charts and scans plus one verified event-only chronology. No market feed, historical trade-fill claim, recommendation, official grade or competency credit. Responses remain in this page session.','tgp-note');
   const selector=add(top,'div',undefined,'tgp-picker');
   const label=add(selector,'label','Choose an instructional scenario','tgp-field-label');label.htmlFor='tgp-select';
   const select=add(selector,'select');select.id='tgp-select';select.setAttribute('aria-label','Choose guided practice topic');
-  for(const g of ['indicator','watchlist']){
-   const group=node('optgroup');group.label=g==='indicator'?'Indicator demonstrations':'Advanced watchlist decisions';
+  for(const g of ['indicator','watchlist','strategy','event']){
+   const group=node('optgroup');group.label={indicator:'Indicators & source interpretation',watchlist:'Advanced watchlist research',strategy:'STT strategy decision research',event:'Verified historical event chronology'}[g];
    state.units.filter(u=>u.kind===g).forEach(u=>{const o=node('option',u.title);o.value=u.id;group.append(o)});
    select.append(group);
   }
   select.value=state.unit.id;
   select.addEventListener('change',()=>reset(state.units.find(u=>u.id===select.value)||state.units[0]));
   const ind=state.units.filter(x=>x.kind==='indicator').length;
-  const small=add(selector,'span',state.units.length+' original scenarios · '+ind+' indicator / '+(state.units.length-ind)+' watchlist · 9 learning stages','tgp-meta');
+  const nw=state.units.filter(x=>x.kind==='watchlist').length,ns=state.units.filter(x=>x.kind==='strategy').length;
+  const small=add(selector,'span',state.units.length+' guided lessons · '+ind+' indicators / '+nw+' watchlists / '+ns+' strategies / 1 event · 9 learning stages','tgp-meta');
   small.setAttribute('aria-label','Available practice lessons');
  }
  function stages(host){
@@ -191,12 +194,12 @@
    if(g.method){add(host,'h4','How to calculate or apply it');add(host,'p',g.method)}
    add(host,'h4','Why it matters');
    if(g.why)add(host,'p',g.why);
-   add(host,'p',g.kind==='indicator'?'Indicators describe a chosen calculation on observed bars. Their context can help organize research, but they cannot independently prove an entry, HOLD, EXIT or probability of profit.':'A professional watchlist separates source verification, candidate discovery, setup qualification and risk. An impressive scan result must still survive hard vetoes.');
+   add(host,'p',g.kind==='indicator'?'Indicator descriptions and formula references do not guarantee a forecast; specialty studies without an implemented calculation are explicitly labeled interpretation-only.':g.kind==='strategy'?'The source-named setup is a research hypothesis, not a validated profitable system or proof of a market fill.':g.kind==='event'?'The filing and issuer release verify the event chronology, not the historical price path or an executed trade.':'A watchlist separates source verification, discovery, qualification and execution risk; a soft ranking cannot override mandatory vetoes.');
    add(host,'h4','What can go wrong');
    if(g.limitation)add(host,'p',g.limitation);
-   add(host,'p',g.kind==='indicator'?'Changing the lookback, bar completion, session or data feed can change the plotted value. A crossing may fail.':'Stale quotes, source-timestamp errors, missing catalyst evidence, halts and borrow restrictions can invalidate an otherwise attractive candidate.');
+   add(host,'p',g.kind==='indicator'?'Lookback, session and provider settings may change reported values; no specialized metric is claimed calculated where the engine only teaches interpretation.':g.kind==='strategy'?'Proprietary signal formulas, actual fills, historical returns and expectancy are not verified by source-named strategy descriptions.':g.kind==='event'?'An SEC filing can independently corroborate an issuer event but cannot prove price movements or a broker fill.':'Stale quotes, issuer identity, halts, broker access and missing event timestamps may invalidate otherwise promising candidates.');
   }else if(state.stage===2){
-   add(host,'p',g.kind==='indicator'?'Move the historical-pause slider or study length and watch calculations change using only the revealed fictional bars.':'Change the fictional scanner requirements. Each row is re-evaluated against mandatory gates; a high RVOL never overrides a liquidity veto.');
+   add(host,'p',g.kind==='indicator'?(g.practiceLevel==='interpretation_without_numeric_calculation'?'Study the completed fictional chart and read the source formula; this specialty metric is not numerically calculated by the engine.':'Move the completed-bar slider to explore the supported calculation.') :g.kind==='strategy'?'Pause the invented OHLCV chart and compare source-defined entry, conditional HOLD, EXIT and NO TRADE requirements; the chart is not a verified instance of this strategy.':g.kind==='event'?'Inspect the 15:01 ET release time and contemporaneous issuer filing. Do not infer an actual fill or after-hours price from the documents.':'Change the fictional scanner gates; all hard vetoes continue to apply.');
   }else if(state.stage===3){
    add(host,'h4','Predict before receiving feedback');
    add(host,'p','Look at the available evidence and decide which statement is supportable. You will test the choice in Practice.');
@@ -226,7 +229,7 @@
   const slider=add(controls,'input');slider.type='range';slider.id='tgp-bars';
   slider.min=state.unit.metric==='macd'?'36':state.unit.metric==='ppo'?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
   slider.addEventListener('input',e=>{state.showBars=Number(e.target.value);render()});
-  if(!['macd','ppo','vwap','rvol'].includes(state.unit.metric)){
+  if(!['macd','ppo','vwap','rvol','study-concept','strategy-case'].includes(state.unit.metric)){
    const periodLabel=add(controls,'label','Indicator length: '+state.period+' bars','tgp-field-label');periodLabel.htmlFor='tgp-period';
    const period=add(controls,'input');period.type='range';period.id='tgp-period';period.min='5';period.max='20';
    period.step='1';period.value=String(state.period);
@@ -270,10 +273,17 @@
   const xt=svgEl('text',{x:left,y:262,fill:'currentColor','font-size':12});xt.textContent='09:30 ET  ·  1-minute bars  ·  '+bars.length+' completed / 48 fictional';svg.append(xt);
   host.append(svg);
   const stats=add(host,'div',undefined,'tgp-stats');
-  [['Open','$'+round(last.open)],['High','$'+round(last.high)],['Low','$'+round(last.low)],['Close','$'+round(last.close)],['Volume',last.volume.toLocaleString()],['Study',round(info.value,info.value!==null&&state.unit.metric==='rvol'?2:3)]].forEach(([a,b])=>{
+  [['Open','$'+round(last.open)],['High','$'+round(last.high)],['Low','$'+round(last.low)],['Close','$'+round(last.close)],['Volume',last.volume.toLocaleString()],['Study',state.unit.metric==='study-concept'?'Not calculated':state.unit.metric==='strategy-case'?'Not validated':round(info.value,info.value!==null&&state.unit.metric==='rvol'?2:3)]].forEach(([a,b])=>{
    const x=add(stats,'div',undefined,'tgp-stat');add(x,'span',a);add(x,'strong',b);
   });
   add(host,'p',info.note,'tgp-caption');
+  if(state.unit.kind==='strategy'){
+    add(host,'h4','Source-described hypothetical decision requirements');
+    for(const [name,details] of [['Entry',state.unit.entryEvidence],['Conditional HOLD',state.unit.holdEvidence],['Exit or reassess',state.unit.exitEvidence],['WAIT / NO TRADE',state.unit.noTrade]]){
+      if(details){add(host,'strong',name);add(host,'p',details)}
+    }
+    add(host,'p','The invented chart is only a chronology exercise, not proof this strategy triggered or earned a profit.','tgp-caption');
+  }
   if(info.upper!==undefined){add(host,'p','Bands (when available): lower $'+round(info.lower)+' / upper $'+round(info.upper),'tgp-caption');}
   add(host,'p','These are deterministic invented prices. A pause only calculates from bars shown, not later bars. Price overlays are not displayed for separate-scale oscillators.','tgp-caption');
  }
@@ -313,6 +323,12 @@
   if(rule==='snapshot')return {pass:c.snapshotFrozen===true,
    description:'Frozen query revision, timestamp, filters and candidate record',
    reason:'no reproducible pre-outcome scanner snapshot'};
+  if(rule==='watchlistPurpose')return {pass:c.allowed&&c.listedCommon,description:'Preselected listed-common-stock universe and compatible research horizon',reason:'security outside declared watchlist purpose'};
+  if(rule==='strategyLanes')return {pass:c.levelsKnown&&c.snapshotFrozen,description:'Source-dated price levels and a frozen strategy-lane snapshot',reason:'strategy lane or reference level not reproducibly recorded'};
+  if(rule==='rankQueue')return {pass:c.snapshotFrozen&&c.fresh,description:'Dated candidate snapshot and current source available for a future review queue',reason:'candidate lacks a reproducible source and next-check basis'};
+  if(rule==='alertTrigger')return {pass:c.trigger&&c.fiveMinuteClosed,description:'Alert observed and the required completed five-minute bar confirmed',reason:'alert is not a completed setup trigger'};
+  if(rule==='eventCalendar')return {pass:c.verified&&c.snapshotFrozen,description:'Event primary-source and pre-outcome candidate snapshot both verified',reason:'scheduled event timing or original source snapshot not verified'};
+  if(rule==='historicalRunners')return {pass:c.identityVerified&&c.actionReconciled,description:'Prior-runner issuer identity and corporate actions are consistent',reason:'former-runner identity or adjustment not verified'};
   return null;
  }
  function assessCandidate(c,rule=state.unit?.rule){
@@ -428,8 +444,15 @@
   const body=add(host,'section',undefined,'tgp-content');
   lessonText(body);
   // Render exactly one visualization per stage; scanner tables are not duplicated.
-  if(state.unit.kind==='indicator'&&[2,3,4].includes(state.stage))renderChart(body);
+  if(['indicator','strategy'].includes(state.unit.kind)&&[2,3,4].includes(state.stage))renderChart(body);
   if(state.unit.kind==='watchlist'&&state.stage===2)renderWatch(body);
+  if(state.unit.kind==='event'&&state.stage>=1&&state.stage<=7){
+    const x=add(body,'section',undefined,'tgp-event-evidence');
+    add(x,'h4','Verified event date and issuer announcement — NOT a verified trade');
+    add(x,'p','Creative Realities, Inc. (CREX on April 28, 2020): press release displayed at 15:01 ET. The issuer filed a Form 8-K with the press release as Exhibit 99.1.');
+    add(x,'p','Verified event and document chronology only. No independently verified April 2020 extended-hours OHLCV, quote tape, split-adjusted price move, trading halt or executed fills appear in this exercise.');
+    if(sourceAllowed.test(state.unit.secondarySourceUrl)){const link=add(x,'a','Read issuer release');link.href=state.unit.secondarySourceUrl;link.target='_blank';link.rel='noopener noreferrer';}
+  }
   if(state.stage===3||state.stage===4)renderQuestion(body,false);
   if(state.stage===5){
    const label=add(body,'label','Your explanation (session-only; ungraded)','tgp-field-label');
@@ -459,13 +482,13 @@
    const r=await fetch('/data/tutor-guided-practice-v1.json',{credentials:'same-origin',cache:'no-cache'});
    if(!r.ok)throw Error('Teaching asset missing');
    const data=await r.json(),units=data?.modules;
-   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==20||
-     data?.watchlistCount!==16||!Array.isArray(units)||units.length!==36||
+   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==61||
+     data?.watchlistCount!==22||data?.strategyCount!==50||data?.eventCount!==1||!Array.isArray(units)||units.length!==134||
      !root.CrownlightIndicatorMath)throw Error('Teaching catalog or indicator math unavailable');
    const ids=new Set();
    for(const m of units){
-    if(!/^(IND|WATCH)-\d{2}$/.test(m?.id||'')||ids.has(m.id)||
-     !/^STUDY_[A-Z0-9_]{3,80}$/.test(m.guideCode)||!['indicator','watchlist'].includes(m.kind)||
+    if(!/^(IND|WATCH|STR|EVENT)-\d{2}$/.test(m?.id||'')||ids.has(m.id)||
+     !/^(STUDY_[A-Z0-9_]{3,80}|REPLAY_EVENT_CREX_2020_04_28)$/.test(m.guideCode)||!['indicator','watchlist','strategy','event'].includes(m.kind)||
      !Array.isArray(m.options)||m.options.length!==3||
      !Array.isArray(m.transferOptions)||m.transferOptions.length!==3||
      !Number.isInteger(m.correct)||m.correct<0||m.correct>2||

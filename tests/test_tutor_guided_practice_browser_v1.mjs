@@ -22,7 +22,7 @@ try{
   const response=await page.goto(base+'/market-tutor.html',{waitUntil:'domcontentloaded'});
   assert.equal(response.status(),200);
   await page.locator('#tgp-select').waitFor({state:'visible',timeout:15000});
-  assert.equal(await page.locator('#tgp-select option').count(),36);
+  assert.equal(await page.locator('#tgp-select option').count(),134);
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/No market feed|No market feed/i);
   await page.locator('#tgp-select').selectOption('IND-01');
   const next=()=>page.locator('#tutor-guided-practice .tgp-actions button').filter({hasText:/^Continue$/}).click();
@@ -90,10 +90,37 @@ try{
   await next();await next();
   assert.equal(await page.locator('.tgp-scan-table').count(),1);
   assert.match(await page.locator('#tgp-scan-table, .tgp-scan-table').last().innerText(),/pre-outcome scanner snapshot/);
+
+  // Full source catalog: interpretation-only values must not masquerade as calculated studies.
+  await page.locator('#tgp-select').selectOption('IND-61');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Not calculated/);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Interpretation-only study:/);
+  assert.equal(await page.locator('#tgp-period').count(),0,'No useless slider for unimplemented specialty metric');
+  await page.locator('#tgp-select').selectOption('WATCH-22');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-scan-table').count(),1);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Former.runner|historical runner|corporate actions/i);
+  await page.locator('#tgp-select').selectOption('STR-01');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Source-described hypothetical decision requirements/);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/NO TRADE/);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Not validated/);
+  await page.locator('#tgp-select').selectOption('STR-50');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  await page.locator('#tgp-select').selectOption('EVENT-01');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-candle-chart').count(),0,'No fabricated historical OHLCV image for CREX event');
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/15:01 ET/);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/NOT a verified trade/);
+  assert.equal(tutorPosts,0,'Event and named strategy exercises never trigger paid Tutor provider calls');
   assert.equal(tutorPosts,0,'Batch 03 cannot auto-call optional paid inference');
   assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');
   assert(await page.locator('#tutor-guided-practice').isVisible());
   await ctx.close();
-  console.log('PASS Guided Practice browser '+width+'px: 20 indicators/16 watchlists; calculated WMA, fixed PPO, Stochastic, scored hard veto, frozen-snapshot rejection; no paid Tutor posts.');
+  console.log('PASS Guided Practice browser '+width+'px: 134 lessons (61 indicators,22 watchlists,50 source-only strategies,1 verified event); no invented calculations, one scanner chart, no market orders or paid Tutor requests.');
  }
 }finally{await browser.close()}
