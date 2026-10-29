@@ -98,6 +98,23 @@ html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans 
  transform:translateY(-3px);border-color:#8fccff!important;
  box-shadow:0 22px 44px #0005!important;
 }
+/* Membership clarity: the price, rather than a giant placeholder image,
+ * leads each product. Enrollment indicators remain accurate but understated. */
+.gu-redesign-store #store-founder-plans .catalog-founder-orbit{display:none!important}
+.gu-redesign-store #store-founder-plans .store-beta-ribbon{
+ display:inline-flex!important;align-self:flex-start!important;
+ width:auto!important;max-width:100%!important;
+ font-size:.76rem!important;font-weight:720!important;
+ letter-spacing:.01em!important;line-height:1.2!important;
+ padding:7px 11px!important;margin:3px 0!important;
+ border:1px solid #4f806f!important;border-radius:100px!important;
+ background:#153b36!important;color:#cdf0df!important;
+ box-shadow:none!important;text-shadow:none!important;
+}
+.gu-redesign-store #store-founder-plans .gu-echarts-product-art{
+ height:clamp(146px,12vw,176px)!important;margin:8px 0 5px!important;
+ box-shadow:0 14px 32px rgba(0,0,0,.20)!important;
+}
 .gu-redesign-store #store-founder-plans .catalog-founder-card h3,
 html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans .catalog-founder-card h3{
  font-size:clamp(1.18rem,1.65vw,1.7rem)!important;
