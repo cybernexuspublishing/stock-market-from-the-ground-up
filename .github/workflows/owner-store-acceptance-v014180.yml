@@ -73,6 +73,7 @@ on:
       - "tests/test_v014071_zero_live_checkout.mjs"
       - "functions/api/storefront-public-catalog.js"
       - "assets/js/commerce-common.js"
+      - "tests/test_membership_cents_chart_access_v1.mjs"
       - "assets/js/store-product-detail-v01484.js"
       - "tests/test_beta_testing_ready_catalog_v1.mjs"
       - "tests/test_v014084_store_interaction.mjs"
@@ -97,6 +98,7 @@ jobs:
         run: |
           node tests/test_beta_testing_ready_catalog_v1.mjs
           node tests/test_v014084_store_interaction.mjs
+          node tests/test_membership_cents_chart_access_v1.mjs
           node tests/test_v014174_unified_storefront_inventory.mjs
           node tests/test_v014175_admin_prelaunch_inventory.mjs
           node tests/test_v014175_owner_product_overlays.mjs
