@@ -1,0 +1,38 @@
+name: IEX May 7 Complete Trade-Break and Sequence Review — Quarantine
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/iex-historical-tradebreak-review-v1.yml'
+permissions:
+  contents: read
+jobs:
+  reconcile-original-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify syntax and source-condition test cases
+        run: |
+          python -m py_compile scripts/market-data/iex_full_session_reconcile_v1.py
+          python tests/test_iex_historical_pcapng_reader_v1.py
+          python tests/test_iex_historical_trade_eligibility_v1.py
+      - name: Reconcile official original capture and trade breaks for all May 7 candidates
+        run: |
+          python scripts/market-data/iex_full_session_reconcile_v1.py \
+            --date 2024-05-07 \
+            --symbols BAC,CVNA,DIS,F,GPRO,RIVN \
+            --expected-sha256 4ad7fc26ce52471e1d631a5583353ae109422356cc723da34d8f37c7c80dcce5 \
+            --output /tmp/iex-private-reconciliation/20240507_full_day.json
+      - name: Preserve full-day reconciliation JSON as private review artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: iex-20240507-trade-break-and-sequence-review
+          path: /tmp/iex-private-reconciliation/20240507_full_day.json
+          retention-days: 7
+          if-no-files-found: error
