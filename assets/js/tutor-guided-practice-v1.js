@@ -378,11 +378,9 @@
   header(host);stages(host);
   const body=add(host,'section',undefined,'tgp-content');
   lessonText(body);
-  if(state.stage===2 || (state.stage===3&&state.unit.kind==='indicator') ||
-    (state.stage===4&&state.unit.kind==='indicator')){
-   if(state.unit.kind==='indicator')renderChart(body);else renderWatch(body);
-  }
-  if(state.stage===2&&state.unit.kind==='watchlist')renderWatch(body);
+  // Render exactly one visualization per stage; scanner tables are not duplicated.
+  if(state.unit.kind==='indicator'&&[2,3,4].includes(state.stage))renderChart(body);
+  if(state.unit.kind==='watchlist'&&state.stage===2)renderWatch(body);
   if(state.stage===3||state.stage===4)renderQuestion(body,false);
   if(state.stage===5){
    const label=add(body,'label','Your explanation (session-only; ungraded)','tgp-field-label');
