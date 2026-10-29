@@ -136,12 +136,79 @@
    const total=bars.slice(-len).reduce((n,b)=>n+b.volume,0);
    return {value:total/len,series:[],note:'Per-bar volume SMA in shares. One-minute bars only; not cumulative matched-time RVOL or order-side flow.'};
   }
+  if(k==='dema'||k==='tema'){
+   const close=bars.map(b=>b.close),first=math.ema(close,len);
+   const emaOnValid=(input,start)=>{
+    const out=Array(bars.length).fill(null),trimmed=input.slice(start),smoothing=math.ema(trimmed,len);
+    smoothing.forEach((v,i)=>{if(finite(v))out[i+start]=v});
+    return out;
+   };
+   const second=emaOnValid(first,len-1),third=k==='tema'?emaOnValid(second,2*(len-1)):null;
+   const series=first.map((v,i)=>!finite(v)||!finite(second[i])||k==='tema'&&!finite(third[i])?null:
+    k==='dema'?2*v-second[i]:3*v-3*second[i]+third[i]);
+   return {value:series[n],series,note:k==='dema'?'DEMA = 2 EMA1 − EMA2; second seeded on first valid EMA; initial warmup 2N-1.':
+     'TEMA = 3 EMA1 − 3 EMA2 + EMA3; three sequential seeded EMA stages need 3N-2 completed bars.'};
+  }
+  if(k==='macdhist'){
+   const h=math.macd(bars,12,26,9).histogram[n];
+   return {value:h,series:[],note:'MACD histogram = EMA12−EMA26 minus 9-period signal EMA. Only nonnull after 34 completed bars.'};
+  }
+  if(k==='percentb'||k==='bandwidth'){
+   const m=math.bollinger(bars,len,2),up=m.upper[n],lo=m.lower[n],middle=m.middle[n];
+   const value=!finite(up)||!finite(lo)?null:k==='percentb'?(up===lo?null:(bars[n].close-lo)/(up-lo)):
+     middle===0?null:100*(up-lo)/middle;
+   return {value,series:[],note:k==='percentb'?'Bollinger %B is normalized band position and may exceed 0..1; zero width is undefined.':
+     'Bollinger BandWidth is 100×(upper−lower)/middle with this declared band/middle definition.'};
+  }
+  if(k==='momentum'){
+   if(bars.length<=len)return {value:null,series:[],note:'Absolute price momentum requires N+1 completed closes.'};
+   return {value:bars[n].close-bars[n-len].close,series:[],note:'Absolute dollar momentum = latest close − close N completed bars ago; not percentage ROC.'};
+  }
+  if(k==='adl'||k==='force'){
+   if(k==='force'){
+    return {value:bars.length>1?(bars[n].close-bars[n-1].close)*bars[n].volume:null,series:[],
+     note:'One-bar force index = change in completed close × current bar share volume, not identified order-side flow.'};
+   }
+   let total=0;
+   for(const b of bars){
+    const range=b.high-b.low,clv=range===0?0:(2*b.close-b.high-b.low)/range;
+    total+=clv*b.volume;
+   }
+   return {value:total,series:[],note:'Accumulation/distribution line is cumulatively zero-seeded CLV × share volume. Not actual custody flows.'};
+  }
+  if(k==='pvo'){
+   const vol=bars.map(b=>b.volume),fast=math.ema(vol,12),slow=math.ema(vol,26);
+   return {value:finite(fast[n])&&finite(slow[n])&&slow[n]!==0?100*(fast[n]-slow[n])/slow[n]:null,series:[],
+    note:'PVO main line = 100×(12-bar EMA(volume)−26-bar EMA(volume))/EMA26(volume); no signal line here.'};
+  }
+  if(k==='dollarvolume'){
+   const b=bars[n],typical=(b.high+b.low+b.close)/3;
+   return {value:typical*b.volume,series:[],note:'HLC3×shares is an OHLCV bar approximation to dollar notional, NOT exact sum(trade price×trade size).'};
+  }
+  if(k==='anchoredvwap'){
+   const anchor=12;
+   if(bars.length<=anchor)return {value:null,series:[],note:'Bar-proxy anchored VWAP needs the fixed fictional 09:42 ET anchor and later completed bars.'};
+   let numerator=0,denominator=0;const series=Array(bars.length).fill(null);
+   for(let i=anchor;i<bars.length;i++){
+    const b=bars[i],typical=(b.high+b.low+b.close)/3;
+    numerator+=typical*b.volume;denominator+=b.volume;series[i]=denominator?numerator/denominator:null;
+   }
+   return {value:series[n],series,note:'Fixed 09:42 ET anchor, HLC3×volume bar proxy only; not a trade-exact or retrospectively cherry-picked anchor.'};
+  }
+  if(k==='cci'){
+   if(bars.length<len)return {value:null,series:[],note:'CCI needs '+len+' completed bars.'};
+   const tp=bars.slice(-len).map(b=>(b.high+b.low+b.close)/3);
+   const mean=tp.reduce((a,b)=>a+b,0)/len;
+   const deviation=tp.reduce((a,b)=>a+Math.abs(b-mean),0)/len;
+   return {value:deviation===0?null:(tp.at(-1)-mean)/(0.015*deviation),series:[],
+    note:'CCI = (latest typical price − SMA(typical price))/(0.015×mean absolute deviation); zero deviation is undefined.'};
+  }
   if(k==='study-concept')return {value:null,series:[],note:'Interpretation-only study: the formula is described but NOT numerically computed in this exercise. Reference: '+state.unit.formulaOrRule};
   if(k==='strategy-case')return {value:null,series:[],note:'Fictional chart background only; no source-named setup, signal, entry or market fill is claimed to have occurred.'};
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
  function reset(unit){
-  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=['macd','ppo'].includes(unit.metric)?40:32;
+  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=['macd','ppo','macdhist','pvo','dema','tema'].includes(unit.metric)?40:32;
   state.period=unit.period||8;state.attempts=0;state.answer=null;state.evaluated=false;state.correct=false;
   state.feedback='';state.transferAnswer=null;state.transferEvaluated=false;state.transferCorrect=false;
   state.reflection='';state.reviewVisible=false;
@@ -227,9 +294,9 @@
   const controls=add(host,'div',undefined,'tgp-controls');
   const label=add(controls,'label','Visible completed bars: '+state.showBars,'tgp-field-label');label.htmlFor='tgp-bars';
   const slider=add(controls,'input');slider.type='range';slider.id='tgp-bars';
-  slider.min=state.unit.metric==='macd'?'36':state.unit.metric==='ppo'?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
+  slider.min=['macd','macdhist'].includes(state.unit.metric)?'36':['ppo','pvo'].includes(state.unit.metric)?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
   slider.addEventListener('input',e=>{state.showBars=Number(e.target.value);render()});
-  if(!['macd','ppo','vwap','rvol','study-concept','strategy-case'].includes(state.unit.metric)){
+  if(!['macd','macdhist','ppo','pvo','vwap','rvol','anchoredvwap','dollarvolume','force','adl','study-concept','strategy-case'].includes(state.unit.metric)){
    const periodLabel=add(controls,'label','Indicator length: '+state.period+' bars','tgp-field-label');periodLabel.htmlFor='tgp-period';
    const period=add(controls,'input');period.type='range';period.id='tgp-period';period.min='5';period.max='20';
    period.step='1';period.value=String(state.period);

@@ -209,8 +209,10 @@ for(const [modulesList,sourceList] of [[allIndicator,sourceIndicators],[allWatch
 }
 const numeric=allIndicator.filter(m=>m.metric!=='study-concept');
 const qualitative=allIndicator.filter(m=>m.metric==='study-concept');
-assert.equal(numeric.length,20,'Do not mislabel specialized studies as numerically implemented');
-assert.equal(qualitative.length,41,'Interpretation-only lessons must be honestly labeled');
+assert.equal(numeric.length,32,'Exactly 32 supported indicator calculations, no implied proprietary breadth-data value');
+assert.equal(qualitative.length,29,'Remaining 29 source-only specialty lessons cannot falsely show numeric values');
+assert.equal(modules.numericIndicatorCount,32);
+assert.equal(modules.interpretationOnlyIndicatorCount,29);
 for(const g of qualitative){
  assert.equal(g.practiceLevel,'interpretation_without_numeric_calculation');
  assert(g.formulaOrRule.length>10&&g.uncertainty.length>30,'Formula reference and limits must be taught');
@@ -235,4 +237,53 @@ for(const rule of ['watchlistPurpose','strategyLanes','rankQueue','alertTrigger'
  const bad={...good,snapshotFrozen:false,listedCommon:false,levelsKnown:false,trigger:false,verified:false,identityVerified:false};
  assert.equal(api.specialGate(bad,rule).pass,false,'Missing mandatory source fails: '+rule);
 }
-console.log('PASS Talia full Guided Practice catalog: 134 modules — 61 indicators (20 calculated, 41 interpretation only), 22 watchlists, 50 source-named strategy research, 1 verified event-only chronology; unique codes, no fabricated trade results, no grading/paid inference.');
+
+const addedNumeric={
+ STUDY_DEMA:'dema',STUDY_TEMA:'tema',STUDY_MACD_HISTOGRAM:'macdhist',STUDY_BOLLINGER_PERCENT_B:'percentb',
+ STUDY_BOLLINGER_BANDWIDTH:'bandwidth',STUDY_PRICE_MOMENTUM:'momentum',
+ STUDY_ACC_DIST_LINE:'adl',STUDY_FORCE_INDEX:'force',STUDY_PVO:'pvo',
+ STUDY_DOLLAR_VOLUME:'dollarvolume',STUDY_ANCHORED_VWAP:'anchoredvwap',STUDY_CCI:'cci'
+};
+for(const [code,method] of Object.entries(addedNumeric)){
+ const lesson=allIndicator.find(x=>x.guideCode===code);
+ assert(lesson&&lesson.metric===method&&lesson.practiceLevel==='calculated_synthetic_with_method','Numeric scope and actual calculated method '+code);
+ assert(Number.isFinite(api.metric(bars.slice(0,40),method,12).value),'Warm metric '+method);
+}
+const mMath=context.window.CrownlightIndicatorMath;
+const mBars=bars.slice(0,40),mClose=mBars.map(b=>b.close);
+const em1=mMath.ema(mClose,12);
+const em2part=mMath.ema(em1.slice(11),12);
+const em2=Array(40).fill(null);em2part.forEach((v,i)=>{if(Number.isFinite(v))em2[i+11]=v});
+const em3part=mMath.ema(em2.slice(22),12),em3=Array(40).fill(null);
+em3part.forEach((v,i)=>{if(Number.isFinite(v))em3[i+22]=v});
+assert(Math.abs(api.metric(mBars,'dema',12).value-(2*em1[39]-em2[39]))<1e-10,'DEMA seed/math');
+assert(Math.abs(api.metric(mBars,'tema',12).value-(3*em1[39]-3*em2[39]+em3[39]))<1e-10,'TEMA independently calculated');
+assert.equal(api.metric(bars.slice(0,33),'tema',12).value,null,'Triple smoothing warmup');
+assert.equal(api.metric(bars.slice(0,22),'dema',12).value,null,'Double smoothing warmup');
+assert.equal(api.metric(bars.slice(0,33),'macdhist',12).value,null,'MACD signal histogram warmup');
+const band=mMath.bollinger(mBars,12,2),width=band.upper[39]-band.lower[39];
+assert(Math.abs(api.metric(mBars,'percentb',12).value-(mBars[39].close-band.lower[39])/width)<1e-10);
+assert(Math.abs(api.metric(mBars,'bandwidth',12).value-(100*width/band.middle[39]))<1e-10);
+assert(Math.abs(api.metric(mBars,'momentum',12).value-(mBars[39].close-mBars[27].close))<1e-10);
+assert(Math.abs(api.metric(mBars,'force',12).value-(mBars[39].close-mBars[38].close)*mBars[39].volume)<1e-10);
+assert.equal(api.metric(mBars,'dollarvolume',12).value,(mBars[39].high+mBars[39].low+mBars[39].close)/3*mBars[39].volume);
+let avSum=0,avVol=0;
+for(let i=12;i<mBars.length;i++){
+ const b=mBars[i];avSum+=(b.high+b.low+b.close)/3*b.volume;avVol+=b.volume;
+}
+assert(Math.abs(api.metric(mBars,'anchoredvwap',12).value-avSum/avVol)<1e-10,'Fixed bar-proxy AVWAP anchor');
+assert.equal(api.metric(mBars.slice(0,12),'anchoredvwap',12).value,null);
+const adl=api.metric(mBars,'adl',12);
+let adlManual=0;
+for(const b of mBars){
+ const r=b.high-b.low;adlManual+=(r===0?0:(2*b.close-b.high-b.low)/r)*b.volume;
+}
+assert(Math.abs(adl.value-adlManual)<1e-8,'Cumulative zero-seeded accumulation distribution');
+const vollist=mBars.map(b=>b.volume),fastVol=mMath.ema(vollist,12)[39],slowVol=mMath.ema(vollist,26)[39];
+assert(Math.abs(api.metric(mBars,'pvo',12).value-100*(fastVol-slowVol)/slowVol)<1e-10,'PVO is volume, not price');
+assert(api.metric(mBars,'cci',12).note.includes('mean absolute deviation'));
+for(const m of Object.values(addedNumeric)){
+ const asOf=api.metric(mBars.slice(0,39),m,12),later=api.metric(mBars,m,12);
+ if(Number.isFinite(asOf.value))assert.notEqual(asOf.value,later.value,'No future bar leakage '+m);
+}
+console.log('PASS Talia full Guided Practice catalog: 134 modules — 61 indicators (32 calculated,29 interpretation only),22 watchlists,50 strategies,1 SEC/issuer event; math, zero warmup, no future bars, noncharging privacy.');
