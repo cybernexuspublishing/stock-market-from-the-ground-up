@@ -94,23 +94,3 @@
   clear:()=>{state.revision++;state.verified=false;state.selected=0;state.onChange?.(false)}
  });
 })();
-+(state.cents/100).toFixed(2)+' on eligible products. Select any whole number up to your balance or the full product cost.';
-   const usable=d.maxLumensUsable;
-   slider.max=String(usable);number.max=String(usable);
-   slider.disabled=number.disabled=max.disabled=zero.disabled=false;
-   slider.addEventListener('input',()=>set(slider.value));
-   number.addEventListener('input',()=>set(number.value));
-   max.addEventListener('click',()=>set(usable));
-   zero.addEventListener('click',()=>set(0));
-   draw();
-  }catch(err){if(rev!==state.revision)return;
-   status.textContent=(err.message||'Unable to verify Lumen balance.')+
-    ' No Lumens will be deducted. Full-price checkout remains subject to its own verification.';
-  }
- }
- window.CrownlightLumenCheckoutV1=Object.freeze({
-  mount,
-  getSelection:()=>state.verified?state.selected:0,
-  clear:()=>{state.revision++;state.verified=false;state.selected=0;state.onChange?.(false)}
- });
-})();
