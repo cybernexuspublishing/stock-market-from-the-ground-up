@@ -36,6 +36,12 @@ return route.fulfill({status:200,contentType:'application/javascript',body:readF
 if(u.origin!==origin)return route.abort();
 if(u.pathname==='/api/chart-workspace')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,tier,workspace:{version:2,selected:'STANDARD',sync:true,studies:[],drawings:[]},updatedAt:null})});
 if(u.pathname==='/api/simulator-lab-context')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,labId:'F1-C02-L01',title:'Free Foundations Sample',referenceDate:null})});
+if(u.pathname==='/api/member-sparks-wallet')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,wallet:{available:53}})});
+if(u.pathname==='/api/member-sparks-chart')return route.fulfill({status:200,contentType:'application/json',
+ body:JSON.stringify({ok:true,offers:[
+ {tier:'ADVANCED',label:'Advanced Studio · 24 hours',sku:'STUDIO_ADVANCED_DAY',costSparks:8,durationHours:24},
+ {tier:'PROFESSIONAL',label:'Professional Studio · 24 hours',sku:'STUDIO_PROFESSIONAL_DAY',costSparks:15,durationHours:24}
+ ]})});
 if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',
 body:JSON.stringify({ok:true,eligible:true,tier:grantedTier,allowed:grantedTier==='STANDARD'?['STANDARD']:grantedTier==='ADVANCED'?['STANDARD','ADVANCED']:['STANDARD','ADVANCED','PROFESSIONAL'],
 temporaryAccess:grantedTier==='PROFESSIONAL'?{kind:'SPARKS',tier:'PROFESSIONAL',expiresAt:new Date(Date.now()+3600000).toISOString()}:undefined})});
@@ -48,11 +54,22 @@ await page.waitForFunction(t=>window.CrownlightChartTiers?.getStatus().tier===t,
 assert.equal(await page.locator('.cl-chart-tier-bar select').count(),1);
 const enabled=await page.locator('.cl-chart-tier-bar select option:not([disabled])').count();
 assert.equal(enabled,tier==='STANDARD'?2:tier==='ADVANCED'?3:4);
-await page.getByRole('button',{name:/Unlock options/}).click();
-assert.equal(await page.locator('#cl-chart-tier-access-details').isVisible(),true);
-assert.match(await page.locator('#cl-chart-tier-access-details').innerText(),/Sparks/);
-await page.keyboard.press('Escape');
-assert.equal(await page.locator('#cl-chart-tier-access-details').isVisible(),false);
+assert.equal(await page.getByRole('button',{name:/Unlock options/}).count(),0,
+ 'An unlocked Studio must not show a generic Unlock options control');
+const remainingLocks=tier==='STANDARD'?2:tier==='ADVANCED'?1:0;
+assert.equal(await page.locator('.cl-locked-studio').count(),remainingLocks);
+if(remainingLocks){
+ await page.locator('.cl-locked-studio').first().click();
+ const modal=page.locator('#cl-chart-tier-purchase-dialog');
+ await page.waitForFunction(()=>/Available balance: 53 Sparks/.test(
+  document.querySelector('#cl-chart-tier-purchase-dialog')?.textContent||''));
+ assert.equal(await modal.isVisible(),true);
+ assert.match(await modal.innerText(),/Cost: (8|15) Sparks/);
+ assert.match(await modal.innerText(),/Remaining after purchase: (45|38) Sparks/);
+ assert.equal(await modal.getByRole('button',{name:/Confirm redemption/}).count(),1);
+ await page.keyboard.press('Escape');
+ assert.equal(await modal.isVisible(),false);
+}
 await page.evaluate(b=>dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{symbol:'GUFICTION',timeframe:'1-minute',bars:b}})),two);
 if(tier!=='STANDARD'){await page.locator('.cl-chart-tier-bar select').selectOption(tier);
 await page.waitForFunction(n=>window.CrownlightChartTiers?.getStatus().charts===n,expected,{timeout:25000});
