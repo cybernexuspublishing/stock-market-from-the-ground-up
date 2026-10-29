@@ -59,6 +59,18 @@ pull a real-time quote, place an order, or issue trading recommendations.</p>
 <div class="free-watchlist-field"><label for="free-watchlist-research-note">Reason for researching / waiting / choosing no trade (30–600 characters)</label>
 <textarea id="free-watchlist-research-note" name="researchNote" rows="5" required minlength="30" maxlength="600"
  placeholder="State the evidence currently available, what remains unknown and what would change your research decision."></textarea></div>
+<details class="free-watchlist-research-guide">
+<summary>Build a structured watchlist investigation with Talia</summary>
+<p class="small">These are member-entered hypotheses, not quotes, trading signals or source verification. Use only facts available at your stated observation time.</p>
+<div class="free-watchlist-grid">
+<div class="free-watchlist-field"><label for="free-research-why">Why this candidate?</label><input id="free-research-why" maxlength="120" placeholder="Earnings, former runner, volume or another research reason"></div>
+<div class="free-watchlist-field"><label for="free-research-trigger">What observation would justify another look?</label><input id="free-research-trigger" maxlength="120" placeholder="Specific level or dated event, not an automatic buy"></div>
+<div class="free-watchlist-field"><label for="free-research-risk">What invalidates the research thesis?</label><input id="free-research-risk" maxlength="120" placeholder="Missing source, wide spread, failed level, halt"></div>
+<div class="free-watchlist-field"><label for="free-research-review">When will you review it again?</label><input id="free-research-review" maxlength="100" placeholder="Date/time and timezone or next source event"></div></div>
+<div class="free-watchlist-buttons"><button type="button" id="free-research-prepare" class="btn secondary">Add structured observations to my note</button></div>
+<p class="small" role="status" id="free-research-guide-status" aria-live="polite"></p>
+<p class="small">Research checks: original catalyst and source date; chart timeframe and previous close; volume versus current bid/ask spread; entry hypothesis versus explicit NO TRADE; no hidden future candles or retrospective fills.</p>
+</details>
 <p class="small">No prices are assumed. A ticker can be stale or ambiguous after corporate actions. Keep private personal information out of research notes.</p>
 <div class="free-watchlist-buttons"><button id="free-watchlist-save" type="submit" class="btn">Save research entry</button>
 <button id="free-watchlist-reset" type="button" class="btn secondary">Clear form</button></div>
