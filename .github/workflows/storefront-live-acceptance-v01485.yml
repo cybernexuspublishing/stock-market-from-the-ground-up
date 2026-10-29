@@ -37,6 +37,11 @@ on:
       - 'functions/api/owner-lumen-tool-offers.js'
       - 'functions/api/member-lumen-tool-passes.js'
       - 'functions/api/member-lumen-checkout-quote.js'
+      - 'functions/api/owner-release-register.js'
+      - 'functions/api/owner-lumen-item-prices.js'
+      - 'assets/js/admin-lumen-item-prices-v1.js'
+      - 'assets/js/admin-release-register-v1.js'
+      - 'tests/test_lumen_admin_release_register_v1.mjs'
       - 'assets/js/checkout-lumen-selector-v1.js'
       - 'assets/js/checkout-platform.js'
       - 'checkout.html'
@@ -78,6 +83,11 @@ on:
       - 'functions/api/owner-lumen-tool-offers.js'
       - 'functions/api/member-lumen-tool-passes.js'
       - 'functions/api/member-lumen-checkout-quote.js'
+      - 'functions/api/owner-release-register.js'
+      - 'functions/api/owner-lumen-item-prices.js'
+      - 'assets/js/admin-lumen-item-prices-v1.js'
+      - 'assets/js/admin-release-register-v1.js'
+      - 'tests/test_lumen_admin_release_register_v1.mjs'
       - 'assets/js/checkout-lumen-selector-v1.js'
       - 'assets/js/checkout-platform.js'
       - 'checkout.html'
@@ -108,6 +118,11 @@ jobs:
           node tests/test_lumens_promotion_disclosure_v1.mjs
           node tests/test_lumen_store_policy_v1.mjs
           node tests/test_lumen_fully_paid_tool_v1.mjs
+          node tests/test_lumen_admin_release_register_v1.mjs
+          node --check functions/api/owner-release-register.js
+          node --check functions/api/owner-lumen-item-prices.js
+          node --check assets/js/admin-release-register-v1.js
+          node --check assets/js/admin-lumen-item-prices-v1.js
           node tests/test_lumen_mixed_checkout_quote_v1.mjs
           node --check functions/api/member-lumen-checkout-quote.js
           node --check assets/js/checkout-lumen-selector-v1.js
