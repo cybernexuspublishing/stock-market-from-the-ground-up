@@ -254,6 +254,9 @@
    if(data.sourceAt&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(data.sourceAt)||
       !Number.isFinite(Date.parse(data.sourceAt))||Date.parse(data.sourceAt)>Date.now()+300000))
     throw Error('Optional event time must be a historical timestamp with timezone.');
+   if(data.sourceAt&&Date.parse(data.sourceAt)>Date.parse(data.asOf))
+    throw Error('The catalyst cannot be used as evidence before its stated publication time. Recheck event chronology.');
+   if(!alive())throw Error('Your account changed. Open your own authorized Workbench again.');
    if(data.sourceUrl){
     let url;try{url=new URL(data.sourceUrl)}catch{throw Error('Original source URL must be valid HTTPS.')}
     if(url.protocol!=='https:'||url.username||url.password||!url.hostname.includes('.'))
