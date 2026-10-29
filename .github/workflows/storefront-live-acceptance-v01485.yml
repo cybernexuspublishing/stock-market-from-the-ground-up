@@ -81,6 +81,9 @@ jobs:
           node tests/test_store_catalog_media_contract_v1.mjs
           node tests/test_lumens_promotion_disclosure_v1.mjs
           node tests/test_lumen_store_policy_v1.mjs
+          node tests/test_lumen_fully_paid_tool_v1.mjs
+          node --check functions/api/member-lumen-tool-passes.js
+          node --check assets/js/lumen-store-tool-passes-v1.js
           node --check assets/js/lumen-store-marketplace-v1.js
           node --check assets/js/lumen-store-chart-passes-v1.js
           node --check functions/_lib/lumen-discount-policy-v1.js
