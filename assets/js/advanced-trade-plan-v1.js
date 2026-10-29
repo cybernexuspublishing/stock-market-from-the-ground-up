@@ -143,6 +143,20 @@
     make('h2','Advanced Trade-Plan Builder'),
     make('p','Independent long/short planning, multi-target objectives, stress assumptions and private plan snapshots. No automatic orders, price feed, protected grades or guaranteed stop fills.'));
   main.append(header);
+  // Independent workflow destinations: members can open any part without
+  // completing an unrelated chart or staged training step first.
+  const workflowNav=make('nav',undefined,'tp-nav tp-primary-workflows');
+  workflowNav.setAttribute('aria-label','Independent trading research workflows');
+  for(const [label,url] of [
+   ['Plan the Trade','#tp-builder'],
+   ['Replay Execution','verified-replay.html'],
+   ['Results & Journal','journal.html'],
+   ['Journal Analytics','journal-analytics.html']
+  ]){
+   const link=make('a',label,'btn secondary');
+   link.href=url;workflowNav.append(link);
+  }
+  main.append(workflowNav);
   const navigation=make('nav',undefined,'tp-nav');navigation.setAttribute('aria-label','Trade-plan builder sections');
   const panes=make('div',undefined,'tp-panes');
   const steps=[
