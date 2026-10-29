@@ -28,7 +28,7 @@ globalThis.fetch=async(url,opts={})=>{
 const data={symbol:'GUSIM',pattern:'FICTIONAL breakout',direction:'LONG',decision:'WATCH',
  thesis:'Original fictional case',trigger:'Completed reclaim only',invalidation:'Below reference',
  source:'Illustrative first-party practice',sourceUrl:'',sourceAt:'2026-10-21T09:00:00-04:00',
- asOf:'2026-10-21T09:30:00-04:00',entry:'5',stop:'4.8',target1:'5.6',
+ asOf:'2026-10-21T09:30:00-04:00',entry:'5',stop:'4.8',budget:'25',target1:'5.6',
  target2:'',stretch:'',spread:'0',slippage:'0',gap:'0'};
 const body={recordType:'scenario_review',title:'GUSIM WATCH',payload:{
  kind:'ADVANCED_TRADE_PLAN_SNAPSHOT_V1',version:1,data}};
