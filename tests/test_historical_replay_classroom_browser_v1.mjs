@@ -49,6 +49,13 @@ try{
  await page.waitForFunction(()=>document.querySelector('#vr-session')?.hidden===false);
  assert.match(await page.locator('#hr-count').innerText(),/1 revealed source bars · 0 completed 3m/);
  assert.equal(await page.locator('#vr-advance').isDisabled(),true);
+ assert.equal(await page.locator('.crownlight-shell').count(),0,'No incomplete 3-minute candle may mount as completed chart');
+ await page.locator('#vr-decision').selectOption('WATCH');
+ await page.locator('#vr-reason').fill('The initial candle offers insufficient evidence; I will wait before trading.');
+ await page.locator('#vr-lock').click();
+ await page.waitForFunction(()=>!document.querySelector('#vr-advance')?.disabled);
+ for(let n=2;n<=3;n++){await page.locator('#vr-advance').click();await page.waitForFunction(x=>document.querySelector('#hr-count')?.textContent.startsWith(x+' revealed'),n);}
+ assert.match(await page.locator('#hr-count').innerText(),/1 completed 3m/);
  try{await page.waitForFunction(()=>document.querySelector('.crownlight-shell .crownlight-plot canvas')!==null,null,{timeout:10000})}
  catch(err){
   const report=await page.evaluate(()=>({library:!!window.LightweightCharts,indicator:!!window.CrownlightIndicatorMath,studio:window.CrownlightStudio?.getStatus?.(),tiers:window.CrownlightChartTiers?.getStatus?.(),
@@ -59,12 +66,6 @@ try{
  }
  assert.equal(await page.locator('.crownlight-shell').count(),1,'Real Lightweight Charts must mount in classroom');
  assert.equal(await page.locator('.hr-chart').isVisible(),false,'SVG fallback must not duplicate the real chart');
- await page.locator('#vr-decision').selectOption('WATCH');
- await page.locator('#vr-reason').fill('The initial candle offers insufficient evidence; I will wait before trading.');
- await page.locator('#vr-lock').click();
- await page.waitForFunction(()=>!document.querySelector('#vr-advance')?.disabled);
- for(let n=2;n<=3;n++){await page.locator('#vr-advance').click();await page.waitForFunction(x=>document.querySelector('#hr-count')?.textContent.startsWith(x+' revealed'),n);}
- assert.match(await page.locator('#hr-count').innerText(),/1 completed 3m/);
  await page.locator('#hr-timeframe').selectOption('5');
  assert.match(await page.locator('#hr-ohlcv').innerText(),/No completed bar/);
  await page.locator('#hr-timeframe').selectOption('1');
