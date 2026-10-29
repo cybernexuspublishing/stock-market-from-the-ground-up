@@ -103,6 +103,10 @@ try{
   assert.equal(await page.locator('.academy-free-stage-button').count(),9);
   assert.equal(await page.locator('.academy-free-stage:not([hidden])').count(),1);
   assert.equal(await page.locator('.academy-free-stage-button[aria-pressed=true]').count(),1);
+  // The instructor-led classroom keeps goals in a disclosure until requested.
+  await page.locator('.academy-classroom-briefing > summary').click();
+  assert.equal(await page.locator('.academy-classroom-briefing').getAttribute('open'),'',
+   'Members must be able to expand the lesson briefing');
   assert.match(await page.locator('#academy-objective').innerText(),/ownership|difference/i);
   assert.equal(await page.locator('#academy-enroll').isVisible(),!data.enrolled);
   // Each Free lesson now uses the Lab-inspired fictional teaching studio,
