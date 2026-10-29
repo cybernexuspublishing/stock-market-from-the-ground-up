@@ -85,5 +85,26 @@ try {
  assert.ok(sql.includes('version=p_expected_version'));
  assert.ok(sql.includes("lifecycle <> 'for_sale'"));
  assert.ok(sql.includes('INSERT INTO public.admin_audit_log'));
+ // Products & Prices must not silently mix registered SKUs, founder terms,
+ // roadmap ideas, and Sparks packages across its five independent tabs.
+ const productsUI=read('assets/js/admin-products-v01489.js');
+ const productsAdmin=read('assets/js/admin.js');
+ const productsPage=read('admin.html');
+ assert.ok(productsUI.includes("const root=$('admin-products-panel');if(!root)return;"),'Loader must not reference the scoped wire() root');
+ assert.ok(productsUI.includes("const regularCodes=['FREE','PICK_WHAT_YOU_WANT','ONDEMAND_MONTHLY','FULL_MONTHLY','FULL_ANNUAL','LIFETIME']"));
+ assert.ok(productsUI.includes("const founderCodes=['FOUNDING_14','FOUNDING_30','FOUNDING_60']"));
+ assert.ok(productsUI.includes("const legacyFounderCodes=['FOUNDING_MONTHLY','FOUNDING_ANNUAL']"));
+ assert.ok(!productsUI.includes('/FOUNDING|FOUNDER/i'),'Founders must be exact codes, not fuzzy names');
+ assert.ok(productsUI.includes("admin('sparks_prices')"),'Sparks costs must come from Owner service');
+ assert.ok(productsUI.includes('crownlight-sparks-store-v014167.json'),'Sparks cash packages use their own registry');
+ assert.ok(productsUI.includes('Promise.allSettled'),'Individual catalog failures must not blank all tabs');
+ assert.ok(productsAdmin.includes("p.product_type==='book'")&&productsAdmin.includes("p.product_type==='bundle'"),
+  'Book editions must be separated from series bundle drafts');
+ assert.ok(productsAdmin.includes('if(record)editProduct(record)'),'Book-only editor must not edit a bundle');
+ assert.ok(productsAdmin.includes("products-(memberships|books|tools|founding|sparks)"),'All five deep links');
+ assert.ok(productsPage.includes('admin-products-sparks-catalog'));
+ for(const tab of ['books','tools','memberships','founding','sparks'])
+  assert.ok(productsPage.includes('admin-products-tab-'+tab),'Missing canonical category '+tab);
+ console.log('PASS Admin Products five-tab contract: canonical taxonomy, segregated records, Owner-only Sparks, working loader and hashes.');
  console.log('PASS owner storefront acceptance: redaction, publish-only, 503 fail closed, owner security and checkout locked.');
 } finally {globalThis.fetch=saved;}
