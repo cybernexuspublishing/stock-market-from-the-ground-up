@@ -1,18 +1,27 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {onRequest} from '../functions/api/market-tutor-v01492.js';
 
 const cases=[
- ['F2-C07-L01','Construct an Up / Bullish Candle','open and close'],
+ ['F2-C07-L01','Construct an Up / Bullish Candle','open, high, low, and close'],
  ['DT-C11-L01','VWAP as a session reference','session reference'],
- ['DT-C19-L02','Share Volume','traded shares'],
- ['DT-C34-L01','Define the Box','upper and lower bounds'],
- ['DT-C45-L01','Failed breakout','proposed breakout level'],
- ['DT-C05-L01','Risk per trade','distance per share']
+ ['DT-C19-L02','Share Volume','shares traded'],
+ ['DT-C34-L01','Define the Box','upper and lower boundary'],
+ ['DT-C45-L01','Failed breakout','predeclared boundary'],
+ ['DT-C05-L01','Risk per trade','Risk per share']
 ];
 const byLab=Object.fromEntries(cases.map(([id,title])=>[id,{title}]));
+const bySkill={CANDLE_READING:['F2-C07-L01'],VWAP_CONTEXT:['DT-C11-L01'],VOLUME_ANALYSIS:['DT-C19-L02'],
+ BREAKOUT_RECOGNITION:['DT-C34-L01','DT-C45-L01'],CHART_STRUCTURE:['DT-C34-L01'],
+ FAILED_BREAKOUT:['DT-C45-L01'],RISK_PER_SHARE:['DT-C05-L01']};
+const expectedGuide={
+ 'F2-C07-L01':'CANDLE_READING','DT-C11-L01':'VWAP_CONTEXT','DT-C19-L02':'VOLUME_ANALYSIS',
+ 'DT-C34-L01':'CHART_STRUCTURE','DT-C45-L01':'FAILED_BREAKOUT','DT-C05-L01':'RISK_PER_SHARE'
+};
+const publicGuides=JSON.parse(readFileSync(new URL('../data/competency-study-guides-v01499.json',import.meta.url),'utf8'));
 const env={SUPABASE_URL:'https://test123.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',SUPABASE_SECRET_KEY:'sb_secret_synthetic',
- ASSETS:{fetch:async()=>new Response(JSON.stringify({totalCanonicalLabs:419,byLab,
-  bySkill:{TEST_COMPETENCY:cases.map(([id])=>id)}}))}};
+ ASSETS:{fetch:async request=>new Response(JSON.stringify(String(request.url).includes('competency-study-guides')
+  ?publicGuides:{totalCanonicalLabs:419,byLab,bySkill}))}};
 const original=globalThis.fetch;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 let modelCalls=0;const paths=[];
@@ -40,9 +49,34 @@ try{
   assert.equal(data.labContext.labId,id);
   assert.equal(data.labContext.learningStage,'Practice');
   assert(data.answer.includes(cue),id);
+  assert(data.answer.includes('Approved public competency guide:'),id);
+  assert(data.answer.includes('Public reference for further study:'),id);
+  assert.equal(data.sources.find(source=>source.sourceLabel==='Original public competency study guide')?.id,expectedGuide[id],id);
   assert.equal(data.graded,false);
   assert.equal(data.masteryAwarded,false);
  }
+ const targetedRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'Lab F2-C07-L01. Learning Journey stage: Learn. Why does this candle matter?',
+   mode:'explain',allowModel:false,saveHistory:false})});
+ const targeted=await (await onRequest({request:targetedRequest,env})).json();
+ assert(targeted.answer.includes('Why it matters:'));
+ assert(!targeted.answer.includes('Worked example (fictional):'));
+ const assessRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'Lab F2-C07-L01. Learning Journey stage: Assess. How do I calculate this?',
+   mode:'explain',allowModel:false,saveHistory:false})});
+ const assess=await (await onRequest({request:assessRequest,env})).json();
+ assert.equal(assess.labContext.learningStage,'Assess');
+ assert(!assess.answer.includes('Worked example (fictional):'));
+ const optedInRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'For canonical Lab DT-C11-L01. Learning Journey stage: Learn. Why does VWAP matter?',
+   mode:'explain',allowModel:true,saveHistory:false})});
+ const optedIn=await (await onRequest({request:optedInRequest,env})).json();
+ assert.equal(optedIn.labContext.labId,'DT-C11-L01');
+ assert.equal(optedIn.labContext.learningStage,'Learn');
+ assert.equal(optedIn.aiReason,'source_only');
  assert.equal(modelCalls,0);
  console.log('PASS six authenticated source-only Tutor API routes with stage context');
 }finally{globalThis.fetch=original}

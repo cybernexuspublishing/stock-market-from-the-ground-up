@@ -242,6 +242,15 @@ function formatMasterStudyGuide(g,mode,reflection){
  if(mode==='question')out.push('Answer from evidence visible at the pause, not from later prices.');
  return out.join('\n\n');
 }
+async function approvedGuideForCodes(env,request,codes){
+ if(!Array.isArray(codes))return null;
+ const allowed=codes.filter(code=>typeof code==='string'&&/^[A-Z_]{3,60}$/.test(code)).slice(0,4);
+ if(!allowed.length)return null;
+ try{
+  const index=await loadPublicGuides(env,request);
+  return allowed.map(code=>index.guides.find(g=>g.code===code)).find(Boolean)||null;
+ }catch{return null}
+}
 function answerFromGuide(g,mode,answer){
  if(g.masterStudy===true)return formatMasterStudyGuide(g,mode,answer);
  if(g.decisionPlaybook===true)return formatDecisionGuide(g,mode,answer);
@@ -254,4 +263,4 @@ function answerFromGuide(g,mode,answer){
  if(mode==='review')return main+'\n\nUse this review criterion: '+g.reviewExplanation+' no rubric was graded or scored.\n\n'+ungradedResponseReview(answer);
  return main+'\n\nCommon error to avoid: '+g.commonError+'\n\nPractice: '+g.selfCheck;
 }
-export {chooseGuides,originalGuides,answerFromGuide};
+export {chooseGuides,originalGuides,approvedGuideForCodes,answerFromGuide};

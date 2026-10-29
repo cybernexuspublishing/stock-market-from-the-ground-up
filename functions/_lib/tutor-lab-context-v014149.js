@@ -1,17 +1,10 @@
+import {teachingForLab,formatLabTeaching} from './tutor-lab-teaching-v1.js';
 /* D09 419 canonical Lab ID routing. Public competence crosswalk only.
  * NO question bank, assessment answers, replay candles or learner attempt data.
  */
 const LAB=/\b(?:F[123]-C\d{2}-L\d{2}|DT-C\d{2}-L\d{2}|TAPE-C\d{2}-L\d{2}|SITE-\d{3})\b/i;
 const cache=new WeakMap();
 const STAGES=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'];
-const EXAMPLES=Object.freeze({
- 'F2-C07-L01':'Compare the open and close of the displayed candle, then locate its high and low. A bullish body describes that interval; it does not predict the next candle.',
- 'DT-C11-L01':'Treat VWAP as a session reference. Compare the displayed price with the plotted VWAP and check the session and volume inputs before interpreting their relationship.',
- 'DT-C19-L02':'Share volume counts traded shares during the stated interval. Check the interval and feed scope; volume alone does not identify who traded or why.',
- 'DT-C34-L01':'Mark the visible upper and lower bounds of the range before discussing a possible breakout. A move beyond a boundary needs subsequent evidence and can fail.',
- 'DT-C45-L01':'Locate the proposed breakout level and the later visible evidence that challenges it. Do not use candles beyond the Lab observation point to justify an earlier decision.',
- 'DT-C05-L01':'For a hypothetical risk calculation, name the entry, invalidation price, distance per share, and risk budget with units. A modeled stop distance cannot guarantee an exit fill.'
-});
 export function requestedLearningStage(question){
  const match=/\bLearning Journey stage:\s*(Start|Learn|Experiment|Predict|Practice|Assess|Review|Transfer|Results)\b/i.exec(String(question||'').slice(0,450));
  return match?STAGES.find(stage=>stage.toLowerCase()===match[1].toLowerCase()):null;
@@ -40,10 +33,11 @@ export async function getApprovedLabContext(env,request,question){
   learningStage:requestedLearningStage(question),relatedCompetencyCodes:codes,practiceUrl:'/labs.html?q='+encodeURIComponent(id),
   registryScope:'canonical_lab_id_and_public_competency_crosswalk_only'};
 }
-export function labGuidance(context,mode,reflection=''){
+export function labGuidance(context,mode,reflection='',learnerQuestion=''){
  const n=context.labId,codes=context.relatedCompetencyCodes.join(', ');
  const stage=STAGES.includes(context.learningStage)?context.learningStage:null;
- const focus=EXAMPLES[n]||'Use only the evidence visible at the Lab observation point. Name the concept, its limitation, and what would change your interpretation.';
+ const lesson=teachingForLab(n);
+ const focus=lesson?formatLabTeaching(lesson,{question:learnerQuestion,stage}):'Use only the evidence visible at the Lab observation point. Name the concept, its limitation, and what would change your interpretation.';
  const stagePrompt={Start:'State what you already know and what the lesson will examine.',Learn:'Define the concept in plain language before applying it.',Experiment:'Change one observation at a time and describe what changes.',Predict:'Write a prediction before revealing later evidence.',Practice:'Try the next step independently, then explain your reasoning.',Assess:'Use the Lab assessment instructions; I cannot provide its answer key.',Review:'Compare your reasoning with the evidence available at the time.',Transfer:'Describe when the same concept would or would not apply elsewhere.',Results:'Review your recorded result without treating it as trading proficiency.'};
  const a='Lab '+n+' is registered in the 419-Lab curriculum. Public competency links: '+codes+'. '+
   (context.labTitle?'Public lesson title: '+context.labTitle+'. ':'')+
