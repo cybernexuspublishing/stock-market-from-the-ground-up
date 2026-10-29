@@ -370,6 +370,34 @@
   back.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=1;void paintTimeline()});
   next.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=Math.min(timelineBars.length,revealed+1);void paintTimeline()});
   ten.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=Math.min(timelineBars.length,revealed+10);void paintTimeline()});
+  const trailPanel=make('section',undefined,'tp-trailing');
+  const trailTitle=make('h3','Trailing-stop scenario — currently revealed candles only');
+  const trailLabel=make('label','Trailing distance ($ per share)');
+  trailLabel.htmlFor='tp-trail-distance';
+  const trailInput=make('input');trailInput.id='tp-trail-distance';
+  trailInput.type='number';trailInput.min='0.0001';trailInput.step='any';trailInput.value='0.20';
+  const trailButton=make('button','Model trailing stop on revealed bars','btn secondary');
+  trailButton.type='button';
+  const trailOutput=make('p','Load a CSV, reveal candles and model the hypothetical stop. Results are educational, not simulated fills.','tp-alert');
+  trailOutput.setAttribute('role','status');
+  trailButton.addEventListener('click',()=>{
+   const f=read(),values=calculate(f),engine=root.GroundUpTrailingStopModelV1;
+   if(!engine||!values.ok||!revealed){trailOutput.textContent='Enter a valid trade plan and reveal at least one candle first.';return}
+   const dist=Number(trailInput.value);
+   const outcome=engine.model({direction:f.direction,entry:values.entry,
+    initialStop:values.stop,trailDistance:dist,bars:visibleRows(),maxBars:revealed});
+   if(!outcome.ok){trailOutput.textContent=outcome.error;return}
+   trailOutput.textContent=outcome.triggered?
+    'On revealed candle '+outcome.trigger.bar+', its recorded range crossed the previously active stop of $'+
+      outcome.trigger.stopBefore.toFixed(4)+
+      '. A gap-aware illustrative reference is $'+outcome.trigger.hypotheticalGapAwareReference.toFixed(4)+
+      '; actual fill price is unknown.':
+    'No triggered stop in the '+revealed+' revealed candles. The next-bar trailing stop is $'+
+      outcome.activeStop.toFixed(4)+'. Future candles are not used.';
+  });
+  trailPanel.append(trailTitle,trailLabel,trailInput,trailButton,trailOutput,
+   make('p','Stop movement uses only the completed high/low of a REVEALED candle, and becomes active for the next candle. OHLC bars cannot tell whether a high preceded a low; stop-market and stop-limit outcomes can differ, and a gap or halt can exceed modeled risk.','small'));
+  timeline.append(trailPanel);
   const timelineNote=make('p','Source chronology is a member-entered research claim. A candle timestamp may represent an interval start rather than its close. For same-interval news, conservative interpretation and a separately sourced first-public timestamp are essential. This chart does not infer the cause of price changes.','small');
   timeline.append(timelineNote);
   const reviewIntro=make('p','All research is member-reported. A saved version is a new private snapshot, not an independently verified historical record, broker order, or immutable regulatory audit ledger.');
