@@ -9,6 +9,7 @@ import argparse, datetime as dt, gzip, hashlib, json, pathlib, re, sys, urllib.r
 from urllib.parse import urlparse, unquote
 from zoneinfo import ZoneInfo
 from iex_tops import stream_pcap
+from pcapng_iex_reader import stream_pcapng
 
 NY=ZoneInfo("America/New_York")
 UTC=dt.timezone.utc
@@ -56,7 +57,8 @@ def capture(day,tickers,minutes,byte_budget):
         stream=LimitedStream(res,byte_budget)
         try:
             with gzip.GzipFile(fileobj=stream,mode='rb') as g:
-                for packet,(nano,symbol,qty,px,trade_id,flags) in stream_pcap(g):
+                records=stream_pcapng(g) if g.peek(4)[:4]==b'\x0a\x0d\x0d\x0a' else stream_pcap(g)
+                for packet,(nano,symbol,qty,px,trade_id,flags) in records:
                     try:t=dt.datetime.fromtimestamp(nano/1000000000,UTC)
                     except (OverflowError,OSError,ValueError):continue
                     if t>=end+dt.timedelta(minutes=1):
