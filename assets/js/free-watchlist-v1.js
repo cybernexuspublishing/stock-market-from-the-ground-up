@@ -144,6 +144,22 @@
    say('free-watchlist-gate','Research workspace ready. Your entries are private and synced through the account database.');
   }catch(e){say('free-watchlist-gate',String(e.message||'Private watchlist unavailable. No research was changed.'))}
  }
+ const prepare=byId('free-research-prepare');
+ if(prepare)prepare.addEventListener('click',()=>{
+  const fields=[['Why', 'free-research-why'],['Review trigger', 'free-research-trigger'],
+   ['Invalidation or NO TRADE', 'free-research-risk'],['Review time', 'free-research-review']];
+  const parts=fields.map(([label,id])=>[label,byId(id)?.value.trim()||'']).filter(([,val])=>Boolean(val));
+  const result=byId('free-research-guide-status');
+  if(!parts.length){result.textContent='Enter at least one research observation first.';return}
+  const note=byId('free-watchlist-research-note');
+  const addition=parts.map(([label,val])=>label+': '+val).join(' | ');
+  const combined=[note.value.trim(),addition].filter(Boolean).join(' | ');
+  if(combined.length>600){
+   result.textContent='The combined research note exceeds 600 characters. Shorten the fields or remove older notes before adding.';return;
+  }
+  note.value=combined;result.textContent='Structured observations added to your note. Select Save research entry to store them privately.';
+  note.focus();
+ });
  byId('free-watchlist-form').addEventListener('submit',event=>void submit(event));
  byId('free-watchlist-reset').addEventListener('click',resetForm);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init(),{once:true});
