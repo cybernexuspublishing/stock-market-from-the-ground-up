@@ -34,6 +34,9 @@
   ['target1','Target 1 ($)','number',0],
   ['target2','Target 2 ($, optional)','number',0],
   ['stretch','Stretch target ($, optional)','number',0],
+  ['scale1','Target 1 scale-out allocation (%)','number',0],
+  ['scale2','Target 2 scale-out allocation (%)','number',0],
+  ['scale3','Stretch allocation (%)','number',0],
   ['budget','Planned loss budget ($)','number',0],
   ['capital','Optional account capital ($)','number',0],
   ['requested','Optional desired whole shares','number',0],
@@ -105,6 +108,31 @@
   };
   return result;
  }
+ function scaleOut(r,allocations){
+  if(!r?.ok||!Number.isSafeInteger(r.size)||r.size<1)return {ok:false,error:'A valid position is needed before scale-out modeling.'};
+  const fractions=[allocations?.scale1??100,allocations?.scale2??0,allocations?.scale3??0].map(Number);
+  if(fractions.some(v=>!Number.isInteger(v)||v<0||v>100)||fractions.reduce((a,b)=>a+b,0)!==100)
+   return {ok:false,error:'Target allocation must use whole percentages totaling exactly 100%.'};
+  const active=[];
+  for(let i=0;i<3;i++){
+   if(fractions[i]>0&&r.targetPrices[i]===null)
+    return {ok:false,error:'Enter a valid target price for each positive allocation.'};
+   if(fractions[i]>0)active.push(i);
+  }
+  const portions=[],sign=r.side==='LONG'?1:-1;
+  let assigned=0,gross=0;
+  for(let i=0;i<active.length;i++){
+   const index=active[i];
+   const shares=i===active.length-1?r.size-assigned:Math.floor(r.size*fractions[index]/100);
+   const profit=fixed(sign*(r.targetPrices[index]-r.entry)*shares);
+   portions.push({target:index+1,percent:fractions[index],price:r.targetPrices[index],shares,grossProfit:profit});
+   assigned+=shares;gross+=profit;
+  }
+  gross=fixed(gross);
+  return {ok:true,portions,sharesAssigned:assigned,grossProfit:gross,
+   blendedR:r.modeledLoss>0?fixed(gross/r.modeledLoss):null,
+   note:'Illustrative whole-share scale-out only; fees, liquidity, gaps, halts and stop changes may produce different outcomes.'};
+ }
  function make(tag,txt,cls){const el=document.createElement(tag);if(cls)el.className=cls;
   if(txt!==undefined)el.textContent=String(txt);return el}
  function mount({host,workspaceApi,saveRecord,latestRecords,alive=()=>true}){
@@ -142,7 +170,7 @@
   }
   navigation.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.tpTab;if(id)activate(id)});
   const groups={research:['symbol','company','pattern','direction','decision','trend','levels','thesis','catalyst','source','sourceUrl','asOf','sourceAt','trigger','invalidation','stopMechanism','holding','cancel','alternative'],
-     risk:['entry','stop','target1','target2','stretch','budget','capital','requested','spread','slippage','gap','partial','fill']};
+     risk:['entry','stop','target1','target2','stretch','scale1','scale2','scale3','budget','capital','requested','spread','slippage','gap','partial','fill']};
   const talia=make('details',undefined,'tp-talia-method');
   const taliaSummary=make('summary','Talia’s eight-step research and trade-plan method');
   talia.append(taliaSummary);
@@ -180,7 +208,7 @@
    sections[tab].append(grid);
   }
   const defaults={direction:'LONG',decision:'PLAN',budget:'25',entry:'5',stop:'4.8',
-   target1:'5.6',capital:'',spread:'0',slippage:'0',gap:'0',
+   target1:'5.6',scale1:'100',scale2:'0',scale3:'0',capital:'',spread:'0',slippage:'0',gap:'0',
    stopMechanism:'STOP MARKET (slippage possible)'};
   for(const [key,val] of Object.entries(defaults)){const e=q('tp-'+key)||sections.risk.querySelector('#tp-'+key)||sections.research.querySelector('#tp-'+key);if(e)e.value=val}
   // No market data or ticker is populated from an external source.
@@ -198,7 +226,9 @@
   const buttonRow=make('div',undefined,'tp-actions');buttonRow.append(calcBtn,chartBtn);
   const riskFoot=make('p','The one-share conservative reserve is ON by default: a $25 budget, $5.00 entry and $4.80 stop yield 124 shares, $24.80 modeled loss and $620.00 position cost. The mathematical limit without this reserve is 125. This is a classroom convention, not a universal trading rule.','small');
   const riskNote=make('p','Long and short values are illustrative. Spread, slippage and gap stress are per share; modeled stress does not cap actual losses. Short borrow and financing eligibility are not computed. Targets are alternatives, not promised fills.','small');
-  sections.risk.append(buttonRow,output,error,chart,riskFoot,riskNote);
+  const scaleOutput=make('div',undefined,'tp-scaleout');
+  sections.risk.append(buttonRow,output,error,make('h3','Multi-target scale-out scenario'),
+   make('p','Allocate 100% of modeled whole shares across actual target prices. Gross results exclude fees and execution uncertainty.','small'),scaleOutput,chart,riskFoot,riskNote);
   function calculatePreview(){
    const inputs=read(),r=calculate(inputs);planResult=r;output.replaceChildren();
    if(!r.ok){error.textContent=r.error;return r}
@@ -215,6 +245,19 @@
     ['Entry-fill variance vs planned',r.partialFillVariance===null?'Not modeled':usd(r.partialFillVariance)]];
    for(const [label,val] of items){
     const box=make('div',undefined,'tp-stat');box.append(make('span',label),make('strong',val));output.append(box);
+   }
+   const scales=scaleOut(r,inputs);
+   scaleOutput.replaceChildren();
+   if(!scales.ok)scaleOutput.append(make('p',scales.error,'tp-alert'));
+   else{
+    const tbl=make('table',undefined,'journal-table');
+    const head=make('thead'),tr=make('tr');
+    for(const label of ['Target','Allocation','Whole shares','Target price','Gross modeled result'])tr.append(make('th',label));
+    head.append(tr);tbl.append(head);const body=make('tbody');
+    for(const target of scales.portions){const row=make('tr');
+     for(const value of ['Target '+target.target,target.percent+'%',target.shares,usd(target.price),usd(target.grossProfit)])row.append(make('td',value));body.append(row)}
+    tbl.append(body);scaleOutput.append(tbl,
+     make('p','Gross modeled result: '+usd(scales.grossProfit)+'. Blended R: '+fmt(scales.blendedR)+'R. Actual fills and fees may differ.','small'));
    }
    if(chartInstance)plot(r);
    return r;
@@ -371,6 +414,8 @@
      throw Error('Original source URL must be HTTPS without embedded credentials.');
    }
    if(!['PLAN','WATCH','REJECT','NO TRADE'].includes(data.decision))throw Error('Invalid plan decision');
+   const allocation=scaleOut(r,data);
+   if(!allocation.ok)throw Error(allocation.error);
    return {data,r};
   }
   function refreshReview(){
@@ -385,7 +430,7 @@
     const {data,r}=prepare();loading=true;snapButton.disabled=true;
     const payload={kind:'ADVANCED_TRADE_PLAN_SNAPSHOT_V1',version:1,asOf:data.asOf,
      sourceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED',data,
-     modeled:{perShare:r.perShare,size:r.size,theoretical:r.theoretical,buffer:r.buffer,
+     modeled:{scaleOut:scaleOut(r,data),perShare:r.perShare,size:r.size,theoretical:r.theoretical,buffer:r.buffer,
       modeledLoss:r.modeledLoss,stressedLoss:r.stressedLoss,exposurePct:r.exposurePct,rr:r.rr}};
     await saveRecord('scenario_review',data.symbol+' '+data.decision,payload);
     if(!alive())return;
@@ -443,5 +488,5 @@
   }
   return Object.freeze({calculate,activate,refresh:loadHistory,loadCandidate});
  }
- root.GroundUpAdvancedTradePlanV1=Object.freeze({calculate,mount,version:'1.0'});
+ root.GroundUpAdvancedTradePlanV1=Object.freeze({calculate,scaleOut,mount,version:'1.0'});
 })(window);
