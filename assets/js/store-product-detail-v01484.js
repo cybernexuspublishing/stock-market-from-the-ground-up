@@ -6,7 +6,7 @@
 (()=>{'use strict';
 const e=s=>window.CommerceTools.esc(s);
 const safe=s=>window.CommerceTools.safeHref(s);
-const money=c=>window.CommerceTools.moneyCents(Number(c||0)/100);
+const money=c=>window.CommerceTools.moneyCents(Number(c||0)); // canonical cents formatter divides once
 // The standalone JSON guide did not reach Cloudflare production (404), causing
 // all fifteen detail pages to fail. Embed only reviewed educational copy here;
 // canonical prices, entitlement flags and sales availability still come from
