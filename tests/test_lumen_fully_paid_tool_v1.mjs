@@ -32,6 +32,7 @@ globalThis.fetch=async(uri,options={})=>{
  if(u.pathname==='/rest/v1/admin_user_flags')return respond([]);
  if(u.pathname==='/rest/v1/admin_user_roles')return respond([{role_code:'OWNER',expires_at:null}]);
  if(u.pathname==='/rest/v1/gu_lumen_tool_offers_v1')return respond([]);
+ if(u.pathname==='/rest/v1/gu_lumen_value_settings_v1')return respond([{active_cents:7}]);
  throw Error('Unexpected endpoint '+u.pathname);
 };
 try{
