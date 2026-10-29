@@ -24,6 +24,7 @@ jobs:
           node tests/test_v014095_training_tutor_integration.mjs
           node tests/test_v014100_free_competency_tutor.mjs
           node tests/test_tutor_stt_research_guides_v1.mjs
+          node tests/test_stt_sitewide_reconciliation_v1.mjs
           node tests/test_tutor_video_research_v1.mjs
           node tests/test_tutor_trade_decision_playbooks_v1.mjs
           node tests/test_tutor_advanced_decision_guides_v1.mjs
