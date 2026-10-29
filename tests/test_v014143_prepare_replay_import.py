@@ -31,6 +31,8 @@ class ImporterAcceptance(unittest.TestCase):
     def test_draft_matches_existing_schema_and_never_auto_approves(self):
         d,bars,review=m.validate_and_prepare(source(),'IEX_AAPL_20261007')
         self.assertEqual(d['status'],'draft')
+        self.assertIn('By accessing or using IEX Historical Data',d['source_attribution'])
+        self.assertIn('https://www.iex.io/legal/hist-data-terms',d['source_attribution'])
         self.assertEqual(len(bars),2)
         self.assertEqual([r['bar_index'] for r in bars],[0,1])
         self.assertEqual(bars[1]['volume'],48)
