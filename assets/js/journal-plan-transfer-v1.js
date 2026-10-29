@@ -6,7 +6,7 @@
 (()=>{'use strict';
  const q=new URLSearchParams(location.search),raw=q.get('source_plan')||'';
  if(!/^[1-9][0-9]{0,15}$/.test(raw)||!Number.isSafeInteger(Number(raw)))return;
- let applied=false,pending=false;
+ let applied=false,pending=false,sourcePending=null;
  const by=id=>document.getElementById(id);
  const entry=location.pathname.endsWith('journal-entry.html');
  const list=location.pathname.endsWith('journal.html');
@@ -101,6 +101,7 @@
     };
     for(const [field,value] of Object.entries(fields))input(field,value);
     setup(p.setup,'j-setup','j-setup-custom');
+    sourcePending={journalId:id,planId:d.planId,userId:d.userId};
     applied=true;button.disabled=true;
     ui.status.textContent='Copied from saved Workbench plan #'+d.planId+
      ' into your CURRENT UNSAVED form. Review and correct values, then select Save Draft. '+
@@ -114,5 +115,20 @@
  }
  if(list)window.addEventListener('gu-journal-ready',()=>void makeCreatePrefill(),{once:true});
  if(entry)window.addEventListener('gu-journal-record-loaded',()=>void makeEntryPrefill(),{once:true});
+ window.addEventListener('gu-journal-plan-saved',async()=>{
+  if(!sourcePending||!entry)return;
+  const link=sourcePending;
+  try{
+   const client=await window.getSupabaseClient(),session=(await client.auth.getSession()).data?.session;
+   if(session?.user?.id!==link.userId)throw Error('Session changed.');
+   const r=await fetch('/api/journal-research-links-v1',{method:'POST',cache:'no-store',
+    credentials:'same-origin',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
+    body:JSON.stringify({journalId:link.journalId,planId:link.planId})});
+   const response=await r.json().catch(()=>null);
+   if(!r.ok||response?.ok!==true)throw Error(response?.error||'Source linking unavailable.');
+   sourcePending=null;
+   ui.status.textContent='Saved Journal draft and linked the original Workbench research version. The source timestamp and version remain in your private research history.';
+  }catch(e){ui.status.textContent='Draft saved. Research source link was not confirmed: '+(e.message||e)+'. Do not mistake an unlinked draft for verified historical research.'}
+ });
  window.addEventListener('pagehide',()=>{ui.panel?.replaceChildren()});
 })();
