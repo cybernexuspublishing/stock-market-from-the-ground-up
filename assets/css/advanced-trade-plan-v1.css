@@ -41,3 +41,13 @@
 @media(max-width:710px){#tp-builder .tp-grid{grid-template-columns:minmax(0,1fr)}#tp-builder .tp-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#tp-builder .tp-stat{min-width:0}#tp-builder .tp-chart{height:260px}}
 @media(max-width:410px){#tp-builder .tp-nav{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){#tp-builder *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Related current-state Watchlist Intelligence reuses the same restrained metric vocabulary. */
+.tp-intelligence{background:linear-gradient(145deg,#0b1b2b,#11283a);border:1px solid #32556b;border-radius:14px;padding:18px}
+.tp-intelligence>p{color:#bdd2dd;line-height:1.55}
+.tp-intelligence .tp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.tp-intelligence .tp-stat{padding:12px;background:#0b2537;border:1px solid #30536a;border-radius:10px;display:flex;flex-direction:column;gap:4px}
+.tp-intelligence .tp-stat span{font-size:.77rem;color:#b3cbd8}
+.tp-intelligence .tp-stat strong{font-size:1.15rem;color:#f2f9fc;font-variant-numeric:tabular-nums}
+.tp-intelligence .tp-chart{height:285px;background:#0b2234;border-radius:10px;margin:12px 0;max-width:100%}
+.tp-intelligence .tp-chart[hidden]{display:none!important}
