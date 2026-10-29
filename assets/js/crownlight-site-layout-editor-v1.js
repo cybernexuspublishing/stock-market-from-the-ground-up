@@ -226,7 +226,8 @@
  function toggle(){
   state.editing=!state.editing;document.body.classList.toggle('gu-site-layout-editing',state.editing);
   $('#gu-layout-toggle').setAttribute('aria-pressed',String(state.editing));
-  $('#gu-layout-toggle').textContent=state.editing?'Finish Layout Editing':'Edit Site Layout';
+  $('#gu-layout-toggle').textContent='Edit';
+  $('#gu-layout-toggle').title=state.editing?'Click to finish editing · drag to move':'Click to edit · drag to move';
   for(const card of keyed.values()){
    card.classList.toggle('gu-layout-editable',state.editing);
    card.querySelector(':scope > .gu-layout-controls')?.remove();
@@ -252,6 +253,87 @@
 
   }
  }
+
+ function installFloatingEditorDrag(toolbar){
+  const button=toolbar.querySelector('#gu-layout-toggle');
+  if(!button)return;
+  const storageKey='gu-layout-editor-button-position-v1';
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const size=()=>({w:toolbar.offsetWidth||56,h:toolbar.offsetHeight||56});
+  const position=(x,y)=>{
+   const {w,h}=size();
+   toolbar.style.left=clamp(x,0,Math.max(0,window.innerWidth-w))+'px';
+   toolbar.style.top=clamp(y,0,Math.max(0,window.innerHeight-h))+'px';
+   toolbar.style.right='auto';toolbar.style.bottom='auto';
+  };
+  function save(){
+   const r=toolbar.getBoundingClientRect();
+   try{localStorage.setItem(storageKey,JSON.stringify({
+    x:clamp(r.left/Math.max(1,window.innerWidth-r.width),0,1),
+    y:clamp(r.top/Math.max(1,window.innerHeight-r.height),0,1)
+   }))}catch{}
+  }
+  try{
+   const stored=JSON.parse(localStorage.getItem(storageKey)||'null');
+   if(stored&&Number.isFinite(stored.x)&&Number.isFinite(stored.y)){
+    const {w,h}=size();
+    position(stored.x*Math.max(0,window.innerWidth-w),
+     stored.y*Math.max(0,window.innerHeight-h));
+   }
+  }catch{}
+  window.addEventListener('resize',()=>{
+   if(!toolbar.style.left)return;
+   const r=toolbar.getBoundingClientRect();
+   position(r.left,r.top);
+  });
+  let lastDragAt=-1e6;
+  button.addEventListener('pointerdown',event=>{
+   if(event.button!==0||event.isPrimary===false)return;
+   const id=event.pointerId,sx=event.clientX,sy=event.clientY;
+   const origin=toolbar.getBoundingClientRect();
+   let moved=false,done=false;
+   try{button.setPointerCapture(id)}catch{}
+   const move=e=>{
+    if(done||e.pointerId!==id)return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!moved&&Math.hypot(dx,dy)<6)return;
+    moved=true;
+    position(origin.left+dx,origin.top+dy);
+   };
+   const cleanup=()=>{
+    window.removeEventListener('pointermove',move,true);
+    window.removeEventListener('pointerup',end,true);
+    window.removeEventListener('pointercancel',cancel,true);
+    window.removeEventListener('blur',cancel,true);
+    try{if(button.hasPointerCapture(id))button.releasePointerCapture(id)}catch{}
+   };
+   const end=e=>{
+    if(done||e.pointerId!==id)return;
+    done=true;cleanup();
+    if(moved){lastDragAt=performance.now();save()}
+   };
+   const cancel=()=>{
+    if(done)return;done=true;cleanup();
+    if(moved)position(origin.left,origin.top);
+   };
+   window.addEventListener('pointermove',move,true);
+   window.addEventListener('pointerup',end,true);
+   window.addEventListener('pointercancel',cancel,true);
+   window.addEventListener('blur',cancel,true);
+  });
+  button.addEventListener('click',event=>{
+   if(performance.now()-lastDragAt<500){
+    event.preventDefault();event.stopImmediatePropagation();return;
+   }
+   toggle();
+  });
+  button.addEventListener('keydown',event=>{
+   if(!event.altKey||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+   event.preventDefault();
+   const [dx,dy]={ArrowLeft:[-16,0],ArrowRight:[16,0],ArrowUp:[0,-16],ArrowDown:[0,16]}[event.key];
+   const r=toolbar.getBoundingClientRect();position(r.left+dx,r.top+dy);save();
+  });
+ }
  async function init(){
   collectCards();
   let saved;
@@ -271,8 +353,8 @@
   if(!check?.canEdit)return;
   const toolbar=document.createElement('aside');toolbar.id='gu-layout-admin-toolbar';
   toolbar.setAttribute('aria-label','Owner and staff layout editor');
-  toolbar.innerHTML='<button type="button" id="gu-layout-toggle" aria-pressed="false">Edit Site Layout</button><p id="gu-layout-feedback" role="status" aria-live="polite"></p>';
-  document.body.append(toolbar);$('#gu-layout-toggle').addEventListener('click',toggle);
+  toolbar.innerHTML='<button type="button" id="gu-layout-toggle" aria-pressed="false" aria-label="Edit site layout; drag to reposition this button" title="Click to edit · drag to reposition">Edit</button><p id="gu-layout-feedback" role="status" aria-live="polite"></p>';
+  document.body.append(toolbar);installFloatingEditorDrag(toolbar);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>void init(),{once:true});
  else void init();
