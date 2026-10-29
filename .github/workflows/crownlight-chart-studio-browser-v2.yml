@@ -39,6 +39,7 @@ on:
       - 'assets/css/crownlight-page-workspace-v2.css'
       - 'assets/css/crownlight-page-style-visibility-v3.css'
       - 'tests/test_crownlight_real_page_styles_v3.mjs'
+      - 'tests/test_crownlight_page_style_production_probe_v3.mjs'
       - 'tests/test_crownlight_page_presentation_v2.mjs'
       - 'tests/test_crownlight_page_workspace_browser_v2.mjs'
       - 'tests/test_crownlight_admin_style_gallery_browser_v1.mjs'
@@ -148,6 +149,7 @@ jobs:
           node tests/test_crownlight_page_presentation_v2.mjs
           node tests/test_crownlight_page_workspace_browser_v2.mjs
           node tests/test_crownlight_real_page_styles_v3.mjs
+          node tests/test_crownlight_page_style_production_probe_v3.mjs
           node tests/test_crownlight_admin_style_gallery_browser_v1.mjs
           node tests/test_owner_self_sparks_browser_v1.mjs
           node tests/test_crownlight_continuous_layout_browser_v1.mjs
