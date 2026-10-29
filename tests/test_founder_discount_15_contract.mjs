@@ -106,7 +106,7 @@ test('current Founder public descriptions use the V2 nonexpiring Sparks rule',()
   assert.equal(c.disclosures.includedSparksNeverExpire,true);
   assert.doesNotMatch(page,/Included Sparks expire (60|90|150) days/i);
   assert.match(page,/Unused included and purchased Crownlight Sparks never expire/);
-  assert.match(store,/Unused included Sparks expiration/);
+  assert.match(store,/Unused included Lumens expiration/,'Member-facing Store uses Lumens; legacy policy field incSparks remains internal');
   assert.match(store,/plans\.map\(\(\)=>'Never'\)/);
   assert.doesNotMatch(store,/Sparks expiry|expiry after term/i);
   assert.match(build,/includedSparksNeverExpire/);
