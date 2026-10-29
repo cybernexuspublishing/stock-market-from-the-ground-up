@@ -58,9 +58,21 @@
   symbol=String(event.detail?.symbol||'REPLAY').replace(/[^a-zA-Z0-9_ .:-]/g,'').slice(0,40);
   if(opened)paint();
  });
- root.addEventListener('crownlight:member-changed',()=>{last=[];symbol='REPLAY';paint()});
+ function resetForMember(){
+  // An in-flight library load may not reopen old member data after a switch.
+  serial++;
+  last=[];symbol='REPLAY';opened=false;
+  ro?.disconnect();ro=null;
+  instance?.dispose();instance=null;
+  chartHost.hidden=true;
+  count.textContent='0 revealed bars · REPLAY';
+  status.textContent='Account changed. Replay analytics cleared; open a new session to view new observations.';
+  button.textContent='Open replay analytics';
+  button.disabled=false;
+ }
+ root.addEventListener('crownlight:member-changed',resetForMember);
  button.addEventListener('click',async()=>{
-  if(opened){opened=false;instance?.dispose();instance=null;ro?.disconnect();ro=null;chartHost.hidden=true;button.textContent='Open replay analytics';status.textContent='Visualization closed.';return}
+  if(opened){serial++;opened=false;instance?.dispose();instance=null;ro?.disconnect();ro=null;chartHost.hidden=true;button.textContent='Open replay analytics';status.textContent='Visualization closed.';return}
   const request=++serial;button.disabled=true;status.textContent='Loading Apache ECharts analytics…';
   try{
    const echarts=await root.CrownlightECharts.load();

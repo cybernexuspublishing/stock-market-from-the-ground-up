@@ -16,7 +16,15 @@
   ['catalogProducts','Catalog products'],
   ['publishedContent','Published content']
  ];
- let snapshot=null,echart=null,loading=null,resize=null;
+ let snapshot=null,echart=null,loading=null,resize=null,epoch=0,memberId=null;
+ function clearSnapshot(){
+  epoch++;
+  snapshot=null;loading=null;
+  resize?.disconnect();resize=null;
+  echart?.dispose();echart=null;
+  region.hidden=true;
+  status.textContent='Session changed. Return to Overview to load fresh authorized statistics.';
+ }
  function display(){
   if(!echart||!snapshot)return;
   const values=categories.map(([key,label])=>({label,value:snapshot[key]}))
@@ -48,12 +56,17 @@
   if(!host.closest('.admin-panel.active'))return;
   if(!echart){
    if(!loading){
+    const serial=epoch;
     loading=root.CrownlightECharts.load().then(e=>{
+     // Reject a pending load if the session changed or panel closed.
+     if(serial!==epoch||!snapshot||!host.closest('.admin-panel.active'))return;
      region.hidden=false;
      echart=e.init(region,null,{renderer:'canvas'});
      resize=new ResizeObserver(()=>echart?.resize());resize.observe(region);
      display();
-    }).catch(error=>{status.textContent='Visualization unavailable: '+error.message}).finally(()=>loading=null);
+    }).catch(error=>{
+     if(serial===epoch)status.textContent='Visualization unavailable: '+error.message
+    }).finally(()=>{if(serial===epoch)loading=null});
    }
    return;
   }
@@ -61,6 +74,22 @@
  }
  view.addEventListener('change',display);
  root.addEventListener('groundup:admin-summary',onSummary);
+ root.addEventListener('crownlight:member-changed',clearSnapshot);
+ // The Admin shell does not load Chart Studio. Guard its own session changes.
+ if(typeof root.getSupabaseClient==='function')void root.getSupabaseClient().then(sb=>{
+  if(!sb?.auth)return;
+  void sb.auth.getSession().then(({data})=>{memberId=data?.session?.user?.id||null}).catch(()=>{});
+  sb.auth.onAuthStateChange((event,session)=>{
+   const uid=session?.user?.id||null;
+   if(event==='SIGNED_OUT'||(memberId&&uid&&uid!==memberId)){
+    clearSnapshot();
+   }
+   if(event==='SIGNED_OUT')memberId=null;
+   else if(uid)memberId=uid;
+  });
+ }).catch(()=>{});
+
  if(root.GroundUpAdminSummarySnapshot)void onSummary({detail:root.GroundUpAdminSummarySnapshot});
- root.CrownlightAdminAnalytics={isReady:()=>!!echart,refresh:()=>void onSummary()};
+ root.CrownlightAdminAnalytics={isReady:()=>!!echart,refresh:()=>void onSummary(),
+  getStatus:()=>({rendered:!!echart,hasSnapshot:!!snapshot})};
 })(window);
