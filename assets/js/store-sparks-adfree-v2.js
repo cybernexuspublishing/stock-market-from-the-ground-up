@@ -1,4 +1,4 @@
-/* Crownlight Sparks V2 ad-free marketplace: server-authorized, no fake purchases. */
+/* Crownlight Lumens V2 ad-free marketplace: server-authorized, no fake purchases. */
 (async function(){
  'use strict';
  const host=document.getElementById('spark-adfree-options');
@@ -33,7 +33,7 @@
   ]);
   if(!eligibleResponse.ok||!walletResponse.ok||!pricingResponse.ok)throw Error('Account or pricing could not be verified');
   const livePrices=await pricingResponse.json();
-  if(livePrices.ok!==true||!Array.isArray(livePrices.items))throw Error('Sparks prices cannot be confirmed');
+  if(livePrices.ok!==true||!Array.isArray(livePrices.items))throw Error('Lumen prices cannot be confirmed');
   const byCode=new Map(livePrices.items.filter(x=>x.fulfillment==='ADFREE_PASS').map(x=>[x.sku,x]));
   passes=passes.map(x=>({...x,costSparks:byCode.get(x.code)?.costSparks,
     redeemEnabled:x.redeemEnabled===true&&byCode.has(x.code)}));
@@ -42,29 +42,29 @@
    throw Error('Wallet could not be verified');
   if(current.eligible!==true){
    status.textContent=current.planCode==='OWNER'||current.planCode==='LIFETIME'
-    ?'Your membership already includes ad-free access. No Sparks are required.'
+    ?'Your membership already includes ad-free access. No Lumens are required.'
     :'There are no paid sponsor placements available for your current plan.';
    return;
   }
   const active=current.active===true&&current.expiresAt&&Date.parse(current.expiresAt)>Date.now();
   status.textContent=(active?'Ad-free active until '+new Date(current.expiresAt).toLocaleString()+'. ':'')+
-   'Verified wallet balance: '+money(ledger.wallet.available)+' Sparks.';
+   'Verified wallet balance: '+money(ledger.wallet.available)+' Lumens.';
   for(const pass of passes){
    if(!Object.hasOwn(labels,pass.code)||!Number.isSafeInteger(pass.costSparks)||pass.costSparks<1)continue;
    const card=element('article',null,'spark-card');
    card.append(element('h3',labels[pass.code]+' Ad-Free Pass'),
-    element('p',pass.costSparks+' Sparks','spark-cost'));
-   const action=element('button','Redeem '+pass.costSparks+' Sparks','btn');
+    element('p',pass.costSparks+' Lumens','spark-cost'));
+   const action=element('button','Redeem '+pass.costSparks+' Lumens','btn');
    action.type='button';action.disabled=pass.redeemEnabled!==true||ledger.wallet.available<pass.costSparks;
    if(pass.redeemEnabled!==true)card.append(element('p','This pass is not available for redemption yet.','small'));
-   else if(action.disabled)card.append(element('p','Insufficient Sparks','small'));
+   else if(action.disabled)card.append(element('p','Insufficient Lumens','small'));
    else card.append(element('p','This pass extends any active ad-free time.','small'));
    action.addEventListener('click',async()=>{
-    const approval=window.confirm('Spend '+pass.costSparks+' Crownlight Sparks for '+labels[pass.code]+
+    const approval=window.confirm('Spend '+pass.costSparks+' Crownlight Lumens for '+labels[pass.code]+
      ' without sponsor ads? Your purchase will extend an existing pass.');
     if(!approval)return;
     action.disabled=true;
-    status.textContent='Confirming your Sparks redemption…';
+    status.textContent='Confirming your Lumens redemption…';
     try{
      const requestId=crypto.randomUUID();
      const response=await fetch('/api/member-sparks-adfree',{
@@ -86,6 +86,6 @@
    card.append(action);host.append(card);
   }
  }catch{
-  status.textContent='Ad-Free Passes are temporarily unavailable. No Sparks were deducted.';
+  status.textContent='Ad-Free Passes are temporarily unavailable. No Lumens were deducted.';
  }
 })();
