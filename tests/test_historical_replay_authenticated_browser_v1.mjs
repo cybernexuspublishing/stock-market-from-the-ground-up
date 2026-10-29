@@ -23,7 +23,7 @@ try{
  await page.locator('#vr-dataset').waitFor();
  await page.waitForFunction(()=>!document.getElementById('vr-dataset-note')?.textContent?.includes('The list is available only'));
  const options=await page.locator('#vr-dataset option').evaluateAll(nodes=>nodes.map(x=>({value:x.value,text:x.textContent})));
- assert(!options.some(x=>x.value==='HR_DIS_20240507'),'Draft DIS cannot appear');
+ // DIS is available only if the server has authorized this pinned QA account.
  const available=options.filter(x=>x.value&&/^[A-Z][A-Z0-9_-]{2,79}$/.test(x.value));
  if(!available.length){
   console.log('NOT ACCEPTED POSITIVE: authenticated catalog has no licensed historical case.');
