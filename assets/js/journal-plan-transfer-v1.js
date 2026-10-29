@@ -127,6 +127,7 @@
    const response=await r.json().catch(()=>null);
    if(!r.ok||response?.ok!==true)throw Error(response?.error||'Source linking unavailable.');
    sourcePending=null;
+   window.dispatchEvent(new CustomEvent('gu-journal-research-linked',{detail:{journalId:link.journalId}}));
    ui.status.textContent='Saved Journal draft and linked the original Workbench research version. The source timestamp and version remain in your private research history.';
   }catch(e){ui.status.textContent='Draft saved. Research source link was not confirmed: '+(e.message||e)+'. Do not mistake an unlinked draft for verified historical research.'}
  });
