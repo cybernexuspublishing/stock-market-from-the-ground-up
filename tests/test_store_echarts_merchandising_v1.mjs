@@ -84,6 +84,10 @@ try{
  assert.equal(labels[2].metric,'25 LUMENS','Bundle art must show catalog-defined 25 credits');
  assert.match(labels[2].svg,/25 LUMENS/);
  assert.match(labels[2].svg,/NON-CASH PLATFORM CREDITS/);
+ const firstScenes=await page.evaluate(()=>[...document.querySelectorAll('.gu-echarts-product-art')].map(x=>x.dataset.artScene||''));
+ assert.deepEqual(firstScenes,['','','','plan','scanner'],'Product images must be based on the specific item, not just its Store category');
+ assert.match(labels[3].svg,/TRADE PLAN/,'Trade-plan product needs its own illustrated planning workflow');
+ assert.match(labels[4].svg,/SCANNER FILTERS/,'Scanner needs illustrated filters and candidate results');
  assert.deepEqual(errors,[],'Store graphics cannot throw browser exceptions');
  await page.evaluate(()=>{
    const card=document.createElement('article');card.className='store-crownlight-package';card.innerHTML='<h3>Explorer</h3>';
@@ -91,5 +95,38 @@ try{
  });
  await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===6,
   {timeout:15000});
+ const specialties=[
+  ['Free Research Watchlist','watchlist','WATCHLIST'],
+  ['Advanced Trade-Plan Builder','plan','RISK FRAMEWORK'],
+  ['Scanner Workbench','scanner','CANDIDATE RESULTS'],
+  ['Crownlight Chart Studio','chart','PRICE · VOLUME'],
+  ['Trading Journal Analytics','journal','PLAN VS. ACTUAL'],
+  ['Market Tutor','tutor','GUIDED EXPLANATION'],
+  ['Historical Replay Training','replay','HISTORICAL REPLAY'],
+  ['Guided Historical Labs','replay','HISTORICAL REPLAY'],
+  ['Market Data Connections','data','AUTHORIZED SOURCES ONLY'],
+  ['Market Commons','community','MARKET DISCUSSION']
+ ];
+ await page.evaluate((titles)=>{
+  const target=document.querySelector('#store-panel-current');
+  const section=document.createElement('section');
+  section.className='gu-store-type-section';
+  section.innerHTML='<h3>Individual products</h3><div class="gu-store-type-grid"></div>';
+  target.append(section);
+  const host=section.querySelector('.gu-store-type-grid');
+  for(const title of titles){const card=document.createElement('article');card.className='gu-store-type-card';
+   const heading=document.createElement('h4');heading.textContent=title;card.append(heading);host.append(card);}
+ },specialties.map(x=>x[0]));
+ await page.waitForFunction(count=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===count,16,{timeout:20000});
+ const actual=await page.evaluate(()=>[...document.querySelectorAll('#store-panel-current .gu-store-type-section:last-child .gu-echarts-product-art')].map(x=>({
+  scene:x.dataset.artScene,svg:x.querySelector('svg')?.textContent||'',title:x.dataset.artTitle
+ })));
+ assert.equal(actual.length,specialties.length,'Create an image for every non-book product');
+ for(let i=0;i<specialties.length;i++){
+  assert.equal(actual[i].scene,specialties[i][1],specialties[i][0]+' requires the matching scene');
+  assert(actual[i].svg.includes(specialties[i][2]),specialties[i][0]+' SVG is not a matching visual');
+  assert(actual[i].svg.includes('ILLUSTRATIVE PRODUCT PREVIEW'),'Market UI previews must be clearly illustrative');
+ }
+ assert.deepEqual(errors,[],'Diverse real ECharts product visuals cannot trigger browser exceptions');
  console.log('PASS real Apache ECharts SVG Store product graphics, dynamic cards, real book covers, large navigation, founding default and footer detail page');
 }finally{await browser.close()}
