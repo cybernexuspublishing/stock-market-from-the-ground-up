@@ -75,6 +75,8 @@
       requested===null?Number.MAX_SAFE_INTEGER:requested);
   if(!Number.isSafeInteger(size)||size<0)
     return {ok:false,error:'Calculated whole-share size is not supported.'};
+  if(partial!==null&&partial>size)
+    return {ok:false,error:'Hypothetical filled shares cannot exceed planned whole-share quantity.'};
   const validateTarget=(input,label)=>{
    const price=num(input);
    if(price===null)return null;
@@ -141,6 +143,25 @@
   navigation.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.tpTab;if(id)activate(id)});
   const groups={research:['symbol','company','pattern','direction','decision','trend','levels','thesis','catalyst','source','sourceUrl','asOf','sourceAt','trigger','invalidation','stopMechanism','holding','cancel','alternative'],
      risk:['entry','stop','target1','target2','stretch','budget','capital','requested','spread','slippage','gap','partial','fill']};
+  const talia=make('details',undefined,'tp-talia-method');
+  const taliaSummary=make('summary','Talia’s eight-step research and trade-plan method');
+  talia.append(taliaSummary);
+  const methods=[
+   ['Observe','Identify only what a timestamped chart or original source actually shows.'],
+   ['Explain','Define price structure, interval volume and every indicator before using them.'],
+   ['Investigate','Find issuer filings, catalyst wording, sector evidence and publication chronology.'],
+   ['Interpret','State the developing pattern as a hypothesis with a timeframe.'],
+   ['Challenge','Identify contradictory evidence, spread/liquidity problems and missing data.'],
+   ['Plan','Precommit an observable trigger, invalidation, modeled risk and NO TRADE alternative.'],
+   ['Practice','Choose a decision using only the information revealed at that point.'],
+   ['Review','Compare the locked plan with later observed outcomes without retrospective rewriting.']
+  ];
+  const study=make('ol');
+  for(const [phase,description] of methods)study.append(make('li',phase+': '+description));
+  talia.append(study);
+  const tutor=make('a','Open Market Tutor for guided instruction','btn secondary');
+  tutor.href='market-tutor.html';talia.append(tutor);
+  sections.research.append(talia);
   const form=document.createElement('form');form.id='tp-form';form.noValidate=true;
   for(const [tab,keys] of Object.entries(groups)){
    const grid=make('div',undefined,'tp-grid');
@@ -252,7 +273,7 @@
    const observations=visibleRows(),last=observations.at(-1);
    if(!last){tmStatus.textContent='No revealed candle.';return}
    const pub=get('sourceAt')?.value.trim()||'';
-   const pubTime=pub&&Number.isFinite(Date.parse(pub))?Date.parse(pub):null;
+   const pubTime=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(pub)&&Number.isFinite(Date.parse(pub))?Date.parse(pub):null;
    const eventVisible=pubTime!==null&&pubTime<=last.time.getTime();
    const eventAt=eventVisible?observations.findIndex(x=>x.time.getTime()>=pubTime):-1;
    tmStatus.textContent='Revealed '+observations.length+' / '+timelineBars.length+
