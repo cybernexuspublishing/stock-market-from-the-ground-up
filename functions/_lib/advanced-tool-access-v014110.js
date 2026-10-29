@@ -66,13 +66,18 @@ export async function advancedToolContext(env,request,code){
  if(roles?.some(r=>['SHOWCASE_VIEWER','TEST'].includes(r.role_code)&&
   (!r.expires_at||Date.parse(r.expires_at)>Date.now())))
   throw makeError(403,'Demonstration accounts cannot save premium tool work.');
+ // Owner is a verified staff role, never a browser-provided claim.
+ // Owner may inspect registered tool programs including disabled/draft tools,
+ // without acquiring any customer plan or bypassing licensed data availability.
+ const isOwner=roles?.some(r=>r.role_code==='OWNER'&&
+  (!r.expires_at||(Number.isFinite(Date.parse(r.expires_at))&&Date.parse(r.expires_at)>Date.now())));
  const t=tools?.[0];
- if(!t||t.active!==true||!['live','beta'].includes(t.status))
+ if(!t||(!isOwner&&(t.active!==true||!['live','beta'].includes(t.status))))
   throw makeError(403,'This tool is not active for members.');
  const entitled=await privateJson(c,'rpc/user_has_tool_access','POST',
   {target_user:user.id,target_tool:code});
  const config=await readProductAccessConfig(c,code);
- const viaPass=entitled===true;
+ const viaPass=entitled===true || isOwner;
  // Configured Free controls ungraded preview only; paid grants still come from user_has_tool_access.
  const viaPreview=config?.policy_mode==='configured'?config.free_access===true:t.free_preview===true;
  return {c,userId:user.id,tool:code,allowed:viaPass||viaPreview,
