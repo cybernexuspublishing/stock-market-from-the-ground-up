@@ -83,6 +83,7 @@
  }
  window.addEventListener('gu-journal-record-loaded',()=>void render());
  window.addEventListener('gu-journal-plan-saved',()=>void render());
+ window.addEventListener('gu-journal-research-linked',()=>void render());
  window.addEventListener('pagehide',clear);
  void (async()=>{try{const sb=await window.getSupabaseClient();
   sb.auth.onAuthStateChange((event,s)=>{if(event==='SIGNED_OUT'||(current&&s?.user?.id!==current))clear()})
