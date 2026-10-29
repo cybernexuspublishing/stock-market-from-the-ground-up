@@ -11,8 +11,7 @@
     const data=await response.json(),p=data.policy;
     if(data.ok!==true||!p||p.enabled!==false)throw Error('policy unavailable');
     policy.textContent='Planned cash checkout discount: 1 Lumen = $'+(p.denominationCents/100).toFixed(2)+
-     ', at most '+(p.maxPercentBasisPoints/100)+'% of the eligible subtotal and $'+
-     (p.maxOrderDiscountCents/100).toFixed(2)+' per order, whichever is lower. Only eligible items; after other applicable discounts, before tax and shipping. NOT ACTIVE until verified checkout redemption is released.';
+     ', eligible for up to 100% of the qualifying product subtotal without a dollar cap. Whole Lumens required; the final Lumen may cover a remainder smaller than $0.07. No cash change. Taxes, shipping, excluded items and subscriptions do not qualify. NOT ACTIVE until server-authorized checkout redemption is released.';
    }catch{policy.textContent='Cash checkout discounts are not active. No Lumens will be deducted for a purchase discount.'}
  }
  if(!host||!status)return;
