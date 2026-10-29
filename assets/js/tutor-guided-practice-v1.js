@@ -105,10 +105,41 @@
    return {value:series[n],series,upperSeries,lowerSeries,upper:upperSeries[n],lower:lowerSeries[n],
     note:'Explicit Keltner variant: EMA of closes +/- two Wilder ATR units. Platform methods vary.'};
   }
+  if(k==='wma'){
+   const closes=bars.map(b=>b.close),series=Array(bars.length).fill(null),denom=len*(len+1)/2;
+   for(let i=len-1;i<bars.length;i++){
+    let total=0;
+    for(let j=0;j<len;j++)total+=closes[i-len+1+j]*(j+1);
+    series[i]=total/denom;
+   }
+   return {value:series[n],series,note:'WMA: linearly weighted completed closes, newest weight '+len+'; not a forward forecast.'};
+  }
+  if(k==='ppo'){
+   const closes=bars.map(b=>b.close),fast=math.ema(closes,12),slow=math.ema(closes,26);
+   const v=finite(fast[n])&&finite(slow[n])&&slow[n]!==0?100*(fast[n]-slow[n])/slow[n]:null;
+   return {value:v,series:[],note:'PPO main line only: 100*(EMA12-EMA26)/EMA26. No PPO signal line or histogram here; requires 26 completed closes.'};
+  }
+  if(k==='stochastic'||k==='williamsr'){
+   if(bars.length<len)return {value:null,series:[],note:'Range oscillator needs '+len+' completed bars.'};
+   const window=bars.slice(-len),hi=Math.max(...window.map(x=>x.high)),lo=Math.min(...window.map(x=>x.low)),range=hi-lo;
+   const value=range===0?null:k==='stochastic'?100*(bars[n].close-lo)/range:-100*(hi-bars[n].close)/range;
+   return {value,series:[],note:range===0?'Undefined: equal highest high and lowest low; do not invent a zero-denominator signal.':
+    k==='stochastic'?'Fast stochastic %K on completed bars; no %D smoothing shown.':'Williams %R ranges from -100 to 0; correlated with fast stochastic %K.'};
+  }
+  if(k==='atrp'){
+   const atr=math.atr(bars,len)[n],close=bars[n].close;
+   const value=finite(atr)&&close!==0?100*atr/close:null;
+   return {value,series:[],note:'ATRP = 100*Wilder ATR/last completed close, percent units; not price direction or executable loss.'};
+  }
+  if(k==='volumesma'){
+   if(bars.length<len)return {value:null,series:[],note:'Average volume needs '+len+' comparable completed bars.'};
+   const total=bars.slice(-len).reduce((n,b)=>n+b.volume,0);
+   return {value:total/len,series:[],note:'Per-bar volume SMA in shares. One-minute bars only; not cumulative matched-time RVOL or order-side flow.'};
+  }
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
  function reset(unit){
-  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=unit.metric==='macd'?40:32;
+  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=['macd','ppo'].includes(unit.metric)?40:32;
   state.period=unit.period||8;state.attempts=0;state.answer=null;state.evaluated=false;state.correct=false;
   state.feedback='';state.transferAnswer=null;state.transferEvaluated=false;state.transferCorrect=false;
   state.reflection='';state.reviewVisible=false;
@@ -193,9 +224,9 @@
   const controls=add(host,'div',undefined,'tgp-controls');
   const label=add(controls,'label','Visible completed bars: '+state.showBars,'tgp-field-label');label.htmlFor='tgp-bars';
   const slider=add(controls,'input');slider.type='range';slider.id='tgp-bars';
-  slider.min=state.unit.metric==='macd'?'36':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
+  slider.min=state.unit.metric==='macd'?'36':state.unit.metric==='ppo'?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
   slider.addEventListener('input',e=>{state.showBars=Number(e.target.value);render()});
-  if(!['macd','vwap','rvol'].includes(state.unit.metric)){
+  if(!['macd','ppo','vwap','rvol'].includes(state.unit.metric)){
    const periodLabel=add(controls,'label','Indicator length: '+state.period+' bars','tgp-field-label');periodLabel.htmlFor='tgp-period';
    const period=add(controls,'input');period.type='range';period.id='tgp-period';period.min='5';period.max='20';
    period.step='1';period.value=String(state.period);
@@ -247,10 +278,10 @@
   add(host,'p','These are deterministic invented prices. A pause only calculates from bars shown, not later bars. Price overlays are not displayed for separate-scale oscillators.','tgp-caption');
  }
  const candidates=[
-  {symbol:'FICT-A',spread:0.40,rvol:2.8,verified:true,halted:false,trigger:true,price:12,allowed:true,restricted:false,relative:1.08,shortable:false,fresh:true},
-  {symbol:'FICT-B',spread:3.20,rvol:4.1,verified:true,halted:false,trigger:true,price:8,allowed:true,restricted:false,relative:0.90,shortable:true,fresh:true},
-  {symbol:'FICT-C',spread:0.35,rvol:3.7,verified:false,halted:false,trigger:true,price:4,allowed:true,restricted:false,relative:1.12,shortable:true,fresh:false},
-  {symbol:'FICT-D',spread:0.45,rvol:2.3,verified:true,halted:true,trigger:false,price:6,allowed:false,restricted:true,relative:1.14,shortable:false,fresh:true}
+  {symbol:'FICT-A',spread:0.40,rvol:2.8,verified:true,halted:false,trigger:true,price:12,allowed:true,restricted:false,relative:1.08,shortable:false,fresh:true,listedCommon:true,identityVerified:true,actionReconciled:true,levelsKnown:true,fiveMinuteClosed:true,higherFrameStamped:true,score:78,criticalUnknown:false,snapshotFrozen:true},
+  {symbol:'FICT-B',spread:3.20,rvol:4.1,verified:true,halted:false,trigger:true,price:8,allowed:true,restricted:false,relative:0.90,shortable:true,fresh:true,listedCommon:false,identityVerified:true,actionReconciled:true,levelsKnown:true,fiveMinuteClosed:false,higherFrameStamped:true,score:95,criticalUnknown:false,snapshotFrozen:false},
+  {symbol:'FICT-C',spread:0.35,rvol:3.7,verified:false,halted:false,trigger:true,price:4,allowed:true,restricted:false,relative:1.12,shortable:true,fresh:false,listedCommon:true,identityVerified:false,actionReconciled:false,levelsKnown:false,fiveMinuteClosed:true,higherFrameStamped:false,score:98,criticalUnknown:true,snapshotFrozen:false},
+  {symbol:'FICT-D',spread:0.45,rvol:2.3,verified:true,halted:true,trigger:false,price:6,allowed:false,restricted:true,relative:1.14,shortable:false,fresh:true,listedCommon:false,identityVerified:false,actionReconciled:false,levelsKnown:false,fiveMinuteClosed:false,higherFrameStamped:false,score:65,criticalUnknown:true,snapshotFrozen:false}
  ];
  function specialGate(c,rule){
   if(rule==='boolean'){
@@ -264,6 +295,24 @@
    reason:c.relative>=1?'benchmark-relative context passes':'underperforms its chosen benchmark'};
   if(rule==='borrow')return {pass:c.shortable===true,description:'Broker short-borrow eligibility independently confirmed',
    reason:c.shortable?'fictional borrow appears available':'short borrow unavailable or unverified'};
+  if(rule==='universe')return {pass:c.listedCommon===true&&c.identityVerified===true,
+   description:'Listed common shares with verified issuer and share class',
+   reason:!c.identityVerified?'issuer/security identity unverified':'wrong instrument or listing universe'};
+  if(rule==='identity')return {pass:c.identityVerified===true&&c.actionReconciled===true,
+   description:'Corporate action and share identity reconciled at this date',
+   reason:!c.identityVerified?'security identifier cannot be verified':'corporate action adjustment unresolved'};
+  if(rule==='levels')return {pass:c.levelsKnown===true,
+   description:'PMH, PDH and as-of-time levels observed before the decision',
+   reason:'price-level timestamp or completed reference unavailable'};
+  if(rule==='timeframes')return {pass:c.fiveMinuteClosed===true&&c.higherFrameStamped===true,
+   description:'Completed five-minute setup and time-stamped higher-frame context',
+   reason:!c.fiveMinuteClosed?'five-minute confirmation still unfinished':'higher timeframe context unverified'};
+  if(rule==='riskfirst')return {pass:c.criticalUnknown===false,display:'Score '+c.score+' / '+(c.criticalUnknown?'Veto':'Review'),
+   description:'Explanatory score never overrides hard identity, data and execution vetoes',
+   reason:'unresolved critical security or execution-risk field'};
+  if(rule==='snapshot')return {pass:c.snapshotFrozen===true,
+   description:'Frozen query revision, timestamp, filters and candidate record',
+   reason:'no reproducible pre-outcome scanner snapshot'};
   return null;
  }
  function assessCandidate(c,rule=state.unit?.rule){
@@ -300,7 +349,7 @@
   candidates.forEach(c=>{
    const r=add(tbody,'tr');const a=assessCandidate(c);
    [c.symbol,c.spread.toFixed(2)+'%',c.rvol.toFixed(1)+'×',c.verified?'Verified':'Pending',c.halted?'Halted':'Clear',
-    c.trigger?'Observed':'Waiting',...(extra?[a.special?.pass?'Pass':'Fail']:[]),a.pass?'Eligible for risk review':'Not qualified']
+    c.trigger?'Observed':'Waiting',...(extra?[a.special?.display||(a.special?.pass?'Pass':'Fail')]:[]),a.pass?'Eligible for risk review':'Not qualified']
       .forEach((x,i)=>add(r,'td',x,i===(extra?7:6)?(a.pass?'tgp-good':'tgp-warning'):undefined));
    if(!a.pass){const hint=add(tbody,'tr');const cell=add(hint,'td','Reason: '+a.reasons.join('; '),'tgp-caption');cell.colSpan=extra?8:7;}
   });
@@ -410,8 +459,8 @@
    const r=await fetch('/data/tutor-guided-practice-v1.json',{credentials:'same-origin',cache:'no-cache'});
    if(!r.ok)throw Error('Teaching asset missing');
    const data=await r.json(),units=data?.modules;
-   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==14||
-     data?.watchlistCount!==10||!Array.isArray(units)||units.length!==24||
+   if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==20||
+     data?.watchlistCount!==16||!Array.isArray(units)||units.length!==36||
      !root.CrownlightIndicatorMath)throw Error('Teaching catalog or indicator math unavailable');
    const ids=new Set();
    for(const m of units){

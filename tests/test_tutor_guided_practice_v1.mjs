@@ -11,11 +11,11 @@ const catalogs=[
 assert.equal(base.guides.length,30);
 assert.equal(base.supplementalGuides.length,1);
 assert.equal(modules.kind,'talia_guided_practice_original_ungraded_v1');
-assert.equal(modules.modules.length,24);
-assert.equal(modules.indicatorCount,14);
-assert.equal(modules.watchlistCount,10);
+assert.equal(modules.modules.length,36);
+assert.equal(modules.indicatorCount,20);
+assert.equal(modules.watchlistCount,16);
 assert.deepEqual(Array.from(modules.stages),['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
-assert.equal(new Set(modules.modules.map(x=>x.id)).size,24);
+assert.equal(new Set(modules.modules.map(x=>x.id)).size,36);
 const available=new Map([...base.guides,...base.supplementalGuides,...catalogs.flatMap(c=>c.guides)].map(x=>[x.code,x]));
 const permitted=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com)\//;
 for(const unit of modules.modules){
@@ -134,4 +134,63 @@ for(const code of newCodes){
  assert(unit.why.length>50&&unit.method.length>50&&unit.limitation.length>50);
  assert(unit.scaffold.length>70,'Concept-specific corrective scaffold '+code);
 }
-console.log('PASS Talia guided practice: 24 authored scenarios, 9 stages, 14 indicators and 10 watchlists; original/no-lookahead math, four distinct advanced scan predicates, ungraded source/privacy boundary.');
+
+// Batch 03: independently checked indicator arithmetic, zero denominators and
+// source-time gates. None can use future bars or private graded results.
+const newUnits=[
+ 'STUDY_WMA','STUDY_PPO','STUDY_STOCHASTIC','STUDY_WILLIAMS_R','STUDY_ATRP','STUDY_VOLUME_SMA',
+ 'STUDY_WATCH_UNIVERSE_BUILD','STUDY_WATCH_IDENTITY_CORPORATE','STUDY_WATCH_LEVEL_MAP',
+ 'STUDY_WATCH_MULTI_TIMEFRAME_WATCH','STUDY_WATCH_RISK_FIRST_SCORE','STUDY_WATCH_DYNAMIC_SNAPSHOT'
+];
+for(const code of newUnits){
+ const unit=modules.modules.find(x=>x.guideCode===code);
+ assert(unit,'New interactive lesson must link to real study '+code);
+ for(const key of ['learn','why','method','limitation','scaffold'])
+  assert(typeof unit[key]==='string'&&unit[key].length>=60,'Subject-specific teaching '+code+' '+key);
+ assert.equal(unit.choiceFeedback[unit.correct],null);
+ assert.equal(unit.transferFeedbackByChoice[unit.transferCorrect],null);
+}
+const measure=(name,len,b=bars)=>api.metric(b,name,len);
+const closes=bars.slice(0,20).map(b=>b.close),weights=closes.slice(-8).reduce((v,p,i)=>v+p*(i+1),0);
+assert(Math.abs(measure('wma',8,bars.slice(0,20)).value-weights/36)<1e-10,'WMA oldest-to-newest weighted mean');
+assert.equal(measure('wma',8,bars.slice(0,7)).value,null,'WMA must respect warmup');
+assert.equal(measure('ppo',12,bars.slice(0,25)).value,null,'PPO has no complete 26-bar slow seed');
+const ppo=measure('ppo',12,bars.slice(0,40)),cl=bars.slice(0,40).map(b=>b.close);
+const underlying=context.window.CrownlightIndicatorMath;
+const pFast=underlying.ema(cl,12)[39],pSlow=underlying.ema(cl,26)[39];
+assert(Math.abs(ppo.value-100*(pFast-pSlow)/pSlow)<1e-10,'PPO is percentage of slow EMA, not MACD dollar line');
+for(const name of ['stochastic','williamsr']){
+ const v=measure(name,14,bars.slice(0,30)).value;
+ assert(Number.isFinite(v),'Range oscillator must calculate '+name);
+ assert(name==='stochastic'?v>=0&&v<=100:v>=-100&&v<=0,'Range oscillator proper scale');
+ assert.equal(measure(name,14,bars.slice(0,13)).value,null,'Range oscillator warmup '+name);
+}
+const flat=Array.from({length:14},(_,i)=>({open:10,high:10,low:10,close:10,volume:1000,time:new Date(Date.UTC(2026,9,27,13,30+i)).toISOString()}));
+assert.equal(measure('stochastic',14,flat).value,null,'Undefined stochastic zero-range, no invented score');
+assert.equal(measure('williamsr',14,flat).value,null,'Undefined Williams zero-range, no invented score');
+const oscK=measure('stochastic',14,bars.slice(0,30)).value;
+const oscR=measure('williamsr',14,bars.slice(0,30)).value;
+assert(Math.abs(oscR-(oscK-100))<1e-10,'Williams %R related to stochastic %K, not independent evidence');
+const atrPercent=measure('atrp',10,bars.slice(0,30)),atrRaw=measure('atr',10,bars.slice(0,30));
+assert(Math.abs(atrPercent.value-100*atrRaw.value/bars[29].close)<1e-10,'ATRP percent, not raw dollars');
+assert.equal(measure('atrp',10,bars.slice(0,9)).value,null);
+const completed=bars.slice(0,20),volExpected=completed.slice(-10).reduce((v,b)=>v+b.volume,0)/10;
+assert.equal(measure('volumesma',10,completed).value,volExpected,'Mean completed share volume per bar');
+assert.equal(measure('volumesma',10,bars.slice(0,9)).value,null,'Incomplete volume lookback');
+for(const name of ['wma','ppo','stochastic','williamsr','atrp','volumesma']){
+ const earlier=measure(name,name==='ppo'?12:10,bars.slice(0,30)),later=measure(name,name==='ppo'?12:10,bars.slice(0,48));
+ if(Number.isFinite(earlier.value))assert.notEqual(earlier.value,later.value,'No later samples used in earlier pause '+name);
+}
+const complete={price:12,allowed:true,listedCommon:true,identityVerified:true,actionReconciled:true,
+ levelsKnown:true,fiveMinuteClosed:true,higherFrameStamped:true,score:79,criticalUnknown:false,snapshotFrozen:true};
+const unresolved={...complete,identityVerified:false,actionReconciled:false,levelsKnown:false,
+ fiveMinuteClosed:false,score:98,criticalUnknown:true,snapshotFrozen:false};
+for(const rule of ['universe','identity','levels','timeframes','riskfirst','snapshot']){
+ assert.equal(api.specialGate(complete,rule).pass,true,'Pass populated evidence '+rule);
+ assert.equal(api.specialGate(unresolved,rule).pass,false,'No false qualification '+rule);
+}
+assert.match(api.specialGate(unresolved,'riskfirst').display,/Score 98/,'Show high score with hard risk veto');
+assert.match(api.specialGate(unresolved,'snapshot').reason,/reproducible/,'Frozen as-of-time scanner requirement');
+assert.equal(api.specialGate({...complete,listedCommon:false},'universe').pass,false,'Wrong instrument cannot pass');
+assert.equal(api.specialGate({...complete,higherFrameStamped:false},'timeframes').pass,false,'Incomplete context fails');
+console.log('PASS Talia Guided Practice Batch 03: 36 authored modules (20 indicator/16 watchlist), exact calculations, 10 advanced source/risk gates, warmup, no-lookahead, privacy and ungraded boundaries.');

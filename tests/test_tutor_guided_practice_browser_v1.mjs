@@ -22,7 +22,7 @@ try{
   const response=await page.goto(base+'/market-tutor.html',{waitUntil:'domcontentloaded'});
   assert.equal(response.status(),200);
   await page.locator('#tgp-select').waitFor({state:'visible',timeout:15000});
-  assert.equal(await page.locator('#tgp-select option').count(),24);
+  assert.equal(await page.locator('#tgp-select option').count(),36);
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/No market feed|No market feed/i);
   await page.locator('#tgp-select').selectOption('IND-01');
   const next=()=>page.locator('#tutor-guided-practice .tgp-actions button').filter({hasText:/^Continue$/}).click();
@@ -67,9 +67,33 @@ try{
   await next();await next();
   assert.equal(await page.locator('.tgp-scan-table').count(),1,'Short-side watchlist renders only once');
   assert.match(await page.locator('.tgp-scan-table').innerText(),/short borrow unavailable/);
+
+  // Batch 03: new indicator calculation visual and two previously unavailable watchlist risk gates.
+  await page.locator('#tgp-select').selectOption('IND-15');
+  await next();await next(); // WMA Learn → Experiment
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/WMA|weighted/i);
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1,'WMA chart renders once');
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/newest weight/i);
+  await page.locator('#tgp-select').selectOption('IND-16');
+  await next();await next(); // PPO: fixed EMA12/EMA26 source values
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/PPO main line only/);
+  assert.equal(await page.locator('#tgp-period').count(),0,'PPO 12,26 must not show a nonfunctional period slider');
+  await page.locator('#tgp-select').selectOption('IND-17');
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Fast stochastic %K/);
+  await page.locator('#tgp-select').selectOption('WATCH-15');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-scan-table').count(),1);
+  assert.match(await page.locator('.tgp-scan-table').innerText(),/Score 98/);
+  assert.match(await page.locator('.tgp-scan-table').innerText(),/unresolved critical security/);
+  await page.locator('#tgp-select').selectOption('WATCH-16');
+  await next();await next();
+  assert.equal(await page.locator('.tgp-scan-table').count(),1);
+  assert.match(await page.locator('#tgp-scan-table, .tgp-scan-table').last().innerText(),/pre-outcome scanner snapshot/);
+  assert.equal(tutorPosts,0,'Batch 03 cannot auto-call optional paid inference');
   assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');
   assert(await page.locator('#tutor-guided-practice').isVisible());
   await ctx.close();
-  console.log('PASS guided practice browser '+width+'px: 14 indicator/10 watchlist modules, adaptive correction, calculated bands, separate short-borrow/Boolean gates');
+  console.log('PASS Guided Practice browser '+width+'px: 20 indicators/16 watchlists; calculated WMA, fixed PPO, Stochastic, scored hard veto, frozen-snapshot rejection; no paid Tutor posts.');
  }
 }finally{await browser.close()}

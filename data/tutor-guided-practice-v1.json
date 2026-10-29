@@ -1,8 +1,8 @@
 {
   "kind": "talia_guided_practice_original_ungraded_v1",
   "version": "1.0",
-  "indicatorCount": 14,
-  "watchlistCount": 10,
+  "indicatorCount": 20,
+  "watchlistCount": 16,
   "stages": [
     "Start",
     "Learn",
@@ -940,6 +940,498 @@
       ],
       "scaffold": "Find the declared source, timeframe and calculation first. Independently check documented borrow availability, no current halt, the setup trigger and existing liquidity/source requirements. The defensible answer is the one that does not promise future prices or waive hard gates.",
       "rule": "borrow"
+    },
+    {
+      "id": "IND-15",
+      "kind": "indicator",
+      "guideCode": "STUDY_WMA",
+      "title": "Weighted Moving Average: Recent Closes",
+      "learn": "A linearly weighted moving average gives later completed closes higher weights than earlier closes. For length N, use weights 1 through N, oldest to newest; divide the weighted sum by N(N+1)/2.",
+      "why": "WMA makes the learner compare how two averaging rules respond to a recent price move. It does not independently prove an upward trend will continue.",
+      "method": "On a declared completed-close window, weight the oldest close 1 and newest N; sum close×weight and divide by the sum of weights. Compare it with a simple moving average only on identical dates, session and seed rules.",
+      "limitation": "WMA reacts faster than an equally long SMA for a newly shifted close, but both lag and can whipsaw in chop. Historical bars cannot identify a future close.",
+      "question": "Three completed closes are $10, $11 and $14. With weights 1, 2 and 3, which WMA(3) is correct?",
+      "options": [
+        "$11.67, their unweighted mean.",
+        "$12.33, or (10×1+11×2+14×3)÷6.",
+        "$14 because the latest close has all the weight."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "The SMA of these three closes is about $11.67. The WMA assigns unequal weights, so its arithmetic result must use 1, 2 and 3 explicitly.",
+        null,
+        "The latest close gets the greatest weight but not all the weight. Earlier completed closes remain part of the weighted average."
+      ],
+      "transferQuestion": "A close jumps sharply while WMA and SMA share a lookback length. What is the defensible observation?",
+      "transferOptions": [
+        "WMA usually reacts more because its newest close has greater weight.",
+        "Both averages must forecast the same future gain.",
+        "WMA identifies which institution executed the last trade."
+      ],
+      "transferCorrect": 0,
+      "transferFeedbackByChoice": [
+        null,
+        "Matching lookback periods do not make these averages predictive. Both are retrospective transformations of observed completed closes.",
+        "The WMA uses prices and predetermined weights, not trade-counterparty identities or evidence of institutional order flow."
+      ],
+      "feedback": "The evidence supports: $12.33, or (10×1+11×2+14×3)÷6. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: WMA usually reacts more because its newest close has greater weight. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "For WMA(3), denominator 1+2+3=6. Multiply oldest close by 1 and newest by 3 before dividing; do not use a simple mean.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "wma",
+      "pattern": "trend",
+      "period": 8
+    },
+    {
+      "id": "IND-16",
+      "kind": "indicator",
+      "guideCode": "STUDY_PPO",
+      "title": "Percentage Price Oscillator (PPO)",
+      "learn": "PPO expresses the difference between a fast and slow EMA as a percentage of the slow EMA. This specific exercise plots the main PPO line, not a nine-period PPO signal line or histogram.",
+      "why": "A percentage-normalized EMA spread is easier to compare across securities with different nominal prices than a raw-dollar MACD line.",
+      "method": "Use completed close EMAs with declared 12- and 26-bar periods and consistent initialization. Compute PPO=100×(EMA12−EMA26)/EMA26. Require 26 completed closes and a nonzero denominator.",
+      "limitation": "PPO is not MACD in dollars, and a crossing does not automatically establish independent confirmation, profitable expectancy or a broker fill.",
+      "question": "If a completed-bar EMA12 is $10.40 and EMA26 is $10.00, what is the main PPO value?",
+      "options": [
+        "0.40 dollars, reported as a percentage.",
+        "Positive 4% from (10.40−10.00)÷10.00×100.",
+        "Positive 40% because the averages are different."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "$0.40 is the raw EMA spread. PPO rescales that difference by the slower EMA and reports a percentage, not dollars.",
+        null,
+        "The difference is $0.40 out of $10.00, or 0.04 in ratio form; multiplying by 100 gives 4%, not 40%."
+      ],
+      "transferQuestion": "PPO rises while a close-based price invalidation is breached. What should Talia teach?",
+      "transferOptions": [
+        "Positive PPO cancels the earlier invalidation.",
+        "PPO automatically establishes that a low-priced stock is undervalued.",
+        "Reassess under the original risk rule; PPO is secondary price-derived context."
+      ],
+      "transferCorrect": 2,
+      "transferFeedbackByChoice": [
+        "A favorable derived indicator does not override a predeclared failed price structure or execution-risk limit.",
+        "PPO measures smoothed price relationships; it does not assess earnings, fair value, or intrinsic business worth.",
+        null
+      ],
+      "feedback": "The evidence supports: Positive 4% from (10.40−10.00)÷10.00×100. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Reassess under the original risk rule; PPO is secondary price-derived context. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "PPO = 100 × (fast EMA − slow EMA)/slow EMA. Check which EMA belongs in the denominator and confirm 26 completed bars.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "ppo",
+      "pattern": "trend",
+      "period": 12
+    },
+    {
+      "id": "IND-17",
+      "kind": "indicator",
+      "guideCode": "STUDY_STOCHASTIC",
+      "title": "Stochastic Oscillator: Fast %K",
+      "learn": "Fast stochastic %K maps the last completed close to its position inside the highest-high/lowest-low range over the chosen N completed bars. It ranges from 0 to 100 when the range is nonzero.",
+      "why": "It helps separate where a close occurred within its recent range from claims about price direction, trend reversal, or whether a trade will fill.",
+      "method": "Compute %K=100×(close−lowest low N)/(highest high N−lowest low N). This activity shows raw fast %K, not the smoothed slow %K or %D signal line.",
+      "limitation": "At a zero high-low range the ratio is undefined, not an automatic buy/sell signal. An overbought reading can persist during a trend.",
+      "question": "Highest high is $110, lowest low is $100 and the completed close is $108. What is fast stochastic %K?",
+      "options": [
+        "80, because the close is eight of ten dollars above the range low.",
+        "108, because the close itself is the oscillator.",
+        "20, because only the distance from the upper high is counted."
+      ],
+      "correct": 0,
+      "choiceFeedback": [
+        null,
+        "The stochastic oscillator is scaled to the 0–100 range and uses the high-low window; it is not the raw closing price.",
+        "A distance of two from the upper extreme would correspond to 20% below the high, while %K measures 80% above the low."
+      ],
+      "transferQuestion": "The entire lookback window has equal highs and lows. Which response preserves calculation integrity?",
+      "transferOptions": [
+        "Treat %K as 100 to force an overbought label.",
+        "Display insufficient range/undefined until a usable price window exists.",
+        "Assume the next price increase is certain."
+      ],
+      "transferCorrect": 1,
+      "transferFeedbackByChoice": [
+        "A zero range makes the %K denominator zero. Labeling it 100 invents a signal with no mathematical basis.",
+        null,
+        "A flat observed window cannot constrain the next trade; it only shows that the chosen data provided no usable stochastic range."
+      ],
+      "feedback": "The evidence supports: 80, because the close is eight of ten dollars above the range low. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Display insufficient range/undefined until a usable price window exists. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Find the full highest-high minus lowest-low range, then locate close minus lowest-low within that range; do not use future bars or assume %D is displayed.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "stochastic",
+      "pattern": "chop",
+      "period": 14
+    },
+    {
+      "id": "IND-18",
+      "kind": "indicator",
+      "guideCode": "STUDY_WILLIAMS_R",
+      "title": "Williams %R: Range Position",
+      "learn": "Williams %R represents the current completed close's position within the N-bar high-low range using a negative scale from −100 to 0. It uses −100×(highest high−close)/(highest high−lowest low).",
+      "why": "It provides a complementary perspective on range-position momentum and shows that different display scales can describe the same completed-price location.",
+      "method": "Collect the highest high and lowest low of a declared set of completed bars; calculate −100×(high−close)/(high−low). Treat an exactly flat range as undefined rather than creating a false score.",
+      "limitation": "Williams %R is mathematically related to fast stochastic %K under equal windows; counting both as independent trade votes duplicates evidence.",
+      "question": "The completed close equals the highest high of a nonzero 14-bar range. What does Williams %R read?",
+      "options": [
+        "−100, because price is at the upper bound.",
+        "0, because the distance from high to close is zero.",
+        "+100, because the next bar is certain to rise."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "−100 corresponds to the close at the low of the declared range, not the top; check the sign and which distance is zero.",
+        null,
+        "Williams %R uses a negative scale and describes historical location. A value of +100 is outside this definition and cannot forecast the next candle."
+      ],
+      "transferQuestion": "Stochastic %K and Williams %R seem to agree strongly. How should they affect confidence?",
+      "transferOptions": [
+        "Treat them as mathematically related range-position evidence rather than two independent confirmations.",
+        "Two indicators guarantee twice the chance of a reversal.",
+        "Ignore whether their lookback windows are identical."
+      ],
+      "transferCorrect": 0,
+      "transferFeedbackByChoice": [
+        null,
+        "Both use the close's position relative to a rolling high-low window; duplicating the same input cannot independently double probability.",
+        "Different lookback windows can alter both values. Verify parameter parity before claiming agreement or divergence."
+      ],
+      "feedback": "The evidence supports: 0, because the distance from high to close is zero. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Treat them as mathematically related range-position evidence rather than two independent confirmations. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Williams %R uses negative 100 times (highest high − close)/full range. At the highest high, the numerator is zero.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "williamsr",
+      "pattern": "reversal",
+      "period": 14
+    },
+    {
+      "id": "IND-19",
+      "kind": "indicator",
+      "guideCode": "STUDY_ATRP",
+      "title": "Average True Range Percent (ATRP)",
+      "learn": "ATRP divides a specified Average True Range by the latest completed closing price and expresses the result as a percentage. The ATR includes true range with prior-close gaps.",
+      "why": "ATRP helps compare observed movement magnitude across securities with different nominal price levels, while remaining direction-neutral.",
+      "method": "First calculate the chosen Wilder-smoothed ATR(N) from completed bars; then compute 100×ATR(N)/current completed close. State the warmup, price adjustment and nonzero denominator.",
+      "limitation": "ATRP is a volatility-context metric, not the spread or guaranteed maximum loss of a pending order. Illiquid execution may behave worse than the ATR.",
+      "question": "ATR(10) equals $0.50 and the completed close is $10.00. What is ATRP?",
+      "options": [
+        "5% under 100×0.50/10.00.",
+        "50% because ATR reports an entire bar.",
+        "A 5% guaranteed adverse stop-fill ceiling."
+      ],
+      "correct": 0,
+      "choiceFeedback": [
+        null,
+        "$0.50 is five hundredths of the $10 close, not half of it. Multiply the ratio by 100 for the correct percentage.",
+        "ATRP is a retrospective volatility ratio. A market gap, halt or illiquid order can realize a worse result than any ATR multiple."
+      ],
+      "transferQuestion": "A $2 stock and a $200 stock each have $1 ATR. Which comparison is justified?",
+      "transferOptions": [
+        "Their percentage volatility context must be equal.",
+        "The $200 stock is always more dangerous.",
+        "The $2 stock has a much higher ATRP, but execution risk still needs separate checks."
+      ],
+      "transferCorrect": 2,
+      "transferFeedbackByChoice": [
+        "A $1 ATR is 50% of $2 but only 0.5% of $200. Dollar ATRs are not equal percentage movements.",
+        "A higher nominal price does not automatically imply larger ATRP or a particular stop-fill risk; use proportional calculations and quotes.",
+        null
+      ],
+      "feedback": "The evidence supports: 5% under 100×0.50/10.00. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: The $2 stock has a much higher ATRP, but execution risk still needs separate checks. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "ATRP is not just ATR. Divide ATR by the completed price, then multiply by 100. It measures historical magnitude, not fill certainty.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "atrp",
+      "pattern": "gap",
+      "period": 10
+    },
+    {
+      "id": "IND-20",
+      "kind": "indicator",
+      "guideCode": "STUDY_VOLUME_SMA",
+      "title": "Average Volume: Completed-Bar SMA",
+      "learn": "Average volume is the arithmetic mean of share volume across a chosen number of comparable completed bars. This particular study uses N equally long fictional one-minute bars.",
+      "why": "It helps distinguish an unusually active bar from the local baseline while teaching why full-day totals and matched-time cumulative RVOL are different measures.",
+      "method": "Take the last N completed per-bar share volumes and divide their sum by N. Do not include an unfinished bar, a different market session or mixed bar durations.",
+      "limitation": "Average volume reveals share activity, not whether trades occurred at the bid or ask or who placed them. A high-volume bar is not a validated entry signal.",
+      "question": "Five comparable completed bars have 100, 200, 300, 200 and 200 shares. What is the five-bar average volume?",
+      "options": [
+        "1,000 shares, the total not the average.",
+        "100 shares, the smallest bar.",
+        "200 shares per completed bar, or 1,000÷5."
+      ],
+      "correct": 2,
+      "choiceFeedback": [
+        "The sum is 1,000 shares across five bars. To estimate the average activity per bar, divide by the count of comparable completed bars.",
+        "The minimum observed bar is 100 shares, but a sample mean weights all five completed bars equally, not just the smallest.",
+        null
+      ],
+      "transferQuestion": "A five-minute volume bar is compared with an average built from one-minute bars. What must be corrected?",
+      "transferOptions": [
+        "Nothing; all volume counts share the same denominator.",
+        "Align interval and session definitions or aggregate comparably before interpreting a volume expansion.",
+        "Treat five-minute volume as institution-only activity."
+      ],
+      "transferCorrect": 1,
+      "transferFeedbackByChoice": [
+        "A five-minute bar covers more time than a one-minute bar, so raw comparison may be inflated purely by differing durations.",
+        null,
+        "Volume represents matched shares traded, not identified account types. A longer bar interval cannot prove who participated."
+      ],
+      "feedback": "The evidence supports: 200 shares per completed bar, or 1,000÷5. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Align interval and session definitions or aggregate comparably before interpreting a volume expansion. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Average per-bar volume = sum of comparable, completed bar share counts ÷ number of bars, not total volume or directional volume.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional completed one-minute OHLCV bars, source-defined calculations and no real trade, live quote, learner grade or future price.",
+      "metric": "volumesma",
+      "pattern": "trend",
+      "period": 10
+    },
+    {
+      "id": "WATCH-11",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_UNIVERSE_BUILD",
+      "title": "Choose the Research Security Universe",
+      "learn": "The scanner's security universe must be declared before evaluating price and volume. Exchange-listed common shares, ETFs, options and OTC securities have different conventions and eligibility.",
+      "why": "It prevents a familiar ticker symbol or a strong chart from silently substituting a different asset or exchange venue.",
+      "method": "For this fictional lesson, require a verified common-share class on the declared listed universe; reject a candidate with an incompatible instrument or an unverified listing.",
+      "limitation": "The website's fictional universe flags are not current exchange listings or a brokerage eligibility check; live class validation needs primary identifiers.",
+      "question": "A candidate matches the price filter but is an option contract in a common-stock-only universe. What follows?",
+      "options": [
+        "Include it because the ticker looks familiar.",
+        "Exclude it until instrument identity fits the declared universe.",
+        "A larger RVOL cancels the universe definition."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "A similar ticker stem does not make an option contract a listed common share; underlying and derivative identities remain distinct.",
+        null,
+        "Unusual activity cannot change an option into a common share. Universe selection is independent of volume ranking."
+      ],
+      "transferQuestion": "A ticker symbol is reassigned to a different issuer in the historical period being studied. What should the research process do?",
+      "transferOptions": [
+        "Reconcile issuer, security class and effective date before interpreting historical charts.",
+        "Assume all ticker histories belong to the current issuer.",
+        "Use a moving average to identify historical corporate ownership."
+      ],
+      "transferCorrect": 0,
+      "transferFeedbackByChoice": [
+        null,
+        "Tickers can change or be reused. A present-day symbol is not sufficient evidence that past trading data belong to the same legal security.",
+        "Indicators calculate from prices; they cannot resolve a company's legal security identifiers or historical listing chronology."
+      ],
+      "feedback": "The evidence supports: Exclude it until instrument identity fits the declared universe. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Reconcile issuer, security class and effective date before interpreting historical charts. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "First declare the instrument family and listing universe. Scanner criteria cannot waive an incompatible share class.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "universe"
+    },
+    {
+      "id": "WATCH-12",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_IDENTITY_CORPORATE",
+      "title": "Corporate Actions and Security Identity",
+      "learn": "Historical charts and watchlists must reconcile splits, reverse splits and share-class changes before treating past prices and current float numbers as comparable.",
+      "why": "A dramatic price jump can be a corporate-action adjustment rather than genuine market appreciation or a new catalyst.",
+      "method": "Use dated issuer/security identity, the effective split ratio and a consistent raw/adjusted price basis for this fictional stock.",
+      "limitation": "An adjusted chart may not equal the contemporaneous raw trade price; share counts and float estimates can also have different effective dates.",
+      "question": "A 1-for-10 reverse split changes nominal shares and price per share. Can an unadjusted 900% chart jump be called ordinary demand?",
+      "options": [
+        "Yes, because every nominal increase is a positive return.",
+        "Yes, if a one-minute RSI is above 70.",
+        "No; reconcile split adjustment and issuer identity before judging the price move."
+      ],
+      "correct": 2,
+      "choiceFeedback": [
+        "A reverse split changes the nominal share count and price scale. The unadjusted jump is not by itself a tradable total-return gain.",
+        "RSI cannot repair a corporate-action mismatch. First bring historical data and share identifiers onto a comparable basis.",
+        null
+      ],
+      "transferQuestion": "A historical runner had a small reported float before a later offering. Which source question matters?",
+      "transferOptions": [
+        "Use only the most recent float for all dates.",
+        "Verify the float and outstanding shares effective at each historical pause.",
+        "Treat the offering as proof the prior breakout was filled."
+      ],
+      "transferCorrect": 1,
+      "transferFeedbackByChoice": [
+        "Current share count may reflect later offerings and splits that were unknown in the earlier period. Using it retrospectively leaks later facts.",
+        null,
+        "Issuer financing events cannot prove the entry or execution of an earlier hypothetical trade, even if later price paths are known."
+      ],
+      "feedback": "The evidence supports: No; reconcile split adjustment and issuer identity before judging the price move. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Verify the float and outstanding shares effective at each historical pause. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Separate raw contemporaneous prices from adjusted charts and date-stamp both issuer identity and share-count changes.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "identity"
+    },
+    {
+      "id": "WATCH-13",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_LEVEL_MAP",
+      "title": "Premarket, Prior-Day and Live Price Levels",
+      "learn": "A watchlist can include premarket high, completed prior-day high, current high of day and VWAP, but each reference has its own session, update time and source.",
+      "why": "This makes price-level alerts testable while preventing a future session high from being used to justify an earlier entry.",
+      "method": "Record each fictional reference's session boundary and whether it was known at the actual replay pause. Only completed reference levels qualify.",
+      "limitation": "HOD can evolve intraday; PDH depends on the completed previous declared session; a price touching a reference does not prove breakout acceptance.",
+      "question": "A stock makes a new high later in the day. Can the later HOD be used as an earlier morning resistance level?",
+      "options": [
+        "Yes, all daily highs are known from the opening bell.",
+        "No, use only the highest price observed as of the earlier pause.",
+        "Yes, a scanner alert proves when the later HOD formed."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "A full-day high is known only after the high occurs. Borrowing it into an earlier decision violates time-order discipline.",
+        null,
+        "An alert can fire at a price condition, but it does not authorize using a subsequently discovered high at an earlier clock time."
+      ],
+      "transferQuestion": "An unfinished premarket bar appears to exceed the declared PMH. What is the defensible response under a completed-bar rule?",
+      "transferOptions": [
+        "Wait for the declared completed-bar trigger and verify the premarket session.",
+        "Treat the unfinished wick as guaranteed acceptance.",
+        "Use tomorrow's high to confirm today's pause."
+      ],
+      "transferCorrect": 0,
+      "transferFeedbackByChoice": [
+        null,
+        "A bar still in progress may retract before completion. The defined confirmation rule has not yet been observed.",
+        "A future day's high is not information available at the present decision pause; it cannot validate a current trigger."
+      ],
+      "feedback": "The evidence supports: No, use only the highest price observed as of the earlier pause. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Wait for the declared completed-bar trigger and verify the premarket session. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "For every level, name session, timestamp and whether the reference was already observed; distinguish live HOD from completed prior-day high.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "levels"
+    },
+    {
+      "id": "WATCH-14",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_MULTI_TIMEFRAME_WATCH",
+      "title": "Multi-Timeframe Confirmation and Bar Completion",
+      "learn": "Daily context, five-minute setup and one-minute execution timing answer distinct questions. A one-minute breakout cannot stand in for a required unfinished five-minute confirmation.",
+      "why": "Separating timeframes reduces hindsight and prevents a fast alert from overruling the rule that actually governs the trade.",
+      "method": "Treat one-minute timing as secondary; require the five-minute setup bar to be completed and the higher-timeframe context dated for this fictional lane.",
+      "limitation": "Timeframe alignment does not guarantee the direction of the next candle or solve spread, halt and liquidity problems.",
+      "question": "A one-minute bar briefly breaks resistance while the five-minute setup candle remains unfinished. What should Talia classify?",
+      "options": [
+        "Confirmed on every timeframe.",
+        "The observed one-minute event is not yet the required completed five-minute setup.",
+        "A market order has already filled at the breakout level."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "The faster interval can show a preliminary move, but the defined five-minute bar confirmation has not finished.",
+        null,
+        "A candle touching a level is not an acknowledged broker order. Price evidence does not prove any order was placed or filled."
+      ],
+      "transferQuestion": "The daily trend is strong but a predeclared five-minute invalidation is reached. What rule governs the short-horizon setup?",
+      "transferOptions": [
+        "A strong daily trend cancels the written intraday risk rule.",
+        "The trade must automatically reverse short.",
+        "The original setup invalidation and execution restrictions still matter."
+      ],
+      "transferCorrect": 2,
+      "transferFeedbackByChoice": [
+        "Longer-horizon context cannot silently remove the short-horizon plan's written invalidation or position-risk limit.",
+        "The failure of a long-side setup does not automatically establish a valid, borrowable short-side order.",
+        null
+      ],
+      "feedback": "The evidence supports: The observed one-minute event is not yet the required completed five-minute setup. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: The original setup invalidation and execution restrictions still matter. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Write the purpose of each timeframe before looking: daily context, five-minute setup, one-minute timing. Only completed required evidence qualifies.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "timeframes"
+    },
+    {
+      "id": "WATCH-15",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_RISK_FIRST_SCORE",
+      "title": "Hard Risk Vetoes versus Candidate Scores",
+      "learn": "A watchlist rank can organize research quality, but a high explanatory score cannot compensate for unresolved security identity, source freshness, halt, borrowing or excessive spread.",
+      "why": "Keeping hard risk gates separate prevents a collection of favorable indicators from being treated as permission to trade an ineligible instrument.",
+      "method": "Score source quality and chart clarity in a fictional 0–100 exercise, then independently reject any candidate with an unresolved critical risk field.",
+      "limitation": "The score is an illustrative sorting heuristic, not a probability of success or a license to override real broker restrictions.",
+      "question": "Candidate A scores 95/100 but fails the written maximum spread. Which decision is defensible?",
+      "options": [
+        "High score makes the spread threshold optional.",
+        "NO TRADE for that setup; hard cost veto wins.",
+        "Price movement later proves the score was a valid entry."
+      ],
+      "correct": 1,
+      "choiceFeedback": [
+        "An educational ranking measures soft factors. It cannot change the execution-cost rule that was declared as mandatory.",
+        null,
+        "Hindsight returns cannot establish that the earlier executable price and risk conditions existed when the decision was made."
+      ],
+      "transferQuestion": "Candidate B scores 68 but passes documented hard gates, while C scores 98 with unresolved identity. What should be prioritized?",
+      "transferOptions": [
+        "C must always rank ahead, regardless of identity.",
+        "Both are guaranteed entries.",
+        "B can proceed to further research while C remains in verification despite its higher score."
+      ],
+      "transferCorrect": 2,
+      "transferFeedbackByChoice": [
+        "An invalid or unverified security identity prevents reliable price and risk measurements. High rank is not a substitute for traceable identity.",
+        "Passing eligibility is still not a guaranteed entry; both candidates require separate setup and position-risk review.",
+        null
+      ],
+      "feedback": "The evidence supports: NO TRADE for that setup; hard cost veto wins. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: B can proceed to further research while C remains in verification despite its higher score. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Keep mandatory source, borrow, halt, spread and identity vetoes outside the scoring function. A weighted score is not a permission gate.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "riskfirst"
+    },
+    {
+      "id": "WATCH-16",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_DYNAMIC_SNAPSHOT",
+      "title": "Reproducible Dynamic Scanner Snapshots",
+      "learn": "A dynamic scanner changes as prices, corporate actions and source status update. Research must freeze the exact scan configuration and event time before evaluating later outcomes.",
+      "why": "Versioned snapshots enable an honest audit of what was visible at the actual time instead of reconstructing candidates from future winners.",
+      "method": "For this fictional batch, require a captured query version and time-stamped candidate row. Uncaptured/expired versions must return to research pending verification.",
+      "limitation": "A screenshot or CSV can omit delayed quote provenance; a reproducible scan also needs its universe, filters, data source and revision.",
+      "question": "After a rally, an analyst runs today's scanner and claims every winner was on yesterday's list. What evidence is needed?",
+      "options": [
+        "A frozen timestamped previous-day scan/query and candidate inclusion record.",
+        "Only the winner's latest chart and one screenshot.",
+        "A successful later trade automatically proves the earlier scan result."
+      ],
+      "correct": 0,
+      "choiceFeedback": [
+        null,
+        "A future-selected chart cannot reconstruct the actual earlier set of scanner inclusions, exclusions or data delays.",
+        "Later profit does not establish that a stock met the original scan criteria before the movement occurred."
+      ],
+      "transferQuestion": "A watchlist query changed from version 1 to version 2 after the replay pause. How should performance comparisons be handled?",
+      "transferOptions": [
+        "Merge both rule sets without recording which was used.",
+        "Use versioned before-outcome snapshots and compare each cohort under its actual rules.",
+        "Retrospectively assign the better-performing version to every winner."
+      ],
+      "transferCorrect": 1,
+      "transferFeedbackByChoice": [
+        "Mixing version 1 and version 2 makes the selection rule irreproducible and can hide changes in risk or universe constraints.",
+        null,
+        "Reassigning a later successful rule to previous candidates is hindsight optimization; it destroys a genuine chronological audit."
+      ],
+      "feedback": "The evidence supports: A frozen timestamped previous-day scan/query and candidate inclusion record. This is an ungraded interpretation of observed fictional data, not an instruction to place an order.",
+      "transferFeedback": "The changed case supports: Use versioned before-outcome snapshots and compare each cohort under its actual rules. Recheck the evidence and the original source/risk rules before taking action.",
+      "scaffold": "Freeze universe, filters, source timestamps, candidate rows and query-version ID before revealing outcomes. No snapshot means no reproducible claim.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional candidate-state scan for educational demonstration. No actual brokerage inventory, live quotes, order, member permission or persisted watchlist.",
+      "rule": "snapshot"
     }
   ],
   "rights": "All bars and symbol names are synthetic. No licensed market-data redistribution or private assessment keys."
