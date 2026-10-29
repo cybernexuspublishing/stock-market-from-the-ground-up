@@ -31,12 +31,13 @@ try{
  const original=await Promise.all([rect('.gu-home-message'),rect('.gu-home-terminal')]);
  await mode('compact');const compact=await Promise.all([rect('.gu-home-message'),rect('.gu-home-terminal')]);
  await mode('focus');const focus=await Promise.all([rect('.gu-home-message'),rect('.gu-home-terminal')]);
- assert(Math.abs(compact[0].y-compact[1].y)<5,'Compact Home must be side-by-side');
+ console.log('GEOMETRY real Home',JSON.stringify({original,compact,focus,spacious:null}));
+ assert(compact[1].x>=compact[0].x+compact[0].width-12 && compact[1].y<compact[0].y+compact[0].height,'Compact Home must have distinct horizontal columns: '+JSON.stringify(compact));
  assert(focus[1].y>=focus[0].y+focus[0].height-4,'Focused Home must stack the learning chart below the message');
  assert(compact[0].width>compact[1].width*1.7,'Compact Home must give message a clearly larger pane');
  assert(Math.abs(compact[0].width-original[0].width)>40,'Compact must change actual hero placement');
  await mode('spacious');const spacious=await Promise.all([rect('.gu-home-message'),rect('.gu-home-terminal')]);
- assert(Math.abs(spacious[0].y-spacious[1].y)<5,'Spacious keeps two-column hero');
+ assert(spacious[1].x>=spacious[0].x+spacious[0].width-12 && spacious[1].y<spacious[0].y+spacious[0].height,'Spacious keeps two horizontal columns: '+JSON.stringify(spacious));
  assert(spacious[1].width>compact[1].width+100,'Spacious gives chart significantly more width');
  console.log('PASS real Home markup: compact asymmetric desk; focused stacked; spacious larger art; Classic comparison');
 

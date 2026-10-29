@@ -148,8 +148,8 @@ jobs:
           node --check assets/js/site.js
           node tests/test_crownlight_page_presentation_v2.mjs
           node tests/test_crownlight_page_workspace_browser_v2.mjs
-          node tests/test_crownlight_real_page_styles_v3.mjs
           node tests/test_crownlight_page_style_production_probe_v3.mjs
+          node tests/test_crownlight_real_page_styles_v3.mjs
           node tests/test_crownlight_admin_style_gallery_browser_v1.mjs
           node tests/test_owner_self_sparks_browser_v1.mjs
           node tests/test_crownlight_continuous_layout_browser_v1.mjs
