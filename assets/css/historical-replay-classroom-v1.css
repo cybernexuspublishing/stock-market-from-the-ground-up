@@ -1,0 +1,37 @@
+/* Historical Replay Classroom V1 — scoped, responsive and accessible */
+.historical-classroom #vr-session{background:transparent;border:0;padding:0}
+.historical-classroom .hr-classroom{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.8fr);gap:16px;align-items:stretch;margin:18px 0}
+.historical-classroom .hr-chart-col,.historical-classroom .hr-talia-col{min-width:0;background:#0d1d2d;border:1px solid #35536b;border-radius:14px;padding:18px;color:#e9f3fd}
+.historical-classroom .hr-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.historical-classroom .hr-chart-head strong{font-size:1.03rem}
+.historical-classroom .hr-chart-head span{color:#bdd3e9;font-size:.85rem}
+.historical-classroom .hr-case{font-weight:650;margin:10px 0 0;color:#f0c877}
+.historical-classroom .hr-case-status,.historical-classroom .hr-meta{color:#b4c8db;font-size:.85rem;line-height:1.45}
+.historical-classroom .hr-chart-col>label{display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:.89rem}
+.historical-classroom .hr-chart-col select{max-width:330px;min-height:42px;background:#13273b;color:#f0f5fb;border:1px solid #4b6883;border-radius:8px;padding:8px}
+.historical-classroom .hr-chart{display:block;width:100%;height:auto;max-height:420px;margin-top:12px;border:1px solid #263f56;border-radius:10px;background:#071522}
+.historical-classroom .hr-ohlcv{color:#c9dfec;font-size:.82rem;margin:8px 0}
+.historical-classroom .hr-toolbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap;padding:12px 0}
+.historical-classroom .hr-toolbar .btn{min-height:40px;padding:8px 12px;font-size:.85rem}
+.historical-classroom .hr-toolbar label{font-size:.8rem;color:#d5e6f1;display:grid;gap:3px}
+.historical-classroom .hr-toolbar select{min-width:220px;max-width:100%}
+.historical-classroom .hr-review-label{margin-top:10px}
+.historical-classroom #hr-review{max-width:100%;width:100%;accent-color:#d9b05e}
+.historical-classroom .hr-checkpoint{display:flex!important;flex-direction:row!important;align-items:center;gap:9px;margin:12px 0}
+.historical-classroom .hr-checkpoint input{width:18px;height:18px}
+.historical-classroom .hr-talia-title{font-size:1.07rem;border-bottom:1px solid #34516b;padding-bottom:14px;margin:0 0 14px}
+.historical-classroom .hr-talia-col h4{font-size:1.03rem;margin:10px 0;color:#f0ca7c}
+.historical-classroom .hr-talia-col p{line-height:1.65}
+.historical-classroom .hr-talia-col #vr-plan{background:#102840;border:1px solid #365674;border-radius:10px;padding:14px;margin-top:16px}
+.historical-classroom .hr-talia-col #vr-plan[hidden]{display:none}
+.historical-classroom .hr-talia-col #vr-plan label{display:block;margin:10px 0}
+.historical-classroom .hr-talia-col #vr-plan select,.historical-classroom .hr-talia-col #vr-plan textarea,.historical-classroom .hr-talia-col #vr-plan input{max-width:100%;width:100%}
+.historical-classroom .hr-chart-col .journal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.historical-classroom .hr-original{border-top:1px solid #35536b;margin-top:18px;padding-top:15px}
+.historical-classroom .hr-original summary{cursor:pointer;color:#d1e8f7;font-size:.88rem}
+.historical-classroom .hr-original figure{margin:12px 0}
+.historical-classroom .hr-original table{width:100%;font-size:.75rem}
+.historical-classroom .hr-original .v11-matrix{overflow-x:auto}
+.historical-classroom [hidden]{display:none!important}
+@media(max-width:900px){.historical-classroom .hr-classroom{grid-template-columns:minmax(0,1fr)}.historical-classroom .hr-chart-col,.historical-classroom .hr-talia-col{padding:14px}}
+@media(prefers-reduced-motion:reduce){.historical-classroom *{scroll-behavior:auto;transition-duration:0s!important;animation-duration:0s!important}}
