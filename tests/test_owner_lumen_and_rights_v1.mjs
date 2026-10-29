@@ -25,6 +25,7 @@ globalThis.fetch=async(uri,req={})=>{
  if(path==='/rest/v1/profiles')return json([{account_kind:'member',deleted_at:null}]);
  if(path==='/rest/v1/admin_user_roles')return json([{role_code:role,expires_at:null}]);
  if(path==='/rest/v1/admin_user_flags')return json([]);
+ if(path==='/rest/v1/gu_lumen_value_settings_v1')return json([{active_cents:7,proposed_cents:7,revision:1,mixed_checkout_enabled:false,value_activation_state:'staged'}]);
  if(path==='/rest/v1/gu_lumen_tool_offers_v1'){
   if(req.method==='PATCH')throw Error('Test must not activate a real priced offer');
   return json([{offer_code:'WATCHLIST_WORKBENCH_30D',tool_code:'WATCHLIST_WORKBENCH',
