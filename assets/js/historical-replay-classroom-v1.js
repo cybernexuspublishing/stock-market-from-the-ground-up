@@ -52,7 +52,7 @@ function draw(){
  let heading='Start with observable evidence',copy='Select a published, authorized historical dataset and start the replay.';
  if(current){
   heading=visible.length<=5?'Read the opening range':visible.length<=10?'Confirm price structure':visible.length<=15?'Compare price and volume':'Evaluate the evidence';
-  copy='The most recently completed '+frame+'-minute candle closed at 
+  copy='The most recently completed '+frame+'-minute candle closed at $'+current.c.toFixed(3)+'. Its high was $'+current.h.toFixed(3)+', low $'+current.l.toFixed(3)+', and source volume '+current.v.toLocaleString('en-US')+' shares. '+
     (before?('Its close was '+(current.c>=before.c?'at or above':'below')+' the preceding close. '):'This is the first completed observation. ')+
     'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
  }
@@ -60,7 +60,7 @@ function draw(){
  const selector=$('sim-timeframe');if(selector)selector.value=frame+'-minute';
  const studio=window.CrownlightStudio;
  const candles=grouped.map(b=>({time:new Date(b.ms),open:b.o,high:b.h,low:b.l,close:b.c,volume:b.v}));
- if(candles.length&&studio?.render){
+ if(studio?.render){
   try{const mounted=studio.render({candles,index:candles.length-1,sourceProvider:'Verified server historical replay',sourceName:String(dataset?.ticker||'HISTORICAL'),sourceNote:String(dataset?.sourceAttribution||'Published rights-approved observations'),isServerReplay:true,position:null,user:{id:window.__hrMemberId||null}});
    document.body.classList.toggle('hr-studio-mounted',mounted===true);
   }catch{document.body.classList.remove('hr-studio-mounted')}
@@ -74,7 +74,8 @@ function schedule(){
  },seconds*1000);
 }
 function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;state={sessionId:'',locked:false,busy:false};draw();
+ stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;state={sessionId:'',locked:false,busy:false};
+ window.CrownlightStudio?.clearMemberState?.();document.body.classList.remove('hr-studio-mounted');draw();
 }
 function observation(e){
  const b=parse(e.detail?.bar);if(!b)return;
@@ -116,7 +117,7 @@ function init(){
  frameChoice.onchange=()=>{frame=Number(frameChoice.value);draw()};frameLabel.append(frameChoice);
  const chartPanel=el('div','sim-chart-panel');chartPanel.setAttribute('aria-label','Crownlight Chart Studio historical candles');
  const backing=el('canvas','hr-canvas');backing.id='sim-chart';chartPanel.append(backing);
- const frameSync=el('select');frameSync.id='sim-timeframe';frameSync.hidden=true;frameSync.add(new Option('Current interval','1-minute'));
+ const frameSync=el('select');frameSync.id='sim-timeframe';frameSync.hidden=true;[1,3,5,15].forEach(n=>frameSync.add(new Option(n+' minute',n+'-minute')));
  const svg=el('svg','hr-chart');svg.id='hr-chart';svg.setAttribute('viewBox','0 0 630 315');svg.setAttribute('role','img');svg.setAttribute('aria-label','No historical observations loaded yet.');
  const ohlcv=el('p','hr-ohlcv');ohlcv.id='hr-ohlcv';
  const count=el('p','hr-meta');count.id='hr-count';
@@ -151,279 +152,6 @@ function init(){
  window.addEventListener('groundup:replay-state',stateChange);
  window.addEventListener('groundup:replay-catalog',catalog);
  window.addEventListener('groundup:replay-dataset',e=>{dataset=e.detail?.dataset||null;draw()});
- document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused because the tab is hidden.')});
- draw();
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();+current.c.toFixed(3)+'. Its high was 
-    (before?('Its close was '+(current.c>=before.c?'at or above':'below')+' the preceding close. '):'This is the first completed observation. ')+
-    'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
- }
- $('hr-talia-topic').textContent=heading;$('hr-talia-copy').textContent=copy;
-}
-function schedule(){
- if(!playing||timer||!state.sessionId||!state.locked||state.busy||focus!==bars.length)return;
- timer=setTimeout(()=>{timer=null;const btn=$('vr-advance');
-  if(!playing||!state.locked||state.busy||!btn||btn.disabled||focus!==bars.length){stop('Replay paused or unable to advance.');return}
-  btn.click();
- },seconds*1000);
-}
-function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;state={sessionId:'',locked:false,busy:false};draw();
-}
-function observation(e){
- const b=parse(e.detail?.bar);if(!b)return;
- if(bars.some(x=>x.ms===b.ms))return;
- if(bars.length&&b.ms<=bars.at(-1).ms){stop('Non-chronological observation; refresh the replay.');return}
- const end=focus===bars.length;bars.push(b);if(end)focus=bars.length;
- draw();
- if($('hr-autopause').checked&&bars.length>1&&bars.length%5===0){checkpoint=true;stop('Talia checkpoint: review these completed candles before resuming.')}
- else if(!checkpoint)schedule();
-}
-function stateChange(e){
- state=e.detail||state;
- if(!state.sessionId){reset();return}
- if(!state.locked)stop('Lock your first evidence-based decision before playback.');
- else if(!state.busy&&!checkpoint)schedule();
-}
-function catalog(e){
- const q=new URLSearchParams(location.search),ticker=String(q.get('ticker')||'').toUpperCase(),date=q.get('date');
- if(!/^[A-Z][A-Z0-9.]{0,11}$/.test(ticker)||!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
- const matches=(e.detail?.datasets||[]).filter(x=>x.ticker===ticker&&x.date===date);
- $('hr-case').textContent=ticker+' · '+date;
- $('hr-case-status').textContent=matches.length?
- 'An authorized dataset is available. Select the matching dataset and Start Replay.':
- 'No rights-approved historical dataset is published for this case. Use the independent Lab instructions instead; no fictional bars will be shown as DIS.';
-}
-function init(){
- const section=$('vr-session');if(!section||$('hr-classroom'))return;
- const source=$('vr-source'),fig=$('vr-visible-chart').closest('figure'),table=$('vr-bars').closest('.v11-matrix'),plan=$('vr-plan'),actions=$('vr-advance').closest('.journal-actions');
- const wrap=el('div','hr-classroom');wrap.id='hr-classroom';
- const left=el('section','hr-chart-col'),right=el('aside','hr-talia-col');
- left.setAttribute('aria-label','Historical candle chart and playback');
- right.setAttribute('aria-label','Talia synchronized instruction');
- const head=el('div','hr-chart-head');head.append(el('strong','', 'Historical candles · verified data'),el('span','', ''));head.lastChild.id='hr-clock';
- const q=new URLSearchParams(location.search),caseName=el('p','hr-case');caseName.id='hr-case';caseName.textContent=q.get('ticker')&&q.get('date')?q.get('ticker')+' · '+q.get('date'):'Select an authorized historical case';
- const caseStatus=el('p','hr-case-status','Only published, rights-approved datasets are displayed.');caseStatus.id='hr-case-status';
- const frameLabel=el('label','', 'Candle interval'),frameChoice=el('select');frameChoice.id='hr-timeframe';frameChoice.setAttribute('aria-label','Completed chart candle interval');
- for(const n of [1,3,5,15])frameChoice.add(new Option(n+' minute'+(n===1?'':'s'),String(n)));
- const requested=Number(q.get('timeframe'));frame=[1,3,5,15].includes(requested)?requested:1;frameChoice.value=String(frame);
- frameChoice.onchange=()=>{frame=Number(frameChoice.value);draw()};frameLabel.append(frameChoice);
- const svg=el('svg','hr-chart');svg.id='hr-chart';svg.setAttribute('viewBox','0 0 630 315');svg.setAttribute('role','img');svg.setAttribute('aria-label','No historical observations loaded yet.');
- const ohlcv=el('p','hr-ohlcv');ohlcv.id='hr-ohlcv';
- const count=el('p','hr-meta');count.id='hr-count';
- const toolbar=el('div','hr-toolbar'),play=el('button','btn secondary','Play');play.type='button';play.id='hr-play';
- play.onclick=()=>{if(playing){stop();return}if(!state.locked){$('hr-status').textContent='Lock the first decision before starting playback.';return}
-  if(focus!==bars.length){$('hr-status').textContent='Select Latest revealed before playback.';return}
-  checkpoint=false;playing=true;play.textContent='Pause';$('hr-status').textContent='Playing server-revealed source candles';schedule();
- };
- const speedLabel=el('label','', 'Playback speed'),speed=el('select');speed.setAttribute('aria-label','Seconds per one-minute source observation');
- for(const x of speeds)speed.add(new Option(x+' sec / 1m source candle',String(x)));
- speed.value='60';speed.onchange=()=>{seconds=Number(speed.value);if(timer)clearTimeout(timer);timer=null;schedule()};speedLabel.append(speed);
- const prev=el('button','btn secondary','Review previous');prev.type='button';prev.onclick=()=>{stop();focus=Math.max(1,focus-1);draw()};
- const next=el('button','btn secondary','Review next');next.type='button';next.onclick=()=>{focus=Math.min(bars.length,focus+1);draw()};
- const latestBtn=el('button','btn secondary','Latest revealed');latestBtn.type='button';latestBtn.onclick=()=>{focus=bars.length;draw()};
- toolbar.append(play,speedLabel,prev,next,latestBtn);
- const reviewLabel=el('label','hr-review-label','Review earlier revealed candles'),review=el('input');
- review.id='hr-review';review.type='range';review.min='1';review.max='1';review.step='1';review.disabled=true;
- review.oninput=()=>{stop();focus=Number(review.value);draw()};reviewLabel.append(review);
- const reviewState=el('p','hr-meta');reviewState.id='hr-review-state';
- const pauseLabel=el('label','hr-checkpoint'),pause=el('input');pause.id='hr-autopause';pause.type='checkbox';pause.checked=true;
- pauseLabel.append(pause,document.createTextNode(' Pause for Talia every five source candles.'));
- const status=el('p','hr-meta','Lock the first decision before playing.');status.id='hr-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const original=el('details','hr-original');original.append(el('summary','', 'Original OHLCV table and chart'),fig,table);
- left.append(head,caseName,caseStatus,frameLabel,svg,ohlcv,count,toolbar,reviewLabel,reviewState,pauseLabel,status,actions,original);
- right.append(el('h3','hr-talia-title','Talia · Historical Replay Instructor'));
- const topic=el('h4','', 'Start with observable evidence');topic.id='hr-talia-topic';
- const copy=el('p','', 'Instructor feedback will follow the revealed candles.');copy.id='hr-talia-copy';
- right.append(topic,copy,el('p','hr-meta','Record evidence, invalidation and NO TRADE criteria before viewing later bars. Review is not a new blind assessment.'),plan);
- wrap.append(left,right);source.after(wrap);document.body.classList.add('historical-classroom');
- window.addEventListener('groundup:replay-reset',reset);
- window.addEventListener('groundup:replay-observation',observation);
- window.addEventListener('groundup:replay-state',stateChange);
- window.addEventListener('groundup:replay-catalog',catalog);
- document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused because the tab is hidden.')});
- draw();
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();+current.h.toFixed(3)+', low 
-    (before?('Its close was '+(current.c>=before.c?'at or above':'below')+' the preceding close. '):'This is the first completed observation. ')+
-    'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
- }
- $('hr-talia-topic').textContent=heading;$('hr-talia-copy').textContent=copy;
-}
-function schedule(){
- if(!playing||timer||!state.sessionId||!state.locked||state.busy||focus!==bars.length)return;
- timer=setTimeout(()=>{timer=null;const btn=$('vr-advance');
-  if(!playing||!state.locked||state.busy||!btn||btn.disabled||focus!==bars.length){stop('Replay paused or unable to advance.');return}
-  btn.click();
- },seconds*1000);
-}
-function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;state={sessionId:'',locked:false,busy:false};draw();
-}
-function observation(e){
- const b=parse(e.detail?.bar);if(!b)return;
- if(bars.some(x=>x.ms===b.ms))return;
- if(bars.length&&b.ms<=bars.at(-1).ms){stop('Non-chronological observation; refresh the replay.');return}
- const end=focus===bars.length;bars.push(b);if(end)focus=bars.length;
- draw();
- if($('hr-autopause').checked&&bars.length>1&&bars.length%5===0){checkpoint=true;stop('Talia checkpoint: review these completed candles before resuming.')}
- else if(!checkpoint)schedule();
-}
-function stateChange(e){
- state=e.detail||state;
- if(!state.sessionId){reset();return}
- if(!state.locked)stop('Lock your first evidence-based decision before playback.');
- else if(!state.busy&&!checkpoint)schedule();
-}
-function catalog(e){
- const q=new URLSearchParams(location.search),ticker=String(q.get('ticker')||'').toUpperCase(),date=q.get('date');
- if(!/^[A-Z][A-Z0-9.]{0,11}$/.test(ticker)||!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
- const matches=(e.detail?.datasets||[]).filter(x=>x.ticker===ticker&&x.date===date);
- $('hr-case').textContent=ticker+' · '+date;
- $('hr-case-status').textContent=matches.length?
- 'An authorized dataset is available. Select the matching dataset and Start Replay.':
- 'No rights-approved historical dataset is published for this case. Use the independent Lab instructions instead; no fictional bars will be shown as DIS.';
-}
-function init(){
- const section=$('vr-session');if(!section||$('hr-classroom'))return;
- const source=$('vr-source'),fig=$('vr-visible-chart').closest('figure'),table=$('vr-bars').closest('.v11-matrix'),plan=$('vr-plan'),actions=$('vr-advance').closest('.journal-actions');
- const wrap=el('div','hr-classroom');wrap.id='hr-classroom';
- const left=el('section','hr-chart-col'),right=el('aside','hr-talia-col');
- left.setAttribute('aria-label','Historical candle chart and playback');
- right.setAttribute('aria-label','Talia synchronized instruction');
- const head=el('div','hr-chart-head');head.append(el('strong','', 'Historical candles · verified data'),el('span','', ''));head.lastChild.id='hr-clock';
- const q=new URLSearchParams(location.search),caseName=el('p','hr-case');caseName.id='hr-case';caseName.textContent=q.get('ticker')&&q.get('date')?q.get('ticker')+' · '+q.get('date'):'Select an authorized historical case';
- const caseStatus=el('p','hr-case-status','Only published, rights-approved datasets are displayed.');caseStatus.id='hr-case-status';
- const frameLabel=el('label','', 'Candle interval'),frameChoice=el('select');frameChoice.id='hr-timeframe';frameChoice.setAttribute('aria-label','Completed chart candle interval');
- for(const n of [1,3,5,15])frameChoice.add(new Option(n+' minute'+(n===1?'':'s'),String(n)));
- const requested=Number(q.get('timeframe'));frame=[1,3,5,15].includes(requested)?requested:1;frameChoice.value=String(frame);
- frameChoice.onchange=()=>{frame=Number(frameChoice.value);draw()};frameLabel.append(frameChoice);
- const svg=el('svg','hr-chart');svg.id='hr-chart';svg.setAttribute('viewBox','0 0 630 315');svg.setAttribute('role','img');svg.setAttribute('aria-label','No historical observations loaded yet.');
- const ohlcv=el('p','hr-ohlcv');ohlcv.id='hr-ohlcv';
- const count=el('p','hr-meta');count.id='hr-count';
- const toolbar=el('div','hr-toolbar'),play=el('button','btn secondary','Play');play.type='button';play.id='hr-play';
- play.onclick=()=>{if(playing){stop();return}if(!state.locked){$('hr-status').textContent='Lock the first decision before starting playback.';return}
-  if(focus!==bars.length){$('hr-status').textContent='Select Latest revealed before playback.';return}
-  checkpoint=false;playing=true;play.textContent='Pause';$('hr-status').textContent='Playing server-revealed source candles';schedule();
- };
- const speedLabel=el('label','', 'Playback speed'),speed=el('select');speed.setAttribute('aria-label','Seconds per one-minute source observation');
- for(const x of speeds)speed.add(new Option(x+' sec / 1m source candle',String(x)));
- speed.value='60';speed.onchange=()=>{seconds=Number(speed.value);if(timer)clearTimeout(timer);timer=null;schedule()};speedLabel.append(speed);
- const prev=el('button','btn secondary','Review previous');prev.type='button';prev.onclick=()=>{stop();focus=Math.max(1,focus-1);draw()};
- const next=el('button','btn secondary','Review next');next.type='button';next.onclick=()=>{focus=Math.min(bars.length,focus+1);draw()};
- const latestBtn=el('button','btn secondary','Latest revealed');latestBtn.type='button';latestBtn.onclick=()=>{focus=bars.length;draw()};
- toolbar.append(play,speedLabel,prev,next,latestBtn);
- const reviewLabel=el('label','hr-review-label','Review earlier revealed candles'),review=el('input');
- review.id='hr-review';review.type='range';review.min='1';review.max='1';review.step='1';review.disabled=true;
- review.oninput=()=>{stop();focus=Number(review.value);draw()};reviewLabel.append(review);
- const reviewState=el('p','hr-meta');reviewState.id='hr-review-state';
- const pauseLabel=el('label','hr-checkpoint'),pause=el('input');pause.id='hr-autopause';pause.type='checkbox';pause.checked=true;
- pauseLabel.append(pause,document.createTextNode(' Pause for Talia every five source candles.'));
- const status=el('p','hr-meta','Lock the first decision before playing.');status.id='hr-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const original=el('details','hr-original');original.append(el('summary','', 'Original OHLCV table and chart'),fig,table);
- left.append(head,caseName,caseStatus,frameLabel,svg,ohlcv,count,toolbar,reviewLabel,reviewState,pauseLabel,status,actions,original);
- right.append(el('h3','hr-talia-title','Talia · Historical Replay Instructor'));
- const topic=el('h4','', 'Start with observable evidence');topic.id='hr-talia-topic';
- const copy=el('p','', 'Instructor feedback will follow the revealed candles.');copy.id='hr-talia-copy';
- right.append(topic,copy,el('p','hr-meta','Record evidence, invalidation and NO TRADE criteria before viewing later bars. Review is not a new blind assessment.'),plan);
- wrap.append(left,right);source.after(wrap);document.body.classList.add('historical-classroom');
- window.addEventListener('groundup:replay-reset',reset);
- window.addEventListener('groundup:replay-observation',observation);
- window.addEventListener('groundup:replay-state',stateChange);
- window.addEventListener('groundup:replay-catalog',catalog);
- document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused because the tab is hidden.')});
- draw();
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();+current.l.toFixed(3)+', and source volume '+current.v.toLocaleString('en-US')+' shares. '+
-    (before?('Its close was '+(current.c>=before.c?'at or above':'below')+' the preceding close. '):'This is the first completed observation. ')+
-    'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
- }
- $('hr-talia-topic').textContent=heading;$('hr-talia-copy').textContent=copy;
-}
-function schedule(){
- if(!playing||timer||!state.sessionId||!state.locked||state.busy||focus!==bars.length)return;
- timer=setTimeout(()=>{timer=null;const btn=$('vr-advance');
-  if(!playing||!state.locked||state.busy||!btn||btn.disabled||focus!==bars.length){stop('Replay paused or unable to advance.');return}
-  btn.click();
- },seconds*1000);
-}
-function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;state={sessionId:'',locked:false,busy:false};draw();
-}
-function observation(e){
- const b=parse(e.detail?.bar);if(!b)return;
- if(bars.some(x=>x.ms===b.ms))return;
- if(bars.length&&b.ms<=bars.at(-1).ms){stop('Non-chronological observation; refresh the replay.');return}
- const end=focus===bars.length;bars.push(b);if(end)focus=bars.length;
- draw();
- if($('hr-autopause').checked&&bars.length>1&&bars.length%5===0){checkpoint=true;stop('Talia checkpoint: review these completed candles before resuming.')}
- else if(!checkpoint)schedule();
-}
-function stateChange(e){
- state=e.detail||state;
- if(!state.sessionId){reset();return}
- if(!state.locked)stop('Lock your first evidence-based decision before playback.');
- else if(!state.busy&&!checkpoint)schedule();
-}
-function catalog(e){
- const q=new URLSearchParams(location.search),ticker=String(q.get('ticker')||'').toUpperCase(),date=q.get('date');
- if(!/^[A-Z][A-Z0-9.]{0,11}$/.test(ticker)||!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
- const matches=(e.detail?.datasets||[]).filter(x=>x.ticker===ticker&&x.date===date);
- $('hr-case').textContent=ticker+' · '+date;
- $('hr-case-status').textContent=matches.length?
- 'An authorized dataset is available. Select the matching dataset and Start Replay.':
- 'No rights-approved historical dataset is published for this case. Use the independent Lab instructions instead; no fictional bars will be shown as DIS.';
-}
-function init(){
- const section=$('vr-session');if(!section||$('hr-classroom'))return;
- const source=$('vr-source'),fig=$('vr-visible-chart').closest('figure'),table=$('vr-bars').closest('.v11-matrix'),plan=$('vr-plan'),actions=$('vr-advance').closest('.journal-actions');
- const wrap=el('div','hr-classroom');wrap.id='hr-classroom';
- const left=el('section','hr-chart-col'),right=el('aside','hr-talia-col');
- left.setAttribute('aria-label','Historical candle chart and playback');
- right.setAttribute('aria-label','Talia synchronized instruction');
- const head=el('div','hr-chart-head');head.append(el('strong','', 'Historical candles · verified data'),el('span','', ''));head.lastChild.id='hr-clock';
- const q=new URLSearchParams(location.search),caseName=el('p','hr-case');caseName.id='hr-case';caseName.textContent=q.get('ticker')&&q.get('date')?q.get('ticker')+' · '+q.get('date'):'Select an authorized historical case';
- const caseStatus=el('p','hr-case-status','Only published, rights-approved datasets are displayed.');caseStatus.id='hr-case-status';
- const frameLabel=el('label','', 'Candle interval'),frameChoice=el('select');frameChoice.id='hr-timeframe';frameChoice.setAttribute('aria-label','Completed chart candle interval');
- for(const n of [1,3,5,15])frameChoice.add(new Option(n+' minute'+(n===1?'':'s'),String(n)));
- const requested=Number(q.get('timeframe'));frame=[1,3,5,15].includes(requested)?requested:1;frameChoice.value=String(frame);
- frameChoice.onchange=()=>{frame=Number(frameChoice.value);draw()};frameLabel.append(frameChoice);
- const svg=el('svg','hr-chart');svg.id='hr-chart';svg.setAttribute('viewBox','0 0 630 315');svg.setAttribute('role','img');svg.setAttribute('aria-label','No historical observations loaded yet.');
- const ohlcv=el('p','hr-ohlcv');ohlcv.id='hr-ohlcv';
- const count=el('p','hr-meta');count.id='hr-count';
- const toolbar=el('div','hr-toolbar'),play=el('button','btn secondary','Play');play.type='button';play.id='hr-play';
- play.onclick=()=>{if(playing){stop();return}if(!state.locked){$('hr-status').textContent='Lock the first decision before starting playback.';return}
-  if(focus!==bars.length){$('hr-status').textContent='Select Latest revealed before playback.';return}
-  checkpoint=false;playing=true;play.textContent='Pause';$('hr-status').textContent='Playing server-revealed source candles';schedule();
- };
- const speedLabel=el('label','', 'Playback speed'),speed=el('select');speed.setAttribute('aria-label','Seconds per one-minute source observation');
- for(const x of speeds)speed.add(new Option(x+' sec / 1m source candle',String(x)));
- speed.value='60';speed.onchange=()=>{seconds=Number(speed.value);if(timer)clearTimeout(timer);timer=null;schedule()};speedLabel.append(speed);
- const prev=el('button','btn secondary','Review previous');prev.type='button';prev.onclick=()=>{stop();focus=Math.max(1,focus-1);draw()};
- const next=el('button','btn secondary','Review next');next.type='button';next.onclick=()=>{focus=Math.min(bars.length,focus+1);draw()};
- const latestBtn=el('button','btn secondary','Latest revealed');latestBtn.type='button';latestBtn.onclick=()=>{focus=bars.length;draw()};
- toolbar.append(play,speedLabel,prev,next,latestBtn);
- const reviewLabel=el('label','hr-review-label','Review earlier revealed candles'),review=el('input');
- review.id='hr-review';review.type='range';review.min='1';review.max='1';review.step='1';review.disabled=true;
- review.oninput=()=>{stop();focus=Number(review.value);draw()};reviewLabel.append(review);
- const reviewState=el('p','hr-meta');reviewState.id='hr-review-state';
- const pauseLabel=el('label','hr-checkpoint'),pause=el('input');pause.id='hr-autopause';pause.type='checkbox';pause.checked=true;
- pauseLabel.append(pause,document.createTextNode(' Pause for Talia every five source candles.'));
- const status=el('p','hr-meta','Lock the first decision before playing.');status.id='hr-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const original=el('details','hr-original');original.append(el('summary','', 'Original OHLCV table and chart'),fig,table);
- left.append(head,caseName,caseStatus,frameLabel,svg,ohlcv,count,toolbar,reviewLabel,reviewState,pauseLabel,status,actions,original);
- right.append(el('h3','hr-talia-title','Talia · Historical Replay Instructor'));
- const topic=el('h4','', 'Start with observable evidence');topic.id='hr-talia-topic';
- const copy=el('p','', 'Instructor feedback will follow the revealed candles.');copy.id='hr-talia-copy';
- right.append(topic,copy,el('p','hr-meta','Record evidence, invalidation and NO TRADE criteria before viewing later bars. Review is not a new blind assessment.'),plan);
- wrap.append(left,right);source.after(wrap);document.body.classList.add('historical-classroom');
- window.addEventListener('groundup:replay-reset',reset);
- window.addEventListener('groundup:replay-observation',observation);
- window.addEventListener('groundup:replay-state',stateChange);
- window.addEventListener('groundup:replay-catalog',catalog);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused because the tab is hidden.')});
  draw();
 }
