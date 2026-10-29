@@ -9,6 +9,14 @@
 .cl-chart-tier-tools{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 10px}
 .cl-chart-tier-tools strong{margin-right:10px;font-size:.86rem}
 .cl-chart-tier-tools button{cursor:pointer}
+.cl-chart-tier-tools[hidden]{display:none!important}
+.cl-tier-echarts-frame{padding:12px;min-width:0;background:#102238;border:1px solid #345a83;border-radius:11px;color:#e2f2fb}
+.cl-tier-echarts-frame h3{font-size:1rem;margin:0 0 5px}
+.cl-tier-echarts-frame p{font-size:.82rem;color:#bfdaea;margin:0 0 10px}
+.cl-tier-echarts-canvas{min-height:420px;width:100%;min-width:0}
+.cl-tier-echarts-canvas canvas{max-width:none!important;border:0!important;margin:0!important}
+@media(max-width:620px){.cl-tier-echarts-canvas{min-height:340px}}
+
 .cl-chart-tier-tools select{min-width:125px;padding:8px 10px;background:#122742;color:#eaf7ff;border:1px solid #55749a;border-radius:8px}
 .cl-chart-tier-note{font-size:.79rem;color:#a7c3dd}
 .cl-chart-tier-panels{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}

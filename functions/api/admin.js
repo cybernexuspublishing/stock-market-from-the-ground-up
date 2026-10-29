@@ -528,9 +528,10 @@ async function handlePost(env,request,action){
     if(key==='feature.crownlight_chart_studio_menu_v1'){
       if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner can change Chart Studio dropdown visibility.',403);
       const v=body.value;
-      const tiers=['STANDARD','ADVANCED','PROFESSIONAL'];
+      const tiers=['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS'];
       if(!v||typeof v!=='object'||Array.isArray(v)||
-         Object.keys(v).length!==1||!Array.isArray(v.visible)||
+         Object.keys(v).some(k=>!['visible','version'].includes(k))||
+         (v.version!==undefined&&v.version!==2)||!Array.isArray(v.visible)||
          v.visible.length<1||v.visible.length>tiers.length||
          new Set(v.visible).size!==v.visible.length||
          v.visible.some(t=>typeof t!=='string'||!tiers.includes(t)))

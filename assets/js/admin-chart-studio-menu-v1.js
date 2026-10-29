@@ -4,8 +4,10 @@
 (()=>{'use strict';
  const root=document.getElementById('admin-chart-studio-menu-control');if(!root)return;
  const KEY='feature.crownlight_chart_studio_menu_v1';
- const all=['STANDARD','ADVANCED','PROFESSIONAL'];
- const labels={STANDARD:'Standard — Lightweight Charts',ADVANCED:'Advanced — KLineChart',PROFESSIONAL:'Professional — Dual KLineChart'};
+ const all=['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS'];
+ const labels={STANDARD:'Standard — Lightweight Charts',ADVANCED:'Advanced — KLineChart',
+  PROFESSIONAL:'Professional — Dual KLineChart',
+  ECHARTS:'Apache ECharts — Revealed Price & Volume (Foundational)'};
  const choose=root.querySelector('[data-chart-menu-options]');
  const status=root.querySelector('[data-chart-menu-status]');
  const save=root.querySelector('[data-chart-menu-save]');
@@ -47,11 +49,12 @@
    root.hidden=false;
    const data=await api('settings');
    const row=data.settings?.find(x=>x.setting_key===KEY);
-   const list=Array.isArray(row?.value?.visible)?row.value.visible:all;
+   const list=Array.isArray(row?.value?.visible)?
+    (row?.value?.version===2?row.value.visible:[...row.value.visible,'ECHARTS']):all;
    all.forEach(t=>{inputs.get(t).checked=list.includes(t)});
    save.disabled=visible().length===0;
    status.textContent=row?'Current published dropdown: '+visible().join(', ')+'.':
-    'Default: all three Studios displayed. No custom visibility setting saved yet.';
+    'Default: all four chart views displayed. No custom visibility setting saved yet.';
   }catch(error){status.textContent='Could not load Studio dropdown controls: '+error.message}
  };
  save.addEventListener('click',async()=>{
@@ -61,7 +64,7 @@
   try{
    await api('setting_save',{
     setting_key:KEY,category:'learning',
-    value:{visible:list},public_read:false,
+    value:{version:2,visible:list},public_read:false,
     description:'Owner-controlled Chart Studio dropdown visibility only'
    });
    status.textContent='Saved: '+list.join(', ')+'. Refresh Chart Studio to see the menu.';
