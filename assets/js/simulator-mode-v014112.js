@@ -72,6 +72,46 @@
    target.scrollIntoView?.({block:'start',behavior:'smooth'});
   }
  }
+ function installChartNotices(){
+  const summary=byId('sim-candle-accessible');
+  const chart=byId('sim-chart')?.closest?.('.sim-chart-panel');
+  if(!summary||!chart||typeof MutationObserver!=='function')return;
+  const toast=document.createElement('div');
+  toast.id='sim-chart-notice';toast.hidden=true;
+  toast.setAttribute('role','status');toast.setAttribute('aria-live','off');
+  chart.append(toast);
+  let showTimer=null,hideTimer=null,errorUntil=0,lastText='';
+  function show(message,error=false){
+   if(!message)return;
+   clearTimeout(showTimer);clearTimeout(hideTimer);
+   if(!error&&Date.now()<errorUntil)return;
+   const visible=()=>{toast.textContent=message;toast.dataset.error=String(error);toast.hidden=false;
+    hideTimer=setTimeout(()=>{toast.hidden=true;if(error)errorUntil=0},error?180000:3000);
+   };
+   if(error){errorUntil=Date.now()+180000;visible();}
+   else showTimer=setTimeout(visible,3000);
+  }
+  const info=new MutationObserver(()=>{
+   const message=String(summary.textContent||'').trim();
+   if(!message||message===lastText||/^No candles loaded/.test(message))return;
+   lastText=message;show(message,false);
+  });
+  info.observe(summary,{childList:true,characterData:true,subtree:true});
+  const errors=[];
+  for(const id of ['sim-load-msg','sim-replay-msg','sim-plan-msg','sim-trade-msg']){
+   const target=byId(id);if(!target)continue;
+   const observer=new MutationObserver(()=>{
+    const message=String(target.textContent||'').trim();
+    if(message&&target.classList?.contains('error'))show(message,true);
+   });
+   observer.observe(target,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
+   errors.push(observer);
+  }
+  window.addEventListener('pagehide',()=>{
+   info.disconnect();errors.forEach(w=>w.disconnect());
+   clearTimeout(showTimer);clearTimeout(hideTimer);
+  },{once:true});
+ }
  function init(){
   if(!byId('sim-mode-server'))return;
   byId('sim-mode-server').addEventListener('click',()=>selectMode('server',{focus:true}));
@@ -86,6 +126,7 @@
   byId('sim-csv')?.addEventListener('change',selectFileLabel);
   selectFileLabel();
   observePresets();
+  installChartNotices();
   byId('sim-start-free')?.addEventListener('click',()=>{
    window.GroundUpFreePracticeRequested=true;
    selectMode('csv');
