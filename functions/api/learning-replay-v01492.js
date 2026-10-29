@@ -130,6 +130,12 @@ export async function onRequest({request,env}){
    // one-active-session constraint cannot permanently lock out older learners.
    await db(env,'gu_replay_sessions_v01492?user_id=eq.'+encodeURIComponent(auth.userId)+'&dataset_code=eq.'+encodeURIComponent(code)+'&status=eq.active&expires_at=lte.'+encodeURIComponent(new Date().toISOString()),
       'PATCH',{status:'finished',finished_at:new Date().toISOString()},'return=minimal');
+   // A member who already has an active replay must resume it rather than
+   // receiving an opaque storage failure from the one-active-session index.
+   const activeSame=one(await db(env,'gu_replay_sessions_v01492?select=id&user_id=eq.'+
+     encodeURIComponent(auth.userId)+'&dataset_code=eq.'+encodeURIComponent(code)+
+     '&status=eq.active&expires_at=gt.'+encodeURIComponent(new Date().toISOString())+'&limit=1'));
+   if(activeSame)throw bad('You already have an active replay for this case. Select Resume Saved Session.',409);
    const rows=await db(env,'gu_replay_sessions_v01492','POST',
     {user_id:auth.userId,dataset_code:code},'return=representation');
    const sess=one(rows);if(!sess)throw bad('Replay session could not be created.',503);
