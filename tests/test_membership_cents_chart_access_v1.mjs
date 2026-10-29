@@ -28,6 +28,10 @@ assert.match(store,/const dollars=c=>C\(\)\.moneyCents\(Number\(c\|\|0\)\)/,
  'Store must call canonical cents formatter exactly once');
 assert.doesNotMatch(store,/moneyCents\(Number\(c\|\|0\)\/100\)/,
  'Store must never divide cents twice');
+const detail=text('assets/js/store-product-detail-v01484.js');
+assert.match(detail,/const money=c=>window\.CommerceTools\.moneyCents\(Number\(c\|\|0\)\)/,
+ 'Individual membership and tool detail must not divide source cents twice');
+assert.doesNotMatch(detail,/moneyCents\(Number\(c\|\|0\)\/100\)/);
 const admin=text('assets/js/admin-products-v01489.js');
 assert.match(admin,/Number\(c\|\|0\)\/100/);
 assert.match(admin,/Pick What You Want.*base fee|PICK_WHAT_YOU_WANT.*base fee/,
