@@ -32,7 +32,8 @@ const watchlist=read('free-watchlist.html');
 const simulator=read('simulator.html');
 assert(watchlist.includes('Learn it first. Practice your own research decision.'));
 assert(watchlist.includes('bootcamp-academy.html?program=free5&amp;day=4'));
-assert(simulator.includes('Talia’s Lab method: learn, set up, pause, decide, review'));
+assert(simulator.includes('id="sim-talia-tab"')&&simulator.includes('Talia’s method: Learn · Set up · Pause · Decide · Review'),
+ 'Free Foundations replay method must remain accessible through the Talia classroom tab');
 assert(simulator.includes('bootcamp-academy.html?program=free5&amp;day=3'));
 assert(simulator.includes('paying does not create unavailable market history'));
 
