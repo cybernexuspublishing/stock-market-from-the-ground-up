@@ -28,6 +28,14 @@ on:
       - 'assets/js/store-product-detail-v01484.js'
       - 'store.html'
       - 'store-*.html'
+      - 'tests/test_lumens_promotion_disclosure_v1.mjs'
+      - 'tests/test_lumen_store_policy_v1.mjs'
+      - 'tests/test_lumen_fully_paid_tool_v1.mjs'
+      - 'tests/test_owner_lumen_and_rights_v1.mjs'
+      - 'assets/js/admin-lumen-tool-offers-v1.js'
+      - 'assets/js/lumen-store-tool-passes-v1.js'
+      - 'functions/api/owner-lumen-tool-offers.js'
+      - 'functions/api/member-lumen-tool-passes.js'
   push:
     branches: [main]
     paths:
@@ -56,6 +64,14 @@ on:
       - 'tests/test_v014086_legacy_store_tab_guard.mjs'
       - 'store.html'
       - 'store-*.html'
+      - 'tests/test_lumens_promotion_disclosure_v1.mjs'
+      - 'tests/test_lumen_store_policy_v1.mjs'
+      - 'tests/test_lumen_fully_paid_tool_v1.mjs'
+      - 'tests/test_owner_lumen_and_rights_v1.mjs'
+      - 'assets/js/admin-lumen-tool-offers-v1.js'
+      - 'assets/js/lumen-store-tool-passes-v1.js'
+      - 'functions/api/owner-lumen-tool-offers.js'
+      - 'functions/api/member-lumen-tool-passes.js'
   workflow_dispatch:
 permissions:
   contents: read
