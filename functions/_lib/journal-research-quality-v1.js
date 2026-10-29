@@ -2,7 +2,7 @@
  * Record presence/coverage, not source credibility, grades or forecast returns.
  */
 const exists=v=>typeof v==='string'&&v.trim().length>0;
-const dateOK=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+'T00:00:00Z'));
+const dateOK=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+'T00:00:00Z'))&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;
 export function journalResearchQuality(rows,{type='all',days='all',today=new Date().toISOString().slice(0,10)}={}){
  if(!Array.isArray(rows)||!['all','live','paper','observation','historical_lab'].includes(type)||
    !['all','30','90','365'].includes(String(days))||!dateOK(today))throw Error('Invalid research review source or filters.');
