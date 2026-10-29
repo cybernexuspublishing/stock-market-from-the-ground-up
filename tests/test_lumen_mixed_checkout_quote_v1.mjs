@@ -21,6 +21,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.pathname==='/rest/v1/gu_owner_stripe_registry_v1')return res([{sku:'addon:TRADE_PLAN_BUILDER',
   amount_cents:priceCents,currency:'usd',billing_interval:'one_time'}]);
  if(u.pathname==='/rest/v1/rpc/groundup_question_pass_summary')return res({available:balance});
+ if(u.pathname==='/rest/v1/gu_lumen_value_settings_v1')return res([{active_cents:7,mixed_checkout_enabled:false}]);
  throw Error('Unexpected endpoint '+u.pathname);
 };
 const req=(lumens)=>new Request('https://site.example/api/member-lumen-checkout-quote?'+
