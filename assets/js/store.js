@@ -154,21 +154,21 @@ async function foundingCatalog(){
  <span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span>
  <h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div>
  <p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p>
- <ul><li>Crownlight Chart Studio: ${['Standard','Advanced','Professional'][i]} tier while the founding term is active</li><li>Permanent founding number after verified enrollment</li><li>${esc(p.incSparks)} included Sparks per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and learning preferences':'Founder improvement polls and learning priorities'}</li></ul>
- <p class="small">Renews automatically until canceled. <a href="founding600.html">Review benefit exclusions and nonexpiring Crownlight Sparks.</a></p>
+ <ul><li>Crownlight Chart Studio: ${['Standard','Advanced','Professional'][i]} tier while the founding term is active</li><li>Permanent founding number after verified enrollment</li><li>${esc(p.incSparks)} included Lumens per paid term</li><li>Private Founders Commons, subject to eligibility</li><li>${i===2?'Extended Design Council and learning preferences':'Founder improvement polls and learning priorities'}</li></ul>
+ <p class="small">Renews automatically until canceled. <a href="founding600.html">Review benefit exclusions and nonexpiring Crownlight Lumens.</a></p>
  <a class="btn ${i===2?'':'secondary'}" href="founding600.html">Review ${esc(p.billingIntervalDays)}-day terms &amp; availability</a></article>`;}).join('');
   const yes=()=>coverage(true),no=()=>coverage(false);
   const rows=[
    ['Membership',plans.map(p=>dollars(p.recurringCents)+' / '+p.billingIntervalDays+' days')],
    ['Purchase discount',plans.map(p=>(p.foundingDiscountBps/100)+'% OFF eligible purchases')],
-   ['Included Sparks',plans.map(p=>String(p.incSparks)+' / '+p.billingIntervalDays+'-day term')],
+   ['Included Lumens',plans.map(p=>String(p.incSparks)+' / '+p.billingIntervalDays+'-day term')],
    ['Crownlight Chart Studio',['Standard','Advanced','Professional']],
    ['Permanent founding number',plans.map(()=>yes())],
    ['Private Founders Commons',plans.map(()=>yes())],
    ['Founder improvement polls',plans.map(()=>yes())],
    ['Founding Member certificate',plans.map(()=>yes())],
    ['Permanent founder discount eligibility',[no(),yes(),yes()]],
-   ['Unused included Sparks expiration',plans.map(()=>'Never')],
+   ['Unused included Lumens expiration',plans.map(()=>'Never')],
    ['Learning progress preservation',plans.map(()=>yes())],
    ['Service-interruption protection',plans.map(()=>yes())],
    ['Extended Design Council',[no(),no(),yes()]],
@@ -187,7 +187,9 @@ async function enforceOfferVisibility(){
   const r=await fetch('/api/founding-offer-status',{cache:'no-store'});
   if(r.ok){const j=await r.json();if(j.ok===true)state=j}
  }catch{}
- founderTab.hidden=state?.offersVisible!==true;
+ // The category remains visible and is the default even if enrollment is gated.
+ // Only the commercial Founder cards/checkout are withheld by the server.
+ founderTab.hidden=false;
  publicTab.hidden=state?.ok!==true;
  const publicPanel=document.getElementById('store-panel-memberships');
  if(publicPanel)publicPanel.inert=state?.ok!==true;
@@ -195,7 +197,7 @@ async function enforceOfferVisibility(){
  if(!state&&status)status.textContent='Membership launch status could not be verified; enrollment offers remain hidden.';
  // Never display founding offers once the gate closes, even if a stale hash is present.
  const requested=location.hash.replace('#','');
- const fallback=state?.offersVisible?'founders':state?.ok?'memberships':'books';
+ const fallback='founders';
  window.CrownlightStoreSelectCategory?.(
   (requested==='founders'&&!state?.offersVisible)||(requested==='memberships'&&!state?.ok)||!requested?fallback:requested
  );
@@ -204,7 +206,7 @@ async function enforceOfferVisibility(){
  }else{
   const holder=document.getElementById('store-founder-plans');
   const compare=document.getElementById('store-founder-compare');
-  if(holder)holder.replaceChildren();
+  if(holder)holder.innerHTML='<div class="notice">Founding Memberships are the featured Store category. Enrollment offers are temporarily unavailable until their current eligibility and price can be verified. <a href="founding600.html">Review the Founding Membership program</a>.</div>';
   if(compare)compare.replaceChildren();
  }
 }
@@ -217,11 +219,11 @@ function tabs(){
   (typeof b.getClientRects!=='function'||b.getClientRects().length>0));
  const select=(name,focus=false)=>{
   const available=visibleButtons();
-  const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:(available[0]?.dataset.storeCategory||'books');
+  const key=parts.includes(name)&&available.some(b=>b.dataset.storeCategory===name)?name:(available[0]?.dataset.storeCategory||'founders');
   for(const b of buttons){const active=b.dataset.storeCategory===key;
    b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus()}
   for(const kind of parts){const p=document.getElementById('store-panel-'+kind);if(p)p.hidden=kind!==key}
-  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',memberships:'platform memberships and current prices',books:'books only',sparks:'Crownlight Sparks packages',tools:'released and beta-approved individual tools',current:'current products grouped by type',upcoming:'upcoming releases grouped by type'})[key]+'.';
+  const el=document.getElementById('store-category-status');if(el)el.textContent='Showing '+({founders:'founding memberships and their comparison',memberships:'platform memberships and current prices',books:'books only',sparks:'Crownlight Lumens packages',tools:'released and beta-approved individual tools',current:'current products grouped by type',upcoming:'upcoming releases grouped by type'})[key]+'.';
   if(location.hash!==('#'+key))history.replaceState(history.state,'',location.pathname+location.search+'#'+key);
  };
  buttons.forEach(b=>{b.addEventListener('click',()=>select(b.dataset.storeCategory));
