@@ -13,25 +13,33 @@
    x.querySelector(':scope > h2')?.textContent?.includes('Load replay data'));
   if(!section)return;
   section.id='cl-replay-import';
-  // Ensure the data-import section stays ahead of the chart, even when an
-  // older browser layout script has moved its DOM node.
-  const chartSection=parent.querySelector(':scope > .sim-layout');
-  if(chartSection&&[...parent.children].indexOf(section)>[...parent.children].indexOf(chartSection))
-   parent.insertBefore(section,chartSection);
   if(section.querySelector('details.cl-workbench-import'))return;
   const details=el('details','cl-workbench-import');details.open=true;
-  const summary=el('summary','','1. Data source and historical replay setup');
+  const summary=el('summary','','2. Data source and historical replay setup');
   const inner=el('div','cl-import-interior');
   for(const child of [...section.childNodes])inner.appendChild(child);
   details.append(summary,inner);section.append(details);section.classList.add('cl-import-shell');
   // Source controls must not disappear when a dataset loads. The member may
   // collapse Step 1 explicitly using its heading; never auto-collapse it.
  }
+ function syncDisplayTimeframe(){
+  const select=$('cl-timeframe-display'),original=$('sim-timeframe');
+  if(!select||!original)return;
+  const value=String(original.value||'1-minute').trim()||'1-minute';
+  const known=[...select.options].some(option=>option.value===value&&!option.dataset.custom);
+  let custom=select.querySelector('option[data-custom="true"]');
+  if(!known){
+   if(!custom){custom=el('option');custom.dataset.custom='true';select.append(custom)}
+   custom.value=value;
+   custom.textContent='Current source label: '+value;
+  }else if(custom){custom.remove()}
+  if(document.activeElement!==select)select.value=value;
+ }
  function setupChart(){
   const area=document.querySelector('#sim-content .sim-layout'),chart=area?.querySelector('.sim-chart-panel');
   if(!area||!chart)return;
   const toolbar=el('div','cl-chart-visibility');toolbar.id='cl-chart-visibility-toolbar';
-  const label=el('strong','','2. Interactive chart and replay');
+  const label=el('strong','','1. Interactive chart and replay');
   const button=el('button','cl-collapse-btn','Hide chart');
   button.type='button';button.setAttribute('aria-expanded','true');
   button.onclick=()=>{
@@ -40,13 +48,23 @@
    if(!chart.hidden)requestAnimationFrame(()=>root.dispatchEvent(new Event('resize')));
   };
   const timeframe=el('label','cl-chart-timeframe-input','Display timeframe label');
-  const input=el('input');input.type='text';input.maxLength=48;
-  input.placeholder='1-minute';input.value=$('sim-timeframe')?.value||'1-minute';
-  input.setAttribute('aria-label','Chart timeframe display label; this does not resample market data');
-  input.oninput=()=>{
-   const original=$('sim-timeframe');if(original){original.value=input.value;original.dispatchEvent(new Event('input',{bubbles:true}))}
+  const select=el('select');select.id='cl-timeframe-display';
+  select.setAttribute('aria-label','Chart timeframe display label; selecting a label does not resample market data');
+  for(const [value,caption] of [
+   ['1-minute','1 minute'],['3-minute','3 minutes'],['5-minute','5 minutes'],
+   ['10-minute','10 minutes'],['15-minute','15 minutes'],['30-minute','30 minutes'],
+   ['1-hour','1 hour'],['4-hour','4 hours'],['1-day','1 day']
+  ]){
+   const option=el('option','',caption);option.value=value;select.append(option);
+  }
+  select.onchange=()=>{
+   const original=$('sim-timeframe');
+   if(original){original.value=select.value;original.dispatchEvent(new Event('input',{bubbles:true}))}
   };
-  timeframe.append(input);
+  timeframe.append(select);
+  const hint=el('small','cl-timeframe-hint','Display label only · no resampling');
+  timeframe.append(hint);
+  syncDisplayTimeframe();
   const density=el('button','cl-density-switch','Compact view');
   density.type='button';
   density.setAttribute('aria-label','Toggle compact or comfortable Simulator workspace density');
@@ -84,7 +102,7 @@
    target.appendChild(child);
   }
   aside.remove();metricsPanel.append(...[...metrics.childNodes]);metrics.remove();
-  paper.innerHTML='<h2>Alpaca Paper Trading</h2><p>Use your own verified Alpaca Paper Trading account. These are simulated brokerage orders executed by Alpaca at current paper-market conditions, not historical replay fills.</p><div id="cl-paper-terminal"></div>';
+  paper.innerHTML='<h2>Alpaca Paper Trading</h2><div id="cl-paper-terminal"></div>';
   const tabs=[['plan','Plan the trade',plan],['execute','Replay execution',execution],['metrics','Results & Journal',metricsPanel]];
   if(canUsePaper)tabs.push(['paper','Alpaca Paper',paper]);
   for(const [id,label,panel] of tabs){
@@ -262,9 +280,9 @@
   const source=$('cl-replay-import'),toolbar=$('cl-chart-visibility-toolbar');
   const chart=parent.querySelector(':scope > .sim-layout'),tabs=$('cl-simulator-workbench');
   if(!source||!chart)return;
-  // Keep DOM/screen-reader order identical to visual order. Older stored layout
-  // positions must never put the source picker after the chart or trade tabs.
-  const expected=[source,toolbar,chart,tabs].filter(el=>el&&el.parentElement===parent);
+  // Keep DOM/screen-reader order identical to the chart-first visual desk.
+  // Data-source setup follows the chart and trade controls.
+  const expected=[toolbar,chart,tabs,source].filter(el=>el&&el.parentElement===parent);
   const current=[...parent.children];
   if(expected.every((el,i)=>current[i]===el))return;
   for(let i=expected.length-1;i>=0;i--)parent.prepend(expected[i]);
@@ -286,9 +304,8 @@
   const timeframe=$('sim-timeframe');
   if(timeframe){timeframe.maxLength=48;timeframe.addEventListener('input',()=>{
    if($('cl-chart-timeframe'))$('cl-chart-timeframe').textContent=(timeframe.value.trim()||'Timeframe —')+' · display label';
-   const mirror=$('cl-chart-visibility-toolbar')?.querySelector('input');
-   if(mirror&&document.activeElement!==mirror)mirror.value=timeframe.value;
+   syncDisplayTimeframe();
   });}
  }
- root.CrownlightWorkbenchLayout={init};
+ root.CrownlightWorkbenchLayout={init,syncDisplayTimeframe};
 })(window);
