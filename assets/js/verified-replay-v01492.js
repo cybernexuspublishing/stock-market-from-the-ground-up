@@ -142,7 +142,7 @@ async function resume(){
  if(!r){notice(data.notice||'There is no saved replay session.');return}
  sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
  window.dispatchEvent(new Event('groundup:replay-reset'));
- window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null}}));
+ window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null,memberId:activeUserId}}));
  visibleCandles.length=0;$('vr-bars').replaceChildren();
  // The resume contract sends ONLY its current candle; fetch bounded, already
  // observed history after session ownership and source rights are rechecked.
@@ -168,7 +168,7 @@ async function start(){
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
  window.dispatchEvent(new Event('groundup:replay-reset'));
- window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null}}));
+ window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null,memberId:activeUserId}}));
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
  $('vr-source').textContent=replayLabel+' · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
