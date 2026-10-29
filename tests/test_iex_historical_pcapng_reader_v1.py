@@ -37,6 +37,12 @@ class StrictPCAPNG(unittest.TestCase):
         self.assertEqual(trades[0][1][1],'DIS')
         self.assertEqual(trades[0][1][2],50)
         self.assertEqual(trades[0][1][3],1065300)
+    def test_requested_symbols_remain_strict_without_rejecting_other_valid_exchange_symbols(self):
+        a,b,c=fake_capture()
+        kept=list(stream_pcapng(io.BytesIO(a+b+c),symbol_filter={'DIS'}))
+        self.assertEqual(len(kept),1)
+        ignored=list(stream_pcapng(io.BytesIO(a+b+c),symbol_filter={'AAPL'}))
+        self.assertEqual(len(ignored),0)
     def test_bad_trailer_rejected(self):
         a,b,c=fake_capture()
         with self.assertRaises(CaptureError):
