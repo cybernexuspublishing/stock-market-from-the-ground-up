@@ -36,6 +36,11 @@ on:
       - 'assets/js/lumen-store-tool-passes-v1.js'
       - 'functions/api/owner-lumen-tool-offers.js'
       - 'functions/api/member-lumen-tool-passes.js'
+      - 'functions/api/member-lumen-checkout-quote.js'
+      - 'assets/js/checkout-lumen-selector-v1.js'
+      - 'assets/js/checkout-platform.js'
+      - 'checkout.html'
+      - 'tests/test_lumen_mixed_checkout_quote_v1.mjs'
   push:
     branches: [main]
     paths:
@@ -72,6 +77,11 @@ on:
       - 'assets/js/lumen-store-tool-passes-v1.js'
       - 'functions/api/owner-lumen-tool-offers.js'
       - 'functions/api/member-lumen-tool-passes.js'
+      - 'functions/api/member-lumen-checkout-quote.js'
+      - 'assets/js/checkout-lumen-selector-v1.js'
+      - 'assets/js/checkout-platform.js'
+      - 'checkout.html'
+      - 'tests/test_lumen_mixed_checkout_quote_v1.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -98,6 +108,10 @@ jobs:
           node tests/test_lumens_promotion_disclosure_v1.mjs
           node tests/test_lumen_store_policy_v1.mjs
           node tests/test_lumen_fully_paid_tool_v1.mjs
+          node tests/test_lumen_mixed_checkout_quote_v1.mjs
+          node --check functions/api/member-lumen-checkout-quote.js
+          node --check assets/js/checkout-lumen-selector-v1.js
+          node --check assets/js/checkout-platform.js
           node tests/test_owner_lumen_and_rights_v1.mjs
           node --check functions/api/owner-lumen-tool-offers.js
           node --check assets/js/admin-lumen-tool-offers-v1.js
