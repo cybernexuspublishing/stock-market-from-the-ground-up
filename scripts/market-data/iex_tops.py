@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 NY = ZoneInfo('America/New_York')
 UTC = dt.timezone.utc
 SYMBOL = re.compile(r'^[A-Z][A-Z0-9.]{0,9}$')
-NAME = re.compile(r'^(?:data_feeds_(?P<prefix_date>\d{8})_)?(?P<source_date>\d{8})_IEXTP1_TOPS1\.6\.pcap(?:\.gz)?
+NAME = re.compile(r'^(?:data_feeds_(?P<prefix_date>\d{8})_)?(?P<source_date>\d{8})_IEXTP1_TOPS1\.6\.pcap(?:\.gz)?$', re.I)
 MAX_PACKET = 2097152
 
 
