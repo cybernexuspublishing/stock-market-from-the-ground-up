@@ -96,14 +96,15 @@ try{
  await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===6,
   {timeout:15000});
  const specialties=[
-  ['Free Research Watchlist','watchlist','WATCHLIST'],
+  ['Free Research Watchlist','watchlist','RESEARCH CANDIDATES'],
   ['Advanced Trade-Plan Builder','plan','RISK FRAMEWORK'],
   ['Scanner Workbench','scanner','CANDIDATE RESULTS'],
   ['Crownlight Chart Studio','chart','PRICE · VOLUME'],
   ['Trading Journal Analytics','journal','PLAN VS. ACTUAL'],
   ['Market Tutor','tutor','GUIDED EXPLANATION'],
-  ['Historical Replay Training','replay','HISTORICAL REPLAY'],
-  ['Guided Historical Labs','replay','HISTORICAL REPLAY'],
+  ['Historical Replay Training','replay','PRACTICE SCENARIO'],
+  ['Guided Historical Labs','replay','PRACTICE SCENARIO'],
+  ['Boot Camp Academy','learning','LEARNING PATH'],
   ['Market Data Connections','data','AUTHORIZED SOURCES ONLY'],
   ['Market Commons','community','MARKET DISCUSSION']
  ];
@@ -117,7 +118,8 @@ try{
   for(const title of titles){const card=document.createElement('article');card.className='gu-store-type-card';
    const heading=document.createElement('h4');heading.textContent=title;card.append(heading);host.append(card);}
  },specialties.map(x=>x[0]));
- await page.waitForFunction(count=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===count,16,{timeout:20000});
+ for(let i=0;i<specialties.length;i++)await page.locator('#store-panel-current .gu-store-type-section:last-child .gu-store-type-card').nth(i).scrollIntoViewIfNeeded();
+ await page.waitForFunction(count=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===count,17,{timeout:20000});
  const actual=await page.evaluate(()=>[...document.querySelectorAll('#store-panel-current .gu-store-type-section:last-child .gu-echarts-product-art')].map(x=>({
   scene:x.dataset.artScene,svg:x.querySelector('svg')?.textContent||'',title:x.dataset.artTitle
  })));
