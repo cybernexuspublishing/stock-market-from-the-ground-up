@@ -215,7 +215,7 @@ function explainLockedTier(){
  host.append(refresh,shop);
 }
 async function showLockedTier(tier){
- const dialog=state.view?.querySelector('#cl-chart-tier-purchase-dialog');
+ const dialog=document.getElementById('cl-chart-tier-purchase-dialog');
  if(!dialog||!['ADVANCED','PROFESSIONAL'].includes(tier)||
     !state.visible.includes(tier)||isEntitled(tier))return;
  const fill=content=>{dialog.replaceChildren(...content)};
@@ -525,7 +525,7 @@ function createControls(){
  const header=el('div','cl-chart-tier-bar');
  const label=el('label','', 'Chart Studio experience');
  const select=el('select');select.setAttribute('aria-label','Choose a Chart Studio; locked tiers are unavailable');
- select.title='Choose an available Studio. Select Unlock options for locked Studio requirements.';
+ select.title='Choose an included Studio, or click a lock-marked Studio name to review Sparks pricing.';
  for(const k of state.visible){const op=new Option(names[k]+' · Locked',k);op.disabled=true;select.append(op)}
  select.onchange=()=>void choose(select.value);
  label.append(select);
