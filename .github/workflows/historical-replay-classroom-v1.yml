@@ -1,0 +1,34 @@
+name: Historical Replay Classroom V1
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/historical-replay-classroom-v1.js'
+      - 'assets/js/verified-replay-v01492.js'
+      - 'assets/js/crownlight-chart-studio-v2.js'
+      - 'assets/js/learning.js'
+      - 'functions/api/learning-replay-v01492.js'
+      - 'verified-replay.html'
+      - 'ondemand-training.html'
+      - 'assets/css/historical-replay-classroom-v1.css'
+      - 'tests/test_historical_replay_classroom_v1.mjs'
+      - '.github/workflows/historical-replay-classroom-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  classroom-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check assets/js/historical-replay-classroom-v1.js
+          node --check assets/js/verified-replay-v01492.js
+          node --check assets/js/crownlight-chart-studio-v2.js
+          node --check assets/js/learning.js
+          node --check functions/api/learning-replay-v01492.js
+          node tests/test_historical_replay_classroom_v1.mjs
