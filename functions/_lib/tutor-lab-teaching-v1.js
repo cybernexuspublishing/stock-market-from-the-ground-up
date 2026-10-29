@@ -91,5 +91,5 @@ export function formatLabTeaching(lesson,{question='',stage=null}={}){
  if(intent!=='limit'&&!assess)parts.push('Practice independently: '+lesson.practice);
  if(assess)parts.push('During Assess, use the displayed exercise instructions and your own reasoning. I cannot reveal a worked answer or answer key.');
  parts.push('Public reference for further study: '+lesson.reference+' — '+lesson.url);
- return parts.join('\\n\\n');
+ return parts.join('\n\n');
 }
