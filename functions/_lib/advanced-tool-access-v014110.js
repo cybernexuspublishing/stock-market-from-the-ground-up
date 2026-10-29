@@ -4,6 +4,7 @@
  * Legacy password/session data, stock feeds, client data and tool secrets
  * are never included in access responses.
  */
+import {readProductAccessConfig,publicProductAccess} from './product-access-config-v1.js';
 export const ADVANCED_CODES=Object.freeze([
  'DISCOVERY_LAB','SCANNER_BUILDER','WATCHLIST_WORKBENCH','CATALYST_RESEARCH',
  'FLOAT_SUPPLY_LAB','MARKET_STRUCTURE_LAB','MULTI_TIMEFRAME_LAB',
@@ -70,10 +71,13 @@ export async function advancedToolContext(env,request,code){
   throw makeError(403,'This tool is not active for members.');
  const entitled=await privateJson(c,'rpc/user_has_tool_access','POST',
   {target_user:user.id,target_tool:code});
- const viaPass=entitled===true,viaPreview=t.free_preview===true;
+ const config=await readProductAccessConfig(c,code);
+ const viaPass=entitled===true;
+ // Configured Free controls ungraded preview only; paid grants still come from user_has_tool_access.
+ const viaPreview=config?.policy_mode==='configured'?config.free_access===true:t.free_preview===true;
  return {c,userId:user.id,tool:code,allowed:viaPass||viaPreview,
   accessLevel:viaPass?'entitled':viaPreview?'free_preview':'not_included',
   product:{tool_code:t.tool_code,name:t.name,description:t.description,
    category:t.category,status:t.status,free_preview:t.free_preview,
-   individual_price_cents:t.individual_price_cents}};
+   individual_price_cents:t.individual_price_cents,access_configuration:publicProductAccess(config)}};
 }
