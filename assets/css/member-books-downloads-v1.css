@@ -1,0 +1,25 @@
+/* Dashboard My Books: verified digital editions and separate companion learning. */
+#v1322-panel-books .v1321-book-head{display:flex;align-items:end;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+#v1322-panel-books .v1321-book-head h1{font-size:clamp(1.6rem,2.1vw,2.35rem);line-height:1.2;margin:4px 0}
+#v1322-panel-books .v1321-book-head p{font-size:.86rem;max-width:90ch;line-height:1.48}
+#v1322-panel-books .v1321-book-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 18px}
+#v1322-panel-books .v1321-owned-library,#v1322-panel-books .v1321-companion-library{margin:12px 0 20px;padding:0}
+#v1322-panel-books .v1321-owned-library>h2,#v1322-panel-books .v1321-companion-library>h2{font-size:1.16rem;margin:0 0 5px}
+#v1322-panel-books .v1321-owned-library>[data-books-status]{margin:5px 0 12px;color:#b8d1e1}
+#v1322-panel-books .v1321-owned-book-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px}
+#v1322-panel-books .v1321-owned-ebook{display:flex;gap:13px;padding:13px;border:1px solid #33526a;border-radius:10px;background:#102033;min-width:0}
+#v1322-panel-books .v1321-owned-ebook img{width:90px;height:130px;flex:0 0 90px;object-fit:cover;border-radius:6px}
+#v1322-panel-books .v1321-owned-ebook-main{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+#v1322-panel-books .v1321-owned-ebook-main strong{font-size:.97rem;line-height:1.33}
+#v1322-panel-books .v1321-owned-ebook-badge{font-size:.72rem;color:#68e0b9;font-weight:650}
+#v1322-panel-books .v1321-owned-ebook-main p{font-size:.76rem;line-height:1.43;margin:3px 0}
+#v1322-panel-books .v1321-ebook-formats{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#v1322-panel-books .v1321-ebook-formats button{font-size:.77rem;padding:8px 11px;min-height:36px}
+#v1322-panel-books .v1321-companion-library{border-top:1px solid #2d485b;padding-top:15px}
+#v1322-panel-books .v1321-companion-library>p{font-size:.83rem;line-height:1.5;max-width:100ch}
+#v1322-panel-books .v1321-companion-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:9px;margin-top:11px}
+#v1322-panel-books .v1321-companion-book{display:grid;gap:6px;justify-items:start;border:1px solid #31506a;border-radius:8px;padding:11px;background:#0f1e30}
+#v1322-panel-books .v1321-companion-book strong{font-size:.85rem}
+#v1322-panel-books .v1321-companion-book span{font-size:.72rem;color:#9fc3db}
+#v1322-panel-books .v1321-companion-book .btn{padding:6px 10px;font-size:.74rem}
+@media(max-width:540px){#v1322-panel-books .v1321-owned-ebook img{width:70px;height:100px;flex-basis:70px}#v1322-panel-books .v1321-owned-ebook{padding:10px;gap:9px}}
