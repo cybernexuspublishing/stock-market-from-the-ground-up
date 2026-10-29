@@ -74,7 +74,7 @@
    if(rev!==state.revision||fresh?.user?.id!==session.user.id)
     throw Error('Account changed before Lumen selection.');
    state.price=d.priceCents;state.balance=d.availableLumens;state.cents=d.unitValueCents;state.verified=true;
-   expl.textContent='One Lumen is currently worth 
+   expl.textContent='One Lumen is currently worth '+String.fromCharCode(36)+(state.cents/100).toFixed(2)+' on eligible products. Select a whole-number amount up to your verified wallet balance or the full item cost.';
    const usable=d.maxLumensUsable;
    slider.max=String(usable);number.max=String(usable);
    slider.disabled=number.disabled=max.disabled=zero.disabled=false;
