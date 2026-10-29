@@ -33,6 +33,8 @@ assert(player.includes("['guided','practice'].includes(PLAYER.mode)"),'Tutor acc
 assert(player.includes("sb?.auth?.getSession?.()"),'Market Tutor requests require current signed-in token');
 assert(player.includes("'/api/market-tutor'"),'Use existing authenticated Tutor service');
 assert(player.includes("saveHistory:false"),'New in-Lab Tutor use does not silently save questions');
+assert(player.includes("const clean=/^[A-Za-z0-9_-]{3,90}$/.test(id)"),'Canonical Lab context must be sent even when the profile has opted into model use');
+assert(!player.includes(".test(id)&&allowModel!==true"),'Opt-in cannot strip the current Lab and stage from Tutor context');
 assert(!player.includes("allowModel:true,saveHistory:false"),'AI generation must remain member opt-in');
 assert(js.includes('allowTutorAI=true'),'AI should follow the member profile default instead of an in-Lab checkbox');
 assert(!js.includes('consentRow'),'Do not display a duplicate AI preference in each Lab');
