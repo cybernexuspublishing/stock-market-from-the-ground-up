@@ -2,7 +2,7 @@
  * Presentation only: never changes product availability, prices or entitlements.
  */
 .gu-redesign-store .store-category-tabs,
-body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs{
+html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs{
  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
  gap:12px!important;align-items:stretch!important;
  padding:14px!important;margin:24px 0 14px!important;
@@ -12,7 +12,7 @@ body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs{
  overflow:visible!important;
 }
 .gu-redesign-store .store-category-tabs>button,
-body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button{
+html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button{
  display:flex!important;align-items:center;justify-content:center;gap:11px;
  flex:none!important;min-width:0!important;min-height:64px!important;
  padding:15px 13px!important;
@@ -34,7 +34,7 @@ body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button{
 .gu-redesign-store #store-tab-current::before{content:"▱"}
 .gu-redesign-store #store-tab-upcoming::before{content:"◷"}
 .gu-redesign-store .store-category-tabs>button[aria-selected="true"],
-body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button[aria-selected="true"]{
+html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button[aria-selected="true"]{
  border-color:#78bfff!important;
  background:linear-gradient(135deg,#1c4672,#143a5a)!important;
  box-shadow:0 0 0 2px #66b6ff3d,0 6px 27px #3d9ce63d,inset 0 0 15px #3b8bd62b!important;
@@ -63,7 +63,7 @@ body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button[ar
  color:#cedff0;line-height:1.7;
 }
 .gu-redesign-store #store-founder-plans .catalog-founder-card,
-body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-card{
+html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans .catalog-founder-card{
  padding:clamp(20px,2.2vw,29px)!important;
  gap:10px!important;position:relative;
  overflow:hidden;
@@ -85,12 +85,12 @@ body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-
  box-shadow:0 22px 44px #0005!important;
 }
 .gu-redesign-store #store-founder-plans .catalog-founder-card h3,
-body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-card h3{
+html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans .catalog-founder-card h3{
  font-size:clamp(1.18rem,1.65vw,1.7rem)!important;
  line-height:1.3!important;color:#fff;letter-spacing:-.02em;
 }
 .gu-redesign-store #store-founder-plans .catalog-founder-price,
-body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-founder-price{
+html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans .catalog-founder-price{
  font-size:clamp(2.15rem,3.1vw,3.15rem)!important;
  letter-spacing:-.03em;color:#ffcf76!important;
 }
@@ -191,17 +191,17 @@ body[data-gu-workspace="site"] .gu-redesign-store #store-founder-plans .catalog-
 }
 @media(max-width:760px){
  .gu-redesign-store .store-category-tabs,
- body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs{
+ html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
  }
  .gu-redesign-store .store-category-tabs>button,
- body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs>button{
+ html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button{
   font-size:1.05rem!important;min-height:60px!important;
  }
 }
 @media(max-width:510px){
  .gu-redesign-store .store-category-tabs,
- body[data-gu-workspace="site"] .gu-redesign-store .store-category-tabs{
+ html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs{
   grid-template-columns:1fr!important;
  }
  .gu-redesign-store .store-crownlight-packages{grid-template-columns:1fr}
