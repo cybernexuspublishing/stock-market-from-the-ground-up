@@ -28,6 +28,14 @@ jobs:
           node tests/test_sellable_journal_metric_contract_research8.mjs
           node tests/test_journal_future_exit_asof_v1.mjs
           node tests/test_journal_account_switch_scrub_v1.mjs
+          node tests/test_journal_plan_handoff_v1.mjs
+          node tests/test_journal_research_quality_v1.mjs
+          node --check functions/api/journal-plan-prefill.js
+          node --check assets/js/journal-plan-transfer-v1.js
+          node --check assets/js/journal-research-free-v1.js
+          node --check assets/js/journal-research-paid-v1.js
+          node --check functions/api/journal-research-quality-v1.js
+          node --check functions/_lib/journal-research-quality-v1.js
           node tests/test_journal_guided_integrity_v1.mjs
           node tests/test_journal_v2.mjs
           node tests/test_journal_visual_v3.mjs
