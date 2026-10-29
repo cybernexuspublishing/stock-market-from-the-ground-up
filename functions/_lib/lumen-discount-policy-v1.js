@@ -5,17 +5,18 @@
  * as an authority to charge, deduct, or fulfill.
  */
 export const lumenDiscountPolicy=Object.freeze({
-  version:2,
+  version:3,
   enabled:false,
   denominationCents:7,
   maxPercentBasisPoints:10000,
   maxOrderDiscountCents:null,
   currency:'USD',
-  eligibleKinds:Object.freeze(['digital_book','digital_course','digital_tool','digital_pass']),
-  excludedKinds:Object.freeze(['subscription','lumen_bundle','tax','shipping','apparel','gift_card','donation']),
+  eligibleKinds:Object.freeze(['digital_book','digital_course','digital_tool','digital_pass','addon','feature','membership','subscription','physical_product','apparel']),
+  excludedKinds:Object.freeze(['lumen_bundle','tax','shipping','gift_card','donation']),
   calculationBase:'100% of eligible subtotal after other applicable discounts, before taxes and shipping',
   stacking:'Founding Member discounts and approved discounts are calculated first; Lumens apply afterward',
   nonExpiring:true,
+  renewalPolicy:'Applied to current authorized invoice only; future recurring payments require separately approved recurring-credit authorization',
   trialAutoRenew:false
 });
 const nonnegative=(x,name)=>{
