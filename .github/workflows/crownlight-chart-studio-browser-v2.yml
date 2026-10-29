@@ -40,6 +40,9 @@ on:
       - 'tests/test_crownlight_page_presentation_v2.mjs'
       - 'tests/test_crownlight_page_workspace_browser_v2.mjs'
       - 'tests/test_crownlight_admin_style_gallery_browser_v1.mjs'
+      - 'tests/test_owner_self_sparks_browser_v1.mjs'
+      - 'assets/js/admin-my-sparks-v1.js'
+      - 'functions/api/admin-lantern-sparks.js'
       - 'assets/css/admin-crownlight-page-styles-v1.css'
       - 'assets/js/site.js'
       - 'assets/js/admin-crownlight-workspace-v1.js'
@@ -143,6 +146,7 @@ jobs:
           node tests/test_crownlight_page_presentation_v2.mjs
           node tests/test_crownlight_page_workspace_browser_v2.mjs
           node tests/test_crownlight_admin_style_gallery_browser_v1.mjs
+          node tests/test_owner_self_sparks_browser_v1.mjs
           node tests/test_crownlight_continuous_layout_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs
