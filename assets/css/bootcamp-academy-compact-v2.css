@@ -142,3 +142,36 @@ body.gu-bc-learning main.gu-redesign-academy .academy-study-grid .gu-bc-lesson{
 body.gu-bc-learning main.gu-redesign-academy .academy-study-grid .gu-bc-lesson :is(svg,canvas,img){
  max-width:100%;height:auto;
 }
+
+/* Direct program URLs open the course, not the catalog behind it. */
+body.gu-bc-learning.academy-direct-route :is(
+ .academy-free-entry[hidden],#academy-free-knowledge[hidden],
+ #academy-program-list[hidden],.gu-release-actions[hidden],.section-intro[hidden]){
+ display:none!important;
+}
+body.gu-bc-learning.academy-direct-route .academy-return-bar{
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+ margin:10px 0 12px;padding:9px 0;border-bottom:1px solid #3f6178;
+ color:#bcd3e0;font-size:.87rem;
+}
+body.gu-bc-learning.academy-direct-route #academy-status{
+ margin:12px 0!important;max-width:82ch;
+}
+body.gu-bc-learning.academy-direct-route #academy-status:not(:empty){
+ line-height:1.55;
+}
+body.gu-bc-learning.academy-direct-route #academy-workspace{
+ scroll-margin-top:78px;margin-top:12px!important;
+}
+body.gu-bc-learning.academy-direct-route :is(#academy-course-title,#academy-day-title){
+ scroll-margin-top:78px;
+}
+body.gu-bc-learning.academy-direct-route #academy-course-title:focus,
+body.gu-bc-learning.academy-direct-route #academy-day-title:focus{
+ outline:2px solid #a8d9ed;outline-offset:5px;
+}
+@media(max-width:560px){
+ body.gu-bc-learning.academy-direct-route .academy-return-bar{
+  align-items:flex-start;flex-direction:column;gap:7px;
+ }
+}
