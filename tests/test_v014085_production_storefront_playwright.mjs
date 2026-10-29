@@ -10,7 +10,7 @@ import {writeFileSync,readFileSync} from 'node:fs';
 const base=(process.env.STOREFRONT_BASE||'https://stock-market-from-the-ground-up-d1r.pages.dev').replace(/\/$/,'');
 const results=[],errors=[],pageErrors=[];
 const isLocal=/^(127\.0\.0\.1|localhost)$/.test(new URL(base).hostname);
-const founderCodes=['FOUNDING_30','FOUNDING_60']; // The 14-day SKU remains unpublished.
+const founderCodes=['FOUNDING_14','FOUNDING_30','FOUNDING_60']; // All currently published tiers; purchase eligibility remains server-authorized.
 const fiveBooks=['FOUNDATION_BOOK_1','FOUNDATION_BOOK_2','FOUNDATION_BOOK_3','DAY_TRADING_BOOK_1','READING_THE_TAPE'];
 const founderTerms=JSON.parse(readFileSync(new URL('../data/founding600-terms-v014170.json',import.meta.url),'utf8'));
 const previewBookProducts=JSON.parse(readFileSync(new URL('../data/store-products.json',import.meta.url),'utf8'))
