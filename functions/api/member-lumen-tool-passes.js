@@ -30,13 +30,20 @@ export async function onRequest({request,env}){
    return out({ok:false,error:'NOT_ELIGIBLE'},403);
   const isOwner=roles?.some(r=>r.role_code==='OWNER'&&(!r.expires_at||Date.parse(r.expires_at)>Date.now()));
   if(request.method==='GET'){
-   const offers=await rest(actor,'gu_lumen_tool_offers_v1?select=offer_code,tool_code,duration_days,price_cents,lumens_cost,state&state=eq.active&order=tool_code.asc,duration_days.asc');
+   const [offers,policies]=await Promise.all([
+    rest(actor,'gu_lumen_tool_offers_v1?select=offer_code,tool_code,duration_days,price_cents,custom_lumens_cost,redemption_lumens_cost,state&state=eq.active&order=tool_code.asc,duration_days.asc'),
+    rest(actor,'gu_lumen_value_settings_v1?select=active_cents&singleton=eq.true&limit=1')
+   ]);
+   const cents=policies?.[0]?.active_cents;
+   if(!Number.isSafeInteger(cents)||cents<1||cents>100)
+    return out({ok:false,error:'VALUATION_UNAVAILABLE'},503);
    return out({ok:true,ownerIncluded:!!isOwner,offers:(offers||[]).filter(o=>
     o&&sku.test(o.offer_code)&&Number.isSafeInteger(o.price_cents)&&o.price_cents>0&&
-    Number.isSafeInteger(o.lumens_cost)&&o.lumens_cost===Math.ceil(o.price_cents/7)).map(o=>({
+    Number.isSafeInteger(o.redemption_lumens_cost)&&o.redemption_lumens_cost>0&&
+    (o.custom_lumens_cost!=null||o.redemption_lumens_cost===Math.ceil(o.price_cents/cents))).map(o=>({
     code:o.offer_code,tool:o.tool_code,durationDays:o.duration_days,priceCents:o.price_cents,
-    costLumens:o.lumens_cost,nonRecurring:true
-   })),unitValueCents:7});
+    costLumens:o.redemption_lumens_cost,priceMode:o.custom_lumens_cost==null?'automatic':'custom',nonRecurring:true
+   })),unitValueCents:cents});
   }
   if(request.headers.get('origin')!==new URL(request.url).origin)
    return out({ok:false,error:'ORIGIN_MISMATCH'},403);
