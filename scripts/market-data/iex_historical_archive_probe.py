@@ -43,6 +43,21 @@ def official_link(day):
         if not (100000<size<30000000000):raise ValueError("Unexpected source size")
         return u,size,name
     raise ValueError("No matching TOPS 1.6 archive in official catalog")
+def accumulate_trade(row,px,qty,flags):
+    """IEX venue volume includes every reported execution; OHLC excludes odd lots and Form-T."""
+    row['volume']+=qty
+    row['observed_trades']+=1
+    row['unreviewed_flags'][str(flags)]=row['unreviewed_flags'].get(str(flags),0)+1
+    if flags & 0x60:
+        return
+    if row['open'] is None:
+        row.update(open=px,high=px,low=px,close=px)
+    else:
+        row['high']=max(row['high'],px)
+        row['low']=min(row['low'],px)
+        row['close']=px
+    row['last_sale_eligible_trades']+=1
+
 def capture(day,tickers,minutes,byte_budget):
     url,source_size,name=official_link(day)
     start=dt.datetime.combine(dt.date.fromisoformat(day),dt.time(9,30),NY).astimezone(UTC)
@@ -70,20 +85,7 @@ def capture(day,tickers,minutes,byte_budget):
                         row={'timestamp_utc':minute,'open':None,'high':None,'low':None,'close':None,'volume':0,
                              'observed_trades':0,'last_sale_eligible_trades':0,'unreviewed_flags':{}}
                         expected[symbol][minute]=row
-                    row['volume']+=qty
-                    row['observed_trades']+=1
-                    row['unreviewed_flags'][str(flags)]=row['unreviewed_flags'].get(str(flags),0)+1
-                    # IEX TOPS 1.66 Appendix A: last-sale and high/low eligibility
-                    # EXCLUDES odd lots (bit 5) and extended-hours (bit 6).
-                    # All executed shares contribute to IEX venue-only volume.
-                    if (flags & 0x60)==0:
-                        if row['open'] is None:
-                            row.update(open=px,high=px,low=px,close=px)
-                        else:
-                            row['high']=max(row['high'],px)
-                            row['low']=min(row['low'],px)
-                            row['close']=px
-                        row['last_sale_eligible_trades']+=1
+                    accumulate_trade(row,px,qty,flags)
                     packet_counts[symbol]+=1
         except BudgetExceeded as e:
             read_error=str(e)
