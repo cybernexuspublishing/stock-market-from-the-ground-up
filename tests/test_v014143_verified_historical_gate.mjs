@@ -44,4 +44,9 @@ for(const wrong of ['true',null,1,{},[]]){
 }
 assert.equal(historicalQaReleasePermitted({...unpublished,metadata:{...unpublished.metadata,qa_allowed_user_ids:[]}},qa),false);
 
+const replaySource=readFileSync('functions/api/learning-replay-v01492.js','utf8');
+const rightsReads=(replaySource.match(/market_datasets\?select=dataset_code,ticker,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq\./g)||[]).length;
+assert.equal(rightsReads,2,'Every protected historical rights recheck must retrieve the ticker');
+assert(!replaySource.includes('market_datasets?select=dataset_code,dataset_type,status,source_attribution,license_note,metadata&dataset_code=eq.'),
+ 'Ticker omission would incorrectly deny a valid signed-in historical replay');
 console.log('PASS v143: authentic-source data gate, spoofed provenance rejection, free IEX scope and paid entitlement separation');
