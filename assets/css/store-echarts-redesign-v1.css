@@ -33,6 +33,14 @@ html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>
 .gu-redesign-store #store-tab-tools::before{content:"⚒"}
 .gu-redesign-store #store-tab-current::before{content:"▱"}
 .gu-redesign-store #store-tab-upcoming::before{content:"◷"}
+/* Never allow active display:flex rules to expose the archived Memberships
+ * tab or other server-hidden categories. Only the requested six are public. */
+html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button[hidden],
+html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button[data-store-category="memberships"],
+.gu-redesign-store .store-category-tabs>button[hidden],
+.gu-redesign-store .store-category-tabs>button[data-store-category="memberships"]{
+ display:none!important;
+}
 .gu-redesign-store .store-category-tabs>button[aria-selected="true"],
 html body[data-gu-workspace="site"] main.gu-redesign-store .store-category-tabs>button[aria-selected="true"]{
  border-color:#78bfff!important;
