@@ -57,7 +57,7 @@ def capture(day,tickers,minutes,byte_budget):
         stream=LimitedStream(res,byte_budget)
         try:
             with gzip.GzipFile(fileobj=stream,mode='rb') as g:
-                records=stream_pcapng(g) if g.peek(4)[:4]==b'\x0a\x0d\x0d\x0a' else stream_pcap(g)
+                records=stream_pcapng(g, set(tickers)) if g.peek(4)[:4]==b'\x0a\x0d\x0d\x0a' else stream_pcap(g)
                 for packet,(nano,symbol,qty,px,trade_id,flags) in records:
                     try:t=dt.datetime.fromtimestamp(nano/1000000000,UTC)
                     except (OverflowError,OSError,ValueError):continue
