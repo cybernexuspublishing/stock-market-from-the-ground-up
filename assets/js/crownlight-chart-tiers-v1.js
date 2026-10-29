@@ -8,7 +8,7 @@ const LIB='https://cdn.jsdelivr.net/npm/klinecharts@10.1.0/dist/umd/klinecharts.
 const levels={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const names={STANDARD:'Standard · Lightweight Charts',ADVANCED:'Advanced · KLineChart',
  PROFESSIONAL:'Professional · Multi-chart KLineChart'};
-const state={allowed:['STANDARD'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
+const state={allowed:['STANDARD'],visible:['STANDARD','ADVANCED','PROFESSIONAL'],tier:'STANDARD',selected:'STANDARD',bars:[],autoStarted:false,authUserId:null,symbol:'REPLAY',
  timeframe:'1-minute',source:'',charts:[],version:0,verified:false,view:null,notice:null,loading:null,
  accessExpiry:null,accessKind:null,accessTier:null,expireRechecked:false,sparksAvailable:false,sparkOffers:[],sparkBalance:null,sparkLoadError:'',sparkLoading:false};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
@@ -23,6 +23,18 @@ function safeBars(input){
   bars.push({timestamp:t,open:o,high:h,low:lo,close:c,volume:v});previous=t;
  }
  return bars;
+}
+async function loadMenuVisibility(){
+ try{
+  const r=await fetch('/api/chart-studio-menu',{cache:'no-store'});
+  if(!r.ok)throw Error('Menu setting unavailable');
+  const data=await r.json(),tiers=['STANDARD','ADVANCED','PROFESSIONAL'];
+  if(data.ok!==true||!Array.isArray(data.visible)||data.visible.length<1||
+     new Set(data.visible).size!==data.visible.length||
+     data.visible.some(t=>!tiers.includes(t)))throw Error('Invalid menu visibility');
+  state.visible=tiers.filter(t=>data.visible.includes(t));
+ }catch{state.visible=['STANDARD','ADVANCED','PROFESSIONAL']}
+ renderChoices();
 }
 async function permission(){
  const authEpoch=state.authEpoch=(state.authEpoch||0)+1;
@@ -59,7 +71,7 @@ async function permission(){
 }
 function autoStartRequestedStudio(){
  const requested=String(window.GroundUpStudioRequestedTier||'').toUpperCase();
- if(state.autoStarted||!['STANDARD','ADVANCED','PROFESSIONAL'].includes(requested))return;
+ if(state.autoStarted||!state.visible.includes(requested))return;
  if(!state.verified||!state.view||state.bars.length===0)return;
  if(!state.allowed.includes(requested)){
   status(requested+' Studio is not available to this account. Select Standard or request matching chart access.');
@@ -161,6 +173,7 @@ function explainLockedTier(){
  host.replaceChildren();
  let locked=0;
  for(const tier of ['ADVANCED','PROFESSIONAL']){
+  if(!state.visible.includes(tier))continue;
   if(state.verified&&state.allowed.includes(tier))continue;
   locked++;
   const block=el('section','cl-chart-tier-access-item');
@@ -181,7 +194,7 @@ function explainLockedTier(){
  if(state.sparksAvailable&&state.sparkOffers.length){
   const prices=el('div','cl-chart-sparks-prices');
   for(const offer of state.sparkOffers){
-   if(state.allowed.includes(offer.tier))continue;
+   if(!state.visible.includes(offer.tier)||state.allowed.includes(offer.tier))continue;
    const row=el('div','cl-chart-sparks-pass');
    row.append(el('strong','',offer.label),el('span','',offer.costSparks+' Sparks'));
    const action=el('button','btn secondary','Redeem '+offer.costSparks+' Sparks');
@@ -203,13 +216,23 @@ function renderChoices(){
  if(!state.view)return;
  const select=state.view.querySelector('select');
  if(!select)return;
- for(const option of select.options){
-  const authorized=state.verified&&state.allowed.includes(option.value);
+ // Server-administered visibility never grants membership authorization.
+ select.replaceChildren();
+ for(const tier of ['STANDARD','ADVANCED','PROFESSIONAL']){
+  if(!state.visible.includes(tier))continue;
+  const authorized=state.verified&&state.allowed.includes(tier);
+  const option=new Option((authorized?'':'🔒 ')+names[tier]+(authorized?'':' · Locked'),tier);
   option.disabled=!authorized;
-  option.textContent=(authorized?'':'🔒 ')+names[option.value]+(authorized?'':' · Locked');
-  option.title=authorized?'Included in your current access':(requirements[option.value]||'Sign in to verify your membership.');
+  option.title=authorized?'Included in your current access':(requirements[tier]||'Sign in to verify your membership.');
+  select.append(option);
  }
- select.value=state.selected;
+ if(state.visible.includes(state.selected))select.value=state.selected;
+ else{
+  const placeholder=new Option('No matching Chart Studio selected','');
+  placeholder.disabled=true;select.prepend(placeholder);select.value='';
+ }
+ if(state.verified&&!state.visible.some(t=>state.allowed.includes(t)))
+  status('No displayed Chart Studio is included in this membership. Your account access has not changed.');
  state.view.querySelector('[data-cl-tier-advanced]')?.toggleAttribute('hidden',state.selected==='STANDARD');
  explainLockedTier();updateCountdown();
 }
@@ -389,6 +412,7 @@ async function loadEngine(){
  return state.loading;
 }
 async function choose(tier){
+ if(!state.visible.includes(tier)){status('This Studio is hidden from the menu.');renderChoices();return}
  if(!state.verified||!state.allowed.includes(tier)){status('This engine is not included in your verified membership.');renderChoices();return}
  state.selected=tier;stopCharts();renderChoices();
  if(tier==='STANDARD'){status('Standard Crownlight chart is active.');window.dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier}}));return}
@@ -398,7 +422,7 @@ async function choose(tier){
  enhanced.hidden=false;
  try{
   await loadEngine();
-  if(request!==state.version||!state.verified||!state.allowed.includes(tier))return;
+  if(request!==state.version||!state.verified||!state.allowed.includes(tier)||!state.visible.includes(tier))return;
   document.body.classList.add('cl-tier-enhanced');
   makeView('cl-tier-primary','Technical analysis');
   if(tier==='PROFESSIONAL')makeView('cl-tier-secondary','Indicator study');
@@ -422,7 +446,7 @@ function createControls(){
  const label=el('label','', 'Chart Studio experience');
  const select=el('select');select.setAttribute('aria-label','Choose a Chart Studio; locked tiers are unavailable');
  select.title='Choose an available Studio. Select Unlock options for locked Studio requirements.';
- for(const k of Object.keys(names)){const op=new Option(names[k]+' · Locked',k);op.disabled=true;select.append(op)}
+ for(const k of state.visible){const op=new Option(names[k]+' · Locked',k);op.disabled=true;select.append(op)}
  select.onchange=()=>void choose(select.value);
  label.append(select);
  state.notice=el('p','cl-chart-tier-status','Verifying chart membership…');
@@ -502,6 +526,7 @@ window.addEventListener('resize',balancePanels);
 async function init(){
  if(!createControls())return;
  window.setInterval(updateCountdown,1000);
+ await loadMenuVisibility();
  await permission();
  try{
   const client=await window.getSupabaseClient();
@@ -524,7 +549,7 @@ async function init(){
 window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='STANDARD'?state.charts.slice():[],
  getRevealedBars:()=>state.bars.map(b=>({...b})),
  getStatus:()=>({
- tier:state.tier,selected:state.selected,allowed:[...state.allowed],revealed:state.bars.length,
+ tier:state.tier,selected:state.selected,allowed:[...state.allowed],visible:[...state.visible],revealed:state.bars.length,
  verified:state.verified,charts:state.charts.length,
  accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
 }),choose:t=>choose(t),addStudy,removeStudy,balancePanels};
