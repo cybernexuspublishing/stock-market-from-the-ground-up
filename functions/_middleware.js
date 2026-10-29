@@ -293,7 +293,6 @@ export async function onRequest(context){
         if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/lab-narrative.js"></script>',{html:true});
         if(path==='/site-lab.html'||path==='/site-lab')el.append('<script defer src="/assets/js/site-lab-experience.js"></script>',{html:true});
         el.append('<script defer src="/assets/js/presence.js"></script>',{html:true});
-        if(path==='/'||path==='/index.html')el.append('<script defer src="/assets/js/home-community.js"></script>',{html:true});
         // Password validation and policy UI are part of assets/js/signup.js.
         if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-community.js"></script>',{html:true});
         if(path==='/admin.html'||path==='/admin')el.append('<script defer src="/assets/js/admin-enhancements.js"></script>',{html:true});
