@@ -228,6 +228,10 @@ async function handleGet(env,request,action,url){
   if(action==='settings'){
     await withContext(env,request,'settings.view');return ok({settings:await tableRows(env,'site_settings','*','&order=category.asc,setting_key.asc')});
   }
+  if(action==='founder_product_terms'){
+    await withContext(env,request,'commerce.view');
+    return ok({terms:await tableRows(env,'gu_founder_plans_v014173','plan_code,price_cents,term_days,purchase_discount_bps,included_sparks,sparks_expiry_after_term_days,checkout_enabled','&order=term_days.asc')});
+  }
   if(action==='sparks_prices'){
     const c=await withContext(env,request,'settings.view');
     if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner may manage Sparks pricing.',403);
