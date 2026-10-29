@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/market-data/iex_historical_archive_probe.py'
+      - 'scripts/market-data/pcapng_iex_reader.py'
+      - 'tests/test_iex_historical_pcapng_reader_v1.py'
       - '.github/workflows/iex-historical-source-probe-v1.yml'
   workflow_dispatch:
 permissions:
@@ -24,7 +26,8 @@ jobs:
           python-version: '3.12'
       - name: Validate downloader and existing IEX protocol parser
         run: |
-          python -m py_compile scripts/market-data/iex_historical_archive_probe.py scripts/market-data/iex_tops.py
+          python -m py_compile scripts/market-data/iex_historical_archive_probe.py scripts/market-data/iex_tops.py scripts/market-data/pcapng_iex_reader.py
+          python tests/test_iex_historical_pcapng_reader_v1.py
       - name: Read only official IEX archive; capture first 30 minutes for six historical cases
         run: |
           mkdir -p /tmp/iex-hist-quarantine
