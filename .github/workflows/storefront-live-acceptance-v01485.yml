@@ -42,6 +42,7 @@ on:
       - 'assets/js/admin-lumen-item-prices-v1.js'
       - 'assets/js/admin-release-register-v1.js'
       - 'tests/test_lumen_admin_release_register_v1.mjs'
+      - 'tests/test_admin_lumen_release_ui_v1.mjs'
       - 'assets/js/checkout-lumen-selector-v1.js'
       - 'assets/js/checkout-platform.js'
       - 'checkout.html'
@@ -88,6 +89,7 @@ on:
       - 'assets/js/admin-lumen-item-prices-v1.js'
       - 'assets/js/admin-release-register-v1.js'
       - 'tests/test_lumen_admin_release_register_v1.mjs'
+      - 'tests/test_admin_lumen_release_ui_v1.mjs'
       - 'assets/js/checkout-lumen-selector-v1.js'
       - 'assets/js/checkout-platform.js'
       - 'checkout.html'
@@ -119,6 +121,7 @@ jobs:
           node tests/test_lumen_store_policy_v1.mjs
           node tests/test_lumen_fully_paid_tool_v1.mjs
           node tests/test_lumen_admin_release_register_v1.mjs
+          node tests/test_admin_lumen_release_ui_v1.mjs
           node --check functions/api/owner-release-register.js
           node --check functions/api/owner-lumen-item-prices.js
           node --check assets/js/admin-release-register-v1.js
