@@ -73,7 +73,7 @@ test('Only verified OWNER may credit own wallet, never remove/set, cross-credit 
 test('Self-service RPC is service-role only and writes manual buckets + adjustment + audit',()=>{
  const sql=readFileSync(new URL('../supabase/migrations/20261028_owner_self_sparks_credit_v1.sql',import.meta.url),'utf8');
  for(const clause of ['pg_advisory_xact_lock','groundup_question_pass_adjustments',
-  'admin_audit_log','source,origin_key','role_code=\\'OWNER\\'',
+  'admin_audit_log','source,origin_key',"role_code='OWNER'",
   'request_id=p_request_id','expires_at','revoke all on function','to service_role']){
   assert.match(sql,new RegExp(clause,'i'));
  }
