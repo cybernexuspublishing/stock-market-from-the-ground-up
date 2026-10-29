@@ -21,10 +21,9 @@
   if(section.querySelector('details.cl-workbench-import'))return;
   const details=el('details','cl-workbench-import');details.open=true;
   const summary=el('summary','','1. Data source and historical replay setup');
-  const info=el('span','cl-import-hint','Choose a provider, historical date or teaching dataset. Click to expand or collapse.');
   const inner=el('div','cl-import-interior');
   for(const child of [...section.childNodes])inner.appendChild(child);
-  details.append(summary,info,inner);section.append(details);section.classList.add('cl-import-shell');
+  details.append(summary,inner);section.append(details);section.classList.add('cl-import-shell');
   // Source controls must not disappear when a dataset loads. The member may
   // collapse Step 1 explicitly using its heading; never auto-collapse it.
  }
