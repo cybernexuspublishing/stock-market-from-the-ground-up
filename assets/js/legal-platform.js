@@ -44,7 +44,7 @@
    '<li><a href="/dmca-takedown-policy.html">DMCA Takedown Policy</a></li>'+
    '<li><a href="/accessibility.html">Accessibility Statement</a></li>'+
    '<li><a href="/founding-600-terms.html">Founding 600</a></li>'+
-   '<li><a href="/crownlight-sparks-terms.html">Crownlight Sparks</a></li>'+
+   '<li><a href="/crownlight-sparks-terms.html">Crownlight Lumens (non-cash credits)</a></li>'+
    '<li><a href="/digital-books-terms.html">Digital Books & Downloads</a></li>'+
    '<li><a href="/bootcamp-terms.html">Boot Camp & Clinic Terms</a></li>'+
    '</ul>';host.appendChild(nav);
