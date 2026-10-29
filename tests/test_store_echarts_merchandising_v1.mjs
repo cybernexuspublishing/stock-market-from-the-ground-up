@@ -70,9 +70,7 @@ try{
  await page.addScriptTag({content:readFileSync('node_modules/echarts/dist/echarts.min.js','utf8')});
  await page.addScriptTag({content:read('assets/js/crownlight-echarts-loader-v1.js')});
  await page.addScriptTag({content:read('assets/js/store-echarts-product-art-v1.js')});
- await page.waitForTimeout(1000);
- console.log('echarts initial graphic diagnostics',JSON.stringify(await page.evaluate(()=>({count:document.querySelectorAll('.gu-echarts-product-art').length,ready:document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length,art:[...document.querySelectorAll('.gu-echarts-product-art')].map(el=>({kind:el.dataset.artKind,visible:el.getBoundingClientRect().top,unavailable:el.classList.contains('gu-echart-unavailable'),svg:!!el.querySelector('svg')}))}))),errors.slice(-3));
-
+ await page.locator('#store-panel-current .gu-store-type-section:first-child .gu-store-type-card').scrollIntoViewIfNeeded();
  await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===5,
   {timeout:15000});
  const result=await page.evaluate(()=>({
@@ -117,6 +115,7 @@ try{
    const card=document.createElement('article');card.className='store-crownlight-package';card.innerHTML='<h3>Explorer</h3>';
    document.querySelector('#store-panel-sparks').append(card);
  });
+ await page.locator('#store-panel-sparks .store-crownlight-package:last-child').scrollIntoViewIfNeeded();
  await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===6,
   {timeout:15000});
  const specialties=[
