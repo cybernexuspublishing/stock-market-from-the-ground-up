@@ -63,7 +63,7 @@
   const sequence=epoch;chartButton.disabled=true;
   try{
    const lib=await window.CrownlightECharts?.load?.();
-   if(sequence!==epoch||!lib||!root.hidden===false)return;
+   if(sequence!==epoch||!lib||root.hidden)return;
    chartRegion.hidden=false;
    chart=chart||lib.init(chartRegion,'dark');
    draw();
