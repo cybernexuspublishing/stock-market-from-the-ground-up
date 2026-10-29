@@ -7,7 +7,7 @@ const $=id=>document.getElementById(id);
 const speeds=[120,90,60,45,30,20,15,10,5,2,1];
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 const time=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ms));
-let bars=[],focus=0,frame=1,seconds=60,playing=false,timer=null,checkpoint=false,dataset=null;
+let bars=[],focus=0,frame=1,seconds=60,playing=false,timer=null,checkpoint=false,dataset=null,memberId=null;
 let state={sessionId:'',locked:false,busy:false};
 function stop(message){playing=false;if(timer)clearTimeout(timer);timer=null;if($('hr-play'))$('hr-play').textContent='Play';if(message&&$('hr-status'))$('hr-status').textContent=message}
 function parse(b){
@@ -51,7 +51,7 @@ function draw(){
  const current=grouped.at(-1),before=grouped.at(-2);
  let heading='Start with observable evidence',copy='Select a published, authorized historical dataset and start the replay.';
  if(current){
-  heading=visible.length<=5?'Read the opening range':visible.length<=10?'Confirm price structure':visible.length<=15?'Compare price and volume':'Evaluate the evidence';
+  heading=grouped.length<=2?'Read the opening range':grouped.length<=5?'Confirm price structure':grouped.length<=10?'Compare price and volume':'Evaluate the evidence';
   copy='The most recently completed '+frame+'-minute candle closed at $'+current.c.toFixed(3)+'. Its high was $'+current.h.toFixed(3)+', low $'+current.l.toFixed(3)+', and source volume '+current.v.toLocaleString('en-US')+' shares. '+
     (before?('Its close was '+(current.c>=before.c?'at or above':'below')+' the preceding close. '):'This is the first completed observation. ')+
     'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
@@ -60,11 +60,12 @@ function draw(){
  const selector=$('sim-timeframe');if(selector)selector.value=frame+'-minute';
  const studio=window.CrownlightStudio;
  const candles=grouped.map(b=>({time:new Date(b.ms),open:b.o,high:b.h,low:b.l,close:b.c,volume:b.v}));
- if(studio?.render){
-  try{const mounted=studio.render({candles,index:candles.length-1,sourceProvider:'Verified server historical replay',sourceName:String(dataset?.ticker||'HISTORICAL'),sourceNote:String(dataset?.sourceAttribution||'Published rights-approved observations'),isServerReplay:true,position:null,user:{id:window.__hrMemberId||null}});
+ if(candles.length&&studio?.render){
+  try{const mounted=studio.render({candles,index:candles.length-1,sourceProvider:'Verified server historical replay',sourceName:String(dataset?.ticker||'HISTORICAL'),sourceNote:String(dataset?.sourceAttribution||'Published rights-approved observations'),isServerReplay:true,position:null,user:{id:memberId}});
    document.body.classList.toggle('hr-studio-mounted',mounted===true);
+   const shell=document.querySelector('.crownlight-shell');if(shell)shell.hidden=mounted!==true;
   }catch{document.body.classList.remove('hr-studio-mounted')}
- }else document.body.classList.remove('hr-studio-mounted');
+ }else{document.body.classList.remove('hr-studio-mounted');const shell=document.querySelector('.crownlight-shell');if(shell)shell.hidden=true;}
 }
 function schedule(){
  if(!playing||timer||!state.sessionId||!state.locked||state.busy||focus!==bars.length)return;
@@ -74,7 +75,7 @@ function schedule(){
  },seconds*1000);
 }
 function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;state={sessionId:'',locked:false,busy:false};
+ stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;memberId=null;state={sessionId:'',locked:false,busy:false};
  window.CrownlightStudio?.clearMemberState?.();document.body.classList.remove('hr-studio-mounted');draw();
 }
 function observation(e){
@@ -151,7 +152,7 @@ function init(){
  window.addEventListener('groundup:replay-observation',observation);
  window.addEventListener('groundup:replay-state',stateChange);
  window.addEventListener('groundup:replay-catalog',catalog);
- window.addEventListener('groundup:replay-dataset',e=>{dataset=e.detail?.dataset||null;draw()});
+ window.addEventListener('groundup:replay-dataset',e=>{dataset=e.detail?.dataset||null;memberId=e.detail?.memberId||null;draw()});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused because the tab is hidden.')});
  draw();
 }
