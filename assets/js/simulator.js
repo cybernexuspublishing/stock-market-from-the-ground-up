@@ -190,7 +190,7 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
   ?(SIM.hasPremium
     ?'Use Load Connected Data to request personal '+($('sim-source').value==='alpaca'?'Alpaca IEX':'Tiingo')+' bars. Enter a ticker and date range; availability depends on your provider subscription.'
     :'Personal provider connections are separate from Chart Studio access. Select Load Connected Data to view the required access; no request or charge will be made.')
-  :'Select a CSV file and choose Load CSV, or use Load Original Fictional Starter for ung raded educational chart practice.'.replace('ung raded','ungraded');
+  :'';
  smsg('sim-load-msg',msg);
 };
 $('sim-source')?.dispatchEvent(new Event('change'));$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll();if(window.GroundUpFreePracticeRequested)loadFictionalPractice();
