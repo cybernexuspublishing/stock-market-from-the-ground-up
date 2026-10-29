@@ -174,7 +174,15 @@ try{
    await main.locator('#store-tab-'+tabs[0]).click();
    await main.locator('#store-tab-'+tabs[0]).focus();
    await main.keyboard.press('ArrowRight');
-   assert.equal(await main.locator('#store-tab-'+tabs[1]).getAttribute('aria-selected'),'true','ArrowRight from '+tabs[0]+' should select '+tabs[1]);
+   const diagnostic=await main.evaluate(()=>({
+     focused:document.activeElement?.id,
+     hash:location.hash,
+     tabs:[...document.querySelectorAll('[data-store-category]')].map(b=>({
+       id:b.id,hidden:b.hidden,rects:b.getClientRects().length,
+       selected:b.getAttribute('aria-selected'),disabled:b.disabled}))
+   }));
+   assert.equal(await main.locator('#store-tab-'+tabs[1]).getAttribute('aria-selected'),'true',
+    'ArrowRight from '+tabs[0]+' should select '+tabs[1]+'; observed '+JSON.stringify(diagnostic));
    await main.keyboard.press('End');
    assert.equal(await main.locator('#store-tab-'+tabs.at(-1)).getAttribute('aria-selected'),'true','End must select the last visible Store category');
    await main.keyboard.press('Home');
