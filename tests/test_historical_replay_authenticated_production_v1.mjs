@@ -62,6 +62,13 @@ if(!authorized){
   'Historical catalog must not contain fictional replay sources');
 }
 const disQaVisible=authorized&&(catalog.body.datasets||[]).some(x=>x.code==='HR_DIS_20240507');
+if(authorized){
+ assert(disQaVisible,'QA-only genuine DIS dataset must be available to pinned James_Test identity');
+ const d=catalog.body.datasets.find(x=>x.code==='HR_DIS_20240507');
+ assert.equal(d.ticker,'DIS');
+ assert.equal(d.date,'2024-05-07');
+ assert.match(d.sourceAttribution,/Data provided for free by IEX/);
+}
 if(!disQaVisible){
  const rejected=await call(token,'start',{datasetCode:'HR_DIS_20240507'});
  assert.equal(rejected.status,403,'Unapproved DIS must remain unavailable to non-approved membership.');
