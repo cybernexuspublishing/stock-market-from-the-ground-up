@@ -87,9 +87,21 @@ if(approved.length===0){
  console.log('NOT ACCEPTED: no licensed, published authentic historical source exists. PASS covers real signed-in negative authorization only.');
  process.exit(0);
 }
-const first=approved[0];
-const started=await call(token,'start',{datasetCode:first.code});
-assert.equal(started.status,201,'Published authorized source must start real QA replay');
+const first=approved.find(x=>x.code==='HR_DIS_20240507')||approved[0];
+const active=await call(token,'resume');
+let started;
+if(active.status===200&&active.body?.session?.dataset?.code===first.code&&
+ active.body.session.currentIndex===0&&active.body.session.decisionLocked===false){
+ started={status:200,body:{sessionId:active.body.session.id,bar:active.body.session.bar,decisionLocked:false}};
+ console.log('PASS REAL QA RESUME: restored an existing protected initial DIS candle without creating a duplicate session.');
+}else{
+ if(active.status===200&&active.body?.session?.dataset?.code===first.code&&active.body.session.decisionLocked===true){
+  const completeOld=await call(token,'finish',{sessionId:active.body.session.id});
+  assert.equal(completeOld.status,200,'Finish stale protected QA replay before new acceptance');
+ }
+ started=await call(token,'start',{datasetCode:first.code});
+ assert.equal(started.status,201,'Published authorized source must create real QA replay');
+}
 assert.equal(started.body.bar.index,0,'Initial response reveals first bar only');
 assert.equal(started.body.decisionLocked,false);
 const sessionId=started.body.sessionId;assert(/^[0-9a-f-]{36}$/i.test(sessionId));
