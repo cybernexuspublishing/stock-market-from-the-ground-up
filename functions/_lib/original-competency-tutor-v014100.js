@@ -10,11 +10,23 @@ function chooseGuides(index,q){
  if(!Array.isArray(index?.guides)||index.guides.length!==30)return [];
  const query=words(q);
  if(!query.length)return [];
- const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[]),...(Array.isArray(index.researchGuides)?index.researchGuides:[])];
+ const genericDecision=new Set(['why','enter','entry','exit','exiting','hold','holding','wait','decision','trade','trading','setup','setups','when','what','look','for','stop','loss','pattern']);
+ const distinctive=query.filter(w=>!genericDecision.has(w));
+ const decisionIntent=/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation)\b/i.test(String(q||''));
+ const candidates=[...index.guides,...(Array.isArray(index.supplementalGuides)?index.supplementalGuides:[]),
+  ...(Array.isArray(index.researchGuides)?index.researchGuides:[]),
+  ...(decisionIntent&&Array.isArray(index.decisionGuides)?index.decisionGuides:[])];
  return candidates.map(g=>{
   const title=String(g.title||'').toLowerCase(),code=String(g.code||'').toLowerCase().replaceAll('_',' ');
   const concept=String(g.concept||'').toLowerCase();
-  const score=query.reduce((v,w)=>v+(title.includes(w)?8:0)+(code.includes(w)?6:0)+(concept.includes(w)?2:0),0);
+  let score=query.reduce((v,w)=>v+(title.includes(w)?8:0)+(code.includes(w)?6:0)+(concept.includes(w)?2:0),0);
+  if(g.decisionPlaybook===true){
+   // A question about a failed breakout should not be captured by a generic
+   // entry/hold/exit guide or by the unrelated breakout continuation playbook.
+   const topic=new Set(words(g.title+' '+g.code.replaceAll('_',' ')).filter(w=>!genericDecision.has(w)));
+   score+=distinctive.filter(w=>topic.has(w)).length*18;
+   if(g.code==='DECISION_FRAMEWORK'&&distinctive.length>0)score-=30;
+  }
   return {g,score};
  }).filter(x=>x.score>=5).sort((a,b)=>b.score-a.score||a.g.code.localeCompare(b.g.code)).slice(0,2).map(x=>x.g);
 }
@@ -57,15 +69,67 @@ async function loadResearchGuides(env,request){
  researchCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
  return guides;
 }
+const decisionCache=new WeakMap();
+const DECISION_CITATION=/^https:\/\/(?:www\.)?(?:cmegroup\.com|fidelity\.com|schwab\.com|investor\.gov|sec\.gov|chartschool\.stockcharts\.com|help\.stockcharts\.com)\//i;
+async function loadDecisionGuides(env,request){
+ if(typeof env.ASSETS?.fetch!=='function')return [];
+ const cached=decisionCache.get(env.ASSETS);
+ if(cached&&cached.expires>Date.now())return cached.guides;
+ const r=await env.ASSETS.fetch(new Request(new URL('/data/tutor-decision-playbooks-v1.json',request.url),{method:'GET'}));
+ if(!r.ok)throw Error('Optional public trade-decision teaching asset unavailable');
+ const data=await r.json(),guides=data?.guides;
+ if(data?.kind!=='original_public_tutor_decision_playbooks'||!Array.isArray(guides)||guides.length!==18)
+  throw Error('Invalid original Tutor decision playbook count');
+ const ids=new Set();
+ for(const g of guides){
+  if(!/^[A-Z][A-Z0-9_]{3,72}$/.test(String(g?.code||''))||ids.has(g.code)||
+     g.decisionPlaybook!==true||g.researchGuide!==true||
+     g.officialCompetency!==false||g.supplemental!==true||
+     !Array.isArray(g.sourceUrls)||g.sourceUrls.length<1||g.sourceUrls.length>4||
+     !g.sourceUrls.every(url=>typeof url==='string'&&DECISION_CITATION.test(url))||
+     ['title','concept','watchFor','entryEvidence','holdEvidence','exitEvidence','noTrade',
+      'fictionalCase','procedure','limit','invalidation','commonError','selfCheck','reviewExplanation']
+      .some(k=>typeof g[k]!=='string'||g[k].length<35)||
+     !g.fictionalCase.startsWith('FICTIONAL:'))
+   throw Error('Invalid decision guide record');
+  ids.add(g.code);
+ }
+ decisionCache.set(env.ASSETS,{guides,expires:Date.now()+300000});
+ return guides;
+}
 async function originalGuides(env,request,question){
  try{
   const published=await loadPublicGuides(env,request);
-  let researchGuides=[];
-  try{researchGuides=await loadResearchGuides(env,request)}catch{/* Existing 30-guide Tutor remains functional. */}
-  return chooseGuides({...published,researchGuides},question);
+  let researchGuides=[],decisionGuides=[];
+  try{researchGuides=await loadResearchGuides(env,request)}catch{/* Original approved guides remain available. */}
+  if(/\b(?:enter|entry|exit|exiting|hold|holding|when to|would you|why|setup|setups|trade or skip|no trade|what to look for|stand aside|take profit|stop loss|invalidation)\b/i.test(String(question||''))){
+   try{decisionGuides=await loadDecisionGuides(env,request)}catch{/* Never disable original lessons for an optional curriculum asset. */}
+  }
+  return chooseGuides({...published,researchGuides,decisionGuides},question);
  }catch{return []}
 }
+function formatDecisionGuide(g,mode,reflection){
+ const lines=[
+  'Supplementary ungraded trade-decision coaching — '+g.title,
+  'Setup thesis: '+g.concept,
+  'What to look for: '+g.watchFor,
+  'WHY consider entry (only if the evidence is observed): '+g.entryEvidence,
+  'WHY a hold might remain justified (only for a verified open position): '+g.holdEvidence,
+  'WHY reassess or exit: '+g.exitEvidence,
+  'WAIT or NO TRADE: '+g.noTrade,
+  'Original fictional practice: '+g.fictionalCase,
+  'What can invalidate the reasoning: '+g.invalidation,
+  'Execution and evidence limitation: '+g.limit,
+  'Common mistake: '+g.commonError,
+  'Supporting educational references (not verified strategy-performance evidence): '+g.sourceUrls.join(' '),
+  'Ungraded explanation check: '+g.selfCheck
+ ];
+ if(mode==='review')lines.push('Your reflection can be revised; this review cannot issue a grade or mastery credit. '+ungradedResponseReview(reflection));
+ if(mode==='question')lines.push('Answer the evidence/invalidation check without consulting a future candle.');
+ return lines.join('\n\n');
+}
 function answerFromGuide(g,mode,answer){
+ if(g.decisionPlaybook===true)return formatDecisionGuide(g,mode,answer);
  const links=(g.researchGuide===true&&Array.isArray(g.sourceUrls)?g.sourceUrls:[])
   .filter(u=>typeof u==='string'&&/^https:\/\/(www\.investor\.gov|www\.sec\.gov|www\.finra\.org|toslc\.thinkorswim\.com)\//.test(u)).slice(0,2);
  const evidence=g.researchGuide===true?'\n\nResearch note: This is an original educational explanation informed by owner-provided STT source studies, not a verified market event or profitable-strategy claim.'+
