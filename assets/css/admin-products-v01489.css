@@ -42,3 +42,24 @@
 #admin-products-prelaunch .product-admin-card textarea{min-height:6.5rem;resize:vertical}
 #admin-products-prelaunch .product-admin-card .btn{max-width:100%;white-space:normal;text-align:center;overflow-wrap:anywhere}
 #admin-prelaunch-count{overflow-wrap:anywhere;line-height:1.5}
+
+/* v2: compact, readable item inventories; preserve all product-edit controls. */
+#admin-products-panel .product-inventory-section{margin:1rem 0 1.4rem}
+#admin-products-panel .product-inventory-section>h3{font-size:1.08rem;color:#f2e1b8;margin:0 0 .4rem}
+#admin-products-panel .product-inventory-section>.small{margin:.2rem 0 .8rem;line-height:1.5}
+#admin-products-panel .product-catalog-rows{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+#admin-products-panel .product-catalog-rows>.admin-card{min-width:0;padding:12px 14px;border:1px solid #45647b;border-radius:6px;box-shadow:none}
+#admin-products-panel .product-catalog-rows h3{font-size:1.03rem;margin:0}
+#admin-products-panel .product-catalog-rows .product-admin-price{font-size:1.15rem;margin:.3rem 0}
+#admin-products-panel .product-catalog-rows .product-admin-actions{margin:.5rem 0}
+#admin-products-panel .product-archive{margin:1rem 0;padding:.65rem 0;border-top:1px solid #527086}
+#admin-products-panel .product-archive summary,#admin-products-panel .product-upcoming-admin summary,
+#admin-products-panel .product-stripe-import summary{font-weight:700;color:#f0e4cd;cursor:pointer;padding:.5rem}
+#admin-products-panel .product-upcoming-admin{margin:0}
+#admin-products-panel .product-stripe-import{margin:.5rem 0 1rem}
+#admin-products-panel .product-catalog-table-wrap{width:100%;overflow-x:auto;border:1px solid #4d6a7a;border-radius:6px}
+#admin-products-panel .product-catalog-table{width:100%;border-collapse:collapse;min-width:450px;font-size:.88rem}
+#admin-products-panel .product-catalog-table th,#admin-products-panel .product-catalog-table td{padding:.65rem .8rem;text-align:left;border-bottom:1px solid #426279}
+#admin-products-panel .product-catalog-table th{background:#10344d;color:#edf7ff}
+#admin-products-panel .product-catalog-table td small{display:block;color:#abc7d5;margin-top:.2rem}
+@media(max-width:650px){#admin-products-panel .product-catalog-rows>.admin-card{padding:10px}}
