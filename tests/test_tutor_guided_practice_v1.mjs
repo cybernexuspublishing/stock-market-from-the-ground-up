@@ -151,7 +151,7 @@ for(const code of newUnits){
  assert.equal(unit.transferFeedbackByChoice[unit.transferCorrect],null);
 }
 const measure=(name,len,b=bars)=>api.metric(b,name,len);
-const closes=bars.slice(0,20).map(b=>b.close),weights=closes.slice(-8).reduce((v,p,i)=>v+p*(i+1),0);
+const latestCloses=bars.slice(0,20).map(b=>b.close),weights=latestCloses.slice(-8).reduce((v,p,i)=>v+p*(i+1),0);
 assert(Math.abs(measure('wma',8,bars.slice(0,20)).value-weights/36)<1e-10,'WMA oldest-to-newest weighted mean');
 assert.equal(measure('wma',8,bars.slice(0,7)).value,null,'WMA must respect warmup');
 assert.equal(measure('ppo',12,bars.slice(0,25)).value,null,'PPO has no complete 26-bar slow seed');
