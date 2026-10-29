@@ -4,8 +4,9 @@
  */
 import {readFileSync,readdirSync,writeFileSync,existsSync} from 'node:fs';
 import {resolve,join} from 'node:path';
+import {execFileSync} from 'node:child_process';
 const output=resolve(process.env.GU_SITE_BUILD_DIR||'public');
-const rawOrigin=process.env.GU_PUBLIC_SITE_ORIGIN||'https://stock-market-from-the-ground-up.pages.dev';
+const rawOrigin=process.env.GU_PUBLIC_SITE_ORIGIN||'https://stock-market-from-the-ground-up-d1r.pages.dev';
 let origin;
 try{
  const url=new URL(rawOrigin);
@@ -23,6 +24,11 @@ const description={
  membership:'Explore access to stock-market lessons, simulations and learning resources.',
  faq:'Frequently asked questions about the Ground Up stock-market learning platform.'
 };
+// Build must fail if the public opt-in controller is missing or cannot parse.
+const ga4Controller=join(output,'assets/js/ga4-consent-v1.js');
+if(!existsSync(ga4Controller))throw Error('GA4 consent controller missing from public assets');
+execFileSync(process.execPath,['--check',ga4Controller],{stdio:'pipe'});
+if(!readFileSync(ga4Controller,'utf8').includes('G-6BDZQGVPD2'))throw Error('GA4 measurement ID mismatch');
 const indexable=new Set(),report={origin,pages:[],excluded:[],sourceOnly:true,productionAccepted:false};
 for(const name of candidates){
  const file=join(output,name+'.html');if(!existsSync(file))continue;
@@ -32,13 +38,18 @@ for(const name of candidates){
  }
  const path=name==='index'?'/':'/'+name+'.html';
  const canonical=origin+path;
- if(!/<link\s+[^>]*rel=['"]canonical['"]/i.test(html)){
-  if(!/<\/head>/i.test(html))throw Error('Public page has no head: '+name);
-  html=html.replace(/<\/head>/i,'<link rel="canonical" href="'+canonical+'"></head>');
- }
+ const canonicalTag='<link rel="canonical" href="'+canonical+'">';
+ const canonicalPattern=/<link\s+[^>]*rel=['"]canonical['"][^>]*>/i;
+ if(!/<\/head>/i.test(html))throw Error('Public page has no head: '+name);
+ if(canonicalPattern.test(html))html=html.replace(canonicalPattern,canonicalTag);
+ else html=html.replace(/<\/head>/i,canonicalTag+'</head>');
  if(!/<meta\s+[^>]*name=['"]description['"]/i.test(html)&&description[name]){
   html=html.replace(/<\/head>/i,'<meta name="description" content="'+description[name]+'"></head>');
  }
+ // Load optional analytics only on verified public discovery pages.
+ // The controller does not request Google code before visitor permission.
+ const ga4Markup='<script defer src="/assets/js/ga4-consent-v1.js"></script>';
+ if(!html.includes('ga4-consent-v1.js'))html=html.replace(/<\/head>/i,ga4Markup+'</head>');
  writeFileSync(file,html);
  indexable.add(path);
  report.pages.push({path,canonical});
