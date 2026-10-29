@@ -15,7 +15,7 @@ class DraftImport(unittest.TestCase):
   self.assertFalse(m['licensed_for_member_display'])
   self.assertIn("status='draft'",sql)
   self.assertIn("metadata->>'licensed_for_member_display'='false'",sql)
-  self.assertNotIn('status=\\'published\\'',sql)
+  self.assertNotIn("status='published'",sql)
   self.assertIn('COMMIT;',sql)
   self.assertEqual(m['source_reconciled_bars'],2)
  def test_rejects_unapproved_source_and_bad_data(self):
