@@ -244,7 +244,7 @@
   const outside=visible.filter(bar=>MathLib().session(bar).kind==='overnight').length;
   const rows=[
    ['Source',sim.sourceName||'Member-provided file'],['Provider',sim.sourceProvider||'User import'],
-   ['Loaded bar count',sim.candles.length+' (client-inspectable for this practice mode)'],
+   ['Loaded bar count',sim.isServerReplay?sim.candles.length+' revealed observations only':sim.candles.length+' (client-inspectable for this practice mode)'],
    ['Revealed bars',sim.index+1],
    ['Time zone','America/New_York'],
    ['Current session',sim.candles[sim.index]?MathLib().session(sim.candles[sim.index]).kind:'No candles loaded'],
@@ -252,8 +252,8 @@
    ['Per-bar provider VWAP',visible.some(b=>Number.isFinite(b.providerVwap))?'Available on revealed bars':'Not supplied on revealed bars'],
    ['Outside 04:00–20:00 ET',outside+' revealed bars (provider timestamp retained; verify coverage)'],
    ['Session VWAP overlay','HLC3 × volume approximation, not exact trade VWAP'],
-   ['Feed integrity','Not independently certified; data completeness and redistribution rights not established'],
-   ['Assessment','Ungraded personal practice only; browser contains full source array']
+   ['Feed integrity',sim.isServerReplay?'Published historical dataset, server-enforced authorization and licensing gate':'Not independently certified; data completeness and redistribution rights not established'],
+   ['Assessment',sim.isServerReplay?'First decision server locked; browser receives revealed bars only':'Ungraded personal practice only; browser contains full source array']
   ];
   const dl=h('dl','crownlight-facts');rows.forEach(([k,v])=>{dl.append(h('dt','',k),h('dd','',String(v)))});
   body.append(dl);
