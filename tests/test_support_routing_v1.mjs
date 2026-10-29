@@ -10,5 +10,7 @@ test('new member Support owns its route; legacy dashboard may not replace it',()
  assert.match(page,/id="member-support-panel"/);
  assert.match(page,/id="member-book-receipt-form"/);
  assert.match(read('assets/js/member-support-panel.js'),/params.get\('tab'\)!==\x27support\x27/);
- assert.match(read('functions/_middleware.js'),/display-20261027-supportfix/);
+ // Support is loaded by dashboard.html itself, not by a legacy middleware cache marker.
+ assert.match(page,/src="assets\/js\/member-support-panel\.js"/);
+ assert.match(read('functions/_middleware.js'),/auth-boundary\.js/);
 });
