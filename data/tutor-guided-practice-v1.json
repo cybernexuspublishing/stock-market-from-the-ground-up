@@ -327,7 +327,7 @@
         "Assume the spread will vanish at fill."
       ],
       "correct": 0,
-      "feedback": "Execution risk is a hard gate, not a soft score.",
+      "feedback": "Execution risk is a hard gate, not a soft score. A wide quoted spread can invalidate a planned entry despite favorable technical signals; verify liquidity and potential slippage before promoting the candidate.",
       "transferQuestion": "A displayed ask contains only 200 shares and planned size is 1,000. What can be assumed?",
       "transferOptions": [
         "Full order fills at one displayed ask price.",
