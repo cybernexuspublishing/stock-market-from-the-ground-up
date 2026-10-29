@@ -262,7 +262,7 @@ function dayFor(d,i){
  return Object.freeze({
   day,programDay:day,programCode:d.code,sourceDay,title:topic,
   objective,observe,practice,phase,phaseLabel:info.label,
-  researchEnrichment:researchFor(topic,objective,observe,practice),
+  researchEnrichment:researchFor(topic,objective),
   method:[info.lead,info.method,practice],
   remediation:'If a necessary observation is unavailable, stop and return to the source before concluding.',
   limitation:source.caution+' '+info.boundary,
