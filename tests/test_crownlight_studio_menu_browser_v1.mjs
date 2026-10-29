@@ -16,11 +16,12 @@ try{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',async route=>{
    const u=new URL(route.request().url());
+   if(u.pathname==='/'&&u.origin===origin)return route.fulfill({status:200,contentType:'text/html',body:'<html><body></body></html>'});
    if(u.pathname==='/api/chart-studio-menu')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,visible})});
    if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,eligible:true,allowed,tier:allowed.at(-1)})});
    return route.abort();
   });
-  await page.goto(origin+'/',{waitUntil:'domcontentloaded'}).catch(()=>{});
+  await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
   await page.setContent('<html><body><section class="sim-chart-panel"><div class="crownlight-shell"><div class="crownlight-plot">Standard chart</div></div></section></body></html>');
   await page.evaluate(()=>{
    window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{session:{
