@@ -1,12 +1,15 @@
 /* D17 deterministic SEO whitelist; fake fixtures only, no external traffic. */
 import assert from 'node:assert/strict';
-import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync,mkdirSync,copyFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=mkdtempSync(join(tmpdir(),'gu-d17-seo-'));
 const html=(body,head='')=>'<!doctype html><html><head><title>Example</title>'+head+'</head><body><main>'+body+'</main></body></html>';
 try{
+ // The SEO build checks the real deployed public GA4 controller before injecting it.
+ mkdirSync(join(root,'assets','js'),{recursive:true});
+ copyFileSync('assets/js/ga4-consent-v1.js',join(root,'assets','js','ga4-consent-v1.js'));
  writeFileSync(join(root,'index.html'),html('Public homepage'));
  writeFileSync(join(root,'about.html'),html('Author biography'));
  writeFileSync(join(root,'admin.html'),html('Private Admin'));
@@ -24,12 +27,20 @@ try{
  assert(readFileSync(join(root,'admin.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'dashboard.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'index.html'),'utf8').includes('<link rel="canonical" href="'+origin+'/">'));
+ const homepage=readFileSync(join(root,'index.html'),'utf8');
+ assert.equal((homepage.match(/ga4-consent-v1\\.js/g)||[]).length,1,'Public page has exactly one consent controller');
+ assert(!homepage.includes('googletagmanager.com'),'Do not load Google directly before permission');
+ for(const page of ['admin.html','dashboard.html','privacy.html']){
+  assert(!readFileSync(join(root,page),'utf8').includes('ga4-consent-v1.js'),'No Analytics script on private/legal page: '+page);
+ }
  assert(readFileSync(join(root,'robots.txt'),'utf8').includes('Sitemap: '+origin+'/sitemap.xml'));
  assert(readFileSync(join(root,'privacy.html'),'utf8').includes('noindex,follow'));
  assert.equal(run('http://not-secure.test').status,1,'Refuse insecure SEO origin');
  assert.equal(run('https://example.test/other/path').status,1,'Refuse canonical path prefix');
  const rerun=run(origin);
  assert.equal(rerun.status,0,'Idempotent build must succeed');
+ assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/ga4-consent-v1\\.js/g)||[]).length,1,
+  'Rebuilding must not duplicate the consent controller');
  assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/rel="canonical"/g)||[]).length,1,
   'Rebuilding must not duplicate canonical elements');
  console.log('PASS D17 source SEO canonical, sitemap whitelist, private route noindex, robots, invalid origin and rebuild');
