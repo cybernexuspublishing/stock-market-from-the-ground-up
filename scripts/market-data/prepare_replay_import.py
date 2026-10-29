@@ -100,7 +100,7 @@ def validate_and_prepare(doc, dataset_code):
         'ticker':symbol,'dataset_type':'ohlcv','interval_label':f'{interval//60}-minute',
         'timezone':'America/New_York','start_at':prepared[0]['bar_at'],
         'end_at':prepared[-1]['bar_at'],'raw_adjusted':'raw',
-        'source_attribution':'Data provided for free by IEX',
+        'source_attribution':'Data provided for free by IEX. By accessing or using IEX Historical Data, you agree to the IEX Historical Data Terms of Use. https://www.iex.io/legal/hist-data-terms',
         'license_note':'DRAFT: confirm IEX HIST reuse, attribution and commercial publishing conditions.',
         'status':'draft','metadata':json.dumps(metadata,sort_keys=True,separators=(',',':'))
     }
