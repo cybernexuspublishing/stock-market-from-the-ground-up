@@ -378,7 +378,7 @@
       ],
       "correct": 1,
       "feedback": "The later move is an outcome, not proof that the earlier unsupported entry was justified.",
-      "transferQuestion": "What makes NO TRADE a complete decision?",
+      "transferQuestion": "What documented evidence makes a NO TRADE decision complete and reviewable without hindsight?",
       "transferOptions": [
         "A recorded condition, observation time and reason for rejection.",
         "A forecast of guaranteed future loss.",
