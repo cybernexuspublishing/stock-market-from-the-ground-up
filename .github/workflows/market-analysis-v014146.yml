@@ -30,6 +30,10 @@ jobs:
           node tests/test_journal_account_switch_scrub_v1.mjs
           node tests/test_journal_plan_handoff_v1.mjs
           node tests/test_journal_research_quality_v1.mjs
+          node tests/test_trailing_stop_and_research_link_v1.mjs
+          node --check functions/api/journal-research-links-v1.js
+          node --check assets/js/journal-source-variance-v1.js
+          node --check assets/js/trade-plan-trailing-model-v1.js
           node --check functions/api/journal-plan-prefill.js
           node --check assets/js/journal-plan-transfer-v1.js
           node --check assets/js/journal-research-free-v1.js
