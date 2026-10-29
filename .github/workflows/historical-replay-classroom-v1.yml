@@ -15,6 +15,7 @@ on:
       - 'docs/research/HISTORICAL_REPLAY_78_SOURCE_CANDIDATES_20261028.csv'
       - 'tests/test_historical_replay_classroom_v1.mjs'
       - 'tests/test_historical_replay_classroom_browser_v1.mjs'
+      - 'tests/test_historical_training_catalog_browser_v1.mjs'
       - 'tests/test_historical_replay_78_source_registry_v1.mjs'
       - 'tests/test_historical_replay_all89_v1.mjs'
       - 'docs/research/HISTORICAL_REPLAY_ALL_89_SOURCE_CANDIDATES_20261028.csv'
@@ -56,3 +57,4 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser-level no-lookahead and Talia lesson flow (mock data, no private credentials)
         run: node tests/test_historical_replay_classroom_browser_v1.mjs
+          node tests/test_historical_training_catalog_browser_v1.mjs
