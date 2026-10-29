@@ -55,7 +55,7 @@
   a.setAttribute('aria-pressed',String(server));b.setAttribute('aria-pressed',String(!server));
   a.classList.toggle('secondary',!server);b.classList.toggle('secondary',server);
   note.textContent=server?
-   'Server-controlled fictional candles are revealed one at a time. Verified historical replay requires separately licensed data.':
+   '':
    'Original fictional candles or your own CSV, for ungraded browser practice. Imported sequences are not independently verified.';
   if(server&&!startedServer){
    startedServer=true;
