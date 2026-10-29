@@ -37,7 +37,7 @@ function show(tab){
 }
 function membershipCard(p){
  const enabled=p.active&&p.public_visible;
- const price=money(p.price_cents)+cycle(p.billing_interval);
+ const price=p.plan_code==='PICK_WHAT_YOU_WANT'?'$0.00 base fee · individual tools priced separately':money(p.price_cents)+cycle(p.billing_interval);
  const buttons=owner()&&can('commerce.view')?
   '<div class="product-admin-fields"><label><input type="checkbox" data-flag="active" '+(p.active?'checked':'')+
   (p.plan_code==='FREE'?' disabled':'')+'> Available for new enrollment</label><label><input type="checkbox" data-flag="public" '+(p.public_visible?'checked':'')+'> Listed in Store</label><label><input type="checkbox" data-flag="pause"> Pause NEW checkout (cannot enable from here)</label>'+
@@ -52,7 +52,7 @@ function membershipCard(p){
  const status=enabled?p.checkout_enabled?'Listed · Database checkout ON':'Listed · Checkout not enabled':'Hidden / disabled';
  return '<article class="admin-card product-admin-card" data-plan="'+e(p.plan_code)+'">'+
  '<div class="eyebrow">Membership</div><h3>'+e(p.name)+'</h3>'+
- '<p class="product-admin-price">'+e(price)+'</p><p>'+e(p.description||'Membership product description not yet provided.')+'</p>'+
+ '<p class="product-admin-price">'+e(price)+'</p><p class="small">Price shown in USD, converted from the database price_cents field. Checkout and Stripe prices are independently verified.</p><p>'+e(p.description||'Membership product description not yet provided.')+'</p>'+
  '<p class="product-admin-status">'+e(status)+'</p>'+
  '<div class="product-admin-actions"><a class="btn secondary" target="_blank" rel="noopener" href="'+e(urlFor('plan',p.plan_code))+'">View Customer Page</a></div>'+copy+buttons+
  '<p class="small">Publishing a membership makes its approved Store listing visible but does not enable checkout. Founders also require the Owner Store product overlay to be visible, and an independently approved provider/fulfillment release. Hidden and unavailable membership direct checkout URLs remain blocked.</p><p class="small">Changing a Stripe-linked membership price, billing interval or included entitlements requires synchronized provider mapping, customer disclosure, and a separate audited rollout. This editor never changes those terms silently.</p></article>';
