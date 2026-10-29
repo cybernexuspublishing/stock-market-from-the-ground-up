@@ -11,6 +11,8 @@ on:
       - 'assets/js/crownlight-echarts-replay-v1.js'
       - 'assets/js/crownlight-echarts-loader-v1.js'
       - 'tests/test_crownlight_echarts_tv_adapter_browser_v1.mjs'
+      - 'tests/test_crownlight_echarts_admin_smoke_v1.mjs'
+      - 'assets/js/admin-chart-engines-test-v1.js'
       - 'assets/js/crownlight-chart-tiers-v1.js'
       - 'assets/js/crownlight-workspace-v2.js'
       - 'assets/js/crownlight-talia-lab-v2.js'
@@ -144,6 +146,7 @@ jobs:
           node --check assets/js/crownlight-echarts-admin-v1.js
           node --check assets/js/crownlight-tradingview-datafeed-adapter-v1.js
           node tests/test_crownlight_echarts_tv_adapter_browser_v1.mjs
+          node tests/test_crownlight_echarts_admin_smoke_v1.mjs
           node --check assets/js/crownlight-indicator-math-v2.js
           node tests/test_crownlight_chart_studio_v2.mjs
           node --check assets/js/crownlight-chart-tiers-v1.js
