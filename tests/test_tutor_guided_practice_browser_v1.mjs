@@ -60,10 +60,12 @@ try{
   await page.locator('#tgp-select').selectOption('WATCH-07');
   await next();await next();
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/Focus rule for this lesson:/);
+  assert.equal(await page.locator('.tgp-scan-table').count(),1,'Only one scanner visualization per stage');
   assert.match(await page.locator('.tgp-scan-table').innerText(),/Special gate/);
   assert.match(await page.locator('.tgp-scan-table').innerText(),/mandatory universe\/price/);
   await page.locator('#tgp-select').selectOption('WATCH-10');
   await next();await next();
+  assert.equal(await page.locator('.tgp-scan-table').count(),1,'Short-side watchlist renders only once');
   assert.match(await page.locator('.tgp-scan-table').innerText(),/short borrow unavailable/);
   assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');
   assert(await page.locator('#tutor-guided-practice').isVisible());
