@@ -152,9 +152,11 @@ async function loadMasterStudyGuides(env,request){
        g.researchGuide!==true||!['indicator','watchlist','strategy'].includes(g.kind)||
        !Array.isArray(g.sourceUrls)||!g.sourceUrls.length||g.sourceUrls.length>5||
        !g.sourceUrls.every(u=>typeof u==='string'&&MASTER_STUDY_SOURCES.test(u))||
-       ['title','concept','formula','whyUse','howToUse','procedure','limit','limits',
+       (typeof g.title!=='string'||g.title.trim().length<4)||
+       (typeof g.formula!=='string'||g.formula.trim().length<8)||
+       ['concept','whyUse','howToUse','procedure','limit','limits',
         'invalidation','commonError','selfCheck','reviewExplanation','fictionalPrompt']
-          .some(k=>typeof g[k]!=='string'||g[k].length<18))
+          .some(k=>typeof g[k]!=='string'||g[k].trim().length<18))
      return [];
     codes.add(g.code);
    }

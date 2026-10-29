@@ -33,7 +33,8 @@ for(const g of all){
  assert(g.masterStudy===true&&g.researchGuide===true&&g.supplemental===true&&g.officialCompetency===false);
  assert(/STT\.zip/.test(g.archiveBasis),'Provenance for '+g.code);
  assert(g.sourceUrls.length>=1&&g.sourceUrls.every(u=>allowed.test(u)),'Official source domain '+g.code);
- for(const k of ['title','concept','formula','whyUse','howToUse','procedure','limit','limits',
+ assert(g.title.length>=4&&g.formula.length>=8,'Accurate concise title and formula '+g.code);
+ for(const k of ['concept','whyUse','howToUse','procedure','limit','limits',
   'invalidation','commonError','selfCheck','reviewExplanation','fictionalPrompt'])
   assert(typeof g[k]==='string'&&g[k].length>=18,'Missing teachable dimension '+g.code+':'+k);
  assert(g.fictionalPrompt.startsWith('FICTIONAL:'),'Missing hypothetical boundary '+g.code);
