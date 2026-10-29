@@ -49,7 +49,7 @@ assert.match(academyUI,/node\('h4',x\.theme\)/);
 assert.match(academyUI,/not an official assessment or a verified historical example/);
 const free=read('free-watchlist.html'),freeUI=read('assets/js/free-watchlist-v1.js');
 assert.match(free,/id="free-research-prepare"/);
-assert.match(freeUI,/id=\>\[label,byId\(id\)/);
+assert.match(freeUI,/const parts=fields\.map/);
 assert.match(freeUI,/combined\.length>600/);
 assert.match(freeUI,/request\(\{action,symbol,researchNote,sourceNote/);
 const advanced=read('assets/js/advanced-tools.js');
