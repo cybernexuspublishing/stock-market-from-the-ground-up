@@ -2,6 +2,7 @@
  * PRIVATE credentials are never returned to the browser. This module is imported by
  * privileged Cloudflare Functions; no reliance on client-computed membership labels.
  */
+import {readProductAccessConfig,publicProductAccess} from '../_lib/product-access-config-v1.js';
 const enc=encodeURIComponent;
 const error=(message,status=403)=>Object.assign(new Error(message),{status});
 function config(env){const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),pub=env.SUPABASE_PUBLISHABLE_KEY,secret=env.SUPABASE_SECRET_KEY;if(!base||!pub||!secret)throw error('Training authorization is not configured.',503);return{base,pub,secret}}
@@ -53,9 +54,10 @@ export async function toolAccess(env,req,toolCode){if(!['MARKET_SIMULATOR','ONDE
   method:'POST',headers:{...headers,'content-type':'application/json'},
   body:JSON.stringify({target_user:user.id,target_tool:toolCode})});
  if(typeof allowed!=='boolean')throw error('Tool entitlement result could not be verified.',503);
- return {authorized:allowed,freeEligible:true,aiOptedIn:actor.aiOptedIn===true,
+ const config=await readProductAccessConfig(c,toolCode);
+ return {authorized:allowed,freeEligible:true,accessConfiguration:publicProductAccess(config),aiOptedIn:actor.aiOptedIn===true,
   denialCode:allowed?null:'premium_entitlement_required',userId:user.id,
   reason:allowed?'':'An active plan or matching individual tool entitlement is required.'};
 }
 const H={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store'};
-export async function onRequest({request,env}){try{if(request.method!=='GET')return new Response(JSON.stringify({ok:false,error:'Method not allowed.'}),{status:405,headers:H});const toolCode=new URL(request.url).searchParams.get('tool')||'';const a=await toolAccess(env,request,toolCode);return new Response(JSON.stringify({ok:true,authorized:a.authorized,freeEligible:a.freeEligible===true,denialCode:a.denialCode||null,tool:toolCode,reason:a.reason}),{status:200,headers:H})}catch(e){return new Response(JSON.stringify({ok:false,error:e.message||'Authorization error.'}),{status:e.status||500,headers:H})}}
+export async function onRequest({request,env}){try{if(request.method!=='GET')return new Response(JSON.stringify({ok:false,error:'Method not allowed.'}),{status:405,headers:H});const toolCode=new URL(request.url).searchParams.get('tool')||'';const a=await toolAccess(env,request,toolCode);return new Response(JSON.stringify({ok:true,authorized:a.authorized,freeEligible:a.freeEligible===true,denialCode:a.denialCode||null,tool:toolCode,reason:a.reason,accessConfiguration:a.accessConfiguration||null}),{status:200,headers:H})}catch(e){return new Response(JSON.stringify({ok:false,error:e.message||'Authorization error.'}),{status:e.status||500,headers:H})}}
