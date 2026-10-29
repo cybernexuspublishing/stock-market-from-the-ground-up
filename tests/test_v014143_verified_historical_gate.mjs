@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {verifiedHistoricalDataset,replayAvailableToEntitlement} from '../functions/_lib/verified-historical-dataset-v014143.js';
+import {verifiedHistoricalDataset,replayAvailableToEntitlement,historicalQaReleasePermitted} from '../functions/_lib/verified-historical-dataset-v014143.js';
 import {readFileSync} from 'node:fs';
 const d={dataset_code:'IEX_AAPL_20261007',ticker:'AAPL',status:'published',dataset_type:'ohlcv',
  source_attribution:'Data provided for free by IEX',license_note:'Reviewed restricted educational distribution',
@@ -31,4 +31,17 @@ for(const [label,bad] of [
 assert(!verifiedHistoricalDataset({...d,status:'draft'}));
 assert(!verifiedHistoricalDataset({...d,source_attribution:''}));
 assert(readFileSync('scripts/market-data/prepare_replay_import.py','utf8').includes("'status':'draft'"));
+
+const qa='f42f9301-18e6-43a3-8531-32d371fd22c1';
+const visitor='00000000-0000-4000-8000-000000000222';
+const unpublished={...d,metadata:{...d.metadata,qa_release_only:true,qa_allowed_user_ids:[qa]}};
+assert(historicalQaReleasePermitted(unpublished,qa));
+assert(!historicalQaReleasePermitted(unpublished,visitor));
+assert(!historicalQaReleasePermitted(unpublished,null));
+assert(historicalQaReleasePermitted(d,visitor));
+for(const wrong of ['true',null,1,{},[]]){
+ assert.equal(historicalQaReleasePermitted({...d,metadata:{...d.metadata,qa_release_only:wrong}},qa),false);
+}
+assert.equal(historicalQaReleasePermitted({...unpublished,metadata:{...unpublished.metadata,qa_allowed_user_ids:[]}},qa),false);
+
 console.log('PASS v143: authentic-source data gate, spoofed provenance rejection, free IEX scope and paid entitlement separation');
