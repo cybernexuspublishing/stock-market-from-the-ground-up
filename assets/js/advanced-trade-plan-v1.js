@@ -119,7 +119,8 @@
    ['research','1. Research & Evidence'],
    ['risk','2. Risk & Targets'],
    ['review','3. Review & Save'],
-   ['history','4. Saved Versions']
+   ['timeline','4. Catalyst-to-Chart'],
+   ['history','5. Saved Versions']
   ];
   const sections={};
   for(const [id,label] of steps){
@@ -221,6 +222,92 @@
    }catch(e){error.textContent='Chart visualization unavailable: '+e.message+'. Numeric risk results remain available.'}
   });
   root.addEventListener('resize',()=>chartInstance?.resize());
+  // A member-controlled chart of ONLY REVEALED rows from an already authorized
+  // self-supplied CSV. The file is not uploaded or persisted. We deliberately
+  // avoid displaying or labeling an event until its as-entered first-public time.
+  const timeline=sections.timeline;
+  timeline.append(make('h3','Catalyst-to-Chart Timeline'),
+   make('p','Load your own authorized OHLCV CSV (max 2 MB, 20,000 rows). Dates require explicit timezone offsets. The display starts with ONE revealed bar and never draws a later bar until you choose Next. This local exercise is NOT independently verified history, a server-secure blind replay, or a live quote feed.'));
+  const sourceLink=make('a','Open the existing primary-source research tool','btn secondary');
+  sourceLink.href='advanced-tool.html?tool=CATALYST_RESEARCH';timeline.append(sourceLink);
+  const fileLabel=make('label','Authorized OHLCV CSV · timestamp,open,high,low,close,volume');fileLabel.htmlFor='tp-csv';
+  const file=make('input');file.id='tp-csv';file.type='file';file.accept='.csv,text/csv';
+  const controls=make('div',undefined,'tp-actions');
+  const back=make('button','Reset to first bar','btn secondary'),
+        next=make('button','Reveal next candle','btn'),
+        ten=make('button','Reveal next 10','btn secondary');
+  for(const b of [back,next,ten])b.type='button';
+  controls.append(back,next,ten);
+  const tmStatus=make('p','No local candle file selected. The primary-source time entered in Research will control whether the announcement marker can be displayed.','tp-alert');
+  tmStatus.setAttribute('role','status');tmStatus.setAttribute('aria-live','polite');
+  const tmHost=make('div',undefined,'tp-chart');tmHost.hidden=true;
+  tmHost.setAttribute('role','img');
+  tmHost.setAttribute('aria-label','Only revealed member-supplied candlesticks, with publication marker if the supplied event time is already revealed');
+  timeline.append(fileLabel,file,controls,tmStatus,tmHost);
+  let timelineBars=[],revealed=0,tmInstance=null,tmEpoch=0;
+  function visibleRows(){return timelineBars.slice(0,revealed)}
+  async function paintTimeline(){
+   if(!timelineBars.length){tmStatus.textContent='Load an authorized OHLCV CSV to begin.';return}
+   if(!alive())return;
+   const observations=visibleRows(),last=observations.at(-1);
+   if(!last){tmStatus.textContent='No revealed candle.';return}
+   const pub=get('sourceAt')?.value.trim()||'';
+   const pubTime=pub&&Number.isFinite(Date.parse(pub))?Date.parse(pub):null;
+   const eventVisible=pubTime!==null&&pubTime<=last.time.getTime();
+   const eventAt=eventVisible?observations.findIndex(x=>x.time.getTime()>=pubTime):-1;
+   tmStatus.textContent='Revealed '+observations.length+' / '+timelineBars.length+
+     ' member-provided candles · last '+last.time.toISOString()+
+     '. '+(pubTime===null?'No valid primary event-publication time entered.':
+       eventVisible?'The member-entered publication time is now within the visible interval.':
+       'The announcement is NOT YET revealed on this chart.');
+   try{
+    const engine=await root.CrownlightECharts?.load?.();
+    if(!engine||!alive())throw Error('ECharts unavailable');
+    tmHost.hidden=false;
+    if(!tmInstance)tmInstance=engine.init(tmHost,'dark',{renderer:'canvas'});
+    const times=observations.map(x=>x.time.toISOString());
+    const candles=observations.map(x=>[x.open,x.close,x.low,x.high]);
+    const marker=eventVisible&&eventAt>=0?[{
+     xAxis:times[eventAt],label:{formatter:'Source published (member-entered)'},
+     lineStyle:{type:'dashed',color:'#dfb979',width:2}}]:[];
+    tmInstance.setOption({animation:false,backgroundColor:'transparent',
+     textStyle:{color:'#d2e4f0'},
+     legend:{top:0,textStyle:{color:'#c5d7e2'},data:['Revealed candles','Visible volume']},
+     tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
+     grid:[{left:65,right:20,top:45,height:'48%'},{left:65,right:20,top:'77%',height:'13%'}],
+     xAxis:[{type:'category',gridIndex:0,data:times,boundaryGap:true,axisLabel:{color:'#a9bdcc',hideOverlap:true}},
+      {type:'category',gridIndex:1,data:times,boundaryGap:true,axisLabel:{show:false}}],
+     yAxis:[{type:'value',gridIndex:0,scale:true,axisLabel:{color:'#bdcbd8'}},
+      {type:'value',gridIndex:1,min:0,axisLabel:{color:'#bdcbd8'}}],
+     dataZoom:[{type:'inside',xAxisIndex:[0,1],filterMode:'none'},
+      {type:'slider',xAxisIndex:[0,1],bottom:1,height:16,filterMode:'none'}],
+     series:[{name:'Revealed candles',type:'candlestick',data:candles,
+       itemStyle:{color:'#40c698',color0:'#e0777c',borderColor:'#40c698',borderColor0:'#e0777c'},
+       markLine:{silent:true,symbol:'none',data:marker}},
+      {name:'Visible volume',type:'bar',data:observations.map(x=>x.volume),xAxisIndex:1,yAxisIndex:1,
+       itemStyle:{color:'#6f9cca'}}]});
+    tmInstance.resize();
+   }catch(e){tmStatus.textContent+=' Chart rendering unavailable; observation count remains intact.'}
+  }
+  file.addEventListener('change',async()=>{
+   const epoch=++tmEpoch;
+   timelineBars=[];revealed=0;tmInstance?.clear();
+   const uploaded=file.files?.[0];
+   if(!uploaded){tmStatus.textContent='No local candle file selected.';return}
+   try{
+    if(uploaded.size>2000000)throw Error('CSV exceeds the 2 MB limit.');
+    const csv=await uploaded.text();if(epoch!==tmEpoch||!alive())return;
+    const rows=root.GroundUpResearchBarsV014150?.csvBars?.(csv);
+    if(!Array.isArray(rows)||!rows.length)throw Error('Existing validated market-bar import service is unavailable.');
+    timelineBars=rows;revealed=1;
+    await paintTimeline();
+   }catch(e){timelineBars=[];revealed=0;tmStatus.textContent=e.message||'Invalid local OHLCV CSV.'}
+  });
+  back.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=1;void paintTimeline()});
+  next.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=Math.min(timelineBars.length,revealed+1);void paintTimeline()});
+  ten.addEventListener('click',()=>{if(!timelineBars.length)return;revealed=Math.min(timelineBars.length,revealed+10);void paintTimeline()});
+  const timelineNote=make('p','Source chronology is a member-entered research claim. A candle timestamp may represent an interval start rather than its close. For same-interval news, conservative interpretation and a separately sourced first-public timestamp are essential. This chart does not infer the cause of price changes.','small');
+  timeline.append(timelineNote);
   const reviewIntro=make('p','All research is member-reported. A saved version is a new private snapshot, not an independently verified historical record, broker order, or immutable regulatory audit ledger.');
   const planReview=make('div',undefined,'tp-review');
   const snapButton=make('button','Save new private plan version','btn');snapButton.type='button';
