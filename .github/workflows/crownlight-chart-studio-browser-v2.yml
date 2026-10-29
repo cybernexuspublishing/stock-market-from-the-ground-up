@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'assets/js/crownlight-chart-studio-v2.js'
+      - 'assets/css/crownlight-echarts-v1.css'
+      - 'assets/js/crownlight-tradingview-datafeed-adapter-v1.js'
+      - 'assets/js/crownlight-echarts-admin-v1.js'
+      - 'assets/js/crownlight-echarts-replay-v1.js'
+      - 'assets/js/crownlight-echarts-loader-v1.js'
       - 'assets/js/crownlight-chart-tiers-v1.js'
       - 'assets/js/crownlight-workspace-v2.js'
       - 'assets/js/crownlight-talia-lab-v2.js'
@@ -128,11 +133,15 @@ jobs:
           node-version: '22'
       - name: Install only pinned, public free packages
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1 klinecharts@10.1.0
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1 klinecharts@10.1.0 echarts@6.1.0
           npx playwright install --with-deps chromium
       - name: Run real offline Chromium chart studio checks
         run: |
           node --check assets/js/crownlight-chart-studio-v2.js
+          node --check assets/js/crownlight-echarts-loader-v1.js
+          node --check assets/js/crownlight-echarts-replay-v1.js
+          node --check assets/js/crownlight-echarts-admin-v1.js
+          node --check assets/js/crownlight-tradingview-datafeed-adapter-v1.js
           node --check assets/js/crownlight-indicator-math-v2.js
           node tests/test_crownlight_chart_studio_v2.mjs
           node --check assets/js/crownlight-chart-tiers-v1.js
