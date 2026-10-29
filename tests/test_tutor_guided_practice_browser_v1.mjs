@@ -47,7 +47,7 @@ try{
   assert.equal(tutorPosts,0,'Question handoff may not auto-submit or bill');
   await page.locator('#tgp-select').selectOption('WATCH-04');
   await next();await next(); // Experiment
-  const row=page.locator('.tgp-scan-table tbody tr').filter({hasText:'FICT-B'});
+  const row=page.locator('.tgp-scan-table tbody tr').filter({hasText:'FICT-B'}).first();
   assert.match(await row.innerText(),/Not qualified/);
   await page.locator('#tutor-guided-practice .tgp-gate input[type=range]').first().evaluate(el=>{el.value='3.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
   assert.match(await row.innerText(),/Eligible for risk review/);
