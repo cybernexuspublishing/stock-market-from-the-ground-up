@@ -5,15 +5,15 @@
  * as an authority to charge, deduct, or fulfill.
  */
 export const lumenDiscountPolicy=Object.freeze({
-  version:1,
+  version:2,
   enabled:false,
-  denominationCents:10,
-  maxPercentBasisPoints:2000,
-  maxOrderDiscountCents:1000,
+  denominationCents:7,
+  maxPercentBasisPoints:10000,
+  maxOrderDiscountCents:null,
   currency:'USD',
   eligibleKinds:Object.freeze(['digital_book','digital_course','digital_tool','digital_pass']),
   excludedKinds:Object.freeze(['subscription','lumen_bundle','tax','shipping','apparel','gift_card','donation']),
-  calculationBase:'eligible subtotal after other applicable discounts, before taxes and shipping',
+  calculationBase:'100% of eligible subtotal after other applicable discounts, before taxes and shipping',
   stacking:'Founding Member discounts and approved discounts are calculated first; Lumens apply afterward',
   nonExpiring:true,
   trialAutoRenew:false
@@ -30,12 +30,13 @@ export function previewLumenDiscount({eligibleNetCents,availableLumens,requested
   const requested=nonnegative(requestedLumens,'requestedLumens');
   if(!policy.eligibleKinds.includes(productKind))
     return {status:'PREVIEW_ONLY',eligible:false,appliedLumens:0,discountCents:0,remainingLumens:balance,remainingSubtotalCents:net};
-  const percentCap=Number((BigInt(net)*BigInt(policy.maxPercentBasisPoints))/10000n);
-  const cap=Math.min(percentCap,policy.maxOrderDiscountCents);
-  const capLumens=Math.floor(cap/policy.denominationCents);
+  // A final Lumen can cover a smaller residual (1–6 cents) on full payment.
+  // Always show the rounded-up whole-Lumen requirement before redemption.
+  const capLumens=Math.ceil(net/policy.denominationCents);
   const appliedLumens=Math.min(requested,balance,capLumens);
-  const discountCents=appliedLumens*policy.denominationCents;
+  const discountCents=Math.min(net,appliedLumens*policy.denominationCents);
   return {status:'PREVIEW_ONLY',eligible:true,appliedLumens,discountCents,
     remainingLumens:balance-appliedLumens,remainingSubtotalCents:net-discountCents,
-    capLumens,maxPerOrderCents:policy.maxOrderDiscountCents};
+    capLumens,fullyCovered:discountCents===net,rounding:'The final whole Lumen may cover fewer than 7 cents; no cash change is issued.',
+    maxPerOrderCents:policy.maxOrderDiscountCents};
 }
