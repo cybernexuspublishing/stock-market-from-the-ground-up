@@ -28,7 +28,7 @@ try{
  assert(readFileSync(join(root,'dashboard.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'index.html'),'utf8').includes('<link rel="canonical" href="'+origin+'/">'));
  const homepage=readFileSync(join(root,'index.html'),'utf8');
- assert.equal((homepage.match(/ga4-consent-v1\\.js/g)||[]).length,1,'Public page has exactly one consent controller');
+ assert.equal((homepage.match(/ga4-consent-v1\.js/g)||[]).length,1,'Public page has exactly one consent controller');
  assert(!homepage.includes('googletagmanager.com'),'Do not load Google directly before permission');
  for(const page of ['admin.html','dashboard.html','privacy.html']){
   assert(!readFileSync(join(root,page),'utf8').includes('ga4-consent-v1.js'),'No Analytics script on private/legal page: '+page);
@@ -39,7 +39,7 @@ try{
  assert.equal(run('https://example.test/other/path').status,1,'Refuse canonical path prefix');
  const rerun=run(origin);
  assert.equal(rerun.status,0,'Idempotent build must succeed');
- assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/ga4-consent-v1\\.js/g)||[]).length,1,
+ assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/ga4-consent-v1\.js/g)||[]).length,1,
   'Rebuilding must not duplicate the consent controller');
  assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/rel="canonical"/g)||[]).length,1,
   'Rebuilding must not duplicate canonical elements');
