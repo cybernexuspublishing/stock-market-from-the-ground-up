@@ -15,7 +15,7 @@ assert.match(sql,/non-expiring|non-expiring/i);
 assert.match(sql,/separately/i);
 assert.match(store,/286 complimentary Crownlight Lumens/i);
 assert.match(credits,/286 complimentary Crownlight Lumens/i);
-assert.match(store,/up to \\$20\\.02/i);
+assert(store.includes('up to $20.02'),'Welcome Lumen amount should reflect revised seven-cent value');
 assert.match(read('supabase/migrations/20261029_lumen_welcome_value_286_v1.sql'),/286 complimentary Lumens/);
 assert.match(store,/not currently activated or issued/i);
 assert.match(store,/Not yet available/i);
