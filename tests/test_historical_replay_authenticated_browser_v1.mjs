@@ -25,6 +25,7 @@ try{
  const options=await page.locator('#vr-dataset option').evaluateAll(nodes=>nodes.map(x=>({value:x.value,text:x.textContent})));
  // DIS is available only if the server has authorized this pinned QA account.
  const available=options.filter(x=>x.value&&/^[A-Z][A-Z0-9_-]{2,79}$/.test(x.value));
+ assert(available.some(x=>x.value==='HR_DIS_20240507'),'The real published QA-only DIS dataset must appear in the authorized browser catalog');
  if(!available.length){
   console.log('NOT ACCEPTED POSITIVE: authenticated catalog has no licensed historical case.');
  }else{
@@ -32,6 +33,8 @@ try{
   await page.locator('#vr-dataset').selectOption(code);
   await page.locator('#vr-start').click();
   await page.locator('#vr-session').waitFor({state:'visible'});
+  await page.locator('#vr-source a[href="https://www.iex.io/legal/hist-data-terms"]').waitFor({state:'visible'});
+  assert.match(await page.locator('#vr-source').innerText(),/IEX executions only, not consolidated SIP/);
   assert.equal(await page.locator('#vr-advance').isDisabled(),true);
   await page.locator('#vr-decision').selectOption('NO_TRADE');
   await page.locator('#vr-reason').fill('QA decision: no confirmed entry or invalidation from the first completed candle alone.');
