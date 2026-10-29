@@ -49,7 +49,14 @@ try{
  await page.waitForFunction(()=>document.querySelector('#vr-session')?.hidden===false);
  assert.match(await page.locator('#hr-count').innerText(),/1 revealed source bars · 0 completed 3m/);
  assert.equal(await page.locator('#vr-advance').isDisabled(),true);
- await page.waitForFunction(()=>document.querySelector('.crownlight-shell .crownlight-plot canvas')!==null,null,{timeout:10000});
+ try{await page.waitForFunction(()=>document.querySelector('.crownlight-shell .crownlight-plot canvas')!==null,null,{timeout:10000})}
+ catch(err){
+  const report=await page.evaluate(()=>({library:!!window.LightweightCharts,indicator:!!window.CrownlightIndicatorMath,studio:window.CrownlightStudio?.getStatus?.(),tiers:window.CrownlightChartTiers?.getStatus?.(),
+  panel:!!document.querySelector('.sim-chart-panel'),shell:!!document.querySelector('.crownlight-shell'),plot:!!document.querySelector('.crownlight-plot'),
+  notice:document.querySelector('#vr-notice')?.textContent,source:document.querySelector('#vr-source')?.textContent,
+  css:document.querySelector('.crownlight-plot')?.getBoundingClientRect().width,svgVisible:getComputedStyle(document.querySelector('#hr-chart')).display}));
+  console.log('CHART_DIAGNOSTIC',JSON.stringify({report,errors}));throw err;
+ }
  assert.equal(await page.locator('.crownlight-shell').count(),1,'Real Lightweight Charts must mount in classroom');
  assert.equal(await page.locator('.hr-chart').isVisible(),false,'SVG fallback must not duplicate the real chart');
  await page.locator('#vr-decision').selectOption('WATCH');
