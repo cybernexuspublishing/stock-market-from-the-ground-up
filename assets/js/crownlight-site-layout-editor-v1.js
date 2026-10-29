@@ -8,7 +8,17 @@
  const excluded='form,dialog,[data-payment],[data-stripe],.v1321-secret-form,[data-auth-form],.crownlight-plot,.cl-live-plot';
  const $=s=>document.querySelector(s);
  let cards=[];
- function candidates(){return [...document.querySelectorAll(selector)].filter(x=>!x.closest(excluded)&&!x.matches(excluded)&&!x.querySelector('form,input[type="password"],input[autocomplete="cc-number"],[data-stripe],iframe')).slice(0,110)}
+ function candidates(){return [...document.querySelectorAll(selector)].filter(x=>
+  !x.closest(excluded)&&!x.matches(excluded)&&
+  !x.querySelector('form,input[type="password"],input[autocomplete="cc-number"],[data-stripe],iframe')&&
+  // Simulator's charts, data setup and replay plan have a fixed continuous
+  // workstation geometry. Older saved per-card widths/translations must not
+  // shrink these functional areas or dislocate live chart controls.
+  !(page==='simulator'&&(
+   x.closest('#sim-content,#sim-server-mode,#sim-legacy-mode')||
+   x.matches('.sim-free-spotlight,.sim-mode-switch,#cl-replay-import,#cl-simulator-workbench')
+  ))
+ ).slice(0,110)}
  const state={editing:false,config:new Map(),role:false,token:'',activeDrag:null};
  const slug=s=>String(s||'').trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'').slice(0,62);
  function cardKey(card){
