@@ -15,7 +15,7 @@ assert.equal(modules.modules.length,24);
 assert.equal(modules.indicatorCount,14);
 assert.equal(modules.watchlistCount,10);
 assert.deepEqual(Array.from(modules.stages),['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
-assert.equal(new Set(modules.modules.map(x=>x.id)).size,14);
+assert.equal(new Set(modules.modules.map(x=>x.id)).size,24);
 const available=new Map([...base.guides,...base.supplementalGuides,...catalogs.flatMap(c=>c.guides)].map(x=>[x.code,x]));
 const permitted=/^https:\/\/(?:chartschool\.stockcharts\.com|toslc\.thinkorswim\.com)\//;
 for(const unit of modules.modules){
