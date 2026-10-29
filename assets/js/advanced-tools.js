@@ -260,13 +260,17 @@
    '<p class="small">Checks are your own observations, not independent source verification or proof of executable prices.</p></fieldset>'+
    '<div class="actions"><button type="button" class="btn" id="w-save">Save Research Candidate</button></div>')+
    panel('Private saved candidates','<div id="w-list"></div>')+
-   '<div id="w-plan-host"></div>'+ 
+   '<div id="w-plan-host"></div><div id="w-intelligence-host"></div>'+ 
    panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
   const list=document.getElementById('w-list');
   const saveButton=document.getElementById('w-save');
   const researchUserId=USER?.id;
   const tradePlan=globalThis.GroundUpAdvancedTradePlanV1?.mount?.({
    host:document.getElementById('w-plan-host'),workspaceApi,saveRecord,latestRecords,
+   alive:()=>USER?.id===researchUserId
+  });
+  globalThis.GroundUpWatchlistIntelligenceV1?.mount?.({
+   host:document.getElementById('w-intelligence-host'),recs,
    alive:()=>USER?.id===researchUserId
   });
   let editing=null;
