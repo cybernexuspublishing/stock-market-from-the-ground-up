@@ -6,7 +6,44 @@
  'use strict';
  const byId=id=>document.getElementById(id);
  let startedLegacy=false,startedServer=false;
+ function setMethodOpen(open){
+  const panel=byId('sim-lab-method'),tab=byId('sim-talia-tab');
+  if(!panel||!tab)return;
+  panel.hidden=!open;
+  tab.setAttribute('aria-expanded',String(open));
+  tab.classList.toggle('sim-tab-open',open);
+  if(open)panel.scrollIntoView?.({block:'nearest'});
+ }
+ function selectFileLabel(){
+  const file=byId('sim-csv')?.files?.[0];
+  const name=byId('sim-csv-selected-name');
+  if(name)name.textContent=file?file.name:'';
+ }
+ // Relocate an existing simulator layout panel. Keep the same nodes and listeners.
+ function movePresetPanel(){
+  const dest=byId('cl-replay-import')?.querySelector('.cl-import-interior');
+  if(!dest)return false;
+  const heading=[...document.querySelectorAll('main h1,main h2,main h3,main strong')]
+   .find(h=>h.textContent?.trim()==='Simulator Layout & Presets');
+  if(!heading)return false;
+  const card=heading.closest('.journal-card,section,[role="group"]');
+  if(!card||card===dest||card.contains(dest)||card.closest('#cl-replay-import'))return false;
+  card.classList.add('sim-import-presets');
+  heading.textContent='Workspace & Presets';
+  dest.prepend(card);
+  return true;
+ }
+ function observePresets(){
+  if(movePresetPanel())return;
+  const target=document.querySelector('main');
+  if(!target||typeof MutationObserver!=='function')return;
+  const watcher=new MutationObserver(()=>{if(movePresetPanel())watcher.disconnect()});
+  watcher.observe(target,{childList:true,subtree:true});
+  window.addEventListener('pagehide',()=>watcher.disconnect(),{once:true});
+ }
+
  function selectMode(mode,{focus=false}={}){
+  setMethodOpen(false);
   const server=mode!=='csv';
   const s=byId('sim-server-mode'),l=byId('sim-legacy-mode');
   const a=byId('sim-mode-server'),b=byId('sim-mode-csv'),note=byId('sim-mode-notice');
@@ -15,8 +52,8 @@
   a.setAttribute('aria-pressed',String(server));b.setAttribute('aria-pressed',String(!server));
   a.classList.toggle('secondary',!server);b.classList.toggle('secondary',server);
   note.textContent=server?
-   'Server-controlled original fictional scenarios are included for eligible signed-in Free members. Select the preloaded scenario below and choose Start Replay. Authentic historical replay remains separate and requires verified licensed data.':
-   'Browser CSV practice loads the whole user-supplied price sequence locally; do not treat this as independently verified history, broker fills or server-graded no-lookahead work.';
+   'Server-controlled fictional candles are revealed one at a time. Verified historical replay requires separately licensed data.':
+   'Original fictional candles or your own CSV, for ungraded browser practice. Imported sequences are not independently verified.';
   if(server&&!startedServer){
    startedServer=true;
    window.dispatchEvent(new Event('groundup:activate-server-replay'));
@@ -36,6 +73,16 @@
   if(!byId('sim-mode-server'))return;
   byId('sim-mode-server').addEventListener('click',()=>selectMode('server',{focus:true}));
   byId('sim-mode-csv').addEventListener('click',()=>selectMode('csv'));
+  byId('sim-talia-tab')?.addEventListener('click',()=>{
+   const panel=byId('sim-lab-method');
+   setMethodOpen(!!panel?.hidden);
+  });
+  byId('sim-lab-method')?.addEventListener('keydown',e=>{
+   if(e.key==='Escape'){setMethodOpen(false);byId('sim-talia-tab')?.focus();}
+  });
+  byId('sim-csv')?.addEventListener('change',selectFileLabel);
+  selectFileLabel();
+  observePresets();
   byId('sim-start-free')?.addEventListener('click',()=>{
    window.GroundUpFreePracticeRequested=true;
    selectMode('csv');
