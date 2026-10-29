@@ -68,7 +68,14 @@ try{
    const response=await page.goto(base+'/bootcamp-academy.html?program='+code,{waitUntil:'domcontentloaded'});
    assert.equal(response?.status(),200);
    await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
-   assert.equal(await page.locator('.academy-program').count(),7);
+   assert.equal(await page.locator('.academy-program').count(),0,
+    'A direct program route must not require loading the separate Academy catalog');
+   assert.equal(await page.locator('#academy-program-list').isHidden(),true,
+    'Selected program navigation must open the learning workspace, not the program cards');
+   assert.equal(await page.locator('.academy-free-entry').isHidden(),true);
+   assert.equal(await page.locator('.academy-return-bar a').getAttribute('href'),'bootcamp-academy.html');
+   await page.waitForFunction(()=>document.activeElement?.id==='academy-course-title');
+   assert.equal(await page.locator('#academy-workspace').isVisible(),true);
    assert.equal(await page.locator('#academy-days .gu-bc-day').count(),academyByCode[code].days);
    assert.equal(await page.locator('#academy-course-title').innerText(),academyByCode[code].title);
    if(code==='truth5'){
@@ -195,6 +202,42 @@ try{
    console.log('PASS Academy '+code+' '+width+'px, '+academyByCode[code].days+' days; private enrollment, progress and account switching');
    await context.close();
   }
+ }
+ // Regression: Free Foundations opens even if the public catalog endpoint
+ // fails. Browser/auth fixtures are not equivalent to authenticated live QA.
+ {
+  const context=await browser.newContext({viewport:{width:390,height:840},
+   serviceWorkers:'block',reducedMotion:'reduce'});
+  const page=await context.newPage();
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.route('**/*',async route=>{
+   const url=new URL(route.request().url());
+   if(url.origin!==base)return route.abort();
+   if(url.pathname==='/assets/js/supabase-client.js')
+    return route.fulfill({status:200,contentType:'application/javascript',body:stub});
+   if(['/assets/js/site.js','/assets/js/session-manager.js'].includes(url.pathname))
+    return route.fulfill({status:200,contentType:'application/javascript',body:'/* isolated auth fixture */'});
+   if(url.pathname==='/api/bootcamp-academy'){
+    if(url.searchParams.get('program')==='free5')
+     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+      ok:true,version:ACADEMY_VERSION,program:academyByCode.free5,
+      curriculum:academyByCode.free5.curriculum,progressAvailable:true,
+      enrolled:false,progress:[]})});
+    return route.fulfill({status:503,contentType:'application/json',
+     body:JSON.stringify({ok:false,error:'Catalog is intentionally unavailable'})});
+   }
+   return route.continue();
+  });
+  await page.goto(base+'/bootcamp-academy.html?program=free5',{waitUntil:'domcontentloaded'});
+  await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
+  assert.equal(await page.locator('#academy-days .gu-bc-day').count(),5);
+  assert.equal(await page.locator('#academy-program-list').isHidden(),true);
+  assert.equal(await page.locator('.academy-free-entry').isHidden(),true);
+  await page.waitForFunction(()=>document.activeElement?.id==='academy-course-title');
+  assert.match(await page.locator('main h1').innerText(),/Free Foundations/);
+  assert.deepEqual(errors,[]);
+  await context.close();
+  console.log('PASS Free Foundations deep link opens without catalog dependency');
  }
  // Concurrent enrollment must not allow an old member's server reply to
  // relabel a newly signed-in account as enrolled or restore old private notes.
