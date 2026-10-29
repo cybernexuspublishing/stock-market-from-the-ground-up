@@ -58,15 +58,22 @@ export async function onRequest({request,env}){
   const actor=await requireOwner(env,request);
   const url=new URL(request.url);
   let target=url.searchParams.get('userId')||'',body={};
+  let self=request.method==='GET'&&url.searchParams.get('self')==='1';
   if(request.method==='POST'){
    if(Number(request.headers.get('content-length')||0)>2048)throw failure('Request too large.',413);
    const raw=await request.text();
    if(raw.length>2048)throw failure('Request too large.',413);
    try{body=JSON.parse(raw)}catch{throw failure('Invalid JSON request.',400)}
    if(!body||typeof body!=='object'||Array.isArray(body))throw failure('Invalid adjustment request.',400);
+   self=body.self===true;
    target=String(body.userId||'');
   }
-  await requireMember(env,target,actor);
+  if(self){
+   // Owner's own wallet is a separate, strictly additive pathway.
+   // It NEVER uses the existing member adjust RPC (which forbids self edits).
+   if(target&&target!==actor)throw failure('The self-wallet request may only name your account.',400);
+   target=actor;
+  }else await requireMember(env,target,actor);
   if(request.method==='GET'){
    const [balance,activity]=await Promise.all([
     query(env,'rpc/groundup_question_pass_summary',{method:'POST',data:{p_user_id:target}}),
@@ -76,14 +83,19 @@ export async function onRequest({request,env}){
    return reply({ok:true,balance,activity});
   }
   const {operation,value,reason,requestId}=body;
+  if(self&&(operation!=='add'||!Number.isInteger(value)||value<1||value>10000))
+   throw failure('Your Owner wallet allows Add Sparks only, from 1 to 10,000 per request.',400);
   if(!['add','remove','set'].includes(operation)||
    !Number.isInteger(value)||value<0||value>100000||
    (operation!=='set'&&value===0)||!UUID.test(String(requestId||''))||
    typeof reason!=='string'||reason.trim().length<10||reason.trim().length>500)
    throw failure('Choose an operation, a valid whole-number amount, and an audit reason of 10–500 characters.',400);
-  const result=await query(env,'rpc/groundup_question_pass_adjust',{method:'POST',
-   data:{p_actor_id:actor,p_user_id:target,p_operation:operation,p_value:value,
-    p_reason:reason.trim(),p_request_id:requestId}});
+  const result=self?
+   await query(env,'rpc/groundup_owner_self_sparks_add',{method:'POST',
+    data:{p_actor_id:actor,p_value:value,p_reason:reason.trim(),p_request_id:requestId}}):
+   await query(env,'rpc/groundup_question_pass_adjust',{method:'POST',
+    data:{p_actor_id:actor,p_user_id:target,p_operation:operation,p_value:value,
+     p_reason:reason.trim(),p_request_id:requestId}});
   if(result?.ok!==true)return reply({ok:false,error:String(result?.error||'Balance change rejected.').slice(0,160)},409);
   return reply({ok:true,balance:result.balance,delta:result.delta||0,alreadyApplied:result.alreadyApplied===true});
  }catch(e){
