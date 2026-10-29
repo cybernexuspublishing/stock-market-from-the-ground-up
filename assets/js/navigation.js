@@ -827,6 +827,7 @@
     document.head.appendChild(css);
   }
   let sparksRefreshInFlight=false,sparksWalletInterval=null;
+  let sparksInitialGrantCheckedFor=null;
   async function refreshSparkWallet(a){
     if(!a?.authenticated||sparksRefreshInFlight)return;
     sparksRefreshInFlight=true;
@@ -840,8 +841,14 @@
     const sb=await sbReady();if(!sb)return;
     const session=(await sb.auth.getSession())?.data?.session;
     if(!session?.access_token)return;
+    // Perform the established monthly Free grant eligibility check at most
+    // once per signed-in account per page, never on the 5-second heartbeat.
+    const accountKey=session.user?.id||'signed-in-session';
+    const needsInitial=accountKey!==sparksInitialGrantCheckedFor;
+    if(needsInitial)sparksInitialGrantCheckedFor=accountKey;
     try{
-      const resp=await fetch('/api/member-sparks-balance',{headers:{authorization:'Bearer '+session.access_token},
+      const endpoint=needsInitial?'/api/member-sparks-wallet':'/api/member-sparks-balance';
+      const resp=await fetch(endpoint,{headers:{authorization:'Bearer '+session.access_token},
         cache:'no-store',credentials:'same-origin'});
       if(!resp.ok)throw Error('Wallet unavailable');
       const v=await resp.json(),w=v?.wallet;
@@ -871,6 +878,7 @@
   function ensureSparksHeartbeat(authenticated){
     if(!authenticated){
       stopSparksHeartbeat();
+      sparksInitialGrantCheckedFor=null;
       document.querySelectorAll('[data-sparks-balance],[data-sparks-popup-balance]')
         .forEach(el=>el.textContent='—');
       return;

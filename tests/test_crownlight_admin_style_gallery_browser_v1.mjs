@@ -21,8 +21,13 @@ try{
  });
  await page.addScriptTag({content:src});
  await page.waitForFunction(()=>!document.querySelector('#admin-crownlight-workspace-control').hidden);
- assert.equal(await page.locator('[data-cl-admin-style-gallery] button').count(),5);
+ assert.equal(await page.locator('[data-cl-admin-style-gallery] button').count(),7);
  assert.equal(await page.locator('input[data-cl-page]:checked').count(),1);
+ await page.locator('[data-cl-admin-preview-page]').selectOption('journal.html');
+ await page.locator('[data-cl-style="list"]').click();
+ assert.equal(await page.locator('[data-cl-admin-preview]').getAttribute('href'),'/journal.html?workspace=list');
+ await page.locator('[data-cl-style="table"]').click();
+ assert.equal(await page.locator('[data-cl-admin-preview]').getAttribute('href'),'/journal.html?workspace=table');
  await page.locator('[data-cl-admin-preview-page]').selectOption('journal.html');
  await page.locator('[data-cl-style="compact"]').click();
  assert.equal(await page.locator('select[data-cl-page-style][data-page="journal.html"]').inputValue(),'compact');
