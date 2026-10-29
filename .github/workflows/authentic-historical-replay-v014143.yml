@@ -35,6 +35,9 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_v014142_market_data_ingest.py' -v
           python -m unittest discover -s tests -p 'test_v014143_prepare_replay_import.py' -v
+          python tests/test_prepare_reconciled_iex_draft_sql_v1.py
+          python tests/test_iex_historical_pcapng_reader_v1.py
+          python tests/test_iex_historical_trade_eligibility_v1.py
       - name: Confirm private ingestion, stable replay names and no new fictional datasets
         run: |
           node --check functions/api/learning-replay-v01492.js
