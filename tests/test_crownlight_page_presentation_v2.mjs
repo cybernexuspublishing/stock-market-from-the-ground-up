@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import {onRequestGet} from '../functions/api/page-workspace-presentation.js';
 const uid='11111111-1111-4111-8111-111111111111',host='https://mock-pages.supabase.co';
 const env={SUPABASE_URL:host,SUPABASE_PUBLISHABLE_KEY:'sb_public_fixture',SUPABASE_SECRET_KEY:'sb_secret_fixture'};
-let enabled=false,pages=['simulator.html'],owner=false,expired=false,restricted=false;
+let enabled=false,pages=['simulator.html'],styles={},owner=false,expired=false,restricted=false;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 const original=globalThis.fetch;
 globalThis.fetch=async (url,options={})=>{
  const u=new URL(url);assert.equal(u.hostname,'mock-pages.supabase.co');
- if(u.pathname==='/rest/v1/site_settings')return json([{value:{enabled,pages}}]);
+ if(u.pathname==='/rest/v1/site_settings')return json([{value:{enabled,pages,styles}}]);
  if(u.pathname==='/auth/v1/user')return json({id:uid});
  if(u.pathname==='/rest/v1/profiles')return json([{account_kind:'member',deleted_at:null}]);
  if(u.pathname==='/rest/v1/admin_user_flags')return json(restricted?[{status:'restricted'}]:[]);
@@ -38,7 +38,25 @@ try{
  x=await call('simulator.html');assert.equal(x.data.mode,'classic','Unselected chart page stays Classic');
  x=await call('labs.html','classic',true);assert.equal(x.data.mode,'continuous','Non-Owner cannot override published layout');
  owner=true;x=await call('labs.html','classic',true);assert.equal(x.data.mode,'classic','Owner can compare Classic on published page');
+ // Five presets: Owner may preview each, while guests cannot override saved styles.
+ enabled=true;pages=['journal.html','labs.html','simulator.html'];
+ styles={'journal.html':'compact','labs.html':'focus','simulator.html':'classic'};
+ owner=false;
+ x=await call('journal.html');assert.equal(x.data.mode,'compact');
+ assert.equal(x.data.savedStyle,'compact');
+ x=await call('labs.html');assert.equal(x.data.mode,'focus');
+ x=await call('simulator.html');assert.equal(x.data.mode,'classic','Classic page style is an explicit no-override choice');
+ x=await call('journal.html','spacious');assert.equal(x.data.mode,'compact','Visitors cannot override the saved preset');
+ owner=true;
+ for(const style of ['classic','continuous','focus','compact','spacious']){
+  x=await call('market-tutor.html',style,true);
+  assert.equal(x.data.mode,style,'Owner can preview '+style+' independently of publication');
+ }
+ x=await call('journal.html','spacious',true);
+ assert.equal(x.data.mode,'spacious');assert.equal(x.data.preview,true);
+ owner=false;enabled=false;pages=[];styles={};
+ x=await call('journal.html','compact');assert.equal(x.data.mode,'classic','Reset all must restore original for guests');
  x=await call('admin.html','continuous',true);assert.equal(x.status,400,'Never allow admin page selection');
  x=await call('checkout.html','continuous',true);assert.equal(x.status,400,'Never allow checkout page selection');
- console.log('PASS published page selections; no spillover; Owner preview/Classic compare; expired/restricted denial; no admin/checkout');
+ console.log('PASS page style presets, Owner preview security, Classic reset, global disable and excluded admin/checkout');
 }finally{globalThis.fetch=original}

@@ -39,6 +39,8 @@ on:
       - 'assets/css/crownlight-page-workspace-v2.css'
       - 'tests/test_crownlight_page_presentation_v2.mjs'
       - 'tests/test_crownlight_page_workspace_browser_v2.mjs'
+      - 'tests/test_crownlight_admin_style_gallery_browser_v1.mjs'
+      - 'assets/css/admin-crownlight-page-styles-v1.css'
       - 'assets/js/site.js'
       - 'assets/js/admin-crownlight-workspace-v1.js'
       - 'admin.html'
@@ -140,6 +142,7 @@ jobs:
           node --check assets/js/site.js
           node tests/test_crownlight_page_presentation_v2.mjs
           node tests/test_crownlight_page_workspace_browser_v2.mjs
+          node tests/test_crownlight_admin_style_gallery_browser_v1.mjs
           node tests/test_crownlight_continuous_layout_browser_v1.mjs
           node tests/test_crownlight_live_formation_v1.mjs
           node tests/test_crownlight_live_bridge_mock_v1.mjs

@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const css=readFileSync('assets/css/crownlight-page-workspace-v2.css','utf8');
 const simulatorCSS=readFileSync('assets/css/crownlight-continuous-workspace-v1.css','utf8');
+const styleCSS=readFileSync('assets/css/crownlight-page-workspace-v2.css','utf8');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1520,height:950}});
 try{
@@ -39,5 +40,32 @@ try{
   const width=await page.locator('#shell').evaluate(e=>e.getBoundingClientRect().width);
   assert(width>1350,'Full-page mode must cover specialized '+mainClass+' shell, got '+width);
  }
- console.log('PASS full-page content width, specialized page shells, compact cards, responsive viewport and Classic restoration');
+ // Each preset must cause a measurably different real browser layout.
+ await page.setViewportSize({width:1560,height:940});
+ await page.setContent('<html><body data-cl-workspace="classic"><main class="section"><div class="wrap"><div id="sim-content"><section id="cl-replay-import" style="height:40px"></section><div id="cl-chart-visibility-toolbar" style="height:40px"></div><section class="sim-layout" style="height:460px"></section><section id="cl-simulator-workbench" style="height:420px"></section></div></div></main></body></html>');
+ await page.addStyleTag({content:'.wrap{width:100%;max-width:950px;margin:auto}.section{padding-top:50px}#sim-content{display:flex;flex-direction:column;gap:12px}#sim-content>*{min-width:0;width:100%}'});
+ await page.addStyleTag({content:styleCSS});
+ await page.addStyleTag({content:simulatorCSS});
+ const rects=()=>page.evaluate(()=>{
+  const chart=document.querySelector('.sim-layout').getBoundingClientRect(),desk=document.querySelector('#cl-simulator-workbench').getBoundingClientRect();
+  return {chart:{top:chart.top,left:chart.left,right:chart.right,width:chart.width,bottom:chart.bottom},
+   desk:{top:desk.top,left:desk.left,width:desk.width},gap:getComputedStyle(document.querySelector('#sim-content')).gap,
+   wrap:document.querySelector('main>.wrap').getBoundingClientRect().width};
+ });
+ const original=await rects();assert(original.desk.top>=original.chart.bottom);
+ await page.evaluate(()=>document.body.dataset.clWorkspace='continuous');
+ const continuous=await rects();assert(Math.abs(continuous.chart.top-continuous.desk.top)<3);
+ assert(continuous.desk.left>=continuous.chart.right-3);
+ await page.evaluate(()=>document.body.dataset.clWorkspace='compact');
+ const compact=await rects();assert(Math.abs(compact.chart.top-compact.desk.top)<3);
+ assert(compact.chart.width>compact.desk.width&&compact.wrap>original.wrap);
+ await page.evaluate(()=>document.body.dataset.clWorkspace='focus');
+ const focus=await rects();assert(focus.desk.top>=focus.chart.bottom-3);
+ assert(focus.wrap>original.wrap);
+ await page.evaluate(()=>document.body.dataset.clWorkspace='spacious');
+ const spacious=await rects();assert(spacious.desk.top>=spacious.chart.bottom-3);
+ assert(spacious.gap==='22px');
+ await page.evaluate(()=>document.body.dataset.clWorkspace='classic');
+ const restored=await rects();assert(Math.abs(restored.wrap-original.wrap)<2);
+ console.log('PASS five original/continuous/focus/compact/spacious chart layouts and reversible Classic presentation');
 }finally{await browser.close()}
