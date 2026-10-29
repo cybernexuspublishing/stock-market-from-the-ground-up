@@ -37,7 +37,7 @@ export async function onRequest({request,env}){try{
  if(isPreview)return send({ok:true,access:a.kind,synthetic:a.kind==='showcase'||a.kind==='test',premium:false,modules:curriculum.map(x=>({code:x.code,title:x.title,book:x.book})),labs:[],notice:['showcase','test'].includes(a.kind)?'Synthetic-only demonstration. No production access or lab evidence.':'Select the individual training tool or a qualifying Full Membership. Payments are not enabled for this tool yet.'});
  const rows=await main(env,'platform_labs?select=lab_id,title,book_code,ticker,historical_date,timeframe,custom_href,public_sample,metadata&active=eq.true&registry_visible=eq.true&order=sort_order.asc&limit=500');
  // Never construct fictitious timestamp, ticker, tape or market-data content.
- const labs=(rows||[]).filter(x=>x.ticker&&x.historical_date).slice(0,50).map(x=>({id:x.lab_id,title:x.title||x.lab_id,bookCode:x.book_code,ticker:x.ticker,date:x.historical_date,timeframe:x.timeframe||null,href:x.custom_href||'/site-lab.html?lab='+encodeURIComponent(x.lab_id)}));
+ const labs=(rows||[]).filter(x=>x.ticker&&x.historical_date).slice(0,500).map(x=>({id:x.lab_id,title:x.title||x.lab_id,bookCode:x.book_code,ticker:x.ticker,date:x.historical_date,timeframe:x.timeframe||null,href:x.custom_href||'/site-lab.html?lab='+encodeURIComponent(x.lab_id)}));
  return send({ok:true,access:'active',via:a.via,premium:true,synthetic:false,modules:curriculum,labs,note:'Use your own authorized thinkorswim OnDemand account. Historical availability and supported features vary; do not look at later candles before locking the decision.'});
 }catch(e){return send({ok:false,error:e.status===503?'Training service unavailable.':e.message||'Training request failed.'},e.status||500)}}
 
