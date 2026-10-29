@@ -427,3 +427,146 @@ body.simulator-page #sim-content .sim-position-grid>div{padding:8px}
  body.simulator-page main.section *,body.simulator-page main.section *:before,
  body.simulator-page main.section *:after{scroll-behavior:auto}
 }
+
+
+/* Market Simulator Owner refinements — mode bar and source controls (2026-10-28).
+ * Presentation-only: preserve the active mode, user file handling, and server-side replay rules.
+ */
+body.simulator-page .sim-mode-switch{padding:9px 13px!important}
+body.simulator-page .sim-mode-bar{
+ display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap
+}
+body.simulator-page .sim-mode-title{
+ display:inline-flex;align-items:center;color:#c8dfeb;
+ font-size:.74rem;letter-spacing:.075em;text-transform:uppercase;font-weight:760
+}
+body.simulator-page .sim-mode-tabs{
+ display:inline-flex!important;align-items:center;flex-wrap:wrap;gap:4px!important;
+ padding:3px;background:#0a1626;border:1px solid #344b62;border-radius:8px
+}
+body.simulator-page .sim-mode-tabs .btn{
+ min-height:34px;border-radius:5px!important;padding:7px 12px!important;
+ font-size:.78rem;box-shadow:none
+}
+body.simulator-page .sim-mode-tabs .btn[aria-pressed="true"],
+body.simulator-page .sim-mode-tabs .sim-method-tab.sim-tab-open{
+ color:#fff;background:#6044a5;border-color:#9375d7
+}
+body.simulator-page .sim-mode-tabs .sim-method-tab{color:#d4dce9;background:transparent}
+body.simulator-page #sim-mode-notice{
+ margin:6px 0 0;font-size:.74rem;line-height:1.4;color:#a9c7da
+}
+body.simulator-page #sim-lab-method{
+ padding:11px 15px!important;margin:7px 0!important;
+ border-color:#39566a;background:#112131
+}
+body.simulator-page #sim-lab-method[hidden]{display:none!important}
+body.simulator-page #sim-lab-method h2{font-size:.98rem!important;margin:0 0 6px!important}
+body.simulator-page #sim-lab-method .sim-lab-method-content{padding:0;border:0}
+body.simulator-page #sim-lab-method .sim-lab-method-content p,
+body.simulator-page #sim-lab-method .sim-lab-method-content li{
+ font-size:.79rem;line-height:1.48
+}
+body.simulator-page #sim-lab-method .sim-lab-method-content ol{margin:7px 0 8px;padding-left:20px}
+
+/* Replace the native file-picker caption ("No file selected") with a clear,
+ * keyboard-operable button label and a filename reported only after selection. */
+body.simulator-page #sim-content #cl-replay-import .sim-file-picker{
+ display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:35px
+}
+body.simulator-page #sim-content #cl-replay-import input.sim-csv-native{
+ position:absolute!important;width:1px!important;height:1px!important;
+ min-height:0!important;min-width:0!important;max-width:1px!important;
+ margin:0!important;padding:0!important;border:0!important;
+ opacity:0;overflow:hidden;clip-path:inset(50%)
+}
+body.simulator-page #sim-content #cl-replay-import .sim-file-picker-label{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:7px 12px;min-height:35px;box-sizing:border-box;
+ cursor:pointer;border-radius:6px;border:1px solid #637f9c;
+ background:#1a2e47;color:#e8f6ff;font-size:.77rem;font-weight:750;
+ line-height:1.25;white-space:nowrap;margin:0
+}
+body.simulator-page #sim-content #cl-replay-import .sim-file-picker-label:hover{background:#294361;border-color:#9cbed7}
+body.simulator-page #sim-content #cl-replay-import input.sim-csv-native:focus-visible + .sim-file-picker-label{
+ outline:2px solid #8decd4;outline-offset:2px
+}
+body.simulator-page #sim-csv-selected-name{
+ color:#a7cedf;font-size:.73rem;overflow-wrap:anywhere;min-width:0
+}
+body.simulator-page #sim-csv-selected-name:empty{display:none}
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets{
+ margin:0 0 10px!important;padding:8px 11px!important;
+ background:#11233a!important;border:1px solid #344d68!important;
+ border-radius:7px
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets h2,
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets h3{
+ font-size:.91rem!important;margin:0 0 5px!important
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets p{
+ font-size:.75rem!important;margin:3px 0
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets select,
+body.simulator-page #sim-content #cl-replay-import .sim-import-presets button{
+ min-height:34px;padding:6px 9px;font-size:.77rem
+}
+
+/* Compact server scenario; the Journal deep link stays attached to the source
+ * setup, not orphaned below the entire replay session. */
+body.simulator-page #sim-server-mode>section.sim-server-scenario{
+ display:block!important;max-width:100%!important;
+ padding:11px 14px!important;margin:7px 0 11px!important
+}
+body.simulator-page #sim-server-mode>section.sim-server-scenario>h2{
+ font-size:1rem!important;line-height:1.3;margin:0 0 8px!important
+}
+body.simulator-page #sim-server-mode .sim-scenario-grid{
+ display:grid;grid-template-columns:minmax(0,2.3fr) minmax(0,1.4fr) minmax(0,1.4fr) auto;
+ align-items:end;gap:8px 10px
+}
+body.simulator-page #sim-server-mode .sim-scenario-grid>div{min-width:0}
+body.simulator-page #sim-server-mode .sim-scenario-dataset{grid-column:1/3}
+body.simulator-page #sim-server-mode .sim-scenario-actions{
+ grid-column:3/5;display:flex;flex-wrap:wrap;gap:6px;align-items:end
+}
+body.simulator-page #sim-server-mode .sim-scenario-code{grid-column:1/4}
+body.simulator-page #sim-server-mode .sim-scenario-start{grid-column:4;white-space:nowrap}
+body.simulator-page #sim-server-mode .sim-scenario-grid label{
+ display:block;font-size:.73rem;line-height:1.3;margin:0 0 3px;font-weight:660
+}
+body.simulator-page #sim-server-mode .sim-scenario-grid input,
+body.simulator-page #sim-server-mode .sim-scenario-grid select{
+ width:100%;max-width:100%;box-sizing:border-box;
+ min-height:35px;padding:6px 9px;font-size:.78rem;border-radius:6px
+}
+body.simulator-page #sim-server-mode .sim-scenario-actions button{
+ flex:1 1 auto;min-height:35px;white-space:normal;font-size:.75rem
+}
+body.simulator-page #sim-server-mode .sim-scenario-foot{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:8px;margin:7px 0 0
+}
+body.simulator-page #sim-server-mode .sim-scenario-foot p{
+ font-size:.73rem;margin:0;flex:1 1 280px
+}
+body.simulator-page #vr-journal-link[hidden]{display:none!important}
+body.simulator-page #sim-server-mode .sim-scenario-disclosure{
+ font-size:.71rem!important;color:#99b6ca;margin:6px 0 0!important
+}
+/* The mode layout and its controls must remain usable at narrower viewports. */
+@media(max-width:1050px){
+ body.simulator-page #sim-server-mode .sim-scenario-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.simulator-page #sim-server-mode .sim-scenario-dataset,
+ body.simulator-page #sim-server-mode .sim-scenario-actions,
+ body.simulator-page #sim-server-mode .sim-scenario-code{grid-column:1/-1}
+ body.simulator-page #sim-server-mode .sim-scenario-start{grid-column:1/-1}
+}
+@media(max-width:680px){
+ body.simulator-page .sim-mode-bar{align-items:stretch;flex-direction:column}
+ body.simulator-page .sim-mode-tabs{display:grid!important;grid-template-columns:1fr;max-width:100%}
+ body.simulator-page .sim-mode-tabs .btn{min-height:42px}
+ body.simulator-page #sim-server-mode .sim-scenario-grid{grid-template-columns:minmax(0,1fr)}
+ body.simulator-page #sim-server-mode .sim-scenario-grid>div,
+ body.simulator-page #sim-server-mode .sim-scenario-start{grid-column:1/-1}
+}
