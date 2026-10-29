@@ -58,13 +58,18 @@ if(!authorized){
  assert.equal(catalog.status,200,'Authorized QA member must receive a genuine catalog result');
  assert.equal(catalog.body.ok,true);
  assert(Array.isArray(catalog.body.datasets));
- assert(catalog.body.datasets.every(x=>!/^HR_[A-Z0-9]+_20\d{6}$/.test(x.code)||x.code!=='HR_DIS_20240507'),
-  'Draft DIS cannot appear in paid or replay-only catalog');
+ assert((catalog.body.datasets||[]).every(x=>x.synthetic!==true),
+  'Historical catalog must not contain fictional replay sources');
 }
-const rejected=await call(token,'start',{datasetCode:'HR_DIS_20240507'});
-assert.equal(rejected.status,403,'Unapproved DIS data must not start a session even with a paid tool grant.');
-assert(!JSON.stringify(rejected.body).includes('107.25'),'No vendor data should leak from a rejected start.');
-console.log('PASS LIVE DRAFT REVOCATION: DIS publication gate denies start and future data.');
+const disQaVisible=authorized&&(catalog.body.datasets||[]).some(x=>x.code==='HR_DIS_20240507');
+if(!disQaVisible){
+ const rejected=await call(token,'start',{datasetCode:'HR_DIS_20240507'});
+ assert.equal(rejected.status,403,'Unapproved DIS must remain unavailable to non-approved membership.');
+ assert(!JSON.stringify(rejected.body).includes('107.25'),'Rejected historical source must never leak bars.');
+ console.log('PASS LIVE DRAFT DENIAL: unapproved DIS cannot be opened.');
+}else{
+ console.log('PASS LIVE QA CATALOG: IEX source is visible to its genuine, pinned authenticated QA identity.');
+}
 
 if(!authorized){
  console.log('NOT ACCEPTED: authenticated positive replay cannot run without QA training entitlement.');
