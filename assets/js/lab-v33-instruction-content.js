@@ -9,6 +9,96 @@ const clean=(value,max=900)=>String(value||'').trim().slice(0,max);
 const sentence=(s)=>/[.!?]$/.test(s)?s:s+'.';
 const currency=n=>'$'+Number(n).toFixed(2);
 const domains={
+ tradeplan:{
+  name:'Trade thesis, invalidation and risk',
+  explanation:[
+   'A trade plan answers WHY this candidate matters, WHAT observable condition might justify an entry, WHEN the thesis fails, and HOW much is at risk before an outcome is known.',
+   'For an illustrative long scenario, risk per share is planned entry minus stop reference when stop is lower. Whole-share size is the floor of planned dollar risk divided by risk per share, subject to buying power and liquidity.',
+   'A stop trigger is not a guaranteed execution price. Spread changes, halts, overnight gaps, partial fills and order-type rules can cause actual losses to exceed the modeled plan. WAIT and NO TRADE are valid decisions.'
+  ],
+  example:[
+   'FICTIONAL: Entry $5.00, stop reference $4.80, target $5.60 and planned loss budget $25.',
+   'Risk per share = $5.00 − $4.80 = $0.20. Floor($25 ÷ $0.20) = 125 shares before affordability and execution checks.',
+   'Potential reward per share = $0.60, so the idealized reward-to-risk ratio is 3:1 before fees and slippage. A $4.80 stop reference does not guarantee a $4.80 sale.'
+  ],
+  misconception:'Choosing share size from a desired profit, describing an unfilled stop-limit as guaranteed protection, or adjusting the stop after an unfavorable move.',
+  limitation:'Planned prices and risk budgets are scenarios; the market can gap or halt and no order guarantees a modeled outcome.',
+  check:{question:'Which information must a risk-first plan contain before a hypothetical entry?',choices:['A profitable target only','A thesis, trigger, invalidation, position-size assumptions and no-trade rule'],correct:1,feedback:'The plan must define how it could be wrong and quantify exposure before discussing a potential reward.'},
+  experiment:'Hold the $25 loss budget fixed and widen risk per share from $0.20 to $0.25. Recalculate whole-share size and discuss why liquidity may impose a lower limit.',
+  transfer:'On an unfamiliar fictional setup, state the source, trigger, invalidation, assumed fill mechanism, risk per share and a reason to pass.'
+ },
+ catalyst:{
+  name:'Catalysts, company evidence and sector relationships',
+  explanation:[
+   'A catalyst is an identifiable event, such as an issuer announcement, earnings report, regulatory disclosure or independently dated market development. It creates a research question; it does not guarantee a stock will rise.',
+   'Record issuer identity, instrument class, original source URL, first-publication timestamp, announced facts, limitations and the market-data observation time. Distinguish issuer statements, independent corroboration and later price reaction.',
+   'A hot sector or sympathy candidate is an observed relationship among securities, not proof they will move together. If the catalyst, source timing or security identity is uncertain, choose VERIFY or NO TRADE.'
+  ],
+  example:[
+   'FICTIONAL: A social post calls a $2 stock a contract winner, but the linked release only describes a nonbinding collaboration and omits a dollar value.',
+   'Record the actual release date and wording; do not upgrade a proposed collaboration into confirmed revenue.',
+   'Even if peer stocks rallied earlier, the observation supports a sector hypothesis only. Wait for independently timed market observations before claiming a price response.'
+  ],
+  misconception:'Treating a viral repost or a strong peer-stock move as proof of an executed contract, guaranteed earnings or a trading signal.',
+  limitation:'News effects have competing explanations; timestamped sources and security identity must be checked before causal claims.',
+  check:{question:'A screenshot says a ticker signed a $40 million contract. What verifies the claim?',choices:['The number of shares traded','The primary dated filing or issuer document and its exact terms'],correct:1,feedback:'Confirm the original source, date, parties and binding terms. Price movement alone does not validate the headline.'},
+  experiment:'Change the fictional announcement from a signed agreement to a nonbinding memorandum. Explain what research conclusion must change and what remains unknown.',
+  transfer:'For a new fictional sector mover, write the original claim, source timestamp, one competing explanation and a reason to withhold a trade.'
+ },
+ momentum:{
+  name:'Momentum setups, confirmation and failure',
+  explanation:[
+   'A dip-and-rip, red-to-green transition, high-of-day break, VWAP reclaim, clean-chart breakout or multi-day continuation is a pattern hypothesis defined using particular levels and completed observations.',
+   'Define the instrument, session, timeframe, key levels, volume participation and invalidation before judging a developing setup. Red-to-green compares price with the previous-day close; a red or green candle instead compares its own open and close.',
+   'A level touch is not necessarily a completed breakout; a reclaim can fail; a high-volume stock may still have a wide spread. WAIT until the required evidence is observable and NO TRADE if the risk gates fail.'
+  ],
+  example:[
+   'FICTIONAL: A candidate closes yesterday at $2.40, opens today at $2.20, and later trades at $2.44. That is a price transition above the previous close, not proof of a successful continuation.',
+   'A $2.50 high-of-day test would need a predeclared price, timeframe, volume and spread rule; an intrabar wick alone may not meet a completed-candle criterion.',
+   'If the candidate moves back below its required level or quoted liquidity deteriorates, the original thesis may be invalidated even if the news remains positive.'
+  ],
+  misconception:'Confusing a candle color with day-over-day red-to-green, predicting a squeeze from low float alone, or treating an attractive breakout screenshot as an executable entry.',
+  limitation:'The source-informed setup names do not establish independent positive expectancy; future bars, exact fills and breakout success are unknown.',
+  check:{question:'A stock moves from below to above yesterday’s close. What has been established?',choices:['An observed red-to-green threshold crossing, not continuation','A guaranteed profitable entry'],correct:0,feedback:'The crossing is an observable definition. Structure, liquidity and subsequent behavior remain uncertain.'},
+  experiment:'Move the fictional prior-day close while holding the intraday candle unchanged. Decide whether the red-to-green classification changes.',
+  transfer:'On a new fictional chart, identify the reference level, formation state, confirming evidence, failure boundary and a no-trade condition.'
+ },
+ liquidity:{
+  name:'Volume, spread, depth and execution uncertainty',
+  explanation:[
+   'Trading volume counts shares exchanged over a stated interval; it is not the number of shares a new order can necessarily buy or sell at the displayed price.',
+   'Quoted spread is best ask minus best bid. Spread percentage can be expressed as spread divided by midpoint times 100, provided both quotes are timely and the midpoint is positive. Depth and venue conditions can change before execution.',
+   'A fixed one-million-share daily volume cutoff is an individual screening heuristic, not a fill guarantee. Evaluate trade size, displayed depth, recent spreads, market session and halt risk.'
+  ],
+  example:[
+   'FICTIONAL: Best bid $1.98 and ask $2.02 give a $0.04 spread and $2.00 midpoint.',
+   'Spread percentage = $0.04 ÷ $2.00 × 100 = 2%. A planned 500-share sale could still fill at multiple prices or not fill if displayed demand disappears.',
+   'If the quotation is stale or a halt occurs, do not treat the computed percentage as an executable cost.'
+  ],
+  misconception:'Mistaking share volume or float rotation for immediately available order-book depth, or assuming stop orders guarantee a price.',
+  limitation:'Displayed quotes are time-specific, may be canceled, and do not ensure the modeled execution for any share size.',
+  check:{question:'Does one million shares of daily reported volume guarantee that a 1,000-share stop order will fill at its trigger price?',choices:['Yes, the volume threshold guarantees liquidity','No, execution depends on current counterparties, spread, depth and market conditions'],correct:1,feedback:'Historical traded volume is different from contemporaneous executable liquidity.'},
+  experiment:'Hold the midpoint at $2.00 and widen a fictional spread from $0.04 to $0.20. Compare the percentage and explain why the same daily volume does not resolve execution risk.',
+  transfer:'Given a new fictional quote and requested size, distinguish what is known about volume from what still needs verification about executable liquidity.'
+ },
+ journal:{
+  name:'Journal evidence, process and review',
+  explanation:[
+   'A useful journal captures the ticker, date and timezone, intended horizon, position size if any, the pre-decision thesis, planned trigger, invalidation, target and the actual decision or reason to pass.',
+   'Keep the original time-locked plan separate from later corrections and outcomes. Compare planned and actual risk, execution uncertainty, decision timing and whether the process respected the stated rules.',
+   'MFE and MAE measure excursions under a documented observation window; neither is automatically a fill, achievable profit or proof of a valid strategy. A profitable outcome can accompany a poor decision and a sound process can lose money.'
+  ],
+  example:[
+   'FICTIONAL: A plan documents a $3.00 trigger and $2.80 invalidation, but the learner waits when the spread widens. A NO TRADE observation can be a correct process result.',
+   'If later price reaches $3.60, do not rewrite the original pass as an error without evaluating what was knowable and executable at the decision time.',
+   'Record the research source, timestamp, alternative scenario, reason for passing and the lesson to transfer next time.'
+  ],
+  misconception:'Backfilling a perfect plan after a winner, judging a decision only by P&L or treating intrabar extremes as guaranteed execution prices.',
+  limitation:'Self-entered outcomes, chart captures and timestamps may be incomplete; avoid invented market fills or official skill grades.',
+  check:{question:'A predeclared no-trade decision is followed by a hypothetical price rally. Was the original decision necessarily wrong?',choices:['Yes, because the later price rose','No, the original evidence and risk rules must be reviewed without hindsight'],correct:1,feedback:'Evaluate the original evidence and decision process separately from the later market outcome.'},
+  experiment:'Hold the original fictional plan fixed and change only the subsequent outcome. Describe which process judgments must remain unchanged.',
+  transfer:'Write a new before/during/after review that preserves the initial hypothesis, missing information, execution assumptions and a next practice step.'
+ },
  watchlist:{
   name:'Creating a stock watchlist',
   explanation:[
@@ -177,6 +267,11 @@ const domains={
 };
 function inferDomain({visualType='',concept='',subject={}}={}){
  if(/\bwatchlist\b/i.test(concept))return 'watchlist';
+ if(/trade plan|trade thesis|stop.loss|risk.reward|position siz|profit target|trailing stop|risk management/i.test(concept))return 'tradeplan';
+ if(/catalyst|filing|earnings|sector|sympathy|news event|press release|offering|issuer source/i.test(concept))return 'catalyst';
+ if(/dip.and.rip|red.to.green|gap.up|breakout|false break|pattern|short squeeze|supernova|bull flag|bear flag|momentum setup|high.of.day/i.test(concept))return 'momentum';
+ if(/liquidity|quoted spread|slippage|market depth|volume versus|stop.order execution/i.test(concept))return 'liquidity';
+ if(/journaling|journal|decision review|mfe|mae|trade review/i.test(concept))return 'journal';
  if(domains[visualType]&&visualType!=='candle')return visualType;
  if(visualType==='candle'||/\bcandlestick\b|\bcandle\b|\bwick\b|\bohlc\b/i.test(concept))return 'candle';
  if(/\bvwap\b/i.test(concept))return 'vwap';
