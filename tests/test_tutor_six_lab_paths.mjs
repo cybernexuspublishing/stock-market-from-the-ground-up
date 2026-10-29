@@ -26,6 +26,20 @@ for(const [id,title,cue] of cases){
  assert(answer.includes('Try the next step independently'));
  assert(!/answer.?key|future price|actual fill/i.test(answer));
 }
+// Direct learner questions select the relevant published teaching sections.
+const candleContext=await getApprovedLabContext({ASSETS:asset},request,
+ 'Lab F2-C07-L01. Learning Journey stage: Learn. Why does a candle matter?');
+const whyAnswer=labGuidance(candleContext,'explain','','Why does a candle matter?');
+assert(whyAnswer.includes('Why it matters:'));
+assert(!whyAnswer.includes('Worked example (fictional):'));
+const calculation=labGuidance(candleContext,'explain','','How do I calculate the candle range?');
+assert(calculation.includes('Worked example (fictional):'));
+assert(!calculation.includes('Why it matters:'));
+const assessContext={...candleContext,learningStage:'Assess'};
+const assessAnswer=labGuidance(assessContext,'explain','','How do I calculate the answer?');
+assert(!assessAnswer.includes('Worked example (fictional):'));
+assert(assessAnswer.includes('I cannot reveal a worked answer or answer key.'));
+
 // Non-example canonical Labs remain on the shared protected fallback.
 const fallbackId='SITE-001';
 const fallbackAsset={fetch:async()=>new Response(JSON.stringify({
