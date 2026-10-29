@@ -77,6 +77,8 @@ export async function onRequestGet({request,env}){
    lumensApplied:quote.appliedLumens,discountCents:quote.discountCents,
    cashDueCents:quote.remainingSubtotalCents,remainingLumens:quote.remainingLumens,
    fullyCovered:quote.fullyCovered,checkoutDiscountActive:false,
+   cashPaymentSupported:quote.remainingSubtotalCents===0||quote.remainingSubtotalCents>=50,
+   minimumCashChargeCents:50,
    renewalNotice:registeredItem.billing_interval!=='one_time'?
      'Credits apply only to the current purchase price in this preview. Future automatic renewals are not discounted without separate authorization.':null,
    exclusions:'Shipping, taxes and other separately assessed amounts are not included in this preliminary subtotal.',
