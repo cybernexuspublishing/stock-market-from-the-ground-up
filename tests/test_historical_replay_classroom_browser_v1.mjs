@@ -12,7 +12,7 @@ const bars=Array.from({length:13},(_,i)=>({
  open:100+i*.08,high:100+i*.08+.3,low:100+i*.08-.2,close:100+i*.08+.04,volume:1000+i*31
 }));
 const original=readFileSync('verified-replay.html','utf8');
-const html=original.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/gi,'').replace('</body>','<script src="/qa-auth.js"></script><script src="/assets/js/verified-replay-v01492.js"></script><script src="/assets/js/historical-replay-classroom-v1.js"></script></body>');
+const html=original.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/gi,'').replace('</body>','<script src="/qa-auth.js"></script><script src="/chart-engine.js"></script><script src="/assets/js/crownlight-indicator-math-v2.js"></script><script src="/assets/js/crownlight-chart-tutor-v1.js"></script><script src="/assets/js/crownlight-chart-studio-v2.js"></script><script src="/assets/js/verified-replay-v01492.js"></script><script src="/assets/js/historical-replay-classroom-v1.js"></script><script src="/assets/js/crownlight-chart-tiers-v1.js"></script></body>');
 const authScript="(()=>{const u={id:'00000000-0000-4000-8000-000000000111'};let signed=true,handler=null;window.getSupabaseClient=async()=>({auth:{getUser:async()=>({data:{user:signed?u:null}}),getSession:async()=>({data:{session:signed?{user:u,access_token:'test-qa-token'}:null}}),onAuthStateChange:cb=>{handler=cb;return {data:{subscription:{unsubscribe(){}}}}}}});window.qaSignOut=()=>{signed=false;handler?.('SIGNED_OUT',null)};})();";
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
@@ -24,8 +24,11 @@ try{
   if(u.origin!==origin)return route.abort();
   if(u.pathname==='/verified-replay.html')return route.fulfill({status:200,contentType:'text/html',body:html});
   if(u.pathname==='/qa-auth.js')return route.fulfill({status:200,contentType:'application/javascript',body:authScript});
+  if(u.pathname==='/chart-engine.js')return route.fulfill({status:200,contentType:'application/javascript',body:readFileSync('node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js')});
   if(u.pathname.startsWith('/api/')){
+   if(u.pathname==='/api/chart-studio-menu')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,visible:['STANDARD','ADVANCED','PROFESSIONAL','ECHARTS']})});
    assert.equal(route.request().headers().authorization,'Bearer '+token);
+   if(u.pathname==='/api/chart-tier-access')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,eligible:true,tier:'STANDARD',allowed:['STANDARD']})});
    const action=u.searchParams.get('action');let response={},status=200;
    if(action==='catalog')response={ok:true,datasets:[{code:'QA_DIS_20240507',ticker:'DIS',date:'2024-05-07',title:'Synthetic test fixture (not market data)',sourceAttribution:'QA fixture',licenseNotice:'not released'}]};
    else if(action==='resume')response={ok:true,session:null,notice:'No saved QA session'};
@@ -46,6 +49,9 @@ try{
  await page.waitForFunction(()=>document.querySelector('#vr-session')?.hidden===false);
  assert.match(await page.locator('#hr-count').innerText(),/1 revealed source bars · 0 completed 3m/);
  assert.equal(await page.locator('#vr-advance').isDisabled(),true);
+ await page.waitForFunction(()=>document.querySelector('.crownlight-shell .crownlight-plot canvas')!==null,null,{timeout:10000});
+ assert.equal(await page.locator('.crownlight-shell').count(),1,'Real Lightweight Charts must mount in classroom');
+ assert.equal(await page.locator('.hr-chart').isVisible(),false,'SVG fallback must not duplicate the real chart');
  await page.locator('#vr-decision').selectOption('WATCH');
  await page.locator('#vr-reason').fill('The initial candle offers insufficient evidence; I will wait before trading.');
  await page.locator('#vr-lock').click();
