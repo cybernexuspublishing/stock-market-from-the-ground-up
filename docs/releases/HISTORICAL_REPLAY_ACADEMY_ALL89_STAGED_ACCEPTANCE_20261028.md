@@ -10,7 +10,7 @@ Google Drive location: Proposed The Stock Market: From the Ground Up/Website/Rel
 Google Drive document ID: Not assigned  
 Prepared: October 28, 2026 (Central Time); latest CI/deploy events may be dated October 29 UTC  
 Status: SOURCE RESEARCH STAGED — HISTORICAL RETAIL ACCEPTANCE BLOCKED  
-Version: HR-ALL89-1.1  
+Version: HR-ALL89-1.2  
 Purpose: Full-case coverage, source provenance, legal publication gate, acceptance status, and rollback.  
 Dependencies: 419 canonical Labs; existing secure replay engine; existing Crownlight charts/Talia; authorized data publication; end-to-end real account testing.
 
@@ -91,3 +91,25 @@ The historical learning catalog now asks the authenticated, entitlement-checked 
 
 ### Change record
 HR-ALL89-1.1 — Added actual signed-in production negative-path QA evidence, complete IEX attribution correction, source alternatives and member-visible publication controls. Positive licensed historical playback remains outstanding.
+
+## Postflight update HR-ALL89-1.2 — October 29, 2026
+
+### Scope-controlled first genuine historical publication
+Of the 89 registered historical ticker/date datasets, DIS 2024-05-07 is the first fully source-reconciled IEX dataset and the **only** record moved to `published` status, strictly guarded with `qa_release_only=true` and the existing membership entitlement. The other **88 remain drafts**. Publication to general customers remains closed. The 23 trading-date archives are cataloged; IEX-only observations for May 7 were acquired and verified. Do not infer 89 published cases from 23 first-party archives.
+
+### Final production evidence
+- Official IEX original daily capture source SHA256: `4ad7fc26ce52471e1d631a5583353ae109422356cc723da34d8f37c7c80dcce5`, source volume 2,258,120,982 compressed bytes.
+- 71,591,683 IEX-TP message packets reviewed, no packet sequence gaps or overlap, no selected trade breaks. DIS 30 consecutive opening 1m source bars, 180 provider-crosscheck data points matched.
+- QA-only successful HTTP and Chromium E2E: <https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/40827085229>. Real protected session start/resume, decision lock, no-lookahead, Talia, persistence, finish and sign-out; browser waits for server acknowledgment.
+- Database postflight: 30 private source bars for DIS; 5 finished/0 active dedicated QA DIS sessions; 88 drafts/1 QA-only published record; no publicly authorized commercial release.
+- Source evidence: `docs/releases/HISTORICAL_REPLAY_IEX_20240507_SOURCE_EVIDENCE_V1.md` version 1.2.
+- Existing member plans, Stripe, Sparks and public Lab IDs were not modified.
+- Actual second non-QA authenticated-account denial remains to be tested. Source verification for other dates/cases remains pending.
+
+### Controlling release status
+**DIS limited noncharging QA acceptance: PASS. Entire 89-case historical retail program: NOT COMPLETE.**
+
+### Revision history
+- HR-ALL89-1.2 — 2026-10-29 — One real IEX dataset verified, stored, QA-only published and genuine authenticated HTTP/browser accepted; 88 other draft cases preserved.
+
+**Document footer:** SMFGU Historical Replay Academy | HR-ALL89-1.2 | Controlled release evidence | Public launch gated.
