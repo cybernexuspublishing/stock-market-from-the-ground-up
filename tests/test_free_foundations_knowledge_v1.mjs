@@ -13,6 +13,13 @@ const context=vm.createContext({document:{readyState:'loading',addEventListener:
 vm.runInContext(source,context,{filename:'free-foundations-knowledge-v1.js'});
 const library=context.GroundUpFreeKnowledgeV1?.topics;
 assert.equal(library?.length,12,'Free library must cover all twelve beginner essentials');
+const freeById=id=>Array.from(library).find(x=>x.id===id);
+assert(freeById('orders').teach.includes('Trailing stops'),'Trailing stop execution limitation is missing');
+assert(freeById('accounts').teach.includes('June 4, 2026')&&freeById('accounts').teach.includes('October 20, 2027'),'Current broker-specific intraday margin transition must be taught');
+assert(freeById('hours').teach.includes('current bid depth'),'Executed share volume and executable depth must be separated');
+assert(freeById('charts').teach.includes('doji-like')&&freeById('charts').teach.includes('high preceded the low'),'Candlestick range and intrabar sequence caveat must be taught');
+assert(freeById('process').teach.includes('post-event learning journal')&&freeById('process').teach.includes('first red completed five-minute candle'),'Before/after plan and provisional exit cue must be distinct');
+
 const ids=Array.from(library,x=>x.id);
 assert.equal(new Set(ids).size,12,'No repeated core topic may displace a missing one');
 for(const topic of library){
