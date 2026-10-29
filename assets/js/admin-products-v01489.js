@@ -10,7 +10,8 @@ const planPages={FREE:'store-membership-free.html',FULL_MONTHLY:'store-membershi
 const toolPages={INTERACTIVE_LEARNING:'store-tool-interactive-learning.html',JOURNAL_ANALYTICS:'store-tool-journal-analytics.html',MARKET_SIMULATOR:'store-tool-market-simulator.html',MARKET_TUTOR:'store-tool-market-tutor.html'};
 const urlFor=(kind,code)=>({plan:planPages,tool:toolPages}[kind]?.[code]||('store-product.html?type='+encodeURIComponent(kind)+'&code='+encodeURIComponent(code)));
 const regularCodes=['FREE','PICK_WHAT_YOU_WANT','ONDEMAND_MONTHLY','FULL_MONTHLY','FULL_ANNUAL','LIFETIME'];
-const founderCodes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'],legacyFounderCodes=['FOUNDING_MONTHLY','FOUNDING_ANNUAL'];
+const founderCodes=['FOUNDING_14','FOUNDING_30','FOUNDING_60'];
+const legacyFounderCodes=['FOUNDING_MONTHLY','FOUNDING_ANNUAL'];
 const founderDays={FOUNDING_14:14,FOUNDING_30:30,FOUNDING_60:60};
 const ordered=(all,codes)=>codes.map(code=>all.find(x=>x.plan_code===code)).filter(Boolean);
 const section=(name,detail,cards)=>'<section class="product-inventory-section"><h3>'+e(name)+'</h3><p class="small">'+e(detail)+'</p>'+
