@@ -7,7 +7,7 @@
 - File type: Markdown, GitHub-controlled new source evidence document
 - Document ID: SMFGU-HR-IEX-20240507-EVIDENCE-001
 - Google Drive location: Proposed The Stock Market: From the Ground Up / Website / Research / Historical Replay / IEX Source Evidence; not uploaded
-- Version: 1.0
+- Version: 1.1
 - Date: October 29, 2026 (UTC)
 - Status: **OFFICIAL SOURCE IDENTIFIED; FULL FILE HASH VERIFIED; PUBLICATION PENDING**
 - Purpose: Maintain first-party archive identification and integrity evidence for six canonical Labs.
@@ -42,13 +42,15 @@ It inspected 258,736,167 compressed bytes to reach the end of the requested 09:3
 
 Missing minutes in exchange-only observations are not automatically errors and **must never be filled with fictional prices**.
 
-### Sample independent feed corroboration
+### Complete opening-window comparison against Alpaca IEX
 DIS, May 7, 2024 (Eastern Time):
 
 | Minute | Raw IEX eligible O/H/L/C | Volume | Alpaca IEX 1-minute |
 |---|---|---|---|
 | 09:30 | 107.250 / 107.250 / 105.765 / 106.530 | 32,051 | Match |
 | 09:31 | 106.530 / 107.055 / 106.460 / 107.055 | 22,673 | Match |
+
+A complete read-only 09:30–09:59 ET DIS comparison independently retrieved Alpaca IEX one-minute bars and compared them against the privately held corrected official IEX archive artifact. All 30 dates/times and all six numeric fields (open, high, low, close, volume, trade count) matched exactly: **180 out of 180 numeric comparisons, zero mismatches**. This is independent processing/cross-provider corroboration of the same IEX venue source, not proof of a separate-exchange price record. No Alpaca bars were placed in the website repository or redistributed. The original source still needs full-day packet/trade-break reconciliation before release.
 
 The standard IEX TOPS eligibility requires excluding odd-lot and extended-hours prints from last-sale and high/low prices while including trade volume as specified. The original unfiltered 09:30 low of 105.670 is **not** an approved chart low.
 
@@ -75,3 +77,5 @@ IEX reflects **IEX venue executions only**, not SIP consolidated national tape, 
 
 ## Revision history
 - 1.0 — October 29, 2026: First-party catalog and full compressed archive verified; six candidate windows extracted with corrected sale eligibility; publication explicitly withheld.
+
+- 1.1 — October 29, 2026: Expanded independent IEX provider verification from two sample candles to all 30 opening-minute candles (180 exact field matches). Full-day correction audit still pending.
