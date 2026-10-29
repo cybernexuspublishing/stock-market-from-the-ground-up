@@ -826,8 +826,14 @@
     @media(max-width:1050px){.gu-nav-sparks{display:none}}`;
     document.head.appendChild(css);
   }
+  let sparksRefreshInFlight=false,sparksWalletInterval=null;
   async function refreshSparkWallet(a){
-    if(!a?.authenticated)return;
+    if(!a?.authenticated||sparksRefreshInFlight)return;
+    sparksRefreshInFlight=true;
+    try{return await updateSparkWallet(a)}
+    finally{sparksRefreshInFlight=false}
+  }
+  async function updateSparkWallet(a){
     const targets=[...document.querySelectorAll('[data-sparks-balance],[data-sparks-popup-balance]')];
     const dashboard=document.getElementById('member-sparks-wallet');
     if(!targets.length&&!dashboard)return;
@@ -835,7 +841,7 @@
     const session=(await sb.auth.getSession())?.data?.session;
     if(!session?.access_token)return;
     try{
-      const resp=await fetch('/api/member-sparks-wallet',{headers:{authorization:'Bearer '+session.access_token},
+      const resp=await fetch('/api/member-sparks-balance',{headers:{authorization:'Bearer '+session.access_token},
         cache:'no-store',credentials:'same-origin'});
       if(!resp.ok)throw Error('Wallet unavailable');
       const v=await resp.json(),w=v?.wallet;
@@ -848,15 +854,43 @@
       put('sparks-wallet-manual',w.manual.toLocaleString());
       put('sparks-wallet-expiry',w.nextExpiry?new Date(w.nextExpiry).toLocaleDateString():'Never');
       put('sparks-wallet-status','Current private balance, verified from your Sparks ledger.');
+      window.dispatchEvent(new CustomEvent('crownlight:sparks-balance',{detail:{
+        available:w.available,included:w.included,purchased:w.purchased,manual:w.manual
+      }}));
     }catch{
       const el=document.getElementById('sparks-wallet-status');
       if(el)el.textContent='Your wallet could not be verified. No balance has been assumed.';
     }
   }
+  // Exactly one wallet heartbeat per document; never poll invisible tabs,
+  // overlap requests, keep an old account's number after sign-out, or
+  // re-run the monthly Free Spark grant in this five-second read path.
+  function stopSparksHeartbeat(){
+    if(sparksWalletInterval!==null){clearInterval(sparksWalletInterval);sparksWalletInterval=null}
+  }
+  function ensureSparksHeartbeat(authenticated){
+    if(!authenticated){
+      stopSparksHeartbeat();
+      document.querySelectorAll('[data-sparks-balance],[data-sparks-popup-balance]')
+        .forEach(el=>el.textContent='—');
+      return;
+    }
+    if(sparksWalletInterval!==null)return;
+    sparksWalletInterval=setInterval(()=>{
+      if(document.visibilityState==='hidden'||!document.querySelector('[data-sparks-balance]'))return;
+      void refreshSparkWallet({authenticated:true});
+    },5000);
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&document.querySelector('[data-sparks-balance]'))
+      void refreshSparkWallet({authenticated:true});
+  });
+  window.addEventListener('pagehide',stopSparksHeartbeat);
+  window.addEventListener('pageshow',()=>{if(document.querySelector('[data-sparks-balance]'))ensureSparksHeartbeat(true)});
   window.GroundUpRefreshSparkWallet=(a)=>refreshSparkWallet(a);
   async function renderSessionAware(force=false){
     const a=await access(force);if(!gateRegistry(a))return;
-    const items=await navItems(force);makeNav(a,items);installSparkNavStyle();void refreshSparkWallet(a);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
+    const items=await navItems(force);makeNav(a,items);installSparkNavStyle();ensureSparksHeartbeat(a?.authenticated===true);void refreshSparkWallet(a);workspaceNavigation(a);installNavGuard(a);applyAccountIdentity(a);featurePanel(a);await profileTabs(a);modernFooter(a);await Promise.all([adSlot(a),authPageAds(a),communityEnhancements(),applyLabControls()]);
   }
 
   async function watchAuth(){
