@@ -117,6 +117,26 @@
    get('academy-engine').before(mount);
   }
   mount.replaceChildren();mount.hidden=false;
+  // Research augmentation is formative and never changes assessment, member
+  // progress or saved reflections. It uses original source-informed teaching.
+  if(d.researchEnrichment){
+   const x=d.researchEnrichment,section=node('section');
+   section.className='academy-beta-daily-coach';
+   section.setAttribute('aria-label','Research enrichment for this study day');
+   section.append(node('p','RESEARCH CONNECTION · SOURCE-INFORMED CLASSROOM'),
+    node('h4',x.theme),node('p',x.teach),
+    node('h4','Worked fictional case'),node('p',x.example),
+    node('h4','Apply it to the current lesson'));
+   const ordered=node('ol');
+   for(const item of x.steps||[])ordered.append(node('li',item));
+   section.append(ordered);
+   const review=node('details');
+   review.append(node('summary','Independent ungraded reflection'),
+    node('p',x.checkpoint),
+    node('p','Answer from the evidence available at the decision time. Explain one limitation or NO TRADE condition. This is teaching, not an official assessment or a verified historical example.'));
+   section.append(review);
+   mount.append(section);
+  }
   if(!d.lesson){
    // The 7/10/45/60/90-day beta courses reuse Owner-approved market topics
    // but did not previously render direct teaching when the Lab bridge failed.
