@@ -16,7 +16,7 @@ const founderDays={FOUNDING_14:14,FOUNDING_30:30,FOUNDING_60:60};
 const ordered=(all,codes)=>codes.map(code=>all.find(x=>x.plan_code===code)).filter(Boolean);
 const section=(name,detail,cards)=>'<section class="product-inventory-section"><h3>'+e(name)+'</h3><p class="small">'+e(detail)+'</p>'+
  (cards.length?'<div class="admin-grid product-catalog-rows">'+cards.join('')+'</div>':'<p class="small">No records available.</p>')+'</section>';
-let context=null,live=null,current='memberships',pending=false;
+let context=null,live=null,founderTerms=new Map(),current='memberships',pending=false;
 const msg=(s,error=false)=>{const x=$('admin-products-message');if(x){x.textContent=s;x.classList.toggle('admin-products-error',error)}};
 async function token(){
  const sb=await window.getSupabaseClient(),{data:{session}}=await sb.auth.getSession();
@@ -54,10 +54,15 @@ function chartCoverage(plan){
 }
 function membershipCard(p){
  const enabled=p.active&&p.public_visible;
- const price=p.plan_code==='PICK_WHAT_YOU_WANT'?'$0.00 base fee · individual tools billed separately':money(p.price_cents)+(founderDays[p.plan_code]?' / '+founderDays[p.plan_code]+' days':cycle(p.billing_interval));
+ const founder=!!founderDays[p.plan_code],terms=founderTerms.get(p.plan_code);
+ const price=founder?(terms?money(terms.price_cents)+' every '+terms.term_days+' days':'Founder price verification unavailable'):
+  p.plan_code==='PICK_WHAT_YOU_WANT'?'$0.00 base fee · tools priced separately':money(p.price_cents)+cycle(p.billing_interval);
+ const founderDetails=!founder?'':(!terms?'<p role="alert">Dedicated Founder terms unavailable; do not infer the billing schedule.</p>':
+  '<p class="small"><strong>Founder terms:</strong> '+e(terms.term_days)+'-day auto-renewal · '+e(terms.purchase_discount_bps/100)+'% eligible discount · '+e(terms.included_sparks)+' included Sparks · dedicated checkout flag '+(terms.checkout_enabled?'ON':'OFF')+'.</p>')+
+  (terms&&Number(terms.price_cents)!==Number(p.price_cents)?'<p role="alert">Price mismatch between registries; reconcile before enrollment.</p>':'');
  const buttons=owner()&&can('commerce.view')?
   '<div class="product-admin-fields"><label><input type="checkbox" data-flag="active" '+(p.active?'checked':'')+
-  (p.plan_code==='FREE'?' disabled':'')+'> Available for new enrollment</label><label><input type="checkbox" data-flag="public" '+(p.public_visible?'checked':'')+'> Listed in Store</label><label><input type="checkbox" data-flag="pause"> Pause NEW checkout (cannot enable from here)</label>'+
+  (p.plan_code==='FREE'?' disabled':'')+'> Registry active (not proof of enrollment)</label><label><input type="checkbox" data-flag="public" '+(p.public_visible?'checked':'')+'> Public listing requested (other gates apply)</label><label><input type="checkbox" data-flag="pause"> Pause NEW checkout (cannot enable from here)</label>'+
   '<button class="btn secondary" type="button" data-plan-save="'+e(p.plan_code)+'">Save Visibility</button></div>':
  '<p class="small">Owner authorization is required to change membership availability.</p>';
  const copy=owner()&&can('plans.manage')?
@@ -66,11 +71,13 @@ function membershipCard(p){
  '<label>Store description<textarea data-copy="description" maxlength="2400" rows="4">'+e(p.description||'')+'</textarea></label>'+
  '<p class="small">Copy must accurately reflect the published benefits, exclusions and billing terms. This does not edit contractual inclusions, prices or Stripe mappings.</p>'+
  '<button class="btn secondary" type="button" data-plan-copy="'+e(p.plan_code)+'">Save Description</button></details>':'';
- const status=!p.active?'Inactive / legacy':enabled?(p.checkout_enabled?'Publicly listed · database checkout flag ON':'Publicly listed · checkout flag OFF'):'Not publicly listed'+(p.checkout_enabled?' · database checkout flag ON':' · checkout flag OFF');
+ const status=!p.active?'Inactive / retired registry record':
+  (p.public_visible?'Public listing flag ON':'Hidden from Store')+' · database checkout flag '+(p.checkout_enabled?'ON':'OFF')+
+  (p.checkout_enabled&&!p.public_visible?' · not purchasable from public listing':'');
  return '<article class="admin-card product-admin-card" data-plan="'+e(p.plan_code)+'">'+
  '<div class="eyebrow">Membership</div><h3>'+e(p.name)+'</h3>'+
  '<p class="product-admin-price">'+e(price)+'</p><p class="small">USD price = database price_cents ÷ 100. Stripe/provider billing is separate and must be checked before price changes.</p><p class="small"><strong>Chart Studio:</strong> '+e(chartCoverage(p))+(p.plan_code==='PICK_WHAT_YOU_WANT'?' · Premium engines require a separately verified entitlement or Sparks pass.':'')+'</p><p>'+e(p.description||'Membership product description not yet provided.')+'</p>'+
- '<p class="product-admin-status">'+e(status)+'</p>'+
+ '<p class="product-admin-status">'+e(status)+'</p>'+founderDetails+
  '<div class="product-admin-actions"><a class="btn secondary" target="_blank" rel="noopener" href="'+e(urlFor('plan',p.plan_code))+'">View Customer Page</a></div>'+copy+buttons+
  '<p class="small">Publishing a membership makes its approved Store listing visible but does not enable checkout. Founders also require the Owner Store product overlay to be visible, and an independently approved provider/fulfillment release. Hidden and unavailable membership direct checkout URLs remain blocked.</p><p class="small">Changing a Stripe-linked membership price, billing interval or included entitlements requires synchronized provider mapping, customer disclosure, and a separate audited rollout. This editor never changes those terms silently.</p></article>';
 }
@@ -78,11 +85,14 @@ function toolCard(t){
  const published=t.active&&t.public_visible;
  const betaReady=published&&t.status==='live'&&t.checkout_enabled===true&&
   t.metadata?.beta_testing?.status==='ready_for_beta_testing';
- const price=t.status==='live'&&Number(t.individual_price_cents)>0?money(t.individual_price_cents)+'/month':'Pricing not announced';
- const state=t.status==='live'?(t.checkout_enabled?'LIVE · database checkout flag ON':'LIVE · checkout flag OFF'):(t.status==='beta'?'BETA · standalone release not accepted':'PLANNED · not released')+(t.checkout_enabled?' · checkout flag requires review':'');
+ const price=Number(t.individual_price_cents)>0?money(t.individual_price_cents)+'/month · registry amount':'No standalone price verified';
+ const pendingQA=t.metadata?.beta_testing?.final_member_acceptance==='pending';
+ const state=t.status==='live'?'LIVE registry state'+(pendingQA?' · final Founding member acceptance pending':'')+
+  ' · checkout flag '+(t.checkout_enabled?'ON':'OFF')+(published?' · public listing ON':' · hidden'):
+  String(t.status||'unknown').toUpperCase()+' · not released · checkout flag '+(t.checkout_enabled?'ON (review required)':'OFF');
  return '<article class="admin-card product-admin-card"><div class="eyebrow">Tool record · '+e(String(t.status||'unknown').toUpperCase())+'</div><h3>'+e(t.name)+'</h3>'+
  '<p class="product-admin-price">'+e(price)+'</p><p>'+e(t.description||'Further product details are being prepared.')+'</p>'+
- '<p class="product-admin-status">'+e(state)+(published?'':' · Not publicly displayed')+'</p>'+
+ '<p class="product-admin-status">'+e(state)+'</p>'+
  (betaReady?'<p class="product-admin-status">Beta Testing Ready · Founding 600 member acceptance pending</p>':'')+
  '<p class="small">SKU: <code>'+e(t.tool_code)+'</code> · Preview: '+(t.free_preview?'Configured':'Not configured')+'</p>'+
  '<div class="product-admin-actions"><a class="btn secondary" href="'+e(urlFor('tool',t.tool_code))+'" target="_blank" rel="noopener">View Customer Page</a>'+
@@ -100,12 +110,37 @@ function upcomingAdmin(){
  (can('tools.manage')?'<button type="button" class="btn secondary" data-upcoming-create="'+e(t.code)+'">Create Planned SKU</button>':'')+
  '</div></article>').join('')+'</div></details>':'';
 }
+
+function auditBooks(records){
+ const node=$('admin-products-books-audit');if(!node)return;
+ if(!Array.isArray(records)){node.textContent='Book audit unavailable. Do not infer retail readiness from listing flags.';return}
+ const books=records.filter(p=>p.product_type==='book'),duplicates=new Map(),issues=[];
+ const linkCount=p=>[[p.amazon_kindle_enabled,p.amazon_kindle_url],[p.amazon_paperback_enabled,p.amazon_paperback_url],
+ [p.amazon_hardcover_enabled,p.amazon_hardcover_url],[p.direct_digital_enabled,p.direct_digital_checkout_url],
+ [p.direct_physical_enabled,p.direct_physical_checkout_url],[p.website_checkout_enabled,p.lemon_variant_id]]
+ .filter(([flag,url])=>flag===true&&typeof url==='string'&&url.trim()).length;
+ for(const b of books){
+  const key=String(b.title||'').toLowerCase().replace(/\s+/g,' ').trim();
+  if(duplicates.has(key))issues.push('Duplicate title: '+duplicates.get(key)+' and '+b.product_code+'. Verify which SKU should remain listed.');
+  else duplicates.set(key,b.product_code);
+  if(b.sales_status==='selling'&&linkCount(b)===0)issues.push(b.product_code+': selling flag but no enabled recorded purchase destination.');
+  if(b.sales_status==='selling'&&['publication_candidate','in_development','coming_soon'].includes(b.publication_status))
+   issues.push(b.product_code+': selling flag conflicts with publication status '+b.publication_status+'.');
+ }
+ const rows=books.map(b=>'<tr><th scope="row">'+e(b.product_code)+'</th><td>'+e(b.publication_status)+'</td><td>'+e(b.sales_status)+'</td><td>'+linkCount(b)+'</td><td>'+(b.store_visible?'Listed':'Hidden')+'</td></tr>').join('');
+ node.innerHTML='<section class="product-inventory-section"><h3>Live book registry ('+books.length+')</h3>'+
+  '<p class="small">Publication, sales status, Store listing and purchase URLs are independent. The selling flag does not prove KDP publication or a live retailer link.</p>'+
+  '<div class="product-catalog-table-wrap"><table class="product-catalog-table"><thead><tr><th scope="col">SKU</th><th scope="col">Publication</th><th scope="col">Sales flag</th><th scope="col">Enabled purchase destinations</th><th scope="col">Listing</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  '<details class="product-archive"><summary>Owner review: '+issues.length+' book discrepancies</summary>'+
+  (issues.length?'<ul>'+issues.map(z=>'<li>'+e(z)+'</li>').join('')+'</ul>':'<p>No elementary status discrepancies found; verify publication and retail rights separately.</p>')+
+  '</details><p class="small">Edit using the existing Book records below. No editions were removed, merged or repriced.</p></section>';
+}
 function sparkInventory(prices,packages){
  const entries=Array.isArray(prices)?prices:[],packs=Array.isArray(packages?.packages)?packages.packages:[];
- const row=(a)=>'<tr>'+a.map(v=>'<td>'+v+'</td>').join('')+'</tr>';
+ const row=(a,header=false)=>'<tr>'+a.map(v=>header?'<th scope="col">'+v+'</th>':'<td>'+v+'</td>').join('')+'</tr>';
  const display=(name,sku)=>'<strong>'+e(name)+'</strong><small>'+e(sku)+'</small>';
- const table=(head,records)=>'<div class="product-catalog-table-wrap"><table class="product-catalog-table"><thead>'+row(head.map(e).map(x=>'<strong>'+x+'</strong>'))+'</thead><tbody>'+records.map(row).join('')+'</tbody></table></div>';
- let out='<section class="product-inventory-section"><h3>USD Sparks packages ('+packs.length+')</h3><p class="small">Packages for buying Sparks are separate from redemptions. This tab does not enable checkout.</p>'+
+ const table=(head,records)=>'<div class="product-catalog-table-wrap"><table class="product-catalog-table"><thead>'+row(head.map(e).map(x=>'<strong>'+x+'</strong>'),true)+'</thead><tbody>'+records.map(row).join('')+'</tbody></table></div>';
+ let out='<section class="product-inventory-section"><h3>USD Sparks packages ('+packs.length+')</h3><p class="small">The five proposed packages are NOT active checkout offers. Hidden legacy 10/30/75 Sparks listings remain separate; these packages are from the versioned catalog. Redemptions are separate from USD purchases.</p>'+
  (packs.length?table(['Package','Quantity','Price','Checkout'],packs.map(x=>[display(x.name,x.code),e(x.quantity)+' Sparks',e(money(x.priceCents)),x.checkoutEnabled&&packages.checkoutEnabled?'Configured':'Disabled'])):'<p class="small">Package registry unavailable.</p>')+'</section>';
  for(const cat of ['CHART_STUDIO','AD_FREE','PRACTICE','OTHER']){
   const items=entries.filter(x=>x.category===cat);
@@ -113,7 +148,7 @@ function sparkInventory(prices,packages){
   out+='<section class="product-inventory-section"><h3>'+e(cat.replaceAll('_',' '))+' ('+items.length+')</h3>'+
    table(['Redemption item','Sparks cost','Fulfillment','Status'],items.map(x=>[display(x.label,x.sku),e(x.sparks_cost)+' Sparks',e(x.fulfillment),e(x.state)]))+'</section>';
  }
- return out+'<p class="small">'+entries.length+' redemption SKUs loaded from the protected Owner catalog. Use Sparks Pricing & Items to change costs.</p>';
+ return out+'<p class="small">'+entries.length+' Owner redemption records: '+entries.filter(x=>x.state==='active').length+' active configurations, '+entries.filter(x=>x.state!=='active').length+' planned or disabled. Active configuration is not proof of accepted redemption fulfillment. Use Sparks Pricing & Items to change costs.</p>';
 }
 function wire(){
  const root=$('admin-products-panel');if(!root||root.dataset.wired)return;root.dataset.wired='true';
@@ -268,9 +303,13 @@ async function load(){
    can('commerce.view')?admin('platform'):Promise.resolve({plans:[],tools:[]}),
    can('catalog.view')&&typeof window.GroundUpAdminBookEditor?.load==='function'?window.GroundUpAdminBookEditor.load():Promise.resolve(null),
    owner()&&can('settings.view')?admin('sparks_prices'):Promise.resolve({prices:[]}),
-   owner()&&can('settings.view')?fetch('/data/crownlight-sparks-store-v014167.json',{cache:'no-store'}).then(r=>r.ok?r.json():null):Promise.resolve(null)
+   owner()&&can('settings.view')?fetch('/data/crownlight-sparks-store-v014167.json',{cache:'no-store'}).then(r=>r.ok?r.json():null):Promise.resolve(null),
+   can('commerce.view')?admin('founder_product_terms'):Promise.resolve({terms:[]}),
+   can('catalog.view')?admin('catalog'):Promise.resolve({products:[]})
   ]);
-  const [planResult,bookResult,sparkResult,packageResult]=results;
+  const [planResult,bookResult,sparkResult,packageResult,founderResult,bookAuditResult]=results;
+  founderTerms=new Map((founderResult.status==='fulfilled'&&Array.isArray(founderResult.value.terms)?founderResult.value.terms:[]).map(p=>[p.plan_code,p]));
+  auditBooks(bookAuditResult.status==='fulfilled'?bookAuditResult.value.products:null);
   live=planResult.status==='fulfilled'?planResult.value:{plans:[],tools:[]};
   const plans=Array.isArray(live.plans)?live.plans:[],tools=Array.isArray(live.tools)?live.tools:[];
   const regular=ordered(plans,regularCodes),founders=ordered(plans,founderCodes),oldFounders=ordered(plans,legacyFounderCodes);
@@ -278,12 +317,12 @@ async function load(){
   const unknown=plans.filter(p=>!expected.has(p.plan_code));
   $('admin-products-membership-list').innerHTML=section('General memberships ('+regular.length+')','Free, Pick What You Want, Historical Replay, Full and Lifetime.',regular.map(membershipCard))+
    (unknown.length?section('Unclassified plans ('+unknown.length+')','Records preserved for Owner review.',unknown.map(membershipCard)):'');
-  $('admin-products-founding-list').innerHTML=section('Current Founding 600 offers ('+founders.length+')','Only the 14-, 30- and 60-day founding terms.',founders.map(membershipCard))+
+  $('admin-products-founding-list').innerHTML=section('Current Founding 600 offers ('+founders.length+')','14-, 30- and 60-day recurring Founder terms, reconciled against their dedicated registry.',founders.map(membershipCard))+
    (oldFounders.length?'<details class="product-archive"><summary>Inactive legacy Founding plans ('+oldFounders.length+')</summary>'+
     section('Historical founding records','No longer offered through the Founding 600 program.',oldFounders.map(membershipCard))+'</details>':'');
   const released=tools.filter(t=>t.status==='live'),drafts=tools.filter(t=>['beta','planned','in_development','development'].includes(t.status));
   const other=tools.filter(t=>!released.includes(t)&&!drafts.includes(t));
-  $('admin-products-tool-list').innerHTML=section('Released tools ('+released.length+')','Registered LIVE tool SKUs; backend checks remain authoritative.',released.map(toolCard))+
+  $('admin-products-tool-list').innerHTML=section('Released tools ('+released.length+')','LIVE is a registry state; beta acceptance, public listing and checkout readiness are separate.',released.map(toolCard))+
    '<details class="product-archive"><summary>Beta / planned tool records ('+drafts.length+') — not live standalone products</summary>'+
    section('Unreleased tool registry','These registered tools have not passed standalone paid release.',drafts.map(toolCard))+'</details>'+
    (other.length?section('Other tool states ('+other.length+')','No records omitted.',other.map(toolCard)):'')+
@@ -297,9 +336,10 @@ async function load(){
   }
   const errors=[];
   if(planResult.status!=='fulfilled')errors.push('Membership/Tool catalog could not load');
-  if(bookResult.status!=='fulfilled')errors.push('Book catalog could not load');
+  if(bookResult.status!=='fulfilled'||bookAuditResult.status!=='fulfilled')errors.push('Book catalog could not load or be audited');
+  if(founderResult.status!=='fulfilled')errors.push('Founder recurring terms could not be verified');
   if(sparkResult.status!=='fulfilled'&&owner())errors.push('Sparks catalog could not load');
-  msg(errors.length?errors.join(' · '):'Loaded '+regular.length+' regular memberships, '+founders.length+' current founding offers, '+
+  msg(errors.length?errors.join(' · '):'Verified '+regular.length+' regular memberships, '+founders.length+' current founding offers, '+
    oldFounders.length+' legacy founding records and '+tools.length+' tool SKUs. Books and Sparks are in separate tabs.',!!errors.length);
   const selected=location.hash.slice(1).match(/^products-(books|tools|memberships|founding|sparks)$/)?.[1];
   show(selected||current);
