@@ -14,9 +14,9 @@ const errors=[];
 try{
  const p=await b.newPage({viewport:{width:1200,height:900}});
  p.on('pageerror',err=>errors.push(err.message));
- await p.route('https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js',
+ await p.route('**/assets/vendor/echarts/6.1.0/echarts.min.js',
   r=>r.fulfill({status:200,contentType:'application/javascript',body:readFileSync(echartsDist)}));
- await p.setContent('<html><body><section id="crownlight-replay-echarts">'+
+ await p.setContent('<html><head><base href="https://charts-analytics-fixture.test/"></head><body><section id="crownlight-replay-echarts">'+
   '<button data-ce-open>Open replay analytics</button><span data-ce-count></span><p data-ce-status></p>'+
   '<div data-ce-chart hidden style="width:1000px;height:400px"></div></section></body></html>');
  await p.addScriptTag({content:source('assets/js/crownlight-echarts-loader-v1.js')});
@@ -51,7 +51,7 @@ try{
 
  const admin=await b.newPage({viewport:{width:1220,height:950}});
  admin.on('pageerror',err=>errors.push(err.message));
- await admin.route('https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js',
+ await admin.route('**/assets/vendor/echarts/6.1.0/echarts.min.js',
   r=>r.fulfill({status:200,contentType:'application/javascript',body:readFileSync(echartsDist)}));
  await admin.setContent('<html><body><section class="admin-panel active"><div id="crownlight-admin-echarts">'+
   '<select data-admin-echarts-view><option value="bar">Bars</option><option value="pie">Pie</option></select>'+

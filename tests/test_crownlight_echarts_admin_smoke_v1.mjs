@@ -7,9 +7,9 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:1100,height:850}});
  const errors=[];page.on('pageerror',x=>errors.push(x.message));
- await page.route('https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js',route=>route.fulfill({
+ await page.route('**/assets/vendor/echarts/6.1.0/echarts.min.js',route=>route.fulfill({
   status:200,contentType:'application/javascript',body:readFileSync(lib)}));
- await page.setContent('<html><body><section id="admin-external-chart-engine-readiness">'+
+ await page.setContent('<html><head><base href="https://admin-charts-fixture.test/"></head><body><section id="admin-external-chart-engine-readiness">'+
   '<button data-ce-engine-test>Test Apache ECharts renderer</button>'+
   '<p role="status" data-ce-engine-test-status></p>'+
   '<div data-ce-engine-test-chart hidden style="height:260px;width:870px"></div>'+
