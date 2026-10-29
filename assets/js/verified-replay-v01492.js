@@ -207,7 +207,7 @@ async function init(){
   if(h)h.textContent='Free Server-Controlled Fictional Replay';
   const intro=main?.querySelector('.section-intro');if(intro)intro.textContent='ORIGINAL FICTIONAL EDUCATIONAL SCENARIOS: invented 2040 prices and timestamps. Reveal one candle at a time from a server-owned cursor, lock a reasoned decision, and resume later. No real market history, broker fills, trading advice, assessment or mastery.';
   const headers=main?.querySelectorAll('.journal-section h2')||[];
-  if(headers[0])headers[0].textContent='1. Choose an original fictional teaching scenario';
+  if(headers[0])headers[0].textContent='Choose a fictional teaching scenario';
   if(headers[1])headers[1].textContent='2. Server-revealed fictional observation';
   const first=main?.querySelector('label[for="vr-dataset"]');if(first)first.textContent='Original fictional teaching scenarios';
   const notices=main?.querySelectorAll('.journal-section .journal-small')||[];
