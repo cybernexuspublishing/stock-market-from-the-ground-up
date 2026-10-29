@@ -220,9 +220,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* Sitewide presentation overrides. Editing controls are returned only after
  * signed-in Owner/Admin/Moderator authorization; backend re-verifies every write. */
 (()=>{if(typeof document==='undefined'||document.querySelector('[data-cl-site-layout-editor]'))return;
- const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/crownlight-site-layout-editor-v1.css?v=4';
+ const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/crownlight-site-layout-editor-v1.css?v=5';
  css.dataset.clSiteLayoutEditor='1';document.head.append(css);
- const script=document.createElement('script');script.src='/assets/js/crownlight-site-layout-editor-v1.js?v=5';
+ const script=document.createElement('script');script.src='/assets/js/crownlight-site-layout-editor-v1.js?v=6';
  script.defer=true;script.dataset.clSiteLayoutEditor='1';document.head.append(script);
 })();
 
