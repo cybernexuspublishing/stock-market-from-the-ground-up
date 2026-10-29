@@ -539,6 +539,7 @@
    get('academy-enroll').textContent=code==='free5'?'Start my free learning journey':'Enroll in this Boot Camp';
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
+   document.body.classList.add('academy-classroom-active');
    updateProgress();renderDay();
    // Deep links should enter the selected lesson, not leave members looking
    // at the Academy storefront while their workspace appears far below.
