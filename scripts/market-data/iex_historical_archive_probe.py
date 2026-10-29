@@ -67,11 +67,23 @@ def capture(day,tickers,minutes,byte_budget):
                     minute=t.replace(second=0,microsecond=0).isoformat().replace('+00:00','Z')
                     row=expected[symbol].get(minute)
                     if row is None:
-                        expected[symbol][minute]={'timestamp_utc':minute,'open':px,'high':px,'low':px,'close':px,'volume':qty,'observed_trades':1,'unreviewed_flags':{str(flags):1}}
-                    else:
-                        row['high']=max(row['high'],px);row['low']=min(row['low'],px);row['close']=px
-                        row['volume']+=qty;row['observed_trades']+=1
-                        row['unreviewed_flags'][str(flags)]=row['unreviewed_flags'].get(str(flags),0)+1
+                        row={'timestamp_utc':minute,'open':None,'high':None,'low':None,'close':None,'volume':0,
+                             'observed_trades':0,'last_sale_eligible_trades':0,'unreviewed_flags':{}}
+                        expected[symbol][minute]=row
+                    row['volume']+=qty
+                    row['observed_trades']+=1
+                    row['unreviewed_flags'][str(flags)]=row['unreviewed_flags'].get(str(flags),0)+1
+                    # IEX TOPS 1.66 Appendix A: last-sale and high/low eligibility
+                    # EXCLUDES odd lots (bit 5) and extended-hours (bit 6).
+                    # All executed shares contribute to IEX venue-only volume.
+                    if (flags & 0x60)==0:
+                        if row['open'] is None:
+                            row.update(open=px,high=px,low=px,close=px)
+                        else:
+                            row['high']=max(row['high'],px)
+                            row['low']=min(row['low'],px)
+                            row['close']=px
+                        row['last_sale_eligible_trades']+=1
                     packet_counts[symbol]+=1
         except BudgetExceeded as e:
             read_error=str(e)
@@ -93,13 +105,16 @@ def capture(day,tickers,minutes,byte_budget):
       'window_scan_reached_end':complete,
       'capture_integrity_fully_verified':False,
       'trade_conditions_reviewed':False,'packet_sequence_complete':False,
+      'last_sale_high_low_policy':'IEX_TOPS_1.66_NON_ODD_LOT_REGULAR_SESSION_ONLY',
       'source_attribution':'Data provided for free by IEX. By accessing or using IEX Historical Data, you agree to the IEX Historical Data Terms of Use. https://www.iex.io/legal/hist-data-terms',
       'stop_reason':'reached_window_end' if complete else read_error or 'stream_ended',
-      'symbols':{sym:{'observed_bars':len(rows),'observed_trade_count':packet_counts[sym],
+      'symbols':{sym:{'observed_bars':sum(row['open'] is not None for row in rows.values()),
+                   'all_trade_minutes':len(rows),'observed_trade_count':packet_counts[sym],
+                   'no_eligible_last_sale_minutes':[minute for minute,row in sorted(rows.items()) if row['open'] is None],
                    'records':[{**row,
                      'open':f"{row['open']/10000:.4f}",'high':f"{row['high']/10000:.4f}",
                      'low':f"{row['low']/10000:.4f}",'close':f"{row['close']/10000:.4f}"}
-                     for _,row in sorted(rows.items())]}
+                     for _,row in sorted(rows.items()) if row['open'] is not None]}
                  for sym,rows in expected.items()}
     }
 def main():
