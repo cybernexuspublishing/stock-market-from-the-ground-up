@@ -152,7 +152,120 @@
     }catch(e){pane.innerHTML=`<div class="fe-state error">${esc(e.message)}</div>`}
   }
 
-  async function renderBooks(host){const a=await access(),books=a?.books||[];host.innerHTML=`<div class="v1321-section-head"><div><div class="eyebrow">My Books</div><h1>Book & Companion Access</h1><p>Book access is separate from membership access.</p></div><a class="btn secondary" href="store.html">Open Store</a></div><div class="v1321-book-grid">${books.length?books.map(b=>`<article class="v1321-book"><span class="${b.included?'yes':'no'}">${b.included?'✓ Included':'✕ Not included'}</span><strong>${esc(b.shortTitle||b.title||'Book')}</strong><small>${esc(b.publicationStatus||'')}</small></article>`).join(''):'<div class="fe-state">No book access is currently assigned to this account.</div>'}</div>`}
+  // Only authenticated, paid website eBook editions (or separately approved
+  // Lifetime/Owner rights) may be offered as downloadable files.
+  // Book companion branches are an independent learning entitlement.
+  const bookCovers=Object.freeze({
+    FOUNDATION_BOOK_1:'/assets/images/books/foundation-book-1.webp',
+    FOUNDATION_BOOK_2:'/assets/images/books/foundation-book-2.webp',
+    FOUNDATION_BOOK_3:'/assets/images/books/foundation-book-3.webp',
+    DAY_TRADING_BOOK_1:'/assets/images/books/day-trading-book-1.webp',
+    READING_THE_TAPE:'/assets/images/books/reading-the-tape.webp'
+  });
+  function bookDownloadCard(book){
+    const code=String(book.code||'');
+    const title=esc(book.title||code);
+    const cover=bookCovers[code]||'';
+    return '<article class="v1321-owned-ebook" data-ebook-code="'+esc(code)+'">'+
+      (cover?'<img src="'+cover+'" alt="'+title+' book cover" loading="lazy" width="104" height="148">':'')+
+      '<div class="v1321-owned-ebook-main"><strong>'+title+'</strong>'+
+      '<span class="v1321-owned-ebook-badge">eBook access verified</span>'+
+      (book.downloadEnabled
+       ?'<p class="small">Available formats are verified when you select a download.</p><div class="v1321-ebook-formats" data-ebook-formats="'+esc(code)+'"><span class="small">Checking file formats…</span></div>'
+       :'<p class="small">Your book entitlement is recorded. Download is not yet available because the approved digital file or distribution authorization is not ready.</p>')+
+      '<p class="small" data-ebook-message="'+esc(code)+'" role="status" aria-live="polite"></p></div></article>';
+  }
+  async function renderBooks(host){
+    // Do not show the complete product catalog or unpublished books as purchases.
+    // Server-side RPC returns only eligible editions for the current identity.
+    host.innerHTML='<div class="v1321-section-head v1321-book-head">'+
+      '<div><div class="eyebrow">MY BOOKS</div><h1>My Books & Downloads</h1>'+
+      '<p>Download eBooks purchased directly from this website when the licensed file is available. Book-related Labs and teaching resources are separate companion benefits.</p></div>'+
+      '<a class="btn secondary" href="store.html">Open Store</a></div>'+
+      '<div class="v1321-book-actions"><button type="button" class="btn secondary" data-books-refresh>Refresh my books</button>'+
+      '<a class="btn secondary" href="my-purchases.html">Purchase history</a>'+
+      '<a class="btn secondary" href="activate-book.html">Activate Book QR</a></div>'+
+      '<section aria-label="Your digital book editions" class="v1321-owned-library">'+
+      '<h2>My Digital Books</h2><p class="small" data-books-status role="status" aria-live="polite">Checking your purchases and download rights…</p>'+
+      '<div class="v1321-owned-book-grid" data-books-owned></div></section>'+
+      '<section class="v1321-companion-library" aria-label="Book companion learning access">'+
+      '<h2>Companion Learning Access</h2><p class="small">Companion Access means related Labs, guided learning and teaching tools. It is not proof of an eBook purchase and does not include the full downloadable book.</p>'+
+      '<div data-books-companions></div></section>';
+    q('[data-books-refresh]',host)?.addEventListener('click',()=>void renderBooks(host));
+    const status=q('[data-books-status]',host),container=q('[data-books-owned]',host);
+    const companion=q('[data-books-companions]',host);
+    const [library,privileges]=await Promise.all([
+      (async()=>{const sb=await getSB();if(!sb)throw Error('Sign in to view your digital books.');
+        const result=await sb.rpc('gu_my_digital_books_v01430');
+        if(result.error)throw result.error;
+        if(result.data?.ok!==true||!Array.isArray(result.data.books))throw Error('The digital library did not confirm your books.');
+        return {sb,books:result.data.books};
+      })().catch(error=>({error})),
+      access().catch(()=>null)
+    ]);
+    if(!host.isConnected)return;
+    if(library.error){
+      status.textContent='Unable to verify digital book access. Select Refresh my books to retry.';
+      container.innerHTML='<div class="fe-state">Downloads remain unavailable until your account and purchase rights can be verified.</div>';
+    }else{
+      const books=library.books.filter(b=>b&&typeof b.code==='string'&&/^[A-Z0-9_]{3,90}$/.test(b.code));
+      status.textContent=books.length
+        ?books.length+' eligible digital edition'+(books.length===1?'':'s')+' associated with your account.'
+        :'No digital editions purchased directly from this website are currently recorded for your account. A recent purchase may need to finish processing; select Refresh my books.';
+      container.innerHTML=books.length?books.map(bookDownloadCard).join('')
+        :'<div class="fe-state">No downloadable eBooks currently assigned. Kindle purchases remain in your Amazon library.</div>';
+      for(const book of books.filter(b=>b.downloadEnabled)){
+        const slot=q('[data-ebook-formats="'+book.code+'"]',container);
+        if(!slot)continue;
+        let formats=null;
+        try{const result=await library.sb.rpc('gu_digital_formats_v014305',{p_code:book.code});
+          if(!result.error&&result.data?.ok===true&&Array.isArray(result.data.formats))
+            formats=result.data.formats.filter(f=>f==='pdf'||f==='epub');
+        }catch{}
+        // Existing single-format entitled editions use the established endpoint.
+        if(!formats?.length)formats=[null];
+        slot.replaceChildren();
+        for(const format of formats){
+          const btn=document.createElement('button');btn.type='button';btn.className='btn';
+          btn.textContent=format?'Download '+format.toUpperCase():'Download eBook';
+          btn.onclick=async()=>{
+            const msg=q('[data-ebook-message="'+book.code+'"]',container);
+            btn.disabled=true;
+            if(msg)msg.textContent='Verifying your access and preparing a secure download…';
+            try{
+              const session=await getSession();if(!session?.access_token)throw Error('Please sign in again.');
+              const response=await fetch('/api/digital-book-download-v01430',{
+                method:'POST',cache:'no-store',
+                headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
+                body:JSON.stringify(format?{code:book.code,format}:{code:book.code})
+              });
+              const data=await response.json();
+              if(!response.ok||data?.ok!==true||!data.url)throw Error(data.error||'The download is unavailable.');
+              const url=new URL(data.url);
+              if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co')||
+                !url.pathname.startsWith('/storage/v1/object/sign/gu-digital-ebooks/'))
+                throw Error('The download service returned an invalid destination.');
+              if(msg)msg.textContent='Opening your secure book download…';
+              window.location.assign(url.href);
+            }catch(error){if(msg)msg.textContent=error.message||'Unable to download this book.'}
+            finally{btn.disabled=false}
+          };
+          slot.append(btn);
+        }
+      }
+    }
+    if(!privileges){
+      companion.innerHTML='<div class="fe-state">Companion learning permissions could not be verified. Refresh the page to retry.</div>';
+    }else{
+      const entitled=(privileges.books||[]).filter(b=>b?.included===true);
+      companion.innerHTML=entitled.length
+        ?'<div class="v1321-companion-grid">'+entitled.map(b=>
+          '<article class="v1321-companion-book"><strong>'+esc(b.shortTitle||b.title||b.productCode||'Book companion')+'</strong>'+
+          '<span>Guided learning access</span>'+
+          '<a href="labs.html" class="btn secondary">Open Labs</a></article>').join('')+'</div>'
+        :'<div class="fe-state">No book-specific companion learning rights are currently assigned.</div>';
+    }
+  }
 
   async function credentialList(host){
     host.innerHTML='<div class="fe-state">Loading secure connections…</div>';
