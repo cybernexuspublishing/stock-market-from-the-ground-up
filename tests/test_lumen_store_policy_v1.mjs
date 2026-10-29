@@ -7,29 +7,32 @@ const p=lumenDiscountPolicy;
 assert.equal(p.enabled,false,'Do not enable discount checkout without verified fulfillment');
 assert.equal(p.nonExpiring,true);
 assert.equal(p.trialAutoRenew,false);
-assert.equal(p.denominationCents,10);
-assert.equal(p.maxPercentBasisPoints,2000);
-assert.equal(p.maxOrderDiscountCents,1000);
+assert.equal(p.denominationCents,7);
+assert.equal(p.maxPercentBasisPoints,10000);
+assert.equal(p.maxOrderDiscountCents,null);
 const quote=(eligibleNetCents,availableLumens=1000,requestedLumens=1000,productKind='digital_tool')=>
  previewLumenDiscount({eligibleNetCents,availableLumens,requestedLumens,productKind});
 assert.deepEqual(
-  (({appliedLumens,discountCents,remainingLumens,remainingSubtotalCents})=>({
-     appliedLumens,discountCents,remainingLumens,remainingSubtotalCents}))(quote(4000)),
-  {appliedLumens:80,discountCents:800,remainingLumens:920,remainingSubtotalCents:3200});
-assert.equal(quote(10000).discountCents,1000,'hard max $10 order');
-assert.equal(quote(1).discountCents,0,'do not round up partial Lumen');
-assert.equal(quote(4000,10,200).discountCents,100,'balance limit');
-assert.equal(quote(4000,1000,5).discountCents,50,'member-requested limit');
+ (({appliedLumens,discountCents,remainingLumens,remainingSubtotalCents})=>({
+ appliedLumens,discountCents,remainingLumens,remainingSubtotalCents}))(quote(4000)),
+ {appliedLumens:572,discountCents:4000,remainingLumens:428,remainingSubtotalCents:0});
+assert.equal(quote(10000).discountCents,7000,'no value cap, limited only by available credits');
+assert.equal(quote(1).discountCents,1,'one Lumen can cover a small final remainder');
+assert.equal(quote(4000,10,200).discountCents,70,'balance limit');
+assert.equal(quote(4000,1000,5).discountCents,35,'member-requested limit');
+assert.equal(quote(14,2,2).fullyCovered,true);
+assert.equal(quote(15,2,2).fullyCovered,false);
+assert.equal(quote(15,3,3).fullyCovered,true);
 assert.equal(quote(4000,1000,300,'lumen_bundle').discountCents,0,'no bundle discount');
 assert.equal(quote(4000,1000,300,'subscription').discountCents,0,'no recurring renewal discount');
 assert.equal(quote(4000,1000,300,'apparel').discountCents,0,'physical goods not activated');
-assert.equal(quote(Number.MAX_SAFE_INTEGER,1,1).discountCents,10,'very large values stay integer-safe');
+assert.equal(quote(Number.MAX_SAFE_INTEGER,1,1).discountCents,7,'very large values stay integer-safe');
 assert.throws(()=>quote(-1),TypeError);
 assert.equal(quote(10000).status,'PREVIEW_ONLY','never authorize purchase from preview');
 const api=await onRequestGet();
 assert.equal(api.status,200);const policyBody=await api.json();
 assert.equal(policyBody.checkoutDiscountActive,false);
-assert.equal(policyBody.policy.maxOrderDiscountCents,1000);
+assert.equal(policyBody.policy.maxOrderDiscountCents,null);
 const html=read('store-sparks.html'),store=read('store.html');
 const future=JSON.parse(read('data/crownlight-lumen-marketplace-v1.json'));
 assert.match(html,/Crownlight Lumen Store/);
@@ -52,4 +55,4 @@ assert.match(chart,/crypto\.randomUUID/);
 assert.doesNotMatch(chart,/\/api\/checkout|stripe.*checkout/i);
 const catalog=JSON.parse(read('data/crownlight-sparks-store-v014167.json'));
 assert.equal(catalog.checkoutEnabled,false);
-console.log('PASS Lumen marketplace, non-expiring credit policy, preview-only 20%/$10 cap, existing server-authorized passes, no fake checkout');
+console.log('PASS Lumen marketplace, non-expiring credit policy, preview-only 7 cents and up to full product coverage, existing server-authorized passes, no fake checkout');
