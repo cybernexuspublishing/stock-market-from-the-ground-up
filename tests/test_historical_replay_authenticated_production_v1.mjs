@@ -103,6 +103,7 @@ if(active.status===200&&active.body?.session?.dataset?.code===first.code&&
  assert.equal(started.status,201,'Published authorized source must create real QA replay');
 }
 assert.equal(started.body.bar.index,0,'Initial response reveals first bar only');
+assert.equal(new Date(started.body.bar.timestamp).toISOString(),'2024-05-07T13:30:00.000Z','Real DIS replay must start at correct authenticated opening timestamp');
 assert.equal(started.body.decisionLocked,false);
 const sessionId=started.body.sessionId;assert(/^[0-9a-f-]{36}$/i.test(sessionId));
 const before=await call(token,'advance',{sessionId,expectedIndex:0});
