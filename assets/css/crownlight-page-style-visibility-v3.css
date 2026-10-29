@@ -1,0 +1,196 @@
+/* Crownlight Page Style Visibility v3
+ * Purpose: layout changes must be structural, not merely border-radius/width.
+ * Scoped to a selected page style; Original deliberately has no overrides.
+ * Ad slots, protected content, and chart canvases retain their DOM ownership.
+ */
+body[data-cl-workspace="continuous"] main.gu-premium-home .gu-home-stage-grid,
+body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-stage-grid,
+body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-stage-grid,
+body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-stage-grid{
+ align-items:start!important;
+}
+@media(min-width:1101px){
+ body[data-cl-workspace="continuous"] main.gu-premium-home .gu-home-stage-grid{
+  grid-template-columns:minmax(0,1.42fr) minmax(0,.58fr)!important;gap:24px!important;
+ }
+ body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-stage-grid{
+  grid-template-columns:minmax(0,1fr)!important;max-width:1050px!important;gap:28px!important;
+ }
+ body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-terminal{
+  width:100%;max-width:1050px!important;margin:0!important;transform:none!important;
+ }
+ body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-stage-grid{
+  grid-template-columns:minmax(0,1.65fr) minmax(0,.75fr)!important;gap:16px!important;
+ }
+ body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-stage-grid{
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)!important;gap:clamp(55px,7vw,128px)!important;
+ }
+}
+body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-stage{
+ min-height:0!important;padding:28px 0 30px!important
+}
+body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-message h1{
+ font-size:clamp(2rem,3.25vw,3.5rem)!important;max-width:24ch!important
+}
+body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-terminal{
+ margin-top:0!important;transform:none!important;border-radius:6px!important
+}
+body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-stage{
+ padding:100px 0 112px!important;min-height:750px
+}
+body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-terminal{
+ margin-top:40px;transform:none!important;border-radius:24px!important
+}
+body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-stage{
+ padding:46px 0!important;min-height:0!important
+}
+/* Distinct placement of Home education tiles and their accompanying panels. */
+@media(min-width:1101px){
+ body[data-cl-workspace="compact"] main.gu-premium-home .gu-path-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important
+ }
+ body[data-cl-workspace="focus"] main.gu-premium-home .gu-path-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:1040px;margin:auto
+ }
+ body[data-cl-workspace="spacious"] main.gu-premium-home .gu-path-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:28px!important
+ }
+ body[data-cl-workspace="continuous"] main.gu-premium-home .gu-path-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important
+ }
+}
+/* Store: preserve existing advertisement rails, change the REAL products grid. */
+@media(min-width:1320px){
+ body[data-cl-workspace="compact"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important
+ }
+ body[data-cl-workspace="continuous"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:15px!important
+ }
+ body[data-cl-workspace="focus"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important
+ }
+ body[data-cl-workspace="spacious"] main.gu-redesign-store :is(.commerce-grid,.catalog-founder-grid){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:32px!important
+ }
+}
+body[data-cl-workspace="compact"] main.gu-redesign-store .gu-store-ad-core>.wrap{
+ max-width:1660px!important;width:calc(100% - 20px)!important
+}
+body[data-cl-workspace="focus"] main.gu-redesign-store .gu-store-ad-core>.wrap{
+ max-width:1060px!important;margin-inline:auto!important
+}
+body[data-cl-workspace="spacious"] main.gu-redesign-store .gu-store-ad-core>.wrap{
+ max-width:1280px!important;margin-inline:auto!important
+}
+body[data-cl-workspace="compact"] main.gu-redesign-store :is(.commerce-card,.v11-plan,.card){
+ padding:12px!important;border-radius:6px!important
+}
+body[data-cl-workspace="spacious"] main.gu-redesign-store :is(.commerce-card,.v11-plan,.card){
+ padding:26px!important;border-radius:18px!important
+}
+/* Generic learning, membership and Dashboard grids get different column counts. */
+@media(min-width:1100px){
+ body[data-cl-workspace="compact"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important
+ }
+ body[data-cl-workspace="continuous"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important
+ }
+ body[data-cl-workspace="focus"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px!important
+ }
+ body[data-cl-workspace="spacious"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:32px!important
+ }
+ body[data-cl-workspace="compact"] main.section .dashboard-grid{
+  grid-template-columns:minmax(0,2fr) minmax(0,1fr)!important;gap:10px!important
+ }
+ body[data-cl-workspace="focus"] main.section .dashboard-grid,
+ body[data-cl-workspace="spacious"] main.section .dashboard-grid{
+  grid-template-columns:minmax(0,1fr)!important;gap:20px!important
+ }
+}
+/* On every standard page, Focused is a centered column and Compact is full width. */
+body[data-cl-workspace="focus"] main.section>.wrap{
+ max-width:980px!important;width:calc(100% - 48px)!important
+}
+body[data-cl-workspace="compact"] main.section>.wrap{
+ max-width:1780px!important;width:calc(100% - 24px)!important
+}
+body[data-cl-workspace="spacious"] main.section>.wrap{
+ max-width:1350px!important;width:calc(100% - 70px)!important
+}
+body[data-cl-workspace="continuous"] main.section>.wrap{
+ max-width:1700px!important;width:calc(100% - 30px)!important
+}
+/* Forum: visibly reposition search filters and create-topic action. */
+@media(min-width:1080px){
+ body[data-cl-workspace="compact"] main.section .forum-toolbar{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:8px!important
+ }
+ body[data-cl-workspace="compact"] main.section .forum-filters{
+  display:grid!important;grid-template-columns:2fr 1fr;gap:8px!important;min-width:0
+ }
+ body[data-cl-workspace="focus"] main.section .forum-toolbar,
+ body[data-cl-workspace="spacious"] main.section .forum-toolbar{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:15px!important
+ }
+ body[data-cl-workspace="focus"] main.section .forum-filters,
+ body[data-cl-workspace="spacious"] main.section .forum-filters{
+  display:grid!important;grid-template-columns:1fr 1fr;gap:12px!important
+ }
+}
+/* Forum and market-commons section widths previously overridden by other !important rules. */
+body[data-cl-workspace="compact"] main.gu-commons-page>.wrap{max-width:1720px!important;width:calc(100% - 24px)!important}
+body[data-cl-workspace="focus"] main.gu-commons-page>.wrap{max-width:980px!important;width:calc(100% - 48px)!important}
+body[data-cl-workspace="spacious"] main.gu-commons-page>.wrap{max-width:1300px!important;width:calc(100% - 68px)!important}
+body[data-cl-workspace="continuous"] main.gu-commons-page>.wrap{max-width:1600px!important;width:calc(100% - 30px)!important}
+/* Owner-only instant preview switcher, not a published-site toolbar. */
+.cl-page-style-livebar{
+ position:relative;z-index:45;display:flex;flex-wrap:wrap;align-items:center;
+ gap:10px 14px;min-height:56px;padding:10px clamp(16px,3vw,44px);
+ background:#0e2437;color:#e0f0fb;border-bottom:1px solid #3f738b;
+ box-shadow:0 8px 30px #0004;font:500 13px/1.45 system-ui,sans-serif
+}
+.cl-page-style-livebar strong{font-size:13px;font-weight:700;color:#d8eef7}
+.cl-page-style-livebar label{display:flex;gap:8px;align-items:center;color:#b8d6e4}
+.cl-page-style-livebar select{
+ min-height:35px;border:1px solid #689cb3;border-radius:6px;
+ background:#081d2d;color:#e4f2f9;padding:5px 30px 5px 9px;font:inherit
+}
+.cl-page-style-livebar .cl-style-live-status{color:#a5d1df;min-width:210px}
+.cl-page-style-livebar a{color:#a5e4f8;white-space:nowrap;margin-left:auto}
+@media(max-width:1099px){
+ body[data-cl-workspace="compact"] main.gu-premium-home .gu-home-stage-grid,
+ body[data-cl-workspace="focus"] main.gu-premium-home .gu-home-stage-grid,
+ body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-stage-grid{
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ body[data-cl-workspace="spacious"] main.gu-premium-home .gu-home-stage{padding:44px 0!important;min-height:0}
+}
+@media(max-width:850px){
+ body[data-cl-workspace="compact"] main.section>.wrap,
+ body[data-cl-workspace="focus"] main.section>.wrap,
+ body[data-cl-workspace="spacious"] main.section>.wrap,
+ body[data-cl-workspace="continuous"] main.section>.wrap{
+  width:calc(100% - 20px)!important
+ }
+ body[data-cl-workspace="compact"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="focus"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="spacious"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="continuous"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important
+ }
+}
+@media(max-width:540px){
+ .cl-page-style-livebar{gap:6px 10px;padding:10px 13px}
+ .cl-page-style-livebar label{width:100%}
+ body[data-cl-workspace="compact"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="focus"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="spacious"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid),
+ body[data-cl-workspace="continuous"] main.section :is(.grid,.dashboard-stat-grid,.academy-program-grid){
+  grid-template-columns:minmax(0,1fr)!important
+ }
+}
+@media(prefers-reduced-motion:reduce){.cl-page-style-livebar *{transition:none!important}}
