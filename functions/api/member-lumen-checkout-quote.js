@@ -22,7 +22,7 @@ async function get(c,path,body){
 function eligibleStatus(row,sku){
  // A registry row is NOT proof that the site has released the product.
  return row?.visible===true&&row?.sale_ready===true&&row.sku===sku&&
-  !['coming_soon','unavailable','in_development','paused'].includes(row.status);
+  ['for_sale','selling','published'].includes(row.status);
 }
 export async function onRequestGet({request,env}){
  try{
