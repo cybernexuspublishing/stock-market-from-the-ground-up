@@ -10,7 +10,7 @@
  const chartLib=()=>root.LightweightCharts;
  const aggLib=()=>root.CrownlightLiveAggregator;
  const state={ws:null,mode:null,agg:null,chart:null,candles:null,volume:null,ema9:null,ema20:null,
-   generation:0,renderQueued:false,closedByUser:false,demoTimer:null,demoTick:0,canLive:false,
+   generation:0,renderQueued:false,closedByUser:false,demoTimer:null,demoTick:0,demoSpeed:1,demoPaused:false,canLive:false,
    getSession:null,getSymbol:null,resize:null,clock:null,sourceSymbol:'',ticks:0};
  function setStatus(label,kind='idle'){
   const el=$('cl-live-status');if(el){el.textContent=label;el.dataset.kind=kind}
@@ -21,6 +21,8 @@
   if($('cl-live-start'))$('cl-live-start').disabled=running||!state.canLive;
   if($('cl-live-demo'))$('cl-live-demo').disabled=running;
   if($('cl-live-stop'))$('cl-live-stop').disabled=!running;
+  if($('cl-live-pause')){$('cl-live-pause').hidden=state.mode!=='demo';$('cl-live-pause').disabled=state.mode!=='demo';$('cl-live-pause').textContent=state.demoPaused?'Resume Fictional Formation':'Pause Fictional Formation';}
+  if($('cl-live-speed')){$('cl-live-speed').disabled=state.mode!=='demo';$('cl-live-speed').value=String(state.demoSpeed);}
  }
  function setView(active){
   const stage=$('crownlight-live-stage');
@@ -95,7 +97,7 @@
   if(state.ws){const ws=state.ws;state.ws=null;try{ws.close(1000,'Member stopped live stream')}catch{}}
   if(state.chart){state.chart.remove();state.chart=null;state.candles=null;state.volume=null}
   if(state.resize){state.resize.disconnect();state.resize=null}
-  state.agg=null;state.mode=null;controls();setView(false);
+  state.agg=null;state.mode=null;state.demoPaused=false;controls();setView(false);
  }
  function stop(){teardown();setStatus('Stopped · historical replay is unchanged.','idle')}
  function begin(mode,symbol){
@@ -146,18 +148,37 @@
  function practice(){
   const symbol='DEMO';
   try{begin('demo',symbol)}catch(e){setStatus(e.message,'error');return}
-  setStatus('FICTIONAL FORMATION · accelerated educational ticks','demo');
-  setMeta('ORIGINAL FICTIONAL PRICES · NOT A MARKET FEED · 20× teaching clock. No Alpaca connection, subscriptions, or charges.');
+  state.demoPaused=false;
+  setStatus('FICTIONAL FORMATION · '+state.demoSpeed+'× teaching speed','demo');
+  setMeta('ORIGINAL FICTIONAL PRICES · NOT A MARKET FEED · '+state.demoSpeed+'× teaching speed. Each source candle forms over a simulated minute.');
   const gen=state.generation;
   let price=100,seq=0;
   const start=Date.parse('2026-10-22T13:30:00Z');
-  state.demoTimer=setInterval(()=>{
-   if(gen!==state.generation)return;
+  const tick=()=>{
+   if(gen!==state.generation||state.mode!=='demo'||state.demoPaused)return;
    const drift=Math.sin(seq*.61)*.19+Math.cos(seq*.27)*.11;
    price=Math.max(1,Math.round((price+drift)*10000)/10000);
    const size=20+((seq*37)%310);
    feedTrade({T:'t',S:'DEMO',t:new Date(start+seq*3000).toISOString(),p:price,s:size,i:seq+1});seq++;
-  },160);
+  };
+  state.demoTick=tick;tick();scheduleDemoClock();controls();
+ }
+ function scheduleDemoClock(){
+  if(state.demoTimer){clearInterval(state.demoTimer);state.demoTimer=null}
+  if(state.mode!=='demo'||state.demoPaused)return;
+  state.demoTimer=setInterval(()=>state.demoTick?.(),3000/state.demoSpeed);
+ }
+ function toggleDemoPause(){
+  if(state.mode!=='demo')return;
+  state.demoPaused=!state.demoPaused;
+  scheduleDemoClock();controls();
+  setStatus(state.demoPaused?'FICTIONAL FORMATION PAUSED':'FICTIONAL FORMATION · '+state.demoSpeed+'× teaching speed','demo');
+ }
+ function setDemoSpeed(){
+  const speed=Number($('cl-live-speed')?.value);
+  if(![0.1,0.25,0.5,1].includes(speed))return;
+  state.demoSpeed=speed;scheduleDemoClock();controls();
+  if(state.mode==='demo')setMeta('ORIGINAL FICTIONAL PRICES · NOT A MARKET FEED · '+speed+'× teaching speed. Each source candle forms over a simulated minute.');
  }
  function initialize({canLive=false,getSession,getSymbol}={}){
   if(!$('cl-live-start')||!aggLib())return;
@@ -165,6 +186,8 @@
   $('cl-live-start').onclick=connectLive;
   $('cl-live-demo').onclick=practice;
   $('cl-live-stop').onclick=stop;
+  if($('cl-live-pause'))$('cl-live-pause').onclick=toggleDemoPause;
+  if($('cl-live-speed'))$('cl-live-speed').onchange=setDemoSpeed;
   window.addEventListener('pagehide',teardown,{once:true});
   controls();
  }
