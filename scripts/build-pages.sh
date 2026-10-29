@@ -156,4 +156,7 @@ with open(p,'w',encoding='utf-8') as f:json.dump(data,f,indent=2);f.write('\n')
 PYBUILD
 node scripts/build-site-accessibility.mjs
 node scripts/build-public-seo.mjs
+# Require the public-only GA4 and SEO fixture acceptance on every production build.
+# This is entirely local; no Google requests, member data or paid operations.
+node tests/test_v014157_public_seo.mjs
 printf 'Cloudflare Pages static output: %s files\n' "$(find "$output" -type f | wc -l)"
