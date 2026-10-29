@@ -98,7 +98,7 @@ try {
  assert.ok(productsUI.includes("admin('sparks_prices')"),'Sparks costs must come from Owner service');
  assert.ok(productsUI.includes('crownlight-sparks-store-v014167.json'),'Sparks cash packages use their own registry');
  assert.ok(productsUI.includes('Promise.allSettled'),'Individual catalog failures must not blank all tabs');
- assert.ok(productsAdmin.includes("p.product_type==='book'")&&productsAdmin.includes("p.product_type==='bundle'"),
+ assert.ok(productsAdmin.includes("product_type==='book'")&&productsAdmin.includes("product_type==='bundle'"),
   'Book editions must be separated from series bundle drafts');
  assert.ok(productsAdmin.includes('if(record)editProduct(record)'),'Book-only editor must not edit a bundle');
  assert.ok(productsAdmin.includes("products-(memberships|books|tools|founding|sparks)"),'All five deep links');
