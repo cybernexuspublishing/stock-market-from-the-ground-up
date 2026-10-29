@@ -27,6 +27,10 @@ on:
       - 'tests/test_v014086_legacy_store_tab_guard.mjs'
       - 'assets/js/store-product-detail-v01484.js'
       - 'store.html'
+      - 'store-welcome-credits-info.html'
+      - 'assets/css/store-echarts-redesign-v1.css'
+      - 'assets/js/store-echarts-product-art-v1.js'
+      - 'tests/test_store_echarts_merchandising_v1.mjs'
       - 'store-*.html'
       - 'tests/test_lumens_promotion_disclosure_v1.mjs'
       - 'tests/test_lumens_no_cash_out_legal_v1.mjs'
@@ -78,6 +82,10 @@ on:
       - 'src/ts/production-completion.ts'
       - 'tests/test_v014086_legacy_store_tab_guard.mjs'
       - 'store.html'
+      - 'store-welcome-credits-info.html'
+      - 'assets/css/store-echarts-redesign-v1.css'
+      - 'assets/js/store-echarts-product-art-v1.js'
+      - 'tests/test_store_echarts_merchandising_v1.mjs'
       - 'store-*.html'
       - 'tests/test_lumens_promotion_disclosure_v1.mjs'
       - 'tests/test_lumens_no_cash_out_legal_v1.mjs'
@@ -116,11 +124,13 @@ jobs:
           node-version: '22'
       - name: Install isolated browser test dependencies
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2 echarts@6.1.0
           npx playwright install --with-deps chromium
       - name: Verify protected commercial Store and unified Products catalog
         run: |
           node --check assets/js/store.js
+          node --check assets/js/store-echarts-product-art-v1.js
+          node tests/test_store_echarts_merchandising_v1.mjs
           node --check assets/js/store-catalog-visuals-v1.js
           node --check assets/js/store-inventory-ui-v014174.js
           node --check assets/js/legal-platform.js
