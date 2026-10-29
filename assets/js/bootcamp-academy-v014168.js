@@ -540,10 +540,20 @@
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
    updateProgress();renderDay();
-   if(code==='free5'&&new URL(location.href).searchParams.has('day')){
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{const target=get('academy-day-title');if(!target||get('academy-workspace').hidden)return;
-     target.setAttribute('tabindex','-1');target.scrollIntoView({behavior:'auto',block:'start'});
-     target.focus({preventScroll:true});}));
+   // Deep links should enter the selected lesson, not leave members looking
+   // at the Academy storefront while their workspace appears far below.
+   if(document.body.classList.contains('academy-direct-route')){
+    const headline=document.querySelector('main.gu-redesign-academy h1');
+    if(headline)headline.textContent=code==='free5'?
+     'Free Foundations — Learn, Understand, Practice':'Boot Camp — '+program.title;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+     if(epoch!==sessionSerial||get('academy-workspace').hidden)return;
+     const target=code==='free5'&&new URL(location.href).searchParams.has('day')?
+      get('academy-day-title'):get('academy-course-title');
+     target.setAttribute('tabindex','-1');
+     target.scrollIntoView({behavior:'auto',block:'start'});
+     target.focus({preventScroll:true});
+    }));
    }
    status(progressAvailable?(code==='free5'?'Choose a lesson and learn with Talia at your own pace.':'Choose a study day and begin learning with Talia.'):
     'You can read the lessons, but we cannot save your notes right now. Please try again later.');
@@ -551,6 +561,12 @@
    if(epoch!==sessionSerial)return;clean();
    const message=String(error.message||'Unable to open this Academy program.');
    status(message);
+   if(/sign in|invalid session|member account changed/i.test(message)){
+    const link=node('a','Sign in to open this learning program');
+    link.className='btn secondary';
+    link.href='signin.html?next='+encodeURIComponent(location.pathname+location.search);
+    get('academy-status').append(node('p','Your course was not opened because a valid member session is required.'),link);
+   }
    if(/active plan|matching individual tool entitlement|authorized member training access/i.test(message)){
     const hint=node('p','Beta access requires a verified training entitlement, an eligible Founding Member plan, or Owner-approved temporary training QA access. A course listing alone is not a subscription.');
     const link=node('a','Review membership and training access');link.href='dashboard.html?tab=access';link.className='btn secondary';
@@ -558,15 +574,42 @@
    }
   }
  }
+ function enterDirectRoute(code){
+  document.body.classList.add('academy-direct-route');
+  // Selected lessons form their own workspace; do not show the storefront
+  // first. Server-side authentication, entitlements and progress are unchanged.
+  for(const selector of ['.academy-free-entry','#academy-free-knowledge',
+   '#academy-program-list','main.gu-redesign-academy .gu-release-actions',
+   'main.gu-redesign-academy .section-intro']){
+   const element=document.querySelector(selector);
+   if(element)element.hidden=true;
+  }
+  const heading=document.querySelector('main.gu-redesign-academy h1');
+  if(heading)heading.textContent=code==='free5'?
+   'Opening Free Foundations':'Opening your Boot Camp';
+  const nav=node('nav');nav.className='academy-return-bar';
+  nav.setAttribute('aria-label','Academy program navigation');
+  const back=node('a','Back to Academy programs');
+  back.href='bootcamp-academy.html';
+  back.className='btn secondary';
+  nav.append(back,node('span',code==='free5'?
+   'Free membership · guided beginner lessons':'Selected Boot Camp · private learning workspace'));
+  get('academy-status').before(nav);
+ }
  async function init(){
   const url=new URL(location.href),code=url.searchParams.get('program')||'';
   activeCode=expected.has(code)?code:'';
+  if(activeCode){
+   if(activeCode!=='foundations30')enterDirectRoute(activeCode);
+   // A deep-linked course must not depend on the separate catalog request.
+   void open(activeCode);
+   return;
+  }
   try{
    const programs=(await request('catalog')).programs;
    catalog(programs);
    status('Explore the seven Boot Camps. Sign in with eligible training access to save your progress.');
-  }catch(error){status(error.message||'The Academy catalog cannot be verified.');return}
-  if(activeCode)void open(activeCode);
+  }catch(error){status(error.message||'The Academy catalog cannot be verified.')}
  }
  get('academy-enroll').addEventListener('click',()=>void (async()=>{
   if(!program||busy||enrolled||!progressAvailable)return;
