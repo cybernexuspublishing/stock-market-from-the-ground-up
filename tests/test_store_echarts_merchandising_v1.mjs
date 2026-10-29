@@ -44,7 +44,7 @@ try{
  <article class="catalog-founder-card"><div class="catalog-founder-top">Starter</div><h3>Founding 14-Day Starter</h3></article>
  <article class="catalog-founder-card is-extended"><div class="catalog-founder-top">Extended</div><h3>Founding 60-Day</h3></article>
  </div>
- <div id="store-panel-sparks"><article class="store-crownlight-package"><h3>Starter</h3><p>25 Crownlight Lumens</p></article></div>
+ <div id="store-panel-sparks"><article class="store-crownlight-package"><h3>Starter</h3><div class="quantity">25 Crownlight Lumens</div></article></div>
  <div id="store-tools"><article class="v11-tool-card"><h3>Advanced Trade Plan Builder</h3><div class="store-tool-visual">Illustration fallback</div></article></div>
  <div id="store-panel-current"><section class="gu-store-type-section"><h3>Research</h3>
  <article class="gu-store-type-card"><a class="gu-catalog-card-image">Fallback</a><h4>Scanner Workbench</h4></article></section>
