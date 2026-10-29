@@ -865,14 +865,17 @@ body.simulator-page #sim-content .sim-controls label[for="sim-speed"]{
 body.simulator-page .sim-mode-switch #sim-mode-notice:empty{display:none!important}
 
 
-/* Keep trade-plan/execution tabs within the vertical boundary of the chart panel.
- * At narrow widths the pane stacks naturally and returns to normal document flow. */
-@media(min-width:1251px){
- body.simulator-page #sim-content:not([hidden]) > #cl-simulator-workbench{
-  max-height:var(--sim-chart-panel-height,700px)!important;
-  overflow-y:auto!important;overscroll-behavior:contain!important
- }
+/* Trade planning, execution and Journal are INDEPENDENT workbench sections.
+ * Do not confine them to the chart height or force nested scrolling. */
+body.simulator-page #sim-content:not([hidden]) > #cl-simulator-workbench{
+ max-height:none!important;
+ overflow:visible!important;
+ overscroll-behavior:auto!important;
+ align-self:start!important;
+ scroll-margin-top:90px
 }
+body.simulator-page #cl-simulator-workbench .cl-tab-panel{min-height:0;overflow:visible}
+body.simulator-page #cl-simulator-workbench .cl-workbench-tabbar{position:relative;z-index:2}
 body.simulator-page #sim-chart-notice{
  position:sticky;bottom:10px;z-index:12;width:min(100%,800px);margin:6px auto;
  padding:9px 12px;border-radius:7px;background:#122943;color:#e3f2fb;
