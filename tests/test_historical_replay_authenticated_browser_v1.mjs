@@ -54,6 +54,8 @@ try{
   await page.waitForFunction(()=>document.querySelector('#vr-index')?.textContent?.trim()==='1');
   console.log('PASS real-account positive: decision locked, future bar revealed, Talia matched, session resumed.');
   await page.locator('#vr-finish').click();
+  await page.locator('#vr-session').waitFor({state:'hidden',timeout:20000});
+  assert.match(await page.locator('#vr-notice').innerText(),/Replay finished|recorded in the existing Trading Journal/i);
  }
  await page.evaluate(async()=>{const sb=await window.getSupabaseClient();await sb.auth.signOut()})
   .catch(err=>{if(!/Execution context was destroyed|navigation/i.test(String(err?.message||'')))throw err});
