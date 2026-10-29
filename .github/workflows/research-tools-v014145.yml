@@ -20,6 +20,7 @@ jobs:
       - name: Verify 16 canonical tools, private workspaces, scanner filtering, math and BYO tokens
         run: |
           node tests/test_stt_sitewide_reconciliation_v1.mjs
+          node tests/test_advanced_trade_plan_builder_v1.mjs
           node tests/test_v014110_advanced_tool_access_and_workspace.mjs
           node tests/test_v014111_tool_math_boundaries.mjs
           node tests/test_v014145_research_scanner.mjs
