@@ -578,7 +578,7 @@ body.simulator-page #sim-server-mode .sim-scenario-disclosure{
  */
 
 /* Occupy the desktop content area. */
-body.simulator-page main.section > .wrap{
+body.simulator-page main.section > .wrap.wrap{
  width:calc(100% - 44px)!important;
  max-width:1680px!important;
  margin-inline:auto!important;
@@ -810,7 +810,7 @@ body.simulator-page #vr-session > figure svg{max-width:100%;height:auto}
  }
 }
 @media(max-width:900px){
- body.simulator-page main.section > .wrap{width:calc(100% - 26px)!important}
+ body.simulator-page main.section > .wrap.wrap{width:calc(100% - 26px)!important}
  body.simulator-page main.section > .wrap > section.sim-free-spotlight{
   grid-template-columns:minmax(0,1fr)!important;gap:10px!important
  }
@@ -824,7 +824,7 @@ body.simulator-page #vr-session > figure svg{max-width:100%;height:auto}
  body.simulator-page .sim-mode-switch #sim-mode-notice{flex:1 1 100%}
 }
 @media(max-width:650px){
- body.simulator-page main.section > .wrap{width:calc(100% - 18px)!important}
+ body.simulator-page main.section > .wrap.wrap{width:calc(100% - 18px)!important}
  body.simulator-page .sim-free-spotlight .sim-free-actions{
   grid-template-columns:1fr!important;gap:7px!important
  }
