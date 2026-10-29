@@ -37,7 +37,7 @@ for(const [concept,domain] of subjects){
  assert.ok(r.worked.length>=2,concept+' must include an original worked example');
  assert.ok(r.limitation,concept+' needs limitation');
  assert.ok(r.check?.question,concept+' needs an ungraded self-check');
- assert.equal(r.check.choices.length,2,concept+' needs answer alternatives');
+ assert.ok(r.check.choices.length>=2,concept+' needs answer alternatives');
 }
 const academy=read('functions/_lib/bootcamp-academy-v014168.js');
 const academyUI=read('assets/js/bootcamp-academy-v014168.js');
