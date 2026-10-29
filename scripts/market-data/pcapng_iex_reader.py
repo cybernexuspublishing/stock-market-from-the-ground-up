@@ -11,7 +11,7 @@ from iex_tops import CaptureError, MAX_PACKET, SYMBOL, read_exact, udp_payload, 
 SECTION=b'\x0a\x0d\x0d\x0a'
 MAX_BLOCK=MAX_PACKET+65536
 
-def filtered_trades(payload, accepted):
+def filtered_trades(payload, accepted, include_breaks=False):
     """Validate the transport/message structure, but accept only requested tickers.
 
     IEX trade reports include securities with Nasdaq integrated symbols outside
@@ -28,7 +28,7 @@ def filtered_trades(payload, accepted):
         size=struct.unpack_from('<H',payload,pos)[0];pos+=2
         if size<1 or pos+size>len(payload):raise CaptureError('IEX message boundary invalid')
         body=payload[pos:pos+size];pos+=size
-        if body[0]!=0x54:continue
+        if body[0] not in ((0x54,0x42) if include_breaks else (0x54,)):continue
         if len(body)!=38:raise CaptureError('Unexpected TOPS trade report layout')
         try:symbol=body[10:18].rstrip(b' \\x00').decode('ascii')
         except UnicodeDecodeError:
@@ -40,11 +40,12 @@ def filtered_trades(payload, accepted):
         trade_id=struct.unpack_from('<q',body,30)[0]
         if not SYMBOL.fullmatch(symbol) or nanos<=0 or price<=0 or qty<=0 or qty>50000000:
             raise CaptureError('Malformed selected-symbol TOPS trade')
-        yield nanos,symbol,qty,price,trade_id,body[1]
+        event=(nanos,symbol,qty,price,trade_id,body[1])
+        yield (*event, 'B' if body[0]==0x42 else 'T') if include_breaks else event
     if pos!=len(payload):raise CaptureError('IEX message count mismatch')
 
 
-def stream_pcapng(f, symbol_filter=None):
+def stream_pcapng(f, symbol_filter=None, include_breaks=False, packet_observer=None):
     endian=None
     links=[]
     packet=0
@@ -101,5 +102,6 @@ def stream_pcapng(f, symbol_filter=None):
         packet+=1
         payload=udp_payload(frame,linktype)
         if payload is None:continue
-        for trade in (filtered_trades(payload,symbol_filter) if symbol_filter is not None else trades_from_payload(payload)):
+        if packet_observer is not None:packet_observer(payload)
+        for trade in (filtered_trades(payload,symbol_filter,include_breaks) if symbol_filter is not None else trades_from_payload(payload)):
             yield packet,trade
