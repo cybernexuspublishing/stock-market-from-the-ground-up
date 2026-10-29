@@ -14,7 +14,11 @@ const advice={
  'Moved stop outside plan':'Compare the original invalidation against the actual exit.',
  'Held past invalidation':'Practice responding to documented invalidation.',
  'Failed to select NO TRADE':'Practice recognizing when a setup lacks enough evidence.',
- 'Revenge traded':'Review your pre-decision criteria after a loss.'
+ 'Revenge traded':'Review your pre-decision criteria after a loss.',
+ 'Relied on unverified catalyst':'Return to the primary issuer or filing source and preserve the first-publication time.',
+ 'Confused red-to-green with candle color':'Red-to-green compares price to the previous closing price; one candle color compares its own open and close.',
+ 'Assumed volume guaranteed a fill':'Separate interval share volume from current bid/ask spread, depth, and changing counterparties.',
+ 'Reconstructed the plan after the outcome':'Preserve the original plan timestamp and evaluate the decision using only information available before the result.'
 };
 function boot(){
  const form=$('entry-form'),root=$('entry-content');
@@ -26,12 +30,12 @@ function boot(){
        evidence=$('gu-evidence-panel'),history=$('gu-actual-history');
  if(!ctx||!plan||!actual||!metric)return;
  const steps=[
-  {id:'context',label:'Context',els:[ctx],help:'Talia: Begin with the evidence available at the time of the decision. No-trade decisions are valid observations.'},
-  {id:'plan',label:'Pre-trade plan',els:[plan,locked],help:'Talia: State the trigger, invalidation, and planned risk before learning the outcome. Locking a plan preserves that original decision.'},
-  {id:'execution',label:'Execution or pass',els:[actual],help:'Talia: Describe what actually occurred, or explain why no trade was taken. A profitable outcome does not prove good process.'},
-  {id:'review',label:'Results and review',els:[metric,compare],help:'Talia: Evaluate the difference between plan and outcome, including missing information. MFE/MAE are excursions, not guaranteed fills.'},
-  {id:'evidence',label:'Chart evidence',els:[evidence],help:'Talia: Save supporting charts privately. Uploaded or self-reported capture times do not prove what was known before the decision.'},
-  {id:'history',label:'Corrections',els:[history],help:'Talia: Keep the original plan fixed. Corrections to closed-trade actuals should be visible in your private change history.'}
+  {id:'context',label:'Context',els:[ctx],help:'Talia: Record the ticker, session, dated source, catalyst wording, price levels, volume and contemporaneous liquidity. Separate observed facts from a sector or squeeze hypothesis; NO TRADE is valid.'},
+  {id:'plan',label:'Pre-trade plan',els:[plan,locked],help:'Talia: Record the WHY, completed-bar or price trigger, previous-close/HOD/VWAP reference, invalidation, target, stop mechanism, size and spread assumption before learning the outcome. Stop prices are not guaranteed. Lock the plan.'},
+  {id:'execution',label:'Execution or pass',els:[actual],help:'Talia: Preserve the actual event sequence, observed price and fill uncertainty, partial executions, slippage or a reason to WAIT/NO TRADE. Do not infer order chronology from an OHLC bar or evaluate process by profit alone.'},
+  {id:'review',label:'Results and review',els:[metric,compare],help:'Talia: Compare original evidence, plan and actual decision; report source changes, failed setups, risk variance and what was unknowable. MFE/MAE are price excursions rather than guaranteed realizable fills.'},
+  {id:'evidence',label:'Chart evidence',els:[evidence],help:'Talia: Distinguish an original annotated fictional chart, approved historical chart and a member-uploaded screenshot. Keep source rights, timeframe and publication chronology explicit; self-reported capture times prove neither timing nor execution.'},
+  {id:'history',label:'Corrections',els:[history],help:'Talia: Never rewrite an original trade thesis to match hindsight. Record what changed, when it became known, why the plan failed or held, and one transferable skill to rehearse with Talia.'}
  ].map(x=>({...x,els:x.els.filter(Boolean)}));
  const all=Array.from(new Set(steps.flatMap(x=>x.els)));
  const head=make('section',undefined,'gu-v2-head journal-card');
