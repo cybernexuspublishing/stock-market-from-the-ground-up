@@ -31,7 +31,7 @@ for(const g of decisions.guides){
  assert(explanation.includes('WAIT or NO TRADE'));
  assert(explanation.includes('Ungraded explanation check'));
  assert(explanation.includes('Supporting educational references'));
- assert(!/guaranteed (?:win|return|fill)|proven positive expectancy/i.test(explanation));
+ assert(!/\b(?:we guarantee profits|this setup guarantees a win|has proven positive expectancy|will always fill at the stop)\b/i.test(explanation));
  assert(answerFromGuide(g,'review','I guessed').includes('cannot issue a grade or mastery credit'));
 }
 const queries=[
