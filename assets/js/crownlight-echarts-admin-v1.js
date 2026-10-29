@@ -20,6 +20,7 @@
  function clearSnapshot(){
   epoch++;
   snapshot=null;loading=null;
+  if(Object.prototype.hasOwnProperty.call(root,'GroundUpAdminSummarySnapshot'))delete root.GroundUpAdminSummarySnapshot;
   resize?.disconnect();resize=null;
   echart?.dispose();echart=null;
   region.hidden=true;

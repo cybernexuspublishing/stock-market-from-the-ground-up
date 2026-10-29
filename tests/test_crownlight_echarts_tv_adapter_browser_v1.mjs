@@ -43,6 +43,16 @@ try{
   return chart.getOption().series.map(x=>x.data);
  });
  assert.deepEqual(revised,[[15.5,16],[1400,1200]],'Revealed-bar shrink removes previously visible future');
+ // Session revocation/sign-out must immediately purge the rendered canvas.
+ await p.evaluate(()=>window.dispatchEvent(new CustomEvent('crownlight:member-changed')));
+ assert.equal(await p.evaluate(()=>window.CrownlightReplayAnalytics.getStatus().barCount),0);
+ assert.equal(await p.locator('[data-ce-chart]').isHidden(),true);
+ assert.equal(await p.evaluate(()=>window.echarts.getInstanceByDom(document.querySelector('[data-ce-chart]'))),undefined);
+ // Reopen after the next member has explicitly revealed a different candle.
+ await p.evaluate(v=>window.dispatchEvent(new CustomEvent('crownlight:revealed-bars',{detail:{bars:v,symbol:'NEW-SESSION'}})),[bars[0]]);
+ await p.locator('[data-ce-open]').click();
+ await p.waitForFunction(()=>window.echarts?.getInstanceByDom(document.querySelector('[data-ce-chart]'))?.getOption()?.series?.[0]?.data?.length===1);
+ assert.deepEqual(await p.evaluate(()=>window.echarts.getInstanceByDom(document.querySelector('[data-ce-chart]')).getOption().series[0].data),[15.5]);
  await p.locator('[data-ce-open]').click();
  assert.equal(await p.locator('[data-ce-chart]').isHidden(),true);
  assert.equal(await p.evaluate(()=>window.CrownlightReplayAnalytics.getStatus().open),false);
@@ -74,7 +84,19 @@ try{
   document.querySelector('[data-admin-echarts-chart]')).getOption().series[0]);
  assert.equal(pie.type,'pie');assert.equal(pie.data.length,7);
  assert.match(await admin.locator('[data-admin-echarts-status]').innerText(),/not a time series/);
- console.log('PASS actual Apache ECharts: verified Admin metrics, Bar/Pie, no invented historical data');
+ await admin.evaluate(()=>window.dispatchEvent(new CustomEvent('crownlight:member-changed')));
+ assert.equal(await admin.locator('[data-admin-echarts-chart]').isHidden(),true);
+ assert.equal(await admin.evaluate(()=>window.CrownlightAdminAnalytics.getStatus().hasSnapshot),false);
+ await admin.evaluate(()=>window.dispatchEvent(new CustomEvent('groundup:admin-summary',{detail:{
+   users:1,library:0,orders:0,subscriptions:0,catalogProducts:0,publishedContent:0,activeEntitlements:0,showcase:false
+ }})));
+ await admin.waitForFunction(()=>window.CrownlightAdminAnalytics.getStatus().rendered===true);
+ const newSnapshot=await admin.evaluate(()=>{
+  const x=window.echarts.getInstanceByDom(document.querySelector('[data-admin-echarts-chart]'));
+  return x?.getOption().series[0].data.find(y=>y.name==='Registered profiles')?.value;
+ });
+ assert.equal(newSnapshot,1,'Admin graph must not reuse previous account counts');
+ console.log('PASS actual Apache ECharts: verified Admin metrics, Bar/Pie and cross-account clearing, no invented history');
  await admin.close();
 
  const tv=await b.newPage();
