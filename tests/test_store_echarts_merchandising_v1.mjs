@@ -29,6 +29,7 @@ for(const phrase of ['Welcome Credits, Trials and Expiry','286 complimentary Cro
  assert(info.includes(phrase),'Member education page missing '+phrase);
 assert.match(read('scripts/build-pages.sh'),/echarts@6\.1\.0/);
 assert.match(html,/store-echarts-product-art-v1\.js/);
+assert.match(read('assets/js/store-echarts-product-art-v1.js'),/dataset.artMetric/,'Marketing art must derive bundle size and plan term from source cards');
 assert.match(html,/crownlight-echarts-loader-v1\.js/);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
