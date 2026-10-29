@@ -64,7 +64,6 @@
   timeframe.append(select);
   const hint=el('small','cl-timeframe-hint','Display label only · no resampling');
   timeframe.append(hint);
-  syncDisplayTimeframe();
   const density=el('button','cl-density-switch','Compact view');
   density.type='button';
   density.setAttribute('aria-label','Toggle compact or comfortable Simulator workspace density');
@@ -81,6 +80,7 @@
   density.onclick=()=>{compact=!compact;try{localStorage.setItem(key,compact?'compact':'comfortable')}catch{}applyDensity()};
   applyDensity();
   toolbar.append(label,timeframe,density,button);area.before(toolbar);
+  syncDisplayTimeframe();
  }
  function setupTabs({canUsePaper=false}={}){
   const parent=$('sim-content'),layout=parent?.querySelector('.sim-layout');
