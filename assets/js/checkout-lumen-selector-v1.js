@@ -17,7 +17,8 @@
   by('lumen-slider').value=String(state.selected);
   by('lumen-number').value=String(state.selected);
   by('lumen-max').textContent='Use max ('+max+')';
-  by('lumen-status').textContent=state.selected===0?
+  const tooSmall=state.price-applied>0&&state.price-applied<50;
+  by('lumen-status').textContent=tooSmall?'This selection leaves less than $0.50 payable. Choose fewer Lumens for an eligible card payment, or use enough to cover the whole product price.':state.selected===0?
    'You have selected no Lumens. The existing secure checkout will charge the verified full price.':
    'Preview only: the current payment flow does not apply Lumen discounts yet. A discounted checkout cannot proceed until payment and credit reservation are connected.';
   state.onChange?.(state.selected>0);
