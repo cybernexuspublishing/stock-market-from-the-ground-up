@@ -29,6 +29,21 @@ async function api(action,payload={}){
  if(!res.ok||!data.ok)throw Error(data.error||'Replay service unavailable.');
  return data;
 }
+function showSourceAttribution(dataset){
+ const container=$('vr-source');
+ const attribution=String(dataset?.sourceAttribution||'');
+ const notice=String(dataset?.licenseNotice||'');
+ if(!fictional&&attribution.includes('Data provided for free by IEX')){
+  container.replaceChildren();
+  container.append(document.createTextNode(replayLabel+' · '+notice+' · Data provided for free by IEX. By accessing or using IEX Historical Data, you agree to the '));
+  const link=document.createElement('a');
+  link.href='https://www.iex.io/legal/hist-data-terms';
+  link.textContent='IEX Historical Data Terms of Use.';
+  link.rel='noopener noreferrer';
+  link.target='_blank';
+  container.append(link,document.createTextNode(' IEX executions only, not consolidated SIP/NBBO or actual broker fills.'));
+ }else container.textContent=[replayLabel,attribution,notice].filter(Boolean).join(' · ');
+}
 function plotVisibleCandles(){
  const svg=$('vr-visible-chart');if(!svg)return;
  const bars=visibleCandles.slice(-40);svg.replaceChildren();if(!bars.length)return;
@@ -156,7 +171,7 @@ async function resume(){
   restored=true;
  }catch{addBar(r.bar)}
  $('vr-code').value=r.dataset?.code||'';
- $('vr-source').textContent=[replayLabel,r.dataset?.sourceAttribution,r.dataset?.licenseNotice].filter(Boolean).join(' · ');
+ showSourceAttribution(r.dataset);
  $('vr-execution').hidden=true;
  notice('Session restored at bar '+cursor+'. '+(restored?'Previously observed candles were restored from the private server.':'Only the current candle was available; earlier observations were not restored.')+' Future data remain private.');
  renderState();
@@ -170,7 +185,7 @@ async function start(){
  window.dispatchEvent(new Event('groundup:replay-reset'));
  window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null,memberId:activeUserId}}));
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
- $('vr-source').textContent=replayLabel+' · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
+ showSourceAttribution(r.dataset);
  notice(r.notice);renderState();
 }
 async function lock(){
