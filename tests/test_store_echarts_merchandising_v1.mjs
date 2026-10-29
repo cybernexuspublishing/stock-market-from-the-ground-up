@@ -73,6 +73,16 @@ try{
  assert.equal(result.bookCover,true);
  assert.equal(result.hasRealRuntime,true);
  assert.match(result.svgWords||'',/FOUNDING MEMBERS/);
+ const labels=await page.evaluate(()=>[...document.querySelectorAll('.gu-echarts-product-art')].map(x=>({
+  kind:x.dataset.artKind,metric:x.dataset.artMetric||'',svg:x.querySelector('svg')?.textContent||''
+ })));
+ assert.equal(labels[0].metric,'14 DAYS','Founder art must show actual 14-day cadence');
+ assert.match(labels[0].svg,/14 DAYS/);
+ assert.equal(labels[1].metric,'60 DAYS','Extended founder art must show actual 60-day cadence');
+ assert.match(labels[1].svg,/60 DAYS/);
+ assert.equal(labels[2].metric,'25 LUMENS','Bundle art must show catalog-defined 25 credits');
+ assert.match(labels[2].svg,/25 LUMENS/);
+ assert.match(labels[2].svg,/NON-CASH PLATFORM CREDITS/);
  assert.deepEqual(errors,[],'Store graphics cannot throw browser exceptions');
  await page.evaluate(()=>{
    const card=document.createElement('article');card.className='store-crownlight-package';card.innerHTML='<h3>Explorer</h3>';
