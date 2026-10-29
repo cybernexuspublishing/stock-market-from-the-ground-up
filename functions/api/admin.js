@@ -525,6 +525,19 @@ async function handlePost(env,request,action){
       }
       body.category='design';body.public_read=true;body.description='Owner-approved sitewide background image and readability overlay';
     }
+    if(key==='feature.crownlight_chart_studio_menu_v1'){
+      if(!c.ctx.roles.includes('OWNER'))return bad('Only Owner can change Chart Studio dropdown visibility.',403);
+      const v=body.value;
+      const tiers=['STANDARD','ADVANCED','PROFESSIONAL'];
+      if(!v||typeof v!=='object'||Array.isArray(v)||
+         Object.keys(v).length!==1||!Array.isArray(v.visible)||
+         v.visible.length<1||v.visible.length>tiers.length||
+         new Set(v.visible).size!==v.visible.length||
+         v.visible.some(t=>typeof t!=='string'||!tiers.includes(t)))
+       return bad('Choose at least one distinct approved Studio.',400);
+      body.category='learning';body.public_read=false;
+      body.description='Owner-controlled dropdown visibility; never modifies Chart Studio entitlements or Sparks passes';
+    }
     if(key==='feature.crownlight_continuous_workspace_v1'){
       if(!c.ctx.roles.includes('OWNER'))return bad('Owner authority required for Chart Studio presentation.',403);
       const v=body.value;
