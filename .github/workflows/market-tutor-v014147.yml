@@ -27,6 +27,8 @@ jobs:
           node tests/test_tutor_trade_decision_playbooks_v1.mjs
           node tests/test_tutor_advanced_decision_guides_v1.mjs
           node tests/test_tutor_market_study_v1.mjs
+          node tests/test_tutor_guided_practice_v1.mjs
+          node --check assets/js/tutor-guided-practice-v1.js
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
           node tests/test_v014103_first_party_ai_service.mjs
@@ -76,6 +78,11 @@ jobs:
           node --check functions/api/owner-tutor-topic-gaps.js
           node --check functions/api/member-tutor-data-delete.js
           bash scripts/build-pages.sh
+          test -s public/data/tutor-guided-practice-v1.json
+          test -s public/data/tutor-indicator-study-v1.json
+          test -s public/data/tutor-watchlist-study-v1.json
+          test -s public/data/tutor-strategy-study-v1.json
+          test -s public/assets/js/tutor-guided-practice-v1.js
           test -f public/assets/js/admin-tutor-feedback-v014147.js
           test ! -d public/functions
           test ! -d public/supabase

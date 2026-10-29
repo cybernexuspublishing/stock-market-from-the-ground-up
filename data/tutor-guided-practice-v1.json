@@ -1,0 +1,394 @@
+{
+  "kind": "talia_guided_practice_original_ungraded_v1",
+  "version": "1.0",
+  "indicatorCount": 8,
+  "watchlistCount": 6,
+  "stages": [
+    "Start",
+    "Learn",
+    "Experiment",
+    "Predict",
+    "Practice",
+    "Assess",
+    "Review",
+    "Transfer",
+    "Results"
+  ],
+  "modules": [
+    {
+      "id": "IND-01",
+      "kind": "indicator",
+      "guideCode": "STUDY_SMA",
+      "title": "Simple moving average",
+      "metric": "sma",
+      "pattern": "trend",
+      "period": 8,
+      "learn": "The SMA summarizes the last N completed closes. A close above it is contextual evidence, not an automatic buy signal.",
+      "question": "With five completed prices, changing the lookback changes the average; which conclusion is justified?",
+      "options": [
+        "A crossover confirms guaranteed follow-through.",
+        "You must declare the period and bar completion before interpreting SMA.",
+        "A single SMA level reveals whether institutions are buying."
+      ],
+      "correct": 1,
+      "feedback": "The average depends on the chosen lookback and completed prices. The indicator lags, and crossovers can fail.",
+      "transferQuestion": "A bar touches SMA during a choppy session. What should the learner check?",
+      "transferOptions": [
+        "Treat the touch as guaranteed support.",
+        "Confirm structure, volume scope, and risk before considering a setup.",
+        "Assume the candle finishes at its current high."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "The new context requires independent price structure and risk evidence; an SMA touch alone cannot qualify entry.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-02",
+      "kind": "indicator",
+      "guideCode": "STUDY_EMA",
+      "title": "Exponential moving average",
+      "metric": "ema",
+      "pattern": "trend",
+      "period": 8,
+      "learn": "The EMA gives newer prices greater weight; its speed depends on period and seeding.",
+      "question": "Two EMA settings cross in a choppy market. What does the event establish?",
+      "options": [
+        "The averages changed relative position but may whipsaw.",
+        "A profit is statistically guaranteed.",
+        "The next candle must close higher."
+      ],
+      "correct": 0,
+      "feedback": "A crossover states a relationship between two smoothed series. It has no guaranteed predictive outcome.",
+      "transferQuestion": "EMA9 rises but price loses a predeclared swing level. Which matters?",
+      "transferOptions": [
+        "The EMA cancels invalidation.",
+        "The recorded swing invalidation still governs the scenario.",
+        "Only EMA9 can set the holding horizon."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "A derivative indicator does not override an independent risk or structure veto.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-03",
+      "kind": "indicator",
+      "guideCode": "STUDY_RSI",
+      "title": "Relative strength index",
+      "metric": "rsi",
+      "pattern": "reversal",
+      "period": 14,
+      "learn": "RSI compares smoothed average price gains with losses. High RSI can persist during strong trends.",
+      "question": "RSI is above 70 on the available bars. What can Talia conclude?",
+      "options": [
+        "Price must reverse on the next bar.",
+        "RSI shows strong recent upward momentum; overbought is not a timing guarantee.",
+        "A short order will fill at its planned stop."
+      ],
+      "correct": 1,
+      "feedback": "Wilder RSI summarizes momentum; an extreme reading cannot independently predict when reversal occurs.",
+      "transferQuestion": "RSI is 32 in a continuing downtrend. What is the defensible interpretation?",
+      "transferOptions": [
+        "A bounce is certain.",
+        "The oscillator is low but the structure and invalidation still matter.",
+        "Low RSI means the seller is an institution."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "Oversold is context, not an observable completed reversal.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/relative-strength-index-rsi",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-04",
+      "kind": "indicator",
+      "guideCode": "STUDY_MACD",
+      "title": "Moving average convergence divergence",
+      "metric": "macd",
+      "pattern": "trend",
+      "period": 12,
+      "learn": "MACD compares faster and slower price EMAs; the histogram is MACD minus its signal line.",
+      "question": "The MACD histogram crosses above zero. What does this prove?",
+      "options": [
+        "The MACD line is above its signal line under declared settings.",
+        "A position must be entered now.",
+        "The stock is cheaper than its intrinsic value."
+      ],
+      "correct": 0,
+      "feedback": "It describes indicator relationships under a period/seed setting, not a validated profitable entry.",
+      "transferQuestion": "MACD improves while the trade's risk level breaks. Which judgment is sound?",
+      "transferOptions": [
+        "Hold because momentum is positive.",
+        "Reassess because the original invalidation was reached.",
+        "MACD eliminates slippage."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "The documented risk condition cannot be erased by a correlated indicator.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/macd-moving-average-convergence-divergence-oscillator",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-05",
+      "kind": "indicator",
+      "guideCode": "STUDY_ATR",
+      "title": "Average true range",
+      "metric": "atr",
+      "pattern": "gap",
+      "period": 10,
+      "learn": "ATR averages true ranges that account for prior-close gaps; it measures magnitude, not direction.",
+      "question": "A bar gaps above the preceding close. Which value belongs in true range?",
+      "options": [
+        "Only current high minus low.",
+        "The maximum of high-low, high-prior close, and low-prior close absolute distances.",
+        "The current close minus opening price."
+      ],
+      "correct": 1,
+      "feedback": "True range captures gap effects that a simple high-low measure can miss.",
+      "transferQuestion": "ATR doubles after a volatility shock. What changes in a plan?",
+      "transferOptions": [
+        "Predicted price direction is now certain.",
+        "Volatility and possible risk-distance assumptions need review.",
+        "Liquidity and spreads are guaranteed to improve."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "ATR estimates historic movement size, not directional probability or executable stop fills.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-06",
+      "kind": "indicator",
+      "guideCode": "STUDY_BOLLINGER_BANDS",
+      "title": "Bollinger bands",
+      "metric": "bollinger",
+      "pattern": "chop",
+      "period": 12,
+      "learn": "Bands display a moving average plus/minus a selected standard-deviation multiple. Touches do not prove reversals.",
+      "question": "Price touches the upper Bollinger band. What is a defensible observation?",
+      "options": [
+        "Price is high relative to this rolling band, not necessarily ready to fall.",
+        "A sell at the band is mandatory.",
+        "The band guarantees 95% success."
+      ],
+      "correct": 0,
+      "feedback": "Band contact is location and volatility context, not a probability promise.",
+      "transferQuestion": "The bands narrow during consolidation. What does this tell the learner?",
+      "transferOptions": [
+        "Low recent band-measured dispersion; breakout direction remains unconfirmed.",
+        "The next move must be upward.",
+        "The watchlist is automatically trade-qualified."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "Compression can change risk context but does not dictate future direction.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/bollinger-bands",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-07",
+      "kind": "indicator",
+      "guideCode": "STUDY_VWAP",
+      "title": "Volume weighted average price",
+      "metric": "vwap",
+      "pattern": "trend",
+      "period": 5,
+      "learn": "This visualization uses bar HLC3 weighted by volume, an explicit approximation of actual transaction VWAP.",
+      "question": "Displayed bar-based VWAP rises while price crosses it. What is the right limitation?",
+      "options": [
+        "The displayed proxy is not a venue-exact tick VWAP and a cross needs context.",
+        "The proxy identifies institutional order identities.",
+        "Any crossing guarantees a profitable continuation."
+      ],
+      "correct": 0,
+      "feedback": "The bar proxy is a learning calculation; feed, session and anchor decisions change its meaning.",
+      "transferQuestion": "A premarket VWAP and regular-session VWAP disagree. What must be checked?",
+      "transferOptions": [
+        "Choose whichever best fits the later outcome.",
+        "State session inclusions and anchor before comparison.",
+        "Average both without considering timestamps."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "Anchors and feed scope must be reconciled before drawing a conclusion.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "IND-08",
+      "kind": "indicator",
+      "guideCode": "STUDY_RVOL",
+      "title": "Relative volume",
+      "metric": "rvol",
+      "pattern": "trend",
+      "period": 5,
+      "learn": "Relative volume compares observed share quantity to a declared historical baseline, ideally the same clock time.",
+      "question": "At 10:00, 600,000 shares versus a matched-time baseline 200,000 shares yields RVOL 3.0. What does it prove?",
+      "options": [
+        "Activity is three times this baseline, not whether buyers will win.",
+        "The stock will gain 3%.",
+        "A chart entry is confirmed automatically."
+      ],
+      "correct": 0,
+      "feedback": "RVOL measures activity relative to the denominator; directional thesis and execution require independent checks.",
+      "transferQuestion": "A platform compares 10:00 volume to full-day average. What is the issue?",
+      "transferOptions": [
+        "No issue, the denominator is identical.",
+        "The clock windows differ and can distort the comparison.",
+        "The count proves a short squeeze."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "Time-matched and full-session denominators are distinct metrics.",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays",
+      "scope": "Fictional one-minute OHLCV bars and deterministic calculation; no future candle in a visible indicator value, no validated strategy."
+    },
+    {
+      "id": "WATCH-01",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_CANDIDATE_STATE",
+      "title": "Discovery is not trade qualification",
+      "learn": "Discovery → research → watch → qualifying trigger → risk review. A scanner hit never proves a completed entry setup.",
+      "question": "A fictional symbol passes the scanner but its five-minute confirmation bar is unfinished. What state fits?",
+      "options": [
+        "ENTER immediately.",
+        "WATCH / WAIT until the declared trigger completes.",
+        "Award a graded competency pass."
+      ],
+      "correct": 1,
+      "feedback": "Discovery does not establish entry confirmation or executable liquidity.",
+      "transferQuestion": "A candidate later jumps 12% after a NO TRADE decision. Was the earlier decision necessarily wrong?",
+      "transferOptions": [
+        "Yes, all later winners had to be bought.",
+        "No, judge the original available evidence and risk vetoes.",
+        "Change the original timestamp."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    },
+    {
+      "id": "WATCH-02",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_PREMARKET_SCAN",
+      "title": "Premarket candidate verification",
+      "learn": "Separate premarket trades, regular-hours opening auction, corporate-action adjustments, spread and verified catalyst publication.",
+      "question": "A large premarket gap lacks a verified issuer filing and has a wide spread. What follows?",
+      "options": [
+        "Qualified breakout trade.",
+        "RESEARCH / WAIT with explicit missing evidence.",
+        "Guaranteed opening continuation."
+      ],
+      "correct": 1,
+      "feedback": "An impressive gap is discovery; source and liquidity checks remain required.",
+      "transferQuestion": "A reverse split makes an unadjusted premarket gap appear dramatic. What next?",
+      "transferOptions": [
+        "Reconcile adjusted prices and share identity.",
+        "Use raw chart highs from any date.",
+        "Treat the split as strong earnings."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    },
+    {
+      "id": "WATCH-03",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_RELATIVE_VOLUME_SCAN",
+      "title": "Matched-clock volume filters",
+      "learn": "Require same-clock cumulative volume comparisons with explicit historical session and sampling rules.",
+      "question": "RVOL 3.0 appears from 10:00-to-full-day comparison. What is the risk?",
+      "options": [
+        "No risk, all denominators are equivalent.",
+        "The denominator mismatch may overstate or understate unusual trading.",
+        "A bullish entry is guaranteed."
+      ],
+      "correct": 1,
+      "feedback": "Use comparable elapsed periods and data scope; do not turn volume into direction.",
+      "transferQuestion": "Matched-time RVOL is high but quote spread fails the threshold. What now?",
+      "transferOptions": [
+        "Hard liquidity veto still applies.",
+        "High RVOL replaces quote checks.",
+        "Ignore the bid/ask."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    },
+    {
+      "id": "WATCH-04",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_LIQUIDITY_SCAN",
+      "title": "Spread and depth veto",
+      "learn": "Use quoted spread and time-stamped depth alongside realized activity; volume totals do not promise execution.",
+      "question": "Scanner signal is strong but spread exceeds the written maximum. What is justified?",
+      "options": [
+        "Hard NO TRADE for that setup.",
+        "Entry because three indicators agree.",
+        "Assume the spread will vanish at fill."
+      ],
+      "correct": 0,
+      "feedback": "Execution risk is a hard gate, not a soft score.",
+      "transferQuestion": "A displayed ask contains only 200 shares and planned size is 1,000. What can be assumed?",
+      "transferOptions": [
+        "Full order fills at one displayed ask price.",
+        "Nothing about the whole fill price; book may change.",
+        "A stop guarantees loss ceiling."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    },
+    {
+      "id": "WATCH-05",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_CATALYST_SCAN",
+      "title": "Primary-source catalyst queue",
+      "learn": "Verify company identity, original document and publicly available timestamp before classifying news.",
+      "question": "An online article is dated after the replay decision timestamp. Can it support the earlier decision?",
+      "options": [
+        "No, publication later cannot justify prior knowledge.",
+        "Yes, later news is always known.",
+        "Only if the price later rose."
+      ],
+      "correct": 0,
+      "feedback": "No-lookahead chronology is more important than hindsight narratives.",
+      "transferQuestion": "A social post cites earnings but no issuer release is available. What is the state?",
+      "transferOptions": [
+        "Verifiably catalyst-qualified.",
+        "VERIFY_PENDING until primary source and time match.",
+        "A confirmed market order."
+      ],
+      "transferCorrect": 1,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    },
+    {
+      "id": "WATCH-06",
+      "kind": "watchlist",
+      "guideCode": "STUDY_WATCH_NO_TRADE_LEDGER",
+      "title": "Journal rejected candidates",
+      "learn": "Log the missing condition, actual decision timestamp and subsequent outcome separately; do not grade no-trades by later winners.",
+      "question": "A stock rallies after you rejected it for a predeclared wide-spread veto. What should be recorded?",
+      "options": [
+        "Rewrite the earlier decision as a mistake.",
+        "Keep the original valid veto and analyze the later move separately.",
+        "Delete the stop and entry rules."
+      ],
+      "correct": 1,
+      "feedback": "The later move is an outcome, not proof that the earlier unsupported entry was justified.",
+      "transferQuestion": "What makes NO TRADE a complete decision?",
+      "transferOptions": [
+        "A recorded condition, observation time and reason for rejection.",
+        "A forecast of guaranteed future loss.",
+        "No documentation."
+      ],
+      "transferCorrect": 0,
+      "transferFeedback": "A valid watchlist judgment requires a timestamp, known source, explicit filters, risk vetoes, and separation of discovery from entry.",
+      "sourceUrl": "https://toslc.thinkorswim.com/center/howToTos/thinkManual/Scan/Stock-Hacker",
+      "scope": "Fictional four-candidate scan, no live exchange quotes, broker orders, or current watchlist persistence."
+    }
+  ],
+  "rights": "All bars and symbol names are synthetic. No licensed market-data redistribution or private assessment keys."
+}
