@@ -28,3 +28,32 @@
 .gu-site-layout-editing .gu-layout-editable.gu-layout-moving{z-index:15!important;outline-color:#43f0da!important;box-shadow:0 12px 46px #0008;transition:none!important;will-change:translate}
 .gu-layout-dragging,.gu-layout-dragging *{cursor:grabbing!important;user-select:none!important}
 .gu-site-layout-editing .gu-layout-editable .cl-workbench-import{max-width:100%}
+
+
+/* Compact draggable Owner/Admin site-layout control. The position is personal
+   to the browser and does not modify site cards or grant editing permissions. */
+#gu-layout-admin-toolbar{
+ width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important;
+ max-width:56px!important;padding:3px!important;gap:0!important;
+ display:flex!important;align-items:stretch!important;justify-content:stretch!important;
+ border-radius:10px!important;box-sizing:border-box!important
+}
+#gu-layout-toggle{
+ width:100%!important;height:100%!important;min-width:0!important;
+ min-height:0!important;padding:4px!important;display:grid!important;
+ place-items:center!important;font-size:.8rem!important;line-height:1.15!important;
+ border-radius:7px!important;font-weight:750!important;
+ cursor:grab;touch-action:none;user-select:none
+}
+#gu-layout-toggle:active{cursor:grabbing}
+#gu-layout-toggle[aria-pressed="true"]{outline:2px solid #64e3cf;outline-offset:-3px}
+#gu-layout-toggle:focus-visible{outline:3px solid #8ff5e3;outline-offset:1px}
+#gu-layout-feedback{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+@media(max-width:700px){
+ #gu-layout-admin-toolbar{width:52px!important;height:52px!important;min-width:52px!important;
+  min-height:52px!important;max-width:52px!important}
+}
