@@ -61,3 +61,25 @@
 .cl-chart-tier-countdown{padding:10px;margin-top:12px;border-radius:8px;background:#172e42;font-variant-numeric:tabular-nums}
 
 @media(max-width:620px){.cl-tier-chart-summary{min-height:0;padding:10px}.cl-tier-ohlcv{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* Locked Studio choices are attached to their names, never a generic Unlock button. */
+.cl-locked-items{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.cl-locked-items[hidden]{display:none!important}
+.cl-locked-studio{display:inline-flex;flex-direction:column;align-items:center;gap:1px;
+ padding:5px 10px;min-height:45px;border:1px solid #806d98;border-radius:7px;
+ background:#201a32;color:#efe5ff;font-size:.73rem;cursor:pointer}
+.cl-locked-icon{font-size:.83rem;line-height:1.1}
+.cl-locked-studio:hover,.cl-locked-studio:focus-visible{border-color:#c4a1fe;background:#352344}
+.cl-chart-price-dialog{width:min(480px,calc(100vw - 32px));max-height:min(80vh,740px);overflow:auto;
+ padding:20px;border-radius:12px;background:#101b2e;color:#f1f8ff;border:1px solid #6885a9;
+ box-shadow:0 24px 80px #000b}
+.cl-chart-price-dialog::backdrop{background:rgba(1,8,18,.78)}
+.cl-chart-price-dialog h2{font-size:1.1rem;margin:0 0 10px}
+.cl-chart-price-dialog .cl-tier-price-details{display:grid;gap:9px;margin:8px 0}
+.cl-chart-price-dialog p{font-size:.81rem;line-height:1.5;margin:4px 0}
+.cl-tier-wallet{font-weight:750;color:#d2b6ff}
+.cl-tier-offer{display:grid;gap:5px;padding:10px 12px;border:1px solid #4b5e7b;border-radius:8px}
+.cl-tier-offer span{font-size:.81rem}
+.cl-tier-offer .btn{justify-self:start}
+.cl-chart-price-dialog > .btn{display:inline-block;margin:5px 8px 0 0}
