@@ -103,6 +103,10 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:8765/index.html >/dev/null
+      - name: Browser-test Talia guided indicators and watchlist coaching at mobile/desktop widths (mocked, ungraded)
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_tutor_guided_practice_browser_v1.mjs
       - name: Browser-test production Founders Commons access and design voting at mobile/desktop sizes
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
