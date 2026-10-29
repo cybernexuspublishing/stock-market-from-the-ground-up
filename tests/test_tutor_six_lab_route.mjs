@@ -69,6 +69,14 @@ try{
  const assess=await (await onRequest({request:assessRequest,env})).json();
  assert.equal(assess.labContext.learningStage,'Assess');
  assert(!assess.answer.includes('Worked example (fictional):'));
+ const optedInRequest=new Request('https://school.test/api/market-tutor',{method:'POST',
+  headers:{authorization:'Bearer member-session','content-type':'application/json'},
+  body:JSON.stringify({question:'For canonical Lab DT-C11-L01. Learning Journey stage: Learn. Why does VWAP matter?',
+   mode:'explain',allowModel:true,saveHistory:false})});
+ const optedIn=await (await onRequest({request:optedInRequest,env})).json();
+ assert.equal(optedIn.labContext.labId,'DT-C11-L01');
+ assert.equal(optedIn.labContext.learningStage,'Learn');
+ assert.equal(optedIn.aiReason,'source_only');
  assert.equal(modelCalls,0);
  console.log('PASS six authenticated source-only Tutor API routes with stage context');
 }finally{globalThis.fetch=original}
