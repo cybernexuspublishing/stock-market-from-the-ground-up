@@ -55,6 +55,8 @@ for(const name of candidates){
  report.pages.push({path,canonical});
 }
 for(const file of readdirSync(output).filter(x=>x.endsWith('.html'))){
+ // Search Console's exact ownership token is not an HTML document. Never mutate it.
+ if(file==='googleb8863e241e8dc1fa.html')continue;
  const slug=file.slice(0,-5);
  if(candidates.includes(slug)&&indexable.has(slug==='index'?'/':'/'+file))continue;
  const location=join(output,file);
