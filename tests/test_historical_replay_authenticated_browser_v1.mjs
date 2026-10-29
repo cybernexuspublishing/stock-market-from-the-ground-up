@@ -30,6 +30,11 @@ try{
   console.log('NOT ACCEPTED POSITIVE: authenticated catalog has no licensed historical case.');
  }else{
   const code=available[0].value;
+  // First-time member onboarding is part of the genuine UI; dismiss it
+  // through the supported Skip action rather than bypassing the modal.
+  const tour=page.locator('#fe-onboarding[open]');
+  await tour.waitFor({state:'visible',timeout:2500}).catch(()=>{});
+  if(await tour.isVisible())await tour.locator('[data-skip]').click();
   await page.locator('#vr-dataset').selectOption(code);
   await page.locator('#vr-start').click();
   await page.locator('#vr-session').waitFor({state:'visible'});
