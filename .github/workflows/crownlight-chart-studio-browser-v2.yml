@@ -42,6 +42,12 @@ on:
       - 'tests/test_crownlight_page_style_production_probe_v3.mjs'
       - 'tests/test_crownlight_page_presentation_v2.mjs'
       - 'tests/test_crownlight_page_workspace_browser_v2.mjs'
+      - 'tests/test_crownlight_cardless_layout_v1.mjs'
+      - 'tests/test_sparks_nav_poll_v1.mjs'
+      - 'assets/css/crownlight-cardless-layout-v1.css'
+      - 'assets/js/navigation.js'
+      - 'functions/api/member-sparks-balance.js'
+      - 'assets/js/admin-sparks-pricing-v1.js'
       - 'tests/test_crownlight_admin_style_gallery_browser_v1.mjs'
       - 'tests/test_owner_self_sparks_browser_v1.mjs'
       - 'assets/js/admin-my-sparks-v1.js'
@@ -148,6 +154,10 @@ jobs:
           node --check assets/js/site.js
           node tests/test_crownlight_page_presentation_v2.mjs
           node tests/test_crownlight_page_workspace_browser_v2.mjs
+          node tests/test_crownlight_cardless_layout_v1.mjs
+          node tests/test_sparks_nav_poll_v1.mjs
+          node --check assets/js/navigation.js
+          node --check assets/js/admin-sparks-pricing-v1.js
           node tests/test_crownlight_page_style_production_probe_v3.mjs
           node tests/test_crownlight_real_page_styles_v3.mjs
           node tests/test_crownlight_admin_style_gallery_browser_v1.mjs
