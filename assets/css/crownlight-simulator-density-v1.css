@@ -134,3 +134,296 @@ body[data-sim-density="compact"] #sim-content .journal-form textarea{padding:8px
  body[data-sim-density="compact"] #sim-content .cl-workbench-tab{min-height:42px}
  .cl-density-switch{min-height:42px}
 }
+
+
+/* Market Simulator integrated desktop redesign — Owner direction 2026-10-28.
+ * These selectors are page-scoped, apply before either mode is initialized,
+ * and preserve the existing Comfortable density, permission gates and chart geometry.
+ * No CSS zoom/transform is used on trading canvases.
+ */
+body.simulator-page{
+ --sim-panel:#101827;--sim-panel-2:#0d1b2c;--sim-border:#2a405a;
+ --sim-muted:#aac0d5;--sim-teal:#58d5c3;--sim-purple:#9674df;
+}
+body.simulator-page main.section{padding:18px 0 30px}
+body.simulator-page main.section>.wrap{max-width:1430px;width:calc(100% - 48px);box-sizing:border-box}
+body.simulator-page main.section>.wrap>h1{
+ font-size:clamp(1.8rem,2.2vw,2.4rem)!important;line-height:1.12;
+ letter-spacing:-.025em;margin:3px 0 6px!important;font-weight:720
+}
+body.simulator-page main.section>.wrap>.eyebrow{font-size:.65rem;letter-spacing:.1em;color:var(--sim-teal)}
+body.simulator-page .journal-subtitle{
+ max-width:105ch;font-size:.86rem;line-height:1.45;margin:5px 0 14px;color:#bcd0e3
+}
+body.simulator-page main.section .journal-card{
+ border-radius:9px;box-shadow:none;background:var(--sim-panel);
+ border:1px solid var(--sim-border);padding:13px 16px;
+}
+body.simulator-page main.section .journal-card h2,
+body.simulator-page #sim-server-mode>h2,
+body.simulator-page #sim-legacy-mode>h2{
+ font-size:clamp(1.05rem,1.25vw,1.28rem)!important;
+ line-height:1.3;letter-spacing:-.012em;margin:0 0 8px
+}
+body.simulator-page main.section .journal-card h3{font-size:.95rem;line-height:1.35;margin:4px 0 7px}
+body.simulator-page main.section .journal-section{margin:9px 0}
+body.simulator-page main.section p{line-height:1.45}
+body.simulator-page main.section .journal-small{font-size:.77rem;line-height:1.45;color:var(--sim-muted)}
+body.simulator-page main.section .eyebrow{font-size:.65rem;letter-spacing:.08em}
+body.simulator-page main.section .btn{
+ font-size:.79rem;line-height:1.3;padding:8px 12px;border-radius:6px;
+ min-height:34px;white-space:normal;
+}
+body.simulator-page main.section .journal-actions{gap:7px;align-items:center}
+body.simulator-page main.section .status-message:empty{display:none}
+body.simulator-page main.section a:focus-visible,
+body.simulator-page main.section button:focus-visible,
+body.simulator-page main.section input:focus-visible,
+body.simulator-page main.section select:focus-visible,
+body.simulator-page main.section summary:focus-visible,
+body.simulator-page main.section textarea:focus-visible{outline:2px solid #94e9d9;outline-offset:2px}
+
+/* One compact entry ribbon: important controls remain visible and independent. */
+body.simulator-page .sim-free-spotlight{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;
+ margin:9px 0!important;padding:12px 16px!important;
+ background:linear-gradient(115deg,#102a35 0%,#101b30 65%,#1a1a33 100%)!important;
+ border-color:#325b68!important;align-items:center
+}
+body.simulator-page .sim-free-spotlight .eyebrow{font-size:.6rem!important}
+body.simulator-page .sim-free-spotlight h2{font-size:1.05rem!important;margin:3px 0 4px!important}
+body.simulator-page .sim-free-spotlight p{font-size:.78rem;line-height:1.38;margin:4px 0;max-width:100ch}
+body.simulator-page .sim-free-spotlight p.journal-small{font-size:.72rem;color:#9dbad0}
+body.simulator-page .sim-free-actions{
+ display:grid;grid-template-columns:repeat(2,max-content);gap:6px;min-width:0;
+ align-items:center
+}
+body.simulator-page .sim-free-actions #sim-start-free{grid-row:1/3;min-height:100%;font-weight:750}
+body.simulator-page .sim-free-actions a.btn{font-size:.73rem;padding:7px 9px}
+
+/* Learning mode is the primary switch; Talia's full method is an optional disclosure. */
+body.simulator-page .sim-mode-switch{padding:12px 16px!important;margin:9px 0!important}
+body.simulator-page .sim-mode-switch h2{font-size:1.05rem!important;margin:0 0 8px!important}
+body.simulator-page .sim-mode-switch .journal-actions{display:flex;flex-wrap:wrap;gap:7px}
+body.simulator-page .sim-mode-switch .journal-actions button{
+ flex:0 1 auto;border-radius:7px;text-align:center
+}
+body.simulator-page #sim-mode-notice{
+ font-size:.77rem;line-height:1.38;color:#b8cce0;margin:8px 0 0;
+ max-width:115ch
+}
+body.simulator-page details.sim-lab-method{padding:0!important;overflow:hidden}
+body.simulator-page details.sim-lab-method>summary{
+ display:flex;flex-wrap:wrap;align-items:center;gap:5px 18px;cursor:pointer;
+ list-style:none;padding:10px 15px;font-size:.9rem;font-weight:740;color:#e5eef9
+}
+body.simulator-page details.sim-lab-method>summary::-webkit-details-marker{display:none}
+body.simulator-page details.sim-lab-method>summary:before{content:"▸";color:var(--sim-teal)}
+body.simulator-page details.sim-lab-method[open]>summary:before{content:"▾"}
+body.simulator-page details.sim-lab-method>summary span{font-size:.77rem;font-weight:450;color:var(--sim-muted)}
+body.simulator-page details.sim-lab-method>.sim-lab-method-content{
+ border-top:1px solid var(--sim-border);padding:10px 15px 13px;
+ font-size:.81rem
+}
+body.simulator-page details.sim-lab-method p,
+body.simulator-page details.sim-lab-method li{font-size:.81rem;line-height:1.5}
+body.simulator-page details.sim-lab-method ol{margin:8px 0;padding-left:22px}
+
+/* The two modes remain separate; avoid headline repetition and needless whitespace. */
+body.simulator-page #sim-server-mode,
+body.simulator-page #sim-legacy-mode{margin:10px 0 0}
+body.simulator-page #sim-server-mode>h2,
+body.simulator-page #sim-legacy-mode>h2{margin:0 0 3px!important}
+body.simulator-page #sim-server-mode>p,
+body.simulator-page #sim-legacy-mode>p{margin:3px 0 9px}
+body.simulator-page #sim-server-mode>section.journal-card:first-of-type{
+ max-width:100%;margin:8px 0 10px;padding:12px 14px;gap:7px 10px;
+ background:var(--sim-panel-2)
+}
+body.simulator-page #sim-server-mode>section.journal-card:first-of-type>h2{font-size:1.05rem!important}
+body.simulator-page #sim-server-mode>section.journal-card:first-of-type>select,
+body.simulator-page #sim-server-mode>section.journal-card:first-of-type>input{
+ min-height:38px;font-size:.83rem;padding:7px 9px
+}
+body.simulator-page #vr-session{padding:13px!important}
+body.simulator-page #vr-plan fieldset{border-color:var(--sim-border);border-radius:7px}
+
+/* Data setup aligned to the same full-width desktop grid as the chart. */
+body.simulator-page #sim-content{min-width:0}
+body.simulator-page #sim-content #cl-replay-import{
+ margin:9px 0!important;max-width:100%;width:100%;
+ background:var(--sim-panel-2)!important;padding:0!important;
+ border:1px solid var(--sim-border);border-radius:9px
+}
+body.simulator-page #sim-content .cl-workbench-import>summary{
+ padding:10px 14px;font-size:1rem;min-height:22px
+}
+body.simulator-page #sim-content .cl-import-hint{margin:-3px 14px 7px;font-size:.73rem}
+body.simulator-page #sim-content .cl-import-interior{padding:7px 14px 12px}
+body.simulator-page #sim-content .cl-import-interior>:first-child{margin-top:4px}
+body.simulator-page #sim-content #cl-replay-import .sim-import-grid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 12px;
+ align-items:start
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div{
+ min-width:0;max-width:100%;box-sizing:border-box
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){
+ grid-column:auto;background:transparent;border:0;padding:0;
+ box-shadow:none;border-radius:0
+}
+body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div#sim-csv-wrap{grid-column:span 2}
+body.simulator-page #sim-content #cl-replay-import .sim-import-grid label{
+ font-size:.72rem;line-height:1.3;margin:0 0 3px;font-weight:650
+}
+body.simulator-page #sim-content #cl-replay-import input:not([type="checkbox"]),
+body.simulator-page #sim-content #cl-replay-import select,
+body.simulator-page #sim-content #cl-replay-import .cl-lab-trigger{
+ min-height:35px;width:100%;max-width:100%;box-sizing:border-box;
+ font-size:.82rem;padding:6px 9px;border-radius:6px
+}
+body.simulator-page #sim-content #cl-replay-import input[type="file"]{padding:5px}
+body.simulator-page #sim-content #cl-replay-import #sim-csv-wrap p{margin:5px 0 0;font-size:.69rem}
+body.simulator-page #sim-content #cl-replay-import .cl-lab-time-range{gap:5px;margin-top:5px}
+body.simulator-page #sim-content #cl-replay-import .cl-lab-time-range input{min-height:32px}
+body.simulator-page #sim-content #cl-replay-import .v11-session-strip{
+ margin:0 0 9px;font-size:.67rem
+}
+body.simulator-page #sim-content #cl-replay-import .journal-actions{
+ margin-top:9px;gap:7px;flex-wrap:wrap
+}
+body.simulator-page #sim-content #cl-replay-import .journal-actions .btn{padding:7px 10px;font-size:.76rem}
+
+/* The chart, replay controls and guidance are one coherent desk. */
+body.simulator-page #cl-chart-visibility-toolbar{
+ margin:8px 0 0;padding:8px 12px;background:#101c2f;border:1px solid var(--sim-border);
+ border-radius:9px;gap:8px
+}
+body.simulator-page #cl-chart-visibility-toolbar strong{font-size:.94rem}
+body.simulator-page #cl-chart-visibility-toolbar .cl-chart-timeframe-input{
+ flex:0 1 190px;font-size:.69rem
+}
+body.simulator-page #cl-chart-visibility-toolbar input{min-height:33px;padding:5px 8px}
+body.simulator-page #sim-content .sim-layout{margin:0;gap:0}
+body.simulator-page #sim-content .sim-chart-panel{
+ background:#0c1727!important;border:1px solid var(--sim-border);
+ border-top:0;border-radius:0 0 9px 9px;padding:11px 13px!important;
+ box-shadow:none;max-width:100%;min-width:0
+}
+body.simulator-page #sim-content .sim-chart-head{margin:0 0 6px;gap:12px}
+body.simulator-page #sim-content .sim-chart-head h2{font-size:1rem!important;margin:1px 0}
+body.simulator-page #sim-content .sim-quote strong{font-size:1.13rem!important}
+body.simulator-page #sim-content .crownlight-live-control{
+ display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;
+ padding:8px 11px;margin:7px 0;background:#102636;
+ border:1px solid #335568;border-radius:7px;box-shadow:none
+}
+body.simulator-page #sim-content .crownlight-live-intro{flex:1 1 240px;min-width:0}
+body.simulator-page #sim-content .crownlight-live-intro p{font-size:.75rem;margin:3px 0}
+body.simulator-page #sim-content .cl-live-brand{font-size:.64rem;letter-spacing:.075em}
+body.simulator-page #sim-content .crownlight-live-buttons{
+ display:flex;flex:0 1 auto;flex-wrap:wrap;gap:6px
+}
+body.simulator-page #sim-content .crownlight-live-buttons button{font-size:.75rem;padding:7px 10px;min-height:34px}
+body.simulator-page #sim-content .crownlight-live-status{
+ margin:0;font-size:.71rem;line-height:1.3;
+ flex:1 1 100%;padding:0;border:0;background:none
+}
+body.simulator-page #sim-content .sim-awaiting-data-message{margin:7px 0;padding:11px 12px;font-size:.83rem}
+body.simulator-page #sim-content .sim-accessible-table{
+ padding:7px 10px;margin:8px 0;border-radius:7px
+}
+body.simulator-page #sim-content .sim-accessible-table summary{font-size:.78rem}
+body.simulator-page #sim-content .sim-accessible-table th,
+body.simulator-page #sim-content .sim-accessible-table td{padding:6px 9px;font-size:.75rem}
+body.simulator-page #sim-content .sim-talia-guidance{
+ margin:7px 0;padding:9px 12px;background:#11283a;border-color:#345c70;
+ border-radius:7px
+}
+body.simulator-page #sim-content .sim-talia-guidance h3{font-size:.87rem;margin:0 0 4px}
+body.simulator-page #sim-content .sim-talia-guidance p,
+body.simulator-page #sim-content .sim-talia-guidance a{font-size:.77rem;line-height:1.4}
+body.simulator-page #sim-content .sim-talia-guidance p{margin:3px 0}
+body.simulator-page #sim-content .sim-controls{
+ gap:6px;margin:8px 0 3px;padding:7px 8px;border-radius:7px
+}
+body.simulator-page #sim-content .sim-controls .btn{min-width:0}
+body.simulator-page #sim-content .crownlight-plot{height:485px;min-height:320px}
+body.simulator-page #sim-content .cl-chart-tier-switcher{
+ padding:10px 12px;margin:8px 0;border-radius:7px
+}
+body.simulator-page #sim-content .cl-workspace-controls{padding:9px 11px;margin:8px 0;border-radius:7px}
+body.simulator-page #sim-content .cl-workspace-row{gap:6px 9px}
+body.simulator-page #sim-content .cl-workspace-row label{font-size:.75rem;gap:5px}
+body.simulator-page #sim-content .cl-workspace-row button,
+body.simulator-page #sim-content .cl-workspace-row select,
+body.simulator-page #sim-content .cl-workspace-row input{font-size:.77rem;padding:6px 9px}
+body.simulator-page #sim-content .cl-talia-guided{margin:7px 0;padding:8px 10px;border-radius:7px}
+body.simulator-page #sim-content .cl-talia-toggle{padding:7px 9px;font-size:.83rem}
+
+/* Functional trade planning remains adjacent in the same continuous workspace. */
+body.simulator-page #sim-content .cl-workbench-tabs{
+ margin:9px 0 15px;border-radius:9px;
+ background:#101b2e;border:1px solid var(--sim-border);box-shadow:none
+}
+body.simulator-page #sim-content .cl-workbench-tabbar{padding:5px 9px 0;gap:5px}
+body.simulator-page #sim-content .cl-workbench-tab{
+ padding:9px 13px;font-size:.79rem;border-radius:6px 6px 0 0
+}
+body.simulator-page #sim-content .cl-workbench-panels{padding:12px 14px}
+body.simulator-page #sim-content .cl-tab-panel>h2{font-size:1.06rem!important;margin:0 0 10px}
+body.simulator-page #sim-content .sim-plan-layout{
+ display:grid;grid-template-columns:minmax(250px,.8fr) minmax(0,1.4fr);
+ gap:16px;align-items:start
+}
+body.simulator-page #sim-content .sim-plan-numbers .journal-grid.two{gap:8px 10px}
+body.simulator-page #sim-content .sim-plan-reasons{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px 10px
+}
+body.simulator-page #sim-content .sim-plan-reasons .sim-reason-field:nth-child(-n+2){grid-column:span 2}
+body.simulator-page #sim-content .journal-form label{font-size:.74rem;margin:0 0 4px}
+body.simulator-page #sim-content .journal-form input,
+body.simulator-page #sim-content .journal-form select,
+body.simulator-page #sim-content .journal-form textarea{
+ box-sizing:border-box;width:100%;min-width:0;border-radius:6px;
+ padding:7px 9px;font-size:.82rem
+}
+body.simulator-page #sim-content .sim-plan-reasons textarea{min-height:61px;resize:vertical}
+body.simulator-page #sim-content .sim-plan-reasons .sim-reason-field:nth-child(n+3) textarea{min-height:57px}
+body.simulator-page #sim-content #sim-lock-plan{margin-top:10px}
+body.simulator-page #sim-content .sim-position-grid{gap:8px;margin:7px 0}
+body.simulator-page #sim-content .sim-position-grid>div{padding:8px}
+
+/* Layout adapts without clipping fields, eliminating desktop overflow. */
+@media(max-width:1100px){
+ body.simulator-page .sim-free-actions{grid-template-columns:1fr}
+ body.simulator-page .sim-free-actions #sim-start-free{grid-row:auto}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){grid-column:span 2}
+}
+@media(max-width:820px){
+ body.simulator-page main.section>.wrap{width:calc(100% - 28px)}
+ body.simulator-page .sim-free-spotlight{grid-template-columns:1fr}
+ body.simulator-page .sim-free-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.simulator-page .sim-free-actions #sim-start-free{grid-row:auto}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){grid-column:auto}
+ body.simulator-page #sim-content .sim-plan-layout{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+ body.simulator-page main.section>.wrap{width:calc(100% - 22px)}
+ body.simulator-page .sim-free-actions{grid-template-columns:1fr}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid{grid-template-columns:1fr}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div#sim-csv-wrap{grid-column:1}
+ body.simulator-page #sim-content #cl-replay-import .sim-import-grid>div:nth-child(4){grid-column:1}
+ body.simulator-page #sim-content .sim-plan-reasons{grid-template-columns:1fr}
+ body.simulator-page #sim-content .sim-plan-reasons .sim-reason-field:nth-child(-n+2){grid-column:1}
+ body.simulator-page #sim-content .cl-workbench-tab{flex:1 1 44%;min-height:42px}
+ body.simulator-page #sim-content .crownlight-live-buttons{flex:1 1 100%}
+ body.simulator-page #sim-content .crownlight-plot{height:390px;min-height:315px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.simulator-page main.section *,body.simulator-page main.section *:before,
+ body.simulator-page main.section *:after{scroll-behavior:auto}
+}
