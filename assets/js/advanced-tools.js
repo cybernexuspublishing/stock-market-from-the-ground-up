@@ -260,9 +260,15 @@
    '<p class="small">Checks are your own observations, not independent source verification or proof of executable prices.</p></fieldset>'+
    '<div class="actions"><button type="button" class="btn" id="w-save">Save Research Candidate</button></div>')+
    panel('Private saved candidates','<div id="w-list"></div>')+
+   '<div id="w-plan-host"></div>'+ 
    panel('Evidence constraints','<p>A self-reported watchlist status never certifies a live market observation, issuer fact, broker fill or future price. Complete primary-source review independently.</p>');
   const list=document.getElementById('w-list');
   const saveButton=document.getElementById('w-save');
+  const researchUserId=USER?.id;
+  const tradePlan=globalThis.GroundUpAdvancedTradePlanV1?.mount?.({
+   host:document.getElementById('w-plan-host'),workspaceApi,saveRecord,latestRecords,
+   alive:()=>USER?.id===researchUserId
+  });
   let editing=null;
   if(!recs.length)list.textContent='No saved candidates yet.';
   for(const rec of recs){
@@ -298,7 +304,13 @@
      status('Selected private candidate deleted.','success')}
     catch(e){status(e.message,'error')}
    });
-   line.append(' ',edit,' ',del);list.append(line);
+   const plan=document.createElement('button');plan.type='button';plan.className='btn secondary';
+   plan.textContent='Build Trade Plan';plan.setAttribute('aria-label','Open trade plan for '+String(rec.title||''));
+   plan.addEventListener('click',()=>{
+    tradePlan?.loadCandidate(rec);
+    document.getElementById('w-plan-host')?.scrollIntoView({behavior:'smooth',block:'start'});
+   });
+   line.append(' ',edit,' ',plan,' ',del);list.append(line);
   }
   document.getElementById('w-save').onclick=async()=>{
    try{
