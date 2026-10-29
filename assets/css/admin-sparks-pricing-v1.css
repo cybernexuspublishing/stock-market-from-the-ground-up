@@ -10,3 +10,52 @@
 .sp-price-field input:focus-visible,.sp-price-field select:focus-visible,.sp-price-actions button:focus-visible{outline:2px solid #b5a4f0;outline-offset:2px}
 .sp-price-card{border-top:2px solid #425b83}
 .sp-price-feedback[role=status]{max-width:32rem;overflow-wrap:anywhere}
+
+/* Pricing Manager: rows without a wall of cards, or optional familiar card view. */
+#admin-sparks-pricing-root{display:block!important;min-width:0}
+#admin-sparks-pricing-root .sp-price-instructions{
+ padding:14px 0;margin:8px 0 18px;border-bottom:1px solid #5e819e
+}
+#admin-sparks-pricing-root .sp-price-instructions h2{margin:0 0 5px;font-size:1.08rem}
+#admin-sparks-pricing-root .sp-price-instructions p{font-size:.88rem;max-width:85ch}
+#admin-sparks-pricing-root .sp-price-grid.sp-price-list{
+ display:flex!important;flex-direction:column!important;gap:0!important
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card{
+ display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,2fr);
+ gap:5px 18px;align-items:center;padding:14px 8px!important;
+ border:0!important;border-bottom:1px solid rgba(140,170,191,.32)!important;
+ border-radius:0!important;background:transparent!important;
+ background-image:none!important;box-shadow:none!important;margin:0!important
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card h3{
+ grid-column:1;margin:0;font-size:.93rem
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-sku{
+ grid-column:1;font-size:.73rem;opacity:.83;margin:0
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-note{
+ grid-column:1;font-size:.79rem;margin:0
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-meta{
+ grid-column:1;margin:0;font-size:.72rem
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-fields{
+ grid-column:2;grid-row:1 / span 4;
+ grid-template-columns:minmax(100px,.65fr) minmax(140px,1fr) minmax(150px,1.5fr) minmax(115px,.8fr);
+ gap:8px;align-items:end
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-actions{
+ grid-column:2;justify-content:flex-end;margin-top:2px
+}
+#admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-field{font-size:.74rem}
+#admin-sparks-pricing-root .sp-new-price{margin-top:26px;border-top:2px solid #7496aa!important}
+#admin-sparks-pricing-root .sp-price-grid:not(.sp-price-list){display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}
+@media(max-width:1100px){
+ #admin-sparks-pricing-root .sp-price-list .sp-price-card{display:flex;flex-direction:column;align-items:stretch}
+ #admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-actions{justify-content:flex-start}
+}
+@media(max-width:580px){
+ #admin-sparks-pricing-root .sp-price-list .sp-price-card .sp-price-fields{grid-template-columns:minmax(0,1fr)}
+}

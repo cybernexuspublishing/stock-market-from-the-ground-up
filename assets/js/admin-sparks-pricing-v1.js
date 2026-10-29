@@ -66,7 +66,7 @@ function editablePrice(offer,refresh){
  row.append(save,feedback);card.append(row);return card;
 }
 function draftForm(refresh){
- const card=el('article','admin-card sp-price-card');
+ const card=el('article','admin-card sp-price-card sp-new-price');card.id='sp-sparks-new';
  card.append(el('h2','','Add a Spark-priced item'),
   el('p','sp-price-note','Create a planned catalog entry in any category. Every new item starts unavailable: entering a price alone never unlocks a feature, charges Sparks, or creates an entitlement.'));
  const grid=el('div','sp-price-fields');
@@ -112,15 +112,29 @@ async function load(){
   const group=el('select');group.setAttribute('aria-label','Filter Spark category');
   for(const text of ['ALL','CHART_STUDIO','AD_FREE','PRACTICE','OTHER'])
    group.add(new Option(text.replaceAll('_',' '),text));
+  const view=el('select');view.setAttribute('aria-label','Pricing editor layout');
+  view.add(new Option('Rows · No cards','rows'));
+  view.add(new Option('Cards','cards'));
+  view.value='rows';
+  const viewField=el('label','sp-price-field');
+  viewField.append(el('span','','Editor layout'),view);
   const reload=el('button','btn secondary','Refresh prices');reload.type='button';
-  reload.onclick=()=>void load();controls.append(search.wrap,group,reload);host.append(controls);
-  const notice=el('p','sp-price-note','Owner-controlled prices apply to new, server-confirmed redemption requests only. Existing pass durations and historical debits cannot be repriced retroactively. New catalog entries are planned and cannot be activated until their server-side fulfillment and acceptance are separately completed.');
+  reload.onclick=()=>void load();controls.append(search.wrap,group,viewField,reload);host.append(controls);
+  const guide=el('div','sp-price-instructions');
+  guide.id='sp-sparks-catalog';
+  guide.append(el('h2','','Sparks Pricing & Items'),
+    el('p','','Edit an existing Spark amount below, then select Save price. To give something new a Sparks cost, create a planned SKU in the Add a Spark-priced item section. A price does not automatically enable redemption or grant access.'));
+  const jump=el('a','btn secondary','Add a Spark-priced item');
+  jump.href='#sp-sparks-new';guide.append(jump);host.append(guide);
+  const notice=el('p','sp-price-note','Only integrated Active offers can be redeemed. Price edits apply to new confirmed redemptions, not previously purchased passes. New items remain Planned until a safe fulfillment workflow is implemented and accepted.');
   host.append(notice);
   const overview=el('p','sp-price-summary',
    entries.length+' catalog items · '+entries.filter(x=>x.state==='active').length+
    ' active · '+entries.filter(x=>x.state!=='active').length+' planned/disabled');
   host.append(overview);
-  const list=el('div','sp-price-grid');host.append(list);
+  const list=el('div','sp-price-grid sp-price-list');list.id='sp-sparks-price-list';host.append(list);
+  const setView=()=>{list.classList.toggle('sp-price-list',view.value==='rows')};
+  view.onchange=setView;setView();
   const paint=()=>{
    list.replaceChildren();
    const q=search.input.value.trim().toLowerCase();
