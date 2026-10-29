@@ -74,7 +74,7 @@ const lessons=Object.freeze({
 export function teachingForLab(id){return lessons[id]||null}
 export function formatLabTeaching(lesson,{question='',stage=null}={}){
  if(!lesson)return '';
- const q=String(question).toLowerCase().slice(0,450);
+ const q=String(question).toLowerCase().slice(0,450).replace(/learning journey stage:\s*(start|learn|experiment|predict|practice|assess|review|transfer|results)\b/g,'');
  const assess=stage==='Assess';
  const intent=/\b(why|matter|important|purpose)\b/.test(q)?'why':
   /\b(how|calculate|formula|compute|work|example|steps?)\b/.test(q)?'method':
