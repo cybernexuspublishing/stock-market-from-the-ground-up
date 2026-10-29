@@ -44,7 +44,8 @@ try{
  assert.match(await page.locator('#admin-products-sparks-catalog').innerText(),/\$5\.00/);
  for(const tab of tabs){
   await page.locator('#admin-products-tab-'+tab).click();
-  assert.equal(await page.locator('#admin-products-'+tab).isHidden(),false);
+  const actual=await page.evaluate(t=>{const panel=document.getElementById('admin-products-'+t);return {hidden:panel?.hidden,display:panel?getComputedStyle(panel).display:null,selected:document.getElementById('admin-products-tab-'+t)?.getAttribute('aria-selected')}},tab);
+  assert.equal(actual.hidden,false,tab+' tab hidden: '+JSON.stringify(actual));
   assert.equal(await page.locator('#admin-products-tab-'+tab).getAttribute('aria-selected'),'true');
  }
  assert.deepEqual(errors,[]);
