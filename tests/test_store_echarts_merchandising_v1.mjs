@@ -16,6 +16,8 @@ assert.match(html,/id="store-tab-upcoming"[^>]*>Upcoming Releases/);
 for(const name of ['Founding Memberships','Books','Crownlight Lumens','À-la-Carte Tools','Current Products','Upcoming Releases'])
  assert(html.includes(name),'Missing navigation item '+name);
 assert.match(css,/min-height:64px!important/);
+assert.match(css,/button\\[data-store-category="memberships"\\]/,'Archived extra tab cannot be shown by larger button styles');
+assert.match(html,/<h1>Founding Memberships, Books &amp; Learning Tools<\\/h1>/);
 assert.match(html,/id="store-panel-sparks"/);
 assert.doesNotMatch(html,/<details><summary>More information about welcome credits, trials and expiry/);
 assert.match(html,/<section class="wrap store-footer-lumen-notice"/);
