@@ -47,7 +47,7 @@ try{
   assert.equal(tutorPosts,0,'Question handoff may not auto-submit or bill');
   await page.locator('#tgp-select').selectOption('WATCH-04');
   await next();await next(); // Experiment
-  const row=page.locator('.tgp-scan-table tbody tr').filter({hasText:'FICT-B'}).first();
+  const row=page.locator('#tutor-guided-practice .tgp-scan-table tbody tr').filter({hasText:'FICT-B'}).first();
   assert.match(await row.innerText(),/Not qualified/);
   await page.locator('#tutor-guided-practice .tgp-gate input[type=range]').first().evaluate(el=>{el.value='3.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
   assert.match(await row.innerText(),/Eligible for risk review/);
@@ -60,13 +60,13 @@ try{
   await page.locator('#tgp-select').selectOption('WATCH-07');
   await next();await next();
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/Focus rule for this lesson:/);
-  assert.equal(await page.locator('.tgp-scan-table').count(),1,'Only one scanner visualization per stage');
-  assert.match(await page.locator('.tgp-scan-table').innerText(),/Special gate/);
-  assert.match(await page.locator('.tgp-scan-table').innerText(),/mandatory universe\/price/);
+  assert.equal(await page.locator('#tutor-guided-practice .tgp-scan-table').count(),1,'Only one scanner visualization per stage');
+  assert.match(await page.locator('#tutor-guided-practice .tgp-scan-table').innerText(),/Special gate/);
+  assert.match(await page.locator('#tutor-guided-practice .tgp-scan-table').innerText(),/mandatory universe\/price/);
   await page.locator('#tgp-select').selectOption('WATCH-10');
   await next();await next();
-  assert.equal(await page.locator('.tgp-scan-table').count(),1,'Short-side watchlist renders only once');
-  assert.match(await page.locator('.tgp-scan-table').innerText(),/short borrow unavailable/);
+  assert.equal(await page.locator('#tutor-guided-practice .tgp-scan-table').count(),1,'Short-side watchlist renders only once');
+  assert.match(await page.locator('#tutor-guided-practice .tgp-scan-table').innerText(),/short borrow unavailable/);
   assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');
   assert(await page.locator('#tutor-guided-practice').isVisible());
   await ctx.close();
