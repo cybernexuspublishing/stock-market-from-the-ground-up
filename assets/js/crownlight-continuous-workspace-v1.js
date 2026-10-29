@@ -4,8 +4,8 @@
  */
 (()=>{'use strict';
  const page=location.pathname.split('/').pop()||'index.html';
- const MODES=['classic','continuous','focus','compact','spacious'];
- const names={classic:'Original',continuous:'Continuous Desk',focus:'Focused',compact:'Compact',spacious:'Spacious'};
+ const MODES=['classic','continuous','focus','compact','spacious','list','table'];
+ const names={classic:'Original',continuous:'Continuous Desk',focus:'Focused',compact:'Compact',spacious:'Spacious',list:'Clean List',table:'Directory'};
  let lastVerified=null;
  const qs=new URLSearchParams(location.search);
  function apply(mode){

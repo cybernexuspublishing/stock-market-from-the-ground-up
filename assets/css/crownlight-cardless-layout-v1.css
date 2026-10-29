@@ -1,0 +1,86 @@
+/* Card-free Crownlight style presets: nothing is removed, disabled or re-ordered
+ * across private learning workflows. Layout presentation only.
+ */
+body[data-cl-workspace="list"] main,
+body[data-cl-workspace="table"] main{
+ --cl-clean-rule:rgba(144,178,199,.32);
+}
+body[data-cl-workspace="list"] main.section>.wrap,
+body[data-cl-workspace="table"] main.section>.wrap,
+body[data-cl-workspace="list"] main.gu-premium-home>section>.wrap,
+body[data-cl-workspace="table"] main.gu-premium-home>section>.wrap,
+body[data-cl-workspace="list"] main.gu-commons-page>.wrap,
+body[data-cl-workspace="table"] main.gu-commons-page>.wrap{
+ width:calc(100% - 42px)!important;max-width:1320px!important;margin-inline:auto
+}
+body[data-cl-workspace="list"] main.section>.wrap{max-width:1080px!important}
+body[data-cl-workspace="table"] main.section>.wrap{max-width:1560px!important}
+/* High-specificity target on existing cards / tiles, never native controls. */
+body[data-cl-workspace="list"] main :is(.card,.journal-card,.learning-card,.dashboard-card,.gu-path-card,.gu-home-terminal,.commerce-card,.product-card,.catalog-founder-card,.academy-program-card,.spark-card),
+body[data-cl-workspace="table"] main :is(.card,.journal-card,.learning-card,.dashboard-card,.gu-path-card,.gu-home-terminal,.commerce-card,.product-card,.catalog-founder-card,.academy-program-card,.spark-card){
+ background:transparent!important;background-image:none!important;box-shadow:none!important;
+ border:0!important;border-radius:0!important;transform:none!important;
+ min-width:0;max-width:none;
+ padding:16px 0!important;margin:0!important;
+ border-bottom:1px solid var(--cl-clean-rule)!important
+}
+body[data-cl-workspace="table"] main :is(.card,.journal-card,.learning-card,.dashboard-card,.gu-path-card,.commerce-card,.product-card,.catalog-founder-card,.academy-program-card){
+ padding:10px 7px!important
+}
+body[data-cl-workspace="list"] main :is(.grid,.dashboard-grid,.dashboard-stat-grid,.academy-program-grid,.gu-path-grid,.commerce-grid,.catalog-founder-grid,.training-link-grid,.profile-grid,.skill-grid),
+body[data-cl-workspace="list"] main :is(#store-products,#store-tools,#academy-programs){
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important
+}
+body[data-cl-workspace="table"] main :is(.grid,.dashboard-grid,.dashboard-stat-grid,.academy-program-grid,.gu-path-grid,.commerce-grid,.catalog-founder-grid,.training-link-grid,.profile-grid,.skill-grid),
+body[data-cl-workspace="table"] main :is(#store-products,#store-tools,#academy-programs){
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:0 24px!important
+}
+body[data-cl-workspace="table"] main :is(.grid,.dashboard-stat-grid,.academy-program-grid,.gu-path-grid,.commerce-grid,.catalog-founder-grid,.skill-grid)>*{
+ min-width:0
+}
+/* Home already has a genuine message/chart split. No-card styles use a column
+ * to avoid decorative panels covering the full editorial flow. */
+body[data-cl-workspace="list"] main.gu-premium-home .gu-home-stage-grid,
+body[data-cl-workspace="table"] main.gu-premium-home .gu-home-stage-grid{
+ grid-template-columns:minmax(0,1fr)!important;max-width:1140px!important;
+ gap:20px!important;align-items:start!important
+}
+body[data-cl-workspace="list"] main.gu-premium-home .gu-home-stage,
+body[data-cl-workspace="table"] main.gu-premium-home .gu-home-stage{
+ min-height:0!important;padding:28px 0!important
+}
+body[data-cl-workspace="list"] main.gu-premium-home .gu-home-terminal,
+body[data-cl-workspace="table"] main.gu-premium-home .gu-home-terminal{
+ margin:0!important;transform:none!important
+}
+body[data-cl-workspace="list"] main.gu-redesign-store #store-products,
+body[data-cl-workspace="table"] main.gu-redesign-store #store-products{
+ display:grid!important
+}
+body[data-cl-workspace="list"] main.gu-redesign-store #store-products{
+ grid-template-columns:minmax(0,1fr)!important
+}
+body[data-cl-workspace="table"] main.gu-redesign-store #store-products{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important
+}
+/* Preserve the Chart Studio graph's internal canvas and live chart position.
+ * Only containing cards become flat — never change canvas width/height directly. */
+body[data-cl-workspace="list"] #sim-content>.sim-layout,
+body[data-cl-workspace="table"] #sim-content>.sim-layout{width:100%;max-width:none}
+body[data-cl-workspace="list"] #sim-content,
+body[data-cl-workspace="table"] #sim-content{display:flex!important;flex-direction:column;gap:8px}
+body[data-cl-workspace="list"] #sim-content>*,
+body[data-cl-workspace="table"] #sim-content>*{min-width:0;max-width:none;width:100%}
+body[data-cl-workspace="list"] main :is(.sim-chart-panel,.cl-chart-tier-switcher),
+body[data-cl-workspace="table"] main :is(.sim-chart-panel,.cl-chart-tier-switcher){
+ background:transparent!important;box-shadow:none!important;border:0!important
+}
+@media(max-width:850px){
+ body[data-cl-workspace="table"] main :is(.grid,.dashboard-grid,.dashboard-stat-grid,.academy-program-grid,.gu-path-grid,.commerce-grid,.catalog-founder-grid,.training-link-grid,.profile-grid,.skill-grid),
+ body[data-cl-workspace="table"] main :is(#store-products,#store-tools,#academy-programs){
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ body[data-cl-workspace="list"] main.section>.wrap,
+ body[data-cl-workspace="table"] main.section>.wrap{width:calc(100% - 20px)!important}
+}

@@ -537,7 +537,7 @@ async function handlePost(env,request,action){
          (v.styles!==undefined&&(
            !v.styles||typeof v.styles!=='object'||Array.isArray(v.styles)||
            Object.keys(v.styles).some(page=>!allowedPages.has(page)||!v.pages.includes(page)||
-             !['classic','continuous','focus','compact','spacious'].includes(v.styles[page]))
+             !['classic','continuous','focus','compact','spacious','list','table'].includes(v.styles[page]))
          )))
         return bad('Specify a boolean enabled state and distinct approved page filenames.',400);
       body.category='design';body.public_read=false;

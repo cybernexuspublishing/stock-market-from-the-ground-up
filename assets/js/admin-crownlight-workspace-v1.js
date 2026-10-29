@@ -10,7 +10,9 @@
   {id:'continuous',name:'Continuous Desk',detail:'Wide chart or content area with a connected side workspace where supported.'},
   {id:'focus',name:'Focused',detail:'Prioritizes one main task or chart, with supporting controls below.'},
   {id:'compact',name:'Compact',detail:'High-density dashboard with tighter spacing and efficient side panels.'},
-  {id:'spacious',name:'Spacious',detail:'Larger margins, comfortable breathing room, and clearly separated sections.'}
+  {id:'spacious',name:'Spacious',detail:'Larger margins, comfortable breathing room, and clearly separated sections.'},
+  {id:'list',name:'Clean List · No Cards',detail:'One readable content stream. Cards become separated rows with no colored boxes or shadows.'},
+  {id:'table',name:'Directory · No Cards',detail:'Compact two-column directory on desktops, with dividing lines rather than tiles.'}
  ];
  const notice=$('[data-cl-admin-message]'),enabled=$('[data-cl-admin-enabled]');
  const pageList=$('[data-cl-admin-pages]'),pageChoice=$('[data-cl-admin-preview-page]');

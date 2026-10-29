@@ -15,7 +15,7 @@
 #admin-crownlight-workspace-control .cl-page-style-head h3{margin:0 0 4px;font-size:1rem}
 #admin-crownlight-workspace-control .cl-page-style-head p{margin:0 0 12px;font-size:.84rem}
 #admin-crownlight-workspace-control .cl-page-style-gallery{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:9px
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px
 }
 #admin-crownlight-workspace-control .cl-page-style-option{
  display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:7px;
@@ -64,3 +64,12 @@
  #admin-crownlight-workspace-control .cl-page-style-row{grid-template-columns:19px minmax(0,1fr)}
  #admin-crownlight-workspace-control .cl-page-style-row select{grid-column:2}
 }
+
+#admin-crownlight-workspace-control .cl-mini-list{grid-template-columns:1fr;grid-template-rows:12px 18px 18px 18px;gap:8px}
+#admin-crownlight-workspace-control .cl-mini-list .cl-mini-main,
+#admin-crownlight-workspace-control .cl-mini-list .cl-mini-side,
+#admin-crownlight-workspace-control .cl-mini-list .cl-mini-bottom{grid-column:1;grid-row:auto;background:transparent!important;border-bottom:2px solid #56809d;border-radius:0}
+#admin-crownlight-workspace-control .cl-mini-table{grid-template-columns:1fr 1fr;grid-template-rows:12px 35px 22px;gap:6px}
+#admin-crownlight-workspace-control .cl-mini-table .cl-mini-main,
+#admin-crownlight-workspace-control .cl-mini-table .cl-mini-side{grid-row:2;border:1px solid #52728b;border-radius:0}
+#admin-crownlight-workspace-control .cl-mini-table .cl-mini-bottom{grid-column:1/-1;grid-row:3;background:transparent!important;border-top:1px solid #52728b;border-radius:0}

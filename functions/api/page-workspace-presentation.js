@@ -23,7 +23,7 @@ export async function onRequestGet({request,env}){
   const enabled=setting.enabled===true;
   const selected=(Array.isArray(setting.pages)?setting.pages:['simulator.html']).filter(p=>PAGES.has(p));
   // Per-page preset. Older saved settings without a style map retain Continuous.
-  const PRESETS=new Set(['classic','continuous','focus','compact','spacious']);
+  const PRESETS=new Set(['classic','continuous','focus','compact','spacious','list','table']);
   const savedRaw=setting.styles&&typeof setting.styles==='object'&&!Array.isArray(setting.styles)?setting.styles[page]:null;
   const savedStyle=PRESETS.has(savedRaw)?savedRaw:'continuous';
   const published=enabled&&selected.includes(page)&&savedStyle!=='classic';
