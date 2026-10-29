@@ -419,7 +419,10 @@
       make('span','Observed '+(d.asOf||'unknown')+' · Saved '+(rec.created_at||'unknown')));
      const load=make('button','Load as a new plan (does not overwrite)','btn secondary');load.type='button';
      load.addEventListener('click',()=>{fill(d);activate('research');alert.textContent='Loaded a saved version as an editable copy. Original snapshot is unchanged.';});
-     row.append(load);historyList.append(row);
+     const handoff=make('a','Transfer saved version to Trading Journal','btn secondary');
+     handoff.href='journal.html?source_plan='+encodeURIComponent(String(rec.id));
+     handoff.title='Open your existing Journal to create and review a draft; no trade is recorded automatically.';
+     row.append(load,handoff);historyList.append(row);
     }
     historyStatus.textContent=snapshots.length+' of the latest 100 workspace records are trade-plan versions; other research reviews are preserved.';
    }catch(e){historyStatus.textContent='Saved plan versions unavailable: '+(e.message||'Unable to load')}
