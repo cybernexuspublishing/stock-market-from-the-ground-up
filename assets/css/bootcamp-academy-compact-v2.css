@@ -175,3 +175,97 @@ body.gu-bc-learning.academy-direct-route #academy-day-title:focus{
   align-items:flex-start;flex-direction:column;gap:7px;
  }
 }
+
+
+/* Shared Talia classroom — Free Foundations and all authorized Boot Camps. */
+body.gu-bc-learning.academy-classroom-active
+ :is(.academy-free-entry,#academy-free-knowledge,#academy-program-list,
+ main.gu-redesign-academy .gu-release-actions,
+ main.gu-redesign-academy .section-intro){display:none!important}
+body.gu-bc-learning.academy-classroom-active #academy-workspace{
+ max-width:none;width:100%;border:0!important;border-radius:0!important;
+ background:transparent!important;padding:0!important;margin:10px 0 30px!important;
+ box-shadow:none!important
+}
+body.gu-bc-learning.academy-classroom-active .academy-course-head{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto;
+ gap:12px 24px;align-items:start;padding:12px 0 15px;margin:0 0 10px;
+ border-bottom:1px solid #2d5365
+}
+body.gu-bc-learning .academy-classroom-heading{
+ display:flex;align-items:center;gap:14px;flex-wrap:wrap
+}
+body.gu-bc-learning .academy-classroom-heading h2{
+ font-size:clamp(1.2rem,1.7vw,1.6rem);line-height:1.24;margin:0
+}
+body.gu-bc-learning .academy-classroom-exit{font-size:.74rem;min-height:32px;padding:6px 12px}
+body.gu-bc-learning.academy-classroom-active .academy-study-grid{
+ display:grid!important;grid-template-columns:195px minmax(0,1fr)!important;
+ gap:12px!important;max-width:none
+}
+body.gu-bc-learning.academy-classroom-active .academy-study-grid .gu-bc-index{
+ position:sticky;top:72px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;
+ padding:10px!important;background:#0e2134;border:1px solid #37526c;border-radius:9px
+}
+body.gu-bc-learning.academy-classroom-active .academy-study-grid .gu-bc-lesson{
+ min-width:0;border:1px solid #36556d;border-radius:9px;
+ background:#0d1b2b;padding:12px 16px!important;box-shadow:none
+}
+body.gu-bc-learning .academy-classroom-session-head{
+ padding:3px 0 12px;border-bottom:1px solid #29465d;margin-bottom:10px
+}
+body.gu-bc-learning .academy-classroom-session-head .eyebrow{
+ margin:2px 0;font-size:.65rem;letter-spacing:.085em;color:#7be4d8
+}
+body.gu-bc-learning .academy-classroom-session-head h3{
+ font-size:clamp(1.12rem,1.4vw,1.36rem);line-height:1.25;
+ margin:6px 0 4px
+}
+body.gu-bc-learning .academy-classroom-session-head p:last-child{
+ font-size:.8rem;color:#b6cedb;line-height:1.5;margin:5px 0 0
+}
+body.gu-bc-learning .academy-classroom-instruction{
+ margin:0 0 12px!important;padding:0!important;border:0!important;
+ background:transparent!important;box-shadow:none!important
+}
+body.gu-bc-learning .academy-classroom-briefing{
+ margin:8px 0 13px;padding:0;border:1px solid #36536b;
+ border-radius:8px;background:#102134
+}
+body.gu-bc-learning .academy-classroom-briefing>summary{
+ cursor:pointer;padding:10px 13px;color:#e6f6ff;font-weight:720;font-size:.83rem
+}
+body.gu-bc-learning .academy-classroom-briefing>summary:focus-visible{
+ outline:2px solid #7ed6ce;outline-offset:2px
+}
+body.gu-bc-learning .academy-classroom-briefing-grid{
+ padding:0 13px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px 14px
+}
+body.gu-bc-learning .academy-classroom-briefing-grid section{
+ padding:8px 10px;margin:0!important;background:#0b1a2c;border:1px solid #294761;
+ border-radius:6px
+}
+body.gu-bc-learning .academy-classroom-briefing-grid h4{
+ margin:0 0 4px!important;font-size:.84rem
+}
+body.gu-bc-learning .academy-classroom-briefing-grid p{
+ margin:0;font-size:.78rem;line-height:1.5
+}
+@media(max-width:1050px){
+ body.gu-bc-learning.academy-classroom-active .academy-study-grid{
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ body.gu-bc-learning.academy-classroom-active .academy-study-grid .gu-bc-index{
+  position:static;max-height:none!important
+ }
+ body.gu-bc-learning.academy-classroom-active .academy-course-head{
+  grid-template-columns:minmax(0,1fr)!important
+ }
+}
+@media(max-width:640px){
+ body.gu-bc-learning .academy-classroom-briefing-grid{grid-template-columns:1fr}
+ body.gu-bc-learning.academy-classroom-active .academy-study-grid .gu-bc-lesson{
+  padding:10px!important
+ }
+}
