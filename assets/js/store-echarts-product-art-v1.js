@@ -1,5 +1,5 @@
-/* Store product-facing vector artwork generated with first-party local Apache
- * ECharts. Illustrative category motifs only: no invented market prices,
+/* Store product-facing SVG previews generated with first-party local Apache
+ * ECharts. Product-specific scenes; no invented market prices,
  * future candles, trading results, or product entitlement claims.
  * Existing verified book covers are always retained.
  */
@@ -208,50 +208,85 @@
   T(17,147,'ILLUSTRATIVE PRODUCT PREVIEW','#6688a1',7,600);
   return a;
  }
- function elements(type,w,h,metric='',productName=''){
-  if(type!=='founder'&&type!=='extended'&&type!=='lumens')return productScene(sceneFor(productName,type),w,h,productName);
-  const [accent,light]=palette[type]||palette.learning;
-  const cy=h*.53,ax=Math.max(58,w*.26),radius=Math.min(39,h*.35),right=w-18;
-  const a=[
-   circle(w*.13,h*.25,56,'rgba(107,189,243,.06)'),
-   circle(w*.83,h*.76,59,'rgba(202,167,244,.055)'),
-   rect(12,h-22,w-24,1,'rgba(209,231,249,.18)'),
-   label(19,19,type==='founder'||type==='extended'?'FOUNDING MEMBERS':type==='lumens'?'CROWNLIGHT LUMENS':type==='tool'?'LEARNING TOOLS':type==='research'?'RESEARCH & ANALYSIS':'LEARNING PLATFORM','rgba(236,245,255,.7)',10,700),
-   line(w*.53,h*.28,w*.91,h*.28,'rgba(173,210,232,.16)',1),
-   line(w*.53,h*.53,w*.88,h*.53,'rgba(173,210,232,.12)',1),
-   line(w*.53,h*.78,w*.94,h*.78,'rgba(173,210,232,.09)',1)
+
+ // Product-specific premium membership passes: term, edition and access tier
+ // originate from the public Founder catalog, not from fabricated imagery.
+ function foundingScene(w,h,metric=''){
+  const days=String(metric).match(/^(14|30|60) DAYS$/)?.[1]||'';
+  const variant=days==='60'?2:days==='30'?1:0;
+  const options=[
+   {accent:'#79d3db',light:'#d3f7ff',title:'STARTER',studio:'STANDARD',symbol:'I'},
+   {accent:'#e3c28b',light:'#fff1ce',title:'STANDARD',studio:'ADVANCED',symbol:'II'},
+   {accent:'#cbb3fa',light:'#f1e9ff',title:'EXTENDED',studio:'PROFESSIONAL',symbol:'III'}
   ];
-  if(type==='founder'||type==='extended'){
-   const dx=Math.min(53,w*.145),base=cy+23,top=cy-35;
-   a.push(poly([[ax-dx,base-8],[ax-dx*.72,top+10],[ax-dx*.28,cy-4],[ax,top-12],[ax+dx*.30,cy-4],[ax+dx*.74,top+10],[ax+dx,base-8],[ax+dx*.86,base+11],[ax-dx*.88,base+11]],'rgba(17,40,64,.7)',accent,{shadowColor:accent,shadowBlur:11}));
-   a.push(line(ax-dx*.73,base,ax+dx*.73,base,light,2));
-   for(const x of [ax-dx*.57,ax,ax+dx*.57])a.push(circle(x,cy+5,3,light));
-   a.push(label(w*.55,cy-11,metric||'MEMBER ACCESS',light,metric?20:16,800),label(w*.55,cy+14,metric?'RECURRING MEMBERSHIP':'TOOLS · LABS · COMMUNITY','rgba(213,233,255,.67)',10,650));
-  }else if(type==='lumens'){
-   a.push(circle(ax,cy,radius+9,'rgba(249,202,98,.05)',{stroke:'rgba(255,220,148,.35)',lineWidth:2}));
-   a.push(circle(ax,cy,radius,'rgba(247,184,67,.10)',{stroke:accent,lineWidth:3,shadowColor:accent,shadowBlur:15}));
-   a.push(poly([[ax,cy-24],[ax+8,cy-8],[ax+24,cy],[ax+8,cy+8],[ax,cy+24],[ax-8,cy+8],[ax-24,cy],[ax-8,cy-8]],accent,light));
-   a.push(label(w*.55,cy-9,metric||'LUMEN PACKAGE',light,metric?20:16,800),label(w*.55,cy+16,'NON-CASH PLATFORM CREDITS','rgba(243,232,199,.78)',10,600));
-  }else{
-   const origin=ax-41;
-   if(type==='tool'||type==='research'){
-    const prices=[[20,50,17,35],[40,39,18,28],[61,58,15,42],[81,30,18,23]];
-    for(const [x,y,ww,hh] of prices){
-     a.push(line(origin+x,cy-34+y-19,origin+x,cy-34+y+hh+4,light,1.7));
-     a.push(rect(origin+x-ww*.27,cy-34+y,ww*.55,hh,'rgba(78,206,178,.28)',2,{stroke:accent,lineWidth:1.5}));
-    }
-    a.push(path([[w*.55,cy+24],[w*.64,cy+4],[w*.72,cy+9],[w*.81,cy-16],[w*.91,cy-26]],light,2.8));
-    const subject=productName.toUpperCase().replace(/\s+/g,' ').trim();
-    a.push(label(w*.55,cy-20,type==='tool'?'PRACTICE & ANALYZE':'INVESTIGATE',light,15,800));
-    if(subject)a.push(label(w*.55,cy+41,subject.length>29?subject.slice(0,28)+'…':subject,'rgba(220,242,255,.8)',9,600));
-   }else{
-    const xpos=ax-32;
-    a.push(rect(xpos,cy-25,65,54,'rgba(120,140,242,.11)',8,{stroke:accent,lineWidth:2}));
-    a.push(path([[xpos+13,cy+10],[xpos+26,cy-1],[xpos+40,cy+4],[xpos+54,cy-15]],light,3));
-    a.push(label(w*.55,cy-10,'LEARN · PRACTICE',light,15,800),label(w*.55,cy+15,'BUILD YOUR SKILLS','rgba(213,233,255,.7)',10,600));
-   }
+  const v=options[variant],sx=w/360,sy=h/168,a=[];
+  const R=(x,y,ww,hh,fill,r=0,extra={})=>a.push(rect(x*sx,y*sy,ww*sx,hh*sy,fill,r*sx,extra));
+  const L=(x,y,xx,yy,stroke=v.accent,th=1)=>a.push(line(x*sx,y*sy,xx*sx,yy*sy,stroke,th*Math.min(sx,sy)));
+  const C=(x,y,r,fill)=>a.push(circle(x*sx,y*sy,r*Math.min(sx,sy),fill));
+  const T=(x,y,value,clr=v.light,sz=10,weight=700)=>a.push(label(x*sx,y*sy,value,clr,sz*Math.min(sx,sy),weight));
+  const P=(coords,col,th=1.5)=>a.push(path(coords.map(p=>[p[0]*sx,p[1]*sy]),col,th*Math.min(sx,sy)));
+  // Dark metallic access-card surface with restrained embossed linework.
+  R(0,0,360,168,'#0a1b2c',12);
+  R(2,2,356,164,'rgba(25,43,58,.76)',10,{stroke:'rgba(205,224,240,.24)',lineWidth:1});
+  R(0,0,7,168,v.accent,1);
+  R(16,13,27,27,'rgba(175,209,226,.09)',6,{stroke:v.accent,lineWidth:1});
+  T(21,19,'C',v.light,15,800);
+  L(21,35,37,35,v.accent,1.2);
+  T(54,14,'CROWNLIGHT',v.light,10,800);
+  T(54,28,'FOUNDING MEMBERS','#91b2c6',9,650);
+  R(269,15,72,20,'rgba(201,226,244,.055)',4,{stroke:'rgba(198,223,238,.22)',lineWidth:.8});
+  T(281,21,v.title,v.accent,10,750);
+  L(16,47,344,47,'rgba(196,219,234,.17)',1);
+  // The number and access tier are the product: never a generic crown.
+  T(20,55,days||'—',v.light,54,770);
+  T(days.length===2?98:112,76,'DAYS',v.accent,13,780);
+  T(21,117,'BILLING TERM','#8db1c8',9,650);
+  L(184,59,184,123,'rgba(201,222,235,.21)',1);
+  T(202,57,'CHART STUDIO','#95b7ca',9,750);
+  T(202,78,v.studio,v.light,v.studio==='PROFESSIONAL'?15:18,800);
+  T(202,107,'Member access tier',v.accent,9,650);
+  // Fine technical geometry replaces decorative clipart.
+  const n=variant+3;
+  for(let i=0;i<n;i++){
+   const x=260+i*15,y=128-(i%2)*7;
+   R(x,y,6,3+((i+variant)%3)*5,v.accent,1);
+  }
+  L(16,132,344,132,'rgba(196,219,234,.2)',1);
+  T(20,141,'FOUNDER BENEFITS',v.accent,9,800);
+  T(184,141,'REVIEW TERMS BELOW','#b9cedd',9,650);
+  // geometric security-pattern detail, distinct by tier
+  for(let i=0;i<8;i++){
+    const x=297+i*8,y=53+(i%3)*8;
+    P([[x,y],[x+5,y+4],[x,y+8]],'rgba(182,213,228,.13)',1);
   }
   return a;
+ }
+ function lumenScene(w,h,metric=''){
+  const amount=String(metric).match(/^(\d+) LUMENS$/)?.[1]||'';
+  const sx=w/360,sy=h/168,a=[];
+  const R=(x,y,ww,hh,fill,r=0,extra={})=>a.push(rect(x*sx,y*sy,ww*sx,hh*sy,fill,r*sx,extra));
+  const L=(x,y,xx,yy,stroke='#dcbf83',th=1)=>a.push(line(x*sx,y*sy,xx*sx,yy*sy,stroke,th*Math.min(sx,sy)));
+  const T=(x,y,value,color='#f8e7be',sz=10,weight=700)=>a.push(label(x*sx,y*sy,value,color,sz*Math.min(sx,sy),weight));
+  R(0,0,360,168,'#152332',12);
+  R(0,0,360,168,'rgba(116,91,48,.10)',12,{stroke:'rgba(227,192,130,.43)',lineWidth:1});
+  R(15,16,38,38,'rgba(227,192,130,.12)',10,{stroke:'#e3c184',lineWidth:1.3});
+  T(22,20,'CL','#f6ddb0',17,850);
+  T(66,19,'CROWNLIGHT', '#f6e4c0',11,790);
+  T(66,35,'LUMEN CREDIT PACKAGE','#c3a977',9,650);
+  L(17,64,343,64,'rgba(227,194,136,.3)',1);
+  T(18,74,amount||'—','#fff3d4',48,800);
+  T(amount.length>2?142:121,100,'LUMENS','#e4bf7e',13,800);
+  R(235,79,100,42,'rgba(225,186,120,.055)',8,{stroke:'rgba(225,186,120,.26)',lineWidth:1});
+  T(248,88,'DIGITAL','#cfb98e',10,650);
+  T(248,103,'CREDITS','#fff2d2',13,800);
+  L(17,131,343,131,'rgba(227,194,136,.25)',1);
+  T(18,141,'NON-CASH PLATFORM CREDITS','#d8c29e',9,650);
+  return a;
+ }
+ function elements(type,w,h,metric='',productName=''){
+  if(type==='founder'||type==='extended')return foundingScene(w,h,metric);
+  if(type==='lumens')return lumenScene(w,h,metric);
+  return productScene(sceneFor(productName,type),w,h,productName);
  }
  function mount(card){
   const info=classification(card);
