@@ -55,7 +55,9 @@
     const dd=document.createElement('dd');dd.id=id;dd.textContent='—';summary.append(dt,dd);
   }
   const foot=document.createElement('p');foot.className='small';
-  foot.textContent='Subscription credits apply only to the current eligible payment, not future renewals. Taxes, shipping, and separately assessed fees are excluded. The final Lumen may cover less than the current redemption value; no cash change.';
+  foot.textContent='Lumens cannot be exchanged for cash, withdrawn, sold back or used as brokerage funds. The quoted redemption rate is only for eligible platform discounts, not a cash exchange rate. Subscription credits apply only to the current eligible payment, not future renewals. Taxes and separately assessed fees are excluded; no cash change. Applicable refund rights remain available.';
+  const terms=document.createElement('a');terms.href='crownlight-sparks-terms.html';terms.textContent='Full Crownlight Lumen terms';
+  foot.append(document.createTextNode(' '),terms);
   section.append(h,expl,status,controls,summary,foot);root.append(section);
   try{
    const sb=await window.getSupabaseClient();
