@@ -40,13 +40,13 @@ export async function onRequest({request,env}){
    throw fail('Wallet ledger could not be reconciled.',503);
   return json({ok:true,wallet:{available:summary.available,included:summary.included,
    purchased:summary.purchased,manual:summary.manual,nextExpiry:summary.nextExpiry||null},
-   freeCredits:{allowance:5,expiryPolicy:'Sparks never expire.',
+   freeCredits:{allowance:5,expiryPolicy:'Lumens never expire.',
     nextGrantAt:freeGrant.nextGrantAt||null,issuedThisRequest:freeGrant.issued||0,
     applies:freeGrant.reason!=='paid_account_excluded'},
-   howToUse:'Crownlight Sparks are used for optional marketplace benefits, including server-priced ungraded Reveal or Skip actions and temporary ad-free passes for eligible plans. All ordinary instruction and practice retries remain available. Reveals and skips never award official assessment mastery.',
+   howToUse:'Crownlight Lumens (formerly Sparks) are used for optional marketplace benefits, including server-priced ungraded Reveal or Skip actions and temporary ad-free passes for eligible plans. All ordinary instruction and practice retries remain available. Reveals and skips never award official assessment mastery.',
    purchaseEnabled:false});
  }catch(e){
-  return json({ok:false,error:e.status===401?'Please sign in to view your Sparks.':
+  return json({ok:false,error:e.status===401?'Please sign in to view your Lumens.':
    e.status===403?'Wallet unavailable for this account.':'Wallet temporarily unavailable.'},
    [401,403].includes(e.status)?e.status:503);
  }
