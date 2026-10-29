@@ -1,0 +1,43 @@
+name: Genuine Historical Replay Production Acceptance — Noncharging
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_historical_replay_authenticated_production_v1.mjs'
+      - 'tests/test_historical_replay_authenticated_browser_v1.mjs'
+      - '.github/workflows/historical-replay-authenticated-production-v1.yml'
+permissions:
+  contents: read
+concurrency:
+  group: genuine-historical-replay-auth-qa
+  cancel-in-progress: true
+jobs:
+  real-qa-account:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check actual-account QA scripts
+        run: |
+          node --check tests/test_historical_replay_authenticated_production_v1.mjs
+          node --check tests/test_historical_replay_authenticated_browser_v1.mjs
+      - name: Actual password-authenticated historical replay HTTP QA
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_historical_replay_authenticated_production_v1.mjs
+      - name: Install pinned Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Genuine member browser, replay and sign-out
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_historical_replay_authenticated_browser_v1.mjs
