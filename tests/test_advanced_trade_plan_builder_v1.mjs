@@ -54,6 +54,22 @@ assert.match(ui,/latestRecords\('scenario_review'\)/);
 assert.match(ui,/CrownlightECharts\?\.load\?/);
 assert.match(ui,/journal-entry\.html/);
 assert.ok(!ui.includes('localStorage'),'Private trade-plan contents must not be kept in local storage');
+const intelligence={};
+runInNewContext(read('assets/js/watchlist-intelligence-v1.js'),{window:intelligence},{timeout:1500});
+const research=intelligence.GroundUpWatchlistIntelligenceV1.summarize([
+ {record_type:'watchlist',payload:{status:'READY',sourceNote:'Issuer release',asOf:'2026-10-20T10:00:00-04:00',
+  researchGates:{source:true,structure:true,liquidity:true,invalidation:true}}},
+ {record_type:'watchlist',payload:{status:'NO TRADE',sourceNote:'',asOf:''}},
+ {record_type:'scenario_review',payload:{status:'READY'}}]);
+assert.equal(research.total,2,'Exclude trade-plan snapshots from candidate denominators');
+assert.equal(research.counts.READY,1);
+assert.equal(research.counts['NO TRADE'],1);
+assert.equal(research.checked,1);
+assert.equal(research.gates,1);
+assert.equal(research.sourceMissing,1);
+assert.equal(research.asOfMissing,1);
+assert.match(read('advanced-tool.html'),/watchlist-intelligence-v1\.js/);
+assert.match(read('assets/js/advanced-tools.js'),/GroundUpWatchlistIntelligenceV1\?\.mount/);
 const sim=read('assets/css/crownlight-simulator-density-v1.css');
 assert.match(sim,/INDEPENDENT workbench sections/);
 assert.match(sim,/max-height:none!important;/);
