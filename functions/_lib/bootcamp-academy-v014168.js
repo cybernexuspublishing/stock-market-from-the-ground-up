@@ -31,6 +31,55 @@ const phases=Object.freeze({
  }
 });
 
+// STT archive and video research: first-party, ungraded enrichment of existing
+// Academy days. This reuses the canonical 30-day source and existing member
+// progress. A research supplement is not a verified historical bar or exam key.
+const researchExtensions=Object.freeze([
+ {match:/candl|wick|doji|ohlc|price bar/i,theme:'Candle structure versus hidden sequence',
+  teach:'A finished candle gives open, high, low and close for its declared interval. It cannot establish whether the high occurred before the low, and a doji body may coexist with a wide full range.',
+  example:'FICTIONAL: Open $8.00, high $9.25, low $7.90 and close $8.02. The real body is $0.02 but the full range is $1.35; neither number proves intrabar chronology.',
+  steps:['Label the timeframe and session before measuring.','Compute body as absolute close minus open, and full range as high minus low.','Identify one conclusion that OHLC alone cannot support.'],
+  checkpoint:'What is the difference between a small doji body and a small high-to-low range?'},
+ {match:/vwap|moving average|ema|trend indicator/i,theme:'Indicator context and VWAP limitations',
+  teach:'VWAP weights price by traded volume over a defined session. An EMA smooths completed closes. A reclaim, bounce or cross is an observation, not proof of continuation.',
+  example:'FICTIONAL: A price crosses an approximated bar-based VWAP while the spread widens. The crossing is visible, but the proposed decision remains WAIT until the written liquidity and trigger conditions are satisfied.',
+  steps:['Declare the timeframe, session and indicator formula.','Separate a completed cross from a provisional bar.','Compare the planned invalidation with the current liquidity gate.'],
+  checkpoint:'Can a VWAP cross alone guarantee an entry or fill? Explain.'},
+ {match:/catalyst|filing|earnings|source|research|sector|sympathy|news/i,theme:'Source chronology and catalyst research',
+  teach:'Distinguish what a company announced from what the market actually did. Date the first original source and its terms, classify related sector activity as a hypothesis and record missing facts.',
+  example:'FICTIONAL: A repost calls a proposed partnership a signed revenue contract. The primary filing confirms only negotiations. VERIFY the claim rather than treating a headline as an entry.',
+  steps:['Locate the original issuer or regulatory record and date.','Extract the measured claim and any conditional language.','Record uncertainty, competing explanations and a no-trade boundary.'],
+  checkpoint:'What is verifiable from a press release, and what market conclusion needs separate observations?'},
+ {match:/watchlist|scan|universe|candidate|filter/i,theme:'Candidate selection and watchlist discipline',
+  teach:'A scanner provides matches to declared filters; a watchlist records dated research questions. Preserve observation times, data source, reasons for inclusion, review dates and reasons for removal.',
+  example:'FICTIONAL: A low-float gainer passes a volume screen but fails a 3% maximum quoted-spread rule. It can remain a research item, but the defined trade plan is NO TRADE.',
+  steps:['Define the security universe, filter rule and date.','Record the catalyst, source and chart context separately.','Apply an explicit risk veto and next-review condition.'],
+  checkpoint:'Which failing input should exclude a promising candidate from the proposed setup?'},
+ {match:/risk|position|stop|trade plan|entry|exit|execution|order|slippage|fill/i,theme:'Precommitted trade plan and executable risk',
+  teach:'Define the why, observable trigger, invalidation, stop mechanism, target and size before an outcome. A stop-market can slip; a stop-limit may not fill; large reported volume does not guarantee current depth.',
+  example:'FICTIONAL: Entry $5.00, stop reference $4.80, target $5.60 and $25 risk budget imply $0.20 planned risk per share and at most 125 whole shares before affordability and liquidity constraints.',
+  steps:['Calculate risk per share and a possible whole-share size.','Model one adverse fill, widening spread or halt scenario.','Record a condition requiring WAIT or NO TRADE.'],
+  checkpoint:'Why can a real loss exceed the planned entry-to-stop difference?'},
+ {match:/breakout|dip|rip|red.to.green|reclaim|high.of.day|pattern|momentum|squeeze|flag/i,theme:'Pattern definition, evidence and invalidation',
+  teach:'Define each pattern from levels, times and completed observations. Red-to-green is relative to the previous closing price, not simply the candle color. A low float or round-number break is not a proven squeeze.',
+  example:'FICTIONAL: Yesterday closes at $2.40. Today opens $2.20 and later crosses $2.40. The crossing is observed, but successful continuation remains unknown.',
+  steps:['Identify the reference level and the market session.','Describe forming, observed, failed and unknown states.','State what future outcome is still hidden and the invalidation condition.'],
+  checkpoint:'What distinguishes a developing setup from a confirmed observation, and from a guarantee?'},
+ {match:/journal|review|performance|discipline|psycholog|reflect|mfe|mae/i,theme:'Evidence-first journal and process review',
+  teach:'Record ticker, original thesis, candidate source, size, precommitted plan and actual decision separately. Review no-trades and losses without rewriting original decisions after the outcome.',
+  example:'FICTIONAL: A learner passes on an attractive chart due to insufficient depth. A later rally does not retroactively remove the earlier liquidity concern.',
+  steps:['Preserve the initial timestamp and evidence.','Compare actual action or no-trade with the prewritten plan.','Explain one improvement without implying that MFE/MAE are executable fills.'],
+  checkpoint:'Why can a no-trade decision be sound even when price later rises?'}
+]);
+const researchFor=(...texts)=>{
+ const text=texts.filter(Boolean).join(' ');
+ const row=researchExtensions.find(x=>x.match.test(text));
+ if(!row)return null;
+ return Object.freeze({theme:row.theme,teach:row.teach,example:row.example,
+  steps:[...row.steps],checkpoint:row.checkpoint,
+  status:'source_informed_ungraded_original_instruction_not_accepted_market_replay'});
+};
+
 // Truth Behind the Ticker: original five-day course, one discrete instructional
 // journey. All worked examples are fictional and cannot be called market history.
 // Sample answers are ungraded coaching, not protected assessment keys.
@@ -213,6 +262,7 @@ function dayFor(d,i){
  return Object.freeze({
   day,programDay:day,programCode:d.code,sourceDay,title:topic,
   objective,observe,practice,phase,phaseLabel:info.label,
+  researchEnrichment:researchFor(topic,objective,observe,practice),
   method:[info.lead,info.method,practice],
   remediation:'If a necessary observation is unavailable, stop and return to the source before concluding.',
   limitation:source.caution+' '+info.boundary,
@@ -255,6 +305,7 @@ export const freeFoundationsProgram=Object.freeze({
   day:i+1,programDay:i+1,programCode:'free5',
   title:entry.title,objective:entry.objective,observe:entry.observe,
   practice:entry.practice,phase:'learn',phaseLabel:'Free guided fundamentals with Talia',
+  researchEnrichment:researchFor(entry.title,entry.objective,entry.observe,entry.practice),
   method:entry.lesson.sourceProcedure,remediation:entry.lesson.reviewGuide,
   limitation:entry.lesson.error+' '+entry.lesson.whenNot,
   skillDomain:entry.skillDomain,relatedLabs:[],
