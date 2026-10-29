@@ -7,7 +7,9 @@ import {foundingOfferState} from '../_lib/founder-offer-gate-v1.js';
 const rank={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const QA_BATCH='SMFGU-MEMBERSHIP-9-20261027',CHART_BATCH='SMFGU-CHART-3-20261028';
 const QA_PLANS={FREE:['STANDARD','free'],FOUNDING_30:['ADVANCED','founding-30'],FOUNDING_60:['PROFESSIONAL','founding-60']};
-const tierOf={FOUNDING_14:'STANDARD',FOUNDING_30:'ADVANCED',FOUNDING_60:'PROFESSIONAL',
+// OnDemand and Pick-What-You-Want retain foundational Standard (and ECharts).
+// Advanced and Professional require independently verified membership or passes.
+const tierOf={ONDEMAND_MONTHLY:'STANDARD',PICK_WHAT_YOU_WANT:'STANDARD',FOUNDING_14:'STANDARD',FOUNDING_30:'ADVANCED',FOUNDING_60:'PROFESSIONAL',
  FULL_MONTHLY:'PROFESSIONAL',FULL_ANNUAL:'PROFESSIONAL',LIFETIME:'PROFESSIONAL'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{
  'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff'
@@ -58,7 +60,8 @@ export async function crownlightChartEntitlement(env,request){
   rows(c,'gu_sparks_chart_passes_v1?select=tier,expires_at&user_id=eq.'+uid+'&limit=2')
  ]);
  let tier='STANDARD',reason='Free Membership',temporaryAccess=null;
- const consider=(plan,label)=>{const t=tierOf[plan];if(t&&rank[t]>rank[tier]){tier=t;reason=label}};
+ const consider=(plan,label)=>{const t=tierOf[plan];if(t&&rank[t]>rank[tier]){tier=t;reason=label}
+  else if(t==='STANDARD'&&tier==='STANDARD'&&reason==='Free Membership'){reason=label}};
  if(founder.length===1&&founder[0].revoked_at==null){
   for(const x of cycles){
    const start=Date.parse(x.billing_start),end=Date.parse(x.billing_end);
@@ -71,7 +74,7 @@ export async function crownlightChartEntitlement(env,request){
   for(const g of grants){
    const start=g.starts_at?Date.parse(g.starts_at):0,end=g.ends_at?Date.parse(g.ends_at):Infinity;
    if(g.status==='active'&&Number.isFinite(start)&&start<=now&&end>now&&
-      ['FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(g.plan_code))
+      ['PICK_WHAT_YOU_WANT','ONDEMAND_MONTHLY','FULL_MONTHLY','FULL_ANNUAL','LIFETIME'].includes(g.plan_code))
     consider(g.plan_code,'Active '+g.plan_code+' plan grant');
   }
  }
