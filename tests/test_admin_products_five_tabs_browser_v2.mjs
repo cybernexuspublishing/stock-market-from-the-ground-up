@@ -19,7 +19,7 @@ try{
  const tabs=['books','tools','memberships','founding','sparks'];
  const html='<main id="admin-products-panel"><div class="product-admin-tabs">'+tabs.map(x=>'<button data-product-tab="'+x+'" id="admin-products-tab-'+x+'">'+x+'</button>').join('')+'</div><p id="admin-products-message"></p>'+
  tabs.map(x=>'<section id="admin-products-'+x+'"><div id="admin-products-'+({books:'',tools:'tool-list',memberships:'membership-list',founding:'founding-list',sparks:'sparks-catalog'})[x]+'"></div></section>').join('')+
- '<button id="admin-products-new-tool"></button><button id="admin-products-open-sparks"></button><button id="admin-open-digital-books"></button><div id="admin-catalog-list"></div></main>';
+ '<div id="admin-products-books-audit"></div><button id="admin-products-new-tool"></button><button id="admin-products-open-sparks"></button><button id="admin-open-digital-books"></button><div id="admin-catalog-list"></div></main>';
  // Fix the Books section placeholder; other panels have their prescribed IDs.
  await page.setContent(html);
  await page.evaluate(({plans,tools,prices,packages,terms,books})=>{
