@@ -239,7 +239,7 @@ export async function onRequest({request,env}){
    const guide=await approvedGuideForCodes(env,request,codes);
    return finish({
     ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
-    answer:labGuidance(labContext,mode,answer)+(guide?'\n\nApproved public competency guide:\n'+answerFromGuide(guide,mode,answer):''),
+    answer:labGuidance(labContext,mode,answer,q)+(guide?'\n\nApproved public competency guide:\n'+answerFromGuide(guide,mode,answer):''),
     graded:false,masteryAwarded:false,
     sources:[{id:labContext.labId,title:'Canonical Lab '+labContext.labId,
      sourceLabel:'Public canonical Lab ID and competency crosswalk',sourceId:'[1]',practiceUrl:labContext.practiceUrl},
