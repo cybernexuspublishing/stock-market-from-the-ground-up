@@ -18,6 +18,14 @@ const protectedPages=['admin.html','owner-roadmap.html','journal.html','dashboar
 const inventoryDefects=[];
 for(const path of paths){
  const html=readFileSync(join(root,path),'utf8');
+ // Google Search Console requires an exact raw verification response, NOT an
+ // HTML5 page. Recognize only the token matching its filename and text;
+ // all actual customer pages still require the complete HTML contract.
+ if(/^google[a-f0-9]{16,40}\.html$/.test(path)){
+  assert.equal(html.trim(),'google-site-verification: '+path,
+   'Google Search Console verification must remain an exact raw token');
+  continue;
+ }
  if(!/<!doctype\s+html/i.test(html))inventoryDefects.push(path+' missing HTML5 doctype');
  if(!/<title[^>]*>[^<]+<\/title>/i.test(html))inventoryDefects.push(path+' missing page title');
  if(!/<html\s/i.test(html))inventoryDefects.push(path+' missing html root');
