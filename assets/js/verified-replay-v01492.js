@@ -58,6 +58,7 @@ function plotVisibleCandles(){
 }
 function resetMemberReplay(){
  sessionId='';cursor=0;locked=false;visibleCandles.length=0;
+ window.dispatchEvent(new Event('groundup:replay-reset'));
  $('vr-bars').replaceChildren();$('vr-execution').hidden=true;
  const link=$('vr-journal-link');link.hidden=true;link.removeAttribute('href');link.textContent='';
  $('vr-source').textContent='';$('vr-code').value='';$('vr-dataset').replaceChildren();
@@ -70,6 +71,7 @@ function resetMemberReplay(){
 function addBar(b){
  if(!b)return;
  visibleCandles.push(b);plotVisibleCandles();
+ window.dispatchEvent(new CustomEvent('groundup:replay-observation',{detail:{bar:{...b}}}));
  const row=document.createElement('tr');
  row.innerHTML=[b.timestamp,b.open,b.high,b.low,b.close,b.volume].map(v=>'<td>'+esc(v)+'</td>').join('');
  $('vr-bars').append(row);
@@ -81,6 +83,7 @@ function renderState(){
  $('vr-plan').hidden=locked;
  $('vr-advance').disabled=!locked||busy;
  $('vr-finish').disabled=!locked||busy;
+ window.dispatchEvent(new CustomEvent('groundup:replay-state',{detail:{sessionId,cursor,locked,busy}}));
 }
 async function call(fn){
  if(busy)return;
@@ -112,8 +115,11 @@ function orderPlan(){
 async function catalog(){
  const data=await api('catalog');
  const rows=Array.isArray(data.datasets)?data.datasets:[];
- const requested=new URLSearchParams(location.search).get('dataset')||'';
- const selectedCode=fictional?(rows.some(r=>r.code===requested)?requested:rows[0]?.code||''):requested;
+ const params=new URLSearchParams(location.search),requested=params.get('dataset')||'';
+ const ticker=String(params.get('ticker')||'').toUpperCase(),date=params.get('date')||'';
+ const match=rows.find(r=>r.ticker===ticker&&r.date===date);
+ const selectedCode=fictional?(rows.some(r=>r.code===requested)?requested:rows[0]?.code||''):(match?.code||requested);
+ window.dispatchEvent(new CustomEvent('groundup:replay-catalog',{detail:{datasets:rows}}));
  const select=$('vr-dataset');select.replaceChildren();
  const first=document.createElement('option');first.value='';first.textContent=rows.length?'Select a published dataset':'No reviewed datasets available';select.append(first);
  for(const d of rows){
@@ -135,6 +141,7 @@ async function resume(){
  const r=data.session;
  if(!r){notice(data.notice||'There is no saved replay session.');return}
  sessionId=r.id;cursor=r.currentIndex;locked=r.decisionLocked===true;
+ window.dispatchEvent(new Event('groundup:replay-reset'));
  visibleCandles.length=0;$('vr-bars').replaceChildren();
  // The resume contract sends ONLY its current candle; fetch bounded, already
  // observed history after session ownership and source rights are rechecked.
@@ -159,6 +166,7 @@ async function start(){
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
+ window.dispatchEvent(new Event('groundup:replay-reset'));
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
  $('vr-source').textContent=replayLabel+' · '+r.dataset?.sourceAttribution+' · '+r.dataset?.licenseNotice;
  notice(r.notice);renderState();
@@ -197,6 +205,7 @@ async function finish(){
   link.hidden=false;
  }else link.hidden=true;
  visibleCandles.length=0;plotVisibleCandles();
+ window.dispatchEvent(new Event('groundup:replay-reset'));
  sessionId='';$('vr-session').hidden=true;
 }
 async function init(){
