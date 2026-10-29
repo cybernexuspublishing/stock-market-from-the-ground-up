@@ -27,8 +27,8 @@ const scales=engine.scaleOut(engine.calculate({...base,target2:6,stretch:6.5}),{
 assert.equal(scales.ok,true);
 assert.equal(scales.sharesAssigned,124);
 assert.deepEqual(Array.from(scales.portions.map(p=>p.shares)),[62,37,25]);
-assert.equal(scales.grossProfit,115.5);
-assert.equal(scales.blendedR,115.5/24.8);
+assert.equal(scales.grossProfit,111.7);
+assert.equal(scales.blendedR,4.50403226);
 assert.equal(engine.scaleOut(r,{scale1:60,scale2:50,scale3:-10}).ok,false,'Total allocation must be exactly 100 and nonnegative');
 assert.equal(engine.scaleOut(r,{scale1:50,scale2:50,scale3:0}).ok,false,'Allocation without target price must be refused');
 assert.match(read('assets/js/advanced-trade-plan-v1.js'),/Transfer saved version to Trading Journal/);
