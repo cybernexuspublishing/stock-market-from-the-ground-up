@@ -29,3 +29,12 @@ export function replayAvailableToEntitlement(d,access){
  if(!verifiedHistoricalDataset(d))return false;
  return access==='MARKET_SIMULATOR'||access==='ONDEMAND_TRAINING'&&d.metadata?.ondemand_training_approved===true;
 }
+
+export function historicalQaReleasePermitted(dataset,userId){
+ const flag=dataset?.metadata?.qa_release_only;
+ if(flag===undefined||flag===false)return true;
+ if(flag!==true)return false;
+ const ids=dataset?.metadata?.qa_allowed_user_ids;
+ return typeof userId==='string'&&Array.isArray(ids)&&ids.length>0&&ids.length<=3&&
+  ids.every(x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x))&&ids.includes(userId);
+}
