@@ -177,7 +177,7 @@
   scopeToMember(sim?.user?.id);
   if(!initialize())return false;
   const data=sim.candles.slice(0,sim.index+1);
-  const source=sim.sourceProvider+'|'+sim.sourceName+'|'+sim.candles.length;
+  const source=sim.sourceProvider+'|'+sim.sourceName+'|'+(sim.isServerReplay?'REVEALED_ONLY':sim.candles.length);
   const reset=source!==state.source||state.count>data.length;
   const prior=state.chart.timeScale().getVisibleLogicalRange();
   state.sim=sim;state.source=source;state.count=data.length;
