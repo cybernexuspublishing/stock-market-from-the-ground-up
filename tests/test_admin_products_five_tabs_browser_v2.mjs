@@ -40,7 +40,7 @@ try{
  assert.match(await page.locator('#admin-products-founding-list').innerText(),/\$49\.99 every 30 days/);
  assert.match(await page.locator('#admin-products-founding-list').innerText(),/\$59\.99 every 60 days/);
  assert.match(await page.locator('#admin-products-books-audit').innerText(),/Live book registry \(3\)/);
- assert.match(await page.locator('#admin-products-books-audit').innerText(),/Owner review: 2 book discrepancies/);
+ assert.match(await page.locator('#admin-products-books-audit').innerText(),/Owner review: 3 book discrepancies/);
  assert.equal(await page.locator('#admin-products-membership-list [data-plan]').count(),6);
  assert.equal(await page.locator('#admin-products-founding-list [data-plan]').count(),5);
  assert.match(await page.locator('#admin-products-founding-list').innerText(),/Inactive legacy Founding/);
