@@ -76,10 +76,14 @@ export async function onRequest({request,env}){
       Number.isFinite(Date.parse(value.expectedUpdatedAt))))
    return answer({ok:false,error:'Restore workspace before attempting to save.'},409);
   const workspace=normalizeWorkspace(value,e);
-  const result=await query(storage,'rpc/gu_crownlight_chart_workspace_save_v3',{method:'POST',
+  const result=await query(storage,'rpc/gu_crownlight_chart_workspace_save_v4',{method:'POST',
    headers:{'content-type':'application/json'},
    body:JSON.stringify({p_user:uid,p_settings:workspace,
-    p_expected:value.expectedUpdatedAt})});
+    p_expected:value.expectedUpdatedAt,p_max_tier:e.tier})});
+  if(result?.error==='PREMIUM_WORKSPACE_PRESERVED')
+   return answer({ok:false,error:'PREMIUM_WORKSPACE_PRESERVED',
+    savedTier:result.savedTier,
+    message:'A higher-tier chart layout remains saved privately. Your current tier can still be used, but saving cannot overwrite the previous premium workspace until higher-tier access is restored.'},409);
   if(result?.error==='WORKSPACE_CHANGED')
    return answer({ok:false,error:'WORKSPACE_CHANGED',
     message:'Another tab or session saved newer settings. Restore before overwriting.',
