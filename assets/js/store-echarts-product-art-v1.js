@@ -21,8 +21,10 @@
   if(card.classList.contains('catalog-founder-card')){
    const extended=card.classList.contains('is-extended');
    const name=card.querySelector('h3')?.textContent||'Founding Membership';
-   const match=name.match(/\b(14|30|60)[\s-]*day\b/i);
-   return {kind:extended?'extended':'founder',name,category:'Founding membership',metric:match?match[1]+' DAYS':''};
+   const duration=card.querySelector('.catalog-founder-duration')?.textContent||'';
+   const match=duration.match(/\b(14|30|60)\s*days?\b/i)||name.match(/\b(14|30|60)[\s-]*day\b/i);
+   const days=match?.[1]||(extended?'60':/standard/i.test(name)?'30':'14');
+   return {kind:days==='60'?'extended':'founder',name,category:'Founding membership',metric:days+' DAYS',studio:days==='60'?'PROFESSIONAL':days==='30'?'ADVANCED':'STANDARD'};
   }
   if(card.classList.contains('store-crownlight-package')){
    const name=card.querySelector('h3')?.textContent||'Lumen bundle';
@@ -209,57 +211,114 @@
   return a;
  }
 
- // Product-specific premium membership passes: term, edition and access tier
- // originate from the public Founder catalog, not from fabricated imagery.
- function foundingScene(w,h,metric=''){
-  const days=String(metric).match(/^(14|30|60) DAYS$/)?.[1]||'';
-  const variant=days==='60'?2:days==='30'?1:0;
-  const options=[
-   {accent:'#79d3db',light:'#d3f7ff',title:'STARTER',studio:'STANDARD',symbol:'I'},
-   {accent:'#e3c28b',light:'#fff1ce',title:'STANDARD',studio:'ADVANCED',symbol:'II'},
-   {accent:'#cbb3fa',light:'#f1e9ff',title:'EXTENDED',studio:'PROFESSIONAL',symbol:'III'}
+
+ // These are real Apache ECharts candlesticks, averages and volume bars, not
+ // a generic membership graphic. All values are deliberately fictional.
+ const sampleA=[
+  [48,51,46,53],[51,49,47,54],[49,54,48,55],[54,57,51,59],
+  [57,55,53,58],[55,58,54,60],[58,61,57,63],[61,59,56,62],
+  [59,64,58,65],[64,67,62,69],[67,65,64,69],[65,68,64,71],
+  [68,72,66,74],[72,69,68,73],[69,74,68,76],[74,77,73,79]
+ ];
+ const sampleB=[
+  [72,70,69,74],[70,72,67,74],[72,75,71,77],[75,73,70,77],
+  [73,77,72,80],[77,79,75,81],[79,78,76,81],[78,82,77,85],
+  [82,80,79,85],[80,84,79,87],[84,83,81,87],[83,85,82,88],
+  [85,88,84,90],[88,86,84,90],[86,89,85,91],[89,92,88,94]
+ ];
+ const studioAvg=(candles,period)=>candles.map((row,i)=>{
+  const start=Math.max(0,i-period+1);let sum=0;
+  for(let j=start;j<=i;j++)sum+=candles[j][1];
+  return +(sum/(i-start+1)).toFixed(2);
+ });
+ const studioAxis=(index=0)=>({type:'category',gridIndex:index,
+  data:sampleA.map((_,i)=>String(i+1)),boundaryGap:true,
+  axisTick:{show:false},axisLine:{show:false},axisLabel:{show:false},splitLine:{show:false}});
+ const studioValue=(index=0)=>({type:'value',gridIndex:index,scale:true,
+  axisLabel:{show:false},axisLine:{show:false},axisTick:{show:false},splitLine:{show:false}});
+ const studioCandles=(data,xAxisIndex,yAxisIndex)=>({
+  type:'candlestick',name:'Fictional price example',data,xAxisIndex,yAxisIndex,barWidth:'54%',
+  itemStyle:{color:'#59d4b2',color0:'#f28d94',borderColor:'#59d4b2',borderColor0:'#f28d94'},
+  silent:true,animation:false,emphasis:{disabled:true},z:3
+ });
+ const studioLine=(data,stroke,xAxisIndex=0,yAxisIndex=0)=>({
+  type:'line',name:'Illustrative overlay',data,xAxisIndex,yAxisIndex,
+  showSymbol:false,silent:true,animation:false,emphasis:{disabled:true},
+  lineStyle:{color:stroke,width:1.6,opacity:.92},z:4
+ });
+ function foundingStudioOption(metric,w,h){
+  const days=String(metric).match(/^(14|30|60) DAYS$/)?.[1]||'14';
+  const professional=days==='60',advanced=days==='30';
+  const color=professional?'#cfacff':advanced?'#ebc284':'#79dcd5';
+  const headline=professional?'PROFESSIONAL':advanced?'ADVANCED':'STANDARD';
+  const name=professional?'SYNCHRONIZED WORKSPACE':advanced?'TECHNICAL ANALYSIS':'FOUNDATIONAL TRADING CHARTS';
+  const footer=professional?'SYNCED MULTI-CHARTS  •  REPLAY ANALYTICS':
+   advanced?'INDICATORS  •  DRAWING TOOLS  •  FIBONACCI':
+   'CANDLESTICKS  •  VOLUME  •  EMA / VWAP';
+  const tx=(str,left,top,size=11,fill='#d9e9f7',weight=700)=>({
+   type:'text',left,top,z:20,silent:true,style:{
+    text:str,fill,font:weight+' '+size+'px Arial, sans-serif',
+    textAlign:'left',textVerticalAlign:'top'
+   }
+  });
+  const decoration=[
+   {type:'rect',shape:{x:0,y:0,width:w,height:h},
+    silent:true,z:-1,style:{fill:'#0b1c2d'}},
+   {type:'rect',shape:{x:0,y:0,width:5,height:h},
+    silent:true,z:10,style:{fill:color}},
+   {type:'rect',shape:{x:8,y:52,width:w-16,height:1},
+    silent:true,z:10,style:{fill:'rgba(173,205,229,.17)'}},
+   {type:'rect',shape:{x:8,y:h-33,width:w-16,height:1},
+    silent:true,z:10,style:{fill:'rgba(173,205,229,.17)'}},
+   tx('CROWNLIGHT  /  CHART STUDIO',17,12,10,'#a6bdcf',700),
+   tx(headline,17,30,17,color,800),
+   tx(days+'-DAY ACCESS',Math.max(155,w-120),17,11,'#f0f4fa',750),
+   tx(name,17,58,10,'#c0d9e8',650),
+   tx(footer,17,h-25,Math.min(9,w/47),'#b9cddd',700),
+   tx('ILLUSTRATIVE • NOT MARKET DATA',17,h-10,8,'#7793a8',500)
   ];
-  const v=options[variant],sx=w/360,sy=h/168,a=[];
-  const R=(x,y,ww,hh,fill,r=0,extra={})=>a.push(rect(x*sx,y*sy,ww*sx,hh*sy,fill,r*sx,extra));
-  const L=(x,y,xx,yy,stroke=v.accent,th=1)=>a.push(line(x*sx,y*sy,xx*sx,yy*sy,stroke,th*Math.min(sx,sy)));
-  const C=(x,y,r,fill)=>a.push(circle(x*sx,y*sy,r*Math.min(sx,sy),fill));
-  const T=(x,y,value,clr=v.light,sz=10,weight=700)=>a.push(label(x*sx,y*sy,value,clr,sz*Math.min(sx,sy),weight));
-  const P=(coords,col,th=1.5)=>a.push(path(coords.map(p=>[p[0]*sx,p[1]*sy]),col,th*Math.min(sx,sy)));
-  // Dark metallic access-card surface with restrained embossed linework.
-  R(0,0,360,168,'#0a1b2c',12);
-  R(2,2,356,164,'rgba(25,43,58,.76)',10,{stroke:'rgba(205,224,240,.24)',lineWidth:1});
-  R(0,0,7,168,v.accent,1);
-  R(16,13,27,27,'rgba(175,209,226,.09)',6,{stroke:v.accent,lineWidth:1});
-  T(21,19,'C',v.light,15,800);
-  L(21,35,37,35,v.accent,1.2);
-  T(54,14,'CROWNLIGHT',v.light,10,800);
-  T(54,28,'FOUNDING MEMBERS','#91b2c6',9,650);
-  R(269,15,72,20,'rgba(201,226,244,.055)',4,{stroke:'rgba(198,223,238,.22)',lineWidth:.8});
-  T(281,21,v.title,v.accent,10,750);
-  L(16,47,344,47,'rgba(196,219,234,.17)',1);
-  // The number and access tier are the product: never a generic crown.
-  T(20,55,days||'—',v.light,54,770);
-  T(days.length===2?98:112,76,'DAYS',v.accent,13,780);
-  T(21,117,'BILLING TERM','#8db1c8',9,650);
-  L(184,59,184,123,'rgba(201,222,235,.21)',1);
-  T(202,57,'CHART STUDIO','#95b7ca',9,750);
-  T(202,78,v.studio,v.light,v.studio==='PROFESSIONAL'?15:18,800);
-  T(202,107,'Member access tier',v.accent,9,650);
-  // Fine technical geometry replaces decorative clipart.
-  const n=variant+3;
-  for(let i=0;i<n;i++){
-   const x=260+i*15,y=128-(i%2)*7;
-   R(x,y,6,3+((i+variant)%3)*5,v.accent,1);
+  const common={animation:false,backgroundColor:'#0b1c2d',tooltip:{show:false},
+   legend:{show:false},aria:{enabled:false},graphic:decoration};
+  if(professional){
+   const mainH=Math.max(64,h-127);
+   common.grid=[
+    {left:20,width:'43%',top:91,height:mainH,containLabel:false},
+    {right:17,width:'43%',top:91,height:mainH,containLabel:false}
+   ];
+   common.xAxis=[studioAxis(0),studioAxis(1)];
+   common.yAxis=[studioValue(0),studioValue(1)];
+   common.series=[
+    studioCandles(sampleA,0,0),studioLine(studioAvg(sampleA,5),'#f0cb85',0,0),
+    studioCandles(sampleB,1,1),studioLine(studioAvg(sampleB,4),'#cba9ff',1,1)
+   ];
+   common.graphic.push(tx('01  /  PRICE',20,77,9,'#8fddc6',750),
+    tx('02  /  REPLAY',Math.floor(w*.53),77,9,'#d2b8ff',750),
+    {type:'line',shape:{x1:w*.505,y1:85,x2:w*.505,y2:h-46},
+     silent:true,z:5,style:{stroke:'rgba(173,205,229,.15)',lineWidth:1}});
+  }else{
+   const priceHeight=Math.max(68,h-143);
+   common.grid=[
+    {left:19,right:17,top:78,height:priceHeight,containLabel:false},
+    {left:19,right:17,top:h-58,height:15,containLabel:false}
+   ];
+   common.xAxis=[studioAxis(0),studioAxis(1)];
+   common.yAxis=[studioValue(0),{type:'value',gridIndex:1,min:0,max:100,show:false}];
+   common.series=[
+    studioCandles(sampleA,0,0),
+    studioLine(studioAvg(sampleA,advanced?4:6),advanced?'#e7c385':'#8bcaec'),
+    ...(advanced?[studioLine(studioAvg(sampleA,9),'#b9a4ff')]:[]),
+    {type:'bar',name:'Fictional volume',xAxisIndex:1,yAxisIndex:1,silent:true,
+     data:[22,36,28,61,42,47,57,32,51,80,58,66,83,57,72,89],
+     itemStyle:{color:advanced?'#9d83bf':'#477c91',opacity:.85},barWidth:'58%',animation:false}
+   ];
+   common.graphic.push(tx(advanced?'EMA  /  VWAP  /  FIB':'EMA 9 / EMA 20 / VWAP',Math.max(155,w-168),58,9,'#b6c9dd',650));
+   if(advanced){
+    common.graphic.push({type:'line',shape:{x1:28,y1:125,x2:w-22,y2:125},
+     silent:true,z:2,style:{stroke:'#d6b87b',lineWidth:1,opacity:.54,lineDash:[5,5]}});
+    common.graphic.push(tx('FIB',Math.max(25,w-43),112,8,'#e7c385',650));
+   }
   }
-  L(16,132,344,132,'rgba(196,219,234,.2)',1);
-  T(20,141,'FOUNDER BENEFITS',v.accent,9,800);
-  T(184,141,'REVIEW TERMS BELOW','#b9cedd',9,650);
-  // geometric security-pattern detail, distinct by tier
-  for(let i=0;i<8;i++){
-    const x=297+i*8,y=53+(i%3)*8;
-    P([[x,y],[x+5,y+4],[x,y+8]],'rgba(182,213,228,.13)',1);
-  }
-  return a;
+  return common;
  }
  function lumenScene(w,h,metric=''){
   const amount=String(metric).match(/^(\d+) LUMENS$/)?.[1]||'';
@@ -284,7 +343,7 @@
   return a;
  }
  function elements(type,w,h,metric='',productName=''){
-  if(type==='founder'||type==='extended')return foundingScene(w,h,metric);
+  if(type==='founder'||type==='extended')return []; // Dedicated ECharts OHLC/volume rendering.
   if(type==='lumens')return lumenScene(w,h,metric);
   return productScene(sceneFor(productName,type),w,h,productName);
  }
@@ -321,7 +380,10 @@
    graphics.set(box,chart);
    const kind=box.dataset.artKind||'learning';
    const w=Math.max(box.clientWidth,230),h=Math.max(box.clientHeight,125);
-   chart.setOption({animation:false,aria:{enabled:false},tooltip:{show:false},graphic:elements(kind,w,h,box.dataset.artMetric||'',box.dataset.artTitle||'')},true);
+   const metric=box.dataset.artMetric||'';
+   const option=kind==='founder'||kind==='extended'?foundingStudioOption(metric,w,h):
+    {animation:false,aria:{enabled:false},tooltip:{show:false},graphic:elements(kind,w,h,metric,box.dataset.artTitle||'')};
+   chart.setOption(option,true);
    box.closest('article')?.classList.add('gu-echart-ready');
   }catch{
    box.classList.add('gu-echart-unavailable');
