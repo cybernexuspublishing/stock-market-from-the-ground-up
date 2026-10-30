@@ -114,3 +114,10 @@
  .cl-talia-v4 .cl-talia-review-grid{gap:12px}
  .cl-talia-v4 .cl-talia-report .cl-talia-metrics{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Container-based fallback: also stack inside a narrower premium-tool frame,
+ * even when the browser viewport itself is wide. */
+.cl-talia-v4{container-type:inline-size}
+@container (max-width:1050px){
+ .cl-talia-workspace,.cl-talia-review-grid{grid-template-columns:minmax(0,1fr)}
+}

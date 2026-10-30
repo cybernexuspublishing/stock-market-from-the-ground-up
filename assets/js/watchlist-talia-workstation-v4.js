@@ -186,7 +186,13 @@
    more.append(make('p',extraText('transfer')));
   });
   topics.addEventListener('change',()=>{
-   topicId=topics.value;step=0;renderNarration();renderReport();
+   topicId=topics.value;step=0;
+   // The chart should illustrate the selected research topic without
+   // requiring the member to discover a second indicator dropdown.
+   const guidedOverlay={averages:'ema',vwap:'vwap',macd:'macd',rsi:'rsi',bollinger:'bollinger'};
+   seriesMode=guidedOverlay[topicId]||'none';
+   overlay.value=seriesMode;
+   renderNarration();draw();renderReport();
   });
   scenarios.addEventListener('change',()=>{
    caseId=scenarios.value;bars=C.fictional(caseId);visible=12;draw();

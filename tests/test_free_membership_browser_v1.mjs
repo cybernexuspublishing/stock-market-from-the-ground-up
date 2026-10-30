@@ -210,6 +210,12 @@ try{
    assert(geometry.chart.y>=geometry.lesson.bottom-4,'Small screen uses reading-order stacking '+width);
   }
   assert(geometry.scrollWidth<=width+8,'No horizontal overflow in updated research classroom '+width);
+  await page.locator('.cl-talia-selectors select').first().selectOption('averages');
+  assert.equal(await page.locator('.cl-talia-chart-controls select').inputValue(),'ema',
+    'EMA instruction must automatically show the EMA study in the adjacent ECharts panel');
+  await page.locator('.cl-talia-selectors select').first().selectOption('vwap');
+  assert.equal(await page.locator('.cl-talia-chart-controls select').inputValue(),'vwap',
+    'VWAP lesson must synchronize its illustration');
   await page.locator('#free-watchlist-symbol').fill('GUSIM');
   await page.locator('#free-watchlist-status').selectOption('NO_TRADE');
   await page.locator('#free-watchlist-source-kind').selectOption('FICTIONAL');
