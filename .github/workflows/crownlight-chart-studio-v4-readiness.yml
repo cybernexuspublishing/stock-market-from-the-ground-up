@@ -61,7 +61,7 @@ jobs:
           node-version: '22'
       - name: Install no-cost pinned browser dependencies
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0 lightweight-charts@5.2.1
           npx playwright install --with-deps chromium
       - name: Verify read-only audit and explicit personal historical source check
         run: node tests/test_crownlight_studio_acceptance_v4_browser.mjs
