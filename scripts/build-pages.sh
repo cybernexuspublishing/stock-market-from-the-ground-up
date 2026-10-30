@@ -23,6 +23,8 @@ node tests/test_crownlight_candle_v28.mjs
 node --check assets/js/watchlist-talia-research-v4.js
 node --check assets/js/watchlist-talia-workstation-v4.js
 node tests/test_talia_watchlist_v4.mjs
+node --check functions/api/talia-watchlist-reports-v1.js
+node tests/test_talia_watchlist_persistence_v1.mjs
 for asset in assets/js/journal-visual-v3.js assets/js/journal-trade-story-v3.js; do
   node --check "$asset"
 done
