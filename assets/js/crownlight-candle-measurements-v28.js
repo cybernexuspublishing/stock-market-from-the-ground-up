@@ -126,9 +126,16 @@
   }
   function inform(text){feedback.textContent=text}
   function setStep(step){
+   const previousStage=state.stage;
    state.stage=Math.max(0,Math.min(9,Number(step)||0));
+   // Close is adjustable only in the Experiment; the worked calculations
+   // use the fixed, explicitly narrated worked case, not a stale slider value.
+   if(previousStage===2&&state.stage===3){
+    state.close=WORKED.close;slider.value=String(WORKED.close);
+   }
    instance++;pending='';confirmBox.hidden=true;answer.value='';feedback.textContent='';
    render();
+   root.requestAnimationFrame?.(()=>plot?.resize());
   }
   function setBalance(){balance.textContent='Simulated available credits: '+state.credits+' · No real Crownlight Sparks affected.'}
   function explain(stage,q){
@@ -194,7 +201,7 @@
    }
    previous.disabled=state.stage===0;next.disabled=state.stage===9;
    next.textContent=state.stage===9?'Lesson completed':'Next teaching step';
-   setBalance();if(!workspace.hidden)draw();
+   setBalance();if(!workspace.hidden){draw();root.requestAnimationFrame?.(()=>{plot?.resize();draw()})}
   }
   function checkValue(){
    const t=target();if(!t)return;
