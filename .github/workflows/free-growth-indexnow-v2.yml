@@ -1,0 +1,32 @@
+name: Free Growth V2 — IndexNow Public Discovery
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/free-growth-indexnow-v2.yml'
+permissions:
+  contents: read
+concurrency:
+  group: indexnow-growth-v2
+  cancel-in-progress: false
+jobs:
+  verified-indexnow:
+    name: Verify actual live public files and send one free notification
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source and valid calendar invitation
+        run: |
+          node tests/test_growth_v2.mjs
+          node --check scripts/submit-indexnow-v2.mjs
+      - name: Verify real live IndexNow key, sitemap and four public pages
+        run: node scripts/submit-indexnow-v2.mjs --verify
+      - name: Send a single validated IndexNow notification
+        run: node scripts/submit-indexnow-v2.mjs --submit
