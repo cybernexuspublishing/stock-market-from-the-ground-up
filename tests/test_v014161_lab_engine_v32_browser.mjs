@@ -8,6 +8,11 @@ try {
   const page=await browser.newPage({viewport:{width,height:900},serviceWorkers:'block'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
+  // The public homepage displays optional analytics consent. A genuine visitor
+  // may decline it before using the Lab; otherwise the fixed panel can block
+  // teaching controls in this unrelated browser acceptance test.
+  const declineAnalytics=page.getByRole('button',{name:'Decline analytics'});
+  if(await declineAnalytics.isVisible())await declineAnalytics.click();
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-teaching.js'});
   await page.evaluate(()=>{
    const container=document.createElement('section');container.id='v32-smoke';
