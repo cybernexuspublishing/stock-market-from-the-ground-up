@@ -43,8 +43,10 @@ try{
  });
  await page.goto('http://127.0.0.1:'+port+'/fixture');
  await page.evaluate(userId=>{
-  window.getSupabaseClient=async()=>({auth:{getSession:async()=>({data:{
-   session:{user:{id:userId},access_token:'fixture'}}})}});
+  window.getSupabaseClient=async()=>({auth:{
+   getSession:async()=>({data:{session:{user:{id:userId},access_token:'fixture'}}}),
+   onAuthStateChange:callback=>{window.__watchlistAuthListener=callback;return {data:{subscription:{unsubscribe(){}}}}}
+  }});
   window.GroundUpWatchlistIntelligenceV1={mount:()=>17};
   window.CrownlightECharts={load:async()=>({init:()=>({setOption(){},resize(){},dispose(){}})})};
  },user);
@@ -95,7 +97,10 @@ try{
  assert.equal(writes,5,'only authenticated revision-guarded PATCH changes are persisted');
  assert.equal(await region.getByText('Saved scanner/discovery filters').count(),1);
  assert.equal(await region.getByRole('button',{name:'Attach saved plan to owned Journal record'}).count(),1);
- console.log('PASS Chrome Watchlist V2: private optimistic writes, folder/tag/stage, archive/restore, saved scanner filter, manual monitor and Journal link UI');
+ await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
+ assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
+ assert.equal(await region.innerText(),'','private notes must be destroyed on sign-out, not only visually hidden');
+ console.log('PASS Chrome Watchlist V2: private optimistic writes, folder/tag/stage, archive/restore, saved scanner filter, manual monitor, Journal link and sign-out scrub');
 }finally{
  await browser?.close();
  await new Promise(resolve=>server.close(resolve));
