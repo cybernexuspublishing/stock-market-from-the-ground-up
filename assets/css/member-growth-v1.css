@@ -1,0 +1,39 @@
+/* SMFGU Free Member Growth V1: restrained, accessible, responsive learning surfaces. */
+.gu-growth-hero{max-width:860px}
+.gu-growth-hero h1{font-family:Georgia,serif;font-size:clamp(2.25rem,5vw,4.3rem);line-height:1.12;letter-spacing:-.025em;margin:.3em 0}
+.gu-growth-hero h1 em{font-style:normal;color:var(--gold2)}
+.gu-growth-lead{font-size:1.09rem;line-height:1.75;color:#d7e4ec;max-width:70ch}
+.gu-growth-micro{font-size:.85rem;color:#b9cbd8;line-height:1.55}
+.gu-growth-steps{list-style:none;margin:24px 0;padding:0;border-top:1px solid #355169}
+.gu-growth-steps li{display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:18px;border-bottom:1px solid #355169;padding:17px 3px}
+.gu-growth-steps li>span{color:#f1d58f;font-family:ui-monospace,monospace;font-size:.94rem}
+.gu-growth-steps li h3{font-size:1.03rem;margin:0 0 4px}
+.gu-growth-steps li p{margin:0;color:#bbccda;font-size:.94rem}
+.gu-growth-steps li a{white-space:nowrap}
+.gu-growth-sheet{max-width:950px;margin:auto}
+.gu-growth-sheet h2{margin-top:1.9rem}
+.gu-growth-sheet p,.gu-growth-sheet li{line-height:1.75}
+.gu-growth-divider{border-bottom:1px solid #36526b;padding-bottom:1.15rem}
+.gu-growth-practice{background:linear-gradient(145deg,#102f42,#081d31);border:1px solid #3c6476;border-radius:17px;padding:clamp(16px,3vw,32px);margin:24px 0}
+.gu-growth-practice .gu-growth-chart{display:block;width:100%;height:auto;max-width:780px;margin:10px auto;border-radius:12px;background:#081826;border:1px solid #35546c}
+.gu-growth-chart-note{color:#abc3d3;font-size:.84rem;margin:.5rem 0 1.3rem}
+.gu-growth-answers{display:grid;grid-template-columns:1fr;gap:10px;margin:18px 0}
+.gu-growth-answer{display:flex;align-items:flex-start;gap:10px;padding:12px 15px;cursor:pointer;border:1px solid #44667b;border-radius:11px;background:#0b2237;line-height:1.5}
+.gu-growth-answer:has(input:checked){border-color:#e3bc68;background:#173348}
+.gu-growth-answer input{width:19px;height:19px;flex-shrink:0;margin-top:3px;accent-color:#e3bc68}
+.gu-growth-feedback{border-left:3px solid #88cdb0;padding:12px 15px;background:#0b2a32;margin:16px 0;line-height:1.65}
+.gu-growth-feedback[data-state=try-again]{border-color:#e2bc73;background:#2a251c}
+.gu-growth-feedback[data-state=missing]{border-color:#789bbc}
+.gu-growth-screen-reader{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.gu-growth-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0}
+.gu-growth-tools button{cursor:pointer}
+.gu-growth-related{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.gu-growth-related a{border-bottom:1px solid #385569;padding:12px 2px;text-decoration:none;display:block}
+.gu-growth-related a:hover{text-decoration:underline}
+.gu-growth-inline-link{display:inline-block;margin:8px 15px 8px 0}
+.gu-growth-share-status{font-size:.86rem;color:#b8d3de;min-height:1.5em}
+.gu-growth-compact-note{border-left:2px solid #bfa464;padding-left:14px;margin-top:20px;color:#c0d0de}
+.gu-growth-hero a:focus-visible,.gu-growth-sheet a:focus-visible,.gu-growth-practice input:focus-visible,
+.gu-growth-practice button:focus-visible,.gu-growth-tools button:focus-visible{outline:3px solid #d9f3fd;outline-offset:3px}
+@media(max-width:660px){.gu-growth-steps li{grid-template-columns:35px minmax(0,1fr);gap:12px}.gu-growth-steps li>a{grid-column:2;white-space:normal}.gu-growth-related{grid-template-columns:1fr}.gu-growth-tools>.btn{width:100%;text-align:center}.gu-growth-hero h1{font-size:2.4rem}}
+@media(prefers-reduced-motion:reduce){.gu-growth-practice *, .gu-growth-tools *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
