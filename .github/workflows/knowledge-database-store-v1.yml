@@ -1,0 +1,32 @@
+name: Knowledge Database and Store Presentation Gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/knowledge-database-store-v1.yml'
+      - 'knowledge-database.html'
+      - 'bootcamp-academy.html'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/js/free-foundations-knowledge-v1.js'
+      - 'assets/css/bootcamp-academy-compact-v2.css'
+      - 'assets/js/navigation.js'
+      - 'store.html'
+      - 'assets/js/store.js'
+      - 'tests/test_knowledge_database_store_v1.mjs'
+jobs:
+  content-and-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Free knowledge, Store display and Academy scope
+        run: |
+          node tests/test_free_foundations_knowledge_v1.mjs
+          node tests/test_knowledge_database_store_v1.mjs
+          node --check assets/js/navigation.js
+          node --check assets/js/store.js
+          node --check assets/js/bootcamp-academy-v014168.js

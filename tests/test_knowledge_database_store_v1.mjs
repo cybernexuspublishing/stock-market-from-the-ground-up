@@ -1,0 +1,38 @@
+/* Knowledge Database extraction, Academy footprint, and Store display-only policy. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
+const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+const knowledge=read('knowledge-database.html');
+const academy=read('bootcamp-academy.html');
+const knowledgeJs=read('assets/js/free-foundations-knowledge-v1.js');
+const academyJs=read('assets/js/bootcamp-academy-v014168.js');
+const nav=read('assets/js/navigation.js');
+const store=read('store.html');
+const storeJs=read('assets/js/store.js');
+const css=read('assets/css/bootcamp-academy-compact-v2.css');
+assert(knowledge.includes('<h1>Stock Market Foundations Knowledge Database</h1>'));
+assert(knowledge.includes('id="academy-free-knowledge"'));
+assert(knowledge.includes('assets/js/free-foundations-knowledge-v1.js'));
+assert(knowledge.includes('bootcamp-academy.html?program=free5'));
+assert(!academy.includes('id="academy-free-knowledge"'));
+assert(!academy.includes('<script defer src="assets/js/free-foundations-knowledge-v1.js'));
+assert(!academyJs.includes("classroom.append(library)"));
+assert(academy.includes('href="knowledge-database.html"'));
+assert(knowledgeJs.includes("el('h2','Stock Market Foundations Knowledge Database')"));
+assert(knowledgeJs.includes('12 core reference topics · No Lumens'));
+assert(nav.includes('<a href="/knowledge-database.html">Knowledge Database</a>'));
+assert(nav.includes("['Knowledge Database','/knowledge-database.html']"));
+assert(!store.includes('class="unit-price"'));
+assert(!/\$\d+\.\d{2} one-time<\/div>/.test(store));
+assert(store.includes('One-time purchase, no subscription.'),'Billing terms remain accurate outside cards');
+assert(store.includes('four currently verified, beta-ready individual tools'));
+assert(storeJs.includes("for_sale:'Available'"));
+assert(!storeJs.includes("esc(x.status||'Listed')"),'Raw database labels must not appear on cards');
+assert(storeJs.includes("'for_sale'"),'Canonical sale-state filters must remain unchanged');
+assert(css.includes('max-width:790px!important'));
+assert(css.includes('display:grid!important;box-sizing:border-box!important'));
+assert(css.includes('font-size:clamp(1.65rem,2.15vw,2.35rem)'));
+for(const file of ['assets/js/bootcamp-academy-v014168.js','assets/js/free-foundations-knowledge-v1.js','assets/js/navigation.js','assets/js/store.js'])
+ assert.doesNotThrow(()=>new Script(read(file)),file+' JavaScript syntax');
+console.log('PASS Knowledge Database independent page, 12-topic renderer, Learn navigation, compact Academy layout, and nonmutating Store presentation');
