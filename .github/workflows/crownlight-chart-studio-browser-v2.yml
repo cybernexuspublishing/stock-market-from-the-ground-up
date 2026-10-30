@@ -11,6 +11,8 @@ on:
       - 'assets/js/crownlight-echarts-replay-v1.js'
       - 'assets/js/crownlight-echarts-studio-v1.js'
       - 'tests/test_crownlight_echarts_studio_browser_v1.mjs'
+      - 'assets/js/admin-products-v01489.js'
+      - 'tests/test_admin_products_tabs_chromium_v1.mjs'
       - 'assets/js/crownlight-echarts-loader-v1.js'
       - 'tests/test_crownlight_echarts_tv_adapter_browser_v1.mjs'
       - 'tests/test_crownlight_echarts_admin_smoke_v1.mjs'
@@ -149,6 +151,8 @@ jobs:
           node --check assets/js/crownlight-echarts-replay-v1.js
           node --check assets/js/crownlight-echarts-studio-v1.js
           node tests/test_crownlight_echarts_studio_browser_v1.mjs
+          node --check assets/js/admin-products-v01489.js
+          node tests/test_admin_products_tabs_chromium_v1.mjs
           node --check assets/js/crownlight-echarts-admin-v1.js
           node --check assets/js/crownlight-tradingview-datafeed-adapter-v1.js
           node tests/test_crownlight_echarts_tv_adapter_browser_v1.mjs
