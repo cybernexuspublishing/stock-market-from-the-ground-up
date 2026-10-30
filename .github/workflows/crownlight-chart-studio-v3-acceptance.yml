@@ -1,0 +1,80 @@
+name: Crownlight Chart Studio V3 Coordinated Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/chart-workspace.js'
+      - 'assets/js/crownlight-workspace-v2.js'
+      - 'assets/js/crownlight-paper-terminal-v1.js'
+      - 'assets/js/crownlight-data-source-integrity-v3.js'
+      - 'assets/js/simulator.js'
+      - 'simulator.html'
+      - 'supabase/migrations/20261030_crownlight_chart_workspace_cas_v3.sql'
+      - 'tests/test_crownlight_chart_studio_v3_integrity.mjs'
+      - 'tests/test_crownlight_chart_studio_v3_browser.mjs'
+      - 'tests/test_crownlight_chart_workspace_v2.mjs'
+      - '.github/workflows/crownlight-chart-studio-v3-acceptance.yml'
+permissions:
+  contents: read
+jobs:
+  source-privilege-and-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Chart Studio and paper source syntax
+        run: |
+          node --check functions/api/chart-workspace.js
+          node --check functions/api/chart-tier-access.js
+          node --check functions/api/alpaca-paper.js
+          node --check assets/js/crownlight-workspace-v2.js
+          node --check assets/js/crownlight-paper-terminal-v1.js
+          node --check assets/js/crownlight-data-source-integrity-v3.js
+          node --check assets/js/simulator.js
+      - name: Member tier, workspace revision, and personal provider-integrity acceptance
+        run: |
+          node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_chart_tiers_v1.mjs
+          node tests/test_crownlight_provider_entitlement_v1.mjs
+          node tests/test_crownlight_studio_menu_api_v1.mjs
+      - name: Paper-only brokerage and source-boundary regression
+        run: |
+          node tests/test_crownlight_paper_workbench_v3.mjs
+          node tests/test_alpaca_saved_paper_verification_v1.mjs
+          node tests/test_member_alpaca_market_data_v1.mjs
+          node tests/test_v014150_market_data_integrity.mjs
+      - name: Verify Pages production assets and no public server secrets
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/crownlight-data-source-integrity-v3.js
+          test -f public/simulator.html
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-member-experience:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned no-cost browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test workspace cross-tab conflicts and Alpaca Paper retry in Chromium
+        run: node tests/test_crownlight_chart_studio_v3_browser.mjs
+      - name: Test tiers, layout, responsive workbench, and chart integrations
+        run: |
+          node tests/test_crownlight_chart_tiers_browser_v1.mjs
+          node tests/test_crownlight_continuous_layout_browser_v1.mjs
+          node tests/test_crownlight_workbench_browser_v3.mjs
