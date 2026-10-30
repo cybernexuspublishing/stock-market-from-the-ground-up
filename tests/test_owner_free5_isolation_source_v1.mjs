@@ -1,0 +1,26 @@
+/* Owner Free Foundations privacy-check source contract; no live credentials. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
+const page=readFileSync('owner-free5-isolation-qa.html','utf8');
+const code=readFileSync('assets/js/owner-free5-isolation-qa.js','utf8');
+new Script(code,{filename:'owner-free5-isolation-qa.js'});
+assert(/name="robots" content="noindex,nofollow"/.test(page),'Owner QA must not be indexed');
+assert(/data-auth-required="true"/.test(page),'Owner page must mark itself protected');
+assert(/data-route-access="staff"/.test(page),'Owner page needs staff access boundary');
+assert(page.includes('owner-free5-isolation-qa.js'),'QA source must load');
+assert(page.includes('id="owner-free5-qa-copy"'),'Safe report control missing');
+assert(!/LAB_QA_PASSWORD|ADMIN_BOOTSTRAP_EMAIL|SUPABASE_SECRET_KEY/.test(page+code),'No server secret reference may be embedded');
+assert(code.includes("/api/admin?action=context"),'Owner must be validated by server API');
+assert(code.includes("roles.includes('OWNER')"),'Verified OWNER role required');
+assert(code.includes("context.body.user?.id===user.id"),'Role must bind to current Supabase identity');
+assert(code.includes("/api/bootcamp-academy?program=free5"),'Owner must read the actual protected API');
+assert(code.includes("JSON.stringify(cross.body.progress)===JSON.stringify(ownProgress)"),'Account-selector probe must use own records');
+assert(code.includes("gu_bootcamp_academy_progress_v014168"),'Service-private direct table denial must be tested');
+assert(code.includes('James_Test fictional QA reflection'),'Owner must not receive James QA training data');
+assert(!/method:\s*['"]POST['"]|\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(code),'Owner check must remain read-only');
+assert(!/innerHTML\s*=/.test(code),'No unsafe dynamic HTML output');
+assert(!/localStorage\.setItem|sessionStorage\.setItem/.test(code),'Do not persist Owner security information');
+const build=readFileSync('scripts/build-public-seo.mjs','utf8');
+assert(!/owner-free5-isolation-qa/.test(build.split('const metadata=')[0]),'Owner QA must not be added to the sitemap allowlist');
+console.log('PASS Owner Free5 isolation QA: server-verified Owner role, private read checks, noindex and zero-credential UI');
