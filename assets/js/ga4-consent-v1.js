@@ -75,7 +75,8 @@
     let destination;
     try { destination = new URL(anchor.href, location.origin); } catch { return; }
     if (destination.origin !== location.origin) return;
-    const normalized = destination.pathname.replace(/\\/+$/, '') || '/';
+    const pathname = destination.pathname.endsWith('/') ? destination.pathname.slice(0, -1) : destination.pathname;
+    const normalized = pathname.endsWith('.html') ? pathname : pathname + '.html';
     const match = allowedDestinations[normalized];
     if (!match) return;
     // The only event parameters are fixed source-controlled strings.
