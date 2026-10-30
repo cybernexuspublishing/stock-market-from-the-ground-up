@@ -1,0 +1,62 @@
+name: Crownlight Chart Studio V5 Provider and Pass Lifecycle
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/member-sparks-chart.js'
+      - 'tests/test_crownlight_chart_pass_lifecycle_v5.mjs'
+      - '.github/workflows/crownlight-chart-studio-v5-lifecycle.yml'
+permissions:
+  contents: read
+jobs:
+  temporary-access-and-provider-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax
+        run: |
+          node --check functions/api/member-sparks-chart.js
+          node --check functions/api/chart-tier-access.js
+          node --check functions/api/marketdata.js
+          node --check tests/test_crownlight_chart_pass_lifecycle_v5.mjs
+      - name: Test signed-in temporary pass lifecycle and existing member protections
+        run: |
+          node tests/test_crownlight_chart_pass_lifecycle_v5.mjs
+          node tests/test_crownlight_chart_tiers_v1.mjs
+          node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
+          node tests/test_crownlight_provider_entitlement_v1.mjs
+          node tests/test_v014145_marketdata_byo_security.mjs
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_studio_acceptance_v4.mjs
+      - name: Verify no server-side secrets enter Pages output
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/crownlight-studio-acceptance-v4.js
+          test -f public/simulator.html
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-signed-in-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned no-cost browser and engine dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0 lightweight-charts@5.2.1
+          npx playwright install --with-deps chromium
+      - name: Test authenticated source inspection, owner/private tier and expiry
+        run: |
+          node tests/test_crownlight_studio_acceptance_v4_browser.mjs
+          node tests/test_crownlight_chart_tiers_browser_v1.mjs
