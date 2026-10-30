@@ -227,6 +227,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null,creditBusy=false;
+ const echartsControllers=[];
  const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
  const passRequests=new Map();
  let checkpointReady=false,checkpointTimer=null,checkpointChangeSerial=0;
@@ -234,6 +235,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   if(checkpointTimer!==null)clearTimeout(checkpointTimer);
   checkpointTimer=null;checkpointReady=false;
   instructorInstance?.dispose?.();instructorInstance=null;
+  for(const chart of echartsControllers.splice(0))chart?.dispose?.();
  };
  const narratedStages=new Set();
  const learnerReplies=new Map(); // stage => accepted answers in question order
@@ -420,6 +422,26 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  }
  function stepList(steps){const ol=el('ol');for(const s of steps)ol.append(el('li',s));body.append(ol)}
  function showVisual(step,variant='default'){
+  // Shared fictional ECharts practice is available throughout the 419-Lab
+  // curriculum. General-subject examples are explicitly optional, not a
+  // substitute for the Lab's independently authored topic-specific evidence.
+  if([1,2].includes(step)&&root.CrownlightLearningEChartsV1?.mount){
+   const host=el('div');
+   if(!special){
+    const extra=el('details');extra.className='gu-v35-supplement';
+    extra.append(el('summary','Optional ECharts chart-reading rehearsal — separate from this Lab topic'));
+    extra.append(host);body.append(extra);
+    extra.addEventListener('toggle',()=>{if(extra.open){
+     if(!host.firstChild){const view=root.CrownlightLearningEChartsV1.mount(host,{kind:'candle',interactive:true});if(view)echartsControllers.push(view)}
+     else echartsControllers.at(-1)?.resize?.();
+    }});
+   }else{
+    body.append(host);
+    const view=root.CrownlightLearningEChartsV1.mount(host,{kind,interactive:step===2});
+    if(view)echartsControllers.push(view);
+    return;
+   }
+  }
   // Lesson-specific instruction stays inside the existing 9-stage journey.
   // Only authored illustrative bars are used here; protected GUSIM bars stay on the replay server.
   if(labId==='DT-C01-L02'){
@@ -517,6 +539,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   shell.querySelectorAll?.(':scope > .gu-v33-support-tabs').forEach(node=>node.remove());
   shell.querySelector?.(':scope > .gu-v33-setup')?.remove?.();
   instructorInstance?.dispose?.();instructorInstance=null;
+  for(const chart of echartsControllers.splice(0))chart?.dispose?.();
   body.replaceChildren();updatePrerequisitePanel=null;mark('');showJourney();
   const names={0:'',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),

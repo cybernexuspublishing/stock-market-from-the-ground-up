@@ -1,0 +1,16 @@
+.gu-echarts-lesson{background:#0c1929;color:#e1eff7;border:1px solid #36506c;border-radius:14px;padding:clamp(12px,2vw,22px);margin:14px 0 20px}
+.gu-echarts-lesson h3{color:#f5fbff;margin:.2rem 0 .6rem}
+.gu-echarts-lesson p{line-height:1.55}
+.gu-echarts-eyebrow{color:#e2bb72;font-size:.76rem;font-weight:750;letter-spacing:.08em}
+.gu-echarts-plot{min-height:370px;width:100%}
+.gu-echarts-source{color:#b8cadd;font-size:.84rem}
+.gu-echarts-controls label{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.gu-echarts-controls input[type=range]{flex:1;min-width:125px;accent-color:#2bd5b1}
+.gu-echarts-value{font-weight:700}
+.gu-echarts-table{width:100%;border-collapse:collapse;margin-top:12px;text-align:left}
+.gu-echarts-table caption{text-align:left;font-weight:650;padding:8px 0}
+.gu-echarts-table th,.gu-echarts-table td{padding:7px 9px;border-bottom:1px solid #314960}
+.gu-echarts-table th{color:#edcd88}
+.gu-echarts-facts{display:grid;gap:8px;margin-top:16px}
+.gu-echarts-facts p{margin:0;padding:9px 12px;border-left:3px solid #2e9db1;background:#10243a}
+@media(max-width:580px){.gu-echarts-plot{min-height:320px}.gu-echarts-lesson{padding:10px}.gu-echarts-table{font-size:.85rem}}

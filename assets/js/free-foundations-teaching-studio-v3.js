@@ -120,7 +120,10 @@ function mount(day,experiment,practice){
  const layout=elem('div',null,'academy-studio-layout'),surface=elem('section',null,'academy-studio-evidence'),
   controller=elem('section',null,'academy-studio-control');
  surface.append(elem('h5',spec.label));
- const visual=day===2?document.createElementNS('http://www.w3.org/2000/svg','svg'):null;
+ const visual=day===2&&!root.CrownlightLearningEChartsV1?.mount?document.createElementNS('http://www.w3.org/2000/svg','svg'):null;
+ const echartsHost=day===2?elem('div',null,'academy-free-echarts-host'):null;
+ const echartsView=echartsHost&&root.CrownlightLearningEChartsV1?.mount?root.CrownlightLearningEChartsV1.mount(echartsHost,{kind:'candle',interactive:false,candle:{o:20,h:21.5,l:19.5,c:Number(spec.start)}}):null;
+ if(echartsHost&&echartsView)surface.append(echartsHost);
  if(visual){visual.classList.add('academy-studio-candle');surface.append(visual)}
  const main=elem('p',null,'academy-studio-main'),detail=elem('p',null,'academy-studio-detail'),sub=elem('p',null,'academy-studio-sub');
  main.setAttribute('aria-live','polite');main.setAttribute('aria-atomic','true');
@@ -136,6 +139,7 @@ function mount(day,experiment,practice){
   output.textContent=day===3?String(Math.floor(+range.value/60)).padStart(2,'0')+':'+String(+range.value%60).padStart(2,'0')+' ET':
    (day===2||day===5?usd(range.value):range.value+' '+spec.unit);
   if(visual)drawCandle(visual,+range.value);
+  if(echartsView)echartsView.update({c:+range.value});
  };
  range.addEventListener('input',render);render();
  experiment.append(frame);
