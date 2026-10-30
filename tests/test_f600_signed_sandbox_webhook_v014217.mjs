@@ -189,6 +189,7 @@ test('signed TEST full refund reverses only the matching private Founder invoice
  const event=makeEvent(false,'charge.refunded');event.data.object.id='ch_founderQA123';
  try{
   const response=await onRequestPost({request:await request(event),env});
+  if(response.status!==200)console.error('REFUND_TEST_TRACE',JSON.stringify(n.calls));
   assert.equal(response.status,200);
   assert.equal(await response.text(),'F600_TEST_CHARGE_REFUNDED');
   assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
