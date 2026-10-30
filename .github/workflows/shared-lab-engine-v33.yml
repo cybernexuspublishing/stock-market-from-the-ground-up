@@ -6,6 +6,16 @@ on:
       - 'functions/api/member-tool-access.js'
       - 'assets/js/lab-player.js'
       - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/js/crownlight-learning-echarts-v1.js'
+      - 'assets/css/crownlight-learning-echarts-v1.css'
+      - 'tests/test_crownlight_learning_echarts_v1.mjs'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/js/free-foundations-teaching-studio-v3.js'
+      - 'market-tutor.html'
+      - 'dashboard.html'
+      - 'bootcamp.html'
+      - 'bootcamp-academy.html'
+      - 'simulator.html'
       - 'assets/js/lab-journey-checkpoint-v33.js'
       - 'lab-player.html'
       - 'tests/test_v33_member_checkpoint_resume.mjs'
@@ -121,6 +131,10 @@ jobs:
           node tests/test_v135_public_assessment_projection.mjs
           node --check functions/api/assessment-v0135.js
           node --check assets/js/lab-engine-v32-universal.js
+          node --check assets/js/crownlight-learning-echarts-v1.js
+          node --check assets/js/free-foundations-teaching-studio-v3.js
+          node --check assets/js/bootcamp-academy-v014168.js
+          node tests/test_crownlight_learning_echarts_v1.mjs
           node --check assets/js/lab-engine-v32-teaching.js
           node --check assets/js/lab-engine-v33-visual.js
           node tests/lab-engine-v33-visual.test.mjs
@@ -145,5 +159,7 @@ jobs:
           test -f public/lab-player.html
           test -f public/assets/js/lab-journey-checkpoint-v33.js
           test -f public/assets/js/lab-engine-v32-universal.js
+          test -f public/assets/js/crownlight-learning-echarts-v1.js
+          test -f public/assets/css/crownlight-learning-echarts-v1.css
           test -f public/assets/js/lab-engine-v33-visual.js
           test -f public/assets/css/lab-engine-v32-teaching.css

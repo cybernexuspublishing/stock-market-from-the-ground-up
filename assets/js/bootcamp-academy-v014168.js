@@ -444,6 +444,26 @@
   get('academy-practice').textContent=d.practice;
   get('academy-limits').textContent=d.limitation||d.caution;
   showOriginalInstruction(d);
+  // Every Academy lesson offers the same OPTIONAL ECharts chart-literacy
+  // workstation, including days without an independently authorized book Lab.
+  // This fictional supplement cannot unlock a related Lab or confer mastery.
+  const originalInstruction=get('academy-original-instruction');
+  if(originalInstruction&&globalThis.CrownlightLearningEChartsV1?.mount){
+   const extra=node('details');extra.className='academy-echarts-supplement';
+   const summary=node('summary','Optional: experiment with a fictional ECharts market chart');
+   const disclaimer=node('p','Supplementary chart-reading practice only. Follow the day-specific instruction above for this lesson; this example is not its historical evidence or an assessment answer.');
+   const host=node('div');let view=null;
+   extra.append(summary,disclaimer,host);
+   extra.addEventListener('toggle',()=>{
+    if(extra.open){
+     if(!view)view=globalThis.CrownlightLearningEChartsV1.mount(host,{
+      kind:/\bvwap\b|volume.weighted/i.test(d.title+' '+d.objective)?'vwap':'candle',interactive:true
+     });
+     view?.resize?.();
+    }else{view?.dispose?.();view=null}
+   });
+   originalInstruction.append(extra);
+  }
   const free=d.programCode==='free5';
   get('academy-index-title').textContent=free?'Your five lessons':'Study days';
   get('academy-days').setAttribute('aria-label',free?'Select a Free Foundations lesson':'Select a Boot Camp study day');

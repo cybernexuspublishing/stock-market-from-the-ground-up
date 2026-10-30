@@ -380,17 +380,17 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   }
  }
  paintQuestion();
- // The original v3.2 Crownlight Sparks workflow is restored here for
+ // The original v3.2 Crownlight Lumens workflow is restored here for
  // *illustrative, ungraded* practice questions only. A real member ledger
  // confirms the balance and spends four credits atomically, never JavaScript.
  const creditControls=el('section',undefined,'gu-v33-pass-controls');
- creditControls.setAttribute('aria-label','Crownlight Sparks: optional reveal or skip');
- const passHeading=el('h4','Crownlight Sparks · Reveal or Skip');
+ creditControls.setAttribute('aria-label','Crownlight Lumens: optional reveal or skip');
+ const passHeading=el('h4','Crownlight Lumens · Reveal or Skip');
  const passBalance=el('p','Checking available credits…','gu-v33-pass-balance');
- const passNote=el('p','Checking live Sparks prices. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
+ const passNote=el('p','Checking live Lumens prices. Free teaching, corrections and retries never use a credit. Revealed or skipped steps are Study Only, not independent assessment.','gu-v33-pass-note');
  const passConfirmation=el('div',undefined,'gu-v33-pass-confirm');passConfirmation.hidden=true;
  const passQuestion=el('p','');
- const passConfirm=el('button','Confirm Sparks use','btn gu-v33-pass-confirm-btn');
+ const passConfirm=el('button','Confirm Lumens use','btn gu-v33-pass-confirm-btn');
  const passCancel=el('button','Cancel','btn secondary');
  passConfirm.type=passCancel.type='button';
  passConfirmation.append(passQuestion,passConfirm,passCancel);
@@ -424,12 +424,12 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   void onCreditAction({action:'balance'}).then(response=>{
    if(passDisposed)return;
    if(!Number.isSafeInteger(response.prices?.reveal)||!Number.isSafeInteger(response.prices?.skip))
-    throw Error('Sparks offer prices cannot be verified.');
+    throw Error('Lumens offer prices cannot be verified.');
    passCosts.reveal=response.prices.reveal;passCosts.skip=response.prices.skip;
-   passNote.textContent='Reveal: '+passCosts.reveal+' Sparks. Skip: '+passCosts.skip+
-    ' Sparks. Free teaching, corrections and retries remain included; assisted steps are Study Only.';
-   passReveal.textContent='Reveal answer · '+passCosts.reveal+' Sparks';
-   passSkip.textContent='Skip question · '+passCosts.skip+' Sparks';
+   passNote.textContent='Reveal: '+passCosts.reveal+' Lumens. Skip: '+passCosts.skip+
+    ' Lumens. Free teaching, corrections and retries remain included; assisted steps are Study Only.';
+   passReveal.textContent='Reveal answer · '+passCosts.reveal+' Lumens';
+   passSkip.textContent='Skip question · '+passCosts.skip+' Lumens';
    showPassBalance(response.balance);
    if(response.balance.available<Math.min(passCosts.reveal,passCosts.skip))
     passFeedback.textContent='Your balance is insufficient for either action. Instruction remains free.';
@@ -442,8 +442,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    if(passBusy||passUsed||!Number.isSafeInteger(costOf(action))||passAvailable<costOf(action))return;
    passPending=action;
    passQuestion.textContent=(action==='reveal'?'Reveal the study answer':'Skip this practice question')+
-    ' for '+costOf(action)+' Crownlight Sparks? It will not count as an independently correct answer.';
-   passConfirm.textContent='Confirm '+costOf(action)+'-Spark use';
+    ' for '+costOf(action)+' Crownlight Lumens? It will not count as an independently correct answer.';
+   passConfirm.textContent='Confirm '+costOf(action)+'-Lumen use';
    passConfirmation.hidden=false;passConfirm.focus?.();
   };
   listen(passReveal,'click',()=>choose('reveal'));
@@ -454,7 +454,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
    passBusy=true;onCreditPending?.(true);passConfirm.disabled=true;passReveal.disabled=passSkip.disabled=true;
    submitReflection.disabled=true;
    const chosen=passPending,idx=questionIndex;
-   passFeedback.textContent='Confirming your Crownlight Sparks…';
+   passFeedback.textContent='Confirming your Crownlight Lumens…';
    try{
     const result=await onCreditAction({action:chosen,index:idx,expectedCost:costOf(chosen)});
     if(passDisposed)return;
@@ -462,7 +462,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
     passUsed=true;passPending='';passConfirmation.hidden=true;
     showPassBalance(result.balance);
     const answerText=String(result.answerText||'This question is recorded as Study Only.');
-    passFeedback.textContent=answerText+' '+result.spent+' Sparks were used'+(result.alreadyUsed?' previously':'')+'.';
+    passFeedback.textContent=answerText+' '+result.spent+' Lumens were used'+(result.alreadyUsed?' previously':'')+'.';
     reply.textContent='This step is marked Study Only. It is not graded.';
     reflection.disabled=true;submitReflection.disabled=true;
     passContinue.hidden=false;
@@ -479,7 +479,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   listen(passContinue,'click',()=>{
    if(!passUsed||finished)return;
    const final=questionIndex===prompts.length-1;
-   saved[questionIndex]='Study Only — Crownlight Sparks';
+   saved[questionIndex]='Study Only — Crownlight Lumens';
    if(final){
     finished=true;passContinue.hidden=true;
     counter.textContent='Practice completed with assistance';
@@ -815,7 +815,7 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
  const tutorTab=el('button','Ask Market Tutor about this concept','gu-v33-support-tab');
  const panel=el('div',undefined,'gu-v33-support-content');
  const unique='gu-v33-tab-'+String(++tabSequence);
- const walletTab=[0,1].includes(stage)?el('button','Crownlight Sparks Wallet','gu-v33-support-tab'):null;
+ const walletTab=[0,1].includes(stage)?el('button','Crownlight Lumens Wallet','gu-v33-support-tab'):null;
   if(walletTab)walletTab.classList.add('gu-v33-wallet-tab');
  const walletPane=[0,1].includes(stage)?el('section',undefined,'gu-v33-wallet-panel'):null;
  const items=[{button:objectiveTab,pane:objectivesPanel,key:'objectives'},

@@ -23,7 +23,7 @@ test('candlestick body, range, percentage and direction stay distinct',()=>{
  assert.equal(engine.candleMetrics({o:10,h:9,l:8,c:11}),null);
 });
 test('all learning entry points link the shared workstation without changing tier access',()=>{
- for(const name of ['lab-player.html','bootcamp-academy.html','bootcamp.html','simulator.html']){
+ for(const name of ['lab-player.html','bootcamp-academy.html','bootcamp.html','simulator.html','market-tutor.html','dashboard.html']){
   const html=readFileSync(new URL('../'+name,import.meta.url),'utf8');
   assert.match(html,/crownlight-learning-echarts-v1\.js/);
  }
@@ -32,4 +32,5 @@ test('all learning entry points link the shared workstation without changing tie
  assert.match(engineSource,/const STEPS=Object\.freeze\(\['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'\]\)/);
  const tiers=readFileSync(new URL('../assets/js/crownlight-chart-tiers-v1.js',import.meta.url),'utf8');
  assert.match(tiers,/ECHARTS/);
+ assert.match(readFileSync(new URL('../assets/js/crownlight-learning-echarts-v1.js',import.meta.url),'utf8'),/sessions\.delete\(target\)/);
 });

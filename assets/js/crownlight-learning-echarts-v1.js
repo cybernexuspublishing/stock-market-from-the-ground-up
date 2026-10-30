@@ -147,7 +147,7 @@
     render();
    },
    resize(){if(instance&&chart.clientWidth>0)instance.resize();},
-   dispose(){if(disposed)return;disposed=true;observer?.disconnect();observer=null;instance?.dispose();instance=null;section.remove();}
+   dispose(){if(disposed)return;disposed=true;observer?.disconnect();observer=null;instance?.dispose();instance=null;section.remove();if(sessions.get(target)===session)sessions.delete(target);}
   };
   sessions.set(target,session);
   render(); // Accessible table and worked instruction remain even without ECharts.
