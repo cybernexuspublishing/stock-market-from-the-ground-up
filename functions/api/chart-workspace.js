@@ -36,10 +36,10 @@ export function normalizeWorkspace(input,entitlement){
  const drawingSets=[],known=new Set();
  const safeContext=x=>typeof x==='string'&&x.length>0&&x.length<=150&&
   !/[\x00-\x1f<>]/.test(x);
- for(const entry of (Array.isArray(raw.drawingSets)?raw.drawingSets:[]).slice(0,24)){
+ for(const entry of (Array.isArray(raw.drawingSets)?raw.drawingSets:[]).slice(0,10)){
   if(!entry||!safeContext(entry.context)||known.has(entry.context))continue;
   const subset=[];
-  for(const d of (Array.isArray(entry.drawings)?entry.drawings:[]).slice(0,10)){
+  for(const d of (Array.isArray(entry.drawings)?entry.drawings:[]).slice(0,24)){
    if(!d||!VALID_DRAWINGS.has(d.name)||!Array.isArray(d.points))continue;
    const points=d.points.slice(0,6).filter(p=>Number.isSafeInteger(p?.timestamp)&&p.timestamp>0&&
      validNumber(p?.value)&&p.value>0).map(p=>({timestamp:p.timestamp,value:p.value}));
