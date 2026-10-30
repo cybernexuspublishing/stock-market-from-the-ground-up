@@ -6,7 +6,7 @@
 (()=>{'use strict';
  const q=new URLSearchParams(location.search),raw=q.get('source_plan')||'';
  if(!/^[1-9][0-9]{0,15}$/.test(raw)||!Number.isSafeInteger(Number(raw)))return;
- let applied=false,pending=false,sourcePending=null;
+ let applied=false,pending=false,sourcePending=null,linkBusy=false,retryLinkButton=null;
  const by=id=>document.getElementById(id);
  const entry=location.pathname.endsWith('journal-entry.html');
  const list=location.pathname.endsWith('journal.html');
@@ -115,21 +115,39 @@
  }
  if(list)window.addEventListener('gu-journal-ready',()=>void makeCreatePrefill(),{once:true});
  if(entry)window.addEventListener('gu-journal-record-loaded',()=>void makeEntryPrefill(),{once:true});
- window.addEventListener('gu-journal-plan-saved',async()=>{
-  if(!sourcePending||!entry)return;
+ // Source linking remains idempotent and separate from Journal creation. On a
+ // failed network request, retry the SAME saved draft and source plan; never
+ // create another Journal record or consume another Free weekly allowance.
+ async function linkSavedPlan(){
+  if(!sourcePending||!entry||linkBusy)return;
+  linkBusy=true;
   const link=sourcePending;
   try{
    const client=await window.getSupabaseClient(),session=(await client.auth.getSession()).data?.session;
-   if(session?.user?.id!==link.userId)throw Error('Session changed.');
+   if(session?.user?.id!==link.userId||!session.access_token)throw Error('Session changed.');
    const r=await fetch('/api/journal-research-links-v1',{method:'POST',cache:'no-store',
     credentials:'same-origin',headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},
     body:JSON.stringify({journalId:link.journalId,planId:link.planId})});
    const response=await r.json().catch(()=>null);
-   if(!r.ok||response?.ok!==true)throw Error(response?.error||'Source linking unavailable.');
+   const current=(await client.auth.getSession()).data?.session;
+   if(current?.user?.id!==link.userId)throw Error('Member session changed during research linking.');
+   if(!r.ok||response?.ok!==true||response.linked!==true)
+    throw Error(response?.error||'Source linking unavailable.');
    sourcePending=null;
+   retryLinkButton?.remove();retryLinkButton=null;
    window.dispatchEvent(new CustomEvent('gu-journal-research-linked',{detail:{journalId:link.journalId}}));
    ui.status.textContent='Saved Journal draft and linked the original Workbench research version. The source timestamp and version remain in your private research history.';
-  }catch(e){ui.status.textContent='Draft saved. Research source link was not confirmed: '+(e.message||e)+'. Do not mistake an unlinked draft for verified historical research.'}
- });
+  }catch(e){
+   ui.status.textContent='Draft saved, but the research link was not confirmed: '+(e.message||e)+
+    '. Retry linking this SAME draft; do not create a duplicate Journal record.';
+   if(!retryLinkButton){
+    retryLinkButton=create('button','Retry linking saved research');
+    retryLinkButton.type='button';retryLinkButton.className='btn secondary';
+    retryLinkButton.addEventListener('click',()=>void linkSavedPlan());
+    ui.actions.append(retryLinkButton);
+   }
+  }finally{linkBusy=false}
+ }
+ window.addEventListener('gu-journal-plan-saved',()=>void linkSavedPlan());
  window.addEventListener('pagehide',()=>{ui.panel?.replaceChildren()});
 })();
