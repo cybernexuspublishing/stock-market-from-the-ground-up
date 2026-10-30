@@ -146,7 +146,7 @@ try{
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/FIVE INVENTED/);
   await page.locator('#tgp-select').selectOption('IND-54'); // Price relative synthetic benchmark
   await next();await next();
-  assert.match(await page.locator('#tutor-guided-practice').innerText(),/synthetic benchmark/);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Fictional security close divided by time-aligned separately constructed benchmark/);
   assert.equal(tutorPosts,0,'Fixture indicators must never invoke optional paid model');
   assert.equal(tutorPosts,0,'No numeric source or strategy lesson can auto-call a paid tutor model');
   assert.equal(tutorPosts,0,'Event and named strategy exercises never trigger paid Tutor provider calls');
