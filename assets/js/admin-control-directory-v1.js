@@ -63,8 +63,7 @@ function navUsable(node){
  return !!(node?.isConnected&&!node.disabled&&!node.hidden&&
   !node.closest('[hidden],[aria-hidden="true"],.cc-owner-hidden,.cc-preserved-module-roots')&&
   !node.matches('[data-cc-group-toggle],.cc-admin-group-title')&&
-  node.getAttribute('aria-hidden')!=='true'&&
-  !node.closest('details:not([open])')?.classList.contains('cc-group-more'));
+  node.getAttribute('aria-hidden')!=='true');
 }
 function liveEntries(){
  const tabs=$('#admin-tabs');
@@ -74,7 +73,7 @@ function liveEntries(){
  for(const node of tabs.querySelectorAll('button,a[href]')){
   if(!navUsable(node))continue;
   const label=String(node.getAttribute('aria-label')||node.textContent||'')
-   .replace(/\\s+/g,' ').trim().slice(0,140);
+   .replace(/\s+/g,' ').trim().slice(0,140);
   if(!label||known.has(label.toLowerCase()))continue;
   const key=node.dataset.ccControlKey||node.id||node.getAttribute('href')||
    Object.entries(node.dataset).map(([k,v])=>k+':'+v).join('|')||label;
@@ -87,7 +86,11 @@ function liveEntries(){
  return found;
 }
 function canShow(entry){
- if(entry.liveNode)return navUsable(entry.liveNode);
+ if(entry.liveNode){
+  if((getCtx()?.roles||[]).includes('SHOWCASE_VIEWER')&&
+   ['Support & Operations','Security & Governance'].includes(entry.group))return false;
+  return navUsable(entry.liveNode);
+ }
  if(entry.ownerOnly&&!owner())return false;
  if((getCtx()?.roles||[]).includes('SHOWCASE_VIEWER')&&(['Support & Operations','Security & Governance'].includes(entry.group)||entry.ownerOnly))return false;
  if(entry.href)return true; // Existing standalone pages enforce their own server permissions.
@@ -106,6 +109,7 @@ function openEntry(entry,message){
   return;
  }
  if(target.matches('a[href]')){location.assign(target.href);return;}
+ target.closest('details.cc-group-more')?.setAttribute('open','');
  target.click();
  if(entry.label==='Test Accounts'){
   let count=0;const timer=setInterval(()=>{const qa=$('#gu-membership-qa-users-v1');if(qa&&!qa.hidden){clearInterval(timer);qa.scrollIntoView({block:'start'});}else if(++count>30){clearInterval(timer);message.textContent='The authorized Test Accounts editor has not become available.';}},100);
