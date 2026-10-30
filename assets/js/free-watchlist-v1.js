@@ -14,6 +14,7 @@
  function clearPrivate(){
   state.userId='';state.entries=[];state.editing=null;++state.epoch;
   window.GroundUpFreeWatchlistReviewV1?.clear?.();
+  document.getElementById('free-watchlist-talia-v4-host')?._groundUpTaliaV4?.reset?.();
   byId('free-watchlist-content').hidden=true;
   byId('free-watchlist-list').replaceChildren();
   say('free-watchlist-count','— / 20');
@@ -45,6 +46,7 @@
   const root=byId('free-watchlist-list');root.replaceChildren();
   say('free-watchlist-count',state.entries.length+' / 20');
   window.GroundUpFreeWatchlistReviewV1?.update?.(state.entries);
+  document.getElementById('free-watchlist-talia-v4-host')?._groundUpTaliaV4?.setRecords?.(state.entries);
   if(!state.entries.length){
    root.append(item('p','No research entries saved yet. Try the original fictional GUSIM example, or enter a symbol you want to investigate.'));
    return;
