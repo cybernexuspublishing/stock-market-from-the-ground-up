@@ -18,13 +18,15 @@ const candidates=[
  'index','about','books','store','learn','tools','lab-samples',
  'membership','help','faq','philosophy',
  'how-stock-market-works','how-to-read-candlestick-charts','vwap-explained',
- 'bid-ask-spread-explained','stock-trading-risk-management'
+ 'bid-ask-spread-explained','stock-trading-risk-management',
+ 'candle-practice','free-foundations-challenge','market-vs-limit-orders',
+ 'support-resistance-basics'
 ];
 // Curated copy mirrors each existing public page; do not invent sales availability.
 const metadata={
  index:{
-  title:'Learn the Stock Market | Books, Labs & Practice — SMFGU',
-  description:'Learn stock-market mechanics with J. S. Grant’s Foundations books, guided Labs, structured Boot Camps and decision practice. Education, not trading signals.'
+  title:'Learn the Stock Market for Free | Guides & Practice — SMFGU',
+  description:'Start learning the stock market from zero with free beginner guides, fictional candlestick practice and five Free Foundations lessons. No purchase needed to begin.'
  },
  about:{
   title:'About J. S. Grant | Stock Market Education',
@@ -82,6 +84,22 @@ const metadata={
   title:'Stock Trading Risk Management | Position Sizing Basics',
   description:'Practice stop-reference risk, position sizing and reward-to-risk with a fictional trade plan. Learn why no trade can be a valid choice.'
  },
+ 'candle-practice':{
+  title:'Free Candlestick Reading Practice | Three Guided Questions',
+  description:'Try three interactive fictional candlestick chart questions. Learn OHLC, wicks, ranges and the limits of what a candle proves. No account needed.'
+ },
+ 'free-foundations-challenge':{
+  title:'Five-Day Free Stock Market Foundations Learning Path',
+  description:'Learn stock ownership, candlesticks, source evidence, research watchlists and trading risk through five free guided beginner lessons.'
+ },
+ 'market-vs-limit-orders':{
+  title:'Market Orders vs Limit Orders | Beginner Stock Guide',
+  description:'Understand market versus limit order execution, price control, partial fills and spread risk using an original fictional share-quote example.'
+ },
+ 'support-resistance-basics':{
+  title:'Support and Resistance for Beginners | Chart Learning',
+  description:'Understand observed price regions, breakouts, failed breakouts and hindsight bias with original fictional chart examples.'
+ },
  faq:{
   title:'Frequently Asked Questions | SMFGU',
   description:'Answers to common questions about stock-market education, learning resources, books and member access.'
@@ -132,7 +150,8 @@ for(const name of candidates){
  // Match markup to visible page facts, without claiming unverified
  // authorship, prices, a legal organization name or historical market data.
  if(name==='index'||name.startsWith('how-')||name==='vwap-explained'||
-    name==='bid-ask-spread-explained'||name==='stock-trading-risk-management'){
+    name==='bid-ask-spread-explained'||name==='stock-trading-risk-management'||
+    name==='market-vs-limit-orders'||name==='support-resistance-basics'){
   const publisher={'@type':'Organization',name:'Crown & Lantern Press'};
   const schema=name==='index'?{
    '@context':'https://schema.org','@graph':[
