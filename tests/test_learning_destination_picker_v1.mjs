@@ -46,6 +46,7 @@ assert(html.includes('learning-destination-picker-v1.css'));
 assert(player.includes("q('player-title').textContent=bootcampBrowse?'Choose a Boot Camp':'Choose a Lab'"),'No Lab ID should not leave loading message');
 assert(player.includes("q('player-lab-id').textContent='All 419 Labs'"),'Opening a Lab must not replace the 419-Lab picker label');
 assert(!player.includes('void populateLearningDestinationSelector(lab)'),'Old mixed picker must not override searchable browser');
+assert(!player.includes('async function populateLearningDestinationSelector('),'Retired mixed selector must not remain in Lab runtime');
 assert(academyHtml.includes('id="academy-program-search"')&&academyHtml.includes('Choose a Boot Camp'));
 assert(academy.includes("academyBrowseRights?.training===true"),'Academy requires verified training access');
 assert(academy.includes('filterAcademyCatalog();'),'Academy search filters existing programs');
