@@ -41,7 +41,9 @@ assert(sim.includes("if(!acl.ok||grant.ok!==true)"),'provider authorization outa
 assert(sim.includes("freeEligible=grant.freeEligible===true"),'eligibility must be explicit, not unconditional');
 assert(sim.includes("SIM.hasPremium=grant.authorized===true"),'must independently identify premium entitlement');
 assert(!sim.includes("Market Simulator access requires an active Full Membership or the Market Simulator tool pass."),'Free CSV must not be paywalled');
-assert(sim.includes("if(!SIM.hasPremium){smsg('sim-load-msg'"),'connected-provider access remains paid');
+assert(sim.includes("if(!SIM.hasPremium){")&&
+ sim.includes("Connected personal Tiingo/Alpaca history requires a separate Market Simulator data entitlement."),
+ 'connected-provider access remains independently gated without paywalling Free CSV');
 assert(sim.includes("sourceProvider='csv_upload'"),'existing journal source enum must be preserved');
 assert(sim.includes("if(SIM.journalId||SIM.linkedJournalId||SIM.planLocked||SIM.position)"),'do not overwrite existing member journal-backed practice');
 assert(sim.includes('window.GroundUpFreePracticeRequested=false'),'consume startup request once');
