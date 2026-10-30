@@ -56,3 +56,18 @@
 .cl-talia-number-fields input{width:100%;box-sizing:border-box;min-height:39px;border:1px solid #537a90;
  border-radius:7px;background:#081a29;color:#f3f7fa;padding:8px}
 .cl-talia-calc-output{background:#092333;border-left:3px solid #c7b179;border-radius:5px;padding:10px;color:#e0f1f8!important}
+
+/* Closed beta: prevent the five-column OHLCV table and chart border from
+ * forcing horizontal scrolling on narrow Free Watchlist screens. */
+.cl-talia-v4,.cl-talia-v4 .cl-talia-chart-card,.cl-talia-v4 .cl-talia-lesson,
+.cl-talia-v4 .cl-talia-report{min-width:0;box-sizing:border-box}
+.cl-talia-v4 .cl-talia-chart{box-sizing:border-box;max-width:100%}
+.cl-talia-v4 .cl-talia-price-table{table-layout:fixed;max-width:100%}
+.cl-talia-v4 .cl-talia-price-table th,.cl-talia-v4 .cl-talia-price-table td{overflow-wrap:anywhere}
+@media(max-width:630px){
+ .free-watchlist,.free-watchlist-layout,.cl-talia-v4{min-width:0;max-width:100%;box-sizing:border-box}
+ .cl-talia-v4 .cl-talia-price-table{font-size:.72rem}
+ .cl-talia-v4 .cl-talia-price-table th,.cl-talia-v4 .cl-talia-price-table td{padding:5px 2px;word-break:break-word}
+ .cl-talia-v4 .cl-talia-number-fields{grid-template-columns:minmax(0,1fr)}
+ .cl-talia-v4 .cl-talia-selectors label,.cl-talia-v4 .cl-talia-chart-controls label{min-width:0}
+}
