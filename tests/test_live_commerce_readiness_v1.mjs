@@ -33,7 +33,8 @@ const env={SUPABASE_URL:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
  GU58_STRIPE_LIVE_CATALOG_JSON:JSON.stringify(map(standard)),
  GU_F600_LIVE_CATALOG_JSON:JSON.stringify(Object.fromEntries(Object.entries(map(founders,standard.length)).map(([k,v])=>[k,{productId:v.product_id,priceId:v.price_id}])))};
 for(const f of flags)env[f]='false';
-const store=Array.from({length:60},(_,i)=>({sku:'test:'+i,category:
+const requiredStore=[...standard,...founders.map(k=>'founding:'+k),'founding:FOUNDING_14'];
+const store=Array.from({length:61},(_,i)=>({sku:requiredStore[i]||'test:'+i,category:
  i<5?'membership':i<7?'founding':i<29?'tool':i<44?'bootcamp':i<51?'book':i<54?'addon':'feature',
  sale_ready:false,visible:true,status:'coming_soon'}));
 const standEvents=['checkout.session.completed','checkout.session.async_payment_succeeded',
@@ -78,7 +79,7 @@ try{
  role='OWNER';
  const first=await onRequestGet({request:req(true),env});assert.equal(first.status,200);
  let x=await first.json();
- assert.equal(x.ok,true);assert.equal(x.go,false);assert.equal(x.storeCount,60);
+ assert.equal(x.ok,true);assert.equal(x.go,false);assert.equal(x.storeCount,61);
  assert.equal(x.mappedSKUs,10);assert.equal(x.activePriceCount,10);assert.equal(x.activeProductCount,10);
  assert.equal(x.verifiedAmountAndCadence,true);
  for(const key of ['ALL_OWNER_LIVE_APPROVALS','STANDARD_WEBHOOK_LIFECYCLE',
@@ -93,6 +94,11 @@ try{
  allEvents=true;founderOn=true;
  const release=await onRequestGet({request:req(true),env});assert.equal(release.status,200);
  x=await release.json();assert.equal(x.go,true,'All synthetic gates demonstrate a green report only, never real payment acceptance');
+ // A 14-Day offer marked sale-ready without its distinct LIVE map must fail closed.
+ store[10].sale_ready=true;
+ let unbound14=await (await onRequestGet({request:req(true),env})).json();
+ assert(unbound14.blockers.includes('SALE_READY_OWNER_SKU_AUTHORIZATION'),'An approved but unmapped Founding 14 SKU cannot silently go on sale');
+ store[10].sale_ready=false;
  products[0].active=false;const inactive=await onRequestGet({request:req(true),env});
  assert.equal((await inactive.json()).blockers.includes('MAPPED_PRICE_PROVIDER_PARITY'),true);
  products[0].active=true;
