@@ -5,10 +5,13 @@
 <title>Free Research Watchlist | The Stock Market: From the Ground Up</title>
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/free-watchlist-v1.css">
+<link rel="stylesheet" href="assets/css/free-watchlist-review-v1.css?v=1">
 <script src="config.js"></script><script defer src="assets/js/site.js"></script>
 <script defer src="assets/js/supabase-client.js"></script>
 <script defer src="assets/js/session-manager.js"></script>
-<script defer src="assets/js/free-watchlist-v1.js"></script>
+<script defer src="assets/js/crownlight-echarts-loader-v1.js?v=1"></script>
+<script defer src="assets/js/free-watchlist-review-v1.js?v=1"></script>
+<script defer src="assets/js/free-watchlist-v1.js?v=research-review-20261030-1"></script>
 </head><body data-auth-required="true">
 <header class="site-header"><div class="wrap nav">
 <a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a>
@@ -67,6 +70,17 @@ pull a real-time quote, place an order, or issue trading recommendations.</p>
 <div class="free-watchlist-field"><label for="free-research-trigger">What observation would justify another look?</label><input id="free-research-trigger" maxlength="120" placeholder="Specific level or dated event, not an automatic buy"></div>
 <div class="free-watchlist-field"><label for="free-research-risk">What invalidates the research thesis?</label><input id="free-research-risk" maxlength="120" placeholder="Missing source, wide spread, failed level, halt"></div>
 <div class="free-watchlist-field"><label for="free-research-review">When will you review it again?</label><input id="free-research-review" maxlength="100" placeholder="Date/time and timezone or next source event"></div></div>
+<fieldset id="free-research-checklist" class="free-research-checklist"><legend>Research checklist — mark only what you actually reviewed</legend>
+<p class="small">These checks are your own observations, not independent source verification or a grade. You can add the checked items to your existing saved research note.</p>
+<div class="free-research-check-grid">
+<label><input type="checkbox" data-research-check="Reason" /> I know why this ticker is on my list</label>
+<label><input type="checkbox" data-research-check="Original source" /> I checked an original relevant source</label>
+<label><input type="checkbox" data-research-check="Price / volume" /> I reviewed dated price and volume</label>
+<label><input type="checkbox" data-research-check="Key levels" /> I identified meaningful reference levels</label>
+<label><input type="checkbox" data-research-check="Trend / range" /> I assessed trend or consolidation</label>
+<label><input type="checkbox" data-research-check="Invalidation" /> I recorded evidence that would reject the idea</label>
+<label><input type="checkbox" data-research-check="Next review" /> I know when to review it again</label>
+</div></fieldset>
 <div class="free-watchlist-buttons"><button type="button" id="free-research-prepare" class="btn secondary">Add structured observations to my note</button></div>
 <p class="small" role="status" id="free-research-guide-status" aria-live="polite"></p>
 <p class="small">Research checks: original catalyst and source date; chart timeframe and previous close; volume versus current bid/ask spread; entry hypothesis versus explicit NO TRADE; no hidden future candles or retrospective fills.</p>
@@ -82,7 +96,18 @@ pull a real-time quote, place an order, or issue trading recommendations.</p>
 <strong id="free-watchlist-count">— / 20</strong></div>
 <p id="free-watchlist-live-status" role="status" aria-live="polite">Loading private entries…</p>
 <div id="free-watchlist-list" class="free-watchlist-items" aria-live="polite"></div>
-</section></div>
+</section>
+<section class="card free-watchlist-review" aria-labelledby="free-watchlist-review-heading" id="free-watchlist-review">
+<h2 id="free-watchlist-review-heading">Research review · your saved Free Watchlist</h2>
+<p class="small">A private snapshot of your saved 20-symbol research list. These are member-entered classifications, not scanner signals, trading outcomes, or verified market measurements.</p>
+<div id="free-watchlist-review-metrics" class="free-watchlist-review-metrics" aria-live="polite"></div>
+<p class="small" id="free-watchlist-review-denominator"></p>
+<button type="button" class="btn secondary" id="free-watchlist-review-chart-button" disabled>Chart saved research decisions with ECharts</button>
+<div id="free-watchlist-review-chart" role="img" aria-label="Bar chart of current privately saved research decision categories" hidden></div>
+<p id="free-watchlist-review-chart-status" class="small" role="status" aria-live="polite"></p>
+<p class="small">Talia's next question: Which saved candidate lacks a dated original source or an explicit reason to choose NO TRADE? Return to your notes before drawing a conclusion.</p>
+</section>
+</div>
 <section class="card free-watchlist-teaching" aria-labelledby="free-watchlist-teaching-heading">
 <h2 id="free-watchlist-teaching-heading">Talia’s watchlist rule</h2>
 <p>Before adding a symbol, answer: <strong>Who published this? When? What can be verified? What is missing?</strong>
