@@ -24,7 +24,7 @@
  ];
  let prefs={studies:defaults.map(x=>({...x})),levels:[],follow:true};
  const state={mounted:false,chart:null,candles:null,volume:null,series:[],lines:[],source:'',count:-1,
-  hover:null,sim:null,follow:true,fullscreen:false,inspectOpen:false,modal:null,observer:null,markerApi:null,userId:null};
+  hover:null,sim:null,follow:true,fullscreen:false,inspectOpen:false,modal:null,observer:null,markerApi:null,userId:null,tempPlan:null};
  const $=id=>document.getElementById(id);
  const h=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
  const money=n=>Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}):'—';
@@ -33,7 +33,7 @@
  function scopeToMember(userId){
   if(typeof userId!=='string'||!userId)return;
   if(state.userId===userId)return;
-  state.userId=userId;let stored=null;
+  state.userId=userId;state.tempPlan=null;let stored=null;
   try{stored=JSON.parse(localStorage.getItem(KEY+':'+userId)||'null')}catch{}
   prefs=stored&&Array.isArray(stored.studies)?stored:{studies:defaults.map(x=>({...x})),levels:[],follow:true};
   prefs.studies=prefs.studies.filter(x=>LABELS[x?.type]&&typeof x.color==='string').slice(0,18);
@@ -203,6 +203,23 @@
   (prefs.levels||[]).filter(x=>Number.isFinite(x.price)&&x.source===state.source).slice(-15).forEach(x=>{
    try{state.lines.push(state.candles.createPriceLine({price:x.price,color:x.color||'#f7c76a',lineWidth:2,axisLabelVisible:true,title:'Member level'}))}catch{}
   });
+  // Private, ephemeral research levels. Strictly match the chart's ticker,
+  // not a substring, and display only AFTER the member's plan observation
+  // time is within already-revealed history. Never persist to appearance.
+  const plan=state.tempPlan;
+  const observedAt=plan?Date.parse(plan.asOf):NaN;
+  const shownAt=data[data.length-1]?.time?.getTime?.()??NaN;
+  const currentSymbol=String(sim.ticker||sim.symbol||sim.sourceName||'').trim().toUpperCase();
+  if(plan&&state.userId===plan.userId&&currentSymbol===plan.symbol&&
+     Number.isFinite(observedAt)&&Number.isFinite(shownAt)&&shownAt>observedAt){
+   for(const level of plan.levels){
+    try{state.lines.push(state.candles.createPriceLine({
+     price:level.price,
+     color:level.kind==='STOP'?'#ff668c':level.kind==='ENTRY'?'#f7c76a':'#36e4bb',
+     lineWidth:2,lineStyle:2,axisLabelVisible:true,title:'PLAN '+level.kind
+    }))}catch{}
+   }
+  }
   const pos=sim.position;
   if(pos){
    [['entry','#ffd26f','ENTRY'],['stop','#ff668c','STOP'],['target','#36e4bb','TARGET']].forEach(([key,color,title])=>{
@@ -380,7 +397,7 @@
  }
  function clearMemberState(){
   // A user change must not leave provider candles, notes or studies visible in a former session.
-  state.sim=null;state.hover=null;state.userId=null;state.source='';state.count=0;
+  state.sim=null;state.hover=null;state.userId=null;state.tempPlan=null;state.source='';state.count=0;
   prefs={studies:defaults.map(x=>({...x})),levels:[],follow:true};
   state.follow=true;
   if(state.chart){
@@ -414,5 +431,22 @@
   root.dispatchEvent(new CustomEvent('crownlight:revealed-bars',
    {detail:{symbol:'REPLAY',timeframe:'',source:'',bars:[]}}));
  }
- root.CrownlightStudio={render:redraw,clearMemberState,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count,spacing:state.chart?.timeScale().options().barSpacing??null})};
+ function setTemporaryPlanLevels(input){
+  if(!state.mounted||!state.sim||!state.userId||typeof input?.userId!=='string'||
+     input.userId!==state.userId||!Array.isArray(input.levels)||
+     input.levels.length<2||input.levels.length>5||
+     !/^[A-Z][A-Z0-9.-]{0,11}$/.test(input.symbol||'')||
+     !Number.isFinite(Date.parse(input.asOf||'')))return false;
+  if(input.levels.some(l=>!['ENTRY','STOP','TARGET 1','TARGET 2','STRETCH'].includes(l.kind)||
+    !Number.isFinite(Number(l.price))||Number(l.price)<=0||Number(l.price)>=1000000))return false;
+  state.tempPlan={userId:input.userId,symbol:input.symbol,asOf:input.asOf,
+   levels:input.levels.map(l=>({kind:l.kind,price:Number(l.price)}))};
+  redraw(state.sim);
+  return true;
+ }
+ function clearTemporaryPlanLevels(){
+  state.tempPlan=null;
+  if(state.mounted&&state.sim)redraw(state.sim);
+ }
+ root.CrownlightStudio={render:redraw,clearMemberState,setTemporaryPlanLevels,clearTemporaryPlanLevels,getStatus:()=>({mounted:state.mounted,library:!!root.LightweightCharts,studies:prefs.studies.map(s=>s.type),revealed:state.count,spacing:state.chart?.timeScale().options().barSpacing??null})};
 })(window);
