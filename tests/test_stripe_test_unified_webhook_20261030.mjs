@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {createHmac,webcrypto} from 'node:crypto';
+import {onRequestPost} from '../functions/api/stripe-test-webhook.js';
+globalThis.crypto ||= webcrypto;
+const now=Math.floor(Date.now()/1000),secret='whsec_unit_test_secret_2026',endpoint='https://example.com/api/stripe-test-webhook';
+const env={STRIPE_TEST_WEBHOOK_SECRET:secret};
+const signed=(body,t=now,key=secret)=>'t='+t+',v1='+createHmac('sha256',key).update(t+'.'+body).digest('hex');
+const event={id:'evt_TESTWEBHOOK2026',created:now,livemode:false,type:'customer.created',data:{object:{id:'cus_TESTONE'}}};
+const send=async (payload,header)=>onRequestPost({request:new Request(endpoint,{method:'POST',headers:{'stripe-signature':header,'content-type':'application/json'},body:payload}),env});
+const body=JSON.stringify(event);
+assert.equal((await send(body,signed(body))).status,200,'signed unrelated event ignored');
+assert.equal((await send(body,signed(body,now-800))).status,401,'expired signature rejected');
+assert.equal((await send(body,signed(body,now,'whsec_wrong'))).status,401,'wrong secret rejected');
+assert.equal((await send(body.replace('customer.created','invoice.paid'),signed(body))).status,401,'tampered payload rejected');
+assert.equal((await send(JSON.stringify({...event,livemode:true}),signed(JSON.stringify({...event,livemode:true})))).status,400,'LIVE Stripe event rejected');
+assert.equal((await send(JSON.stringify({...event,account:'acct_WRONG'}),signed(JSON.stringify({...event,account:'acct_WRONG'})))).status,400,'foreign account rejected');
+console.log('PASS unified TEST endpoint signature, timestamp, tampering, mode and account isolation');

@@ -1,0 +1,22 @@
+name: Unified Stripe TEST Webhook Safety
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/stripe-test-webhook.js'
+      - 'tests/test_stripe_test_unified_webhook_20261030.mjs'
+      - '.github/workflows/unified-stripe-test-webhook.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check functions/api/stripe-test-webhook.js
+      - run: node tests/test_stripe_test_unified_webhook_20261030.mjs
