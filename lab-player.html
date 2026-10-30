@@ -80,8 +80,9 @@
 <script defer src="assets/js/lab-journey-checkpoint-v33.js"></script>
 <script defer src="assets/js/lab-v33-workspace-flow.js"></script>
 <script defer src="assets/js/lab-player.js"></script>
+<script defer src="assets/js/learning-destination-picker-v1.js?v=20261030-fix1"></script>
 <script defer src="assets/js/crownlight-lab-chart-handoff-v2.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/labs-graphite-skin.css?v=terminal-20261026"><link rel="stylesheet" href="assets/css/lab-terminal-displays.css?v=20261026"><link rel="stylesheet" href="assets/css/learning-workstation-v44.css?v=20261030-v44"></head>
+<link rel="stylesheet" href="assets/css/labs-graphite-skin.css?v=terminal-20261026"><link rel="stylesheet" href="assets/css/lab-terminal-displays.css?v=20261026"><link rel="stylesheet" href="assets/css/learning-workstation-v44.css?v=20261030-v44"><link rel="stylesheet" href="assets/css/learning-destination-picker-v1.css?v=20261030-fix1"></head>
 <body data-gu-lab-skin="graphite" class="gu-lab-member">
 <header class="site-header" aria-label="Website navigation"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Primary navigation"><a href="learn.html">Learning System</a><a href="labs.html">Lab Registry</a><a href="market-commons.html">Market Commons</a><a href="store.html">Store</a><a class="nav-cta" href="signin.html">Sign In</a></nav></div></header>
 <main id="app" aria-label="Interactive Learning Center">
@@ -95,7 +96,20 @@
 </div>
 </header>
 <div class="prototype-bar">
-<div class="optionrow"><label for="player-reference-select">Select Lab or Boot Camp</label><select id="player-reference-select" aria-label="Select a released Lab or Boot Camp" title="Choose a Lab or Boot Camp. Member access is verified when opened."><option value="">Loading released Labs and Boot Camps…</option></select><a class="link" href="labs.html" id="player-lab-id">All 419 Labs</a><a class="link" href="dashboard.html?tab=support" id="player-report-issue">Report a Lab Problem</a></div>
+<div class="optionrow gu-learning-picker-toolbar">
+ <div class="gu-learning-picker-fields">
+  <label for="player-catalog-search" id="player-catalog-label">Choose a Lab</label>
+  <input type="search" id="player-catalog-search" autocomplete="off" placeholder="Search by Lab ID, title, skill or ticker (e.g., VWAP)" aria-describedby="player-catalog-status" aria-controls="player-catalog-results">
+ </div>
+ <a class="link" href="labs.html" id="player-lab-id">All 419 Labs</a>
+ <a class="link" href="bootcamp-academy.html">Choose a Boot Camp</a>
+ <a class="link" href="dashboard.html?tab=support" id="player-report-issue">Report a Lab Problem</a>
+</div>
+<div class="gu-learning-picker-browser" id="player-catalog-browser">
+ <p id="player-catalog-status" role="status" aria-live="polite">Choose a Lab. Searching the public catalog does not unlock restricted lessons.</p>
+ <div id="player-catalog-results" class="gu-learning-picker-results" aria-label="Searchable learning catalog"></div>
+ <button type="button" id="player-catalog-retry" class="btn secondary" hidden>Retry catalog loading</button>
+</div>
 <span class="live-note">Member access and official grades are controlled by protected services</span>
 </div>
 <div class="toolbar">
