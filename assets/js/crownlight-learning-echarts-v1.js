@@ -22,6 +22,29 @@
   return {dollarsA,dollarsB,totalDollars:dollarsA+dollarsB,
    totalShares:aVolume+bVolume,price:(dollarsA+dollarsB)/(aVolume+bVolume)};
  }
+ function checkCalculation(kind,typed,candle,secondVolume){
+  const c=candleMetrics(candle),m=vwapMetrics(8,200,10,secondVolume);
+  const expected=kind==='vwap'?[m.totalDollars,m.totalShares,m.price]:
+   c?[c.body,c.range,c.percent]:[];
+  const names=kind==='vwap'?['Total traded dollars','Total shares','VWAP']:
+   ['Real body','Full range','Body percentage'];
+  return expected.map((value,i)=>{
+   const input=String(typed[i]??'').trim(),numeric=Number(input);
+   const ok=value===null?/^(undefined|n\/a)$/i.test(input):
+    input!==''&&Number.isFinite(numeric)&&Math.abs(numeric-value)<(i===2?.08:.016);
+   const guidance=kind==='vwap'?[
+    'Multiply each price by its shares: Group A is $1,600 and Group B is $'+(10*secondVolume).toFixed(2)+'. Add these values.',
+    'Add 200 shares from Group A to '+secondVolume+' from Group B.',
+    'Divide total traded dollar value by total share volume. Averaging $8 and $10 directly ignores unequal shares.'
+   ]:[
+    'Use the absolute difference |Close − Open|, not High − Low.',
+    'Subtract Low from High; this measures both wicks plus the body.',
+    value===null?'Division by a zero range is undefined.':'Divide the body by the full range and multiply the decimal by 100 to make a percentage.'
+   ];
+   return {name:names[i],ok,feedback:ok?'Correct: '+names[i]+'.':
+    (input===''?'Enter a number before checking. ':'Review the method. ')+guidance[i]};
+  });
+ }
  function mount(target,options={}){
   if(!target||typeof target.replaceChildren!=='function')return null;
   sessions.get(target)?.dispose();
@@ -53,6 +76,46 @@
   th.append(theadRow);table.append(th);
   const tbody=node('tbody');table.append(tbody);
   section.append(eyebrow,heading,description,chart,note,controls,table,facts);
+  const quiz=node('section');quiz.className='gu-echarts-worksheet';
+  quiz.setAttribute('aria-label','Free three-step guided calculation and corrective retries');
+  const fields=[],feedback=node('div');feedback.className='gu-echarts-feedback';
+  feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
+  let attempts=0;
+  if(options.interactive!==false){
+   quiz.append(node('h4','Your calculation workspace'),
+    node('p','Enter all three values separately. Talia explains each mistake and you may retry without Lumens. This is ungraded practice, not mastery.'));
+   const form=node('div');form.className='gu-echarts-form';
+   const questions=kind==='vwap'?['Total traded dollars ($)','Total shares','VWAP ($ per share)']:
+    ['Real body ($)','Full range ($)','Body as % of range'];
+   for(const question of questions){
+    const label=node('label',question),input=node('input');input.type='text';
+    input.inputMode='decimal';input.autocomplete='off';input.maxLength=32;
+    input.setAttribute('aria-label',question);label.append(input);form.append(label);fields.push(input);
+   }
+   const actions=node('div');actions.className='gu-echarts-worksheet-actions';
+   const check=node('button','Check all three answers');check.type='button';
+   const retry=node('button','Clear and try again');retry.type='button';
+   check.addEventListener('click',()=>{
+    attempts++;
+    const results=checkCalculation(kind,fields.map(f=>f.value),candle,secondVolume);
+    feedback.replaceChildren(node('p','Talia · Attempt '+attempts+': '+results.filter(x=>x.ok).length+' of three steps correct. This is not a graded assessment.'));
+    const list=node('ol');
+    for(const result of results){
+     const item=node('li',result.name+' — '+result.feedback);
+     item.className=result.ok?'gu-echarts-correct':'gu-echarts-retry';
+     list.append(item);
+    }
+    feedback.append(list);
+    if(results.every(x=>x.ok))feedback.append(node('p','Well calculated. Try a fresh fictional case before relying on this skill independently.'));
+   });
+   retry.addEventListener('click',()=>{
+    attempts++;fields.forEach(f=>{f.value=''});
+    feedback.replaceChildren(node('p','Talia: First name each quantity and its units. Then use the formula and try again. Instructional retries remain free.'));
+    fields[0].focus();
+   });
+   actions.append(check,retry);quiz.append(form,actions,feedback);
+   section.append(quiz);
+  }
   target.replaceChildren(section);
   let slider=null,output=null;
   if(options.interactive!==false){
@@ -64,6 +127,7 @@
    label.append(slider,output);controls.append(label);
    slider.addEventListener('input',()=>{
     if(kind==='vwap')secondVolume=Number(slider.value);else candle.c=Number(slider.value);
+    fields.forEach(f=>{f.value=''});feedback.replaceChildren();
     render();
    });
   }
@@ -144,6 +208,7 @@
       secondVolume=values.sharesB;
     }else if(Number.isFinite(values?.c)&&values.c>=candle.l&&values.c<=candle.h)candle.c=values.c;
     if(slider)slider.value=String(kind==='vwap'?secondVolume:candle.c);
+    fields.forEach(f=>{f.value=''});feedback.replaceChildren();
     render();
    },
    resize(){if(instance&&chart.clientWidth>0)instance.resize();},
@@ -177,5 +242,5 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',autoMount,{once:true});
   else autoMount();
  }
- root.CrownlightLearningEChartsV1=Object.freeze({mount,candleMetrics,vwapMetrics,version:'1.0.0'});
+ root.CrownlightLearningEChartsV1=Object.freeze({mount,candleMetrics,vwapMetrics,checkCalculation,version:'1.1.0'});
 })(typeof window==='undefined'?globalThis:window);

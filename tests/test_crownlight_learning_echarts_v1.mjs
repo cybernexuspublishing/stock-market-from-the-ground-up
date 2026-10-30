@@ -22,6 +22,17 @@ test('candlestick body, range, percentage and direction stay distinct',()=>{
  assert.equal(engine.candleMetrics({o:25,h:25,l:25,c:25}).percent,null);
  assert.equal(engine.candleMetrics({o:10,h:9,l:8,c:11}),null);
 });
+test('three-step calculation review is correct and gives targeted free correction',()=>{
+ const candle={o:20,h:22,l:19,c:21.2};
+ assert.ok(engine.checkCalculation('candle',['1.2','3','40'],candle,100).every(x=>x.ok));
+ const wrong=engine.checkCalculation('candle',['3','1.2','0.4'],candle,100);
+ assert.equal(wrong.filter(x=>x.ok).length,0);
+ assert.match(wrong[2].feedback,/multiply.*100/i);
+ assert.ok(engine.checkCalculation('vwap',['2600','300','8.67'],candle,100).every(x=>x.ok));
+ const naive=engine.checkCalculation('vwap',['2600','300','9'],candle,100);
+ assert.equal(naive[2].ok,false);
+ assert.match(naive[2].feedback,/unequal shares/i);
+});
 test('all learning entry points link the shared workstation without changing tier access',()=>{
  for(const name of ['lab-player.html','bootcamp-academy.html','bootcamp.html','simulator.html','market-tutor.html','dashboard.html']){
   const html=readFileSync(new URL('../'+name,import.meta.url),'utf8');
