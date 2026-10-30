@@ -13,8 +13,12 @@
  const status=(node,s)=>{node.textContent=String(s)};
  async function mountV2({host,recs,alive=()=>true}){
   if(!host)return;
+  // Fail closed before rendering any prior private saved research into the DOM.
+  const initialClient=await root.getSupabaseClient?.();
+  const initialSession=(await initialClient?.auth?.getSession?.())?.data?.session;
+  if(!initialSession?.user?.id||!initialSession.access_token||!alive())return;
   let current=(Array.isArray(recs)?recs:[]).filter(x=>x?.record_type==='watchlist'),
-    filterRecords=[],chart=null,seq=0,member=null,busy=false;
+    filterRecords=[],chart=null,seq=0,member=initialSession.user.id,busy=false;
   const rootBox=mk('section',undefined,'v11-workbench-panel cl-wi-v2');
   rootBox.setAttribute('aria-label','Watchlist Intelligence research lifecycle');
   rootBox.append(mk('h2','Crownlight Watchlist Intelligence · Research Workflows'),
@@ -355,7 +359,14 @@
     if(out.rows.length>35)scanList.append(mk('p','First 35 results displayed; narrow your saved filters for further review.'));
    }catch(e){status(notices,e.message||'Unverified snapshot could not be scanned.')}
   };
-  root.addEventListener('pagehide',()=>{++seq;chart?.dispose?.();current=[];filterRecords=[];});
+  function clearPrivate(){
+   ++seq;chart?.dispose?.();chart=null;current=[];filterRecords=[];
+   rootBox.replaceChildren();rootBox.hidden=true;
+  }
+  initialClient.auth.onAuthStateChange?.((event,session)=>{
+   if(event==='SIGNED_OUT'||session?.user?.id!==member)clearPrivate();
+  });
+  root.addEventListener('pagehide',clearPrivate);
   try{
    const filterRows=await api('&type=filter_set');
    filterRecords=(filterRows.records||[]).filter(x=>x.record_type==='filter_set');
