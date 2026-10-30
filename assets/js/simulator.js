@@ -142,8 +142,27 @@ async function loadProvider(){
  const ticker=$('sim-ticker').value.trim().toUpperCase(),
   start=$('sim-start-date')?.value,end=$('sim-end-date')?.value,
   freq=$('sim-resample')?.value||'1min';
- if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker)||!start||!end){
-  smsg('sim-load-msg','A valid ticker, start date, and end date are required.','error');return;
+ // Show exactly which field needs attention. A ticker like "aapl" is
+ // valid after normalization; missing dates must not be reported as a bad symbol.
+ const invalidTicker=!/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker);
+ const missingStart=!start,missingEnd=!end;
+ const badOrder=!!start&&!!end&&start>end;
+ if(invalidTicker||missingStart||missingEnd||badOrder){
+  const details=document.querySelector('#cl-replay-import details.cl-workbench-import');
+  if(details)details.open=true;
+  const missing=[];
+  if(invalidTicker)missing.push('valid ticker');
+  if(missingStart)missing.push('context start date');
+  if(missingEnd)missing.push('context end date');
+  const message=badOrder?'Context end date cannot be before the start date.':
+   'Enter '+missing.join(missing.length===2?' and ':', ')+' before loading personal provider history.';
+  smsg('sim-load-msg',message,'error');
+  const field=$(invalidTicker?'sim-ticker':missingStart?'sim-start-date':'sim-end-date');
+  // Move the user to the actual source form rather than leaving an error
+  // visible above the fold while the required dates are farther down.
+  field?.focus?.({preventScroll:true});
+  field?.scrollIntoView?.({block:'center',behavior:'auto'});
+  return;
  }
  const memberId=SIM.user?.id;
  if(!memberId){smsg('sim-load-msg','Sign in before loading personal provider bars.','error');return}
