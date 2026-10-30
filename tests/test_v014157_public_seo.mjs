@@ -34,7 +34,7 @@ try{
  const titles=new Set(),descriptions=new Set();
  for(const slug of ['index','about',...otherPublic]){
   const page=readFileSync(join(root,slug+'.html'),'utf8');
-  const title=page.match(/<title>([^<]+)<\\/title>/i)?.[1];
+  const title=page.match(/<title>([^<]+)<\/title>/i)?.[1];
   const summary=page.match(/<meta name="description" content="([^"]+)">/i)?.[1];
   assert(title && summary,'Missing title or description: '+slug);
   assert(!titles.has(title),'Duplicate public title: '+slug);
@@ -44,7 +44,7 @@ try{
   assert(page.includes('<link rel="canonical" href="'+url+'">'),'Canonical mismatch: '+slug);
   assert(page.includes('<meta property="og:url" content="'+url+'">'),'Social URL mismatch: '+slug);
   assert.equal((page.match(/<meta property="og:title"/g)||[]).length,1,'Duplicate social metadata: '+slug);
-  assert.equal((page.match(/ga4-consent-v1\\.js/g)||[]).length,1,'Duplicate analytics controller: '+slug);
+  assert.equal((page.match(/ga4-consent-v1\.js/g)||[]).length,1,'Duplicate analytics controller: '+slug);
  }
 
  assert.equal((homepage.match(/ga4-consent-v1\.js/g)||[]).length,1,'Public page has exactly one consent controller');
