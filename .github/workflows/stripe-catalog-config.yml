@@ -1,0 +1,32 @@
+name: Consolidated Stripe Catalog Configuration
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/**'
+      - 'functions/_lib/**'
+      - '.github/workflows/stripe-catalog-config.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check catalog consumers syntax
+        run: |
+          node --check functions/api/payment-catalog-v01433.js
+          node --check functions/api/store-zero-monthly-qa.js
+          node --check functions/api/live-commerce-readiness.js
+          node --check functions/api/owner-zero-live-checkout.js
+          node --check functions/api/stripe-live-checkout-v01458.js
+          node --check functions/api/stripe-live-merchant-readiness-v01467.js
+          node --check functions/api/founding600-checkout.js
+          node --check functions/api/founding600-webhook.js
+          node --check functions/_lib/founder-catalog-readiness-v014264.js
+          node --check functions/api/gu39-sandbox.js

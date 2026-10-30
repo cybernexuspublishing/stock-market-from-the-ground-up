@@ -23,7 +23,7 @@ function cfg(env){
  ||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)
  ||!stripe.startsWith('sk_live_')||!key||!pub||!/^acct_[A-Za-z0-9_]{6,}$/.test(acct))
  throw fail('Founding enrollment is not yet open.');
- let map;try{map=JSON.parse(String(env.GU_F600_LIVE_CATALOG_JSON||''))}catch{throw fail('Founding pricing is unavailable.')}
+ let map;try{map=JSON.parse(String((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).founding) : env.GU_F600_LIVE_CATALOG_JSON)||''))}catch{throw fail('Founding pricing is unavailable.')}
  if(!map||!['FOUNDING_30','FOUNDING_60'].every(k=>!!map[k])
  ||Object.keys(map).some(k=>!Object.hasOwn(plans,k))
  ||Object.entries(map).some(([p,m])=>!/^price_[A-Za-z0-9_]{6,}$/.test(m?.priceId||'')

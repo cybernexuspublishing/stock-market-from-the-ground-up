@@ -163,7 +163,7 @@ export async function onRequestGet({request,env}){
   const base=await owner(request,env);
   const rows=[],add=(group,check,status,detail)=>rows.push(reportRow(group,check,status,detail));
   const key=clean((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),accountId=clean((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID));
-  const secretOk=isLiveSecret(key),idOk=isAccount(accountId),mapping=catalogMap(env.GU58_STRIPE_LIVE_CATALOG_JSON);
+  const secretOk=isLiveSecret(key),idOk=isAccount(accountId),mapping=catalogMap((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON));
   const hookSecret=/^whsec_[A-Za-z0-9_]+$/.test(clean((env.STRIPE_LIVE_WEBHOOK_SECRET || env.GU58_STRIPE_LIVE_WEBHOOK_SECRET)));
   const origin=expectedBase(env),canRead=secretOk&&idOk;
   add('CONFIG','LIVE Stripe API credential',secretOk?'PRESENT_NOT_DISCLOSED':'ACTION_REQUIRED',

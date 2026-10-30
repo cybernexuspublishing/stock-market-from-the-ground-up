@@ -76,8 +76,8 @@ export async function onRequestGet({request,env}){
      prices.has_more===true||products.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
   const expected=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
    'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'];
-  const m=parseMap(env.GU58_STRIPE_LIVE_CATALOG_JSON,expected);
-  const f=parseFounderMap(env.GU_F600_LIVE_CATALOG_JSON);
+  const m=parseMap((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON),expected);
+  const f=parseFounderMap((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).founding) : env.GU_F600_LIVE_CATALOG_JSON));
   if(![...expected,'founding:FOUNDING_14','founding:FOUNDING_30','founding:FOUNDING_60']
      .every(k=>store.some(s=>s.sku===k)))throw Error('REQUIRED_SKU_MISSING');
   const lookup=new Map(prices.data.map(x=>[x.id,x]));

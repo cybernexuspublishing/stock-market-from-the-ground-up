@@ -19,7 +19,7 @@ function config(env){
   !/^sk_live_[\w]+$/.test(key)||!/^acct_[\w]+$/.test(account)||
   !/^price_[\w]+$/.test(price)||!/^prod_[\w]+$/.test(product)||
   !/^https:\/\/[^/#?]+$/.test(origin))throw fail('QA_CONFIGURATION_MISSING');
- const paid=JSON.parse(trim(env.GU58_STRIPE_LIVE_CATALOG_JSON)||'{}');
+ const paid=JSON.parse(trim((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON))||'{}');
  if(Object.values(paid).some(x=>x.price_id===price||x.product_id===product))throw fail('NOT_ISOLATED_QA_PRODUCT');
  return {base,allowed,pub,secret,key,account,price,product,origin};
 }

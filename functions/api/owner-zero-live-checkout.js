@@ -51,7 +51,7 @@ function setup(request,env){
  const account=val((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)),key=val((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY));
  if(!id('prod',product)||!id('price',price)||!id('acct',account)||!keyOK(key))
   throw fail('ZERO_QA_CONFIGURATION_MISSING');
- let main;try{main=JSON.parse(val(env.GU58_STRIPE_LIVE_CATALOG_JSON))}catch{}
+ let main;try{main=JSON.parse(val((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON)))}catch{}
  if(Object.values(main||{}).some(p=>p?.price_id===price||p?.product_id===product))
   throw fail('ZERO_QA_MUST_NOT_USE_PAID_CATALOG');
  return {origin,product,price,account,key};

@@ -62,7 +62,7 @@ function environment(env){
 }
 function liveCatalog(env){
  let obj;
- try{obj=JSON.parse(val(env.GU58_STRIPE_LIVE_CATALOG_JSON)||'{}')}catch{throw err('LIVE catalog mapping invalid.',503)}
+ try{obj=JSON.parse(val((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON))||'{}')}catch{throw err('LIVE catalog mapping invalid.',503)}
  const keys=Array.from(products);
  if(!obj||Array.isArray(obj)||Object.keys(obj).length!==keys.length||
     !keys.every(k=>/^price_[A-Za-z0-9_]{6,}$/.test(obj[k]?.price_id||'')&&

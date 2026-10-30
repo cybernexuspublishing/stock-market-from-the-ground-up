@@ -28,8 +28,8 @@ export async function onRequestGet({request,env}){
   // absent legacy mapping previously falsely reported every product unmapped.
   const parseMap=(raw)=>{try{const x=JSON.parse(String(raw||'{}'));return x&&!Array.isArray(x)&&typeof x==='object'?x:{}}catch{return {}}};
   const legacy=parseMap(env.STRIPE_MANAGED_PRICE_MAP_JSON);
-  const gu58=parseMap(env.GU58_STRIPE_LIVE_CATALOG_JSON);
-  const founding=parseMap(env.GU_F600_LIVE_CATALOG_JSON);
+  const gu58=parseMap((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).legacy) : env.GU58_STRIPE_LIVE_CATALOG_JSON));
+  const founding=parseMap((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).founding) : env.GU_F600_LIVE_CATALOG_JSON));
   // Cloudflare reads this authoritative registry on every Owner catalog
   // request, so linking a verified Stripe Product/Price requires no redeploy.
   const registeredBySku=new Map((Array.isArray(registered)?registered:[]).filter(x=>
@@ -84,7 +84,7 @@ export async function onRequestGet({request,env}){
    foundingMappedCount:Object.values(founding).filter(validPair).length,
    inventoryMappedCount:inventory.filter(x=>x.stripeMappingPresent).length,
    ownerRegistryMappedCount:registeredBySku.size,
-   mappingSources:['GU58_STRIPE_LIVE_CATALOG_JSON','GU_F600_LIVE_CATALOG_JSON','gu_owner_stripe_registry_v1 (Cloudflare runtime)','STRIPE_MANAGED_PRICE_MAP_JSON (legacy, optional)'],
+   mappingSources:['STRIPE_LIVE_CATALOG_JSON','gu_owner_stripe_registry_v1 (Cloudflare runtime)','STRIPE_MANAGED_PRICE_MAP_JSON (legacy, optional)'],
    inventoryCount:inventory.length,inventory,products:result,
    warning:'Read-only inventory. Stripe product activation and Store visibility never authorize checkout. No payment, entitlement or setting changed.'});
  }catch{return answer({ok:false,error:'Unable to inspect the private payment catalog.'},503)}

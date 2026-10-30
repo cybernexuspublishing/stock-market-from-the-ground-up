@@ -85,10 +85,10 @@ async function inspectMode({key,livemode,catalog,mode,siteOrigin}){
 }
 export async function founderCatalogReadiness(env){
  let liveCatalog;
- try{liveCatalog=JSON.parse(env.GU_F600_LIVE_CATALOG_JSON||'null')}catch{liveCatalog=null}
+ try{liveCatalog=JSON.parse((env.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_LIVE_CATALOG_JSON).founding) : env.GU_F600_LIVE_CATALOG_JSON)||'null')}catch{liveCatalog=null}
  const liveOK=liveCatalog?.FOUNDING_30&&liveCatalog?.FOUNDING_60;
  let sandboxCatalog=null;
- try{sandboxCatalog=env.GU_F600_TEST_CATALOG_JSON?JSON.parse(env.GU_F600_TEST_CATALOG_JSON):null}catch{}
+ try{sandboxCatalog=(env.STRIPE_TEST_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_TEST_CATALOG_JSON).founding) : env.GU_F600_TEST_CATALOG_JSON)?JSON.parse((env.STRIPE_TEST_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_TEST_CATALOG_JSON).founding) : env.GU_F600_TEST_CATALOG_JSON)):null}catch{}
  const sandbox=await inspectMode({key:env.GU39_STRIPE_TEST_SECRET_KEY,livemode:false,mode:'sandbox',siteOrigin:env.PUBLIC_SITE_URL,
   catalog:sandboxCatalog||{FOUNDING_30:{priceId:testPrices.FOUNDING_30},FOUNDING_60:{priceId:testPrices.FOUNDING_60}}});
  const live=liveOK?await inspectMode({key:(env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY),livemode:true,mode:'live',siteOrigin:env.PUBLIC_SITE_URL,catalog:liveCatalog}):

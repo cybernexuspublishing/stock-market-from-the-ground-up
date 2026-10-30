@@ -110,7 +110,7 @@ const known=(s,prefix)=>new RegExp('^'+prefix+'_[A-Za-z0-9_]{6,}$').test(String(
 // Owner's sandbox_import_results.json reports this account. Never reconcile with any other Stripe account.
 const EXPECTED_SANDBOX_ACCOUNT='acct_1URGkDJY9FI7byHB';
 function priceMap(e){try{
- const m=JSON.parse(e.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');
+ const m=JSON.parse((e.STRIPE_TEST_CATALOG_JSON ? JSON.stringify(JSON.parse(e.STRIPE_TEST_CATALOG_JSON).legacyPriceMap) : e.GU39_STRIPE_TEST_PRICE_MAP_JSON)||'{}');
  if(!m||Array.isArray(m)||typeof m!=='object')throw Error('PRICE_MAP_INVALID');
  return m;
  }catch{throw Error('PRICE_MAP_INVALID')}
@@ -154,7 +154,7 @@ async function inspectCatalog(env){
   row.stripeTaxCode=typeof product.data.tax_code==='string'?product.data.tax_code:product.data.tax_code?.id||null;
   row.productVerified=product.data.id===productId&&product.data.livemode===false&&product.data.active===true;
   if(!row.productVerified){row.status='PRODUCT_INVALID';row.reason='Inactive, live-mode, or unexpected product.';rows.push(row);continue}
-  if(!row.priceId){row.status='PRICE_MAP_MISSING';row.reason='Missing GU39_STRIPE_TEST_PRICE_MAP_JSON entry in Cloudflare.';rows.push(row);continue}
+  if(!row.priceId){row.status='PRICE_MAP_MISSING';row.reason='Missing STRIPE_TEST_CATALOG_JSON legacy price entry in Cloudflare.';rows.push(row);continue}
   if(duplicates){row.status='PRICE_MAP_DUPLICATE';row.reason='Duplicate Stripe test Price ID; each SKU requires its own price.';rows.push(row);continue}
   const price=await stripeInspection(env,'prices/'+encodeURIComponent(row.priceId));
   if(price.missing){row.status='PRICE_MISSING';row.reason='Price does not exist in the connected sandbox.';rows.push(row);continue}
@@ -552,7 +552,7 @@ async function reconcileSingleTestIntent(c,env,a,intentId){
  throw Error('RECONCILIATION_MANUAL_REVIEW_REQUIRED');
 }
 
-async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,paymentMode:r.enabled===true?'TESTING':'LIVE',liveRouteGateOpen:r.enabled!==true&&env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveLaunchApproved:env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse(env.GU39_STRIPE_TEST_PRICE_MAP_JSON||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
+async function status(c,a,env){const r=await rpc(c,a,'gu39_sandbox_owner_read');return {...r,paymentMode:r.enabled===true?'TESTING':'LIVE',liveRouteGateOpen:r.enabled!==true&&env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',liveLaunchApproved:env.GU_PAYMENT_LIVE_LAUNCH_APPROVED==='true',cloudflareGate:sandboxEnabled(env),liveCheckout:false,priceIdsConfigured:(()=>{try{let m=JSON.parse((env.STRIPE_TEST_CATALOG_JSON ? JSON.stringify(JSON.parse(env.STRIPE_TEST_CATALOG_JSON).legacyPriceMap) : env.GU39_STRIPE_TEST_PRICE_MAP_JSON)||'{}');return Object.keys(prices).filter(k=>known(m[k],'price')).length}catch{return 0}})(),recordType:'SHADOW_ONLY'};}
 export async function onRequestGet({request,env}){try{const c=envCheck(env),a=await actor(request,c);
  const view=new URL(request.url).searchParams.get('view');
  if(view==='readiness')return json(await inspectTestReadiness(request,env,c,a));

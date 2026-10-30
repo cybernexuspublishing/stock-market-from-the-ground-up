@@ -12,7 +12,7 @@ function envConfig(e){
  ||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!stripe.startsWith('sk_live_')
  ||!secret.startsWith('whsec_')||!key||!pattern((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID),'acct'))
  return null;
- let catalog;try{catalog=JSON.parse(e.GU_F600_LIVE_CATALOG_JSON||'')}catch{return null}
+ let catalog;try{catalog=JSON.parse((e.STRIPE_LIVE_CATALOG_JSON ? JSON.stringify(JSON.parse(e.STRIPE_LIVE_CATALOG_JSON).founding) : e.GU_F600_LIVE_CATALOG_JSON)||'')}catch{return null}
  if(!catalog||!catalog.FOUNDING_30?.priceId||!catalog.FOUNDING_60?.priceId)return null;
  return {base,stripe,secret,key,account:(e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID),catalog};
 }
