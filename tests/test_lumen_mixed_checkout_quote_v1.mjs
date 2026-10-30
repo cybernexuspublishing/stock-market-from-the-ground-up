@@ -59,5 +59,9 @@ try{
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.gu_lumen_mixed_reserve_v1/);
  assert.match(sql,/NEEDS_PAYMENT_RECONCILIATION/);
  assert.match(sql,/status='cash_verified'/);
+ const activationGuard=read('supabase/migrations/20261029_lumen_mixed_reservation_activation_guard_v1.sql');
+ assert.match(activationGuard,/mixed_checkout_enabled=true/);
+ assert.match(activationGuard,/MIXED_CHECKOUT_DISABLED/);
+ assert.match(activationGuard,/pg_advisory_xact_lock/);
  console.log('PASS all-member-priced Lumen quotes 80/40/286, Owner inclusion, suspended member, no accidental full-price cash charge or wallet spend');
 }finally{globalThis.fetch=original}
