@@ -41,6 +41,24 @@ try{
   }
   return route.fulfill({status:404,json:{ok:false,error:'Unexpected fixture path'}});
  });
+ await page.route('**/api/watchlist-alerts-v3',async route=>{
+   const body=route.request().method()==='POST'?route.request().postDataJSON():null;
+   if(route.request().method()==='GET')
+     return route.fulfill({json:{ok:true,events:[],source:'MANUAL_RESEARCH_REVIEW_ONLY'}});
+   if(body?.action==='evaluate')
+     return route.fulfill({json:{ok:true,matched:1,newEvents:1,events:[{id:90}]}});
+   if(body?.action==='markRead')
+     return route.fulfill({json:{ok:true,read:true}});
+   return route.fulfill({status:400,json:{ok:false,error:'Unexpected review action'}});
+ });
+ await page.route('**/api/journal-plan-prefill?*',async route=>{
+   assert.equal(new URL(route.request().url()).searchParams.get('planId'),'123');
+   return route.fulfill({json:{ok:true,planId:123,journalDraft:{ticker:'TEST'}}});
+ });
+ await page.route('**/api/watchlist-journal-transfer-v3',async route=>{
+   assert.deepEqual(route.request().postDataJSON(),{planId:123});
+   return route.fulfill({json:{ok:true,journalId:555,alreadyExists:false}});
+ });
  await page.goto('http://127.0.0.1:'+port+'/fixture');
  await page.evaluate(userId=>{
   window.getSupabaseClient=async()=>({auth:{
@@ -52,6 +70,7 @@ try{
  },user);
  await page.addScriptTag({path:'assets/js/market-research-engine-v014145.js'});
  await page.addScriptTag({path:'assets/js/watchlist-research-core-v2.js'});
+ await page.addScriptTag({path:'assets/js/watchlist-learning-v3.js'});
  await page.addScriptTag({path:'assets/js/watchlist-intelligence-v2.js'});
  const v=await page.evaluate(()=>{
   return window.GroundUpWatchlistIntelligenceV1.mount({
@@ -120,6 +139,17 @@ try{
  assert.equal(record.payload.candidateState,'QUALIFIED','Candidate status must persist through the authenticated workspace API');
  assert.equal(record.payload.researchHistory.at(-1).kind,'CANDIDATE_STATE_CHANGE');
  assert.equal(writes,6,'candidate lifecycle must use one revision-guarded save');
+ await region.locator('.cl-wi-learning-v3 textarea').fill('I verified the fictional source time and would stop if the source chronology changed.');
+ await region.getByRole('button',{name:'Save Talia research reflection'}).click();
+ await page.waitForFunction(()=>document.querySelector('.cl-wi-v2 p[role=status]')?.textContent.includes('Ungraded Talia research reflection'),null,{timeout:10000});
+ assert.equal(record.payload.researchHistory.at(-1).kind,'TALIA_RESEARCH_REFLECTION');
+ assert.equal(writes,7,'Talia reflection must use a single revision-guarded private save');
+ await region.locator('label').filter({hasText:'Optional existing saved Trade-Plan snapshot ID'}).locator('input').fill('123');
+ await region.getByRole('button',{name:'Create Journal draft from saved plan'}).click();
+ const journalLink=region.getByRole('link',{name:'Open this private Journal draft'});
+ await journalLink.waitFor();
+ assert.match(await journalLink.getAttribute('href'),/journal-entry.html\\?id=555/);
+ assert.equal(writes,7,'Journal draft creation must not silently modify Watchlist record');
  await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
  assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
  assert.equal(await region.innerText(),'','private notes must be destroyed on sign-out, not only visually hidden');
