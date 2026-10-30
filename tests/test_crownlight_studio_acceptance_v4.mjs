@@ -41,7 +41,7 @@ assert(ui.includes('CrownlightSourceIntegrityV3.validateProvider'));
 assert(ui.includes("const q=new URLSearchParams({action:'bars'"));
 assert(ui.includes('sample.onclick=async'));
 assert(ui.includes('panel.replaceChildren()'));
-assert(!ui.includes('/api/member-sparks-chart\',\n   method:\'POST'),'No incidental Sparks redemption');
+assert(!ui.includes("method:'POST'"+' /api/member-sparks-chart'), 'Read-only diagnostics cannot redeem Sparks');
 assert(!ui.includes('/api/alpaca-paper'));
 assert(!ui.includes('localStorage.'));
 assert(!ui.includes('innerHTML='));
