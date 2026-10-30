@@ -226,5 +226,9 @@ try{
  assert.match(sql,/gu_mixed_qa_reconcile_v1/);
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.gu_mixed_qa_reserve_v1/);
  assert.doesNotMatch(sql,/UPDATE public\.groundup_question_pass_buckets/);
+ const replay=read('supabase/migrations/20261029_lumen_mixed_test_event_replay_guard_v1.sql');
+ assert.match(replay,/SIGNED_EVENT_REUSED_FOR_DIFFERENT_ORDER/);
+ const indexes=read('supabase/migrations/20261029_lumen_mixed_test_shadow_indexes_v1.sql');
+ assert.match(indexes,/gu_mixed_qa_events_intent_v1_idx/);
  console.log('PASS TEST mixed cash/Lumen: 0,40,80,286; signed paid, duplicate/replay, forged signature, full refund, zero-cash access, expiration, minimum, Owner step-up, no real-wallet access');
 }finally{globalThis.fetch=orig}
