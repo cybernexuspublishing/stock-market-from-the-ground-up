@@ -137,7 +137,7 @@
   });
   full.addEventListener('click',showFull);
   function currentStep(){return C.STEPS[step]}
-  const recent=()=>checkpoints.filter(x=>x.topic===topicId&&x.step===currentStep());
+  const recent=()=>checkpoints.filter(x=>x.topic===topicId&&x.step===currentStep()&&x.fictionalCase===caseId);
   function renderNarration(){
    const current=C.byId(topicId),stage=currentStep();
    indicator.textContent='Research action '+(step+1)+' of 8 · '+stage+
@@ -178,7 +178,7 @@
   overlay.addEventListener('change',()=>{seriesMode=overlay.value;draw()});
   function reveal(){
    if(visible>=bars.length)return;
-   if(currentStep()==='Practice'&&!recent().length){
+   if(currentStep()==='Practice'&&!recent().some(x=>x.cutoff===visible)){
     result.textContent='Document your initial practice observation before viewing another fictional candle.';
     response.focus();return;
    }
@@ -221,7 +221,7 @@
    const unique=new Set(checkpoints.map(x=>x.topic+'|'+x.step));
    reportText.textContent='Ungraded member-session evidence · '+unique.size+' distinct subject/action checkpoints across '+
     new Set(checkpoints.map(x=>x.topic)).size+' subjects · '+revisions.length+' written revisions · '+
-    reveals.length+' fictional bar reveals · '+selectedRecordCount+' authorized advanced candidate records supplied at mount. '+
+    reveals.length+' fictional bar reveals · '+selectedRecordCount+' member-owned watchlist records available on this page. '+
     'Not Yet Assessed remains the only formal mastery status shown here.';
    if(!checkpoints.length)history.append(make('li','No practice checkpoints yet. Start with Observe.'));
    for(const [key,count] of mistakes){
