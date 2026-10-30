@@ -5,7 +5,7 @@
 **File:** `docs/STRIPE_CLOUDFLARE_BINDING_MIGRATION_2026-10-30.md`  
 **File type:** Markdown  
 **Google Drive location:** Not assigned; authoritative copy is in GitHub `main`  
-**Version:** 1.2  
+**Version:** 1.3  
 **Status:** One redundant TEST secret removed after deployed provider account/price verification; remaining secret migration and webhook cutover pending  
 **Effective record date:** 2026-10-30  
 **Owner authorization:** Simplify Cloudflare Stripe variables without affecting merchant entitlements or other businesses  
@@ -59,3 +59,24 @@ Keep LIVE vs TEST API credentials separate. Keep separate LIVE GU58 and Founding
 | 1.0 | 2026-10-30 | Original canonical naming and legacy fallback strategy |
 | 1.1 | 2026-10-30 | Document actual catalog and origin consolidation, new TEST endpoint, 51-binding inventory and safe activation gate |
 | 1.2 | 2026-10-30 | Share existing GU39 TEST API key for Book I; remove duplicate Book TEST API secret; inventory 50 |
+
+## Option 2 completed: one active Stripe TEST webhook signing secret (2026-10-30)
+
+**Status:** Cloudflare and Stripe TEST configuration cutover completed; genuine signed-delivery and end-to-end membership/book fulfillment acceptance remain unverified.
+
+- Sole configured TEST webhook signing-secret variable: `STRIPE_TEST_WEBHOOK_SECRET` (encrypted; never disclose value).
+- Active Primary Stripe TEST webhook endpoint: `we_1UWNRSJY9FI7byHBHABdyP3R`, `https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-test-webhook`.
+- Old GU39 TEST endpoint `we_1UUf6eJY9FI7byHB0FuUEutL`: **disabled**.
+- Old Book TEST endpoint `we_1UVDdVJY9FI7byHB4uVM7t7d`: **disabled**.
+- Deleted Cloudflare secret bindings: `GU39_STRIPE_TEST_WEBHOOK_SECRET` and `GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET`.
+- All other existing encrypted secrets remained configured; the TEST API key `GU39_STRIPE_TEST_SECRET_KEY` remains unchanged.
+- Cloudflare Production now contains **48 variables**.
+- Prior automated tests for unified signature verification, test/live isolation, and separate Book versus GU39 routing were successful; do not describe these as genuine signed-provider delivery evidence.
+- `gu39_sandbox_settings.enabled` was verified as **false** and was **not changed**. GU39 membership shadow fulfillment therefore remains gated until separately authorized for testing. Book processing retains its independent validation and fulfillment contract.
+- LIVE Stripe endpoints and LIVE signing secrets were not modified by this cutover.
+
+### Revision history addition
+
+| Version | Date | Change |
+| --- | --- | --- |
+| 1.3 | 2026-10-30 | Enabled one unified TEST webhook, disabled two original Stripe TEST endpoints, removed both obsolete TEST webhook secret bindings. Production variable count 48. |
