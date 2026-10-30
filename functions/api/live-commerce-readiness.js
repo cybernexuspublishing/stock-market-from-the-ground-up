@@ -26,6 +26,20 @@ function parseMap(raw,expectedKeys){
  new Set(expectedKeys.map(k=>priceID(map[k]))).size!==expectedKeys.length)throw Error('BAD_CATALOG_MAP');
  return Object.fromEntries(expectedKeys.map(k=>[k,{product_id:productID(map[k]),price_id:priceID(map[k])}]));
 }
+// Existing 30/60 LIVE Founder mapping remains valid; 14-Day is an optional
+// independently launched offer. Keep the preflight fail-closed for an active
+// 14-Day storefront SKU if the corresponding LIVE catalog entry is absent.
+function parseFounderMap(raw){
+ let m;try{m=JSON.parse(setting(raw)||'{}')}catch{throw Error('BAD_FOUNDER_CATALOG')}
+ const required=['FOUNDING_30','FOUNDING_60'],allowed=['FOUNDING_14',...required];
+ const keys=m&&typeof m==='object'&&!Array.isArray(m)?Object.keys(m):[];
+ if(!required.every(k=>keys.includes(k))||keys.some(k=>!allowed.includes(k))||
+   !keys.every(k=>validateMapValue(m[k]))||
+   new Set(keys.map(k=>productID(m[k]))).size!==keys.length||
+   new Set(keys.map(k=>priceID(m[k]))).size!==keys.length)
+  throw Error('BAD_FOUNDER_CATALOG');
+ return Object.fromEntries(keys.map(k=>[k,{product_id:productID(m[k]),price_id:priceID(m[k])}]));
+}
 export async function onRequestGet({request,env}){
  const token=/^Bearer\s+(\S+)$/i.exec(request.headers.get('authorization')||'')?.[1];
  if(!token)return json({ok:false,error:'Owner sign-in required.'},401);
@@ -57,11 +71,15 @@ export async function onRequestGet({request,env}){
   if(!Array.isArray(store)||!Array.isArray(books)||!Array.isArray(founder)||
      !Array.isArray(planRows)||!Array.isArray(toolRows)||!Array.isArray(founderRows)||
      !Array.isArray(prices.data)||!Array.isArray(products.data)||!Array.isArray(hooks.data)||account.id!==accountID||
-     store.length!==60||prices.has_more===true||products.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
+     store.length<11||store.length>150||
+     new Set(store.map(x=>x.sku)).size!==store.length||
+     prices.has_more===true||products.has_more===true||hooks.has_more===true)throw Error('CATALOG_INCOMPLETE');
   const expected=['plan:FULL_MONTHLY','plan:FULL_ANNUAL','plan:LIFETIME','plan:ONDEMAND_MONTHLY',
    'tool:INTERACTIVE_LEARNING','tool:JOURNAL_ANALYTICS','tool:MARKET_SIMULATOR','tool:MARKET_TUTOR'];
   const m=parseMap(env.GU58_STRIPE_LIVE_CATALOG_JSON,expected);
-  const f=parseMap(env.GU_F600_LIVE_CATALOG_JSON,['FOUNDING_30','FOUNDING_60']);
+  const f=parseFounderMap(env.GU_F600_LIVE_CATALOG_JSON);
+  if(![...expected,'founding:FOUNDING_14','founding:FOUNDING_30','founding:FOUNDING_60']
+     .every(k=>store.some(s=>s.sku===k)))throw Error('REQUIRED_SKU_MISSING');
   const lookup=new Map(prices.data.map(x=>[x.id,x]));
   const productByID=new Map(products.data.map(x=>[x.id,x]));
   const mapped=[...Object.entries(m),...Object.entries(f)];
@@ -85,7 +103,7 @@ export async function onRequestGet({request,env}){
     const a=byTool.get(sku.slice(5));if(!a||a.active!==true||a.status!=='live')return null;
     return {amount:a.individual_price_cents,type:'recurring',interval:'month',count:1};
    }
-   const a=byFounder.get(sku);if(!a||![30,60].includes(a.term_days))return null;
+   const a=byFounder.get(sku);if(!a||![14,30,60].includes(a.term_days))return null;
    return {amount:a.price_cents,type:'recurring',interval:'day',count:a.term_days};
   };
   const priceContractVerified=mapped.every(([sku,x])=>{
