@@ -40,7 +40,7 @@ assert.equal(reviewed.researchHistory.length,2);
 assert.equal(reviewed.researchHistory.at(-1).kind,'EVIDENCE_CHECK');
 assert.equal(C.time('2099-01-01T12:00:00Z'),false,'future dates must fail');
 assert.equal(C.time('2026-10-28T10:00:00'),false,'timezone required');
-assert.throws(()=>C.checkpoint(first,{note:'source timeline wrong',at:'2099-01-01T00:00:00Z'}),/nonfuture/);
+assert.throws(()=>C.checkpoint(first,{note:'source timeline wrong',at:'2099-01-01T00:00:00Z'}),/timestamp with timezone/);
 const annotated=C.annotation(first,{kind:'INVALIDATION',at:now,price:155.22,note:'Manually entered resistance, source unverified.',timeframe:'5m'});
 assert.equal(annotated.chartAnnotations.length,1);
 assert.equal(annotated.chartAnnotations[0].verification,'MANUAL_ANNOTATION_NOT_LIVE_MARKET_DATA');
