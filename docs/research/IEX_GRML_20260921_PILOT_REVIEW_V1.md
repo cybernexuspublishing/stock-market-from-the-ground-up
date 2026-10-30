@@ -42,6 +42,18 @@
 - CI workflow: `.github/workflows/iex-grml-pilot-source-audit-v1.yml`. This CI uses synthetic fixtures, not the owner-held 10 GB original. Do not confuse passing fixture CI with live-source independent verification.
 - The owner-local original reconciliation report predates the new volume-audit schema. A fresh report with the corrected tool must be generated and checked before final private import; do **not** import the old report by bypassing checks.
 
+## Owner-local preliminary audit using the existing small JSON report
+The already generated five-stock reconciliation JSON can be reviewed **without re-reading the 10 GB archive**. The audit below writes only source identity, candle counts, source flag counts and trade/event discrepancy diagnostics. It never publishes price bars. It is NOT the final independent review; the corrected full-archive scanner must ultimately be rerun to produce unambiguous volume-only minute evidence before draft import.
+
+```powershell
+$toolsDir = "$env:USERPROFILE\Downloads\IEX_Private_Tools"
+New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
+Invoke-WebRequest "https://raw.githubusercontent.com/cybernexuspublishing/stock-market-from-the-ground-up/main/scripts/market-data/audit_existing_iex_five_symbol_report_v1.py" -OutFile (Join-Path $toolsDir "audit_existing_iex_five_symbol_report_v1.py")
+py (Join-Path $toolsDir "audit_existing_iex_five_symbol_report_v1.py") --input "$env:USERPROFILE\Downloads\IEX_20260921_five_symbol_review.json" --output "$env:USERPROFILE\Downloads\IEX_20260921_five_symbol_audit_summary.json"
+```
+
+If the summary reports an unexpected GRML event discrepancy or missing minute, the pilot stays on hold pending actual trade-level reconciliation. Share only the summary JSON for source-review discussion; preserve the original unabridged trade report privately.
+
 ## Rights and disclosures
 IEX's published Historical Data Terms expressly address distribution, subject to attribution, usage restrictions and indemnification. Confirm those terms apply to this exact member-facing paid educational presentation and whether any additional terms apply to the downloaded source before marking rights approved. Do not infer attorney approval.
 
