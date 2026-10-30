@@ -34,7 +34,7 @@ function renderGrmlLesson(completed){
  if(topic)topic.hidden=grml;
  if(copy)copy.hidden=grml;
  if(!grml)return;
- const guide=window.CrownlightGrmlTalia.describe({revealed:bars.length,completed,frame});
+ const guide=window.CrownlightGrmlTalia.describe({revealed:focus,completed,frame});
  panel.replaceChildren();
  if(!guide){
   panel.append(el('h4','', 'GRML · Lesson introduction'),
