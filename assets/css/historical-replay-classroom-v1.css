@@ -28,7 +28,7 @@
 .historical-classroom .hr-talia-col #vr-plan label{display:block;margin:10px 0}
 .historical-classroom .hr-talia-col #vr-plan select,.historical-classroom .hr-talia-col #vr-plan textarea,.historical-classroom .hr-talia-col #vr-plan input{max-width:100%;width:100%}
 .historical-classroom .hr-chart-col .journal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.historical-classroom .hr-original{border-top:1px solid #35536b;margin-top:18px;padding-top:15px}
+.historical-classroom .hr-grml-lesson{margin:10px 0;padding:12px;background:#11283d;border:1px solid #45627a;border-radius:10px}\n.historical-classroom .hr-grml-lesson .hr-grml-teach{color:#e0eaf4}\n.historical-classroom .hr-grml-lesson .hr-grml-evidence{border-left:3px solid #d9b05e;padding:8px 12px;background:#081e31;font-variant-numeric:tabular-nums}\n.historical-classroom .hr-grml-lesson .hr-grml-question{font-weight:650;color:#f3d9a0}\n.historical-classroom .hr-grml-options{display:grid;gap:8px}\n.historical-classroom .hr-grml-options .btn{text-align:left;white-space:normal;line-height:1.45;height:auto;min-height:43px;padding:10px 13px}\n.historical-classroom .hr-grml-options .btn[aria-pressed="true"]{outline:2px solid #d9b05e;outline-offset:2px}\n.historical-classroom .hr-grml-feedback,.historical-classroom .hr-grml-transfer{padding:9px 0;margin:8px 0;color:#d9e7f1}\n.historical-classroom .hr-original{border-top:1px solid #35536b;margin-top:18px;padding-top:15px}
 .historical-classroom .hr-original summary{cursor:pointer;color:#d1e8f7;font-size:.88rem}
 .historical-classroom .hr-original figure{margin:12px 0}
 .historical-classroom .hr-original table{width:100%;font-size:.75rem}
