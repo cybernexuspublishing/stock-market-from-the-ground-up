@@ -51,7 +51,7 @@ assert(!sources.tutor.includes("if($('tutor-ai-consent'))$('tutor-ai-consent').c
 assert(sources.instructor.includes('(t-last)*0.038'),'Teaching types slowly at about 38 characters per second');
 assert(instructorCss.includes('.gu-v33-instructor-narration')&&instructorCss.includes('overflow:visible!important'),
  'Typed lessons must not increase the page height');
-assert(sources.instructor.includes("el('button','Crownlight Sparks Wallet'"),'Crownlight Sparks wallet is third adjacent teaching tab');
+assert(sources.instructor.includes("el('button','Crownlight Lumens Wallet'"),'Crownlight Lumens wallet is third adjacent teaching tab');
 assert(sources.engine.includes('instructorInstance.setWalletContent(wallet)'));
 assert(sources.engine.includes('shell.insertBefore(support,nav.nextSibling)'),'Actions above tabs');
 assert(!sources.engine.includes("'Related official competencies: '"),
