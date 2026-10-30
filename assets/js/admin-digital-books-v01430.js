@@ -10,7 +10,9 @@ const friendlySaveError=value=>{
  const message=String(value||'Unknown publishing error');
  if(message.includes('KDP_EXCLUSIVITY_OR_RIGHTS_NOT_CLEARED'))return 'Sales cannot be enabled until KDP Select is OFF, distribution rights are acknowledged, and a verified KDP Select end date has been recorded in the past.';
  if(message.includes('DIGITAL_PROVIDER_VARIANT_AND_PRICE_REQUIRED'))return 'The selling configuration is missing a validated digital checkout provider variant or price. The book file and rights can be saved as a draft, but paid sales cannot be enabled until checkout mapping is configured.';
- if(message.includes('DIGITAL_SETTINGS_STALE'))return 'The product record changed since this editor opened. Reopen Edit and retry to avoid overwriting a newer update.';
+ if(message.includes('DIGITAL_SETTINGS_STALE'))return 'The book changed again during Save. Your publishing rights were not overwritten; retry after reviewing the latest record.';
+ if(message.includes('DIGITAL_SETTINGS_CONFLICT'))return 'Another session changed this book’s KDP, rights, sales, downloads, end date or primary file. No changes were overwritten. Reopen Edit to review.';
+ if(message.includes('DIGITAL_SETTINGS_AFTER_SAVE_CHANGED'))return 'Saved, but the publishing settings changed again. Reopen Edit to review the latest version.';
  if(message.includes('DIGITAL_SALE_REQUIRES_DOWNLOAD_FULFILLMENT'))return 'Enable purchased-book downloads before enabling direct digital sales.';
  if(message.includes('OWNER_AAL2_REQUIRED')||message.includes('PASSWORD_RECONFIRM_REQUIRED'))return 'Owner authorization or recent password confirmation is required. Reconfirm your Owner password and retry.';
  return message;
@@ -90,6 +92,60 @@ function mount(){
      rights:rights.checked,until:until.value,asset
     });
     let savedState=currentState();
+    // The server's optimistic concurrency token is catalog_products.updated_at.
+    // Preserve a snapshot of only publishing fields so unrelated catalog edits
+    // may be safely rebased, while true rights conflicts are never overwritten.
+    let catalogVersion=product.version;
+    const rightsSnapshot=row=>JSON.stringify([
+      !!row.kdpSelect,!!row.sales,!!row.downloads,!!row.rightsAttested,
+      row.exclusiveUntil?new Date(row.exclusiveUntil).getTime():null,
+      String(row.asset||'')
+    ]);
+    let rightsBaseline=rightsSnapshot(product);
+    const fetchVersion=async()=>{
+      const listing=await rpc(sb,'gu_owner_digital_books_get_v01430');
+      const latest=(listing.products||[]).find(p=>p.code===product.code);
+      if(!latest||!latest.version)throw Error('Could not verify the current book version. Reopen Edit.');
+      return latest;
+    };
+    const refreshVersion=async()=>{
+      const latest=await fetchVersion();
+      if(latest.version!==catalogVersion){
+        if(rightsSnapshot(latest)!==rightsBaseline)throw Error('DIGITAL_SETTINGS_CONFLICT');
+        catalogVersion=latest.version;
+      }
+      return latest;
+    };
+    const guardedRightsSave=async proposed=>{
+      await refreshVersion();
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          const result=await rpc(sb,'gu_owner_digital_books_save_v01430',
+            {...proposed,p_expected_updated_at:catalogVersion});
+          // Successful writes also advance the product updated_at token.
+          const latest=await fetchVersion();
+          catalogVersion=latest.version;
+          rightsBaseline=rightsSnapshot({
+            kdpSelect:proposed.p_kdp_select,sales:proposed.p_sales,
+            downloads:proposed.p_downloads,rightsAttested:proposed.p_rights_attested,
+            exclusiveUntil:proposed.p_exclusive_until,asset:proposed.p_asset_path
+          });
+          if(rightsSnapshot(latest)!==rightsBaseline)
+            throw Error('DIGITAL_SETTINGS_AFTER_SAVE_CHANGED');
+          return result;
+        }catch(e){
+          if(attempt!==0||!String(e?.message||'').includes('DIGITAL_SETTINGS_STALE'))throw e;
+          // Exactly one retry after verifying protected fields are unchanged.
+          await refreshVersion();
+        }
+      }
+    };
+    const syncEditorVersion=async()=>{
+      const latest=await fetchVersion();
+      if(rightsSnapshot(latest)!==rightsBaseline)return false;
+      catalogVersion=latest.version;
+      return true;
+    };
     const saveControls=async({draft=false,reload=true}={})=>{
      if(busy)throw Error('Another book operation is still running. Finish it before saving.');
      const intendsSales=!draft&&(sales.checked||downloads.checked);
@@ -106,12 +162,11 @@ function mount(){
       if(!window.GroundUpAdminPasswordConfirm?.ensure)
        throw Error('Owner password confirmation is unavailable; publishing was not attempted.');
       await window.GroundUpAdminPasswordConfirm.ensure();
-      await rpc(sb,'gu_owner_digital_books_save_v01430',{
+      await guardedRightsSave({
        p_code:product.code,p_kdp_select:kdp.checked,
        p_exclusive_until:until.value?new Date(until.value).toISOString():null,
        p_sales:draft?false:sales.checked,p_downloads:draft?false:downloads.checked,
-       p_rights_attested:rights.checked,p_asset_path:asset,
-       p_expected_updated_at:product.version
+       p_rights_attested:rights.checked,p_asset_path:asset
       });
       if(draft){sales.checked=false;downloads.checked=false}
       const parentDigital=document.getElementById('dlg-p-dd');
@@ -151,11 +206,11 @@ function mount(){
       const path=candidates[0].path;
       if(typeof path!=='string'||!new RegExp('^'+product.code+'/[a-f0-9-]{36}[.]epub$').test(path))
        throw Error('Unexpected private EPUB path.');
-      await rpc(sb,'gu_owner_digital_books_save_v01430',{
+      await guardedRightsSave({
        p_code:product.code,p_kdp_select:kdp.checked,
        p_exclusive_until:until.value?new Date(until.value).toISOString():null,
        p_sales:false,p_downloads:false,p_rights_attested:rights.checked,
-       p_asset_path:path,p_expected_updated_at:product.version
+       p_asset_path:path
       });
       asset=path;sales.checked=false;downloads.checked=false;
       rowStatus.textContent='Primary private EPUB assigned; customer downloads and sales remain OFF.';
@@ -244,7 +299,7 @@ function mount(){
     // Reuse the existing guarded uploader inside Products > Books > Edit.
     // The selected book card moves to the editor; other books remain in Commerce.
     if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
-     activeEditorControls={code:product.code,hasPending:()=>currentState()!==savedState,save:()=>saveControls({reload:false}),sales:()=>sales.checked};
+     activeEditorControls={code:product.code,hasPending:()=>currentState()!==savedState,save:()=>saveControls({reload:false}),sales:()=>sales.checked,sync:syncEditorVersion};
      editorTarget.replaceChildren(card);
     }else list.append(card);
    }
@@ -265,6 +320,7 @@ function mount(){
   window.GroundUpDigitalBooks={
    hasPendingEditorChanges(code){return activeEditorControls?.code===code&&activeEditorControls.hasPending()},
    currentSales(code){return activeEditorControls?.code===code?activeEditorControls.sales():null},
+   async syncEditorVersion(code){if(activeEditorControls?.code!==code)return false;return activeEditorControls.sync()},
    async saveEditor(code){if(activeEditorControls?.code!==code)throw Error('Protected eBook editor is not loaded. Open Edit again.');return activeEditorControls.save()},
    async mountEditor(code,host){
     if(!/^[A-Z0-9_]{3,90}$/.test(code)||!host?.isConnected)
