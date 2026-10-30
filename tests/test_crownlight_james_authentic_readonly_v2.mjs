@@ -61,6 +61,14 @@ try{
  assert.equal(tier.status,200);assert.equal(tier.body?.tier,'PROFESSIONAL');
  assert.deepEqual(tier.body?.allowed,['STANDARD','ADVANCED','PROFESSIONAL']);
  results.realTier=true;mark('PASS','Signed-in production browser / verified Professional tier (Admin override)');
+ // The site deliberately starts with NO candles. Do not call that a render
+ // failure: select the existing Free/CSV practice view and load the
+ // original, client-side fictional starter before inspecting real canvases.
+ await page.locator('#sim-mode-csv').click();
+ await page.locator('#sim-load-fictional').waitFor({state:'visible',timeout:15000});
+ await page.locator('#sim-load-fictional').click();
+ await page.waitForFunction(()=>(window.CrownlightChartTiers?.getRevealedBars?.()||[]).length>=2,
+  null,{timeout:15000});
  await page.waitForFunction(()=>{
   const charts=window.CrownlightChartTiers?.getInstances?.()||[];
   return charts.some(x=>x?.chart&&x.chart.getDataList()?.length>=2&&
