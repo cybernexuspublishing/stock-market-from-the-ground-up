@@ -125,7 +125,7 @@ function inspectFormativeReasoning(plan,response){
   ' Use your own explanation; you may retry or ask Talia for another example.'};
  return {status:'supported',message:'Your explanation includes the central observations for this guided example. This is an ungraded understanding check, not independent assessment or mastery.'};
 }
-function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending}={}){
+function create({stage=0,subject='market evidence',concept='',requestTutor,seen=false,lessonContext={},memberFirstName='',allowTutorAI=true,initialReflection='',onReflection,questions=[],initialAnswers=[],onAnswer,onComplete,onUnderstandingPassed,onCreditAction,onCreditPending,guidedAutoplay=false}={}){
  if(!SAFE_STAGES.has(stage))return null;
  const rootEl=el('section',undefined,'gu-v33-instructor');
  rootEl.setAttribute('aria-label','Talia, learning instructor and Market Tutor');
@@ -246,6 +246,8 @@ function create({stage=0,subject='market evidence',concept='',requestTutor,seen=
   reflection.value=String(saved[questionIndex]||(!saved.length&&questionIndex===0?initialReflection:''));
   reply.textContent='';memberQuestion.textContent='';
   submitReflection.disabled=false;
+  submitReflection.textContent=guidedAutoplay&&stage>1&&stage<8&&questionIndex===prompts.length-1?
+   'Close & Next — Submit answer':'Submit answer';
  }
  let submitting=false,finished=false,featureLesson=null,featurePhase=0,understandingMode=false;
  const submit=async()=>{

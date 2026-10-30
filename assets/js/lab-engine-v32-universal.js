@@ -600,7 +600,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     stage,subject:topic,concept:topic,
     lessonContext:{visualType,guide,subject,teaching:authorizedTeaching,topicSource,
       labId,bridge:map.bridges.get(labId)},
-    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),
+    memberFirstName,allowTutorAI,requestTutor:tutorRequest,seen:narratedStages.has(stage),guidedAutoplay:guidedAuto,
     questions:instructorQuestions(stage),initialAnswers:learnerReplies.get(stage)||[],
     onAnswer:receiveInstructorAnswer,
     onCreditPending:busy=>{creditBusy=busy===true;previous.disabled=creditBusy||stage===0;next.disabled=creditBusy||stage===8},
