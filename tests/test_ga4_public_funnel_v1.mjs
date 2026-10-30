@@ -6,7 +6,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 
 const source=readFileSync('assets/js/ga4-consent-v1.js','utf8');
-function scenario(preference){
+function scenario(preference,pendingSignup=null){
   const listeners={};
   const nodes=[];
   function element(tag){
@@ -32,9 +32,14 @@ function scenario(preference){
     getItem:()=>preference,
     setItem(){throw new Error('No simulated preference updates needed');}
   };
+  const pending={value:pendingSignup};
+  const sessionStorage={
+    getItem:()=>pending.value,
+    removeItem(){pending.value=null;}
+  };
   const location={origin:'https://example.test',pathname:'/',reload(){throw new Error('Unexpected navigation');}};
-  runInNewContext(source,{document,window,localStorage,location,URL,Date,encodeURIComponent}, {timeout:1000});
-  return {listeners,window,head,nodes};
+  runInNewContext(source,{document,window,localStorage,sessionStorage,location,URL,Date,encodeURIComponent}, {timeout:1000});
+  return {listeners,window,head,nodes,sessionStorage};
 }
 function click(env,url){
   const target={closest(){return {href:url};}};
@@ -68,4 +73,20 @@ assert(events.every(x=>Object.keys(x[2]).sort().join(',')==='content_type,item_i
 assert(!JSON.stringify(events).includes('private@example.test'),'No email may enter event data');
 assert(!JSON.stringify(events).includes('SECRET'),'No URL parameters may enter event data');
 assert(!events.some(x=>x[1]==='sign_up'||x[1]==='purchase'),'Intent must not count as a confirmed conversion');
-console.log('PASS GA4 public funnel: opt-in only, no PII, same-origin allowlist, no false conversions');
+const signup=readFileSync('assets/js/signup.js','utf8');
+assert(signup.indexOf('if(!response.ok||result.ok!==true)') < signup.indexOf("sessionStorage.setItem('smfgu_pending_signup_v1'"),
+ 'Signup success must be verified by the server before event is queued');
+const sensitivePage=readFileSync('create-account.html','utf8');
+assert(!sensitivePage.includes('ga4-consent-v1.js'),'No public GA4 loader on account form');
+
+const recent=scenario('granted',String(Date.now()));
+const completes=namedEvents(recent);
+assert.deepEqual(completes.map(x=>x[1]),['sign_up']);
+assert.deepEqual(Object.keys(completes[0][2]),['method']);
+assert.equal(completes[0][2].method,'email');
+assert.equal(recent.sessionStorage.getItem('smfgu_pending_signup_v1'),null,'Consume marker only once');
+const stale=scenario('granted',String(Date.now()-20*60*1000));
+assert.equal(namedEvents(stale).length,0,'Stale account-creation intent must not count');
+const deniedCompletion=scenario('denied',String(Date.now()));
+assert.equal(namedEvents(deniedCompletion).length,0,'Do not transmit signup without consent');
+console.log('PASS GA4: opt-in public intents, confirmed signup handoff, 15-minute expiry, no PII, no purchase fabrication');
