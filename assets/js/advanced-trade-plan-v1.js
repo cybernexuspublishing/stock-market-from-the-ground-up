@@ -162,9 +162,10 @@
   const steps=[
    ['research','1. Research & Evidence'],
    ['risk','2. Risk & Targets'],
-   ['review','3. Review & Save'],
-   ['timeline','4. Catalyst-to-Chart'],
-   ['history','5. Saved Versions']
+   ['orders','3. Order Lifecycle'],
+   ['review','4. Review & Save'],
+   ['timeline','5. Catalyst-to-Chart'],
+   ['history','6. Saved Versions']
   ];
   const sections={};
   for(const [id,label] of steps){
@@ -243,6 +244,15 @@
   const scaleOutput=make('div',undefined,'tp-scaleout');
   sections.risk.append(buttonRow,output,error,make('h3','Multi-target scale-out scenario'),
    make('p','Allocate 100% of modeled whole shares across actual target prices. Gross results exclude fees and execution uncertainty.','small'),scaleOutput,chart,riskFoot,riskNote);
+  // A separate first-party educational order-state machine; it never
+  // writes to Journal, member workspace, a broker, or local storage.
+  const orderModel=root.GroundUpTradePlanOrderLifecycleV1;
+  if(orderModel?.mount)orderModel.mount({
+   host:sections.orders,
+   readPlan:()=>calculate(read()),
+   alive
+  });
+  else sections.orders.append(make('p','Order practice is temporarily unavailable; research and saved plans remain usable.','tp-alert'));
   function calculatePreview(){
    const inputs=read(),r=calculate(inputs);planResult=r;output.replaceChildren();
    if(!r.ok){error.textContent=r.error;return r}
