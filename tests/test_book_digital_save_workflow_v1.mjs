@@ -11,5 +11,8 @@ for(const mark of ['KDP_EXCLUSIVITY_OR_RIGHTS_NOT_CLEARED','DIGITAL_PROVIDER_VAR
 assert(parent.includes('GroundUpDigitalBooks.saveEditor(bookCode)'),'Main Save must persist changed eBook rights first');
 assert(parent.includes("id=\"dlg-p-dd\" type=\"checkbox\""),'Main book sell control must remain visible as status');
 assert(parent.includes("checked':''} disabled> Direct digital sales status"),'Main book edit cannot bypass guarded eBook publishing');
+assert(parent.includes('<input type="hidden" id="dlg-p-ddurl"'), 'Legacy direct digital checkout URL must be hidden from the Stripe-managed book editor');
+assert(!parent.includes('<label>Direct digital checkout URL</label>'), 'Do not display redundant manual book checkout URL');
+assert(parent.includes("direct_digital_checkout_url:document.getElementById('dlg-p-ddurl').value"), 'Preserve stored legacy URL on Admin Save');
 assert(!/p_sales:true,p_downloads:true/.test(source),'No automatic LIVE sales activation');
 console.log('PASS admin book save: main Save coordinates protected rights, clear KDP/provider errors, draft save with sales OFF');
