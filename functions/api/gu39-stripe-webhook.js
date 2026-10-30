@@ -116,10 +116,12 @@ export async function onRequestPost({request,env}){
  if(!enabled)return respond('OWNER_TEST_MODE_DISABLED',503);
  try{
   // Signed TEST Stripe proof is required before isolated Lumen shadow settlement.
-  const mixed=await handleLumenMixedTest(event,env);
-  if(mixed)return respond(mixed.body,mixed.status);
+  // Classify ad-tagged TEST events before the mixed-payment adapter.
+  // Both adapters still verify provider/payment intent bindings independently.
   const ad=await handleAdSandbox(event,env);
   if(ad)return respond(ad.body,ad.status);
+  const mixed=await handleLumenMixedTest(event,env);
+  if(mixed)return respond(mixed.body,mixed.status);
   const founder=await handleFounderSandbox(event,env);
   if(founder)return respond(founder.body,founder.status);
   const payload=await translate(env,event);if(!payload)return respond('IGNORED',200);

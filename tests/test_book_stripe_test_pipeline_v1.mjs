@@ -9,7 +9,7 @@ const id='d01d1d1d-1d1d-41d1-81d1-1d1d1d1d1d1d',uid='0a507eeb-e9ff-44a2-b61e-c53
 const sid='cs_test_qa261027',pi='pi_qa261027',charge='ch_qa261027',secret='whsec_dummy_test_secret_12345';
 const path=BOOK_CODE+'/f489c372-247e-4883-9688-88c27b54a6d9.epub';
 const env={GU_BOOK_STRIPE_TEST_ENABLED:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_123456789012345678',
- GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET:secret,SUPABASE_URL:'https://test.supabase.co',
+ STRIPE_TEST_WEBHOOK_SECRET:secret,SUPABASE_URL:'https://test.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test'};
 const res=(x,s=200)=>Response.json(x,{status:s});
 const req=(route,body,auth=true)=>new Request('https://site.example'+route,{method:'POST',headers:{
