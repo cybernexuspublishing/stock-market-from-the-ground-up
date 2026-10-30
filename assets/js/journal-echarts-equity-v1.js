@@ -19,7 +19,7 @@
    cumulative.push(value);
    peak=Math.max(peak,value);
    const deficit=Math.max(0,peak-value);
-   drawdown.push(-Number(deficit.toFixed(2)));
+   drawdown.push(deficit===0?0:-Number(deficit.toFixed(2)));
    maximumDrawdown=Math.max(maximumDrawdown,deficit);
   }
   return {dates,cumulative,drawdown,maximumDrawdown:Number(maximumDrawdown.toFixed(2)),
