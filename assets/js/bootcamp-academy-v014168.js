@@ -105,33 +105,23 @@
   const access=academyBrowseRights?.training===true;
   for(const p of programs){
    const card=node('article');card.id='academy-program-'+p.code;
-   card.className='academy-program'+(p.code===activeCode?' academy-program--active':'')+(access?'':' academy-program--locked');
-   const duration=node('span',p.days+'-day Boot Camp · '+p.level);duration.className='academy-duration';
-   const heading=node('h3',p.title),description=node('p',p.summary);
-   const image=node('img');image.className='academy-program-image';
-   image.src='/assets/images/skill-illustrations/'+programIllustration[p.code]+'.svg';
-   image.alt='Conceptual illustration for '+p.title+'; not historical market data';
-   image.loading='lazy';image.width=144;image.height=132;
-   const note=node('p',access?
-    'Available with your verified training entitlement. Lessons are ungraded unless separately reviewed.':
-    '🔒 Requires a verified training entitlement. Current prices and purchase availability are shown on the product page.');
-   note.className='small';
-   if(!access){const lock=node('span','🔒');lock.className='gu-academy-lock';
-    lock.setAttribute('aria-hidden','true');heading.append(lock);}
-   const action=node('a',access?(p.code==='foundations30'?'Open 30-day Boot Camp':'Open this Boot Camp'):
-    'View Boot Camp access options');
-   action.className='btn secondary';
-   action.href=access?(p.code==='foundations30'?'bootcamp.html':
+   card.className='academy-program academy-program--compact'+
+    (p.code===activeCode?' academy-program--active':'')+
+    (access?'':' academy-program--locked');
+   const destination=access?(p.code==='foundations30'?'bootcamp.html':
     'bootcamp-academy.html?program='+encodeURIComponent(p.code)):
     'store-membership-ondemand-monthly.html';
-   action.setAttribute('aria-label',access?'Open '+p.title:'View purchasing and access options for '+p.title);
-   // The whole card opens the same entitlement-safe destination as the
-   // explicit link, including when the member clicks the course name.
-   card.append(image,duration,heading,description,note,action);
-   card.addEventListener('click',event=>{
-    if(event.target.closest('a,button,input'))return;
-    location.assign(action.href);
-   });
+   const link=node('a');link.className='academy-program-compact-link';
+   link.href=destination;
+   link.setAttribute('aria-label',access?'Open '+p.title+', '+p.code:
+    'Locked Boot Camp '+p.title+', '+p.code+'. View training access options.');
+   link.append(node('span',p.title));
+   const id=node('span',p.code);id.className='academy-program-compact-id';link.append(id);
+   if(!access){
+    const lock=node('span','🔒');lock.className='gu-academy-lock';
+    lock.setAttribute('aria-hidden','true');link.append(lock);
+   }
+   card.append(link);
    root.append(card);
   }
   filterAcademyCatalog();

@@ -103,29 +103,19 @@
    const item=document.createElement('article');
    item.className='gu-picker-item'+(locked?' gu-picker-locked':'');
    item.dataset.access=state;
-   const info=document.createElement('div');info.className='gu-picker-info';
-   const line=document.createElement('div');line.className='gu-picker-heading';
-   if(locked){const nameLock=text('span','🔒','gu-picker-lock');nameLock.setAttribute('aria-hidden','true');line.append(nameLock)}
-   line.append(text('strong',row.title));
-   const id=text('span',row.id,'gu-picker-id');line.append(id);
-   const badge=text('span',state==='available'?'Available':state==='upcoming'?'Not released':'Locked','gu-picker-access');
-
-   line.append(badge);info.append(line);
-   const meta=[row.skill?('Skill: '+row.skill):'',row.ticker?('Ticker: '+row.ticker):'',
-    row.days?(row.days+' days'):'',row.book?('Book '+row.book):''].filter(Boolean);
-   info.append(text('p',meta.join(' · '),'gu-picker-meta'));
    const destination=locked?productPage(row):'lab-player.html?lab='+encodeURIComponent(row.id);
-   const link=text('a',locked?(state==='upcoming'?'View related product':'View Lab access options'):'Open Lab','gu-picker-action');
+   const link=text('a','', 'gu-picker-action gu-picker-row-link');
    link.href=destination;
-   link.setAttribute('aria-label',(locked?'Locked Lab: view related product and access options for ':'Open Lab ')+row.title);
-   if(state==='upcoming')link.title='Upcoming Lab. The product page determines whether a purchase is currently possible.';
-   item.append(info,link);
-   // Clicking the noninteractive portion of the result follows its existing
-   // accessible action; no client-side permission is inferred from the click.
-   item.addEventListener('click',event=>{
-    if(event.target.closest('a,button,input'))return;
-    window.location.assign(link.href);
-   });
+   link.setAttribute('aria-label',locked?
+    'Locked '+row.title+', '+row.id+'. View related product and access options.':
+    'Open '+row.title+', '+row.id);
+   if(state==='upcoming')link.title='Unreleased Lab. Product access and availability must be verified independently.';
+   link.append(text('span',row.title,'gu-picker-name'),text('span',row.id,'gu-picker-id'));
+   if(locked){
+    const lock=text('span','🔒','gu-picker-lock');lock.setAttribute('aria-hidden','true');link.append(lock);
+   }
+   // The title and ID are the only visible text. Skills and ticker remain searchable.
+   item.append(link);
    list.append(item);
   }
   host.append(list);
