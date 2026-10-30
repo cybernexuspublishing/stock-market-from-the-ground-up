@@ -93,7 +93,7 @@
   }catch(e){
    accountReady=false;
    note.textContent=(e.message||'Order status unknown.')+
-    ' Refresh your Alpaca PAPER account before retrying. The SAME order ID will be reused.';
+    ' Refresh your Alpaca PAPER account before retrying. The same request ID will be reused, never a new order ID.';
   }finally{sending=false;button.disabled=!accountReady}
  }
  function initialize(config={}){
