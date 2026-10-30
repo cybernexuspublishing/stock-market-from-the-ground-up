@@ -105,3 +105,24 @@
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 1.1 | 2026-10-29 | Added production Cloudflare logs, aggregated Academy records, GA4/Search Console reporting check, and precise remaining browser/QA gates | Production build accepted; end-to-end acceptance pending |
+
+
+## Production browser acceptance — 2026-10-29 local / 2026-10-30 UTC
+
+**Exact real-browser evidence:**
+
+- GitHub Actions workflow: `.github/workflows/public-acquisition-live-acceptance-v1.yml`; run `40991146258`.
+- Anonymous production Chromium public-pages job: **PASS**, 30/30 checks, 15 source-whitelisted public routes at 390px and 1440px. Tested real HTTP responses, page headings and readable content, canonical tags, unique descriptions, source navigation links, mobile viewport, noindex exclusion and horizontal overflow. Log marker: `PRODUCTION_PUBLIC_15 {"checks":30,"passed":30,"failed":0}`.
+- Genuine Free Foundations browser: run `40991590637`. Real QA sign-in and account-bound Supabase session verified. Private `free5` program GET returned five lessons. Day 1 opened through the production UI, an explicitly fictional ungraded reflection was saved through the UI, survived full browser reload, and was returned on a separate authenticated API GET. Unsigned private API GET was rejected. Log marker: `FREE5_PRODUCTION_QA {"checks":6,"blocked":1,"failed":0,"complete":false}`.
+- Independent Supabase read-only verification: `gu_bootcamp_academy_progress_v014168` contains one `free5` row with `status='reflection_saved'` following the UI acceptance run, timestamp `2026-10-30 02:26:30.776559+00`.
+- Genuine **second-member isolation** is the single open gate within this two-item acceptance batch: the test requires a second existing noncommercial QA account in GitHub Secrets `LAB_QA_SECOND_EMAIL` and `LAB_QA_SECOND_PASSWORD`. Anonymous rejection and server RLS/API ownership checks are not equivalent to a second real member session. Do not claim 100% authentication-isolation acceptance.
+- A previous live QA run encountered a case-sensitive heading assertion (`Lesson 1 of 5` vs displayed `LESSON 1 OF 5`); that test-only mismatch was corrected. The latest script safely recognizes the previously saved fictional QA reflection on subsequent runs instead of overwriting member data.
+- No paid Stripe transactions, book entitlements, mastery awards, other members' reflections, or privileged provider credentials were modified.
+
+**Current classification:** Public-page desktop/mobile acceptance **PASSED**; Free Foundations authenticated Day 1 save/reload **PASSED**; anonymous privacy denial **PASSED**; second-member isolation **PENDING NONCOMMERCIAL QA IDENTITY**.
+
+## Revision history addendum — production browser
+
+| Version | Date | Change | Status |
+|---|---|---|---|
+| 1.2 | 2026-10-29 | Verified 30/30 live public browser checks, actual QA Day 1 save/reload, Supabase persistence and anonymous denial; separated unavailable second-account isolation | Public browser and progress accepted; full member isolation open |
