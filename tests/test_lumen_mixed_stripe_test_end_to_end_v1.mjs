@@ -11,7 +11,7 @@ const env={SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',
  GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_fake',
  GU39_STRIPE_TEST_WEBHOOK_SECRET:'whsec_example_valid_test_only'};
 let owner=true,stepup=true,mode=true,wallet=0,sessions=new Map(),intents=new Map(),
- access=new Map(),events=new Set(),stripeCreates=0,realWalletRequests=0;
+ access=new Map(),events=new Set(),stripeCreates=0,realWalletRequests=0,rejectNextStripeCheckout=false;
 const send=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 const urlpath=url=>new URL(url).pathname;
 const orig=globalThis.fetch;
@@ -104,6 +104,11 @@ globalThis.fetch=async(url,opts={})=>{
   return send({id:'price_1UW4f3JY9FI7byHBWiVEFL8Z',product:'prod_VX8wHOixVrXRMd',
    livemode:false,active:true,unit_amount:1999,currency:'usd',type:'one_time'});
  if(path==='/v1/checkout/sessions'&&method==='POST'){
+  if(rejectNextStripeCheckout){
+   rejectNextStripeCheckout=false;
+   return send({error:{type:'invalid_request_error',code:'parameter_unknown',
+    param:'managed_payments[enabled]'}},400);
+  }
   stripeCreates++;
   assert.equal(form.get('managed_payments[enabled]'),'true','TEST Checkout must match GU39 Managed Payments');
   const id='cs_test_QA'+stripeCreates+'abcde',intentId=form.get('client_reference_id');
@@ -212,6 +217,42 @@ try{
  assert.equal(result.body.expired,true);
  h=await event('checkout.session.expired',si,'evt_QAexpire123456');
  assert.equal(h.status,200);assert.equal(wallet,80);
+ // A provider checkout rejection leaves a reserved order; the Owner must be
+ // able to resume it with the SAME request ID and without double-spending.
+ result=await post('seed',{balance:80});assert.equal(result.body.available,80);
+ id='cccccccc-cccc-4ccc-8ccc-000000000005';
+ const beforeIntents=intents.size,beforeSessions=stripeCreates;
+ rejectNextStripeCheckout=true;
+ result=await post('checkout',{requestId:id,lumens:64});
+ assert.equal(result.status,409);
+ assert.match(result.body.error,/STRIPE_TEST_CHECKOUT_REJECTED/);
+ assert.equal(wallet,16);
+ assert.equal(intents.size,beforeIntents+1);
+ assert.equal(stripeCreates,beforeSessions);
+ // Resume after failure reuses the original reservation despite only 16
+ // remaining shadow Lumens: no new wallet debit or duplicate intent.
+ result=await post('checkout',{requestId:id,lumens:64});
+ assert.equal(result.body.ok,true);
+ assert.equal(result.body.cashDueCents,1551);
+ assert.equal(wallet,16);
+ assert.equal(intents.size,beforeIntents+1);
+ const recoveryIntent=[...intents.values()].at(-1);
+ assert.equal(recoveryIntent.status,'bound');
+ result=await post('expire',{intentId:recoveryIntent.id});
+ assert.equal(result.body.expired,true);
+ const recoverySession=[...sessions.values()].at(-1);
+ h=await event('checkout.session.expired',recoverySession,'evt_QArecoveryExpire123456');
+ assert.equal(h.status,200);assert.equal(wallet,80);
+ // The UI must draw the ledger BEFORE rejecting the preview's Lumen input.
+ const sourceJs=readFileSync(new URL('../assets/js/owner-lumen-mixed-test-v1.js',import.meta.url),'utf8');
+ const sourceHtml=readFileSync(new URL('../admin-lumen-mixed-test.html',import.meta.url),'utf8');
+ const drawSection=sourceJs.slice(sourceJs.indexOf('function draw(){'),sourceJs.indexOf('function renderHistory(){'));
+ assert.ok(drawSection.indexOf('renderHistory();')>=0);
+ assert.ok(drawSection.indexOf('renderHistory();')<drawSection.indexOf('if(!Number.isSafeInteger(used)'));
+ assert.match(sourceJs,/Resume TEST checkout/);
+ assert.match(sourceJs,/requestId:item.request_id/);
+ assert.match(sourceHtml,/<select id="qa-intent"/);
+ assert.match(sourceHtml,/id="qa-history-empty"/);
  // No non-Owner can access the QA checkout.
  owner=false;result=await post('seed',{balance:10});
  assert.equal(result.status,403);owner=true;
