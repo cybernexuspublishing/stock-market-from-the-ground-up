@@ -1,0 +1,46 @@
+name: Crownlight James_Test Genuine Browser, Privacy & BYO Data Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_crownlight_james_authentic_readonly_v2.mjs'
+      - '.github/workflows/crownlight-james-authentic-readonly-v2.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crownlight-james-genuine-readonly-v2
+  cancel-in-progress: false
+jobs:
+  legitimate-member-acceptance:
+    name: Password-authenticated James_Test production browser and BYO sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate test source and required encrypted credentials
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: |
+          node --check tests/test_crownlight_james_authentic_readonly_v2.mjs
+          if test -z "$LAB_QA_EMAIL" || test -z "$LAB_QA_PASSWORD"; then
+            echo "BLOCKED: encrypted James_Test QA credentials not configured; cannot pretend authenticated acceptance."
+            exit 2
+          fi
+      - name: Install pinned free Chromium browser
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Real login, private workspace, distinct-account isolation and provider OHLCV
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+          CROWN_QA_FREE_EMAIL: ${{ secrets.CROWN_QA_FREE_EMAIL }}
+          CROWN_QA_FREE_PASSWORD: ${{ secrets.CROWN_QA_FREE_PASSWORD }}
+        run: node tests/test_crownlight_james_authentic_readonly_v2.mjs
