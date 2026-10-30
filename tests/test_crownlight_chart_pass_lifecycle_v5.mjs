@@ -65,7 +65,7 @@ try{
  passExpiry=past;
  const forged=await passes({request:req('POST',{
   sku:'CHART_ADVANCED_DAY',requestId:uuid,expectedCost:6,userId:other}),env});
- assert.equal(forged.status,409===forged.status?409:400);
+ assert.equal(forged.status,400,'Unexpected client wallet/user overrides must be rejected');
  assert.equal(rpcCalls,0,'Client-chosen user ID must not reach privileged RPC');
  const wrongOrigin=await passes({request:req('POST',{
   sku:'CHART_ADVANCED_DAY',requestId:uuid,expectedCost:6},
