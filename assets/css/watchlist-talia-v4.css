@@ -45,3 +45,14 @@
 @media(max-width:460px){.cl-talia-head{align-items:flex-start}.cl-talia-chart{height:305px}
  .cl-talia-metrics{grid-template-columns:1fr}.cl-talia-selectors label{flex-basis:100%}}
 @media(prefers-reduced-motion:reduce){.cl-talia-v4 *{animation:none!important;transition:none!important}}
+
+/* Context-specific arithmetic stays subordinate to Talia's selected lesson. */
+.cl-talia-calculators[hidden],.cl-talia-math[hidden]{display:none!important}
+.cl-talia-calculators{display:grid;gap:14px;margin:14px 0}
+.cl-talia-math{background:#112d40;border:1px solid #446d85;border-radius:11px;padding:17px}
+.cl-talia-math p{font-size:.87rem}
+.cl-talia-number-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}
+.cl-talia-v4 .cl-talia-number-fields label{display:flex;flex-direction:column;align-items:stretch;gap:5px;font-size:.85rem}
+.cl-talia-number-fields input{width:100%;box-sizing:border-box;min-height:39px;border:1px solid #537a90;
+ border-radius:7px;background:#081a29;color:#f3f7fa;padding:8px}
+.cl-talia-calc-output{background:#092333;border-left:3px solid #c7b179;border-radius:5px;padding:10px;color:#e0f1f8!important}
