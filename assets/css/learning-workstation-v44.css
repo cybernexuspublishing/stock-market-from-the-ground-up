@@ -1,0 +1,117 @@
+/* SMFGU-LAB-UX-STD-002 v4.4 | Approved design applied to existing engine.
+   Presentation only: never alters server grading, entitlement, replay or Lumen APIs.
+   Horizontal workstation on desktop; chart comes first in accessible DOM order. */
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33 {
+ --gu-v44-deep:#061520;--gu-v44-panel:#0d2638;--gu-v44-line:#34536a;
+ --gu-v44-ink:#eaf3fb;--gu-v44-mint:#51d5b0;--gu-v44-gold:#ecc77e;
+ background:var(--gu-v44-deep)!important;border:1px solid var(--gu-v44-line)!important;
+ border-radius:15px!important;color:var(--gu-v44-ink);padding:clamp(12px,1.4vw,23px)!important;min-width:0;
+}
+body.gu-lab-member .shell,body.gu-lab-member .gu-lab-breadcrumb{max-width:none!important}
+body.gu-lab-member #lab-player-content{max-width:none;width:100%;min-width:0}
+body.gu-lab-member #lab-player-content .gu-ws{min-width:0}
+body.gu-lab-member #player-stage-grid, body.gu-bc-learning #academy-lab-slot .gu-v33-journey {
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:7px!important;border:0!important;border-radius:10px!important;
+ background:transparent!important;padding:9px 0!important;margin:0 0 15px!important;
+ list-style:none!important
+}
+body.gu-lab-member #player-stage-grid .stage-item,
+body.gu-bc-learning #academy-lab-slot .gu-v33-journey li{
+ min-width:0!important;background:#112b3c!important;border:1px solid #304b60!important;
+ border-radius:8px!important;padding:9px 11px!important;display:flex!important;align-items:center!important;
+ gap:9px!important;color:#b6c9d9!important;font:500 clamp(.76rem,.8vw,.9rem)/1.4 system-ui,sans-serif!important;
+ white-space:normal!important;text-align:left!important
+}
+body.gu-lab-member #player-stage-grid .stage-item.current,
+body.gu-bc-learning #academy-lab-slot .gu-v33-journey li.current{
+ background:#164339!important;border-color:#62c4ae!important;color:#fff!important;font-weight:750!important
+}
+body.gu-lab-member #player-stage-grid .stage-item.complete,
+body.gu-bc-learning #academy-lab-slot .gu-v33-journey li.complete{
+ background:#10382e!important;border-color:#306d5e!important;color:#c6eede!important
+}
+body.gu-lab-member #player-stage-grid .stage-item .bullet,
+body.gu-bc-learning #academy-lab-slot .gu-v33-journey li .gu-v44-stage-num{
+ display:grid!important;place-items:center!important;flex:none!important;
+ width:26px!important;height:26px!important;border-radius:50%!important;
+ border:1px solid #537088!important;background:transparent!important;
+ color:#c9dbe7!important;font-size:.8rem!important;font-weight:750!important
+}
+body.gu-bc-learning #academy-lab-slot .gu-v33-journey li.current .gu-v44-stage-num{border-color:#82d8c6!important}
+body.gu-lab-member #player-stage-grid .stage-item.complete .bullet{background:#17604e!important}
+body.gu-lab-member #player-stage-grid .stage-item.complete .bullet::after{content:'✓';color:#a7f3dc}
+body.gu-lab-member .toolbar .track, body.gu-bc-learning #academy-lab-slot .gu-v33-progress{
+ border-radius:10px;background:#203644;overflow:hidden
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson{
+ display:grid!important;grid-template-columns:minmax(0,1.22fr) minmax(0,.9fr)!important;
+ gap:clamp(12px,1.25vw,20px)!important;align-items:start!important;
+ background:transparent!important;max-width:none!important;width:100%!important;
+ margin:12px 0 17px!important;container-type:normal!important
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson> :is(.gu-l33-graphic,.gu-v33-exact-visual,.gu-v44-calc-visual){
+ margin:0!important;min-width:0!important;max-width:100%!important;
+ background:#0d2638!important;border:1px solid #34536a!important;
+ border-radius:11px!important;padding:clamp(12px,1.3vw,18px)!important;
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson> :is(.gu-v33-instructor,.gu-v44-calc-coach){
+ margin:0!important;min-width:0!important;max-width:100%!important;width:100%!important;
+ background:#0d2638!important;border:1px solid #34536a!important;
+ border-radius:11px!important;padding:clamp(12px,1.3vw,18px)!important
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson :is(input,textarea,select){max-width:100%;min-width:0}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33-instructor-typing{
+ font-size:clamp(.95rem,1vw,1.1rem);line-height:1.72;
+ background:#0a3044;border-left:3px solid var(--gu-v44-gold,#ecc77e);
+ border-radius:6px;padding:13px 14px;min-height:90px
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v40-auto-bar{
+ background:#0b2b40!important;border:1px solid #3b697c!important;
+ border-radius:10px!important;padding:11px 14px!important;margin:10px 0 16px!important
+}
+:is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33 .gu-v32-body{
+ min-width:0!important;padding:clamp(8px,1.4vw,20px)!important
+}
+/* Additional Calculate stage uses the same real ECharts/candle visualization
+   and an ungraded subject-specific method check before Experiment. */
+.gu-v44-calculate-gate .gu-v44-calc-chart{min-width:0;max-width:100%;margin:12px 0}
+.gu-v44-calculate-gate .gu-v44-calc-chart .gu-echarts-lesson{margin:0;max-width:100%}
+.gu-v44-calculate-gate .gu-v44-talia-label{font-weight:800;color:#fff;
+ border-bottom:1px solid #34566c;padding:5px 0 11px;margin-bottom:13px}
+.gu-v44-calculate-gate .gu-v44-calc-coach p{line-height:1.72;margin:10px 0;color:#dfebf4}
+.gu-v44-calculate-gate .gu-v44-calc-check{padding:12px;border:1px solid #56758b;
+ border-radius:9px;margin:15px 0;background:#0b2132;min-width:0}
+.gu-v44-calculate-gate .gu-v44-calc-check legend{font-weight:750;padding:0 5px}
+.gu-v44-calculate-gate .gu-v44-calc-option{display:flex;gap:10px;align-items:flex-start;
+ padding:10px 12px;margin:8px 0;border:1px solid #395a70;border-radius:8px;
+ background:#112e41;cursor:pointer}
+.gu-v44-calculate-gate .gu-v44-calc-option:has(input:checked){border-color:#7fd8bf;background:#164039}
+.gu-v44-calculate-gate .gu-v44-calc-option input{flex:none;margin-top:4px}
+.gu-v44-calculate-gate .gu-v44-calc-feedback{min-height:20px;color:#e8c481}
+.gu-v44-calculate-gate .gu-v44-calc-next{width:100%;min-height:44px;background:#8060cb!important;color:#fff!important}
+.gu-v44-calculate-gate .gu-v44-calc-next:disabled{opacity:.45}
+body.gu-bc-learning.academy-classroom-active .gu-learning-ad-core>.wrap{max-width:none!important;width:calc(100% - 32px)!important}
+@media(max-width:1100px){
+ :is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:640px){
+ body.gu-lab-member #player-stage-grid .stage-item,
+ body.gu-bc-learning #academy-lab-slot .gu-v33-journey li{
+ padding:6px 5px!important;gap:5px!important;font-size:.67rem!important
+ }
+ body.gu-lab-member #player-stage-grid .stage-item .bullet,
+ body.gu-bc-learning #academy-lab-slot .gu-v33-journey li .gu-v44-stage-num{
+ width:20px!important;height:20px!important;font-size:.68rem!important
+ }
+ :is(body.gu-lab-member,body.gu-bc-learning) :is(#gu-v32-teaching-slot,#academy-lab-slot)
+ .gu-v33-stage-hero.gu-v34-unified-lesson{gap:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.gu-lab-member #player-stage-grid *, body.gu-bc-learning #academy-lab-slot .gu-v33-journey *{transition:none!important;animation:none!important}
+}

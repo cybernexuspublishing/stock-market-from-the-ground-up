@@ -638,7 +638,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     const input=el('input');input.type='radio';input.name='gu-v44-method-'+labId;input.value=String(i);
     row.append(input,el('span',answer));quiz.append(row);
    });
-   const check=button('Check my answer — free retry',()=>{
+   const check=button('Check my answer',()=>{
     const chosen=quiz.querySelector('input:checked');
     if(!chosen){feedback.textContent='Select one answer before continuing.';return}
     if(chosen.value!=='0'){
