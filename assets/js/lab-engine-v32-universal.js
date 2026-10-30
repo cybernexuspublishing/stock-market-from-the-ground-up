@@ -439,7 +439,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     body.append(host);
     const view=root.CrownlightLearningEChartsV1.mount(host,{kind,interactive:step===2});
     if(view)echartsControllers.push(view);
-    return;
+    // Preserve the original subject-specific annotated visual and its accessible
+    // controls: ECharts is additional guided teaching, not a replacement.
    }
   }
   // Lesson-specific instruction stays inside the existing 9-stage journey.
