@@ -21,6 +21,15 @@ globalThis.fetch=async(url,o={})=>{
   if(o.method==='DELETE'){removed++;assert(u.includes('user_id=eq.'+owner));return json([])}
   assert(u.includes('user_id=eq.'+owner),'Tenant-specific credential list required');return json([]);
  }
+ if(u.includes('/rest/v1/user_secure_credentials')){
+  storageHeaders.push(o.headers);
+  assert.equal(o.headers.apikey,env.SUPABASE_SECRET_KEY);
+  assert.equal(o.headers.authorization,undefined,'Opaque service key is not a JWT');
+  assert(u.includes('user_id=eq.'+owner),'Alpaca inventory must be member-scoped');
+  assert(u.includes('service_code=eq.ALPACA_BYO'),'Alpaca source filter required');
+  assert(!u.includes('credential_ciphertext'),'Never include provider secrets in inventory');
+  return json([]);
+ }
  if(u.includes('api.tiingo.com')){
   providerCount++;return json({metadata:'token verification fixture'});
  }
