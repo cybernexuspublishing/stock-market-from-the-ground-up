@@ -14,6 +14,59 @@ from pcapng_iex_reader import stream_pcapng
 
 TZ=ZoneInfo('America/New_York')
 UTC=dt.timezone.utc
+def reconcile_window(ids, broken_ids, start, end):
+ """Reconcile every opening-window trade, including volume-only (no last sale) minutes.
+
+ A minute without a last-sale-eligible execution MUST NOT be fabricated as an
+ OHLC candle. Its IEX venue volume and trade-count evidence remain explicit.
+ """
+ live=[(trade_id,*event) for trade_id,events in ids.items()
+       if trade_id not in broken_ids for event in events]
+ live.sort(key=lambda x:(x[1],x[2],x[0]))
+ grouped={}
+ for trade_id,nano,packet,price,qty,flags in live:
+  moment=dt.datetime.fromtimestamp(nano/1000000000,UTC).replace(second=0,microsecond=0)
+  minute=moment.isoformat().replace('+00:00','Z')
+  row=grouped.setdefault(minute,{'timestamp_utc':minute,'open':None,'high':None,'low':None,'close':None,
+    'volume':0,'observed_trades':0,'last_sale_eligible_trades':0,'unreviewed_flags':{}})
+  accumulate_trade(row,price,qty,flags)
+ bars=[]
+ volume_only=[]
+ for minute,row in sorted(grouped.items()):
+  if row['open'] is None:
+   volume_only.append({'timestamp_utc':minute,'volume':row['volume'],
+      'observed_trades':row['observed_trades'],'last_sale_eligible_trades':0,
+      'unreviewed_flags':row['unreviewed_flags']})
+  else:
+   bars.append({**row,'open':f"{row['open']/10000:.4f}",'high':f"{row['high']/10000:.4f}",
+      'low':f"{row['low']/10000:.4f}",'close':f"{row['close']/10000:.4f}"})
+ minutes={ (start+dt.timedelta(minutes=i)).replace(second=0,microsecond=0).isoformat().replace('+00:00','Z')
+   for i in range(int((end-start).total_seconds()//60)) }
+ no_trade=sorted(minutes-set(grouped))
+ live_count=len(live)
+ bar_event_count=sum(b['observed_trades'] for b in bars)
+ volume_only_event_count=sum(b['observed_trades'] for b in volume_only)
+ bar_volume=sum(b['volume'] for b in bars)
+ volume_only_volume=sum(b['volume'] for b in volume_only)
+ all_volume=sum(row['volume'] for row in grouped.values())
+ audit_ok=(bar_event_count+volume_only_event_count==live_count
+    and bar_volume+volume_only_volume==all_volume)
+ if not audit_ok:raise ValueError('Trade-event or venue-volume conservation failed')
+ return {'bars':bars,'bar_count':len(bars),
+    'opening_trade_events_before_breaks':sum(len(events) for events in ids.values()),
+    'opening_trade_events_removed_by_breaks':sum(len(events) for trade_id,events in ids.items() if trade_id in broken_ids),
+    'opening_live_trade_events':live_count,
+    'opening_venue_volume_shares':all_volume,
+    'volume_only_minutes':volume_only,
+    'no_venue_trade_minutes':no_trade,
+    'price_candle_event_count':bar_event_count,
+    'volume_only_event_count':volume_only_event_count,
+    'volume_conservation':{'passed':audit_ok,'price_bar_volume':bar_volume,
+       'volume_only_volume':volume_only_volume,'all_venue_volume':all_volume,
+       'price_bar_events':bar_event_count,'volume_only_events':volume_only_event_count,
+       'all_live_events':live_count},
+    'no_imputed_candles':True}
+
 def full_review(day,symbols,expected_sha,local_file=None,expected_bytes=None):
  # Local mode uses the owner's immutable, full-CRC-verified archive without network access.
  # Remote mode preserves the existing bounded official-source behavior.
@@ -95,24 +148,12 @@ def full_review(day,symbols,expected_sha,local_file=None,expected_bytes=None):
   raise ValueError('Full original IEX archive bytes or pinned SHA256 differ')
  summary={}
  for sym,ids in first_window.items():
-  live=[(trade_id,*event) for trade_id,events in ids.items()
-        if trade_id not in breaking[sym] for event in events]
-  live.sort(key=lambda x:(x[1],x[2],x[0]))
-  grouped={}
-  for trade_id,nano,packet,price,qty,flags in live:
-   moment=dt.datetime.fromtimestamp(nano/1000000000,UTC).replace(second=0,microsecond=0)
-   minute=moment.isoformat().replace('+00:00','Z')
-   row=grouped.setdefault(minute,{'timestamp_utc':minute,'open':None,'high':None,'low':None,'close':None,
-     'volume':0,'observed_trades':0,'last_sale_eligible_trades':0,'unreviewed_flags':{}})
-   accumulate_trade(row,price,qty,flags)
-  rows=[{**row,'open':f"{row['open']/10000:.4f}",'high':f"{row['high']/10000:.4f}",
-            'low':f"{row['low']/10000:.4f}",'close':f"{row['close']/10000:.4f}"}
-        for _,row in sorted(grouped.items()) if row['open'] is not None]
-  summary[sym]={'bar_count':len(rows),'reported_trade_events_day':known[sym],
+  audit=reconcile_window(ids,breaking[sym],start,end)
+  summary[sym]={'reported_trade_events_day':known[sym],
                 'broken_trade_messages':break_events[sym],
                 'first_window_trade_ids':len(ids),
                 'first_window_trade_ids_broken':len(set(ids)&breaking[sym]),
-                'bars':rows}
+                **audit}
  return {'schema':'groundup.iex_full_day_reconciliation.v1',
    'date_et':day,'status':'FULL_DAY_SOURCE_RECONCILED_PENDING_INDEPENDENT_AND_OWNER_REVIEW',
    'member_publication_approved':False,
