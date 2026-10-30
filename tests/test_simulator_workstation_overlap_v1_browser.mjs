@@ -9,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 const root=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const origin='https://simulator-layout-qa.test';
-const source=readFileSync(join(root,'simulator.html'),'utf8').replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi,'');
+const source=readFileSync(join(root,'simulator.html'),'utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
 const uid='11111111-1111-4111-8111-111111111111';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
