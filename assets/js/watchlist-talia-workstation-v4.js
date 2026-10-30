@@ -169,6 +169,9 @@
    }else draw();
   }
   function updateAutoUI(){
+   nextCandle.disabled=autoplay||visible>=bars.length;
+   restart.disabled=autoplay;
+   next.disabled=autoplay||step===7;
    autoToggle.textContent=autoplay?'Pause guided autoplay':'Start guided autoplay · optional';
    autoToggle.setAttribute('aria-pressed',String(autoplay));
    if(!autoplay){question.hidden=false;questionReady=true;submitNext.disabled=false}
@@ -462,7 +465,7 @@
    const tr=make('tr');for(const txt of ['Open','High','Low','Close','Volume'])tr.append(make('th',txt));
    const val=make('tr');for(const n of [latest.open,latest.high,latest.low,latest.close])val.append(make('td','$'+n.toFixed(2)));
    val.append(make('td',latest.volume.toLocaleString()));priceTable.append(tr,val);
-   nextCandle.disabled=visible===bars.length;
+   nextCandle.disabled=autoplay||visible===bars.length;
    if(!chart)return;
    const indicators=[],palette={up:'#31c6a2',down:'#e77b91',blue:'#8ec6ed',gold:'#f1c778'};
    const guides=[['H',latest.high,'#f1ca87'],['O',latest.open,'#83c9f4'],
