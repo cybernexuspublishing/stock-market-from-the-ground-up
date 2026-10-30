@@ -3,7 +3,7 @@
  */
 (function(root){
  'use strict';
- let opts={},mounted=false,sending=false;
+ let opts={},mounted=false,sending=false,accountReady=false,pendingOrder=null,accountEpoch=0;
  const $=id=>document.getElementById(id);
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=String(txt);return x};
  const usd=v=>Number.isFinite(Number(v))?'$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
@@ -30,9 +30,12 @@
  async function refresh(){
   const host=$('cl-paper-terminal');if(!host)return;
   if(!mounted)initialize(opts);if(!host.querySelector('.cl-paper-shell'))return;
-  const status=$('cl-paper-status');status.textContent='Checking your selected Alpaca Paper Trading account…';
+  const status=$('cl-paper-status'),epoch=++accountEpoch;
+  accountReady=false;$('cl-paper-submit').disabled=true;
+  status.textContent='Checking your selected Alpaca Paper Trading account…';
   try{
    const data=await call();
+   if(epoch!==accountEpoch)return;
    $('cl-paper-overview').replaceChildren(
     rowPair('Paper equity',usd(data.account.equity)),
     rowPair('Paper buying power',usd(data.account.buyingPower)),
@@ -46,11 +49,19 @@
     symbol:x.symbol,side:x.side,qty:x.qty,type:x.type,status:x.status,filled:x.filledQty
    })),[['symbol','Symbol'],['side','Side'],['qty','Shares'],['type','Type'],['filled','Filled'],['status','Status']]));
    const disabled=data.account.tradingBlocked||data.account.accountBlocked;
-   $('cl-paper-submit').disabled=disabled;status.textContent=disabled?'Paper account has trading restrictions. Order entry disabled.':'Connected · Alpaca Paper Trading only · positions and orders verified.';
-  }catch(e){status.textContent=e.message||'Paper account could not be verified.';$('cl-paper-submit').disabled=true}
+   accountReady=!disabled;
+   const found=pendingOrder&&data.orders.some(o=>o.clientOrderId===pendingOrder.id);
+   if(found)pendingOrder=null;
+   $('cl-paper-submit').disabled=disabled||sending;
+   status.textContent=disabled?'Paper account has trading restrictions. Order entry disabled.':
+    found?'Earlier simulated order found in Alpaca Paper history. No duplicate order was sent.':
+    pendingOrder?'The previous PAPER request remains unverified. Retrying will reuse its original order ID.':
+    'Connected · Alpaca Paper Trading only · positions and orders verified.';
+  }catch(e){if(epoch===accountEpoch){accountReady=false;status.textContent=e.message||'Paper account could not be verified.';$('cl-paper-submit').disabled=true}}
  }
  async function submit(){
   if(sending)return;
+  if(!accountReady){const status=$('cl-paper-status');if(status)status.textContent='Refresh and verify your Alpaca PAPER account before submitting.';return}
   const symbol=$('cl-paper-symbol').value.trim().toUpperCase(),
    side=$('cl-paper-side').value,type=$('cl-paper-type').value,
    qty=Number($('cl-paper-qty').value),price=Number($('cl-paper-limit').value);
@@ -60,7 +71,61 @@
    note.textContent='Enter a valid ticker, whole-share quantity (1–1,000), and limit price when applicable.';return;
   }
   const details=side.toUpperCase()+' '+qty+' '+symbol+' · '+type.toUpperCase()+
-   (type==='limit'?' · $'+price.toFixed(2):'');
+   (type==='limit'?' · 
+  if(!confirm('ALPACA PAPER TRADING — NOT HISTORICAL REPLAY\n\nSubmit this SIMULATED order to your own Alpaca Paper Trading account?\n\n'+details+
+   '\n\nPaper orders may fill at different prices and times than historical chart candles.'))return;
+  const btn=$('cl-paper-submit');sending=true;btn.disabled=true;
+  const clientOrderId=pendingOrder?.id||crypto.randomUUID();
+  pendingOrder={fingerprint,id:clientOrderId};
+  note.textContent='Submitting the explicitly confirmed Alpaca PAPER order. Do not click again.';
+  try{
+   const response=await call('submit',{symbol,side,type,qty,limitPrice:type==='limit'?price:undefined,
+    clientOrderId,confirm:'PAPER ONLY'});
+   pendingOrder=null;
+   note.textContent=response.alreadySubmitted?'Existing paper order located. No duplicate was sent.':
+    'Alpaca Paper acknowledged your simulated order. Check actual status/fill in Orders.';
+   await refresh();
+  }catch(e){
+   accountReady=false;
+   note.textContent=(e.message||'Order status unknown.')+
+    ' Refresh the Alpaca Paper account before retrying. The same request ID will be reused, never a new order ID.';
+  }
+  finally{sending=false;btn.disabled=!accountReady}
+ }
+ function initialize(config={}){
+  opts=config;if(mounted)return;
+  const host=$('cl-paper-terminal');if(!host)return;mounted=true;
+  host.innerHTML='<div class="cl-paper-shell"><p class="cl-paper-banner"><strong>PAPER ACCOUNT ONLY</strong> · Orders are simulated by Alpaca, not filled against historical replay candles. No live-money brokerage connection is enabled.</p>'+
+   '<p id="cl-paper-status" role="status" aria-live="polite">Open this tab to load your own paper account.</p>'+
+   '<div id="cl-paper-overview" class="cl-paper-overview"></div>'+
+   '<div class="cl-paper-order-grid"><label>Symbol<input id="cl-paper-symbol" maxlength="12" placeholder="AAPL" autocomplete="off" value="AAPL"></label>'+
+   '<label>Side<select id="cl-paper-side"><option value="buy">Buy</option><option value="sell">Sell</option></select></label>'+
+   '<label>Order type<select id="cl-paper-type"><option value="market">Market</option><option value="limit">Limit</option></select></label>'+
+   '<label>Whole shares<input id="cl-paper-qty" type="number" min="1" max="1000" step="1" value="1"></label>'+
+   '<label id="cl-paper-limit-wrap" hidden>Limit price (USD)<input id="cl-paper-limit" type="number" min="0.01" step="0.01" placeholder="0.00"></label></div>'+
+   '<div class="cl-paper-actions"><button id="cl-paper-submit" type="button" disabled>Review & Submit Paper Order</button>'+
+   '<button id="cl-paper-refresh" type="button">Refresh Account</button></div>'+
+   '<h3>Current paper positions</h3><div id="cl-paper-positions" class="cl-paper-scroll"></div>'+
+   '<h3>Recent paper orders</h3><div id="cl-paper-orders" class="cl-paper-scroll"></div>'+
+   '<p class="cl-paper-caution">Alpaca simulates market fills, liquidity, margin checks, and order status. A submitted paper order is not guaranteed to be filled. All account values and order status must come from Alpaca.</p></div>';
+  $('cl-paper-type').onchange=()=>{$('cl-paper-limit-wrap').hidden=$('cl-paper-type').value!=='limit'};
+  $('cl-paper-submit').onclick=submit;$('cl-paper-refresh').onclick=refresh;
+  const scrub=()=>{
+   accountEpoch++;accountReady=false;pendingOrder=null;sending=false;
+   for(const id of ['cl-paper-overview','cl-paper-positions','cl-paper-orders'])$(id)?.replaceChildren();
+   const button=$('cl-paper-submit');if(button)button.disabled=true;
+   const status=$('cl-paper-status');if(status)status.textContent='Paper account reset. Sign in and verify again.';
+  };
+  root.addEventListener('crownlight:member-changed',scrub);
+  root.addEventListener('pagehide',()=>{scrub();mounted=false;opts={}}, {once:true});
+ }
+ root.CrownlightPaperTerminal={initialize,refresh};
+})(window);
++price.toFixed(2):'');
+  const fingerprint=[symbol,side,type,qty,type==='limit'?price.toFixed(2):''].join('|');
+  if(pendingOrder&&pendingOrder.fingerprint!==fingerprint){
+   note.textContent='A previous paper order has uncertain status. Refresh and resolve it before changing order details.';return;
+  }
   if(!confirm('ALPACA PAPER TRADING — NOT HISTORICAL REPLAY\n\nSubmit this SIMULATED order to your own Alpaca Paper Trading account?\n\n'+details+
    '\n\nPaper orders may fill at different prices and times than historical chart candles.'))return;
   const btn=$('cl-paper-submit');sending=true;btn.disabled=true;
