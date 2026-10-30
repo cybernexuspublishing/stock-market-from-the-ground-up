@@ -114,6 +114,15 @@
   guidance.append(mk('h3','Talia research questions and learning handoffs'),guidanceText,
    mk('p','Enter an existing saved plan ID, then choose read-only transfer or create a new observation-only Journal draft. Creating a draft uses the existing weekly Journal allowance; retries cannot create duplicate drafts. Neither option records a trade or grade.'),
    journalPlan.wrap,journalGo,journalAuto,journalEntryId.wrap,journalLink,chartJump,tradePlanGo,lab,bootcamp);
+  const learningPanel=mk('section',undefined,'cl-wi-learning-v3');
+  const learningDetail=mk('p'),learningPrompt=mk('p'),learningWarning=mk('p');
+  const learningNote=mk('textarea');learningNote.rows=3;learningNote.maxLength=480;
+  learningNote.placeholder='What evidence did you find, and what remains unknown? This is an ungraded research reflection.';
+  const learningSave=mk('button','Save Talia research reflection','btn secondary');
+  learningSave.type='button';
+  learningPanel.append(mk('h3','Talia · Guided Research (ungraded)'),learningDetail,
+    learningPrompt,learningWarning,learningNote,learningSave);
+  guidance.append(learningPanel);
   const body=mk('div',undefined,'cl-wi-body');
   edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),selectLabel('Candidate lifecycle status (member-reported)',candidateStage),archiveLabel,
    pointTime.wrap,reviewNote.wrap,actionRow,timeline,annotations);
@@ -218,6 +227,14 @@
     ' stage require you to verify for '+x.title+'? '+(source?'How reliable and current is the recorded source? ':'What original source is still missing? ')+
     'What invalidates the thesis, and when is NO TRADE the better documented decision? '+
     'These are teaching prompts, not AI-verified evidence or a completed Lab.';
+   const lesson=root.GroundUpWatchlistLearningV3?.forStage(x.stage);
+   if(lesson){
+    learningDetail.textContent=lesson.topic+' — '+lesson.objective;
+    learningPrompt.textContent='Try this: '+lesson.exercise;
+    learningWarning.textContent='Common mistake: '+lesson.mistake+
+      ' Your reflection is research practice and does not confer Lab mastery.';
+    learningNote.value='';
+   }
   }
   async function commit(change){
    if(busy)return;
@@ -266,6 +283,19 @@
     chart.resize();
     status(notices,'ECharts displays manually saved reference levels only—not historical candles, a price series or live quote.');
    }catch(e){status(notices,e.message)}
+  };
+  learningSave.onclick=async()=>{
+   if(busy)return;const rec=getSelected();if(!rec)return;
+   const note=learningNote.value.trim();
+   if(note.length<20)return status(notices,'Write at least 20 characters explaining your observation and uncertainty.');
+   busy=true;learningSave.disabled=true;
+   try{
+    const patch=C.checkpoint(rec,{action:'TALIA_RESEARCH_REFLECTION',note,
+     at:new Date().toISOString().replace(/\\.\\d{3}Z$/,'Z')});
+    await editPayload(rec,patch);await refresh();
+    status(notices,'Ungraded Talia research reflection saved privately. No Lab score or mastery awarded.');
+   }catch(e){status(notices,e.message||'Could not save Talia reflection.');}
+   finally{busy=false;learningSave.disabled=false}
   };
   ruleSave.onclick=async()=>{
    if(busy)return;
