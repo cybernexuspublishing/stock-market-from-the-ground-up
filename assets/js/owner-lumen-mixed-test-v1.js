@@ -77,8 +77,11 @@ function renderHistory(){
   item.append(detail);
   const actionBtn=document.createElement('button');actionBtn.type='button';
   if(order.status==='reserved'||order.status==='bound'){
-   actionBtn.textContent=order.status==='reserved'?'Resume TEST checkout':'Open existing TEST checkout';
-   actionBtn.disabled=lock||!state.enabled;
+   const reservationExpired=order.status==='reserved'&&
+      Number.isFinite(Date.parse(order.expires_at))&&Date.parse(order.expires_at)<=Date.now();
+   actionBtn.textContent=reservationExpired?'TEST reservation expired — release it':
+      order.status==='reserved'?'Resume TEST checkout':'Open existing TEST checkout';
+   actionBtn.disabled=lock||!state.enabled||reservationExpired;
    actionBtn.addEventListener('click',()=>action(()=>continueOrder(order)));
    item.append(actionBtn);
    if(order.status==='reserved'){
@@ -95,7 +98,9 @@ function renderHistory(){
    }
    if(order.status==='reserved'){
     const note=document.createElement('small');
-    note.textContent=' This order is reserved but not linked to Stripe yet. Resuming uses the same order number and will not reserve Lumens twice.';
+    note.textContent=reservationExpired?
+     ' The TEST reservation has expired. Use Release unused TEST reservation, then set a new test balance.':
+     ' This order is reserved but not linked to Stripe yet. Resuming uses the same order number and will not reserve Lumens twice.';
     item.append(note);
    }
   }else if(order.status==='fulfilled'){
