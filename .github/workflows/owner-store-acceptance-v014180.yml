@@ -47,6 +47,9 @@ on:
       - "assets/js/admin-password-confirm-v01432r1.js"
       - "assets/css/admin-password-confirm-v01432r1.css"
       - "assets/js/admin-digital-books-v01430.js"
+      - "assets/js/admin-book-batch-upload-v1.js"
+      - "assets/css/admin-book-batch-upload-v1.css"
+      - "tests/test_book_batch_upload_v1.mjs"
       - "assets/js/admin.js"
       - "assets/css/admin-book-editor-v1.css"
       - "tests/test_book_digital_save_workflow_v1.mjs"
@@ -144,6 +147,7 @@ jobs:
           node tests/test_private_book_owner_preview_v1.mjs
           node tests/test_book_primary_assignment_guard_v1.mjs
           node tests/test_book_digital_save_workflow_v1.mjs
+          node tests/test_book_batch_upload_v1.mjs
           node tests/test_book_stripe_test_pipeline_v1.mjs
           node tests/test_book_stripe_live_fulfillment_v1.mjs
           node tests/test_book_stripe_live_signed_webhook_mock_v1.mjs
