@@ -6,7 +6,7 @@
 **File type:** Markdown  
 **Authoritative location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up`, `main`, `docs/qa/SMFGU-STRIPE-FULL-PAYMENT-ACCEPTANCE-20261030.md`  
 **Google Drive location:** Not assigned. Create a separate Drive record only if adopting Drive as an additional controlled repository.  
-**Version:** 1.1  
+**Version:** 1.2  
 **Status:** PARTIAL ACCEPTANCE — authenticated LIVE Checkout initialization PASSED; 30/60 Stripe TEST initial payments PASSED; 30/60 chronological renewals and LIVE nonzero payment/refund NOT VERIFIED  
 **Test date:** October 30, 2026 (UTC evidence timestamps; local America/Chicago)  
 **Primary Cloudflare project:** `stock-market-from-the-ground-up`  
@@ -86,3 +86,53 @@ The owner requested (a) authenticated website Checkout through actual member pai
 | Version | Date | Change |
 | --- | --- | --- |
 | 1.1 | 2026-10-30 | Official fake TEST-card scenarios, real authenticated Book TEST session, failed hosted card acceptance, verified QA allowlist cleanup. |
+
+## $0 LIVE QA and storefront inventory addendum — 2026-10-30
+
+**Document status:** PARTIAL ACCEPTANCE; production build safety safeguard preserved; zero-dollar entitlement test NOT executed successfully.  
+**Scope:** Primary SMFGU Cloudflare Production, Supabase, and Stripe LIVE; no other merchant account.  
+**Google Drive location:** Not assigned. GitHub `main` remains the controlled record.  
+**Dependencies:** Published product registry, GU71/GU72 zero-dollar QA routes, release build guard, actual signed event delivery.
+
+### Exact storefront inventory
+
+`public.gu_storefront_items_v014174` contains **61 distinct SKU records** in 7 categories. Purchase-ready is strictly `visible = true AND sale_ready = true AND status = 'for_sale'`.
+
+| Category | Total SKU records | Visible, marked for sale |
+| --- | ---: | ---: |
+| Founding Memberships | 3 | 3 |
+| À-la-carte tools | 22 | 4 |
+| Books | 7 | 0 |
+| Legacy memberships (including Free) | 5 | 0 |
+| Add-ons / Crownlight currency (legacy Sparks naming) | 3 | 0 |
+| Boot Camps and clinics | 15 | 0 |
+| Included features | 6 | 0 |
+| **Total** | **61** | **7** |
+
+Founding sale-ready SKUs: `founding:FOUNDING_14`, `founding:FOUNDING_30`, `founding:FOUNDING_60`. Tool sale-ready SKUs: `tool:INTERACTIVE_LEARNING`, `tool:JOURNAL_ANALYTICS`, `tool:MARKET_SIMULATOR`, `tool:MARKET_TUTOR`. The four legacy paid membership listings are marked sale-ready internally but have `visible=false`, so they are NOT counted as customer-visible sales. Five distinct book titles are visible and listed but `sale_ready=false`; their catalog-level external/website purchase flags are not equivalent to an accepted storefront paid-fulfillment flow. The full book database contains separate release-status contradictions, requiring editorial synchronization before expanding the sellable count.
+
+### GU71 general $0 LIVE acceptance
+
+- A prior Stripe LIVE GU71 Checkout Session `cs_live_a1bbjaB1N0UNjQqTQTM9YTDUuLfHBPF8YFuAHG7ZOirAOa3q9h4eAazJeQ` is provider-confirmed `complete`, `paid`, `amount_total=0`, `payment_intent=null`, `subscription=null`; this is a one-time zero-cost diagnostic, NOT a membership.
+- Its `checkout.session.completed` event `evt_1UVaw9JL0O4GGVBHKjQTd21w` appears in Stripe's **unsuccessful-delivery** event results, with `pending_webhooks=1`. The current enabled GU58 LIVE webhook endpoint subscribes to `checkout.session.completed`. Event acknowledgment remains an unresolved operational acceptance issue.
+- Historic GU72 $0 LIVE sessions were completed in Stripe, but the exact zero-cost QA grants now have canceled status; no active QA grant remained in the verified account. Those events do not validate Founding paid subscription renewals or their reserved-seats lifecycle.
+
+### Temporary GU72 membership-entitlement acceptance attempt and rollback
+
+- The existing dedicated `/api/store-zero-monthly-qa` route would grant a **temporary QA-only FULL_MONTHLY** entitlement to a single allowed Free member through a service-only signed-webhook RPC and then reset to Free. It is distinct from paid Founding Memberships.
+- On authorized QA-only testing, temporarily scoped `GU72_QA_ALLOWED_USER_ID` to `James_Test` and switched on the retired GU72 offer/fulfillment flags; no public membership price or paid secret was altered.
+- **BLOCKED BY REQUIRED SECURITY BUILD GUARD:** Cloudflare Pages builds at commits `96d96c2` and `e9c5629` rejected `GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED`, stating `SECURITY BUILD BLOCK: retired zero-dollar entitlement QA cannot run in production`. The tests therefore reached an older production release and reported QA unavailable. This is correct enforcement of an intentionally frozen safety policy; do not bypass it.
+- The test-only GitHub harness and workflow were removed from `main`; no zero-amount LIVE Checkout, signed grant or paid entitlement was created by this attempt.
+- **Rollback VERIFIED:** `GU72_ZERO_MONTHLY_QA_ENABLED=false`, `GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED=false`, and temporary `GU72_ZERO_MONTHLY_STORE_OFFER_ENABLED` / `GU72_QA_ALLOWED_USER_ID` removed. Cloudflare Production returned to **48 variables**. Latest deployment `a4493af0fdfc36a335ff2365978a1e91a4f949aa` succeeded. `James_Test` returned `FREE` with no active QA grant.
+- Existing GU71 Owner-only diagnostic remains enabled; its handler intentionally **does not grant any memberships or tool entitlements**. Its use requires a real Owner session and password step-up; it cannot substitute for the retired GU72 benefit test.
+
+### Open release blockers
+
+1. Obtain an acknowledged genuine GU71 `checkout.session.completed` LIVE delivery and identify why `evt_1UVaw9JL0O4GGVBHKjQTd21w` remains unsuccessful/pending; do not forge signatures.
+2. Verify website-originated authorized paid-member fulfillment in Stripe TEST independently; avoid treating a $0 one-time Checkout as a paid subscription.
+3. Accept 30-/60-day real renewal and payment-recovery workflows through authorized time advancement, then test access revocation and recovery.
+4. Reconcile the five visible book listings with their `sale_ready=false` state, published dates, direct checkout maturity and QA evidence before counting them as sale-ready.
+
+| Version | Date | Change |
+| --- | --- | --- |
+| 1.2 | 2026-10-30 | Verified seven sellable SKUs among 61 storefront entries; documented completed $0 LIVE provider evidence, unresolved webhook, production build safety block and complete QA rollback. |
