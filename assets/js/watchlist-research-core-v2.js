@@ -4,6 +4,13 @@
 (function(root){
  'use strict';
  const STAGES=Object.freeze(['DISCOVER','RESEARCH','ANALYZE','MONITOR','PLAN','PRACTICE','REVIEW','LEARN']);
+ const CANDIDATE_STATES=Object.freeze(['DISCOVERED','QUALIFIED','WATCH','DEVELOPING','ARMED','TRIGGERED','CONFIRMED','INVALIDATED']);
+ const CANDIDATE_NEXT=Object.freeze({
+  DISCOVERED:['QUALIFIED','INVALIDATED'],QUALIFIED:['WATCH','INVALIDATED'],
+  WATCH:['DEVELOPING','INVALIDATED'],DEVELOPING:['ARMED','WATCH','INVALIDATED'],
+  ARMED:['TRIGGERED','DEVELOPING','INVALIDATED'],TRIGGERED:['CONFIRMED','INVALIDATED'],
+  CONFIRMED:['INVALIDATED'],INVALIDATED:['DISCOVERED']
+ });
  const TOKEN=/^[A-Za-z0-9][A-Za-z0-9 _.-]{0,39}$/;
  const ASOF=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/;
  const CATS=Object.freeze(['SUPPORT','RESISTANCE','BREAKOUT','PULLBACK','INVALIDATION','OTHER']);
@@ -26,6 +33,7 @@
   return {id:Number(r.id),title:String(r.title).toUpperCase(),revision:r.updated_at,
    payload:p,folder:text(p.folder||'Unfiled',40),tags:labels(p.tags),
    archived:p.archived===true,stage:STAGES.includes(p.workflowStage)?p.workflowStage:'DISCOVER',
+   candidateState:CANDIDATE_STATES.includes(p.candidateState)?p.candidateState:'DISCOVERED',
    history:Array.isArray(p.researchHistory)?p.researchHistory.slice(-50):[],
    annotations:Array.isArray(p.chartAnnotations)?p.chartAnnotations.slice(-40):[]};
  }
@@ -37,10 +45,10 @@
   return '"'+s.replace(/"/g,'""')+'"';
  }
  function exportCsv(records){
-  const head=['Symbol','Stage','Status','Folder','Tags','Archived','Observation time','Source note','Invalidation','Research checkpoints','Chart annotations'];
+  const head=['Symbol','Educational stage','Candidate state','Status','Folder','Tags','Archived','Observation time','Source note','Invalidation','Research checkpoints','Chart annotations'];
   const rows=[head.map(csvCell).join(',')];
   for(const r of records){const x=safeRecord(r),p=x.payload;
-   rows.push([x.title,x.stage,p.status||'WATCH',x.folder,x.tags.join(' | '),x.archived?'Yes':'No',p.asOf||'',p.sourceNote||'',p.invalidation||'',x.history.length,x.annotations.length].map(csvCell).join(','));
+   rows.push([x.title,x.stage,x.candidateState,p.status||'WATCH',x.folder,x.tags.join(' | '),x.archived?'Yes':'No',p.asOf||'',p.sourceNote||'',p.invalidation||'',x.history.length,x.annotations.length].map(csvCell).join(','));
   }
   return '\uFEFF'+rows.join('\r\n')+'\r\n';
  }
@@ -68,6 +76,20 @@
      progress?'STAGE_CHANGE':'ORGANIZATION_CHANGE',
    note:text(note,480)||'Member updated candidate research organization or workflow metadata.',
    at});
+ }
+ function setCandidateState(rec,{state,note,at}={}){
+  const x=safeRecord(rec),target=String(state||'');
+  if(!CANDIDATE_STATES.includes(target))fail('Unknown candidate lifecycle status.');
+  if(target===x.candidateState)return x.payload;
+  if(!CANDIDATE_NEXT[x.candidateState].includes(target))fail('Invalid candidate state transition: complete the research lifecycle or explicitly invalidate.');
+  const evidence=text(note,480);
+  if(evidence.length<12)fail('Candidate state transitions require at least 12 characters of evidence.');
+  if(!time(at))fail('A nonfuture timestamp with timezone offset is required.');
+  if(['TRIGGERED','CONFIRMED'].includes(target)&&
+   (!String(x.payload.sourceNote||'').trim()||!String(x.payload.invalidation||'').trim()))
+   fail('Record a source and invalidation before marking a candidate triggered or confirmed.');
+  return checkpoint({...rec,payload:{...x.payload,candidateState:target}},
+   {action:'CANDIDATE_STATE_CHANGE',note:x.candidateState+' → '+target+': '+evidence,at});
  }
  function annotation(rec,{kind='OTHER',at,price,note,timeframe='1D'}={}){
   const r=safeRecord(rec),value=Number(price),comment=text(note,360);
@@ -110,12 +132,13 @@
   return {symbol:x.title,at,sourceNote:note,price:p,results,source:'MEMBER_ENTERED_UNVERIFIED_SNAPSHOT',
    noAutomaticNotifications:true,noTradeSignal:true};
  }
- function filters(records,{folder='',tag='',stage='',includeArchived=false,query=''}={}){
+ function filters(records,{folder='',tag='',stage='',candidateState='',includeArchived=false,query=''}={}){
   const needle=text(query,120).toUpperCase();
   return (Array.isArray(records)?records:[]).filter(r=>{
    let x;try{x=safeRecord(r)}catch{return false}
    return (includeArchived||!x.archived)&&(!folder||x.folder===folder)&&
     (!tag||x.tags.includes(tag))&&(!stage||x.stage===stage)&&
+    (!candidateState||x.candidateState===candidateState)&&
     (!needle||x.title.includes(needle)||String(x.payload.why||'').toUpperCase().includes(needle));
   });
  }
@@ -136,12 +159,13 @@
  function stats(records){
   const items=(Array.isArray(records)?records:[]).flatMap(r=>{try{return[safeRecord(r)]}catch{return []}});
   const byStage=Object.fromEntries(STAGES.map(s=>[s,0]));
-  for(const r of items)if(!r.archived)byStage[r.stage]++;
+  const byCandidateState=Object.fromEntries(CANDIDATE_STATES.map(s=>[s,0]));
+  for(const r of items)if(!r.archived){byStage[r.stage]++;byCandidateState[r.candidateState]++;}
   return {total:items.length,active:items.filter(x=>!x.archived).length,archived:items.filter(x=>x.archived).length,
-   byStage,source:'SAVED_MEMBER_RESEARCH_NOT_VERIFIED_MARKET_HISTORY'};
+   byStage,byCandidateState,source:'SAVED_MEMBER_RESEARCH_NOT_VERIFIED_MARKET_HISTORY'};
  }
- const engine=Object.freeze({STAGES,CATS,MONITOR_TYPES,safeRecord,labels,csvCell,exportCsv,
-  checkpoint,setMetadata,annotation,monitoringRule,evaluateMonitoring,filters,reminders,stats,time});
+ const engine=Object.freeze({STAGES,CANDIDATE_STATES,CATS,MONITOR_TYPES,safeRecord,labels,csvCell,exportCsv,
+  checkpoint,setMetadata,setCandidateState,annotation,monitoringRule,evaluateMonitoring,filters,reminders,stats,time});
  root.GroundUpWatchlistResearchCoreV2=engine;
  if(typeof module!=='undefined'&&module.exports)module.exports=engine;
 })(globalThis);
