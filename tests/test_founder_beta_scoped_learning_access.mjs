@@ -46,6 +46,9 @@ globalThis.fetch=async(input,init={})=>{
   plan_code:'FOUNDING_30',status:'active',starts_at:'2026-10-01T00:00:00Z',
   ends_at:'2026-11-01T00:00:00Z',platform_plans:{includes_all_books:false}}]:[]);
  if(p.endsWith('/site_subscriptions'))return respond([]);
+ if(p.endsWith('/platform_plans'))return respond([{
+  plan_code:'FOUNDING_30',active:true,includes_all_books:false,billing_interval:'none'
+ }]);
  if(p.endsWith('/user_tool_passes'))return respond(qaPass?[{
    tool_code:'ONDEMAND_TRAINING',status:'active',starts_at:'2026-10-26T06:00:00Z',
    ends_at:'2026-11-20T06:00:00Z',provider:null,provider_subscription_id:null,
