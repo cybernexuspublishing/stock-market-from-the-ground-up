@@ -50,6 +50,27 @@ try{
  assert.equal(watchlist.body.limit,20);
  assert(Array.isArray(watchlist.body.entries)&&watchlist.body.entries.length<=20);
  ok('Private Free research watchlist read, 20-symbol boundary');
+ // Member account, avatar/profile, consent, Lumens, chart workspace and
+ // notifications are read-only here. Do not mutate or overwrite James's
+ // existing higher-tier saved workspace.
+ for(const [path,label] of [
+  ['/api/member-profile','Member profile / avatar identity'],
+  ['/api/account?action=consent','Account consent preferences'],
+  ['/api/member-sparks-balance','Crownlight Lumens navigation balance'],
+  ['/api/member-sparks-wallet','Private Crownlight Lumens wallet'],
+  ['/api/community-notification-preferences','Community notifications'],
+  ['/api/chart-workspace','Protected Free Chart Studio workspace projection']
+ ]){
+  const current=await get(path);
+  assert.equal(current.status,200,label+' service status');
+  assert.equal(current.body.ok,true,label+' response contract');
+  ok(label+' opens for the genuine Free member');
+ }
+ const publicCatalog=await get('/api/storefront-public-catalog');
+ assert.equal(publicCatalog.status,200);
+ assert.equal(publicCatalog.body.ok,true);
+ assert(Array.isArray(publicCatalog.body.items));
+ ok('Public Store catalog returns a valid first-party item list');
  const free=await get('/api/bootcamp-academy?program=free5');
  assert.equal(free.status,200);
  assert.equal(free.body.ok,true);
