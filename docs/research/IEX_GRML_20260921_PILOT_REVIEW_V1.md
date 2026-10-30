@@ -8,7 +8,7 @@
 | File | `docs/research/IEX_GRML_20260921_PILOT_REVIEW_V1.md` |
 | Type | Markdown, repository-controlled historical case review |
 | Document ID | SMFGU-HR-IEX-GRML-20260921-001 |
-| Version | 1.3 |
+| Version | 1.4 |
 | Date | October 30, 2026 |
 | Google Drive location | Proposed Website / Research / Historical Replay / Case Reviews (not uploaded; Drive file ID unassigned) |
 | Status | **PRIVATE DRAFT INGESTED — DO NOT PUBLISH; LESSON & AUTHENTICATED POSITIVE QA PENDING** |
@@ -170,3 +170,39 @@ The project owner explicitly confirmed in conversation that **IEX authorized bot
 | Version | Date | Change |
 |---|---|---|
 | 1.3 | 2026-10-30 | Owner confirms permitted Supabase retention and paid-member educational display; 30 source-verified GRML bars privately imported and postflight checked; member publication remains off. |
+
+
+## GRML Talia classroom teaching acceptance — Version 1.4 (October 30, 2026)
+
+### Product/editorial sequence
+GRML is taught through the same protected first-decision lock and private, forward-only source cursor. **No future OHLCV bars, answers from later timestamps, ticker forecasts or brokerage fills are embedded in the lesson script.**
+
+Eight authored checkpoints were added to the existing classroom engine:
+
+| Source-minute observations revealed | Talia lesson | Evidence/response method |
+|---:|---|---|
+| 1 | Observe before predicting | Explain what one venue-only completed candle can and cannot establish |
+| 3 | Recognize candle sequences | Guided comparison of completed highs/lows/closes and uncertainty |
+| 5 | Read venue volume carefully | Distinguish IEX-only volume from national volume and trading direction |
+| 10 | Mark observed levels without hindsight | Identify decision-time reference and invalidation |
+| 15 | Check completed higher timeframes | Compare only fully completed 1m, 3m, 5m and 15m candles |
+| 20 | Define the trade and the risk | State trigger, invalidation, friction or defensible NO TRADE |
+| 25 | Reassess rather than force a setup | Reevaluate the hypothesis using only revealed prices |
+| 30 | Separate decision quality from hindsight | Review original locked decision without backcasting the outcome |
+
+Each stage has teach → current completed-candle evidence → three-choice ungraded question → corrective feedback/retry → transfer task. All answers are held solely in the current browser session, cleared on replay reset or sign-out; not recorded as course mastery. Replaying earlier observed bars does not move the server cursor. Automatic playback pauses at these stage boundaries when Talia autoplay pauses are enabled. Chart intervals never generate incomplete higher-timeframe bars. This version does not yet provide formal protected graded Lab assessment.
+
+**Editorial acceptance for QA:** These eight instructional prompts are reviewed against the Foundation one-on-one novice teaching sequence and correct single-exchange limitations; reviewer-delegated acceptance is limited to GRML QA practice. True authenticated production rendering and accessibility require real-account acceptance.
+
+### Code and acceptance evidence
+- Teaching model: `assets/js/historical-grml-talia-v1.js` (no market prices embedded).
+- UI integration: `assets/js/historical-replay-classroom-v1.js`; presentation `assets/css/historical-replay-classroom-v1.css`; protected page `verified-replay.html`.
+- Isolated fixture tests: `tests/test_historical_grml_talia_v1.mjs` and `tests/test_historical_grml_talia_browser_v1.mjs`. These are NOT genuine-account acceptance.
+- Genuine GRML-only scripts staged: `tests/test_historical_grml_authenticated_production_v1.mjs` and `tests/test_historical_grml_authenticated_browser_v1.mjs`. No mocked auth/data is permitted in these tests; positive acceptance requires a controlled pinned QA allowlist, real entitlement, production deployment and actual login.
+- Classroom CI: `.github/workflows/historical-replay-classroom-v1.yml`; record final workflow and result separately. No synthetic fixture result may be labeled a genuine production pass.
+- Dedicated QA-only release policy: Do **not** expose this case to paying members before real account acceptance. The `qa_release_only` allowlist is the existing permitted mechanism for a non-commercial closed browser test. No bulk publishing of all historical cases.
+
+### Revision history addition
+| Version | Date | Change |
+|---|---|---|
+| 1.4 | 2026-10-30 | Added eight stage-specific Talia explanations, ungraded questions/retries/transfer, no-lookahead timing tests and dedicated genuine-account GRML acceptance scripts. |
