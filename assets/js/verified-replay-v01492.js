@@ -259,6 +259,10 @@ async function init(){
  $('vr-refresh').addEventListener('click',()=>call(catalog));
  $('vr-resume').addEventListener('click',()=>call(resume));
  $('vr-dataset').addEventListener('change',()=>{if($('vr-dataset').value)$('vr-code').value=$('vr-dataset').value});
+ $('vr-code').addEventListener('input',()=>{
+  const code=$('vr-code').value.trim().toUpperCase();
+  if(Array.from($('vr-dataset').options).some(option=>option.value===code))$('vr-dataset').value=code;
+ });
  if(u){await call(catalog);
   // A direct case-specific practice link must not silently restore another
   // Lab's prior session (e.g. L01 while the selected case is L02).
