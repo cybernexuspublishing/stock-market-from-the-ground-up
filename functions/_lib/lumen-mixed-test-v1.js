@@ -71,6 +71,16 @@ export async function stripe(c,path,options={}){
   method:options.body===undefined?'GET':'POST',headers,
   body:options.body,cache:'no-store'});
  const v=await r.json().catch(()=>null);
+ // Report only safe Stripe error codes and parameter names to the authenticated
+ // Owner TEST console. Never return provider response bodies or credentials.
+ if((!r.ok||v?.error)&&path==='checkout/sessions'&&options.body!==undefined&&
+    r.status>=400&&r.status<500){
+   const code=String(v?.error?.code||v?.error?.type||'checkout_rejected')
+    .replace(/[^a-zA-Z0-9_]/g,'').slice(0,48);
+   const param=String(v?.error?.param||'').replace(/[^a-zA-Z0-9_\\[\\]]/g,'').slice(0,64);
+   const e=new Error('STRIPE_TEST_CHECKOUT_REJECTED: '+code+(param?' ('+param+')':''));
+   e.status=409;throw e;
+ }
  if(!r.ok||!v||v.error)throw fail('TEST_STRIPE_PROVIDER_UNAVAILABLE');
  return v;
 }
