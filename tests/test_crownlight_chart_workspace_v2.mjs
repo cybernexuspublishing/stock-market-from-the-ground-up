@@ -33,20 +33,35 @@ globalThis.fetch=async(input,opts={})=>{const u=new URL(input);assert.equal(u.or
  if(u.pathname==='/rest/v1/gu_storefront_items_v014174')return j([]);
  if(u.pathname==='/rest/v1/gu_sparks_chart_passes_v1')return j([]);
  if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return j([]);
- if(u.pathname==='/rest/v1/crownlight_chart_workspaces_v1'){
-  if(opts.method==='POST'){const b=JSON.parse(opts.body);assert.equal(b.user_id,uid,'Server must bind signed-in identity');
-   assert(!('access_token' in b.settings));db={settings:b.settings,updated_at:after};return j([db])}
-  return j([db]);
+ if(u.pathname==='/rest/v1/crownlight_chart_workspaces_v1')return j([db]);
+ if(u.pathname==='/rest/v1/rpc/gu_crownlight_chart_workspace_save_v3'){
+  const b=JSON.parse(opts.body);assert.equal(b.p_user,uid,'Server must bind signed-in identity');
+  assert(!('access_token' in b.p_settings));
+  if(b.p_expected!==db.updated_at)return j({ok:false,error:'WORKSPACE_CHANGED',updatedAt:db.updated_at});
+  db={settings:b.p_settings,updated_at:after};return j({ok:true,updatedAt:after});
  }throw Error('Unexpected endpoint '+u.pathname)};
 try{
  const req=new Request('https://site.test/api/chart-workspace',{headers:{authorization:'Bearer QA_TOKEN'}});
  let r=await onRequest({request:req,env}),data=await r.json();
  assert.equal(r.status,200);assert.equal(data.tier,'PROFESSIONAL');
  assert.equal(data.workspace.selected,'PROFESSIONAL');
- const body={selected:'PROFESSIONAL',sync:true,layout:'PRICE_FOCUS',studies:['RSI','MACD'],drawings:[],user_id:'00000000-0000-4000-8000-000000000000',access_token:'should never store'};
- r=await onRequest({request:new Request('https://site.test/api/chart-workspace',{method:'PUT',headers:{authorization:'Bearer QA_TOKEN','content-type':'application/json'},body:JSON.stringify(body)}),env});
+ const body={selected:'PROFESSIONAL',sync:true,layout:'PRICE_FOCUS',studies:['RSI','MACD'],drawings:[],
+ expectedUpdatedAt:before,user_id:'00000000-0000-4000-8000-000000000000',access_token:'should never store'};
+ const reqPut=(payload,origin='https://site.test')=>new Request('https://site.test/api/chart-workspace',
+  {method:'PUT',headers:{authorization:'Bearer QA_TOKEN','content-type':'application/json',origin},
+  body:JSON.stringify(payload)});
+ r=await onRequest({request:reqPut(body),env});
  data=await r.json();assert.equal(r.status,200);assert.equal(data.workspace.selected,'PROFESSIONAL');
  assert.equal(data.workspace.studies.length,2);assert.equal(data.workspace.layout,'PRICE_FOCUS');assert.equal(db.settings.access_token,undefined);
- assert(events.some(e=>e.path.endsWith('/crownlight_chart_workspaces_v1')&&e.method==='POST'));
- console.log('PASS Crownlight private workspace: auth required, no member-chosen user_id, server-tier validation and secrets excluded');
+ assert(events.some(e=>e.path.endsWith('/rpc/gu_crownlight_chart_workspace_save_v3')&&e.method==='POST'));
+ r=await onRequest({request:reqPut({...body,studies:['ATR']}),env});
+ data=await r.json();assert.equal(r.status,409);assert.equal(data.error,'WORKSPACE_CHANGED');
+ assert.deepEqual(db.settings.studies,['RSI','MACD'],'Stale tab must not overwrite newer settings');
+ r=await onRequest({request:reqPut({...body,expectedUpdatedAt:after,studies:['ATR']}),env});
+ assert.equal(r.status,200);assert.deepEqual(db.settings.studies,['ATR']);
+ r=await onRequest({request:reqPut({...body,expectedUpdatedAt:after},'https://hostile.test'),env});
+ assert.equal(r.status,403,'Cross-site writes must be denied');
+ r=await onRequest({request:reqPut({...body,expectedUpdatedAt:undefined}),env});
+ assert.equal(r.status,409,'Unversioned saves must be denied');
+ console.log('PASS Crownlight private workspace: auth, atomic revision CAS, stale tab denial, same-origin, tier normalization, secret stripping');
 }finally{globalThis.fetch=original}
