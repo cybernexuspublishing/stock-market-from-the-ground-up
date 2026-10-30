@@ -1160,8 +1160,10 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   scheduleCheckpoint();
  }
  function nextStage(fromInstructor=false){
-  if(guidedAuto&&stage===1&&!fromInstructor){
-   mark('Complete Check My Understanding before automatic progression.');return
+  if(guidedAuto&&!fromInstructor&&
+   (stage===0||stage===1||
+    (stage===2&&(learnerReplies.get(2)||[]).length<instructorQuestions(2).length))){
+   mark('Guided autoplay is paused for the current instruction or required question. Complete Talia’s question to continue.');return
   }
   if(creditBusy){mark('Finish confirming your Crownlight Lumens first.');return}
   if(stage===3&&!predictionLocked){mark('Lock your prediction before continuing.');return}
