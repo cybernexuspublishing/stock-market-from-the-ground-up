@@ -5,7 +5,9 @@ on:
     paths:
       - 'scripts/market-data/verify_local_iex_archive_v1.py'
       - 'scripts/market-data/iex_tops.py'
+      - 'scripts/market-data/iex_full_session_reconcile_v1.py'
       - 'tests/test_iex_local_archive_integrity_v1.py'
+      - 'tests/test_iex_local_full_session_reconcile_v1.py'
       - '.github/workflows/iex-owner-local-archive-verifier-v1.yml'
   workflow_dispatch:
 permissions:
@@ -23,8 +25,9 @@ jobs:
           python-version: '3.12'
       - name: Validate filename and offline original-archive integrity verifier
         run: |
-          python -m py_compile scripts/market-data/iex_tops.py scripts/market-data/verify_local_iex_archive_v1.py
+          python -m py_compile scripts/market-data/iex_tops.py scripts/market-data/verify_local_iex_archive_v1.py scripts/market-data/iex_full_session_reconcile_v1.py
           python -m unittest discover -s tests -p 'test_iex_local_archive_integrity_v1.py' -v
+          python -m unittest discover -s tests -p 'test_iex_local_full_session_reconcile_v1.py' -v
           python - <<'PY'
           import sys
           sys.path.insert(0,'scripts/market-data')
