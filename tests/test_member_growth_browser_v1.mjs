@@ -14,6 +14,7 @@ const report={title:'SMFGU Free Member Growth V1: anonymous production browser a
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 let browser;
 try{
+ mkdirSync('artifacts/growth',{recursive:true});
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  for(const width of [390,1440]){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
