@@ -38,9 +38,9 @@ try{
  });
  await page.addScriptTag({path:'assets/js/crownlight-workspace-v2.js'});
  await page.evaluate(()=>dispatchEvent(new CustomEvent('crownlight:tier-permission')));
- await page.locator('[data-cl-layout]').waitFor();
+ await page.locator('select[data-cl-layout]').waitFor();
  await page.waitForFunction(()=>document.querySelector('[data-cl-studies]')?.value==='EMA');
- await page.locator('[data-cl-layout]').selectOption('PRICE_FOCUS');
+ await page.locator('select[data-cl-layout]').selectOption('PRICE_FOCUS');
  await page.locator('[data-cl-studies]').fill('EMA, RSI');
  await page.locator('[data-cl-save]').click();
  await page.waitForFunction(()=>document.querySelector('.cl-workspace-status')?.textContent.includes('revision protection'));
