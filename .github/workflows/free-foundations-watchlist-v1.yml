@@ -44,6 +44,8 @@ on:
       - 'assets/css/free-foundations-teaching-studio-v3.css'
       - 'tests/test_free_foundations_studio_v3.mjs'
       - 'assets/js/labs.js'
+      - 'tests/test_learning_destination_picker_browser_v2.mjs'
+      - 'assets/js/learning-destination-picker-v1.js'
       - 'assets/css/lab-registry-entitlements-v1.css'
       - 'labs.html'
       - 'functions/api/lab-registry-access.js'
@@ -109,6 +111,7 @@ jobs:
           node --check assets/js/free-foundations-knowledge-v1.js
           node tests/test_free_foundations_knowledge_v1.mjs
           node tests/test_free_membership_browser_v1.mjs
+          node tests/test_learning_destination_picker_browser_v2.mjs
           node --check assets/js/labs.js
           node --check functions/api/lab-registry-access.js
           node tests/test_lab_registry_access_v1.mjs
