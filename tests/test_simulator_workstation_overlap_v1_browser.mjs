@@ -24,7 +24,7 @@ try{
    if(u.pathname==='/api/member-tool-access')return route.fulfill({contentType:'application/json',body:JSON.stringify({
     ok:true,authorized:true,freeEligible:true,reason:'Fixture premium member'})});
    if(u.pathname==='/api/simulator-lab-context')return route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,labs:[]})});
-   if(u.pathname.startsWith('/api/')){providerRequests.push(u.pathname);return route.fulfill({status:403,body:'Forbidden',contentType:'text/plain'})}
+   if(u.pathname.startsWith('/api/')){if(u.pathname==='/api/marketdata')providerRequests.push(u.pathname);return route.fulfill({status:403,body:'Forbidden',contentType:'text/plain'})}
    const filename=resolve(root,u.pathname.slice(1));
    if(!filename.startsWith(root+'/')||!existsSync(filename))return route.fulfill({status:404,body:'Not found'});
    const type=extname(filename)==='.css'?'text/css':extname(filename)==='.js'?'application/javascript':'text/plain';
