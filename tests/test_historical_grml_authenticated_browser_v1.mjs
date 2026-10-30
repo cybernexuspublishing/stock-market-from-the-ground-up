@@ -49,23 +49,34 @@ try{
   await page.locator('#vr-reason').fill('QA decision: no confirmed entry or invalidation from the first completed candle alone.');
   await page.locator('#vr-lock').click();
   await page.waitForFunction(()=>!document.querySelector('#vr-advance')?.disabled);
-  for(let i=1;i<=5;i++){
+  const stageChecks=new Map([[2,/Recognize candle sequences/],[4,/Read venue volume carefully/],
+   [9,/Mark observed levels/],[14,/Check completed higher timeframes/],
+   [19,/Define the trade and the risk/],[24,/Reassess rather than force a setup/],
+   [29,/Separate decision quality from hindsight/]]);
+  for(let i=1;i<=29;i++){
     await page.locator('#vr-advance').click();
     await page.waitForFunction(idx=>document.querySelector('#vr-index')?.textContent?.trim()===String(idx),i);
+    if(stageChecks.has(i))assert.match(await page.locator('#hr-grml-lesson h4').innerText(),stageChecks.get(i),
+     'Talia must follow the real server-revealed source-minute milestone');
+    if(i===5){
+      await page.locator('#hr-timeframe').selectOption('15');
+      assert.match(await page.locator('#hr-ohlcv').innerText(),/No completed bar/,'Partial 15m candles must remain hidden');
+      await page.locator('#hr-timeframe').selectOption('1');
+    }
   }
   await page.locator('#hr-timeframe').selectOption('1');
-  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Read venue volume carefully/);
+  assert.match(await page.locator('#hr-count').innerText(),/30 completed 1m bars/);
   await page.locator('#hr-timeframe').selectOption('3');
-  assert.match(await page.locator('#hr-count').innerText(),/2 completed 3m bars/);
+  assert.match(await page.locator('#hr-count').innerText(),/10 completed 3m bars/);
   await page.locator('#hr-timeframe').selectOption('5');
-  assert.match(await page.locator('#hr-count').innerText(),/1 completed 5m bars/);
+  assert.match(await page.locator('#hr-count').innerText(),/6 completed 5m bars/);
   await page.locator('#hr-timeframe').selectOption('15');
-  assert.match(await page.locator('#hr-ohlcv').innerText(),/No completed bar/);
+  assert.match(await page.locator('#hr-count').innerText(),/2 completed 15m bars/);
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#vr-resume').click();
-  await page.waitForFunction(()=>document.querySelector('#vr-index')?.textContent?.trim()==='5');
-  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Read venue volume carefully/);
-  console.log('PASS GENUINE GRML QA Chromium: first-candle learning, decision lock, five protected advances, no-lookahead timeframes, Talia and resume.');
+  await page.waitForFunction(()=>document.querySelector('#vr-index')?.textContent?.trim()==='29');
+  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Separate decision quality from hindsight/);
+  console.log('PASS GENUINE GRML QA Chromium: full 30-minute source, every Talia checkpoint, completed 1m\/3m\/5m\/15m frames, protected resume.');
   await page.locator('#vr-finish').click();
   await page.locator('#vr-session').waitFor({state:'hidden',timeout:20000});
   assert.match(await page.locator('#vr-notice').innerText(),/Replay finished|recorded in the existing Trading Journal/i);
