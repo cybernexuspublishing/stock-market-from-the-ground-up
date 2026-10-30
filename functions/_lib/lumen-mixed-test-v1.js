@@ -63,6 +63,9 @@ export async function testMode(c){
 export async function stripe(c,path,options={}){
  const headers={authorization:'Bearer '+c.stripe};
  if(options.body!==undefined)headers['content-type']='application/x-www-form-urlencoded';
+ // GU39 TEST Managed Payments requires the explicitly approved preview API version.
+ if(options.body!==undefined&&path==='checkout/sessions')
+  headers['Stripe-Version']='2026-02-25.preview';
  if(options.idempotency)headers['Idempotency-Key']=options.idempotency;
  const r=await fetch('https://api.stripe.com/v1/'+path,{
   method:options.body===undefined?'GET':'POST',headers,
