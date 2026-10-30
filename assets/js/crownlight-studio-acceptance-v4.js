@@ -113,7 +113,8 @@
    cache:'no-store',credentials:'same-origin'});
   const data=await response.json().catch(()=>null);
   const current=(await client.auth.getSession()).data?.session;
-  if(!active||current?.user?.id!==who.id||epoch!==who.epoch)throw Error('Member session changed; results discarded.');
+  if(active&&current?.user?.id!==who.id)clear();
+  if(!active||epoch!==who.epoch)throw Error('Member session changed; results discarded.');
   if(!response.ok||data?.ok!==true)throw Error(String(data?.error||'Member service unavailable').slice(0,200));
   return data;
  }
