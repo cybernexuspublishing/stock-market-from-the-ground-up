@@ -83,10 +83,11 @@
    item.dataset.access=state;
    const info=document.createElement('div');info.className='gu-picker-info';
    const line=document.createElement('div');line.className='gu-picker-heading';
+   if(locked){const nameLock=text('span','🔒','gu-picker-lock');nameLock.setAttribute('aria-hidden','true');line.append(nameLock)}
    line.append(text('strong',row.title));
    const id=text('span',row.id,'gu-picker-id');line.append(id);
    const badge=text('span',state==='available'?'Available':state==='upcoming'?'Not released':'Locked','gu-picker-access');
-   if(locked){const lock=text('span','🔒','gu-picker-lock');lock.setAttribute('aria-hidden','true');badge.prepend(lock);}
+
    line.append(badge);info.append(line);
    const meta=[row.skill?('Skill: '+row.skill):'',row.ticker?('Ticker: '+row.ticker):'',
     row.days?(row.days+' days'):'',row.book?('Book '+row.book):''].filter(Boolean);
