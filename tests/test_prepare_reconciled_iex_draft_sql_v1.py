@@ -5,8 +5,8 @@ from prepare_reconciled_iex_draft_sql_v1 import prepare
 def source():
  return {'schema':'groundup.iex_full_day_reconciliation.v1','date_et':'2024-05-07','source_sha256':'a'*64,
  'member_publication_approved':False,'non_TOPS_packet_count':0,'sequence_gaps_or_duplicates_require_review':False,
- 'symbols':{'DIS':{'bars':[{'timestamp_utc':'2024-05-07T13:30:00Z','open':'107.2500','high':'107.2500','low':'105.7650','close':'106.5300','volume':32051},
- {'timestamp_utc':'2024-05-07T13:31:00Z','open':'106.5300','high':'107.0550','low':'106.4600','close':'107.0550','volume':22673}]}}}
+ 'symbols':{'DIS':{'volume_only_minutes':[], 'volume_conservation':{'passed':True,'price_bar_volume':54724,'volume_only_volume':0,'price_bar_events':2,'volume_only_events':0,'all_venue_volume':54724},'bars':[{'timestamp_utc':'2024-05-07T13:30:00Z','open':'107.2500','high':'107.2500','low':'105.7650','close':'106.5300','volume':32051,'observed_trades':1},
+ {'timestamp_utc':'2024-05-07T13:31:00Z','open':'106.5300','high':'107.0550','low':'106.4600','close':'107.0550','volume':22673,'observed_trades':1}]}}}
 class DraftImport(unittest.TestCase):
  def test_private_draft_source_is_never_published(self):
   sql,m=prepare(source(),'HR_DIS_20240507')
@@ -24,6 +24,19 @@ class DraftImport(unittest.TestCase):
    with self.assertRaises(ValueError,msg=key):prepare(src,'HR_DIS_20240507')
   src=source();src['symbols']['DIS']['bars'][0]['low']='108.0000'
   with self.assertRaises(ValueError):prepare(src,'HR_DIS_20240507')
+ def test_rejects_silent_loss_of_volume_only_trades(self):
+  src=source()
+  src['symbols']['DIS']['volume_only_minutes']=[{'timestamp_utc':'2024-05-07T13:32:00Z','volume':12,'observed_trades':1}]
+  with self.assertRaisesRegex(ValueError,'Volume-only minutes'):
+   prepare(src,'HR_DIS_20240507')
+  src=source()
+  src['symbols']['DIS']['volume_conservation']['price_bar_volume']=1
+  with self.assertRaisesRegex(ValueError,'Bar-volume total'):
+   prepare(src,'HR_DIS_20240507')
+  src=source()
+  del src['symbols']['DIS']['volume_conservation']
+  with self.assertRaisesRegex(ValueError,'conservation evidence'):
+   prepare(src,'HR_DIS_20240507')
  def test_wrong_source_day_rejected(self):
   with self.assertRaises(ValueError):prepare(source(),'HR_DIS_20240508')
 if __name__=='__main__':unittest.main()
