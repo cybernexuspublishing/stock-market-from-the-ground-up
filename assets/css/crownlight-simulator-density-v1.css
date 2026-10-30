@@ -744,9 +744,11 @@ body.simulator-page #sim-content:not([hidden]) > #cl-simulator-workbench{
  grid-area:workbench!important;
  width:100%!important;max-width:none!important;min-width:0!important;
  margin:0!important;
- position:sticky!important;top:12px;
- max-height:calc(100vh - 26px)!important;overflow:auto!important;
- align-self:start!important;overscroll-behavior:contain;
+ /* Keep the full-height workbench inside its own grid row.
+  * Sticky scrolling could paint it over the next source-setup row. */
+ position:static!important;top:auto!important;
+ max-height:none!important;overflow:visible!important;
+ align-self:start!important;overscroll-behavior:auto!important;
 }
 body.simulator-page #sim-content .sim-layout > .sim-chart-panel{
  width:100%!important;max-width:100%!important;min-width:0!important;
