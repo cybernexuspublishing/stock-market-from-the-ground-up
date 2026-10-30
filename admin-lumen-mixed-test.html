@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="assets/css/styles.css"><script src="config.js"></script>
 <script defer src="assets/js/supabase-client.js"></script>
 <script defer src="assets/js/session-manager.js"></script>
-<script defer src="assets/js/owner-lumen-mixed-test-v1.js?v=20261030-resume-1"></script>
+<script defer src="assets/js/owner-lumen-mixed-test-v1.js?v=20261030-provider-recovery-2"></script>
 <style>
 .qa-wrap{max-width:860px;margin:38px auto;padding:0 18px 60px}.qa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
 .qa-card{background:#142331;color:#f1f8ff;border:1px solid #3b5262;border-radius:14px;padding:22px;margin-bottom:16px}
@@ -23,6 +23,7 @@
 <p><a href="admin.html">Return to Admin Payment Center</a></p></section>
 <section class="qa-card"><h2>1. Test readiness and shadow wallet</h2>
 <p id="qa-mode">Checking Owner and Stripe TEST mode…</p>
+<p id="qa-provider-readiness" role="status" aria-live="polite">Checking the connected Stripe TEST provider and Owner test mode…</p>
 <label for="qa-seed">Set shadow QA wallet balance (0–1000)</label><input id="qa-seed" type="number" min="0" max="1000" step="1" value="80">
 <button id="qa-set" type="button">Set TEST balance</button><button id="qa-refresh" type="button">Refresh TEST ledger</button>
 <p id="qa-wallet">Shadow Lumens: —</p></section>
@@ -34,7 +35,7 @@
 <p>286 Lumens cover the entire $19.99 fixture and create <strong>no Stripe session</strong>. Partial payments redirect to Stripe TEST; signed webhooks control settlement. Selecting 285 Lumens leaves an ineligible $0.04 cash remainder and must be rejected.</p></section>
 <section class="qa-card"><h2>3. Refund, expire and reconcile</h2>
 <label for="qa-intent">Choose an existing TEST order</label><select id="qa-intent" aria-describedby="qa-order-help"><option value="">Loading TEST orders…</option></select>
-<p id="qa-order-help">Only an unpaid, Stripe-bound order can be expired. Only a paid and fulfilled order can be refunded.</p>
+<p id="qa-order-help">Unbound TEST orders can be resumed or released without a payment. Only a Stripe-bound unpaid order can be expired, and only a paid and fulfilled order can be refunded.</p>
 <button id="qa-expire" type="button" disabled>Expire unpaid TEST session</button><button id="qa-refund" type="button" disabled>Refund paid TEST session</button>
 <p>These requests use Stripe TEST. Wallet changes and shadow access revocation occur through signed webhook reconciliation—not merely by clicking a button.</p>
 <h3>Recent TEST orders</h3><p id="qa-history-empty" role="status">Loading TEST orders…</p><ul id="qa-history"></ul></section>
