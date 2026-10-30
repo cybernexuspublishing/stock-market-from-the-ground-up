@@ -98,7 +98,7 @@
    // The original static SVG and tabular data continue to work without ECharts.
   }
  }
- window.addEventListener('resize',()=>echartsEquity?.resize());
+ window.addEventListener?.('resize',()=>echartsEquity?.resize());
  function renderMethods(items){
   const host=$('analytics-metric-methods');host.replaceChildren();
   if(!Array.isArray(items)||items.length!==7||items.some(v=>
