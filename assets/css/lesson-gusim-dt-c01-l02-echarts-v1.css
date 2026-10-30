@@ -25,3 +25,31 @@
 .dt-l02-reminder{grid-column:1/-1;opacity:.85}
 @media(max-width:760px){.dt-l02-panel{padding:13px}.dt-l02-chart{height:350px}
  .dt-l02-teaching{grid-template-columns:1fr}}
+
+/* Only this specific Lab's actual practice session uses a single teaching chart.
+   Legacy SVG remains available if the ECharts library does not initialize. */
+@media(min-width:1101px){
+ body.simulator-page #vr-session.dt-l02-active:not([hidden]){
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:"heading" "session" "source" "lesson" "chart" "plan" "table"
+   "actions" "disclosure" "execution"!important;gap:12px!important
+ }
+ body.simulator-page #vr-session.dt-l02-active>.dt-l02-panel{
+  grid-area:lesson;min-width:0;max-width:100%;width:100%;margin:0
+ }
+}
+body.simulator-page #vr-session.dt-l02-active>figure[hidden]{display:none!important}
+body.simulator-page #vr-session.dt-l02-active>#vr-plan{min-width:0;width:100%;max-width:none;display:block}
+body.simulator-page #vr-session.dt-l02-active>#vr-plan label{display:block;margin:12px 0 5px;font-size:.9rem}
+body.simulator-page #vr-session.dt-l02-active>#vr-plan select,
+body.simulator-page #vr-session.dt-l02-active>#vr-plan input,
+body.simulator-page #vr-session.dt-l02-active>#vr-plan textarea{
+ display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:39px;
+ padding:9px 11px;font-size:.92rem;line-height:1.5
+}
+body.simulator-page #vr-session.dt-l02-active>#vr-plan textarea{min-height:125px}
+body.simulator-page #vr-session.dt-l02-active>#vr-plan fieldset{margin:16px 0;max-width:none}
+body.simulator-page #vr-session.dt-l02-active>.dt-l02-panel{min-width:0}
+@media(max-width:1100px){
+ body.simulator-page #vr-session.dt-l02-active>.dt-l02-panel{width:100%;min-width:0}
+}
