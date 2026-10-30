@@ -32,7 +32,7 @@ globalThis.fetch=async(input,init={})=>{
  if(path==='/auth/v1/user')return response({id:U});
  if(path.endsWith('/profiles'))return response([{account_kind:'member',deleted_at:null}]);
  if(path.endsWith('/admin_user_flags'))return response(restricted?[{status:'suspended'}]:[]);
- if(path.endsWith('/admin_user_roles'))return response([{role_code:'OWNER',expires_at:null}]);
+ if(path.endsWith('/admin_user_roles'))return response([]);
  if(path.endsWith('/platform_tools'))return response([{tool_code:'WATCHLIST_WORKBENCH',
   status:'beta',active:true,free_preview:false,name:'Research Workbench'}]);
  if(path.endsWith('/rpc/user_has_tool_access'))return response(hasRight);
