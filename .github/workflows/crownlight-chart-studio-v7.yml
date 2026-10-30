@@ -1,0 +1,62 @@
+name: Crownlight Chart Studio V7 Source-Scoped Workspace
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/chart-workspace.js'
+      - 'assets/js/crownlight-workspace-v2.js'
+      - 'tests/test_crownlight_workspace_sources_v7.mjs'
+      - 'tests/test_crownlight_workspace_sources_v7_browser.mjs'
+      - '.github/workflows/crownlight-chart-studio-v7.yml'
+permissions:
+  contents: read
+jobs:
+  private-workspace-source-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse and verify private normalization and existing secure workspaces
+        run: |
+          node --check functions/api/chart-workspace.js
+          node --check assets/js/crownlight-workspace-v2.js
+          node tests/test_crownlight_workspace_sources_v7.mjs
+          node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
+          node tests/test_crownlight_chart_provider_inventory_v6.mjs
+          node tests/test_v014145_marketdata_byo_security.mjs
+      - name: Verify no private backend code/secret bundled in Pages
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/crownlight-workspace-v2.js
+          test -f public/simulator.html
+          test ! -d public/functions
+          test ! -e public/supabase
+  chromium-private-dataset-lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install no-cost pinned Chromium and existing charting dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0 lightweight-charts@5.2.1
+          npx playwright install --with-deps chromium
+      - name: Test independent symbol collections, save/restore, and sign-out scrub
+        run: node tests/test_crownlight_workspace_sources_v7_browser.mjs
+      - name: Preserve original Professional synchronization and provider integration
+        run: |
+          node tests/test_crownlight_workspace_sync_v6_browser.mjs
+          node tests/test_crownlight_chart_studio_v3_browser.mjs
+          node tests/test_crownlight_source_to_chart_v5_browser.mjs
