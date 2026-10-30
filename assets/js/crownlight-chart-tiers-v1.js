@@ -145,26 +145,50 @@ async function redeemSparkOffer(offer,button,feedback){
  if(!Number.isSafeInteger(state.sparkBalance)||state.sparkBalance<offer.costSparks){
   feedback.textContent='Insufficient Crownlight Sparks. No credits were deducted.';return
  }
- // The member confirms using the priced redemption button in the modal.
- // The server still checks expectedCost, eligibility, ledger and wallet atomically.
+ if(button.disabled)return;
  button.disabled=true;feedback.textContent='Verifying wallet and redeeming…';
+ let receipt=null,memberId=null,confirmed=false;
  try{
-  const token=await sparksToken();
+  const client=await window.getSupabaseClient();
+  const session=(await client.auth.getSession()).data?.session;
+  if(!session?.access_token||!session.user?.id||
+     session.user.id!==state.authUserId||!state.verified)
+   throw Error('Member session changed; no new redemption requested.');
+  memberId=session.user.id;
+  const retry=window.CrownlightSparksRetryV1;
+  if(!retry?.acquire||!retry?.confirm)throw Error('Secure redemption retry protection unavailable.');
+  // Stable across uncertain responses and reloads; server RPC also validates
+  // request_id under an atomic per-member lock before any bucket debit.
+  receipt=retry.acquire(memberId,offer.sku);
   const result=await fetch('/api/member-sparks-chart',{
-   method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+   method:'POST',headers:{authorization:'Bearer '+session.access_token,
+    'content-type':'application/json'},
    credentials:'same-origin',cache:'no-store',
-   body:JSON.stringify({sku:offer.sku,requestId:crypto.randomUUID(),expectedCost:offer.costSparks})
+   body:JSON.stringify({sku:offer.sku,requestId:receipt,expectedCost:offer.costSparks})
   });
   const data=await result.json().catch(()=>({}));
   if(!result.ok||data.ok!==true)throw Error(data.error||'Redemption not confirmed.');
-  feedback.textContent='Pass activated until '+new Date(data.expiresAt).toLocaleString()+'.';
+  if(data.tier!==offer.tier||!Number.isFinite(Date.parse(data.expiresAt||''))||
+     Date.parse(data.expiresAt)<=Date.now())
+   throw Error('Provider receipt requires reconciliation; do not buy again.');
+  confirmed=true;
+  feedback.textContent='Sparks transaction verified; rechecking chart access…';
   await permission();
-  await loadSparkOffers();
-  if(state.allowed.includes(offer.tier))void choose(offer.tier);
+  if(state.verified&&state.authUserId===memberId&&state.allowed.includes(offer.tier)){
+   retry.confirm(memberId,offer.sku,receipt);
+   feedback.textContent='Pass verified until '+new Date(data.expiresAt).toLocaleString()+'.'+
+     (data.alreadyRedeemed?' Original purchase receipt reused; no additional Sparks spent.':'');
+   await loadSparkOffers();
+   void choose(offer.tier);
+  }else{
+   feedback.textContent='Sparks transaction was confirmed, but chart access verification has not completed. Refresh permissions; do not redeem again.';
+  }
  }catch(error){
-  feedback.textContent='No confirmed redemption: '+String(error.message||error)+
-   '. Check your wallet before retrying.';
-  button.disabled=false;
+  feedback.textContent=confirmed?
+   'Purchase receipt confirmed but Studio verification is incomplete. Refresh before any other action.':
+   'Redemption not confirmed: '+String(error.message||error)+
+    '. Retrying this offer reuses the SAME transaction ID to prevent duplicate Sparks charges.';
+  if(!confirmed)button.disabled=false;
   if(/PRICE_CHANGED/.test(feedback.textContent))void loadSparkOffers();
  }
 }
