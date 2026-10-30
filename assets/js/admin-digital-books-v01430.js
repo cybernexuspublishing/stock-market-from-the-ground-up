@@ -45,6 +45,17 @@ function mount(){
     card.append(editionFields);
     const fileStatus=el('p',product.asset?'Current private asset: '+product.asset:'No private asset attached.','small');card.append(fileStatus);
     let asset=product.asset||'';const rowStatus=el('p','Changes are saved only after server validation.','small');rowStatus.setAttribute('role','status');
+    const showBookFeedback=(message,kind='error')=>{
+     rowStatus.textContent=message;
+     const dialog=document.getElementById('admin-dialog');
+     if(!dialog?.open||!dialog.classList.contains('admin-book-editor'))return;
+     const feedback=dialog.querySelector('#admin-dialog-msg');
+     if(!feedback)return;
+     feedback.textContent=message;
+     feedback.className='status-message '+kind;
+     feedback.setAttribute('role',kind==='error'?'alert':'status');
+     feedback.setAttribute('aria-live',kind==='error'?'assertive':'polite');
+    };
     const upload=el('button','Upload selected file privately','btn secondary');upload.type='button';
     const save=el('button','Save eBook Rights & Controls','btn');save.type='button';
     upload.onclick=async()=>{if(busy)return;const f=file.files?.[0];if(!f){rowStatus.textContent='Select an EPUB or PDF.';return}
@@ -117,10 +128,10 @@ function mount(){
       throw Error(friendlySaveError(e.message));
      }finally{busy=false;upload.disabled=save.disabled=loadButton.disabled=false}
     };
-    save.onclick=()=>{void saveControls().catch(e=>{rowStatus.textContent='Save refused: '+friendlySaveError(e.message)})};
+    save.onclick=()=>{void saveControls().then(()=>showBookFeedback('eBook rights and controls saved.','success')).catch(e=>showBookFeedback('Save refused: '+friendlySaveError(e.message)))};
     const draftSave=el('button','Save book setup (Sales OFF)','btn secondary');
     draftSave.type='button';
-    draftSave.onclick=()=>{void saveControls({draft:true}).catch(e=>{rowStatus.textContent='Draft save refused: '+friendlySaveError(e.message)})};
+    draftSave.onclick=()=>{void saveControls({draft:true}).then(()=>showBookFeedback('Private book setup saved with sales OFF.','success')).catch(e=>showBookFeedback('Draft save refused: '+friendlySaveError(e.message)))};
 
 
     // Record the current private EPUB through existing password-guarded

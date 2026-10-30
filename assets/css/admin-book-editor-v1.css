@@ -82,6 +82,7 @@
   resize:vertical;
 }
 #admin-dialog.admin-book-editor .admin-dialog-actions{
+  order:2;
   flex:0 0 auto;
   position:relative;
   margin:0;
@@ -91,14 +92,38 @@
   z-index:1;
 }
 #admin-dialog.admin-book-editor #admin-dialog-msg{
+  order:1;
+  box-sizing:border-box;
   flex:0 0 auto;
-  padding:0 18px;
-  margin:0;
-  max-height:5rem;
+  width:auto;
+  max-height:min(10rem,28dvh);
   overflow-y:auto;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  margin:0 18px;
+  padding:0;
+  line-height:1.45;
   background:#0a2031;
 }
-#admin-dialog.admin-book-editor #admin-dialog-msg:not(:empty){padding-bottom:10px}
+#admin-dialog.admin-book-editor #admin-dialog-msg:empty{display:none}
+#admin-dialog.admin-book-editor #admin-dialog-msg:not(:empty){
+  display:block;
+  padding:10px 13px;
+  border:1px solid #52718b;
+  border-radius:8px;
+  margin-top:8px;
+  margin-bottom:8px;
+}
+#admin-dialog.admin-book-editor #admin-dialog-msg.error{
+  color:#ffe0ac;
+  background:#30251b;
+  border-color:#c88b38;
+}
+#admin-dialog.admin-book-editor #admin-dialog-msg.success{
+  color:#c4f5e0;
+  background:#17352c;
+  border-color:#398e70;
+}
 #admin-dialog.admin-book-editor .gu-digital-books{
   margin:17px 0 0;
   padding:13px;

@@ -26,6 +26,15 @@ assert(source.includes('editionFields.append('),'Rights and upload fields must b
 assert(source.includes('actions.append(upload,prepare,historyButton,previewTools,save,draftSave)'),'All six book actions should be grouped side by side');
 assert(styles.includes('.gu-digital-actions'),'Responsive book action layout must exist');
 assert(styles.includes('overflow-y:auto'),'Book body must remain scrollable above Save/Cancel');
+assert(styles.includes('order:2;'),'Save/Cancel must appear below the book feedback message');
+assert(styles.includes('order:1;'),'Book feedback must appear directly above Save/Cancel');
+assert(styles.includes('#admin-dialog.admin-book-editor #admin-dialog-msg.error'),'Book errors must be visibly differentiated');
+assert(styles.includes('max-height:min(10rem,28dvh)'),'Long validation errors must be readable without clipping');
+assert(parent.includes("feedback.setAttribute('role','alert')"),'Main Save errors must announce their presence');
+assert(source.includes('const showBookFeedback='),'Protected eBook actions must share the visible feedback banner');
+assert(source.includes("showBookFeedback('Save refused: '"),'Direct rights Save must expose errors above the footer');
+assert(source.includes("if(intendsSales&&!rights.checked)throw Error('Confirm distribution rights before enabling sales or downloads.');"),'Digital publishing rights checks must remain enforced');
+
 assert(styles.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'Use three columns of file actions on desktop');
 assert(html.includes('assets/css/admin-book-editor-v1.css?v=20261030-1'),'Book editor stylesheet must load');
 console.log('PASS admin book save: main Save coordinates protected rights, clear KDP/provider errors, draft save with sales OFF');
