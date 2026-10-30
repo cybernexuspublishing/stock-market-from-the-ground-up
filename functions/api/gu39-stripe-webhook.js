@@ -1,5 +1,6 @@
 import {handleFounderSandbox} from '../_lib/founder-sandbox-lifecycle-v014216.js';
 import {handleAdSandbox} from '../_lib/ad-sandbox-lifecycle-v014242.js';
+import {handleLumenMixedTest} from '../_lib/lumen-mixed-test-webhook-v1.js';
 /* v0.14.0.49 | Stripe TEST webhooks -> SHADOW TABLES ONLY.
  * Production subscriptions, purchases and actual entitlements are never touched.
  */
@@ -114,6 +115,9 @@ export async function onRequestPost({request,env}){
  try{enabled=await ownerTestingEnabled(env)}catch{return respond('SHADOW_SETTINGS_UNAVAILABLE',503)}
  if(!enabled)return respond('OWNER_TEST_MODE_DISABLED',503);
  try{
+  // Signed TEST Stripe proof is required before isolated Lumen shadow settlement.
+  const mixed=await handleLumenMixedTest(event,env);
+  if(mixed)return respond(mixed.body,mixed.status);
   const ad=await handleAdSandbox(event,env);
   if(ad)return respond(ad.body,ad.status);
   const founder=await handleFounderSandbox(event,env);
