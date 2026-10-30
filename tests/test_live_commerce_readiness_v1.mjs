@@ -113,10 +113,10 @@ try{
  skuAuthorizations=false;
  drift=await (await onRequestGet({request:req(true),env})).json();
  assert(drift.blockers.includes('SALE_READY_OWNER_SKU_AUTHORIZATION'),'Store sale-ready cannot bypass individual checkout disabled');
- skuAuthorizations=true;store[0].sku='addon:UNRELEASED';
+ skuAuthorizations=true;store[12].sku='addon:UNRELEASED';store[12].sale_ready=true;
  drift=await (await onRequestGet({request:req(true),env})).json();
  assert(drift.blockers.includes('SALE_READY_OWNER_SKU_AUTHORIZATION'),'Unimplemented Sparks purchases cannot pass as a mapped live SKU');
- store[0].sku=standard[0];store[0].sale_ready=false;
+ store[12].sku='test:12';store[12].sale_ready=false;store[0].sale_ready=false;
  assert.equal(mutations,0,'All negative tests remain provider read-only');
  console.log('PASS v2: Owner-only no-charge preflight, mapped exact cents and recurrence, Founding 30/60 days, per-SKU Owner authorization, outage and drift fail-closed');
 }finally{globalThis.fetch=old}
