@@ -43,15 +43,19 @@ async function endpoint(method,data){
  if(reply?.ok!==true)throw Error('Workspace not verified');return reply;
 }
 function activeDrawings(){
- const primary=getCharts()[0]?.chart;
- const overlays=primary?.getOverlays?.()||[];
+ // Members can draw in either Professional chart. Capture both charts,
+ // deduplicating mirrored overlays instead of silently losing the second.
+ const overlays=getCharts().flatMap(e=>e.chart?.getOverlays?.()||[]);
  const allowed=new Set(['segment','horizontalStraightLine','fibonacciLine']);
- const out=[];
+ const out=[],seen=new Set();
  for(const o of overlays){
   if(!allowed.has(o?.name)||!Array.isArray(o.points)||o.points.length===0)continue;
   const points=o.points.filter(p=>Number.isSafeInteger(p?.timestamp)&&Number.isFinite(p?.value)&&p.value>0)
    .slice(0,6).map(p=>({timestamp:p.timestamp,value:p.value}));
-  if(points.length)out.push({name:o.name,points});
+  if(points.length){
+   const key=JSON.stringify({name:o.name,points});
+   if(!seen.has(key)){seen.add(key);out.push({name:o.name,points})}
+  }
   if(out.length>=24)break;
  }
  return out;
