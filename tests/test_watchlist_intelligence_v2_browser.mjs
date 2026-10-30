@@ -50,6 +50,7 @@ try{
   window.GroundUpWatchlistIntelligenceV1={mount:()=>17};
   window.CrownlightECharts={load:async()=>({init:()=>({setOption(){},resize(){},dispose(){}})})};
  },user);
+ await page.addScriptTag({path:'assets/js/market-research-engine-v014145.js'});
  await page.addScriptTag({path:'assets/js/watchlist-research-core-v2.js'});
  await page.addScriptTag({path:'assets/js/watchlist-intelligence-v2.js'});
  const v=await page.evaluate(()=>{
@@ -97,6 +98,15 @@ try{
  assert.equal(writes,5,'only authenticated revision-guarded PATCH changes are persisted');
  assert.equal(await region.getByText('Saved scanner/discovery filters').count(),1);
  assert.equal(await region.getByRole('button',{name:'Attach saved plan to owned Journal record'}).count(),1);
+ const scanner=region.locator('.cl-wi-scanner');
+ await scanner.locator('label').filter({hasText:'Saved scanner/discovery filters'}).locator('select').selectOption('22');
+ await scanner.locator('label').filter({hasText:'Authorized scanner snapshot'}).locator('input').fill('Fictional authorized example snapshot, no live quotes');
+ await scanner.locator('label').filter({hasText:'Snapshot observation time'}).locator('input').fill('2026-10-29T10:00:00Z');
+ await scanner.locator('input[type=file]').setInputFiles({name:'fictional.csv',mimeType:'text/csv',
+  buffer:Buffer.from('symbol,price,change_pct,volume,rvol,float,spread_pct\\nFAKE,4,10,2000000,2,8000000,1.5\\n')});
+ await scanner.getByRole('button',{name:'Evaluate saved scanner criteria'}).click();
+ await scanner.getByText(/1 \/ 1 supplied snapshot rows matched/).waitFor();
+ assert.equal(writes,5,'scanner inspection cannot mutate a saved Watchlist record');
  await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
  assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
  assert.equal(await region.innerText(),'','private notes must be destroyed on sign-out, not only visually hidden');
