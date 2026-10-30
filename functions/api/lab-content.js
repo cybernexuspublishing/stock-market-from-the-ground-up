@@ -53,10 +53,36 @@ const token=/^Bearer\s+(.+)$/i.exec(req.headers.get('authorization')||'')?.[1];i
  if(library.some(x=>!x.expires_at||Date.parse(x.expires_at)>now))return true;
  const redeemed=await rest(env,'book_key_redemptions?select=book_code,starts_at,ends_at&user_id=eq.'+encodeURIComponent(id)+'&book_code=eq.'+productCode+'&limit=20');
  if(redeemed.some(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
- const grants=await rest(env,'user_plan_grants?select=plan_code,status,starts_at,ends_at,platform_plans!inner(includes_all_books,active,billing_interval)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
- if(grants.some(x=>x.platform_plans?.active===true&&x.platform_plans.includes_all_books===true&&['active','trialing'].includes(x.status)&&x.starts_at&&Date.parse(x.starts_at)<=now&&(!x.ends_at||Date.parse(x.ends_at)>now)))return true;
- const subscriptions=await rest(env,'site_subscriptions?select=plan_code,status,current_period_end,platform_plans!inner(includes_all_books,active,billing_interval)&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
- if(subscriptions.some(x=>x.platform_plans?.active===true&&x.platform_plans.includes_all_books===true&&['active','trialing'].includes(x.status)&&((x.platform_plans.billing_interval==='lifetime'&&!x.current_period_end)||(x.current_period_end&&Date.parse(x.current_period_end)>now))))return true;
+ // PostgREST embedded platform_plans!inner requires an actual FK relationship.
+ // Production grants/subscriptions have no such FK. Resolve plan definitions
+ // separately by exact server-stored plan_code, then enforce all original
+ // positive conditions. A missing/disabled plan never authorizes a book.
+ const grants=await rest(env,'user_plan_grants?select=plan_code,status,starts_at,ends_at&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
+ const subscriptions=await rest(env,'site_subscriptions?select=plan_code,status,current_period_end&user_id=eq.'+encodeURIComponent(id)+'&limit=25');
+ const candidateCodes=[...new Set([
+  ...grants.filter(x=>x.status==='active'||x.status==='trialing').map(x=>x.plan_code),
+  ...subscriptions.filter(x=>x.status==='active'||x.status==='trialing').map(x=>x.plan_code)
+ ].filter(x=>typeof x==='string'&&/^[A-Z0-9_]{3,90}$/.test(x)))];
+ if(candidateCodes.length>0){
+  const plans=await rest(env,'platform_plans?select=plan_code,includes_all_books,active,billing_interval&plan_code=in.('+candidateCodes.map(encodeURIComponent).join(',')+')&limit=50');
+  if(!Array.isArray(plans)||plans.length!==candidateCodes.length||
+     plans.some(p=>!candidateCodes.includes(p.plan_code)))
+   throw Object.assign(new Error('Book membership policy could not be verified.'),{status:503});
+  const byCode=new Map(plans.map(p=>[p.plan_code,p]));
+  if(grants.some(x=>{
+   const p=byCode.get(x.plan_code);
+   return p?.active===true&&p.includes_all_books===true&&
+    ['active','trialing'].includes(x.status)&&x.starts_at&&
+    Date.parse(x.starts_at)<=now&&(!x.ends_at||Date.parse(x.ends_at)>now);
+  }))return true;
+  if(subscriptions.some(x=>{
+   const p=byCode.get(x.plan_code);
+   return p?.active===true&&p.includes_all_books===true&&
+    ['active','trialing'].includes(x.status)&&
+    ((p.billing_interval==='lifetime'&&!x.current_period_end)||
+     (x.current_period_end&&Date.parse(x.current_period_end)>now));
+  }))return true;
+ }
  return roles.some(x=>x.role_code==='OWNER'&&(!x.expires_at||Date.parse(x.expires_at)>now));}
 export async function onRequest({request,env}){try{if(request.method!=='GET')return send({ok:false,error:'Method not allowed.'},405);const url=new URL(request.url),action=url.searchParams.get('action')||'case';
  if(action==='list'){
