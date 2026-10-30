@@ -30,7 +30,7 @@ export function normalizeWorkspace(input,entitlement){
  // Legacy documents without a context remain readable and are not deleted.
  const drawingContext=typeof raw.drawingContext==='string'&&
   raw.drawingContext.length>0&&raw.drawingContext.length<=150&&
-  !/[\\x00-\\x1f<>]/.test(raw.drawingContext)?raw.drawingContext:null;
+  !/[\x00-\x1f<>]/.test(raw.drawingContext)?raw.drawingContext:null;
  return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout,drawingContext};
 }
 const cfg=env=>{
