@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 const js=readFileSync('assets/js/historical-replay-classroom-v1.js','utf8');
 const modified=js.replace(
  "if(document.readyState==='loading')",
- "window.__qaGrml={configure:(n,completed)=>{dataset={code:'HR_GRML_20260921',ticker:'GRML'};bars=Array.from({length:n},(_,i)=>({ms:Date.parse('2026-09-21T13:30:00Z')+i*60000,o:4,h:5,l:3,c:4,v:200}));renderGrmlLesson(completed);},reset,answerCount:()=>grmlAnswers.size};\nif(document.readyState==='loading')"
+ "window.__qaGrml={configure:(n,completed)=>{dataset={code:'HR_GRML_20260921',ticker:'GRML'};bars=Array.from({length:n},(_,i)=>({ms:Date.parse('2026-09-21T13:30:00Z')+i*60000,o:4,h:5,l:3,c:4,v:200}));focus=n;renderGrmlLesson(completed);},review:(n,completed)=>{focus=n;renderGrmlLesson(completed);},reset,answerCount:()=>grmlAnswers.size};\nif(document.readyState==='loading')"
 );
 assert.notEqual(modified,js,'Teaching UI test needs access to controlled fixture observations');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -35,6 +35,8 @@ try{
  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Check completed higher timeframes/);
  await page.evaluate(()=>window.__qaGrml.configure(30,[]));
  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Separate decision quality/);
+ await page.evaluate(()=>window.__qaGrml.review(1,[]));
+ assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Observe before predicting/,'Reviewing the earlier visible cursor cannot display a later Talia lesson');
  await page.evaluate(()=>window.__qaGrml.reset());
  assert.equal(await page.evaluate(()=>window.__qaGrml.answerCount()),0,'Reset/sign-out discards every ungraded answer');
  await page.evaluate(()=>window.__qaGrml.configure(1,[]));
