@@ -1,0 +1,45 @@
+name: Crownlight Chart Studio V5 History Handoff Tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/crownlight-studio-acceptance-v4.js'
+      - 'assets/js/simulator.js'
+      - 'assets/css/crownlight-studio-acceptance-v4.css'
+      - 'simulator.html'
+      - 'tests/test_crownlight_source_to_chart_v5_browser.mjs'
+      - 'tests/test_crownlight_studio_acceptance_v4_browser.mjs'
+      - '.github/workflows/crownlight-chart-source-handoff-v5.yml'
+permissions:
+  contents: read
+jobs:
+  source-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check assets/js/simulator.js
+          node --check assets/js/crownlight-studio-acceptance-v4.js
+          node --check tests/test_crownlight_source_to_chart_v5_browser.mjs
+          node tests/test_crownlight_studio_acceptance_v4.mjs
+          node tests/test_v014145_marketdata_byo_security.mjs
+          node tests/test_free_simulator_starter_v1.mjs
+          node tests/test_sellable_simulator_csv_integrity_v1.mjs
+  chromium-handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - run: |
+          node tests/test_crownlight_studio_acceptance_v4_browser.mjs
+          node tests/test_crownlight_source_to_chart_v5_browser.mjs
+          node tests/test_simulator_workstation_overlap_v1_browser.mjs
