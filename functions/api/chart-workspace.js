@@ -72,7 +72,7 @@ export async function onRequest({request,env}){
   if(!Object.hasOwn(value,'expectedUpdatedAt')||
     !(value.expectedUpdatedAt===null||
       typeof value.expectedUpdatedAt==='string'&&
-      /^\\d{4}-\\d{2}-\\d{2}T/.test(value.expectedUpdatedAt)&&
+      /^\d{4}-\d{2}-\d{2}T/.test(value.expectedUpdatedAt)&&
       Number.isFinite(Date.parse(value.expectedUpdatedAt))))
    return answer({ok:false,error:'Restore workspace before attempting to save.'},409);
   const workspace=normalizeWorkspace(value,e);
