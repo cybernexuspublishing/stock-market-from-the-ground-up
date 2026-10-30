@@ -25,7 +25,13 @@ export function normalizeWorkspace(input,entitlement){
   if(points.length&&drawings.length<24)drawings.push({name:x.name,points});
  }
  const layout=selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(raw.layout)?raw.layout:'SIDE_BY_SIDE';
- return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout};
+ // Bind saved drawings to their originating chart dataset. Without this,
+ // an old support level could appear on another ticker with the same bar times.
+ // Legacy documents without a context remain readable and are not deleted.
+ const drawingContext=typeof raw.drawingContext==='string'&&
+  raw.drawingContext.length>0&&raw.drawingContext.length<=150&&
+  !/[\\x00-\\x1f<>]/.test(raw.drawingContext)?raw.drawingContext:null;
+ return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout,drawingContext};
 }
 const cfg=env=>{
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
