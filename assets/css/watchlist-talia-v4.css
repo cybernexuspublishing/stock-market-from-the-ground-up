@@ -1,0 +1,47 @@
+/* Crownlight Talia Watchlist Research v4 — one member-facing teaching system, both products. */
+.cl-talia-v4{margin:18px 0 26px;padding:23px;background:linear-gradient(143deg,#091c2b,#102d43);
+ border:1px solid #3b6c84;border-radius:15px;color:#e1edf5;min-width:0;max-width:100%;
+ box-sizing:border-box;box-shadow:0 13px 28px #07182428}
+#free-watchlist-talia-v4-host{grid-column:1/-1;min-width:0}
+.cl-talia-v4 h2,.cl-talia-v4 h3,.cl-talia-v4 h4{color:#fff;margin:0 0 9px}
+.cl-talia-v4 h2{font-size:1.35rem}.cl-talia-v4 h3{font-size:1.15rem}
+.cl-talia-v4 h4{font-size:1rem}
+.cl-talia-v4 p{line-height:1.6;color:#d2e0eb}
+.cl-talia-head{display:flex;gap:15px;align-items:center;margin-bottom:11px}
+.cl-talia-head p{margin:0;color:#b9d1df;font-size:.87rem}
+.cl-talia-avatar{display:grid;place-items:center;flex:none;width:55px;height:55px;
+ border-radius:50%;border:2px solid #c5a86d;background:#243d56;font-weight:800;font-size:1.3rem}
+.cl-talia-disclosure{font-size:.82rem;color:#b9cddd!important}
+.cl-talia-selectors,.cl-talia-chart-controls,.cl-talia-actions,.cl-talia-nav{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:15px 0}
+.cl-talia-selectors label,.cl-talia-chart-controls label,.cl-talia-prompt label{display:grid;gap:6px;flex:1 1 220px;font-weight:650;color:#e7f2f9}
+.cl-talia-v4 select,.cl-talia-v4 textarea{width:100%;box-sizing:border-box;min-height:42px;
+ border-radius:7px;background:#0b2030;color:#f3f7fa;border:1px solid #54738b;
+ padding:9px 11px;font:inherit}
+.cl-talia-v4 textarea{min-height:108px;resize:vertical;line-height:1.6}
+.cl-talia-v4 .btn{min-height:38px;white-space:normal;text-align:center}
+.cl-talia-v4 :is(button,a,select,textarea):focus-visible{outline:3px solid #ddc178;outline-offset:2px}
+.cl-talia-v4 button[disabled]{opacity:.5;cursor:not-allowed}
+.cl-talia-lesson,.cl-talia-chart-card,.cl-talia-prompt,.cl-talia-report{
+ padding:17px;border:1px solid #365e79;background:#0c2132;border-radius:12px;margin:14px 0;min-width:0}
+.cl-talia-step-label{font-weight:750;color:#e9c986!important;font-size:.84rem}
+.cl-talia-narration{min-height:120px;white-space:pre-wrap;background:#0c2a3d;padding:15px;
+ border-left:3px solid #d7b974;border-radius:6px;color:#edf6fb!important}
+.cl-talia-sr{position:absolute!important;width:1px;height:1px;clip:rect(0 0 0 0);
+ clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+.cl-talia-more{padding:7px 0;border-top:1px solid #36516b}
+.cl-talia-chart{height:455px;width:100%;min-width:0;background:#071a29;border:1px solid #345875;border-radius:9px}
+.cl-talia-price-table{width:100%;border-collapse:collapse;margin:9px 0;font-variant-numeric:tabular-nums}
+.cl-talia-price-table th,.cl-talia-price-table td{border-bottom:1px solid #2f4a60;padding:8px;text-align:center}
+.cl-talia-price-table th{color:#aacbdd}.cl-talia-readout{font-size:.84rem}
+.cl-talia-indicator-caption{font-size:.8rem;color:#b7d0e2!important}
+.cl-talia-metrics{display:grid;grid-template-columns:repeat(4,minmax(100px,1fr));gap:9px;margin:15px 0}
+.cl-talia-metric{display:grid;gap:8px;background:#133448;border:1px solid #45677b;border-radius:8px;padding:12px}
+.cl-talia-metric strong{color:#fff}.cl-talia-metric span{color:#c6d9e7;font-size:.8rem}
+.cl-talia-history{padding-left:20px;max-height:270px;overflow:auto}
+.cl-talia-history li{margin:8px 0;overflow-wrap:anywhere;font-size:.83rem;line-height:1.5}
+.cl-talia-result{color:#c8e2d4!important;font-size:.88rem;min-height:1.3em}
+@media(max-width:800px){.cl-talia-v4{padding:13px}.cl-talia-chart{height:360px}
+ .cl-talia-metrics{grid-template-columns:repeat(2,minmax(110px,1fr))}}
+@media(max-width:460px){.cl-talia-head{align-items:flex-start}.cl-talia-chart{height:305px}
+ .cl-talia-metrics{grid-template-columns:1fr}.cl-talia-selectors label{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.cl-talia-v4 *{animation:none!important;transition:none!important}}
