@@ -105,6 +105,7 @@ globalThis.fetch=async(url,opts={})=>{
    livemode:false,active:true,unit_amount:1999,currency:'usd',type:'one_time'});
  if(path==='/v1/checkout/sessions'&&method==='POST'){
   stripeCreates++;
+  assert.equal(form.get('managed_payments[enabled]'),'true','TEST Checkout must match GU39 Managed Payments');
   const id='cs_test_QA'+stripeCreates+'abcde',intentId=form.get('client_reference_id');
   const amount=Number(form.get('line_items[0][price_data][unit_amount]'));
   const s={id,livemode:false,status:'open',payment_status:'unpaid',currency:'usd',
