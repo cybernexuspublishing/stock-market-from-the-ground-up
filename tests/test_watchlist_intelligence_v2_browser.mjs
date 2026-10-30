@@ -148,7 +148,7 @@ try{
  await region.getByRole('button',{name:'Create Journal draft from saved plan'}).click();
  const journalLink=region.getByRole('link',{name:'Open this private Journal draft'});
  await journalLink.waitFor();
- assert.match(await journalLink.getAttribute('href'),/journal-entry.html\\?id=555/);
+ assert.equal(await journalLink.getAttribute('href'),'journal-entry.html?id=555');
  assert.equal(writes,7,'Journal draft creation must not silently modify Watchlist record');
  await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
  assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
