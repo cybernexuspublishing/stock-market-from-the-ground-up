@@ -6,6 +6,8 @@ const page=readFileSync('owner-growth-funnel.html','utf8');
 const ui=readFileSync('assets/js/owner-growth-funnel-v1.js','utf8');
 const admin=readFileSync('assets/js/admin-prelive-v014247.js','utf8');
 assert(page.includes('data-route-access="staff"')&&page.includes('noindex,nofollow'),'Private report must not be public discovery');
+const routePolicy=readFileSync('assets/js/route-policy.js','utf8');
+assert(routePolicy.includes("'owner-growth-funnel'")&&routePolicy.includes("'owner-free5-isolation-qa'"),'Middleware must classify both Owner pages as staff, not public');
 assert(admin.includes("growthLink.href='/owner-growth-funnel.html'")&&admin.includes("context.roles?.includes('OWNER')"),'Owner-only control panel entry missing');
 assert(!/method:\s*['"]POST['"]|\.insert\(|\.update\(|\.delete\(/.test(source+ui),'Read-only requirement violated');
 assert(source.includes("email_confirmed_at")&&source.includes("day_started")&&source.includes("reflection_saved"),'Actual authoritative proof must be counted');
