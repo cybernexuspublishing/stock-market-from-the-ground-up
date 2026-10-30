@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'assets/js/historical-replay-classroom-v1.js'
+      - 'assets/js/historical-grml-talia-v1.js'
+      - 'tests/test_historical_grml_talia_v1.mjs'
       - 'assets/js/verified-replay-v01492.js'
       - 'assets/js/crownlight-chart-studio-v2.js'
       - 'assets/js/learning.js'
@@ -34,12 +36,14 @@ jobs:
           node-version: '22'
       - run: |
           node --check assets/js/historical-replay-classroom-v1.js
+          node --check assets/js/historical-grml-talia-v1.js
           node --check assets/js/verified-replay-v01492.js
           node --check assets/js/crownlight-chart-studio-v2.js
           node --check assets/js/learning.js
           node --check functions/api/learning-replay-v01492.js
           node --check functions/api/ondemand-training.js
           node tests/test_historical_replay_classroom_v1.mjs
+          node tests/test_historical_grml_talia_v1.mjs
           node tests/test_historical_replay_78_source_registry_v1.mjs
           node tests/test_historical_replay_all89_v1.mjs
   classroom-browser:
@@ -56,5 +60,6 @@ jobs:
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 lightweight-charts@5.2.1
           npx playwright install --with-deps chromium
       - name: Browser-level no-lookahead and Talia lesson flow (mock data, no private credentials)
-        run: node tests/test_historical_replay_classroom_browser_v1.mjs
+        run: |
+          node tests/test_historical_replay_classroom_browser_v1.mjs
           node tests/test_historical_training_catalog_browser_v1.mjs
