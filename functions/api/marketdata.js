@@ -94,7 +94,22 @@ export async function onRequest(context){const {request,env}=context,u=new URL(r
   if(!Number.isFinite(size)||size<0||size>8192)return out({error:'Credential request too large.'},413);
  }
  const c=await user(env,request);
- if(action==='list'&&request.method==='GET'){const rows=await rest(env,`user_market_data_connections?select=provider_code,status,last_tested_at,last_error,updated_at&user_id=eq.${encodeURIComponent(c.user.id)}`);return out({ok:true,connections:rows||[]})}if(action==='connect'&&request.method==='POST'){if(Number(request.headers.get('content-length')||0)>8192)return out({error:'Credential request too large.'},413);let b;
+ if(action==='list'&&request.method==='GET'){
+ // Tiingo and Alpaca use different existing, RLS-protected credential stores.
+ // The inventory is metadata-only: never request/return token, hint, cipher or IV.
+ const owner=encodeURIComponent(c.user.id);
+ const [tiingo,alpaca]=await Promise.all([
+  rest(env,`user_market_data_connections?select=provider_code,status,last_tested_at,updated_at&user_id=eq.${owner}&provider_code=eq.TIINGO_BYO&limit=1`),
+  rest(env,`user_secure_credentials?select=service_code,status,last_tested_at,updated_at&user_id=eq.${owner}&service_code=eq.ALPACA_BYO&limit=1`)
+ ]);
+ const connections=[
+  ...(tiingo||[]).map(v=>({provider_code:'TIINGO_BYO',status:v.status,
+    last_tested_at:v.last_tested_at,updated_at:v.updated_at})),
+  ...(alpaca||[]).map(v=>({provider_code:'ALPACA_BYO',status:v.status,
+    last_tested_at:v.last_tested_at,updated_at:v.updated_at}))
+ ];
+ return out({ok:true,connections})
+}if(action==='connect'&&request.method==='POST'){if(Number(request.headers.get('content-length')||0)>8192)return out({error:'Credential request too large.'},413);let b;
  try{const raw=await request.text();if(new TextEncoder().encode(raw).byteLength>8192)throw Object.assign(new Error('Credential request too large.'),{status:413});b=JSON.parse(raw)}catch(e){throw Object.assign(new Error('Invalid or excessive credential request.'),{status:e.status===413?413:400})}
  const provider=clean(b?.provider);
  if(provider!=='TIINGO_BYO')return out({error:'This connection adapter is not active yet.'},400);const tok=clean(b.token);if(!/^[A-Za-z0-9_-]{8,512}$/.test(tok))return out({error:'A valid provider token is required.'},400);await tiingoTest(tok);const enc=await encrypt(env,tok);await rest(env,'user_market_data_connections?on_conflict=user_id,provider_code',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:{user_id:c.user.id,provider_code:provider,display_label:'Tiingo',credential_ciphertext:enc.cipher,credential_iv:enc.iv,status:'connected',last_tested_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()}});return out({ok:true,message:'Tiingo connection verified and encrypted.'})}if(action==='disconnect'&&request.method==='POST'){let b;try{const raw=await request.text();if(raw.length>8192)throw Error('size');b=JSON.parse(raw)}catch{throw Object.assign(new Error('Invalid provider disconnect request.'),{status:400})}
