@@ -37,10 +37,17 @@ try{
    allowed:['STANDARD','ADVANCED','PROFESSIONAL'],symbol:'AAPL',source:'tiingo_byo'};
   window.__bars=[{timestamp:t},{timestamp:t+60000}];
   window.__create=(list=[])=>{
-   const overlays=[...list],created=[];
+   const overlays=list.map((x,i)=>({...x,id:'manual_'+i})),created=[];
    const chart={
-    getOverlays:()=>overlays,
-    createOverlay:item=>{created.push(item);overlays.push(item);return String(created.length)},
+    getOverlays:()=>[...overlays],
+    createOverlay:item=>{
+     const v={...item,id:'restored_'+(created.length+1)};
+     created.push(v);overlays.push(v);return v.id
+    },
+    removeOverlay:({id})=>{
+     const i=overlays.findIndex(o=>o.id===id);
+     if(i<0)return false;overlays.splice(i,1);return true
+    },
     subscribeAction:()=>{},
     getIndicators:()=>[]
    };
@@ -89,10 +96,20 @@ try{
   'Repeated bar refresh must not duplicate saved drawings');
  await page.evaluate(()=>{
   window.__stage.source='alpaca_byo';window.__stage.symbol='MSFT';
-  window.__charts=[window.__create(),window.__create()];
-  dispatchEvent(new CustomEvent('crownlight:tier-mounted',{detail:{tier:'PROFESSIONAL'}}));
+  // Reuse the SAME mounted KLineChart. The previous AAPL drawings must
+  // be removed before the MSFT annotations are restored.
+  dispatchEvent(new CustomEvent('crownlight:revealed-bars'));
  });
- assert.equal(await page.evaluate(()=>window.__charts[0].created[0].points[0].value),420);
+ assert.deepEqual(await page.evaluate(()=>window.__charts[0].chart.getOverlays()
+  .map(o=>o.points[0].value)),[420],
+  'A reused chart must not display stale AAPL levels over MSFT bars');
+ await page.evaluate(()=>{
+  window.__stage.source='tiingo_byo';window.__stage.symbol='AAPL';
+  dispatchEvent(new CustomEvent('crownlight:revealed-bars'));
+ });
+ assert.deepEqual(await page.evaluate(()=>window.__charts[0].chart.getOverlays()
+  .map(o=>o.points[0].value)),[185],
+  'Returning to AAPL must remove MSFT levels before restoring AAPL');
  await page.evaluate(()=>dispatchEvent(new CustomEvent('crownlight:member-changed')));
  assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().savedDatasets),0);
  assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().memberVerified),false);
