@@ -34,6 +34,8 @@ on:
       - "functions/_lib/book-stripe-live-v1.js"
       - "supabase/migrations/20261029_book_stripe_live_fulfillment_v1.sql"
       - "tests/test_book_stripe_live_fulfillment_v1.mjs"
+      - "tests/test_book_stripe_live_multititle_v1.mjs"
+      - "supabase/migrations/20261030_book_stripe_live_multititle_v1.sql"
       - "tests/test_book_stripe_live_signed_webhook_mock_v1.mjs"
       - "assets/js/checkout-platform.js"
       - "functions/api/stripe-live-webhook-v01458.js"
@@ -150,6 +152,7 @@ jobs:
           node tests/test_book_batch_upload_v1.mjs
           node tests/test_book_stripe_test_pipeline_v1.mjs
           node tests/test_book_stripe_live_fulfillment_v1.mjs
+          node tests/test_book_stripe_live_multititle_v1.mjs
           node tests/test_book_stripe_live_signed_webhook_mock_v1.mjs
           node --check functions/api/book-stripe-live-checkout-v1.js
           node --check functions/_lib/book-stripe-live-v1.js
