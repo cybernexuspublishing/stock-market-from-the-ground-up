@@ -1,0 +1,28 @@
+name: Crownlight Real KLineChart V7 Browser
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/crownlight-workspace-v2.js'
+      - 'tests/test_crownlight_kline_real_v7_browser.mjs'
+      - '.github/workflows/crownlight-kline-real-v7.yml'
+permissions:
+  contents: read
+jobs:
+  real-professional-chart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned chart and Chromium without a paid service
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0
+          npx playwright install --with-deps chromium
+      - name: Real KLineChart 10.1 browser verification
+        run: node tests/test_crownlight_kline_real_v7_browser.mjs
