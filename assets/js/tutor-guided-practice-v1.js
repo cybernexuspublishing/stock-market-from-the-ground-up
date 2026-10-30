@@ -245,7 +245,8 @@
     return {value,series:[],note:'TRIX main line = 100×one-bar ROC of triple seeded EMA(close,N), no signal line; requires 3N−1 completed closes.'};
    }
    const roc=(period)=>close.map((c,i)=>i>=period&&close[i-period]!==0?100*(c/close[i-period]-1):null);
-   // Calculate all smoothed-ROC windows only when every input is available.   const spec=[[10,10,1],[15,10,2],[20,10,3],[30,15,4]],components=[];
+   // Calculate smoothed-ROC windows only after each full lookback.
+   const spec=[[10,10,1],[15,10,2],[20,10,3],[30,15,4]],components=[];
    for(const [lookback,window,weight] of spec){
     const values=roc(lookback),component=Array(total).fill(null);
     for(let i=lookback+window-1;i<total;i++){
