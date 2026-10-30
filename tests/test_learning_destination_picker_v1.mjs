@@ -20,6 +20,10 @@ assert(Array.isArray(details)&&details.some(l=>l.ticker),'Public ticker metadata
 const view=Object.entries(catalog.byLab).map(([id,p])=>({id,title:String(p.title||id),skill:(p.relatedCompetencies||[]).join(' ')}));
 assert(view.filter(r=>/vwap/i.test(r.title+' '+r.skill)).length>=17,'VWAP search must cover at least 17 existing IDs');
 assert(picker.includes("read('/data/competency-lab-paths-v01499.json')"),'Canonical catalog must be read before auth');
+assert(picker.includes('goodCanonical')&&picker.includes('goodDetails'),'Public Lab catalog must recover from one failed source');
+assert(!picker.includes('gu-picker-initial-compact'),'Opened Labs must not hide their searchable result list');
+assert(picker.includes('store-book-foundation-2.html')&&picker.includes('store-book-day-trading-1.html'),'Locked book Labs use existing matching product pages');
+assert(picker.includes("const browse='lab'"),'Lab picker must never mix Academy rows');
 assert(picker.includes("read('/data/labs.json')"),'Enrich titles, skill and ticker');
 assert(picker.includes("read('/api/lab-release-availability')"),'Release status must be verified');
 assert(picker.includes("'/api/lab-registry-access'"),'Server-authoritative member access');
@@ -37,10 +41,13 @@ assert(html.includes('id="player-catalog-search"')&&html.includes('Choose a Lab'
 assert(html.includes('learning-destination-picker-v1.js'));
 assert(html.includes('learning-destination-picker-v1.css'));
 assert(player.includes("q('player-title').textContent=bootcampBrowse?'Choose a Boot Camp':'Choose a Lab'"),'No Lab ID should not leave loading message');
+assert(player.includes("q('player-lab-id').textContent='All 419 Labs'"),'Opening a Lab must not replace the 419-Lab picker label');
 assert(!player.includes('void populateLearningDestinationSelector(lab)'),'Old mixed picker must not override searchable browser');
 assert(academyHtml.includes('id="academy-program-search"')&&academyHtml.includes('Choose a Boot Camp'));
 assert(academy.includes("academyBrowseRights?.training===true"),'Academy requires verified training access');
 assert(academy.includes('filterAcademyCatalog();'),'Academy search filters existing programs');
 assert(registry.includes('labAccessProductPage(x)'),'Locked Lab Registry routes to actual product information');
 assert(css.includes('.gu-picker-locked')&&css.includes('.academy-program--locked'),'Locked content visible and greyed');
+assert(academy.includes("p.ticker")&&academy.includes("p.skill"),'Academy search uses source metadata including tickers when present');
+assert(html.includes('id="player-catalog-results"')&&!html.includes('href="bootcamp-academy.html">Choose a Boot Camp</a>'),'Lab chooser shows only Labs');
 console.log('PASS searchable 419-Lab and 7-Boot-Camp discovery, lock states, product routes, no private bypass');

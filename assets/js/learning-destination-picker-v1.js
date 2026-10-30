@@ -8,7 +8,7 @@
  const host=document.getElementById('player-catalog-results');
  const status=document.getElementById('player-catalog-status');
  if(!search||!host||!status)return;
- const browse=new URLSearchParams(location.search).get('browse')==='bootcamp'?'bootcamp':'lab';
+ const browse='lab'; // The Academy has its own dedicated seven-program chooser.
  const selected=new URLSearchParams(location.search).get('lab')||'';
  const retry=document.getElementById('player-catalog-retry');
  const title=document.getElementById('player-catalog-label');
@@ -19,7 +19,15 @@
   if(className)el.className=className;return el;
  };
  const normalize=x=>String(x||'').normalize('NFKD').toLowerCase().replace(/[_-]/g,' ');
- const url=(code)=>'store-tool-interactive-learning.html';
+ // Existing, reviewed product pages only. Book-linked Labs point to their
+ // corresponding title; site-exclusive training and standalone Lab access
+ // point to the already established products. No checkout is created here.
+ const bookStore=Object.freeze({1:'store-book-foundation-1.html',2:'store-book-foundation-2.html',
+  3:'store-book-foundation-3.html',4:'store-book-day-trading-1.html',
+  5:'store-book-reading-the-tape.html'});
+ const productPage=row=>release?.trainingOnly.has(row.id)||Number(row.book)===6?
+  'store-membership-ondemand-monthly.html':
+  bookStore[row.book]||'store-tool-interactive-learning.html';
  const academySale='store-membership-ondemand-monthly.html';
  const errorMsg=message=>{status.textContent=message;retry.hidden=false;};
  const read=async endpoint=>{
@@ -71,9 +79,10 @@
   const matches=records.filter(row=>tokens.every(term=>normalize(
    [row.id,row.title,row.skill,row.ticker,row.theme,row.summary,row.days].filter(Boolean).join(' ')
   ).includes(term)));
-  status.textContent='Showing '+matches.length+' of '+records.length+' '+(browse==='lab'?'Labs':'Boot Camps')+
-   (rights?' · Member access checked':' · Locked until membership access can be verified')+
-   '. Search by ID, title, skill or ticker.';
+  status.textContent='Showing '+matches.length+' of '+records.length+' Labs'+
+   (rights?' · Access verified for your account':' · Locked until access can be verified')+
+   (release?'':' · Publication verification unavailable; individual access remains restricted')+
+   '. Search by Lab ID, title, skill or ticker.';
   if(!matches.length){host.append(text('p','No matches. Try a broader skill, ticker, title or ID.','gu-picker-empty'));return;}
   const list=document.createElement('div');list.className='gu-picker-list';
   for(const row of matches){
@@ -92,12 +101,10 @@
    const meta=[row.skill?('Skill: '+row.skill):'',row.ticker?('Ticker: '+row.ticker):'',
     row.days?(row.days+' days'):'',row.book?('Book '+row.book):''].filter(Boolean);
    info.append(text('p',meta.join(' · '),'gu-picker-meta'));
-   const destination=locked?(browse==='lab'?url(row.id):academySale):
-     browse==='lab'?'lab-player.html?lab='+encodeURIComponent(row.id):
-     row.id==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+encodeURIComponent(row.id);
-   const link=text('a',locked?(state==='upcoming'?'View upcoming access options':'View access options'):'Open '+(browse==='lab'?'Lab':'Boot Camp'),'gu-picker-action');
+   const destination=locked?productPage(row):'lab-player.html?lab='+encodeURIComponent(row.id);
+   const link=text('a',locked?(state==='upcoming'?'View related product':'View Lab access options'):'Open Lab','gu-picker-action');
    link.href=destination;
-   link.setAttribute('aria-label',(locked?'Restricted: view access options for ':'Open ')+row.title);
+   link.setAttribute('aria-label',(locked?'Locked Lab: view related product and access options for ':'Open Lab ')+row.title);
    if(state==='upcoming')link.title='Upcoming Lab. The product page determines whether a purchase is currently possible.';
    item.append(info,link);
    // Clicking the noninteractive portion of the result follows its existing
@@ -112,41 +119,40 @@
  }
  async function load(){
   retry.hidden=true;loaded=false;status.textContent='Loading public '+(browse==='lab'?'Lab':'Boot Camp')+' titles…';
-  const requests=browse==='lab'?
-   [read('/data/competency-lab-paths-v01499.json'),read('/data/labs.json'),read('/api/lab-release-availability')]:
-   [read('/api/bootcamp-academy?action=catalog')];
+  // Public canonical metadata and the independent release service are read
+  // separately. Failure of either service cannot strand the chooser on Loading.
+  const requests=[read('/data/competency-lab-paths-v01499.json'),
+   read('/data/labs.json'),read('/api/lab-release-availability')];
   const all=await Promise.allSettled(requests);
-  if(browse==='lab'){
-   const canonical=all[0].status==='fulfilled'?all[0].value:null;
-   const details=all[1].status==='fulfilled'&&Array.isArray(all[1].value)?all[1].value:[];
-   if(canonical?.totalCanonicalLabs!==419||!canonical.byLab||
-      Object.keys(canonical.byLab).length!==419){
-    errorMsg('The authoritative 419-Lab catalog could not be loaded. Retry or open the Lab Registry. No access has been granted.');
-    return;
-   }
-   const detailMap=new Map(details.map(x=>[x.id,x]));
-   records=Object.entries(canonical.byLab).map(([id,row])=>{
-    const extra=detailMap.get(id)||{};
-    const skills=Array.isArray(row.relatedCompetencies)?row.relatedCompetencies:[];
-    return{id,title:String(extra.concept||row.title||id),skill:[extra.skill,...skills.map(x=>String(x).replaceAll('_',' '))].filter(Boolean).join(' · '),
-     ticker:String(extra.ticker||row.ticker||''),
-     book:Number(extra.book||({F1:1,F2:2,F3:3,DT:4,TAPE:5,SITE:6}[id.split('-')[0]]||0)),
-     theme:String(extra.chapterTitle||'')};
-   }).sort((a,b)=>a.id.localeCompare(b.id));
-   const availability=all[2].status==='fulfilled'?all[2].value:null;
-   release=availability?.ok===true&&Array.isArray(availability.publishedIds)&&
-    Array.isArray(availability.guidedBetaIds)?{
-     released:new Set([...availability.publishedIds,...availability.guidedBetaIds]),
-     trainingOnly:new Set(Array.isArray(availability.trainingOnlyIds)?availability.trainingOnlyIds:[])
-    }:null;
-  }else{
-   const data=all[0].status==='fulfilled'?all[0].value:null;
-   if(data?.ok!==true||!Array.isArray(data.programs)||data.programs.length!==7){
-    errorMsg('The seven-program Academy catalog is unavailable. Retry or open Boot Camp Academy.');return;
-   }
-   records=data.programs.map(p=>({id:p.code,title:p.title,days:p.days,
-    skill:String(p.theme||p.level||''),theme:p.theme,summary:p.summary})).sort((a,b)=>a.days-b.days);
+  const canonical=all[0].status==='fulfilled'?all[0].value:null;
+  const details=all[1].status==='fulfilled'&&Array.isArray(all[1].value)?all[1].value:[];
+  const goodCanonical=canonical?.totalCanonicalLabs===419&&canonical.byLab&&
+   Object.keys(canonical.byLab).length===419;
+  // A temporary failure of one public catalog endpoint must not erase the
+  // other authoritative public 419-Lab dataset.
+  const goodDetails=details.length===419&&details.every(x=>typeof x.id==='string');
+  if(!goodCanonical&&!goodDetails){
+   loaded=false;records=[];
+   errorMsg('The Lab catalog could not be loaded. Select Retry to reconnect, or open the Lab Registry.');
+   return;
   }
+  const detailMap=new Map(details.map(x=>[x.id,x]));
+  const source=goodCanonical?Object.entries(canonical.byLab):
+   details.map(row=>[row.id,{title:row.concept||row.id,relatedCompetencies:[]}]);
+  records=source.map(([id,row])=>{
+   const extra=detailMap.get(id)||{};
+   const skills=Array.isArray(row.relatedCompetencies)?row.relatedCompetencies:[];
+   return{id,title:String(extra.concept||row.title||id),skill:[extra.skill,...skills.map(x=>String(x).replaceAll('_',' '))].filter(Boolean).join(' · '),
+    ticker:String(extra.ticker||row.ticker||''),
+    book:Number(extra.book||({F1:1,F2:2,F3:3,DT:4,TAPE:5,SITE:6}[id.split('-')[0]]||0)),
+    theme:String(extra.chapterTitle||'')};
+  }).sort((a,b)=>a.id.localeCompare(b.id));
+  const availability=all[2].status==='fulfilled'?all[2].value:null;
+  release=availability?.ok===true&&Array.isArray(availability.publishedIds)&&
+   Array.isArray(availability.guidedBetaIds)?{
+    released:new Set([...availability.publishedIds,...availability.guidedBetaIds]),
+    trainingOnly:new Set(Array.isArray(availability.trainingOnlyIds)?availability.trainingOnlyIds:[])
+   }:null;
   loaded=true;render();void loadRights();
  }
  function initialize(){
@@ -159,9 +165,11 @@
    const jump=document.querySelector('.gu-learning-picker-toolbar a[href="bootcamp-academy.html"]');
    if(jump)jump.hidden=true;
   }
-  if(selected&&browse==='lab')document.getElementById('player-catalog-browser')?.classList.add('gu-picker-initial-compact');
-  search.addEventListener('input',()=>{document.getElementById('player-catalog-browser')?.classList.remove('gu-picker-initial-compact');render();});
-  search.addEventListener('focus',()=>document.getElementById('player-catalog-browser')?.classList.remove('gu-picker-initial-compact'));
+  // Never hide matching rows simply because a member already opened a Lab.
+  // The previous "initial compact" state made the selector look unloaded.
+  const requested=new URLSearchParams(location.search).get('q')||'';
+  if(requested&&!search.value)search.value=requested.slice(0,100);
+  search.addEventListener('input',render);
   retry?.addEventListener('click',()=>void load());
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&loaded)void loadRights()});
   void load();

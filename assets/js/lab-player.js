@@ -675,7 +675,7 @@ async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(
   PLAYER.mode=PLAYER.access.serverGuidedAllowed===true?'guided':'practice';
  }
  if(!memberUnchanged())return;
- q('player-lab-id').textContent=lab.id;
+ q('player-lab-id').textContent='All 419 Labs';
   // The searchable public destination picker mounts independently of Lab authorization.
   q('player-title').textContent=labTopic(lab);
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';

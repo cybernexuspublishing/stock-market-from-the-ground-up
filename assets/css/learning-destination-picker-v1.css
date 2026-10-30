@@ -23,9 +23,8 @@ body.gu-lab-member #player-catalog-browser{
 body.gu-lab-member #player-catalog-browser.gu-picker-initial-compact{
  padding:6px 12px;
 }
-body.gu-lab-member #player-catalog-browser.gu-picker-initial-compact .gu-learning-picker-results{
- display:none;
-}
+/* Results remain visible even when an individual Lab is already open. */
+body.gu-lab-member #player-catalog-browser .gu-learning-picker-results{display:block}
 body.gu-lab-member #player-catalog-status{
  font-size:.83rem;color:#c4dbe9;margin:2px 0 9px;line-height:1.45;
 }
@@ -59,7 +58,7 @@ body.gu-lab-member .gu-picker-access{
 body.gu-lab-member .gu-picker-locked .gu-picker-access{
  border-color:#65696d;color:#bec2c8;
 }
-body.gu-lab-member .gu-picker-lock{font-size:.72rem;}
+body.gu-lab-member .gu-picker-lock{font-size:.72rem;display:inline-flex;align-items:center;line-height:1;filter:grayscale(1);opacity:.85;}
 body.gu-lab-member .gu-picker-meta{
  margin:5px 0 0;color:#a9bfd0;line-height:1.5;font-size:.77rem;
 }

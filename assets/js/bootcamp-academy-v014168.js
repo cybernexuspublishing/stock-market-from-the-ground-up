@@ -61,11 +61,12 @@
  // Catalog search is separate from enrollment. Access labels reflect only the
  // server-verified account summary, never a client-generated entitlement.
  function filterAcademyCatalog(){
-  const term=String(get('academy-program-search')?.value||'').toLowerCase().trim();
+  const term=String(get('academy-program-search')?.value||'').normalize('NFKD').toLowerCase().trim();
   let visible=0;
   for(const p of academyBrowsePrograms){
    const card=get('academy-program-'+p.code);if(!card)continue;
-   const values=[p.code,p.title,p.summary,p.theme,p.level,String(p.days)].join(' ').toLowerCase();
+   const values=[p.code,p.title,p.summary,p.theme,p.level,p.skill,p.ticker,
+    ...(Array.isArray(p.tickers)?p.tickers:[]),String(p.days)].filter(Boolean).join(' ').normalize('NFKD').toLowerCase();
    const match=term.split(/\s+/).filter(Boolean).every(t=>values.includes(t));
    card.hidden=!match;if(match)visible++;
   }
@@ -73,7 +74,7 @@
   if(note)note.textContent='Showing '+visible+' of '+academyBrowsePrograms.length+
    ' Boot Camps. '+(academyBrowseRights?.training===true?'Your training access is verified.':
    'Courses are shown as locked until training entitlement is verified.')+
-   ' Search by program ID, title, skill or subject.';
+   ' Search by program ID, title, skill, or ticker where public course metadata contains one.';
  }
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
@@ -104,7 +105,14 @@
     'bootcamp-academy.html?program='+encodeURIComponent(p.code)):
     'store-membership-ondemand-monthly.html';
    action.setAttribute('aria-label',access?'Open '+p.title:'View purchasing and access options for '+p.title);
-   card.append(image,duration,heading,description,note,action);root.append(card);
+   // The whole card opens the same entitlement-safe destination as the
+   // explicit link, including when the member clicks the course name.
+   card.append(image,duration,heading,description,note,action);
+   card.addEventListener('click',event=>{
+    if(event.target.closest('a,button,input'))return;
+    location.assign(action.href);
+   });
+   root.append(card);
   }
   filterAcademyCatalog();
  }
