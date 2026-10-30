@@ -36,7 +36,7 @@ try{
  };
  const pre=await get('/api/store-zero-monthly-qa');
  assert.equal(pre.status,200,'QA GET endpoint unavailable');
- assert.equal(pre.body.available,true,'BLOCKED: zero-monthly QA not enabled for Free member');
+ assert.equal(pre.body.available,true,'BLOCKED: zero-monthly QA not enabled for Free member; safe-state '+JSON.stringify({offerClosed:pre.body.offerClosed,available:pre.body.available,planCode:pre.body.planCode,used:pre.body.used,error:pre.body.error}));
  console.log('PASS genuine Free member authorized for isolated $0 QA');
  const created=await post('/api/store-zero-monthly-qa',{confirm:'ONE_TIME_ZERO_MONTHLY_QA',checkoutAttemptId:crypto.randomUUID()});
  assert.equal(created.status,200,'Zero LIVE QA Checkout POST '+created.status+' '+String(created.body.error||''));
