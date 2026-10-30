@@ -23,7 +23,10 @@
  function clear(){
   alive=false;
   try{graph?.dispose?.()}catch{}
-  graph=null;detail.replaceChildren();list.replaceChildren();chart.replaceChildren();panel.hidden=true;
+  graph=null;detail.replaceChildren();list.replaceChildren();chart.replaceChildren();
+  // Remove every text-bearing child, including heading and status; hiding
+  // alone leaves stale private context readable to browser DOM consumers.
+  panel.replaceChildren();panel.hidden=true;
  }
  function line(label,value){
   const p=document.createElement('p');
