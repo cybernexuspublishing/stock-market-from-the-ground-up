@@ -9,13 +9,28 @@ import argparse,datetime as dt,gzip,hashlib,json,struct,urllib.request
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from iex_historical_archive_probe import official_link, LimitedStream, accumulate_trade
+from iex_tops import NAME
 from pcapng_iex_reader import stream_pcapng
 
 TZ=ZoneInfo('America/New_York')
 UTC=dt.timezone.utc
-def full_review(day,symbols,expected_sha):
- url,size,name=official_link(day)
- if size>3000*1048576:raise ValueError('Source exceeds fixed one-time budget')
+def full_review(day,symbols,expected_sha,local_file=None,expected_bytes=None):
+ # Local mode uses the owner's immutable, full-CRC-verified archive without network access.
+ # Remote mode preserves the existing bounded official-source behavior.
+ if local_file is None:
+  url,size,name=official_link(day)
+  if size>3000*1048576:raise ValueError('Source exceeds fixed one-time budget')
+ else:
+  local_file=Path(local_file)
+  match=NAME.fullmatch(local_file.name)
+  expected_date=day.replace('-','')
+  if not match or match.group('source_date')!=expected_date or (match.group('prefix_date') and match.group('prefix_date')!=expected_date):
+   raise ValueError('Local archive must have the correct original IEX TOPS filename and matching date')
+  if not local_file.is_file():raise ValueError('Selected original archive does not exist')
+  size=local_file.stat().st_size
+  if expected_bytes is None or expected_bytes!=size:raise ValueError('Local original archive byte count does not match verified catalog size')
+  url=None
+  name=local_file.name
  start=dt.datetime.combine(dt.date.fromisoformat(day),dt.time(9,30),TZ).astimezone(UTC)
  end=start+dt.timedelta(minutes=30)
  full_hash=hashlib.sha256()
@@ -58,8 +73,12 @@ def full_review(day,symbols,expected_sha):
    elif seq<before:
     if len(duplicates)<30:duplicates.append({'channel':channel,'session':session,'expected':before,'observed':seq})
   seq_expected[key]=max(before or 0,seq+count)
- req=urllib.request.Request(url,headers={'User-Agent':'SMFGU-tradebreak-integrity-review/1.0','Accept-Encoding':'identity'})
- with urllib.request.urlopen(req,timeout=180) as remote:
+ if local_file is not None:
+  input_source=open(local_file,'rb')
+ else:
+  req=urllib.request.Request(url,headers={'User-Agent':'SMFGU-tradebreak-integrity-review/1.0','Accept-Encoding':'identity'})
+  input_source=urllib.request.urlopen(req,timeout=180)
+ with input_source as remote:
   tracked=Tracking(remote)
   with gzip.GzipFile(fileobj=tracked,mode='rb') as unzipped:
    for packet,(nano,sym,qty,price,trade_id,flags,kind) in stream_pcapng(
@@ -99,6 +118,8 @@ def full_review(day,symbols,expected_sha):
    'member_publication_approved':False,
    'official_source':'IEX_HIST_TOPS_1.6',
    'source_sha256':full_hash.hexdigest(),'source_bytes':size,
+   'source_filename':name,'source_acquisition':'LOCAL_OWNER_ARCHIVE' if local_file is not None else 'OFFICIAL_REMOTE_ARCHIVE',
+   'local_archive_sha256_and_size_matched':True if local_file is not None else None,
    'pcapng_packets_scanned':packet_count,'iextp_message_packets':total_iextp_packets,
    'iextp_session_keys_seen':len(seq_expected),
    'iextp_sequence_gaps_sample':seq_gaps,'iextp_sequence_overlap_sample':duplicates,
@@ -110,11 +131,14 @@ def full_review(day,symbols,expected_sha):
    'symbols':summary}
 def main():
  p=argparse.ArgumentParser();p.add_argument('--date',required=True);p.add_argument('--symbols',required=True);p.add_argument('--expected-sha256',required=True);p.add_argument('--output',type=Path,required=True)
+ p.add_argument('--file',type=Path,help='Use owner-downloaded original IEX archive; no network access')
+ p.add_argument('--expected-bytes',type=int,help='Exact official catalog compressed byte count; required for local archive')
  a=p.parse_args();symbols=[x.strip().upper() for x in a.symbols.split(',')]
  if len(symbols)<1 or len(symbols)>10 or len(set(symbols))!=len(symbols) or any(not x.isalpha() or len(x)>5 for x in symbols):raise SystemExit('Invalid source selection')
  if len(a.expected_sha256)!=64 or any(c not in '0123456789abcdef' for c in a.expected_sha256.lower()):raise SystemExit('Invalid full source hash')
  if any(x.lower() in ('public','assets','docs','functions') for x in a.output.parts):raise SystemExit('Only private quarantine output')
- d=full_review(a.date,symbols,a.expected_sha256)
+ if a.file is not None and a.expected_bytes is None:raise SystemExit('--expected-bytes is mandatory when --file is supplied')
+ d=full_review(a.date,symbols,a.expected_sha256,a.file,a.expected_bytes)
  a.output.parent.mkdir(parents=True,exist_ok=True)
  a.output.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
  print(json.dumps({'status':d['status'],'original_sha_verified':True,'pcapng_packets':d['pcapng_packets_scanned'],
