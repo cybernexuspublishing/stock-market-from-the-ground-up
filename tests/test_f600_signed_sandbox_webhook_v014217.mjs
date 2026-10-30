@@ -57,6 +57,11 @@ function network(opts={}){
    lines:{has_more:false,data:[{amount:opts.invoiceAmount||amount,price:{id:price},
     period:{start:Math.floor(Date.now()/1000),end:Math.floor(Date.now()/1000)+(opts.periodDays??days)*86400}}]}
   });
+  if(path.includes('/v1/charges/'))return result({
+   id:'ch_founderQA123',livemode:false,customer:fixture.customer,
+   payment_intent:'pi_founderQA123',invoice:fixture.invoice,
+   amount,amount_refunded:opts.partialRefund?1000:amount
+  });
   if(path.includes('/v1/subscriptions/'))return result({
    id:fixture.sub,livemode:false,customer:fixture.customer,status:'active',
    metadata:{f600_qa_intent:fixture.intent,f600_qa_program:'FOUNDING600_TEST'},
@@ -176,5 +181,26 @@ test('a verified subscription cancellation creates a TEST-only cancellation reco
   assert.equal(await response.text(),'F600_TEST_CUSTOMER_SUBSCRIPTION_DELETED');
   assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
   assert.equal(n.calls.some(x=>/gu_founder_paid_cycles|site_subscriptions|gu_founder_members_v/.test(x.path)),false);
+ }finally{n.restore()}
+});
+
+test('signed TEST full refund reverses only the matching private Founder invoice',async()=>{
+ const n=network({plan:'FOUNDING_60',expectedKind:'charge.refunded'});
+ const event=makeEvent(false,'charge.refunded');event.data.object.id='ch_founderQA123';
+ try{
+  const response=await onRequestPost({request:await request(event),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_CHARGE_REFUNDED');
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
+  assert.equal(n.calls.some(x=>/gu_founder_record_paid_cycle|gu_founder_members_v|site_subscriptions/.test(x.path)),false);
+ }finally{n.restore()}
+});
+test('TEST partial refund is never treated as a complete Founder revocation',async()=>{
+ const n=network({plan:'FOUNDING_30',partialRefund:true,expectedKind:'charge.refunded'});
+ const event=makeEvent(false,'charge.refunded');event.data.object.id='ch_founderQA123';
+ try{
+  const response=await onRequestPost({request:await request(event),env});
+  assert.equal(response.status,503);
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,0);
  }finally{n.restore()}
 });
