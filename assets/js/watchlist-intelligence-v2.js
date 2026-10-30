@@ -123,6 +123,11 @@
   learningPanel.append(mk('h3','Talia Guided Research (ungraded)'),learningDetail,
     learningPrompt,learningWarning,learningNote,learningSave);
   guidance.append(learningPanel);
+  // One shared ungraded Talia workstation. Premium records are already authenticated;
+  // this reads counts only and neither duplicates nor writes member research.
+  const taliaHost=mk("div",undefined,"cl-talia-premium-host");
+  guidance.append(taliaHost);
+  const taliaWork=root.GroundUpTaliaWorkstationV4?.mount?.({host:taliaHost,source:"advanced",records:current});
   const body=mk('div',undefined,'cl-wi-body');
   edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),selectLabel('Candidate lifecycle status (member-reported)',candidateStage),archiveLabel,
    pointTime.wrap,reviewNote.wrap,actionRow,timeline,annotations);
@@ -194,6 +199,7 @@
   async function refresh(){
    const rows=await api('&type=watchlist');
    current=(rows.records||[]).filter(x=>x?.record_type==='watchlist');
+   taliaWork?.setRecords?.(current);
    renderFilters();render();
    return rows;
   }
