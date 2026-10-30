@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(/^\/store-[a-z0-9_-]+\.html$/i.test(location.pathname))
     loadOnce('/assets/js/store-product-gallery-v014300.js','publicProductGalleryV014300');
   if(/^\/admin(?:\.html)?$/.test(location.pathname)){
-    loadOnce('/assets/js/admin-digital-books-v01430.js?v=book-feedback-20261030-2','ownerDigitalBooksV01430');
+    loadOnce('/assets/js/admin-digital-books-v01430.js?v=book-version-sync-20261030-3','ownerDigitalBooksV01430');
     if(!document.querySelector('link[data-gu-digital-v01430]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/css/digital-books-v01430.css';css.dataset.guDigitalV01430='1';document.head.append(css)}
     loadOnce('/assets/js/admin-signed-books-v01431.js','ownerSignedBooksV01431');
     loadOnce('/assets/js/admin-communications-v01431r1.js','adminCommsV01431r1');
