@@ -53,6 +53,10 @@ async function loadRegistryRights(userId,epoch){
  }
 }
 
+function labAccessProductPage(lab){
+ const trainingOnly=trainingOnlyIds.has(lab.id)||Number(lab.book)===6;
+ return trainingOnly?'store-membership-ondemand-monthly.html':'store-tool-interactive-learning.html';
+}
 function norm(s) { return String(s || '').toLowerCase(); }
 
 function statusLabel(status) {
@@ -127,7 +131,7 @@ function renderLabs(rows) {
         <div class="lab-meta-item"><span>Chart</span><strong>${x.timeframe || 'See book'}</strong></div>
       </div>
       <div class="lab-card-progress">
-        ${access.state==='available'?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">${released?'Open Interactive Lab':'Open guided beta practice (ungraded)'}</a>`:`<span class="lab-access-explanation" role="status">${access.state==='upcoming'?'🔒 Upcoming — not released':'🔒 '+access.reason}</span>`}
+        ${access.state==='available'?`<a class="btn lab-open-btn" href="lab-player.html?lab=${encodeURIComponent(x.id)}">${released?'Open Interactive Lab':'Open guided beta practice (ungraded)'}</a>`:`<span class="lab-access-explanation" role="status">${access.state==='upcoming'?'🔒 Upcoming — not released':'🔒 '+access.reason}</span><a class="btn secondary lab-access-product-link" href="${labAccessProductPage(x)}">${access.state==='upcoming'?'View future access options':'View Lab access options'}</a>`}
         <span class="lab-progress-label">My progress (self-tracked; not a graded assessment)</span>
         ${progressControl(x.id)}
         <div class="progress-msg" role="status" data-msg-for="${x.id}">${progressText}</div>
