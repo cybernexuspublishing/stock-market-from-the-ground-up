@@ -61,6 +61,11 @@ for must in index.html config.js sw.js release-manifest.json lab-catalog.json ma
   test -f "$must" || { echo "Missing public asset: $must" >&2; exit 1; }
 done
 cp -- ./*.html config.js sw.js release-manifest.json manifest.webmanifest lab-catalog.json _headers _redirects _routes.json "$output"/
+# IndexNow proof is a public ownership-verification file, not an API secret.
+INDEXNOW_VERIFICATION_KEY="0f6a1a00e2945eb90d24e5c5b6e75946"
+test -f "$INDEXNOW_VERIFICATION_KEY.txt"
+test "$(tr -d '\r\n' < "$INDEXNOW_VERIFICATION_KEY.txt")" = "$INDEXNOW_VERIFICATION_KEY" || { echo "IndexNow key file mismatch" >&2; exit 6; }
+cp -- "$INDEXNOW_VERIFICATION_KEY.txt" "$output/$INDEXNOW_VERIFICATION_KEY.txt"
 if [[ -e data/interactive-labs.json ]]; then
   echo 'SECURITY BUILD BLOCK: data/interactive-labs.json is present in repository.' >&2
   exit 4
