@@ -28,8 +28,8 @@ assert(src.includes("root.clearTimeout(playTimer)"),'Replay must clean scheduled
 assert(src.includes("checkpoint=true"),'Replay should pause for teaching checkpoints');
 assert(!/fetch\s*\(|localStorage|sessionStorage|supabase\.from|stripe\.com|gradeAttempt|gu_replay_bars/i.test(src),
  'Instructor must not open private data or commerce endpoints');
-assert(simulator.includes('gusim-dt-c01-l02-coach-v3.js?v=1'));
-assert(simulator.includes('gusim-dt-c01-l02-coach-v3.css?v=1'));
+assert(simulator.includes('gusim-dt-c01-l02-coach-v3.js?v=2'));
+assert(simulator.includes('gusim-dt-c01-l02-coach-v3.css?v=2'));
 assert(simulator.indexOf('lesson-gusim-dt-c01-l02-echarts-v1.js')<
  simulator.indexOf('gusim-dt-c01-l02-coach-v3.js'),'Coach must mount after ECharts panel');
 assert(plot.includes('barWidth:17')&&plot.includes('barWidth:21'),'A single visible bar should not fill the chart width');
