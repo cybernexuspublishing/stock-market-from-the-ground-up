@@ -621,7 +621,7 @@ async function populateLearningDestinationSelector(currentLab){
   else picker.value=current;
  });
 }
-async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){q('lab-player-gate').innerHTML='<div class="notice"><strong>Choose a Lab to begin.</strong> Open the <a href="labs.html">419-Lab Registry</a> and select a published Lab.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const reportLink=q('player-report-issue');if(reportLink)reportLink.href='dashboard.html?tab=support&lab='+encodeURIComponent(id);const sb=await bounded(window.getSupabaseClient?.(),8000,null);
+async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(location.search).get('lab');if(!id){const bootcampBrowse=new URLSearchParams(location.search).get('browse')==='bootcamp';q('player-title').textContent=bootcampBrowse?'Choose a Boot Camp':'Choose a Lab';q('player-location').textContent=bootcampBrowse?'Search the seven Boot Camps by program or skill.':'Search 419 Labs by ID, title, skill or ticker.';q('lab-player-gate').innerHTML='<div class="notice">Select an available learning experience above. Locked items remain listed with current purchase or access information.</div>';return}if(!/^[A-Za-z0-9_-]{3,90}$/.test(id)){q('lab-player-gate').innerHTML='<div class="notice">This Lab link is invalid. <a href="labs.html">Choose a Lab from the Registry</a>.</div>';return}const reportLink=q('player-report-issue');if(reportLink)reportLink.href='dashboard.html?tab=support&lab='+encodeURIComponent(id);const sb=await bounded(window.getSupabaseClient?.(),8000,null);
  const authResult=sb?.auth?.getSession?await bounded(sb.auth.getSession(),4500,null):null;
  const session=authResult?.data?.session||null;
  const memberId=session?.user?.id||'';
@@ -676,7 +676,7 @@ async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(
  }
  if(!memberUnchanged())return;
  q('player-lab-id').textContent=lab.id;
-  void populateLearningDestinationSelector(lab);
+  // The searchable public destination picker mounts independently of Lab authorization.
   q('player-title').textContent=labTopic(lab);
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
   q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
