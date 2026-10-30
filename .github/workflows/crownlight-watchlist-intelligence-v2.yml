@@ -1,0 +1,65 @@
+name: Crownlight Watchlist Intelligence V2 Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'advanced-tool.html'
+      - 'assets/js/watchlist-research-core-v2.js'
+      - 'assets/js/watchlist-intelligence-v2.js'
+      - 'assets/css/watchlist-intelligence-v2.css'
+      - 'tests/test_watchlist_intelligence_v2.mjs'
+      - 'tests/test_watchlist_intelligence_v2_browser.mjs'
+      - '.github/workflows/crownlight-watchlist-intelligence-v2.yml'
+permissions:
+  contents: read
+jobs:
+  source-and-private-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and deterministic research safety
+        run: |
+          node --check assets/js/watchlist-research-core-v2.js
+          node --check assets/js/watchlist-intelligence-v2.js
+          node --check assets/js/advanced-tools.js
+          node tests/test_watchlist_intelligence_v2.mjs
+      - name: Existing Free/Advanced ownership, scanner and Journal contracts
+        run: |
+          node tests/test_free_watchlist_v1.mjs
+          node tests/test_v014150_watchlist_lifecycle.mjs
+          node tests/test_v014150_scanner_filters.mjs
+          node tests/test_advanced_trade_plan_builder_v1.mjs
+          node tests/test_trade_plan_snapshot_api_v1.mjs
+          node tests/test_journal_plan_handoff_v1.mjs
+          node tests/test_v014145_research_scanner.mjs
+      - name: Confirm deployed Pages build includes companion
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/advanced-tool.html
+          test -f public/assets/js/watchlist-intelligence-v2.js
+          test -f public/assets/js/watchlist-research-core-v2.js
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free pinned Chromium test dependency
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test authenticated browser-side watchlist integration with mock provider
+        run: node tests/test_watchlist_intelligence_v2_browser.mjs
