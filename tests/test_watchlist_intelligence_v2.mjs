@@ -10,6 +10,22 @@ const make=(id,symbol,payload={})=>({id,record_type:'watchlist',title:symbol,
  asOf:'2026-10-29T09:30:00Z',invalidation:'NO TRADE if source fails',...payload}});
 const now='2026-10-29T11:00:00Z';
 assert.equal(C.STAGES.length,8);
+assert.deepEqual(C.CANDIDATE_STATES,
+ ['DISCOVERED','QUALIFIED','WATCH','DEVELOPING','ARMED','TRIGGERED','CONFIRMED','INVALIDATED']);
+const manualQualified=C.setCandidateState(make(88,'TEST'),{state:'QUALIFIED',at:now,
+ note:'Documented initial member-reported research evidence.'});
+assert.equal(manualQualified.candidateState,'QUALIFIED');
+assert.equal(manualQualified.researchHistory.at(-1).kind,'CANDIDATE_STATE_CHANGE');
+assert.equal(manualQualified.researchHistory.at(-1).verification,'MEMBER_REPORTED_NOT_VERIFIED');
+assert.throws(()=>C.setCandidateState(make(88,'TEST'),{state:'TRIGGERED',at:now,
+ note:'Member attempted to skip intermediate research steps.'}),/Invalid candidate state transition/);
+assert.throws(()=>C.setCandidateState(make(88,'TEST'),{state:'QUALIFIED',at:now,
+ note:'bad'}),/12 characters/);
+const invalidated=C.setCandidateState(make(88,'TEST'),{state:'INVALIDATED',at:now,
+ note:'Manual source verification failed to establish a valid candidate.'});
+assert.equal(invalidated.candidateState,'INVALIDATED');
+assert.equal(C.setCandidateState({...make(88,'TEST'),payload:manualQualified},{state:'QUALIFIED'}),manualQualified);
+assert.equal(C.safeRecord(make(7,'TEST')).candidateState,'DISCOVERED');
 assert.deepEqual(C.STAGES,['DISCOVER','RESEARCH','ANALYZE','MONITOR','PLAN','PRACTICE','REVIEW','LEARN']);
 let r=make(1,'AAPL'),b=make(2,'MSFT',{archived:true,folder:'Old research',tags:['earnings']});
 assert.deepEqual(C.labels('Earnings, pullback, earnings'),['Earnings','pullback']);
@@ -73,8 +89,11 @@ assert.deepEqual(C.filters(combined,{stage:'MONITOR'}).map(x=>x.title),['AAPL'])
 assert.deepEqual(C.filters(combined,{query:'tsl'}).map(x=>x.title),['TSLA']);
 assert.equal(C.stats(combined).archived,1);
 assert.equal(C.stats(combined).byStage.MONITOR,1);
+assert.equal(C.stats(combined).byCandidateState.DISCOVERED,2);
+assert.equal(C.filters(combined,{candidateState:'DISCOVERED'}).length,2);
 const csv=C.exportCsv(combined);
 assert.match(csv,/^\uFEFF"Symbol"/);
+assert.match(csv,/"Candidate state"/);
 assert.match(csv,/'=HYPERLINK/);
 assert.match(csv,/'@SUM/);
 assert.match(C.csvCell(' \t+cmd'),/^"' /);
@@ -97,6 +116,7 @@ assert(extension.includes('WATCHLIST_WORKBENCH'));
 assert(extension.includes('expectedUpdatedAt:r.updated_at'));
 assert(extension.includes('C.exportCsv'));
 assert(extension.includes('C.annotation'));
+assert(extension.includes('C.setCandidateState'));
 assert(extension.includes('C.reminders'));
 assert(extension.includes('root.CrownlightECharts?.load?.()'));
 assert(extension.includes('C.monitoringRule'));
