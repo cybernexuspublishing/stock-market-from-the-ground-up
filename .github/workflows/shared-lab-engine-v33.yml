@@ -6,6 +6,8 @@ on:
       - 'functions/api/member-tool-access.js'
       - 'assets/js/lab-player.js'
       - 'assets/js/lab-engine-v32-universal.js'
+      - 'assets/css/learning-workstation-v44.css'
+      - 'tests/test_learning_workstation_v44.mjs'
       - 'assets/js/crownlight-learning-echarts-v1.js'
       - 'assets/css/crownlight-learning-echarts-v1.css'
       - 'tests/test_crownlight_learning_echarts_v1.mjs'
@@ -131,6 +133,7 @@ jobs:
           node tests/test_v135_public_assessment_projection.mjs
           node --check functions/api/assessment-v0135.js
           node --check assets/js/lab-engine-v32-universal.js
+          node tests/test_learning_workstation_v44.mjs
           node --check assets/js/crownlight-learning-echarts-v1.js
           node --check assets/js/free-foundations-teaching-studio-v3.js
           node --check assets/js/bootcamp-academy-v014168.js
