@@ -34,8 +34,9 @@ globalThis.fetch=async(input,opts={})=>{const u=new URL(input);assert.equal(u.or
  if(u.pathname==='/rest/v1/gu_sparks_chart_passes_v1')return j([]);
  if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return j([]);
  if(u.pathname==='/rest/v1/crownlight_chart_workspaces_v1')return j([db]);
- if(u.pathname==='/rest/v1/rpc/gu_crownlight_chart_workspace_save_v3'){
+ if(u.pathname==='/rest/v1/rpc/gu_crownlight_chart_workspace_save_v4'){
   const b=JSON.parse(opts.body);assert.equal(b.p_user,uid,'Server must bind signed-in identity');
+  assert.equal(b.p_max_tier,'PROFESSIONAL','Only verified server tier may authorize premium saves');
   assert(!('access_token' in b.p_settings));
   if(b.p_expected!==db.updated_at)return j({ok:false,error:'WORKSPACE_CHANGED',updatedAt:db.updated_at});
   db={settings:b.p_settings,updated_at:after};return j({ok:true,updatedAt:after});
@@ -53,7 +54,7 @@ try{
  r=await onRequest({request:reqPut(body),env});
  data=await r.json();assert.equal(r.status,200);assert.equal(data.workspace.selected,'PROFESSIONAL');
  assert.equal(data.workspace.studies.length,2);assert.equal(data.workspace.layout,'PRICE_FOCUS');assert.equal(db.settings.access_token,undefined);
- assert(events.some(e=>e.path.endsWith('/rpc/gu_crownlight_chart_workspace_save_v3')&&e.method==='POST'));
+ assert(events.some(e=>e.path.endsWith('/rpc/gu_crownlight_chart_workspace_save_v4')&&e.method==='POST'));
  r=await onRequest({request:reqPut({...body,studies:['ATR']}),env});
  data=await r.json();assert.equal(r.status,409);assert.equal(data.error,'WORKSPACE_CHANGED');
  assert.deepEqual(db.settings.studies,['RSI','MACD'],'Stale tab must not overwrite newer settings');
