@@ -47,6 +47,17 @@ try{
  assert.equal(saved.layout,'PRICE_FOCUS');
  assert.deepEqual(saved.studies,['EMA','RSI']);
  assert.equal(saveCount,1);
+ await page.route('**/api/chart-workspace',async route=>{
+  if(route.request().method()==='PUT')return route.fulfill({status:409,
+   contentType:'application/json',
+   body:response({ok:false,error:'PREMIUM_WORKSPACE_PRESERVED'})});
+  return route.continue();
+ },{times:1});
+ await page.locator('[data-cl-save]').click();
+ await page.waitForFunction(()=>document.querySelector('.cl-workspace-status')
+  ?.textContent.includes('saved higher-tier workspace is protected'));
+ assert.equal(saveCount,1);
+ assert.equal(saved.layout,'PRICE_FOCUS');
  // An external tab changes the revision; this tab must fail closed on conflict.
  revision='2026-10-29T12:00:09Z';
  await page.route('**/api/chart-workspace',async route=>{
