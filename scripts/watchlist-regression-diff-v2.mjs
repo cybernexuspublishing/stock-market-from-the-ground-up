@@ -9,7 +9,8 @@ const current=resolve(process.argv[3]||process.cwd());
 if(!existsSync(join(baseline,'tests'))||!existsSync(join(current,'tests')))
  throw Error('Pass existing baseline and current checkout paths.');
 const pattern=/watchlist|research|scanner|journal|tutor|lab|guide|sql|commerce|tool|simulator|source|free|member|auth|chart|trade.plan|historical/i;
-// Credentialed production-browser acceptance is separately gated, never an offline source test.\nconst forbidden=/browser|playwright|e2e|live_|production|authentic_readonly|\.fixture\./i;
+// Credentialed production-browser acceptance is separately gated, never an offline source test.
+const forbidden=/browser|playwright|e2e|live_|production|authentic_readonly|\.fixture\./i;
 const list=readdirSync(join(current,'tests')).filter(n=>/^test_[^/]+\.mjs$/.test(n)&&pattern.test(n)&&!forbidden.test(n)).sort().slice(0,220);
 const B='78b3b93ccf70252127265cd7c16589e2bd7d4ae2',reports=[];
 const classify=(output)=>{
