@@ -77,6 +77,9 @@ try{
  assert.equal(free.body.program?.code,'free5');
  assert.equal(free.body.curriculum?.length,5);
  ok('Free Foundations five lessons available through real member API');
+ const labProbe=await get('/api/lab-content?id=F1-C02-L02');
+ assert([403,404].includes(labProbe.status),'Free Lab boundary returned '+labProbe.status);
+ ok('Private non-sample Lab correctly restricts Free member without HTTP 503');
  const anon=await page.request.get(site+'/api/free-watchlist',{timeout:30000});
  assert([401,403].includes(anon.status()),'Anonymous users must not read member watchlist');
  ok('Anonymous watchlist denied');
