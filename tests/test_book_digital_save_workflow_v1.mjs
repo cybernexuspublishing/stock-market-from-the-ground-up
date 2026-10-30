@@ -32,6 +32,17 @@ assert(styles.includes('#admin-dialog.admin-book-editor #admin-dialog-msg.error'
 assert(styles.includes('max-height:min(10rem,28dvh)'),'Long validation errors must be readable without clipping');
 assert(parent.includes("feedback.setAttribute('role','alert')"),'Main Save errors must announce their presence');
 assert(source.includes('const showBookFeedback='),'Protected eBook actions must share the visible feedback banner');
+assert(source.includes('let catalogVersion=product.version'),'Editing token must be mutable rather than frozen at editor opening');
+assert(source.includes('const rightsSnapshot=row=>JSON.stringify('),'Protected state must be compared before rebasing versions');
+assert(source.includes("if(rightsSnapshot(latest)!==rightsBaseline)throw Error('DIGITAL_SETTINGS_CONFLICT')"),'Concurrent publishing changes must refuse a silent overwrite');
+assert(source.includes('p_expected_updated_at:catalogVersion'),'Rights Save must send the latest verified catalog token');
+assert(source.includes('for(let attempt=0;attempt<2;attempt++)'),'Stale retry must be strictly bounded');
+assert(source.includes("!String(e?.message||'').includes('DIGITAL_SETTINGS_STALE')"),'Only stale-version errors may trigger a retry');
+assert(source.includes('const syncEditorVersion=async()=>'),'Main catalog Save must refresh the editor concurrency token');
+assert(source.includes('sync:syncEditorVersion'),'Active editor must expose synchronization');
+assert(parent.includes('GroundUpDigitalBooks.syncEditorVersion(bookCode)'),'Parent Save must synchronize the protected book editor');
+assert(!source.includes('p_expected_updated_at:product.version'),'Do not reuse an obsolete version token after editing');
+
 assert(source.includes("showBookFeedback('Save refused: '"),'Direct rights Save must expose errors above the footer');
 assert(source.includes("if(intendsSales&&!rights.checked)throw Error('Confirm distribution rights before enabling sales or downloads.');"),'Digital publishing rights checks must remain enforced');
 
