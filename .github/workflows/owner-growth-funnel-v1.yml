@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/owner-growth-funnel-v1.yml'
       - 'functions/api/owner-growth-funnel.js'
+      - 'assets/js/route-policy.js'
+      - 'tests/test_owner_free5_isolation_source_v1.mjs'
       - 'tests/test_owner_growth_funnel_v1.mjs'
       - 'tests/test_owner_growth_production_smoke_v1.mjs'
 permissions:
@@ -30,5 +32,6 @@ jobs:
           node --check functions/api/owner-growth-funnel.js
           node --check assets/js/owner-growth-funnel-v1.js
           node tests/test_owner_growth_funnel_v1.mjs
+          node tests/test_owner_free5_isolation_source_v1.mjs
       - name: Real production read-only unauthorized access smoke
         run: node tests/test_owner_growth_production_smoke_v1.mjs
