@@ -9,6 +9,7 @@ const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className
 const time=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ms));
 let bars=[],focus=0,frame=1,seconds=60,playing=false,timer=null,checkpoint=false,dataset=null,memberId=null;
 let state={sessionId:'',locked:false,busy:false};
+const grmlAnswers=new Map(); // Local, ungraded teaching checks; never publish as Lab mastery.
 function stop(message){playing=false;if(timer)clearTimeout(timer);timer=null;if($('hr-play'))$('hr-play').textContent='Play';if(message&&$('hr-status'))$('hr-status').textContent=message}
 function parse(b){
  const ms=Date.parse(b?.timestamp),o=Number(b?.open),h=Number(b?.high),l=Number(b?.low),c=Number(b?.close),v=Number(b?.volume);
@@ -24,6 +25,42 @@ function aggregate(source,k){
   grouped.push({ms:a[0].ms,end:a[k-1].ms+60000,o:a[0].o,h:Math.max(...a.map(b=>b.h)),
     l:Math.min(...a.map(b=>b.l)),c:a[k-1].c,v:a.reduce((sum,b)=>sum+b.v,0)});
  }return grouped;
+}
+function renderGrmlLesson(completed){
+ const panel=$('hr-grml-lesson');if(!panel)return;
+ const grml=dataset?.code==='HR_GRML_20260921'&&!!window.CrownlightGrmlTalia;
+ panel.hidden=!grml;
+ const topic=$('hr-talia-topic'),copy=$('hr-talia-copy');
+ if(topic)topic.hidden=grml;
+ if(copy)copy.hidden=grml;
+ if(!grml)return;
+ const guide=window.CrownlightGrmlTalia.describe({revealed:bars.length,completed,frame});
+ panel.replaceChildren();
+ if(!guide){
+  panel.append(el('h4','', 'GRML · Lesson introduction'),
+   el('p','', 'First lock an evidence-based decision from the opening candle. Talia will teach beside each server-revealed observation; no future candle is available.'));
+  return;
+ }
+ panel.append(el('h4','',guide.title),el('p','hr-grml-teach',guide.teach),
+  el('p','hr-grml-evidence',guide.evidence),
+  el('p','hr-grml-question',guide.question));
+ const options=el('div','hr-grml-options');
+ const answer=grmlAnswers.get(guide.id);
+ guide.options.forEach((value,index)=>{
+  const btn=el('button','btn secondary',value);btn.type='button';
+  btn.setAttribute('aria-pressed',String(answer===index));
+  btn.onclick=()=>{grmlAnswers.set(guide.id,index);renderGrmlLesson(completed)};
+  options.append(btn);
+ });
+ panel.append(options);
+ if(answer!==undefined){
+  const correct=answer===guide.correct;
+  const feedback=el('p','hr-grml-feedback',correct?guide.why:guide.retry);
+  feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
+  panel.append(feedback);
+  if(correct)panel.append(el('p','hr-grml-transfer',guide.transfer));
+ }
+ panel.append(el('p','hr-meta','Ungraded teaching practice. Your response is local to this replay view and does not change locked decisions, course mastery or Sparks.'));
 }
 function draw(){
  const svg=$('hr-chart');if(!svg)return;
@@ -57,6 +94,7 @@ function draw(){
     'Explain the evidence, uncertainty, invalidation and possible NO TRADE decision before revealing later observations.';
  }
  $('hr-talia-topic').textContent=heading;$('hr-talia-copy').textContent=copy;
+ renderGrmlLesson(grouped);
  const selector=$('sim-timeframe');if(selector)selector.value=frame+'-minute';
  const studio=window.CrownlightStudio;
  const candles=grouped.map(b=>({time:new Date(b.ms),open:b.o,high:b.h,low:b.l,close:b.c,volume:b.v}));
@@ -75,7 +113,7 @@ function schedule(){
  },seconds*1000);
 }
 function reset(){
- stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;memberId=null;state={sessionId:'',locked:false,busy:false};
+ stop('Select a reviewed dataset to begin.');bars=[];focus=0;checkpoint=false;dataset=null;memberId=null;grmlAnswers.clear();state={sessionId:'',locked:false,busy:false};
  window.CrownlightStudio?.clearMemberState?.();document.body.classList.remove('hr-studio-mounted');draw();
 }
 function observation(e){
@@ -84,7 +122,9 @@ function observation(e){
  if(bars.length&&b.ms<=bars.at(-1).ms){stop('Non-chronological observation; refresh the replay.');return}
  const end=focus===bars.length;bars.push(b);if(end)focus=bars.length;
  draw();
- if($('hr-autopause').checked&&bars.length>1&&bars.length%5===0){checkpoint=true;stop('Talia checkpoint: review these completed candles before resuming.')}
+ const grmlCheckpoint=dataset?.code==='HR_GRML_20260921'&&window.CrownlightGrmlTalia?.isCheckpoint(bars.length);
+ if($('hr-autopause').checked&&bars.length>1&&(grmlCheckpoint||dataset?.code!=='HR_GRML_20260921'&&bars.length%5===0)){
+  checkpoint=true;stop('Talia checkpoint: review the completed evidence and answer the teaching question before resuming.');}
  else if(!checkpoint)schedule();
 }
 function stateChange(e){
@@ -146,7 +186,8 @@ function init(){
  right.append(el('h3','hr-talia-title','Talia · Historical Replay Instructor'));
  const topic=el('h4','', 'Start with observable evidence');topic.id='hr-talia-topic';
  const copy=el('p','', 'Instructor feedback will follow the revealed candles.');copy.id='hr-talia-copy';
- right.append(topic,copy,el('p','hr-meta','Record evidence, invalidation and NO TRADE criteria before viewing later bars. Review is not a new blind assessment.'),plan);
+ const grmlLesson=el('section','hr-grml-lesson');grmlLesson.id='hr-grml-lesson';grmlLesson.hidden=true;
+ right.append(topic,copy,grmlLesson,el('p','hr-meta','Record evidence, invalidation and NO TRADE criteria before viewing later bars. Review is not a new blind assessment.'),plan);
  wrap.append(left,right);source.after(wrap);document.body.classList.add('historical-classroom');
  window.addEventListener('groundup:replay-reset',reset);
  window.addEventListener('groundup:replay-observation',observation);
