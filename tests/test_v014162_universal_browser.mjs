@@ -30,10 +30,17 @@ try{
   assert.equal(await auto.getAttribute('aria-pressed'),'false');
   await page.getByRole('button',{name:'Start Guided Learning →'}).waitFor();
   await page.getByRole('button',{name:'Start Guided Learning →'}).click();
-  for(const expected of ['Learn','Experiment','Predict']){
-   if(expected!=='Learn')await page.getByRole('button',{name:'Next learning stage'}).click();
-   await page.locator('#universal-test').getByRole('heading',{name:expected,exact:true}).waitFor();
-  }
+  await page.locator('#universal-test').getByRole('heading',{name:'Learn',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Next learning stage'}).click();
+  const calculate=page.locator('#universal-test .gu-v44-calculate-gate');
+  await calculate.waitFor();
+  assert.match(await calculate.getByRole('heading').first().innerText(),/Analyze the Evidence|Calculate/);
+  assert.equal(await page.locator('#universal-test .gu-v33-journey li').count(),10,
+    'The approved ten-stage navigator is a real instructional journey');
+  await calculate.getByRole('button',{name:'Continue to Experiment →'}).click();
+  await page.locator('#universal-test').getByRole('heading',{name:'Experiment',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Next learning stage'}).click();
+  await page.locator('#universal-test').getByRole('heading',{name:'Predict',exact:true}).waitFor();
   await page.getByRole('button',{name:'Next learning stage'}).click();
   const predictionStatus=page.locator('#universal-test [role="status"]').filter({hasText:'Lock your prediction before continuing.'});
   assert.equal(await predictionStatus.count(),1,'Prediction feedback must have one accessible status announcement');
@@ -54,7 +61,7 @@ try{
   assert.match(await page.locator('#universal-test').innerText(),/No answer keys/);
   assert.equal(await page.locator('#universal-test').getByText('TAPE-C01-L01').count(),0,'Assessment shell must not reveal the Lab concept or private instruction');
   assert.deepEqual(errors,[]);
-  console.log('PASS all-collection v3.3 nine-stage study browser contract at '+width+'px');
+  console.log('PASS all-collection ten-stage study design with nine protected backend IDs at '+width+'px');
   await page.close();
  }
 }finally{await browser.close()}
