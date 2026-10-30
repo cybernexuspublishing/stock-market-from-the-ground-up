@@ -1,5 +1,5 @@
 /* Talia Watchlist Research Workstation V4. One shared Free/Premium instructor surface.
- * Existing member records are read-only. Guided work is UNGRADED and IN MEMORY,
+ * Existing watchlist records are read-only. Ungraded checkpoint reports persist in private server storage,
  * never a substitute for the protected nine-stage Lab, private research API,
  * live data, official mastery, an alert, or a paid entitlement.
  */
@@ -28,6 +28,7 @@
   let selectedSymbol='';
   const checkpoints=[],revisions=[],reveals=[];
   let persistentReport=null,loaded=false,loadedCount=0,pendingRequest=null,saving=false,
+   loading=false,sessionSubscription=null,
    reportUserId='',authGeneration=0;
   const rootEl=make('section',undefined,'cl-talia-v4');
   rootEl.setAttribute('aria-label','Talia interactive watchlist research instruction');
@@ -159,7 +160,7 @@
    const saved=recent();
    response.value=saved.length?saved[saved.length-1].answer:'';
    mistake.value=saved.length?saved[saved.length-1].mistake:'NONE';
-   result.textContent=saved.length?'Prior in-session checkpoint preserved. Edits create another chronological revision.':'Not yet recorded for this action.';
+   result.textContent=saved.length?'Previous saved checkpoint restored; saving revised reasoning creates a new dated attempt.':'No checkpoint has been saved for this action.';
    more.replaceChildren();
   }
   function extraText(kind){
@@ -203,7 +204,7 @@
    if(!sb?.auth?.getSession)throw Error('Sign-in is required to load a private Talia report.');
    const {data:{session}}=await sb.auth.getSession();
    if(!session?.user?.id||!session?.access_token)throw Error('Sign in to save and review your report.');
-   if(reportUserId&&reportUserId!==session.user.id)throw Error('Member account changed. Refresh your private report.');
+   if(reportUserId&&reportUserId!==session.user.id){reset();throw Error('Member account changed. Previous private report cleared; refresh after sign-in.');}
    return {uid:session.user.id,token:session.access_token};
   }
   async function request(method='GET',payload,query=''){
@@ -226,7 +227,8 @@
     cutoff:row.cutoff,symbol:row.symbol||'',at:row.at};
   }
   async function loadReport(){
-   if(disposed||saving)return;
+   if(disposed||saving||loading)return;
+   loading=true;
    loadSaved.disabled=true;
    reportStatus.textContent='Checking the authenticated private report service…';
    try{
@@ -239,7 +241,7 @@
     renderNarration();renderReport();
    }catch(e){
     loaded=false;reportStatus.textContent=e.message+' No checkpoint will be shown as permanently saved until the server confirms it.';
-   }finally{loadSaved.disabled=false}
+   }finally{loadSaved.disabled=false;loading=false}
   }
   loadSaved.addEventListener('click',()=>void loadReport());
   older.addEventListener('click',async()=>{
@@ -445,9 +447,27 @@
    rootEl.scrollIntoView?.({block:'start',behavior:'smooth'});
    return true;
   }
-  function dispose(){disposed=true;++epoch;stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
+  function dispose(){disposed=true;++epoch;sessionSubscription?.unsubscribe?.();stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
   renderNarration();renderReport();draw();
   Promise.resolve().then(()=>void loadReport());
+  // A restored signed-in report must never remain visible after an account switch.
+  Promise.resolve().then(async()=>{
+   try{
+    const sb=await root.getSupabaseClient?.();
+    if(disposed||!sb?.auth?.onAuthStateChange)return;
+    const listener=sb.auth.onAuthStateChange((event,session)=>{
+     if(disposed)return;
+     if(event==='SIGNED_OUT'||event==='USER_DELETED'||
+      (reportUserId&&session?.user?.id&&session.user.id!==reportUserId)){
+      reset();reportStatus.textContent='Account session changed. Private research cleared from this view.';
+     }else if(event==='SIGNED_IN'&&!loaded){
+      Promise.resolve().then(()=>void loadReport());
+     }
+    });
+    sessionSubscription=listener?.data?.subscription||null;
+    if(disposed)sessionSubscription?.unsubscribe?.();
+   }catch{ /* The explicit Refresh button is the independent recovery path. */ }
+  });
   Promise.resolve().then(async()=>{
    try{
     if(disposed||!rootEl.isConnected)return;
