@@ -112,7 +112,7 @@ html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans 
  box-shadow:none!important;text-shadow:none!important;
 }
 .gu-redesign-store #store-founder-plans .gu-echarts-product-art{
- height:clamp(146px,12vw,176px)!important;margin:8px 0 5px!important;
+ height:clamp(215px,18vw,246px)!important;margin:12px 0 7px!important;
  box-shadow:0 14px 32px rgba(0,0,0,.20)!important;
 }
 .gu-redesign-store #store-founder-plans .catalog-founder-card h3,
@@ -244,3 +244,12 @@ html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans 
  .gu-redesign-store #store-founder-plans .catalog-founder-card,
  .gu-redesign-store .store-category-tabs>button{transition:none}
 }
+
+/* Distinct, actual Chart Studio screen previews rather than decorative membership badges. */
+.gu-redesign-store #store-founder-plans .catalog-founder-card .gu-echarts-product-art{
+ border-radius:12px!important;border:1px solid #47647c!important;
+ background:#0b1c2d!important;min-width:0!important;
+}
+.gu-redesign-store #store-founder-plans .catalog-founder-card:nth-child(2) .gu-echarts-product-art{border-color:#806d4d!important}
+.gu-redesign-store #store-founder-plans .catalog-founder-card.is-extended .gu-echarts-product-art{border-color:#8069a3!important}
+@media(max-width:560px){.gu-redesign-store #store-founder-plans .catalog-founder-card .gu-echarts-product-art{height:222px!important}}
