@@ -79,6 +79,37 @@
    verification:'MANUAL_ANNOTATION_NOT_LIVE_MARKET_DATA'};
   return {...r.payload,chartAnnotations:[...r.annotations,item].slice(-40)};
  }
+ const MONITOR_TYPES=Object.freeze(['ABOVE_REFERENCE','BELOW_REFERENCE','INSIDE_RANGE','OUTSIDE_RANGE']);
+ function monitoringRule(rec,{type='ABOVE_REFERENCE',low,high,at,note}={}){
+  const x=safeRecord(rec),v=Number(low),upper=high==null||high===''?null:Number(high),n=text(note,360);
+  if(!MONITOR_TYPES.includes(type))fail('Unsupported manual monitoring rule.');
+  if(!time(at))fail('A dated, nonfuture source observation with offset is required.');
+  if(!Number.isFinite(v)||v<=0||v>10000000)fail('Monitoring reference must be a positive price.');
+  if(type.endsWith('_RANGE')&&(!Number.isFinite(upper)||upper<=v||upper>10000000))
+   fail('A range rule requires a higher upper reference level.');
+  if(n.length<12)fail('Document the research reason and invalidation limits.');
+  const rule={type,low:v,high:type.endsWith('_RANGE')?upper:null,at,note:n,
+   verification:'MEMBER_DEFINED_RULE_NOT_AUTOMATED_ALERT'};
+  const previous=Array.isArray(x.payload.monitoringRules)?x.payload.monitoringRules.slice(-9):[];
+  const base={...x.payload,monitoringRules:[...previous,rule]};
+  return checkpoint({...rec,payload:base},{action:'MONITOR_RULE',at,
+   note:'Member created a manual research monitoring rule: '+n});
+ }
+ function evaluateMonitoring(rec,{price,at,sourceNote}={}){
+  const x=safeRecord(rec),p=Number(price),note=text(sourceNote,180);
+  if(!Number.isFinite(p)||p<=0||p>10000000)fail('A valid member-entered observed price is required.');
+  if(!time(at)||note.length<8)fail('Manual monitoring requires dated source evidence.');
+  const rules=Array.isArray(x.payload.monitoringRules)?x.payload.monitoringRules.slice(-10):[];
+  const results=rules.map((r,i)=>{
+   if(!r||!MONITOR_TYPES.includes(r.type))return null;
+   const trigger=r.type==='ABOVE_REFERENCE'?p>r.low:r.type==='BELOW_REFERENCE'?p<r.low:
+    r.type==='INSIDE_RANGE'?p>=r.low&&p<=r.high:p<r.low||p>r.high;
+   return {ruleIndex:i,matched:trigger,kind:r.type,action:trigger?'REVIEW_RESEARCH_ONLY':'NO_FLAG',
+    note:r.note||'',live:false,brokerOrder:false};
+  }).filter(Boolean);
+  return {symbol:x.title,at,sourceNote:note,price:p,results,source:'MEMBER_ENTERED_UNVERIFIED_SNAPSHOT',
+   noAutomaticNotifications:true,noTradeSignal:true};
+ }
  function filters(records,{folder='',tag='',stage='',includeArchived=false,query=''}={}){
   const needle=text(query,120).toUpperCase();
   return (Array.isArray(records)?records:[]).filter(r=>{
@@ -109,8 +140,8 @@
   return {total:items.length,active:items.filter(x=>!x.archived).length,archived:items.filter(x=>x.archived).length,
    byStage,source:'SAVED_MEMBER_RESEARCH_NOT_VERIFIED_MARKET_HISTORY'};
  }
- const engine=Object.freeze({STAGES,CATS,safeRecord,labels,csvCell,exportCsv,
-  checkpoint,setMetadata,annotation,filters,reminders,stats,time});
+ const engine=Object.freeze({STAGES,CATS,MONITOR_TYPES,safeRecord,labels,csvCell,exportCsv,
+  checkpoint,setMetadata,annotation,monitoringRule,evaluateMonitoring,filters,reminders,stats,time});
  root.GroundUpWatchlistResearchCoreV2=engine;
  if(typeof module!=='undefined'&&module.exports)module.exports=engine;
 })(globalThis);
