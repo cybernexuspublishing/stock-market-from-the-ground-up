@@ -110,3 +110,8 @@
 .v1321-provider-dialog .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .v1321-connection-feedback{min-height:0;margin:0;color:#f6cf8d;font-size:.88rem}
 @media(max-width:520px){.v1321-provider-dialog{padding:18px}.v1321-provider-dialog .actions button{flex:1}}
+
+/* Public acquisition V1: low-density educational links, mobile-first. */
+.gu-edu-guide-list{columns:2;max-width:860px;padding-left:1.5rem}
+.gu-edu-guide-list li{break-inside:avoid;margin:.45rem 0}
+@media(max-width:640px){.gu-edu-guide-list{columns:1}}
