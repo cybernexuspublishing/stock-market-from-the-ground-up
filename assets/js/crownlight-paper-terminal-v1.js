@@ -61,36 +61,40 @@
  }
  async function submit(){
   if(sending)return;
-  if(!accountReady){const status=$('cl-paper-status');if(status)status.textContent='Refresh and verify your Alpaca PAPER account before submitting.';return}
+  const note=$('cl-paper-status'),button=$('cl-paper-submit');
+  if(!accountReady){note.textContent='Refresh and verify your Alpaca PAPER account before submitting.';return}
   const symbol=$('cl-paper-symbol').value.trim().toUpperCase(),
    side=$('cl-paper-side').value,type=$('cl-paper-type').value,
    qty=Number($('cl-paper-qty').value),price=Number($('cl-paper-limit').value);
-  const note=$('cl-paper-status');
-  if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(symbol)||!Number.isInteger(qty)||qty<1||qty>1000||
+  if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(symbol)||!['buy','sell'].includes(side)||
+   !['market','limit'].includes(type)||!Number.isSafeInteger(qty)||qty<1||qty>1000||
    (type==='limit'&&(!Number.isFinite(price)||price<=0))){
    note.textContent='Enter a valid ticker, whole-share quantity (1–1,000), and limit price when applicable.';return;
   }
+  const fingerprint=[symbol,side,type,qty,type==='limit'?price.toFixed(2):''].join('|');
+  if(pendingOrder&&pendingOrder.fingerprint!==fingerprint){
+   note.textContent='An earlier PAPER order has uncertain status. Refresh and resolve it before changing order details.';return;
+  }
   const details=side.toUpperCase()+' '+qty+' '+symbol+' · '+type.toUpperCase()+
-   (type==='limit'?' · 
+   (type==='limit'?' · USD '+price.toFixed(2):'');
   if(!confirm('ALPACA PAPER TRADING — NOT HISTORICAL REPLAY\n\nSubmit this SIMULATED order to your own Alpaca Paper Trading account?\n\n'+details+
    '\n\nPaper orders may fill at different prices and times than historical chart candles.'))return;
-  const btn=$('cl-paper-submit');sending=true;btn.disabled=true;
+  sending=true;button.disabled=true;
   const clientOrderId=pendingOrder?.id||crypto.randomUUID();
   pendingOrder={fingerprint,id:clientOrderId};
-  note.textContent='Submitting the explicitly confirmed Alpaca PAPER order. Do not click again.';
+  note.textContent='Submitting the explicitly confirmed Alpaca PAPER request. Do not click again.';
   try{
-   const response=await call('submit',{symbol,side,type,qty,limitPrice:type==='limit'?price:undefined,
-    clientOrderId,confirm:'PAPER ONLY'});
+   const response=await call('submit',{symbol,side,type,qty,
+    limitPrice:type==='limit'?price:undefined,clientOrderId,confirm:'PAPER ONLY'});
    pendingOrder=null;
    note.textContent=response.alreadySubmitted?'Existing paper order located. No duplicate was sent.':
-    'Alpaca Paper acknowledged your simulated order. Check actual status/fill in Orders.';
+    'Alpaca Paper acknowledged the simulated order. Check actual status/fill in Orders.';
    await refresh();
   }catch(e){
    accountReady=false;
    note.textContent=(e.message||'Order status unknown.')+
-    ' Refresh the Alpaca Paper account before retrying. The same request ID will be reused, never a new order ID.';
-  }
-  finally{sending=false;btn.disabled=!accountReady}
+    ' Refresh your Alpaca PAPER account before retrying. The SAME order ID will be reused.';
+  }finally{sending=false;button.disabled=!accountReady}
  }
  function initialize(config={}){
   opts=config;if(mounted)return;
