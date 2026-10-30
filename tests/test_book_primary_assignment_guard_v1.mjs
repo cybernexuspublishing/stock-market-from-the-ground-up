@@ -21,5 +21,6 @@ for(const required of [
 ]) assert(block.includes(required),'Guard missing '+required);
 assert(!block.includes('rights.checked=true'),'Never silently attest contract rights');
 assert(!block.includes("await sb.storage.from"),'Never reupload or overwrite book files');
-assert(source.includes('card.append(upload,prepare,historyButton'),'Control must appear in Book Edit');
+assert(source.includes('actions.append(upload,prepare,historyButton,previewTools,save,draftSave)'),'Guarded book controls must remain in the compact Book Edit action grid');
+assert(source.includes('card.append(actions,previewResult,historyList,rowStatus)'),'Book Edit must display the grouped actions and their status feedback');
 console.log('PASS Owner private EPUB primary assignment: guarded, versioned, no sales or grants');
