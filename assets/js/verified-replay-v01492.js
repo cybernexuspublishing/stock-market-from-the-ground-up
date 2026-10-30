@@ -259,7 +259,16 @@ async function init(){
  $('vr-refresh').addEventListener('click',()=>call(catalog));
  $('vr-resume').addEventListener('click',()=>call(resume));
  $('vr-dataset').addEventListener('change',()=>{if($('vr-dataset').value)$('vr-code').value=$('vr-dataset').value});
- if(u){await call(catalog);if(!sessionId)await call(resume)}
+ if(u){await call(catalog);
+  // A direct case-specific practice link must not silently restore another
+  // Lab's prior session (e.g. L01 while the selected case is L02).
+  // Manual Resume remains available; server authority stays unchanged.
+  const selectedCode=replayParams.get('dataset')||'';
+  if(!sessionId&&!(fictional&&replayParams.get('lessonPractice')==='1'&&selectedCode))
+   await call(resume);
+  else if(selectedCode&&replayParams.get('lessonPractice')==='1')
+   notice('Guided lesson case selected. Start Replay to open this fictional scenario. Resume Saved Session is available for an existing session.');
+ }
 
  $('vr-lock').addEventListener('click',()=>call(lock));
  $('vr-advance').addEventListener('click',()=>call(advance));
