@@ -103,7 +103,7 @@ try{
  await scanner.locator('label').filter({hasText:'Authorized scanner snapshot'}).locator('input').fill('Fictional authorized example snapshot, no live quotes');
  await scanner.locator('label').filter({hasText:'Snapshot observation time'}).locator('input').fill('2026-10-29T10:00:00Z');
  await scanner.locator('input[type=file]').setInputFiles({name:'fictional.csv',mimeType:'text/csv',
-  buffer:Buffer.from('symbol,price,change_pct,volume,rvol,float,spread_pct\\nFAKE,4,10,2000000,2,8000000,1.5\\n')});
+  buffer:Buffer.from('symbol,price,change_pct,volume,rvol,float,spread_pct\nFAKE,4,10,2000000,2,8000000,1.5\n')});
  await scanner.getByRole('button',{name:'Evaluate saved scanner criteria'}).click();
  await page.waitForTimeout(400);
  const scanOutput=await scanner.innerText();
