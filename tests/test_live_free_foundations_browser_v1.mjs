@@ -104,6 +104,30 @@ if(!email||!password){
   assert([401,403].includes(anonymous.status()),
    'Unsigned requests must not receive private Academy records');
   note('checks','Unsigned access to private learning records is rejected.');
+  // A client-controlled account selector must never switch the Academy's
+  // database query away from the authenticated James_Test identity. Read only.
+  const probe=await page.request.get(
+   origin+'/api/bootcamp-academy?program=free5&user_id=00000000-0000-4000-8000-000000000000&member_id=00000000-0000-4000-8000-000000000000',
+   {headers:{authorization:'Bearer '+signed.access},timeout:25000});
+  assert.equal(probe.status(),200,'Identity-selector probe must retain normal authorized GET semantics');
+  const probeBody=await probe.json();
+  assert.equal(probeBody.ok,true);
+  assert.equal(probeBody.progressAvailable,true);
+  assert.deepEqual(probeBody.progress,reread.body.progress,
+   'A caller-supplied user_id/member_id altered the authenticated progress response');
+  note('checks','Caller-controlled account selectors could not change the returned QA member records.');
+  // The client must also be unable to query the private table directly,
+  // even when it has a valid member access token.
+  const direct=await page.evaluate(async()=>{
+   const client=await window.getSupabaseClient();
+   const result=await client.from('gu_bootcamp_academy_progress_v014168')
+    .select('day_number').limit(1);
+   return {rows:Array.isArray(result.data)?result.data.length:0,
+     rejected:!!result.error,code:result.error?.code||''};
+  });
+  assert.equal(direct.rows,0,'Direct client obtained data from a service-private Academy table');
+  assert(direct.rejected,'Direct Academy table read must fail closed, not silently return private rows');
+  note('checks','Authenticated member browser cannot directly read the service-private progress table.');
   if(secondEmail&&secondPassword){
    const anotherContext=await browser.newContext({viewport:{width:390,height:900},serviceWorkers:'block'});
    const secondPage=await anotherContext.newPage();
