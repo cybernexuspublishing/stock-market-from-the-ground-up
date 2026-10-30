@@ -116,6 +116,24 @@ try{
   assert.equal(await page.locator('.tgp-candle-chart').count(),0,'No fabricated historical OHLCV image for CREX event');
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/15:01 ET/);
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/NOT a verified trade/);
+
+  // Batch 05: numeric variants have displayed calculated values, never proprietary real data.
+  await page.locator('#tgp-select').selectOption('IND-21'); // HMA
+  await next();await next();
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/HMA WMA/);
+  await page.locator('#tgp-select').selectOption('IND-31'); // KST
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/KST main line/);
+  assert.equal(await page.locator('#tgp-period').count(),0,'Fixed KST formula does not expose a nonfunctional period control');
+  await page.locator('#tgp-select').selectOption('IND-53'); // Volume Profile proxy
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Eight-bin approximate price-of-control proxy/);
+  assert.equal(await page.locator('#tgp-period').count(),0,'Fixed 8-bin proxy does not expose unrelated period input');
+  await page.locator('#tgp-select').selectOption('IND-55'); // Proprietary SCTR unavailable
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/Not calculated/);
+  assert.equal(tutorPosts,0,'No numeric source or strategy lesson can auto-call a paid tutor model');
   assert.equal(tutorPosts,0,'Event and named strategy exercises never trigger paid Tutor provider calls');
   assert.equal(tutorPosts,0,'Batch 03 cannot auto-call optional paid inference');
   assert.equal(tutorPosts,0,'Added guided demonstrations never post to the billable Tutor API');

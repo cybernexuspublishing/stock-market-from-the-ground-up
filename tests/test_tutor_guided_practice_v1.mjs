@@ -209,10 +209,10 @@ for(const [modulesList,sourceList] of [[allIndicator,sourceIndicators],[allWatch
 }
 const numeric=allIndicator.filter(m=>m.metric!=='study-concept');
 const qualitative=allIndicator.filter(m=>m.metric==='study-concept');
-assert.equal(numeric.length,32,'Exactly 32 supported indicator calculations, no implied proprietary breadth-data value');
-assert.equal(qualitative.length,29,'Remaining 29 source-only specialty lessons cannot falsely show numeric values');
-assert.equal(modules.numericIndicatorCount,32);
-assert.equal(modules.interpretationOnlyIndicatorCount,29);
+assert.equal(numeric.length,48,'48 source-described synthetic calculations are numerical, with exact variants and no proprietary breadth-data output');
+assert.equal(qualitative.length,13,'13 remaining source-only or multi-series topics must not invent calculations');
+assert.equal(modules.numericIndicatorCount,48);
+assert.equal(modules.interpretationOnlyIndicatorCount,13);
 for(const g of qualitative){
  assert.equal(g.practiceLevel,'interpretation_without_numeric_calculation');
  assert(g.formulaOrRule.length>10&&g.uncertainty.length>30,'Formula reference and limits must be taught');
@@ -286,4 +286,49 @@ for(const m of Object.values(addedNumeric)){
  const asOf=api.metric(mBars.slice(0,39),m,12),later=api.metric(mBars,m,12);
  if(Number.isFinite(asOf.value))assert.notEqual(asOf.value,later.value,'No future bar leakage '+m);
 }
-console.log('PASS Talia full Guided Practice catalog: 134 modules — 61 indicators (32 calculated,29 interpretation only),22 watchlists,50 strategies,1 SEC/issuer event; math, zero warmup, no future bars, noncharging privacy.');
+
+const numericBatch05={
+ STUDY_HMA:'hma',STUDY_KAMA:'kama',STUDY_MOVING_AVERAGE_RIBBON:'ribbon',
+ STUDY_STOCH_RSI:'stochrsi',STUDY_TRIX:'trix',STUDY_KST:'kst',
+ STUDY_AROON:'aroon',STUDY_AROON_OSCILLATOR:'aroonosc',
+ STUDY_ADX:'adx',STUDY_DIRECTIONAL_MOVEMENT:'di',STUDY_HISTORICAL_VOLATILITY:'histvol',
+ STUDY_CHANDELIER_EXIT:'chandelier',STUDY_FIBONACCI_RETRACEMENT:'fibonacci',
+ STUDY_VWAP_BANDS:'vwapbands',STUDY_CHAIKIN_OSCILLATOR:'chaikinosc',STUDY_VOLUME_PROFILE:'volprofile'
+};
+for(const [code,metricName] of Object.entries(numericBatch05)){
+ const study=allIndicator.find(x=>x.guideCode===code);
+ assert(study&&study.metric===metricName,'Batch 05 specific supported method '+code);
+ assert.equal(study.practiceLevel,'calculated_synthetic_with_explicit_variant','Variant rather than universal vendor value');
+ assert(study.method.includes('calculator variant')||study.method.includes('Calculator variant'),
+  'Scientific variant must be documented '+code);
+ const v=api.metric(bars.slice(0,48),metricName,12);
+ assert(Number.isFinite(v.value),'48 complete bars must calculate '+code+' '+JSON.stringify(v));
+ assert(typeof v.note==='string'&&v.note.length>50,'Must disclose calculation boundary '+code);
+}
+const aroon=api.metric(bars.slice(0,48),'aroon',12),ao=api.metric(bars.slice(0,48),'aroonosc',12);
+assert(aroon.value>=0&&aroon.value<=100,'Aroon Up bounded');
+assert(ao.value>=-100&&ao.value<=100,'Aroon Osc bounded');
+const rsiSeries=context.window.CrownlightIndicatorMath.rsi(bars.slice(0,48),12);
+const validRsi=rsiSeries.slice(-12),minR=Math.min(...validRsi),maxR=Math.max(...validRsi);
+assert(Math.abs(api.metric(bars.slice(0,48),'stochrsi',12).value-(rsiSeries.at(-1)-minR)/(maxR-minR))<1e-10);
+assert.equal(api.metric(bars.slice(0,20),'stochrsi',12).value,null,'Stoch RSI requires full N consecutive RSI data');
+assert.equal(api.metric(bars.slice(0,44),'kst',12).value,null,'KST 45-bar fixed warmup');
+assert(Number.isFinite(api.metric(bars.slice(0,45),'kst',12).value),'KST enough complete history');
+assert.equal(api.metric(bars.slice(0,34),'trix',12).value,null,'Triple EMA+ROC lookback requirement');
+const adxWarm=api.metric(bars.slice(0,23),'adx',12);
+assert.equal(adxWarm.value,null,'ADX needs double lookback seed');
+const avwapBands=api.metric(bars.slice(0,48),'vwapbands',12);
+assert(avwapBands.upper>avwapBands.value&&avwapBands.lower<avwapBands.value,'Weighted bar-proxy bands enclose center');
+const pOC=api.metric(bars.slice(0,48),'volprofile',12);
+const minPrice=Math.min(...bars.map(b=>b.low)),maxPrice=Math.max(...bars.map(b=>b.high));
+assert(pOC.value>=minPrice&&pOC.value<=maxPrice,'Eight-bin proxy price-of-control is in observed window');
+assert(/not exact/i.test(pOC.note),'Do not pass price-bin proxy as actual tick profile');
+const hma=api.metric(bars.slice(0,48),'hma',12);
+assert.equal(api.metric(bars.slice(0,10),'hma',12).value,null,'HMA incomplete warmup');
+assert.equal(hma.series.length,48,'HMA plotted as price-scale overlay');
+const kama=api.metric(bars.slice(0,48),'kama',12);
+assert.equal(api.metric(bars.slice(0,12),'kama',12).value,null,'KAMA requires declared N+1 seed');
+assert.equal(kama.series.length,48);
+const hist=api.metric(bars.slice(0,48),'histvol',12);
+assert(hist.value>=0&&hist.note.includes('252×390'),'One-minute yearly-scaling assumption required');
+console.log('PASS Talia Guided Practice 134: 61 indicators (48 synthetic numeric,13 source interpretation),22 watchlists,50 strategy research,1 SEC event; warmup, source/algorithm limits and ungraded isolation.');

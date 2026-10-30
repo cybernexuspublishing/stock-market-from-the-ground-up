@@ -203,12 +203,153 @@
    return {value:deviation===0?null:(tp.at(-1)-mean)/(0.015*deviation),series:[],
     note:'CCI = (latest typical price − SMA(typical price))/(0.015×mean absolute deviation); zero deviation is undefined.'};
   }
+
+  // Additional first-party synthetic OHLCV studies, never real vendor or broker output.
+  if(k==='hma'||k==='ribbon'||k==='kama'||k==='trix'||k==='kst'){
+   const close=bars.map(b=>b.close),total=bars.length;
+   const wma=(values,n)=>{const out=Array(values.length).fill(null),div=n*(n+1)/2;
+    if(n<2)return out;for(let i=n-1;i<values.length;i++){
+     let sum=0,okay=true;for(let j=0;j<n;j++){const value=values[i-n+1+j];if(!finite(value)){okay=false;break}sum+=(j+1)*value}
+     if(okay)out[i]=sum/div;
+    }return out};
+   const alignedEma=(values,n)=>{const begin=values.findIndex(v=>finite(v)),out=Array(values.length).fill(null);
+     if(begin<0)return out;const e=math.ema(values.slice(begin),n);e.forEach((v,i)=>{if(finite(v))out[begin+i]=v});return out};
+   if(k==='hma'){
+    const half=Math.max(2,Math.round(len/2)),sqrt=Math.max(2,Math.round(Math.sqrt(len)));
+    const quick=wma(close,half),slow=wma(close,len);
+    const raw=close.map((_,i)=>finite(quick[i])&&finite(slow[i])?2*quick[i]-slow[i]:null);
+    const series=wma(raw,sqrt);
+    return {value:series[n],series,note:'HMA WMA(2×WMA(close,rounded N/2)−WMA(close,N),rounded √N). Rounding explicitly uses Math.round.'};
+   }
+   if(k==='ribbon'){
+    const fast=math.ema(close,8),slow=math.ema(close,20);
+    return {value:fast[n],series:fast,upperSeries:slow,lowerSeries:[],
+      note:'Two-line EMA ribbon demonstration: EMA8 gold and EMA20 dashed; no claim this is the complete customizable ribbon.'};
+   }
+   if(k==='kama'){
+    const series=Array(total).fill(null),fast=2/(2+1),slow=2/(30+1);
+    if(total>len){
+     series[len]=close.slice(0,len+1).reduce((sum,v)=>sum+v,0)/(len+1);
+     for(let i=len+1;i<total;i++){
+      let path=0;for(let j=i-len+1;j<=i;j++)path+=Math.abs(close[j]-close[j-1]);
+      const er=path===0?0:Math.abs(close[i]-close[i-len])/path;
+      const sc=Math.pow(er*(fast-slow)+slow,2);
+      series[i]=series[i-1]+sc*(close[i]-series[i-1]);
+     }
+    }
+    return {value:series[n],series,note:'KAMA(N,2,30): efficiency ratio from completed closes, squared smoothing constant, seed SMA(N+1); implementation-specific initialization declared.'};
+   }
+   if(k==='trix'){
+    const e1=math.ema(close,len),e2=alignedEma(e1,len),e3=alignedEma(e2,len);
+    const value=finite(e3[n])&&n>0&&finite(e3[n-1])&&e3[n-1]!==0?100*(e3[n]/e3[n-1]-1):null;
+    return {value,series:[],note:'TRIX main line = 100×one-bar ROC of triple seeded EMA(close,N), no signal line; requires 3N−1 completed closes.'};
+   }
+   const roc=(period)=>close.map((c,i)=>i>=period&&close[i-period]!==0?100*(c/close[i-period]-1):null);
+   // Calculate all smoothed-ROC windows only when every input is available.   const spec=[[10,10,1],[15,10,2],[20,10,3],[30,15,4]],components=[];
+   for(const [lookback,window,weight] of spec){
+    const values=roc(lookback),component=Array(total).fill(null);
+    for(let i=lookback+window-1;i<total;i++){
+      let sum=0;for(let j=i-window+1;j<=i;j++)sum+=values[j];
+      component[i]=weight*sum/window;
+    }
+    components.push(component);
+   }
+   const value=components.every(c=>finite(c[n]))?components.reduce((sum,c)=>sum+c[n],0):null;
+   return {value,series:[],note:'KST main line = SMA(ROC10,10)+2×SMA(ROC15,10)+3×SMA(ROC20,10)+4×SMA(ROC30,15); needs 45 completed closes; no signal line.'};
+  }
+  if(k==='stochrsi'){
+   const rsi=math.rsi(bars,len),valid=rsi.slice(-len);
+   if(valid.length<len||valid.some(v=>!finite(v)))return {value:null,series:[],note:'StochRSI requires complete N RSI readings after Wilder RSI warmup.'};
+   const hi=Math.max(...valid),lo=Math.min(...valid),value=hi===lo?null:(rsi[n]-lo)/(hi-lo);
+   return {value,series:[],note:'StochRSI=(current RSI−minimum RSI)/(maximum RSI−minimum RSI), raw 0..1 ratio, no %K/%D smoothing. Equal RSI range unavailable.'};
+  }
+  if(k==='aroon'||k==='aroonosc'){
+   if(bars.length<len+1)return {value:null,series:[],note:'Aroon requires N+1 complete bars for 0..N time-since-extreme.'};
+   const window=bars.slice(-len-1),high=Math.max(...window.map(x=>x.high)),low=Math.min(...window.map(x=>x.low));
+   let lastHigh=-1,lastLow=-1;
+   window.forEach((b,i)=>{if(b.high===high)lastHigh=i;if(b.low===low)lastLow=i});
+   const up=100*lastHigh/len,down=100*lastLow/len;
+   return {value:k==='aroon'?up:up-down,series:[],note:'Aroon(N) uses latest tied high/low from N+1 completed bars. Up '+round(up)+'; Down '+round(down)+'. Oscillator = Up−Down.'};
+  }
+  if(k==='di'||k==='adx'){
+   if(bars.length<=len)return {value:null,series:[],note:'DI needs more than N completed bars; ADX needs 2N completed bars for the DX seed.'};
+   const directional=[],tr=[];
+   for(let i=1;i<bars.length;i++){
+    const up=bars[i].high-bars[i-1].high,down=bars[i-1].low-bars[i].low;
+    directional.push({plus:up>down&&up>0?up:0,minus:down>up&&down>0?down:0});
+    tr.push(Math.max(bars[i].high-bars[i].low,Math.abs(bars[i].high-bars[i-1].close),Math.abs(bars[i].low-bars[i-1].close)));
+   }
+   let positive=0,negative=0,trueRange=0;
+   for(let i=0;i<len;i++){positive+=directional[i].plus;negative+=directional[i].minus;trueRange+=tr[i]}
+   const dx=[],current=[];
+   for(let i=len;i<bars.length;i++){
+    if(i>len){positive=positive-positive/len+directional[i-1].plus;negative=negative-negative/len+directional[i-1].minus;trueRange=trueRange-trueRange/len+tr[i-1]}
+    const plus=trueRange>0?100*positive/trueRange:0,minus=trueRange>0?100*negative/trueRange:0;
+    const next=plus+minus>0?100*Math.abs(plus-minus)/(plus+minus):0;
+    dx.push(next);current.push({plus,minus});
+   }
+   const last=current.at(-1);
+   if(k==='di')return {value:last.plus,series:[],note:'+DI '+round(last.plus)+' and −DI '+round(last.minus)+', Wilder directional movement/TR sums; not actual bid/ask order classification.'};
+   if(dx.length<len)return {value:null,series:[],note:'ADX waits for N DX values after initial N directional changes; needs 2N completed bars.'};
+   let adx=dx.slice(0,len).reduce((a,b)=>a+b,0)/len;
+   for(let i=len;i<dx.length;i++)adx=(adx*(len-1)+dx[i])/len;
+   return {value:adx,series:[],note:'ADX = Wilder-smoothed directional movement DX (0..100), after 2N completed bars; direction comes from +DI vs −DI.'};
+  }
+  if(k==='histvol'){
+   if(bars.length<=len)return {value:null,series:[],note:'Historical volatility needs N+1 positive completed closes.'};
+   const window=bars.slice(-len-1);
+   if(window.some(b=>b.close<=0))return {value:null,series:[],note:'Nonpositive close invalid for log returns.'};
+   const returns=window.slice(1).map((b,i)=>Math.log(b.close/window[i].close)),mean=returns.reduce((a,b)=>a+b,0)/len;
+   const variance=returns.reduce((a,b)=>a+Math.pow(b-mean,2),0)/(len-1);
+   const annual=Math.sqrt(252*390);
+   return {value:100*Math.sqrt(variance)*annual,series:[],note:'Synthetic 1-minute log-return sample SD annualized at √(252×390); high sensitivity to invented bar duration and session assumptions.'};
+  }
+  if(k==='chandelier'){
+   if(bars.length<len)return {value:null,series:[],note:'Chandelier needs completed lookback window.'};
+   const atr=math.atr(bars,len)[n],window=bars.slice(-len),hi=Math.max(...window.map(b=>b.high)),lo=Math.min(...window.map(b=>b.low));
+   if(!finite(atr))return {value:null,series:[],note:'ATR warmup unavailable.'};
+   return {value:hi-3*atr,series:[],lower:hi-3*atr,upper:lo+3*atr,
+    note:'Long exit reference = highest high(N)−3×ATR(N); short reference = lowest low(N)+3×ATR(N), not guaranteed executable stop fills.'};
+  }
+  if(k==='fibonacci'){
+   if(bars.length<len)return {value:null,series:[],note:'Fibonacci requires completed source-defined anchor window.'};
+   const window=bars.slice(-len),hi=Math.max(...window.map(b=>b.high)),lo=Math.min(...window.map(b=>b.low));
+   return {value:lo+0.618*(hi-lo),series:[],note:'Fictional rolling low→high 61.8% reference; not a confirmed directional swing or predictive Fibonacci price target.'};
+  }
+  if(k==='vwapbands'){
+   const series=[],upperSeries=[],lowerSeries=[];
+   let weighted=0,weightedSquared=0,vol=0;
+   for(const b of bars){
+    const tp=(b.high+b.low+b.close)/3;
+    weighted+=tp*b.volume;weightedSquared+=tp*tp*b.volume;vol+=b.volume;
+    const mean=weighted/vol,sd=Math.sqrt(Math.max(0,weightedSquared/vol-mean*mean));
+    series.push(mean);upperSeries.push(mean+sd);lowerSeries.push(mean-sd);
+   }
+   return {value:series[n],series,upper:upperSeries[n],lower:lowerSeries[n],upperSeries,lowerSeries,
+    note:'Fictional-session HLC3×volume VWAP proxy with ±1 weighted bar-typical-price SD; not exact trade VWAP or true tick distribution.'};
+  }
+  if(k==='chaikinosc'){
+   const adl=[];let sum=0;
+   for(const b of bars){const diff=b.high-b.low;sum+=(diff===0?0:(2*b.close-b.high-b.low)/diff)*b.volume;adl.push(sum)}
+   const fast=math.ema(adl,3),slow=math.ema(adl,10);
+   return {value:finite(fast[n])&&finite(slow[n])?fast[n]-slow[n]:null,series:[],
+    note:'Chaikin Oscillator=EMA3(zero-seeded ADL)−EMA10(ADL); signed close-location bar volume is NOT verified trade-side flow.'};
+  }
+  if(k==='volprofile'){
+   const lo=Math.min(...bars.map(b=>b.low)),hi=Math.max(...bars.map(b=>b.high)),width=(hi-lo)/8;
+   if(width===0)return {value:null,series:[],note:'Flat price range cannot form this volume-by-price proxy.'};
+   const buckets=Array(8).fill(0);
+   for(const b of bars){const typical=(b.high+b.low+b.close)/3;const idx=Math.max(0,Math.min(7,Math.floor((typical-lo)/width)));buckets[idx]+=b.volume}
+   let maxIdx=0;for(let i=1;i<buckets.length;i++)if(buckets[i]>buckets[maxIdx])maxIdx=i;
+   return {value:lo+(maxIdx+0.5)*width,series:[],
+    note:'Eight-bin approximate price-of-control proxy: FULL candle share volume assigned to HLC3 bin, not exact per-price traded volume or actual market profile.'};
+  }
   if(k==='study-concept')return {value:null,series:[],note:'Interpretation-only study: the formula is described but NOT numerically computed in this exercise. Reference: '+state.unit.formulaOrRule};
   if(k==='strategy-case')return {value:null,series:[],note:'Fictional chart background only; no source-named setup, signal, entry or market fill is claimed to have occurred.'};
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
  function reset(unit){
-  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=['macd','ppo','macdhist','pvo','dema','tema'].includes(unit.metric)?40:32;
+  state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=unit.metric==='kst'?48:['macd','ppo','macdhist','pvo','dema','tema','trix'].includes(unit.metric)?40:32;
   state.period=unit.period||8;state.attempts=0;state.answer=null;state.evaluated=false;state.correct=false;
   state.feedback='';state.transferAnswer=null;state.transferEvaluated=false;state.transferCorrect=false;
   state.reflection='';state.reviewVisible=false;
@@ -294,9 +435,9 @@
   const controls=add(host,'div',undefined,'tgp-controls');
   const label=add(controls,'label','Visible completed bars: '+state.showBars,'tgp-field-label');label.htmlFor='tgp-bars';
   const slider=add(controls,'input');slider.type='range';slider.id='tgp-bars';
-  slider.min=['macd','macdhist'].includes(state.unit.metric)?'36':['ppo','pvo'].includes(state.unit.metric)?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
+  slider.min=state.unit.metric==='kst'?'45':['macd','macdhist'].includes(state.unit.metric)?'36':['ppo','pvo'].includes(state.unit.metric)?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
   slider.addEventListener('input',e=>{state.showBars=Number(e.target.value);render()});
-  if(!['macd','macdhist','ppo','pvo','vwap','rvol','anchoredvwap','dollarvolume','force','adl','study-concept','strategy-case'].includes(state.unit.metric)){
+  if(!['macd','macdhist','ppo','pvo','vwap','rvol','anchoredvwap','dollarvolume','force','adl','ribbon','kst','chaikinosc','vwapbands','volprofile','study-concept','strategy-case'].includes(state.unit.metric)){
    const periodLabel=add(controls,'label','Indicator length: '+state.period+' bars','tgp-field-label');periodLabel.htmlFor='tgp-period';
    const period=add(controls,'input');period.type='range';period.id='tgp-period';period.min='5';period.max='20';
    period.step='1';period.value=String(state.period);
@@ -550,7 +691,7 @@
    if(!r.ok)throw Error('Teaching asset missing');
    const data=await r.json(),units=data?.modules;
    if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==61||
-     data?.watchlistCount!==22||data?.strategyCount!==50||data?.eventCount!==1||!Array.isArray(units)||units.length!==134||
+     data?.watchlistCount!==22||data?.strategyCount!==50||data?.eventCount!==1||data?.numericIndicatorCount!==48||data?.interpretationOnlyIndicatorCount!==13||!Array.isArray(units)||units.length!==134||
      !root.CrownlightIndicatorMath)throw Error('Teaching catalog or indicator math unavailable');
    const ids=new Set();
    for(const m of units){
