@@ -69,4 +69,16 @@ assert(notifier.includes("const paths=['/candle-practice.html'"),'Use curated pu
 assert(notifier.includes("sitemap.includes('<loc>'"),'Sitemap membership must be verified');
 assert(notifier.includes("const actual=(await fetchText(origin+'/'+key+'.txt')).trim()"),
  'Real production ownership key verification required');
+// Owner-only manual distribution desk: original source kit; no social API actions.
+const desk=file('owner-growth-publishing.html'),deskCode=file('assets/js/growth-manual-publishing-v2.js');
+const staffRoutes=file('assets/js/route-policy.js');
+assert(desk.includes('noindex,nofollow')&&desk.includes('data-route-access="staff"')&&
+ staffRoutes.includes("'owner-growth-publishing'"),'Owner publishing desk must be staff-only and noindex');
+assert((desk.match(/data-gu-copy-post/g)||[]).length===15,'Twelve original posts and three scripts required');
+assert(desk.includes('free-foundations-challenge.html')&&desk.includes('candle-practice.html'),
+ 'Public educational URLs missing from source copy');
+new Script(deskCode,{filename:'growth-manual-publishing-v2.js'});
+assert(!/\\bfetch\\s*\\(|XMLHttpRequest|localStorage\\.|sessionStorage\\.|window\\.open|navigator\\.share|mailto:/i.test(deskCode),
+ 'Owner publishing desk must not publish or contact anyone');
+assert(deskCode.includes('navigator.clipboard.writeText'),'Manual copy action expected');
 console.log('PASS Growth V2: optional calendar download, public-only feed discovery, verified IndexNow gating and no contact capture');
