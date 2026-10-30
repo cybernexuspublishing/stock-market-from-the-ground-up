@@ -16,6 +16,8 @@ node --check assets/js/lesson-gusim-dt-c01-l02-echarts-v1.js
 node tests/test_gusim_dt_c01_l02_echarts_v1.mjs
 node --check assets/js/lab-dt-c01-l02-teaching-v2.js
 node tests/test_dt_c01_l02_nine_stage_teaching_v2.mjs
+node --check assets/js/gusim-dt-c01-l02-coach-v3.js
+node tests/test_gusim_dt_c01_l02_coach_v3.mjs
 for asset in assets/js/journal-visual-v3.js assets/js/journal-trade-story-v3.js; do
   node --check "$asset"
 done
