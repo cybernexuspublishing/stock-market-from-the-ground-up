@@ -12,7 +12,7 @@ async function intent(c,id,user){
 async function state(c,user){
  const [wallet,intents,access,enabled]=await Promise.all([
   db(c,'gu_mixed_qa_wallet_v1?select=available&user_id=eq.'+encodeURIComponent(user)+'&limit=1'),
-  db(c,'gu_mixed_qa_intents_v1?select=id,request_id,status,lumens_reserved,discount_cents,cash_due_cents,stripe_session_id,created_at&user_id=eq.'+encodeURIComponent(user)+'&order=created_at.desc&limit=15'),
+  db(c,'gu_mixed_qa_intents_v1?select=id,request_id,status,lumens_reserved,discount_cents,cash_due_cents,stripe_session_id,expires_at,created_at&user_id=eq.'+encodeURIComponent(user)+'&order=created_at.desc&limit=15'),
   db(c,'gu_mixed_qa_access_v1?select=intent_id,active&user_id=eq.'+encodeURIComponent(user)+'&limit=15'),
   testMode(c)
  ]);
@@ -158,6 +158,8 @@ export async function onRequestPost({request,env}){
      lumensReserved:row.lumens_reserved});
   }
   if(row.status!=='reserved')throw error('TEST_INTENT_ALREADY_RESOLVED');
+  if(!Number.isFinite(Date.parse(row.expires_at))||Date.parse(row.expires_at)<=Date.now())
+   throw error('TEST_RESERVATION_EXPIRED_RELEASE_AND_RESTART');
   const params=new URLSearchParams();
   params.set('mode','payment');
   // Isolated TEST acceptance must not depend on Merchant-of-Record preview
