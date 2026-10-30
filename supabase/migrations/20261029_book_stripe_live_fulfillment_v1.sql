@@ -175,9 +175,7 @@ GRANT EXECUTE ON FUNCTION public.gu_book_live_reserve_v1(uuid,text,text,integer)
  TO service_role;
 GRANT EXECUTE ON FUNCTION public.gu_digital_paid_owned_v01430(text,uuid)
  TO service_role;
--- Allow an authorized Stripe Managed eBook sale to save WITHOUT a fictitious
--- Lemon Squeezy variant. The live Stripe Price is separately verified by the
--- strict Cloudflare quote/create path; rights dates and asset checks remain.
+-- Approved Stripe Managed publishing avoids a fictitious Lemon variant.
 CREATE OR REPLACE FUNCTION public.gu_owner_digital_books_save_v01430(
  p_code text,p_kdp_select boolean,p_exclusive_until timestamptz,
  p_sales boolean,p_downloads boolean,p_rights_attested boolean,
@@ -187,11 +185,7 @@ SET search_path=pg_catalog,pg_temp AS $fn$
 DECLARE u uuid; book public.catalog_products%rowtype; path text;
 BEGIN
  u:=public.gu_digital_owner_guard_v01430();
- IF p_code !~ '^[A-Z0-9_]{3,90}
--- gu_digital_book_can_download_v01430 now recognize signed Stripe LIVE ownership.
-NOTIFY pgrst,'reload schema';
-COMMIT;
- OR p_expected_updated_at IS NULL OR
+ IF p_code !~ '^[A-Z0-9_]{3,90}$' OR p_expected_updated_at IS NULL OR
     p_kdp_select IS NULL OR p_sales IS NULL OR p_downloads IS NULL
  THEN RAISE EXCEPTION 'INVALID_DIGITAL_CONFIGURATION'; END IF;
  SELECT * INTO book FROM public.catalog_products
@@ -200,11 +194,7 @@ COMMIT;
  IF book.updated_at IS DISTINCT FROM p_expected_updated_at THEN
    RAISE EXCEPTION 'DIGITAL_SETTINGS_STALE'; END IF;
  path:=nullif(btrim(coalesce(p_asset_path,'')),'');
- IF path IS NOT NULL AND (path !~ '^[A-Z0-9_]{3,90}/[a-f0-9-]{36}[.](epub|pdf)
--- gu_digital_book_can_download_v01430 now recognize signed Stripe LIVE ownership.
-NOTIFY pgrst,'reload schema';
-COMMIT;
- OR
+ IF path IS NOT NULL AND (path !~ '^[A-Z0-9_]{3,90}/[a-f0-9-]{36}[.](epub|pdf)$' OR
     split_part(path,'/',1)<>p_code OR NOT EXISTS (
      SELECT 1 FROM storage.objects o WHERE o.bucket_id='gu-digital-ebooks' AND o.name=path))
  THEN RAISE EXCEPTION 'PRIVATE_ASSET_NOT_VERIFIED'; END IF;
