@@ -15,7 +15,7 @@ assert(html.includes('class="free-learning-boundaries"'),'Community and upgrade 
 assert(html.includes('market-commons.html?forum=START_HERE'),'Use actual available Start Here community board');
 assert(html.includes('community-guidelines.html'),'Published community rules discoverable');
 assert(html.includes('A paid entitlement does not create a licensed dataset'),'Do not imply paid membership makes unavailable historical data real');
-assert(html.includes('Explanations, examples and guided teaching never require Sparks.'),'Free teaching never costs Sparks');
+assert(html.includes('Explanations, examples and guided teaching never require Lumens.'),'Free teaching never costs Lumens');
 assert(js.includes('if (!active.length) {')&&js.includes('void renderFreeLearningDashboard(sb);'),'paid tier remains distinct from Free launchpad');
 assert(js.includes('renderFreeFoundationEvidence(sb,user.id);'),'Free skills must use private Academy progress');
 assert(js.includes('renderRecentFreeJournal(sb,user.id);'),'weekly learning overview includes actual saved Journal data');

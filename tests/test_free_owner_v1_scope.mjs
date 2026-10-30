@@ -55,7 +55,7 @@ s(page.includes('market-commons.html?forum=START_HERE')&&
   page.includes('community-guidelines.html')&&page.includes('Before posting in Market Commons'),
   'Community orientation must be reachable from Free home');
 // Priority 8 — contextual upgrades without paywalling instruction.
-s(page.includes('Explanations, examples and guided teaching never require Sparks.')&&
+s(page.includes('Explanations, examples and guided teaching never require Lumens.')&&
   page.includes('Compare actual membership availability')&&
   page.includes('You can continue learning without upgrading.'),
   'Paid tool offers must not restrict basic explanations');

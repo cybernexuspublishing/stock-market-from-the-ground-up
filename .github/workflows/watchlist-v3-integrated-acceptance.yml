@@ -1,3 +1,4 @@
+# 2026-10-30 noncharging QA verification: rerun after correcting canonical Lumens assertions.
 # Noncharging 2026-10-30 owner acceptance sweep: execute existing QA on main; no payment or live member mutation.
 name: Crownlight Watchlist Intelligence V3 Integrated Acceptance
 on:
