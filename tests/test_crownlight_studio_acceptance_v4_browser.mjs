@@ -74,6 +74,23 @@ try{
  assert.equal(requested.filter(x=>x.includes('action=bars')).length,1);
  assert.equal(await page.locator('#sim-content').innerHTML(),'',
   'Validation must never inject ungraded personal bars into existing Simulator');
+ const bridge=panel.locator('#cl-studio-import-v5');
+ assert.equal(await bridge.isVisible(),true,'Explicit import offered only after successful preview');
+ await page.evaluate(()=>{
+  window.GroundUpSimulatorMemberReadyV1=true;
+  window.GroundUpSimulatorImportVerifiedProviderV1=async sample=>{
+   window.__handoffVerifiedSample=sample;
+   return {ok:true,bars:sample.payload.bars.length,revealed:2};
+  };
+ });
+ await bridge.click();
+ await panel.getByText(/Loaded 2 personal historical bars into ungraded Chart Studio/).waitFor();
+ assert.equal(await page.evaluate(()=>window.__handoffVerifiedSample.provider),'TIINGO_BYO');
+ assert.equal(await page.evaluate(()=>window.__handoffVerifiedSample.ownerId),'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+ assert.equal(requested.filter(x=>x.includes('action=bars')).length,1,
+   'Explicit handoff reuses the original private response, never re-requests Tiingo');
+ assert.equal(await page.locator('#sim-content').innerHTML(),'',
+   'The verification panel must delegate any actual chart mutation to the guarded Simulator');
  await page.evaluate(()=>window.__studioAuthChange('SIGNED_OUT',null));
  assert.equal(await panel.isHidden(),true);
  assert.equal(await panel.innerText(),'','Sign-out must remove all private source and membership details');
