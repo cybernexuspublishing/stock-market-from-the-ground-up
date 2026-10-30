@@ -36,5 +36,8 @@ assert(source.includes("showBookFeedback('Save refused: '"),'Direct rights Save 
 assert(source.includes("if(intendsSales&&!rights.checked)throw Error('Confirm distribution rights before enabling sales or downloads.');"),'Digital publishing rights checks must remain enforced');
 
 assert(styles.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'Use three columns of file actions on desktop');
-assert(html.includes('assets/css/admin-book-editor-v1.css?v=20261030-1'),'Book editor stylesheet must load');
+assert(html.includes('assets/css/admin-book-editor-v1.css?v=20261030-feedback2'),'Book editor stylesheet must load with a fresh cache key');
+assert(html.includes('admin.js?v=book-feedback-20261030-2'),'Book dialog Save changes must bypass stale browser cache');
+assert(html.includes('site.js?v=book-feedback-20261030-2'),'Site bootloader must load new digital-book script URL');
+assert(read('assets/js/site.js').includes('admin-digital-books-v01430.js?v=book-feedback-20261030-2'),'Rights Save controls must bypass stale browser cache');
 console.log('PASS admin book save: main Save coordinates protected rights, clear KDP/provider errors, draft save with sales OFF');
