@@ -83,3 +83,27 @@ Do not activate member-facing sales/downloads, publish any of the five dates, im
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-10-30 | Pilot selection, volume-conservation defect controls, source/rights/education acceptance gates. |
+
+
+## Private draft-import preparation — Version 1.1 (October 30, 2026)
+
+**Preparation complete; database import NOT EXECUTED and member release NOT APPROVED.**
+
+The owner-uploaded corrected source reconciliation file `IEX_20260921_corrected_reconciliation.json` was processed locally. An isolated private package named `GRML_20260921_PRIVATE_DRAFT_IMPORT_v1.zip` contains the 30-candle SQL transaction, manifest, source-validation report, postflight SELECT statements and readme. **Do not commit that package, bars or SQL to public GitHub.**
+
+- Source reconciliation JSON SHA-256: `8dcaf24b259df7087b15e9a395d3d2dca62db94d903363eac22728fca06cca5c`
+- Owner-reported original compressed source SHA-256: `01d84281611cb7df8523f5ba2ea77db8b61af5aefcd7c420e142dde792b4008b`
+- Normalized 30-bar digest SHA-256: `bd4df3005de8e8c64a1fc4fe544f45fb93eda1802b157b79fafb85581478f247`
+- Internally checked source interval: 09:30–09:59 ET, all 30 minutes continuous
+- Source event and share conservation: 2,473 trade events; 213,618 IEX-only shares; no volume-only or no-trade minute
+- Supabase preflight: `HR_GRML_20260921` still `draft`, no bar rows at the time of preparation; historical training approval and redistribution rights false; direct member SELECT on the bars table not granted
+- Legacy dataset metadata still says `Alpaca consolidated SIP` from earlier research. Prepared SQL corrects this to IEX-only venue attribution and links the original archive/normalization fingerprints **without** changing publication or rights flags.
+- Existing first-Lab association `DT-C35-L01` preserved; other linked Labs are not implicitly approved.
+
+**Execution hold:** Before any private SQL execution, confirm that retention of IEX-derived data in Supabase is allowed by applicable source terms, complete owner import review, and inspect SQL for current schema compatibility. Independent trade verification, corporate actions, paid-member display rights, Talia editorial review, and genuine authenticated positive replay acceptance are still open. Local file processing alone is not an independent market-data audit.
+
+### Revision history addition
+
+| Version | Date | Change |
+|---|---|---|
+| 1.1 | 2026-10-30 | Prepared, hashed and validated a 30-bar GRML private draft import package; no database insertion or publication. |
